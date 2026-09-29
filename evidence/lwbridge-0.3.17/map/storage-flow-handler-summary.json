@@ -1,0 +1,720 @@
+{
+  "schema": 1,
+  "findingId": "LWB317-RE-MAP-001-NATIVE-HANDLERS-COMPACT",
+  "evidenceState": "EXACT_BYTES_DISCOVERY",
+  "source": {
+    "path": "evidence\\lwbridge-0.3.17\\map\\storage-flow-handler-discovery.json",
+    "sha256": "cc01fa4a377dbb07c7f2addc48be92c7eecdb23b19ad7e027449ee9d125dcb04",
+    "reference": {
+      "path": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW\\lwbridge-0.3.17.exe",
+      "sha256": "4e9c3113dedfd7e1a752404c6936aab304e67d7ffdb0952a5003c2ec948d6783",
+      "imageBase": "0x140000000",
+      "surfaceManifest": "evidence\\lwbridge-0.3.17\\map\\storage-flow-surface.json",
+      "surfaceManifestSha256": "1838dff376c7883d701472347d25b8fd9e813a1ae6268dc1794c97e3c5ec9d89"
+    }
+  },
+  "markers": {
+    "begin clear map data": {
+      "handlerCandidates": [
+        {
+          "functionRva": "0x3C61BE-0x3C68DF",
+          "size": 1825,
+          "strings": [
+            {
+              "targetVa": "0x140D57576",
+              "text": "DELETE FROM scan_runs WHERE server_id=?1DELETE FROM map_records WHERE server_id=?1INVALID_SERVER_IDserver ID is requiredbegin clear map dataclear map scan runsclear map recordscommit clear map dataDELETE FROM map_records WHERE kind=?1 AND server_id=?2 AND point_index=?3remove map point\n                CREATE TABLE IF NOT EXISTS metadata (\n                  k",
+              "instructionRvas": [
+                "0x3C636C"
+              ]
+            },
+            {
+              "targetVa": "0x140D5759E",
+              "text": "DELETE FROM map_records WHERE server_id=?1INVALID_SERVER_IDserver ID is requiredbegin clear map dataclear map scan runsclear map recordscommit clear map dataDELETE FROM map_records WHERE kind=?1 AND server_id=?2 AND point_index=?3remove map point\n                CREATE TABLE IF NOT EXISTS metadata (\n                  key TEXT PRIMARY KEY, value TEXT NOT NULL",
+              "instructionRvas": [
+                "0x3C65C8"
+              ]
+            },
+            {
+              "targetVa": "0x140D575C8",
+              "text": "INVALID_SERVER_IDserver ID is requiredbegin clear map dataclear map scan runsclear map recordscommit clear map dataDELETE FROM map_records WHERE kind=?1 AND server_id=?2 AND point_index=?3remove map point\n                CREATE TABLE IF NOT EXISTS metadata (\n                  key TEXT PRIMARY KEY, value TEXT NOT NULL, updated_at INTEGER NOT NULL\n            ",
+              "instructionRvas": [
+                "0x3C6266"
+              ]
+            },
+            {
+              "targetVa": "0x140D575D9",
+              "text": "server ID is requiredbegin clear map dataclear map scan runsclear map recordscommit clear map dataDELETE FROM map_records WHERE kind=?1 AND server_id=?2 AND point_index=?3remove map point\n                CREATE TABLE IF NOT EXISTS metadata (\n                  key TEXT PRIMARY KEY, value TEXT NOT NULL, updated_at INTEGER NOT NULL\n                );\n          ",
+              "instructionRvas": [
+                "0x3C626D"
+              ]
+            },
+            {
+              "targetVa": "0x140D575EE",
+              "text": "begin clear map dataclear map scan runsclear map recordscommit clear map dataDELETE FROM map_records WHERE kind=?1 AND server_id=?2 AND point_index=?3remove map point\n                CREATE TABLE IF NOT EXISTS metadata (\n                  key TEXT PRIMARY KEY, value TEXT NOT NULL, updated_at INTEGER NOT NULL\n                );\n                CREATE TABLE IF",
+              "instructionRvas": [
+                "0x3C630F"
+              ]
+            },
+            {
+              "targetVa": "0x140D57602",
+              "text": "clear map scan runsclear map recordscommit clear map dataDELETE FROM map_records WHERE kind=?1 AND server_id=?2 AND point_index=?3remove map point\n                CREATE TABLE IF NOT EXISTS metadata (\n                  key TEXT PRIMARY KEY, value TEXT NOT NULL, updated_at INTEGER NOT NULL\n                );\n                CREATE TABLE IF NOT EXISTS map_reco",
+              "instructionRvas": [
+                "0x3C6585"
+              ]
+            },
+            {
+              "targetVa": "0x140D57615",
+              "text": "clear map recordscommit clear map dataDELETE FROM map_records WHERE kind=?1 AND server_id=?2 AND point_index=?3remove map point\n                CREATE TABLE IF NOT EXISTS metadata (\n                  key TEXT PRIMARY KEY, value TEXT NOT NULL, updated_at INTEGER NOT NULL\n                );\n                CREATE TABLE IF NOT EXISTS map_records (\n             ",
+              "instructionRvas": [
+                "0x3C679B"
+              ]
+            },
+            {
+              "targetVa": "0x140D57626",
+              "text": "commit clear map dataDELETE FROM map_records WHERE kind=?1 AND server_id=?2 AND point_index=?3remove map point\n                CREATE TABLE IF NOT EXISTS metadata (\n                  key TEXT PRIMARY KEY, value TEXT NOT NULL, updated_at INTEGER NOT NULL\n                );\n                CREATE TABLE IF NOT EXISTS map_records (\n                  kind TEXT NO",
+              "instructionRvas": [
+                "0x3C68A3"
+              ]
+            },
+            {
+              "targetVa": "0x140D6396C",
+              "text": "COMMITC:\\Users\\Administrator\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\rusqlite-0.37.0\\src\\transaction.rs",
+              "instructionRvas": [
+                "0x3C67D0"
+              ]
+            }
+          ],
+          "directCalls": [
+            {
+              "targetRva": "0x2A1A47",
+              "count": 1
+            },
+            {
+              "targetRva": "0x37ABC3",
+              "count": 2
+            },
+            {
+              "targetRva": "0x3C48E6",
+              "count": 1
+            },
+            {
+              "targetRva": "0x3E8F84",
+              "count": 4
+            },
+            {
+              "targetRva": "0x3F4639",
+              "count": 2
+            },
+            {
+              "targetRva": "0x3F4A8E",
+              "count": 3
+            },
+            {
+              "targetRva": "0x406550",
+              "count": 2
+            },
+            {
+              "targetRva": "0x406B2B",
+              "count": 2
+            },
+            {
+              "targetRva": "0x552224",
+              "count": 2
+            },
+            {
+              "targetRva": "0x59F3C",
+              "count": 1
+            },
+            {
+              "targetRva": "0x6C347C",
+              "count": 2
+            }
+          ]
+        }
+      ]
+    },
+    "begin cancel map scan": {
+      "handlerCandidates": [
+        {
+          "functionRva": "0x3C4964-0x3C50FE",
+          "size": 1946,
+          "strings": [
+            {
+              "targetVa": "0x140D571A8",
+              "text": "UPDATE scan_runs SET status='cancelled',error=?1,updated_at=?2 WHERE id=?3 AND status IN ('running','paused')DELETE FROM scan_records WHERE run_id=?1cancel map scancommit cancel map scanbegin cancel map scanclear cancelled scan stagingSELECT value_json FROM app_settings WHERE key=?1read app settingINVALID_SETTINGINSERT INTO app_settings(key,value_json,update",
+              "instructionRvas": [
+                "0x3C4B48"
+              ]
+            },
+            {
+              "targetVa": "0x140D57215",
+              "text": "DELETE FROM scan_records WHERE run_id=?1cancel map scancommit cancel map scanbegin cancel map scanclear cancelled scan stagingSELECT value_json FROM app_settings WHERE key=?1read app settingINVALID_SETTINGINSERT INTO app_settings(key,value_json,updated_at) VALUES (?1,?2,?3) ON CONFLICT(key) DO UPDATE SET value_json=excluded.value_json,updated_at=excluded.upd",
+              "instructionRvas": [
+                "0x3C4DFC"
+              ]
+            },
+            {
+              "targetVa": "0x140D5723D",
+              "text": "cancel map scancommit cancel map scanbegin cancel map scanclear cancelled scan stagingSELECT value_json FROM app_settings WHERE key=?1read app settingINVALID_SETTINGINSERT INTO app_settings(key,value_json,updated_at) VALUES (?1,?2,?3) ON CONFLICT(key) DO UPDATE SET value_json=excluded.value_json,updated_at=excluded.updated_atwrite app settingSELECT data_json",
+              "instructionRvas": [
+                "0x3C4DBC"
+              ]
+            },
+            {
+              "targetVa": "0x140D5724C",
+              "text": "commit cancel map scanbegin cancel map scanclear cancelled scan stagingSELECT value_json FROM app_settings WHERE key=?1read app settingINVALID_SETTINGINSERT INTO app_settings(key,value_json,updated_at) VALUES (?1,?2,?3) ON CONFLICT(key) DO UPDATE SET value_json=excluded.value_json,updated_at=excluded.updated_atwrite app settingSELECT data_json FROM map_recor",
+              "instructionRvas": [
+                "0x3C50C2"
+              ]
+            },
+            {
+              "targetVa": "0x140D57262",
+              "text": "begin cancel map scanclear cancelled scan stagingSELECT value_json FROM app_settings WHERE key=?1read app settingINVALID_SETTINGINSERT INTO app_settings(key,value_json,updated_at) VALUES (?1,?2,?3) ON CONFLICT(key) DO UPDATE SET value_json=excluded.value_json,updated_at=excluded.updated_atwrite app settingSELECT data_json FROM map_records\n                 WH",
+              "instructionRvas": [
+                "0x3C4AA2"
+              ]
+            },
+            {
+              "targetVa": "0x140D57277",
+              "text": "clear cancelled scan stagingSELECT value_json FROM app_settings WHERE key=?1read app settingINVALID_SETTINGINSERT INTO app_settings(key,value_json,updated_at) VALUES (?1,?2,?3) ON CONFLICT(key) DO UPDATE SET value_json=excluded.value_json,updated_at=excluded.updated_atwrite app settingSELECT data_json FROM map_records\n                 WHERE kind='city' AND s",
+              "instructionRvas": [
+                "0x3C4FBA"
+              ]
+            },
+            {
+              "targetVa": "0x140D6396C",
+              "text": "COMMITC:\\Users\\Administrator\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\rusqlite-0.37.0\\src\\transaction.rs",
+              "instructionRvas": [
+                "0x3C4FEF"
+              ]
+            }
+          ],
+          "directCalls": [
+            {
+              "targetRva": "0x2C9034",
+              "count": 1
+            },
+            {
+              "targetRva": "0x37ABC3",
+              "count": 2
+            },
+            {
+              "targetRva": "0x3C48E6",
+              "count": 1
+            },
+            {
+              "targetRva": "0x3E8F84",
+              "count": 4
+            },
+            {
+              "targetRva": "0x3F4639",
+              "count": 2
+            },
+            {
+              "targetRva": "0x3F4A8E",
+              "count": 3
+            },
+            {
+              "targetRva": "0x406550",
+              "count": 2
+            },
+            {
+              "targetRva": "0x406B2B",
+              "count": 2
+            },
+            {
+              "targetRva": "0x552224",
+              "count": 2
+            },
+            {
+              "targetRva": "0x59F3C",
+              "count": 1
+            },
+            {
+              "targetRva": "0x6C347C",
+              "count": 2
+            }
+          ]
+        }
+      ]
+    },
+    "begin direct scan completion": {
+      "handlerCandidates": [
+        {
+          "functionRva": "0x3CF96B-0x3D0A03",
+          "size": 4248,
+          "strings": [
+            {
+              "targetVa": "0x140D549A2",
+              "text": "serverIdownerUid",
+              "instructionRvas": [
+                "0x3CFBAF"
+              ]
+            },
+            {
+              "targetVa": "0x140D56FD1",
+              "text": "selectedTypes",
+              "instructionRvas": [
+                "0x3CFBEC"
+              ]
+            },
+            {
+              "targetVa": "0x140D570CF",
+              "text": "INVALID_SCANinvalid map scan runcommit map scaninsert map scanbegin map scanmap scan not foundPRAGMA wal_checkpoint(TRUNCATE)map database is unavailable",
+              "instructionRvas": [
+                "0x3CF9E6",
+                "0x3D05DD",
+                "0x3D08D5"
+              ]
+            },
+            {
+              "targetVa": "0x140D57215",
+              "text": "DELETE FROM scan_records WHERE run_id=?1cancel map scancommit cancel map scanbegin cancel map scanclear cancelled scan stagingSELECT value_json FROM app_settings WHERE key=?1read app settingINVALID_SETTINGINSERT INTO app_settings(key,value_json,updated_at) VALUES (?1,?2,?3) ON CONFLICT(key) DO UPDATE SET value_json=excluded.value_json,updated_at=excluded.upd",
+              "instructionRvas": [
+                "0x3D049D"
+              ]
+            },
+            {
+              "targetVa": "0x140D5AD93",
+              "text": "totalBlockscompletedBlocksfailedBlocksUPDATE scan_runs SET status='completed',error=NULL,updated_at=?1 WHERE id=?2 AND status='running'map scan is not runningDELETE FROM scan_runs WHERE server_id=?1 AND id<>?2DELETE FROM map_records WHERE kind=?1 AND server_id=?2INSERT INTO map_records(\n                         kind,server_id,record_key,point_index,uuid,name",
+              "instructionRvas": [
+                "0x3CFB32"
+              ]
+            },
+            {
+              "targetVa": "0x140D5AD9E",
+              "text": "completedBlocksfailedBlocksUPDATE scan_runs SET status='completed',error=NULL,updated_at=?1 WHERE id=?2 AND status='running'map scan is not runningDELETE FROM scan_runs WHERE server_id=?1 AND id<>?2DELETE FROM map_records WHERE kind=?1 AND server_id=?2INSERT INTO map_records(\n                         kind,server_id,record_key,point_index,uuid,name,alliance_n",
+              "instructionRvas": [
+                "0x3CFB52"
+              ]
+            },
+            {
+              "targetVa": "0x140D5ADAD",
+              "text": "failedBlocksUPDATE scan_runs SET status='completed',error=NULL,updated_at=?1 WHERE id=?2 AND status='running'map scan is not runningDELETE FROM scan_runs WHERE server_id=?1 AND id<>?2DELETE FROM map_records WHERE kind=?1 AND server_id=?2INSERT INTO map_records(\n                         kind,server_id,record_key,point_index,uuid,name,alliance_name,\n          ",
+              "instructionRvas": [
+                "0x3CFB70"
+              ]
+            },
+            {
+              "targetVa": "0x140D5ADB9",
+              "text": "UPDATE scan_runs SET status='completed',error=NULL,updated_at=?1 WHERE id=?2 AND status='running'map scan is not runningDELETE FROM scan_runs WHERE server_id=?1 AND id<>?2DELETE FROM map_records WHERE kind=?1 AND server_id=?2INSERT INTO map_records(\n                         kind,server_id,record_key,point_index,uuid,name,alliance_name,\n                      ",
+              "instructionRvas": [
+                "0x3D03E5"
+              ]
+            },
+            {
+              "targetVa": "0x140D5AE1A",
+              "text": "map scan is not runningDELETE FROM scan_runs WHERE server_id=?1 AND id<>?2DELETE FROM map_records WHERE kind=?1 AND server_id=?2INSERT INTO map_records(\n                         kind,server_id,record_key,point_index,uuid,name,alliance_name,\n                         level,quality,power,distance,shield_end_time,updated_at,data_json)\n                       SELE",
+              "instructionRvas": [
+                "0x3D05E4"
+              ]
+            },
+            {
+              "targetVa": "0x140D5AE31",
+              "text": "DELETE FROM scan_runs WHERE server_id=?1 AND id<>?2DELETE FROM map_records WHERE kind=?1 AND server_id=?2INSERT INTO map_records(\n                         kind,server_id,record_key,point_index,uuid,name,alliance_name,\n                         level,quality,power,distance,shield_end_time,updated_at,data_json)\n                       SELECT kind,server_id,recor",
+              "instructionRvas": [
+                "0x3D055B"
+              ]
+            },
+            {
+              "targetVa": "0x140D5AE64",
+              "text": "DELETE FROM map_records WHERE kind=?1 AND server_id=?2INSERT INTO map_records(\n                         kind,server_id,record_key,point_index,uuid,name,alliance_name,\n                         level,quality,power,distance,shield_end_time,updated_at,data_json)\n                       SELECT kind,server_id,record_key,point_index,uuid,name,alliance_name,\n        ",
+              "instructionRvas": [
+                "0x3CFE8C"
+              ]
+            },
+            {
+              "targetVa": "0x140D5AE9A",
+              "text": "INSERT INTO map_records(\n                         kind,server_id,record_key,point_index,uuid,name,alliance_name,\n                         level,quality,power,distance,shield_end_time,updated_at,data_json)\n                       SELECT kind,server_id,record_key,point_index,uuid,name,alliance_name,\n                         level,quality,power,distance,shield_e",
+              "instructionRvas": [
+                "0x3D013D"
+              ]
+            },
+            {
+              "targetVa": "0x140D5B074",
+              "text": "INCOMPLETE_SCANdirect map scan contains failed batchesdirect map scan is incompleteprune direct map scanspublish direct map scan recordsmap scan disappearedbegin direct scan completionreplace direct map scan recordscomplete direct map scanmap scan run not foundclear direct scan stagingcommit direct scan completionSELECT task_json,status,attempts,last_error,c",
+              "instructionRvas": [
+                "0x3CFCC4",
+                "0x3CFCDD"
+              ]
+            },
+            {
+              "targetVa": "0x140D5B083",
+              "text": "direct map scan contains failed batchesdirect map scan is incompleteprune direct map scanspublish direct map scan recordsmap scan disappearedbegin direct scan completionreplace direct map scan recordscomplete direct map scanmap scan run not foundclear direct scan stagingcommit direct scan completionSELECT task_json,status,attempts,last_error,created_at,updat",
+              "instructionRvas": [
+                "0x3CFCE4"
+              ]
+            },
+            {
+              "targetVa": "0x140D5B0AA",
+              "text": "direct map scan is incompleteprune direct map scanspublish direct map scan recordsmap scan disappearedbegin direct scan completionreplace direct map scan recordscomplete direct map scanmap scan run not foundclear direct scan stagingcommit direct scan completionSELECT task_json,status,attempts,last_error,created_at,updated_at\n                   FROM dispatch_",
+              "instructionRvas": [
+                "0x3CFCCB"
+              ]
+            },
+            {
+              "targetVa": "0x140D5B0C7",
+              "text": "prune direct map scanspublish direct map scan recordsmap scan disappearedbegin direct scan completionreplace direct map scan recordscomplete direct map scanmap scan run not foundclear direct scan stagingcommit direct scan completionSELECT task_json,status,attempts,last_error,created_at,updated_at\n                   FROM dispatch_plunder_jobs WHERE server_id=",
+              "instructionRvas": [
+                "0x3D0679"
+              ]
+            },
+            {
+              "targetVa": "0x140D5B0DD",
+              "text": "publish direct map scan recordsmap scan disappearedbegin direct scan completionreplace direct map scan recordscomplete direct map scanmap scan run not foundclear direct scan stagingcommit direct scan completionSELECT task_json,status,attempts,last_error,created_at,updated_at\n                   FROM dispatch_plunder_jobs WHERE server_id=?1 AND task_uuid=?2rea",
+              "instructionRvas": [
+                "0x3D0363"
+              ]
+            },
+            {
+              "targetVa": "0x140D5B0FC",
+              "text": "map scan disappearedbegin direct scan completionreplace direct map scan recordscomplete direct map scanmap scan run not foundclear direct scan stagingcommit direct scan completionSELECT task_json,status,attempts,last_error,created_at,updated_at\n                   FROM dispatch_plunder_jobs WHERE server_id=?1 AND task_uuid=?2read dispatch plunder jobUPDATE tr",
+              "instructionRvas": [
+                "0x3D08DC"
+              ]
+            },
+            {
+              "targetVa": "0x140D5B110",
+              "text": "begin direct scan completionreplace direct map scan recordscomplete direct map scanmap scan run not foundclear direct scan stagingcommit direct scan completionSELECT task_json,status,attempts,last_error,created_at,updated_at\n                   FROM dispatch_plunder_jobs WHERE server_id=?1 AND task_uuid=?2read dispatch plunder jobUPDATE truck_plunder_jobs\n   ",
+              "instructionRvas": [
+                "0x3CFD80"
+              ]
+            },
+            {
+              "targetVa": "0x140D5B12C",
+              "text": "replace direct map scan recordscomplete direct map scanmap scan run not foundclear direct scan stagingcommit direct scan completionSELECT task_json,status,attempts,last_error,created_at,updated_at\n                   FROM dispatch_plunder_jobs WHERE server_id=?1 AND task_uuid=?2read dispatch plunder jobUPDATE truck_plunder_jobs\n                   SET status='",
+              "instructionRvas": [
+                "0x3D00B7"
+              ]
+            },
+            {
+              "targetVa": "0x140D5B14B",
+              "text": "complete direct map scanmap scan run not foundclear direct scan stagingcommit direct scan completionSELECT task_json,status,attempts,last_error,created_at,updated_at\n                   FROM dispatch_plunder_jobs WHERE server_id=?1 AND task_uuid=?2read dispatch plunder jobUPDATE truck_plunder_jobs\n                   SET status='expired',last_error='truck expi",
+              "instructionRvas": [
+                "0x3D044C"
+              ]
+            },
+            {
+              "targetVa": "0x140D5B163",
+              "text": "map scan run not foundclear direct scan stagingcommit direct scan completionSELECT task_json,status,attempts,last_error,created_at,updated_at\n                   FROM dispatch_plunder_jobs WHERE server_id=?1 AND task_uuid=?2read dispatch plunder jobUPDATE truck_plunder_jobs\n                   SET status='expired',last_error='truck expired',updated_at=?1\n     ",
+              "instructionRvas": [
+                "0x3CF9ED"
+              ]
+            },
+            {
+              "targetVa": "0x140D5B179",
+              "text": "clear direct scan stagingcommit direct scan completionSELECT task_json,status,attempts,last_error,created_at,updated_at\n                   FROM dispatch_plunder_jobs WHERE server_id=?1 AND task_uuid=?2read dispatch plunder jobUPDATE truck_plunder_jobs\n                   SET status='expired',last_error='truck expired',updated_at=?1\n                   WHERE st",
+              "instructionRvas": [
+                "0x3D04FF"
+              ]
+            },
+            {
+              "targetVa": "0x140D5B192",
+              "text": "commit direct scan completionSELECT task_json,status,attempts,last_error,created_at,updated_at\n                   FROM dispatch_plunder_jobs WHERE server_id=?1 AND task_uuid=?2read dispatch plunder jobUPDATE truck_plunder_jobs\n                   SET status='expired',last_error='truck expired',updated_at=?1\n                   WHERE status IN ('scheduled','wai",
+              "instructionRvas": [
+                "0x3D07D6"
+              ]
+            }
+          ],
+          "directCalls": [
+            {
+              "targetRva": "0x1150D",
+              "count": 4
+            },
+            {
+              "targetRva": "0x2A1A47",
+              "count": 4
+            },
+            {
+              "targetRva": "0x2C9034",
+              "count": 1
+            },
+            {
+              "targetRva": "0x37ABC3",
+              "count": 2
+            },
+            {
+              "targetRva": "0x3C48E6",
+              "count": 1
+            },
+            {
+              "targetRva": "0x3CC31F",
+              "count": 1
+            },
+            {
+              "targetRva": "0x3CED10",
+              "count": 1
+            },
+            {
+              "targetRva": "0x3E6952",
+              "count": 2
+            },
+            {
+              "targetRva": "0x3E8F84",
+              "count": 7
+            },
+            {
+              "targetRva": "0x3E8FFE",
+              "count": 1
+            },
+            {
+              "targetRva": "0x3EB60E",
+              "count": 4
+            },
+            {
+              "targetRva": "0x3F4639",
+              "count": 2
+            },
+            {
+              "targetRva": "0x3F4A8E",
+              "count": 1
+            },
+            {
+              "targetRva": "0x4063A8",
+              "count": 3
+            },
+            {
+              "targetRva": "0x406550",
+              "count": 2
+            },
+            {
+              "targetRva": "0x4067B0",
+              "count": 1
+            },
+            {
+              "targetRva": "0x406B2B",
+              "count": 2
+            },
+            {
+              "targetRva": "0x406EB3",
+              "count": 1
+            },
+            {
+              "targetRva": "0x552224",
+              "count": 1
+            },
+            {
+              "targetRva": "0x59F3C",
+              "count": 2
+            },
+            {
+              "targetRva": "0x5A9615",
+              "count": 1
+            },
+            {
+              "targetRva": "0x6C347C",
+              "count": 2
+            },
+            {
+              "targetRva": "0x81E10",
+              "count": 1
+            }
+          ]
+        }
+      ]
+    },
+    "begin preserve failed map scan": {
+      "handlerCandidates": [
+        {
+          "functionRva": "0x3D98FA-0x3DA298",
+          "size": 2462,
+          "strings": [
+            {
+              "targetVa": "0x140D57215",
+              "text": "DELETE FROM scan_records WHERE run_id=?1cancel map scancommit cancel map scanbegin cancel map scanclear cancelled scan stagingSELECT value_json FROM app_settings WHERE key=?1read app settingINVALID_SETTINGINSERT INTO app_settings(key,value_json,updated_at) VALUES (?1,?2,?3) ON CONFLICT(key) DO UPDATE SET value_json=excluded.value_json,updated_at=excluded.upd",
+              "instructionRvas": [
+                "0x3D9F8D"
+              ]
+            },
+            {
+              "targetVa": "0x140D5DD7A",
+              "text": "UPDATE scan_runs SET status='failed',error=?1,updated_at=?2 WHERE id=?3 AND status='running'INSERT OR REPLACE INTO map_records(\n                     kind,server_id,record_key,point_index,uuid,name,alliance_name,\n                     level,quality,power,distance,shield_end_time,updated_at,data_json)\n                   SELECT kind,server_id,record_key,point_in",
+              "instructionRvas": [
+                "0x3D9AD1"
+              ]
+            },
+            {
+              "targetVa": "0x140D5DDD6",
+              "text": "INSERT OR REPLACE INTO map_records(\n                     kind,server_id,record_key,point_index,uuid,name,alliance_name,\n                     level,quality,power,distance,shield_end_time,updated_at,data_json)\n                   SELECT kind,server_id,record_key,point_index,uuid,name,alliance_name,\n                     level,quality,power,distance,shield_end_ti",
+              "instructionRvas": [
+                "0x3D9D85"
+              ]
+            },
+            {
+              "targetVa": "0x140D5DF8A",
+              "text": "clear preserved map scan stagingfail preserved map scanbegin preserve failed map scancommit preserved map scanpreserve failed map scan recordsSELECT data_json FROM map_records\n                 WHERE kind='treasure' AND server_id=?1\n                   AND COALESCE(CAST(json_extract(data_json,'$.suppliesType') AS INTEGER),0) IN (1,3,4)\n                   AND u",
+              "instructionRvas": [
+                "0x3DA151"
+              ]
+            },
+            {
+              "targetVa": "0x140D5DFAA",
+              "text": "fail preserved map scanbegin preserve failed map scancommit preserved map scanpreserve failed map scan recordsSELECT data_json FROM map_records\n                 WHERE kind='treasure' AND server_id=?1\n                   AND COALESCE(CAST(json_extract(data_json,'$.suppliesType') AS INTEGER),0) IN (1,3,4)\n                   AND uuid IS NOT NULL AND TRIM(uuid)<>",
+              "instructionRvas": [
+                "0x3D9D4C"
+              ]
+            },
+            {
+              "targetVa": "0x140D5DFC1",
+              "text": "begin preserve failed map scancommit preserved map scanpreserve failed map scan recordsSELECT data_json FROM map_records\n                 WHERE kind='treasure' AND server_id=?1\n                   AND COALESCE(CAST(json_extract(data_json,'$.suppliesType') AS INTEGER),0) IN (1,3,4)\n                   AND uuid IS NOT NULL AND TRIM(uuid)<>'' AND uuid<>'0'\n      ",
+              "instructionRvas": [
+                "0x3D9A33"
+              ]
+            },
+            {
+              "targetVa": "0x140D5DFDF",
+              "text": "commit preserved map scanpreserve failed map scan recordsSELECT data_json FROM map_records\n                 WHERE kind='treasure' AND server_id=?1\n                   AND COALESCE(CAST(json_extract(data_json,'$.suppliesType') AS INTEGER),0) IN (1,3,4)\n                   AND uuid IS NOT NULL AND TRIM(uuid)<>'' AND uuid<>'0'\n                 ORDER BY point_inde",
+              "instructionRvas": [
+                "0x3DA25C"
+              ]
+            },
+            {
+              "targetVa": "0x140D5DFF8",
+              "text": "preserve failed map scan recordsSELECT data_json FROM map_records\n                 WHERE kind='treasure' AND server_id=?1\n                   AND COALESCE(CAST(json_extract(data_json,'$.suppliesType') AS INTEGER),0) IN (1,3,4)\n                   AND uuid IS NOT NULL AND TRIM(uuid)<>'' AND uuid<>'0'\n                 ORDER BY point_index ASC invalid season supp",
+              "instructionRvas": [
+                "0x3D9F54"
+              ]
+            },
+            {
+              "targetVa": "0x140D6396C",
+              "text": "COMMITC:\\Users\\Administrator\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\rusqlite-0.37.0\\src\\transaction.rs",
+              "instructionRvas": [
+                "0x3DA189"
+              ]
+            }
+          ],
+          "directCalls": [
+            {
+              "targetRva": "0x2C9034",
+              "count": 1
+            },
+            {
+              "targetRva": "0x37ABC3",
+              "count": 3
+            },
+            {
+              "targetRva": "0x3C48E6",
+              "count": 1
+            },
+            {
+              "targetRva": "0x3E8F84",
+              "count": 5
+            },
+            {
+              "targetRva": "0x3F4639",
+              "count": 3
+            },
+            {
+              "targetRva": "0x3F4A8E",
+              "count": 3
+            },
+            {
+              "targetRva": "0x406550",
+              "count": 3
+            },
+            {
+              "targetRva": "0x406B2B",
+              "count": 3
+            },
+            {
+              "targetRva": "0x552224",
+              "count": 2
+            },
+            {
+              "targetRva": "0x59F3C",
+              "count": 1
+            },
+            {
+              "targetRva": "0x6C347C",
+              "count": 3
+            }
+          ]
+        }
+      ]
+    },
+    "update scan progress": {
+      "handlerCandidates": [
+        {
+          "functionRva": "0x3D1662-0x3D1A59",
+          "size": 1015,
+          "strings": [
+            {
+              "targetVa": "0x140D570CF",
+              "text": "INVALID_SCANinvalid map scan runcommit map scaninsert map scanbegin map scanmap scan not foundPRAGMA wal_checkpoint(TRUNCATE)map database is unavailable",
+              "instructionRvas": [
+                "0x3D19E3"
+              ]
+            },
+            {
+              "targetVa": "0x140D5AE1A",
+              "text": "map scan is not runningDELETE FROM scan_runs WHERE server_id=?1 AND id<>?2DELETE FROM map_records WHERE kind=?1 AND server_id=?2INSERT INTO map_records(\n                         kind,server_id,record_key,point_index,uuid,name,alliance_name,\n                         level,quality,power,distance,shield_end_time,updated_at,data_json)\n                       SELE",
+              "instructionRvas": [
+                "0x3D19EA"
+              ]
+            },
+            {
+              "targetVa": "0x140D5B53E",
+              "text": "UPDATE scan_runs SET completed_blocks=?1,failed_blocks=?2,error=COALESCE(?3,error),updated_at=?4 WHERE id=?5 AND status='running'update scan progressSELECT task_json,status,attempts,last_error,created_at,updated_at\n                   FROM dispatch_plunder_jobs\n                   ORDER BY CASE WHEN status IN ('scheduled','waiting_connection','running') THEN 0",
+              "instructionRvas": [
+                "0x3D176D"
+              ]
+            },
+            {
+              "targetVa": "0x140D5B5BF",
+              "text": "update scan progressSELECT task_json,status,attempts,last_error,created_at,updated_at\n                   FROM dispatch_plunder_jobs\n                   ORDER BY CASE WHEN status IN ('scheduled','waiting_connection','running') THEN 0 ELSE 1 END,\n                            plunder_at ASC, updated_at DESCquery dispatch plunder listprepare dispatch plunder listr",
+              "instructionRvas": [
+                "0x3D199D"
+              ]
+            }
+          ],
+          "directCalls": [
+            {
+              "targetRva": "0x2A1A47",
+              "count": 1
+            },
+            {
+              "targetRva": "0x2C9034",
+              "count": 1
+            },
+            {
+              "targetRva": "0x37ABC3",
+              "count": 1
+            },
+            {
+              "targetRva": "0x3C48E6",
+              "count": 1
+            },
+            {
+              "targetRva": "0x3E8F84",
+              "count": 1
+            },
+            {
+              "targetRva": "0x3F4639",
+              "count": 1
+            },
+            {
+              "targetRva": "0x406550",
+              "count": 1
+            },
+            {
+              "targetRva": "0x406B2B",
+              "count": 1
+            },
+            {
+              "targetRva": "0x59F3C",
+              "count": 2
+            },
+            {
+              "targetRva": "0x6C347C",
+              "count": 1
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "limits": [
+    "This is a lossless projection of handler ranges/strings/direct calls from the full disassembly manifest; branch semantics still require targeted instruction tracing.",
+    "String references are discovery evidence and do not alone prove control-flow meaning."
+  ]
+}

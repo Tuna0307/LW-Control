@@ -1,0 +1,735 @@
+{
+  "schema": 1,
+  "findingId": "LWB317-RE-MAP-002-STORAGE-FLOW-SURFACE",
+  "evidenceState": "EXACT_BYTES_DISCOVERY",
+  "native": {
+    "path": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW\\lwbridge-0.3.17.exe",
+    "sha256": "4e9c3113dedfd7e1a752404c6936aab304e67d7ffdb0952a5003c2ec948d6783",
+    "size": 15866880,
+    "imageBase": "0x140000000",
+    "sections": [
+      {
+        "name": ".text",
+        "rva": "0x1000",
+        "raw": "0x400",
+        "rawSize": 8124928,
+        "virtualSize": 8124816,
+        "characteristics": "0x60000020"
+      },
+      {
+        "name": ".rdata",
+        "rva": "0x7C1000",
+        "raw": "0x7BFE00",
+        "rawSize": 7285760,
+        "virtualSize": 7285404,
+        "characteristics": "0x40000040"
+      },
+      {
+        "name": ".data",
+        "rva": "0xEB4000",
+        "raw": "0xEB2A00",
+        "rawSize": 27136,
+        "virtualSize": 37320,
+        "characteristics": "0xC0000040"
+      },
+      {
+        "name": ".pdata",
+        "rva": "0xEBE000",
+        "raw": "0xEB9400",
+        "rawSize": 275968,
+        "virtualSize": 275724,
+        "characteristics": "0x40000040"
+      },
+      {
+        "name": ".rsrc",
+        "rva": "0xF02000",
+        "raw": "0xEFCA00",
+        "rawSize": 94208,
+        "virtualSize": 93864,
+        "characteristics": "0x40000040"
+      },
+      {
+        "name": ".reloc",
+        "rva": "0xF19000",
+        "raw": "0xF13A00",
+        "rawSize": 57856,
+        "virtualSize": 57404,
+        "characteristics": "0x42000040"
+      }
+    ],
+    "markers": {
+      "begin clear map data": {
+        "occurrences": [
+          {
+            "raw": "0xD563EE",
+            "rva": "0xD575EE",
+            "va": "0x140D575EE"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x3C630F",
+            "instructionVa": "0x1403C630F",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x9912d8]",
+            "referenceKind": "string",
+            "targetVa": "0x140D575EE",
+            "functionRva": "0x3C61BE-0x3C68DF"
+          }
+        ]
+      },
+      "clear map records": {
+        "occurrences": [
+          {
+            "raw": "0xD56415",
+            "rva": "0xD57615",
+            "va": "0x140D57615"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x3C679B",
+            "instructionVa": "0x1403C679B",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x990e73]",
+            "referenceKind": "string",
+            "targetVa": "0x140D57615",
+            "functionRva": "0x3C61BE-0x3C68DF"
+          }
+        ]
+      },
+      "clear map scan runs": {
+        "occurrences": [
+          {
+            "raw": "0xD56402",
+            "rva": "0xD57602",
+            "va": "0x140D57602"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x3C6585",
+            "instructionVa": "0x1403C6585",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x991076]",
+            "referenceKind": "string",
+            "targetVa": "0x140D57602",
+            "functionRva": "0x3C61BE-0x3C68DF"
+          }
+        ]
+      },
+      "commit clear map data": {
+        "occurrences": [
+          {
+            "raw": "0xD56426",
+            "rva": "0xD57626",
+            "va": "0x140D57626"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x3C68A3",
+            "instructionVa": "0x1403C68A3",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x990d7c]",
+            "referenceKind": "string",
+            "targetVa": "0x140D57626",
+            "functionRva": "0x3C61BE-0x3C68DF"
+          }
+        ]
+      },
+      "DELETE FROM map_records WHERE server_id=?1": {
+        "occurrences": [
+          {
+            "raw": "0xD5639E",
+            "rva": "0xD5759E",
+            "va": "0x140D5759E"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x3C65C8",
+            "instructionVa": "0x1403C65C8",
+            "mnemonic": "lea",
+            "opStr": "r8, [rip + 0x990fcf]",
+            "referenceKind": "string",
+            "targetVa": "0x140D5759E",
+            "functionRva": "0x3C61BE-0x3C68DF"
+          }
+        ]
+      },
+      "DELETE FROM scan_runs WHERE server_id=?1": {
+        "occurrences": [
+          {
+            "raw": "0xD56376",
+            "rva": "0xD57576",
+            "va": "0x140D57576"
+          },
+          {
+            "raw": "0xD59C31",
+            "rva": "0xD5AE31",
+            "va": "0x140D5AE31"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x3C636C",
+            "instructionVa": "0x1403C636C",
+            "mnemonic": "lea",
+            "opStr": "r8, [rip + 0x991203]",
+            "referenceKind": "string",
+            "targetVa": "0x140D57576",
+            "functionRva": "0x3C61BE-0x3C68DF"
+          },
+          {
+            "instructionRva": "0x3D055B",
+            "instructionVa": "0x1403D055B",
+            "mnemonic": "lea",
+            "opStr": "r8, [rip + 0x98a8cf]",
+            "referenceKind": "string",
+            "targetVa": "0x140D5AE31",
+            "functionRva": "0x3CF96B-0x3D0A03"
+          }
+        ]
+      },
+      "begin cancel map scan": {
+        "occurrences": [
+          {
+            "raw": "0xD56062",
+            "rva": "0xD57262",
+            "va": "0x140D57262"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x3C4AA2",
+            "instructionVa": "0x1403C4AA2",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x9927b9]",
+            "referenceKind": "string",
+            "targetVa": "0x140D57262",
+            "functionRva": "0x3C4964-0x3C50FE"
+          }
+        ]
+      },
+      "cancel map scan": {
+        "occurrences": [
+          {
+            "raw": "0xD5603D",
+            "rva": "0xD5723D",
+            "va": "0x140D5723D"
+          },
+          {
+            "raw": "0xD56053",
+            "rva": "0xD57253",
+            "va": "0x140D57253"
+          },
+          {
+            "raw": "0xD56068",
+            "rva": "0xD57268",
+            "va": "0x140D57268"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x3C4DBC",
+            "instructionVa": "0x1403C4DBC",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x99247a]",
+            "referenceKind": "string",
+            "targetVa": "0x140D5723D",
+            "functionRva": "0x3C4964-0x3C50FE"
+          }
+        ]
+      },
+      "clear cancelled scan staging": {
+        "occurrences": [
+          {
+            "raw": "0xD56077",
+            "rva": "0xD57277",
+            "va": "0x140D57277"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x3C4FBA",
+            "instructionVa": "0x1403C4FBA",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x9922b6]",
+            "referenceKind": "string",
+            "targetVa": "0x140D57277",
+            "functionRva": "0x3C4964-0x3C50FE"
+          }
+        ]
+      },
+      "commit cancel map scan": {
+        "occurrences": [
+          {
+            "raw": "0xD5604C",
+            "rva": "0xD5724C",
+            "va": "0x140D5724C"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x3C50C2",
+            "instructionVa": "0x1403C50C2",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x992183]",
+            "referenceKind": "string",
+            "targetVa": "0x140D5724C",
+            "functionRva": "0x3C4964-0x3C50FE"
+          }
+        ]
+      },
+      "UPDATE scan_runs SET status='cancelled'": {
+        "occurrences": [
+          {
+            "raw": "0xD55FA8",
+            "rva": "0xD571A8",
+            "va": "0x140D571A8"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x3C4B48",
+            "instructionVa": "0x1403C4B48",
+            "mnemonic": "lea",
+            "opStr": "r8, [rip + 0x992659]",
+            "referenceKind": "string",
+            "targetVa": "0x140D571A8",
+            "functionRva": "0x3C4964-0x3C50FE"
+          }
+        ]
+      },
+      "DELETE FROM scan_records WHERE run_id=?1": {
+        "occurrences": [
+          {
+            "raw": "0xD56015",
+            "rva": "0xD57215",
+            "va": "0x140D57215"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x3C4DFC",
+            "instructionVa": "0x1403C4DFC",
+            "mnemonic": "lea",
+            "opStr": "r8, [rip + 0x992412]",
+            "referenceKind": "string",
+            "targetVa": "0x140D57215",
+            "functionRva": "0x3C4964-0x3C50FE"
+          },
+          {
+            "instructionRva": "0x3D049D",
+            "instructionVa": "0x1403D049D",
+            "mnemonic": "lea",
+            "opStr": "r8, [rip + 0x986d71]",
+            "referenceKind": "string",
+            "targetVa": "0x140D57215",
+            "functionRva": "0x3CF96B-0x3D0A03"
+          },
+          {
+            "instructionRva": "0x3D9F8D",
+            "instructionVa": "0x1403D9F8D",
+            "mnemonic": "lea",
+            "opStr": "r8, [rip + 0x97d281]",
+            "referenceKind": "string",
+            "targetVa": "0x140D57215",
+            "functionRva": "0x3D98FA-0x3DA298"
+          },
+          {
+            "instructionRva": "0x3E7E88",
+            "instructionVa": "0x1403E7E88",
+            "mnemonic": "lea",
+            "opStr": "r8, [rip + 0x96f386]",
+            "referenceKind": "string",
+            "targetVa": "0x140D57215",
+            "functionRva": "0x3E79F8-0x3E818A"
+          }
+        ]
+      },
+      "begin direct scan completion": {
+        "occurrences": [
+          {
+            "raw": "0xD59F10",
+            "rva": "0xD5B110",
+            "va": "0x140D5B110"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x3CFD80",
+            "instructionVa": "0x1403CFD80",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x98b389]",
+            "referenceKind": "string",
+            "targetVa": "0x140D5B110",
+            "functionRva": "0x3CF96B-0x3D0A03"
+          }
+        ]
+      },
+      "replace direct map scan records": {
+        "occurrences": [
+          {
+            "raw": "0xD59F2C",
+            "rva": "0xD5B12C",
+            "va": "0x140D5B12C"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x3D00B7",
+            "instructionVa": "0x1403D00B7",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x98b06e]",
+            "referenceKind": "string",
+            "targetVa": "0x140D5B12C",
+            "functionRva": "0x3CF96B-0x3D0A03"
+          }
+        ]
+      },
+      "publish direct map scan records": {
+        "occurrences": [
+          {
+            "raw": "0xD59EDD",
+            "rva": "0xD5B0DD",
+            "va": "0x140D5B0DD"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x3D0363",
+            "instructionVa": "0x1403D0363",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x98ad73]",
+            "referenceKind": "string",
+            "targetVa": "0x140D5B0DD",
+            "functionRva": "0x3CF96B-0x3D0A03"
+          }
+        ]
+      },
+      "complete direct map scan": {
+        "occurrences": [
+          {
+            "raw": "0xD59F4B",
+            "rva": "0xD5B14B",
+            "va": "0x140D5B14B"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x3D044C",
+            "instructionVa": "0x1403D044C",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x98acf8]",
+            "referenceKind": "string",
+            "targetVa": "0x140D5B14B",
+            "functionRva": "0x3CF96B-0x3D0A03"
+          }
+        ]
+      },
+      "clear direct scan staging": {
+        "occurrences": [
+          {
+            "raw": "0xD59F79",
+            "rva": "0xD5B179",
+            "va": "0x140D5B179"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x3D04FF",
+            "instructionVa": "0x1403D04FF",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x98ac73]",
+            "referenceKind": "string",
+            "targetVa": "0x140D5B179",
+            "functionRva": "0x3CF96B-0x3D0A03"
+          }
+        ]
+      },
+      "commit direct scan completion": {
+        "occurrences": [
+          {
+            "raw": "0xD59F92",
+            "rva": "0xD5B192",
+            "va": "0x140D5B192"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x3D07D6",
+            "instructionVa": "0x1403D07D6",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x98a9b5]",
+            "referenceKind": "string",
+            "targetVa": "0x140D5B192",
+            "functionRva": "0x3CF96B-0x3D0A03"
+          }
+        ]
+      },
+      "INCOMPLETE_SCAN": {
+        "occurrences": [
+          {
+            "raw": "0xD59E74",
+            "rva": "0xD5B074",
+            "va": "0x140D5B074"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x3CFCC4",
+            "instructionVa": "0x1403CFCC4",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x98b3a9]",
+            "referenceKind": "string",
+            "targetVa": "0x140D5B074",
+            "functionRva": "0x3CF96B-0x3D0A03"
+          },
+          {
+            "instructionRva": "0x3CFCDD",
+            "instructionVa": "0x1403CFCDD",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x98b390]",
+            "referenceKind": "string",
+            "targetVa": "0x140D5B074",
+            "functionRva": "0x3CF96B-0x3D0A03"
+          }
+        ]
+      },
+      "direct map scan contains failed batches": {
+        "occurrences": [
+          {
+            "raw": "0xD59E83",
+            "rva": "0xD5B083",
+            "va": "0x140D5B083"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x3CFCE4",
+            "instructionVa": "0x1403CFCE4",
+            "mnemonic": "lea",
+            "opStr": "r9, [rip + 0x98b398]",
+            "referenceKind": "string",
+            "targetVa": "0x140D5B083",
+            "functionRva": "0x3CF96B-0x3D0A03"
+          }
+        ]
+      },
+      "direct map scan is incomplete": {
+        "occurrences": [
+          {
+            "raw": "0xD59EAA",
+            "rva": "0xD5B0AA",
+            "va": "0x140D5B0AA"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x3CFCCB",
+            "instructionVa": "0x1403CFCCB",
+            "mnemonic": "lea",
+            "opStr": "r9, [rip + 0x98b3d8]",
+            "referenceKind": "string",
+            "targetVa": "0x140D5B0AA",
+            "functionRva": "0x3CF96B-0x3D0A03"
+          }
+        ]
+      },
+      "UPDATE scan_runs SET status='completed'": {
+        "occurrences": [
+          {
+            "raw": "0xD59BB9",
+            "rva": "0xD5ADB9",
+            "va": "0x140D5ADB9"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x3D03E5",
+            "instructionVa": "0x1403D03E5",
+            "mnemonic": "lea",
+            "opStr": "r8, [rip + 0x98a9cd]",
+            "referenceKind": "string",
+            "targetVa": "0x140D5ADB9",
+            "functionRva": "0x3CF96B-0x3D0A03"
+          }
+        ]
+      },
+      "DELETE FROM scan_runs WHERE server_id=?1 AND id<>?2": {
+        "occurrences": [
+          {
+            "raw": "0xD59C31",
+            "rva": "0xD5AE31",
+            "va": "0x140D5AE31"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x3D055B",
+            "instructionVa": "0x1403D055B",
+            "mnemonic": "lea",
+            "opStr": "r8, [rip + 0x98a8cf]",
+            "referenceKind": "string",
+            "targetVa": "0x140D5AE31",
+            "functionRva": "0x3CF96B-0x3D0A03"
+          }
+        ]
+      },
+      "begin preserve failed map scan": {
+        "occurrences": [
+          {
+            "raw": "0xD5CDC1",
+            "rva": "0xD5DFC1",
+            "va": "0x140D5DFC1"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x3D9A33",
+            "instructionVa": "0x1403D9A33",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x984587]",
+            "referenceKind": "string",
+            "targetVa": "0x140D5DFC1",
+            "functionRva": "0x3D98FA-0x3DA298"
+          }
+        ]
+      },
+      "preserve failed map scan records": {
+        "occurrences": [
+          {
+            "raw": "0xD5CDF8",
+            "rva": "0xD5DFF8",
+            "va": "0x140D5DFF8"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x3D9F54",
+            "instructionVa": "0x1403D9F54",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x98409d]",
+            "referenceKind": "string",
+            "targetVa": "0x140D5DFF8",
+            "functionRva": "0x3D98FA-0x3DA298"
+          }
+        ]
+      },
+      "clear preserved map scan staging": {
+        "occurrences": [
+          {
+            "raw": "0xD5CD8A",
+            "rva": "0xD5DF8A",
+            "va": "0x140D5DF8A"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x3DA151",
+            "instructionVa": "0x1403DA151",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x983e32]",
+            "referenceKind": "string",
+            "targetVa": "0x140D5DF8A",
+            "functionRva": "0x3D98FA-0x3DA298"
+          }
+        ]
+      },
+      "commit preserved map scan": {
+        "occurrences": [
+          {
+            "raw": "0xD5CDDF",
+            "rva": "0xD5DFDF",
+            "va": "0x140D5DFDF"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x3DA25C",
+            "instructionVa": "0x1403DA25C",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x983d7c]",
+            "referenceKind": "string",
+            "targetVa": "0x140D5DFDF",
+            "functionRva": "0x3D98FA-0x3DA298"
+          }
+        ]
+      },
+      "UPDATE scan_runs SET completed_blocks=?1,failed_blocks=?2": {
+        "occurrences": [
+          {
+            "raw": "0xD5A33E",
+            "rva": "0xD5B53E",
+            "va": "0x140D5B53E"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x3D176D",
+            "instructionVa": "0x1403D176D",
+            "mnemonic": "lea",
+            "opStr": "r8, [rip + 0x989dca]",
+            "referenceKind": "string",
+            "targetVa": "0x140D5B53E",
+            "functionRva": "0x3D1662-0x3D1A59"
+          }
+        ]
+      },
+      "update scan progress": {
+        "occurrences": [
+          {
+            "raw": "0xD5A3BF",
+            "rva": "0xD5B5BF",
+            "va": "0x140D5B5BF"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x3D199D",
+            "instructionVa": "0x1403D199D",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x989c1b]",
+            "referenceKind": "string",
+            "targetVa": "0x140D5B5BF",
+            "functionRva": "0x3D1662-0x3D1A59"
+          }
+        ]
+      },
+      "map scan is not running": {
+        "occurrences": [
+          {
+            "raw": "0xD59C1A",
+            "rva": "0xD5AE1A",
+            "va": "0x140D5AE1A"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x3D05E4",
+            "instructionVa": "0x1403D05E4",
+            "mnemonic": "lea",
+            "opStr": "r9, [rip + 0x98a82f]",
+            "referenceKind": "string",
+            "targetVa": "0x140D5AE1A",
+            "functionRva": "0x3CF96B-0x3D0A03"
+          },
+          {
+            "instructionRva": "0x3D19EA",
+            "instructionVa": "0x1403D19EA",
+            "mnemonic": "lea",
+            "opStr": "r9, [rip + 0x989429]",
+            "referenceKind": "string",
+            "targetVa": "0x140D5AE1A",
+            "functionRva": "0x3D1662-0x3D1A59"
+          }
+        ]
+      }
+    }
+  },
+  "limits": [
+    "SQL/log strings identify current storage flow functions; transaction ordering is promoted only after bounded control-flow inspection."
+  ]
+}

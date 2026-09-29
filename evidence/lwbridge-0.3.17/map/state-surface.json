@@ -1,0 +1,5487 @@
+{
+  "schema": 1,
+  "findingId": "LWB317-RE-MAP-002-STATE-SURFACE",
+  "evidenceState": "EXACT_BYTES_DISCOVERY",
+  "native": {
+    "path": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW\\lwbridge-0.3.17.exe",
+    "sha256": "4e9c3113dedfd7e1a752404c6936aab304e67d7ffdb0952a5003c2ec948d6783",
+    "size": 15866880,
+    "imageBase": "0x140000000",
+    "sections": [
+      {
+        "name": ".text",
+        "rva": "0x1000",
+        "raw": "0x400",
+        "rawSize": 8124928,
+        "virtualSize": 8124816,
+        "characteristics": "0x60000020"
+      },
+      {
+        "name": ".rdata",
+        "rva": "0x7C1000",
+        "raw": "0x7BFE00",
+        "rawSize": 7285760,
+        "virtualSize": 7285404,
+        "characteristics": "0x40000040"
+      },
+      {
+        "name": ".data",
+        "rva": "0xEB4000",
+        "raw": "0xEB2A00",
+        "rawSize": 27136,
+        "virtualSize": 37320,
+        "characteristics": "0xC0000040"
+      },
+      {
+        "name": ".pdata",
+        "rva": "0xEBE000",
+        "raw": "0xEB9400",
+        "rawSize": 275968,
+        "virtualSize": 275724,
+        "characteristics": "0x40000040"
+      },
+      {
+        "name": ".rsrc",
+        "rva": "0xF02000",
+        "raw": "0xEFCA00",
+        "rawSize": 94208,
+        "virtualSize": 93864,
+        "characteristics": "0x40000040"
+      },
+      {
+        "name": ".reloc",
+        "rva": "0xF19000",
+        "raw": "0xF13A00",
+        "rawSize": 57856,
+        "virtualSize": 57404,
+        "characteristics": "0x42000040"
+      }
+    ],
+    "markers": {
+      "resume": {
+        "occurrences": [
+          {
+            "raw": "0x429CDB",
+            "rva": "0x42A8DB",
+            "va": "0x14042A8DB"
+          },
+          {
+            "raw": "0x7D0AAF",
+            "rva": "0x7D1CAF",
+            "va": "0x1407D1CAF"
+          },
+          {
+            "raw": "0x7F59E5",
+            "rva": "0x7F6BE5",
+            "va": "0x1407F6BE5"
+          },
+          {
+            "raw": "0x8298A0",
+            "rva": "0x82AAA0",
+            "va": "0x14082AAA0"
+          },
+          {
+            "raw": "0x8298B4",
+            "rva": "0x82AAB4",
+            "va": "0x14082AAB4"
+          },
+          {
+            "raw": "0x8298D2",
+            "rva": "0x82AAD2",
+            "va": "0x14082AAD2"
+          },
+          {
+            "raw": "0xB6DD21",
+            "rva": "0xB6EF21",
+            "va": "0x140B6EF21"
+          },
+          {
+            "raw": "0xB6DD32",
+            "rva": "0xB6EF32",
+            "va": "0x140B6EF32"
+          },
+          {
+            "raw": "0xC072AF",
+            "rva": "0xC084AF",
+            "va": "0x140C084AF"
+          },
+          {
+            "raw": "0xC072C0",
+            "rva": "0xC084C0",
+            "va": "0x140C084C0"
+          },
+          {
+            "raw": "0xC072ED",
+            "rva": "0xC084ED",
+            "va": "0x140C084ED"
+          },
+          {
+            "raw": "0xC073B1",
+            "rva": "0xC085B1",
+            "va": "0x140C085B1"
+          },
+          {
+            "raw": "0xC07A18",
+            "rva": "0xC08C18",
+            "va": "0x140C08C18"
+          },
+          {
+            "raw": "0xC28700",
+            "rva": "0xC29900",
+            "va": "0x140C29900"
+          },
+          {
+            "raw": "0xCBDFAF",
+            "rva": "0xCBF1AF",
+            "va": "0x140CBF1AF"
+          },
+          {
+            "raw": "0xCBE713",
+            "rva": "0xCBF913",
+            "va": "0x140CBF913"
+          },
+          {
+            "raw": "0xCBE721",
+            "rva": "0xCBF921",
+            "va": "0x140CBF921"
+          },
+          {
+            "raw": "0xD26CE0",
+            "rva": "0xD27EE0",
+            "va": "0x140D27EE0"
+          },
+          {
+            "raw": "0xD26E60",
+            "rva": "0xD28060",
+            "va": "0x140D28060"
+          },
+          {
+            "raw": "0xD26EC0",
+            "rva": "0xD280C0",
+            "va": "0x140D280C0"
+          },
+          {
+            "raw": "0xD26EE8",
+            "rva": "0xD280E8",
+            "va": "0x140D280E8"
+          },
+          {
+            "raw": "0xD67E11",
+            "rva": "0xD69011",
+            "va": "0x140D69011"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0xFB694",
+            "instructionVa": "0x1400FB694",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x72f437]",
+            "referenceKind": "string",
+            "targetVa": "0x14082AAD2",
+            "functionRva": "0xFA09E-0xFC643"
+          },
+          {
+            "instructionRva": "0x144187",
+            "instructionVa": "0x140144187",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x6e6912]",
+            "referenceKind": "string",
+            "targetVa": "0x14082AAA0",
+            "functionRva": "0x143D67-0x144C41"
+          },
+          {
+            "instructionRva": "0x14431A",
+            "instructionVa": "0x14014431A",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x6e677f]",
+            "referenceKind": "string",
+            "targetVa": "0x14082AAA0",
+            "functionRva": "0x143D67-0x144C41"
+          },
+          {
+            "instructionRva": "0x14434C",
+            "instructionVa": "0x14014434C",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x6e677f]",
+            "referenceKind": "string",
+            "targetVa": "0x14082AAD2",
+            "functionRva": "0x143D67-0x144C41"
+          },
+          {
+            "instructionRva": "0x4269CB",
+            "instructionVa": "0x1404269CB",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x94263f]",
+            "referenceKind": "string",
+            "targetVa": "0x140D69011",
+            "functionRva": "0x42612D-0x426A05"
+          },
+          {
+            "instructionRva": "0x426C83",
+            "instructionVa": "0x140426C83",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x942387]",
+            "referenceKind": "string",
+            "targetVa": "0x140D69011",
+            "functionRva": "0x426A05-0x426D07"
+          },
+          {
+            "instructionRva": "0x426F5E",
+            "instructionVa": "0x140426F5E",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x9420ac]",
+            "referenceKind": "string",
+            "targetVa": "0x140D69011",
+            "functionRva": "0x426D67-0x427069"
+          },
+          {
+            "instructionRva": "0x42869F",
+            "instructionVa": "0x14042869F",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x94096b]",
+            "referenceKind": "string",
+            "targetVa": "0x140D69011",
+            "functionRva": "0x427120-0x428A92"
+          },
+          {
+            "instructionRva": "0x42AFCF",
+            "instructionVa": "0x14042AFCF",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x93e03b]",
+            "referenceKind": "string",
+            "targetVa": "0x140D69011",
+            "functionRva": "0x42AB3A-0x42B1C1"
+          }
+        ]
+      },
+      "resumeAvailable": {
+        "occurrences": [
+          {
+            "raw": "0x8298D2",
+            "rva": "0x82AAD2",
+            "va": "0x14082AAD2"
+          },
+          {
+            "raw": "0xD67E11",
+            "rva": "0xD69011",
+            "va": "0x140D69011"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0xFB694",
+            "instructionVa": "0x1400FB694",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x72f437]",
+            "referenceKind": "string",
+            "targetVa": "0x14082AAD2",
+            "functionRva": "0xFA09E-0xFC643"
+          },
+          {
+            "instructionRva": "0x14434C",
+            "instructionVa": "0x14014434C",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x6e677f]",
+            "referenceKind": "string",
+            "targetVa": "0x14082AAD2",
+            "functionRva": "0x143D67-0x144C41"
+          },
+          {
+            "instructionRva": "0x4269CB",
+            "instructionVa": "0x1404269CB",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x94263f]",
+            "referenceKind": "string",
+            "targetVa": "0x140D69011",
+            "functionRva": "0x42612D-0x426A05"
+          },
+          {
+            "instructionRva": "0x426C83",
+            "instructionVa": "0x140426C83",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x942387]",
+            "referenceKind": "string",
+            "targetVa": "0x140D69011",
+            "functionRva": "0x426A05-0x426D07"
+          },
+          {
+            "instructionRva": "0x426F5E",
+            "instructionVa": "0x140426F5E",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x9420ac]",
+            "referenceKind": "string",
+            "targetVa": "0x140D69011",
+            "functionRva": "0x426D67-0x427069"
+          },
+          {
+            "instructionRva": "0x42869F",
+            "instructionVa": "0x14042869F",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x94096b]",
+            "referenceKind": "string",
+            "targetVa": "0x140D69011",
+            "functionRva": "0x427120-0x428A92"
+          },
+          {
+            "instructionRva": "0x42AFCF",
+            "instructionVa": "0x14042AFCF",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x93e03b]",
+            "referenceKind": "string",
+            "targetVa": "0x140D69011",
+            "functionRva": "0x42AB3A-0x42B1C1"
+          }
+        ]
+      },
+      "retryCount": {
+        "occurrences": [],
+        "xrefs": []
+      },
+      "scanRunId": {
+        "occurrences": [
+          {
+            "raw": "0x82DED0",
+            "rva": "0x82F0D0",
+            "va": "0x14082F0D0"
+          },
+          {
+            "raw": "0xABD485",
+            "rva": "0xABE685",
+            "va": "0x140ABE685"
+          },
+          {
+            "raw": "0xB54685",
+            "rva": "0xB55885",
+            "va": "0x140B55885"
+          },
+          {
+            "raw": "0xD67D84",
+            "rva": "0xD68F84",
+            "va": "0x140D68F84"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0xFB16D",
+            "instructionVa": "0x1400FB16D",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x733f5c]",
+            "referenceKind": "string",
+            "targetVa": "0x14082F0D0",
+            "functionRva": "0xFA09E-0xFC643"
+          },
+          {
+            "instructionRva": "0xFB6EE",
+            "instructionVa": "0x1400FB6EE",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x7339db]",
+            "referenceKind": "string",
+            "targetVa": "0x14082F0D0",
+            "functionRva": "0xFA09E-0xFC643"
+          },
+          {
+            "instructionRva": "0x426206",
+            "instructionVa": "0x140426206",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x942d77]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68F84",
+            "functionRva": "0x42612D-0x426A05"
+          },
+          {
+            "instructionRva": "0x426A52",
+            "instructionVa": "0x140426A52",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x94252b]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68F84",
+            "functionRva": "0x426A05-0x426D07"
+          },
+          {
+            "instructionRva": "0x426DA1",
+            "instructionVa": "0x140426DA1",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x9421dc]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68F84",
+            "functionRva": "0x426D67-0x427069"
+          },
+          {
+            "instructionRva": "0x427348",
+            "instructionVa": "0x140427348",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x941c35]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68F84",
+            "functionRva": "0x427120-0x428A92"
+          },
+          {
+            "instructionRva": "0x427467",
+            "instructionVa": "0x140427467",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x941b16]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68F84",
+            "functionRva": "0x427120-0x428A92"
+          },
+          {
+            "instructionRva": "0x427ADC",
+            "instructionVa": "0x140427ADC",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x9414a1]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68F84",
+            "functionRva": "0x427120-0x428A92"
+          },
+          {
+            "instructionRva": "0x429295",
+            "instructionVa": "0x140429295",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x93fce8]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68F84",
+            "functionRva": "0x42914B-0x4296C7"
+          },
+          {
+            "instructionRva": "0x429819",
+            "instructionVa": "0x140429819",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x93f764]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68F84",
+            "functionRva": "0x4296C7-0x429CE9"
+          },
+          {
+            "instructionRva": "0x42AC14",
+            "instructionVa": "0x14042AC14",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x93e369]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68F84",
+            "functionRva": "0x42AB3A-0x42B1C1"
+          },
+          {
+            "instructionRva": "0x42B296",
+            "instructionVa": "0x14042B296",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x93dce7]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68F84",
+            "functionRva": "0x42B1C1-0x42B4FF"
+          },
+          {
+            "instructionRva": "0x42B2BE",
+            "instructionVa": "0x14042B2BE",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x93dcbf]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68F84",
+            "functionRva": "0x42B1C1-0x42B4FF"
+          },
+          {
+            "instructionRva": "0x42BBD6",
+            "instructionVa": "0x14042BBD6",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x93d3a7]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68F84",
+            "functionRva": "0x42BB70-0x42BCBE"
+          },
+          {
+            "instructionRva": "0x42BC58",
+            "instructionVa": "0x14042BC58",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x93d325]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68F84",
+            "functionRva": "0x42BB70-0x42BCBE"
+          },
+          {
+            "instructionRva": "0x42BD3A",
+            "instructionVa": "0x14042BD3A",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x93d243]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68F84",
+            "functionRva": "0x42BCBE-0x42BDD1"
+          }
+        ]
+      },
+      "phase": {
+        "occurrences": [
+          {
+            "raw": "0x7CB26C",
+            "rva": "0x7CC46C",
+            "va": "0x1407CC46C"
+          },
+          {
+            "raw": "0x82BDE8",
+            "rva": "0x82CFE8",
+            "va": "0x14082CFE8"
+          },
+          {
+            "raw": "0x8406DE",
+            "rva": "0x8418DE",
+            "va": "0x1408418DE"
+          },
+          {
+            "raw": "0x840896",
+            "rva": "0x841A96",
+            "va": "0x140841A96"
+          },
+          {
+            "raw": "0x84A4D3",
+            "rva": "0x84B6D3",
+            "va": "0x14084B6D3"
+          },
+          {
+            "raw": "0xD53CA0",
+            "rva": "0xD54EA0",
+            "va": "0x140D54EA0"
+          },
+          {
+            "raw": "0xD67F58",
+            "rva": "0xD69158",
+            "va": "0x140D69158"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0xFB21E",
+            "instructionVa": "0x1400FB21E",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x731dc3]",
+            "referenceKind": "string",
+            "targetVa": "0x14082CFE8",
+            "functionRva": "0xFA09E-0xFC643"
+          },
+          {
+            "instructionRva": "0x2427E0",
+            "instructionVa": "0x1402427E0",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x5ff2af]",
+            "referenceKind": "string",
+            "targetVa": "0x140841A96",
+            "functionRva": "0x24276E-0x24292B"
+          },
+          {
+            "instructionRva": "0x3A1A23",
+            "instructionVa": "0x1403A1A23",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x9b3476]",
+            "referenceKind": "string",
+            "targetVa": "0x140D54EA0",
+            "functionRva": "0x3A19F3-0x3A1BD0"
+          },
+          {
+            "instructionRva": "0x3AD9F7",
+            "instructionVa": "0x1403AD9F7",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x9a74a2]",
+            "referenceKind": "string",
+            "targetVa": "0x140D54EA0",
+            "functionRva": "0x3AD9C7-0x3ADBA4"
+          },
+          {
+            "instructionRva": "0x3B2E17",
+            "instructionVa": "0x1403B2E17",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x9a2082]",
+            "referenceKind": "string",
+            "targetVa": "0x140D54EA0",
+            "functionRva": "0x3B2DE7-0x3B2FF6"
+          },
+          {
+            "instructionRva": "0x426E95",
+            "instructionVa": "0x140426E95",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x9422bc]",
+            "referenceKind": "string",
+            "targetVa": "0x140D69158",
+            "functionRva": "0x426D67-0x427069"
+          },
+          {
+            "instructionRva": "0x428482",
+            "instructionVa": "0x140428482",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x940ccf]",
+            "referenceKind": "string",
+            "targetVa": "0x140D69158",
+            "functionRva": "0x427120-0x428A92"
+          },
+          {
+            "instructionRva": "0x428579",
+            "instructionVa": "0x140428579",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x940bd8]",
+            "referenceKind": "string",
+            "targetVa": "0x140D69158",
+            "functionRva": "0x427120-0x428A92"
+          },
+          {
+            "instructionRva": "0x42AD92",
+            "instructionVa": "0x14042AD92",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x93e3bf]",
+            "referenceKind": "string",
+            "targetVa": "0x140D69158",
+            "functionRva": "0x42AB3A-0x42B1C1"
+          },
+          {
+            "instructionRva": "0x42B6A7",
+            "instructionVa": "0x14042B6A7",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x93daaa]",
+            "referenceKind": "string",
+            "targetVa": "0x140D69158",
+            "functionRva": "0x42B4FF-0x42B787"
+          }
+        ]
+      },
+      "scanning": {
+        "occurrences": [
+          {
+            "raw": "0x82DED9",
+            "rva": "0x82F0D9",
+            "va": "0x14082F0D9",
+            "descriptors": [
+              {
+                "raw": "0x82DEE8",
+                "rva": "0x82F0E8",
+                "va": "0x14082F0E8"
+              }
+            ]
+          },
+          {
+            "raw": "0xE6A79B",
+            "rva": "0xE6B99B",
+            "va": "0x140E6B99B"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0xFB1E5",
+            "instructionVa": "0x1400FB1E5",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x733efc]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082F0E8",
+            "functionRva": "0xFA09E-0xFC643"
+          }
+        ]
+      },
+      "completed": {
+        "occurrences": [
+          {
+            "raw": "0x7D4F6F",
+            "rva": "0x7D616F",
+            "va": "0x1407D616F"
+          },
+          {
+            "raw": "0x7DFB50",
+            "rva": "0x7E0D50",
+            "va": "0x1407E0D50"
+          },
+          {
+            "raw": "0x7FEDE1",
+            "rva": "0x7FFFE1",
+            "va": "0x1407FFFE1"
+          },
+          {
+            "raw": "0x7FFC4D",
+            "rva": "0x800E4D",
+            "va": "0x140800E4D"
+          },
+          {
+            "raw": "0x83B42C",
+            "rva": "0x83C62C",
+            "va": "0x14083C62C"
+          },
+          {
+            "raw": "0x8406C8",
+            "rva": "0x8418C8",
+            "va": "0x1408418C8"
+          },
+          {
+            "raw": "0x84A183",
+            "rva": "0x84B383",
+            "va": "0x14084B383"
+          },
+          {
+            "raw": "0x84A211",
+            "rva": "0x84B411",
+            "va": "0x14084B411"
+          },
+          {
+            "raw": "0x8BB29C",
+            "rva": "0x8BC49C",
+            "va": "0x1408BC49C"
+          },
+          {
+            "raw": "0xD269E9",
+            "rva": "0xD27BE9",
+            "va": "0x140D27BE9"
+          },
+          {
+            "raw": "0xD26A29",
+            "rva": "0xD27C29",
+            "va": "0x140D27C29"
+          },
+          {
+            "raw": "0xD26ADB",
+            "rva": "0xD27CDB",
+            "va": "0x140D27CDB"
+          },
+          {
+            "raw": "0xD26B1B",
+            "rva": "0xD27D1B",
+            "va": "0x140D27D1B"
+          },
+          {
+            "raw": "0xD458F4",
+            "rva": "0xD46AF4",
+            "va": "0x140D46AF4",
+            "descriptors": [
+              {
+                "raw": "0xD45900",
+                "rva": "0xD46B00",
+                "va": "0x140D46B00"
+              }
+            ]
+          },
+          {
+            "raw": "0xD5501C",
+            "rva": "0xD5621C",
+            "va": "0x140D5621C"
+          },
+          {
+            "raw": "0xD550EB",
+            "rva": "0xD562EB",
+            "va": "0x140D562EB"
+          },
+          {
+            "raw": "0xD557FD",
+            "rva": "0xD569FD",
+            "va": "0x140D569FD"
+          },
+          {
+            "raw": "0xD55E66",
+            "rva": "0xD57066",
+            "va": "0x140D57066"
+          },
+          {
+            "raw": "0xD5680E",
+            "rva": "0xD57A0E",
+            "va": "0x140D57A0E"
+          },
+          {
+            "raw": "0xD597DC",
+            "rva": "0xD5A9DC",
+            "va": "0x140D5A9DC"
+          },
+          {
+            "raw": "0xD5987B",
+            "rva": "0xD5AA7B",
+            "va": "0x140D5AA7B"
+          },
+          {
+            "raw": "0xD599A6",
+            "rva": "0xD5ABA6",
+            "va": "0x140D5ABA6"
+          },
+          {
+            "raw": "0xD59B9E",
+            "rva": "0xD5AD9E",
+            "va": "0x140D5AD9E"
+          },
+          {
+            "raw": "0xD59BD6",
+            "rva": "0xD5ADD6",
+            "va": "0x140D5ADD6"
+          },
+          {
+            "raw": "0xD5A353",
+            "rva": "0xD5B553",
+            "va": "0x140D5B553"
+          },
+          {
+            "raw": "0xD5FA97",
+            "rva": "0xD60C97",
+            "va": "0x140D60C97"
+          },
+          {
+            "raw": "0xD66E80",
+            "rva": "0xD68080",
+            "va": "0x140D68080"
+          },
+          {
+            "raw": "0xD67D98",
+            "rva": "0xD68F98",
+            "va": "0x140D68F98"
+          },
+          {
+            "raw": "0xD67DD7",
+            "rva": "0xD68FD7",
+            "va": "0x140D68FD7",
+            "descriptors": [
+              {
+                "raw": "0xD67DE0",
+                "rva": "0xD68FE0",
+                "va": "0x140D68FE0"
+              }
+            ]
+          },
+          {
+            "raw": "0xD680BB",
+            "rva": "0xD692BB",
+            "va": "0x140D692BB"
+          },
+          {
+            "raw": "0xD682D5",
+            "rva": "0xD694D5",
+            "va": "0x140D694D5"
+          },
+          {
+            "raw": "0xD683E3",
+            "rva": "0xD695E3",
+            "va": "0x140D695E3"
+          },
+          {
+            "raw": "0xD68448",
+            "rva": "0xD69648",
+            "va": "0x140D69648"
+          },
+          {
+            "raw": "0xE15E7A",
+            "rva": "0xE1707A",
+            "va": "0x140E1707A"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x2CE0DC",
+            "instructionVa": "0x1402CE0DC",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0xa78a1d]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x140D46B00",
+            "functionRva": "0x2CDCAB-0x2CE276"
+          },
+          {
+            "instructionRva": "0x3B7AD8",
+            "instructionVa": "0x1403B7AD8",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x99e73d]",
+            "referenceKind": "string",
+            "targetVa": "0x140D5621C",
+            "functionRva": "0x3B43CD-0x3B81C8"
+          },
+          {
+            "instructionRva": "0x3CFB52",
+            "instructionVa": "0x1403CFB52",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x98b245]",
+            "referenceKind": "string",
+            "targetVa": "0x140D5AD9E",
+            "functionRva": "0x3CF96B-0x3D0A03"
+          },
+          {
+            "instructionRva": "0x41D4D6",
+            "instructionVa": "0x14041D4D6",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x94aba3]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68080",
+            "functionRva": "0x41D3FC-0x41D5E7"
+          },
+          {
+            "instructionRva": "0x41D6FD",
+            "instructionVa": "0x14041D6FD",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x94a97c]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68080",
+            "functionRva": "0x41D5E7-0x41D84B"
+          },
+          {
+            "instructionRva": "0x426327",
+            "instructionVa": "0x140426327",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x942c6a]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68F98",
+            "functionRva": "0x42612D-0x426A05"
+          },
+          {
+            "instructionRva": "0x42650E",
+            "instructionVa": "0x14042650E",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x942a83]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68F98",
+            "functionRva": "0x42612D-0x426A05"
+          },
+          {
+            "instructionRva": "0x4265E3",
+            "instructionVa": "0x1404265E3",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x9429ae]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68F98",
+            "functionRva": "0x42612D-0x426A05"
+          },
+          {
+            "instructionRva": "0x426649",
+            "instructionVa": "0x140426649",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x942990]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x140D68FE0",
+            "functionRva": "0x42612D-0x426A05"
+          },
+          {
+            "instructionRva": "0x429714",
+            "instructionVa": "0x140429714",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x93f87d]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68F98",
+            "functionRva": "0x4296C7-0x429CE9"
+          },
+          {
+            "instructionRva": "0x429791",
+            "instructionVa": "0x140429791",
+            "mnemonic": "lea",
+            "opStr": "r9, [rip + 0x93fd3d]",
+            "referenceKind": "string",
+            "targetVa": "0x140D694D5",
+            "functionRva": "0x4296C7-0x429CE9"
+          }
+        ]
+      },
+      "failed": {
+        "occurrences": [
+          {
+            "raw": "0x10C561",
+            "rva": "0x10D161",
+            "va": "0x14010D161"
+          },
+          {
+            "raw": "0x3E68C8",
+            "rva": "0x3E74C8",
+            "va": "0x1403E74C8"
+          },
+          {
+            "raw": "0x3EC337",
+            "rva": "0x3ECF37",
+            "va": "0x1403ECF37"
+          },
+          {
+            "raw": "0x4297D9",
+            "rva": "0x42A3D9",
+            "va": "0x14042A3D9"
+          },
+          {
+            "raw": "0x5789D2",
+            "rva": "0x5795D2",
+            "va": "0x1405795D2"
+          },
+          {
+            "raw": "0x578C30",
+            "rva": "0x579830",
+            "va": "0x140579830"
+          },
+          {
+            "raw": "0x7C22B2",
+            "rva": "0x7C34B2",
+            "va": "0x1407C34B2"
+          },
+          {
+            "raw": "0x7C2422",
+            "rva": "0x7C3622",
+            "va": "0x1407C3622"
+          },
+          {
+            "raw": "0x7C24A2",
+            "rva": "0x7C36A2",
+            "va": "0x1407C36A2"
+          },
+          {
+            "raw": "0x7C24F2",
+            "rva": "0x7C36F2",
+            "va": "0x1407C36F2"
+          },
+          {
+            "raw": "0x7C3862",
+            "rva": "0x7C4A62",
+            "va": "0x1407C4A62"
+          },
+          {
+            "raw": "0x7C3F0A",
+            "rva": "0x7C510A",
+            "va": "0x1407C510A"
+          },
+          {
+            "raw": "0x7C3F86",
+            "rva": "0x7C5186",
+            "va": "0x1407C5186"
+          },
+          {
+            "raw": "0x7C4002",
+            "rva": "0x7C5202",
+            "va": "0x1407C5202"
+          },
+          {
+            "raw": "0x7C4072",
+            "rva": "0x7C5272",
+            "va": "0x1407C5272"
+          },
+          {
+            "raw": "0x7C53C2",
+            "rva": "0x7C65C2",
+            "va": "0x1407C65C2"
+          },
+          {
+            "raw": "0x7C547A",
+            "rva": "0x7C667A",
+            "va": "0x1407C667A"
+          },
+          {
+            "raw": "0x7C6417",
+            "rva": "0x7C7617",
+            "va": "0x1407C7617"
+          },
+          {
+            "raw": "0x7C675A",
+            "rva": "0x7C795A",
+            "va": "0x1407C795A"
+          },
+          {
+            "raw": "0x7C93F2",
+            "rva": "0x7CA5F2",
+            "va": "0x1407CA5F2"
+          },
+          {
+            "raw": "0x7C9452",
+            "rva": "0x7CA652",
+            "va": "0x1407CA652"
+          },
+          {
+            "raw": "0x7C95A2",
+            "rva": "0x7CA7A2",
+            "va": "0x1407CA7A2"
+          },
+          {
+            "raw": "0x7C99D2",
+            "rva": "0x7CABD2",
+            "va": "0x1407CABD2"
+          },
+          {
+            "raw": "0x7CC874",
+            "rva": "0x7CDA74",
+            "va": "0x1407CDA74"
+          },
+          {
+            "raw": "0x7D53F8",
+            "rva": "0x7D65F8",
+            "va": "0x1407D65F8"
+          },
+          {
+            "raw": "0x7E8D90",
+            "rva": "0x7E9F90",
+            "va": "0x1407E9F90"
+          },
+          {
+            "raw": "0x7E8EF0",
+            "rva": "0x7EA0F0",
+            "va": "0x1407EA0F0"
+          },
+          {
+            "raw": "0x7EA791",
+            "rva": "0x7EB991",
+            "va": "0x1407EB991"
+          },
+          {
+            "raw": "0x7EA7AC",
+            "rva": "0x7EB9AC",
+            "va": "0x1407EB9AC"
+          },
+          {
+            "raw": "0x7EA7E2",
+            "rva": "0x7EB9E2",
+            "va": "0x1407EB9E2"
+          },
+          {
+            "raw": "0x7ED87A",
+            "rva": "0x7EEA7A",
+            "va": "0x1407EEA7A"
+          },
+          {
+            "raw": "0x7ED8F0",
+            "rva": "0x7EEAF0",
+            "va": "0x1407EEAF0"
+          },
+          {
+            "raw": "0x7ED928",
+            "rva": "0x7EEB28",
+            "va": "0x1407EEB28"
+          },
+          {
+            "raw": "0x7ED962",
+            "rva": "0x7EEB62",
+            "va": "0x1407EEB62"
+          },
+          {
+            "raw": "0x7ED9E5",
+            "rva": "0x7EEBE5",
+            "va": "0x1407EEBE5"
+          },
+          {
+            "raw": "0x7EDFDA",
+            "rva": "0x7EF1DA",
+            "va": "0x1407EF1DA"
+          },
+          {
+            "raw": "0x7EE012",
+            "rva": "0x7EF212",
+            "va": "0x1407EF212"
+          },
+          {
+            "raw": "0x7EE0E2",
+            "rva": "0x7EF2E2",
+            "va": "0x1407EF2E2"
+          },
+          {
+            "raw": "0x7EE11A",
+            "rva": "0x7EF31A",
+            "va": "0x1407EF31A"
+          },
+          {
+            "raw": "0x7EE16A",
+            "rva": "0x7EF36A",
+            "va": "0x1407EF36A"
+          },
+          {
+            "raw": "0x7EE1FA",
+            "rva": "0x7EF3FA",
+            "va": "0x1407EF3FA"
+          },
+          {
+            "raw": "0x7EE24A",
+            "rva": "0x7EF44A",
+            "va": "0x1407EF44A"
+          },
+          {
+            "raw": "0x7F5B25",
+            "rva": "0x7F6D25",
+            "va": "0x1407F6D25"
+          },
+          {
+            "raw": "0x7F5B5C",
+            "rva": "0x7F6D5C",
+            "va": "0x1407F6D5C"
+          },
+          {
+            "raw": "0x7FB520",
+            "rva": "0x7FC720",
+            "va": "0x1407FC720"
+          },
+          {
+            "raw": "0x7FB5AC",
+            "rva": "0x7FC7AC",
+            "va": "0x1407FC7AC"
+          },
+          {
+            "raw": "0x7FB63A",
+            "rva": "0x7FC83A",
+            "va": "0x1407FC83A"
+          },
+          {
+            "raw": "0x7FD556",
+            "rva": "0x7FE756",
+            "va": "0x1407FE756"
+          },
+          {
+            "raw": "0x7FF27A",
+            "rva": "0x80047A",
+            "va": "0x14080047A"
+          },
+          {
+            "raw": "0x7FF590",
+            "rva": "0x800790",
+            "va": "0x140800790"
+          },
+          {
+            "raw": "0x80052A",
+            "rva": "0x80172A",
+            "va": "0x14080172A"
+          },
+          {
+            "raw": "0x8005E2",
+            "rva": "0x8017E2",
+            "va": "0x1408017E2"
+          },
+          {
+            "raw": "0x801780",
+            "rva": "0x802980",
+            "va": "0x140802980"
+          },
+          {
+            "raw": "0x801B35",
+            "rva": "0x802D35",
+            "va": "0x140802D35"
+          },
+          {
+            "raw": "0x8054BA",
+            "rva": "0x8066BA",
+            "va": "0x1408066BA"
+          },
+          {
+            "raw": "0x816982",
+            "rva": "0x817B82",
+            "va": "0x140817B82"
+          },
+          {
+            "raw": "0x8169BA",
+            "rva": "0x817BBA",
+            "va": "0x140817BBA"
+          },
+          {
+            "raw": "0x8169F2",
+            "rva": "0x817BF2",
+            "va": "0x140817BF2"
+          },
+          {
+            "raw": "0x816A2A",
+            "rva": "0x817C2A",
+            "va": "0x140817C2A"
+          },
+          {
+            "raw": "0x816B02",
+            "rva": "0x817D02",
+            "va": "0x140817D02"
+          },
+          {
+            "raw": "0x8170FA",
+            "rva": "0x8182FA",
+            "va": "0x1408182FA"
+          },
+          {
+            "raw": "0x8171D2",
+            "rva": "0x8183D2",
+            "va": "0x1408183D2"
+          },
+          {
+            "raw": "0x821D80",
+            "rva": "0x822F80",
+            "va": "0x140822F80"
+          },
+          {
+            "raw": "0x8222D0",
+            "rva": "0x8234D0",
+            "va": "0x1408234D0"
+          },
+          {
+            "raw": "0x8228EA",
+            "rva": "0x823AEA",
+            "va": "0x140823AEA"
+          },
+          {
+            "raw": "0x822CEA",
+            "rva": "0x823EEA",
+            "va": "0x140823EEA"
+          },
+          {
+            "raw": "0x822D2A",
+            "rva": "0x823F2A",
+            "va": "0x140823F2A"
+          },
+          {
+            "raw": "0x822D62",
+            "rva": "0x823F62",
+            "va": "0x140823F62"
+          },
+          {
+            "raw": "0x822DB2",
+            "rva": "0x823FB2",
+            "va": "0x140823FB2"
+          },
+          {
+            "raw": "0x822E4A",
+            "rva": "0x82404A",
+            "va": "0x14082404A"
+          },
+          {
+            "raw": "0x822E9A",
+            "rva": "0x82409A",
+            "va": "0x14082409A"
+          },
+          {
+            "raw": "0x822EF2",
+            "rva": "0x8240F2",
+            "va": "0x1408240F2"
+          },
+          {
+            "raw": "0x822F9A",
+            "rva": "0x82419A",
+            "va": "0x14082419A"
+          },
+          {
+            "raw": "0x823126",
+            "rva": "0x824326",
+            "va": "0x140824326"
+          },
+          {
+            "raw": "0x8231F5",
+            "rva": "0x8243F5",
+            "va": "0x1408243F5"
+          },
+          {
+            "raw": "0x82391F",
+            "rva": "0x824B1F",
+            "va": "0x140824B1F"
+          },
+          {
+            "raw": "0x823CFA",
+            "rva": "0x824EFA",
+            "va": "0x140824EFA"
+          },
+          {
+            "raw": "0x823D32",
+            "rva": "0x824F32",
+            "va": "0x140824F32"
+          },
+          {
+            "raw": "0x823D74",
+            "rva": "0x824F74",
+            "va": "0x140824F74"
+          },
+          {
+            "raw": "0x823D93",
+            "rva": "0x824F93",
+            "va": "0x140824F93"
+          },
+          {
+            "raw": "0x823DD4",
+            "rva": "0x824FD4",
+            "va": "0x140824FD4"
+          },
+          {
+            "raw": "0x829C6A",
+            "rva": "0x82AE6A",
+            "va": "0x14082AE6A",
+            "descriptors": [
+              {
+                "raw": "0x82B388",
+                "rva": "0x82C588",
+                "va": "0x14082C588"
+              }
+            ]
+          },
+          {
+            "raw": "0x82AD6A",
+            "rva": "0x82BF6A",
+            "va": "0x14082BF6A"
+          },
+          {
+            "raw": "0x82AE7A",
+            "rva": "0x82C07A",
+            "va": "0x14082C07A"
+          },
+          {
+            "raw": "0x82AEE4",
+            "rva": "0x82C0E4",
+            "va": "0x14082C0E4"
+          },
+          {
+            "raw": "0x82B3B6",
+            "rva": "0x82C5B6",
+            "va": "0x14082C5B6"
+          },
+          {
+            "raw": "0x82B73A",
+            "rva": "0x82C93A",
+            "va": "0x14082C93A"
+          },
+          {
+            "raw": "0x82B957",
+            "rva": "0x82CB57",
+            "va": "0x14082CB57"
+          },
+          {
+            "raw": "0x82B984",
+            "rva": "0x82CB84",
+            "va": "0x14082CB84"
+          },
+          {
+            "raw": "0x82B9BC",
+            "rva": "0x82CBBC",
+            "va": "0x14082CBBC"
+          },
+          {
+            "raw": "0x82CA9C",
+            "rva": "0x82DC9C",
+            "va": "0x14082DC9C"
+          },
+          {
+            "raw": "0x82CAC4",
+            "rva": "0x82DCC4",
+            "va": "0x14082DCC4"
+          },
+          {
+            "raw": "0x82CBB7",
+            "rva": "0x82DDB7",
+            "va": "0x14082DDB7"
+          },
+          {
+            "raw": "0x82CD66",
+            "rva": "0x82DF66",
+            "va": "0x14082DF66"
+          },
+          {
+            "raw": "0x82CD94",
+            "rva": "0x82DF94",
+            "va": "0x14082DF94"
+          },
+          {
+            "raw": "0x82CDBD",
+            "rva": "0x82DFBD",
+            "va": "0x14082DFBD"
+          },
+          {
+            "raw": "0x82D1B7",
+            "rva": "0x82E3B7",
+            "va": "0x14082E3B7"
+          },
+          {
+            "raw": "0x82D1E2",
+            "rva": "0x82E3E2",
+            "va": "0x14082E3E2"
+          },
+          {
+            "raw": "0x82DE10",
+            "rva": "0x82F010",
+            "va": "0x14082F010"
+          },
+          {
+            "raw": "0x82DF49",
+            "rva": "0x82F149",
+            "va": "0x14082F149"
+          },
+          {
+            "raw": "0x82E11B",
+            "rva": "0x82F31B",
+            "va": "0x14082F31B"
+          },
+          {
+            "raw": "0x83B6AD",
+            "rva": "0x83C8AD",
+            "va": "0x14083C8AD"
+          },
+          {
+            "raw": "0x83BA9D",
+            "rva": "0x83CC9D",
+            "va": "0x14083CC9D"
+          },
+          {
+            "raw": "0x83BADC",
+            "rva": "0x83CCDC",
+            "va": "0x14083CCDC"
+          },
+          {
+            "raw": "0x83BB7A",
+            "rva": "0x83CD7A",
+            "va": "0x14083CD7A"
+          },
+          {
+            "raw": "0x83C7D8",
+            "rva": "0x83D9D8",
+            "va": "0x14083D9D8"
+          },
+          {
+            "raw": "0x83E3B9",
+            "rva": "0x83F5B9",
+            "va": "0x14083F5B9"
+          },
+          {
+            "raw": "0x83E568",
+            "rva": "0x83F768",
+            "va": "0x14083F768"
+          },
+          {
+            "raw": "0x846AC1",
+            "rva": "0x847CC1",
+            "va": "0x140847CC1"
+          },
+          {
+            "raw": "0x846B59",
+            "rva": "0x847D59",
+            "va": "0x140847D59"
+          },
+          {
+            "raw": "0x84A24C",
+            "rva": "0x84B44C",
+            "va": "0x14084B44C"
+          },
+          {
+            "raw": "0x84A284",
+            "rva": "0x84B484",
+            "va": "0x14084B484"
+          },
+          {
+            "raw": "0x84A2A6",
+            "rva": "0x84B4A6",
+            "va": "0x14084B4A6"
+          },
+          {
+            "raw": "0x8BAE30",
+            "rva": "0x8BC030",
+            "va": "0x1408BC030"
+          },
+          {
+            "raw": "0x8BB51D",
+            "rva": "0x8BC71D",
+            "va": "0x1408BC71D"
+          },
+          {
+            "raw": "0x8BB905",
+            "rva": "0x8BCB05",
+            "va": "0x1408BCB05"
+          },
+          {
+            "raw": "0x8BB944",
+            "rva": "0x8BCB44",
+            "va": "0x1408BCB44"
+          },
+          {
+            "raw": "0x8BB9E2",
+            "rva": "0x8BCBE2",
+            "va": "0x1408BCBE2"
+          },
+          {
+            "raw": "0x8BBD1A",
+            "rva": "0x8BCF1A",
+            "va": "0x1408BCF1A"
+          },
+          {
+            "raw": "0xABABE5",
+            "rva": "0xABBDE5",
+            "va": "0x140ABBDE5"
+          },
+          {
+            "raw": "0xABAC3D",
+            "rva": "0xABBE3D",
+            "va": "0x140ABBE3D"
+          },
+          {
+            "raw": "0xABACFD",
+            "rva": "0xABBEFD",
+            "va": "0x140ABBEFD"
+          },
+          {
+            "raw": "0xABAD35",
+            "rva": "0xABBF35",
+            "va": "0x140ABBF35"
+          },
+          {
+            "raw": "0xABB5F3",
+            "rva": "0xABC7F3",
+            "va": "0x140ABC7F3"
+          },
+          {
+            "raw": "0xABC43A",
+            "rva": "0xABD63A",
+            "va": "0x140ABD63A"
+          },
+          {
+            "raw": "0xABC458",
+            "rva": "0xABD658",
+            "va": "0x140ABD658"
+          },
+          {
+            "raw": "0xABD0D9",
+            "rva": "0xABE2D9",
+            "va": "0x140ABE2D9"
+          },
+          {
+            "raw": "0xABD5D9",
+            "rva": "0xABE7D9",
+            "va": "0x140ABE7D9"
+          },
+          {
+            "raw": "0xABD5F9",
+            "rva": "0xABE7F9",
+            "va": "0x140ABE7F9"
+          },
+          {
+            "raw": "0xABD732",
+            "rva": "0xABE932",
+            "va": "0x140ABE932"
+          },
+          {
+            "raw": "0xABD7B0",
+            "rva": "0xABE9B0",
+            "va": "0x140ABE9B0"
+          },
+          {
+            "raw": "0xB51DE5",
+            "rva": "0xB52FE5",
+            "va": "0x140B52FE5"
+          },
+          {
+            "raw": "0xB51E3D",
+            "rva": "0xB5303D",
+            "va": "0x140B5303D"
+          },
+          {
+            "raw": "0xB51EFD",
+            "rva": "0xB530FD",
+            "va": "0x140B530FD"
+          },
+          {
+            "raw": "0xB51F35",
+            "rva": "0xB53135",
+            "va": "0x140B53135"
+          },
+          {
+            "raw": "0xB527F3",
+            "rva": "0xB539F3",
+            "va": "0x140B539F3"
+          },
+          {
+            "raw": "0xB5363A",
+            "rva": "0xB5483A",
+            "va": "0x140B5483A"
+          },
+          {
+            "raw": "0xB53658",
+            "rva": "0xB54858",
+            "va": "0x140B54858"
+          },
+          {
+            "raw": "0xB542D9",
+            "rva": "0xB554D9",
+            "va": "0x140B554D9"
+          },
+          {
+            "raw": "0xB547D9",
+            "rva": "0xB559D9",
+            "va": "0x140B559D9"
+          },
+          {
+            "raw": "0xB547F9",
+            "rva": "0xB559F9",
+            "va": "0x140B559F9"
+          },
+          {
+            "raw": "0xB54932",
+            "rva": "0xB55B32",
+            "va": "0x140B55B32"
+          },
+          {
+            "raw": "0xB549B0",
+            "rva": "0xB55BB0",
+            "va": "0x140B55BB0"
+          },
+          {
+            "raw": "0xC070AB",
+            "rva": "0xC082AB",
+            "va": "0x140C082AB"
+          },
+          {
+            "raw": "0xC0A7C4",
+            "rva": "0xC0B9C4",
+            "va": "0x140C0B9C4"
+          },
+          {
+            "raw": "0xC0A8B4",
+            "rva": "0xC0BAB4",
+            "va": "0x140C0BAB4"
+          },
+          {
+            "raw": "0xC0A8C8",
+            "rva": "0xC0BAC8",
+            "va": "0x140C0BAC8"
+          },
+          {
+            "raw": "0xCBCD7A",
+            "rva": "0xCBDF7A",
+            "va": "0x140CBDF7A"
+          },
+          {
+            "raw": "0xCBCFC7",
+            "rva": "0xCBE1C7",
+            "va": "0x140CBE1C7"
+          },
+          {
+            "raw": "0xCBD02B",
+            "rva": "0xCBE22B",
+            "va": "0x140CBE22B"
+          },
+          {
+            "raw": "0xCBD09B",
+            "rva": "0xCBE29B",
+            "va": "0x140CBE29B"
+          },
+          {
+            "raw": "0xCBD5B6",
+            "rva": "0xCBE7B6",
+            "va": "0x140CBE7B6"
+          },
+          {
+            "raw": "0xCBE261",
+            "rva": "0xCBF461",
+            "va": "0x140CBF461"
+          },
+          {
+            "raw": "0xCBE4C2",
+            "rva": "0xCBF6C2",
+            "va": "0x140CBF6C2"
+          },
+          {
+            "raw": "0xCBE537",
+            "rva": "0xCBF737",
+            "va": "0x140CBF737"
+          },
+          {
+            "raw": "0xCBE5D9",
+            "rva": "0xCBF7D9",
+            "va": "0x140CBF7D9"
+          },
+          {
+            "raw": "0xCBE6A3",
+            "rva": "0xCBF8A3",
+            "va": "0x140CBF8A3"
+          },
+          {
+            "raw": "0xCBF0B2",
+            "rva": "0xCC02B2",
+            "va": "0x140CC02B2"
+          },
+          {
+            "raw": "0xCBF741",
+            "rva": "0xCC0941",
+            "va": "0x140CC0941"
+          },
+          {
+            "raw": "0xCC1288",
+            "rva": "0xCC2488",
+            "va": "0x140CC2488"
+          },
+          {
+            "raw": "0xCC70DF",
+            "rva": "0xCC82DF",
+            "va": "0x140CC82DF"
+          },
+          {
+            "raw": "0xCC72C5",
+            "rva": "0xCC84C5",
+            "va": "0x140CC84C5"
+          },
+          {
+            "raw": "0xCC755B",
+            "rva": "0xCC875B",
+            "va": "0x140CC875B"
+          },
+          {
+            "raw": "0xCC76E9",
+            "rva": "0xCC88E9",
+            "va": "0x140CC88E9"
+          },
+          {
+            "raw": "0xCC7C79",
+            "rva": "0xCC8E79",
+            "va": "0x140CC8E79"
+          },
+          {
+            "raw": "0xCC8233",
+            "rva": "0xCC9433",
+            "va": "0x140CC9433"
+          },
+          {
+            "raw": "0xCC841B",
+            "rva": "0xCC961B",
+            "va": "0x140CC961B"
+          },
+          {
+            "raw": "0xCC8D10",
+            "rva": "0xCC9F10",
+            "va": "0x140CC9F10"
+          },
+          {
+            "raw": "0xCC8DD6",
+            "rva": "0xCC9FD6",
+            "va": "0x140CC9FD6"
+          },
+          {
+            "raw": "0xCC8E72",
+            "rva": "0xCCA072",
+            "va": "0x140CCA072"
+          },
+          {
+            "raw": "0xCC93D3",
+            "rva": "0xCCA5D3",
+            "va": "0x140CCA5D3"
+          },
+          {
+            "raw": "0xCC94EB",
+            "rva": "0xCCA6EB",
+            "va": "0x140CCA6EB"
+          },
+          {
+            "raw": "0xCCBF97",
+            "rva": "0xCCD197",
+            "va": "0x140CCD197"
+          },
+          {
+            "raw": "0xCCBFB2",
+            "rva": "0xCCD1B2",
+            "va": "0x140CCD1B2"
+          },
+          {
+            "raw": "0xCCBFEB",
+            "rva": "0xCCD1EB",
+            "va": "0x140CCD1EB"
+          },
+          {
+            "raw": "0xCCC008",
+            "rva": "0xCCD208",
+            "va": "0x140CCD208"
+          },
+          {
+            "raw": "0xCCC07E",
+            "rva": "0xCCD27E",
+            "va": "0x140CCD27E"
+          },
+          {
+            "raw": "0xCCC0B3",
+            "rva": "0xCCD2B3",
+            "va": "0x140CCD2B3"
+          },
+          {
+            "raw": "0xCCC0F3",
+            "rva": "0xCCD2F3",
+            "va": "0x140CCD2F3"
+          },
+          {
+            "raw": "0xCCC143",
+            "rva": "0xCCD343",
+            "va": "0x140CCD343"
+          },
+          {
+            "raw": "0xCCC73B",
+            "rva": "0xCCD93B",
+            "va": "0x140CCD93B"
+          },
+          {
+            "raw": "0xCCC773",
+            "rva": "0xCCD973",
+            "va": "0x140CCD973"
+          },
+          {
+            "raw": "0xCCC843",
+            "rva": "0xCCDA43",
+            "va": "0x140CCDA43"
+          },
+          {
+            "raw": "0xCCC87B",
+            "rva": "0xCCDA7B",
+            "va": "0x140CCDA7B"
+          },
+          {
+            "raw": "0xCCC8CB",
+            "rva": "0xCCDACB",
+            "va": "0x140CCDACB"
+          },
+          {
+            "raw": "0xCCC95B",
+            "rva": "0xCCDB5B",
+            "va": "0x140CCDB5B"
+          },
+          {
+            "raw": "0xCCC9AB",
+            "rva": "0xCCDBAB",
+            "va": "0x140CCDBAB"
+          },
+          {
+            "raw": "0xCCDA26",
+            "rva": "0xCCEC26",
+            "va": "0x140CCEC26"
+          },
+          {
+            "raw": "0xCCDA5D",
+            "rva": "0xCCEC5D",
+            "va": "0x140CCEC5D"
+          },
+          {
+            "raw": "0xD25697",
+            "rva": "0xD26897",
+            "va": "0x140D26897"
+          },
+          {
+            "raw": "0xD25776",
+            "rva": "0xD26976",
+            "va": "0x140D26976"
+          },
+          {
+            "raw": "0xD257BA",
+            "rva": "0xD269BA",
+            "va": "0x140D269BA"
+          },
+          {
+            "raw": "0xD25CB8",
+            "rva": "0xD26EB8",
+            "va": "0x140D26EB8"
+          },
+          {
+            "raw": "0xD25CFB",
+            "rva": "0xD26EFB",
+            "va": "0x140D26EFB"
+          },
+          {
+            "raw": "0xD25D6C",
+            "rva": "0xD26F6C",
+            "va": "0x140D26F6C"
+          },
+          {
+            "raw": "0xD25E74",
+            "rva": "0xD27074",
+            "va": "0x140D27074"
+          },
+          {
+            "raw": "0xD25EB2",
+            "rva": "0xD270B2",
+            "va": "0x140D270B2"
+          },
+          {
+            "raw": "0xD2609A",
+            "rva": "0xD2729A",
+            "va": "0x140D2729A"
+          },
+          {
+            "raw": "0xD260FF",
+            "rva": "0xD272FF",
+            "va": "0x140D272FF"
+          },
+          {
+            "raw": "0xD2616D",
+            "rva": "0xD2736D",
+            "va": "0x140D2736D"
+          },
+          {
+            "raw": "0xD26A3A",
+            "rva": "0xD27C3A",
+            "va": "0x140D27C3A"
+          },
+          {
+            "raw": "0xD26B2C",
+            "rva": "0xD27D2C",
+            "va": "0x140D27D2C"
+          },
+          {
+            "raw": "0xD26C1A",
+            "rva": "0xD27E1A",
+            "va": "0x140D27E1A"
+          },
+          {
+            "raw": "0xD26C43",
+            "rva": "0xD27E43",
+            "va": "0x140D27E43"
+          },
+          {
+            "raw": "0xD26D65",
+            "rva": "0xD27F65",
+            "va": "0x140D27F65"
+          },
+          {
+            "raw": "0xD26DC2",
+            "rva": "0xD27FC2",
+            "va": "0x140D27FC2"
+          },
+          {
+            "raw": "0xD26DEB",
+            "rva": "0xD27FEB",
+            "va": "0x140D27FEB"
+          },
+          {
+            "raw": "0xD26E72",
+            "rva": "0xD28072",
+            "va": "0x140D28072"
+          },
+          {
+            "raw": "0xD26EC7",
+            "rva": "0xD280C7",
+            "va": "0x140D280C7"
+          },
+          {
+            "raw": "0xD2712D",
+            "rva": "0xD2832D",
+            "va": "0x140D2832D"
+          },
+          {
+            "raw": "0xD274D6",
+            "rva": "0xD286D6",
+            "va": "0x140D286D6"
+          },
+          {
+            "raw": "0xD465A3",
+            "rva": "0xD477A3",
+            "va": "0x140D477A3"
+          },
+          {
+            "raw": "0xD46846",
+            "rva": "0xD47A46",
+            "va": "0x140D47A46"
+          },
+          {
+            "raw": "0xD468B7",
+            "rva": "0xD47AB7",
+            "va": "0x140D47AB7"
+          },
+          {
+            "raw": "0xD46C0F",
+            "rva": "0xD47E0F",
+            "va": "0x140D47E0F"
+          },
+          {
+            "raw": "0xD47173",
+            "rva": "0xD48373",
+            "va": "0x140D48373"
+          },
+          {
+            "raw": "0xD4743B",
+            "rva": "0xD4863B",
+            "va": "0x140D4863B"
+          },
+          {
+            "raw": "0xD47730",
+            "rva": "0xD48930",
+            "va": "0x140D48930"
+          },
+          {
+            "raw": "0xD478C1",
+            "rva": "0xD48AC1",
+            "va": "0x140D48AC1"
+          },
+          {
+            "raw": "0xD4795C",
+            "rva": "0xD48B5C",
+            "va": "0x140D48B5C"
+          },
+          {
+            "raw": "0xD49DF2",
+            "rva": "0xD4AFF2",
+            "va": "0x140D4AFF2"
+          },
+          {
+            "raw": "0xD4BECE",
+            "rva": "0xD4D0CE",
+            "va": "0x140D4D0CE"
+          },
+          {
+            "raw": "0xD4DFE0",
+            "rva": "0xD4F1E0",
+            "va": "0x140D4F1E0"
+          },
+          {
+            "raw": "0xD4F03B",
+            "rva": "0xD5023B",
+            "va": "0x140D5023B"
+          },
+          {
+            "raw": "0xD4F6E7",
+            "rva": "0xD508E7",
+            "va": "0x140D508E7"
+          },
+          {
+            "raw": "0xD4F8CA",
+            "rva": "0xD50ACA",
+            "va": "0x140D50ACA"
+          },
+          {
+            "raw": "0xD4F912",
+            "rva": "0xD50B12",
+            "va": "0x140D50B12"
+          },
+          {
+            "raw": "0xD50F80",
+            "rva": "0xD52180",
+            "va": "0x140D52180"
+          },
+          {
+            "raw": "0xD53E25",
+            "rva": "0xD55025",
+            "va": "0x140D55025"
+          },
+          {
+            "raw": "0xD53E5D",
+            "rva": "0xD5505D",
+            "va": "0x140D5505D"
+          },
+          {
+            "raw": "0xD53ECE",
+            "rva": "0xD550CE",
+            "va": "0x140D550CE"
+          },
+          {
+            "raw": "0xD54120",
+            "rva": "0xD55320",
+            "va": "0x140D55320"
+          },
+          {
+            "raw": "0xD5417B",
+            "rva": "0xD5537B",
+            "va": "0x140D5537B"
+          },
+          {
+            "raw": "0xD5521B",
+            "rva": "0xD5641B",
+            "va": "0x140D5641B"
+          },
+          {
+            "raw": "0xD5577F",
+            "rva": "0xD5697F",
+            "va": "0x140D5697F"
+          },
+          {
+            "raw": "0xD55E77",
+            "rva": "0xD57077",
+            "va": "0x140D57077"
+          },
+          {
+            "raw": "0xD5684D",
+            "rva": "0xD57A4D",
+            "va": "0x140D57A4D"
+          },
+          {
+            "raw": "0xD599B7",
+            "rva": "0xD5ABB7",
+            "va": "0x140D5ABB7"
+          },
+          {
+            "raw": "0xD59BAD",
+            "rva": "0xD5ADAD",
+            "va": "0x140D5ADAD"
+          },
+          {
+            "raw": "0xD59E9C",
+            "rva": "0xD5B09C",
+            "va": "0x140D5B09C"
+          },
+          {
+            "raw": "0xD5A367",
+            "rva": "0xD5B567",
+            "va": "0x140D5B567"
+          },
+          {
+            "raw": "0xD5A5E0",
+            "rva": "0xD5B7E0",
+            "va": "0x140D5B7E0"
+          },
+          {
+            "raw": "0xD5B399",
+            "rva": "0xD5C599",
+            "va": "0x140D5C599"
+          },
+          {
+            "raw": "0xD5C26A",
+            "rva": "0xD5D46A",
+            "va": "0x140D5D46A"
+          },
+          {
+            "raw": "0xD5C615",
+            "rva": "0xD5D815",
+            "va": "0x140D5D815"
+          },
+          {
+            "raw": "0xD5C6F1",
+            "rva": "0xD5D8F1",
+            "va": "0x140D5D8F1"
+          },
+          {
+            "raw": "0xD5CB97",
+            "rva": "0xD5DD97",
+            "va": "0x140D5DD97"
+          },
+          {
+            "raw": "0xD5CDD0",
+            "rva": "0xD5DFD0",
+            "va": "0x140D5DFD0"
+          },
+          {
+            "raw": "0xD5CE01",
+            "rva": "0xD5E001",
+            "va": "0x140D5E001"
+          },
+          {
+            "raw": "0xD5D619",
+            "rva": "0xD5E819",
+            "va": "0x140D5E819"
+          },
+          {
+            "raw": "0xD5D92F",
+            "rva": "0xD5EB2F",
+            "va": "0x140D5EB2F"
+          },
+          {
+            "raw": "0xD5DA5E",
+            "rva": "0xD5EC5E",
+            "va": "0x140D5EC5E"
+          },
+          {
+            "raw": "0xD5DD64",
+            "rva": "0xD5EF64",
+            "va": "0x140D5EF64"
+          },
+          {
+            "raw": "0xD5FAA8",
+            "rva": "0xD60CA8",
+            "va": "0x140D60CA8"
+          },
+          {
+            "raw": "0xD5FCA1",
+            "rva": "0xD60EA1",
+            "va": "0x140D60EA1"
+          },
+          {
+            "raw": "0xD608F5",
+            "rva": "0xD61AF5",
+            "va": "0x140D61AF5"
+          },
+          {
+            "raw": "0xD60FA0",
+            "rva": "0xD621A0",
+            "va": "0x140D621A0"
+          },
+          {
+            "raw": "0xD613C2",
+            "rva": "0xD625C2",
+            "va": "0x140D625C2"
+          },
+          {
+            "raw": "0xD648E6",
+            "rva": "0xD65AE6",
+            "va": "0x140D65AE6"
+          },
+          {
+            "raw": "0xD64C3A",
+            "rva": "0xD65E3A",
+            "va": "0x140D65E3A"
+          },
+          {
+            "raw": "0xD664E8",
+            "rva": "0xD676E8",
+            "va": "0x140D676E8"
+          },
+          {
+            "raw": "0xD66AAA",
+            "rva": "0xD67CAA",
+            "va": "0x140D67CAA"
+          },
+          {
+            "raw": "0xD66B49",
+            "rva": "0xD67D49",
+            "va": "0x140D67D49"
+          },
+          {
+            "raw": "0xD66B56",
+            "rva": "0xD67D56",
+            "va": "0x140D67D56"
+          },
+          {
+            "raw": "0xD66B98",
+            "rva": "0xD67D98",
+            "va": "0x140D67D98"
+          },
+          {
+            "raw": "0xD6705B",
+            "rva": "0xD6825B",
+            "va": "0x140D6825B"
+          },
+          {
+            "raw": "0xD670A4",
+            "rva": "0xD682A4",
+            "va": "0x140D682A4"
+          },
+          {
+            "raw": "0xD670EF",
+            "rva": "0xD682EF",
+            "va": "0x140D682EF"
+          },
+          {
+            "raw": "0xD6741E",
+            "rva": "0xD6861E",
+            "va": "0x140D6861E"
+          },
+          {
+            "raw": "0xD6798C",
+            "rva": "0xD68B8C",
+            "va": "0x140D68B8C"
+          },
+          {
+            "raw": "0xD679C8",
+            "rva": "0xD68BC8",
+            "va": "0x140D68BC8"
+          },
+          {
+            "raw": "0xD67A23",
+            "rva": "0xD68C23",
+            "va": "0x140D68C23"
+          },
+          {
+            "raw": "0xD67B10",
+            "rva": "0xD68D10",
+            "va": "0x140D68D10"
+          },
+          {
+            "raw": "0xD67DB1",
+            "rva": "0xD68FB1",
+            "va": "0x140D68FB1"
+          },
+          {
+            "raw": "0xD67F8E",
+            "rva": "0xD6918E",
+            "va": "0x140D6918E"
+          },
+          {
+            "raw": "0xD68039",
+            "rva": "0xD69239",
+            "va": "0x140D69239"
+          },
+          {
+            "raw": "0xD682E3",
+            "rva": "0xD694E3",
+            "va": "0x140D694E3"
+          },
+          {
+            "raw": "0xD68FC9",
+            "rva": "0xD6A1C9",
+            "va": "0x140D6A1C9"
+          },
+          {
+            "raw": "0xD69051",
+            "rva": "0xD6A251",
+            "va": "0x140D6A251"
+          },
+          {
+            "raw": "0xD693E1",
+            "rva": "0xD6A5E1",
+            "va": "0x140D6A5E1"
+          },
+          {
+            "raw": "0xD6955A",
+            "rva": "0xD6A75A",
+            "va": "0x140D6A75A"
+          },
+          {
+            "raw": "0xD69758",
+            "rva": "0xD6A958",
+            "va": "0x140D6A958"
+          },
+          {
+            "raw": "0xD697C0",
+            "rva": "0xD6A9C0",
+            "va": "0x140D6A9C0"
+          },
+          {
+            "raw": "0xD69900",
+            "rva": "0xD6AB00",
+            "va": "0x140D6AB00"
+          },
+          {
+            "raw": "0xD69DEA",
+            "rva": "0xD6AFEA",
+            "va": "0x140D6AFEA"
+          },
+          {
+            "raw": "0xD69F12",
+            "rva": "0xD6B112",
+            "va": "0x140D6B112"
+          },
+          {
+            "raw": "0xD6B152",
+            "rva": "0xD6C352",
+            "va": "0x140D6C352"
+          },
+          {
+            "raw": "0xD6B1CE",
+            "rva": "0xD6C3CE",
+            "va": "0x140D6C3CE"
+          },
+          {
+            "raw": "0xD6B2A2",
+            "rva": "0xD6C4A2",
+            "va": "0x140D6C4A2"
+          },
+          {
+            "raw": "0xD6B2E2",
+            "rva": "0xD6C4E2",
+            "va": "0x140D6C4E2"
+          },
+          {
+            "raw": "0xD6B352",
+            "rva": "0xD6C552",
+            "va": "0x140D6C552"
+          },
+          {
+            "raw": "0xD6B3A2",
+            "rva": "0xD6C5A2",
+            "va": "0x140D6C5A2"
+          },
+          {
+            "raw": "0xD6B3DA",
+            "rva": "0xD6C5DA",
+            "va": "0x140D6C5DA"
+          },
+          {
+            "raw": "0xD6B42A",
+            "rva": "0xD6C62A",
+            "va": "0x140D6C62A"
+          },
+          {
+            "raw": "0xD6B49A",
+            "rva": "0xD6C69A",
+            "va": "0x140D6C69A"
+          },
+          {
+            "raw": "0xD6B4EA",
+            "rva": "0xD6C6EA",
+            "va": "0x140D6C6EA"
+          },
+          {
+            "raw": "0xD6B542",
+            "rva": "0xD6C742",
+            "va": "0x140D6C742"
+          },
+          {
+            "raw": "0xD6B5EA",
+            "rva": "0xD6C7EA",
+            "va": "0x140D6C7EA"
+          },
+          {
+            "raw": "0xD6BEBA",
+            "rva": "0xD6D0BA",
+            "va": "0x140D6D0BA"
+          },
+          {
+            "raw": "0xD6FD52",
+            "rva": "0xD70F52",
+            "va": "0x140D70F52"
+          },
+          {
+            "raw": "0xD708A4",
+            "rva": "0xD71AA4",
+            "va": "0x140D71AA4"
+          },
+          {
+            "raw": "0xD708E2",
+            "rva": "0xD71AE2",
+            "va": "0x140D71AE2"
+          },
+          {
+            "raw": "0xD717C0",
+            "rva": "0xD729C0",
+            "va": "0x140D729C0"
+          },
+          {
+            "raw": "0xD71E1A",
+            "rva": "0xD7301A",
+            "va": "0x140D7301A"
+          },
+          {
+            "raw": "0xD7547F",
+            "rva": "0xD7667F",
+            "va": "0x140D7667F"
+          },
+          {
+            "raw": "0xD78462",
+            "rva": "0xD79662",
+            "va": "0x140D79662"
+          },
+          {
+            "raw": "0xD7851A",
+            "rva": "0xD7971A",
+            "va": "0x140D7971A"
+          },
+          {
+            "raw": "0xD78652",
+            "rva": "0xD79852",
+            "va": "0x140D79852"
+          },
+          {
+            "raw": "0xD78882",
+            "rva": "0xD79A82",
+            "va": "0x140D79A82"
+          },
+          {
+            "raw": "0xD7890A",
+            "rva": "0xD79B0A",
+            "va": "0x140D79B0A"
+          },
+          {
+            "raw": "0xD7895A",
+            "rva": "0xD79B5A",
+            "va": "0x140D79B5A"
+          },
+          {
+            "raw": "0xD7913A",
+            "rva": "0xD7A33A",
+            "va": "0x140D7A33A"
+          },
+          {
+            "raw": "0xD79182",
+            "rva": "0xD7A382",
+            "va": "0x140D7A382"
+          },
+          {
+            "raw": "0xD798AA",
+            "rva": "0xD7AAAA",
+            "va": "0x140D7AAAA"
+          },
+          {
+            "raw": "0xD79A3A",
+            "rva": "0xD7AC3A",
+            "va": "0x140D7AC3A"
+          },
+          {
+            "raw": "0xD7AA4A",
+            "rva": "0xD7BC4A",
+            "va": "0x140D7BC4A"
+          },
+          {
+            "raw": "0xD7E742",
+            "rva": "0xD7F942",
+            "va": "0x140D7F942"
+          },
+          {
+            "raw": "0xD7FC92",
+            "rva": "0xD80E92",
+            "va": "0x140D80E92"
+          },
+          {
+            "raw": "0xD7FD12",
+            "rva": "0xD80F12",
+            "va": "0x140D80F12"
+          },
+          {
+            "raw": "0xD8025A",
+            "rva": "0xD8145A",
+            "va": "0x140D8145A"
+          },
+          {
+            "raw": "0xD8029A",
+            "rva": "0xD8149A",
+            "va": "0x140D8149A"
+          },
+          {
+            "raw": "0xD804BC",
+            "rva": "0xD816BC",
+            "va": "0x140D816BC"
+          },
+          {
+            "raw": "0xD804FC",
+            "rva": "0xD816FC",
+            "va": "0x140D816FC"
+          },
+          {
+            "raw": "0xD8053C",
+            "rva": "0xD8173C",
+            "va": "0x140D8173C"
+          },
+          {
+            "raw": "0xD80732",
+            "rva": "0xD81932",
+            "va": "0x140D81932"
+          },
+          {
+            "raw": "0xD808B2",
+            "rva": "0xD81AB2",
+            "va": "0x140D81AB2"
+          },
+          {
+            "raw": "0xD808F2",
+            "rva": "0xD81AF2",
+            "va": "0x140D81AF2"
+          },
+          {
+            "raw": "0xD80A5A",
+            "rva": "0xD81C5A",
+            "va": "0x140D81C5A"
+          },
+          {
+            "raw": "0xDA1FC2",
+            "rva": "0xDA31C2",
+            "va": "0x140DA31C2"
+          },
+          {
+            "raw": "0xDA1FFA",
+            "rva": "0xDA31FA",
+            "va": "0x140DA31FA"
+          },
+          {
+            "raw": "0xDC57E5",
+            "rva": "0xDC69E5",
+            "va": "0x140DC69E5"
+          },
+          {
+            "raw": "0xDC582A",
+            "rva": "0xDC6A2A",
+            "va": "0x140DC6A2A"
+          },
+          {
+            "raw": "0xDDA6DA",
+            "rva": "0xDDB8DA",
+            "va": "0x140DDB8DA"
+          },
+          {
+            "raw": "0xDEF892",
+            "rva": "0xDF0A92",
+            "va": "0x140DF0A92"
+          },
+          {
+            "raw": "0xDEFE9B",
+            "rva": "0xDF109B",
+            "va": "0x140DF109B"
+          },
+          {
+            "raw": "0xDF1160",
+            "rva": "0xDF2360",
+            "va": "0x140DF2360"
+          },
+          {
+            "raw": "0xDF12FA",
+            "rva": "0xDF24FA",
+            "va": "0x140DF24FA"
+          },
+          {
+            "raw": "0xDF3B2A",
+            "rva": "0xDF4D2A",
+            "va": "0x140DF4D2A"
+          },
+          {
+            "raw": "0xDF3CC8",
+            "rva": "0xDF4EC8",
+            "va": "0x140DF4EC8"
+          },
+          {
+            "raw": "0xDF449A",
+            "rva": "0xDF569A",
+            "va": "0x140DF569A"
+          },
+          {
+            "raw": "0xDF5E6B",
+            "rva": "0xDF706B",
+            "va": "0x140DF706B"
+          },
+          {
+            "raw": "0xDF68DE",
+            "rva": "0xDF7ADE",
+            "va": "0x140DF7ADE"
+          },
+          {
+            "raw": "0xDF7296",
+            "rva": "0xDF8496",
+            "va": "0x140DF8496"
+          },
+          {
+            "raw": "0xDF72D2",
+            "rva": "0xDF84D2",
+            "va": "0x140DF84D2"
+          },
+          {
+            "raw": "0xE09970",
+            "rva": "0xE0AB70",
+            "va": "0x140E0AB70"
+          },
+          {
+            "raw": "0xE09DF5",
+            "rva": "0xE0AFF5",
+            "va": "0x140E0AFF5"
+          },
+          {
+            "raw": "0xE0A222",
+            "rva": "0xE0B422",
+            "va": "0x140E0B422"
+          },
+          {
+            "raw": "0xE0A6E2",
+            "rva": "0xE0B8E2",
+            "va": "0x140E0B8E2"
+          },
+          {
+            "raw": "0xE0A7B9",
+            "rva": "0xE0B9B9",
+            "va": "0x140E0B9B9"
+          },
+          {
+            "raw": "0xE0B02A",
+            "rva": "0xE0C22A",
+            "va": "0x140E0C22A"
+          },
+          {
+            "raw": "0xE0B184",
+            "rva": "0xE0C384",
+            "va": "0x140E0C384"
+          },
+          {
+            "raw": "0xE0B318",
+            "rva": "0xE0C518",
+            "va": "0x140E0C518"
+          },
+          {
+            "raw": "0xE0B36A",
+            "rva": "0xE0C56A",
+            "va": "0x140E0C56A"
+          },
+          {
+            "raw": "0xE0C06A",
+            "rva": "0xE0D26A",
+            "va": "0x140E0D26A"
+          },
+          {
+            "raw": "0xE0C4D2",
+            "rva": "0xE0D6D2",
+            "va": "0x140E0D6D2"
+          },
+          {
+            "raw": "0xE0C8E2",
+            "rva": "0xE0DAE2",
+            "va": "0x140E0DAE2"
+          },
+          {
+            "raw": "0xE0D1A2",
+            "rva": "0xE0E3A2",
+            "va": "0x140E0E3A2"
+          },
+          {
+            "raw": "0xE0F602",
+            "rva": "0xE10802",
+            "va": "0x140E10802"
+          },
+          {
+            "raw": "0xE0F69A",
+            "rva": "0xE1089A",
+            "va": "0x140E1089A"
+          },
+          {
+            "raw": "0xE0F712",
+            "rva": "0xE10912",
+            "va": "0x140E10912"
+          },
+          {
+            "raw": "0xE0F782",
+            "rva": "0xE10982",
+            "va": "0x140E10982"
+          },
+          {
+            "raw": "0xE10FEB",
+            "rva": "0xE121EB",
+            "va": "0x140E121EB"
+          },
+          {
+            "raw": "0xE11026",
+            "rva": "0xE12226",
+            "va": "0x140E12226"
+          },
+          {
+            "raw": "0xE11088",
+            "rva": "0xE12288",
+            "va": "0x140E12288"
+          },
+          {
+            "raw": "0xE111D1",
+            "rva": "0xE123D1",
+            "va": "0x140E123D1"
+          },
+          {
+            "raw": "0xE11230",
+            "rva": "0xE12430",
+            "va": "0x140E12430"
+          },
+          {
+            "raw": "0xE12402",
+            "rva": "0xE13602",
+            "va": "0x140E13602"
+          },
+          {
+            "raw": "0xE1327A",
+            "rva": "0xE1447A",
+            "va": "0x140E1447A"
+          },
+          {
+            "raw": "0xE135A2",
+            "rva": "0xE147A2",
+            "va": "0x140E147A2"
+          },
+          {
+            "raw": "0xE17B27",
+            "rva": "0xE18D27",
+            "va": "0x140E18D27"
+          },
+          {
+            "raw": "0xE17B41",
+            "rva": "0xE18D41",
+            "va": "0x140E18D41"
+          },
+          {
+            "raw": "0xE1A45B",
+            "rva": "0xE1B65B",
+            "va": "0x140E1B65B"
+          },
+          {
+            "raw": "0xE1A6AB",
+            "rva": "0xE1B8AB",
+            "va": "0x140E1B8AB"
+          },
+          {
+            "raw": "0xE1AB12",
+            "rva": "0xE1BD12",
+            "va": "0x140E1BD12"
+          },
+          {
+            "raw": "0xE1C752",
+            "rva": "0xE1D952",
+            "va": "0x140E1D952"
+          },
+          {
+            "raw": "0xE1C7EA",
+            "rva": "0xE1D9EA",
+            "va": "0x140E1D9EA"
+          },
+          {
+            "raw": "0xE1C862",
+            "rva": "0xE1DA62",
+            "va": "0x140E1DA62"
+          },
+          {
+            "raw": "0xE1C8D2",
+            "rva": "0xE1DAD2",
+            "va": "0x140E1DAD2"
+          },
+          {
+            "raw": "0xE1C9C0",
+            "rva": "0xE1DBC0",
+            "va": "0x140E1DBC0"
+          },
+          {
+            "raw": "0xE1DF0F",
+            "rva": "0xE1F10F",
+            "va": "0x140E1F10F"
+          },
+          {
+            "raw": "0xE1FC3A",
+            "rva": "0xE20E3A",
+            "va": "0x140E20E3A"
+          },
+          {
+            "raw": "0xE1FC7A",
+            "rva": "0xE20E7A",
+            "va": "0x140E20E7A"
+          },
+          {
+            "raw": "0xE1FCF5",
+            "rva": "0xE20EF5",
+            "va": "0x140E20EF5"
+          },
+          {
+            "raw": "0xE2018C",
+            "rva": "0xE2138C",
+            "va": "0x140E2138C"
+          },
+          {
+            "raw": "0xE20588",
+            "rva": "0xE21788",
+            "va": "0x140E21788"
+          },
+          {
+            "raw": "0xE20A31",
+            "rva": "0xE21C31",
+            "va": "0x140E21C31"
+          },
+          {
+            "raw": "0xE20BB1",
+            "rva": "0xE21DB1",
+            "va": "0x140E21DB1"
+          },
+          {
+            "raw": "0xE2102A",
+            "rva": "0xE2222A",
+            "va": "0x140E2222A"
+          },
+          {
+            "raw": "0xE210DA",
+            "rva": "0xE222DA",
+            "va": "0x140E222DA"
+          },
+          {
+            "raw": "0xE21452",
+            "rva": "0xE22652",
+            "va": "0x140E22652"
+          },
+          {
+            "raw": "0xE217F2",
+            "rva": "0xE229F2",
+            "va": "0x140E229F2"
+          },
+          {
+            "raw": "0xE21BDF",
+            "rva": "0xE22DDF",
+            "va": "0x140E22DDF"
+          },
+          {
+            "raw": "0xE21D98",
+            "rva": "0xE22F98",
+            "va": "0x140E22F98"
+          },
+          {
+            "raw": "0xE22517",
+            "rva": "0xE23717",
+            "va": "0x140E23717"
+          },
+          {
+            "raw": "0xE225DD",
+            "rva": "0xE237DD",
+            "va": "0x140E237DD"
+          },
+          {
+            "raw": "0xE22679",
+            "rva": "0xE23879",
+            "va": "0x140E23879"
+          },
+          {
+            "raw": "0xE230A6",
+            "rva": "0xE242A6",
+            "va": "0x140E242A6"
+          },
+          {
+            "raw": "0xE23162",
+            "rva": "0xE24362",
+            "va": "0x140E24362"
+          },
+          {
+            "raw": "0xE231A2",
+            "rva": "0xE243A2",
+            "va": "0x140E243A2"
+          },
+          {
+            "raw": "0xE23212",
+            "rva": "0xE24412",
+            "va": "0x140E24412"
+          },
+          {
+            "raw": "0xE23262",
+            "rva": "0xE24462",
+            "va": "0x140E24462"
+          },
+          {
+            "raw": "0xE232B2",
+            "rva": "0xE244B2",
+            "va": "0x140E244B2"
+          },
+          {
+            "raw": "0xE2330A",
+            "rva": "0xE2450A",
+            "va": "0x140E2450A"
+          },
+          {
+            "raw": "0xE2335A",
+            "rva": "0xE2455A",
+            "va": "0x140E2455A"
+          },
+          {
+            "raw": "0xE233B2",
+            "rva": "0xE245B2",
+            "va": "0x140E245B2"
+          },
+          {
+            "raw": "0xE2345A",
+            "rva": "0xE2465A",
+            "va": "0x140E2465A"
+          },
+          {
+            "raw": "0xE235E2",
+            "rva": "0xE247E2",
+            "va": "0x140E247E2"
+          },
+          {
+            "raw": "0xE23A5F",
+            "rva": "0xE24C5F",
+            "va": "0x140E24C5F"
+          },
+          {
+            "raw": "0xE28016",
+            "rva": "0xE29216",
+            "va": "0x140E29216"
+          },
+          {
+            "raw": "0xE2834C",
+            "rva": "0xE2954C",
+            "va": "0x140E2954C"
+          },
+          {
+            "raw": "0xE286F1",
+            "rva": "0xE298F1",
+            "va": "0x140E298F1"
+          },
+          {
+            "raw": "0xE28D12",
+            "rva": "0xE29F12",
+            "va": "0x140E29F12"
+          },
+          {
+            "raw": "0xE28E3A",
+            "rva": "0xE2A03A",
+            "va": "0x140E2A03A"
+          },
+          {
+            "raw": "0xE28E72",
+            "rva": "0xE2A072",
+            "va": "0x140E2A072"
+          },
+          {
+            "raw": "0xE28F42",
+            "rva": "0xE2A142",
+            "va": "0x140E2A142"
+          },
+          {
+            "raw": "0xE28F82",
+            "rva": "0xE2A182",
+            "va": "0x140E2A182"
+          },
+          {
+            "raw": "0xE28FF2",
+            "rva": "0xE2A1F2",
+            "va": "0x140E2A1F2"
+          },
+          {
+            "raw": "0xE29042",
+            "rva": "0xE2A242",
+            "va": "0x140E2A242"
+          },
+          {
+            "raw": "0xE2907A",
+            "rva": "0xE2A27A",
+            "va": "0x140E2A27A"
+          },
+          {
+            "raw": "0xE290CA",
+            "rva": "0xE2A2CA",
+            "va": "0x140E2A2CA"
+          },
+          {
+            "raw": "0xE29162",
+            "rva": "0xE2A362",
+            "va": "0x140E2A362"
+          },
+          {
+            "raw": "0xE291B2",
+            "rva": "0xE2A3B2",
+            "va": "0x140E2A3B2"
+          },
+          {
+            "raw": "0xE2920A",
+            "rva": "0xE2A40A",
+            "va": "0x140E2A40A"
+          },
+          {
+            "raw": "0xE292B2",
+            "rva": "0xE2A4B2",
+            "va": "0x140E2A4B2"
+          },
+          {
+            "raw": "0xE2AFB8",
+            "rva": "0xE2C1B8",
+            "va": "0x140E2C1B8"
+          },
+          {
+            "raw": "0xE2B053",
+            "rva": "0xE2C253",
+            "va": "0x140E2C253"
+          },
+          {
+            "raw": "0xE2B0D3",
+            "rva": "0xE2C2D3",
+            "va": "0x140E2C2D3"
+          },
+          {
+            "raw": "0xE2C1E8",
+            "rva": "0xE2D3E8",
+            "va": "0x140E2D3E8"
+          },
+          {
+            "raw": "0xE2C9D9",
+            "rva": "0xE2DBD9",
+            "va": "0x140E2DBD9"
+          },
+          {
+            "raw": "0xE2CAF1",
+            "rva": "0xE2DCF1",
+            "va": "0x140E2DCF1"
+          },
+          {
+            "raw": "0xE2CB31",
+            "rva": "0xE2DD31",
+            "va": "0x140E2DD31"
+          },
+          {
+            "raw": "0xE2CB71",
+            "rva": "0xE2DD71",
+            "va": "0x140E2DD71"
+          },
+          {
+            "raw": "0xE2CBB1",
+            "rva": "0xE2DDB1",
+            "va": "0x140E2DDB1"
+          },
+          {
+            "raw": "0xE2CBF9",
+            "rva": "0xE2DDF9",
+            "va": "0x140E2DDF9"
+          },
+          {
+            "raw": "0xE2CC69",
+            "rva": "0xE2DE69",
+            "va": "0x140E2DE69"
+          },
+          {
+            "raw": "0xE2CCA9",
+            "rva": "0xE2DEA9",
+            "va": "0x140E2DEA9"
+          },
+          {
+            "raw": "0xE2CD01",
+            "rva": "0xE2DF01",
+            "va": "0x140E2DF01"
+          },
+          {
+            "raw": "0xE2CD81",
+            "rva": "0xE2DF81",
+            "va": "0x140E2DF81"
+          },
+          {
+            "raw": "0xE2CDE9",
+            "rva": "0xE2DFE9",
+            "va": "0x140E2DFE9"
+          },
+          {
+            "raw": "0xE2CE21",
+            "rva": "0xE2E021",
+            "va": "0x140E2E021"
+          },
+          {
+            "raw": "0xE2CE69",
+            "rva": "0xE2E069",
+            "va": "0x140E2E069"
+          },
+          {
+            "raw": "0xE2D943",
+            "rva": "0xE2EB43",
+            "va": "0x140E2EB43"
+          },
+          {
+            "raw": "0xE2D9AF",
+            "rva": "0xE2EBAF",
+            "va": "0x140E2EBAF"
+          },
+          {
+            "raw": "0xE2DD60",
+            "rva": "0xE2EF60",
+            "va": "0x140E2EF60"
+          },
+          {
+            "raw": "0xE2E086",
+            "rva": "0xE2F286",
+            "va": "0x140E2F286"
+          },
+          {
+            "raw": "0xE2E0D6",
+            "rva": "0xE2F2D6",
+            "va": "0x140E2F2D6"
+          },
+          {
+            "raw": "0xE2E1CA",
+            "rva": "0xE2F3CA",
+            "va": "0x140E2F3CA"
+          },
+          {
+            "raw": "0xE2F62A",
+            "rva": "0xE3082A",
+            "va": "0x140E3082A"
+          },
+          {
+            "raw": "0xE2FAE2",
+            "rva": "0xE30CE2",
+            "va": "0x140E30CE2"
+          },
+          {
+            "raw": "0xE2FC59",
+            "rva": "0xE30E59",
+            "va": "0x140E30E59"
+          },
+          {
+            "raw": "0xE2FCA2",
+            "rva": "0xE30EA2",
+            "va": "0x140E30EA2"
+          },
+          {
+            "raw": "0xE2FD14",
+            "rva": "0xE30F14",
+            "va": "0x140E30F14"
+          },
+          {
+            "raw": "0xE30362",
+            "rva": "0xE31562",
+            "va": "0x140E31562"
+          },
+          {
+            "raw": "0xE31409",
+            "rva": "0xE32609",
+            "va": "0x140E32609"
+          },
+          {
+            "raw": "0xE31425",
+            "rva": "0xE32625",
+            "va": "0x140E32625"
+          },
+          {
+            "raw": "0xE3148B",
+            "rva": "0xE3268B",
+            "va": "0x140E3268B"
+          },
+          {
+            "raw": "0xE314B0",
+            "rva": "0xE326B0",
+            "va": "0x140E326B0"
+          },
+          {
+            "raw": "0xE314F6",
+            "rva": "0xE326F6",
+            "va": "0x140E326F6"
+          },
+          {
+            "raw": "0xE3150B",
+            "rva": "0xE3270B",
+            "va": "0x140E3270B"
+          },
+          {
+            "raw": "0xE32104",
+            "rva": "0xE33304",
+            "va": "0x140E33304"
+          },
+          {
+            "raw": "0xE34579",
+            "rva": "0xE35779",
+            "va": "0x140E35779"
+          },
+          {
+            "raw": "0xE345BA",
+            "rva": "0xE357BA",
+            "va": "0x140E357BA"
+          },
+          {
+            "raw": "0xE3492A",
+            "rva": "0xE35B2A",
+            "va": "0x140E35B2A"
+          },
+          {
+            "raw": "0xE34A3A",
+            "rva": "0xE35C3A",
+            "va": "0x140E35C3A"
+          },
+          {
+            "raw": "0xE34A72",
+            "rva": "0xE35C72",
+            "va": "0x140E35C72"
+          },
+          {
+            "raw": "0xE34AEA",
+            "rva": "0xE35CEA",
+            "va": "0x140E35CEA"
+          },
+          {
+            "raw": "0xE34B5A",
+            "rva": "0xE35D5A",
+            "va": "0x140E35D5A"
+          },
+          {
+            "raw": "0xE34F09",
+            "rva": "0xE36109",
+            "va": "0x140E36109"
+          },
+          {
+            "raw": "0xE3602C",
+            "rva": "0xE3722C",
+            "va": "0x140E3722C"
+          },
+          {
+            "raw": "0xE360EA",
+            "rva": "0xE372EA",
+            "va": "0x140E372EA"
+          },
+          {
+            "raw": "0xE36132",
+            "rva": "0xE37332",
+            "va": "0x140E37332"
+          },
+          {
+            "raw": "0xE3669A",
+            "rva": "0xE3789A",
+            "va": "0x140E3789A"
+          },
+          {
+            "raw": "0xE37064",
+            "rva": "0xE38264",
+            "va": "0x140E38264"
+          },
+          {
+            "raw": "0xE374C2",
+            "rva": "0xE386C2",
+            "va": "0x140E386C2"
+          },
+          {
+            "raw": "0xE3848A",
+            "rva": "0xE3968A",
+            "va": "0x140E3968A"
+          },
+          {
+            "raw": "0xE386FA",
+            "rva": "0xE398FA",
+            "va": "0x140E398FA"
+          },
+          {
+            "raw": "0xE38942",
+            "rva": "0xE39B42",
+            "va": "0x140E39B42"
+          },
+          {
+            "raw": "0xE389B2",
+            "rva": "0xE39BB2",
+            "va": "0x140E39BB2"
+          },
+          {
+            "raw": "0xE38B8A",
+            "rva": "0xE39D8A",
+            "va": "0x140E39D8A"
+          },
+          {
+            "raw": "0xE38C42",
+            "rva": "0xE39E42",
+            "va": "0x140E39E42"
+          },
+          {
+            "raw": "0xE38C8A",
+            "rva": "0xE39E8A",
+            "va": "0x140E39E8A"
+          },
+          {
+            "raw": "0xE38CE2",
+            "rva": "0xE39EE2",
+            "va": "0x140E39EE2"
+          },
+          {
+            "raw": "0xE38D2A",
+            "rva": "0xE39F2A",
+            "va": "0x140E39F2A"
+          },
+          {
+            "raw": "0xE38D6A",
+            "rva": "0xE39F6A",
+            "va": "0x140E39F6A"
+          },
+          {
+            "raw": "0xE38DAA",
+            "rva": "0xE39FAA",
+            "va": "0x140E39FAA"
+          },
+          {
+            "raw": "0xE38DEA",
+            "rva": "0xE39FEA",
+            "va": "0x140E39FEA"
+          },
+          {
+            "raw": "0xE38E5A",
+            "rva": "0xE3A05A",
+            "va": "0x140E3A05A"
+          },
+          {
+            "raw": "0xE38E9A",
+            "rva": "0xE3A09A",
+            "va": "0x140E3A09A"
+          },
+          {
+            "raw": "0xE38EE2",
+            "rva": "0xE3A0E2",
+            "va": "0x140E3A0E2"
+          },
+          {
+            "raw": "0xE38F2A",
+            "rva": "0xE3A12A",
+            "va": "0x140E3A12A"
+          },
+          {
+            "raw": "0xE38F72",
+            "rva": "0xE3A172",
+            "va": "0x140E3A172"
+          },
+          {
+            "raw": "0xE38FB2",
+            "rva": "0xE3A1B2",
+            "va": "0x140E3A1B2"
+          },
+          {
+            "raw": "0xE38FF2",
+            "rva": "0xE3A1F2",
+            "va": "0x140E3A1F2"
+          },
+          {
+            "raw": "0xE39858",
+            "rva": "0xE3AA58",
+            "va": "0x140E3AA58"
+          },
+          {
+            "raw": "0xE39C0A",
+            "rva": "0xE3AE0A",
+            "va": "0x140E3AE0A"
+          },
+          {
+            "raw": "0xE39F9A",
+            "rva": "0xE3B19A",
+            "va": "0x140E3B19A"
+          },
+          {
+            "raw": "0xE3A05A",
+            "rva": "0xE3B25A",
+            "va": "0x140E3B25A"
+          },
+          {
+            "raw": "0xE3A0A2",
+            "rva": "0xE3B2A2",
+            "va": "0x140E3B2A2"
+          },
+          {
+            "raw": "0xE3A0E2",
+            "rva": "0xE3B2E2",
+            "va": "0x140E3B2E2"
+          },
+          {
+            "raw": "0xE3A12A",
+            "rva": "0xE3B32A",
+            "va": "0x140E3B32A"
+          },
+          {
+            "raw": "0xE40302",
+            "rva": "0xE41502",
+            "va": "0x140E41502"
+          },
+          {
+            "raw": "0xE404E2",
+            "rva": "0xE416E2",
+            "va": "0x140E416E2"
+          },
+          {
+            "raw": "0xE40B2A",
+            "rva": "0xE41D2A",
+            "va": "0x140E41D2A"
+          },
+          {
+            "raw": "0xE40DC2",
+            "rva": "0xE41FC2",
+            "va": "0x140E41FC2"
+          },
+          {
+            "raw": "0xE40DEE",
+            "rva": "0xE41FEE",
+            "va": "0x140E41FEE"
+          },
+          {
+            "raw": "0xE40E1E",
+            "rva": "0xE4201E",
+            "va": "0x140E4201E"
+          },
+          {
+            "raw": "0xE412D2",
+            "rva": "0xE424D2",
+            "va": "0x140E424D2"
+          },
+          {
+            "raw": "0xE41300",
+            "rva": "0xE42500",
+            "va": "0x140E42500"
+          },
+          {
+            "raw": "0xE41822",
+            "rva": "0xE42A22",
+            "va": "0x140E42A22"
+          },
+          {
+            "raw": "0xE428AE",
+            "rva": "0xE43AAE",
+            "va": "0x140E43AAE"
+          },
+          {
+            "raw": "0xE42AD4",
+            "rva": "0xE43CD4",
+            "va": "0x140E43CD4"
+          },
+          {
+            "raw": "0xE42B32",
+            "rva": "0xE43D32",
+            "va": "0x140E43D32"
+          },
+          {
+            "raw": "0xE42E56",
+            "rva": "0xE44056",
+            "va": "0x140E44056"
+          },
+          {
+            "raw": "0xE42EEA",
+            "rva": "0xE440EA",
+            "va": "0x140E440EA"
+          },
+          {
+            "raw": "0xE42F0A",
+            "rva": "0xE4410A",
+            "va": "0x140E4410A"
+          },
+          {
+            "raw": "0xE42F82",
+            "rva": "0xE44182",
+            "va": "0x140E44182"
+          },
+          {
+            "raw": "0xE42FC2",
+            "rva": "0xE441C2",
+            "va": "0x140E441C2"
+          },
+          {
+            "raw": "0xE42FFA",
+            "rva": "0xE441FA",
+            "va": "0x140E441FA"
+          },
+          {
+            "raw": "0xE4304A",
+            "rva": "0xE4424A",
+            "va": "0x140E4424A"
+          },
+          {
+            "raw": "0xE45F6B",
+            "rva": "0xE4716B",
+            "va": "0x140E4716B"
+          },
+          {
+            "raw": "0xE46265",
+            "rva": "0xE47465",
+            "va": "0x140E47465"
+          },
+          {
+            "raw": "0xE46E52",
+            "rva": "0xE48052",
+            "va": "0x140E48052"
+          },
+          {
+            "raw": "0xE47AAA",
+            "rva": "0xE48CAA",
+            "va": "0x140E48CAA"
+          },
+          {
+            "raw": "0xE485C8",
+            "rva": "0xE497C8",
+            "va": "0x140E497C8"
+          },
+          {
+            "raw": "0xE48D67",
+            "rva": "0xE49F67",
+            "va": "0x140E49F67"
+          },
+          {
+            "raw": "0xE4C382",
+            "rva": "0xE4D582",
+            "va": "0x140E4D582"
+          },
+          {
+            "raw": "0xE4C6E2",
+            "rva": "0xE4D8E2",
+            "va": "0x140E4D8E2"
+          },
+          {
+            "raw": "0xE4C72A",
+            "rva": "0xE4D92A",
+            "va": "0x140E4D92A"
+          },
+          {
+            "raw": "0xE4CD4A",
+            "rva": "0xE4DF4A",
+            "va": "0x140E4DF4A"
+          },
+          {
+            "raw": "0xE4CF62",
+            "rva": "0xE4E162",
+            "va": "0x140E4E162"
+          },
+          {
+            "raw": "0xE553E2",
+            "rva": "0xE565E2",
+            "va": "0x140E565E2"
+          },
+          {
+            "raw": "0xE5548A",
+            "rva": "0xE5668A",
+            "va": "0x140E5668A"
+          },
+          {
+            "raw": "0xE5572A",
+            "rva": "0xE5692A",
+            "va": "0x140E5692A"
+          },
+          {
+            "raw": "0xE56A1A",
+            "rva": "0xE57C1A",
+            "va": "0x140E57C1A"
+          },
+          {
+            "raw": "0xE6044B",
+            "rva": "0xE6164B",
+            "va": "0x140E6164B"
+          },
+          {
+            "raw": "0xE62940",
+            "rva": "0xE63B40",
+            "va": "0x140E63B40"
+          },
+          {
+            "raw": "0xE62968",
+            "rva": "0xE63B68",
+            "va": "0x140E63B68"
+          },
+          {
+            "raw": "0xE62EC8",
+            "rva": "0xE640C8",
+            "va": "0x140E640C8"
+          },
+          {
+            "raw": "0xE632CF",
+            "rva": "0xE644CF",
+            "va": "0x140E644CF"
+          },
+          {
+            "raw": "0xE633FE",
+            "rva": "0xE645FE",
+            "va": "0x140E645FE"
+          },
+          {
+            "raw": "0xE648DE",
+            "rva": "0xE65ADE",
+            "va": "0x140E65ADE"
+          },
+          {
+            "raw": "0xE64962",
+            "rva": "0xE65B62",
+            "va": "0x140E65B62"
+          },
+          {
+            "raw": "0xE65EDC",
+            "rva": "0xE670DC",
+            "va": "0x140E670DC"
+          },
+          {
+            "raw": "0xE66151",
+            "rva": "0xE67351",
+            "va": "0x140E67351"
+          },
+          {
+            "raw": "0xE67103",
+            "rva": "0xE68303",
+            "va": "0x140E68303"
+          },
+          {
+            "raw": "0xE6938A",
+            "rva": "0xE6A58A",
+            "va": "0x140E6A58A"
+          },
+          {
+            "raw": "0xE693A9",
+            "rva": "0xE6A5A9",
+            "va": "0x140E6A5A9"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x4E37A",
+            "instructionVa": "0x14004E37A",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x7b03d5]",
+            "referenceKind": "string",
+            "targetVa": "0x1407FE756",
+            "functionRva": null
+          },
+          {
+            "instructionRva": "0xE034C",
+            "instructionVa": "0x1400E034C",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x74c235]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082C588",
+            "functionRva": "0xDFAA1-0xE0882"
+          },
+          {
+            "instructionRva": "0xE9F8D",
+            "instructionVa": "0x1400E9F8D",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x740ed6]",
+            "referenceKind": "string",
+            "targetVa": "0x14082AE6A",
+            "functionRva": "0xE9DBA-0xEBF1C"
+          },
+          {
+            "instructionRva": "0xEA75E",
+            "instructionVa": "0x1400EA75E",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x740705]",
+            "referenceKind": "string",
+            "targetVa": "0x14082AE6A",
+            "functionRva": "0xE9DBA-0xEBF1C"
+          },
+          {
+            "instructionRva": "0xEB6AC",
+            "instructionVa": "0x1400EB6AC",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x73f7b7]",
+            "referenceKind": "string",
+            "targetVa": "0x14082AE6A",
+            "functionRva": "0xE9DBA-0xEBF1C"
+          },
+          {
+            "instructionRva": "0xED12F",
+            "instructionVa": "0x1400ED12F",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x73dd34]",
+            "referenceKind": "string",
+            "targetVa": "0x14082AE6A",
+            "functionRva": "0xEC584-0xEDE19"
+          },
+          {
+            "instructionRva": "0xEF43C",
+            "instructionVa": "0x1400EF43C",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x73ba27]",
+            "referenceKind": "string",
+            "targetVa": "0x14082AE6A",
+            "functionRva": "0xEE3F9-0xEF8F1"
+          },
+          {
+            "instructionRva": "0xF0A64",
+            "instructionVa": "0x1400F0A64",
+            "mnemonic": "lea",
+            "opStr": "rdi, [rip + 0x73a3ff]",
+            "referenceKind": "string",
+            "targetVa": "0x14082AE6A",
+            "functionRva": "0xF0655-0xF2A09"
+          },
+          {
+            "instructionRva": "0xF1E10",
+            "instructionVa": "0x1400F1E10",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x739053]",
+            "referenceKind": "string",
+            "targetVa": "0x14082AE6A",
+            "functionRva": "0xF0655-0xF2A09"
+          },
+          {
+            "instructionRva": "0xFA78E",
+            "instructionVa": "0x1400FA78E",
+            "mnemonic": "lea",
+            "opStr": "r9, [rip + 0x73487b]",
+            "referenceKind": "string",
+            "targetVa": "0x14082F010",
+            "functionRva": "0xFA09E-0xFC643"
+          },
+          {
+            "instructionRva": "0xFB3FC",
+            "instructionVa": "0x1400FB3FC",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x733d46]",
+            "referenceKind": "string",
+            "targetVa": "0x14082F149",
+            "functionRva": "0xFA09E-0xFC643"
+          },
+          {
+            "instructionRva": "0x190600",
+            "instructionVa": "0x140190600",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x69a863]",
+            "referenceKind": "string",
+            "targetVa": "0x14082AE6A",
+            "functionRva": "0x18EE07-0x190734"
+          },
+          {
+            "instructionRva": "0x1F65AC",
+            "instructionVa": "0x1401F65AC",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x647425]",
+            "referenceKind": "string",
+            "targetVa": "0x14083D9D8",
+            "functionRva": "0x1F64D3-0x1F65CA"
+          },
+          {
+            "instructionRva": "0x1F66A3",
+            "instructionVa": "0x1401F66A3",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x64732e]",
+            "referenceKind": "string",
+            "targetVa": "0x14083D9D8",
+            "functionRva": "0x1F65CA-0x1F66C1"
+          },
+          {
+            "instructionRva": "0x1F679A",
+            "instructionVa": "0x1401F679A",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x647237]",
+            "referenceKind": "string",
+            "targetVa": "0x14083D9D8",
+            "functionRva": "0x1F66C1-0x1F67B8"
+          },
+          {
+            "instructionRva": "0x1F6891",
+            "instructionVa": "0x1401F6891",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x647140]",
+            "referenceKind": "string",
+            "targetVa": "0x14083D9D8",
+            "functionRva": "0x1F67B8-0x1F68AF"
+          },
+          {
+            "instructionRva": "0x1F6988",
+            "instructionVa": "0x1401F6988",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x647049]",
+            "referenceKind": "string",
+            "targetVa": "0x14083D9D8",
+            "functionRva": "0x1F68AF-0x1F69A6"
+          },
+          {
+            "instructionRva": "0x1F6A7F",
+            "instructionVa": "0x1401F6A7F",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x646f52]",
+            "referenceKind": "string",
+            "targetVa": "0x14083D9D8",
+            "functionRva": "0x1F69A6-0x1F6A9D"
+          },
+          {
+            "instructionRva": "0x2A1819",
+            "instructionVa": "0x1402A1819",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x61a810]",
+            "referenceKind": "string",
+            "targetVa": "0x1408BC030",
+            "functionRva": "0x2A14BB-0x2A186B"
+          },
+          {
+            "instructionRva": "0x2E5BAC",
+            "instructionVa": "0x1402E5BAC",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0xa62fa9]",
+            "referenceKind": "string",
+            "targetVa": "0x140D48B5C",
+            "functionRva": "0x2E5B3B-0x2E5BC5"
+          },
+          {
+            "instructionRva": "0x2E5C36",
+            "instructionVa": "0x1402E5C36",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0xa62f1f]",
+            "referenceKind": "string",
+            "targetVa": "0x140D48B5C",
+            "functionRva": "0x2E5BC5-0x2E5C4F"
+          },
+          {
+            "instructionRva": "0x2E5CC0",
+            "instructionVa": "0x1402E5CC0",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0xa62e95]",
+            "referenceKind": "string",
+            "targetVa": "0x140D48B5C",
+            "functionRva": "0x2E5C4F-0x2E5CD9"
+          },
+          {
+            "instructionRva": "0x2E5D4D",
+            "instructionVa": "0x1402E5D4D",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0xa62e08]",
+            "referenceKind": "string",
+            "targetVa": "0x140D48B5C",
+            "functionRva": "0x2E5CD9-0x2E5D66"
+          },
+          {
+            "instructionRva": "0x2E5DD7",
+            "instructionVa": "0x1402E5DD7",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0xa62d7e]",
+            "referenceKind": "string",
+            "targetVa": "0x140D48B5C",
+            "functionRva": "0x2E5D66-0x2E5DF0"
+          },
+          {
+            "instructionRva": "0x2E5E61",
+            "instructionVa": "0x1402E5E61",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0xa62cf4]",
+            "referenceKind": "string",
+            "targetVa": "0x140D48B5C",
+            "functionRva": "0x2E5DF0-0x2E5E7A"
+          },
+          {
+            "instructionRva": "0x2E5EEB",
+            "instructionVa": "0x1402E5EEB",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0xa62c6a]",
+            "referenceKind": "string",
+            "targetVa": "0x140D48B5C",
+            "functionRva": "0x2E5E7A-0x2E5F04"
+          },
+          {
+            "instructionRva": "0x2E5F75",
+            "instructionVa": "0x1402E5F75",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0xa62be0]",
+            "referenceKind": "string",
+            "targetVa": "0x140D48B5C",
+            "functionRva": "0x2E5F04-0x2E5F8E"
+          },
+          {
+            "instructionRva": "0x2E5FFF",
+            "instructionVa": "0x1402E5FFF",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0xa62b56]",
+            "referenceKind": "string",
+            "targetVa": "0x140D48B5C",
+            "functionRva": "0x2E5F8E-0x2E6018"
+          },
+          {
+            "instructionRva": "0x352964",
+            "instructionVa": "0x140352964",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x9ff815]",
+            "referenceKind": "string",
+            "targetVa": "0x140D52180",
+            "functionRva": "0x352824-0x352E6C"
+          },
+          {
+            "instructionRva": "0x37C9A7",
+            "instructionVa": "0x14037C9A7",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x9d2832]",
+            "referenceKind": "string",
+            "targetVa": "0x140D4F1E0",
+            "functionRva": "0x37C1DC-0x37CE1E"
+          },
+          {
+            "instructionRva": "0x3894D2",
+            "instructionVa": "0x1403894D2",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x9c6d62]",
+            "referenceKind": "string",
+            "targetVa": "0x140D5023B",
+            "functionRva": "0x387E0D-0x389E45"
+          },
+          {
+            "instructionRva": "0x389D47",
+            "instructionVa": "0x140389D47",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x9c64ed]",
+            "referenceKind": "string",
+            "targetVa": "0x140D5023B",
+            "functionRva": "0x387E0D-0x389E45"
+          },
+          {
+            "instructionRva": "0x3A254D",
+            "instructionVa": "0x1403A254D",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x9b2ad1]",
+            "referenceKind": "string",
+            "targetVa": "0x140D55025",
+            "functionRva": "0x3A209E-0x3A2837"
+          },
+          {
+            "instructionRva": "0x3A2574",
+            "instructionVa": "0x1403A2574",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x9b2aaa]",
+            "referenceKind": "string",
+            "targetVa": "0x140D55025",
+            "functionRva": "0x3A209E-0x3A2837"
+          },
+          {
+            "instructionRva": "0x3B9D09",
+            "instructionVa": "0x1403B9D09",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x99c70b]",
+            "referenceKind": "string",
+            "targetVa": "0x140D5641B",
+            "functionRva": "0x3B9B54-0x3B9DCA"
+          },
+          {
+            "instructionRva": "0x3BA10F",
+            "instructionVa": "0x1403BA10F",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x99c305]",
+            "referenceKind": "string",
+            "targetVa": "0x140D5641B",
+            "functionRva": "0x3BA076-0x3BA1DA"
+          },
+          {
+            "instructionRva": "0x3CFB70",
+            "instructionVa": "0x1403CFB70",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x98b236]",
+            "referenceKind": "string",
+            "targetVa": "0x140D5ADAD",
+            "functionRva": "0x3CF96B-0x3D0A03"
+          },
+          {
+            "instructionRva": "0x41C503",
+            "instructionVa": "0x14041C503",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x94b1de]",
+            "referenceKind": "string",
+            "targetVa": "0x140D676E8",
+            "functionRva": "0x41C448-0x41C8DD"
+          },
+          {
+            "instructionRva": "0x41F118",
+            "instructionVa": "0x14041F118",
+            "mnemonic": "lea",
+            "opStr": "r10, [rip + 0x9485c9]",
+            "referenceKind": "string",
+            "targetVa": "0x140D676E8",
+            "functionRva": "0x41EC72-0x41F4F8"
+          },
+          {
+            "instructionRva": "0x4252BF",
+            "instructionVa": "0x1404252BF",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x942422]",
+            "referenceKind": "string",
+            "targetVa": "0x140D676E8",
+            "functionRva": "0x424778-0x425C18"
+          },
+          {
+            "instructionRva": "0x42536E",
+            "instructionVa": "0x14042536E",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x942373]",
+            "referenceKind": "string",
+            "targetVa": "0x140D676E8",
+            "functionRva": "0x424778-0x425C18"
+          },
+          {
+            "instructionRva": "0x42640C",
+            "instructionVa": "0x14042640C",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x942b9e]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68FB1",
+            "functionRva": "0x42612D-0x426A05"
+          },
+          {
+            "instructionRva": "0x4264BA",
+            "instructionVa": "0x1404264BA",
+            "mnemonic": "lea",
+            "opStr": "r14, [rip + 0x942af0]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68FB1",
+            "functionRva": "0x42612D-0x426A05"
+          },
+          {
+            "instructionRva": "0x4265FB",
+            "instructionVa": "0x1404265FB",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x9429af]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68FB1",
+            "functionRva": "0x42612D-0x426A05"
+          },
+          {
+            "instructionRva": "0x426B24",
+            "instructionVa": "0x140426B24",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x942486]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68FB1",
+            "functionRva": "0x426A05-0x426D07"
+          },
+          {
+            "instructionRva": "0x428239",
+            "instructionVa": "0x140428239",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x940d71]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68FB1",
+            "functionRva": "0x427120-0x428A92"
+          },
+          {
+            "instructionRva": "0x4285CD",
+            "instructionVa": "0x1404285CD",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x9409dd]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68FB1",
+            "functionRva": "0x427120-0x428A92"
+          },
+          {
+            "instructionRva": "0x42974A",
+            "instructionVa": "0x14042974A",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x93f860]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68FB1",
+            "functionRva": "0x4296C7-0x429CE9"
+          },
+          {
+            "instructionRva": "0x429932",
+            "instructionVa": "0x140429932",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x93f678]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68FB1",
+            "functionRva": "0x4296C7-0x429CE9"
+          },
+          {
+            "instructionRva": "0x490C13",
+            "instructionVa": "0x140490C13",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x8e1da6]",
+            "referenceKind": "string",
+            "targetVa": "0x140D729C0",
+            "functionRva": "0x490BA2-0x490C2C"
+          },
+          {
+            "instructionRva": "0x53C435",
+            "instructionVa": "0x14053C435",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x8ce734]",
+            "referenceKind": "string",
+            "targetVa": "0x140E0AB70",
+            "functionRva": "0x53C3C4-0x53C44E"
+          },
+          {
+            "instructionRva": "0x53C4BF",
+            "instructionVa": "0x14053C4BF",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x8ce6aa]",
+            "referenceKind": "string",
+            "targetVa": "0x140E0AB70",
+            "functionRva": "0x53C44E-0x53C4D8"
+          },
+          {
+            "instructionRva": "0x53C549",
+            "instructionVa": "0x14053C549",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x8ce620]",
+            "referenceKind": "string",
+            "targetVa": "0x140E0AB70",
+            "functionRva": "0x53C4D8-0x53C562"
+          },
+          {
+            "instructionRva": "0x53C5D3",
+            "instructionVa": "0x14053C5D3",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x8ce596]",
+            "referenceKind": "string",
+            "targetVa": "0x140E0AB70",
+            "functionRva": "0x53C562-0x53C5EC"
+          },
+          {
+            "instructionRva": "0x53C65D",
+            "instructionVa": "0x14053C65D",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x8ce50c]",
+            "referenceKind": "string",
+            "targetVa": "0x140E0AB70",
+            "functionRva": "0x53C5EC-0x53C676"
+          },
+          {
+            "instructionRva": "0x53C6E7",
+            "instructionVa": "0x14053C6E7",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x8ce482]",
+            "referenceKind": "string",
+            "targetVa": "0x140E0AB70",
+            "functionRva": "0x53C676-0x53C700"
+          },
+          {
+            "instructionRva": "0x5775A1",
+            "instructionVa": "0x1405775A1",
+            "mnemonic": "movups",
+            "opStr": "xmm0, xmmword ptr [rip + 0x89ac43]",
+            "referenceKind": "string",
+            "targetVa": "0x140E121EB",
+            "functionRva": "0x577547-0x577767"
+          },
+          {
+            "instructionRva": "0x5777E8",
+            "instructionVa": "0x1405777E8",
+            "mnemonic": "movups",
+            "opStr": "xmm0, xmmword ptr [rip + 0x89aa99]",
+            "referenceKind": "string",
+            "targetVa": "0x140E12288",
+            "functionRva": "0x577767-0x577892"
+          },
+          {
+            "instructionRva": "0x577CFC",
+            "instructionVa": "0x140577CFC",
+            "mnemonic": "movups",
+            "opStr": "xmm0, xmmword ptr [rip + 0x89a72d]",
+            "referenceKind": "string",
+            "targetVa": "0x140E12430",
+            "functionRva": "0x577C0C-0x577D40"
+          },
+          {
+            "instructionRva": "0x593A13",
+            "instructionVa": "0x140593A13",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x88530d]",
+            "referenceKind": "string",
+            "targetVa": "0x140E18D27",
+            "functionRva": "0x593917-0x593DE3"
+          },
+          {
+            "instructionRva": "0x593B0D",
+            "instructionVa": "0x140593B0D",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x88522d]",
+            "referenceKind": "string",
+            "targetVa": "0x140E18D41",
+            "functionRva": "0x593917-0x593DE3"
+          },
+          {
+            "instructionRva": "0x5B7494",
+            "instructionVa": "0x1405B7494",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x869a5a]",
+            "referenceKind": "string",
+            "targetVa": "0x140E20EF5",
+            "functionRva": "0x5B733C-0x5B74BC"
+          },
+          {
+            "instructionRva": "0x5C62B7",
+            "instructionVa": "0x1405C62B7",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x85ccda]",
+            "referenceKind": "string",
+            "targetVa": "0x140E22F98",
+            "functionRva": "0x5C5C20-0x5C62D5"
+          },
+          {
+            "instructionRva": "0x5F9C34",
+            "instructionVa": "0x1405F9C34",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x832618]",
+            "referenceKind": "string",
+            "targetVa": "0x140E2C253",
+            "functionRva": "0x5F9B92-0x5FA170"
+          },
+          {
+            "instructionRva": "0x623D30",
+            "instructionVa": "0x140623D30",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x80e979]",
+            "referenceKind": "string",
+            "targetVa": "0x140E326B0",
+            "functionRva": "0x623CAA-0x623F3F"
+          },
+          {
+            "instructionRva": "0x623DEB",
+            "instructionVa": "0x140623DEB",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x80e899]",
+            "referenceKind": "string",
+            "targetVa": "0x140E3268B",
+            "functionRva": "0x623CAA-0x623F3F"
+          },
+          {
+            "instructionRva": "0x623E08",
+            "instructionVa": "0x140623E08",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x80e8e7]",
+            "referenceKind": "string",
+            "targetVa": "0x140E326F6",
+            "functionRva": "0x623CAA-0x623F3F"
+          },
+          {
+            "instructionRva": "0x623E25",
+            "instructionVa": "0x140623E25",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x80e7f9]",
+            "referenceKind": "string",
+            "targetVa": "0x140E32625",
+            "functionRva": "0x623CAA-0x623F3F"
+          },
+          {
+            "instructionRva": "0x623EF5",
+            "instructionVa": "0x140623EF5",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x80e80f]",
+            "referenceKind": "string",
+            "targetVa": "0x140E3270B",
+            "functionRva": "0x623CAA-0x623F3F"
+          },
+          {
+            "instructionRva": "0x637504",
+            "instructionVa": "0x140637504",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x7febfe]",
+            "referenceKind": "string",
+            "targetVa": "0x140E36109",
+            "functionRva": "0x637381-0x637546"
+          },
+          {
+            "instructionRva": "0x64C36A",
+            "instructionVa": "0x14064C36A",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x7ee6e7]",
+            "referenceKind": "string",
+            "targetVa": "0x140E3AA58",
+            "functionRva": "0x64C31E-0x64C383"
+          },
+          {
+            "instructionRva": "0x6CFA45",
+            "instructionVa": "0x1406CFA45",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x7940f4]",
+            "referenceKind": "string",
+            "targetVa": "0x140E63B40",
+            "functionRva": "0x6CFA24-0x6CFA62"
+          },
+          {
+            "instructionRva": "0x6CFAA6",
+            "instructionVa": "0x1406CFAA6",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x7940bb]",
+            "referenceKind": "string",
+            "targetVa": "0x140E63B68",
+            "functionRva": "0x6CFA74-0x6CFACB"
+          },
+          {
+            "instructionRva": "0x6E28A0",
+            "instructionVa": "0x1406E28A0",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x781821]",
+            "referenceKind": "string",
+            "targetVa": "0x140E640C8",
+            "functionRva": "0x6E2738-0x6E2903"
+          }
+        ]
+      },
+      "idle": {
+        "occurrences": [
+          {
+            "raw": "0x3B0E1F",
+            "rva": "0x3B1A1F",
+            "va": "0x1403B1A1F"
+          },
+          {
+            "raw": "0x40B4F6",
+            "rva": "0x40C0F6",
+            "va": "0x14040C0F6"
+          },
+          {
+            "raw": "0xD44AC8",
+            "rva": "0xD45CC8",
+            "va": "0x140D45CC8",
+            "descriptors": [
+              {
+                "raw": "0xD44AD0",
+                "rva": "0xD45CD0",
+                "va": "0x140D45CD0"
+              }
+            ]
+          },
+          {
+            "raw": "0xD637F8",
+            "rva": "0xD649F8",
+            "va": "0x140D649F8",
+            "descriptors": [
+              {
+                "raw": "0xD67F30",
+                "rva": "0xD69130",
+                "va": "0x140D69130"
+              }
+            ]
+          },
+          {
+            "raw": "0xDA18E0",
+            "rva": "0xDA2AE0",
+            "va": "0x140DA2AE0"
+          },
+          {
+            "raw": "0xDEFDFF",
+            "rva": "0xDF0FFF",
+            "va": "0x140DF0FFF"
+          },
+          {
+            "raw": "0xDEFE7E",
+            "rva": "0xDF107E",
+            "va": "0x140DF107E"
+          },
+          {
+            "raw": "0xDEFF37",
+            "rva": "0xDF1137",
+            "va": "0x140DF1137"
+          },
+          {
+            "raw": "0xDEFF44",
+            "rva": "0xDF1144",
+            "va": "0x140DF1144"
+          },
+          {
+            "raw": "0xDEFFA2",
+            "rva": "0xDF11A2",
+            "va": "0x140DF11A2"
+          },
+          {
+            "raw": "0xDF002F",
+            "rva": "0xDF122F",
+            "va": "0x140DF122F"
+          },
+          {
+            "raw": "0xDF004A",
+            "rva": "0xDF124A",
+            "va": "0x140DF124A"
+          },
+          {
+            "raw": "0xDF5C91",
+            "rva": "0xDF6E91",
+            "va": "0x140DF6E91"
+          },
+          {
+            "raw": "0xDF5CD9",
+            "rva": "0xDF6ED9",
+            "va": "0x140DF6ED9"
+          },
+          {
+            "raw": "0xE39BBD",
+            "rva": "0xE3ADBD",
+            "va": "0x140E3ADBD"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x2B93DA",
+            "instructionVa": "0x1402B93DA",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0xa8c8ef]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x140D45CD0",
+            "functionRva": "0x2B8DD1-0x2B9930"
+          },
+          {
+            "instructionRva": "0x426E5F",
+            "instructionVa": "0x140426E5F",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x9422ca]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x140D69130",
+            "functionRva": "0x426D67-0x427069"
+          },
+          {
+            "instructionRva": "0x428538",
+            "instructionVa": "0x140428538",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x940bf1]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x140D69130",
+            "functionRva": "0x427120-0x428A92"
+          },
+          {
+            "instructionRva": "0x42A15A",
+            "instructionVa": "0x14042A15A",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x93efcf]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x140D69130",
+            "functionRva": "0x429CE9-0x42AABC"
+          },
+          {
+            "instructionRva": "0x42AD5A",
+            "instructionVa": "0x14042AD5A",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x93e3cf]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x140D69130",
+            "functionRva": "0x42AB3A-0x42B1C1"
+          },
+          {
+            "instructionRva": "0x42B671",
+            "instructionVa": "0x14042B671",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x93dab8]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x140D69130",
+            "functionRva": "0x42B4FF-0x42B787"
+          },
+          {
+            "instructionRva": "0x4FFF2E",
+            "instructionVa": "0x1404FFF2E",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x8f120f]",
+            "referenceKind": "string",
+            "targetVa": "0x140DF1144",
+            "functionRva": "0x4FFDA7-0x500135"
+          }
+        ]
+      },
+      "totalBlocks": {
+        "occurrences": [
+          {
+            "raw": "0x82DF28",
+            "rva": "0x82F128",
+            "va": "0x14082F128"
+          },
+          {
+            "raw": "0xD59B93",
+            "rva": "0xD5AD93",
+            "va": "0x140D5AD93"
+          },
+          {
+            "raw": "0xD67D8D",
+            "rva": "0xD68F8D",
+            "va": "0x140D68F8D"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0xFB345",
+            "instructionVa": "0x1400FB345",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x733ddc]",
+            "referenceKind": "string",
+            "targetVa": "0x14082F128",
+            "functionRva": "0xFA09E-0xFC643"
+          },
+          {
+            "instructionRva": "0xFBE0C",
+            "instructionVa": "0x1400FBE0C",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x733315]",
+            "referenceKind": "string",
+            "targetVa": "0x14082F128",
+            "functionRva": "0xFA09E-0xFC643"
+          },
+          {
+            "instructionRva": "0x3CFB32",
+            "instructionVa": "0x1403CFB32",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x98b25a]",
+            "referenceKind": "string",
+            "targetVa": "0x140D5AD93",
+            "functionRva": "0x3CF96B-0x3D0A03"
+          },
+          {
+            "instructionRva": "0x426242",
+            "instructionVa": "0x140426242",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x942d44]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68F8D",
+            "functionRva": "0x42612D-0x426A05"
+          },
+          {
+            "instructionRva": "0x4262EB",
+            "instructionVa": "0x1404262EB",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x942c9b]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68F8D",
+            "functionRva": "0x42612D-0x426A05"
+          },
+          {
+            "instructionRva": "0x4264F6",
+            "instructionVa": "0x1404264F6",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x942a90]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68F8D",
+            "functionRva": "0x42612D-0x426A05"
+          },
+          {
+            "instructionRva": "0x426613",
+            "instructionVa": "0x140426613",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x942973]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68F8D",
+            "functionRva": "0x42612D-0x426A05"
+          },
+          {
+            "instructionRva": "0x426ADE",
+            "instructionVa": "0x140426ADE",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x9424a8]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68F8D",
+            "functionRva": "0x426A05-0x426D07"
+          },
+          {
+            "instructionRva": "0x4285E2",
+            "instructionVa": "0x1404285E2",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x9409a4]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68F8D",
+            "functionRva": "0x427120-0x428A92"
+          },
+          {
+            "instructionRva": "0x4296FC",
+            "instructionVa": "0x1404296FC",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x93f88a]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68F8D",
+            "functionRva": "0x4296C7-0x429CE9"
+          }
+        ]
+      },
+      "completedBlocks": {
+        "occurrences": [
+          {
+            "raw": "0xD59B9E",
+            "rva": "0xD5AD9E",
+            "va": "0x140D5AD9E"
+          },
+          {
+            "raw": "0xD67D98",
+            "rva": "0xD68F98",
+            "va": "0x140D68F98"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x3CFB52",
+            "instructionVa": "0x1403CFB52",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x98b245]",
+            "referenceKind": "string",
+            "targetVa": "0x140D5AD9E",
+            "functionRva": "0x3CF96B-0x3D0A03"
+          },
+          {
+            "instructionRva": "0x426327",
+            "instructionVa": "0x140426327",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x942c6a]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68F98",
+            "functionRva": "0x42612D-0x426A05"
+          },
+          {
+            "instructionRva": "0x42650E",
+            "instructionVa": "0x14042650E",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x942a83]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68F98",
+            "functionRva": "0x42612D-0x426A05"
+          },
+          {
+            "instructionRva": "0x4265E3",
+            "instructionVa": "0x1404265E3",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x9429ae]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68F98",
+            "functionRva": "0x42612D-0x426A05"
+          },
+          {
+            "instructionRva": "0x429714",
+            "instructionVa": "0x140429714",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x93f87d]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68F98",
+            "functionRva": "0x4296C7-0x429CE9"
+          }
+        ]
+      },
+      "readBlocks": {
+        "occurrences": [
+          {
+            "raw": "0x82DF33",
+            "rva": "0x82F133",
+            "va": "0x14082F133"
+          },
+          {
+            "raw": "0x82DF3F",
+            "rva": "0x82F13F",
+            "va": "0x14082F13F"
+          },
+          {
+            "raw": "0xD67DA7",
+            "rva": "0xD68FA7",
+            "va": "0x140D68FA7"
+          },
+          {
+            "raw": "0xD67DBF",
+            "rva": "0xD68FBF",
+            "va": "0x140D68FBF"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0xFB384",
+            "instructionVa": "0x1400FB384",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x733da8]",
+            "referenceKind": "string",
+            "targetVa": "0x14082F133",
+            "functionRva": "0xFA09E-0xFC643"
+          },
+          {
+            "instructionRva": "0x4263D0",
+            "instructionVa": "0x1404263D0",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x942bd0]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68FA7",
+            "functionRva": "0x42612D-0x426A05"
+          },
+          {
+            "instructionRva": "0x426AF3",
+            "instructionVa": "0x140426AF3",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x9424ad]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68FA7",
+            "functionRva": "0x426A05-0x426D07"
+          },
+          {
+            "instructionRva": "0x4285B5",
+            "instructionVa": "0x1404285B5",
+            "mnemonic": "lea",
+            "opStr": "rsi, [rip + 0x9409eb]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68FA7",
+            "functionRva": "0x427120-0x428A92"
+          },
+          {
+            "instructionRva": "0x4298FC",
+            "instructionVa": "0x1404298FC",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x93f6a4]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68FA7",
+            "functionRva": "0x4296C7-0x429CE9"
+          },
+          {
+            "instructionRva": "0x42B304",
+            "instructionVa": "0x14042B304",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x93dc9c]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68FA7",
+            "functionRva": "0x42B1C1-0x42B4FF"
+          },
+          {
+            "instructionRva": "0x42B411",
+            "instructionVa": "0x14042B411",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x93db8f]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68FA7",
+            "functionRva": "0x42B1C1-0x42B4FF"
+          }
+        ]
+      },
+      "failedBlocks": {
+        "occurrences": [
+          {
+            "raw": "0x82DF49",
+            "rva": "0x82F149",
+            "va": "0x14082F149"
+          },
+          {
+            "raw": "0xD4DFE0",
+            "rva": "0xD4F1E0",
+            "va": "0x140D4F1E0"
+          },
+          {
+            "raw": "0xD59BAD",
+            "rva": "0xD5ADAD",
+            "va": "0x140D5ADAD"
+          },
+          {
+            "raw": "0xD67DB1",
+            "rva": "0xD68FB1",
+            "va": "0x140D68FB1"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0xFB3FC",
+            "instructionVa": "0x1400FB3FC",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x733d46]",
+            "referenceKind": "string",
+            "targetVa": "0x14082F149",
+            "functionRva": "0xFA09E-0xFC643"
+          },
+          {
+            "instructionRva": "0x37C9A7",
+            "instructionVa": "0x14037C9A7",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x9d2832]",
+            "referenceKind": "string",
+            "targetVa": "0x140D4F1E0",
+            "functionRva": "0x37C1DC-0x37CE1E"
+          },
+          {
+            "instructionRva": "0x3CFB70",
+            "instructionVa": "0x1403CFB70",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x98b236]",
+            "referenceKind": "string",
+            "targetVa": "0x140D5ADAD",
+            "functionRva": "0x3CF96B-0x3D0A03"
+          },
+          {
+            "instructionRva": "0x42640C",
+            "instructionVa": "0x14042640C",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x942b9e]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68FB1",
+            "functionRva": "0x42612D-0x426A05"
+          },
+          {
+            "instructionRva": "0x4264BA",
+            "instructionVa": "0x1404264BA",
+            "mnemonic": "lea",
+            "opStr": "r14, [rip + 0x942af0]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68FB1",
+            "functionRva": "0x42612D-0x426A05"
+          },
+          {
+            "instructionRva": "0x4265FB",
+            "instructionVa": "0x1404265FB",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x9429af]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68FB1",
+            "functionRva": "0x42612D-0x426A05"
+          },
+          {
+            "instructionRva": "0x426B24",
+            "instructionVa": "0x140426B24",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x942486]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68FB1",
+            "functionRva": "0x426A05-0x426D07"
+          },
+          {
+            "instructionRva": "0x428239",
+            "instructionVa": "0x140428239",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x940d71]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68FB1",
+            "functionRva": "0x427120-0x428A92"
+          },
+          {
+            "instructionRva": "0x4285CD",
+            "instructionVa": "0x1404285CD",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x9409dd]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68FB1",
+            "functionRva": "0x427120-0x428A92"
+          },
+          {
+            "instructionRva": "0x42974A",
+            "instructionVa": "0x14042974A",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x93f860]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68FB1",
+            "functionRva": "0x4296C7-0x429CE9"
+          },
+          {
+            "instructionRva": "0x429932",
+            "instructionVa": "0x140429932",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x93f678]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68FB1",
+            "functionRva": "0x4296C7-0x429CE9"
+          }
+        ]
+      },
+      "unreadBlocks": {
+        "occurrences": [
+          {
+            "raw": "0x82DF3D",
+            "rva": "0x82F13D",
+            "va": "0x14082F13D"
+          },
+          {
+            "raw": "0xD67DBD",
+            "rva": "0xD68FBD",
+            "va": "0x140D68FBD"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0xFB3C5",
+            "instructionVa": "0x1400FB3C5",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x733d71]",
+            "referenceKind": "string",
+            "targetVa": "0x14082F13D",
+            "functionRva": "0xFA09E-0xFC643"
+          },
+          {
+            "instructionRva": "0x426547",
+            "instructionVa": "0x140426547",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x942a6f]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68FBD",
+            "functionRva": "0x42612D-0x426A05"
+          },
+          {
+            "instructionRva": "0x426B08",
+            "instructionVa": "0x140426B08",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x9424ae]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68FBD",
+            "functionRva": "0x426A05-0x426D07"
+          },
+          {
+            "instructionRva": "0x428678",
+            "instructionVa": "0x140428678",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x94093e]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68FBD",
+            "functionRva": "0x427120-0x428A92"
+          },
+          {
+            "instructionRva": "0x429994",
+            "instructionVa": "0x140429994",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x93f622]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68FBD",
+            "functionRva": "0x4296C7-0x429CE9"
+          }
+        ]
+      },
+      "inflightBlocks": {
+        "occurrences": [
+          {
+            "raw": "0x82DF55",
+            "rva": "0x82F155",
+            "va": "0x14082F155"
+          },
+          {
+            "raw": "0xD67DC9",
+            "rva": "0xD68FC9",
+            "va": "0x140D68FC9"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0xFB428",
+            "instructionVa": "0x1400FB428",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x733d26]",
+            "referenceKind": "string",
+            "targetVa": "0x14082F155",
+            "functionRva": "0xFA09E-0xFC643"
+          },
+          {
+            "instructionRva": "0x426574",
+            "instructionVa": "0x140426574",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x942a4e]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68FC9",
+            "functionRva": "0x42612D-0x426A05"
+          },
+          {
+            "instructionRva": "0x426B3B",
+            "instructionVa": "0x140426B3B",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x942487]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68FC9",
+            "functionRva": "0x426A05-0x426D07"
+          },
+          {
+            "instructionRva": "0x426EC9",
+            "instructionVa": "0x140426EC9",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x9420f9]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68FC9",
+            "functionRva": "0x426D67-0x427069"
+          },
+          {
+            "instructionRva": "0x42864E",
+            "instructionVa": "0x14042864E",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x940974]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68FC9",
+            "functionRva": "0x427120-0x428A92"
+          },
+          {
+            "instructionRva": "0x4297B3",
+            "instructionVa": "0x1404297B3",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x93f80f]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68FC9",
+            "functionRva": "0x4296C7-0x429CE9"
+          },
+          {
+            "instructionRva": "0x42995D",
+            "instructionVa": "0x14042995D",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x93f665]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68FC9",
+            "functionRva": "0x4296C7-0x429CE9"
+          },
+          {
+            "instructionRva": "0x42ADCA",
+            "instructionVa": "0x14042ADCA",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x93e1f8]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68FC9",
+            "functionRva": "0x42AB3A-0x42B1C1"
+          }
+        ]
+      },
+      "scanRate": {
+        "occurrences": [
+          {
+            "raw": "0x429A58",
+            "rva": "0x42A658",
+            "va": "0x14042A658"
+          },
+          {
+            "raw": "0x82DF8B",
+            "rva": "0x82F18B",
+            "va": "0x14082F18B"
+          },
+          {
+            "raw": "0xD6742A",
+            "rva": "0xD6862A",
+            "va": "0x140D6862A"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0xFB522",
+            "instructionVa": "0x1400FB522",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x733c62]",
+            "referenceKind": "string",
+            "targetVa": "0x14082F18B",
+            "functionRva": "0xFA09E-0xFC643"
+          },
+          {
+            "instructionRva": "0x42253B",
+            "instructionVa": "0x14042253B",
+            "mnemonic": "lea",
+            "opStr": "r8, [rip + 0x9460e8]",
+            "referenceKind": "string",
+            "targetVa": "0x140D6862A",
+            "functionRva": "0x4223F7-0x42287B"
+          },
+          {
+            "instructionRva": "0x4265AC",
+            "instructionVa": "0x1404265AC",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x942077]",
+            "referenceKind": "string",
+            "targetVa": "0x140D6862A",
+            "functionRva": "0x42612D-0x426A05"
+          },
+          {
+            "instructionRva": "0x426BD5",
+            "instructionVa": "0x140426BD5",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x941a4e]",
+            "referenceKind": "string",
+            "targetVa": "0x140D6862A",
+            "functionRva": "0x426A05-0x426D07"
+          },
+          {
+            "instructionRva": "0x428B75",
+            "instructionVa": "0x140428B75",
+            "mnemonic": "lea",
+            "opStr": "r8, [rip + 0x93faae]",
+            "referenceKind": "string",
+            "targetVa": "0x140D6862A",
+            "functionRva": "0x428A92-0x428D90"
+          },
+          {
+            "instructionRva": "0x429B14",
+            "instructionVa": "0x140429B14",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x93eb0f]",
+            "referenceKind": "string",
+            "targetVa": "0x140D6862A",
+            "functionRva": "0x4296C7-0x429CE9"
+          }
+        ]
+      },
+      "progressPercent": {
+        "occurrences": [
+          {
+            "raw": "0x82DF93",
+            "rva": "0x82F193",
+            "va": "0x14082F193"
+          },
+          {
+            "raw": "0xD67DF0",
+            "rva": "0xD68FF0",
+            "va": "0x140D68FF0"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0xFB571",
+            "instructionVa": "0x1400FB571",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x733c1b]",
+            "referenceKind": "string",
+            "targetVa": "0x14082F193",
+            "functionRva": "0xFA09E-0xFC643"
+          },
+          {
+            "instructionRva": "0x4266E3",
+            "instructionVa": "0x1404266E3",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x942906]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68FF0",
+            "functionRva": "0x42612D-0x426A05"
+          },
+          {
+            "instructionRva": "0x426C15",
+            "instructionVa": "0x140426C15",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x9423d4]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68FF0",
+            "functionRva": "0x426A05-0x426D07"
+          },
+          {
+            "instructionRva": "0x42861C",
+            "instructionVa": "0x14042861C",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x9409cd]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68FF0",
+            "functionRva": "0x427120-0x428A92"
+          },
+          {
+            "instructionRva": "0x429A6E",
+            "instructionVa": "0x140429A6E",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x93f57b]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68FF0",
+            "functionRva": "0x4296C7-0x429CE9"
+          }
+        ]
+      },
+      "nativeCaptureReady": {
+        "occurrences": [
+          {
+            "raw": "0x82DFCA",
+            "rva": "0x82F1CA",
+            "va": "0x14082F1CA"
+          },
+          {
+            "raw": "0xD68172",
+            "rva": "0xD69372",
+            "va": "0x140D69372"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0xFB5FD",
+            "instructionVa": "0x1400FB5FD",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x733bc6]",
+            "referenceKind": "string",
+            "targetVa": "0x14082F1CA",
+            "functionRva": "0xFA09E-0xFC643"
+          },
+          {
+            "instructionRva": "0xFBE6D",
+            "instructionVa": "0x1400FBE6D",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x733356]",
+            "referenceKind": "string",
+            "targetVa": "0x14082F1CA",
+            "functionRva": "0xFA09E-0xFC643"
+          },
+          {
+            "instructionRva": "0x427BEE",
+            "instructionVa": "0x140427BEE",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x94177d]",
+            "referenceKind": "string",
+            "targetVa": "0x140D69372",
+            "functionRva": "0x427120-0x428A92"
+          },
+          {
+            "instructionRva": "0x42A77F",
+            "instructionVa": "0x14042A77F",
+            "mnemonic": "movups",
+            "opStr": "xmm0, xmmword ptr [rip + 0x93ebec]",
+            "referenceKind": "string",
+            "targetVa": "0x140D69372",
+            "functionRva": "0x429CE9-0x42AABC"
+          }
+        ]
+      },
+      "nativePendingRecords": {
+        "occurrences": [
+          {
+            "raw": "0x82DFA2",
+            "rva": "0x82F1A2",
+            "va": "0x14082F1A2"
+          },
+          {
+            "raw": "0xD67EFD",
+            "rva": "0xD690FD",
+            "va": "0x140D690FD"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0xFB5A8",
+            "instructionVa": "0x1400FB5A8",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x733bf3]",
+            "referenceKind": "string",
+            "targetVa": "0x14082F1A2",
+            "functionRva": "0xFA09E-0xFC643"
+          },
+          {
+            "instructionRva": "0x426B56",
+            "instructionVa": "0x140426B56",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x9425a0]",
+            "referenceKind": "string",
+            "targetVa": "0x140D690FD",
+            "functionRva": "0x426A05-0x426D07"
+          },
+          {
+            "instructionRva": "0x427C25",
+            "instructionVa": "0x140427C25",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x9414d1]",
+            "referenceKind": "string",
+            "targetVa": "0x140D690FD",
+            "functionRva": "0x427120-0x428A92"
+          },
+          {
+            "instructionRva": "0x42A7E9",
+            "instructionVa": "0x14042A7E9",
+            "mnemonic": "movups",
+            "opStr": "xmm0, xmmword ptr [rip + 0x93e90d]",
+            "referenceKind": "string",
+            "targetVa": "0x140D690FD",
+            "functionRva": "0x429CE9-0x42AABC"
+          }
+        ]
+      },
+      "nativeDroppedRecords": {
+        "occurrences": [
+          {
+            "raw": "0x82DFB6",
+            "rva": "0x82F1B6",
+            "va": "0x14082F1B6"
+          },
+          {
+            "raw": "0xD67F11",
+            "rva": "0xD69111",
+            "va": "0x140D69111"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0xFB5D4",
+            "instructionVa": "0x1400FB5D4",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x733bdb]",
+            "referenceKind": "string",
+            "targetVa": "0x14082F1B6",
+            "functionRva": "0xFA09E-0xFC643"
+          },
+          {
+            "instructionRva": "0x426B72",
+            "instructionVa": "0x140426B72",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x942598]",
+            "referenceKind": "string",
+            "targetVa": "0x140D69111",
+            "functionRva": "0x426A05-0x426D07"
+          },
+          {
+            "instructionRva": "0x427C61",
+            "instructionVa": "0x140427C61",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x9414a9]",
+            "referenceKind": "string",
+            "targetVa": "0x140D69111",
+            "functionRva": "0x427120-0x428A92"
+          },
+          {
+            "instructionRva": "0x42A85A",
+            "instructionVa": "0x14042A85A",
+            "mnemonic": "movups",
+            "opStr": "xmm0, xmmword ptr [rip + 0x93e8b0]",
+            "referenceKind": "string",
+            "targetVa": "0x140D69111",
+            "functionRva": "0x429CE9-0x42AABC"
+          }
+        ]
+      },
+      "current server changed during map scan": {
+        "occurrences": [
+          {
+            "raw": "0x82DCC1",
+            "rva": "0x82EEC1",
+            "va": "0x14082EEC1"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0xF9783",
+            "instructionVa": "0x1400F9783",
+            "mnemonic": "lea",
+            "opStr": "r9, [rip + 0x735737]",
+            "referenceKind": "string",
+            "targetVa": "0x14082EEC1",
+            "functionRva": "0xF8CB2-0xFA09E"
+          }
+        ]
+      },
+      "map scan failed": {
+        "occurrences": [
+          {
+            "raw": "0xD68030",
+            "rva": "0xD69230",
+            "va": "0x140D69230"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x4288D0",
+            "instructionVa": "0x1404288D0",
+            "mnemonic": "lea",
+            "opStr": "r9, [rip + 0x940959]",
+            "referenceKind": "string",
+            "targetVa": "0x140D69230",
+            "functionRva": "0x427120-0x428A92"
+          }
+        ]
+      },
+      "map scan block count mismatch": {
+        "occurrences": [
+          {
+            "raw": "0x82E0EE",
+            "rva": "0x82F2EE",
+            "va": "0x14082F2EE"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0xFC1CA",
+            "instructionVa": "0x1400FC1CA",
+            "mnemonic": "lea",
+            "opStr": "r9, [rip + 0x73311d]",
+            "referenceKind": "string",
+            "targetVa": "0x14082F2EE",
+            "functionRva": "0xFA09E-0xFC643"
+          },
+          {
+            "instructionRva": "0xFC203",
+            "instructionVa": "0x1400FC203",
+            "mnemonic": "lea",
+            "opStr": "r9, [rip + 0x7330e4]",
+            "referenceKind": "string",
+            "targetVa": "0x14082F2EE",
+            "functionRva": "0xFA09E-0xFC643"
+          }
+        ]
+      },
+      "native world capture session stopped": {
+        "occurrences": [
+          {
+            "raw": "0xD681AD",
+            "rva": "0xD693AD",
+            "va": "0x140D693AD"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x427DC0",
+            "instructionVa": "0x140427DC0",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x9415e6]",
+            "referenceKind": "string",
+            "targetVa": "0x140D693AD",
+            "functionRva": "0x427120-0x428A92"
+          }
+        ]
+      },
+      "direct map scan completed": {
+        "occurrences": [
+          {
+            "raw": "0xD680AB",
+            "rva": "0xD692AB",
+            "va": "0x140D692AB"
+          }
+        ],
+        "xrefs": []
+      },
+      "bridge://map-scan-status": {
+        "occurrences": [
+          {
+            "raw": "0xD67F98",
+            "rva": "0xD69198",
+            "va": "0x140D69198"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x428D30",
+            "instructionVa": "0x140428D30",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x940461]",
+            "referenceKind": "string",
+            "targetVa": "0x140D69198",
+            "functionRva": "0x428A92-0x428D90"
+          }
+        ]
+      }
+    }
+  },
+  "limits": [
+    "Markers/xrefs identify exact current state-machine discovery sites but do not alone prove branch semantics.",
+    "Semantic promotion is based on bounded instruction tracing around these sites and recorded separately."
+  ]
+}
