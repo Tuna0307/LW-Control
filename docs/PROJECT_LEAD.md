@@ -12,15 +12,15 @@ SHA-256:
 
 ## Current phase
 
-**Phase 0 — preparation**
+**Phase 0 — preparation COMPLETE**
 
-Status: nearly complete. No 0.3.17 UI implementation or reverse-engineering task has been opened yet.
+Status: project baseline is clean and pushed. No 0.3.17 UI implementation or reverse-engineering task has been opened yet.
 
 ## Active work items
 
 | Work item | Owner | State | Scope |
 |---|---|---|---|
-| LWB317-PM-001 | Project lead | IN PROGRESS | Repository/documentation reset for 0.3.17 |
+| LWB317-PM-001 | Project lead | COMPLETE | Repository/documentation reset for 0.3.17 |
 | LWB317-UI-001 | Unassigned | QUEUED | Inventory top-level shell/navigation only |
 | LWB317-RE-* | None | BLOCKED BY PHASE ORDER | Begins after UI baseline |
 

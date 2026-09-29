@@ -2,11 +2,11 @@
 
 **Date:** 2026-09-29
 **Branch:** `research/offline-controller`
-**Phase:** 0 — project preparation
+**Phase:** 0 complete — awaiting first UI assignment
 
 ## Current state
 
-The abandoned bot rebuild has been deleted. The repository is back on the research branch.
+The abandoned bot rebuild has been deleted. The repository is back on the research branch, and the 0.3.17 preparation baseline is committed/pushed.
 
 The prior 0.3.1 reverse-engineering history remains intact and is treated as legacy evidence.
 

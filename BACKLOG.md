@@ -14,7 +14,7 @@ This is the current queue. Historical 0.3.1 backlog content is archived under
 - [x] Create current documentation index and worker-AI protocol.
 - [x] Create fresh 0.3.17 parity matrix and feature ledger.
 - [x] Create fresh UI-parity master plan.
-- [ ] Commit and push the preparation checkpoint.
+- [x] Commit and push the preparation checkpoint.
 - [ ] Project lead assigns first UI inventory task.
 
 ## Phase 1 — UI parity
