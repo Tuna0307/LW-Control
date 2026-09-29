@@ -14,11 +14,12 @@ Read in this order:
 8. [PROJECT_LEAD.md](PROJECT_LEAD.md)
 9. [AI_WORK_PROTOCOL.md](AI_WORK_PROTOCOL.md)
 10. [LOOP_WORKER_PROTOCOL.md](LOOP_WORKER_PROTOCOL.md) — required for Loop mode
-11. [LOOP_QUEUE.md](LOOP_QUEUE.md) — current Loop-ready work only
-12. [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md)
-13. [implementation-handoff.md](implementation-handoff.md)
-14. [../BACKLOG.md](../BACKLOG.md)
-15. [LEGACY_0.3.1_INDEX.md](LEGACY_0.3.1_INDEX.md)
+11. [LOOP_QUEUE.md](LOOP_QUEUE.md) — current Loop authorization
+12. [LOOP_CAMPAIGN_8H.md](LOOP_CAMPAIGN_8H.md) — active pre-authorized UI campaign
+13. [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md)
+14. [implementation-handoff.md](implementation-handoff.md)
+15. [../BACKLOG.md](../BACKLOG.md)
+16. [LEGACY_0.3.1_INDEX.md](LEGACY_0.3.1_INDEX.md)
 
 ## Reference authority
 
@@ -32,9 +33,17 @@ SHA-256:
 
 ## Current phase
 
-**Phase 0 — preparation.**
+**Phase 1 — UI parity.**
 
-UI reproduction and reverse engineering have not started under the new 0.3.17 program yet.
+The exact static frontend package baseline is accepted. An 8-hour UI-only Loop campaign is active for runtime/static UI inventory, clean 0.3.17 UI scaffolding/reproduction and visual comparison.
+
+Gameplay/backend function reverse engineering remains blocked until project-lead review after the campaign.
+
+## Explicit scope exception
+
+The original LWBridge login/account/licensing/entitlement system is **not being recreated**.
+
+If encountered, document the access boundary. Do not bypass it or reverse engineer the credential/token/license system. A later feature may justify a narrow dependency trace only for auth-produced state it directly consumes.
 
 ## Historical 0.3.1 material
 
@@ -56,9 +65,7 @@ Former high-level management docs were snapshotted under:
 
 `docs/archive/lwbridge-0.3.1-management/`
 
-Unless a document is listed in **Current authority** above, treat older top-level
-research documents as historical/contextual until the project lead promotes or
-revalidates them for 0.3.17.
+Unless a document is listed in **Current authority** above, treat older top-level research documents as historical/contextual until the project lead promotes or revalidates them for 0.3.17.
 
 Do not delete chronological research merely because the target version changed.
 
