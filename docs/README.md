@@ -13,10 +13,12 @@ Read in this order:
 7. [lwbridge-ui.md](lwbridge-ui.md)
 8. [PROJECT_LEAD.md](PROJECT_LEAD.md)
 9. [AI_WORK_PROTOCOL.md](AI_WORK_PROTOCOL.md)
-10. [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md)
-11. [implementation-handoff.md](implementation-handoff.md)
-12. [../BACKLOG.md](../BACKLOG.md)
-13. [LEGACY_0.3.1_INDEX.md](LEGACY_0.3.1_INDEX.md)
+10. [LOOP_WORKER_PROTOCOL.md](LOOP_WORKER_PROTOCOL.md) — required for Loop mode
+11. [LOOP_QUEUE.md](LOOP_QUEUE.md) — current Loop-ready work only
+12. [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md)
+13. [implementation-handoff.md](implementation-handoff.md)
+14. [../BACKLOG.md](../BACKLOG.md)
+15. [LEGACY_0.3.1_INDEX.md](LEGACY_0.3.1_INDEX.md)
 
 ## Reference authority
 

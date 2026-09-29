@@ -27,6 +27,9 @@ has started under the new 0.3.17 program.
 | LWB317-UI-001B | Unassigned | QUEUED | Runtime visual shell/navigation baseline only |
 | LWB317-RE-* | None | BLOCKED BY PHASE ORDER | Begins after UI baseline |
 
+Loop-mode workers must additionally follow `docs/LOOP_WORKER_PROTOCOL.md` and
+may execute only rows marked `READY` in `docs/LOOP_QUEUE.md`.
+
 ## Project-lead responsibilities
 
 Before assigning a worker:
