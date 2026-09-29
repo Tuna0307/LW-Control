@@ -103,11 +103,11 @@ function AutomationCard({ title, description }) {
           {description ? <p>{description}</p> : null}
         </div>
         <div className="automation-card-header-actions">
-          <button className="automation-header-switch" type="button" disabled aria-label={`${title}: Disabled`}><Switch checked={false} /></button>
+          <button className="automation-header-switch" type="button" role="switch" aria-checked="false" disabled aria-label={`${title}: Disabled`}><Switch checked={false} /></button>
         </div>
       </div>
-      <div className="automation-card-meta-row">
-        <span className="automation-state">Disabled</span>
+      <div className="automation-card-meta-row" role="status">
+        <span className="automation-state state-disabled">Disconnected</span>
       </div>
     </article>
   );
@@ -115,7 +115,7 @@ function AutomationCard({ title, description }) {
 
 function ResourceGatherCard() {
   return (
-    <article className="automation-card automation-card-wide">
+    <article className="automation-card" data-preview-fixture="runtime-config-unobserved">
       <div className="automation-card-header">
         <div className="automation-card-title-group">
           <h3>Resource gathering</h3>
@@ -124,30 +124,32 @@ function ResourceGatherCard() {
             under a shield and resume after the configured manual-action delay.
           </p>
         </div>
-        <button className="automation-header-switch" type="button" disabled aria-label="Resource gathering: Disabled"><Switch checked={false} /></button>
+        <button className="automation-header-switch" type="button" role="switch" aria-checked="false" disabled aria-label="Resource gathering: Disabled"><Switch checked={false} /></button>
       </div>
-      <div className="automation-config-body">
-        <p className="muted">Enable at least one gathering squad</p>
-        <div className="automation-form-grid">
-          <label>
-            <span>Resource</span>
-            <select disabled><option>—</option></select>
-          </label>
-          <label>
-            <span>Search level</span>
-            <input disabled value="" readOnly />
-          </label>
-          <label>
-            <span>Wait after manual actions (minutes)</span>
-            <input disabled value="" readOnly />
-          </label>
-          <label>
-            <span>Scan radius (tiles)</span>
-            <input disabled value="" readOnly />
-          </label>
-        </div>
-        <ToggleRow label="Recall squads when gathering is disabled" disabled />
-        <span className="muted">Loading squad settings</span>
+      <div className="automation-card-meta-row" role="status">
+        <span className="automation-state state-disabled">Disconnected</span>
+      </div>
+      <div className="automation-config">
+        <fieldset className="automation-config-body" disabled>
+          <div className="automation-resource-gather-options">
+            <label className="automation-resource-gather-radius">
+              <span>Scan radius (tiles)</span>
+              <select value="200" readOnly><option value="200">200</option></select>
+            </label>
+            <label>
+              <span>Wait after manual actions (minutes)</span>
+              <select value="2" readOnly><option value="2">2</option></select>
+            </label>
+            <label className="automation-resource-gather-recall">
+              <input type="checkbox" readOnly />
+              <span>Recall squads when gathering is disabled</span>
+            </label>
+            <small className="automation-resource-gather-radius-hint muted">
+              Choose 50–500 tiles. The world map is 1000×1000 tiles. This is the straight-line radius from your base; larger ranges take longer to scan.
+            </small>
+          </div>
+          <p className="muted">Loading squad settings</p>
+        </fieldset>
       </div>
     </article>
   );
@@ -155,30 +157,51 @@ function ResourceGatherCard() {
 
 function TradeStationCard() {
   return (
-    <article className="automation-card trade-station-panel">
-      <div className="automation-card-header">
-        <div className="automation-card-title-group">
-          <h3>Trade Station Auto Purchase</h3>
-          <p>Listen for trade station broadcasts and buy every selected available good serially.</p>
+    <div className="trade-station-panel" data-preview-fixture="runtime-config-unobserved">
+      <article className="automation-card">
+        <div className="automation-card-header">
+          <div className="automation-card-title-group">
+            <h3>Trade Station Auto Purchase</h3>
+            <p>Listen for trade station broadcasts and buy every selected available good serially.</p>
+          </div>
+          <div className="automation-card-header-actions">
+            <button className="automation-header-switch" type="button" role="switch" aria-checked="false" disabled aria-label="Trade Station Auto Purchase: Disabled"><Switch checked={false} /></button>
+          </div>
         </div>
-        <button className="automation-header-switch" type="button" disabled aria-label="Trade Station Auto Purchase: Disabled"><Switch checked={false} /></button>
-      </div>
-      <p className="muted">
-        Prices are not compared; selected goods are purchased only with the checked currencies.
-      </p>
-      <ToggleRow label="Scan cross-server trade stations" disabled />
-      <div className="automation-form-grid">
-        <label><span>Purchase currencies</span><select disabled><option>—</option></select></label>
-        <label><span>Goods to buy</span><select disabled><option>Select goods</option></select></label>
-      </div>
-      <div className="automation-card-summary">
-        <span>Detected <strong>—</strong></span>
-        <span>Attempted <strong>—</strong></span>
-        <span>Succeeded <strong>—</strong></span>
-        <span>Last result <strong>—</strong></span>
-      </div>
-      <span className="muted">Loading goods...</span>
-    </article>
+        <div className="automation-card-meta-row" role="status">
+          <span className="automation-state state-disabled">Disconnected</span>
+        </div>
+        <div className="automation-config">
+          <fieldset className="automation-config-body" disabled>
+            <div className="trade-station-warning">
+              Prices are not compared; selected goods are purchased only with the checked currencies.
+            </div>
+            <ToggleRow label="Scan cross-server trade stations" disabled />
+            <fieldset className="trade-station-currencies">
+              <legend>Purchase currencies</legend>
+              <div />
+            </fieldset>
+            <div className="trade-station-stats">
+              <span>Detected: 0</span>
+              <span>Attempted: 0</span>
+              <span>Succeeded: 0</span>
+              <span>Last result: -</span>
+            </div>
+            <div className="trade-station-tabs" role="tablist">
+              <button type="button" role="tab" aria-selected="true" className="active">Goods to buy</button>
+              <button type="button" role="tab" aria-selected="false">Purchased items (0)</button>
+            </div>
+            <div className="trade-station-goods" role="tabpanel">
+              <div className="trade-station-goods-heading">
+                <strong>Select goods</strong>
+                <label><input type="checkbox" disabled />Show city-owner exclusive</label>
+              </div>
+              <span className="muted">No trade goods are available from the current season template.</span>
+            </div>
+          </fieldset>
+        </div>
+      </article>
+    </div>
   );
 }
 
@@ -269,12 +292,25 @@ export function MapDataPage() {
               <button type="button" disabled>Clear Map Data</button>
             </>
           ) : null}
-          <button type="button" disabled>Export Excel</button>
         </div>
       </div>
 
-      {scanMode === "Manual Scan" ? (
+      {scanMode === "Auto Scan" ? (
         <div className="map-auto-scan-card">
+          <label className="map-auto-scan-master" data-preview-fixture="runtime-config-unobserved">
+            <input type="checkbox" disabled />
+            <strong>Enable automatic scanning</strong>
+            <span>Disabled</span>
+          </label>
+          <div className="map-auto-scan-grid">
+            <div className="map-auto-scan-server-field">
+              <span>Target servers</span>
+              <div className="map-auto-scan-server-input"><input disabled /><button type="button" disabled>Add</button></div>
+              <small>Enter server IDs and click Add. Commas add several at once; × removes one. No entries scans the current server.</small>
+            </div>
+            <label><span>Interval (minutes)</span><input disabled /></label>
+            <label><span>Speed</span><select disabled><option>Normal</option><option>Fast</option></select></label>
+          </div>
           <div className="map-controls">
             <span className="map-controls-label">Scan contents</span>
             <div className="map-types map-types--compact">
@@ -286,70 +322,77 @@ export function MapDataPage() {
               ))}
             </div>
           </div>
-          <div className="map-auto-scan-grid">
-            <label><span>Server</span><input disabled value="" readOnly /></label>
-          </div>
-          <div className="map-scan-summary">
-            <span className="map-status-pill">Stopped</span>
-            <span>Server <strong>—</strong></span>
-            <strong>Scan progress</strong>
-            <div className="map-progress low"><progress className="map-progress-bar" max="100" value="0" /><span>—</span></div>
-          </div>
-        </div>
-      ) : (
-        <div className="map-auto-scan-card">
-          <div className="map-auto-scan-master">
-            <Switch checked={false} />
-            <strong>Enable automatic scanning</strong>
-            <span>Disabled</span>
-          </div>
-          <div className="map-auto-scan-grid">
-            <div className="map-auto-scan-server-field">
-              <span>Target servers</span>
-              <div className="map-auto-scan-server-input"><input disabled /><button type="button" disabled>Add</button></div>
-              <small>Enter server IDs and click Add. Commas add several at once; × removes one. No entries scans the current server.</small>
-            </div>
-            <label><span>Interval (minutes)</span><input disabled /></label>
-          </div>
           <div className="map-auto-scan-options">
             <label><input type="checkbox" disabled />Return to the original server after scanning</label>
             <button type="button" disabled>Run now</button>
           </div>
           <small>Each target server is entered before scanning; a server ID alone cannot scan another server.</small>
+          <small>Next scan: -</small>
         </div>
-      )}
+      ) : null}
 
-      <div className="map-tabs" role="tablist" aria-label="Map data types">
-        {mapTabs.map((label, index) => (
-          <button
-            key={label}
-            type="button"
-            role="tab"
-            className={tab === label ? "active" : ""}
-            aria-selected={tab === label}
-            onClick={() => setTab(label)}
-          >
-            <span className="map-tab-label">{label}</span>
-            {index < 8 ? <span className="map-tab-count">—</span> : null}
-          </button>
-        ))}
+      <div className="map-scan-summary">
+        <span className="map-status-pill">Stopped</span>
+        <span>Server <strong>-</strong></span>
+        <div className="map-progress low">
+          <progress className="map-progress-bar" max="100" aria-label="Scan progress" />
+          <span>—</span>
+        </div>
       </div>
 
-      <div className="map-searchbar">
-        <input aria-label="Search map data" placeholder="Search name, Alliance, or UUID" />
-        {tab === "City" ? (
-          <>
-            <select aria-label="Filter by Alliance"><option>All Alliances</option><option>No Alliance</option></select>
-            <label className="map-filter-field"><input type="checkbox" /> <span>Marked only</span></label>
-          </>
-        ) : null}
-        <span className="map-result-count">—</span>
+      {scanMode === "Manual Scan" ? (
+        <div className="map-controls">
+          <span className="map-controls-label">Scan contents</span>
+          <div className="map-types map-types--compact">
+            {scanTypes.map((label) => (
+              <label key={label} className="disabled">
+                <input type="checkbox" disabled />
+                <span>{label}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+      ) : null}
+
+      <div className="map-search">
+        <div className="map-tabs" role="tablist" aria-label="Map data types">
+          {mapTabs.map((label, index) => (
+            <button
+              key={label}
+              type="button"
+              role="tab"
+              className={tab === label ? "active" : ""}
+              aria-selected={tab === label}
+              onClick={() => setTab(label)}
+            >
+              <span className="map-tab-label">{label}</span>
+              <span className="map-tab-count">{index < 8 ? "—" : "0"}</span>
+            </button>
+          ))}
+        </div>
+
+        {tab !== "Scheduled Plunder" ? (
+          <div className="map-searchbar" data-preview-fixture="empty-local-data">
+            <input aria-label="Search map data" placeholder="Search name, Alliance, or UUID" />
+            {tab === "City" ? (
+              <>
+                <select aria-label="Filter by Alliance"><option>All Alliances</option></select>
+                <label className="map-filter-field"><input type="checkbox" /> <span>Marked only</span></label>
+              </>
+            ) : null}
+            <button type="button">Search</button>
+            {tab === "City" ? <button type="button" disabled>Export Excel</button> : null}
+            <span className="map-result-count">0 items</span>
+          </div>
+        ) : (
+          <div className="map-searchbar"><span className="map-result-count">0 items</span></div>
+        )}
       </div>
 
       <div className="map-table-scroll">
-        <table className="map-table">
+        <table className="map-table map-table--city">
           <tbody>
-            <tr className="map-row"><td className="map-empty muted">No saved data for this type.</td></tr>
+            <tr><td className="map-empty">No saved data for this type.</td></tr>
           </tbody>
         </table>
       </div>
@@ -362,7 +405,7 @@ export function SquadsPage() {
   return (
     <section className="panel squad-panel">
       <div className="squad-header">
-        <PanelTitle title="Squads / AFK" />
+        <h2>Squads / AFK</h2>
         {tab === "equipment" ? <button type="button" disabled>Refresh</button> : null}
       </div>
       <div className="squad-tabs" role="tablist" aria-label="Squads tabs">
@@ -376,55 +419,76 @@ export function SquadsPage() {
 
 function AfkContent() {
   return (
-    <div className="afk-layout">
-      <section className="afk-profile-panel">
-        <h3>Shared AFK Profiles</h3>
-        <ToggleRow label="Monster AFK master switch" disabled />
-        <p className="muted">Enable or pause all monster AFK profiles below. Alliance Drill and Auto Garrison are controlled separately.</p>
-        <button type="button" disabled>New AFK Profile</button>
-        <div className="afk-empty-state muted">No AFK profiles</div>
-      </section>
-      <section className="afk-editor-panel">
-        <div className="clone-card-stack">
-          <article className="automation-card">
-            <div className="automation-card-header"><div className="automation-card-title-group"><h3>Auto Alliance Drill</h3><p>Participate in squad order; the first available squad launches rallies when enabled.</p></div><button className="automation-header-switch" type="button" disabled aria-label="Auto Alliance Drill: Disabled"><Switch /></button></div>
-          </article>
-          <article className="automation-card">
-            <div className="automation-card-header"><div className="automation-card-title-group"><h3>Auto Garrison</h3><p>Keep selected alliance buildings and allies reinforced.</p></div><button className="automation-header-switch" type="button" disabled aria-label="Auto Garrison: Disabled"><Switch /></button></div>
-          </article>
-          <article className="automation-card">
-            <div className="automation-card-header"><div className="automation-card-title-group"><h3>Zombie Bus Garrison</h3><p>Keep the strongest squad home; prioritize gold buses. Recall after confirmed battle completion, or after 90 seconds.</p></div><button className="automation-header-switch" type="button" disabled aria-label="Zombie Bus Garrison: Disabled"><Switch /></button></div>
-          </article>
-          <article className="automation-card">
-            <div className="automation-card-header"><div className="automation-card-title-group"><h3>Stamina</h3><p>Uses stamina items whenever current stamina falls below the limit.</p></div></div>
-            <ToggleRow label="Use Stamina items automatically" disabled />
-            <div className="automation-form-grid">
-              <label><span>Use below Stamina</span><input disabled /></label>
-              <label><span>Prefer 50-point item</span><input type="checkbox" disabled /></label>
-            </div>
-          </article>
+    <div className="monster-afk-layout" data-preview-fixture="runtime-config-unobserved">
+      <div className="monster-afk-toolbar">
+        <CompactAfkCard title="Monster AFK master switch" summary="Disabled" />
+        <CompactAfkCard title="Use Stamina items automatically" summary="Use below Stamina —" />
+        <CompactAfkCard title="Auto Alliance Drill" summary="Join Alliance rallies · 1" />
+        <CompactAfkCard title="Auto Garrison" summary="Disabled" />
+        <CompactAfkCard title="Zombie Bus Garrison" summary="Disconnected" />
+      </div>
+      <section className="monster-afk-profiles">
+        <div className="monster-section-title">
+          <strong>Shared AFK Profiles</strong>
+          <div className="monster-afk-add-control"><button type="button" disabled>Add</button></div>
+        </div>
+        <div className="monster-afk-profile-list">
+          <span className="muted">No AFK profiles</span>
         </div>
       </section>
     </div>
   );
 }
 
+function SettingsGlyph() {
+  return (
+    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="3" />
+      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+    </svg>
+  );
+}
+
+function CompactAfkCard({ title, summary }) {
+  return (
+    <article className="automation-card monster-afk-compact-card is-selectable" title={title}>
+      <div className="automation-card-header">
+        <div><h3>{title}</h3><p>{summary}</p></div>
+        <div className="monster-afk-compact-actions">
+          <button type="button" disabled aria-label="Settings"><SettingsGlyph /></button>
+          <label className="monster-afk-compact-toggle">
+            <input type="checkbox" disabled aria-label={title} />
+            <span className="monster-afk-master-track" aria-hidden="true" />
+          </label>
+        </div>
+      </div>
+    </article>
+  );
+}
+
 function EquipmentContent() {
   return (
-    <div className="equipment-layout clone-equipment-layout">
-      <aside className="equipment-preset-list">
+    <div className="equipment-preset-layout" data-preview-fixture="no-equipment-presets">
+      <aside className="equipment-preset-rail">
         <strong>Equipment presets</strong>
-        <p className="muted">No equipment presets</p>
+        <div className="equipment-preset-list"><span className="muted">No equipment presets</span></div>
       </aside>
-      <section className="equipment-main">
-        <h3>Create an equipment preset first.</h3>
-        <div className="map-actions clone-left-actions">
-          <button type="button" disabled>Save configuration</button>
-          <button type="button" disabled>Save and apply to squads</button>
-          <button type="button" disabled>Read current equipment</button>
+      <main className="equipment-preset-main">
+        <div className="equipment-preset-toolbar">
+          <div><strong>No equipment presets</strong></div>
+          <div className="equipment-preset-actions">
+            <button type="button" disabled>Rename</button>
+            <button type="button" disabled>Read current equipment</button>
+            <button type="button" disabled>Save configuration</button>
+            <button type="button" className="primary" disabled>Save and apply to squads</button>
+          </div>
         </div>
-        <p className="muted">Alt+1–4 applies the matching scheme across all squads.</p>
-      </section>
+        <div className="map-empty">Create an equipment preset first.</div>
+        <div className="equipment-preset-hint">
+          <span>Heroes stay fixed. Drag squad equipment to swap shared leading positions; extra positions stay unchanged. You can also drag a full set or one item.</span>
+          <strong>Alt+1–4 applies the matching scheme across all squads.</strong>
+        </div>
+      </main>
     </div>
   );
 }
