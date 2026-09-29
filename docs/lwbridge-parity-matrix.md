@@ -18,7 +18,8 @@ If it is encountered, record only the access boundary. Do not rebuild it or bypa
 | UI-001 | App launch / initial in-scope shell | BLOCKED BY OUT-OF-SCOPE AUTH BOUNDARY | NOT STARTED | BLOCKED | Legitimate post-auth state required for runtime visual baseline |
 | UI-002 | Top-level navigation | EXACT_BYTES static definition + English locale | NOT STARTED | NOT STARTED | Runtime geometry/icons/selected/hover/conditional Advanced visibility |
 | UI-003 | Home | EXACT_BYTES component + English locale + CSS inventory | NOT STARTED | BLOCKED | Runtime Home state/geometry/theme blocked by out-of-scope auth boundary |
-| UI-004+ | Additional in-scope 0.3.17 surfaces | ADD ONLY AFTER EVIDENCE | NOT STARTED | NOT STARTED | Unknown until inventory |
+| UI-004 | Automation | EXACT_BYTES tab/card/English locale/CSS inventory | NOT STARTED | BLOCKED | Runtime page state/geometry blocked by out-of-scope auth boundary |
+| UI-005+ | Additional in-scope 0.3.17 surfaces | ADD ONLY AFTER EVIDENCE | NOT STARTED | NOT STARTED | Unknown until inventory |
 
 ## Function matrix
 

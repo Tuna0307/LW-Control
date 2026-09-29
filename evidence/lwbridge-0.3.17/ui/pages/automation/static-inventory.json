@@ -1,0 +1,1347 @@
+{
+  "workItem": "LWB317-UI-002B",
+  "evidenceState": "EXACT_BYTES_STATIC; runtime visual observation BLOCKED by out-of-scope auth boundary",
+  "referenceSha256": "4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783",
+  "sources": {
+    "AutomationPanel-BJ0gIqFh.js": {
+      "bytes": 75388,
+      "sha256": "6DB2328191AF33E5631D507271C36D7008B287DAA7C8CD1A957B23EF6F871725"
+    },
+    "AutomationCard-LCx_jIi7.js": {
+      "bytes": 5092,
+      "sha256": "24ED773623C237F8219EFF5443FAC3BA7B55B6E99E168E52FF066FAF2ABE7A61"
+    },
+    "en-BisSXcTB.js": {
+      "bytes": 72319,
+      "sha256": "0BF43D180EB93692A93B830B5D984E9D01DDEEA524340F2334FC63CBA527A731"
+    },
+    "index-rIL9Fpht.css": {
+      "bytes": 126217,
+      "sha256": "3D87E9F65B39EACE6A1A254BFC90A38ACB72613D1FFF7236C7CEE7AB9BFAF545"
+    }
+  },
+  "componentByteOffsets": {
+    "AutomationPanel.function_Ae": "0x5539",
+    "AutomationPanel.default_category_daily": "0x631A",
+    "AutomationPanel.outer_section_panel": "0xA33C",
+    "AutomationPanel.category_tablist": "0xA638",
+    "AutomationPanel.category_array": "0xA672",
+    "AutomationPanel.export": "0x12606"
+  },
+  "categoryOrder": [
+    {
+      "key": "daily",
+      "localeKey": "automation.category.daily",
+      "label": "Daily Tasks"
+    },
+    {
+      "key": "alliance",
+      "localeKey": "automation.category.alliance",
+      "label": "Alliance"
+    },
+    {
+      "key": "resourceGather",
+      "localeKey": "automation.category.resourceGather",
+      "label": "Resource gathering"
+    },
+    {
+      "key": "resources",
+      "localeKey": "automation.category.resources",
+      "label": "Resource Claims"
+    },
+    {
+      "key": "chat",
+      "localeKey": "automation.category.chat",
+      "label": "Chat"
+    },
+    {
+      "key": "trade",
+      "localeKey": "automation.category.trade",
+      "label": "Trade Station"
+    },
+    {
+      "key": "system",
+      "localeKey": "automation.category.system",
+      "label": "Protection & System"
+    }
+  ],
+  "defaultCategory": "daily",
+  "cardInventory": {
+    "daily": [
+      {
+        "localeKey": "automation.soldierTraining.title",
+        "label": "Auto Training"
+      },
+      {
+        "localeKey": "automation.construction.title",
+        "label": "Automatic Construction"
+      },
+      {
+        "localeKey": "automation.stamina.title",
+        "label": "Free Stamina"
+      },
+      {
+        "localeKey": "automation.treatment.title",
+        "label": "Automatic Treatment"
+      },
+      {
+        "localeKey": "automation.railway.title",
+        "label": "Trucks"
+      },
+      {
+        "localeKey": "automation.secretTask.title",
+        "label": "Secret Task"
+      },
+      {
+        "localeKey": "automation.dispatchAssist",
+        "label": "Automatically assist alliance Secret Tasks"
+      },
+      {
+        "localeKey": "automation.ghost.title",
+        "label": "Ghost Ops"
+      }
+    ],
+    "alliance": [
+      {
+        "localeKey": "automation.allianceDonate.title",
+        "label": "Alliance Tech Donations"
+      },
+      {
+        "localeKey": "automation.officialPosition.title",
+        "label": "Automatic Official Application"
+      },
+      {
+        "localeKey": "automation.allianceTrainRide.title",
+        "label": "Automatic Alliance Train Boarding"
+      },
+      {
+        "localeKey": "automation.allianceHelp.title",
+        "label": "Alliance Help"
+      },
+      {
+        "localeKey": "automation.allianceGift.title",
+        "label": "Alliance Gifts"
+      },
+      {
+        "localeKey": "automation.strongholdResource.title",
+        "label": "Excavation Stronghold Resources"
+      },
+      {
+        "localeKey": "automation.allianceCenterResource.title",
+        "label": "Alliance Center Resources"
+      },
+      {
+        "localeKey": "automation.allianceGather.title",
+        "label": "Alliance Gathering Dispatch"
+      }
+    ],
+    "resourceGather": [
+      {
+        "localeKey": "automation.category.resourceGather",
+        "label": "Resource gathering"
+      }
+    ],
+    "resources": [
+      {
+        "localeKey": "automation.buildingResources.title",
+        "label": "Building Resource Collection"
+      },
+      {
+        "localeKey": "automation.armedTruckReward.title",
+        "label": "Armed Truck"
+      }
+    ],
+    "chat": [
+      {
+        "localeKey": "automation.redPacket.title",
+        "label": "Red Packet"
+      },
+      {
+        "localeKey": "automation.fireworks.title",
+        "label": "Fireworks / Egg"
+      },
+      {
+        "localeKey": "automation.treasure.title",
+        "label": "Treasure"
+      }
+    ],
+    "trade": [
+      {
+        "localeKey": "automation.tradeStation.title",
+        "label": "Trade Station Auto Purchase"
+      }
+    ],
+    "system": [
+      {
+        "localeKey": "automation.weekendShield.title",
+        "label": "Weekend Shield"
+      },
+      {
+        "localeKey": "automation.attackShield.title",
+        "label": "Attack Shield"
+      }
+    ]
+  },
+  "directLocaleKeys": [
+    {
+      "key": "automation.treasureTargetDelayHint",
+      "value": "0 prioritizes claiming; positive values set the target claim delay. Actual timing may vary slightly."
+    },
+    {
+      "key": "automation.section.claim",
+      "value": "Claim settings"
+    },
+    {
+      "key": "automation.section.schedule",
+      "value": "Execution time"
+    },
+    {
+      "key": "automation.section.quality",
+      "value": "Quality schedule"
+    },
+    {
+      "key": "automation.section.departure",
+      "value": "Departure conditions"
+    },
+    {
+      "key": "automation.section.rewardPreferences",
+      "value": "Reward preferences"
+    },
+    {
+      "key": "automation.section.additional",
+      "value": "Additional rules"
+    },
+    {
+      "key": "squad.afkExecutionSettings",
+      "value": "Execution settings"
+    },
+    {
+      "key": "automation.soldierTraining.stateError",
+      "value": "The order progress could not be confirmed. Automation is paused. Retry or contact support."
+    },
+    {
+      "key": "automation.soldierTraining.totalCount",
+      "value": "New soldiers"
+    },
+    {
+      "key": "automation.soldierTraining.quantityHint",
+      "value": "Stops starting new training at the limit, collects the final soldiers, then switches off."
+    },
+    {
+      "key": "automation.soldierTraining.quantityError",
+      "value": "Enter an integer from 1 to 1000000."
+    },
+    {
+      "key": "automation.soldierTraining.progress",
+      "value": "Collected {completed}/{total} · Training {producing} · Unconfirmed {pending}"
+    },
+    {
+      "key": "automation.soldierTraining.title",
+      "value": "Auto Training"
+    },
+    {
+      "key": "automation.soldierTraining.description",
+      "value": "Train and promote in large batches, then finish the remaining troops."
+    },
+    {
+      "key": "automation.soldierTraining.summary",
+      "value": "This session: trained {trained} · Promoted {promoted} · Collected {collected}"
+    },
+    {
+      "key": "automation.soldierTraining.noCamps",
+      "value": "No barracks available. Connect the game and refresh."
+    },
+    {
+      "key": "automation.soldierTraining.building",
+      "value": "Barracks"
+    },
+    {
+      "key": "automation.soldierTraining.level",
+      "value": "Level {level}"
+    },
+    {
+      "key": "automation.soldierTraining.openCamp",
+      "value": "View barracks"
+    },
+    {
+      "key": "automation.soldierTraining.openFailed",
+      "value": "Unable to open the barracks. Return to your city and try again."
+    },
+    {
+      "key": "automation.soldierTraining.target",
+      "value": "Target level"
+    },
+    {
+      "key": "automation.soldierTraining.highest",
+      "value": "Highest unlocked level"
+    },
+    {
+      "key": "automation.soldierTraining.production",
+      "value": "Level {level} × {count}, completes: {time}"
+    },
+    {
+      "key": "automation.soldierTraining.reason.data_unavailable",
+      "value": "Barracks status unavailable"
+    },
+    {
+      "key": "automation.allianceDonate.description",
+      "value": "Automatically donate standard resources to Alliance Tech."
+    },
+    {
+      "key": "automation.allianceDonate.title",
+      "value": "Alliance Tech Donations"
+    },
+    {
+      "key": "automation.squad",
+      "value": "Squad {index}"
+    },
+    {
+      "key": "automation.allianceGift.description",
+      "value": "Claim normal and advanced Alliance Gifts at the configured interval."
+    },
+    {
+      "key": "automation.allianceGift.title",
+      "value": "Alliance Gifts"
+    },
+    {
+      "key": "automation.allianceHelp.description",
+      "value": "Help Alliance members automatically, with a check every minute."
+    },
+    {
+      "key": "automation.allianceHelp.title",
+      "value": "Alliance Help"
+    },
+    {
+      "key": "automation.available",
+      "value": "Available"
+    },
+    {
+      "key": "automation.advancedClaimed",
+      "value": "Advanced Gifts Claimed"
+    },
+    {
+      "key": "automation.armedTruckReward.description",
+      "value": "Claim Armed Truck idle rewards on a schedule."
+    },
+    {
+      "key": "automation.armedTruckReward.title",
+      "value": "Armed Truck"
+    },
+    {
+      "key": "automation.attackShield.description",
+      "value": "Try 8, 12, and 24-hour Shields in order when attacked."
+    },
+    {
+      "key": "automation.attackShield.title",
+      "value": "Attack Shield"
+    },
+    {
+      "key": "automation.autoExecute",
+      "value": "Auto Execute"
+    },
+    {
+      "key": "automation.autoCollectRewards",
+      "value": "Automatically claim completed rewards"
+    },
+    {
+      "key": "automation.claimAllBuildingRewards",
+      "value": "Claim All"
+    },
+    {
+      "key": "automation.autoReply",
+      "value": "Auto Reply"
+    },
+    {
+      "key": "automation.batchDeparture",
+      "value": "Batch Departure"
+    },
+    {
+      "key": "automation.buildingResources.description",
+      "value": "Collect resources produced by city buildings on a schedule."
+    },
+    {
+      "key": "automation.buildingResources.title",
+      "value": "Building Resource Collection"
+    },
+    {
+      "key": "automation.chatClaimDescription",
+      "value": "Listen for chat messages and automatically claim {type}."
+    },
+    {
+      "key": "automation.claimedToday",
+      "value": "Claimed Today"
+    },
+    {
+      "key": "automation.claimed",
+      "value": "Claimed"
+    },
+    {
+      "key": "automation.tradeStation.title",
+      "value": "Trade Station Auto Purchase"
+    },
+    {
+      "key": "automation.tradeStation.description",
+      "value": "Listen for trade station broadcasts and buy every selected available good serially."
+    },
+    {
+      "key": "automation.tradeStation.warning",
+      "value": "Prices are not compared; selected goods are purchased only with the checked currencies."
+    },
+    {
+      "key": "automation.tradeStation.crossServer",
+      "value": "Scan cross-server trade stations"
+    },
+    {
+      "key": "automation.tradeStation.currencies",
+      "value": "Purchase currencies"
+    },
+    {
+      "key": "automation.tradeStation.detected",
+      "value": "Detected"
+    },
+    {
+      "key": "automation.tradeStation.attempted",
+      "value": "Attempted"
+    },
+    {
+      "key": "automation.tradeStation.succeeded",
+      "value": "Succeeded"
+    },
+    {
+      "key": "automation.tradeStation.lastResult",
+      "value": "Last result"
+    },
+    {
+      "key": "automation.tradeStation.goods",
+      "value": "Goods to buy"
+    },
+    {
+      "key": "automation.tradeStation.goodsToBuy",
+      "value": "Select goods"
+    },
+    {
+      "key": "automation.tradeStation.purchasedItems",
+      "value": "Purchased items ({count})"
+    },
+    {
+      "key": "automation.tradeStation.noPurchases",
+      "value": "No goods have been purchased yet."
+    },
+    {
+      "key": "automation.tradeStation.quantity",
+      "value": "Quantity: {count}"
+    },
+    {
+      "key": "automation.tradeStation.price",
+      "value": "Price: {price} {currency}"
+    },
+    {
+      "key": "automation.tradeStation.purchasedAt",
+      "value": "Purchased at: {time}"
+    },
+    {
+      "key": "automation.tradeStation.server",
+      "value": "Server: #{server}"
+    },
+    {
+      "key": "automation.tradeStation.confirmedAfterTimeout",
+      "value": "Purchase confirmed after timeout"
+    },
+    {
+      "key": "automation.tradeStation.purchasedDayTotal",
+      "value": "Purchased today: {count}"
+    },
+    {
+      "key": "automation.tradeStation.dailyPurchaseIndex",
+      "value": "Today's item #{count}"
+    },
+    {
+      "key": "automation.tradeStation.showExclusive",
+      "value": "Show city-owner exclusive"
+    },
+    {
+      "key": "automation.tradeStation.loading",
+      "value": "Loading goods..."
+    },
+    {
+      "key": "automation.tradeStation.noGoods",
+      "value": "No trade goods are available from the current season template."
+    },
+    {
+      "key": "automation.tradeStation.exclusiveSkipped",
+      "value": "City-owner exclusive; skipped"
+    },
+    {
+      "key": "automation.tradeStation.buyWheneverAvailable",
+      "value": "Buy whenever available"
+    },
+    {
+      "key": "automation.tradeStation.possibleCurrencies",
+      "value": "Possible cost: "
+    },
+    {
+      "key": "automation.construction.description",
+      "value": "Upgrade the lowest-level building when the queue is idle."
+    },
+    {
+      "key": "automation.construction.targetEnabled",
+      "value": "Only selected building types"
+    },
+    {
+      "key": "automation.construction.targetLevel",
+      "value": "Target level"
+    },
+    {
+      "key": "automation.construction.buildingTypes",
+      "value": "Building types"
+    },
+    {
+      "key": "automation.construction.selectTypes",
+      "value": "Select at least one building type."
+    },
+    {
+      "key": "automation.construction.targetHint",
+      "value": "Stops when all existing buildings of the selected types reach the target level."
+    },
+    {
+      "key": "automation.construction.title",
+      "value": "Automatic Construction"
+    },
+    {
+      "key": "automation.automaticBuilders",
+      "value": "Automation builders"
+    },
+    {
+      "key": "automation.buildersTotal",
+      "value": "All builders occupied"
+    },
+    {
+      "key": "automation.maxBuilders",
+      "value": "Maximum builders"
+    },
+    {
+      "key": "automation.builderLimitError",
+      "value": "Enter a builder limit within the unlocked total."
+    },
+    {
+      "key": "automation.officialPosition.title",
+      "value": "Automatic Official Application"
+    },
+    {
+      "key": "automation.officialPosition.description",
+      "value": "Automatically apply for one selected official position."
+    },
+    {
+      "key": "automation.position.none",
+      "value": "Select a position"
+    },
+    {
+      "key": "automation.position.vicePresident",
+      "value": "Vice President"
+    },
+    {
+      "key": "automation.position.strategyMinister",
+      "value": "Strategy Minister"
+    },
+    {
+      "key": "automation.position.defenseMinister",
+      "value": "Defense Minister"
+    },
+    {
+      "key": "automation.position.constructionMinister",
+      "value": "Construction Minister"
+    },
+    {
+      "key": "automation.position.scienceMinister",
+      "value": "Science Minister"
+    },
+    {
+      "key": "automation.position.internalAffairsMinister",
+      "value": "Internal Affairs Minister"
+    },
+    {
+      "key": "automation.targetPosition",
+      "value": "Target position"
+    },
+    {
+      "key": "automation.currentPosition",
+      "value": "Current position"
+    },
+    {
+      "key": "automation.applicationQueue",
+      "value": "Application queue"
+    },
+    {
+      "key": "automation.positionError",
+      "value": "Select a valid official position."
+    },
+    {
+      "key": "automation.allianceTrainRide.title",
+      "value": "Automatic Alliance Train Boarding"
+    },
+    {
+      "key": "automation.allianceTrainRide.description",
+      "value": "Select and rank target rewards, or let reward quantity override the ranking."
+    },
+    {
+      "key": "automation.currentCarriage",
+      "value": "Current carriage"
+    },
+    {
+      "key": "automation.normalCarriageSelection",
+      "value": "Fixed normal carriage"
+    },
+    {
+      "key": "automation.normalCarriageHint",
+      "value": "Choose reward-based selection or fix one carriage; the driver seat is unavailable."
+    },
+    {
+      "key": "automation.vipCarriageSelection",
+      "value": "Fixed VIP carriages"
+    },
+    {
+      "key": "automation.vipCarriageHint",
+      "value": "Choose reward-based selection or fix two carriages; the driver seat is unavailable."
+    },
+    {
+      "key": "automation.driver",
+      "value": "Driver"
+    },
+    {
+      "key": "automation.rewardSelectionMode",
+      "value": "By reward"
+    },
+    {
+      "key": "automation.fixedSelectionMode",
+      "value": "Fixed carriage"
+    },
+    {
+      "key": "automation.queueCapacity",
+      "value": "Queue / capacity"
+    },
+    {
+      "key": "automation.currentReward",
+      "value": "Current reward"
+    },
+    {
+      "key": "automation.noPreferredRewards",
+      "value": "No preferred rewards; the least crowded carriage is used."
+    },
+    {
+      "key": "automation.moveUp",
+      "value": "Move up"
+    },
+    {
+      "key": "automation.moveDown",
+      "value": "Move down"
+    },
+    {
+      "key": "automation.preferRewardQuantity",
+      "value": "Prioritize the carriage with more selected rewards"
+    },
+    {
+      "key": "automation.autoAcceptTrainVip",
+      "value": "Automatically accept train VIP invitations"
+    },
+    {
+      "key": "automation.trainVipStatus",
+      "value": "VIP status"
+    },
+    {
+      "key": "automation.trainVipCarriages",
+      "value": "VIP carriages"
+    },
+    {
+      "key": "automation.thanksMode",
+      "value": "Thanks method"
+    },
+    {
+      "key": "automation.thanksLike",
+      "value": "Like"
+    },
+    {
+      "key": "automation.thanksTickets",
+      "value": "Give tickets"
+    },
+    {
+      "key": "automation.ticketCount",
+      "value": "Ticket count"
+    },
+    {
+      "key": "automation.ticketFallbackLike",
+      "value": "If tickets are insufficient, the task likes instead and never buys tickets."
+    },
+    {
+      "key": "automation.currentBuilding",
+      "value": "Current Building"
+    },
+    {
+      "key": "automation.currentLevel",
+      "value": "Current Level"
+    },
+    {
+      "key": "automation.currentShield",
+      "value": "Current Shield"
+    },
+    {
+      "key": "automation.currentTech",
+      "value": "Current Tech"
+    },
+    {
+      "key": "automation.departAll",
+      "value": "Depart All"
+    },
+    {
+      "key": "automation.departed",
+      "value": "Departed"
+    },
+    {
+      "key": "automation.dispatchAll",
+      "value": "Dispatch All"
+    },
+    {
+      "key": "automation.dispatched",
+      "value": "Dispatched"
+    },
+    {
+      "key": "automation.donateThreshold",
+      "value": "Start Donating At"
+    },
+    {
+      "key": "automation.donated",
+      "value": "Donated"
+    },
+    {
+      "key": "automation.dailyDelayError",
+      "value": "The delay must be an integer from 0 to 1440 minutes."
+    },
+    {
+      "key": "automation.delayAfterResetMinutes",
+      "value": "Minutes after server reset"
+    },
+    {
+      "key": "automation.intervalError",
+      "value": "The interval must be an integer from 1 to 1440 minutes."
+    },
+    {
+      "key": "automation.intervalMinutes",
+      "value": "Interval Minutes"
+    },
+    {
+      "key": "automation.lastRun",
+      "value": "Last Run"
+    },
+    {
+      "key": "automation.latestResult",
+      "value": "Latest Result"
+    },
+    {
+      "key": "automation.maxDelaySeconds",
+      "value": "Max Delay Seconds"
+    },
+    {
+      "key": "automation.minDelaySeconds",
+      "value": "Min Delay Seconds"
+    },
+    {
+      "key": "automation.nextCheck",
+      "value": "Next Check"
+    },
+    {
+      "key": "automation.nextClaim",
+      "value": "Next Claim"
+    },
+    {
+      "key": "automation.nextRun",
+      "value": "Next Run"
+    },
+    {
+      "key": "automation.normalClaimed",
+      "value": "Normal Gifts Claimed"
+    },
+    {
+      "key": "automation.normalRefresh",
+      "value": "Normal Refresh"
+    },
+    {
+      "key": "automation.nothingToClaim",
+      "value": "Nothing to claim"
+    },
+    {
+      "key": "automation.pendingClaims",
+      "value": "Pending Claims"
+    },
+    {
+      "key": "automation.pendingReason",
+      "value": "Pending Reason"
+    },
+    {
+      "key": "automation.processed",
+      "value": "Processed"
+    },
+    {
+      "key": "automation.qualifiedTotal",
+      "value": "Qualified / Total"
+    },
+    {
+      "key": "automation.queued",
+      "value": "{count} items queued"
+    },
+    {
+      "key": "automation.railway.description",
+      "value": "Claim arrived Truck rewards, refresh to the target quality, and continue dispatching available Trucks."
+    },
+    {
+      "key": "automation.railwayDepartWhenTicketsInsufficient",
+      "value": "Depart after free refreshes when refresh tickets are insufficient"
+    },
+    {
+      "key": "automation.railway.title",
+      "value": "Trucks"
+    },
+    {
+      "key": "automation.redPacket.title",
+      "value": "Red Packet"
+    },
+    {
+      "key": "automation.redPacketDelayError",
+      "value": "Red packet delay must be a valid range from 0 to 60 seconds."
+    },
+    {
+      "key": "automation.fireworks.title",
+      "value": "Fireworks / Egg"
+    },
+    {
+      "key": "automation.fireworksDelayError",
+      "value": "Fireworks delay must be a valid range from 0 to 60 seconds."
+    },
+    {
+      "key": "automation.refreshed",
+      "value": "Refreshed"
+    },
+    {
+      "key": "automation.remaining",
+      "value": "Remaining"
+    },
+    {
+      "key": "automation.replyDelayMin",
+      "value": "Minimum reply delay (seconds)"
+    },
+    {
+      "key": "automation.replyDelayMax",
+      "value": "Maximum reply delay (seconds)"
+    },
+    {
+      "key": "automation.dispatchDelayMin",
+      "value": "Minimum dispatch delay (seconds)"
+    },
+    {
+      "key": "automation.dispatchDelayMax",
+      "value": "Maximum dispatch delay (seconds)"
+    },
+    {
+      "key": "automation.interactionDelayError",
+      "value": "Reply and dispatch delays must be between 0.1 and 600 seconds, with minimum no greater than maximum."
+    },
+    {
+      "key": "automation.replyPhrases",
+      "value": "Reply phrases (one per line, selected randomly)"
+    },
+    {
+      "key": "automation.replyRequired",
+      "value": "Add at least one reply before enabling automatic replies."
+    },
+    {
+      "key": "automation.runFailed",
+      "value": "Run failed"
+    },
+    {
+      "key": "automation.running",
+      "value": "Running"
+    },
+    {
+      "key": "automation.runningEllipsis",
+      "value": "Running…"
+    },
+    {
+      "key": "automation.secretTask.description",
+      "value": "Claim completed rewards, then continue refreshing and dispatching eligible Secret Tasks."
+    },
+    {
+      "key": "automation.secretTask.title",
+      "value": "Secret Task"
+    },
+    {
+      "key": "automation.ghost.title",
+      "value": "Ghost Ops"
+    },
+    {
+      "key": "automation.ghost.description",
+      "value": "Start and share your Ghost Ops, join eligible alliance missions, and claim rewards on time."
+    },
+    {
+      "key": "automation.ghost.autoStartOwn",
+      "value": "Automatically start and share my Ghost Ops"
+    },
+    {
+      "key": "automation.ghost.autoJoinAlliance",
+      "value": "Automatically join alliance Ghost Ops"
+    },
+    {
+      "key": "automation.ghost.autoClaimRewards",
+      "value": "Automatically claim Ghost Ops rewards"
+    },
+    {
+      "key": "automation.ghost.allianceFilter",
+      "value": "Alliance mission range"
+    },
+    {
+      "key": "automation.ghost.ownPending",
+      "value": "My pending missions"
+    },
+    {
+      "key": "automation.ghost.allianceCandidates",
+      "value": "Alliance candidates"
+    },
+    {
+      "key": "automation.dispatchAssist",
+      "value": "Automatically assist alliance Secret Tasks"
+    },
+    {
+      "key": "automation.shieldEnds",
+      "value": "Shield Ends"
+    },
+    {
+      "key": "automation.ssrOrAbove",
+      "value": "SSR or above"
+    },
+    {
+      "key": "automation.stamina.description",
+      "value": "Claim daily free Stamina when available."
+    },
+    {
+      "key": "automation.stamina.title",
+      "value": "Free Stamina"
+    },
+    {
+      "key": "automation.treatment.title",
+      "value": "Automatic Treatment"
+    },
+    {
+      "key": "automation.treatment.description",
+      "value": "Treat wounded soldiers, request Alliance help, and collect completed treatment every 2 seconds without using Gold."
+    },
+    {
+      "key": "automation.treatmentAmountPerArmy",
+      "value": "Soldiers per Army"
+    },
+    {
+      "key": "automation.treatmentAmountError",
+      "value": "Enter an integer from 1 to 1,000,000."
+    },
+    {
+      "key": "automation.wounded",
+      "value": "Wounded"
+    },
+    {
+      "key": "automation.treating",
+      "value": "Treating"
+    },
+    {
+      "key": "automation.treatmentBatches",
+      "value": "Treatment Batches"
+    },
+    {
+      "key": "automation.soldiersQueued",
+      "value": "Soldiers Queued"
+    },
+    {
+      "key": "automation.helpsRequested",
+      "value": "Help Requests"
+    },
+    {
+      "key": "automation.collected",
+      "value": "Collected"
+    },
+    {
+      "key": "automation.strongholdResource.description",
+      "value": "Claim resources from occupied excavation strongholds at the configured interval."
+    },
+    {
+      "key": "automation.strongholdResource.title",
+      "value": "Excavation Stronghold Resources"
+    },
+    {
+      "key": "automation.allianceCenterResource.description",
+      "value": "Claim production resources from Alliance Center buildings at the configured interval."
+    },
+    {
+      "key": "automation.allianceCenterResource.title",
+      "value": "Alliance Center Resources"
+    },
+    {
+      "key": "automation.allianceGather.title",
+      "value": "Alliance Gathering Dispatch"
+    },
+    {
+      "key": "automation.allianceGather.description",
+      "value": "Automatically send selected idle squads to Alliance Gathering Points."
+    },
+    {
+      "key": "automation.allianceGatherAvailable",
+      "value": "Gathering points"
+    },
+    {
+      "key": "automation.allianceGatherSquadPriority",
+      "value": "Select squads and drag selected squads to set dispatch priority."
+    },
+    {
+      "key": "automation.allianceGatherSquadRequired",
+      "value": "Select at least one Alliance Gathering squad."
+    },
+    {
+      "key": "automation.superRefresh",
+      "value": "Super Refresh"
+    },
+    {
+      "key": "automation.noQualityRefresh",
+      "value": "Do not refresh"
+    },
+    {
+      "key": "automation.treasure.title",
+      "value": "Treasure"
+    },
+    {
+      "key": "automation.treasureDelayError",
+      "value": "Treasure delay must be a valid range from 0 to 600 seconds."
+    },
+    {
+      "key": "automation.treasureAutoSearch",
+      "value": "Automatically find allied treasures"
+    },
+    {
+      "key": "automation.treasureAutoSearchHint",
+      "value": "Search around alliance cities in both base and world scenes. Uses the existing dispatch settings."
+    },
+    {
+      "key": "automation.treasureAutoDispatch",
+      "value": "Automatically dispatch a squad to shared treasure"
+    },
+    {
+      "key": "automation.treasureDispatchRetrySeconds",
+      "value": "Retry when no squad is idle (seconds)"
+    },
+    {
+      "key": "automation.treasureDispatchPriorityHint",
+      "value": "Checked squads are tried from left to right; drag them to change priority."
+    },
+    {
+      "key": "automation.treasureDispatchSquadRequired",
+      "value": "Select at least one squad for treasure dispatch."
+    },
+    {
+      "key": "automation.treasureDispatchRetryError",
+      "value": "Retry interval must be an integer from 1 to 300 seconds."
+    },
+    {
+      "key": "automation.treasureDispatchPending",
+      "value": "Pending dispatches"
+    },
+    {
+      "key": "automation.dispatchAssistConfigError",
+      "value": "Select at least one quality, a delay from 0 to 86400 seconds, and a check interval from 5 to 300 seconds."
+    },
+    {
+      "key": "automation.assistIntervalSeconds",
+      "value": "Check interval (seconds)"
+    },
+    {
+      "key": "automation.assistQuality.special",
+      "value": "Special ★"
+    },
+    {
+      "key": "automation.allySecretTasks",
+      "value": "Ally secret tasks"
+    },
+    {
+      "key": "automation.helpAvailable",
+      "value": "Help available"
+    },
+    {
+      "key": "automation.noAllySecretTasks",
+      "value": "No ally tasks are available."
+    },
+    {
+      "key": "automation.scheduleSelectedHelp",
+      "value": "Schedule selected help"
+    },
+    {
+      "key": "automation.assistStatus.untracked",
+      "value": "Not scheduled"
+    },
+    {
+      "key": "automation.weekendShield.description",
+      "value": "Maintain a Shield throughout Saturday server time."
+    },
+    {
+      "key": "automation.weekendShield.title",
+      "value": "Weekend Shield"
+    },
+    {
+      "key": "automation.weekendWindow",
+      "value": "Weekend Window"
+    },
+    {
+      "key": "automation.weekendWindowLocal",
+      "value": "Local Window"
+    },
+    {
+      "key": "common.available",
+      "value": "Available"
+    },
+    {
+      "key": "common.cancel",
+      "value": "Cancel"
+    },
+    {
+      "key": "common.retry",
+      "value": "Retry"
+    },
+    {
+      "key": "common.degraded",
+      "value": "Degraded"
+    },
+    {
+      "key": "common.disabled",
+      "value": "Disabled"
+    },
+    {
+      "key": "common.enabled",
+      "value": "Enabled"
+    },
+    {
+      "key": "common.failed",
+      "value": "Failed"
+    },
+    {
+      "key": "common.no",
+      "value": "No"
+    },
+    {
+      "key": "common.notChecked",
+      "value": "Not checked"
+    },
+    {
+      "key": "common.off",
+      "value": "Off"
+    },
+    {
+      "key": "common.on",
+      "value": "On"
+    },
+    {
+      "key": "common.runNow",
+      "value": "Run now"
+    },
+    {
+      "key": "common.stop",
+      "value": "Stop"
+    },
+    {
+      "key": "common.success",
+      "value": "Success"
+    },
+    {
+      "key": "common.waiting",
+      "value": "Waiting"
+    },
+    {
+      "key": "common.yes",
+      "value": "Yes"
+    },
+    {
+      "key": "nav.automation",
+      "value": "Automation"
+    },
+    {
+      "key": "settings.title",
+      "value": "Settings"
+    },
+    {
+      "key": "status.disconnected",
+      "value": "Disconnected"
+    },
+    {
+      "key": "status.gameConnected",
+      "value": "Game connected"
+    },
+    {
+      "key": "status.gameDisconnectedDisabled",
+      "value": "Game disconnected. Actions are disabled."
+    },
+    {
+      "key": "automation.category.resourceGather",
+      "value": "Resource gathering"
+    },
+    {
+      "key": "automation.resourceGather.description",
+      "value": "Continuously gather ordinary resources. AFK and activity tasks take priority. Pause under a shield and resume after the configured manual-action delay."
+    },
+    {
+      "key": "automation.resourceGather.squadRequired",
+      "value": "Enable at least one gathering squad"
+    },
+    {
+      "key": "automation.resourceGather.resource",
+      "value": "Resource"
+    },
+    {
+      "key": "automation.resourceGather.level",
+      "value": "Search level"
+    },
+    {
+      "key": "automation.resourceGather.manualResumeDelay",
+      "value": "Wait after manual actions (minutes)"
+    },
+    {
+      "key": "automation.resourceGather.scanRadius",
+      "value": "Scan radius (tiles)"
+    },
+    {
+      "key": "automation.resourceGather.scanRadiusHint",
+      "value": "Choose 50–500 tiles. The world map is {size}×{size} tiles. This is the straight-line radius from your base; larger ranges take longer to scan."
+    },
+    {
+      "key": "automation.resourceGather.manualResumeAt",
+      "value": "Manual wait until {time}"
+    },
+    {
+      "key": "automation.resourceGather.shieldEndAt",
+      "value": "Shield ends at {time}"
+    },
+    {
+      "key": "automation.resourceGather.squadsLoading",
+      "value": "Loading squad settings"
+    },
+    {
+      "key": "automation.resourceGather.recallOnDisable",
+      "value": "Recall squads when gathering is disabled"
+    }
+  ],
+  "directClassNameLiterals": [
+    "trade-station-good-grid",
+    "trade-station-good${i?",
+    "trade-station-good-frame quality-${n.quality||0}",
+    "trade-station-good-frame-image",
+    "trade-station-good-icon",
+    "trade-station-good-copy",
+    "trade-station-good-exclusive",
+    "trade-station-good-check",
+    "muted",
+    "trade-station-purchase-history",
+    "trade-station-purchase-day",
+    "trade-station-purchase-day-heading",
+    "trade-station-purchase-day-summary",
+    "trade-station-purchase-day-item",
+    "trade-station-purchase-list",
+    "trade-station-purchase",
+    "trade-station-purchase-copy",
+    "trade-station-purchase-price",
+    "trade-station-currency-icon",
+    "trade-station-currencies",
+    "trade-station-panel",
+    "trade-station-warning",
+    "trade-station-stats",
+    "trade-station-tabs",
+    "trade-station-goods",
+    "trade-station-goods-heading",
+    "automation-error",
+    "automation-resource-gather-options",
+    "automation-resource-gather-radius",
+    "automation-resource-gather-recall",
+    "automation-resource-gather-radius-hint muted",
+    "automation-resource-gather-squad",
+    "automation-resource-gather-enable",
+    "automation-resource-gather-state muted",
+    "soldier-training-fields",
+    "soldier-training-camps",
+    "soldier-training-camp",
+    "soldier-training-camp-detail",
+    "automation-weekly-quality",
+    "automation-assist-stars",
+    "automation-assist-star",
+    "automation-assist-rewards",
+    "map-reward-item",
+    "map-reward-icon",
+    "automation-settings-section",
+    "hint",
+    "automation-form-grid",
+    "automation-subsettings",
+    "automation-replies",
+    "automation-compact-choice-group automation-squad-priority",
+    "automation-squad-priority-item${t?",
+    "automation-squad-drag-handle",
+    "panel",
+    "panel-title",
+    "automation-categories",
+    "automation-grid",
+    "automation-actions",
+    "construction-type-select",
+    "construction-select-arrow",
+    "construction-category-tabs",
+    "construction-target-types",
+    "automation-checkbox-row",
+    "automation-compact-choice-group automation-selection-mode-choices",
+    "automation-compact-choice",
+    "automation-compact-choice-group automation-carriage-choices",
+    "automation-train-rewards automation-settings-section",
+    "automation-preference-list",
+    "automation-preference-item${n?",
+    "automation-reward-choice",
+    "automation-reward-icon",
+    "automation-reward-count",
+    "automation-reward-order",
+    "automation-reward-drag-handle",
+    "automation-status-grid",
+    "automation-status-row",
+    "automation-squad-choices",
+    "automation-task-list",
+    "automation-task-row automation-assist-task-row",
+    "automation-assist-task-main",
+    "automation-assist-task-title",
+    "automation-assist-queue",
+    "automation-inline-status",
+    "error-text",
+    "automation-section",
+    "automation-compact-choice-group",
+    "automation-card${i?",
+    "automation-card-header",
+    "automation-card-title-group",
+    "automation-card-header-actions",
+    "automation-header-switch",
+    "automation-card-meta-row",
+    "automation-state state-${j}",
+    "automation-status-pills",
+    "automation-status-pill",
+    "pill-dot",
+    "pill-label",
+    "automation-card-summary",
+    "automation-config",
+    "automation-config-actions",
+    "automation-config-trigger${C?",
+    "automation-config-trigger-label",
+    "automation-config-gear",
+    "trigger-chevron",
+    "automation-run-action",
+    "automation-config-body",
+    "automation-card monster-afk-compact-card${c?",
+    "monster-afk-compact-actions",
+    "monster-afk-compact-toggle ${r?",
+    "monster-afk-master-track"
+  ],
+  "notes": [
+    "cardInventory records statically rendered card/panel titles or equivalent single-panel title for each top-level category; it does not claim backend behavior.",
+    "directLocaleKeys are exact English locale entries whose keys occur literally in the recovered AutomationPanel/AutomationCard JavaScript.",
+    "dynamic runtime values, config-derived values, translated building names, status counts and server/game data are not fabricated here."
+  ]
+}
