@@ -58,8 +58,9 @@ It established the exact static frontend package and recovered/hash-locked 24 em
 Desktop-control tooling was used for the UI-parity campaign's clone-side smoke
 checks and captures.
 
-Last War live control and auth bypass are not authorized. Static/headless
-function recovery is now authorized for Map Data only.
+Static/headless function recovery is authorized for Map Data, followed by
+bounded live Last War Map validation using an assistant-owned session where
+possible. Auth bypass and unrelated gameplay actions remain unauthorized.
 
 The local clone Vite preview used for validation was stopped during final
 cleanup. No Last War process was launched or controlled by this campaign.

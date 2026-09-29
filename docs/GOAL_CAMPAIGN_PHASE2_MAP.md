@@ -179,26 +179,79 @@ At minimum cover:
 
 Do not claim live proof from deterministic/local tests.
 
-## Current-client compatibility map
+## Current-client compatibility and live validation
 
 After the 0.3.17 contract is stable, investigate the currently installed Last
-War artifacts **statically/headlessly first** and create a compatibility matrix:
+War artifacts statically/headlessly first, then proceed to **bounded live Map
+validation against the current Last War client**.
+
+Live Last War interaction is explicitly authorized for this Goal because Map
+scan correctness cannot be established from static analysis alone.
+
+Before live interaction:
+
+- inspect existing Last War/LWBridge processes;
+- treat unexplained existing game sessions as owner activity;
+- do not close, steal, repurpose or mutate an owner session;
+- prefer a worker/assistant-owned game session for disruptive tests;
+- record server/world/player context needed to interpret results;
+- fail closed if session ownership is ambiguous.
+
+The worker may launch/control an assistant-owned Last War session and perform
+Map-only actions needed to validate the recovered subsystem, including:
+
+- current map/world-state observation;
+- coordinate navigation/jump;
+- server jump when required by the recovered Map contract;
+- manual scan start/status/progress/stop/clear/resume;
+- auto-scan scheduling/status where safely testable;
+- acquisition of city/resource/monster/truck/train/secret-task/ghost-ops/
+  treasure data where available;
+- query/filter/sort/pagination checks against acquired records;
+- export/marks/history/options validation when they do not cause unrelated
+  gameplay effects.
+
+Do not send unrelated gameplay actions, marches, purchases, attacks, resource
+spending, alliance actions or automation outside the Map subsystem.
+
+Create a compatibility matrix covering:
 
 - exact 0.3.17 expectation;
 - old 0.3.1 historical implementation if relevant;
 - current-client candidate source;
 - unchanged/changed/missing status;
 - confidence;
-- what still requires live proof.
+- what still requires live proof;
+- what was actually live-proven in the current client.
 
-Do not modify or control Last War in this Goal.
+## Live proof requirements
+
+Where the current game/server state permits it, the Goal should not stop at
+`IMPLEMENTED_NOT_VALIDATED`.
+
+Attempt to live-prove at least:
+
+1. connection/runtime readiness required by Map;
+2. map/world metadata read;
+3. coordinate navigation;
+4. scan start;
+5. progress/status updates;
+6. safe stop/cancel;
+7. clear/reset;
+8. at least one completed scan/acquisition path that produces real records;
+9. query/filter/sort/pagination over those real records;
+10. restart/resume semantics when safely reproducible;
+11. no orphaned worker/game process after cleanup.
+
+If a particular content type has no live examples during the test window,
+record that as `BLOCKED_BY_LIVE_STATE` / equivalent narrative rather than
+fabricating proof.
 
 ## Explicit non-goals
 
 - no login/account/licensing reconstruction;
 - no auth/entitlement bypass;
 - no credential/token/license/purchase protocol work;
-- no Last War live control in this Goal;
 - no unrelated Automation/Squads/City Layout function recovery;
 - no broad redesign of the Phase 1 UI;
 - no fabricated defaults or runtime data;
@@ -269,7 +322,9 @@ This Goal is complete only when all of the following are true:
   implemented;
 - the current-client compatibility matrix exists;
 - every unrecovered provider/native boundary is listed precisely;
-- no live/gameplay claim is made without live evidence;
+- bounded current-client Map live validation has been attempted;
+- each claimed live Map behavior has durable evidence;
+- no non-Map gameplay action was sent;
 - repository checks pass;
 - all coherent work is committed and pushed;
 - the final handoff states exactly what is ready for the next live/provider
@@ -279,4 +334,3 @@ Do not stop because one interesting contract was recovered. Finish the complete
 Map subsystem goal above or reach a documented hard blocker.
 
 When complete, stop. Do not automatically begin another subsystem.
-

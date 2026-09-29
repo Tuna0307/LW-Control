@@ -81,7 +81,8 @@ Do not compress those into a single vague “done” percentage.
 
 ## Desktop constraint
 
-Desktop-control tooling remains available, but the current Map Goal is designed
-to be static/headless first.
+Desktop-control tooling remains available. The current Map Goal is
+static/headless first and then explicitly authorizes **bounded live Last War Map
+validation** using an assistant-owned session where possible.
 
-It does not authorize Last War live control or auth bypass.
+It does not authorize auth bypass or unrelated gameplay actions.

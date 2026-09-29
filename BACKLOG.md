@@ -65,6 +65,10 @@ the Map Goal is reviewed.
 - [ ] Recover/revalidate Map storage/query/export/marks/history/options.
 - [ ] Implement/test the 0.3.17 Map local control/data plane.
 - [ ] Produce current-client Map compatibility matrix.
+- [ ] Live-prove Map connection/world-state/navigation/scan lifecycle against
+      an assistant-owned current Last War session where live state permits.
+- [ ] Live-prove at least one real completed Map acquisition path and query the
+      resulting records.
 - [ ] Project-lead review Map Goal before opening another subsystem.
 - [ ] Build command/event inventory from later in-scope 0.3.17 surfaces.
 - [ ] Trace later function families one at a time from UI to backend/runtime.
