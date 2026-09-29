@@ -30,13 +30,16 @@ The execution order is:
 
 If a later target feature demonstrably consumes auth-produced state, recover only the minimum downstream state contract it needs. Do not broaden that into rebuilding login/licensing.
 
-## Current Loop campaign
+## UI campaign handoff
 
-A project-lead-authored 8-hour UI-only campaign is available at:
+A project-lead-authored UI-only campaign is recorded at:
 
 `docs/LOOP_CAMPAIGN_8H.md`
 
-It may inventory/reproduce UI continuously, but it must stop before gameplay/backend function reverse engineering.
+The campaign has returned `AWAITING_REVIEW`. Its separate static reconstruction
+is under `src/LWBridge.UI-0.3.17/`; direct post-auth visual comparison remains
+auth-blocked. Gameplay/backend function reverse engineering has not started and
+remains closed until project-lead review.
 
 ## Start here
 

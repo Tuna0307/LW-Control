@@ -99,3 +99,20 @@ Settings from exact recovered frontend bytes. `LWB317-UI-003` consolidates the
 shared light/dark tokens, typography, shell geometry, navigation states,
 controls, cards, tabs, tables and responsive rules. These are static contracts;
 post-auth rendered visual comparison remains blocked by the same auth boundary.
+
+`LWB317-UI-004` created the clean separate React/Vite project at
+`src/LWBridge.UI-0.3.17/`. `LWB317-UI-005` reproduces the exact statically
+recoverable shell/navigation contract and `LWB317-UI-006` implements the eight
+effective visible routes with evidence-safe static/loading/empty/disconnected
+states. The original login/account/licensing experience remains absent by
+design, and gameplay/backend actions are not wired in this Phase 1 preview.
+
+`LWB317-UI-007` completed the available exact-component/CSS comparison pass and
+fixed concrete clone hierarchy/state deviations. Before/after clone evidence is
+under `evidence/lwbridge-0.3.17/ui/visual-comparison/`. The stage remains
+`PARTIAL` solely because repeatable direct comparison against the original
+post-auth runtime is blocked by the auth boundary. No pixel-parity claim is made
+without that reference state.
+
+The UI campaign is now `AWAITING_REVIEW`. Phase 2 must not begin until the
+project lead reviews this baseline and explicitly opens function recovery.

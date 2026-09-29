@@ -2,11 +2,11 @@
 
 Only the project lead should normally change what is authorized here.
 
-## Active authorization
+## Current authorization
 
 | Campaign / work item | State | File | Notes |
 |---|---|---|---|
-| LWB317-UI-CAMPAIGN-8H | ACTIVE | `docs/LOOP_CAMPAIGN_8H.md` | Pre-authorized UI-only campaign; stop before function reverse engineering |
+| LWB317-UI-CAMPAIGN-8H | AWAITING_REVIEW | `docs/LOOP_CAMPAIGN_8H.md` | UI-only campaign returned; static clone/evidence complete with direct post-auth visual comparison blocked by auth boundary |
 | LWB317-RE-* | BLOCKED | not assigned | No gameplay/backend function recovery in this campaign |
 | Auth/login/licensing reconstruction | OUT_OF_SCOPE | n/a | Boundary/dependency only; no recreation or bypass |
 

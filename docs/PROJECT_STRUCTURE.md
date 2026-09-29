@@ -23,6 +23,10 @@ Current evidence root:
 
 - `evidence/lwbridge-0.3.17/`
 
+Current 0.3.17 UI source:
+
+- `src/LWBridge.UI-0.3.17/` — separate React/Vite Phase 1 static UI reconstruction
+
 Future 0.3.17 findings should use `LWB317-*` IDs.
 
 ## Legacy 0.3.1 implementation/research
@@ -41,11 +45,11 @@ They are preserved because they contain valuable recovery knowledge. They are no
 
 Do not silently modify the old reconstruction and call it the 0.3.17 implementation.
 
-## Future source location
+## Current source separation
 
-When the project lead starts the 0.3.17 UI implementation, create a clearly separate source project/path rather than overwriting the old reconstruction in place.
-
-The exact project name will be assigned at that checkpoint.
+The 0.3.17 UI implementation was created at `src/LWBridge.UI-0.3.17/` rather
+than overwriting the old reconstruction in place. Keep that separation unless a
+later project-lead decision explicitly changes the architecture.
 
 ## Why this separation exists
 

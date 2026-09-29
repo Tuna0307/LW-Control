@@ -1,6 +1,6 @@
 # LWB317-UI-CAMPAIGN-8H — pre-authorized UI parity campaign
 
-**State:** ACTIVE  
+**State:** AWAITING_REVIEW
 **Project-lead authorization:** 2026-09-29  
 **Maximum unattended duration:** 8 hours  
 **Stop-opening-new-work threshold:** 7 hours 45 minutes after recorded start
@@ -116,8 +116,8 @@ The worker should update this table as stages progress.
 | LWB317-UI-004 clean 0.3.17 UI project scaffold | COMPLETE | `64d9733` | Separate React/Vite static UI project under `src/LWBridge.UI-0.3.17`; no auth/backend; legacy desktop project untouched |
 | LWB317-UI-005 shell/navigation reproduction | COMPLETE | `548754c` | Exact recovered CSS/assets/nav SVGs and single-profile shell implemented; clone smoke/capture complete; reference runtime comparison blocked by auth |
 | LWB317-UI-006 accessible page reproduction | COMPLETE | `0bfd7b9` | Eight inventoried routes implemented in separate static clone; clone smoke/captures complete; reference runtime validation blocked by auth boundary |
-| LWB317-UI-007 visual comparison/fix pass | PARTIAL | | Exact static-component/CSS comparison and evidence-backed fixes complete; direct post-auth reference/pixel comparison remains legitimately blocked by auth boundary |
-| Campaign handoff/cleanup | PENDING | | |
+| LWB317-UI-007 visual comparison/fix pass | PARTIAL | `fc760bc` | Exact static-component/CSS comparison and evidence-backed fixes complete; direct post-auth reference/pixel comparison remains legitimately blocked by auth boundary |
+| Campaign handoff/cleanup | COMPLETE | | Queue/status/handoff reconciled; clone preview stopped; Phase 2 remains closed pending project-lead review |
 
 Allowed campaign stage states:
 

@@ -38,17 +38,21 @@ For login/auth/entitlement:
 Work only from assigned bounded work items or a project-lead-authored Loop campaign.
 
 - [x] Recover and hash the embedded 0.3.17 frontend package.
-- [ ] Capture runtime visual shell/navigation baseline (`LWB317-UI-001B`).
-- [ ] Capture/reference every accessible in-scope top-level 0.3.17 screen.
-- [ ] Inventory all visible in-scope navigation entries.
-- [ ] Inventory every nested tab/card/dialog/popover that belongs to an in-scope feature.
-- [ ] Record labels, defaults, disabled states and validation copy.
-- [ ] Record themes, colors, typography, spacing and assets.
-- [ ] Record viewport/window behavior.
-- [ ] Record the login/locked boundary only if encountered; do not reproduce it.
-- [ ] Build exact in-scope post-auth UI shell with no fabricated backend data.
-- [ ] Establish repeatable visual-diff workflow.
-- [ ] Close all visually observable in-scope parity gaps before function wiring.
+- [ ] Capture runtime visual shell/navigation baseline (`LWB317-UI-001B`) —
+      `BLOCKED` at the out-of-scope auth boundary; boundary evidence captured.
+- [x] Capture/reference every statically recoverable in-scope top-level 0.3.17 screen.
+- [x] Inventory all visible in-scope navigation entries.
+- [x] Inventory the statically recoverable nested tabs/cards/controls for the inventoried in-scope surfaces.
+- [x] Record evidence-backed labels, defaults, disabled/loading/empty states and validation copy.
+- [x] Record exact static themes, colors, typography, spacing and assets.
+- [ ] Record post-auth runtime viewport/window behavior — static responsive CSS
+      is captured, but the original post-auth window remains auth-blocked.
+- [x] Record the login/locked boundary only; it is not reproduced.
+- [x] Build the separate in-scope post-auth UI shell without fabricated backend results.
+- [ ] Establish direct reference-vs-clone visual diff — clone before/after
+      evidence exists, but the reference side remains auth-blocked.
+- [ ] Close remaining runtime-observable parity gaps before function wiring —
+      project-lead review/authenticated reference access is required first.
 
 ## Phase 2 — function recovery
 

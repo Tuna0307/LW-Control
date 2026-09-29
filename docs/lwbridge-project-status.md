@@ -2,7 +2,7 @@
 
 **Date:** 2026-09-29  
 **Branch:** `research/offline-controller`  
-**Phase:** 1 — UI parity / 8-hour Loop campaign active
+**Phase:** 1 — UI parity / campaign awaiting project-lead review
 
 ## Current state
 
@@ -48,28 +48,33 @@ Established from the exact reference:
 - exact 24-record Brotli-compressed frontend asset table;
 - all 24 frontend assets recovered and hash-locked;
 - exact static top-level navigation keys/order and English labels;
-- conditional Advanced entry exists statically but runtime visibility remains unknown.
+- an Advanced navigation helper exists statically, but this exact 0.3.17 build
+  passes `false` into its premium/admin visibility gate, so the effective
+  visible navigation has eight entries and Advanced is statically forced off.
 
 Project-lead acceptance review:
 
 `docs/reviews/2026-09-29-LWB317-PM-002-review-ui-001a.md`
 
-## Active campaign
+## UI campaign result
 
-The project lead has authorized:
+The project-lead-authorized campaign is now `AWAITING_REVIEW`:
 
 `docs/LOOP_CAMPAIGN_8H.md`
 
-This campaign may proceed continuously through pre-authorized **UI-only** stages:
+It completed or legitimately blocked each authorized **UI-only** stage:
 
 - runtime/static shell and page inventory;
 - common visual-system consolidation;
 - clean separate 0.3.17 UI scaffold;
 - shell/navigation reproduction;
 - accessible page reproduction;
-- visual comparison/fix pass.
+- visual comparison/fix pass (static contract fixes complete; direct post-auth
+  reference/pixel comparison blocked by the auth boundary).
 
-It must stop before gameplay/backend function reverse engineering.
+The separate static UI reconstruction now lives at
+`src/LWBridge.UI-0.3.17/`. Gameplay/backend function reverse engineering did not
+start and remains blocked pending project-lead review.
 
 Queue authority:
 

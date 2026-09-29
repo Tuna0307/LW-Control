@@ -15,7 +15,7 @@ Read in this order:
 9. [AI_WORK_PROTOCOL.md](AI_WORK_PROTOCOL.md)
 10. [LOOP_WORKER_PROTOCOL.md](LOOP_WORKER_PROTOCOL.md) — required for Loop mode
 11. [LOOP_QUEUE.md](LOOP_QUEUE.md) — current Loop authorization
-12. [LOOP_CAMPAIGN_8H.md](LOOP_CAMPAIGN_8H.md) — active pre-authorized UI campaign
+12. [LOOP_CAMPAIGN_8H.md](LOOP_CAMPAIGN_8H.md) — completed UI campaign awaiting project-lead review
 13. [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md)
 14. [implementation-handoff.md](implementation-handoff.md)
 15. [../BACKLOG.md](../BACKLOG.md)
@@ -35,7 +35,11 @@ SHA-256:
 
 **Phase 1 — UI parity.**
 
-The exact static frontend package baseline is accepted. An 8-hour UI-only Loop campaign is active for runtime/static UI inventory, clean 0.3.17 UI scaffolding/reproduction and visual comparison.
+The exact static frontend package baseline is accepted. The UI-only Loop
+campaign has returned `AWAITING_REVIEW` after completing the static inventories,
+separate 0.3.17 UI reconstruction, shell/pages, and source-backed comparison/fix
+pass. Direct post-auth runtime visual comparison remains blocked by the original
+auth boundary.
 
 Gameplay/backend function reverse engineering remains blocked until project-lead review after the campaign.
 

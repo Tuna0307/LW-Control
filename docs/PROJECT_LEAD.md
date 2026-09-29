@@ -24,20 +24,21 @@ later if an in-scope feature demonstrably requires it.
 
 **Phase 1 — UI parity**
 
-Status: static frontend package baseline accepted. The project lead has
-pre-authorized an 8-hour UI-only Loop campaign covering runtime/static UI
-inventory, common visual-system consolidation, clean 0.3.17 UI scaffolding,
-static page reproduction and a visual comparison pass.
+Status: the pre-authorized UI-only Loop campaign has returned and is
+`AWAITING_REVIEW`. Static inventories, the common visual system, the separate
+0.3.17 UI project, shell/navigation, inventoried pages and the static comparison
+fix pass are checkpointed. Direct post-auth runtime visual comparison remains
+blocked by the original auth boundary.
 
 No gameplay/function reverse engineering is authorized in this campaign.
 
-## Active work items
+## Current work items
 
 | Work item / campaign | Owner | State | Scope |
 |---|---|---|---|
 | LWB317-PM-001 | Project lead | COMPLETE | Repository/documentation reset for 0.3.17 |
 | LWB317-UI-001A | Worker AI | COMPLETE / ACCEPTED | Static frontend package inventory/extraction |
-| LWB317-UI-CAMPAIGN-8H | Loop worker | ACTIVE | Pre-authorized UI-only campaign in `docs/LOOP_CAMPAIGN_8H.md` |
+| LWB317-UI-CAMPAIGN-8H | Loop worker | AWAITING_REVIEW | Campaign returned; review checkpoints/evidence and auth-blocked visual-validation gap |
 | LWB317-RE-* | None | BLOCKED BY PHASE ORDER | Begins only after project-lead review opens Phase 2 |
 | Login/auth/licensing reconstruction | None | OUT_OF_SCOPE | Boundary/dependency only |
 
@@ -79,6 +80,7 @@ Do not compress those into a single vague “done” percentage.
 
 ## Desktop constraint
 
-Desktop-control tooling is available for the active UI campaign.
+Desktop-control tooling remains available, but the UI campaign is now awaiting
+project-lead review rather than actively executing.
 
 It does not authorize Last War/gameplay testing, auth bypass or backend function reverse engineering.
