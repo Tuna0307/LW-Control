@@ -2,7 +2,7 @@
 
 ## Target
 
-Reproduce LWBridge 0.3.17 one-for-one, then recover and implement its functions against the current Last War client.
+Reproduce the in-scope post-auth LWBridge 0.3.17 experience one-for-one, then recover and implement its functions against the current Last War client.
 
 Reference:
 
@@ -11,6 +11,20 @@ Reference:
 SHA-256:
 
 `4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783`
+
+## Explicit auth scope exception
+
+The new product will **not** recreate LWBridge's original login/account/licensing system.
+
+Login/auth/entitlement is treated as a boundary:
+
+- capture only enough visible evidence to understand that boundary;
+- do not implement the original login/account/licensing UI;
+- do not reverse engineer credential/token/license/purchase protocols;
+- do not bypass authentication or entitlement;
+- if a later target feature depends on auth-produced state, recover only the minimum downstream state contract that feature requires.
+
+The parity target therefore begins at the in-scope post-auth application experience.
 
 ## Phase order
 
@@ -23,37 +37,41 @@ SHA-256:
 
 ### Phase 1 — UI parity
 
-Copy the 0.3.17 UI one-for-one before implementing game behavior.
+Copy the in-scope 0.3.17 post-auth UI one-for-one before implementing game behavior.
 
 Deliverables will include:
 
-- complete screen/tab inventory;
+- complete accessible screen/tab inventory;
 - exact text/labels/defaults;
 - layout/theme/spacing/assets;
 - empty/loading/error/connected states where observable;
 - visual comparison evidence;
 - navigation/state-transition matrix.
 
+If the reference opens at a login/locked boundary, document that boundary but do not recreate or bypass it.
+
 No gameplay function should be claimed implemented merely because a control exists.
 
 ### Phase 2 — function recovery
 
-Recover one function at a time from the 0.3.17 reference.
+Recover one in-scope function at a time from the 0.3.17 reference.
 
 For each function trace, where evidence permits:
 
 `UI trigger -> frontend/API call -> host command -> runtime/provider request -> state mutation -> visible result`
 
+Auth/login internals are excluded unless a specific in-scope function proves it needs a minimal auth-produced dependency. In that case trace only the consumed state contract.
+
 ### Phase 3 — current-client mapping
 
-Map recovered 0.3.17 behavior to the currently installed Last War client. Compatibility shims may differ internally, but user-visible behavior should preserve the recovered 0.3.17 contract.
+Map recovered 0.3.17 behavior to the currently installed Last War client. Compatibility shims may differ internally, but user-visible in-scope behavior should preserve the recovered 0.3.17 contract.
 
 ### Phase 4 — live parity validation
 
-Live-prove each implemented function against an assistant-owned/current client session.
+Live-prove each implemented in-scope function against an assistant-owned/current client session.
 
 ## Current instruction
 
-Do **not** begin UI reproduction or reverse engineering yet. The repository is currently being prepared so other AIs can take bounded work items safely.
+The project is in **Phase 1 — UI parity**.
 
-The project lead owns the master plan and will assign the first UI work item later.
+A project-lead-authored Loop campaign may execute the pre-authorized UI stages continuously. It must stop before gameplay/function reverse engineering.
