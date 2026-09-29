@@ -2,3 +2,43 @@
  * Page-specific reconstruction additions belong here. The recovered 0.3.17
  * visual contract is imported unmodified from reference.css.
  */
+
+.automation-card-wide {
+  grid-column: 1 / -1;
+}
+
+.automation-form-grid label,
+.clone-equipment-layout label {
+  color: var(--muted);
+  font-size: var(--font-body);
+  display: grid;
+  gap: 5px;
+}
+
+.map-preview-actions {
+  justify-content: flex-start;
+}
+
+.afk-empty-state {
+  border: 1px dashed var(--line-bright);
+  border-radius: 8px;
+  padding: 18px 12px;
+  text-align: center;
+}
+
+.clone-card-stack {
+  display: grid;
+  gap: 10px;
+}
+
+.clone-equipment-layout {
+  min-height: 280px;
+}
+
+.clone-left-actions {
+  justify-content: flex-start;
+}
+
+.city-layout-panel + .city-layout-empty {
+  margin-top: 0;
+}

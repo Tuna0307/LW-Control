@@ -10,6 +10,7 @@ const required = [
   "src/main.jsx",
   "src/App.jsx",
   "src/NavIcon.jsx",
+  "src/Pages.jsx",
   "src/routes.js",
   "src/reference.css",
   "src/styles.css",
@@ -40,6 +41,11 @@ for (const label of [
 
 if (!routesSource.includes('initialRouteKey = "overview"')) {
   throw new Error("The recovered default Home/overview route is missing.");
+}
+
+const appSource = fs.readFileSync(path.join(root, "src/App.jsx"), "utf8");
+if (!appSource.includes('get("previewPage")')) {
+  throw new Error("The clone evidence preview-page selector is missing.");
 }
 
 const referenceCss = fs.readFileSync(path.join(root, "src/reference.css"), "utf8");

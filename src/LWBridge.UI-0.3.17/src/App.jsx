@@ -1,9 +1,15 @@
 import { useEffect, useState } from "react";
 import offlineDot from "./assets/dot-offline.png";
 import { NavIcon } from "./NavIcon.jsx";
+import { PageForRoute } from "./Pages.jsx";
 import { initialRouteKey, routes } from "./routes.js";
 
 const THEME_KEY = "lwbridge.theme";
+
+function initialRoute() {
+  const previewPage = new URLSearchParams(window.location.search).get("previewPage");
+  return routes.some((route) => route.key === previewPage) ? previewPage : initialRouteKey;
+}
 
 function initialTheme() {
   try {
@@ -14,12 +20,10 @@ function initialTheme() {
 }
 
 export function App() {
-  const [activeRoute, setActiveRoute] = useState(initialRouteKey);
+  const [activeRoute, setActiveRoute] = useState(initialRoute);
   const [theme, setTheme] = useState(initialTheme);
   const [language, setLanguage] = useState("en");
   const [serverJumpOpen, setServerJumpOpen] = useState(false);
-  const current = routes.find((route) => route.key === activeRoute) ?? routes[0];
-
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
     try {
@@ -156,12 +160,7 @@ export function App() {
         </nav>
 
         <section className="main-view">
-          <section className="panel">
-            <div className="panel-title">
-              <h2>{current.label}</h2>
-              <span>Static page reproduction follows in LWB317-UI-006.</span>
-            </div>
-          </section>
+          <PageForRoute routeKey={activeRoute} />
         </section>
       </div>
     </main>
