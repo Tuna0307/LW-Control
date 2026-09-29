@@ -1,0 +1,1003 @@
+{
+  "workItem": "LWB317-UI-002C",
+  "evidenceState": "EXACT_BYTES_STATIC; runtime visual observation BLOCKED by out-of-scope auth boundary",
+  "referenceSha256": "4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783",
+  "sources": {
+    "MapDataPanel-B4GXEND2.js": {
+      "bytes": 57600,
+      "sha256": "CE74345518BE72E417A510B982C591729E5683F69751E190805598C4C05D3089"
+    },
+    "rewardDisplay-eZWrd6iS.js": {
+      "bytes": 234,
+      "sha256": "7F65DD3F5B81C96117AF5E83E8310D6C6A3A48787B1F693D387020255C78E73E"
+    },
+    "GameAssetImage-Diy9VTIr.js": {
+      "bytes": 2347,
+      "sha256": "2F92A87C3268497DF6425B1175DB6140E10AABCBDFAE02615F065D00E16458E0"
+    },
+    "en-BisSXcTB.js": {
+      "bytes": 72319,
+      "sha256": "0BF43D180EB93692A93B830B5D984E9D01DDEEA524340F2334FC63CBA527A731"
+    },
+    "index-rIL9Fpht.css": {
+      "bytes": 126217,
+      "sha256": "3D87E9F65B39EACE6A1A254BFC90A38ACB72613D1FFF7236C7CEE7AB9BFAF545"
+    }
+  },
+  "componentByteOffsets": {
+    "active_tab_default_city": "0x76C8",
+    "scan_mode_default_manual": "0x7C93",
+    "scan_type_array": "0x160F",
+    "tab_label_map": "0x1824",
+    "scan_mode_tablist": "0xABA1",
+    "main_map_tabs": "0xC491",
+    "export": "0xE0F2"
+  },
+  "defaultMainTab": "city",
+  "defaultScanMode": "manual",
+  "mainTabs": [
+    {
+      "key": "city",
+      "localeKey": "map.city",
+      "label": "City"
+    },
+    {
+      "key": "resource",
+      "localeKey": "map.resource",
+      "label": "Resource"
+    },
+    {
+      "key": "monster",
+      "localeKey": "map.monster",
+      "label": "Monster"
+    },
+    {
+      "key": "truck",
+      "localeKey": "map.truck",
+      "label": "Truck"
+    },
+    {
+      "key": "railway",
+      "localeKey": "map.allianceTrain",
+      "label": "Train"
+    },
+    {
+      "key": "dispatch",
+      "localeKey": "map.secretTask",
+      "label": "Secret Task"
+    },
+    {
+      "key": "ghost",
+      "localeKey": "map.ghostScout",
+      "label": "Ghost Ops"
+    },
+    {
+      "key": "treasure",
+      "localeKey": "map.treasure",
+      "label": "Treasure"
+    },
+    {
+      "key": "scheduledPlunder",
+      "localeKey": "map.scheduledPlunder",
+      "label": "Scheduled Plunder"
+    }
+  ],
+  "scanTypes": [
+    {
+      "key": "city",
+      "localeKey": "map.playerCity",
+      "label": "Player City"
+    },
+    {
+      "key": "resource",
+      "localeKey": "map.resourcePoint",
+      "label": "Resource Point"
+    },
+    {
+      "key": "monster",
+      "localeKey": "map.monster",
+      "label": "Monster"
+    },
+    {
+      "key": "truck",
+      "localeKey": "map.truck",
+      "label": "Truck"
+    },
+    {
+      "key": "railway",
+      "localeKey": "map.allianceTrain",
+      "label": "Train"
+    },
+    {
+      "key": "dispatch",
+      "localeKey": "map.secretTask",
+      "label": "Secret Task"
+    },
+    {
+      "key": "ghost",
+      "localeKey": "map.ghostScout",
+      "label": "Ghost Ops"
+    },
+    {
+      "key": "treasure",
+      "localeKey": "map.treasure",
+      "label": "Treasure"
+    }
+  ],
+  "scanModeTabs": [
+    {
+      "key": "manual",
+      "localeKey": "map.manualScan",
+      "label": "Manual Scan"
+    },
+    {
+      "key": "auto",
+      "localeKey": "map.autoScan",
+      "label": "Auto Scan"
+    }
+  ],
+  "directLocaleKeys": [
+    {
+      "key": "common.remove",
+      "value": "Remove"
+    },
+    {
+      "key": "automation.shieldEnds",
+      "value": "Shield Ends"
+    },
+    {
+      "key": "common.add",
+      "value": "Add"
+    },
+    {
+      "key": "common.cancel",
+      "value": "Cancel"
+    },
+    {
+      "key": "common.completed",
+      "value": "Completed"
+    },
+    {
+      "key": "common.inProgress",
+      "value": "In progress"
+    },
+    {
+      "key": "common.itemCount",
+      "value": "{count} items"
+    },
+    {
+      "key": "common.name",
+      "value": "Name"
+    },
+    {
+      "key": "common.no",
+      "value": "No"
+    },
+    {
+      "key": "common.processing",
+      "value": "Processing"
+    },
+    {
+      "key": "common.search",
+      "value": "Search"
+    },
+    {
+      "key": "common.status",
+      "value": "Status"
+    },
+    {
+      "key": "common.stop",
+      "value": "Stop"
+    },
+    {
+      "key": "common.stopped",
+      "value": "Stopped"
+    },
+    {
+      "key": "common.yes",
+      "value": "Yes"
+    },
+    {
+      "key": "map.allAlliances",
+      "value": "All Alliances"
+    },
+    {
+      "key": "map.allNames",
+      "value": "All Names"
+    },
+    {
+      "key": "map.allQualities",
+      "value": "All qualities"
+    },
+    {
+      "key": "map.alliance",
+      "value": "Alliance"
+    },
+    {
+      "key": "map.allianceFilter",
+      "value": "Filter by Alliance"
+    },
+    {
+      "key": "map.allianceTrain",
+      "value": "Train"
+    },
+    {
+      "key": "map.arrivalTime",
+      "value": "Arrival Time"
+    },
+    {
+      "key": "map.city",
+      "value": "City"
+    },
+    {
+      "key": "map.exportExcel",
+      "value": "Export Excel"
+    },
+    {
+      "key": "map.exportingExcel",
+      "value": "Exporting…"
+    },
+    {
+      "key": "map.exportExcelSuccess",
+      "value": "Exported {count} cities to {path}"
+    },
+    {
+      "key": "map.shareAlliance",
+      "value": "Share to Alliance"
+    },
+    {
+      "key": "map.sharingAlliance",
+      "value": "Sharing…"
+    },
+    {
+      "key": "map.shareAllianceSuccess",
+      "value": "Shared {count} Secret Tasks to the Alliance channel."
+    },
+    {
+      "key": "map.shareAlliancePartial",
+      "value": "Shared {shared} Secret Tasks; {failed} failed."
+    },
+    {
+      "key": "map.treasure",
+      "value": "Treasure"
+    },
+    {
+      "key": "map.treasureType",
+      "value": "Treasure Type"
+    },
+    {
+      "key": "map.allTreasureTypes",
+      "value": "All Treasure Types"
+    },
+    {
+      "key": "map.treasureTypeRadar",
+      "value": "Radar Treasure"
+    },
+    {
+      "key": "map.treasureTypeSiege",
+      "value": "Siege Treasure"
+    },
+    {
+      "key": "map.treasureTypeActivityRadar",
+      "value": "Activity Radar Treasure"
+    },
+    {
+      "key": "map.treasureTypeInvasion",
+      "value": "Invasion Treasure"
+    },
+    {
+      "key": "map.treasureTypeZoneMobilization",
+      "value": "Warzone Mobilization Treasure"
+    },
+    {
+      "key": "map.treasureTypeSandworm",
+      "value": "Sandworm Treasure"
+    },
+    {
+      "key": "map.treasureTypeIceSupplies",
+      "value": "Scattered Supplies"
+    },
+    {
+      "key": "map.treasureTypeLargeLuckyCat",
+      "value": "Large Lucky Cat"
+    },
+    {
+      "key": "map.treasureTypeDesert",
+      "value": "Desert Artifacts"
+    },
+    {
+      "key": "map.treasureTypeTrialGift",
+      "value": "Trial Gift"
+    },
+    {
+      "key": "map.claimTreasureBoxes",
+      "value": "Claim Boxes"
+    },
+    {
+      "key": "map.claimSeasonTreasures",
+      "value": "Claim Season Treasures"
+    },
+    {
+      "key": "map.claimTreasure",
+      "value": "Claim"
+    },
+    {
+      "key": "map.claimingTreasure",
+      "value": "Claiming…"
+    },
+    {
+      "key": "map.remainingBoxes",
+      "value": "Remaining boxes"
+    },
+    {
+      "key": "map.prioritizeLuckyTreasures",
+      "value": "Prioritize lucky positions"
+    },
+    {
+      "key": "map.claimingTreasures",
+      "value": "Claiming…"
+    },
+    {
+      "key": "map.treasuresQueued",
+      "value": "Found {eligible}, submitted {queued}, skipped {skipped}"
+    },
+    {
+      "key": "map.treasureWorldState",
+      "value": "Treasure status"
+    },
+    {
+      "key": "map.treasurePlayerState",
+      "value": "My status"
+    },
+    {
+      "key": "map.treasureStateCharging",
+      "value": "Charging"
+    },
+    {
+      "key": "map.treasureStateClaimable",
+      "value": "Claimable"
+    },
+    {
+      "key": "map.treasureStateDepleted",
+      "value": "Depleted"
+    },
+    {
+      "key": "map.treasureStateExpired",
+      "value": "Expired"
+    },
+    {
+      "key": "map.treasureStateUnknown",
+      "value": "-"
+    },
+    {
+      "key": "map.treasureStateVerifying",
+      "value": "Checking"
+    },
+    {
+      "key": "map.treasurePlayerUnclaimed",
+      "value": "Not claimed"
+    },
+    {
+      "key": "map.treasurePlayerDispatching",
+      "value": "Dispatching"
+    },
+    {
+      "key": "map.treasurePlayerScouting",
+      "value": "Scouting"
+    },
+    {
+      "key": "map.treasurePlayerDigging",
+      "value": "Digging"
+    },
+    {
+      "key": "map.treasurePlayerClaiming",
+      "value": "Claiming"
+    },
+    {
+      "key": "map.treasurePlayerClaimed",
+      "value": "Claimed"
+    },
+    {
+      "key": "map.treasurePlayerUnknown",
+      "value": "-"
+    },
+    {
+      "key": "map.treasurePlayerVerifying",
+      "value": "Checking"
+    },
+    {
+      "key": "map.treasurePlayerOtherAlliance",
+      "value": "Other alliance"
+    },
+    {
+      "key": "map.treasurePlayerNoScout",
+      "value": "No free squad"
+    },
+    {
+      "key": "map.showForeignRadarTreasures",
+      "value": "Show other-alliance Radar Treasures"
+    },
+    {
+      "key": "map.treasureClaimSummary",
+      "value": "Confirmed {claimed}, dispatched {scoutDispatched}, no squad {noScoutSkipped}, other alliance {otherAllianceSkipped}, failed {failed}"
+    },
+    {
+      "key": "map.treasureTypeAllianceBossSandbox",
+      "value": "Alliance Boss Sandbox Treasure"
+    },
+    {
+      "key": "map.treasureTypePlayerKillMonster",
+      "value": "Monster Kill Treasure"
+    },
+    {
+      "key": "map.treasureTypeFlowerCar",
+      "value": "Flower Float Treasure"
+    },
+    {
+      "key": "map.treasureTypeOffSeason",
+      "value": "Off-season Exploration Treasure"
+    },
+    {
+      "key": "map.treasureTypeBloodyQueen",
+      "value": "Bloody Queen Treasure"
+    },
+    {
+      "key": "map.treasureTypeGeneFragment",
+      "value": "Gene Fragment"
+    },
+    {
+      "key": "map.treasureTypeFlowerTrainUpgrade",
+      "value": "Flower Train Upgrade Treasure"
+    },
+    {
+      "key": "map.treasureTypeFlowerTrainCheer",
+      "value": "Flower Train Cheer Treasure"
+    },
+    {
+      "key": "map.treasureTypeWolfShadow",
+      "value": "Wolf Shadow Treasure"
+    },
+    {
+      "key": "map.treasureTypeSeasonBoss",
+      "value": "Season Boss Treasure"
+    },
+    {
+      "key": "map.treasureTypeWorldBoss",
+      "value": "World Boss Treasure"
+    },
+    {
+      "key": "map.treasureTypeZwlGift",
+      "value": "ZWL Gift"
+    },
+    {
+      "key": "map.treasureTypeUnknown",
+      "value": "Unknown Treasure"
+    },
+    {
+      "key": "map.claimedCount",
+      "value": "Claimed"
+    },
+    {
+      "key": "map.diggingCount",
+      "value": "Digging"
+    },
+    {
+      "key": "map.expireTime",
+      "value": "Expire Time"
+    },
+    {
+      "key": "map.clearServer",
+      "value": "Clear Map Data"
+    },
+    {
+      "key": "map.completionTime",
+      "value": "Completion Time"
+    },
+    {
+      "key": "map.coordinates",
+      "value": "Coordinates"
+    },
+    {
+      "key": "map.distance",
+      "value": "Distance"
+    },
+    {
+      "key": "map.empty",
+      "value": "No saved data for this type."
+    },
+    {
+      "key": "map.escortPower",
+      "value": "Escort Power"
+    },
+    {
+      "key": "map.follow",
+      "value": "Follow"
+    },
+    {
+      "key": "map.following",
+      "value": "Following…"
+    },
+    {
+      "key": "map.ghostScout",
+      "value": "Ghost Ops"
+    },
+    {
+      "key": "map.jump",
+      "value": "Jump"
+    },
+    {
+      "key": "map.jumping",
+      "value": "Jumping…"
+    },
+    {
+      "key": "map.level",
+      "value": "Level"
+    },
+    {
+      "key": "map.liveTarget",
+      "value": "Live Target"
+    },
+    {
+      "key": "map.monster",
+      "value": "Monster"
+    },
+    {
+      "key": "map.nextPage",
+      "value": "Next"
+    },
+    {
+      "key": "map.noAlliance",
+      "value": "No Alliance"
+    },
+    {
+      "key": "map.owner",
+      "value": "Owner"
+    },
+    {
+      "key": "map.pageInfo",
+      "value": "Page {page} of {total}"
+    },
+    {
+      "key": "map.player",
+      "value": "Player"
+    },
+    {
+      "key": "map.marked",
+      "value": "Marked"
+    },
+    {
+      "key": "map.markedOnly",
+      "value": "Marked only"
+    },
+    {
+      "key": "map.markPlayer",
+      "value": "Mark player"
+    },
+    {
+      "key": "map.unmarkPlayer",
+      "value": "Unmark player"
+    },
+    {
+      "key": "map.positionMissing",
+      "value": "Original position is empty"
+    },
+    {
+      "key": "map.positionReplaced",
+      "value": "Original position is occupied by another player"
+    },
+    {
+      "key": "map.playerAlliance",
+      "value": "Player / Alliance"
+    },
+    {
+      "key": "map.playerCity",
+      "value": "Player City"
+    },
+    {
+      "key": "map.power",
+      "value": "Power"
+    },
+    {
+      "key": "map.previousPage",
+      "value": "Previous"
+    },
+    {
+      "key": "map.protectionTime",
+      "value": "Protection Time"
+    },
+    {
+      "key": "map.quality",
+      "value": "Quality"
+    },
+    {
+      "key": "map.retainedGoods",
+      "value": "Items"
+    },
+    {
+      "key": "map.itemFilter",
+      "value": "Item"
+    },
+    {
+      "key": "map.allRetainedGoods",
+      "value": "All Items"
+    },
+    {
+      "key": "map.reading",
+      "value": "Scanning"
+    },
+    {
+      "key": "map.resource",
+      "value": "Resource"
+    },
+    {
+      "key": "map.resourceGathering",
+      "value": "Gathering"
+    },
+    {
+      "key": "map.resourceIdle",
+      "value": "Idle"
+    },
+    {
+      "key": "map.resourcePoint",
+      "value": "Resource Point"
+    },
+    {
+      "key": "map.scanProgress",
+      "value": "Scan progress"
+    },
+    {
+      "key": "map.startTime",
+      "value": "Start time"
+    },
+    {
+      "key": "map.endTime",
+      "value": "End time"
+    },
+    {
+      "key": "map.totalDuration",
+      "value": "Total duration"
+    },
+    {
+      "key": "map.scanTypes",
+      "value": "Scan contents"
+    },
+    {
+      "key": "map.scanModeTabs",
+      "value": "Map scan mode"
+    },
+    {
+      "key": "map.manualScan",
+      "value": "Manual Scan"
+    },
+    {
+      "key": "map.autoScan",
+      "value": "Auto Scan"
+    },
+    {
+      "key": "map.enableAutoScan",
+      "value": "Enable automatic scanning"
+    },
+    {
+      "key": "map.autoScanRunning",
+      "value": "Running"
+    },
+    {
+      "key": "map.autoScanWaiting",
+      "value": "Waiting for schedule"
+    },
+    {
+      "key": "map.autoScanDisabled",
+      "value": "Disabled"
+    },
+    {
+      "key": "map.targetServers",
+      "value": "Target servers"
+    },
+    {
+      "key": "map.targetServersHint",
+      "value": "Enter server IDs and click Add. Commas add several at once; × removes one. No entries scans the current server."
+    },
+    {
+      "key": "map.scanIntervalMinutes",
+      "value": "Interval (minutes)"
+    },
+    {
+      "key": "map.returnAfterAutoScan",
+      "value": "Return to the original server after scanning"
+    },
+    {
+      "key": "map.runAutoScanNow",
+      "value": "Run now"
+    },
+    {
+      "key": "map.autoScanNavigationNotice",
+      "value": "Each target server is entered before scanning; a server ID alone cannot scan another server."
+    },
+    {
+      "key": "map.nextAutoScan",
+      "value": "Next scan"
+    },
+    {
+      "key": "map.searchLabel",
+      "value": "Search name, Alliance, or UUID"
+    },
+    {
+      "key": "map.secretTask",
+      "value": "Secret Task"
+    },
+    {
+      "key": "map.server",
+      "value": "Server"
+    },
+    {
+      "key": "map.actions",
+      "value": "Actions"
+    },
+    {
+      "key": "map.clearPlunderHistory",
+      "value": "Clear history"
+    },
+    {
+      "key": "map.plunderAt",
+      "value": "Available At"
+    },
+    {
+      "key": "map.plunderCancelled",
+      "value": "Cancelled"
+    },
+    {
+      "key": "map.plunderReasonUnavailable",
+      "value": "No rejection reason was returned."
+    },
+    {
+      "key": "map.plunderResult",
+      "value": "Result"
+    },
+    {
+      "key": "map.plunderWon",
+      "value": "Victory"
+    },
+    {
+      "key": "map.plunderLost",
+      "value": "Defeat"
+    },
+    {
+      "key": "map.plunderRewards",
+      "value": "Loot Obtained"
+    },
+    {
+      "key": "map.plunderAgain",
+      "value": "Plunder Again"
+    },
+    {
+      "key": "map.plunderCount",
+      "value": "Times Plundered"
+    },
+    {
+      "key": "map.plunderRunning",
+      "value": "Plundering"
+    },
+    {
+      "key": "map.plunderSucceeded",
+      "value": "Succeeded"
+    },
+    {
+      "key": "map.rewards",
+      "value": "Rewards"
+    },
+    {
+      "key": "map.randomDelaySeconds",
+      "value": "Random delay max (seconds)"
+    },
+    {
+      "key": "map.scheduleSelected",
+      "value": "Add to schedule ({count})"
+    },
+    {
+      "key": "map.selectTask",
+      "value": "Select"
+    },
+    {
+      "key": "map.scheduledPlunder",
+      "value": "Scheduled Plunder"
+    },
+    {
+      "key": "map.specialQuality",
+      "value": "Special (starred)"
+    },
+    {
+      "key": "map.reindeerQuality",
+      "value": "Reindeer"
+    },
+    {
+      "key": "map.plunderStatus",
+      "value": "Plunder status"
+    },
+    {
+      "key": "map.plunderableOnly",
+      "value": "Only plunderable or pending"
+    },
+    {
+      "key": "map.truckPlunderFull",
+      "value": "Fully plundered"
+    },
+    {
+      "key": "map.truckProtected",
+      "value": "Protected"
+    },
+    {
+      "key": "map.truckReady",
+      "value": "Ready"
+    },
+    {
+      "key": "map.truckRobbedCount",
+      "value": "Plundered {count}/{max}"
+    },
+    {
+      "key": "map.scheduleSelectedTrucks",
+      "value": "Plunder selected trucks ({count})"
+    },
+    {
+      "key": "map.taskExpired",
+      "value": "Expired"
+    },
+    {
+      "key": "map.taskPending",
+      "value": "In progress"
+    },
+    {
+      "key": "map.taskProtected",
+      "value": "Protected"
+    },
+    {
+      "key": "map.taskReady",
+      "value": "Available"
+    },
+    {
+      "key": "map.taskPlunderFull",
+      "value": "Fully plundered"
+    },
+    {
+      "key": "map.taskStatus",
+      "value": "Status"
+    },
+    {
+      "key": "map.waitingConnection",
+      "value": "Waiting for connection"
+    },
+    {
+      "key": "map.speed",
+      "value": "Speed"
+    },
+    {
+      "key": "map.normalSpeed",
+      "value": "Normal"
+    },
+    {
+      "key": "map.fastSpeed",
+      "value": "Fast"
+    },
+    {
+      "key": "map.startReading",
+      "value": "Start Scan"
+    },
+    {
+      "key": "map.title",
+      "value": "World Map Data"
+    },
+    {
+      "key": "map.truck",
+      "value": "Truck"
+    },
+    {
+      "key": "map.updatedAt",
+      "value": "Updated At"
+    },
+    {
+      "key": "map.unknownMonster",
+      "value": "Unknown monster"
+    },
+    {
+      "key": "map.unknownResource",
+      "value": "Unknown resource"
+    },
+    {
+      "key": "squad.afkAnyLevel",
+      "value": "Any level"
+    },
+    {
+      "key": "map.sortDescription",
+      "value": "{column}: {direction}, priority {priority}"
+    },
+    {
+      "key": "map.sortAscending",
+      "value": "ascending"
+    },
+    {
+      "key": "map.sortDescending",
+      "value": "descending"
+    },
+    {
+      "key": "map.selectNamedTask",
+      "value": "Select {name}, server {server}"
+    }
+  ],
+  "directClassNameLiterals": [
+    "map-column-coordinate",
+    "map-column-mark",
+    "map-task-select",
+    "map-pagination",
+    "map-coordinate-button",
+    "map-coordinate-icon",
+    "map-reward-list map-reward-list--${t===",
+    "map-reward-item",
+    "map-reward-icon",
+    "map-task-status ${t}",
+    "map-mark-button${t.marked?",
+    "map-schedule-button",
+    "map-table-scroll",
+    "map-table map-table--${e}",
+    "map-row map-head",
+    "map-sort-button${n?",
+    "map-sort-priority",
+    "map-sort-arrows",
+    "map-sort-arrow${n?.sortOrder===",
+    "map-row${k(e,",
+    "map-empty",
+    "map-scheduled-group map-scheduled-group--secret",
+    "map-scheduled-group-title",
+    "map-scheduled-kind map-scheduled-kind--secret",
+    "map-table map-table--scheduled-plunder map-table--scheduled-secret",
+    "map-row",
+    "map-reward-cell",
+    "map-reward-list map-reward-list--retained",
+    "map-plunder-result",
+    "map-task-status ${r}",
+    "map-plunder-actions",
+    "map-scheduled-group map-scheduled-group--truck",
+    "map-scheduled-kind map-scheduled-kind--truck",
+    "map-table map-table--scheduled-plunder map-table--scheduled-truck",
+    "map-item-filter",
+    "map-item-filter-icon",
+    "map-item-filter-menu",
+    "panel map-panel",
+    "map-scan-tabs",
+    "map-header",
+    "map-actions",
+    "map-scan-timing",
+    "map-scan-duration",
+    "map-speed-toggle${F===",
+    "map-speed-slider",
+    "map-auto-scan-card",
+    "map-auto-scan-master",
+    "map-auto-scan-grid",
+    "map-auto-scan-server-field",
+    "map-auto-scan-server-input",
+    "map-auto-scan-server-chips",
+    "map-controls",
+    "map-controls-label",
+    "map-types map-types--compact",
+    "map-auto-scan-options",
+    "primary",
+    "map-scan-summary",
+    "map-status-pill${C.isReading?",
+    "map-progress${Zn<50?",
+    "map-progress-bar",
+    "map-scan-error",
+    "map-search",
+    "map-tabs",
+    "map-tab-label",
+    "map-tab-count",
+    "map-searchbar",
+    "map-filter-field",
+    "map-filter-field map-plunderable-filter",
+    "map-claim-result",
+    "map-random-delay-field",
+    "map-result-count"
+  ],
+  "notes": [
+    "Main tab labels use the recovered ze lookup plus the separately rendered Scheduled Plunder tab.",
+    "Scan contents and main data tabs are distinct controls even where they share underlying keys.",
+    "Dynamic map rows, counts, game text, coordinates and status values are not fabricated."
+  ]
+}

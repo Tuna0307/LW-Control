@@ -11,7 +11,7 @@ Do not copy feature names or statuses from the 0.3.1 ledger until the 0.3.17 ref
 | Top-level navigation | EXACT_BYTES | NOT STARTED | N/A | N/A | NOT STARTED | Static order/labels recovered; visual state pending |
 | Home | EXACT_BYTES static component/locale/CSS inventory | NOT STARTED | NOT STARTED | NOT STARTED | BLOCKED | Initial `overview` route; runtime visual observation blocked by auth boundary |
 | Automation | EXACT_BYTES static tab/card/locale/CSS inventory | NOT STARTED | NOT STARTED | NOT STARTED | BLOCKED | Seven exact top-level categories; runtime visual observation blocked by auth boundary |
-| Map Data | EXACT_BYTES label | NOT STARTED | NOT STARTED | NOT STARTED | NOT STARTED | Static navigation evidence only |
+| Map Data | EXACT_BYTES static scan/tab/filter/table/CSS inventory | NOT STARTED | NOT STARTED | NOT STARTED | BLOCKED | City default, Manual Scan default; runtime visual observation blocked by auth boundary |
 | Squads / AFK | EXACT_BYTES label | NOT STARTED | NOT STARTED | NOT STARTED | NOT STARTED | Static navigation evidence only |
 | City Layout | EXACT_BYTES label | NOT STARTED | NOT STARTED | NOT STARTED | NOT STARTED | Static navigation evidence only |
 | Hotkeys | EXACT_BYTES label | NOT STARTED | NOT STARTED | NOT STARTED | NOT STARTED | Static navigation evidence only |

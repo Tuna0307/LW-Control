@@ -105,8 +105,8 @@ The worker should update this table as stages progress.
 |---|---|---|---|
 | LWB317-UI-001B shell/navigation runtime baseline | BLOCKED | `bb7ec42` | Exact reference reaches out-of-scope auth boundary; boundary captured, post-auth runtime shell not bypassed; whitespace cleanup `491fd90` |
 | LWB317-UI-002A Home inventory | COMPLETE | `81cc933` | Static `EXACT_BYTES` inventory; runtime visual observation blocked by auth boundary |
-| LWB317-UI-002B Automation inventory | COMPLETE | | Static `EXACT_BYTES` tab/card/string/CSS inventory; runtime visual observation blocked by auth boundary |
-| LWB317-UI-002C Map Data inventory | PENDING | | |
+| LWB317-UI-002B Automation inventory | COMPLETE | `51adf01` | Static `EXACT_BYTES` tab/card/string/CSS inventory; runtime visual observation blocked by auth boundary |
+| LWB317-UI-002C Map Data inventory | COMPLETE | | Static `EXACT_BYTES` scan/tab/filter/table/CSS inventory; runtime visual observation blocked by auth boundary |
 | LWB317-UI-002D Squads / AFK inventory | PENDING | | |
 | LWB317-UI-002E City Layout inventory | PENDING | | |
 | LWB317-UI-002F Hotkeys inventory | PENDING | | |
