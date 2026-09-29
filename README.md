@@ -14,17 +14,29 @@ Reference identity:
 
 ## Current strategy
 
-The project has been reset back to reverse engineering.
+The project has been reset back to reverse engineering, with one explicit scope exception:
 
-The new execution order is:
+**we are not recreating LWBridge's original login/account/licensing system.**
+
+The parity target begins at the in-scope post-auth application experience.
+
+The execution order is:
 
 1. **Project preparation and evidence hygiene**
-2. **One-for-one UI reproduction of LWBridge 0.3.17**
-3. **Function-by-function reverse engineering**
+2. **One-for-one reproduction of the in-scope post-auth LWBridge 0.3.17 UI**
+3. **Function-by-function reverse engineering of in-scope features**
 4. **Current Last War compatibility mapping**
 5. **Live validation and parity closure**
 
-Do not skip directly to function implementation while the UI inventory/reproduction phase is incomplete unless the project lead assigns a narrow dependency investigation.
+If a later target feature demonstrably consumes auth-produced state, recover only the minimum downstream state contract it needs. Do not broaden that into rebuilding login/licensing.
+
+## Current Loop campaign
+
+A project-lead-authored 8-hour UI-only campaign is available at:
+
+`docs/LOOP_CAMPAIGN_8H.md`
+
+It may inventory/reproduce UI continuously, but it must stop before gameplay/backend function reverse engineering.
 
 ## Start here
 
@@ -39,9 +51,12 @@ Read these in order:
 7. `docs/lwbridge-ui.md`
 8. `docs/PROJECT_LEAD.md`
 9. `docs/AI_WORK_PROTOCOL.md`
-10. `docs/PROJECT_STRUCTURE.md`
-11. `docs/implementation-handoff.md`
-12. `BACKLOG.md`
+10. `docs/LOOP_WORKER_PROTOCOL.md`
+11. `docs/LOOP_QUEUE.md`
+12. `docs/LOOP_CAMPAIGN_8H.md`
+13. `docs/PROJECT_STRUCTURE.md`
+14. `docs/implementation-handoff.md`
+15. `BACKLOG.md`
 
 ## Historical 0.3.1 research
 
@@ -66,6 +81,8 @@ Chronological reviews and evidence remain in their original locations so histori
 
 ## Operating model
 
-The main project lead owns scope, evidence standards, master status and work assignment. Worker AIs should take one bounded work item at a time and return a durable report/checkpoint rather than independently changing project direction.
+The main project lead owns scope, evidence standards, master status and work assignment.
+
+Worker AIs execute bounded work items or explicitly pre-authorized Loop campaigns and return durable evidence/checkpoints rather than independently changing project direction.
 
 See `docs/AI_WORK_PROTOCOL.md`.
