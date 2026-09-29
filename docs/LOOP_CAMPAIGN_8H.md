@@ -117,7 +117,7 @@ The worker should update this table as stages progress.
 | LWB317-UI-005 shell/navigation reproduction | COMPLETE | `548754c` | Exact recovered CSS/assets/nav SVGs and single-profile shell implemented; clone smoke/capture complete; reference runtime comparison blocked by auth |
 | LWB317-UI-006 accessible page reproduction | COMPLETE | `0bfd7b9` | Eight inventoried routes implemented in separate static clone; clone smoke/captures complete; reference runtime validation blocked by auth boundary |
 | LWB317-UI-007 visual comparison/fix pass | PARTIAL | `fc760bc` | Exact static-component/CSS comparison and evidence-backed fixes complete; direct post-auth reference/pixel comparison remains legitimately blocked by auth boundary |
-| Campaign handoff/cleanup | COMPLETE | | Queue/status/handoff reconciled; clone preview stopped; Phase 2 remains closed pending project-lead review |
+| Campaign handoff/cleanup | COMPLETE | `83baeb6` | Queue/status/handoff reconciled; clone preview stopped; Phase 2 remains closed pending project-lead review |
 
 Allowed campaign stage states:
 

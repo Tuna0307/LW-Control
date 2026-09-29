@@ -107,6 +107,8 @@ The local clone Vite listener on `127.0.0.1:4317` was identified as the
 `src/LWBridge.UI-0.3.17` Node/Vite process, stopped, and verified no longer
 listening. Its browser preview tab was closed.
 
+The authority/status handoff transition was committed and pushed as `83baeb6`.
+
 The campaign did not launch or control Last War. It did not leave an LWBridge
 reference process running as part of this continuation.
 
