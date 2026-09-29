@@ -15,12 +15,15 @@ This is the current queue. Historical 0.3.1 backlog content is archived under
 - [x] Create fresh 0.3.17 parity matrix and feature ledger.
 - [x] Create fresh UI-parity master plan.
 - [x] Commit and push the preparation checkpoint.
-- [ ] Project lead assigns first UI inventory task.
+- [x] Project lead assigns and accepts static frontend package inventory
+      (`LWB317-UI-001A`).
 
 ## Phase 1 — UI parity
 
-Do not start until assigned.
+Work only from assigned bounded work items.
 
+- [x] Recover and hash the embedded 0.3.17 frontend package.
+- [ ] Capture runtime visual shell/navigation baseline (`LWB317-UI-001B`).
 - [ ] Capture/reference every top-level 0.3.17 screen.
 - [ ] Inventory all visible navigation entries.
 - [ ] Inventory every nested tab/card/dialog/popover.

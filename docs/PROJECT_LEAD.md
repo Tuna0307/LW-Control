@@ -12,16 +12,19 @@ SHA-256:
 
 ## Current phase
 
-**Phase 0 — preparation COMPLETE**
+**Phase 1 — UI parity**
 
-Status: project baseline is clean and pushed. No 0.3.17 UI implementation or reverse-engineering task has been opened yet.
+Status: static frontend package baseline accepted. Runtime visual shell/navigation
+capture is the next bounded worker task. No gameplay/function reverse engineering
+has started under the new 0.3.17 program.
 
 ## Active work items
 
 | Work item | Owner | State | Scope |
 |---|---|---|---|
 | LWB317-PM-001 | Project lead | COMPLETE | Repository/documentation reset for 0.3.17 |
-| LWB317-UI-001 | Unassigned | QUEUED | Inventory top-level shell/navigation only |
+| LWB317-UI-001A | Worker AI | COMPLETE / ACCEPTED | Static frontend package inventory/extraction |
+| LWB317-UI-001B | Unassigned | QUEUED | Runtime visual shell/navigation baseline only |
 | LWB317-RE-* | None | BLOCKED BY PHASE ORDER | Begins after UI baseline |
 
 ## Project-lead responsibilities
@@ -59,6 +62,7 @@ Do not compress those into a single vague “done” percentage.
 
 ## Current desktop constraint
 
-Windows-MCP remains paused until the owner explicitly re-enables it.
+Desktop-control tooling is available again for assigned UI-parity work.
 
-The first queued UI task therefore must not start yet.
+Do not expand that permission into gameplay/live-function testing unless a
+separate work item explicitly authorizes it.

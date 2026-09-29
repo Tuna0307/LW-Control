@@ -55,16 +55,23 @@ A 0.3.1 finding may be used as a hypothesis or shortcut, but it must not be repo
 
 ## 6. Desktop-control rule
 
-At the current project checkpoint, Windows-MCP is paused because the owner may be using the monitor.
+As of 2026-09-29, the owner has explicitly re-enabled desktop-control tooling
+for the UI-parity phase.
 
-Until the owner explicitly re-enables it:
+Chat On Steroids Desktop / equivalent approved desktop tooling may be used for
+bounded LWBridge 0.3.17 UI observation tasks assigned by the project lead.
 
-- do not use Windows-MCP;
-- do not move the mouse;
-- do not foreground/minimize windows;
-- do not launch LWBridge or Last War for interactive testing.
+This permission does **not** automatically authorize gameplay/live-function
+testing. Do not launch or control Last War unless the assigned work item
+explicitly requires it.
 
-Headless filesystem/terminal/static project preparation is allowed.
+For UI capture work:
+
+- observe before acting;
+- use the exact 0.3.17 reference executable;
+- do not bypass login/auth/entitlement merely to reach another screen;
+- do not press gameplay/function controls outside the assigned scope;
+- preserve screenshots/state evidence under the 0.3.17 evidence tree.
 
 ## 7. Live-session safety
 

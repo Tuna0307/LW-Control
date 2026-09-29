@@ -7,7 +7,16 @@ Do not copy feature names or statuses from the 0.3.1 ledger until the 0.3.17 ref
 | Surface | 0.3.17 inventory | UI parity | Function recovery | Current-client mapping | Live proof | Notes |
 |---|---|---|---|---|---|---|
 | App shell / initial window | NOT STARTED | NOT STARTED | N/A | N/A | NOT STARTED | First UI workstream |
-| Top-level navigation | NOT STARTED | NOT STARTED | N/A | N/A | NOT STARTED | Names/order unknown until inventoried |
+| Top-level navigation | EXACT_BYTES | NOT STARTED | N/A | N/A | NOT STARTED | Static order/labels recovered; visual state pending |
+| Home | EXACT_BYTES label | NOT STARTED | NOT STARTED | NOT STARTED | NOT STARTED | `overview -> nav.overview -> Home` |
+| Automation | EXACT_BYTES label | NOT STARTED | NOT STARTED | NOT STARTED | NOT STARTED | Static navigation evidence only |
+| Map Data | EXACT_BYTES label | NOT STARTED | NOT STARTED | NOT STARTED | NOT STARTED | Static navigation evidence only |
+| Squads / AFK | EXACT_BYTES label | NOT STARTED | NOT STARTED | NOT STARTED | NOT STARTED | Static navigation evidence only |
+| City Layout | EXACT_BYTES label | NOT STARTED | NOT STARTED | NOT STARTED | NOT STARTED | Static navigation evidence only |
+| Hotkeys | EXACT_BYTES label | NOT STARTED | NOT STARTED | NOT STARTED | NOT STARTED | Static navigation evidence only |
+| Mini Games | EXACT_BYTES label | NOT STARTED | NOT STARTED | NOT STARTED | NOT STARTED | Static navigation evidence only |
+| Settings | EXACT_BYTES label | NOT STARTED | NOT STARTED | NOT STARTED | NOT STARTED | Static navigation evidence only |
+| Advanced (conditional) | EXACT_BYTES conditional entry | NOT STARTED | NOT STARTED | NOT STARTED | UNKNOWN | Runtime visibility and exact English label still unknown |
 | Additional visible surfaces | UNKNOWN | NOT STARTED | NOT STARTED | NOT STARTED | NOT STARTED | Add rows only after 0.3.17 evidence |
 | Hidden / conditional surfaces | UNKNOWN | NOT STARTED | NOT STARTED | NOT STARTED | NOT STARTED | Add rows only after evidence |
 | Backend/runtime functions | UNKNOWN | N/A | NOT STARTED | NOT STARTED | NOT STARTED | Add one row/function after observation/recovery |

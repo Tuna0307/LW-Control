@@ -2,7 +2,7 @@
 
 **Target:** LWBridge 0.3.17
 **Branch:** `research/offline-controller`
-**Phase:** project preparation complete / awaiting first UI assignment
+**Phase:** UI parity / static package baseline accepted
 
 ## Important reset
 
@@ -35,13 +35,16 @@ Use old findings as hypotheses and tooling references only until revalidated aga
 
 ## Desktop-control constraint
 
-Windows-MCP is currently paused by owner request. Do not open/control the desktop until explicitly re-enabled.
+Desktop-control tooling is now re-enabled for bounded LWBridge 0.3.17 UI
+observation tasks assigned by the project lead. Last War/gameplay control is
+still out of scope unless separately authorized by a work item.
 
 ## Immediate next action
 
-None until assigned by the project lead.
+Assign `LWB317-UI-001B`: runtime visual shell/navigation baseline.
 
-The first planned worker task is a narrow 0.3.17 UI shell/navigation inventory.
+`LWB317-UI-001A` is accepted at commit
+`8d71cce99a6daf522950b63f1d790e5a5a49b7ae`.
 
 ## Required worker output
 
