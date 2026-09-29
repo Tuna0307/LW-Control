@@ -1,6 +1,6 @@
 # LWB317-RE-MAP-001 — Map Data end-to-end recovery goal
 
-**State:** READY
+**State:** IN_PROGRESS
 **Phase:** 2 — function recovery
 **Project-lead authorization:** 2026-09-30
 

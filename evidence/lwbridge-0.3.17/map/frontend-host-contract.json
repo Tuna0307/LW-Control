@@ -1,0 +1,1040 @@
+{
+  "schema": 1,
+  "findingId": "LWB317-RE-MAP-001-FRONTEND-HOST",
+  "evidenceState": "EXACT_BYTES_STATIC_CONTRACT",
+  "sources": {
+    "index": {
+      "path": "evidence\\lwbridge-0.3.17\\ui\\frontend-package\\web\\assets\\index-BVfnK1wp.js",
+      "sha256": "44c4e4043825b7db296b64171951b27176f8850ff8d7d337cc991df4765524c6"
+    },
+    "mapPanel": {
+      "path": "evidence\\lwbridge-0.3.17\\ui\\frontend-package\\web\\assets\\MapDataPanel-B4GXEND2.js",
+      "sha256": "ce74345518be72e417a510b982c591729e5683f69751e190805598c4c05d3089"
+    },
+    "surfaceDiscovery": {
+      "path": "evidence\\lwbridge-0.3.17\\map\\surface-discovery.json",
+      "sha256": "e1b0801d73c546fd2c6ec422c9a4f1291c5eb0947c945dc65b5c0767fc104700"
+    },
+    "referenceSha256": "4e9c3113dedfd7e1a752404c6936aab304e67d7ffdb0952a5003c2ec948d6783"
+  },
+  "bridge": {
+    "invoke": "Tauri invoke payload envelope is {payload:<args>}; active profileId is injected into object args when absent",
+    "errors": "object rejection with code becomes Error(code) with original fields assigned",
+    "events": "profile-tagged {profileId,payload} events are filtered to the active profile; untagged events pass through",
+    "locators": {
+      "invokeHelper": "0x30FD8",
+      "eventHelper": "0x3112D"
+    }
+  },
+  "commands": {
+    "map_scan_start": {
+      "request": {
+        "selectedTypes": "array<scanType>",
+        "scanMode": "normal|fast",
+        "resume": "optional boolean"
+      },
+      "frontendManual": "{selectedTypes,scanMode}",
+      "frontendAuto": "{selectedTypes,scanMode,resume:false}",
+      "result": "MapScanState"
+    },
+    "map_scan_status": {
+      "request": {},
+      "result": "MapScanState"
+    },
+    "map_scan_stop": {
+      "request": {},
+      "result": "MapScanState"
+    },
+    "map_scan_clear": {
+      "request": {
+        "serverId": "integer"
+      },
+      "result": "MapScanState"
+    },
+    "map_summary": {
+      "request": {
+        "profileId": "profile-scoped optional/injected"
+      },
+      "result": {
+        "serverId": "integer",
+        "counts": "MapCounts",
+        "scanState": "MapScanState"
+      }
+    },
+    "map_data_options": {
+      "request": {
+        "serverId": "integer"
+      },
+      "result": {
+        "serverId": "integer",
+        "alliances": "array",
+        "names": {
+          "resource": "array",
+          "monster": "array"
+        },
+        "dispatchLevels": "array<number>",
+        "counts": "MapCounts",
+        "rewardItems": "object",
+        "treasureTypes": "array",
+        "noAllianceCount": "number",
+        "scanProgress": "object|null"
+      }
+    },
+    "map_search": {
+      "request": {
+        "kind": "scanType",
+        "query": [
+          "serverId",
+          "keyword",
+          "resourceNameKey",
+          "monsterNameKey",
+          "treasureType",
+          "suppliesType",
+          "alliance",
+          "withoutAlliance",
+          "markedOnly",
+          "page",
+          "pageSize",
+          "sorts",
+          "quality",
+          "specialOnly",
+          "reindeerOnly",
+          "itemKey",
+          "completionStatus",
+          "plunderableOnly",
+          "includeForeignRadarTreasures",
+          "luckyFirst",
+          "viewerUid",
+          "viewerAllianceId",
+          "minLevel",
+          "maxLevel"
+        ]
+      },
+      "result": {
+        "rows": "array",
+        "total": "number"
+      }
+    },
+    "map_city_export": {
+      "request": {
+        "query": [
+          "serverId",
+          "keyword",
+          "resourceNameKey",
+          "monsterNameKey",
+          "treasureType",
+          "suppliesType",
+          "alliance",
+          "withoutAlliance",
+          "markedOnly",
+          "page",
+          "pageSize",
+          "sorts",
+          "quality",
+          "specialOnly",
+          "reindeerOnly",
+          "itemKey",
+          "completionStatus",
+          "plunderableOnly",
+          "includeForeignRadarTreasures",
+          "luckyFirst",
+          "viewerUid",
+          "viewerAllianceId",
+          "minLevel",
+          "maxLevel"
+        ],
+        "headers": "array<string>",
+        "sheetName": "string",
+        "yesLabel": "string",
+        "noLabel": "string"
+      },
+      "result": {
+        "canceled": "boolean",
+        "rowCount": "number",
+        "path": "string"
+      }
+    },
+    "map_coordinate_jump": {
+      "request": {
+        "serverId": "integer",
+        "x": "integer>=1",
+        "y": "integer>=1"
+      },
+      "result": {
+        "serverId": "integer",
+        "x": "integer",
+        "y": "integer"
+      }
+    },
+    "map_march_follow": {
+      "request": {
+        "serverId": "integer",
+        "marchUuid": "string"
+      },
+      "result": {
+        "serverId": "integer",
+        "marchUuid": "string"
+      }
+    },
+    "map_player_mark_set": {
+      "request": {
+        "row": "map row",
+        "marked": "boolean"
+      },
+      "result": "not consumed by frontend"
+    },
+    "server_jump": {
+      "request": {
+        "serverId": "integer 1..99999"
+      },
+      "result": {
+        "changed": "boolean",
+        "previousServerId": "integer",
+        "serverId": "integer"
+      }
+    },
+    "server_jump_history_set": {
+      "request": {
+        "history": "unique array<int> max 5",
+        "profileId": "profile scoped"
+      },
+      "result": "normalized history array"
+    },
+    "server_jump_history_import": {
+      "request": {
+        "history": "legacy localStorage history",
+        "profileId": "profile scoped"
+      },
+      "result": "normalized history array"
+    },
+    "map_treasure_state_refresh": {
+      "request": {
+        "serverId": "integer",
+        "records": "rows"
+      },
+      "result": {
+        "playerUid": "string",
+        "allianceId": "string",
+        "states": "array|object"
+      }
+    },
+    "map_treasure_state_refresh_all": {
+      "request": {
+        "serverId": "integer"
+      },
+      "result": {
+        "playerUid": "string",
+        "allianceId": "string",
+        "states": "array|object"
+      }
+    },
+    "map_treasure_claim": {
+      "request": {
+        "serverId": "integer",
+        "claimScope": "single|boxes|season",
+        "prioritizeLuckySlots": "boolean",
+        "targetUuid": "string"
+      },
+      "result": {
+        "eligible": "number",
+        "queued": "number",
+        "skipped": "number"
+      }
+    },
+    "map_treasure_claim_status": {
+      "request": {},
+      "result": {
+        "states": "array|object",
+        "batch": "optional object with state"
+      }
+    },
+    "map_dispatch_share_alliance": {
+      "request": {
+        "rows": [
+          "uuid",
+          "serverId",
+          "x",
+          "y",
+          "cfgId",
+          "ownerName",
+          "allianceAbbr"
+        ]
+      },
+      "result": {
+        "sharedUuids": "array<string>",
+        "shared": "number",
+        "failed": "number"
+      }
+    },
+    "map_plunder_jobs_list": {
+      "request": {},
+      "result": {
+        "dispatchJobs": "array",
+        "truckJobs": "array"
+      }
+    },
+    "map_dispatch_plunder_schedule": {
+      "request": {
+        "rows": "selected dispatch/ghost rows with computed plunderAt/maxRandomDelaySeconds/randomDelaySeconds"
+      },
+      "result": "not otherwise consumed"
+    },
+    "map_dispatch_plunder_cancel": {
+      "request": {
+        "serverId": "integer",
+        "taskUuid": "uuid or ghost:<uuid>"
+      },
+      "result": "not otherwise consumed"
+    },
+    "map_dispatch_plunder_clear": {
+      "request": {
+        "before": "epoch milliseconds",
+        "taskKind": "dispatch|ghost"
+      },
+      "result": "not otherwise consumed"
+    },
+    "map_truck_plunder_schedule": {
+      "request": {
+        "rows": "selected truck rows with executeAt=max(now,protectTime)"
+      },
+      "result": "not otherwise consumed"
+    },
+    "map_truck_plunder_cancel": {
+      "request": {
+        "serverId": "integer",
+        "trainUuid": "string"
+      },
+      "result": "not otherwise consumed"
+    },
+    "map_truck_plunder_clear": {
+      "request": {
+        "before": "epoch milliseconds"
+      },
+      "result": "not otherwise consumed"
+    }
+  },
+  "events": [
+    {
+      "event": "bridge://map-scan-status",
+      "source": "index",
+      "sourceOffset": "0x53A97"
+    },
+    {
+      "event": "bridge://player-mark-changed",
+      "source": "MapDataPanel",
+      "sourceOffset": "0x839D"
+    },
+    {
+      "event": "bridge://dispatch-plunder-changed",
+      "source": "MapDataPanel",
+      "sourceOffset": "0x83F3"
+    },
+    {
+      "event": "bridge://truck-plunder-changed",
+      "source": "MapDataPanel",
+      "sourceOffset": "0x841E"
+    }
+  ],
+  "scanTypes": [
+    "city",
+    "resource",
+    "monster",
+    "truck",
+    "railway",
+    "dispatch",
+    "ghost",
+    "treasure"
+  ],
+  "scanStateDefault": {
+    "serverId": 0,
+    "serverIdSource": "none",
+    "scanRunId": "",
+    "isReading": false,
+    "phase": "idle",
+    "selectedTypes": [
+      "city",
+      "resource",
+      "monster",
+      "truck",
+      "railway",
+      "dispatch",
+      "ghost",
+      "treasure"
+    ],
+    "totalBlocks": 0,
+    "readBlocks": 0,
+    "unreadBlocks": 0,
+    "failedBlocks": 0,
+    "inflightBlocks": 0,
+    "scanMode": "normal",
+    "concurrency": 8,
+    "retryCount": 2,
+    "scanRate": 0,
+    "progressPercent": 0,
+    "nativeCaptureReady": false,
+    "nativePendingRecords": 0,
+    "nativeDroppedRecords": 0
+  },
+  "query": {
+    "fields": [
+      "serverId",
+      "keyword",
+      "resourceNameKey",
+      "monsterNameKey",
+      "treasureType",
+      "suppliesType",
+      "alliance",
+      "withoutAlliance",
+      "markedOnly",
+      "page",
+      "pageSize",
+      "sorts",
+      "quality",
+      "specialOnly",
+      "reindeerOnly",
+      "itemKey",
+      "completionStatus",
+      "plunderableOnly",
+      "includeForeignRadarTreasures",
+      "luckyFirst",
+      "viewerUid",
+      "viewerAllianceId",
+      "minLevel",
+      "maxLevel"
+    ],
+    "defaultPageSize": 50,
+    "cityExportPageSize": 200,
+    "defaultSorts": {
+      "city": [
+        {
+          "sortBy": "updatedAt",
+          "sortOrder": "desc"
+        }
+      ],
+      "resource": [
+        {
+          "sortBy": "updatedAt",
+          "sortOrder": "desc"
+        }
+      ],
+      "monster": [
+        {
+          "sortBy": "updatedAt",
+          "sortOrder": "desc"
+        }
+      ],
+      "truck": [
+        {
+          "sortBy": "updatedAt",
+          "sortOrder": "desc"
+        }
+      ],
+      "railway": [
+        {
+          "sortBy": "updatedAt",
+          "sortOrder": "desc"
+        }
+      ],
+      "dispatch": [
+        {
+          "sortBy": "updatedAt",
+          "sortOrder": "desc"
+        }
+      ],
+      "ghost": [
+        {
+          "sortBy": "updatedAt",
+          "sortOrder": "desc"
+        }
+      ],
+      "treasure": [
+        {
+          "sortBy": "updatedAt",
+          "sortOrder": "desc"
+        }
+      ]
+    },
+    "sortKeys": [
+      "updatedAt",
+      "level",
+      "health",
+      "shield",
+      "distance",
+      "quality",
+      "power",
+      "remainingLootCount",
+      "arriveTime",
+      "protectTime",
+      "completionTime",
+      "itemCount"
+    ],
+    "sortClickCycle": "absent -> prepend desc; desc -> asc; asc -> remove; array order is priority",
+    "pagination": "totalPages=max(1,ceil(total/50)); requested page above totalPages is clamped by setting page to last page",
+    "locators": {
+      "builder": "0x926C",
+      "pageSize": "0x1591",
+      "exportPageSize": "0xA0ED"
+    }
+  },
+  "preferences": {
+    "manualScanMode": {
+      "key": "lwbridge.mapScanMode",
+      "accepted": [
+        "normal",
+        "fast"
+      ]
+    },
+    "includeForeignRadarTreasures": {
+      "key": "lwbridge.mapIncludeForeignRadarTreasures",
+      "default": false
+    },
+    "luckyTreasurePriority": {
+      "key": "lwbridge.mapLuckyTreasurePriority",
+      "default": true
+    }
+  },
+  "autoScan": {
+    "storageKey": "lwbridge.mapAutoScan.${profileId}",
+    "default": {
+      "enabled": false,
+      "intervalMinutes": 60,
+      "serverIds": [],
+      "selectedTypes": [
+        "truck",
+        "railway",
+        "dispatch",
+        "ghost",
+        "treasure"
+      ],
+      "scanMode": "fast",
+      "returnToOriginalServer": true,
+      "nextRunAt": 0
+    },
+    "normalization": {
+      "intervalMinutes": [
+        20,
+        1440
+      ],
+      "serverIdRange": [
+        1,
+        99999
+      ],
+      "serverIdLimit": 20,
+      "scanModeFallback": "fast",
+      "selectedTypeFallback": [
+        "truck",
+        "railway",
+        "dispatch",
+        "ghost",
+        "treasure"
+      ]
+    },
+    "dueGate": "enabled && online && !scanActive && !autoWorkerBusy && now>=nextRunAt",
+    "schedulerCadenceMs": 5000,
+    "completionPollMs": 2000,
+    "completionTimeoutMs": 2700000,
+    "cycle": "capture current server; use configured servers or current; server_jump each; map_scan_start(resume=false); poll status until not reading; optionally return original; schedule next run"
+  },
+  "frontendRefresh": {
+    "scanProgressRowThrottleMs": 1000,
+    "scanComplete": "refresh rows and options when isReading transitions true->false",
+    "events": [
+      "bridge://player-mark-changed",
+      "bridge://dispatch-plunder-changed",
+      "bridge://truck-plunder-changed",
+      "bridge://map-scan-status"
+    ]
+  },
+  "nativeSurface": {
+    "map_scan_start": {
+      "functions": [
+        "0x143D67-0x144C41",
+        "0x218023-0x21C5B4"
+      ],
+      "occurrences": 2
+    },
+    "map_scan_status": {
+      "functions": [
+        "0x159925-0x15A27B",
+        "0x218023-0x21C5B4"
+      ],
+      "occurrences": 2
+    },
+    "map_scan_stop": {
+      "functions": [
+        "0x13A8C1-0x13B390",
+        "0x218023-0x21C5B4"
+      ],
+      "occurrences": 2
+    },
+    "map_scan_clear": {
+      "functions": [
+        "0x191253-0x191ACA",
+        "0x218023-0x21C5B4"
+      ],
+      "occurrences": 2
+    },
+    "map_summary": {
+      "functions": [
+        "0x112B45-0x1139C4",
+        "0x218023-0x21C5B4"
+      ],
+      "occurrences": 2
+    },
+    "map_data_options": {
+      "functions": [
+        "0x16C2E0-0x16CB57",
+        "0x218023-0x21C5B4"
+      ],
+      "occurrences": 2
+    },
+    "map_search": {
+      "functions": [
+        "0x1761C1-0x176ED4"
+      ],
+      "occurrences": 1
+    },
+    "map_city_export": {
+      "functions": [
+        "0x129FA7-0x12BC48",
+        "0x218023-0x21C5B4"
+      ],
+      "occurrences": 2
+    },
+    "map_coordinate_jump": {
+      "functions": [
+        "0x13F4F3-0x1408EA"
+      ],
+      "occurrences": 1
+    },
+    "map_march_follow": {
+      "functions": [
+        "0x1249C8-0x125A89",
+        "0x218023-0x21C5B4"
+      ],
+      "occurrences": 2
+    },
+    "map_player_mark_set": {
+      "functions": [
+        "0x151985-0x1521E3",
+        "0x218023-0x21C5B4"
+      ],
+      "occurrences": 2
+    },
+    "server_jump": {
+      "functions": [
+        "0x12DA36-0x12E460",
+        "0x158743-0x159160",
+        "0x182112-0x182C0D",
+        "0x1A5FE4-0x1A6B75",
+        "0x218023-0x21C5B4"
+      ],
+      "occurrences": 7
+    },
+    "server_jump_history_set": {
+      "functions": [
+        "0x158743-0x159160",
+        "0x218023-0x21C5B4"
+      ],
+      "occurrences": 2
+    },
+    "server_jump_history_import": {
+      "functions": [
+        "0x1A5FE4-0x1A6B75"
+      ],
+      "occurrences": 1
+    },
+    "map_treasure_state_refresh": {
+      "functions": [
+        "0x148087-0x148DB0",
+        "0x15F171-0x15FF87"
+      ],
+      "occurrences": 2
+    },
+    "map_treasure_state_refresh_all": {
+      "functions": [
+        "0x148087-0x148DB0"
+      ],
+      "occurrences": 1
+    },
+    "map_treasure_claim": {
+      "functions": [
+        "0x115C5D-0x1166BE",
+        "0x18EE07-0x190734",
+        "0x218023-0x21C5B4"
+      ],
+      "occurrences": 4
+    },
+    "map_treasure_claim_status": {
+      "functions": [
+        "0x115C5D-0x1166BE",
+        "0x218023-0x21C5B4"
+      ],
+      "occurrences": 2
+    },
+    "map_dispatch_share_alliance": {
+      "functions": [
+        "0x10C27F-0x10D552",
+        "0x218023-0x21C5B4"
+      ],
+      "occurrences": 2
+    },
+    "map_plunder_jobs_list": {
+      "functions": [
+        "0x10E53B-0x10F6AF",
+        "0x218023-0x21C5B4"
+      ],
+      "occurrences": 2
+    },
+    "map_dispatch_plunder_schedule": {
+      "functions": [
+        "0x1336A9-0x1350DF",
+        "0x218023-0x21C5B4"
+      ],
+      "occurrences": 2
+    },
+    "map_dispatch_plunder_cancel": {
+      "functions": [
+        "0x132085-0x1329AF",
+        "0x218023-0x21C5B4"
+      ],
+      "occurrences": 2
+    },
+    "map_dispatch_plunder_clear": {
+      "functions": [
+        "0x153DF6-0x154905"
+      ],
+      "occurrences": 1
+    },
+    "map_truck_plunder_schedule": {
+      "functions": [
+        "0x17555F-0x1761C1"
+      ],
+      "occurrences": 1
+    },
+    "map_truck_plunder_cancel": {
+      "functions": [
+        "0x142BC7-0x143508",
+        "0x218023-0x21C5B4"
+      ],
+      "occurrences": 2
+    },
+    "map_truck_plunder_clear": {
+      "functions": [
+        "0x145C75-0x1466DD",
+        "0x218023-0x21C5B4"
+      ],
+      "occurrences": 2
+    }
+  },
+  "legacyRevalidation": {
+    "query.alliance": {
+      "marker": "alliance_name = ?",
+      "classification": "UNCHANGED_MARKER_PRESENT",
+      "present": true,
+      "occurrences": 1,
+      "functions": [
+        "0x3E10E7-0x3E6952"
+      ]
+    },
+    "query.withoutAlliance": {
+      "marker": "(alliance_name IS NULL OR alliance_name = '')",
+      "classification": "UNCHANGED_MARKER_PRESENT",
+      "present": true,
+      "occurrences": 1,
+      "functions": [
+        "0x3E10E7-0x3E6952"
+      ]
+    },
+    "query.resourceNameKey": {
+      "marker": "CAST(json_extract(data_json,'$.resourceNameKey') AS TEXT) = ?",
+      "classification": "UNCHANGED_MARKER_PRESENT",
+      "present": true,
+      "occurrences": 1,
+      "functions": [
+        "0x3E10E7-0x3E6952"
+      ]
+    },
+    "query.monsterNameKey": {
+      "marker": "CAST(json_extract(data_json,'$.monsterNameKey') AS TEXT) = ?",
+      "classification": "UNCHANGED_MARKER_PRESENT",
+      "present": true,
+      "occurrences": 1,
+      "functions": [
+        "0x3E10E7-0x3E6952"
+      ]
+    },
+    "query.itemKeyExists": {
+      "marker": "itemKey EXISTS (SELECT 1 FROM json_each(",
+      "classification": "UNCHANGED_MARKER_PRESENT",
+      "present": true,
+      "occurrences": 1,
+      "functions": [
+        "0x3E10E7-0x3E6952"
+      ]
+    },
+    "query.itemKeyValue": {
+      "marker": "CAST(json_extract(good.value,'$.key') AS TEXT) = ?",
+      "classification": "UNCHANGED_MARKER_PRESENT",
+      "present": true,
+      "occurrences": 2,
+      "functions": []
+    },
+    "scan.duplicateCode": {
+      "marker": "SCAN_RUNNING",
+      "classification": "UNCHANGED_MARKER_PRESENT",
+      "present": true,
+      "occurrences": 3,
+      "functions": [
+        "0xFA09E-0xFC643",
+        "0x39F75B-0x39F7EA",
+        "0x42B4FF-0x42B787"
+      ]
+    },
+    "scan.duplicateMessage": {
+      "marker": "map scan already running",
+      "classification": "UNCHANGED_MARKER_PRESENT",
+      "present": true,
+      "occurrences": 1,
+      "functions": [
+        "0xFA09E-0xFC643"
+      ]
+    },
+    "scan.connectionCode": {
+      "marker": "GAME_CONNECTION_UNAVAILABLE",
+      "classification": "UNCHANGED_MARKER_PRESENT",
+      "present": true,
+      "occurrences": 2,
+      "functions": [
+        "0xFA09E-0xFC643",
+        "0x2C90B8-0x2C9E9B"
+      ]
+    },
+    "scan.connectionMessage": {
+      "marker": "game connection unavailable",
+      "classification": "UNCHANGED_MARKER_PRESENT",
+      "present": true,
+      "occurrences": 3,
+      "functions": [
+        "0xFA09E-0xFC643",
+        "0x2C90B8-0x2C9E9B",
+        "0x42B1C1-0x42B4FF"
+      ]
+    },
+    "scan.resumeInput": {
+      "marker": "resumeAvailable",
+      "classification": "UNCHANGED_MARKER_PRESENT",
+      "present": true,
+      "occurrences": 2,
+      "functions": [
+        "0xFA09E-0xFC643",
+        "0x143D67-0x144C41",
+        "0x42612D-0x426A05",
+        "0x426A05-0x426D07",
+        "0x426D67-0x427069",
+        "0x427120-0x428A92",
+        "0x42AB3A-0x42B1C1"
+      ]
+    },
+    "scan.selectedTypes": {
+      "marker": "selectedTypes",
+      "classification": "UNCHANGED_MARKER_PRESENT",
+      "present": true,
+      "occurrences": 3,
+      "functions": [
+        "0xFA09E-0xFC643",
+        "0x143D67-0x144C41",
+        "0x3C3E76-0x3C4852",
+        "0x3CF96B-0x3D0A03",
+        "0x426A05-0x426D07",
+        "0x427120-0x428A92",
+        "0x42914B-0x4296C7"
+      ]
+    },
+    "scan.nativeCaptureReady": {
+      "marker": "nativeCaptureReady",
+      "classification": "UNCHANGED_MARKER_PRESENT",
+      "present": true,
+      "occurrences": 2,
+      "functions": [
+        "0xFA09E-0xFC643",
+        "0x427120-0x428A92",
+        "0x429CE9-0x42AABC"
+      ]
+    },
+    "scan.nativePendingRecords": {
+      "marker": "nativePendingRecords",
+      "classification": "UNCHANGED_MARKER_PRESENT",
+      "present": true,
+      "occurrences": 2,
+      "functions": [
+        "0xFA09E-0xFC643",
+        "0x426A05-0x426D07",
+        "0x427120-0x428A92",
+        "0x429CE9-0x42AABC"
+      ]
+    },
+    "scan.nativeDroppedRecords": {
+      "marker": "nativeDroppedRecords",
+      "classification": "UNCHANGED_MARKER_PRESENT",
+      "present": true,
+      "occurrences": 2,
+      "functions": [
+        "0xFA09E-0xFC643",
+        "0x426A05-0x426D07",
+        "0x427120-0x428A92",
+        "0x429CE9-0x42AABC"
+      ]
+    },
+    "provider.enterWorldMap": {
+      "marker": "enterWorldMap",
+      "classification": "UNCHANGED_MARKER_PRESENT",
+      "present": true,
+      "occurrences": 1,
+      "functions": [
+        "0xFA09E-0xFC643"
+      ]
+    },
+    "provider.startMapScan": {
+      "marker": "startMapScan",
+      "classification": "UNCHANGED_MARKER_PRESENT",
+      "present": true,
+      "occurrences": 1,
+      "functions": [
+        "0xFA09E-0xFC643"
+      ]
+    },
+    "provider.stopMapScan": {
+      "marker": "stopMapScan",
+      "classification": "UNCHANGED_MARKER_PRESENT",
+      "present": true,
+      "occurrences": 2,
+      "functions": [
+        "0x13A8C1-0x13B390",
+        "0x426D67-0x427069",
+        "0x42AB3A-0x42B1C1"
+      ]
+    },
+    "provider.nativeStart": {
+      "marker": "XluaBridgeNativeStart",
+      "classification": "UNCHANGED_MARKER_PRESENT",
+      "present": true,
+      "occurrences": 4,
+      "functions": []
+    },
+    "provider.captureRun": {
+      "marker": "__XLUA_BRIDGE_NATIVE_WORLD_CAPTURE_RUN",
+      "classification": "UNCHANGED_MARKER_PRESENT",
+      "present": true,
+      "occurrences": 2,
+      "functions": []
+    },
+    "provider.captureFunction": {
+      "marker": "__XluaBridgeNativeWorldCapture",
+      "classification": "UNCHANGED_MARKER_PRESENT",
+      "present": true,
+      "occurrences": 2,
+      "functions": []
+    },
+    "provider.scanTick": {
+      "marker": "XluaBridgeMapScanTick",
+      "classification": "UNCHANGED_MARKER_PRESENT",
+      "present": true,
+      "occurrences": 2,
+      "functions": []
+    },
+    "provider.nativeUpdate": {
+      "marker": "XluaBridgeNativeUpdate",
+      "classification": "UNCHANGED_MARKER_PRESENT",
+      "present": true,
+      "occurrences": 4,
+      "functions": []
+    },
+    "provider.poll": {
+      "marker": "XluaBridgePoll",
+      "classification": "UNCHANGED_MARKER_PRESENT",
+      "present": true,
+      "occurrences": 2,
+      "functions": []
+    },
+    "source.commandsMap": {
+      "marker": "src\\commands\\map.rs",
+      "classification": "UNCHANGED_MARKER_PRESENT",
+      "present": true,
+      "occurrences": 2,
+      "functions": [
+        "0xDCA7D-0xDCCDC",
+        "0xDCCDC-0xDD807",
+        "0xDD807-0xDE902",
+        "0x10C27F-0x10D552",
+        "0x10E53B-0x10F6AF",
+        "0x112B45-0x1139C4",
+        "0x115333-0x115C5D",
+        "0x115C5D-0x1166BE",
+        "0x1249C8-0x125A89",
+        "0x129FA7-0x12BC48",
+        "0x12DA36-0x12E460",
+        "0x12E460-0x12EDEA",
+        "0x132085-0x1329AF",
+        "0x1336A9-0x1350DF",
+        "0x13A8C1-0x13B390",
+        "0x13D274-0x13DBB5",
+        "0x13F4F3-0x1408EA",
+        "0x142BC7-0x143508",
+        "0x143D67-0x144C41",
+        "0x145C75-0x1466DD",
+        "0x148087-0x148DB0",
+        "0x151985-0x1521E3",
+        "0x153DF6-0x154905",
+        "0x158743-0x159160",
+        "0x159925-0x15A27B",
+        "0x15F171-0x15FF87",
+        "0x16147C-0x161D96",
+        "0x16585B-0x1661E5",
+        "0x16C2E0-0x16CB57",
+        "0x17555F-0x1761C1",
+        "0x1761C1-0x176ED4",
+        "0x182112-0x182C0D",
+        "0x18EE07-0x190734",
+        "0x191253-0x191ACA",
+        "0x1A5FE4-0x1A6B75",
+        "0x395DA5-0x3965FB"
+      ]
+    },
+    "source.mapScan": {
+      "marker": "src\\services\\map_scan.rs",
+      "classification": "UNCHANGED_MARKER_PRESENT",
+      "present": true,
+      "occurrences": 3,
+      "functions": [
+        "0xF8CB2-0xFA09E",
+        "0xFA09E-0xFC643",
+        "0x112B45-0x1139C4",
+        "0x393278-0x393349",
+        "0x3C722A-0x3CAEA5",
+        "0x3E085E-0x3E10E7",
+        "0x426A05-0x426D07",
+        "0x426D67-0x427069",
+        "0x427120-0x428A92",
+        "0x428D90-0x42914B",
+        "0x42914B-0x4296C7",
+        "0x4296C7-0x429CE9",
+        "0x429CE9-0x42AABC",
+        "0x42AB3A-0x42B1C1",
+        "0x42B4FF-0x42B787"
+      ]
+    },
+    "source.mapStore": {
+      "marker": "src\\services\\map_store.rs",
+      "classification": "ABSENT_OR_CHANGED",
+      "present": false,
+      "occurrences": 0,
+      "functions": []
+    }
+  },
+  "limits": [
+    "UNCHANGED_MARKER_PRESENT means exact marker text survived in 0.3.17; it does not alone prove full 0.3.1 control flow is unchanged.",
+    "Native handler/state-machine/storage semantics are promoted only by the subsequent 0.3.17 native inspectors.",
+    "Live behavior is not claimed by this static contract."
+  ]
+}

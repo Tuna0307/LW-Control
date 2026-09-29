@@ -1,0 +1,897 @@
+{
+  "schema": 1,
+  "findingId": "LWB317-RE-MAP-001-STORAGE-STATIC",
+  "evidenceState": "EXACT_BYTES_STATIC_CONTRACT",
+  "source": {
+    "path": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW\\lwbridge-0.3.17.exe",
+    "sha256": "4e9c3113dedfd7e1a752404c6936aab304e67d7ffdb0952a5003c2ec948d6783",
+    "imageBase": "0x140000000"
+  },
+  "schemaSql": {
+    "raw": "0xD56547",
+    "rva": "0xD57747",
+    "sha256": "5637053d0f3930e71706a5774045b67bbb6b23aa710cd6a66040423b15f5d132",
+    "sql": "CREATE TABLE IF NOT EXISTS map_records (\n                  kind TEXT NOT NULL, server_id INTEGER NOT NULL, record_key TEXT NOT NULL,\n                  point_index INTEGER, uuid TEXT, name TEXT, alliance_name TEXT,\n                  level INTEGER, quality INTEGER, power INTEGER, distance REAL,\n                  shield_end_time INTEGER, updated_at INTEGER NOT NULL, data_json TEXT NOT NULL,\n                  PRIMARY KEY (kind, server_id, record_key)\n                );\n                CREATE TABLE IF NOT EXISTS scan_runs (\n                  id TEXT PRIMARY KEY, server_id INTEGER NOT NULL, selected_types TEXT NOT NULL,\n                  status TEXT NOT NULL, total_blocks INTEGER NOT NULL,\n                  completed_blocks INTEGER NOT NULL DEFAULT 0,\n                  failed_blocks INTEGER NOT NULL DEFAULT 0,\n                  created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL, error TEXT\n                );\n                CREATE TABLE IF NOT EXISTS scan_blocks (\n                  run_id TEXT NOT NULL REFERENCES scan_runs(id) ON DELETE CASCADE,\n                  block_index INTEGER NOT NULL, payload_json TEXT NOT NULL, status TEXT NOT NULL,\n                  attempts INTEGER NOT NULL DEFAULT 0, error TEXT, updated_at INTEGER NOT NULL,\n                  PRIMARY KEY (run_id, block_index)\n                );\n                CREATE TABLE IF NOT EXISTS scan_records (\n                  run_id TEXT NOT NULL REFERENCES scan_runs(id) ON DELETE CASCADE,\n                  kind TEXT NOT NULL, server_id INTEGER NOT NULL, record_key TEXT NOT NULL,\n                  point_index INTEGER, uuid TEXT, name TEXT, alliance_name TEXT,\n                  level INTEGER, quality INTEGER, power INTEGER, distance REAL,\n                  shield_end_time INTEGER, updated_at INTEGER NOT NULL, data_json TEXT NOT NULL,\n                  PRIMARY KEY (run_id, kind, server_id, record_key)\n                );\n                CREATE TABLE IF NOT EXISTS player_marks (\n                  server_id INTEGER NOT NULL, owner_uid TEXT NOT NULL, state TEXT NOT NULL,\n                  marked_at INTEGER NOT NULL, checked_at INTEGER, player_json TEXT NOT NULL,\n                  PRIMARY KEY (server_id, owner_uid)\n                );\n                CREATE TABLE IF NOT EXISTS app_settings (\n                  key TEXT PRIMARY KEY, value_json TEXT NOT NULL, updated_at INTEGER NOT NULL\n                );\n                CREATE TABLE IF NOT EXISTS treasure_claim_states (\n                  server_id INTEGER NOT NULL, player_uid TEXT NOT NULL, treasure_uuid TEXT NOT NULL,\n                  expire_time INTEGER, updated_at INTEGER NOT NULL, state_json TEXT NOT NULL,\n                  PRIMARY KEY (server_id, player_uid, treasure_uuid)\n                );\n                CREATE TABLE IF NOT EXISTS dispatch_plunder_jobs (\n                  server_id INTEGER NOT NULL, task_uuid TEXT NOT NULL, task_json TEXT NOT NULL,\n                  completion_time INTEGER NOT NULL, plunder_at INTEGER NOT NULL, expire_at INTEGER,\n                  status TEXT NOT NULL, attempts INTEGER NOT NULL DEFAULT 0, last_error TEXT,\n                  created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL,\n                  PRIMARY KEY (server_id, task_uuid)\n                );\n                CREATE TABLE IF NOT EXISTS truck_plunder_jobs (\n                  server_id INTEGER NOT NULL, train_uuid TEXT NOT NULL, truck_json TEXT NOT NULL,\n                  execute_at INTEGER NOT NULL, expire_at INTEGER,\n                  status TEXT NOT NULL, attempts INTEGER NOT NULL DEFAULT 0, last_error TEXT,\n                  created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL,\n                  PRIMARY KEY (server_id, train_uuid)\n                );\n                CREATE TABLE IF NOT EXISTS truck_plunder_history (\n                  job_id TEXT PRIMARY KEY, server_id INTEGER NOT NULL, train_uuid TEXT NOT NULL,\n                  truck_json TEXT NOT NULL, execute_at INTEGER NOT NULL,\n                  status TEXT NOT NULL, attempts INTEGER NOT NULL DEFAULT 0, last_error TEXT,\n                  created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL\n                );\n                CREATE TABLE IF NOT EXISTS dispatch_assist_jobs (\n                  task_uuid TEXT PRIMARY KEY, target_server INTEGER NOT NULL,\n                  task_json TEXT NOT NULL, assist_at INTEGER NOT NULL,\n                  status TEXT NOT NULL, attempts INTEGER NOT NULL DEFAULT 0,\n                  last_error TEXT, created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL\n                );\n                CREATE INDEX IF NOT EXISTS idx_map_kind_server ON map_records(kind, server_id);\n                CREATE INDEX IF NOT EXISTS idx_map_kind_server_quality_power\n                  ON map_records(kind, server_id, quality, power);\n                CREATE INDEX IF NOT EXISTS idx_map_kind_server_level\n                  ON map_records(kind, server_id, level);\n                CREATE INDEX IF NOT EXISTS idx_map_kind_server_updated\n                  ON map_records(kind, server_id, updated_at);\n                CREATE INDEX IF NOT EXISTS idx_map_kind_server_point\n                  ON map_records(kind, server_id, point_index);\n                CREATE INDEX IF NOT EXISTS idx_scan_records_run_kind\n                  ON scan_records(run_id, kind);\n                CREATE INDEX IF NOT EXISTS idx_dispatch_plunder_due\n                  ON dispatch_plunder_jobs(status, plunder_at);\n                CREATE INDEX IF NOT EXISTS idx_truck_plunder_due\n                  ON truck_plunder_jobs(status, execute_at);\n                CREATE INDEX IF NOT EXISTS idx_truck_plunder_history_updated\n                  ON truck_plunder_history(updated_at);\n                CREATE INDEX IF NOT EXISTS idx_dispatch_assist_due\n                  ON dispatch_assist_jobs(status, assist_at);\n                CREATE INDEX IF NOT EXISTS idx_treasure_claim_states_expire\n                  ON treasure_claim_states(expire_time);"
+  },
+  "markers": {
+    "map-data": [
+      {
+        "raw": "0x83E470",
+        "rva": "0x83F670",
+        "va": "0x14083F670"
+      },
+      {
+        "raw": "0x83E478",
+        "rva": "0x83F678",
+        "va": "0x14083F678"
+      },
+      {
+        "raw": "0x84A3AB",
+        "rva": "0x84B5AB",
+        "va": "0x14084B5AB"
+      },
+      {
+        "raw": "0xD5A769",
+        "rva": "0xD5B969",
+        "va": "0x140D5B969"
+      }
+    ],
+    "map-data.db": [
+      {
+        "raw": "0x83E478",
+        "rva": "0x83F678",
+        "va": "0x14083F678"
+      },
+      {
+        "raw": "0xD5A769",
+        "rva": "0xD5B969",
+        "va": "0x140D5B969"
+      }
+    ],
+    "map database is unavailable": [
+      {
+        "raw": "0xD55F4C",
+        "rva": "0xD5714C",
+        "va": "0x140D5714C"
+      }
+    ],
+    "open map database": [
+      {
+        "raw": "0xD5DFF4",
+        "rva": "0xD5F1F4",
+        "va": "0x140D5F1F4"
+      }
+    ],
+    "MAP_DATABASE_ERROR": [
+      {
+        "raw": "0xD5FE6B",
+        "rva": "0xD6106B",
+        "va": "0x140D6106B"
+      }
+    ],
+    "PRAGMA journal_mode = WAL": [
+      {
+        "raw": "0xD5DF58",
+        "rva": "0xD5F158",
+        "va": "0x140D5F158"
+      }
+    ],
+    "PRAGMA synchronous = NORMAL": [
+      {
+        "raw": "0xD5DF73",
+        "rva": "0xD5F173",
+        "va": "0x140D5F173"
+      }
+    ],
+    "PRAGMA foreign_keys = ON": [
+      {
+        "raw": "0xD4C030",
+        "rva": "0xD4D230",
+        "va": "0x140D4D230"
+      },
+      {
+        "raw": "0xD5DF90",
+        "rva": "0xD5F190",
+        "va": "0x140D5F190"
+      }
+    ],
+    "PRAGMA busy_timeout = 5000": [
+      {
+        "raw": "0xD4C04A",
+        "rva": "0xD4D24A",
+        "va": "0x140D4D24A"
+      },
+      {
+        "raw": "0xD4D8C2",
+        "rva": "0xD4EAC2",
+        "va": "0x140D4EAC2"
+      },
+      {
+        "raw": "0xD5DFAA",
+        "rva": "0xD5F1AA",
+        "va": "0x140D5F1AA"
+      }
+    ],
+    "SELECT value FROM metadata WHERE key = 'schema_version'": [
+      {
+        "raw": "0xD57C95",
+        "rva": "0xD58E95",
+        "va": "0x140D58E95"
+      }
+    ],
+    "legacy_bridge_runtime_import_v1": [
+      {
+        "raw": "0xD5A79A",
+        "rva": "0xD5B99A",
+        "va": "0x140D5B99A"
+      },
+      {
+        "raw": "0xD5B172",
+        "rva": "0xD5C372",
+        "va": "0x140D5C372"
+      }
+    ],
+    "ATTACH DATABASE ?1 AS legacy_bridge_runtime": [
+      {
+        "raw": "0xD5A7BA",
+        "rva": "0xD5B9BA",
+        "va": "0x140D5B9BA"
+      }
+    ],
+    "DETACH DATABASE legacy_bridge_runtime": [
+      {
+        "raw": "0xD5A7E5",
+        "rva": "0xD5B9E5",
+        "va": "0x140D5B9E5"
+      }
+    ],
+    "serverJumpHistory": [
+      {
+        "raw": "0x829FC8",
+        "rva": "0x82B1C8",
+        "va": "0x14082B1C8"
+      },
+      {
+        "raw": "0xD5A8BD",
+        "rva": "0xD5BABD",
+        "va": "0x140D5BABD"
+      },
+      {
+        "raw": "0xD5A8FE",
+        "rva": "0xD5BAFE",
+        "va": "0x140D5BAFE"
+      },
+      {
+        "raw": "0xD5B090",
+        "rva": "0xD5C290",
+        "va": "0x140D5C290"
+      }
+    ],
+    "map_records": [
+      {
+        "raw": "0xD561AB",
+        "rva": "0xD573AB",
+        "va": "0x140D573AB"
+      },
+      {
+        "raw": "0xD563AA",
+        "rva": "0xD575AA",
+        "va": "0x140D575AA"
+      },
+      {
+        "raw": "0xD56447",
+        "rva": "0xD57647",
+        "va": "0x140D57647"
+      },
+      {
+        "raw": "0xD56562",
+        "rva": "0xD57762",
+        "va": "0x140D57762"
+      },
+      {
+        "raw": "0xD5774A",
+        "rva": "0xD5894A",
+        "va": "0x140D5894A"
+      },
+      {
+        "raw": "0xD577CA",
+        "rva": "0xD589CA",
+        "va": "0x140D589CA"
+      },
+      {
+        "raw": "0xD57852",
+        "rva": "0xD58A52",
+        "va": "0x140D58A52"
+      },
+      {
+        "raw": "0xD578D3",
+        "rva": "0xD58AD3",
+        "va": "0x140D58AD3"
+      },
+      {
+        "raw": "0xD57957",
+        "rva": "0xD58B57",
+        "va": "0x140D58B57"
+      },
+      {
+        "raw": "0xD57F15",
+        "rva": "0xD59115",
+        "va": "0x140D59115"
+      },
+      {
+        "raw": "0xD586ED",
+        "rva": "0xD598ED",
+        "va": "0x140D598ED"
+      },
+      {
+        "raw": "0xD587D7",
+        "rva": "0xD599D7",
+        "va": "0x140D599D7"
+      },
+      {
+        "raw": "0xD587ED",
+        "rva": "0xD599ED",
+        "va": "0x140D599ED"
+      },
+      {
+        "raw": "0xD5883F",
+        "rva": "0xD59A3F",
+        "va": "0x140D59A3F"
+      },
+      {
+        "raw": "0xD5888C",
+        "rva": "0xD59A8C",
+        "va": "0x140D59A8C"
+      },
+      {
+        "raw": "0xD588E2",
+        "rva": "0xD59AE2",
+        "va": "0x140D59AE2"
+      },
+      {
+        "raw": "0xD589BE",
+        "rva": "0xD59BBE",
+        "va": "0x140D59BBE"
+      },
+      {
+        "raw": "0xD59129",
+        "rva": "0xD5A329",
+        "va": "0x140D5A329"
+      },
+      {
+        "raw": "0xD59C70",
+        "rva": "0xD5AE70",
+        "va": "0x140D5AE70"
+      },
+      {
+        "raw": "0xD59CA6",
+        "rva": "0xD5AEA6",
+        "va": "0x140D5AEA6"
+      },
+      {
+        "raw": "0xD5A2DD",
+        "rva": "0xD5B4DD",
+        "va": "0x140D5B4DD"
+      },
+      {
+        "raw": "0xD5A91C",
+        "rva": "0xD5BB1C",
+        "va": "0x140D5BB1C"
+      },
+      {
+        "raw": "0xD5AAFC",
+        "rva": "0xD5BCFC",
+        "va": "0x140D5BCFC"
+      },
+      {
+        "raw": "0xD5AD5B",
+        "rva": "0xD5BF5B",
+        "va": "0x140D5BF5B"
+      },
+      {
+        "raw": "0xD5BC79",
+        "rva": "0xD5CE79",
+        "va": "0x140D5CE79"
+      },
+      {
+        "raw": "0xD5CBED",
+        "rva": "0xD5DDED",
+        "va": "0x140D5DDED"
+      },
+      {
+        "raw": "0xD5CE2E",
+        "rva": "0xD5E02E",
+        "va": "0x140D5E02E"
+      },
+      {
+        "raw": "0xD600B2",
+        "rva": "0xD612B2",
+        "va": "0x140D612B2"
+      }
+    ],
+    "scan_runs": [
+      {
+        "raw": "0xD55E2C",
+        "rva": "0xD5702C",
+        "va": "0x140D5702C"
+      },
+      {
+        "raw": "0xD55FAF",
+        "rva": "0xD571AF",
+        "va": "0x140D571AF"
+      },
+      {
+        "raw": "0xD56382",
+        "rva": "0xD57582",
+        "va": "0x140D57582"
+      },
+      {
+        "raw": "0xD56748",
+        "rva": "0xD57948",
+        "va": "0x140D57948"
+      },
+      {
+        "raw": "0xD5694C",
+        "rva": "0xD57B4C",
+        "va": "0x140D57B4C"
+      },
+      {
+        "raw": "0xD56AE2",
+        "rva": "0xD57CE2",
+        "va": "0x140D57CE2"
+      },
+      {
+        "raw": "0xD599E6",
+        "rva": "0xD5ABE6",
+        "va": "0x140D5ABE6"
+      },
+      {
+        "raw": "0xD59BC0",
+        "rva": "0xD5ADC0",
+        "va": "0x140D5ADC0"
+      },
+      {
+        "raw": "0xD59C3D",
+        "rva": "0xD5AE3D",
+        "va": "0x140D5AE3D"
+      },
+      {
+        "raw": "0xD5A345",
+        "rva": "0xD5B545",
+        "va": "0x140D5B545"
+      },
+      {
+        "raw": "0xD5C6A5",
+        "rva": "0xD5D8A5",
+        "va": "0x140D5D8A5"
+      },
+      {
+        "raw": "0xD5C6DB",
+        "rva": "0xD5D8DB",
+        "va": "0x140D5D8DB"
+      },
+      {
+        "raw": "0xD5CB81",
+        "rva": "0xD5DD81",
+        "va": "0x140D5DD81"
+      },
+      {
+        "raw": "0xD5FAD7",
+        "rva": "0xD60CD7",
+        "va": "0x140D60CD7"
+      }
+    ],
+    "scan_blocks": [
+      {
+        "raw": "0xD5690C",
+        "rva": "0xD57B0C",
+        "va": "0x140D57B0C"
+      },
+      {
+        "raw": "0xD5FB32",
+        "rva": "0xD60D32",
+        "va": "0x140D60D32"
+      }
+    ],
+    "scan_records": [
+      {
+        "raw": "0xD56021",
+        "rva": "0xD57221",
+        "va": "0x140D57221"
+      },
+      {
+        "raw": "0xD56AA1",
+        "rva": "0xD57CA1",
+        "va": "0x140D57CA1"
+      },
+      {
+        "raw": "0xD579B1",
+        "rva": "0xD58BB1",
+        "va": "0x140D58BB1"
+      },
+      {
+        "raw": "0xD579DC",
+        "rva": "0xD58BDC",
+        "va": "0x140D58BDC"
+      },
+      {
+        "raw": "0xD57F93",
+        "rva": "0xD59193",
+        "va": "0x140D59193"
+      },
+      {
+        "raw": "0xD59E3B",
+        "rva": "0xD5B03B",
+        "va": "0x140D5B03B"
+      },
+      {
+        "raw": "0xD5C678",
+        "rva": "0xD5D878",
+        "va": "0x140D5D878"
+      },
+      {
+        "raw": "0xD5CD6E",
+        "rva": "0xD5DF6E",
+        "va": "0x140D5DF6E"
+      },
+      {
+        "raw": "0xD602E6",
+        "rva": "0xD614E6",
+        "va": "0x140D614E6"
+      }
+    ],
+    "player_marks": [
+      {
+        "raw": "0xD56CE3",
+        "rva": "0xD57EE3",
+        "va": "0x140D57EE3"
+      },
+      {
+        "raw": "0xD57F53",
+        "rva": "0xD59153",
+        "va": "0x140D59153"
+      },
+      {
+        "raw": "0xD58F9A",
+        "rva": "0xD5A19A",
+        "va": "0x140D5A19A"
+      },
+      {
+        "raw": "0xD58FE3",
+        "rva": "0xD5A1E3",
+        "va": "0x140D5A1E3"
+      },
+      {
+        "raw": "0xD590C1",
+        "rva": "0xD5A2C1",
+        "va": "0x140D5A2C1"
+      },
+      {
+        "raw": "0xD593EC",
+        "rva": "0xD5A5EC",
+        "va": "0x140D5A5EC"
+      },
+      {
+        "raw": "0xD5A860",
+        "rva": "0xD5BA60",
+        "va": "0x140D5BA60"
+      },
+      {
+        "raw": "0xD5AD7E",
+        "rva": "0xD5BF7E",
+        "va": "0x140D5BF7E"
+      },
+      {
+        "raw": "0xD5AE5A",
+        "rva": "0xD5C05A",
+        "va": "0x140D5C05A"
+      },
+      {
+        "raw": "0xD5AF9C",
+        "rva": "0xD5C19C",
+        "va": "0x140D5C19C"
+      },
+      {
+        "raw": "0xD5AFFF",
+        "rva": "0xD5C1FF",
+        "va": "0x140D5C1FF"
+      },
+      {
+        "raw": "0xD5E80F",
+        "rva": "0xD5FA0F",
+        "va": "0x140D5FA0F"
+      },
+      {
+        "raw": "0xD5F5D5",
+        "rva": "0xD607D5",
+        "va": "0x140D607D5"
+      },
+      {
+        "raw": "0xD5FF4C",
+        "rva": "0xD6114C",
+        "va": "0x140D6114C"
+      }
+    ],
+    "app_settings": [
+      {
+        "raw": "0xD560AA",
+        "rva": "0xD572AA",
+        "va": "0x140D572AA"
+      },
+      {
+        "raw": "0xD560EE",
+        "rva": "0xD572EE",
+        "va": "0x140D572EE"
+      },
+      {
+        "raw": "0xD56E1E",
+        "rva": "0xD5801E",
+        "va": "0x140D5801E"
+      },
+      {
+        "raw": "0xD5A86C",
+        "rva": "0xD5BA6C",
+        "va": "0x140D5BA6C"
+      },
+      {
+        "raw": "0xD5A8A5",
+        "rva": "0xD5BAA5",
+        "va": "0x140D5BAA5"
+      },
+      {
+        "raw": "0xD5A8E6",
+        "rva": "0xD5BAE6",
+        "va": "0x140D5BAE6"
+      },
+      {
+        "raw": "0xD5B044",
+        "rva": "0xD5C244",
+        "va": "0x140D5C244"
+      }
+    ],
+    "treasure_claim_states": [
+      {
+        "raw": "0xD56EC9",
+        "rva": "0xD580C9",
+        "va": "0x140D580C9"
+      },
+      {
+        "raw": "0xD57C2F",
+        "rva": "0xD58E2F",
+        "va": "0x140D58E2F"
+      },
+      {
+        "raw": "0xD57C61",
+        "rva": "0xD58E61",
+        "va": "0x140D58E61"
+      },
+      {
+        "raw": "0xD5CFF1",
+        "rva": "0xD5E1F1",
+        "va": "0x140D5E1F1"
+      },
+      {
+        "raw": "0xD5D069",
+        "rva": "0xD5E269",
+        "va": "0x140D5E269"
+      },
+      {
+        "raw": "0xD5F1EF",
+        "rva": "0xD603EF",
+        "va": "0x140D603EF"
+      },
+      {
+        "raw": "0xD5F4AF",
+        "rva": "0xD606AF",
+        "va": "0x140D606AF"
+      }
+    ],
+    "dispatch_plunder_jobs": [
+      {
+        "raw": "0xD57027",
+        "rva": "0xD58227",
+        "va": "0x140D58227"
+      },
+      {
+        "raw": "0xD57A51",
+        "rva": "0xD58C51",
+        "va": "0x140D58C51"
+      },
+      {
+        "raw": "0xD5A009",
+        "rva": "0xD5B209",
+        "va": "0x140D5B209"
+      },
+      {
+        "raw": "0xD5A42D",
+        "rva": "0xD5B62D",
+        "va": "0x140D5B62D"
+      },
+      {
+        "raw": "0xD5B307",
+        "rva": "0xD5C507",
+        "va": "0x140D5C507"
+      },
+      {
+        "raw": "0xD5BA6A",
+        "rva": "0xD5CC6A",
+        "va": "0x140D5CC6A"
+      },
+      {
+        "raw": "0xD5BB4F",
+        "rva": "0xD5CD4F",
+        "va": "0x140D5CD4F"
+      },
+      {
+        "raw": "0xD5C31B",
+        "rva": "0xD5D51B",
+        "va": "0x140D5D51B"
+      },
+      {
+        "raw": "0xD5C5D2",
+        "rva": "0xD5D7D2",
+        "va": "0x140D5D7D2"
+      },
+      {
+        "raw": "0xD5D2E6",
+        "rva": "0xD5E4E6",
+        "va": "0x140D5E4E6"
+      },
+      {
+        "raw": "0xD5D66D",
+        "rva": "0xD5E86D",
+        "va": "0x140D5E86D"
+      },
+      {
+        "raw": "0xD5D826",
+        "rva": "0xD5EA26",
+        "va": "0x140D5EA26"
+      },
+      {
+        "raw": "0xD5DA2A",
+        "rva": "0xD5EC2A",
+        "va": "0x140D5EC2A"
+      },
+      {
+        "raw": "0xD5DBFE",
+        "rva": "0xD5EDFE",
+        "va": "0x140D5EDFE"
+      },
+      {
+        "raw": "0xD5DD2F",
+        "rva": "0xD5EF2F",
+        "va": "0x140D5EF2F"
+      }
+    ],
+    "truck_plunder_jobs": [
+      {
+        "raw": "0xD57220",
+        "rva": "0xD58420",
+        "va": "0x140D58420"
+      },
+      {
+        "raw": "0xD57AD2",
+        "rva": "0xD58CD2",
+        "va": "0x140D58CD2"
+      },
+      {
+        "raw": "0xD59393",
+        "rva": "0xD5A593",
+        "va": "0x140D5A593"
+      },
+      {
+        "raw": "0xD59508",
+        "rva": "0xD5A708",
+        "va": "0x140D5A708"
+      },
+      {
+        "raw": "0xD59AC2",
+        "rva": "0xD5ACC2",
+        "va": "0x140D5ACC2"
+      },
+      {
+        "raw": "0xD5A062",
+        "rva": "0xD5B262",
+        "va": "0x140D5B262"
+      },
+      {
+        "raw": "0xD5B476",
+        "rva": "0xD5C676",
+        "va": "0x140D5C676"
+      },
+      {
+        "raw": "0xD5B654",
+        "rva": "0xD5C854",
+        "va": "0x140D5C854"
+      },
+      {
+        "raw": "0xD5B870",
+        "rva": "0xD5CA70",
+        "va": "0x140D5CA70"
+      },
+      {
+        "raw": "0xD5B8B5",
+        "rva": "0xD5CAB5",
+        "va": "0x140D5CAB5"
+      },
+      {
+        "raw": "0xD5B950",
+        "rva": "0xD5CB50",
+        "va": "0x140D5CB50"
+      },
+      {
+        "raw": "0xD5C803",
+        "rva": "0xD5DA03",
+        "va": "0x140D5DA03"
+      },
+      {
+        "raw": "0xD5C927",
+        "rva": "0xD5DB27",
+        "va": "0x140D5DB27"
+      },
+      {
+        "raw": "0xD5C98C",
+        "rva": "0xD5DB8C",
+        "va": "0x140D5DB8C"
+      },
+      {
+        "raw": "0xD5CA87",
+        "rva": "0xD5DC87",
+        "va": "0x140D5DC87"
+      },
+      {
+        "raw": "0xD5D438",
+        "rva": "0xD5E638",
+        "va": "0x140D5E638"
+      },
+      {
+        "raw": "0xD5D8FE",
+        "rva": "0xD5EAFE",
+        "va": "0x140D5EAFE"
+      },
+      {
+        "raw": "0xD5DE42",
+        "rva": "0xD5F042",
+        "va": "0x140D5F042"
+      }
+    ],
+    "truck_plunder_history": [
+      {
+        "raw": "0xD573F7",
+        "rva": "0xD585F7",
+        "va": "0x140D585F7"
+      },
+      {
+        "raw": "0xD57B29",
+        "rva": "0xD58D29",
+        "va": "0x140D58D29"
+      },
+      {
+        "raw": "0xD57B5C",
+        "rva": "0xD58D5C",
+        "va": "0x140D58D5C"
+      },
+      {
+        "raw": "0xD595B7",
+        "rva": "0xD5A7B7",
+        "va": "0x140D5A7B7"
+      },
+      {
+        "raw": "0xD5B4F4",
+        "rva": "0xD5C6F4",
+        "va": "0x140D5C6F4"
+      },
+      {
+        "raw": "0xD5D96B",
+        "rva": "0xD5EB6B",
+        "va": "0x140D5EB6B"
+      }
+    ],
+    "dispatch_assist_jobs": [
+      {
+        "raw": "0xD575A0",
+        "rva": "0xD587A0",
+        "va": "0x140D587A0"
+      },
+      {
+        "raw": "0xD57BD7",
+        "rva": "0xD58DD7",
+        "va": "0x140D58DD7"
+      },
+      {
+        "raw": "0xD57CD3",
+        "rva": "0xD58ED3",
+        "va": "0x140D58ED3"
+      },
+      {
+        "raw": "0xD59767",
+        "rva": "0xD5A967",
+        "va": "0x140D5A967"
+      },
+      {
+        "raw": "0xD5A1C4",
+        "rva": "0xD5B3C4",
+        "va": "0x140D5B3C4"
+      },
+      {
+        "raw": "0xD5A547",
+        "rva": "0xD5B747",
+        "va": "0x140D5B747"
+      },
+      {
+        "raw": "0xD5A627",
+        "rva": "0xD5B827",
+        "va": "0x140D5B827"
+      },
+      {
+        "raw": "0xD5A6FC",
+        "rva": "0xD5B8FC",
+        "va": "0x140D5B8FC"
+      },
+      {
+        "raw": "0xD5C009",
+        "rva": "0xD5D209",
+        "va": "0x140D5D209"
+      },
+      {
+        "raw": "0xD5C249",
+        "rva": "0xD5D449",
+        "va": "0x140D5D449"
+      },
+      {
+        "raw": "0xD5D3E4",
+        "rva": "0xD5E5E4",
+        "va": "0x140D5E5E4"
+      },
+      {
+        "raw": "0xD5D4EC",
+        "rva": "0xD5E6EC",
+        "va": "0x140D5E6EC"
+      },
+      {
+        "raw": "0xD5D5D3",
+        "rva": "0xD5E7D3",
+        "va": "0x140D5E7D3"
+      },
+      {
+        "raw": "0xD5D77C",
+        "rva": "0xD5E97C",
+        "va": "0x140D5E97C"
+      },
+      {
+        "raw": "0xD5DB25",
+        "rva": "0xD5ED25",
+        "va": "0x140D5ED25"
+      }
+    ],
+    "ON CONFLICT(kind,server_id,record_key)": [
+      {
+        "raw": "0xD5AB2B",
+        "rva": "0xD5BD2B",
+        "va": "0x140D5BD2B"
+      },
+      {
+        "raw": "0xD60177",
+        "rva": "0xD61377",
+        "va": "0x140D61377"
+      }
+    ],
+    "PRAGMA wal_checkpoint(TRUNCATE)": [
+      {
+        "raw": "0xD55F2D",
+        "rva": "0xD5712D",
+        "va": "0x140D5712D"
+      },
+      {
+        "raw": "0xD59A64",
+        "rva": "0xD5AC64",
+        "va": "0x140D5AC64"
+      }
+    ]
+  },
+  "limits": [
+    "Exact schema/path/SQL string presence does not alone establish the command or transaction that uses it.",
+    "Schema migration/version transitions, record normalization, staging publication, clear ownership, and query control flow require native tracing.",
+    "Current-client adapter metadata must not be added to this recovered reference schema unless separately evidenced."
+  ]
+}
