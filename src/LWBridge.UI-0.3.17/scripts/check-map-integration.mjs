@@ -128,9 +128,13 @@ await api.search("resource", { serverId: 7, page: 2, resourceNameKey: "100281" }
 await api.jumpServer(9);
 await api.importServerJumpHistory([9, 8]);
 await api.setServerJumpHistory([9, 8, 7]);
+await api.coordinateJump({ serverId: 7, x: 12, y: 34 });
+await api.setPlayerMark({ serverId: 7, ownerUid: "u1" }, true);
+await api.exportCities({ serverId: 7, page: 1, pageSize: 200, sorts: [] }, { headers: ["Server"], sheetName: "City", yesLabel: "Yes", noLabel: "No" });
 assert.deepEqual(calls.map(({ command }) => command), [
   "map_scan_start", "map_scan_stop", "map_scan_clear", "map_scan_status", "map_summary", "map_data_options", "map_search",
   "server_jump", "server_jump_history_import", "server_jump_history_set",
+  "map_coordinate_jump", "map_player_mark_set", "map_city_export",
 ]);
 assert.deepEqual(calls[0].payload, { selectedTypes: ["resource"], scanMode: "fast", profileId: "profile-test" });
 assert.deepEqual(calls[1].payload, { profileId: "profile-test" });
@@ -143,6 +147,9 @@ assert.equal(calls[6].payload.profileId, "profile-test");
 assert.deepEqual(calls[7].payload, { serverId: 9, profileId: "profile-test" });
 assert.deepEqual(calls[8].payload, { history: [9, 8], profileId: "profile-test" });
 assert.deepEqual(calls[9].payload, { history: [9, 8, 7], profileId: "profile-test" });
+assert.deepEqual(calls[10].payload, { serverId: 7, x: 12, y: 34, profileId: "profile-test" });
+assert.equal(calls[11].payload.marked, true);
+assert.equal(calls[12].payload.query.serverId, 7);
 
 const expectedFailure = Object.assign(new Error("query failed"), { code: "MAP_QUERY_FAILED", details: { field: "resourceNameKey" } });
 const failingApi = createMapApi({

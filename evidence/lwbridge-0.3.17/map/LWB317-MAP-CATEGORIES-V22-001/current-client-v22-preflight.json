@@ -1,0 +1,436 @@
+{
+  "schema": 1,
+  "findingId": "LWB317-MAP-CATEGORIES-V22-001-PREFLIGHT",
+  "evidenceState": "CURRENT_CLIENT_STATIC_HEADLESS",
+  "installedIdentity": {
+    "ok": true,
+    "compatibilityPolicy": "lwbridge-current-client-critical-anchors-3",
+    "observed": {
+      "packageSha256": "248f3aeac712b3f14f86bff37a0c365e467897a2248403837c44c1b774f05b22",
+      "packageSize": 41320262,
+      "packageCrc32": 3283604722,
+      "fileVersion": 3,
+      "contentVersion": 22,
+      "entryCount": 18741,
+      "gameSha256": "905c98c1f89841f90b492556192ba0642f3d209a873cb8c1f7b3c340aca0733d",
+      "xluaSha256": "d22d912f031c60f2649fdaf76d359d695511f7a37b93cd637b557f8346569d45",
+      "assemblyCSharpSha256": "bfb740b4570c58bd2bcc7fb83f9b83d8121ce10fb1bf49040e9fb8b08e958b3e",
+      "luaEntrySha256": "50f3ae906a8e9898549c4ea740eedc772a88eb2979e165eb35733192d100a137",
+      "criticalEntries": {
+        "DataCenter/Global/LuaEntry.luac": "50f3ae906a8e9898549c4ea740eedc772a88eb2979e165eb35733192d100a137",
+        "Global/ConstDefine.luac": "95e6c733b98dc641c330f36efdef044845033b37ea6703068f7c7ed5fb0048fd",
+        "Util/CSharpCallLuaInterface.luac": "af1559723afba0fa5773bb815c486f3233fecb3928768abd082a96b51960229e",
+        "UI/LWMainUI/Component/UIMainBottom/UIMainChangeScene.luac": "3843dc02869330f060a199b946ef3cd30aa335504914c2f4c60f8a824e871c5b"
+      },
+      "metadata": "41320262|3283604722",
+      "version": "21",
+      "versionMarker": 21,
+      "versionMarkerMatchesContentVersion": false
+    },
+    "problems": []
+  },
+  "identity": {
+    "ok": true,
+    "compatibilityPolicy": "lwbridge-current-client-critical-anchors-3",
+    "observed": {
+      "packageSha256": "248f3aeac712b3f14f86bff37a0c365e467897a2248403837c44c1b774f05b22",
+      "packageSize": 41320262,
+      "packageCrc32": 3283604722,
+      "fileVersion": 3,
+      "contentVersion": 22,
+      "entryCount": 18741,
+      "gameSha256": "905c98c1f89841f90b492556192ba0642f3d209a873cb8c1f7b3c340aca0733d",
+      "xluaSha256": "d22d912f031c60f2649fdaf76d359d695511f7a37b93cd637b557f8346569d45",
+      "assemblyCSharpSha256": "bfb740b4570c58bd2bcc7fb83f9b83d8121ce10fb1bf49040e9fb8b08e958b3e",
+      "luaEntrySha256": "50f3ae906a8e9898549c4ea740eedc772a88eb2979e165eb35733192d100a137",
+      "criticalEntries": {
+        "DataCenter/Global/LuaEntry.luac": "50f3ae906a8e9898549c4ea740eedc772a88eb2979e165eb35733192d100a137",
+        "Global/ConstDefine.luac": "95e6c733b98dc641c330f36efdef044845033b37ea6703068f7c7ed5fb0048fd",
+        "Util/CSharpCallLuaInterface.luac": "af1559723afba0fa5773bb815c486f3233fecb3928768abd082a96b51960229e",
+        "UI/LWMainUI/Component/UIMainBottom/UIMainChangeScene.luac": "3843dc02869330f060a199b946ef3cd30aa335504914c2f4c60f8a824e871c5b"
+      },
+      "metadata": "41320262|3283604722",
+      "version": "21",
+      "versionMarker": 21,
+      "versionMarkerMatchesContentVersion": false
+    },
+    "problems": []
+  },
+  "packageState": {
+    "state": "official_package",
+    "normalized": false
+  },
+  "package": {
+    "path": "C:\\Users\\chimw\\AppData\\LocalLow\\FunFly\\Last War-Survival Game\\lwScripts\\LWScripts.data",
+    "fileVersion": 3,
+    "contentVersion": 22,
+    "entryCount": 18741
+  },
+  "baseline": null,
+  "modules": {
+    "Net/Msgs/DispatchTask/DispatchStealMessage.luac": {
+      "present": true,
+      "encodedSha256": "6ecc81dffc02797bb16f0c735db74d714617a12ace7301488c19c5ced49fd9b3",
+      "decodedSha256": "301b51900f73a95429823cdaf257f5f361f062ff3b7d5d1ac8cba2e7c3daba1a",
+      "decodedBytes": 1327,
+      "historicalDecodedSha256": "301b51900f73a95429823cdaf257f5f361f062ff3b7d5d1ac8cba2e7c3daba1a",
+      "byteIdenticalToHistoricalModule": true,
+      "anchors": [
+        "OnCreate",
+        "PutLong",
+        "uuid",
+        "PutInt",
+        "targetServer",
+        "HandleMessage",
+        "reward"
+      ],
+      "missingAnchors": [],
+      "anchorsPresent": true
+    },
+    "DataCenter/ActivityListData/ActDispatchTaskDataManager.luac": {
+      "present": true,
+      "encodedSha256": "034e2df3a66293255f3d3a9a295f61a7d00e58d5b8dfde1ae2a8fa77207028ce",
+      "decodedSha256": "21cf16b7fe6da46f468a4d6f1f259ae6fd972a100ad9398c57a2e701abd8162d",
+      "decodedBytes": 58691,
+      "historicalDecodedSha256": "21cf16b7fe6da46f468a4d6f1f259ae6fd972a100ad9398c57a2e701abd8162d",
+      "byteIdenticalToHistoricalModule": true,
+      "anchors": [
+        "IsOpenCrossSteal",
+        "GetTodayStealNum",
+        "UpdateSteal"
+      ],
+      "missingAnchors": [],
+      "anchorsPresent": true
+    },
+    "UI/UIWorldPoint/Component/UIWorldPointBtn.luac": {
+      "present": true,
+      "encodedSha256": "31fa9297595702c199e5bd23c90e8aa727236e371d7c461f3eb6639f5c580748",
+      "decodedSha256": "d2f099d11172a80e7c8eda63fd410d3360fea965d8269691061be5a7d8f54d79",
+      "decodedBytes": 160477,
+      "historicalDecodedSha256": "d2f099d11172a80e7c8eda63fd410d3360fea965d8269691061be5a7d8f54d79",
+      "byteIdenticalToHistoricalModule": true,
+      "anchors": [
+        "DispatchSteal",
+        "GetWorldSuppliesPointDetailData",
+        "WorldPointBtnType"
+      ],
+      "missingAnchors": [],
+      "anchorsPresent": true
+    },
+    "DataCenter/WorldPointDetail/WorldSuppliesPointData.luac": {
+      "present": true,
+      "encodedSha256": "42295ef48ea4067f538dd010bde8e5a9f4ba708716d646b2683e75107f6f69b3",
+      "decodedSha256": "b51e78625e58221ef536a880a71d2b7e5bef883049e85df0563086818ba3fa4f",
+      "decodedBytes": 6947,
+      "historicalDecodedSha256": "b51e78625e58221ef536a880a71d2b7e5bef883049e85df0563086818ba3fa4f",
+      "byteIdenticalToHistoricalModule": true,
+      "anchors": [
+        "CheckBtnState",
+        "HasPlayer",
+        "AlreadyGet",
+        "reward_lucky_num"
+      ],
+      "missingAnchors": [],
+      "anchorsPresent": true
+    },
+    "DataCenter/WorldPointDetail/WorldChargeData.luac": {
+      "present": true,
+      "encodedSha256": "30dcd64d2a8a0866e82f19305992e340e3706f40de53d7ab0263d2f3696e7346",
+      "decodedSha256": "b5bed9517de2381242c0fea7796baac190d332d2e0692e12bbe92ebd1addeb21",
+      "decodedBytes": 3104,
+      "historicalDecodedSha256": "b5bed9517de2381242c0fea7796baac190d332d2e0692e12bbe92ebd1addeb21",
+      "byteIdenticalToHistoricalModule": true,
+      "anchors": [
+        "GetPercent",
+        "HasPlayer",
+        "getReward"
+      ],
+      "missingAnchors": [],
+      "anchorsPresent": true
+    },
+    "DataCenter/SeasonManager/Activity/SeasonSuppliesShareDataManager.luac": {
+      "present": true,
+      "encodedSha256": "b5ef00c90b08ec2f12a80c6b628925cf0920af3be7c3113f519091bd1190c4b8",
+      "decodedSha256": "301f040aa7fa336a1e991ce6fd1e69930db781bdb5336702a9629b41cd88660d",
+      "decodedBytes": 6668,
+      "historicalDecodedSha256": "301f040aa7fa336a1e991ce6fd1e69930db781bdb5336702a9629b41cd88660d",
+      "byteIdenticalToHistoricalModule": true,
+      "anchors": [
+        "GetActivityInfo",
+        "IsSeasonActivityOpen",
+        "GetServerCurrentSeasonConfig",
+        "lw_supplies_refresh",
+        "supplies_para"
+      ],
+      "missingAnchors": [],
+      "anchorsPresent": true
+    },
+    "UI/UIWorldPoint/Controller/UIWorldPointCtrl.luac": {
+      "present": true,
+      "encodedSha256": "7298256e4a5181a335cfd2ce8c89c9454452211b2feab68eac57827e0465af6d",
+      "decodedSha256": "4e738cdd076dde56239461d3f011703885d1d4b55facf1c3aa283abcd8675f0e",
+      "decodedBytes": 153030,
+      "historicalDecodedSha256": "4e738cdd076dde56239461d3f011703885d1d4b55facf1c3aa283abcd8675f0e",
+      "byteIdenticalToHistoricalModule": true,
+      "anchors": [
+        "WorldGetSuppliesPointDetail",
+        "GetWorldSuppliesPointDetailData",
+        "IsHaveWorking"
+      ],
+      "missingAnchors": [],
+      "anchorsPresent": true
+    },
+    "Chat/NetMessage/ChatHeroDispatchShareCommand.luac": {
+      "present": true,
+      "encodedSha256": "8c188208227fb6a863c00df89eeba22788a7cb1379934ba8d9f068c9bd103592",
+      "decodedSha256": "ad3f495a7bc87e55c05a3493d70b8cf680d8a72c3982e2d4079becfccf71909f",
+      "decodedBytes": 3020,
+      "historicalDecodedSha256": "ad3f495a7bc87e55c05a3493d70b8cf680d8a72c3982e2d4079becfccf71909f",
+      "byteIdenticalToHistoricalModule": true,
+      "anchors": [
+        "PutLong",
+        "uuid",
+        "PutInt",
+        "targetServer",
+        "HandleMessage",
+        "errorCode"
+      ],
+      "missingAnchors": [],
+      "anchorsPresent": true
+    },
+    "Chat/Controller/ChatController.luac": {
+      "present": true,
+      "encodedSha256": "0b19ff9462e86061cb8d3a42d92aceeab49afe33bab30b12c08a71be569bb5be",
+      "decodedSha256": "0ba3628a5bba07fafc317fd21b6297b4295c74b3a61d6135a4dbbf2e823be434",
+      "decodedBytes": 44121,
+      "historicalDecodedSha256": "0ba3628a5bba07fafc317fd21b6297b4295c74b3a61d6135a4dbbf2e823be434",
+      "byteIdenticalToHistoricalModule": true,
+      "anchors": [
+        "TO_ALLIANCE",
+        "Text_PointShare",
+        "dispatch",
+        "uuid",
+        "sid",
+        "ChatHeroDispatchShare",
+        "SendSFSMessage"
+      ],
+      "missingAnchors": [],
+      "anchorsPresent": true
+    },
+    "Chat/WebMessage/Config/ChatMsgDefines.luac": {
+      "present": true,
+      "encodedSha256": "c6446ad4ae3bb7f5a124eceac0e7d82c04395dc3236db7bec7ffa87ec12ebfc6",
+      "decodedSha256": "ad7fd478b0925445240d49fac251ca172003052043f1591a716abbd01298e976",
+      "decodedBytes": 16133,
+      "historicalDecodedSha256": "ad7fd478b0925445240d49fac251ca172003052043f1591a716abbd01298e976",
+      "byteIdenticalToHistoricalModule": true,
+      "anchors": [
+        "ChatHeroDispatchShare",
+        "hero.dispatch.share.chat",
+        "Chat.NetMessage.ChatHeroDispatchShareCommand"
+      ],
+      "missingAnchors": [],
+      "anchorsPresent": true
+    },
+    "Chat/Other/ShareEncode.luac": {
+      "present": true,
+      "encodedSha256": "d5499e11e9ec81c6e0a50059946441ebebe7dc6a0798e8d1d9419c1022588625",
+      "decodedSha256": "9d379f701734bf4c20f1c29c57ea194dd6fb3b68f0cca712969edba5da562591",
+      "decodedBytes": 13108,
+      "historicalDecodedSha256": "9d379f701734bf4c20f1c29c57ea194dd6fb3b68f0cca712969edba5da562591",
+      "byteIdenticalToHistoricalModule": true,
+      "anchors": [
+        "x",
+        "y",
+        "sid",
+        "uname",
+        "abbr",
+        "dispatch",
+        "cfgId",
+        "uuid"
+      ],
+      "missingAnchors": [],
+      "anchorsPresent": true
+    },
+    "Chat/Other/ShareDecode.luac": {
+      "present": true,
+      "encodedSha256": "6a6175bec804d46f230e67f453759c4db9338b7de8c2486ab2caa0c1f6443852",
+      "decodedSha256": "fe63553ea832a893ffecb22e1c9a458bbc28cba14b289191a43833bd12fe1ac6",
+      "decodedBytes": 112624,
+      "historicalDecodedSha256": "fe63553ea832a893ffecb22e1c9a458bbc28cba14b289191a43833bd12fe1ac6",
+      "byteIdenticalToHistoricalModule": true,
+      "anchors": [
+        "x",
+        "y",
+        "dispatch",
+        "456288",
+        "sid",
+        "POSITION_COORDINATE_CROSS"
+      ],
+      "missingAnchors": [],
+      "anchorsPresent": true
+    },
+    "UI/UIPositionShare/Controller/UIPositionShareCtrl.luac": {
+      "present": true,
+      "encodedSha256": "d6ccf66b64c79357f1f6ec69b4cf54464242bac9f8f1303dfe5ff18cbf1573e7",
+      "decodedSha256": "bce752b65980dee4f82f70767087133bb23e1578ffd77dd85648838c394082f0",
+      "decodedBytes": 1630,
+      "historicalDecodedSha256": "bce752b65980dee4f82f70767087133bb23e1578ffd77dd85648838c394082f0",
+      "byteIdenticalToHistoricalModule": true,
+      "anchors": [
+        "ShareType",
+        "Pos",
+        "IndexToTilePos",
+        "World",
+        "x",
+        "y"
+      ],
+      "missingAnchors": [],
+      "anchorsPresent": true
+    },
+    "DataCenter/RadarCenterDataManager/DetectEventGetTreasureClaimInfo.luac": {
+      "present": true,
+      "encodedSha256": "e954090f9f975acf4130acb9a2b311437b991685298ea6661a12402bf9762218",
+      "decodedSha256": "cb3df2e7ad2c34155cbb49c0d234e1d57a6320e6a64badb76b8af74825bafefe",
+      "decodedBytes": 4874,
+      "historicalDecodedSha256": "cb3df2e7ad2c34155cbb49c0d234e1d57a6320e6a64badb76b8af74825bafefe",
+      "byteIdenticalToHistoricalModule": true,
+      "anchors": [
+        "treasureClaimPlayerInfo",
+        "remainNum"
+      ],
+      "missingAnchors": [],
+      "anchorsPresent": true
+    },
+    "DataCenter/RadarCenterDataManager/DetectEventTreasureClaimPlayerInfo.luac": {
+      "present": true,
+      "encodedSha256": "7d918668f89c356c31cdb3689159de22a1864a505c3846c8ef93d9963e94a420",
+      "decodedSha256": "6d4588297ba79ae9da9b9f7d135f5cab7aaa1f8276a748c62101d483892aac95",
+      "decodedBytes": 1978,
+      "historicalDecodedSha256": "6d4588297ba79ae9da9b9f7d135f5cab7aaa1f8276a748c62101d483892aac95",
+      "byteIdenticalToHistoricalModule": true,
+      "anchors": [
+        "uid",
+        "isBigReward",
+        "bigRewardMultiple",
+        "hasLuckSiphonbuff"
+      ],
+      "missingAnchors": [],
+      "anchorsPresent": true
+    },
+    "DataCenter/LWRailway/Util/RailwayUtil.luac": {
+      "present": true,
+      "encodedSha256": "b5e57e8c6221a20c3d1a3e1f7c9b33b07e696a8d844b4a5d4eb3866def988782",
+      "decodedSha256": "59bafe773cec053e4616094625a1ee0b71972f2391d8b0c79bea85ea5c64b42f",
+      "decodedBytes": 34143,
+      "historicalDecodedSha256": "59bafe773cec053e4616094625a1ee0b71972f2391d8b0c79bea85ea5c64b42f",
+      "byteIdenticalToHistoricalModule": true,
+      "anchors": [
+        "ClickAttackTrain",
+        "TruckRob",
+        "isTruckQuickRob"
+      ],
+      "missingAnchors": [],
+      "anchorsPresent": true
+    },
+    "DataCenter/LWRailway/Train/LWTrainDataManager.luac": {
+      "present": true,
+      "encodedSha256": "5e4924e7727aaf0b5e00f4e023dabf8d031989422a17234fbd9ef5f07a1594e5",
+      "decodedSha256": "77f4dbbd6d0f60980ad66aa9245464a2ea88f066e28da44de228bb8eb9f2f019",
+      "decodedBytes": 10621,
+      "historicalDecodedSha256": "77f4dbbd6d0f60980ad66aa9245464a2ea88f066e28da44de228bb8eb9f2f019",
+      "byteIdenticalToHistoricalModule": true,
+      "anchors": [
+        "marchUid",
+        "uuid"
+      ],
+      "missingAnchors": [],
+      "anchorsPresent": true
+    },
+    "DataCenter/LWRailway/Station/LWMyStationDataManager.luac": {
+      "present": true,
+      "encodedSha256": "4153f2c5a0217a120c20a47e16bd5c93b80bf4cd2db8198affdc63580f7a8437",
+      "decodedSha256": "94133ab998308e926ccbbae975376406dff3f0e61f035a7a1b4dee1ee4ae6865",
+      "decodedBytes": 53845,
+      "historicalDecodedSha256": "94133ab998308e926ccbbae975376406dff3f0e61f035a7a1b4dee1ee4ae6865",
+      "byteIdenticalToHistoricalModule": true,
+      "anchors": [
+        "GetRobFormation",
+        "TrySaveTruckFormation",
+        "TryAttackTrain",
+        "dailyRobCount"
+      ],
+      "missingAnchors": [],
+      "anchorsPresent": true
+    },
+    "DataCenter/LWFakePVPBattle/FakePVPLogic.luac": {
+      "present": true,
+      "encodedSha256": "feb9c825c358f696c9b8690b577fbceede0ced16538bcf592077afd0a01264d2",
+      "decodedSha256": "d7a0ed1d9bc43d916154ade556a73cec0dcb747ed00f10ea00e082c7a4e081e6",
+      "decodedBytes": 75329,
+      "historicalDecodedSha256": "d7a0ed1d9bc43d916154ade556a73cec0dcb747ed00f10ea00e082c7a4e081e6",
+      "byteIdenticalToHistoricalModule": true,
+      "anchors": [
+        "OnGetBattleData",
+        "JumpToEnd",
+        "attackTrainReward"
+      ],
+      "missingAnchors": [],
+      "anchorsPresent": true
+    },
+    "DataCenter/LWBattle/LWBattleManager.luac": {
+      "present": true,
+      "encodedSha256": "bd67d7d30eaf8abd814d054f4838e31fc6242d390a9aa1736180b9dd60ff8b27",
+      "decodedSha256": "b3fd779bd480c9a8cfb4b0154e03c56b8f85eede233e63550cfada0733068543",
+      "decodedBytes": 63796,
+      "historicalDecodedSha256": "b3fd779bd480c9a8cfb4b0154e03c56b8f85eede233e63550cfada0733068543",
+      "byteIdenticalToHistoricalModule": true,
+      "anchors": [
+        "FakePVP"
+      ],
+      "missingAnchors": [],
+      "anchorsPresent": true
+    },
+    "Net/Msgs/Railway/AttackTrainMessage.luac": {
+      "present": true,
+      "encodedSha256": "443ab1162b75a9395da9ca5863db313ebeba5b0d131372bc3db5537ec94d43af",
+      "decodedSha256": "9f7e6bdcf200ec91ffe5d37b72343957553bb9a0f1be9fe2ac355c5139614066",
+      "decodedBytes": 1857,
+      "historicalDecodedSha256": "9f7e6bdcf200ec91ffe5d37b72343957553bb9a0f1be9fe2ac355c5139614066",
+      "byteIdenticalToHistoricalModule": true,
+      "anchors": [
+        "TrainSkirmishDataReceived",
+        "TrainAttackReceived",
+        "dailyRobCount"
+      ],
+      "missingAnchors": [],
+      "anchorsPresent": true
+    },
+    "UI/UILWHero/UIHeroFakePVPFormationPanel/View/UIHeroFakePVPFormationPanelView.luac": {
+      "present": true,
+      "encodedSha256": "aecbcd1631e65b56412a408df5a54c31827cddfe509a59e087c13ef695a0a25d",
+      "decodedSha256": "3f9e704543194be7d056c00871c32ab7c2c19b65afd8a51184865d64cc2294b1",
+      "decodedBytes": 104354,
+      "historicalDecodedSha256": "3f9e704543194be7d056c00871c32ab7c2c19b65afd8a51184865d64cc2294b1",
+      "byteIdenticalToHistoricalModule": true,
+      "anchors": [
+        "TrySaveTruckFormation",
+        "TryAttackTrain"
+      ],
+      "missingAnchors": [],
+      "anchorsPresent": true
+    }
+  },
+  "classification": {
+    "trackedModulesCompatible": true,
+    "worldAoiRuntime": "Assembly-CSharp.rdl identity is covered by the current compatibility policy; structural WorldPointManager/WorldGetBlock checks remain a separate read-only check",
+    "dispatchTreasureTruckSources": "per-module exact current fingerprint above; historical equality is comparison evidence only",
+    "liveProofRequired": true
+  },
+  "limits": [
+    "This tool is read-only and does not launch or control Last War or rewrite its installed package.",
+    "A verified current Overview wrapper is normalized only in memory by restoring its preserved official LuaEntry and excluding the repository-owned packaged probe entry.",
+    "Byte-identical historical modules establish current source compatibility for those modules, not original LWBridge 0.3.17 provider implementation identity.",
+    "Navigation, server switching, acquisition completion and state-changing Treasure/Plunder actions still require bounded live proof where current game state permits."
+  ]
+}

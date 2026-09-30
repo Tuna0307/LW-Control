@@ -304,6 +304,8 @@ public sealed partial class MapStore : IDisposable
 
     public int ReconcileInterruptedScans(string error, long updatedAt)
     {
+        // Rebuild restart-safety policy (R7-136), not an exact 0.3.17 failure
+        // transaction: orphan staging is deliberately left unpublished.
         if (string.IsNullOrWhiteSpace(error))
             throw new ArgumentException("Restart interruption error is required.", nameof(error));
         lock (gate)

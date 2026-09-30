@@ -11,6 +11,9 @@ export const MAP_COMMANDS = Object.freeze({
   serverJump: "server_jump",
   serverJumpHistorySet: "server_jump_history_set",
   serverJumpHistoryImport: "server_jump_history_import",
+  coordinateJump: "map_coordinate_jump",
+  playerMarkSet: "map_player_mark_set",
+  cityExport: "map_city_export",
 });
 
 export const MAP_SCAN_TYPES = Object.freeze([
@@ -252,6 +255,9 @@ export function createMapApi(bridge) {
     jumpServer: (serverId) => bridge.invoke(MAP_COMMANDS.serverJump, scoped({ serverId })),
     importServerJumpHistory: (history) => bridge.invoke(MAP_COMMANDS.serverJumpHistoryImport, scoped({ history })),
     setServerJumpHistory: (history) => bridge.invoke(MAP_COMMANDS.serverJumpHistorySet, scoped({ history })),
+    coordinateJump: (row) => bridge.invoke(MAP_COMMANDS.coordinateJump, scoped({ serverId: row.serverId, x: row.x, y: row.y })),
+    setPlayerMark: (row, marked) => bridge.invoke(MAP_COMMANDS.playerMarkSet, scoped({ row, marked })),
+    exportCities: (query, options) => bridge.invoke(MAP_COMMANDS.cityExport, scoped({ query, ...options })),
     listenScanStatus: (callback) => bridge.listen("bridge://map-scan-status", (event) => {
       const payload = unwrapProfileEvent(event, profileId);
       if (payload) callback(normalizeScanState(payload));

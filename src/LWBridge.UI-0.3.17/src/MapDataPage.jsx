@@ -73,6 +73,7 @@ function rowColumns(kind) {
   switch (kind) {
     case "city":
       return [
+        { label: "Marked", mark: true },
         coordinates,
         { label: "Player", value: (row) => row.ownerName || row.ownerUid || "-" },
         { label: "Alliance", value: (row) => row.allianceName || row.allianceAbbr || "-" },
@@ -135,7 +136,7 @@ function rowColumns(kind) {
   }
 }
 
-function MapTable({ kind, rows, loading, sorts, onSort }) {
+function MapTable({ kind, rows, loading, sorts, onSort, onCoordinateJump, onPlayerMark, actionBusy, actionDisabled }) {
   const columns = useMemo(() => rowColumns(kind), [kind]);
   return (
     <div className="map-table-scroll">
@@ -171,8 +172,12 @@ function MapTable({ kind, rows, loading, sorts, onSort }) {
             <tr className="map-row" key={`${kind}:${row.serverId ?? 0}:${row.recordKey || row.uuid || row.pointIndex || index}`}>
               {columns.map((column) => (
                 <td key={column.label}>
-                  {column.coordinate ? (
-                    <button className="map-coordinate-button" type="button" disabled title="Map navigation is not enabled in this integration task.">
+                  {column.mark ? (
+                    <button className={`map-mark-button${row.marked ? " active" : ""}`} type="button" disabled={actionDisabled || !row.ownerUid || actionBusy} aria-label={row.marked ? "Unmark player" : "Mark player"} onClick={() => onPlayerMark(row)}>
+                      {row.marked ? "★" : "☆"}
+                    </button>
+                  ) : column.coordinate ? (
+                    <button className="map-coordinate-button" type="button" disabled={actionDisabled || actionBusy || kind === "truck" || kind === "railway" || !Number.isInteger(Number(row.x)) || !Number.isInteger(Number(row.y))} onClick={() => onCoordinateJump(row)}>
                       <span className="map-coordinate-icon" aria-hidden="true" />
                       <span>{coordinateText(row)}</span>
                     </button>
@@ -202,7 +207,7 @@ function Pagination({ page, total, onPage }) {
   );
 }
 
-export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online }) {
+export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, currentServerId = 0 }) {
   const [scanTab, setScanTab] = useState("manual");
   const [speed, setSpeed] = useState(() => {
     const saved = window.localStorage.getItem("lwbridge.mapScanMode");
@@ -230,12 +235,13 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online }) {
   const [loading, setLoading] = useState(false);
   const [scanError, setScanError] = useState("");
   const [queryError, setQueryError] = useState("");
+  const [actionBusy, setActionBusy] = useState("");
   const [searchRevision, setSearchRevision] = useState(0);
   const selectionTouched = useRef(false);
   const previousReading = useRef(false);
   const summaryGeneration = useRef(0);
 
-  const dataServerId = browseServerId || scanState.serverId;
+  const dataServerId = browseServerId || scanState.serverId || currentServerId;
   const activeSorts = sortsByKind[tab] || [{ sortBy: "updatedAt", sortOrder: "desc" }];
 
   useEffect(() => {
@@ -412,6 +418,48 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online }) {
     setPage(1);
   }
 
+  async function coordinateJump(row) {
+    setActionBusy(`jump:${row.serverId}:${row.x}:${row.y}`);
+    setQueryError("");
+    try { await mapApi.coordinateJump(row); }
+    catch (error) { setQueryError(errorText(error)); }
+    finally { setActionBusy(""); }
+  }
+
+  async function togglePlayerMark(row) {
+    setActionBusy(`mark:${row.serverId}:${row.ownerUid}`);
+    setQueryError("");
+    try {
+      await mapApi.setPlayerMark(row, !row.marked);
+      setSearchRevision((value) => value + 1);
+    } catch (error) { setQueryError(errorText(error)); }
+    finally { setActionBusy(""); }
+  }
+
+  async function exportCities() {
+    if (!dataServerId) return;
+    setActionBusy("export");
+    setQueryError("");
+    try {
+      await mapApi.exportCities({
+        serverId: dataServerId,
+        keyword: submittedKeyword,
+        alliance: alliance !== "all" && alliance !== "none" ? alliance : undefined,
+        withoutAlliance: alliance === "none" || undefined,
+        markedOnly: markedOnly || undefined,
+        page: 1,
+        pageSize: 200,
+        sorts: activeSorts,
+      }, {
+        headers: ["Server", "X", "Y", "Player", "UID", "UUID", "Alliance", "Level", "HP", "Shield Ends", "Marked", "Updated At"],
+        sheetName: "City",
+        yesLabel: "Yes",
+        noLabel: "No",
+      });
+    } catch (error) { setQueryError(errorText(error)); }
+    finally { setActionBusy(""); }
+  }
+
   const progress = Math.max(0, Math.min(100, Math.round(Number(scanState.progressPercent) || 0)));
   const statusLabel = scanState.isReading
     ? scanState.phase === "publishing" ? "Processing" : "Reading"
@@ -552,7 +600,7 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online }) {
               </>
             ) : null}
             <button type="button" disabled={!backendAvailable || !dataServerId || loading} onClick={submitSearch}>Search</button>
-            {tab === "city" ? <button type="button" disabled>Export Excel</button> : null}
+            {tab === "city" ? <button type="button" disabled={!backendAvailable || !dataServerId || scanState.isReading || actionBusy === "export"} onClick={exportCities}>{actionBusy === "export" ? "Exporting…" : "Export Excel"}</button> : null}
             <span className="map-result-count">{total.toLocaleString()} items</span>
           </div>
         ) : (
@@ -563,7 +611,7 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online }) {
       {queryError ? <div className="map-scan-error" role="alert">{queryError}</div> : null}
       {tab !== "scheduledPlunder" ? (
         <>
-          <MapTable kind={tab} rows={rows} loading={loading} sorts={activeSorts} onSort={changeSort} />
+          <MapTable kind={tab} rows={rows} loading={loading} sorts={activeSorts} onSort={changeSort} onCoordinateJump={coordinateJump} onPlayerMark={togglePlayerMark} actionBusy={Boolean(actionBusy)} actionDisabled={!online || scanState.isReading} />
           <Pagination page={page} total={total} onPage={setPage} />
         </>
       ) : (

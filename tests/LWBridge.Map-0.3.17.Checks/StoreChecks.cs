@@ -59,7 +59,7 @@ internal static class StoreChecks
             "restart reconciliation must terminalize every orphaned running row");
         MapScanRun reconciled = store.ReadScanRun(interrupted.Id)!;
         TestAssert.True(reconciled.Status == "failed" && reconciled.Error == "map scan interrupted by application restart",
-            "restart reconciliation must retain the recovered interruption reason");
+            "restart reconciliation must retain the configured interruption reason");
         TestAssert.Equal(0, store.Search(new MapQuery("city", 11)).Total,
             "restart reconciliation must not publish stale staging rows");
         TestAssert.Throws<BridgeCommandException>(() => store.CompleteScan(interrupted.Id, 1513), "INVALID_SCAN");

@@ -314,6 +314,7 @@ export function App() {
             bridgeMode={backendBridge.mode}
             backendAvailable={backendBridge.available}
             online={online}
+            currentServerId={currentServerId}
           />
         </section>
       </div>

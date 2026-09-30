@@ -74,6 +74,12 @@ if (args.Contains("--live-server-jump-proof", StringComparer.OrdinalIgnoreCase))
     return 0;
 }
 
+if (args.Contains("--live-map-categories-v22", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.LiveMapCategoriesV22Proof.RunAsync();
+    return 0;
+}
+
 if (args.Contains("--live-auto-native-failure-continuation", StringComparer.OrdinalIgnoreCase))
 {
     await LWBridge.Desktop.Checks.LiveAutoNativeFailureContinuationProof.RunAsync();
