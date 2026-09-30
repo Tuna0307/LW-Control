@@ -204,7 +204,10 @@ function Pagination({ page, total, onPage }) {
 
 export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online }) {
   const [scanTab, setScanTab] = useState("manual");
-  const [speed, setSpeed] = useState("normal");
+  const [speed, setSpeed] = useState(() => {
+    const saved = window.localStorage.getItem("lwbridge.mapScanMode");
+    return saved === "normal" || saved === "fast" ? saved : "normal";
+  });
   const [selectedTypes, setSelectedTypes] = useState(() => [...MAP_KIND_KEYS]);
   const [scanState, setScanState] = useState(() => ({ ...DEFAULT_SCAN_STATE }));
   const [counts, setCounts] = useState(() => ({ ...EMPTY_COUNTS }));
@@ -234,6 +237,10 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online }) {
 
   const dataServerId = browseServerId || scanState.serverId;
   const activeSorts = sortsByKind[tab] || [{ sortBy: "updatedAt", sortOrder: "desc" }];
+
+  useEffect(() => {
+    window.localStorage.setItem("lwbridge.mapScanMode", speed);
+  }, [speed]);
 
   const loadOptions = useCallback(async (serverId) => {
     if (!backendAvailable || !serverId) return;

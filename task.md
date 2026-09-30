@@ -78,8 +78,8 @@ accepted. The active work item is the Map-only `LWB317-RE-MAP-001` Goal in
 that Goal is closed. `LWB317-LIVE-MAP-V22-RESOURCE-COMPLETENESS-001` established
 the corrected observable Resource path as `LIVE_PROVEN` /
 `CURRENT_PATH_COMPLETE`, while complete game-universe/original-private-traversal
-coverage remains `UNKNOWN`. `LWB317-MAP-UI-PRODUCTIONIZE-001` is now awaiting
-project-lead review: `src/LWBridge.UI-0.3.17` is the canonical production
+coverage remains `UNKNOWN`. `LWB317-MAP-UI-PRODUCTIONIZE-001` was project-lead
+accepted at `086757e36562b76d7e45b857a282c51267e16171`: `src/LWBridge.UI-0.3.17` is the canonical production
 frontend and a zero-argument normal Desktop launch uses its verified packaged
 `ProductionUi` assets through the existing native bridge. The preserved
 `src/LWBridge.Desktop/WebUi` is an explicit recovery/reference path, not the

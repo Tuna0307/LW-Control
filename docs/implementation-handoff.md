@@ -125,7 +125,8 @@ rows, proved page-2 pagination and Resource-name filtering, cleared the backend
 and rendered zero rows/count, and retained the same healthy Map session/server
 with the UI back at `Connected`.
 
-`LWB317-MAP-UI-PRODUCTIONIZE-001` is now `AWAITING_REVIEW`; see
+`LWB317-MAP-UI-PRODUCTIONIZE-001` was project-lead `ACCEPTED` at
+`086757e36562b76d7e45b857a282c51267e16171`; see
 `docs/reviews/2026-10-01-LWB317-MAP-UI-PRODUCTIONIZE-001.md` and
 `evidence/lwbridge-0.3.17/map/LWB317-MAP-UI-PRODUCTIONIZE-001/`.
 `src/LWBridge.UI-0.3.17` is now the canonical frontend. Desktop Release builds

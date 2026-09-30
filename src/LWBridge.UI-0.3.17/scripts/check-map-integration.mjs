@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import fs from "node:fs";
 import { createBackendBridge } from "../src/backendBridge.js";
 import {
   MAP_COMMANDS,
@@ -22,6 +23,16 @@ assert.deepEqual(
   ["city", "resource", "monster", "truck", "railway", "dispatch", "ghost", "treasure"],
   "scan type mapping must remain the recovered eight-kind contract",
 );
+
+const mapPageSource = fs.readFileSync(new URL("../src/MapDataPage.jsx", import.meta.url), "utf8");
+assert.match(mapPageSource, /localStorage\.getItem\("lwbridge\.mapScanMode"\)/,
+  "canonical Map UI must restore the exact recovered persisted Manual scan-mode key");
+assert.match(mapPageSource, /localStorage\.setItem\("lwbridge\.mapScanMode", speed\)/,
+  "canonical Map UI must persist Manual scan mode with the exact recovered key");
+for (const unsupportedKey of ["selectedTypes", "browseServer", "resultTab", "scanTab"]) {
+  assert.doesNotMatch(mapPageSource, new RegExp(`localStorage\\.(?:getItem|setItem)\\([^\\n]*${unsupportedKey}`),
+    `canonical Map UI must not invent recovered persistence for ${unsupportedKey}`);
+}
 assert.deepEqual(
   MAP_SCAN_TYPES.map(({ label }) => label),
   ["Player City", "Resource Point", "Monster", "Truck", "Train", "Secret Task", "Ghost Ops", "Treasure"],
