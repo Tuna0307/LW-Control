@@ -1846,6 +1846,88 @@ internal static class CurrentClientMapBlockSourceChecks
             "world-state protocol must preserve observed context and normalize original server arrays");
     }
 
+    internal static async Task ConcurrentWorldStateRequestsAreSerialized()
+    {
+        string overviewRoot = @"C:\overview-serialized";
+        string resultPath = Path.Combine(overviewRoot, "world-state-result.json");
+        var files = new Dictionary<string, byte[]>(StringComparer.OrdinalIgnoreCase);
+        var firstDelay = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        IReadOnlyDictionary<string, string>? firstFields = null;
+        int writes = 0;
+
+        string Result(IReadOnlyDictionary<string, string> fields) => JsonSerializer.Serialize(new
+        {
+            schemaVersion = 1,
+            bridgeVersion = "lwbridge-overview-bridge-1",
+            profileId = fields["profileId"],
+            sessionId = fields["sessionId"],
+            challenge = fields["challenge"],
+            gamePid = int.Parse(fields["gamePid"]),
+            requestId = fields["requestId"],
+            state = "proven",
+            error = (string?)null,
+            isInWorld = true,
+            serverId = 2212,
+            homeServerId = 2212,
+            seasonServerIds = Array.Empty<int>(),
+            truckMatchServerIds = Array.Empty<int>(),
+            worldId = 0,
+            tileWidth = 1000,
+            tileHeight = 1000,
+            tileX = 560,
+            tileY = 468,
+        }, JsonOptions.Default);
+
+        var hooks = new CurrentClientMapBlockSourceHooks
+        {
+            ReadAllBytes = path => files.TryGetValue(path, out byte[]? bytes)
+                ? bytes
+                : throw new FileNotFoundException("test protocol file unavailable", path),
+            WriteTextAtomic = (path, text) =>
+            {
+                Check(path.EndsWith("world-state.txt", StringComparison.OrdinalIgnoreCase),
+                    "serialized status test received an unexpected protocol write");
+                int ordinal = Interlocked.Increment(ref writes);
+                IReadOnlyDictionary<string, string> fields = ParseKv(text);
+                if (ordinal == 1)
+                {
+                    firstFields = fields;
+                }
+                else
+                {
+                    files[resultPath] = Encoding.UTF8.GetBytes(Result(fields));
+                }
+            },
+            DelayAsync = (_, cancellationToken) =>
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                return firstDelay.Task;
+            },
+            UtcNow = () => Now,
+        };
+        var source = new CurrentClientMapBlockSource(
+            () => Session,
+            overviewRoot,
+            @"C:\probe-serialized",
+            hooks,
+            matchesOwnedSession: session => session == Session);
+
+        Task<CurrentClientMapStatusContext> first = source.GetMapStatusContextAsync(CancellationToken.None);
+        Check(writes == 1 && firstFields is not null && !first.IsCompleted,
+            "first world-state request did not enter the controlled poll delay");
+        Task<CurrentClientMapStatusContext> second = source.GetMapStatusContextAsync(CancellationToken.None);
+        Check(writes == 1 && !second.IsCompleted,
+            "concurrent world-state requests must not enter the single-slot protocol simultaneously");
+
+        IReadOnlyDictionary<string, string> capturedFirst = firstFields
+            ?? throw new InvalidOperationException("first world-state fields were not captured");
+        files[resultPath] = Encoding.UTF8.GetBytes(Result(capturedFirst));
+        firstDelay.TrySetResult();
+        CurrentClientMapStatusContext[] results = await Task.WhenAll(first, second);
+        Check(writes == 2 && results.All(context => context.ServerId == 2212),
+            "serialized world-state requests must both complete against their own correlated result");
+    }
+
     private static async Task TransientReadyLossKeepsOwnedSessionIdentity()
     {
         int readyReads = 0;

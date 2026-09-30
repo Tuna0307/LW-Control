@@ -17,47 +17,57 @@ internal sealed record CurrentClientMapStatusContext(
 
 internal sealed partial class CurrentClientMapBlockSource
 {
+    private readonly SemaphoreSlim worldStateGate = new(1, 1);
+
     internal async Task<CurrentClientMapStatusContext> GetMapStatusContextAsync(
         CancellationToken cancellationToken)
     {
-        OverviewMapScanSession session = RequireReadySession();
-        if (waitForHealthySession is { } waitForHealthy)
+        await worldStateGate.WaitAsync(cancellationToken).ConfigureAwait(false);
+        try
         {
-            await waitForHealthy(session, cancellationToken).ConfigureAwait(false);
-            RequireSameSession(session);
-        }
-
-        string requestId = "state" + Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture);
-        string requestPath = Path.Combine(overviewRuntimeRoot, "world-state.txt");
-        string resultPath = Path.Combine(overviewRuntimeRoot, "world-state-result.json");
-        string command = string.Join('\n', new[]
-        {
-            "schema=1",
-            $"bridgeVersion={OverviewBridgeVersion}",
-            $"profileId={session.ProfileId}",
-            $"sessionId={session.SessionId}",
-            $"challenge={session.Challenge}",
-            $"gamePid={session.GamePid.ToString(CultureInfo.InvariantCulture)}",
-            $"requestId={requestId}",
-            string.Empty,
-        });
-        await WriteCommandAsync(requestPath, command, cancellationToken).ConfigureAwait(false);
-
-        DateTimeOffset deadline = Now() + TimeSpan.FromSeconds(5);
-        while (Now() < deadline)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            RequireSameSession(session);
-            JsonElement? root = TryReadJson(resultPath);
-            if (root is not null && MatchesString(root.Value, "requestId", requestId))
+            OverviewMapScanSession session = RequireReadySession();
+            if (waitForHealthySession is { } waitForHealthy)
             {
-                CurrentClientMapStatusContext result = ValidateStatusContext(root.Value, session);
+                await waitForHealthy(session, cancellationToken).ConfigureAwait(false);
                 RequireSameSession(session);
-                return result;
             }
-            await DelayAsync(PollDelay, cancellationToken).ConfigureAwait(false);
+
+            string requestId = "state" + Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture);
+            string requestPath = Path.Combine(overviewRuntimeRoot, "world-state.txt");
+            string resultPath = Path.Combine(overviewRuntimeRoot, "world-state-result.json");
+            string command = string.Join('\n', new[]
+            {
+                "schema=1",
+                $"bridgeVersion={OverviewBridgeVersion}",
+                $"profileId={session.ProfileId}",
+                $"sessionId={session.SessionId}",
+                $"challenge={session.Challenge}",
+                $"gamePid={session.GamePid.ToString(CultureInfo.InvariantCulture)}",
+                $"requestId={requestId}",
+                string.Empty,
+            });
+            await WriteCommandAsync(requestPath, command, cancellationToken).ConfigureAwait(false);
+
+            DateTimeOffset deadline = Now() + TimeSpan.FromSeconds(5);
+            while (Now() < deadline)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                RequireSameSession(session);
+                JsonElement? root = TryReadJson(resultPath);
+                if (root is not null && MatchesString(root.Value, "requestId", requestId))
+                {
+                    CurrentClientMapStatusContext result = ValidateStatusContext(root.Value, session);
+                    RequireSameSession(session);
+                    return result;
+                }
+                await DelayAsync(PollDelay, cancellationToken).ConfigureAwait(false);
+            }
+            throw new TimeoutException("The current-client world-state probe did not return a correlated result.");
         }
-        throw new TimeoutException("The current-client world-state probe did not return a correlated result.");
+        finally
+        {
+            worldStateGate.Release();
+        }
     }
 
     private static CurrentClientMapStatusContext ValidateStatusContext(

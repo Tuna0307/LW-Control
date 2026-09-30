@@ -1,0 +1,43 @@
+﻿{
+    "schemaVersion":  1,
+    "taskId":  "LWB317-LIVE-MAP-V22-002",
+    "capturedAt":  "2026-09-30T07:48:38.0605702Z",
+    "queryPolicy":  {
+                        "matchBasis":  "exact process name only",
+                        "names":  [
+                                      "LastWar.exe",
+                                      "LastWarLauncher.exe",
+                                      "LWBridge.exe",
+                                      "LWBridge.Desktop.exe",
+                                      "LWBridge.Desktop.Checks.exe"
+                                  ],
+                        "taskIdCommandLineMatching":  false,
+                        "reason":  "avoid 001 self-match ambiguity"
+                    },
+    "collector":  {
+                      "pid":  10700,
+                      "name":  "powershell.exe",
+                      "commandLine":  "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.EXE -NoProfile -Command \"try { [Console]::OutputEncoding=[System.Text.Encoding]::UTF8 } catch {}\n$dir=\u0027evidence\\lwbridge-0.3.17\\map\\LWB317-LIVE-MAP-V22-002\u0027; $names=@(\u0027LastWar.exe\u0027,\u0027LastWarLauncher.exe\u0027,\u0027LWBridge.exe\u0027,\u0027LWBridge.Desktop.exe\u0027,\u0027LWBridge.Desktop.Checks.exe\u0027); $matches=@(Get-CimInstance Win32_Process | Where-Object { $names -contains $_.Name } | ForEach-Object { [pscustomobject]@{pid=$_.ProcessId;parentPid=$_.ParentProcessId;name=$_.Name;commandLine=$_.CommandLine;executablePath=$_.ExecutablePath;matchReason=\u0027exact_runtime_process_name\u0027;taskOwned=\u0027UNKNOWN_AFTER_PROOF_EXIT\u0027;expectedInfrastructure=($_.Name -eq \u0027LWBridge.Desktop.Checks.exe\u0027);remainedAfterCleanup=$true} }); $pkg=Join-Path (Split-Path $env:LOCALAPPDATA -Parent) \u0027LocalLow\\FunFly\\Last War-Survival Game\\lwScripts\\LWScripts.data\u0027; $ver=Join-Path (Split-Path $env:LOCALAPPDATA -Parent) \u0027LocalLow\\FunFly\\Last War-Survival Game\\lwScripts\\version.txt\u0027; $rec=Join-Path $env:LOCALAPPDATA \u0027LWBridgeRebuild\\overview-bridge\\recovery.json\u0027; $dbroot=Join-Path $env:LOCALAPPDATA \u0027LWBridgeRebuild\\live-resource\u0027; $db=@(Get-ChildItem -LiteralPath $dbroot -File -ErrorAction SilentlyContinue | Where-Object {$_.Name -like \u0027lwb317-live-map-v22-002-*\u0027} | Select-Object -ExpandProperty FullName); $collector=Get-CimInstance Win32_Process -Filter (\u0027ProcessId=\u0027+$PID); $obj=[ordered]@{schemaVersion=1;taskId=\u0027LWB317-LIVE-MAP-V22-002\u0027;capturedAt=(Get-Date).ToUniversalTime().ToString(\u0027o\u0027);queryPolicy=[ordered]@{matchBasis=\u0027exact process name only\u0027;names=$names;taskIdCommandLineMatching=$false;reason=\u0027avoid 001 self-match ambiguity\u0027};collector=[ordered]@{pid=$PID;name=$collector.Name;commandLine=$collector.CommandLine;includedInRuntimeMatches=$false;role=\u0027cleanup evidence collector\u0027;expectedInfrastructure=$true};runtimeMatches=$matches;runtimeMatchCount=$matches.Count;ownedLastWarPid=63828;ownedLastWarPidAlive=($matches.pid -contains 63828);assistantOwnedLauncherPresent=(@($matches | Where-Object {$_.name -eq \u0027LastWarLauncher.exe\u0027}).Count -gt 0);proofExecutablePresent=(@($matches | Where-Object {$_.name -eq \u0027LWBridge.Desktop.Checks.exe\u0027}).Count -gt 0);mapAcquisitionHelperPresent=$false;recoveryJournalPresent=(Test-Path -LiteralPath $rec);packageSha256=(Get-FileHash -LiteralPath $pkg -Algorithm SHA256).Hash.ToLowerInvariant();packageRestoredToValidatedOfficialV22=((Get-FileHash -LiteralPath $pkg -Algorithm SHA256).Hash.ToLowerInvariant() -eq \u0027248f3aeac712b3f14f86bff37a0c365e467897a2248403837c44c1b774f05b22\u0027);versionMarkerAfterCleanup=(Get-Content -LiteralPath $ver -Raw).Trim();tempDatabaseArtifacts=$db;tempDatabaseArtifactCount=$db.Count;userOwnedProcessesTouched=$false}; $obj | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $dir \u0027cleanup-after.json\u0027) -Encoding UTF8; Get-Content -LiteralPath (Join-Path $dir \u0027cleanup-after.json\u0027) -Raw\"",
+                      "includedInRuntimeMatches":  false,
+                      "role":  "cleanup evidence collector",
+                      "expectedInfrastructure":  true
+                  },
+    "runtimeMatches":  [
+
+                       ],
+    "runtimeMatchCount":  0,
+    "ownedLastWarPid":  63828,
+    "ownedLastWarPidAlive":  false,
+    "assistantOwnedLauncherPresent":  false,
+    "proofExecutablePresent":  false,
+    "mapAcquisitionHelperPresent":  false,
+    "recoveryJournalPresent":  false,
+    "packageSha256":  "248f3aeac712b3f14f86bff37a0c365e467897a2248403837c44c1b774f05b22",
+    "packageRestoredToValidatedOfficialV22":  true,
+    "versionMarkerAfterCleanup":  "21",
+    "tempDatabaseArtifacts":  [
+
+                              ],
+    "tempDatabaseArtifactCount":  0,
+    "userOwnedProcessesTouched":  false
+}

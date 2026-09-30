@@ -1,0 +1,274 @@
+{
+  "schemaVersion": 1,
+  "taskId": "LWB317-LIVE-MAP-V22-002",
+  "startingHead": "7ffe6483e897ec4cfbccfc062d53adb760924192",
+  "taskResult": "LIVE_PROVEN",
+  "classification": {
+    "activeScanStopCancel": "LIVE_PROVEN",
+    "connectionAfterStop": "LIVE_PROVEN",
+    "clearResetAfterStoppedScan": "LIVE_PROVEN",
+    "connectionAfterClear": "LIVE_PROVEN",
+    "secondScanStartSameSession": "LIVE_PROVEN",
+    "secondControlledStop": "LIVE_PROVEN",
+    "finalSameSessionReadiness": "LIVE_PROVEN",
+    "cleanupNoTaskOwnedOrphan": "LIVE_PROVEN",
+    "attempt1FalseConnectionFailureDiagnosis": "LIVE_PROVEN",
+    "historical001ExactConnectionLossCause": "UNKNOWN",
+    "serverJump": "IMPLEMENTED_NOT_VALIDATED",
+    "restartResume": "IMPLEMENTED_NOT_VALIDATED",
+    "treasureClaimStatus": "BLOCKED",
+    "ghostPreparation": "BLOCKED"
+  },
+  "evidence": {
+    "successfulRawProof": {
+      "path": "evidence/lwbridge-0.3.17/map/LWB317-LIVE-MAP-V22-002/live-proof.json",
+      "sha256": "465360A57C766E9D5A9196A9769CA7C2C1C521206F48669CAE872653CD8A682E",
+      "state": "proven"
+    },
+    "failedAttempt1": {
+      "path": "evidence/lwbridge-0.3.17/map/LWB317-LIVE-MAP-V22-002/live-proof-attempt1.json",
+      "sha256": "27446531361A2BFA759E882D499F3E5900762893E5B11519566FC252AFBFA790",
+      "state": "failed"
+    },
+    "historical001CleanupDiagnosis": {
+      "path": "evidence/lwbridge-0.3.17/map/LWB317-LIVE-MAP-V22-002/historical-001-cleanup-diagnosis.json",
+      "sha256": "5CEA2254D658AF3D0ED303FCBDEAEEEC8A76E8DAFBE165E78EE36DA0BF86D3A5"
+    },
+    "externalCleanup": {
+      "path": "evidence/lwbridge-0.3.17/map/LWB317-LIVE-MAP-V22-002/cleanup-after.json",
+      "sha256": "C78513F1D3E410EFD3D38AD10B30547BF33D217FE8910CBF1C90A61963B4EF6E"
+    }
+  },
+  "session": {
+    "profileId": "lwb317-live-map-v22-002-fa604790180e",
+    "instanceId": "95d0eded298341ce93cc26f25aa628b0",
+    "gamePid": 63828,
+    "gamePath": "C:\\Users\\chimw\\AppData\\Local\\FunFly\\Last War-Survival Game\\Game\\LastWar.exe",
+    "gameStartedAtUtc": "2026-09-30T07:46:39.3577142Z",
+    "gameSha256": "905c98c1f89841f90b492556192ba0642f3d209a873cb8c1f7b3c340aca0733d",
+    "validatedContentVersion": 22,
+    "liveServerId": 2212,
+    "worldId": 0,
+    "tileWidth": 1000,
+    "tileHeight": 1000,
+    "playerTileX": 560,
+    "playerTileY": 468,
+    "runtimePackageSha256": "a705d2d64a44081012c4c7e30bda613636960c98e40fa7a367a60577ce3a7d72",
+    "officialPackageSha256": "248f3aeac712b3f14f86bff37a0c365e467897a2248403837c44c1b774f05b22",
+    "runtimeVersionMarker": "22"
+  },
+  "scan1": {
+    "request": {
+      "selectedTypes": ["resource"],
+      "scanMode": "normal",
+      "resume": false,
+      "concurrency": 8
+    },
+    "runId": "c1ad0f6225674d65bcff23b474d32646",
+    "activeCapturedAt": "2026-09-30T07:47:01.9344079Z",
+    "activeProof": {
+      "isReading": true,
+      "phase": "scanning",
+      "totalBlocks": 2500,
+      "readBlocks": 0,
+      "failedBlocks": 0,
+      "unreadBlocks": 2499,
+      "inflightBlocks": 1,
+      "providerTaskPresent": true,
+      "providerTaskCompleted": false,
+      "providerCancellationPresent": true,
+      "providerCancellationRequested": false,
+      "correlatedLiveProbe": true,
+      "liveProbeRequestId": "fastcity07e77456cedc4fe988675f25873575b9",
+      "partialReadBlocksObserved": false,
+      "partialReadBlocksNote": "The current 1000x1000 Resource provider publishes block checkpoints after its full-world batch returns; a correlated live AOI command, inflightBlocks=1, and a non-completed provider task prove active acquisition."
+    }
+  },
+  "stop1": {
+    "requestedAt": "2026-09-30T07:47:01.9379764Z",
+    "completedAt": "2026-09-30T07:47:01.947764Z",
+    "runId": "c1ad0f6225674d65bcff23b474d32646",
+    "isReading": false,
+    "phase": "idle",
+    "totalBlocks": 2500,
+    "readBlocks": 0,
+    "failedBlocks": 0,
+    "unreadBlocks": 2499,
+    "inflightBlocks": 0,
+    "nativePendingRecords": 0,
+    "nativeDroppedRecords": 0,
+    "lastError": null,
+    "providerActiveTaskPresent": false,
+    "providerActiveCancellationPresent": false,
+    "durableRunStatus": "cancelled",
+    "resourceRowsAfterStop": 0
+  },
+  "continuityAfterStop1": {
+    "capturedAt": "2026-09-30T07:47:01.9649709Z",
+    "sameProfile": true,
+    "sameInstance": true,
+    "sameGamePid": true,
+    "gamePidAlive": true,
+    "healthyMapHeartbeat": true,
+    "liveServerId": 2212,
+    "worldContextReadable": true
+  },
+  "clear1": {
+    "requestedAt": "2026-09-30T07:47:03.2542446Z",
+    "completedAt": "2026-09-30T07:47:03.2636692Z",
+    "state": "idle",
+    "serverId": 0,
+    "serverIdSource": "none",
+    "scanRunId": "",
+    "isReading": false,
+    "totalBlocks": 0,
+    "completedBlocks": 0,
+    "readBlocks": 0,
+    "failedBlocks": 0,
+    "unreadBlocks": 0,
+    "inflightBlocks": 0,
+    "resourceSearchTotal": 0,
+    "summaryAllMapCountsZero": true,
+    "priorRunStillPresent": false
+  },
+  "continuityAfterClear1": {
+    "capturedAt": "2026-09-30T07:47:03.263803Z",
+    "sameProfile": true,
+    "sameInstance": true,
+    "sameGamePid": true,
+    "gamePidAlive": true,
+    "healthyMapHeartbeat": true,
+    "liveServerId": 2212,
+    "worldContextReadable": true
+  },
+  "scan2": {
+    "request": {
+      "selectedTypes": ["resource"],
+      "scanMode": "normal",
+      "resume": false,
+      "concurrency": 8
+    },
+    "runId": "eb268fc44ec54202af923972b9a14921",
+    "newRunId": true,
+    "sameProfileId": true,
+    "sameInstanceId": true,
+    "sameGamePid": true,
+    "sameLiveServer": true,
+    "genuinelyActive": true,
+    "correlatedLiveProbe": true,
+    "liveProbeRequestId": "fastcitye871674118534499bf2470394759cae0"
+  },
+  "stop2": {
+    "requestedAt": "2026-09-30T07:47:06.3873151Z",
+    "completedAt": "2026-09-30T07:47:06.3883993Z",
+    "runId": "eb268fc44ec54202af923972b9a14921",
+    "isReading": false,
+    "phase": "idle",
+    "totalBlocks": 2500,
+    "readBlocks": 0,
+    "failedBlocks": 0,
+    "unreadBlocks": 2499,
+    "inflightBlocks": 0,
+    "nativePendingRecords": 0,
+    "nativeDroppedRecords": 0,
+    "lastError": null,
+    "providerActiveTaskPresent": false,
+    "providerActiveCancellationPresent": false,
+    "durableRunStatus": "cancelled"
+  },
+  "clear2AndFinalReadiness": {
+    "clearRequestedAt": "2026-09-30T07:47:07.7611992Z",
+    "clearCompletedAt": "2026-09-30T07:47:07.7621507Z",
+    "finalReadinessCapturedAt": "2026-09-30T07:47:07.7621535Z",
+    "clearReturnedDefaultIdle": true,
+    "resourceSearchTotal": 0,
+    "priorRunStillPresent": false,
+    "sameProfile": true,
+    "sameInstance": true,
+    "sameGamePid": true,
+    "gamePidAlive": true,
+    "healthyMapHeartbeat": true,
+    "liveServerId": 2212,
+    "worldContextReadable": true
+  },
+  "connectionLoss": {
+    "attempt1": {
+      "profileId": "lwb317-live-map-v22-002-ded6749178bd",
+      "instanceId": "0d0eaac22bb442b1a0d8facfbc846805",
+      "gamePid": 62756,
+      "failedOperation": "map_scan_start_1",
+      "exceptionType": "LWBridge.Desktop.BridgeCommandException",
+      "code": "GAME_CONNECTION_UNAVAILABLE",
+      "message": "game connection unavailable",
+      "failureAt": "2026-09-30T07:30:55.2107367Z",
+      "gamePidAlive": true,
+      "readySessionStillMatched": true,
+      "lifecyclePhase": "running",
+      "heartbeatConnected": true,
+      "heartbeatGameReady": true,
+      "heartbeatLoggedIn": true,
+      "heartbeatReady": true,
+      "liveServerId": 2212,
+      "worldContextReadable": true,
+      "worldId": 0,
+      "packageState": "validated_overview_wrapped_v22",
+      "recoveryJournalStage": "active_ready_deferred_restore",
+      "classification": "LIVE_PROVEN",
+      "diagnosis": "The public connection-unavailable result was false with respect to the owned game session. Concurrent scheduler and scan callers shared the single-slot world-state.txt/world-state-result.json protocol without serialization, allowing request/result correlation loss and a five-second timeout to be translated to GAME_CONNECTION_UNAVAILABLE."
+    },
+    "productionFix": {
+      "file": "src/LWBridge.Desktop/CurrentClientMapBlockSource.StatusState.cs",
+      "change": "Serialize the complete current-client world-state request/result transaction with a per-source SemaphoreSlim worldStateGate.",
+      "contractImpact": "No Map scan state-machine semantics, wrapper Lua, server-jump, restart/resume, or other gameplay behavior changed."
+    },
+    "successfulFixedRunReproduced": false,
+    "historical001ExactConnectionLossCause": "UNKNOWN"
+  },
+  "historical001CleanupDiscrepancy": {
+    "rawMatchingProcessCount": 2,
+    "matches": [
+      {
+        "pid": 54848,
+        "identity": "Windows PowerShell outer evidence-summary host",
+        "whyMatched": "Its command line embedded LWB317-LIVE-MAP-V22-001 while constructing evidence.",
+        "taskOwnedRuntime": false,
+        "expectedInfrastructure": true
+      },
+      {
+        "pid": 33412,
+        "identity": "Windows PowerShell cleanup process-query child",
+        "whyMatched": "The broad query command line contained the same task-id/proof text and self-matched.",
+        "taskOwnedRuntime": false,
+        "expectedInfrastructure": true
+      }
+    ],
+    "conclusion": "The historical numeric count was real, but both matches were evidence-collection PowerShell infrastructure rather than Last War, launcher, LWBridge, or proof-runtime orphans. The 001 raw evidence was not modified."
+  },
+  "cleanup": {
+    "runtimeMatchBasis": "exact process name only",
+    "runtimeMatchCount": 0,
+    "ownedLastWarPidAlive": false,
+    "assistantOwnedLauncherPresent": false,
+    "proofExecutablePresent": false,
+    "mapAcquisitionHelperPresent": false,
+    "recoveryJournalPresent": false,
+    "packageSha256": "248f3aeac712b3f14f86bff37a0c365e467897a2248403837c44c1b774f05b22",
+    "packageRestoredToValidatedOfficialV22": true,
+    "versionMarkerAfterCleanup": "21",
+    "tempDatabaseArtifactCount": 0,
+    "collectorRecordedSeparately": true,
+    "userOwnedProcessesTouched": false
+  },
+  "exclusions": [
+    "server jump",
+    "restart/resume",
+    "Treasure claim/status",
+    "Ghost preparation",
+    "another Map action family",
+    "Automation",
+    "another subsystem",
+    "UI redesign",
+    "login/auth/licensing",
+    "legacy Desktop architecture migration"
+  ]
+}

@@ -241,6 +241,25 @@ scan/query/clear proof. Stop/cancel therefore remains
 bounded task. The Goal remains `IN_PROGRESS` pending project-lead review and any
 separately authorized remaining Map live work.
 
+`LWB317-LIVE-MAP-V22-002` then performed the bounded stop/clear continuity
+follow-up in a fresh assistant-owned v22 session. It live-proved a genuinely
+active normal Resource run before `map_scan_stop`, preserved the same
+profile/instance/PID/server and healthy Map readiness after stop, cleared to the
+default zero/idle state without losing readiness, started a second Resource run
+in that exact same owned session, stopped and cleared it, and remained Map-ready
+through the final checkpoint. See
+`docs/reviews/2026-09-30-LWB317-LIVE-MAP-V22-002.md` and
+`evidence/lwbridge-0.3.17/map/LWB317-LIVE-MAP-V22-002/`.
+
+The first 002 attempt also proved that a concurrent single-slot current-client
+`world-state` status probe could time out and be surfaced as
+`GAME_CONNECTION_UNAVAILABLE` while the owned game/session heartbeat and world
+context were still healthy. The minimal per-source serialization fix is covered
+deterministically and the fresh post-fix live run did not reproduce the false
+connection loss. This does not retroactively prove the exact historical 001
+connection-loss cause, which remains `UNKNOWN`. Server jump and restart/resume
+remain explicitly outside this checkpoint.
+
 ## Live proof requirements
 
 Where the current game/server state permits it, the Goal should not stop at

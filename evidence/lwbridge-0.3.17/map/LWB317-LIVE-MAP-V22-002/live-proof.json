@@ -1,0 +1,1180 @@
+{
+  "schemaVersion": 1,
+  "taskId": "LWB317-LIVE-MAP-V22-002",
+  "proofStartedAt": "2026-09-30T07:46:13.8746006+00:00",
+  "safety": {
+    "assistantOwnedSessionRequired": true,
+    "unrelatedGameplay": false,
+    "serverJump": false,
+    "restartResume": false,
+    "treasureClaim": false,
+    "ghostPreparation": false
+  },
+  "preflight": {
+    "capturedAt": "2026-09-30T07:46:15.0145374+00:00",
+    "processes": [
+      {
+        "pid": 56256,
+        "parentPid": 45832,
+        "name": "LWBridge.Desktop.Checks.exe",
+        "creationDate": "/Date(1790754357327)/",
+        "executablePath": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\tests\\LWBridge.Desktop.Checks\\bin\\Release\\net10.0-windows10.0.17763.0\\LWBridge.Desktop.Checks.exe",
+        "commandLine": "\u0022C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\tests\\LWBridge.Desktop.Checks\\bin\\Release\\net10.0-windows10.0.17763.0\\LWBridge.Desktop.Checks.exe\u0022 --live-map-v22-stop-continuity-proof evidence\\lwbridge-0.3.17\\map\\LWB317-LIVE-MAP-V22-002\\live-proof.json",
+        "matchReason": "process_name",
+        "role": "proof_self",
+        "taskOwned": true,
+        "expectedInfrastructure": true,
+        "proofStartedAt": "2026-09-30T07:46:13.8746006\u002B00:00"
+      }
+    ],
+    "packageSha256": "248f3aeac712b3f14f86bff37a0c365e467897a2248403837c44c1b774f05b22",
+    "versionMarker": "21",
+    "recoveryJournal": {
+      "path": "C:\\Users\\chimw\\AppData\\Local\\LWBridgeRebuild\\overview-bridge\\recovery.json",
+      "present": false
+    }
+  },
+  "session": {
+    "profileId": "lwb317-live-map-v22-002-fa604790180e",
+    "instanceId": "95d0eded298341ce93cc26f25aa628b0",
+    "gamePid": 63828,
+    "gamePath": "C:\\Users\\chimw\\AppData\\Local\\FunFly\\Last War-Survival Game\\Game\\LastWar.exe",
+    "gameStartedAtUtc": "2026-09-30T07:46:39.3577142Z",
+    "gameSha256": "905c98c1f89841f90b492556192ba0642f3d209a873cb8c1f7b3c340aca0733d",
+    "validatedContentVersion": 22,
+    "officialPackageSha256": "248f3aeac712b3f14f86bff37a0c365e467897a2248403837c44c1b774f05b22",
+    "runtimePackageSha256": "a705d2d64a44081012c4c7e30bda613636960c98e40fa7a367a60577ce3a7d72",
+    "runtimePackageState": "validated_overview_wrapped_v22",
+    "runtimeVersionMarker": "22",
+    "processes": [
+      {
+        "pid": 56256,
+        "parentPid": 45832,
+        "name": "LWBridge.Desktop.Checks.exe",
+        "creationDate": "/Date(1790754357327)/",
+        "executablePath": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\tests\\LWBridge.Desktop.Checks\\bin\\Release\\net10.0-windows10.0.17763.0\\LWBridge.Desktop.Checks.exe",
+        "commandLine": "\u0022C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\tests\\LWBridge.Desktop.Checks\\bin\\Release\\net10.0-windows10.0.17763.0\\LWBridge.Desktop.Checks.exe\u0022 --live-map-v22-stop-continuity-proof evidence\\lwbridge-0.3.17\\map\\LWB317-LIVE-MAP-V22-002\\live-proof.json",
+        "matchReason": "process_name",
+        "role": "proof_self",
+        "taskOwned": true,
+        "expectedInfrastructure": true,
+        "proofStartedAt": "2026-09-30T07:46:13.8746006\u002B00:00"
+      },
+      {
+        "pid": 63828,
+        "parentPid": 40280,
+        "name": "LastWar.exe",
+        "creationDate": "/Date(1790754399357)/",
+        "executablePath": "C:\\Users\\chimw\\AppData\\Local\\FunFly\\Last War-Survival Game\\Game\\LastWar.exe",
+        "commandLine": "\u0022C:\\Users\\chimw\\AppData\\Local\\FunFly\\Last War-Survival Game\\Game\\LastWar.exe\u0022",
+        "matchReason": "process_name",
+        "role": "owned_lastwar",
+        "taskOwned": true,
+        "expectedInfrastructure": false,
+        "proofStartedAt": "2026-09-30T07:46:13.8746006\u002B00:00"
+      }
+    ]
+  },
+  "readinessBeforeScan1": {
+    "label": "ready_before_scan_1",
+    "capturedAt": "2026-09-30T07:46:55.0275138\u002B00:00",
+    "sessionMatchesExpected": true,
+    "readySession": {
+      "profileId": "lwb317-live-map-v22-002-fa604790180e",
+      "instanceId": "95d0eded298341ce93cc26f25aa628b0",
+      "gamePid": 63828,
+      "gamePath": "C:\\Users\\chimw\\AppData\\Local\\FunFly\\Last War-Survival Game\\Game\\LastWar.exe",
+      "gameStartedAtUtc": "2026-09-30T07:46:39.3577142Z"
+    },
+    "profileInstanceStatus": {
+      "profileId": "lwb317-live-map-v22-002-fa604790180e",
+      "instanceId": "95d0eded298341ce93cc26f25aa628b0",
+      "phase": "running",
+      "pid": 63828,
+      "startedAt": 1790754375324,
+      "lastError": null,
+      "identityConfirmed": true,
+      "leaseRequired": false,
+      "connectionState": "reconnecting",
+      "bridgeConnected": false,
+      "lastHeartbeatAt": 1790754414000,
+      "leaseActive": false
+    },
+    "healthyMapHeartbeat": true,
+    "healthError": null,
+    "liveServerId": 2212,
+    "worldContext": {
+      "serverId": 2212,
+      "worldId": 0,
+      "tileWidth": 1000,
+      "tileHeight": 1000,
+      "playerTileX": 560,
+      "playerTileY": 468,
+      "launchSessionId": "95d0eded298341ce93cc26f25aa628b0"
+    },
+    "gameProcess": {
+      "pid": 63828,
+      "alive": true,
+      "processName": "LastWar",
+      "path": "C:\\Users\\chimw\\AppData\\Local\\FunFly\\Last War-Survival Game\\Game\\LastWar.exe",
+      "startTimeUtc": "2026-09-30T07:46:39.3577142Z"
+    },
+    "heartbeat": {
+      "path": "C:\\Users\\chimw\\AppData\\Local\\LWBridgeRebuild\\overview-bridge\\heartbeat.json",
+      "exists": true,
+      "fileLastWriteTimeUtc": "2026-09-30T07:46:54.280207Z",
+      "profileId": "lwb317-live-map-v22-002-fa604790180e",
+      "sessionId": "95d0eded298341ce93cc26f25aa628b0",
+      "gamePid": 63828,
+      "updatedAt": 1790754414,
+      "connected": true,
+      "gameReady": true,
+      "loggedIn": true,
+      "ready": true,
+      "serverId": 2212,
+      "bridgeVersion": "lwbridge-overview-bridge-1"
+    },
+    "packageSha256": "a705d2d64a44081012c4c7e30bda613636960c98e40fa7a367a60577ce3a7d72",
+    "packageState": "validated_overview_wrapped_v22",
+    "versionMarker": "22",
+    "recoveryJournal": {
+      "path": "C:\\Users\\chimw\\AppData\\Local\\LWBridgeRebuild\\overview-bridge\\recovery.json",
+      "present": true,
+      "stage": "active_ready_deferred_restore",
+      "profileId": "lwb317-live-map-v22-002-fa604790180e",
+      "sessionId": "95d0eded298341ce93cc26f25aa628b0",
+      "gamePid": 63828,
+      "updatedAtUtc": "2026-09-30T07:46:49Z"
+    },
+    "processes": [
+      {
+        "pid": 56256,
+        "parentPid": 45832,
+        "name": "LWBridge.Desktop.Checks.exe",
+        "creationDate": "/Date(1790754357327)/",
+        "executablePath": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\tests\\LWBridge.Desktop.Checks\\bin\\Release\\net10.0-windows10.0.17763.0\\LWBridge.Desktop.Checks.exe",
+        "commandLine": "\u0022C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\tests\\LWBridge.Desktop.Checks\\bin\\Release\\net10.0-windows10.0.17763.0\\LWBridge.Desktop.Checks.exe\u0022 --live-map-v22-stop-continuity-proof evidence\\lwbridge-0.3.17\\map\\LWB317-LIVE-MAP-V22-002\\live-proof.json",
+        "matchReason": "process_name",
+        "role": "proof_self",
+        "taskOwned": true,
+        "expectedInfrastructure": true,
+        "proofStartedAt": "2026-09-30T07:46:13.8746006\u002B00:00"
+      },
+      {
+        "pid": 63828,
+        "parentPid": 40280,
+        "name": "LastWar.exe",
+        "creationDate": "/Date(1790754399357)/",
+        "executablePath": "C:\\Users\\chimw\\AppData\\Local\\FunFly\\Last War-Survival Game\\Game\\LastWar.exe",
+        "commandLine": "\u0022C:\\Users\\chimw\\AppData\\Local\\FunFly\\Last War-Survival Game\\Game\\LastWar.exe\u0022",
+        "matchReason": "process_name",
+        "role": "owned_lastwar",
+        "taskOwned": true,
+        "expectedInfrastructure": false,
+        "proofStartedAt": "2026-09-30T07:46:13.8746006\u002B00:00"
+      }
+    ]
+  },
+  "scan1": {
+    "startRequestedAt": "2026-09-30T07:46:56.840294+00:00",
+    "request": {
+      "selectedTypes": [
+        "resource"
+      ],
+      "scanMode": "normal",
+      "resume": false
+    },
+    "start": {
+      "serverId": 2212,
+      "serverIdSource": "live",
+      "scanRunId": "c1ad0f6225674d65bcff23b474d32646",
+      "isReading": true,
+      "phase": "scanning",
+      "selectedTypes": [
+        "resource"
+      ],
+      "totalBlocks": 2500,
+      "completedBlocks": 0,
+      "readBlocks": 0,
+      "failedBlocks": 0,
+      "unreadBlocks": 2500,
+      "inflightBlocks": 0,
+      "scanMode": "normal",
+      "concurrency": 8,
+      "scanRate": 0,
+      "progressPercent": 0,
+      "nativeCaptureReady": true,
+      "nativePendingRecords": 0,
+      "nativeDroppedRecords": 0,
+      "resumeAvailable": false,
+      "lastError": null,
+      "startedAt": 1790754417
+    },
+    "active": {
+      "capturedAt": "2026-09-30T07:47:01.9344079\u002B00:00",
+      "status": {
+        "serverId": 2212,
+        "serverIdSource": "live",
+        "scanRunId": "c1ad0f6225674d65bcff23b474d32646",
+        "isReading": true,
+        "phase": "scanning",
+        "selectedTypes": [
+          "resource"
+        ],
+        "totalBlocks": 2500,
+        "completedBlocks": 0,
+        "readBlocks": 0,
+        "failedBlocks": 0,
+        "unreadBlocks": 2499,
+        "inflightBlocks": 1,
+        "scanMode": "normal",
+        "concurrency": 8,
+        "scanRate": 0,
+        "progressPercent": 0,
+        "nativeCaptureReady": true,
+        "nativePendingRecords": 0,
+        "nativeDroppedRecords": 0,
+        "resumeAvailable": false,
+        "lastError": null,
+        "startedAt": 1790754417
+      },
+      "provider": {
+        "capturedAt": "2026-09-30T07:47:01.9163385\u002B00:00",
+        "activeTaskPresent": true,
+        "activeTaskCompleted": false,
+        "activeTaskStatus": "WaitingForActivation",
+        "activeCancellationPresent": true,
+        "cancellationRequested": false,
+        "pendingAcceptedRunPresent": false
+      },
+      "liveProbeCommand": {
+        "path": "C:\\Users\\chimw\\AppData\\Local\\LWBridgeRebuild\\live-resource\\bulk-aoi-diagnostic.txt",
+        "exists": true,
+        "lastWriteTimeUtc": "1601-01-01T00:00:00Z",
+        "correlated": true,
+        "requestId": "fastcity07e77456cedc4fe988675f25873575b9",
+        "scanRunId": "c1ad0f6225674d65bcff23b474d32646",
+        "serverId": "2212"
+      },
+      "genuinelyActive": true
+    },
+    "partialReadRequirement": {
+      "requestedWherePractical": true,
+      "observed": false,
+      "note": "Current 1000x1000 Resource acquisition uses the full-world batch provider; block checkpoints publish only after the batch returns. Correlated live probe command plus a non-completed provider task proves active acquisition before stop."
+    }
+  },
+  "stop1": {
+    "requestedAt": "2026-09-30T07:47:01.9379764+00:00",
+    "completedAt": "2026-09-30T07:47:01.947764+00:00",
+    "result": {
+      "serverId": 2212,
+      "serverIdSource": "live",
+      "scanRunId": "c1ad0f6225674d65bcff23b474d32646",
+      "isReading": false,
+      "phase": "idle",
+      "selectedTypes": [
+        "resource"
+      ],
+      "totalBlocks": 2500,
+      "completedBlocks": 0,
+      "readBlocks": 0,
+      "failedBlocks": 0,
+      "unreadBlocks": 2499,
+      "inflightBlocks": 0,
+      "scanMode": "normal",
+      "concurrency": 8,
+      "scanRate": 0,
+      "progressPercent": 0,
+      "nativeCaptureReady": true,
+      "nativePendingRecords": 0,
+      "nativeDroppedRecords": 0,
+      "resumeAvailable": false,
+      "lastError": null,
+      "startedAt": 1790754417
+    },
+    "provider": {
+      "capturedAt": "2026-09-30T07:47:01.9454364\u002B00:00",
+      "activeTaskPresent": false,
+      "activeTaskCompleted": false,
+      "activeTaskStatus": null,
+      "activeCancellationPresent": false,
+      "cancellationRequested": false,
+      "pendingAcceptedRunPresent": false
+    },
+    "durableRun": {
+      "id": "c1ad0f6225674d65bcff23b474d32646",
+      "serverId": 2212,
+      "selectedTypes": [
+        "resource"
+      ],
+      "status": "cancelled",
+      "totalBlocks": 2500,
+      "completedBlocks": 0,
+      "failedBlocks": 0,
+      "createdAt": 1790754417190,
+      "updatedAt": 1790754421939,
+      "error": null
+    },
+    "searchAfterStop": {
+      "rows": [],
+      "total": 0
+    }
+  },
+  "readinessAfterStop1": {
+    "label": "readiness_after_stop_1",
+    "capturedAt": "2026-09-30T07:47:01.9649709\u002B00:00",
+    "sessionMatchesExpected": true,
+    "readySession": {
+      "profileId": "lwb317-live-map-v22-002-fa604790180e",
+      "instanceId": "95d0eded298341ce93cc26f25aa628b0",
+      "gamePid": 63828,
+      "gamePath": "C:\\Users\\chimw\\AppData\\Local\\FunFly\\Last War-Survival Game\\Game\\LastWar.exe",
+      "gameStartedAtUtc": "2026-09-30T07:46:39.3577142Z"
+    },
+    "profileInstanceStatus": {
+      "profileId": "lwb317-live-map-v22-002-fa604790180e",
+      "instanceId": "95d0eded298341ce93cc26f25aa628b0",
+      "phase": "running",
+      "pid": 63828,
+      "startedAt": 1790754375324,
+      "lastError": null,
+      "identityConfirmed": true,
+      "leaseRequired": false,
+      "connectionState": "reconnecting",
+      "bridgeConnected": false,
+      "lastHeartbeatAt": 1790754421000,
+      "leaseActive": false
+    },
+    "healthyMapHeartbeat": true,
+    "healthError": null,
+    "liveServerId": 2212,
+    "worldContext": {
+      "serverId": 2212,
+      "worldId": 0,
+      "tileWidth": 1000,
+      "tileHeight": 1000,
+      "playerTileX": 560,
+      "playerTileY": 468,
+      "launchSessionId": "95d0eded298341ce93cc26f25aa628b0"
+    },
+    "gameProcess": {
+      "pid": 63828,
+      "alive": true,
+      "processName": "LastWar",
+      "path": "C:\\Users\\chimw\\AppData\\Local\\FunFly\\Last War-Survival Game\\Game\\LastWar.exe",
+      "startTimeUtc": "2026-09-30T07:46:39.3577142Z"
+    },
+    "heartbeat": {
+      "path": "C:\\Users\\chimw\\AppData\\Local\\LWBridgeRebuild\\overview-bridge\\heartbeat.json",
+      "exists": true,
+      "fileLastWriteTimeUtc": "2026-09-30T07:47:01.6147371Z",
+      "profileId": "lwb317-live-map-v22-002-fa604790180e",
+      "sessionId": "95d0eded298341ce93cc26f25aa628b0",
+      "gamePid": 63828,
+      "updatedAt": 1790754421,
+      "connected": true,
+      "gameReady": true,
+      "loggedIn": true,
+      "ready": true,
+      "serverId": 2212,
+      "bridgeVersion": "lwbridge-overview-bridge-1"
+    },
+    "packageSha256": "a705d2d64a44081012c4c7e30bda613636960c98e40fa7a367a60577ce3a7d72",
+    "packageState": "validated_overview_wrapped_v22",
+    "versionMarker": "22",
+    "recoveryJournal": {
+      "path": "C:\\Users\\chimw\\AppData\\Local\\LWBridgeRebuild\\overview-bridge\\recovery.json",
+      "present": true,
+      "stage": "active_ready_deferred_restore",
+      "profileId": "lwb317-live-map-v22-002-fa604790180e",
+      "sessionId": "95d0eded298341ce93cc26f25aa628b0",
+      "gamePid": 63828,
+      "updatedAtUtc": "2026-09-30T07:46:49Z"
+    },
+    "processes": [
+      {
+        "pid": 56256,
+        "parentPid": 45832,
+        "name": "LWBridge.Desktop.Checks.exe",
+        "creationDate": "/Date(1790754357327)/",
+        "executablePath": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\tests\\LWBridge.Desktop.Checks\\bin\\Release\\net10.0-windows10.0.17763.0\\LWBridge.Desktop.Checks.exe",
+        "commandLine": "\u0022C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\tests\\LWBridge.Desktop.Checks\\bin\\Release\\net10.0-windows10.0.17763.0\\LWBridge.Desktop.Checks.exe\u0022 --live-map-v22-stop-continuity-proof evidence\\lwbridge-0.3.17\\map\\LWB317-LIVE-MAP-V22-002\\live-proof.json",
+        "matchReason": "process_name",
+        "role": "proof_self",
+        "taskOwned": true,
+        "expectedInfrastructure": true,
+        "proofStartedAt": "2026-09-30T07:46:13.8746006\u002B00:00"
+      },
+      {
+        "pid": 63828,
+        "parentPid": 40280,
+        "name": "LastWar.exe",
+        "creationDate": "/Date(1790754399357)/",
+        "executablePath": "C:\\Users\\chimw\\AppData\\Local\\FunFly\\Last War-Survival Game\\Game\\LastWar.exe",
+        "commandLine": "\u0022C:\\Users\\chimw\\AppData\\Local\\FunFly\\Last War-Survival Game\\Game\\LastWar.exe\u0022",
+        "matchReason": "process_name",
+        "role": "owned_lastwar",
+        "taskOwned": true,
+        "expectedInfrastructure": false,
+        "proofStartedAt": "2026-09-30T07:46:13.8746006\u002B00:00"
+      }
+    ]
+  },
+  "clear1": {
+    "requestedAt": "2026-09-30T07:47:03.2542446+00:00",
+    "completedAt": "2026-09-30T07:47:03.2636692+00:00",
+    "result": {
+      "serverId": 0,
+      "serverIdSource": "none",
+      "scanRunId": "",
+      "isReading": false,
+      "phase": "idle",
+      "selectedTypes": [
+        "city",
+        "resource",
+        "monster",
+        "truck",
+        "railway",
+        "dispatch",
+        "ghost",
+        "treasure"
+      ],
+      "totalBlocks": 0,
+      "completedBlocks": 0,
+      "readBlocks": 0,
+      "failedBlocks": 0,
+      "unreadBlocks": 0,
+      "inflightBlocks": 0,
+      "scanMode": "normal",
+      "concurrency": 8,
+      "scanRate": 0,
+      "progressPercent": 0,
+      "nativeCaptureReady": false,
+      "nativePendingRecords": 0,
+      "nativeDroppedRecords": 0,
+      "resumeAvailable": false,
+      "lastError": null,
+      "startedAt": 0
+    },
+    "search": {
+      "rows": [],
+      "total": 0
+    },
+    "summary": {
+      "serverId": 0,
+      "counts": {
+        "city": 0,
+        "resource": 0,
+        "monster": 0,
+        "truck": 0,
+        "railway": 0,
+        "dispatch": 0,
+        "ghost": 0,
+        "treasure": 0
+      },
+      "scanState": {
+        "serverId": 0,
+        "serverIdSource": "none",
+        "scanRunId": "",
+        "isReading": false,
+        "phase": "idle",
+        "selectedTypes": [
+          "city",
+          "resource",
+          "monster",
+          "truck",
+          "railway",
+          "dispatch",
+          "ghost",
+          "treasure"
+        ],
+        "totalBlocks": 0,
+        "completedBlocks": 0,
+        "readBlocks": 0,
+        "failedBlocks": 0,
+        "unreadBlocks": 0,
+        "inflightBlocks": 0,
+        "scanMode": "normal",
+        "concurrency": 8,
+        "scanRate": 0,
+        "progressPercent": 0,
+        "nativeCaptureReady": false,
+        "nativePendingRecords": 0,
+        "nativeDroppedRecords": 0,
+        "resumeAvailable": false,
+        "lastError": null,
+        "startedAt": 0
+      }
+    },
+    "priorRunStillPresent": false
+  },
+  "readinessAfterClear1": {
+    "label": "readiness_after_clear_1",
+    "capturedAt": "2026-09-30T07:47:03.263803\u002B00:00",
+    "sessionMatchesExpected": true,
+    "readySession": {
+      "profileId": "lwb317-live-map-v22-002-fa604790180e",
+      "instanceId": "95d0eded298341ce93cc26f25aa628b0",
+      "gamePid": 63828,
+      "gamePath": "C:\\Users\\chimw\\AppData\\Local\\FunFly\\Last War-Survival Game\\Game\\LastWar.exe",
+      "gameStartedAtUtc": "2026-09-30T07:46:39.3577142Z"
+    },
+    "profileInstanceStatus": {
+      "profileId": "lwb317-live-map-v22-002-fa604790180e",
+      "instanceId": "95d0eded298341ce93cc26f25aa628b0",
+      "phase": "running",
+      "pid": 63828,
+      "startedAt": 1790754375324,
+      "lastError": null,
+      "identityConfirmed": true,
+      "leaseRequired": false,
+      "connectionState": "reconnecting",
+      "bridgeConnected": false,
+      "lastHeartbeatAt": 1790754423000,
+      "leaseActive": false
+    },
+    "healthyMapHeartbeat": true,
+    "healthError": null,
+    "liveServerId": 2212,
+    "worldContext": {
+      "serverId": 2212,
+      "worldId": 0,
+      "tileWidth": 1000,
+      "tileHeight": 1000,
+      "playerTileX": 560,
+      "playerTileY": 468,
+      "launchSessionId": "95d0eded298341ce93cc26f25aa628b0"
+    },
+    "gameProcess": {
+      "pid": 63828,
+      "alive": true,
+      "processName": "LastWar",
+      "path": "C:\\Users\\chimw\\AppData\\Local\\FunFly\\Last War-Survival Game\\Game\\LastWar.exe",
+      "startTimeUtc": "2026-09-30T07:46:39.3577142Z"
+    },
+    "heartbeat": {
+      "path": "C:\\Users\\chimw\\AppData\\Local\\LWBridgeRebuild\\overview-bridge\\heartbeat.json",
+      "exists": true,
+      "fileLastWriteTimeUtc": "2026-09-30T07:47:03.1263761Z",
+      "profileId": "lwb317-live-map-v22-002-fa604790180e",
+      "sessionId": "95d0eded298341ce93cc26f25aa628b0",
+      "gamePid": 63828,
+      "updatedAt": 1790754423,
+      "connected": true,
+      "gameReady": true,
+      "loggedIn": true,
+      "ready": true,
+      "serverId": 2212,
+      "bridgeVersion": "lwbridge-overview-bridge-1"
+    },
+    "packageSha256": "a705d2d64a44081012c4c7e30bda613636960c98e40fa7a367a60577ce3a7d72",
+    "packageState": "validated_overview_wrapped_v22",
+    "versionMarker": "22",
+    "recoveryJournal": {
+      "path": "C:\\Users\\chimw\\AppData\\Local\\LWBridgeRebuild\\overview-bridge\\recovery.json",
+      "present": true,
+      "stage": "active_ready_deferred_restore",
+      "profileId": "lwb317-live-map-v22-002-fa604790180e",
+      "sessionId": "95d0eded298341ce93cc26f25aa628b0",
+      "gamePid": 63828,
+      "updatedAtUtc": "2026-09-30T07:46:49Z"
+    },
+    "processes": [
+      {
+        "pid": 56256,
+        "parentPid": 45832,
+        "name": "LWBridge.Desktop.Checks.exe",
+        "creationDate": "/Date(1790754357327)/",
+        "executablePath": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\tests\\LWBridge.Desktop.Checks\\bin\\Release\\net10.0-windows10.0.17763.0\\LWBridge.Desktop.Checks.exe",
+        "commandLine": "\u0022C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\tests\\LWBridge.Desktop.Checks\\bin\\Release\\net10.0-windows10.0.17763.0\\LWBridge.Desktop.Checks.exe\u0022 --live-map-v22-stop-continuity-proof evidence\\lwbridge-0.3.17\\map\\LWB317-LIVE-MAP-V22-002\\live-proof.json",
+        "matchReason": "process_name",
+        "role": "proof_self",
+        "taskOwned": true,
+        "expectedInfrastructure": true,
+        "proofStartedAt": "2026-09-30T07:46:13.8746006\u002B00:00"
+      },
+      {
+        "pid": 63828,
+        "parentPid": 40280,
+        "name": "LastWar.exe",
+        "creationDate": "/Date(1790754399357)/",
+        "executablePath": "C:\\Users\\chimw\\AppData\\Local\\FunFly\\Last War-Survival Game\\Game\\LastWar.exe",
+        "commandLine": "\u0022C:\\Users\\chimw\\AppData\\Local\\FunFly\\Last War-Survival Game\\Game\\LastWar.exe\u0022",
+        "matchReason": "process_name",
+        "role": "owned_lastwar",
+        "taskOwned": true,
+        "expectedInfrastructure": false,
+        "proofStartedAt": "2026-09-30T07:46:13.8746006\u002B00:00"
+      }
+    ]
+  },
+  "scan2": {
+    "startRequestedAt": "2026-09-30T07:47:04.5490766+00:00",
+    "request": {
+      "selectedTypes": [
+        "resource"
+      ],
+      "scanMode": "normal",
+      "resume": false
+    },
+    "start": {
+      "serverId": 2212,
+      "serverIdSource": "live",
+      "scanRunId": "eb268fc44ec54202af923972b9a14921",
+      "isReading": true,
+      "phase": "scanning",
+      "selectedTypes": [
+        "resource"
+      ],
+      "totalBlocks": 2500,
+      "completedBlocks": 0,
+      "readBlocks": 0,
+      "failedBlocks": 0,
+      "unreadBlocks": 2500,
+      "inflightBlocks": 0,
+      "scanMode": "normal",
+      "concurrency": 8,
+      "scanRate": 0,
+      "progressPercent": 0,
+      "nativeCaptureReady": true,
+      "nativePendingRecords": 0,
+      "nativeDroppedRecords": 0,
+      "resumeAvailable": false,
+      "lastError": null,
+      "startedAt": 1790754424
+    },
+    "active": {
+      "capturedAt": "2026-09-30T07:47:05.1140438\u002B00:00",
+      "status": {
+        "serverId": 2212,
+        "serverIdSource": "live",
+        "scanRunId": "eb268fc44ec54202af923972b9a14921",
+        "isReading": true,
+        "phase": "scanning",
+        "selectedTypes": [
+          "resource"
+        ],
+        "totalBlocks": 2500,
+        "completedBlocks": 0,
+        "readBlocks": 0,
+        "failedBlocks": 0,
+        "unreadBlocks": 2499,
+        "inflightBlocks": 1,
+        "scanMode": "normal",
+        "concurrency": 8,
+        "scanRate": 0,
+        "progressPercent": 0,
+        "nativeCaptureReady": true,
+        "nativePendingRecords": 0,
+        "nativeDroppedRecords": 0,
+        "resumeAvailable": false,
+        "lastError": null,
+        "startedAt": 1790754424
+      },
+      "provider": {
+        "capturedAt": "2026-09-30T07:47:05.1134581\u002B00:00",
+        "activeTaskPresent": true,
+        "activeTaskCompleted": false,
+        "activeTaskStatus": "WaitingForActivation",
+        "activeCancellationPresent": true,
+        "cancellationRequested": false,
+        "pendingAcceptedRunPresent": false
+      },
+      "liveProbeCommand": {
+        "path": "C:\\Users\\chimw\\AppData\\Local\\LWBridgeRebuild\\live-resource\\bulk-aoi-diagnostic.txt",
+        "exists": true,
+        "lastWriteTimeUtc": "2026-09-30T07:47:05.0984585Z",
+        "correlated": true,
+        "requestId": "fastcitye871674118534499bf2470394759cae0",
+        "scanRunId": "eb268fc44ec54202af923972b9a14921",
+        "serverId": "2212"
+      },
+      "genuinelyActive": true
+    },
+    "sameSessionReadiness": {
+      "label": "readiness_during_scan_2",
+      "capturedAt": "2026-09-30T07:47:05.114089\u002B00:00",
+      "sessionMatchesExpected": true,
+      "readySession": {
+        "profileId": "lwb317-live-map-v22-002-fa604790180e",
+        "instanceId": "95d0eded298341ce93cc26f25aa628b0",
+        "gamePid": 63828,
+        "gamePath": "C:\\Users\\chimw\\AppData\\Local\\FunFly\\Last War-Survival Game\\Game\\LastWar.exe",
+        "gameStartedAtUtc": "2026-09-30T07:46:39.3577142Z"
+      },
+      "profileInstanceStatus": {
+        "profileId": "lwb317-live-map-v22-002-fa604790180e",
+        "instanceId": "95d0eded298341ce93cc26f25aa628b0",
+        "phase": "running",
+        "pid": 63828,
+        "startedAt": 1790754375324,
+        "lastError": null,
+        "identityConfirmed": true,
+        "leaseRequired": false,
+        "connectionState": "reconnecting",
+        "bridgeConnected": false,
+        "lastHeartbeatAt": 1790754424000,
+        "leaseActive": false
+      },
+      "healthyMapHeartbeat": true,
+      "healthError": null,
+      "liveServerId": 2212,
+      "worldContext": {
+        "serverId": 2212,
+        "worldId": 0,
+        "tileWidth": 1000,
+        "tileHeight": 1000,
+        "playerTileX": 560,
+        "playerTileY": 468,
+        "launchSessionId": "95d0eded298341ce93cc26f25aa628b0"
+      },
+      "gameProcess": {
+        "pid": 63828,
+        "alive": true,
+        "processName": "LastWar",
+        "path": "C:\\Users\\chimw\\AppData\\Local\\FunFly\\Last War-Survival Game\\Game\\LastWar.exe",
+        "startTimeUtc": "2026-09-30T07:46:39.3577142Z"
+      },
+      "heartbeat": {
+        "path": "C:\\Users\\chimw\\AppData\\Local\\LWBridgeRebuild\\overview-bridge\\heartbeat.json",
+        "exists": true,
+        "fileLastWriteTimeUtc": "2026-09-30T07:47:04.6441626Z",
+        "profileId": "lwb317-live-map-v22-002-fa604790180e",
+        "sessionId": "95d0eded298341ce93cc26f25aa628b0",
+        "gamePid": 63828,
+        "updatedAt": 1790754424,
+        "connected": true,
+        "gameReady": true,
+        "loggedIn": true,
+        "ready": true,
+        "serverId": 2212,
+        "bridgeVersion": "lwbridge-overview-bridge-1"
+      },
+      "packageSha256": "a705d2d64a44081012c4c7e30bda613636960c98e40fa7a367a60577ce3a7d72",
+      "packageState": "validated_overview_wrapped_v22",
+      "versionMarker": "22",
+      "recoveryJournal": {
+        "path": "C:\\Users\\chimw\\AppData\\Local\\LWBridgeRebuild\\overview-bridge\\recovery.json",
+        "present": true,
+        "stage": "active_ready_deferred_restore",
+        "profileId": "lwb317-live-map-v22-002-fa604790180e",
+        "sessionId": "95d0eded298341ce93cc26f25aa628b0",
+        "gamePid": 63828,
+        "updatedAtUtc": "2026-09-30T07:46:49Z"
+      },
+      "processes": [
+        {
+          "pid": 56256,
+          "parentPid": 45832,
+          "name": "LWBridge.Desktop.Checks.exe",
+          "creationDate": "/Date(1790754357327)/",
+          "executablePath": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\tests\\LWBridge.Desktop.Checks\\bin\\Release\\net10.0-windows10.0.17763.0\\LWBridge.Desktop.Checks.exe",
+          "commandLine": "\u0022C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\tests\\LWBridge.Desktop.Checks\\bin\\Release\\net10.0-windows10.0.17763.0\\LWBridge.Desktop.Checks.exe\u0022 --live-map-v22-stop-continuity-proof evidence\\lwbridge-0.3.17\\map\\LWB317-LIVE-MAP-V22-002\\live-proof.json",
+          "matchReason": "process_name",
+          "role": "proof_self",
+          "taskOwned": true,
+          "expectedInfrastructure": true,
+          "proofStartedAt": "2026-09-30T07:46:13.8746006\u002B00:00"
+        },
+        {
+          "pid": 63828,
+          "parentPid": 40280,
+          "name": "LastWar.exe",
+          "creationDate": "/Date(1790754399357)/",
+          "executablePath": "C:\\Users\\chimw\\AppData\\Local\\FunFly\\Last War-Survival Game\\Game\\LastWar.exe",
+          "commandLine": "\u0022C:\\Users\\chimw\\AppData\\Local\\FunFly\\Last War-Survival Game\\Game\\LastWar.exe\u0022",
+          "matchReason": "process_name",
+          "role": "owned_lastwar",
+          "taskOwned": true,
+          "expectedInfrastructure": false,
+          "proofStartedAt": "2026-09-30T07:46:13.8746006\u002B00:00"
+        }
+      ]
+    },
+    "newRunId": true,
+    "sameProfileId": true,
+    "sameInstanceId": true,
+    "sameGamePid": true,
+    "sameLiveServer": true
+  },
+  "stop2": {
+    "requestedAt": "2026-09-30T07:47:06.3873151+00:00",
+    "completedAt": "2026-09-30T07:47:06.3883993+00:00",
+    "result": {
+      "serverId": 2212,
+      "serverIdSource": "live",
+      "scanRunId": "eb268fc44ec54202af923972b9a14921",
+      "isReading": false,
+      "phase": "idle",
+      "selectedTypes": [
+        "resource"
+      ],
+      "totalBlocks": 2500,
+      "completedBlocks": 0,
+      "readBlocks": 0,
+      "failedBlocks": 0,
+      "unreadBlocks": 2499,
+      "inflightBlocks": 0,
+      "scanMode": "normal",
+      "concurrency": 8,
+      "scanRate": 0,
+      "progressPercent": 0,
+      "nativeCaptureReady": true,
+      "nativePendingRecords": 0,
+      "nativeDroppedRecords": 0,
+      "resumeAvailable": false,
+      "lastError": null,
+      "startedAt": 1790754424
+    },
+    "provider": {
+      "capturedAt": "2026-09-30T07:47:06.3882202\u002B00:00",
+      "activeTaskPresent": false,
+      "activeTaskCompleted": false,
+      "activeTaskStatus": null,
+      "activeCancellationPresent": false,
+      "cancellationRequested": false,
+      "pendingAcceptedRunPresent": false
+    },
+    "durableRun": {
+      "id": "eb268fc44ec54202af923972b9a14921",
+      "serverId": 2212,
+      "selectedTypes": [
+        "resource"
+      ],
+      "status": "cancelled",
+      "totalBlocks": 2500,
+      "completedBlocks": 0,
+      "failedBlocks": 0,
+      "createdAt": 1790754424788,
+      "updatedAt": 1790754426387,
+      "error": null
+    },
+    "searchAfterStop": {
+      "rows": [],
+      "total": 0
+    }
+  },
+  "readinessAfterStop2": {
+    "label": "readiness_after_stop_2",
+    "capturedAt": "2026-09-30T07:47:06.3888051\u002B00:00",
+    "sessionMatchesExpected": true,
+    "readySession": {
+      "profileId": "lwb317-live-map-v22-002-fa604790180e",
+      "instanceId": "95d0eded298341ce93cc26f25aa628b0",
+      "gamePid": 63828,
+      "gamePath": "C:\\Users\\chimw\\AppData\\Local\\FunFly\\Last War-Survival Game\\Game\\LastWar.exe",
+      "gameStartedAtUtc": "2026-09-30T07:46:39.3577142Z"
+    },
+    "profileInstanceStatus": {
+      "profileId": "lwb317-live-map-v22-002-fa604790180e",
+      "instanceId": "95d0eded298341ce93cc26f25aa628b0",
+      "phase": "running",
+      "pid": 63828,
+      "startedAt": 1790754375324,
+      "lastError": null,
+      "identityConfirmed": true,
+      "leaseRequired": false,
+      "connectionState": "reconnecting",
+      "bridgeConnected": false,
+      "lastHeartbeatAt": 1790754426000,
+      "leaseActive": false
+    },
+    "healthyMapHeartbeat": true,
+    "healthError": null,
+    "liveServerId": 2212,
+    "worldContext": {
+      "serverId": 2212,
+      "worldId": 0,
+      "tileWidth": 1000,
+      "tileHeight": 1000,
+      "playerTileX": 560,
+      "playerTileY": 468,
+      "launchSessionId": "95d0eded298341ce93cc26f25aa628b0"
+    },
+    "gameProcess": {
+      "pid": 63828,
+      "alive": true,
+      "processName": "LastWar",
+      "path": "C:\\Users\\chimw\\AppData\\Local\\FunFly\\Last War-Survival Game\\Game\\LastWar.exe",
+      "startTimeUtc": "2026-09-30T07:46:39.3577142Z"
+    },
+    "heartbeat": {
+      "path": "C:\\Users\\chimw\\AppData\\Local\\LWBridgeRebuild\\overview-bridge\\heartbeat.json",
+      "exists": true,
+      "fileLastWriteTimeUtc": "2026-09-30T07:47:06.1950872Z",
+      "profileId": "lwb317-live-map-v22-002-fa604790180e",
+      "sessionId": "95d0eded298341ce93cc26f25aa628b0",
+      "gamePid": 63828,
+      "updatedAt": 1790754426,
+      "connected": true,
+      "gameReady": true,
+      "loggedIn": true,
+      "ready": true,
+      "serverId": 2212,
+      "bridgeVersion": "lwbridge-overview-bridge-1"
+    },
+    "packageSha256": "a705d2d64a44081012c4c7e30bda613636960c98e40fa7a367a60577ce3a7d72",
+    "packageState": "validated_overview_wrapped_v22",
+    "versionMarker": "22",
+    "recoveryJournal": {
+      "path": "C:\\Users\\chimw\\AppData\\Local\\LWBridgeRebuild\\overview-bridge\\recovery.json",
+      "present": true,
+      "stage": "active_ready_deferred_restore",
+      "profileId": "lwb317-live-map-v22-002-fa604790180e",
+      "sessionId": "95d0eded298341ce93cc26f25aa628b0",
+      "gamePid": 63828,
+      "updatedAtUtc": "2026-09-30T07:46:49Z"
+    },
+    "processes": [
+      {
+        "pid": 56256,
+        "parentPid": 45832,
+        "name": "LWBridge.Desktop.Checks.exe",
+        "creationDate": "/Date(1790754357327)/",
+        "executablePath": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\tests\\LWBridge.Desktop.Checks\\bin\\Release\\net10.0-windows10.0.17763.0\\LWBridge.Desktop.Checks.exe",
+        "commandLine": "\u0022C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\tests\\LWBridge.Desktop.Checks\\bin\\Release\\net10.0-windows10.0.17763.0\\LWBridge.Desktop.Checks.exe\u0022 --live-map-v22-stop-continuity-proof evidence\\lwbridge-0.3.17\\map\\LWB317-LIVE-MAP-V22-002\\live-proof.json",
+        "matchReason": "process_name",
+        "role": "proof_self",
+        "taskOwned": true,
+        "expectedInfrastructure": true,
+        "proofStartedAt": "2026-09-30T07:46:13.8746006\u002B00:00"
+      },
+      {
+        "pid": 63828,
+        "parentPid": 40280,
+        "name": "LastWar.exe",
+        "creationDate": "/Date(1790754399357)/",
+        "executablePath": "C:\\Users\\chimw\\AppData\\Local\\FunFly\\Last War-Survival Game\\Game\\LastWar.exe",
+        "commandLine": "\u0022C:\\Users\\chimw\\AppData\\Local\\FunFly\\Last War-Survival Game\\Game\\LastWar.exe\u0022",
+        "matchReason": "process_name",
+        "role": "owned_lastwar",
+        "taskOwned": true,
+        "expectedInfrastructure": false,
+        "proofStartedAt": "2026-09-30T07:46:13.8746006\u002B00:00"
+      }
+    ]
+  },
+  "clear2": {
+    "requestedAt": "2026-09-30T07:47:07.7611992+00:00",
+    "completedAt": "2026-09-30T07:47:07.7621507+00:00",
+    "result": {
+      "serverId": 0,
+      "serverIdSource": "none",
+      "scanRunId": "",
+      "isReading": false,
+      "phase": "idle",
+      "selectedTypes": [
+        "city",
+        "resource",
+        "monster",
+        "truck",
+        "railway",
+        "dispatch",
+        "ghost",
+        "treasure"
+      ],
+      "totalBlocks": 0,
+      "completedBlocks": 0,
+      "readBlocks": 0,
+      "failedBlocks": 0,
+      "unreadBlocks": 0,
+      "inflightBlocks": 0,
+      "scanMode": "normal",
+      "concurrency": 8,
+      "scanRate": 0,
+      "progressPercent": 0,
+      "nativeCaptureReady": false,
+      "nativePendingRecords": 0,
+      "nativeDroppedRecords": 0,
+      "resumeAvailable": false,
+      "lastError": null,
+      "startedAt": 0
+    },
+    "search": {
+      "rows": [],
+      "total": 0
+    },
+    "summary": {
+      "serverId": 0,
+      "counts": {
+        "city": 0,
+        "resource": 0,
+        "monster": 0,
+        "truck": 0,
+        "railway": 0,
+        "dispatch": 0,
+        "ghost": 0,
+        "treasure": 0
+      },
+      "scanState": {
+        "serverId": 0,
+        "serverIdSource": "none",
+        "scanRunId": "",
+        "isReading": false,
+        "phase": "idle",
+        "selectedTypes": [
+          "city",
+          "resource",
+          "monster",
+          "truck",
+          "railway",
+          "dispatch",
+          "ghost",
+          "treasure"
+        ],
+        "totalBlocks": 0,
+        "completedBlocks": 0,
+        "readBlocks": 0,
+        "failedBlocks": 0,
+        "unreadBlocks": 0,
+        "inflightBlocks": 0,
+        "scanMode": "normal",
+        "concurrency": 8,
+        "scanRate": 0,
+        "progressPercent": 0,
+        "nativeCaptureReady": false,
+        "nativePendingRecords": 0,
+        "nativeDroppedRecords": 0,
+        "resumeAvailable": false,
+        "lastError": null,
+        "startedAt": 0
+      }
+    },
+    "priorRunStillPresent": false
+  },
+  "finalReadiness": {
+    "label": "final_readiness",
+    "capturedAt": "2026-09-30T07:47:07.7621535\u002B00:00",
+    "sessionMatchesExpected": true,
+    "readySession": {
+      "profileId": "lwb317-live-map-v22-002-fa604790180e",
+      "instanceId": "95d0eded298341ce93cc26f25aa628b0",
+      "gamePid": 63828,
+      "gamePath": "C:\\Users\\chimw\\AppData\\Local\\FunFly\\Last War-Survival Game\\Game\\LastWar.exe",
+      "gameStartedAtUtc": "2026-09-30T07:46:39.3577142Z"
+    },
+    "profileInstanceStatus": {
+      "profileId": "lwb317-live-map-v22-002-fa604790180e",
+      "instanceId": "95d0eded298341ce93cc26f25aa628b0",
+      "phase": "running",
+      "pid": 63828,
+      "startedAt": 1790754375324,
+      "lastError": null,
+      "identityConfirmed": true,
+      "leaseRequired": false,
+      "connectionState": "reconnecting",
+      "bridgeConnected": false,
+      "lastHeartbeatAt": 1790754427000,
+      "leaseActive": false
+    },
+    "healthyMapHeartbeat": true,
+    "healthError": null,
+    "liveServerId": 2212,
+    "worldContext": {
+      "serverId": 2212,
+      "worldId": 0,
+      "tileWidth": 1000,
+      "tileHeight": 1000,
+      "playerTileX": 560,
+      "playerTileY": 468,
+      "launchSessionId": "95d0eded298341ce93cc26f25aa628b0"
+    },
+    "gameProcess": {
+      "pid": 63828,
+      "alive": true,
+      "processName": "LastWar",
+      "path": "C:\\Users\\chimw\\AppData\\Local\\FunFly\\Last War-Survival Game\\Game\\LastWar.exe",
+      "startTimeUtc": "2026-09-30T07:46:39.3577142Z"
+    },
+    "heartbeat": {
+      "path": "C:\\Users\\chimw\\AppData\\Local\\LWBridgeRebuild\\overview-bridge\\heartbeat.json",
+      "exists": true,
+      "fileLastWriteTimeUtc": "2026-09-30T07:47:07.724885Z",
+      "profileId": "lwb317-live-map-v22-002-fa604790180e",
+      "sessionId": "95d0eded298341ce93cc26f25aa628b0",
+      "gamePid": 63828,
+      "updatedAt": 1790754427,
+      "connected": true,
+      "gameReady": true,
+      "loggedIn": true,
+      "ready": true,
+      "serverId": 2212,
+      "bridgeVersion": "lwbridge-overview-bridge-1"
+    },
+    "packageSha256": "a705d2d64a44081012c4c7e30bda613636960c98e40fa7a367a60577ce3a7d72",
+    "packageState": "validated_overview_wrapped_v22",
+    "versionMarker": "22",
+    "recoveryJournal": {
+      "path": "C:\\Users\\chimw\\AppData\\Local\\LWBridgeRebuild\\overview-bridge\\recovery.json",
+      "present": true,
+      "stage": "active_ready_deferred_restore",
+      "profileId": "lwb317-live-map-v22-002-fa604790180e",
+      "sessionId": "95d0eded298341ce93cc26f25aa628b0",
+      "gamePid": 63828,
+      "updatedAtUtc": "2026-09-30T07:46:49Z"
+    },
+    "processes": [
+      {
+        "pid": 56256,
+        "parentPid": 45832,
+        "name": "LWBridge.Desktop.Checks.exe",
+        "creationDate": "/Date(1790754357327)/",
+        "executablePath": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\tests\\LWBridge.Desktop.Checks\\bin\\Release\\net10.0-windows10.0.17763.0\\LWBridge.Desktop.Checks.exe",
+        "commandLine": "\u0022C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\tests\\LWBridge.Desktop.Checks\\bin\\Release\\net10.0-windows10.0.17763.0\\LWBridge.Desktop.Checks.exe\u0022 --live-map-v22-stop-continuity-proof evidence\\lwbridge-0.3.17\\map\\LWB317-LIVE-MAP-V22-002\\live-proof.json",
+        "matchReason": "process_name",
+        "role": "proof_self",
+        "taskOwned": true,
+        "expectedInfrastructure": true,
+        "proofStartedAt": "2026-09-30T07:46:13.8746006\u002B00:00"
+      },
+      {
+        "pid": 63828,
+        "parentPid": 40280,
+        "name": "LastWar.exe",
+        "creationDate": "/Date(1790754399357)/",
+        "executablePath": "C:\\Users\\chimw\\AppData\\Local\\FunFly\\Last War-Survival Game\\Game\\LastWar.exe",
+        "commandLine": "\u0022C:\\Users\\chimw\\AppData\\Local\\FunFly\\Last War-Survival Game\\Game\\LastWar.exe\u0022",
+        "matchReason": "process_name",
+        "role": "owned_lastwar",
+        "taskOwned": true,
+        "expectedInfrastructure": false,
+        "proofStartedAt": "2026-09-30T07:46:13.8746006\u002B00:00"
+      }
+    ]
+  },
+  "connectionLossReproduced": false,
+  "state": "proven",
+  "cleanupBeforeProofExit": {
+    "capturedAt": "2026-09-30T07:47:13.8742377+00:00",
+    "processes": [
+      {
+        "pid": 56256,
+        "parentPid": 45832,
+        "name": "LWBridge.Desktop.Checks.exe",
+        "creationDate": "/Date(1790754357327)/",
+        "executablePath": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\tests\\LWBridge.Desktop.Checks\\bin\\Release\\net10.0-windows10.0.17763.0\\LWBridge.Desktop.Checks.exe",
+        "commandLine": "\u0022C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\tests\\LWBridge.Desktop.Checks\\bin\\Release\\net10.0-windows10.0.17763.0\\LWBridge.Desktop.Checks.exe\u0022 --live-map-v22-stop-continuity-proof evidence\\lwbridge-0.3.17\\map\\LWB317-LIVE-MAP-V22-002\\live-proof.json",
+        "matchReason": "process_name",
+        "role": "proof_self",
+        "taskOwned": true,
+        "expectedInfrastructure": true,
+        "proofStartedAt": "2026-09-30T07:46:13.8746006\u002B00:00"
+      }
+    ],
+    "expectedProofSelfStillRunning": true,
+    "ownedGamePid": 63828,
+    "ownedGamePidAlive": false,
+    "lastWarRuntimeOrphanCount": 0,
+    "recoveryJournal": {
+      "path": "C:\\Users\\chimw\\AppData\\Local\\LWBridgeRebuild\\overview-bridge\\recovery.json",
+      "present": false
+    },
+    "finalPackageSha256": "248f3aeac712b3f14f86bff37a0c365e467897a2248403837c44c1b774f05b22",
+    "finalPackageRestoredToOfficialV22": true,
+    "finalVersionMarker": "21",
+    "tempDatabaseDeleted": true,
+    "tempDatabaseArtifacts": []
+  },
+  "proofFinishedAt": "2026-09-30T07:47:14.0661588+00:00"
+}

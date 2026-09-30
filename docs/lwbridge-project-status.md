@@ -19,17 +19,24 @@ Desktop production uses that plane as the sole persistent Map authority at
 only for explicitly isolated historical proof/replay modes.
 
 Current Last War content-version 22 has passed the Map-specific static/source
-compatibility revalidation in `LWB317-COMPAT-MAP-V22-001`. `LWB317-LIVE-MAP-V22-001`
-then freshly live-proved the owned-session Map runtime/world path, coordinate
-navigation, one complete fast Resource scan (2500/2500, zero failed/unread),
-678 current rows, query/filter/sort/pagination and clear/reset. Source-backed adapters are wired for acquisition,
-navigation, Treasure inspection, server-day, Dispatch alliance share, Dispatch
-scheduled execution and Truck scheduled execution. Treasure claim/status and
-Ghost preparation remain explicit fail-closed current-client provider gaps
-rather than approximations. No production Map change was required for v22.
-Controlled stop/cancel was not live-proven because the owned connection was
-unavailable at the optional second-start tail. Server jump and restart/resume
-were explicitly excluded from this bounded task.
+compatibility revalidation in `LWB317-COMPAT-MAP-V22-001`.
+`LWB317-LIVE-MAP-V22-001` then freshly live-proved the owned-session Map
+runtime/world path, coordinate navigation, one complete fast Resource scan
+(2500/2500, zero failed/unread), 678 current rows, query/filter/sort/pagination
+and clear/reset. `LWB317-LIVE-MAP-V22-002` now additionally live-proves a
+genuinely active Resource scan stop, retained Map readiness after stop, clear to
+the default zero/idle state without losing readiness, a second Resource scan in
+the same profile/instance/PID/server, a second controlled stop/clear, and final
+same-session readiness. Its first attempt exposed a false
+`GAME_CONNECTION_UNAVAILABLE` while the game/session/heartbeat/world were still
+healthy; the cause was concurrent use of the single-slot current-client
+world-state protocol, fixed minimally by serializing that transaction and covered
+by deterministic regression testing. Source-backed adapters remain wired for
+acquisition, navigation, Treasure inspection, server-day, Dispatch alliance
+share, Dispatch scheduled execution and Truck scheduled execution. Treasure
+claim/status and Ghost preparation remain explicit fail-closed current-client
+provider gaps rather than approximations. Server jump and restart/resume remain
+explicitly excluded from the 002 bounded task.
 
 The prior 0.3.1 reverse-engineering history remains intact as legacy evidence
 and is reused only where exact 0.3.17/current-client revalidation exists.
@@ -138,9 +145,10 @@ Historical auth research remains archived evidence, not a current reconstruction
 
 ## Next project-lead milestone
 
-Review `LWB317-LIVE-MAP-V22-001` and its evidence-state boundaries. The current
-bounded task stops after proving v22 readiness/world metadata, coordinate
-navigation, complete Resource acquisition, query behavior and clear/reset.
-Controlled stop/cancel remains unproven; server jump and restart/resume were
-explicitly deferred. Do not open another subsystem until the project lead
-decides the next bounded Map step or closes the Map Goal.
+Review `LWB317-LIVE-MAP-V22-002` and its evidence-state boundaries. The current
+bounded checkpoint stops after proving active scan stop/cancel, connection
+continuity across stop and clear, a second scan/start-stop-clear cycle in the same
+owned session, the false connection-unavailable race/fix, and structured cleanup.
+Server jump and restart/resume remain explicitly deferred. Do not open another
+subsystem until the project lead decides the next bounded Map step or closes the
+Map Goal.

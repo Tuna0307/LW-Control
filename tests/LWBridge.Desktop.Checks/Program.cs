@@ -2,6 +2,18 @@ using System.Text.Json;
 using System.Diagnostics;
 using LWBridge.Desktop;
 
+int liveMapV22StopContinuityIndex = Array.FindIndex(
+    args,
+    value => string.Equals(value, "--live-map-v22-stop-continuity-proof", StringComparison.OrdinalIgnoreCase));
+if (liveMapV22StopContinuityIndex >= 0)
+{
+    if (liveMapV22StopContinuityIndex + 1 >= args.Length)
+        throw new ArgumentException("--live-map-v22-stop-continuity-proof requires an output JSON path");
+    await LWBridge.Desktop.Checks.LiveMapV22StopContinuityProof.RunAsync(
+        Path.GetFullPath(args[liveMapV22StopContinuityIndex + 1]));
+    return 0;
+}
+
 int liveMapV22ProofIndex = Array.FindIndex(
     args,
     value => string.Equals(value, "--live-map-v22-proof", StringComparison.OrdinalIgnoreCase));
@@ -413,6 +425,7 @@ if (args.Contains("--overview-status-transport-check", StringComparer.OrdinalIgn
 }
 
 var failures = new List<string>();
+await LWBridge.Desktop.Checks.CurrentClientMapBlockSourceChecks.ConcurrentWorldStateRequestsAreSerialized();
 failures.AddRange(await LWBridge.Desktop.Checks.LastWarLocaleChecks.RunAsync());
 LWBridge.Desktop.Checks.CurrentClientCompatibilityChecks.Run();
 LWBridge.Desktop.Checks.CityExportWorkbookChecks.Run();

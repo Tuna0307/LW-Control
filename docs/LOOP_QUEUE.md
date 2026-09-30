@@ -9,7 +9,8 @@ Only the project lead should normally change what is authorized here.
 | LWB317-UI-CAMPAIGN-8H | ACCEPTED | `docs/LOOP_CAMPAIGN_8H.md` | Static UI recovery accepted; direct original post-auth pixel validation remains blocked by the original auth boundary |
 | LWB317-COMPAT-MAP-V22-001 | COMPLETE | `docs/reviews/2026-09-30-LWB317-COMPAT-MAP-V22-001.md` | Installed v22 Map compatibility statically revalidated; no production Map change required |
 | LWB317-LIVE-MAP-V22-001 | AWAITING_REVIEW | `docs/reviews/2026-09-30-LWB317-LIVE-MAP-V22-001.md` | Fresh v22 acquisition/navigation/query/clear proof complete; optional stop/cancel unproven after connection loss; stop here for project-lead review |
-| LWB317-RE-MAP-001 | ACTIVE | `docs/GOAL_CAMPAIGN_PHASE2_MAP.md` | Map-only Phase 2 Goal; v22 static compatibility plus bounded live acquisition/navigation/query/clear proof complete; project lead decides the next bounded Map step |
+| LWB317-LIVE-MAP-V22-002 | AWAITING_REVIEW | `docs/reviews/2026-09-30-LWB317-LIVE-MAP-V22-002.md` | Same-session active stop/clear continuity and second Resource start/stop/clear are live-proven after the minimal current-client world-state serialization fix; no next Map task is opened here |
+| LWB317-RE-MAP-001 | ACTIVE | `docs/GOAL_CAMPAIGN_PHASE2_MAP.md` | Map-only Phase 2 Goal; v22 static compatibility plus bounded live acquisition/navigation/query/clear and stop/clear same-session continuity proof complete; project lead decides any next bounded Map step |
 | Other LWB317-RE-* | BLOCKED | not assigned | Do not begin another subsystem until the Map Goal is closed |
 | Auth/login/licensing reconstruction | OUT_OF_SCOPE | n/a | Boundary/dependency only; no recreation or bypass |
 
