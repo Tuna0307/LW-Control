@@ -16,6 +16,7 @@ internal static class ScanStateChecks
         await StopRestartAndClearUseOwnedHooksAsync();
         await CancelFailureIsFailClosedAsync();
         await ResumeRemainsUnavailableWithoutTrueProducerAsync();
+        await ProviderFailuresRemainJsonSerializableAsync();
         await UnavailableProviderFailsExplicitlyAsync();
 
         Console.WriteLine("LWBridge.Map-0.3.17 scan-state checks passed.");
@@ -255,6 +256,21 @@ internal static class ScanStateChecks
             "unavailable provider cannot synthesize a scan");
     }
 
+    private static async Task ProviderFailuresRemainJsonSerializableAsync()
+    {
+        var provider = new FakeMapProvider { ThrowOnContext = true };
+        var machine = new MapScanStateMachine(provider, new FakeLocalSink());
+        BridgeCommandException error = await ExpectBridgeErrorAsync(() => machine.StartAsync().AsTask());
+
+        Check(error.Code == "GAME_CONNECTION_UNAVAILABLE" && error.Details is null,
+            "unexpected provider exception must stay behind the public code/message boundary");
+
+        _ = System.Text.Json.JsonSerializer.Serialize(new
+        {
+            error = new { code = error.Code, message = error.Message, details = error.Details },
+        });
+    }
+
     private static async Task<BridgeCommandException> ExpectBridgeErrorAsync(Func<Task> action)
     {
         try
@@ -304,12 +320,15 @@ internal static class ScanStateChecks
         public int EnterCalls { get; private set; }
         public int StartCalls { get; private set; }
         public int StopCalls { get; private set; }
+        public bool ThrowOnContext { get; set; }
         public bool ThrowOnStop { get; set; }
         public MapProviderStartRequest? LastStart { get; private set; }
 
         public ValueTask<MapProviderContext> GetContextAsync(CancellationToken cancellationToken = default)
         {
             ContextCalls++;
+            if (ThrowOnContext)
+                throw new InvalidOperationException("synthetic provider context failure");
             return ValueTask.FromResult(Context);
         }
 

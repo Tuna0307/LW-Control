@@ -1,0 +1,92 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "LWB-R8-066",
+  "state": "proven",
+  "proof": "normal_production_map_window_start_scan_search_render",
+  "windowMode": "persistent_normal_map_data",
+  "profileId": "local-9370d887d93e4475a8d4fee049b50632",
+  "instanceId": "7fe4d8e32b6943f2b5a93646bd2b02ec",
+  "connectionState": "connected",
+  "gamePid": 62900,
+  "selectedTypes": [
+    "resource"
+  ],
+  "scan": {
+    "scanRunId": "f4a702f0f17d4fde877d668fbc236dd4",
+    "serverId": 2212,
+    "scanMode": "fast",
+    "concurrency": 20,
+    "totalBlocks": 2500,
+    "readBlocks": 2500,
+    "failedBlocks": 0,
+    "unreadBlocks": 0,
+    "phase": "completed"
+  },
+  "search": {
+    "requestId": "987ef806-bf1a-4379-b0a3-0cc2cd7e7633",
+    "payload": {
+      "kind": "resource",
+      "query": {
+        "serverId": 2212,
+        "keyword": "",
+        "page": 1,
+        "pageSize": 50,
+        "sorts": [
+          {
+            "sortBy": "updatedAt",
+            "sortOrder": "desc"
+          }
+        ]
+      },
+      "profileId": "local-9370d887d93e4475a8d4fee049b50632"
+    },
+    "total": 333,
+    "row": {
+      "blackTileKnown": true,
+      "gatherOccupancyKnown": true,
+      "gatherOccupied": false,
+      "id": 903810,
+      "isBlackTile": false,
+      "kind": "resource",
+      "level": 1,
+      "pointId": 903810,
+      "pointType": 7,
+      "resourceConfigId": 1,
+      "resourceMaxAmount": 36000,
+      "resourceNameKey": "100281",
+      "resourceSourceType": "ResPointInfo",
+      "resourceTypeId": 1,
+      "runtimeClass": "ResPointInfo",
+      "serverId": 2212,
+      "source": "WorldPointManager._pointInfos\u002BGatherResource\u002BLuaEntry.Player.IsInBlackRange",
+      "srcServerId": 2212,
+      "worldId": 0,
+      "x": 809,
+      "y": 903,
+      "sourceKind": "resource_point",
+      "recordKey": "903810",
+      "pointIndex": 903810,
+      "updatedAt": 1790740463000,
+      "rebuildGatherOccupancyKnown": true,
+      "rebuildGatherOccupied": false,
+      "resourceDetailKnown": true,
+      "resourceRemainingAmount": 36000,
+      "resourceFullAmount": 36000,
+      "resourceFull": true,
+      "resourceCapacityMatchesConfig": true
+    }
+  },
+  "rendered": {
+    "rowText": "809,903\tIron Mine\t1\t36,000 / 36,000\tIdle\t9/30/2026, 11:54:23 AM",
+    "cells": [
+      "809,903",
+      "Iron Mine",
+      "1",
+      "36,000 / 36,000",
+      "Idle",
+      "9/30/2026, 11:54:23 AM"
+    ]
+  },
+  "screenshotPath": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\evidence\\lwbridge-0.3.17\\map\\live-map-production-2026-09-30-attempt2.png",
+  "generatedAt": "2026-09-30T03:54:25.4740189+00:00"
+}

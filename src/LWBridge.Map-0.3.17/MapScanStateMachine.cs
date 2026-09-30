@@ -427,7 +427,13 @@ public sealed class MapScanStateMachine
         }
         catch (Exception error) when (error is not OperationCanceledException)
         {
-            throw new BridgeCommandException(GameUnavailableCode, GameUnavailableMessage, error);
+            // The recovered public error contract is code/message. Do not expose
+            // an Exception instance as JSON `details`: System.Text.Json walks
+            // Exception.TargetSite (MethodBase), which is unsupported and can
+            // crash the WinForms host while it is trying to report the provider
+            // failure. Provider diagnostics stay beneath the host boundary.
+            _ = error;
+            throw new BridgeCommandException(GameUnavailableCode, GameUnavailableMessage);
         }
     }
 
@@ -447,7 +453,8 @@ public sealed class MapScanStateMachine
         }
         catch (Exception error) when (error is not OperationCanceledException)
         {
-            throw new BridgeCommandException(WorldMapFailedCode, WorldMapFailedMessage, error);
+            _ = error;
+            throw new BridgeCommandException(WorldMapFailedCode, WorldMapFailedMessage);
         }
     }
 
@@ -465,7 +472,8 @@ public sealed class MapScanStateMachine
         }
         catch (Exception error) when (error is not OperationCanceledException)
         {
-            throw new BridgeCommandException(StartFailedCode, StartFailedMessage, error);
+            _ = error;
+            throw new BridgeCommandException(StartFailedCode, StartFailedMessage);
         }
     }
 
