@@ -334,6 +334,49 @@
           }
         ]
       },
+      "concurrency": {
+        "occurrences": [
+          {
+            "raw": "0x82DF80",
+            "rva": "0x82F180",
+            "va": "0x14082F180"
+          },
+          {
+            "raw": "0xD68280",
+            "rva": "0xD69480",
+            "va": "0x140D69480"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0xFB4E2",
+            "instructionVa": "0x1400FB4E2",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x733c97]",
+            "referenceKind": "string",
+            "targetVa": "0x14082F180",
+            "functionRva": "0xFA09E-0xFC643"
+          },
+          {
+            "instructionRva": "0xFB8D4",
+            "instructionVa": "0x1400FB8D4",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x7338a5]",
+            "referenceKind": "string",
+            "targetVa": "0x14082F180",
+            "functionRva": "0xFA09E-0xFC643"
+          },
+          {
+            "instructionRva": "0x4297CB",
+            "instructionVa": "0x1404297CB",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x93fcae]",
+            "referenceKind": "string",
+            "targetVa": "0x140D69480",
+            "functionRva": "0x4296C7-0x429CE9"
+          }
+        ]
+      },
       "retryCount": {
         "occurrences": [],
         "xrefs": []

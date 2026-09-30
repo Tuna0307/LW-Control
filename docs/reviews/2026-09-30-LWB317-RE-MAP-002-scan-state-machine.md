@@ -16,7 +16,11 @@ Reference executable SHA-256:
 Primary machine-readable evidence:
 
 - `state-surface.json` —
-  `41BCA841E9A1B5E52EB8BB7F2E153804B7CD72497226EFCECDF4BCFD69B6B417`;
+  `36A3CCE9F90F75C8CAA471FFEEC71CD11C80B21FE3D838692EDADFC31E09011F`;
+- `concurrency-handler-discovery.json` —
+  `B1CD918206ECB392C241E775D7DEC18CF70FD3FC763E920D6C4A1800EA148D43`;
+- `concurrency-handler-summary.json` —
+  `F97DC21F04C8D242F35DBBC7248D0EB7A0B44717BA9FBCE6E31D88F918B4499A`;
 - `state-handler-discovery.json` —
   `AB8A55B16BC3559B447E7520CF96C7A5459906B62A5B3CF68C8E94EFF8F532E4`;
 - `progress-static-contract.json` —
@@ -84,6 +88,12 @@ server/world/tile information, selected types, scan run id, block counters,
 mode/concurrency/rate/progress and native-capture readiness/pending/dropped
 fields evidenced by the current binary.
 
+The mode-to-concurrency mapping is now independently exact in current bytes:
+the normal path loads `8` at `0xFAB2F`; the `fast` branch compares exact
+`fast` at `0xFC49C` and loads `0x14` / `20` at `0xFC4A8` before rejoining the
+same state construction path. Therefore `normal=8`, `fast=20` is current
+0.3.17 host behavior, not a frontend-only default.
+
 ## Resume/restart
 
 The 0.3.17 public start handler still implements the old two-factor resume gate,
@@ -118,7 +128,8 @@ The shared normalizer revalidated the historical arithmetic in current
 - tenths divisor: `10.0`;
 - active clamp: `98.0`.
 
-Current derived fields are:
+The shared presentation normalizer independently contains the recovered base
+remainder relation:
 
 `unreadBlocks = max(totalBlocks - completedBlocks - failedBlocks, 0)`
 
@@ -137,6 +148,34 @@ target `roundLike` unless its imported/runtime identity is separately needed.
 `retryCount` is notable: it is a frontend default field (`2`) but the exact
 0.3.17 executable has no recovered `retryCount` string. It must not be promoted
 to a host persistence/state guarantee from the frontend default alone.
+
+### Current live-progress update path
+
+A separate current update path at `0x4296C7-0x429CE9` supplies the actually
+published in-progress counters before the common serializer. It is stricter
+than the base normalizer and was recovered after the first MAP-002 pass:
+
+- `completedBlocks` and `failedBlocks` are individually bounded to
+  `0..totalBlocks`;
+- if their sum exceeds the total, the host returns exact
+  `INVALID_SCAN_PROGRESS / completed and failed map blocks exceed the scan total`
+  at `0x429781-0x4297A1` rather than silently accepting impossible progress;
+- `remaining = total - completed - failed`;
+- `inflightBlocks` is bounded by both configured concurrency and `remaining`;
+- the emitted live `unreadBlocks` is
+  `max(total - completed - failed - inflight, 0)`;
+- the emitted `readBlocks` is the normalized completed-block count;
+- the progress transaction `0x3D1662-0x3D1A59` is called before the updated
+  public state fields are assembled/published;
+- active `progressPercent` still uses the recovered completed+failed fraction,
+  tenths rounding and `98.0` clamp;
+- `scanRate` is derived from completed blocks over
+  `max(now - startedAt, 1)`, rounded to two decimal places. It is not an
+  arbitrary provider-supplied rate.
+
+The local 0.3.17 control plane therefore persists normalized progress before
+raising its state-changed event and uses the live-update unread formula while a
+scan is active.
 
 ## Stop / cancel
 
@@ -288,7 +327,8 @@ The following historical behaviors are now classified **unchanged/present in
 - missing-game `GAME_CONNECTION_UNAVAILABLE` gate;
 - request `resume` plus state `resumeAvailable` two-factor gate;
 - no currently recovered true `resumeAvailable` constructor;
-- unread/progress derivation and 98% active clamp;
+- base and live-update unread/progress derivation, exact progress overflow
+  rejection and the 98% active clamp;
 - cancel transaction clears staged rows and marks the run cancelled;
 - clear refuses while scanning and owns data by server;
 - success replaces selected published kinds from staging at the terminal

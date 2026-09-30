@@ -1,0 +1,894 @@
+{
+  "schema": 1,
+  "findingId": "LWB317-RE-MAP-001-NATIVE-HANDLERS-COMPACT",
+  "evidenceState": "EXACT_BYTES_DISCOVERY",
+  "source": {
+    "path": "evidence\\lwbridge-0.3.17\\map\\concurrency-handler-discovery.json",
+    "sha256": "b1cd918206ecb392c241e775d7dec18cf70fd3fc763e920d6c4a1800ea148d43",
+    "reference": {
+      "path": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW\\lwbridge-0.3.17.exe",
+      "sha256": "4e9c3113dedfd7e1a752404c6936aab304e67d7ffdb0952a5003c2ec948d6783",
+      "imageBase": "0x140000000",
+      "surfaceManifest": "evidence\\lwbridge-0.3.17\\map\\state-surface.json",
+      "surfaceManifestSha256": "36a3cce9f90f75c8caa471ffeec71cd11c80b21fe3d838692edadfc31e09011f"
+    }
+  },
+  "markers": {
+    "concurrency": {
+      "handlerCandidates": [
+        {
+          "functionRva": "0xFA09E-0xFC643",
+          "size": 9637,
+          "strings": [
+            {
+              "targetVa": "0x1400397B0",
+              "text": "UVWSH",
+              "instructionRvas": [
+                "0xFAC4D"
+              ]
+            },
+            {
+              "targetVa": "0x14082A202",
+              "text": "serverIduid",
+              "instructionRvas": [
+                "0xFA8A9",
+                "0xFAD5F",
+                "0xFB035",
+                "0xFB773"
+              ]
+            },
+            {
+              "targetVa": "0x14082AAA6",
+              "text": "selectedTypes",
+              "instructionRvas": [
+                "0xFA91A",
+                "0xFADCC",
+                "0xFB2AF",
+                "0xFB942"
+              ]
+            },
+            {
+              "targetVa": "0x14082AAD2",
+              "text": "resumeAvailable",
+              "instructionRvas": [
+                "0xFB694"
+              ]
+            },
+            {
+              "targetVa": "0x14082AD90",
+              "text": "SERVER_UNAVAILABLEcurrent server id unavailable",
+              "instructionRvas": [
+                "0xFAAAD"
+              ]
+            },
+            {
+              "targetVa": "0x14082ADA2",
+              "text": "current server id unavailable",
+              "instructionRvas": [
+                "0xFAAB4"
+              ]
+            },
+            {
+              "targetVa": "0x14082BC08",
+              "text": "error",
+              "instructionRvas": [
+                "0xFBF22"
+              ]
+            },
+            {
+              "targetVa": "0x14082C598",
+              "text": "lastError resource automation failed task=",
+              "instructionRvas": [
+                "0xFB66F"
+              ]
+            },
+            {
+              "targetVa": "0x14082CC88",
+              "text": "idgetTradeStationCatalog",
+              "instructionRvas": [
+                "0xFACA6"
+              ]
+            },
+            {
+              "targetVa": "0x14082CFE8",
+              "text": "phaseapplying",
+              "instructionRvas": [
+                "0xFB21E"
+              ]
+            },
+            {
+              "targetVa": "0x14082DE50",
+              "text": "city",
+              "instructionRvas": [
+                "0xFA958"
+              ]
+            },
+            {
+              "targetVa": "0x14082DED0",
+              "text": "src\\services\\player_tracker.rs",
+              "instructionRvas": [
+                "0xFA95F"
+              ]
+            },
+            {
+              "targetVa": "0x14082EDF8",
+              "text": "isInWorldhomeServerIdseasonServerIds",
+              "instructionRvas": [
+                "0xFA29D",
+                "0xFA5D4",
+                "0xFA736"
+              ]
+            },
+            {
+              "targetVa": "0x14082EE68",
+              "text": "isReadingnone",
+              "instructionRvas": [
+                "0xFB1BF"
+              ]
+            },
+            {
+              "targetVa": "0x14082EEA0",
+              "text": "serverIdSourcetileWidthtileHeightcurrent server changed during map scanworldIdlive",
+              "instructionRvas": [
+                "0xFA8D7",
+                "0xFB0DE"
+              ]
+            },
+            {
+              "targetVa": "0x14082EEAE",
+              "text": "tileWidthtileHeightcurrent server changed during map scanworldIdlive",
+              "instructionRvas": [
+                "0xFAB4E",
+                "0xFB9C2"
+              ]
+            },
+            {
+              "targetVa": "0x14082EEB7",
+              "text": "tileHeightcurrent server changed during map scanworldIdlive",
+              "instructionRvas": [
+                "0xFAB6A",
+                "0xFBA32"
+              ]
+            },
+            {
+              "targetVa": "0x14082EEE7",
+              "text": "worldIdlive",
+              "instructionRvas": [
+                "0xFAB86",
+                "0xFB06C",
+                "0xFB7E1"
+              ]
+            },
+            {
+              "targetVa": "0x14082EEF8",
+              "text": "live",
+              "instructionRvas": [
+                "0xFA8FB",
+                "0xFB09D"
+              ]
+            },
+            {
+              "targetVa": "0x14082EF48",
+              "text": "GAME_CONNECTION_UNAVAILABLEgame connection unavailableSCAN_RUNNINGmap scan already running",
+              "instructionRvas": [
+                "0xFA14F"
+              ]
+            },
+            {
+              "targetVa": "0x14082EF63",
+              "text": "game connection unavailableSCAN_RUNNINGmap scan already running",
+              "instructionRvas": [
+                "0xFA156"
+              ]
+            },
+            {
+              "targetVa": "0x14082EF7E",
+              "text": "SCAN_RUNNINGmap scan already running",
+              "instructionRvas": [
+                "0xFA128"
+              ]
+            },
+            {
+              "targetVa": "0x14082EF8A",
+              "text": "map scan already running",
+              "instructionRvas": [
+                "0xFA12F"
+              ]
+            },
+            {
+              "targetVa": "0x14082EFA8",
+              "text": "src\\services\\map_scan.rs",
+              "instructionRvas": [
+                "0xFA48D"
+              ]
+            },
+            {
+              "targetVa": "0x14082EFC0",
+              "text": "enterWorldMap",
+              "instructionRvas": [
+                "0xFA344"
+              ]
+            },
+            {
+              "targetVa": "0x14082EFD0",
+              "text": "src\\services\\map_scan.rs",
+              "instructionRvas": [
+                "0xFA49B"
+              ]
+            },
+            {
+              "targetVa": "0x14082EFE8",
+              "text": "src\\services\\map_scan.rs",
+              "instructionRvas": [
+                "0xFA607"
+              ]
+            },
+            {
+              "targetVa": "0x14082F000",
+              "text": "WORLD_MAP_FAILEDfailed to enter world mapscanModenormalfastINVALID_SCAN_MODEmap scan mode must be normal or fast",
+              "instructionRvas": [
+                "0xFA787"
+              ]
+            },
+            {
+              "targetVa": "0x14082F010",
+              "text": "failed to enter world mapscanModenormalfastINVALID_SCAN_MODEmap scan mode must be normal or fast",
+              "instructionRvas": [
+                "0xFA78E"
+              ]
+            },
+            {
+              "targetVa": "0x14082F029",
+              "text": "scanModenormalfastINVALID_SCAN_MODEmap scan mode must be normal or fast",
+              "instructionRvas": [
+                "0xFAA1E",
+                "0xFB497",
+                "0xFB84F"
+              ]
+            },
+            {
+              "targetVa": "0x14082F031",
+              "text": "normalfastINVALID_SCAN_MODEmap scan mode must be normal or fast",
+              "instructionRvas": [
+                "0xFAA09",
+                "0xFAA3B"
+              ]
+            },
+            {
+              "targetVa": "0x14082F037",
+              "text": "fastINVALID_SCAN_MODEmap scan mode must be normal or fast",
+              "instructionRvas": [
+                "0xFC4AD"
+              ]
+            },
+            {
+              "targetVa": "0x14082F03B",
+              "text": "INVALID_SCAN_MODEmap scan mode must be normal or fast",
+              "instructionRvas": [
+                "0xFAA83"
+              ]
+            },
+            {
+              "targetVa": "0x14082F04C",
+              "text": "map scan mode must be normal or fast",
+              "instructionRvas": [
+                "0xFAA8A"
+              ]
+            },
+            {
+              "targetVa": "0x14082F078",
+              "text": "src\\services\\map_scan.rs",
+              "instructionRvas": [
+                "0xFC570"
+              ]
+            },
+            {
+              "targetVa": "0x14082F090",
+              "text": "createdAt",
+              "instructionRvas": [
+                "0xFAEB2"
+              ]
+            },
+            {
+              "targetVa": "0x14082F0A0",
+              "text": "src\\services\\map_scan.rs",
+              "instructionRvas": [
+                "0xFC5AE"
+              ]
+            },
+            {
+              "targetVa": "0x14082F0B8",
+              "text": "src\\services\\map_scan.rs",
+              "instructionRvas": [
+                "0xFC5CA"
+              ]
+            },
+            {
+              "targetVa": "0x14082F0D0",
+              "text": "scanRunIdscanning",
+              "instructionRvas": [
+                "0xFB16D",
+                "0xFB6EE"
+              ]
+            },
+            {
+              "targetVa": "0x14082F0E8",
+              "text": "scanning",
+              "instructionRvas": [
+                "0xFB1E5"
+              ]
+            },
+            {
+              "targetVa": "0x14082F0F8",
+              "text": "src\\services\\map_scan.rs",
+              "instructionRvas": [
+                "0xFC5E6"
+              ]
+            },
+            {
+              "targetVa": "0x14082F110",
+              "text": "src\\services\\map_scan.rs",
+              "instructionRvas": [
+                "0xFC602"
+              ]
+            },
+            {
+              "targetVa": "0x14082F128",
+              "text": "totalBlocksreadBlocksunreadBlocksfailedBlocksinflightBlocks",
+              "instructionRvas": [
+                "0xFB345",
+                "0xFBE0C"
+              ]
+            },
+            {
+              "targetVa": "0x14082F133",
+              "text": "readBlocksunreadBlocksfailedBlocksinflightBlocks",
+              "instructionRvas": [
+                "0xFB384"
+              ]
+            },
+            {
+              "targetVa": "0x14082F13D",
+              "text": "unreadBlocksfailedBlocksinflightBlocks",
+              "instructionRvas": [
+                "0xFB3C5"
+              ]
+            },
+            {
+              "targetVa": "0x14082F149",
+              "text": "failedBlocksinflightBlocks",
+              "instructionRvas": [
+                "0xFB3FC"
+              ]
+            },
+            {
+              "targetVa": "0x14082F155",
+              "text": "inflightBlocks",
+              "instructionRvas": [
+                "0xFB428"
+              ]
+            },
+            {
+              "targetVa": "0x14082F168",
+              "text": "src\\services\\map_scan.rs",
+              "instructionRvas": [
+                "0xFC61E"
+              ]
+            },
+            {
+              "targetVa": "0x14082F180",
+              "text": "concurrencyscanRateprogressPercentnativePendingRecordsnativeDroppedRecordsnativeCaptureReadystartedAt",
+              "instructionRvas": [
+                "0xFB4E2",
+                "0xFB8D4"
+              ]
+            },
+            {
+              "targetVa": "0x14082F18B",
+              "text": "scanRateprogressPercentnativePendingRecordsnativeDroppedRecordsnativeCaptureReadystartedAt",
+              "instructionRvas": [
+                "0xFB522"
+              ]
+            },
+            {
+              "targetVa": "0x14082F193",
+              "text": "progressPercentnativePendingRecordsnativeDroppedRecordsnativeCaptureReadystartedAt",
+              "instructionRvas": [
+                "0xFB571"
+              ]
+            },
+            {
+              "targetVa": "0x14082F1A2",
+              "text": "nativePendingRecordsnativeDroppedRecordsnativeCaptureReadystartedAt",
+              "instructionRvas": [
+                "0xFB5A8"
+              ]
+            },
+            {
+              "targetVa": "0x14082F1B6",
+              "text": "nativeDroppedRecordsnativeCaptureReadystartedAt",
+              "instructionRvas": [
+                "0xFB5D4"
+              ]
+            },
+            {
+              "targetVa": "0x14082F1CA",
+              "text": "nativeCaptureReadystartedAt",
+              "instructionRvas": [
+                "0xFB5FD",
+                "0xFBE6D"
+              ]
+            },
+            {
+              "targetVa": "0x14082F1DC",
+              "text": "startedAt",
+              "instructionRvas": [
+                "0xFB638"
+              ]
+            },
+            {
+              "targetVa": "0x14082F1E8",
+              "text": "src\\services\\map_scan.rs",
+              "instructionRvas": [
+                "0xFC58F"
+              ]
+            },
+            {
+              "targetVa": "0x14082F200",
+              "text": "startMapScanMAP_SIZE_UNAVAILABLEworld map dimensions are unavailableINVALID_SCAN_TYPESno valid map scan types selectedacceptedmap scan was not accepted",
+              "instructionRvas": [
+                "0xFBB2B"
+              ]
+            },
+            {
+              "targetVa": "0x14082F20C",
+              "text": "MAP_SIZE_UNAVAILABLEworld map dimensions are unavailableINVALID_SCAN_TYPESno valid map scan types selectedacceptedmap scan was not accepted",
+              "instructionRvas": [
+                "0xFC307"
+              ]
+            },
+            {
+              "targetVa": "0x14082F220",
+              "text": "world map dimensions are unavailableINVALID_SCAN_TYPESno valid map scan types selectedacceptedmap scan was not accepted",
+              "instructionRvas": [
+                "0xFC30E"
+              ]
+            },
+            {
+              "targetVa": "0x14082F244",
+              "text": "INVALID_SCAN_TYPESno valid map scan types selectedacceptedmap scan was not accepted",
+              "instructionRvas": [
+                "0xFAB0E"
+              ]
+            },
+            {
+              "targetVa": "0x14082F256",
+              "text": "no valid map scan types selectedacceptedmap scan was not accepted",
+              "instructionRvas": [
+                "0xFAB15"
+              ]
+            },
+            {
+              "targetVa": "0x14082F276",
+              "text": "acceptedmap scan was not accepted",
+              "instructionRvas": [
+                "0xFBC36"
+              ]
+            },
+            {
+              "targetVa": "0x14082F27E",
+              "text": "map scan was not accepted",
+              "instructionRvas": [
+                "0xFBF7B"
+              ]
+            },
+            {
+              "targetVa": "0x14082F2B3",
+              "text": "map scanner is not ready; please try againMAP_SCAN_REJECTEDmap scan block count mismatch",
+              "instructionRvas": [
+                "0xFBD45",
+                "0xFBD7E",
+                "0xFC053",
+                "0xFC08C"
+              ]
+            },
+            {
+              "targetVa": "0x14082F2DD",
+              "text": "MAP_SCAN_REJECTEDmap scan block count mismatch",
+              "instructionRvas": [
+                "0xFC085",
+                "0xFC1FC"
+              ]
+            },
+            {
+              "targetVa": "0x14082F2EE",
+              "text": "map scan block count mismatch",
+              "instructionRvas": [
+                "0xFC1CA",
+                "0xFC203"
+              ]
+            },
+            {
+              "targetVa": "0x14082F325",
+              "text": "MAP_SCAN_START_FAILED",
+              "instructionRvas": [
+                "0xFBD77"
+              ]
+            },
+            {
+              "targetVa": "0x14082F6C0",
+              "text": "called `Result::unwrap()` on an `Err` value",
+              "instructionRvas": [
+                "0xFC62A"
+              ]
+            }
+          ],
+          "directCalls": [
+            {
+              "targetRva": "0x1000F3",
+              "count": 3
+            },
+            {
+              "targetRva": "0x10072E",
+              "count": 2
+            },
+            {
+              "targetRva": "0x10B5B4",
+              "count": 12
+            },
+            {
+              "targetRva": "0x1150D",
+              "count": 11
+            },
+            {
+              "targetRva": "0x1D3893",
+              "count": 1
+            },
+            {
+              "targetRva": "0x276B0",
+              "count": 1
+            },
+            {
+              "targetRva": "0x29A978",
+              "count": 3
+            },
+            {
+              "targetRva": "0x2A1A47",
+              "count": 7
+            },
+            {
+              "targetRva": "0x2A2C0",
+              "count": 2
+            },
+            {
+              "targetRva": "0x2C9034",
+              "count": 3
+            },
+            {
+              "targetRva": "0x2D374B",
+              "count": 2
+            },
+            {
+              "targetRva": "0x2D47A6",
+              "count": 1
+            },
+            {
+              "targetRva": "0x31EEB2",
+              "count": 3
+            },
+            {
+              "targetRva": "0x31EF22",
+              "count": 4
+            },
+            {
+              "targetRva": "0x381AC",
+              "count": 1
+            },
+            {
+              "targetRva": "0x39CECF",
+              "count": 1
+            },
+            {
+              "targetRva": "0x3C3E76",
+              "count": 1
+            },
+            {
+              "targetRva": "0x40070E",
+              "count": 1
+            },
+            {
+              "targetRva": "0x426D07",
+              "count": 1
+            },
+            {
+              "targetRva": "0x426D67",
+              "count": 3
+            },
+            {
+              "targetRva": "0x428A92",
+              "count": 2
+            },
+            {
+              "targetRva": "0x42AABC",
+              "count": 5
+            },
+            {
+              "targetRva": "0x42B988",
+              "count": 1
+            },
+            {
+              "targetRva": "0x42C30B",
+              "count": 5
+            },
+            {
+              "targetRva": "0x59F3C",
+              "count": 5
+            },
+            {
+              "targetRva": "0x5A9178",
+              "count": 1
+            },
+            {
+              "targetRva": "0x5A9578",
+              "count": 2
+            },
+            {
+              "targetRva": "0x5A9615",
+              "count": 8
+            },
+            {
+              "targetRva": "0x5A9712",
+              "count": 12
+            },
+            {
+              "targetRva": "0x5ABE97",
+              "count": 23
+            },
+            {
+              "targetRva": "0x5CB7",
+              "count": 1
+            },
+            {
+              "targetRva": "0x5D5DA",
+              "count": 2
+            },
+            {
+              "targetRva": "0x62E99D",
+              "count": 1
+            },
+            {
+              "targetRva": "0x641035",
+              "count": 2
+            },
+            {
+              "targetRva": "0x641410",
+              "count": 2
+            },
+            {
+              "targetRva": "0x64DDC4",
+              "count": 2
+            },
+            {
+              "targetRva": "0x6D05A",
+              "count": 2
+            },
+            {
+              "targetRva": "0x72B64",
+              "count": 1
+            },
+            {
+              "targetRva": "0x7A50B0",
+              "count": 1
+            },
+            {
+              "targetRva": "0x7A5150",
+              "count": 1
+            },
+            {
+              "targetRva": "0x81E10",
+              "count": 47
+            },
+            {
+              "targetRva": "0x81F3B",
+              "count": 1
+            },
+            {
+              "targetRva": "0xE5095",
+              "count": 2
+            },
+            {
+              "targetRva": "0xF8CB2",
+              "count": 3
+            },
+            {
+              "targetRva": "0xFCD2A",
+              "count": 1
+            }
+          ]
+        },
+        {
+          "functionRva": "0x4296C7-0x429CE9",
+          "size": 1570,
+          "strings": [
+            {
+              "targetVa": "0x140D6862A",
+              "text": "scanRateplayerTrackerScanReceiveplayer tracker state is unavailableautomation.resourceGather.invalidateCandidateautomation.resourceGather.candidates",
+              "instructionRvas": [
+                "0x429B14"
+              ]
+            },
+            {
+              "targetVa": "0x140D68F84",
+              "text": "scanRunIdtotalBlockscompletedBlocksreadBlocksfailedBlocksunreadBlocksinflightBlockscompleted",
+              "instructionRvas": [
+                "0x429819"
+              ]
+            },
+            {
+              "targetVa": "0x140D68F8D",
+              "text": "totalBlockscompletedBlocksreadBlocksfailedBlocksunreadBlocksinflightBlockscompleted",
+              "instructionRvas": [
+                "0x4296FC"
+              ]
+            },
+            {
+              "targetVa": "0x140D68F98",
+              "text": "completedBlocksreadBlocksfailedBlocksunreadBlocksinflightBlockscompleted",
+              "instructionRvas": [
+                "0x429714"
+              ]
+            },
+            {
+              "targetVa": "0x140D68FA7",
+              "text": "readBlocksfailedBlocksunreadBlocksinflightBlockscompleted",
+              "instructionRvas": [
+                "0x4298FC"
+              ]
+            },
+            {
+              "targetVa": "0x140D68FB1",
+              "text": "failedBlocksunreadBlocksinflightBlockscompleted",
+              "instructionRvas": [
+                "0x42974A",
+                "0x429932"
+              ]
+            },
+            {
+              "targetVa": "0x140D68FBD",
+              "text": "unreadBlocksinflightBlockscompleted",
+              "instructionRvas": [
+                "0x429994"
+              ]
+            },
+            {
+              "targetVa": "0x140D68FC9",
+              "text": "inflightBlockscompleted",
+              "instructionRvas": [
+                "0x4297B3",
+                "0x42995D"
+              ]
+            },
+            {
+              "targetVa": "0x140D68FF0",
+              "text": "progressPercentcreatedAtlastErrorresumeAvailablek",
+              "instructionRvas": [
+                "0x429A6E"
+              ]
+            },
+            {
+              "targetVa": "0x140D69008",
+              "text": "lastErrorresumeAvailablek",
+              "instructionRvas": [
+                "0x429860",
+                "0x429BA2"
+              ]
+            },
+            {
+              "targetVa": "0x140D69468",
+              "text": "src\\services\\map_scan.rs",
+              "instructionRvas": [
+                "0x429C5A"
+              ]
+            },
+            {
+              "targetVa": "0x140D69480",
+              "text": "concurrency",
+              "instructionRvas": [
+                "0x4297CB"
+              ]
+            },
+            {
+              "targetVa": "0x140D69490",
+              "text": "src\\services\\map_scan.rs",
+              "instructionRvas": [
+                "0x429CA5"
+              ]
+            },
+            {
+              "targetVa": "0x140D694A8",
+              "text": "src\\services\\map_scan.rs",
+              "instructionRvas": [
+                "0x429CC4"
+              ]
+            },
+            {
+              "targetVa": "0x140D694C0",
+              "text": "INVALID_SCAN_PROGRESScompleted and failed map blocks exceed the scan total",
+              "instructionRvas": [
+                "0x42978A"
+              ]
+            },
+            {
+              "targetVa": "0x140D694D5",
+              "text": "completed and failed map blocks exceed the scan total",
+              "instructionRvas": [
+                "0x429791"
+              ]
+            },
+            {
+              "targetVa": "0x140D6BCC0",
+              "text": "called `Result::unwrap()` on an `Err` value",
+              "instructionRvas": [
+                "0x429CD0"
+              ]
+            }
+          ],
+          "directCalls": [
+            {
+              "targetRva": "0x2A1A47",
+              "count": 1
+            },
+            {
+              "targetRva": "0x2C9034",
+              "count": 2
+            },
+            {
+              "targetRva": "0x31EF22",
+              "count": 1
+            },
+            {
+              "targetRva": "0x3D1662",
+              "count": 1
+            },
+            {
+              "targetRva": "0x42C30B",
+              "count": 5
+            },
+            {
+              "targetRva": "0x5A9578",
+              "count": 2
+            },
+            {
+              "targetRva": "0x5A9615",
+              "count": 2
+            },
+            {
+              "targetRva": "0x5ABE97",
+              "count": 7
+            },
+            {
+              "targetRva": "0x7A3107",
+              "count": 2
+            },
+            {
+              "targetRva": "0x7A50B0",
+              "count": 1
+            },
+            {
+              "targetRva": "0x7A5430",
+              "count": 2
+            },
+            {
+              "targetRva": "0x81E10",
+              "count": 7
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "limits": [
+    "This is a lossless projection of handler ranges/strings/direct calls from the full disassembly manifest; branch semantics still require targeted instruction tracing.",
+    "String references are discovery evidence and do not alone prove control-flow meaning."
+  ]
+}

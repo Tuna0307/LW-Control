@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0-windows10.0.17763.0</TargetFramework>
+    <AssemblyName>LWBridge.Map_0_3_17.Checks</AssemblyName>
+    <RootNamespace>LWBridge.Map317.Checks</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\LWBridge.Map-0.3.17\LWBridge.Map-0.3.17.csproj" />
+  </ItemGroup>
+</Project>

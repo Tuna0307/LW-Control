@@ -13,6 +13,7 @@ from inspect_map_surface import native_surface
 MARKERS = [
     "resume",
     "resumeAvailable",
+    "concurrency",
     "retryCount",
     "scanRunId",
     "phase",
