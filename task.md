@@ -75,11 +75,14 @@ Live-prove each implemented in-scope function against an assistant-owned/current
 The project is in **Phase 2 — function recovery**. Phase 1 static UI recovery is
 accepted. The active work item is the Map-only `LWB317-RE-MAP-001` Goal in
 `docs/GOAL_CAMPAIGN_PHASE2_MAP.md`; no other function family may begin until
-that Goal is closed. `LWB317-LIVE-MAP-V22-RESOURCE-COMPLETENESS-001` has
-completed its bounded Resource completeness work and is awaiting project-lead
-review: the same-tick remote camera-restoration defect and Resource-scoped fix are
-`LIVE_PROVEN`, the corrected observable Resource path is
-`CURRENT_PATH_COMPLETE`, and complete game-universe/original-private-traversal
-coverage remains `UNKNOWN`. Server jump, restart/resume, other Map categories/
-actions and final clean UI integration remain open. Auth/login/licensing
-reconstruction remains out of scope.
+that Goal is closed. `LWB317-LIVE-MAP-V22-RESOURCE-COMPLETENESS-001` established
+the corrected observable Resource path as `LIVE_PROVEN` /
+`CURRENT_PATH_COMPLETE`, while complete game-universe/original-private-traversal
+coverage remains `UNKNOWN`. `LWB317-MAP-UI-INTEGRATION-001` is now also awaiting
+project-lead review: the clean reconstructed Map page uses the real Desktop
+native bridge and its Resource manual Start/progress/completion, real row query,
+pagination, Resource-name filtering, Clear/zero render and post-clear connected
+readiness are `LIVE_PROVEN` from a fresh 7,960-row owned-session snapshot. Server
+jump, restart/resume/saved browse context, other Map categories/actions and final
+Map closure remain open. Auth/login/licensing reconstruction remains out of
+scope.

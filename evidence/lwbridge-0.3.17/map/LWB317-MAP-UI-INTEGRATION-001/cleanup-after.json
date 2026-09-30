@@ -1,0 +1,22 @@
+﻿{
+    "schemaVersion":  1,
+    "taskId":  "LWB317-MAP-UI-INTEGRATION-001",
+    "capturedAt":  "2026-09-30T17:16:18.4385246Z",
+    "matchingOwnedProcessCount":  0,
+    "matchingOwnedProcesses":  [
+
+                               ],
+    "recoveryJournalPresent":  false,
+    "officialPackageSha256":  "248f3aeac712b3f14f86bff37a0c365e467897a2248403837c44c1b774f05b22",
+    "officialPackageRestored":  true,
+    "profileMapDatabase":  "map-data.db",
+    "profileMapWalPresent":  false,
+    "profileMapShmPresent":  false,
+    "mapRecordsServer2212":  0,
+    "scanRunsServer2212":  0,
+    "taskNamedRuntimeArtifacts":  [
+
+                                  ],
+    "unrelatedRuntimeArtifactsPreserved":  true,
+    "note":  "Final clean-UI acceptance cleared server 2212 through the production map_scan_clear path. The persistent per-profile Map317 database remains by design; no task-owned WAL/SHM, process, recovery journal, or task-named runtime artifact remains."
+}

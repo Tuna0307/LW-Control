@@ -293,11 +293,39 @@ See
 `docs/reviews/2026-09-30-LWB317-LIVE-MAP-V22-RESOURCE-COMPLETENESS-001.md` and
 `evidence/lwbridge-0.3.17/map/LWB317-LIVE-MAP-V22-RESOURCE-COMPLETENESS-001/`.
 
-The real backend remains wired through `src/LWBridge.Desktop/WebUi`; the clean
-static reconstruction in `src/LWBridge.UI-0.3.17` has not yet been wired to that
-backend. The Map Goal remains `IN_PROGRESS` for server jump, restart/resume,
-other Map categories/actions, remaining provider gaps and final clean UI
-integration.
+### Clean Map UI integration checkpoint — 2026-09-30
+
+`LWB317-MAP-UI-INTEGRATION-001` connected the clean
+`src/LWBridge.UI-0.3.17` Map page to the established Desktop WebView2/native Map
+contract while preserving the existing bundled `src/LWBridge.Desktop/WebUi` as
+the normal default. A proof-only `--ui-root` host path loads the Vite build
+through the real Desktop bridge without broadening the normal privileged UI
+origin.
+
+The clean page now uses real connection state, manual Start/Stop/Clear,
+scan-status events/polling, per-kind summary counts, backend `map_search`
+pagination/sorting and recovered Resource/Monster/City filter plumbing. Browser
+preview remains explicitly non-native and does not fabricate production data.
+
+The final assistant-owned v22 acceptance selected Resource Point only and
+completed a normal `2500/2500` scan on server `2212` with zero failed/unread
+blocks. The fresh live snapshot contained 7,960 Resources. The clean UI queried
+and rendered real backend rows, page 2 returned 50 rows with zero page-1 key
+overlap, Resource-name filter `100281` returned 2,726 rows, and Clear produced a
+zero backend query plus zero/empty rendered Resource state. The same owned Map
+session/server remained healthy and the clean UI settled at `Connected` after
+clear. See `docs/reviews/2026-09-30-LWB317-MAP-UI-INTEGRATION-001.md` and
+`evidence/lwbridge-0.3.17/map/LWB317-MAP-UI-INTEGRATION-001/`.
+
+This establishes `LIVE_PROVEN` for the clean UI's Resource manual flow. Other
+Map tab query/count plumbing is `IMPLEMENTED_NOT_VALIDATED` in this task. Auto
+Scan/server jump remains `IMPLEMENTED_NOT_VALIDATED`; restart/resume and
+cross-process saved-browse recovery remain open; Treasure claim/status and Ghost
+preparation remain `BLOCKED`.
+
+The Map Goal remains `IN_PROGRESS` for server jump, restart/resume/saved browse
+context, other Map categories/actions, remaining provider gaps and final Map
+closure.
 
 ## Live proof requirements
 

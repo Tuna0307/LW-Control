@@ -1,0 +1,204 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "LWB317-MAP-UI-INTEGRATION-001",
+  "state": "proven",
+  "proof": "clean_reconstructed_map_ui_live_backend_scan_search_page_filter_clear",
+  "windowMode": "persistent_normal_map_data",
+  "profileId": "local-9370d887d93e4475a8d4fee049b50632",
+  "instanceId": "97ff75e1983f4f078b5953c2dd9c7562",
+  "connectionState": "connected",
+  "gamePid": 54776,
+  "selectedTypes": [
+    "resource"
+  ],
+  "scan": {
+    "scanRunId": "1fcdfb1f65e14c5c9e8456db8bff8a49",
+    "serverId": 2212,
+    "scanMode": "normal",
+    "concurrency": 8,
+    "totalBlocks": 2500,
+    "readBlocks": 2500,
+    "failedBlocks": 0,
+    "unreadBlocks": 0,
+    "phase": "completed"
+  },
+  "search": {
+    "requestId": "7f069c43-52a9-4cf6-b5fa-738ec6b72c1c",
+    "payload": {
+      "kind": "resource",
+      "query": {
+        "serverId": 2212,
+        "keyword": "",
+        "page": 1,
+        "pageSize": 50,
+        "sorts": [
+          {
+            "sortBy": "updatedAt",
+            "sortOrder": "desc"
+          }
+        ]
+      },
+      "profileId": "local-9370d887d93e4475a8d4fee049b50632"
+    },
+    "total": 7960,
+    "row": {
+      "blackTileKnown": true,
+      "gatherOccupancyKnown": true,
+      "gatherOccupied": false,
+      "id": 902952,
+      "isBlackTile": false,
+      "kind": "resource",
+      "level": 1,
+      "pointId": 902952,
+      "pointType": 7,
+      "resourceConfigId": 201,
+      "resourceMaxAmount": 21600,
+      "resourceNameKey": "129027",
+      "resourceSourceType": "ResPointInfo",
+      "resourceTypeId": 2,
+      "runtimeClass": "ResPointInfo",
+      "serverId": 2212,
+      "source": "WorldPointManager._pointInfos\u002BGatherResource\u002BLuaEntry.Player.IsInBlackRange",
+      "srcServerId": 2212,
+      "worldId": 0,
+      "x": 951,
+      "y": 902,
+      "sourceKind": "resource_point",
+      "recordKey": "902952",
+      "pointIndex": 902952,
+      "updatedAt": 1790788442000,
+      "rebuildGatherOccupancyKnown": true,
+      "rebuildGatherOccupied": false,
+      "resourceDetailKnown": true,
+      "resourceRemainingAmount": 21600,
+      "resourceFullAmount": 21600,
+      "resourceFull": true,
+      "resourceCapacityMatchesConfig": true
+    }
+  },
+  "rendered": {
+    "rowText": "951,902\t129027\t1\t21,600 / 21,600\tIdle\t10/1/2026, 1:14:02 AM",
+    "cells": [
+      "951,902",
+      "129027",
+      "1",
+      "21,600 / 21,600",
+      "Idle",
+      "10/1/2026, 1:14:02 AM"
+    ]
+  },
+  "screenshotPath": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\evidence\\lwbridge-0.3.17\\map\\LWB317-MAP-UI-INTEGRATION-001\\final-live-acceptance-v2.png",
+  "integrationAcceptance": {
+    "cleanUiProject": "LWBridge.UI-0.3.17",
+    "bridgeMode": "native",
+    "pagination": {
+      "requestId": "101e5612-82b1-40b5-bbf7-d65e2c0b936c",
+      "payload": {
+        "kind": "resource",
+        "query": {
+          "serverId": 2212,
+          "keyword": "",
+          "page": 2,
+          "pageSize": 50,
+          "sorts": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ]
+        },
+        "profileId": "local-9370d887d93e4475a8d4fee049b50632"
+      },
+      "total": 7960,
+      "rows": 50,
+      "duplicateKeysFromPageOne": 0
+    },
+    "resourceFilter": {
+      "resourceNameKey": "100281",
+      "requestId": "c620abc3-5b34-4ba4-b596-5b1db4e3c1e4",
+      "payload": {
+        "kind": "resource",
+        "query": {
+          "serverId": 2212,
+          "keyword": "",
+          "page": 1,
+          "pageSize": 50,
+          "sorts": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "resourceNameKey": "100281"
+        },
+        "profileId": "local-9370d887d93e4475a8d4fee049b50632"
+      },
+      "total": 2726,
+      "rows": 50
+    },
+    "clear": {
+      "status": {
+        "serverId": 0,
+        "serverIdSource": "none",
+        "scanRunId": "",
+        "isReading": false,
+        "phase": "idle",
+        "selectedTypes": [
+          "city",
+          "resource",
+          "monster",
+          "truck",
+          "railway",
+          "dispatch",
+          "ghost",
+          "treasure"
+        ],
+        "totalBlocks": 0,
+        "completedBlocks": 0,
+        "readBlocks": 0,
+        "failedBlocks": 0,
+        "unreadBlocks": 0,
+        "inflightBlocks": 0,
+        "scanMode": "normal",
+        "concurrency": 8,
+        "scanRate": 0,
+        "progressPercent": 0,
+        "nativeCaptureReady": false,
+        "nativePendingRecords": 0,
+        "nativeDroppedRecords": 0,
+        "resumeAvailable": false,
+        "lastError": null,
+        "startedAt": 0
+      },
+      "requestId": "eb0edee7-a6c4-4972-b046-bc51aa58287f",
+      "payload": {
+        "kind": "resource",
+        "query": {
+          "serverId": 2212,
+          "keyword": "",
+          "page": 1,
+          "pageSize": 50,
+          "sorts": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "resourceNameKey": "100281"
+        },
+        "profileId": "local-9370d887d93e4475a8d4fee049b50632"
+      },
+      "total": 0,
+      "rendered": {
+        "busy": false,
+        "count": "0",
+        "empty": true
+      },
+      "mapSessionMatches": true,
+      "liveServerId": 2212,
+      "uiConnectionText": "Connected",
+      "screenshotPath": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\evidence\\lwbridge-0.3.17\\map\\LWB317-MAP-UI-INTEGRATION-001\\final-live-acceptance-v2-post-clear.png"
+    }
+  },
+  "generatedAt": "2026-09-30T17:14:07.3451977+00:00"
+}

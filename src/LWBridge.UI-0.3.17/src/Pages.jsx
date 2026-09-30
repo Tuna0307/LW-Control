@@ -1,4 +1,7 @@
 import { useState } from "react";
+import { MapDataPage } from "./MapDataPage.jsx";
+
+export { MapDataPage } from "./MapDataPage.jsx";
 
 function Switch({ checked = false, disabled = false, label, onChange }) {
   return (
@@ -235,171 +238,6 @@ export function AutomationPage() {
   );
 }
 
-const scanTypes = [
-  "Player City",
-  "Resource Point",
-  "Monster",
-  "Truck",
-  "Train",
-  "Secret Task",
-  "Ghost Ops",
-  "Treasure",
-];
-
-const mapTabs = [
-  "City",
-  "Resource",
-  "Monster",
-  "Truck",
-  "Train",
-  "Secret Task",
-  "Ghost Ops",
-  "Treasure",
-  "Scheduled Plunder",
-];
-
-export function MapDataPage() {
-  const [scanMode, setScanMode] = useState("Manual Scan");
-  const [tab, setTab] = useState("City");
-  return (
-    <section className="panel map-panel">
-      <div className="map-scan-tabs" role="tablist" aria-label="Map scan mode">
-        {["Manual Scan", "Auto Scan"].map((label) => (
-          <button
-            key={label}
-            type="button"
-            role="tab"
-            className={scanMode === label ? "active" : ""}
-            aria-selected={scanMode === label}
-            onClick={() => setScanMode(label)}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
-      <div className="map-header">
-        <h2>World Map Data</h2>
-        <div className="map-actions">
-          {scanMode === "Manual Scan" ? (
-            <>
-              <fieldset className="map-speed-toggle" disabled>
-                <span className="map-speed-slider" />
-                <label><input type="radio" checked readOnly /><span>Normal</span></label>
-                <label><input type="radio" readOnly /><span>Fast</span></label>
-              </fieldset>
-              <button type="button" className="primary" disabled>Start Scan</button>
-              <button type="button" disabled>Stop</button>
-              <button type="button" disabled>Clear Map Data</button>
-            </>
-          ) : null}
-        </div>
-      </div>
-
-      {scanMode === "Auto Scan" ? (
-        <div className="map-auto-scan-card">
-          <label className="map-auto-scan-master" data-preview-fixture="runtime-config-unobserved">
-            <input type="checkbox" disabled />
-            <strong>Enable automatic scanning</strong>
-            <span>Disabled</span>
-          </label>
-          <div className="map-auto-scan-grid">
-            <div className="map-auto-scan-server-field">
-              <span>Target servers</span>
-              <div className="map-auto-scan-server-input"><input disabled /><button type="button" disabled>Add</button></div>
-              <small>Enter server IDs and click Add. Commas add several at once; × removes one. No entries scans the current server.</small>
-            </div>
-            <label><span>Interval (minutes)</span><input disabled /></label>
-            <label><span>Speed</span><select disabled><option>Normal</option><option>Fast</option></select></label>
-          </div>
-          <div className="map-controls">
-            <span className="map-controls-label">Scan contents</span>
-            <div className="map-types map-types--compact">
-              {scanTypes.map((label) => (
-                <label key={label} className="disabled">
-                  <input type="checkbox" disabled />
-                  <span>{label}</span>
-                </label>
-              ))}
-            </div>
-          </div>
-          <div className="map-auto-scan-options">
-            <label><input type="checkbox" disabled />Return to the original server after scanning</label>
-            <button type="button" disabled>Run now</button>
-          </div>
-          <small>Each target server is entered before scanning; a server ID alone cannot scan another server.</small>
-          <small>Next scan: -</small>
-        </div>
-      ) : null}
-
-      <div className="map-scan-summary">
-        <span className="map-status-pill">Stopped</span>
-        <span>Server <strong>-</strong></span>
-        <div className="map-progress low">
-          <progress className="map-progress-bar" max="100" aria-label="Scan progress" />
-          <span>—</span>
-        </div>
-      </div>
-
-      {scanMode === "Manual Scan" ? (
-        <div className="map-controls">
-          <span className="map-controls-label">Scan contents</span>
-          <div className="map-types map-types--compact">
-            {scanTypes.map((label) => (
-              <label key={label} className="disabled">
-                <input type="checkbox" disabled />
-                <span>{label}</span>
-              </label>
-            ))}
-          </div>
-        </div>
-      ) : null}
-
-      <div className="map-search">
-        <div className="map-tabs" role="tablist" aria-label="Map data types">
-          {mapTabs.map((label, index) => (
-            <button
-              key={label}
-              type="button"
-              role="tab"
-              className={tab === label ? "active" : ""}
-              aria-selected={tab === label}
-              onClick={() => setTab(label)}
-            >
-              <span className="map-tab-label">{label}</span>
-              <span className="map-tab-count">{index < 8 ? "—" : "0"}</span>
-            </button>
-          ))}
-        </div>
-
-        {tab !== "Scheduled Plunder" ? (
-          <div className="map-searchbar" data-preview-fixture="empty-local-data">
-            <input aria-label="Search map data" placeholder="Search name, Alliance, or UUID" />
-            {tab === "City" ? (
-              <>
-                <select aria-label="Filter by Alliance"><option>All Alliances</option></select>
-                <label className="map-filter-field"><input type="checkbox" /> <span>Marked only</span></label>
-              </>
-            ) : null}
-            <button type="button">Search</button>
-            {tab === "City" ? <button type="button" disabled>Export Excel</button> : null}
-            <span className="map-result-count">0 items</span>
-          </div>
-        ) : (
-          <div className="map-searchbar"><span className="map-result-count">0 items</span></div>
-        )}
-      </div>
-
-      <div className="map-table-scroll">
-        <table className="map-table map-table--city">
-          <tbody>
-            <tr><td className="map-empty">No saved data for this type.</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
-  );
-}
-
 export function SquadsPage() {
   const [tab, setTab] = useState("afk");
   return (
@@ -604,11 +442,11 @@ export function SettingsPage() {
   );
 }
 
-export function PageForRoute({ routeKey }) {
+export function PageForRoute({ routeKey, ...pageProps }) {
   switch (routeKey) {
     case "overview": return <HomePage />;
     case "automation": return <AutomationPage />;
-    case "map-data": return <MapDataPage />;
+    case "map-data": return <MapDataPage {...pageProps} />;
     case "march": return <SquadsPage />;
     case "city-layout": return <CityLayoutPage />;
     case "hotkeys": return <HotkeysPage />;

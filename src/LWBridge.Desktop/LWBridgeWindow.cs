@@ -38,11 +38,13 @@ internal sealed class LWBridgeWindow : Form
     private readonly FirstLiveResultImport? firstLiveResult;
     private readonly string? normalUiLiveResourceProofPath;
     private readonly string? normalUiLiveMapProofPath;
+    private readonly string? mapUiIntegrationProofPath;
     private readonly OwnerEvidenceRecorder? ownerEvidence;
     private CancellationTokenSource? ownerEvidenceRenderCapture;
     private readonly string initialView;
     private readonly string? language;
     private readonly string? theme;
+    private readonly string uiRootPath;
     private readonly LWBridgeBackend backend;
     private readonly MapDataStore? mapData;
     private readonly HostProbeCommandService? hostProbeService;
@@ -93,19 +95,27 @@ internal sealed class LWBridgeWindow : Form
         string? firstLiveResultPath = null,
         string? normalUiLiveResourceProofPath = null,
         string? normalUiLiveMapProofPath = null,
-        string? ownerEvidencePath = null)
+        string? ownerEvidencePath = null,
+        string? uiRootPath = null,
+        string? mapUiIntegrationProofPath = null)
     {
         this.capturePath = capturePath;
         this.liveProbePath = liveProbePath;
         this.hostProbePath = hostProbePath;
         this.normalUiLiveResourceProofPath = normalUiLiveResourceProofPath;
         this.normalUiLiveMapProofPath = normalUiLiveMapProofPath;
+        this.mapUiIntegrationProofPath = mapUiIntegrationProofPath;
         ownerEvidence = ownerEvidencePath is null ? null : new OwnerEvidenceRecorder(ownerEvidencePath);
         string[] views = ["overview", "automation", "map-data", "march", "city-layout", "hotkeys", "mini-games", "advanced", "settings"];
         if (!views.Contains(initialView)) throw new ArgumentException("Unknown --view: " + initialView);
         this.initialView = initialView;
         this.language = language;
         this.theme = theme;
+        this.uiRootPath = uiRootPath is null
+            ? Path.Combine(AppContext.BaseDirectory, "WebUi")
+            : Path.GetFullPath(uiRootPath);
+        if (!File.Exists(Path.Combine(this.uiRootPath, "index.html")))
+            throw new ArgumentException("UI root must contain index.html: " + this.uiRootPath, nameof(uiRootPath));
         bool isolated = capturePath is not null || liveProbePath is not null || hostProbePath is not null || firstLiveResultPath is not null;
         // The legacy store is retained only by the isolated replay fixtures and
         // the dedicated legacy live-resource proof. Normal production Map owns
@@ -410,7 +420,7 @@ internal sealed class LWBridgeWindow : Form
                     })();
                     """);
             }
-            core.SetVirtualHostNameToFolderMapping("lwbridge.local", Path.Combine(AppContext.BaseDirectory, "WebUi"), CoreWebView2HostResourceAccessKind.DenyCors);
+            core.SetVirtualHostNameToFolderMapping("lwbridge.local", uiRootPath, CoreWebView2HostResourceAccessKind.DenyCors);
             core.NavigationStarting += OnNavigationStarting;
             core.NewWindowRequested += (_, args) => args.Handled = true;
             core.WebMessageReceived += OnWebMessageReceived;
@@ -437,6 +447,14 @@ internal sealed class LWBridgeWindow : Form
             if (theme is not null) url += "&theme=" + Uri.EscapeDataString(theme);
             core.Navigate(WithDocumentSession(url, documentSession.Id));
             await ready.Task.WaitAsync(TimeSpan.FromSeconds(15));
+            if (mapUiIntegrationProofPath is not null)
+            {
+                if (!string.Equals(initialView, "map-data", StringComparison.Ordinal))
+                    throw new InvalidOperationException("--map-ui-integration-proof requires --view map-data.");
+                await RunNormalUiProductionMapProofAsync(core, mapUiIntegrationProofPath, exerciseIntegrationAcceptance: true);
+                Close();
+                return;
+            }
             if (normalUiLiveMapProofPath is not null)
             {
                 if (!string.Equals(initialView, "map-data", StringComparison.Ordinal))
@@ -489,11 +507,11 @@ internal sealed class LWBridgeWindow : Form
         }
         catch (Exception ex)
         {
-            if (capturePath is null && liveProbePath is null && hostProbePath is null && normalUiLiveResourceProofPath is null && normalUiLiveMapProofPath is null)
+            if (capturePath is null && liveProbePath is null && hostProbePath is null && normalUiLiveResourceProofPath is null && normalUiLiveMapProofPath is null && mapUiIntegrationProofPath is null)
                 MessageBox.Show(this, ex.Message, "LWBridge", MessageBoxButtons.OK, MessageBoxIcon.Error);
             else
             {
-                string artifactPath = capturePath ?? liveProbePath ?? hostProbePath ?? normalUiLiveResourceProofPath ?? normalUiLiveMapProofPath!;
+                string artifactPath = capturePath ?? liveProbePath ?? hostProbePath ?? normalUiLiveResourceProofPath ?? normalUiLiveMapProofPath ?? mapUiIntegrationProofPath!;
                 Directory.CreateDirectory(Path.GetDirectoryName(artifactPath)!);
                 await File.WriteAllTextAsync(artifactPath + ".error.txt", ex.ToString());
             }
@@ -576,7 +594,10 @@ internal sealed class LWBridgeWindow : Form
     // historical bounded resource helper proof above, this keeps the actual
     // Map317CommandService is wired into the recovered WebView and only
     // automates the same UI controls a user would press.
-    private async Task RunNormalUiProductionMapProofAsync(CoreWebView2 core, string outputPath)
+    private async Task RunNormalUiProductionMapProofAsync(
+        CoreWebView2 core,
+        string outputPath,
+        bool exerciseIntegrationAcceptance = false)
     {
         if (map317CommandService is null || overviewLifecycleService is null)
             throw new InvalidOperationException("The normal Map Data window does not have the production scan/lifecycle services.");
@@ -615,6 +636,7 @@ internal sealed class LWBridgeWindow : Form
 
         using var operationCts = new CancellationTokenSource(TimeSpan.FromMinutes(8));
         string? instanceId = null;
+        OverviewMapScanSession? ownedMapSession = null;
         JsonElement startJson = default;
         try
         {
@@ -673,23 +695,31 @@ internal sealed class LWBridgeWindow : Form
             }
             if (!connected || string.IsNullOrWhiteSpace(instanceId))
                 throw new TimeoutException("The normal production UI lifecycle did not reach connected state within the proof bound.");
+            ownedMapSession = overviewLifecycleService.GetReadyMapScanSession()
+                ?? throw new InvalidDataException("The normal production UI lifecycle reached connected state without a ready owned Map session.");
 
             JsonElement initialStatus = JsonSerializer.SerializeToElement(map317CommandService.CreateStatus(), JsonOptions.Default);
             string initialRunId = ReadStatusString(initialStatus, "scanRunId") ?? string.Empty;
+            JsonElement completedStatus = default;
+            bool completed = false;
 
-            string clickResult = await core.ExecuteScriptAsync("""
-                (() => {
-                  const button = document.querySelector('.map-header .map-actions button.primary');
-                  if (!button || button.disabled) return false;
-                  button.click();
-                  return true;
-                })()
-                """);
+            string clickResult = "false";
+            for (int attempt = 0; attempt < 150; attempt++)
+            {
+                clickResult = await core.ExecuteScriptAsync("""
+                    (() => {
+                      const button = document.querySelector('.map-header .map-actions button.primary');
+                      if (!button || button.disabled) return false;
+                      button.click();
+                      return true;
+                    })()
+                    """);
+                if (clickResult == "true") break;
+                await Task.Delay(100, operationCts.Token);
+            }
             if (clickResult != "true")
                 throw new InvalidOperationException("The normal production Map Data Start Reading button could not be clicked.");
 
-            JsonElement completedStatus = default;
-            bool completed = false;
             for (int attempt = 0; attempt < 3600; attempt++)
             {
                 operationCts.Token.ThrowIfCancellationRequested();
@@ -732,6 +762,7 @@ internal sealed class LWBridgeWindow : Form
             }
             if (!resourceTabReady)
                 throw new InvalidOperationException("The normal production Map Resource tab did not render.");
+            long beforeResourceTabSequence = GetNormalUiProofSearchSequence();
             await core.ExecuteScriptAsync("document.querySelectorAll('.map-tabs button')[1]?.click();");
 
             bool resourceSearchSettled = false;
@@ -748,22 +779,24 @@ internal sealed class LWBridgeWindow : Form
             if (!resourceSearchSettled)
                 throw new TimeoutException("The normal production Resource tab did not settle.");
 
+            NormalUiResourceProofSearchObservation? observation = ReadNormalUiProofSearchAfter(beforeResourceTabSequence);
             long beforeSearchSequence = GetNormalUiProofSearchSequence();
-            string searchClick = await core.ExecuteScriptAsync("""
-                (() => {
-                  const button = document.querySelector('.map-searchbar > button');
-                  if (!button || button.disabled) return false;
-                  button.click();
-                  return true;
-                })()
-                """);
-            if (searchClick != "true")
-                throw new InvalidOperationException("The normal production Resource Search button could not be clicked.");
-
-            NormalUiResourceProofSearchObservation? observation = null;
+            if (observation is null)
+            {
+                string searchClick = await core.ExecuteScriptAsync("""
+                    (() => {
+                      const button = document.querySelector('.map-searchbar > button');
+                      if (!button || button.disabled) return false;
+                      button.click();
+                      return true;
+                    })()
+                    """);
+                if (searchClick != "true")
+                    throw new InvalidOperationException("The normal production Resource Search button could not be clicked.");
+            }
             for (int attempt = 0; attempt < 200; attempt++)
             {
-                observation = ReadNormalUiProofSearchAfter(beforeSearchSequence);
+                observation ??= ReadNormalUiProofSearchAfter(beforeSearchSequence);
                 if (observation is not null) break;
                 await Task.Delay(100, operationCts.Token);
             }
@@ -889,12 +922,230 @@ internal sealed class LWBridgeWindow : Form
             await using (var output = File.Create(screenshotPath))
                 await core.CapturePreviewAsync(CoreWebView2CapturePreviewImageFormat.Png, output);
 
+            object? integrationAcceptance = null;
+            if (exerciseIntegrationAcceptance)
+            {
+                string cleanUiProjectJson = await core.ExecuteScriptAsync(
+                    "document.querySelector('.app-shell')?.dataset.uiProject || null");
+                string? cleanUiProject = JsonSerializer.Deserialize<string?>(cleanUiProjectJson);
+                string bridgeModeJson = await core.ExecuteScriptAsync(
+                    "document.querySelector('.panel.map-panel')?.dataset.bridgeMode || null");
+                string? bridgeMode = JsonSerializer.Deserialize<string?>(bridgeModeJson);
+                if (!string.Equals(cleanUiProject, "LWBridge.UI-0.3.17", StringComparison.Ordinal) ||
+                    !string.Equals(bridgeMode, "native", StringComparison.Ordinal))
+                    throw new InvalidDataException("The integration proof did not load the clean reconstructed UI through the native Desktop host.");
+
+                async Task<NormalUiResourceProofSearchObservation> WaitForSearchAfter(long sequence, string label)
+                {
+                    for (int attempt = 0; attempt < 300; attempt++)
+                    {
+                        NormalUiResourceProofSearchObservation? found = ReadNormalUiProofSearchAfter(sequence);
+                        if (found is not null) return found;
+                        await Task.Delay(100, operationCts.Token);
+                    }
+                    throw new TimeoutException($"The integration UI {label} did not produce a native map_search response.");
+                }
+
+                static (int Total, JsonElement Rows) RequireSearchResult(
+                    NormalUiResourceProofSearchObservation search,
+                    string label)
+                {
+                    JsonElement root = search.Result;
+                    if (root.ValueKind != JsonValueKind.Object ||
+                        !root.TryGetProperty("total", out JsonElement totalValue) || !totalValue.TryGetInt32(out int foundTotal) ||
+                        !root.TryGetProperty("rows", out JsonElement foundRows) || foundRows.ValueKind != JsonValueKind.Array)
+                        throw new InvalidDataException($"The integration UI {label} returned a malformed map_search result.");
+                    return (foundTotal, foundRows.Clone());
+                }
+
+                if (total <= 50)
+                    throw new InvalidDataException($"The live Resource population ({total}) is too small to exercise recovered page-2 pagination.");
+                var firstPageKeys = rows.EnumerateArray()
+                    .Select(row => RequiredString(row, "recordKey"))
+                    .ToHashSet(StringComparer.Ordinal);
+                long beforePageTwo = GetNormalUiProofSearchSequence();
+                string pageClick = await core.ExecuteScriptAsync("""
+                    (() => {
+                      const button = [...document.querySelectorAll('.map-pagination button')]
+                        .find(candidate => candidate.textContent.trim() === 'Next');
+                      if (!button || button.disabled) return false;
+                      button.click();
+                      return true;
+                    })()
+                    """);
+                if (pageClick != "true")
+                    throw new InvalidOperationException("The clean Resource UI did not expose an enabled Next pagination control.");
+                NormalUiResourceProofSearchObservation pageTwo = await WaitForSearchAfter(beforePageTwo, "page-2 request");
+                MapDataQueryOptions pageTwoQuery = MapDataQueryContract.NormalizeSearch(pageTwo.Payload);
+                (int pageTwoTotal, JsonElement pageTwoRows) = RequireSearchResult(pageTwo, "page-2 request");
+                if (pageTwoQuery.Kind != "resource" || pageTwoQuery.Page != 2 || pageTwoQuery.ServerId != completedServerId ||
+                    pageTwoTotal != total || pageTwoRows.GetArrayLength() == 0)
+                    throw new InvalidDataException("The clean Resource UI page-2 request/result did not preserve the recovered paging contract.");
+                var pageTwoKeys = pageTwoRows.EnumerateArray()
+                    .Select(row => RequiredString(row, "recordKey"))
+                    .ToHashSet(StringComparer.Ordinal);
+                if (firstPageKeys.Overlaps(pageTwoKeys))
+                    throw new InvalidDataException("The clean Resource UI duplicated a page-1 record on page 2.");
+
+                long beforeFilter = GetNormalUiProofSearchSequence();
+                string selectedFilterJson = "null";
+                for (int attempt = 0; attempt < 150; attempt++)
+                {
+                    selectedFilterJson = await core.ExecuteScriptAsync("""
+                        (() => {
+                          const select = document.querySelector('select[aria-label="Resource name"]');
+                          if (!select) return null;
+                          const option = [...select.options].find(candidate => candidate.value);
+                          if (!option) return null;
+                          select.value = option.value;
+                          select.dispatchEvent(new Event('change', { bubbles: true }));
+                          return option.value;
+                        })()
+                        """);
+                    if (selectedFilterJson != "null") break;
+                    await Task.Delay(100, operationCts.Token);
+                }
+                string? selectedFilter = JsonSerializer.Deserialize<string?>(selectedFilterJson);
+                if (string.IsNullOrWhiteSpace(selectedFilter))
+                    throw new InvalidDataException("The clean Resource UI did not expose a recovered Resource-name filter option.");
+                NormalUiResourceProofSearchObservation filteredSearch = await WaitForSearchAfter(beforeFilter, "Resource-name filter");
+                MapDataQueryOptions filteredQuery = MapDataQueryContract.NormalizeSearch(filteredSearch.Payload);
+                (int filteredTotal, JsonElement filteredRows) = RequireSearchResult(filteredSearch, "Resource-name filter");
+                if (filteredQuery.Kind != "resource" || filteredQuery.Page != 1 ||
+                    filteredQuery.ServerId != completedServerId ||
+                    !string.Equals(filteredQuery.ResourceNameKey, selectedFilter, StringComparison.Ordinal) ||
+                    filteredTotal < 1 || filteredRows.GetArrayLength() == 0)
+                    throw new InvalidDataException("The clean Resource UI Resource-name filter did not preserve the recovered query contract.");
+                foreach (JsonElement filteredRow in filteredRows.EnumerateArray())
+                {
+                    if (!filteredRow.TryGetProperty("resourceNameKey", out JsonElement nameValue) ||
+                        nameValue.ValueKind != JsonValueKind.String ||
+                        !string.Equals(nameValue.GetString(), selectedFilter, StringComparison.Ordinal))
+                        throw new InvalidDataException("The clean Resource UI Resource-name filter returned a row from another Resource name.");
+                }
+
+                long beforeClear = GetNormalUiProofSearchSequence();
+                string clearClick = await core.ExecuteScriptAsync("""
+                    (() => {
+                      const button = [...document.querySelectorAll('.map-header .map-actions button')]
+                        .find(candidate => candidate.textContent.trim() === 'Clear Map Data');
+                      if (!button || button.disabled) return false;
+                      button.click();
+                      return true;
+                    })()
+                    """);
+                if (clearClick != "true")
+                    throw new InvalidOperationException("The clean Resource UI Clear Map Data button could not be clicked.");
+
+                JsonElement clearedStatus = default;
+                bool clearCompleted = false;
+                for (int attempt = 0; attempt < 300; attempt++)
+                {
+                    clearedStatus = JsonSerializer.SerializeToElement(map317CommandService.CreateStatus(), JsonOptions.Default);
+                    bool reading = clearedStatus.TryGetProperty("isReading", out JsonElement readingValue) && readingValue.ValueKind == JsonValueKind.True;
+                    if (!reading && (ReadStatusInt32(clearedStatus, "serverId") ?? -1) == 0)
+                    {
+                        clearCompleted = true;
+                        break;
+                    }
+                    await Task.Delay(100, operationCts.Token);
+                }
+                if (!clearCompleted)
+                    throw new TimeoutException("The clean Resource UI clear request did not reach the backend's cleared idle state.");
+
+                NormalUiResourceProofSearchObservation clearedSearch = await WaitForSearchAfter(beforeClear, "post-clear Resource refresh");
+                MapDataQueryOptions clearedQuery = MapDataQueryContract.NormalizeSearch(clearedSearch.Payload);
+                (int clearedTotal, JsonElement clearedRows) = RequireSearchResult(clearedSearch, "post-clear Resource refresh");
+                if (clearedQuery.Kind != "resource" || clearedQuery.ServerId != completedServerId ||
+                    clearedTotal != 0 || clearedRows.GetArrayLength() != 0)
+                    throw new InvalidDataException("The clean Resource UI retained persisted Resource rows after map_scan_clear.");
+
+                string clearedDomJson = await core.ExecuteScriptAsync("""
+                    (() => {
+                      const tab = document.querySelectorAll('.map-tabs button')[1];
+                      const table = document.querySelector('.map-table--resource');
+                      return {
+                        count: tab?.querySelector('.map-tab-count')?.textContent?.trim() || null,
+                        empty: !!table?.querySelector('tbody td.map-empty'),
+                        busy: table?.getAttribute('aria-busy') === 'true'
+                      };
+                    })()
+                    """);
+                using JsonDocument clearedDomDoc = JsonDocument.Parse(clearedDomJson);
+                JsonElement clearedDom = clearedDomDoc.RootElement.Clone();
+                if (!clearedDom.TryGetProperty("count", out JsonElement countValue) || countValue.GetString() != "0" ||
+                    !clearedDom.TryGetProperty("empty", out JsonElement emptyValue) || emptyValue.ValueKind != JsonValueKind.True ||
+                    !clearedDom.TryGetProperty("busy", out JsonElement busyValue) || busyValue.ValueKind != JsonValueKind.False)
+                    throw new InvalidDataException("The clean Resource UI did not render zero count/empty rows after backend clear.");
+
+                await overviewLifecycleService.WaitForHealthyMapScanSessionAsync(
+                    ownedMapSession,
+                    operationCts.Token).ConfigureAwait(false);
+                int? postClearServerId = overviewLifecycleService.GetLiveServerId();
+                if (postClearServerId != completedServerId)
+                    throw new InvalidDataException(
+                        $"The clean Resource UI clear preserved Map readiness but live server {postClearServerId?.ToString() ?? "null"} did not match scan server {completedServerId}.");
+
+                string uiConnectionText = string.Empty;
+                for (int attempt = 0; attempt < 100; attempt++)
+                {
+                    string textJson = await core.ExecuteScriptAsync(
+                        "document.querySelector('.status-card.status-online strong')?.textContent?.trim() || ''");
+                    uiConnectionText = JsonSerializer.Deserialize<string?>(textJson) ?? string.Empty;
+                    if (string.Equals(uiConnectionText, "Connected", StringComparison.Ordinal)) break;
+                    await Task.Delay(100, operationCts.Token);
+                }
+                if (!string.Equals(uiConnectionText, "Connected", StringComparison.Ordinal))
+                    throw new InvalidDataException(
+                        $"Map readiness remained healthy after clear, but the clean UI connection indicator settled at '{uiConnectionText}'.");
+
+                string postClearScreenshotPath = Path.Combine(directory, stem + "-post-clear.png");
+                await using (var postClearOutput = File.Create(postClearScreenshotPath))
+                    await core.CapturePreviewAsync(CoreWebView2CapturePreviewImageFormat.Png, postClearOutput);
+
+                integrationAcceptance = new
+                {
+                    cleanUiProject,
+                    bridgeMode,
+                    pagination = new
+                    {
+                        pageTwo.RequestId,
+                        pageTwo.Payload,
+                        total = pageTwoTotal,
+                        rows = pageTwoRows.GetArrayLength(),
+                        duplicateKeysFromPageOne = 0,
+                    },
+                    resourceFilter = new
+                    {
+                        resourceNameKey = selectedFilter,
+                        filteredSearch.RequestId,
+                        filteredSearch.Payload,
+                        total = filteredTotal,
+                        rows = filteredRows.GetArrayLength(),
+                    },
+                    clear = new
+                    {
+                        status = clearedStatus,
+                        clearedSearch.RequestId,
+                        clearedSearch.Payload,
+                        total = clearedTotal,
+                        rendered = clearedDom,
+                        mapSessionMatches = overviewLifecycleService.MatchesOwnedMapScanSession(ownedMapSession),
+                        liveServerId = postClearServerId,
+                        uiConnectionText,
+                        screenshotPath = postClearScreenshotPath,
+                    },
+                };
+            }
+
             await File.WriteAllTextAsync(fullOutputPath, JsonSerializer.Serialize(new
             {
                 schemaVersion = 1,
-                checkpoint = "LWB-R8-066",
+                checkpoint = exerciseIntegrationAcceptance ? "LWB317-MAP-UI-INTEGRATION-001" : "LWB-R8-066",
                 state = "proven",
-                proof = "normal_production_map_window_start_scan_search_render",
+                proof = exerciseIntegrationAcceptance
+                    ? "clean_reconstructed_map_ui_live_backend_scan_search_page_filter_clear"
+                    : "normal_production_map_window_start_scan_search_render",
                 windowMode = "persistent_normal_map_data",
                 profileId = backend.ProfileId,
                 instanceId,
@@ -926,6 +1177,7 @@ internal sealed class LWBridgeWindow : Form
                     cells = rendered.Cells,
                 },
                 screenshotPath,
+                integrationAcceptance,
                 generatedAt = DateTimeOffset.UtcNow,
             }, new JsonSerializerOptions(JsonOptions.Default) { WriteIndented = true }));
         }
@@ -1174,7 +1426,10 @@ internal sealed class LWBridgeWindow : Form
 
     private void RecordNormalUiProofSearch(string requestId, JsonElement payload, object? result)
     {
-        if (normalUiLiveResourceProofPath is null && normalUiLiveMapProofPath is null) return;
+        if (normalUiLiveResourceProofPath is null &&
+            normalUiLiveMapProofPath is null &&
+            mapUiIntegrationProofPath is null)
+            return;
         JsonElement resultElement = JsonSerializer.SerializeToElement(result, JsonOptions.Default);
         lock (normalUiProofGate)
         {
@@ -2250,7 +2505,7 @@ internal sealed class LWBridgeWindow : Form
                     return;
                 }
                 if (sessionClosed) return;
-                if (command == "map_search" && (normalUiLiveResourceProofPath is not null || normalUiLiveMapProofPath is not null))
+                if (command == "map_search" && (normalUiLiveResourceProofPath is not null || normalUiLiveMapProofPath is not null || mapUiIntegrationProofPath is not null))
                     RecordNormalUiProofSearch(id, payload, execution.Result);
                 if (command == "map_search" && ownerEvidence is not null && OwnerEvidenceResourceContract.IsResourceSearch(payload))
                     ownerEvidence.RecordSearch(id, payload, execution.Result);

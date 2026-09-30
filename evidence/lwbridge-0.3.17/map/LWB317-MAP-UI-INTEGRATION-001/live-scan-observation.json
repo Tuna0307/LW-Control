@@ -1,0 +1,46 @@
+﻿{
+    "schemaVersion":  1,
+    "taskId":  "LWB317-MAP-UI-INTEGRATION-001",
+    "capturedAt":  "2026-09-30T16:20:55.0721467Z",
+    "state":  "live_scan_completed_postscan_harness_error",
+    "source":  {
+                   "ui":  "read-only Windows accessibility observation of the task-owned clean LWBridge UI",
+                   "backend":  "persistent Map317 database cross-check"
+               },
+    "ui":  {
+               "uiProject":  "LWBridge.UI-0.3.17",
+               "status":  "Completed",
+               "serverId":  2212,
+               "progressPercent":  100,
+               "phase":  "completed",
+               "totalBlocks":  2500,
+               "readBlocks":  2500,
+               "failedBlocks":  0,
+               "unreadBlocks":  0,
+               "scanMode":  "normal",
+               "resourceTabCount":  7995,
+               "resourceResultCount":  7995,
+               "pagination":  "Page 1 of 160",
+               "realRowsVisible":  true
+           },
+    "backend":  {
+                    "scanRunId":  "0a8f0ac4292047d1ba3d7b12d883e11e",
+                    "serverId":  2212,
+                    "selectedTypes":  [
+                                          "resource"
+                                      ],
+                    "status":  "completed",
+                    "totalBlocks":  2500,
+                    "completedBlocks":  2500,
+                    "failedBlocks":  0,
+                    "resourceRecords":  7995
+                },
+    "harness":  {
+                    "result":  "post_scan_instrumentation_failed",
+                    "error":  "The normal production Resource Search did not produce a native map_search response.",
+                    "failureStage":  "after completed scan and automatic Resource page-1 query/render; before paging/filter/clear",
+                    "classification":  "proof_harness_timing_defect",
+                    "fullRescanRequired":  false
+                },
+    "note":  "The clean UI completed and rendered the Resource-only scan before the proof harness timed out waiting for a redundant second Search request. The persisted Map317 scan run and record count match the visible UI."
+}

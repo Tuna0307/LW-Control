@@ -2,7 +2,7 @@
 
 **Date:** 2026-09-30
 **Branch:** `research/offline-controller`
-**Phase:** 2 — function recovery / Map Goal v22 live-validation checkpoint
+**Phase:** 2 — function recovery / Map Goal clean-UI live-integration checkpoint
 
 ## Current state
 
@@ -51,8 +51,20 @@ Source-backed adapters remain wired for
 acquisition, navigation, Treasure inspection, server-day, Dispatch alliance
 share, Dispatch scheduled execution and Truck scheduled execution. Treasure
 claim/status and Ghost preparation remain explicit fail-closed current-client
-provider gaps rather than approximations. Server jump, restart/resume, other Map
-categories/actions and final clean UI integration remain open.
+provider gaps rather than approximations.
+
+`LWB317-MAP-UI-INTEGRATION-001` then connected the clean reconstructed
+`src/LWBridge.UI-0.3.17` Map Data page to the existing production native bridge.
+The final owned v22 Resource-only acceptance completed `2500/2500`, zero
+failed/unread, and exposed 7,960 real Resource rows through the clean UI. Page 2
+returned 50 rows with zero page-1 key overlap; Resource-name filter `100281`
+returned 2,726 rows; Clear returned/rendered zero data while the same owned Map
+session/server remained healthy and the UI connection state returned to
+`Connected`. The bundled Desktop WebUI remains the normal default and the clean
+build is served through a proof-only host path for this checkpoint.
+
+Server jump, restart/resume/saved browse context, other Map categories/actions
+and final Map closure remain open.
 
 The prior 0.3.1 reverse-engineering history remains intact as legacy evidence
 and is reused only where exact 0.3.17/current-client revalidation exists.
@@ -118,10 +130,12 @@ It completed or legitimately blocked each authorized **UI-only** stage:
   reference/pixel comparison blocked by the auth boundary).
 
 The separate static UI reconstruction remains at `src/LWBridge.UI-0.3.17/`.
-Its clean Map controls are not yet wired to the real Map backend, which is
-currently exposed through `src/LWBridge.Desktop/WebUi` and the recovered Map317
-commands. Phase 2 Map function recovery remains active under the separate Map
-Goal; all other function families remain blocked.
+Its clean Map page now uses the recovered Map317 commands through the real
+Desktop native bridge; the Resource manual flow is `LIVE_PROVEN` by
+`LWB317-MAP-UI-INTEGRATION-001`. The bundled `src/LWBridge.Desktop/WebUi` remains
+the normal Desktop frontend, and the clean build was hosted through a proof-only
+integration path. Phase 2 Map function recovery remains active under the
+separate Map Goal; all other function families remain blocked.
 
 Queue authority:
 
@@ -165,10 +179,12 @@ Historical auth research remains archived evidence, not a current reconstruction
 
 ## Next project-lead milestone
 
-Review `LWB317-LIVE-MAP-V22-RESOURCE-COMPLETENESS-001` and its evidence-state
-boundaries. Resource acquisition through the corrected current-v22 route is
-`LIVE_PROVEN`/`CURRENT_PATH_COMPLETE`; `GAME_UNIVERSE_COMPLETE` and original
-private traversal equivalence remain `UNKNOWN`. Server jump, restart/resume,
-other Map categories/actions and final clean UI integration remain open. Do not
-open another subsystem until the project lead decides the next bounded Map step
-or closes the Map Goal.
+Review `LWB317-LIVE-MAP-V22-RESOURCE-COMPLETENESS-001` and
+`LWB317-MAP-UI-INTEGRATION-001` with their evidence-state boundaries. Resource
+acquisition through the corrected current-v22 route is
+`LIVE_PROVEN`/`CURRENT_PATH_COMPLETE`, and the clean reconstructed Resource
+manual UI flow is also `LIVE_PROVEN`; `GAME_UNIVERSE_COMPLETE` and original
+private traversal equivalence remain `UNKNOWN`. Server jump,
+restart/resume/saved browse context and other Map categories/actions remain
+open. Do not open another subsystem until the project lead decides the next
+bounded Map step or closes the Map Goal.

@@ -1,0 +1,4 @@
+System.IO.InvalidDataException: The game connection was not healthy after the clean Resource UI clear acceptance step.
+   at LWBridge.Desktop.LWBridgeWindow.RunNormalUiProductionMapProofAsync(CoreWebView2 core, String outputPath, Boolean exerciseIntegrationAcceptance, Boolean reuseCompletedScan) in C:\Users\chimw\OneDrive\Desktop\Github\LW-Control\src\LWBridge.Desktop\LWBridgeWindow.cs:line 1119
+   at LWBridge.Desktop.LWBridgeWindow.RunNormalUiProductionMapProofAsync(CoreWebView2 core, String outputPath, Boolean exerciseIntegrationAcceptance, Boolean reuseCompletedScan) in C:\Users\chimw\OneDrive\Desktop\Github\LW-Control\src\LWBridge.Desktop\LWBridgeWindow.cs:line 1220
+   at LWBridge.Desktop.LWBridgeWindow.OnShown(Object sender, EventArgs e) in C:\Users\chimw\OneDrive\Desktop\Github\LW-Control\src\LWBridge.Desktop\LWBridgeWindow.cs:line 469

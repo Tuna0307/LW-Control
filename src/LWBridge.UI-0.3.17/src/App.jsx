@@ -1,14 +1,20 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import offlineDot from "./assets/dot-offline.png";
+import onlineDot from "./assets/dot-online.png";
+import { backendBridge } from "./backendBridge.js";
+import { connectionState, createMapApi } from "./mapBackend.js";
 import { NavIcon } from "./NavIcon.jsx";
 import { PageForRoute } from "./Pages.jsx";
 import { initialRouteKey, routes } from "./routes.js";
 
 const THEME_KEY = "lwbridge.theme";
+const mapApi = createMapApi(backendBridge);
 
 function initialRoute() {
-  const previewPage = new URLSearchParams(window.location.search).get("previewPage");
-  return routes.some((route) => route.key === previewPage) ? previewPage : initialRouteKey;
+  const params = new URLSearchParams(window.location.search);
+  const previewPage = params.get("previewPage");
+  const requested = params.get("view") || previewPage;
+  return routes.some((route) => route.key === requested) ? requested : initialRouteKey;
 }
 
 function initialTheme() {
@@ -24,6 +30,31 @@ export function App() {
   const [theme, setTheme] = useState(initialTheme);
   const [language, setLanguage] = useState("en");
   const [serverJumpOpen, setServerJumpOpen] = useState(false);
+  const [runtimeStatus, setRuntimeStatus] = useState(null);
+  const [proxyStatus, setProxyStatus] = useState(null);
+  const [currentServerId, setCurrentServerId] = useState(0);
+  const [connectionError, setConnectionError] = useState("");
+
+  const refreshStatus = useCallback(async () => {
+    if (!backendBridge.available) return;
+    const [statusResult, proxyResult, scanResult] = await Promise.allSettled([
+      mapApi.readStatus(),
+      mapApi.readProxyStatus(),
+      mapApi.scanStatus(),
+    ]);
+    if (statusResult.status === "fulfilled") setRuntimeStatus(statusResult.value);
+    if (proxyResult.status === "fulfilled") setProxyStatus(proxyResult.value);
+    if (scanResult.status === "fulfilled" && scanResult.value.serverId > 0) {
+      setCurrentServerId(scanResult.value.serverId);
+    }
+    if (statusResult.status === "rejected" || proxyResult.status === "rejected") {
+      const failure = statusResult.status === "rejected" ? statusResult.reason : proxyResult.reason;
+      setConnectionError(failure?.message || String(failure));
+    } else {
+      setConnectionError("");
+    }
+  }, []);
+
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
     try {
@@ -33,8 +64,41 @@ export function App() {
     }
   }, [theme]);
 
+  useEffect(() => {
+    if (!backendBridge.available) return undefined;
+    let closed = false;
+    const unsubscribeStatus = mapApi.listenStatus((status) => {
+      if (!closed) setRuntimeStatus(status);
+    });
+    const unsubscribeScan = mapApi.listenScanStatus((scan) => {
+      if (!closed && scan.serverId > 0) setCurrentServerId(scan.serverId);
+    });
+    refreshStatus();
+    const timer = window.setInterval(refreshStatus, 5000);
+    return () => {
+      closed = true;
+      window.clearInterval(timer);
+      unsubscribeStatus();
+      unsubscribeScan();
+    };
+  }, [refreshStatus]);
+
+  const bridgeState = connectionError
+    ? "unavailable"
+    : connectionState(runtimeStatus, proxyStatus, backendBridge.mode);
+  const online = bridgeState === "connected";
+  const stateText = {
+    connected: "Connected",
+    disconnected: "Disconnected",
+    stopped: "Stopped",
+    preview: "Preview",
+    unavailable: "Unavailable",
+    checking: "Checking",
+  }[bridgeState] || "Checking";
+  const pendingTasks = Number(runtimeStatus?.pending ?? 0);
+
   return (
-    <main className="app-shell" data-reference-version="0.3.17">
+    <main className="app-shell" data-reference-version="0.3.17" data-ui-project="LWBridge.UI-0.3.17">
       <header className="top-bar">
         <div className="brand-lockup">
           <div className="brand-mark" aria-hidden="true">
@@ -51,13 +115,13 @@ export function App() {
         <section className="status-strip" aria-label="Status">
           <div className="status-card status-online">
             <strong>
-              <img src={offlineDot} alt="" aria-hidden="true" />
-              Checking
+              <img src={online ? onlineDot : offlineDot} alt="" aria-hidden="true" />
+              {stateText}
             </strong>
           </div>
           <div className="status-card">
             <span>Pending tasks</span>
-            <strong>0</strong>
+            <strong>{Number.isFinite(pendingTasks) ? pendingTasks : 0}</strong>
           </div>
         </section>
 
@@ -113,7 +177,7 @@ export function App() {
               <section className="server-jump-popover" aria-label="Cross-server map jump">
                 <div className="server-jump-heading">
                   <strong>Jump to Server</strong>
-                  <span>Current: -</span>
+                  <span>Current: {currentServerId || "-"}</span>
                 </div>
                 <div className="server-jump-form">
                   <input
@@ -127,12 +191,19 @@ export function App() {
                     Jump
                   </button>
                 </div>
-                <p className="server-jump-error">Game disconnected</p>
+                <p className="server-jump-error">
+                  {online ? "Cross-server scanning is unavailable." : "Game disconnected"}
+                </p>
               </section>
             ) : null}
           </div>
 
-          <button className="top-action secondary" type="button">
+          <button
+            className="top-action secondary"
+            type="button"
+            disabled={!backendBridge.available}
+            onClick={refreshStatus}
+          >
             Refresh Status
           </button>
         </div>
@@ -160,7 +231,13 @@ export function App() {
         </nav>
 
         <section className="main-view">
-          <PageForRoute routeKey={activeRoute} />
+          <PageForRoute
+            routeKey={activeRoute}
+            mapApi={mapApi}
+            bridgeMode={backendBridge.mode}
+            backendAvailable={backendBridge.available}
+            online={online}
+          />
         </section>
       </div>
     </main>

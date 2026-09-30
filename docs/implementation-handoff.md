@@ -2,7 +2,7 @@
 
 **Target:** LWBridge 0.3.17  
 **Branch:** `research/offline-controller`  
-**Phase:** Phase 2 function recovery / Map Data v22 live-validation checkpoint
+**Phase:** Phase 2 function recovery / Map Data clean-UI live-integration checkpoint
 
 ## Important reset
 
@@ -115,12 +115,22 @@ zero rejected candidates and full `(0,0)..(999,999)` coverage. This establishes
 `CURRENT_PATH_COMPLETE`; `GAME_UNIVERSE_COMPLETE` and original LWBridge private
 traversal equivalence remain `UNKNOWN`.
 
-The real Map backend is wired through `src/LWBridge.Desktop/WebUi`. The separate
-`src/LWBridge.UI-0.3.17` project remains the clean/static reconstruction and its
-Map controls are not yet wired to that backend. Server jump, restart/resume,
-other Map categories/actions and final clean UI integration remain open. Do not
-start another subsystem until the project lead decides the next bounded Map step
-or closes the Goal.
+`LWB317-MAP-UI-INTEGRATION-001` is also `AWAITING_REVIEW`. Its review is
+`docs/reviews/2026-09-30-LWB317-MAP-UI-INTEGRATION-001.md` and evidence is under
+`evidence/lwbridge-0.3.17/map/LWB317-MAP-UI-INTEGRATION-001/`. The clean
+`src/LWBridge.UI-0.3.17` Map page now speaks the production Desktop native bridge
+through a readable frontend adapter. A final owned v22 Resource-only UI run
+completed `2500/2500`, zero failed/unread, queried/rendered 7,960 real Resource
+rows, proved page-2 pagination and Resource-name filtering, cleared the backend
+and rendered zero rows/count, and retained the same healthy Map session/server
+with the UI back at `Connected`.
+
+The bundled `src/LWBridge.Desktop/WebUi` remains the normal default. The clean
+build is loaded through a proof-only `--ui-root` integration path; it is not a
+wholesale WebUI replacement. Server jump, restart/resume/saved browse context,
+other Map categories/actions and final Map closure remain open. Do not start
+another subsystem until the project lead decides the next bounded Map step or
+closes the Goal.
 
 ## Required worker/campaign output
 

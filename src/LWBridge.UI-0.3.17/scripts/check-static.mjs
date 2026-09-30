@@ -9,6 +9,9 @@ const required = [
   "index.html",
   "src/main.jsx",
   "src/App.jsx",
+  "src/backendBridge.js",
+  "src/mapBackend.js",
+  "src/MapDataPage.jsx",
   "src/NavIcon.jsx",
   "src/Pages.jsx",
   "src/routes.js",
@@ -46,6 +49,16 @@ if (!routesSource.includes('initialRouteKey = "overview"')) {
 const appSource = fs.readFileSync(path.join(root, "src/App.jsx"), "utf8");
 if (!appSource.includes('get("previewPage")')) {
   throw new Error("The clone evidence preview-page selector is missing.");
+}
+
+const mapSource = fs.readFileSync(path.join(root, "src/mapBackend.js"), "utf8");
+for (const command of [
+  "map_scan_start", "map_scan_stop", "map_scan_clear", "map_scan_status",
+  "map_search", "map_summary", "map_data_options",
+]) {
+  if (!mapSource.includes(`\"${command}\"`)) {
+    throw new Error(`Clean Map integration is missing backend command: ${command}`);
+  }
 }
 
 const referenceCss = fs.readFileSync(path.join(root, "src/reference.css"), "utf8");

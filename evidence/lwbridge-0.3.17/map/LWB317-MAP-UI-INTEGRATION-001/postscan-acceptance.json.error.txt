@@ -1,0 +1,4 @@
+System.IO.InvalidDataException: Post-scan UI proof requires one completed Resource-only production scan with zero failed/unread blocks.
+   at LWBridge.Desktop.LWBridgeWindow.RunNormalUiProductionMapProofAsync(CoreWebView2 core, String outputPath, Boolean exerciseIntegrationAcceptance, Boolean reuseCompletedScan) in C:\Users\chimw\OneDrive\Desktop\Github\LW-Control\src\LWBridge.Desktop\LWBridgeWindow.cs:line 734
+   at LWBridge.Desktop.LWBridgeWindow.RunNormalUiProductionMapProofAsync(CoreWebView2 core, String outputPath, Boolean exerciseIntegrationAcceptance, Boolean reuseCompletedScan) in C:\Users\chimw\OneDrive\Desktop\Github\LW-Control\src\LWBridge.Desktop\LWBridgeWindow.cs:line 1214
+   at LWBridge.Desktop.LWBridgeWindow.OnShown(Object sender, EventArgs e) in C:\Users\chimw\OneDrive\Desktop\Github\LW-Control\src\LWBridge.Desktop\LWBridgeWindow.cs:line 457

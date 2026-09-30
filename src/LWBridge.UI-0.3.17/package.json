@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "check": "node scripts/check-static.mjs"
+    "check": "node scripts/check-static.mjs && node scripts/check-map-integration.mjs"
   },
   "dependencies": {
     "react": "^19.1.1",
