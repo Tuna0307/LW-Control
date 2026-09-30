@@ -1,0 +1,94 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "LWB317-MAP-AUTO-SCAN-001",
+  "state": "proven",
+  "launch": {
+    "applicationArguments": [],
+    "url": "https://lwbridge.local/index.html?view=overview&nativeSession=05869fc7d50045c585fb94eaa5e80e69",
+    "bootstrap": {
+      "mode": "live",
+      "hasSessionId": true,
+      "selectedProfileId": "local-9370d887d93e4475a8d4fee049b50632",
+      "hasNativeWebView": true
+    },
+    "buildIdentity": {
+      "schemaVersion": 1,
+      "project": "LWBridge.UI-0.3.17",
+      "canonicalSource": "src/LWBridge.UI-0.3.17",
+      "sourceFingerprint": "42bea0cc5f45d73feb6ac4fe0863f91349aaee255664e25653f26de4d8634cb9",
+      "artifactFingerprint": "1f9855ddea4c7db0ca65899d431e7d4456c7efdb4e35e57386fee9a4f7d3e334",
+      "entrypoint": "index.html"
+    },
+    "bridgeMode": "native"
+  },
+  "lifecycle": {
+    "assistantOwned": true,
+    "instanceId": "adba72c385d84a3ca6914448ba38e97e",
+    "connectionState": "connected"
+  },
+  "autoScan": {
+    "currentServerOnly": true,
+    "completed": {
+      "completedBlocks": 2500,
+      "concurrency": 20,
+      "failedBlocks": 0,
+      "homeServerId": 2212,
+      "inflightBlocks": 0,
+      "isInWorld": true,
+      "isReading": false,
+      "lastError": null,
+      "nativeCaptureReady": true,
+      "nativeDroppedRecords": 0,
+      "nativePendingRecords": 0,
+      "phase": "completed",
+      "progressPercent": 100,
+      "readBlocks": 2500,
+      "resumeAvailable": false,
+      "scanMode": "fast",
+      "scanRate": 36.23,
+      "scanRunId": "afccd5bc92474e1fbb7f25b1d1d4c9c5",
+      "seasonServerIds": [],
+      "selectedTypes": [
+        "dispatch"
+      ],
+      "serverId": 2212,
+      "serverIdSource": "live",
+      "startedAt": 1790797022,
+      "totalBlocks": 2500,
+      "truckMatchServerIds": [
+        2198,
+        2199,
+        2205,
+        2212
+      ],
+      "unreadBlocks": 0
+    },
+    "storedConfig": {
+      "enabled": false,
+      "intervalMinutes": 60,
+      "serverIds": [],
+      "selectedTypes": [
+        "dispatch"
+      ],
+      "scanMode": "fast",
+      "returnToOriginalServer": true,
+      "nextRunAt": 1790797021197
+    },
+    "disabledAfterProof": true,
+    "clearedAfterProof": true
+  },
+  "runtimeDiagnostics": {
+    "consoleErrors": [],
+    "consoleWarnings": [],
+    "pageErrors": [],
+    "requestFailures": [],
+    "badResponses": [],
+    "securityPolicyViolations": []
+  },
+  "generatedAt": "2026-09-30T19:38:12.399Z",
+  "cleanup": {
+    "attempted": true,
+    "stopped": true,
+    "error": null
+  }
+}

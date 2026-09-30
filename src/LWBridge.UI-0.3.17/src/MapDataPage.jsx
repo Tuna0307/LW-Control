@@ -15,6 +15,25 @@ import {
 const DEFAULT_SORTS = Object.freeze(
   Object.fromEntries(MAP_KIND_KEYS.map((kind) => [kind, [{ sortBy: "updatedAt", sortOrder: "desc" }]])),
 );
+const AUTO_DEFAULT_TYPES = ["truck", "railway", "dispatch", "ghost", "treasure"];
+
+function normalizeAutoConfig(value) {
+  const source = value && typeof value === "object" ? value : {};
+  const interval = Math.trunc(Number(source.intervalMinutes));
+  const serverIds = Array.isArray(source.serverIds)
+    ? [...new Set(source.serverIds.map(Number).filter((id) => Number.isInteger(id) && id >= 1 && id <= 99999))].slice(0, 20)
+    : [];
+  const selected = Array.isArray(source.selectedTypes) ? source.selectedTypes.filter((kind) => MAP_KIND_KEYS.includes(kind)) : AUTO_DEFAULT_TYPES;
+  return {
+    enabled: source.enabled === true,
+    intervalMinutes: interval >= 20 && interval <= 1440 ? interval : 60,
+    serverIds,
+    selectedTypes: selected.length ? [...new Set(selected)] : [...AUTO_DEFAULT_TYPES],
+    scanMode: source.scanMode === "normal" ? "normal" : "fast",
+    returnToOriginalServer: source.returnToOriginalServer !== false,
+    nextRunAt: Number.isFinite(Number(source.nextRunAt)) ? Math.max(0, Math.trunc(Number(source.nextRunAt))) : 0,
+  };
+}
 
 function errorText(error) {
   if (!error) return "";
@@ -236,6 +255,14 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
   const [scanError, setScanError] = useState("");
   const [queryError, setQueryError] = useState("");
   const [actionBusy, setActionBusy] = useState("");
+  const autoStorageKey = `lwbridge.mapAutoScan.${mapApi.profileId || "default"}`;
+  const [autoConfig, setAutoConfig] = useState(() => {
+    try { return normalizeAutoConfig(JSON.parse(window.localStorage.getItem(autoStorageKey) || "null")); }
+    catch { return normalizeAutoConfig(null); }
+  });
+  const [autoServerInput, setAutoServerInput] = useState("");
+  const [autoRunning, setAutoRunning] = useState(false);
+  const autoConfigRef = useRef(autoConfig);
   const [searchRevision, setSearchRevision] = useState(0);
   const selectionTouched = useRef(false);
   const previousReading = useRef(false);
@@ -247,6 +274,11 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
   useEffect(() => {
     window.localStorage.setItem("lwbridge.mapScanMode", speed);
   }, [speed]);
+
+  useEffect(() => {
+    autoConfigRef.current = autoConfig;
+    window.localStorage.setItem(autoStorageKey, JSON.stringify(autoConfig));
+  }, [autoConfig, autoStorageKey]);
 
   const loadOptions = useCallback(async (serverId) => {
     if (!backendAvailable || !serverId) return;
@@ -460,6 +492,65 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
     finally { setActionBusy(""); }
   }
 
+  async function runAutoCycle() {
+    if (autoRunning || scanState.isReading || !online) return;
+    setAutoRunning(true);
+    setScanError("");
+    let originalServerId = 0;
+    try {
+      const admissionState = await mapApi.scanStatus();
+      originalServerId = admissionState.serverId;
+      if (!originalServerId) throw new Error("Current server is unavailable");
+      const targets = autoConfig.serverIds.length ? autoConfig.serverIds : [originalServerId];
+      for (const serverId of targets) {
+        await mapApi.jumpServer(serverId);
+        await mapApi.start(autoConfig.selectedTypes, autoConfig.scanMode);
+        const deadline = Date.now() + 2_700_000;
+        for (;;) {
+          await new Promise((resolve) => window.setTimeout(resolve, 2000));
+          if (Date.now() >= deadline) {
+            await mapApi.stop();
+            throw new Error("Auto scan timed out after 45 minutes");
+          }
+          const state = await mapApi.scanStatus();
+          setScanState(state);
+          if (!state.isReading) {
+            if (state.lastError) setScanError(state.lastError);
+            break;
+          }
+        }
+        if (!autoConfigRef.current.enabled) break;
+      }
+    } catch (error) {
+      setScanError(errorText(error));
+    } finally {
+      if (autoConfig.returnToOriginalServer && originalServerId > 0) {
+        try { await mapApi.jumpServer(originalServerId); } catch {}
+      }
+      setAutoConfig((current) => ({ ...current, nextRunAt: Date.now() + current.intervalMinutes * 60_000 }));
+      setAutoRunning(false);
+      await refreshSummary();
+    }
+  }
+
+  useEffect(() => {
+    if (!autoConfig.enabled || !online || scanState.isReading || autoRunning) return undefined;
+    const tick = () => { if (Date.now() >= autoConfig.nextRunAt) runAutoCycle(); };
+    tick();
+    const timer = window.setInterval(tick, 5000);
+    return () => window.clearInterval(timer);
+  }, [autoConfig.enabled, autoConfig.nextRunAt, autoRunning, currentServerId, online, scanState.isReading]);
+
+  function addAutoServers() {
+    const added = autoServerInput.split(",").map((value) => Number(value.trim())).filter((id) => Number.isInteger(id) && id >= 1 && id <= 99999);
+    setAutoConfig((current) => ({ ...current, serverIds: [...new Set([...current.serverIds, ...added])].slice(0, 20) }));
+    setAutoServerInput("");
+  }
+
+  function toggleAutoType(kind, checked) {
+    setAutoConfig((current) => ({ ...current, selectedTypes: updateSelectedTypes(current.selectedTypes, kind, checked) }));
+  }
+
   const progress = Math.max(0, Math.min(100, Math.round(Number(scanState.progressPercent) || 0)));
   const statusLabel = scanState.isReading
     ? scanState.phase === "publishing" ? "Processing" : "Reading"
@@ -478,49 +569,50 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
         <div className="map-actions">
           {scanTab === "manual" ? (
             <>
-              <fieldset className={`map-speed-toggle${speed === "fast" ? " fast" : ""}`} disabled={scanState.isReading}>
+              <fieldset className={`map-speed-toggle${speed === "fast" ? " fast" : ""}`} disabled={scanState.isReading || autoRunning}>
                 <span className="map-speed-slider" aria-hidden="true" />
                 <label><input type="radio" name="map-scan-speed" checked={speed === "normal"} onChange={() => { selectionTouched.current = true; setSpeed("normal"); }} /><span>Normal</span></label>
                 <label><input type="radio" name="map-scan-speed" checked={speed === "fast"} onChange={() => { selectionTouched.current = true; setSpeed("fast"); }} /><span>Fast</span></label>
               </fieldset>
-              <button type="button" className={!scanState.isReading ? "primary" : ""} disabled={!online || scanState.isReading} onClick={startScan}>Start Scan</button>
+              <button type="button" className={!scanState.isReading ? "primary" : ""} disabled={!online || scanState.isReading || autoRunning} onClick={startScan}>Start Scan</button>
               <button type="button" className={scanState.isReading ? "danger" : ""} disabled={!backendAvailable || !scanState.isReading} onClick={stopScan}>Stop</button>
-              <button type="button" disabled={!backendAvailable || !dataServerId || scanState.isReading} onClick={clearData}>Clear Map Data</button>
+              <button type="button" disabled={!backendAvailable || !dataServerId || scanState.isReading || autoRunning} onClick={clearData}>Clear Map Data</button>
             </>
           ) : null}
         </div>
       </div>
 
       {scanTab === "auto" ? (
-        <div className="map-auto-scan-card" data-runtime-state="server-jump-unvalidated">
+        <div className="map-auto-scan-card" data-runtime-state={autoRunning ? "running" : autoConfig.enabled ? "enabled" : "disabled"}>
           <label className="map-auto-scan-master">
-            <input type="checkbox" disabled />
+            <input type="checkbox" checked={autoConfig.enabled} onChange={(event) => setAutoConfig((current) => ({ ...current, enabled: event.target.checked, nextRunAt: event.target.checked ? Date.now() : 0 }))} />
             <strong>Enable automatic scanning</strong>
-            <span>Disabled</span>
+            <span>{autoRunning ? "Running" : autoConfig.enabled ? "Enabled" : "Disabled"}</span>
           </label>
           <div className="map-auto-scan-grid">
             <div className="map-auto-scan-server-field">
               <span>Target servers</span>
-              <div className="map-auto-scan-server-input"><input disabled /><button type="button" disabled>Add</button></div>
+              <div className="map-auto-scan-server-input"><input value={autoServerInput} disabled={autoRunning} onChange={(event) => setAutoServerInput(event.target.value)} /><button type="button" disabled={autoRunning || !autoServerInput.trim()} onClick={addAutoServers}>Add</button></div>
+              {autoConfig.serverIds.length ? <div>{autoConfig.serverIds.map((id) => <button type="button" key={id} disabled={autoRunning} onClick={() => setAutoConfig((current) => ({ ...current, serverIds: current.serverIds.filter((value) => value !== id) }))}>{id} ×</button>)}</div> : null}
               <small>Enter server IDs and click Add. Commas add several at once; × removes one. No entries scans the current server.</small>
             </div>
-            <label><span>Interval (minutes)</span><input value="60" readOnly disabled /></label>
-            <label><span>Speed</span><select value="fast" disabled readOnly><option value="normal">Normal</option><option value="fast">Fast</option></select></label>
+            <label><span>Interval (minutes)</span><input type="number" min="20" max="1440" value={autoConfig.intervalMinutes} disabled={autoRunning} onChange={(event) => setAutoConfig((current) => normalizeAutoConfig({ ...current, intervalMinutes: event.target.value }))} /></label>
+            <label><span>Speed</span><select value={autoConfig.scanMode} disabled={autoRunning} onChange={(event) => setAutoConfig((current) => ({ ...current, scanMode: event.target.value }))}><option value="normal">Normal</option><option value="fast">Fast</option></select></label>
           </div>
           <div className="map-controls">
             <span className="map-controls-label">Scan contents</span>
             <div className="map-types map-types--compact">
               {MAP_SCAN_TYPES.map(({ key, label }) => (
-                <label key={key} className="disabled"><input type="checkbox" checked={["truck", "railway", "dispatch", "ghost", "treasure"].includes(key)} readOnly disabled /><span>{label}</span></label>
+                <label key={key}><input type="checkbox" checked={autoConfig.selectedTypes.includes(key)} disabled={autoRunning || (autoConfig.selectedTypes.length === 1 && autoConfig.selectedTypes[0] === key)} onChange={(event) => toggleAutoType(key, event.target.checked)} /><span>{label}</span></label>
               ))}
             </div>
           </div>
           <div className="map-auto-scan-options">
-            <label><input type="checkbox" checked readOnly disabled />Return to the original server after scanning</label>
-            <button type="button" disabled>Run now</button>
+            <label><input type="checkbox" checked={autoConfig.returnToOriginalServer} disabled={autoRunning} onChange={(event) => setAutoConfig((current) => ({ ...current, returnToOriginalServer: event.target.checked }))} />Return to the original server after scanning</label>
+            <button type="button" disabled={!autoConfig.enabled || autoRunning || scanState.isReading || !online} onClick={() => setAutoConfig((current) => ({ ...current, nextRunAt: Date.now() }))}>Run now</button>
           </div>
           <small>Each target server is entered before scanning; a server ID alone cannot scan another server.</small>
-          <small>Next scan: -</small>
+          <small>Next scan: {autoConfig.nextRunAt > 0 ? dateText(autoConfig.nextRunAt) : "-"}</small>
         </div>
       ) : null}
 

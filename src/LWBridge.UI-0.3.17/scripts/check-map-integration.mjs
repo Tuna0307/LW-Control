@@ -33,6 +33,16 @@ for (const unsupportedKey of ["selectedTypes", "browseServer", "resultTab", "sca
   assert.doesNotMatch(mapPageSource, new RegExp(`localStorage\\.(?:getItem|setItem)\\([^\\n]*${unsupportedKey}`),
     `canonical Map UI must not invent recovered persistence for ${unsupportedKey}`);
 }
+assert.match(mapPageSource, /lwbridge\.mapAutoScan\.\$\{mapApi\.profileId \|\| "default"\}/,
+  "canonical Auto Scan must use the recovered per-profile local-storage key");
+assert.match(mapPageSource, /const AUTO_DEFAULT_TYPES = \["truck", "railway", "dispatch", "ghost", "treasure"\]/,
+  "canonical Auto Scan must preserve recovered default selected types");
+assert.match(mapPageSource, /interval >= 20 && interval <= 1440 \? interval : 60/,
+  "canonical Auto Scan must preserve the recovered 20..1440 minute interval contract");
+assert.match(mapPageSource, /window\.setInterval\(tick, 5000\)/,
+  "canonical Auto Scan scheduler must preserve the recovered five-second due check");
+assert.match(mapPageSource, /2_700_000/,
+  "canonical Auto Scan must preserve the recovered 45-minute scan timeout");
 assert.deepEqual(
   MAP_SCAN_TYPES.map(({ label }) => label),
   ["Player City", "Resource Point", "Monster", "Truck", "Train", "Secret Task", "Ghost Ops", "Treasure"],

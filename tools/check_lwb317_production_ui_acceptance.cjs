@@ -196,6 +196,40 @@ async function tableRows(page) {
     );
     await page.waitForFunction(() => document.querySelector('.status-card.status-online strong')?.textContent.trim() === 'Connected', undefined, { timeout: 30000 });
 
+    const modeIndex = process.argv.indexOf('--mode');
+    const verificationMode = modeIndex >= 0 ? process.argv[modeIndex + 1] : 'resource';
+    if (verificationMode === 'auto-scan') {
+      const initialMapStatus = await nativeInvoke(page, 'map_scan_status', { profileId }, 15000);
+      ensure(initialMapStatus?.serverId > 0, `Auto Scan current server is unavailable: ${JSON.stringify(initialMapStatus)}`);
+      await page.getByRole('tab', { name: 'Auto Scan' }).click();
+      const master = page.locator('.map-auto-scan-master input[type=checkbox]');
+      ensure(await master.count() === 1, 'Auto Scan master toggle is missing');
+      if (await master.isChecked()) await master.click();
+      await master.click();
+      await page.waitForFunction(() => document.querySelector('.map-status-pill')?.textContent.trim() === 'Reading', undefined, { timeout: 30000 });
+      await page.waitForFunction(() => document.querySelector('.map-status-pill')?.textContent.trim() === 'Completed', undefined, { timeout: 480000 });
+      const completed = await nativeInvoke(page, 'map_scan_status', { profileId }, 15000);
+      ensure(completed?.phase === 'completed' && completed?.readBlocks === completed?.totalBlocks && completed?.failedBlocks === 0,
+        `Auto Scan did not complete cleanly: ${JSON.stringify(completed)}`);
+      if (await master.isChecked()) await master.click();
+      const storedConfig = await page.evaluate((id) => JSON.parse(localStorage.getItem(`lwbridge.mapAutoScan.${id}`) || 'null'), profileId);
+      ensure(storedConfig?.enabled === false, `Auto Scan remained enabled after proof: ${JSON.stringify(storedConfig)}`);
+      await nativeInvoke(page, 'map_scan_clear', { profileId, serverId: completed.serverId }, 30000);
+      const healthy = await waitForNativeStatus(page, profileId, (status) => status?.instanceId === instanceId && status?.connectionState === 'connected', 120000, 'post-auto-scan health');
+      await page.screenshot({ path: path.join(screenshotDir, 'auto-scan-completed-disabled.png'), animations: 'disabled' });
+      proof = {
+        schemaVersion: 1,
+        checkpoint: 'LWB317-MAP-AUTO-SCAN-001',
+        state: 'proven',
+        launch: { applicationArguments: [], url: page.url(), bootstrap, buildIdentity, bridgeMode },
+        lifecycle: { assistantOwned: true, instanceId, connectionState: healthy?.connectionState || null },
+        autoScan: { currentServerOnly: true, completed, storedConfig, disabledAfterProof: true, clearedAfterProof: true },
+        runtimeDiagnostics: diagnostics,
+        generatedAt: new Date().toISOString(),
+      };
+      return;
+    }
+
     const selection = await page.evaluate(() => {
       const labels = [...document.querySelectorAll('.panel.map-panel .map-controls .map-types label')];
       const rows = labels.map((label) => ({ label, text: label.textContent.trim(), input: label.querySelector('input[type=checkbox]') }));

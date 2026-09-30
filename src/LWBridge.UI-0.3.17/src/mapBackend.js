@@ -237,6 +237,7 @@ export function createMapApi(bridge) {
   const scoped = (payload = {}) => profileId ? { ...payload, profileId } : payload;
   return {
     bridge,
+    profileId,
     readStatus: () => bridge.invoke(MAP_COMMANDS.status, scoped()),
     readProxyStatus: () => bridge.invoke(MAP_COMMANDS.proxyStatus, scoped()),
     scanStatus: () => bridge.invoke(MAP_COMMANDS.scanStatus, scoped()).then(normalizeScanState),
