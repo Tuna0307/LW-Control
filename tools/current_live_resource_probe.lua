@@ -2301,30 +2301,79 @@ local function resource_source_metadata(tile, server_id, resource_source)
 end
 
 local function resource_aoi_records(world, point_manager, block_size, block_count, selected_lookup, detail_request)
+    local function completeness_increment(counts, key)
+        local normalized = key == nil and "<missing>" or tostring(key)
+        counts[normalized] = (counts[normalized] or 0) + 1
+    end
+    local function completeness_reject_resource(diag, reason)
+        diag.rejectedResourceCandidateCount = diag.rejectedResourceCandidateCount + 1
+        completeness_increment(diag.rejectionReasonCounts, reason)
+    end
     local collection = reflected_value(point_manager, "_pointInfos")
     if collection == nil then return nil, "WorldPointManager._pointInfos unavailable" end
     local expected = collection_count(collection)
     if expected == nil or expected < 0 or expected > MAX_POINTS then return nil, "point_count_invalid" end
     local records = {}
+    local diagnostic = {
+        observedPointInfos = expected,
+        enumeratedPointInfos = 0,
+        resourceCandidateCount = 0,
+        acceptedResourceCount = 0,
+        rejectedResourceCandidateCount = 0,
+        nonResourcePointCount = 0,
+        runtimeClassCounts = {},
+        rawPointTypeCounts = {},
+        rejectionReasonCounts = {},
+        acceptedAoiCounts = {},
+        resourceSourceLookupHitCount = 0,
+        resourceSourceLookupFallbackCount = 0,
+    }
     local scanned = each(collection, MAX_POINTS + 1, function(raw)
         local info = safe_get(raw, "Value") or raw
+        diagnostic.enumeratedPointInfos = diagnostic.enumeratedPointInfos + 1
+        completeness_increment(diagnostic.runtimeClassCounts, reflected_type_name(info) or "<unknown>")
         local point_type = integer_field(info, { "pointType", "PointType" })
-        if point_type ~= 1 and point_type ~= 7 and point_type ~= 26 then return true end
+        completeness_increment(diagnostic.rawPointTypeCounts, point_type)
+        if point_type ~= 1 and point_type ~= 7 and point_type ~= 26 then
+            diagnostic.nonResourcePointCount = diagnostic.nonResourcePointCount + 1
+            return true
+        end
+        diagnostic.resourceCandidateCount = diagnostic.resourceCandidateCount + 1
         local id = integer_field(info, { "pointIndex", "PointIndex", "mainIndex", "MainIndex", "pointId", "PointId" })
-        if id == nil or id <= 0 then return true end
+        if id == nil or id <= 0 then
+            completeness_reject_resource(diagnostic, "invalid_or_missing_point_id")
+            return true
+        end
         local tile = index_to_tile(world, id)
-        if tile == nil then return true end
+        if tile == nil then
+            completeness_reject_resource(diagnostic, "tile_conversion_failed")
+            return true
+        end
         local cell_x = math.floor(tile.x / block_size)
         local cell_y = math.floor(tile.y / block_size)
-        if cell_x < 0 or cell_y < 0 or cell_x >= block_count or cell_y >= block_count then return true end
+        if cell_x < 0 or cell_y < 0 or cell_x >= block_count or cell_y >= block_count then
+            completeness_reject_resource(diagnostic, "outside_aoi_grid")
+            return true
+        end
         local aoi_index = cell_y * block_count + cell_x
-        if selected_lookup[aoi_index] ~= true then return true end
+        if selected_lookup[aoi_index] ~= true then
+            completeness_reject_resource(diagnostic, "outside_selected_aoi")
+            return true
+        end
         local server_id = integer_field(info, { "serverId", "ServerId" }) or current_server_id()
-        if server_id == nil or server_id <= 0 then return true end
+        if server_id == nil or server_id <= 0 then
+            completeness_reject_resource(diagnostic, "invalid_or_missing_server_id")
+            return true
+        end
         local resource_info = safe_get(info, "collectResourceInfo") or safe_get(info, "CollectResourceInfo")
         local resource_source = info
         local ok_resource, loaded_resource = call(point_manager, "GetResourcePointInfoByIndex", id)
-        if ok_resource and loaded_resource ~= nil then resource_source = loaded_resource end
+        if ok_resource and loaded_resource ~= nil then
+            resource_source = loaded_resource
+            diagnostic.resourceSourceLookupHitCount = diagnostic.resourceSourceLookupHitCount + 1
+        else
+            diagnostic.resourceSourceLookupFallbackCount = diagnostic.resourceSourceLookupFallbackCount + 1
+        end
         local gather_march_found, gather_march_uuid = reflected_field_value(resource_source, "gatherMarchUuid")
         local gather_uid_found, gather_uid = reflected_field_value(resource_source, "gatherUid")
         local gather_occupancy_known = gather_march_found and gather_uid_found
@@ -2365,10 +2414,12 @@ local function resource_aoi_records(world, point_manager, block_size, block_coun
             blackTileKnown = black_tile_known, isBlackTile = is_black_tile,
             source = "WorldPointManager._pointInfos+GatherResource+LuaEntry.Player.IsInBlackRange",
         }
+        diagnostic.acceptedResourceCount = diagnostic.acceptedResourceCount + 1
+        completeness_increment(diagnostic.acceptedAoiCounts, aoi_index)
         return true
     end)
-    if scanned ~= expected then return nil, "point_enumeration_mismatch" end
-    return records, nil
+    if scanned ~= expected then return nil, "point_enumeration_mismatch", diagnostic end
+    return records, nil, diagnostic
 end
 
 local function dispatch_aoi_records(world, point_manager, block_size, block_count, selected_lookup)
@@ -4590,6 +4641,7 @@ local function write_bulk_aoi_result(request, state, error_text, details)
         matchedDispatchCount = details.matchedDispatchCount,
         matchedGhostCount = details.matchedGhostCount,
         matchedTreasureCount = details.matchedTreasureCount,
+        resourceCompleteness = details.resourceCompleteness,
         beforeLoadedPointCount = details.beforeLoadedPointCount,
         afterLoadedPointCount = details.afterLoadedPointCount,
         targetTileX = details.targetTileX,
@@ -5383,8 +5435,9 @@ local function pump_bulk_aoi_diagnostic(now)
         details.matchedCityCount = 0
     end
     if bulk_aoi_request.includeResource == true then
-        local resource_records, resource_records_error = resource_aoi_records(
+        local resource_records, resource_records_error, resource_completeness = resource_aoi_records(
             world, point_manager, details.blockSize, details.blockCount, lookup, bulk_aoi_request)
+        details.resourceCompleteness = resource_completeness
         if resource_records == nil then
             fail_bulk_aoi(bulk_aoi_request, resource_records_error, details, point_manager)
             return true

@@ -2526,6 +2526,31 @@ internal static class CurrentClientMapBlockSourceChecks
         JsonObject root = JsonNode.Parse(ProvenFastCityBatch(fields))!.AsObject();
         root["matchedCityCount"] = 0;
         root["matchedResourceCount"] = resources.Length;
+        var acceptedAoiCounts = new SortedDictionary<string, int>(StringComparer.Ordinal);
+        foreach (var resource in resources)
+        {
+            string aoi = ((resource.Y / 10) * 100 + (resource.X / 10)).ToString();
+            acceptedAoiCounts[aoi] = acceptedAoiCounts.TryGetValue(aoi, out int count) ? count + 1 : 1;
+        }
+        root["resourceCompleteness"] = JsonSerializer.SerializeToNode(new
+        {
+            observedPointInfos = resources.Length,
+            enumeratedPointInfos = resources.Length,
+            resourceCandidateCount = resources.Length,
+            acceptedResourceCount = resources.Length,
+            rejectedResourceCandidateCount = 0,
+            nonResourcePointCount = 0,
+            runtimeClassCounts = resources.Length == 0
+                ? new Dictionary<string, int>()
+                : new Dictionary<string, int> { ["ResPointInfo"] = resources.Length },
+            rawPointTypeCounts = resources.Length == 0
+                ? new Dictionary<string, int>()
+                : new Dictionary<string, int> { ["1"] = resources.Length },
+            rejectionReasonCounts = new Dictionary<string, int>(),
+            acceptedAoiCounts,
+            resourceSourceLookupHitCount = resources.Length,
+            resourceSourceLookupFallbackCount = 0,
+        }, JsonOptions.Default);
         root["point_records"] = JsonSerializer.SerializeToNode(resources.Select(resource => new
         {
             id = resource.PointId, pointId = resource.PointId, pointType = 1, kind = "resource_point",
@@ -2703,6 +2728,7 @@ internal static class CurrentClientMapBlockSourceChecks
         root["point_records"] = pointRows;
         root["matchedCityCount"] = includeRecords ? 1 : 0;
         root["matchedResourceCount"] = includeRecords ? 1 : 0;
+        root["resourceCompleteness"] = resource["resourceCompleteness"]!.DeepClone();
         root["matchedDispatchCount"] = includeRecords ? 1 : 0;
         root["matchedGhostCount"] = includeRecords ? 1 : 0;
         root["matchedTreasureCount"] = includeRecords ? 1 : 0;

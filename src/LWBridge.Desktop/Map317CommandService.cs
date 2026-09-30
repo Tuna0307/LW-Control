@@ -70,6 +70,9 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
     public event Action? DispatchPlunderChanged;
     public event Action? TruckPlunderChanged;
 
+    internal ResourceCompletenessReport? LastResourceCompletenessReport =>
+        currentSource.LastResourceCompletenessReport;
+
     public bool CanHandle(string command) => Commands.Contains(command);
 
     internal object CreateStatus() => control.ScanState;

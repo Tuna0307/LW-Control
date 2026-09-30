@@ -32,6 +32,7 @@ internal sealed partial class CurrentClientMapBlockSource
     private string? fastCitySettledSessionId;
     private FastFullWorldResumeState? fastFullWorldResumeState;
     internal MonsterProtectionDetailMetrics? LastMonsterProtectionDetailMetrics { get; private set; }
+    internal ResourceCompletenessReport? LastResourceCompletenessReport { get; private set; }
 
     public Task<IReadOnlyList<MapScanBlockCapture>> CaptureBatchAsync(
         MapScanExecutionRequest request, MapScanTargetBlock seedBlock,
@@ -64,7 +65,11 @@ internal sealed partial class CurrentClientMapBlockSource
         if (pendingBlockIndices.Count == 2500 && seedBlock.BlockIndex == 0)
         {
             if (fastFullWorldResumeState is not { } resume || !resume.Matches(session, request))
+            {
                 fastFullWorldResumeState = new FastFullWorldResumeState(session, request);
+                if (request.SelectedTypes.Contains("resource", StringComparer.Ordinal))
+                    LastResourceCompletenessReport = null;
+            }
 
             if (IsZombieBossOnly(request) && hooks?.DisableCoarseMonsterMap != true)
             {
@@ -301,9 +306,13 @@ internal sealed partial class CurrentClientMapBlockSource
             logicalBlocks.Any(block => !pendingBlockIndices.Contains(block.BlockIndex)))
             throw new InvalidDataException("Fast full-world acquisition requires all 2,500 logical blocks pending.");
 
-        FastFullWorldResumeState state = fastFullWorldResumeState is { } existing && existing.Matches(session, request)
-            ? existing
+        FastFullWorldResumeState? existingState = fastFullWorldResumeState;
+        bool reuseState = existingState is not null && existingState.Matches(session, request);
+        FastFullWorldResumeState state = reuseState
+            ? existingState!
             : new FastFullWorldResumeState(session, request);
+        if (!reuseState && request.SelectedTypes.Contains("resource", StringComparer.Ordinal))
+            LastResourceCompletenessReport = null;
         fastFullWorldResumeState = state;
         HashSet<int> covered = state.Covered;
         Dictionary<string, FirstLivePreparedResource> cityRecords = state.CityRecords;
@@ -416,10 +425,15 @@ internal sealed partial class CurrentClientMapBlockSource
                 }
                 foreach (FirstLivePreparedResource prepared in observation.Resources)
                 {
-                    if (!resourceRecords.TryGetValue(prepared.Record.RecordKey, out FirstLivePreparedResource? prior) ||
-                        prepared.Record.UpdatedAt >= prior.Record.UpdatedAt)
+                    bool duplicateRecordKey = resourceRecords.TryGetValue(
+                        prepared.Record.RecordKey, out FirstLivePreparedResource? prior);
+                    state.ResourceCompleteness.RecordAcceptedMerge(duplicateRecordKey);
+                    if (!duplicateRecordKey ||
+                        prepared.Record.UpdatedAt >= prior!.Record.UpdatedAt)
                         resourceRecords[prepared.Record.RecordKey] = prepared;
                 }
+                if (observation.ResourceCompleteness is { } completeness)
+                    state.ResourceCompleteness.AddBatch(completeness);
                 foreach (FastDispatchPrepared prepared in observation.Dispatches)
                 {
                     if (!dispatchRecords.TryGetValue(prepared.Record.RecordKey, out FastDispatchPrepared? prior) ||
@@ -514,6 +528,23 @@ internal sealed partial class CurrentClientMapBlockSource
                 resourceDetails.Details.TryGetValue(key, out ResourceScanDetail? detail);
                 resourceRecords[key] = ApplyResourceScanDetail(prepared, detail);
             }
+        }
+
+        if (request.SelectedTypes.Contains("resource", StringComparer.Ordinal))
+        {
+            LastResourceCompletenessReport = state.ResourceCompleteness.Build(
+                request.RunId,
+                request.ServerId,
+                request.WorldId,
+                request.TileWidth,
+                request.TileHeight,
+                resourceRecords.Values,
+                resourceDetails.TargetCount,
+                resourceDetails.RequestCount,
+                resourceDetails.CacheBeforeCount,
+                resourceDetails.SendFailureCount,
+                resourceDetails.ReadyCount,
+                resourceDetails.Error);
         }
 
         MonsterProtectionDetailObservation protection = MonsterProtectionDetailObservation.Empty;
@@ -1366,6 +1397,16 @@ internal sealed partial class CurrentClientMapBlockSource
         int matchedDispatchCount = RequireNonNegativeInt(root, "matchedDispatchCount");
         int matchedGhostCount = RequireNonNegativeInt(root, "matchedGhostCount");
         int matchedTreasureCount = RequireNonNegativeInt(root, "matchedTreasureCount");
+        ResourceCompletenessBatchDiagnostics? resourceCompleteness = null;
+        if (request.SelectedTypes.Contains("resource", StringComparer.Ordinal))
+        {
+            if (!root.TryGetProperty("resourceCompleteness", out JsonElement completenessValue) ||
+                completenessValue.ValueKind != JsonValueKind.Object)
+                throw new InvalidDataException("Fast world Resource batch is missing completeness accounting.");
+            resourceCompleteness = ResourceCompletenessBatchDiagnostics.Parse(completenessValue);
+            if (resourceCompleteness.AcceptedResourceCount != matchedResourceCount)
+                throw new InvalidDataException("Fast world Resource completeness accepted count changed during capture.");
+        }
         IReadOnlyList<FirstLivePreparedResource> prepared = request.SelectedTypes.Contains("city", StringComparer.Ordinal) && HasPointKind(pointRecords, "player_base")
             ? FirstLiveResultImporter.PrepareCitySnapshot(bytes, resultPath)
             : Array.Empty<FirstLivePreparedResource>();
@@ -1417,6 +1458,7 @@ internal sealed partial class CurrentClientMapBlockSource
             monsterProtectionDetailReadyCount > monsterProtectionDetailTargetCount)
             throw new InvalidDataException("Fast world Monster Invasion protection detail counters are inconsistent.");
         return new FastCityBatchObservation(requestedIndices, prepared, resources, dispatches, ghosts, treasures, monsters, trains,
+            resourceCompleteness,
             monsterInvasionBossCount, monsterProtectionDetailTargetCount, monsterProtectionDetailRequestCount, monsterProtectionDetailReadyCount);
     }
     private static Dictionary<int, MapStoredRecord[]> RecordsByBlock(FastCityBatchObservation observation, MapScanExecutionRequest request)
@@ -2095,6 +2137,7 @@ internal sealed partial class CurrentClientMapBlockSource
         internal HashSet<int> Covered { get; } = new();
         internal Dictionary<string, FirstLivePreparedResource> CityRecords { get; } = new(StringComparer.Ordinal);
         internal Dictionary<string, FirstLivePreparedResource> ResourceRecords { get; } = new(StringComparer.Ordinal);
+        internal ResourceCompletenessAccumulator ResourceCompleteness { get; } = new();
         internal Dictionary<string, FastDispatchPrepared> DispatchRecords { get; } = new(StringComparer.Ordinal);
         internal Dictionary<string, FastGhostPrepared> GhostRecords { get; } = new(StringComparer.Ordinal);
         internal Dictionary<string, FastTreasurePrepared> TreasureRecords { get; } = new(StringComparer.Ordinal);
@@ -2164,6 +2207,7 @@ internal sealed partial class CurrentClientMapBlockSource
         IReadOnlyList<FastTreasurePrepared> Treasures,
         IReadOnlyList<FastMonsterPrepared> Monsters,
         IReadOnlyList<FastTrainPrepared> Trains,
+        ResourceCompletenessBatchDiagnostics? ResourceCompleteness,
         int MonsterInvasionBossCount,
         int MonsterProtectionDetailTargetCount,
         int MonsterProtectionDetailRequestCount,
