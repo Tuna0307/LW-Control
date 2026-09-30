@@ -15,10 +15,22 @@ jobs:
       - uses: actions/setup-dotnet@v6
         with:
           dotnet-version: '10.0.x'
+      - name: Verify canonical reconstructed frontend
+        shell: pwsh
+        run: |
+          npm.cmd ci --prefix src/LWBridge.UI-0.3.17 --no-audit --no-fund
+          npm.cmd run check --prefix src/LWBridge.UI-0.3.17
+          npm.cmd run build --prefix src/LWBridge.UI-0.3.17
+          npm.cmd run check:production-build --prefix src/LWBridge.UI-0.3.17
       - name: Verify recovered assets and generated UI
         run: python tools/build_lwbridge_frontend.py --check
       - name: Build LWBridge desktop application
         run: dotnet build src/LWBridge.Desktop/LWBridge.Desktop.csproj --configuration Release
+      - name: Verify packaged frontend ownership
+        shell: pwsh
+        run: |
+          if (-not (Test-Path src/LWBridge.Desktop/bin/Release/net10.0-windows10.0.17763.0/ProductionUi/lwbridge-ui-build.json)) { throw 'canonical ProductionUi package missing' }
+          if (-not (Test-Path src/LWBridge.Desktop/bin/Release/net10.0-windows10.0.17763.0/WebUi/index.html)) { throw 'legacy WebUi recovery package missing' }
       - name: Run deterministic backend and transport checks
         run: dotnet run --project tests/LWBridge.Desktop.Checks/LWBridge.Desktop.Checks.csproj --configuration Release
       - name: Verify Overview startup failure rollback matrix

@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "node scripts/build-production.mjs",
+    "check:production-build": "node scripts/check-production-build.mjs",
     "preview": "vite preview",
     "check": "node scripts/check-static.mjs && node scripts/check-map-integration.mjs"
   },

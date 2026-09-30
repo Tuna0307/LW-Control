@@ -1,0 +1,475 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "LWB317-MAP-UI-PRODUCTIONIZE-001",
+  "state": "proven",
+  "launch": {
+    "applicationArguments": [],
+    "url": "https://lwbridge.local/index.html?view=overview&nativeSession=b4464e4245f240668d22502692562f96",
+    "bootstrap": {
+      "mode": "live",
+      "hasSessionId": true,
+      "selectedProfileId": "local-9370d887d93e4475a8d4fee049b50632",
+      "hasNativeWebView": true
+    },
+    "buildIdentity": {
+      "schemaVersion": 1,
+      "project": "LWBridge.UI-0.3.17",
+      "canonicalSource": "src/LWBridge.UI-0.3.17",
+      "sourceFingerprint": "6cfb043426572bbe656f786e1e5656d8f887e2c38e89255aca35119a5547dea9",
+      "artifactFingerprint": "655e7e256a8add3f0d6c6bc9222d28e4d49d6d54138b159bb24ed2dac081bd72",
+      "entrypoint": "index.html"
+    },
+    "uiProject": "LWBridge.UI-0.3.17",
+    "bridgeMode": "native"
+  },
+  "navigation": [
+    {
+      "label": "Home",
+      "expectedText": "Game Setup",
+      "active": true,
+      "renderedText": "Game Setup\nChecking game setup…\nOpen games at startup\nAutomatic Reconnection"
+    },
+    {
+      "label": "Automation",
+      "expectedText": "Automation",
+      "active": true,
+      "renderedText": "Automation\nGame disconnected. Actions are disabled.\nDaily Tasks\nAlliance\nResource gathering\nResource Claims\nChat\nTrade Station\nProtection & System\nAuto Training\n\nTrain and promote in large batches, then finish the remaining troops.\n\nDisconn"
+    },
+    {
+      "label": "Map Data",
+      "expectedText": "World Map Data",
+      "active": true,
+      "renderedText": "Manual Scan\nAuto Scan\nWorld Map Data\nNormal\nFast\nStart Scan\nStop\nClear Map Data\nStopped\nServer -\n—\nPhaseidle\nTotal blocks0\nRead0\nFailed0\nUnread0\nModenormal\nGame disconnected. Start Scan is disabled; saved Map data remains available.\nScan co"
+    },
+    {
+      "label": "Squads / AFK",
+      "expectedText": "Squads",
+      "active": true,
+      "renderedText": "Squads / AFK\nAFK Tasks\nEquipment Schemes\nMonster AFK master switch\n\nDisabled\n\nUse Stamina items automatically\n\nUse below Stamina —\n\nAuto Alliance Drill\n\nJoin Alliance rallies · 1\n\nAuto Garrison\n\nDisabled\n\nZombie Bus Garrison\n\nDisconnected\n\n"
+    },
+    {
+      "label": "City Layout",
+      "expectedText": "The game is disconnected",
+      "active": true,
+      "renderedText": "The game is disconnected, so the city layout cannot be loaded."
+    },
+    {
+      "label": "Hotkeys",
+      "expectedText": "Game Hotkeys",
+      "active": true,
+      "renderedText": "Game Hotkeys\nFixed shortcuts that respond while the Last War game window is active.\nGame disconnected. Settings are saved and will apply after connection.\nQ / W / E / R\nAttack target\n\nQ/W/E/R each send one march at whatever is under the cur"
+    },
+    {
+      "label": "Mini Games",
+      "expectedText": "Mini Games",
+      "active": true,
+      "renderedText": "Mini Games\nOptional helpers for in-game mini games.\nGame disconnected. Settings are saved and will apply after connection.\nG\nFrontline reinforcement\n\nPress G after a Frontline Breakthrough battle starts to add 5 soldiers each time.\n\nDisable"
+    },
+    {
+      "label": "Settings",
+      "expectedText": "Settings",
+      "active": true,
+      "renderedText": "Settings\nIn-game display, application information, and client updates.\nIn-game performance\nShow real-time performance and network latency in the top-left corner of the game.\n\nProcessing\n\nIssue feedback\nExport recent local diagnostic logs to"
+    }
+  ],
+  "lifecycle": {
+    "assistantOwned": true,
+    "instanceId": "96243e796cae4d1298018be1c3aefc8f",
+    "gamePid": 61520,
+    "connectionState": "connected"
+  },
+  "mapResource": {
+    "selectedTypes": [
+      "resource"
+    ],
+    "scan": {
+      "completedBlocks": 2500,
+      "concurrency": 8,
+      "failedBlocks": 0,
+      "inflightBlocks": 0,
+      "isReading": false,
+      "lastError": null,
+      "nativeCaptureReady": true,
+      "nativeDroppedRecords": 0,
+      "nativePendingRecords": 0,
+      "phase": "completed",
+      "progressPercent": 100,
+      "readBlocks": 2500,
+      "resumeAvailable": false,
+      "scanMode": "normal",
+      "scanRate": 19.69,
+      "scanRunId": "e29e921451c44ac4a20a848cac2cc781",
+      "selectedTypes": [
+        "resource"
+      ],
+      "serverId": 2212,
+      "serverIdSource": "live",
+      "startedAt": 1790791946,
+      "totalBlocks": 2500,
+      "unreadBlocks": 0
+    },
+    "progressObserved": true,
+    "progressSamples": [
+      {
+        "at": 1790791940264,
+        "status": "Stopped",
+        "progress": "—",
+        "counters": [
+          "Phaseidle",
+          "Total blocks0",
+          "Read0",
+          "Failed0",
+          "Unread0",
+          "Modenormal"
+        ]
+      },
+      {
+        "at": 1790791946764,
+        "status": "Reading",
+        "progress": "0%",
+        "counters": [
+          "Phasescanning",
+          "Total blocks2,500",
+          "Read0",
+          "Failed0",
+          "Unread2,500",
+          "Modenormal"
+        ]
+      },
+      {
+        "at": 1790791953263,
+        "status": "Reading",
+        "progress": "0%",
+        "counters": [
+          "Phasescanning",
+          "Total blocks2,500",
+          "Read0",
+          "Failed0",
+          "Unread2,499",
+          "Modenormal"
+        ]
+      },
+      {
+        "at": 1790791959763,
+        "status": "Reading",
+        "progress": "0%",
+        "counters": [
+          "Phasescanning",
+          "Total blocks2,500",
+          "Read0",
+          "Failed0",
+          "Unread2,499",
+          "Modenormal"
+        ]
+      },
+      {
+        "at": 1790791966265,
+        "status": "Reading",
+        "progress": "0%",
+        "counters": [
+          "Phasescanning",
+          "Total blocks2,500",
+          "Read0",
+          "Failed0",
+          "Unread2,499",
+          "Modenormal"
+        ]
+      },
+      {
+        "at": 1790791972764,
+        "status": "Reading",
+        "progress": "0%",
+        "counters": [
+          "Phasescanning",
+          "Total blocks2,500",
+          "Read0",
+          "Failed0",
+          "Unread2,499",
+          "Modenormal"
+        ]
+      },
+      {
+        "at": 1790791979264,
+        "status": "Reading",
+        "progress": "0%",
+        "counters": [
+          "Phasescanning",
+          "Total blocks2,500",
+          "Read0",
+          "Failed0",
+          "Unread2,499",
+          "Modenormal"
+        ]
+      },
+      {
+        "at": 1790791985763,
+        "status": "Reading",
+        "progress": "0%",
+        "counters": [
+          "Phasescanning",
+          "Total blocks2,500",
+          "Read0",
+          "Failed0",
+          "Unread2,499",
+          "Modenormal"
+        ]
+      },
+      {
+        "at": 1790791992264,
+        "status": "Reading",
+        "progress": "0%",
+        "counters": [
+          "Phasescanning",
+          "Total blocks2,500",
+          "Read0",
+          "Failed0",
+          "Unread2,499",
+          "Modenormal"
+        ]
+      },
+      {
+        "at": 1790791998763,
+        "status": "Reading",
+        "progress": "0%",
+        "counters": [
+          "Phasescanning",
+          "Total blocks2,500",
+          "Read0",
+          "Failed0",
+          "Unread2,499",
+          "Modenormal"
+        ]
+      },
+      {
+        "at": 1790792005265,
+        "status": "Reading",
+        "progress": "0%",
+        "counters": [
+          "Phasescanning",
+          "Total blocks2,500",
+          "Read0",
+          "Failed0",
+          "Unread2,499",
+          "Modenormal"
+        ]
+      },
+      {
+        "at": 1790792011764,
+        "status": "Reading",
+        "progress": "0%",
+        "counters": [
+          "Phasescanning",
+          "Total blocks2,500",
+          "Read0",
+          "Failed0",
+          "Unread2,499",
+          "Modenormal"
+        ]
+      },
+      {
+        "at": 1790792018264,
+        "status": "Reading",
+        "progress": "0%",
+        "counters": [
+          "Phasescanning",
+          "Total blocks2,500",
+          "Read0",
+          "Failed0",
+          "Unread2,499",
+          "Modenormal"
+        ]
+      },
+      {
+        "at": 1790792024764,
+        "status": "Reading",
+        "progress": "0%",
+        "counters": [
+          "Phasescanning",
+          "Total blocks2,500",
+          "Read0",
+          "Failed0",
+          "Unread2,499",
+          "Modenormal"
+        ]
+      },
+      {
+        "at": 1790792031264,
+        "status": "Reading",
+        "progress": "0%",
+        "counters": [
+          "Phasescanning",
+          "Total blocks2,500",
+          "Read0",
+          "Failed0",
+          "Unread2,499",
+          "Modenormal"
+        ]
+      },
+      {
+        "at": 1790792037763,
+        "status": "Reading",
+        "progress": "0%",
+        "counters": [
+          "Phasescanning",
+          "Total blocks2,500",
+          "Read0",
+          "Failed0",
+          "Unread2,499",
+          "Modenormal"
+        ]
+      },
+      {
+        "at": 1790792044265,
+        "status": "Reading",
+        "progress": "0%",
+        "counters": [
+          "Phasescanning",
+          "Total blocks2,500",
+          "Read0",
+          "Failed0",
+          "Unread2,499",
+          "Modenormal"
+        ]
+      },
+      {
+        "at": 1790792050764,
+        "status": "Reading",
+        "progress": "0%",
+        "counters": [
+          "Phasescanning",
+          "Total blocks2,500",
+          "Read0",
+          "Failed0",
+          "Unread2,499",
+          "Modenormal"
+        ]
+      },
+      {
+        "at": 1790792057264,
+        "status": "Reading",
+        "progress": "0%",
+        "counters": [
+          "Phasescanning",
+          "Total blocks2,500",
+          "Read0",
+          "Failed0",
+          "Unread2,499",
+          "Modenormal"
+        ]
+      },
+      {
+        "at": 1790792063765,
+        "status": "Reading",
+        "progress": "0%",
+        "counters": [
+          "Phasescanning",
+          "Total blocks2,500",
+          "Read0",
+          "Failed0",
+          "Unread2,499",
+          "Modenormal"
+        ]
+      },
+      {
+        "at": 1790792070263,
+        "status": "Reading",
+        "progress": "0%",
+        "counters": [
+          "Phasescanning",
+          "Total blocks2,500",
+          "Read0",
+          "Failed0",
+          "Unread2,499",
+          "Modenormal"
+        ]
+      }
+    ],
+    "resourceCount": 7994,
+    "page1": {
+      "resultText": "7,994 items",
+      "renderedRows": 50,
+      "firstRow": [
+        "951,902",
+        "129027",
+        "1",
+        "21,600 / 21,600",
+        "Idle",
+        "10/1/2026, 2:14:30 AM"
+      ]
+    },
+    "page2": {
+      "renderedRows": 50,
+      "firstRow": [
+        "938,987",
+        "100317",
+        "3",
+        "108,000 / 108,000",
+        "Idle",
+        "10/1/2026, 2:14:30 AM"
+      ],
+      "duplicateRenderedRowsFromPage1": 0
+    },
+    "resourceFilter": {
+      "value": "100281",
+      "optionText": "100281 (2740)",
+      "resultText": "2,740 items",
+      "renderedRows": 50
+    },
+    "clear": {
+      "renderedRows": 0,
+      "resourceCount": 0,
+      "mapStatus": {
+        "completedBlocks": 0,
+        "concurrency": 8,
+        "failedBlocks": 0,
+        "inflightBlocks": 0,
+        "isReading": false,
+        "lastError": null,
+        "nativeCaptureReady": false,
+        "nativeDroppedRecords": 0,
+        "nativePendingRecords": 0,
+        "phase": "idle",
+        "progressPercent": 0,
+        "readBlocks": 0,
+        "resumeAvailable": false,
+        "scanMode": "normal",
+        "scanRate": 0,
+        "scanRunId": "",
+        "selectedTypes": [
+          "city",
+          "resource",
+          "monster",
+          "truck",
+          "railway",
+          "dispatch",
+          "ghost",
+          "treasure"
+        ],
+        "serverId": 0,
+        "serverIdSource": "none",
+        "startedAt": 0,
+        "totalBlocks": 0,
+        "unreadBlocks": 0
+      }
+    },
+    "postClearHealth": {
+      "sameInstance": true,
+      "connectionState": "connected",
+      "connectionText": "Connected"
+    }
+  },
+  "runtimeDiagnostics": {
+    "consoleErrors": [],
+    "consoleWarnings": [],
+    "pageErrors": [],
+    "requestFailures": [],
+    "badResponses": [],
+    "securityPolicyViolations": []
+  },
+  "generatedAt": "2026-09-30T18:14:42.399Z",
+  "cleanup": {
+    "attempted": true,
+    "stopped": true,
+    "error": null
+  }
+}

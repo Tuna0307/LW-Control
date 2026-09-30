@@ -302,6 +302,10 @@ the normal default. A proof-only `--ui-root` host path loads the Vite build
 through the real Desktop bridge without broadening the normal privileged UI
 origin.
 
+That describes the state of the 2026-09-30 integration checkpoint; the
+2026-10-01 production frontend checkpoint below supersedes its frontend-default
+selection.
+
 The clean page now uses real connection state, manual Start/Stop/Clear,
 scan-status events/polling, per-kind summary counts, backend `map_search`
 pagination/sorting and recovered Resource/Monster/City filter plumbing. Browser
@@ -322,6 +326,26 @@ Map tab query/count plumbing is `IMPLEMENTED_NOT_VALIDATED` in this task. Auto
 Scan/server jump remains `IMPLEMENTED_NOT_VALIDATED`; restart/resume and
 cross-process saved-browse recovery remain open; Treasure claim/status and Ghost
 preparation remain `BLOCKED`.
+
+### Production frontend checkpoint — 2026-10-01
+
+`LWB317-MAP-UI-PRODUCTIONIZE-001` promotes `src/LWBridge.UI-0.3.17` from the
+proof-only integration route to the canonical Desktop frontend. Release builds
+now build and verify that project into a known `ProductionUi` package with
+source/artifact fingerprints. A normal zero-argument Desktop launch requires
+that package and does not silently fall back to legacy assets. The existing
+`src/LWBridge.Desktop/WebUi` is preserved as an explicit `--legacy-ui`
+recovery/reference route; arbitrary `--ui-root` remains proof-gated.
+
+The bounded normal-launch v22 acceptance loaded the canonical UI in native mode,
+smoke-rendered Home, Automation, Map Data, Squads / AFK, City Layout, Hotkeys,
+Mini Games and Settings, then completed a Resource-only 2500/2500 scan with zero
+failed/unread blocks. The live snapshot contained 7,994 Resource rows; page 2
+rendered 50 distinct rows, Resource-name filter `100281` returned 2,740 items,
+Clear rendered zero rows/count, and the same game instance remained connected.
+Runtime diagnostics reported no console/page/request/HTTP/CSP errors. See
+`docs/reviews/2026-10-01-LWB317-MAP-UI-PRODUCTIONIZE-001.md` and
+`evidence/lwbridge-0.3.17/map/LWB317-MAP-UI-PRODUCTIONIZE-001/`.
 
 The Map Goal remains `IN_PROGRESS` for server jump, restart/resume/saved browse
 context, other Map categories/actions, remaining provider gaps and final Map

@@ -7,6 +7,8 @@
     <AssemblyName>LWBridge.Desktop</AssemblyName>
     <RootNamespace>LWBridge.Desktop</RootNamespace>
     <ApplicationIcon>lwbridge.ico</ApplicationIcon>
+    <CanonicalUiProjectDir>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\..\LWBridge.UI-0.3.17'))</CanonicalUiProjectDir>
+    <CanonicalUiIntermediateDir>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\obj\$(Configuration)\$(TargetFramework)\ProductionUi'))</CanonicalUiIntermediateDir>
   </PropertyGroup>
 
   <ItemGroup>
@@ -40,5 +42,32 @@
     <ItemGroup>
       <Reference Remove="@(Reference)" Condition="'%(Reference.Filename)' == 'Microsoft.Web.WebView2.Wpf'" />
     </ItemGroup>
+  </Target>
+
+  <Target Name="BuildCanonicalProductionUi"
+          BeforeTargets="BeforeBuild"
+          Condition="'$(DesignTimeBuild)' != 'true' and '$(SkipCanonicalProductionUiBuild)' != 'true'">
+    <Message Importance="high" Text="Building canonical LWBridge.UI-0.3.17 production frontend" />
+    <Exec Command="npm.cmd --prefix &quot;$(CanonicalUiProjectDir)&quot; ci --no-audit --no-fund" />
+    <Exec Command="npm.cmd --prefix &quot;$(CanonicalUiProjectDir)&quot; run build -- --outDir &quot;$(CanonicalUiIntermediateDir)&quot;" />
+    <Exec Command="node &quot;$(CanonicalUiProjectDir)\scripts\check-production-build.mjs&quot; &quot;$(CanonicalUiIntermediateDir)&quot;" />
+    <RemoveDir Directories="$(OutDir)ProductionUi" Condition="Exists('$(OutDir)ProductionUi')" />
+    <ItemGroup>
+      <_CanonicalUiFiles Include="$(CanonicalUiIntermediateDir)\**\*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(_CanonicalUiFiles)"
+          DestinationFiles="@(_CanonicalUiFiles->'$(OutDir)ProductionUi\%(RecursiveDir)%(Filename)%(Extension)')" />
+  </Target>
+
+  <Target Name="PublishCanonicalProductionUi"
+          AfterTargets="Publish"
+          DependsOnTargets="BuildCanonicalProductionUi"
+          Condition="'$(DesignTimeBuild)' != 'true' and '$(SkipCanonicalProductionUiBuild)' != 'true'">
+    <RemoveDir Directories="$(PublishDir)ProductionUi" Condition="Exists('$(PublishDir)ProductionUi')" />
+    <ItemGroup>
+      <_CanonicalUiPublishFiles Include="$(CanonicalUiIntermediateDir)\**\*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(_CanonicalUiPublishFiles)"
+          DestinationFiles="@(_CanonicalUiPublishFiles->'$(PublishDir)ProductionUi\%(RecursiveDir)%(Filename)%(Extension)')" />
   </Target>
 </Project>

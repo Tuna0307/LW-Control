@@ -97,7 +97,8 @@ internal sealed class LWBridgeWindow : Form
         string? normalUiLiveMapProofPath = null,
         string? ownerEvidencePath = null,
         string? uiRootPath = null,
-        string? mapUiIntegrationProofPath = null)
+        string? mapUiIntegrationProofPath = null,
+        bool useLegacyUi = false)
     {
         this.capturePath = capturePath;
         this.liveProbePath = liveProbePath;
@@ -111,11 +112,12 @@ internal sealed class LWBridgeWindow : Form
         this.initialView = initialView;
         this.language = language;
         this.theme = theme;
-        this.uiRootPath = uiRootPath is null
-            ? Path.Combine(AppContext.BaseDirectory, "WebUi")
-            : Path.GetFullPath(uiRootPath);
-        if (!File.Exists(Path.Combine(this.uiRootPath, "index.html")))
-            throw new ArgumentException("UI root must contain index.html: " + this.uiRootPath, nameof(uiRootPath));
+        DesktopUiSelection uiSelection = DesktopUiContentRoot.Select(
+            AppContext.BaseDirectory,
+            useLegacyUi,
+            uiRootPath,
+            allowProofOverride: mapUiIntegrationProofPath is not null);
+        this.uiRootPath = uiSelection.RootPath;
         bool isolated = capturePath is not null || liveProbePath is not null || hostProbePath is not null || firstLiveResultPath is not null;
         // The legacy store is retained only by the isolated replay fixtures and
         // the dedicated legacy live-resource proof. Normal production Map owns

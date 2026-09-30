@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "LWB317-MAP-UI-PRODUCTIONIZE-001",
+  "state": "proven",
+  "canonicalFrontend": "src/LWBridge.UI-0.3.17",
+  "normalDesktopPackageRoot": "ProductionUi",
+  "legacyFrontend": "src/LWBridge.Desktop/WebUi",
+  "legacyPackageRoot": "WebUi",
+  "manualAssetCopyRequired": false,
+  "normalDesktopSelection": {
+    "mode": "canonical-production",
+    "requiresProofFlag": false,
+    "requiresUiRoot": false,
+    "liveAcceptanceApplicationArguments": []
+  },
+  "controlledOverrides": {
+    "uiRoot": "restricted to --map-ui-integration-proof",
+    "legacyRecovery": "--legacy-ui",
+    "silentLegacyFallback": false
+  },
+  "buildIdentity": {
+    "schemaVersion": 1,
+    "project": "LWBridge.UI-0.3.17",
+    "canonicalSource": "src/LWBridge.UI-0.3.17",
+    "sourceFingerprint": "6cfb043426572bbe656f786e1e5656d8f887e2c38e89255aca35119a5547dea9",
+    "artifactFingerprint": "655e7e256a8add3f0d6c6bc9222d28e4d49d6d54138b159bb24ed2dac081bd72",
+    "entrypoint": "index.html"
+  },
+  "packagedHashes": {
+    "productionIndexSha256": "b309f346f596c359ea52e221aa54efdea2a6e9978d558561897b7bf216e51edf",
+    "productionIdentitySha256": "11a86808222ab68ba3717b71525c9d3a96898ac01904af50b9706c9daea76b32",
+    "legacyIndexSha256": "abb44a00c76d59cbb3e090aa4d53b98350ab09ce977cd7afadaf60fb928d0135"
+  },
+  "staleOutputPolicy": {
+    "buildEmptiesOutput": true,
+    "sourceFingerprintChecked": true,
+    "artifactFingerprintChecked": true,
+    "missingOrInvalidIdentityFailsStartup": true,
+    "automaticLegacyFallback": false
+  },
+  "packagingValidation": {
+    "releaseBuildValidated": true,
+    "releasePublishValidated": true,
+    "publishedCanonicalPackageValidated": true,
+    "publishedLegacyRecoveryPackagePresent": true
+  }
+}

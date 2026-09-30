@@ -125,12 +125,25 @@ rows, proved page-2 pagination and Resource-name filtering, cleared the backend
 and rendered zero rows/count, and retained the same healthy Map session/server
 with the UI back at `Connected`.
 
-The bundled `src/LWBridge.Desktop/WebUi` remains the normal default. The clean
-build is loaded through a proof-only `--ui-root` integration path; it is not a
-wholesale WebUI replacement. Server jump, restart/resume/saved browse context,
-other Map categories/actions and final Map closure remain open. Do not start
-another subsystem until the project lead decides the next bounded Map step or
-closes the Goal.
+`LWB317-MAP-UI-PRODUCTIONIZE-001` is now `AWAITING_REVIEW`; see
+`docs/reviews/2026-10-01-LWB317-MAP-UI-PRODUCTIONIZE-001.md` and
+`evidence/lwbridge-0.3.17/map/LWB317-MAP-UI-PRODUCTIONIZE-001/`.
+`src/LWBridge.UI-0.3.17` is now the canonical frontend. Desktop Release builds
+create and verify a fresh `ProductionUi` package from it, and an ordinary
+zero-argument launch selects that package. The preserved
+`src/LWBridge.Desktop/WebUi` is available only through the deliberate
+`--legacy-ui` recovery path; arbitrary `--ui-root` remains proof-gated. The
+normal-launch v22 acceptance smoke-rendered all eight primary pages and
+LIVE_PROVED Resource Start/progress/completion, a 7,994-row snapshot, page 2,
+Resource-name filtering, Clear and same-instance connected health with no
+runtime integration errors.
+
+Future product frontend work targets `src/LWBridge.UI-0.3.17`. Do not add new
+frontend behavior only to `src/LWBridge.Desktop/WebUi` unless historical
+compatibility/reference explicitly requires it. Server jump,
+restart/resume/saved browse context, other Map categories/actions and final Map
+closure remain open. Do not start another subsystem until the project lead
+decides the next bounded Map step or closes the Goal.
 
 ## Required worker/campaign output
 

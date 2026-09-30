@@ -18,10 +18,13 @@ internal static class Program
         string? ownerEvidencePath = ReadPathOption(args, "--owner-evidence");
         string? cityReopenProofPath = ReadPathOption(args, "--city-reopen-proof");
         string? uiRootPath = ReadPathOption(args, "--ui-root");
+        bool useLegacyUi = args.Contains("--legacy-ui", StringComparer.OrdinalIgnoreCase);
         if (uiRootPath is not null && mapUiIntegrationProofPath is null)
             throw new ArgumentException("--ui-root is restricted to --map-ui-integration-proof.");
         if (mapUiIntegrationProofPath is not null && uiRootPath is null)
             throw new ArgumentException("--map-ui-integration-proof requires --ui-root.");
+        if (useLegacyUi && (uiRootPath is not null || mapUiIntegrationProofPath is not null || normalUiLiveMapProofPath is not null))
+            throw new ArgumentException("--legacy-ui cannot be combined with UI proof/override modes.");
         if (cityReopenProofPath is not null)
         {
             if (new[] { capturePath, liveProbePath, hostProbePath, firstLiveResultPath, liveResourceProofPath, liveCityProofPath, normalUiLiveResourceProofPath, normalUiLiveMapProofPath, mapUiIntegrationProofPath, ownerEvidencePath }.Any(path => path is not null))
@@ -66,7 +69,7 @@ internal static class Program
         var window = new LWBridgeWindow(
             capturePath, liveProbePath, hostProbePath, initialView, language, theme, firstLiveResultPath,
             normalUiLiveResourceProofPath, normalUiLiveMapProofPath, ownerEvidencePath, uiRootPath,
-            mapUiIntegrationProofPath);
+            mapUiIntegrationProofPath, useLegacyUi);
         if (hostProbePath is null)
         {
             Application.Run(window);

@@ -505,6 +505,7 @@ await LWBridge.Desktop.Checks.OverviewBridgeRpcSessionTransportChecks.RunAsync()
 await LWBridge.Desktop.Checks.OverviewBridgeHostTransportChecks.RunAsync();
 LWBridge.Desktop.Checks.OverviewBridgeNormalCompositionChecks.Run();
 await LWBridge.Desktop.Checks.OverviewStatusTransportChecks.RunAsync();
+LWBridge.Desktop.Checks.ProductionUiSelectionChecks.Run();
 
 void Check(bool condition, string name)
 {
@@ -7222,6 +7223,7 @@ var report = new
         mapPersistence = true,
         mapContract = true,
         bridgeControlPipeContract = true,
+        productionUiSelection = true,
     },
     installedDiagnostic = new
     {

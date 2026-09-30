@@ -78,11 +78,13 @@ accepted. The active work item is the Map-only `LWB317-RE-MAP-001` Goal in
 that Goal is closed. `LWB317-LIVE-MAP-V22-RESOURCE-COMPLETENESS-001` established
 the corrected observable Resource path as `LIVE_PROVEN` /
 `CURRENT_PATH_COMPLETE`, while complete game-universe/original-private-traversal
-coverage remains `UNKNOWN`. `LWB317-MAP-UI-INTEGRATION-001` is now also awaiting
-project-lead review: the clean reconstructed Map page uses the real Desktop
-native bridge and its Resource manual Start/progress/completion, real row query,
-pagination, Resource-name filtering, Clear/zero render and post-clear connected
-readiness are `LIVE_PROVEN` from a fresh 7,960-row owned-session snapshot. Server
-jump, restart/resume/saved browse context, other Map categories/actions and final
-Map closure remain open. Auth/login/licensing reconstruction remains out of
-scope.
+coverage remains `UNKNOWN`. `LWB317-MAP-UI-PRODUCTIONIZE-001` is now awaiting
+project-lead review: `src/LWBridge.UI-0.3.17` is the canonical production
+frontend and a zero-argument normal Desktop launch uses its verified packaged
+`ProductionUi` assets through the existing native bridge. The preserved
+`src/LWBridge.Desktop/WebUi` is an explicit recovery/reference path, not the
+default. A fresh normal-launch Resource acceptance completed 2500/2500 with zero
+failed/unread, rendered 7,994 Resources, proved page-2/filter/Clear and retained
+the same connected game instance. Server jump, restart/resume/saved browse
+context, other Map categories/actions and final Map closure remain open.
+Auth/login/licensing reconstruction remains out of scope.

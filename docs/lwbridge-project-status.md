@@ -1,8 +1,8 @@
 # LWBridge 0.3.17 project status
 
-**Date:** 2026-09-30
+**Date:** 2026-10-01
 **Branch:** `research/offline-controller`
-**Phase:** 2 — function recovery / Map Goal clean-UI live-integration checkpoint
+**Phase:** 2 — function recovery / Map Goal production-frontend checkpoint
 
 ## Current state
 
@@ -60,8 +60,23 @@ failed/unread, and exposed 7,960 real Resource rows through the clean UI. Page 2
 returned 50 rows with zero page-1 key overlap; Resource-name filter `100281`
 returned 2,726 rows; Clear returned/rendered zero data while the same owned Map
 session/server remained healthy and the UI connection state returned to
-`Connected`. The bundled Desktop WebUI remains the normal default and the clean
-build is served through a proof-only host path for this checkpoint.
+`Connected`.
+
+`LWB317-MAP-UI-PRODUCTIONIZE-001` now makes `src/LWBridge.UI-0.3.17` the
+canonical production frontend. Desktop builds create a fresh, fingerprinted
+`ProductionUi` package from that source and ordinary zero-argument launch selects
+it through the existing privileged WebView origin/native bridge. Missing or
+invalid canonical assets fail clearly; there is no silent legacy fallback.
+`src/LWBridge.Desktop/WebUi` remains packaged only as a deliberate `--legacy-ui`
+recovery/reference route, while arbitrary `--ui-root` remains proof-gated.
+
+The productionization acceptance normal-launched the Release executable with no
+application arguments, smoke-rendered all eight primary reconstructed pages in
+native mode, then completed a Resource-only v22 scan at 2500/2500 with zero
+failed/unread and 7,994 live Resource rows. Page 2 rendered 50 rows with zero
+page-1 rendered-row overlap, filter `100281` returned 2,740 items, Clear rendered
+zero, and the same assistant-owned game instance remained connected. Runtime
+diagnostics were clean.
 
 Server jump, restart/resume/saved browse context, other Map categories/actions
 and final Map closure remain open.
@@ -129,13 +144,14 @@ It completed or legitimately blocked each authorized **UI-only** stage:
 - visual comparison/fix pass (static contract fixes complete; direct post-auth
   reference/pixel comparison blocked by the auth boundary).
 
-The separate static UI reconstruction remains at `src/LWBridge.UI-0.3.17/`.
-Its clean Map page now uses the recovered Map317 commands through the real
-Desktop native bridge; the Resource manual flow is `LIVE_PROVEN` by
-`LWB317-MAP-UI-INTEGRATION-001`. The bundled `src/LWBridge.Desktop/WebUi` remains
-the normal Desktop frontend, and the clean build was hosted through a proof-only
-integration path. Phase 2 Map function recovery remains active under the
-separate Map Goal; all other function families remain blocked.
+The reconstructed UI at `src/LWBridge.UI-0.3.17/` is now the canonical product
+frontend and the ordinary Desktop default. Its clean Map page uses the recovered
+Map317 commands through the real Desktop native bridge; the Resource manual flow
+is `LIVE_PROVEN` by the integration and productionization checkpoints. The
+bundled `src/LWBridge.Desktop/WebUi` remains only for explicit recovery/reference.
+Future frontend feature work targets the canonical clean project. Phase 2 Map
+function recovery remains active under the separate Map Goal; all other function
+families remain blocked.
 
 Queue authority:
 
@@ -153,9 +169,9 @@ session after a fresh process/session ownership check. It does not authorize
 non-Map gameplay or auth/licensing/credential work.
 
 The v22 live tasks used assistant-owned game sessions and cleaned them up. The
-latest Resource completeness resume snapshot records no Last War/launcher/
-LWBridge/proof processes, no Overview recovery journal, no task-prefixed temp DB
-artifacts, and the pristine v22 package SHA-256
+latest productionization cleanup records no Last War/launcher/LWBridge/helper
+processes, no Overview recovery journal or Map WAL/SHM files, and the pristine
+v22 package SHA-256
 `248f3aeac712b3f14f86bff37a0c365e467897a2248403837c44c1b774f05b22`
 restored. Any future live work must still perform a fresh ownership check rather
 than reusing that state.
@@ -179,11 +195,13 @@ Historical auth research remains archived evidence, not a current reconstruction
 
 ## Next project-lead milestone
 
-Review `LWB317-LIVE-MAP-V22-RESOURCE-COMPLETENESS-001` and
-`LWB317-MAP-UI-INTEGRATION-001` with their evidence-state boundaries. Resource
+Review `LWB317-LIVE-MAP-V22-RESOURCE-COMPLETENESS-001`,
+`LWB317-MAP-UI-INTEGRATION-001` and `LWB317-MAP-UI-PRODUCTIONIZE-001` with their
+evidence-state boundaries. Resource
 acquisition through the corrected current-v22 route is
 `LIVE_PROVEN`/`CURRENT_PATH_COMPLETE`, and the clean reconstructed Resource
-manual UI flow is also `LIVE_PROVEN`; `GAME_UNIVERSE_COMPLETE` and original
+manual UI flow plus its normal production deployment are also `LIVE_PROVEN`;
+`GAME_UNIVERSE_COMPLETE` and original
 private traversal equivalence remain `UNKNOWN`. Server jump,
 restart/resume/saved browse context and other Map categories/actions remain
 open. Do not open another subsystem until the project lead decides the next

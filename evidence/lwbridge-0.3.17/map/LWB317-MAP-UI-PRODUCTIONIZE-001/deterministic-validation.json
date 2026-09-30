@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "LWB317-MAP-UI-PRODUCTIONIZE-001",
+  "state": "passed",
+  "cleanUi": {
+    "npmRunCheck": "passed",
+    "mapUiIntegrationMarker": "LWB317_MAP_UI_INTEGRATION_CHECKS_OK",
+    "npmRunBuild": "passed",
+    "productionBuildCheck": "passed",
+    "sourceFingerprint": "6cfb043426572bbe656f786e1e5656d8f887e2c38e89255aca35119a5547dea9",
+    "artifactFingerprint": "655e7e256a8add3f0d6c6bc9222d28e4d49d6d54138b159bb24ed2dac081bd72"
+  },
+  "map": {
+    "checks": "LWB317_MAP_CHECKS_OK",
+    "releaseBuild": "passed"
+  },
+  "desktop": {
+    "checksReleaseBuild": "passed",
+    "fullChecker": "passed",
+    "fullCheckerOk": true,
+    "productionUiSelection": true,
+    "failures": [],
+    "releasePublish": "passed",
+    "publishedProductionUiVerified": true,
+    "publishedLegacyWebUiPresent": true
+  },
+  "frontendContracts": {
+    "R8-014": "passed",
+    "R8-015": "passed",
+    "R8-016": "passed"
+  },
+  "repository": {
+    "gitDiffCheck": "passed"
+  }
+}

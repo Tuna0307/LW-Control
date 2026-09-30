@@ -1,0 +1,31 @@
+﻿{
+    "schemaVersion":  1,
+    "ok":  true,
+    "assistantOwnedProcessesTerminated":  true,
+    "finalProcesses":  {
+                           "desktop":  0,
+                           "lastWar":  0,
+                           "launcher":  0,
+                           "helper":  0
+                       },
+    "officialPackageSha256":  "248f3aeac712b3f14f86bff37a0c365e467897a2248403837c44c1b774f05b22",
+    "packageBefore":  {
+                          "path":  "C:\\Users\\chimw\\AppData\\LocalLow\\FunFly\\Last War-Survival Game\\lwScripts\\LWScripts.data",
+                          "sha256":  "248f3aeac712b3f14f86bff37a0c365e467897a2248403837c44c1b774f05b22",
+                          "length":  41320262
+                      },
+    "packageAfter":  {
+                         "path":  "C:\\Users\\chimw\\AppData\\LocalLow\\FunFly\\Last War-Survival Game\\lwScripts\\LWScripts.data",
+                         "sha256":  "248f3aeac712b3f14f86bff37a0c365e467897a2248403837c44c1b774f05b22",
+                         "length":  41320262
+                     },
+    "packageRestored":  true,
+    "contentVersion":  22,
+    "recoveryJournals":  [
+
+                         ],
+    "temporaryMapWalShm":  [
+
+                           ],
+    "canonicalUiBuildIdentitySha256":  "11a86808222ab68ba3717b71525c9d3a96898ac01904af50b9706c9daea76b32"
+}
