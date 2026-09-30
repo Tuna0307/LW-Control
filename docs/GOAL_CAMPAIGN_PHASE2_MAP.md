@@ -265,13 +265,15 @@ Create/update:
 1. `docs/reviews/2026-09-30-LWB317-RE-MAP-001-frontend-host-contract.md`
 2. `docs/reviews/2026-09-30-LWB317-RE-MAP-002-scan-state-machine.md`
 3. `docs/reviews/2026-09-30-LWB317-RE-MAP-003-storage-query-export.md`
-4. `docs/reviews/2026-09-30-LWB317-COMPAT-MAP-001-current-client-map.md`
-5. `evidence/lwbridge-0.3.17/map/` with machine-readable manifests/contracts
-6. version-specific Map helper tools under `tools/lwbridge317/`
-7. the new 0.3.17 Map control/data-plane implementation and tests
-8. conservative updates to `docs/lwbridge-feature-ledger.md`
-9. conservative function rows in `docs/lwbridge-parity-matrix.md`
-10. `docs/reviews/2026-09-30-LWB317-RE-MAP-GOAL-handoff.md`
+4. `docs/reviews/2026-09-30-LWB317-RE-MAP-004-legacy-revalidation.md`
+5. `docs/reviews/2026-09-30-LWB317-RE-MAP-005-actions.md`
+6. `docs/reviews/2026-09-30-LWB317-RE-MAP-006-current-client-compat.md`
+7. `evidence/lwbridge-0.3.17/map/` with machine-readable manifests/contracts
+8. version-specific Map helper tools under `tools/lwbridge317/`
+9. the new 0.3.17 Map control/data-plane implementation and tests
+10. conservative updates to `docs/lwbridge-feature-ledger.md`
+11. conservative function rows in `docs/lwbridge-parity-matrix.md`
+12. `docs/reviews/2026-09-30-LWB317-RE-MAP-GOAL-handoff.md`
 
 ## Evidence states
 

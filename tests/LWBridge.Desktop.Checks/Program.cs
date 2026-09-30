@@ -2730,10 +2730,13 @@ try
     string ownerWindowSource = File.ReadAllText(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "LWBridgeWindow.cs"));
     Check(ownerWindowSource.Contains("firstLiveResult is not null || ownerEvidence is not null", StringComparison.Ordinal),
         "owner evidence mode suppresses startup auto-launch before the normal page is shown");
-    Check(ownerWindowSource.Contains("sessionScopedMapData = !isolated", StringComparison.Ordinal) &&
-          ownerWindowSource.Contains("mapData.ClearAllScanData();", StringComparison.Ordinal) &&
-          ownerWindowSource.Contains("if (sessionScopedMapData)", StringComparison.Ordinal),
-        "normal LWBridge window must treat published map scan rows as session data and clear them on startup/teardown while isolated proofs remain untouched");
+    Check(ownerWindowSource.Contains(
+              "sessionScopedMapData = !isolated && normalUiLiveResourceProofPath is not null;",
+              StringComparison.Ordinal) &&
+          ownerWindowSource.Contains("mapData!.ClearAllScanData();", StringComparison.Ordinal) &&
+          ownerWindowSource.Contains("\"map-data\", \"map-data.db\"", StringComparison.Ordinal) &&
+          ownerWindowSource.Contains("map317CommandService = new Map317CommandService", StringComparison.Ordinal),
+        "normal LWBridge window must preserve the profile-owned Map317 database while session-scoped legacy scan rows are limited to the dedicated resource proof");
 
     string ownerRecorderRoot = Path.Combine(Path.GetTempPath(), "lwbridge-owner-recorder-" + Guid.NewGuid().ToString("N"));
     try
@@ -6152,10 +6155,15 @@ string windowSource = File.ReadAllText(Path.Combine(repoRoot, "src", "LWBridge.D
 string mapStoreSource = File.ReadAllText(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "MapDataStore.cs"));
 string plunderStoreSource = File.ReadAllText(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "MapDataStore.PlunderControlPlane.cs"));
 string dispatchPlunderContractSource = File.ReadAllText(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "DispatchPlunderContract.cs"));
+string map317PlunderWorkerSource = File.ReadAllText(Path.Combine(repoRoot, "src", "LWBridge.Map-0.3.17", "MapPlunderWorker.cs"));
+string map317ActionProviderSource = File.ReadAllText(Path.Combine(repoRoot, "src", "LWBridge.Map-0.3.17", "MapActionProvider.cs"));
+string map317CommandServiceSource = File.ReadAllText(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "Map317CommandService.cs"));
+string currentClientMap317ActionProviderSource = File.ReadAllText(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "CurrentClientMap317ActionProvider.cs"));
+string currentClientMapActionsSource = File.ReadAllText(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "CurrentClientMapBlockSource.MapActions.cs"));
 Check(
     File.Exists(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "DispatchPlunderContract.cs")) &&
-    !File.Exists(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "DispatchPlunderWorker.cs")) &&
-    !File.Exists(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "TruckPlunderWorker.cs")) &&
+    File.Exists(Path.Combine(repoRoot, "src", "LWBridge.Map-0.3.17", "MapPlunderWorker.cs")) &&
+    File.Exists(Path.Combine(repoRoot, "src", "LWBridge.Map-0.3.17", "MapStore.Plunder.cs")) &&
     File.Exists(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "MapDataStore.PlunderControlPlane.cs")) &&
     !File.Exists(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "MapDataStore.Plunder.cs")) &&
     manualMapServiceSource.Contains("map_plunder_jobs_list", StringComparison.Ordinal) &&
@@ -6168,20 +6176,26 @@ Check(
     dispatchPlunderContractSource.Contains("server ID and secret task UUID are required", StringComparison.Ordinal) &&
     windowSource.Contains("bridge://dispatch-plunder-changed", StringComparison.Ordinal) &&
     windowSource.Contains("bridge://truck-plunder-changed", StringComparison.Ordinal) &&
-    !overviewBridgeSource.Contains("truck-quick-rob.txt", StringComparison.Ordinal) &&
-    !overviewBridgeSource.Contains("dispatch-plunder.txt", StringComparison.Ordinal) &&
-    !overviewBridgeSource.Contains("dispatch_plunder_runtime", StringComparison.Ordinal) &&
-    !overviewBridgeSource.Contains("pump_truck_quick_rob", StringComparison.Ordinal) &&
+    overviewBridgeSource.Contains("truck-quick-rob.txt", StringComparison.Ordinal) &&
+    overviewBridgeSource.Contains("dispatch-plunder.txt", StringComparison.Ordinal) &&
+    overviewBridgeSource.Contains("dispatch_plunder_runtime", StringComparison.Ordinal) &&
+    overviewBridgeSource.Contains("pump_truck_quick_rob", StringComparison.Ordinal) &&
     mapStoreSource.Contains("CREATE TABLE IF NOT EXISTS dispatch_plunder_jobs", StringComparison.Ordinal) &&
     mapStoreSource.Contains("CREATE TABLE IF NOT EXISTS truck_plunder_jobs", StringComparison.Ordinal) &&
     mapStoreSource.Contains("CREATE TABLE IF NOT EXISTS truck_plunder_history", StringComparison.Ordinal) &&
     plunderStoreSource.Contains("WHERE dispatch_plunder_jobs.status IN ('scheduled','waiting_connection')", StringComparison.Ordinal) &&
     plunderStoreSource.Contains("WHERE truck_plunder_jobs.status<>'running'", StringComparison.Ordinal) &&
     plunderStoreSource.Contains("UNION ALL", StringComparison.Ordinal) &&
-    !plunderStoreSource.Contains("ReadArmable", StringComparison.Ordinal) &&
-    !plunderStoreSource.Contains("TryMark", StringComparison.Ordinal) &&
-    !plunderStoreSource.Contains("RecordTruckPlunderSuccess", StringComparison.Ordinal),
-    "R8-016 must restore Scheduled Plunder control-plane persistence/events while protected robbery workers and execution helpers remain absent");
+    map317PlunderWorkerSource.Contains("DispatchBatchLimit = 200", StringComparison.Ordinal) &&
+    map317PlunderWorkerSource.Contains("ProtectedCallTimeoutMilliseconds = 5_000", StringComparison.Ordinal) &&
+    map317PlunderWorkerSource.Contains("DispatchResultHorizonMilliseconds = 15_000", StringComparison.Ordinal) &&
+    map317PlunderWorkerSource.Contains("TruckResultHorizonMilliseconds = 30_000", StringComparison.Ordinal) &&
+    map317ActionProviderSource.Contains("ArmDispatchPlunderAsync", StringComparison.Ordinal) &&
+    map317ActionProviderSource.Contains("DrainDispatchPlunderResultsAsync", StringComparison.Ordinal) &&
+    map317ActionProviderSource.Contains("ClearTruckPlunderPendingAsync", StringComparison.Ordinal) &&
+    map317CommandServiceSource.Contains("dispatchWorkerTask", StringComparison.Ordinal) &&
+    map317CommandServiceSource.Contains("truckWorkerTask", StringComparison.Ordinal),
+    "Map317 Scheduled Plunder must preserve local persistence/events and use the exact arm-pending-result workers with independent Dispatch/Truck loops");
 string dispatchAllianceShareContractSource = File.ReadAllText(
     Path.Combine(
         repoRoot,
@@ -6203,8 +6217,22 @@ Check(
     "Dispatch alliance-share offline contract must preserve recovered original validation and current-v19 point-share transport fields");
 Check(
     !manualMapServiceSource.Contains("command == \"map_dispatch_share_alliance\"", StringComparison.Ordinal) &&
-    !manualMapServiceSource.Contains("DispatchAllianceShareContract.NormalizeRows(payload)", StringComparison.Ordinal),
-    "Dispatch alliance share must remain unavailable in production until explicit messaging authorization enables a live sender");
+    !manualMapServiceSource.Contains("DispatchAllianceShareContract.NormalizeRows(payload)", StringComparison.Ordinal) &&
+    currentClientMap317ActionProviderSource.Contains("source.ShareDispatchTaskToAllianceAsync(row, cancellationToken)", StringComparison.Ordinal) &&
+    currentClientMapActionsSource.Contains("dispatch-share.txt", StringComparison.Ordinal) &&
+    currentClientMapActionsSource.Contains("Dispatch alliance-share result did not match the active owned session or requested task", StringComparison.Ordinal) &&
+    overviewBridgeSource.Contains("dispatch_share_runtime", StringComparison.Ordinal) &&
+    overviewBridgeSource.Contains("ChatHeroDispatchShare", StringComparison.Ordinal) &&
+    overviewBridgeSource.Contains("GetSingleTaskByUuid", StringComparison.Ordinal) &&
+    overviewBridgeSource.Contains("GetPointInfo", StringComparison.Ordinal),
+    "Dispatch alliance share must be owned by the Map317 current-client provider with fresh task/point reread, owned-session correlation and authoritative chat-share response observation; legacy ManualMapScanCommandService must not own it");
+Check(
+    currentClientMap317ActionProviderSource.Contains("source.GetMapPlunderServerDayStartAsync(cancellationToken)", StringComparison.Ordinal) &&
+    currentClientMapActionsSource.Contains("map-plunder-server-day.txt", StringComparison.Ordinal) &&
+    currentClientMapActionsSource.Contains("serverTime - serverDayStartAt >= 86_400_000L", StringComparison.Ordinal) &&
+    overviewBridgeSource.Contains("GetServerTime", StringComparison.Ordinal) &&
+    overviewBridgeSource.Contains("GetTodayZero", StringComparison.Ordinal),
+    "Map317 current-client server-day provider must use the source-proven UITimeManager server clock/day-zero path without a synthetic local-day fallback");
 string treasureClaimContractSource = File.ReadAllText(
     Path.Combine(
         repoRoot,

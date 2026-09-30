@@ -44,12 +44,12 @@ internal sealed class LWBridgeWindow : Form
     private readonly string? language;
     private readonly string? theme;
     private readonly LWBridgeBackend backend;
-    private readonly MapDataStore mapData;
+    private readonly MapDataStore? mapData;
     private readonly HostProbeCommandService? hostProbeService;
     private readonly LWBridgeControlPipeHostState? bridgeHostState;
     private readonly OverviewLifecycleService? overviewLifecycleService;
     private readonly LiveResourceProbeCommandService? liveResourceService;
-    private readonly ManualMapScanCommandService? manualMapScanService;
+    private readonly Map317CommandService? map317CommandService;
     private readonly CityLayoutDraftCommandService? cityLayoutDraftService;
     private readonly ProfileRegistryCommandService? profileRegistryService;
     private readonly ProfileSettingsCommandService? profileSettingsService;
@@ -107,7 +107,10 @@ internal sealed class LWBridgeWindow : Form
         this.language = language;
         this.theme = theme;
         bool isolated = capturePath is not null || liveProbePath is not null || hostProbePath is not null || firstLiveResultPath is not null;
-        sessionScopedMapData = !isolated;
+        // The legacy store is retained only by the isolated replay fixtures and
+        // the dedicated legacy live-resource proof. Normal production Map owns
+        // exactly the recovered per-profile Map317 database below.
+        sessionScopedMapData = !isolated && normalUiLiveResourceProofPath is not null;
         LocalConfigStore config;
         if (hostProbePath is not null)
         {
@@ -128,16 +131,18 @@ internal sealed class LWBridgeWindow : Form
         {
             mapData = isolated
                 ? MapDataStore.CreateInMemory()
-                : new MapDataStore(Path.Combine(
+                : normalUiLiveResourceProofPath is not null
+                    ? new MapDataStore(Path.Combine(
                     Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                    "LWBridgeRebuild", "profiles", config.Snapshot.ProfileId, "map-data.db"));
+                    "LWBridgeRebuild", "profiles", config.Snapshot.ProfileId, "map-data.db"))
+                    : null;
         }
         if (sessionScopedMapData)
         {
             // OWNER WORKFLOW R7-147: published scan rows are session data. Clear
             // leftovers from either a prior normal close or an interrupted process
             // before exposing any map summary. Durable marks/settings/jobs remain.
-            mapData.ClearAllScanData();
+            mapData!.ClearAllScanData();
         }
         hostProbeService = hostProbePath is null ? null : new HostProbeCommandService();
         string? controllerDatabasePath = isolated
@@ -239,14 +244,23 @@ internal sealed class LWBridgeWindow : Form
                 enableBridgeControlPipeLaunchBinding: true);
             if (normalUiLiveResourceProofPath is null)
             {
-                manualMapScanService = new ManualMapScanCommandService(overviewLifecycleService, mapData);
+                string map317DatabasePath = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                    "LWBridgeRebuild", "profiles", config.Snapshot.ProfileId,
+                    "map-data", "map-data.db");
+                map317CommandService = new Map317CommandService(
+                    map317DatabasePath,
+                    overviewLifecycleService);
                 liveResourceService = null;
             }
             else
             {
-                manualMapScanService = null;
+                // This mode is a dedicated legacy acquisition proof. Keep its
+                // command ownership isolated so Map317 cannot shadow the proof
+                // service's scan lifecycle in the production command composite.
+                map317CommandService = null;
                 liveResourceService = new LiveResourceProbeCommandService(
-                    mapData,
+                    mapData!,
                     gameRoot: liveGameRoot.Valid ? liveGameRoot.Path : null,
                     profileId: config.Snapshot.ProfileId);
             }
@@ -256,14 +270,14 @@ internal sealed class LWBridgeWindow : Form
             bridgeHostState = null;
             overviewLifecycleService = null;
             liveResourceService = null;
-            manualMapScanService = null;
+            map317CommandService = null;
         }
         INativeAsyncCommandService? productionCommands = hostProbeService;
         if (productionCommands is null)
         {
             var services = new List<INativeAsyncCommandService>();
             if (overviewLifecycleService is not null) services.Add(overviewLifecycleService);
-            if (manualMapScanService is not null) services.Add(manualMapScanService);
+            if (map317CommandService is not null) services.Add(map317CommandService);
             if (liveResourceService is not null) services.Add(liveResourceService);
             if (cityLayoutDraftService is not null) services.Add(cityLayoutDraftService);
             if (profileRegistryService is not null) services.Add(profileRegistryService);
@@ -289,7 +303,9 @@ internal sealed class LWBridgeWindow : Form
             mapData: mapData,
             firstLiveResultServerId: firstLiveResult?.ServerId,
             overviewLifecycle: overviewLifecycleService,
-            mapScanStatusProvider: manualMapScanService is null ? null : manualMapScanService.CreateStatus,
+            mapScanStatusProvider: map317CommandService is null
+                ? null
+                : map317CommandService.CreateStatus,
             bridgeHostState: bridgeHostState,
             runtimeTasksProvider: profileRuntimeConfigStore is null
                 ? null
@@ -301,11 +317,12 @@ internal sealed class LWBridgeWindow : Form
             overviewLifecycleService.RecoveryStatusChanged += OnOverviewRecoveryStatusChanged;
         if (resourceAutomationConfigService is not null)
             resourceAutomationConfigService.StatusChanged += OnResourceAutomationStatusChanged;
-        if (manualMapScanService is not null)
+        if (map317CommandService is not null)
         {
-            manualMapScanService.StatusChanged += OnManualMapScanStatusChanged;
-            manualMapScanService.DispatchPlunderChanged += OnDispatchPlunderChanged;
-            manualMapScanService.TruckPlunderChanged += OnTruckPlunderChanged;
+            map317CommandService.ScanStatusChanged += OnManualMapScanStatusChanged;
+            map317CommandService.PlayerMarkChanged += OnMap317PlayerMarkChanged;
+            map317CommandService.DispatchPlunderChanged += OnDispatchPlunderChanged;
+            map317CommandService.TruckPlunderChanged += OnTruckPlunderChanged;
         }
         Text = "lwbridge";
         Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
@@ -557,11 +574,11 @@ internal sealed class LWBridgeWindow : Form
 
     // R8-066: end-to-end proof of the normal production Map path. Unlike the
     // historical bounded resource helper proof above, this keeps the actual
-    // ManualMapScanCommandService wired into the recovered WebView and only
+    // Map317CommandService is wired into the recovered WebView and only
     // automates the same UI controls a user would press.
     private async Task RunNormalUiProductionMapProofAsync(CoreWebView2 core, string outputPath)
     {
-        if (manualMapScanService is null || overviewLifecycleService is null)
+        if (map317CommandService is null || overviewLifecycleService is null)
             throw new InvalidOperationException("The normal Map Data window does not have the production scan/lifecycle services.");
 
         string fullOutputPath = Path.GetFullPath(outputPath);
@@ -657,7 +674,7 @@ internal sealed class LWBridgeWindow : Form
             if (!connected || string.IsNullOrWhiteSpace(instanceId))
                 throw new TimeoutException("The normal production UI lifecycle did not reach connected state within the proof bound.");
 
-            JsonElement initialStatus = JsonSerializer.SerializeToElement(manualMapScanService.CreateStatus(), JsonOptions.Default);
+            JsonElement initialStatus = JsonSerializer.SerializeToElement(map317CommandService.CreateStatus(), JsonOptions.Default);
             string initialRunId = ReadStatusString(initialStatus, "scanRunId") ?? string.Empty;
 
             string clickResult = await core.ExecuteScriptAsync("""
@@ -676,7 +693,7 @@ internal sealed class LWBridgeWindow : Form
             for (int attempt = 0; attempt < 3600; attempt++)
             {
                 operationCts.Token.ThrowIfCancellationRequested();
-                JsonElement status = JsonSerializer.SerializeToElement(manualMapScanService.CreateStatus(), JsonOptions.Default);
+                JsonElement status = JsonSerializer.SerializeToElement(map317CommandService.CreateStatus(), JsonOptions.Default);
                 string runId = ReadStatusString(status, "scanRunId") ?? string.Empty;
                 string phase = ReadStatusString(status, "phase") ?? string.Empty;
                 string? error = ReadStatusString(status, "lastError");
@@ -687,7 +704,9 @@ internal sealed class LWBridgeWindow : Form
                 int unreadBlocks = ReadStatusInt32(status, "unreadBlocks") ?? 0;
                 if (!string.IsNullOrWhiteSpace(error))
                     throw new InvalidOperationException("The normal production Map scan failed: " + error);
-                if (!isReading && phase == "idle" && runId.Length > 0 && runId != initialRunId && readBlocks == 2500)
+                int totalBlocks = ReadStatusInt32(status, "totalBlocks") ?? 0;
+                if (!isReading && phase == "completed" && runId.Length > 0 && runId != initialRunId &&
+                    totalBlocks > 0 && readBlocks == totalBlocks)
                 {
                     if (failedBlocks != 0 || unreadBlocks != 0)
                         throw new InvalidDataException(
@@ -2205,7 +2224,9 @@ internal sealed class LWBridgeWindow : Form
                             ? Task.FromResult(
                                 windowThemeService.Apply(Handle, payload))
                         : command == "map_city_export"
-                            ? ExportCityAsync(payload, cancellationToken)
+                            ? map317CommandService is not null
+                                ? ExportMap317CityAsync(payload, cancellationToken)
+                                : ExportCityAsync(payload, cancellationToken)
                         : command == "game_root_status" && hostProbeService?.ForceMissingGameRoot == true
                             ? Task.FromResult<object?>(new GameRootStatus(
                                 false, string.Empty, "host-probe", "GAME_ROOT_NOT_FOUND",
@@ -2238,7 +2259,7 @@ internal sealed class LWBridgeWindow : Form
                 SendResult(session, id, execution.Result);
                 if (command == "map_search" && ownerEvidence is not null)
                     BeginOwnerEvidenceRenderCapture(id, payload, execution.Result);
-                if (command == "map_player_mark_set")
+                if (command == "map_player_mark_set" && map317CommandService is null)
                     SendEvent(session, "bridge://player-mark-changed", execution.Result);
                 if (command is "game_root_select" or "profile_instance_start" or "profile_instance_stop" or "set_automation" or "local_config_set")
                     await EmitOverviewStateAsync(session);
@@ -2302,6 +2323,42 @@ internal sealed class LWBridgeWindow : Form
             () => backend.SaveNativeGameRootSelection(selectedPath),
             cancellationToken);
         return selected;
+    }
+
+    private async Task<object?> ExportMap317CityAsync(
+        JsonElement payload,
+        CancellationToken cancellationToken)
+    {
+        Map317CommandService service = map317CommandService
+            ?? throw new InvalidOperationException("Map317 export service is unavailable.");
+        Map317CityExportRequest request = service.PrepareCityExport(payload);
+        cancellationToken.ThrowIfCancellationRequested();
+
+        string selectedPath;
+        try
+        {
+            using var dialog = new SaveFileDialog
+            {
+                FileName = request.DefaultFileName,
+                Filter = "Excel workbook|*.xlsx",
+                DefaultExt = "xlsx",
+                AddExtension = true,
+                OverwritePrompt = true,
+                CheckPathExists = true,
+            };
+            if (dialog.ShowDialog(this) != DialogResult.OK)
+                return new { canceled = true, rowCount = 0, path = (string?)null };
+            selectedPath = dialog.FileName;
+        }
+        catch
+        {
+            return new { canceled = true, rowCount = 0, path = (string?)null };
+        }
+
+        cancellationToken.ThrowIfCancellationRequested();
+        return await Task.Run(
+            () => service.WriteCityExport(request, selectedPath),
+            cancellationToken);
     }
 
     private async Task<object?> ExportCityAsync(
@@ -2387,6 +2444,24 @@ internal sealed class LWBridgeWindow : Form
             DocumentSession session = documentSession;
             if (IsCurrentDocument(session) && session.Subscriptions.Contains("bridge://map-scan-status"))
                 SendEvent(session, "bridge://map-scan-status", status);
+        }
+        try
+        {
+            if (InvokeRequired) BeginInvoke(Publish);
+            else Publish();
+        }
+        catch (InvalidOperationException) { }
+    }
+
+    private void OnMap317PlayerMarkChanged()
+    {
+        if (sessionClosed || IsDisposed) return;
+        void Publish()
+        {
+            DocumentSession session = documentSession;
+            if (IsCurrentDocument(session) &&
+                session.Subscriptions.Contains("bridge://player-mark-changed"))
+                SendEvent(session, "bridge://player-mark-changed", new { });
         }
         try
         {
@@ -2504,14 +2579,15 @@ internal sealed class LWBridgeWindow : Form
             overviewLifecycleService.RecoveryStatusChanged -= OnOverviewRecoveryStatusChanged;
         if (resourceAutomationConfigService is not null)
             resourceAutomationConfigService.StatusChanged -= OnResourceAutomationStatusChanged;
-        if (manualMapScanService is not null)
+        if (map317CommandService is not null)
         {
-            manualMapScanService.StatusChanged -= OnManualMapScanStatusChanged;
-            manualMapScanService.DispatchPlunderChanged -= OnDispatchPlunderChanged;
-            manualMapScanService.TruckPlunderChanged -= OnTruckPlunderChanged;
+            map317CommandService.ScanStatusChanged -= OnManualMapScanStatusChanged;
+            map317CommandService.PlayerMarkChanged -= OnMap317PlayerMarkChanged;
+            map317CommandService.DispatchPlunderChanged -= OnDispatchPlunderChanged;
+            map317CommandService.TruckPlunderChanged -= OnTruckPlunderChanged;
         }
-        // IMPLEMENTATION POLICY: drain the dependent scan worker before closing its owned game lifecycle.
-        manualMapScanService?.Close();
+        // Drain Map-owned workers before closing the game lifecycle they depend on.
+        map317CommandService?.Dispose();
         liveResourceService?.Close();
         cityLayoutDraftService?.Dispose();
         profileRegistryService?.Dispose();
@@ -2526,10 +2602,10 @@ internal sealed class LWBridgeWindow : Form
         ownerEvidence?.Dispose();
         if (sessionScopedMapData)
         {
-            try { mapData.ClearAllScanData(); }
+            try { mapData?.ClearAllScanData(); }
             catch { }
         }
-        mapData.Dispose();
+        mapData?.Dispose();
         if (isolatedConfigRoot is not null)
         {
             try { Directory.Delete(isolatedConfigRoot, recursive: true); }

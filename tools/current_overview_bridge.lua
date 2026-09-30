@@ -15,6 +15,16 @@ local navigation_path = root .. [[\map-navigation.txt]]
 local navigation_result_path = root .. [[\map-navigation-result.json]]
 local march_follow_path = root .. [[\march-follow.txt]]
 local march_follow_result_path = root .. [[\march-follow-result.json]]
+local truck_quick_rob_path = root .. [[\truck-quick-rob.txt]]
+local truck_quick_rob_result_path = root .. [[\truck-quick-rob-result.json]]
+local truck_quick_rob_clear_path = root .. [[\truck-quick-rob-clear.txt]]
+local truck_quick_rob_clear_result_path = root .. [[\truck-quick-rob-clear-result.json]]
+local dispatch_plunder_path = root .. [[\dispatch-plunder.txt]]
+local dispatch_plunder_result_path = root .. [[\dispatch-plunder-result.json]]
+local dispatch_share_path = root .. [[\dispatch-share.txt]]
+local dispatch_share_result_path = root .. [[\dispatch-share-result.json]]
+local map_plunder_server_day_path = root .. [[\map-plunder-server-day.txt]]
+local map_plunder_server_day_result_path = root .. [[\map-plunder-server-day-result.json]]
 local server_jump_path = root .. [[\server-jump.txt]]
 local server_jump_result_path = root .. [[\server-jump-result.json]]
 local aoi_diagnostic_path = root .. [[\aoi-diagnostic.txt]]
@@ -46,6 +56,22 @@ local pending_navigation = nil
 local pending_world_ready = nil
 local pending_server_jump = nil
 local pending_march_follow = nil
+local pending_truck_quick_rob = nil
+local dispatch_plunder_runtime = {
+    pending = {},
+    pendingByTask = {},
+    hookedClass = nil,
+    originalHandleMessage = nil,
+    -- Exact LWBridge 0.3.17 worker horizon recovered at 0xF0F54.
+    responseTimeoutMilliseconds = 15000,
+}
+local dispatch_share_runtime = {
+    pending = nil,
+    hookedClass = nil,
+    hookWrapper = nil,
+    originalHandleMessage = nil,
+    responseTimeoutSeconds = 5,
+}
 local pipe_runtime = {
     adapterLoaded = false,
     adapterConnect = nil,
@@ -62,6 +88,11 @@ local pipe_runtime = {
 local NAVIGATION_TIMEOUT_SECONDS = 5
 local WORLD_READY_TIMEOUT_SECONDS = 10
 local SERVER_JUMP_TIMEOUT_SECONDS = 15
+-- Current-v21 Truck execution dependencies are byte-identical to the recovered
+-- current-v19 modules. These are adapter setup/response envelopes; unlike the
+-- Dispatch 15 s horizon above, they are not claimed as native 0.3.17 constants.
+local TRUCK_QUICK_ROB_SETUP_TIMEOUT_SECONDS = 15
+local TRUCK_QUICK_ROB_RESPONSE_TIMEOUT_SECONDS = 30
 local function safe_get(target, key)
     if target == nil then return nil end
     local ok, value = pcall(function() return target[key] end)
@@ -353,11 +384,11 @@ local function ensure_pipe_hello(control)
     return true, nil
 end
 
-local function read_kv(path)
+local function read_kv(path, maximum_bytes)
     local file = io.open(path, "rb")
     if file == nil then return nil end
     local text = file:read("*a") or ""; file:close()
-    if #text > 4096 then return nil end
+    if #text > (maximum_bytes or 4096) then return nil end
     local values = {}
     for line in string.gmatch(text, "[^\r\n]+") do
         local key, value = string.match(line, "^([%w_]+)=(.*)$")
@@ -1144,6 +1175,1199 @@ local function exact_runtime_id(value)
     local text = tostring(value)
     if valid_exact_positive_id(text) then return text end
     return nil
+end
+
+function dispatch_plunder_runtime.server_time()
+    local manager_type = rawget(_G, "UITimeManager")
+    local ok_instance, manager = call(manager_type, "GetInstance")
+    if not ok_instance or manager == nil then return nil end
+    local ok_time, value = call(manager, "GetServerTime")
+    value = ok_time and tonumber(value) or nil
+    return value ~= nil and value > 0 and value == math.floor(value) and value or nil
+end
+
+function dispatch_plunder_runtime.resolve_manager()
+    local data_center = rawget(_G, "DataCenter")
+    return data_center and safe_get(data_center, "ActDispatchTaskDataManager") or nil
+end
+
+function dispatch_plunder_runtime.resolve_message_class()
+    local module_name = "Net.Msgs.DispatchTask.DispatchStealMessage"
+    local loaded = package and package.loaded and package.loaded[module_name] or nil
+    if loaded ~= nil then return loaded end
+    local ok_require, value = pcall(require, module_name)
+    return ok_require and value or nil
+end
+
+function dispatch_plunder_runtime.restore_hook()
+    local class = dispatch_plunder_runtime.hookedClass
+    local wrapper = dispatch_plunder_runtime.hookWrapper
+    local original = dispatch_plunder_runtime.originalHandleMessage
+    if class ~= nil and wrapper ~= nil and original ~= nil and safe_get(class, "HandleMessage") == wrapper then
+        pcall(function() class.HandleMessage = original end)
+    end
+    dispatch_plunder_runtime.hookedClass = nil
+    dispatch_plunder_runtime.hookWrapper = nil
+    dispatch_plunder_runtime.originalHandleMessage = nil
+end
+
+function dispatch_plunder_runtime.abandon()
+    dispatch_plunder_runtime.restore_hook()
+    dispatch_plunder_runtime.pending = {}
+    dispatch_plunder_runtime.pendingByTask = {}
+end
+
+function dispatch_plunder_runtime.result_path(request_id)
+    if not valid_token(request_id) then return nil end
+    return root .. [[\dispatch-plunder-result-]] .. request_id .. ".json"
+end
+
+function dispatch_plunder_runtime.write_result(request, state, error_code, success)
+    local payload = {
+        schemaVersion = 1,
+        bridgeVersion = M.VERSION,
+        profileId = active and active.profileId or nil,
+        sessionId = active and active.sessionId or nil,
+        challenge = active and active.challenge or nil,
+        gamePid = active and active.gamePid or nil,
+        requestId = request.requestId,
+        state = state,
+        serverId = request.serverId,
+        taskUuid = request.taskUuid,
+        kind = request.taskKind,
+        ownerServer = request.ownerServer,
+        executeAt = request.executeAt,
+        currentServerId = request.currentServerId,
+        requestSent = request.requestSent == true,
+        armed = request.armed == true,
+        success = success,
+        errorCode = error_code,
+        error = error_code,
+        serverTime = request.lastServerTime,
+        method = "SFSNetwork.SendMessage(MsgDefines.DispatchSteal)+DispatchStealMessage.HandleMessage",
+        capturedAt = os.date("!%Y-%m-%dT%H:%M:%SZ", tonumber(os.time()) or 0),
+    }
+    write_json(dispatch_plunder_result_path, payload)
+    local specific = dispatch_plunder_runtime.result_path(request.requestId)
+    if specific ~= nil then write_json(specific, payload) end
+end
+
+function dispatch_plunder_runtime.finish(request, state, error_code, success)
+    dispatch_plunder_runtime.pending[request.requestId] = nil
+    if dispatch_plunder_runtime.pendingByTask[request.taskUuid] == request then
+        dispatch_plunder_runtime.pendingByTask[request.taskUuid] = nil
+    end
+    dispatch_plunder_runtime.write_result(request, state, error_code, success)
+    if next(dispatch_plunder_runtime.pending) == nil then
+        dispatch_plunder_runtime.restore_hook()
+    end
+end
+
+function dispatch_plunder_runtime.parse_task_uuid(text)
+    local cs = rawget(_G, "CS")
+    local system = cs and safe_get(cs, "System") or nil
+    local int64 = system and safe_get(system, "Int64") or nil
+    local parse = int64 and safe_get(int64, "Parse") or nil
+    if type(parse) ~= "function" then return nil end
+    local ok, value = pcall(parse, text)
+    if not ok then ok, value = pcall(parse, int64, text) end
+    if not ok or exact_runtime_id(value) ~= text then return nil end
+    return value
+end
+
+function dispatch_plunder_runtime.install_hook()
+    if dispatch_plunder_runtime.hookedClass ~= nil and
+       dispatch_plunder_runtime.hookWrapper ~= nil and
+       dispatch_plunder_runtime.originalHandleMessage ~= nil then
+        return true
+    end
+    local class = dispatch_plunder_runtime.resolve_message_class()
+    local original = class and safe_get(class, "HandleMessage") or nil
+    if type(original) ~= "function" then return false end
+    local wrapper = function(self, message)
+        local task_uuid = exact_runtime_id(message and safe_get(message, "uuid"))
+        local pending = task_uuid and dispatch_plunder_runtime.pendingByTask[task_uuid] or nil
+        if pending ~= nil then
+            local error_code = safe_get(message, "errorCode")
+            pending.responseReceived = true
+            pending.responseSuccess = error_code == nil
+            pending.responseError = error_code ~= nil and tostring(error_code) or nil
+        end
+        return original(self, message)
+    end
+    local ok_set = pcall(function() class.HandleMessage = wrapper end)
+    if not ok_set or safe_get(class, "HandleMessage") ~= wrapper then return false end
+    dispatch_plunder_runtime.hookedClass = class
+    dispatch_plunder_runtime.hookWrapper = wrapper
+    dispatch_plunder_runtime.originalHandleMessage = original
+    return true
+end
+
+function dispatch_plunder_runtime.read_requests(control)
+    local values = read_kv(dispatch_plunder_path, 65536)
+    if values == nil then return nil end
+    pcall(os.remove, dispatch_plunder_path)
+    if values.bridgeVersion ~= M.VERSION or not valid_token(values.requestId) then return nil end
+    local game_pid = tonumber(values.gamePid)
+    local identity_ok = values.profileId == control.profileId and values.sessionId == control.sessionId and
+        values.challenge == control.challenge and game_pid == control.gamePid
+
+    local function build_request(request_id, task_kind, server_text, owner_text, task_uuid, execute_text)
+        local server_id = tonumber(server_text)
+        local owner_server = tonumber(owner_text)
+        local execute_at = tonumber(execute_text)
+        local request = {
+            requestId = request_id,
+            taskKind = task_kind or "dispatch",
+            serverId = server_id,
+            ownerServer = owner_server,
+            taskUuid = task_uuid,
+            executeAt = execute_at,
+            requestSent = false,
+        }
+        if not identity_ok then
+            request.error = "DISPATCH_PLUNDER_INVALID_SCHEDULE"
+            return request
+        end
+        if not valid_token(request_id) or request.taskKind ~= "dispatch" and request.taskKind ~= "ghost" or
+           server_id == nil or server_id ~= math.floor(server_id) or server_id < 1 or server_id > 99999 or
+           owner_server == nil or owner_server ~= math.floor(owner_server) or owner_server < 1 or owner_server > 99999 or
+           not valid_exact_positive_id(task_uuid) or
+           execute_at == nil or execute_at ~= math.floor(execute_at) or execute_at <= 0 then
+            request.error = "DISPATCH_PLUNDER_INVALID_TARGET"
+            return request
+        end
+        request.wireUuid = dispatch_plunder_runtime.parse_task_uuid(request.taskUuid)
+        if request.wireUuid == nil then request.error = "DISPATCH_PLUNDER_INVALID_TARGET" end
+        return request
+    end
+
+    if values.schema == "1" then
+        return { build_request(
+            values.requestId, values.kind or "dispatch", values.serverId,
+            values.ownerServer or values.serverId, values.taskUuid, values.executeAt) }
+    end
+    if values.schema ~= "2" then return nil end
+    local count = tonumber(values.count)
+    if count == nil or count ~= math.floor(count) or count < 1 or count > 200 then return nil end
+    local requests = {}
+    for index = 1, count do
+        local prefix = "job" .. tostring(index)
+        requests[#requests + 1] = build_request(
+            values[prefix .. "RequestId"],
+            values[prefix .. "Kind"],
+            values[prefix .. "ServerId"],
+            values[prefix .. "OwnerServer"],
+            values[prefix .. "TaskUuid"],
+            values[prefix .. "ExecuteAt"])
+    end
+    return requests
+end
+
+function dispatch_plunder_runtime.begin(request)
+    if request.error ~= nil then
+        dispatch_plunder_runtime.write_result(request, "failed", request.error, false)
+        return
+    end
+    if dispatch_plunder_runtime.pendingByTask[request.taskUuid] ~= nil then
+        dispatch_plunder_runtime.write_result(request, "failed", "DISPATCH_PLUNDER_ALREADY_ARMED", false)
+        return
+    end
+    local manager = dispatch_plunder_runtime.resolve_manager()
+    local server_time = dispatch_plunder_runtime.server_time()
+    if manager == nil or server_time == nil then
+        dispatch_plunder_runtime.write_result(request, "failed", "DISPATCH_PLUNDER_MANAGER_UNAVAILABLE", false)
+        return
+    end
+    if request.executeAt > server_time + 10000 then
+        dispatch_plunder_runtime.write_result(request, "failed", "DISPATCH_PLUNDER_INVALID_SCHEDULE", false)
+        return
+    end
+    if not dispatch_plunder_runtime.install_hook() then
+        dispatch_plunder_runtime.write_result(request, "failed", "DISPATCH_PLUNDER_MANAGER_UNAVAILABLE", false)
+        return
+    end
+    request.manager = manager
+    request.lastServerTime = server_time
+    request.startedClock = runtime_clock()
+    dispatch_plunder_runtime.pending[request.requestId] = request
+    dispatch_plunder_runtime.pendingByTask[request.taskUuid] = request
+    request.armed = true
+    dispatch_plunder_runtime.write_result(request, "armed", nil, nil)
+end
+
+function dispatch_plunder_runtime.current_server_id()
+    local lua_entry = rawget(_G, "LuaEntry")
+    local player = lua_entry and safe_get(lua_entry, "Player") or nil
+    local ok, value = call(player, "GetCurServerId")
+    value = ok and tonumber(value) or nil
+    return value ~= nil and value > 0 and value == math.floor(value) and value or nil
+end
+
+function dispatch_plunder_runtime.pre_send_error(request)
+    local manager = request.manager or dispatch_plunder_runtime.resolve_manager()
+    if manager == nil then return "DISPATCH_PLUNDER_MANAGER_UNAVAILABLE" end
+    local ok_today, today = call(manager, "GetTodayStealNum")
+    local ok_limit, limit = call(manager, "GetDispatchSetting", "steal_count")
+    today = ok_today and tonumber(today) or nil
+    limit = ok_limit and tonumber(limit) or nil
+    if today == nil or limit == nil then return "DISPATCH_PLUNDER_MANAGER_UNAVAILABLE" end
+    if limit > 0 and today >= limit then return "DISPATCH_PLUNDER_DAILY_LIMIT_REACHED" end
+
+    local current_server_id = dispatch_plunder_runtime.current_server_id()
+    request.currentServerId = current_server_id
+    if current_server_id == nil then return "DISPATCH_PLUNDER_GAME_DISCONNECTED" end
+    if current_server_id ~= request.serverId then
+        local ok_cross, cross_open = call(manager, "IsOpenCrossSteal")
+        if not ok_cross or cross_open ~= true then
+            return "DISPATCH_PLUNDER_CROSS_SERVER_UNAVAILABLE"
+        end
+    end
+    return nil
+end
+
+function dispatch_plunder_runtime.send(request, server_time)
+    local pre_send_error = dispatch_plunder_runtime.pre_send_error(request)
+    if pre_send_error ~= nil then
+        dispatch_plunder_runtime.finish(request, "failed", pre_send_error, false)
+        return
+    end
+
+    local network = rawget(_G, "SFSNetwork")
+    local msg_defines = rawget(_G, "MsgDefines")
+    if msg_defines == nil then
+        local ok_defs, value = pcall(require, "Net.Config.MsgDefines")
+        if ok_defs then msg_defines = value end
+    end
+    local send = network and safe_get(network, "SendMessage") or nil
+    local command = msg_defines and safe_get(msg_defines, "DispatchSteal") or nil
+    if type(send) ~= "function" or command == nil then
+        dispatch_plunder_runtime.finish(request, "failed", "DISPATCH_PLUNDER_MANAGER_UNAVAILABLE", false)
+        return
+    end
+
+    request.requestSent = true
+    request.sentClock = runtime_clock()
+    request.responseDeadline = math.max(server_time, request.executeAt) +
+        dispatch_plunder_runtime.responseTimeoutMilliseconds
+    local ok_send = pcall(send, command, request.wireUuid, request.serverId)
+    if not ok_send then
+        request.requestSent = false
+        dispatch_plunder_runtime.finish(request, "failed", "DISPATCH_PLUNDER_SEND_FAILED", false)
+    end
+end
+
+function dispatch_plunder_runtime.pump(control)
+    local incoming = dispatch_plunder_runtime.read_requests(control)
+    if incoming ~= nil then
+        for _, request in ipairs(incoming) do dispatch_plunder_runtime.begin(request) end
+    end
+
+    local pending = {}
+    for _, request in pairs(dispatch_plunder_runtime.pending) do pending[#pending + 1] = request end
+    for _, request in ipairs(pending) do
+        if request.responseReceived == true then
+            if request.responseSuccess == true then
+                dispatch_plunder_runtime.finish(request, "proven", nil, true)
+            else
+                dispatch_plunder_runtime.finish(request, "rejected", request.responseError or "unknown server error", false)
+            end
+        else
+            local server_time = dispatch_plunder_runtime.server_time()
+            request.lastServerTime = server_time
+            if request.requestSent ~= true then
+                if server_time == nil then
+                    dispatch_plunder_runtime.finish(request, "failed", "DISPATCH_PLUNDER_GAME_DISCONNECTED", false)
+                elseif server_time >= request.executeAt then
+                    dispatch_plunder_runtime.send(request, server_time)
+                end
+            else
+                local timed_out = server_time ~= nil and request.responseDeadline ~= nil and
+                    server_time >= request.responseDeadline
+                if not timed_out and request.sentClock ~= nil then
+                    timed_out = runtime_clock() - request.sentClock >= 16
+                end
+                if timed_out then
+                    dispatch_plunder_runtime.finish(
+                        request, "ambiguous", "DISPATCH_PLUNDER_RESPONSE_TIMEOUT", nil)
+                end
+            end
+        end
+    end
+end
+
+local function pump_map_plunder_server_day(control)
+    local values = read_kv(map_plunder_server_day_path)
+    if values == nil then return end
+    pcall(os.remove, map_plunder_server_day_path)
+    if values.schema ~= "1" or values.bridgeVersion ~= M.VERSION or not valid_token(values.requestId) then
+        return
+    end
+
+    local game_pid = tonumber(values.gamePid)
+    local identity_ok = values.profileId == control.profileId and values.sessionId == control.sessionId and
+        values.challenge == control.challenge and game_pid == control.gamePid
+    local payload = {
+        schemaVersion = 1,
+        bridgeVersion = M.VERSION,
+        profileId = control.profileId,
+        sessionId = control.sessionId,
+        challenge = control.challenge,
+        gamePid = control.gamePid,
+        requestId = values.requestId,
+    }
+    if not identity_ok then
+        payload.state = "failed"
+        payload.error = "map_plunder_server_day_identity_mismatch"
+        write_json(map_plunder_server_day_result_path, payload)
+        return
+    end
+
+    local manager_type = rawget(_G, "UITimeManager")
+    local ok_instance, manager = call(manager_type, "GetInstance")
+    local ok_time, server_time = call(manager, "GetServerTime")
+    local ok_zero, server_day_start = call(manager, "GetTodayZero")
+    server_time = ok_time and tonumber(server_time) or nil
+    server_day_start = ok_zero and tonumber(server_day_start) or nil
+    if not ok_instance or manager == nil or server_time == nil or server_day_start == nil or
+       server_time <= 0 or server_time ~= math.floor(server_time) or
+       server_day_start <= 0 or server_day_start ~= math.floor(server_day_start) or
+       server_day_start > server_time or server_time - server_day_start >= 86400000 then
+        payload.state = "failed"
+        payload.error = "map_plunder_server_day_unavailable"
+        write_json(map_plunder_server_day_result_path, payload)
+        return
+    end
+
+    payload.state = "proven"
+    payload.serverTime = server_time
+    payload.serverDayStartAt = server_day_start
+    write_json(map_plunder_server_day_result_path, payload)
+end
+
+function dispatch_share_runtime.resolve_message_class()
+    local module_name = "Chat.NetMessage.ChatHeroDispatchShareCommand"
+    local loaded = package and package.loaded and package.loaded[module_name] or nil
+    if loaded ~= nil then return loaded end
+    local ok_require, value = pcall(require, module_name)
+    return ok_require and value or nil
+end
+
+function dispatch_share_runtime.restore_hook()
+    local class = dispatch_share_runtime.hookedClass
+    local wrapper = dispatch_share_runtime.hookWrapper
+    local original = dispatch_share_runtime.originalHandleMessage
+    if class ~= nil and wrapper ~= nil and original ~= nil and safe_get(class, "HandleMessage") == wrapper then
+        pcall(function() class.HandleMessage = original end)
+    end
+    dispatch_share_runtime.hookedClass = nil
+    dispatch_share_runtime.hookWrapper = nil
+    dispatch_share_runtime.originalHandleMessage = nil
+end
+
+function dispatch_share_runtime.abandon()
+    dispatch_share_runtime.restore_hook()
+    dispatch_share_runtime.pending = nil
+end
+
+function dispatch_share_runtime.write_result(request, state, error_code, shared)
+    write_json(dispatch_share_result_path, {
+        schemaVersion = 1,
+        bridgeVersion = M.VERSION,
+        profileId = active and active.profileId or nil,
+        sessionId = active and active.sessionId or nil,
+        challenge = active and active.challenge or nil,
+        gamePid = active and active.gamePid or nil,
+        requestId = request.requestId,
+        state = state,
+        serverId = request.serverId,
+        taskUuid = request.taskUuid,
+        shared = shared,
+        errorCode = error_code,
+    })
+end
+
+function dispatch_share_runtime.finish(request, state, error_code, shared)
+    if dispatch_share_runtime.pending == request then
+        dispatch_share_runtime.pending = nil
+    end
+    dispatch_share_runtime.write_result(request, state, error_code, shared)
+    dispatch_share_runtime.restore_hook()
+end
+
+function dispatch_share_runtime.install_hook()
+    if dispatch_share_runtime.hookedClass ~= nil and dispatch_share_runtime.hookWrapper ~= nil and
+       dispatch_share_runtime.originalHandleMessage ~= nil then
+        return true
+    end
+    local class = dispatch_share_runtime.resolve_message_class()
+    local original = class and safe_get(class, "HandleMessage") or nil
+    if type(original) ~= "function" then return false end
+    local wrapper = function(self, message)
+        local pending = dispatch_share_runtime.pending
+        if pending ~= nil and pending.requestSent == true then
+            local error_code = message and safe_get(message, "errorCode") or nil
+            pending.responseReceived = true
+            pending.responseSuccess = error_code == nil
+            pending.responseError = error_code ~= nil and tostring(error_code) or nil
+        end
+        return original(self, message)
+    end
+    local ok_set = pcall(function() class.HandleMessage = wrapper end)
+    if not ok_set or safe_get(class, "HandleMessage") ~= wrapper then return false end
+    dispatch_share_runtime.hookedClass = class
+    dispatch_share_runtime.hookWrapper = wrapper
+    dispatch_share_runtime.originalHandleMessage = original
+    return true
+end
+
+function dispatch_share_runtime.read_request(control)
+    local values = read_kv(dispatch_share_path)
+    if values == nil then return nil end
+    pcall(os.remove, dispatch_share_path)
+    if values.schema ~= "1" or values.bridgeVersion ~= M.VERSION or not valid_token(values.requestId) then
+        return nil
+    end
+    local game_pid = tonumber(values.gamePid)
+    local request = {
+        requestId = values.requestId,
+        serverId = tonumber(values.serverId),
+        x = tonumber(values.x),
+        y = tonumber(values.y),
+        cfgId = tonumber(values.cfgId),
+        taskUuid = values.taskUuid,
+        requestSent = false,
+    }
+    if values.profileId ~= control.profileId or values.sessionId ~= control.sessionId or
+       values.challenge ~= control.challenge or game_pid ~= control.gamePid then
+        request.error = "dispatch_share_identity_mismatch"
+        return request
+    end
+    if request.serverId == nil or request.serverId ~= math.floor(request.serverId) or
+       request.serverId <= 0 or request.serverId > 2147483647 or
+       request.x == nil or request.x ~= math.floor(request.x) or request.x <= 0 or
+       request.y == nil or request.y ~= math.floor(request.y) or request.y <= 0 or
+       request.cfgId == nil or request.cfgId ~= math.floor(request.cfgId) or request.cfgId <= 0 or
+       not valid_exact_positive_id(request.taskUuid) then
+        request.error = "dispatch_share_invalid_target"
+        return request
+    end
+    request.wireUuid = dispatch_plunder_runtime.parse_task_uuid(request.taskUuid)
+    if request.wireUuid == nil then request.error = "dispatch_share_invalid_target" end
+    return request
+end
+
+function dispatch_share_runtime.begin(request)
+    if request.error ~= nil then
+        dispatch_share_runtime.write_result(request, "failed", request.error, false)
+        return
+    end
+    if dispatch_share_runtime.pending ~= nil then
+        dispatch_share_runtime.write_result(request, "failed", "dispatch_share_busy", false)
+        return
+    end
+
+    local manager = dispatch_plunder_runtime.resolve_manager()
+    local ok_task, task = call(manager, "GetSingleTaskByUuid", request.wireUuid)
+    local point_id = ok_task and task and tonumber(safe_get(task, "pointId")) or nil
+    if manager == nil or task == nil or point_id == nil or point_id <= 0 or point_id ~= math.floor(point_id) then
+        dispatch_share_runtime.write_result(request, "failed", "dispatch_share_task_unavailable", false)
+        return
+    end
+
+    local cs = rawget(_G, "CS")
+    local scene_manager = cs and safe_get(cs, "SceneManager") or nil
+    local world = scene_manager and safe_get(scene_manager, "World") or nil
+    local ok_info, info = call(world, "GetPointInfo", point_id)
+    if not ok_info or info == nil then
+        dispatch_share_runtime.write_result(request, "failed", "dispatch_share_point_unavailable", false)
+        return
+    end
+    local fresh_uuid_value = safe_get(info, "uuid") or safe_get(task, "uuid")
+    if exact_runtime_id(fresh_uuid_value) ~= request.taskUuid then
+        dispatch_share_runtime.write_result(request, "failed", "dispatch_share_task_changed", false)
+        return
+    end
+    local fresh_cfg_id = tonumber(safe_get(info, "cfgId"))
+    if fresh_cfg_id == nil or fresh_cfg_id <= 0 or fresh_cfg_id ~= math.floor(fresh_cfg_id) then
+        dispatch_share_runtime.write_result(request, "failed", "dispatch_share_config_unavailable", false)
+        return
+    end
+
+    local point_param = {
+        x = request.x,
+        y = request.y,
+        sid = request.serverId,
+        dispatch = 1,
+        cfgId = fresh_cfg_id,
+        uuid = fresh_uuid_value,
+    }
+    local owner_uid = safe_get(info, "ownerUid")
+    local data_center = rawget(_G, "DataCenter")
+    local player_manager = data_center and safe_get(data_center, "PlayerInfoDataManager") or nil
+    if owner_uid ~= nil and player_manager ~= nil then
+        local ok_player, player = call(player_manager, "GetPlayerDataByUid", owner_uid, true)
+        if ok_player and player ~= nil then
+            local name = safe_get(player, "name")
+            local abbr = safe_get(player, "alAbbr")
+            if name ~= nil and tostring(name) ~= "" then point_param.uname = tostring(name) end
+            if abbr ~= nil and tostring(abbr) ~= "" then point_param.abbr = tostring(abbr) end
+        end
+    end
+
+    local post_type = rawget(_G, "PostType")
+    local text_point_share = post_type and safe_get(post_type, "Text_PointShare") or nil
+    local share_channel = rawget(_G, "ChatShareChannel")
+    local alliance_channel = share_channel and safe_get(share_channel, "TO_ALLIANCE") or nil
+    local share_encode = package and package.loaded and package.loaded["Chat.Other.ShareEncode"] or nil
+    if share_encode == nil then
+        local ok_require, value = pcall(require, "Chat.Other.ShareEncode")
+        if ok_require then share_encode = value end
+    end
+    local encode = share_encode and safe_get(share_encode, "Encode") or nil
+    if text_point_share == nil or alliance_channel == nil or type(encode) ~= "function" then
+        dispatch_share_runtime.write_result(request, "failed", "dispatch_share_sender_unavailable", false)
+        return
+    end
+    local ok_attachment, attachment_id = pcall(encode, { post = text_point_share, param = point_param })
+    if not ok_attachment or attachment_id == nil or tostring(attachment_id) == "" then
+        dispatch_share_runtime.write_result(request, "failed", "dispatch_share_encode_failed", false)
+        return
+    end
+
+    local chat_manager_type = rawget(_G, "ChatManager2")
+    local ok_chat, chat_manager = call(chat_manager_type, "GetInstance")
+    local net = ok_chat and chat_manager and safe_get(chat_manager, "Net") or nil
+    local translate = chat_manager and safe_get(chat_manager, "Translate") or nil
+    local chat_interface = rawget(_G, "ChatInterface")
+    local ok_language_name, language_name = call(chat_interface, "getLanguageName")
+    local ok_language, language = call(translate, "GetLangString", language_name)
+    local chat_defines = rawget(_G, "ChatMsgDefines")
+    if chat_defines == nil then
+        local ok_require, value = pcall(require, "Chat.WebMessage.Config.ChatMsgDefines")
+        if ok_require then chat_defines = value end
+    end
+    local command = chat_defines and safe_get(chat_defines, "ChatHeroDispatchShare") or nil
+    if net == nil or not ok_language_name or not ok_language or language == nil or command == nil then
+        dispatch_share_runtime.write_result(request, "failed", "dispatch_share_sender_unavailable", false)
+        return
+    end
+    if not dispatch_share_runtime.install_hook() then
+        dispatch_share_runtime.write_result(request, "failed", "dispatch_share_response_unavailable", false)
+        return
+    end
+
+    request.requestSent = true
+    request.sentClock = runtime_clock()
+    dispatch_share_runtime.pending = request
+    local ok_send = call(net, "SendSFSMessage", command, {
+        post = text_point_share,
+        lang = language,
+        msg = "?",
+        attachmentId = attachment_id,
+        uuid = request.wireUuid,
+        targetServer = request.serverId,
+        type = alliance_channel,
+    })
+    if not ok_send then
+        request.requestSent = false
+        dispatch_share_runtime.finish(request, "failed", "dispatch_share_send_failed", false)
+    end
+end
+
+function dispatch_share_runtime.pump(control)
+    local request = dispatch_share_runtime.read_request(control)
+    if request ~= nil then dispatch_share_runtime.begin(request) end
+    local pending = dispatch_share_runtime.pending
+    if pending == nil then return end
+    if pending.responseReceived == true then
+        if pending.responseSuccess == true then
+            dispatch_share_runtime.finish(pending, "proven", nil, true)
+        else
+            dispatch_share_runtime.finish(
+                pending, "rejected", pending.responseError or "dispatch_share_rejected", false)
+        end
+        return
+    end
+    if pending.sentClock ~= nil and
+       runtime_clock() - pending.sentClock >= dispatch_share_runtime.responseTimeoutSeconds then
+        dispatch_share_runtime.finish(pending, "timeout", "dispatch_share_timeout", false)
+    end
+end
+
+local function read_truck_quick_rob(control)
+    local values = read_kv(truck_quick_rob_path)
+    if values == nil then return nil end
+    pcall(os.remove, truck_quick_rob_path)
+    if values.schema ~= "1" or values.bridgeVersion ~= M.VERSION or not valid_token(values.requestId) then return nil end
+    local game_pid = tonumber(values.gamePid)
+    local server_id = tonumber(values.serverId)
+    local request = {
+        requestId = values.requestId,
+        serverId = server_id,
+        trainUuid = values.trainUuid,
+        jobId = values.jobId,
+        executeAt = tonumber(values.executeAt),
+        robTimes = tonumber(values.robTimes),
+        maxLootCount = tonumber(values.maxLootCount),
+    }
+    if values.profileId ~= control.profileId or values.sessionId ~= control.sessionId or
+       values.challenge ~= control.challenge or game_pid ~= control.gamePid then
+        request.error = "truck_quick_rob_identity_mismatch"
+        return request
+    end
+    if server_id == nil or server_id ~= math.floor(server_id) or server_id < 1 or server_id > 99999 or
+       not valid_exact_positive_id(values.trainUuid) or not valid_token(values.jobId) or
+       request.executeAt == nil or request.executeAt ~= math.floor(request.executeAt) or request.executeAt <= 0 then
+        request.error = "truck_quick_rob_target_invalid"
+    end
+    return request
+end
+
+local function read_truck_quick_rob_clear(control)
+    local values = read_kv(truck_quick_rob_clear_path)
+    if values == nil then return nil end
+    pcall(os.remove, truck_quick_rob_clear_path)
+    if values.schema ~= "1" or values.bridgeVersion ~= M.VERSION or not valid_token(values.requestId) then return nil end
+    local request = {
+        requestId = values.requestId,
+        serverId = tonumber(values.serverId),
+        trainUuid = values.trainUuid,
+        jobId = values.jobId,
+        valid = values.profileId == control.profileId and values.sessionId == control.sessionId and
+            values.challenge == control.challenge and tonumber(values.gamePid) == control.gamePid,
+    }
+    return request
+end
+
+local function resolve_truck_railway_util()
+    local loaded = package and package.loaded or nil
+    local value = loaded and loaded["DataCenter.LWRailway.Util.RailwayUtil"] or nil
+    if value ~= nil then return value end
+    local ok_require, required = pcall(require, "DataCenter.LWRailway.Util.RailwayUtil")
+    if ok_require and required ~= nil then return required end
+    return rawget(_G, "RailwayUtil")
+end
+
+local function resolve_truck_event_ids()
+    local value = rawget(_G, "EventId")
+    if value ~= nil then return value end
+    local ok_require, required = pcall(require, "Framework.UI.Message.EventId")
+    if ok_require and required ~= nil then return required end
+    return rawget(_G, "EventId")
+end
+
+local function resolve_truck_event_manager()
+    local manager_type = rawget(_G, "EventManager")
+    if manager_type == nil then return nil end
+    local ok_instance, instance = call(manager_type, "GetInstance")
+    if ok_instance and instance ~= nil then return instance end
+    return manager_type
+end
+
+local function find_live_truck_target(request)
+    local world, world_error = navigation_world()
+    if world == nil then return nil, nil, world_error end
+    local march_manager = safe_get(world, "MarchDataManager") or reflected_value(world, "MarchDataManager")
+    if march_manager == nil then
+        local ok_manager, value = call(world, "get_MarchDataManager")
+        if ok_manager then march_manager = value end
+    end
+    if march_manager == nil then return nil, nil, "world_march_manager_unavailable" end
+    local ok_all, collection = call(march_manager, "GetAllMarchesByCS")
+    if not ok_all or collection == nil then collection = reflected_value(march_manager, "allMarches") end
+    if collection == nil then return nil, nil, "world_march_collection_unavailable" end
+    local ok_enum, enumerator = call(collection, "GetEnumerator")
+    if not ok_enum or enumerator == nil then return nil, nil, "world_march_enumerator_unavailable" end
+
+    local scanned = 0
+    while scanned < 50000 do
+        local ok_move, moved = call(enumerator, "MoveNext")
+        if not ok_move then return nil, nil, "world_march_enumerator_failed" end
+        if moved ~= true then break end
+        scanned = scanned + 1
+        local pair = safe_get(enumerator, "Current")
+        local march = pair and (safe_get(pair, "Value") or pair) or nil
+        if march ~= nil then
+            local train = safe_get(march, "train")
+            if train ~= nil then
+                local actual_train_uuid = exact_runtime_id(safe_get(train, "uuid") or safe_get(train, "Uuid"))
+                if actual_train_uuid == request.trainUuid then
+                    local train_type = tonumber(safe_get(train, "type") or safe_get(train, "Type"))
+                    if train_type ~= 1 then return march, train, "truck_target_not_truck" end
+                    local train_server_id = tonumber(safe_get(train, "serverId") or safe_get(train, "ServerId"))
+                    if train_server_id == nil or train_server_id ~= math.floor(train_server_id) or train_server_id ~= request.serverId then
+                        return march, train, "truck_train_server_mismatch"
+                    end
+                    local march_uuid = exact_runtime_id(safe_get(march, "uuid") or safe_get(march, "Uuid") or safe_get(march, "_uuid"))
+                    if march_uuid == nil then return march, train, "truck_march_identity_unavailable" end
+                    request.marchUuid = march_uuid
+                    return march, train, nil
+                end
+            end
+        end
+    end
+    return nil, nil, "truck_live_target_not_found"
+end
+
+local function current_truck_quick_rob_logic(request)
+    local data_center = rawget(_G, "DataCenter")
+    local battle_manager = data_center and safe_get(data_center, "LWBattleManager") or nil
+    if battle_manager == nil then return nil, "truck_battle_manager_unavailable" end
+    local ok_logic, logic = call(battle_manager, "GetCurBattleLogic")
+    if not ok_logic or logic == nil then return nil, nil end
+    local param = safe_get(logic, "param")
+    local enter_type = param and safe_get(param, "enterType") or nil
+    local pve_enter_type = rawget(_G, "PVEEnterType")
+    local truck_rob_type = pve_enter_type and safe_get(pve_enter_type, "TruckRob") or 4
+    if tonumber(enter_type) ~= tonumber(truck_rob_type) then return nil, "truck_battle_logic_mismatch" end
+    local extra_data = safe_get(param, "extraData")
+    local train = extra_data and safe_get(extra_data, "trainData") or nil
+    if train == nil or exact_runtime_id(safe_get(train, "uuid") or safe_get(train, "Uuid")) ~= request.trainUuid then
+        return nil, "truck_battle_target_mismatch"
+    end
+    return logic, nil
+end
+
+
+local function normalize_truck_plunder_rewards(rewards)
+    if rewards == nil then return {}, true end
+    if type(rewards) ~= "table" then return {}, false end
+
+    local data_center = rawget(_G, "DataCenter")
+    local item_manager = data_center and safe_get(data_center, "ItemTemplateManager") or nil
+    local reward_manager = data_center and safe_get(data_center, "RewardManager") or nil
+    local reward_type_enum = rawget(_G, "RewardType")
+    local goods_type = reward_type_enum and tonumber(safe_get(reward_type_enum, "GOODS")) or nil
+    local load_path = rawget(_G, "LoadPath")
+    local item_path = load_path and safe_get(load_path, "ItemPath") or nil
+
+    local by_key, order = {}, {}
+    local unresolved = 0
+    for _, reward in ipairs(rewards) do
+        local reward_type = tonumber(safe_get(reward, "type"))
+        local reward_value = safe_get(reward, "value")
+        local item_id, count = nil, nil
+        if type(reward_value) == "table" then
+            item_id = tonumber(safe_get(reward_value, "id"))
+            count = tonumber(safe_get(reward_value, "num"))
+        else
+            item_id = reward_type
+            count = tonumber(reward_value)
+        end
+
+        if reward_type ~= nil and item_id ~= nil and count ~= nil and count > 0 then
+            local name, icon_path = nil, nil
+            if goods_type ~= nil and reward_type == goods_type and item_manager ~= nil then
+                local ok_template, goods = call(item_manager, "GetItemTemplate", item_id)
+                local ok_name, resolved_name = call(item_manager, "GetName", item_id)
+                if ok_name and resolved_name ~= nil and tostring(resolved_name) ~= "" then
+                    name = tostring(resolved_name)
+                end
+                if ok_template and goods ~= nil then
+                    local join_method = tonumber(safe_get(goods, "join_method")) or -1
+                    local icon_join = safe_get(goods, "icon_join")
+                    if join_method > 0 and icon_join ~= nil and tostring(icon_join) ~= "" then
+                        local parts = {}
+                        for part in string.gmatch(tostring(icon_join), "([^;]+)") do parts[#parts + 1] = part end
+                        if #parts > 2 and parts[3] ~= "" then icon_path = parts[3] end
+                    end
+                    if icon_path == nil then
+                        local icon = safe_get(goods, "icon")
+                        if icon ~= nil and tostring(icon) ~= "" and item_path ~= nil then
+                            local ok_format, formatted = pcall(string.format, tostring(item_path), tostring(icon))
+                            if ok_format and formatted ~= nil and formatted ~= "" then icon_path = tostring(formatted) end
+                        end
+                    end
+                end
+            elseif reward_manager ~= nil then
+                local ok_name, resolved_name = call(reward_manager, "GetNameByType", reward_type, item_id)
+                if not ok_name or resolved_name == nil or tostring(resolved_name) == "" then
+                    ok_name, resolved_name = call(reward_manager, "GetNameByType", reward_type)
+                end
+                if ok_name and resolved_name ~= nil and tostring(resolved_name) ~= "" then
+                    name = tostring(resolved_name)
+                end
+                local ok_icon, resolved_icon = call(reward_manager, "GetPicByType", reward_type, item_id)
+                if not ok_icon or resolved_icon == nil or tostring(resolved_icon) == "" then
+                    ok_icon, resolved_icon = call(reward_manager, "GetPicByType", reward_type)
+                end
+                if ok_icon and resolved_icon ~= nil and tostring(resolved_icon) ~= "" then
+                    icon_path = tostring(resolved_icon)
+                end
+            end
+
+            if name ~= nil and icon_path ~= nil then
+                -- Internal rebuild identity only. Current-v19 supplies the
+                -- authoritative reward type/item id, name and icon; the exact
+                -- original LWBridge plunderRewards key producer is unrecovered.
+                local key = "reward:" .. tostring(reward_type) .. ":" .. tostring(item_id)
+                local existing = by_key[key]
+                if existing == nil then
+                    existing = {
+                        key = key,
+                        name = name,
+                        iconPath = icon_path,
+                        count = 0,
+                        rewardType = reward_type,
+                        itemId = item_id,
+                    }
+                    by_key[key] = existing
+                    order[#order + 1] = key
+                end
+                existing.count = existing.count + count
+            else
+                unresolved = unresolved + 1
+            end
+        else
+            unresolved = unresolved + 1
+        end
+    end
+
+    local result = {}
+    for _, key in ipairs(order) do result[#result + 1] = by_key[key] end
+    return result, unresolved == 0
+end
+
+local function truck_reward_count(value)
+    if value == nil then return 0 end
+    local count = tonumber(safe_get(value, "Count") or safe_get(value, "Length"))
+    if count ~= nil and count >= 0 then return math.floor(count) end
+    if type(value) == "table" then
+        local maximum = 0
+        for key in pairs(value) do
+            if type(key) == "number" and key > maximum and key == math.floor(key) then maximum = key end
+        end
+        return maximum
+    end
+    return 0
+end
+
+local function write_truck_quick_rob_result(request, state, error_text)
+    write_json(truck_quick_rob_result_path, {
+        schemaVersion = 1,
+        bridgeVersion = M.VERSION,
+        profileId = active and active.profileId or nil,
+        sessionId = active and active.sessionId or nil,
+        challenge = active and active.challenge or nil,
+        gamePid = active and active.gamePid or nil,
+        requestId = request.requestId,
+        state = state,
+        serverId = request.serverId,
+        currentServerId = request.currentServerId,
+        marchUuid = request.marchUuid,
+        trainUuid = request.trainUuid,
+        jobId = request.jobId,
+        executeAt = request.executeAt,
+        requestSent = request.requestSent == true,
+        armed = request.armed == true,
+        battleWon = request.battleWon,
+        rewardCount = request.rewardCount,
+        plunderRewards = request.plunderRewards,
+        rewardNormalizationComplete = request.rewardNormalizationComplete,
+        dailyRobCount = request.dailyRobCount,
+        method = request.method,
+        error = error_text,
+    })
+end
+
+local function detach_truck_quick_rob_listeners(request)
+    local event_manager = request and request.eventManager or nil
+    if event_manager == nil then return end
+    if request.successEventId ~= nil and request.successCallback ~= nil then
+        call(event_manager, "RemoveListener", request.successEventId, request.successCallback)
+    end
+    if request.terminalEventId ~= nil and request.terminalCallback ~= nil then
+        call(event_manager, "RemoveListener", request.terminalEventId, request.terminalCallback)
+    end
+    request.eventManager = nil
+    request.successCallback = nil
+    request.terminalCallback = nil
+end
+
+local function exit_owned_truck_quick_rob_battle(request)
+    if request == nil or request.battleOwned ~= true then return end
+    local logic = select(1, current_truck_quick_rob_logic(request))
+    if logic == nil then return end
+    local data_center = rawget(_G, "DataCenter")
+    local battle_manager = data_center and safe_get(data_center, "LWBattleManager") or nil
+    if battle_manager ~= nil then call(battle_manager, "Exit") end
+end
+
+local function finish_truck_quick_rob(request, state, error_text, exit_battle)
+    detach_truck_quick_rob_listeners(request)
+    write_truck_quick_rob_result(request, state, error_text)
+    if exit_battle == true then exit_owned_truck_quick_rob_battle(request) end
+    if pending_truck_quick_rob == request then pending_truck_quick_rob = nil end
+end
+
+local function abandon_truck_quick_rob()
+    local request = pending_truck_quick_rob
+    if request == nil then return end
+    detach_truck_quick_rob_listeners(request)
+    exit_owned_truck_quick_rob_battle(request)
+    pending_truck_quick_rob = nil
+end
+
+local function accept_truck_quick_rob(request)
+    if request.error ~= nil then
+        write_truck_quick_rob_result(request, "failed", request.error)
+        return
+    end
+    if pending_truck_quick_rob ~= nil then
+        write_truck_quick_rob_result(request, "failed", "truck_quick_rob_request_pending")
+        return
+    end
+    local server_time = dispatch_plunder_runtime.server_time()
+    if server_time == nil then
+        write_truck_quick_rob_result(request, "failed", "game disconnected")
+        return
+    end
+    if request.executeAt > server_time + 10000 then
+        write_truck_quick_rob_result(request, "failed", "invalid scheduled target")
+        return
+    end
+    request.phase = "armed_wait"
+    request.lastServerTime = server_time
+    pending_truck_quick_rob = request
+    request.armed = true
+    write_truck_quick_rob_result(request, "armed", nil)
+end
+
+local function start_truck_quick_rob(request)
+    if pending_navigation ~= nil or pending_world_ready ~= nil or pending_server_jump ~= nil or pending_march_follow ~= nil then
+        finish_truck_quick_rob(request, "failed", "game_operation_in_progress", false)
+        return
+    end
+
+    local lua_entry = rawget(_G, "LuaEntry")
+    local player = lua_entry and safe_get(lua_entry, "Player") or nil
+    local ok_cur, cur_value = call(player, "GetCurServerId")
+    local current_server_id = ok_cur and tonumber(cur_value) or nil
+    if current_server_id == nil or current_server_id <= 0 or current_server_id ~= math.floor(current_server_id) then
+        finish_truck_quick_rob(request, "failed", "current_server_id_unavailable", false)
+        return
+    end
+    request.currentServerId = math.floor(current_server_id)
+    if request.currentServerId ~= request.serverId then
+        finish_truck_quick_rob(request, "failed", "truck_quick_rob_server_mismatch", false)
+        return
+    end
+
+    local data_center = rawget(_G, "DataCenter")
+    local battle_manager = data_center and safe_get(data_center, "LWBattleManager") or nil
+    local station_manager = data_center and safe_get(data_center, "LWMyStationDataManager") or nil
+    if battle_manager == nil or station_manager == nil then
+        finish_truck_quick_rob(request, "failed", "truck_battle_components_unavailable", false)
+        return
+    end
+    local ok_existing, existing_logic = call(battle_manager, "GetCurBattleLogic")
+    if ok_existing and existing_logic ~= nil then
+        finish_truck_quick_rob(request, "failed", "game_operation_in_progress", false)
+        return
+    end
+
+    local _, train, target_error = find_live_truck_target(request)
+    if target_error ~= nil or train == nil then
+        finish_truck_quick_rob(request, "failed", target_error or "truck_live_target_not_found", false)
+        return
+    end
+
+    local railway_util = resolve_truck_railway_util()
+    local click_attack = railway_util and safe_get(railway_util, "ClickAttackTrain") or nil
+    local event_ids = resolve_truck_event_ids()
+    local event_manager = resolve_truck_event_manager()
+    local success_event_id = event_ids and safe_get(event_ids, "TrainSkirmishDataReceived") or nil
+    local terminal_event_id = event_ids and safe_get(event_ids, "TrainAttackReceived") or nil
+    if type(click_attack) ~= "function" or event_manager == nil or success_event_id == nil or terminal_event_id == nil then
+        finish_truck_quick_rob(request, "failed", "truck_quick_rob_components_unavailable", false)
+        return
+    end
+
+    request.liveTrain = train
+    request.stationManager = station_manager
+    request.eventManager = event_manager
+    request.successEventId = success_event_id
+    request.terminalEventId = terminal_event_id
+    request.successCallback = function(message)
+        if pending_truck_quick_rob == request and request.requestSent == true then
+            request.successMessage = message
+            request.successReceived = true
+            request.successClock = runtime_clock()
+        end
+    end
+    request.terminalCallback = function()
+        if pending_truck_quick_rob == request and request.requestSent == true then
+            request.terminalReceived = true
+            request.terminalClock = runtime_clock()
+        end
+    end
+    local ok_success_listener = select(1, call(event_manager, "AddListener", success_event_id, request.successCallback))
+    local ok_terminal_listener = select(1, call(event_manager, "AddListener", terminal_event_id, request.terminalCallback))
+    if not ok_success_listener or not ok_terminal_listener then
+        detach_truck_quick_rob_listeners(request)
+        finish_truck_quick_rob(request, "failed", "truck_quick_rob_listener_install_failed", false)
+        return
+    end
+
+    request.method = "RailwayUtil.ClickAttackTrain+LWMyStationDataManager.TryAttackTrain"
+    request.startedClock = runtime_clock()
+    request.phase = "waiting_logic"
+    pending_truck_quick_rob = request
+    -- Ownership is set before entry so a partial Enter() followed by an
+    -- exception can still be cleaned up. exit_owned_truck_quick_rob_battle()
+    -- additionally proves the active logic target before calling Exit().
+    request.battleOwned = true
+    local ok_click = pcall(click_attack, train, true)
+    if not ok_click then
+        finish_truck_quick_rob(request, "failed", "truck_quick_rob_entry_failed", true)
+        return
+    end
+end
+
+local function pump_truck_quick_rob(control)
+    local clear = read_truck_quick_rob_clear(control)
+    if clear ~= nil then
+        local active_request = pending_truck_quick_rob
+        local matches = clear.valid == true and active_request ~= nil and
+            active_request.serverId == clear.serverId and active_request.trainUuid == clear.trainUuid and
+            active_request.jobId == clear.jobId
+        if matches then abandon_truck_quick_rob() end
+        write_json(truck_quick_rob_clear_result_path, {
+            schemaVersion = 1,
+            bridgeVersion = M.VERSION,
+            profileId = active and active.profileId or nil,
+            sessionId = active and active.sessionId or nil,
+            challenge = active and active.challenge or nil,
+            gamePid = active and active.gamePid or nil,
+            requestId = clear.requestId,
+            cleared = matches,
+        })
+    end
+
+    if pending_truck_quick_rob == nil then
+        local request = read_truck_quick_rob(control)
+        if request ~= nil then
+            local ok_begin, begin_error = pcall(accept_truck_quick_rob, request)
+            if not ok_begin then
+                detach_truck_quick_rob_listeners(request)
+                write_truck_quick_rob_result(request, "failed", "truck_quick_rob_exception:" .. tostring(begin_error))
+                if pending_truck_quick_rob == request then pending_truck_quick_rob = nil end
+            end
+        end
+    end
+    local request = pending_truck_quick_rob
+    if request == nil then return end
+
+    if request.phase == "armed_wait" then
+        local server_time = dispatch_plunder_runtime.server_time()
+        request.lastServerTime = server_time
+        if server_time == nil then
+            finish_truck_quick_rob(request, "failed", "game disconnected", false)
+            return
+        end
+        if server_time >= request.executeAt then
+            local ok_start, start_error = pcall(start_truck_quick_rob, request)
+            if not ok_start then
+                finish_truck_quick_rob(request, "failed", "truck_quick_rob_exception:" .. tostring(start_error), true)
+            end
+        end
+        return
+    end
+
+    if request.phase == "waiting_logic" then
+        local logic, logic_error = current_truck_quick_rob_logic(request)
+        if logic_error ~= nil and logic_error ~= "truck_battle_manager_unavailable" then
+            finish_truck_quick_rob(request, "failed", logic_error, true)
+            return
+        end
+        if logic ~= nil and safe_get(logic, "sceneLoadRequest") ~= nil then
+            local station_manager = request.stationManager
+            local ok_formation, formation = call(station_manager, "GetRobFormation")
+            if not ok_formation or formation == nil then
+                finish_truck_quick_rob(request, "failed", "truck_rob_formation_unavailable", true)
+                return
+            end
+            local local_heroes = safe_get(formation, "localHeroes")
+            local hero_count = nil
+            local table_count = table and safe_get(table, "count") or nil
+            if type(table_count) == "function" then
+                local ok_count, value = pcall(table_count, local_heroes)
+                if ok_count then hero_count = tonumber(value) end
+            end
+            if hero_count ~= nil and hero_count <= 0 then
+                finish_truck_quick_rob(request, "failed", "truck_rob_formation_empty", true)
+                return
+            end
+
+            local live_train_uuid = safe_get(request.liveTrain, "uuid") or safe_get(request.liveTrain, "Uuid")
+            local live_server_id = tonumber(safe_get(request.liveTrain, "serverId") or safe_get(request.liveTrain, "ServerId"))
+            if exact_runtime_id(live_train_uuid) ~= request.trainUuid or live_server_id ~= request.serverId then
+                finish_truck_quick_rob(request, "failed", "truck_train_identity_changed", true)
+                return
+            end
+
+            local ok_save = select(1, call(station_manager, "TrySaveTruckFormation", formation, true))
+            if not ok_save then
+                finish_truck_quick_rob(request, "failed", "truck_rob_formation_save_failed", true)
+                return
+            end
+            request.requestSent = true
+            request.sentClock = runtime_clock()
+            request.successReceived = false
+            request.terminalReceived = false
+            local ok_attack, attack_result = call(station_manager, "TryAttackTrain", live_train_uuid, request.serverId, formation)
+            if not ok_attack or attack_result == false then
+                request.requestSent = false
+                finish_truck_quick_rob(request, "failed", "train_attack_send_failed", true)
+                return
+            end
+            request.phase = "waiting_response"
+            return
+        end
+        if runtime_clock() - request.startedClock >= TRUCK_QUICK_ROB_SETUP_TIMEOUT_SECONDS then
+            finish_truck_quick_rob(request, "failed", "truck_quick_rob_setup_timeout", true)
+        end
+        return
+    end
+
+    if request.phase == "waiting_response" then
+        if request.successReceived == true then
+            local logic = select(1, current_truck_quick_rob_logic(request))
+            if logic ~= nil then
+                local battle_data = safe_get(logic, "battleData")
+                if battle_data ~= nil then
+                    local ok_top, top_player_win = pcall(function() return battle_data.topPlayerWin end)
+                    if ok_top and type(top_player_win) == "boolean" then
+                        request.battleWon = not top_player_win
+                        local param = safe_get(logic, "param")
+                        local raw_rewards = param and safe_get(param, "attackTrainReward") or nil
+                        request.rewardCount = truck_reward_count(raw_rewards)
+                        request.plunderRewards, request.rewardNormalizationComplete =
+                            normalize_truck_plunder_rewards(raw_rewards)
+                        local daily_rob_count = tonumber(
+                            request.successMessage and safe_get(request.successMessage, "dailyRobCount") or nil)
+                        if daily_rob_count ~= nil and daily_rob_count >= 0 and daily_rob_count == math.floor(daily_rob_count) then
+                            request.dailyRobCount = math.floor(daily_rob_count)
+                        end
+                        finish_truck_quick_rob(request, "proven", nil, true)
+                        return
+                    end
+                end
+            end
+        elseif request.terminalReceived == true then
+            finish_truck_quick_rob(request, "failed", "train_attack_rejected", true)
+            return
+        end
+
+        if runtime_clock() - request.sentClock >= TRUCK_QUICK_ROB_RESPONSE_TIMEOUT_SECONDS then
+            if request.successReceived == true then
+                finish_truck_quick_rob(request, "ambiguous", "truck_quick_rob_result_unavailable", true)
+            else
+                finish_truck_quick_rob(request, "ambiguous", "server_response_timeout", true)
+            end
+        end
+    end
 end
 
 local function write_march_follow_result(request, state, error_text)
@@ -2280,6 +3504,9 @@ function M.Pump()
         pending_world_ready = nil
         pending_server_jump = nil
         pending_march_follow = nil
+        dispatch_plunder_runtime.abandon()
+        dispatch_share_runtime.abandon()
+        abandon_truck_quick_rob()
         destroy_message()
         write_heartbeat(now, false, control == nil and "control_unavailable" or "host_lease_stale")
         return true
@@ -2292,6 +3519,9 @@ function M.Pump()
         pending_world_ready = nil
         pending_server_jump = nil
         pending_march_follow = nil
+        dispatch_plunder_runtime.abandon()
+        dispatch_share_runtime.abandon()
+        abandon_truck_quick_rob()
         close_pipe_runtime()
         active = control
     end
@@ -2301,6 +3531,10 @@ function M.Pump()
     pump_world_ready(control)
     pump_server_jump(control)
     pump_march_follow(control)
+    pump_map_plunder_server_day(control)
+    dispatch_share_runtime.pump(control)
+    dispatch_plunder_runtime.pump(control)
+    pump_truck_quick_rob(control)
     pump_navigation(control)
     local rendered, render_error = ensure_message()
     if rendered then

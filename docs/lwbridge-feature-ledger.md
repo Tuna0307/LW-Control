@@ -11,7 +11,7 @@ Do not copy feature names or statuses from the 0.3.1 ledger until the 0.3.17 ref
 | Top-level navigation | EXACT_BYTES definition/labels/icons/CSS | IMPLEMENTED_NOT_VALIDATED | N/A | N/A | BLOCKED | Exact eight-item order and inline SVG icons reproduced; reference post-auth visual validation blocked |
 | Home | EXACT_BYTES static component/locale/CSS inventory | IMPLEMENTED_NOT_VALIDATED | N/A | N/A | BLOCKED | Exact unresolved Home state reproduced; reference post-auth visual validation blocked |
 | Automation | EXACT_BYTES static tab/card/locale/CSS inventory | IMPLEMENTED_NOT_VALIDATED | N/A | N/A | BLOCKED | Seven exact categories and inventoried cards reproduced; runtime persisted state not claimed |
-| Map Data | EXACT_BYTES static scan/tab/filter/table/CSS inventory | IMPLEMENTED_NOT_VALIDATED | READY — `LWB317-RE-MAP-001` | NOT STARTED | BLOCKED | Phase 2 Map subsystem Goal opened; no live claim yet |
+| Map Data | EXACT_BYTES static scan/tab/filter/table/CSS inventory | IMPLEMENTED_NOT_VALIDATED | EXACT_CONTRACT — `LWB317-RE-MAP-001` | IMPLEMENTED_NOT_VALIDATED | NOT STARTED | Exact 0.3.17 frontend/scan/storage/query/export/actions/scheduled-worker contracts implemented in Map317; v21 static/source compatibility proven. Treasure claim/status and Ghost preparation intentionally fail closed pending a source-proven provider chain; fresh Goal live proof still required. |
 | Squads / AFK | EXACT_BYTES static AFK/equipment/locale/CSS inventory | IMPLEMENTED_NOT_VALIDATED | N/A | N/A | BLOCKED | AFK default and equipment empty state reproduced; UI-007 static-contract refinements complete, reference runtime validation blocked |
 | City Layout | EXACT_BYTES static grid/inspector/locale/CSS inventory | IMPLEMENTED_NOT_VALIDATED | N/A | N/A | BLOCKED | Exact disconnected render path reproduced; no city/building data fabricated |
 | Hotkeys | EXACT_BYTES static shortcut/card/locale/CSS inventory | IMPLEMENTED_NOT_VALIDATED | N/A | N/A | BLOCKED | Seven exact shortcut cards reproduced with deterministic clone-only config fixture |
@@ -20,7 +20,7 @@ Do not copy feature names or statuses from the 0.3.1 ledger until the 0.3.17 ref
 | Advanced (dormant navigation helper) | EXACT_BYTES helper; forced off in exact build | N/A | N/A | N/A | N/A | Exact call site passes `false` into the premium/admin gate, so the visible 0.3.17 nav has eight entries |
 | Additional visible in-scope surfaces | UNKNOWN | NOT STARTED | NOT STARTED | NOT STARTED | NOT STARTED | Add rows only after 0.3.17 evidence |
 | Hidden / conditional in-scope surfaces | UNKNOWN | NOT STARTED | NOT STARTED | NOT STARTED | NOT STARTED | Add rows only after evidence |
-| Backend/runtime functions | UNKNOWN | N/A | NOT STARTED | NOT STARTED | NOT STARTED | Add one row/function after observation/recovery |
+| Non-Map backend/runtime functions | UNKNOWN | N/A | NOT STARTED | NOT STARTED | NOT STARTED | Map runtime is tracked by the dedicated Map Data row; add other function families only after 0.3.17 evidence and a separately authorized Goal. |
 
 Allowed status values:
 

@@ -1,0 +1,5295 @@
+{
+  "schema": 1,
+  "findingId": "LWB317-RE-MAP-001-NATIVE-HANDLERS-COMPACT",
+  "evidenceState": "EXACT_BYTES_DISCOVERY",
+  "source": {
+    "path": "evidence\\lwbridge-0.3.17\\map\\action-handler-discovery.json",
+    "sha256": "179383662a142f71d8b57e2e8318886dddfabdf2bd75c39eb6b9c088b9934dcc",
+    "reference": {
+      "path": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW\\lwbridge-0.3.17.exe",
+      "sha256": "4e9c3113dedfd7e1a752404c6936aab304e67d7ffdb0952a5003c2ec948d6783",
+      "imageBase": "0x140000000",
+      "surfaceManifest": "evidence\\lwbridge-0.3.17\\map\\surface-discovery.json",
+      "surfaceManifestSha256": "e1b0801d73c546fd2c6ec422c9a4f1291c5eb0947c945dc65b5c0767fc104700"
+    }
+  },
+  "markers": {
+    "map_coordinate_jump": {
+      "handlerCandidates": [
+        {
+          "functionRva": "0x13F4F3-0x1408EA",
+          "size": 5111,
+          "strings": [
+            {
+              "targetVa": "0x1400397B0",
+              "text": "UVWSH",
+              "instructionRvas": [
+                "0x13F9F5"
+              ]
+            },
+            {
+              "targetVa": "0x140829701",
+              "text": "statepayloadsrc\\lib.rs",
+              "instructionRvas": [
+                "0x13F5A9"
+              ]
+            },
+            {
+              "targetVa": "0x140829706",
+              "text": "payloadsrc\\lib.rs",
+              "instructionRvas": [
+                "0x13F613"
+              ]
+            },
+            {
+              "targetVa": "0x140829718",
+              "text": "src\\lib.rs",
+              "instructionRvas": [
+                "0x140885"
+              ]
+            },
+            {
+              "targetVa": "0x140829EDF",
+              "text": "map_coordinate_jumpmulti_activateauth_renewcity_layout_snapshot_getauth_unbind_previewresource_automation_statushotkey_config_saveserver_jump_history_getserver_jump_history_setchat_automation_configuremap_dispatch_plunder_listlastwar_localizeautomation_startprofile_primary_setauth_unbind_checkwatermark_lookupsrc\\commands\\automation.rs",
+              "instructionRvas": [
+                "0x13F597",
+                "0x13FA3D"
+              ]
+            },
+            {
+              "targetVa": "0x14082A202",
+              "text": "serverIduid",
+              "instructionRvas": [
+                "0x13F951"
+              ]
+            },
+            {
+              "targetVa": "0x14082AF30",
+              "text": "src\\commands\\map.rs",
+              "instructionRvas": [
+                "0x1408A0"
+              ]
+            },
+            {
+              "targetVa": "0x14082AF48",
+              "text": "xy\rtargetServer=",
+              "instructionRvas": [
+                "0x13F96D"
+              ]
+            },
+            {
+              "targetVa": "0x14082AF49",
+              "text": "y\rtargetServer=",
+              "instructionRvas": [
+                "0x13F989"
+              ]
+            },
+            {
+              "targetVa": "0x14082AF4A",
+              "text": "\rtargetServer=",
+              "instructionRvas": [
+                "0x13FA10"
+              ]
+            },
+            {
+              "targetVa": "0x14082AF64",
+              "text": "INVALID_COORDINATEserver ID and coordinates must be positive integersgotoWorldCoordinate",
+              "instructionRvas": [
+                "0x14040B"
+              ]
+            },
+            {
+              "targetVa": "0x14082AF76",
+              "text": "server ID and coordinates must be positive integersgotoWorldCoordinate",
+              "instructionRvas": [
+                "0x140412"
+              ]
+            },
+            {
+              "targetVa": "0x14082AFA9",
+              "text": "gotoWorldCoordinate",
+              "instructionRvas": [
+                "0x13FDB6"
+              ]
+            },
+            {
+              "targetVa": "0x14082AFC0",
+              "text": "src\\commands\\map.rs",
+              "instructionRvas": [
+                "0x140835"
+              ]
+            },
+            {
+              "targetVa": "0x14082AFD8",
+              "text": "previousServerIdchanged",
+              "instructionRvas": [
+                "0x13FFBF",
+                "0x13FFF5"
+              ]
+            },
+            {
+              "targetVa": "0x14082AFE8",
+              "text": "changed",
+              "instructionRvas": [
+                "0x1401C7"
+              ]
+            },
+            {
+              "targetVa": "0x14082F5C0",
+              "text": "a Display implementation returned an error unexpectedly/rustc/4a4ef493e3a1488c6e321570238084b38948f6db/library\\alloc\\src\\string.rs",
+              "instructionRvas": [
+                "0x140865"
+              ]
+            },
+            {
+              "targetVa": "0x14082F648",
+              "text": "/rustc/4a4ef493e3a1488c6e321570238084b38948f6db/library\\alloc\\src\\string.rs",
+              "instructionRvas": [
+                "0x140859"
+              ]
+            },
+            {
+              "targetVa": "0x14082F6C0",
+              "text": "called `Result::unwrap()` on an `Err` value",
+              "instructionRvas": [
+                "0x140841"
+              ]
+            },
+            {
+              "targetVa": "0x14082F978",
+              "text": "C:\\Users\\Administrator\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\tauri-2.11.5\\src\\ipc\\mod.rs",
+              "instructionRvas": [
+                "0x13F51C"
+              ]
+            },
+            {
+              "targetVa": "0x14082FA00",
+              "text": "C:\\Users\\Administrator\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\tauri-2.11.5\\src\\ipc\\command.rs",
+              "instructionRvas": [
+                "0x13F574"
+              ]
+            }
+          ],
+          "directCalls": [
+            {
+              "targetRva": "0x10072E",
+              "count": 1
+            },
+            {
+              "targetRva": "0x1016FD",
+              "count": 1
+            },
+            {
+              "targetRva": "0x1091B3",
+              "count": 1
+            },
+            {
+              "targetRva": "0x10949D",
+              "count": 1
+            },
+            {
+              "targetRva": "0x1094F9",
+              "count": 2
+            },
+            {
+              "targetRva": "0x10A83A",
+              "count": 1
+            },
+            {
+              "targetRva": "0x10A8D4",
+              "count": 1
+            },
+            {
+              "targetRva": "0x23B9E5",
+              "count": 1
+            },
+            {
+              "targetRva": "0x261C54",
+              "count": 2
+            },
+            {
+              "targetRva": "0x297A7F",
+              "count": 1
+            },
+            {
+              "targetRva": "0x2A186B",
+              "count": 1
+            },
+            {
+              "targetRva": "0x2A1A47",
+              "count": 1
+            },
+            {
+              "targetRva": "0x31E6A3",
+              "count": 2
+            },
+            {
+              "targetRva": "0x32DF9D",
+              "count": 1
+            },
+            {
+              "targetRva": "0x344CBB",
+              "count": 1
+            },
+            {
+              "targetRva": "0x3741CA",
+              "count": 1
+            },
+            {
+              "targetRva": "0x39F75B",
+              "count": 1
+            },
+            {
+              "targetRva": "0x39F992",
+              "count": 3
+            },
+            {
+              "targetRva": "0x47D60B",
+              "count": 2
+            },
+            {
+              "targetRva": "0x48194B",
+              "count": 2
+            },
+            {
+              "targetRva": "0x5A9615",
+              "count": 2
+            },
+            {
+              "targetRva": "0x5A9712",
+              "count": 9
+            },
+            {
+              "targetRva": "0x5ADDEB",
+              "count": 1
+            },
+            {
+              "targetRva": "0x5C4370",
+              "count": 9
+            },
+            {
+              "targetRva": "0x5F9B92",
+              "count": 1
+            },
+            {
+              "targetRva": "0x6D05A",
+              "count": 1
+            },
+            {
+              "targetRva": "0x76B7B",
+              "count": 1
+            },
+            {
+              "targetRva": "0x7A33E0",
+              "count": 4
+            },
+            {
+              "targetRva": "0x7A43D6",
+              "count": 5
+            },
+            {
+              "targetRva": "0x7A50B0",
+              "count": 2
+            },
+            {
+              "targetRva": "0x7A5150",
+              "count": 4
+            },
+            {
+              "targetRva": "0x81E10",
+              "count": 14
+            },
+            {
+              "targetRva": "0x81F3B",
+              "count": 1
+            },
+            {
+              "targetRva": "0x82427",
+              "count": 1
+            },
+            {
+              "targetRva": "0xDC886",
+              "count": 1
+            },
+            {
+              "targetRva": "0xDCCDC",
+              "count": 1
+            },
+            {
+              "targetRva": "0xE5095",
+              "count": 1
+            },
+            {
+              "targetRva": "0xEBF1C",
+              "count": 1
+            },
+            {
+              "targetRva": "0xFFB18",
+              "count": 1
+            }
+          ]
+        }
+      ]
+    },
+    "map_march_follow": {
+      "handlerCandidates": [
+        {
+          "functionRva": "0x1249C8-0x125A89",
+          "size": 4289,
+          "strings": [
+            {
+              "targetVa": "0x1400397B0",
+              "text": "UVWSH",
+              "instructionRvas": [
+                "0x12500C"
+              ]
+            },
+            {
+              "targetVa": "0x140829701",
+              "text": "statepayloadsrc\\lib.rs",
+              "instructionRvas": [
+                "0x124A7E"
+              ]
+            },
+            {
+              "targetVa": "0x140829706",
+              "text": "payloadsrc\\lib.rs",
+              "instructionRvas": [
+                "0x124AE2"
+              ]
+            },
+            {
+              "targetVa": "0x140829718",
+              "text": "src\\lib.rs",
+              "instructionRvas": [
+                "0x125A42"
+              ]
+            },
+            {
+              "targetVa": "0x140829BE8",
+              "text": "map_march_followmap_dispatch_plunder_cancelprofile_settings_savecity_layout_apply_startvisual_metrics_config_getchat_automation_run_pendingmap_data_optionsmonster_afk_starttrade_station_catalogmap_truck_plunder_clearmap_truck_plunder_scheduleauth_credentialsprofile_enable_setmap_truck_plunder_cancelmap_dispatch_plunder_retrymap_city_exportprofile_settings_ge",
+              "instructionRvas": [
+                "0x124A6C",
+                "0x125045"
+              ]
+            },
+            {
+              "targetVa": "0x14082A202",
+              "text": "serverIduid",
+              "instructionRvas": [
+                "0x124DF0"
+              ]
+            },
+            {
+              "targetVa": "0x14082AA25",
+              "text": "\rtargetServer=",
+              "instructionRvas": [
+                "0x125017"
+              ]
+            },
+            {
+              "targetVa": "0x14082ACC8",
+              "text": "src\\commands\\map.rs",
+              "instructionRvas": [
+                "0x125A4E"
+              ]
+            },
+            {
+              "targetVa": "0x14082ACE0",
+              "text": "marchUuidINVALID_MARCHserver ID and march UUID are required",
+              "instructionRvas": [
+                "0x124E1C"
+              ]
+            },
+            {
+              "targetVa": "0x14082ACE9",
+              "text": "INVALID_MARCHserver ID and march UUID are required",
+              "instructionRvas": [
+                "0x124F8F"
+              ]
+            },
+            {
+              "targetVa": "0x14082ACF6",
+              "text": "server ID and march UUID are required",
+              "instructionRvas": [
+                "0x124F96"
+              ]
+            },
+            {
+              "targetVa": "0x14082AD20",
+              "text": "src\\commands\\map.rs",
+              "instructionRvas": [
+                "0x125A1E"
+              ]
+            },
+            {
+              "targetVa": "0x14082AD38",
+              "text": "gotoWorldMarchokh",
+              "instructionRvas": [
+                "0x125273"
+              ]
+            },
+            {
+              "targetVa": "0x14082AD48",
+              "text": "src\\commands\\map.rs",
+              "instructionRvas": [
+                "0x125A02"
+              ]
+            },
+            {
+              "targetVa": "0x14082F5C0",
+              "text": "a Display implementation returned an error unexpectedly/rustc/4a4ef493e3a1488c6e321570238084b38948f6db/library\\alloc\\src\\string.rs",
+              "instructionRvas": [
+                "0x1259CF"
+              ]
+            },
+            {
+              "targetVa": "0x14082F648",
+              "text": "/rustc/4a4ef493e3a1488c6e321570238084b38948f6db/library\\alloc\\src\\string.rs",
+              "instructionRvas": [
+                "0x1259C3"
+              ]
+            },
+            {
+              "targetVa": "0x14082F6C0",
+              "text": "called `Result::unwrap()` on an `Err` value",
+              "instructionRvas": [
+                "0x125A2A"
+              ]
+            },
+            {
+              "targetVa": "0x14082F978",
+              "text": "C:\\Users\\Administrator\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\tauri-2.11.5\\src\\ipc\\mod.rs",
+              "instructionRvas": [
+                "0x1249F1"
+              ]
+            },
+            {
+              "targetVa": "0x14082FA00",
+              "text": "C:\\Users\\Administrator\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\tauri-2.11.5\\src\\ipc\\command.rs",
+              "instructionRvas": [
+                "0x124A49"
+              ]
+            }
+          ],
+          "directCalls": [
+            {
+              "targetRva": "0x10072E",
+              "count": 1
+            },
+            {
+              "targetRva": "0x101855",
+              "count": 1
+            },
+            {
+              "targetRva": "0x1091B3",
+              "count": 1
+            },
+            {
+              "targetRva": "0x10949D",
+              "count": 1
+            },
+            {
+              "targetRva": "0x1094F9",
+              "count": 2
+            },
+            {
+              "targetRva": "0x10A400",
+              "count": 1
+            },
+            {
+              "targetRva": "0x23B9E5",
+              "count": 1
+            },
+            {
+              "targetRva": "0x261C54",
+              "count": 2
+            },
+            {
+              "targetRva": "0x297A7F",
+              "count": 1
+            },
+            {
+              "targetRva": "0x2A186B",
+              "count": 1
+            },
+            {
+              "targetRva": "0x2A1A47",
+              "count": 1
+            },
+            {
+              "targetRva": "0x31EF22",
+              "count": 2
+            },
+            {
+              "targetRva": "0x32DF9D",
+              "count": 1
+            },
+            {
+              "targetRva": "0x344CBB",
+              "count": 1
+            },
+            {
+              "targetRva": "0x3741CA",
+              "count": 1
+            },
+            {
+              "targetRva": "0x385A4",
+              "count": 1
+            },
+            {
+              "targetRva": "0x39F75B",
+              "count": 1
+            },
+            {
+              "targetRva": "0x39F992",
+              "count": 1
+            },
+            {
+              "targetRva": "0x47D60B",
+              "count": 2
+            },
+            {
+              "targetRva": "0x48194B",
+              "count": 2
+            },
+            {
+              "targetRva": "0x5A9615",
+              "count": 1
+            },
+            {
+              "targetRva": "0x5A9712",
+              "count": 5
+            },
+            {
+              "targetRva": "0x5ADDEB",
+              "count": 1
+            },
+            {
+              "targetRva": "0x5C4370",
+              "count": 5
+            },
+            {
+              "targetRva": "0x5F9B92",
+              "count": 1
+            },
+            {
+              "targetRva": "0x6D05A",
+              "count": 1
+            },
+            {
+              "targetRva": "0x76B7B",
+              "count": 1
+            },
+            {
+              "targetRva": "0x7A33E0",
+              "count": 4
+            },
+            {
+              "targetRva": "0x7A43D6",
+              "count": 3
+            },
+            {
+              "targetRva": "0x7A50B0",
+              "count": 2
+            },
+            {
+              "targetRva": "0x7A5150",
+              "count": 4
+            },
+            {
+              "targetRva": "0x81E10",
+              "count": 8
+            },
+            {
+              "targetRva": "0x81F3B",
+              "count": 1
+            },
+            {
+              "targetRva": "0x82427",
+              "count": 1
+            },
+            {
+              "targetRva": "0xDC886",
+              "count": 1
+            },
+            {
+              "targetRva": "0xE5095",
+              "count": 1
+            },
+            {
+              "targetRva": "0xEBF1C",
+              "count": 1
+            },
+            {
+              "targetRva": "0xFFB18",
+              "count": 1
+            }
+          ]
+        }
+      ]
+    },
+    "server_jump": {
+      "handlerCandidates": [
+        {
+          "functionRva": "0x12DA36-0x12E460",
+          "size": 2602,
+          "strings": [
+            {
+              "targetVa": "0x140829701",
+              "text": "statepayloadsrc\\lib.rs",
+              "instructionRvas": [
+                "0x12DAF0"
+              ]
+            },
+            {
+              "targetVa": "0x140829706",
+              "text": "payloadsrc\\lib.rs",
+              "instructionRvas": [
+                "0x12DB4F"
+              ]
+            },
+            {
+              "targetVa": "0x140829718",
+              "text": "src\\lib.rs",
+              "instructionRvas": [
+                "0x12E453"
+              ]
+            },
+            {
+              "targetVa": "0x140829F61",
+              "text": "server_jump_history_getserver_jump_history_setchat_automation_configuremap_dispatch_plunder_listlastwar_localizeautomation_startprofile_primary_setauth_unbind_checkwatermark_lookupsrc\\commands\\automation.rs",
+              "instructionRvas": [
+                "0x12DADE"
+              ]
+            },
+            {
+              "targetVa": "0x14082B1B0",
+              "text": "src\\commands\\map.rs",
+              "instructionRvas": [
+                "0x12DC87"
+              ]
+            },
+            {
+              "targetVa": "0x14082B1C8",
+              "text": "serverJumpHistory",
+              "instructionRvas": [
+                "0x12DE79"
+              ]
+            },
+            {
+              "targetVa": "0x14082B1E0",
+              "text": "src\\commands\\map.rs",
+              "instructionRvas": [
+                "0x12E42F"
+              ]
+            },
+            {
+              "targetVa": "0x14082F5C0",
+              "text": "a Display implementation returned an error unexpectedly/rustc/4a4ef493e3a1488c6e321570238084b38948f6db/library\\alloc\\src\\string.rs",
+              "instructionRvas": [
+                "0x12E3FC"
+              ]
+            },
+            {
+              "targetVa": "0x14082F648",
+              "text": "/rustc/4a4ef493e3a1488c6e321570238084b38948f6db/library\\alloc\\src\\string.rs",
+              "instructionRvas": [
+                "0x12E3F0"
+              ]
+            },
+            {
+              "targetVa": "0x14082F6C0",
+              "text": "called `Result::unwrap()` on an `Err` value",
+              "instructionRvas": [
+                "0x12E43B"
+              ]
+            },
+            {
+              "targetVa": "0x14082F978",
+              "text": "C:\\Users\\Administrator\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\tauri-2.11.5\\src\\ipc\\mod.rs",
+              "instructionRvas": [
+                "0x12DA5C"
+              ]
+            },
+            {
+              "targetVa": "0x14082FA00",
+              "text": "C:\\Users\\Administrator\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\tauri-2.11.5\\src\\ipc\\command.rs",
+              "instructionRvas": [
+                "0x12DABB"
+              ]
+            }
+          ],
+          "directCalls": [
+            {
+              "targetRva": "0x101104",
+              "count": 1
+            },
+            {
+              "targetRva": "0x106F04",
+              "count": 1
+            },
+            {
+              "targetRva": "0x1091B3",
+              "count": 1
+            },
+            {
+              "targetRva": "0x10949D",
+              "count": 1
+            },
+            {
+              "targetRva": "0x1094F9",
+              "count": 2
+            },
+            {
+              "targetRva": "0x1150D",
+              "count": 1
+            },
+            {
+              "targetRva": "0x23B9E5",
+              "count": 1
+            },
+            {
+              "targetRva": "0x261C54",
+              "count": 2
+            },
+            {
+              "targetRva": "0x297A7F",
+              "count": 1
+            },
+            {
+              "targetRva": "0x29A422",
+              "count": 1
+            },
+            {
+              "targetRva": "0x2A186B",
+              "count": 1
+            },
+            {
+              "targetRva": "0x32DF9D",
+              "count": 1
+            },
+            {
+              "targetRva": "0x344CBB",
+              "count": 1
+            },
+            {
+              "targetRva": "0x3741CA",
+              "count": 1
+            },
+            {
+              "targetRva": "0x39F39F",
+              "count": 1
+            },
+            {
+              "targetRva": "0x3C50FE",
+              "count": 1
+            },
+            {
+              "targetRva": "0x5ADDEB",
+              "count": 1
+            },
+            {
+              "targetRva": "0x5F9B92",
+              "count": 1
+            },
+            {
+              "targetRva": "0x76B7B",
+              "count": 1
+            },
+            {
+              "targetRva": "0x7A33E0",
+              "count": 2
+            },
+            {
+              "targetRva": "0x7A50B0",
+              "count": 2
+            },
+            {
+              "targetRva": "0x7A5150",
+              "count": 4
+            },
+            {
+              "targetRva": "0x81E10",
+              "count": 3
+            },
+            {
+              "targetRva": "0x81F3B",
+              "count": 1
+            },
+            {
+              "targetRva": "0x82427",
+              "count": 1
+            },
+            {
+              "targetRva": "0xDC886",
+              "count": 1
+            }
+          ]
+        },
+        {
+          "functionRva": "0x158743-0x159160",
+          "size": 2589,
+          "strings": [
+            {
+              "targetVa": "0x140829701",
+              "text": "statepayloadsrc\\lib.rs",
+              "instructionRvas": [
+                "0x1587FD"
+              ]
+            },
+            {
+              "targetVa": "0x140829706",
+              "text": "payloadsrc\\lib.rs",
+              "instructionRvas": [
+                "0x15885C"
+              ]
+            },
+            {
+              "targetVa": "0x140829718",
+              "text": "src\\lib.rs",
+              "instructionRvas": [
+                "0x159153"
+              ]
+            },
+            {
+              "targetVa": "0x140829F78",
+              "text": "server_jump_history_setchat_automation_configuremap_dispatch_plunder_listlastwar_localizeautomation_startprofile_primary_setauth_unbind_checkwatermark_lookupsrc\\commands\\automation.rs",
+              "instructionRvas": [
+                "0x1587EB"
+              ]
+            },
+            {
+              "targetVa": "0x14082B1C8",
+              "text": "serverJumpHistory",
+              "instructionRvas": [
+                "0x158EF2"
+              ]
+            },
+            {
+              "targetVa": "0x14082B1F8",
+              "text": "src\\commands\\map.rs",
+              "instructionRvas": [
+                "0x158980"
+              ]
+            },
+            {
+              "targetVa": "0x14082B210",
+              "text": "history",
+              "instructionRvas": [
+                "0x158ADD"
+              ]
+            },
+            {
+              "targetVa": "0x14082B218",
+              "text": "src\\commands\\map.rs",
+              "instructionRvas": [
+                "0x159103"
+              ]
+            },
+            {
+              "targetVa": "0x14082F5C0",
+              "text": "a Display implementation returned an error unexpectedly/rustc/4a4ef493e3a1488c6e321570238084b38948f6db/library\\alloc\\src\\string.rs",
+              "instructionRvas": [
+                "0x159133"
+              ]
+            },
+            {
+              "targetVa": "0x14082F648",
+              "text": "/rustc/4a4ef493e3a1488c6e321570238084b38948f6db/library\\alloc\\src\\string.rs",
+              "instructionRvas": [
+                "0x159127"
+              ]
+            },
+            {
+              "targetVa": "0x14082F6C0",
+              "text": "called `Result::unwrap()` on an `Err` value",
+              "instructionRvas": [
+                "0x15910F"
+              ]
+            },
+            {
+              "targetVa": "0x14082F978",
+              "text": "C:\\Users\\Administrator\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\tauri-2.11.5\\src\\ipc\\mod.rs",
+              "instructionRvas": [
+                "0x158769"
+              ]
+            },
+            {
+              "targetVa": "0x14082FA00",
+              "text": "C:\\Users\\Administrator\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\tauri-2.11.5\\src\\ipc\\command.rs",
+              "instructionRvas": [
+                "0x1587C8"
+              ]
+            }
+          ],
+          "directCalls": [
+            {
+              "targetRva": "0x101104",
+              "count": 1
+            },
+            {
+              "targetRva": "0x106F04",
+              "count": 1
+            },
+            {
+              "targetRva": "0x1091B3",
+              "count": 1
+            },
+            {
+              "targetRva": "0x10949D",
+              "count": 1
+            },
+            {
+              "targetRva": "0x1094F9",
+              "count": 2
+            },
+            {
+              "targetRva": "0x1150D",
+              "count": 1
+            },
+            {
+              "targetRva": "0x23B9E5",
+              "count": 1
+            },
+            {
+              "targetRva": "0x261C54",
+              "count": 1
+            },
+            {
+              "targetRva": "0x297A7F",
+              "count": 1
+            },
+            {
+              "targetRva": "0x29A422",
+              "count": 1
+            },
+            {
+              "targetRva": "0x2A186B",
+              "count": 1
+            },
+            {
+              "targetRva": "0x32DF9D",
+              "count": 1
+            },
+            {
+              "targetRva": "0x344CBB",
+              "count": 1
+            },
+            {
+              "targetRva": "0x3741CA",
+              "count": 1
+            },
+            {
+              "targetRva": "0x39F39F",
+              "count": 1
+            },
+            {
+              "targetRva": "0x3C563D",
+              "count": 1
+            },
+            {
+              "targetRva": "0x46CF73",
+              "count": 1
+            },
+            {
+              "targetRva": "0x5A9615",
+              "count": 1
+            },
+            {
+              "targetRva": "0x5ADDEB",
+              "count": 1
+            },
+            {
+              "targetRva": "0x5F9B92",
+              "count": 1
+            },
+            {
+              "targetRva": "0x76B7B",
+              "count": 1
+            },
+            {
+              "targetRva": "0x7A33E0",
+              "count": 2
+            },
+            {
+              "targetRva": "0x7A50B0",
+              "count": 2
+            },
+            {
+              "targetRva": "0x7A5150",
+              "count": 4
+            },
+            {
+              "targetRva": "0x81E10",
+              "count": 3
+            },
+            {
+              "targetRva": "0x81F3B",
+              "count": 1
+            },
+            {
+              "targetRva": "0x82427",
+              "count": 1
+            },
+            {
+              "targetRva": "0xDC886",
+              "count": 1
+            }
+          ]
+        },
+        {
+          "functionRva": "0x182112-0x182C0D",
+          "size": 2811,
+          "strings": [
+            {
+              "targetVa": "0x1400397B0",
+              "text": "UVWSH",
+              "instructionRvas": [
+                "0x1825D7"
+              ]
+            },
+            {
+              "targetVa": "0x140829701",
+              "text": "statepayloadsrc\\lib.rs",
+              "instructionRvas": [
+                "0x1821C8"
+              ]
+            },
+            {
+              "targetVa": "0x140829706",
+              "text": "payloadsrc\\lib.rs",
+              "instructionRvas": [
+                "0x18222F"
+              ]
+            },
+            {
+              "targetVa": "0x140829718",
+              "text": "src\\lib.rs",
+              "instructionRvas": [
+                "0x182BF3"
+              ]
+            },
+            {
+              "targetVa": "0x140829A19",
+              "text": "server_jumpmap_plunder_jobs_listmap_truck_plunder_retrygame_startmap_dispatch_plunder_scheduleequipment_initial_applymap_scan_statusvip18_base_applyfeedback_exportserver_jump_history_importequipment_preset_applyproxy_statusresource_automation_runtreasure_delay_configuremap_scan_startupdate_download_and_openauth_unbindvip18_base_listcall_luamap_truck_plunder_",
+              "instructionRvas": [
+                "0x1821B6",
+                "0x18260F"
+              ]
+            },
+            {
+              "targetVa": "0x14082A202",
+              "text": "serverIduid",
+              "instructionRvas": [
+                "0x18258B"
+              ]
+            },
+            {
+              "targetVa": "0x14082A9D0",
+              "text": "src\\commands\\map.rs",
+              "instructionRvas": [
+                "0x182BFF"
+              ]
+            },
+            {
+              "targetVa": "0x14082A9E8",
+              "text": "INVALID_SERVER_IDserver ID must be an integer from 1 to 99999\rtargetServer=",
+              "instructionRvas": [
+                "0x182B56"
+              ]
+            },
+            {
+              "targetVa": "0x14082A9F9",
+              "text": "server ID must be an integer from 1 to 99999\rtargetServer=",
+              "instructionRvas": [
+                "0x182B5D"
+              ]
+            },
+            {
+              "targetVa": "0x14082AA25",
+              "text": "\rtargetServer=",
+              "instructionRvas": [
+                "0x1825E2"
+              ]
+            },
+            {
+              "targetVa": "0x14082F5C0",
+              "text": "a Display implementation returned an error unexpectedly/rustc/4a4ef493e3a1488c6e321570238084b38948f6db/library\\alloc\\src\\string.rs",
+              "instructionRvas": [
+                "0x182BD3"
+              ]
+            },
+            {
+              "targetVa": "0x14082F648",
+              "text": "/rustc/4a4ef493e3a1488c6e321570238084b38948f6db/library\\alloc\\src\\string.rs",
+              "instructionRvas": [
+                "0x182BC7"
+              ]
+            },
+            {
+              "targetVa": "0x14082F978",
+              "text": "C:\\Users\\Administrator\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\tauri-2.11.5\\src\\ipc\\mod.rs",
+              "instructionRvas": [
+                "0x18213B"
+              ]
+            },
+            {
+              "targetVa": "0x14082FA00",
+              "text": "C:\\Users\\Administrator\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\tauri-2.11.5\\src\\ipc\\command.rs",
+              "instructionRvas": [
+                "0x182193"
+              ]
+            }
+          ],
+          "directCalls": [
+            {
+              "targetRva": "0x102877",
+              "count": 1
+            },
+            {
+              "targetRva": "0x1091B3",
+              "count": 1
+            },
+            {
+              "targetRva": "0x10949D",
+              "count": 1
+            },
+            {
+              "targetRva": "0x1094F9",
+              "count": 2
+            },
+            {
+              "targetRva": "0x109D9B",
+              "count": 1
+            },
+            {
+              "targetRva": "0x10A8D4",
+              "count": 1
+            },
+            {
+              "targetRva": "0x23B9E5",
+              "count": 1
+            },
+            {
+              "targetRva": "0x261C54",
+              "count": 2
+            },
+            {
+              "targetRva": "0x297A7F",
+              "count": 1
+            },
+            {
+              "targetRva": "0x2A186B",
+              "count": 1
+            },
+            {
+              "targetRva": "0x2A1A47",
+              "count": 1
+            },
+            {
+              "targetRva": "0x32DF9D",
+              "count": 1
+            },
+            {
+              "targetRva": "0x344CBB",
+              "count": 1
+            },
+            {
+              "targetRva": "0x3741CA",
+              "count": 1
+            },
+            {
+              "targetRva": "0x39F75B",
+              "count": 1
+            },
+            {
+              "targetRva": "0x39F992",
+              "count": 1
+            },
+            {
+              "targetRva": "0x47D60B",
+              "count": 1
+            },
+            {
+              "targetRva": "0x48194B",
+              "count": 1
+            },
+            {
+              "targetRva": "0x5ADDEB",
+              "count": 1
+            },
+            {
+              "targetRva": "0x5F9B92",
+              "count": 1
+            },
+            {
+              "targetRva": "0x6D05A",
+              "count": 1
+            },
+            {
+              "targetRva": "0x76B7B",
+              "count": 1
+            },
+            {
+              "targetRva": "0x7A33E0",
+              "count": 4
+            },
+            {
+              "targetRva": "0x7A50B0",
+              "count": 1
+            },
+            {
+              "targetRva": "0x7A5150",
+              "count": 4
+            },
+            {
+              "targetRva": "0x81E10",
+              "count": 2
+            },
+            {
+              "targetRva": "0x81F3B",
+              "count": 1
+            },
+            {
+              "targetRva": "0x82427",
+              "count": 1
+            },
+            {
+              "targetRva": "0xDC886",
+              "count": 1
+            },
+            {
+              "targetRva": "0xDCCDC",
+              "count": 1
+            },
+            {
+              "targetRva": "0xEBF1C",
+              "count": 1
+            },
+            {
+              "targetRva": "0xFFB18",
+              "count": 1
+            }
+          ]
+        },
+        {
+          "functionRva": "0x1A5FE4-0x1A6B75",
+          "size": 2961,
+          "strings": [
+            {
+              "targetVa": "0x140829701",
+              "text": "statepayloadsrc\\lib.rs",
+              "instructionRvas": [
+                "0x1A609E"
+              ]
+            },
+            {
+              "targetVa": "0x140829706",
+              "text": "payloadsrc\\lib.rs",
+              "instructionRvas": [
+                "0x1A60FD"
+              ]
+            },
+            {
+              "targetVa": "0x140829718",
+              "text": "src\\lib.rs",
+              "instructionRvas": [
+                "0x1A6B68"
+              ]
+            },
+            {
+              "targetVa": "0x140829ABC",
+              "text": "server_jump_history_importequipment_preset_applyproxy_statusresource_automation_runtreasure_delay_configuremap_scan_startupdate_download_and_openauth_unbindvip18_base_listcall_luamap_truck_plunder_listupdate_checkget_statusmap_treasure_state_refresh_allappend_logmonster_afk_config_saveprofile_deletemap_march_followmap_dispatch_plunder_cancelprofile_settings_",
+              "instructionRvas": [
+                "0x1A608C"
+              ]
+            },
+            {
+              "targetVa": "0x14082B1C8",
+              "text": "serverJumpHistory",
+              "instructionRvas": [
+                "0x1A6378",
+                "0x1A6AA4"
+              ]
+            },
+            {
+              "targetVa": "0x14082B210",
+              "text": "history",
+              "instructionRvas": [
+                "0x1A63D7"
+              ]
+            },
+            {
+              "targetVa": "0x14082B498",
+              "text": "src\\commands\\map.rs",
+              "instructionRvas": [
+                "0x1A6221"
+              ]
+            },
+            {
+              "targetVa": "0x14082B4B0",
+              "text": "src\\commands\\map.rs",
+              "instructionRvas": [
+                "0x1A6B28"
+              ]
+            },
+            {
+              "targetVa": "0x14082B4C8",
+              "text": "src\\commands\\map.rs",
+              "instructionRvas": [
+                "0x1A6B44"
+              ]
+            },
+            {
+              "targetVa": "0x14082F5C0",
+              "text": "a Display implementation returned an error unexpectedly/rustc/4a4ef493e3a1488c6e321570238084b38948f6db/library\\alloc\\src\\string.rs",
+              "instructionRvas": [
+                "0x1A6AF5"
+              ]
+            },
+            {
+              "targetVa": "0x14082F648",
+              "text": "/rustc/4a4ef493e3a1488c6e321570238084b38948f6db/library\\alloc\\src\\string.rs",
+              "instructionRvas": [
+                "0x1A6AE9"
+              ]
+            },
+            {
+              "targetVa": "0x14082F6C0",
+              "text": "called `Result::unwrap()` on an `Err` value",
+              "instructionRvas": [
+                "0x1A6B50"
+              ]
+            },
+            {
+              "targetVa": "0x14082F978",
+              "text": "C:\\Users\\Administrator\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\tauri-2.11.5\\src\\ipc\\mod.rs",
+              "instructionRvas": [
+                "0x1A600A"
+              ]
+            },
+            {
+              "targetVa": "0x14082FA00",
+              "text": "C:\\Users\\Administrator\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\tauri-2.11.5\\src\\ipc\\command.rs",
+              "instructionRvas": [
+                "0x1A6069"
+              ]
+            }
+          ],
+          "directCalls": [
+            {
+              "targetRva": "0x101104",
+              "count": 1
+            },
+            {
+              "targetRva": "0x106F04",
+              "count": 1
+            },
+            {
+              "targetRva": "0x1091B3",
+              "count": 1
+            },
+            {
+              "targetRva": "0x10949D",
+              "count": 1
+            },
+            {
+              "targetRva": "0x1094F9",
+              "count": 2
+            },
+            {
+              "targetRva": "0x1150D",
+              "count": 2
+            },
+            {
+              "targetRva": "0x23B9E5",
+              "count": 1
+            },
+            {
+              "targetRva": "0x261C54",
+              "count": 2
+            },
+            {
+              "targetRva": "0x297A7F",
+              "count": 1
+            },
+            {
+              "targetRva": "0x29A422",
+              "count": 2
+            },
+            {
+              "targetRva": "0x2A186B",
+              "count": 1
+            },
+            {
+              "targetRva": "0x32DF9D",
+              "count": 1
+            },
+            {
+              "targetRva": "0x344CBB",
+              "count": 1
+            },
+            {
+              "targetRva": "0x3741CA",
+              "count": 1
+            },
+            {
+              "targetRva": "0x39F39F",
+              "count": 2
+            },
+            {
+              "targetRva": "0x3C50FE",
+              "count": 1
+            },
+            {
+              "targetRva": "0x3C563D",
+              "count": 1
+            },
+            {
+              "targetRva": "0x46CF73",
+              "count": 1
+            },
+            {
+              "targetRva": "0x5A9615",
+              "count": 1
+            },
+            {
+              "targetRva": "0x5ADDEB",
+              "count": 1
+            },
+            {
+              "targetRva": "0x5F9B92",
+              "count": 1
+            },
+            {
+              "targetRva": "0x76B7B",
+              "count": 1
+            },
+            {
+              "targetRva": "0x7A33E0",
+              "count": 2
+            },
+            {
+              "targetRva": "0x7A50B0",
+              "count": 2
+            },
+            {
+              "targetRva": "0x7A5150",
+              "count": 4
+            },
+            {
+              "targetRva": "0x81E10",
+              "count": 3
+            },
+            {
+              "targetRva": "0x81F3B",
+              "count": 1
+            },
+            {
+              "targetRva": "0x82427",
+              "count": 1
+            },
+            {
+              "targetRva": "0xDC886",
+              "count": 1
+            }
+          ]
+        }
+      ]
+    },
+    "map_treasure_claim": {
+      "handlerCandidates": [
+        {
+          "functionRva": "0x115C5D-0x1166BE",
+          "size": 2657,
+          "strings": [
+            {
+              "targetVa": "0x140829701",
+              "text": "statepayloadsrc\\lib.rs",
+              "instructionRvas": [
+                "0x115D13"
+              ]
+            },
+            {
+              "targetVa": "0x140829706",
+              "text": "payloadsrc\\lib.rs",
+              "instructionRvas": [
+                "0x115D7A"
+              ]
+            },
+            {
+              "targetVa": "0x140829718",
+              "text": "src\\lib.rs",
+              "instructionRvas": [
+                "0x1166A4"
+              ]
+            },
+            {
+              "targetVa": "0x140829939",
+              "text": "map_treasure_claim_statusmonster_afk_stopautomation_stopauth_loginprofile_listvip18_base_config_saveprofile_note_setvip18_base_restoremap_treasure_state_refreshprofile_selectautomation_inspectcity_layout_validatesquad_recallserver_jumpmap_plunder_jobs_listmap_truck_plunder_retrygame_startmap_dispatch_plunder_scheduleequipment_initial_applymap_scan_statusvip1",
+              "instructionRvas": [
+                "0x115D01"
+              ]
+            },
+            {
+              "targetVa": "0x14082B248",
+              "text": "getTreasureClaimStatus",
+              "instructionRvas": [
+                "0x1160CD"
+              ]
+            },
+            {
+              "targetVa": "0x14082B340",
+              "text": "src\\commands\\map.rs",
+              "instructionRvas": [
+                "0x1166B0"
+              ]
+            },
+            {
+              "targetVa": "0x14082F5C0",
+              "text": "a Display implementation returned an error unexpectedly/rustc/4a4ef493e3a1488c6e321570238084b38948f6db/library\\alloc\\src\\string.rs",
+              "instructionRvas": [
+                "0x116684"
+              ]
+            },
+            {
+              "targetVa": "0x14082F648",
+              "text": "/rustc/4a4ef493e3a1488c6e321570238084b38948f6db/library\\alloc\\src\\string.rs",
+              "instructionRvas": [
+                "0x116678"
+              ]
+            },
+            {
+              "targetVa": "0x14082F978",
+              "text": "C:\\Users\\Administrator\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\tauri-2.11.5\\src\\ipc\\mod.rs",
+              "instructionRvas": [
+                "0x115C86"
+              ]
+            },
+            {
+              "targetVa": "0x14082FA00",
+              "text": "C:\\Users\\Administrator\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\tauri-2.11.5\\src\\ipc\\command.rs",
+              "instructionRvas": [
+                "0x115CDE"
+              ]
+            }
+          ],
+          "directCalls": [
+            {
+              "targetRva": "0x10072E",
+              "count": 1
+            },
+            {
+              "targetRva": "0x101185",
+              "count": 1
+            },
+            {
+              "targetRva": "0x1091B3",
+              "count": 1
+            },
+            {
+              "targetRva": "0x10949D",
+              "count": 1
+            },
+            {
+              "targetRva": "0x1094F9",
+              "count": 2
+            },
+            {
+              "targetRva": "0x23B9E5",
+              "count": 1
+            },
+            {
+              "targetRva": "0x261C54",
+              "count": 1
+            },
+            {
+              "targetRva": "0x297A7F",
+              "count": 1
+            },
+            {
+              "targetRva": "0x2A186B",
+              "count": 1
+            },
+            {
+              "targetRva": "0x32DF9D",
+              "count": 1
+            },
+            {
+              "targetRva": "0x344CBB",
+              "count": 1
+            },
+            {
+              "targetRva": "0x3741CA",
+              "count": 1
+            },
+            {
+              "targetRva": "0x39F7EA",
+              "count": 1
+            },
+            {
+              "targetRva": "0x5ADDEB",
+              "count": 1
+            },
+            {
+              "targetRva": "0x5F9B92",
+              "count": 1
+            },
+            {
+              "targetRva": "0x76B7B",
+              "count": 1
+            },
+            {
+              "targetRva": "0x7A33E0",
+              "count": 4
+            },
+            {
+              "targetRva": "0x7A50B0",
+              "count": 1
+            },
+            {
+              "targetRva": "0x7A5150",
+              "count": 4
+            },
+            {
+              "targetRva": "0x81E10",
+              "count": 3
+            },
+            {
+              "targetRva": "0x81F3B",
+              "count": 1
+            },
+            {
+              "targetRva": "0x82427",
+              "count": 1
+            },
+            {
+              "targetRva": "0xDC886",
+              "count": 1
+            },
+            {
+              "targetRva": "0xE5095",
+              "count": 1
+            },
+            {
+              "targetRva": "0xFD93D",
+              "count": 1
+            }
+          ]
+        },
+        {
+          "functionRva": "0x18EE07-0x190734",
+          "size": 6445,
+          "strings": [
+            {
+              "targetVa": "0x1400397B0",
+              "text": "UVWSH",
+              "instructionRvas": [
+                "0x18F2A2"
+              ]
+            },
+            {
+              "targetVa": "0x140829701",
+              "text": "statepayloadsrc\\lib.rs",
+              "instructionRvas": [
+                "0x18EEC5"
+              ]
+            },
+            {
+              "targetVa": "0x140829706",
+              "text": "payloadsrc\\lib.rs",
+              "instructionRvas": [
+                "0x18EF2E"
+              ]
+            },
+            {
+              "targetVa": "0x140829718",
+              "text": "src\\lib.rs",
+              "instructionRvas": [
+                "0x1906DE"
+              ]
+            },
+            {
+              "targetVa": "0x1408298F9",
+              "text": "map_treasure_claimauth_statemap_scan_clearcity_layout_draft_savemap_treasure_claim_statusmonster_afk_stopautomation_stopauth_loginprofile_listvip18_base_config_saveprofile_note_setvip18_base_restoremap_treasure_state_refreshprofile_selectautomation_inspectcity_layout_validatesquad_recallserver_jumpmap_plunder_jobs_listmap_truck_plunder_retrygame_startmap_dis",
+              "instructionRvas": [
+                "0x18EEB3",
+                "0x18F2DA"
+              ]
+            },
+            {
+              "targetVa": "0x14082A202",
+              "text": "serverIduid",
+              "instructionRvas": [
+                "0x18F25C"
+              ]
+            },
+            {
+              "targetVa": "0x14082A9E8",
+              "text": "INVALID_SERVER_IDserver ID must be an integer from 1 to 99999\rtargetServer=",
+              "instructionRvas": [
+                "0x18F57B"
+              ]
+            },
+            {
+              "targetVa": "0x14082AA25",
+              "text": "\rtargetServer=",
+              "instructionRvas": [
+                "0x18F2AD"
+              ]
+            },
+            {
+              "targetVa": "0x14082ADC0",
+              "text": "src\\commands\\map.rs",
+              "instructionRvas": [
+                "0x1906EA"
+              ]
+            },
+            {
+              "targetVa": "0x14082ADD8",
+              "text": "server ID is requiredclaimScopeboxestargetUuideligiblequeuedskippeddirectQueuedscoutQueuedscoutDispatchedclaimednoScoutSkippedotherAllianceSkippedfailedINVALID_TREASURE_CLAIM_SCOPEtreasure claim scope is invalidSERVER_MISMATCHcurrent game server does not match map data serverprioritizeLuckySlotsh",
+              "instructionRvas": [
+                "0x18F582"
+              ]
+            },
+            {
+              "targetVa": "0x14082ADED",
+              "text": "claimScopeboxestargetUuideligiblequeuedskippeddirectQueuedscoutQueuedscoutDispatchedclaimednoScoutSkippedotherAllianceSkippedfailedINVALID_TREASURE_CLAIM_SCOPEtreasure claim scope is invalidSERVER_MISMATCHcurrent game server does not match map data serverprioritizeLuckySlotsh",
+              "instructionRvas": [
+                "0x18F422"
+              ]
+            },
+            {
+              "targetVa": "0x14082ADF7",
+              "text": "boxestargetUuideligiblequeuedskippeddirectQueuedscoutQueuedscoutDispatchedclaimednoScoutSkippedotherAllianceSkippedfailedINVALID_TREASURE_CLAIM_SCOPEtreasure claim scope is invalidSERVER_MISMATCHcurrent game server does not match map data serverprioritizeLuckySlotsh",
+              "instructionRvas": [
+                "0x18F5ED"
+              ]
+            },
+            {
+              "targetVa": "0x14082ADFC",
+              "text": "targetUuideligiblequeuedskippeddirectQueuedscoutQueuedscoutDispatchedclaimednoScoutSkippedotherAllianceSkippedfailedINVALID_TREASURE_CLAIM_SCOPEtreasure claim scope is invalidSERVER_MISMATCHcurrent game server does not match map data serverprioritizeLuckySlotsh",
+              "instructionRvas": [
+                "0x18F61F"
+              ]
+            },
+            {
+              "targetVa": "0x14082AE06",
+              "text": "eligiblequeuedskippeddirectQueuedscoutQueuedscoutDispatchedclaimednoScoutSkippedotherAllianceSkippedfailedINVALID_TREASURE_CLAIM_SCOPEtreasure claim scope is invalidSERVER_MISMATCHcurrent game server does not match map data serverprioritizeLuckySlotsh",
+              "instructionRvas": [
+                "0x1902F1"
+              ]
+            },
+            {
+              "targetVa": "0x14082AE0E",
+              "text": "queuedskippeddirectQueuedscoutQueuedscoutDispatchedclaimednoScoutSkippedotherAllianceSkippedfailedINVALID_TREASURE_CLAIM_SCOPEtreasure claim scope is invalidSERVER_MISMATCHcurrent game server does not match map data serverprioritizeLuckySlotsh",
+              "instructionRvas": [
+                "0x190349"
+              ]
+            },
+            {
+              "targetVa": "0x14082AE14",
+              "text": "skippeddirectQueuedscoutQueuedscoutDispatchedclaimednoScoutSkippedotherAllianceSkippedfailedINVALID_TREASURE_CLAIM_SCOPEtreasure claim scope is invalidSERVER_MISMATCHcurrent game server does not match map data serverprioritizeLuckySlotsh",
+              "instructionRvas": [
+                "0x19039E"
+              ]
+            },
+            {
+              "targetVa": "0x14082AE1B",
+              "text": "directQueuedscoutQueuedscoutDispatchedclaimednoScoutSkippedotherAllianceSkippedfailedINVALID_TREASURE_CLAIM_SCOPEtreasure claim scope is invalidSERVER_MISMATCHcurrent game server does not match map data serverprioritizeLuckySlotsh",
+              "instructionRvas": [
+                "0x1903F9"
+              ]
+            },
+            {
+              "targetVa": "0x14082AE27",
+              "text": "scoutQueuedscoutDispatchedclaimednoScoutSkippedotherAllianceSkippedfailedINVALID_TREASURE_CLAIM_SCOPEtreasure claim scope is invalidSERVER_MISMATCHcurrent game server does not match map data serverprioritizeLuckySlotsh",
+              "instructionRvas": [
+                "0x19044E"
+              ]
+            },
+            {
+              "targetVa": "0x14082AE32",
+              "text": "scoutDispatchedclaimednoScoutSkippedotherAllianceSkippedfailedINVALID_TREASURE_CLAIM_SCOPEtreasure claim scope is invalidSERVER_MISMATCHcurrent game server does not match map data serverprioritizeLuckySlotsh",
+              "instructionRvas": [
+                "0x1904A6"
+              ]
+            },
+            {
+              "targetVa": "0x14082AE41",
+              "text": "claimednoScoutSkippedotherAllianceSkippedfailedINVALID_TREASURE_CLAIM_SCOPEtreasure claim scope is invalidSERVER_MISMATCHcurrent game server does not match map data serverprioritizeLuckySlotsh",
+              "instructionRvas": [
+                "0x1904FB"
+              ]
+            },
+            {
+              "targetVa": "0x14082AE48",
+              "text": "noScoutSkippedotherAllianceSkippedfailedINVALID_TREASURE_CLAIM_SCOPEtreasure claim scope is invalidSERVER_MISMATCHcurrent game server does not match map data serverprioritizeLuckySlotsh",
+              "instructionRvas": [
+                "0x190553"
+              ]
+            },
+            {
+              "targetVa": "0x14082AE56",
+              "text": "otherAllianceSkippedfailedINVALID_TREASURE_CLAIM_SCOPEtreasure claim scope is invalidSERVER_MISMATCHcurrent game server does not match map data serverprioritizeLuckySlotsh",
+              "instructionRvas": [
+                "0x1905A8"
+              ]
+            },
+            {
+              "targetVa": "0x14082AE6A",
+              "text": "failedINVALID_TREASURE_CLAIM_SCOPEtreasure claim scope is invalidSERVER_MISMATCHcurrent game server does not match map data serverprioritizeLuckySlotsh",
+              "instructionRvas": [
+                "0x190600"
+              ]
+            },
+            {
+              "targetVa": "0x14082AE70",
+              "text": "INVALID_TREASURE_CLAIM_SCOPEtreasure claim scope is invalidSERVER_MISMATCHcurrent game server does not match map data serverprioritizeLuckySlotsh",
+              "instructionRvas": [
+                "0x18F6F3"
+              ]
+            },
+            {
+              "targetVa": "0x14082AE8C",
+              "text": "treasure claim scope is invalidSERVER_MISMATCHcurrent game server does not match map data serverprioritizeLuckySlotsh",
+              "instructionRvas": [
+                "0x18F6FA"
+              ]
+            },
+            {
+              "targetVa": "0x14082AEAB",
+              "text": "SERVER_MISMATCHcurrent game server does not match map data serverprioritizeLuckySlotsh",
+              "instructionRvas": [
+                "0x18F4EC"
+              ]
+            },
+            {
+              "targetVa": "0x14082AEBA",
+              "text": "current game server does not match map data serverprioritizeLuckySlotsh",
+              "instructionRvas": [
+                "0x18F4F3"
+              ]
+            },
+            {
+              "targetVa": "0x14082AEEC",
+              "text": "prioritizeLuckySlotsh",
+              "instructionRvas": [
+                "0x18F91C",
+                "0x18FC2B"
+              ]
+            },
+            {
+              "targetVa": "0x14082AF00",
+              "text": "src\\commands\\map.rs",
+              "instructionRvas": [
+                "0x1906BA"
+              ]
+            },
+            {
+              "targetVa": "0x14082AF1F",
+              "text": "claimTreasures",
+              "instructionRvas": [
+                "0x18FCDA"
+              ]
+            },
+            {
+              "targetVa": "0x14082F5C0",
+              "text": "a Display implementation returned an error unexpectedly/rustc/4a4ef493e3a1488c6e321570238084b38948f6db/library\\alloc\\src\\string.rs",
+              "instructionRvas": [
+                "0x190687"
+              ]
+            },
+            {
+              "targetVa": "0x14082F648",
+              "text": "/rustc/4a4ef493e3a1488c6e321570238084b38948f6db/library\\alloc\\src\\string.rs",
+              "instructionRvas": [
+                "0x19067B"
+              ]
+            },
+            {
+              "targetVa": "0x14082F6C0",
+              "text": "called `Result::unwrap()` on an `Err` value",
+              "instructionRvas": [
+                "0x1906C6"
+              ]
+            },
+            {
+              "targetVa": "0x14082F978",
+              "text": "C:\\Users\\Administrator\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\tauri-2.11.5\\src\\ipc\\mod.rs",
+              "instructionRvas": [
+                "0x18EE38"
+              ]
+            },
+            {
+              "targetVa": "0x14082FA00",
+              "text": "C:\\Users\\Administrator\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\tauri-2.11.5\\src\\ipc\\command.rs",
+              "instructionRvas": [
+                "0x18EE90"
+              ]
+            }
+          ],
+          "directCalls": [
+            {
+              "targetRva": "0x10072E",
+              "count": 2
+            },
+            {
+              "targetRva": "0x101FA8",
+              "count": 1
+            },
+            {
+              "targetRva": "0x1091B3",
+              "count": 1
+            },
+            {
+              "targetRva": "0x10949D",
+              "count": 1
+            },
+            {
+              "targetRva": "0x1094F9",
+              "count": 2
+            },
+            {
+              "targetRva": "0x10A6C7",
+              "count": 1
+            },
+            {
+              "targetRva": "0x10B5B4",
+              "count": 10
+            },
+            {
+              "targetRva": "0x1150D",
+              "count": 4
+            },
+            {
+              "targetRva": "0x23B9E5",
+              "count": 1
+            },
+            {
+              "targetRva": "0x261C54",
+              "count": 2
+            },
+            {
+              "targetRva": "0x297A7F",
+              "count": 1
+            },
+            {
+              "targetRva": "0x299D9D",
+              "count": 1
+            },
+            {
+              "targetRva": "0x2A186B",
+              "count": 1
+            },
+            {
+              "targetRva": "0x2A1A47",
+              "count": 2
+            },
+            {
+              "targetRva": "0x2C9034",
+              "count": 1
+            },
+            {
+              "targetRva": "0x31EF22",
+              "count": 2
+            },
+            {
+              "targetRva": "0x32DF9D",
+              "count": 1
+            },
+            {
+              "targetRva": "0x344CBB",
+              "count": 1
+            },
+            {
+              "targetRva": "0x3741CA",
+              "count": 1
+            },
+            {
+              "targetRva": "0x385A4",
+              "count": 1
+            },
+            {
+              "targetRva": "0x399D1F",
+              "count": 1
+            },
+            {
+              "targetRva": "0x39F75B",
+              "count": 1
+            },
+            {
+              "targetRva": "0x39F992",
+              "count": 1
+            },
+            {
+              "targetRva": "0x3D68CE",
+              "count": 1
+            },
+            {
+              "targetRva": "0x4003EF",
+              "count": 1
+            },
+            {
+              "targetRva": "0x40090C",
+              "count": 1
+            },
+            {
+              "targetRva": "0x47D60B",
+              "count": 2
+            },
+            {
+              "targetRva": "0x48194B",
+              "count": 2
+            },
+            {
+              "targetRva": "0x5A9615",
+              "count": 3
+            },
+            {
+              "targetRva": "0x5A9712",
+              "count": 15
+            },
+            {
+              "targetRva": "0x5ACC0A",
+              "count": 4
+            },
+            {
+              "targetRva": "0x5ADDEB",
+              "count": 1
+            },
+            {
+              "targetRva": "0x5C4370",
+              "count": 5
+            },
+            {
+              "targetRva": "0x5F9B92",
+              "count": 1
+            },
+            {
+              "targetRva": "0x6D05A",
+              "count": 1
+            },
+            {
+              "targetRva": "0x76B7B",
+              "count": 1
+            },
+            {
+              "targetRva": "0x7A33E0",
+              "count": 4
+            },
+            {
+              "targetRva": "0x7A43D6",
+              "count": 4
+            },
+            {
+              "targetRva": "0x7A50B0",
+              "count": 2
+            },
+            {
+              "targetRva": "0x7A5150",
+              "count": 4
+            },
+            {
+              "targetRva": "0x81E10",
+              "count": 18
+            },
+            {
+              "targetRva": "0x81F3B",
+              "count": 1
+            },
+            {
+              "targetRva": "0x82427",
+              "count": 1
+            },
+            {
+              "targetRva": "0xDC886",
+              "count": 1
+            },
+            {
+              "targetRva": "0xDCA7D",
+              "count": 1
+            },
+            {
+              "targetRva": "0xDD807",
+              "count": 1
+            },
+            {
+              "targetRva": "0xE5095",
+              "count": 1
+            },
+            {
+              "targetRva": "0xEBF1C",
+              "count": 1
+            },
+            {
+              "targetRva": "0xFD697",
+              "count": 1
+            },
+            {
+              "targetRva": "0xFFB18",
+              "count": 1
+            }
+          ]
+        }
+      ]
+    },
+    "map_treasure_claim_status": {
+      "handlerCandidates": [
+        {
+          "functionRva": "0x115C5D-0x1166BE",
+          "size": 2657,
+          "strings": [
+            {
+              "targetVa": "0x140829701",
+              "text": "statepayloadsrc\\lib.rs",
+              "instructionRvas": [
+                "0x115D13"
+              ]
+            },
+            {
+              "targetVa": "0x140829706",
+              "text": "payloadsrc\\lib.rs",
+              "instructionRvas": [
+                "0x115D7A"
+              ]
+            },
+            {
+              "targetVa": "0x140829718",
+              "text": "src\\lib.rs",
+              "instructionRvas": [
+                "0x1166A4"
+              ]
+            },
+            {
+              "targetVa": "0x140829939",
+              "text": "map_treasure_claim_statusmonster_afk_stopautomation_stopauth_loginprofile_listvip18_base_config_saveprofile_note_setvip18_base_restoremap_treasure_state_refreshprofile_selectautomation_inspectcity_layout_validatesquad_recallserver_jumpmap_plunder_jobs_listmap_truck_plunder_retrygame_startmap_dispatch_plunder_scheduleequipment_initial_applymap_scan_statusvip1",
+              "instructionRvas": [
+                "0x115D01"
+              ]
+            },
+            {
+              "targetVa": "0x14082B248",
+              "text": "getTreasureClaimStatus",
+              "instructionRvas": [
+                "0x1160CD"
+              ]
+            },
+            {
+              "targetVa": "0x14082B340",
+              "text": "src\\commands\\map.rs",
+              "instructionRvas": [
+                "0x1166B0"
+              ]
+            },
+            {
+              "targetVa": "0x14082F5C0",
+              "text": "a Display implementation returned an error unexpectedly/rustc/4a4ef493e3a1488c6e321570238084b38948f6db/library\\alloc\\src\\string.rs",
+              "instructionRvas": [
+                "0x116684"
+              ]
+            },
+            {
+              "targetVa": "0x14082F648",
+              "text": "/rustc/4a4ef493e3a1488c6e321570238084b38948f6db/library\\alloc\\src\\string.rs",
+              "instructionRvas": [
+                "0x116678"
+              ]
+            },
+            {
+              "targetVa": "0x14082F978",
+              "text": "C:\\Users\\Administrator\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\tauri-2.11.5\\src\\ipc\\mod.rs",
+              "instructionRvas": [
+                "0x115C86"
+              ]
+            },
+            {
+              "targetVa": "0x14082FA00",
+              "text": "C:\\Users\\Administrator\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\tauri-2.11.5\\src\\ipc\\command.rs",
+              "instructionRvas": [
+                "0x115CDE"
+              ]
+            }
+          ],
+          "directCalls": [
+            {
+              "targetRva": "0x10072E",
+              "count": 1
+            },
+            {
+              "targetRva": "0x101185",
+              "count": 1
+            },
+            {
+              "targetRva": "0x1091B3",
+              "count": 1
+            },
+            {
+              "targetRva": "0x10949D",
+              "count": 1
+            },
+            {
+              "targetRva": "0x1094F9",
+              "count": 2
+            },
+            {
+              "targetRva": "0x23B9E5",
+              "count": 1
+            },
+            {
+              "targetRva": "0x261C54",
+              "count": 1
+            },
+            {
+              "targetRva": "0x297A7F",
+              "count": 1
+            },
+            {
+              "targetRva": "0x2A186B",
+              "count": 1
+            },
+            {
+              "targetRva": "0x32DF9D",
+              "count": 1
+            },
+            {
+              "targetRva": "0x344CBB",
+              "count": 1
+            },
+            {
+              "targetRva": "0x3741CA",
+              "count": 1
+            },
+            {
+              "targetRva": "0x39F7EA",
+              "count": 1
+            },
+            {
+              "targetRva": "0x5ADDEB",
+              "count": 1
+            },
+            {
+              "targetRva": "0x5F9B92",
+              "count": 1
+            },
+            {
+              "targetRva": "0x76B7B",
+              "count": 1
+            },
+            {
+              "targetRva": "0x7A33E0",
+              "count": 4
+            },
+            {
+              "targetRva": "0x7A50B0",
+              "count": 1
+            },
+            {
+              "targetRva": "0x7A5150",
+              "count": 4
+            },
+            {
+              "targetRva": "0x81E10",
+              "count": 3
+            },
+            {
+              "targetRva": "0x81F3B",
+              "count": 1
+            },
+            {
+              "targetRva": "0x82427",
+              "count": 1
+            },
+            {
+              "targetRva": "0xDC886",
+              "count": 1
+            },
+            {
+              "targetRva": "0xE5095",
+              "count": 1
+            },
+            {
+              "targetRva": "0xFD93D",
+              "count": 1
+            }
+          ]
+        }
+      ]
+    },
+    "map_treasure_state_refresh": {
+      "handlerCandidates": [
+        {
+          "functionRva": "0x148087-0x148DB0",
+          "size": 3369,
+          "strings": [
+            {
+              "targetVa": "0x1400397B0",
+              "text": "UVWSH",
+              "instructionRvas": [
+                "0x148508"
+              ]
+            },
+            {
+              "targetVa": "0x140829701",
+              "text": "statepayloadsrc\\lib.rs",
+              "instructionRvas": [
+                "0x14813D"
+              ]
+            },
+            {
+              "targetVa": "0x140829706",
+              "text": "payloadsrc\\lib.rs",
+              "instructionRvas": [
+                "0x1481A9"
+              ]
+            },
+            {
+              "targetVa": "0x140829718",
+              "text": "src\\lib.rs",
+              "instructionRvas": [
+                "0x148D96"
+              ]
+            },
+            {
+              "targetVa": "0x140829B9B",
+              "text": "map_treasure_state_refresh_allappend_logmonster_afk_config_saveprofile_deletemap_march_followmap_dispatch_plunder_cancelprofile_settings_savecity_layout_apply_startvisual_metrics_config_getchat_automation_run_pendingmap_data_optionsmonster_afk_starttrade_station_catalogmap_truck_plunder_clearmap_truck_plunder_scheduleauth_credentialsprofile_enable_setmap_tru",
+              "instructionRvas": [
+                "0x14812B",
+                "0x148527"
+              ]
+            },
+            {
+              "targetVa": "0x14082A202",
+              "text": "serverIduid",
+              "instructionRvas": [
+                "0x1484C2"
+              ]
+            },
+            {
+              "targetVa": "0x14082AA25",
+              "text": "\rtargetServer=",
+              "instructionRvas": [
+                "0x148513"
+              ]
+            },
+            {
+              "targetVa": "0x14082AEAB",
+              "text": "SERVER_MISMATCHcurrent game server does not match map data serverprioritizeLuckySlotsh",
+              "instructionRvas": [
+                "0x14884E",
+                "0x14894F"
+              ]
+            },
+            {
+              "targetVa": "0x14082AEBA",
+              "text": "current game server does not match map data serverprioritizeLuckySlotsh",
+              "instructionRvas": [
+                "0x148855",
+                "0x148956"
+              ]
+            },
+            {
+              "targetVa": "0x14082B6A8",
+              "text": "src\\commands\\map.rs",
+              "instructionRvas": [
+                "0x148DA2"
+              ]
+            },
+            {
+              "targetVa": "0x14082F5C0",
+              "text": "a Display implementation returned an error unexpectedly/rustc/4a4ef493e3a1488c6e321570238084b38948f6db/library\\alloc\\src\\string.rs",
+              "instructionRvas": [
+                "0x148D79"
+              ]
+            },
+            {
+              "targetVa": "0x14082F648",
+              "text": "/rustc/4a4ef493e3a1488c6e321570238084b38948f6db/library\\alloc\\src\\string.rs",
+              "instructionRvas": [
+                "0x148D6D"
+              ]
+            },
+            {
+              "targetVa": "0x14082F978",
+              "text": "C:\\Users\\Administrator\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\tauri-2.11.5\\src\\ipc\\mod.rs",
+              "instructionRvas": [
+                "0x1480B0"
+              ]
+            },
+            {
+              "targetVa": "0x14082FA00",
+              "text": "C:\\Users\\Administrator\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\tauri-2.11.5\\src\\ipc\\command.rs",
+              "instructionRvas": [
+                "0x148108"
+              ]
+            }
+          ],
+          "directCalls": [
+            {
+              "targetRva": "0x10072E",
+              "count": 1
+            },
+            {
+              "targetRva": "0x101DCD",
+              "count": 1
+            },
+            {
+              "targetRva": "0x1091B3",
+              "count": 1
+            },
+            {
+              "targetRva": "0x10949D",
+              "count": 1
+            },
+            {
+              "targetRva": "0x1094F9",
+              "count": 2
+            },
+            {
+              "targetRva": "0x1150D",
+              "count": 1
+            },
+            {
+              "targetRva": "0x23B9E5",
+              "count": 1
+            },
+            {
+              "targetRva": "0x261C54",
+              "count": 2
+            },
+            {
+              "targetRva": "0x297A7F",
+              "count": 1
+            },
+            {
+              "targetRva": "0x2A186B",
+              "count": 1
+            },
+            {
+              "targetRva": "0x2A1A47",
+              "count": 2
+            },
+            {
+              "targetRva": "0x32DF9D",
+              "count": 1
+            },
+            {
+              "targetRva": "0x344CBB",
+              "count": 1
+            },
+            {
+              "targetRva": "0x3741CA",
+              "count": 1
+            },
+            {
+              "targetRva": "0x39F75B",
+              "count": 1
+            },
+            {
+              "targetRva": "0x39F992",
+              "count": 1
+            },
+            {
+              "targetRva": "0x3DA298",
+              "count": 1
+            },
+            {
+              "targetRva": "0x41FA89",
+              "count": 1
+            },
+            {
+              "targetRva": "0x47D60B",
+              "count": 2
+            },
+            {
+              "targetRva": "0x48194B",
+              "count": 2
+            },
+            {
+              "targetRva": "0x5ACC0A",
+              "count": 1
+            },
+            {
+              "targetRva": "0x5ADDEB",
+              "count": 1
+            },
+            {
+              "targetRva": "0x5F9B92",
+              "count": 1
+            },
+            {
+              "targetRva": "0x6D05A",
+              "count": 1
+            },
+            {
+              "targetRva": "0x76B7B",
+              "count": 1
+            },
+            {
+              "targetRva": "0x7A33E0",
+              "count": 4
+            },
+            {
+              "targetRva": "0x7A50B0",
+              "count": 1
+            },
+            {
+              "targetRva": "0x7A5150",
+              "count": 4
+            },
+            {
+              "targetRva": "0x81E10",
+              "count": 2
+            },
+            {
+              "targetRva": "0x81F3B",
+              "count": 1
+            },
+            {
+              "targetRva": "0x82427",
+              "count": 1
+            },
+            {
+              "targetRva": "0xDC886",
+              "count": 1
+            },
+            {
+              "targetRva": "0xDCA7D",
+              "count": 1
+            },
+            {
+              "targetRva": "0xDD807",
+              "count": 1
+            },
+            {
+              "targetRva": "0xFD697",
+              "count": 1
+            },
+            {
+              "targetRva": "0xFF476",
+              "count": 1
+            }
+          ]
+        },
+        {
+          "functionRva": "0x15F171-0x15FF87",
+          "size": 3606,
+          "strings": [
+            {
+              "targetVa": "0x140829701",
+              "text": "statepayloadsrc\\lib.rs",
+              "instructionRvas": [
+                "0x15F227"
+              ]
+            },
+            {
+              "targetVa": "0x140829706",
+              "text": "payloadsrc\\lib.rs",
+              "instructionRvas": [
+                "0x15F28E"
+              ]
+            },
+            {
+              "targetVa": "0x140829718",
+              "text": "src\\lib.rs",
+              "instructionRvas": [
+                "0x15FF6D"
+              ]
+            },
+            {
+              "targetVa": "0x1408299BF",
+              "text": "map_treasure_state_refreshprofile_selectautomation_inspectcity_layout_validatesquad_recallserver_jumpmap_plunder_jobs_listmap_truck_plunder_retrygame_startmap_dispatch_plunder_scheduleequipment_initial_applymap_scan_statusvip18_base_applyfeedback_exportserver_jump_history_importequipment_preset_applyproxy_statusresource_automation_runtreasure_delay_configure",
+              "instructionRvas": [
+                "0x15F215"
+              ]
+            },
+            {
+              "targetVa": "0x14082A202",
+              "text": "serverIduid",
+              "instructionRvas": [
+                "0x15F5C5"
+              ]
+            },
+            {
+              "targetVa": "0x14082AEAB",
+              "text": "SERVER_MISMATCHcurrent game server does not match map data serverprioritizeLuckySlotsh",
+              "instructionRvas": [
+                "0x15F78B"
+              ]
+            },
+            {
+              "targetVa": "0x14082AEBA",
+              "text": "current game server does not match map data serverprioritizeLuckySlotsh",
+              "instructionRvas": [
+                "0x15F792"
+              ]
+            },
+            {
+              "targetVa": "0x14082AF18",
+              "text": "recordsclaimTreasures",
+              "instructionRvas": [
+                "0x15F6DA"
+              ]
+            },
+            {
+              "targetVa": "0x14082B278",
+              "text": "playerUidallianceIdstates",
+              "instructionRvas": [
+                "0x15FD4C"
+              ]
+            },
+            {
+              "targetVa": "0x14082B281",
+              "text": "allianceIdstates",
+              "instructionRvas": [
+                "0x15FDD0"
+              ]
+            },
+            {
+              "targetVa": "0x14082B28B",
+              "text": "states",
+              "instructionRvas": [
+                "0x15FE59"
+              ]
+            },
+            {
+              "targetVa": "0x14082B3B8",
+              "text": "src\\commands\\map.rs",
+              "instructionRvas": [
+                "0x15FF79"
+              ]
+            },
+            {
+              "targetVa": "0x14082B3D0",
+              "text": "src\\commands\\map.rs",
+              "instructionRvas": [
+                "0x15FF49"
+              ]
+            },
+            {
+              "targetVa": "0x14082F5C0",
+              "text": "a Display implementation returned an error unexpectedly/rustc/4a4ef493e3a1488c6e321570238084b38948f6db/library\\alloc\\src\\string.rs",
+              "instructionRvas": [
+                "0x15FF16"
+              ]
+            },
+            {
+              "targetVa": "0x14082F648",
+              "text": "/rustc/4a4ef493e3a1488c6e321570238084b38948f6db/library\\alloc\\src\\string.rs",
+              "instructionRvas": [
+                "0x15FF0A"
+              ]
+            },
+            {
+              "targetVa": "0x14082F6C0",
+              "text": "called `Result::unwrap()` on an `Err` value",
+              "instructionRvas": [
+                "0x15FF55"
+              ]
+            },
+            {
+              "targetVa": "0x14082F978",
+              "text": "C:\\Users\\Administrator\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\tauri-2.11.5\\src\\ipc\\mod.rs",
+              "instructionRvas": [
+                "0x15F19A"
+              ]
+            },
+            {
+              "targetVa": "0x14082FA00",
+              "text": "C:\\Users\\Administrator\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\tauri-2.11.5\\src\\ipc\\command.rs",
+              "instructionRvas": [
+                "0x15F1F2"
+              ]
+            }
+          ],
+          "directCalls": [
+            {
+              "targetRva": "0x10072E",
+              "count": 1
+            },
+            {
+              "targetRva": "0x102935",
+              "count": 1
+            },
+            {
+              "targetRva": "0x1091B3",
+              "count": 1
+            },
+            {
+              "targetRva": "0x10949D",
+              "count": 1
+            },
+            {
+              "targetRva": "0x1094F9",
+              "count": 2
+            },
+            {
+              "targetRva": "0x10B5B4",
+              "count": 3
+            },
+            {
+              "targetRva": "0x1150D",
+              "count": 2
+            },
+            {
+              "targetRva": "0x23B9E5",
+              "count": 1
+            },
+            {
+              "targetRva": "0x261C54",
+              "count": 2
+            },
+            {
+              "targetRva": "0x297A7F",
+              "count": 1
+            },
+            {
+              "targetRva": "0x2A186B",
+              "count": 1
+            },
+            {
+              "targetRva": "0x2A1A47",
+              "count": 1
+            },
+            {
+              "targetRva": "0x31EF22",
+              "count": 2
+            },
+            {
+              "targetRva": "0x32DF9D",
+              "count": 1
+            },
+            {
+              "targetRva": "0x344CBB",
+              "count": 1
+            },
+            {
+              "targetRva": "0x3741CA",
+              "count": 1
+            },
+            {
+              "targetRva": "0x39BA78",
+              "count": 1
+            },
+            {
+              "targetRva": "0x39F75B",
+              "count": 1
+            },
+            {
+              "targetRva": "0x39F992",
+              "count": 1
+            },
+            {
+              "targetRva": "0x5A9615",
+              "count": 1
+            },
+            {
+              "targetRva": "0x5A9712",
+              "count": 3
+            },
+            {
+              "targetRva": "0x5ACC0A",
+              "count": 2
+            },
+            {
+              "targetRva": "0x5ADDEB",
+              "count": 1
+            },
+            {
+              "targetRva": "0x5F9B92",
+              "count": 1
+            },
+            {
+              "targetRva": "0x76B7B",
+              "count": 1
+            },
+            {
+              "targetRva": "0x7A33E0",
+              "count": 4
+            },
+            {
+              "targetRva": "0x7A50B0",
+              "count": 2
+            },
+            {
+              "targetRva": "0x7A5150",
+              "count": 4
+            },
+            {
+              "targetRva": "0x81E10",
+              "count": 5
+            },
+            {
+              "targetRva": "0x81F3B",
+              "count": 1
+            },
+            {
+              "targetRva": "0x82427",
+              "count": 1
+            },
+            {
+              "targetRva": "0xDC886",
+              "count": 1
+            },
+            {
+              "targetRva": "0xDCA7D",
+              "count": 1
+            },
+            {
+              "targetRva": "0xDD807",
+              "count": 1
+            },
+            {
+              "targetRva": "0xFD697",
+              "count": 1
+            },
+            {
+              "targetRva": "0xFDBAA",
+              "count": 1
+            }
+          ]
+        }
+      ]
+    },
+    "map_treasure_state_refresh_all": {
+      "handlerCandidates": [
+        {
+          "functionRva": "0x148087-0x148DB0",
+          "size": 3369,
+          "strings": [
+            {
+              "targetVa": "0x1400397B0",
+              "text": "UVWSH",
+              "instructionRvas": [
+                "0x148508"
+              ]
+            },
+            {
+              "targetVa": "0x140829701",
+              "text": "statepayloadsrc\\lib.rs",
+              "instructionRvas": [
+                "0x14813D"
+              ]
+            },
+            {
+              "targetVa": "0x140829706",
+              "text": "payloadsrc\\lib.rs",
+              "instructionRvas": [
+                "0x1481A9"
+              ]
+            },
+            {
+              "targetVa": "0x140829718",
+              "text": "src\\lib.rs",
+              "instructionRvas": [
+                "0x148D96"
+              ]
+            },
+            {
+              "targetVa": "0x140829B9B",
+              "text": "map_treasure_state_refresh_allappend_logmonster_afk_config_saveprofile_deletemap_march_followmap_dispatch_plunder_cancelprofile_settings_savecity_layout_apply_startvisual_metrics_config_getchat_automation_run_pendingmap_data_optionsmonster_afk_starttrade_station_catalogmap_truck_plunder_clearmap_truck_plunder_scheduleauth_credentialsprofile_enable_setmap_tru",
+              "instructionRvas": [
+                "0x14812B",
+                "0x148527"
+              ]
+            },
+            {
+              "targetVa": "0x14082A202",
+              "text": "serverIduid",
+              "instructionRvas": [
+                "0x1484C2"
+              ]
+            },
+            {
+              "targetVa": "0x14082AA25",
+              "text": "\rtargetServer=",
+              "instructionRvas": [
+                "0x148513"
+              ]
+            },
+            {
+              "targetVa": "0x14082AEAB",
+              "text": "SERVER_MISMATCHcurrent game server does not match map data serverprioritizeLuckySlotsh",
+              "instructionRvas": [
+                "0x14884E",
+                "0x14894F"
+              ]
+            },
+            {
+              "targetVa": "0x14082AEBA",
+              "text": "current game server does not match map data serverprioritizeLuckySlotsh",
+              "instructionRvas": [
+                "0x148855",
+                "0x148956"
+              ]
+            },
+            {
+              "targetVa": "0x14082B6A8",
+              "text": "src\\commands\\map.rs",
+              "instructionRvas": [
+                "0x148DA2"
+              ]
+            },
+            {
+              "targetVa": "0x14082F5C0",
+              "text": "a Display implementation returned an error unexpectedly/rustc/4a4ef493e3a1488c6e321570238084b38948f6db/library\\alloc\\src\\string.rs",
+              "instructionRvas": [
+                "0x148D79"
+              ]
+            },
+            {
+              "targetVa": "0x14082F648",
+              "text": "/rustc/4a4ef493e3a1488c6e321570238084b38948f6db/library\\alloc\\src\\string.rs",
+              "instructionRvas": [
+                "0x148D6D"
+              ]
+            },
+            {
+              "targetVa": "0x14082F978",
+              "text": "C:\\Users\\Administrator\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\tauri-2.11.5\\src\\ipc\\mod.rs",
+              "instructionRvas": [
+                "0x1480B0"
+              ]
+            },
+            {
+              "targetVa": "0x14082FA00",
+              "text": "C:\\Users\\Administrator\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\tauri-2.11.5\\src\\ipc\\command.rs",
+              "instructionRvas": [
+                "0x148108"
+              ]
+            }
+          ],
+          "directCalls": [
+            {
+              "targetRva": "0x10072E",
+              "count": 1
+            },
+            {
+              "targetRva": "0x101DCD",
+              "count": 1
+            },
+            {
+              "targetRva": "0x1091B3",
+              "count": 1
+            },
+            {
+              "targetRva": "0x10949D",
+              "count": 1
+            },
+            {
+              "targetRva": "0x1094F9",
+              "count": 2
+            },
+            {
+              "targetRva": "0x1150D",
+              "count": 1
+            },
+            {
+              "targetRva": "0x23B9E5",
+              "count": 1
+            },
+            {
+              "targetRva": "0x261C54",
+              "count": 2
+            },
+            {
+              "targetRva": "0x297A7F",
+              "count": 1
+            },
+            {
+              "targetRva": "0x2A186B",
+              "count": 1
+            },
+            {
+              "targetRva": "0x2A1A47",
+              "count": 2
+            },
+            {
+              "targetRva": "0x32DF9D",
+              "count": 1
+            },
+            {
+              "targetRva": "0x344CBB",
+              "count": 1
+            },
+            {
+              "targetRva": "0x3741CA",
+              "count": 1
+            },
+            {
+              "targetRva": "0x39F75B",
+              "count": 1
+            },
+            {
+              "targetRva": "0x39F992",
+              "count": 1
+            },
+            {
+              "targetRva": "0x3DA298",
+              "count": 1
+            },
+            {
+              "targetRva": "0x41FA89",
+              "count": 1
+            },
+            {
+              "targetRva": "0x47D60B",
+              "count": 2
+            },
+            {
+              "targetRva": "0x48194B",
+              "count": 2
+            },
+            {
+              "targetRva": "0x5ACC0A",
+              "count": 1
+            },
+            {
+              "targetRva": "0x5ADDEB",
+              "count": 1
+            },
+            {
+              "targetRva": "0x5F9B92",
+              "count": 1
+            },
+            {
+              "targetRva": "0x6D05A",
+              "count": 1
+            },
+            {
+              "targetRva": "0x76B7B",
+              "count": 1
+            },
+            {
+              "targetRva": "0x7A33E0",
+              "count": 4
+            },
+            {
+              "targetRva": "0x7A50B0",
+              "count": 1
+            },
+            {
+              "targetRva": "0x7A5150",
+              "count": 4
+            },
+            {
+              "targetRva": "0x81E10",
+              "count": 2
+            },
+            {
+              "targetRva": "0x81F3B",
+              "count": 1
+            },
+            {
+              "targetRva": "0x82427",
+              "count": 1
+            },
+            {
+              "targetRva": "0xDC886",
+              "count": 1
+            },
+            {
+              "targetRva": "0xDCA7D",
+              "count": 1
+            },
+            {
+              "targetRva": "0xDD807",
+              "count": 1
+            },
+            {
+              "targetRva": "0xFD697",
+              "count": 1
+            },
+            {
+              "targetRva": "0xFF476",
+              "count": 1
+            }
+          ]
+        }
+      ]
+    },
+    "map_dispatch_plunder_schedule": {
+      "handlerCandidates": [
+        {
+          "functionRva": "0x1336A9-0x1350DF",
+          "size": 6710,
+          "strings": [
+            {
+              "targetVa": "0x140829701",
+              "text": "statepayloadsrc\\lib.rs",
+              "instructionRvas": [
+                "0x13375F"
+              ]
+            },
+            {
+              "targetVa": "0x140829706",
+              "text": "payloadsrc\\lib.rs",
+              "instructionRvas": [
+                "0x1337C8"
+              ]
+            },
+            {
+              "targetVa": "0x140829718",
+              "text": "src\\lib.rs",
+              "instructionRvas": [
+                "0x1350AC"
+              ]
+            },
+            {
+              "targetVa": "0x140829A5A",
+              "text": "map_dispatch_plunder_scheduleequipment_initial_applymap_scan_statusvip18_base_applyfeedback_exportserver_jump_history_importequipment_preset_applyproxy_statusresource_automation_runtreasure_delay_configuremap_scan_startupdate_download_and_openauth_unbindvip18_base_listcall_luamap_truck_plunder_listupdate_checkget_statusmap_treasure_state_refresh_allappend_lo",
+              "instructionRvas": [
+                "0x13374D"
+              ]
+            },
+            {
+              "targetVa": "0x14082A1FE",
+              "text": "uuidserverIduid",
+              "instructionRvas": [
+                "0x134097",
+                "0x13453B"
+              ]
+            },
+            {
+              "targetVa": "0x14082A202",
+              "text": "serverIduid",
+              "instructionRvas": [
+                "0x134079",
+                "0x134663",
+                "0x134685"
+              ]
+            },
+            {
+              "targetVa": "0x14082A479",
+              "text": "INVALID_REQUESTselect between 1 and 200 tasks",
+              "instructionRvas": [
+                "0x133D19",
+                "0x133D71",
+                "0x133F87",
+                "0x134304",
+                "0x134841",
+                "0x134A50"
+              ]
+            },
+            {
+              "targetVa": "0x14082B370",
+              "text": "taskKinddispatchghostinvalid plunder task kind",
+              "instructionRvas": [
+                "0x134179",
+                "0x134558"
+              ]
+            },
+            {
+              "targetVa": "0x14082B378",
+              "text": "dispatchghostinvalid plunder task kind",
+              "instructionRvas": [
+                "0x134166",
+                "0x13418B",
+                "0x13419E"
+              ]
+            },
+            {
+              "targetVa": "0x14082B400",
+              "text": "rows",
+              "instructionRvas": [
+                "0x133AD6",
+                "0x133F57"
+              ]
+            },
+            {
+              "targetVa": "0x14082B5C0",
+              "text": "src\\commands\\map.rs",
+              "instructionRvas": [
+                "0x1350B8"
+              ]
+            },
+            {
+              "targetVa": "0x14082B5D8",
+              "text": "completionTimeplunderAttaskExpireTimestolenCountmaxStealCountownerServersecret task scheduling data is invalidselect between 1 and 200 secret tasks",
+              "instructionRvas": [
+                "0x1340E6"
+              ]
+            },
+            {
+              "targetVa": "0x14082B5E6",
+              "text": "plunderAttaskExpireTimestolenCountmaxStealCountownerServersecret task scheduling data is invalidselect between 1 and 200 secret tasks",
+              "instructionRvas": [
+                "0x134100",
+                "0x134886"
+              ]
+            },
+            {
+              "targetVa": "0x14082B5EF",
+              "text": "taskExpireTimestolenCountmaxStealCountownerServersecret task scheduling data is invalidselect between 1 and 200 secret tasks",
+              "instructionRvas": [
+                "0x13411A",
+                "0x1348C6"
+              ]
+            },
+            {
+              "targetVa": "0x14082B5FD",
+              "text": "stolenCountmaxStealCountownerServersecret task scheduling data is invalidselect between 1 and 200 secret tasks",
+              "instructionRvas": [
+                "0x134137"
+              ]
+            },
+            {
+              "targetVa": "0x14082B608",
+              "text": "maxStealCountownerServersecret task scheduling data is invalidselect between 1 and 200 secret tasks",
+              "instructionRvas": [
+                "0x134154"
+              ]
+            },
+            {
+              "targetVa": "0x14082B615",
+              "text": "ownerServersecret task scheduling data is invalidselect between 1 and 200 secret tasks",
+              "instructionRvas": [
+                "0x1342E2"
+              ]
+            },
+            {
+              "targetVa": "0x14082B620",
+              "text": "secret task scheduling data is invalidselect between 1 and 200 secret tasks",
+              "instructionRvas": [
+                "0x13430B"
+              ]
+            },
+            {
+              "targetVa": "0x14082B646",
+              "text": "select between 1 and 200 secret tasks",
+              "instructionRvas": [
+                "0x133D78"
+              ]
+            },
+            {
+              "targetVa": "0x14082B670",
+              "text": "src\\commands\\map.rs",
+              "instructionRvas": [
+                "0x135088"
+              ]
+            },
+            {
+              "targetVa": "0x14082B688",
+              "text": "secret task rows are required",
+              "instructionRvas": [
+                "0x133D20"
+              ]
+            },
+            {
+              "targetVa": "0x14082E498",
+              "text": "src\\services\\dispatch_plunder.rs",
+              "instructionRvas": [
+                "0x13506C"
+              ]
+            },
+            {
+              "targetVa": "0x14082E4B0",
+              "text": "prepareGhostPlunderTasks`",
+              "instructionRvas": [
+                "0x133CA8"
+              ]
+            },
+            {
+              "targetVa": "0x14082E4C8",
+              "text": "src\\services\\dispatch_plunder.rs",
+              "instructionRvas": [
+                "0x1339B8"
+              ]
+            },
+            {
+              "targetVa": "0x14082E4E0",
+              "text": "task expires before scheduled plunderghost scheduling data unavailablesrc\\services\\auth.rs",
+              "instructionRvas": [
+                "0x134A57"
+              ]
+            },
+            {
+              "targetVa": "0x14082E505",
+              "text": "ghost scheduling data unavailablesrc\\services\\auth.rs",
+              "instructionRvas": [
+                "0x133F8E",
+                "0x134848"
+              ]
+            },
+            {
+              "targetVa": "0x14082F5C0",
+              "text": "a Display implementation returned an error unexpectedly/rustc/4a4ef493e3a1488c6e321570238084b38948f6db/library\\alloc\\src\\string.rs",
+              "instructionRvas": [
+                "0x135039"
+              ]
+            },
+            {
+              "targetVa": "0x14082F648",
+              "text": "/rustc/4a4ef493e3a1488c6e321570238084b38948f6db/library\\alloc\\src\\string.rs",
+              "instructionRvas": [
+                "0x13502D"
+              ]
+            },
+            {
+              "targetVa": "0x14082F6C0",
+              "text": "called `Result::unwrap()` on an `Err` value",
+              "instructionRvas": [
+                "0x135094"
+              ]
+            },
+            {
+              "targetVa": "0x14082F978",
+              "text": "C:\\Users\\Administrator\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\tauri-2.11.5\\src\\ipc\\mod.rs",
+              "instructionRvas": [
+                "0x1336D2"
+              ]
+            },
+            {
+              "targetVa": "0x14082FA00",
+              "text": "C:\\Users\\Administrator\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\tauri-2.11.5\\src\\ipc\\command.rs",
+              "instructionRvas": [
+                "0x13372A"
+              ]
+            },
+            {
+              "targetVa": "0x140D68CD0",
+              "text": "bridge://dispatch-plunder-changed&recover dispatch plunder jobs failed: ",
+              "instructionRvas": [
+                "0x1349FC"
+              ]
+            }
+          ],
+          "directCalls": [
+            {
+              "targetRva": "0x10072E",
+              "count": 1
+            },
+            {
+              "targetRva": "0x100F2E",
+              "count": 1
+            },
+            {
+              "targetRva": "0x101D0F",
+              "count": 1
+            },
+            {
+              "targetRva": "0x1091B3",
+              "count": 1
+            },
+            {
+              "targetRva": "0x10949D",
+              "count": 1
+            },
+            {
+              "targetRva": "0x1094F9",
+              "count": 2
+            },
+            {
+              "targetRva": "0x1150D",
+              "count": 3
+            },
+            {
+              "targetRva": "0x23B9E5",
+              "count": 1
+            },
+            {
+              "targetRva": "0x261C54",
+              "count": 2
+            },
+            {
+              "targetRva": "0x297A7F",
+              "count": 1
+            },
+            {
+              "targetRva": "0x299D9D",
+              "count": 2
+            },
+            {
+              "targetRva": "0x2A186B",
+              "count": 1
+            },
+            {
+              "targetRva": "0x2A1A47",
+              "count": 5
+            },
+            {
+              "targetRva": "0x2CA91D",
+              "count": 1
+            },
+            {
+              "targetRva": "0x32DF9D",
+              "count": 1
+            },
+            {
+              "targetRva": "0x344CBB",
+              "count": 1
+            },
+            {
+              "targetRva": "0x3741CA",
+              "count": 1
+            },
+            {
+              "targetRva": "0x385A4",
+              "count": 1
+            },
+            {
+              "targetRva": "0x39DF3F",
+              "count": 1
+            },
+            {
+              "targetRva": "0x39F992",
+              "count": 7
+            },
+            {
+              "targetRva": "0x3D778F",
+              "count": 1
+            },
+            {
+              "targetRva": "0x491F8",
+              "count": 1
+            },
+            {
+              "targetRva": "0x5A9615",
+              "count": 11
+            },
+            {
+              "targetRva": "0x5A9712",
+              "count": 2
+            },
+            {
+              "targetRva": "0x5ACC0A",
+              "count": 3
+            },
+            {
+              "targetRva": "0x5ADDEB",
+              "count": 1
+            },
+            {
+              "targetRva": "0x5C4370",
+              "count": 3
+            },
+            {
+              "targetRva": "0x5F9B92",
+              "count": 1
+            },
+            {
+              "targetRva": "0x72986",
+              "count": 2
+            },
+            {
+              "targetRva": "0x72D30",
+              "count": 2
+            },
+            {
+              "targetRva": "0x76B7B",
+              "count": 1
+            },
+            {
+              "targetRva": "0x7A33E0",
+              "count": 4
+            },
+            {
+              "targetRva": "0x7A3E30",
+              "count": 2
+            },
+            {
+              "targetRva": "0x7A43D6",
+              "count": 2
+            },
+            {
+              "targetRva": "0x7A50B0",
+              "count": 2
+            },
+            {
+              "targetRva": "0x7A5150",
+              "count": 5
+            },
+            {
+              "targetRva": "0x81E10",
+              "count": 6
+            },
+            {
+              "targetRva": "0x81F3B",
+              "count": 1
+            },
+            {
+              "targetRva": "0x82427",
+              "count": 1
+            },
+            {
+              "targetRva": "0xDC886",
+              "count": 1
+            },
+            {
+              "targetRva": "0xE5095",
+              "count": 1
+            },
+            {
+              "targetRva": "0xFF293",
+              "count": 2
+            }
+          ]
+        }
+      ]
+    },
+    "map_dispatch_plunder_cancel": {
+      "handlerCandidates": [
+        {
+          "functionRva": "0x132085-0x1329AF",
+          "size": 2346,
+          "strings": [
+            {
+              "targetVa": "0x140829701",
+              "text": "statepayloadsrc\\lib.rs",
+              "instructionRvas": [
+                "0x13213F"
+              ]
+            },
+            {
+              "targetVa": "0x140829706",
+              "text": "payloadsrc\\lib.rs",
+              "instructionRvas": [
+                "0x13219E"
+              ]
+            },
+            {
+              "targetVa": "0x140829718",
+              "text": "src\\lib.rs",
+              "instructionRvas": [
+                "0x1329A2"
+              ]
+            },
+            {
+              "targetVa": "0x140829BF8",
+              "text": "map_dispatch_plunder_cancelprofile_settings_savecity_layout_apply_startvisual_metrics_config_getchat_automation_run_pendingmap_data_optionsmonster_afk_starttrade_station_catalogmap_truck_plunder_clearmap_truck_plunder_scheduleauth_credentialsprofile_enable_setmap_truck_plunder_cancelmap_dispatch_plunder_retrymap_city_exportprofile_settings_getresource_automa",
+              "instructionRvas": [
+                "0x13212D"
+              ]
+            },
+            {
+              "targetVa": "0x14082A202",
+              "text": "serverIduid",
+              "instructionRvas": [
+                "0x1323E0"
+              ]
+            },
+            {
+              "targetVa": "0x14082B4E0",
+              "text": "src\\commands\\map.rs",
+              "instructionRvas": [
+                "0x1322C2"
+              ]
+            },
+            {
+              "targetVa": "0x14082F5C0",
+              "text": "a Display implementation returned an error unexpectedly/rustc/4a4ef493e3a1488c6e321570238084b38948f6db/library\\alloc\\src\\string.rs",
+              "instructionRvas": [
+                "0x132982"
+              ]
+            },
+            {
+              "targetVa": "0x14082F648",
+              "text": "/rustc/4a4ef493e3a1488c6e321570238084b38948f6db/library\\alloc\\src\\string.rs",
+              "instructionRvas": [
+                "0x132976"
+              ]
+            },
+            {
+              "targetVa": "0x14082F978",
+              "text": "C:\\Users\\Administrator\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\tauri-2.11.5\\src\\ipc\\mod.rs",
+              "instructionRvas": [
+                "0x1320AB"
+              ]
+            },
+            {
+              "targetVa": "0x14082FA00",
+              "text": "C:\\Users\\Administrator\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\tauri-2.11.5\\src\\ipc\\command.rs",
+              "instructionRvas": [
+                "0x13210A"
+              ]
+            }
+          ],
+          "directCalls": [
+            {
+              "targetRva": "0x101104",
+              "count": 1
+            },
+            {
+              "targetRva": "0x106F04",
+              "count": 1
+            },
+            {
+              "targetRva": "0x1091B3",
+              "count": 1
+            },
+            {
+              "targetRva": "0x10949D",
+              "count": 1
+            },
+            {
+              "targetRva": "0x1094F9",
+              "count": 2
+            },
+            {
+              "targetRva": "0x23B9E5",
+              "count": 1
+            },
+            {
+              "targetRva": "0x261C54",
+              "count": 1
+            },
+            {
+              "targetRva": "0x297A7F",
+              "count": 1
+            },
+            {
+              "targetRva": "0x2A186B",
+              "count": 1
+            },
+            {
+              "targetRva": "0x32DF9D",
+              "count": 1
+            },
+            {
+              "targetRva": "0x344CBB",
+              "count": 1
+            },
+            {
+              "targetRva": "0x3741CA",
+              "count": 1
+            },
+            {
+              "targetRva": "0x39F584",
+              "count": 1
+            },
+            {
+              "targetRva": "0x39F992",
+              "count": 1
+            },
+            {
+              "targetRva": "0x425F85",
+              "count": 1
+            },
+            {
+              "targetRva": "0x5ADDEB",
+              "count": 1
+            },
+            {
+              "targetRva": "0x5F9B92",
+              "count": 1
+            },
+            {
+              "targetRva": "0x76B7B",
+              "count": 1
+            },
+            {
+              "targetRva": "0x7A33E0",
+              "count": 2
+            },
+            {
+              "targetRva": "0x7A50B0",
+              "count": 1
+            },
+            {
+              "targetRva": "0x7A5150",
+              "count": 4
+            },
+            {
+              "targetRva": "0x81E10",
+              "count": 1
+            },
+            {
+              "targetRva": "0x81F3B",
+              "count": 1
+            },
+            {
+              "targetRva": "0x82427",
+              "count": 1
+            },
+            {
+              "targetRva": "0xDC886",
+              "count": 1
+            }
+          ]
+        }
+      ]
+    },
+    "map_dispatch_plunder_clear": {
+      "handlerCandidates": [
+        {
+          "functionRva": "0x153DF6-0x154905",
+          "size": 2831,
+          "strings": [
+            {
+              "targetVa": "0x140829701",
+              "text": "statepayloadsrc\\lib.rs",
+              "instructionRvas": [
+                "0x153EB0"
+              ]
+            },
+            {
+              "targetVa": "0x140829706",
+              "text": "payloadsrc\\lib.rs",
+              "instructionRvas": [
+                "0x153F0F"
+              ]
+            },
+            {
+              "targetVa": "0x140829718",
+              "text": "src\\lib.rs",
+              "instructionRvas": [
+                "0x1548E9"
+              ]
+            },
+            {
+              "targetVa": "0x1408298BA",
+              "text": "map_dispatch_plunder_clearauth_activatecity_layout_apply_cancelmap_treasure_claimauth_statemap_scan_clearcity_layout_draft_savemap_treasure_claim_statusmonster_afk_stopautomation_stopauth_loginprofile_listvip18_base_config_saveprofile_note_setvip18_base_restoremap_treasure_state_refreshprofile_selectautomation_inspectcity_layout_validatesquad_recallserver_ju",
+              "instructionRvas": [
+                "0x153E9E"
+              ]
+            },
+            {
+              "targetVa": "0x14082A479",
+              "text": "INVALID_REQUESTselect between 1 and 200 tasks",
+              "instructionRvas": [
+                "0x1543B5",
+                "0x15489F"
+              ]
+            },
+            {
+              "targetVa": "0x14082B150",
+              "text": "beforeclear cutoff is required",
+              "instructionRvas": [
+                "0x1541DA"
+              ]
+            },
+            {
+              "targetVa": "0x14082B156",
+              "text": "clear cutoff is required",
+              "instructionRvas": [
+                "0x1543BC"
+              ]
+            },
+            {
+              "targetVa": "0x14082B358",
+              "text": "src\\commands\\map.rs",
+              "instructionRvas": [
+                "0x15404A"
+              ]
+            },
+            {
+              "targetVa": "0x14082B370",
+              "text": "taskKinddispatchghostinvalid plunder task kind",
+              "instructionRvas": [
+                "0x154207"
+              ]
+            },
+            {
+              "targetVa": "0x14082B385",
+              "text": "invalid plunder task kind",
+              "instructionRvas": [
+                "0x1548A6"
+              ]
+            },
+            {
+              "targetVa": "0x14082F5C0",
+              "text": "a Display implementation returned an error unexpectedly/rustc/4a4ef493e3a1488c6e321570238084b38948f6db/library\\alloc\\src\\string.rs",
+              "instructionRvas": [
+                "0x1548C9"
+              ]
+            },
+            {
+              "targetVa": "0x14082F648",
+              "text": "/rustc/4a4ef493e3a1488c6e321570238084b38948f6db/library\\alloc\\src\\string.rs",
+              "instructionRvas": [
+                "0x1548BD"
+              ]
+            },
+            {
+              "targetVa": "0x14082F978",
+              "text": "C:\\Users\\Administrator\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\tauri-2.11.5\\src\\ipc\\mod.rs",
+              "instructionRvas": [
+                "0x153E1C"
+              ]
+            },
+            {
+              "targetVa": "0x14082FA00",
+              "text": "C:\\Users\\Administrator\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\tauri-2.11.5\\src\\ipc\\command.rs",
+              "instructionRvas": [
+                "0x153E7B"
+              ]
+            }
+          ],
+          "directCalls": [
+            {
+              "targetRva": "0x101104",
+              "count": 1
+            },
+            {
+              "targetRva": "0x106F04",
+              "count": 1
+            },
+            {
+              "targetRva": "0x1091B3",
+              "count": 1
+            },
+            {
+              "targetRva": "0x10949D",
+              "count": 1
+            },
+            {
+              "targetRva": "0x1094F9",
+              "count": 2
+            },
+            {
+              "targetRva": "0x1150D",
+              "count": 2
+            },
+            {
+              "targetRva": "0x23B9E5",
+              "count": 1
+            },
+            {
+              "targetRva": "0x261C54",
+              "count": 2
+            },
+            {
+              "targetRva": "0x297A7F",
+              "count": 1
+            },
+            {
+              "targetRva": "0x2A186B",
+              "count": 1
+            },
+            {
+              "targetRva": "0x2A1A47",
+              "count": 1
+            },
+            {
+              "targetRva": "0x32DF9D",
+              "count": 1
+            },
+            {
+              "targetRva": "0x344CBB",
+              "count": 1
+            },
+            {
+              "targetRva": "0x3741CA",
+              "count": 1
+            },
+            {
+              "targetRva": "0x39F992",
+              "count": 1
+            },
+            {
+              "targetRva": "0x425C18",
+              "count": 1
+            },
+            {
+              "targetRva": "0x5A9615",
+              "count": 1
+            },
+            {
+              "targetRva": "0x5A9712",
+              "count": 1
+            },
+            {
+              "targetRva": "0x5A9F39",
+              "count": 1
+            },
+            {
+              "targetRva": "0x5ADDEB",
+              "count": 1
+            },
+            {
+              "targetRva": "0x5C4370",
+              "count": 1
+            },
+            {
+              "targetRva": "0x5F9B92",
+              "count": 1
+            },
+            {
+              "targetRva": "0x76B7B",
+              "count": 1
+            },
+            {
+              "targetRva": "0x7A33E0",
+              "count": 2
+            },
+            {
+              "targetRva": "0x7A43D6",
+              "count": 1
+            },
+            {
+              "targetRva": "0x7A50B0",
+              "count": 1
+            },
+            {
+              "targetRva": "0x7A5150",
+              "count": 4
+            },
+            {
+              "targetRva": "0x81E10",
+              "count": 4
+            },
+            {
+              "targetRva": "0x81F3B",
+              "count": 1
+            },
+            {
+              "targetRva": "0x82427",
+              "count": 1
+            },
+            {
+              "targetRva": "0xDC886",
+              "count": 1
+            }
+          ]
+        }
+      ]
+    },
+    "map_dispatch_share_alliance": {
+      "handlerCandidates": [
+        {
+          "functionRva": "0x10C27F-0x10D552",
+          "size": 4819,
+          "strings": [
+            {
+              "targetVa": "0x140829701",
+              "text": "statepayloadsrc\\lib.rs",
+              "instructionRvas": [
+                "0x10C33A"
+              ]
+            },
+            {
+              "targetVa": "0x140829706",
+              "text": "payloadsrc\\lib.rs",
+              "instructionRvas": [
+                "0x10C39C"
+              ]
+            },
+            {
+              "targetVa": "0x140829718",
+              "text": "src\\lib.rs",
+              "instructionRvas": [
+                "0x10CB47"
+              ]
+            },
+            {
+              "targetVa": "0x140829858",
+              "text": "map_dispatch_share_alliancevip18_base_config_getdispatch_assist_retryalliance_garrison_config_savemap_dispatch_plunder_clearauth_activatecity_layout_apply_cancelmap_treasure_claimauth_statemap_scan_clearcity_layout_draft_savemap_treasure_claim_statusmonster_afk_stopautomation_stopauth_loginprofile_listvip18_base_config_saveprofile_note_setvip18_base_restorem",
+              "instructionRvas": [
+                "0x10C328"
+              ]
+            },
+            {
+              "targetVa": "0x14082A1FE",
+              "text": "uuidserverIduid",
+              "instructionRvas": [
+                "0x10C727",
+                "0x10CBC0"
+              ]
+            },
+            {
+              "targetVa": "0x14082A202",
+              "text": "serverIduid",
+              "instructionRvas": [
+                "0x10C79C"
+              ]
+            },
+            {
+              "targetVa": "0x14082A479",
+              "text": "INVALID_REQUESTselect between 1 and 200 tasks",
+              "instructionRvas": [
+                "0x10C80B",
+                "0x10C858"
+              ]
+            },
+            {
+              "targetVa": "0x14082AF48",
+              "text": "xy\rtargetServer=",
+              "instructionRvas": [
+                "0x10C7B6"
+              ]
+            },
+            {
+              "targetVa": "0x14082AF49",
+              "text": "y\rtargetServer=",
+              "instructionRvas": [
+                "0x10C7D0"
+              ]
+            },
+            {
+              "targetVa": "0x14082B400",
+              "text": "rows",
+              "instructionRvas": [
+                "0x10C68C"
+              ]
+            },
+            {
+              "targetVa": "0x14082B4F8",
+              "text": "src\\commands\\map.rs",
+              "instructionRvas": [
+                "0x10CB53"
+              ]
+            },
+            {
+              "targetVa": "0x14082B510",
+              "text": "cfgIdselected dispatch task cannot be sharedselect between 1 and 200 dispatch tasksshared",
+              "instructionRvas": [
+                "0x10C7EA"
+              ]
+            },
+            {
+              "targetVa": "0x14082B515",
+              "text": "selected dispatch task cannot be sharedselect between 1 and 200 dispatch tasksshared",
+              "instructionRvas": [
+                "0x10C812"
+              ]
+            },
+            {
+              "targetVa": "0x14082B53C",
+              "text": "select between 1 and 200 dispatch tasksshared",
+              "instructionRvas": [
+                "0x10C85F"
+              ]
+            },
+            {
+              "targetVa": "0x14082B563",
+              "text": "shared",
+              "instructionRvas": [
+                "0x10CDC0"
+              ]
+            },
+            {
+              "targetVa": "0x14082B570",
+              "text": "src\\commands\\map.rs",
+              "instructionRvas": [
+                "0x10D4D3"
+              ]
+            },
+            {
+              "targetVa": "0x14082B588",
+              "text": "shareDispatchTaskToAlliance",
+              "instructionRvas": [
+                "0x10CD18"
+              ]
+            },
+            {
+              "targetVa": "0x14082B5A8",
+              "text": "src\\commands\\map.rs",
+              "instructionRvas": [
+                "0x10CF0A"
+              ]
+            },
+            {
+              "targetVa": "0x14082F5C0",
+              "text": "a Display implementation returned an error unexpectedly/rustc/4a4ef493e3a1488c6e321570238084b38948f6db/library\\alloc\\src\\string.rs",
+              "instructionRvas": [
+                "0x10CB6D"
+              ]
+            },
+            {
+              "targetVa": "0x14082F648",
+              "text": "/rustc/4a4ef493e3a1488c6e321570238084b38948f6db/library\\alloc\\src\\string.rs",
+              "instructionRvas": [
+                "0x10CB61"
+              ]
+            },
+            {
+              "targetVa": "0x14082F6C0",
+              "text": "called `Result::unwrap()` on an `Err` value",
+              "instructionRvas": [
+                "0x10D4DF"
+              ]
+            },
+            {
+              "targetVa": "0x14082F978",
+              "text": "C:\\Users\\Administrator\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\tauri-2.11.5\\src\\ipc\\mod.rs",
+              "instructionRvas": [
+                "0x10C2AD"
+              ]
+            },
+            {
+              "targetVa": "0x14082FA00",
+              "text": "C:\\Users\\Administrator\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\tauri-2.11.5\\src\\ipc\\command.rs",
+              "instructionRvas": [
+                "0x10C305"
+              ]
+            }
+          ],
+          "directCalls": [
+            {
+              "targetRva": "0x10072E",
+              "count": 1
+            },
+            {
+              "targetRva": "0x1019D1",
+              "count": 1
+            },
+            {
+              "targetRva": "0x1091B3",
+              "count": 1
+            },
+            {
+              "targetRva": "0x10949D",
+              "count": 1
+            },
+            {
+              "targetRva": "0x1094F9",
+              "count": 2
+            },
+            {
+              "targetRva": "0x1150D",
+              "count": 4
+            },
+            {
+              "targetRva": "0x23B9E5",
+              "count": 1
+            },
+            {
+              "targetRva": "0x261C54",
+              "count": 1
+            },
+            {
+              "targetRva": "0x261E39",
+              "count": 1
+            },
+            {
+              "targetRva": "0x297A7F",
+              "count": 1
+            },
+            {
+              "targetRva": "0x29A978",
+              "count": 2
+            },
+            {
+              "targetRva": "0x2A186B",
+              "count": 1
+            },
+            {
+              "targetRva": "0x2A1A47",
+              "count": 1
+            },
+            {
+              "targetRva": "0x2A2C0",
+              "count": 1
+            },
+            {
+              "targetRva": "0x32DF9D",
+              "count": 1
+            },
+            {
+              "targetRva": "0x344CBB",
+              "count": 1
+            },
+            {
+              "targetRva": "0x3741CA",
+              "count": 1
+            },
+            {
+              "targetRva": "0x39F992",
+              "count": 4
+            },
+            {
+              "targetRva": "0x5A9615",
+              "count": 4
+            },
+            {
+              "targetRva": "0x5A9712",
+              "count": 4
+            },
+            {
+              "targetRva": "0x5ACC0A",
+              "count": 2
+            },
+            {
+              "targetRva": "0x5ADDEB",
+              "count": 1
+            },
+            {
+              "targetRva": "0x5C4370",
+              "count": 5
+            },
+            {
+              "targetRva": "0x5CB7",
+              "count": 2
+            },
+            {
+              "targetRva": "0x5D5DA",
+              "count": 1
+            },
+            {
+              "targetRva": "0x5F9B92",
+              "count": 1
+            },
+            {
+              "targetRva": "0x611D3",
+              "count": 2
+            },
+            {
+              "targetRva": "0x641035",
+              "count": 1
+            },
+            {
+              "targetRva": "0x641410",
+              "count": 1
+            },
+            {
+              "targetRva": "0x7293F",
+              "count": 1
+            },
+            {
+              "targetRva": "0x72B64",
+              "count": 2
+            },
+            {
+              "targetRva": "0x75289",
+              "count": 1
+            },
+            {
+              "targetRva": "0x76B7B",
+              "count": 1
+            },
+            {
+              "targetRva": "0x7A33E0",
+              "count": 5
+            },
+            {
+              "targetRva": "0x7A43D6",
+              "count": 3
+            },
+            {
+              "targetRva": "0x7A50B0",
+              "count": 2
+            },
+            {
+              "targetRva": "0x7A5150",
+              "count": 4
+            },
+            {
+              "targetRva": "0x81E10",
+              "count": 7
+            },
+            {
+              "targetRva": "0x81F3B",
+              "count": 1
+            },
+            {
+              "targetRva": "0x82427",
+              "count": 1
+            },
+            {
+              "targetRva": "0xDC886",
+              "count": 1
+            },
+            {
+              "targetRva": "0xE5095",
+              "count": 1
+            },
+            {
+              "targetRva": "0xFEDC5",
+              "count": 2
+            }
+          ]
+        }
+      ]
+    },
+    "map_truck_plunder_schedule": {
+      "handlerCandidates": [
+        {
+          "functionRva": "0x17555F-0x1761C1",
+          "size": 3170,
+          "strings": [
+            {
+              "targetVa": "0x140829701",
+              "text": "statepayloadsrc\\lib.rs",
+              "instructionRvas": [
+                "0x175619"
+              ]
+            },
+            {
+              "targetVa": "0x140829706",
+              "text": "payloadsrc\\lib.rs",
+              "instructionRvas": [
+                "0x17567D"
+              ]
+            },
+            {
+              "targetVa": "0x140829718",
+              "text": "src\\lib.rs",
+              "instructionRvas": [
+                "0x17617D"
+              ]
+            },
+            {
+              "targetVa": "0x140829CC0",
+              "text": "map_truck_plunder_scheduleauth_credentialsprofile_enable_setmap_truck_plunder_cancelmap_dispatch_plunder_retrymap_city_exportprofile_settings_getresource_automation_configuregame_root_selectset_automationcity_layout_apply_statusmonster_catalog_optionsgame_root_statusprofile_instance_stopcity_layout_draft_clearmap_searchsquad_attack_citydispatch_assist_schedu",
+              "instructionRvas": [
+                "0x175607"
+              ]
+            },
+            {
+              "targetVa": "0x14082A1FE",
+              "text": "uuidserverIduid",
+              "instructionRvas": [
+                "0x175A5E"
+              ]
+            },
+            {
+              "targetVa": "0x14082A202",
+              "text": "serverIduid",
+              "instructionRvas": [
+                "0x175A40"
+              ]
+            },
+            {
+              "targetVa": "0x14082A479",
+              "text": "INVALID_REQUESTselect between 1 and 200 tasks",
+              "instructionRvas": [
+                "0x175970",
+                "0x1759C0",
+                "0x175BB2"
+              ]
+            },
+            {
+              "targetVa": "0x14082B3E8",
+              "text": "src\\commands\\map.rs",
+              "instructionRvas": [
+                "0x1757C1"
+              ]
+            },
+            {
+              "targetVa": "0x14082B400",
+              "text": "rows",
+              "instructionRvas": [
+                "0x175942"
+              ]
+            },
+            {
+              "targetVa": "0x14082B408",
+              "text": "src\\commands\\map.rs",
+              "instructionRvas": [
+                "0x17619C"
+              ]
+            },
+            {
+              "targetVa": "0x14082B420",
+              "text": "executeAtrobTimesmaxLootCounttruck scheduling data is invalidselect between 1 and 200 truckstruck rows are required",
+              "instructionRvas": [
+                "0x175AAD"
+              ]
+            },
+            {
+              "targetVa": "0x14082B429",
+              "text": "robTimesmaxLootCounttruck scheduling data is invalidselect between 1 and 200 truckstruck rows are required",
+              "instructionRvas": [
+                "0x175AC5"
+              ]
+            },
+            {
+              "targetVa": "0x14082B431",
+              "text": "maxLootCounttruck scheduling data is invalidselect between 1 and 200 truckstruck rows are required",
+              "instructionRvas": [
+                "0x175ADD"
+              ]
+            },
+            {
+              "targetVa": "0x14082B43D",
+              "text": "truck scheduling data is invalidselect between 1 and 200 truckstruck rows are required",
+              "instructionRvas": [
+                "0x175BB9"
+              ]
+            },
+            {
+              "targetVa": "0x14082B45D",
+              "text": "select between 1 and 200 truckstruck rows are required",
+              "instructionRvas": [
+                "0x1759C7"
+              ]
+            },
+            {
+              "targetVa": "0x14082B47C",
+              "text": "truck rows are required",
+              "instructionRvas": [
+                "0x175977"
+              ]
+            },
+            {
+              "targetVa": "0x14082F5C0",
+              "text": "a Display implementation returned an error unexpectedly/rustc/4a4ef493e3a1488c6e321570238084b38948f6db/library\\alloc\\src\\string.rs",
+              "instructionRvas": [
+                "0x17615D"
+              ]
+            },
+            {
+              "targetVa": "0x14082F648",
+              "text": "/rustc/4a4ef493e3a1488c6e321570238084b38948f6db/library\\alloc\\src\\string.rs",
+              "instructionRvas": [
+                "0x176151"
+              ]
+            },
+            {
+              "targetVa": "0x14082F6C0",
+              "text": "called `Result::unwrap()` on an `Err` value",
+              "instructionRvas": [
+                "0x1761A8"
+              ]
+            },
+            {
+              "targetVa": "0x14082F978",
+              "text": "C:\\Users\\Administrator\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\tauri-2.11.5\\src\\ipc\\mod.rs",
+              "instructionRvas": [
+                "0x175585"
+              ]
+            },
+            {
+              "targetVa": "0x14082FA00",
+              "text": "C:\\Users\\Administrator\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\tauri-2.11.5\\src\\ipc\\command.rs",
+              "instructionRvas": [
+                "0x1755E4"
+              ]
+            }
+          ],
+          "directCalls": [
+            {
+              "targetRva": "0x101104",
+              "count": 1
+            },
+            {
+              "targetRva": "0x106F04",
+              "count": 1
+            },
+            {
+              "targetRva": "0x1091B3",
+              "count": 1
+            },
+            {
+              "targetRva": "0x10949D",
+              "count": 1
+            },
+            {
+              "targetRva": "0x1094F9",
+              "count": 2
+            },
+            {
+              "targetRva": "0x1150D",
+              "count": 1
+            },
+            {
+              "targetRva": "0x23B9E5",
+              "count": 1
+            },
+            {
+              "targetRva": "0x261C54",
+              "count": 2
+            },
+            {
+              "targetRva": "0x297A7F",
+              "count": 1
+            },
+            {
+              "targetRva": "0x299D9D",
+              "count": 1
+            },
+            {
+              "targetRva": "0x2A186B",
+              "count": 1
+            },
+            {
+              "targetRva": "0x2A1A47",
+              "count": 2
+            },
+            {
+              "targetRva": "0x32DF9D",
+              "count": 1
+            },
+            {
+              "targetRva": "0x344CBB",
+              "count": 1
+            },
+            {
+              "targetRva": "0x3741CA",
+              "count": 1
+            },
+            {
+              "targetRva": "0x385A4",
+              "count": 1
+            },
+            {
+              "targetRva": "0x39F992",
+              "count": 4
+            },
+            {
+              "targetRva": "0x41F9C3",
+              "count": 1
+            },
+            {
+              "targetRva": "0x5A9615",
+              "count": 2
+            },
+            {
+              "targetRva": "0x5ACC0A",
+              "count": 1
+            },
+            {
+              "targetRva": "0x5ADDEB",
+              "count": 1
+            },
+            {
+              "targetRva": "0x5F9B92",
+              "count": 1
+            },
+            {
+              "targetRva": "0x76B7B",
+              "count": 1
+            },
+            {
+              "targetRva": "0x7A33E0",
+              "count": 2
+            },
+            {
+              "targetRva": "0x7A50B0",
+              "count": 2
+            },
+            {
+              "targetRva": "0x7A5150",
+              "count": 4
+            },
+            {
+              "targetRva": "0x81E10",
+              "count": 2
+            },
+            {
+              "targetRva": "0x81F3B",
+              "count": 1
+            },
+            {
+              "targetRva": "0x82427",
+              "count": 1
+            },
+            {
+              "targetRva": "0xDC886",
+              "count": 1
+            }
+          ]
+        }
+      ]
+    },
+    "map_truck_plunder_cancel": {
+      "handlerCandidates": [
+        {
+          "functionRva": "0x142BC7-0x143508",
+          "size": 2369,
+          "strings": [
+            {
+              "targetVa": "0x140829701",
+              "text": "statepayloadsrc\\lib.rs",
+              "instructionRvas": [
+                "0x142C81"
+              ]
+            },
+            {
+              "targetVa": "0x140829706",
+              "text": "payloadsrc\\lib.rs",
+              "instructionRvas": [
+                "0x142CE0"
+              ]
+            },
+            {
+              "targetVa": "0x140829718",
+              "text": "src\\lib.rs",
+              "instructionRvas": [
+                "0x1434FB"
+              ]
+            },
+            {
+              "targetVa": "0x140829CFC",
+              "text": "map_truck_plunder_cancelmap_dispatch_plunder_retrymap_city_exportprofile_settings_getresource_automation_configuregame_root_selectset_automationcity_layout_apply_statusmonster_catalog_optionsgame_root_statusprofile_instance_stopcity_layout_draft_clearmap_searchsquad_attack_citydispatch_assist_schedulemap_scan_stopdispatch_assist_stateprofile_instance_statusc",
+              "instructionRvas": [
+                "0x142C6F"
+              ]
+            },
+            {
+              "targetVa": "0x14082A202",
+              "text": "serverIduid",
+              "instructionRvas": [
+                "0x142F1D"
+              ]
+            },
+            {
+              "targetVa": "0x14082A479",
+              "text": "INVALID_REQUESTselect between 1 and 200 tasks",
+              "instructionRvas": [
+                "0x143029"
+              ]
+            },
+            {
+              "targetVa": "0x14082B188",
+              "text": "trainUuidtruck target is required",
+              "instructionRvas": [
+                "0x142F45"
+              ]
+            },
+            {
+              "targetVa": "0x14082B191",
+              "text": "truck target is required",
+              "instructionRvas": [
+                "0x143030"
+              ]
+            },
+            {
+              "targetVa": "0x14082B230",
+              "text": "src\\commands\\map.rs",
+              "instructionRvas": [
+                "0x142E04"
+              ]
+            },
+            {
+              "targetVa": "0x14082F5C0",
+              "text": "a Display implementation returned an error unexpectedly/rustc/4a4ef493e3a1488c6e321570238084b38948f6db/library\\alloc\\src\\string.rs",
+              "instructionRvas": [
+                "0x1434DB"
+              ]
+            },
+            {
+              "targetVa": "0x14082F648",
+              "text": "/rustc/4a4ef493e3a1488c6e321570238084b38948f6db/library\\alloc\\src\\string.rs",
+              "instructionRvas": [
+                "0x1434CF"
+              ]
+            },
+            {
+              "targetVa": "0x14082F978",
+              "text": "C:\\Users\\Administrator\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\tauri-2.11.5\\src\\ipc\\mod.rs",
+              "instructionRvas": [
+                "0x142BED"
+              ]
+            },
+            {
+              "targetVa": "0x14082FA00",
+              "text": "C:\\Users\\Administrator\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\tauri-2.11.5\\src\\ipc\\command.rs",
+              "instructionRvas": [
+                "0x142C4C"
+              ]
+            }
+          ],
+          "directCalls": [
+            {
+              "targetRva": "0x101104",
+              "count": 1
+            },
+            {
+              "targetRva": "0x106F04",
+              "count": 1
+            },
+            {
+              "targetRva": "0x1091B3",
+              "count": 1
+            },
+            {
+              "targetRva": "0x10949D",
+              "count": 1
+            },
+            {
+              "targetRva": "0x1094F9",
+              "count": 2
+            },
+            {
+              "targetRva": "0x23B9E5",
+              "count": 1
+            },
+            {
+              "targetRva": "0x261C54",
+              "count": 1
+            },
+            {
+              "targetRva": "0x297A7F",
+              "count": 1
+            },
+            {
+              "targetRva": "0x2A186B",
+              "count": 1
+            },
+            {
+              "targetRva": "0x2A1A47",
+              "count": 1
+            },
+            {
+              "targetRva": "0x32DF9D",
+              "count": 1
+            },
+            {
+              "targetRva": "0x344CBB",
+              "count": 1
+            },
+            {
+              "targetRva": "0x3741CA",
+              "count": 1
+            },
+            {
+              "targetRva": "0x385A4",
+              "count": 1
+            },
+            {
+              "targetRva": "0x39F992",
+              "count": 1
+            },
+            {
+              "targetRva": "0x41F81B",
+              "count": 1
+            },
+            {
+              "targetRva": "0x5A9615",
+              "count": 1
+            },
+            {
+              "targetRva": "0x5ADDEB",
+              "count": 1
+            },
+            {
+              "targetRva": "0x5F9B92",
+              "count": 1
+            },
+            {
+              "targetRva": "0x76B7B",
+              "count": 1
+            },
+            {
+              "targetRva": "0x7A33E0",
+              "count": 2
+            },
+            {
+              "targetRva": "0x7A50B0",
+              "count": 1
+            },
+            {
+              "targetRva": "0x7A5150",
+              "count": 4
+            },
+            {
+              "targetRva": "0x81E10",
+              "count": 1
+            },
+            {
+              "targetRva": "0x81F3B",
+              "count": 1
+            },
+            {
+              "targetRva": "0x82427",
+              "count": 1
+            },
+            {
+              "targetRva": "0xDC886",
+              "count": 1
+            }
+          ]
+        }
+      ]
+    },
+    "map_truck_plunder_clear": {
+      "handlerCandidates": [
+        {
+          "functionRva": "0x145C75-0x1466DD",
+          "size": 2664,
+          "strings": [
+            {
+              "targetVa": "0x140829701",
+              "text": "statepayloadsrc\\lib.rs",
+              "instructionRvas": [
+                "0x145D2F"
+              ]
+            },
+            {
+              "targetVa": "0x140829706",
+              "text": "payloadsrc\\lib.rs",
+              "instructionRvas": [
+                "0x145D8E"
+              ]
+            },
+            {
+              "targetVa": "0x140829718",
+              "text": "src\\lib.rs",
+              "instructionRvas": [
+                "0x1466C1"
+              ]
+            },
+            {
+              "targetVa": "0x140829CA9",
+              "text": "map_truck_plunder_clearmap_truck_plunder_scheduleauth_credentialsprofile_enable_setmap_truck_plunder_cancelmap_dispatch_plunder_retrymap_city_exportprofile_settings_getresource_automation_configuregame_root_selectset_automationcity_layout_apply_statusmonster_catalog_optionsgame_root_statusprofile_instance_stopcity_layout_draft_clearmap_searchsquad_attack_cit",
+              "instructionRvas": [
+                "0x145D1D"
+              ]
+            },
+            {
+              "targetVa": "0x14082A479",
+              "text": "INVALID_REQUESTselect between 1 and 200 tasks",
+              "instructionRvas": [
+                "0x1461C7"
+              ]
+            },
+            {
+              "targetVa": "0x14082B138",
+              "text": "src\\commands\\map.rs",
+              "instructionRvas": [
+                "0x145EC6"
+              ]
+            },
+            {
+              "targetVa": "0x14082B150",
+              "text": "beforeclear cutoff is required",
+              "instructionRvas": [
+                "0x146056"
+              ]
+            },
+            {
+              "targetVa": "0x14082B156",
+              "text": "clear cutoff is required",
+              "instructionRvas": [
+                "0x1461CE"
+              ]
+            },
+            {
+              "targetVa": "0x14082F5C0",
+              "text": "a Display implementation returned an error unexpectedly/rustc/4a4ef493e3a1488c6e321570238084b38948f6db/library\\alloc\\src\\string.rs",
+              "instructionRvas": [
+                "0x1466A1"
+              ]
+            },
+            {
+              "targetVa": "0x14082F648",
+              "text": "/rustc/4a4ef493e3a1488c6e321570238084b38948f6db/library\\alloc\\src\\string.rs",
+              "instructionRvas": [
+                "0x146695"
+              ]
+            },
+            {
+              "targetVa": "0x14082F978",
+              "text": "C:\\Users\\Administrator\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\tauri-2.11.5\\src\\ipc\\mod.rs",
+              "instructionRvas": [
+                "0x145C9B"
+              ]
+            },
+            {
+              "targetVa": "0x14082FA00",
+              "text": "C:\\Users\\Administrator\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\tauri-2.11.5\\src\\ipc\\command.rs",
+              "instructionRvas": [
+                "0x145CFA"
+              ]
+            }
+          ],
+          "directCalls": [
+            {
+              "targetRva": "0x101104",
+              "count": 1
+            },
+            {
+              "targetRva": "0x106F04",
+              "count": 1
+            },
+            {
+              "targetRva": "0x1091B3",
+              "count": 1
+            },
+            {
+              "targetRva": "0x10949D",
+              "count": 1
+            },
+            {
+              "targetRva": "0x1094F9",
+              "count": 2
+            },
+            {
+              "targetRva": "0x1150D",
+              "count": 2
+            },
+            {
+              "targetRva": "0x23B9E5",
+              "count": 1
+            },
+            {
+              "targetRva": "0x261C54",
+              "count": 2
+            },
+            {
+              "targetRva": "0x297A7F",
+              "count": 1
+            },
+            {
+              "targetRva": "0x2A186B",
+              "count": 1
+            },
+            {
+              "targetRva": "0x2A1A47",
+              "count": 1
+            },
+            {
+              "targetRva": "0x32DF9D",
+              "count": 1
+            },
+            {
+              "targetRva": "0x344CBB",
+              "count": 1
+            },
+            {
+              "targetRva": "0x3741CA",
+              "count": 1
+            },
+            {
+              "targetRva": "0x39F992",
+              "count": 1
+            },
+            {
+              "targetRva": "0x41F4F8",
+              "count": 1
+            },
+            {
+              "targetRva": "0x5A9712",
+              "count": 1
+            },
+            {
+              "targetRva": "0x5A9F39",
+              "count": 1
+            },
+            {
+              "targetRva": "0x5ADDEB",
+              "count": 1
+            },
+            {
+              "targetRva": "0x5C4370",
+              "count": 1
+            },
+            {
+              "targetRva": "0x5F9B92",
+              "count": 1
+            },
+            {
+              "targetRva": "0x76B7B",
+              "count": 1
+            },
+            {
+              "targetRva": "0x7A33E0",
+              "count": 2
+            },
+            {
+              "targetRva": "0x7A43D6",
+              "count": 1
+            },
+            {
+              "targetRva": "0x7A50B0",
+              "count": 1
+            },
+            {
+              "targetRva": "0x7A5150",
+              "count": 4
+            },
+            {
+              "targetRva": "0x81E10",
+              "count": 4
+            },
+            {
+              "targetRva": "0x81F3B",
+              "count": 1
+            },
+            {
+              "targetRva": "0x82427",
+              "count": 1
+            },
+            {
+              "targetRva": "0xDC886",
+              "count": 1
+            }
+          ]
+        }
+      ]
+    },
+    "map_plunder_jobs_list": {
+      "handlerCandidates": [
+        {
+          "functionRva": "0x10E53B-0x10F6AF",
+          "size": 4468,
+          "strings": [
+            {
+              "targetVa": "0x140829701",
+              "text": "statepayloadsrc\\lib.rs",
+              "instructionRvas": [
+                "0x10E5F6"
+              ]
+            },
+            {
+              "targetVa": "0x140829706",
+              "text": "payloadsrc\\lib.rs",
+              "instructionRvas": [
+                "0x10E65A"
+              ]
+            },
+            {
+              "targetVa": "0x140829718",
+              "text": "src\\lib.rs",
+              "instructionRvas": [
+                "0x10F668"
+              ]
+            },
+            {
+              "targetVa": "0x140829A24",
+              "text": "map_plunder_jobs_listmap_truck_plunder_retrygame_startmap_dispatch_plunder_scheduleequipment_initial_applymap_scan_statusvip18_base_applyfeedback_exportserver_jump_history_importequipment_preset_applyproxy_statusresource_automation_runtreasure_delay_configuremap_scan_startupdate_download_and_openauth_unbindvip18_base_listcall_luamap_truck_plunder_listupdate_",
+              "instructionRvas": [
+                "0x10E5E4"
+              ]
+            },
+            {
+              "targetVa": "0x14082B088",
+              "text": "src\\commands\\map.rs",
+              "instructionRvas": [
+                "0x10F674"
+              ]
+            },
+            {
+              "targetVa": "0x14082B0A0",
+              "text": "map_plunder_server_day_startgetMapPlunderServerDayserverTimeserverDayStartAt",
+              "instructionRvas": [
+                "0x10E962",
+                "0x10EC85"
+              ]
+            },
+            {
+              "targetVa": "0x14082B0BC",
+              "text": "getMapPlunderServerDayserverTimeserverDayStartAt",
+              "instructionRvas": [
+                "0x10EB44"
+              ]
+            },
+            {
+              "targetVa": "0x14082B0D2",
+              "text": "serverTimeserverDayStartAt",
+              "instructionRvas": [
+                "0x10EBEF"
+              ]
+            },
+            {
+              "targetVa": "0x14082B0DC",
+              "text": "serverDayStartAt",
+              "instructionRvas": [
+                "0x10EC07",
+                "0x10EFCB"
+              ]
+            },
+            {
+              "targetVa": "0x14082B0F0",
+              "text": "src\\commands\\map.rs",
+              "instructionRvas": [
+                "0x10F644"
+              ]
+            },
+            {
+              "targetVa": "0x14082F5C0",
+              "text": "a Display implementation returned an error unexpectedly/rustc/4a4ef493e3a1488c6e321570238084b38948f6db/library\\alloc\\src\\string.rs",
+              "instructionRvas": [
+                "0x10F611"
+              ]
+            },
+            {
+              "targetVa": "0x14082F648",
+              "text": "/rustc/4a4ef493e3a1488c6e321570238084b38948f6db/library\\alloc\\src\\string.rs",
+              "instructionRvas": [
+                "0x10F605"
+              ]
+            },
+            {
+              "targetVa": "0x14082F6C0",
+              "text": "called `Result::unwrap()` on an `Err` value",
+              "instructionRvas": [
+                "0x10F650"
+              ]
+            },
+            {
+              "targetVa": "0x14082F978",
+              "text": "C:\\Users\\Administrator\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\tauri-2.11.5\\src\\ipc\\mod.rs",
+              "instructionRvas": [
+                "0x10E564"
+              ]
+            },
+            {
+              "targetVa": "0x14082FA00",
+              "text": "C:\\Users\\Administrator\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\tauri-2.11.5\\src\\ipc\\command.rs",
+              "instructionRvas": [
+                "0x10E5BC"
+              ]
+            }
+          ],
+          "directCalls": [
+            {
+              "targetRva": "0x10072E",
+              "count": 1
+            },
+            {
+              "targetRva": "0x101301",
+              "count": 1
+            },
+            {
+              "targetRva": "0x1091B3",
+              "count": 1
+            },
+            {
+              "targetRva": "0x10949D",
+              "count": 1
+            },
+            {
+              "targetRva": "0x1094F9",
+              "count": 2
+            },
+            {
+              "targetRva": "0x1150D",
+              "count": 3
+            },
+            {
+              "targetRva": "0x23B9E5",
+              "count": 1
+            },
+            {
+              "targetRva": "0x261C54",
+              "count": 2
+            },
+            {
+              "targetRva": "0x297A7F",
+              "count": 1
+            },
+            {
+              "targetRva": "0x299D9D",
+              "count": 2
+            },
+            {
+              "targetRva": "0x2A186B",
+              "count": 1
+            },
+            {
+              "targetRva": "0x2D47A6",
+              "count": 1
+            },
+            {
+              "targetRva": "0x32DF9D",
+              "count": 1
+            },
+            {
+              "targetRva": "0x344CBB",
+              "count": 1
+            },
+            {
+              "targetRva": "0x3741CA",
+              "count": 1
+            },
+            {
+              "targetRva": "0x39F992",
+              "count": 2
+            },
+            {
+              "targetRva": "0x3C50FE",
+              "count": 1
+            },
+            {
+              "targetRva": "0x3C563D",
+              "count": 1
+            },
+            {
+              "targetRva": "0x3CDEEE",
+              "count": 1
+            },
+            {
+              "targetRva": "0x3D1A59",
+              "count": 1
+            },
+            {
+              "targetRva": "0x3DC3E6",
+              "count": 1
+            },
+            {
+              "targetRva": "0x5A9712",
+              "count": 3
+            },
+            {
+              "targetRva": "0x5A9F39",
+              "count": 1
+            },
+            {
+              "targetRva": "0x5ACC0A",
+              "count": 2
+            },
+            {
+              "targetRva": "0x5ADDEB",
+              "count": 1
+            },
+            {
+              "targetRva": "0x5C4370",
+              "count": 3
+            },
+            {
+              "targetRva": "0x5F9B92",
+              "count": 1
+            },
+            {
+              "targetRva": "0x75289",
+              "count": 1
+            },
+            {
+              "targetRva": "0x76B7B",
+              "count": 1
+            },
+            {
+              "targetRva": "0x7A33E0",
+              "count": 4
+            },
+            {
+              "targetRva": "0x7A43D6",
+              "count": 3
+            },
+            {
+              "targetRva": "0x7A50B0",
+              "count": 2
+            },
+            {
+              "targetRva": "0x7A5150",
+              "count": 4
+            },
+            {
+              "targetRva": "0x81E10",
+              "count": 11
+            },
+            {
+              "targetRva": "0x81F3B",
+              "count": 1
+            },
+            {
+              "targetRva": "0x82427",
+              "count": 1
+            },
+            {
+              "targetRva": "0xDC886",
+              "count": 1
+            },
+            {
+              "targetRva": "0xE5095",
+              "count": 1
+            },
+            {
+              "targetRva": "0xFCE81",
+              "count": 1
+            }
+          ]
+        }
+      ]
+    },
+    "map_dispatch_plunder_list": {
+      "handlerCandidates": []
+    },
+    "map_dispatch_plunder_retry": {
+      "handlerCandidates": []
+    },
+    "map_truck_plunder_list": {
+      "handlerCandidates": []
+    },
+    "map_truck_plunder_retry": {
+      "handlerCandidates": []
+    }
+  },
+  "limits": [
+    "This is a lossless projection of handler ranges/strings/direct calls from the full disassembly manifest; branch semantics still require targeted instruction tracing.",
+    "String references are discovery evidence and do not alone prove control-flow meaning."
+  ]
+}

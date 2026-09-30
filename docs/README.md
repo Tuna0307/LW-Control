@@ -15,11 +15,12 @@ Read in this order:
 9. [AI_WORK_PROTOCOL.md](AI_WORK_PROTOCOL.md)
 10. [LOOP_WORKER_PROTOCOL.md](LOOP_WORKER_PROTOCOL.md) — required for Loop mode
 11. [LOOP_QUEUE.md](LOOP_QUEUE.md) — current Loop authorization
-12. [LOOP_CAMPAIGN_8H.md](LOOP_CAMPAIGN_8H.md) — completed UI campaign awaiting project-lead review
-13. [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md)
-14. [implementation-handoff.md](implementation-handoff.md)
-15. [../BACKLOG.md](../BACKLOG.md)
-16. [LEGACY_0.3.1_INDEX.md](LEGACY_0.3.1_INDEX.md)
+12. [LOOP_CAMPAIGN_8H.md](LOOP_CAMPAIGN_8H.md) — accepted static UI campaign
+13. [GOAL_CAMPAIGN_PHASE2_MAP.md](GOAL_CAMPAIGN_PHASE2_MAP.md) — active Map-only Phase 2 Goal
+14. [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md)
+15. [implementation-handoff.md](implementation-handoff.md)
+16. [../BACKLOG.md](../BACKLOG.md)
+17. [LEGACY_0.3.1_INDEX.md](LEGACY_0.3.1_INDEX.md)
 
 ## Reference authority
 
@@ -33,15 +34,17 @@ SHA-256:
 
 ## Current phase
 
-**Phase 1 — UI parity.**
+**Phase 2 — function recovery, Map-only Goal.**
 
-The exact static frontend package baseline is accepted. The UI-only Loop
-campaign has returned `AWAITING_REVIEW` after completing the static inventories,
-separate 0.3.17 UI reconstruction, shell/pages, and source-backed comparison/fix
-pass. Direct post-auth runtime visual comparison remains blocked by the original
-auth boundary.
+The exact static frontend package baseline and Phase 1 UI campaign are accepted.
+The active work item is `LWB317-RE-MAP-001`: exact 0.3.17 Map recovery and the
+current-client production Map plane. Static recovery/integration is at its final
+checkpoint; bounded assistant-owned current-client Map live validation is the
+remaining campaign stage. Direct original post-auth pixel comparison remains
+blocked by the original auth boundary and is not fabricated.
 
-Gameplay/backend function reverse engineering remains blocked until project-lead review after the campaign.
+All non-Map gameplay/backend function families remain blocked until the Map Goal
+is closed. Auth/login/licensing reconstruction remains out of scope.
 
 ## Explicit scope exception
 

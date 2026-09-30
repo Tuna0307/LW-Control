@@ -1,16 +1,32 @@
 # LWBridge 0.3.17 project status
 
-**Date:** 2026-09-29  
-**Branch:** `research/offline-controller`  
-**Phase:** 1 — UI parity / campaign awaiting project-lead review
+**Date:** 2026-09-30
+**Branch:** `research/offline-controller`
+**Phase:** 2 — function recovery / Map Goal final static checkpoint
 
 ## Current state
 
-The abandoned bot rebuild has been deleted. The repository is back on the research branch and the 0.3.17 preparation baseline is complete.
+Phase 1 static UI recovery has been accepted. The active target remains exact
+LWBridge 0.3.17, and the only active Phase 2 function family is
+`LWB317-RE-MAP-001` (Map Data).
 
-The prior 0.3.1 reverse-engineering history remains intact and is treated as legacy evidence.
+The Map frontend/host surface, scan lifecycle, schema-v4 per-profile storage,
+query/export/marks/history, navigation/action contracts, and scheduled
+Dispatch/Ghost/Truck worker semantics have been recovered from exact 0.3.17
+evidence and implemented in the versioned `LWBridge.Map317` plane. Normal
+Desktop production uses that plane as the sole persistent Map authority at
+`profiles/<profileId>/map-data/map-data.db`; legacy Map persistence is retained
+only for explicitly isolated historical proof/replay modes.
 
-The active target is LWBridge 0.3.17.
+Current Last War content-version 21 has passed the static identity/runtime
+compatibility gates. Source-backed adapters are wired for acquisition,
+navigation, Treasure inspection, server-day, Dispatch alliance share, Dispatch
+scheduled execution and Truck scheduled execution. Treasure claim/status and
+Ghost preparation remain explicit fail-closed current-client provider gaps
+rather than approximations. Fresh bounded Map-only live validation is next.
+
+The prior 0.3.1 reverse-engineering history remains intact as legacy evidence
+and is reused only where exact 0.3.17/current-client revalidation exists.
 
 ## Target identity
 
@@ -58,7 +74,7 @@ Project-lead acceptance review:
 
 ## UI campaign result
 
-The project-lead-authorized campaign is now `AWAITING_REVIEW`:
+The project-lead-authorized UI campaign is `ACCEPTED`:
 
 `docs/LOOP_CAMPAIGN_8H.md`
 
@@ -72,9 +88,9 @@ It completed or legitimately blocked each authorized **UI-only** stage:
 - visual comparison/fix pass (static contract fixes complete; direct post-auth
   reference/pixel comparison blocked by the auth boundary).
 
-The separate static UI reconstruction now lives at
-`src/LWBridge.UI-0.3.17/`. Gameplay/backend function reverse engineering did not
-start and remains blocked pending project-lead review.
+The separate static UI reconstruction remains at `src/LWBridge.UI-0.3.17/`.
+Phase 2 Map function recovery is now active under the separate Map Goal; all
+other function families remain blocked.
 
 Queue authority:
 
@@ -84,15 +100,16 @@ Loop rules:
 
 `docs/LOOP_WORKER_PROTOCOL.md`
 
-## Desktop state
+## Desktop / live-validation state
 
-The owner has re-enabled desktop-control tooling for the UI campaign.
+Desktop-control tooling is authorized for the active Map Goal. The Goal also
+authorizes bounded Map-only interaction with an **assistant-owned** Last War
+session after a fresh process/session ownership check. It does not authorize
+non-Map gameplay or auth/licensing/credential work.
 
-This does not authorize:
-
-- Last War/gameplay control;
-- auth/licensing bypass;
-- backend/gameplay function reverse engineering.
+At the final static checkpoint, deterministic diagnostics report no running Last
+War or launcher process. This is not reused as live-session ownership proof;
+ownership/process state must be checked again immediately before live work.
 
 ## Historical research value
 
@@ -113,4 +130,8 @@ Historical auth research remains archived evidence, not a current reconstruction
 
 ## Next project-lead milestone
 
-Review the completed 8-hour UI campaign, inspect every checkpoint/evidence set, accept or correct the UI baseline, and only then decide whether Phase 2 function recovery may begin.
+Finish the coherent Map action/current-client static checkpoint, then perform
+the authorized bounded assistant-owned Map live validation. Record each fresh
+successful path and every genuine state/provider blocker, finish the Map Goal
+handoff/master-document closure, rerun repository verification, commit/push the
+final Map checkpoint, and stop before another subsystem.

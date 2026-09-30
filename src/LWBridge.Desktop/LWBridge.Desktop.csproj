@@ -24,6 +24,7 @@
   <ItemGroup>
     <ProjectReference Include="..\LWBridge.GamePipeAdapter\LWBridge.GamePipeAdapter.csproj"
                       ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\LWBridge.Map-0.3.17\LWBridge.Map-0.3.17.csproj" />
     <Content Include="..\LWBridge.GamePipeAdapter\bin\$(Configuration)\netstandard2.0\LWBridge.GamePipeAdapter.dll"
              Link="OverviewBridge\LWBridge.GamePipeAdapter.dll"
              CopyToOutputDirectory="PreserveNewest"

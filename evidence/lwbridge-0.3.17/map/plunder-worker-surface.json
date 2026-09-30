@@ -1,0 +1,403 @@
+{
+  "schema": 1,
+  "findingId": "LWB317-RE-MAP-005-PLUNDER-WORKER-SURFACE",
+  "evidenceState": "EXACT_BYTES_DISCOVERY",
+  "native": {
+    "path": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW\\lwbridge-0.3.17.exe",
+    "sha256": "4e9c3113dedfd7e1a752404c6936aab304e67d7ffdb0952a5003c2ec948d6783",
+    "size": 15866880,
+    "imageBase": "0x140000000",
+    "sections": [
+      {
+        "name": ".text",
+        "rva": "0x1000",
+        "raw": "0x400",
+        "rawSize": 8124928,
+        "virtualSize": 8124816,
+        "characteristics": "0x60000020"
+      },
+      {
+        "name": ".rdata",
+        "rva": "0x7C1000",
+        "raw": "0x7BFE00",
+        "rawSize": 7285760,
+        "virtualSize": 7285404,
+        "characteristics": "0x40000040"
+      },
+      {
+        "name": ".data",
+        "rva": "0xEB4000",
+        "raw": "0xEB2A00",
+        "rawSize": 27136,
+        "virtualSize": 37320,
+        "characteristics": "0xC0000040"
+      },
+      {
+        "name": ".pdata",
+        "rva": "0xEBE000",
+        "raw": "0xEB9400",
+        "rawSize": 275968,
+        "virtualSize": 275724,
+        "characteristics": "0x40000040"
+      },
+      {
+        "name": ".rsrc",
+        "rva": "0xF02000",
+        "raw": "0xEFCA00",
+        "rawSize": 94208,
+        "virtualSize": 93864,
+        "characteristics": "0x40000040"
+      },
+      {
+        "name": ".reloc",
+        "rva": "0xF19000",
+        "raw": "0xF13A00",
+        "rawSize": 57856,
+        "virtualSize": 57404,
+        "characteristics": "0x42000040"
+      }
+    ],
+    "markers": {
+      "read armable dispatch plunder": {
+        "occurrences": [
+          {
+            "raw": "0xD5D3BB",
+            "rva": "0xD5E5BB",
+            "va": "0x140D5E5BB"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x3DB875",
+            "instructionVa": "0x1403DB875",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x982d3f]",
+            "referenceKind": "string",
+            "targetVa": "0x140D5E5BB",
+            "functionRva": "0x3DB60B-0x3DB8A5"
+          }
+        ]
+      },
+      "read armable truck plunder": {
+        "occurrences": [
+          {
+            "raw": "0xD5C8F6",
+            "rva": "0xD5DAF6",
+            "va": "0x140D5DAF6"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x3D881E",
+            "instructionVa": "0x1403D881E",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x9852d1]",
+            "referenceKind": "string",
+            "targetVa": "0x140D5DAF6",
+            "functionRva": "0x3D8590-0x3D884E"
+          }
+        ]
+      },
+      "mark dispatch plunder waiting connection": {
+        "occurrences": [
+          {
+            "raw": "0xD5DD00",
+            "rva": "0xD5EF00",
+            "va": "0x140D5EF00"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x3DDE31",
+            "instructionVa": "0x1403DDE31",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x9810c8]",
+            "referenceKind": "string",
+            "targetVa": "0x140D5EF00",
+            "functionRva": "0x3DDBB9-0x3DDE62"
+          }
+        ]
+      },
+      "mark truck plunder waiting connection": {
+        "occurrences": [
+          {
+            "raw": "0xD5DF33",
+            "rva": "0xD5F133",
+            "va": "0x140D5F133"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x3DE3DB",
+            "instructionVa": "0x1403DE3DB",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x980d51]",
+            "referenceKind": "string",
+            "targetVa": "0x140D5F133",
+            "functionRva": "0x3DE118-0x3DE414"
+          }
+        ]
+      },
+      "recover dispatch plunder jobs": {
+        "occurrences": [
+          {
+            "raw": "0xD5D8D5",
+            "rva": "0xD5EAD5",
+            "va": "0x140D5EAD5"
+          },
+          {
+            "raw": "0xD67AF2",
+            "rva": "0xD68CF2",
+            "va": "0x140D68CF2"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x3DCE54",
+            "instructionVa": "0x1403DCE54",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x981c7a]",
+            "referenceKind": "string",
+            "targetVa": "0x140D5EAD5",
+            "functionRva": "0x3DCBCF-0x3DCE85"
+          }
+        ]
+      },
+      "recover truck plunder jobs": {
+        "occurrences": [
+          {
+            "raw": "0xD5D4CB",
+            "rva": "0xD5E6CB",
+            "va": "0x140D5E6CB"
+          },
+          {
+            "raw": "0xD670D4",
+            "rva": "0xD682D4",
+            "va": "0x140D682D4"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x3DBCDD",
+            "instructionVa": "0x1403DBCDD",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x9829e7]",
+            "referenceKind": "string",
+            "targetVa": "0x140D5E6CB",
+            "functionRva": "0x3DBA58-0x3DBD0E"
+          }
+        ]
+      },
+      "stop dispatch plunder jobs at daily limit": {
+        "occurrences": [
+          {
+            "raw": "0xD5DE12",
+            "rva": "0xD5F012",
+            "va": "0x140D5F012"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x3DE0E7",
+            "instructionVa": "0x1403DE0E7",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x980f24]",
+            "referenceKind": "string",
+            "targetVa": "0x140D5F012",
+            "functionRva": "0x3DDE62-0x3DE118"
+          }
+        ]
+      },
+      "record dispatch plunder result": {
+        "occurrences": [],
+        "xrefs": []
+      },
+      "record truck plunder result": {
+        "occurrences": [
+          {
+            "raw": "0xD5CA41",
+            "rva": "0xD5DC41",
+            "va": "0x140D5DC41"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x3D9302",
+            "instructionVa": "0x1403D9302",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x984938]",
+            "referenceKind": "string",
+            "targetVa": "0x140D5DC41",
+            "functionRva": "0x3D884E-0x3D9496"
+          }
+        ]
+      },
+      "map.dispatch-plunder-result": {
+        "occurrences": [],
+        "xrefs": []
+      },
+      "map.truck-plunder-result": {
+        "occurrences": [],
+        "xrefs": []
+      },
+      "DISPATCH_PLUNDER_TASK_EXPIRED": {
+        "occurrences": [
+          {
+            "raw": "0xD5BB99",
+            "rva": "0xD5CD99",
+            "va": "0x140D5CD99"
+          }
+        ],
+        "xrefs": []
+      },
+      "DISPATCH_PLUNDER_GAME_DISCONNECTED": {
+        "occurrences": [
+          {
+            "raw": "0x82D1EC",
+            "rva": "0x82E3EC",
+            "va": "0x14082E3EC"
+          },
+          {
+            "raw": "0xD5DC53",
+            "rva": "0xD5EE53",
+            "va": "0x140D5EE53"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0xF242A",
+            "instructionVa": "0x1400F242A",
+            "mnemonic": "lea",
+            "opStr": "r10, [rip + 0x73bfbb]",
+            "referenceKind": "string",
+            "targetVa": "0x14082E3EC",
+            "functionRva": "0xF0655-0xF2A09"
+          }
+        ]
+      },
+      "DISPATCH_PLUNDER_CLIENT_RESTARTED": {
+        "occurrences": [
+          {
+            "raw": "0xD5D87B",
+            "rva": "0xD5EA7B",
+            "va": "0x140D5EA7B"
+          }
+        ],
+        "xrefs": []
+      },
+      "DISPATCH_PLUNDER_DAILY_LIMIT_REACHED": {
+        "occurrences": [
+          {
+            "raw": "0xD5DD78",
+            "rva": "0xD5EF78",
+            "va": "0x140D5EF78"
+          },
+          {
+            "raw": "0xD679D9",
+            "rva": "0xD68BD9",
+            "va": "0x140D68BD9"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x424C35",
+            "instructionVa": "0x140424C35",
+            "mnemonic": "movdqu",
+            "opStr": "xmm0, xmmword ptr [rip + 0x943f9c]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68BD9",
+            "functionRva": "0x424778-0x425C18"
+          },
+          {
+            "instructionRva": "0x424DB4",
+            "instructionVa": "0x140424DB4",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x943e1e]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68BD9",
+            "functionRva": "0x424778-0x425C18"
+          },
+          {
+            "instructionRva": "0x424E9B",
+            "instructionVa": "0x140424E9B",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x943d37]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68BD9",
+            "functionRva": "0x424778-0x425C18"
+          },
+          {
+            "instructionRva": "0x425691",
+            "instructionVa": "0x140425691",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x943541]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68BD9",
+            "functionRva": "0x424778-0x425C18"
+          }
+        ]
+      },
+      "TRUCK_PLUNDER_TASK_EXPIRED": {
+        "occurrences": [],
+        "xrefs": []
+      },
+      "TRUCK_PLUNDER_GAME_DISCONNECTED": {
+        "occurrences": [],
+        "xrefs": []
+      },
+      "TRUCK_PLUNDER_CLIENT_RESTARTED": {
+        "occurrences": [],
+        "xrefs": []
+      },
+      "armMapPlunder": {
+        "occurrences": [
+          {
+            "raw": "0x82CB58",
+            "rva": "0x82DD58",
+            "va": "0x14082DD58"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0xEBDDC",
+            "instructionVa": "0x1400EBDDC",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x741f75]",
+            "referenceKind": "string",
+            "targetVa": "0x14082DD58",
+            "functionRva": "0xE9DBA-0xEBF1C"
+          },
+          {
+            "instructionRva": "0xF1967",
+            "instructionVa": "0x1400F1967",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x73c3ea]",
+            "referenceKind": "string",
+            "targetVa": "0x14082DD58",
+            "functionRva": "0xF0655-0xF2A09"
+          }
+        ]
+      },
+      "clearMapPlunderPending": {
+        "occurrences": [
+          {
+            "raw": "0x82CB28",
+            "rva": "0x82DD28",
+            "va": "0x14082DD28"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0xEAADB",
+            "instructionVa": "0x1400EAADB",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x743246]",
+            "referenceKind": "string",
+            "targetVa": "0x14082DD28",
+            "functionRva": "0xE9DBA-0xEBF1C"
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace LWBridge.Map317;
 
@@ -81,6 +82,7 @@ public sealed record MapScanState(
     int NativePendingRecords,
     int NativeDroppedRecords,
     bool ResumeAvailable,
+    [property: JsonPropertyName("lastError")]
     string? Error = null,
     long StartedAt = 0);
 

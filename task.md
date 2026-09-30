@@ -72,6 +72,7 @@ Live-prove each implemented in-scope function against an assistant-owned/current
 
 ## Current instruction
 
-The project is in **Phase 1 — UI parity**.
-
-A project-lead-authored Loop campaign may execute the pre-authorized UI stages continuously. It must stop before gameplay/function reverse engineering.
+The project is in **Phase 2 — function recovery**. Phase 1 static UI recovery is
+accepted. The active work item is the Map-only `LWB317-RE-MAP-001` Goal in
+`docs/GOAL_CAMPAIGN_PHASE2_MAP.md`; no other function family may begin until
+that Goal is closed. Auth/login/licensing reconstruction remains out of scope.

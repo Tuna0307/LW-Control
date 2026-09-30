@@ -33,7 +33,12 @@ Add one row per in-scope 0.3.17 function only after it is observed/recovered.
 
 | ID | Function | UI trigger | Frontend/API | Host/runtime | Storage/state | Current-client map | Live proof |
 |---|---|---|---|---|---|---|---|
-| MAP-001 | Map Data subsystem | EXACT_BYTES UI inventory | RECOVERY READY | RECOVERY READY | RECOVERY READY | RECOVERY READY | NOT STARTED |
+| MAP-001A | Map frontend + host command surface | EXACT_BYTES UI inventory | EXACT_CONTRACT | EXACT_CONTRACT | N/A | N/A | NOT STARTED |
+| MAP-001B | Scan lifecycle + acquisition | Map Start/Stop/Clear/status | EXACT_CONTRACT | EXACT_CONTRACT; Map317 production plane | EXACT_CONTRACT; per-profile Map DB | IMPLEMENTED_NOT_VALIDATED; v21 source-backed block provider | NOT STARTED |
+| MAP-001C | Query/options/summary/export/marks/history | Map data/search/export UI | EXACT_CONTRACT | EXACT_CONTRACT; Map317 production plane | EXACT_CONTRACT; schema v4 | IMPLEMENTED_NOT_VALIDATED | NOT STARTED |
+| MAP-001D | Navigation + Treasure inspection | row actions / Treasure refresh | EXACT_CONTRACT | EXACT_CONTRACT | EXACT_CONTRACT where local state is owned | IMPLEMENTED_NOT_VALIDATED; Treasure claim/status remain fail-closed | NOT STARTED |
+| MAP-001E | Dispatch share + scheduled Dispatch/Truck plunder | Map row actions / Scheduled Plunder | EXACT_CONTRACT | EXACT_CONTRACT; arm->pending->result workers | EXACT_CONTRACT; durable jobs/history/server-day | IMPLEMENTED_NOT_VALIDATED; v21 share/server-day/Dispatch/Truck paths wired | NOT STARTED |
+| MAP-001F | Ghost plunder preparation | Scheduled Plunder Ghost rows | EXACT_CONTRACT scheduling boundary | EXACT_CONTRACT host boundary | EXACT_CONTRACT durable row semantics | BLOCKED — current-v21 `prepareGhostPlunderTasks` equivalent not source-proven; production fails closed | NOT STARTED |
 
 ## Completion rule
 
