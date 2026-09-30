@@ -73,9 +73,9 @@ Live-prove each implemented in-scope function against an assistant-owned/current
 ## Current instruction
 
 The project is in **Phase 2 — function recovery**. Phase 1 static UI recovery is
-accepted. The active work item is the Map-only `LWB317-RE-MAP-001` Goal in
-`docs/GOAL_CAMPAIGN_PHASE2_MAP.md`; no other function family may begin until
-that Goal is closed. `LWB317-LIVE-MAP-V22-RESOURCE-COMPLETENESS-001` established
+accepted. The Map-only `LWB317-RE-MAP-001` Goal in
+`docs/GOAL_CAMPAIGN_PHASE2_MAP.md` is `AWAITING_REVIEW`; no other function family
+may begin until project-lead closure. `LWB317-LIVE-MAP-V22-RESOURCE-COMPLETENESS-001` established
 the corrected observable Resource path as `LIVE_PROVEN` /
 `CURRENT_PATH_COMPLETE`, while complete game-universe/original-private-traversal
 coverage remains `UNKNOWN`. `LWB317-MAP-UI-PRODUCTIONIZE-001` was project-lead
@@ -85,6 +85,13 @@ frontend and a zero-argument normal Desktop launch uses its verified packaged
 `src/LWBridge.Desktop/WebUi` is an explicit recovery/reference path, not the
 default. A fresh normal-launch Resource acceptance completed 2500/2500 with zero
 failed/unread, rendered 7,994 Resources, proved page-2/filter/Clear and retained
-the same connected game instance. Server jump, restart/resume/saved browse
-context, other Map categories/actions and final Map closure remain open.
+the same connected game instance. The ordered Map continuation also live-proved
+server jump/return, acquired City/Monster/Truck/Dispatch in a combined v22 scan,
+live-proved safe coordinate navigation, and live-proved a bounded current-server
+Auto Scan cycle. The Goal is `AWAITING_REVIEW`; direct canonical-WebView positive
+row rendering for the newly acquired non-Resource categories and live UI-level
+marks/export remain `IMPLEMENTED_NOT_VALIDATED`. Railway/Ghost/Treasure positive
+rows were `BLOCKED_BY_LIVE_STATE`; Treasure claim/status and Ghost preparation
+remain `BLOCKED`; Resource `GAME_UNIVERSE_COMPLETE` and original private traversal
+equivalence remain `UNKNOWN`.
 Auth/login/licensing reconstruction remains out of scope.

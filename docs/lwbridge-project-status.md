@@ -2,13 +2,14 @@
 
 **Date:** 2026-10-01
 **Branch:** `research/offline-controller`
-**Phase:** 2 — function recovery / Map Goal production-frontend checkpoint
+**Phase:** 2 — function recovery / Map Goal awaiting review
 
 ## Current state
 
 Phase 1 static UI recovery has been accepted. The active target remains exact
-LWBridge 0.3.17, and the only active Phase 2 function family is
-`LWB317-RE-MAP-001` (Map Data).
+LWBridge 0.3.17. The Map-only `LWB317-RE-MAP-001` campaign has completed its
+ordered continuation and is `AWAITING_REVIEW`; no other Phase 2 function family
+is authorized to begin.
 
 The Map frontend/host surface, scan lifecycle, schema-v4 per-profile storage,
 query/export/marks/history, navigation/action contracts, and scheduled
@@ -78,8 +79,24 @@ page-1 rendered-row overlap, filter `100281` returned 2,740 items, Clear rendere
 zero, and the same assistant-owned game instance remained connected. Runtime
 diagnostics were clean.
 
-Server jump, restart/resume/saved browse context, other Map categories/actions
-and final Map closure remain open.
+The 2026-10-01 continuation additionally recovered restart/reopen ownership and
+the exact saved-state boundary, live-proved same-server and `2212 -> 2198 -> 2212`
+server jump/return, and ran one combined non-Resource v22 scan. That scan
+LIVE_PROVED City (6,850), Monster (9,568), Truck (61) and Dispatch (18)
+acquisition/query snapshots; Railway/Ghost/Treasure each had zero live examples
+and are `BLOCKED_BY_LIVE_STATE` for positive-row proof. Counts are snapshots, not
+fixed expectations. Safe coordinate navigation is LIVE_PROVEN; canonical marks
+and City export are deterministically covered. A bounded current-server Auto Scan
+cycle completed 2500/2500 with zero failed blocks, was disabled afterward, cleared
+its data and retained connected health.
+
+The closeout keeps direct canonical-WebView positive-row rendering for the four
+newly positive categories and live UI-level marks/export at
+`IMPLEMENTED_NOT_VALIDATED`. Restart orphan reconciliation is rebuild safety
+policy with deterministic coverage, not exact 0.3.17 bytes or live termination
+proof. Treasure claim/status and Ghost preparation remain fail-closed `BLOCKED`.
+Resource `GAME_UNIVERSE_COMPLETE` and exact original private/protected traversal
+equivalence remain `UNKNOWN`.
 
 The prior 0.3.1 reverse-engineering history remains intact as legacy evidence
 and is reused only where exact 0.3.17/current-client revalidation exists.
@@ -195,14 +212,8 @@ Historical auth research remains archived evidence, not a current reconstruction
 
 ## Next project-lead milestone
 
-Review `LWB317-LIVE-MAP-V22-RESOURCE-COMPLETENESS-001`,
-`LWB317-MAP-UI-INTEGRATION-001` and `LWB317-MAP-UI-PRODUCTIONIZE-001` with their
-evidence-state boundaries. Resource
-acquisition through the corrected current-v22 route is
-`LIVE_PROVEN`/`CURRENT_PATH_COMPLETE`, and the clean reconstructed Resource
-manual UI flow plus its normal production deployment are also `LIVE_PROVEN`;
-`GAME_UNIVERSE_COMPLETE` and original
-private traversal equivalence remain `UNKNOWN`. Server jump,
-restart/resume/saved browse context and other Map categories/actions remain
-open. Do not open another subsystem until the project lead decides the next
-bounded Map step or closes the Map Goal.
+Review `LWB317-RE-MAP-001` and
+`docs/reviews/2026-10-01-LWB317-RE-MAP-GOAL-CLOSEOUT.md`. The ordered Map campaign
+is complete and pushed, but the closeout deliberately retains the remaining
+validation/provider boundaries above. Do not open another subsystem until the
+project lead closes the Map Goal or authorizes the exact remaining Map work.

@@ -141,10 +141,16 @@ runtime integration errors.
 
 Future product frontend work targets `src/LWBridge.UI-0.3.17`. Do not add new
 frontend behavior only to `src/LWBridge.Desktop/WebUi` unless historical
-compatibility/reference explicitly requires it. Server jump,
-restart/resume/saved browse context, other Map categories/actions and final Map
-closure remain open. Do not start another subsystem until the project lead
-decides the next bounded Map step or closes the Goal.
+compatibility/reference explicitly requires it. The ordered Map continuation is
+complete through restart/reopen, live server jump/return, a combined remaining-
+category v22 acquisition, safe action wiring and a live current-server Auto Scan
+cycle. `LWB317-RE-MAP-001` is `AWAITING_REVIEW`; direct canonical-WebView positive
+row rendering for City/Monster/Truck/Dispatch and live UI-level marks/export are
+still `IMPLEMENTED_NOT_VALIDATED`. Railway/Ghost/Treasure positive rows were
+`BLOCKED_BY_LIVE_STATE`; Treasure claim/status and Ghost preparation remain
+`BLOCKED`; Resource game-universe/private-traversal completeness remains
+`UNKNOWN`. Do not start another subsystem until the project lead closes the Goal
+or assigns the remaining bounded Map validation.
 
 ## Required worker/campaign output
 

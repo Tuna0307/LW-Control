@@ -1,6 +1,6 @@
 # LWB317-RE-MAP-001 — Map Data end-to-end recovery goal
 
-**State:** IN_PROGRESS
+**State:** AWAITING_REVIEW
 **Phase:** 2 — function recovery
 **Project-lead authorization:** 2026-09-30
 
@@ -347,9 +347,11 @@ Runtime diagnostics reported no console/page/request/HTTP/CSP errors. See
 `docs/reviews/2026-10-01-LWB317-MAP-UI-PRODUCTIONIZE-001.md` and
 `evidence/lwbridge-0.3.17/map/LWB317-MAP-UI-PRODUCTIONIZE-001/`.
 
-The Map Goal remains `IN_PROGRESS` for server jump, restart/resume/saved browse
-context, other Map categories/actions, remaining provider gaps and final Map
-closure.
+The ordered 2026-10-01 Map continuation has since completed server-jump/history,
+restart/reopen recovery, remaining-v22 category acquisition, safe action wiring,
+and Auto Scan recovery. See the five subsequent Stage A–E reviews and the
+final closeout review. The Goal is now `AWAITING_REVIEW`, with the remaining
+validation/provider boundaries recorded there rather than erased.
 
 ## Live proof requirements
 
