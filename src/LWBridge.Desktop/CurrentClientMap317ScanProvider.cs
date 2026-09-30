@@ -16,6 +16,8 @@ internal sealed class CurrentClientMap317ScanProvider : Map317.IMapProvider, IDi
     private CancellationTokenSource? activeCancellation;
     private Task? activeTask;
 
+    internal event Action? RunTerminated;
+
     internal CurrentClientMap317ScanProvider(CurrentClientMapBlockSource source)
     {
         this.source = source ?? throw new ArgumentNullException(nameof(source));
@@ -245,6 +247,7 @@ internal sealed class CurrentClientMap317ScanProvider : Map317.IMapProvider, IDi
                     activeTask = null;
                 }
             }
+            RunTerminated?.Invoke();
         }
     }
 

@@ -8,7 +8,19 @@ import { PageForRoute } from "./Pages.jsx";
 import { initialRouteKey, routes } from "./routes.js";
 
 const THEME_KEY = "lwbridge.theme";
+const LEGACY_SERVER_HISTORY_KEY = "lastwar.serverJumpHistory";
 const mapApi = createMapApi(backendBridge);
+
+function legacyServerHistory() {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(LEGACY_SERVER_HISTORY_KEY) || "[]");
+    return Array.isArray(parsed)
+      ? parsed.map(Number).filter((value, index, values) => Number.isInteger(value) && value >= 1 && value <= 99999 && values.indexOf(value) === index).slice(0, 5)
+      : [];
+  } catch {
+    return [];
+  }
+}
 
 function initialRoute() {
   const params = new URLSearchParams(window.location.search);
@@ -33,6 +45,11 @@ export function App() {
   const [runtimeStatus, setRuntimeStatus] = useState(null);
   const [proxyStatus, setProxyStatus] = useState(null);
   const [currentServerId, setCurrentServerId] = useState(0);
+  const [mapRuntime, setMapRuntime] = useState({ isReading: false, homeServerId: 0, seasonServerIds: [], truckMatchServerIds: [] });
+  const [serverTarget, setServerTarget] = useState("");
+  const [serverJumpBusy, setServerJumpBusy] = useState(0);
+  const [serverJumpError, setServerJumpError] = useState("");
+  const [serverHistory, setServerHistory] = useState([]);
   const [connectionError, setConnectionError] = useState("");
 
   const refreshStatus = useCallback(async () => {
@@ -47,6 +64,7 @@ export function App() {
     if (scanResult.status === "fulfilled" && scanResult.value.serverId > 0) {
       setCurrentServerId(scanResult.value.serverId);
     }
+    if (scanResult.status === "fulfilled") setMapRuntime(scanResult.value);
     if (statusResult.status === "rejected" || proxyResult.status === "rejected") {
       const failure = statusResult.status === "rejected" ? statusResult.reason : proxyResult.reason;
       setConnectionError(failure?.message || String(failure));
@@ -71,7 +89,10 @@ export function App() {
       if (!closed) setRuntimeStatus(status);
     });
     const unsubscribeScan = mapApi.listenScanStatus((scan) => {
-      if (!closed && scan.serverId > 0) setCurrentServerId(scan.serverId);
+      if (!closed) {
+        if (scan.serverId > 0) setCurrentServerId(scan.serverId);
+        setMapRuntime((current) => ({ ...current, ...scan }));
+      }
     });
     refreshStatus();
     const timer = window.setInterval(refreshStatus, 5000);
@@ -83,10 +104,55 @@ export function App() {
     };
   }, [refreshStatus]);
 
+  useEffect(() => {
+    if (!backendBridge.available) return undefined;
+    let closed = false;
+    mapApi.importServerJumpHistory(legacyServerHistory()).then((history) => {
+      if (!closed) setServerHistory(Array.isArray(history) ? history : []);
+      try { localStorage.removeItem(LEGACY_SERVER_HISTORY_KEY); } catch {}
+    }).catch(() => {
+      if (!closed) setServerJumpError("Action failed");
+    });
+    return () => { closed = true; };
+  }, []);
+
   const bridgeState = connectionError
     ? "unavailable"
     : connectionState(runtimeStatus, proxyStatus, backendBridge.mode);
   const online = bridgeState === "connected";
+
+  const jumpServer = useCallback(async (serverId) => {
+    if (!Number.isInteger(serverId) || serverId < 1 || serverId > 99999) {
+      setServerJumpError("Invalid server ID");
+      return;
+    }
+    if (!online) {
+      setServerJumpError("Game disconnected");
+      return;
+    }
+    if (mapRuntime.isReading) {
+      setServerJumpError("Stop the map scan first");
+      return;
+    }
+    setServerJumpBusy(serverId);
+    setServerJumpError("");
+    try {
+      const result = await mapApi.jumpServer(serverId);
+      if (result?.changed) {
+        const history = [Number(result.serverId), ...serverHistory.filter((value) => value !== Number(result.serverId))].slice(0, 5);
+        const persisted = await mapApi.setServerJumpHistory(history);
+        setServerHistory(Array.isArray(persisted) ? persisted : history);
+      }
+      setServerTarget("");
+      setServerJumpOpen(false);
+      await refreshStatus();
+    } catch {
+      setServerJumpError("Action failed");
+    } finally {
+      setServerJumpBusy(0);
+    }
+  }, [mapRuntime.isReading, online, refreshStatus, serverHistory]);
+
   const stateText = {
     connected: "Connected",
     disconnected: "Disconnected",
@@ -171,7 +237,7 @@ export function App() {
               type="button"
               onClick={() => setServerJumpOpen((value) => !value)}
             >
-              Cross-server
+              {currentServerId > 0 ? `Server ${currentServerId}` : "Cross-server"}
             </button>
             {serverJumpOpen ? (
               <section className="server-jump-popover" aria-label="Cross-server map jump">
@@ -186,14 +252,25 @@ export function App() {
                     max="99999"
                     placeholder="Target server ID"
                     type="number"
+                    value={serverTarget}
+                    onChange={(event) => setServerTarget(event.target.value)}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter" && !serverJumpBusy) jumpServer(Number(serverTarget));
+                    }}
                   />
-                  <button className="top-action primary" type="button" disabled>
-                    Jump
+                  <button className="top-action primary" type="button" disabled={serverJumpBusy > 0 || !online || mapRuntime.isReading} onClick={() => jumpServer(Number(serverTarget))}>
+                    {serverJumpBusy > 0 ? `Switching to ${serverJumpBusy}` : "Jump"}
                   </button>
                 </div>
-                <p className="server-jump-error">
-                  {online ? "Cross-server scanning is unavailable." : "Game disconnected"}
-                </p>
+                {mapRuntime.homeServerId > 0 && currentServerId !== mapRuntime.homeServerId ? (
+                  <div className="server-jump-home"><span>Home: {mapRuntime.homeServerId}</span><button type="button" disabled={serverJumpBusy > 0 || !online || mapRuntime.isReading} onClick={() => jumpServer(mapRuntime.homeServerId)}>Return Home</button></div>
+                ) : null}
+                {!online ? <p className="server-jump-error">Game disconnected</p> : null}
+                {online && mapRuntime.isReading ? <p className="server-jump-error">Stop the map scan first</p> : null}
+                {serverJumpError ? <p className="server-jump-error">{serverJumpError}</p> : null}
+                {mapRuntime.seasonServerIds?.length ? <div className="server-jump-history"><span>Season servers</span><div>{mapRuntime.seasonServerIds.map((serverId) => <button type="button" key={serverId} disabled={serverJumpBusy > 0 || !online || mapRuntime.isReading || serverId === currentServerId} onClick={() => jumpServer(serverId)}>{serverId}</button>)}</div></div> : null}
+                {mapRuntime.truckMatchServerIds?.length ? <div className="server-jump-history"><span>Plunderable servers</span><div>{mapRuntime.truckMatchServerIds.map((serverId) => <button type="button" key={serverId} disabled={serverJumpBusy > 0 || !online || mapRuntime.isReading || serverId === currentServerId} onClick={() => jumpServer(serverId)}>{serverId}</button>)}</div></div> : null}
+                {serverHistory.length ? <div className="server-jump-history"><span>Recent</span><div>{serverHistory.map((serverId) => <button type="button" key={serverId} disabled={serverJumpBusy > 0 || !online || mapRuntime.isReading} onClick={() => jumpServer(serverId)}>{serverId}</button>)}</div></div> : null}
               </section>
             ) : null}
           </div>

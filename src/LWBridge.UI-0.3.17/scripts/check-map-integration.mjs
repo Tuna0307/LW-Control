@@ -125,8 +125,12 @@ await api.scanStatus();
 await api.summary();
 await api.dataOptions(7);
 await api.search("resource", { serverId: 7, page: 2, resourceNameKey: "100281" });
+await api.jumpServer(9);
+await api.importServerJumpHistory([9, 8]);
+await api.setServerJumpHistory([9, 8, 7]);
 assert.deepEqual(calls.map(({ command }) => command), [
   "map_scan_start", "map_scan_stop", "map_scan_clear", "map_scan_status", "map_summary", "map_data_options", "map_search",
+  "server_jump", "server_jump_history_import", "server_jump_history_set",
 ]);
 assert.deepEqual(calls[0].payload, { selectedTypes: ["resource"], scanMode: "fast", profileId: "profile-test" });
 assert.deepEqual(calls[1].payload, { profileId: "profile-test" });
@@ -136,6 +140,9 @@ assert.equal(calls[6].payload.query.page, 2);
 assert.equal(calls[6].payload.query.pageSize, 50);
 assert.equal(calls[6].payload.query.resourceNameKey, "100281");
 assert.equal(calls[6].payload.profileId, "profile-test");
+assert.deepEqual(calls[7].payload, { serverId: 9, profileId: "profile-test" });
+assert.deepEqual(calls[8].payload, { history: [9, 8], profileId: "profile-test" });
+assert.deepEqual(calls[9].payload, { history: [9, 8, 7], profileId: "profile-test" });
 
 const expectedFailure = Object.assign(new Error("query failed"), { code: "MAP_QUERY_FAILED", details: { field: "resourceNameKey" } });
 const failingApi = createMapApi({

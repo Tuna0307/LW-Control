@@ -84,7 +84,11 @@ public sealed record MapScanState(
     bool ResumeAvailable,
     [property: JsonPropertyName("lastError")]
     string? Error = null,
-    long StartedAt = 0);
+    long StartedAt = 0,
+    bool IsInWorld = false,
+    int HomeServerId = 0,
+    IReadOnlyList<int>? SeasonServerIds = null,
+    IReadOnlyList<int>? TruckMatchServerIds = null);
 
 public sealed record MapPlayerMark(
     int ServerId,

@@ -23,15 +23,21 @@ internal static class LiveServerJumpProof
             JsonElement startJson = JsonSerializer.SerializeToElement(start, JsonOptions.Default);
             instanceId = startJson.GetProperty("instanceId").GetString();
 
-            using MapDataStore store = MapDataStore.CreateInMemory();
-            var service = new ManualMapScanCommandService(lifecycle, store);
+            string proofRoot = Path.Combine(Path.GetTempPath(), "lwb317-server-jump-" + Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(proofRoot);
+            var service = new Map317CommandService(Path.Combine(proofRoot, "map-data.db"), lifecycle);
             var source = new CurrentClientMapBlockSource(lifecycle);
             try
             {
                 CurrentClientMapContext initial =
                     await source.GetCurrentContextAsync(operationCts.Token).ConfigureAwait(false);
                 int homeServerId = initial.ServerId;
-                int targetServerId = ResolveTarget(homeServerId);
+                CurrentClientMapStatusContext statusContext =
+                    await source.GetMapStatusContextAsync(operationCts.Token).ConfigureAwait(false);
+                int? targetServerId = statusContext.SeasonServerIds
+                    .Concat(statusContext.TruckMatchServerIds)
+                    .FirstOrDefault(serverId => serverId != homeServerId);
+                if (targetServerId == 0) targetServerId = null;
 
                 JsonElement samePayload = JsonSerializer.SerializeToElement(
                     new { serverId = homeServerId }, JsonOptions.Default);
@@ -44,25 +50,27 @@ internal static class LiveServerJumpProof
                     throw new InvalidDataException("Same-server server_jump was not proven as a no-op.");
 
                 bool crossServerAccepted = false;
-                string? crossServerBlockedReason = null;
+                string? crossServerBlockedReason = targetServerId is null
+                    ? "no safe alternate server advertised by live season/truck-match state"
+                    : null;
                 int? visitedServerId = null;
-                try
+                if (targetServerId is not null) try
                 {
                     using var jumpCts = CancellationTokenSource.CreateLinkedTokenSource(operationCts.Token);
                     jumpCts.CancelAfter(TimeSpan.FromSeconds(45));
                     JsonElement targetPayload = JsonSerializer.SerializeToElement(
-                        new { serverId = targetServerId }, JsonOptions.Default);
+                        new { serverId = targetServerId.Value }, JsonOptions.Default);
                     object? jumpResult = await service.InvokeAsync(
                         "server_jump", targetPayload, jumpCts.Token).ConfigureAwait(false);
                     JsonElement jumped = JsonSerializer.SerializeToElement(jumpResult, JsonOptions.Default);
                     if (jumped.GetProperty("previousServerId").GetInt32() != homeServerId ||
-                        jumped.GetProperty("serverId").GetInt32() != targetServerId ||
+                        jumped.GetProperty("serverId").GetInt32() != targetServerId.Value ||
                         !jumped.GetProperty("changed").GetBoolean())
                         throw new InvalidDataException("Cross-server server_jump did not report the expected transition.");
 
                     CurrentClientMapContext away =
                         await source.GetCurrentContextAsync(jumpCts.Token).ConfigureAwait(false);
-                    if (away.ServerId != targetServerId)
+                    if (away.ServerId != targetServerId.Value)
                         throw new InvalidDataException("Live context did not settle on the requested target server.");
                     visitedServerId = away.ServerId;
                     JsonElement returnPayload = JsonSerializer.SerializeToElement(
@@ -87,21 +95,29 @@ internal static class LiveServerJumpProof
                     crossServerBlockedReason = error.Message;
                 }
 
+                JsonElement historyPayload = JsonSerializer.SerializeToElement(new { }, JsonOptions.Default);
+                object? historyResult = await service.InvokeAsync(
+                    "server_jump_history_get", historyPayload, operationCts.Token).ConfigureAwait(false);
+
                 Console.WriteLine(JsonSerializer.Serialize(new
                 {
                     ok = true,
                     proof = "server_jump_owned_session_roundtrip",
                     homeServerId,
                     targetServerId,
+                    advertisedSeasonServerIds = statusContext.SeasonServerIds,
+                    advertisedTruckMatchServerIds = statusContext.TruckMatchServerIds,
                     sameServerProven = true,
                     crossServerAccepted,
                     crossServerBlockedReason,
                     visitedServerId,
+                    history = historyResult,
                 }, JsonOptions.Default));
             }
             finally
             {
-                service.Close();
+                service.Dispose();
+                try { Directory.Delete(proofRoot, recursive: true); } catch { }
             }
         }
         catch (Exception error)
@@ -131,11 +147,4 @@ internal static class LiveServerJumpProof
         }
     }
 
-    private static int ResolveTarget(int homeServerId)
-    {
-        string? configured = Environment.GetEnvironmentVariable("LWBRIDGE_SERVER_JUMP_TARGET");
-        if (int.TryParse(configured, out int parsed) && parsed is >= 1 and <= 99999 && parsed != homeServerId)
-            return parsed;
-        return homeServerId < 99999 ? homeServerId + 1 : homeServerId - 1;
-    }
 }

@@ -302,6 +302,23 @@ public sealed partial class MapStore : IDisposable
         }
     }
 
+    public int ReconcileInterruptedScans(string error, long updatedAt)
+    {
+        if (string.IsNullOrWhiteSpace(error))
+            throw new ArgumentException("Restart interruption error is required.", nameof(error));
+        lock (gate)
+        {
+            using SqliteCommand command = connection.CreateCommand();
+            command.CommandText = """
+                UPDATE scan_runs SET status='failed',error=$error,updated_at=$updated
+                WHERE status='running'
+                """;
+            command.Parameters.AddWithValue("$error", error);
+            command.Parameters.AddWithValue("$updated", updatedAt);
+            return command.ExecuteNonQuery();
+        }
+    }
+
     public void UpdateScanProgress(string runId, int completedBlocks, int failedBlocks, string? error, long updatedAt)
     {
         if (string.IsNullOrWhiteSpace(runId) || completedBlocks < 0 || failedBlocks < 0)

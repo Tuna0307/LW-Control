@@ -8,6 +8,9 @@ export const MAP_COMMANDS = Object.freeze({
   dataOptions: "map_data_options",
   status: "get_status",
   proxyStatus: "proxy_status",
+  serverJump: "server_jump",
+  serverJumpHistorySet: "server_jump_history_set",
+  serverJumpHistoryImport: "server_jump_history_import",
 });
 
 export const MAP_SCAN_TYPES = Object.freeze([
@@ -109,6 +112,10 @@ export function normalizeScanState(value) {
     resumeAvailable: source.resumeAvailable === true,
     lastError: typeof source.lastError === "string" && source.lastError ? source.lastError : null,
     startedAt: finiteNumber(source.startedAt),
+    isInWorld: source.isInWorld === true,
+    homeServerId: integer(source.homeServerId),
+    seasonServerIds: Array.isArray(source.seasonServerIds) ? source.seasonServerIds.map(Number).filter((value) => Number.isInteger(value) && value >= 1 && value <= 99999) : [],
+    truckMatchServerIds: Array.isArray(source.truckMatchServerIds) ? source.truckMatchServerIds.map(Number).filter((value) => Number.isInteger(value) && value >= 1 && value <= 99999) : [],
   };
 }
 
@@ -242,6 +249,9 @@ export function createMapApi(bridge) {
       MAP_COMMANDS.search,
       scoped(buildSearchPayload(kind, query)),
     ).then(normalizeSearchResult),
+    jumpServer: (serverId) => bridge.invoke(MAP_COMMANDS.serverJump, scoped({ serverId })),
+    importServerJumpHistory: (history) => bridge.invoke(MAP_COMMANDS.serverJumpHistoryImport, scoped({ history })),
+    setServerJumpHistory: (history) => bridge.invoke(MAP_COMMANDS.serverJumpHistorySet, scoped({ history })),
     listenScanStatus: (callback) => bridge.listen("bridge://map-scan-status", (event) => {
       const payload = unwrapProfileEvent(event, profileId);
       if (payload) callback(normalizeScanState(payload));

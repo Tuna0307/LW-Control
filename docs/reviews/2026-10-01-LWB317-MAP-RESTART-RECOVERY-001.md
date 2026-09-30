@@ -18,11 +18,24 @@ The recovered public `map_scan_start` contract contains an optional `resume`
 input, but the exact 0.3.17 state construction/reset sites recovered so far all
 write `resumeAvailable=false`; no exact true-producing constructor is known.
 Accordingly the production rebuild continues to expose no public interrupted-run
-resume behavior. `ManualMapScanCommandService` acquires the exclusive per-profile
-`MapScanProcessLease`, marks any persisted orphaned `running` run `failed` with
-`map scan interrupted by application restart`, preserves its durable block/staging
-rows as interruption evidence, and starts a new run. A process that cannot acquire
-the lease does not reconcile another process's active run.
+resume behavior.
+
+The first checkpoint of this stage found that the older
+`ManualMapScanCommandService` already had a restart lease/reconciliation policy,
+but the normal canonical Desktop path is `Map317CommandService` ->
+`MapControlPlane`. That production path initially opened the durable per-profile
+Map317 database with a fresh in-memory idle state and had no cross-process scan
+lease/reconciliation. This was a real production integration gap relative to the
+already-established R7 restart-safety implementation policy, so that policy has
+now been applied at the Map317 composition boundary: startup reconciles
+orphaned `running` rows only while holding the profile database scan-owner lease;
+Start owns that lease for the accepted scan lifetime; a second process gets the
+recovered `SCAN_RUNNING / map scan already running`; and a terminated provider run
+releases ownership. Reconciliation marks the orphan `failed` with
+`map scan interrupted by application restart` without publishing its staging rows.
+That interruption string and stale-staging rule are rebuild implementation policy
+from R7-136; they are not claimed as exact 0.3.17 bytes. The exact 0.3.17 ordinary
+failure transaction is different and may preserve captured rows.
 
 The publication boundary remains transactional. Reconciliation does not copy
 `scan_records` staging rows into `map_records`, and a reconciled failed run cannot
@@ -51,12 +64,13 @@ cross-process UI browse-server selection is remembered.
 
 ## Deterministic coverage
 
-The existing restart regression
+The older restart regression
 `ManualMapScanCommandServiceChecks.RestartReconcilesOrphanedRunAndRejectsConcurrentOwner`
-exercises the required backend boundary: durable interrupted `running` row,
-exclusive ownership, restart reconciliation, retained partial checkpoints,
-stale staging rejection, retained prior published rows, rejected publication of
-the failed orphan, and a subsequent fresh scan with `resumeAvailable=false`.
+remains compatibility coverage. New Map317 store coverage pins canonical
+reconciliation of durable `running` rows to `failed`, the implementation-policy
+interruption reason, stale-staging non-publication and rejected completion of the reconciled
+run. `Map317RestartChecks` pins exclusive file ownership and reacquisition after
+owner release for the canonical database path.
 
 The canonical UI integration check now also pins the exact recovered
 `lwbridge.mapScanMode` read/write key and rejects invented local-storage
@@ -74,13 +88,15 @@ a prerequisite for the recovered fresh-run policy.
 ## Classification
 
 - interrupted persisted `running` row reconciliation: `IMPLEMENTED_NOT_VALIDATED`
-  at live process-termination scope; deterministic coverage passes;
+  at live process-termination scope on the canonical Map317 path; deterministic
+  coverage passes;
 - exclusive scan ownership across processes: `IMPLEMENTED_NOT_VALIDATED` at live
   multi-process scope; deterministic file-lease coverage passes;
 - fresh scan after reconciled interruption: `IMPLEMENTED_NOT_VALIDATED` at live
   restart scope; deterministic coverage passes;
-- stale staging cannot publish: `EXACT_CONTRACT` publication boundary with
-  deterministic coverage;
+- stale staging cannot publish during restart reconciliation: implementation
+  policy with deterministic coverage; this is not the exact 0.3.17 ordinary
+  failure transaction;
 - published Map rows survive database reopen: `IMPLEMENTED_NOT_VALIDATED` at
   normal Desktop-reopen UI scope; deterministic file-backed coverage passes;
 - recovered Manual scan-mode persistence: `EXACT_BYTES` / implemented in the
@@ -89,4 +105,3 @@ a prerequisite for the recovered fresh-run policy.
   `OUT_OF_SCOPE` for strict 0.3.17 parity because the recovered 0.3.17 Map panel
   does not persist those controls;
 - original private/protected traversal equivalence: `UNKNOWN`.
-

@@ -51,6 +51,19 @@ internal static class StoreChecks
         TestAssert.Equal(0, store.Search(new MapQuery("city", 10, ScanRunId: "run-c")).Total,
             "cancel must clear staging");
 
+        MapScanRun interrupted = new("run-restart", 11, ["city"], "running", 5, 1, 0, 1510, 1510, null);
+        store.InsertScanRun(interrupted);
+        store.StageRecord(interrupted.Id, Record("city", 11, "restart-stage", 1511, "restart-stage", "Restart Stage", null, 1, 1, 1,
+            "{\"ownerUid\":\"restart-stage\"}"));
+        TestAssert.Equal(1, store.ReconcileInterruptedScans("map scan interrupted by application restart", 1512),
+            "restart reconciliation must terminalize every orphaned running row");
+        MapScanRun reconciled = store.ReadScanRun(interrupted.Id)!;
+        TestAssert.True(reconciled.Status == "failed" && reconciled.Error == "map scan interrupted by application restart",
+            "restart reconciliation must retain the recovered interruption reason");
+        TestAssert.Equal(0, store.Search(new MapQuery("city", 11)).Total,
+            "restart reconciliation must not publish stale staging rows");
+        TestAssert.Throws<BridgeCommandException>(() => store.CompleteScan(interrupted.Id, 1513), "INVALID_SCAN");
+
         store.SetServerJumpHistory([5, 5, 0, 100000, 7, 8, 9, 10, 11], 1600);
         TestAssert.True(store.GetServerJumpHistory().SequenceEqual([5, 7, 8, 9, 10]), "history normalization mismatch");
         TestAssert.True(store.ImportServerJumpHistory([99], 1601).SequenceEqual([5, 7, 8, 9, 10]),
@@ -74,8 +87,25 @@ internal static class StoreChecks
             {
                 TestAssert.True(database.EndsWith(Path.Combine("profiles", "profile-a", "map-data", "map-data.db"), StringComparison.OrdinalIgnoreCase),
                     "per-profile database path mismatch");
-                physical.WriteSetting("serverJumpHistory", "not-json", 1);
-                TestAssert.Throws<BridgeCommandException>(() => physical.GetServerJumpHistory(), "INVALID_SETTING");
+                physical.UpsertRecord(Record("city", 12, "persisted", 2000, "persisted", "Persisted", null, 12, 12, 12,
+                    "{\"ownerUid\":\"persisted\"}"));
+                physical.InsertScanRun(new MapScanRun("physical-orphan", 12, ["city"], "running", 2, 1, 0, 2001, 2001, null));
+                physical.StageRecord("physical-orphan", Record("city", 12, "staged-orphan", 2002, "staged-orphan", "Staged", null, 1, 1, 1,
+                    "{\"ownerUid\":\"staged-orphan\"}"));
+            }
+
+            using (MapStore reopened = new(database))
+            {
+                TestAssert.Equal(1, reopened.Search(new MapQuery("city", 12)).Total,
+                    "published Map rows must survive a physical database reopen");
+                TestAssert.Equal(1, reopened.ReconcileInterruptedScans("map scan interrupted by application restart", 2003),
+                    "physical reopen must reconcile the orphaned running row");
+                TestAssert.Equal(1, reopened.Search(new MapQuery("city", 12)).Total,
+                    "restart reconciliation must not publish stale physical staging rows");
+                TestAssert.True(reopened.ReadScanRun("physical-orphan") is { Status: "failed" },
+                    "physical orphan must be terminal after reconciliation");
+                reopened.WriteSetting("serverJumpHistory", "not-json", 1);
+                TestAssert.Throws<BridgeCommandException>(() => reopened.GetServerJumpHistory(), "INVALID_SETTING");
             }
 
             using (var connection = new SqliteConnection($"Data Source={database}"))

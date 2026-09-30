@@ -35,6 +35,8 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
     private readonly CancellationTokenSource workerCancellation = new();
     private readonly Task dispatchWorkerTask;
     private readonly Task truckWorkerTask;
+    private readonly object scanLeaseGate = new();
+    private Map317ScanProcessLease? activeScanLease;
     private int disposed;
 
     internal Map317CommandService(
@@ -47,6 +49,14 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
         currentSource = new CurrentClientMapBlockSource(lifecycle);
         scanProvider = new CurrentClientMap317ScanProvider(currentSource);
         control = new Map317.MapControlPlane(store, scanProvider);
+        using (Map317ScanProcessLease? startupLease = Map317ScanProcessLease.TryAcquire(store.DatabasePath))
+        {
+            if (startupLease is not null)
+                store.ReconcileInterruptedScans(
+                    Map317ScanProcessLease.InterruptedError,
+                    DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
+        }
+        scanProvider.RunTerminated += ReleaseScanLease;
         var actionProvider = new CurrentClientMap317ActionProvider(currentSource);
         actions = new Map317.MapActionControlPlane(store, actionProvider);
         plunderWorker = new Map317.MapPlunderWorker(store, actionProvider);
@@ -93,7 +103,7 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
                 case "map_scan_start":
                     return await StartScanAsync(payload, cancellationToken).ConfigureAwait(false);
                 case "map_scan_status":
-                    return control.ScanState;
+                    return await ReadScanStatusAsync(cancellationToken).ConfigureAwait(false);
                 case "map_scan_stop":
                     return await control.StopScanAsync(cancellationToken).ConfigureAwait(false);
                 case "map_scan_clear":
@@ -273,31 +283,83 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
         try { Task.WhenAll(dispatchWorkerTask, truckWorkerTask).GetAwaiter().GetResult(); }
         catch (OperationCanceledException) { }
         scanProvider.Dispose();
+        ReleaseScanLease();
         control.Dispose();
         workerCancellation.Dispose();
     }
 
     private async Task<object> StartScanAsync(JsonElement payload, CancellationToken cancellationToken)
     {
-        string[]? types = null;
-        if (payload.TryGetProperty("selectedTypes", out JsonElement selected) &&
-            selected.ValueKind == JsonValueKind.Array)
-            types = selected.EnumerateArray().Select(value => value.GetString() ?? string.Empty).ToArray();
-        string? mode = OptionalString(payload, "scanMode");
-        bool resume = OptionalBool(payload, "resume", false);
-        Map317.MapScanState state =
-            await control.StartScanAsync(new Map317.MapScanStartRequest(types, mode, resume), cancellationToken)
-                .ConfigureAwait(false);
+        Map317ScanProcessLease? lease = Map317ScanProcessLease.TryAcquire(store.DatabasePath);
+        if (lease is null)
+            throw new BridgeCommandException("SCAN_RUNNING", "map scan already running");
+        lock (scanLeaseGate)
+        {
+            if (activeScanLease is not null)
+            {
+                lease.Dispose();
+                throw new BridgeCommandException("SCAN_RUNNING", "map scan already running");
+            }
+            activeScanLease = lease;
+        }
         try
         {
+            store.ReconcileInterruptedScans(
+                Map317ScanProcessLease.InterruptedError,
+                DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
+            string[]? types = null;
+            if (payload.TryGetProperty("selectedTypes", out JsonElement selected) &&
+                selected.ValueKind == JsonValueKind.Array)
+                types = selected.EnumerateArray().Select(value => value.GetString() ?? string.Empty).ToArray();
+            string? mode = OptionalString(payload, "scanMode");
+            bool resume = OptionalBool(payload, "resume", false);
+            Map317.MapScanState state =
+                await control.StartScanAsync(new Map317.MapScanStartRequest(types, mode, resume), cancellationToken)
+                    .ConfigureAwait(false);
             scanProvider.ActivateAcceptedRun(control);
             return state;
         }
         catch (Exception error)
         {
-            control.FailScan(error.Message);
+            if (control.ScanState.IsReading)
+                control.FailScan(error.Message);
+            ReleaseScanLease();
             throw;
         }
+    }
+
+    private async Task<Map317.MapScanState> ReadScanStatusAsync(CancellationToken cancellationToken)
+    {
+        Map317.MapScanState state = control.ScanState;
+        try
+        {
+            CurrentClientMapStatusContext context =
+                await currentSource.GetMapStatusContextAsync(cancellationToken).ConfigureAwait(false);
+            return state with
+            {
+                ServerId = context.ServerId > 0 ? context.ServerId : state.ServerId,
+                ServerIdSource = context.ServerId > 0 ? "live" : state.ServerIdSource,
+                IsInWorld = context.IsInWorld,
+                HomeServerId = context.HomeServerId,
+                SeasonServerIds = context.SeasonServerIds,
+                TruckMatchServerIds = context.TruckMatchServerIds,
+            };
+        }
+        catch (BridgeCommandException)
+        {
+            return state;
+        }
+    }
+
+    private void ReleaseScanLease()
+    {
+        Map317ScanProcessLease? lease;
+        lock (scanLeaseGate)
+        {
+            lease = activeScanLease;
+            activeScanLease = null;
+        }
+        lease?.Dispose();
     }
 
     private object SetPlayerMark(JsonElement payload)
