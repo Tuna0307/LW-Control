@@ -2,6 +2,18 @@ using System.Text.Json;
 using System.Diagnostics;
 using LWBridge.Desktop;
 
+int liveMapV22ProofIndex = Array.FindIndex(
+    args,
+    value => string.Equals(value, "--live-map-v22-proof", StringComparison.OrdinalIgnoreCase));
+if (liveMapV22ProofIndex >= 0)
+{
+    if (liveMapV22ProofIndex + 1 >= args.Length)
+        throw new ArgumentException("--live-map-v22-proof requires an output JSON path");
+    await LWBridge.Desktop.Checks.LiveMapV22Proof.RunAsync(
+        Path.GetFullPath(args[liveMapV22ProofIndex + 1]));
+    return 0;
+}
+
 if (args.Contains("--live-auto-zombie-cycle-proof", StringComparer.OrdinalIgnoreCase))
 {
     await LWBridge.Desktop.Checks.LiveAutoZombieCycleProof.RunAsync();

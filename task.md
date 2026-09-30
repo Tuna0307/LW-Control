@@ -75,4 +75,7 @@ Live-prove each implemented in-scope function against an assistant-owned/current
 The project is in **Phase 2 — function recovery**. Phase 1 static UI recovery is
 accepted. The active work item is the Map-only `LWB317-RE-MAP-001` Goal in
 `docs/GOAL_CAMPAIGN_PHASE2_MAP.md`; no other function family may begin until
-that Goal is closed. Auth/login/licensing reconstruction remains out of scope.
+that Goal is closed. `LWB317-LIVE-MAP-V22-001` has completed its bounded v22
+readiness/world/navigation/Resource-scan/query/clear proof and is awaiting
+project-lead review; it does not authorize the next bounded task by itself.
+Auth/login/licensing reconstruction remains out of scope.

@@ -1,0 +1,640 @@
+{
+  "schemaVersion": 1,
+  "taskId": "LWB317-LIVE-MAP-V22-001",
+  "derivedAt": "2026-09-30T06:33:51.785378+00:00",
+  "startingHead": "a7a8d4f7996643520fda71c00c84d89cc92aeaca",
+  "rawEvidence": {
+    "path": "evidence/lwbridge-0.3.17/map/LWB317-LIVE-MAP-V22-001/live-proof.json",
+    "sha256": "7396912f26890476bd9b308f48c3cbaa2d8bbb9c84a83f80fae5cdb80bd39ca8",
+    "rawState": "failed",
+    "rawFailure": {
+      "type": "LWBridge.Desktop.BridgeCommandException",
+      "message": "game connection unavailable"
+    }
+  },
+  "taskResult": "LIVE_PROVEN_REQUIRED_SCOPE_WITH_STOP_UNPROVEN",
+  "classification": {
+    "runtimeConnectionReadiness": "LIVE_PROVEN",
+    "worldMapMetadata": "LIVE_PROVEN",
+    "coordinateNavigation": "LIVE_PROVEN",
+    "completeResourceScan": "LIVE_PROVEN",
+    "freshRecordsAndQuery": "LIVE_PROVEN",
+    "clearReset": "LIVE_PROVEN",
+    "stopCancel": "IMPLEMENTED_NOT_VALIDATED",
+    "cleanup": "LIVE_PROVEN",
+    "serverJump": "IMPLEMENTED_NOT_VALIDATED",
+    "restartResume": "IMPLEMENTED_NOT_VALIDATED",
+    "treasureClaimStatus": "BLOCKED",
+    "ghostPreparation": "BLOCKED"
+  },
+  "session": {
+    "profileId": "lwb317-live-map-v22-001-4c63c65bb2b4",
+    "instanceId": "414c7f49d51e41c8b72afaa773301e71",
+    "gamePid": 52312,
+    "gamePath": "C:\\Users\\chimw\\AppData\\Local\\FunFly\\Last War-Survival Game\\Game\\LastWar.exe",
+    "gameStartedAtUtc": "2026-09-30T06:27:45.7514527Z",
+    "processStartTimeUtc": "2026-09-30T06:27:45.7514527Z",
+    "profileInstanceStatus": {
+      "profileId": "lwb317-live-map-v22-001-4c63c65bb2b4",
+      "instanceId": "414c7f49d51e41c8b72afaa773301e71",
+      "phase": "running",
+      "pid": 52312,
+      "startedAt": 1790749643863,
+      "lastError": null,
+      "identityConfirmed": true,
+      "leaseRequired": false,
+      "connectionState": "reconnecting",
+      "bridgeConnected": false,
+      "lastHeartbeatAt": 1790749679000,
+      "leaseActive": false
+    },
+    "ownedMapSessionReady": true,
+    "healthyMapHeartbeat": true
+  },
+  "clientIdentity": {
+    "validatedContentVersion": 22,
+    "packagePath": "C:\\Users\\chimw\\AppData\\LocalLow\\FunFly\\Last War-Survival Game\\lwScripts\\LWScripts.data",
+    "officialPackageSha256": "248f3aeac712b3f14f86bff37a0c365e467897a2248403837c44c1b774f05b22",
+    "runtimePackageSha256": "a705d2d64a44081012c4c7e30bda613636960c98e40fa7a367a60577ce3a7d72",
+    "runtimePackageState": "verified_overview_wrapped_v22",
+    "versionMarker": "22",
+    "gameSha256": "905c98c1f89841f90b492556192ba0642f3d209a873cb8c1f7b3c340aca0733d"
+  },
+  "world": {
+    "serverId": 2212,
+    "heartbeatServerId": 2212,
+    "worldId": 0,
+    "tileWidth": 1000,
+    "tileHeight": 1000,
+    "playerTileX": 560,
+    "playerTileY": 468,
+    "launchSessionId": "414c7f49d51e41c8b72afaa773301e71",
+    "ready": true
+  },
+  "coordinateNavigation": {
+    "requested": {
+      "serverId": 2212,
+      "x": 597,
+      "y": 521
+    },
+    "result": {
+      "serverId": 2212,
+      "x": 597,
+      "y": 521
+    },
+    "runtime": {
+      "requestId": "nav6e4a812144cd4c6d9a0a5454581bce35",
+      "state": "proven",
+      "serverId": 2212,
+      "worldId": 0,
+      "liveCurServerId": 2212,
+      "liveWorldId": 0,
+      "targetX": 597,
+      "targetY": 521,
+      "verifiedTargetX": 597,
+      "verifiedTargetY": 521,
+      "preTargetTileX": 133,
+      "preTargetTileY": 122,
+      "postTargetTileX": 597,
+      "postTargetTileY": 521,
+      "currentLod": 1,
+      "serverLod": 0,
+      "method": "SceneUtils.TileToWorld(ForceChangeScene.World,serverId)+GoToUtil.GotoWorldPos(serverId,worldId)+completionCallbackCurTarget",
+      "error": null
+    },
+    "returnedToPlayerTile": {
+      "requested": {
+        "x": 560,
+        "y": 468
+      },
+      "result": {
+        "serverId": 2212,
+        "x": 560,
+        "y": 468
+      },
+      "runtime": {
+        "requestId": "navea7b41d932a04f87b15c36ca14e6a03f",
+        "state": "proven",
+        "serverId": 2212,
+        "worldId": 0,
+        "liveCurServerId": 2212,
+        "liveWorldId": 0,
+        "targetX": 560,
+        "targetY": 468,
+        "verifiedTargetX": 560,
+        "verifiedTargetY": 468,
+        "preTargetTileX": 597,
+        "preTargetTileY": 521,
+        "postTargetTileX": 560,
+        "postTargetTileY": 468,
+        "currentLod": 1,
+        "serverLod": 0,
+        "method": "SceneUtils.TileToWorld(ForceChangeScene.World,serverId)+GoToUtil.GotoWorldPos(serverId,worldId)+completionCallbackCurTarget",
+        "error": null
+      }
+    }
+  },
+  "scan": {
+    "request": {
+      "selectedTypes": [
+        "resource"
+      ],
+      "scanMode": "fast",
+      "resume": false
+    },
+    "start": {
+      "serverId": 2212,
+      "serverIdSource": "live",
+      "scanRunId": "f812667fa3ee49f89bf0774fc9ebee00",
+      "isReading": true,
+      "phase": "scanning",
+      "selectedTypes": [
+        "resource"
+      ],
+      "totalBlocks": 2500,
+      "completedBlocks": 0,
+      "readBlocks": 0,
+      "failedBlocks": 0,
+      "unreadBlocks": 2500,
+      "inflightBlocks": 0,
+      "scanMode": "fast",
+      "concurrency": 20,
+      "scanRate": 0,
+      "progressPercent": 0,
+      "nativeCaptureReady": true,
+      "nativePendingRecords": 0,
+      "nativeDroppedRecords": 0,
+      "resumeAvailable": false,
+      "lastError": null,
+      "startedAt": 1790749681
+    },
+    "final": {
+      "serverId": 2212,
+      "serverIdSource": "live",
+      "scanRunId": "f812667fa3ee49f89bf0774fc9ebee00",
+      "isReading": false,
+      "phase": "completed",
+      "selectedTypes": [
+        "resource"
+      ],
+      "totalBlocks": 2500,
+      "completedBlocks": 2500,
+      "readBlocks": 2500,
+      "failedBlocks": 0,
+      "unreadBlocks": 0,
+      "inflightBlocks": 0,
+      "scanMode": "fast",
+      "concurrency": 20,
+      "scanRate": 36.23,
+      "progressPercent": 100,
+      "nativeCaptureReady": true,
+      "nativePendingRecords": 0,
+      "nativeDroppedRecords": 0,
+      "resumeAvailable": false,
+      "lastError": null,
+      "startedAt": 1790749681
+    },
+    "progressSnapshots": [
+      {
+        "serverId": 2212,
+        "serverIdSource": "live",
+        "scanRunId": "f812667fa3ee49f89bf0774fc9ebee00",
+        "isReading": true,
+        "phase": "scanning",
+        "selectedTypes": [
+          "resource"
+        ],
+        "totalBlocks": 2500,
+        "completedBlocks": 0,
+        "readBlocks": 0,
+        "failedBlocks": 0,
+        "unreadBlocks": 2500,
+        "inflightBlocks": 0,
+        "scanMode": "fast",
+        "concurrency": 20,
+        "scanRate": 0,
+        "progressPercent": 0,
+        "nativeCaptureReady": true,
+        "nativePendingRecords": 0,
+        "nativeDroppedRecords": 0,
+        "resumeAvailable": false,
+        "lastError": null,
+        "startedAt": 1790749681
+      },
+      {
+        "serverId": 2212,
+        "serverIdSource": "live",
+        "scanRunId": "f812667fa3ee49f89bf0774fc9ebee00",
+        "isReading": false,
+        "phase": "completed",
+        "selectedTypes": [
+          "resource"
+        ],
+        "totalBlocks": 2500,
+        "completedBlocks": 2500,
+        "readBlocks": 2500,
+        "failedBlocks": 0,
+        "unreadBlocks": 0,
+        "inflightBlocks": 0,
+        "scanMode": "fast",
+        "concurrency": 20,
+        "scanRate": 36.23,
+        "progressPercent": 100,
+        "nativeCaptureReady": true,
+        "nativePendingRecords": 0,
+        "nativeDroppedRecords": 0,
+        "resumeAvailable": false,
+        "lastError": null,
+        "startedAt": 1790749681
+      }
+    ],
+    "wallSeconds": 69.5518851
+  },
+  "records": {
+    "total": 678,
+    "representative": [
+      {
+        "blackTileKnown": true,
+        "gatherOccupancyKnown": true,
+        "gatherOccupied": false,
+        "id": 702586,
+        "isBlackTile": false,
+        "kind": "resource",
+        "level": 7,
+        "pointId": 702586,
+        "pointType": 7,
+        "resourceConfigId": 107,
+        "resourceMaxAmount": 288000,
+        "resourceNameKey": "100317",
+        "resourceSourceType": "ResPointInfo",
+        "resourceTypeId": 14,
+        "runtimeClass": "ResPointInfo",
+        "serverId": 2212,
+        "source": "WorldPointManager._pointInfos+GatherResource+LuaEntry.Player.IsInBlackRange",
+        "srcServerId": 2212,
+        "worldId": 0,
+        "x": 585,
+        "y": 702,
+        "sourceKind": "resource_point",
+        "recordKey": "702586",
+        "pointIndex": 702586,
+        "updatedAt": 1790749734000,
+        "rebuildGatherOccupancyKnown": true,
+        "rebuildGatherOccupied": false,
+        "resourceDetailKnown": true,
+        "resourceRemainingAmount": 288000,
+        "resourceFullAmount": 288000,
+        "resourceFull": true,
+        "resourceCapacityMatchesConfig": true
+      },
+      {
+        "blackTileKnown": true,
+        "gatherOccupancyKnown": true,
+        "gatherOccupied": false,
+        "id": 702595,
+        "isBlackTile": false,
+        "kind": "resource",
+        "level": 6,
+        "pointId": 702595,
+        "pointType": 7,
+        "resourceConfigId": 206,
+        "resourceMaxAmount": 129600,
+        "resourceNameKey": "129027",
+        "resourceSourceType": "ResPointInfo",
+        "resourceTypeId": 2,
+        "runtimeClass": "ResPointInfo",
+        "serverId": 2212,
+        "source": "WorldPointManager._pointInfos+GatherResource+LuaEntry.Player.IsInBlackRange",
+        "srcServerId": 2212,
+        "worldId": 0,
+        "x": 594,
+        "y": 702,
+        "sourceKind": "resource_point",
+        "recordKey": "702595",
+        "pointIndex": 702595,
+        "updatedAt": 1790749734000,
+        "rebuildGatherOccupancyKnown": true,
+        "rebuildGatherOccupied": false,
+        "resourceDetailKnown": true,
+        "resourceRemainingAmount": 129600,
+        "resourceFullAmount": 129600,
+        "resourceFull": true,
+        "resourceCapacityMatchesConfig": true
+      },
+      {
+        "blackTileKnown": true,
+        "gatherOccupancyKnown": true,
+        "gatherOccupied": false,
+        "id": 704605,
+        "isBlackTile": false,
+        "kind": "resource",
+        "level": 5,
+        "pointId": 704605,
+        "pointType": 7,
+        "resourceConfigId": 105,
+        "resourceMaxAmount": 180000,
+        "resourceNameKey": "100317",
+        "resourceSourceType": "ResPointInfo",
+        "resourceTypeId": 14,
+        "runtimeClass": "ResPointInfo",
+        "serverId": 2212,
+        "source": "WorldPointManager._pointInfos+GatherResource+LuaEntry.Player.IsInBlackRange",
+        "srcServerId": 2212,
+        "worldId": 0,
+        "x": 604,
+        "y": 704,
+        "sourceKind": "resource_point",
+        "recordKey": "704605",
+        "pointIndex": 704605,
+        "updatedAt": 1790749734000,
+        "rebuildGatherOccupancyKnown": true,
+        "rebuildGatherOccupied": false,
+        "resourceDetailKnown": true,
+        "resourceRemainingAmount": 180000,
+        "resourceFullAmount": 180000,
+        "resourceFull": true,
+        "resourceCapacityMatchesConfig": true
+      }
+    ]
+  },
+  "queryValidation": {
+    "summary": {
+      "serverId": 2212,
+      "counts": {
+        "city": 0,
+        "resource": 678,
+        "monster": 0,
+        "truck": 0,
+        "railway": 0,
+        "dispatch": 0,
+        "ghost": 0,
+        "treasure": 0
+      },
+      "scanState": {
+        "serverId": 2212,
+        "serverIdSource": "live",
+        "scanRunId": "f812667fa3ee49f89bf0774fc9ebee00",
+        "isReading": false,
+        "phase": "completed",
+        "selectedTypes": [
+          "resource"
+        ],
+        "totalBlocks": 2500,
+        "completedBlocks": 2500,
+        "readBlocks": 2500,
+        "failedBlocks": 0,
+        "unreadBlocks": 0,
+        "inflightBlocks": 0,
+        "scanMode": "fast",
+        "concurrency": 20,
+        "scanRate": 36.23,
+        "progressPercent": 100,
+        "nativeCaptureReady": true,
+        "nativePendingRecords": 0,
+        "nativeDroppedRecords": 0,
+        "resumeAvailable": false,
+        "lastError": null,
+        "startedAt": 1790749681
+      }
+    },
+    "options": {
+      "serverId": 2212,
+      "counts": {
+        "city": 0,
+        "resource": 678,
+        "monster": 0,
+        "truck": 0,
+        "railway": 0,
+        "dispatch": 0,
+        "ghost": 0,
+        "treasure": 0
+      },
+      "alliances": [],
+      "names": {
+        "resource": [
+          {
+            "key": "100281",
+            "count": 233
+          },
+          {
+            "key": "100317",
+            "count": 238
+          },
+          {
+            "key": "129027",
+            "count": 207
+          }
+        ],
+        "monster": []
+      },
+      "dispatchLevels": [],
+      "noAllianceCount": 0,
+      "rewardItems": {
+        "truck": [],
+        "railway": []
+      },
+      "treasureTypes": [],
+      "scanProgress": {
+        "id": "f812667fa3ee49f89bf0774fc9ebee00",
+        "serverId": 2212,
+        "selectedTypes": [
+          "resource"
+        ],
+        "status": "completed",
+        "totalBlocks": 2500,
+        "completedBlocks": 2500,
+        "failedBlocks": 0,
+        "createdAt": 1790749681604,
+        "updatedAt": 1790749750754,
+        "error": null
+      }
+    },
+    "pagination": {
+      "pageSize": 3,
+      "page1Keys": [
+        "702586",
+        "702595",
+        "704605"
+      ],
+      "page2Keys": [
+        "704607",
+        "706608",
+        "709619"
+      ]
+    },
+    "sortVerified": true,
+    "sorts": [
+      "level asc",
+      "updatedAt desc"
+    ],
+    "sortRows": [
+      {
+        "recordKey": "767001",
+        "level": 1,
+        "updatedAt": 1790749730000
+      },
+      {
+        "recordKey": "771002",
+        "level": 1,
+        "updatedAt": 1790749730000
+      },
+      {
+        "recordKey": "792014",
+        "level": 1,
+        "updatedAt": 1790749730000
+      },
+      {
+        "recordKey": "411029",
+        "level": 1,
+        "updatedAt": 1790749711000
+      },
+      {
+        "recordKey": "421074",
+        "level": 1,
+        "updatedAt": 1790749711000
+      },
+      {
+        "recordKey": "422017",
+        "level": 1,
+        "updatedAt": 1790749711000
+      },
+      {
+        "recordKey": "422081",
+        "level": 1,
+        "updatedAt": 1790749711000
+      },
+      {
+        "recordKey": "425077",
+        "level": 1,
+        "updatedAt": 1790749711000
+      },
+      {
+        "recordKey": "437022",
+        "level": 1,
+        "updatedAt": 1790749711000
+      },
+      {
+        "recordKey": "438027",
+        "level": 1,
+        "updatedAt": 1790749711000
+      }
+    ],
+    "filter": {
+      "resourceNameKey": "100317",
+      "total": 238,
+      "returnedRows": 10,
+      "allReturnedRowsMatched": true
+    }
+  },
+  "clear": {
+    "result": {
+      "serverId": 0,
+      "serverIdSource": "none",
+      "scanRunId": "",
+      "isReading": false,
+      "phase": "idle",
+      "selectedTypes": [
+        "city",
+        "resource",
+        "monster",
+        "truck",
+        "railway",
+        "dispatch",
+        "ghost",
+        "treasure"
+      ],
+      "totalBlocks": 0,
+      "completedBlocks": 0,
+      "readBlocks": 0,
+      "failedBlocks": 0,
+      "unreadBlocks": 0,
+      "inflightBlocks": 0,
+      "scanMode": "normal",
+      "concurrency": 8,
+      "scanRate": 0,
+      "progressPercent": 0,
+      "nativeCaptureReady": false,
+      "nativePendingRecords": 0,
+      "nativeDroppedRecords": 0,
+      "resumeAvailable": false,
+      "lastError": null,
+      "startedAt": 0
+    },
+    "postClearSearch": {
+      "rows": [],
+      "total": 0
+    },
+    "postClearSummary": {
+      "serverId": 0,
+      "counts": {
+        "city": 0,
+        "resource": 0,
+        "monster": 0,
+        "truck": 0,
+        "railway": 0,
+        "dispatch": 0,
+        "ghost": 0,
+        "treasure": 0
+      },
+      "scanState": {
+        "serverId": 0,
+        "serverIdSource": "none",
+        "scanRunId": "",
+        "isReading": false,
+        "phase": "idle",
+        "selectedTypes": [
+          "city",
+          "resource",
+          "monster",
+          "truck",
+          "railway",
+          "dispatch",
+          "ghost",
+          "treasure"
+        ],
+        "totalBlocks": 0,
+        "completedBlocks": 0,
+        "readBlocks": 0,
+        "failedBlocks": 0,
+        "unreadBlocks": 0,
+        "inflightBlocks": 0,
+        "scanMode": "normal",
+        "concurrency": 8,
+        "scanRate": 0,
+        "progressPercent": 0,
+        "nativeCaptureReady": false,
+        "nativePendingRecords": 0,
+        "nativeDroppedRecords": 0,
+        "resumeAvailable": false,
+        "lastError": null,
+        "startedAt": 0
+      }
+    },
+    "proven": true
+  },
+  "stopCancel": {
+    "state": "IMPLEMENTED_NOT_VALIDATED",
+    "attempted": true,
+    "result": "not_proven",
+    "reason": "The owned game connection was unavailable when the optional second map_scan_start was attempted after the completed scan/query/clear proof.",
+    "rawFailure": {
+      "type": "LWBridge.Desktop.BridgeCommandException",
+      "message": "game connection unavailable"
+    }
+  },
+  "rawCleanup": {
+    "requestedInstanceId": "414c7f49d51e41c8b72afaa773301e71",
+    "gamePid": 52312,
+    "gamePidAlive": false,
+    "anyLastWarProcess": false,
+    "recoveryJournalPresent": false,
+    "finalPackageSha256": "248f3aeac712b3f14f86bff37a0c365e467897a2248403837c44c1b774f05b22",
+    "finalPackageRestoredToOfficialV22": true,
+    "tempDatabaseDeleted": false
+  },
+  "limits": [
+    "The raw run intentionally remains state=failed because the original harness treated the optional stop/cancel tail as fatal.",
+    "Required A-E proof and completed-scan/clear portions of F finished before the optional stop/cancel attempt.",
+    "No server jump, restart/resume, Treasure claim/status, Ghost preparation, purchase, march, attack, alliance action, or resource-spending action was performed."
+  ]
+}

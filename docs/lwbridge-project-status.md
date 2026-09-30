@@ -2,7 +2,7 @@
 
 **Date:** 2026-09-30
 **Branch:** `research/offline-controller`
-**Phase:** 2 — function recovery / Map Goal final static checkpoint
+**Phase:** 2 — function recovery / Map Goal v22 live-validation checkpoint
 
 ## Current state
 
@@ -19,12 +19,17 @@ Desktop production uses that plane as the sole persistent Map authority at
 only for explicitly isolated historical proof/replay modes.
 
 Current Last War content-version 22 has passed the Map-specific static/source
-compatibility revalidation in `LWB317-COMPAT-MAP-V22-001`. Source-backed adapters are wired for acquisition,
+compatibility revalidation in `LWB317-COMPAT-MAP-V22-001`. `LWB317-LIVE-MAP-V22-001`
+then freshly live-proved the owned-session Map runtime/world path, coordinate
+navigation, one complete fast Resource scan (2500/2500, zero failed/unread),
+678 current rows, query/filter/sort/pagination and clear/reset. Source-backed adapters are wired for acquisition,
 navigation, Treasure inspection, server-day, Dispatch alliance share, Dispatch
 scheduled execution and Truck scheduled execution. Treasure claim/status and
 Ghost preparation remain explicit fail-closed current-client provider gaps
 rather than approximations. No production Map change was required for v22.
-Fresh bounded Map-only live validation is next.
+Controlled stop/cancel was not live-proven because the owned connection was
+unavailable at the optional second-start tail. Server jump and restart/resume
+were explicitly excluded from this bounded task.
 
 The prior 0.3.1 reverse-engineering history remains intact as legacy evidence
 and is reused only where exact 0.3.17/current-client revalidation exists.
@@ -108,9 +113,11 @@ authorizes bounded Map-only interaction with an **assistant-owned** Last War
 session after a fresh process/session ownership check. It does not authorize
 non-Map gameplay or auth/licensing/credential work.
 
-At the v22 compatibility checkpoint, diagnostics report no running Last War or
-LWBridge process. This is not reused as live-session ownership proof;
-ownership/process state must be checked again immediately before live work.
+The v22 live task used an assistant-owned game session and cleaned it up. Its
+post-run evidence records no Last War/launcher/LWBridge/proof processes, no
+Overview recovery journal, no task-prefixed temp DB artifacts, and the pristine
+v22 package restored. Any future live work must still perform a fresh ownership
+check rather than reusing that state.
 
 ## Historical research value
 
@@ -131,8 +138,9 @@ Historical auth research remains archived evidence, not a current reconstruction
 
 ## Next project-lead milestone
 
-Finish the coherent Map action/current-client static checkpoint, then perform
-the authorized bounded assistant-owned Map live validation. Record each fresh
-successful path and every genuine state/provider blocker, finish the Map Goal
-handoff/master-document closure, rerun repository verification, commit/push the
-final Map checkpoint, and stop before another subsystem.
+Review `LWB317-LIVE-MAP-V22-001` and its evidence-state boundaries. The current
+bounded task stops after proving v22 readiness/world metadata, coordinate
+navigation, complete Resource acquisition, query behavior and clear/reset.
+Controlled stop/cancel remains unproven; server jump and restart/resume were
+explicitly deferred. Do not open another subsystem until the project lead
+decides the next bounded Map step or closes the Map Goal.

@@ -224,6 +224,23 @@ Create a compatibility matrix covering:
 - what still requires live proof;
 - what was actually live-proven in the current client.
 
+### Current v22 bounded live checkpoint — 2026-09-30
+
+`LWB317-LIVE-MAP-V22-001` has fresh assistant-owned current-v22 evidence for
+runtime/Map readiness, world metadata, coordinate navigation, scan start/status,
+one complete fast Resource acquisition (`2500/2500`, zero failed/unread, 678
+rows), query/filter/sort/pagination, clear/reset and orphan-free cleanup. See
+`docs/reviews/2026-09-30-LWB317-LIVE-MAP-V22-001.md` and
+`evidence/lwbridge-0.3.17/map/LWB317-LIVE-MAP-V22-001/`.
+
+The optional controlled stop/cancel attempt did not establish a new reading run
+because the owned game connection was unavailable after the required completed
+scan/query/clear proof. Stop/cancel therefore remains
+`IMPLEMENTED_NOT_VALIDATED`, and the cause of that post-clear connection loss is
+`UNKNOWN`. Restart/resume and server jump were explicitly excluded from this
+bounded task. The Goal remains `IN_PROGRESS` pending project-lead review and any
+separately authorized remaining Map live work.
+
 ## Live proof requirements
 
 Where the current game/server state permits it, the Goal should not stop at

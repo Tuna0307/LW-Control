@@ -40,7 +40,8 @@ The first Phase 2 Goal is the complete Map Data subsystem recovery:
 | LWB317-UI-001A | Worker AI | COMPLETE / ACCEPTED | Static frontend package inventory/extraction |
 | LWB317-UI-CAMPAIGN-8H | Goal worker | ACCEPTED | Static UI recovery/reconstruction accepted; direct post-auth visual validation remains blocked |
 | LWB317-COMPAT-MAP-V22-001 | Goal worker | COMPLETE | Installed Last War v22 Map compatibility revalidated statically/source-first; no production Map change required |
-| LWB317-RE-MAP-001 | Goal worker | IN_PROGRESS | Exact 0.3.17 Map contracts and production Map317 plane implemented; v22 static/source compatibility revalidated, pending bounded current-v22 live validation |
+| LWB317-LIVE-MAP-V22-001 | Goal worker | AWAITING_REVIEW | Fresh v22 owned-session readiness/world metadata, coordinate navigation, complete Resource scan, 678 records, query/filter/sort/pagination and clear/reset live-proven; optional stop/cancel unproven after connection loss |
+| LWB317-RE-MAP-001 | Goal worker | IN_PROGRESS | Exact 0.3.17 Map contracts/production plane implemented; v22 static compatibility and bounded acquisition/navigation/query/clear live proof complete; remaining Map live boundaries require project-lead decision |
 | Other LWB317-RE-* | None | BLOCKED | Do not start another subsystem until Map Goal review |
 | Login/auth/licensing reconstruction | None | OUT_OF_SCOPE | Boundary/dependency only |
 

@@ -2,7 +2,7 @@
 
 **Target:** LWBridge 0.3.17  
 **Branch:** `research/offline-controller`  
-**Phase:** Phase 2 function recovery / Map Data Goal ready
+**Phase:** Phase 2 function recovery / Map Data v22 live-validation checkpoint
 
 ## Important reset
 
@@ -58,12 +58,12 @@ It established the exact static frontend package and recovered/hash-locked 24 em
 Desktop-control tooling was used for the UI-parity campaign's clone-side smoke
 checks and captures.
 
-Static/headless function recovery is authorized for Map Data, followed by
-bounded live Last War Map validation using an assistant-owned session where
-possible. Auth bypass and unrelated gameplay actions remain unauthorized.
-
-The local clone Vite preview used for validation was stopped during final
-cleanup. No Last War process was launched or controlled by this campaign.
+Static/headless function recovery and the first bounded v22 live Map acquisition
+checkpoint are complete. `LWB317-LIVE-MAP-V22-001` used an assistant-owned
+session to live-prove world readiness/metadata, coordinate navigation, a complete
+Resource scan, fresh query behavior and clear/reset. Auth bypass and unrelated
+gameplay actions remain unauthorized. The task cleaned up its owned session and
+restored the pristine v22 package.
 
 ## Phase 1 campaign handoff
 
@@ -88,12 +88,16 @@ reference visual validation remains blocked at the excluded auth boundary.
 
 ## Active continuation
 
-The next authorized Goal is:
+The active Goal remains:
 
 `docs/GOAL_CAMPAIGN_PHASE2_MAP.md`
 
-It opens Phase 2 for the **Map Data subsystem only**. Other function families
-remain blocked until project-lead review.
+`LWB317-LIVE-MAP-V22-001` is now `AWAITING_REVIEW`. Its fresh v22 evidence is in
+`evidence/lwbridge-0.3.17/map/LWB317-LIVE-MAP-V22-001/` and its review is
+`docs/reviews/2026-09-30-LWB317-LIVE-MAP-V22-001.md`. Controlled stop/cancel was
+not proven because the owned connection was unavailable at the optional second
+start; server jump and restart/resume were intentionally deferred. Do not start
+another bounded Map task or another subsystem until the project lead decides.
 
 ## Required worker/campaign output
 

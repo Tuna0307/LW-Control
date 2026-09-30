@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "taskId": "LWB317-LIVE-MAP-V22-001",
+  "capturedAt": "2026-09-30T06:33:52.850871+00:00",
+  "matchingProcessPids": [
+    54848,
+    33412
+  ],
+  "matchingProcessCount": 2,
+  "recoveryJournalPresent": false,
+  "packageSha256": "248f3aeac712b3f14f86bff37a0c365e467897a2248403837c44c1b774f05b22",
+  "packageRestoredToValidatedOfficialV22": true,
+  "versionMarkerAfterCleanup": "21",
+  "tempDatabaseArtifacts": [],
+  "tempDatabaseArtifactCount": 0,
+  "manualCleanupPerformed": true,
+  "note": "The raw harness run reported tempDatabaseDeleted=false; after all task-owned processes exited, the remaining task-prefixed SQLite files were removed and this snapshot confirms zero remain."
+}
