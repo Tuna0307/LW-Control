@@ -1,0 +1,71 @@
+﻿RGMD=0x9a92a4 TypeDef=5828 MethodDef=54483
+TYPE 1748: WorldPointType extends System.Enum
+  FIELD 9974: int32 value__
+  FIELD 9975: WorldPointType Other = 0
+  FIELD 9976: WorldPointType WorldCollectResource = 1
+  FIELD 9977: WorldPointType PlayerRoad = 2
+  FIELD 9978: WorldPointType PlayerBoard = 3
+  FIELD 9979: WorldPointType WorldMonster = 4
+  FIELD 9980: WorldPointType WorldBoss = 5
+  FIELD 9981: WorldPointType PlayerBuilding = 6
+  FIELD 9982: WorldPointType WorldResource = 7
+  FIELD 9983: WorldPointType EXPLORE_POINT = 8
+  FIELD 9984: WorldPointType SAMPLE_POINT = 9
+  FIELD 9985: WorldPointType GARBAGE = 10
+  FIELD 9986: WorldPointType WORLD_ALLIANCE_CITY = 11
+  FIELD 9987: WorldPointType MONSTER_REWARD = 12
+  FIELD 9988: WorldPointType SAMPLE_POINT_NEW = 13
+  FIELD 9989: WorldPointType DETECT_EVENT_PVE = 14
+  FIELD 9990: WorldPointType WORLD_ALLIANCE_BUILD = 15
+  FIELD 9991: WorldPointType RESCUE_POINT = 16
+  FIELD 9992: WorldPointType HERO_DISPATCH = 17
+  FIELD 9993: WorldPointType DRAGON_BUILDING = 18
+  FIELD 9994: WorldPointType DRAGON_SCORE_POINT = 20
+  FIELD 9995: WorldPointType TREASURE = 21
+  FIELD 9996: WorldPointType INVASION_WORLD_MONSTER = 22
+  FIELD 9997: WorldPointType SEASON_DESERT = 23
+  FIELD 9998: WorldPointType WINTER_ENTITY = 24
+  FIELD 9999: WorldPointType WORLD_CITY_STRONGHOLD = 25
+  FIELD 10000: WorldPointType WorldAllianceCollectResource = 26
+  FIELD 10001: WorldPointType WorldSuppliesPoint = 27
+  FIELD 10002: WorldPointType RadarSeasonSnowSurvivor = 28
+  FIELD 10003: WorldPointType GHOSTRECON_POINT = 29
+  FIELD 10004: WorldPointType CITY_ATTACHMENT_BUILD = 30
+  FIELD 10005: WorldPointType CITY_ATTACHMENT_WALL = 31
+  FIELD 10006: WorldPointType CAVE_EXPLORATION = 32
+  FIELD 10007: WorldPointType RADAR_DOMINATOR_GUIDE = 33
+  FIELD 10008: WorldPointType RADAR_DOMINATOR_CURE = 34
+  FIELD 10009: WorldPointType WORLD_CITY_TRADE = 35
+  FIELD 10010: WorldPointType SURPRISE_POINT = 36
+  FIELD 10011: WorldPointType ZONE_MOBILIZATION = 37
+  FIELD 10012: WorldPointType WORLD_RUIN_DESTROY_BUILDING = 38
+  FIELD 10013: WorldPointType METEORITE_POINT = 39
+  FIELD 10014: WorldPointType BATTLEFIELD_TYPE = 40
+  FIELD 10015: WorldPointType GOLD_TREE = 41
+  FIELD 10016: WorldPointType MONSETER_CHALLENGE_NEW_TREASURE = 42
+  FIELD 10017: WorldPointType ACTIVITY_WORLD_TREASURE = 43
+  FIELD 10018: WorldPointType DETECT_RETRY_TASK = 44
+  FIELD 10019: WorldPointType DETECT_DIG_GAME = 45
+  FIELD 10020: WorldPointType TreasureChest = 46
+  FIELD 10021: WorldPointType RADAR_DOMINATOR_COCKATRICE_UNLOCK_1 = 47
+  FIELD 10022: WorldPointType RADAR_DOMINATOR_COCKATRICE_UNLOCK_2 = 48
+  FIELD 10023: WorldPointType DETECT_SUPPLIES_SEARCH = 49
+  FIELD 10024: WorldPointType DETECT_ALLIANCE_CITY_SCOUT_MONSTER = 50
+  FIELD 10025: WorldPointType SkyBattle = 51
+  FIELD 10026: WorldPointType WORLD_CITY_OUTPOST = 52
+  FIELD 10027: WorldPointType WORLD_CITY_OUTPOST_TOWER = 53
+  FIELD 10028: WorldPointType DETECT_LAST_STAND = 54
+  FIELD 10029: WorldPointType ZWL_BUILDING = 55
+  FIELD 10030: WorldPointType ZWL_BUILDING_THRONE = 56
+  FIELD 10031: WorldPointType ZWL_BUILDING_BUFF = 57
+  FIELD 10032: WorldPointType ZWL_BUILDING_TOWER = 58
+  FIELD 10033: WorldPointType ALLIANCE_BOSS_S0 = 59
+  FIELD 10034: WorldPointType WORLD_CITY_MINI_GAME = 60
+  FIELD 10035: WorldPointType CITY_ALTAR = 61
+  FIELD 10036: WorldPointType SiegeTreasure = 1001
+  FIELD 10037: WorldPointType SeasonDesert = 1002
+  FIELD 10038: WorldPointType SIMPLE_WORLD_MONSTER = 1003
+TYPE 3110: XLua.CSObjectWrap.WorldPointTypeWrap extends System.Object
+  METHOD 23932 RVA 0x23497c: void __Register(native int L)
+  METHOD 23933 RVA 0x234a10: int32 __CastFrom(native int L)
+  METHOD 23934 RVA 0x234ac0: void .ctor()

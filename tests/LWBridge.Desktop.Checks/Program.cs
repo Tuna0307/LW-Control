@@ -2,6 +2,18 @@ using System.Text.Json;
 using System.Diagnostics;
 using LWBridge.Desktop;
 
+int resourceRuntimeInspectionProofIndex = Array.FindIndex(
+    args,
+    value => string.Equals(value, "--live-map-v22-resource-runtime-inspection-proof", StringComparison.OrdinalIgnoreCase));
+if (resourceRuntimeInspectionProofIndex >= 0)
+{
+    if (resourceRuntimeInspectionProofIndex + 1 >= args.Length)
+        throw new ArgumentException("--live-map-v22-resource-runtime-inspection-proof requires an output JSON path");
+    await LWBridge.Desktop.Checks.LiveMapV22ResourceRuntimeInspectionProof.RunAsync(
+        Path.GetFullPath(args[resourceRuntimeInspectionProofIndex + 1]));
+    return 0;
+}
+
 int resourceCompletenessProofIndex = Array.FindIndex(
     args,
     value => string.Equals(value, "--live-map-v22-resource-completeness-proof", StringComparison.OrdinalIgnoreCase));

@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "taskId": "LWB317-LIVE-MAP-V22-RESOURCE-COMPLETENESS-001",
+  "proofStartedAt": "2026-09-30T12:28:38.4096824+00:00",
+  "scope": {
+    "resourceOnly": true,
+    "serverJump": false,
+    "restartResume": false,
+    "unrelatedGameplay": false
+  },
+  "preflight": {
+    "packageSha256": "248f3aeac712b3f14f86bff37a0c365e467897a2248403837c44c1b774f05b22",
+    "versionMarker": "21",
+    "gameSha256": "905c98c1f89841f90b492556192ba0642f3d209a873cb8c1f7b3c340aca0733d",
+    "noPreexistingGameRuntime": true
+  },
+  "ownedSession": {
+    "profileId": "lwb317-resource-completeness-3ac2b1b05eba",
+    "instanceId": "fa629e081bff40ffaaddf28ba69fd4a0",
+    "gamePid": 32264,
+    "gamePath": "C:\\Users\\chimw\\AppData\\Local\\FunFly\\Last War-Survival Game\\Game\\LastWar.exe",
+    "gameStartedAtUtc": "2026-09-30T12:29:03.8522890Z",
+    "healthyHeartbeat": true
+  },
+  "session": {
+    "profileId": "lwb317-resource-completeness-3ac2b1b05eba",
+    "instanceId": "fa629e081bff40ffaaddf28ba69fd4a0",
+    "gamePid": 32264,
+    "gamePath": "C:\\Users\\chimw\\AppData\\Local\\FunFly\\Last War-Survival Game\\Game\\LastWar.exe",
+    "gameStartedAtUtc": "2026-09-30T12:29:03.8522890Z",
+    "serverId": 2212,
+    "worldId": 0,
+    "tileWidth": 1000,
+    "tileHeight": 1000,
+    "playerTileX": 560,
+    "playerTileY": 468,
+    "runtimePackageSha256": "ef363f6bbc8f186911adedce0974a8f31403e485f155ee5a2f32f4b849005cb9",
+    "runtimePackageState": "unexpected",
+    "runtimeVersionMarker": "22"
+  },
+  "state": "failed",
+  "failure": {
+    "type": "System.IO.InvalidDataException",
+    "message": "Resource completeness scan did not reach a clean completed state.",
+    "code": null
+  },
+  "cleanup": {
+    "ownedGamePid": 32264,
+    "ownedGamePidAlive": false,
+    "packageSha256": "248f3aeac712b3f14f86bff37a0c365e467897a2248403837c44c1b774f05b22",
+    "packageRestoredToOfficialV22": true,
+    "versionMarker": "21",
+    "tempDatabaseDeleted": true
+  },
+  "proofFinishedAt": "2026-09-30T12:36:24.0135971+00:00"
+}

@@ -1,0 +1,5990 @@
+{
+  "scanRunId": "c5a273f95ee9445fb75f137b6da11e05",
+  "serverId": 2212,
+  "worldId": 0,
+  "tileWidth": 1000,
+  "tileHeight": 1000,
+  "nativeAoiBlockSize": 10,
+  "nativeAoiBlockCount": 100,
+  "responseCount": 210,
+  "rawObservedPointInfoOccurrences": 17642,
+  "rawEnumeratedPointInfoOccurrences": 17642,
+  "nonResourcePointOccurrences": 12142,
+  "resourceCandidateOccurrences": 5500,
+  "acceptedResourceOccurrencesBeforeDeduplication": 19,
+  "rejectedResourceCandidateOccurrences": 5481,
+  "duplicateAcceptedRecordKeyOccurrences": 0,
+  "finalAcceptedUniqueRecords": 19,
+  "resourceSourceLookupHitOccurrences": 19,
+  "resourceSourceLookupFallbackOccurrences": 0,
+  "resourceDetailTargetCount": 19,
+  "resourceDetailRequestCount": 19,
+  "resourceDetailCacheBeforeCount": 0,
+  "resourceDetailSendFailureCount": 0,
+  "resourceDetailReadyCount": 19,
+  "resourceDetailError": null,
+  "rawRuntimeClassOccurrences": {
+    "AllyCityPointInfo": 245,
+    "BuildPointInfo": 11386,
+    "CityAttachmentBuildPointInfo": 10,
+    "CityAttachmentWallPointInfo": 21,
+    "ExplorePointInfo": 1,
+    "HeroDispatchMissionPointInfo": 461,
+    "ResPointInfo": 5500,
+    "TreasurePointInfo": 18
+  },
+  "rawPointTypeOccurrences": {
+    "11": 53,
+    "14": 1,
+    "17": 461,
+    "21": 18,
+    "25": 192,
+    "30": 10,
+    "31": 21,
+    "6": 11386,
+    "7": 5500
+  },
+  "rejectionReasonOccurrences": {
+    "outside_selected_aoi": 5481
+  },
+  "levelDistribution": {
+    "1": 7,
+    "2": 7,
+    "3": 5
+  },
+  "resourceNameKeyDistribution": {
+    "100281": 5,
+    "100317": 8,
+    "129027": 6
+  },
+  "resourceTypeDistribution": {
+    "1": 5,
+    "14": 8,
+    "2": 6
+  },
+  "acceptedRawPointTypeDistribution": {
+    "7": 19
+  },
+  "blackTileDistribution": {
+    "false": 19
+  },
+  "occupancyDistribution": {
+    "unoccupied": 19
+  },
+  "resourceDetailDistribution": {
+    "full": 16,
+    "partial": 3
+  },
+  "serverDistribution": {
+    "2212": 19
+  },
+  "sourceServerDistribution": {
+    "2212": 19
+  },
+  "worldDistribution": {
+    "0": 19
+  },
+  "populatedNativeAoiBlocks": 13,
+  "zeroResourceNativeAoiBlocks": 9987,
+  "minResourcesPerPopulatedNativeAoiBlock": 1,
+  "maxResourcesPerPopulatedNativeAoiBlock": 3,
+  "resourcesByNativeAoiIndex": {
+    "0": 1,
+    "1": 2,
+    "100": 1,
+    "200": 1,
+    "300": 2,
+    "302": 3,
+    "500": 1,
+    "501": 1,
+    "800": 1,
+    "801": 1,
+    "900": 3,
+    "901": 1,
+    "902": 1
+  },
+  "resourcesByLogicalBlockIndex": {
+    "0": 4,
+    "100": 2,
+    "200": 6,
+    "201": 1,
+    "50": 3,
+    "51": 3
+  },
+  "minX": 0,
+  "minY": 0,
+  "maxX": 29,
+  "maxY": 97,
+  "rawObservationCountersReconcile": true,
+  "finalDeduplicationReconciles": true,
+  "acceptedDistributionsReconcile": true,
+  "batches": [
+    {
+      "observedPointInfos": 40,
+      "enumeratedPointInfos": 40,
+      "resourceCandidateCount": 19,
+      "acceptedResourceCount": 19,
+      "rejectedResourceCandidateCount": 0,
+      "nonResourcePointCount": 21,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 17,
+        "ExplorePointInfo": 1,
+        "ResPointInfo": 19,
+        "TreasurePointInfo": 1
+      },
+      "rawPointTypeCounts": {
+        "11": 1,
+        "14": 1,
+        "21": 1,
+        "25": 1,
+        "6": 17,
+        "7": 19
+      },
+      "rejectionReasonCounts": {},
+      "acceptedAoiCounts": {
+        "0": 1,
+        "1": 2,
+        "100": 1,
+        "200": 1,
+        "300": 2,
+        "302": 3,
+        "500": 1,
+        "501": 1,
+        "800": 1,
+        "801": 1,
+        "900": 3,
+        "901": 1,
+        "902": 1
+      },
+      "resourceSourceLookupHitCount": 19,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 63,
+      "enumeratedPointInfos": 63,
+      "resourceCandidateCount": 36,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 36,
+      "nonResourcePointCount": 27,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 25,
+        "ResPointInfo": 36
+      },
+      "rawPointTypeCounts": {
+        "11": 1,
+        "25": 1,
+        "6": 25,
+        "7": 36
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 36
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 64,
+      "enumeratedPointInfos": 64,
+      "resourceCandidateCount": 41,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 41,
+      "nonResourcePointCount": 23,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 20,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 41
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "25": 2,
+        "6": 20,
+        "7": 41
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 41
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 58,
+      "enumeratedPointInfos": 58,
+      "resourceCandidateCount": 37,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 37,
+      "nonResourcePointCount": 21,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 19,
+        "ResPointInfo": 37
+      },
+      "rawPointTypeCounts": {
+        "11": 1,
+        "25": 1,
+        "6": 19,
+        "7": 37
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 37
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 70,
+      "enumeratedPointInfos": 70,
+      "resourceCandidateCount": 39,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 39,
+      "nonResourcePointCount": 31,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 28,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 39
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "25": 2,
+        "6": 28,
+        "7": 39
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 39
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 62,
+      "enumeratedPointInfos": 62,
+      "resourceCandidateCount": 39,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 39,
+      "nonResourcePointCount": 23,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 21,
+        "ResPointInfo": 39
+      },
+      "rawPointTypeCounts": {
+        "25": 2,
+        "6": 21,
+        "7": 39
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 39
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 67,
+      "enumeratedPointInfos": 67,
+      "resourceCandidateCount": 35,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 35,
+      "nonResourcePointCount": 32,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 25,
+        "HeroDispatchMissionPointInfo": 5,
+        "ResPointInfo": 35
+      },
+      "rawPointTypeCounts": {
+        "11": 1,
+        "17": 5,
+        "25": 1,
+        "6": 25,
+        "7": 35
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 35
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 77,
+      "enumeratedPointInfos": 77,
+      "resourceCandidateCount": 40,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 40,
+      "nonResourcePointCount": 37,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 21,
+        "HeroDispatchMissionPointInfo": 14,
+        "ResPointInfo": 40
+      },
+      "rawPointTypeCounts": {
+        "17": 14,
+        "25": 2,
+        "6": 21,
+        "7": 40
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 40
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 103,
+      "enumeratedPointInfos": 103,
+      "resourceCandidateCount": 43,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 43,
+      "nonResourcePointCount": 60,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 56,
+        "HeroDispatchMissionPointInfo": 2,
+        "ResPointInfo": 43
+      },
+      "rawPointTypeCounts": {
+        "17": 2,
+        "25": 2,
+        "6": 56,
+        "7": 43
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 43
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 108,
+      "enumeratedPointInfos": 108,
+      "resourceCandidateCount": 41,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 41,
+      "nonResourcePointCount": 67,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 65,
+        "ResPointInfo": 41
+      },
+      "rawPointTypeCounts": {
+        "11": 1,
+        "25": 1,
+        "6": 65,
+        "7": 41
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 41
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 89,
+      "enumeratedPointInfos": 89,
+      "resourceCandidateCount": 45,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 45,
+      "nonResourcePointCount": 44,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 32,
+        "HeroDispatchMissionPointInfo": 10,
+        "ResPointInfo": 45
+      },
+      "rawPointTypeCounts": {
+        "17": 10,
+        "25": 2,
+        "6": 32,
+        "7": 45
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 45
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 58,
+      "enumeratedPointInfos": 58,
+      "resourceCandidateCount": 28,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 28,
+      "nonResourcePointCount": 30,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 28,
+        "ResPointInfo": 28
+      },
+      "rawPointTypeCounts": {
+        "25": 2,
+        "6": 28,
+        "7": 28
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 28
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 70,
+      "enumeratedPointInfos": 70,
+      "resourceCandidateCount": 39,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 39,
+      "nonResourcePointCount": 31,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 29,
+        "ResPointInfo": 39
+      },
+      "rawPointTypeCounts": {
+        "11": 1,
+        "25": 1,
+        "6": 29,
+        "7": 39
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 39
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 72,
+      "enumeratedPointInfos": 72,
+      "resourceCandidateCount": 49,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 49,
+      "nonResourcePointCount": 23,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 21,
+        "ResPointInfo": 49
+      },
+      "rawPointTypeCounts": {
+        "25": 2,
+        "6": 21,
+        "7": 49
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 49
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 39,
+      "enumeratedPointInfos": 39,
+      "resourceCandidateCount": 25,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 25,
+      "nonResourcePointCount": 14,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 12,
+        "ResPointInfo": 25
+      },
+      "rawPointTypeCounts": {
+        "25": 2,
+        "6": 12,
+        "7": 25
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 25
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 28,
+      "enumeratedPointInfos": 28,
+      "resourceCandidateCount": 16,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 16,
+      "nonResourcePointCount": 12,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 9,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 16
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "25": 2,
+        "6": 9,
+        "7": 16
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 16
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 63,
+      "enumeratedPointInfos": 63,
+      "resourceCandidateCount": 48,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 48,
+      "nonResourcePointCount": 15,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 12,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 48
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "25": 2,
+        "6": 12,
+        "7": 48
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 48
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 80,
+      "enumeratedPointInfos": 80,
+      "resourceCandidateCount": 35,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 35,
+      "nonResourcePointCount": 45,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 38,
+        "HeroDispatchMissionPointInfo": 4,
+        "ResPointInfo": 35,
+        "TreasurePointInfo": 1
+      },
+      "rawPointTypeCounts": {
+        "17": 4,
+        "21": 1,
+        "25": 2,
+        "6": 38,
+        "7": 35
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 35
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 113,
+      "enumeratedPointInfos": 113,
+      "resourceCandidateCount": 42,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 42,
+      "nonResourcePointCount": 71,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 66,
+        "HeroDispatchMissionPointInfo": 3,
+        "ResPointInfo": 42
+      },
+      "rawPointTypeCounts": {
+        "11": 1,
+        "17": 3,
+        "25": 1,
+        "6": 66,
+        "7": 42
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 42
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 111,
+      "enumeratedPointInfos": 111,
+      "resourceCandidateCount": 44,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 44,
+      "nonResourcePointCount": 67,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 65,
+        "ResPointInfo": 44
+      },
+      "rawPointTypeCounts": {
+        "25": 2,
+        "6": 65,
+        "7": 44
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 44
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 103,
+      "enumeratedPointInfos": 103,
+      "resourceCandidateCount": 39,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 39,
+      "nonResourcePointCount": 64,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 56,
+        "HeroDispatchMissionPointInfo": 5,
+        "ResPointInfo": 39,
+        "TreasurePointInfo": 1
+      },
+      "rawPointTypeCounts": {
+        "11": 1,
+        "17": 5,
+        "21": 1,
+        "25": 1,
+        "6": 56,
+        "7": 39
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 39
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 112,
+      "enumeratedPointInfos": 112,
+      "resourceCandidateCount": 42,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 42,
+      "nonResourcePointCount": 70,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 65,
+        "HeroDispatchMissionPointInfo": 3,
+        "ResPointInfo": 42
+      },
+      "rawPointTypeCounts": {
+        "11": 1,
+        "17": 3,
+        "25": 1,
+        "6": 65,
+        "7": 42
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 42
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 127,
+      "enumeratedPointInfos": 127,
+      "resourceCandidateCount": 38,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 38,
+      "nonResourcePointCount": 89,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 3,
+        "ResPointInfo": 38
+      },
+      "rawPointTypeCounts": {
+        "11": 1,
+        "17": 3,
+        "25": 1,
+        "6": 84,
+        "7": 38
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 38
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 134,
+      "enumeratedPointInfos": 134,
+      "resourceCandidateCount": 42,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 42,
+      "nonResourcePointCount": 92,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 89,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 42
+      },
+      "rawPointTypeCounts": {
+        "11": 1,
+        "17": 1,
+        "25": 1,
+        "6": 89,
+        "7": 42
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 42
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 111,
+      "enumeratedPointInfos": 111,
+      "resourceCandidateCount": 38,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 38,
+      "nonResourcePointCount": 73,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 64,
+        "HeroDispatchMissionPointInfo": 7,
+        "ResPointInfo": 38
+      },
+      "rawPointTypeCounts": {
+        "17": 7,
+        "25": 2,
+        "6": 64,
+        "7": 38
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 38
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 96,
+      "enumeratedPointInfos": 96,
+      "resourceCandidateCount": 40,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 40,
+      "nonResourcePointCount": 56,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 49,
+        "HeroDispatchMissionPointInfo": 5,
+        "ResPointInfo": 40
+      },
+      "rawPointTypeCounts": {
+        "11": 1,
+        "17": 5,
+        "25": 1,
+        "6": 49,
+        "7": 40
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 40
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 87,
+      "enumeratedPointInfos": 87,
+      "resourceCandidateCount": 40,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 40,
+      "nonResourcePointCount": 47,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 42,
+        "HeroDispatchMissionPointInfo": 3,
+        "ResPointInfo": 40
+      },
+      "rawPointTypeCounts": {
+        "11": 1,
+        "17": 3,
+        "25": 1,
+        "6": 42,
+        "7": 40
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 40
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 118,
+      "enumeratedPointInfos": 118,
+      "resourceCandidateCount": 35,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 35,
+      "nonResourcePointCount": 83,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 73,
+        "HeroDispatchMissionPointInfo": 8,
+        "ResPointInfo": 35
+      },
+      "rawPointTypeCounts": {
+        "11": 1,
+        "17": 8,
+        "25": 1,
+        "6": 73,
+        "7": 35
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 35
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 168,
+      "enumeratedPointInfos": 168,
+      "resourceCandidateCount": 43,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 43,
+      "nonResourcePointCount": 125,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 112,
+        "HeroDispatchMissionPointInfo": 11,
+        "ResPointInfo": 43
+      },
+      "rawPointTypeCounts": {
+        "11": 1,
+        "17": 11,
+        "25": 1,
+        "6": 112,
+        "7": 43
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 43
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 78,
+      "enumeratedPointInfos": 78,
+      "resourceCandidateCount": 46,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 46,
+      "nonResourcePointCount": 32,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 30,
+        "ResPointInfo": 46
+      },
+      "rawPointTypeCounts": {
+        "25": 2,
+        "6": 30,
+        "7": 46
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 46
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 37,
+      "enumeratedPointInfos": 37,
+      "resourceCandidateCount": 20,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 20,
+      "nonResourcePointCount": 17,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 14,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 20
+      },
+      "rawPointTypeCounts": {
+        "11": 1,
+        "17": 1,
+        "25": 1,
+        "6": 14,
+        "7": 20
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 20
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 66,
+      "enumeratedPointInfos": 66,
+      "resourceCandidateCount": 44,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 44,
+      "nonResourcePointCount": 22,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 19,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 44
+      },
+      "rawPointTypeCounts": {
+        "11": 1,
+        "17": 1,
+        "25": 1,
+        "6": 19,
+        "7": 44
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 44
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 76,
+      "enumeratedPointInfos": 76,
+      "resourceCandidateCount": 39,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 39,
+      "nonResourcePointCount": 37,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 35,
+        "ResPointInfo": 39
+      },
+      "rawPointTypeCounts": {
+        "25": 2,
+        "6": 35,
+        "7": 39
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 39
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 115,
+      "enumeratedPointInfos": 115,
+      "resourceCandidateCount": 35,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 35,
+      "nonResourcePointCount": 80,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 76,
+        "HeroDispatchMissionPointInfo": 2,
+        "ResPointInfo": 35
+      },
+      "rawPointTypeCounts": {
+        "11": 1,
+        "17": 2,
+        "25": 1,
+        "6": 76,
+        "7": 35
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 35
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 110,
+      "enumeratedPointInfos": 110,
+      "resourceCandidateCount": 44,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 44,
+      "nonResourcePointCount": 66,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 62,
+        "HeroDispatchMissionPointInfo": 2,
+        "ResPointInfo": 44
+      },
+      "rawPointTypeCounts": {
+        "17": 2,
+        "25": 2,
+        "6": 62,
+        "7": 44
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 44
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 45,
+      "enumeratedPointInfos": 45,
+      "resourceCandidateCount": 42,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 42,
+      "nonResourcePointCount": 3,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 42
+      },
+      "rawPointTypeCounts": {
+        "11": 1,
+        "17": 1,
+        "25": 1,
+        "7": 42
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 42
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 35,
+      "enumeratedPointInfos": 35,
+      "resourceCandidateCount": 30,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 30,
+      "nonResourcePointCount": 5,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "HeroDispatchMissionPointInfo": 3,
+        "ResPointInfo": 30
+      },
+      "rawPointTypeCounts": {
+        "17": 3,
+        "25": 2,
+        "7": 30
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 30
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 47,
+      "enumeratedPointInfos": 47,
+      "resourceCandidateCount": 43,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 43,
+      "nonResourcePointCount": 4,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "HeroDispatchMissionPointInfo": 2,
+        "ResPointInfo": 43
+      },
+      "rawPointTypeCounts": {
+        "17": 2,
+        "25": 2,
+        "7": 43
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 43
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 48,
+      "enumeratedPointInfos": 48,
+      "resourceCandidateCount": 41,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 41,
+      "nonResourcePointCount": 7,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 1,
+        "HeroDispatchMissionPointInfo": 4,
+        "ResPointInfo": 41
+      },
+      "rawPointTypeCounts": {
+        "17": 4,
+        "25": 2,
+        "6": 1,
+        "7": 41
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 41
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 139,
+      "enumeratedPointInfos": 139,
+      "resourceCandidateCount": 42,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 42,
+      "nonResourcePointCount": 97,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 93,
+        "HeroDispatchMissionPointInfo": 2,
+        "ResPointInfo": 42
+      },
+      "rawPointTypeCounts": {
+        "11": 1,
+        "17": 2,
+        "25": 1,
+        "6": 93,
+        "7": 42
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 42
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 50,
+      "enumeratedPointInfos": 50,
+      "resourceCandidateCount": 43,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 43,
+      "nonResourcePointCount": 7,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 1,
+        "HeroDispatchMissionPointInfo": 4,
+        "ResPointInfo": 43
+      },
+      "rawPointTypeCounts": {
+        "11": 1,
+        "17": 4,
+        "25": 1,
+        "6": 1,
+        "7": 43
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 43
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 37,
+      "enumeratedPointInfos": 37,
+      "resourceCandidateCount": 33,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 33,
+      "nonResourcePointCount": 4,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "CityAttachmentBuildPointInfo": 1,
+        "CityAttachmentWallPointInfo": 1,
+        "ResPointInfo": 33
+      },
+      "rawPointTypeCounts": {
+        "25": 2,
+        "30": 1,
+        "31": 1,
+        "7": 33
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 33
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 38,
+      "enumeratedPointInfos": 38,
+      "resourceCandidateCount": 35,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 35,
+      "nonResourcePointCount": 3,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "CityAttachmentWallPointInfo": 1,
+        "ResPointInfo": 35
+      },
+      "rawPointTypeCounts": {
+        "11": 1,
+        "25": 1,
+        "31": 1,
+        "7": 35
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 35
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 46,
+      "enumeratedPointInfos": 46,
+      "resourceCandidateCount": 42,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 42,
+      "nonResourcePointCount": 4,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 1,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 42
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "25": 2,
+        "6": 1,
+        "7": 42
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 42
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 58,
+      "enumeratedPointInfos": 58,
+      "resourceCandidateCount": 52,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 52,
+      "nonResourcePointCount": 6,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 1,
+        "CityAttachmentBuildPointInfo": 1,
+        "CityAttachmentWallPointInfo": 1,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 52
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "25": 2,
+        "30": 1,
+        "31": 1,
+        "6": 1,
+        "7": 52
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 52
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 58,
+      "enumeratedPointInfos": 58,
+      "resourceCandidateCount": 33,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 33,
+      "nonResourcePointCount": 25,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 20,
+        "CityAttachmentWallPointInfo": 1,
+        "HeroDispatchMissionPointInfo": 2,
+        "ResPointInfo": 33
+      },
+      "rawPointTypeCounts": {
+        "11": 1,
+        "17": 2,
+        "25": 1,
+        "31": 1,
+        "6": 20,
+        "7": 33
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 33
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 109,
+      "enumeratedPointInfos": 109,
+      "resourceCandidateCount": 42,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 42,
+      "nonResourcePointCount": 67,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 65,
+        "ResPointInfo": 42
+      },
+      "rawPointTypeCounts": {
+        "25": 2,
+        "6": 65,
+        "7": 42
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 42
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 94,
+      "enumeratedPointInfos": 94,
+      "resourceCandidateCount": 42,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 42,
+      "nonResourcePointCount": 52,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 46,
+        "HeroDispatchMissionPointInfo": 4,
+        "ResPointInfo": 42
+      },
+      "rawPointTypeCounts": {
+        "17": 4,
+        "25": 2,
+        "6": 46,
+        "7": 42
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 42
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 71,
+      "enumeratedPointInfos": 71,
+      "resourceCandidateCount": 38,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 38,
+      "nonResourcePointCount": 33,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 28,
+        "HeroDispatchMissionPointInfo": 3,
+        "ResPointInfo": 38
+      },
+      "rawPointTypeCounts": {
+        "17": 3,
+        "25": 2,
+        "6": 28,
+        "7": 38
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 38
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 36,
+      "enumeratedPointInfos": 36,
+      "resourceCandidateCount": 22,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 22,
+      "nonResourcePointCount": 14,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 12,
+        "ResPointInfo": 22
+      },
+      "rawPointTypeCounts": {
+        "11": 1,
+        "25": 1,
+        "6": 12,
+        "7": 22
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 22
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 132,
+      "enumeratedPointInfos": 132,
+      "resourceCandidateCount": 44,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 44,
+      "nonResourcePointCount": 88,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 86,
+        "ResPointInfo": 44
+      },
+      "rawPointTypeCounts": {
+        "11": 1,
+        "25": 1,
+        "6": 86,
+        "7": 44
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 44
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 55,
+      "enumeratedPointInfos": 55,
+      "resourceCandidateCount": 33,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 33,
+      "nonResourcePointCount": 22,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 18,
+        "HeroDispatchMissionPointInfo": 2,
+        "ResPointInfo": 33
+      },
+      "rawPointTypeCounts": {
+        "17": 2,
+        "25": 2,
+        "6": 18,
+        "7": 33
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 33
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 47,
+      "enumeratedPointInfos": 47,
+      "resourceCandidateCount": 44,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 44,
+      "nonResourcePointCount": 3,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "ResPointInfo": 44,
+        "TreasurePointInfo": 1
+      },
+      "rawPointTypeCounts": {
+        "21": 1,
+        "25": 2,
+        "7": 44
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 44
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 52,
+      "enumeratedPointInfos": 52,
+      "resourceCandidateCount": 37,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 37,
+      "nonResourcePointCount": 15,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 10,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 37,
+        "TreasurePointInfo": 2
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "21": 2,
+        "25": 2,
+        "6": 10,
+        "7": 37
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 37
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 50,
+      "enumeratedPointInfos": 50,
+      "resourceCandidateCount": 37,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 37,
+      "nonResourcePointCount": 13,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 4,
+        "HeroDispatchMissionPointInfo": 6,
+        "ResPointInfo": 37,
+        "TreasurePointInfo": 1
+      },
+      "rawPointTypeCounts": {
+        "17": 6,
+        "21": 1,
+        "25": 2,
+        "6": 4,
+        "7": 37
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 37
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 59,
+      "enumeratedPointInfos": 59,
+      "resourceCandidateCount": 42,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 42,
+      "nonResourcePointCount": 17,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 14,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 42
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "25": 2,
+        "6": 14,
+        "7": 42
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 42
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 89,
+      "enumeratedPointInfos": 89,
+      "resourceCandidateCount": 40,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 40,
+      "nonResourcePointCount": 49,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 46,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 40
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "25": 2,
+        "6": 46,
+        "7": 40
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 40
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 72,
+      "enumeratedPointInfos": 72,
+      "resourceCandidateCount": 43,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 43,
+      "nonResourcePointCount": 29,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 24,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 43,
+        "TreasurePointInfo": 2
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "21": 2,
+        "25": 2,
+        "6": 24,
+        "7": 43
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 43
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 40,
+      "enumeratedPointInfos": 40,
+      "resourceCandidateCount": 23,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 23,
+      "nonResourcePointCount": 17,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 15,
+        "ResPointInfo": 23
+      },
+      "rawPointTypeCounts": {
+        "25": 2,
+        "6": 15,
+        "7": 23
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 23
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 45,
+      "enumeratedPointInfos": 45,
+      "resourceCandidateCount": 25,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 25,
+      "nonResourcePointCount": 20,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 17,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 25
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "25": 2,
+        "6": 17,
+        "7": 25
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 25
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 71,
+      "enumeratedPointInfos": 71,
+      "resourceCandidateCount": 35,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 35,
+      "nonResourcePointCount": 36,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 27,
+        "HeroDispatchMissionPointInfo": 7,
+        "ResPointInfo": 35
+      },
+      "rawPointTypeCounts": {
+        "17": 7,
+        "25": 2,
+        "6": 27,
+        "7": 35
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 35
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 94,
+      "enumeratedPointInfos": 94,
+      "resourceCandidateCount": 47,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 47,
+      "nonResourcePointCount": 47,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 45,
+        "ResPointInfo": 47
+      },
+      "rawPointTypeCounts": {
+        "25": 2,
+        "6": 45,
+        "7": 47
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 47
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 162,
+      "enumeratedPointInfos": 162,
+      "resourceCandidateCount": 35,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 35,
+      "nonResourcePointCount": 127,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 122,
+        "HeroDispatchMissionPointInfo": 2,
+        "ResPointInfo": 35,
+        "TreasurePointInfo": 1
+      },
+      "rawPointTypeCounts": {
+        "17": 2,
+        "21": 1,
+        "25": 2,
+        "6": 122,
+        "7": 35
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 35
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 121,
+      "enumeratedPointInfos": 121,
+      "resourceCandidateCount": 49,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 49,
+      "nonResourcePointCount": 72,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 64,
+        "CityAttachmentBuildPointInfo": 1,
+        "CityAttachmentWallPointInfo": 1,
+        "HeroDispatchMissionPointInfo": 4,
+        "ResPointInfo": 49
+      },
+      "rawPointTypeCounts": {
+        "17": 4,
+        "25": 2,
+        "30": 1,
+        "31": 1,
+        "6": 64,
+        "7": 49
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 49
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 40,
+      "enumeratedPointInfos": 40,
+      "resourceCandidateCount": 34,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 34,
+      "nonResourcePointCount": 6,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "CityAttachmentWallPointInfo": 1,
+        "HeroDispatchMissionPointInfo": 3,
+        "ResPointInfo": 34
+      },
+      "rawPointTypeCounts": {
+        "11": 1,
+        "17": 3,
+        "25": 1,
+        "31": 1,
+        "7": 34
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 34
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 60,
+      "enumeratedPointInfos": 60,
+      "resourceCandidateCount": 39,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 39,
+      "nonResourcePointCount": 21,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "HeroDispatchMissionPointInfo": 19,
+        "ResPointInfo": 39
+      },
+      "rawPointTypeCounts": {
+        "17": 19,
+        "25": 2,
+        "7": 39
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 39
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 42,
+      "enumeratedPointInfos": 42,
+      "resourceCandidateCount": 31,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 31,
+      "nonResourcePointCount": 11,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "HeroDispatchMissionPointInfo": 9,
+        "ResPointInfo": 31
+      },
+      "rawPointTypeCounts": {
+        "11": 1,
+        "17": 9,
+        "25": 1,
+        "7": 31
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 31
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 180,
+      "enumeratedPointInfos": 180,
+      "resourceCandidateCount": 41,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 41,
+      "nonResourcePointCount": 139,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 131,
+        "HeroDispatchMissionPointInfo": 5,
+        "ResPointInfo": 41,
+        "TreasurePointInfo": 1
+      },
+      "rawPointTypeCounts": {
+        "17": 5,
+        "21": 1,
+        "25": 2,
+        "6": 131,
+        "7": 41
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 41
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 70,
+      "enumeratedPointInfos": 70,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 63,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 62,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 62,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 62,
+      "enumeratedPointInfos": 62,
+      "resourceCandidateCount": 46,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 46,
+      "nonResourcePointCount": 16,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "HeroDispatchMissionPointInfo": 14,
+        "ResPointInfo": 46
+      },
+      "rawPointTypeCounts": {
+        "11": 1,
+        "17": 14,
+        "25": 1,
+        "7": 46
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 46
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 45,
+      "enumeratedPointInfos": 45,
+      "resourceCandidateCount": 41,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 41,
+      "nonResourcePointCount": 4,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "HeroDispatchMissionPointInfo": 2,
+        "ResPointInfo": 41
+      },
+      "rawPointTypeCounts": {
+        "17": 2,
+        "25": 2,
+        "7": 41
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 41
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 39,
+      "enumeratedPointInfos": 39,
+      "resourceCandidateCount": 37,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 37,
+      "nonResourcePointCount": 2,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "ResPointInfo": 37
+      },
+      "rawPointTypeCounts": {
+        "25": 2,
+        "7": 37
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 37
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 56,
+      "enumeratedPointInfos": 56,
+      "resourceCandidateCount": 40,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 40,
+      "nonResourcePointCount": 16,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 14,
+        "ResPointInfo": 40
+      },
+      "rawPointTypeCounts": {
+        "11": 1,
+        "25": 1,
+        "6": 14,
+        "7": 40
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 40
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 56,
+      "enumeratedPointInfos": 56,
+      "resourceCandidateCount": 34,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 34,
+      "nonResourcePointCount": 22,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 20,
+        "ResPointInfo": 34
+      },
+      "rawPointTypeCounts": {
+        "25": 2,
+        "6": 20,
+        "7": 34
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 34
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 73,
+      "enumeratedPointInfos": 73,
+      "resourceCandidateCount": 47,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 47,
+      "nonResourcePointCount": 26,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 23,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 47
+      },
+      "rawPointTypeCounts": {
+        "11": 1,
+        "17": 1,
+        "25": 1,
+        "6": 23,
+        "7": 47
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 47
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 69,
+      "enumeratedPointInfos": 69,
+      "resourceCandidateCount": 43,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 43,
+      "nonResourcePointCount": 26,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 22,
+        "HeroDispatchMissionPointInfo": 2,
+        "ResPointInfo": 43
+      },
+      "rawPointTypeCounts": {
+        "17": 2,
+        "25": 2,
+        "6": 22,
+        "7": 43
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 43
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 38,
+      "enumeratedPointInfos": 38,
+      "resourceCandidateCount": 26,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 26,
+      "nonResourcePointCount": 12,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 9,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 26
+      },
+      "rawPointTypeCounts": {
+        "11": 1,
+        "17": 1,
+        "25": 1,
+        "6": 9,
+        "7": 26
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 26
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 70,
+      "enumeratedPointInfos": 70,
+      "resourceCandidateCount": 42,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 42,
+      "nonResourcePointCount": 28,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 24,
+        "HeroDispatchMissionPointInfo": 2,
+        "ResPointInfo": 42
+      },
+      "rawPointTypeCounts": {
+        "11": 1,
+        "17": 2,
+        "25": 1,
+        "6": 24,
+        "7": 42
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 42
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 51,
+      "enumeratedPointInfos": 51,
+      "resourceCandidateCount": 46,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 46,
+      "nonResourcePointCount": 5,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "HeroDispatchMissionPointInfo": 3,
+        "ResPointInfo": 46
+      },
+      "rawPointTypeCounts": {
+        "17": 3,
+        "25": 2,
+        "7": 46
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 46
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 42,
+      "enumeratedPointInfos": 42,
+      "resourceCandidateCount": 39,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 39,
+      "nonResourcePointCount": 3,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 39
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "25": 2,
+        "7": 39
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 39
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 64,
+      "enumeratedPointInfos": 64,
+      "resourceCandidateCount": 38,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 38,
+      "nonResourcePointCount": 26,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 1,
+        "CityAttachmentBuildPointInfo": 1,
+        "CityAttachmentWallPointInfo": 2,
+        "HeroDispatchMissionPointInfo": 20,
+        "ResPointInfo": 38
+      },
+      "rawPointTypeCounts": {
+        "11": 1,
+        "17": 20,
+        "25": 1,
+        "30": 1,
+        "31": 2,
+        "6": 1,
+        "7": 38
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 38
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 71,
+      "enumeratedPointInfos": 71,
+      "resourceCandidateCount": 40,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 40,
+      "nonResourcePointCount": 31,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 6,
+        "HeroDispatchMissionPointInfo": 23,
+        "ResPointInfo": 40
+      },
+      "rawPointTypeCounts": {
+        "17": 23,
+        "25": 2,
+        "6": 6,
+        "7": 40
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 40
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 151,
+      "enumeratedPointInfos": 151,
+      "resourceCandidateCount": 40,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 40,
+      "nonResourcePointCount": 111,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 102,
+        "HeroDispatchMissionPointInfo": 5,
+        "ResPointInfo": 40,
+        "TreasurePointInfo": 2
+      },
+      "rawPointTypeCounts": {
+        "11": 1,
+        "17": 5,
+        "21": 2,
+        "25": 1,
+        "6": 102,
+        "7": 40
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 40
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 155,
+      "enumeratedPointInfos": 155,
+      "resourceCandidateCount": 31,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 31,
+      "nonResourcePointCount": 124,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 3,
+        "BuildPointInfo": 114,
+        "HeroDispatchMissionPointInfo": 7,
+        "ResPointInfo": 31
+      },
+      "rawPointTypeCounts": {
+        "11": 2,
+        "17": 7,
+        "25": 1,
+        "6": 114,
+        "7": 31
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 31
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 116,
+      "enumeratedPointInfos": 116,
+      "resourceCandidateCount": 42,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 42,
+      "nonResourcePointCount": 74,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 1,
+        "BuildPointInfo": 64,
+        "HeroDispatchMissionPointInfo": 8,
+        "ResPointInfo": 42,
+        "TreasurePointInfo": 1
+      },
+      "rawPointTypeCounts": {
+        "17": 8,
+        "21": 1,
+        "25": 1,
+        "6": 64,
+        "7": 42
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 42
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 78,
+      "enumeratedPointInfos": 78,
+      "resourceCandidateCount": 39,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 39,
+      "nonResourcePointCount": 39,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 28,
+        "HeroDispatchMissionPointInfo": 9,
+        "ResPointInfo": 39
+      },
+      "rawPointTypeCounts": {
+        "11": 1,
+        "17": 9,
+        "25": 1,
+        "6": 28,
+        "7": 39
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 39
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 55,
+      "enumeratedPointInfos": 55,
+      "resourceCandidateCount": 45,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 45,
+      "nonResourcePointCount": 10,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "CityAttachmentBuildPointInfo": 1,
+        "CityAttachmentWallPointInfo": 2,
+        "HeroDispatchMissionPointInfo": 5,
+        "ResPointInfo": 45
+      },
+      "rawPointTypeCounts": {
+        "11": 1,
+        "17": 5,
+        "25": 1,
+        "30": 1,
+        "31": 2,
+        "7": 45
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 45
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 72,
+      "enumeratedPointInfos": 72,
+      "resourceCandidateCount": 39,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 39,
+      "nonResourcePointCount": 33,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 31,
+        "ResPointInfo": 39
+      },
+      "rawPointTypeCounts": {
+        "25": 2,
+        "6": 31,
+        "7": 39
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 39
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 110,
+      "enumeratedPointInfos": 110,
+      "resourceCandidateCount": 39,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 39,
+      "nonResourcePointCount": 71,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 56,
+        "HeroDispatchMissionPointInfo": 13,
+        "ResPointInfo": 39
+      },
+      "rawPointTypeCounts": {
+        "11": 1,
+        "17": 13,
+        "25": 1,
+        "6": 56,
+        "7": 39
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 39
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 52,
+      "enumeratedPointInfos": 52,
+      "resourceCandidateCount": 42,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 42,
+      "nonResourcePointCount": 10,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 1,
+        "HeroDispatchMissionPointInfo": 7,
+        "ResPointInfo": 42
+      },
+      "rawPointTypeCounts": {
+        "11": 1,
+        "17": 7,
+        "25": 1,
+        "6": 1,
+        "7": 42
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 42
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 43,
+      "enumeratedPointInfos": 43,
+      "resourceCandidateCount": 41,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 41,
+      "nonResourcePointCount": 2,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "ResPointInfo": 41
+      },
+      "rawPointTypeCounts": {
+        "25": 2,
+        "7": 41
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 41
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 106,
+      "enumeratedPointInfos": 106,
+      "resourceCandidateCount": 32,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 32,
+      "nonResourcePointCount": 74,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 72,
+        "ResPointInfo": 32
+      },
+      "rawPointTypeCounts": {
+        "11": 1,
+        "25": 1,
+        "6": 72,
+        "7": 32
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 32
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 63,
+      "enumeratedPointInfos": 63,
+      "resourceCandidateCount": 42,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 42,
+      "nonResourcePointCount": 21,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 18,
+        "ResPointInfo": 42,
+        "TreasurePointInfo": 1
+      },
+      "rawPointTypeCounts": {
+        "21": 1,
+        "25": 2,
+        "6": 18,
+        "7": 42
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 42
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 41,
+      "enumeratedPointInfos": 41,
+      "resourceCandidateCount": 23,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 23,
+      "nonResourcePointCount": 18,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 16,
+        "ResPointInfo": 23
+      },
+      "rawPointTypeCounts": {
+        "25": 2,
+        "6": 16,
+        "7": 23
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 23
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 38,
+      "enumeratedPointInfos": 38,
+      "resourceCandidateCount": 33,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 33,
+      "nonResourcePointCount": 5,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 2,
+        "CityAttachmentWallPointInfo": 1,
+        "ResPointInfo": 33
+      },
+      "rawPointTypeCounts": {
+        "11": 1,
+        "25": 1,
+        "31": 1,
+        "6": 2,
+        "7": 33
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 33
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 56,
+      "enumeratedPointInfos": 56,
+      "resourceCandidateCount": 41,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 41,
+      "nonResourcePointCount": 15,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "CityAttachmentBuildPointInfo": 3,
+        "CityAttachmentWallPointInfo": 6,
+        "HeroDispatchMissionPointInfo": 4,
+        "ResPointInfo": 41
+      },
+      "rawPointTypeCounts": {
+        "11": 1,
+        "17": 4,
+        "25": 1,
+        "30": 3,
+        "31": 6,
+        "7": 41
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 41
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 55,
+      "enumeratedPointInfos": 55,
+      "resourceCandidateCount": 50,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 50,
+      "nonResourcePointCount": 5,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "CityAttachmentWallPointInfo": 1,
+        "HeroDispatchMissionPointInfo": 2,
+        "ResPointInfo": 50
+      },
+      "rawPointTypeCounts": {
+        "11": 1,
+        "17": 2,
+        "25": 1,
+        "31": 1,
+        "7": 50
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 50
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 45,
+      "enumeratedPointInfos": 45,
+      "resourceCandidateCount": 39,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 39,
+      "nonResourcePointCount": 6,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 2,
+        "CityAttachmentBuildPointInfo": 1,
+        "CityAttachmentWallPointInfo": 1,
+        "ResPointInfo": 39
+      },
+      "rawPointTypeCounts": {
+        "25": 2,
+        "30": 1,
+        "31": 1,
+        "6": 2,
+        "7": 39
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 39
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 51,
+      "enumeratedPointInfos": 51,
+      "resourceCandidateCount": 34,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 34,
+      "nonResourcePointCount": 17,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 13,
+        "CityAttachmentWallPointInfo": 1,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 34
+      },
+      "rawPointTypeCounts": {
+        "11": 1,
+        "17": 1,
+        "25": 1,
+        "31": 1,
+        "6": 13,
+        "7": 34
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 34
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 102,
+      "enumeratedPointInfos": 102,
+      "resourceCandidateCount": 41,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 41,
+      "nonResourcePointCount": 61,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 57,
+        "HeroDispatchMissionPointInfo": 2,
+        "ResPointInfo": 41
+      },
+      "rawPointTypeCounts": {
+        "17": 2,
+        "25": 2,
+        "6": 57,
+        "7": 41
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 41
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 68,
+      "enumeratedPointInfos": 68,
+      "resourceCandidateCount": 38,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 38,
+      "nonResourcePointCount": 30,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 28,
+        "ResPointInfo": 38
+      },
+      "rawPointTypeCounts": {
+        "25": 2,
+        "6": 28,
+        "7": 38
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 38
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 78,
+      "enumeratedPointInfos": 78,
+      "resourceCandidateCount": 41,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 41,
+      "nonResourcePointCount": 37,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 31,
+        "HeroDispatchMissionPointInfo": 4,
+        "ResPointInfo": 41
+      },
+      "rawPointTypeCounts": {
+        "11": 1,
+        "17": 4,
+        "25": 1,
+        "6": 31,
+        "7": 41
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 41
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 87,
+      "enumeratedPointInfos": 87,
+      "resourceCandidateCount": 41,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 41,
+      "nonResourcePointCount": 46,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 40,
+        "HeroDispatchMissionPointInfo": 4,
+        "ResPointInfo": 41
+      },
+      "rawPointTypeCounts": {
+        "17": 4,
+        "25": 2,
+        "6": 40,
+        "7": 41
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 41
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 149,
+      "enumeratedPointInfos": 149,
+      "resourceCandidateCount": 40,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 40,
+      "nonResourcePointCount": 109,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 105,
+        "HeroDispatchMissionPointInfo": 2,
+        "ResPointInfo": 40
+      },
+      "rawPointTypeCounts": {
+        "17": 2,
+        "25": 2,
+        "6": 105,
+        "7": 40
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 40
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 167,
+      "enumeratedPointInfos": 167,
+      "resourceCandidateCount": 40,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 40,
+      "nonResourcePointCount": 127,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 125,
+        "ResPointInfo": 40
+      },
+      "rawPointTypeCounts": {
+        "11": 1,
+        "25": 1,
+        "6": 125,
+        "7": 40
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 40
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 139,
+      "enumeratedPointInfos": 139,
+      "resourceCandidateCount": 45,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 45,
+      "nonResourcePointCount": 94,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 86,
+        "HeroDispatchMissionPointInfo": 6,
+        "ResPointInfo": 45
+      },
+      "rawPointTypeCounts": {
+        "11": 1,
+        "17": 6,
+        "25": 1,
+        "6": 86,
+        "7": 45
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 45
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 143,
+      "enumeratedPointInfos": 143,
+      "resourceCandidateCount": 41,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 41,
+      "nonResourcePointCount": 102,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 99,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 41
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "25": 2,
+        "6": 99,
+        "7": 41
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 41
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 134,
+      "enumeratedPointInfos": 134,
+      "resourceCandidateCount": 36,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 36,
+      "nonResourcePointCount": 98,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 93,
+        "HeroDispatchMissionPointInfo": 3,
+        "ResPointInfo": 36
+      },
+      "rawPointTypeCounts": {
+        "17": 3,
+        "25": 2,
+        "6": 93,
+        "7": 36
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 36
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 134,
+      "enumeratedPointInfos": 134,
+      "resourceCandidateCount": 43,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 43,
+      "nonResourcePointCount": 91,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 85,
+        "HeroDispatchMissionPointInfo": 4,
+        "ResPointInfo": 43
+      },
+      "rawPointTypeCounts": {
+        "17": 4,
+        "25": 2,
+        "6": 85,
+        "7": 43
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 43
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 122,
+      "enumeratedPointInfos": 122,
+      "resourceCandidateCount": 46,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 46,
+      "nonResourcePointCount": 76,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 74,
+        "ResPointInfo": 46
+      },
+      "rawPointTypeCounts": {
+        "11": 1,
+        "25": 1,
+        "6": 74,
+        "7": 46
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 46
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 38,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 38,
+      "nonResourcePointCount": 54,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 50,
+        "CityAttachmentBuildPointInfo": 1,
+        "CityAttachmentWallPointInfo": 1,
+        "ResPointInfo": 38
+      },
+      "rawPointTypeCounts": {
+        "25": 2,
+        "30": 1,
+        "31": 1,
+        "6": 50,
+        "7": 38
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 38
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 93,
+      "enumeratedPointInfos": 93,
+      "resourceCandidateCount": 35,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 35,
+      "nonResourcePointCount": 58,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 52,
+        "HeroDispatchMissionPointInfo": 4,
+        "ResPointInfo": 35
+      },
+      "rawPointTypeCounts": {
+        "17": 4,
+        "25": 2,
+        "6": 52,
+        "7": 35
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 35
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 123,
+      "enumeratedPointInfos": 123,
+      "resourceCandidateCount": 45,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 45,
+      "nonResourcePointCount": 78,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 73,
+        "HeroDispatchMissionPointInfo": 3,
+        "ResPointInfo": 45
+      },
+      "rawPointTypeCounts": {
+        "17": 3,
+        "25": 2,
+        "6": 73,
+        "7": 45
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 45
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 76,
+      "enumeratedPointInfos": 76,
+      "resourceCandidateCount": 48,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 48,
+      "nonResourcePointCount": 28,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 22,
+        "HeroDispatchMissionPointInfo": 4,
+        "ResPointInfo": 48
+      },
+      "rawPointTypeCounts": {
+        "17": 4,
+        "25": 2,
+        "6": 22,
+        "7": 48
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 48
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 64,
+      "enumeratedPointInfos": 64,
+      "resourceCandidateCount": 34,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 34,
+      "nonResourcePointCount": 30,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 1,
+        "BuildPointInfo": 22,
+        "HeroDispatchMissionPointInfo": 7,
+        "ResPointInfo": 34
+      },
+      "rawPointTypeCounts": {
+        "17": 7,
+        "25": 1,
+        "6": 22,
+        "7": 34
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 34
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 67,
+      "enumeratedPointInfos": 67,
+      "resourceCandidateCount": 43,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 43,
+      "nonResourcePointCount": 24,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 19,
+        "HeroDispatchMissionPointInfo": 3,
+        "ResPointInfo": 43
+      },
+      "rawPointTypeCounts": {
+        "17": 3,
+        "25": 2,
+        "6": 19,
+        "7": 43
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 43
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 85,
+      "enumeratedPointInfos": 85,
+      "resourceCandidateCount": 47,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 47,
+      "nonResourcePointCount": 38,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 1,
+        "BuildPointInfo": 29,
+        "HeroDispatchMissionPointInfo": 7,
+        "ResPointInfo": 47,
+        "TreasurePointInfo": 1
+      },
+      "rawPointTypeCounts": {
+        "17": 7,
+        "21": 1,
+        "25": 1,
+        "6": 29,
+        "7": 47
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 47
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 74,
+      "enumeratedPointInfos": 74,
+      "resourceCandidateCount": 40,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 40,
+      "nonResourcePointCount": 34,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 32,
+        "ResPointInfo": 40
+      },
+      "rawPointTypeCounts": {
+        "11": 1,
+        "25": 1,
+        "6": 32,
+        "7": 40
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 40
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 65,
+      "enumeratedPointInfos": 65,
+      "resourceCandidateCount": 38,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 38,
+      "nonResourcePointCount": 27,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 1,
+        "BuildPointInfo": 25,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 38
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "25": 1,
+        "6": 25,
+        "7": 38
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 38
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 73,
+      "enumeratedPointInfos": 73,
+      "resourceCandidateCount": 51,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 51,
+      "nonResourcePointCount": 22,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 1,
+        "BuildPointInfo": 21,
+        "ResPointInfo": 51
+      },
+      "rawPointTypeCounts": {
+        "11": 1,
+        "6": 21,
+        "7": 51
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 51
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 65,
+      "enumeratedPointInfos": 65,
+      "resourceCandidateCount": 43,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 43,
+      "nonResourcePointCount": 22,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 20,
+        "ResPointInfo": 43
+      },
+      "rawPointTypeCounts": {
+        "25": 2,
+        "6": 20,
+        "7": 43
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 43
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 53,
+      "enumeratedPointInfos": 53,
+      "resourceCandidateCount": 26,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 26,
+      "nonResourcePointCount": 27,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 1,
+        "BuildPointInfo": 24,
+        "HeroDispatchMissionPointInfo": 2,
+        "ResPointInfo": 26
+      },
+      "rawPointTypeCounts": {
+        "17": 2,
+        "25": 1,
+        "6": 24,
+        "7": 26
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 26
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 66,
+      "enumeratedPointInfos": 66,
+      "resourceCandidateCount": 44,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 44,
+      "nonResourcePointCount": 22,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 20,
+        "ResPointInfo": 44
+      },
+      "rawPointTypeCounts": {
+        "11": 1,
+        "25": 1,
+        "6": 20,
+        "7": 44
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 44
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 92,
+      "enumeratedPointInfos": 92,
+      "resourceCandidateCount": 7,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 7,
+      "nonResourcePointCount": 85,
+      "runtimeClassCounts": {
+        "BuildPointInfo": 84,
+        "HeroDispatchMissionPointInfo": 1,
+        "ResPointInfo": 7
+      },
+      "rawPointTypeCounts": {
+        "17": 1,
+        "6": 84,
+        "7": 7
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 7
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 78,
+      "enumeratedPointInfos": 78,
+      "resourceCandidateCount": 42,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 42,
+      "nonResourcePointCount": 36,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 32,
+        "HeroDispatchMissionPointInfo": 2,
+        "ResPointInfo": 42
+      },
+      "rawPointTypeCounts": {
+        "17": 2,
+        "25": 2,
+        "6": 32,
+        "7": 42
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 42
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 66,
+      "enumeratedPointInfos": 66,
+      "resourceCandidateCount": 40,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 40,
+      "nonResourcePointCount": 26,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 1,
+        "BuildPointInfo": 22,
+        "HeroDispatchMissionPointInfo": 3,
+        "ResPointInfo": 40
+      },
+      "rawPointTypeCounts": {
+        "11": 1,
+        "17": 3,
+        "6": 22,
+        "7": 40
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 40
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 65,
+      "enumeratedPointInfos": 65,
+      "resourceCandidateCount": 38,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 38,
+      "nonResourcePointCount": 27,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 2,
+        "BuildPointInfo": 25,
+        "ResPointInfo": 38
+      },
+      "rawPointTypeCounts": {
+        "25": 2,
+        "6": 25,
+        "7": 38
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 38
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    },
+    {
+      "observedPointInfos": 90,
+      "enumeratedPointInfos": 90,
+      "resourceCandidateCount": 52,
+      "acceptedResourceCount": 0,
+      "rejectedResourceCandidateCount": 52,
+      "nonResourcePointCount": 38,
+      "runtimeClassCounts": {
+        "AllyCityPointInfo": 1,
+        "BuildPointInfo": 33,
+        "HeroDispatchMissionPointInfo": 2,
+        "ResPointInfo": 52,
+        "TreasurePointInfo": 2
+      },
+      "rawPointTypeCounts": {
+        "17": 2,
+        "21": 2,
+        "25": 1,
+        "6": 33,
+        "7": 52
+      },
+      "rejectionReasonCounts": {
+        "outside_selected_aoi": 52
+      },
+      "acceptedAoiCounts": {},
+      "resourceSourceLookupHitCount": 0,
+      "resourceSourceLookupFallbackCount": 0
+    }
+  ],
+  "acceptedRows": [
+    {
+      "recordKey": "18",
+      "serverId": 2212,
+      "pointIndex": 18,
+      "uuid": null,
+      "name": null,
+      "allianceName": null,
+      "level": 3,
+      "quality": null,
+      "power": null,
+      "distance": null,
+      "shieldEndTime": null,
+      "updatedAt": 1790771885000,
+      "x": 17,
+      "y": 0,
+      "nativeAoiIndex": 1,
+      "logicalBlockIndex": 0,
+      "rawPointType": 7,
+      "resourceTypeId": "2",
+      "resourceNameKey": "129027",
+      "isBlackTile": false,
+      "gatherOccupied": false,
+      "resourceDetailState": "full",
+      "resourceRemainingAmount": 64800,
+      "resourceFullAmount": 64800,
+      "sourceServerId": 2212,
+      "worldId": 0,
+      "dataJson": "{\u0022blackTileKnown\u0022:true,\u0022gatherOccupancyKnown\u0022:true,\u0022gatherOccupied\u0022:false,\u0022id\u0022:18,\u0022isBlackTile\u0022:false,\u0022kind\u0022:\u0022resource\u0022,\u0022level\u0022:3,\u0022pointId\u0022:18,\u0022pointType\u0022:7,\u0022resourceConfigId\u0022:203,\u0022resourceMaxAmount\u0022:64800,\u0022resourceNameKey\u0022:\u0022129027\u0022,\u0022resourceSourceType\u0022:\u0022ResPointInfo\u0022,\u0022resourceTypeId\u0022:2,\u0022runtimeClass\u0022:\u0022ResPointInfo\u0022,\u0022serverId\u0022:2212,\u0022source\u0022:\u0022WorldPointManager._pointInfos\\u002BGatherResource\\u002BLuaEntry.Player.IsInBlackRange\u0022,\u0022srcServerId\u0022:2212,\u0022worldId\u0022:0,\u0022x\u0022:17,\u0022y\u0022:0,\u0022sourceKind\u0022:\u0022resource_point\u0022,\u0022recordKey\u0022:\u002218\u0022,\u0022pointIndex\u0022:18,\u0022updatedAt\u0022:1790771885000,\u0022rebuildGatherOccupancyKnown\u0022:true,\u0022rebuildGatherOccupied\u0022:false,\u0022resourceDetailKnown\u0022:true,\u0022resourceRemainingAmount\u0022:64800,\u0022resourceFullAmount\u0022:64800,\u0022resourceFull\u0022:true,\u0022resourceCapacityMatchesConfig\u0022:true}"
+    },
+    {
+      "recordKey": "3018",
+      "serverId": 2212,
+      "pointIndex": 3018,
+      "uuid": null,
+      "name": null,
+      "allianceName": null,
+      "level": 2,
+      "quality": null,
+      "power": null,
+      "distance": null,
+      "shieldEndTime": null,
+      "updatedAt": 1790771885000,
+      "x": 17,
+      "y": 3,
+      "nativeAoiIndex": 1,
+      "logicalBlockIndex": 0,
+      "rawPointType": 7,
+      "resourceTypeId": "2",
+      "resourceNameKey": "129027",
+      "isBlackTile": false,
+      "gatherOccupied": false,
+      "resourceDetailState": "full",
+      "resourceRemainingAmount": 43200,
+      "resourceFullAmount": 43200,
+      "sourceServerId": 2212,
+      "worldId": 0,
+      "dataJson": "{\u0022blackTileKnown\u0022:true,\u0022gatherOccupancyKnown\u0022:true,\u0022gatherOccupied\u0022:false,\u0022id\u0022:3018,\u0022isBlackTile\u0022:false,\u0022kind\u0022:\u0022resource\u0022,\u0022level\u0022:2,\u0022pointId\u0022:3018,\u0022pointType\u0022:7,\u0022resourceConfigId\u0022:202,\u0022resourceMaxAmount\u0022:43200,\u0022resourceNameKey\u0022:\u0022129027\u0022,\u0022resourceSourceType\u0022:\u0022ResPointInfo\u0022,\u0022resourceTypeId\u0022:2,\u0022runtimeClass\u0022:\u0022ResPointInfo\u0022,\u0022serverId\u0022:2212,\u0022source\u0022:\u0022WorldPointManager._pointInfos\\u002BGatherResource\\u002BLuaEntry.Player.IsInBlackRange\u0022,\u0022srcServerId\u0022:2212,\u0022worldId\u0022:0,\u0022x\u0022:17,\u0022y\u0022:3,\u0022sourceKind\u0022:\u0022resource_point\u0022,\u0022recordKey\u0022:\u00223018\u0022,\u0022pointIndex\u0022:3018,\u0022updatedAt\u0022:1790771885000,\u0022rebuildGatherOccupancyKnown\u0022:true,\u0022rebuildGatherOccupied\u0022:false,\u0022resourceDetailKnown\u0022:true,\u0022resourceRemainingAmount\u0022:43200,\u0022resourceFullAmount\u0022:43200,\u0022resourceFull\u0022:true,\u0022resourceCapacityMatchesConfig\u0022:true}"
+    },
+    {
+      "recordKey": "9010",
+      "serverId": 2212,
+      "pointIndex": 9010,
+      "uuid": null,
+      "name": null,
+      "allianceName": null,
+      "level": 3,
+      "quality": null,
+      "power": null,
+      "distance": null,
+      "shieldEndTime": null,
+      "updatedAt": 1790771885000,
+      "x": 9,
+      "y": 9,
+      "nativeAoiIndex": 0,
+      "logicalBlockIndex": 0,
+      "rawPointType": 7,
+      "resourceTypeId": "14",
+      "resourceNameKey": "100317",
+      "isBlackTile": false,
+      "gatherOccupied": false,
+      "resourceDetailState": "full",
+      "resourceRemainingAmount": 108000,
+      "resourceFullAmount": 108000,
+      "sourceServerId": 2212,
+      "worldId": 0,
+      "dataJson": "{\u0022blackTileKnown\u0022:true,\u0022gatherOccupancyKnown\u0022:true,\u0022gatherOccupied\u0022:false,\u0022id\u0022:9010,\u0022isBlackTile\u0022:false,\u0022kind\u0022:\u0022resource\u0022,\u0022level\u0022:3,\u0022pointId\u0022:9010,\u0022pointType\u0022:7,\u0022resourceConfigId\u0022:103,\u0022resourceMaxAmount\u0022:108000,\u0022resourceNameKey\u0022:\u0022100317\u0022,\u0022resourceSourceType\u0022:\u0022ResPointInfo\u0022,\u0022resourceTypeId\u0022:14,\u0022runtimeClass\u0022:\u0022ResPointInfo\u0022,\u0022serverId\u0022:2212,\u0022source\u0022:\u0022WorldPointManager._pointInfos\\u002BGatherResource\\u002BLuaEntry.Player.IsInBlackRange\u0022,\u0022srcServerId\u0022:2212,\u0022worldId\u0022:0,\u0022x\u0022:9,\u0022y\u0022:9,\u0022sourceKind\u0022:\u0022resource_point\u0022,\u0022recordKey\u0022:\u00229010\u0022,\u0022pointIndex\u0022:9010,\u0022updatedAt\u0022:1790771885000,\u0022rebuildGatherOccupancyKnown\u0022:true,\u0022rebuildGatherOccupied\u0022:false,\u0022resourceDetailKnown\u0022:true,\u0022resourceRemainingAmount\u0022:108000,\u0022resourceFullAmount\u0022:108000,\u0022resourceFull\u0022:true,\u0022resourceCapacityMatchesConfig\u0022:true}"
+    },
+    {
+      "recordKey": "10005",
+      "serverId": 2212,
+      "pointIndex": 10005,
+      "uuid": null,
+      "name": null,
+      "allianceName": null,
+      "level": 3,
+      "quality": null,
+      "power": null,
+      "distance": null,
+      "shieldEndTime": null,
+      "updatedAt": 1790771885000,
+      "x": 4,
+      "y": 10,
+      "nativeAoiIndex": 100,
+      "logicalBlockIndex": 0,
+      "rawPointType": 7,
+      "resourceTypeId": "1",
+      "resourceNameKey": "100281",
+      "isBlackTile": false,
+      "gatherOccupied": false,
+      "resourceDetailState": "partial",
+      "resourceRemainingAmount": 107909,
+      "resourceFullAmount": 108000,
+      "sourceServerId": 2212,
+      "worldId": 0,
+      "dataJson": "{\u0022blackTileKnown\u0022:true,\u0022gatherOccupancyKnown\u0022:true,\u0022gatherOccupied\u0022:false,\u0022id\u0022:10005,\u0022isBlackTile\u0022:false,\u0022kind\u0022:\u0022resource\u0022,\u0022level\u0022:3,\u0022pointId\u0022:10005,\u0022pointType\u0022:7,\u0022resourceConfigId\u0022:3,\u0022resourceMaxAmount\u0022:108000,\u0022resourceNameKey\u0022:\u0022100281\u0022,\u0022resourceSourceType\u0022:\u0022ResPointInfo\u0022,\u0022resourceTypeId\u0022:1,\u0022runtimeClass\u0022:\u0022ResPointInfo\u0022,\u0022serverId\u0022:2212,\u0022source\u0022:\u0022WorldPointManager._pointInfos\\u002BGatherResource\\u002BLuaEntry.Player.IsInBlackRange\u0022,\u0022srcServerId\u0022:2212,\u0022worldId\u0022:0,\u0022x\u0022:4,\u0022y\u0022:10,\u0022sourceKind\u0022:\u0022resource_point\u0022,\u0022recordKey\u0022:\u002210005\u0022,\u0022pointIndex\u0022:10005,\u0022updatedAt\u0022:1790771885000,\u0022rebuildGatherOccupancyKnown\u0022:true,\u0022rebuildGatherOccupied\u0022:false,\u0022resourceDetailKnown\u0022:true,\u0022resourceRemainingAmount\u0022:107909,\u0022resourceFullAmount\u0022:108000,\u0022resourceFull\u0022:false,\u0022resourceCapacityMatchesConfig\u0022:true}"
+    },
+    {
+      "recordKey": "29010",
+      "serverId": 2212,
+      "pointIndex": 29010,
+      "uuid": null,
+      "name": null,
+      "allianceName": null,
+      "level": 2,
+      "quality": null,
+      "power": null,
+      "distance": null,
+      "shieldEndTime": null,
+      "updatedAt": 1790771885000,
+      "x": 9,
+      "y": 29,
+      "nativeAoiIndex": 200,
+      "logicalBlockIndex": 50,
+      "rawPointType": 7,
+      "resourceTypeId": "14",
+      "resourceNameKey": "100317",
+      "isBlackTile": false,
+      "gatherOccupied": false,
+      "resourceDetailState": "full",
+      "resourceRemainingAmount": 72000,
+      "resourceFullAmount": 72000,
+      "sourceServerId": 2212,
+      "worldId": 0,
+      "dataJson": "{\u0022blackTileKnown\u0022:true,\u0022gatherOccupancyKnown\u0022:true,\u0022gatherOccupied\u0022:false,\u0022id\u0022:29010,\u0022isBlackTile\u0022:false,\u0022kind\u0022:\u0022resource\u0022,\u0022level\u0022:2,\u0022pointId\u0022:29010,\u0022pointType\u0022:7,\u0022resourceConfigId\u0022:102,\u0022resourceMaxAmount\u0022:72000,\u0022resourceNameKey\u0022:\u0022100317\u0022,\u0022resourceSourceType\u0022:\u0022ResPointInfo\u0022,\u0022resourceTypeId\u0022:14,\u0022runtimeClass\u0022:\u0022ResPointInfo\u0022,\u0022serverId\u0022:2212,\u0022source\u0022:\u0022WorldPointManager._pointInfos\\u002BGatherResource\\u002BLuaEntry.Player.IsInBlackRange\u0022,\u0022srcServerId\u0022:2212,\u0022worldId\u0022:0,\u0022x\u0022:9,\u0022y\u0022:29,\u0022sourceKind\u0022:\u0022resource_point\u0022,\u0022recordKey\u0022:\u002229010\u0022,\u0022pointIndex\u0022:29010,\u0022updatedAt\u0022:1790771885000,\u0022rebuildGatherOccupancyKnown\u0022:true,\u0022rebuildGatherOccupied\u0022:false,\u0022resourceDetailKnown\u0022:true,\u0022resourceRemainingAmount\u0022:72000,\u0022resourceFullAmount\u0022:72000,\u0022resourceFull\u0022:true,\u0022resourceCapacityMatchesConfig\u0022:true}"
+    },
+    {
+      "recordKey": "31003",
+      "serverId": 2212,
+      "pointIndex": 31003,
+      "uuid": null,
+      "name": null,
+      "allianceName": null,
+      "level": 2,
+      "quality": null,
+      "power": null,
+      "distance": null,
+      "shieldEndTime": null,
+      "updatedAt": 1790771885000,
+      "x": 2,
+      "y": 31,
+      "nativeAoiIndex": 300,
+      "logicalBlockIndex": 50,
+      "rawPointType": 7,
+      "resourceTypeId": "14",
+      "resourceNameKey": "100317",
+      "isBlackTile": false,
+      "gatherOccupied": false,
+      "resourceDetailState": "partial",
+      "resourceRemainingAmount": 71938,
+      "resourceFullAmount": 72000,
+      "sourceServerId": 2212,
+      "worldId": 0,
+      "dataJson": "{\u0022blackTileKnown\u0022:true,\u0022gatherOccupancyKnown\u0022:true,\u0022gatherOccupied\u0022:false,\u0022id\u0022:31003,\u0022isBlackTile\u0022:false,\u0022kind\u0022:\u0022resource\u0022,\u0022level\u0022:2,\u0022pointId\u0022:31003,\u0022pointType\u0022:7,\u0022resourceConfigId\u0022:102,\u0022resourceMaxAmount\u0022:72000,\u0022resourceNameKey\u0022:\u0022100317\u0022,\u0022resourceSourceType\u0022:\u0022ResPointInfo\u0022,\u0022resourceTypeId\u0022:14,\u0022runtimeClass\u0022:\u0022ResPointInfo\u0022,\u0022serverId\u0022:2212,\u0022source\u0022:\u0022WorldPointManager._pointInfos\\u002BGatherResource\\u002BLuaEntry.Player.IsInBlackRange\u0022,\u0022srcServerId\u0022:2212,\u0022worldId\u0022:0,\u0022x\u0022:2,\u0022y\u0022:31,\u0022sourceKind\u0022:\u0022resource_point\u0022,\u0022recordKey\u0022:\u002231003\u0022,\u0022pointIndex\u0022:31003,\u0022updatedAt\u0022:1790771885000,\u0022rebuildGatherOccupancyKnown\u0022:true,\u0022rebuildGatherOccupied\u0022:false,\u0022resourceDetailKnown\u0022:true,\u0022resourceRemainingAmount\u0022:71938,\u0022resourceFullAmount\u0022:72000,\u0022resourceFull\u0022:false,\u0022resourceCapacityMatchesConfig\u0022:true}"
+    },
+    {
+      "recordKey": "33021",
+      "serverId": 2212,
+      "pointIndex": 33021,
+      "uuid": null,
+      "name": null,
+      "allianceName": null,
+      "level": 2,
+      "quality": null,
+      "power": null,
+      "distance": null,
+      "shieldEndTime": null,
+      "updatedAt": 1790771885000,
+      "x": 20,
+      "y": 33,
+      "nativeAoiIndex": 302,
+      "logicalBlockIndex": 51,
+      "rawPointType": 7,
+      "resourceTypeId": "14",
+      "resourceNameKey": "100317",
+      "isBlackTile": false,
+      "gatherOccupied": false,
+      "resourceDetailState": "full",
+      "resourceRemainingAmount": 72000,
+      "resourceFullAmount": 72000,
+      "sourceServerId": 2212,
+      "worldId": 0,
+      "dataJson": "{\u0022blackTileKnown\u0022:true,\u0022gatherOccupancyKnown\u0022:true,\u0022gatherOccupied\u0022:false,\u0022id\u0022:33021,\u0022isBlackTile\u0022:false,\u0022kind\u0022:\u0022resource\u0022,\u0022level\u0022:2,\u0022pointId\u0022:33021,\u0022pointType\u0022:7,\u0022resourceConfigId\u0022:102,\u0022resourceMaxAmount\u0022:72000,\u0022resourceNameKey\u0022:\u0022100317\u0022,\u0022resourceSourceType\u0022:\u0022ResPointInfo\u0022,\u0022resourceTypeId\u0022:14,\u0022runtimeClass\u0022:\u0022ResPointInfo\u0022,\u0022serverId\u0022:2212,\u0022source\u0022:\u0022WorldPointManager._pointInfos\\u002BGatherResource\\u002BLuaEntry.Player.IsInBlackRange\u0022,\u0022srcServerId\u0022:2212,\u0022worldId\u0022:0,\u0022x\u0022:20,\u0022y\u0022:33,\u0022sourceKind\u0022:\u0022resource_point\u0022,\u0022recordKey\u0022:\u002233021\u0022,\u0022pointIndex\u0022:33021,\u0022updatedAt\u0022:1790771885000,\u0022rebuildGatherOccupancyKnown\u0022:true,\u0022rebuildGatherOccupied\u0022:false,\u0022resourceDetailKnown\u0022:true,\u0022resourceRemainingAmount\u0022:72000,\u0022resourceFullAmount\u0022:72000,\u0022resourceFull\u0022:true,\u0022resourceCapacityMatchesConfig\u0022:true}"
+    },
+    {
+      "recordKey": "35001",
+      "serverId": 2212,
+      "pointIndex": 35001,
+      "uuid": null,
+      "name": null,
+      "allianceName": null,
+      "level": 1,
+      "quality": null,
+      "power": null,
+      "distance": null,
+      "shieldEndTime": null,
+      "updatedAt": 1790771885000,
+      "x": 0,
+      "y": 35,
+      "nativeAoiIndex": 300,
+      "logicalBlockIndex": 50,
+      "rawPointType": 7,
+      "resourceTypeId": "1",
+      "resourceNameKey": "100281",
+      "isBlackTile": false,
+      "gatherOccupied": false,
+      "resourceDetailState": "full",
+      "resourceRemainingAmount": 36000,
+      "resourceFullAmount": 36000,
+      "sourceServerId": 2212,
+      "worldId": 0,
+      "dataJson": "{\u0022blackTileKnown\u0022:true,\u0022gatherOccupancyKnown\u0022:true,\u0022gatherOccupied\u0022:false,\u0022id\u0022:35001,\u0022isBlackTile\u0022:false,\u0022kind\u0022:\u0022resource\u0022,\u0022level\u0022:1,\u0022pointId\u0022:35001,\u0022pointType\u0022:7,\u0022resourceConfigId\u0022:1,\u0022resourceMaxAmount\u0022:36000,\u0022resourceNameKey\u0022:\u0022100281\u0022,\u0022resourceSourceType\u0022:\u0022ResPointInfo\u0022,\u0022resourceTypeId\u0022:1,\u0022runtimeClass\u0022:\u0022ResPointInfo\u0022,\u0022serverId\u0022:2212,\u0022source\u0022:\u0022WorldPointManager._pointInfos\\u002BGatherResource\\u002BLuaEntry.Player.IsInBlackRange\u0022,\u0022srcServerId\u0022:2212,\u0022worldId\u0022:0,\u0022x\u0022:0,\u0022y\u0022:35,\u0022sourceKind\u0022:\u0022resource_point\u0022,\u0022recordKey\u0022:\u002235001\u0022,\u0022pointIndex\u0022:35001,\u0022updatedAt\u0022:1790771885000,\u0022rebuildGatherOccupancyKnown\u0022:true,\u0022rebuildGatherOccupied\u0022:false,\u0022resourceDetailKnown\u0022:true,\u0022resourceRemainingAmount\u0022:36000,\u0022resourceFullAmount\u0022:36000,\u0022resourceFull\u0022:true,\u0022resourceCapacityMatchesConfig\u0022:true}"
+    },
+    {
+      "recordKey": "35024",
+      "serverId": 2212,
+      "pointIndex": 35024,
+      "uuid": null,
+      "name": null,
+      "allianceName": null,
+      "level": 3,
+      "quality": null,
+      "power": null,
+      "distance": null,
+      "shieldEndTime": null,
+      "updatedAt": 1790771885000,
+      "x": 23,
+      "y": 35,
+      "nativeAoiIndex": 302,
+      "logicalBlockIndex": 51,
+      "rawPointType": 7,
+      "resourceTypeId": "14",
+      "resourceNameKey": "100317",
+      "isBlackTile": false,
+      "gatherOccupied": false,
+      "resourceDetailState": "full",
+      "resourceRemainingAmount": 108000,
+      "resourceFullAmount": 108000,
+      "sourceServerId": 2212,
+      "worldId": 0,
+      "dataJson": "{\u0022blackTileKnown\u0022:true,\u0022gatherOccupancyKnown\u0022:true,\u0022gatherOccupied\u0022:false,\u0022id\u0022:35024,\u0022isBlackTile\u0022:false,\u0022kind\u0022:\u0022resource\u0022,\u0022level\u0022:3,\u0022pointId\u0022:35024,\u0022pointType\u0022:7,\u0022resourceConfigId\u0022:103,\u0022resourceMaxAmount\u0022:108000,\u0022resourceNameKey\u0022:\u0022100317\u0022,\u0022resourceSourceType\u0022:\u0022ResPointInfo\u0022,\u0022resourceTypeId\u0022:14,\u0022runtimeClass\u0022:\u0022ResPointInfo\u0022,\u0022serverId\u0022:2212,\u0022source\u0022:\u0022WorldPointManager._pointInfos\\u002BGatherResource\\u002BLuaEntry.Player.IsInBlackRange\u0022,\u0022srcServerId\u0022:2212,\u0022worldId\u0022:0,\u0022x\u0022:23,\u0022y\u0022:35,\u0022sourceKind\u0022:\u0022resource_point\u0022,\u0022recordKey\u0022:\u002235024\u0022,\u0022pointIndex\u0022:35024,\u0022updatedAt\u0022:1790771885000,\u0022rebuildGatherOccupancyKnown\u0022:true,\u0022rebuildGatherOccupied\u0022:false,\u0022resourceDetailKnown\u0022:true,\u0022resourceRemainingAmount\u0022:108000,\u0022resourceFullAmount\u0022:108000,\u0022resourceFull\u0022:true,\u0022resourceCapacityMatchesConfig\u0022:true}"
+    },
+    {
+      "recordKey": "38023",
+      "serverId": 2212,
+      "pointIndex": 38023,
+      "uuid": null,
+      "name": null,
+      "allianceName": null,
+      "level": 1,
+      "quality": null,
+      "power": null,
+      "distance": null,
+      "shieldEndTime": null,
+      "updatedAt": 1790771885000,
+      "x": 22,
+      "y": 38,
+      "nativeAoiIndex": 302,
+      "logicalBlockIndex": 51,
+      "rawPointType": 7,
+      "resourceTypeId": "14",
+      "resourceNameKey": "100317",
+      "isBlackTile": false,
+      "gatherOccupied": false,
+      "resourceDetailState": "full",
+      "resourceRemainingAmount": 36000,
+      "resourceFullAmount": 36000,
+      "sourceServerId": 2212,
+      "worldId": 0,
+      "dataJson": "{\u0022blackTileKnown\u0022:true,\u0022gatherOccupancyKnown\u0022:true,\u0022gatherOccupied\u0022:false,\u0022id\u0022:38023,\u0022isBlackTile\u0022:false,\u0022kind\u0022:\u0022resource\u0022,\u0022level\u0022:1,\u0022pointId\u0022:38023,\u0022pointType\u0022:7,\u0022resourceConfigId\u0022:101,\u0022resourceMaxAmount\u0022:36000,\u0022resourceNameKey\u0022:\u0022100317\u0022,\u0022resourceSourceType\u0022:\u0022ResPointInfo\u0022,\u0022resourceTypeId\u0022:14,\u0022runtimeClass\u0022:\u0022ResPointInfo\u0022,\u0022serverId\u0022:2212,\u0022source\u0022:\u0022WorldPointManager._pointInfos\\u002BGatherResource\\u002BLuaEntry.Player.IsInBlackRange\u0022,\u0022srcServerId\u0022:2212,\u0022worldId\u0022:0,\u0022x\u0022:22,\u0022y\u0022:38,\u0022sourceKind\u0022:\u0022resource_point\u0022,\u0022recordKey\u0022:\u002238023\u0022,\u0022pointIndex\u0022:38023,\u0022updatedAt\u0022:1790771885000,\u0022rebuildGatherOccupancyKnown\u0022:true,\u0022rebuildGatherOccupied\u0022:false,\u0022resourceDetailKnown\u0022:true,\u0022resourceRemainingAmount\u0022:36000,\u0022resourceFullAmount\u0022:36000,\u0022resourceFull\u0022:true,\u0022resourceCapacityMatchesConfig\u0022:true}"
+    },
+    {
+      "recordKey": "54006",
+      "serverId": 2212,
+      "pointIndex": 54006,
+      "uuid": null,
+      "name": null,
+      "allianceName": null,
+      "level": 1,
+      "quality": null,
+      "power": null,
+      "distance": null,
+      "shieldEndTime": null,
+      "updatedAt": 1790771885000,
+      "x": 5,
+      "y": 54,
+      "nativeAoiIndex": 500,
+      "logicalBlockIndex": 100,
+      "rawPointType": 7,
+      "resourceTypeId": "2",
+      "resourceNameKey": "129027",
+      "isBlackTile": false,
+      "gatherOccupied": false,
+      "resourceDetailState": "partial",
+      "resourceRemainingAmount": 21578,
+      "resourceFullAmount": 21600,
+      "sourceServerId": 2212,
+      "worldId": 0,
+      "dataJson": "{\u0022blackTileKnown\u0022:true,\u0022gatherOccupancyKnown\u0022:true,\u0022gatherOccupied\u0022:false,\u0022id\u0022:54006,\u0022isBlackTile\u0022:false,\u0022kind\u0022:\u0022resource\u0022,\u0022level\u0022:1,\u0022pointId\u0022:54006,\u0022pointType\u0022:7,\u0022resourceConfigId\u0022:201,\u0022resourceMaxAmount\u0022:21600,\u0022resourceNameKey\u0022:\u0022129027\u0022,\u0022resourceSourceType\u0022:\u0022ResPointInfo\u0022,\u0022resourceTypeId\u0022:2,\u0022runtimeClass\u0022:\u0022ResPointInfo\u0022,\u0022serverId\u0022:2212,\u0022source\u0022:\u0022WorldPointManager._pointInfos\\u002BGatherResource\\u002BLuaEntry.Player.IsInBlackRange\u0022,\u0022srcServerId\u0022:2212,\u0022worldId\u0022:0,\u0022x\u0022:5,\u0022y\u0022:54,\u0022sourceKind\u0022:\u0022resource_point\u0022,\u0022recordKey\u0022:\u002254006\u0022,\u0022pointIndex\u0022:54006,\u0022updatedAt\u0022:1790771885000,\u0022rebuildGatherOccupancyKnown\u0022:true,\u0022rebuildGatherOccupied\u0022:false,\u0022resourceDetailKnown\u0022:true,\u0022resourceRemainingAmount\u0022:21578,\u0022resourceFullAmount\u0022:21600,\u0022resourceFull\u0022:false,\u0022resourceCapacityMatchesConfig\u0022:true}"
+    },
+    {
+      "recordKey": "54019",
+      "serverId": 2212,
+      "pointIndex": 54019,
+      "uuid": null,
+      "name": null,
+      "allianceName": null,
+      "level": 2,
+      "quality": null,
+      "power": null,
+      "distance": null,
+      "shieldEndTime": null,
+      "updatedAt": 1790771885000,
+      "x": 18,
+      "y": 54,
+      "nativeAoiIndex": 501,
+      "logicalBlockIndex": 100,
+      "rawPointType": 7,
+      "resourceTypeId": "1",
+      "resourceNameKey": "100281",
+      "isBlackTile": false,
+      "gatherOccupied": false,
+      "resourceDetailState": "full",
+      "resourceRemainingAmount": 72000,
+      "resourceFullAmount": 72000,
+      "sourceServerId": 2212,
+      "worldId": 0,
+      "dataJson": "{\u0022blackTileKnown\u0022:true,\u0022gatherOccupancyKnown\u0022:true,\u0022gatherOccupied\u0022:false,\u0022id\u0022:54019,\u0022isBlackTile\u0022:false,\u0022kind\u0022:\u0022resource\u0022,\u0022level\u0022:2,\u0022pointId\u0022:54019,\u0022pointType\u0022:7,\u0022resourceConfigId\u0022:2,\u0022resourceMaxAmount\u0022:72000,\u0022resourceNameKey\u0022:\u0022100281\u0022,\u0022resourceSourceType\u0022:\u0022ResPointInfo\u0022,\u0022resourceTypeId\u0022:1,\u0022runtimeClass\u0022:\u0022ResPointInfo\u0022,\u0022serverId\u0022:2212,\u0022source\u0022:\u0022WorldPointManager._pointInfos\\u002BGatherResource\\u002BLuaEntry.Player.IsInBlackRange\u0022,\u0022srcServerId\u0022:2212,\u0022worldId\u0022:0,\u0022x\u0022:18,\u0022y\u0022:54,\u0022sourceKind\u0022:\u0022resource_point\u0022,\u0022recordKey\u0022:\u002254019\u0022,\u0022pointIndex\u0022:54019,\u0022updatedAt\u0022:1790771885000,\u0022rebuildGatherOccupancyKnown\u0022:true,\u0022rebuildGatherOccupied\u0022:false,\u0022resourceDetailKnown\u0022:true,\u0022resourceRemainingAmount\u0022:72000,\u0022resourceFullAmount\u0022:72000,\u0022resourceFull\u0022:true,\u0022resourceCapacityMatchesConfig\u0022:true}"
+    },
+    {
+      "recordKey": "85008",
+      "serverId": 2212,
+      "pointIndex": 85008,
+      "uuid": null,
+      "name": null,
+      "allianceName": null,
+      "level": 3,
+      "quality": null,
+      "power": null,
+      "distance": null,
+      "shieldEndTime": null,
+      "updatedAt": 1790771885000,
+      "x": 7,
+      "y": 85,
+      "nativeAoiIndex": 800,
+      "logicalBlockIndex": 200,
+      "rawPointType": 7,
+      "resourceTypeId": "1",
+      "resourceNameKey": "100281",
+      "isBlackTile": false,
+      "gatherOccupied": false,
+      "resourceDetailState": "full",
+      "resourceRemainingAmount": 108000,
+      "resourceFullAmount": 108000,
+      "sourceServerId": 2212,
+      "worldId": 0,
+      "dataJson": "{\u0022blackTileKnown\u0022:true,\u0022gatherOccupancyKnown\u0022:true,\u0022gatherOccupied\u0022:false,\u0022id\u0022:85008,\u0022isBlackTile\u0022:false,\u0022kind\u0022:\u0022resource\u0022,\u0022level\u0022:3,\u0022pointId\u0022:85008,\u0022pointType\u0022:7,\u0022resourceConfigId\u0022:3,\u0022resourceMaxAmount\u0022:108000,\u0022resourceNameKey\u0022:\u0022100281\u0022,\u0022resourceSourceType\u0022:\u0022ResPointInfo\u0022,\u0022resourceTypeId\u0022:1,\u0022runtimeClass\u0022:\u0022ResPointInfo\u0022,\u0022serverId\u0022:2212,\u0022source\u0022:\u0022WorldPointManager._pointInfos\\u002BGatherResource\\u002BLuaEntry.Player.IsInBlackRange\u0022,\u0022srcServerId\u0022:2212,\u0022worldId\u0022:0,\u0022x\u0022:7,\u0022y\u0022:85,\u0022sourceKind\u0022:\u0022resource_point\u0022,\u0022recordKey\u0022:\u002285008\u0022,\u0022pointIndex\u0022:85008,\u0022updatedAt\u0022:1790771885000,\u0022rebuildGatherOccupancyKnown\u0022:true,\u0022rebuildGatherOccupied\u0022:false,\u0022resourceDetailKnown\u0022:true,\u0022resourceRemainingAmount\u0022:108000,\u0022resourceFullAmount\u0022:108000,\u0022resourceFull\u0022:true,\u0022resourceCapacityMatchesConfig\u0022:true}"
+    },
+    {
+      "recordKey": "89011",
+      "serverId": 2212,
+      "pointIndex": 89011,
+      "uuid": null,
+      "name": null,
+      "allianceName": null,
+      "level": 1,
+      "quality": null,
+      "power": null,
+      "distance": null,
+      "shieldEndTime": null,
+      "updatedAt": 1790771885000,
+      "x": 10,
+      "y": 89,
+      "nativeAoiIndex": 801,
+      "logicalBlockIndex": 200,
+      "rawPointType": 7,
+      "resourceTypeId": "14",
+      "resourceNameKey": "100317",
+      "isBlackTile": false,
+      "gatherOccupied": false,
+      "resourceDetailState": "full",
+      "resourceRemainingAmount": 36000,
+      "resourceFullAmount": 36000,
+      "sourceServerId": 2212,
+      "worldId": 0,
+      "dataJson": "{\u0022blackTileKnown\u0022:true,\u0022gatherOccupancyKnown\u0022:true,\u0022gatherOccupied\u0022:false,\u0022id\u0022:89011,\u0022isBlackTile\u0022:false,\u0022kind\u0022:\u0022resource\u0022,\u0022level\u0022:1,\u0022pointId\u0022:89011,\u0022pointType\u0022:7,\u0022resourceConfigId\u0022:101,\u0022resourceMaxAmount\u0022:36000,\u0022resourceNameKey\u0022:\u0022100317\u0022,\u0022resourceSourceType\u0022:\u0022ResPointInfo\u0022,\u0022resourceTypeId\u0022:14,\u0022runtimeClass\u0022:\u0022ResPointInfo\u0022,\u0022serverId\u0022:2212,\u0022source\u0022:\u0022WorldPointManager._pointInfos\\u002BGatherResource\\u002BLuaEntry.Player.IsInBlackRange\u0022,\u0022srcServerId\u0022:2212,\u0022worldId\u0022:0,\u0022x\u0022:10,\u0022y\u0022:89,\u0022sourceKind\u0022:\u0022resource_point\u0022,\u0022recordKey\u0022:\u002289011\u0022,\u0022pointIndex\u0022:89011,\u0022updatedAt\u0022:1790771885000,\u0022rebuildGatherOccupancyKnown\u0022:true,\u0022rebuildGatherOccupied\u0022:false,\u0022resourceDetailKnown\u0022:true,\u0022resourceRemainingAmount\u0022:36000,\u0022resourceFullAmount\u0022:36000,\u0022resourceFull\u0022:true,\u0022resourceCapacityMatchesConfig\u0022:true}"
+    },
+    {
+      "recordKey": "93001",
+      "serverId": 2212,
+      "pointIndex": 93001,
+      "uuid": null,
+      "name": null,
+      "allianceName": null,
+      "level": 1,
+      "quality": null,
+      "power": null,
+      "distance": null,
+      "shieldEndTime": null,
+      "updatedAt": 1790771885000,
+      "x": 0,
+      "y": 93,
+      "nativeAoiIndex": 900,
+      "logicalBlockIndex": 200,
+      "rawPointType": 7,
+      "resourceTypeId": "2",
+      "resourceNameKey": "129027",
+      "isBlackTile": false,
+      "gatherOccupied": false,
+      "resourceDetailState": "full",
+      "resourceRemainingAmount": 21600,
+      "resourceFullAmount": 21600,
+      "sourceServerId": 2212,
+      "worldId": 0,
+      "dataJson": "{\u0022blackTileKnown\u0022:true,\u0022gatherOccupancyKnown\u0022:true,\u0022gatherOccupied\u0022:false,\u0022id\u0022:93001,\u0022isBlackTile\u0022:false,\u0022kind\u0022:\u0022resource\u0022,\u0022level\u0022:1,\u0022pointId\u0022:93001,\u0022pointType\u0022:7,\u0022resourceConfigId\u0022:201,\u0022resourceMaxAmount\u0022:21600,\u0022resourceNameKey\u0022:\u0022129027\u0022,\u0022resourceSourceType\u0022:\u0022ResPointInfo\u0022,\u0022resourceTypeId\u0022:2,\u0022runtimeClass\u0022:\u0022ResPointInfo\u0022,\u0022serverId\u0022:2212,\u0022source\u0022:\u0022WorldPointManager._pointInfos\\u002BGatherResource\\u002BLuaEntry.Player.IsInBlackRange\u0022,\u0022srcServerId\u0022:2212,\u0022worldId\u0022:0,\u0022x\u0022:0,\u0022y\u0022:93,\u0022sourceKind\u0022:\u0022resource_point\u0022,\u0022recordKey\u0022:\u002293001\u0022,\u0022pointIndex\u0022:93001,\u0022updatedAt\u0022:1790771885000,\u0022rebuildGatherOccupancyKnown\u0022:true,\u0022rebuildGatherOccupied\u0022:false,\u0022resourceDetailKnown\u0022:true,\u0022resourceRemainingAmount\u0022:21600,\u0022resourceFullAmount\u0022:21600,\u0022resourceFull\u0022:true,\u0022resourceCapacityMatchesConfig\u0022:true}"
+    },
+    {
+      "recordKey": "93008",
+      "serverId": 2212,
+      "pointIndex": 93008,
+      "uuid": null,
+      "name": null,
+      "allianceName": null,
+      "level": 2,
+      "quality": null,
+      "power": null,
+      "distance": null,
+      "shieldEndTime": null,
+      "updatedAt": 1790771885000,
+      "x": 7,
+      "y": 93,
+      "nativeAoiIndex": 900,
+      "logicalBlockIndex": 200,
+      "rawPointType": 7,
+      "resourceTypeId": "1",
+      "resourceNameKey": "100281",
+      "isBlackTile": false,
+      "gatherOccupied": false,
+      "resourceDetailState": "full",
+      "resourceRemainingAmount": 72000,
+      "resourceFullAmount": 72000,
+      "sourceServerId": 2212,
+      "worldId": 0,
+      "dataJson": "{\u0022blackTileKnown\u0022:true,\u0022gatherOccupancyKnown\u0022:true,\u0022gatherOccupied\u0022:false,\u0022id\u0022:93008,\u0022isBlackTile\u0022:false,\u0022kind\u0022:\u0022resource\u0022,\u0022level\u0022:2,\u0022pointId\u0022:93008,\u0022pointType\u0022:7,\u0022resourceConfigId\u0022:2,\u0022resourceMaxAmount\u0022:72000,\u0022resourceNameKey\u0022:\u0022100281\u0022,\u0022resourceSourceType\u0022:\u0022ResPointInfo\u0022,\u0022resourceTypeId\u0022:1,\u0022runtimeClass\u0022:\u0022ResPointInfo\u0022,\u0022serverId\u0022:2212,\u0022source\u0022:\u0022WorldPointManager._pointInfos\\u002BGatherResource\\u002BLuaEntry.Player.IsInBlackRange\u0022,\u0022srcServerId\u0022:2212,\u0022worldId\u0022:0,\u0022x\u0022:7,\u0022y\u0022:93,\u0022sourceKind\u0022:\u0022resource_point\u0022,\u0022recordKey\u0022:\u002293008\u0022,\u0022pointIndex\u0022:93008,\u0022updatedAt\u0022:1790771885000,\u0022rebuildGatherOccupancyKnown\u0022:true,\u0022rebuildGatherOccupied\u0022:false,\u0022resourceDetailKnown\u0022:true,\u0022resourceRemainingAmount\u0022:72000,\u0022resourceFullAmount\u0022:72000,\u0022resourceFull\u0022:true,\u0022resourceCapacityMatchesConfig\u0022:true}"
+    },
+    {
+      "recordKey": "93030",
+      "serverId": 2212,
+      "pointIndex": 93030,
+      "uuid": null,
+      "name": null,
+      "allianceName": null,
+      "level": 1,
+      "quality": null,
+      "power": null,
+      "distance": null,
+      "shieldEndTime": null,
+      "updatedAt": 1790771885000,
+      "x": 29,
+      "y": 93,
+      "nativeAoiIndex": 902,
+      "logicalBlockIndex": 201,
+      "rawPointType": 7,
+      "resourceTypeId": "2",
+      "resourceNameKey": "129027",
+      "isBlackTile": false,
+      "gatherOccupied": false,
+      "resourceDetailState": "full",
+      "resourceRemainingAmount": 21600,
+      "resourceFullAmount": 21600,
+      "sourceServerId": 2212,
+      "worldId": 0,
+      "dataJson": "{\u0022blackTileKnown\u0022:true,\u0022gatherOccupancyKnown\u0022:true,\u0022gatherOccupied\u0022:false,\u0022id\u0022:93030,\u0022isBlackTile\u0022:false,\u0022kind\u0022:\u0022resource\u0022,\u0022level\u0022:1,\u0022pointId\u0022:93030,\u0022pointType\u0022:7,\u0022resourceConfigId\u0022:201,\u0022resourceMaxAmount\u0022:21600,\u0022resourceNameKey\u0022:\u0022129027\u0022,\u0022resourceSourceType\u0022:\u0022ResPointInfo\u0022,\u0022resourceTypeId\u0022:2,\u0022runtimeClass\u0022:\u0022ResPointInfo\u0022,\u0022serverId\u0022:2212,\u0022source\u0022:\u0022WorldPointManager._pointInfos\\u002BGatherResource\\u002BLuaEntry.Player.IsInBlackRange\u0022,\u0022srcServerId\u0022:2212,\u0022worldId\u0022:0,\u0022x\u0022:29,\u0022y\u0022:93,\u0022sourceKind\u0022:\u0022resource_point\u0022,\u0022recordKey\u0022:\u002293030\u0022,\u0022pointIndex\u0022:93030,\u0022updatedAt\u0022:1790771885000,\u0022rebuildGatherOccupancyKnown\u0022:true,\u0022rebuildGatherOccupied\u0022:false,\u0022resourceDetailKnown\u0022:true,\u0022resourceRemainingAmount\u0022:21600,\u0022resourceFullAmount\u0022:21600,\u0022resourceFull\u0022:true,\u0022resourceCapacityMatchesConfig\u0022:true}"
+    },
+    {
+      "recordKey": "96012",
+      "serverId": 2212,
+      "pointIndex": 96012,
+      "uuid": null,
+      "name": null,
+      "allianceName": null,
+      "level": 2,
+      "quality": null,
+      "power": null,
+      "distance": null,
+      "shieldEndTime": null,
+      "updatedAt": 1790771885000,
+      "x": 11,
+      "y": 96,
+      "nativeAoiIndex": 901,
+      "logicalBlockIndex": 200,
+      "rawPointType": 7,
+      "resourceTypeId": "14",
+      "resourceNameKey": "100317",
+      "isBlackTile": false,
+      "gatherOccupied": false,
+      "resourceDetailState": "full",
+      "resourceRemainingAmount": 72000,
+      "resourceFullAmount": 72000,
+      "sourceServerId": 2212,
+      "worldId": 0,
+      "dataJson": "{\u0022blackTileKnown\u0022:true,\u0022gatherOccupancyKnown\u0022:true,\u0022gatherOccupied\u0022:false,\u0022id\u0022:96012,\u0022isBlackTile\u0022:false,\u0022kind\u0022:\u0022resource\u0022,\u0022level\u0022:2,\u0022pointId\u0022:96012,\u0022pointType\u0022:7,\u0022resourceConfigId\u0022:102,\u0022resourceMaxAmount\u0022:72000,\u0022resourceNameKey\u0022:\u0022100317\u0022,\u0022resourceSourceType\u0022:\u0022ResPointInfo\u0022,\u0022resourceTypeId\u0022:14,\u0022runtimeClass\u0022:\u0022ResPointInfo\u0022,\u0022serverId\u0022:2212,\u0022source\u0022:\u0022WorldPointManager._pointInfos\\u002BGatherResource\\u002BLuaEntry.Player.IsInBlackRange\u0022,\u0022srcServerId\u0022:2212,\u0022worldId\u0022:0,\u0022x\u0022:11,\u0022y\u0022:96,\u0022sourceKind\u0022:\u0022resource_point\u0022,\u0022recordKey\u0022:\u002296012\u0022,\u0022pointIndex\u0022:96012,\u0022updatedAt\u0022:1790771885000,\u0022rebuildGatherOccupancyKnown\u0022:true,\u0022rebuildGatherOccupied\u0022:false,\u0022resourceDetailKnown\u0022:true,\u0022resourceRemainingAmount\u0022:72000,\u0022resourceFullAmount\u0022:72000,\u0022resourceFull\u0022:true,\u0022resourceCapacityMatchesConfig\u0022:true}"
+    },
+    {
+      "recordKey": "97001",
+      "serverId": 2212,
+      "pointIndex": 97001,
+      "uuid": null,
+      "name": null,
+      "allianceName": null,
+      "level": 1,
+      "quality": null,
+      "power": null,
+      "distance": null,
+      "shieldEndTime": null,
+      "updatedAt": 1790771885000,
+      "x": 0,
+      "y": 97,
+      "nativeAoiIndex": 900,
+      "logicalBlockIndex": 200,
+      "rawPointType": 7,
+      "resourceTypeId": "2",
+      "resourceNameKey": "129027",
+      "isBlackTile": false,
+      "gatherOccupied": false,
+      "resourceDetailState": "full",
+      "resourceRemainingAmount": 21600,
+      "resourceFullAmount": 21600,
+      "sourceServerId": 2212,
+      "worldId": 0,
+      "dataJson": "{\u0022blackTileKnown\u0022:true,\u0022gatherOccupancyKnown\u0022:true,\u0022gatherOccupied\u0022:false,\u0022id\u0022:97001,\u0022isBlackTile\u0022:false,\u0022kind\u0022:\u0022resource\u0022,\u0022level\u0022:1,\u0022pointId\u0022:97001,\u0022pointType\u0022:7,\u0022resourceConfigId\u0022:201,\u0022resourceMaxAmount\u0022:21600,\u0022resourceNameKey\u0022:\u0022129027\u0022,\u0022resourceSourceType\u0022:\u0022ResPointInfo\u0022,\u0022resourceTypeId\u0022:2,\u0022runtimeClass\u0022:\u0022ResPointInfo\u0022,\u0022serverId\u0022:2212,\u0022source\u0022:\u0022WorldPointManager._pointInfos\\u002BGatherResource\\u002BLuaEntry.Player.IsInBlackRange\u0022,\u0022srcServerId\u0022:2212,\u0022worldId\u0022:0,\u0022x\u0022:0,\u0022y\u0022:97,\u0022sourceKind\u0022:\u0022resource_point\u0022,\u0022recordKey\u0022:\u002297001\u0022,\u0022pointIndex\u0022:97001,\u0022updatedAt\u0022:1790771885000,\u0022rebuildGatherOccupancyKnown\u0022:true,\u0022rebuildGatherOccupied\u0022:false,\u0022resourceDetailKnown\u0022:true,\u0022resourceRemainingAmount\u0022:21600,\u0022resourceFullAmount\u0022:21600,\u0022resourceFull\u0022:true,\u0022resourceCapacityMatchesConfig\u0022:true}"
+    }
+  ]
+}

@@ -18,6 +18,8 @@ internal static class LiveMapV22ResourceCompletenessProof
         "248f3aeac712b3f14f86bff37a0c365e467897a2248403837c44c1b774f05b22";
     private const string WrappedV22Sha256 =
         "a705d2d64a44081012c4c7e30bda613636960c98e40fa7a367a60577ce3a7d72";
+    private const string ResourceCompletenessWrappedV22Sha256 =
+        "9a0f28f79c8b48fe21d45fbc649df6833d976d99232e344854399f65c7ba187d";
     private const string GameSha256 =
         "905c98c1f89841f90b492556192ba0642f3d209a873cb8c1f7b3c340aca0733d";
 
@@ -93,10 +95,23 @@ internal static class LiveMapV22ResourceCompletenessProof
             await lifecycle.WaitForHealthyMapScanSessionAsync(session, operationCts.Token).ConfigureAwait(false);
             instanceId = session.SessionId;
             ownedGamePid = session.GamePid;
+            evidence["ownedSession"] = new
+            {
+                profileId = session.ProfileId,
+                instanceId = session.SessionId,
+                gamePid = session.GamePid,
+                gamePath = session.GamePath,
+                gameStartedAtUtc = session.GameStartedAtUtc,
+                healthyHeartbeat = true,
+            };
 
-            mapService = new Map317CommandService(databasePath, lifecycle);
+            // Keep the readiness/context probe ahead of Map317CommandService creation.
+            // The service starts scheduled action workers immediately; creating a second
+            // CurrentClientMapBlockSource beside those workers would otherwise introduce
+            // a harness-only race on the shared single-slot world-state transport.
             var source = new CurrentClientMapBlockSource(lifecycle);
             CurrentClientMapContext context = await source.GetCurrentContextAsync(operationCts.Token).ConfigureAwait(false);
+            mapService = new Map317CommandService(databasePath, lifecycle);
             evidence["session"] = new
             {
                 profileId = session.ProfileId,
@@ -394,6 +409,8 @@ internal static class LiveMapV22ResourceCompletenessProof
     private static string ClassifyPackage(string hash) =>
         string.Equals(hash, WrappedV22Sha256, StringComparison.OrdinalIgnoreCase)
             ? "validated_overview_wrapped_v22"
+            : string.Equals(hash, ResourceCompletenessWrappedV22Sha256, StringComparison.OrdinalIgnoreCase)
+                ? "validated_resource_completeness_wrapped_v22"
             : string.Equals(hash, OfficialV22Sha256, StringComparison.OrdinalIgnoreCase)
                 ? "validated_official_v22"
                 : "unexpected";

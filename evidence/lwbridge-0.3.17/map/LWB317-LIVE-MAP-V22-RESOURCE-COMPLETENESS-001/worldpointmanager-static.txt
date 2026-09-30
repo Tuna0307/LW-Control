@@ -1,0 +1,435 @@
+﻿RGMD=0x9a92a4 TypeDef=5828 MethodDef=54483
+TYPE 1785: WorldPointManager extends WorldManagerBase
+  FIELD 10284: System.Collections.Generic.Dictionary`2<int64, IWorldLodWatcher> lodWatcherDic
+  FIELD 10285: int32 EDGE = 4
+  FIELD 10286: int32 once_max_request_count = 160
+  FIELD 10287: bool _splitLastAOIRequest
+  FIELD 10288: float32 ShowMapIconDist
+  FIELD 10289: int32 MaxBuildCountOneFrame
+  FIELD 10290: int32 MaxDelCountOneFrame
+  FIELD 10291: UnityEngine.Vector2Int[] ViewLevelRange
+  FIELD 10292: UnityEngine.Vector2Int[] LodRequestRange
+  FIELD 10293: float64 <time>k__BackingField
+  FIELD 10294: string _defaultCountryFlag
+  FIELD 10295: System.Collections.Generic.HashSet`1<string> _allCountryFlagSet
+  FIELD 10296: UnityEngine.Vector2Int reqPos
+  FIELD 10297: UnityEngine.Vector2Int lastDelPos
+  FIELD 10298: int32 LOD
+  FIELD 10299: int32 svLod
+  FIELD 10300: int32 lastDelSvLod
+  FIELD 10301: System.Collections.Generic.Dictionary`2<int32, WorldTileInfo> allViewPoints
+  FIELD 10302: System.Collections.Generic.Dictionary`2<int32, PointInfo> yellowLand
+  FIELD 10303: System.Collections.Generic.Dictionary`2<int64, WorldTileInfo> uuidInfoMap
+  FIELD 10304: System.Collections.Generic.Dictionary`2<int64, WorldTileInfo> uuidInfoDesertMap
+  FIELD 10305: System.Collections.Generic.Dictionary`2<string, int64> baseMainBuild
+  FIELD 10306: System.Collections.Generic.Dictionary`2<int64, int64> baseDragonPoint
+  FIELD 10307: System.Collections.Generic.Dictionary`2<int32, WorldTileInfo> outOfViewPoints
+  FIELD 10308: System.Collections.Generic.Dictionary`2<int32, WorldTileInfo> outOfViewPointsObj
+  FIELD 10309: System.Collections.Generic.Dictionary`2<int32, int32> specialBuildDic
+  FIELD 10310: System.Collections.Generic.List`1<int32> keysToRemove
+  FIELD 10311: System.Collections.Generic.List`1<WorldTileInfo> timeOutPoints
+  FIELD 10312: WorldTileInfo myWorldTileInfo
+  FIELD 10313: bool startViewRequest
+  FIELD 10314: bool isRecvViewPoints
+  FIELD 10315: bool _isPointUpdate
+  FIELD 10316: bool _isCityPointUpdate
+  FIELD 10317: bool _myPointDirty
+  FIELD 10318: System.Collections.Generic.HashSet`1<int32> toBuildList
+  FIELD 10319: System.Collections.Generic.Dictionary`2<int32, WorldPointObject> allObjs
+  FIELD 10320: bool littleSmartDirty
+  FIELD 10321: System.Collections.Generic.Dictionary`2<int32, bool> needDestoryBuild
+  FIELD 10322: System.Collections.Generic.List`1<int32> _needRefreshBoard
+  FIELD 10323: System.Collections.Generic.Dictionary`2<int32, bool> _needRefreshDeleteBoard
+  FIELD 10324: System.Collections.Generic.Dictionary`2<int64, bool> _needPlayPlacedAnimBuild
+  FIELD 10325: int32 collectResourceTile
+  FIELD 10326: int32 collectResourceRange
+  FIELD 10327: bool reconnectReloadSwitch
+  FIELD 10328: System.Collections.Generic.Dictionary`2<int32, int32> BuildTileSizeDic
+  FIELD 10329: System.Collections.Generic.Dictionary`2<int32, int32> AllianceCitySizeDic
+  FIELD 10330: System.Collections.Generic.Dictionary`2<int32, int32> TreasureSizeDic
+  FIELD 10331: System.Collections.Generic.Dictionary`2<int32, int32> DragonBuildSizeDic
+  FIELD 10332: System.Collections.Generic.Dictionary`2<int32, int32> BuildOffsetRangeDic
+  FIELD 10333: System.Collections.Generic.Dictionary`2<int32, int32> AllianceCityTypeDic
+  FIELD 10334: WorldGreen mWorldGreen
+  FIELD 10335: WorldAoiAssistanceInfos aoiAssistanceInfos
+  FIELD 10336: WorldALPointsInfos alliancePointsInfos
+  FIELD 10337: int32 alliancePointLod
+  FIELD 10338: int32 SelfPointLod
+  FIELD 10339: int32 OtherPointLod
+  FIELD 10340: NestedDictionary`3<int32, int32, int64> battlePoints
+  FIELD 10341: System.Collections.Generic.Dictionary`2<int32, int32> _cacheBuildTileSizeDic
+  FIELD 10342: System.Collections.Generic.Dictionary`2<int32, int32> _cacheAllianceCitySizeDic
+  FIELD 10343: System.Collections.Generic.Dictionary`2<int32, int32> _cacheTreasureSizeDic
+  FIELD 10344: System.Collections.Generic.Dictionary`2<int32, int32> _cacheDragonBuildSizeDic
+  FIELD 10345: System.Collections.Generic.Dictionary`2<int32, int32> _cacheBuildOffsetRangeDic
+  FIELD 10346: System.Collections.Generic.Dictionary`2<int32, int32> _cacheAllianceCityTypeDic
+  FIELD 10347: int32 _cachedServerId
+  FIELD 10348: System.Collections.Generic.HashSet`1<int32> _toCreateList
+  FIELD 10349: bool _pendingInitViewRequestAfterMarchInfos
+  FIELD 10350: bool <EnableWorldAssistanceOpt>k__BackingField
+  FIELD 10351: float32 timeCount
+  FIELD 10352: System.Collections.Generic.List`1<PointInfo> _pointInfos
+  FIELD 10353: System.Collections.Generic.List`1<Protobuf.LandPointInfo> _landPointInfos
+  FIELD 10354: System.Collections.Generic.List`1<WorldDesertInfo> _desertInfos
+  FIELD 10355: System.Collections.Generic.HashSet`1<int64> tempAllPoints
+  FIELD 10356: int64 needRefreshWerewolf
+  FIELD 10357: System.Collections.Generic.List`1<int32> needCheckShowTileList
+  FIELD 10358: int32[] World9BasePosX
+  FIELD 10359: int32[] World9BasePosZ
+  FIELD 10360: System.Collections.Generic.List`1<IWorldDelayDestroyObject> delayDestroyList
+  FIELD 10361: NestedDictionary`3<int32, int32, bool> dirtyAssistanceList
+  FIELD 10362: System.Collections.Generic.List`1<int64> dirtyPointMarked
+  FIELD 10363: System.Collections.Generic.HashSet`1<int64> tempSet
+  FIELD 10364: UnityEngine.Vector2Int[] ServerLodRange
+  FIELD 10365: int32 _lwAoiBlockSize
+  FIELD 10366: int32 _lwAoiBlockCount
+  FIELD 10367: UnityEngine.Vector3 _leftBottomWorldPos
+  FIELD 10368: UnityEngine.Vector3 _rightTopWorldPos
+  FIELD 10369: UnityEngine.Vector2Int _lastViewLBBlock
+  FIELD 10370: UnityEngine.Vector2Int _lastViewLTBlock
+  FIELD 10371: UnityEngine.Vector2Int _lastViewRBBlock
+  FIELD 10372: UnityEngine.Vector2Int _lastViewRTBlock
+  FIELD 10373: System.Collections.Generic.HashSet`1<int32> _msgViewIndex
+  FIELD 10374: System.Collections.Generic.List`1<int32> _addViewIndex
+  FIELD 10375: System.Collections.Generic.HashSet`1<int32> _curViewIndex
+  FIELD 10376: int32[] _lwAoiBlockSizeArray
+  FIELD 10377: float32 _outEdgeScale
+  FIELD 10378: bool firstTimeReqAoi
+  FIELD 10379: bool battleFieldFirst
+  FIELD 10380: int32 kTileCountX = 1000
+  FIELD 10381: int32 kTileCountY = 1000
+  FIELD 10382: System.Collections.Generic.Dictionary`2<int32, System.Collections.Generic.Dictionary`2<int32, UnityEngine.Color>> labelSkinColorCfg
+  FIELD 10383: System.Collections.Generic.Dictionary`2<int32, float32> labelSkinOffsetCfg
+  FIELD 10384: System.Collections.Generic.Dictionary`2<int32, float32> labelSkinSizeAddCfg
+  FIELD 10385: bool profileSwitch
+  FIELD 10386: System.Collections.Generic.Dictionary`2<int32, int32> tileBlockIndex
+  FIELD 10387: bool isRecordingTileBlock
+  FIELD 10388: int32 recordingWorldId
+  FIELD 10389: int32 focusPoint
+  FIELD 10390: bool focusPointIsChanged
+  FIELD 10391: bool onInitMsg
+  METHOD 13590 RVA 0x153f04: void OnUpdateLod(object obj)
+  METHOD 13591 RVA 0x153f1f: void RegisterLodWatcher(IWorldLodWatcher watcher)
+  METHOD 13592 RVA 0x153f5e: void UnregisterLodWatcher(IWorldLodWatcher watcher)
+  METHOD 13593 RVA 0x153f80: void UpdateLodWatcher(int32 lod)
+  METHOD 13594 RVA 0x153ff0: string Description()
+  METHOD 13595 RVA 0x154450: void UpdateLWAoi_Normal(bool isForce)
+  METHOD 13596 RVA 0x154934: void UpdateLWAoi_Big3000(bool isForce)
+  METHOD 13597 RVA 0x154ed0: void SendAoiRequest(int32 bigMap, int32 serverLod, int32 x, int32 y, System.Collections.Generic.List`1<int32> addIndex, int32 blockSize, int32 lbTileIndex, int32 rtTileIndex)
+  METHOD 13598 RVA 0x155026: float64 get_time()
+  METHOD 13599 RVA 0x15502d: void set_time(float64 value)
+  METHOD 13600 RVA 0x155035: bool get_busy()
+  METHOD 13601 RVA 0x155047: string get_defaultCountryFlag()
+  METHOD 13602 RVA 0x155070: System.Collections.Generic.HashSet`1<string> get_allCountryFlagSet()
+  METHOD 13603 RVA 0x1550cd: int32 get_ObjsCount()
+  METHOD 13604 RVA 0x1550dc: int32 get_MainPointDataCount()
+  METHOD 13605 RVA 0x15514c: WorldGreen get_worldGreen()
+  METHOD 13606 RVA 0x155170: void .ctor(WorldScene scene)
+  METHOD 13607 RVA 0x15535c: bool get_EnableWorldAssistanceOpt()
+  METHOD 13608 RVA 0x155364: void set_EnableWorldAssistanceOpt(bool value)
+  METHOD 13609 RVA 0x155370: void Init()
+  METHOD 13610 RVA 0x1554a0: void UnInit()
+  METHOD 13611 RVA 0x155660: void RemoveAllObject()
+  METHOD 13612 RVA 0x155790: bool IsBuildFinish()
+  METHOD 13613 RVA 0x1557ac: void InitBuildTileDictionary()
+  METHOD 13614 RVA 0x155b14: PointInfo GetPointInfo(int32 pointIndex, int32 serverId)
+  METHOD 13615 RVA 0x155b5c: PointInfo GetPointInfo(int32 pointIndex)
+  METHOD 13616 RVA 0x155b7c: WorldDesertInfo GetWorldDesertInfo(int32 pointIndex)
+  METHOD 13617 RVA 0x155b9c: WorldTileInfo GetWorldTileInfo(int32 pointIndex)
+  METHOD 13618 RVA 0x155bbc: PointInfo GetYellowLand(int32 pointIndex)
+  METHOD 13619 RVA 0x155bdc: int32 GetBuildTileByItemId(int32 itemId)
+  METHOD 13620 RVA 0x155c08: int32 GetAllianceCitySizeByItemId(int32 itemId)
+  METHOD 13621 RVA 0x155c34: int32 GetTreasureSizeByItemId(int32 itemId)
+  METHOD 13622 RVA 0x155c60: int32 GetDragonBuildSizeByItemId(int32 itemId)
+  METHOD 13623 RVA 0x155c8c: int32 GetAllianceCityTypeByItemId(int32 itemId)
+  METHOD 13624 RVA 0x155cb4: int32 GetBuildOffsetRangeByBuildId(int32 buildId)
+  METHOD 13625 RVA 0x155ce0: PointInfo GetPointInfoByUuid(int64 uuid)
+  METHOD 13626 RVA 0x155d0c: WorldDesertInfo GetDesertInfoByUuid(int64 uuid)
+  METHOD 13627 RVA 0x155d36: PointInfo GetMyPointInfo()
+  METHOD 13628 RVA 0x155d50: bool HasPointInfo(int32 pointIndex)
+  METHOD 13629 RVA 0x155d74: bool IsSelfPoint(int32 pointIndex)
+  METHOD 13630 RVA 0x155da8: int32 GetDesertPoint(int32 lv, int32 type)
+  METHOD 13631 RVA 0x155e60: System.Collections.Generic.Dictionary`2<int64, WorldTileInfo> GetDesertPointList()
+  METHOD 13632 RVA 0x155e68: bool IsCollectPoint(int32 pointIndex)
+  METHOD 13633 RVA 0x155e74: bool IsCollectRangePoint(int32 pointIndex)
+  METHOD 13634 RVA 0x155e86: CollectPointInfo GetCollectRangePoint(int32 pointIndex)
+  METHOD 13635 RVA 0x155eac: CollectPointInfo GetCollectInfoByIndex(int32 pointIndex)
+  METHOD 13636 RVA 0x155ed8: ResPointInfo GetResourcePointInfoByIndex(int32 pointIndex)
+  METHOD 13637 RVA 0x155f04: ExplorePointInfo GetExplorePointInfoByIndex(int32 pointIndex)
+  METHOD 13638 RVA 0x155f38: SamplePointInfo GetSamplePointInfoByIndex(int32 pointIndex)
+  METHOD 13639 RVA 0x155fa0: DetectRetryTaskPointInfo GetDetectRetryTaskPointInfo(int32 pointIndex)
+  METHOD 13640 RVA 0x155fcc: DetectAttackCityS0TaskPointInfo GetDetectAttackCityS0TaskPointInfo(int32 pointIndex)
+  METHOD 13641 RVA 0x155ff8: HeroDispatchMissionPointInfo GetHeroDispatchTaskPointInfoByIndex(int32 pointIndex)
+  METHOD 13642 RVA 0x156024: GhostreconPointInfo GetGhostreconPointInfoByIndex(int32 pointIndex)
+  METHOD 13643 RVA 0x156050: GarbagePointInfo GetGarbagePointInfoByIndex(int32 pointIndex)
+  METHOD 13644 RVA 0x15607c: bool IsRoadPoint(int32 index, string uid, int32 dir)
+  METHOD 13645 RVA 0x156154: void OnUpdate(float32 deltaTime)
+  METHOD 13646 RVA 0x15625d: bool ConsumeLittleSmartDirty()
+  METHOD 13647 RVA 0x156274: void Update1000MS()
+  METHOD 13648 RVA 0x156384: void DeleteTimeOutPoints()
+  METHOD 13649 RVA 0x15651c: void HandleViewPointsReply(Sfs2X.Entities.Data.ISFSObject message)
+  METHOD 13650 RVA 0x156704: void HeatSourceDataManagerHandleWorldGetBlock(Sfs2X.Entities.Data.SFSObject msg, int32 lb, int32 rt)
+  METHOD 13651 RVA 0x156718: void ParseWorldGetBlock(Sfs2X.Entities.Data.ISFSObject message)
+  METHOD 13652 RVA 0x156e54: void ParseWorldPointFoldUp(Sfs2X.Entities.Data.ISFSObject message, int32 serverId, int32 worldId)
+  METHOD 13653 RVA 0x156f0c: void ParseWorldPointRemove(Sfs2X.Entities.Data.ISFSObject message, int32 serverId, int32 worldId)
+  METHOD 13654 RVA 0x15711c: void ParseWorldPointUpdate(Sfs2X.Entities.Data.ISFSObject message, int32 serverId, int32 worldId)
+  METHOD 13655 RVA 0x1576b4: void HandleViewUpdateNotify(Sfs2X.Entities.Data.ISFSObject message)
+  METHOD 13656 RVA 0x15777c: void HandleViewAssistanceInfoUpdateNotify(Sfs2X.Entities.Data.ISFSObject message)
+  METHOD 13657 RVA 0x1577e0: void HandleViewTileUpdateNotify(Sfs2X.Entities.Data.ISFSObject message)
+  METHOD 13658 RVA 0x157800: void HandleALPoints(Sfs2X.Entities.Data.ISFSObject message)
+  METHOD 13659 RVA 0x157821: void GetALMemberPoints(ref int64 leaderPosition, ref System.Collections.Generic.List`1<int64> memberPositions)
+  METHOD 13660 RVA 0x157840: void ClearALMemberPoints()
+  METHOD 13661 RVA 0x157854: void ParseWorldTileUpdate(Sfs2X.Entities.Data.ISFSObject message)
+  METHOD 13662 RVA 0x15790c: void AddWerewolfPointInfo(BuildPointInfo bi)
+  METHOD 13663 RVA 0x157938: PointInfo NewPointInfo(Protobuf.WorldPointInfo p, bool isCreate)
+  METHOD 13664 RVA 0x157d48: void ShowObject(int32 point)
+  METHOD 13665 RVA 0x157d68: void HideObject(int32 point)
+  METHOD 13666 RVA 0x157d88: void UpdateObject(int32 point)
+  METHOD 13667 RVA 0x157da8: void UpdateObjectByUuid(int64 pointUuid)
+  METHOD 13668 RVA 0x157dc6: void RefreshPlayerSwitchState(object obj)
+  METHOD 13669 RVA 0x157ddd: void UpdateViewRequest(bool isForce)
+  METHOD 13670 RVA 0x157dec: void OnScoutDragonScore(object userdata)
+  METHOD 13671 RVA 0x157e34: int32 GetServerLod(int32 lod)
+  METHOD 13672 RVA 0x157e43: void StartViewRequest()
+  METHOD 13673 RVA 0x157e5a: void RequestInitViewRequestAfterMarchInfos()
+  METHOD 13674 RVA 0x157e84: void SendViewRequest(UnityEngine.Vector2Int tilePos, int32 viewLevel, int32 serverId)
+  METHOD 13675 RVA 0x157f99: void MarkPointUpdate()
+  METHOD 13676 RVA 0x157fa9: void AddToBuildList(int32 pointIndex)
+  METHOD 13677 RVA 0x157fd2: void RemoveFromBuildList(int32 pointIndex)
+  METHOD 13678 RVA 0x157fe4: void AddPointInfo(PointInfo pi)
+  METHOD 13679 RVA 0x158938: void AddDesertInfo(WorldDesertInfo di)
+  METHOD 13680 RVA 0x1589e0: void RemoveDesertInfo(int32 pointIndex)
+  METHOD 13681 RVA 0x158a44: void RemovePointInfo(int32 pointIndex, bool forceRemove)
+  METHOD 13682 RVA 0x159068: void ViewCulling()
+  METHOD 13683 RVA 0x159420: void AsyncCreate()
+  METHOD 13684 RVA 0x159508: void AddToCreateList(int32 pointIndex)
+  METHOD 13685 RVA 0x159518: bool IsOutOfViewRange(int32 pointIndex, int32 serverId)
+  METHOD 13686 RVA 0x1595fc: void CreateObject(int32 pointIndex)
+  METHOD 13687 RVA 0x159eb8: void DestroyObject(int32 pointIndex)
+  METHOD 13688 RVA 0x159efc: void AddToDeleteList(int32 index)
+  METHOD 13689 RVA 0x159f1c: void DestroyBuildList()
+  METHOD 13690 RVA 0x159f90: void AddToDelayDestroyList(IWorldDelayDestroyObject obj)
+  METHOD 13691 RVA 0x159fa4: void UpdateDelayDestroyList()
+  METHOD 13692 RVA 0x15a008: void UpdateAssistanceChanged()
+  METHOD 13693 RVA 0x15a080: void MarkPointIsDirty(int64 dirtyPointUuid)
+  METHOD 13694 RVA 0x15a094: void UpdateDirtyPoints()
+  METHOD 13695 RVA 0x15a130: bool TryGetAssistanceCountByPointIndex(int32 serverId, int32 pointIndex, ref int32 count, ref int32 max)
+  METHOD 13696 RVA 0x15a15c: void ClearAllDelayDestroyList()
+  METHOD 13697 RVA 0x15a1b4: void FoldUpBuildObject(int32 pointIndex)
+  METHOD 13698 RVA 0x15a1ec: WorldPointObject GetObjectByPoint(int32 pointIndex)
+  METHOD 13699 RVA 0x15a210: WorldPointObject GetObjectByPoint(int32 serverId, int32 pointIndex)
+  METHOD 13700 RVA 0x15a234: WorldPointObject GetObjectByUuid(int64 uuid)
+  METHOD 13701 RVA 0x15a25c: void ObjectsOnUpdate(float32 deltaTime)
+  METHOD 13702 RVA 0x15a2b8: CityBuilding GetBuildingByPoint(int32 pointIndex)
+  METHOD 13703 RVA 0x15a2bc: CityBuilding GetBuildingByUuid(int64 uuid)
+  METHOD 13704 RVA 0x15a2e2: WorldBuilding GetWorldBuildingByPoint(int32 pointIndex)
+  METHOD 13705 RVA 0x15a2fc: WorldBuilding GetWorldBuildingByUuid(int64 uuid)
+  METHOD 13706 RVA 0x15a324: bool IsRoad(int32 index)
+  METHOD 13707 RVA 0x15a348: bool IsSelfRoad(int32 index)
+  METHOD 13708 RVA 0x15a388: bool IsSelfFreeBoard(int32 index)
+  METHOD 13709 RVA 0x15a3c8: bool IsBoard(int32 index)
+  METHOD 13710 RVA 0x15a3ec: bool IsNeedChangeBuildObj(BuildPointInfo oldInfo, BuildPointInfo newInfo)
+  METHOD 13711 RVA 0x15a44a: int32 GetCollectResourceTile()
+  METHOD 13712 RVA 0x15a452: int32 GetCollectResourceRange()
+  METHOD 13713 RVA 0x15a45a: int32 GetCollectResourceBuildRange()
+  METHOD 13714 RVA 0x15a475: int32 GetCircleRange(int32 tile)
+  METHOD 13715 RVA 0x15a47c: int32 GetCollectPoint(int32 resourceType)
+  METHOD 13716 RVA 0x15a508: System.Collections.Generic.List`1<int32> GetAllCollectRangePoint(int32 resourceType)
+  METHOD 13717 RVA 0x15a684: System.Collections.Generic.List`1<int32> GetAllCollectRangePointType(int32 resourceType, int32 mainIndex)
+  METHOD 13718 RVA 0x15a808: System.Collections.Generic.List`1<int32> GetAllCollectRange(int32 resourceType, int32 mainIndex)
+  METHOD 13719 RVA 0x15a934: System.Collections.Generic.List`1<int32> GetGarbagePoint()
+  METHOD 13720 RVA 0x15a9f8: BuildPointInfo GetBaseMainInfoByOwnerUid(string ownerUid)
+  METHOD 13721 RVA 0x15aa34: bool IsOutCityByPoint(int32 point)
+  METHOD 13722 RVA 0x15ab64: BuildPointInfo GetBaseMainByScreen()
+  METHOD 13723 RVA 0x15ac30: System.Collections.Generic.List`1<BuildPointInfo> GetMainByScreen()
+  METHOD 13724 RVA 0x15ad04: System.Collections.Generic.List`1<BuildPointInfo> GetAllMainBaseList()
+  METHOD 13725 RVA 0x15ad84: System.Collections.Generic.List`1<BuildPointInfo> GetAllMainBaseListByType(PlayerType t0)
+  METHOD 13726 RVA 0x15ae14: System.Collections.Generic.List`1<BuildPointInfo> GetAllMainBaseListByType(PlayerType t0, PlayerType t1)
+  METHOD 13727 RVA 0x15aea8: System.Collections.Generic.List`1<BuildPointInfo> GetAllMainBaseListByType(PlayerType t0, PlayerType t1, PlayerType t2)
+  METHOD 13728 RVA 0x15af40: System.Collections.Generic.List`1<BuildPointInfo> GetAllMainBaseListByType(PlayerType t0, PlayerType t1, PlayerType t2, PlayerType t3)
+  METHOD 13729 RVA 0x15afe0: System.Collections.Generic.List`1<PointInfo> GetAllAllianceCityList()
+  METHOD 13730 RVA 0x15b060: System.Collections.Generic.List`1<PointInfo> GetAllDragonPointList()
+  METHOD 13731 RVA 0x15b0cc: System.Collections.Generic.List`1<int32> GetAllDragonResourceList()
+  METHOD 13732 RVA 0x15b158: int64 GetLLCityPointUuidInView()
+  METHOD 13733 RVA 0x15b1e4: bool IsNeedPlayPlacedAnim(int64 uuid)
+  METHOD 13734 RVA 0x15b204: void CheckNeedRefreshRoad()
+  METHOD 13735 RVA 0x15b29c: void RefreshRoads()
+  METHOD 13736 RVA 0x15b314: void OnDrawGizmos()
+  METHOD 13737 RVA 0x15b31c: int32[] get_lwAoiBlockSizeArray()
+  METHOD 13738 RVA 0x15b379: float32 get__outEdge()
+  METHOD 13739 RVA 0x15b389: void ChangeOutEdgeScale(float32 scale)
+  METHOD 13740 RVA 0x15b399: bool get__lockAoiBlocksUpdate()
+  METHOD 13741 RVA 0x15b3a8: void UpdateLWAoi(bool isForce)
+  METHOD 13742 RVA 0x15b403: void SetFirstViewRequestFlag(bool flag)
+  METHOD 13743 RVA 0x15b40c: void SetBattleFieldFirst(bool flag)
+  METHOD 13744 RVA 0x15b418: bool IsOutOfLWAoi(int32 pointIndex, int32 serverId)
+  METHOD 13745 RVA 0x15b4cc: void DeleteOutOfAoi()
+  METHOD 13746 RVA 0x15ba10: void RecalculateBlockArg(int32 tileCount, int32 serverLod, ref int32 size, ref int32 count)
+  METHOD 13747 RVA 0x15ba2c: UnityEngine.Vector2Int PositionToAoiBlock(float32 x, float32 y)
+  METHOD 13748 RVA 0x15ba80: int32 AoiBlockToIndex(int32 x, int32 y)
+  METHOD 13749 RVA 0x15ba8c: void IndexToAoiBlock(int32 index, ref int32 x, ref int32 y)
+  METHOD 13750 RVA 0x15baa2: void AoiBlockToTilePos(UnityEngine.Vector2Int block, ref int32 x, ref int32 y)
+  METHOD 13751 RVA 0x15bac8: void DrawAoiGizmos()
+  METHOD 13752 RVA 0x15bd7c: UnityEngine.Vector3 GetAoiIndexCenter(int32 index)
+  METHOD 13753 RVA 0x15bdc4: UnityEngine.Color GetLabelSkinColor(int32 skinId, int32 colorType)
+  METHOD 13754 RVA 0x15be3c: float32 GetLabelSkinOffset(int32 skinId)
+  METHOD 13755 RVA 0x15be7c: float32 GetLabelSkinSizeAdd(int32 skinId)
+  METHOD 13756 RVA 0x15bebc: void ClearConfigCache()
+  METHOD 13757 RVA 0x15bf34: bool GetProfileSwitch()
+  METHOD 13758 RVA 0x15bf3c: void ProfileToggle()
+  METHOD 13759 RVA 0x15bfac: System.Collections.Generic.Dictionary`2<int32, int32> GetSpecialPointDic()
+  METHOD 13760 RVA 0x15bfb4: void HandleSandWormUpdate(BuildPointInfo bi, SandWormAnim anim)
+  METHOD 13761 RVA 0x15bfe8: System.Collections.Generic.Dictionary`2<int32, int32> get_TileBlockIndex()
+  METHOD 13762 RVA 0x15bff0: void StartRecordTileBlock(int32 worldId)
+  METHOD 13763 RVA 0x15c150: void StopRecordTileBlock()
+  METHOD 13764 RVA 0x15c16f: void SetFocusPoint(int32 focusPoint)
+  METHOD 13765 RVA 0x15c184: void OnRefreshAllAllianceBuildingsInView(object obj)
+  METHOD 13766 RVA 0x15c29c: void OnWorldColorDirty(string allianceId)
+  METHOD 13767 RVA 0x15c2f4: void HandlePushWorldObjStateChange(Sfs2X.Entities.Data.ISFSObject msg)
+  METHOD 13768 RVA 0x15c31f: void OnCityStatusChanged(int32 serverId, int32 cityId)
+  METHOD 13769 RVA 0x15c324: int64 GetCityUuid(int32 serverId, int32 cityId)
+  METHOD 13770 RVA 0x15c348: void DoMissileFire(int32 serverId, int32 cityId, int64 uuid)
+  METHOD 13771 RVA 0x15c3d2: void OnInitMessage()
+  METHOD 13772 RVA 0x15c3e4: void .cctor()
+TYPE 1786: WorldPointManager+<>c__DisplayClass188_0 extends System.Object
+  FIELD 10392: int32 errorCount
+  FIELD 10393: WorldPointManager <>4__this
+  METHOD 13773 RVA 0x15c552: void .ctor()
+  METHOD 13774 RVA 0x15c55c: void <UpdateAssistanceChanged>b__0(int32 serverId, int32 pointIndex, bool dirty)
+TYPE 1787: WorldPointManager+<>c__DisplayClass217_0 extends System.Object
+  FIELD 10394: UnityEngine.Vector2Int mainPos
+  METHOD 13775 RVA 0x15c7f7: void .ctor()
+  METHOD 13776 RVA 0x15c800: int32 <GetGarbagePoint>b__0(int32 a, int32 b)
+TYPE 3616: XLua.CSObjectWrap.WorldPointManagerWrap extends System.Object
+  METHOD 35722 RVA 0x3b88ec: void __Register(native int L)
+  METHOD 35723 RVA 0x3b960c: int32 __CreateInstance(native int L)
+  METHOD 35724 RVA 0x3b9698: int32 _m_RegisterLodWatcher(native int L)
+  METHOD 35725 RVA 0x3b9708: int32 _m_UnregisterLodWatcher(native int L)
+  METHOD 35726 RVA 0x3b9778: int32 _m_Description(native int L)
+  METHOD 35727 RVA 0x3b97d4: int32 _m_Init(native int L)
+  METHOD 35728 RVA 0x3b9828: int32 _m_UnInit(native int L)
+  METHOD 35729 RVA 0x3b987c: int32 _m_RemoveAllObject(native int L)
+  METHOD 35730 RVA 0x3b98d0: int32 _m_IsBuildFinish(native int L)
+  METHOD 35731 RVA 0x3b992c: int32 _m_GetPointInfo(native int L)
+  METHOD 35732 RVA 0x3b9a04: int32 _m_GetWorldDesertInfo(native int L)
+  METHOD 35733 RVA 0x3b9a6c: int32 _m_GetWorldTileInfo(native int L)
+  METHOD 35734 RVA 0x3b9ad4: int32 _m_GetYellowLand(native int L)
+  METHOD 35735 RVA 0x3b9b3c: int32 _m_GetBuildTileByItemId(native int L)
+  METHOD 35736 RVA 0x3b9ba0: int32 _m_GetAllianceCitySizeByItemId(native int L)
+  METHOD 35737 RVA 0x3b9c04: int32 _m_GetTreasureSizeByItemId(native int L)
+  METHOD 35738 RVA 0x3b9c68: int32 _m_GetDragonBuildSizeByItemId(native int L)
+  METHOD 35739 RVA 0x3b9ccc: int32 _m_GetAllianceCityTypeByItemId(native int L)
+  METHOD 35740 RVA 0x3b9d30: int32 _m_GetBuildOffsetRangeByBuildId(native int L)
+  METHOD 35741 RVA 0x3b9d94: int32 _m_GetPointInfoByUuid(native int L)
+  METHOD 35742 RVA 0x3b9dfc: int32 _m_GetDesertInfoByUuid(native int L)
+  METHOD 35743 RVA 0x3b9e64: int32 _m_GetMyPointInfo(native int L)
+  METHOD 35744 RVA 0x3b9ec0: int32 _m_HasPointInfo(native int L)
+  METHOD 35745 RVA 0x3b9f24: int32 _m_IsSelfPoint(native int L)
+  METHOD 35746 RVA 0x3b9f88: int32 _m_GetDesertPoint(native int L)
+  METHOD 35747 RVA 0x3b9ff8: int32 _m_GetDesertPointList(native int L)
+  METHOD 35748 RVA 0x3ba054: int32 _m_IsCollectPoint(native int L)
+  METHOD 35749 RVA 0x3ba0b8: int32 _m_IsCollectRangePoint(native int L)
+  METHOD 35750 RVA 0x3ba11c: int32 _m_GetCollectRangePoint(native int L)
+  METHOD 35751 RVA 0x3ba184: int32 _m_GetCollectInfoByIndex(native int L)
+  METHOD 35752 RVA 0x3ba1ec: int32 _m_GetResourcePointInfoByIndex(native int L)
+  METHOD 35753 RVA 0x3ba254: int32 _m_GetExplorePointInfoByIndex(native int L)
+  METHOD 35754 RVA 0x3ba2bc: int32 _m_GetSamplePointInfoByIndex(native int L)
+  METHOD 35755 RVA 0x3ba324: int32 _m_GetDetectRetryTaskPointInfo(native int L)
+  METHOD 35756 RVA 0x3ba38c: int32 _m_GetDetectAttackCityS0TaskPointInfo(native int L)
+  METHOD 35757 RVA 0x3ba3f4: int32 _m_GetHeroDispatchTaskPointInfoByIndex(native int L)
+  METHOD 35758 RVA 0x3ba45c: int32 _m_GetGhostreconPointInfoByIndex(native int L)
+  METHOD 35759 RVA 0x3ba4c4: int32 _m_GetGarbagePointInfoByIndex(native int L)
+  METHOD 35760 RVA 0x3ba52c: int32 _m_IsRoadPoint(native int L)
+  METHOD 35761 RVA 0x3ba5a8: int32 _m_OnUpdate(native int L)
+  METHOD 35762 RVA 0x3ba608: int32 _m_ConsumeLittleSmartDirty(native int L)
+  METHOD 35763 RVA 0x3ba664: int32 _m_HandleViewPointsReply(native int L)
+  METHOD 35764 RVA 0x3ba6d4: int32 _m_ParseWorldPointFoldUp(native int L)
+  METHOD 35765 RVA 0x3ba828: int32 _m_ParseWorldPointRemove(native int L)
+  METHOD 35766 RVA 0x3ba97c: int32 _m_ParseWorldPointUpdate(native int L)
+  METHOD 35767 RVA 0x3baad0: int32 _m_HandleViewUpdateNotify(native int L)
+  METHOD 35768 RVA 0x3bab40: int32 _m_HandleViewAssistanceInfoUpdateNotify(native int L)
+  METHOD 35769 RVA 0x3babb0: int32 _m_HandleViewTileUpdateNotify(native int L)
+  METHOD 35770 RVA 0x3bac20: int32 _m_HandleALPoints(native int L)
+  METHOD 35771 RVA 0x3bac90: int32 _m_GetALMemberPoints(native int L)
+  METHOD 35772 RVA 0x3bacf8: int32 _m_ClearALMemberPoints(native int L)
+  METHOD 35773 RVA 0x3bad4c: int32 _m_NewPointInfo_xlua_st_(native int L)
+  METHOD 35774 RVA 0x3badbc: int32 _m_ShowObject(native int L)
+  METHOD 35775 RVA 0x3bae18: int32 _m_HideObject(native int L)
+  METHOD 35776 RVA 0x3bae74: int32 _m_UpdateObject(native int L)
+  METHOD 35777 RVA 0x3baed0: int32 _m_UpdateObjectByUuid(native int L)
+  METHOD 35778 RVA 0x3baf2c: int32 _m_UpdateViewRequest(native int L)
+  METHOD 35779 RVA 0x3bafc0: int32 _m_GetServerLod(native int L)
+  METHOD 35780 RVA 0x3bb024: int32 _m_StartViewRequest(native int L)
+  METHOD 35781 RVA 0x3bb078: int32 _m_RequestInitViewRequestAfterMarchInfos(native int L)
+  METHOD 35782 RVA 0x3bb0cc: int32 _m_AddToDeleteList(native int L)
+  METHOD 35783 RVA 0x3bb128: int32 _m_AddToDelayDestroyList(native int L)
+  METHOD 35784 RVA 0x3bb198: int32 _m_MarkPointIsDirty(native int L)
+  METHOD 35785 RVA 0x3bb1f4: int32 _m_TryGetAssistanceCountByPointIndex(native int L)
+  METHOD 35786 RVA 0x3bb27c: int32 _m_GetObjectByPoint(native int L)
+  METHOD 35787 RVA 0x3bb354: int32 _m_GetObjectByUuid(native int L)
+  METHOD 35788 RVA 0x3bb3bc: int32 _m_GetBuildingByPoint(native int L)
+  METHOD 35789 RVA 0x3bb424: int32 _m_GetBuildingByUuid(native int L)
+  METHOD 35790 RVA 0x3bb48c: int32 _m_GetWorldBuildingByPoint(native int L)
+  METHOD 35791 RVA 0x3bb4f4: int32 _m_GetWorldBuildingByUuid(native int L)
+  METHOD 35792 RVA 0x3bb55c: int32 _m_IsRoad(native int L)
+  METHOD 35793 RVA 0x3bb5c0: int32 _m_IsSelfRoad(native int L)
+  METHOD 35794 RVA 0x3bb624: int32 _m_IsSelfFreeBoard(native int L)
+  METHOD 35795 RVA 0x3bb688: int32 _m_IsBoard(native int L)
+  METHOD 35796 RVA 0x3bb6ec: int32 _m_GetCollectResourceTile(native int L)
+  METHOD 35797 RVA 0x3bb748: int32 _m_GetCollectResourceRange(native int L)
+  METHOD 35798 RVA 0x3bb7a4: int32 _m_GetCollectResourceBuildRange(native int L)
+  METHOD 35799 RVA 0x3bb800: int32 _m_GetCircleRange_xlua_st_(native int L)
+  METHOD 35800 RVA 0x3bb84c: int32 _m_GetCollectPoint(native int L)
+  METHOD 35801 RVA 0x3bb8b0: int32 _m_GetAllCollectRangePoint(native int L)
+  METHOD 35802 RVA 0x3bb918: int32 _m_GetAllCollectRangePointType(native int L)
+  METHOD 35803 RVA 0x3bb988: int32 _m_GetAllCollectRange(native int L)
+  METHOD 35804 RVA 0x3bb9f8: int32 _m_GetGarbagePoint(native int L)
+  METHOD 35805 RVA 0x3bba54: int32 _m_GetBaseMainInfoByOwnerUid(native int L)
+  METHOD 35806 RVA 0x3bbabc: int32 _m_IsOutCityByPoint(native int L)
+  METHOD 35807 RVA 0x3bbb20: int32 _m_GetBaseMainByScreen(native int L)
+  METHOD 35808 RVA 0x3bbb7c: int32 _m_GetMainByScreen(native int L)
+  METHOD 35809 RVA 0x3bbbd8: int32 _m_GetAllMainBaseList(native int L)
+  METHOD 35810 RVA 0x3bbc34: int32 _m_GetAllMainBaseListByType(native int L)
+  METHOD 35811 RVA 0x3bbdf4: int32 _m_GetAllAllianceCityList(native int L)
+  METHOD 35812 RVA 0x3bbe50: int32 _m_GetAllDragonPointList(native int L)
+  METHOD 35813 RVA 0x3bbeac: int32 _m_GetAllDragonResourceList(native int L)
+  METHOD 35814 RVA 0x3bbf08: int32 _m_GetLLCityPointUuidInView(native int L)
+  METHOD 35815 RVA 0x3bbf64: int32 _m_IsNeedPlayPlacedAnim(native int L)
+  METHOD 35816 RVA 0x3bbfc8: int32 _m_CheckNeedRefreshRoad(native int L)
+  METHOD 35817 RVA 0x3bc01c: int32 _m_RefreshRoads(native int L)
+  METHOD 35818 RVA 0x3bc070: int32 _m_OnDrawGizmos(native int L)
+  METHOD 35819 RVA 0x3bc0c4: int32 _m_ChangeOutEdgeScale(native int L)
+  METHOD 35820 RVA 0x3bc124: int32 _m_SetFirstViewRequestFlag(native int L)
+  METHOD 35821 RVA 0x3bc180: int32 _m_SetBattleFieldFirst(native int L)
+  METHOD 35822 RVA 0x3bc1dc: int32 _m_IsOutOfLWAoi(native int L)
+  METHOD 35823 RVA 0x3bc2b0: int32 _m_GetLabelSkinColor(native int L)
+  METHOD 35824 RVA 0x3bc320: int32 _m_GetLabelSkinOffset(native int L)
+  METHOD 35825 RVA 0x3bc388: int32 _m_GetLabelSkinSizeAdd(native int L)
+  METHOD 35826 RVA 0x3bc3f0: int32 _m_GetProfileSwitch(native int L)
+  METHOD 35827 RVA 0x3bc44c: int32 _m_ProfileToggle(native int L)
+  METHOD 35828 RVA 0x3bc4a0: int32 _m_GetSpecialPointDic(native int L)
+  METHOD 35829 RVA 0x3bc4fc: int32 _m_HandleSandWormUpdate(native int L)
+  METHOD 35830 RVA 0x3bc578: int32 _m_StartRecordTileBlock(native int L)
+  METHOD 35831 RVA 0x3bc5d4: int32 _m_StopRecordTileBlock(native int L)
+  METHOD 35832 RVA 0x3bc628: int32 _m_SetFocusPoint(native int L)
+  METHOD 35833 RVA 0x3bc684: int32 _m_OnWorldColorDirty(native int L)
+  METHOD 35834 RVA 0x3bc6e0: int32 _m_HandlePushWorldObjStateChange(native int L)
+  METHOD 35835 RVA 0x3bc750: int32 _m_OnCityStatusChanged_xlua_st_(native int L)
+  METHOD 35836 RVA 0x3bc79c: int32 _m_GetCityUuid_xlua_st_(native int L)
+  METHOD 35837 RVA 0x3bc7f0: int32 _m_DoMissileFire_xlua_st_(native int L)
+  METHOD 35838 RVA 0x3bc848: int32 _m_OnInitMessage(native int L)
+  METHOD 35839 RVA 0x3bc89c: int32 _g_get_time(native int L)
+  METHOD 35840 RVA 0x3bc8e0: int32 _g_get_busy(native int L)
+  METHOD 35841 RVA 0x3bc924: int32 _g_get_defaultCountryFlag(native int L)
+  METHOD 35842 RVA 0x3bc968: int32 _g_get_allCountryFlagSet(native int L)
+  METHOD 35843 RVA 0x3bc9b8: int32 _g_get_ObjsCount(native int L)
+  METHOD 35844 RVA 0x3bca14: int32 _g_get_MainPointDataCount(native int L)
+  METHOD 35845 RVA 0x3bca70: int32 _g_get_worldGreen(native int L)
+  METHOD 35846 RVA 0x3bcacc: int32 _g_get_EnableWorldAssistanceOpt(native int L)
+  METHOD 35847 RVA 0x3bcb28: int32 _g_get_lwAoiBlockSizeArray(native int L)
+  METHOD 35848 RVA 0x3bcb78: int32 _g_get_TileBlockIndex(native int L)
+  METHOD 35849 RVA 0x3bcbd4: int32 _g_get_aoiAssistanceInfos(native int L)
+  METHOD 35850 RVA 0x3bcc30: int32 _g_get_alliancePointsInfos(native int L)
+  METHOD 35851 RVA 0x3bcc8c: int32 _s_set_aoiAssistanceInfos(native int L)
+  METHOD 35852 RVA 0x3bccf8: int32 _s_set_alliancePointsInfos(native int L)
+  METHOD 35853 RVA 0x3bcd64: void .ctor()

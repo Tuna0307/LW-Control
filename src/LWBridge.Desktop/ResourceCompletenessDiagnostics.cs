@@ -56,8 +56,16 @@ internal sealed record ResourceCompletenessBatchDiagnostics(
 
     private static IReadOnlyDictionary<string, int> ReadCounts(JsonElement root, string name)
     {
-        if (!root.TryGetProperty(name, out JsonElement value) || value.ValueKind != JsonValueKind.Object)
+        if (!root.TryGetProperty(name, out JsonElement value))
             throw new InvalidDataException($"Resource completeness diagnostic counts '{name}' are missing.");
+        if (value.ValueKind == JsonValueKind.Array)
+        {
+            if (value.GetArrayLength() == 0)
+                return new SortedDictionary<string, int>(StringComparer.Ordinal);
+            throw new InvalidDataException($"Resource completeness diagnostic counts '{name}' used a non-empty array.");
+        }
+        if (value.ValueKind != JsonValueKind.Object)
+            throw new InvalidDataException($"Resource completeness diagnostic counts '{name}' are invalid.");
         var result = new SortedDictionary<string, int>(StringComparer.Ordinal);
         foreach (JsonProperty property in value.EnumerateObject())
         {
@@ -97,6 +105,32 @@ internal sealed record ResourceCompletenessAcceptedRow(
     int? SourceServerId,
     int? WorldId,
     string DataJson);
+
+internal sealed record ResourceDuplicateObservation(
+    string RecordKey,
+    int PointIndex,
+    int ServerId,
+    int X,
+    int Y,
+    int? Level,
+    long CapturedAtUnixMilliseconds,
+    long UpdatedAt,
+    string? RuntimeClass,
+    int? RawPointType,
+    string? ResourceTypeId,
+    int? ResourceConfigId,
+    int? SourceServerId,
+    int? WorldId,
+    bool? IsBlackTile,
+    bool? GatherOccupied,
+    string DataJson);
+
+internal sealed record ResourceDuplicateComparison(
+    string RecordKey,
+    string Classification,
+    bool SameSemanticIdentity,
+    ResourceDuplicateObservation Previous,
+    ResourceDuplicateObservation Current);
 
 internal sealed record ResourceCompletenessReport(
     string ScanRunId,
@@ -149,6 +183,7 @@ internal sealed record ResourceCompletenessReport(
     bool RawObservationCountersReconcile,
     bool FinalDeduplicationReconciles,
     bool AcceptedDistributionsReconcile,
+    IReadOnlyList<ResourceDuplicateComparison> DuplicateComparisons,
     IReadOnlyList<ResourceCompletenessBatchDiagnostics> Batches,
     IReadOnlyList<ResourceCompletenessAcceptedRow> AcceptedRows)
 {
@@ -160,6 +195,7 @@ internal sealed record ResourceCompletenessReport(
 internal sealed class ResourceCompletenessAccumulator
 {
     private readonly List<ResourceCompletenessBatchDiagnostics> batches = [];
+    private readonly List<ResourceDuplicateComparison> duplicateComparisons = [];
     private int duplicateAcceptedRecordKeyOccurrences;
 
     internal void AddBatch(ResourceCompletenessBatchDiagnostics diagnostic)
@@ -173,6 +209,36 @@ internal sealed class ResourceCompletenessAccumulator
     internal void RecordAcceptedMerge(bool duplicateRecordKey)
     {
         if (duplicateRecordKey) duplicateAcceptedRecordKeyOccurrences++;
+    }
+
+    internal void RecordAcceptedMerge(
+        FirstLivePreparedResource current,
+        FirstLivePreparedResource? previous)
+    {
+        ArgumentNullException.ThrowIfNull(current);
+        bool duplicateRecordKey = previous is not null;
+        RecordAcceptedMerge(duplicateRecordKey);
+        if (!duplicateRecordKey) return;
+
+        ResourceDuplicateObservation prior = ToDuplicateObservation(previous!);
+        ResourceDuplicateObservation next = ToDuplicateObservation(current);
+        bool sameSemanticIdentity =
+            prior.PointIndex == next.PointIndex &&
+            prior.ServerId == next.ServerId &&
+            prior.X == next.X &&
+            prior.Y == next.Y &&
+            prior.RuntimeClass == next.RuntimeClass &&
+            prior.RawPointType == next.RawPointType &&
+            prior.ResourceTypeId == next.ResourceTypeId &&
+            prior.ResourceConfigId == next.ResourceConfigId &&
+            prior.SourceServerId == next.SourceServerId &&
+            prior.WorldId == next.WorldId;
+        duplicateComparisons.Add(new ResourceDuplicateComparison(
+            current.Record.RecordKey,
+            sameSemanticIdentity ? "repeated_same_resource_identity" : "conflicting_same_record_key",
+            sameSemanticIdentity,
+            prior,
+            next));
     }
 
     internal ResourceCompletenessReport Build(
@@ -282,8 +348,83 @@ internal sealed class ResourceCompletenessAccumulator
             rawReconciles,
             finalReconciles,
             distributionsReconcile,
+            duplicateComparisons.ToArray(),
             batches.ToArray(),
             rows);
+    }
+
+    private static ResourceDuplicateObservation ToDuplicateObservation(FirstLivePreparedResource item)
+    {
+        string? runtimeClass = null;
+        int? rawPointType = null;
+        string? resourceTypeId = null;
+        int? resourceConfigId = null;
+        int? sourceServerId = null;
+        int? worldId = null;
+        bool? isBlackTile = null;
+        bool? gatherOccupied = null;
+        try
+        {
+            using JsonDocument document = JsonDocument.Parse(item.Record.DataJson);
+            JsonElement root = document.RootElement;
+            runtimeClass = ReadOptionalString(root, "runtimeClass");
+            rawPointType = ReadOptionalInt(root, "pointType");
+            resourceTypeId = ReadOptionalScalar(root, "resourceTypeId");
+            resourceConfigId = ReadOptionalInt(root, "resourceConfigId");
+            sourceServerId = ReadOptionalInt(root, "srcServerId");
+            worldId = ReadOptionalInt(root, "worldId");
+            isBlackTile = ReadOptionalBool(root, "isBlackTile");
+            gatherOccupied = ReadOptionalBool(root, "gatherOccupied");
+        }
+        catch (JsonException)
+        {
+            // Keep the original DataJson below so malformed diagnostic detail is
+            // preserved rather than silently invented.
+        }
+        return new ResourceDuplicateObservation(
+            item.Record.RecordKey,
+            item.Import.PointIndex,
+            item.Import.ServerId,
+            item.Import.X,
+            item.Import.Y,
+            item.Import.Level,
+            item.Import.CapturedAtUnixMilliseconds,
+            item.Record.UpdatedAt,
+            runtimeClass,
+            rawPointType,
+            resourceTypeId,
+            resourceConfigId,
+            sourceServerId,
+            worldId,
+            isBlackTile,
+            gatherOccupied,
+            item.Record.DataJson);
+    }
+
+    private static string? ReadOptionalString(JsonElement root, string name) =>
+        root.TryGetProperty(name, out JsonElement value) && value.ValueKind == JsonValueKind.String
+            ? value.GetString()
+            : null;
+
+    private static bool? ReadOptionalBool(JsonElement root, string name) =>
+        root.TryGetProperty(name, out JsonElement value)
+            ? value.ValueKind switch
+            {
+                JsonValueKind.True => true,
+                JsonValueKind.False => false,
+                _ => null,
+            }
+            : null;
+
+    private static string? ReadOptionalScalar(JsonElement root, string name)
+    {
+        if (!root.TryGetProperty(name, out JsonElement value)) return null;
+        return value.ValueKind switch
+        {
+            JsonValueKind.String => value.GetString(),
+            JsonValueKind.Number => value.GetRawText(),
+            _ => null,
+        };
     }
 
     private static ResourceCompletenessAcceptedRow ToAcceptedRow(FirstLivePreparedResource prepared, int tileWidth)

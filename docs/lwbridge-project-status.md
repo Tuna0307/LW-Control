@@ -22,8 +22,9 @@ Current Last War content-version 22 has passed the Map-specific static/source
 compatibility revalidation in `LWB317-COMPAT-MAP-V22-001`.
 `LWB317-LIVE-MAP-V22-001` then freshly live-proved the owned-session Map
 runtime/world path, coordinate navigation, one complete fast Resource scan
-(2500/2500, zero failed/unread), 678 current rows, query/filter/sort/pagination
-and clear/reset. `LWB317-LIVE-MAP-V22-002` now additionally live-proves a
+(2500/2500, zero failed/unread), query/filter/sort/pagination and clear/reset;
+later completeness diagnostics show its 678-row population was not a trustworthy
+full Resource census. `LWB317-LIVE-MAP-V22-002` additionally live-proves a
 genuinely active Resource scan stop, retained Map readiness after stop, clear to
 the default zero/idle state without losing readiness, a second Resource scan in
 the same profile/instance/PID/server, a second controlled stop/clear, and final
@@ -31,12 +32,27 @@ same-session readiness. Its first attempt exposed a false
 `GAME_CONNECTION_UNAVAILABLE` while the game/session/heartbeat/world were still
 healthy; the cause was concurrent use of the single-slot current-client
 world-state protocol, fixed minimally by serializing that transaction and covered
-by deterministic regression testing. Source-backed adapters remain wired for
+by deterministic regression testing.
+
+`LWB317-LIVE-MAP-V22-RESOURCE-COMPLETENESS-001` then instrumented the full
+Resource population and live-proved a second acquisition defect: the old remote
+path restored the camera before the correlated AOI response had been serialized,
+causing genuine remote `ResPointInfo` candidates to be rejected as
+`outside_selected_aoi`. A Resource-scoped deferred-restoration correction waits
+for the correlated remote response and serialization, restores the camera, then
+waits for the restored-home response. Two corrected full-world scans completed
+2500/2500 with zero failed/unread blocks and zero Resource-candidate rejections,
+publishing 8,008 and 8,007 unique Resources with full `(0,0)..(999,999)` bounds.
+The corrected observable route is `CURRENT_PATH_COMPLETE`; complete game-universe
+coverage and original protected/private LWBridge traversal equivalence remain
+`UNKNOWN`.
+
+Source-backed adapters remain wired for
 acquisition, navigation, Treasure inspection, server-day, Dispatch alliance
 share, Dispatch scheduled execution and Truck scheduled execution. Treasure
 claim/status and Ghost preparation remain explicit fail-closed current-client
-provider gaps rather than approximations. Server jump and restart/resume remain
-explicitly excluded from the 002 bounded task.
+provider gaps rather than approximations. Server jump, restart/resume, other Map
+categories/actions and final clean UI integration remain open.
 
 The prior 0.3.1 reverse-engineering history remains intact as legacy evidence
 and is reused only where exact 0.3.17/current-client revalidation exists.
@@ -102,8 +118,10 @@ It completed or legitimately blocked each authorized **UI-only** stage:
   reference/pixel comparison blocked by the auth boundary).
 
 The separate static UI reconstruction remains at `src/LWBridge.UI-0.3.17/`.
-Phase 2 Map function recovery is now active under the separate Map Goal; all
-other function families remain blocked.
+Its clean Map controls are not yet wired to the real Map backend, which is
+currently exposed through `src/LWBridge.Desktop/WebUi` and the recovered Map317
+commands. Phase 2 Map function recovery remains active under the separate Map
+Goal; all other function families remain blocked.
 
 Queue authority:
 
@@ -120,11 +138,13 @@ authorizes bounded Map-only interaction with an **assistant-owned** Last War
 session after a fresh process/session ownership check. It does not authorize
 non-Map gameplay or auth/licensing/credential work.
 
-The v22 live task used an assistant-owned game session and cleaned it up. Its
-post-run evidence records no Last War/launcher/LWBridge/proof processes, no
-Overview recovery journal, no task-prefixed temp DB artifacts, and the pristine
-v22 package restored. Any future live work must still perform a fresh ownership
-check rather than reusing that state.
+The v22 live tasks used assistant-owned game sessions and cleaned them up. The
+latest Resource completeness resume snapshot records no Last War/launcher/
+LWBridge/proof processes, no Overview recovery journal, no task-prefixed temp DB
+artifacts, and the pristine v22 package SHA-256
+`248f3aeac712b3f14f86bff37a0c365e467897a2248403837c44c1b774f05b22`
+restored. Any future live work must still perform a fresh ownership check rather
+than reusing that state.
 
 ## Historical research value
 
@@ -145,10 +165,10 @@ Historical auth research remains archived evidence, not a current reconstruction
 
 ## Next project-lead milestone
 
-Review `LWB317-LIVE-MAP-V22-002` and its evidence-state boundaries. The current
-bounded checkpoint stops after proving active scan stop/cancel, connection
-continuity across stop and clear, a second scan/start-stop-clear cycle in the same
-owned session, the false connection-unavailable race/fix, and structured cleanup.
-Server jump and restart/resume remain explicitly deferred. Do not open another
-subsystem until the project lead decides the next bounded Map step or closes the
-Map Goal.
+Review `LWB317-LIVE-MAP-V22-RESOURCE-COMPLETENESS-001` and its evidence-state
+boundaries. Resource acquisition through the corrected current-v22 route is
+`LIVE_PROVEN`/`CURRENT_PATH_COMPLETE`; `GAME_UNIVERSE_COMPLETE` and original
+private traversal equivalence remain `UNKNOWN`. Server jump, restart/resume,
+other Map categories/actions and final clean UI integration remain open. Do not
+open another subsystem until the project lead decides the next bounded Map step
+or closes the Map Goal.

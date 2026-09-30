@@ -1,0 +1,574 @@
+{
+  "schemaVersion": 1,
+  "taskId": "LWB317-LIVE-MAP-V22-RESOURCE-COMPLETENESS-001",
+  "purpose": "read_only_resource_runtime_inventory_after_full_scan",
+  "startedAt": "2026-09-30T13:16:54.1291794+00:00",
+  "preflight": {
+    "officialPackageSha256": "248f3aeac712b3f14f86bff37a0c365e467897a2248403837c44c1b774f05b22",
+    "gameSha256": "905c98c1f89841f90b492556192ba0642f3d209a873cb8c1f7b3c340aca0733d",
+    "versionMarker": "21",
+    "noPreexistingGameRuntime": true
+  },
+  "session": {
+    "profileId": "lwb317-resource-runtime-522f49c2a261",
+    "instanceId": "dc956d30041048ff9b448d8aa6181b2f",
+    "gamePid": 55600,
+    "gamePath": "C:\\Users\\chimw\\AppData\\Local\\FunFly\\Last War-Survival Game\\Game\\LastWar.exe",
+    "gameStartedAtUtc": "2026-09-30T13:17:16.9363685Z",
+    "serverId": 2212,
+    "worldId": 0,
+    "tileWidth": 1000,
+    "tileHeight": 1000,
+    "playerTileX": 560,
+    "playerTileY": 468,
+    "runtimePackageSha256": "5dfb7c847077ee73afd272da1a774c9eecfe13b854118845d890a72de86ce952",
+    "runtimeVersionMarker": "22"
+  },
+  "scan": {
+    "start": {
+      "serverId": 2212,
+      "serverIdSource": "live",
+      "scanRunId": "b0ded77863c04030a7b048b5a5605c15",
+      "isReading": true,
+      "phase": "scanning",
+      "selectedTypes": [
+        "resource"
+      ],
+      "totalBlocks": 2500,
+      "completedBlocks": 0,
+      "readBlocks": 0,
+      "failedBlocks": 0,
+      "unreadBlocks": 2500,
+      "inflightBlocks": 0,
+      "scanMode": "fast",
+      "concurrency": 20,
+      "scanRate": 0,
+      "progressPercent": 0,
+      "nativeCaptureReady": true,
+      "nativePendingRecords": 0,
+      "nativeDroppedRecords": 0,
+      "resumeAvailable": false,
+      "lastError": null,
+      "startedAt": 1790774251
+    },
+    "final": {
+      "serverId": 2212,
+      "serverIdSource": "live",
+      "scanRunId": "b0ded77863c04030a7b048b5a5605c15",
+      "isReading": false,
+      "phase": "completed",
+      "selectedTypes": [
+        "resource"
+      ],
+      "totalBlocks": 2500,
+      "completedBlocks": 2500,
+      "readBlocks": 2500,
+      "failedBlocks": 0,
+      "unreadBlocks": 0,
+      "inflightBlocks": 0,
+      "scanMode": "fast",
+      "concurrency": 20,
+      "scanRate": 19.69,
+      "progressPercent": 100,
+      "nativeCaptureReady": true,
+      "nativePendingRecords": 0,
+      "nativeDroppedRecords": 0,
+      "resumeAvailable": false,
+      "lastError": null,
+      "startedAt": 1790774251
+    },
+    "sourceUnique": 7999,
+    "knownResourceIds": 7999,
+    "rawObservedPointInfoOccurrences": 16121,
+    "resourceCandidateOccurrences": 8053,
+    "rejectedResourceCandidateOccurrences": 0
+  },
+  "runtimeInspection": {
+    "schemaVersion": 1,
+    "probeVersion": "lwbridge-live-resource-probe-2",
+    "requestId": "resourceinventory9c80f1b43dcb41b38463acc7b403aa8a",
+    "profileId": "lwb317-resource-runtime-522f49c2a261",
+    "launchSessionId": "dc956d30041048ff9b448d8aa6181b2f",
+    "gamePid": 55600,
+    "mode": "resource_inventory",
+    "state": "proven",
+    "resourceInventory": {
+      "collectApis": {
+        "allDragonResourceList": {
+          "callOk": true,
+          "declaredCount": 0,
+          "enumeratedCount": 0,
+          "ids": [],
+          "method": "GetAllDragonResourceList",
+          "pointTypeCounts": [],
+          "runtimeClassCounts": [],
+          "runtimeType": "System.Collections.Generic.List\u00601[[System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]",
+          "typedResourceRecognizedCount": 0
+        },
+        "resourceTypes": [
+          {
+            "allCollectRangePoint": {
+              "callOk": true,
+              "declaredCount": 0,
+              "enumeratedCount": 0,
+              "ids": [],
+              "method": "GetAllCollectRangePoint",
+              "pointTypeCounts": [],
+              "runtimeClassCounts": [],
+              "runtimeType": "System.Collections.Generic.List\u00601[[System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]",
+              "typedResourceRecognizedCount": 0
+            },
+            "collectPointCallOk": true,
+            "collectPointId": 0,
+            "resourceType": 1
+          },
+          {
+            "allCollectRangePoint": {
+              "callOk": true,
+              "declaredCount": 0,
+              "enumeratedCount": 0,
+              "ids": [],
+              "method": "GetAllCollectRangePoint",
+              "pointTypeCounts": [],
+              "runtimeClassCounts": [],
+              "runtimeType": "System.Collections.Generic.List\u00601[[System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]",
+              "typedResourceRecognizedCount": 0
+            },
+            "collectPointCallOk": true,
+            "collectPointId": 0,
+            "resourceType": 2
+          },
+          {
+            "allCollectRangePoint": {
+              "callOk": true,
+              "declaredCount": 0,
+              "enumeratedCount": 0,
+              "ids": [],
+              "method": "GetAllCollectRangePoint",
+              "pointTypeCounts": [],
+              "runtimeClassCounts": [],
+              "runtimeType": "System.Collections.Generic.List\u00601[[System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]",
+              "typedResourceRecognizedCount": 0
+            },
+            "collectPointCallOk": true,
+            "collectPointId": 0,
+            "resourceType": 14
+          }
+        ]
+      },
+      "collectResourceBuildRange": 2,
+      "collectResourceRange": 5,
+      "collectResourceTile": 3,
+      "collectionShapes": [
+        {
+          "count": 51,
+          "exists": true,
+          "name": "allObjs",
+          "runtimeType": "System.Collections.Generic.Dictionary\u00602[[System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[WorldPointObject, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+        },
+        {
+          "count": 0,
+          "exists": true,
+          "name": "tempAllPoints",
+          "runtimeType": "System.Collections.Generic.HashSet\u00601[[System.Int64, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]"
+        },
+        {
+          "count": 16,
+          "exists": true,
+          "name": "_curViewIndex",
+          "runtimeType": "System.Collections.Generic.HashSet\u00601[[System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]"
+        },
+        {
+          "count": 0,
+          "exists": true,
+          "name": "_msgViewIndex",
+          "runtimeType": "System.Collections.Generic.HashSet\u00601[[System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]"
+        },
+        {
+          "count": 16,
+          "exists": true,
+          "name": "_addViewIndex",
+          "runtimeType": "System.Collections.Generic.List\u00601[[System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]"
+        }
+      ],
+      "collections": [
+        {
+          "additionalToKnownScanResourceCount": 0,
+          "additionalToKnownScanResourceIdSample": [],
+          "additionalToPointInfosResourceCount": 0,
+          "additionalToPointInfosResourceIdSample": [],
+          "declaredCount": 93,
+          "enumeratedCount": 93,
+          "exists": true,
+          "name": "_pointInfos",
+          "overlapKnownScanResourceCount": 8,
+          "overlapPointInfosResourceCount": 8,
+          "pointInfoCount": 93,
+          "pointTypeCounts": {
+            "17": 1,
+            "6": 84,
+            "7": 8
+          },
+          "resourceIdSample": [
+            453544,
+            459555,
+            452557,
+            467544,
+            472543,
+            470542,
+            477547,
+            481550
+          ],
+          "resourceRecognizedCount": 8,
+          "runtimeClassCounts": {
+            "BuildPointInfo": 84,
+            "HeroDispatchMissionPointInfo": 1,
+            "ResPointInfo": 8
+          },
+          "runtimeType": "System.Collections.Generic.List\u00601[[PointInfo, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+        },
+        {
+          "additionalToKnownScanResourceCount": 0,
+          "additionalToKnownScanResourceIdSample": [],
+          "additionalToPointInfosResourceCount": 0,
+          "additionalToPointInfosResourceIdSample": [],
+          "declaredCount": 765,
+          "enumeratedCount": 765,
+          "exists": true,
+          "name": "allViewPoints",
+          "overlapKnownScanResourceCount": 8,
+          "overlapPointInfosResourceCount": 8,
+          "pointInfoCount": 765,
+          "pointTypeCounts": {
+            "17": 1,
+            "6": 756,
+            "7": 8
+          },
+          "resourceIdSample": [
+            453544,
+            459555,
+            452557,
+            467544,
+            470542,
+            477547,
+            472543,
+            481550
+          ],
+          "resourceRecognizedCount": 8,
+          "runtimeClassCounts": {
+            "BuildPointInfo": 756,
+            "HeroDispatchMissionPointInfo": 1,
+            "ResPointInfo": 8
+          },
+          "runtimeType": "System.Collections.Generic.Dictionary\u00602[[System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[WorldTileInfo, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+        },
+        {
+          "additionalToKnownScanResourceCount": 0,
+          "additionalToKnownScanResourceIdSample": [],
+          "additionalToPointInfosResourceCount": 0,
+          "additionalToPointInfosResourceIdSample": [],
+          "declaredCount": 0,
+          "enumeratedCount": 0,
+          "exists": true,
+          "name": "outOfViewPoints",
+          "overlapKnownScanResourceCount": 0,
+          "overlapPointInfosResourceCount": 0,
+          "pointInfoCount": 0,
+          "pointTypeCounts": [],
+          "resourceIdSample": [],
+          "resourceRecognizedCount": 0,
+          "runtimeClassCounts": [],
+          "runtimeType": "System.Collections.Generic.Dictionary\u00602[[System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[WorldTileInfo, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+        },
+        {
+          "additionalToKnownScanResourceCount": 0,
+          "additionalToKnownScanResourceIdSample": [],
+          "additionalToPointInfosResourceCount": 0,
+          "additionalToPointInfosResourceIdSample": [],
+          "declaredCount": 0,
+          "enumeratedCount": 0,
+          "exists": true,
+          "name": "outOfViewPointsObj",
+          "overlapKnownScanResourceCount": 0,
+          "overlapPointInfosResourceCount": 0,
+          "pointInfoCount": 0,
+          "pointTypeCounts": [],
+          "resourceIdSample": [],
+          "resourceRecognizedCount": 0,
+          "runtimeClassCounts": [],
+          "runtimeType": "System.Collections.Generic.Dictionary\u00602[[System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[WorldTileInfo, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+        },
+        {
+          "additionalToKnownScanResourceCount": 0,
+          "additionalToKnownScanResourceIdSample": [],
+          "additionalToPointInfosResourceCount": 0,
+          "additionalToPointInfosResourceIdSample": [],
+          "declaredCount": 9744,
+          "enumeratedCount": 9744,
+          "exists": true,
+          "name": "yellowLand",
+          "overlapKnownScanResourceCount": 0,
+          "overlapPointInfosResourceCount": 0,
+          "pointInfoCount": 9744,
+          "pointTypeCounts": {
+            "11": 9744
+          },
+          "resourceIdSample": [],
+          "resourceRecognizedCount": 0,
+          "runtimeClassCounts": {
+            "AllyCityPointInfo": 9744
+          },
+          "runtimeType": "System.Collections.Generic.Dictionary\u00602[[System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[PointInfo, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+        },
+        {
+          "additionalToKnownScanResourceCount": 0,
+          "additionalToKnownScanResourceIdSample": [],
+          "additionalToPointInfosResourceCount": 0,
+          "additionalToPointInfosResourceIdSample": [],
+          "declaredCount": 514,
+          "enumeratedCount": 514,
+          "exists": true,
+          "name": "uuidInfoMap",
+          "overlapKnownScanResourceCount": 0,
+          "overlapPointInfosResourceCount": 0,
+          "pointInfoCount": 514,
+          "pointTypeCounts": {
+            "11": 85,
+            "17": 1,
+            "21": 39,
+            "25": 305,
+            "6": 84
+          },
+          "resourceIdSample": [],
+          "resourceRecognizedCount": 0,
+          "runtimeClassCounts": {
+            "AllyCityPointInfo": 390,
+            "BuildPointInfo": 84,
+            "HeroDispatchMissionPointInfo": 1,
+            "TreasurePointInfo": 39
+          },
+          "runtimeType": "System.Collections.Generic.Dictionary\u00602[[System.Int64, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[WorldTileInfo, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+        },
+        {
+          "additionalToKnownScanResourceCount": 0,
+          "additionalToKnownScanResourceIdSample": [],
+          "additionalToPointInfosResourceCount": 0,
+          "additionalToPointInfosResourceIdSample": [],
+          "declaredCount": 0,
+          "enumeratedCount": 0,
+          "exists": true,
+          "name": "uuidInfoDesertMap",
+          "overlapKnownScanResourceCount": 0,
+          "overlapPointInfosResourceCount": 0,
+          "pointInfoCount": 0,
+          "pointTypeCounts": [],
+          "resourceIdSample": [],
+          "resourceRecognizedCount": 0,
+          "runtimeClassCounts": [],
+          "runtimeType": "System.Collections.Generic.Dictionary\u00602[[System.Int64, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[WorldTileInfo, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+        },
+        {
+          "additionalToKnownScanResourceCount": 0,
+          "additionalToKnownScanResourceIdSample": [],
+          "additionalToPointInfosResourceCount": 0,
+          "additionalToPointInfosResourceIdSample": [],
+          "declaredCount": 0,
+          "enumeratedCount": 0,
+          "exists": true,
+          "name": "timeOutPoints",
+          "overlapKnownScanResourceCount": 0,
+          "overlapPointInfosResourceCount": 0,
+          "pointInfoCount": 0,
+          "pointTypeCounts": [],
+          "resourceIdSample": [],
+          "resourceRecognizedCount": 0,
+          "runtimeClassCounts": [],
+          "runtimeType": "System.Collections.Generic.List\u00601[[WorldTileInfo, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+        }
+      ],
+      "knownScanResourceCount": 7999,
+      "method": "read_only_reflection_after_full_resource_scan",
+      "pointInfos": {
+        "declaredCount": 93,
+        "enumeratedCount": 93,
+        "pointTypeCounts": {
+          "17": 1,
+          "6": 84,
+          "7": 8
+        },
+        "resourceRecognizedCount": 8,
+        "runtimeClassCounts": {
+          "BuildPointInfo": 84,
+          "HeroDispatchMissionPointInfo": 1,
+          "ResPointInfo": 8
+        },
+        "samplesByPointType": {
+          "17": [
+            {
+              "collectResourceInfoPresent": false,
+              "gatherResourceConfigResolved": false,
+              "getResLevelOk": false,
+              "getResTypeOk": false,
+              "pointId": 489569,
+              "pointType": 17,
+              "runtimeClass": "HeroDispatchMissionPointInfo",
+              "serverId": 2212,
+              "srcServerId": 2212,
+              "typedResourceLookupOk": true,
+              "typedResourceRecognized": false,
+              "worldId": 0,
+              "worldPointType": "HERO_DISPATCH: 17",
+              "worldTilePointType": 17,
+              "x": 568,
+              "y": 489
+            }
+          ],
+          "6": [
+            {
+              "collectResourceInfoPresent": false,
+              "gatherResourceConfigResolved": false,
+              "getResLevelOk": false,
+              "getResTypeOk": false,
+              "pointId": 465558,
+              "pointType": 6,
+              "runtimeClass": "BuildPointInfo",
+              "serverId": 2212,
+              "srcServerId": 2212,
+              "typedResourceLookupOk": true,
+              "typedResourceRecognized": false,
+              "worldId": 0,
+              "worldPointType": "PlayerBuilding: 6",
+              "worldTilePointType": 6,
+              "x": 557,
+              "y": 465
+            },
+            {
+              "collectResourceInfoPresent": false,
+              "gatherResourceConfigResolved": false,
+              "getResLevelOk": false,
+              "getResTypeOk": false,
+              "pointId": 465555,
+              "pointType": 6,
+              "runtimeClass": "BuildPointInfo",
+              "serverId": 2212,
+              "srcServerId": 2212,
+              "typedResourceLookupOk": true,
+              "typedResourceRecognized": false,
+              "worldId": 0,
+              "worldPointType": "PlayerBuilding: 6",
+              "worldTilePointType": 6,
+              "x": 554,
+              "y": 465
+            },
+            {
+              "collectResourceInfoPresent": false,
+              "gatherResourceConfigResolved": false,
+              "getResLevelOk": false,
+              "getResTypeOk": false,
+              "pointId": 468558,
+              "pointType": 6,
+              "runtimeClass": "BuildPointInfo",
+              "serverId": 2212,
+              "srcServerId": 2212,
+              "typedResourceLookupOk": true,
+              "typedResourceRecognized": false,
+              "worldId": 0,
+              "worldPointType": "PlayerBuilding: 6",
+              "worldTilePointType": 6,
+              "x": 557,
+              "y": 468
+            }
+          ],
+          "7": [
+            {
+              "collectResourceInfoPresent": false,
+              "gatherResourceConfigResolved": true,
+              "getResLevel": 9,
+              "getResLevelOk": true,
+              "getResType": 2,
+              "getResTypeOk": true,
+              "pointId": 453544,
+              "pointType": 7,
+              "resourceConfigId": 209,
+              "resourceNameKey": "129027",
+              "runtimeClass": "ResPointInfo",
+              "serverId": 2212,
+              "srcServerId": 2212,
+              "typedResourceLookupOk": true,
+              "typedResourceRecognized": true,
+              "typedResourceRuntimeClass": "ResPointInfo",
+              "worldId": 0,
+              "worldPointType": "WorldResource: 7",
+              "worldTilePointType": 7,
+              "x": 543,
+              "y": 453
+            },
+            {
+              "collectResourceInfoPresent": false,
+              "gatherResourceConfigResolved": true,
+              "getResLevel": 9,
+              "getResLevelOk": true,
+              "getResType": 14,
+              "getResTypeOk": true,
+              "pointId": 459555,
+              "pointType": 7,
+              "resourceConfigId": 109,
+              "resourceNameKey": "100317",
+              "runtimeClass": "ResPointInfo",
+              "serverId": 2212,
+              "srcServerId": 2212,
+              "typedResourceLookupOk": true,
+              "typedResourceRecognized": true,
+              "typedResourceRuntimeClass": "ResPointInfo",
+              "worldId": 0,
+              "worldPointType": "WorldResource: 7",
+              "worldTilePointType": 7,
+              "x": 554,
+              "y": 459
+            },
+            {
+              "collectResourceInfoPresent": false,
+              "gatherResourceConfigResolved": true,
+              "getResLevel": 8,
+              "getResLevelOk": true,
+              "getResType": 1,
+              "getResTypeOk": true,
+              "pointId": 452557,
+              "pointType": 7,
+              "resourceConfigId": 8,
+              "resourceNameKey": "100281",
+              "runtimeClass": "ResPointInfo",
+              "serverId": 2212,
+              "srcServerId": 2212,
+              "typedResourceLookupOk": true,
+              "typedResourceRecognized": true,
+              "typedResourceRuntimeClass": "ResPointInfo",
+              "worldId": 0,
+              "worldPointType": "WorldResource: 7",
+              "worldTilePointType": 7,
+              "x": 556,
+              "y": 452
+            }
+          ]
+        },
+        "targetResourceRows": []
+      }
+    },
+    "capturedAt": "2026-09-30T13:19:39Z"
+  },
+  "state": "failed",
+  "failure": {
+    "type": "LWBridge.Desktop.BridgeCommandException",
+    "message": "server ID and coordinates must be positive integers",
+    "code": "INVALID_COORDINATE"
+  },
+  "cleanup": {
+    "ownedGamePid": 55600,
+    "ownedGamePidAlive": false,
+    "packageSha256": "248f3aeac712b3f14f86bff37a0c365e467897a2248403837c44c1b774f05b22",
+    "packageRestoredToOfficialV22": true,
+    "versionMarker": "21",
+    "tempDatabaseDeleted": true
+  },
+  "finishedAt": "2026-09-30T13:19:44.4864754+00:00"
+}

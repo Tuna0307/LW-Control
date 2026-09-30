@@ -309,6 +309,8 @@ internal static class CurrentClientMapBlockSourceChecks
             bulkResult: fields =>
             {
                 bulkCalls++;
+                Check(fields.TryGetValue("deferRestoreUntilResponse", out string? deferRestore) && deferRestore == "true",
+                    "Resource full-world acquisition must defer the hidden camera restore until the correlated response is serialized");
                 int x = int.Parse(fields["targetTileX"]); int y = int.Parse(fields["targetTileY"]);
                 if (x == 5 && y == 75) return ProvenFastResourceBatch(fields, (400, 9, 9, 3, 2, true, false));
                 if (x == 995 && y == 975) return ProvenFastResourceBatch(fields, (500, 985, 985, 10, 4, true, true));
@@ -2464,21 +2466,28 @@ internal static class CurrentClientMapBlockSourceChecks
         bool includeGhost = fields.TryGetValue("includeGhost", out string? includeGhostText) && includeGhostText == "true";
         bool includeTreasure = fields.TryGetValue("includeTreasure", out string? includeTreasureText) && includeTreasureText == "true";
         bool includeResourceDetails = fields.TryGetValue("includeResourceDetails", out string? includeResourceDetailsText) && includeResourceDetailsText == "true";
+        bool deferRestoreUntilResponse = fields.TryGetValue("deferRestoreUntilResponse", out string? deferRestoreText) &&
+            deferRestoreText == "true";
         return JsonSerializer.Serialize(new
         {
             schemaVersion = 1, probeVersion = "lwbridge-live-resource-probe-2",
             requestId = fields["requestId"], launchSessionId = fields["launchSessionId"],
             profileId = fields["profileId"], challenge = fields["challenge"],
             gamePid = int.Parse(fields["gamePid"]), requestedCount = 8, requestMode = "coverage",
-            includeCity, includeResource, includeMonster, includeMonsterProtection, includeTrain, includeDispatch, includeGhost, includeTreasure, includeResourceDetails,
+            includeCity, includeResource, includeMonster, includeMonsterProtection, includeTrain, includeDispatch, includeGhost, includeTreasure,
+            includeResourceDetails, deferRestoreUntilResponse,
             state = "proven", error = (string?)null, requestedIndices = requested,
             matchedCityCount = includeCity ? points.Length : 0, matchedResourceCount = 0, matchedDispatchCount = 0, matchedGhostCount = 0, matchedTreasureCount = 0,
             monsterInvasionBossCount = 0, monsterProtectionDetailTargetCount = 0,
             monsterProtectionDetailRequestCount = 0, monsterProtectionDetailReadyCount = 0,
             serverLod = 0, blockSize = 10, blockCount = 100,
             targetTileX = int.Parse(fields["targetTileX"]), targetTileY = int.Parse(fields["targetTileY"]),
-            responseFlagsTransitioned = true, cameraTileStable = true, positionRestoredBeforeResponse = true,
-            requestMethod = "WorldPointManager.UpdateViewRequest(true)+same-tick-camera-restore",
+            responseFlagsTransitioned = true, cameraTileStable = true,
+            positionRestoredBeforeResponse = !deferRestoreUntilResponse,
+            positionRestoredAfterResponse = deferRestoreUntilResponse,
+            requestMethod = deferRestoreUntilResponse
+                ? "WorldPointManager.UpdateViewRequest(true)+deferred-restore-after-response"
+                : "WorldPointManager.UpdateViewRequest(true)+same-tick-camera-restore",
             nativeCurrentSetCount = requested.Length, holdMilliseconds = 0,
             homeTileX = int.Parse(fields["homeTileX"]), homeTileY = int.Parse(fields["homeTileY"]), viewLevel = -1,
             postServerLod = 0, postBlockSize = 10, postBlockCount = 100, capturedAt = Timestamp(),

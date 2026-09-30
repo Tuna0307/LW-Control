@@ -61,12 +61,17 @@ checks and captures.
 Static/headless function recovery and the bounded v22 live Map acquisition plus
 stop/clear continuity checkpoints are complete. `LWB317-LIVE-MAP-V22-001` used an
 assistant-owned session to live-prove world readiness/metadata, coordinate
-navigation, a complete Resource scan, fresh query behavior and clear/reset.
-`LWB317-LIVE-MAP-V22-002` then live-proved controlled stop/cancel while Resource
-acquisition was genuinely active, readiness across stop and clear, and a second
-start/stop/clear cycle in the exact same owned session. Auth bypass and unrelated
-gameplay actions remain unauthorized. The tasks cleaned up their owned sessions
-and restored the pristine v22 package.
+navigation, a 2500/2500 Resource scan, fresh query behavior and clear/reset;
+later completeness diagnostics established that its 678-row population was not
+a trustworthy full Resource census. `LWB317-LIVE-MAP-V22-002` then live-proved
+controlled stop/cancel while Resource acquisition was genuinely active,
+readiness across stop and clear, and a second start/stop/clear cycle in the exact
+same owned session. `LWB317-LIVE-MAP-V22-RESOURCE-COMPLETENESS-001` finally
+live-proved the Resource response-association defect and a Resource-scoped
+deferred-restoration correction with two corrected full-world scans at 8,008 and
+8,007 unique Resources. Auth bypass and unrelated gameplay actions remain
+unauthorized. The tasks cleaned up their owned sessions and restored the
+pristine v22 package.
 
 ## Phase 1 campaign handoff
 
@@ -95,16 +100,27 @@ The active Goal remains:
 
 `docs/GOAL_CAMPAIGN_PHASE2_MAP.md`
 
-`LWB317-LIVE-MAP-V22-002` is now `AWAITING_REVIEW`. Its fresh evidence is in
-`evidence/lwbridge-0.3.17/map/LWB317-LIVE-MAP-V22-002/` and its review is
-`docs/reviews/2026-09-30-LWB317-LIVE-MAP-V22-002.md`. The first 002 attempt
-diagnosed a false `GAME_CONNECTION_UNAVAILABLE` caused by concurrent use of the
-single-slot current-client world-state protocol; a minimal serialization fix plus
-deterministic regression coverage was added, and the fresh post-fix run completed
-both stop/clear cycles in the same owned session. The exact historical 001
-connection-loss cause remains `UNKNOWN`. Server jump and restart/resume remain
-intentionally deferred. Do not start another bounded Map task or another
-subsystem until the project lead decides.
+`LWB317-LIVE-MAP-V22-RESOURCE-COMPLETENESS-001` is now `AWAITING_REVIEW`. Its
+evidence is in
+`evidence/lwbridge-0.3.17/map/LWB317-LIVE-MAP-V22-RESOURCE-COMPLETENESS-001/`
+and its review is
+`docs/reviews/2026-09-30-LWB317-LIVE-MAP-V22-RESOURCE-COMPLETENESS-001.md`.
+The baseline completed all 2,500 logical blocks but accepted only 296 unique
+Resources while rejecting 1,407 candidates as `outside_selected_aoi`; live spot
+checks proved same-tick camera restoration preceded remote response capture.
+The corrected Resource-only path waits for the correlated remote response and
+serialization before restoring the camera, then waits for a normal restored-home
+response. Two corrected full scans produced 8,008 and 8,007 unique Resources,
+zero rejected candidates and full `(0,0)..(999,999)` coverage. This establishes
+`CURRENT_PATH_COMPLETE`; `GAME_UNIVERSE_COMPLETE` and original LWBridge private
+traversal equivalence remain `UNKNOWN`.
+
+The real Map backend is wired through `src/LWBridge.Desktop/WebUi`. The separate
+`src/LWBridge.UI-0.3.17` project remains the clean/static reconstruction and its
+Map controls are not yet wired to that backend. Server jump, restart/resume,
+other Map categories/actions and final clean UI integration remain open. Do not
+start another subsystem until the project lead decides the next bounded Map step
+or closes the Goal.
 
 ## Required worker/campaign output
 

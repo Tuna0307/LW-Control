@@ -1,0 +1,331 @@
+{
+  "schemaVersion": 1,
+  "taskId": "LWB317-LIVE-MAP-V22-RESOURCE-COMPLETENESS-001",
+  "proofStartedAt": "2026-09-30T12:37:10.8403735+00:00",
+  "scope": {
+    "resourceOnly": true,
+    "serverJump": false,
+    "restartResume": false,
+    "unrelatedGameplay": false
+  },
+  "preflight": {
+    "packageSha256": "248f3aeac712b3f14f86bff37a0c365e467897a2248403837c44c1b774f05b22",
+    "versionMarker": "21",
+    "gameSha256": "905c98c1f89841f90b492556192ba0642f3d209a873cb8c1f7b3c340aca0733d",
+    "noPreexistingGameRuntime": true
+  },
+  "ownedSession": {
+    "profileId": "lwb317-resource-completeness-38725bb051dd",
+    "instanceId": "b6f35d0b089d4c9194d3bfb2dbfdd7a8",
+    "gamePid": 41112,
+    "gamePath": "C:\\Users\\chimw\\AppData\\Local\\FunFly\\Last War-Survival Game\\Game\\LastWar.exe",
+    "gameStartedAtUtc": "2026-09-30T12:37:43.9457320Z",
+    "healthyHeartbeat": true
+  },
+  "session": {
+    "profileId": "lwb317-resource-completeness-38725bb051dd",
+    "instanceId": "b6f35d0b089d4c9194d3bfb2dbfdd7a8",
+    "gamePid": 41112,
+    "gamePath": "C:\\Users\\chimw\\AppData\\Local\\FunFly\\Last War-Survival Game\\Game\\LastWar.exe",
+    "gameStartedAtUtc": "2026-09-30T12:37:43.9457320Z",
+    "serverId": 2212,
+    "worldId": 0,
+    "tileWidth": 1000,
+    "tileHeight": 1000,
+    "playerTileX": 560,
+    "playerTileY": 468,
+    "runtimePackageSha256": "8244bd39890f9579ebe7edf393e0d4ed5101da3f99acb6bd1b54b9663fa19727",
+    "runtimePackageState": "unexpected",
+    "runtimeVersionMarker": "22"
+  },
+  "scan": {
+    "request": {
+      "selectedTypes": [
+        "resource"
+      ],
+      "scanMode": "fast",
+      "resume": false
+    },
+    "start": {
+      "serverId": 2212,
+      "serverIdSource": "live",
+      "scanRunId": "c5a273f95ee9445fb75f137b6da11e05",
+      "isReading": true,
+      "phase": "scanning",
+      "selectedTypes": [
+        "resource"
+      ],
+      "totalBlocks": 2500,
+      "completedBlocks": 0,
+      "readBlocks": 0,
+      "failedBlocks": 0,
+      "unreadBlocks": 2500,
+      "inflightBlocks": 0,
+      "scanMode": "fast",
+      "concurrency": 20,
+      "scanRate": 0,
+      "progressPercent": 0,
+      "nativeCaptureReady": true,
+      "nativePendingRecords": 0,
+      "nativeDroppedRecords": 0,
+      "resumeAvailable": false,
+      "lastError": null,
+      "startedAt": 1790771881
+    },
+    "final": {
+      "serverId": 2212,
+      "serverIdSource": "live",
+      "scanRunId": "c5a273f95ee9445fb75f137b6da11e05",
+      "isReading": false,
+      "phase": "completed",
+      "selectedTypes": [
+        "resource"
+      ],
+      "totalBlocks": 2500,
+      "completedBlocks": 2500,
+      "readBlocks": 2500,
+      "failedBlocks": 0,
+      "unreadBlocks": 0,
+      "inflightBlocks": 0,
+      "scanMode": "fast",
+      "concurrency": 20,
+      "scanRate": 83.33,
+      "progressPercent": 100,
+      "nativeCaptureReady": true,
+      "nativePendingRecords": 0,
+      "nativeDroppedRecords": 0,
+      "resumeAvailable": false,
+      "lastError": null,
+      "startedAt": 1790771881
+    }
+  },
+  "resourceCompleteness": {
+    "scope": "current_client_acquisition_path",
+    "rawObservedPointInfoOccurrences": 17642,
+    "nonResourcePointOccurrences": 12142,
+    "resourceCandidateOccurrences": 5500,
+    "acceptedResourceOccurrencesBeforeDeduplication": 19,
+    "rejectedResourceCandidateOccurrences": 5481,
+    "duplicateAcceptedRecordKeyOccurrences": 0,
+    "finalAcceptedUniqueRecords": 19,
+    "resourceSourceLookupHitOccurrences": 19,
+    "resourceSourceLookupFallbackOccurrences": 0,
+    "resourceDetail": {
+      "resourceDetailTargetCount": 19,
+      "resourceDetailRequestCount": 19,
+      "resourceDetailCacheBeforeCount": 0,
+      "resourceDetailSendFailureCount": 0,
+      "resourceDetailReadyCount": 19,
+      "resourceDetailError": null
+    },
+    "rawObservationCountersReconcile": true,
+    "finalDeduplicationReconciles": true,
+    "acceptedDistributionsReconcile": true,
+    "populatedNativeAoiBlocks": 13,
+    "zeroResourceNativeAoiBlocks": 9987,
+    "minResourcesPerPopulatedNativeAoiBlock": 1,
+    "maxResourcesPerPopulatedNativeAoiBlock": 3,
+    "boundingBox": {
+      "minX": 0,
+      "minY": 0,
+      "maxX": 29,
+      "maxY": 97
+    },
+    "rawRuntimeClassOccurrences": {
+      "AllyCityPointInfo": 245,
+      "BuildPointInfo": 11386,
+      "CityAttachmentBuildPointInfo": 10,
+      "CityAttachmentWallPointInfo": 21,
+      "ExplorePointInfo": 1,
+      "HeroDispatchMissionPointInfo": 461,
+      "ResPointInfo": 5500,
+      "TreasurePointInfo": 18
+    },
+    "rawPointTypeOccurrences": {
+      "11": 53,
+      "14": 1,
+      "17": 461,
+      "21": 18,
+      "25": 192,
+      "30": 10,
+      "31": 21,
+      "6": 11386,
+      "7": 5500
+    },
+    "rejectionReasonOccurrences": {
+      "outside_selected_aoi": 5481
+    },
+    "levelDistribution": {
+      "1": 7,
+      "2": 7,
+      "3": 5
+    },
+    "resourceNameKeyDistribution": {
+      "100281": 5,
+      "100317": 8,
+      "129027": 6
+    },
+    "resourceTypeDistribution": {
+      "1": 5,
+      "14": 8,
+      "2": 6
+    },
+    "acceptedRawPointTypeDistribution": {
+      "7": 19
+    },
+    "blackTileDistribution": {
+      "false": 19
+    },
+    "occupancyDistribution": {
+      "unoccupied": 19
+    },
+    "resourceDetailDistribution": {
+      "full": 16,
+      "partial": 3
+    },
+    "serverDistribution": {
+      "2212": 19
+    },
+    "sourceServerDistribution": {
+      "2212": 19
+    },
+    "worldDistribution": {
+      "0": 19
+    },
+    "resourcesByNativeAoiIndex": {
+      "0": 1,
+      "1": 2,
+      "100": 1,
+      "200": 1,
+      "300": 2,
+      "302": 3,
+      "500": 1,
+      "501": 1,
+      "800": 1,
+      "801": 1,
+      "900": 3,
+      "901": 1,
+      "902": 1
+    },
+    "sourceReport": {
+      "path": "corrected-live-proof.resource-source-report.json",
+      "sha256": "59f0ca90300e94aac352513e35c77dd9c59ed53ebd8bd39641fe8df04f6b72b3",
+      "acceptedRows": 19
+    },
+    "publishedRows": {
+      "path": "corrected-live-proof.resource-published-rows.json",
+      "sha256": "94e1b44962aab5ac793f6c3a0922be9608f26b86333095835764df0fb788a814",
+      "count": 19
+    },
+    "publishedSummary": {
+      "serverId": 2212,
+      "counts": {
+        "city": 0,
+        "resource": 19,
+        "monster": 0,
+        "truck": 0,
+        "railway": 0,
+        "dispatch": 0,
+        "ghost": 0,
+        "treasure": 0
+      },
+      "scanState": {
+        "serverId": 2212,
+        "serverIdSource": "live",
+        "scanRunId": "c5a273f95ee9445fb75f137b6da11e05",
+        "isReading": false,
+        "phase": "completed",
+        "selectedTypes": [
+          "resource"
+        ],
+        "totalBlocks": 2500,
+        "completedBlocks": 2500,
+        "readBlocks": 2500,
+        "failedBlocks": 0,
+        "unreadBlocks": 0,
+        "inflightBlocks": 0,
+        "scanMode": "fast",
+        "concurrency": 20,
+        "scanRate": 83.33,
+        "progressPercent": 100,
+        "nativeCaptureReady": true,
+        "nativePendingRecords": 0,
+        "nativeDroppedRecords": 0,
+        "resumeAvailable": false,
+        "lastError": null,
+        "startedAt": 1790771881
+      }
+    },
+    "publishedOptions": {
+      "serverId": 2212,
+      "counts": {
+        "city": 0,
+        "resource": 19,
+        "monster": 0,
+        "truck": 0,
+        "railway": 0,
+        "dispatch": 0,
+        "ghost": 0,
+        "treasure": 0
+      },
+      "alliances": [],
+      "names": {
+        "resource": [
+          {
+            "key": "100281",
+            "count": 5
+          },
+          {
+            "key": "100317",
+            "count": 8
+          },
+          {
+            "key": "129027",
+            "count": 6
+          }
+        ],
+        "monster": []
+      },
+      "dispatchLevels": [],
+      "noAllianceCount": 0,
+      "rewardItems": {
+        "truck": [],
+        "railway": []
+      },
+      "treasureTypes": [],
+      "scanProgress": {
+        "id": "c5a273f95ee9445fb75f137b6da11e05",
+        "serverId": 2212,
+        "selectedTypes": [
+          "resource"
+        ],
+        "status": "completed",
+        "totalBlocks": 2500,
+        "completedBlocks": 2500,
+        "failedBlocks": 0,
+        "createdAt": 1790771881687,
+        "updatedAt": 1790771911582,
+        "error": null
+      }
+    },
+    "publishedCountReconciliation": {
+      "sourceUnique": 19,
+      "searchRows": 19,
+      "summaryResourceCount": 19,
+      "optionsResourceCount": 19
+    },
+    "currentClientPathReconciled": true,
+    "gameUniverseComplete": "UNKNOWN",
+    "originalLwbridgeTraversalEquivalent": "UNKNOWN"
+  },
+  "state": "proven",
+  "cleanup": {
+    "ownedGamePid": 41112,
+    "ownedGamePidAlive": false,
+    "packageSha256": "248f3aeac712b3f14f86bff37a0c365e467897a2248403837c44c1b774f05b22",
+    "packageRestoredToOfficialV22": true,
+    "versionMarker": "21",
+    "tempDatabaseDeleted": true
+  },
+  "proofFinishedAt": "2026-09-30T12:38:36.0178575+00:00"
+}

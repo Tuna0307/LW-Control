@@ -7,6 +7,26 @@ internal static class ResourceCompletenessDiagnosticsChecks
 {
     internal static void Run()
     {
+        ResourceCompletenessBatchDiagnostics luaEmptyMaps = ResourceCompletenessBatchDiagnostics.Parse(
+            JsonDocument.Parse("""
+            {
+              "observedPointInfos":0,
+              "enumeratedPointInfos":0,
+              "resourceCandidateCount":0,
+              "acceptedResourceCount":0,
+              "rejectedResourceCandidateCount":0,
+              "nonResourcePointCount":0,
+              "runtimeClassCounts":[],
+              "rawPointTypeCounts":[],
+              "rejectionReasonCounts":[],
+              "acceptedAoiCounts":[],
+              "resourceSourceLookupHitCount":0,
+              "resourceSourceLookupFallbackCount":0
+            }
+            """).RootElement.Clone());
+        Check(luaEmptyMaps.Reconciles && luaEmptyMaps.AcceptedAoiCounts.Count == 0,
+            "Lua empty-table count maps must deserialize as empty diagnostic maps");
+
         ResourceCompletenessBatchDiagnostics batch1 = ParseBatch(new
         {
             observedPointInfos = 8,
@@ -42,7 +62,6 @@ internal static class ResourceCompletenessDiagnosticsChecks
         var accumulator = new ResourceCompletenessAccumulator();
         accumulator.AddBatch(batch1);
         accumulator.AddBatch(batch2);
-        for (int index = 0; index < 6; index++) accumulator.RecordAcceptedMerge(index == 4);
 
         FirstLivePreparedResource[] accepted =
         [
@@ -61,6 +80,8 @@ internal static class ResourceCompletenessDiagnosticsChecks
                 blackKnown: true, black: true, occupancyKnown: false, occupied: null,
                 remaining: 80, full: 80),
         ];
+        for (int index = 0; index < 5; index++) accumulator.RecordAcceptedMerge(false);
+        accumulator.RecordAcceptedMerge(accepted[0], accepted[0]);
 
         ResourceCompletenessReport report = accumulator.Build(
             "run-completeness", 2212, 0, 1000, 1000, accepted,
@@ -79,6 +100,10 @@ internal static class ResourceCompletenessDiagnosticsChecks
             "raw Resource completeness totals changed");
         Check(report.DuplicateAcceptedRecordKeyOccurrences == 1 && report.FinalAcceptedUniqueRecords == 5,
             "Resource duplicate accounting changed");
+        Check(report.DuplicateComparisons.Count == 1 &&
+              report.DuplicateComparisons[0].SameSemanticIdentity &&
+              report.DuplicateComparisons[0].Classification == "repeated_same_resource_identity",
+            "Resource duplicate diagnostics must preserve and classify same-identity collisions");
         Check(report.ResourceDetailTargetCount == 4 && report.ResourceDetailRequestCount == 3 &&
               report.ResourceDetailCacheBeforeCount == 1 && report.ResourceDetailSendFailureCount == 0 &&
               report.ResourceDetailReadyCount == 4 && report.ResourceDetailError is null,

@@ -1,0 +1,63 @@
+﻿RGMD=0x9a92a4 TypeDef=5828 MethodDef=54483
+TYPE 1752: ResPointInfo extends PointInfo
+  FIELD 10123: int32 id
+  FIELD 10124: int32 state
+  FIELD 10125: int64 gatherMarchUuid
+  FIELD 10126: string gatherUid
+  FIELD 10127: string gatherAllianceId
+  FIELD 10128: Protobuf.SpecialType specialType
+  METHOD 13458 RVA 0x1518b1: void .ctor()
+  METHOD 13459 RVA 0x1518bc: void .ctor(Protobuf.WorldPointInfo pi)
+  METHOD 13460 RVA 0x151944: PointInfo Clone()
+  METHOD 13461 RVA 0x151984: int32 GetResPointType()
+  METHOD 13462 RVA 0x1519c0: int32 GetResType()
+  METHOD 13463 RVA 0x1519fc: int32 GetResLevel()
+  METHOD 13464 RVA 0x151a2f: bool CheckClickIsValid(int32 lod)
+  METHOD 13465 RVA 0x151a38: void OnDescription(System.Text.StringBuilder sb)
+TYPE 1753: ResPointInfo+Type extends System.Enum
+  FIELD 10129: int32 value__
+  FIELD 10130: ResPointInfo+Type Normal = 0
+  FIELD 10131: ResPointInfo+Type Radar = 1
+TYPE 4341: Protobuf.WorldAllianceCollectResPointInfo extends System.Object
+  FIELD 19449: Google.Protobuf.MessageParser`1<Protobuf.WorldAllianceCollectResPointInfo> _parser
+  FIELD 19450: Google.Protobuf.UnknownFieldSet _unknownFields
+  FIELD 19451: int32 UuidFieldNumber = 1
+  FIELD 19452: int64 uuid_
+  FIELD 19453: int32 BuildIdFieldNumber = 2
+  FIELD 19454: int32 buildId_
+  FIELD 19455: int32 AllianceIdFieldNumber = 3
+  FIELD 19456: string allianceId_
+  FIELD 19457: int32 AllianceAbbrFieldNumber = 4
+  FIELD 19458: string allianceAbbr_
+  FIELD 19459: int32 StateFieldNumber = 5
+  FIELD 19460: int32 state_
+  METHOD 45865 RVA 0x4639bc: Google.Protobuf.MessageParser`1<Protobuf.WorldAllianceCollectResPointInfo> get_Parser()
+  METHOD 45866 RVA 0x4639c3: Google.Protobuf.Reflection.MessageDescriptor get_Descriptor()
+  METHOD 45867 RVA 0x4639d6: Google.Protobuf.Reflection.MessageDescriptor pb::Google.Protobuf.IMessage.get_Descriptor()
+  METHOD 45868 RVA 0x4639dd: void .ctor()
+  METHOD 45869 RVA 0x4639fc: void .ctor(Protobuf.WorldAllianceCollectResPointInfo other)
+  METHOD 45870 RVA 0x463a5c: Protobuf.WorldAllianceCollectResPointInfo Clone()
+  METHOD 45871 RVA 0x463a64: int64 get_Uuid()
+  METHOD 45872 RVA 0x463a6c: void set_Uuid(int64 value)
+  METHOD 45873 RVA 0x463a75: int32 get_BuildId()
+  METHOD 45874 RVA 0x463a7d: void set_BuildId(int32 value)
+  METHOD 45875 RVA 0x463a86: string get_AllianceId()
+  METHOD 45876 RVA 0x463a8e: void set_AllianceId(string value)
+  METHOD 45877 RVA 0x463aa1: string get_AllianceAbbr()
+  METHOD 45878 RVA 0x463aa9: void set_AllianceAbbr(string value)
+  METHOD 45879 RVA 0x463abc: int32 get_State()
+  METHOD 45880 RVA 0x463ac4: void set_State(int32 value)
+  METHOD 45881 RVA 0x463acd: bool Equals(object other)
+  METHOD 45882 RVA 0x463adc: bool Equals(Protobuf.WorldAllianceCollectResPointInfo other)
+  METHOD 45883 RVA 0x463b60: int32 GetHashCode()
+  METHOD 45884 RVA 0x463c07: string ToString()
+  METHOD 45885 RVA 0x463c10: void WriteTo(Google.Protobuf.CodedOutputStream output)
+  METHOD 45886 RVA 0x463cc8: int32 CalculateSize()
+  METHOD 45887 RVA 0x463d70: void MergeFrom(Protobuf.WorldAllianceCollectResPointInfo other)
+  METHOD 45888 RVA 0x463e08: void MergeFrom(Google.Protobuf.CodedInputStream input)
+  METHOD 45889 RVA 0x463e9b: void .cctor()
+TYPE 4342: Protobuf.WorldAllianceCollectResPointInfo+<>c extends System.Object
+  FIELD 19461: Protobuf.WorldAllianceCollectResPointInfo+<>c <>9
+  METHOD 45890 RVA 0x463eb7: void .cctor()
+  METHOD 45891 RVA 0x463ec3: void .ctor()
+  METHOD 45892 RVA 0x463ecb: Protobuf.WorldAllianceCollectResPointInfo <.cctor>b__45_0()

@@ -1,0 +1,101 @@
+{
+  "schemaVersion": 1,
+  "taskId": "LWB317-LIVE-MAP-V22-RESOURCE-COMPLETENESS-001",
+  "purpose": "read_only_resource_runtime_inventory_after_full_scan",
+  "startedAt": "2026-09-30T11:30:55.0959724+00:00",
+  "preflight": {
+    "officialPackageSha256": "248f3aeac712b3f14f86bff37a0c365e467897a2248403837c44c1b774f05b22",
+    "gameSha256": "905c98c1f89841f90b492556192ba0642f3d209a873cb8c1f7b3c340aca0733d",
+    "versionMarker": "21",
+    "noPreexistingGameRuntime": true
+  },
+  "session": {
+    "profileId": "lwb317-resource-runtime-96f63a4c5dcf",
+    "instanceId": "39db32c409ee41698d490170bff1647d",
+    "gamePid": 55412,
+    "gamePath": "C:\\Users\\chimw\\AppData\\Local\\FunFly\\Last War-Survival Game\\Game\\LastWar.exe",
+    "gameStartedAtUtc": "2026-09-30T11:31:18.7568487Z",
+    "serverId": 2212,
+    "worldId": 0,
+    "tileWidth": 1000,
+    "tileHeight": 1000,
+    "playerTileX": 560,
+    "playerTileY": 468,
+    "runtimePackageSha256": "8c98310cec75e291a6370dc42d315468aac7c4327f64735c5beffed390964e08",
+    "runtimeVersionMarker": "22"
+  },
+  "scan": {
+    "start": {
+      "serverId": 2212,
+      "serverIdSource": "live",
+      "scanRunId": "4b8645a44aec4418a4f65fc4cd2d86f4",
+      "isReading": true,
+      "phase": "scanning",
+      "selectedTypes": [
+        "resource"
+      ],
+      "totalBlocks": 2500,
+      "completedBlocks": 0,
+      "readBlocks": 0,
+      "failedBlocks": 0,
+      "unreadBlocks": 2500,
+      "inflightBlocks": 0,
+      "scanMode": "fast",
+      "concurrency": 20,
+      "scanRate": 0,
+      "progressPercent": 0,
+      "nativeCaptureReady": true,
+      "nativePendingRecords": 0,
+      "nativeDroppedRecords": 0,
+      "resumeAvailable": false,
+      "lastError": null,
+      "startedAt": 1790767899
+    },
+    "final": {
+      "serverId": 2212,
+      "serverIdSource": "live",
+      "scanRunId": "4b8645a44aec4418a4f65fc4cd2d86f4",
+      "isReading": false,
+      "phase": "completed",
+      "selectedTypes": [
+        "resource"
+      ],
+      "totalBlocks": 2500,
+      "completedBlocks": 2500,
+      "readBlocks": 2500,
+      "failedBlocks": 0,
+      "unreadBlocks": 0,
+      "inflightBlocks": 0,
+      "scanMode": "fast",
+      "concurrency": 20,
+      "scanRate": 35.71,
+      "progressPercent": 100,
+      "nativeCaptureReady": true,
+      "nativePendingRecords": 0,
+      "nativeDroppedRecords": 0,
+      "resumeAvailable": false,
+      "lastError": null,
+      "startedAt": 1790767899
+    },
+    "sourceUnique": 513,
+    "knownResourceIds": 513,
+    "rawObservedPointInfoOccurrences": 18448,
+    "resourceCandidateOccurrences": 1488,
+    "rejectedResourceCandidateOccurrences": 975
+  },
+  "state": "failed",
+  "failure": {
+    "type": "System.TimeoutException",
+    "message": "Resource runtime inventory did not return a correlated result.",
+    "code": null
+  },
+  "cleanup": {
+    "ownedGamePid": 55412,
+    "ownedGamePidAlive": false,
+    "packageSha256": "248f3aeac712b3f14f86bff37a0c365e467897a2248403837c44c1b774f05b22",
+    "packageRestoredToOfficialV22": true,
+    "versionMarker": "21",
+    "tempDatabaseDeleted": true
+  },
+  "finishedAt": "2026-09-30T11:33:08.625563+00:00"
+}

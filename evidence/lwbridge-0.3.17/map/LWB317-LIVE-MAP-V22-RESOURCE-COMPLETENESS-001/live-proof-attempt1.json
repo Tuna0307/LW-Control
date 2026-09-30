@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "taskId": "LWB317-LIVE-MAP-V22-RESOURCE-COMPLETENESS-001",
+  "proofStartedAt": "2026-09-30T10:55:46.1739357+00:00",
+  "scope": {
+    "resourceOnly": true,
+    "serverJump": false,
+    "restartResume": false,
+    "unrelatedGameplay": false
+  },
+  "preflight": {
+    "packageSha256": "248f3aeac712b3f14f86bff37a0c365e467897a2248403837c44c1b774f05b22",
+    "versionMarker": "21",
+    "gameSha256": "905c98c1f89841f90b492556192ba0642f3d209a873cb8c1f7b3c340aca0733d",
+    "noPreexistingGameRuntime": true
+  },
+  "state": "failed",
+  "failure": {
+    "type": "LWBridge.Desktop.BridgeCommandException",
+    "message": "game connection unavailable",
+    "code": "GAME_CONNECTION_UNAVAILABLE"
+  },
+  "cleanup": {
+    "ownedGamePid": 64948,
+    "ownedGamePidAlive": false,
+    "packageSha256": "248f3aeac712b3f14f86bff37a0c365e467897a2248403837c44c1b774f05b22",
+    "packageRestoredToOfficialV22": true,
+    "versionMarker": "21",
+    "tempDatabaseDeleted": true
+  },
+  "proofFinishedAt": "2026-09-30T10:56:44.1247997+00:00"
+}

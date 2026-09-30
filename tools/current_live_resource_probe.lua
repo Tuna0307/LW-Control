@@ -1843,7 +1843,10 @@ local function read_aoi_diagnostic(now)
 end
 
 local function read_runtime_diagnostic(now)
-    local values = read_kv_file(runtime_diagnostic_path, 4096)
+    -- Corrected full-world Resource captures can contain roughly eight thousand
+    -- unique point IDs. Keep this diagnostic-only command bounded, but large
+    -- enough to carry the complete accepted ID set for overlap accounting.
+    local values = read_kv_file(runtime_diagnostic_path, 131072)
     if values == nil then return nil end
     pcall(os.remove, runtime_diagnostic_path)
     local request = { requestId = tostring(values.requestId or "") }
@@ -1854,11 +1857,29 @@ local function read_runtime_diagnostic(now)
     request.profileId = tostring(values.profileId or "")
     request.launchSessionId = tostring(values.launchSessionId or "")
     request.challenge = tostring(values.challenge or "")
+    request.mode = tostring(values.mode or "general")
+    request.knownResourceIds = tostring(values.knownResourceIds or "")
+    request.targetAoiIndex = tonumber(values.targetAoiIndex)
+    request.targetPointId = tonumber(values.targetPointId)
     request.gamePid = tonumber(values.gamePid)
     if not valid_token(request.profileId) or not valid_token(request.launchSessionId) or
        not valid_token(request.challenge) or request.gamePid == nil or request.gamePid <= 0 or
        request.gamePid ~= math.floor(request.gamePid) then
         request.error = "runtime_diagnostic_invalid"
+        return request
+    end
+    if request.mode ~= "general" and request.mode ~= "resource_inventory" then
+        request.error = "runtime_diagnostic_mode_invalid"
+        return request
+    end
+    if request.targetAoiIndex ~= nil and
+       (request.targetAoiIndex < 0 or request.targetAoiIndex ~= math.floor(request.targetAoiIndex)) then
+        request.error = "runtime_diagnostic_target_aoi_invalid"
+        return request
+    end
+    if request.targetPointId ~= nil and
+       (request.targetPointId <= 0 or request.targetPointId ~= math.floor(request.targetPointId)) then
+        request.error = "runtime_diagnostic_target_point_invalid"
         return request
     end
     request.gamePid = math.floor(request.gamePid)
@@ -1890,8 +1911,10 @@ local function write_runtime_diagnostic_result(request, state, error_text, detai
         profileId = request.profileId,
         challenge = request.challenge,
         gamePid = request.gamePid,
+        mode = request.mode,
         state = state,
         error = error_text,
+        resourceInventory = details.resourceInventory,
         globalGameEntry = details.globalGameEntry,
         csGameEntry = details.csGameEntry,
         luaEntry = details.luaEntry,
@@ -1958,6 +1981,324 @@ local function pump_runtime_diagnostic(now)
     if request == nil then return false end
     if request.error ~= nil then
         write_runtime_diagnostic_result(request, "failed", request.error, nil)
+        return true
+    end
+    if request.mode == "resource_inventory" then
+        local world, point_manager, world_error = runtime_world()
+        if world == nil or point_manager == nil then
+            write_runtime_diagnostic_result(request, "failed", world_error or "world_unavailable", nil)
+            return true
+        end
+
+        local known_resource_ids = {}
+        local known_resource_count = 0
+        for token in string.gmatch(request.knownResourceIds or "", "[^,]+") do
+            local id = tonumber(token)
+            if id ~= nil and id > 0 and id == math.floor(id) and known_resource_ids[math.floor(id)] ~= true then
+                known_resource_ids[math.floor(id)] = true
+                known_resource_count = known_resource_count + 1
+            end
+        end
+
+        local function increment(counts, key)
+            local normalized = key == nil and "<missing>" or tostring(key)
+            counts[normalized] = (counts[normalized] or 0) + 1
+        end
+
+        local function enumerate(value, limit, consume)
+            if value == nil then return 0, "collection_unavailable" end
+            local ok_enum, enumerator = call(value, "GetEnumerator")
+            if ok_enum and enumerator ~= nil then
+                local count = 0
+                while count < limit do
+                    local ok_move, moved = call(enumerator, "MoveNext")
+                    if not ok_move then return count, "enumerator_failed" end
+                    if moved ~= true then return count, nil end
+                    count = count + 1
+                    if consume(safe_get(enumerator, "Current")) == false then return count, "consumer_stopped" end
+                end
+                local ok_more, moved_more = call(enumerator, "MoveNext")
+                if ok_more and moved_more == true then return count, "enumeration_limit_reached" end
+                return count, nil
+            end
+            local count = each(value, limit, consume)
+            local expected = collection_count(value)
+            if expected ~= nil and count ~= expected then return count, "enumeration_mismatch" end
+            return count, nil
+        end
+
+        local function point_from_item(raw, shape)
+            local value = safe_get(raw, "Value") or raw
+            if shape == "point" then return value end
+            if shape == "world_tile" then
+                local point = safe_get(value, "pointInfo") or reflected_value(value, "pointInfo")
+                if point ~= nil then return point end
+                local ok_point, loaded = call(value, "GetPointInfo")
+                return ok_point and loaded or nil
+            end
+            return nil
+        end
+
+        local function inspect_point(info)
+            if info == nil then return nil end
+            local point_type = integer_field(info, { "pointType", "PointType" })
+            local point_id = integer_field(info, { "pointIndex", "PointIndex", "mainIndex", "MainIndex", "pointId", "PointId" })
+            local tile = point_id and point_id > 0 and index_to_tile(world, point_id) or nil
+            local server_id = integer_field(info, { "serverId", "ServerId" }) or current_server_id()
+            local ok_resource, typed_resource = false, nil
+            if point_id ~= nil and point_id > 0 then
+                ok_resource, typed_resource = call(point_manager, "GetResourcePointInfoByIndex", point_id)
+            end
+            local collect_info = safe_get(info, "collectResourceInfo") or safe_get(info, "CollectResourceInfo")
+            local ok_level, resource_level = call(info, "GetResLevel")
+            local ok_type, resource_type = call(info, "GetResType")
+            local config_id = integer_field(typed_resource or info, { "id", "Id" })
+            local name_key = nil
+            local controller_type = rawget(_G, "LocalController")
+            local ok_controller, controller = call(controller_type, "instance")
+            local table_name = rawget(_G, "TableName")
+            local gather_table = table_name and safe_get(table_name, "GatherResource") or nil
+            if config_id ~= nil and config_id > 0 and ok_controller and controller ~= nil and gather_table ~= nil then
+                local ok_cfg, cfg = call(controller, "getLine", gather_table, config_id)
+                if ok_cfg and cfg ~= nil then
+                    local observed_name = scalar_field(cfg, { "name", "Name" })
+                    if observed_name ~= nil and tostring(observed_name) ~= "" then name_key = tostring(observed_name) end
+                end
+            end
+            local world_tile_type, world_point_type = nil, nil
+            if point_id ~= nil and point_id > 0 then
+                local ok_tile, world_tile = call(point_manager, "GetWorldTileInfo", point_id)
+                if ok_tile and world_tile ~= nil then
+                    local ok_point_type, observed_point_type = call(world_tile, "GetPointType")
+                    if ok_point_type then world_tile_type = tonumber(observed_point_type) or tostring(observed_point_type) end
+                    local ok_world_type, observed_world_type = call(world_tile, "GetWorldPointType")
+                    if ok_world_type then world_point_type = tonumber(observed_world_type) or tostring(observed_world_type) end
+                end
+            end
+            return {
+                pointId = point_id,
+                pointType = point_type,
+                runtimeClass = reflected_type_name(info),
+                serverId = server_id,
+                srcServerId = integer_field(info, { "srcServerId", "SrcServerId" }),
+                worldId = integer_field(info, { "worldId", "WorldId" }),
+                x = tile and tile.x or nil,
+                y = tile and tile.y or nil,
+                typedResourceLookupOk = ok_resource == true,
+                typedResourceRecognized = ok_resource == true and typed_resource ~= nil,
+                typedResourceRuntimeClass = typed_resource and reflected_type_name(typed_resource) or nil,
+                collectResourceInfoPresent = collect_info ~= nil,
+                getResLevelOk = ok_level == true,
+                getResLevel = ok_level and tonumber(resource_level) or nil,
+                getResTypeOk = ok_type == true,
+                getResType = ok_type and (tonumber(resource_type) or tostring(resource_type)) or nil,
+                gatherResourceConfigResolved = config_id ~= nil,
+                resourceConfigId = config_id,
+                resourceNameKey = name_key,
+                worldTilePointType = world_tile_type,
+                worldPointType = world_point_type,
+            }
+        end
+
+        local point_info_resource_ids = {}
+        local point_info_type_samples = {}
+        local point_info_type_counts = {}
+        local point_info_class_counts = {}
+        local target_resource_rows = {}
+        local target_point_row = nil
+        local point_infos = reflected_value(point_manager, "_pointInfos")
+        local point_info_count = collection_count(point_infos)
+        local point_info_enumerated, point_info_error = enumerate(point_infos, MAX_POINTS + 1, function(raw)
+            local info = point_from_item(raw, "point")
+            if info == nil then return true end
+            local point_type = integer_field(info, { "pointType", "PointType" })
+            increment(point_info_type_counts, point_type)
+            increment(point_info_class_counts, reflected_type_name(info))
+            local sample_key = point_type == nil and "<missing>" or tostring(point_type)
+            local bucket = point_info_type_samples[sample_key]
+            if bucket == nil then bucket = {}; point_info_type_samples[sample_key] = bucket end
+            if #bucket < 3 then bucket[#bucket + 1] = inspect_point(info) end
+            local point_id = integer_field(info, { "pointIndex", "PointIndex", "mainIndex", "MainIndex", "pointId", "PointId" })
+            if point_id ~= nil and point_id > 0 then
+                local ok_resource, typed_resource = call(point_manager, "GetResourcePointInfoByIndex", point_id)
+                if ok_resource and typed_resource ~= nil then
+                    point_id = math.floor(point_id)
+                    point_info_resource_ids[point_id] = true
+                    local inspected = inspect_point(info)
+                    if request.targetPointId ~= nil and point_id == math.floor(request.targetPointId) then
+                        target_point_row = inspected
+                    end
+                    if request.targetAoiIndex ~= nil and inspected.x ~= nil and inspected.y ~= nil then
+                        local aoi_index = math.floor(inspected.y / 10) * 100 + math.floor(inspected.x / 10)
+                        if aoi_index == math.floor(request.targetAoiIndex) and #target_resource_rows < 100 then
+                            target_resource_rows[#target_resource_rows + 1] = inspected
+                        end
+                    end
+                end
+            end
+            return true
+        end)
+
+        local function inspect_collection(name, shape)
+            local collection = reflected_value(point_manager, name)
+            local result = {
+                name = name,
+                exists = collection ~= nil,
+                runtimeType = collection and reflected_type_name(collection) or nil,
+                declaredCount = collection_count(collection),
+                pointInfoCount = 0,
+                resourceRecognizedCount = 0,
+                overlapPointInfosResourceCount = 0,
+                overlapKnownScanResourceCount = 0,
+                additionalToPointInfosResourceCount = 0,
+                additionalToKnownScanResourceCount = 0,
+                pointTypeCounts = {},
+                runtimeClassCounts = {},
+                resourceIdSample = {},
+                additionalToPointInfosResourceIdSample = {},
+                additionalToKnownScanResourceIdSample = {},
+            }
+            if collection == nil then return result end
+            local seen_resource_ids = {}
+            local enumerated, enumeration_error = enumerate(collection, MAX_POINTS + 1, function(raw)
+                local info = point_from_item(raw, shape)
+                if info == nil then return true end
+                result.pointInfoCount = result.pointInfoCount + 1
+                increment(result.pointTypeCounts, integer_field(info, { "pointType", "PointType" }))
+                increment(result.runtimeClassCounts, reflected_type_name(info))
+                local point_id = integer_field(info, { "pointIndex", "PointIndex", "mainIndex", "MainIndex", "pointId", "PointId" })
+                if point_id == nil or point_id <= 0 then return true end
+                point_id = math.floor(point_id)
+                local ok_resource, typed_resource = call(point_manager, "GetResourcePointInfoByIndex", point_id)
+                if not ok_resource or typed_resource == nil or seen_resource_ids[point_id] == true then return true end
+                seen_resource_ids[point_id] = true
+                result.resourceRecognizedCount = result.resourceRecognizedCount + 1
+                if #result.resourceIdSample < 20 then result.resourceIdSample[#result.resourceIdSample + 1] = point_id end
+                if point_info_resource_ids[point_id] == true then
+                    result.overlapPointInfosResourceCount = result.overlapPointInfosResourceCount + 1
+                else
+                    result.additionalToPointInfosResourceCount = result.additionalToPointInfosResourceCount + 1
+                    if #result.additionalToPointInfosResourceIdSample < 50 then
+                        result.additionalToPointInfosResourceIdSample[#result.additionalToPointInfosResourceIdSample + 1] = point_id
+                    end
+                end
+                if known_resource_ids[point_id] == true then
+                    result.overlapKnownScanResourceCount = result.overlapKnownScanResourceCount + 1
+                else
+                    result.additionalToKnownScanResourceCount = result.additionalToKnownScanResourceCount + 1
+                    if #result.additionalToKnownScanResourceIdSample < 50 then
+                        result.additionalToKnownScanResourceIdSample[#result.additionalToKnownScanResourceIdSample + 1] = point_id
+                    end
+                end
+                return true
+            end)
+            result.enumeratedCount = enumerated
+            result.enumerationError = enumeration_error
+            return result
+        end
+
+        local collection_specs = {
+            { "_pointInfos", "point" },
+            { "allViewPoints", "world_tile" },
+            { "outOfViewPoints", "world_tile" },
+            { "outOfViewPointsObj", "world_tile" },
+            { "yellowLand", "point" },
+            { "uuidInfoMap", "world_tile" },
+            { "uuidInfoDesertMap", "world_tile" },
+            { "timeOutPoints", "world_tile" },
+        }
+        local collections = {}
+        for index = 1, #collection_specs do
+            collections[#collections + 1] = inspect_collection(collection_specs[index][1], collection_specs[index][2])
+        end
+        local shape_names = { "allObjs", "tempAllPoints", "_curViewIndex", "_msgViewIndex", "_addViewIndex" }
+        local shapes = {}
+        for index = 1, #shape_names do
+            local name = shape_names[index]
+            local value = reflected_value(point_manager, name)
+            shapes[#shapes + 1] = {
+                name = name,
+                exists = value ~= nil,
+                runtimeType = value and reflected_type_name(value) or nil,
+                count = collection_count(value),
+            }
+        end
+
+        local function inspect_point_id_list(method_name, ...)
+            local ok_list, values = call(point_manager, method_name, ...)
+            local result = {
+                method = method_name,
+                callOk = ok_list == true,
+                runtimeType = values and reflected_type_name(values) or nil,
+                declaredCount = values and collection_count(values) or nil,
+                ids = {},
+                typedResourceRecognizedCount = 0,
+                pointTypeCounts = {},
+                runtimeClassCounts = {},
+            }
+            if not ok_list or values == nil then return result end
+            local enumerated, enumeration_error = enumerate(values, MAX_POINTS + 1, function(raw)
+                local point_id = tonumber(safe_get(raw, "Value") or raw)
+                if point_id == nil or point_id <= 0 or point_id ~= math.floor(point_id) then return true end
+                point_id = math.floor(point_id)
+                if #result.ids < 100 then result.ids[#result.ids + 1] = point_id end
+                local ok_point, info = call(point_manager, "GetPointInfo", point_id)
+                if ok_point and info ~= nil then
+                    increment(result.pointTypeCounts, integer_field(info, { "pointType", "PointType" }))
+                    increment(result.runtimeClassCounts, reflected_type_name(info))
+                end
+                local ok_resource, typed_resource = call(point_manager, "GetResourcePointInfoByIndex", point_id)
+                if ok_resource and typed_resource ~= nil then
+                    result.typedResourceRecognizedCount = result.typedResourceRecognizedCount + 1
+                end
+                return true
+            end)
+            result.enumeratedCount = enumerated
+            result.enumerationError = enumeration_error
+            return result
+        end
+        local collect_api = { resourceTypes = {} }
+        local observed_resource_types = { 1, 2, 14 }
+        for index = 1, #observed_resource_types do
+            local resource_type = observed_resource_types[index]
+            local ok_point, collect_point = call(point_manager, "GetCollectPoint", resource_type)
+            collect_api.resourceTypes[#collect_api.resourceTypes + 1] = {
+                resourceType = resource_type,
+                collectPointCallOk = ok_point == true,
+                collectPointId = ok_point and tonumber(collect_point) or nil,
+                allCollectRangePoint = inspect_point_id_list("GetAllCollectRangePoint", resource_type),
+            }
+        end
+        collect_api.allDragonResourceList = inspect_point_id_list("GetAllDragonResourceList")
+        local ok_collect_resource_tile, collect_resource_tile = call(point_manager, "GetCollectResourceTile")
+        local ok_collect_resource_range, collect_resource_range = call(point_manager, "GetCollectResourceRange")
+        local ok_collect_resource_build_range, collect_resource_build_range = call(point_manager, "GetCollectResourceBuildRange")
+
+        write_runtime_diagnostic_result(request, "proven", nil, {
+            resourceInventory = {
+                method = "read_only_reflection_after_full_resource_scan",
+                knownScanResourceCount = known_resource_count,
+                pointInfos = {
+                    declaredCount = point_info_count,
+                    enumeratedCount = point_info_enumerated,
+                    enumerationError = point_info_error,
+                    resourceRecognizedCount = (function() local n = 0; for _ in pairs(point_info_resource_ids) do n = n + 1 end; return n end)(),
+                    pointTypeCounts = point_info_type_counts,
+                    runtimeClassCounts = point_info_class_counts,
+                    samplesByPointType = point_info_type_samples,
+                    targetAoiIndex = request.targetAoiIndex,
+                    targetPointId = request.targetPointId,
+                    targetResourceRows = target_resource_rows,
+                    targetPointRow = target_point_row,
+                },
+                collections = collections,
+                collectionShapes = shapes,
+                collectApis = collect_api,
+                collectResourceTile = ok_collect_resource_tile and tonumber(collect_resource_tile) or nil,
+                collectResourceRange = ok_collect_resource_range and tonumber(collect_resource_range) or nil,
+                collectResourceBuildRange = ok_collect_resource_build_range and tonumber(collect_resource_build_range) or nil,
+            },
+        })
         return true
     end
     local cs = rawget(_G, "CS")
@@ -2091,6 +2432,8 @@ local function read_bulk_aoi_diagnostic(now)
     request.includeTreasure = include_treasure_raw == "true"
     local include_resource_details_raw = tostring(values.includeResourceDetails or "false")
     request.includeResourceDetails = include_resource_details_raw == "true"
+    local defer_restore_until_response_raw = tostring(values.deferRestoreUntilResponse or "false")
+    request.deferRestoreUntilResponse = defer_restore_until_response_raw == "true"
     if not valid_token(request.profileId) or not valid_token(request.launchSessionId) or
        not valid_token(request.challenge) or request.gamePid == nil or request.gamePid <= 0 or
        request.gamePid ~= math.floor(request.gamePid) or
@@ -2119,7 +2462,9 @@ local function read_bulk_aoi_diagnostic(now)
        (include_dispatch_raw ~= "true" and include_dispatch_raw ~= "false") or
        (include_ghost_raw ~= "true" and include_ghost_raw ~= "false") or
        (include_treasure_raw ~= "true" and include_treasure_raw ~= "false") or
-       (include_resource_details_raw ~= "true" and include_resource_details_raw ~= "false") then
+       (include_resource_details_raw ~= "true" and include_resource_details_raw ~= "false") or
+       (defer_restore_until_response_raw ~= "true" and defer_restore_until_response_raw ~= "false") or
+       (request.deferRestoreUntilResponse == true and request.includeResource ~= true) then
         request.error = "bulk_aoi_diagnostic_invalid"
         return request
     end
@@ -4729,7 +5074,9 @@ local function write_bulk_aoi_result(request, state, error_text, details)
         includeGhost = request.includeGhost == true,
         includeTreasure = request.includeTreasure == true,
         includeResourceDetails = request.includeResourceDetails == true,
+        deferRestoreUntilResponse = request.deferRestoreUntilResponse == true,
         requestMethod = details.requestMethod or "WorldPointManager.SendAoiRequest(private-reflection)",
+        positionRestoredAfterResponse = details.positionRestoredAfterResponse == true,
         zoomFinalBlockSize = details.zoomFinalBlockSize,
         zoomFinalBlockCount = details.zoomFinalBlockCount,
         zoomFinalServerLod = details.zoomFinalServerLod,
@@ -5009,7 +5356,11 @@ local function pump_bulk_aoi_diagnostic(now)
         bulk_aoi_native_camera = camera_manager
         bulk_aoi_native_touch_camera = touch_camera
         bulk_aoi_native_original_pos = original_pos
-        bulk_aoi_native_hold_seconds = request.requestMode == "zoom" and nil or (request.holdMilliseconds / 1000.0)
+        if request.requestMode == "zoom" or request.deferRestoreUntilResponse == true then
+            bulk_aoi_native_hold_seconds = nil
+        else
+            bulk_aoi_native_hold_seconds = request.holdMilliseconds / 1000.0
+        end
         bulk_aoi_native_position_restored = false
         bulk_aoi_skip_restore_update = request.requestMode == "coverage" or request.requestMode == "anchor" or request.requestMode == "edge"
         local expanded_anchor_cells = nil
@@ -5216,7 +5567,8 @@ local function pump_bulk_aoi_diagnostic(now)
         -- LWB-R7-014 IMPLEMENTATION POLICY: production coverage uses a zero hold.
         -- Restore the visible camera transform in the same Lua callback that queues the
         -- remote request, instead of waiting for the next 250 ms pump/frame.
-        if request.requestMode ~= "zoom" and request.holdMilliseconds == 0 and bulk_aoi_native_touch_camera ~= nil and
+        if request.requestMode ~= "zoom" and request.deferRestoreUntilResponse ~= true and
+           request.holdMilliseconds == 0 and bulk_aoi_native_touch_camera ~= nil and
            bulk_aoi_native_original_pos ~= nil then
             if not select(1, call(bulk_aoi_native_touch_camera, "SetCameraPos", bulk_aoi_native_original_pos)) then
                 fail_bulk_aoi(request, "native_camera_same_tick_restore_failed", nil, point_manager)
@@ -5310,6 +5662,38 @@ local function pump_bulk_aoi_diagnostic(now)
         return true
     end
     local details = bulk_aoi_request.details or {}
+    if bulk_aoi_request.deferRestoreUntilResponse == true and details.deferredRestorePending == true then
+        local restored_tile = safe_get(world, "CurTilePosClamped")
+        details.restoredTileX = tonumber(restored_tile and (safe_get(restored_tile, "x") or safe_get(restored_tile, "X")))
+        details.restoredTileY = tonumber(restored_tile and (safe_get(restored_tile, "y") or safe_get(restored_tile, "Y")))
+        details.cameraTileStable =
+            details.restoredTileX == details.preTileX and details.restoredTileY == details.preTileY
+        local restore_flags = bulk_manager_flags(point_manager)
+        local restore_world_reply = world_response_flag(world)
+        local restore_split_pending = reflected_value(point_manager, "_splitLastAOIRequest") == true
+        details.deferredRestoreManagerReply = restore_flags.isRecvViewPoints
+        details.deferredRestoreWorldReply = restore_world_reply
+        details.deferredRestoreSplitPending = restore_split_pending
+        details.restoredCurrentSetCount = collection_count(reflected_value(point_manager, "_curViewIndex"))
+        if details.cameraTileStable == true and
+           restore_flags.isRecvViewPoints == true and restore_world_reply == true and
+           not restore_split_pending then
+            details.deferredRestorePending = false
+            details.positionRestoredAfterResponse = true
+            details.requestMethod = "WorldPointManager.UpdateViewRequest(true)+deferred-restore-after-response"
+            write_bulk_aoi_result(bulk_aoi_request, "proven", nil, details)
+            bulk_aoi_request = nil
+            bulk_aoi_started_at = nil
+            return true
+        end
+        if details.deferredRestoreStartedAt ~= nil and
+           runtime_clock() - details.deferredRestoreStartedAt >= 3 then
+            fail_bulk_aoi(bulk_aoi_request, "deferred_resource_view_restore_timeout", details, point_manager)
+            return true
+        end
+        bulk_aoi_request.details = details
+        return true
+    end
     if bulk_aoi_request.requestMode == "zoom" and details.zoomRestorePending == true then
         local restored_tile = safe_get(world, "CurTilePosClamped")
         details.restoredTileX = tonumber(restored_tile and (safe_get(restored_tile, "x") or safe_get(restored_tile, "X")))
@@ -5600,8 +5984,31 @@ local function pump_bulk_aoi_diagnostic(now)
         -- whole-world response has been serialized. Restoration must then run one
         -- normal view update at the original camera state so CurTilePosClamped and
         -- the native LOD0 view state are restored together, not just the transform.
-        if request.requestMode == "zoom" then bulk_aoi_skip_restore_update = false end
+        if request.requestMode == "zoom" or request.deferRestoreUntilResponse == true then
+            bulk_aoi_skip_restore_update = false
+        end
+        if request.deferRestoreUntilResponse == true then
+            -- The target response has already been serialized above. Restore the camera,
+            -- then force a normal home-view request and wait for its own response before
+            -- allowing the next remote Resource batch. This keeps the manager's retained
+            -- AOI state synchronized with the restored camera instead of leaking the first
+            -- remote footprint into subsequent requests.
+            bulk_aoi_original_manager_response_flag = false
+            bulk_aoi_original_world_response_flag = false
+        end
         local restored = restore_bulk_aoi_state(point_manager)
+        if restored and request.deferRestoreUntilResponse == true then
+            local restored_tile = safe_get(world, "CurTilePosClamped")
+            details.restoredTileX = tonumber(restored_tile and (safe_get(restored_tile, "x") or safe_get(restored_tile, "X")))
+            details.restoredTileY = tonumber(restored_tile and (safe_get(restored_tile, "y") or safe_get(restored_tile, "Y")))
+            details.cameraTileStable =
+                details.restoredTileX == details.preTileX and details.restoredTileY == details.preTileY
+            details.positionRestoredAfterResponse = false
+            details.deferredRestorePending = true
+            details.deferredRestoreStartedAt = runtime_clock()
+            request.details = details
+            return true
+        end
         if restored and request.requestMode == "zoom" then
             details.zoomRestorePending = true
             details.zoomRestoreStartedAt = runtime_clock()

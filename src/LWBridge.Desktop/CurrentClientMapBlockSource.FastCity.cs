@@ -427,7 +427,7 @@ internal sealed partial class CurrentClientMapBlockSource
                 {
                     bool duplicateRecordKey = resourceRecords.TryGetValue(
                         prepared.Record.RecordKey, out FirstLivePreparedResource? prior);
-                    state.ResourceCompleteness.RecordAcceptedMerge(duplicateRecordKey);
+                    state.ResourceCompleteness.RecordAcceptedMerge(prepared, prior);
                     if (!duplicateRecordKey ||
                         prepared.Record.UpdatedAt >= prior!.Record.UpdatedAt)
                         resourceRecords[prepared.Record.RecordKey] = prepared;
@@ -759,6 +759,7 @@ internal sealed partial class CurrentClientMapBlockSource
             $"includeGhost={request.SelectedTypes.Contains("ghost", StringComparer.Ordinal).ToString().ToLowerInvariant()}",
             $"includeTreasure={request.SelectedTypes.Contains("treasure", StringComparer.Ordinal).ToString().ToLowerInvariant()}",
             $"includeResourceDetails={request.SelectedTypes.Contains("resource", StringComparer.Ordinal).ToString().ToLowerInvariant()}",
+            $"deferRestoreUntilResponse={request.SelectedTypes.Contains("resource", StringComparer.Ordinal).ToString().ToLowerInvariant()}",
             string.Empty,
         });
         await WriteCommandAsync(commandPath, command, cancellationToken).ConfigureAwait(false);
@@ -1337,7 +1338,8 @@ internal sealed partial class CurrentClientMapBlockSource
             !MatchesBool(root, "includeDispatch", request.SelectedTypes.Contains("dispatch", StringComparer.Ordinal)) ||
             !MatchesBool(root, "includeGhost", request.SelectedTypes.Contains("ghost", StringComparer.Ordinal)) ||
             !MatchesBool(root, "includeTreasure", request.SelectedTypes.Contains("treasure", StringComparer.Ordinal)) ||
-            !MatchesBool(root, "includeResourceDetails", request.SelectedTypes.Contains("resource", StringComparer.Ordinal)))
+            !MatchesBool(root, "includeResourceDetails", request.SelectedTypes.Contains("resource", StringComparer.Ordinal)) ||
+            !MatchesBool(root, "deferRestoreUntilResponse", request.SelectedTypes.Contains("resource", StringComparer.Ordinal)))
             throw new InvalidDataException("Fast world batch result did not match the active owned game session.");
         if (!MatchesString(root, "state", "proven"))
         {
@@ -1363,10 +1365,16 @@ internal sealed partial class CurrentClientMapBlockSource
                 $"viewLevel={Actual("viewLevel")},target=({Actual("targetTileX")},{Actual("targetTileY")}).");
         }
         RequireFreshCaptureTime(root, startedAt);
+        bool deferRestoreUntilResponse = request.SelectedTypes.Contains("resource", StringComparer.Ordinal);
+        bool restorationContractMatches = deferRestoreUntilResponse
+            ? MatchesBool(root, "positionRestoredBeforeResponse", false) &&
+              MatchesBool(root, "positionRestoredAfterResponse", true) &&
+              MatchesString(root, "requestMethod", "WorldPointManager.UpdateViewRequest(true)+deferred-restore-after-response")
+            : MatchesBool(root, "positionRestoredBeforeResponse", true) &&
+              MatchesString(root, "requestMethod", "WorldPointManager.UpdateViewRequest(true)+same-tick-camera-restore");
         if (!MatchesBool(root, "responseFlagsTransitioned", true) ||
             !MatchesBool(root, "cameraTileStable", true) ||
-            !MatchesBool(root, "positionRestoredBeforeResponse", true) ||
-            !MatchesString(root, "requestMethod", "WorldPointManager.UpdateViewRequest(true)+same-tick-camera-restore"))
+            !restorationContractMatches)
             throw new InvalidDataException("Fast world batch did not prove the native response/restoration contract.");
         if (!MatchesInt(root, "serverLod", 0) ||
             !MatchesInt(root, "blockSize", FastCityAoiBlockSize) ||

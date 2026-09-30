@@ -260,6 +260,45 @@ connection loss. This does not retroactively prove the exact historical 001
 connection-loss cause, which remains `UNKNOWN`. Server jump and restart/resume
 remain explicitly outside this checkpoint.
 
+### Resource completeness checkpoint — 2026-09-30
+
+`LWB317-LIVE-MAP-V22-RESOURCE-COMPLETENESS-001` re-evaluated the Resource
+population rather than treating the earlier 678-row result as a census. Its
+instrumented baseline still completed all `2500/2500` logical blocks, but from
+1,703 Resource candidates it accepted only 296 and rejected 1,407 as
+`outside_selected_aoi`, with only 206 of 10,000 native AOIs populated and bounds
+limited to `x=170..998`, `y=0..799`.
+
+Live runtime spot checks then proved the cause: genuine remote `ResPointInfo`
+Resources were present after navigating/holding the target AOI, while the
+production-equivalent request restored the camera in the same tick before the
+correlated remote response was serialized and returned zero matching Resources.
+The current-client correction is Resource-scoped: it defers restoration until
+the remote response and Resource serialization complete, restores the original
+camera/native state, forces a normal home-view update, and waits for that restored
+response before the next remote Resource batch.
+
+Two corrected full-world scans completed `2500/2500` with zero failed/unread
+blocks and zero Resource-candidate rejections. They produced 8,008 and 8,007
+unique Resources respectively, covered the full `(0,0)..(999,999)` bounds, and
+reconciled source/search/summary/options counts. The latest 53 duplicate
+occurrences are all `repeated_same_resource_identity` with
+`sameSemanticIdentity=true`; no dedupe change is supported by the evidence.
+
+This checkpoint classifies the corrected observable Resource route as
+`CURRENT_PATH_COMPLETE` / `LIVE_PROVEN`. It does not prove every Resource object
+the game could ever know about, so `GAME_UNIVERSE_COMPLETE = UNKNOWN`; exact
+equivalence to original LWBridge's protected/private traversal is also `UNKNOWN`.
+See
+`docs/reviews/2026-09-30-LWB317-LIVE-MAP-V22-RESOURCE-COMPLETENESS-001.md` and
+`evidence/lwbridge-0.3.17/map/LWB317-LIVE-MAP-V22-RESOURCE-COMPLETENESS-001/`.
+
+The real backend remains wired through `src/LWBridge.Desktop/WebUi`; the clean
+static reconstruction in `src/LWBridge.UI-0.3.17` has not yet been wired to that
+backend. The Map Goal remains `IN_PROGRESS` for server jump, restart/resume,
+other Map categories/actions, remaining provider gaps and final clean UI
+integration.
+
 ## Live proof requirements
 
 Where the current game/server state permits it, the Goal should not stop at

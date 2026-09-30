@@ -1,0 +1,170 @@
+﻿RGMD=0x9a92a4 TypeDef=5828 MethodDef=54483
+FIELD 448: bool ApplicationLaunch::isResourceInitOk
+FIELD 1152: string UIGoodsFly::resourceRootPath
+FIELD 1454: WorldPreviewType WorldPreviewType::GatherResource
+FIELD 2166: System.Collections.Generic.Dictionary`2<ResourceType, System.Collections.Generic.List`1<int32>> ResourceUtils::resourceTargetBuildType
+FIELD 2387: int32 ClientSwitch::ENABLE_SOUND_RESOURCE_DOWNLOAD
+FIELD 2431: ResourceManager GameEntry::<Resource>k__BackingField
+FIELD 4237: string PostEventLog+Defines::ResourcesInitialized
+FIELD 5527: System.Collections.Generic.List`1<LODResourceSpec> LODResourceTypeSpec::kResourceSpecs
+FIELD 8055: ResourceType WorldArmyCollectAnimalManager+Param::resourceType
+FIELD 8595: ResourceType WorldCollectObjectView::_resourceType
+FIELD 8605: float32 CollectAnimalModel::ShowResourceTime
+FIELD 8632: SimpleAnimation CollectArmyAnimalModel::_animatorResource
+FIELD 8637: float32 CollectArmyAnimalModel::ShowResourceTime
+FIELD 9976: WorldPointType WorldPointType::WorldCollectResource
+FIELD 9982: WorldPointType WorldPointType::WorldResource
+FIELD 10000: WorldPointType WorldPointType::WorldAllianceCollectResource
+FIELD 10132: ResourceType CollectPointInfo::resourceType
+FIELD 10325: int32 WorldPointManager::collectResourceTile
+FIELD 10326: int32 WorldPointManager::collectResourceRange
+FIELD 10701: UnityEngine.SpriteRenderer WorldAllianceCollectResourceObject::_collectResourceIconSprite
+FIELD 10706: WorldAllianceCollectResource WorldAllianceCollectResourceObject+<>c__DisplayClass7_0::collectResource
+FIELD 11335: WorldScene+WorldBIType WorldScene+WorldBIType::WorldResource
+FIELD 14221: int32 XLua.ObjectTranslator::ResourceManagerPreloadType_TypeID
+FIELD 14222: int32 XLua.ObjectTranslator::ResourceManagerPreloadType_EnumRef
+FIELD 14237: int32 XLua.ObjectTranslator::ResourceType_TypeID
+FIELD 14238: int32 XLua.ObjectTranslator::ResourceType_EnumRef
+FIELD 16072: int32 Protobuf.ReportReward::RewardResourceItemsFieldNumber
+FIELD 16073: Google.Protobuf.FieldCodec`1<Protobuf.ReportRewardItem> Protobuf.ReportReward::_repeated_rewardResourceItems_codec
+FIELD 16074: Google.Protobuf.Collections.RepeatedField`1<Protobuf.ReportRewardItem> Protobuf.ReportReward::rewardResourceItems_
+FIELD 16078: int32 Protobuf.ReportReward::RewardResourcesFieldNumber
+FIELD 16079: Google.Protobuf.FieldCodec`1<Protobuf.ReportRewardResource> Protobuf.ReportReward::_repeated_rewardResources_codec
+FIELD 16080: Google.Protobuf.Collections.RepeatedField`1<Protobuf.ReportRewardResource> Protobuf.ReportReward::rewardResources_
+FIELD 17217: int32 Protobuf.ScoutReport::ResourceFieldNumber
+FIELD 17218: Protobuf.ScoutResource Protobuf.ScoutReport::resource_
+FIELD 17383: int32 Protobuf.ScoutResource::ResourceItemCountFieldNumber
+FIELD 17384: Google.Protobuf.FieldCodec`1<System.Nullable`1<int32>> Protobuf.ScoutResource::_single_resourceItemCount_codec
+FIELD 17385: System.Nullable`1<int32> Protobuf.ScoutResource::resourceItemCount_
+FIELD 17769: int32 Protobuf.Message::WorldResourceFieldNumber
+FIELD 17798: Protobuf.Message+DataOneofCase Protobuf.Message+DataOneofCase::WorldResource
+FIELD 18488: int32 Protobuf.CollectResourceInfo::ResourceTypeFieldNumber
+FIELD 18489: int32 Protobuf.CollectResourceInfo::resourceType_
+FIELD 18499: int32 Protobuf.ResourceInfo::ResourceIdFieldNumber
+FIELD 18500: int32 Protobuf.ResourceInfo::resourceId_
+FIELD 19083: int32 Protobuf.WorldPointInfo::CollectResourceInfoFieldNumber
+FIELD 19084: Protobuf.CollectResourceInfo Protobuf.WorldPointInfo::collectResourceInfo_
+FIELD 19085: int32 Protobuf.WorldPointInfo::ResourceInfoFieldNumber
+FIELD 19086: Protobuf.ResourceInfo Protobuf.WorldPointInfo::resourceInfo_
+FIELD 20026: string UnityGameFramework.SDK.AnalyticsEvent::battle_resource
+FIELD 21556: MiniGame.Core.IResourceLoader MiniGame.Test.GameTestEnv::<ResourceLoader>k__BackingField
+FIELD 21661: MiniGame.Core.IResourceHolder MiniGame.Biubiu.ComponentPrefabClient::<ResourceHolder>k__BackingField
+FIELD 21854: MiniGame.Core.IResourceLoader MiniGame.Biubiu.SharedRuntime::<ResourceLoader>k__BackingField
+FIELD 22247: MiniGame.Core.IResourceLoader MiniGame.Biubiu.Client.GameBiuBiuLoader::<ResourceLoader>k__BackingField
+FIELD 22329: string MiniGame.Biubiu.Client.GameLoader::kResourceRoot
+FIELD 22420: MiniGame.Core.IResourceHolder MiniGame.Biubiu.Client.GameObjectHolder::ResourceHolder
+FIELD 22450: MiniGame.Core.IResourceHolder MiniGame.Biubiu.Client.TextAssetHolder`1::ResourceHolder
+FIELD 22926: MiniGame.Core.IResourceLoader MiniGame.GGGo.GGGoEnv::<ResourceLoader>k__BackingField
+FIELD 23663: MiniGame.Core.IResourceHolder MiniGame.Core.ComponentUnityPrefab::ResourceHolder
+FIELD 23960: string MiniGame.Core.Server.GameRoom::_resourceVersion
+FIELD 23989: string MiniGame.Core.Server.C2SGameRoomCreate::ResourceVersion
+FIELD 23997: string MiniGame.Core.Server.C2SGameRoomEnter::ResourceVersion
+FIELD 24006: string MiniGame.Core.Server.C2SGameRoomVerify::ResourceVersion
+FIELD 24067: string MiniGame.Core.Client.GameClientPlayer::<ResourceVersion>k__BackingField
+METHOD 580 RVA 0x1271c: void ApplicationLaunch::OnResourcesInitialized(bool succ)
+METHOD 3177 RVA 0x48540: string ResourceUtils::GetResourceImagePath(ResourceType resType)
+METHOD 3180 RVA 0x486d4: System.Collections.Generic.List`1<int32> ResourceUtils::GetResourceTypeCityBuildingByType(int32 type)
+METHOD 3181 RVA 0x48704: int32 ResourceUtils::GetResourcesTypeByCityBuildingType(int32 type)
+METHOD 3182 RVA 0x4875e: ResourceType ResourceUtils::RewardType2ResourceType(RewardType rewardType)
+METHOD 3183 RVA 0x4878c: UIMainBottomBuildType ResourceUtils::GetBuildTabTypeByResourceType(ResourceType type)
+METHOD 3184 RVA 0x487bc: ResourceType ResourceUtils::GetResourceTypeByBuildTabType(UIMainBottomBuildType type)
+METHOD 3186 RVA 0x487f3: int64 ResourceUtils::GetResourceItemCount(int32 type)
+METHOD 3223 RVA 0x492b3: void UIUtils::ShowLackResource(string tipContent, System.Collections.Generic.Dictionary`2<ResourceType, int64> resources, string actionName, System.Action actionCallBack, bool tipContentIsKey, bool actionNameIsKey)
+METHOD 3720 RVA 0x50535: ResourceManager GameEntry::get_Resource()
+METHOD 3721 RVA 0x5053c: void GameEntry::set_Resource(ResourceManager value)
+METHOD 4892 RVA 0x9bdb0: void SoundResourceDownloadManager::CheckLangResourceAutoDownload(int32 langIndex, string langName)
+METHOD 6268 RVA 0xb70f4: bool InitMessage::CheckSeasonResourceData(Sfs2X.Entities.Data.ISFSObject message)
+METHOD 7399 RVA 0xcb29c: System.Collections.Generic.List`1<int32> CityScene::GetAllDragonResourceList()
+METHOD 7473 RVA 0xcb7f2: int32 CityScene::GetCollectResourceBuildRange()
+METHOD 7474 RVA 0xcb7f5: int32 CityScene::GetCollectResourceTile()
+METHOD 7496 RVA 0xcb903: ResPointInfo CityScene::GetResourcePointInfoByIndex(int32 pointIndex)
+METHOD 7723 RVA 0xcca5c: void CityScene::OnBatteryPowerResourceUpdated(object obj)
+METHOD 8841 RVA 0x0: int32 SceneInterface::GetCollectResourceBuildRange()
+METHOD 8842 RVA 0x0: int32 SceneInterface::GetCollectResourceTile()
+METHOD 8851 RVA 0x0: ResPointInfo SceneInterface::GetResourcePointInfoByIndex(int32 pointIndex)
+METHOD 8909 RVA 0x0: System.Collections.Generic.List`1<int32> SceneInterface::GetAllDragonResourceList()
+METHOD 12812 RVA 0x13cedc: float32 WorldMarch::GetResourcePercent()
+METHOD 13451 RVA 0x151622: float32 BuildPointInfo::GetResourcePercent()
+METHOD 13469 RVA 0x151bbb: int32 CollectPointInfo::GetResourceType()
+METHOD 13636 RVA 0x155ed8: ResPointInfo WorldPointManager::GetResourcePointInfoByIndex(int32 pointIndex)
+METHOD 13711 RVA 0x15a44a: int32 WorldPointManager::GetCollectResourceTile()
+METHOD 13712 RVA 0x15a452: int32 WorldPointManager::GetCollectResourceRange()
+METHOD 13713 RVA 0x15a45a: int32 WorldPointManager::GetCollectResourceBuildRange()
+METHOD 13731 RVA 0x15b0cc: System.Collections.Generic.List`1<int32> WorldPointManager::GetAllDragonResourceList()
+METHOD 14884 RVA 0x17a49a: int32 WorldScene::GetCollectResourceBuildRange()
+METHOD 14885 RVA 0x17a4a7: int32 WorldScene::GetCollectResourceTile()
+METHOD 14908 RVA 0x17a630: ResPointInfo WorldScene::GetResourcePointInfoByIndex(int32 pointIndex)
+METHOD 14941 RVA 0x17a801: System.Collections.Generic.List`1<int32> WorldScene::GetAllDragonResourceList()
+METHOD 20710 RVA 0x1cb98c: void XLua.ObjectTranslator::PushResourceManagerPreloadType(native int L, ResourceManager+PreloadType val)
+METHOD 20712 RVA 0x1cbac0: void XLua.ObjectTranslator::UpdateResourceManagerPreloadType(native int L, int32 index, ResourceManager+PreloadType val)
+METHOD 20734 RVA 0x1cc6cc: void XLua.ObjectTranslator::PushResourceType(native int L, ResourceType val)
+METHOD 20736 RVA 0x1cc800: void XLua.ObjectTranslator::UpdateResourceType(native int L, int32 index, ResourceType val)
+METHOD 20904 RVA 0x1d1644: int32 XLua.StaticLuaCallbacks::LoadFromResource(native int L)
+METHOD 21709 RVA 0x1ec00c: int32 XLua.CSObjectWrap.BuildPointInfoWrap::_m_GetResourcePercent(native int L)
+METHOD 22213 RVA 0x1fccd0: int32 XLua.CSObjectWrap.CitySceneWrap::_m_GetAllDragonResourceList(native int L)
+METHOD 22265 RVA 0x1fe81c: int32 XLua.CSObjectWrap.CitySceneWrap::_m_GetCollectResourceBuildRange(native int L)
+METHOD 22266 RVA 0x1fe878: int32 XLua.CSObjectWrap.CitySceneWrap::_m_GetCollectResourceTile(native int L)
+METHOD 22286 RVA 0x1fefc8: int32 XLua.CSObjectWrap.CitySceneWrap::_m_GetResourcePointInfoByIndex(native int L)
+METHOD 22484 RVA 0x2057cc: int32 XLua.CSObjectWrap.CitySceneWrap::_m_OnBatteryPowerResourceUpdated(native int L)
+METHOD 22673 RVA 0x20a9a8: int32 XLua.CSObjectWrap.CollectPointInfoWrap::_m_GetResourceType(native int L)
+METHOD 22674 RVA 0x20aa04: int32 XLua.CSObjectWrap.CollectPointInfoWrap::_g_get_resourceType(native int L)
+METHOD 22678 RVA 0x20ab74: int32 XLua.CSObjectWrap.CollectPointInfoWrap::_s_set_resourceType(native int L)
+METHOD 24647 RVA 0x24ac54: int32 XLua.CSObjectWrap.GameEntryWrap::_g_get_Resource(native int L)
+METHOD 27046 RVA 0x293c9c: int32 XLua.CSObjectWrap.ResourceUtilsWrap::_m_GetResourceImagePath_xlua_st_(native int L)
+METHOD 27049 RVA 0x293d90: int32 XLua.CSObjectWrap.ResourceUtilsWrap::_m_GetResourceTypeCityBuildingByType_xlua_st_(native int L)
+METHOD 27050 RVA 0x293de8: int32 XLua.CSObjectWrap.ResourceUtilsWrap::_m_GetResourcesTypeByCityBuildingType_xlua_st_(native int L)
+METHOD 27051 RVA 0x293e34: int32 XLua.CSObjectWrap.ResourceUtilsWrap::_m_RewardType2ResourceType_xlua_st_(native int L)
+METHOD 27052 RVA 0x293e90: int32 XLua.CSObjectWrap.ResourceUtilsWrap::_m_GetBuildTabTypeByResourceType_xlua_st_(native int L)
+METHOD 27053 RVA 0x293ef0: int32 XLua.CSObjectWrap.ResourceUtilsWrap::_m_GetResourceTypeByBuildTabType_xlua_st_(native int L)
+METHOD 27055 RVA 0x293f98: int32 XLua.CSObjectWrap.ResourceUtilsWrap::_m_GetResourceItemCount_xlua_st_(native int L)
+METHOD 27946 RVA 0x2af5d4: int32 XLua.CSObjectWrap.SoundResourceDownloadManagerWrap::_m_CheckLangResourceAutoDownload(native int L)
+METHOD 29853 RVA 0x2eed30: int32 XLua.CSObjectWrap.UIUtilsWrap::_m_ShowLackResource_xlua_st_(native int L)
+METHOD 35377 RVA 0x3b0600: int32 XLua.CSObjectWrap.WorldMarchWrap::_m_GetResourcePercent(native int L)
+METHOD 35752 RVA 0x3ba1ec: int32 XLua.CSObjectWrap.WorldPointManagerWrap::_m_GetResourcePointInfoByIndex(native int L)
+METHOD 35796 RVA 0x3bb6ec: int32 XLua.CSObjectWrap.WorldPointManagerWrap::_m_GetCollectResourceTile(native int L)
+METHOD 35797 RVA 0x3bb748: int32 XLua.CSObjectWrap.WorldPointManagerWrap::_m_GetCollectResourceRange(native int L)
+METHOD 35798 RVA 0x3bb7a4: int32 XLua.CSObjectWrap.WorldPointManagerWrap::_m_GetCollectResourceBuildRange(native int L)
+METHOD 35813 RVA 0x3bbeac: int32 XLua.CSObjectWrap.WorldPointManagerWrap::_m_GetAllDragonResourceList(native int L)
+METHOD 35991 RVA 0x3c3e94: int32 XLua.CSObjectWrap.WorldSceneWrap::_m_GetCollectResourceBuildRange(native int L)
+METHOD 35992 RVA 0x3c3ef0: int32 XLua.CSObjectWrap.WorldSceneWrap::_m_GetCollectResourceTile(native int L)
+METHOD 36013 RVA 0x3c46bc: int32 XLua.CSObjectWrap.WorldSceneWrap::_m_GetResourcePointInfoByIndex(native int L)
+METHOD 36043 RVA 0x3c53e8: int32 XLua.CSObjectWrap.WorldSceneWrap::_m_GetAllDragonResourceList(native int L)
+METHOD 39718 RVA 0x40dcfc: Google.Protobuf.Collections.RepeatedField`1<Protobuf.ReportRewardItem> Protobuf.ReportReward::get_RewardResourceItems()
+METHOD 39720 RVA 0x40dd0c: Google.Protobuf.Collections.RepeatedField`1<Protobuf.ReportRewardResource> Protobuf.ReportReward::get_RewardResources()
+METHOD 41726 RVA 0x4298ab: Protobuf.ScoutResource Protobuf.ScoutReport::get_Resource()
+METHOD 41727 RVA 0x4298b3: void Protobuf.ScoutReport::set_Resource(Protobuf.ScoutResource value)
+METHOD 41979 RVA 0x42d600: System.Nullable`1<int32> Protobuf.ScoutResource::get_ResourceItemCount()
+METHOD 41980 RVA 0x42d608: void Protobuf.ScoutResource::set_ResourceItemCount(System.Nullable`1<int32> value)
+METHOD 42688 RVA 0x437ded: Protobuf.WorldResource Protobuf.Message::get_WorldResource()
+METHOD 42689 RVA 0x437e06: void Protobuf.Message::set_WorldResource(Protobuf.WorldResource value)
+METHOD 44190 RVA 0x44ccd4: int32 Protobuf.CollectResourceInfo::get_ResourceType()
+METHOD 44191 RVA 0x44ccdc: void Protobuf.CollectResourceInfo::set_ResourceType(int32 value)
+METHOD 44216 RVA 0x44d148: int32 Protobuf.ResourceInfo::get_ResourceId()
+METHOD 44217 RVA 0x44d150: void Protobuf.ResourceInfo::set_ResourceId(int32 value)
+METHOD 45266 RVA 0x45b051: Protobuf.CollectResourceInfo Protobuf.WorldPointInfo::get_CollectResourceInfo()
+METHOD 45267 RVA 0x45b059: void Protobuf.WorldPointInfo::set_CollectResourceInfo(Protobuf.CollectResourceInfo value)
+METHOD 45268 RVA 0x45b062: Protobuf.ResourceInfo Protobuf.WorldPointInfo::get_ResourceInfo()
+METHOD 45269 RVA 0x45b06a: void Protobuf.WorldPointInfo::set_ResourceInfo(Protobuf.ResourceInfo value)
+METHOD 48978 RVA 0x49317b: MiniGame.Core.IResourceLoader MiniGame.Test.GameTestEnv::get_ResourceLoader()
+METHOD 48979 RVA 0x493183: void MiniGame.Test.GameTestEnv::set_ResourceLoader(MiniGame.Core.IResourceLoader value)
+METHOD 49126 RVA 0x49457f: MiniGame.Core.IResourceHolder MiniGame.Biubiu.ComponentPrefabClient::get_ResourceHolder()
+METHOD 49127 RVA 0x494587: void MiniGame.Biubiu.ComponentPrefabClient::set_ResourceHolder(MiniGame.Core.IResourceHolder value)
+METHOD 49301 RVA 0x4966d3: MiniGame.Core.IResourceLoader MiniGame.Biubiu.SharedRuntime::get_ResourceLoader()
+METHOD 49302 RVA 0x4966db: void MiniGame.Biubiu.SharedRuntime::set_ResourceLoader(MiniGame.Core.IResourceLoader value)
+METHOD 49771 RVA 0x49e008: MiniGame.Core.IResourceLoader MiniGame.Biubiu.Client.GameBiuBiuLoader::get_ResourceLoader()
+METHOD 49772 RVA 0x49e010: void MiniGame.Biubiu.Client.GameBiuBiuLoader::set_ResourceLoader(MiniGame.Core.IResourceLoader value)
+METHOD 50526 RVA 0x4abcea: MiniGame.Core.IResourceLoader MiniGame.GGGo.GGGoEnv::get_ResourceLoader()
+METHOD 50527 RVA 0x4abcf2: void MiniGame.GGGo.GGGoEnv::set_ResourceLoader(MiniGame.Core.IResourceLoader value)
+METHOD 50697 RVA 0x4b0656: MiniGame.Core.IResourceLoader MiniGame.GGGo.Client.GGGoClient::CreateResourceLoader(bool cache)
+METHOD 50785 RVA 0x4b13fc: void MiniGame.GGGo.Client.GGGoLoader::SaveCachedResourceState(Leopotam.EcsLite.EcsPackedEntity entity, MiniGame.GGGo.Client.GGGoCacheableResource cache)
+METHOD 50786 RVA 0x4b1420: MiniGame.GGGo.Client.IGGGoCacheableResourceState MiniGame.GGGo.Client.GGGoLoader::LoadCachedResourceState(Leopotam.EcsLite.EcsPackedEntity entity)
+METHOD 50792 RVA 0x4b150b: MiniGame.Core.IResourceLoader MiniGame.GGGo.Client.GGGoRuntime::get_ResourceLoader()
+METHOD 50804 RVA 0x4b159e: MiniGame.Core.IResourceLoader MiniGame.GGGo.Client.GGGoRuntimeEdit::get_ResourceLoader()
+METHOD 50816 RVA 0x4b162e: MiniGame.Core.IResourceLoader MiniGame.GGGo.Client.GGGoRuntimeEditPVE::get_ResourceLoader()
+METHOD 50990 RVA 0x4b4b2c: void MiniGame.GGGo.Client.GGGoUnityPrefabExt::TryInitCacheableResource(Leopotam.EcsLite.EcsWorld world, int32 entity, ref MiniGame.GGGo.ComponentResource res, UnityEngine.GameObject go)
+METHOD 51582 RVA 0x0: MiniGame.Core.IResourceLoader MiniGame.Core.IGameSharedEnv::get_ResourceLoader()
+METHOD 51618 RVA 0x0: MiniGame.Core.IResourceLoader MiniGame.Core.GameSharedEnv::get_ResourceLoader()
+METHOD 51619 RVA 0x0: void MiniGame.Core.GameSharedEnv::set_ResourceLoader(MiniGame.Core.IResourceLoader value)
+METHOD 51889 RVA 0x4c17ee: bool MiniGame.Core.Server.GameLogicService::PrepareGameResource(string type, string logicVersion, string resourceVersion, bool forceUpdate)
+METHOD 52168 RVA 0x4c4a0f: string MiniGame.Core.Client.GameClientPlayer::get_ResourceVersion()
+METHOD 52169 RVA 0x4c4a17: void MiniGame.Core.Client.GameClientPlayer::set_ResourceVersion(string value)

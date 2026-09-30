@@ -1,0 +1,18 @@
+﻿RGMD=0x9a92a4 TypeDef=5828 MethodDef=54483
+TYPE 1764: WorldTileInfo extends System.Object
+  FIELD 10189: int32 pointIndex
+  FIELD 10190: int32 serverId
+  FIELD 10191: PointInfo pointInfo
+  FIELD 10192: int32 pointType
+  FIELD 10193: WorldDesertInfo desertInfo
+  METHOD 13505 RVA 0x152bec: void .ctor()
+  METHOD 13506 RVA 0x152bf4: void AddPointInfo(PointInfo p)
+  METHOD 13507 RVA 0x152c33: void RemovePointInfo()
+  METHOD 13508 RVA 0x152c43: WorldPointType GetWorldPointType()
+  METHOD 13509 RVA 0x152c5a: PointInfo GetPointInfo()
+  METHOD 13510 RVA 0x152c62: int32 GetPointType()
+  METHOD 13511 RVA 0x152c6a: int32 GetPointSize()
+  METHOD 13512 RVA 0x152c81: WorldDesertInfo GetWorldDesertInfo()
+  METHOD 13513 RVA 0x152c89: void AddDesertInfo(WorldDesertInfo d)
+  METHOD 13514 RVA 0x152cb7: void RemoveDesertInfo()
+  METHOD 13515 RVA 0x152cc0: bool GetIsDataEmpty()
