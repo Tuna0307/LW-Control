@@ -4,13 +4,15 @@ Date: 2026-09-30
 
 ## Result
 
-State: `IMPLEMENTED_NOT_VALIDATED` — current-v21 static/source compatibility is
+State: `IMPLEMENTED_NOT_VALIDATED` — current-v22 static/source compatibility is
 proven and the production Map317 adapters are wired; fresh bounded live proof
 remains required.
 
-Fresh read-only identity/runtime gates on 2026-09-30 passed for the installed
-Last War content-version 21 client. No game process was launched by this static
-phase.
+The v21 baseline below remains the original Phase-2 compatibility checkpoint.
+`LWB317-COMPAT-MAP-V22-001` has now revalidated the same Map implementation
+against installed content version 22 without changing production Map code. See
+`docs/reviews/2026-09-30-LWB317-COMPAT-MAP-V22-001.md` and
+`evidence/lwbridge-0.3.17/map/current-client-v22-static.json`.
 
 Evidence:
 
@@ -21,6 +23,22 @@ Evidence:
 - `python tools/check_current_client_runtime_contract.py` — PASS.
 
 ## Installed identity
+
+### Current v22 revalidation
+
+- normalized underlying script package file/content version: `3 / 22`;
+- normalized entry count: `18,741`;
+- normalized `LWScripts.data` SHA-256:
+  `248f3aeac712b3f14f86bff37a0c365e467897a2248403837c44c1b774f05b22`;
+- all 22 tracked Map-critical decoded modules are byte-identical to their
+  supported forms and retain their required anchors;
+- `LastWar.exe`, `xlua.dll`, and `Assembly-CSharp.rdl` remain byte-identical to
+  the v21 supported binaries;
+- the installed package is the exact repository-owned Overview wrapper, so the
+  v22 inspector normalizes only its preserved official `LuaEntry` and packaged
+  probe in memory; the installed files are not rewritten.
+
+### v21 baseline
 
 - script package file/content version: `3 / 21`;
 - package entries: `18,734`;
@@ -38,29 +56,30 @@ runtime-structure gate both pass.
 
 ## Compatibility matrix
 
-| 0.3.17 requirement | current-v21 static source | state / shim | live proof |
+| 0.3.17 requirement | current-v22 static source | state / shim | live proof |
 |---|---|---|---|
-| world readiness / map context | current `CurrentClientMapBlockSource.WorldReady` + v21 world runtime gate | compatible high-level context adapter | required |
+| world readiness / map context | current `CurrentClientMapBlockSource.WorldReady` + unchanged v22 world runtime structures | compatible high-level context adapter | required |
 | coordinate jump | current client route proves `SceneUtils.TileToWorld` + `GoToUtil.GotoWorldPos` | map `gotoWorldCoordinate` to current owned navigation result | required |
 | march follow | current `WorldMarchDataManager.GetMarch/HasMarchUuid` and `GoToUtil.JumpToMarchByUuid` route | map `gotoWorldMarch` to current owned march-follow result | state-dependent |
 | server jump | current RDL `CrossServerUtil` (`SilentLogin/Update/IsCrossing`) + owned current server-jump route | map `gotoServer`/authoritative arrival poll to current owned jump | required |
-| Map acquisition | v21 AOI/runtime contract passes; current source owns full-world captures | current block-source adapter produces local records; no 0.3.17 wire grammar is invented | required completed scan |
-| Dispatch steal / scheduled Dispatch | v21 `DispatchStealMessage` and Dispatch manager/UI modules are byte-identical to their recovered supported forms | concrete current-client arm/pending/result bridge with exact 0.3.17 durable worker boundary | entity/state dependent |
-| Treasure inspection | v21 Supplies/Charge/UI/Radar claim-info decoded modules are byte-identical | current Treasure inspector is wired to the 0.3.17 cache/provider boundary | required if current Treasure rows exist |
-| Treasure claim/status | low-level v21 Treasure/scout mechanics exist, but the exact high-level batch/status sender + authoritative result normalization is not source-proven | `GAME_PROVIDER_UNAVAILABLE`; fail closed, no fabricated counters/orchestration | `BLOCKED` until a source-proven provider chain exists |
-| alliance Dispatch share | v21 Dispatch/share modules preserve the exact fresh-task/point/share sender path; `ChatMessageHelper.getAttachmentId == ShareEncode.Encode(param)` | current provider rereads `GetSingleTaskByUuid` + `World.GetPointInfo`, builds `Text_PointShare`, sends `ChatHeroDispatchShare`, and accepts success only from matching owned-session response with no `errorCode`; 5 s/row | entity/state dependent |
-| plunder server day | v21 `UITimeManager.GetServerTime` + `GetTodayZero`; current `GetTodayZero = serverTime - ((serverTime + changeDeltaTime) % 86400000)` | source-only server time/day-zero provider, validated same-day; no local-clock fallback | required while live provider is connected |
-| Truck scheduled execution | v21 Railway/Train/FakePVP/AttackTrain modules are byte-identical to recovered supported modules | concrete current-client arm/pending/result/clear bridge; scheduled `uuid == trainUuid`, result correlated by `jobId` | entity/state dependent |
-| Ghost preparation | v21 snapshot/acquisition source can expose Ghost rows, but an exact current-v21 equivalent of protected `prepareGhostPlunderTasks` was not established | `GAME_PROVIDER_UNAVAILABLE`; fail closed rather than infer a scheduling payload | `BLOCKED` until a source-proven preparer exists |
+| Map acquisition | v22 RDL AOI/runtime contract is unchanged; current source owns full-world captures | current block-source adapter produces local records; no 0.3.17 wire grammar is invented | required completed scan |
+| Dispatch steal / scheduled Dispatch | v22 `DispatchStealMessage` and Dispatch manager/UI modules are byte-identical to their recovered supported forms | concrete current-client arm/pending/result bridge with exact 0.3.17 durable worker boundary | entity/state dependent |
+| Treasure inspection | v22 Supplies/Charge/UI/Radar claim-info decoded modules are byte-identical | current Treasure inspector is wired to the 0.3.17 cache/provider boundary | required if current Treasure rows exist |
+| Treasure claim/status | v22 adds no source proof for the exact high-level batch/status sender + authoritative result normalization | `GAME_PROVIDER_UNAVAILABLE`; fail closed, no fabricated counters/orchestration | `BLOCKED` until a source-proven provider chain exists |
+| alliance Dispatch share | v22 Dispatch/share modules preserve the exact fresh-task/point/share sender path | current provider rereads `GetSingleTaskByUuid` + `World.GetPointInfo`, builds `Text_PointShare`, sends `ChatHeroDispatchShare`, and accepts success only from matching owned-session response with no `errorCode`; 5 s/row | entity/state dependent |
+| plunder server day | v22 preserves the supported runtime/binary identity for `UITimeManager.GetServerTime` + `GetTodayZero` | source-only server time/day-zero provider; no local-clock fallback | required while live provider is connected |
+| Truck scheduled execution | v22 Railway/Train/FakePVP/AttackTrain modules are byte-identical to recovered supported modules | concrete current-client arm/pending/result/clear bridge; scheduled `uuid == trainUuid`, result correlated by `jobId` | entity/state dependent |
+| Ghost preparation | v22 adds no exact current-client equivalent of protected `prepareGhostPlunderTasks` | `GAME_PROVIDER_UNAVAILABLE`; fail closed rather than infer a scheduling payload | `BLOCKED` until a source-proven preparer exists |
 | scheduled Dispatch/Truck local DB | independent of client after scheduling | exact 0.3.17 local SQLite + independent 100 ms worker contract | deterministic tests complete |
 
 ## Specific current source fingerprints
 
 The Phase-2 inspector deliberately did not weaken old v19 package hash gates.
-Instead, after the v21 identity gate passed, it decoded the exact current
-entries and compared them independently. The following v21 decoded modules are
-byte-identical to their previously recovered supported forms and retain all
-required anchors:
+Instead, the current inspector decodes exact current entries and compares them
+independently. The v22 revalidation expands the tracked set to 22 decoded Map
+modules, including the complete Dispatch-share chain; every tracked module is
+byte-identical to its supported form and retains all required anchors. The
+following original v21 subset remains representative:
 
 - `Net/Msgs/DispatchTask/DispatchStealMessage.luac`;
 - `DataCenter/ActivityListData/ActDispatchTaskDataManager.luac`;
@@ -95,7 +114,7 @@ claim counters, rewards or Ghost task payloads.
 
 ## Important boundary
 
-Static compatibility proves that the required current-client structures and
+Static compatibility proves that the required v22 current-client structures and
 specific action sources are present; it does not convert historical live
 records into fresh Goal proof. The next phase must launch/use an assistant-owned
 session, confirm ownership, and freshly observe every Map path the present game

@@ -18,12 +18,13 @@ Desktop production uses that plane as the sole persistent Map authority at
 `profiles/<profileId>/map-data/map-data.db`; legacy Map persistence is retained
 only for explicitly isolated historical proof/replay modes.
 
-Current Last War content-version 21 has passed the static identity/runtime
-compatibility gates. Source-backed adapters are wired for acquisition,
+Current Last War content-version 22 has passed the Map-specific static/source
+compatibility revalidation in `LWB317-COMPAT-MAP-V22-001`. Source-backed adapters are wired for acquisition,
 navigation, Treasure inspection, server-day, Dispatch alliance share, Dispatch
 scheduled execution and Truck scheduled execution. Treasure claim/status and
 Ghost preparation remain explicit fail-closed current-client provider gaps
-rather than approximations. Fresh bounded Map-only live validation is next.
+rather than approximations. No production Map change was required for v22.
+Fresh bounded Map-only live validation is next.
 
 The prior 0.3.1 reverse-engineering history remains intact as legacy evidence
 and is reused only where exact 0.3.17/current-client revalidation exists.
@@ -107,8 +108,8 @@ authorizes bounded Map-only interaction with an **assistant-owned** Last War
 session after a fresh process/session ownership check. It does not authorize
 non-Map gameplay or auth/licensing/credential work.
 
-At the final static checkpoint, deterministic diagnostics report no running Last
-War or launcher process. This is not reused as live-session ownership proof;
+At the v22 compatibility checkpoint, diagnostics report no running Last War or
+LWBridge process. This is not reused as live-session ownership proof;
 ownership/process state must be checked again immediately before live work.
 
 ## Historical research value

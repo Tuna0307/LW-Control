@@ -7,7 +7,8 @@ Only the project lead should normally change what is authorized here.
 | Campaign / work item | State | File | Notes |
 |---|---|---|---|
 | LWB317-UI-CAMPAIGN-8H | ACCEPTED | `docs/LOOP_CAMPAIGN_8H.md` | Static UI recovery accepted; direct original post-auth pixel validation remains blocked by the original auth boundary |
-| LWB317-RE-MAP-001 | ACTIVE | `docs/GOAL_CAMPAIGN_PHASE2_MAP.md` | Map-only Phase 2 Goal; exact/static production plane implemented, bounded current-v21 live validation is the remaining campaign stage |
+| LWB317-COMPAT-MAP-V22-001 | COMPLETE | `docs/reviews/2026-09-30-LWB317-COMPAT-MAP-V22-001.md` | Installed v22 Map compatibility statically revalidated; no production Map change required |
+| LWB317-RE-MAP-001 | ACTIVE | `docs/GOAL_CAMPAIGN_PHASE2_MAP.md` | Map-only Phase 2 Goal; exact/static production plane implemented and v22 compatibility revalidated, bounded current-v22 live validation is the remaining campaign stage |
 | Other LWB317-RE-* | BLOCKED | not assigned | Do not begin another subsystem until the Map Goal is closed |
 | Auth/login/licensing reconstruction | OUT_OF_SCOPE | n/a | Boundary/dependency only; no recreation or bypass |
 
