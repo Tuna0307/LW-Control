@@ -176,7 +176,7 @@ picker cases, 72 render comparisons and 5 browser observations. See
 AWAITING_REVIEW after nine-locale render/predicate and local browser checks;
 independent proxy/launch inputs have no production lifecycle producers. See
 `reviews/2026-10-02-LWB317-UI-HOME-BUSY-001.md`. Localized switch descriptions
-remain queued. See
+are assigned to the returning worker under LWB317-UI-SWITCH-LOCALE-001. See
 `reviews/2026-10-02-LWB317-UI-HOME-ERROR-001.md`; original/native parity unproved.
 Earlier correction evidence is under
 `evidence/lwbridge-0.3.17/ui/LWB317-UI-CORRECT-001/`; worker report:

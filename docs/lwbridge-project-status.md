@@ -74,7 +74,8 @@ cancel/invalid/acknowledged valid selections. Existing host contract inspected;
 native picker/persistence unproved. HOME-BUSY-001 display correction is also
 AWAITING_REVIEW: nine-locale actual render/predicate and local browser checks pass
 for independent busy inputs and header/button precedence. Production lifecycle
-busy producers remain absent. Switch descriptions remain open; no native
+busy producers remain absent. Switch descriptions remain open and are assigned
+to the returning worker under LWB317-UI-SWITCH-LOCALE-001; no native
 lifecycle or full Home acceptance is implied.
 
 Phase 1 static UI recovery has been accepted. The active target remains exact

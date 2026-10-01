@@ -128,7 +128,8 @@ render/browser checks. See docs/reviews/2026-10-02-LWB317-UI-HOME-ERROR-002.md.
 HOME-BUSY-001 is also AWAITING_REVIEW: independent proxy/launch display inputs
 and header/button precedence pass nine-locale render/predicate and browser checks.
 App unchanged; lifecycle busy producers absent. See its dated review.
-Next bounded unit: UI-SWITCH-LOCALE-001. Native picker/persistence/lifecycle and
+UI-SWITCH-LOCALE-001 is assigned to the returning worker through an owner-pasted
+prompt; see docs/work-items/LWB317-UI-SWITCH-LOCALE-001.md. Native picker/persistence/lifecycle and
 original pixels remain unproved.
 
 Direct original post-auth screenshot/pixel comparison remains `BLOCKED` by the

@@ -89,8 +89,10 @@ AWAITING_REVIEW: independent proxy/launch display inputs and root/header/button
 precedence now match source; 13,824 nine-locale render comparisons, 384 predicate
 cases and 9 browser observations pass. App/callbacks unchanged and lifecycle
 busy producers remain absent. Review: `reviews/2026-10-02-LWB317-UI-HOME-BUSY-001.md`.
-Next bounded continuation: UI-SWITCH-LOCALE-001. Native lifecycle stays separate.
-Remaining units are queued separately and have not been dispatched to another AI.
+Owner reports the worker is back. UI-SWITCH-LOCALE-001 is assigned through an
+owner-pasted fresh-chat prompt; see `work-items/LWB317-UI-SWITCH-LOCALE-001.md`.
+This small helper localization task does not accept prior lead deliveries or open
+native lifecycle work. Worker returns only this unit for lead review.
 Do not restart broad CORRECT-003 or reopen accepted weekly/selection/history work.
 Trade/Assist/runtime/AFK work remains preserved for later separate validation tasks.
 Physical drag, native config persistence and original pixels remain unproved.

@@ -2,7 +2,7 @@
 
 Owner requested project-lead tasks while another AI rests, 2026-10-02.
 Owner: project lead. State: PARTIAL; translation/channels/busy AWAITING_REVIEW, remaining unit
-QUEUED. Not dispatched to another worker.
+ASSIGNED to the returning worker through an owner-pasted prompt.
 Do not execute all items as one broad campaign. Assign/run one ID at a time.
 Input finding: docs/reviews/2026-10-02-LWB317-PM-015-home-audit.md and
 evidence/lwbridge-0.3.17/ui/LWB317-PM-015/home-audit.json.
@@ -55,7 +55,9 @@ Check actual render branches and local preview states; same bounded delivery che
 
 ## UI-SWITCH-LOCALE-001 — state descriptions only
 
-State: QUEUED; next bounded continuation after the busy presentation checkpoint.
+State: ASSIGNED to returning worker on 2026-10-02, awaiting worker start.
+Full assignment: LWB317-UI-SWITCH-LOCALE-001.md. Prior lead deliveries remain
+AWAITING_REVIEW; this assignment does not grant their acceptance.
 
 Correct literal Enabled/Disabled in shared ToggleRow using recovered Bn at byte
 213332 and existing common.enabled/common.disabled keys. Preserve click handlers,
