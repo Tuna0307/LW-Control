@@ -151,10 +151,12 @@ PM-012 accepts focused local Trade selection CORRECT-003B/R1 at `bfc652f`.
 PM-011's first-offer metadata and ID-based goods-label defects are fixed; the
 unchanged actual-expression and selection/save/recovery checks pass with canonical
 build/package and evidence validation. Worker browser evidence is retained.
-CORRECT-003C worker delivery is now AWAITING_REVIEW for Purchased items history
-presentation only. Exact source grouping/row fallbacks are exercised through the
-production helper and focused populated/empty/Portuguese browser QA. Other panels
-and purchase execution stay separate; full UI/native/pixel parity remains unaccepted.
+PM-013 accepts CORRECT-003C `1a25a9c` for source/local Purchased-items presentation:
+actual helper, grouping/totals/names/row fields, empty state and package/evidence
+checks pass; worker populated/empty/Portuguese browser QA is retained. Native
+images remain declared placeholders. Active CORRECT-003D is only the Trade
+cross-server setting and save states. Other panels/purchasing and full UI/native/
+pixel parity remain unaccepted.
 
 Correction evidence is under
 `evidence/lwbridge-0.3.17/ui/LWB317-UI-CORRECT-001/`; worker report:

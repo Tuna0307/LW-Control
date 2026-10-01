@@ -57,12 +57,15 @@ the unchanged lead expression harness, selection/save/recovery checks, canonical
 build/package and evidence hashes all pass. Worker browser QA is retained as
 worker evidence; original/native/full UI parity remains unaccepted.
 Review: `reviews/2026-10-01-LWB317-PM-012-trade-selection-acceptance.md`.
-CORRECT-003C worker delivery is AWAITING_REVIEW: only Purchased-items history
-presentation/empty state and focused local QA were completed. The exact recovered
-reverse/adjacent-day algorithm, totals/repeated summaries and row fallbacks are
-covered by the production helper check plus populated/empty/Portuguese browser QA.
-No purchase execution was added. Other panels stay separate. Do not restart broad
-CORRECT-003 or reopen weekly work.
+PM-013 accepted CORRECT-003C `1a25a9c` for source/local Purchased-items presentation:
+ordering/day totals/repeated summaries, names/row fields and empty state pass
+independent helper/regression/package/evidence checks. Native images remain
+declared placeholders; original/native parity and purchasing remain unaccepted.
+Review: `reviews/2026-10-02-LWB317-PM-013-trade-history-acceptance.md`.
+Active small assignment: `work-items/LWB317-UI-CORRECT-003D.md`, only Trade's
+cross-server configuration switch/save states. Its save-time disabled predicate
+still differs from source. No cross-server gameplay or other panel work.
+Do not restart broad CORRECT-003 or reopen accepted weekly/selection/history work.
 Trade/Assist/runtime/AFK work remains preserved for later separate validation tasks.
 Physical drag, native config persistence and original pixels remain unproved.
 Do not restart the completed correction or resume gameplay/native Home/another

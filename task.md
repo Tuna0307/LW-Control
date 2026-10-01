@@ -99,10 +99,12 @@ PM-010 reviewed R1 delivery d065d08 and accepted the focused local weekly unit
 and source anchors pass. Native persistence/original pixels/full UI are unaccepted.
 PM-012 accepts focused local Trade selection CORRECT-003B/R1 at bfc652f after
 composition/selection/recovery/package/evidence checks pass. Both assignments
-are closed; PM-011's failing baseline is preserved. Active assignment is
-`docs/work-items/LWB317-UI-CORRECT-003C.md`, only Purchased items history
-presentation and focused local QA. No purchase execution or other panel work.
-Preserve accepted selection/weekly work and uncommitted AFK/scratch files.
+are closed; PM-011's failing baseline is preserved. PM-013 accepts source/local
+Purchased-items presentation CORRECT-003C at 1a25a9c after helper/regression/
+package/evidence checks. Native images remain declared placeholders. Active task:
+`docs/work-items/LWB317-UI-CORRECT-003D.md`, only Trade's cross-server setting and
+local save behavior. No cross-server gameplay, purchase execution or other panels.
+Preserve accepted history/selection/weekly work and uncommitted AFK/scratch files.
 No new native/gameplay family is opened; all-page parity is not accepted.
 
 Direct original post-auth screenshot/pixel comparison remains `BLOCKED` by the

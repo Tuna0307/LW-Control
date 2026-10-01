@@ -1,6 +1,6 @@
 # LWBridge 0.3.17 project status
 
-**Date:** 2026-10-01
+**Date:** 2026-10-02
 **Branch:** `research/offline-controller`
 **Phase:** 2 — function recovery / Map Goal awaiting review
 
@@ -50,10 +50,11 @@ PM-010 subsequently accepted the focused weekly CORRECT-003A/R1 delivery at
 checks passed. This is local/source acceptance, not full Automation/native/pixel
 parity. PM-012 accepts Trade selection CORRECT-003B/R1 at `bfc652f`: PM-011's
 composition defects are fixed; actual-expression/selection/recovery checks,
-canonical build/package and evidence hashes pass. CORRECT-003C worker delivery is
-AWAITING_REVIEW for Purchased-items history presentation only: source-local
-ordering/grouping, totals/summaries, row fallbacks and focused browser states are
-covered. Full Automation/native/pixel parity remains unaccepted.
+canonical build/package and evidence hashes pass. PM-013 accepts CORRECT-003C
+`1a25a9c` for source/local history presentation after independent helper/regression/
+package/evidence checks. Native images remain declared placeholders. Active 003D
+covers only Trade's cross-server setting/save behavior, not cross-server gameplay.
+Full Automation/native/pixel parity remains unaccepted.
 
 Phase 1 static UI recovery has been accepted. The active target remains exact
 LWBridge 0.3.17. The Map-only `LWB317-RE-MAP-001` campaign has completed its
@@ -268,9 +269,11 @@ PM-010 accepted the focused weekly unit at `d065d08` after R1 closed the actual
 callback defect. PM-012 accepts focused local Trade selection CORRECT-003B/R1
 at `bfc652f`, closing PM-011's two composition defects with all three unchanged
 actual-expression cases and selection/recovery/package/evidence checks passing.
-CORRECT-003C worker delivery is AWAITING_REVIEW for purchase-history presentation
-and local QA only. Purchase execution, Assist, runtime and AFK remain separate
-later units. Other branches/WIP stay preserved. No full UI acceptance is recorded.
+PM-013 accepts CORRECT-003C at `1a25a9c` for local/source purchase-history
+presentation with declared native-image placeholders. Active CORRECT-003D covers
+only Trade's cross-server configuration switch/save states. Purchase execution,
+Assist, runtime/loading/error and AFK remain separate later units. Other WIP stays
+preserved. No full UI acceptance is recorded.
 PM-007's historical CHANGES_REQUIRED
 decision and accepted Home scope fix remain preserved. Separately close or reassign the awaiting
 `LWB317-RE-MAP-001` Goal.

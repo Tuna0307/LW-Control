@@ -1,7 +1,12 @@
 # LWB317-UI-CORRECT-003C — Trade purchase-history presentation only
 
-Project-lead assignment: 2026-10-01. State: READY.
+Project-lead assignment: 2026-10-01. State: COMPLETE / ACCEPTED for focused local scope after PM-013.
 One panel under partial CORRECT-003; do not resume the broad campaign.
+
+Worker 1a25a9c passed independent source/helper/regression/package/evidence checks.
+PM-013 accepts local history presentation with declared native-image placeholders;
+full original/native parity and purchase execution remain unaccepted. This task
+is closed. Continue only under the separate LWB317-UI-CORRECT-003D.md assignment.
 
 ## Fresh-chat context
 
