@@ -41,7 +41,8 @@ If encountered:
 
 - record the visible boundary and what in-scope surfaces are inaccessible;
 - use legitimate owner-provided/existing access only if available;
-- do not reverse engineer or bypass auth to continue;
+- inspect auth-related local state contracts if required by the assigned UI
+  predicate, under `AGENTS.md` section 6; do not circumvent original access controls;
 - static frontend evidence may still be used to inventory post-auth UI, but any runtime visual state not directly observed must remain `UNKNOWN` / not visually validated.
 
 ## Evidence layout

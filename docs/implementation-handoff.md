@@ -40,13 +40,14 @@ The current plan is:
 
 The clone will **not** recreate the original LWBridge login/account/licensing/entitlement system.
 
-Do not:
+Owner clarification, 2026-10-01: login UI remains excluded, but necessary
+auth-related local dependency research is permitted within an assigned in-scope
+feature. See `AGENTS.md` section 6; do not stop solely at such a dependency, and
+do not circumvent original access controls or obtain others' credentials.
 
-- rebuild login/account/licensing UI;
-- reverse engineer credential/token/license/purchase protocols;
-- bypass authentication/entitlement.
-
-If an in-scope feature later proves it needs a specific auth-produced state, the project lead may assign a narrow dependency investigation for that state only.
+No product fallback is wanted. Preserve the old WebUI source as evidence;
+retirement of the currently selectable `--legacy-ui` host option is pending a
+separate bounded assignment. The Home UI task does not perform that host change.
 
 ## Current reference
 

@@ -12,6 +12,11 @@ This is the current queue. Historical 0.3.1 backlog content is archived under
 3. Assign a separate bounded Home native lifecycle contract/integration task.
 4. Close original visual parity only with legitimate reference state evidence.
 
+Owner clarification: no login UI; recover required auth-related local dependencies
+within assigned feature scope. No product fallback. Retire the existing
+selectable `--legacy-ui` path in a separate bounded host/package task, preserving
+historical source/evidence and the canonical production path.
+
 Use the current parity matrix and takeover audit for completed implementation
 versus remaining validation; the phase checklists below are broad historical
 milestones, not evidence that the existing Map implementation is absent.

@@ -53,7 +53,10 @@ is closed. Auth/login/licensing reconstruction remains out of scope.
 
 The original LWBridge login/account/licensing/entitlement system is **not being recreated**.
 
-If encountered, document the access boundary. Do not bypass it or reverse engineer the credential/token/license system. A later feature may justify a narrow dependency trace only for auth-produced state it directly consumes.
+Necessary auth-related local dependency research is permitted under the owner's
+2026-10-01 clarification in `AGENTS.md` section 6. Login/account/licensing UI is
+excluded. Use supplied artifacts and authorized access; do not circumvent
+original access controls. Earlier blanket research exclusions are superseded.
 
 ## Historical 0.3.1 material
 

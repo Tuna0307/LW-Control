@@ -6,6 +6,12 @@
 
 ## Current state
 
+Owner clarification: the clone has no login UI; required auth-related local
+dependency research is permitted under `AGENTS.md` section 6. No product fallback
+is wanted. Historical source is retained; the existing selectable `--legacy-ui`
+option has a separate pending retirement task. See
+`reviews/2026-10-01-LWB317-PM-004-owner-scope-clarification.md`.
+
 The 2026-10-01 project-lead takeover inspected actual clean/pushed `389df37`,
 rather than the stale pasted `13b25f6` handoff. The user's immediate priority is
 Home/Map UI/UX. Canonical Home remains an unresolved static page with disabled

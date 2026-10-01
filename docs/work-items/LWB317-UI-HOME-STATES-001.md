@@ -42,13 +42,20 @@ preserve unexpected changes and stop on an unexplained baseline mismatch.
 5. Capture fixed-viewport clone screenshots/DOM evidence for light/dark states,
    exact labels, visibility and relevant disabled rules; call them clone QA.
 6. Update current UI master, Home matrix/ledger row, detailed review and handoff.
-   Preserve Map behavior, native bridge/bootstrap and legacy WebUI.
+   Preserve Map behavior, native bridge/bootstrap and historical WebUI source.
+7. If an exact Home rendering predicate consumes auth-related local state,
+   inspect the needed state producer/consumer contract and record its locator.
+   Do not stop solely because it touches auth-related code. Keep this task UI-only;
+   there is no authorization for unrelated service/protocol research or bypass.
+8. Use one canonical UI implementation; do not add legacy fallback behavior.
+   Retirement of the existing host `--legacy-ui` switch is a separate task.
 
 ## Non-goals
 
 No Last War/reference executable launch or desktop gameplay; no native launch,
 close, repair, folder/config mutation or automatic reconnect; no Home backend
-recovery/integration yet; no auth/account/licensing work or bypass; no other page
+recovery/integration yet; no login/account/licensing UI, unrelated auth/service
+research or access-control bypass; no other page
 redesign/localization campaign; no Map scan/server-jump/plunder campaign;
 no moving/deleting historical code/evidence; no new long campaign or subagents.
 

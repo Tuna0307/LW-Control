@@ -29,7 +29,16 @@ We do not need parity for:
 
 If a login/locked screen is encountered, it may be documented as an access boundary, but it is not a clone target.
 
-If an in-scope feature later proves it consumes state produced by auth, only that downstream dependency contract should be traced.
+Owner clarification, 2026-10-01: the exclusions above describe clone product
+features, not a blanket ban on dependency research. Auth-related local code and
+state/contracts may be inspected where required by an assigned in-scope feature,
+using supplied artifacts and authorized access. Do not stop solely because a
+dependency touches auth-related code. Do not circumvent original-service or
+original-program authentication/entitlement controls or obtain others' credentials.
+
+The product has one canonical production implementation, with no automatic or
+selectable legacy fallback. Preserve old sources as research evidence. Current
+`--legacy-ui` retirement is a separate pending implementation task.
 
 ## Authority order
 
@@ -58,7 +67,9 @@ Where evidence permits, recover:
 
 `UI -> frontend/API -> host command -> provider/runtime -> state/storage -> visible result`
 
-If the trace reaches an auth-produced dependency, document the consumed state and stop at that boundary unless the project lead explicitly authorizes a narrower dependency investigation.
+If the trace reaches an auth-related local dependency required by the assigned
+feature, document and recover the relevant producer/consumer contract within
+that scope. Unrelated service/protocol research remains a separate assignment.
 
 ## Current order
 

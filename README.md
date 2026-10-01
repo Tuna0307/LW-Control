@@ -28,7 +28,12 @@ The execution order is:
 4. **Current Last War compatibility mapping**
 5. **Live validation and parity closure**
 
-If a later target feature demonstrably consumes auth-produced state, recover only the minimum downstream state contract it needs. Do not broaden that into rebuilding login/licensing.
+Necessary auth-related local code/state-contract research is allowed for an
+assigned in-scope feature; the owner clarified this on 2026-10-01. The clone still
+has no login/account/licensing UI. See `AGENTS.md` section 6 for access boundaries.
+Use one canonical production implementation, fixing defects there rather than
+adding legacy fallback behavior. Old source/evidence remains preserved; the
+existing selectable `--legacy-ui` switch is pending a separate retirement task.
 
 ## Current project-lead checkpoint — 2026-10-01
 

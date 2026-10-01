@@ -17,8 +17,12 @@ Target one-for-one parity for the **in-scope post-auth product experience**.
 The original login/account/licensing/entitlement system is intentionally
 `OUT_OF_SCOPE` for reconstruction.
 
-Only a narrowly defined downstream auth-produced dependency may be investigated
-later if an in-scope feature demonstrably requires it.
+Owner clarification, 2026-10-01: necessary auth-related local dependency
+research is allowed within a named in-scope feature, using supplied artifacts
+and authorized access; the login UI remains excluded. See `AGENTS.md` section 6.
+Use one canonical production path and fix defects there. No legacy product
+fallback is wanted; the existing `--legacy-ui` switch has a separate pending
+retirement task. Preserve its source as historical evidence.
 
 ## Current phase
 

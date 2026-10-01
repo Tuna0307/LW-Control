@@ -16,13 +16,16 @@ SHA-256:
 
 The new product will **not** recreate LWBridge's original login/account/licensing system.
 
-Login/auth/entitlement is treated as a boundary:
+Owner clarification, 2026-10-01: no login page or commercial account system is
+required in the clone. Research into auth-related local code/state/contracts is
+allowed where needed to implement a named in-scope feature, using supplied
+artifacts and authorized access. Do not stop solely at an auth-related dependency.
+Do not circumvent original authentication/entitlement controls or use another
+person's credentials. `AGENTS.md` section 6 is the current dependency rule.
 
-- capture only enough visible evidence to understand that boundary;
-- do not implement the original login/account/licensing UI;
-- do not reverse engineer credential/token/license/purchase protocols;
-- do not bypass authentication or entitlement;
-- if a later target feature depends on auth-produced state, recover only the minimum downstream state contract that feature requires.
+One canonical production path is required. Do not add legacy fallback behavior;
+retain historical files only as evidence. The existing selectable `--legacy-ui`
+path is pending retirement under a separate bounded host assignment.
 
 The parity target therefore begins at the in-scope post-auth application experience.
 
@@ -60,7 +63,9 @@ For each function trace, where evidence permits:
 
 `UI trigger -> frontend/API call -> host command -> runtime/provider request -> state mutation -> visible result`
 
-Auth/login internals are excluded unless a specific in-scope function proves it needs a minimal auth-produced dependency. In that case trace only the consumed state contract.
+Auth-related local internals may be traced where required by the assigned
+in-scope feature. Recover the relevant dependency contract and document its
+limits; do not reconstruct a commercial account system or circumvent access controls.
 
 ### Phase 3 — current-client mapping
 

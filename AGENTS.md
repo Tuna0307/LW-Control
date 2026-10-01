@@ -18,7 +18,9 @@ The old 0.3.1 research remains historical evidence only unless revalidated again
 
 The goal is one-for-one reproduction of the **in-scope post-auth LWBridge 0.3.17 product experience** as observed/recovered, while keeping the final implementation compatible with the current Last War client.
 
-Login/account/licensing is an explicit scope exception. We are **not** rebuilding the original authentication, entitlement, purchase, account-binding or licensing system as a product feature.
+The clone must not include the original login/account/licensing UI or commercial account system. Auth-related dependency research is allowed when required for an in-scope working feature, under section 6.
+
+Use one canonical production implementation. Do not introduce an automatic or user-selectable legacy UI fallback. Preserve historical source/evidence for research; it is not a product recovery path. The existing `--legacy-ui` option is pending retirement in a separately assigned host task, not already removed.
 
 Do not redesign in-scope workflows, labels, defaults, tabs, states, timing or behavior merely because another design seems better.
 
@@ -56,19 +58,25 @@ Do not delete old reviews/evidence.
 
 A 0.3.1 finding may be used as a hypothesis or shortcut, but it must not be reported as 0.3.17 fact until checked against the 0.3.17 executable/assets/runtime.
 
-## 6. Login/auth/licensing boundary
+## 6. Login UI exclusion and required dependencies
 
-Login, account management, entitlement, subscription/purchase and licensing are **not reconstruction targets**.
+Owner clarification, 2026-10-01: absence of a login page does not prohibit
+research into auth-related dependencies required to make the in-scope clone work.
+Trace relevant local code, state producers/consumers and contracts from supplied
+artifacts and authorized access. Record the feature dependency and source locator;
+do not stop solely because a required path touches auth-related code.
 
-If the reference exposes a login/locked boundary:
+Do not add login/account/purchase/subscription/licensing UI as clone features.
+The clone uses its own local runtime/profile state rather than pretending to hold
+a valid original-service entitlement. Do not obtain another person's credentials
+or circumvent authentication/entitlement controls on the original service or
+protected original program. Needed state-contract recovery does not establish
+permission to access a third-party service.
 
-- record only the visible boundary needed to understand access;
-- do not implement the login/account/licensing UI in the new clone;
-- do not reverse engineer credentials, token exchange, purchase, subscription or license-validation protocols;
-- do not bypass authentication or entitlement;
-- use only legitimate owner-provided/existing access state when available.
-
-A later in-scope function may justify **minimal dependency tracing** if it demonstrably consumes state produced by auth, such as current account/server/profile/session readiness. In that case recover only the downstream state contract required by the feature. Do not broaden the task into reconstructing the original auth system.
+Worker scopes remain bounded by their assigned work item. Required UI state
+dependencies can be inspected within a UI task; unrelated protocol/service
+research and native integration are separate assignments. Earlier broad bans
+on auth dependency research in historical documents are superseded by this rule.
 
 ## 7. Desktop-control rule
 
