@@ -3,8 +3,10 @@ import { MapDataPage } from "./MapDataPage.jsx";
 import { getMapPreviewProvider } from "./mapPreviewApi.js";
 import { useI18n } from "./i18n.jsx";
 import { usePreviewConfig, PreviewConfigError } from "./previewConfigHook.jsx";
-import { normalizeJoinRestrictions, validJoinRestrictions, previewAfkTargets, makePreviewAfkProfile, previewAfkProfileValid, applyAfkTarget } from "./previewAfkContracts.js";
+import { normalizeJoinRestrictions, validJoinRestrictions, previewAfkTargets, makePreviewAfkProfile, previewAfkProfileValid, applyAfkTarget, previewAfkLevelOutOfRange } from "./previewAfkContracts.js";
 import { initialAutomationDraft, automationDraftError, previewTrainingOrder, activateTraining } from "./previewAutomationContracts.js";
+import { dispatchWeeklyQualities, previewAssistJobs, previewAssistTasks, previewAutomationRuntime, previewResourceGatherConfig, previewTradeFixture, railwayWeeklyQualities, validPreviewResourceGatherConfig } from "./previewAutomationFixtures.js";
+import { initialAfkToolbarConfig, previewAllianceMembers, previewGarrisonBuildings, previewGarrisonRuntime, previewMemberFixture, previewZombieBusRuntime } from "./previewAfkFixtures.js";
 
 export { MapDataPage } from "./MapDataPage.jsx";
 
@@ -248,10 +250,10 @@ const automationActionLabels = {
   Treasure: "common.runNow",
 };
 
-function WeeklyQualityPreview({ enabled, defaults }) {
+function WeeklyQualityPreview({ enabled, values, onChange, running = false, saving = false }) {
   const { language, t } = useI18n();
   const days = Array.from({ length: 7 }, (_, index) => new Intl.DateTimeFormat(language, { weekday: "short", timeZone: "UTC" }).format(new Date(Date.UTC(2024, 0, index + 1))));
-  return <div className="automation-weekly-quality">{days.map((day, index) => <label key={day}><span>{day}</span><select defaultValue={defaults[index]} disabled={!enabled}><option value="none">{t("automation.noQualityRefresh")}</option><option value="ssr">{t("automation.ssrOrAbove")}</option><option value="ur">UR</option></select></label>)}</div>;
+  return <div className="automation-weekly-quality">{days.map((day, index) => <label key={day}><span>{day}</span><select value={values[index]} disabled={!enabled || running || saving} onChange={(event) => { const next = [...values]; next[index] = event.target.value; onChange(next); }}><option value="none">{t("automation.noQualityRefresh")}</option><option value="ssr">{t("automation.ssrOrAbove")}</option><option value="ur">UR</option></select></label>)}</div>;
 }
 
 const previewConstructionBuildingTypes = [
@@ -284,6 +286,67 @@ function AutomationConfigPreview({ title, enabled, previewState = "", config }) 
   </div>;
 }
 
+function previewTime(value, language) {
+  return value ? new Date(value).toLocaleString(language) : "-";
+}
+
+function sourceAutomationState(runtimeState, enabled) {
+  if (enabled === false || runtimeState === "disabled" || (enabled === undefined && runtimeState === "stopped")) return "common.disabled";
+  if (runtimeState === "running" || runtimeState === "checking") return "automation.running";
+  if (runtimeState === "success") return "common.success";
+  if (runtimeState === "failed" || runtimeState === "error") return "common.failed";
+  return "common.waiting";
+}
+
+function automationRuntimePresentation(title, runtime, enabled, configDraft, t, language) {
+  const text = (value) => value == null || value === "" ? "-" : String(value);
+  const yesNo = (value) => t(value ? "common.yes" : "common.no");
+  const rows = (...entries) => entries.filter((entry) => entry && entry[1] != null);
+  switch (title) {
+    case "Automatic Construction":
+      return { summary: rows(["automation.automaticBuilders", `${text(runtime.automaticBuilders)} / ${text(runtime.maxBuilders)}`], ["automation.buildersTotal", `${text(runtime.occupiedBuilders)} / ${text(runtime.totalBuilders)}`]), status: rows(["automation.currentBuilding", text(runtime.candidateName)], ["automation.currentLevel", text(runtime.candidateLevel)], ["automation.automaticBuilders", `${text(runtime.automaticBuilders)} / ${text(runtime.maxBuilders)}`], ["automation.buildersTotal", `${text(runtime.occupiedBuilders)} / ${text(runtime.totalBuilders)}`], ["automation.processed", text(runtime.processed)], ["automation.nextCheck", previewTime(runtime.nextRunAt, language)]) };
+    case "Free Stamina":
+      return { status: rows(["automation.claimedToday", `${text(runtime.todayCount)} / ${text(runtime.dailyLimit)}`], ["automation.processed", text(runtime.processed)], ["automation.nextClaim", previewTime(runtime.nextClaimAt, language)]) };
+    case "Automatic Treatment":
+      return { summary: rows(["automation.wounded", text(runtime.wounded)], ["automation.treating", text(runtime.treating)]), status: rows(["automation.wounded", text(runtime.wounded)], ["automation.treating", text(runtime.treating)], ["automation.treatmentBatches", text(runtime.batchesStarted)], ["automation.soldiersQueued", text(runtime.soldiersQueued)], ["automation.helpsRequested", text(runtime.helpsRequested)], ["automation.collected", text(runtime.collected)], ["automation.nextCheck", previewTime(runtime.nextRunAt, language)]) };
+    case "Trucks":
+      return { summary: rows(["automation.departed", text(runtime.departed)], ["automation.pendingClaims", text(runtime.pendingClaims)]), status: rows(["automation.nextRun", enabled ? previewTime(runtime.nextScheduledAt, language) : "-"], ["automation.qualifiedTotal", `${text(runtime.qualified)} / ${text(runtime.total)}`], ["automation.refreshed", text(runtime.refreshed)], ["automation.departed", text(runtime.departed)], ["automation.claimed", text(runtime.claimed)], ["automation.pendingClaims", text(runtime.pendingClaims)], ["automation.nextClaim", previewTime(runtime.nextContinuationAt, language)], ["automation.batchDeparture", t(runtime.batchDeparture ? "common.available" : "common.degraded")]) };
+    case "Secret Task":
+      return { summary: rows(["automation.dispatched", text(runtime.dispatched)], ["automation.pendingClaims", text(runtime.pendingClaims)]), status: rows(["automation.nextRun", (enabled || configDraft.collectRewards) ? previewTime(runtime.nextScheduledAt, language) : "-"], ["automation.qualifiedTotal", `${text(runtime.qualified)} / ${text(runtime.available)}`], ["automation.dispatched", text(runtime.dispatched)], ["automation.refreshed", text(runtime.refreshed)], ["automation.claimed", text(runtime.claimed)], ["automation.pendingClaims", text(runtime.pendingClaims)], ["automation.nextClaim", previewTime(runtime.nextContinuationAt, language)], ["automation.superRefresh", t(runtime.superRefresh ? "common.available" : "automation.normalRefresh")]) };
+    case "Ghost Ops":
+      return { status: rows(["automation.nextClaim", configDraft.ghostClaimRewards ? previewTime(runtime.nextClaimAt, language) : "-"]) };
+    case "Alliance Tech Donations":
+      return { summary: rows(["automation.remaining", text(runtime.remaining)], ["automation.donated", text(runtime.donated)]), status: rows(["automation.currentTech", text(runtime.scienceId)], ["automation.remaining", text(runtime.remaining)], ["automation.donated", text(runtime.donated)], ["automation.nextCheck", previewTime(runtime.nextRunAt, language)]) };
+    case "Automatic Official Application":
+      return { status: rows(["automation.targetPosition", text(runtime.positionId || configDraft.positionId)], ["automation.currentPosition", text(runtime.currentPositionId)], ["automation.applicationQueue", text(runtime.applyQueueLength)], ["automation.nextCheck", previewTime(runtime.nextRunAt, language)]) };
+    case "Automatic Alliance Train Boarding":
+      return { summary: rows(["automation.currentCarriage", text(runtime.currentCarriage)], ["automation.queueCapacity", `${text(runtime.queueLength)} / ${text(runtime.maxPassenger)}`]), status: rows(["automation.currentCarriage", text(runtime.currentCarriage)], ["automation.queueCapacity", `${text(runtime.queueLength)} / ${text(runtime.maxPassenger)}`], ["automation.currentReward", text(runtime.currentReward)], ["automation.trainVipStatus", yesNo(runtime.isVip)], ["automation.trainVipCarriages", runtime.vipCarriages?.join(", ") || "—"], ["automation.nextCheck", previewTime(runtime.nextRunAt, language)]) };
+    case "Alliance Help":
+      return { status: rows(["automation.available", text(runtime.available)], ["automation.processed", text(runtime.processed)], ["automation.lastRun", previewTime(runtime.lastRunAt, language)], ["automation.nextRun", enabled ? previewTime(runtime.nextRunAt, language) : "-"]) };
+    case "Alliance Gifts":
+      return { status: rows(["automation.normalClaimed", text(runtime.normalClaimed)], ["automation.advancedClaimed", text(runtime.advancedClaimed)], ["automation.lastRun", previewTime(runtime.lastRunAt, language)], ["automation.nextRun", enabled ? previewTime(runtime.nextRunAt, language) : "-"]) };
+    case "Excavation Stronghold Resources":
+    case "Alliance Center Resources":
+      return { status: rows(["automation.available", text(runtime.available)], ["automation.claimed", text(runtime.claimed)], ["automation.lastRun", previewTime(runtime.lastRunAt, language)], ["automation.nextRun", enabled ? previewTime(runtime.nextRunAt, language) : "-"]) };
+    case "Alliance Gathering Dispatch":
+      return { status: rows(["automation.allianceGatherAvailable", text(runtime.available)], ["automation.dispatched", text(runtime.dispatched)], ["automation.lastRun", previewTime(runtime.lastRunAt, language)]) };
+    case "Building Resource Collection":
+    case "Armed Truck":
+      return { status: rows(["automation.lastRun", previewTime(runtime.lastRunAt, language)], ["automation.nextRun", enabled ? previewTime(runtime.nextRunAt, language) : "-"]) };
+    case "Red Packet":
+    case "Fireworks / Egg":
+      return { summary: rows(["automation.pendingClaims", text(runtime.pendingCount)], ["automation.latestResult", t(runtime.lastResult === "success" ? "common.success" : runtime.lastResult === "failed" ? "common.failed" : "common.waiting")]) };
+    case "Treasure":
+      return { summary: rows(["automation.pendingClaims", text(runtime.pendingCount)], ["automation.treasureDispatchPending", text(runtime.dispatchPendingCount)]) };
+    case "Weekend Shield":
+      return { status: rows(["automation.currentShield", t(runtime.shielded ? "common.on" : "common.off")], ["automation.shieldEnds", previewTime(runtime.shieldEndAt, language)], ["automation.weekendWindow", yesNo(runtime.inWeekendWindow)], ["automation.weekendWindowLocal", runtime.weekendStartAt && runtime.weekendEndAt ? `${previewTime(runtime.weekendStartAt, language)} – ${previewTime(runtime.weekendEndAt, language)}` : "-"]) };
+    case "Attack Shield":
+      return { status: rows(["automation.currentShield", t(runtime.shielded ? "common.on" : "common.off")], ["automation.pendingReason", runtime.pendingReason || "-"]) };
+    default:
+      return {};
+  }
+}
+
 function AutomationFields({ title, enabled, previewState, config }) {
   const { t, language } = useI18n();
   const fieldState = (key, initial) => [config.draft[key] ?? initial, (value) => config.store.edit((draft) => ({ ...draft, [key]: typeof value === "function" ? value(draft[key] ?? initial) : value }))];
@@ -309,6 +372,11 @@ function AutomationFields({ title, enabled, previewState, config }) {
   const [draggedReward, setDraggedReward] = useState("");
   const [draggedGatherSquad, setDraggedGatherSquad] = useState(null);
   const [gatherSquadError, setGatherSquadError] = useState("");
+  const [assistSelected, setAssistSelected] = useState([]);
+  const [assistJobs, setAssistJobs] = useState(() => previewState === "automation-assist-schedule" ? previewAssistJobs : []);
+  const assistTasks = previewState === "automation-assist-empty" ? [] : previewAssistTasks;
+  const assistJobByTask = new Map(assistJobs.map((job) => [job.uuid, job]));
+  const assistTitle = (task) => `${task.ownerName || task.ownerUid} · ${String(task.qualityKey).toUpperCase()}${task.isSpecial ? ` · ${t("automation.assistQuality.special")}` : ""}`;
   if (title === "Auto Training") {
     const camps = previewState === "automation-training-no-camps" ? [] : previewSoldierCamps;
     const availableLevels = [...new Set([...camps.flatMap((camp) => camp.availableLevels), ...(trainingTargetLevel > 0 ? [trainingTargetLevel] : [])])].sort((a, b) => a - b);
@@ -358,10 +426,20 @@ function AutomationFields({ title, enabled, previewState, config }) {
     return <><section className="automation-settings-section"><h3>{t("automation.section.claim")}</h3>{treasure ? <p className="hint">{t("automation.treasureTargetDelayHint")}</p> : null}<div className="automation-form-grid"><label><span>{t("automation.minDelaySeconds")}</span><input type="number" min="0" max={treasure ? "600" : "60"} step="0.01" {...field("claimMin", "0")} disabled={!enabled} /></label><label><span>{t("automation.maxDelaySeconds")}</span><input type="number" min="0" max={treasure ? "600" : "60"} step="0.01" {...field("claimMax", "0")} disabled={!enabled} /></label></div></section><section className="automation-settings-section"><label className="automation-checkbox-row"><input type="checkbox" checked={replyEnabled} disabled={!enabled} onChange={(event) => setReplyEnabled(event.target.checked)} /><span>{t("automation.autoReply")}</span></label>{replyEnabled ? <div className="automation-subsettings"><div className="automation-form-grid"><label><span>{t("automation.replyDelayMin")}</span><input type="number" min="0.1" max="600" step="0.1" {...field("replyMin", "2")} /></label><label><span>{t("automation.replyDelayMax")}</span><input type="number" min="0.1" max="600" step="0.1" {...field("replyMax", "5")} /></label></div><label className="automation-replies"><span>{t("automation.replyPhrases")}</span><textarea rows="4" {...field("replies", "")} /></label></div> : null}</section>{treasure ? <section className="automation-settings-section"><label className="automation-checkbox-row"><input type="checkbox" {...check("treasureSearchEnabled")} disabled={!enabled} /><span>{t("automation.treasureAutoSearch")}</span></label><p className="muted">{t("automation.treasureAutoSearchHint")}</p><label className="automation-checkbox-row"><input type="checkbox" checked={treasureDispatchEnabled} disabled={!enabled} onChange={(event) => setTreasureDispatchEnabled(event.target.checked)} /><span>{t("automation.treasureAutoDispatch")}</span></label>{treasureDispatchEnabled ? <div className="automation-subsettings"><div className="automation-form-grid"><label><span>{t("automation.dispatchDelayMin")}</span><input type="number" min="0.1" max="600" step="0.1" {...field("dispatchMin", "2")} /></label><label><span>{t("automation.dispatchDelayMax")}</span><input type="number" min="0.1" max="600" step="0.1" {...field("dispatchMax", "5")} /></label></div><label><span>{t("automation.treasureDispatchRetrySeconds")}</span><input type="number" min="1" max="300" step="1" {...field("dispatchRetry", "30")} /></label><div className="automation-squad-choices">{[1,2,3,4].map((index) => <label key={index}><input type="checkbox" checked={(config.draft.dispatchSquads ?? [1]).includes(index)} onChange={(event) => config.store.edit((draft) => ({ ...draft, dispatchSquads: event.target.checked ? [...(draft.dispatchSquads ?? [1]), index] : (draft.dispatchSquads ?? [1]).filter((entry) => entry !== index) }))} /><span>{t("automation.squad", { index })}</span></label>)}</div><p className="muted">{t("automation.treasureDispatchPriorityHint")}</p></div> : null}</section> : null}</>;
   }
   if (title === "Trucks") {
-    return <><section className="automation-settings-section"><h3>{t("automation.section.schedule")}</h3><div className="automation-actions"><label><span>{t("automation.delayAfterResetMinutes")}</span><input type="number" min="0" max="1440" step="1" {...field("delayMinutes", "2")} disabled={!enabled} /></label></div></section><section className="automation-settings-section"><h3>{t("automation.section.quality")}</h3><WeeklyQualityPreview enabled={enabled} defaults={["ssr","ur","ssr","ssr","ssr","ur","ssr"]} /></section><section className="automation-settings-section"><h3>{t("automation.section.departure")}</h3><label className="automation-checkbox-row"><input type="checkbox" {...check("departWhenTicketsInsufficient")} disabled={!enabled} /><span>{t("automation.railwayDepartWhenTicketsInsufficient")}</span></label></section></>;
+    const weekly = config.draft.weeklyQualities ?? railwayWeeklyQualities;
+    return <><section className="automation-settings-section"><h3>{t("automation.section.schedule")}</h3><div className="automation-actions"><label><span>{t("automation.delayAfterResetMinutes")}</span><input type="number" min="0" max="1440" step="1" {...field("delayMinutes", "2")} disabled={!enabled} /></label></div></section><section className="automation-settings-section"><h3>{t("automation.section.quality")}</h3><WeeklyQualityPreview enabled={enabled} values={weekly} saving={config.saving} running={previewState === "automation-runtime-running"} onChange={(values) => config.store.edit((draft) => ({ ...draft, weeklyQualities: values }))} /></section><section className="automation-settings-section"><h3>{t("automation.section.departure")}</h3><label className="automation-checkbox-row"><input type="checkbox" {...check("departWhenTicketsInsufficient")} disabled={!enabled} /><span>{t("automation.railwayDepartWhenTicketsInsufficient")}</span></label></section></>;
   }
   if (title === "Secret Task") {
-    return <><section className="automation-settings-section"><h3>{t("squad.afkExecutionSettings")}</h3><label className="automation-checkbox-row"><input type="checkbox" {...check("collectRewards", true)} disabled={!enabled} /><span>{t("automation.autoCollectRewards")}</span></label><div className="automation-actions"><label><span>{t("automation.delayAfterResetMinutes")}</span><input type="number" min="0" max="1440" step="1" {...field("delayMinutes", "3")} disabled={!enabled} /></label></div></section><section className="automation-settings-section"><h3>{t("automation.section.quality")}</h3><WeeklyQualityPreview enabled={enabled} defaults={["none","ur","none","none","none","ur","none"]} /></section><section className="automation-settings-section"><label className="automation-checkbox-row"><input type="checkbox" checked={dispatchAssistEnabled} disabled={!enabled} onChange={(event) => setDispatchAssistEnabled(event.target.checked)} /><span>{t("automation.dispatchAssist")}</span></label>{dispatchAssistEnabled ? <><div className="automation-squad-choices">{["n","r","sr","ssr","ur","special"].map((quality) => <label key={quality}><input type="checkbox" checked={(config.draft.assistQualities ?? []).includes(quality)} onChange={(event) => config.store.edit((draft) => ({ ...draft, assistQualities: event.target.checked ? [...(draft.assistQualities ?? []), quality] : (draft.assistQualities ?? []).filter((entry) => entry !== quality) }))} /><span>{quality === "special" ? t("automation.assistQuality.special") : quality.toUpperCase()}</span></label>)}</div><div className="automation-form-grid"><label><span>{t("automation.minDelaySeconds")}</span><input type="number" min="0" max="86400" step="1" {...field("assistMin", "0")} /></label><label><span>{t("automation.maxDelaySeconds")}</span><input type="number" min="0" max="86400" step="1" {...field("assistMax", "0")} /></label><label><span>{t("automation.assistIntervalSeconds")}</span><input type="number" min="5" max="300" step="1" {...field("assistInterval", "30")} /></label></div></> : <><strong>{t("automation.allySecretTasks")}</strong><span className="muted">{t("automation.noAllySecretTasks")}</span></>}</section></>;
+    const weekly = config.draft.weeklyQualities ?? dispatchWeeklyQualities;
+    const activeJob = (task) => { const job = assistJobByTask.get(task.uuid); return job && ["scheduled", "waiting_connection", "retry_wait", "running"].includes(job.scheduleStatus) ? job : null; };
+    const scheduleSelected = () => {
+      if (!assistSelected.length) return;
+      const scheduledAt = Date.UTC(2026, 9, 1, 19, 30, 0);
+      setAssistJobs((current) => [...current.filter((job) => !assistSelected.includes(job.uuid)), ...assistSelected.map((uuid, index) => { const task = assistTasks.find((entry) => entry.uuid === uuid); return { ...task, uuid, scheduleSource: "manual", scheduleStatus: "scheduled", assistAt: scheduledAt + index * 60000 }; })]);
+      setAssistSelected([]);
+    };
+    const changeJobStatus = (uuid, status) => setAssistJobs((current) => current.map((job) => job.uuid === uuid ? { ...job, scheduleStatus: status } : job));
+    return <><section className="automation-settings-section"><h3>{t("squad.afkExecutionSettings")}</h3><label className="automation-checkbox-row"><input type="checkbox" {...check("collectRewards", false)} disabled={!enabled} /><span>{t("automation.autoCollectRewards")}</span></label><div className="automation-actions"><label><span>{t("automation.delayAfterResetMinutes")}</span><input type="number" min="0" max="1440" step="1" {...field("delayMinutes", "3")} disabled={!enabled} /></label></div></section><section className="automation-settings-section"><h3>{t("automation.section.quality")}</h3><WeeklyQualityPreview enabled={enabled} values={weekly} saving={config.saving} running={previewState === "automation-runtime-running"} onChange={(values) => config.store.edit((draft) => ({ ...draft, weeklyQualities: values }))} /></section><section className="automation-settings-section"><label className="automation-checkbox-row"><input type="checkbox" checked={dispatchAssistEnabled} disabled={!enabled} onChange={(event) => setDispatchAssistEnabled(event.target.checked)} /><span>{t("automation.dispatchAssist")}</span></label>{dispatchAssistEnabled ? <><div className="automation-squad-choices">{["n","r","sr","ssr","ur","special"].map((quality) => <label key={quality}><input type="checkbox" checked={(config.draft.assistQualities ?? []).includes(quality)} onChange={(event) => config.store.edit((draft) => ({ ...draft, assistQualities: event.target.checked ? [...(draft.assistQualities ?? []), quality] : (draft.assistQualities ?? []).filter((entry) => entry !== quality) }))} /><span>{quality === "special" ? t("automation.assistQuality.special") : quality.toUpperCase()}</span></label>)}</div><div className="automation-form-grid"><label><span>{t("automation.minDelaySeconds")}</span><input type="number" min="0" max="86400" step="1" {...field("assistMin", "0")} /></label><label><span>{t("automation.maxDelaySeconds")}</span><input type="number" min="0" max="86400" step="1" {...field("assistMax", "0")} /></label><label><span>{t("automation.assistIntervalSeconds")}</span><input type="number" min="5" max="300" step="1" {...field("assistInterval", "30")} /></label></div></> : <><strong>{t("automation.allySecretTasks")}</strong><div className="automation-task-list">{assistTasks.map((task) => { const job = activeJob(task); return <label className="automation-task-row automation-assist-task-row" key={task.uuid}><input type="checkbox" checked={assistSelected.includes(task.uuid)} disabled={!!job} onChange={(event) => setAssistSelected((current) => event.target.checked ? [...current, task.uuid] : current.filter((uuid) => uuid !== task.uuid))} /><span className="automation-assist-task-main"><span className="automation-assist-task-title"><strong>{assistTitle(task)}</strong><span className="automation-assist-stars" aria-label={String(task.star)}>{"★".repeat(Math.max(0, Number(task.star) || 0))}</span></span><span className="automation-assist-rewards">{task.items.map((item) => <span className="map-reward-item" key={item.key} title={`${item.name} ×${item.count}`}><strong>×{item.count}</strong></span>)}</span></span><span>{task.helpAvailable ? t("automation.helpAvailable") : new Date(task.completionTime).toLocaleString(language)}</span><span>{t(`automation.assistStatus.${job?.scheduleStatus || "untracked"}`)}</span></label>; })}{assistTasks.length === 0 ? <span className="muted">{t("automation.noAllySecretTasks")}</span> : null}</div><button type="button" disabled={!assistSelected.length} data-preview-action="presentation-only" onClick={scheduleSelected}>{t("automation.scheduleSelectedHelp")}</button><div className="automation-assist-queue">{assistJobs.filter((job) => job.scheduleSource === "manual" && ["scheduled", "waiting_connection", "retry_wait", "running", "failed", "expired"].includes(job.scheduleStatus)).map((job) => <div className="automation-inline-status" key={job.uuid}><span>{assistTitle(job)} · {t(`automation.assistStatus.${job.scheduleStatus}`)} · {new Date(job.assistAt).toLocaleString(language)}</span>{["scheduled", "waiting_connection", "retry_wait"].includes(job.scheduleStatus) ? <button type="button" data-preview-action="presentation-only" onClick={() => changeJobStatus(job.uuid, "cancelled")}>{t("common.cancel")}</button> : null}{["failed", "expired"].includes(job.scheduleStatus) ? <button type="button" data-preview-action="presentation-only" onClick={() => changeJobStatus(job.uuid, "scheduled")}>{t("common.retry")}</button> : null}</div>)}</div></>}</section></>;
   }
   if (title === "Ghost Ops") {
     return <><label className="automation-checkbox-row"><input type="checkbox" checked={ghostJoinEnabled} disabled={!enabled} onChange={(event) => setGhostJoinEnabled(event.target.checked)} /><span>{t("automation.ghost.autoJoinAlliance")}</span></label>{ghostJoinEnabled ? <div className="automation-section"><strong>{t("automation.ghost.allianceFilter")}</strong><div className="automation-compact-choice-group">{["sr","ur","special"].map((filter) => <label className="automation-compact-choice" key={filter}><input type="radio" name="preview-ghost-filter" value={filter} checked={(config.draft.ghostFilter ?? "special") === filter} onChange={() => config.store.edit((draft) => ({ ...draft, ghostFilter: filter }))} disabled={!enabled} /><span>{t(`automation.ghost.filter.${filter}`)}</span></label>)}</div></div> : null}<label className="automation-checkbox-row"><input type="checkbox" {...check("ghostClaimRewards")} disabled={!enabled} /><span>{t("automation.ghost.autoClaimRewards")}</span></label><div className="automation-inline-status"><span>{t("automation.ghost.ownPending")}: 0</span><span>{t("automation.ghost.allianceCandidates")}: 0</span><span>{t("automation.claimed")}: 0</span></div></>;
@@ -388,9 +466,14 @@ function AutomationFields({ title, enabled, previewState, config }) {
 }
 
 function AutomationCard({ title, description, previewEnabled, previewState = "", onConfigStatus }) {
-  const { english, t } = useI18n();
-  const config = usePreviewConfig(() => initialAutomationDraft(title, previewState), (draft) => !automationDraftError(title, draft), previewState === "automation-save-error", `automation:${previewState}:${title}`);
+  const { english, language, t } = useI18n();
+  const failFirstSave = previewState === "automation-save-error" || (previewState === "automation-weekly-save-error" && title === "Trucks") || (previewState === "automation-secret-weekly-save-error" && title === "Secret Task");
+  const config = usePreviewConfig(() => initialAutomationDraft(title, previewState), (draft) => !automationDraftError(title, draft), failFirstSave, `automation:${previewState}:${title}`);
   const enabled = config.draft.enabled === true;
+  const active = title === "Secret Task" ? enabled || config.draft.collectRewards === true : title === "Ghost Ops" ? enabled || config.draft.ghostJoinEnabled === true || config.draft.ghostClaimRewards === true : enabled;
+  const runtime = previewAutomationRuntime(title, previewState);
+  const runtimeState = title === "Auto Training" ? previewState === "automation-training-error" ? "error" : previewState === "automation-training-checking" ? "checking" : "waiting" : runtime.state;
+  const presentation = automationRuntimePresentation(title, runtime, active, config.draft, t, language);
   const [toggleError, setToggleError] = useState("");
   const setEnabled = (next) => {
     const value = typeof next === "function" ? next(enabled) : next;
@@ -403,7 +486,7 @@ function AutomationCard({ title, description, previewEnabled, previewState = "",
   const settingsCollapsible = !nonCollapsibleAutomationSettings.has(title);
   const hasSettings = !automationCardsWithoutSettings.has(title);
   const [expanded, setExpanded] = useState(previewEnabled && title === "Automatic Construction");
-  const actionLabel = automationActionLabels[title];
+  const actionLabel = (title === "Trucks" || title === "Secret Task") && runtime.running ? "common.stop" : automationActionLabels[title];
   const toggleLabel = title === "Ghost Ops" ? "automation.ghost.autoStartOwn" : "automation.autoExecute";
   return (
     <article className="automation-card" data-preview-fixture={previewEnabled ? "automation-config" : "runtime-config-unobserved"}>
@@ -417,8 +500,11 @@ function AutomationCard({ title, description, previewEnabled, previewState = "",
         </div>
       </div>
       <div className="automation-card-meta-row" role="status">
-        <span className={`automation-state ${enabled ? "state-enabled" : "state-disabled"}`}>{previewEnabled ? t(title === "Auto Training" ? previewState === "automation-training-error" ? "common.failed" : previewState === "automation-training-checking" ? "automation.running" : "common.waiting" : enabled ? "common.enabled" : "common.disabled") : t("status.disconnected")}</span>
+        <span className={`automation-state ${active ? "state-enabled" : "state-disabled"}`}>{previewEnabled ? t(sourceAutomationState(runtimeState, active)) : t("status.disconnected")}</span>
       </div>
+      {previewEnabled && presentation.summary?.length ? <div className="automation-card-summary">{presentation.summary.map(([key, value]) => <span key={key}>{t(key)} <strong>{value}</strong></span>)}</div> : null}
+      {previewEnabled && presentation.status?.length ? <div className="automation-status-grid">{presentation.status.map(([key, value]) => <div className="automation-status-row" key={key}><span>{t(key)}</span><strong>{value}</strong></div>)}</div> : null}
+      {previewEnabled && previewState === "automation-runtime-error" && !["Weekend Shield", "Attack Shield"].includes(title) ? <p className="automation-error" role="alert">{t("common.actionFailed")}</p> : null}
       {toggleError ? <p role="alert" className="automation-error">{t(toggleError)}</p> : null}
       {(hasSettings || actionLabel) ? <div className="automation-config">
         {(settingsCollapsible || actionLabel) ? <div className="automation-config-actions">
@@ -439,23 +525,21 @@ function AutomationCard({ title, description, previewEnabled, previewState = "",
 
 function ResourceGatherCard({ previewEnabled, previewState }) {
   const { t } = useI18n();
-  const [enabled, setEnabled] = useState(false);
+  const config = usePreviewConfig(() => previewEnabled ? previewResourceGatherConfig(previewState) : previewResourceGatherConfig("automation-gather-no-squads"), validPreviewResourceGatherConfig, previewState === "automation-gather-save-error", `automation:gather:${previewState}`);
+  const enabled = config.draft.enabled === true;
+  const squads = config.draft.squads ?? [];
   const [error, setError] = useState("");
-  const [scanRadius, setScanRadius] = useState(200);
-  const [manualResumeDelayMinutes, setManualResumeDelayMinutes] = useState(2);
-  const [recallOnDisable, setRecallOnDisable] = useState(false);
-  const [squads, setSquads] = useState(previewEnabled && previewState !== "automation-gather-no-squads" ? [
-    { squadIndex: 1, enabled: true, resource: "metal", level: 10, maxLevel: 10, state: "idle" },
-    { squadIndex: 2, enabled: false, resource: "food", level: 8, maxLevel: 9, state: "disabled" },
-  ] : []);
+  const save = (value) => {
+    config.store.edit(value, false);
+    config.store.flush().catch(() => {});
+  };
   const updateSquad = (squadIndex, patch) => {
     const next = squads.map((squad) => squad.squadIndex === squadIndex ? { ...squad, ...patch } : squad);
-    setSquads(next);
     if (next.some((squad) => squad.enabled)) setError("");
     else if (enabled) {
-      setEnabled(false);
       setError("");
     }
+    save({ ...config.store.getSnapshot().draft, enabled: enabled && next.some((squad) => squad.enabled), squads: next });
   };
   const toggleEnabled = (nextEnabled) => {
     if (nextEnabled && !squads.some((squad) => squad.enabled)) {
@@ -463,11 +547,11 @@ function ResourceGatherCard({ previewEnabled, previewState }) {
       return;
     }
     setError("");
-    setEnabled(nextEnabled);
+    save({ ...config.store.getSnapshot().draft, enabled: nextEnabled, squads });
   };
   const resourceLabels = { metal: "squad.afkResourceMetal", food: "squad.afkResourceFood", gold: "squad.afkResourceGold" };
   return (
-    <article className="automation-card" data-preview-fixture={previewEnabled ? "automation-config" : "runtime-config-unobserved"}>
+    <article className="automation-card" data-preview-fixture={previewEnabled ? "automation-resource-gather" : "runtime-config-unobserved"} data-draft-dirty={config.dirty} data-draft-saving={config.saving}>
       <div className="automation-card-header">
         <div className="automation-card-title-group">
           <h3>{t("automation.category.resourceGather")}</h3>
@@ -476,21 +560,22 @@ function ResourceGatherCard({ previewEnabled, previewState }) {
         <button className="automation-header-switch" type="button" role="switch" aria-checked={enabled} disabled={!previewEnabled} onClick={() => toggleEnabled(!enabled)}><Switch checked={enabled} /></button>
       </div>
       <div className="automation-card-meta-row" role="status">
-        <span className={`automation-state ${enabled ? "state-enabled" : "state-disabled"}`}>{previewEnabled ? t(enabled ? "common.enabled" : "common.disabled") : t("status.disconnected")}</span>
+        <span className={`automation-state ${enabled ? "state-enabled" : "state-disabled"}`}>{previewEnabled ? t(enabled ? "common.waiting" : "common.disabled") : t("status.disconnected")}</span>
       </div>
+      <PreviewConfigError config={config} t={t} />
       <div className="automation-config">
         <fieldset className="automation-config-body" disabled={!previewEnabled}>
           <div className="automation-resource-gather-options">
             <label className="automation-resource-gather-radius">
               <span>{t("automation.resourceGather.scanRadius")}</span>
-              <select value={scanRadius} onChange={(event) => setScanRadius(Number(event.target.value))}>{[50,100,150,200,250,300,400,500].map((radius) => <option value={radius} key={radius}>{radius}</option>)}</select>
+              <select value={config.draft.scanRadius ?? 200} onChange={(event) => save({ ...config.store.getSnapshot().draft, scanRadius: Number(event.target.value) })}>{[50,100,150,200,250,300,400,500].map((radius) => <option value={radius} key={radius}>{radius}</option>)}</select>
             </label>
             <label>
               <span>{t("automation.resourceGather.manualResumeDelay")}</span>
-              <select value={manualResumeDelayMinutes} onChange={(event) => setManualResumeDelayMinutes(Number(event.target.value))}>{Array.from({ length: 30 }, (_, index) => index + 1).map((minutes) => <option value={minutes} key={minutes}>{minutes}</option>)}</select>
+              <select value={(config.draft.manualResumeDelaySeconds ?? 120) / 60} onChange={(event) => save({ ...config.store.getSnapshot().draft, manualResumeDelaySeconds: Number(event.target.value) * 60 })}>{Array.from({ length: 30 }, (_, index) => index + 1).map((minutes) => <option value={minutes} key={minutes}>{minutes}</option>)}</select>
             </label>
             <label className="automation-resource-gather-recall">
-              <input type="checkbox" checked={recallOnDisable} disabled={!previewEnabled} onChange={(event) => setRecallOnDisable(event.target.checked)} />
+              <input type="checkbox" checked={config.draft.recallOnDisable ?? false} disabled={!previewEnabled} onChange={(event) => save({ ...config.store.getSnapshot().draft, recallOnDisable: event.target.checked })} />
               <span>{t("automation.resourceGather.recallOnDisable")}</span>
             </label>
             <small className="automation-resource-gather-radius-hint muted">
@@ -498,7 +583,7 @@ function ResourceGatherCard({ previewEnabled, previewState }) {
             </small>
           </div>
           {squads.length === 0 ? <p className="muted">{t("automation.resourceGather.squadsLoading")}</p> : null}
-          {squads.map((squad) => <div className="automation-resource-gather-squad" role="group" aria-label={t("automation.squad", { index: squad.squadIndex })} key={squad.squadIndex}><label className="automation-resource-gather-enable"><input type="checkbox" checked={squad.enabled} onChange={(event) => updateSquad(squad.squadIndex, { enabled: event.target.checked, state: event.target.checked ? "idle" : "disabled" })} /><span>{t("automation.squad", { index: squad.squadIndex })}</span></label><select aria-label={`${t("automation.squad", { index: squad.squadIndex })} ${t("automation.resourceGather.resource")}`} value={squad.resource} onChange={(event) => updateSquad(squad.squadIndex, { resource: event.target.value })}>{["metal","food","gold"].map((resource) => <option value={resource} key={resource}>{t(resourceLabels[resource])}</option>)}</select><select aria-label={`${t("automation.squad", { index: squad.squadIndex })} ${t("automation.resourceGather.level")}`} value={squad.level} onChange={(event) => updateSquad(squad.squadIndex, { level: Number(event.target.value) })}>{Array.from({ length: Math.min(10, ({ metal: 10, food: 9, gold: 8 })[squad.resource]) }, (_, index) => index + 1).map((level) => <option value={level} key={level}>{level}</option>)}</select><span className="automation-resource-gather-state muted">{t(`automation.resourceGather.state.${["recalling", "recall_failed", "state_unconfirmed"].includes(previewState.replace("automation-gather-", "")) ? previewState.replace("automation-gather-", "") : enabled && squad.enabled ? previewState.startsWith("automation-gather-") ? previewState.replace("automation-gather-", "") : squad.state : "disabled"}`)}{enabled && squad.enabled && previewState === "automation-gather-manual_wait" ? <small>{t("automation.resourceGather.manualResumeAt", { time: new Date(1799000300000).toLocaleTimeString() })}</small> : null}{enabled && squad.enabled && previewState === "automation-gather-shield_paused" ? <small>{t("automation.resourceGather.shieldEndAt", { time: new Date(1799003600000).toLocaleString() })}</small> : null}</span></div>)}
+          {squads.map((squad) => <div className="automation-resource-gather-squad" role="group" aria-label={t("automation.squad", { index: squad.squadIndex })} key={squad.squadIndex}><label className="automation-resource-gather-enable"><input type="checkbox" checked={squad.enabled} onChange={(event) => updateSquad(squad.squadIndex, { enabled: event.target.checked, state: event.target.checked ? "idle" : "disabled" })} /><span>{t("automation.squad", { index: squad.squadIndex })}</span></label><select aria-label={`${t("automation.squad", { index: squad.squadIndex })} ${t("automation.resourceGather.resource")}`} value={squad.resource} onChange={(event) => updateSquad(squad.squadIndex, { resource: event.target.value })}>{["metal","food","gold"].map((resource) => <option value={resource} key={resource}>{t(resourceLabels[resource])}</option>)}</select><select aria-label={`${t("automation.squad", { index: squad.squadIndex })} ${t("automation.resourceGather.level")}`} value={squad.level} onChange={(event) => updateSquad(squad.squadIndex, { level: Number(event.target.value) })}>{Array.from({ length: Math.min(10, ({ metal: 10, food: 9, gold: 8 })[squad.resource]) }, (_, index) => index + 1).map((level) => <option value={level} key={level}>{level}</option>)}</select><span className="automation-resource-gather-state muted">{t(`automation.resourceGather.state.${["recalling", "recall_failed", "state_unconfirmed"].includes(previewState.replace("automation-gather-", "")) ? previewState.replace("automation-gather-", "") : enabled && squad.enabled ? previewState.startsWith("automation-gather-") ? previewState.replace("automation-gather-", "") : squad.state || "idle" : "disabled"}`)}{enabled && squad.enabled && previewState === "automation-gather-manual_wait" ? <small>{t("automation.resourceGather.manualResumeAt", { time: new Date(1799000300000).toLocaleTimeString() })}</small> : null}{enabled && squad.enabled && previewState === "automation-gather-shield_paused" ? <small>{t("automation.resourceGather.shieldEndAt", { time: new Date(1799003600000).toLocaleString() })}</small> : null}</span></div>)}
           {error ? <p className="automation-error" role="alert">{t(error)}</p> : null}
         </fieldset>
       </div>
@@ -506,14 +591,39 @@ function ResourceGatherCard({ previewEnabled, previewState }) {
   );
 }
 
-function TradeStationCard({ previewEnabled }) {
-  const { t } = useI18n();
-  const [enabled, setEnabled] = useState(false);
-  const [tradeTab, setTradeTab] = useState("goods");
-  const [crossServer, setCrossServer] = useState(false);
+function TradeStationCard({ previewEnabled, previewState = "" }) {
+  const { language, t } = useI18n();
+  const fixture = previewTradeFixture(previewState);
+  const config = usePreviewConfig(() => ({ enabled: false, crossServerEnabled: false, selectedItemIds: previewState === "automation-trade-positive" || previewState === "automation-trade-history" ? [7001] : [], selectedCurrencyIds: [15, 650053] }), (draft) => typeof draft.enabled === "boolean" && typeof draft.crossServerEnabled === "boolean" && Array.isArray(draft.selectedItemIds) && Array.isArray(draft.selectedCurrencyIds) && draft.selectedCurrencyIds.length > 0, previewState === "automation-trade-save-error", `automation:trade:${previewState}`);
+  const [tradeTab, setTradeTab] = useState(previewState === "automation-trade-history" ? "history" : "goods");
   const [showExclusive, setShowExclusive] = useState(false);
+  const save = (draft) => { config.store.edit(draft, false); config.store.flush().catch(() => {}); };
+  const enabled = config.draft.enabled === true;
+  const currencies = [...new Map(fixture.goods.flatMap((item) => item.offers).filter((offer) => offer.currencyId > 0).map((offer) => [offer.currencyId, offer])).values()].sort((a, b) => a.currencyId - b.currencyId);
+  const visibleGoods = [...fixture.goods].filter((item) => showExclusive || !item.offers.every((offer) => offer.exclusive)).sort((a, b) => b.quality - a.quality || a.itemId - b.itemId);
+  const toggleItem = (itemId, checked) => {
+    const selectedItemIds = checked ? [...new Set([...config.draft.selectedItemIds, itemId])].sort((a, b) => a - b) : config.draft.selectedItemIds.filter((entry) => entry !== itemId);
+    save({ ...config.store.getSnapshot().draft, enabled: selectedItemIds.length > 0 && enabled, selectedItemIds });
+  };
+  const toggleCurrency = (currencyId, checked) => {
+    if (!checked && config.draft.selectedCurrencyIds.length === 1) return;
+    const selectedCurrencyIds = checked ? [...new Set([...config.draft.selectedCurrencyIds, currencyId])].sort((a, b) => a - b) : config.draft.selectedCurrencyIds.filter((entry) => entry !== currencyId);
+    save({ ...config.store.getSnapshot().draft, selectedCurrencyIds });
+  };
+  const purchaseDays = [];
+  for (const purchase of [...fixture.purchases].reverse()) {
+    let day = purchaseDays[purchaseDays.length - 1];
+    if (!day || day.dayStartAt !== purchase.serverDayStartAt) {
+      day = { dayStartAt: purchase.serverDayStartAt, purchases: [], totalQuantity: 0, itemCounts: new Map() };
+      purchaseDays.push(day);
+    }
+    day.purchases.push(purchase);
+    day.totalQuantity += purchase.quantity;
+    day.itemCounts.set(purchase.itemId, (day.itemCounts.get(purchase.itemId) ?? 0) + purchase.quantity);
+  }
   return (
-    <div className="trade-station-panel" data-preview-fixture={previewEnabled ? "automation-config" : "runtime-config-unobserved"}>
+    <div className="trade-station-panel" data-preview-fixture={previewEnabled ? `trade:${previewState}` : "runtime-config-unobserved"} data-draft-dirty={config.dirty} data-draft-saving={config.saving}>
+      <PreviewConfigError config={config} t={t} />
       <article className="automation-card">
         <div className="automation-card-header">
           <div className="automation-card-title-group">
@@ -521,39 +631,42 @@ function TradeStationCard({ previewEnabled }) {
             <p>{t("automation.tradeStation.description")}</p>
           </div>
           <div className="automation-card-header-actions">
-            <button className="automation-header-switch" type="button" role="switch" aria-checked={enabled} disabled={!previewEnabled} onClick={() => setEnabled((value) => !value)}><Switch checked={enabled} /></button>
+            <button className="automation-header-switch" type="button" role="switch" aria-checked={enabled} disabled={!previewEnabled || (!enabled && config.draft.selectedItemIds.length === 0)} onClick={() => save({ ...config.store.getSnapshot().draft, enabled: !enabled })}><Switch checked={enabled} /></button>
           </div>
         </div>
         <div className="automation-card-meta-row" role="status">
-          <span className={`automation-state ${enabled ? "state-enabled" : "state-disabled"}`}>{previewEnabled ? t(enabled ? "common.enabled" : "common.disabled") : t("status.disconnected")}</span>
+          <span className={`automation-state ${enabled ? "state-enabled" : "state-disabled"}`}>{previewEnabled ? t(enabled ? "common.waiting" : "common.disabled") : t("status.disconnected")}</span>
         </div>
         <div className="automation-config">
           <fieldset className="automation-config-body" disabled={!previewEnabled}>
             <div className="trade-station-warning">
               {t("automation.tradeStation.warning")}
             </div>
-            <ToggleRow label={t("automation.tradeStation.crossServer")} checked={crossServer} disabled={!previewEnabled} onChange={setCrossServer} />
+            <ToggleRow label={t("automation.tradeStation.crossServer")} checked={config.draft.crossServerEnabled} disabled={!previewEnabled || config.saving} onChange={(value) => save({ ...config.store.getSnapshot().draft, crossServerEnabled: value })} />
             <fieldset className="trade-station-currencies">
               <legend>{t("automation.tradeStation.currencies")}</legend>
-              <div />
+              <div>{currencies.map((currency) => { const selected = config.draft.selectedCurrencyIds.includes(currency.currencyId); return <label className={selected ? "selected" : ""} key={currency.currencyId}><input type="checkbox" checked={selected} disabled={config.saving || (selected && config.draft.selectedCurrencyIds.length === 1)} onChange={(event) => toggleCurrency(currency.currencyId, event.target.checked)} /><span className="trade-station-currency-icon game-asset-placeholder" aria-hidden="true" /><span>{currency.currencyName}</span></label>; })}</div>
             </fieldset>
             <div className="trade-station-stats">
-              <span>{t("automation.tradeStation.detected")}: 0</span>
-              <span>{t("automation.tradeStation.attempted")}: 0</span>
-              <span>{t("automation.tradeStation.succeeded")}: 0</span>
-              <span>{t("automation.tradeStation.lastResult")}: -</span>
+              <span>{t("automation.tradeStation.detected")}: {fixture.detected}</span>
+              <span>{t("automation.tradeStation.attempted")}: {fixture.attempted}</span>
+              <span>{t("automation.tradeStation.succeeded")}: {fixture.succeeded}</span>
+              <span>{t("automation.tradeStation.lastResult")}: {fixture.lastResult ? t(`automation.tradeStation.state.${fixture.lastResult}`) : "-"}</span>
             </div>
             <div className="trade-station-tabs" role="tablist">
               <button type="button" role="tab" aria-selected={tradeTab === "goods"} className={tradeTab === "goods" ? "active" : ""} onClick={() => setTradeTab("goods")}>{t("automation.tradeStation.goods")}</button>
-              <button type="button" role="tab" aria-selected={tradeTab === "history"} className={tradeTab === "history" ? "active" : ""} onClick={() => setTradeTab("history")}>{t("automation.tradeStation.purchasedItems", { count: 0 })}</button>
+              <button type="button" role="tab" aria-selected={tradeTab === "history"} className={tradeTab === "history" ? "active" : ""} onClick={() => setTradeTab("history")}>{t("automation.tradeStation.purchasedItems", { count: fixture.purchases.length })}</button>
             </div>
             {tradeTab === "goods" ? <div className="trade-station-goods" role="tabpanel">
               <div className="trade-station-goods-heading">
                 <strong>{t("automation.tradeStation.goodsToBuy")}</strong>
                 <label><input type="checkbox" checked={showExclusive} disabled={!previewEnabled} onChange={(event) => setShowExclusive(event.target.checked)} />{t("automation.tradeStation.showExclusive")}</label>
               </div>
-              <span className="muted">{t("automation.tradeStation.noGoods")}</span>
-            </div> : <div className="trade-station-purchase-history" role="tabpanel"><span className="muted">{t("automation.tradeStation.noPurchases")}</span></div>}
+              {fixture.loading ? <span className="muted">{t("automation.tradeStation.loading")}</span> : null}
+              {!fixture.loading && fixture.goods.length === 0 ? <span className="muted">{t("automation.tradeStation.noGoods")}</span> : null}
+              <div className="trade-station-good-grid">{visibleGoods.map((item) => { const selected = config.draft.selectedItemIds.includes(item.itemId); const exclusive = item.offers.every((offer) => offer.exclusive); const possibleCurrencies = [...new Set(item.offers.map((offer) => offer.currencyName))]; return <label className={`trade-station-good${selected ? " selected" : ""}${exclusive ? " disabled" : ""}`} key={item.itemId}><input type="checkbox" checked={selected} disabled={config.saving || exclusive} onChange={(event) => toggleItem(item.itemId, event.target.checked)} /><span className={`trade-station-good-frame quality-${item.quality}`}><span className="trade-station-good-icon game-asset-placeholder" aria-hidden="true" /></span><span className="trade-station-good-copy"><b>{item.name}</b><small>{t("automation.tradeStation.buyWheneverAvailable")}</small><small>{t("automation.tradeStation.possibleCurrencies")} {possibleCurrencies.join(" / ") || "-"}</small>{exclusive ? <small className="trade-station-good-exclusive">{t("automation.tradeStation.exclusiveSkipped")}</small> : null}</span>{selected ? <span className="trade-station-good-check" aria-hidden="true">✓</span> : null}</label>; })}</div>
+            </div> : <div className="trade-station-purchase-history" role="tabpanel">{purchaseDays.length === 0 ? <span className="muted">{t("automation.tradeStation.noPurchases")}</span> : purchaseDays.map((day) => <section className="trade-station-purchase-day" key={day.dayStartAt}><h4 className="trade-station-purchase-day-heading"><time dateTime={new Date(day.dayStartAt).toISOString()}>{new Date(day.dayStartAt).toLocaleDateString(language, { year: "numeric", month: "long", day: "numeric", weekday: "short" })}</time><span className="trade-station-purchase-day-summary"><span>{t("automation.tradeStation.purchasedDayTotal", { count: day.totalQuantity.toLocaleString(language) })}</span>{[...day.itemCounts.entries()].map(([itemId, quantity]) => { const purchase = day.purchases.find((entry) => entry.itemId === itemId); return <span className="trade-station-purchase-day-item" key={itemId}>{purchase?.itemName || `#${itemId}`} ×{quantity.toLocaleString(language)}</span>; })}</span></h4><div className="trade-station-purchase-list">{day.purchases.map((purchase) => <article className="trade-station-purchase" key={purchase.id}><span className="trade-station-good-frame"><span className="trade-station-good-icon game-asset-placeholder" aria-hidden="true" /></span><span className="trade-station-purchase-copy"><b>{purchase.itemName}</b><small>{t("automation.tradeStation.quantity", { count: purchase.quantity.toLocaleString(language) })}</small><small className="trade-station-purchase-price">{t("automation.tradeStation.price", { price: purchase.price.toLocaleString(language), currency: purchase.currencyName })}</small><small>{t("automation.tradeStation.purchasedAt", { time: new Date(purchase.purchasedAt).toLocaleTimeString(language) })}</small><small>{t("automation.tradeStation.server", { server: purchase.serverId })}</small><small>{t("automation.tradeStation.dailyPurchaseIndex", { count: purchase.dailyPurchaseIndex.toLocaleString(language) })}</small>{purchase.confirmedAfterTimeout ? <small>{t("automation.tradeStation.confirmedAfterTimeout")}</small> : null}</span></article>)}</div></section>)}</div>}
+            {fixture.error ? <div className="automation-error" role="alert">{t("common.actionFailed")}</div> : null}
           </fieldset>
         </div>
       </article>
@@ -594,7 +707,7 @@ export function AutomationPage({ previewState = "" }) {
       </div>
       <>{automationCategories.map(([key]) => <div className="automation-grid" key={key} style={category === key ? undefined : { display: "none" }}>
         {key === "resourceGather" ? <ResourceGatherCard previewEnabled={previewEnabled} previewState={previewState} /> : null}
-        {key === "trade" ? <TradeStationCard previewEnabled={previewEnabled} /> : null}
+        {key === "trade" ? <TradeStationCard previewEnabled={previewEnabled} previewState={previewState} /> : null}
         {(automationCards[key] ?? []).map(([title, description]) => <AutomationCard key={title} title={title} description={description} previewEnabled={previewEnabled} previewState={previewState} onConfigStatus={onConfigStatus} />)}
       </div>)}</>
     </section>
@@ -621,19 +734,22 @@ export function SquadsPage({ previewState = "" }) {
   );
 }
 
-const previewAllianceMembers = [
-  { uid: "10001", name: "Avery", level: 30, power: 18240, online: true },
-  { uid: "10002", name: "Blair", level: 29, power: 16480, online: false },
-  { uid: "10003", name: "Casey", level: 28, power: 15120, online: true },
-];
-
-function AfkProfileEditor({ enabled, isNew = false, profile, onProfileChange }) {
+function AfkProfileEditor({ enabled, isNew = false, profile, onProfileChange, previewState = "" }) {
   const { t } = useI18n();
   const [memberPickerOpen, setMemberPickerOpen] = useState(false);
   const [memberSearch, setMemberSearch] = useState("");
   const [selectedMemberIds, setSelectedMemberIds] = useState(new Set());
-  const filteredMembers = previewAllianceMembers.filter((member) => !memberSearch.trim() || `${member.name} ${member.uid}`.toLowerCase().includes(memberSearch.trim().toLowerCase()));
-  const availableTargets = previewAfkTargets.filter((target) => target.kind === profile.kind);
+  const [targetError, setTargetError] = useState("");
+  const memberFixture = previewMemberFixture(previewState);
+  const currentMemberMap = new Map(memberFixture.members.map((member) => [member.uid, member]));
+  const selectableMembers = memberFixture.members.filter((member) => member.uid !== memberFixture.selfUid);
+  const filteredMembers = selectableMembers.filter((member) => !memberSearch.trim() || `${member.name} ${member.uid}`.toLowerCase().includes(memberSearch.trim().toLowerCase()));
+  const targetDiscoveryReady = !["squads-profile-target-loading", "squads-profile-target-failed"].includes(previewState);
+  const sourceTargets = previewState === "squads-profile-target-undiscovered" ? previewAfkTargets.filter((target) => target.key !== profile.targetKey) : previewAfkTargets;
+  const availableTargets = sourceTargets.filter((target) => profile.kind === "join" ? target.rally : !target.joinOnly);
+  const selectedTarget = sourceTargets.find((target) => target.key === profile.targetKey) || null;
+  const targetMissing = targetDiscoveryReady && !profile.customTarget && !selectedTarget;
+  const attackRangeWarning = profile.kind === "farm" && profile.searchable && previewAfkLevelOutOfRange(profile, selectedTarget);
   const join = profile.joinRestrictions || normalizeJoinRestrictions(undefined, 1, true);
   const patch = (changes) => onProfileChange({ ...profile, ...changes });
   const patchJoin = (changes) => patch({ joinRestrictions: { ...join, ...changes } });
@@ -647,6 +763,7 @@ function AfkProfileEditor({ enabled, isNew = false, profile, onProfileChange }) 
     setMemberPickerOpen(false);
     setMemberSearch("");
     setSelectedMemberIds(new Set());
+    setTargetError("");
   }, [profile.id]);
   return (
     <section className={`monster-afk-editor ${isNew ? "is-new" : "is-editing"}`} data-preview-fixture="afk-profile-editor">
@@ -655,9 +772,9 @@ function AfkProfileEditor({ enabled, isNew = false, profile, onProfileChange }) 
         <strong>{t("squad.afkBasicSettings")}</strong>
         <div className="monster-afk-basic-grid">
           <label><span>{t("squad.afkProfileName")}</span><input value={profile.name} disabled={!enabled} onChange={(event) => patch({ name: event.target.value })} onBlur={() => { if (previewAfkProfileValid(profile)) patch({ name: profile.name.trim() }); }} onKeyDown={(event) => { if (event.key === "Enter" && !event.nativeEvent.isComposing) event.currentTarget.blur(); }} /></label>
-          <label><span>{t("squad.afkTarget")}</span><select value={profile.customTarget ? profile.lastListTargetKey : profile.targetKey} disabled={!enabled} onChange={(event) => { const target = previewAfkTargets.find((entry) => entry.key === event.target.value); if (!target) return; onProfileChange(applyAfkTarget(profile, target)); }}>{profile.customTarget && !availableTargets.some((target) => target.key === profile.lastListTargetKey) ? <option value={profile.lastListTargetKey}>{t("squad.afkSelectListTarget")}</option> : null}{["normal", "elite", "running", "leader", "ally", "drill", "invader", "other"].filter((group) => availableTargets.some((target) => target.group === group)).map((group) => <optgroup label={t(`squad.afkGroup.${group}`)} key={group}>{availableTargets.filter((target) => target.group === group).map((target) => <option value={target.key} key={target.key}>{t(target.labelKey)} · {t(target.source === "search" ? "squad.afkSearchable" : "squad.afkLocalTarget")} · {t(profile.kind === "join" ? "squad.afkJoin" : target.action === "rally" ? "squad.afkActionRally" : "squad.afkActionAttack")}</option>)}</optgroup>)}</select></label>
+          <label><span>{t("squad.afkTarget")}</span><select value={profile.customTarget ? profile.lastListTargetKey : profile.targetKey} disabled={!enabled || !targetDiscoveryReady} onChange={(event) => { const target = sourceTargets.find((entry) => entry.key === event.target.value); if (!target) return; setTargetError(""); onProfileChange(applyAfkTarget(profile, target)); }}>{targetMissing ? <option value={profile.targetKey}>{profile.targetNameQuery || profile.monsterNameKey || profile.targetKey} · {t("squad.afkUndiscovered")}</option> : null}{profile.customTarget && !availableTargets.some((target) => target.key === profile.lastListTargetKey) ? <option value={profile.lastListTargetKey}>{t("squad.afkSelectListTarget")}</option> : null}{["normal", "elite", "running", "leader", "ally", "drill", "invader", "other"].filter((group) => availableTargets.some((target) => target.group === group)).map((group) => <optgroup label={t(`squad.afkGroup.${group}`)} key={group}>{availableTargets.filter((target) => target.group === group).map((target) => <option value={target.key} key={target.key}>{target.name || (target.labelKey ? t(target.labelKey) : target.key)} · {t(target.source === "search" ? "squad.afkSearchable" : "squad.afkLocalTarget")} · {t(profile.kind === "join" ? "squad.afkJoin" : target.action === "rally" ? "squad.afkActionRally" : "squad.afkActionAttack")}{target.searchable ? ` · ${target.attackMinLevel != null && target.attackMaxLevel != null ? t("squad.afkAttackableRange", { min: target.attackMinLevel, max: target.attackMaxLevel }) : t("squad.afkAttackableRangeUnavailable")}` : ""}</option>)}</optgroup>)}</select>{previewState === "squads-profile-target-loading" ? <span className="muted">{t("status.checking")}</span> : null}{previewState === "squads-profile-target-failed" ? <span className="status-error">{t("common.actionFailed")}</span> : null}</label>
         </div>
-        <div className="monster-afk-custom-target"><label className="monster-afk-check-row"><input type="checkbox" checked={profile.customTarget} disabled={!enabled} onChange={(event) => event.target.checked ? patch({ customTarget: true, lastListTargetKey: profile.targetKey, targetKey: "query:", targetNameQuery: "", monsterType: 0, monsterNameKey: undefined, monsterIds: [], source: "undiscovered", action: profile.kind === "join" ? "rally" : "attack", rally: profile.kind === "join", searchable: false, minLevel: 1, maxLevel: 999 }) : onProfileChange(applyAfkTarget(profile, previewAfkTargets.find((target) => target.key === profile.lastListTargetKey) || availableTargets[0]))} />{t("squad.afkCustomTarget")}</label>{profile.customTarget ? <label className="monster-afk-custom-name"><span>{t("squad.afkCustomName")}</span><input value={profile.targetNameQuery} aria-invalid={!profile.targetNameQuery.trim()} disabled={!enabled} onChange={(event) => patch({ targetKey: `query:${event.target.value.trim()}`, targetNameQuery: event.target.value })} /><span className="muted">{t("squad.afkCustomTargetHint")}</span>{!profile.targetNameQuery.trim() ? <span role="status" className="status-error">{t("squad.afkCustomTargetRequired")}</span> : null}</label> : null}</div>
+        <div className="monster-afk-custom-target"><label className="monster-afk-check-row"><input type="checkbox" checked={profile.customTarget} disabled={!enabled} onChange={(event) => { if (event.target.checked) { setTargetError(""); patch({ customTarget: true, lastListTargetKey: profile.targetKey, targetKey: "query:", targetNameQuery: "", monsterType: 0, monsterNameKey: undefined, monsterIds: [], source: "undiscovered", action: profile.kind === "join" ? "rally" : "attack", rally: profile.kind === "join", searchable: false, minLevel: 1, maxLevel: 999 }); return; } const restored = availableTargets.find((target) => target.key === profile.lastListTargetKey); if (!restored) { setTargetError("squad.afkRestoreTargetRequired"); return; } setTargetError(""); onProfileChange(applyAfkTarget(profile, restored)); }} />{t("squad.afkCustomTarget")}</label>{profile.customTarget ? <label className="monster-afk-custom-name"><span>{t("squad.afkCustomName")}</span><input value={profile.targetNameQuery} aria-invalid={!profile.targetNameQuery.trim()} disabled={!enabled} onChange={(event) => patch({ targetKey: `query:${event.target.value.trim()}`, targetNameQuery: event.target.value })} /><span className="muted">{t("squad.afkCustomTargetHint")}</span>{!profile.targetNameQuery.trim() ? <span role="status" className="status-error">{t("squad.afkCustomTargetRequired")}</span> : null}</label> : null}{targetError ? <span role="status" className="status-error">{t(targetError)}</span> : null}</div>
       </div>
       {profile.kind === "join" ? <div className="monster-afk-config-section monster-afk-join-section">
         <strong>{t("squad.afkJoinConditions")}</strong>
@@ -669,7 +786,7 @@ function AfkProfileEditor({ enabled, isNew = false, profile, onProfileChange }) 
           {join.mode === "slot" ? <label><span>{t("squad.join.slotDelay")}</span><input type="number" min="0" max="6000" step="0.01" value={Number.isNaN(join.slotDelaySeconds) ? "" : join.slotDelaySeconds} disabled={!enabled} onChange={(event) => patchJoin({ slotDelaySeconds: event.target.valueAsNumber })} /></label> : null}
           <label><span>{t("squad.join.maxWait")}</span><input type="number" min="0" step="1" value={Number.isNaN(join.maxWaitMinutes) ? "" : join.maxWaitMinutes} disabled={!enabled} onChange={(event) => patchJoin({ maxWaitMinutes: event.target.valueAsNumber })} /></label>
           <label><span>{t("squad.join.list")}</span><select value={join.leaderListMode} disabled={!enabled} onChange={(event) => patchJoin({ leaderListMode: event.target.value })}><option value="off">{t("squad.join.list.off")}</option><option value="blacklist">{t("squad.join.list.blacklist")}</option><option value="whitelist">{t("squad.join.list.whitelist")}</option></select></label>
-          {join.leaderListMode !== "off" ? <div className="rally-join-leaders"><button type="button" disabled={!enabled} onClick={() => { setSelectedMemberIds(new Set(join.leaders.map((leader) => leader.uid))); setMemberSearch(""); setMemberPickerOpen(true); }}>{t("squad.join.chooseMembers")}</button>{join.leaders.map((leader) => <div className="rally-join-leader" key={leader.uid}><span className="rally-join-member-name"><strong>{leader.name}</strong><small>{leader.uid}</small></span><button type="button" className="danger" onClick={() => patchJoin({ leaders: join.leaders.filter((entry) => entry.uid !== leader.uid) })}>{t("common.delete")}</button></div>)}{join.leaderListMode === "whitelist" && join.leaders.length === 0 ? <span className="muted">{t("squad.join.emptyWhitelist")}</span> : null}</div> : null}
+          {join.leaderListMode !== "off" ? <div className="rally-join-leaders"><button type="button" disabled={!enabled || !memberFixture.ready} onClick={() => { setSelectedMemberIds(new Set(join.leaders.filter((leader) => leader.uid !== memberFixture.selfUid).map((leader) => leader.uid))); setMemberSearch(""); setMemberPickerOpen(true); }}>{t("squad.join.chooseMembers")}</button>{!memberFixture.ready ? <span className={memberFixture.failed ? "status-error" : "muted"}>{t(!memberFixture.online ? "squad.join.membersOffline" : memberFixture.failed ? "squad.join.membersFailed" : "squad.join.membersLoading")}</span> : null}{join.leaders.map((leader) => { const current = currentMemberMap.get(leader.uid); const left = memberFixture.ready && !current; return <div className="rally-join-leader" key={leader.uid}><span className="rally-join-member-name"><strong>{current?.name || leader.name || leader.uid}</strong><small>{leader.uid}{left ? ` · ${t("squad.join.memberLeft")}` : ""}</small></span><button type="button" className="danger" onClick={() => patchJoin({ leaders: join.leaders.filter((entry) => entry.uid !== leader.uid) })}>{t("common.delete")}</button></div>; })}{memberFixture.ready && join.leaders.some((leader) => !currentMemberMap.has(leader.uid)) ? <span className="muted">{t("squad.join.memberLeftHint")}</span> : null}{join.leaderListMode === "whitelist" && join.leaders.length === 0 ? <span className="muted">{t("squad.join.emptyWhitelist")}</span> : null}</div> : null}
           <label><input type="checkbox" checked={join.skipSoloLeader} disabled={!enabled} onChange={(event) => patchJoin({ skipSoloLeader: event.target.checked })} />{t("squad.join.skipSolo")}</label><label><input type="checkbox" checked={join.skipKicked} disabled={!enabled} onChange={(event) => patchJoin({ skipKicked: event.target.checked })} />{t("squad.join.skipKicked")}</label>
           {!validJoinRestrictions(join) ? <p role="alert" className="status-error">{t("squad.join.invalid")}</p> : null}
           </fieldset> : null}
@@ -685,66 +802,82 @@ function AfkProfileEditor({ enabled, isNew = false, profile, onProfileChange }) 
       </div>
       <div className="monster-afk-config-section monster-afk-filter">
         <strong>{t("squad.afkTargetFilters")}</strong>
+        {profile.kind === "farm" && profile.searchable ? <p className={attackRangeWarning ? "monster-afk-level-warning" : "muted"}>{selectedTarget?.attackMinLevel != null && selectedTarget?.attackMaxLevel != null ? t("squad.afkAttackableRange", { min: selectedTarget.attackMinLevel, max: selectedTarget.attackMaxLevel }) : t("squad.afkAttackableRangeUnavailable")}{attackRangeWarning ? ` · ${t("squad.afkLevelOutOfRange")}` : ""}</p> : null}
         <label className="monster-afk-check-row"><input type="checkbox" checked={profile.levelFilterEnabled} disabled={!enabled} onChange={(event) => patch({ levelFilterEnabled: event.target.checked, progressiveLevels: event.target.checked && profile.progressiveLevels })} />{t("squad.afkLevelFilter")}</label>
         {profile.levelFilterEnabled ? <div className="monster-afk-filter-content"><div className="monster-afk-number-grid"><label><span>{t("squad.afkMinLevel")}</span><input type="number" min="1" value={Number.isNaN(profile.minLevel) ? "" : profile.minLevel} disabled={!enabled} onChange={(event) => patch({ minLevel: event.target.valueAsNumber })} /></label>{!profile.progressiveLevels ? <label><span>{t("squad.afkMaxLevel")}</span><input type="number" min="1" value={Number.isNaN(profile.maxLevel) ? "" : profile.maxLevel} disabled={!enabled} onChange={(event) => patch({ maxLevel: event.target.valueAsNumber })} /></label> : null}</div>{profile.kind === "farm" && profile.searchable ? <label className="monster-afk-check-row"><input type="checkbox" checked={profile.progressiveLevels} disabled={!enabled} onChange={(event) => patch({ progressiveLevels: event.target.checked })} />{t("squad.afkProgressiveLevels")}</label> : null}</div> : null}
         <label className="monster-afk-check-row"><input type="checkbox" checked={profile.distanceFilterEnabled} disabled={!enabled} onChange={(event) => patch({ distanceFilterEnabled: event.target.checked })} />{t("squad.afkDistanceFilter")}</label>
         {profile.distanceFilterEnabled ? <div className="monster-afk-filter-content"><label><span>{t("squad.maxDistance")}</span><input type="number" min="1" value={Number.isNaN(profile.maxDistance) ? "" : profile.maxDistance} disabled={!enabled} onChange={(event) => patch({ maxDistance: event.target.valueAsNumber })} /></label></div> : null}
       </div>
 
-      {profile.kind === "join" && memberPickerOpen ? <div className="garrison-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setMemberPickerOpen(false); }}><section className="garrison-modal" role="dialog" aria-modal="true" aria-label={t("squad.join.chooseMembers")}><div className="garrison-modal-heading"><strong>{t("squad.join.chooseMembers")}</strong><button type="button" onClick={() => setMemberPickerOpen(false)}>{t("common.cancel")}</button></div><input aria-label={t("squad.join.searchMembers")} placeholder={t("squad.join.searchMembers")} value={memberSearch} onChange={(event) => setMemberSearch(event.target.value)} autoFocus /><div className="garrison-ally-list">{filteredMembers.map((member) => <label key={member.uid}><input type="checkbox" checked={selectedMemberIds.has(member.uid)} onChange={(event) => setSelectedMemberIds((current) => { const next = new Set(current); if (event.target.checked) next.add(member.uid); else next.delete(member.uid); return next; })} /><span><strong>{member.name}</strong><small>{member.uid}</small></span></label>)}{filteredMembers.length === 0 ? <span className="muted">{t("squad.join.noMembers")}</span> : null}</div><div className="garrison-modal-actions"><button type="button" className="primary-action" onClick={() => { patchJoin({ leaders: [...join.leaders.filter((leader) => !previewAllianceMembers.some((member) => member.uid === leader.uid)), ...previewAllianceMembers.filter((member) => selectedMemberIds.has(member.uid)).map(({ uid, name }) => ({ uid, name }))] }); setMemberPickerOpen(false); }}>{t("squad.join.confirmMembers")}</button></div></section></div> : null}
+      {profile.kind === "join" && memberPickerOpen ? <div className="garrison-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setMemberPickerOpen(false); }}><section className="garrison-modal" role="dialog" aria-modal="true" aria-label={t("squad.join.chooseMembers")}><div className="garrison-modal-heading"><strong>{t("squad.join.chooseMembers")}</strong><button type="button" onClick={() => setMemberPickerOpen(false)}>{t("common.cancel")}</button></div><input aria-label={t("squad.join.searchMembers")} placeholder={t("squad.join.searchMembers")} value={memberSearch} onChange={(event) => setMemberSearch(event.target.value)} autoFocus /><div className="garrison-ally-list">{filteredMembers.map((member) => <label key={member.uid}><input type="checkbox" checked={selectedMemberIds.has(member.uid)} onChange={(event) => setSelectedMemberIds((current) => { const next = new Set(current); if (event.target.checked) next.add(member.uid); else next.delete(member.uid); return next; })} /><span><strong>{member.name}</strong><small>{member.uid}</small></span></label>)}{filteredMembers.length === 0 ? <span className="muted">{t("squad.join.noMembers")}</span> : null}</div><div className="garrison-modal-actions"><button type="button" className="primary-action" onClick={() => { const retained = join.leaders.filter((leader) => leader.uid === memberFixture.selfUid || !currentMemberMap.has(leader.uid)); const selected = selectableMembers.filter((member) => selectedMemberIds.has(member.uid)).map(({ uid, name }) => ({ uid, name })); patchJoin({ leaders: [...retained, ...selected] }); setMemberPickerOpen(false); }}>{t("squad.join.confirmMembers")}</button></div></section></div> : null}
     </section>
   );
 }
 
-function AllianceDrillPreviewSettings({ enabled }) {
+function AllianceDrillPreviewSettings({ disabled, value, onChange, previewState = "" }) {
   const { t } = useI18n();
-  const [launchRallies, setLaunchRallies] = useState(true);
-  const [squads, setSquads] = useState([1]);
-  return <><p>{t("squad.afkAllianceDrillDescription")}</p><label className="monster-afk-check-row"><input type="checkbox" checked={launchRallies} disabled={!enabled} onChange={(event) => setLaunchRallies(event.target.checked)} />{t("squad.afkAllianceDrillActive")}</label><fieldset disabled={!enabled}><legend>{t("squad.afkAllianceDrillSquads")}</legend>{[1,2,3,4].map((number) => <label key={number}><input type="checkbox" checked={squads.includes(number)} onChange={(event) => setSquads((current) => event.target.checked ? [...current, number].sort() : current.filter((item) => item !== number))} />{t("squad.number", { number })}</label>)}</fieldset>{squads.length ? <span className="muted">{t("squad.afkAllianceDrillOrder", { order: squads.join(" → ") })}</span> : <span className="status-error">{t("squad.afkAllianceDrillSquadRequired")}</span>}</>;
+  const join = value.joinRestrictions || normalizeJoinRestrictions(undefined, 1, true);
+  const patch = (changes) => onChange({ ...value, ...changes });
+  const patchJoin = (changes) => patch({ joinRestrictions: { ...join, ...changes } });
+  const runtimeState = previewState === "squads-profile-drill-leading" ? "squad.afkAllianceDrillLeading" : previewState === "squads-profile-drill-joining" ? "squad.afkAllianceDrillJoining" : "squad.afkAllianceDrillWaiting";
+  return <section className="automation-card monster-afk-toolbar-settings"><div className="monster-afk-toolbar-settings-heading"><strong>{t("squad.afkAllianceDrill")}</strong><span>{t("squad.afkAllianceDrillDescription")}</span></div><div className="monster-afk-drill-inline"><span className="muted">{t("squad.afkAllianceDrillOrder", { order: value.squadIndexes.join(" → ") || "-" })} · {t(runtimeState)}</span><ToggleRow label={t("squad.afkAllianceDrillActive")} checked={value.activeRally} disabled={disabled} onChange={(activeRally) => patch({ activeRally })} /></div><div className="automation-compact-choice-group automation-squad-priority" role="group" aria-label={t("squad.afkAllianceDrillSquads")}>{[1,2,3,4].map((number) => { const selected = value.squadIndexes.includes(number); return <label className={`automation-squad-priority-item${selected ? " selected" : ""}`} key={number}><input type="checkbox" checked={selected} disabled={disabled} onChange={(event) => { const squadIndexes = event.target.checked ? [...value.squadIndexes, number].sort((a,b) => a-b) : value.squadIndexes.filter((item) => item !== number); patch({ enabled: value.enabled && squadIndexes.length > 0, squadIndexes }); }} /><span>{t("squad.number", { number })}</span></label>; })}</div>{value.squadIndexes.length === 0 ? <span className="status-error">{t("squad.afkAllianceDrillSquadRequired")}</span> : null}<div className="rally-join-settings"><ToggleRow label={t("squad.afkJoinConditions")} checked={join.enabled} disabled={disabled} onChange={(enabled) => patchJoin({ enabled })} />{join.enabled ? <fieldset disabled={disabled}><label><span>{t("squad.join.mode")}</span><select value={join.mode} onChange={(event) => patchJoin({ mode: event.target.value })}><option value="slot">{t("squad.join.mode.slot")}</option><option value="delay">{t("squad.join.mode.delay")}</option></select></label>{join.mode === "slot" ? <div className="rally-join-range">{[0,1].map((index) => <label key={index}><span>{t(`squad.join.slotRange.${index === 0 ? "min" : "max"}`)}</span><input type="number" min="2" max="5" step="1" value={join.slotRange[index]} onChange={(event) => { const slotRange = [...join.slotRange]; slotRange[index] = event.target.valueAsNumber; patchJoin({ slotRange }); }} /></label>)}</div> : <div className="rally-join-range">{[0,1].map((index) => <label key={index}><span>{t(`squad.join.delaySeconds.${index === 0 ? "min" : "max"}`)}</span><input type="number" min="0" max="6000" step="0.01" value={join.delaySeconds[index]} onChange={(event) => { const delaySeconds = [...join.delaySeconds]; delaySeconds[index] = event.target.valueAsNumber; patchJoin({ delaySeconds }); }} /></label>)}</div>}<label><span>{t("squad.join.maxWait")}</span><input type="number" min="0" step="1" value={join.maxWaitMinutes} onChange={(event) => patchJoin({ maxWaitMinutes: event.target.valueAsNumber })} /></label><label><span>{t("squad.join.list")}</span><select value={join.leaderListMode} onChange={(event) => patchJoin({ leaderListMode: event.target.value })}><option value="off">{t("squad.join.list.off")}</option><option value="blacklist">{t("squad.join.list.blacklist")}</option><option value="whitelist">{t("squad.join.list.whitelist")}</option></select></label><label><input type="checkbox" checked={join.skipSoloLeader} onChange={(event) => patchJoin({ skipSoloLeader: event.target.checked })} />{t("squad.join.skipSolo")}</label><label><input type="checkbox" checked={join.skipKicked} onChange={(event) => patchJoin({ skipKicked: event.target.checked })} />{t("squad.join.skipKicked")}</label>{!validJoinRestrictions(join) ? <p role="alert" className="status-error">{t("squad.join.invalid")}</p> : null}</fieldset> : null}</div></section>;
 }
 
-function GarrisonPreviewSettings({ enabled }) {
+function GarrisonPreviewSettings({ disabled, value, onChange, previewState = "" }) {
   const { t } = useI18n();
-  const [center, setCenter] = useState(true);
-  const [attachment, setAttachment] = useState(false);
-  const [recallOnDisable, setRecallOnDisable] = useState(true);
-  const [selectedAllies, setSelectedAllies] = useState([]);
+  const runtime = previewGarrisonRuntime(previewState);
+  const memberFixture = previewMemberFixture(previewState);
+  const members = memberFixture.members.filter((member) => member.uid !== memberFixture.selfUid);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [pickerSearch, setPickerSearch] = useState("");
   const [draftAllies, setDraftAllies] = useState(new Set());
-  const [squads, setSquads] = useState([1, 2]);
-  const filtered = previewAllianceMembers.filter((member) => !pickerSearch.trim() || `${member.name} ${member.uid}`.toLowerCase().includes(pickerSearch.trim().toLowerCase()));
-  const targetCount = Number(center) + Number(attachment) + selectedAllies.length;
-  return <div className="garrison-settings">
-    <div className="monster-afk-toolbar-settings-heading"><div><strong>{t("garrison.settings")}</strong><span>{t("garrison.settingsDescription")}</span></div><span className="garrison-count">{t("garrison.selectedTargets", { count: targetCount })}</span></div>
-    <div className="garrison-settings-grid"><div className="garrison-target-panel">
-      <div className="garrison-section-heading"><strong>{t("garrison.buildings")}</strong><span>{Number(center) + Number(attachment)}/2</span></div>
-      <div className="garrison-building-grid"><label className="garrison-building center"><input type="checkbox" checked={center} disabled={!enabled} onChange={(event) => setCenter(event.target.checked)} /><span>{t("garrison.center")}</span></label><label className="garrison-building attachment"><input type="checkbox" checked={attachment} disabled={!enabled} onChange={(event) => setAttachment(event.target.checked)} /><span>{t("garrison.attachment")}</span></label></div>
-      <div className="garrison-section-heading"><strong>{t("garrison.allies")}</strong><button type="button" disabled={!enabled} onClick={() => { setDraftAllies(new Set(selectedAllies)); setPickerSearch(""); setPickerOpen(true); }}>{t("garrison.chooseAllies")}</button></div>
-      <div className="garrison-selected-allies">{selectedAllies.length ? selectedAllies.map((uid) => { const member = previewAllianceMembers.find((entry) => entry.uid === uid); return <span key={uid}>{member?.name || uid}</span>; }) : <p className="muted">{t("garrison.noSelectedAllies")}</p>}</div>
-      <div className="garrison-section-heading"><strong>{t("garrison.targetPriority")}</strong><span>{t("garrison.dragHint")}</span></div>
-      <div className="garrison-priority-list">{center ? <span>{t("garrison.center")}</span> : null}{attachment ? <span>{t("garrison.attachment")}</span> : null}{selectedAllies.map((uid) => <span key={uid}>{previewAllianceMembers.find((member) => member.uid === uid)?.name || uid}</span>)}</div>
-      {targetCount === 0 ? <span className="status-error">{t("garrison.targetRequired")}</span> : null}
-    </div><div className="garrison-runtime-panel">
-      <div className="garrison-section-heading"><strong>{t("garrison.squadPriority")}</strong></div>
-      <div className="monster-afk-squads">{[1,2,3,4].map((number) => <label className="monster-afk-squad-toggle" key={number}><input type="checkbox" checked={squads.includes(number)} disabled={!enabled} onChange={(event) => setSquads((current) => event.target.checked ? [...current, number].sort() : current.filter((item) => item !== number))} /><span>{number}</span></label>)}</div>
-      {squads.length === 0 ? <span className="status-error">{t("garrison.squadRequired")}</span> : <p className="muted">{t("garrison.squadHint")}</p>}
-      <div className="garrison-section-heading"><strong>{t("garrison.current")}</strong><span>0/0</span></div><p className="muted">{t("garrison.noAssignments")}</p>
-    </div></div>
-    <div className="garrison-actions"><ToggleRow label={t("garrison.recallOnDisable")} checked={recallOnDisable} disabled={!enabled} onChange={setRecallOnDisable} /><button type="button" className="primary-action" disabled title={t("status.gameDisconnectedDisabled")}>{t("garrison.runNow")}</button></div>
-    {pickerOpen ? <div className="garrison-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setPickerOpen(false); }}><section className="garrison-modal" role="dialog" aria-modal="true" aria-label={t("garrison.chooseAllies")}><div className="garrison-modal-heading"><strong>{t("garrison.chooseAllies")}</strong><button type="button" onClick={() => setPickerOpen(false)}>{t("common.cancel")}</button></div><input aria-label={t("garrison.searchAlly")} value={pickerSearch} onChange={(event) => setPickerSearch(event.target.value)} placeholder={t("garrison.searchAlly")} autoFocus /><div className="garrison-ally-list">{filtered.map((member) => <label className={member.online ? "" : "unavailable"} key={member.uid}><input type="checkbox" checked={draftAllies.has(member.uid)} onChange={(event) => setDraftAllies((current) => { const next = new Set(current); if (event.target.checked) next.add(member.uid); else next.delete(member.uid); return next; })} /><span><strong>{member.name}</strong><small>{t("garrison.allyDetail", { level: member.level, power: member.power })} · {t(member.online ? "garrison.online" : "garrison.offlineMember")}</small></span></label>)}</div><div className="garrison-modal-actions"><button type="button" className="primary-action" onClick={() => { setSelectedAllies([...draftAllies]); setPickerOpen(false); }}>{t("squad.join.confirmMembers")}</button></div></section></div> : null}
-  </div>;
+  const filtered = members.filter((member) => !pickerSearch.trim() || `${member.name} ${member.uid}`.toLowerCase().includes(pickerSearch.trim().toLowerCase()));
+  const selected = new Set(value.targets.map((target) => target.kind === "allianceBuilding" ? `building:${target.buildId}` : `ally:${target.uid}`));
+  const selectedAllies = value.targets.filter((target) => target.kind === "allyCity");
+  const toggleBuilding = (building) => { const key = `building:${building.buildId}`; const targets = selected.has(key) ? value.targets.filter((target) => !(target.kind === "allianceBuilding" && target.buildId === building.buildId)) : [...value.targets, { kind: "allianceBuilding", buildId: building.buildId, nameSnapshot: building.name }]; onChange({ ...value, enabled: value.enabled && targets.length > 0, targets }); };
+  return <section className="automation-card monster-afk-toolbar-settings garrison-settings"><div className="monster-afk-toolbar-settings-heading"><div><strong>{t("garrison.settings")}</strong><span>{t("garrison.settingsDescription")}</span></div><span className="garrison-count">{t("garrison.selectedTargets", { count: value.targets.length })}</span></div><div className="garrison-settings-grid"><div className="garrison-target-panel"><div className="garrison-section-heading"><strong>{t("garrison.buildings")}</strong><span>{previewGarrisonBuildings.filter((building) => selected.has(`building:${building.buildId}`)).length}/{previewGarrisonBuildings.length}</span></div><div className="garrison-building-grid">{runtime.buildings.map((building) => <label className={`garrison-building ${building.role}${building.available ? "" : " unavailable"}`} key={building.key}><input type="checkbox" checked={selected.has(`building:${building.buildId}`)} disabled={disabled || !building.available} onChange={() => toggleBuilding(building)} /><span>{building.name}<small>{building.unavailableReason === "season_settled" ? t("garrison.seasonEnded") : building.available ? t(building.role === "center" ? "garrison.center" : "garrison.attachment") : t("garrison.full")}</small></span></label>)}</div><div className="garrison-section-heading"><strong>{t("garrison.allies")}</strong><button type="button" disabled={disabled || !memberFixture.ready} onClick={() => { setDraftAllies(new Set(selectedAllies.map((target) => target.uid))); setPickerSearch(""); setPickerOpen(true); }}>{t("garrison.chooseAllies")}</button></div>{!memberFixture.ready ? <span className={memberFixture.failed ? "status-error" : "muted"}>{t(!memberFixture.online ? "squad.join.membersOffline" : memberFixture.failed ? "squad.join.membersFailed" : "squad.join.membersLoading")}</span> : null}<div className="garrison-selected-allies">{selectedAllies.length ? selectedAllies.map((target) => <span key={target.uid}>{members.find((member) => member.uid === target.uid)?.name || target.nameSnapshot}</span>) : <p className="muted">{t("garrison.noSelectedAllies")}</p>}</div><div className="garrison-section-heading"><strong>{t("garrison.targetPriority")}</strong><span>{t("garrison.dragHint")}</span></div><div className="garrison-priority-list">{value.targets.map((target, index) => <div className="garrison-priority-item" key={`${target.kind}:${target.buildId || target.uid}`}><span>{index + 1}</span><strong>{target.nameSnapshot}</strong></div>)}</div>{value.targets.length === 0 ? <span className="status-error">{t("garrison.targetRequired")}</span> : null}</div><div className="garrison-runtime-panel"><div className="garrison-section-heading"><strong>{t("garrison.squadPriority")}</strong><span>{value.squadPriority.join(" → ") || "-"}</span></div><div className="automation-compact-choice-group automation-squad-priority">{[1,2,3,4].map((number) => { const isSelected = value.squadPriority.includes(number); return <label className={`automation-squad-priority-item${isSelected ? " selected" : ""}`} key={number}><input type="checkbox" checked={isSelected} disabled={disabled} onChange={(event) => { const squadPriority = event.target.checked ? [...value.squadPriority, number].sort((a,b) => a-b) : value.squadPriority.filter((item) => item !== number); onChange({ ...value, enabled: value.enabled && squadPriority.length > 0, squadPriority }); }} /><span>{t("squad.number", { number })}</span></label>; })}</div>{value.squadPriority.length === 0 ? <span className="status-error">{t("garrison.squadRequired")}</span> : <p className="muted">{t("garrison.squadHint")}</p>}<div className="garrison-section-heading"><strong>{t("garrison.current")}</strong><span>{runtime.guardingCount}/{Math.min(value.squadPriority.length, value.targets.length)}</span></div><div className="garrison-assignment-list">{runtime.assignments.length ? runtime.assignments.map((assignment) => <div className="garrison-assignment" key={`${assignment.squadIndex}:${assignment.targetKey}`}><b>{assignment.squadIndex}</b><span><strong>{assignment.targetName}</strong><small>{t(`garrison.state.${assignment.state}`)}</small></span><em className={assignment.state}>{t(assignment.owned ? "garrison.automatic" : "garrison.manual")}</em></div>) : <p className="muted">{t("garrison.noAssignments")}</p>}</div></div></div>{runtime.lastError ? <p className="automation-error" role="alert">{t(runtime.lastError)}</p> : null}<div className="garrison-actions"><ToggleRow label={t("garrison.recallOnDisable")} checked={value.recallOnDisable !== false} disabled={disabled} onChange={(recallOnDisable) => onChange({ ...value, recallOnDisable })} /><button type="button" className="primary-action" disabled data-preview-action="presentation-only" title={t("status.gameDisconnectedDisabled")}>{t("garrison.runNow")}</button></div>{pickerOpen ? <div className="garrison-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setPickerOpen(false); }}><section className="garrison-modal" role="dialog" aria-modal="true" aria-label={t("garrison.chooseAllies")}><div className="garrison-modal-heading"><strong>{t("garrison.chooseAllies")}</strong><button type="button" onClick={() => setPickerOpen(false)}>{t("common.cancel")}</button></div><input aria-label={t("garrison.searchAlly")} value={pickerSearch} onChange={(event) => setPickerSearch(event.target.value)} placeholder={t("garrison.searchAlly")} autoFocus /><div className="garrison-ally-list">{filtered.map((member) => <label className={member.online ? "" : "unavailable"} key={member.uid}><input type="checkbox" checked={draftAllies.has(member.uid)} onChange={(event) => setDraftAllies((current) => { const next = new Set(current); if (event.target.checked) next.add(member.uid); else next.delete(member.uid); return next; })} /><span><strong>{member.name}</strong><small>{t("garrison.allyDetail", { level: member.level, power: Math.round(member.power / 1000) })} · {t(member.online ? "garrison.online" : "garrison.offlineMember")}</small></span></label>)}</div><div className="garrison-modal-actions"><button type="button" className="primary-action" onClick={() => { const retained = value.targets.filter((target) => target.kind !== "allyCity"); const allies = members.filter((member) => draftAllies.has(member.uid)).map((member) => ({ kind: "allyCity", uid: member.uid, nameSnapshot: member.name })); onChange({ ...value, targets: [...retained, ...allies] }); setPickerOpen(false); }}>{t("squad.join.confirmMembers")}</button></div></section></div> : null}</section>;
+}
+
+function ZombieBusPreviewSettings({ previewState = "" }) {
+  const { t } = useI18n();
+  const runtime = previewZombieBusRuntime(previewState);
+  return <section className="automation-card monster-afk-toolbar-settings"><div className="monster-afk-toolbar-settings-heading"><strong>{t("zombieBus.title")}</strong></div><p className="muted">{t("zombieBus.description")}</p>{runtime.assignments.length ? <div className="zombie-bus-assignments"><table><thead><tr>{["squad","ally","bus","status"].map((key) => <th key={key}>{t(`zombieBus.${key}`)}</th>)}</tr></thead><tbody>{runtime.assignments.map((row) => <tr key={row.squadIndex}><td>{row.squadIndex}</td><td>{row.name || row.uid}</td><td>{t(row.gold === true ? "zombieBus.gold" : row.gold === false ? "zombieBus.normal" : "zombieBus.unknown")}</td><td>{t(`zombieBus.state.${row.state}`)}</td></tr>)}</tbody></table></div> : null}{runtime.lastError ? <p className="automation-error" role="alert">{t(runtime.lastError)}</p> : null}</section>;
+}
+
+function validAfkToolbarConfig(config) {
+  return Number.isInteger(config.minStamina) && config.minStamina >= 0 && config.minStamina <= 9999
+    && typeof config.preferFifty === "boolean"
+    && (!config.allianceDrill.enabled || config.allianceDrill.squadIndexes.length > 0)
+    && validJoinRestrictions(config.allianceDrill.joinRestrictions)
+    && (!config.garrison.enabled || (config.garrison.targets.length > 0 && config.garrison.squadPriority.length > 0));
+}
+
+function initialAfkProfiles(previewState) {
+  const steel = makePreviewAfkProfile("steel", "Fixture Steel Hunt", "farm", "steel");
+  const gold = { ...makePreviewAfkProfile("gold", "Fixture Gold Hunt", "farm", "gold"), squadIndexes: [2], minLevel: 3, maxLevel: 8, levelFilterEnabled: true };
+  if (previewState === "squads-profile-range-warning") return [{ ...makePreviewAfkProfile("steel", "Fixture Range Warning", "farm", "steel"), minLevel: 11, maxLevel: 12, levelFilterEnabled: true }];
+  if (previewState === "squads-profile-target-undiscovered") return [{ ...steel, monsterNameKey: "fixture-missing-target" }];
+  if (previewState.startsWith("squads-profile-members-")) {
+    const join = makePreviewAfkProfile("join", "Fixture Rally Join", "join", "boss");
+    const leaders = previewState === "squads-profile-members-left" ? [{ uid: "19999", name: "Fixture Departed" }]
+      : previewState === "squads-profile-members-self" ? [{ uid: "10000", name: "Fixture Self" }]
+      : [{ uid: "10001", name: "Fixture Avery" }];
+    return [{ ...join, joinRestrictions: { ...join.joinRestrictions, enabled: true, leaderListMode: "whitelist", leaders } }];
+  }
+  return [steel, gold];
 }
 
 function AfkContent({ previewEnabled, previewState }) {
   const { t } = useI18n();
   const [showEditor, setShowEditor] = useState(previewEnabled);
-  const config = usePreviewConfig(() => previewEnabled ? [makePreviewAfkProfile("steel", "Steel Hunt", "farm", "steel"), { ...makePreviewAfkProfile("gold", "Gold Hunt", "farm", "gold"), squadIndexes: [2], minLevel: 3, maxLevel: 8, levelFilterEnabled: true }] : [], (profiles) => profiles.every(previewAfkProfileValid), previewState === "squads-profile-save-error", `afk:${previewState}`);
+  const config = usePreviewConfig(() => previewEnabled ? initialAfkProfiles(previewState) : [], (profiles) => profiles.every(previewAfkProfileValid), previewState === "squads-profile-save-error", `afk:${previewState}`);
+  const toolbar = usePreviewConfig(() => initialAfkToolbarConfig(previewState), validAfkToolbarConfig, previewState === "squads-profile-toolbar-save-error", `afk-toolbar:${previewState}`);
   const profiles = config.draft;
   const setProfiles = (value, delay = 400) => config.store.edit(value, delay);
-  const [editingId, setEditingId] = useState(() => previewEnabled ? "steel" : "");
+  const [editingId, setEditingId] = useState(() => previewEnabled ? initialAfkProfiles(previewState)[0]?.id || "" : "");
   const [draggedProfileId, setDraggedProfileId] = useState("");
   const [addMenuOpen, setAddMenuOpen] = useState(false);
+  const [toolbarPanel, setToolbarPanel] = useState(() => previewState.includes("potion") ? "potion" : previewState.includes("drill") ? "drill" : previewState.includes("garrison") ? "garrison" : previewState.includes("zombie") ? "zombieBus" : null);
   const newProfileCounter = useRef(1);
   const editingProfile = profiles.find((profile) => profile.id === editingId) || null;
   const updateProfile = (nextProfile) => setProfiles((current) => current.map((profile) => profile.id === nextProfile.id ? nextProfile : profile));
@@ -758,24 +891,41 @@ function AfkContent({ previewEnabled, previewState }) {
     next.splice(targetIndex, 0, moved);
     return next;
   });
+  const flushToolbar = (next) => { toolbar.store.edit(next, false); toolbar.store.flush().catch(() => {}); };
+  const updateToolbar = (mutator, immediate = true) => {
+    const current = toolbar.store.getSnapshot().draft;
+    const next = typeof mutator === "function" ? mutator(current) : mutator;
+    if (immediate) flushToolbar(next); else toolbar.store.edit(next);
+  };
+  const garrisonRuntime = previewGarrisonRuntime(previewState);
+  const zombieRuntime = previewZombieBusRuntime(previewState);
+  const drillState = previewState === "squads-profile-drill-leading" ? "squad.afkAllianceDrillLeading" : previewState === "squads-profile-drill-joining" ? "squad.afkAllianceDrillJoining" : "squad.afkAllianceDrillWaiting";
+  const drillOrder = toolbar.draft.allianceDrill.squadIndexes.join(" → ") || "-";
+  const toggleToolbarPanel = (panel) => setToolbarPanel((current) => current === panel ? null : panel);
   return (
-    <div className="monster-afk-layout" data-draft-dirty={config.dirty} data-draft-saving={config.saving} data-preview-fixture={previewEnabled ? "squads-profile" : "runtime-config-unobserved"}>
+    <div className="monster-afk-layout" data-draft-dirty={config.dirty || toolbar.dirty} data-draft-saving={config.saving || toolbar.saving} data-preview-fixture={previewEnabled ? "squads-profile" : "runtime-config-unobserved"}>
       <PreviewConfigError config={config} t={t} />
+      <PreviewConfigError config={toolbar} t={t} />
       <div className="monster-afk-toolbar">
-        <CompactAfkCard title={t("squad.afkMaster")} summary={t("common.disabled")} previewEnabled={previewEnabled} details={<p className="muted">{t("squad.afkMasterDescription")}</p>} />
-        <CompactAfkCard title={t("squad.afkAllianceDrill")} summary={t("squad.afkAllianceDrillWaiting")} previewEnabled={previewEnabled} details={<AllianceDrillPreviewSettings enabled={previewEnabled} />} />
-        <CompactAfkCard title={t("garrison.title")} summary={t("common.disabled")} previewEnabled={previewEnabled} details={<GarrisonPreviewSettings enabled={previewEnabled} />} />
-        <CompactAfkCard title={t("zombieBus.title")} summary={previewEnabled ? t("zombieBus.waiting") : t("status.disconnected")} previewEnabled={previewEnabled} details={<p className="muted">{t("zombieBus.description")}</p>} />
+        <CompactAfkCard title={t("squad.afkMaster")} description={t("squad.afkMasterDescription")} summary={t(toolbar.draft.masterEnabled ? "common.enabled" : "common.disabled")} enabled={toolbar.draft.masterEnabled} disabled={!previewEnabled} settingsOpen={false} onToggle={(masterEnabled) => updateToolbar((draft) => ({ ...draft, masterEnabled }))} />
+        <CompactAfkCard title={t("automation.autoUsePotion")} description={t("automation.potionMonsterOnly")} summary={`${t("automation.minStamina")} ${toolbar.draft.minStamina}`} enabled={toolbar.draft.potionEnabled} disabled={!previewEnabled} settingsOpen={toolbarPanel === "potion"} onSettings={() => toggleToolbarPanel("potion")} onToggle={(potionEnabled) => updateToolbar((draft) => ({ ...draft, potionEnabled }))} />
+        <CompactAfkCard title={t("squad.afkAllianceDrill")} description={t("squad.afkAllianceDrillDescription")} summary={toolbar.draft.allianceDrill.enabled && previewState.startsWith("squads-profile-drill-") ? `${t(drillState)} · ${drillOrder}` : `${t("squad.afkAllianceDrillOrder", { order: drillOrder })} · ${t(toolbar.draft.allianceDrill.activeRally ? "squad.afkAllianceDrillActive" : "squad.afkJoin")}`} enabled={toolbar.draft.allianceDrill.enabled} disabled={!previewEnabled} settingsOpen={toolbarPanel === "drill"} onSettings={() => toggleToolbarPanel("drill")} onToggle={(enabled) => { if (enabled && toolbar.draft.allianceDrill.squadIndexes.length === 0) { setToolbarPanel("drill"); return; } updateToolbar((draft) => ({ ...draft, allianceDrill: { ...draft.allianceDrill, enabled } })); }} />
+        <CompactAfkCard title={t("garrison.title")} description={t("garrison.description")} summary={toolbar.draft.garrison.enabled ? t("garrison.summary", { active: garrisonRuntime.guardingCount, total: Math.min(toolbar.draft.garrison.squadPriority.length, toolbar.draft.garrison.targets.length) }) : t("common.disabled")} enabled={toolbar.draft.garrison.enabled} disabled={!previewEnabled} settingsOpen={toolbarPanel === "garrison"} onSettings={() => toggleToolbarPanel("garrison")} onToggle={(enabled) => { if (enabled && (!toolbar.draft.garrison.targets.length || !toolbar.draft.garrison.squadPriority.length)) { setToolbarPanel("garrison"); return; } updateToolbar((draft) => ({ ...draft, garrison: { ...draft.garrison, enabled } })); }} />
+        <CompactAfkCard title={t("zombieBus.title")} description={t("zombieBus.description")} summary={previewEnabled ? t(zombieRuntime.lastError ? "common.failed" : zombieRuntime.assignments.length ? "automation.running" : toolbar.draft.zombieBus.enabled ? "zombieBus.waiting" : "common.disabled") : t("status.disconnected")} enabled={toolbar.draft.zombieBus.enabled} disabled={!previewEnabled} settingsOpen={toolbarPanel === "zombieBus"} onSettings={() => toggleToolbarPanel("zombieBus")} onToggle={(enabled) => updateToolbar((draft) => ({ ...draft, zombieBus: { ...draft.zombieBus, enabled } }))} />
       </div>
+      {toolbarPanel === "potion" ? <section className="automation-card monster-afk-toolbar-settings"><div className="monster-afk-toolbar-settings-heading"><strong>{t("automation.autoUsePotion")}</strong><span>{t("automation.potionMonsterOnly")}</span></div><div className="monster-afk-card-settings"><label><span>{t("automation.minStamina")}</span><input type="number" min="0" max="9999" step="1" value={Number.isNaN(toolbar.draft.minStamina) ? "" : toolbar.draft.minStamina} disabled={!previewEnabled} onChange={(event) => updateToolbar((draft) => ({ ...draft, minStamina: event.target.valueAsNumber }), false)} onBlur={() => toolbar.store.flush().catch(() => {})} /></label><label><input type="checkbox" checked={toolbar.draft.preferFifty} disabled={!previewEnabled} onChange={(event) => updateToolbar((draft) => ({ ...draft, preferFifty: event.target.checked }))} /><span>{t("automation.preferFifty")}</span></label></div></section> : null}
+      {toolbarPanel === "drill" ? <AllianceDrillPreviewSettings disabled={!previewEnabled} value={toolbar.draft.allianceDrill} previewState={previewState} onChange={(allianceDrill) => updateToolbar((draft) => ({ ...draft, allianceDrill }))} /> : null}
+      {toolbarPanel === "garrison" ? <GarrisonPreviewSettings disabled={!previewEnabled} value={toolbar.draft.garrison} previewState={previewState} onChange={(garrison) => updateToolbar((draft) => ({ ...draft, garrison }))} /> : null}
+      {toolbarPanel === "zombieBus" ? <ZombieBusPreviewSettings previewState={previewState} /> : null}
       <section className="monster-afk-profiles">
         <div className="monster-section-title">
           <strong>{t("squad.afkProfiles")}</strong>
           <div className="monster-afk-add-control"><button type="button" aria-haspopup="menu" aria-expanded={addMenuOpen} disabled={!previewEnabled} onClick={() => setAddMenuOpen((open) => !open)}>{t("common.add")}</button>{addMenuOpen ? <div className="monster-afk-add-menu" role="menu"><button type="button" role="menuitem" onClick={() => addProfile("farm")}><strong>{t("squad.afkActiveAttack")}</strong><span>{t("squad.afkActionAttack")}</span></button><button type="button" role="menuitem" onClick={() => addProfile("join")}><strong>{t("squad.afkJoin")}</strong><span>{t("squad.autoJoinRally")}</span></button></div> : null}</div>
         </div>
         <div className="monster-afk-profile-list">
-          {profiles.length ? profiles.map((profile) => <article className={`monster-afk-profile-card ${editingId === profile.id ? "active" : ""} ${profile.enabled ? "" : "disabled"}`} key={profile.id} onDragOver={(event) => { if (draggedProfileId) event.preventDefault(); }} onDrop={(event) => { event.preventDefault(); moveProfile(draggedProfileId, profile.id); setDraggedProfileId(""); }}><label className={`monster-afk-enabled ${profile.enabled ? "is-enabled" : ""} ${profile.squadIndexes.length === 0 ? "is-disabled" : ""}`}><input type="checkbox" checked={profile.enabled} disabled={!previewEnabled || profile.squadIndexes.length === 0} onChange={(event) => updateProfile({ ...profile, enabled: event.target.checked })} /><span className="monster-afk-enabled-track" aria-hidden="true" /><span>{t(profile.enabled ? "common.enabled" : "common.disabled")}</span></label><button type="button" className="monster-afk-profile-select" aria-pressed={editingId === profile.id} onClick={() => { setEditingId(profile.id); setShowEditor(true); }}><span className="monster-afk-profile-heading"><strong>{profile.name}</strong><span className={`monster-afk-mode-badge ${profile.kind}`}>{t(profile.kind === "farm" ? "squad.afkActiveAttack" : "squad.afkJoin")}</span></span><span>{profile.levelFilterEnabled ? `${profile.minLevel}-${profile.maxLevel}` : t("squad.afkAnyLevel")} · {profile.distanceFilterEnabled ? profile.maxDistance : t("squad.afkAnyDistance")}</span><span>{`${t(profile.source === "search" ? "squad.afkSearchable" : profile.source === "map" ? "squad.afkLocalTarget" : "squad.afkUndiscovered")} · ${t(profile.kind === "join" ? "squad.afkJoin" : profile.action === "rally" ? "squad.afkActionRally" : "squad.afkActionAttack")} · ${t("squad.afkBoundSquads", { count: profile.squadIndexes.join(", ") || "-" })}`}</span></button><button type="button" className="danger" onClick={() => { setProfiles((current) => current.filter((entry) => entry.id !== profile.id)); if (editingId === profile.id) { setEditingId(""); setShowEditor(false); } }}>{t("common.delete")}</button><button type="button" className="monster-afk-profile-drag" draggable aria-label={t("squad.afkReorder", { name: profile.name })} title={t("squad.afkReorder", { name: profile.name })} onDragStart={() => setDraggedProfileId(profile.id)} onDragEnd={() => setDraggedProfileId("")} onKeyDown={(event) => { if (event.key !== "ArrowUp" && event.key !== "ArrowDown") return; event.preventDefault(); const index = profiles.findIndex((entry) => entry.id === profile.id); const target = profiles[index + (event.key === "ArrowUp" ? -1 : 1)]; if (target) moveProfile(profile.id, target.id); }}>↕</button></article>) : <span className="muted">{t("squad.afkNoProfiles")}</span>}
+          {profiles.length ? profiles.map((profile) => { const target = (previewState === "squads-profile-target-undiscovered" ? [] : previewAfkTargets).find((entry) => entry.key === profile.targetKey) || null; const source = target?.source || (previewEnabled ? "undiscovered" : profile.source); const rangeWarning = profile.kind === "farm" && profile.searchable && previewAfkLevelOutOfRange(profile, target); return <article className={`monster-afk-profile-card ${editingId === profile.id ? "active" : ""} ${profile.enabled ? "" : "disabled"}`} key={profile.id} onDragOver={(event) => { if (draggedProfileId) event.preventDefault(); }} onDrop={(event) => { event.preventDefault(); moveProfile(draggedProfileId, profile.id); setDraggedProfileId(""); }}><label className={`monster-afk-enabled ${profile.enabled ? "is-enabled" : ""} ${profile.squadIndexes.length === 0 ? "is-disabled" : ""}`}><input type="checkbox" checked={profile.enabled} disabled={!previewEnabled || profile.squadIndexes.length === 0} onChange={(event) => updateProfile({ ...profile, enabled: event.target.checked })} /><span className="monster-afk-enabled-track" aria-hidden="true" /><span>{t(profile.enabled ? "common.enabled" : "common.disabled")}</span></label><button type="button" className="monster-afk-profile-select" aria-pressed={editingId === profile.id} onClick={() => { setEditingId(profile.id); setShowEditor(true); }}><span className="monster-afk-profile-heading"><strong>{profile.name}</strong><span className={`monster-afk-mode-badge ${profile.kind}`}>{t(profile.kind === "farm" ? "squad.afkActiveAttack" : "squad.afkJoin")}</span></span><span>{profile.levelFilterEnabled ? `${profile.minLevel}-${profile.maxLevel}` : t("squad.afkAnyLevel")} · {profile.distanceFilterEnabled ? profile.maxDistance : t("squad.afkAnyDistance")}</span>{profile.kind === "farm" && profile.searchable ? <span className={rangeWarning ? "monster-afk-level-warning" : ""}>{target?.attackMinLevel != null && target?.attackMaxLevel != null ? t("squad.afkAttackableRange", { min: target.attackMinLevel, max: target.attackMaxLevel }) : t("squad.afkAttackableRangeUnavailable")}{rangeWarning ? ` · ${t("squad.afkLevelOutOfRange")}` : ""}</span> : null}<span>{`${t(source === "search" ? "squad.afkSearchable" : source === "map" ? "squad.afkLocalTarget" : "squad.afkUndiscovered")} · ${t(profile.kind === "join" ? "squad.afkJoin" : profile.action === "rally" ? "squad.afkActionRally" : "squad.afkActionAttack")} · ${t("squad.afkBoundSquads", { count: profile.squadIndexes.join(", ") || "-" })}`}</span></button><button type="button" className="danger" onClick={() => { setProfiles((current) => current.filter((entry) => entry.id !== profile.id)); if (editingId === profile.id) { setEditingId(""); setShowEditor(false); } }}>{t("common.delete")}</button><button type="button" className="monster-afk-profile-drag" draggable aria-label={t("squad.afkReorder", { name: profile.name })} title={t("squad.afkReorder", { name: profile.name })} onDragStart={() => setDraggedProfileId(profile.id)} onDragEnd={() => setDraggedProfileId("")} onKeyDown={(event) => { if (event.key !== "ArrowUp" && event.key !== "ArrowDown") return; event.preventDefault(); const index = profiles.findIndex((entry) => entry.id === profile.id); const moveTarget = profiles[index + (event.key === "ArrowUp" ? -1 : 1)]; if (moveTarget) moveProfile(profile.id, moveTarget.id); }}>↕</button></article>; }) : <span className="muted">{t("squad.afkNoProfiles")}</span>}
         </div>
-        {showEditor && editingProfile ? <AfkProfileEditor enabled={previewEnabled} isNew={!config.confirmed.some((profile) => profile.id === editingProfile.id)} profile={editingProfile} onProfileChange={updateProfile} /> : null}
+        {showEditor && editingProfile ? <AfkProfileEditor enabled={previewEnabled} isNew={!config.confirmed.some((profile) => profile.id === editingProfile.id)} profile={editingProfile} onProfileChange={updateProfile} previewState={previewState} /> : null}
       </section>
     </div>
   );
@@ -790,22 +940,20 @@ function SettingsGlyph() {
   );
 }
 
-function CompactAfkCard({ title, summary, previewEnabled, details }) {
-  const [enabled, setEnabled] = useState(false);
-  const [expanded, setExpanded] = useState(false);
+function CompactAfkCard({ title, description, summary, enabled, disabled = false, settingsOpen = false, onToggle, onSettings }) {
+  const { t } = useI18n();
   return (
-    <article className="automation-card monster-afk-compact-card is-selectable" title={title}>
+    <article className={`automation-card monster-afk-compact-card${onSettings ? " is-selectable" : ""}${settingsOpen ? " is-selected" : ""}`} title={description || title} role={onSettings ? "button" : undefined} tabIndex={onSettings ? 0 : undefined} onClick={onSettings} onKeyDown={(event) => { if (onSettings && (event.key === "Enter" || event.key === " ")) { event.preventDefault(); onSettings(); } }}>
       <div className="automation-card-header">
         <div><h3>{title}</h3><p>{summary}</p></div>
         <div className="monster-afk-compact-actions">
-          <button type="button" disabled={!previewEnabled} aria-label="Settings" aria-expanded={expanded} onClick={() => setExpanded((value) => !value)}><SettingsGlyph /></button>
+          {onSettings ? <button type="button" disabled={disabled} className={settingsOpen ? "active" : ""} aria-label={t("nav.settings")} aria-pressed={settingsOpen} onClick={(event) => { event.stopPropagation(); onSettings(); }}><SettingsGlyph /></button> : null}
           <label className={`monster-afk-compact-toggle ${enabled ? "enabled" : ""}`}>
-            <input type="checkbox" disabled={!previewEnabled} checked={enabled} onChange={(event) => setEnabled(event.target.checked)} aria-label={title} />
+            <input type="checkbox" disabled={disabled} checked={enabled} onClick={(event) => event.stopPropagation()} onChange={(event) => onToggle?.(event.target.checked)} aria-label={title} />
             <span className="monster-afk-master-track" aria-hidden="true" />
           </label>
         </div>
       </div>
-      {expanded && details ? <div className="monster-afk-toolbar-settings">{details}</div> : null}
     </article>
   );
 }

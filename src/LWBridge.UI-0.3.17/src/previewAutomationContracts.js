@@ -1,16 +1,27 @@
 // AutomationPanel-BJ0gIqFh.js: task adapter valid(), Vr (chat), Wr/Gr (assist).
 export function initialAutomationDraft(title, previewState = "") {
   const fixture = previewState.startsWith("automation-");
-  if (title === "Automatic Construction") return fixture ? { constructionTargetEnabled: true, constructionBuildingTypeIds: [1101, 1201] } : {};
+  if (title === "Automatic Construction") return fixture ? { enabled: false, constructionTargetEnabled: true, constructionBuildingTypeIds: [1101, 1201], constructionTargetLevel: "30", maxBuilders: "1", autoClaimCompleted: true } : {};
   if (title === "Auto Training") return { enabled: false, trainingTotalCount: fixture ? previewState === "automation-validation-error" ? 1000001 : 1000 : 0, trainingTargetLevel: previewState === "automation-training-unavailable-level" ? 9 : 0 };
-  return {};
+  if (title === "Automatic Treatment") return { enabled: false, amountPerArmy: "1" };
+  if (title === "Automatic Official Application") return { enabled: false, positionId: "0" };
+  if (title === "Alliance Tech Donations") return { enabled: false, threshold: "15" };
+  if (title === "Alliance Gifts") return { enabled: false, intervalMinutes: "120" };
+  if (["Excavation Stronghold Resources", "Alliance Center Resources", "Building Resource Collection", "Armed Truck"].includes(title)) return { enabled: false, intervalMinutes: "60" };
+  if (title === "Alliance Gathering Dispatch") return { enabled: false, allianceGatherSquads: [1, 2] };
+  if (title === "Automatic Alliance Train Boarding") return { enabled: false, trainMode: "reward", vipTrainMode: "reward", normalFixedCarriageIds: [1], vipFixedCarriageIds: [1, 2], preferredRewardKeys: ["fixture-medal"], preferRewardQuantity: false, autoAcceptVip: false, thanksMode: "like", ticketCount: "1" };
+  if (title === "Trucks") return { enabled: false, delayMinutes: "2", weeklyQualities: ["ssr", "ur", "ssr", "ssr", "ssr", "ur", "ssr"], departWhenTicketsInsufficient: false };
+  if (title === "Secret Task") return { enabled: false, collectRewards: false, delayMinutes: "3", weeklyQualities: ["none", "ur", "none", "none", "none", "ur", "none"], dispatchAssistEnabled: previewState === "automation-assist-auto", assistQualities: ["ssr", "ur"], assistMin: "0", assistMax: "0", assistInterval: "30" };
+  if (title === "Ghost Ops") return { enabled: false, ghostJoinEnabled: false, ghostFilter: "special", ghostClaimRewards: false };
+  if (["Red Packet", "Fireworks / Egg", "Treasure"].includes(title)) return { enabled: false, claimMin: "0", claimMax: "0", replyEnabled: false, replyMin: "2", replyMax: "5", replies: "", ...(title === "Treasure" ? { treasureSearchEnabled: false, treasureDispatchEnabled: false, dispatchMin: "2", dispatchMax: "5", dispatchRetry: "30", dispatchSquads: [1] } : {}) };
+  return { enabled: false };
 }
 
 export function automationDraftError(title, draft) {
   const ranges = {
     constructionTargetLevel: [1, 100], maxBuilders: [1, 20], amountPerArmy: [1, 1000000],
     threshold: [1, 30], intervalMinutes: [1, 1440], delayMinutes: [0, 1440],
-    ticketCount: [1, 9999], assistInterval: [5, 300],
+    ticketCount: [1, 9999], assistInterval: [5, 300], positionId: [0, 10007],
   };
   for (const [key, [min, max]] of Object.entries(ranges)) {
     if (!(key in draft)) continue;
@@ -35,6 +46,10 @@ export function automationDraftError(title, draft) {
   if (title === "Secret Task") {
     const min = Number(draft.assistMin ?? 0), max = Number(draft.assistMax ?? 0), interval = Number(draft.assistInterval ?? 30);
     if (!Number.isInteger(min) || !Number.isInteger(max) || min < 0 || max > 86400 || min > max || !Number.isInteger(interval) || interval < 5 || interval > 300 || (draft.dispatchAssistEnabled && !(draft.assistQualities ?? []).length)) return "automation.dispatchAssistConfigError";
+  }
+  if (["Trucks", "Secret Task"].includes(title)) {
+    const weekly = draft.weeklyQualities;
+    if (!Array.isArray(weekly) || weekly.length !== 7 || weekly.some((quality) => !["none", "ssr", "ur"].includes(quality))) return "configSave.failed";
   }
   return "";
 }

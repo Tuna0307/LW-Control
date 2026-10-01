@@ -9,10 +9,12 @@ export function validJoinRestrictions(e2) {
 
 // Target rows below are disclosed synthetic data; Ce/Te define factory/validation.
 export const previewAfkTargets = [
-  { group: "normal", source: "search", action: "attack", rally: false, monsterType: 0, monsterNameKey: "fixture-steel", monsterIds: [], attackMinLevel: 1, attackMaxLevel: 10, key: "steel", kind: "farm", labelKey: "squad.afkResourceMetal", minLevel: 1, maxLevel: 10, searchable: true },
-  { group: "normal", source: "search", action: "attack", rally: false, monsterType: 0, monsterNameKey: "fixture-food", monsterIds: [], attackMinLevel: 1, attackMaxLevel: 10, key: "food", kind: "farm", labelKey: "squad.afkResourceFood", minLevel: 1, maxLevel: 10, searchable: true },
-  { group: "elite", source: "map", action: "attack", rally: false, monsterType: 0, monsterNameKey: "fixture-gold", monsterIds: [], key: "gold", kind: "farm", labelKey: "squad.afkResourceGold", minLevel: 1, maxLevel: 10, searchable: true },
-  { group: "leader", source: "map", action: "rally", rally: true, monsterType: 8, monsterNameKey: "fixture-boss", monsterIds: [], key: "boss", kind: "join", labelKey: "squad.afkResourceBoss", minLevel: 1, maxLevel: 99, searchable: false },
+  { group: "normal", source: "search", action: "attack", rally: false, joinOnly: false, monsterType: 0, monsterNameKey: "fixture-steel", monsterIds: [], attackMinLevel: 1, attackMaxLevel: 10, key: "steel", name: "Fixture Steel Search", labelKey: "squad.afkResourceMetal", minLevel: 1, maxLevel: 10, searchable: true },
+  { group: "normal", source: "search", action: "attack", rally: false, joinOnly: false, monsterType: 0, monsterNameKey: "fixture-food", monsterIds: [], attackMinLevel: 2, attackMaxLevel: 8, key: "food", name: "Fixture Food Search", labelKey: "squad.afkResourceFood", minLevel: 2, maxLevel: 8, searchable: true },
+  { group: "elite", source: "map", action: "attack", rally: false, joinOnly: false, monsterType: 0, monsterNameKey: "fixture-gold", monsterIds: [93001], key: "gold", name: "Fixture Gold Target", labelKey: "squad.afkResourceGold", minLevel: 1, maxLevel: 10, searchable: false },
+  { group: "running", source: "map", action: "attack", rally: false, joinOnly: false, monsterType: 3, monsterNameKey: "fixture-roaming", monsterIds: [93002], key: "roaming", name: "Fixture Roaming Target", minLevel: 1, maxLevel: 99, searchable: false },
+  { group: "leader", source: "map", action: "rally", rally: true, joinOnly: true, monsterType: 8, monsterNameKey: "fixture-boss", monsterIds: [94001], key: "boss", name: "Fixture Rally Leader", labelKey: "squad.afkResourceBoss", minLevel: 1, maxLevel: 99, searchable: false },
+  { group: "drill", source: "map", action: "rally", rally: true, joinOnly: true, monsterType: 22, monsterNameKey: "fixture-drill", monsterIds: [94002], key: "drill", name: "Fixture Drill Target", minLevel: 1, maxLevel: 99, searchable: false },
 ];
 
 function previewJoinRestrictions() {
@@ -20,7 +22,7 @@ function previewJoinRestrictions() {
 }
 
 export function makePreviewAfkProfile(id, name, kind = "farm", targetKey = kind === "join" ? "boss" : "steel") {
-  const target = previewAfkTargets.find((entry) => entry.key === targetKey) || previewAfkTargets.find((entry) => entry.kind === kind);
+  const target = previewAfkTargets.find((entry) => entry.key === targetKey) || previewAfkTargets.find((entry) => kind === "join" ? entry.rally : !entry.rally);
   return {
     id, name, enabled: true, kind, targetKey: target?.key || "", lastListTargetKey: target?.key || "", customTarget: false, targetNameQuery: "", monsterType: target?.monsterType ?? 0, monsterNameKey: target?.monsterNameKey, monsterIds: [...(target?.monsterIds ?? [])], source: target?.source, action: target?.action, rally: target?.rally === true,
     searchable: target?.searchable === true, minLevel: target?.minLevel ?? 1, maxLevel: target?.maxLevel ?? 99,
@@ -28,6 +30,12 @@ export function makePreviewAfkProfile(id, name, kind = "farm", targetKey = kind 
     levelFilterEnabled: false, progressiveLevels: false, distanceFilterEnabled: false, maxDistance: 200,
     joinRestrictions: kind === "join" ? previewJoinRestrictions() : undefined,
   };
+}
+
+export function previewAfkLevelOutOfRange(profile, target) {
+  if (!profile?.levelFilterEnabled || target?.attackMinLevel == null || target?.attackMaxLevel == null) return false;
+  if (profile.progressiveLevels) return profile.minLevel < target.attackMinLevel || profile.minLevel > target.attackMaxLevel;
+  return profile.minLevel < target.attackMinLevel || profile.maxLevel > target.attackMaxLevel;
 }
 
 export function previewAfkProfileValid(profile) {

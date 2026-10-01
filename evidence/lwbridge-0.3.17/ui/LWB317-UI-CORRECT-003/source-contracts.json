@@ -1,0 +1,44 @@
+{
+  "reference": {
+    "path": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW\\lwbridge-0.3.17.exe",
+    "sha256": "4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783"
+  },
+  "assets": [
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/AutomationPanel-BJ0gIqFh.js",
+      "sha256": "6DB2328191AF33E5631D507271C36D7008B287DAA7C8CD1A957B23EF6F871725",
+      "contracts": [
+        "weekly quality arrays are controlled seven-day values; edits write the task draft and are disabled while running/saving/offline",
+        "Trade Station config defaults to currencies 15 and 650053, prevents deselecting the last currency, hides all-exclusive goods unless requested, sorts by quality then item id, and groups purchase history by server day",
+        "Dispatch Assist renders selectable allied tasks only when automatic assist is off; active jobs fence selection and manual jobs expose schedule/status/cancel/retry presentation",
+        "generic automation cards expose source-specific status precedence plus counters, results, timing and shield rows"
+      ]
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/SquadPanel-HC3-DJei.js",
+      "sha256": "ED466E353AA896D8C3FC783FF1802930156FB9E9EB54327AEF73F2FF86FA06C7",
+      "contracts": [
+        "AFK searchable targets display recovered attackable ranges and warn when the configured level filter is outside the target range",
+        "AFK target source falls back to undiscovered only after target discovery completes",
+        "member selection excludes self while preserving saved self/departed leaders and distinguishes loading/failed/offline states",
+        "Potion, Alliance Drill, Garrison and Zombie Bus use task/config drafts with source conditional controls and runtime presentation",
+        "Garrison enablement requires at least one target and one squad; Zombie Bus details are a status/assignment table"
+      ]
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-BVfnK1wp.js",
+      "sha256": "44C4E4043825B7DB296B64171951B27176F8850FF8D7D337CC991DF4765524C6",
+      "contracts": [
+        "shared task/config store generation semantics preserve newer drafts across older acknowledgements and retain failed edits for retry/discard"
+      ]
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/GameAssetImage-Diy9VTIr.js",
+      "sha256": "2F92A87C3268497DF6425B1175DB6140E10AABCBDFAE02615F065D00E16458E0",
+      "contracts": [
+        "reference goods/reward image slots are presentation-only; CORRECT-003 browser fixtures use explicit placeholders rather than invented game artwork"
+      ]
+    }
+  ],
+  "fixturePolicy": "All CORRECT-003 preview names, ids, counts, prices and timestamps are deterministic synthetic browser fixtures. They are not game facts and no preview action invokes a native game, purchase, scheduling, map-scan or control service."
+}
