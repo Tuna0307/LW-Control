@@ -30,16 +30,27 @@ The execution order is:
 
 If a later target feature demonstrably consumes auth-produced state, recover only the minimum downstream state contract it needs. Do not broaden that into rebuilding login/licensing.
 
-## UI campaign handoff
+## Current project-lead checkpoint — 2026-10-01
 
 A project-lead-authored UI-only campaign is recorded at:
 
 `docs/LOOP_CAMPAIGN_8H.md`
 
-The campaign has returned `AWAITING_REVIEW`. Its separate static reconstruction
-is under `src/LWBridge.UI-0.3.17/`; direct post-auth visual comparison remains
-auth-blocked. Gameplay/backend function reverse engineering has not started and
-remains closed until project-lead review.
+The static UI baseline was accepted. `src/LWBridge.UI-0.3.17/` is now the
+canonical frontend, packaged by `src/LWBridge.Desktop/` as the normal default.
+The Map implementation and stored live proofs are substantial; the Map Goal
+remains `AWAITING_REVIEW`, with explicit validation/provider gaps.
+
+Complete one-for-one UI/UX is **not** established. Home currently renders only
+`Checking game setup…` and two disabled switches; its folder/launch/close/repair
+states and native integration remain open. Original post-auth visual comparison
+was blocked by legitimate access. The next bounded UI-only assignment is
+`docs/work-items/LWB317-UI-HOME-STATES-001.md`, prioritizing Home and preserving Map.
+
+Read `docs/reviews/2026-10-01-LWB317-PM-003-project-lead-takeover.md` for the
+audited baseline, verification limits and checkout-byte repair; use
+`docs/PROJECT_STRUCTURE.md` for active versus historical paths. The pasted
+handoff ending at `13b25f6` is superseded by the actual `389df37` campaign baseline.
 
 ## Start here
 

@@ -1,6 +1,8 @@
 # Project structure
 
-This repository now contains two different generations of work. Keep them explicit.
+Current path map, reconciled by the project lead on 2026-10-01. The repository
+contains active production code, exact reference assets, historical research,
+and generated output. A directory's age does not decide whether it is useful.
 
 ## Current 0.3.17 program
 
@@ -23,34 +25,43 @@ Current evidence root:
 
 - `evidence/lwbridge-0.3.17/`
 
-Current 0.3.17 UI source:
+## Active implementation and checks
 
-- `src/LWBridge.UI-0.3.17/` — separate React/Vite Phase 1 static UI reconstruction
+| Path | Current role |
+|---|---|
+| `src/LWBridge.UI-0.3.17/` | Canonical React/Vite production frontend; Home and most non-Map pages still have partial static/disabled behavior |
+| `src/LWBridge.Desktop/` | Active Windows/WebView2 host, native command services, packaging and current-client integration; includes historical paths that must not be confused with current parity |
+| `src/LWBridge.Map-0.3.17/` | Active versioned Map control/data plane, persistence, queries, scans and action contracts |
+| `src/LWBridge.GamePipeAdapter/` | Shared adapter dependency used by the Desktop project; historical origin does not make it disposable |
+| `tests/LWBridge.Map-0.3.17.Checks/` | Deterministic Map317 checks |
+| `tests/LWBridge.Desktop.Checks/` | Shared Desktop checks and explicitly selected proof modes; inspect scope before running |
+| `src/LWBridge.Desktop/WebUi/` | Preserved older frontend; explicit `--legacy-ui` recovery/reference path, not normal default |
+| `Start LWBridge.cmd` | Existing ordinary Desktop launch/build helper; launches the current host default. Other root verification helpers are historical/special-purpose until inspected |
+
+Normal Desktop build produces packaged `ProductionUi` from the canonical source
+through the existing native bridge. Build/package identity checks reject stale
+output. No manual frontend copy or proof UI override is needed for ordinary use.
 
 Future 0.3.17 findings should use `LWB317-*` IDs.
 
-## Legacy 0.3.1 implementation/research
+## Evidence and history
 
-Existing code:
+| Path | Role / authority |
+|---|---|
+| `evidence/lwbridge-0.3.17/ui/frontend-package/` | Exact recovered 0.3.17 assets and byte/hash provenance; preserve unchanged |
+| `evidence/lwbridge-0.3.17/ui/` | UI inventory/clone QA/reference boundary evidence; clone captures do not prove original pixels |
+| `evidence/lwbridge-0.3.17/map/` | Versioned Map contracts and stored live/check evidence; read each artifact's scope |
+| `docs/reviews/` | Dated findings/reviews across generations; use `LWB317-*` and source identity to locate current findings |
+| `docs/work-items/` | Bounded assignments; each fresh worker needs its complete dispatch prompt |
+| `docs/archive/lwbridge-0.3.1-management/` and `docs/LEGACY_0.3.1_INDEX.md` | Preserved historical management and research index |
+| `evidence/lwbridge-0.3.1/`, `evidence/lwbridge-implementation/`, older top-level research docs | Historical inputs; revalidate before treating as 0.3.17 facts |
+| `tools/` | Shared recovery/check/proof tooling; filenames alone do not authorize live execution |
+| ignored `bin/`, `obj/`, `node_modules/`, frontend build output | Generated prerequisites/output; neither proof of source parity nor release status |
 
-- `src/LWBridge.Desktop/`
-- `src/LWBridge.GamePipeAdapter/`
-- `tests/LWBridge.Desktop.Checks/`
+Do not delete/move historical artifacts to make the tree appear smaller. Preserve
+existing links and evidence. Promote an older fact only with exact 0.3.17
+revalidation; record its source/locator and limits.
 
-Existing evidence/reviews/tools were primarily built around 0.3.1/current-client work.
-
-The root `Start *.cmd` launch/check helpers are also legacy 0.3.1 reconstruction tooling. They are intentionally left unchanged because historical evidence records their exact hashes/paths.
-
-They are preserved because they contain valuable recovery knowledge. They are not automatically current 0.3.17 product code.
-
-Do not silently modify the old reconstruction and call it the 0.3.17 implementation.
-
-## Current source separation
-
-The 0.3.17 UI implementation was created at `src/LWBridge.UI-0.3.17/` rather
-than overwriting the old reconstruction in place. Keep that separation unless a
-later project-lead decision explicitly changes the architecture.
-
-## Why this separation exists
-
-The old project accumulated years of phase-specific assumptions and compatibility work. Keeping it intact gives researchers an oracle while preventing accidental status inheritance into the clean 0.3.17 program.
+Current source/status review:
+`reviews/2026-10-01-LWB317-PM-003-project-lead-takeover.md`.
+Next UI-only assignment: `work-items/LWB317-UI-HOME-STATES-001.md`.

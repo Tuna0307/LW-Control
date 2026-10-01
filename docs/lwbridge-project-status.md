@@ -6,6 +6,15 @@
 
 ## Current state
 
+The 2026-10-01 project-lead takeover inspected actual clean/pushed `389df37`,
+rather than the stale pasted `13b25f6` handoff. The user's immediate priority is
+Home/Map UI/UX. Canonical Home remains an unresolved static page with disabled
+switches; full one-for-one UI/UX is not accepted. Next is the bounded **UI-only**
+`work-items/LWB317-UI-HOME-STATES-001.md`, while full Map closeout still awaits
+independent review. The takeover performed source/evidence inspection and fresh
+offline checks, not new live proof. See
+`reviews/2026-10-01-LWB317-PM-003-project-lead-takeover.md`.
+
 Phase 1 static UI recovery has been accepted. The active target remains exact
 LWBridge 0.3.17. The Map-only `LWB317-RE-MAP-001` campaign has completed its
 ordered continuation and is `AWAITING_REVIEW`; no other Phase 2 function family

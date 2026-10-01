@@ -3,6 +3,19 @@
 This is the current queue. Historical 0.3.1 backlog content is archived under
 `docs/archive/lwbridge-0.3.1-management/BACKLOG.md`.
 
+## Current project-lead queue — 2026-10-01
+
+1. `LWB317-UI-HOME-STATES-001`: complete exact-source Home presentation branches
+   in the canonical frontend, with isolated preview QA and no game control.
+2. Independently review the worker and outstanding Map closeout, retaining each
+   unvalidated/blocked scope explicitly.
+3. Assign a separate bounded Home native lifecycle contract/integration task.
+4. Close original visual parity only with legitimate reference state evidence.
+
+Use the current parity matrix and takeover audit for completed implementation
+versus remaining validation; the phase checklists below are broad historical
+milestones, not evidence that the existing Map implementation is absent.
+
 ## Scope exception: login/auth/licensing
 
 The new clone does **not** recreate LWBridge's original login/account/licensing

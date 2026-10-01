@@ -4,6 +4,25 @@
 **Branch:** `research/offline-controller`  
 **Phase:** Phase 2 function recovery / Map Data clean-UI live-integration checkpoint
 
+## 2026-10-01 takeover continuation — read first
+
+The pasted handoff ending at `13b25f6` is superseded. The takeover inspected
+clean HEAD and remote `389df373ba3a25af3b61d1a3fc75f2e741eb23bc`; productionization
+and the ordered Map continuation already exist. No fresh live test or full
+Map campaign acceptance was performed by the takeover.
+
+Current source/evidence audit:
+`reviews/2026-10-01-LWB317-PM-003-project-lead-takeover.md`.
+Current path map: `PROJECT_STRUCTURE.md`.
+Next worker: `work-items/LWB317-UI-HOME-STATES-001.md` — complete statically
+recoverable Home presentation states using isolated preview QA. No native
+Home game launch/close/repair or new Map campaign is authorized by this task.
+Then return to project-lead review before opening native Home integration.
+
+The canonical Home is currently an unresolved static state, not a functional
+launcher. The exact recovered CSS checkout conversion was repaired with a
+`-text` attribute and source-byte restoration; keep the hash checker intact.
+
 ## Important reset
 
 The previous bot rebuild was deliberately deleted.

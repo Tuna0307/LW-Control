@@ -114,5 +114,16 @@ under `evidence/lwbridge-0.3.17/ui/visual-comparison/`. The stage remains
 post-auth runtime is blocked by the auth boundary. No pixel-parity claim is made
 without that reference state.
 
-The UI campaign is now `AWAITING_REVIEW`. Phase 2 must not begin until the
-project lead reviews this baseline and explicitly opens function recovery.
+The static UI campaign was accepted and Map function recovery subsequently
+opened. The canonical frontend is now the normal packaged Desktop UI. This
+acceptance covers the static baseline, not every conditional state or original
+runtime pixel parity.
+
+The 2026-10-01 takeover audit found Home still implements only its unresolved
+state, despite the exact inventory establishing folder/launch/close/repair and
+loaded/recovery variants. The next UI-only task is
+`work-items/LWB317-UI-HOME-STATES-001.md`; native Home integration remains separate.
+The shell language selector currently changes selection only; labels remain
+English. These UX gaps remain visible rather than treating route smoke checks
+as a complete one-for-one clone. The existing Map implementation is preserved;
+its Goal remains awaiting independent project-lead closeout review.

@@ -72,6 +72,15 @@ Live-prove each implemented in-scope function against an assistant-owned/current
 
 ## Current instruction
 
+Project-lead takeover on 2026-10-01 reaffirms the user's Home/Map UI/UX priority.
+The next authorized bounded worker is **UI-only**
+`docs/work-items/LWB317-UI-HOME-STATES-001.md`: recover and reproduce missing Home
+render states using exact bytes and isolated clone QA. It does not open Home
+native lifecycle integration or authorize game launch/control. The Map Goal
+remains `AWAITING_REVIEW`; no worker may automatically resume its completed
+campaign or begin another backend family. See the takeover audit
+`docs/reviews/2026-10-01-LWB317-PM-003-project-lead-takeover.md`.
+
 The project is in **Phase 2 — function recovery**. Phase 1 static UI recovery is
 accepted. The Map-only `LWB317-RE-MAP-001` Goal in
 `docs/GOAL_CAMPAIGN_PHASE2_MAP.md` is `AWAITING_REVIEW`; no other function family

@@ -34,14 +34,17 @@ SHA-256:
 
 ## Current phase
 
-**Phase 2 — function recovery, Map-only Goal.**
+**Map function recovery awaiting review; next bounded task is Home UI states.**
 
 The exact static frontend package baseline and Phase 1 UI campaign are accepted.
-The active work item is `LWB317-RE-MAP-001`: exact 0.3.17 Map recovery and the
-current-client production Map plane. Static recovery/integration is at its final
-checkpoint; bounded assistant-owned current-client Map live validation is the
-remaining campaign stage. Direct original post-auth pixel comparison remains
-blocked by the original auth boundary and is not fabricated.
+The canonical UI is already the normal Desktop frontend. The ordered Map
+campaign has returned `AWAITING_REVIEW` with durable implementation/live evidence
+and explicit remaining gaps; do not replay its old queue automatically.
+The project-lead takeover now prioritizes UI-only Home state coverage under
+`work-items/LWB317-UI-HOME-STATES-001.md`. This does not open another backend
+family. Direct original post-auth pixel comparison remains blocked by legitimate
+reference access and is not fabricated. Start with
+`reviews/2026-10-01-LWB317-PM-003-project-lead-takeover.md` for the takeover audit.
 
 All non-Map gameplay/backend function families remain blocked until the Map Goal
 is closed. Auth/login/licensing reconstruction remains out of scope.

@@ -5,3 +5,4 @@ evidence/lwbridge-0.3.17/ui/frontend-package/embedded-brotli/** binary
 evidence/lwbridge-0.3.17/ui/frontend-package/pe-resources/** binary
 src/LWBridge.Desktop/WebUi/assets/** -text
 src/LWBridge.Desktop/WebUi/index.html -text
+src/LWBridge.UI-0.3.17/src/reference.css -text
