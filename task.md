@@ -77,15 +77,15 @@ Live-prove each implemented in-scope function against an assistant-owned/current
 
 ## Current instruction
 
-The UI-only `LWB317-UI-COMPLETE-001` assignment is `CHANGES_REQUIRED` following
-PM-006 independent review of worker HEAD `a253cce`. Retain useful implementation
-`7c4daed`, but do not claim full recoverable UI completion. Home reconnect lacks
-required profile scope; Automation forms differ from source; Equipment dialogs
-and local interactions are missing; all-page branch evidence is insufficient.
-Next assignment: `docs/work-items/LWB317-UI-CORRECT-001.md`. Lead review:
-`docs/reviews/2026-10-01-LWB317-PM-006-ui-completion-lead-review.md`.
-Previous worker evidence remains under
-`evidence/lwbridge-0.3.17/ui/LWB317-UI-COMPLETE-001/`.
+PM-007 reviewed the UI-CORRECT-001 worker return at `543b6eb` and marked it
+`CHANGES_REQUIRED`. Home reconnect profile scoping is accepted; preserve useful
+Equipment/dialog/locale and other UI corrections. Source-recoverable Automation
+controls remain missing, AFK drafts leak between profiles, and Map fixture QA
+does not apply query semantics. Next assignment:
+`docs/work-items/LWB317-UI-CORRECT-002.md`. Current lead review:
+`docs/reviews/2026-10-01-LWB317-PM-007-ui-correction-lead-review.md`.
+Evidence: `evidence/lwbridge-0.3.17/ui/LWB317-UI-CORRECT-001/lead-review/`.
+Earlier UI-COMPLETE-001/PM-006 history remains preserved.
 
 Direct original post-auth screenshot/pixel comparison remains `BLOCKED` by the
 documented reference access boundary, so affected UI rows remain

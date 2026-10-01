@@ -15,11 +15,13 @@ Current source/evidence audit:
 `reviews/2026-10-01-LWB317-PM-003-project-lead-takeover.md`.
 Current path map: `PROJECT_STRUCTURE.md`.
 `LWB317-UI-COMPLETE-001` remains historically `CHANGES_REQUIRED` after PM-006.
-The follow-on `LWB317-UI-CORRECT-001` worker return is `AWAITING_REVIEW`.
-Milestone `239254a` corrects Home profile-scoped reconnect, recovered Automation
-forms, Equipment nested interactions and inherited locale composition; milestone
-`591409d` broadens the recoverable-state audit across Map, AFK/Garrison,
-Equipment, City, Hotkeys, Mini Games and Settings. Granular correction evidence:
+PM-007 reviewed follow-on worker HEAD `543b6eb` and returned
+`LWB317-UI-CORRECT-001` as `CHANGES_REQUIRED`. Home profile-scoped reconnect
+is accepted at the source/transport boundary. Preserve useful `239254a`/`591409d`
+Equipment/dialog/locale/preview work. Remaining Automation controls, leaking AFK
+drafts and Map fixture query QA require `work-items/LWB317-UI-CORRECT-002.md`.
+Current lead review: `reviews/2026-10-01-LWB317-PM-007-ui-correction-lead-review.md`.
+Correction evidence:
 `evidence/lwbridge-0.3.17/ui/LWB317-UI-CORRECT-001/`. Worker review:
 `reviews/2026-10-01-LWB317-UI-CORRECT-001.md`. Lead review that motivated the
 work remains `reviews/2026-10-01-LWB317-PM-006-ui-completion-lead-review.md`.
@@ -29,9 +31,9 @@ implements the recovered presentation/precedence, but native game launch/close/
 repair remains deliberately unimplemented for the separate lifecycle task.
 Map's existing production adapter/data path was preserved and no new live Map
 campaign was started. Direct post-auth reference visual comparison is still
-`BLOCKED`; clone screenshots are not pixel-parity proof. The correction has
-returned for independent project-lead review; do not start native Home integration
-or another backend campaign unless the project lead explicitly assigns it.
+`BLOCKED`; clone screenshots are not pixel-parity proof. Complete the focused
+UI-CORRECT-002 assignment and return to review before native Home integration
+or another backend campaign.
 
 The exact recovered CSS checkout conversion remains hash-protected; keep the
 checker intact.

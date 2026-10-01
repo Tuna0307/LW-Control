@@ -121,18 +121,19 @@ acceptance covers the static baseline, not every conditional state or original
 runtime pixel parity.
 
 `LWB317-UI-COMPLETE-001` remains historically `CHANGES_REQUIRED` after PM-006.
-The follow-on worker correction `LWB317-UI-CORRECT-001` is now
-`AWAITING_REVIEW`: Home reconnect is profile-scoped and pre-dispatch guarded,
-Automation uses recovered per-card/nested forms, Equipment includes the
-recoverable local dialog/drag/result/progress model, inherited locale composition
-is restored, and the shared shell plus all eight pages have granular
-source-locator/interaction evidence. This is a worker completion claim only; the
-project lead has not accepted parity.
+The follow-on `LWB317-UI-CORRECT-001` is also `CHANGES_REQUIRED` after PM-007
+review of `543b6eb`. The Home reconnect scope fix is accepted at the actual
+callback/transport boundary; useful Equipment dialog/drag/result/progress and
+locale corrections are retained. Construction choices, Training/Gather states
+and Train controls remain incomplete; AFK profile drafts leak; Map fixture QA
+ignores filter/sort/page-size semantics. Continue via `LWB317-UI-CORRECT-002`.
+These are source-backed implementation/QA gaps, separate from original pixels.
 
 Correction evidence is under
 `evidence/lwbridge-0.3.17/ui/LWB317-UI-CORRECT-001/`; worker report:
-`reviews/2026-10-01-LWB317-UI-CORRECT-001.md`. PM-006 remains the lead finding
-that motivated the correction and is preserved unchanged.
+`reviews/2026-10-01-LWB317-UI-CORRECT-001.md`. Current lead disposition:
+`reviews/2026-10-01-LWB317-PM-007-ui-correction-lead-review.md`. PM-006 and
+previous worker findings remain preserved.
 Direct post-auth original visual
 comparison remains `BLOCKED`, so these rows stay `IMPLEMENTED_NOT_VALIDATED`
 unless they already have separately scoped live proof. No product-wide parity

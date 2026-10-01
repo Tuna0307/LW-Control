@@ -2,6 +2,13 @@
 
 Status: **AWAITING_REVIEW**. This is worker evidence, not parity acceptance.
 
+Lead disposition: **CHANGES_REQUIRED** after PM-007 review of `543b6eb`.
+The matrix below preserves the worker audit; omitted Construction/Training/
+Gather controls and AFK draft leakage show that its full-coverage claim is not
+accepted. Map fixture filters/sort/page-size behavior was not implemented.
+Home request scoping is accepted at the source/transport boundary.
+See `lead-review/` evidence and UI-CORRECT-002 for continuation.
+
 Locators below are zero-based UTF-8 byte offsets unless explicitly described as a
 recovered expression or clone line. Exact source identities:
 

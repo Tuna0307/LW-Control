@@ -1,0 +1,56 @@
+{
+  "reviewedHead": "543b6ebffb62125cd5e1c5d290260c5ad8445aff",
+  "date": "2026-10-01",
+  "provider": "isolated browser preview; no native host or game",
+  "construction": {
+    "url": "http://127.0.0.1:4319/?previewPage=automation&previewState=automation-config&previewTheme=light&previewLanguage=en",
+    "action": "Open the Building types disclosure with a real click",
+    "observed": {
+      "open": true,
+      "pickerTabs": 0,
+      "pickerCheckboxes": 0
+    },
+    "source": {
+      "file": "AutomationPanel-BJ0gIqFh.js",
+      "byteOffset": 47933,
+      "contract": "category tabs and per-building checkbox choices"
+    },
+    "screenshot": "construction-picker-empty.jpg"
+  },
+  "afkProfileIsolation": {
+    "entry": "previewState=squads-profile, then Squads / AFK navigation",
+    "actions": [
+      "Select Food for Steel Hunt",
+      "Switch to Gold Hunt: Profile Name becomes Gold Hunt but target remains Food",
+      "Select Boss for Gold Hunt",
+      "Switch back to Steel Hunt: Profile Name becomes Steel Hunt but target is now Boss"
+    ],
+    "finalObserved": {
+      "profileName": "Steel Hunt",
+      "target": "boss"
+    },
+    "source": {
+      "file": "SquadPanel-HC3-DJei.js",
+      "profileSelectByte": 33322,
+      "targetChangeByte": 32711
+    },
+    "screenshot": "afk-profile-target-leak.jpg"
+  },
+  "cleanup": {
+    "ownedTabClosed": true,
+    "ownedPort": 4319,
+    "listenerStopped": true
+  },
+  "screenshotIdentities": [
+    {
+      "file": "construction-picker-empty.jpg",
+      "mimeType": "image/jpeg",
+      "sha256": "74952ad8960a4a92c9628abf2e542fe035ac7af16f916200af5508a7034bb5d0"
+    },
+    {
+      "file": "afk-profile-target-leak.jpg",
+      "mimeType": "image/jpeg",
+      "sha256": "59b558c6f5932c04a556d63492b4c39771e3a9aa119b698c7f41796f9fe515bc"
+    }
+  ]
+}

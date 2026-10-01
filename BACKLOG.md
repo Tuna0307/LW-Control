@@ -5,9 +5,10 @@ This is the current queue. Historical 0.3.1 backlog content is archived under
 
 ## Current project-lead queue — 2026-10-01
 
-1. `LWB317-UI-CORRECT-001`: repair PM-006 findings and audit recoverable UI/UX
-   across shell/all eight pages. Parent UI-COMPLETE-001 is CHANGES_REQUIRED.
-   Home/Map first; isolated preview QA; milestone checkpoints, no fixed clock stop.
+1. `LWB317-UI-CORRECT-002`: finish omitted Automation forms, isolate AFK drafts
+   and make read-only Map query QA meaningful. PM-007 accepts the Home scope fix;
+   UI-CORRECT-001 remains CHANGES_REQUIRED. Preserve the overall eight-page goal
+   and useful implementation; milestone checkpoints, no fixed clock stop.
 2. Independently review the worker and outstanding Map closeout, retaining each
    unvalidated/blocked scope explicitly.
 3. Assign a separate bounded Home native lifecycle contract/integration task.

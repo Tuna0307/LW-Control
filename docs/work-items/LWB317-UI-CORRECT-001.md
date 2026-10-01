@@ -1,6 +1,9 @@
 # LWB317-UI-CORRECT-001 — repair and verify full recoverable UI coverage
 
-Project-lead assignment: 2026-10-01. State: READY.
+Project-lead assignment: 2026-10-01. State: CHANGES_REQUIRED.
+PM-007 review accepts the Home request-scope fix and retains useful corrections;
+remaining Automation/AFK implementation and Map QA gaps continue through
+`docs/work-items/LWB317-UI-CORRECT-002.md`.
 Parent: `LWB317-UI-COMPLETE-001`, returned **CHANGES_REQUIRED** by PM-006.
 
 ## Fresh-chat context and goal

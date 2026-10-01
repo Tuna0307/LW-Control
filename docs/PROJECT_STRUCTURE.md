@@ -64,6 +64,7 @@ revalidation; record its source/locator and limits.
 
 Current source/status review:
 `reviews/2026-10-01-LWB317-PM-003-project-lead-takeover.md`.
-Next UI-only assignment: `work-items/LWB317-UI-CORRECT-001.md` — repair PM-006
-findings and audit all eight pages/shared nested states, Home/Map first; no fixed
-time deadline. Parent UI-COMPLETE-001 is CHANGES_REQUIRED after lead review.
+Next UI-only assignment: `work-items/LWB317-UI-CORRECT-002.md` — finish remaining
+Automation forms, isolate AFK drafts and make read-only Map QA meaningful.
+PM-007 accepts the Home scope fix; UI-CORRECT-001 remains CHANGES_REQUIRED.
+Overall eight-page goal retained; no fixed time deadline.

@@ -40,12 +40,12 @@ The exact static frontend package baseline and Phase 1 UI campaign are accepted.
 The canonical UI is already the normal Desktop frontend. The ordered Map
 campaign remains `AWAITING_REVIEW` with durable implementation/live evidence and
 explicit remaining gaps; do not replay its old queue automatically.
-`LWB317-UI-COMPLETE-001` returned useful UI work at `7c4daed`/worker HEAD
-`a253cce`, but PM-006 independently found missing Home request scope, incorrect
-Automation forms, missing Equipment interactions and insufficient branch
-coverage. Its disposition is `CHANGES_REQUIRED`. Use
-`work-items/LWB317-UI-CORRECT-001.md` for the next fresh worker and
-`reviews/2026-10-01-LWB317-PM-006-ui-completion-lead-review.md` for evidence.
+`LWB317-UI-CORRECT-001` returned useful corrections at `239254a`/`591409d`
+and worker HEAD `543b6eb`. PM-007 accepts the Home scope fix and retains
+Equipment/dialog/locale progress, but Automation omissions, AFK draft leakage
+and Map fixture query limitations leave the campaign `CHANGES_REQUIRED`. Use
+`work-items/LWB317-UI-CORRECT-002.md` for the next fresh worker and
+`reviews/2026-10-01-LWB317-PM-007-ui-correction-lead-review.md` for evidence.
 Direct original post-auth pixel comparison remains separately blocked. New
 native Home lifecycle and backend families remain pending lead assignment.
 

@@ -14,17 +14,20 @@ option has a separate pending retirement task. See
 
 The 2026-10-01 project-lead takeover inspected actual clean/pushed `389df37`,
 rather than the stale pasted `13b25f6` handoff. `LWB317-UI-COMPLETE-001`
-remains historically `CHANGES_REQUIRED` after PM-006. The follow-on worker
-correction `LWB317-UI-CORRECT-001` is now `AWAITING_REVIEW`: R1 Home profile
-scope, R2 recovered Automation forms, R3 Equipment nested interactions and R4
-granular evidence were addressed, followed by an all-page recoverable-state audit.
-Implementation milestones are `239254a` and `591409d`; correction evidence is
-under `evidence/lwbridge-0.3.17/ui/LWB317-UI-CORRECT-001/`.
+remains historically `CHANGES_REQUIRED` after PM-006. PM-007 independently
+reviewed correction HEAD `543b6eb` and returned UI-CORRECT-001 as
+`CHANGES_REQUIRED`: Home profile-scope correction is accepted, and useful
+Equipment/dialog/locale work is retained, but Automation controls remain omitted
+and AFK drafts leak across profiles. Map fixture QA cannot prove applied query
+semantics. Next assignment: `LWB317-UI-CORRECT-002`. Implementation milestones
+`239254a` and `591409d` and their evidence are preserved under
+`evidence/lwbridge-0.3.17/ui/LWB317-UI-CORRECT-001/`.
 Native Home launch/close/repair stays separate. No new live scan/backend campaign
 was opened. Original post-auth pixel comparison remains separately `BLOCKED`.
-See `reviews/2026-10-01-LWB317-UI-CORRECT-001.md` for the worker return and
-`reviews/2026-10-01-LWB317-PM-006-ui-completion-lead-review.md` for the lead
-findings that motivated it.
+See `reviews/2026-10-01-LWB317-PM-007-ui-correction-lead-review.md` for the
+current decision and `reviews/2026-10-01-LWB317-UI-CORRECT-001.md` for the
+preserved worker return. Missing UI implementation is separate from unavailable
+original pixel validation or future native providers.
 
 Phase 1 static UI recovery has been accepted. The active target remains exact
 LWBridge 0.3.17. The Map-only `LWB317-RE-MAP-001` campaign has completed its
@@ -232,9 +235,9 @@ Historical auth research remains archived evidence, not a current reconstruction
 
 ## Next project-lead milestone
 
-Independently review the returned `LWB317-UI-CORRECT-001` worker correction and
-its granular source/interaction evidence. PM-006 remains the prior
-CHANGES_REQUIRED decision; the correction is only AWAITING_REVIEW, not accepted
-parity. Separately close or reassign the awaiting `LWB317-RE-MAP-001` Goal.
+Dispatch `LWB317-UI-CORRECT-002` and independently review its targeted field/
+draft/query assertions. PM-007 has reviewed UI-CORRECT-001 as CHANGES_REQUIRED,
+with the Home scope fix accepted. Separately close or reassign the awaiting
+`LWB317-RE-MAP-001` Goal.
 Native Home lifecycle and new backend subsystems require their own project-lead
 assignment.
