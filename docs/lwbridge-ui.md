@@ -171,7 +171,7 @@ Finding: `reviews/2026-10-02-LWB317-PM-015-home-audit.md`.
 PM-017 accepts HOME-ERROR-001 translation/recovery composition for source/local scope
 after independent review baf5473:
 actual helper/render/nine-locale/browser checks pass. HOME-ERROR-002 separate
-channels correction is also AWAITING_REVIEW after 9 callback scenarios, 4 original
+channels correction is CHANGES_REQUIRED after PM-018; historical 9 callback scenarios, 4 original
 picker cases, 72 render comparisons and 5 browser observations. See
 `reviews/2026-10-02-LWB317-UI-HOME-ERROR-002.md`. HOME-BUSY-001 is also
 AWAITING_REVIEW after nine-locale render/predicate and local browser checks;
@@ -182,8 +182,11 @@ across all nine locales and browser QA confirms Settings off/on/off plus Japanes
 Home checked/unchecked disabled descriptions. See
 `reviews/2026-10-02-LWB317-PM-016-switch-locale-acceptance.md`; original/native parity unproved.
 See `reviews/2026-10-02-LWB317-PM-017-home-translation-acceptance.md`.
-LWB317-REVIEW-HOME-ERROR-002 is assigned for independent channel/callback review;
-channels/busy retain AWAITING_REVIEW.
+PM-018 integrates independent review db3aae3: HOME-ERROR-002 is CHANGES_REQUIRED for
+root-status acknowledgement/polling. Root/action placement remains useful; correction
+LWB317-UI-HOME-ERROR-002-R1 is ASSIGNED. HOME-BUSY-001 remains AWAITING_REVIEW. See
+docs/reviews/2026-10-02-LWB317-PM-018-home-channel-review-integration.md and
+docs/work-items/LWB317-UI-HOME-ERROR-002-R1.md.
 Earlier correction evidence is under
 `evidence/lwbridge-0.3.17/ui/LWB317-UI-CORRECT-001/`; worker report:
 `reviews/2026-10-01-LWB317-UI-CORRECT-001.md`. Previous lead disposition:

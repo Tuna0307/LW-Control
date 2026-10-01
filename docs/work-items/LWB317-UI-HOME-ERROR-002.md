@@ -1,6 +1,6 @@
 # LWB317-UI-HOME-ERROR-002 — separate Home error channels
 
-Owner: project lead. State: AWAITING_REVIEW, assigned 2026-10-02 after owner said
+Owner: project lead. State: CHANGES_REQUIRED after independent review / PM-018; initially assigned 2026-10-02 after owner said
 continue until the other AI is ready. Baseline: 537a2b35ec79b021310f141f32ed0d00997c3597.
 
 Goal: separate folder-selection/root errors and action errors through App/Home.
@@ -36,3 +36,12 @@ commit/push explicit paths, verify remote; stop at AWAITING_REVIEW checkpoint.
 Delivery: docs/reviews/2026-10-02-LWB317-UI-HOME-ERROR-002.md. Nine actual
 callback scenarios, four original picker cases, 72 render comparisons and five
 browser observations pass. Independent review pending. Next: HOME-BUSY-001.
+
+Lead integration, 2026-10-02: PM-018 integrates independent review db3aae3:
+HOME-ERROR-002 is CHANGES_REQUIRED for root-status acknowledgement/polling. Root/action
+placement remains useful; correction LWB317-UI-HOME-ERROR-002-R1 is ASSIGNED.
+HOME-BUSY-001 remains AWAITING_REVIEW. See
+docs/reviews/2026-10-02-LWB317-PM-018-home-channel-review-integration.md and
+docs/work-items/LWB317-UI-HOME-ERROR-002-R1.md.
+The original keep-polling-unchanged constraint is superseded only for root-status
+retrieval by the explicit R1 assignment. Historical delivery evidence is preserved.

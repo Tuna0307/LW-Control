@@ -80,8 +80,8 @@ switch-state localization gaps. See `reviews/2026-10-02-LWB317-PM-015-home-audit
 HOME-ERROR-001 translation is COMPLETE / ACCEPTED for focused source/local scope
 after independent review baf5473 and PM-017 integration; see
 `reviews/2026-10-02-LWB317-UI-HOME-ERROR-001.md`. Source/helper/render, nine-locale,
-browser and canonical checks pass. HOME-ERROR-002 separate error channels is also
-AWAITING_REVIEW: picker cancel/invalid/acknowledged valid outcomes preserve the
+browser and canonical checks pass. HOME-ERROR-002 separate error channels is
+CHANGES_REQUIRED after PM-018; historical delivery: picker cancel/invalid/acknowledged valid outcomes preserve the
 independent action error; 9 actual callback scenarios, 4 original picker cases,
 72 render comparisons and 5 browser observations pass. Review:
 `reviews/2026-10-02-LWB317-UI-HOME-ERROR-002.md`. Existing polling/rejection
@@ -100,11 +100,13 @@ current Home regression checkers pass. Review:
 delivery does not accept prior lead deliveries or open native lifecycle work.
 Acceptance: `reviews/2026-10-02-LWB317-PM-016-switch-locale-acceptance.md`.
 PM-017 acceptance: `reviews/2026-10-02-LWB317-PM-017-home-translation-acceptance.md`.
-Channels and busy presentation remain AWAITING_REVIEW. Next small assignment:
-`work-items/LWB317-REVIEW-HOME-ERROR-002.md`, independent channel/callback review
-by the returning worker, using synthetic local bridge responses only. Product
-changes, native picker/gameplay and other pending-unit reviews are outside that
-assignment; the lead decides final acceptance after its return.
+PM-018 integrates independent review db3aae3: HOME-ERROR-002 is CHANGES_REQUIRED for
+root-status acknowledgement/polling. Root/action placement remains useful; correction
+LWB317-UI-HOME-ERROR-002-R1 is ASSIGNED. HOME-BUSY-001 remains AWAITING_REVIEW. See
+docs/reviews/2026-10-02-LWB317-PM-018-home-channel-review-integration.md and
+docs/work-items/LWB317-UI-HOME-ERROR-002-R1.md.
+Next continuation is the root-only R1 correction using synthetic local bridge
+responses; no native picker/gameplay or other pending-unit review is assigned.
 Do not restart broad CORRECT-003 or reopen accepted weekly/selection/history work.
 Trade/Assist/runtime/AFK work remains preserved for later separate validation tasks.
 Physical drag, native config persistence and original pixels remain unproved.

@@ -123,7 +123,7 @@ implementation, now ACCEPTED for focused source/local scope after independent
 review baf5473 and PM-017 integration. Delivery:
 `docs/reviews/2026-10-02-LWB317-UI-HOME-ERROR-001.md`. Exact helper/render,
 nine-locale, browser and canonical checks pass; no state-channel/native changes.
-HOME-ERROR-002 is also AWAITING_REVIEW after independent root/action errors,
+HOME-ERROR-002 is CHANGES_REQUIRED after PM-018; historical independent root/action errors,
 picker cancel/invalid/acknowledged valid handling and actual callback/original
 render/browser checks. See docs/reviews/2026-10-02-LWB317-UI-HOME-ERROR-002.md.
 HOME-BUSY-001 is also AWAITING_REVIEW: independent proxy/launch display inputs
@@ -134,9 +134,11 @@ recovered/production ToggleRow comparison passes 360 nine-locale cases, all 11
 callers are inventoried, focused browser QA passes and canonical/Home regressions
 remain green. See docs/reviews/2026-10-02-LWB317-PM-016-switch-locale-acceptance.md.
 PM-017 acceptance: docs/reviews/2026-10-02-LWB317-PM-017-home-translation-acceptance.md.
-Next assignment: docs/work-items/LWB317-REVIEW-HOME-ERROR-002.md, independent
-review of lead channels/callbacks only. Channels/busy lead deliveries remain
-AWAITING_REVIEW; no product code or native lifecycle work is assigned.
+PM-018 integrates independent review db3aae3: HOME-ERROR-002 is CHANGES_REQUIRED for
+root-status acknowledgement/polling. Root/action placement remains useful; correction
+LWB317-UI-HOME-ERROR-002-R1 is ASSIGNED. HOME-BUSY-001 remains AWAITING_REVIEW. See
+docs/reviews/2026-10-02-LWB317-PM-018-home-channel-review-integration.md and
+docs/work-items/LWB317-UI-HOME-ERROR-002-R1.md.
 Native picker/persistence/lifecycle and original pixels remain unproved.
 
 Direct original post-auth screenshot/pixel comparison remains `BLOCKED` by the

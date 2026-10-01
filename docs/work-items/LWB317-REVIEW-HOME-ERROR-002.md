@@ -1,6 +1,6 @@
 # LWB317-REVIEW-HOME-ERROR-002 — independent Home error-channel review
 
-Owner: returning worker as independent reviewer. State: ASSIGNED, awaiting start.
+Owner: returning worker as independent reviewer. State: REVIEW_COMPLETE / integrated by PM-018; CHANGES_REQUIRED.
 Date: 2026-10-02. Current review baseline: baf5473c09bcb371780b947a9d624e04a45517ad;
 lead acceptance/assignment documentation follows it. Use current HEAD without reset.
 

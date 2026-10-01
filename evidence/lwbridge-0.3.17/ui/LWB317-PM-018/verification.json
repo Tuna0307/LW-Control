@@ -1,0 +1,27 @@
+{
+  "task": "LWB317-PM-018",
+  "date": "2026-10-02",
+  "reviewedCommit": "db3aae317321d9ac21774f421dd363daa8a146c3",
+  "decision": "CHANGES_REQUIRED",
+  "referenceSha256": "44C4E4043825B7DB296B64171951B27176F8850FF8D7D337CC991DF4765524C6",
+  "targetExeSha256": "4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783",
+  "locators": {
+    "qr": 336694,
+    "Jt": 367489,
+    "Xt": 367703,
+    "initialRootAck": 369540,
+    "periodicPoll": 369979
+  },
+  "effectContext": "n.autoClosePopup)},[r.selectedProfileId,rt]),(0,b.useEffect)(()=>{if(!r.selectedProfileId)return;let e=r.selectedProfileId,t=!1,n=n=>r=>{!t&&A()===e&&n(r)},i=[Wt(`bridge://status`,n(Ot)),Wt(`bridge://map-scan-status`,n(pt)),Wt(`bridge://automation-status`,n(Ae)),Wt(`bridge://resource-automation-status`,n(Me)),Wt(`bridge://game-recovery`,n(T))];Ht().then(Jt).catch(e=>x(String(e)));let a=(e,t)=>e.catch(e=>(F(`${t} error ${String(e)}`),null));Promise.all([a(ot(e),`status`),a(Vt(e),`game setup status`),a(st(e),`game recovery status`),a(gt(e),`automation status`),a(yt(e),`resource automation status`),a(vn(e),`map summary`)]).then(n(([e,t,n,r,i,a])=>{e&&Ot(e),t&&f(t),n&&T(n),r&&Ae(r),i&&Me(i),a&&(_e(a),pt(a.scanState)),et(!1)}));let o=!1,s=async()=>{if(!o){o=!0;try{let[n,r]=await Promise.all([ot(e).catch(()=>null),Vt(e).catch(()=>null)]);if(t||A()!==e)return;n&&Ot(n),r&&f(e=>JSON.stringify(e)===JSON.stringify(r)?e:r)}finally{o=!1}}},c=window.setInterval(()=>{s()},5e3);return()=>{t=!0,window.clearInterval(c),i.forEach(e=>e())}},[r.selectedProfileId]),(0,b.useEffect)(()=>{if(!at)return;let e=!1,t=async()=>{if(!e){e=!0;try{await _t()}catch(e){F(`map summary error `+String(e))}finally{e=",
+  "checks": {
+    "independentReviewReproduction": "PASS defect reproduced; 8 scenarios",
+    "independentEvidenceValidation": "PASS",
+    "canonicalCheck": "PASS",
+    "productionPackage": "PASS",
+    "directRemoteBeforeIntegration": "db3aae317321d9ac21774f421dd363daa8a146c3",
+    "targetExeHash": "PASS",
+    "diffCheck": "PASS"
+  },
+  "nextWorkItem": "LWB317-UI-HOME-ERROR-002-R1",
+  "limits": "Source/local integration only; no product edit, browser, native picker, game, persistence or original pixels. Protected WIP preserved."
+}

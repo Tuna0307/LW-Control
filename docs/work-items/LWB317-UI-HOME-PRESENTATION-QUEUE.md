@@ -2,9 +2,9 @@
 
 Owner requested project-lead tasks while another AI rests, 2026-10-02.
 Owner: project lead. State: PARTIAL; switch unit ACCEPTED by PM-016 and translation
-by PM-017 for focused source/local scope. Channels/busy remain AWAITING_REVIEW.
-LWB317-REVIEW-HOME-ERROR-002 is assigned to the returning worker for independent
-review of channels only; do not review all remaining units as one campaign.
+by PM-017 for focused source/local scope. Channels are CHANGES_REQUIRED after
+independent review db3aae3 / PM-018; busy remains AWAITING_REVIEW.
+LWB317-UI-HOME-ERROR-002-R1 is assigned for root acknowledgement/polling only.
 Do not execute all items as one broad campaign. Assign/run one ID at a time.
 Input finding: docs/reviews/2026-10-02-LWB317-PM-015-home-audit.md and
 evidence/lwbridge-0.3.17/ui/LWB317-PM-015/home-audit.json.
@@ -31,7 +31,8 @@ Commit/push/remote verify; return for independent review. Channels delivered sep
 
 ## HOME-ERROR-002 — separate display channels
 
-State: AWAITING_REVIEW after project-lead implementation on 2026-10-02.
+State: CHANGES_REQUIRED after independent review / PM-018 on 2026-10-02.
+R1 is ASSIGNED; separate root status acknowledgement from repeated polling.
 See LWB317-UI-HOME-ERROR-002.md and its dated review/evidence. Nine actual
 callback scenarios, four original picker cases, 72 render comparisons and five
 browser observations pass. Native picker/persistence and original pixels unproved.
