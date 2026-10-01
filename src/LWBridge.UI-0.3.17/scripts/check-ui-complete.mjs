@@ -47,13 +47,20 @@ if (!app.includes('backendBridge.mode === "preview" ? new URLSearchParams(window
 }
 
 const pages = fs.readFileSync(path.join(root, "src", "Pages.jsx"), "utf8");
+const mapPage = fs.readFileSync(path.join(root, "src", "MapDataPage.jsx"), "utf8");
+const mapPreview = fs.readFileSync(path.join(root, "src", "mapPreviewApi.js"), "utf8");
+const previewCoverageSource = [pages, mapPage, mapPreview].join("\n");
 for (const marker of [
   "home-missing", "home-connected", "home-repair", "home-recovery-failed",
-  "automation-config", "squads-profile", "squads-equipment", "city-layout-populated",
+  "automation-config", "automation-saving", "automation-saved", "automation-save-error", "automation-validation-error",
+  "map-city", "map-auto-scheduled", "map-loading", "map-error",
+  "squads-profile", "squads-equipment", "city-layout-populated", "city-layout-populated-conflict",
   "squads-equipment-rename", "squads-equipment-rename-busy", "squads-equipment-result", "squads-equipment-progress",
-  "hotkeys-connected", "mini-games-active", "settings-update-available",
+  "hotkeys-connected", "hotkeys-load-error", "hotkeys-save-error",
+  "mini-games-active", "mini-games-land-success", "mini-games-land-error", "mini-games-solve-failed",
+  "settings-update-available", "settings-update-error", "settings-visual-error", "settings-feedback-success", "settings-feedback-error",
 ]) {
-  if (!pages.includes(marker)) throw new Error(`Missing preview coverage marker: ${marker}`);
+  if (!previewCoverageSource.includes(marker)) throw new Error(`Missing preview coverage marker: ${marker}`);
 }
 
 console.log(`LWB317_UI_COMPLETE_CHECKS_OK ${literalKeys.size} referenced keys ${JSON.stringify(localeCounts)}`);

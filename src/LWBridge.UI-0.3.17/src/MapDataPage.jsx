@@ -288,10 +288,24 @@ function Pagination({ page, total, onPage }) {
   );
 }
 
-export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, currentServerId = 0 }) {
+const PREVIEW_TAB_BY_STATE = Object.freeze({
+  "map-city": "city",
+  "map-resource": "resource",
+  "map-monster": "monster",
+  "map-truck": "truck",
+  "map-railway": "railway",
+  "map-dispatch": "dispatch",
+  "map-ghost": "ghost",
+  "map-treasure": "treasure",
+  "map-scheduled": "scheduledPlunder",
+});
+
+export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, currentServerId = 0, previewState = "" }) {
   const { t } = useI18n();
-  const [scanTab, setScanTab] = useState("manual");
+  const previewFixture = bridgeMode === "preview" && previewState.startsWith("map-");
+  const [scanTab, setScanTab] = useState(previewState.startsWith("map-auto") ? "auto" : "manual");
   const [speed, setSpeed] = useState(() => {
+    if (previewFixture) return "normal";
     const saved = window.localStorage.getItem("lwbridge.mapScanMode");
     return saved === "normal" || saved === "fast" ? saved : "normal";
   });
@@ -301,7 +315,7 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
   const [summaryReady, setSummaryReady] = useState(false);
   const [options, setOptions] = useState(null);
   const [browseServerId, setBrowseServerId] = useState(0);
-  const [tab, setTab] = useState("city");
+  const [tab, setTab] = useState(PREVIEW_TAB_BY_STATE[previewState] || "city");
   const [keyword, setKeyword] = useState("");
   const [submittedKeyword, setSubmittedKeyword] = useState("");
   const [resourceNameKey, setResourceNameKey] = useState("");
@@ -329,6 +343,15 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
   const [actionBusy, setActionBusy] = useState("");
   const autoStorageKey = `lwbridge.mapAutoScan.${mapApi.profileId || "default"}`;
   const [autoConfig, setAutoConfig] = useState(() => {
+    if (previewState === "map-auto-scheduled") return normalizeAutoConfig({
+      enabled: true,
+      intervalMinutes: 60,
+      serverIds: [321, 322],
+      selectedTypes: AUTO_DEFAULT_TYPES,
+      scanMode: "fast",
+      returnToOriginalServer: true,
+      nextRunAt: 1_893_456_000_000,
+    });
     try { return normalizeAutoConfig(JSON.parse(window.localStorage.getItem(autoStorageKey) || "null")); }
     catch { return normalizeAutoConfig(null); }
   });
@@ -646,7 +669,7 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
   const phaseLabel = scanState.phase || "idle";
 
   return (
-    <section className="panel map-panel" data-bridge-mode={bridgeMode}>
+    <section className="panel map-panel" data-bridge-mode={bridgeMode} data-preview-fixture={previewFixture ? previewState : undefined}>
       <div className="map-scan-tabs" role="tablist" aria-label={t("map.scanModeTabs")}>
         <button type="button" role="tab" className={scanTab === "manual" ? "active" : ""} aria-selected={scanTab === "manual"} onClick={() => setScanTab("manual")}>{t("map.manualScan")}</button>
         <button type="button" role="tab" className={scanTab === "auto" ? "active" : ""} aria-selected={scanTab === "auto"} onClick={() => setScanTab("auto")}>{t("map.autoScan")}</button>

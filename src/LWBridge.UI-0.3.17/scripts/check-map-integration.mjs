@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import { createBackendBridge } from "../src/backendBridge.js";
+import { getMapPreviewProvider } from "../src/mapPreviewApi.js";
 import {
   MAP_COMMANDS,
   MAP_KIND_KEYS,
@@ -173,6 +174,17 @@ const previewBridge = createBackendBridge({ __LWBridgeBootstrap: { mode: "fixtur
 assert.equal(previewBridge.available, false);
 assert.equal(previewBridge.mode, "preview");
 await assert.rejects(() => previewBridge.invoke("map_summary", {}), (error) => error.code === "PREVIEW_NO_NATIVE_HOST");
+
+assert.equal(getMapPreviewProvider("native", "map-city"), null, "native bootstrap must ignore preview Map fixture query state");
+assert.equal(getMapPreviewProvider("native-unavailable", "map-city"), null, "unavailable native bootstrap must ignore preview Map fixture query state");
+const previewProvider = getMapPreviewProvider("preview", "map-city");
+assert.equal(previewProvider.online, false, "browser-only Map fixture must never claim a live game connection");
+assert.equal(previewProvider.mapApi.previewFixture, true);
+const previewRows = await previewProvider.mapApi.search("city", { page: 1 });
+assert.equal(previewRows.rows.length, 2);
+assert.ok(previewRows.total > MAP_PAGE_SIZE, "browser-only Map fixture should cover pagination");
+await assert.rejects(() => previewProvider.mapApi.start(["city"], "normal"), (error) => error.code === "PREVIEW_NATIVE_ACTION_BLOCKED");
+await assert.rejects(() => previewProvider.mapApi.coordinateJump(previewRows.rows[0]), (error) => error.code === "PREVIEW_NATIVE_ACTION_BLOCKED");
 
 const missingNativeBridge = createBackendBridge({ __LWBridgeBootstrap: { mode: "live", sessionId: "s" } });
 assert.equal(missingNativeBridge.available, false);

@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { MapDataPage } from "./MapDataPage.jsx";
+import { getMapPreviewProvider } from "./mapPreviewApi.js";
 import { useI18n } from "./i18n.jsx";
 
 export { MapDataPage } from "./MapDataPage.jsx";
@@ -250,7 +251,7 @@ function WeeklyQualityPreview({ enabled, defaults }) {
   return <div className="automation-weekly-quality">{days.map((day, index) => <label key={day}><span>{day}</span><select defaultValue={defaults[index]} disabled={!enabled}><option value="none">{t("automation.noQualityRefresh")}</option><option value="ssr">{t("automation.ssrOrAbove")}</option><option value="ur">UR</option></select></label>)}</div>;
 }
 
-function AutomationConfigPreview({ title, enabled }) {
+function AutomationConfigPreview({ title, enabled, previewState = "" }) {
   const { t } = useI18n();
   const [constructionTargetEnabled, setConstructionTargetEnabled] = useState(true);
   const [replyEnabled, setReplyEnabled] = useState(false);
@@ -264,7 +265,8 @@ function AutomationConfigPreview({ title, enabled }) {
     return <div className="automation-form-grid"><label><span>{t("automation.soldierTraining.totalCount")}</span><input type="number" min="1" max="1000000" defaultValue="1000" disabled={!enabled} /></label><label><span>{t("automation.soldierTraining.target")}</span><select defaultValue="highest" disabled={!enabled}><option value="highest">{t("automation.soldierTraining.highest")}</option></select></label></div>;
   }
   if (title === "Automatic Construction") {
-    return <><label className="automation-checkbox-row"><input type="checkbox" checked={constructionTargetEnabled} disabled={!enabled} onChange={(event) => setConstructionTargetEnabled(event.target.checked)} /><span>{t("automation.construction.targetEnabled")}</span></label>{constructionTargetEnabled ? <><div className="automation-actions"><label><span>{t("automation.construction.targetLevel")}</span><input type="number" min="1" max="100" step="1" defaultValue="30" disabled={!enabled} /></label></div><details className="construction-type-select"><summary><span>{t("automation.construction.buildingTypes")}</span><strong>{t("automation.construction.selectTypes")}</strong><span aria-hidden="true">⌄</span></summary><p className="muted">{t("automation.construction.selectTypes")}</p></details></> : null}<label className="automation-checkbox-row"><input type="checkbox" defaultChecked disabled={!enabled} /><span>{t("automation.autoCollectRewards")}</span></label><div className="automation-actions"><label><span>{t("automation.maxBuilders")}</span><input type="number" min="1" max="20" step="1" defaultValue="1" disabled={!enabled} /></label></div></>;
+    const invalidBuilderLimit = previewState === "automation-validation-error";
+    return <><label className="automation-checkbox-row"><input type="checkbox" checked={constructionTargetEnabled} disabled={!enabled} onChange={(event) => setConstructionTargetEnabled(event.target.checked)} /><span>{t("automation.construction.targetEnabled")}</span></label>{constructionTargetEnabled ? <><div className="automation-actions"><label><span>{t("automation.construction.targetLevel")}</span><input type="number" min="1" max="100" step="1" defaultValue="30" disabled={!enabled} /></label></div><details className="construction-type-select"><summary><span>{t("automation.construction.buildingTypes")}</span><strong>{t("automation.construction.selectTypes")}</strong><span aria-hidden="true">⌄</span></summary><p className="muted">{t("automation.construction.selectTypes")}</p></details></> : null}<label className="automation-checkbox-row"><input type="checkbox" defaultChecked disabled={!enabled} /><span>{t("automation.autoCollectRewards")}</span></label><div className="automation-actions"><label><span>{t("automation.maxBuilders")}</span><input type="number" min="1" max="20" step="1" defaultValue={invalidBuilderLimit ? "21" : "1"} disabled={!enabled} aria-invalid={invalidBuilderLimit || undefined} /></label></div>{invalidBuilderLimit ? <p className="automation-error" role="alert">{t("automation.builderLimitError")}</p> : null}</>;
   }
   if (title === "Automatic Treatment") {
     return <div className="automation-actions"><label><span>{t("automation.treatmentAmountPerArmy")}</span><input type="number" min="1" max="1000000" step="1" defaultValue="1" disabled={!enabled} /></label></div>;
@@ -301,7 +303,7 @@ function AutomationConfigPreview({ title, enabled }) {
   return null;
 }
 
-function AutomationCard({ title, description, previewEnabled }) {
+function AutomationCard({ title, description, previewEnabled, previewState = "" }) {
   const { english, t } = useI18n();
   const [enabled, setEnabled] = useState(false);
   const settingsCollapsible = !nonCollapsibleAutomationSettings.has(title);
@@ -334,7 +336,7 @@ function AutomationCard({ title, description, previewEnabled }) {
           </button> : null}
           {actionLabel ? <button type="button" className="automation-run-action" disabled title={t("status.gameDisconnectedDisabled")}>{t(actionLabel)}</button> : null}
         </div> : null}
-        {hasSettings && (!settingsCollapsible || expanded) ? <fieldset className="automation-config-body" disabled={!previewEnabled}><AutomationConfigPreview title={title} enabled={previewEnabled} /></fieldset> : null}
+        {hasSettings && (!settingsCollapsible || expanded) ? <fieldset className="automation-config-body" disabled={!previewEnabled}><AutomationConfigPreview title={title} enabled={previewEnabled} previewState={previewState} /></fieldset> : null}
       </div> : null}
     </article>
   );
@@ -343,6 +345,7 @@ function AutomationCard({ title, description, previewEnabled }) {
 function ResourceGatherCard({ previewEnabled }) {
   const { t } = useI18n();
   const [enabled, setEnabled] = useState(false);
+  const [recallOnDisable, setRecallOnDisable] = useState(false);
   return (
     <article className="automation-card" data-preview-fixture={previewEnabled ? "automation-config" : "runtime-config-unobserved"}>
       <div className="automation-card-header">
@@ -367,7 +370,7 @@ function ResourceGatherCard({ previewEnabled }) {
               <select value="2" readOnly><option value="2">2</option></select>
             </label>
             <label className="automation-resource-gather-recall">
-              <input type="checkbox" readOnly />
+              <input type="checkbox" checked={recallOnDisable} disabled={!previewEnabled} onChange={(event) => setRecallOnDisable(event.target.checked)} />
               <span>{t("automation.resourceGather.recallOnDisable")}</span>
             </label>
             <small className="automation-resource-gather-radius-hint muted">
@@ -385,6 +388,8 @@ function TradeStationCard({ previewEnabled }) {
   const { t } = useI18n();
   const [enabled, setEnabled] = useState(false);
   const [tradeTab, setTradeTab] = useState("goods");
+  const [crossServer, setCrossServer] = useState(false);
+  const [showExclusive, setShowExclusive] = useState(false);
   return (
     <div className="trade-station-panel" data-preview-fixture={previewEnabled ? "automation-config" : "runtime-config-unobserved"}>
       <article className="automation-card">
@@ -405,7 +410,7 @@ function TradeStationCard({ previewEnabled }) {
             <div className="trade-station-warning">
               {t("automation.tradeStation.warning")}
             </div>
-            <ToggleRow label={t("automation.tradeStation.crossServer")} disabled={!previewEnabled} />
+            <ToggleRow label={t("automation.tradeStation.crossServer")} checked={crossServer} disabled={!previewEnabled} onChange={setCrossServer} />
             <fieldset className="trade-station-currencies">
               <legend>{t("automation.tradeStation.currencies")}</legend>
               <div />
@@ -423,7 +428,7 @@ function TradeStationCard({ previewEnabled }) {
             {tradeTab === "goods" ? <div className="trade-station-goods" role="tabpanel">
               <div className="trade-station-goods-heading">
                 <strong>{t("automation.tradeStation.goodsToBuy")}</strong>
-                <label><input type="checkbox" disabled={!previewEnabled} />{t("automation.tradeStation.showExclusive")}</label>
+                <label><input type="checkbox" checked={showExclusive} disabled={!previewEnabled} onChange={(event) => setShowExclusive(event.target.checked)} />{t("automation.tradeStation.showExclusive")}</label>
               </div>
               <span className="muted">{t("automation.tradeStation.noGoods")}</span>
             </div> : <div className="trade-station-purchase-history" role="tabpanel"><span className="muted">{t("automation.tradeStation.noPurchases")}</span></div>}
@@ -437,10 +442,17 @@ function TradeStationCard({ previewEnabled }) {
 export function AutomationPage({ previewState = "" }) {
   const { t } = useI18n();
   const [category, setCategory] = useState("daily");
-  const previewEnabled = previewState === "automation-config";
+  const previewEnabled = previewState.startsWith("automation-");
+  const pageStatus = previewState === "automation-saving"
+    ? "automation.configSave.saving"
+    : previewState === "automation-save-error"
+      ? "automation.configSave.error"
+      : previewState === "automation-saved"
+        ? "automation.configSave.saved"
+        : "status.gameDisconnectedDisabled";
   return (
     <section className="panel" data-preview-fixture={previewEnabled ? previewState : undefined}>
-      <PanelTitle title={t("nav.automation")} subtitle={previewEnabled ? t("common.available") : t("status.gameDisconnected")} />
+      <PanelTitle title={t("nav.automation")} subtitle={previewEnabled ? t(pageStatus) : t("status.gameDisconnected")} />
       <div className="automation-categories" role="tablist" aria-label={t("nav.automation")}>
         {automationCategories.map(([key, label]) => (
           <button
@@ -459,7 +471,7 @@ export function AutomationPage({ previewState = "" }) {
         {category === "resourceGather" ? <ResourceGatherCard previewEnabled={previewEnabled} /> : null}
         {category === "trade" ? <TradeStationCard previewEnabled={previewEnabled} /> : null}
         {(automationCards[category] ?? []).map(([title, description]) => (
-          <AutomationCard key={title} title={title} description={description} previewEnabled={previewEnabled} />
+          <AutomationCard key={title} title={title} description={description} previewEnabled={previewEnabled} previewState={previewState} />
         ))}
       </div>
     </section>
@@ -475,7 +487,7 @@ export function SquadsPage({ previewState = "" }) {
     <section className="panel squad-panel" data-preview-fixture={previewEnabled ? previewState : undefined}>
       <div className="squad-header">
         <h2>{t("squad.title")}</h2>
-        {tab === "equipment" ? <button type="button" disabled={!previewEnabled}>{t("squad.refresh")}</button> : null}
+        {tab === "equipment" ? <button type="button" disabled title={t("status.gameDisconnectedDisabled")}>{t("squad.refresh")}</button> : null}
       </div>
       <div className="squad-tabs" role="tablist" aria-label={t("squad.title")}>
         <button type="button" role="tab" className={tab === "afk" ? "active" : ""} aria-selected={tab === "afk"} onClick={() => setTab("afk")}>{t("squad.tabAfk")}</button>
@@ -486,16 +498,29 @@ export function SquadsPage({ previewState = "" }) {
   );
 }
 
-function AfkProfileEditor({ enabled }) {
+const previewAllianceMembers = [
+  { uid: "10001", name: "Avery", level: 30, power: 18240, online: true },
+  { uid: "10002", name: "Blair", level: 29, power: 16480, online: false },
+  { uid: "10003", name: "Casey", level: 28, power: 15120, online: true },
+];
+
+function AfkProfileEditor({ enabled, isNew = false, profileName, onProfileNameChange }) {
   const { t } = useI18n();
   const [joinMode, setJoinMode] = useState("slot");
+  const [joinEnabled, setJoinEnabled] = useState(false);
+  const [leaderListMode, setLeaderListMode] = useState("off");
+  const [memberPickerOpen, setMemberPickerOpen] = useState(false);
+  const [memberSearch, setMemberSearch] = useState("");
+  const [selectedMemberIds, setSelectedMemberIds] = useState(new Set());
+  const [leaders, setLeaders] = useState([]);
+  const filteredMembers = previewAllianceMembers.filter((member) => !memberSearch.trim() || `${member.name} ${member.uid}`.toLowerCase().includes(memberSearch.trim().toLowerCase()));
   return (
-    <section className="monster-afk-editor is-editing" data-preview-fixture="afk-profile-editor">
-      <div className="monster-afk-editor-heading"><strong>{t("squad.afkNewProfile")}</strong><span className="monster-afk-mode-badge attack">{t("squad.afkFarmStrategies")}</span></div>
+    <section className={`monster-afk-editor ${isNew ? "is-new" : "is-editing"}`} data-preview-fixture="afk-profile-editor">
+      <div className="monster-afk-editor-heading"><strong>{t(isNew ? "squad.afkNewProfile" : "squad.afkEditProfile")}</strong><span className="monster-afk-mode-badge attack">{t("squad.afkFarmStrategies")}</span></div>
       <div className="monster-afk-config-section">
         <strong>{t("squad.afkBasicSettings")}</strong>
         <div className="monster-afk-basic-grid">
-          <label><span>{t("squad.afkProfileName")}</span><input defaultValue="Steel Hunt" disabled={!enabled} /></label>
+          <label><span>{t("squad.afkProfileName")}</span><input value={profileName} disabled={!enabled} onChange={(event) => onProfileNameChange(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter" && !event.nativeEvent.isComposing) event.currentTarget.blur(); }} /></label>
           <label><span>{t("squad.afkTarget")}</span><select defaultValue="steel" disabled={!enabled}><option value="steel">{t("squad.afkResourceMetal")}</option><option value="food">{t("squad.afkResourceFood")}</option><option value="gold">{t("squad.afkResourceGold")}</option><option value="boss">{t("squad.afkResourceBoss")}</option></select></label>
           <label className="monster-afk-field-wide"><span>{t("squad.afkCustomName")}</span><input placeholder={t("squad.afkCustomTargetHint")} disabled={!enabled} /></label>
         </div>
@@ -520,39 +545,94 @@ function AfkProfileEditor({ enabled }) {
       </div>
       <div className="monster-afk-config-section monster-afk-join-section">
         <strong>{t("squad.afkJoinConditions")}</strong>
-        <label className="monster-afk-check-row"><input type="checkbox" disabled={!enabled} />{t("squad.afkJoin")}</label>
-        <div className="rally-join-settings">
+        <label className="monster-afk-check-row"><input type="checkbox" checked={joinEnabled} disabled={!enabled} onChange={(event) => setJoinEnabled(event.target.checked)} />{t("squad.afkJoin")}</label>
+        {joinEnabled ? <div className="rally-join-settings">
           <label><span>{t("squad.join.mode")}</span><select value={joinMode} disabled={!enabled} onChange={(event) => setJoinMode(event.target.value)}><option value="slot">{t("squad.join.mode.slot")}</option><option value="delay">{t("squad.join.mode.delay")}</option></select></label>
           {joinMode === "slot" ? <div className="rally-join-range"><label><span>{t("squad.join.slotRange.min")}</span><input type="number" min="2" max="5" defaultValue="2" disabled={!enabled} /></label><label><span>{t("squad.join.slotRange.max")}</span><input type="number" min="2" max="5" defaultValue="5" disabled={!enabled} /></label></div> : <div className="rally-join-range"><label><span>{t("squad.join.delaySeconds.min")}</span><input type="number" min="0" max="6000" defaultValue="0" disabled={!enabled} /></label><label><span>{t("squad.join.delaySeconds.max")}</span><input type="number" min="0" max="6000" defaultValue="5" disabled={!enabled} /></label></div>}
-          <label><span>{t("squad.join.list")}</span><select defaultValue="off" disabled={!enabled}><option value="off">{t("squad.join.list.off")}</option><option value="blacklist">{t("squad.join.list.blacklist")}</option><option value="whitelist">{t("squad.join.list.whitelist")}</option></select></label>
+          <label><span>{t("squad.join.list")}</span><select value={leaderListMode} disabled={!enabled} onChange={(event) => setLeaderListMode(event.target.value)}><option value="off">{t("squad.join.list.off")}</option><option value="blacklist">{t("squad.join.list.blacklist")}</option><option value="whitelist">{t("squad.join.list.whitelist")}</option></select></label>
+          {leaderListMode !== "off" ? <div className="rally-join-leaders"><button type="button" disabled={!enabled} onClick={() => { setSelectedMemberIds(new Set(leaders.map((leader) => leader.uid))); setMemberSearch(""); setMemberPickerOpen(true); }}>{t("squad.join.chooseMembers")}</button>{leaders.map((leader) => <div className="rally-join-leader" key={leader.uid}><span className="rally-join-member-name"><strong>{leader.name}</strong><small>{leader.uid}</small></span><button type="button" className="danger" onClick={() => setLeaders((current) => current.filter((entry) => entry.uid !== leader.uid))}>{t("common.delete")}</button></div>)}{leaderListMode === "whitelist" && leaders.length === 0 ? <span className="muted">{t("squad.join.emptyWhitelist")}</span> : null}</div> : null}
           <label><input type="checkbox" disabled={!enabled} />{t("squad.join.skipSolo")}</label><label><input type="checkbox" disabled={!enabled} />{t("squad.join.skipKicked")}</label>
-        </div>
+        </div> : null}
       </div>
-      <div className="automation-config-actions"><button type="button" className="primary" disabled={!enabled}>{t("common.saveConfig")}</button><button type="button" disabled={!enabled}>{t("common.cancel")}</button></div>
+      {joinEnabled && memberPickerOpen ? <div className="garrison-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setMemberPickerOpen(false); }}><section className="garrison-modal" role="dialog" aria-modal="true" aria-label={t("squad.join.chooseMembers")}><div className="garrison-modal-heading"><strong>{t("squad.join.chooseMembers")}</strong><button type="button" onClick={() => setMemberPickerOpen(false)}>{t("common.cancel")}</button></div><input aria-label={t("squad.join.searchMembers")} placeholder={t("squad.join.searchMembers")} value={memberSearch} onChange={(event) => setMemberSearch(event.target.value)} autoFocus /><div className="garrison-ally-list">{filteredMembers.map((member) => <label key={member.uid}><input type="checkbox" checked={selectedMemberIds.has(member.uid)} onChange={(event) => setSelectedMemberIds((current) => { const next = new Set(current); if (event.target.checked) next.add(member.uid); else next.delete(member.uid); return next; })} /><span><strong>{member.name}</strong><small>{member.uid}</small></span></label>)}{filteredMembers.length === 0 ? <span className="muted">{t("squad.join.noMembers")}</span> : null}</div><div className="garrison-modal-actions"><button type="button" className="primary-action" onClick={() => { setLeaders(previewAllianceMembers.filter((member) => selectedMemberIds.has(member.uid)).map(({ uid, name }) => ({ uid, name }))); setMemberPickerOpen(false); }}>{t("squad.join.confirmMembers")}</button></div></section></div> : null}
     </section>
   );
+}
+
+function AllianceDrillPreviewSettings({ enabled }) {
+  const { t } = useI18n();
+  const [launchRallies, setLaunchRallies] = useState(true);
+  const [squads, setSquads] = useState([1]);
+  return <><p>{t("squad.afkAllianceDrillDescription")}</p><label className="monster-afk-check-row"><input type="checkbox" checked={launchRallies} disabled={!enabled} onChange={(event) => setLaunchRallies(event.target.checked)} />{t("squad.afkAllianceDrillActive")}</label><fieldset disabled={!enabled}><legend>{t("squad.afkAllianceDrillSquads")}</legend>{[1,2,3,4].map((number) => <label key={number}><input type="checkbox" checked={squads.includes(number)} onChange={(event) => setSquads((current) => event.target.checked ? [...current, number].sort() : current.filter((item) => item !== number))} />{t("squad.number", { number })}</label>)}</fieldset>{squads.length ? <span className="muted">{t("squad.afkAllianceDrillOrder", { order: squads.join(" → ") })}</span> : <span className="status-error">{t("squad.afkAllianceDrillSquadRequired")}</span>}</>;
+}
+
+function GarrisonPreviewSettings({ enabled }) {
+  const { t } = useI18n();
+  const [center, setCenter] = useState(true);
+  const [attachment, setAttachment] = useState(false);
+  const [recallOnDisable, setRecallOnDisable] = useState(true);
+  const [selectedAllies, setSelectedAllies] = useState([]);
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [pickerSearch, setPickerSearch] = useState("");
+  const [draftAllies, setDraftAllies] = useState(new Set());
+  const [squads, setSquads] = useState([1, 2]);
+  const filtered = previewAllianceMembers.filter((member) => !pickerSearch.trim() || `${member.name} ${member.uid}`.toLowerCase().includes(pickerSearch.trim().toLowerCase()));
+  const targetCount = Number(center) + Number(attachment) + selectedAllies.length;
+  return <div className="garrison-settings">
+    <div className="monster-afk-toolbar-settings-heading"><div><strong>{t("garrison.settings")}</strong><span>{t("garrison.settingsDescription")}</span></div><span className="garrison-count">{t("garrison.selectedTargets", { count: targetCount })}</span></div>
+    <div className="garrison-settings-grid"><div className="garrison-target-panel">
+      <div className="garrison-section-heading"><strong>{t("garrison.buildings")}</strong><span>{Number(center) + Number(attachment)}/2</span></div>
+      <div className="garrison-building-grid"><label className="garrison-building center"><input type="checkbox" checked={center} disabled={!enabled} onChange={(event) => setCenter(event.target.checked)} /><span>{t("garrison.center")}</span></label><label className="garrison-building attachment"><input type="checkbox" checked={attachment} disabled={!enabled} onChange={(event) => setAttachment(event.target.checked)} /><span>{t("garrison.attachment")}</span></label></div>
+      <div className="garrison-section-heading"><strong>{t("garrison.allies")}</strong><button type="button" disabled={!enabled} onClick={() => { setDraftAllies(new Set(selectedAllies)); setPickerSearch(""); setPickerOpen(true); }}>{t("garrison.chooseAllies")}</button></div>
+      <div className="garrison-selected-allies">{selectedAllies.length ? selectedAllies.map((uid) => { const member = previewAllianceMembers.find((entry) => entry.uid === uid); return <span key={uid}>{member?.name || uid}</span>; }) : <p className="muted">{t("garrison.noSelectedAllies")}</p>}</div>
+      <div className="garrison-section-heading"><strong>{t("garrison.targetPriority")}</strong><span>{t("garrison.dragHint")}</span></div>
+      <div className="garrison-priority-list">{center ? <span>{t("garrison.center")}</span> : null}{attachment ? <span>{t("garrison.attachment")}</span> : null}{selectedAllies.map((uid) => <span key={uid}>{previewAllianceMembers.find((member) => member.uid === uid)?.name || uid}</span>)}</div>
+      {targetCount === 0 ? <span className="status-error">{t("garrison.targetRequired")}</span> : null}
+    </div><div className="garrison-runtime-panel">
+      <div className="garrison-section-heading"><strong>{t("garrison.squadPriority")}</strong></div>
+      <div className="monster-afk-squads">{[1,2,3,4].map((number) => <label className="monster-afk-squad-toggle" key={number}><input type="checkbox" checked={squads.includes(number)} disabled={!enabled} onChange={(event) => setSquads((current) => event.target.checked ? [...current, number].sort() : current.filter((item) => item !== number))} /><span>{number}</span></label>)}</div>
+      {squads.length === 0 ? <span className="status-error">{t("garrison.squadRequired")}</span> : <p className="muted">{t("garrison.squadHint")}</p>}
+      <div className="garrison-section-heading"><strong>{t("garrison.current")}</strong><span>0/0</span></div><p className="muted">{t("garrison.noAssignments")}</p>
+    </div></div>
+    <div className="garrison-actions"><ToggleRow label={t("garrison.recallOnDisable")} checked={recallOnDisable} disabled={!enabled} onChange={setRecallOnDisable} /><button type="button" className="primary-action" disabled title={t("status.gameDisconnectedDisabled")}>{t("garrison.runNow")}</button></div>
+    {pickerOpen ? <div className="garrison-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setPickerOpen(false); }}><section className="garrison-modal" role="dialog" aria-modal="true" aria-label={t("garrison.chooseAllies")}><div className="garrison-modal-heading"><strong>{t("garrison.chooseAllies")}</strong><button type="button" onClick={() => setPickerOpen(false)}>{t("common.cancel")}</button></div><input aria-label={t("garrison.searchAlly")} value={pickerSearch} onChange={(event) => setPickerSearch(event.target.value)} placeholder={t("garrison.searchAlly")} autoFocus /><div className="garrison-ally-list">{filtered.map((member) => <label className={member.online ? "" : "unavailable"} key={member.uid}><input type="checkbox" checked={draftAllies.has(member.uid)} onChange={(event) => setDraftAllies((current) => { const next = new Set(current); if (event.target.checked) next.add(member.uid); else next.delete(member.uid); return next; })} /><span><strong>{member.name}</strong><small>{t("garrison.allyDetail", { level: member.level, power: member.power })} · {t(member.online ? "garrison.online" : "garrison.offlineMember")}</small></span></label>)}</div><div className="garrison-modal-actions"><button type="button" className="primary-action" onClick={() => { setSelectedAllies([...draftAllies]); setPickerOpen(false); }}>{t("squad.join.confirmMembers")}</button></div></section></div> : null}
+  </div>;
 }
 
 function AfkContent({ previewEnabled }) {
   const { t } = useI18n();
   const [showEditor, setShowEditor] = useState(previewEnabled);
+  const [profiles, setProfiles] = useState(() => previewEnabled ? [{ id: "steel", name: "Steel Hunt", enabled: false }, { id: "gold", name: "Gold Hunt", enabled: false }] : []);
+  const [editingId, setEditingId] = useState(() => previewEnabled ? "steel" : "");
+  const [draggedProfileId, setDraggedProfileId] = useState("");
+  const newProfileCounter = useRef(1);
+  const editingProfile = profiles.find((profile) => profile.id === editingId) || null;
+  const moveProfile = (sourceId, targetId) => setProfiles((current) => {
+    const sourceIndex = current.findIndex((profile) => profile.id === sourceId);
+    const targetIndex = current.findIndex((profile) => profile.id === targetId);
+    if (sourceIndex < 0 || targetIndex < 0 || sourceIndex === targetIndex) return current;
+    const next = [...current];
+    const [moved] = next.splice(sourceIndex, 1);
+    next.splice(targetIndex, 0, moved);
+    return next;
+  });
   return (
     <div className="monster-afk-layout" data-preview-fixture={previewEnabled ? "squads-profile" : "runtime-config-unobserved"}>
       <div className="monster-afk-toolbar">
         <CompactAfkCard title={t("squad.afkMaster")} summary={t("common.disabled")} previewEnabled={previewEnabled} details={<p className="muted">{t("squad.afkMasterDescription")}</p>} />
-        <CompactAfkCard title={t("squad.afkAllianceDrill")} summary={t("squad.afkAllianceDrillWaiting")} previewEnabled={previewEnabled} details={<><p>{t("squad.afkAllianceDrillDescription")}</p><fieldset disabled={!previewEnabled}><legend>{t("squad.afkAllianceDrillSquads")}</legend>{[1,2,3,4].map((number) => <label key={number}><input type="checkbox" defaultChecked={number === 1} />{t("squad.number", { number })}</label>)}</fieldset></>} />
-        <CompactAfkCard title={t("garrison.title")} summary={t("common.disabled")} previewEnabled={previewEnabled} details={<div className="garrison-settings-grid"><label><input type="checkbox" disabled={!previewEnabled} />{t("garrison.center")}</label><label><input type="checkbox" disabled={!previewEnabled} />{t("garrison.attachment")}</label><label><input type="checkbox" disabled={!previewEnabled} />{t("garrison.recallOnDisable")}</label><button type="button" disabled={!previewEnabled}>{t("garrison.chooseAllies")}</button></div>} />
+        <CompactAfkCard title={t("squad.afkAllianceDrill")} summary={t("squad.afkAllianceDrillWaiting")} previewEnabled={previewEnabled} details={<AllianceDrillPreviewSettings enabled={previewEnabled} />} />
+        <CompactAfkCard title={t("garrison.title")} summary={t("common.disabled")} previewEnabled={previewEnabled} details={<GarrisonPreviewSettings enabled={previewEnabled} />} />
         <CompactAfkCard title={t("zombieBus.title")} summary={previewEnabled ? t("zombieBus.waiting") : t("status.disconnected")} previewEnabled={previewEnabled} details={<p className="muted">{t("zombieBus.description")}</p>} />
       </div>
       <section className="monster-afk-profiles">
         <div className="monster-section-title">
           <strong>{t("squad.afkProfiles")}</strong>
-          <div className="monster-afk-add-control"><button type="button" disabled={!previewEnabled} onClick={() => setShowEditor(true)}>{t("common.add")}</button></div>
+          <div className="monster-afk-add-control"><button type="button" disabled={!previewEnabled} onClick={() => { const id = `preview-new-${newProfileCounter.current++}`; setProfiles((current) => [...current, { id, name: t("squad.afkNewProfile"), enabled: false }]); setEditingId(id); setShowEditor(true); }}>{t("common.add")}</button></div>
         </div>
         <div className="monster-afk-profile-list">
-          {previewEnabled ? <article className="monster-afk-profile-card"><div className="monster-afk-profile-heading"><strong>Steel Hunt</strong><span className="monster-afk-mode-badge attack">{t("squad.afkActionAttack")}</span></div><span>{t("squad.afkBoundSquads", { count: 1 })}</span><button type="button" onClick={() => setShowEditor(true)}>{t("squad.afkEditProfile")}</button></article> : <span className="muted">{t("squad.afkNoProfiles")}</span>}
+          {profiles.length ? profiles.map((profile) => <article className="monster-afk-profile-card" key={profile.id} onDragOver={(event) => { if (draggedProfileId) event.preventDefault(); }} onDrop={(event) => { event.preventDefault(); moveProfile(draggedProfileId, profile.id); setDraggedProfileId(""); }}><label className={`monster-afk-enabled ${profile.enabled ? "is-enabled" : ""}`}><input type="checkbox" checked={profile.enabled} onChange={(event) => setProfiles((current) => current.map((entry) => entry.id === profile.id ? { ...entry, enabled: event.target.checked } : entry))} /><span className="monster-afk-master-track" aria-hidden="true" /><span>{t(profile.enabled ? "common.enabled" : "common.disabled")}</span></label><button type="button" className="monster-afk-profile-select" aria-pressed={editingId === profile.id} onClick={() => { setEditingId(profile.id); setShowEditor(true); }}><span className="monster-afk-profile-heading"><strong>{profile.name}</strong><span className="monster-afk-mode-badge attack">{t("squad.afkActionAttack")}</span></span><span>{t("squad.afkBoundSquads", { count: 1 })}</span></button><button type="button" className="danger" onClick={() => { setProfiles((current) => current.filter((entry) => entry.id !== profile.id)); if (editingId === profile.id) { setEditingId(""); setShowEditor(false); } }}>{t("common.delete")}</button><button type="button" className="monster-afk-profile-drag" draggable aria-label={t("squad.afkReorder", { name: profile.name })} title={t("squad.afkReorder", { name: profile.name })} onDragStart={() => setDraggedProfileId(profile.id)} onDragEnd={() => setDraggedProfileId("")} onKeyDown={(event) => { if (event.key !== "ArrowUp" && event.key !== "ArrowDown") return; event.preventDefault(); const index = profiles.findIndex((entry) => entry.id === profile.id); const target = profiles[index + (event.key === "ArrowUp" ? -1 : 1)]; if (target) moveProfile(profile.id, target.id); }}>↕</button></article>) : <span className="muted">{t("squad.afkNoProfiles")}</span>}
         </div>
-        {showEditor ? <AfkProfileEditor enabled={previewEnabled} /> : null}
+        {showEditor && editingProfile ? <AfkProfileEditor enabled={previewEnabled} isNew={editingProfile.id.startsWith("preview-new-")} profileName={editingProfile.name} onProfileNameChange={(name) => setProfiles((current) => current.map((profile) => profile.id === editingProfile.id ? { ...profile, name } : profile))} /> : null}
       </section>
     </div>
   );
@@ -789,32 +869,150 @@ function EquipmentContent({ previewEnabled, previewState = "" }) {
   );
 }
 
+const CITY_PREVIEW_BUILDINGS = Object.freeze([
+  { id: 1, name: "HQ", level: 30, x: 2, y: 2, width: 2, height: 2, movable: false },
+  { id: 2, name: "Barracks", level: 28, x: 5, y: 2, width: 2, height: 2, movable: true },
+  { id: 3, name: "Hospital", level: 27, x: 3, y: 5, width: 2, height: 1, movable: true },
+]);
+
+function sameCityLayout(a, b) {
+  return a.length === b.length && a.every((building, index) => building.id === b[index]?.id && building.x === b[index]?.x && building.y === b[index]?.y);
+}
+
+function cityBoxesOverlap(a, b) {
+  return a.x < b.x + b.width && a.x + a.width > b.x && a.y < b.y + b.height && a.y + a.height > b.y;
+}
+
+function cityCellKind(x, y) {
+  if (y === 8) return "locked";
+  if (x === 1) return "road";
+  if (y === 4 && x >= 7) return "flag-only";
+  return "available";
+}
+
+function cityLayoutConflicts(buildings) {
+  const conflicts = [];
+  for (let index = 0; index < buildings.length; index += 1) {
+    const building = buildings[index];
+    if (building.x < 1 || building.y < 1 || building.x + building.width - 1 > 8 || building.y + building.height - 1 > 8) conflicts.push(building.id);
+    if (building.movable) {
+      for (let y = building.y; y < building.y + building.height; y += 1) {
+        for (let x = building.x; x < building.x + building.width; x += 1) {
+          if (cityCellKind(x, y) !== "available") conflicts.push(building.id);
+        }
+      }
+    }
+    for (let otherIndex = index + 1; otherIndex < buildings.length; otherIndex += 1) {
+      if (cityBoxesOverlap(building, buildings[otherIndex])) {
+        conflicts.push(building.id, buildings[otherIndex].id);
+      }
+    }
+  }
+  return [...new Set(conflicts)];
+}
+
 export function CityLayoutPage({ previewState = "" }) {
   const { t } = useI18n();
-  const previewEnabled = previewState === "city-layout-populated";
+  const previewEnabled = previewState.startsWith("city-layout-populated");
   const [zoom, setZoom] = useState(24);
-  const [selectedBuilding, setSelectedBuilding] = useState(previewEnabled ? 1 : null);
-  const [hasChanges, setHasChanges] = useState(previewEnabled);
-  if (!previewEnabled) return <div className="panel city-layout-empty">{t("cityLayout.offline")}</div>;
-
+  const [buildings, setBuildings] = useState(() => CITY_PREVIEW_BUILDINGS.map((building) => previewState === "city-layout-populated-conflict" && building.id === 3 ? { ...building, x: 5, y: 2 } : { ...building }));
+  const [selectedIds, setSelectedIds] = useState(() => new Set(previewEnabled ? [1] : []));
+  const [history, setHistory] = useState({ past: [], future: [] });
+  const [dragAnchorId, setDragAnchorId] = useState(null);
+  const [selectionBox, setSelectionBox] = useState(null);
+  const gridRef = useRef(null);
   const cells = Array.from({ length: 64 }, (_, index) => index);
-  const buildings = [
-    { id: 1, name: "HQ", level: 30, x: 2, y: 2, width: 2, height: 2, movable: false },
-    { id: 2, name: "Barracks", level: 28, x: 5, y: 2, width: 2, height: 2, movable: true },
-    { id: 3, name: "Hospital", level: 27, x: 3, y: 5, width: 2, height: 1, movable: true },
-  ];
-  const selected = buildings.find((building) => building.id === selectedBuilding) || null;
+  const selected = buildings.find((building) => selectedIds.has(building.id)) || null;
+  const changedIds = new Set(buildings.filter((building) => {
+    const initial = CITY_PREVIEW_BUILDINGS.find((entry) => entry.id === building.id);
+    return initial && (initial.x !== building.x || initial.y !== building.y);
+  }).map((building) => building.id));
+  const conflictIds = cityLayoutConflicts(buildings);
+  const hasChanges = changedIds.size > 0;
+
+  const commitBuildings = (next) => {
+    if (sameCityLayout(buildings, next)) return;
+    setHistory((current) => ({ past: [...current.past, buildings.map((building) => ({ ...building }))], future: [] }));
+    setBuildings(next.map((building) => ({ ...building })));
+  };
+
+  const undo = () => {
+    setHistory((current) => {
+      if (!current.past.length) return current;
+      const previous = current.past[current.past.length - 1];
+      setBuildings(previous.map((building) => ({ ...building })));
+      return { past: current.past.slice(0, -1), future: [buildings.map((building) => ({ ...building })), ...current.future] };
+    });
+  };
+
+  const redo = () => {
+    setHistory((current) => {
+      if (!current.future.length) return current;
+      const next = current.future[0];
+      setBuildings(next.map((building) => ({ ...building })));
+      return { past: [...current.past, buildings.map((building) => ({ ...building }))], future: current.future.slice(1) };
+    });
+  };
+
+  const moveSelection = (anchorId, x, y) => {
+    const anchor = buildings.find((building) => building.id === anchorId);
+    if (!anchor?.movable) return;
+    const movingIds = selectedIds.has(anchorId)
+      ? new Set([...selectedIds].filter((id) => buildings.find((building) => building.id === id)?.movable))
+      : new Set([anchorId]);
+    const dx = x - anchor.x;
+    const dy = y - anchor.y;
+    const next = buildings.map((building) => movingIds.has(building.id) ? { ...building, x: building.x + dx, y: building.y + dy } : { ...building });
+    if (cityLayoutConflicts(next).length === 0) commitBuildings(next);
+  };
+
+  const finishSelectionBox = (event) => {
+    if (!selectionBox || !gridRef.current) return;
+    const left = Math.min(selectionBox.startX, event.clientX);
+    const right = Math.max(selectionBox.startX, event.clientX);
+    const top = Math.min(selectionBox.startY, event.clientY);
+    const bottom = Math.max(selectionBox.startY, event.clientY);
+    const hits = [...gridRef.current.querySelectorAll("[data-city-building-id]")].filter((element) => {
+      const rect = element.getBoundingClientRect();
+      return rect.left < right && rect.right > left && rect.top < bottom && rect.bottom > top;
+    }).map((element) => Number(element.dataset.cityBuildingId));
+    setSelectedIds((current) => selectionBox.additive ? new Set([...current, ...hits]) : new Set(hits));
+    setSelectionBox(null);
+  };
+
+  useEffect(() => {
+    if (!previewEnabled) return undefined;
+    const onKeyDown = (event) => {
+      if (event.key === "Escape") {
+        setSelectedIds(new Set());
+        return;
+      }
+      if (!(event.ctrlKey || event.metaKey)) return;
+      if (event.key.toLowerCase() === "z") {
+        event.preventDefault();
+        if (event.shiftKey) redo();
+        else undo();
+      } else if (event.key.toLowerCase() === "y") {
+        event.preventDefault();
+        redo();
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  });
+
+  if (!previewEnabled) return <div className="panel city-layout-empty">{t("cityLayout.offline")}</div>;
   return (
     <section className="panel city-layout-panel" data-preview-fixture="city-layout-populated">
       <div className="city-layout-header">
         <div><h2>{t("cityLayout.title")}</h2><span>{t("cityLayout.stats", { cells: 64, buildings: buildings.length, movable: buildings.filter((item) => item.movable).length })}</span></div>
         <div className="city-layout-actions">
-          <button type="button">{t("common.refresh")}</button>
-          <button type="button" disabled={!hasChanges} onClick={() => setHasChanges(false)}>{t("cityLayout.undo")}</button>
-          <button type="button" disabled>{t("cityLayout.redo")}</button>
-          <button type="button" onClick={() => setHasChanges(false)}>{t("cityLayout.restoreInitial")}</button>
-          <button type="button">{t("cityLayout.saveDraft")}</button>
-          <button type="button" className="primary" disabled>{t("cityLayout.apply")}</button>
+          <button type="button" disabled title={t("status.gameDisconnectedDisabled")}>{t("common.refresh")}</button>
+          <button type="button" disabled={!history.past.length} onClick={undo}>{t("cityLayout.undo")}</button>
+          <button type="button" disabled={!history.future.length} onClick={redo}>{t("cityLayout.redo")}</button>
+          <button type="button" disabled={!hasChanges} onClick={() => commitBuildings(CITY_PREVIEW_BUILDINGS)}>{t("cityLayout.restoreInitial")}</button>
+          <button type="button" disabled title={t("status.gameDisconnectedDisabled")}>{t("cityLayout.saveDraft")}</button>
+          <button type="button" className="primary" disabled title={t("status.gameDisconnectedDisabled")}>{t("cityLayout.apply")}</button>
         </div>
       </div>
       <div className="city-layout-workbench">
@@ -830,21 +1028,76 @@ export function CityLayoutPage({ previewState = "" }) {
           </div>
           <details className="city-layout-controls"><summary>{t("cityLayout.controls.title")}</summary><div>{t("cityLayout.controls.boxSelect")} · {t("cityLayout.controls.addSelect")} · {t("cityLayout.controls.toggle")} · {t("cityLayout.controls.move")}</div><small>{t("cityLayout.controls.history")}</small></details>
           <div className="city-layout-grid-viewport">
-            <div className="city-layout-grid" style={{ gridTemplateColumns: `repeat(8, ${zoom}px)`, gridAutoRows: `${zoom}px` }}>
-              {cells.map((index) => <span key={index} className={`city-layout-cell${index % 11 === 0 ? " road" : index > 55 ? " locked" : index % 13 === 0 ? " flag-only" : " available"}`} />)}
-              {buildings.map((building) => <button key={building.id} type="button" className={`city-layout-building${selectedBuilding === building.id ? " selected" : ""}`} style={{ gridColumn: `${building.x} / span ${building.width}`, gridRow: `${building.y} / span ${building.height}` }} onClick={() => setSelectedBuilding(building.id)}><span className="city-layout-building-name">{building.name}</span><span className="city-layout-building-level">{t("cityLayout.level", { level: building.level })}</span></button>)}
+            <div
+              ref={gridRef}
+              className="city-layout-grid"
+              style={{ gridTemplateColumns: "repeat(8, " + zoom + "px)", gridAutoRows: zoom + "px", position: "relative" }}
+              onPointerDown={(event) => {
+                const canStart = event.target === event.currentTarget || (event.target instanceof HTMLElement && event.target.dataset.cityCell != null) || event.shiftKey;
+                if (!canStart || event.button !== 0) return;
+                event.currentTarget.setPointerCapture?.(event.pointerId);
+                setSelectionBox({ startX: event.clientX, startY: event.clientY, currentX: event.clientX, currentY: event.clientY, additive: event.shiftKey });
+              }}
+              onPointerMove={(event) => {
+                if (selectionBox) setSelectionBox((current) => current ? { ...current, currentX: event.clientX, currentY: event.clientY } : current);
+              }}
+              onPointerUp={finishSelectionBox}
+              onDragOver={(event) => { if (dragAnchorId) event.preventDefault(); }}
+              onDrop={(event) => {
+                if (!dragAnchorId || !gridRef.current) return;
+                event.preventDefault();
+                const rect = gridRef.current.getBoundingClientRect();
+                const x = Math.max(1, Math.min(8, Math.floor((event.clientX - rect.left) / zoom) + 1));
+                const y = Math.max(1, Math.min(8, Math.floor((event.clientY - rect.top) / zoom) + 1));
+                moveSelection(dragAnchorId, x, y);
+                setDragAnchorId(null);
+              }}
+            >
+              {cells.map((index) => {
+                const x = index % 8 + 1;
+                const y = Math.floor(index / 8) + 1;
+                return <span
+                  key={index}
+                  data-city-cell={index}
+                  className={"city-layout-cell " + cityCellKind(x, y)}
+                  style={{ gridColumn: x, gridRow: y }}
+                />;
+              })}
+              {buildings.map((building) => <button
+                key={building.id}
+                data-city-building-id={building.id}
+                type="button"
+                draggable={building.movable}
+                className={"city-layout-building" + (selectedIds.has(building.id) ? " selected" : "") + (changedIds.has(building.id) ? " changed" : "")}
+                style={{ gridColumn: building.x + " / span " + building.width, gridRow: building.y + " / span " + building.height }}
+                onClick={(event) => setSelectedIds((current) => {
+                  if (event.ctrlKey || event.metaKey) {
+                    const next = new Set(current);
+                    if (next.has(building.id)) next.delete(building.id);
+                    else next.add(building.id);
+                    return next;
+                  }
+                  return new Set([building.id]);
+                })}
+                onDragStart={() => {
+                  if (!selectedIds.has(building.id)) setSelectedIds(new Set([building.id]));
+                  setDragAnchorId(building.id);
+                }}
+                onDragEnd={() => setDragAnchorId(null)}
+              ><span className="city-layout-building-name">{building.name}</span><span className="city-layout-building-level">{t("cityLayout.level", { level: building.level })}</span></button>)}
+              {selectionBox ? <span className="city-layout-selection-box" aria-hidden="true" style={{ position: "fixed", pointerEvents: "none", zIndex: 20, left: Math.min(selectionBox.startX, selectionBox.currentX), top: Math.min(selectionBox.startY, selectionBox.currentY), width: Math.abs(selectionBox.currentX - selectionBox.startX), height: Math.abs(selectionBox.currentY - selectionBox.startY), border: "1px solid currentColor", background: "rgba(80, 130, 255, 0.12)" }} /> : null}
             </div>
           </div>
           <div className="city-layout-legend"><span className="available">{t("cityLayout.cell.available")}</span><span className="road">{t("cityLayout.cell.road")}</span><span className="flag-only">{t("cityLayout.cell.flagOnly")}</span><span className="locked">{t("cityLayout.cell.locked")}</span></div>
         </main>
         <aside className="city-layout-inspector">
           <strong>{t("cityLayout.properties")}</strong>
-          {selected ? <div className="city-layout-selected"><div><strong>{selected.name}</strong><span>{t("cityLayout.level", { level: selected.level })}</span></div><dl><dt>{t("cityLayout.footprint")}</dt><dd>{selected.width}×{selected.height}</dd><dt>{t("cityLayout.current")}</dt><dd>{selected.x},{selected.y}</dd><dt>{t("cityLayout.target")}</dt><dd>{hasChanges ? `${selected.x + 1},${selected.y}` : `${selected.x},${selected.y}`}</dd><dt>{t("cityLayout.movable")}</dt><dd>{t(selected.movable ? "common.yes" : "common.no")}</dd><dt>{t("cityLayout.rule")}</dt><dd>{t(selected.movable ? "cityLayout.rule.normal" : "cityLayout.rule.flag")}</dd></dl></div> : <span className="muted">{t("cityLayout.selectBuilding")}</span>}
-          <div className="city-layout-validation valid">{t("cityLayout.validation.valid")}</div>
-          <div className="city-layout-changes"><strong>{hasChanges ? t("cityLayout.changes", { count: 1 }) : t("cityLayout.noChanges")}</strong>{hasChanges ? <button type="button" onClick={() => setHasChanges(false)}>{t("cityLayout.undo")}</button> : null}</div>
+          {selected ? <div className="city-layout-selected"><div><strong>{selected.name}</strong><span>{t("cityLayout.level", { level: selected.level })}</span></div><dl><dt>{t("cityLayout.footprint")}</dt><dd>{selected.width}×{selected.height}</dd><dt>{t("cityLayout.current")}</dt><dd>{(() => { const initial = CITY_PREVIEW_BUILDINGS.find((building) => building.id === selected.id); return (initial?.x ?? selected.x) + "," + (initial?.y ?? selected.y); })()}</dd><dt>{t("cityLayout.target")}</dt><dd>{selected.x},{selected.y}</dd><dt>{t("cityLayout.movable")}</dt><dd>{t(selected.movable ? "common.yes" : "common.no")}</dd><dt>{t("cityLayout.rule")}</dt><dd>{t(selected.movable ? "cityLayout.rule.normal" : "cityLayout.rule.flag")}</dd></dl></div> : <span className="muted">{t("cityLayout.selectBuilding")}</span>}
+          <div className={"city-layout-validation " + (conflictIds.length ? "invalid" : "valid")}>{conflictIds.length ? t("cityLayout.conflicts", { count: conflictIds.length }) : t("cityLayout.validation.valid")}</div>
+          <div className="city-layout-changes"><strong>{hasChanges ? t("cityLayout.changes", { count: changedIds.size }) : t("cityLayout.noChanges")}</strong>{hasChanges ? <button type="button" onClick={undo}>{t("cityLayout.undo")}</button> : null}</div>
         </aside>
       </div>
-      <footer className="city-layout-footer"><span>{t("cityLayout.draftRevision", { revision: 1 })}</span><span>{t("cityLayout.conflicts", { count: 0 })}</span></footer>
+      <footer className="city-layout-footer"><span>{t("cityLayout.draftRevision", { revision: 1 })}</span><span>{t("cityLayout.conflicts", { count: conflictIds.length })}</span></footer>
     </section>
   );
 }
@@ -887,11 +1140,13 @@ function HotkeyCard({ binding, title, description, warning, attack = false, prev
 
 export function HotkeysPage({ previewState = "" }) {
   const { t } = useI18n();
-  const previewEnabled = previewState === "hotkeys-connected";
+  const previewEnabled = previewState === "hotkeys-connected" || previewState === "hotkeys-save-error";
+  const hotkeyError = previewState === "hotkeys-load-error" ? t("hotkeys.loadFailed") : previewState === "hotkeys-save-error" ? t("hotkeys.saveFailed") : "";
   return (
-    <section className="panel hotkey-panel" data-preview-fixture={previewEnabled ? previewState : undefined}>
+    <section className="panel hotkey-panel" data-preview-fixture={previewState.startsWith("hotkeys-") ? previewState : undefined}>
       <PanelTitle title={t("hotkeys.title")} subtitle={t("hotkeys.description")} />
       {!previewEnabled ? <div className="hotkey-status">{t("hotkeys.offlineHint")}</div> : null}
+      {hotkeyError ? <div className="automation-error" role="alert">{hotkeyError}</div> : null}
       <div className="hotkey-grid">
         {hotkeyCards.map(([binding, title, description, warning], index) => (
           <HotkeyCard key={title} binding={binding} title={title} description={description} warning={warning} attack={index === 0} previewEnabled={previewEnabled} />
@@ -903,9 +1158,26 @@ export function HotkeysPage({ previewState = "" }) {
 
 export function MiniGamesPage({ previewState = "" }) {
   const { t } = useI18n();
-  const previewEnabled = previewState === "mini-games-active" || previewState === "mini-games-complete";
+  const previewEnabled = previewState.startsWith("mini-games-");
   const [chestEnabled, setChestEnabled] = useState(false);
-  const [foodRunning, setFoodRunning] = useState(previewState === "mini-games-active");
+  const foodRunning = previewState === "mini-games-active" || previewState === "mini-games-executing";
+  const foodStatusKey = {
+    "mini-games-solving": "miniGames.sheep.solving",
+    "mini-games-executing": "miniGames.sheep.executing",
+    "mini-games-complete": "miniGames.sheep.dailyLimit",
+    "mini-games-all-complete": "miniGames.sheep.allCompleted",
+    "mini-games-activity-ended": "miniGames.sheep.activityEnded",
+    "mini-games-ui-open": "miniGames.sheep.uiOpen",
+    "mini-games-conflict": "miniGames.sheep.conflict",
+    "mini-games-solve-failed": "miniGames.sheep.solveFailed",
+    "mini-games-unsupported": "miniGames.sheep.unsupported",
+    "mini-games-start-failed": "miniGames.sheep.failed",
+  }[previewState];
+  const landResult = previewState === "mini-games-land-success"
+    ? t("miniGames.landCellSent", { id: 17 })
+    : previewState === "mini-games-land-error"
+      ? t("miniGames.landCellFailed")
+      : "";
   return (
     <section className="panel hotkey-panel" data-preview-fixture={previewEnabled ? previewState : undefined}>
       <PanelTitle title={t("miniGames.title")} subtitle={t("miniGames.description")} />
@@ -920,15 +1192,16 @@ export function MiniGamesPage({ previewState = "" }) {
         <article className="hotkey-card">
           <h3>{t("miniGames.landCell.title")}</h3>
           <p>{t("miniGames.landCell.description")}</p>
-          <div className="mini-game-actions"><button className="primary" type="button" disabled>{t("miniGames.landCellAction")}</button></div>
+          <div className="mini-game-actions"><button className="primary" type="button" disabled title={t("status.gameDisconnectedDisabled")}>{t("miniGames.landCellAction")}</button></div>
+          {landResult ? <span className={"hotkey-state" + (previewState === "mini-games-land-success" ? " enabled" : "")}>{landResult}</span> : null}
         </article>
         <article className="hotkey-card">
           <h3>{t("miniGames.sheep.title")}</h3>
           <p>{t("miniGames.sheep.description")}</p>
           {previewEnabled ? <span className="hotkey-state">{t("miniGames.sheep.level", { level: 4 })}</span> : null}
           {previewEnabled ? <span className="hotkey-state">{t("miniGames.sheep.elapsed", { time: foodRunning ? "00:31" : "00:00" })}</span> : null}
-          <span className={`hotkey-state${previewState === "mini-games-complete" ? " enabled" : ""}`}>{foodRunning ? t("miniGames.sheep.progress", { confirmed: 18, total: 42 }) : previewState === "mini-games-complete" ? t("miniGames.sheep.dailyLimit") : t("common.stopped")}</span>
-          <div className="mini-game-actions">{foodRunning ? <button className="danger" type="button" onClick={() => setFoodRunning(false)}>{t("common.stop")}</button> : <button className="primary" type="button" disabled={!previewEnabled || previewState === "mini-games-complete"} onClick={() => setFoodRunning(true)}>{t("common.start")}</button>}</div>
+          <span className={"hotkey-state" + (previewState === "mini-games-complete" || previewState === "mini-games-all-complete" ? " enabled" : "")}>{foodStatusKey ? t(foodStatusKey) : foodRunning ? t("miniGames.sheep.progress", { confirmed: 18, total: 42 }) : t("common.stopped")}</span>
+          <div className="mini-game-actions"><button className={foodRunning ? "danger" : "primary"} type="button" disabled title={t("status.gameDisconnectedDisabled")}>{t(foodRunning ? "common.stop" : "common.start")}</button></div>
         </article>
       </div>
     </section>
@@ -942,6 +1215,8 @@ export function SettingsPage({ previewState = "" }) {
   const [showFps, setShowFps] = useState(false);
   const [showPing, setShowPing] = useState(false);
   const [focusGame, setFocusGame] = useState(true);
+  const visualError = previewState === "settings-visual-error";
+  const updateError = previewState === "settings-update-error" ? t("update.error.UPDATE_STATUS_FAILED") : "";
   const updatePhase = previewState === "settings-update-available" ? "available" : previewState === "settings-update-downloading" ? "downloading" : previewState === "settings-update-checking" ? "checking" : previewEnabled ? "upToDate" : "idle";
   return (
     <section className="panel settings-panel" data-preview-fixture={previewEnabled ? previewState : undefined}>
@@ -953,21 +1228,24 @@ export function SettingsPage({ previewState = "" }) {
             <span>{t("settings.visualMetrics.description")}</span>
           </div>
         </div>
-        {previewEnabled ? <div className="settings-stack"><ToggleRow label={t("settings.visualMetrics.showFps")} checked={showFps} onChange={setShowFps} /><ToggleRow label={t("settings.visualMetrics.showPing")} checked={showPing} onChange={setShowPing} /></div> : <p>{t("common.processing")}</p>}
+        {visualError ? <p className="update-error" role="alert">{t("settings.visualMetrics.loadFailed")}</p> : previewEnabled ? <div className="settings-stack"><ToggleRow label={t("settings.visualMetrics.showFps")} checked={showFps} onChange={setShowFps} /><ToggleRow label={t("settings.visualMetrics.showPing")} checked={showPing} onChange={setShowPing} /></div> : <p>{t("common.processing")}</p>}
       </section>
       {showProfileFocus ? <section className="update-panel"><div className="update-heading"><div><strong>{t("settings.accountInteraction.title")}</strong><span>{t("settings.accountInteraction.description")}</span></div></div><ToggleRow label={t("settings.accountInteraction.focusGameOnProfileSelect")} checked={focusGame} onChange={setFocusGame} /></section> : null}
       <section className="update-panel feedback-panel">
         <div className="update-heading"><div><strong>{t("feedback.title")}</strong><span>{t("feedback.description")}</span></div></div>
         <p className="feedback-privacy">{t("feedback.privacyNotice")}</p>
         {previewState === "settings-feedback" ? <div className="feedback-export-progress" role="progressbar" aria-label={t("feedback.progress.label")} aria-valuenow="45"><span>{t("feedback.progress.preparing")}</span><span>{t("feedback.progress.exporting")}</span><span>{t("feedback.progress.finalizing")}</span></div> : null}
-        <div className="update-actions"><button type="button" disabled>{t(previewState === "settings-feedback" ? "feedback.exporting" : "feedback.export")}</button></div>
+        {previewState === "settings-feedback-success" ? <p className="update-success feedback-result">{t("feedback.success", { size: "4.2 MB", path: "Preview/diagnostics.zip" })}</p> : null}
+        {previewState === "settings-feedback-error" ? <p className="update-error" role="alert">{t("feedback.failed")}</p> : null}
+        <div className="update-actions"><button type="button" disabled title={t("status.gameDisconnectedDisabled")}>{t(previewState === "settings-feedback" ? "feedback.exporting" : "feedback.export")}</button></div>
       </section>
       <section className="update-panel">
         <div className="update-heading">
           <div><strong>{t("update.title")}</strong><span>{t(`update.${updatePhase}`)}</span></div>
           <span className="update-version">{t("update.currentVersion", { version: "0.3.17" })}</span>
         </div>
-        {updatePhase === "available" ? <><span>{t("update.latestVersion", { version: "0.3.18" })}</span><div className="update-actions"><button type="button" disabled>{t("update.downloadAndOpen")}</button></div></> : updatePhase === "downloading" ? <div className="update-progress"><progress max="100" value="42" /><span>{t("update.downloading", { progress: 42 })}</span></div> : <div className="update-actions"><button type="button" disabled={!previewEnabled || updatePhase === "checking"}>{t("update.check")}</button></div>}
+        {updateError ? <p className="update-error" role="alert">{updateError}</p> : null}
+        {updatePhase === "available" ? <><span>{t("update.latestVersion", { version: "0.3.18" })}</span><div className="update-actions"><button type="button" disabled title={t("status.gameDisconnectedDisabled")}>{t("update.downloadAndOpen")}</button></div></> : updatePhase === "downloading" ? <div className="update-progress"><progress max="100" value="42" /><span>{t("update.downloading", { progress: 42 })}</span></div> : <div className="update-actions"><button type="button" disabled title={t("status.gameDisconnectedDisabled")}>{t("update.check")}</button></div>}
       </section>
     </section>
   );
@@ -977,7 +1255,10 @@ export function PageForRoute({ routeKey, ...pageProps }) {
   switch (routeKey) {
     case "overview": return <HomePage {...pageProps} />;
     case "automation": return <AutomationPage {...pageProps} />;
-    case "map-data": return <MapDataPage {...pageProps} />;
+    case "map-data": {
+      const previewProvider = getMapPreviewProvider(pageProps.bridgeMode, pageProps.previewState);
+      return <MapDataPage {...pageProps} {...(previewProvider || {})} />;
+    }
     case "march": return <SquadsPage {...pageProps} />;
     case "city-layout": return <CityLayoutPage {...pageProps} />;
     case "hotkeys": return <HotkeysPage {...pageProps} />;
