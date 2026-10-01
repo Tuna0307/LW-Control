@@ -75,6 +75,19 @@ If runtime visual comparison is blocked by auth, mark that validation gap explic
 
 ## Current work
 
+2026-10-02 lead takeover while the worker rests: `LWB317-UI-LEAD-TABLES-001`
+is **AWAITING_REVIEW**. Eight normal Map tables now use recovered column/value/
+width definitions, task eligibility/time states, Truck caps, Treasure type/state/
+charging/reason labels, supplied-text fallbacks and reward rendering/item sorting.
+Unknown Resource occupancy remains unknown through the existing current-client
+adapter. Exact original helpers/callbacks, 288 metadata cases, 15,264 value
+comparisons and 72 actual JSX cases cover all eight kinds/nine languages. Browser
+tab/state/sort/locale/theme checks and package regressions pass. See
+`reviews/2026-10-02-LWB317-UI-LEAD-TABLES-001.md` and its granular coverage matrix.
+Home busy and Trade 003E pass additional author rechecks, but stay pending
+independent review. Scheduled Plunder, per-tab filter/action details, native texts/
+images/providers and original pixels remain separate; no global/live upgrade.
+
 `LWB317-UI-001A` established the 0.3.17 frontend package statically. The exact
 reference contains a 24-record Brotli-compressed Tauri asset table in `.rdata`;
 all 24 web assets were losslessly recovered and hashed under

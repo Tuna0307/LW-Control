@@ -6,6 +6,16 @@
 
 ## Current state
 
+Latest owner-requested lead takeover: **LWB317-UI-LEAD-TABLES-001 AWAITING_REVIEW**.
+The eight normal Map tables now have recovered columns/widths, text/time/quality
+formatting, task/Truck/Treasure states and eligibility, reward rendering and item
+sorting/clear behavior. Source/local differential and actual-render checks cover
+nine languages; all eight tables and representative state/theme/locale variants
+pass browser-preview QA. Current package/checks pass. Home busy and Trade 003E
+also pass author rechecks; independent acceptance remains pending. See
+`reviews/2026-10-02-LWB317-UI-LEAD-TABLES-001.md`. Overall UI remains
+IMPLEMENTED_NOT_VALIDATED; original pixels and native/gameplay limits are unchanged.
+
 Owner clarification: the clone has no login UI; required auth-related local
 dependency research is permitted under `AGENTS.md` section 6. No product fallback
 is wanted. Historical source is retained; the existing selectable `--legacy-ui`

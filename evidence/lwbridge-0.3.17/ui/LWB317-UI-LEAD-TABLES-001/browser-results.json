@@ -1,0 +1,693 @@
+{
+  "task": "LWB317-UI-LEAD-TABLES-001",
+  "mode": "browser-preview-only",
+  "cases": [
+    {
+      "surface": "Home",
+      "fixture": "home-root-busy-valid",
+      "language": "en",
+      "buttons": [
+        {
+          "disabled": true,
+          "label": "Launch Game"
+        },
+        {
+          "disabled": true,
+          "label": "Close game"
+        },
+        {
+          "disabled": true,
+          "label": "Open games at startup"
+        },
+        {
+          "disabled": true,
+          "label": "Automatic Reconnection"
+        }
+      ],
+      "header": "Game stopped"
+    },
+    {
+      "surface": "Home",
+      "fixture": "home-proxy-busy-stopped",
+      "language": "en",
+      "buttons": [
+        {
+          "disabled": true,
+          "label": "Processing"
+        },
+        {
+          "disabled": true,
+          "label": "Close game"
+        },
+        {
+          "disabled": true,
+          "label": "Open games at startup"
+        },
+        {
+          "disabled": true,
+          "label": "Automatic Reconnection"
+        }
+      ],
+      "header": "Processing"
+    },
+    {
+      "surface": "Home",
+      "fixture": "home-proxy-busy-running",
+      "language": "en",
+      "buttons": [
+        {
+          "disabled": true,
+          "label": "Processing"
+        },
+        {
+          "disabled": true,
+          "label": "Processing"
+        },
+        {
+          "disabled": true,
+          "label": "Open games at startup"
+        },
+        {
+          "disabled": true,
+          "label": "Automatic Reconnection"
+        }
+      ],
+      "header": "Processing"
+    },
+    {
+      "surface": "Home",
+      "fixture": "home-busy-overlap",
+      "language": "en",
+      "buttons": [
+        {
+          "disabled": true,
+          "label": "Launching game…"
+        },
+        {
+          "disabled": true,
+          "label": "Processing"
+        },
+        {
+          "disabled": true,
+          "label": "Open games at startup"
+        },
+        {
+          "disabled": true,
+          "label": "Automatic Reconnection"
+        }
+      ],
+      "header": "Launching game…"
+    },
+    {
+      "surface": "Home",
+      "fixture": "home-launching",
+      "language": "ja",
+      "buttons": [
+        {
+          "disabled": true,
+          "label": "ゲームを起動中…"
+        },
+        {
+          "disabled": true,
+          "label": "ゲームを閉じる"
+        },
+        {
+          "disabled": true,
+          "label": "起動時にゲームを開く"
+        },
+        {
+          "disabled": true,
+          "label": "自動再接続"
+        }
+      ],
+      "header": "ゲームを起動中…"
+    },
+    {
+      "surface": "Trade",
+      "fixture": "automation-trade-loading-retained",
+      "goods": 2,
+      "loading": "Loading goods...",
+      "stats": "Detected: 3Attempted: 2Succeeded: 2Last result: Success"
+    },
+    {
+      "surface": "Map",
+      "tab": "City",
+      "language": "en",
+      "columnWidths": [
+        "56px",
+        "198px",
+        "138px",
+        "118px",
+        "78px",
+        "98px",
+        "158px",
+        "158px"
+      ],
+      "disabledTaskSelections": 0,
+      "firstRow": [
+        "☆",
+        "411,521",
+        "Fixture Commander 1",
+        "QA",
+        "21",
+        "5,125,000",
+        "-",
+        "1/4/2027, 2:12:20 AM"
+      ],
+      "headers": [
+        "Marked",
+        "Coordinates",
+        "Player",
+        "Alliance",
+        "Level",
+        "HP",
+        "Shield Ends",
+        "Updated At1"
+      ],
+      "rewardSortVisible": false,
+      "rowActionButtonsDisabled": true,
+      "rows": 50,
+      "tableLabel": "Player City",
+      "taskSelections": 0
+    },
+    {
+      "surface": "Map",
+      "tab": "Resource",
+      "language": "en",
+      "columnWidths": [
+        "198px",
+        "158px",
+        "78px",
+        "88px",
+        "158px"
+      ],
+      "disabledTaskSelections": 0,
+      "firstRow": [
+        "411,521",
+        "Fixture Resource B",
+        "2",
+        "Idle",
+        "1/4/2027, 2:12:20 AM"
+      ],
+      "headers": [
+        "Coordinates",
+        "Resource",
+        "Level",
+        "Status",
+        "Updated At1"
+      ],
+      "rewardSortVisible": false,
+      "rowActionButtonsDisabled": true,
+      "rows": 50,
+      "tableLabel": "Resource Point",
+      "taskSelections": 0
+    },
+    {
+      "surface": "Map",
+      "tab": "Monster",
+      "language": "en",
+      "columnWidths": [
+        "198px",
+        "158px",
+        "78px",
+        "98px",
+        "158px"
+      ],
+      "disabledTaskSelections": 0,
+      "firstRow": [
+        "411,521",
+        "Fixture Monster A Label",
+        "21",
+        "47",
+        "1/4/2027, 2:12:20 AM"
+      ],
+      "headers": [
+        "Coordinates",
+        "Name",
+        "Level",
+        "Distance",
+        "Updated At1"
+      ],
+      "rewardSortVisible": false,
+      "rowActionButtonsDisabled": true,
+      "rows": 50,
+      "tableLabel": "Monster",
+      "taskSelections": 0
+    },
+    {
+      "surface": "Map",
+      "tab": "Truck",
+      "language": "en",
+      "columnWidths": [
+        "64px",
+        "198px",
+        "178px",
+        "78px",
+        "128px",
+        "368px",
+        "198px",
+        "158px",
+        "158px"
+      ],
+      "disabledTaskSelections": 18,
+      "firstRow": [
+        "",
+        "411,521",
+        "Truck Owner 1",
+        "R",
+        "18,175,000",
+        "×2",
+        "Ready｜Plundered 1/2",
+        "1/4/2027, 2:23:30 AM",
+        "1/4/2027, 2:12:20 AM"
+      ],
+      "headers": [
+        "Select",
+        "Live Target",
+        "Player / Alliance",
+        "Quality",
+        "Escort Power",
+        "Items",
+        "Plunder status",
+        "Arrival Time",
+        "Updated At1"
+      ],
+      "rewardSortVisible": false,
+      "rowActionButtonsDisabled": true,
+      "rows": 50,
+      "tableLabel": "Truck",
+      "taskSelections": 50
+    },
+    {
+      "surface": "Map",
+      "tab": "Train",
+      "language": "en",
+      "columnWidths": [
+        "198px",
+        "168px",
+        "78px",
+        "128px",
+        "368px",
+        "158px",
+        "158px"
+      ],
+      "disabledTaskSelections": 0,
+      "firstRow": [
+        "411,521",
+        "QA Alliance",
+        "R",
+        "24,150,000",
+        "×2",
+        "1/4/2027, 2:13:35 AM",
+        "1/4/2027, 2:12:20 AM"
+      ],
+      "headers": [
+        "Live Target",
+        "Alliance",
+        "Quality",
+        "Power",
+        "Items",
+        "Protection Time",
+        "Updated At1"
+      ],
+      "rewardSortVisible": false,
+      "rowActionButtonsDisabled": true,
+      "rows": 50,
+      "tableLabel": "Train",
+      "taskSelections": 0
+    },
+    {
+      "surface": "Map",
+      "tab": "Secret Task",
+      "language": "en",
+      "columnWidths": [
+        "64px",
+        "198px",
+        "158px",
+        "78px",
+        "118px",
+        "98px",
+        "368px",
+        "158px",
+        "158px"
+      ],
+      "disabledTaskSelections": 50,
+      "firstRow": [
+        "",
+        "411,521",
+        "Task Owner 1",
+        "6",
+        "R",
+        "In progress",
+        "×2",
+        "1/4/2027, 2:13:50 AM",
+        "1/4/2027, 2:12:20 AM"
+      ],
+      "headers": [
+        "Select",
+        "Coordinates",
+        "Owner",
+        "Level",
+        "Quality",
+        "Status",
+        "Rewards",
+        "Completion Time",
+        "Updated At1"
+      ],
+      "rewardSortVisible": false,
+      "rowActionButtonsDisabled": true,
+      "rows": 50,
+      "tableLabel": "Secret Task",
+      "taskSelections": 50
+    },
+    {
+      "surface": "Map",
+      "tab": "Ghost Ops",
+      "language": "en",
+      "columnWidths": [
+        "64px",
+        "198px",
+        "158px",
+        "78px",
+        "118px",
+        "98px",
+        "368px",
+        "158px",
+        "158px"
+      ],
+      "disabledTaskSelections": 50,
+      "firstRow": [
+        "",
+        "411,521",
+        "Ghost Owner 1",
+        "5",
+        "R",
+        "In progress",
+        "×2",
+        "1/4/2027, 2:13:40 AM",
+        "1/4/2027, 2:12:20 AM"
+      ],
+      "headers": [
+        "Select",
+        "Coordinates",
+        "Owner",
+        "Level",
+        "Quality",
+        "Status",
+        "Rewards",
+        "Completion Time",
+        "Updated At1"
+      ],
+      "rewardSortVisible": false,
+      "rowActionButtonsDisabled": true,
+      "rows": 50,
+      "tableLabel": "Ghost Ops",
+      "taskSelections": 50
+    },
+    {
+      "surface": "Map",
+      "tab": "Treasure",
+      "language": "en",
+      "columnWidths": [
+        "198px",
+        "168px",
+        "98px",
+        "118px",
+        "118px",
+        "98px",
+        "98px",
+        "158px",
+        "148px",
+        "118px",
+        "98px",
+        "158px"
+      ],
+      "disabledTaskSelections": 0,
+      "firstRow": [
+        "411,521",
+        "Unknown Treasure",
+        "2",
+        "-",
+        "-",
+        "1",
+        "1",
+        "1/4/2027, 2:43:25 AM",
+        "Treasure Owner 1",
+        "QA",
+        "Claim",
+        "1/4/2027, 2:12:20 AM"
+      ],
+      "headers": [
+        "Coordinates",
+        "Treasure Type",
+        "Remaining boxes",
+        "Treasure status",
+        "My status",
+        "Claimed",
+        "Digging",
+        "Expire Time",
+        "Owner",
+        "Alliance",
+        "Actions",
+        "Updated At1"
+      ],
+      "rewardSortVisible": false,
+      "rowActionButtonsDisabled": true,
+      "rows": 45,
+      "tableLabel": "Treasure",
+      "taskSelections": 0
+    },
+    {
+      "surface": "Map states",
+      "tab": "Treasure",
+      "language": "en",
+      "nativeActionsDisabled": true,
+      "rows": [
+        "411,521Fixture Lucky Treasure Label2Charging 38%Not claimed111/4/2027, 2:43:25 AMTreasure Owner 1QAClaim1/4/2027, 2:12:20 AM",
+        "412,522Fixture Radar Treasure Label3ClaimableClaimed221/4/2027, 2:43:30 AMTreasure Owner 2QAClaim1/4/2027, 2:11:20 AM",
+        "413,523Fixture Lucky Treasure Label4DepletedOther alliance331/4/2027, 2:43:35 AMTreasure Owner 3QAClaim1/4/2027, 2:10:20 AM"
+      ]
+    },
+    {
+      "surface": "Map states",
+      "tab": "Truck",
+      "language": "en",
+      "selectedEligibility": [
+        true,
+        false,
+        true
+      ],
+      "statuses": [
+        "Protected 00:00:38｜Plundered 1/3",
+        "Fully plundered 3/3",
+        "Ready｜Plundered 1/3"
+      ]
+    },
+    {
+      "surface": "Map interaction",
+      "interaction": "choose item then sort Items",
+      "itemButton": true,
+      "rows": 27,
+      "activeSortLabels": [
+        "Items: descending, priority 1",
+        "Updated At: descending, priority 2"
+      ]
+    },
+    {
+      "surface": "Map interaction",
+      "interaction": "clear item filter",
+      "itemSortHidden": true
+    },
+    {
+      "surface": "Map states",
+      "tab": "Secret Task",
+      "language": "en",
+      "disabledSelections": [
+        false,
+        true,
+        false,
+        true,
+        false
+      ],
+      "statuses": [
+        "In progress",
+        "Fully plundered",
+        "Protected",
+        "Expired",
+        "Available"
+      ]
+    },
+    {
+      "case": "map-resource-unknown",
+      "result": {
+        "first": "411,521\n\tFixture Resource B\t2\t—\t1/4/2027, 2:12:20 AM",
+        "unknown": true
+      }
+    },
+    {
+      "case": "map-item-sort-selected-final",
+      "result": [
+        {
+          "label": "Quality",
+          "text": "Quality"
+        },
+        {
+          "label": "Escort Power",
+          "text": "Escort Power"
+        },
+        {
+          "label": "Items: descending, priority 1",
+          "text": "Items1"
+        },
+        {
+          "label": "Plunder status",
+          "text": "Plunder status"
+        },
+        {
+          "label": "Arrival Time",
+          "text": "Arrival Time"
+        },
+        {
+          "label": "Updated At: descending, priority 2",
+          "text": "Updated At2"
+        }
+      ]
+    },
+    {
+      "case": "map-item-sort-cleared-final",
+      "result": {
+        "headers": [
+          {
+            "label": "Quality",
+            "text": "Quality"
+          },
+          {
+            "label": "Escort Power",
+            "text": "Escort Power"
+          },
+          {
+            "label": "Plunder status",
+            "text": "Plunder status"
+          },
+          {
+            "label": "Arrival Time",
+            "text": "Arrival Time"
+          },
+          {
+            "label": "Updated At: descending, priority 1",
+            "text": "Updated At1"
+          }
+        ],
+        "value": ""
+      }
+    },
+    {
+      "case": "map-treasure-ja-dark",
+      "result": {
+        "firstRows": [
+          "411,521\n\tFixture Lucky Treasure Label\t2\t充電中 38%\t未受取\t1\t1\t2027/1/4 2:43:25\tTreasure Owner 1\tQA\t受取\t2027/1/4 2:12:20",
+          "412,522\n\tFixture Radar Treasure Label\t3\t受取可能\t受取済み\t2\t2\t2027/1/4 2:43:30\tTreasure Owner 2\tQA\t受取\t2027/1/4 2:11:20",
+          "413,523\n\tFixture Lucky Treasure Label\t4\t受取終了\t他同盟\t3\t3\t2027/1/4 2:43:35\tTreasure Owner 3\tQA\t受取\t2027/1/4 2:10:20"
+        ],
+        "headers": [
+          "座標",
+          "宝物タイプ",
+          "残り宝箱",
+          "宝物状態",
+          "自分の状態",
+          "受取済み",
+          "発掘中",
+          "有効期限",
+          "所属プレイヤー",
+          "連盟",
+          "操作",
+          "更新日時1"
+        ],
+        "nativeButtonsDisabled": true,
+        "table": "宝物",
+        "theme": "dark"
+      }
+    },
+    {
+      "case": "trade-error-retained-final",
+      "result": {
+        "rows": [],
+        "stats": "Detected: 3\nAttempted: 2\nSucceeded: 2\nLast result: Success"
+      }
+    },
+    {
+      "case": "trade-error-retained-dom-final",
+      "result": {
+        "error": [
+          "Error: Fixture Trade goods request failed"
+        ],
+        "goods": [
+          {
+            "className": "trade-station-goods",
+            "text": "Select goods\nShow city-owner exclusive\nFixture Speedup Chest\nBuy whenever available\nPossible cost: Fixture Trade Token / Fixture Market Credit\nFixture Resource Crate\nBuy whenever available\nPossible cost: Fixture Trade Token"
+          },
+          {
+            "className": "trade-station-goods-heading",
+            "text": "Select goods\nShow city-owner exclusive"
+          },
+          {
+            "className": "trade-station-good-grid",
+            "text": "Fixture Speedup Chest\nBuy whenever available\nPossible cost: Fixture Trade Token / Fixture Market Credit\nFixture Resource Crate\nBuy whenever available\nPossible cost: Fixture Trade Token"
+          },
+          {
+            "className": "trade-station-good",
+            "text": "Fixture Speedup Chest\nBuy whenever available\nPossible cost: Fixture Trade Token / Fixture Market Credit"
+          },
+          {
+            "className": "trade-station-good-frame quality-5",
+            "text": ""
+          },
+          {
+            "className": "trade-station-good-icon game-asset-placeholder",
+            "text": ""
+          }
+        ]
+      }
+    },
+    {
+      "case": "trade-error-purchased-final",
+      "result": {
+        "errors": [
+          "Error: Fixture Trade goods request failed"
+        ],
+        "tables": []
+      }
+    },
+    {
+      "case": "trade-error-purchased-visible",
+      "result": {
+        "history": [
+          {
+            "className": "trade-station-purchase-history",
+            "text": "Thu, October 1, 2026\nPurchased today: 7\nFixture Resource Crate ×5\nFixture Speedup Chest ×2\nFixture Resource Crate\nQuantity: 5\nPrice: 44 Fixture Market Credit\nPurchased at: 5:22:00 PM\nServer: #901\nToday's item #2\nPurchase confirmed after timeout\nFixture Speedup Chest\nQuantity: 2\nPrice: 120 Fixture Trade Token\nPurchased at: 4:14:00 PM\nServer: #901\nToday's item #1"
+          }
+        ],
+        "selected": [
+          "Trade Station",
+          "All",
+          "Purchased items (2)"
+        ]
+      }
+    },
+    {
+      "case": "map-task-capture-rechecked-final",
+      "result": {
+        "states": [
+          "In progress",
+          "Fully plundered",
+          "Protected",
+          "Expired",
+          "Available"
+        ],
+        "table": "Secret Task"
+      }
+    }
+  ],
+  "consoleErrors": [],
+  "limits": "Synthetic fixtures; no original/runtime/native/gameplay proof; Home busy and Trade 003E are author rechecks, independent acceptance pending."
+}

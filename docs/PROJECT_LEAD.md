@@ -47,6 +47,7 @@ the Map closeout awaits a separate independent acceptance review.
 
 | Work item / campaign | Owner | State | Scope |
 |---|---|---|---|
+| LWB317-UI-LEAD-TABLES-001 | Project lead takeover while worker rests | AWAITING_REVIEW | Eight normal Map tables corrected against exact 0.3.17 source: columns/widths, time/status/quality/text fallback, reward rendering/sorting and eligibility. 288 metadata / 15,264 value / 72 actual render cases across nine locales; browser variants and package checks pass. Home busy/Trade 003E strengthened by author rechecks, independent reviews remain pending |
 | LWB317-PM-001 | Project lead | COMPLETE | Repository/documentation reset for 0.3.17 |
 | LWB317-PM-003 | Project lead | COMPLETE | Takeover source/evidence audit, current path map and exact CSS checkout repair; no new live test/full Map acceptance |
 | LWB317-PM-015 | Project lead, owner requested own tasks while worker rests | COMPLETE for source/state audit | 960 Home comparisons locate busy-label/header, error translation/channels and localized switch-description gaps. No product edit/native test; review 2026-10-02-LWB317-PM-015-home-audit.md |

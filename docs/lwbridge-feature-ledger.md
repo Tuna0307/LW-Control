@@ -45,6 +45,14 @@ Allowed status values:
 
 ## Rule
 
+2026-10-02: `LWB317-UI-LEAD-TABLES-001` adds **AWAITING_REVIEW** source/local
+coverage to the Map Data row: all eight normal table definitions/widths, status/
+quality/time/text fallback, reward order/count/sorting and task eligibility.
+Nine-locale differential/actual JSX, all-eight-tab browser QA and package checks
+pass. Source/native contract/live proof columns above remain unchanged; native
+text/image integration, action/filter details, scheduling and original pixels
+are separate gaps. Review: `reviews/2026-10-02-LWB317-UI-LEAD-TABLES-001.md`.
+
 A historical 0.3.1 feature name is a hypothesis, not a 0.3.17 row. Add it here only after the 0.3.17 reference confirms that the surface/function exists.
 
 Login/account/licensing remains out of scope unless a specific in-scope feature later requires a narrowly defined dependency trace.

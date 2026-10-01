@@ -12,6 +12,9 @@ import {
   updateSelectedTypes,
 } from "./mapBackend.js";
 import { useI18n } from "./i18n.jsx";
+import { buildMapColumns, mapNumber, mapResourceStatus, mapRewardCount, mapRewardName, mapTaskLabel, mapTaskSelectable, mapTaskState } from "./mapTablePresentation.js";
+
+const EMPTY_GAME_TEXTS = Object.freeze({});
 
 const DEFAULT_SORTS = Object.freeze(
   Object.fromEntries(MAP_KIND_KEYS.map((kind) => [kind, [{ sortBy: "updatedAt", sortOrder: "desc" }]])),
@@ -87,154 +90,41 @@ function coordinateText(row) {
   return Number.isFinite(x) && Number.isFinite(y) ? `${x},${y}` : "-";
 }
 
-function qualityText(value) {
-  const quality = Number(value);
-  return ({ 1: "N", 2: "R", 3: "SR", 4: "SSR", 5: "UR" })[quality] || (quality > 0 ? String(quality) : "-");
-}
-
-function resourceStatus(row) {
-  if (row?.rebuildGatherOccupancyKnown === false) return "—";
-  const occupied = row?.rebuildGatherOccupancyKnown === true
-    ? row?.rebuildGatherOccupied === true
-    : [row?.gatherMarchUuid, row?.gatherUid].some((value) => value != null && String(value) !== "" && String(value) !== "0");
-  return occupied ? "Gathering" : "Idle";
-}
-
-function amountText(row) {
-  const remaining = Number(row?.resourceRemainingAmount);
-  const full = Number(row?.resourceFullAmount);
-  return Number.isFinite(remaining) && Number.isFinite(full)
-    ? `${remaining.toLocaleString(uiLocale())} / ${full.toLocaleString(uiLocale())}`
-    : "—";
-}
-
-function taskStatusText(row, t) {
-  const status = String(row?.completionStatus || row?.status || "").toLowerCase();
-  if (status === "completed") return t("common.completed");
-  if (status === "pending" || status === "in_progress") return t("common.inProgress");
-  return status || "-";
-}
-
-function truckPlunderText(row, t) {
-  const robbed = Math.max(0, Number(row?.robTimes) || 0);
-  const max = Math.max(robbed, Number(row?.maxRobTimes) || Number(row?.robMaxTimes) || 0);
-  if (max > 0 && robbed >= max) return `${t("map.truckPlunderFull")} ${robbed}/${max}`;
-  const protection = Number(row?.protectTime);
-  if (Number.isFinite(protection) && protection > Date.now()) return `${t("map.truckProtected")} · ${t("map.truckRobbedCount", { count: robbed, max: max || "-" })}`;
-  return `${t("map.truckReady")} · ${t("map.truckRobbedCount", { count: robbed, max: max || "-" })}`;
-}
-
-function rowColumns(kind, t) {
-  const coordinates = { label: kind === "truck" || kind === "dispatch" || kind === "ghost" ? t("map.liveTarget") : t("map.coordinates"), coordinate: true };
-  const updated = { label: t("map.updatedAt"), sortBy: "updatedAt", value: (row) => dateText(row.updatedAt) };
-  switch (kind) {
-    case "city":
-      return [
-        { label: t("map.marked"), mark: true },
-        coordinates,
-        { label: t("map.player"), value: (row) => row.ownerName || "-" },
-        { label: t("map.alliance"), value: (row) => row.allianceName || "-" },
-        { label: t("map.level"), sortBy: "level", value: (row) => numberText(row.level) },
-        { label: "HP", sortBy: "health", value: (row) => numberText(row.health) },
-        { label: t("automation.shieldEnds"), sortBy: "shield", value: (row) => dateText(row.protectEndTime || row.shieldEndTime) },
-        updated,
-      ];
-    case "resource":
-      return [
-        coordinates,
-        { label: t("map.resource"), value: (row) => row.resourceNameKey || row.name || t("map.unknownResource") },
-        { label: t("map.level"), sortBy: "level", value: (row) => numberText(row.level) },
-        { label: t("common.status"), value: (row) => resourceStatus(row) === "Gathering" ? t("map.resourceGathering") : t("map.resourceIdle") },
-        updated,
-      ];
-    case "monster":
-      return [
-        coordinates,
-        { label: t("common.name"), value: (row) => row.monsterNameKey || row.name || t("map.unknownMonster") },
-        { label: t("map.level"), sortBy: "level", value: (row) => numberText(row.level) },
-        { label: t("map.distance"), sortBy: "distance", value: (row) => numberText(row.distanceFromHome) },
-        updated,
-      ];
-    case "truck":
-      return [
-        { label: t("map.selectTask"), select: true },
-        coordinates,
-        { label: t("map.playerAlliance"), value: (row) => row.ownerName || row.allianceName || "-" },
-        { label: t("map.quality"), sortBy: "quality", value: (row) => row.isSpecialURQuality === true ? t("map.reindeerQuality") : qualityText(row.quality) },
-        { label: t("map.escortPower"), sortBy: "power", value: (row) => numberText(row.power) },
-        { label: t("map.retainedGoods"), sortBy: "itemCount", value: (row) => Array.isArray(row.currentGoods) ? row.currentGoods.map((item) => `${item.name || item.key || "-"} ×${numberText(item.count)}`).join(" · ") || "-" : "-" },
-        { label: t("map.plunderStatus"), sortBy: "remainingLootCount", value: (row) => truckPlunderText(row, t) },
-        { label: t("map.arrivalTime"), sortBy: "arriveTime", value: (row) => dateText(row.arriveTs) },
-        updated,
-      ];
-    case "railway":
-      return [
-        coordinates,
-        { label: t("map.alliance"), value: (row) => row.allianceName || row.allianceAbbr || "-" },
-        { label: t("map.quality"), sortBy: "quality", value: (row) => qualityText(row.quality) },
-        { label: t("map.power"), sortBy: "power", value: (row) => numberText(row.power) },
-        { label: t("map.retainedGoods"), sortBy: "itemCount", value: (row) => Array.isArray(row.currentGoods) ? row.currentGoods.map((item) => `${item.name || item.key || "-"} ×${numberText(item.count)}`).join(" · ") || "-" : "-" },
-        { label: t("map.protectionTime"), sortBy: "protectTime", value: (row) => dateText(row.protectTime) },
-        updated,
-      ];
-    case "treasure":
-      return [
-        coordinates,
-        { label: t("map.treasureType"), value: (row) => row.treasureNameKey || row.name || row.treasureType || t("map.treasureTypeUnknown") },
-        { label: t("map.remainingBoxes"), value: (row) => numberText(row.remainingBoxes) },
-        { label: t("map.treasureWorldState"), value: (row) => row.worldClaimState ? t(`map.treasureState${String(row.worldClaimState).charAt(0).toUpperCase()}${String(row.worldClaimState).slice(1)}`) : "-" },
-        { label: t("map.treasurePlayerState"), value: (row) => row.playerClaimState || "-" },
-        { label: t("map.claimedCount"), value: (row) => numberText(row.rewardedCount) },
-        { label: t("map.diggingCount"), value: (row) => numberText(row.diggingCount) },
-        { label: t("map.expireTime"), value: (row) => dateText(row.expireTime) },
-        { label: t("map.owner"), value: (row) => row.ownerName || row.ownerUid || "-" },
-        { label: t("map.alliance"), value: (row) => row.allianceAbbr || row.allianceId || "-" },
-        { label: t("map.actions"), action: true },
-        updated,
-      ];
-    case "dispatch":
-    case "ghost":
-      return [
-        { label: t("map.selectTask"), select: true },
-        coordinates,
-        { label: t("map.owner"), value: (row) => row.ownerName || row.ownerUid || "-" },
-        { label: t("map.level"), sortBy: "level", value: (row) => numberText(row.level) },
-        { label: t("map.quality"), sortBy: "quality", value: (row) => row.isSpecial === true ? t("map.specialQuality") : qualityText(row.quality) },
-        { label: t("map.taskStatus"), value: (row) => taskStatusText(row, t) },
-        { label: t("map.rewards"), value: (row) => Array.isArray(row.rewards) ? row.rewards.map((item) => `${item.name || item.key || "-"} ×${numberText(item.count)}`).join(" · ") || "-" : "-" },
-        { label: t("map.completionTime"), sortBy: "completionTime", value: (row) => dateText(row.completionTime) },
-        updated,
-      ];
-    default:
-      return [coordinates, updated];
-  }
-}
-
-function MapTable({ kind, rows, loading, sorts, onSort, onCoordinateJump, onPlayerMark, actionBusy, actionDisabled, selectedKeys, onSelect }) {
-  const { t } = useI18n();
-  const columns = useMemo(() => rowColumns(kind, t), [kind, t]);
+function MapTable({ kind, rows, loading, sorts, onSort, onCoordinateJump, onPlayerMark, actionBusy, actionDisabled, selectedKeys, onSelect, gameTexts = EMPTY_GAME_TEXTS, itemKey = "", treasureStatesRefreshing = false }) {
+  const { language, t } = useI18n();
+  const [currentTime, setCurrentTime] = useState(() => Date.now());
+  useEffect(() => {
+    if (!["truck", "dispatch", "ghost"].includes(kind)) return undefined;
+    setCurrentTime(Date.now());
+    const timer = window.setInterval(() => setCurrentTime(Date.now()), 1000);
+    return () => window.clearInterval(timer);
+  }, [kind]);
+  const columns = useMemo(() => buildMapColumns(kind, t, language, gameTexts, itemKey, treasureStatesRefreshing), [kind, t, language, gameTexts, itemKey, treasureStatesRefreshing]);
+  const columnWidths = columns.map((column) => Number(column.width.match(/\d+/)[0]) + 8);
   const rowKey = (row, index) => `${kind}:${row.serverId ?? 0}:${row.recordKey || row.uuid || row.marchUuid || row.pointIndex || index}`;
   return (
     <div className="map-table-scroll">
-      <table className={`map-table map-table--${kind}`} aria-label={MAP_TABS.find((item) => item.key === kind)?.label} aria-busy={loading}>
+      <table className={`map-table map-table--${kind}`} style={{ minWidth: columnWidths.reduce((total, width) => total + width, 0) }} aria-label={t(SCAN_TYPE_LABEL_KEYS[kind])} aria-busy={loading}>
+        <colgroup>{columnWidths.map((width, index) => <col key={index} style={{ width }} />)}</colgroup>
         <thead>
           <tr className="map-row map-head">
             {columns.map((column) => {
               const sortIndex = column.sortBy ? sorts.findIndex((sort) => sort.sortBy === column.sortBy) : -1;
               const sort = sortIndex >= 0 ? sorts[sortIndex] : null;
               return (
-                <th key={column.label} scope="col" aria-sort={sortIndex === 0 ? (sort.sortOrder === "asc" ? "ascending" : "descending") : undefined}>
+                <th key={column.label} scope="col" className={column.className || ""} aria-sort={sortIndex === 0 ? (sort.sortOrder === "asc" ? "ascending" : "descending") : undefined}>
                   {column.sortBy ? (
                     <button
                       type="button"
                       className={`map-sort-button${sort ? " active" : ""}`}
+                      aria-label={sort ? t("map.sortDescription", { column: column.label, direction: t(sort.sortOrder === "asc" ? "map.sortAscending" : "map.sortDescending"), priority: sortIndex + 1 }) : column.label}
                       onClick={() => onSort(column.sortBy)}
                     >
                       {column.label}
                       {sort ? <span className="map-sort-priority" aria-hidden="true">{sortIndex + 1}</span> : null}
                       <span className="map-sort-arrows" aria-hidden="true">
-                        <span className={`map-sort-arrow${sort?.sortOrder === "asc" ? " active" : ""}`}>↑</span>
-                        <span className={`map-sort-arrow${sort?.sortOrder === "desc" ? " active" : ""}`}>↓</span>
+                        <span className={`map-sort-arrow${sort?.sortOrder === "asc" ? " active" : ""}`}><svg className="ui-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M8 13.5v-11M3.5 7 8 2.5 12.5 7" /></svg></span>
+                        <span className={`map-sort-arrow${sort?.sortOrder === "desc" ? " active" : ""}`}><svg className="ui-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M8 2.5v11M3.5 9 8 13.5 12.5 9" /></svg></span>
                       </span>
                     </button>
                   ) : column.label}
@@ -247,11 +137,11 @@ function MapTable({ kind, rows, loading, sorts, onSort, onCoordinateJump, onPlay
           {rows.map((row, index) => (
             <tr className="map-row" key={rowKey(row, index)}>
               {columns.map((column) => (
-                <td key={column.label}>
+                <td key={column.label} className={column.className || ""}>
                   {column.select ? (
-                    <input type="checkbox" aria-label={t("map.selectNamedTask", { name: row.ownerName || row.allianceName || row.uuid || "-", server: row.serverId || "-" })} checked={selectedKeys?.has(rowKey(row, index)) || false} onChange={() => onSelect?.(rowKey(row, index), row)} />
+                    <input type="checkbox" aria-label={t("map.selectNamedTask", { name: row.ownerName || row.allianceName || row.uuid || "-", server: row.serverId || "-" })} checked={selectedKeys?.has(rowKey(row, index)) || false} disabled={!mapTaskSelectable(kind, row, currentTime)} onChange={() => onSelect?.(rowKey(row, index), row)} />
                   ) : column.mark ? (
-                    <button className={`map-mark-button${row.marked ? " active" : ""}`} type="button" disabled={actionDisabled || !row.ownerUid || actionBusy} aria-label={row.marked ? "Unmark player" : "Mark player"} onClick={() => onPlayerMark(row)}>
+                    <button className={`map-mark-button${row.marked ? " active" : ""}`} type="button" disabled={actionDisabled || !row.ownerUid || actionBusy} aria-label={t(row.marked ? "map.unmarkPlayer" : "map.markPlayer")} onClick={() => onPlayerMark(row)}>
                       {row.marked ? "★" : "☆"}
                     </button>
                   ) : column.coordinate ? (
@@ -261,7 +151,11 @@ function MapTable({ kind, rows, loading, sorts, onSort, onCoordinateJump, onPlay
                     </button>
                   ) : column.action ? (
                     <button className="map-schedule-button" type="button" disabled>{t("map.claimTreasure")}</button>
-                  ) : column.value?.(row)}
+                  ) : column.status ? (
+                    <span className={`map-task-status ${mapTaskState(row, currentTime)}`}>{mapTaskLabel(mapTaskState(row, currentTime), t)}</span>
+                  ) : column.rewards ? (
+                    !Array.isArray(row[column.rewards]) || row[column.rewards].length === 0 ? "-" : <span className="map-reward-list map-reward-list--retained">{[...row[column.rewards]].sort((left, right) => column.rewards === "currentGoods" && itemKey ? Number(right.key === itemKey) - Number(left.key === itemKey) : 0).map((item, rewardIndex) => { const name = mapRewardName(item, gameTexts); const description = `${name} ×${mapNumber(item.count, language)}`; return <span className="map-reward-item" key={`${item.key}:${rewardIndex}`} title={description} aria-label={description}><span className="map-reward-icon game-asset-placeholder" aria-hidden="true" /><strong>×{mapRewardCount(item.count)}</strong></span>; })}</span>
+                  ) : kind === "resource" && column.label === t("common.status") ? mapResourceStatus(row, t, gameTexts) : column.value?.(row)}
                 </td>
               ))}
             </tr>
@@ -297,10 +191,11 @@ const PREVIEW_TAB_BY_STATE = Object.freeze({
   "map-dispatch": "dispatch",
   "map-ghost": "ghost",
   "map-treasure": "treasure",
+  "map-table-states": "treasure",
   "map-scheduled": "scheduledPlunder",
 });
 
-export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, currentServerId = 0, previewState = "" }) {
+export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, currentServerId = 0, previewState = "", gameTexts = EMPTY_GAME_TEXTS }) {
   const { t } = useI18n();
   const previewFixture = bridgeMode === "preview" && previewState.startsWith("map-");
   const [scanTab, setScanTab] = useState(previewState.startsWith("map-auto") ? "auto" : "manual");
@@ -558,6 +453,14 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
 
   function changeSort(sortBy) {
     setSortsByKind((current) => ({ ...current, [tab]: cycleSort(current[tab], sortBy) }));
+    setPage(1);
+  }
+
+  function changeItemFilter(value) {
+    setItemKey(value);
+    if (!value) {
+      setSortsByKind((current) => ({ ...current, [tab]: current[tab].filter((sort) => sort.sortBy !== "itemCount") }));
+    }
     setPage(1);
   }
 
@@ -830,7 +733,7 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
                   {tab === "truck" ? <option value="reindeer">{t("map.reindeerQuality")}</option> : null}
                 </select>
                 {(tab === "truck" || tab === "railway") ? (
-                  <select aria-label={t("map.itemFilter")} value={itemKey} onChange={(event) => { setItemKey(event.target.value); setPage(1); }}>
+                  <select aria-label={t("map.itemFilter")} value={itemKey} onChange={(event) => changeItemFilter(event.target.value)}>
                     <option value="">{t("map.allRetainedGoods")}</option>{(options?.rewardItems?.[tab] || []).map((item) => <option key={item.key || item.value || item} value={item.key || item.value || item}>{item.name || item.label || item.key || item.value || item}</option>)}
                   </select>
                 ) : null}
@@ -854,7 +757,7 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
       {queryError ? <div className="map-scan-error" role="alert">{queryError}</div> : null}
       {tab !== "scheduledPlunder" ? (
         <>
-          <MapTable kind={tab} rows={rows} loading={loading} sorts={activeSorts} onSort={changeSort} onCoordinateJump={coordinateJump} onPlayerMark={togglePlayerMark} actionBusy={Boolean(actionBusy)} actionDisabled={!online || scanState.isReading} selectedKeys={selectedRows} onSelect={(key) => setSelectedRows((current) => { const next = new Set(current); if (next.has(key)) next.delete(key); else next.add(key); return next; })} />
+          <MapTable kind={tab} gameTexts={gameTexts} itemKey={itemKey} rows={rows} loading={loading} sorts={activeSorts} onSort={changeSort} onCoordinateJump={coordinateJump} onPlayerMark={togglePlayerMark} actionBusy={Boolean(actionBusy)} actionDisabled={!online || scanState.isReading} selectedKeys={selectedRows} onSelect={(key) => setSelectedRows((current) => { const next = new Set(current); if (next.has(key)) next.delete(key); else next.add(key); return next; })} />
           <Pagination page={page} total={total} onPage={setPage} />
         </>
       ) : (

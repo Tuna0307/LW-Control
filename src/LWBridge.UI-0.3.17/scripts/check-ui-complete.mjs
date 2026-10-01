@@ -4,14 +4,14 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(here, "..");
-const sourceFiles = ["src/App.jsx", "src/Pages.jsx", "src/MapDataPage.jsx", "src/previewConfigHook.jsx"];
+const sourceFiles = ["src/App.jsx", "src/Pages.jsx", "src/MapDataPage.jsx", "src/mapTablePresentation.js", "src/previewConfigHook.jsx"];
 const localeCodes = ["en", "zh-CN", "zh-TW", "ja", "ko", "vi", "id", "ru", "pt"];
 
 const en = (await import(pathToFileURL(path.join(root, "src", "locales", "en.js")))).default;
 const literalKeys = new Set();
 for (const relative of sourceFiles) {
   const source = fs.readFileSync(path.join(root, relative), "utf8");
-  for (const match of source.matchAll(/\bt\("([^"]+)"/g)) literalKeys.add(match[1]);
+  for (const match of source.matchAll(/\bt\(["`]([A-Za-z0-9._]+)["`]/g)) literalKeys.add(match[1]);
 }
 
 const missing = [...literalKeys].filter((key) => !key.includes("${") && !(key in en)).sort();

@@ -4,6 +4,33 @@
 **Branch:** `research/offline-controller`  
 **Phase:** Phase 2 function recovery / Map Data clean-UI live-integration checkpoint
 
+## 2026-10-02 Map table takeover — latest continuation
+
+Owner requested a larger lead implementation block while the worker rests.
+`LWB317-UI-LEAD-TABLES-001` is **AWAITING_REVIEW**: the eight normal Map tables
+now use exact recovered column/value/width definitions, time-derived task and
+truck states, translated Treasure/type/reason/charging labels, reward counts/
+descriptions and conditional sorting. Clearing the item filter clears item-count
+sorting. Unknown current-client Resource occupancy remains unknown. New explicit
+synthetic state fixtures are preview-only/offline and cannot execute native actions.
+
+Review: `reviews/2026-10-02-LWB317-UI-LEAD-TABLES-001.md`.
+Evidence: `evidence/lwbridge-0.3.17/ui/LWB317-UI-LEAD-TABLES-001/`, especially
+`map-table-results.json`, `manifest.json`, `browser-results.json`,
+`coverage-matrix.md`, `verification.json` and `delivery.json`.
+288 column cases / 15,264 value comparisons / 72 actual renders span nine locales;
+actual original selection/status/reward/filter functions, fixture queries/fences,
+accepted Home/Trade regressions and canonical package checks pass. Original pixels,
+native providers, Scheduled Plunder and per-tab filter/action details remain open.
+
+Next returning worker: finish the already assigned independent Home busy review,
+then receive a bounded independent Map-table review. Trade 003E still awaits
+independent review. This takeover rechecked Home busy/Trade 003E as their author;
+it does not independently accept them. No worker/chat was restarted. Parent
+CORRECT-003 remains PARTIAL; its old boolean Trade-error assertion is stale and
+preserved. Protected AFK/scratch/parent screenshot WIP is unchanged and unstaged.
+Do not automatically resume the broad parent or start native/gameplay work.
+
 ## 2026-10-01 takeover continuation — read first
 
 The pasted handoff ending at `13b25f6` is superseded. The takeover inspected

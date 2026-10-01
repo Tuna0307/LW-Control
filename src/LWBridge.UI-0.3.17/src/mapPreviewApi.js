@@ -32,7 +32,7 @@ function fixtureRow(kind, index) {
     case "monster":
       return { ...row, monsterNameKey: index % 2 === 0 ? "Fixture Monster B" : "Fixture Monster A", level: 20 + (index % 16), distanceFromHome: 40 + index * 7 };
     case "truck":
-      return { ...row, ownerName: `Truck Owner ${index}`, allianceName: index % 3 === 0 ? "TST" : "QA", quality: 1 + (index % 5), isSpecialURQuality: index % 11 === 0, power: 18_000_000 + index * 175_000, currentGoods: [{ key: index % 2 === 0 ? "fixture-medal" : "fixture-reward", name: index % 2 === 0 ? "Fixture Medal" : "Fixture Reward", count: 1 + (index % 8) }], robTimes: index % 3, maxRobTimes: 2, remainingLootCount: index % 3 === 2 ? 0 : 2 - (index % 2), arriveTs: FIXTURE_TIME + 600_000 + index * 10_000 };
+      return { ...row, ownerName: `Truck Owner ${index}`, allianceName: index % 3 === 0 ? "TST" : "QA", quality: 1 + (index % 5), isSpecialURQuality: index % 11 === 0, power: 18_000_000 + index * 175_000, currentGoods: [{ key: index % 2 === 0 ? "fixture-medal" : "fixture-reward", name: index % 2 === 0 ? "Fixture Medal" : "Fixture Reward", count: 1 + (index % 8) }], robTimes: index % 3, maxLootCount: 2, maxRobTimes: 2, remainingLootCount: index % 3 === 2 ? 0 : 2 - (index % 2), arriveTs: FIXTURE_TIME + 600_000 + index * 10_000 };
     case "railway":
       return { ...row, allianceName: index % 2 === 0 ? "TST Alliance" : "QA Alliance", allianceAbbr: index % 2 === 0 ? "TST" : "QA", quality: 1 + (index % 5), power: 24_000_000 + index * 150_000, currentGoods: [{ key: index % 2 === 0 ? "fixture-supply" : "fixture-cargo", name: index % 2 === 0 ? "Fixture Supply" : "Fixture Cargo", count: 1 + (index % 6) }], robTimes: index % 3, maxRobTimes: 2, remainingLootCount: index % 4 === 0 ? 0 : 1, arriveTs: FIXTURE_TIME + 900_000 + index * 10_000, protectTime: FIXTURE_TIME + index * 15_000 };
     case "dispatch":
@@ -52,9 +52,9 @@ function itemCount(row, itemKey) {
   return (row.currentGoods || []).filter((item) => String(item.key) === String(itemKey)).reduce((sum, item) => sum + Number(item.count || 0), 0);
 }
 
-function filterRows(kind, query) {
+function filterRows(kind, query, fixtureRows = FIXTURE_ROWS[kind], fixtureTime = FIXTURE_TIME) {
   const keyword = String(query.keyword || "").toLowerCase();
-  return (FIXTURE_ROWS[kind] || []).filter((row) => {
+  return (fixtureRows || []).filter((row) => {
     if (keyword && !`${row.ownerName || ""} ${row.allianceName || ""} ${row.uuid || ""} ${JSON.stringify(row)}`.toLowerCase().includes(keyword)) return false;
     if (query.alliance != null && row.allianceName !== query.alliance) return false;
     if (query.withoutAlliance && row.allianceName) return false;
@@ -75,11 +75,11 @@ function filterRows(kind, query) {
     if (query.specialOnly && row.isSpecial !== true) return false;
     if (query.reindeerOnly && row.isSpecialURQuality !== true) return false;
     if (query.itemKey != null && itemCount(row, query.itemKey) <= 0) return false;
-    if (query.completionStatus === "pending" && !(Number(row.completionTime || 0) <= 0 || Number(row.completionTime) > FIXTURE_TIME)) return false;
-    if (query.completionStatus === "completed" && !(Number(row.completionTime) > 0 && Number(row.completionTime) <= FIXTURE_TIME)) return false;
+    if (query.completionStatus === "pending" && !(Number(row.completionTime || 0) <= 0 || Number(row.completionTime) > fixtureTime)) return false;
+    if (query.completionStatus === "completed" && !(Number(row.completionTime) > 0 && Number(row.completionTime) <= fixtureTime)) return false;
     if (query.completionStatus != null && !["pending", "completed"].includes(query.completionStatus)) return false;
     if (query.plunderableOnly && (kind === "truck" || kind === "railway") && !(row.arriveTs != null && Number(row.remainingLootCount ?? Math.max(Number(row.maxLootCount || 0) - Number(row.robTimes || 0), 0)) > 0)) return false;
-    if (query.plunderableOnly && kind === "dispatch" && !(Number(row.completionTime || 0) > 0 && Number(row.plunderAt || row.completionTime || 0) > 0 && (Number(row.taskExpireTime || 0) <= 0 || Number(row.taskExpireTime) > FIXTURE_TIME) && (Number(row.maxStealCount || 0) <= 0 || Number(row.stolenCount || 0) < Number(row.maxStealCount)))) return false;
+    if (query.plunderableOnly && kind === "dispatch" && !(Number(row.completionTime || 0) > 0 && Number(row.plunderAt || row.completionTime || 0) > 0 && (Number(row.taskExpireTime || 0) <= 0 || Number(row.taskExpireTime) > fixtureTime) && (Number(row.maxStealCount || 0) <= 0 || Number(row.stolenCount || 0) < Number(row.maxStealCount)))) return false;
     if (query.minLevel != null && Number(row.level) < Number(query.minLevel)) return false;
     if (query.maxLevel != null && Number(row.level) > Number(query.maxLevel)) return false;
     return true;
@@ -111,7 +111,7 @@ function sortValue(kind, key, row, query) {
   return getter();
 }
 
-function searchFixture(kind, query = {}) {
+function searchFixture(kind, query = {}, fixtureRows, fixtureTime = FIXTURE_TIME) {
   if (query.quality != null && !["n", "r", "sr", "ssr", "ur"].includes(query.quality)) {
     const error = new Error("invalid map quality");
     error.code = "INVALID_REQUEST";
@@ -133,7 +133,7 @@ function searchFixture(kind, query = {}) {
     }
     sortValue(kind, sort.sortBy, {}, query);
   }
-  const rows = filterRows(kind, query);
+  const rows = filterRows(kind, query, fixtureRows, fixtureTime);
   rows.sort((left, right) => {
     if (kind === "treasure" && query.luckyFirst) {
       const priority = Number(left.claimPriority ?? 1) - Number(right.claimPriority ?? 1);
@@ -202,11 +202,23 @@ function fixtureOptions() {
 
 const cache = new Map();
 
+function tableStateFixtureRows(now) {
+  return Object.fromEntries(MAP_KIND_KEYS.map(kind => [kind, FIXTURE_ROWS[kind].map((row, index) => {
+    if (kind === "resource" && index === 0) return { ...row, rebuildGatherOccupancyKnown: false };
+    if (kind === "truck") return { ...row, maxLootCount: 3, robTimes: index === 1 ? 3 : 1, protectTime: index === 0 ? now + 90_000 : 0 };
+    if (kind === "dispatch" || kind === "ghost") return { ...row, uuid: String(30000 + index), completionTime: index === 0 ? now + 60_000 : now - 60_000, plunderAt: index === 2 ? now + 60_000 : now - 30_000, taskExpireTime: index === 3 ? now - 1000 : now + 600_000, stolenCount: index === 1 ? 2 : 0, maxStealCount: 2 };
+    if (kind === "treasure") return { ...row, worldClaimState: ["charging", "claimable", "depleted", "expired"][index % 4], chargePercent: 0.375, playerClaimState: index % 4 === 1 ? "claimed" : "unclaimed", claimBlockReason: index % 4 === 2 ? "other_alliance" : "" };
+    return row;
+  })]));
+}
+
 export function getMapPreviewProvider(bridgeMode, previewState) {
   if (bridgeMode !== "preview" || !String(previewState || "").startsWith("map-")) return null;
   if (cache.has(previewState)) return cache.get(previewState);
 
   const summary = fixtureSummary();
+  const tableTime = Date.now();
+  const tableRows = previewState === "map-table-states" ? tableStateFixtureRows(tableTime) : null;
   const api = {
     profileId: "preview-map-profile",
     previewFixture: true,
@@ -219,7 +231,7 @@ export function getMapPreviewProvider(bridgeMode, previewState) {
         error.code = "MAP_FIXTURE_QUERY_FAILED";
         throw error;
       }
-      return searchFixture(kind, query);
+      return searchFixture(kind, query, tableRows?.[kind], tableRows ? tableTime : FIXTURE_TIME);
     },
     scanStatus: async () => normalizeScanState(summary.scanState),
     listenScanStatus: () => () => {},
@@ -232,6 +244,8 @@ export function getMapPreviewProvider(bridgeMode, previewState) {
     exportCities: () => blocked("city export"),
   };
   const provider = {
+    // Synthetic labels for browser-only presentation checks, not recovered game text.
+    gameTexts: { "100282": "Fixture Resource A", "100281": "Fixture Resource B", "Fixture Monster A": "Fixture Monster A Label", "Fixture Monster B": "Fixture Monster B Label", "Fixture Radar Treasure": "Fixture Radar Treasure Label", "Fixture Lucky Treasure": "Fixture Lucky Treasure Label" },
     mapApi: api,
     backendAvailable: true,
     online: false,

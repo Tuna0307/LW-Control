@@ -77,6 +77,15 @@ Live-prove each implemented in-scope function against an assistant-owned/current
 
 ## Current instruction
 
+2026-10-02 owner-requested larger lead takeover is delivered as
+`LWB317-UI-LEAD-TABLES-001` **AWAITING_REVIEW**: eight normal Map tables corrected
+against exact source with nine-locale differential/render, browser and package
+evidence. See `docs/reviews/2026-10-02-LWB317-UI-LEAD-TABLES-001.md` and its
+coverage matrix. Returning worker's assigned independent Home busy review remains
+pending; Trade 003E and this Map unit also need independent review. Lead author
+rechecks do not constitute that acceptance. No native/gameplay scope is opened;
+protected AFK/scratch/parent screenshot WIP remains unchanged/unstaged.
+
 PM-007 reviewed the UI-CORRECT-001 worker return at `543b6eb` and marked it
 `CHANGES_REQUIRED`. Home reconnect profile scoping is accepted; preserve useful
 Equipment/dialog/locale and other UI corrections. Source-recoverable Automation

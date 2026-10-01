@@ -1,0 +1,41 @@
+{
+  "task": "LWB317-UI-LEAD-TABLES-001",
+  "date": "2026-10-02",
+  "state": "AWAITING_REVIEW",
+  "checks": {
+    "mapSourceDifferentialAndActualRender": "PASS",
+    "mapFixtureQueriesPaginationAndFencing": "PASS",
+    "homeError001VerifyRecord": "PASS",
+    "homeRootAcknowledgementR1VerifyRecord": "PASS",
+    "switchLocaleVerifyRecord": "PASS",
+    "homeBusyCurrentRenderAndPredicates": "PASS",
+    "trade003ECurrentPresentation": "PASS",
+    "trade003EEvidence": "PASS",
+    "tradeSelection": "PASS",
+    "tradeHistory": "PASS",
+    "tradeCrossServerSave": "PASS",
+    "npmCheck": "PASS",
+    "npmBuild": "PASS",
+    "productionBuildCheck": "PASS",
+    "browserAllEightTabsAndVariants": "PASS",
+    "protectedWipHashes": "PASS",
+    "gitDiffCheck": "PASS"
+  },
+  "package": {
+    "sourceFingerprint": "1280d8a4df7aec2f81260a8081c0dda7626bad06e8771d25cea4e3ae0c49daf2",
+    "packageFingerprint": "b2a903176188b57cd02f281ffaded42aa05a0d6503595e25ee3e5fcfa09127ae",
+    "locales": 9,
+    "messagesEach": 1383,
+    "referencedLiteralKeys": 480
+  },
+  "historicalSnapshotCheck": {
+    "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-CORRECT-003/check-state.mjs",
+    "result": "STALE_ASSERTION_FAILED",
+    "actual": "Error: Fixture Trade goods request failed",
+    "expected": true,
+    "line": 86,
+    "baselineAlreadyContainsActualString": "4e29806db72c83e37c0ba96f82270c66b5a4cbba:src/LWBridge.UI-0.3.17/src/previewAutomationFixtures.js",
+    "handling": "Historical record preserved. Current Trade presentation/retained-error and current Map query/fencing checks pass; no parent full-UI acceptance claimed."
+  },
+  "reviewLimits": "Home busy and Trade 003E are author rechecks and stay pending independent review. New Map table scope also awaits independent review. No native/gameplay/original protected runtime/pixel validation. Existing Vite chunk-size warning remains advisory."
+}

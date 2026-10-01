@@ -1,0 +1,79 @@
+{
+  "task": "LWB317-UI-LEAD-TABLES-001",
+  "referenceExe": "C:/Users/chimw/OneDrive/Desktop/Github/LW/lwbridge-0.3.17.exe",
+  "referenceExeSha256": "4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783",
+  "clockAnchor": {
+    "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js",
+    "utf8ByteOffset": 33911,
+    "expression": "()=>{if(!C.isReading&&L!==`dispatch`&&L!==`ghost`&&L!==`truck`&&L!==`scheduledPlunder`)return;an(Date.now());let e=window.setInterval(()=>an(Date.now()),1e3);return()=>window.clearInterval(e)}"
+  },
+  "arrowPaths": [
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-BVfnK1wp.js",
+      "utf8ByteOffset": 330823,
+      "expression": "M8 13.5v-11M3.5 7 8 2.5 12.5 7"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-BVfnK1wp.js",
+      "utf8ByteOffset": 330753,
+      "expression": "M8 2.5v11M3.5 9 8 13.5 12.5 9"
+    }
+  ],
+  "currentOccupancyProducer": {
+    "path": "src/LWBridge.Desktop/FirstLiveResultImporter.cs",
+    "sha256NormalizedLF": "CFD728CCD7212D5D0EA55EF317988A2E726C98E8847C2460F8FA77DBC7207259",
+    "utf8ByteOffset": 7376,
+    "expression": "normalized[\"rebuildGatherOccupancyKnown\"] = gatherOccupancyKnown;"
+  },
+  "productionFiles": [
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/mapTablePresentation.js",
+      "sha256NormalizedLF": "B6C0D9B369D3E78CCC74AA7296F2B88EABF6B6560C3669A199546FC299839427"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+      "sha256NormalizedLF": "EE9EB9EC5E9001118CCD502FE86B4CFBB8E050CA57DED9566D9FD7E4ABE58FEC"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/mapPreviewApi.js",
+      "sha256NormalizedLF": "ACF4258508D7D6BEE7B24B51BC0CED562FCD56AE7366E0C4088185FD8BA98D5F"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/scripts/check-ui-complete.mjs",
+      "sha256NormalizedLF": "0729A9FF32FABD71445086EAC83B7803F589A142CC55866B0659453B985C448E"
+    }
+  ],
+  "screenshots": [
+    {
+      "file": "task-states-en.jpg",
+      "sha256": "A48B9C02A8B8E328E4733BAA3FFF2C5C0471CCB67372E03BEDC6E798F753B303",
+      "bytes": 93181
+    },
+    {
+      "file": "treasure-states-en.jpg",
+      "sha256": "B86D7157C272BE700E1C173C47F977C4DCE8BACFC9561248DCFF2EFEC98057D4",
+      "bytes": 101729
+    },
+    {
+      "file": "treasure-states-ja-dark.jpg",
+      "sha256": "EA8D7895DAE2BFFC3A944F70E6B47473B4DE7F44DDB3F02A438A6B98B41240BE",
+      "bytes": 92014
+    }
+  ],
+  "evidence": [
+    {
+      "file": "map-table-results.json",
+      "sha256NormalizedLF": "D532C0BE2B7713A2B48C072C7FC00B07D2CC94824E7D8F637EFC06BC1E5800B8"
+    },
+    {
+      "file": "browser-results.json",
+      "sha256NormalizedLF": "615606BEF4A75B8F40976EB007458C77EB272D688D22023000E3901D5B0E8DED"
+    }
+  ],
+  "tools": {
+    "node": "v24.18.0",
+    "babelParser": "7.29.9",
+    "esbuild": "0.28.2"
+  },
+  "limits": "Source/local table scope; independent review pending. Synthetic data and placeholder native images are not original pixels, current game text integration or live gameplay proof."
+}
