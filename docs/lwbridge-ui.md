@@ -175,11 +175,13 @@ picker cases, 72 render comparisons and 5 browser observations. See
 `reviews/2026-10-02-LWB317-UI-HOME-ERROR-002.md`. HOME-BUSY-001 is also
 AWAITING_REVIEW after nine-locale render/predicate and local browser checks;
 independent proxy/launch inputs have no production lifecycle producers. See
-`reviews/2026-10-02-LWB317-UI-HOME-BUSY-001.md`. UI-SWITCH-LOCALE-001 is now
-AWAITING_REVIEW: recovered/production ToggleRow comparison passes 360 cases
+`reviews/2026-10-02-LWB317-UI-HOME-BUSY-001.md`. PM-016 accepts UI-SWITCH-LOCALE-001
+47c243a for focused source/local scope: recovered/production ToggleRow comparison passes 360 cases
 across all nine locales and browser QA confirms Settings off/on/off plus Japanese
 Home checked/unchecked disabled descriptions. See
-`reviews/2026-10-02-LWB317-UI-SWITCH-LOCALE-001.md`; original/native parity unproved.
+`reviews/2026-10-02-LWB317-PM-016-switch-locale-acceptance.md`; original/native parity unproved.
+LWB317-REVIEW-HOME-ERROR-001 is assigned for independent translation-only review;
+other lead Home deliveries retain AWAITING_REVIEW.
 Earlier correction evidence is under
 `evidence/lwbridge-0.3.17/ui/LWB317-UI-CORRECT-001/`; worker report:
 `reviews/2026-10-01-LWB317-UI-CORRECT-001.md`. Previous lead disposition:

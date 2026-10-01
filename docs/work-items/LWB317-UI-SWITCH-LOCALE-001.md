@@ -1,6 +1,7 @@
 # LWB317-UI-SWITCH-LOCALE-001 — shared switch state descriptions
 
-Owner: returning worker AI. State: AWAITING_REVIEW after worker delivery on 2026-10-02.
+Owner: returning worker AI. State: COMPLETE / ACCEPTED for focused source/local scope
+after project-lead PM-016 review on 2026-10-02; worker delivered 47c243a.
 Assigned by project lead at owner's request, 2026-10-02.
 Implementation baseline: 1942d51032c2459b3341d54aee186a3fee0ddf2b;
 the assignment documentation commit follows it. Use the current checkout; never
@@ -109,3 +110,8 @@ Review: `docs/reviews/2026-10-02-LWB317-UI-SWITCH-LOCALE-001.md`.
 
 No native/original-runtime proof is claimed. Prior lead deliveries remain
 AWAITING_REVIEW, and the next task is unassigned pending project-lead review.
+
+Lead disposition: PM-016 accepted the submitted helper-only change after independent
+scope/hash/locator, focused, Home regression and rebuilt package checks passed.
+See docs/reviews/2026-10-02-LWB317-PM-016-switch-locale-acceptance.md. Next assignment:
+LWB317-REVIEW-HOME-ERROR-001; prior Home deliveries are not yet accepted.

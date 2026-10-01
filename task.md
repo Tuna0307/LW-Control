@@ -128,10 +128,13 @@ render/browser checks. See docs/reviews/2026-10-02-LWB317-UI-HOME-ERROR-002.md.
 HOME-BUSY-001 is also AWAITING_REVIEW: independent proxy/launch display inputs
 and header/button precedence pass nine-locale render/predicate and browser checks.
 App unchanged; lifecycle busy producers absent. See its dated review.
-UI-SWITCH-LOCALE-001 is now AWAITING_REVIEW after returning-worker delivery:
+PM-016 accepts UI-SWITCH-LOCALE-001 47c243a for focused source/local scope:
 recovered/production ToggleRow comparison passes 360 nine-locale cases, all 11
 callers are inventoried, focused browser QA passes and canonical/Home regressions
-remain green. See docs/reviews/2026-10-02-LWB317-UI-SWITCH-LOCALE-001.md.
+remain green. See docs/reviews/2026-10-02-LWB317-PM-016-switch-locale-acceptance.md.
+Next assignment: docs/work-items/LWB317-REVIEW-HOME-ERROR-001.md, independent
+review of lead translation implementation only. Other Home lead deliveries remain
+AWAITING_REVIEW; no product code or native lifecycle work is assigned.
 Native picker/persistence/lifecycle and original pixels remain unproved.
 
 Direct original post-auth screenshot/pixel comparison remains `BLOCKED` by the

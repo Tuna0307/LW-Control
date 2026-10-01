@@ -89,14 +89,19 @@ AWAITING_REVIEW: independent proxy/launch display inputs and root/header/button
 precedence now match source; 13,824 nine-locale render comparisons, 384 predicate
 cases and 9 browser observations pass. App/callbacks unchanged and lifecycle
 busy producers remain absent. Review: `reviews/2026-10-02-LWB317-UI-HOME-BUSY-001.md`.
-UI-SWITCH-LOCALE-001 is now AWAITING_REVIEW after returning-worker delivery.
+UI-SWITCH-LOCALE-001 is COMPLETE / ACCEPTED for focused source/local scope after
+PM-016 independently reviewed worker delivery 47c243a.
 `ToggleRow` uses `common.enabled` / `common.disabled` only for the state
 suffix; 360 recovered/production comparisons across all nine locales, all 11
 caller inventory, focused callback/browser checks, canonical checks and the three
 current Home regression checkers pass. Review:
 `reviews/2026-10-02-LWB317-UI-SWITCH-LOCALE-001.md`. This helper localization
 delivery does not accept prior lead deliveries or open native lifecycle work.
-No next unit is assigned pending lead review.
+Acceptance: `reviews/2026-10-02-LWB317-PM-016-switch-locale-acceptance.md`.
+Three prior lead Home deliveries remain AWAITING_REVIEW. Next small assignment:
+`work-items/LWB317-REVIEW-HOME-ERROR-001.md`, independent translation-only review
+by the returning worker. Product changes and other pending-unit reviews are outside
+that assignment; the lead decides final acceptance after its return.
 Do not restart broad CORRECT-003 or reopen accepted weekly/selection/history work.
 Trade/Assist/runtime/AFK work remains preserved for later separate validation tasks.
 Physical drag, native config persistence and original pixels remain unproved.

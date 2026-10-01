@@ -1,8 +1,10 @@
 # Small Home presentation queue
 
 Owner requested project-lead tasks while another AI rests, 2026-10-02.
-Owner: project lead. State: PARTIAL; all four bounded units are AWAITING_REVIEW.
-No next unit is assigned pending project-lead review.
+Owner: project lead. State: PARTIAL; switch unit ACCEPTED for focused source/local
+scope by PM-016. Three lead Home deliveries remain AWAITING_REVIEW.
+LWB317-REVIEW-HOME-ERROR-001 is assigned to the returning worker for independent
+review of translation only; do not review all remaining units as one campaign.
 Do not execute all items as one broad campaign. Assign/run one ID at a time.
 Input finding: docs/reviews/2026-10-02-LWB317-PM-015-home-audit.md and
 evidence/lwbridge-0.3.17/ui/LWB317-PM-015/home-audit.json.
@@ -55,7 +57,8 @@ Check actual render branches and local preview states; same bounded delivery che
 
 ## UI-SWITCH-LOCALE-001 — state descriptions only
 
-State: AWAITING_REVIEW after returning-worker delivery on 2026-10-02.
+State: COMPLETE / ACCEPTED for focused source/local scope after PM-016 lead review
+of worker delivery 47c243a on 2026-10-02.
 Full assignment: LWB317-UI-SWITCH-LOCALE-001.md. Prior lead deliveries remain
 AWAITING_REVIEW; this assignment does not grant their acceptance.
 

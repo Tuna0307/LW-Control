@@ -1,0 +1,19 @@
+{
+  "task": "LWB317-PM-016",
+  "reviewedCommit": "47c243af1a311e331b6ac0f51d84e16782f32c47",
+  "baseline": "1cfce34523b19c7fe0e40cc00466a8f3ba7ffe75",
+  "result": "LWB317_PM016_SWITCH_SCOPE_OK",
+  "changedProductFiles": [
+    "src/LWBridge.UI-0.3.17/src/Pages.jsx"
+  ],
+  "helperOnlyDiff": "PASS",
+  "originalSourceAndProductionHashesAndByteLocators": "PASS",
+  "callerByteLocators": 11,
+  "counts": {
+    "languages": 9,
+    "callers": 11,
+    "uniqueCallerLabels": 10,
+    "renderComparisons": 360
+  },
+  "limits": "Focused switch acceptance only. Browser observations retained as worker evidence; no new original/native/gameplay session. Existing unstaged AFK fixtures remain outside acceptance."
+}
