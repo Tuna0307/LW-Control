@@ -69,8 +69,8 @@ PM-017 accepts HOME-ERROR-001 translation/recovery composition for focused
 source/local scope after independent review baf5473:
 recovered helper priority/namespaces/generic message and recovery detail pass
 source/local/nine-locale/browser/canonical checks. See its dated review.
-HOME-ERROR-002 is CHANGES_REQUIRED after PM-018: root acknowledgement/polling
-requires R1 correction. Historical actual callback,
+PM-019 accepts HOME-ERROR-002 / R1 8415316 for source/local acknowledgement/
+polling and channel scope. Historical actual callback,
 original picker/render and local browser checks pass for independent errors and
 cancel/invalid/acknowledged valid selections. Existing host contract inspected;
 native picker/persistence unproved. HOME-BUSY-001 display correction is also
@@ -78,12 +78,15 @@ AWAITING_REVIEW: nine-locale actual render/predicate and local browser checks pa
 for independent busy inputs and header/button precedence. Production lifecycle
 busy producers remain absent. PM-016 accepts UI-SWITCH-LOCALE-001 47c243a for
 focused source/local scope after independent scope/hash/locator, 360 comparisons,
-Home regression and rebuilt package checks. PM-018 integrates independent review
-db3aae3: HOME-ERROR-002 is CHANGES_REQUIRED for root-status acknowledgement/polling.
-Root/action placement remains useful; correction LWB317-UI-HOME-ERROR-002-R1 is
-ASSIGNED. HOME-BUSY-001 remains AWAITING_REVIEW. See
-docs/reviews/2026-10-02-LWB317-PM-018-home-channel-review-integration.md and
-docs/work-items/LWB317-UI-HOME-ERROR-002-R1.md.
+Home regression and rebuilt package checks.
+PM-019 accepts HOME-ERROR-002 and R1 at 8415316 for focused source/local
+error-channel and root acknowledgement/polling scope. Fourteen actual-callback/
+effect scenarios and four independent acknowledgement comparisons pass; accepted
+translation/switch regressions and package verification remain green. Native
+contracts/persistence/lifecycle and original pixels remain unproved. Busy remains
+AWAITING_REVIEW; LWB317-REVIEW-HOME-BUSY-001 is ASSIGNED for presentation only.
+See `reviews/2026-10-02-LWB317-PM-019-home-root-correction-acceptance.md` and
+`work-items/LWB317-REVIEW-HOME-BUSY-001.md`.
 No native lifecycle or full Home acceptance is implied.
 
 Phase 1 static UI recovery has been accepted. The active target remains exact

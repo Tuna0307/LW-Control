@@ -81,7 +81,7 @@ HOME-ERROR-001 translation is COMPLETE / ACCEPTED for focused source/local scope
 after independent review baf5473 and PM-017 integration; see
 `reviews/2026-10-02-LWB317-UI-HOME-ERROR-001.md`. Source/helper/render, nine-locale,
 browser and canonical checks pass. HOME-ERROR-002 separate error channels is
-CHANGES_REQUIRED after PM-018; historical delivery: picker cancel/invalid/acknowledged valid outcomes preserve the
+COMPLETE / ACCEPTED by PM-019 after R1; historical delivery: picker cancel/invalid/acknowledged valid outcomes preserve the
 independent action error; 9 actual callback scenarios, 4 original picker cases,
 72 render comparisons and 5 browser observations pass. Review:
 `reviews/2026-10-02-LWB317-UI-HOME-ERROR-002.md`. Existing polling/rejection
@@ -100,18 +100,14 @@ current Home regression checkers pass. Review:
 delivery does not accept prior lead deliveries or open native lifecycle work.
 Acceptance: `reviews/2026-10-02-LWB317-PM-016-switch-locale-acceptance.md`.
 PM-017 acceptance: `reviews/2026-10-02-LWB317-PM-017-home-translation-acceptance.md`.
-PM-018 still leaves HOME-ERROR-002 CHANGES_REQUIRED until its correction is reviewed.
-LWB317-UI-HOME-ERROR-002-R1 is now AWAITING_REVIEW: `game_root_status` is removed
-from repeated `refreshStatus`, the selected-profile effect performs the initial
-request, and successful initial/post-selection replies share the root-status plus
-root-error-clear acknowledgement. Fourteen actual-callback/effect synthetic bridge
-scenarios cover timer inventory, cancel persistence, selection failures, profile
-gating/injection, preference isolation and native-unavailable fencing. Existing
-translation/switch regressions, busy assertions, browser fixtures and canonical
-package checks pass. See
-`docs/reviews/2026-10-02-LWB317-UI-HOME-ERROR-002-R1.md`.
-Next continuation is independent project-lead review of this R1 correction; no
-native picker/gameplay or other pending-unit review is assigned here.
+PM-019 accepts HOME-ERROR-002 and R1 at 8415316 for focused source/local
+error-channel and root acknowledgement/polling scope. Fourteen actual-callback/
+effect scenarios and four independent acknowledgement comparisons pass; accepted
+translation/switch regressions and package verification remain green. Native
+contracts/persistence/lifecycle and original pixels remain unproved. Busy remains
+AWAITING_REVIEW; LWB317-REVIEW-HOME-BUSY-001 is ASSIGNED for presentation only.
+See `reviews/2026-10-02-LWB317-PM-019-home-root-correction-acceptance.md` and
+`work-items/LWB317-REVIEW-HOME-BUSY-001.md`.
 Do not restart broad CORRECT-003 or reopen accepted weekly/selection/history work.
 Trade/Assist/runtime/AFK work remains preserved for later separate validation tasks.
 Physical drag, native config persistence and original pixels remain unproved.

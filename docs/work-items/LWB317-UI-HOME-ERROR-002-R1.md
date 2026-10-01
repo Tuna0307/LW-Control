@@ -1,6 +1,6 @@
 # LWB317-UI-HOME-ERROR-002-R1 — root acknowledgement and polling
 
-Owner: returning worker. State: AWAITING_REVIEW. Date: 2026-10-02.
+Owner: returning worker. State: COMPLETE / ACCEPTED for focused source/local scope by PM-019. Date: 2026-10-02.
 Review baseline: db3aae317321d9ac21774f421dd363daa8a146c3;
 PM-018 assignment documentation follows it. Use current HEAD without reset.
 
@@ -82,3 +82,7 @@ evidence/lwbridge-0.3.17/ui/LWB317-UI-CORRECT-003/screenshots/ unchanged/unstage
 Do not stop unowned preview processes. Use research/offline-controller; review
 diff, stage explicit owned paths, commit/push and verify direct remote SHA.
 Return status, behavior changed, tests, exact evidence paths, SHA and remaining limits.
+
+Lead acceptance, 2026-10-02: 8415316 reviewed and accepted by PM-019.
+See ../reviews/2026-10-02-LWB317-PM-019-home-root-correction-acceptance.md.
+Next assignment is REVIEW-HOME-BUSY-001; do not resume this correction.

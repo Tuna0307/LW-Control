@@ -171,7 +171,7 @@ Finding: `reviews/2026-10-02-LWB317-PM-015-home-audit.md`.
 PM-017 accepts HOME-ERROR-001 translation/recovery composition for source/local scope
 after independent review baf5473:
 actual helper/render/nine-locale/browser checks pass. HOME-ERROR-002 separate
-channels correction is CHANGES_REQUIRED after PM-018; historical 9 callback scenarios, 4 original
+channels correction is COMPLETE / ACCEPTED by PM-019 after R1; historical 9 callback scenarios, 4 original
 picker cases, 72 render comparisons and 5 browser observations. See
 `reviews/2026-10-02-LWB317-UI-HOME-ERROR-002.md`. HOME-BUSY-001 is also
 AWAITING_REVIEW after nine-locale render/predicate and local browser checks;
@@ -182,13 +182,14 @@ across all nine locales and browser QA confirms Settings off/on/off plus Japanes
 Home checked/unchecked disabled descriptions. See
 `reviews/2026-10-02-LWB317-PM-016-switch-locale-acceptance.md`; original/native parity unproved.
 See `reviews/2026-10-02-LWB317-PM-017-home-translation-acceptance.md`.
-PM-018 integrates independent review db3aae3: HOME-ERROR-002 remains CHANGES_REQUIRED
-pending correction review. LWB317-UI-HOME-ERROR-002-R1 is AWAITING_REVIEW after
-source-shaped selected-profile root retrieval replaced repeated five-second root
-polling and successful initial/post-selection replies share root-status/error
-acknowledgement. Fourteen synthetic bridge scenarios, focused regressions and the
-two unchanged browser fixtures pass. See
-`reviews/2026-10-02-LWB317-UI-HOME-ERROR-002-R1.md`.
+PM-019 accepts HOME-ERROR-002 and R1 at 8415316 for focused source/local
+error-channel and root acknowledgement/polling scope. Fourteen actual-callback/
+effect scenarios and four independent acknowledgement comparisons pass; accepted
+translation/switch regressions and package verification remain green. Native
+contracts/persistence/lifecycle and original pixels remain unproved. Busy remains
+AWAITING_REVIEW; LWB317-REVIEW-HOME-BUSY-001 is ASSIGNED for presentation only.
+See `reviews/2026-10-02-LWB317-PM-019-home-root-correction-acceptance.md` and
+`work-items/LWB317-REVIEW-HOME-BUSY-001.md`.
 Earlier correction evidence is under
 `evidence/lwbridge-0.3.17/ui/LWB317-UI-CORRECT-001/`; worker report:
 `reviews/2026-10-01-LWB317-UI-CORRECT-001.md`. Previous lead disposition:

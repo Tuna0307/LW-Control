@@ -1,6 +1,6 @@
 # LWB317-UI-HOME-ERROR-002 — separate Home error channels
 
-Owner: project lead. State: CHANGES_REQUIRED after independent review / PM-018; initially assigned 2026-10-02 after owner said
+Owner: project lead. State: COMPLETE / ACCEPTED for focused source/local scope by PM-019; initially assigned 2026-10-02 after owner said
 continue until the other AI is ready. Baseline: 537a2b35ec79b021310f141f32ed0d00997c3597.
 
 Goal: separate folder-selection/root errors and action errors through App/Home.
@@ -45,3 +45,7 @@ docs/reviews/2026-10-02-LWB317-PM-018-home-channel-review-integration.md and
 docs/work-items/LWB317-UI-HOME-ERROR-002-R1.md.
 The original keep-polling-unchanged constraint is superseded only for root-status
 retrieval by the explicit R1 assignment. Historical delivery evidence is preserved.
+
+PM-019 acceptance, 2026-10-02: R1 8415316 resolves the required root-status
+acknowledgement/polling correction. Parent channel unit is accepted for focused
+source/local scope; historical PM-018 findings remain preserved. Busy review next.

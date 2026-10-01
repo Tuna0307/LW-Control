@@ -1,0 +1,90 @@
+{
+  "task": "LWB317-PM-019",
+  "result": "PM019_INDEPENDENT_ACK_DIFFERENTIAL_OK",
+  "cases": 4,
+  "sourceSha256": "44C4E4043825B7DB296B64171951B27176F8850FF8D7D337CC991DF4765524C6",
+  "appSha256NormalizedLF": "BA4A300D525A271C61A8061406CA81DE2414AACC15DF10A728B0E1A8641B2701",
+  "expressions": {
+    "original": "function Jt(e){g(e),x(``)}",
+    "current": "(next) => {\n    setGameRootStatus(next);\n    setGameRootError(\"\");\n  }"
+  },
+  "results": [
+    {
+      "payload": {
+        "valid": true,
+        "root": "C:\\LastWar"
+      },
+      "current": {
+        "state": {
+          "root": {
+            "valid": true,
+            "root": "C:\\LastWar"
+          },
+          "rootError": "",
+          "actionError": "ACTION_PRIOR"
+        },
+        "trace": [
+          "status",
+          "root-error"
+        ]
+      }
+    },
+    {
+      "payload": {
+        "valid": false,
+        "root": ""
+      },
+      "current": {
+        "state": {
+          "root": {
+            "valid": false,
+            "root": ""
+          },
+          "rootError": "",
+          "actionError": "ACTION_PRIOR"
+        },
+        "trace": [
+          "status",
+          "root-error"
+        ]
+      }
+    },
+    {
+      "payload": null,
+      "current": {
+        "state": {
+          "root": null,
+          "rootError": "",
+          "actionError": "ACTION_PRIOR"
+        },
+        "trace": [
+          "status",
+          "root-error"
+        ]
+      }
+    },
+    {
+      "payload": {
+        "valid": true,
+        "root": "other",
+        "additional": "retained"
+      },
+      "current": {
+        "state": {
+          "root": {
+            "valid": true,
+            "root": "other",
+            "additional": "retained"
+          },
+          "rootError": "",
+          "actionError": "ACTION_PRIOR"
+        },
+        "trace": [
+          "status",
+          "root-error"
+        ]
+      }
+    }
+  ],
+  "limits": "Extracted acknowledgement behavior with synthetic payloads only; no native invocation."
+}

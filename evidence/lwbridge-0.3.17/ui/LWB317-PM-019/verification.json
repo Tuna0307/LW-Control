@@ -1,0 +1,44 @@
+{
+  "task": "LWB317-PM-019",
+  "date": "2026-10-02",
+  "reviewedCommit": "8415316ef1c7bd66ca94ff44670a7654d03688d6",
+  "decision": "ACCEPT focused source/local scope",
+  "acceptedUnits": [
+    "LWB317-UI-HOME-ERROR-002-R1",
+    "LWB317-UI-HOME-ERROR-002"
+  ],
+  "checks": {
+    "actualR1CallbacksAndEffect": "PASS 14 scenarios",
+    "R1EvidenceValidator": "PASS",
+    "independentAcknowledgementDifferential": "PASS 4 cases",
+    "translationReportAndEvidence": "PASS",
+    "switchReportAndEvidence": "PASS",
+    "busyAssertionsWithoutHistoricalAppHash": "PASS",
+    "canonicalCheck": "PASS",
+    "productionPackage": "PASS",
+    "targetExeHash": "PASS",
+    "workerDirectRemoteSHA": "PASS",
+    "diffCheck": "PASS"
+  },
+  "sourceSha256": "44C4E4043825B7DB296B64171951B27176F8850FF8D7D337CC991DF4765524C6",
+  "targetExeSha256": "4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783",
+  "appSha256NormalizedLF": "BA4A300D525A271C61A8061406CA81DE2414AACC15DF10A728B0E1A8641B2701",
+  "sourceLocators": {
+    "Jt": 367489,
+    "selectedProfileEffect": 369239,
+    "initialRootRequest": 369540,
+    "periodicPoll": 369979
+  },
+  "buildFingerprint": "8055b198949dcac217b15c7b8dac40e6f965847ef472906cf27b1a68388aeb0b",
+  "packageFingerprint": "3a01e609bf7f5281757cf843181bc2c2a1fdf5f544a62a1fae50b87a12616cb4",
+  "productionRefreshCommands": [
+    "get_status",
+    "proxy_status",
+    "map_scan_status",
+    "game_recovery_status",
+    "local_config_get"
+  ],
+  "inventoryNote": "The worker harness stubs the three mapApi reads; its two-command inventory is only direct bridge requests. No game_root_status occurs in refreshStatus.",
+  "nextWorkItem": "LWB317-REVIEW-HOME-BUSY-001",
+  "limits": "Source/local acceptance; no new product edit or lead browser/native/game test. Native rejection contracts, persistence/lifecycle, dynamic profiles beyond bootstrap and original pixels unproved. Protected WIP preserved."
+}

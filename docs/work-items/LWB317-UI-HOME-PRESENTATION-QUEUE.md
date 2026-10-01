@@ -2,9 +2,8 @@
 
 Owner requested project-lead tasks while another AI rests, 2026-10-02.
 Owner: project lead. State: PARTIAL; switch unit ACCEPTED by PM-016 and translation
-by PM-017 for focused source/local scope. Channels are CHANGES_REQUIRED after
-independent review db3aae3 / PM-018; busy remains AWAITING_REVIEW.
-LWB317-UI-HOME-ERROR-002-R1 is assigned for root acknowledgement/polling only.
+by PM-017, corrected channels/R1 by PM-019 for focused source/local scope.
+Busy remains AWAITING_REVIEW; LWB317-REVIEW-HOME-BUSY-001 is ASSIGNED.
 Do not execute all items as one broad campaign. Assign/run one ID at a time.
 Input finding: docs/reviews/2026-10-02-LWB317-PM-015-home-audit.md and
 evidence/lwbridge-0.3.17/ui/LWB317-PM-015/home-audit.json.
@@ -31,8 +30,9 @@ Commit/push/remote verify; return for independent review. Channels delivered sep
 
 ## HOME-ERROR-002 — separate display channels
 
-State: CHANGES_REQUIRED after independent review / PM-018 on 2026-10-02.
-R1 is ASSIGNED; separate root status acknowledgement from repeated polling.
+State: COMPLETE / ACCEPTED after PM-019 review of R1 8415316 on 2026-10-02.
+Initial/profile root acknowledgement is separate from repeated polling; fourteen
+current scenarios and four independent acknowledgement comparisons pass.
 See LWB317-UI-HOME-ERROR-002.md and its dated review/evidence. Nine actual
 callback scenarios, four original picker cases, 72 render comparisons and five
 browser observations pass. Native picker/persistence and original pixels unproved.
@@ -47,6 +47,7 @@ lifecycle providers. Same focused evidence/canonical/checkpoint delivery pattern
 ## HOME-BUSY-001 — presentation only
 
 State: AWAITING_REVIEW after project-lead implementation on 2026-10-02.
+REVIEW-HOME-BUSY-001 is ASSIGNED for independent presentation review only.
 See LWB317-UI-HOME-BUSY-001.md and its dated review/evidence. Nine-locale actual
 render/predicate and local browser checks pass; lifecycle producers remain absent.
 
