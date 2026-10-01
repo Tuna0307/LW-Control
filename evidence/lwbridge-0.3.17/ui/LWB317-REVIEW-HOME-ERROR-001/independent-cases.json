@@ -1,0 +1,134 @@
+{
+  "task": "LWB317-REVIEW-HOME-ERROR-001",
+  "result": "REVIEW_HOME_ERROR_MATCH",
+  "reference": {
+    "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-BVfnK1wp.js",
+    "sha256": "44C4E4043825B7DB296B64171951B27176F8850FF8D7D337CC991DF4765524C6",
+    "locators": {
+      "Ir": {
+        "utf8ByteOffset": 328453,
+        "expression": "function Ir(e){let t=[];e&&typeof e==`object`&&`code`in e&&typeof e.code==`string`&&t.push(e.code);let n=e instanceof Error?e.message:String(e??``);return t.push(...n.match(/\\b[A-Z][A-Z0-9_]{2,}\\b/g)||[]),[...new Set(t)].reverse()}"
+      },
+      "Lr": {
+        "utf8ByteOffset": 328684,
+        "expression": "function Lr(e,t,n=`common.actionFailed`){for(let n of Ir(t))for(let t of[`error`,`auth.error`,`update.error`]){let r=`${t}.${n}`,i=e(r);if(i!==r)return i}return e(n)}"
+      },
+      "qr": {
+        "utf8ByteOffset": 336694,
+        "expression": "function qr({proxyStatus:e,online:t,gameRecoveryStatus:n,proxyBusy:r,gameLaunchBusy:i,gameRootStatus:a,gameRootBusy:o,gameRootError:s,gameActionError:c,autoLaunchGame:l,autoReconnect:u,onAutoLaunchGameChange:d,onAutoReconnectChange:f,onGameRootSelect:p,onStartGame:m,onStopGame:h,onUpdateAndRestart:g}){let{t:_}=De(),v=a!=null,y=n!=null&&[`waiting`,`updating`,`repairing`,`launching`,`verifying`,`maintenance`].includes(n.state),b=e?.repairRequired===!0,x=Kr({rootResolved:v,rootValid:a?.valid===!0,gameRunning:e?.gameRunning===!0,needsRepair:b,recovering:y,busy:r,launching:i}),S=v?x.showRootPicker?_(`setup.gameRootMissing`):i?_(`setup.launchingGame`):r?_(`common.processing`):y?_(`recovery.state.${n.state}`):b?_(`setup.repairRequired`):e?.gameRunning?_(t?`status.gameRunning`:`setup.bridgeDisconnected`):_(`setup.gameStopped`):_(`setup.checking`);return(0,M.jsxs)(`section`,{className:`panel quick-actions-panel`,children:[(0,M.jsxs)(`div`,{className:`panel-title`,children:[(0,M.jsx)(`h2`,{children:_(`setup.title`)}),(0,M.jsx)(`span`,{className:e?.gameRunning&&t?`status-ok`:`muted`,children:S})]}),v?x.showRootPicker?(0,M.jsxs)(`div`,{className:`game-root-missing`,children:[(0,M.jsx)(`span`,{children:s?Lr(_,s):_(`setup.gameRootMissing`)}),(0,M.jsx)(`button`,{className:`primary`,disabled:o,onClick:p,children:_(o?`common.processing`:`setup.gameRootSelect`)})]}):(0,M.jsxs)(`div`,{className:`game-controls`,children:[!x.repairOnClose&&(0,M.jsx)(`button`,{className:`primary`,disabled:!x.canStart,onClick:m,children:_(i?`setup.launchingGame`:r?`common.processing`:`top.launchGame`)}),(0,M.jsx)(`button`,{disabled:!x.canStop,onClick:x.repairOnClose?g:h,children:r&&e?.gameRunning?_(`common.processing`):_(x.repairOnClose?`setup.updateAndLaunch`:`setup.closeGameAction`)}),x.repairOnClose&&(0,M.jsx)(`span`,{className:`muted`,children:_(`setup.updateCloseGame`)})]}):null,c&&(0,M.jsx)(`span`,{className:`game-root-error`,children:Lr(_,c)}),(0,M.jsx)(Bn,{label:`auth.autoLaunchGame`,checked:l,onChange:d}),(0,M.jsx)(Bn,{label:`automation.autoReconnect.title`,checked:u,onChange:f}),n?.state===`failed`&&n.error&&(0,M.jsx)(`span`,{className:`game-root-error`,children:_(`recovery.failedDetail`,{error:Lr(_,n.error)})})]})}"
+      }
+    }
+  },
+  "production": {
+    "translatedError": "function translatedError(t, value) {\n  const codes = [];\n  if (value && typeof value === \"object\" && \"code\" in value && typeof value.code === \"string\") codes.push(value.code);\n  const message = value instanceof Error ? value.message : String(value ?? \"\");\n  codes.push(...message.match(/\\b[A-Z][A-Z0-9_]{2,}\\b/g) || []);\n  for (const code of [...new Set(codes)].reverse()) {\n    for (const namespace of [\"error\", \"auth.error\", \"update.error\"]) {\n      const key = `${namespace}.${code}`;\n      const translated = t(key);\n      if (translated !== key) return translated;\n    }\n  }\n  return t(\"common.actionFailed\");\n}",
+    "recoveryExpression": "t(\"recovery.failedDetail\", { error: translatedError(t, state.gameRecoveryStatus.error) })}</span>"
+  },
+  "cases": [
+    {
+      "name": "string direct general namespace",
+      "expected": "error A",
+      "actual": "error A"
+    },
+    {
+      "name": "same-code auth beats update",
+      "expected": "auth C",
+      "actual": "auth C"
+    },
+    {
+      "name": "update namespace fallback",
+      "expected": "update D",
+      "actual": "update D"
+    },
+    {
+      "name": "later code beats earlier code across namespaces",
+      "expected": "auth B",
+      "actual": "auth B"
+    },
+    {
+      "name": "dedupe then reverse keeps last distinct priority",
+      "expected": "auth B",
+      "actual": "auth B"
+    },
+    {
+      "name": "plain object code ignores message property",
+      "expected": "error A",
+      "actual": "error A"
+    },
+    {
+      "name": "Error code plus message reverses distinct code priority",
+      "expected": "auth B",
+      "actual": "auth B"
+    },
+    {
+      "name": "Error message token extraction",
+      "expected": "error A",
+      "actual": "error A"
+    },
+    {
+      "name": "plain object message property is not Error.message",
+      "expected": "generic",
+      "actual": "generic"
+    },
+    {
+      "name": "custom object stringification participates",
+      "expected": "auth B",
+      "actual": "auth B"
+    },
+    {
+      "name": "object code field is not restricted by uppercase token regex",
+      "expected": "lowercase object code",
+      "actual": "lowercase object code"
+    },
+    {
+      "name": "lowercase string does not match token regex",
+      "expected": "generic",
+      "actual": "generic"
+    },
+    {
+      "name": "unknown token uses localized generic key",
+      "expected": "generic",
+      "actual": "generic"
+    }
+  ],
+  "locales": {
+    "en": {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/en-BisSXcTB.js",
+      "sha256": "0BF43D180EB93692A93B830B5D984E9D01DDEEA524340F2334FC63CBA527A731",
+      "commonActionFailed": {
+        "value": "The action could not be completed.",
+        "utf8ByteOffset": 35900,
+        "expression": "\"common.actionFailed\":`The action could not be completed.`"
+      },
+      "recoveryFailedDetail": {
+        "value": "Reason: {error}",
+        "utf8ByteOffset": 53541,
+        "expression": "\"recovery.failedDetail\":`Reason: {error}`"
+      }
+    },
+    "ja": {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/ja-UrbzJu-m.js",
+      "sha256": "35969183AB623B6701BC850FDF28BCF268C93127FF6C9693F77E588EE7BDBE38",
+      "commonActionFailed": {
+        "value": "操作を完了できませんでした。",
+        "utf8ByteOffset": 32534,
+        "expression": "\"common.actionFailed\":`操作を完了できませんでした。`"
+      },
+      "recoveryFailedDetail": {
+        "value": "原因：{error}",
+        "utf8ByteOffset": 44426,
+        "expression": "\"recovery.failedDetail\":`原因：{error}`"
+      }
+    }
+  },
+  "recoveryComposition": {
+    "language": "ja",
+    "input": "REVIEW_UNKNOWN_CODE",
+    "expected": [
+      "原因：操作を完了できませんでした。"
+    ],
+    "actual": [
+      "原因：操作を完了できませんでした。"
+    ]
+  },
+  "limits": "Focused source/local review only. App rejection-to-string reduction, native producer contracts, original post-auth runtime pixels, and lifecycle behavior are outside this review."
+}

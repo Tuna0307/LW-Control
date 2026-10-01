@@ -73,3 +73,14 @@ Last War, access original protected services, add fallbacks, spawn subagents or
 review other pending campaigns. No fixed time block. Review/stage owned files,
 commit/push origin/research/offline-controller and verify exact remote revision.
 Stop after this one review; no automatic next task.
+
+## Delivery
+
+Date: 2026-10-02. State: **REVIEW_COMPLETE**.
+Recommendation: **ACCEPT for focused source/local scope**.
+
+Review: `docs/reviews/2026-10-02-LWB317-REVIEW-HOME-ERROR-001.md`.
+Reproducible evidence: `evidence/lwbridge-0.3.17/ui/LWB317-REVIEW-HOME-ERROR-001/`.
+No product code or pre-existing evidence was changed by this review. The exact
+review commit and verified remote SHA are reported in the reviewer return because
+this delivery section is itself part of that commit.

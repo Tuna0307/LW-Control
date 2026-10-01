@@ -1,0 +1,60 @@
+{
+  "task": "LWB317-REVIEW-HOME-ERROR-001",
+  "date": "2026-10-02",
+  "browser": "Chat On Steroids Desktop attached Chromium tab",
+  "preview": "http://127.0.0.1:4319",
+  "server": {
+    "port": 4319,
+    "pid": 62280,
+    "preExisting": true,
+    "leftRunning": true
+  },
+  "flows": [
+    {
+      "state": "home-error-unknown",
+      "language": "en",
+      "url": "http://127.0.0.1:4319/?previewPage=home&previewState=home-error-unknown&previewLanguage=en",
+      "observed": {
+        "fixture": "home-error-unknown",
+        "errors": [
+          "The action could not be completed."
+        ],
+        "controls": [
+          { "text": "Launch Game", "disabled": true },
+          { "text": "Close game", "disabled": true },
+          { "text": "Open games at startup: Disabled", "disabled": true },
+          { "text": "Automatic Reconnection: Disabled", "disabled": true }
+        ]
+      }
+    },
+    {
+      "state": "home-recovery-error-unknown",
+      "language": "ja",
+      "url": "http://127.0.0.1:4319/?previewPage=home&previewState=home-recovery-error-unknown&previewLanguage=ja",
+      "observed": {
+        "fixture": "home-recovery-error-unknown",
+        "errors": [
+          "原因：操作を完了できませんでした。"
+        ],
+        "controls": [
+          { "text": "ゲームを起動", "disabled": true },
+          { "text": "ゲームを閉じる", "disabled": true },
+          { "text": "起動時にゲームを開く: 無効", "disabled": true },
+          { "text": "自動再接続: 無効", "disabled": true }
+        ]
+      }
+    }
+  ],
+  "consoleErrors": [],
+  "screenshots": [
+    {
+      "file": "recovery-error-ja.jpg",
+      "state": "home-recovery-error-unknown",
+      "language": "ja",
+      "width": 1600,
+      "height": 759,
+      "sha256": "E74CAAE8D6BDB8534EB650CFD14A8E98F8531269987BF2B1DDEA918530EDA357"
+    }
+  ],
+  "limits": "Local preview fixtures only. No original post-auth runtime, native/gameplay action, lifecycle-provider, or pixel-parity claim. The reviewer-owned tab was closed and the pre-existing preview server was left running."
+}

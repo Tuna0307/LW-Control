@@ -1,0 +1,37 @@
+{
+  "task": "LWB317-REVIEW-HOME-ERROR-001",
+  "date": "2026-10-02",
+  "state": "REVIEW_COMPLETE",
+  "recommendation": "ACCEPT for focused source/local scope",
+  "baseline": "554a28cf829033fae121261fb1698492ea39f4b9",
+  "referenceExeHash": "4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783",
+  "referenceSourceHash": "44C4E4043825B7DB296B64171951B27176F8850FF8D7D337CC991DF4765524C6",
+  "checks": {
+    "independentActualFunctionCases": "PASS — 13 cases",
+    "homeError001VerifyRecord": "PASS — 60 synthetic, 4230 catalog, 9 locales, 27 Home renders",
+    "homeError001ValidateEvidence": "PASS",
+    "homeError002Regression": "PASS — 9 callback scenarios, 4 source picker cases, 72 render comparisons",
+    "homeError002ValidateEvidence": "PASS",
+    "homeBusy001Regression": "PASS — 13824 render comparisons, 384 predicate cases, 27 preference checks, 63 preview fixtures",
+    "homeBusy001ValidateEvidence": "PASS",
+    "switchLocaleRegression": "PASS — 9 languages, 11 callers, 360 render comparisons",
+    "switchLocaleValidateEvidence": "PASS",
+    "boundedBrowserQa": "PASS — English generic fallback and Japanese recovery composition; controls disabled; no console errors",
+    "canonicalCheck": "PASS",
+    "canonicalBuild": "PASS",
+    "productionBuildCheck": "PASS",
+    "gitDiffCheck": "PASS"
+  },
+  "productionBuild": {
+    "buildFingerprint": "53201aabb3833ec593a92f23ca6ced0f12bb3c645ad9dbfca159a32f1692f13e",
+    "packageFingerprint": "96b9dd1a99d67a6bf4dee3e39035915401de25395f99cdf2c0af5bbe4ccd9782"
+  },
+  "browserScreenshot": {
+    "file": "recovery-error-ja.jpg",
+    "sha256": "E74CAAE8D6BDB8534EB650CFD14A8E98F8531269987BF2B1DDEA918530EDA357",
+    "jpegMagic": "FFD8",
+    "bytes": 34841
+  },
+  "environmentNote": "Direct npm commands initially resolved to npm.ps1 and were blocked by the host PowerShell execution policy before project scripts ran. The canonical scripts were then run unchanged through npm.cmd and all passed.",
+  "limits": "Focused source/local translation review. It does not accept native error contracts, App rejection transport shape, HOME-ERROR-002 channels, HOME-BUSY-001 behavior, original post-auth pixels, or native/gameplay lifecycle parity."
+}
