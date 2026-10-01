@@ -1,5 +1,10 @@
 # LWB317-UI-COMPLETE-001 coverage matrix
 
+Project-lead review on 2026-10-01: **CHANGES_REQUIRED**. The table below preserves
+the worker's coverage claims and is not an accepted exhaustive branch inventory.
+PM-006 demonstrates missing Home profile scope, incorrect Automation forms and
+absent Equipment interactions. See the lead review and `LWB317-UI-CORRECT-001`.
+
 Status vocabulary follows the project authority: `EXACT_BYTES`, `EXACT_CONTRACT`, `IMPLEMENTED_NOT_VALIDATED`, `LIVE_PROVEN`, `UNKNOWN`, `BLOCKED`, `OUT_OF_SCOPE`.
 
 | Surface | Reference source / locator | Rendering predicates recovered | Implementation result | Clone verification | Remaining unknowns / blockers |

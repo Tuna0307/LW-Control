@@ -64,5 +64,6 @@ revalidation; record its source/locator and limits.
 
 Current source/status review:
 `reviews/2026-10-01-LWB317-PM-003-project-lead-takeover.md`.
-Next UI-only assignment: `work-items/LWB317-UI-COMPLETE-001.md` — all eight pages
-and shared shell/nested states, starting with Home/Map; no fixed time deadline.
+Next UI-only assignment: `work-items/LWB317-UI-CORRECT-001.md` — repair PM-006
+findings and audit all eight pages/shared nested states, Home/Map first; no fixed
+time deadline. Parent UI-COMPLETE-001 is CHANGES_REQUIRED after lead review.

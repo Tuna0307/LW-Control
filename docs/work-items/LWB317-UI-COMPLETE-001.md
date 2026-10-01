@@ -1,6 +1,9 @@
 # LWB317-UI-COMPLETE-001 — complete recoverable 0.3.17 UI/UX across all pages
 
-Project-lead assignment: 2026-10-01. State: READY.
+Project-lead assignment: 2026-10-01. State: CHANGES_REQUIRED.
+Lead review: `docs/reviews/2026-10-01-LWB317-PM-006-ui-completion-lead-review.md`.
+Continue through `docs/work-items/LWB317-UI-CORRECT-001.md`; the worker checkpoint
+is retained as partial implementation, not accepted full source-backed completion.
 Supersedes the Home-only assignment `LWB317-UI-HOME-STATES-001`.
 
 ## Goal

@@ -14,10 +14,13 @@ Map campaign acceptance was performed by the takeover.
 Current source/evidence audit:
 `reviews/2026-10-01-LWB317-PM-003-project-lead-takeover.md`.
 Current path map: `PROJECT_STRUCTURE.md`.
-`LWB317-UI-COMPLETE-001` has returned `AWAITING_REVIEW`. Implementation/evidence
-checkpoint `7c4daed4112747fcdd619e533184251da86cb389` completed source-backed
-shell/all-eight-page conditional/nested presentation and isolated clone QA.
-Review: `reviews/2026-10-01-LWB317-UI-COMPLETE-001.md`. Evidence:
+`LWB317-UI-COMPLETE-001` is `CHANGES_REQUIRED` after PM-006 review of worker HEAD
+`a253cce`. Implementation checkpoint `7c4daed` is useful partial UI work, not
+accepted completion. Home reconnect lacks profile scope; Automation forms differ
+from source; Equipment dialogs/interactions are absent. The next fresh worker
+must perform `work-items/LWB317-UI-CORRECT-001.md`, including all-page branch QA.
+Lead review: `reviews/2026-10-01-LWB317-PM-006-ui-completion-lead-review.md`.
+Preserved worker report: `reviews/2026-10-01-LWB317-UI-COMPLETE-001.md`. Evidence:
 `evidence/lwbridge-0.3.17/ui/LWB317-UI-COMPLETE-001/`.
 
 Home now consumes existing read-only root/proxy/recovery/config state and
@@ -25,8 +28,9 @@ implements the recovered presentation/precedence, but native game launch/close/
 repair remains deliberately unimplemented for the separate lifecycle task.
 Map's existing production adapter/data path was preserved and no new live Map
 campaign was started. Direct post-auth reference visual comparison is still
-`BLOCKED`; clone screenshots are not pixel-parity proof. Return to project-lead
-review before opening native Home integration or another backend campaign.
+`BLOCKED`; clone screenshots are not pixel-parity proof. Complete the correction
+assignment and return to project-lead review before native Home integration or
+another backend campaign.
 
 The exact recovered CSS checkout conversion remains hash-protected; keep the
 checker intact.

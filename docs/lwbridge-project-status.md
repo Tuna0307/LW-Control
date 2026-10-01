@@ -14,16 +14,17 @@ option has a separate pending retirement task. See
 
 The 2026-10-01 project-lead takeover inspected actual clean/pushed `389df37`,
 rather than the stale pasted `13b25f6` handoff. The follow-on UI-only
-`LWB317-UI-COMPLETE-001` assignment is now `AWAITING_REVIEW` at implementation
-checkpoint `7c4daed4112747fcdd619e533184251da86cb389`. It completed the recoverable
-source-backed conditional/nested UI across the shell and all eight primary pages,
-including recovered locale rendering and isolated preview-state interaction QA.
-Home now consumes existing read-only root/proxy/recovery/config state; native
-launch/close/repair remains a separate lifecycle task. The production Map adapter
-was preserved and no new live scan/backend campaign was opened. Direct original
-post-auth pixel comparison remains `BLOCKED` by legitimate reference access. See
-`reviews/2026-10-01-LWB317-UI-COMPLETE-001.md` and
-`evidence/lwbridge-0.3.17/ui/LWB317-UI-COMPLETE-001/`.
+`LWB317-UI-COMPLETE-001` returned worker HEAD `a253cce` and is now
+`CHANGES_REQUIRED` after PM-006 independent review. The implementation checkpoint
+`7c4daed4112747fcdd619e533184251da86cb389` adds useful page states, translations
+and clone QA, but does not complete source-backed UI/UX. Home reconnect omits
+required profile scope, several Automation forms differ from the exact source,
+and Equipment local interactions/dialogs remain missing. All-page branch coverage
+still needs granular verification. Next assignment: `LWB317-UI-CORRECT-001`.
+Native Home launch/close/repair stays separate. No new live scan/backend campaign
+was opened. Original post-auth pixel comparison remains separately `BLOCKED`.
+See `reviews/2026-10-01-LWB317-PM-006-ui-completion-lead-review.md` and the retained
+worker evidence under `evidence/lwbridge-0.3.17/ui/LWB317-UI-COMPLETE-001/`.
 
 Phase 1 static UI recovery has been accepted. The active target remains exact
 LWBridge 0.3.17. The Map-only `LWB317-RE-MAP-001` campaign has completed its
@@ -231,9 +232,8 @@ Historical auth research remains archived evidence, not a current reconstruction
 
 ## Next project-lead milestone
 
-Independently review `LWB317-UI-COMPLETE-001` at
-`7c4daed4112747fcdd619e533184251da86cb389` together with
-`docs/reviews/2026-10-01-LWB317-UI-COMPLETE-001.md`, while also closing or
-reassigning the separately awaiting `LWB317-RE-MAP-001` Goal. Do not open native
-Home lifecycle integration or another backend subsystem until the project lead
-explicitly assigns it.
+Dispatch `LWB317-UI-CORRECT-001` to one fresh worker chat, then independently
+review its granular correction/coverage evidence. PM-006 has already returned
+UI-COMPLETE-001 as CHANGES_REQUIRED. Separately close or reassign the awaiting
+`LWB317-RE-MAP-001` Goal. Native Home lifecycle and new backend subsystems require
+their own project-lead assignment.

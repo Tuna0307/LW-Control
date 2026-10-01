@@ -120,19 +120,20 @@ opened. The canonical frontend is now the normal packaged Desktop UI. This
 acceptance covers the static baseline, not every conditional state or original
 runtime pixel parity.
 
-`LWB317-UI-COMPLETE-001` is now `AWAITING_REVIEW` at implementation checkpoint
-`7c4daed4112747fcdd619e533184251da86cb389`. The canonical frontend now covers
-the source-backed conditional/nested presentation recovered for Home,
-Automation, Map Data, Squads / AFK, City Layout, Hotkeys, Mini Games and
-Settings, and the shell renders the nine recovered locale catalogs rather than
-changing the selector alone. Home consumes existing read-only root/proxy/
-recovery/config state but keeps native launch/close/repair actions disabled for
-their separate lifecycle task. Map's production adapter/data path is preserved;
-the UI task did not launch a live scan or replace native rows with fixtures.
+`LWB317-UI-COMPLETE-001` is `CHANGES_REQUIRED` after PM-006 review of worker HEAD
+`a253cce`. Implementation checkpoint `7c4daed` adds useful conditional/nested
+presentations, translations and isolated preview QA, but full source-backed UI/UX
+is not accepted. Home's reconnect write lacks required profile scope;
+Automation uses forms that differ from the recovered card contracts; Equipment
+dialogs/local interactions remain missing. All eight pages/shared surfaces need
+a granular branch audit under `LWB317-UI-CORRECT-001`. Native Home lifecycle
+remains separate and existing Map live-proof scopes stay unchanged.
 
 Clone QA and source/hash evidence are under
 `evidence/lwbridge-0.3.17/ui/LWB317-UI-COMPLETE-001/`; the detailed review is
-`reviews/2026-10-01-LWB317-UI-COMPLETE-001.md`. Direct post-auth original visual
+`reviews/2026-10-01-LWB317-UI-COMPLETE-001.md`; lead disposition is in
+`reviews/2026-10-01-LWB317-PM-006-ui-completion-lead-review.md`.
+Direct post-auth original visual
 comparison remains `BLOCKED`, so these rows stay `IMPLEMENTED_NOT_VALIDATED`
 unless they already have separately scoped live proof. No product-wide parity
 claim is made. The Map Goal remains awaiting independent project-lead closeout.

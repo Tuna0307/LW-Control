@@ -34,19 +34,20 @@ SHA-256:
 
 ## Current phase
 
-**Map function recovery and full source-backed UI completion are awaiting review.**
+**Map function recovery awaits review; full UI completion requires corrections.**
 
 The exact static frontend package baseline and Phase 1 UI campaign are accepted.
 The canonical UI is already the normal Desktop frontend. The ordered Map
 campaign remains `AWAITING_REVIEW` with durable implementation/live evidence and
 explicit remaining gaps; do not replay its old queue automatically.
-`LWB317-UI-COMPLETE-001` has also returned `AWAITING_REVIEW` at implementation
-checkpoint `7c4daed4112747fcdd619e533184251da86cb389`, after completing the
-recoverable source-backed shell/eight-page conditional and nested UI coverage,
-recovered locale rendering, and fenced clone interaction QA. Direct original
-post-auth pixel comparison remains blocked by legitimate reference access and is
-not fabricated. See `reviews/2026-10-01-LWB317-UI-COMPLETE-001.md` and its
-evidence root before assigning native Home lifecycle or another backend family.
+`LWB317-UI-COMPLETE-001` returned useful UI work at `7c4daed`/worker HEAD
+`a253cce`, but PM-006 independently found missing Home request scope, incorrect
+Automation forms, missing Equipment interactions and insufficient branch
+coverage. Its disposition is `CHANGES_REQUIRED`. Use
+`work-items/LWB317-UI-CORRECT-001.md` for the next fresh worker and
+`reviews/2026-10-01-LWB317-PM-006-ui-completion-lead-review.md` for evidence.
+Direct original post-auth pixel comparison remains separately blocked. New
+native Home lifecycle and backend families remain pending lead assignment.
 
 All non-Map gameplay/backend function families remain blocked until the Map Goal
 is closed. Auth/login/licensing reconstruction remains out of scope.

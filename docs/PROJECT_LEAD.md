@@ -50,7 +50,8 @@ the Map closeout awaits a separate independent acceptance review.
 | LWB317-PM-001 | Project lead | COMPLETE | Repository/documentation reset for 0.3.17 |
 | LWB317-PM-003 | Project lead | COMPLETE | Takeover source/evidence audit, current path map and exact CSS checkout repair; no new live test/full Map acceptance |
 | LWB317-UI-HOME-STATES-001 | None | SUPERSEDED | Historical Home-only proposal; replaced by full UI coverage |
-| LWB317-UI-COMPLETE-001 | Fresh worker chat, manually dispatched by owner | READY | Shell/all eight pages/nested states/interactions; Home and Map first; milestone delivery without fixed clock stops; no new native/game integration |
+| LWB317-UI-COMPLETE-001 | Previous worker | CHANGES_REQUIRED | Useful partial UI checkpoint at `a253cce`; PM-006 found missing Home preference scope, incorrect Automation forms and incomplete Equipment interactions; full source-backed coverage not accepted |
+| LWB317-UI-CORRECT-001 | Fresh worker chat, manually dispatched by owner | READY | Repair PM-006 findings and audit all eight pages/shared nested states; Home and Map first; no fixed clock stops or new native/game integration |
 | LWB317-UI-001A | Worker AI | COMPLETE / ACCEPTED | Static frontend package inventory/extraction |
 | LWB317-UI-CAMPAIGN-8H | Goal worker | ACCEPTED | Static UI recovery/reconstruction accepted; direct post-auth visual validation remains blocked |
 | LWB317-COMPAT-MAP-V22-001 | Goal worker | COMPLETE | Installed Last War v22 Map compatibility revalidated statically/source-first; no production Map change required |

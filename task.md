@@ -77,12 +77,14 @@ Live-prove each implemented in-scope function against an assistant-owned/current
 
 ## Current instruction
 
-The UI-only `LWB317-UI-COMPLETE-001` assignment has returned `AWAITING_REVIEW`.
-Implementation/evidence checkpoint
-`7c4daed4112747fcdd619e533184251da86cb389` completes the recoverable
-source-backed conditional/nested UI presentation across the shell and all eight
-primary pages using exact 0.3.17 assets/locales plus isolated clone QA. Review:
-`docs/reviews/2026-10-01-LWB317-UI-COMPLETE-001.md`; evidence:
+The UI-only `LWB317-UI-COMPLETE-001` assignment is `CHANGES_REQUIRED` following
+PM-006 independent review of worker HEAD `a253cce`. Retain useful implementation
+`7c4daed`, but do not claim full recoverable UI completion. Home reconnect lacks
+required profile scope; Automation forms differ from source; Equipment dialogs
+and local interactions are missing; all-page branch evidence is insufficient.
+Next assignment: `docs/work-items/LWB317-UI-CORRECT-001.md`. Lead review:
+`docs/reviews/2026-10-01-LWB317-PM-006-ui-completion-lead-review.md`.
+Previous worker evidence remains under
 `evidence/lwbridge-0.3.17/ui/LWB317-UI-COMPLETE-001/`.
 
 Direct original post-auth screenshot/pixel comparison remains `BLOCKED` by the
