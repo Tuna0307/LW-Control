@@ -40,8 +40,8 @@
       "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-BVfnK1wp.js",
       "sha256": "44C4E4043825B7DB296B64171951B27176F8850FF8D7D337CC991DF4765524C6",
       "locators": [
-        { "utf8ByteOffset": 199469, "meaning": "Retry is disabled while the config store is saving", "excerpt": "children:r(`common.retry`)" },
-        { "utf8ByteOffset": 199603, "meaning": "Discard is disabled while the config store is saving", "excerpt": "children:r(`configSave.discard`)" }
+        { "utf8ByteOffset": 199457, "meaning": "Retry is disabled while the config store is saving", "excerpt": "children:r(`common.retry`)" },
+        { "utf8ByteOffset": 199591, "meaning": "Discard is disabled while the config store is saving", "excerpt": "children:r(`configSave.discard`)" }
       ],
       "notes": [
         "Saving locks Retry/Discard in the shared error UI; it does not lock the weekly selectors."

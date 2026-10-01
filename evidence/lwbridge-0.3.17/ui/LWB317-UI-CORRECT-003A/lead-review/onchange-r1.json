@@ -1,0 +1,38 @@
+{
+  "baseline_commit": "966c90433bf642f31a2e55283db3393018498623",
+  "sourceSha256": "4ebeb3dbfa56903855f7ef3559bdc95742729b8527661a87b98686025b27034c",
+  "configHookSha256": "0f8f3982b6131e93f7f9021bdb0dd3c60bafdc67503c48da9e83bfec4218002d",
+  "harness": "check-weekly-onchange.mjs extracts the two WeeklyQualityPreview onChange expressions from Pages.jsx and the Retry/Discard onClick expressions from previewConfigHook.jsx, then executes those actual callbacks against createConfigDraft without a test-authored flush, blur, or debounce wait",
+  "exit_code": 0,
+  "results": [
+    {
+      "title": "Trucks",
+      "line": 430,
+      "immediateWrites": 1,
+      "secondEditWhileSaving": true,
+      "olderAckPreservedNewerDraft": true,
+      "writes": [
+        ["ur", "ur", "ssr", "ssr", "ssr", "ur", "ssr"],
+        ["ur", "ur", "none", "ssr", "ssr", "ur", "ssr"]
+      ],
+      "finalConfirmed": ["ur", "ur", "none", "ssr", "ssr", "ur", "ssr"]
+    },
+    {
+      "title": "Secret Task",
+      "line": 442,
+      "immediateWrites": 1,
+      "secondEditWhileSaving": true,
+      "olderAckPreservedNewerDraft": true,
+      "writes": [
+        ["ur", "ur", "none", "none", "none", "ur", "none"],
+        ["ur", "ur", "ssr", "none", "none", "ur", "none"]
+      ],
+      "finalConfirmed": ["ur", "ur", "ssr", "none", "none", "ur", "none"]
+    }
+  ],
+  "recovery": [
+    { "title": "Trucks", "failedFromActualWeeklyHandler": true, "action": "Retry", "recovered": true },
+    { "title": "Secret Task", "failedFromActualWeeklyHandler": true, "action": "Discard", "recovered": true }
+  ],
+  "disposition": "PASS: both weekly UI callbacks dispatch immediately, accept a second edit during an unfinished save, preserve the newer draft across the older acknowledgement, and retain Retry/Discard recovery"
+}

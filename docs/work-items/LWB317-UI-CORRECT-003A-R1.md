@@ -1,6 +1,6 @@
 # LWB317-UI-CORRECT-003A-R1 — save weekly edits immediately
 
-Project-lead assignment: 2026-10-01. State: READY.
+Project-lead assignment: 2026-10-01. State: AWAITING_REVIEW.
 One small correction to CORRECT-003A; no other feature work.
 
 Repository: C:\Users\chimw\OneDrive\Desktop\Github\LW-Control.

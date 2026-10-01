@@ -59,6 +59,17 @@
       ]
     }
   ],
+  "r1Recheck": {
+    "baseline": "966c90433bf642f31a2e55283db3393018498623",
+    "result": "PASS",
+    "mode": "local browser preview only; real select/button input",
+    "preview": "http://127.0.0.1:4321/",
+    "observations": [
+      "Trucks automation-weekly-save-error: changing Monday from SSR or above to UR produced the save error immediately; Retry cleared the error and kept Monday at UR with a clean draft.",
+      "Secret Task automation-secret-weekly-save-error: changing Monday from Do not refresh to SSR or above produced the save error immediately; Discard cleared the error and restored Monday to Do not refresh with a clean draft.",
+      "The existing screenshots remain representative of the unchanged visible error/edited states and are reused as prior visual evidence; R1 changes dispatch timing rather than presentation."
+    ]
+  },
   "screenshots": [
     {
       "path": "screenshots/weekly-edited-light-en.jpg",
