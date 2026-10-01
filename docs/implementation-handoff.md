@@ -14,23 +14,24 @@ Map campaign acceptance was performed by the takeover.
 Current source/evidence audit:
 `reviews/2026-10-01-LWB317-PM-003-project-lead-takeover.md`.
 Current path map: `PROJECT_STRUCTURE.md`.
-`LWB317-UI-COMPLETE-001` is `CHANGES_REQUIRED` after PM-006 review of worker HEAD
-`a253cce`. Implementation checkpoint `7c4daed` is useful partial UI work, not
-accepted completion. Home reconnect lacks profile scope; Automation forms differ
-from source; Equipment dialogs/interactions are absent. The next fresh worker
-must perform `work-items/LWB317-UI-CORRECT-001.md`, including all-page branch QA.
-Lead review: `reviews/2026-10-01-LWB317-PM-006-ui-completion-lead-review.md`.
-Preserved worker report: `reviews/2026-10-01-LWB317-UI-COMPLETE-001.md`. Evidence:
-`evidence/lwbridge-0.3.17/ui/LWB317-UI-COMPLETE-001/`.
+`LWB317-UI-COMPLETE-001` remains historically `CHANGES_REQUIRED` after PM-006.
+The follow-on `LWB317-UI-CORRECT-001` worker return is `AWAITING_REVIEW`.
+Milestone `239254a` corrects Home profile-scoped reconnect, recovered Automation
+forms, Equipment nested interactions and inherited locale composition; milestone
+`591409d` broadens the recoverable-state audit across Map, AFK/Garrison,
+Equipment, City, Hotkeys, Mini Games and Settings. Granular correction evidence:
+`evidence/lwbridge-0.3.17/ui/LWB317-UI-CORRECT-001/`. Worker review:
+`reviews/2026-10-01-LWB317-UI-CORRECT-001.md`. Lead review that motivated the
+work remains `reviews/2026-10-01-LWB317-PM-006-ui-completion-lead-review.md`.
 
 Home now consumes existing read-only root/proxy/recovery/config state and
 implements the recovered presentation/precedence, but native game launch/close/
 repair remains deliberately unimplemented for the separate lifecycle task.
 Map's existing production adapter/data path was preserved and no new live Map
 campaign was started. Direct post-auth reference visual comparison is still
-`BLOCKED`; clone screenshots are not pixel-parity proof. Complete the correction
-assignment and return to project-lead review before native Home integration or
-another backend campaign.
+`BLOCKED`; clone screenshots are not pixel-parity proof. The correction has
+returned for independent project-lead review; do not start native Home integration
+or another backend campaign unless the project lead explicitly assigns it.
 
 The exact recovered CSS checkout conversion remains hash-protected; keep the
 checker intact.

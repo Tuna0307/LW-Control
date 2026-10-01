@@ -120,19 +120,19 @@ opened. The canonical frontend is now the normal packaged Desktop UI. This
 acceptance covers the static baseline, not every conditional state or original
 runtime pixel parity.
 
-`LWB317-UI-COMPLETE-001` is `CHANGES_REQUIRED` after PM-006 review of worker HEAD
-`a253cce`. Implementation checkpoint `7c4daed` adds useful conditional/nested
-presentations, translations and isolated preview QA, but full source-backed UI/UX
-is not accepted. Home's reconnect write lacks required profile scope;
-Automation uses forms that differ from the recovered card contracts; Equipment
-dialogs/local interactions remain missing. All eight pages/shared surfaces need
-a granular branch audit under `LWB317-UI-CORRECT-001`. Native Home lifecycle
-remains separate and existing Map live-proof scopes stay unchanged.
+`LWB317-UI-COMPLETE-001` remains historically `CHANGES_REQUIRED` after PM-006.
+The follow-on worker correction `LWB317-UI-CORRECT-001` is now
+`AWAITING_REVIEW`: Home reconnect is profile-scoped and pre-dispatch guarded,
+Automation uses recovered per-card/nested forms, Equipment includes the
+recoverable local dialog/drag/result/progress model, inherited locale composition
+is restored, and the shared shell plus all eight pages have granular
+source-locator/interaction evidence. This is a worker completion claim only; the
+project lead has not accepted parity.
 
-Clone QA and source/hash evidence are under
-`evidence/lwbridge-0.3.17/ui/LWB317-UI-COMPLETE-001/`; the detailed review is
-`reviews/2026-10-01-LWB317-UI-COMPLETE-001.md`; lead disposition is in
-`reviews/2026-10-01-LWB317-PM-006-ui-completion-lead-review.md`.
+Correction evidence is under
+`evidence/lwbridge-0.3.17/ui/LWB317-UI-CORRECT-001/`; worker report:
+`reviews/2026-10-01-LWB317-UI-CORRECT-001.md`. PM-006 remains the lead finding
+that motivated the correction and is preserved unchanged.
 Direct post-auth original visual
 comparison remains `BLOCKED`, so these rows stay `IMPLEMENTED_NOT_VALIDATED`
 unless they already have separately scoped live proof. No product-wide parity

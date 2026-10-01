@@ -1,0 +1,197 @@
+{
+  "work_item": "LWB317-UI-CORRECT-001",
+  "status": "AWAITING_REVIEW",
+  "reference_version": "0.3.17",
+  "reference_executable_sha256": "4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783",
+  "branch": "research/offline-controller",
+  "implementation_commits": [
+    "239254a",
+    "591409d"
+  ],
+  "source_files": [
+    {
+      "id": "main",
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-BVfnK1wp.js",
+      "bytes": 377972,
+      "sha256": "44C4E4043825B7DB296B64171951B27176F8850FF8D7D337CC991DF4765524C6",
+      "locators": {
+        "top.language": 216275,
+        "setup.gameRootSelect": 338037,
+        "automation.autoReconnect.title": 338725,
+        "server.dialogLabel": 352124,
+        "theme.switchToLight": 356643
+      }
+    },
+    {
+      "id": "css",
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-rIL9Fpht.css",
+      "bytes": 126217,
+      "sha256": "3D87E9F65B39EACE6A1A254BFC90A38ACB72613D1FFF7236C7CEE7AB9BFAF545"
+    },
+    {
+      "id": "automation",
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/AutomationPanel-BJ0gIqFh.js",
+      "bytes": 75388,
+      "sha256": "6DB2328191AF33E5631D507271C36D7008B287DAA7C8CD1A957B23EF6F871725",
+      "locators": {
+        "automation.tradeStation.crossServer": 8264,
+        "automation.resourceGather.recallOnDisable": 12386,
+        "automation.dispatchAssist": 35301,
+        "automation.redPacket.title": 37051,
+        "automation.treasure.title": 37082,
+        "automation.autoReply": 38540,
+        "automation.dispatchDelayMin": 39998,
+        "automation.secretTask.title": 41933,
+        "automation.attackShield.title": 44073,
+        "automation.intervalMinutes": 45290,
+        "automation.construction.targetEnabled": 46993,
+        "automation.autoCollectRewards": 49154,
+        "automation.donateThreshold": 51952,
+        "automation.allianceTrainRide.title": 53309,
+        "automation.railwayDepartWhenTicketsInsufficient": 68393,
+        "automation.ghost.autoStartOwn": 73911,
+        "automation.ghost.autoJoinAlliance": 74110
+      }
+    },
+    {
+      "id": "automation-card",
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/AutomationCard-LCx_jIi7.js",
+      "bytes": 5092,
+      "sha256": "24ED773623C237F8219EFF5443FAC3BA7B55B6E99E168E52FF066FAF2ABE7A61"
+    },
+    {
+      "id": "map",
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js",
+      "bytes": 57600,
+      "sha256": "CE74345518BE72E417A510B982C591729E5683F69751E190805598C4C05D3089",
+      "locators": {
+        "map.resource": 5721,
+        "map.monster": 5774,
+        "map.truck": 5819,
+        "map.allianceTrain": 5864,
+        "map.secretTask": 5918,
+        "map.ghostScout": 5966,
+        "map.treasure": 6017,
+        "map.city": 6190,
+        "map.quality": 11278,
+        "map.taskStatus": 14164,
+        "map.manualScan": 44143,
+        "map.autoScan": 44302,
+        "map.scheduledPlunder": 50746,
+        "map.allianceFilter": 51465,
+        "map.showForeignRadarTreasures": 52280,
+        "map.plunderableOnly": 54297,
+        "map.exportExcel": 54518
+      }
+    },
+    {
+      "id": "squad",
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/SquadPanel-HC3-DJei.js",
+      "bytes": 192855,
+      "sha256": "ED466E353AA896D8C3FC783FF1802930156FB9E9EB54327AEF73F2FF86FA06C7",
+      "locators": {
+        "garrison.title": 9052,
+        "garrison.chooseAllies": 11289,
+        "garrison.squadPriority": 12512,
+        "garrison.recallOnDisable": 14205,
+        "zombieBus.title": 17627,
+        "squad.join.mode": 20433,
+        "squad.join.chooseMembers": 22369,
+        "squad.afkAllianceDrill": 32233,
+        "squad.afkProfiles": 39957,
+        "squad.equipmentApplyPartial": 182958,
+        "squad.equipmentApplyRunning": 183294,
+        "equipment_drag_predicate": 183734,
+        "equipment-position-items": 189283,
+        "squad.presetNamePrompt": 190337,
+        "squad.tabAfk": 192380,
+        "squad.tabEquipment": 192395
+      }
+    },
+    {
+      "id": "city",
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/CityLayoutPanel-DoNWkywK.js",
+      "bytes": 19322,
+      "sha256": "C1B83A0B6524EF9AF510A114DF9679DAE0260D34B633659EB1A5FFB2AC5CF49C",
+      "locators": {
+        "cityLayout.undo": 11499,
+        "cityLayout.redo": 11595,
+        "cityLayout.restoreInitial": 11683,
+        "cityLayout.controls.boxSelect": 13431,
+        "cityLayout.controls.addSelect": 13495,
+        "cityLayout.controls.toggle": 13559,
+        "cityLayout.controls.move": 13620,
+        "cityLayout.controls.history": 13679,
+        "cityLayout.validation.valid": 17816,
+        "cityLayout.conflicts": 18993
+      }
+    },
+    {
+      "id": "hotkey-mini",
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/HotkeyPanel-XA8idRHB.js",
+      "bytes": 7801,
+      "sha256": "9BD7C11768693705391060D4F79119B5EA4A5229E042758165D3AD751A961BE6",
+      "locators": {
+        "hotkeys.attack.title": 185,
+        "miniGames.sheep.solving": 1312,
+        "miniGames.sheep.executing": 1360,
+        "miniGames.sheep.solveFailed": 1732,
+        "miniGames.sheep.unsupported": 1793,
+        "hotkeys.loadFailed": 2610,
+        "hotkeys.saveFailed": 3040,
+        "miniGames.landCellSent": 3236,
+        "miniGames.landCellFailed": 3363,
+        "hotkeys.attackSpeedupItem": 5321,
+        "hotkeys.attackSpeedupDiamond": 5649,
+        "miniGames.treasureChest.title": 6074,
+        "miniGames.landCell.title": 6461
+      }
+    },
+    {
+      "id": "settings",
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/SettingsPanel-DqxIWv_E.js",
+      "bytes": 3673,
+      "sha256": "129CCBACDD5F309070A3E2728912165006F0FA35FCF748D56F7AA9500D690C2B",
+      "locators": {
+        "feedback.title": 878,
+        "feedback.success": 1128,
+        "feedback.failed": 1264,
+        "settings.visualMetrics.loadFailed": 2031,
+        "settings.visualMetrics.title": 2636,
+        "settings.visualMetrics.showFps": 2878,
+        "settings.visualMetrics.showPing": 2993,
+        "settings.accountInteraction.title": 3339
+      }
+    }
+  ],
+  "locale_files": [
+    ["en-BisSXcTB.js", "0BF43D180EB93692A93B830B5D984E9D01DDEEA524340F2334FC63CBA527A731"],
+    ["zh-CN-ByrbNejR.js", "521521C8DF711A9D49FD98CE951C4D2A316A9DBFE704BD9E5F65E7686079E9BE"],
+    ["zh-TW-B9GVGLk3.js", "94580DA17BFCE95E121D49274C70724BB92BE2FA5806527CC01B96EDBB564C8E"],
+    ["ja-UrbzJu-m.js", "35969183AB623B6701BC850FDF28BCF268C93127FF6C9693F77E588EE7BDBE38"],
+    ["ko-SaFvwwmo.js", "A1F507D7624A20CFB7136C18D6E91DBC2FB6453F808D8BC0AFD093D9AD76A409"],
+    ["vi-BAUQ1cwP.js", "F3290C7D819FDD3032A42D396B56FD3CADC313759FF7CD6A5165C51171ED085E"],
+    ["id-D9oeC8zM.js", "06379AC43DEC11717971160BB090156C0B0BD307788BBFCA5CC5C5B0D46CE0B1"],
+    ["ru-YncvPDv4.js", "1C41C89AD46D07A34673B9A72B0F66E139A28992C6D393A00133B870EC10C25D"],
+    ["pt-BaH2E9ai.js", "18FE76A3A039EC0CE8041B178013752A83E7A913C4593227F6BAEF0859C5B862"]
+  ],
+  "screenshots": [
+    ["automation-config-light-en-1440x900.png", "1440x900", "automation-config", "light", "en", "B82760BE473C84DEB2F7C70E0E78F0ADB8E5CEA12772527BCD837AB38B3A8397"],
+    ["city-layout-conflict-light-en-1440x900.png", "1440x900", "city-layout-populated-conflict", "light", "en", "166CB60C5A541055584B3CD9C1E6EFA096346638D34603C306CCC7C969C1E9C7"],
+    ["city-layout-populated-light-1440x900.png", "1440x900", "city-layout-populated", "light", "en", "6BF92694A295E622C76A7753465D5FA70F0CEC47335E27645A90C56D996B5C1D"],
+    ["home-recovery-failed-dark-zh-CN-768x900.png", "768x900", "home-recovery-failed", "dark", "zh-CN", "D15F5AAC9A5E0CB15B08AFE943EDFC74BAE117D34CD374CAF45084B8B841F0F1"],
+    ["hotkeys-save-error-dark-ja-1440x900.png", "1440x900", "hotkeys-save-error", "dark", "ja", "158B39DA5379A78E8853E3C102CDDCBD030A253EE61A3F348F69B52F340721D0"],
+    ["map-auto-scheduled-dark-en-1440x900.png", "1440x900", "map-auto-scheduled", "dark", "en", "6DD8D26C50C652114F72017A9C71E400D0DF5A225C2407B7BCB49002CEB1478E"],
+    ["map-resource-light-en-1440x900.png", "1440x900", "map-resource", "light", "en", "18EC9C13F3A437E8E6CB6D9381F593634F0CA29DC595A5EABD3A8670A4DCCB2E"],
+    ["mini-games-solve-failed-light-en-1440x900.png", "1440x900", "mini-games-solve-failed", "light", "en", "4F057ECE04883CDD70816D01DBB320859A2C704D2D2F35DC13F06045790F68A1"],
+    ["settings-update-available-dark-en-1440x900.png", "1440x900", "settings-update-available", "dark", "en", "A9760AD9BA1E53FBE3A2E9BE2CB055570412E0E2848F4F7C74EEF62902AEBE90"],
+    ["squads-equipment-rename-dark-en-1440x900.png", "1440x900", "squads-equipment-rename", "dark", "en", "B50ED4DA826A2D314C4AA252D15B0E8642EA5ACE8CFF6A596061CE60EE4A98DD"],
+    ["squads-profile-light-en-1440x900.png", "1440x900", "squads-profile", "light", "en", "CA9852243599D3D69131ACD276477C3CC26CE755E1195158A31E358039E427F4"]
+  ],
+  "limitations": [
+    "Recovered static 0.3.17 frontend bytes are the source authority for this correction campaign.",
+    "Post-authenticated original runtime screenshots remain blocked by the existing authorization boundary.",
+    "Clone screenshots are repeatable clone QA only and are not claimed as original-reference pixel proof.",
+    "Browser preview fixtures remain fenced from native/native-unavailable mode and do not simulate successful native/game actions."
+  ]
+}

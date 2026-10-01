@@ -53,12 +53,16 @@ const previewCoverageSource = [pages, mapPage, mapPreview].join("\n");
 for (const marker of [
   "home-missing", "home-connected", "home-repair", "home-recovery-failed",
   "automation-config", "automation-saving", "automation-saved", "automation-save-error", "automation-validation-error",
-  "map-city", "map-auto-scheduled", "map-loading", "map-error",
+  "map-city", "map-resource", "map-monster", "map-truck", "map-railway", "map-dispatch", "map-ghost", "map-treasure", "map-scheduled",
+  "map-auto-scheduled", "map-loading", "map-error",
   "squads-profile", "squads-equipment", "city-layout-populated", "city-layout-populated-conflict",
   "squads-equipment-rename", "squads-equipment-rename-busy", "squads-equipment-result", "squads-equipment-progress",
   "hotkeys-connected", "hotkeys-load-error", "hotkeys-save-error",
-  "mini-games-active", "mini-games-land-success", "mini-games-land-error", "mini-games-solve-failed",
-  "settings-update-available", "settings-update-error", "settings-visual-error", "settings-feedback-success", "settings-feedback-error",
+  "mini-games-active", "mini-games-solving", "mini-games-executing", "mini-games-complete", "mini-games-all-complete",
+  "mini-games-activity-ended", "mini-games-ui-open", "mini-games-conflict", "mini-games-solve-failed", "mini-games-unsupported", "mini-games-start-failed",
+  "mini-games-land-success", "mini-games-land-error",
+  "settings-multiprofile", "settings-complete", "settings-visual-error", "settings-feedback", "settings-feedback-success", "settings-feedback-error",
+  "settings-update-checking", "settings-update-available", "settings-update-downloading", "settings-update-error",
 ]) {
   if (!previewCoverageSource.includes(marker)) throw new Error(`Missing preview coverage marker: ${marker}`);
 }

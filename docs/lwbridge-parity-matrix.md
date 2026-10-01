@@ -12,24 +12,26 @@ If it is encountered, record only the access boundary. Do not rebuild it or bypa
 
 ## UI matrix
 
-PM-006 lead review: `LWB317-UI-COMPLETE-001` is **CHANGES_REQUIRED**.
-Implementation below is partial; source-backed branch/interaction completeness
-across all eight pages is not accepted. Continue via `LWB317-UI-CORRECT-001`.
-Original visual validation and existing Map live-proof scopes remain separate.
+PM-006 lead review keeps `LWB317-UI-COMPLETE-001` historically
+**CHANGES_REQUIRED**. The follow-on worker correction
+`LWB317-UI-CORRECT-001` is **AWAITING_REVIEW** with granular source-locator,
+interaction and negative-state evidence across the shared shell and all eight
+pages. This is not lead acceptance. Original visual validation and existing Map
+live-proof scopes remain separate.
 
 | ID | Surface/state | Reference evidence | Reproduction status | Visual validation | Open gaps |
 |---|---|---|---|---|---|
 | UI-000 | Login/account/licensing boundary | RUNTIME OBSERVED 2026-09-29; redacted boundary screenshot | OUT_OF_SCOPE | OUT_OF_SCOPE | Dependency-only investigation if later required |
 | UI-001 | App launch / initial in-scope shell | EXACT_BYTES shell/CSS + all nine recovered locale chunks; runtime blocked by auth | IMPLEMENTED_NOT_VALIDATED | BLOCKED | Locale/theme/responsive clone QA complete under `LWB317-UI-COMPLETE-001`; reference post-auth geometry/theme/profile-sidebar state unavailable |
 | UI-002 | Top-level navigation | EXACT_BYTES definition + locale chunks + inline SVGs + CSS | IMPLEMENTED_NOT_VALIDATED | BLOCKED | Exact eight-item order, translated rendering and selected-state clone QA implemented; reference hover/focus pixels unavailable; Advanced stays off |
-| UI-003 | Home | EXACT_BYTES component/status predicates + locale/CSS inventory; existing Desktop read/config contracts | IMPLEMENTED_NOT_VALIDATED | BLOCKED | Useful conditional presentation added, but reconnect write lacks required profileId (PM-006 R1). Full branch QA open. Native launch/close/repair is separate; original pixels unavailable |
-| UI-004 | Automation | EXACT_BYTES tab/card/nested-surface/locale/CSS inventory | IMPLEMENTED_NOT_VALIDATED | BLOCKED | Generic forms/collapsibility differ from recovered card contracts (PM-006 R2); source-backed per-card reconstruction/local QA remains open, independently of unavailable runtime execution |
+| UI-003 | Home | EXACT_BYTES component/status predicates + locale/CSS inventory; existing Desktop read/config contracts | IMPLEMENTED_NOT_VALIDATED | BLOCKED | R1 worker correction: reconnect write is profile-scoped, missing profile fails pre-dispatch, and focused ack/error/busy checks pass. Native launch/close/repair remains separate; original pixels unavailable |
+| UI-004 | Automation | EXACT_BYTES tab/card/nested-surface/locale/CSS inventory | IMPLEMENTED_NOT_VALIDATED | BLOCKED | R2 worker correction reconstructs recovered per-card/nested forms and conditional branches; real browser Chat/Treasure conditional QA recorded. Persisted native providers and original pixels remain unavailable |
 | UI-005 | Map Data | EXACT_BYTES scan/tab/filter/table/action/locale/CSS inventory | IMPLEMENTED_NOT_VALIDATED overall; clean Resource runtime flow LIVE_PROVEN | BLOCKED for direct original post-auth visual comparison | Canonical native Map path preserved; source-backed filters/columns/selections/Auto/disabled safe action presentation completed. Existing per-category/live-state status remains as documented by Map Goal |
-| UI-006 | Squads / AFK | EXACT_BYTES AFK/profile/equipment/nested locale/CSS inventory | IMPLEMENTED_NOT_VALIDATED | BLOCKED | Partial fenced preview surfaces; Equipment Create/Rename/Read/Save controls are inert and rename dialog/drag interactions absent (PM-006 R3). Remaining nested branches/local QA open; runtime provider/data unavailable |
-| UI-007 | City Layout | EXACT_BYTES disconnected + workbench/grid/inspector/locale/CSS inventory | IMPLEMENTED_NOT_VALIDATED | BLOCKED | Disconnected production render plus fenced populated workbench/local interactions implemented; exact runtime city data/geometry unavailable |
-| UI-008 | Hotkeys | EXACT_BYTES shortcut/card/conditional config/locale/CSS inventory | IMPLEMENTED_NOT_VALIDATED | BLOCKED | Seven cards and attack speedup option states implemented with local preview interactions; persisted config/reference pixels unavailable |
-| UI-009 | Mini Games | EXACT_BYTES helper/card/status/locale/CSS inventory | IMPLEMENTED_NOT_VALIDATED | BLOCKED | Four helper areas plus Food House stopped/running/progress/limit presentation implemented; gameplay actions/providers unavailable |
-| UI-010 | Settings | EXACT_BYTES metrics/profile-focus/feedback/update/locale/CSS inventory | IMPLEMENTED_NOT_VALIDATED | BLOCKED | Conditional metrics/profile/feedback/updater presentation implemented; native updater/diagnostic provider unavailable |
+| UI-006 | Squads / AFK | EXACT_BYTES AFK/profile/equipment/nested locale/CSS inventory | IMPLEMENTED_NOT_VALIDATED | BLOCKED | R3 worker correction covers AFK profiles/member picker, Drill/Garrison and Equipment rename/drag/result/progress local states; real browser modal/rename/keyboard QA recorded. Runtime providers/data remain unavailable |
+| UI-007 | City Layout | EXACT_BYTES disconnected + workbench/grid/inspector/locale/CSS inventory | IMPLEMENTED_NOT_VALIDATED | BLOCKED | Fenced local draft/history/selection/movement/validation model audited; browser DOM drag, invalid-overlap, Undo and Ctrl+Y QA recorded. Exact runtime city data/geometry unavailable |
+| UI-008 | Hotkeys | EXACT_BYTES shortcut/card/conditional config/locale/CSS inventory | IMPLEMENTED_NOT_VALIDATED | BLOCKED | Seven cards plus attack speedup option states and load/save errors audited; real browser Attack/item/diamond interaction recorded. Persisted config/reference pixels unavailable |
+| UI-009 | Mini Games | EXACT_BYTES helper/card/status/locale/CSS inventory | IMPLEMENTED_NOT_VALIDATED | BLOCKED | Recovered Land/Food House result/status branches and local chest toggle audited; gameplay buttons stay disabled and no native success is fabricated |
+| UI-010 | Settings | EXACT_BYTES metrics/profile-focus/feedback/update/locale/CSS inventory | IMPLEMENTED_NOT_VALIDATED | BLOCKED | Metrics/account-focus/feedback/updater branches audited; real browser local toggle QA recorded. Native updater/diagnostic providers remain unavailable |
 | UI-011+ | Additional in-scope 0.3.17 surfaces | ADD ONLY AFTER EVIDENCE | NOT STARTED | NOT STARTED | Unknown until inventory |
 
 ## Function matrix
