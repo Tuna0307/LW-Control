@@ -48,12 +48,11 @@ with CORRECT-003A weekly quality settings. Preserve all other code and WIP.
 PM-010 subsequently accepted the focused weekly CORRECT-003A/R1 delivery at
 `d065d08` after the actual handlers, deferred writes, recovery, anchors and package
 checks passed. This is local/source acceptance, not full Automation/native/pixel
-parity. PM-011 reviewed CORRECT-003B at `a24bf6c`: the saving fix and focused
-handler/package checks pass, but currency composition needs first-offer retention
-and ID-based goods-label deduplication. CORRECT-003B-R1 corrects only those two
-expressions; the PM-011 actual-expression harness now passes all three cases and
-focused selection/package/browser verification passes. R1 is `AWAITING_REVIEW`;
-full Automation/native/pixel parity remains unaccepted.
+parity. PM-012 accepts Trade selection CORRECT-003B/R1 at `bfc652f`: PM-011's
+composition defects are fixed; actual-expression/selection/recovery checks,
+canonical build/package and evidence hashes pass. The next small assignment is
+CORRECT-003C, Purchased items history presentation only. Full Automation/native/
+pixel parity remains unaccepted.
 
 Phase 1 static UI recovery has been accepted. The active target remains exact
 LWBridge 0.3.17. The Map-only `LWB317-RE-MAP-001` campaign has completed its
@@ -265,12 +264,11 @@ PM-008 inspected pushed CORRECT-003 implementation `5204f67`; code/state checks
 pass but Stage B evidence and delivery are incomplete. At the owner's request,
 the broad task is PARTIAL and split.
 PM-010 accepted the focused weekly unit at `d065d08` after R1 closed the actual
-callback defect. PM-011 returns CORRECT-003B `a24bf6c` as `CHANGES_REQUIRED`:
-the no-save-lock correction, selection/recovery checks and package checks pass,
-but currency options keep the last offer instead of the first and goods currency
-labels deduplicate by name instead of ID. Three actual-expression baseline cases
-fail. Active CORRECT-003B-R1 fixes only those two expressions.
-Purchase history, Assist, runtime and AFK remain separate later units. Other
+callback defect. PM-012 accepts focused local Trade selection CORRECT-003B/R1
+at `bfc652f`, closing PM-011's two composition defects with all three unchanged
+actual-expression cases and selection/recovery/package/evidence checks passing.
+Active CORRECT-003C covers only purchase-history presentation and local QA.
+Purchase execution, Assist, runtime and AFK remain separate later units. Other
 branches/WIP stay preserved. No full UI acceptance is recorded.
 PM-007's historical CHANGES_REQUIRED
 decision and accepted Home scope fix remain preserved. Separately close or reassign the awaiting

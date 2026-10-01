@@ -147,14 +147,12 @@ PM-009 returned CORRECT-003A `2f439ce` for its missing immediate write. R1 at
 `d065d08` fixes both actual callbacks; PM-010 accepts the focused local weekly unit
 after default, saving editability, actual deferred-callback/recovery and source
 anchor checks. Native persistence/original pixels/full UI remain unaccepted.
-PM-011 reviewed CORRECT-003B `a24bf6c`: the Trade currency/goods saving-lock
-correction matches explicit source `saving:false`, with passing actual-handler
-selection/queued-save/Retry/Discard checks and retained worker browser evidence.
-PM-011 returned two existing composition mismatches: first-offer metadata per
-currency ID and goods-label deduplication by ID. CORRECT-003B-R1 now corrects only
-those two expressions; the unchanged lead actual-expression harness passes all
-three cases and focused selection/package/browser checks pass. R1 is
-`AWAITING_REVIEW`. History and other panels stay separate; full UI/native/pixel
+PM-012 accepts focused local Trade selection CORRECT-003B/R1 at `bfc652f`.
+PM-011's first-offer metadata and ID-based goods-label defects are fixed; the
+unchanged actual-expression and selection/save/recovery checks pass with canonical
+build/package and evidence validation. Worker browser evidence is retained.
+Active CORRECT-003C covers only Purchased items history presentation and focused
+local QA. Other panels/purchase execution stay separate; full UI/native/pixel
 parity remains unaccepted.
 
 Correction evidence is under

@@ -97,14 +97,13 @@ The owner requested smaller tasks, replacing its active broad scope.
 PM-010 reviewed R1 delivery d065d08 and accepted the focused local weekly unit
 (CORRECT-003A/R1): immediate actual callbacks, concurrent drafts, Retry/Discard
 and source anchors pass. Native persistence/original pixels/full UI are unaccepted.
-PM-011 reviewed Trade delivery a24bf6c. Saving/selection/recovery checks pass, but
-currency composition keeps last-offer metadata and deduplicates goods labels by
-name rather than ID. CORRECT-003B-R1 now corrects only those two expressions; the
-unchanged PM-011 composition harness passes all three cases and focused
-selection/package/browser verification passes. R1 is `AWAITING_REVIEW` under
-`docs/work-items/LWB317-UI-CORRECT-003B-R1.md`. History/other panels remain
-separate. Preserve other code and uncommitted AFK/scratch work. No new
-native/gameplay family is opened; all-page parity is not accepted.
+PM-012 accepts focused local Trade selection CORRECT-003B/R1 at bfc652f after
+composition/selection/recovery/package/evidence checks pass. Both assignments
+are closed; PM-011's failing baseline is preserved. Active assignment is
+`docs/work-items/LWB317-UI-CORRECT-003C.md`, only Purchased items history
+presentation and focused local QA. No purchase execution or other panel work.
+Preserve accepted selection/weekly work and uncommitted AFK/scratch files.
+No new native/gameplay family is opened; all-page parity is not accepted.
 
 Direct original post-auth screenshot/pixel comparison remains `BLOCKED` by the
 documented reference access boundary, so affected UI rows remain

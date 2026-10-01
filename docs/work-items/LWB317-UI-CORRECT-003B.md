@@ -1,12 +1,13 @@
 # LWB317-UI-CORRECT-003B — Trade Station selection controls only
 
-Project-lead assignment: 2026-10-01. State: CHANGES_REQUIRED after PM-011.
+Project-lead assignment: 2026-10-01. State: COMPLETE / ACCEPTED for focused local scope after PM-012.
 One small unit under partial CORRECT-003. Do not resume its entire backlog.
 
-Worker delivery a24bf6c passes saving/selection/recovery checks. PM-011 found two
-existing currency composition mismatches: first-offer retention and deduplication
-by currency ID. Continue only under LWB317-UI-CORRECT-003B-R1.md. See
-../reviews/2026-10-01-LWB317-PM-011-trade-selection-review.md.
+Worker delivery a24bf6c passes saving/selection/recovery checks. R1 bfc652f closes
+PM-011's first-offer metadata and ID-based label composition defects. PM-012
+accepts the combined focused selection unit; original/native/full UI parity stays
+unaccepted. Next separate assignment is LWB317-UI-CORRECT-003C.md, history only.
+See ../reviews/2026-10-01-LWB317-PM-012-trade-selection-acceptance.md.
 
 ## Context and inputs
 

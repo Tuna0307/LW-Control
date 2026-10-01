@@ -1,7 +1,11 @@
 # LWB317-UI-CORRECT-003B-R1 — currency composition only
 
-Project-lead assignment: 2026-10-01. State: AWAITING_REVIEW.
+Project-lead assignment: 2026-10-01. State: COMPLETE / ACCEPTED after PM-012.
 One small correction to CORRECT-003B. Do not resume parent CORRECT-003.
+
+R1 bfc652f passed independent composition/selection/package/evidence checks.
+PM-012 accepts the focused local selection unit. This assignment is closed;
+the next separate task is LWB317-UI-CORRECT-003C.md, purchase history only.
 
 ## Context for a fresh worker
 

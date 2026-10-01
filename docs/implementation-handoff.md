@@ -51,17 +51,15 @@ uncommitted. PM-008 inspected/preserved these; checks pass, full UI is unaccepte
 PM-010 accepted the focused local weekly unit (CORRECT-003A and R1 at `d065d08`)
 after immediate dispatch, concurrent drafts, actual Retry/Discard and source-anchor
 checks passed. The parent remains PARTIAL; full native/original parity is unaccepted.
-PM-011 reviewed CORRECT-003B at `a24bf6c`: removing the Trade currency/goods
-save-time locks passes source and actual-handler checks. Last-currency protection,
-goods selection, Show exclusive and Retry/Discard evidence is retained. The unit
-is `CHANGES_REQUIRED` for two existing composition mismatches: currency options
-must keep the first offer per ID, and goods currency labels must deduplicate by ID.
-CORRECT-003B-R1 fixes only those two expressions. The unchanged PM-011 actual-
-expression harness now passes all three cases, with focused Trade browser and
-canonical package checks passing. R1 is `AWAITING_REVIEW`; evidence is under
-`evidence/lwbridge-0.3.17/ui/LWB317-UI-CORRECT-003B-R1/`.
-Purchase history and other panels stay separate. Do not restart broad CORRECT-003
-or reopen weekly work.
+PM-012 accepted focused local Trade selection (CORRECT-003B and R1 at `bfc652f`).
+R1 resolves PM-011's first-offer metadata and ID-based label composition defects;
+the unchanged lead expression harness, selection/save/recovery checks, canonical
+build/package and evidence hashes all pass. Worker browser QA is retained as
+worker evidence; original/native/full UI parity remains unaccepted.
+Review: `reviews/2026-10-01-LWB317-PM-012-trade-selection-acceptance.md`.
+Active small assignment: `work-items/LWB317-UI-CORRECT-003C.md`, only Purchased
+items history presentation/empty state and focused local QA. No purchase execution.
+Other panels stay separate. Do not restart broad CORRECT-003 or reopen weekly work.
 Trade/Assist/runtime/AFK work remains preserved for later separate validation tasks.
 Physical drag, native config persistence and original pixels remain unproved.
 Do not restart the completed correction or resume gameplay/native Home/another
