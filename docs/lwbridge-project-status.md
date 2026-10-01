@@ -74,9 +74,9 @@ cancel/invalid/acknowledged valid selections. Existing host contract inspected;
 native picker/persistence unproved. HOME-BUSY-001 display correction is also
 AWAITING_REVIEW: nine-locale actual render/predicate and local browser checks pass
 for independent busy inputs and header/button precedence. Production lifecycle
-busy producers remain absent. Switch descriptions remain open and are assigned
-to the returning worker under LWB317-UI-SWITCH-LOCALE-001; no native
-lifecycle or full Home acceptance is implied.
+busy producers remain absent. UI-SWITCH-LOCALE-001 is now AWAITING_REVIEW after
+360 nine-locale recovered/production helper comparisons, 11-caller inventory and
+focused browser QA. No native lifecycle or full Home acceptance is implied.
 
 Phase 1 static UI recovery has been accepted. The active target remains exact
 LWBridge 0.3.17. The Map-only `LWB317-RE-MAP-001` campaign has completed its

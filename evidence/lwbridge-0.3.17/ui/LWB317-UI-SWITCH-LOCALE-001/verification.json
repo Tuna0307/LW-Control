@@ -1,0 +1,35 @@
+{
+  "task": "LWB317-UI-SWITCH-LOCALE-001",
+  "date": "2026-10-02",
+  "state": "AWAITING_REVIEW",
+  "assignmentCheckpoint": "1cfce34523b19c7fe0e40cc00466a8f3ba7ffe75",
+  "referenceExeHash": "4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783",
+  "referenceAssetHash": "44C4E4043825B7DB296B64171951B27176F8850FF8D7D337CC991DF4765524C6",
+  "checks": {
+    "sourceLocator": "PASS",
+    "nineLocaleDifferential": "PASS",
+    "callerInventory": "PASS",
+    "callbackBehavior": "PASS",
+    "browserQA": "PASS",
+    "homeError001Regression": "PASS",
+    "homeError002Regression": "PASS",
+    "homeBusy001Regression": "PASS",
+    "canonicalCheck": "PASS",
+    "productionBuild": "PASS",
+    "productionPackage": "PASS",
+    "evidenceValidation": "PASS",
+    "diffCheck": "PASS"
+  },
+  "counts": {
+    "languages": 9,
+    "toggleRowCallers": 11,
+    "uniqueCallerLabels": 10,
+    "renderComparisons": 360,
+    "browserFlows": 5
+  },
+  "buildFingerprint": "53201aabb3833ec593a92f23ca6ced0f12bb3c645ad9dbfca159a32f1692f13e",
+  "packageFingerprint": "96b9dd1a99d67a6bf4dee3e39035915401de25395f99cdf2c0af5bbe4ccd9782",
+  "screenshotSha256": "C52854CEA6CA7C663E0A841DC89B448DB1BD599DC3D58E5547F98F211A5F8E24",
+  "limits": "Recovered source/helper and local preview evidence only. No original post-auth runtime, native lifecycle, gameplay, authentication action, or original pixel parity is claimed.",
+  "cleanup": "Owned browser tab closed after restoring English; pre-existing port 4319 PID 62280 server preserved; unrelated previewAfkFixtures.js, .scratch-lwb317/ and parent CORRECT-003 screenshots remain untouched and unstaged."
+}

@@ -1,8 +1,8 @@
 # Small Home presentation queue
 
 Owner requested project-lead tasks while another AI rests, 2026-10-02.
-Owner: project lead. State: PARTIAL; translation/channels/busy AWAITING_REVIEW, remaining unit
-ASSIGNED to the returning worker through an owner-pasted prompt.
+Owner: project lead. State: PARTIAL; all four bounded units are AWAITING_REVIEW.
+No next unit is assigned pending project-lead review.
 Do not execute all items as one broad campaign. Assign/run one ID at a time.
 Input finding: docs/reviews/2026-10-02-LWB317-PM-015-home-audit.md and
 evidence/lwbridge-0.3.17/ui/LWB317-PM-015/home-audit.json.
@@ -55,7 +55,7 @@ Check actual render branches and local preview states; same bounded delivery che
 
 ## UI-SWITCH-LOCALE-001 — state descriptions only
 
-State: ASSIGNED to returning worker on 2026-10-02, awaiting worker start.
+State: AWAITING_REVIEW after returning-worker delivery on 2026-10-02.
 Full assignment: LWB317-UI-SWITCH-LOCALE-001.md. Prior lead deliveries remain
 AWAITING_REVIEW; this assignment does not grant their acceptance.
 
@@ -66,6 +66,12 @@ Trade, AFK, Mini Games and Settings callers: verify generated description text
 across nine catalogs and representative controls. Do not refactor accepted controls.
 Source/local differential, representative browser QA, existing control regression
 and canonical checks required. No broader locale rewrite or native actions.
+
+Delivery: 360 actual original/production helper comparisons across nine
+languages, 11-caller inventory, callback checks, Settings off/on/off and
+Japanese Home disabled-switch browser QA pass. Review:
+`../reviews/2026-10-02-LWB317-UI-SWITCH-LOCALE-001.md`. No native/original
+runtime proof; next task remains unassigned.
 
 All units: no original service/auth bypass, Last War launch/control, fallback,
 subagents, WIP discard or full UI parity claim. Preserve previewAfkFixtures.js,

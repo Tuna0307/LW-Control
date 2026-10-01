@@ -1,0 +1,101 @@
+{
+  "task": "LWB317-UI-SWITCH-LOCALE-001",
+  "date": "2026-10-02",
+  "preview": "http://127.0.0.1:4319",
+  "syntheticBrowserOnly": true,
+  "server": {
+    "ownership": "pre-existing assignment server, preserved",
+    "pid": 62280,
+    "command": "vite --host 127.0.0.1 --port 4319 --strictPort"
+  },
+  "flows": [
+    {
+      "state": "settings-complete/off",
+      "url": "http://127.0.0.1:4319/?previewPage=settings&previewState=settings-complete&previewLanguage=en",
+      "observed": {
+        "visibleLabel": "Show FPS",
+        "role": "switch",
+        "ariaChecked": false,
+        "ariaLabel": "Show FPS: Disabled",
+        "disabled": false
+      }
+    },
+    {
+      "state": "settings-complete/on",
+      "action": "Clicked the existing Show FPS preview switch once",
+      "observed": {
+        "visibleLabel": "Show FPS",
+        "role": "switch",
+        "ariaChecked": true,
+        "ariaLabel": "Show FPS: Enabled",
+        "disabled": false
+      }
+    },
+    {
+      "state": "settings-complete/off-return",
+      "action": "Clicked the same Show FPS preview switch again",
+      "observed": {
+        "visibleLabel": "Show FPS",
+        "role": "switch",
+        "ariaChecked": false,
+        "ariaLabel": "Show FPS: Disabled",
+        "disabled": false
+      }
+    },
+    {
+      "state": "home-connected/ja",
+      "url": "http://127.0.0.1:4319/?previewPage=home&previewState=home-connected&previewLanguage=ja",
+      "observed": [
+        {
+          "visibleLabel": "起動時にゲームを開く",
+          "ariaChecked": true,
+          "ariaLabel": "起動時にゲームを開く: 有効",
+          "disabled": true
+        },
+        {
+          "visibleLabel": "自動再接続",
+          "ariaChecked": true,
+          "ariaLabel": "自動再接続: 有効",
+          "disabled": true
+        }
+      ],
+      "disabledInteraction": "Browser input rejected the click with BROWSER_ELEMENT_DISABLED; checked state remained unavailable for interaction."
+    },
+    {
+      "state": "home-running-disconnected/ja",
+      "url": "http://127.0.0.1:4319/?previewPage=home&previewState=home-running-disconnected&previewLanguage=ja",
+      "observed": [
+        {
+          "visibleLabel": "起動時にゲームを開く",
+          "ariaChecked": false,
+          "ariaLabel": "起動時にゲームを開く: 無効",
+          "disabled": true
+        },
+        {
+          "visibleLabel": "自動再接続",
+          "ariaChecked": false,
+          "ariaLabel": "自動再接続: 無効",
+          "disabled": true
+        }
+      ]
+    }
+  ],
+  "consoleErrors": [],
+  "screenshots": [
+    {
+      "file": "japanese-home-disabled-unchecked.png",
+      "sha256": "C52854CEA6CA7C663E0A841DC89B448DB1BD599DC3D58E5547F98F211A5F8E24",
+      "capture": "isolated Microsoft Edge headless capture of the same local preview URL",
+      "width": 1600,
+      "height": 759
+    }
+  ],
+  "interactiveScreenshot": {
+    "screenshotId": "5d0a9ab9-43e8-41b4-ac0e-8c6e44d00d80",
+    "width": 1600,
+    "height": 759,
+    "scale": 0.625
+  },
+  "cleanup": "Owned browser tab closed after restoring previewLanguage=en. Pre-existing port 4319 PID 62280 server was not stopped.",
+  "limits": "Local preview evidence only. No original post-auth runtime, native lifecycle, gameplay, or authentication action was executed."
+}

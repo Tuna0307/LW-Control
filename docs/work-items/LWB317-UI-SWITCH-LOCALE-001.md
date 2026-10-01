@@ -1,6 +1,6 @@
 # LWB317-UI-SWITCH-LOCALE-001 — shared switch state descriptions
 
-Owner: returning worker AI. State: ASSIGNED, awaiting worker start.
+Owner: returning worker AI. State: AWAITING_REVIEW after worker delivery on 2026-10-02.
 Assigned by project lead at owner's request, 2026-10-02.
 Implementation baseline: 1942d51032c2459b3341d54aee186a3fee0ddf2b;
 the assignment documentation commit follows it. Use the current checkout; never
@@ -89,3 +89,23 @@ limits, evidence/review paths, commit and remote verification; stop for lead rev
 
 No native/gameplay control or game launch, original auth/entitlement bypass,
 backend campaign, product fallback, separate chats or subagents in this assignment.
+
+## Delivery
+
+Delivered 2026-10-02 for independent project-lead review. `ToggleRow` now uses
+`common.enabled` / `common.disabled` only for the aria-label state suffix; its
+already-translated caller label, visible content, checked/disabled behavior,
+optional callback and all 11 callers are unchanged.
+
+Focused evidence executes recovered `Bn` at UTF-8 byte 213332 and production
+`ToggleRow` for 360 render comparisons across all nine languages, ten unique
+caller labels and both checked/disabled values. Enabled callback and omitted
+optional-callback checks pass. Browser QA passes Settings Show FPS off -> on ->
+off, Japanese Home checked/unchecked disabled descriptions, and disabled-click
+rejection. Canonical check/build/package and the three current Home regression
+checkers pass. Evidence:
+`evidence/lwbridge-0.3.17/ui/LWB317-UI-SWITCH-LOCALE-001/`.
+Review: `docs/reviews/2026-10-02-LWB317-UI-SWITCH-LOCALE-001.md`.
+
+No native/original-runtime proof is claimed. Prior lead deliveries remain
+AWAITING_REVIEW, and the next task is unassigned pending project-lead review.

@@ -21,13 +21,14 @@ function Switch({ checked = false, disabled = false, label, onChange }) {
 }
 
 function ToggleRow({ label, checked = false, disabled = false, onChange }) {
+  const { t } = useI18n();
   return (
     <button
       type="button"
       className="toggle-row"
       role="switch"
       aria-checked={checked}
-      aria-label={`${label}: ${checked ? "Enabled" : "Disabled"}`}
+      aria-label={`${label}: ${t(checked ? "common.enabled" : "common.disabled")}`}
       disabled={disabled}
       onClick={() => onChange?.(!checked)}
     >
