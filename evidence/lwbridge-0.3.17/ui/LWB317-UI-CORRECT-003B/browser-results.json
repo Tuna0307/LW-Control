@@ -1,0 +1,62 @@
+{
+  "task": "LWB317-UI-CORRECT-003B",
+  "date": "2026-10-01",
+  "browser": "existing local Vite preview on 127.0.0.1:4319",
+  "gameLaunched": false,
+  "results": [
+    {
+      "state": "automation-trade-positive",
+      "actions": [
+        "Opened Automation and Trade Station through real browser controls.",
+        "Unselected Fixture Market Credit through its checkbox.",
+        "Clicked the visible Fixture Resource Crate card to select it.",
+        "Toggled Show city-owner exclusive on and off through its checkbox."
+      ],
+      "observed": [
+        "Both default currencies began checked.",
+        "After Market Credit was unselected, Fixture Trade Token remained checked and its checkbox became disabled as the last-currency guard.",
+        "Fixture Resource Crate became checked through the production onChange path.",
+        "Exclusive-only Fixture City-Owner Offer was hidden by default, appeared when Show city-owner exclusive was checked, and remained disabled with the skipped-exclusive label."
+      ]
+    },
+    {
+      "state": "automation-trade-save-error",
+      "actions": [
+        "Selected Fixture Speedup Chest through the visible goods card.",
+        "Clicked the shared Retry button after the injected first save failure.",
+        "Reloaded the fixture, repeated the real goods selection to recreate the first-save failure, then clicked Discard unsaved changes."
+      ],
+      "observed": [
+        "The selection failure surfaced Changes have not been saved with Retry and Discard unsaved changes.",
+        "Retry cleared the error and retained Fixture Speedup Chest checked.",
+        "Discard cleared the error and restored Fixture Speedup Chest unchecked."
+      ]
+    },
+    {
+      "state": "automation-trade-empty",
+      "actions": [
+        "Opened Automation and Trade Station through real browser controls."
+      ],
+      "observed": [
+        "The goods panel displayed No trade goods are available from the current season template."
+      ]
+    }
+  ],
+  "screenshots": [
+    {
+      "path": "screenshots/selected-goods-currency.jpg",
+      "sha256": "BAEE4E669B89E357980F60A0C0D4725D3676CEFBEF6050B39B8A0176EB3451DF",
+      "purpose": "One remaining protected currency with both non-exclusive goods selected."
+    },
+    {
+      "path": "screenshots/show-exclusive.jpg",
+      "sha256": "D90C9F37BB97431E97DDDB70F3E62C5E7E7C678AF3432D681B2BE5147D3B98AA",
+      "purpose": "Show exclusive enabled with the exclusive-only good visible and disabled."
+    },
+    {
+      "path": "screenshots/save-error.jpg",
+      "sha256": "8F32B38AC08DF0EBBB780A9937BFFEC990E51B56C61D1FD59670E18F9A4589CE",
+      "purpose": "Selection save failure with shared Retry and Discard controls."
+    }
+  ]
+}

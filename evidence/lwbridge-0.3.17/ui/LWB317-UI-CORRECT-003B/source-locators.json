@@ -1,0 +1,47 @@
+{
+  "task": "LWB317-UI-CORRECT-003B",
+  "reference": {
+    "automationPanel": {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/AutomationPanel-BJ0gIqFh.js",
+      "sha256": "6DB2328191AF33E5631D507271C36D7008B287DAA7C8CD1A957B23EF6F871725",
+      "byteOffsets": {
+        "defaultConfig": 400,
+        "normalizedCurrencies": 561,
+        "goodsFilterSort": 974,
+        "goodsDisabled": 1468,
+        "currencyDisabled": 6130,
+        "immediateSave": 7213,
+        "goodsHandler": 7292,
+        "currencyHandler": 7466,
+        "enableGuard": 7673,
+        "tradeConfigDisabledOfflineOnly": 7909,
+        "currencyCallerNoSavingLock": 8412,
+        "showExclusive": 9747,
+        "goodsCallerNoSavingLock": 10054
+      }
+    },
+    "automationCard": {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/AutomationCard-LCx_jIi7.js",
+      "sha256": "24ED773623C237F8219EFF5443FAC3BA7B55B6E99E168E52FF066FAF2ABE7A61",
+      "contract": "The card fieldset disables configuration when offline/configDisabled; Trade passes configDisabled from online state."
+    },
+    "sharedUi": {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-BVfnK1wp.js",
+      "sha256": "44C4E4043825B7DB296B64171951B27176F8850FF8D7D337CC991DF4765524C6",
+      "contract": "Shared failed-save UI retries flush() and discards through refresh(true)."
+    }
+  },
+  "contracts": {
+    "defaults": {
+      "enabled": false,
+      "crossServerEnabled": false,
+      "selectedItemIds": [],
+      "selectedCurrencyIds": [15, 650053]
+    },
+    "currency": "Unchecking the last selected currency is rejected. Currency edits flush immediately. Trade passes saving=false to the source currency selector.",
+    "goods": "Goods selection is unique and ascending by item id. Unselecting the final good forces enabled=false. Exclusive-only goods are disabled. Trade passes saving=false to the source goods selector.",
+    "exclusive": "Show exclusive is local view state. Hidden by default; enabling it reveals exclusive-only goods without making them selectable.",
+    "restrictions": "Trade selection is disabled offline by the enclosing card. No Trade task-busy selection restriction was recovered. Source explicitly suppresses saving as a selector restriction.",
+    "saveFailure": "Selection edits retain the dirty draft after failure. Retry flushes it; Discard refreshes the confirmed/server value."
+  }
+}

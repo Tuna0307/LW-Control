@@ -147,8 +147,13 @@ PM-009 returned CORRECT-003A `2f439ce` for its missing immediate write. R1 at
 `d065d08` fixes both actual callbacks; PM-010 accepts the focused local weekly unit
 after default, saving editability, actual deferred-callback/recovery and source
 anchor checks. Native persistence/original pixels/full UI remain unaccepted.
-Active CORRECT-003B covers only Trade Station currency/goods/exclusive selection
-and local save states. History and other panel validation remain separate.
+CORRECT-003B is now delivered for project-lead review: the source-backed Trade
+Station currency/goods selectors remain editable during an in-flight config
+write, matching the original caller's explicit `saving:false`. Focused
+actual-handler and browser evidence covers defaults, last-currency protection,
+goods select/unselect, Show exclusive, failed selection save, Retry and
+Discard. Status is `AWAITING_REVIEW`; history and other panel validation
+remain separate.
 
 Correction evidence is under
 `evidence/lwbridge-0.3.17/ui/LWB317-UI-CORRECT-001/`; worker report:

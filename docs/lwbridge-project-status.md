@@ -260,8 +260,10 @@ PM-008 inspected pushed CORRECT-003 implementation `5204f67`; code/state checks
 pass but Stage B evidence and delivery are incomplete. At the owner's request,
 the broad task is PARTIAL and split.
 PM-010 accepted the focused weekly unit at `d065d08` after R1 closed the actual
-callback defect. Active continuation is `work-items/LWB317-UI-CORRECT-003B.md`,
-only Trade Station currency/goods/exclusive selection and local save states.
+callback defect. CORRECT-003B is now `AWAITING_REVIEW`: Trade currency/goods
+selection matches the recovered no-save-lock behavior, with focused evidence
+for defaults, last-currency protection, goods select/unselect, Show exclusive
+and failed-save Retry/Discard.
 Purchase history, Assist, runtime and AFK remain separate later units. Other
 branches/WIP stay preserved. No full UI acceptance is recorded.
 PM-007's historical CHANGES_REQUIRED

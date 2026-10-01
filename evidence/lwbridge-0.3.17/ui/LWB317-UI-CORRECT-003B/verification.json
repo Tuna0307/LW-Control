@@ -1,0 +1,42 @@
+{
+  "task": "LWB317-UI-CORRECT-003B",
+  "status": "AWAITING_REVIEW",
+  "baseline": "845db1f",
+  "checks": {
+    "focusedHandlerCheck": {
+      "command": "node evidence/lwbridge-0.3.17/ui/LWB317-UI-CORRECT-003B/check-trade-selection.mjs",
+      "result": "LWB317_UI_CORRECT003B_TRADE_SELECTION_OK"
+    },
+    "uiCheck": {
+      "command": "npm.cmd run check",
+      "result": "PASS"
+    },
+    "productionBuild": {
+      "command": "npm.cmd run build",
+      "result": "PASS",
+      "marker": "LWB317_PRODUCTION_UI_BUILD_OK 4d9f35dc87ec38afa1ae1743bfbfdaf262966b0e19e1523f2e6723d7ec53b8a9 4bad0446a04ec3f6295c3b3c6896ce5dd7d9ed0021b6bca420ee86ff40a3cfd8"
+    },
+    "productionPackageCheck": {
+      "command": "npm.cmd run check:production-build",
+      "result": "PASS",
+      "marker": "LWB317_PRODUCTION_UI_PACKAGE_OK 4d9f35dc87ec38afa1ae1743bfbfdaf262966b0e19e1523f2e6723d7ec53b8a9 4bad0446a04ec3f6295c3b3c6896ce5dd7d9ed0021b6bca420ee86ff40a3cfd8"
+    },
+    "diffCheck": {
+      "command": "git diff --check",
+      "result": "PASS"
+    }
+  },
+  "environmentNote": "PowerShell execution policy blocks npm.ps1 on this host, so the same npm scripts were run through npm.cmd.",
+  "scope": {
+    "changedProductLogic": "Trade Station currency and goods selector disabled predicates only",
+    "preserved": [
+      "weekly settings",
+      "purchase history",
+      "other Automation panels",
+      "gameplay/native Last War interaction",
+      "pre-existing previewAfkFixtures.js change",
+      "pre-existing .scratch-lwb317 files",
+      "pre-existing CORRECT-003 screenshots"
+    ]
+  }
+}

@@ -51,9 +51,12 @@ uncommitted. PM-008 inspected/preserved these; checks pass, full UI is unaccepte
 PM-010 accepted the focused local weekly unit (CORRECT-003A and R1 at `d065d08`)
 after immediate dispatch, concurrent drafts, actual Retry/Discard and source-anchor
 checks passed. The parent remains PARTIAL; full native/original parity is unaccepted.
-Active assignment is now `work-items/LWB317-UI-CORRECT-003B.md`: only Trade Station
-currency/goods/exclusive selection and local save states. Purchase history and
-other panels stay separate. Do not restart broad CORRECT-003 or reopen weekly work.
+CORRECT-003B is delivered as `AWAITING_REVIEW`: exact-source comparison found
+the Trade currency/goods selectors should remain editable while a config write
+is pending, and the two clone save-time locks were removed. Focused production
+handler/browser evidence covers last-currency protection, goods selection,
+Show exclusive and failed-save Retry/Discard. Purchase history and other panels
+stay separate. Do not restart broad CORRECT-003 or reopen weekly work.
 Trade/Assist/runtime/AFK work remains preserved for later separate validation tasks.
 Physical drag, native config persistence and original pixels remain unproved.
 Do not restart the completed correction or resume gameplay/native Home/another
