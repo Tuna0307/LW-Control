@@ -53,6 +53,7 @@ the Map closeout awaits a separate independent acceptance review.
 | LWB317-UI-COMPLETE-001 | Previous worker | CHANGES_REQUIRED | Useful partial UI checkpoint at `a253cce`; PM-006 found missing Home preference scope, incorrect Automation forms and incomplete Equipment interactions; full source-backed coverage not accepted |
 | LWB317-UI-CORRECT-001 | Previous worker | CHANGES_REQUIRED | PM-007 accepts Home profile-scope fix and retains useful nested UI work; Automation controls remain omitted, AFK drafts leak and Map fixture QA ignores query semantics |
 | LWB317-UI-CORRECT-002 | Interrupted worker; project lead continuation requested by owner | AWAITING_REVIEW | Focused Automation controls, isolated AFK drafts/save states and applied Map fixture queries completed with source/state/browser evidence; coverage matrix records remaining UI gaps; no new native/game integration |
+| LWB317-UI-CORRECT-003 | Fresh worker chat, manually dispatched by owner | READY | Independently review CORRECT-002, correct demonstrated UI regressions and complete remaining Automation/AFK source-backed forms/status/draft branches; no new native/game integration |
 | LWB317-UI-001A | Worker AI | COMPLETE / ACCEPTED | Static frontend package inventory/extraction |
 | LWB317-UI-CAMPAIGN-8H | Goal worker | ACCEPTED | Static UI recovery/reconstruction accepted; direct post-auth visual validation remains blocked |
 | LWB317-COMPAT-MAP-V22-001 | Goal worker | COMPLETE | Installed Last War v22 Map compatibility revalidated statically/source-first; no production Map change required |

@@ -245,9 +245,11 @@ Historical auth research remains archived evidence, not a current reconstruction
 
 ## Next project-lead milestone
 
-Independently review the recovered `LWB317-UI-CORRECT-002` checkpoint and its
-targeted field/draft/query assertions. Assign the explicitly remaining UI gaps
-from its coverage matrix after review. PM-007's historical CHANGES_REQUIRED
+The owner has requested the next manually dispatched worker task:
+`work-items/LWB317-UI-CORRECT-003.md` is READY. Independently review the recovered
+`LWB317-UI-CORRECT-002` checkpoint at `de6c075`, correct demonstrated regressions
+and complete the recorded Automation/AFK UI gaps within that assignment.
+PM-007's historical CHANGES_REQUIRED
 decision and accepted Home scope fix remain preserved. Separately close or reassign the awaiting
 `LWB317-RE-MAP-001` Goal.
 Native Home lifecycle and new backend subsystems require their own project-lead

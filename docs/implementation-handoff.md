@@ -44,12 +44,14 @@ Evidence: `evidence/lwbridge-0.3.17/ui/LWB317-UI-CORRECT-002/`, especially
 `source-contracts.json`, `browser-qa.json`, `coverage-matrix.md` and
 `verification.json`. Native Map/other pages and exact reference assets were preserved.
 
-Exact continuation: independently review CORRECT-002, then assign the recorded
-Automation runtime/Trade/Assist/weekly-quality and AFK target/member UI gaps.
+The owner requested the next worker assignment after recovery. Exact continuation:
+`work-items/LWB317-UI-CORRECT-003.md` is READY for a manually opened fresh chat.
+First independently review CORRECT-002 at `de6c075`, then complete the recorded
+Automation runtime/Trade/Assist/weekly-quality and AFK target/member/toolbar UI gaps.
 Physical drag, native config persistence and original pixels remain unproved.
 Do not restart the completed correction or resume gameplay/native Home/another
-backend campaign automatically. No new worker prompt or dispatch was made during
-this recovery.
+backend campaign automatically. The lead supplies a prompt for the owner to paste;
+no separate chat or subagent was automatically dispatched.
 
 The exact recovered CSS checkout conversion remains hash-protected; keep the
 checker intact.

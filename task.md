@@ -91,8 +91,10 @@ The owner requested recovery of the interrupted worker. The focused
 Automation controls, per-ID AFK drafts/save states and applied read-only Map
 fixture queries pass targeted contract/state/browser QA. Current delivery:
 `docs/reviews/2026-10-01-LWB317-UI-CORRECT-002.md`. Its affected coverage matrix
-records remaining source-recoverable UI gaps. Next action is independent review,
-then an explicit remaining-UI assignment; all-page parity is not accepted.
+records remaining source-recoverable UI gaps. The owner's next manually dispatched
+worker is assigned `docs/work-items/LWB317-UI-CORRECT-003.md`: independently review
+CORRECT-002, correct demonstrated regressions and complete the remaining Automation/
+AFK UI scope. No new native/gameplay family is opened; all-page parity is not accepted.
 
 Direct original post-auth screenshot/pixel comparison remains `BLOCKED` by the
 documented reference access boundary, so affected UI rows remain
