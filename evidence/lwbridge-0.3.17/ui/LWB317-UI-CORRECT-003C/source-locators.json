@@ -1,0 +1,29 @@
+{
+  "task": "LWB317-UI-CORRECT-003C",
+  "reference": {
+    "executable": {
+      "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW/lwbridge-0.3.17.exe",
+      "sha256": "4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783"
+    },
+    "automationPanel": {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/AutomationPanel-BJ0gIqFh.js",
+      "sha256": "6DB2328191AF33E5631D507271C36D7008B287DAA7C8CD1A957B23EF6F871725",
+      "utf8ByteOffsets": {
+        "nameResolver": 658,
+        "historyRenderer": 2378,
+        "purchasedItemsCaller": 10193
+      }
+    }
+  },
+  "contracts": {
+    "tab": "The caller starts on goods, uses purchases as the Purchased-items tab value, and displays purchases.length in the tab label.",
+    "orderingAndGrouping": "The history renderer reverses a shallow copy of the input and groups only adjacent equal dayStartAt values. It does not sort chronologically or globally merge equal days.",
+    "dayBoundary": "Each row uses serverDayStartAt when present; otherwise it derives local midnight from purchasedAt with getFullYear/getMonth/getDate.",
+    "dailySummary": "Each day sums quantity and keeps a Map keyed by itemId. The first row encountered after reversal supplies the summary purchase/name and later repeats add quantity without changing summary order.",
+    "names": "Item and currency names prefer gameTexts[nameKey] only when the value exists and differs from the key, then fall back to the supplied name and finally #id. The source strips one outer angle-bracket pair before color tags.",
+    "row": "Rows show item name, quantity, price/currency, purchased local time, server and daily purchase index. A null/absent dailyPurchaseIndex displays '-'; confirmedAfterTimeout is shown only when truthy.",
+    "visualFields": "Row frame class is quality-${quality || 0}; the quality frame image is present only for quality > 0; the currency icon is present only when currencyIconPath exists. Native asset delivery remains represented by existing clone placeholders.",
+    "rowKey": "purchaseKey is preferred; otherwise the key is purchasedAt:serverId:tradeId:configId:index.",
+    "empty": "An empty purchase array renders the muted no-purchases message directly inside the Purchased-items tab panel rather than an empty history wrapper."
+  }
+}

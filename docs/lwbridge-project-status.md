@@ -50,9 +50,10 @@ PM-010 subsequently accepted the focused weekly CORRECT-003A/R1 delivery at
 checks passed. This is local/source acceptance, not full Automation/native/pixel
 parity. PM-012 accepts Trade selection CORRECT-003B/R1 at `bfc652f`: PM-011's
 composition defects are fixed; actual-expression/selection/recovery checks,
-canonical build/package and evidence hashes pass. The next small assignment is
-CORRECT-003C, Purchased items history presentation only. Full Automation/native/
-pixel parity remains unaccepted.
+canonical build/package and evidence hashes pass. CORRECT-003C worker delivery is
+AWAITING_REVIEW for Purchased-items history presentation only: source-local
+ordering/grouping, totals/summaries, row fallbacks and focused browser states are
+covered. Full Automation/native/pixel parity remains unaccepted.
 
 Phase 1 static UI recovery has been accepted. The active target remains exact
 LWBridge 0.3.17. The Map-only `LWB317-RE-MAP-001` campaign has completed its
@@ -267,9 +268,9 @@ PM-010 accepted the focused weekly unit at `d065d08` after R1 closed the actual
 callback defect. PM-012 accepts focused local Trade selection CORRECT-003B/R1
 at `bfc652f`, closing PM-011's two composition defects with all three unchanged
 actual-expression cases and selection/recovery/package/evidence checks passing.
-Active CORRECT-003C covers only purchase-history presentation and local QA.
-Purchase execution, Assist, runtime and AFK remain separate later units. Other
-branches/WIP stay preserved. No full UI acceptance is recorded.
+CORRECT-003C worker delivery is AWAITING_REVIEW for purchase-history presentation
+and local QA only. Purchase execution, Assist, runtime and AFK remain separate
+later units. Other branches/WIP stay preserved. No full UI acceptance is recorded.
 PM-007's historical CHANGES_REQUIRED
 decision and accepted Home scope fix remain preserved. Separately close or reassign the awaiting
 `LWB317-RE-MAP-001` Goal.

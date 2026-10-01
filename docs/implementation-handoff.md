@@ -57,9 +57,12 @@ the unchanged lead expression harness, selection/save/recovery checks, canonical
 build/package and evidence hashes all pass. Worker browser QA is retained as
 worker evidence; original/native/full UI parity remains unaccepted.
 Review: `reviews/2026-10-01-LWB317-PM-012-trade-selection-acceptance.md`.
-Active small assignment: `work-items/LWB317-UI-CORRECT-003C.md`, only Purchased
-items history presentation/empty state and focused local QA. No purchase execution.
-Other panels stay separate. Do not restart broad CORRECT-003 or reopen weekly work.
+CORRECT-003C worker delivery is AWAITING_REVIEW: only Purchased-items history
+presentation/empty state and focused local QA were completed. The exact recovered
+reverse/adjacent-day algorithm, totals/repeated summaries and row fallbacks are
+covered by the production helper check plus populated/empty/Portuguese browser QA.
+No purchase execution was added. Other panels stay separate. Do not restart broad
+CORRECT-003 or reopen weekly work.
 Trade/Assist/runtime/AFK work remains preserved for later separate validation tasks.
 Physical drag, native config persistence and original pixels remain unproved.
 Do not restart the completed correction or resume gameplay/native Home/another

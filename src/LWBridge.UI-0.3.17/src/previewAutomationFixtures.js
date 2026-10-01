@@ -62,14 +62,103 @@ export const previewTradePurchases = [
   },
 ];
 
+const previewTradeHistoryPurchases = [
+  ...previewTradePurchases,
+  {
+    purchaseKey: "fixture-history-3",
+    serverDayStartAt: Date.UTC(2026, 9, 2, 0, 0, 0),
+    purchasedAt: Date.UTC(2026, 9, 2, 7, 5, 0),
+    itemId: 7001,
+    itemNameKey: "fixture.trade.speedup",
+    itemName: "Fixture Speedup Chest",
+    quantity: 3,
+    quality: 5,
+    iconPath: "fixture/items/speedup.png",
+    currencyId: 15,
+    currencyNameKey: "fixture.trade.token",
+    currencyName: "Fixture Trade Token",
+    currencyIconPath: "fixture/currency/token.png",
+    price: 118,
+    serverId: 902,
+    tradeId: 3103,
+    configId: 4103,
+    dailyPurchaseIndex: 1,
+    confirmedAfterTimeout: false,
+  },
+  {
+    purchaseKey: "fixture-history-4",
+    serverDayStartAt: Date.UTC(2026, 9, 2, 0, 0, 0),
+    purchasedAt: Date.UTC(2026, 9, 2, 8, 10, 0),
+    itemId: 7002,
+    itemName: "Fixture Resource Crate",
+    quantity: 4,
+    quality: 4,
+    currencyId: 650053,
+    currencyName: "Fixture Market Credit",
+    price: 43,
+    serverId: 902,
+    tradeId: 3104,
+    configId: 4104,
+    dailyPurchaseIndex: 2,
+    confirmedAfterTimeout: true,
+  },
+  {
+    purchaseKey: "fixture-history-5",
+    serverDayStartAt: Date.UTC(2026, 9, 2, 0, 0, 0),
+    purchasedAt: Date.UTC(2026, 9, 2, 9, 15, 0),
+    itemId: 7001,
+    itemNameKey: "fixture.trade.speedup",
+    itemName: "Fixture Speedup Chest",
+    quantity: 6,
+    quality: 5,
+    iconPath: "fixture/items/speedup.png",
+    currencyId: 15,
+    currencyNameKey: "fixture.trade.token",
+    currencyName: "Fixture Trade Token",
+    currencyIconPath: "fixture/currency/token.png",
+    price: 116,
+    serverId: 902,
+    tradeId: 3105,
+    configId: 4105,
+    dailyPurchaseIndex: 3,
+    confirmedAfterTimeout: false,
+  },
+  {
+    purchasedAt: Date.UTC(2026, 9, 2, 18, 30, 0),
+    itemId: 7004,
+    itemNameKey: "fixture.trade.decorated",
+    itemName: "Fixture Fallback Item",
+    quantity: 1,
+    currencyId: 77,
+    currencyNameKey: "fixture.trade.decoratedCurrency",
+    currencyName: "Fixture Fallback Currency",
+    price: 12345,
+    serverId: 903,
+    tradeId: 3106,
+    configId: 4106,
+    dailyPurchaseIndex: null,
+    confirmedAfterTimeout: false,
+  },
+];
+
+const previewTradeHistoryGameTexts = {
+  "fixture.trade.speedup": "Fixture <color=#ff9900>Localized</color> Speedup",
+  "fixture.trade.token": "<Fixture Localized Token>",
+  "fixture.trade.decorated": "Fixture <color=#00ff00>Decorated</color> Item",
+  "fixture.trade.decoratedCurrency": "Fixture <color=#00aaff>Decorated</color> Credit",
+};
+
 export function previewTradeFixture(previewState) {
   const empty = previewState === "automation-trade-empty";
   const loading = previewState === "automation-trade-loading";
   const error = previewState === "automation-trade-error";
-  const purchases = empty || loading || error ? [] : previewTradePurchases;
+  const historyQa = previewState === "automation-trade-history";
+  const emptyHistoryQa = previewState === "automation-trade-history-empty";
+  const purchases = empty || loading || error || emptyHistoryQa ? [] : historyQa ? previewTradeHistoryPurchases : previewTradePurchases;
   return {
     goods: empty || loading || error ? [] : previewTradeGoods,
     purchases,
+    gameTexts: historyQa ? previewTradeHistoryGameTexts : {},
     loading,
     error,
     detected: empty ? 0 : 3,

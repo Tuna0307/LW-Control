@@ -1,0 +1,59 @@
+{
+  "task": "LWB317-UI-CORRECT-003C",
+  "date": "2026-10-01",
+  "browser": "reused existing local Vite preview on 127.0.0.1:4319",
+  "gameLaunched": false,
+  "results": [
+    {
+      "state": "automation-trade-history / en",
+      "actions": [
+        "Opened the history QA URL in a task-owned browser tab and clicked Trade Station through a real browser control.",
+        "Verified Goods to buy was selected by default, then clicked Purchased items (6).",
+        "Inspected the rendered multi-day history and clicked Goods to buy again."
+      ],
+      "observed": [
+        "Purchased items showed 6 rows and became selected only after the click; Goods became selected again after the return click.",
+        "Day headings appeared newest first as October 3, October 2 and October 1. The missing serverDayStartAt fixture formed the October 3 local-day group.",
+        "October 2 displayed Purchased today: 13 with Fixture Localized Speedup x9 followed by Fixture Resource Crate x4; row order was quantity 6, quantity 4, quantity 3, matching reversed input order.",
+        "October 1 displayed Purchased today: 7 with Fixture Resource Crate x5 followed by Fixture Speedup Chest x2.",
+        "The missing dailyPurchaseIndex rendered as '-', the quality-0 row omitted the quality-frame image, currency icons appeared only on rows carrying currencyIconPath, and Purchase confirmed after timeout appeared only on flagged rows.",
+        "Recovered game-text name cleanup rendered Fixture Decorated Item / Fixture Decorated Credit and Fixture Localized Speedup / Fixture Localized Token."
+      ]
+    },
+    {
+      "state": "automation-trade-history-empty / en",
+      "actions": [
+        "Reloaded the empty-history QA URL, clicked Trade Station, verified Goods to buy was selected by default and Purchased items showed (0).",
+        "Clicked Purchased items (0), inspected the empty tab panel, then clicked Goods to buy again."
+      ],
+      "observed": [
+        "The Purchased-items panel contained the direct muted message 'No goods have been purchased yet.' with no populated history wrapper.",
+        "Goods to buy was selected again after the return click."
+      ]
+    },
+    {
+      "state": "automation-trade-history / pt",
+      "actions": [
+        "Reloaded the populated history in Portuguese, clicked Trade Station, verified Itens para comprar was selected by default, clicked Itens comprados (6), inspected history, then switched back."
+      ],
+      "observed": [
+        "Locale formatting used 'sáb., 3 de outubro de 2026' and 'sex., 2 de outubro de 2026'.",
+        "Price 12345 rendered as 12.345 and times used the Portuguese 24-hour form such as 02:30:00 and 17:15:00.",
+        "The repeated-item total remained 13 with Fixture Localized Speedup x9 and Fixture Resource Crate x4, while labels changed to Portuguese."
+      ]
+    }
+  ],
+  "browserConsoleErrors": [],
+  "screenshots": [
+    {
+      "path": "populated-history.jpg",
+      "sha256": "AC4771AB7955D25CD79712586A5B13A1D928182BC9605687D40A51EB6C61797F",
+      "purpose": "English populated Purchased-items history showing all three day groups, daily/repeated summaries and representative row optional fields."
+    },
+    {
+      "path": "empty-history.jpg",
+      "sha256": "80BCA4FE01AEBB66573C01158C94368DF23A10E47475FA97B4C5AD74BFDFC87F",
+      "purpose": "English empty Purchased-items state showing the zero count and direct muted no-purchases message."
+    }
+  ]
+}

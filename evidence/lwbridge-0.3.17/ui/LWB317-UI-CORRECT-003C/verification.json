@@ -1,0 +1,58 @@
+{
+  "task": "LWB317-UI-CORRECT-003C",
+  "status": "AWAITING_REVIEW",
+  "baseline": "7fed1d2",
+  "acceptedTradeSelectionBaseline": "bfc652fd9586f64bbb9c4c221af065e44ad337e3",
+  "checks": {
+    "focusedHistoryCheck": {
+      "command": "node evidence/lwbridge-0.3.17/ui/LWB317-UI-CORRECT-003C/check-trade-history.mjs",
+      "result": "LWB317_UI_CORRECT003C_TRADE_HISTORY_OK"
+    },
+    "inheritedTradeSelectionCheck": {
+      "command": "node evidence/lwbridge-0.3.17/ui/LWB317-UI-CORRECT-003B/check-trade-selection.mjs",
+      "result": "LWB317_UI_CORRECT003B_TRADE_SELECTION_OK"
+    },
+    "inheritedCompositionCheck": {
+      "command": "node evidence/lwbridge-0.3.17/ui/LWB317-PM-011/check-trade-composition.mjs evidence/lwbridge-0.3.17/ui/LWB317-UI-CORRECT-003B-R1/composition-results.json",
+      "result": "PASS"
+    },
+    "uiCheck": {
+      "command": "npm.cmd run check",
+      "result": "PASS"
+    },
+    "productionBuild": {
+      "command": "npm.cmd run build",
+      "result": "PASS",
+      "marker": "LWB317_PRODUCTION_UI_BUILD_OK 15988dc16cdf6cf2cebce2101486ab6fc5c2070383603b49e74da2648e781acd f2bb391e36d41f84d5b519ffa27140e4553052b3bf5705d200a78a96cd782afe"
+    },
+    "productionPackageCheck": {
+      "command": "npm.cmd run check:production-build",
+      "result": "PASS",
+      "marker": "LWB317_PRODUCTION_UI_PACKAGE_OK 15988dc16cdf6cf2cebce2101486ab6fc5c2070383603b49e74da2648e781acd f2bb391e36d41f84d5b519ffa27140e4553052b3bf5705d200a78a96cd782afe"
+    },
+    "evidenceValidation": {
+      "command": "node evidence/lwbridge-0.3.17/ui/LWB317-UI-CORRECT-003C/validate-evidence.mjs",
+      "result": "LWB317_UI_CORRECT003C_EVIDENCE_OK"
+    },
+    "diffCheck": {
+      "command": "git diff --check",
+      "result": "PASS"
+    }
+  },
+  "scope": {
+    "changedProductLogic": "Trade Station Purchased-items presentation only: source-correct tab activation, history grouping/summaries, row field fallbacks/optional markup and empty-history structure.",
+    "remainingLimits": [
+      "Game item, quality-frame and currency icon images still use the clone's existing asset placeholders; native asset delivery was not added.",
+      "Browser fixtures are synthetic local QA data and do not represent actual transactions.",
+      "No purchase execution/provider, native/gameplay, original post-auth pixel comparison or full Automation/UI parity is claimed."
+    ],
+    "preserved": [
+      "accepted weekly settings",
+      "accepted Trade selection/composition work at bfc652f",
+      "other Automation panels and purchase execution",
+      "pre-existing previewAfkFixtures.js change",
+      "pre-existing .scratch-lwb317 files",
+      "pre-existing CORRECT-003 screenshot WIP"
+    ]
+  }
+}
