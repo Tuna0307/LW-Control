@@ -1,0 +1,78 @@
+{
+  "date": "2026-10-01",
+  "preview": "http://127.0.0.1:4319/",
+  "mode": "local browser preview only",
+  "states": [
+    {
+      "state": "automation-config",
+      "result": "PASS",
+      "observations": [
+        "Trucks labels were Mon, Tue, Wed, Thu, Fri, Sat, Sun.",
+        "Trucks initial values were ssr, ur, ssr, ssr, ssr, ur, ssr.",
+        "Secret Task initial values were none, ur, none, none, none, ur, none.",
+        "Both automation toggles were off while the weekly selectors remained editable.",
+        "Changing Trucks Monday from SSR or above to UR preserved the other six Truck days and all seven Secret Task values.",
+        "The edited Truck weekly draft survived settings collapse/expand, Daily to Alliance to Daily, and Automation to Settings to Automation navigation."
+      ]
+    },
+    {
+      "state": "automation-weekly-save-error",
+      "result": "PASS",
+      "observations": [
+        "Trucks remained off at the original default.",
+        "Changing Trucks Monday caused the actual weekly draft write to fail and showed Changes have not been saved, Retry, and Discard unsaved changes.",
+        "Retry cleared the error and confirmed the edited Truck array ur, ur, ssr, ssr, ssr, ur, ssr."
+      ]
+    },
+    {
+      "state": "automation-secret-weekly-save-error",
+      "result": "PASS",
+      "observations": [
+        "Secret Task remained off at the original default.",
+        "Changing Secret Task Monday from Do not refresh to SSR or above produced the save error.",
+        "Discard cleared the error and restored none, ur, none, none, none, ur, none."
+      ]
+    },
+    {
+      "state": "automation-runtime-running",
+      "result": "PASS",
+      "observations": [
+        "All seven Trucks weekly selectors were disabled.",
+        "All seven Secret Task weekly selectors were disabled."
+      ]
+    },
+    {
+      "state": "offline preview",
+      "result": "PASS",
+      "observations": [
+        "Both card settings fieldsets were disabled.",
+        "All weekly selectors in both cards were disabled."
+      ]
+    },
+    {
+      "state": "config saving",
+      "result": "PASS via focused adapter/store check",
+      "observations": [
+        "The normal in-memory save resolves too quickly for reliable physical browser observation.",
+        "check-weekly-state.mjs holds the real createConfigDraft write promise, observes saving=true, edits another weekly day while the first write is in flight, then verifies the newer weekly draft is queued and confirmed.",
+        "This matches the original source, which does not disable weekly selectors solely because the config store is saving."
+      ]
+    }
+  ],
+  "screenshots": [
+    {
+      "path": "screenshots/weekly-edited-light-en.jpg",
+      "sha256": "C4CC9F209A6912338602CC937567EFD13E03E600EECD77FA6016158505D6AD0D",
+      "purpose": "Trucks weekly settings after Retry confirmed the Monday UR edit"
+    },
+    {
+      "path": "screenshots/weekly-save-error-light-en.jpg",
+      "sha256": "64C34A3DBFB1B016F4AA44DF3C051513DD6A0C07CC63D762F257ADB15E1E4ECC",
+      "purpose": "Actual Trucks weekly edit in failed-save state with Retry and Discard visible"
+    }
+  ],
+  "boundaries": [
+    "No Last War process was launched or controlled.",
+    "No native provider, service, gameplay action, Trade, Assist, AFK, Map, or Home lifecycle behavior was exercised."
+  ]
+}

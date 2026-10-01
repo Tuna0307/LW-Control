@@ -1,0 +1,51 @@
+{
+  "reference": {
+    "path": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW\\lwbridge-0.3.17.exe",
+    "sha256": "4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783"
+  },
+  "assets": [
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/AutomationPanel-BJ0gIqFh.js",
+      "sha256": "6DB2328191AF33E5631D507271C36D7008B287DAA7C8CD1A957B23EF6F871725",
+      "locators": [
+        { "utf8ByteOffset": 18848, "meaning": "Trucks default weekly qualities", "excerpt": "ge=[`ssr`,`ur`,`ssr`,`ssr`,`ssr`,`ur`,`ssr`]" },
+        { "utf8ByteOffset": 18893, "meaning": "Secret Task default weekly qualities", "excerpt": "_e=[`none`,`ur`,`none`,`none`,`none`,`ur`,`none`]" },
+        { "utf8ByteOffset": 27880, "meaning": "task draft patch and immediate flush used by weekly changes", "excerpt": "async function W(e,t){P[e].edit(e=>({...e,...t}),!1),await P[e].flush().catch(()=>void 0)}" },
+        { "utf8ByteOffset": 32189, "meaning": "configured weekly arrays fall back to the recovered defaults", "excerpt": "Cr=F?.railway?.weeklyQualities??ge,wr=F?.dispatch?.weeklyQualities??_e" },
+        { "utf8ByteOffset": 32571, "meaning": "generic task config disable predicate", "excerpt": "$=e=>!l||_===e" },
+        { "utf8ByteOffset": 32702, "meaning": "seven weekday labels generated from 2024-01-01 UTC, yielding Monday through Sunday", "excerpt": "Rr=Array.from({length:7}" },
+        { "utf8ByteOffset": 33030, "meaning": "weekly selector is disabled when the task disable predicate or runtime-running argument is true", "excerpt": "disabled:$(e)||n" },
+        { "utf8ByteOffset": 33073, "meaning": "one-day edit copies the weekly array, replaces one index, and writes weeklyQualities", "excerpt": "r[i]=n.target.value,W(e,{weeklyQualities:r})" },
+        { "utf8ByteOffset": 33149, "meaning": "Do not refresh option", "excerpt": "value:`none`" },
+        { "utf8ByteOffset": 33226, "meaning": "SSR or above option", "excerpt": "value:`ssr`" },
+        { "utf8ByteOffset": 33296, "meaning": "UR option", "excerpt": "value:`ur`" }
+      ],
+      "notes": [
+        "The weekly renderer is called with X?.running for railway and Z?.running for dispatch.",
+        "The disable predicate uses online and the parent task-busy identity. It does not use the config draft's saving flag.",
+        "The original frontend task adapter normalizes numeric fields but does not explicitly validate weeklyQualities; the fixed seven selects constrain UI-authored values."
+      ]
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/AutomationCard-LCx_jIi7.js",
+      "sha256": "24ED773623C237F8219EFF5443FAC3BA7B55B6E99E168E52FF066FAF2ABE7A61",
+      "locators": [
+        { "meaning": "settings fieldset disable derives from offline/configDisabled", "excerpt": "M=!l||!!d" }
+      ],
+      "notes": [
+        "For Trucks and Secret Task, configDisabled defaults to the task disabled predicate; there is no config-saving input."
+      ]
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-BVfnK1wp.js",
+      "sha256": "44C4E4043825B7DB296B64171951B27176F8850FF8D7D337CC991DF4765524C6",
+      "locators": [
+        { "utf8ByteOffset": 199469, "meaning": "Retry is disabled while the config store is saving", "excerpt": "children:r(`common.retry`)" },
+        { "utf8ByteOffset": 199603, "meaning": "Discard is disabled while the config store is saving", "excerpt": "children:r(`configSave.discard`)" }
+      ],
+      "notes": [
+        "Saving locks Retry/Discard in the shared error UI; it does not lock the weekly selectors."
+      ]
+    }
+  ]
+}

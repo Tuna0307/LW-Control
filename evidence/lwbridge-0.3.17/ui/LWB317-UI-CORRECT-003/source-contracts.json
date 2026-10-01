@@ -8,7 +8,7 @@
       "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/AutomationPanel-BJ0gIqFh.js",
       "sha256": "6DB2328191AF33E5631D507271C36D7008B287DAA7C8CD1A957B23EF6F871725",
       "contracts": [
-        "weekly quality arrays are controlled seven-day values; edits write the task draft and are disabled while running/saving/offline",
+        "weekly quality arrays are controlled seven-day values; edits write the task draft and are disabled while offline, the task is busy, or that task runtime is running; config saving itself does not disable the weekly select",
         "Trade Station config defaults to currencies 15 and 650053, prevents deselecting the last currency, hides all-exclusive goods unless requested, sorts by quality then item id, and groups purchase history by server day",
         "Dispatch Assist renders selectable allied tasks only when automatic assist is off; active jobs fence selection and manual jobs expose schedule/status/cancel/retry presentation",
         "generic automation cards expose source-specific status precedence plus counters, results, timing and shield rows"

@@ -1,6 +1,6 @@
 # LWB317-UI-CORRECT-003A — finish weekly quality settings only
 
-Project-lead assignment: 2026-10-01. State: READY.
+Project-lead assignment: 2026-10-01. State: AWAITING_REVIEW.
 This replaces the active broad CORRECT-003 assignment with one smaller unit.
 The parent remains PARTIAL; do not resume its other work during this task.
 

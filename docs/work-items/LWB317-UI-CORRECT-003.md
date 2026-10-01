@@ -5,7 +5,8 @@ Owner: fresh worker chat, manually dispatched by the owner.
 
 PM-008 inspected pushed implementation 5204f67 and unfinished evidence/WIP.
 The owner requested smaller tasks after another apparent interruption.
-Active continuation is LWB317-UI-CORRECT-003A (weekly quality controls only).
+LWB317-UI-CORRECT-003A (weekly quality controls only) is AWAITING_REVIEW.
+The remaining parent scope stays PARTIAL and must be assigned separately.
 Preserve this document as the parent backlog; do not execute its full scope now.
 
 ## Fresh-chat context and goal
