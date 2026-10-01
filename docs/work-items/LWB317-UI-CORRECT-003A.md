@@ -1,8 +1,12 @@
 # LWB317-UI-CORRECT-003A — finish weekly quality settings only
 
-Project-lead assignment: 2026-10-01. State: AWAITING_REVIEW.
+Project-lead assignment: 2026-10-01. State: CHANGES_REQUIRED after PM-009.
 This replaces the active broad CORRECT-003 assignment with one smaller unit.
 The parent remains PARTIAL; do not resume its other work during this task.
+
+Worker delivery 2f439ce retains useful weekly save-lock corrections, but PM-009
+found both actual weekly callbacks still debounce instead of writing immediately.
+Active correction is LWB317-UI-CORRECT-003A-R1; do not broaden this task.
 
 ## Context and inputs
 

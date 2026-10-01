@@ -93,11 +93,13 @@ fixture queries pass targeted contract/state/browser QA. Current delivery:
 `docs/reviews/2026-10-01-LWB317-UI-CORRECT-002.md`. Its affected coverage matrix
 records remaining source-recoverable UI gaps. CORRECT-003 subsequently pushed
 substantial implementation at 5204f67, but Stage B evidence/delivery is unfinished.
-The owner requested smaller tasks. Its active broad scope is replaced by
-`docs/work-items/LWB317-UI-CORRECT-003A.md`: finish only weekly Trucks/Secret Task
-quality controls and focused save-state QA. Preserve other code and uncommitted
-AFK/scratch work. PM-008 records current inspection. No new native/gameplay family
-is opened; all-page parity is not accepted.
+The owner requested smaller tasks, replacing its active broad scope.
+CORRECT-003A returned at 2f439ce. PM-009 keeps it CHANGES_REQUIRED: saving
+editability is corrected but actual weekly changes still debounce instead of
+immediate writes. Active assignment is now
+`docs/work-items/LWB317-UI-CORRECT-003A-R1.md`, that one correction and actual-handler
+proof only. Preserve other code and uncommitted AFK/scratch work. No new
+native/gameplay family is opened; all-page parity is not accepted.
 
 Direct original post-auth screenshot/pixel comparison remains `BLOCKED` by the
 documented reference access boundary, so affected UI rows remain

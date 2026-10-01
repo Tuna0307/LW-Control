@@ -1,0 +1,12 @@
+{
+  "reviewed_commit": "2f439ced3b867fcb504f48fb081aefccea980eaf",
+  "pages_sha256": "ff946edfb0c7b841975c0039bde5d6b4c37e5a7f15ebcaaf664ea3c10590cccc",
+  "harness": "check-weekly-onchange.mjs invokes actual AST-extracted JSX onChange expressions with actual createConfigDraft; no manually added flush/blur/timer wait",
+  "exit_code": 1,
+  "results": [
+    { "title": "Trucks", "line": 430, "expectedImmediateWrites": 1, "actualImmediateWrites": 0, "saving": false, "dirty": true, "draftMatchesEdit": true, "passed": false },
+    { "title": "Secret Task", "line": 442, "expectedImmediateWrites": 1, "actualImmediateWrites": 0, "saving": false, "dirty": true, "draftMatchesEdit": true, "passed": false }
+  ],
+  "original_source": { "file": "AutomationPanel-BJ0gIqFh.js", "patch_and_flush_byte": 27880, "weekly_write_byte": 33073, "edit_debounce_disabled": true, "flush_invoked_immediately": true },
+  "disposition": "CHANGES_REQUIRED: R1 immediate weekly write dispatch"
+}

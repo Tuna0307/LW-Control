@@ -253,9 +253,12 @@ Historical auth research remains archived evidence, not a current reconstruction
 
 PM-008 inspected pushed CORRECT-003 implementation `5204f67`; code/state checks
 pass but Stage B evidence and delivery are incomplete. At the owner's request,
-the broad task is PARTIAL and split. Active continuation:
-`work-items/LWB317-UI-CORRECT-003A.md`, only weekly quality draft/save/error QA
-and necessary fixes. Other implemented branches and WIP stay preserved for later
+the broad task is PARTIAL and split.
+CORRECT-003A returned at `2f439ce`; PM-009 found its actual weekly callbacks still
+debounce instead of immediately writing. The unit is CHANGES_REQUIRED despite
+correct saving editability/defaults/store checks. Active continuation is
+`work-items/LWB317-UI-CORRECT-003A-R1.md`, only that handler correction, actual-handler
+proof and two locator anchors. Other branches/WIP stay preserved for later
 separate validation. No full UI acceptance is recorded.
 PM-007's historical CHANGES_REQUIRED
 decision and accepted Home scope fix remain preserved. Separately close or reassign the awaiting
