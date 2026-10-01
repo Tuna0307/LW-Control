@@ -1,0 +1,80 @@
+{
+  "task": "LWB317-UI-HOME-ERROR-002",
+  "state": "EXACT_CONTRACT",
+  "limits": "Current host source contract inspection only; native picker and persistence not executed.",
+  "sources": [
+    {
+      "path": "src/LWBridge.Desktop/GameInstallationService.cs",
+      "sha256": "31BC28DAF0C0C6879347958A1D052052024FE8602D82695CC2550FC2E3E96911",
+      "locators": [
+        {
+          "line": 37,
+          "utf8ByteOffset": 832,
+          "expression": "internal sealed record NativeGameRootSelectionResult("
+        },
+        {
+          "line": 38,
+          "utf8ByteOffset": 891,
+          "expression": "bool Canceled,"
+        },
+        {
+          "line": 39,
+          "utf8ByteOffset": 911,
+          "expression": "string? Path,"
+        },
+        {
+          "line": 40,
+          "utf8ByteOffset": 930,
+          "expression": "bool Valid);"
+        },
+        {
+          "line": 150,
+          "utf8ByteOffset": 5127,
+          "expression": "new(true, null, false);"
+        },
+        {
+          "line": 164,
+          "utf8ByteOffset": 5594,
+          "expression": "return new NativeGameRootSelectionResult(false, normalized, false);"
+        },
+        {
+          "line": 174,
+          "utf8ByteOffset": 5941,
+          "expression": "return new NativeGameRootSelectionResult(false, normalized, true);"
+        }
+      ]
+    },
+    {
+      "path": "src/LWBridge.Desktop/LWBridgeWindow.cs",
+      "sha256": "15397E9857A1EAB8E6D39CE5707F8C6ECC5B66BA63E2169EF7DA330A130238F2",
+      "locators": [
+        {
+          "line": 2541,
+          "utf8ByteOffset": 142789,
+          "expression": "private async Task<object?> SelectGameRootAsync(CancellationToken cancellationToken)"
+        },
+        {
+          "line": 2825,
+          "utf8ByteOffset": 153330,
+          "expression": "webView.CoreWebView2.PostWebMessageAsJson(JsonSerializer.Serialize(message, JsonOptions.Default));"
+        }
+      ]
+    },
+    {
+      "path": "src/LWBridge.Desktop/LocalConfigStore.cs",
+      "sha256": "A3154052C85D58C7D9E8713227D9EF49745DFC0C3B8EDD75DC32DBAF68E66C9C",
+      "locators": [
+        {
+          "line": 379,
+          "utf8ByteOffset": 14837,
+          "expression": "public static readonly JsonSerializerOptions Default = new(JsonSerializerDefaults.Web)"
+        },
+        {
+          "line": 381,
+          "utf8ByteOffset": 14940,
+          "expression": "PropertyNamingPolicy = JsonNamingPolicy.CamelCase,"
+        }
+      ]
+    }
+  ]
+}

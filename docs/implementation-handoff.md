@@ -79,8 +79,13 @@ synthetic comparisons identify error translation/channels, busy presentation and
 switch-state localization gaps. See `reviews/2026-10-02-LWB317-PM-015-home-audit.md`.
 HOME-ERROR-001 translation is implemented and AWAITING_REVIEW; see
 `reviews/2026-10-02-LWB317-UI-HOME-ERROR-001.md`. Source/helper/render, nine-locale,
-browser and canonical checks pass. HOME-ERROR-002 separate error channels is the
-next bounded continuation. Busy text/switch descriptions/native lifecycle stay open.
+browser and canonical checks pass. HOME-ERROR-002 separate error channels is also
+AWAITING_REVIEW: picker cancel/invalid/acknowledged valid outcomes preserve the
+independent action error; 9 actual callback scenarios, 4 original picker cases,
+72 render comparisons and 5 browser observations pass. Review:
+`reviews/2026-10-02-LWB317-UI-HOME-ERROR-002.md`. Existing polling/rejection
+string reduction retained; native picker not executed. Next bounded continuation:
+HOME-BUSY-001. Switch descriptions/native lifecycle stay open.
 Remaining units are queued separately and have not been dispatched to another AI.
 Do not restart broad CORRECT-003 or reopen accepted weekly/selection/history work.
 Trade/Assist/runtime/AFK work remains preserved for later separate validation tasks.

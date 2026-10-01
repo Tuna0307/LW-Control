@@ -1,0 +1,32 @@
+{
+  "task": "LWB317-UI-HOME-ERROR-002",
+  "date": "2026-10-02",
+  "state": "AWAITING_REVIEW",
+  "baseline": "537a2b35ec79b021310f141f32ed0d00997c3597",
+  "referenceExeHash": "4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783",
+  "checks": {
+    "actualCallbacksAndTransport": "PASS",
+    "originalPickerCases": "PASS",
+    "originalCloneRender": "PASS",
+    "priorTranslationRecord": "PASS",
+    "canonicalCheck": "PASS",
+    "productionBuild": "PASS",
+    "productionPackage": "PASS",
+    "browserQA": "PASS",
+    "evidenceValidation": "PASS",
+    "diffCheck": "PASS"
+  },
+  "counts": {
+    "callbackScenarios": 9,
+    "sourcePickerCases": 4,
+    "renderComparisons": 72,
+    "browserObservations": 5,
+    "priorTranslationEdgeCases": 60,
+    "priorCatalogCases": 4230,
+    "priorRenderStates": 27
+  },
+  "buildFingerprint": "e675e574f18273ba54fb311a2af5ca442f576b57da85bc28d681394310f7f496",
+  "packageFingerprint": "77d96324d7f16bcb4f6484b88b097b14b6bc707d42d51de97cbb11a5e51bf7cd",
+  "limits": "Synthetic local transport responses and browser preview. No original pixel comparison, native picker, game launch or live preference persistence.",
+  "cleanup": "Owned IAB tab closed; pre-existing port4319 PID62280 server retained; unrelated WIP unchanged and unstaged."
+}

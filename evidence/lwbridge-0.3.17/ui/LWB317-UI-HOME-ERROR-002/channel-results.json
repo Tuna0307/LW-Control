@@ -1,0 +1,1277 @@
+{
+  "task": "LWB317-UI-HOME-ERROR-002",
+  "result": "LWB317_HOME_ERROR002_OK",
+  "source": {
+    "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-BVfnK1wp.js",
+    "sha256": "44C4E4043825B7DB296B64171951B27176F8850FF8D7D337CC991DF4765524C6",
+    "locators": {
+      "Ir": {
+        "utf8ByteOffset": 328453,
+        "expression": "function Ir(e){let t=[];e&&typeof e==`object`&&`code`in e&&typeof e.code==`string`&&t.push(e.code);let n=e instanceof Error?e.message:String(e??``);return t.push(...n.match(/\\b[A-Z][A-Z0-9_]{2,}\\b/g)||[]),[...new Set(t)].reverse()}"
+      },
+      "Lr": {
+        "utf8ByteOffset": 328684,
+        "expression": "function Lr(e,t,n=`common.actionFailed`){for(let n of Ir(t))for(let t of[`error`,`auth.error`,`update.error`]){let r=`${t}.${n}`,i=e(r);if(i!==r)return i}return e(n)}"
+      },
+      "Kr": {
+        "utf8ByteOffset": 336469,
+        "expression": "function Kr({rootResolved:e,rootValid:t,gameRunning:n,needsRepair:r=!1,recovering:i,busy:a,launching:o=!1}){return{showRootPicker:e&&!t,canStart:e&&t&&!n&&!i&&!a&&!o,canStop:e&&t&&(n||i)&&!a&&!o,repairOnClose:e&&t&&n&&r&&!i}}"
+      },
+      "qr": {
+        "utf8ByteOffset": 336694,
+        "expression": "function qr({proxyStatus:e,online:t,gameRecoveryStatus:n,proxyBusy:r,gameLaunchBusy:i,gameRootStatus:a,gameRootBusy:o,gameRootError:s,gameActionError:c,autoLaunchGame:l,autoReconnect:u,onAutoLaunchGameChange:d,onAutoReconnectChange:f,onGameRootSelect:p,onStartGame:m,onStopGame:h,onUpdateAndRestart:g}){let{t:_}=De(),v=a!=null,y=n!=null&&[`waiting`,`updating`,`repairing`,`launching`,`verifying`,`maintenance`].includes(n.state),b=e?.repairRequired===!0,x=Kr({rootResolved:v,rootValid:a?.valid===!0,gameRunning:e?.gameRunning===!0,needsRepair:b,recovering:y,busy:r,launching:i}),S=v?x.showRootPicker?_(`setup.gameRootMissing`):i?_(`setup.launchingGame`):r?_(`common.processing`):y?_(`recovery.state.${n.state}`):b?_(`setup.repairRequired`):e?.gameRunning?_(t?`status.gameRunning`:`setup.bridgeDisconnected`):_(`setup.gameStopped`):_(`setup.checking`);return(0,M.jsxs)(`section`,{className:`panel quick-actions-panel`,children:[(0,M.jsxs)(`div`,{className:`panel-title`,children:[(0,M.jsx)(`h2`,{children:_(`setup.title`)}),(0,M.jsx)(`span`,{className:e?.gameRunning&&t?`status-ok`:`muted`,children:S})]}),v?x.showRootPicker?(0,M.jsxs)(`div`,{className:`game-root-missing`,children:[(0,M.jsx)(`span`,{children:s?Lr(_,s):_(`setup.gameRootMissing`)}),(0,M.jsx)(`button`,{className:`primary`,disabled:o,onClick:p,children:_(o?`common.processing`:`setup.gameRootSelect`)})]}):(0,M.jsxs)(`div`,{className:`game-controls`,children:[!x.repairOnClose&&(0,M.jsx)(`button`,{className:`primary`,disabled:!x.canStart,onClick:m,children:_(i?`setup.launchingGame`:r?`common.processing`:`top.launchGame`)}),(0,M.jsx)(`button`,{disabled:!x.canStop,onClick:x.repairOnClose?g:h,children:r&&e?.gameRunning?_(`common.processing`):_(x.repairOnClose?`setup.updateAndLaunch`:`setup.closeGameAction`)}),x.repairOnClose&&(0,M.jsx)(`span`,{className:`muted`,children:_(`setup.updateCloseGame`)})]}):null,c&&(0,M.jsx)(`span`,{className:`game-root-error`,children:Lr(_,c)}),(0,M.jsx)(Bn,{label:`auth.autoLaunchGame`,checked:l,onChange:d}),(0,M.jsx)(Bn,{label:`automation.autoReconnect.title`,checked:u,onChange:f}),n?.state===`failed`&&n.error&&(0,M.jsx)(`span`,{className:`game-root-error`,children:_(`recovery.failedDetail`,{error:Lr(_,n.error)})})]})}"
+      },
+      "Xt": {
+        "utf8ByteOffset": 367703,
+        "expression": "async function Xt(){v(!0);try{let e=await Ut();!e.canceled&&!e.valid&&x(`INVALID_GAME_ROOT`)}catch(e){x(String(e))}finally{v(!1)}}"
+      },
+      "Jt": {
+        "utf8ByteOffset": 367489,
+        "expression": "function Jt(e){g(e),x(``)}"
+      }
+    }
+  },
+  "callbacks": {
+    "updateAutoLaunch": "async (value) => {\n    if (!backendBridge.available) return;\n    setHomeBusy(\"autoLaunchGame\");\n    setGameActionError(\"\");\n    try {\n      const next = await backendBridge.invoke(\"local_config_set\", { autoLaunchGame: value });\n      setLocalConfig(next);\n    } catch (error) {\n      setGameActionError(error?.message || String(error));\n    } finally {\n      setHomeBusy(\"\");\n    }\n  }",
+    "updateAutoReconnect": "async (value) => {\n    if (!backendBridge.available) return;\n    setHomeBusy(\"autoReconnect\");\n    setGameActionError(\"\");\n    try {\n      await backendBridge.invokeProfileScoped(\"set_automation\", { name: \"autoForceUpdateReload\", enabled: value });\n      setLocalConfig((current) => ({ ...(current || {}), autoReconnect: value }));\n    } catch (error) {\n      setGameActionError(error?.message || String(error));\n    } finally {\n      setHomeBusy(\"\");\n    }\n  }",
+    "selectGameRoot": "async () => {\n    if (!backendBridge.available) return;\n    setHomeBusy(\"gameRoot\");\n    try {\n      const selection = await backendBridge.invoke(\"game_root_select\", {});\n      if (selection.canceled) return;\n      if (!selection.valid) {\n        setGameRootError(\"INVALID_GAME_ROOT\");\n        return;\n      }\n      const next = await backendBridge.invoke(\"game_root_status\", {});\n      setGameRootStatus(next);\n      setGameRootError(\"\");\n    } catch (error) {\n      setGameRootError(error?.message || String(error));\n    } finally {\n      setHomeBusy(\"\");\n    }\n  }"
+  },
+  "homeStateExpression": "{\n              rootResolved: gameRootStatus !== null,\n              gameRootStatus,\n              proxyStatus,\n              online,\n              gameRecoveryStatus,\n              autoLaunchGame: localConfig?.autoLaunchGame,\n              autoReconnect: localConfig?.autoReconnect,\n              busy: homeBusy,\n              gameRootError,\n              gameActionError,\n              production: backendBridge.available,\n            }",
+  "callbackResults": [
+    {
+      "name": "updateAutoLaunch: deferred success and failure",
+      "pass": true,
+      "trace": [
+        {
+          "name": "busy",
+          "value": "autoLaunchGame"
+        },
+        {
+          "name": "actionError",
+          "value": ""
+        },
+        {
+          "name": "config",
+          "value": {
+            "autoLaunchGame": true,
+            "autoReconnect": false
+          }
+        },
+        {
+          "name": "busy",
+          "value": ""
+        },
+        {
+          "name": "busy",
+          "value": "autoLaunchGame"
+        },
+        {
+          "name": "actionError",
+          "value": ""
+        },
+        {
+          "name": "actionError",
+          "value": "Action QA failed"
+        },
+        {
+          "name": "busy",
+          "value": ""
+        }
+      ],
+      "requests": [
+        {
+          "command": "local_config_set",
+          "payload": {
+            "autoLaunchGame": true
+          }
+        },
+        {
+          "command": "local_config_set",
+          "payload": {
+            "autoLaunchGame": false
+          }
+        }
+      ]
+    },
+    {
+      "name": "updateAutoReconnect: deferred success and failure",
+      "pass": true,
+      "trace": [
+        {
+          "name": "busy",
+          "value": "autoReconnect"
+        },
+        {
+          "name": "actionError",
+          "value": ""
+        },
+        {
+          "name": "config",
+          "value": {
+            "autoLaunchGame": false,
+            "autoReconnect": true
+          }
+        },
+        {
+          "name": "busy",
+          "value": ""
+        },
+        {
+          "name": "busy",
+          "value": "autoReconnect"
+        },
+        {
+          "name": "actionError",
+          "value": ""
+        },
+        {
+          "name": "actionError",
+          "value": "Action QA failed"
+        },
+        {
+          "name": "busy",
+          "value": ""
+        }
+      ],
+      "requests": [
+        {
+          "command": "set_automation",
+          "payload": {
+            "name": "autoForceUpdateReload",
+            "enabled": true,
+            "profileId": "home-channel-profile"
+          }
+        },
+        {
+          "command": "set_automation",
+          "payload": {
+            "name": "autoForceUpdateReload",
+            "enabled": false,
+            "profileId": "home-channel-profile"
+          }
+        }
+      ]
+    },
+    {
+      "name": "missing profile before dispatch",
+      "pass": true,
+      "trace": [
+        {
+          "name": "busy",
+          "value": "autoReconnect"
+        },
+        {
+          "name": "actionError",
+          "value": ""
+        },
+        {
+          "name": "actionError",
+          "value": "Select a profile before changing profile-scoped automation settings."
+        },
+        {
+          "name": "busy",
+          "value": ""
+        }
+      ],
+      "requests": []
+    },
+    {
+      "name": "picker cancel",
+      "pass": true,
+      "trace": [
+        {
+          "name": "busy",
+          "value": "gameRoot"
+        },
+        {
+          "name": "busy",
+          "value": ""
+        }
+      ],
+      "requests": [
+        {
+          "command": "game_root_select",
+          "payload": {}
+        }
+      ]
+    },
+    {
+      "name": "picker invalid",
+      "pass": true,
+      "trace": [
+        {
+          "name": "busy",
+          "value": "gameRoot"
+        },
+        {
+          "name": "rootError",
+          "value": "INVALID_GAME_ROOT"
+        },
+        {
+          "name": "busy",
+          "value": ""
+        }
+      ],
+      "requests": [
+        {
+          "command": "game_root_select",
+          "payload": {}
+        }
+      ]
+    },
+    {
+      "name": "picker valid",
+      "pass": true,
+      "trace": [
+        {
+          "name": "busy",
+          "value": "gameRoot"
+        },
+        {
+          "name": "root",
+          "value": {
+            "valid": true,
+            "root": "QA fixture root"
+          }
+        },
+        {
+          "name": "rootError",
+          "value": ""
+        },
+        {
+          "name": "busy",
+          "value": ""
+        }
+      ],
+      "requests": [
+        {
+          "command": "game_root_select",
+          "payload": {}
+        },
+        {
+          "command": "game_root_status",
+          "payload": {}
+        }
+      ]
+    },
+    {
+      "name": "picker selection-error",
+      "pass": true,
+      "trace": [
+        {
+          "name": "busy",
+          "value": "gameRoot"
+        },
+        {
+          "name": "rootError",
+          "value": "Root QA failed"
+        },
+        {
+          "name": "busy",
+          "value": ""
+        }
+      ],
+      "requests": [
+        {
+          "command": "game_root_select",
+          "payload": {}
+        }
+      ]
+    },
+    {
+      "name": "picker status-error",
+      "pass": true,
+      "trace": [
+        {
+          "name": "busy",
+          "value": "gameRoot"
+        },
+        {
+          "name": "rootError",
+          "value": "Root status QA failed"
+        },
+        {
+          "name": "busy",
+          "value": ""
+        }
+      ],
+      "requests": [
+        {
+          "command": "game_root_select",
+          "payload": {}
+        },
+        {
+          "command": "game_root_status",
+          "payload": {}
+        }
+      ]
+    },
+    {
+      "name": "unavailable host no dispatch",
+      "pass": true,
+      "trace": [],
+      "requests": []
+    }
+  ],
+  "sourcePickerCases": [
+    {
+      "outcome": "cancel",
+      "state": {
+        "rootError": "ROOT_QA_PREVIOUS",
+        "actionError": "ACTION_QA_PREVIOUS",
+        "busy": false,
+        "root": null
+      }
+    },
+    {
+      "outcome": "invalid",
+      "state": {
+        "rootError": "INVALID_GAME_ROOT",
+        "actionError": "ACTION_QA_PREVIOUS",
+        "busy": false,
+        "root": null
+      }
+    },
+    {
+      "outcome": "failure",
+      "state": {
+        "rootError": "ROOT_QA_FAILED",
+        "actionError": "ACTION_QA_PREVIOUS",
+        "busy": false,
+        "root": null
+      }
+    },
+    {
+      "outcome": "root-update",
+      "state": {
+        "rootError": "",
+        "actionError": "ACTION_QA_PREVIOUS",
+        "busy": false,
+        "root": {
+          "valid": true
+        }
+      }
+    }
+  ],
+  "renderResults": [
+    {
+      "language": "en",
+      "root": null,
+      "rootError": "",
+      "actionError": "",
+      "recovery": "idle",
+      "actual": {
+        "root": "",
+        "actionAndRecovery": []
+      }
+    },
+    {
+      "language": "en",
+      "root": null,
+      "rootError": "",
+      "actionError": "",
+      "recovery": "failed",
+      "actual": {
+        "root": "",
+        "actionAndRecovery": [
+          "Reason: The action could not be completed."
+        ]
+      }
+    },
+    {
+      "language": "en",
+      "root": null,
+      "rootError": "",
+      "actionError": "GAME_XLUA_ABI_UNSUPPORTED",
+      "recovery": "idle",
+      "actual": {
+        "root": "",
+        "actionAndRecovery": [
+          "The game xLua component is not supported. Close Bridge and repair the game with the official launcher."
+        ]
+      }
+    },
+    {
+      "language": "en",
+      "root": null,
+      "rootError": "",
+      "actionError": "GAME_XLUA_ABI_UNSUPPORTED",
+      "recovery": "failed",
+      "actual": {
+        "root": "",
+        "actionAndRecovery": [
+          "The game xLua component is not supported. Close Bridge and repair the game with the official launcher.",
+          "Reason: The action could not be completed."
+        ]
+      }
+    },
+    {
+      "language": "en",
+      "root": null,
+      "rootError": "INVALID_GAME_ROOT",
+      "actionError": "",
+      "recovery": "idle",
+      "actual": {
+        "root": "",
+        "actionAndRecovery": []
+      }
+    },
+    {
+      "language": "en",
+      "root": null,
+      "rootError": "INVALID_GAME_ROOT",
+      "actionError": "",
+      "recovery": "failed",
+      "actual": {
+        "root": "",
+        "actionAndRecovery": [
+          "Reason: The action could not be completed."
+        ]
+      }
+    },
+    {
+      "language": "en",
+      "root": null,
+      "rootError": "INVALID_GAME_ROOT",
+      "actionError": "GAME_XLUA_ABI_UNSUPPORTED",
+      "recovery": "idle",
+      "actual": {
+        "root": "",
+        "actionAndRecovery": [
+          "The game xLua component is not supported. Close Bridge and repair the game with the official launcher."
+        ]
+      }
+    },
+    {
+      "language": "en",
+      "root": null,
+      "rootError": "INVALID_GAME_ROOT",
+      "actionError": "GAME_XLUA_ABI_UNSUPPORTED",
+      "recovery": "failed",
+      "actual": {
+        "root": "",
+        "actionAndRecovery": [
+          "The game xLua component is not supported. Close Bridge and repair the game with the official launcher.",
+          "Reason: The action could not be completed."
+        ]
+      }
+    },
+    {
+      "language": "en",
+      "root": false,
+      "rootError": "",
+      "actionError": "",
+      "recovery": "idle",
+      "actual": {
+        "root": "Not detectedChoose Folder",
+        "actionAndRecovery": []
+      }
+    },
+    {
+      "language": "en",
+      "root": false,
+      "rootError": "",
+      "actionError": "",
+      "recovery": "failed",
+      "actual": {
+        "root": "Not detectedChoose Folder",
+        "actionAndRecovery": [
+          "Reason: The action could not be completed."
+        ]
+      }
+    },
+    {
+      "language": "en",
+      "root": false,
+      "rootError": "",
+      "actionError": "GAME_XLUA_ABI_UNSUPPORTED",
+      "recovery": "idle",
+      "actual": {
+        "root": "Not detectedChoose Folder",
+        "actionAndRecovery": [
+          "The game xLua component is not supported. Close Bridge and repair the game with the official launcher."
+        ]
+      }
+    },
+    {
+      "language": "en",
+      "root": false,
+      "rootError": "",
+      "actionError": "GAME_XLUA_ABI_UNSUPPORTED",
+      "recovery": "failed",
+      "actual": {
+        "root": "Not detectedChoose Folder",
+        "actionAndRecovery": [
+          "The game xLua component is not supported. Close Bridge and repair the game with the official launcher.",
+          "Reason: The action could not be completed."
+        ]
+      }
+    },
+    {
+      "language": "en",
+      "root": false,
+      "rootError": "INVALID_GAME_ROOT",
+      "actionError": "",
+      "recovery": "idle",
+      "actual": {
+        "root": "The selected game installation folder is invalid.Choose Folder",
+        "actionAndRecovery": []
+      }
+    },
+    {
+      "language": "en",
+      "root": false,
+      "rootError": "INVALID_GAME_ROOT",
+      "actionError": "",
+      "recovery": "failed",
+      "actual": {
+        "root": "The selected game installation folder is invalid.Choose Folder",
+        "actionAndRecovery": [
+          "Reason: The action could not be completed."
+        ]
+      }
+    },
+    {
+      "language": "en",
+      "root": false,
+      "rootError": "INVALID_GAME_ROOT",
+      "actionError": "GAME_XLUA_ABI_UNSUPPORTED",
+      "recovery": "idle",
+      "actual": {
+        "root": "The selected game installation folder is invalid.Choose Folder",
+        "actionAndRecovery": [
+          "The game xLua component is not supported. Close Bridge and repair the game with the official launcher."
+        ]
+      }
+    },
+    {
+      "language": "en",
+      "root": false,
+      "rootError": "INVALID_GAME_ROOT",
+      "actionError": "GAME_XLUA_ABI_UNSUPPORTED",
+      "recovery": "failed",
+      "actual": {
+        "root": "The selected game installation folder is invalid.Choose Folder",
+        "actionAndRecovery": [
+          "The game xLua component is not supported. Close Bridge and repair the game with the official launcher.",
+          "Reason: The action could not be completed."
+        ]
+      }
+    },
+    {
+      "language": "en",
+      "root": true,
+      "rootError": "",
+      "actionError": "",
+      "recovery": "idle",
+      "actual": {
+        "root": "",
+        "actionAndRecovery": []
+      }
+    },
+    {
+      "language": "en",
+      "root": true,
+      "rootError": "",
+      "actionError": "",
+      "recovery": "failed",
+      "actual": {
+        "root": "",
+        "actionAndRecovery": [
+          "Reason: The action could not be completed."
+        ]
+      }
+    },
+    {
+      "language": "en",
+      "root": true,
+      "rootError": "",
+      "actionError": "GAME_XLUA_ABI_UNSUPPORTED",
+      "recovery": "idle",
+      "actual": {
+        "root": "",
+        "actionAndRecovery": [
+          "The game xLua component is not supported. Close Bridge and repair the game with the official launcher."
+        ]
+      }
+    },
+    {
+      "language": "en",
+      "root": true,
+      "rootError": "",
+      "actionError": "GAME_XLUA_ABI_UNSUPPORTED",
+      "recovery": "failed",
+      "actual": {
+        "root": "",
+        "actionAndRecovery": [
+          "The game xLua component is not supported. Close Bridge and repair the game with the official launcher.",
+          "Reason: The action could not be completed."
+        ]
+      }
+    },
+    {
+      "language": "en",
+      "root": true,
+      "rootError": "INVALID_GAME_ROOT",
+      "actionError": "",
+      "recovery": "idle",
+      "actual": {
+        "root": "",
+        "actionAndRecovery": []
+      }
+    },
+    {
+      "language": "en",
+      "root": true,
+      "rootError": "INVALID_GAME_ROOT",
+      "actionError": "",
+      "recovery": "failed",
+      "actual": {
+        "root": "",
+        "actionAndRecovery": [
+          "Reason: The action could not be completed."
+        ]
+      }
+    },
+    {
+      "language": "en",
+      "root": true,
+      "rootError": "INVALID_GAME_ROOT",
+      "actionError": "GAME_XLUA_ABI_UNSUPPORTED",
+      "recovery": "idle",
+      "actual": {
+        "root": "",
+        "actionAndRecovery": [
+          "The game xLua component is not supported. Close Bridge and repair the game with the official launcher."
+        ]
+      }
+    },
+    {
+      "language": "en",
+      "root": true,
+      "rootError": "INVALID_GAME_ROOT",
+      "actionError": "GAME_XLUA_ABI_UNSUPPORTED",
+      "recovery": "failed",
+      "actual": {
+        "root": "",
+        "actionAndRecovery": [
+          "The game xLua component is not supported. Close Bridge and repair the game with the official launcher.",
+          "Reason: The action could not be completed."
+        ]
+      }
+    },
+    {
+      "language": "ja",
+      "root": null,
+      "rootError": "",
+      "actionError": "",
+      "recovery": "idle",
+      "actual": {
+        "root": "",
+        "actionAndRecovery": []
+      }
+    },
+    {
+      "language": "ja",
+      "root": null,
+      "rootError": "",
+      "actionError": "",
+      "recovery": "failed",
+      "actual": {
+        "root": "",
+        "actionAndRecovery": [
+          "原因：操作を完了できませんでした。"
+        ]
+      }
+    },
+    {
+      "language": "ja",
+      "root": null,
+      "rootError": "",
+      "actionError": "GAME_XLUA_ABI_UNSUPPORTED",
+      "recovery": "idle",
+      "actual": {
+        "root": "",
+        "actionAndRecovery": [
+          "ゲームの xLua コンポーネントを認識できません。Bridge を閉じ、公式ランチャーでゲームを修復してください。"
+        ]
+      }
+    },
+    {
+      "language": "ja",
+      "root": null,
+      "rootError": "",
+      "actionError": "GAME_XLUA_ABI_UNSUPPORTED",
+      "recovery": "failed",
+      "actual": {
+        "root": "",
+        "actionAndRecovery": [
+          "ゲームの xLua コンポーネントを認識できません。Bridge を閉じ、公式ランチャーでゲームを修復してください。",
+          "原因：操作を完了できませんでした。"
+        ]
+      }
+    },
+    {
+      "language": "ja",
+      "root": null,
+      "rootError": "INVALID_GAME_ROOT",
+      "actionError": "",
+      "recovery": "idle",
+      "actual": {
+        "root": "",
+        "actionAndRecovery": []
+      }
+    },
+    {
+      "language": "ja",
+      "root": null,
+      "rootError": "INVALID_GAME_ROOT",
+      "actionError": "",
+      "recovery": "failed",
+      "actual": {
+        "root": "",
+        "actionAndRecovery": [
+          "原因：操作を完了できませんでした。"
+        ]
+      }
+    },
+    {
+      "language": "ja",
+      "root": null,
+      "rootError": "INVALID_GAME_ROOT",
+      "actionError": "GAME_XLUA_ABI_UNSUPPORTED",
+      "recovery": "idle",
+      "actual": {
+        "root": "",
+        "actionAndRecovery": [
+          "ゲームの xLua コンポーネントを認識できません。Bridge を閉じ、公式ランチャーでゲームを修復してください。"
+        ]
+      }
+    },
+    {
+      "language": "ja",
+      "root": null,
+      "rootError": "INVALID_GAME_ROOT",
+      "actionError": "GAME_XLUA_ABI_UNSUPPORTED",
+      "recovery": "failed",
+      "actual": {
+        "root": "",
+        "actionAndRecovery": [
+          "ゲームの xLua コンポーネントを認識できません。Bridge を閉じ、公式ランチャーでゲームを修復してください。",
+          "原因：操作を完了できませんでした。"
+        ]
+      }
+    },
+    {
+      "language": "ja",
+      "root": false,
+      "rootError": "",
+      "actionError": "",
+      "recovery": "idle",
+      "actual": {
+        "root": "未検出フォルダーを選択",
+        "actionAndRecovery": []
+      }
+    },
+    {
+      "language": "ja",
+      "root": false,
+      "rootError": "",
+      "actionError": "",
+      "recovery": "failed",
+      "actual": {
+        "root": "未検出フォルダーを選択",
+        "actionAndRecovery": [
+          "原因：操作を完了できませんでした。"
+        ]
+      }
+    },
+    {
+      "language": "ja",
+      "root": false,
+      "rootError": "",
+      "actionError": "GAME_XLUA_ABI_UNSUPPORTED",
+      "recovery": "idle",
+      "actual": {
+        "root": "未検出フォルダーを選択",
+        "actionAndRecovery": [
+          "ゲームの xLua コンポーネントを認識できません。Bridge を閉じ、公式ランチャーでゲームを修復してください。"
+        ]
+      }
+    },
+    {
+      "language": "ja",
+      "root": false,
+      "rootError": "",
+      "actionError": "GAME_XLUA_ABI_UNSUPPORTED",
+      "recovery": "failed",
+      "actual": {
+        "root": "未検出フォルダーを選択",
+        "actionAndRecovery": [
+          "ゲームの xLua コンポーネントを認識できません。Bridge を閉じ、公式ランチャーでゲームを修復してください。",
+          "原因：操作を完了できませんでした。"
+        ]
+      }
+    },
+    {
+      "language": "ja",
+      "root": false,
+      "rootError": "INVALID_GAME_ROOT",
+      "actionError": "",
+      "recovery": "idle",
+      "actual": {
+        "root": "選択したゲームのインストールフォルダーが無効です。フォルダーを選択",
+        "actionAndRecovery": []
+      }
+    },
+    {
+      "language": "ja",
+      "root": false,
+      "rootError": "INVALID_GAME_ROOT",
+      "actionError": "",
+      "recovery": "failed",
+      "actual": {
+        "root": "選択したゲームのインストールフォルダーが無効です。フォルダーを選択",
+        "actionAndRecovery": [
+          "原因：操作を完了できませんでした。"
+        ]
+      }
+    },
+    {
+      "language": "ja",
+      "root": false,
+      "rootError": "INVALID_GAME_ROOT",
+      "actionError": "GAME_XLUA_ABI_UNSUPPORTED",
+      "recovery": "idle",
+      "actual": {
+        "root": "選択したゲームのインストールフォルダーが無効です。フォルダーを選択",
+        "actionAndRecovery": [
+          "ゲームの xLua コンポーネントを認識できません。Bridge を閉じ、公式ランチャーでゲームを修復してください。"
+        ]
+      }
+    },
+    {
+      "language": "ja",
+      "root": false,
+      "rootError": "INVALID_GAME_ROOT",
+      "actionError": "GAME_XLUA_ABI_UNSUPPORTED",
+      "recovery": "failed",
+      "actual": {
+        "root": "選択したゲームのインストールフォルダーが無効です。フォルダーを選択",
+        "actionAndRecovery": [
+          "ゲームの xLua コンポーネントを認識できません。Bridge を閉じ、公式ランチャーでゲームを修復してください。",
+          "原因：操作を完了できませんでした。"
+        ]
+      }
+    },
+    {
+      "language": "ja",
+      "root": true,
+      "rootError": "",
+      "actionError": "",
+      "recovery": "idle",
+      "actual": {
+        "root": "",
+        "actionAndRecovery": []
+      }
+    },
+    {
+      "language": "ja",
+      "root": true,
+      "rootError": "",
+      "actionError": "",
+      "recovery": "failed",
+      "actual": {
+        "root": "",
+        "actionAndRecovery": [
+          "原因：操作を完了できませんでした。"
+        ]
+      }
+    },
+    {
+      "language": "ja",
+      "root": true,
+      "rootError": "",
+      "actionError": "GAME_XLUA_ABI_UNSUPPORTED",
+      "recovery": "idle",
+      "actual": {
+        "root": "",
+        "actionAndRecovery": [
+          "ゲームの xLua コンポーネントを認識できません。Bridge を閉じ、公式ランチャーでゲームを修復してください。"
+        ]
+      }
+    },
+    {
+      "language": "ja",
+      "root": true,
+      "rootError": "",
+      "actionError": "GAME_XLUA_ABI_UNSUPPORTED",
+      "recovery": "failed",
+      "actual": {
+        "root": "",
+        "actionAndRecovery": [
+          "ゲームの xLua コンポーネントを認識できません。Bridge を閉じ、公式ランチャーでゲームを修復してください。",
+          "原因：操作を完了できませんでした。"
+        ]
+      }
+    },
+    {
+      "language": "ja",
+      "root": true,
+      "rootError": "INVALID_GAME_ROOT",
+      "actionError": "",
+      "recovery": "idle",
+      "actual": {
+        "root": "",
+        "actionAndRecovery": []
+      }
+    },
+    {
+      "language": "ja",
+      "root": true,
+      "rootError": "INVALID_GAME_ROOT",
+      "actionError": "",
+      "recovery": "failed",
+      "actual": {
+        "root": "",
+        "actionAndRecovery": [
+          "原因：操作を完了できませんでした。"
+        ]
+      }
+    },
+    {
+      "language": "ja",
+      "root": true,
+      "rootError": "INVALID_GAME_ROOT",
+      "actionError": "GAME_XLUA_ABI_UNSUPPORTED",
+      "recovery": "idle",
+      "actual": {
+        "root": "",
+        "actionAndRecovery": [
+          "ゲームの xLua コンポーネントを認識できません。Bridge を閉じ、公式ランチャーでゲームを修復してください。"
+        ]
+      }
+    },
+    {
+      "language": "ja",
+      "root": true,
+      "rootError": "INVALID_GAME_ROOT",
+      "actionError": "GAME_XLUA_ABI_UNSUPPORTED",
+      "recovery": "failed",
+      "actual": {
+        "root": "",
+        "actionAndRecovery": [
+          "ゲームの xLua コンポーネントを認識できません。Bridge を閉じ、公式ランチャーでゲームを修復してください。",
+          "原因：操作を完了できませんでした。"
+        ]
+      }
+    },
+    {
+      "language": "zh-CN",
+      "root": null,
+      "rootError": "",
+      "actionError": "",
+      "recovery": "idle",
+      "actual": {
+        "root": "",
+        "actionAndRecovery": []
+      }
+    },
+    {
+      "language": "zh-CN",
+      "root": null,
+      "rootError": "",
+      "actionError": "",
+      "recovery": "failed",
+      "actual": {
+        "root": "",
+        "actionAndRecovery": [
+          "原因：操作未能完成。"
+        ]
+      }
+    },
+    {
+      "language": "zh-CN",
+      "root": null,
+      "rootError": "",
+      "actionError": "GAME_XLUA_ABI_UNSUPPORTED",
+      "recovery": "idle",
+      "actual": {
+        "root": "",
+        "actionAndRecovery": [
+          "游戏 xLua 组件无法识别，请关闭 Bridge 后通过官方启动器修复游戏。"
+        ]
+      }
+    },
+    {
+      "language": "zh-CN",
+      "root": null,
+      "rootError": "",
+      "actionError": "GAME_XLUA_ABI_UNSUPPORTED",
+      "recovery": "failed",
+      "actual": {
+        "root": "",
+        "actionAndRecovery": [
+          "游戏 xLua 组件无法识别，请关闭 Bridge 后通过官方启动器修复游戏。",
+          "原因：操作未能完成。"
+        ]
+      }
+    },
+    {
+      "language": "zh-CN",
+      "root": null,
+      "rootError": "INVALID_GAME_ROOT",
+      "actionError": "",
+      "recovery": "idle",
+      "actual": {
+        "root": "",
+        "actionAndRecovery": []
+      }
+    },
+    {
+      "language": "zh-CN",
+      "root": null,
+      "rootError": "INVALID_GAME_ROOT",
+      "actionError": "",
+      "recovery": "failed",
+      "actual": {
+        "root": "",
+        "actionAndRecovery": [
+          "原因：操作未能完成。"
+        ]
+      }
+    },
+    {
+      "language": "zh-CN",
+      "root": null,
+      "rootError": "INVALID_GAME_ROOT",
+      "actionError": "GAME_XLUA_ABI_UNSUPPORTED",
+      "recovery": "idle",
+      "actual": {
+        "root": "",
+        "actionAndRecovery": [
+          "游戏 xLua 组件无法识别，请关闭 Bridge 后通过官方启动器修复游戏。"
+        ]
+      }
+    },
+    {
+      "language": "zh-CN",
+      "root": null,
+      "rootError": "INVALID_GAME_ROOT",
+      "actionError": "GAME_XLUA_ABI_UNSUPPORTED",
+      "recovery": "failed",
+      "actual": {
+        "root": "",
+        "actionAndRecovery": [
+          "游戏 xLua 组件无法识别，请关闭 Bridge 后通过官方启动器修复游戏。",
+          "原因：操作未能完成。"
+        ]
+      }
+    },
+    {
+      "language": "zh-CN",
+      "root": false,
+      "rootError": "",
+      "actionError": "",
+      "recovery": "idle",
+      "actual": {
+        "root": "未检测到选择文件夹",
+        "actionAndRecovery": []
+      }
+    },
+    {
+      "language": "zh-CN",
+      "root": false,
+      "rootError": "",
+      "actionError": "",
+      "recovery": "failed",
+      "actual": {
+        "root": "未检测到选择文件夹",
+        "actionAndRecovery": [
+          "原因：操作未能完成。"
+        ]
+      }
+    },
+    {
+      "language": "zh-CN",
+      "root": false,
+      "rootError": "",
+      "actionError": "GAME_XLUA_ABI_UNSUPPORTED",
+      "recovery": "idle",
+      "actual": {
+        "root": "未检测到选择文件夹",
+        "actionAndRecovery": [
+          "游戏 xLua 组件无法识别，请关闭 Bridge 后通过官方启动器修复游戏。"
+        ]
+      }
+    },
+    {
+      "language": "zh-CN",
+      "root": false,
+      "rootError": "",
+      "actionError": "GAME_XLUA_ABI_UNSUPPORTED",
+      "recovery": "failed",
+      "actual": {
+        "root": "未检测到选择文件夹",
+        "actionAndRecovery": [
+          "游戏 xLua 组件无法识别，请关闭 Bridge 后通过官方启动器修复游戏。",
+          "原因：操作未能完成。"
+        ]
+      }
+    },
+    {
+      "language": "zh-CN",
+      "root": false,
+      "rootError": "INVALID_GAME_ROOT",
+      "actionError": "",
+      "recovery": "idle",
+      "actual": {
+        "root": "选择的游戏安装目录无效。选择文件夹",
+        "actionAndRecovery": []
+      }
+    },
+    {
+      "language": "zh-CN",
+      "root": false,
+      "rootError": "INVALID_GAME_ROOT",
+      "actionError": "",
+      "recovery": "failed",
+      "actual": {
+        "root": "选择的游戏安装目录无效。选择文件夹",
+        "actionAndRecovery": [
+          "原因：操作未能完成。"
+        ]
+      }
+    },
+    {
+      "language": "zh-CN",
+      "root": false,
+      "rootError": "INVALID_GAME_ROOT",
+      "actionError": "GAME_XLUA_ABI_UNSUPPORTED",
+      "recovery": "idle",
+      "actual": {
+        "root": "选择的游戏安装目录无效。选择文件夹",
+        "actionAndRecovery": [
+          "游戏 xLua 组件无法识别，请关闭 Bridge 后通过官方启动器修复游戏。"
+        ]
+      }
+    },
+    {
+      "language": "zh-CN",
+      "root": false,
+      "rootError": "INVALID_GAME_ROOT",
+      "actionError": "GAME_XLUA_ABI_UNSUPPORTED",
+      "recovery": "failed",
+      "actual": {
+        "root": "选择的游戏安装目录无效。选择文件夹",
+        "actionAndRecovery": [
+          "游戏 xLua 组件无法识别，请关闭 Bridge 后通过官方启动器修复游戏。",
+          "原因：操作未能完成。"
+        ]
+      }
+    },
+    {
+      "language": "zh-CN",
+      "root": true,
+      "rootError": "",
+      "actionError": "",
+      "recovery": "idle",
+      "actual": {
+        "root": "",
+        "actionAndRecovery": []
+      }
+    },
+    {
+      "language": "zh-CN",
+      "root": true,
+      "rootError": "",
+      "actionError": "",
+      "recovery": "failed",
+      "actual": {
+        "root": "",
+        "actionAndRecovery": [
+          "原因：操作未能完成。"
+        ]
+      }
+    },
+    {
+      "language": "zh-CN",
+      "root": true,
+      "rootError": "",
+      "actionError": "GAME_XLUA_ABI_UNSUPPORTED",
+      "recovery": "idle",
+      "actual": {
+        "root": "",
+        "actionAndRecovery": [
+          "游戏 xLua 组件无法识别，请关闭 Bridge 后通过官方启动器修复游戏。"
+        ]
+      }
+    },
+    {
+      "language": "zh-CN",
+      "root": true,
+      "rootError": "",
+      "actionError": "GAME_XLUA_ABI_UNSUPPORTED",
+      "recovery": "failed",
+      "actual": {
+        "root": "",
+        "actionAndRecovery": [
+          "游戏 xLua 组件无法识别，请关闭 Bridge 后通过官方启动器修复游戏。",
+          "原因：操作未能完成。"
+        ]
+      }
+    },
+    {
+      "language": "zh-CN",
+      "root": true,
+      "rootError": "INVALID_GAME_ROOT",
+      "actionError": "",
+      "recovery": "idle",
+      "actual": {
+        "root": "",
+        "actionAndRecovery": []
+      }
+    },
+    {
+      "language": "zh-CN",
+      "root": true,
+      "rootError": "INVALID_GAME_ROOT",
+      "actionError": "",
+      "recovery": "failed",
+      "actual": {
+        "root": "",
+        "actionAndRecovery": [
+          "原因：操作未能完成。"
+        ]
+      }
+    },
+    {
+      "language": "zh-CN",
+      "root": true,
+      "rootError": "INVALID_GAME_ROOT",
+      "actionError": "GAME_XLUA_ABI_UNSUPPORTED",
+      "recovery": "idle",
+      "actual": {
+        "root": "",
+        "actionAndRecovery": [
+          "游戏 xLua 组件无法识别，请关闭 Bridge 后通过官方启动器修复游戏。"
+        ]
+      }
+    },
+    {
+      "language": "zh-CN",
+      "root": true,
+      "rootError": "INVALID_GAME_ROOT",
+      "actionError": "GAME_XLUA_ABI_UNSUPPORTED",
+      "recovery": "failed",
+      "actual": {
+        "root": "",
+        "actionAndRecovery": [
+          "游戏 xLua 组件无法识别，请关闭 Bridge 后通过官方启动器修复游戏。",
+          "原因：操作未能完成。"
+        ]
+      }
+    }
+  ],
+  "limits": "Actual frontend callbacks + real bridge transport with synthetic local response envelopes. No host/game process or native folder picker launched. Preference error string reduction and polling retained; lifecycle/state reachability unproved."
+}

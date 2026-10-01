@@ -122,7 +122,11 @@ Owner requested continuation; lead completed HOME-ERROR-001 translation-only
 implementation, now AWAITING_REVIEW. Delivery:
 `docs/reviews/2026-10-02-LWB317-UI-HOME-ERROR-001.md`. Exact helper/render,
 nine-locale, browser and canonical checks pass; no state-channel/native changes.
-Next bounded unit: HOME-ERROR-002. Busy and switch corrections remain queued.
+HOME-ERROR-002 is also AWAITING_REVIEW after independent root/action errors,
+picker cancel/invalid/acknowledged valid handling and actual callback/original
+render/browser checks. See docs/reviews/2026-10-02-LWB317-UI-HOME-ERROR-002.md.
+Next bounded unit: HOME-BUSY-001. Switch correction remains queued; native
+picker/persistence and original pixels remain unproved.
 
 Direct original post-auth screenshot/pixel comparison remains `BLOCKED` by the
 documented reference access boundary, so affected UI rows remain

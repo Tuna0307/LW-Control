@@ -58,7 +58,8 @@ function previewHomeState(name) {
     autoLaunchGame: false,
     autoReconnect: false,
     busy: "",
-    error: "",
+    gameRootError: "",
+    gameActionError: "",
     production: false,
   };
   switch (name) {
@@ -75,9 +76,12 @@ function previewHomeState(name) {
     case "home-recovery-verifying": return { ...base, proxyStatus: { gameRunning: true, repairRequired: false }, gameRecoveryStatus: { state: "verifying" } };
     case "home-recovery-maintenance": return { ...base, proxyStatus: { gameRunning: true, repairRequired: false }, gameRecoveryStatus: { state: "maintenance" } };
     case "home-recovery-failed": return { ...base, gameRecoveryStatus: { state: "failed", error: "GAME_RECOVERY_FAILED" } };
-    case "home-error-unknown": return { ...base, error: "HOME_ERROR001_UNKNOWN_QA" };
-    case "home-error-embedded": return { ...base, error: "QA fixture: GAME_XLUA_ABI_UNSUPPORTED while preparing startup" };
+    case "home-error-unknown": return { ...base, gameActionError: "HOME_ERROR001_UNKNOWN_QA" };
+    case "home-error-embedded": return { ...base, gameActionError: "QA fixture: GAME_XLUA_ABI_UNSUPPORTED while preparing startup" };
     case "home-recovery-error-unknown": return { ...base, gameRecoveryStatus: { state: "failed", error: "HOME_ERROR001_UNKNOWN_QA" } };
+    case "home-errors-both": return { ...base, gameRootStatus: { valid: false, root: "" }, gameRootError: "INVALID_GAME_ROOT", gameActionError: "GAME_XLUA_ABI_UNSUPPORTED" };
+    case "home-error-root": return { ...base, gameRootStatus: { valid: false, root: "" }, gameRootError: "INVALID_GAME_ROOT" };
+    case "home-error-action-missing-root": return { ...base, gameRootStatus: { valid: false, root: "" }, gameActionError: "GAME_XLUA_ABI_UNSUPPORTED" };
     default: return null;
   }
 }
@@ -140,7 +144,7 @@ export function HomePage({
       </div>
       {rootResolved ? showRootPicker ? (
         <div className="game-root-missing">
-          <span>{state.error ? translatedError(t, state.error) : t("setup.gameRootMissing")}</span>
+          <span>{state.gameRootError ? translatedError(t, state.gameRootError) : t("setup.gameRootMissing")}</span>
           <button className="primary" type="button" disabled={rootBusy || !state.production} onClick={onGameRootSelect}>
             {t(rootBusy ? "common.processing" : "setup.gameRootSelect")}
           </button>
@@ -156,7 +160,7 @@ export function HomePage({
           {repairOnClose ? <span className="muted">{t("setup.updateCloseGame")}</span> : null}
         </div>
       ) : null}
-      {state.error && !showRootPicker ? <span className="game-root-error">{translatedError(t, state.error)}</span> : null}
+      {state.gameActionError ? <span className="game-root-error">{translatedError(t, state.gameActionError)}</span> : null}
       <ToggleRow
         label={t("auth.autoLaunchGame")}
         checked={state.autoLaunchGame === true}

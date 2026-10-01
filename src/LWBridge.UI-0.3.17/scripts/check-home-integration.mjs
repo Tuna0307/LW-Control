@@ -99,7 +99,7 @@ const clearBusyIndex = appSource.indexOf('setHomeBusy("")', invokeIndex);
 assert.ok(busyIndex >= 0 && invokeIndex > busyIndex, "Home reconnect must enter busy state before the native write");
 assert.ok(acknowledgeIndex > invokeIndex, "Home reconnect must update checked state only after native acknowledgement");
 assert.ok(clearBusyIndex > acknowledgeIndex, "Home reconnect must clear busy state after acknowledgement/error handling");
-assert.match(appSource, /catch \(error\) \{\s*setHomeError\(error\?\.message \|\| String\(error\)\);/s);
+assert.match(appSource, /catch \(error\) \{\s*setGameActionError\(error\?\.message \|\| String\(error\)\);/s);
 
 const pagesSource = fs.readFileSync(new URL("../src/Pages.jsx", import.meta.url), "utf8");
 assert.match(

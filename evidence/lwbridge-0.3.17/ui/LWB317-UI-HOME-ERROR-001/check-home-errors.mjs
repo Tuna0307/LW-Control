@@ -95,13 +95,13 @@ for (const language of ["en", "zh-CN", "zh-TW", "ja", "ko", "vi", "id", "ru", "p
   const renderResults = [];
   for (const stateName of ["home-error-unknown", "home-error-embedded", "home-recovery-error-unknown"]) {
     const preview = new Function(cloneCode + "\nreturn previewHomeState;")()(stateName);
-    const expected = errors(originalHome({ gameRootStatus: preview.gameRootStatus, proxyStatus: preview.proxyStatus, gameRecoveryStatus: preview.gameRecoveryStatus, gameActionError: preview.error, autoLaunchGame: false, autoReconnect: false }));
+    const expected = errors(originalHome({ gameRootStatus: preview.gameRootStatus, proxyStatus: preview.proxyStatus, gameRecoveryStatus: preview.gameRecoveryStatus, gameActionError: preview.gameActionError, autoLaunchGame: false, autoReconnect: false }));
     const actual = errors(cloneHome({ previewState: stateName })); assert.deepEqual(actual, expected, `${language} ${stateName}`);
     renderResults.push({ stateName, expected, actual });
   }
   assert.deepEqual(errors(cloneHome({ previewState: "home-connected" })), [], "no spurious error when input absent");
   for (const error of ["", "HOME_ERROR001_UNKNOWN_QA"]) {
-    const state = { rootResolved: true, gameRootStatus: { valid: false }, gameRecoveryStatus: { state: "idle" }, error, production: false };
+    const state = { rootResolved: true, gameRootStatus: { valid: false }, gameRecoveryStatus: { state: "idle" }, gameRootError: error, production: false };
     const expectedTree = originalHome({ gameRootStatus: state.gameRootStatus, gameRootError: error });
     const actualTree = cloneHome({ homeState: state });
     const rootText = (tree) => text(nodes(tree).find((node) => node.props.className === "game-root-missing"));

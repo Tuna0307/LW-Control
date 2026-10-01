@@ -1,0 +1,151 @@
+{
+  "task": "LWB317-UI-HOME-ERROR-002",
+  "date": "2026-10-02",
+  "browser": "Codex In-app Browser",
+  "preview": "http://127.0.0.1:4319",
+  "syntheticBrowserOnly": true,
+  "flows": [
+    {
+      "state": "home-errors-both",
+      "language": "en",
+      "action": "Opened explicit both-error preview",
+      "observed": {
+        "actionErrors": [
+          "The game xLua component is not supported. Close Bridge and repair the game with the official launcher."
+        ],
+        "controls": [
+          {
+            "disabled": true,
+            "text": "Choose Folder"
+          },
+          {
+            "disabled": true,
+            "text": "Open games at startup"
+          },
+          {
+            "disabled": true,
+            "text": "Automatic Reconnection"
+          }
+        ],
+        "fixture": "home-errors-both",
+        "rootMessage": "The selected game installation folder is invalid."
+      }
+    },
+    {
+      "state": "home-errors-both/navigation-return",
+      "language": "en",
+      "action": "Clicked Automation then Home",
+      "observed": {
+        "actionErrors": [
+          "The game xLua component is not supported. Close Bridge and repair the game with the official launcher."
+        ],
+        "controls": [
+          {
+            "disabled": true,
+            "text": "Choose Folder"
+          },
+          {
+            "disabled": true,
+            "text": "Open games at startup"
+          },
+          {
+            "disabled": true,
+            "text": "Automatic Reconnection"
+          }
+        ],
+        "fixture": "home-errors-both",
+        "rootMessage": "The selected game installation folder is invalid."
+      }
+    },
+    {
+      "state": "home-error-root",
+      "language": "ja",
+      "action": "Opened root-only Japanese preview",
+      "observed": {
+        "actionErrors": [],
+        "controls": [
+          {
+            "disabled": true,
+            "text": "フォルダーを選択"
+          },
+          {
+            "disabled": true,
+            "text": "起動時にゲームを開く"
+          },
+          {
+            "disabled": true,
+            "text": "自動再接続"
+          }
+        ],
+        "fixture": "home-error-root",
+        "rootMessage": "選択したゲームのインストールフォルダーが無効です。"
+      }
+    },
+    {
+      "state": "home-error-action-missing-root",
+      "language": "en",
+      "action": "Opened action-only error while root missing",
+      "observed": {
+        "actionErrors": [
+          "The game xLua component is not supported. Close Bridge and repair the game with the official launcher."
+        ],
+        "controls": [
+          {
+            "disabled": true,
+            "text": "Choose Folder"
+          },
+          {
+            "disabled": true,
+            "text": "Open games at startup"
+          },
+          {
+            "disabled": true,
+            "text": "Automatic Reconnection"
+          }
+        ],
+        "fixture": "home-error-action-missing-root",
+        "rootMessage": "Not detected"
+      }
+    },
+    {
+      "state": "home-missing",
+      "language": "en",
+      "action": "Opened no-error missing-root state",
+      "observed": {
+        "actionErrors": [],
+        "controls": [
+          {
+            "disabled": true,
+            "text": "Choose Folder"
+          },
+          {
+            "disabled": true,
+            "text": "Open games at startup"
+          },
+          {
+            "disabled": true,
+            "text": "Automatic Reconnection"
+          }
+        ],
+        "fixture": "home-missing",
+        "rootMessage": "Not detected"
+      }
+    }
+  ],
+  "consoleErrors": [],
+  "screenshots": [
+    {
+      "file": "both-errors-en.jpg",
+      "state": "home-errors-both",
+      "language": "en",
+      "sha256": "A924C0918496B9041FA815D1A77BFBFE09A10B6900A7431F25861515C28B3B72"
+    },
+    {
+      "file": "root-only-ja.jpg",
+      "state": "home-error-root",
+      "language": "ja",
+      "sha256": "90752FE67B1A531B3368A5545313A9F32070CA3F433F3141EA870A1838D9057B"
+    }
+  ],
+  "limits": "Explicit local preview fixtures only. No native picker/game actions. Callback behavior verified separately with mock response envelopes."
+}

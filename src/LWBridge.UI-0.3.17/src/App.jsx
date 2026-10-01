@@ -53,7 +53,8 @@ export function App() {
   const [gameRecoveryStatus, setGameRecoveryStatus] = useState(null);
   const [localConfig, setLocalConfig] = useState(null);
   const [homeBusy, setHomeBusy] = useState("");
-  const [homeError, setHomeError] = useState("");
+  const [gameRootError, setGameRootError] = useState("");
+  const [gameActionError, setGameActionError] = useState("");
   const [currentServerId, setCurrentServerId] = useState(0);
   const [mapRuntime, setMapRuntime] = useState({ isReading: false, homeServerId: 0, seasonServerIds: [], truckMatchServerIds: [] });
   const [serverTarget, setServerTarget] = useState("");
@@ -154,12 +155,12 @@ export function App() {
   const updateAutoLaunch = useCallback(async (value) => {
     if (!backendBridge.available) return;
     setHomeBusy("autoLaunchGame");
-    setHomeError("");
+    setGameActionError("");
     try {
       const next = await backendBridge.invoke("local_config_set", { autoLaunchGame: value });
       setLocalConfig(next);
     } catch (error) {
-      setHomeError(error?.message || String(error));
+      setGameActionError(error?.message || String(error));
     } finally {
       setHomeBusy("");
     }
@@ -168,12 +169,12 @@ export function App() {
   const updateAutoReconnect = useCallback(async (value) => {
     if (!backendBridge.available) return;
     setHomeBusy("autoReconnect");
-    setHomeError("");
+    setGameActionError("");
     try {
       await backendBridge.invokeProfileScoped("set_automation", { name: "autoForceUpdateReload", enabled: value });
       setLocalConfig((current) => ({ ...(current || {}), autoReconnect: value }));
     } catch (error) {
-      setHomeError(error?.message || String(error));
+      setGameActionError(error?.message || String(error));
     } finally {
       setHomeBusy("");
     }
@@ -182,13 +183,18 @@ export function App() {
   const selectGameRoot = useCallback(async () => {
     if (!backendBridge.available) return;
     setHomeBusy("gameRoot");
-    setHomeError("");
     try {
-      await backendBridge.invoke("game_root_select", {});
+      const selection = await backendBridge.invoke("game_root_select", {});
+      if (selection.canceled) return;
+      if (!selection.valid) {
+        setGameRootError("INVALID_GAME_ROOT");
+        return;
+      }
       const next = await backendBridge.invoke("game_root_status", {});
       setGameRootStatus(next);
+      setGameRootError("");
     } catch (error) {
-      setHomeError(error?.message || String(error));
+      setGameRootError(error?.message || String(error));
     } finally {
       setHomeBusy("");
     }
@@ -390,7 +396,8 @@ export function App() {
               autoLaunchGame: localConfig?.autoLaunchGame,
               autoReconnect: localConfig?.autoReconnect,
               busy: homeBusy,
-              error: homeError,
+              gameRootError,
+              gameActionError,
               production: backendBridge.available,
             }}
             onAutoLaunchGameChange={updateAutoLaunch}

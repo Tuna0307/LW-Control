@@ -1,7 +1,7 @@
 # Small Home presentation queue
 
 Owner requested project-lead tasks while another AI rests, 2026-10-02.
-Owner: project lead. State: PARTIAL; translation AWAITING_REVIEW, remaining units
+Owner: project lead. State: PARTIAL; translation/channels AWAITING_REVIEW, remaining units
 QUEUED. Not dispatched to another worker.
 Do not execute all items as one broad campaign. Assign/run one ID at a time.
 Input finding: docs/reviews/2026-10-02-LWB317-PM-015-home-audit.md and
@@ -24,9 +24,14 @@ Preserve missing-error visibility predicates. No new native providers/commands.
 Outputs: dated focused review, exact locators, handler/render/browser results.
 Acceptance: focused source differential and representative local browser QA,
 Home integration/canonical check/build/package checks, evidence/diff validation.
-Commit/push/remote verify; return for independent review. Error channels remain next.
+Commit/push/remote verify; return for independent review. Channels delivered separately below.
 
 ## HOME-ERROR-002 — separate display channels
+
+State: AWAITING_REVIEW after project-lead implementation on 2026-10-02.
+See LWB317-UI-HOME-ERROR-002.md and its dated review/evidence. Nine actual
+callback scenarios, four original picker cases, 72 render comparisons and five
+browser observations pass. Native picker/persistence and original pixels unproved.
 
 After 001: preserve separate root-selection and action errors through Home state
 producers/consumers. Compare qr at byte 336694 for simultaneous/missing-root cases.
@@ -36,6 +41,8 @@ versus preference update, state clearing and independent placement. Do not add
 lifecycle providers. Same focused evidence/canonical/checkpoint delivery pattern.
 
 ## HOME-BUSY-001 — presentation only
+
+State: QUEUED; next bounded continuation after the channels checkpoint.
 
 Recover source header and launch/close labels from qr; preserve Kr predicates
 (byte 336469) and current intentional native disable fences. Keep root-selection,
