@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { MapDataPage } from "./MapDataPage.jsx";
 import { useI18n } from "./i18n.jsx";
 
@@ -186,7 +186,6 @@ const automationCards = {
     ["Automatic Treatment", "Treat wounded soldiers, request Alliance help, and collect completed treatment every 2 seconds without using Gold."],
     ["Trucks", "Claim arrived Truck rewards, refresh to the target quality, and continue dispatching available Trucks."],
     ["Secret Task", "Claim completed rewards, then continue refreshing and dispatching eligible Secret Tasks."],
-    ["Automatically assist alliance Secret Tasks", "Automatically assist alliance Secret Tasks"],
     ["Ghost Ops", "Start and share your Ghost Ops, join eligible alliance missions, and claim rewards on time."],
   ],
   alliance: [
@@ -214,39 +213,102 @@ const automationCards = {
   ],
 };
 
+const nonCollapsibleAutomationSettings = new Set([
+  "Automatic Treatment",
+  "Alliance Tech Donations",
+  "Automatic Official Application",
+  "Alliance Gifts",
+  "Excavation Stronghold Resources",
+  "Alliance Center Resources",
+  "Building Resource Collection",
+  "Armed Truck",
+]);
+
+const automationCardsWithoutSettings = new Set([
+  "Free Stamina",
+  "Alliance Help",
+  "Weekend Shield",
+  "Attack Shield",
+]);
+
+const automationActionLabels = {
+  "Automatic Construction": "automation.claimAllBuildingRewards",
+  Trucks: "automation.departAll",
+  "Secret Task": "automation.dispatchAll",
+  "Alliance Help": "common.runNow",
+  "Alliance Gifts": "common.runNow",
+  "Excavation Stronghold Resources": "common.runNow",
+  "Alliance Center Resources": "common.runNow",
+  "Red Packet": "common.runNow",
+  "Fireworks / Egg": "common.runNow",
+  Treasure: "common.runNow",
+};
+
+function WeeklyQualityPreview({ enabled, defaults }) {
+  const { language, t } = useI18n();
+  const days = Array.from({ length: 7 }, (_, index) => new Intl.DateTimeFormat(language, { weekday: "short", timeZone: "UTC" }).format(new Date(Date.UTC(2024, 0, index + 1))));
+  return <div className="automation-weekly-quality">{days.map((day, index) => <label key={day}><span>{day}</span><select defaultValue={defaults[index]} disabled={!enabled}><option value="none">{t("automation.noQualityRefresh")}</option><option value="ssr">{t("automation.ssrOrAbove")}</option><option value="ur">UR</option></select></label>)}</div>;
+}
+
 function AutomationConfigPreview({ title, enabled }) {
   const { t } = useI18n();
+  const [constructionTargetEnabled, setConstructionTargetEnabled] = useState(true);
+  const [replyEnabled, setReplyEnabled] = useState(false);
+  const [treasureDispatchEnabled, setTreasureDispatchEnabled] = useState(false);
+  const [dispatchAssistEnabled, setDispatchAssistEnabled] = useState(false);
+  const [ghostJoinEnabled, setGhostJoinEnabled] = useState(false);
+  const [trainMode, setTrainMode] = useState("reward");
+  const [vipTrainMode, setVipTrainMode] = useState("reward");
+  const [thanksMode, setThanksMode] = useState("like");
   if (title === "Auto Training") {
     return <div className="automation-form-grid"><label><span>{t("automation.soldierTraining.totalCount")}</span><input type="number" min="1" max="1000000" defaultValue="1000" disabled={!enabled} /></label><label><span>{t("automation.soldierTraining.target")}</span><select defaultValue="highest" disabled={!enabled}><option value="highest">{t("automation.soldierTraining.highest")}</option></select></label></div>;
   }
   if (title === "Automatic Construction") {
-    return <><div className="automation-form-grid"><label><span>{t("automation.maxBuilders")}</span><input type="number" min="1" defaultValue="1" disabled={!enabled} /></label><label><span>{t("automation.construction.targetLevel")}</span><input type="number" min="1" defaultValue="1" disabled={!enabled} /></label></div><label className="automation-checkbox-row"><input type="checkbox" disabled={!enabled} /><span>{t("automation.construction.targetEnabled")}</span></label><fieldset disabled={!enabled}><legend>{t("automation.construction.buildingTypes")}</legend><div className="automation-compact-choice-group"><label><input type="checkbox" />HQ</label><label><input type="checkbox" />Barracks</label><label><input type="checkbox" />Hospital</label></div></fieldset></>;
+    return <><label className="automation-checkbox-row"><input type="checkbox" checked={constructionTargetEnabled} disabled={!enabled} onChange={(event) => setConstructionTargetEnabled(event.target.checked)} /><span>{t("automation.construction.targetEnabled")}</span></label>{constructionTargetEnabled ? <><div className="automation-actions"><label><span>{t("automation.construction.targetLevel")}</span><input type="number" min="1" max="100" step="1" defaultValue="30" disabled={!enabled} /></label></div><details className="construction-type-select"><summary><span>{t("automation.construction.buildingTypes")}</span><strong>{t("automation.construction.selectTypes")}</strong><span aria-hidden="true">⌄</span></summary><p className="muted">{t("automation.construction.selectTypes")}</p></details></> : null}<label className="automation-checkbox-row"><input type="checkbox" defaultChecked disabled={!enabled} /><span>{t("automation.autoCollectRewards")}</span></label><div className="automation-actions"><label><span>{t("automation.maxBuilders")}</span><input type="number" min="1" max="20" step="1" defaultValue="1" disabled={!enabled} /></label></div></>;
   }
   if (title === "Automatic Treatment") {
-    return <div className="automation-form-grid"><label><span>{t("automation.treatmentAmountPerArmy")}</span><input type="number" min="1" defaultValue="1" disabled={!enabled} /></label><label><span>{t("automation.intervalMinutes")}</span><input type="number" min="1" defaultValue="1" disabled={!enabled} /></label></div>;
+    return <div className="automation-actions"><label><span>{t("automation.treatmentAmountPerArmy")}</span><input type="number" min="1" max="1000000" step="1" defaultValue="1" disabled={!enabled} /></label></div>;
   }
   if (title === "Automatic Official Application") {
-    return <label><span>{t("automation.targetPosition")}</span><select defaultValue="" disabled={!enabled}><option value="">{t("automation.position.none")}</option><option value="vicePresident">{t("automation.position.vicePresident")}</option><option value="strategyMinister">{t("automation.position.strategyMinister")}</option><option value="defenseMinister">{t("automation.position.defenseMinister")}</option><option value="constructionMinister">{t("automation.position.constructionMinister")}</option><option value="scienceMinister">{t("automation.position.scienceMinister")}</option><option value="internalAffairsMinister">{t("automation.position.internalAffairsMinister")}</option></select></label>;
+    return <div className="automation-actions"><label><span>{t("automation.targetPosition")}</span><select defaultValue="0" disabled={!enabled}><option value="0">{t("automation.position.none")}</option><option value="10002">{t("automation.position.vicePresident")}</option><option value="10003">{t("automation.position.strategyMinister")}</option><option value="10004">{t("automation.position.defenseMinister")}</option><option value="10005">{t("automation.position.constructionMinister")}</option><option value="10006">{t("automation.position.scienceMinister")}</option><option value="10007">{t("automation.position.internalAffairsMinister")}</option></select></label></div>;
   }
   if (["Red Packet", "Fireworks / Egg", "Treasure"].includes(title)) {
-    return <><div className="automation-form-grid"><label><span>{t("automation.minDelaySeconds")}</span><input type="number" min="0" defaultValue="2" disabled={!enabled} /></label><label><span>{t("automation.maxDelaySeconds")}</span><input type="number" min="0" defaultValue="5" disabled={!enabled} /></label></div><label className="automation-checkbox-row"><input type="checkbox" disabled={!enabled} /><span>{t("automation.autoReply")}</span></label><label><span>{t("automation.replyPhrases")}</span><textarea rows="3" defaultValue="Thanks!" disabled={!enabled} /></label></>;
+    const treasure = title === "Treasure";
+    return <><section className="automation-settings-section"><h3>{t("automation.section.claim")}</h3>{treasure ? <p className="hint">{t("automation.treasureTargetDelayHint")}</p> : null}<div className="automation-form-grid"><label><span>{t("automation.minDelaySeconds")}</span><input type="number" min="0" max={treasure ? "600" : "60"} step="0.01" defaultValue="0" disabled={!enabled} /></label><label><span>{t("automation.maxDelaySeconds")}</span><input type="number" min="0" max={treasure ? "600" : "60"} step="0.01" defaultValue="0" disabled={!enabled} /></label></div></section><section className="automation-settings-section"><label className="automation-checkbox-row"><input type="checkbox" checked={replyEnabled} disabled={!enabled} onChange={(event) => setReplyEnabled(event.target.checked)} /><span>{t("automation.autoReply")}</span></label>{replyEnabled ? <div className="automation-subsettings"><div className="automation-form-grid"><label><span>{t("automation.replyDelayMin")}</span><input type="number" min="0.1" max="600" step="0.1" defaultValue="2" /></label><label><span>{t("automation.replyDelayMax")}</span><input type="number" min="0.1" max="600" step="0.1" defaultValue="5" /></label></div><label className="automation-replies"><span>{t("automation.replyPhrases")}</span><textarea rows="4" defaultValue="" /></label></div> : null}</section>{treasure ? <section className="automation-settings-section"><label className="automation-checkbox-row"><input type="checkbox" disabled={!enabled} /><span>{t("automation.treasureAutoSearch")}</span></label><p className="muted">{t("automation.treasureAutoSearchHint")}</p><label className="automation-checkbox-row"><input type="checkbox" checked={treasureDispatchEnabled} disabled={!enabled} onChange={(event) => setTreasureDispatchEnabled(event.target.checked)} /><span>{t("automation.treasureAutoDispatch")}</span></label>{treasureDispatchEnabled ? <div className="automation-subsettings"><div className="automation-form-grid"><label><span>{t("automation.dispatchDelayMin")}</span><input type="number" min="0.1" max="600" step="0.1" defaultValue="2" /></label><label><span>{t("automation.dispatchDelayMax")}</span><input type="number" min="0.1" max="600" step="0.1" defaultValue="5" /></label></div><label><span>{t("automation.treasureDispatchRetrySeconds")}</span><input type="number" min="1" max="300" step="1" defaultValue="30" /></label><div className="automation-squad-choices">{[1,2,3,4].map((index) => <label key={index}><input type="checkbox" defaultChecked={index === 1} /><span>{t("automation.squad", { index })}</span></label>)}</div><p className="muted">{t("automation.treasureDispatchPriorityHint")}</p></div> : null}</section> : null}</>;
   }
-  if (["Trucks", "Secret Task", "Automatically assist alliance Secret Tasks", "Ghost Ops", "Automatic Alliance Train Boarding"].includes(title)) {
-    return <><div className="automation-form-grid"><label><span>{t("automation.targetQuality")}</span><select defaultValue="ur" disabled={!enabled}><option value="n">N</option><option value="r">R</option><option value="sr">SR</option><option value="ssr">SSR</option><option value="ur">UR</option></select></label><label><span>{t("automation.intervalMinutes")}</span><input type="number" min="1" defaultValue="3" disabled={!enabled} /></label></div><label className="automation-checkbox-row"><input type="checkbox" disabled={!enabled} /><span>{t("automation.autoCollectRewards")}</span></label></>;
+  if (title === "Trucks") {
+    return <><section className="automation-settings-section"><h3>{t("automation.section.schedule")}</h3><div className="automation-actions"><label><span>{t("automation.delayAfterResetMinutes")}</span><input type="number" min="0" max="1440" step="1" defaultValue="2" disabled={!enabled} /></label></div></section><section className="automation-settings-section"><h3>{t("automation.section.quality")}</h3><WeeklyQualityPreview enabled={enabled} defaults={["ssr","ur","ssr","ssr","ssr","ur","ssr"]} /></section><section className="automation-settings-section"><h3>{t("automation.section.departure")}</h3><label className="automation-checkbox-row"><input type="checkbox" disabled={!enabled} /><span>{t("automation.railwayDepartWhenTicketsInsufficient")}</span></label></section></>;
+  }
+  if (title === "Secret Task") {
+    return <><section className="automation-settings-section"><h3>{t("squad.afkExecutionSettings")}</h3><label className="automation-checkbox-row"><input type="checkbox" defaultChecked disabled={!enabled} /><span>{t("automation.autoCollectRewards")}</span></label><div className="automation-actions"><label><span>{t("automation.delayAfterResetMinutes")}</span><input type="number" min="0" max="1440" step="1" defaultValue="3" disabled={!enabled} /></label></div></section><section className="automation-settings-section"><h3>{t("automation.section.quality")}</h3><WeeklyQualityPreview enabled={enabled} defaults={["none","ur","none","none","none","ur","none"]} /></section><section className="automation-settings-section"><label className="automation-checkbox-row"><input type="checkbox" checked={dispatchAssistEnabled} disabled={!enabled} onChange={(event) => setDispatchAssistEnabled(event.target.checked)} /><span>{t("automation.dispatchAssist")}</span></label>{dispatchAssistEnabled ? <><div className="automation-squad-choices">{["n","r","sr","ssr","ur","special"].map((quality) => <label key={quality}><input type="checkbox" defaultChecked={quality === "ur"} /><span>{quality === "special" ? t("automation.assistQuality.special") : quality.toUpperCase()}</span></label>)}</div><div className="automation-form-grid"><label><span>{t("automation.minDelaySeconds")}</span><input type="number" min="0" max="86400" step="1" defaultValue="0" /></label><label><span>{t("automation.maxDelaySeconds")}</span><input type="number" min="0" max="86400" step="1" defaultValue="0" /></label><label><span>{t("automation.assistIntervalSeconds")}</span><input type="number" min="5" max="300" step="1" defaultValue="30" /></label></div></> : <><strong>{t("automation.allySecretTasks")}</strong><span className="muted">{t("automation.noAllySecretTasks")}</span></>}</section></>;
+  }
+  if (title === "Ghost Ops") {
+    return <><label className="automation-checkbox-row"><input type="checkbox" checked={ghostJoinEnabled} disabled={!enabled} onChange={(event) => setGhostJoinEnabled(event.target.checked)} /><span>{t("automation.ghost.autoJoinAlliance")}</span></label>{ghostJoinEnabled ? <div className="automation-section"><strong>{t("automation.ghost.allianceFilter")}</strong><div className="automation-compact-choice-group">{["sr","ur","special"].map((filter) => <label className="automation-compact-choice" key={filter}><input type="radio" name="preview-ghost-filter" value={filter} defaultChecked={filter === "special"} disabled={!enabled} /><span>{t(`automation.ghost.filter.${filter}`)}</span></label>)}</div></div> : null}<label className="automation-checkbox-row"><input type="checkbox" disabled={!enabled} /><span>{t("automation.ghost.autoClaimRewards")}</span></label><div className="automation-inline-status"><span>{t("automation.ghost.ownPending")}: 0</span><span>{t("automation.ghost.allianceCandidates")}: 0</span><span>{t("automation.claimed")}: 0</span></div></>;
+  }
+  if (title === "Automatic Alliance Train Boarding") {
+    return <><section className="automation-settings-section"><strong>{t("automation.normalCarriageSelection")}</strong><span className="muted">{t("automation.normalCarriageHint")}</span><div className="automation-compact-choice-group">{["reward","fixed"].map((mode) => <label className="automation-compact-choice" key={mode}><input type="radio" name="preview-train-mode" checked={trainMode === mode} onChange={() => setTrainMode(mode)} /><span>{t(mode === "reward" ? "automation.rewardSelectionMode" : "automation.fixedSelectionMode")}</span></label>)}</div>{trainMode === "fixed" ? <div className="automation-compact-choice-group">{[1,2,3,4].map((carriage) => <label className="automation-compact-choice" key={carriage}><input type="radio" name="preview-normal-carriage" defaultChecked={carriage === 1} /><span>{t(`automation.carriage${carriage}`)}</span></label>)}</div> : <p className="muted">{t("automation.noPreferredRewards")}</p>}</section><section className="automation-settings-section"><strong>{t("automation.vipCarriageSelection")}</strong><label className="automation-checkbox-row"><input type="checkbox" disabled={!enabled} /><span>{t("automation.autoAcceptTrainVip")}</span></label><span className="muted">{t("automation.vipCarriageHint")}</span><div className="automation-compact-choice-group">{["reward","fixed"].map((mode) => <label className="automation-compact-choice" key={mode}><input type="radio" name="preview-vip-train-mode" checked={vipTrainMode === mode} onChange={() => setVipTrainMode(mode)} /><span>{t(mode === "reward" ? "automation.rewardSelectionMode" : "automation.fixedSelectionMode")}</span></label>)}</div>{vipTrainMode === "fixed" ? <div className="automation-compact-choice-group">{[1,2,3,4].map((carriage) => <label className="automation-compact-choice" key={carriage}><input type="checkbox" defaultChecked={carriage < 3} /><span>{t(`automation.carriage${carriage}`)}</span></label>)}</div> : null}</section><section className="automation-settings-section"><h3>{t("automation.section.additional")}</h3><div className="automation-actions"><label><span>{t("automation.thanksMode")}</span><select value={thanksMode} onChange={(event) => setThanksMode(event.target.value)}><option value="like">{t("automation.thanksLike")}</option><option value="tickets">{t("automation.thanksTickets")}</option></select></label>{thanksMode === "tickets" ? <label><span>{t("automation.ticketCount")}</span><select defaultValue="1"><option>1</option><option>2</option><option>3</option></select></label> : null}</div><p className="muted">{t("automation.ticketFallbackLike")}</p></section></>;
+  }
+  if (title === "Alliance Tech Donations") {
+    return <div className="automation-actions"><label><span>{t("automation.donateThreshold")}</span><input type="number" min="1" max="30" step="1" defaultValue="15" disabled={!enabled} /></label></div>;
   }
   if (["Alliance Gifts", "Excavation Stronghold Resources", "Alliance Center Resources", "Building Resource Collection", "Armed Truck"].includes(title)) {
-    return <div className="automation-form-grid"><label><span>{t("automation.intervalMinutes")}</span><input type="number" min="1" max="1440" defaultValue="60" disabled={!enabled} /></label><label><span>{t("automation.latestResult")}</span><output>-</output></label></div>;
+    const defaultInterval = title === "Alliance Gifts" ? 120 : 60;
+    return <div className="automation-actions"><label><span>{t("automation.intervalMinutes")}</span><input type="number" min="1" max="1440" step="1" defaultValue={defaultInterval} disabled={!enabled} /></label></div>;
   }
   if (title === "Alliance Gathering Dispatch") {
-    return <><fieldset disabled={!enabled}><legend>{t("automation.section.departure")}</legend><div className="automation-squad-choices">{[1,2,3,4].map((index) => <label key={index}><input type="checkbox" /><span>{t("automation.squad", { index })}</span></label>)}</div></fieldset><div className="automation-form-grid"><label><span>{t("automation.intervalMinutes")}</span><input type="number" min="1" defaultValue="60" disabled={!enabled} /></label></div></>;
+    return <><p className="muted">{t("automation.allianceGatherSquadPriority")}</p><div className="automation-compact-choice-group automation-squad-priority" role="group" aria-label={t("automation.allianceGatherSquadPriority")}>{[1,2,3,4].map((index) => <label key={index}><input type="checkbox" defaultChecked={index < 3} disabled={!enabled} /><span>{t("automation.squad", { index })}</span></label>)}</div></>;
   }
-  return <div className="automation-form-grid"><label><span>{t("automation.intervalMinutes")}</span><input type="number" min="1" defaultValue="60" disabled={!enabled} /></label></div>;
+  return null;
 }
 
 function AutomationCard({ title, description, previewEnabled }) {
   const { english, t } = useI18n();
   const [enabled, setEnabled] = useState(false);
+  const settingsCollapsible = !nonCollapsibleAutomationSettings.has(title);
+  const hasSettings = !automationCardsWithoutSettings.has(title);
   const [expanded, setExpanded] = useState(previewEnabled && title === "Automatic Construction");
+  const actionLabel = automationActionLabels[title];
+  const toggleLabel = title === "Ghost Ops" ? "automation.ghost.autoStartOwn" : "automation.autoExecute";
   return (
     <article className="automation-card" data-preview-fixture={previewEnabled ? "automation-config" : "runtime-config-unobserved"}>
       <div className="automation-card-header">
@@ -255,24 +317,25 @@ function AutomationCard({ title, description, previewEnabled }) {
           {description ? <p>{english(description)}</p> : null}
         </div>
         <div className="automation-card-header-actions">
-          <button className="automation-header-switch" type="button" role="switch" aria-checked={enabled} disabled={!previewEnabled} aria-label={`${english(title)}: ${t(enabled ? "common.enabled" : "common.disabled")}`} onClick={() => setEnabled((value) => !value)}><Switch checked={enabled} /></button>
+          <button className="automation-header-switch" type="button" role="switch" aria-checked={enabled} disabled={!previewEnabled} aria-label={`${t(toggleLabel)}: ${t(enabled ? "common.enabled" : "common.disabled")}`} onClick={() => setEnabled((value) => !value)}><Switch checked={enabled} /></button>
         </div>
       </div>
       <div className="automation-card-meta-row" role="status">
         <span className={`automation-state ${enabled ? "state-enabled" : "state-disabled"}`}>{previewEnabled ? t(enabled ? "common.enabled" : "common.disabled") : t("status.disconnected")}</span>
       </div>
-      <div className="automation-config">
-        <div className="automation-config-actions">
-          <button className={`automation-config-trigger${expanded ? " is-open" : ""}`} type="button" disabled={!previewEnabled} aria-expanded={expanded} onClick={() => setExpanded((value) => !value)}>
+      {(hasSettings || actionLabel) ? <div className="automation-config">
+        {(settingsCollapsible || actionLabel) ? <div className="automation-config-actions">
+          {hasSettings && settingsCollapsible ? <button className={`automation-config-trigger${expanded ? " is-open" : ""}`} type="button" disabled={!previewEnabled} aria-expanded={expanded} onClick={() => setExpanded((value) => !value)}>
             <span className="automation-config-trigger-label">
               <svg className="automation-config-gear" viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="8" cy="8" r="2.5" /><path d="M8 1.5v1.8M8 12.7v1.8M1.5 8h1.8M12.7 8h1.8M3.4 3.4l1.3 1.3M11.3 11.3l1.3 1.3M3.4 12.6l1.3-1.3M11.3 4.7l1.3-1.3" /></svg>
               <span>{t("settings.title")}</span>
             </span>
             <svg className="trigger-chevron" viewBox="0 0 16 16" width="11" height="11" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M4 6l4 4 4-4" /></svg>
-          </button>
-        </div>
-        {expanded ? <fieldset className="automation-config-body" disabled={!previewEnabled}><AutomationConfigPreview title={title} enabled={previewEnabled} /><div className="automation-config-actions"><button type="button" className="primary" disabled={!previewEnabled}>{t("common.saveConfig")}</button></div></fieldset> : null}
-      </div>
+          </button> : null}
+          {actionLabel ? <button type="button" className="automation-run-action" disabled title={t("status.gameDisconnectedDisabled")}>{t(actionLabel)}</button> : null}
+        </div> : null}
+        {hasSettings && (!settingsCollapsible || expanded) ? <fieldset className="automation-config-body" disabled={!previewEnabled}><AutomationConfigPreview title={title} enabled={previewEnabled} /></fieldset> : null}
+      </div> : null}
     </article>
   );
 }
@@ -405,8 +468,9 @@ export function AutomationPage({ previewState = "" }) {
 
 export function SquadsPage({ previewState = "" }) {
   const { t } = useI18n();
-  const previewEnabled = previewState === "squads-profile" || previewState === "squads-equipment";
-  const [tab, setTab] = useState(previewState === "squads-equipment" ? "equipment" : "afk");
+  const equipmentPreview = previewState.startsWith("squads-equipment");
+  const previewEnabled = previewState === "squads-profile" || equipmentPreview;
+  const [tab, setTab] = useState(equipmentPreview ? "equipment" : "afk");
   return (
     <section className="panel squad-panel" data-preview-fixture={previewEnabled ? previewState : undefined}>
       <div className="squad-header">
@@ -417,7 +481,7 @@ export function SquadsPage({ previewState = "" }) {
         <button type="button" role="tab" className={tab === "afk" ? "active" : ""} aria-selected={tab === "afk"} onClick={() => setTab("afk")}>{t("squad.tabAfk")}</button>
         <button type="button" role="tab" className={tab === "equipment" ? "active" : ""} aria-selected={tab === "equipment"} onClick={() => setTab("equipment")}>{t("squad.tabEquipment")}</button>
       </div>
-      {tab === "afk" ? <AfkContent previewEnabled={previewEnabled} /> : <EquipmentContent previewEnabled={previewEnabled} />}
+      {tab === "afk" ? <AfkContent previewEnabled={previewEnabled} /> : <EquipmentContent previewEnabled={previewEnabled} previewState={previewState} />}
     </section>
   );
 }
@@ -523,33 +587,204 @@ function CompactAfkCard({ title, summary, previewEnabled, details }) {
   );
 }
 
-function EquipmentContent({ previewEnabled }) {
+function previewEquipmentPreset(number, t) {
+  return {
+    id: `preview-preset-${number}`,
+    name: t("squad.presetDefaultName", { number }),
+    squads: [1,2,3,4].map((squadIndex) => ({
+      squadIndex,
+      positions: [1,2,3,4,5].map((position) => ({
+        position,
+        equips: position <= 2 ? [
+          { slot: 1, equipUuid: `${number}-${squadIndex}-${position}-1`, level: 40 - position, quality: position === 1 ? 5 : 4 },
+          { slot: 2, equipUuid: `${number}-${squadIndex}-${position}-2`, level: 38 - position, quality: 4 },
+        ] : [],
+      })),
+    })),
+  };
+}
+
+function EquipmentContent({ previewEnabled, previewState = "" }) {
   const { t } = useI18n();
-  const [selectedSquad, setSelectedSquad] = useState(1);
+  const [presets, setPresets] = useState(() => previewEnabled ? [1,2,3,4].map((number) => previewEquipmentPreset(number, t)) : []);
+  const [selectedPresetId, setSelectedPresetId] = useState(() => presets[0]?.id || "");
+  const [dirtyPresetIds, setDirtyPresetIds] = useState(() => new Set());
+  const [renameOpen, setRenameOpen] = useState(previewState === "squads-equipment-rename" || previewState === "squads-equipment-rename-busy");
+  const [renameValue, setRenameValue] = useState(() => presets[0]?.name || "");
+  const [dragged, setDragged] = useState(null);
+  const [dropTarget, setDropTarget] = useState("");
+  const [dropSuccess, setDropSuccess] = useState([]);
+  const [toast, setToast] = useState("");
+  const dialogBusy = previewState === "squads-equipment-rename-busy";
+  const selectedPreset = presets.find((preset) => preset.id === selectedPresetId) || presets[0];
+  const fixtureResult = previewState === "squads-equipment-result" ? { state: "partial", applied: 7, requested: 8, failedHeroName: "Hero 8", reason: "EQUIPMENT_STATE_CHANGED" } : null;
+  const fixtureProgress = previewState === "squads-equipment-progress" ? { phase: "running", current: 3, total: 8, heroName: "Hero 3" } : null;
+  const positionCount = selectedPreset?.squads.reduce((count, squad) => count + squad.positions.filter((position) => position.equips.length > 0).length, 0) || 0;
+  const equipmentCount = selectedPreset?.squads.reduce((count, squad) => count + squad.positions.reduce((sum, position) => sum + position.equips.length, 0), 0) || 0;
+
+  const updateSelectedPreset = (mutator) => {
+    if (!selectedPreset) return;
+    setPresets((current) => current.map((preset) => {
+      if (preset.id !== selectedPreset.id) return preset;
+      const next = structuredClone(preset);
+      mutator(next);
+      return next;
+    }));
+    setDirtyPresetIds((current) => new Set(current).add(selectedPreset.id));
+  };
+
+  const markDropSuccess = (keys) => {
+    setDropSuccess(keys);
+    window.setTimeout(() => setDropSuccess([]), 450);
+  };
+
+  const swapPositions = (target) => {
+    if (!dragged || !selectedPreset || dragged.kind === "squad" || dragged.kind !== target.kind) return;
+    if (dragged.kind === "equip" && dragged.slot !== target.slot) {
+      setToast(t("squad.sameSlotRequired"));
+      return;
+    }
+    const sourceKey = `${dragged.squadIndex}-${dragged.position}`;
+    const targetKey = `${target.squadIndex}-${target.position}`;
+    if (sourceKey === targetKey) return;
+    updateSelectedPreset((preset) => {
+      const sourceSquad = preset.squads.find((squad) => squad.squadIndex === dragged.squadIndex);
+      const targetSquad = preset.squads.find((squad) => squad.squadIndex === target.squadIndex);
+      const sourcePosition = sourceSquad?.positions.find((position) => position.position === dragged.position);
+      const targetPosition = targetSquad?.positions.find((position) => position.position === target.position);
+      if (!sourcePosition || !targetPosition) return;
+      if (dragged.kind === "loadout") {
+        [sourcePosition.equips, targetPosition.equips] = [targetPosition.equips, sourcePosition.equips];
+        return;
+      }
+      const sourceIndex = sourcePosition.equips.findIndex((equip) => equip.slot === dragged.slot);
+      if (sourceIndex < 0) return;
+      const targetIndex = targetPosition.equips.findIndex((equip) => equip.slot === dragged.slot);
+      const sourceEquip = sourcePosition.equips[sourceIndex];
+      if (targetIndex >= 0) {
+        const targetEquip = targetPosition.equips[targetIndex];
+        sourcePosition.equips[sourceIndex] = targetEquip;
+        targetPosition.equips[targetIndex] = sourceEquip;
+      } else {
+        sourcePosition.equips.splice(sourceIndex, 1);
+        targetPosition.equips.push(sourceEquip);
+        targetPosition.equips.sort((a, b) => a.slot - b.slot);
+      }
+    });
+    markDropSuccess([sourceKey, targetKey]);
+  };
+
+  const swapSquads = (targetSquadIndex) => {
+    if (dragged?.kind !== "squad" || dragged.squadIndex === targetSquadIndex) return;
+    updateSelectedPreset((preset) => {
+      const sourceSquad = preset.squads.find((squad) => squad.squadIndex === dragged.squadIndex);
+      const targetSquad = preset.squads.find((squad) => squad.squadIndex === targetSquadIndex);
+      if (!sourceSquad || !targetSquad) return;
+      const count = Math.min(sourceSquad.positions.length, targetSquad.positions.length, 5);
+      for (let index = 0; index < count; index += 1) {
+        [sourceSquad.positions[index].equips, targetSquad.positions[index].equips] = [targetSquad.positions[index].equips, sourceSquad.positions[index].equips];
+      }
+    });
+    markDropSuccess([`squad-${dragged.squadIndex}`, `squad-${targetSquadIndex}`]);
+  };
+
+  const openRename = () => {
+    if (!selectedPreset) return;
+    setRenameValue(selectedPreset.name);
+    setRenameOpen(true);
+  };
+
+  const closeRename = () => {
+    if (dialogBusy) return;
+    setRenameOpen(false);
+    setRenameValue("");
+  };
+
+  const saveRename = () => {
+    const name = renameValue.trim();
+    if (!name || !selectedPreset || dialogBusy) return;
+    setPresets((current) => current.map((preset) => preset.id === selectedPreset.id ? { ...preset, name } : preset));
+    setRenameOpen(false);
+    setRenameValue("");
+    setToast(t("squad.equipmentConfigSaved"));
+  };
+
+  const savePreviewConfig = () => {
+    if (!selectedPreset) return;
+    setDirtyPresetIds((current) => {
+      const next = new Set(current);
+      next.delete(selectedPreset.id);
+      return next;
+    });
+    setToast(t("squad.equipmentConfigSaved"));
+  };
+
+  const resultText = fixtureResult ? t(
+    fixtureResult.state === "success" ? "squad.equipmentApplySuccess" : fixtureResult.state === "partial" ? "squad.equipmentApplyPartial" : "squad.equipmentApplyRejected",
+    { applied: fixtureResult.applied, requested: fixtureResult.requested, hero: fixtureResult.failedHeroName || "-", reason: fixtureResult.reason || "-" },
+  ) : "";
+
+  const progressText = fixtureProgress
+    ? fixtureProgress.phase === "preparing"
+      ? t("squad.equipmentApplyPreparing")
+      : fixtureProgress.phase === "verifying"
+        ? t("squad.equipmentApplyVerifying", { current: fixtureProgress.current, total: fixtureProgress.total })
+        : t("squad.equipmentApplyRunning", { current: fixtureProgress.current, total: fixtureProgress.total, hero: fixtureProgress.heroName || "-" })
+    : "";
+
+  useEffect(() => {
+    if (!toast) return undefined;
+    const timer = window.setTimeout(() => setToast(""), 1800);
+    return () => window.clearTimeout(timer);
+  }, [toast]);
+
   return (
-    <div className="equipment-preset-layout" data-preview-fixture={previewEnabled ? "squads-equipment" : "no-equipment-presets"}>
+    <div className="equipment-preset-layout" data-preview-fixture={previewEnabled ? previewState || "squads-equipment" : "no-equipment-presets"}>
       <aside className="equipment-preset-rail">
         <strong>{t("squad.equipmentPresets")}</strong>
-        <div className="equipment-preset-list">{previewEnabled ? <button type="button" className="active">{t("squad.presetDefaultName", { number: 1 })}</button> : <span className="muted">{t("squad.noEquipmentPresets")}</span>}</div>
-        <button type="button" disabled={!previewEnabled}>{t("squad.createPreset")}</button>
+        <div className="equipment-preset-list">{presets.length ? presets.map((preset, index) => <button type="button" key={preset.id} className={preset.id === selectedPreset?.id ? "active" : ""} onClick={() => setSelectedPresetId(preset.id)}><span>{preset.name}{dirtyPresetIds.has(preset.id) ? " *" : ""}</span><small>{index < 4 ? `Alt+${index + 1} · ` : ""}{t("squad.presetSummary", { positions: preset.squads.reduce((count, squad) => count + squad.positions.filter((position) => position.equips.length > 0).length, 0), equips: preset.squads.reduce((count, squad) => count + squad.positions.reduce((sum, position) => sum + position.equips.length, 0), 0) })}</small></button>) : <span className="muted">{t("squad.noEquipmentPresets")}</span>}</div>
       </aside>
       <main className="equipment-preset-main">
         <div className="equipment-preset-toolbar">
-          <div><strong>{previewEnabled ? t("squad.presetDefaultName", { number: 1 }) : t("squad.noEquipmentPresets")}</strong></div>
+          <div><strong>{selectedPreset?.name || t("squad.noEquipmentPresets")}</strong>{selectedPreset ? <span>{t("squad.allSquadPresetSummary", { positions: positionCount, equips: equipmentCount })}{dirtyPresetIds.has(selectedPreset.id) ? ` · ${t("squad.equipmentConfigUnsaved")}` : ""}</span> : null}<span className="equipment-current-config">{t("squad.currentEquipmentPreset", { name: t("squad.unmatchedEquipmentPreset") })}</span></div>
           <div className="equipment-preset-actions">
-            <button type="button" disabled={!previewEnabled}>{t("common.rename")}</button>
-            <button type="button" disabled={!previewEnabled}>{t("squad.loadCurrentEquipment")}</button>
-            <button type="button" disabled={!previewEnabled}>{t("squad.saveEquipmentConfig")}</button>
-            <button type="button" className="primary" disabled>{t("squad.saveAndApplyEquipmentConfig")}</button>
+            <button type="button" disabled={!selectedPreset || dialogBusy} onClick={openRename}>{t("common.rename")}</button>
+            <button type="button" disabled title={t("status.gameDisconnectedDisabled")}>{t("squad.loadCurrentEquipment")}</button>
+            <button type="button" disabled={!selectedPreset || dialogBusy} onClick={savePreviewConfig}>{t("squad.saveEquipmentConfig")}</button>
+            <button type="button" className="primary" disabled title={t("status.gameDisconnectedDisabled")}>{t("squad.saveAndApplyEquipmentConfig")}</button>
           </div>
         </div>
-        {previewEnabled ? <div className="equipment-preset-squads">{[1,2,3,4].map((squad) => <button type="button" key={squad} className={`equipment-preset-squad ${selectedSquad === squad ? "active" : ""}`} onClick={() => setSelectedSquad(squad)}><span className="equipment-preset-squad-header">{t("squad.number", { number: squad })}</span><span>{t("squad.presetSummary", { positions: 5, equips: 0 })}</span></button>)}</div> : <div className="map-empty">{t("squad.createFirstPreset")}</div>}
-        {previewEnabled ? <div className="equipment-preset-positions">{[1,2,3,4,5].map((position) => <article className="equipment-position-card" key={position}><div className="equipment-position-header"><strong>{t("squad.position", { number: position })}</strong><span>{t("squad.heroFixed")}</span></div><div className="equipment-position-items">{["squad.equipmentSlot1","squad.equipmentSlot2","squad.equipmentSlot3","squad.equipmentSlot4"].map((key) => <span className="preset-equipment-slot" key={key}>{t(key)} · {t("squad.emptyEquipment")}</span>)}</div></article>)}</div> : null}
+        {selectedPreset ? <div className="equipment-preset-squads">{selectedPreset.squads.map((squad) => {
+          const squadKey = `squad-${squad.squadIndex}`;
+          const squadPositions = squad.positions.filter((position) => position.equips.length > 0).length;
+          const squadEquips = squad.positions.reduce((sum, position) => sum + position.equips.length, 0);
+          return <section className={`equipment-preset-squad ${dropTarget === squadKey ? "drop-target" : ""} ${dropSuccess.includes(squadKey) ? "drop-success" : ""}`} key={squad.squadIndex} onDragOver={(event) => { if (dragged?.kind === "squad") { event.preventDefault(); setDropTarget(squadKey); } }} onDragLeave={() => setDropTarget((current) => current === squadKey ? "" : current)} onDrop={(event) => { if (dragged?.kind === "squad") { event.preventDefault(); swapSquads(squad.squadIndex); setDropTarget(""); setDragged(null); } }}>
+            <div className="equipment-preset-squad-header"><div><strong>{t("squad.number", { number: squad.squadIndex })}</strong><span>{t("squad.positionEquipmentCount", { positions: squadPositions, equips: squadEquips })}</span><span className="equipment-current-config">{t("squad.currentEquipmentPreset", { name: t("squad.unmatchedEquipmentPreset") })}</span></div><div className="equipment-preset-actions"><div className="equipment-squad-drag-handle" draggable={previewEnabled} onDragStart={() => setDragged({ kind: "squad", squadIndex: squad.squadIndex })} onDragEnd={() => { setDragged(null); setDropTarget(""); }}>{t("squad.dragSquadLoadout")}</div><button type="button" disabled title={t("status.gameDisconnectedDisabled")}>{t("squad.applySquad")}</button></div></div>
+            <div className="equipment-preset-positions">{squad.positions.map((position) => {
+              const positionKey = `${squad.squadIndex}-${position.position}`;
+              const loadoutKey = `loadout-${positionKey}`;
+              return <article className={`equipment-position-card ${dropTarget === loadoutKey ? "drop-target" : ""} ${dropSuccess.includes(positionKey) ? "drop-success" : ""}`} key={position.position} onDragOver={(event) => { if (dragged?.kind === "loadout") { event.preventDefault(); setDropTarget(loadoutKey); } }} onDragLeave={() => setDropTarget((current) => current === loadoutKey ? "" : current)} onDrop={(event) => { if (dragged?.kind === "loadout") { event.preventDefault(); swapPositions({ kind: "loadout", squadIndex: squad.squadIndex, position: position.position }); setDropTarget(""); setDragged(null); } }}>
+                <div className="equipment-position-header"><strong>{t("squad.position", { number: position.position })}</strong><span>{t("squad.heroFixed")}</span></div>
+                <div className="equipment-position-hero"><span className="equipment-position-hero-icon game-asset-placeholder" /><div><strong>Hero {squad.squadIndex}-{position.position}</strong><span>Lv.{30 - position.position}</span></div></div>
+                <div className="equipment-loadout-handle" draggable={previewEnabled} onDragStart={() => setDragged({ kind: "loadout", squadIndex: squad.squadIndex, position: position.position })} onDragEnd={() => { setDragged(null); setDropTarget(""); }}><span>{t("squad.dragLoadout")}</span></div>
+                <div className="equipment-position-items">{[1,2,3,4].map((slot) => {
+                  const equip = position.equips.find((item) => item.slot === slot);
+                  const equipTarget = `equip-${squad.squadIndex}-${position.position}-${slot}`;
+                  return <div className={`preset-equipment-slot quality-${equip?.quality || 0} ${dropTarget === equipTarget ? "drop-target" : ""}`} key={slot} draggable={!!equip && previewEnabled} title={t(`squad.equipmentSlot${slot}`)} onDragStart={(event) => { if (!equip) return; event.stopPropagation(); setDragged({ kind: "equip", squadIndex: squad.squadIndex, position: position.position, slot }); }} onDragOver={(event) => { if (dragged?.kind === "equip" && dragged.slot === slot) { event.preventDefault(); event.stopPropagation(); setDropTarget(equipTarget); } }} onDragLeave={() => setDropTarget((current) => current === equipTarget ? "" : current)} onDrop={(event) => { if (dragged?.kind === "equip" && dragged.slot === slot) { event.preventDefault(); event.stopPropagation(); swapPositions({ kind: "equip", squadIndex: squad.squadIndex, position: position.position, slot }); setDropTarget(""); setDragged(null); } }} onDragEnd={() => { setDragged(null); setDropTarget(""); }}>{equip ? <><span className="equipment-icon game-asset-placeholder" /><span>Lv.{equip.level ?? "-"}</span></> : <><span className="equipment-icon game-asset-placeholder" /><span>{t("squad.emptyEquipment")}</span></>}</div>;
+                })}</div>
+              </article>;
+            })}</div>
+          </section>;
+        })}</div> : <div className="map-empty">{t("squad.createFirstPreset")}</div>}
         <div className="equipment-preset-hint">
           <span>{t("squad.dragEquipmentHint")}</span>
           <strong>{t("squad.quickShortcutHint")}</strong>
         </div>
+        {fixtureResult ? <div className={`equipment-result equipment-result-${fixtureResult.state}`}>{resultText}</div> : null}
       </main>
+      {renameOpen ? <div className="equipment-preset-dialog-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) closeRename(); }}><div className="equipment-preset-dialog" role="dialog" aria-modal="true" aria-labelledby="equipment-preset-title"><strong id="equipment-preset-title">{t("common.rename")}</strong><label>{t("squad.presetNamePrompt")}<input autoFocus disabled={dialogBusy} value={renameValue} onChange={(event) => setRenameValue(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") saveRename(); if (event.key === "Escape") closeRename(); }} /></label><div className="equipment-preset-actions"><button type="button" disabled={dialogBusy} onClick={closeRename}>{t("common.cancel")}</button><button type="button" className="primary" disabled={!renameValue.trim() || dialogBusy} onClick={saveRename}>{t("common.saveConfig")}</button></div></div></div> : null}
+      {toast ? <div className="equipment-toast" role="status">{toast}</div> : null}
+      {fixtureProgress ? <div className="equipment-apply-progress" role="status"><strong>{progressText}</strong><progress max={Math.max(1, fixtureProgress.total)} value={fixtureProgress.total > 0 ? fixtureProgress.current : undefined} /></div> : null}
     </div>
   );
 }

@@ -170,7 +170,7 @@ export function App() {
     setHomeBusy("autoReconnect");
     setHomeError("");
     try {
-      await backendBridge.invoke("set_automation", { name: "autoForceUpdateReload", enabled: value });
+      await backendBridge.invokeProfileScoped("set_automation", { name: "autoForceUpdateReload", enabled: value });
       setLocalConfig((current) => ({ ...(current || {}), autoReconnect: value }));
     } catch (error) {
       setHomeError(error?.message || String(error));

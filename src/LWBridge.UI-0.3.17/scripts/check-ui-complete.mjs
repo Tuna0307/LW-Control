@@ -18,11 +18,27 @@ const missing = [...literalKeys].filter((key) => !key.includes("${") && !(key in
 if (missing.length) throw new Error(`Missing recovered English locale keys:\n${missing.join("\n")}`);
 
 const localeCounts = {};
+let englishKeys = null;
 for (const code of localeCodes) {
   const messages = (await import(pathToFileURL(path.join(root, "src", "locales", `${code}.js`)))).default;
   const keys = Object.keys(messages);
   if (keys.length === 0) throw new Error(`Recovered ${code} locale catalog is empty.`);
+  if (code === "en") englishKeys = keys.sort();
+  else {
+    const missingFromLocale = englishKeys.filter((key) => !(key in messages));
+    if (missingFromLocale.length) throw new Error(`Recovered ${code} locale is missing inherited keys:\n${missingFromLocale.join("\n")}`);
+  }
   localeCounts[code] = keys.length;
+}
+for (const inheritedKey of [
+  "error.OFFICIAL_LAUNCHER_HOOK_FAILED",
+  "auth.error.ACCOUNT_BANNED",
+  "update.error.UPDATE_STATUS_FAILED",
+]) {
+  for (const code of localeCodes) {
+    const messages = (await import(pathToFileURL(path.join(root, "src", "locales", `${code}.js`)))).default;
+    if (!(inheritedKey in messages)) throw new Error(`Recovered ${code} locale lost inherited key ${inheritedKey}.`);
+  }
 }
 
 const app = fs.readFileSync(path.join(root, "src", "App.jsx"), "utf8");
@@ -34,6 +50,7 @@ const pages = fs.readFileSync(path.join(root, "src", "Pages.jsx"), "utf8");
 for (const marker of [
   "home-missing", "home-connected", "home-repair", "home-recovery-failed",
   "automation-config", "squads-profile", "squads-equipment", "city-layout-populated",
+  "squads-equipment-rename", "squads-equipment-rename-busy", "squads-equipment-result", "squads-equipment-progress",
   "hotkeys-connected", "mini-games-active", "settings-update-available",
 ]) {
   if (!pages.includes(marker)) throw new Error(`Missing preview coverage marker: ${marker}`);

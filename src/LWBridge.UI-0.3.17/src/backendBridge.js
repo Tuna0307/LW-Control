@@ -10,6 +10,12 @@ function unavailableError(mode) {
   return error;
 }
 
+function profileRequiredError() {
+  const error = new Error("Select a profile before changing profile-scoped automation settings.");
+  error.code = "PROFILE_REQUIRED";
+  return error;
+}
+
 export function createBackendBridge(host = {}) {
   const bootstrap = host.__LWBridgeBootstrap || {};
   const nativeWebView = host.chrome?.webview;
@@ -76,6 +82,11 @@ export function createBackendBridge(host = {}) {
     });
   }
 
+  function invokeProfileScoped(command, payload = {}, timeoutMs = DEFAULT_TIMEOUT_MS) {
+    if (!profileId) return Promise.reject(profileRequiredError());
+    return invoke(command, { ...payload, profileId }, timeoutMs);
+  }
+
   function listen(eventName, callback) {
     if (!available || disposed) return () => {};
     if (!listeners.has(eventName)) {
@@ -112,7 +123,7 @@ export function createBackendBridge(host = {}) {
     }
   }
 
-  return { mode, available, profileId, sessionId, invoke, listen, dispose };
+  return { mode, available, profileId, sessionId, invoke, invokeProfileScoped, listen, dispose };
 }
 
 export const backendBridge = createBackendBridge(typeof window === "undefined" ? {} : window);
