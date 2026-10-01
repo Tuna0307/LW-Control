@@ -15,8 +15,10 @@ option has a separate pending retirement task. See
 The 2026-10-01 project-lead takeover inspected actual clean/pushed `389df37`,
 rather than the stale pasted `13b25f6` handoff. The user's immediate priority is
 Home/Map UI/UX. Canonical Home remains an unresolved static page with disabled
-switches; full one-for-one UI/UX is not accepted. Next is the bounded **UI-only**
-`work-items/LWB317-UI-HOME-STATES-001.md`, while full Map closeout still awaits
+switches; full one-for-one UI/UX is not accepted. Next is **UI-only**
+`work-items/LWB317-UI-COMPLETE-001.md`: all eight pages and shell/nested states,
+starting with Home/Map, with milestone checkpoints and no fixed clock stop.
+Full Map closeout still awaits
 independent review. The takeover performed source/evidence inspection and fresh
 offline checks, not new live proof. See
 `reviews/2026-10-01-LWB317-PM-003-project-lead-takeover.md`.

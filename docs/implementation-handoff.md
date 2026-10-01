@@ -14,8 +14,10 @@ Map campaign acceptance was performed by the takeover.
 Current source/evidence audit:
 `reviews/2026-10-01-LWB317-PM-003-project-lead-takeover.md`.
 Current path map: `PROJECT_STRUCTURE.md`.
-Next worker: `work-items/LWB317-UI-HOME-STATES-001.md` — complete statically
-recoverable Home presentation states using isolated preview QA. No native
+Next worker: `work-items/LWB317-UI-COMPLETE-001.md` — complete source-backed
+shell/all eight pages/nested state and interaction coverage using isolated
+preview QA. Home and Map first; checkpoint by milestones without a fixed clock
+stop. The prior Home-only proposal is superseded. No native
 Home game launch/close/repair or new Map campaign is authorized by this task.
 Then return to project-lead review before opening native Home integration.
 
@@ -47,7 +49,7 @@ do not circumvent original access controls or obtain others' credentials.
 
 No product fallback is wanted. Preserve the old WebUI source as evidence;
 retirement of the currently selectable `--legacy-ui` host option is pending a
-separate bounded assignment. The Home UI task does not perform that host change.
+separate bounded assignment. The UI task does not perform that host change.
 
 ## Current reference
 

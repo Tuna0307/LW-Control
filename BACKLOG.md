@@ -5,8 +5,9 @@ This is the current queue. Historical 0.3.1 backlog content is archived under
 
 ## Current project-lead queue — 2026-10-01
 
-1. `LWB317-UI-HOME-STATES-001`: complete exact-source Home presentation branches
-   in the canonical frontend, with isolated preview QA and no game control.
+1. `LWB317-UI-COMPLETE-001`: complete recoverable UI/UX across the shell and all
+   eight pages, with Home/Map first, isolated preview QA and no game control.
+   No fixed elapsed-time stop; checkpoint completed milestones.
 2. Independently review the worker and outstanding Map closeout, retaining each
    unvalidated/blocked scope explicitly.
 3. Assign a separate bounded Home native lifecycle contract/integration task.

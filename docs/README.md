@@ -34,14 +34,15 @@ SHA-256:
 
 ## Current phase
 
-**Map function recovery awaiting review; next bounded task is Home UI states.**
+**Map function recovery awaiting review; next task completes all recoverable UI/UX.**
 
 The exact static frontend package baseline and Phase 1 UI campaign are accepted.
 The canonical UI is already the normal Desktop frontend. The ordered Map
 campaign has returned `AWAITING_REVIEW` with durable implementation/live evidence
 and explicit remaining gaps; do not replay its old queue automatically.
-The project-lead takeover now prioritizes UI-only Home state coverage under
-`work-items/LWB317-UI-HOME-STATES-001.md`. This does not open another backend
+The project-lead takeover now assigns UI-only shell/eight-page state and
+interaction coverage under `work-items/LWB317-UI-COMPLETE-001.md`, with Home/Map
+first and milestone checkpoints rather than a fixed clock deadline. This does not open another backend
 family. Direct original post-auth pixel comparison remains blocked by legitimate
 reference access and is not fabricated. Start with
 `reviews/2026-10-01-LWB317-PM-003-project-lead-takeover.md` for the takeover audit.

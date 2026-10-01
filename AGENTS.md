@@ -108,13 +108,16 @@ Before any future live test:
 - prefer assistant-owned sessions for disruptive tests;
 - fail closed if session ownership is ambiguous.
 
-## 9. Bounded work blocks
+## 9. Milestone checkpoints
 
-Keep primary work blocks to roughly 20 minutes.
+Owner clarification, 2026-10-01: no fixed 20-minute work block or minute-17/18
+stop rule. Continue the assigned scope until its acceptance criteria are met or
+a concrete blocker prevents further progress.
 
-Near minute 17–18, stop opening new branches of investigation, preserve useful state, update durable documentation, and summarize the exact continuation point.
-
-Loop campaigns may run longer only when a project-lead-authored campaign file explicitly allows it. Even then, preserve coherent checkpoints frequently.
+Preserve useful state, update documentation and commit coherent milestones
+frequently. Report the exact continuation point if interrupted or blocked.
+Elapsed time alone is not a reason to stop. This does not authorize changing
+scope or starting an unrelated campaign.
 
 ## 10. Documentation rule
 

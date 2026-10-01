@@ -41,14 +41,16 @@ The first Phase 2 Goal is the complete Map Data subsystem recovery:
 The 2026-10-01 incoming handoff was stale at `13b25f6`; takeover inspected the
 actual clean/pushed campaign baseline `389df37`. Preserve existing implementation.
 Static UI baseline acceptance does not imply complete Home state coverage or
-original runtime pixel parity. Prioritize the bounded Home UI task below while
+original runtime pixel parity. Complete all recoverable UI states/interactions,
+starting with Home and Map, under the full UI task below while
 the Map closeout awaits a separate independent acceptance review.
 
 | Work item / campaign | Owner | State | Scope |
 |---|---|---|---|
 | LWB317-PM-001 | Project lead | COMPLETE | Repository/documentation reset for 0.3.17 |
 | LWB317-PM-003 | Project lead | COMPLETE | Takeover source/evidence audit, current path map and exact CSS checkout repair; no new live test/full Map acceptance |
-| LWB317-UI-HOME-STATES-001 | Fresh worker chat, manually dispatched by owner | READY | Source-backed Home rendering states and isolated UI QA; no native lifecycle integration/game control |
+| LWB317-UI-HOME-STATES-001 | None | SUPERSEDED | Historical Home-only proposal; replaced by full UI coverage |
+| LWB317-UI-COMPLETE-001 | Fresh worker chat, manually dispatched by owner | READY | Shell/all eight pages/nested states/interactions; Home and Map first; milestone delivery without fixed clock stops; no new native/game integration |
 | LWB317-UI-001A | Worker AI | COMPLETE / ACCEPTED | Static frontend package inventory/extraction |
 | LWB317-UI-CAMPAIGN-8H | Goal worker | ACCEPTED | Static UI recovery/reconstruction accepted; direct post-auth visual validation remains blocked |
 | LWB317-COMPAT-MAP-V22-001 | Goal worker | COMPLETE | Installed Last War v22 Map compatibility revalidated statically/source-first; no production Map change required |

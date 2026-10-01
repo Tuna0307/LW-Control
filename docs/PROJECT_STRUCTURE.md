@@ -64,4 +64,5 @@ revalidation; record its source/locator and limits.
 
 Current source/status review:
 `reviews/2026-10-01-LWB317-PM-003-project-lead-takeover.md`.
-Next UI-only assignment: `work-items/LWB317-UI-HOME-STATES-001.md`.
+Next UI-only assignment: `work-items/LWB317-UI-COMPLETE-001.md` — all eight pages
+and shared shell/nested states, starting with Home/Map; no fixed time deadline.

@@ -1,6 +1,10 @@
 # LWB317-UI-HOME-STATES-001 — complete source-backed Home UI states
 
-Project-lead assignment: 2026-10-01. State: READY.
+Project-lead assignment: 2026-10-01. State: SUPERSEDED.
+
+The owner broadened the next task to all eight primary pages and removed fixed
+time stops. Use `LWB317-UI-COMPLETE-001.md` instead. The text below preserves the
+prior proposed assignment as history; it is not current worker authorization.
 
 ## Goal
 

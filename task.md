@@ -78,9 +78,11 @@ Live-prove each implemented in-scope function against an assistant-owned/current
 ## Current instruction
 
 Project-lead takeover on 2026-10-01 reaffirms the user's Home/Map UI/UX priority.
-The next authorized bounded worker is **UI-only**
-`docs/work-items/LWB317-UI-HOME-STATES-001.md`: recover and reproduce missing Home
-render states using exact bytes and isolated clone QA. It does not open Home
+The next authorized worker is **UI-only**
+`docs/work-items/LWB317-UI-COMPLETE-001.md`: complete source-backed UI/UX across
+the shell and all eight pages, starting with Home and Map, using exact bytes and
+isolated clone QA. There is no fixed elapsed-time stop; checkpoint coherent
+milestones and continue recoverable work. It does not open Home
 native lifecycle integration or authorize game launch/control. The Map Goal
 remains `AWAITING_REVIEW`; no worker may automatically resume its completed
 campaign or begin another backend family. See the takeover audit

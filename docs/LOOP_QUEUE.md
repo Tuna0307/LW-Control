@@ -6,7 +6,7 @@ Only the project lead should normally change what is authorized here.
 
 | Campaign / work item | State | File | Notes |
 |---|---|---|---|
-| LWB317-UI-HOME-STATES-001 | READY | `docs/work-items/LWB317-UI-HOME-STATES-001.md` | Owner manually dispatches a fresh worker chat; one bounded UI-only block, not Loop authorization; no game/native lifecycle work |
+| LWB317-UI-COMPLETE-001 | READY | `docs/work-items/LWB317-UI-COMPLETE-001.md` | Owner manually dispatches a fresh worker chat; full shell/eight-page UI coverage with Home/Map first; milestone checkpoints, no fixed time stop; no new game/native lifecycle work |
 | LWB317-UI-CAMPAIGN-8H | ACCEPTED | `docs/LOOP_CAMPAIGN_8H.md` | Static UI recovery accepted; direct original post-auth pixel validation remains blocked by the original auth boundary |
 | LWB317-COMPAT-MAP-V22-001 | COMPLETE | `docs/reviews/2026-09-30-LWB317-COMPAT-MAP-V22-001.md` | Installed v22 Map compatibility statically revalidated; no production Map change required |
 | LWB317-LIVE-MAP-V22-001 | AWAITING_REVIEW | `docs/reviews/2026-09-30-LWB317-LIVE-MAP-V22-001.md` | Fresh v22 acquisition/navigation/query/clear proof complete; later completeness work shows the 678-row population was not a trustworthy full Resource census |

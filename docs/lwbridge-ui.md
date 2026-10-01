@@ -122,8 +122,10 @@ runtime pixel parity.
 
 The 2026-10-01 takeover audit found Home still implements only its unresolved
 state, despite the exact inventory establishing folder/launch/close/repair and
-loaded/recovery variants. The next UI-only task is
-`work-items/LWB317-UI-HOME-STATES-001.md`; native Home integration remains separate.
+loaded/recovery variants. The owner expanded the next UI-only task to
+`work-items/LWB317-UI-COMPLETE-001.md`: audit/complete all eight pages and shared
+shell states/interactions, with Home/Map first. There is no fixed time deadline;
+preserve coherent milestones. Native Home integration remains separate.
 The shell language selector currently changes selection only; labels remain
 English. These UX gaps remain visible rather than treating route smoke checks
 as a complete one-for-one clone. The existing Map implementation is preserved;

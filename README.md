@@ -49,8 +49,10 @@ remains `AWAITING_REVIEW`, with explicit validation/provider gaps.
 Complete one-for-one UI/UX is **not** established. Home currently renders only
 `Checking game setup…` and two disabled switches; its folder/launch/close/repair
 states and native integration remain open. Original post-auth visual comparison
-was blocked by legitimate access. The next bounded UI-only assignment is
-`docs/work-items/LWB317-UI-HOME-STATES-001.md`, prioritizing Home and preserving Map.
+was blocked by legitimate access. The next UI-only assignment is
+`docs/work-items/LWB317-UI-COMPLETE-001.md`: cover the shell and all eight pages,
+starting with Home and Map. Checkpoint by coherent milestones without a fixed
+20-minute deadline. Preserve the existing Map implementation.
 
 Read `docs/reviews/2026-10-01-LWB317-PM-003-project-lead-takeover.md` for the
 audited baseline, verification limits and checkout-byte repair; use

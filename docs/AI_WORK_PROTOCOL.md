@@ -34,7 +34,8 @@ Every assignment should contain:
 - **Inputs/reference artifacts**
 - **Required outputs**
 - **Acceptance checks**
-- **Time boundary**
+- **Completion boundary and milestone checkpoint plan** — no fixed elapsed-time
+  stop under the owner's 2026-10-01 clarification in `AGENTS.md` section 9
 
 ## Worker start checklist
 
