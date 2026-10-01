@@ -51,12 +51,15 @@ uncommitted. PM-008 inspected/preserved these; checks pass, full UI is unaccepte
 PM-010 accepted the focused local weekly unit (CORRECT-003A and R1 at `d065d08`)
 after immediate dispatch, concurrent drafts, actual Retry/Discard and source-anchor
 checks passed. The parent remains PARTIAL; full native/original parity is unaccepted.
-CORRECT-003B is delivered as `AWAITING_REVIEW`: exact-source comparison found
-the Trade currency/goods selectors should remain editable while a config write
-is pending, and the two clone save-time locks were removed. Focused production
-handler/browser evidence covers last-currency protection, goods selection,
-Show exclusive and failed-save Retry/Discard. Purchase history and other panels
-stay separate. Do not restart broad CORRECT-003 or reopen weekly work.
+PM-011 reviewed CORRECT-003B at `a24bf6c`: removing the Trade currency/goods
+save-time locks passes source and actual-handler checks. Last-currency protection,
+goods selection, Show exclusive and Retry/Discard evidence is retained. The unit
+is `CHANGES_REQUIRED` for two existing composition mismatches: currency options
+must keep the first offer per ID, and goods currency labels must deduplicate by ID.
+Active small continuation: `work-items/LWB317-UI-CORRECT-003B-R1.md`. Lead actual-
+expression failing proof is in `evidence/lwbridge-0.3.17/ui/LWB317-PM-011/`.
+Purchase history and other panels stay separate. Do not restart broad CORRECT-003
+or reopen weekly work.
 Trade/Assist/runtime/AFK work remains preserved for later separate validation tasks.
 Physical drag, native config persistence and original pixels remain unproved.
 Do not restart the completed correction or resume gameplay/native Home/another

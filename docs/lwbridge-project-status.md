@@ -48,7 +48,10 @@ with CORRECT-003A weekly quality settings. Preserve all other code and WIP.
 PM-010 subsequently accepted the focused weekly CORRECT-003A/R1 delivery at
 `d065d08` after the actual handlers, deferred writes, recovery, anchors and package
 checks passed. This is local/source acceptance, not full Automation/native/pixel
-parity. The next small unit is CORRECT-003B, Trade selection controls only.
+parity. PM-011 reviewed CORRECT-003B at `a24bf6c`: the saving fix and focused
+handler/package checks pass, but currency composition needs first-offer retention
+and ID-based goods-label deduplication. State is CHANGES_REQUIRED; active small
+assignment is CORRECT-003B-R1, only those two expressions.
 
 Phase 1 static UI recovery has been accepted. The active target remains exact
 LWBridge 0.3.17. The Map-only `LWB317-RE-MAP-001` campaign has completed its
@@ -260,10 +263,11 @@ PM-008 inspected pushed CORRECT-003 implementation `5204f67`; code/state checks
 pass but Stage B evidence and delivery are incomplete. At the owner's request,
 the broad task is PARTIAL and split.
 PM-010 accepted the focused weekly unit at `d065d08` after R1 closed the actual
-callback defect. CORRECT-003B is now `AWAITING_REVIEW`: Trade currency/goods
-selection matches the recovered no-save-lock behavior, with focused evidence
-for defaults, last-currency protection, goods select/unselect, Show exclusive
-and failed-save Retry/Discard.
+callback defect. PM-011 returns CORRECT-003B `a24bf6c` as `CHANGES_REQUIRED`:
+the no-save-lock correction, selection/recovery checks and package checks pass,
+but currency options keep the last offer instead of the first and goods currency
+labels deduplicate by name instead of ID. Three actual-expression baseline cases
+fail. Active CORRECT-003B-R1 fixes only those two expressions.
 Purchase history, Assist, runtime and AFK remain separate later units. Other
 branches/WIP stay preserved. No full UI acceptance is recorded.
 PM-007's historical CHANGES_REQUIRED

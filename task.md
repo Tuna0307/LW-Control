@@ -97,10 +97,13 @@ The owner requested smaller tasks, replacing its active broad scope.
 PM-010 reviewed R1 delivery d065d08 and accepted the focused local weekly unit
 (CORRECT-003A/R1): immediate actual callbacks, concurrent drafts, Retry/Discard
 and source anchors pass. Native persistence/original pixels/full UI are unaccepted.
-Active assignment is `docs/work-items/LWB317-UI-CORRECT-003B.md`, only Trade Station
-currency/goods/exclusive selection and local save states. History/other panels
-remain separate. Preserve other code and uncommitted AFK/scratch work. No new
-native/gameplay family is opened; all-page parity is not accepted.
+PM-011 reviewed Trade delivery a24bf6c. Saving/selection/recovery checks pass, but
+currency composition keeps last-offer metadata and deduplicates goods labels by
+name rather than ID. CORRECT-003B is CHANGES_REQUIRED. Active assignment is
+`docs/work-items/LWB317-UI-CORRECT-003B-R1.md`, only these two expressions and
+focused verification. History/other panels remain separate. Preserve other code
+and uncommitted AFK/scratch work. No new native/gameplay family is opened;
+all-page parity is not accepted.
 
 Direct original post-auth screenshot/pixel comparison remains `BLOCKED` by the
 documented reference access boundary, so affected UI rows remain

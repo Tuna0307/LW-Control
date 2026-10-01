@@ -1,7 +1,12 @@
 # LWB317-UI-CORRECT-003B — Trade Station selection controls only
 
-Project-lead assignment: 2026-10-01. State: READY.
+Project-lead assignment: 2026-10-01. State: CHANGES_REQUIRED after PM-011.
 One small unit under partial CORRECT-003. Do not resume its entire backlog.
+
+Worker delivery a24bf6c passes saving/selection/recovery checks. PM-011 found two
+existing currency composition mismatches: first-offer retention and deduplication
+by currency ID. Continue only under LWB317-UI-CORRECT-003B-R1.md. See
+../reviews/2026-10-01-LWB317-PM-011-trade-selection-review.md.
 
 ## Context and inputs
 

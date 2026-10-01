@@ -139,7 +139,7 @@ See `reviews/2026-10-01-LWB317-UI-CORRECT-002.md` and the complete affected
 CORRECT-003 subsequently pushed partial implementation `5204f67` for many recorded
 gaps. Its Stage B browser/coverage/delivery evidence is unfinished; PM-008 does
 not accept full UI parity. At the owner's request the broad task is split, with
-active CORRECT-003A limited to weekly quality controls and save-state verification.
+initial CORRECT-003A limited to weekly quality controls and save-state verification.
 Earlier gap statements describe the reviewed CORRECT-002 baseline; validate the
 new implementation before changing their completion disposition.
 
@@ -147,13 +147,13 @@ PM-009 returned CORRECT-003A `2f439ce` for its missing immediate write. R1 at
 `d065d08` fixes both actual callbacks; PM-010 accepts the focused local weekly unit
 after default, saving editability, actual deferred-callback/recovery and source
 anchor checks. Native persistence/original pixels/full UI remain unaccepted.
-CORRECT-003B is now delivered for project-lead review: the source-backed Trade
-Station currency/goods selectors remain editable during an in-flight config
-write, matching the original caller's explicit `saving:false`. Focused
-actual-handler and browser evidence covers defaults, last-currency protection,
-goods select/unselect, Show exclusive, failed selection save, Retry and
-Discard. Status is `AWAITING_REVIEW`; history and other panel validation
-remain separate.
+PM-011 reviewed CORRECT-003B `a24bf6c`: the Trade currency/goods saving-lock
+correction matches explicit source `saving:false`, with passing actual-handler
+selection/queued-save/Retry/Discard checks and retained worker browser evidence.
+Status is `CHANGES_REQUIRED` for two existing composition mismatches: retain first
+offer metadata per currency ID and deduplicate goods labels by ID rather than
+name. Actual-expression failing proof is under `LWB317-PM-011`; the next unit is
+CORRECT-003B-R1, only those two expressions. History and other panels stay separate.
 
 Correction evidence is under
 `evidence/lwbridge-0.3.17/ui/LWB317-UI-CORRECT-001/`; worker report:
