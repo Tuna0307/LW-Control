@@ -1,0 +1,380 @@
+{
+  "task": "LWB317-REVIEW-HOME-ERROR-002",
+  "date": "2026-10-02",
+  "recommendation": "CHANGES_REQUIRED",
+  "source": {
+    "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-BVfnK1wp.js",
+    "sha256": "44C4E4043825B7DB296B64171951B27176F8850FF8D7D337CC991DF4765524C6",
+    "anchors": {
+      "qr": {
+        "utf8ByteOffset": 336694,
+        "expression": "function qr({proxyStatus:e,online:t,gameRecoveryStatus:n,proxyBusy:r,gameLaunchBusy:i,gameRootStatus:a,gameRootBusy:o,gameRootError:s,gameActionError:c,autoLaunchGame:l,autoReconnect:u,onAutoLaunchGameChange:d,onAutoReconnectChange:f,onGameRootSelect:p,onStartGame:m,onStopGame:h,onUpdateAndRestart:g}){let{t:_}=De(),v=a!=null,y=n!=null&&[`waiting`,`updating`,`repairing`,`launching`,`verifying`,`maintenance`].includes(n.state),b=e?.repairRequired===!0,x=Kr({rootResolved:v,rootValid:a?.valid===!0,gameRunning:e?.gameRunning===!0,needsRepair:b,recovering:y,busy:r,launching:i}),S=v?x.showRootPicker?_(`setup.gameRootMissing`):i?_(`setup.launchingGame`):r?_(`common.processing`):y?_(`recovery.state.${n.state}`):b?_(`setup.repairRequired`):e?.gameRunning?_(t?`status.gameRunning`:`setup.bridgeDisconnected`):_(`setup.gameStopped`):_(`setup.checking`);return(0,M.jsxs)(`section`,{className:`panel quick-actions-panel`,children:[(0,M.jsxs)(`div`,{className:`panel-title`,children:[(0,M.jsx)(`h2`,{children:_(`setup.title`)}),(0,M.jsx)(`span`,{className:e?.gameRunning&&t?`status-ok`:`muted`,children:S})]}),v?x.showRootPicker?(0,M.jsxs)(`div`,{className:`game-root-missing`,children:[(0,M.jsx)(`span`,{children:s?Lr(_,s):_(`setup.gameRootMissing`)}),(0,M.jsx)(`button`,{className:`primary`,disabled:o,onClick:p,children:_(o?`common.processing`:`setup.gameRootSelect`)})]}):(0,M.jsxs)(`div`,{className:`game-controls`,children:[!x.repairOnClose&&(0,M.jsx)(`button`,{className:`primary`,disabled:!x.canStart,onClick:m,children:_(i?`setup.launchingGame`:r?`common.processing`:`top.launchGame`)}),(0,M.jsx)(`button`,{disabled:!x.canStop,onClick:x.repairOnClose?g:h,children:r&&e?.gameRunning?_(`common.processing`):_(x.repairOnClose?`setup.updateAndLaunch`:`setup.closeGameAction`)}),x.repairOnClose&&(0,M.jsx)(`span`,{className:`muted`,children:_(`setup.updateCloseGame`)})]}):null,c&&(0,M.jsx)(`span`,{className:`game-root-error`,children:Lr(_,c)}),(0,M.jsx)(Bn,{label:`auth.autoLaunchGame`,checked:l,onChange:d}),(0,M.jsx)(Bn,{label:`automation.autoReconnect.title`,checked:u,onChange:f}),n?.state===`failed`&&n.error&&(0,M.jsx)(`span`,{className:`game-root-error`,children:_(`recovery.failedDetail`,{error:Lr(_,n.error)})})]})}"
+      },
+      "Jt": {
+        "utf8ByteOffset": 367489,
+        "expression": "function Jt(e){g(e),x(``)}"
+      },
+      "Xt": {
+        "utf8ByteOffset": 367703,
+        "expression": "async function Xt(){v(!0);try{let e=await Ut();!e.canceled&&!e.valid&&x(`INVALID_GAME_ROOT`)}catch(e){x(String(e))}finally{v(!1)}}"
+      }
+    },
+    "rootStatusInitialAck": {
+      "utf8ByteOffset": 369540,
+      "expression": "Ht().then(Jt).catch(e=>x(String(e)));"
+    },
+    "periodicStatusPoll": {
+      "utf8ByteOffset": 369979,
+      "expression": "Promise.all([ot(e).catch(()=>null),Vt(e).catch(()=>null)])",
+      "observation": "Original five-second poll refreshes status and proxy status only; game_root_status is fetched separately and routed through Jt."
+    }
+  },
+  "currentCallbacks": {
+    "updateAutoLaunch": "async (value) => {\n    if (!backendBridge.available) return;\n    setHomeBusy(\"autoLaunchGame\");\n    setGameActionError(\"\");\n    try {\n      const next = await backendBridge.invoke(\"local_config_set\", { autoLaunchGame: value });\n      setLocalConfig(next);\n    } catch (error) {\n      setGameActionError(error?.message || String(error));\n    } finally {\n      setHomeBusy(\"\");\n    }\n  }",
+    "updateAutoReconnect": "async (value) => {\n    if (!backendBridge.available) return;\n    setHomeBusy(\"autoReconnect\");\n    setGameActionError(\"\");\n    try {\n      await backendBridge.invokeProfileScoped(\"set_automation\", { name: \"autoForceUpdateReload\", enabled: value });\n      setLocalConfig((current) => ({ ...(current || {}), autoReconnect: value }));\n    } catch (error) {\n      setGameActionError(error?.message || String(error));\n    } finally {\n      setHomeBusy(\"\");\n    }\n  }",
+    "selectGameRoot": "async () => {\n    if (!backendBridge.available) return;\n    setHomeBusy(\"gameRoot\");\n    try {\n      const selection = await backendBridge.invoke(\"game_root_select\", {});\n      if (selection.canceled) return;\n      if (!selection.valid) {\n        setGameRootError(\"INVALID_GAME_ROOT\");\n        return;\n      }\n      const next = await backendBridge.invoke(\"game_root_status\", {});\n      setGameRootStatus(next);\n      setGameRootError(\"\");\n    } catch (error) {\n      setGameRootError(error?.message || String(error));\n    } finally {\n      setHomeBusy(\"\");\n    }\n  }",
+    "refreshStatus": "async () => {\n    if (!backendBridge.available) return;\n    const [statusResult, proxyResult, scanResult, rootResult, recoveryResult, configResult] = await Promise.allSettled([\n      mapApi.readStatus(),\n      mapApi.readProxyStatus(),\n      mapApi.scanStatus(),\n      backendBridge.invoke(\"game_root_status\", {}),\n      backendBridge.invoke(\"game_recovery_status\", backendBridge.profileId ? { profileId: backendBridge.profileId } : {}),\n      backendBridge.invoke(\"local_config_get\", {}),\n    ]);\n    if (statusResult.status === \"fulfilled\") setRuntimeStatus(statusResult.value);\n    if (proxyResult.status === \"fulfilled\") setProxyStatus(proxyResult.value);\n    if (scanResult.status === \"fulfilled\" && scanResult.value.serverId > 0) {\n      setCurrentServerId(scanResult.value.serverId);\n    }\n    if (scanResult.status === \"fulfilled\") setMapRuntime(scanResult.value);\n    if (rootResult.status === \"fulfilled\") setGameRootStatus(rootResult.value);\n    if (recoveryResult.status === \"fulfilled\") setGameRecoveryStatus(recoveryResult.value);\n    if (configResult.status === \"fulfilled\") setLocalConfig(configResult.value);\n    if (statusResult.status === \"rejected\" || proxyResult.status === \"rejected\") {\n      const failure = statusResult.status === \"rejected\" ? statusResult.reason : proxyResult.reason;\n      setConnectionError(failure?.message || String(failure));\n    } else {\n      setConnectionError(\"\");\n    }\n  }"
+  },
+  "scenarios": [
+    {
+      "name": "picker cancel preserves both prior channels",
+      "state": {
+        "busy": "",
+        "rootError": "ROOT_PRIOR",
+        "actionError": "ACTION_PRIOR",
+        "root": {
+          "valid": false,
+          "root": ""
+        },
+        "config": {
+          "autoLaunchGame": false,
+          "autoReconnect": false
+        }
+      },
+      "trace": [
+        {
+          "key": "busy",
+          "value": "gameRoot"
+        },
+        {
+          "key": "busy",
+          "value": ""
+        }
+      ],
+      "requests": [
+        {
+          "command": "game_root_select",
+          "payload": {}
+        }
+      ]
+    },
+    {
+      "name": "picker invalid replaces only root error",
+      "state": {
+        "busy": "",
+        "rootError": "INVALID_GAME_ROOT",
+        "actionError": "ACTION_PRIOR",
+        "root": {
+          "valid": false,
+          "root": ""
+        },
+        "config": {
+          "autoLaunchGame": false,
+          "autoReconnect": false
+        }
+      },
+      "trace": [
+        {
+          "key": "busy",
+          "value": "gameRoot"
+        },
+        {
+          "key": "rootError",
+          "value": "INVALID_GAME_ROOT"
+        },
+        {
+          "key": "busy",
+          "value": ""
+        }
+      ],
+      "requests": [
+        {
+          "command": "game_root_select",
+          "payload": {}
+        }
+      ]
+    },
+    {
+      "name": "picker failure replaces only root error",
+      "state": {
+        "busy": "",
+        "rootError": "selection failed",
+        "actionError": "ACTION_PRIOR",
+        "root": {
+          "valid": false,
+          "root": ""
+        },
+        "config": {
+          "autoLaunchGame": false,
+          "autoReconnect": false
+        }
+      },
+      "trace": [
+        {
+          "key": "busy",
+          "value": "gameRoot"
+        },
+        {
+          "key": "rootError",
+          "value": "selection failed"
+        },
+        {
+          "key": "busy",
+          "value": ""
+        }
+      ],
+      "requests": [
+        {
+          "command": "game_root_select",
+          "payload": {}
+        }
+      ]
+    },
+    {
+      "name": "valid picker waits for deferred status acknowledgement before clearing root error",
+      "state": {
+        "busy": "",
+        "rootError": "",
+        "actionError": "ACTION_PRIOR",
+        "root": {
+          "valid": true,
+          "root": "C:\\LastWar"
+        },
+        "config": {
+          "autoLaunchGame": false,
+          "autoReconnect": false
+        }
+      },
+      "trace": [
+        {
+          "key": "busy",
+          "value": "gameRoot"
+        },
+        {
+          "key": "root",
+          "value": {
+            "valid": true,
+            "root": "C:\\LastWar"
+          }
+        },
+        {
+          "key": "rootError",
+          "value": ""
+        },
+        {
+          "key": "busy",
+          "value": ""
+        }
+      ],
+      "requests": [
+        {
+          "command": "game_root_select",
+          "payload": {}
+        },
+        {
+          "command": "game_root_status",
+          "payload": {}
+        }
+      ]
+    },
+    {
+      "name": "status failure replaces only root error",
+      "state": {
+        "busy": "",
+        "rootError": "status failed",
+        "actionError": "ACTION_PRIOR",
+        "root": {
+          "valid": false,
+          "root": ""
+        },
+        "config": {
+          "autoLaunchGame": false,
+          "autoReconnect": false
+        }
+      },
+      "trace": [
+        {
+          "key": "busy",
+          "value": "gameRoot"
+        },
+        {
+          "key": "rootError",
+          "value": "status failed"
+        },
+        {
+          "key": "busy",
+          "value": ""
+        }
+      ],
+      "requests": [
+        {
+          "command": "game_root_select",
+          "payload": {}
+        },
+        {
+          "command": "game_root_status",
+          "payload": {}
+        }
+      ]
+    },
+    {
+      "name": "deferred reconnect acknowledgement preserves root error and updates only after ack",
+      "state": {
+        "busy": "",
+        "rootError": "ROOT_PRIOR",
+        "actionError": "",
+        "root": {
+          "valid": false,
+          "root": ""
+        },
+        "config": {
+          "autoLaunchGame": false,
+          "autoReconnect": true
+        }
+      },
+      "trace": [
+        {
+          "key": "busy",
+          "value": "autoReconnect"
+        },
+        {
+          "key": "actionError",
+          "value": ""
+        },
+        {
+          "key": "config",
+          "value": {
+            "autoLaunchGame": false,
+            "autoReconnect": true
+          }
+        },
+        {
+          "key": "busy",
+          "value": ""
+        }
+      ],
+      "requests": [
+        {
+          "command": "set_automation",
+          "payload": {
+            "name": "autoForceUpdateReload",
+            "enabled": true,
+            "profileId": "review-home-profile"
+          }
+        }
+      ]
+    },
+    {
+      "name": "preference failure preserves root error and acknowledged config",
+      "state": {
+        "busy": "",
+        "rootError": "ROOT_PRIOR",
+        "actionError": "preference failed",
+        "root": {
+          "valid": false,
+          "root": ""
+        },
+        "config": {
+          "autoLaunchGame": false,
+          "autoReconnect": false
+        }
+      },
+      "trace": [
+        {
+          "key": "busy",
+          "value": "autoLaunchGame"
+        },
+        {
+          "key": "actionError",
+          "value": ""
+        },
+        {
+          "key": "actionError",
+          "value": "preference failed"
+        },
+        {
+          "key": "busy",
+          "value": ""
+        }
+      ],
+      "requests": [
+        {
+          "command": "local_config_set",
+          "payload": {
+            "autoLaunchGame": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "missing profile rejects before reconnect dispatch",
+      "state": {
+        "busy": "",
+        "rootError": "ROOT_PRIOR",
+        "actionError": "Select a profile before changing profile-scoped automation settings.",
+        "root": {
+          "valid": false,
+          "root": ""
+        },
+        "config": {
+          "autoLaunchGame": false,
+          "autoReconnect": false
+        }
+      },
+      "trace": [
+        {
+          "key": "busy",
+          "value": "autoReconnect"
+        },
+        {
+          "key": "actionError",
+          "value": ""
+        },
+        {
+          "key": "actionError",
+          "value": "Select a profile before changing profile-scoped automation settings."
+        },
+        {
+          "key": "busy",
+          "value": ""
+        }
+      ],
+      "requests": []
+    }
+  ],
+  "clearingDifference": {
+    "currentPollingExpression": "window.setInterval(refreshStatus, 5000)",
+    "currentRefreshRequests": [
+      "game_root_status",
+      "game_recovery_status",
+      "local_config_get"
+    ],
+    "currentAfterSuccessfulRootStatus": {
+      "gameRootStatus": {
+        "valid": true,
+        "root": "C:\\LastWar"
+      },
+      "gameRootError": "ROOT_PRIOR"
+    },
+    "originalJtAfterSuccessfulRootStatus": {
+      "root": {
+        "valid": true,
+        "root": "C:\\LastWar"
+      },
+      "rootError": ""
+    },
+    "finding": "Current refreshStatus repeatedly asks game_root_status in the five-second loop but handles a successful reply with setGameRootStatus only. Original fetches game_root_status separately through Jt, which sets status and clears the root error, while its five-second loop polls status/proxy only. The retained polling therefore prevents source-correct Jt clearing without also changing Xt cancellation persistence.",
+    "smallestSuggestedCorrection": "Move game_root_status out of the repeated refreshStatus poll into a source-like one-time root-status acknowledgement path, apply Jt semantics there (set gameRootStatus and clear only gameRootError), and reuse the same acknowledgement behavior for the explicit post-selection status reply. Preserve gameActionError and the existing five-second status/proxy polling.",
+    "scopeNote": "Do not merely clear gameRootError on every current five-second root-status reply: after Xt-style cancellation, that periodic clear would erase the preserved root error on the next tick even though the original periodic poll never asks for game_root_status."
+  }
+}

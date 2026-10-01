@@ -82,3 +82,10 @@ Existing port4319/PID62280 preview was pre-existing. No original protected-servi
 access, Last War launch/control, backend campaign, fallback or subagents. No fixed
 time block. Stage only owned review files, commit/push origin/research/offline-controller,
 verify HEAD/tracking/direct remote equality, and stop after this one review.
+
+Delivery: independent review completed 2026-10-02 with recommendation
+CHANGES_REQUIRED. The exact root-status polling/Jt clearing mismatch, reproduction,
+browser evidence and smallest source-shaped correction are documented in
+`docs/reviews/2026-10-02-LWB317-REVIEW-HOME-ERROR-002.md` and
+`evidence/lwbridge-0.3.17/ui/LWB317-REVIEW-HOME-ERROR-002/`. Product code and prior
+task evidence remain unchanged; project-lead acceptance is pending.

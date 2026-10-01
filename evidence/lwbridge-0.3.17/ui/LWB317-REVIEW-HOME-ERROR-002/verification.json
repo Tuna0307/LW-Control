@@ -1,0 +1,32 @@
+{
+  "task": "LWB317-REVIEW-HOME-ERROR-002",
+  "date": "2026-10-02",
+  "baseline": "a4efdd0c2f195f5b1878492c5fce60a949e14813",
+  "recommendation": "CHANGES_REQUIRED",
+  "checks": {
+    "exactSourceAnchors": "PASS",
+    "hostResultMappingReadOnly": "PASS",
+    "independentCallbackHarness": "PASS_WITH_PARITY_DEFECT_REPRODUCED",
+    "existingHomeError002Checker": "PASS",
+    "existingHomeError002EvidenceValidator": "PASS",
+    "translationRegression": "PASS",
+    "switchRegression": "PASS",
+    "busyRegression": "PASS",
+    "browserFixtures": "PASS",
+    "browserConsole": "PASS",
+    "canonicalCheck": "PASS",
+    "productionBuild": "PASS",
+    "productionPackage": "PASS"
+  },
+  "counts": {
+    "independentCallbackScenarios": 8,
+    "existingCallbackScenarios": 9,
+    "existingOriginalPickerCases": 4,
+    "existingRenderComparisons": 72,
+    "browserFixtures": 2,
+    "reviewScreenshots": 1
+  },
+  "buildFingerprint": "53201aabb3833ec593a92f23ca6ced0f12bb3c645ad9dbfca159a32f1692f13e",
+  "packageFingerprint": "96b9dd1a99d67a6bf4dee3e39035915401de25395f99cdf2c0af5bbe4ccd9782",
+  "limits": "Synthetic local bridge/browser review only; no native picker, game action, persistence, protected original runtime or original pixel comparison. Busy was rerun only as a regression check and remains separately reviewed."
+}

@@ -1,0 +1,37 @@
+{
+  "task": "LWB317-REVIEW-HOME-ERROR-002",
+  "date": "2026-10-02",
+  "preview": "http://127.0.0.1:4329",
+  "syntheticBrowserOnly": true,
+  "observations": [
+    {
+      "fixture": "home-errors-both",
+      "language": "en",
+      "rootMessage": "The selected game installation folder is invalid.",
+      "actionMessage": "The game xLua component is not supported. Close Bridge and repair the game with the official launcher.",
+      "disabledControls": [
+        "Choose Folder",
+        "Open games at startup",
+        "Automatic Reconnection"
+      ]
+    },
+    {
+      "fixture": "home-error-action-missing-root",
+      "language": "en",
+      "rootMessage": "Not detected",
+      "actionMessage": "The game xLua component is not supported. Close Bridge and repair the game with the official launcher.",
+      "disabledControls": [
+        "Choose Folder",
+        "Open games at startup",
+        "Automatic Reconnection"
+      ]
+    }
+  ],
+  "consoleErrors": [],
+  "screenshot": {
+    "file": "both-errors-review.jpg",
+    "fixture": "home-errors-both",
+    "sha256": "BFAFAA4AF46668BF58C19DA0928D3DE789EB18EE8E915DD6A0036E1FB6A75D36"
+  },
+  "limits": "Existing browser-only fixtures on an owned local Vite server. No native picker, gameplay action, persistence, or original protected runtime was exercised."
+}
