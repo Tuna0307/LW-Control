@@ -182,11 +182,13 @@ across all nine locales and browser QA confirms Settings off/on/off plus Japanes
 Home checked/unchecked disabled descriptions. See
 `reviews/2026-10-02-LWB317-PM-016-switch-locale-acceptance.md`; original/native parity unproved.
 See `reviews/2026-10-02-LWB317-PM-017-home-translation-acceptance.md`.
-PM-018 integrates independent review db3aae3: HOME-ERROR-002 is CHANGES_REQUIRED for
-root-status acknowledgement/polling. Root/action placement remains useful; correction
-LWB317-UI-HOME-ERROR-002-R1 is ASSIGNED. HOME-BUSY-001 remains AWAITING_REVIEW. See
-docs/reviews/2026-10-02-LWB317-PM-018-home-channel-review-integration.md and
-docs/work-items/LWB317-UI-HOME-ERROR-002-R1.md.
+PM-018 integrates independent review db3aae3: HOME-ERROR-002 remains CHANGES_REQUIRED
+pending correction review. LWB317-UI-HOME-ERROR-002-R1 is AWAITING_REVIEW after
+source-shaped selected-profile root retrieval replaced repeated five-second root
+polling and successful initial/post-selection replies share root-status/error
+acknowledgement. Fourteen synthetic bridge scenarios, focused regressions and the
+two unchanged browser fixtures pass. See
+`reviews/2026-10-02-LWB317-UI-HOME-ERROR-002-R1.md`.
 Earlier correction evidence is under
 `evidence/lwbridge-0.3.17/ui/LWB317-UI-CORRECT-001/`; worker report:
 `reviews/2026-10-01-LWB317-UI-CORRECT-001.md`. Previous lead disposition:

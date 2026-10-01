@@ -44,6 +44,7 @@ function initialTheme() {
 
 export function App() {
   const { language, setLanguage, t } = useI18n();
+  const selectedProfileId = backendBridge.profileId;
   const [activeRoute, setActiveRoute] = useState(initialRoute);
   const [theme, setTheme] = useState(initialTheme);
   const [serverJumpOpen, setServerJumpOpen] = useState(false);
@@ -69,13 +70,17 @@ export function App() {
     if (LANGUAGES.some(({ code }) => code === requested) && requested !== language) setLanguage(requested);
   }, [language, setLanguage]);
 
+  const acknowledgeGameRootStatus = useCallback((next) => {
+    setGameRootStatus(next);
+    setGameRootError("");
+  }, []);
+
   const refreshStatus = useCallback(async () => {
     if (!backendBridge.available) return;
-    const [statusResult, proxyResult, scanResult, rootResult, recoveryResult, configResult] = await Promise.allSettled([
+    const [statusResult, proxyResult, scanResult, recoveryResult, configResult] = await Promise.allSettled([
       mapApi.readStatus(),
       mapApi.readProxyStatus(),
       mapApi.scanStatus(),
-      backendBridge.invoke("game_root_status", {}),
       backendBridge.invoke("game_recovery_status", backendBridge.profileId ? { profileId: backendBridge.profileId } : {}),
       backendBridge.invoke("local_config_get", {}),
     ]);
@@ -85,7 +90,6 @@ export function App() {
       setCurrentServerId(scanResult.value.serverId);
     }
     if (scanResult.status === "fulfilled") setMapRuntime(scanResult.value);
-    if (rootResult.status === "fulfilled") setGameRootStatus(rootResult.value);
     if (recoveryResult.status === "fulfilled") setGameRecoveryStatus(recoveryResult.value);
     if (configResult.status === "fulfilled") setLocalConfig(configResult.value);
     if (statusResult.status === "rejected" || proxyResult.status === "rejected") {
@@ -103,6 +107,13 @@ export function App() {
       if (payload) setGameRecoveryStatus(payload);
     });
   }, []);
+
+  useEffect(() => {
+    if (!backendBridge.available || !selectedProfileId) return;
+    backendBridge.invoke("game_root_status", {})
+      .then(acknowledgeGameRootStatus)
+      .catch((error) => setGameRootError(error?.message || String(error)));
+  }, [acknowledgeGameRootStatus, selectedProfileId]);
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
@@ -191,14 +202,13 @@ export function App() {
         return;
       }
       const next = await backendBridge.invoke("game_root_status", {});
-      setGameRootStatus(next);
-      setGameRootError("");
+      acknowledgeGameRootStatus(next);
     } catch (error) {
       setGameRootError(error?.message || String(error));
     } finally {
       setHomeBusy("");
     }
-  }, []);
+  }, [acknowledgeGameRootStatus]);
 
   const jumpServer = useCallback(async (serverId) => {
     if (!Number.isInteger(serverId) || serverId < 1 || serverId > 99999) {

@@ -1,0 +1,739 @@
+{
+  "task": "LWB317-UI-HOME-ERROR-002-R1",
+  "date": "2026-10-02",
+  "result": "LWB317_HOME_ERROR_002_R1_OK",
+  "source": {
+    "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-BVfnK1wp.js",
+    "sha256": "44C4E4043825B7DB296B64171951B27176F8850FF8D7D337CC991DF4765524C6",
+    "Jt": {
+      "utf8ByteOffset": 367489,
+      "expression": "function Jt(e){g(e),x(``)}"
+    },
+    "initialRootAcknowledgement": {
+      "utf8ByteOffset": 369540,
+      "expression": "Ht().then(Jt).catch(e=>x(String(e)));"
+    },
+    "periodicStatusPoll": {
+      "utf8ByteOffset": 369979,
+      "expression": "Promise.all([ot(e).catch(()=>null),Vt(e).catch(()=>null)])"
+    },
+    "selectedProfileEffect": {
+      "utf8ByteOffset": 369239,
+      "callback": "()=>{if(!r.selectedProfileId)return;let e=r.selectedProfileId,t=!1,n=n=>r=>{!t&&A()===e&&n(r)},i=[Wt(`bridge://status`,n(Ot)),Wt(`bridge://map-scan-status`,n(pt)),Wt(`bridge://automation-status`,n(Ae)),Wt(`bridge://resource-automation-status`,n(Me)),Wt(`bridge://game-recovery`,n(T))];Ht().then(Jt).catch(e=>x(String(e)));let a=(e,t)=>e.catch(e=>(F(`${t} error ${String(e)}`),null));Promise.all([a(ot(e),`status`),a(Vt(e),`game setup status`),a(st(e),`game recovery status`),a(gt(e),`automation status`),a(yt(e),`resource automation status`),a(vn(e),`map summary`)]).then(n(([e,t,n,r,i,a])=>{e&&Ot(e),t&&f(t),n&&T(n),r&&Ae(r),i&&Me(i),a&&(_e(a),pt(a.scanState)),et(!1)}));let o=!1,s=async()=>{if(!o){o=!0;try{let[n,r]=await Promise.all([ot(e).catch(()=>null),Vt(e).catch(()=>null)]);if(t||A()!==e)return;n&&Ot(n),r&&f(e=>JSON.stringify(e)===JSON.stringify(r)?e:r)}finally{o=!1}}},c=window.setInterval(()=>{s()},5e3);return()=>{t=!0,window.clearInterval(c),i.forEach(e=>e())}}",
+      "dependencies": "[r.selectedProfileId]"
+    }
+  },
+  "production": {
+    "appPath": "src/LWBridge.UI-0.3.17/src/App.jsx",
+    "appSha256NormalizedLF": "BA4A300D525A271C61A8061406CA81DE2414AACC15DF10A728B0E1A8641B2701",
+    "selectedProfileExpression": "backendBridge.profileId",
+    "rootEffect": {
+      "callback": "() => {\n    if (!backendBridge.available || !selectedProfileId) return;\n    backendBridge.invoke(\"game_root_status\", {})\n      .then(acknowledgeGameRootStatus)\n      .catch((error) => setGameRootError(error?.message || String(error)));\n  }",
+      "dependencies": "[acknowledgeGameRootStatus, selectedProfileId]"
+    },
+    "callbacks": {
+      "acknowledgeGameRootStatus": "(next) => {\n    setGameRootStatus(next);\n    setGameRootError(\"\");\n  }",
+      "refreshStatus": "async () => {\n    if (!backendBridge.available) return;\n    const [statusResult, proxyResult, scanResult, recoveryResult, configResult] = await Promise.allSettled([\n      mapApi.readStatus(),\n      mapApi.readProxyStatus(),\n      mapApi.scanStatus(),\n      backendBridge.invoke(\"game_recovery_status\", backendBridge.profileId ? { profileId: backendBridge.profileId } : {}),\n      backendBridge.invoke(\"local_config_get\", {}),\n    ]);\n    if (statusResult.status === \"fulfilled\") setRuntimeStatus(statusResult.value);\n    if (proxyResult.status === \"fulfilled\") setProxyStatus(proxyResult.value);\n    if (scanResult.status === \"fulfilled\" && scanResult.value.serverId > 0) {\n      setCurrentServerId(scanResult.value.serverId);\n    }\n    if (scanResult.status === \"fulfilled\") setMapRuntime(scanResult.value);\n    if (recoveryResult.status === \"fulfilled\") setGameRecoveryStatus(recoveryResult.value);\n    if (configResult.status === \"fulfilled\") setLocalConfig(configResult.value);\n    if (statusResult.status === \"rejected\" || proxyResult.status === \"rejected\") {\n      const failure = statusResult.status === \"rejected\" ? statusResult.reason : proxyResult.reason;\n      setConnectionError(failure?.message || String(failure));\n    } else {\n      setConnectionError(\"\");\n    }\n  }",
+      "updateAutoLaunch": "async (value) => {\n    if (!backendBridge.available) return;\n    setHomeBusy(\"autoLaunchGame\");\n    setGameActionError(\"\");\n    try {\n      const next = await backendBridge.invoke(\"local_config_set\", { autoLaunchGame: value });\n      setLocalConfig(next);\n    } catch (error) {\n      setGameActionError(error?.message || String(error));\n    } finally {\n      setHomeBusy(\"\");\n    }\n  }",
+      "updateAutoReconnect": "async (value) => {\n    if (!backendBridge.available) return;\n    setHomeBusy(\"autoReconnect\");\n    setGameActionError(\"\");\n    try {\n      await backendBridge.invokeProfileScoped(\"set_automation\", { name: \"autoForceUpdateReload\", enabled: value });\n      setLocalConfig((current) => ({ ...(current || {}), autoReconnect: value }));\n    } catch (error) {\n      setGameActionError(error?.message || String(error));\n    } finally {\n      setHomeBusy(\"\");\n    }\n  }",
+      "selectGameRoot": "async () => {\n    if (!backendBridge.available) return;\n    setHomeBusy(\"gameRoot\");\n    try {\n      const selection = await backendBridge.invoke(\"game_root_select\", {});\n      if (selection.canceled) return;\n      if (!selection.valid) {\n        setGameRootError(\"INVALID_GAME_ROOT\");\n        return;\n      }\n      const next = await backendBridge.invoke(\"game_root_status\", {});\n      acknowledgeGameRootStatus(next);\n    } catch (error) {\n      setGameRootError(error?.message || String(error));\n    } finally {\n      setHomeBusy(\"\");\n    }\n  }",
+      "jumpServer": "async (serverId) => {\n    if (!Number.isInteger(serverId) || serverId < 1 || serverId > 99999) {\n      setServerJumpError(\"Invalid server ID\");\n      return;\n    }\n    if (!online) {\n      setServerJumpError(\"Game disconnected\");\n      return;\n    }\n    if (mapRuntime.isReading) {\n      setServerJumpError(\"Stop the map scan first\");\n      return;\n    }\n    setServerJumpBusy(serverId);\n    setServerJumpError(\"\");\n    try {\n      const result = await mapApi.jumpServer(serverId);\n      if (result?.changed) {\n        const history = [Number(result.serverId), ...serverHistory.filter((value) => value !== Number(result.serverId))].slice(0, 5);\n        const persisted = await mapApi.setServerJumpHistory(history);\n        setServerHistory(Array.isArray(persisted) ? persisted : history);\n      }\n      setServerTarget(\"\");\n      setServerJumpOpen(false);\n      await refreshStatus();\n    } catch {\n      setServerJumpError(\"Action failed\");\n    } finally {\n      setServerJumpBusy(0);\n    }\n  }"
+    },
+    "timerExpression": "window.setInterval(refreshStatus, 5000)",
+    "listenersPreserved": [
+      "bridge://game-recovery",
+      "mapApi.listenStatus",
+      "mapApi.listenScanStatus"
+    ],
+    "manualRefreshConsequence": "jumpServer still awaits refreshStatus, but refreshStatus no longer retrieves game_root_status; root retrieval is profile-effect/post-selection only."
+  },
+  "originalJtAfterSuccess": {
+    "root": {
+      "valid": true,
+      "root": "C:\\LastWar"
+    },
+    "rootError": ""
+  },
+  "scenarios": [
+    {
+      "name": "initial profile root acknowledgement succeeds",
+      "state": {
+        "busy": "",
+        "rootError": "",
+        "actionError": "ACTION_PRIOR",
+        "root": {
+          "valid": true,
+          "root": "C:\\LastWar"
+        },
+        "config": {
+          "autoLaunchGame": false,
+          "autoReconnect": false
+        },
+        "recovery": null,
+        "runtime": null,
+        "proxy": null,
+        "scan": null,
+        "serverId": 0,
+        "connectionError": "prior connection error"
+      },
+      "trace": [
+        {
+          "key": "root",
+          "value": {
+            "valid": true,
+            "root": "C:\\LastWar"
+          }
+        },
+        {
+          "key": "rootError",
+          "value": ""
+        }
+      ],
+      "requests": [
+        {
+          "command": "game_root_status",
+          "payload": {}
+        }
+      ]
+    },
+    {
+      "name": "initial profile root acknowledgement fails into root channel",
+      "state": {
+        "busy": "",
+        "rootError": "initial status failed",
+        "actionError": "ACTION_PRIOR",
+        "root": {
+          "valid": false,
+          "root": ""
+        },
+        "config": {
+          "autoLaunchGame": false,
+          "autoReconnect": false
+        },
+        "recovery": null,
+        "runtime": null,
+        "proxy": null,
+        "scan": null,
+        "serverId": 0,
+        "connectionError": "prior connection error"
+      },
+      "trace": [
+        {
+          "key": "rootError",
+          "value": "initial status failed"
+        }
+      ],
+      "requests": [
+        {
+          "command": "game_root_status",
+          "payload": {}
+        }
+      ]
+    },
+    {
+      "name": "initial profile root acknowledgement remains deferred until response",
+      "state": {
+        "busy": "",
+        "rootError": "",
+        "actionError": "ACTION_PRIOR",
+        "root": {
+          "valid": false,
+          "root": ""
+        },
+        "config": {
+          "autoLaunchGame": false,
+          "autoReconnect": false
+        },
+        "recovery": null,
+        "runtime": null,
+        "proxy": null,
+        "scan": null,
+        "serverId": 0,
+        "connectionError": "prior connection error"
+      },
+      "trace": [
+        {
+          "key": "root",
+          "value": {
+            "valid": false,
+            "root": ""
+          }
+        },
+        {
+          "key": "rootError",
+          "value": ""
+        }
+      ],
+      "requests": [
+        {
+          "command": "game_root_status",
+          "payload": {}
+        }
+      ]
+    },
+    {
+      "name": "initial root request is gated without selected profile",
+      "state": {
+        "busy": "",
+        "rootError": "ROOT_PRIOR",
+        "actionError": "ACTION_PRIOR",
+        "root": {
+          "valid": false,
+          "root": ""
+        },
+        "config": {
+          "autoLaunchGame": false,
+          "autoReconnect": false
+        },
+        "recovery": null,
+        "runtime": null,
+        "proxy": null,
+        "scan": null,
+        "serverId": 0,
+        "connectionError": "prior connection error"
+      },
+      "trace": [],
+      "requests": []
+    },
+    {
+      "name": "native unavailable fences initial and action callbacks",
+      "state": {
+        "busy": "",
+        "rootError": "ROOT_PRIOR",
+        "actionError": "ACTION_PRIOR",
+        "root": {
+          "valid": false,
+          "root": ""
+        },
+        "config": {
+          "autoLaunchGame": false,
+          "autoReconnect": false
+        },
+        "recovery": null,
+        "runtime": null,
+        "proxy": null,
+        "scan": null,
+        "serverId": 0,
+        "connectionError": "prior connection error"
+      },
+      "trace": [],
+      "requests": []
+    },
+    {
+      "name": "five-second refresh inventory excludes root status",
+      "state": {
+        "busy": "",
+        "rootError": "ROOT_PRIOR",
+        "actionError": "ACTION_PRIOR",
+        "root": {
+          "valid": false,
+          "root": ""
+        },
+        "config": {
+          "autoLaunchGame": false,
+          "autoReconnect": false
+        },
+        "recovery": {
+          "state": "idle"
+        },
+        "runtime": {
+          "connected": true,
+          "pending": 2
+        },
+        "proxy": {
+          "gameRunning": false,
+          "repairRequired": false
+        },
+        "scan": {
+          "serverId": 77,
+          "isReading": false
+        },
+        "serverId": 77,
+        "connectionError": ""
+      },
+      "trace": [
+        {
+          "key": "runtime",
+          "value": {
+            "connected": true,
+            "pending": 2
+          }
+        },
+        {
+          "key": "proxy",
+          "value": {
+            "gameRunning": false,
+            "repairRequired": false
+          }
+        },
+        {
+          "key": "serverId",
+          "value": 77
+        },
+        {
+          "key": "scan",
+          "value": {
+            "serverId": 77,
+            "isReading": false
+          }
+        },
+        {
+          "key": "recovery",
+          "value": {
+            "state": "idle"
+          }
+        },
+        {
+          "key": "config",
+          "value": {
+            "autoLaunchGame": false,
+            "autoReconnect": false
+          }
+        },
+        {
+          "key": "connectionError",
+          "value": ""
+        }
+      ],
+      "requests": [
+        {
+          "command": "game_recovery_status",
+          "payload": {
+            "profileId": "r1-profile"
+          }
+        },
+        {
+          "command": "local_config_get",
+          "payload": {}
+        }
+      ]
+    },
+    {
+      "name": "picker cancellation survives later periodic refresh",
+      "state": {
+        "busy": "",
+        "rootError": "ROOT_PRIOR",
+        "actionError": "ACTION_PRIOR",
+        "root": {
+          "valid": false,
+          "root": ""
+        },
+        "config": {
+          "autoLaunchGame": false,
+          "autoReconnect": false
+        },
+        "recovery": {
+          "state": "idle"
+        },
+        "runtime": {
+          "connected": true,
+          "pending": 2
+        },
+        "proxy": {
+          "gameRunning": false,
+          "repairRequired": false
+        },
+        "scan": {
+          "serverId": 77,
+          "isReading": false
+        },
+        "serverId": 77,
+        "connectionError": ""
+      },
+      "trace": [
+        {
+          "key": "busy",
+          "value": "gameRoot"
+        },
+        {
+          "key": "busy",
+          "value": ""
+        },
+        {
+          "key": "runtime",
+          "value": {
+            "connected": true,
+            "pending": 2
+          }
+        },
+        {
+          "key": "proxy",
+          "value": {
+            "gameRunning": false,
+            "repairRequired": false
+          }
+        },
+        {
+          "key": "serverId",
+          "value": 77
+        },
+        {
+          "key": "scan",
+          "value": {
+            "serverId": 77,
+            "isReading": false
+          }
+        },
+        {
+          "key": "recovery",
+          "value": {
+            "state": "idle"
+          }
+        },
+        {
+          "key": "config",
+          "value": {
+            "autoLaunchGame": false,
+            "autoReconnect": false
+          }
+        },
+        {
+          "key": "connectionError",
+          "value": ""
+        }
+      ],
+      "requests": [
+        {
+          "command": "game_root_select",
+          "payload": {}
+        },
+        {
+          "command": "game_recovery_status",
+          "payload": {
+            "profileId": "r1-profile"
+          }
+        },
+        {
+          "command": "local_config_get",
+          "payload": {}
+        }
+      ]
+    },
+    {
+      "name": "picker invalid preserves action channel and acknowledgement ordering",
+      "state": {
+        "busy": "",
+        "rootError": "INVALID_GAME_ROOT",
+        "actionError": "ACTION_PRIOR",
+        "root": {
+          "valid": false,
+          "root": ""
+        },
+        "config": {
+          "autoLaunchGame": false,
+          "autoReconnect": false
+        },
+        "recovery": null,
+        "runtime": null,
+        "proxy": null,
+        "scan": null,
+        "serverId": 0,
+        "connectionError": "prior connection error"
+      },
+      "trace": [
+        {
+          "key": "busy",
+          "value": "gameRoot"
+        },
+        {
+          "key": "rootError",
+          "value": "INVALID_GAME_ROOT"
+        },
+        {
+          "key": "busy",
+          "value": ""
+        }
+      ],
+      "requests": [
+        {
+          "command": "game_root_select",
+          "payload": {}
+        }
+      ]
+    },
+    {
+      "name": "picker selection-error preserves action channel and acknowledgement ordering",
+      "state": {
+        "busy": "",
+        "rootError": "selection failed",
+        "actionError": "ACTION_PRIOR",
+        "root": {
+          "valid": false,
+          "root": ""
+        },
+        "config": {
+          "autoLaunchGame": false,
+          "autoReconnect": false
+        },
+        "recovery": null,
+        "runtime": null,
+        "proxy": null,
+        "scan": null,
+        "serverId": 0,
+        "connectionError": "prior connection error"
+      },
+      "trace": [
+        {
+          "key": "busy",
+          "value": "gameRoot"
+        },
+        {
+          "key": "rootError",
+          "value": "selection failed"
+        },
+        {
+          "key": "busy",
+          "value": ""
+        }
+      ],
+      "requests": [
+        {
+          "command": "game_root_select",
+          "payload": {}
+        }
+      ]
+    },
+    {
+      "name": "picker status-error preserves action channel and acknowledgement ordering",
+      "state": {
+        "busy": "",
+        "rootError": "status failed",
+        "actionError": "ACTION_PRIOR",
+        "root": {
+          "valid": false,
+          "root": ""
+        },
+        "config": {
+          "autoLaunchGame": false,
+          "autoReconnect": false
+        },
+        "recovery": null,
+        "runtime": null,
+        "proxy": null,
+        "scan": null,
+        "serverId": 0,
+        "connectionError": "prior connection error"
+      },
+      "trace": [
+        {
+          "key": "busy",
+          "value": "gameRoot"
+        },
+        {
+          "key": "rootError",
+          "value": "status failed"
+        },
+        {
+          "key": "busy",
+          "value": ""
+        }
+      ],
+      "requests": [
+        {
+          "command": "game_root_select",
+          "payload": {}
+        },
+        {
+          "command": "game_root_status",
+          "payload": {}
+        }
+      ]
+    },
+    {
+      "name": "picker valid preserves action channel and acknowledgement ordering",
+      "state": {
+        "busy": "",
+        "rootError": "",
+        "actionError": "ACTION_PRIOR",
+        "root": {
+          "valid": true,
+          "root": "C:\\LastWar"
+        },
+        "config": {
+          "autoLaunchGame": false,
+          "autoReconnect": false
+        },
+        "recovery": null,
+        "runtime": null,
+        "proxy": null,
+        "scan": null,
+        "serverId": 0,
+        "connectionError": "prior connection error"
+      },
+      "trace": [
+        {
+          "key": "busy",
+          "value": "gameRoot"
+        },
+        {
+          "key": "root",
+          "value": {
+            "valid": true,
+            "root": "C:\\LastWar"
+          }
+        },
+        {
+          "key": "rootError",
+          "value": ""
+        },
+        {
+          "key": "busy",
+          "value": ""
+        }
+      ],
+      "requests": [
+        {
+          "command": "game_root_select",
+          "payload": {}
+        },
+        {
+          "command": "game_root_status",
+          "payload": {}
+        }
+      ]
+    },
+    {
+      "name": "reconnect remains profile scoped and updates after acknowledgement",
+      "state": {
+        "busy": "",
+        "rootError": "ROOT_PRIOR",
+        "actionError": "",
+        "root": {
+          "valid": false,
+          "root": ""
+        },
+        "config": {
+          "autoLaunchGame": false,
+          "autoReconnect": true
+        },
+        "recovery": null,
+        "runtime": null,
+        "proxy": null,
+        "scan": null,
+        "serverId": 0,
+        "connectionError": "prior connection error"
+      },
+      "trace": [
+        {
+          "key": "busy",
+          "value": "autoReconnect"
+        },
+        {
+          "key": "actionError",
+          "value": ""
+        },
+        {
+          "key": "config",
+          "value": {
+            "autoLaunchGame": false,
+            "autoReconnect": true
+          }
+        },
+        {
+          "key": "busy",
+          "value": ""
+        }
+      ],
+      "requests": [
+        {
+          "command": "set_automation",
+          "payload": {
+            "name": "autoForceUpdateReload",
+            "enabled": true,
+            "profileId": "r1-profile"
+          }
+        }
+      ]
+    },
+    {
+      "name": "reconnect still rejects missing profile before dispatch",
+      "state": {
+        "busy": "",
+        "rootError": "ROOT_PRIOR",
+        "actionError": "Select a profile before changing profile-scoped automation settings.",
+        "root": {
+          "valid": false,
+          "root": ""
+        },
+        "config": {
+          "autoLaunchGame": false,
+          "autoReconnect": false
+        },
+        "recovery": null,
+        "runtime": null,
+        "proxy": null,
+        "scan": null,
+        "serverId": 0,
+        "connectionError": "prior connection error"
+      },
+      "trace": [
+        {
+          "key": "busy",
+          "value": "autoReconnect"
+        },
+        {
+          "key": "actionError",
+          "value": ""
+        },
+        {
+          "key": "actionError",
+          "value": "Select a profile before changing profile-scoped automation settings."
+        },
+        {
+          "key": "busy",
+          "value": ""
+        }
+      ],
+      "requests": []
+    },
+    {
+      "name": "preference failure remains independent from root channel",
+      "state": {
+        "busy": "",
+        "rootError": "ROOT_PRIOR",
+        "actionError": "preference failed",
+        "root": {
+          "valid": false,
+          "root": ""
+        },
+        "config": {
+          "autoLaunchGame": false,
+          "autoReconnect": false
+        },
+        "recovery": null,
+        "runtime": null,
+        "proxy": null,
+        "scan": null,
+        "serverId": 0,
+        "connectionError": "prior connection error"
+      },
+      "trace": [
+        {
+          "key": "busy",
+          "value": "autoLaunchGame"
+        },
+        {
+          "key": "actionError",
+          "value": ""
+        },
+        {
+          "key": "actionError",
+          "value": "preference failed"
+        },
+        {
+          "key": "busy",
+          "value": ""
+        }
+      ],
+      "requests": [
+        {
+          "command": "local_config_set",
+          "payload": {
+            "autoLaunchGame": true
+          }
+        }
+      ]
+    }
+  ],
+  "limits": "Synthetic local response envelopes through the real frontend bridge and extracted current callbacks/effect only. No native picker, Last War process, persistence, protected original runtime, or original pixel comparison executed."
+}

@@ -100,13 +100,18 @@ current Home regression checkers pass. Review:
 delivery does not accept prior lead deliveries or open native lifecycle work.
 Acceptance: `reviews/2026-10-02-LWB317-PM-016-switch-locale-acceptance.md`.
 PM-017 acceptance: `reviews/2026-10-02-LWB317-PM-017-home-translation-acceptance.md`.
-PM-018 integrates independent review db3aae3: HOME-ERROR-002 is CHANGES_REQUIRED for
-root-status acknowledgement/polling. Root/action placement remains useful; correction
-LWB317-UI-HOME-ERROR-002-R1 is ASSIGNED. HOME-BUSY-001 remains AWAITING_REVIEW. See
-docs/reviews/2026-10-02-LWB317-PM-018-home-channel-review-integration.md and
-docs/work-items/LWB317-UI-HOME-ERROR-002-R1.md.
-Next continuation is the root-only R1 correction using synthetic local bridge
-responses; no native picker/gameplay or other pending-unit review is assigned.
+PM-018 still leaves HOME-ERROR-002 CHANGES_REQUIRED until its correction is reviewed.
+LWB317-UI-HOME-ERROR-002-R1 is now AWAITING_REVIEW: `game_root_status` is removed
+from repeated `refreshStatus`, the selected-profile effect performs the initial
+request, and successful initial/post-selection replies share the root-status plus
+root-error-clear acknowledgement. Fourteen actual-callback/effect synthetic bridge
+scenarios cover timer inventory, cancel persistence, selection failures, profile
+gating/injection, preference isolation and native-unavailable fencing. Existing
+translation/switch regressions, busy assertions, browser fixtures and canonical
+package checks pass. See
+`docs/reviews/2026-10-02-LWB317-UI-HOME-ERROR-002-R1.md`.
+Next continuation is independent project-lead review of this R1 correction; no
+native picker/gameplay or other pending-unit review is assigned here.
 Do not restart broad CORRECT-003 or reopen accepted weekly/selection/history work.
 Trade/Assist/runtime/AFK work remains preserved for later separate validation tasks.
 Physical drag, native config persistence and original pixels remain unproved.

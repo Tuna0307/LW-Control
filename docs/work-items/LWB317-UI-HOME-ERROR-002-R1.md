@@ -1,6 +1,6 @@
 # LWB317-UI-HOME-ERROR-002-R1 — root acknowledgement and polling
 
-Owner: returning worker. State: ASSIGNED. Date: 2026-10-02.
+Owner: returning worker. State: AWAITING_REVIEW. Date: 2026-10-02.
 Review baseline: db3aae317321d9ac21774f421dd363daa8a146c3;
 PM-018 assignment documentation follows it. Use current HEAD without reset.
 

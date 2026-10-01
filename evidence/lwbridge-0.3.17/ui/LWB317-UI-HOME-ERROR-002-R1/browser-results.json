@@ -1,0 +1,30 @@
+{
+  "task": "LWB317-UI-HOME-ERROR-002-R1",
+  "date": "2026-10-02",
+  "server": "pre-existing http://127.0.0.1:4319 (PID 62280)",
+  "observations": [
+    {
+      "fixture": "home-errors-both",
+      "url": "http://127.0.0.1:4319/?previewPage=home&previewState=home-errors-both&previewLanguage=en",
+      "rootMessage": "The selected game installation folder is invalid.",
+      "actionErrors": [
+        "The game xLua component is not supported. Close Bridge and repair the game with the official launcher."
+      ],
+      "chooseFolderDisabled": true,
+      "preferenceTogglesDisabled": true
+    },
+    {
+      "fixture": "home-error-action-missing-root",
+      "url": "http://127.0.0.1:4319/?previewPage=home&previewState=home-error-action-missing-root&previewLanguage=en",
+      "rootMessage": "Not detected",
+      "actionErrors": [
+        "The game xLua component is not supported. Close Bridge and repair the game with the official launcher."
+      ],
+      "chooseFolderDisabled": true,
+      "preferenceTogglesDisabled": true
+    }
+  ],
+  "consoleErrors": [],
+  "nativeControlsInvoked": false,
+  "notes": "Fresh browser-only recheck of the two existing fixtures after the R1 App wiring change. No native picker or gameplay control was executed."
+}

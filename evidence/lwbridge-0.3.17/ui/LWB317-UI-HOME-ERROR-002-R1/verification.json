@@ -1,0 +1,43 @@
+{
+  "task": "LWB317-UI-HOME-ERROR-002-R1",
+  "date": "2026-10-02",
+  "state": "AWAITING_REVIEW",
+  "baseline": "d7e37a7bd0685a46e75264b39ba1b6ffa105d510",
+  "referenceExeHash": "4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783",
+  "referenceFrontendHash": "44C4E4043825B7DB296B64171951B27176F8850FF8D7D337CC991DF4765524C6",
+  "appSha256NormalizedLF": "BA4A300D525A271C61A8061406CA81DE2414AACC15DF10A728B0E1A8641B2701",
+  "checks": {
+    "actualCallbacksEffectAndTransport": "PASS",
+    "initialRootSuccessFailureDeferred": "PASS",
+    "profileGateAndTimerInventory": "PASS",
+    "cancellationPersistence": "PASS",
+    "pickerAndActionChannelIsolation": "PASS",
+    "preferenceReconnectRegression": "PASS",
+    "nativeUnavailableFence": "PASS",
+    "translationRecord": "PASS",
+    "translationEvidence": "PASS",
+    "switchRecord": "PASS",
+    "switchEvidence": "PASS",
+    "busyAssertionsWithoutHistoricalHashRecord": "PASS",
+    "canonicalCheck": "PASS",
+    "productionBuild": "PASS",
+    "productionPackage": "PASS",
+    "browserQA": "PASS",
+    "evidenceValidation": "PASS",
+    "diffCheck": "PASS"
+  },
+  "counts": {
+    "r1SyntheticScenarios": 14,
+    "browserObservations": 2,
+    "priorTranslationEdgeCases": 60,
+    "priorTranslationCatalogCases": 4230,
+    "priorTranslationRenderStates": 27,
+    "switchRenderComparisons": 360,
+    "busyRenderComparisons": 13824,
+    "busyPredicateCases": 384
+  },
+  "buildFingerprint": "8055b198949dcac217b15c7b8dac40e6f965847ef472906cf27b1a68388aeb0b",
+  "packageFingerprint": "3a01e609bf7f5281757cf843181bc2c2a1fdf5f544a62a1fae50b87a12616cb4",
+  "limits": "Synthetic local bridge responses and browser-preview fixtures only. No native folder picker, Last War launch/control, live persistence, protected original post-auth runtime or original pixel comparison.",
+  "cleanup": "Owned browser tab closed; pre-existing port4319 PID62280 preview server retained; previewAfkFixtures.js, .scratch-lwb317 and CORRECT-003 screenshots remain untouched/unstaged."
+}

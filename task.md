@@ -134,10 +134,12 @@ recovered/production ToggleRow comparison passes 360 nine-locale cases, all 11
 callers are inventoried, focused browser QA passes and canonical/Home regressions
 remain green. See docs/reviews/2026-10-02-LWB317-PM-016-switch-locale-acceptance.md.
 PM-017 acceptance: docs/reviews/2026-10-02-LWB317-PM-017-home-translation-acceptance.md.
-PM-018 integrates independent review db3aae3: HOME-ERROR-002 is CHANGES_REQUIRED for
-root-status acknowledgement/polling. Root/action placement remains useful; correction
-LWB317-UI-HOME-ERROR-002-R1 is ASSIGNED. HOME-BUSY-001 remains AWAITING_REVIEW. See
-docs/reviews/2026-10-02-LWB317-PM-018-home-channel-review-integration.md and
+PM-018 integrates independent review db3aae3: HOME-ERROR-002 remains CHANGES_REQUIRED
+pending correction review. LWB317-UI-HOME-ERROR-002-R1 is now AWAITING_REVIEW after
+moving root retrieval to the selected-profile effect, sharing successful root
+acknowledgement with valid folder selection, and proving cancellation persistence
+across later polling with synthetic bridge responses. HOME-BUSY-001 remains
+AWAITING_REVIEW. See docs/reviews/2026-10-02-LWB317-UI-HOME-ERROR-002-R1.md and
 docs/work-items/LWB317-UI-HOME-ERROR-002-R1.md.
 Native picker/persistence/lifecycle and original pixels remain unproved.
 
