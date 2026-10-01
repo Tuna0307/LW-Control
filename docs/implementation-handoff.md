@@ -44,10 +44,14 @@ Evidence: `evidence/lwbridge-0.3.17/ui/LWB317-UI-CORRECT-002/`, especially
 `source-contracts.json`, `browser-qa.json`, `coverage-matrix.md` and
 `verification.json`. Native Map/other pages and exact reference assets were preserved.
 
-The owner requested the next worker assignment after recovery. Exact continuation:
-`work-items/LWB317-UI-CORRECT-003.md` is READY for a manually opened fresh chat.
-First independently review CORRECT-002 at `de6c075`, then complete the recorded
-Automation runtime/Trade/Assist/weekly-quality and AFK target/member/toolbar UI gaps.
+CORRECT-003 pushed a substantial implementation checkpoint at `5204f67`, with
+baseline review and state checks, but its Stage B browser evidence/coverage/master
+closeout is unfinished. Two fixture files, a screenshot and scratch files remain
+uncommitted. PM-008 inspected/preserved these; checks pass, full UI is unaccepted.
+The owner requested a smaller continuation. Active assignment is now
+`work-items/LWB317-UI-CORRECT-003A.md`: only Trucks/Secret Task weekly quality
+draft/save/error verification and necessary fixes. Do not restart broad CORRECT-003.
+Trade/Assist/runtime/AFK work remains preserved for later separate validation tasks.
 Physical drag, native config persistence and original pixels remain unproved.
 Do not restart the completed correction or resume gameplay/native Home/another
 backend campaign automatically. The lead supplies a prompt for the owner to paste;

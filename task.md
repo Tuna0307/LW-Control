@@ -91,10 +91,13 @@ The owner requested recovery of the interrupted worker. The focused
 Automation controls, per-ID AFK drafts/save states and applied read-only Map
 fixture queries pass targeted contract/state/browser QA. Current delivery:
 `docs/reviews/2026-10-01-LWB317-UI-CORRECT-002.md`. Its affected coverage matrix
-records remaining source-recoverable UI gaps. The owner's next manually dispatched
-worker is assigned `docs/work-items/LWB317-UI-CORRECT-003.md`: independently review
-CORRECT-002, correct demonstrated regressions and complete the remaining Automation/
-AFK UI scope. No new native/gameplay family is opened; all-page parity is not accepted.
+records remaining source-recoverable UI gaps. CORRECT-003 subsequently pushed
+substantial implementation at 5204f67, but Stage B evidence/delivery is unfinished.
+The owner requested smaller tasks. Its active broad scope is replaced by
+`docs/work-items/LWB317-UI-CORRECT-003A.md`: finish only weekly Trucks/Secret Task
+quality controls and focused save-state QA. Preserve other code and uncommitted
+AFK/scratch work. PM-008 records current inspection. No new native/gameplay family
+is opened; all-page parity is not accepted.
 
 Direct original post-auth screenshot/pixel comparison remains `BLOCKED` by the
 documented reference access boundary, so affected UI rows remain

@@ -39,6 +39,12 @@ See `reviews/2026-10-01-LWB317-UI-CORRECT-002.md` and its affected coverage matr
 Additional Automation runtime/Trade/Assist, weekly quality adapter wiring and
 AFK target/member variants remain implementation gaps; all-page parity is open.
 
+Subsequent partial CORRECT-003 checkpoint `5204f67` adds code for many of those
+branches, but Stage B browser/coverage/delivery evidence is incomplete. PM-008
+re-ran current canonical/state checks successfully; it does not accept the new
+branches as parity-proven. The owner requested smaller continuations, starting
+with CORRECT-003A weekly quality settings. Preserve all other code and WIP.
+
 Phase 1 static UI recovery has been accepted. The active target remains exact
 LWBridge 0.3.17. The Map-only `LWB317-RE-MAP-001` campaign has completed its
 ordered continuation and is `AWAITING_REVIEW`; no other Phase 2 function family
@@ -245,10 +251,12 @@ Historical auth research remains archived evidence, not a current reconstruction
 
 ## Next project-lead milestone
 
-The owner has requested the next manually dispatched worker task:
-`work-items/LWB317-UI-CORRECT-003.md` is READY. Independently review the recovered
-`LWB317-UI-CORRECT-002` checkpoint at `de6c075`, correct demonstrated regressions
-and complete the recorded Automation/AFK UI gaps within that assignment.
+PM-008 inspected pushed CORRECT-003 implementation `5204f67`; code/state checks
+pass but Stage B evidence and delivery are incomplete. At the owner's request,
+the broad task is PARTIAL and split. Active continuation:
+`work-items/LWB317-UI-CORRECT-003A.md`, only weekly quality draft/save/error QA
+and necessary fixes. Other implemented branches and WIP stay preserved for later
+separate validation. No full UI acceptance is recorded.
 PM-007's historical CHANGES_REQUIRED
 decision and accepted Home scope fix remain preserved. Separately close or reassign the awaiting
 `LWB317-RE-MAP-001` Goal.

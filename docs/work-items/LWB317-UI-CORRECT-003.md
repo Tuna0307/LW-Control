@@ -1,7 +1,12 @@
 # LWB317-UI-CORRECT-003 — review recovery and finish Automation/AFK UI branches
 
-Project-lead assignment: 2026-10-01. State: READY.
+Project-lead assignment: 2026-10-01. State: PARTIAL — active scope split.
 Owner: fresh worker chat, manually dispatched by the owner.
+
+PM-008 inspected pushed implementation 5204f67 and unfinished evidence/WIP.
+The owner requested smaller tasks after another apparent interruption.
+Active continuation is LWB317-UI-CORRECT-003A (weekly quality controls only).
+Preserve this document as the parent backlog; do not execute its full scope now.
 
 ## Fresh-chat context and goal
 

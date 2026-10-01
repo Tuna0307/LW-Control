@@ -136,6 +136,13 @@ and AFK target/member variants remain source-recoverable implementation gaps.
 See `reviews/2026-10-01-LWB317-UI-CORRECT-002.md` and the complete affected
 `evidence/lwbridge-0.3.17/ui/LWB317-UI-CORRECT-002/coverage-matrix.md`.
 
+CORRECT-003 subsequently pushed partial implementation `5204f67` for many recorded
+gaps. Its Stage B browser/coverage/delivery evidence is unfinished; PM-008 does
+not accept full UI parity. At the owner's request the broad task is split, with
+active CORRECT-003A limited to weekly quality controls and save-state verification.
+Earlier gap statements describe the reviewed CORRECT-002 baseline; validate the
+new implementation before changing their completion disposition.
+
 Correction evidence is under
 `evidence/lwbridge-0.3.17/ui/LWB317-UI-CORRECT-001/`; worker report:
 `reviews/2026-10-01-LWB317-UI-CORRECT-001.md`. Previous lead disposition:
