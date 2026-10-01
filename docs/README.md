@@ -34,18 +34,19 @@ SHA-256:
 
 ## Current phase
 
-**Map function recovery awaiting review; next task completes all recoverable UI/UX.**
+**Map function recovery and full source-backed UI completion are awaiting review.**
 
 The exact static frontend package baseline and Phase 1 UI campaign are accepted.
 The canonical UI is already the normal Desktop frontend. The ordered Map
-campaign has returned `AWAITING_REVIEW` with durable implementation/live evidence
-and explicit remaining gaps; do not replay its old queue automatically.
-The project-lead takeover now assigns UI-only shell/eight-page state and
-interaction coverage under `work-items/LWB317-UI-COMPLETE-001.md`, with Home/Map
-first and milestone checkpoints rather than a fixed clock deadline. This does not open another backend
-family. Direct original post-auth pixel comparison remains blocked by legitimate
-reference access and is not fabricated. Start with
-`reviews/2026-10-01-LWB317-PM-003-project-lead-takeover.md` for the takeover audit.
+campaign remains `AWAITING_REVIEW` with durable implementation/live evidence and
+explicit remaining gaps; do not replay its old queue automatically.
+`LWB317-UI-COMPLETE-001` has also returned `AWAITING_REVIEW` at implementation
+checkpoint `7c4daed4112747fcdd619e533184251da86cb389`, after completing the
+recoverable source-backed shell/eight-page conditional and nested UI coverage,
+recovered locale rendering, and fenced clone interaction QA. Direct original
+post-auth pixel comparison remains blocked by legitimate reference access and is
+not fabricated. See `reviews/2026-10-01-LWB317-UI-COMPLETE-001.md` and its
+evidence root before assigning native Home lifecycle or another backend family.
 
 All non-Map gameplay/backend function families remain blocked until the Map Goal
 is closed. Auth/login/licensing reconstruction remains out of scope.

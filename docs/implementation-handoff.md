@@ -14,16 +14,22 @@ Map campaign acceptance was performed by the takeover.
 Current source/evidence audit:
 `reviews/2026-10-01-LWB317-PM-003-project-lead-takeover.md`.
 Current path map: `PROJECT_STRUCTURE.md`.
-Next worker: `work-items/LWB317-UI-COMPLETE-001.md` — complete source-backed
-shell/all eight pages/nested state and interaction coverage using isolated
-preview QA. Home and Map first; checkpoint by milestones without a fixed clock
-stop. The prior Home-only proposal is superseded. No native
-Home game launch/close/repair or new Map campaign is authorized by this task.
-Then return to project-lead review before opening native Home integration.
+`LWB317-UI-COMPLETE-001` has returned `AWAITING_REVIEW`. Implementation/evidence
+checkpoint `7c4daed4112747fcdd619e533184251da86cb389` completed source-backed
+shell/all-eight-page conditional/nested presentation and isolated clone QA.
+Review: `reviews/2026-10-01-LWB317-UI-COMPLETE-001.md`. Evidence:
+`evidence/lwbridge-0.3.17/ui/LWB317-UI-COMPLETE-001/`.
 
-The canonical Home is currently an unresolved static state, not a functional
-launcher. The exact recovered CSS checkout conversion was repaired with a
-`-text` attribute and source-byte restoration; keep the hash checker intact.
+Home now consumes existing read-only root/proxy/recovery/config state and
+implements the recovered presentation/precedence, but native game launch/close/
+repair remains deliberately unimplemented for the separate lifecycle task.
+Map's existing production adapter/data path was preserved and no new live Map
+campaign was started. Direct post-auth reference visual comparison is still
+`BLOCKED`; clone screenshots are not pixel-parity proof. Return to project-lead
+review before opening native Home integration or another backend campaign.
+
+The exact recovered CSS checkout conversion remains hash-protected; keep the
+checker intact.
 
 ## Important reset
 

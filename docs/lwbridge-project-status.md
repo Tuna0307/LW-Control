@@ -13,15 +13,17 @@ option has a separate pending retirement task. See
 `reviews/2026-10-01-LWB317-PM-004-owner-scope-clarification.md`.
 
 The 2026-10-01 project-lead takeover inspected actual clean/pushed `389df37`,
-rather than the stale pasted `13b25f6` handoff. The user's immediate priority is
-Home/Map UI/UX. Canonical Home remains an unresolved static page with disabled
-switches; full one-for-one UI/UX is not accepted. Next is **UI-only**
-`work-items/LWB317-UI-COMPLETE-001.md`: all eight pages and shell/nested states,
-starting with Home/Map, with milestone checkpoints and no fixed clock stop.
-Full Map closeout still awaits
-independent review. The takeover performed source/evidence inspection and fresh
-offline checks, not new live proof. See
-`reviews/2026-10-01-LWB317-PM-003-project-lead-takeover.md`.
+rather than the stale pasted `13b25f6` handoff. The follow-on UI-only
+`LWB317-UI-COMPLETE-001` assignment is now `AWAITING_REVIEW` at implementation
+checkpoint `7c4daed4112747fcdd619e533184251da86cb389`. It completed the recoverable
+source-backed conditional/nested UI across the shell and all eight primary pages,
+including recovered locale rendering and isolated preview-state interaction QA.
+Home now consumes existing read-only root/proxy/recovery/config state; native
+launch/close/repair remains a separate lifecycle task. The production Map adapter
+was preserved and no new live scan/backend campaign was opened. Direct original
+post-auth pixel comparison remains `BLOCKED` by legitimate reference access. See
+`reviews/2026-10-01-LWB317-UI-COMPLETE-001.md` and
+`evidence/lwbridge-0.3.17/ui/LWB317-UI-COMPLETE-001/`.
 
 Phase 1 static UI recovery has been accepted. The active target remains exact
 LWBridge 0.3.17. The Map-only `LWB317-RE-MAP-001` campaign has completed its
@@ -229,8 +231,9 @@ Historical auth research remains archived evidence, not a current reconstruction
 
 ## Next project-lead milestone
 
-Review `LWB317-RE-MAP-001` and
-`docs/reviews/2026-10-01-LWB317-RE-MAP-GOAL-CLOSEOUT.md`. The ordered Map campaign
-is complete and pushed, but the closeout deliberately retains the remaining
-validation/provider boundaries above. Do not open another subsystem until the
-project lead closes the Map Goal or authorizes the exact remaining Map work.
+Independently review `LWB317-UI-COMPLETE-001` at
+`7c4daed4112747fcdd619e533184251da86cb389` together with
+`docs/reviews/2026-10-01-LWB317-UI-COMPLETE-001.md`, while also closing or
+reassigning the separately awaiting `LWB317-RE-MAP-001` Goal. Do not open native
+Home lifecycle integration or another backend subsystem until the project lead
+explicitly assigns it.

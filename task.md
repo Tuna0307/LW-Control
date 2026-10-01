@@ -77,16 +77,20 @@ Live-prove each implemented in-scope function against an assistant-owned/current
 
 ## Current instruction
 
-Project-lead takeover on 2026-10-01 reaffirms the user's Home/Map UI/UX priority.
-The next authorized worker is **UI-only**
-`docs/work-items/LWB317-UI-COMPLETE-001.md`: complete source-backed UI/UX across
-the shell and all eight pages, starting with Home and Map, using exact bytes and
-isolated clone QA. There is no fixed elapsed-time stop; checkpoint coherent
-milestones and continue recoverable work. It does not open Home
-native lifecycle integration or authorize game launch/control. The Map Goal
-remains `AWAITING_REVIEW`; no worker may automatically resume its completed
-campaign or begin another backend family. See the takeover audit
-`docs/reviews/2026-10-01-LWB317-PM-003-project-lead-takeover.md`.
+The UI-only `LWB317-UI-COMPLETE-001` assignment has returned `AWAITING_REVIEW`.
+Implementation/evidence checkpoint
+`7c4daed4112747fcdd619e533184251da86cb389` completes the recoverable
+source-backed conditional/nested UI presentation across the shell and all eight
+primary pages using exact 0.3.17 assets/locales plus isolated clone QA. Review:
+`docs/reviews/2026-10-01-LWB317-UI-COMPLETE-001.md`; evidence:
+`evidence/lwbridge-0.3.17/ui/LWB317-UI-COMPLETE-001/`.
+
+Direct original post-auth screenshot/pixel comparison remains `BLOCKED` by the
+documented reference access boundary, so affected UI rows remain
+`IMPLEMENTED_NOT_VALIDATED`. This result does not open native Home lifecycle
+integration or authorize game launch/control. The Map Goal remains
+`AWAITING_REVIEW`; no worker may automatically resume its completed campaign or
+begin another backend family until project-lead review.
 
 The project is in **Phase 2 — function recovery**. Phase 1 static UI recovery is
 accepted. The Map-only `LWB317-RE-MAP-001` Goal in

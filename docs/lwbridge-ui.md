@@ -120,13 +120,19 @@ opened. The canonical frontend is now the normal packaged Desktop UI. This
 acceptance covers the static baseline, not every conditional state or original
 runtime pixel parity.
 
-The 2026-10-01 takeover audit found Home still implements only its unresolved
-state, despite the exact inventory establishing folder/launch/close/repair and
-loaded/recovery variants. The owner expanded the next UI-only task to
-`work-items/LWB317-UI-COMPLETE-001.md`: audit/complete all eight pages and shared
-shell states/interactions, with Home/Map first. There is no fixed time deadline;
-preserve coherent milestones. Native Home integration remains separate.
-The shell language selector currently changes selection only; labels remain
-English. These UX gaps remain visible rather than treating route smoke checks
-as a complete one-for-one clone. The existing Map implementation is preserved;
-its Goal remains awaiting independent project-lead closeout review.
+`LWB317-UI-COMPLETE-001` is now `AWAITING_REVIEW` at implementation checkpoint
+`7c4daed4112747fcdd619e533184251da86cb389`. The canonical frontend now covers
+the source-backed conditional/nested presentation recovered for Home,
+Automation, Map Data, Squads / AFK, City Layout, Hotkeys, Mini Games and
+Settings, and the shell renders the nine recovered locale catalogs rather than
+changing the selector alone. Home consumes existing read-only root/proxy/
+recovery/config state but keeps native launch/close/repair actions disabled for
+their separate lifecycle task. Map's production adapter/data path is preserved;
+the UI task did not launch a live scan or replace native rows with fixtures.
+
+Clone QA and source/hash evidence are under
+`evidence/lwbridge-0.3.17/ui/LWB317-UI-COMPLETE-001/`; the detailed review is
+`reviews/2026-10-01-LWB317-UI-COMPLETE-001.md`. Direct post-auth original visual
+comparison remains `BLOCKED`, so these rows stay `IMPLEMENTED_NOT_VALIDATED`
+unless they already have separately scoped live proof. No product-wide parity
+claim is made. The Map Goal remains awaiting independent project-lead closeout.
