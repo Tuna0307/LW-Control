@@ -10,6 +10,8 @@ strings, missing charging percentages, incorrect truck loot caps, quality and
 game-text fallback formatting, column widths/classes and conditional item sorting.
 It completes this source/local correction scope; it does not establish full Map
 UI, original pixel or live-function parity.
+Implementation commit: `bf84bbdca8a86c1a45e9cbb3bd0170c8fbfcdd7f`, pushed to
+`origin/research/offline-controller` and verified against its direct remote ref.
 
 ## Reference and exact locators
 

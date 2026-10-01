@@ -1,0 +1,30 @@
+{
+  "task": "LWB317-UI-LEAD-TABLES-001",
+  "date": "2026-10-02",
+  "state": "AWAITING_REVIEW",
+  "implementationCommit": "bf84bbdca8a86c1a45e9cbb3bd0170c8fbfcdd7f",
+  "branch": "research/offline-controller",
+  "implementationDelivery": {
+    "localHead": "bf84bbdca8a86c1a45e9cbb3bd0170c8fbfcdd7f",
+    "trackingRef": "bf84bbdca8a86c1a45e9cbb3bd0170c8fbfcdd7f",
+    "directRemoteRef": "bf84bbdca8a86c1a45e9cbb3bd0170c8fbfcdd7f",
+    "pushResult": "PASS",
+    "remoteVerification": "git ls-remote origin refs/heads/research/offline-controller"
+  },
+  "cleanup": {
+    "ownedBrowserTab8Closed": true,
+    "ownedViteSession21915Stopped": true,
+    "port4319ListenerAbsent": true,
+    "unownedTabsOrServersClosed": false
+  },
+  "protectedWip": {
+    "allFiveInitialHashesAndSizesUnchanged": true,
+    "pathsRemainUnstaged": [
+      "src/LWBridge.UI-0.3.17/src/previewAfkFixtures.js",
+      ".scratch-lwb317/",
+      "evidence/lwbridge-0.3.17/ui/LWB317-UI-CORRECT-003/screenshots/"
+    ]
+  },
+  "continuation": "Returning worker finishes assigned independent HOME-BUSY-001 review, then receives a bounded independent Map-table review. Trade 003E is also pending independent review. Do not auto-resume parent CORRECT-003 or native/gameplay work.",
+  "limits": "Source/local UI checkpoint only; original pixel validation, native game-text/image providers and remaining Map filter/action/scheduling details are open. This delivery record is a documentation follow-up to the implementation commit."
+}

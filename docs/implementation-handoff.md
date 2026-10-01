@@ -13,6 +13,8 @@ truck states, translated Treasure/type/reason/charging labels, reward counts/
 descriptions and conditional sorting. Clearing the item filter clears item-count
 sorting. Unknown current-client Resource occupancy remains unknown. New explicit
 synthetic state fixtures are preview-only/offline and cannot execute native actions.
+Implementation checkpoint `bf84bbdca8a86c1a45e9cbb3bd0170c8fbfcdd7f` was pushed
+and verified against the direct remote ref; delivery cleanup is complete.
 
 Review: `reviews/2026-10-02-LWB317-UI-LEAD-TABLES-001.md`.
 Evidence: `evidence/lwbridge-0.3.17/ui/LWB317-UI-LEAD-TABLES-001/`, especially
