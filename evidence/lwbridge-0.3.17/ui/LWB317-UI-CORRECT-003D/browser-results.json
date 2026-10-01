@@ -1,0 +1,90 @@
+{
+  "task": "LWB317-UI-CORRECT-003D",
+  "baseUrl": "http://127.0.0.1:4319/",
+  "browser": "existing local preview in the user's browser via a task-owned tab",
+  "flows": [
+    {
+      "name": "online toggle preservation",
+      "url": "?previewPage=automation&previewState=automation-trade-positive",
+      "actions": [
+        "Opened Automation and selected Trade Station through real browser controls.",
+        "Verified the cross-server switch started off and was enabled while online.",
+        "Clicked the real cross-server switch on, inspected Trade state, then clicked it off and inspected again."
+      ],
+      "result": {
+        "pass": true,
+        "initialCrossServerEnabled": false,
+        "afterOnCrossServerEnabled": true,
+        "afterOffCrossServerEnabled": false,
+        "switchDisabledOnline": false,
+        "masterEnabledState": false,
+        "selectedCurrencies": ["Fixture Trade Token", "Fixture Market Credit"],
+        "selectedGoods": ["Fixture Speedup Chest"],
+        "preservedAcrossBothToggles": true
+      }
+    },
+    {
+      "name": "failed save and Retry",
+      "url": "?previewPage=automation&previewState=automation-trade-save-error&previewLanguage=en",
+      "actions": [
+        "Reloaded the fail-first-save fixture, selected Trade Station and clicked the real cross-server switch.",
+        "Verified the dirty checked draft and shared save-error controls.",
+        "Clicked the real Retry button."
+      ],
+      "result": {
+        "pass": true,
+        "failedDraftCrossServerEnabled": true,
+        "failedDraftDirty": true,
+        "failedSwitchDisabled": false,
+        "errorText": "Changes have not been saved. Retry Discard unsaved changes",
+        "afterRetryCrossServerEnabled": true,
+        "afterRetryDirty": false,
+        "afterRetryErrorVisible": false,
+        "preservedCurrencies": [true, true],
+        "preservedGoods": [false, false],
+        "preservedMasterEnabledState": false
+      }
+    },
+    {
+      "name": "failed save and Discard",
+      "url": "?previewPage=automation&previewState=automation-trade-save-error&previewLanguage=en",
+      "actions": [
+        "Reloaded the fail-first-save fixture to reset its adapter, selected Trade Station and clicked the real cross-server switch.",
+        "Verified the failed dirty checked draft.",
+        "Clicked the real Discard unsaved changes button."
+      ],
+      "result": {
+        "pass": true,
+        "failedDraftCrossServerEnabled": true,
+        "failedDraftDirty": true,
+        "afterDiscardCrossServerEnabled": false,
+        "afterDiscardDirty": false,
+        "afterDiscardErrorVisible": false,
+        "preservedCurrencies": [true, true],
+        "preservedGoods": [false, false],
+        "preservedMasterEnabledState": false
+      }
+    },
+    {
+      "name": "default offline disabled state",
+      "url": "?previewPage=automation&previewLanguage=en",
+      "actions": [
+        "Opened Automation without an automation preview fixture and selected Trade Station through the real tab control.",
+        "Inspected the default Trade cross-server switch and enclosing configuration fieldset."
+      ],
+      "result": {
+        "pass": true,
+        "previewFixture": "runtime-config-unobserved",
+        "crossServerEnabled": false,
+        "crossServerSwitchDisabled": true,
+        "configurationFieldsetDisabled": true,
+        "masterSwitchDisabled": true
+      }
+    }
+  ],
+  "screenshots": [],
+  "notes": [
+    "No screenshot campaign was added, matching the assignment boundary.",
+    "All browser QA used local synthetic Trade fixtures or the local offline view; no gameplay/native/cross-server operation was invoked."
+  ]
+}

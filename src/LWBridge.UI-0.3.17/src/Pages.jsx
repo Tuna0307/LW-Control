@@ -633,7 +633,7 @@ function TradeStationCard({ previewEnabled, previewState = "" }) {
             <div className="trade-station-warning">
               {t("automation.tradeStation.warning")}
             </div>
-            <ToggleRow label={t("automation.tradeStation.crossServer")} checked={config.draft.crossServerEnabled} disabled={!previewEnabled || config.saving} onChange={(value) => save({ ...config.store.getSnapshot().draft, crossServerEnabled: value })} />
+            <ToggleRow label={t("automation.tradeStation.crossServer")} checked={config.draft.crossServerEnabled} disabled={!previewEnabled} onChange={(value) => save({ ...config.store.getSnapshot().draft, crossServerEnabled: value })} />
             <fieldset className="trade-station-currencies">
               <legend>{t("automation.tradeStation.currencies")}</legend>
               <div>{currencies.map((currency) => { const selected = config.draft.selectedCurrencyIds.includes(currency.currencyId); return <label className={selected ? "selected" : ""} key={currency.currencyId}><input type="checkbox" checked={selected} disabled={selected && config.draft.selectedCurrencyIds.length === 1} onChange={(event) => toggleCurrency(currency.currencyId, event.target.checked)} /><span className="trade-station-currency-icon game-asset-placeholder" aria-hidden="true" /><span>{currency.currencyName}</span></label>; })}</div>

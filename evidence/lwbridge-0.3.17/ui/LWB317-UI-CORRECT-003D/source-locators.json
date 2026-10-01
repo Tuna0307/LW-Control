@@ -1,0 +1,36 @@
+{
+  "task": "LWB317-UI-CORRECT-003D",
+  "reference": {
+    "executable": {
+      "path": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW\\lwbridge-0.3.17.exe",
+      "sha256": "4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783"
+    },
+    "automationPanel": {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/AutomationPanel-BJ0gIqFh.js",
+      "sha256": "6DB2328191AF33E5631D507271C36D7008B287DAA7C8CD1A957B23EF6F871725",
+      "byteOffsets": {
+        "defaultConfig": 400,
+        "immediateSave": 7213,
+        "crossServerLabel": 8264,
+        "crossServerSwitch": 8330
+      }
+    },
+    "sharedUi": {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-BVfnK1wp.js",
+      "sha256": "44C4E4043825B7DB296B64171951B27176F8850FF8D7D337CC991DF4765524C6",
+      "contract": "Shared failed-save UI retries flush() and discards through refresh(true)."
+    }
+  },
+  "contracts": {
+    "defaults": {
+      "enabled": false,
+      "crossServerEnabled": false,
+      "selectedItemIds": [],
+      "selectedCurrencyIds": [15, 650053]
+    },
+    "disabled": "The cross-server switch is disabled only when Trade configuration is offline. Saving is not a switch restriction.",
+    "saveTiming": "The Trade callback edits with debounce=false and immediately flushes. A newer toggle during an active write remains in the draft and is written after the older acknowledgement.",
+    "fieldPreservation": "The cross-server callback spreads the current Trade draft and changes only crossServerEnabled, preserving enabled, selectedItemIds and selectedCurrencyIds.",
+    "saveFailure": "A failed switch save retains the dirty edited value. Retry flushes the retained draft; Discard refreshes the confirmed/server value."
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "task": "LWB317-UI-CORRECT-003D",
+  "status": "AWAITING_REVIEW",
+  "baseline": "db84ba9",
+  "acceptedTradeHistoryBaseline": "1a25a9c92aeb03f7239f3066ba9a31e6b9be0116",
+  "checks": {
+    "focusedCrossServerCheck": {
+      "command": "node evidence/lwbridge-0.3.17/ui/LWB317-UI-CORRECT-003D/check-trade-cross-server.mjs",
+      "result": "LWB317_UI_CORRECT003D_TRADE_CROSS_SERVER_OK"
+    },
+    "inheritedTradeSelectionCheck": {
+      "command": "node evidence/lwbridge-0.3.17/ui/LWB317-UI-CORRECT-003B/check-trade-selection.mjs",
+      "result": "LWB317_UI_CORRECT003B_TRADE_SELECTION_OK"
+    },
+    "inheritedCompositionCheck": {
+      "command": "node evidence/lwbridge-0.3.17/ui/LWB317-PM-011/check-trade-composition.mjs",
+      "result": "PASS"
+    },
+    "inheritedTradeHistoryCheck": {
+      "command": "node evidence/lwbridge-0.3.17/ui/LWB317-UI-CORRECT-003C/check-trade-history.mjs",
+      "result": "LWB317_UI_CORRECT003C_TRADE_HISTORY_OK"
+    },
+    "browserQa": {
+      "record": "evidence/lwbridge-0.3.17/ui/LWB317-UI-CORRECT-003D/browser-results.json",
+      "result": "PASS",
+      "coverage": "online on/off preservation; failed save Retry; failed save Discard; default offline disabled state"
+    },
+    "uiCheck": {
+      "command": "npm.cmd run check",
+      "result": "PASS"
+    },
+    "productionBuild": {
+      "command": "npm.cmd run build",
+      "result": "PASS",
+      "marker": "LWB317_PRODUCTION_UI_BUILD_OK ef7d2cf373b994bf440569f9fdf1d9e2dfdd833155129c4c584e9c0261a212fc 8e9748d670f921186da50d3f68104938751ce2353fdd7efad182f34bedb062e6"
+    },
+    "productionPackageCheck": {
+      "command": "npm.cmd run check:production-build",
+      "result": "PASS",
+      "marker": "LWB317_PRODUCTION_UI_PACKAGE_OK ef7d2cf373b994bf440569f9fdf1d9e2dfdd833155129c4c584e9c0261a212fc 8e9748d670f921186da50d3f68104938751ce2353fdd7efad182f34bedb062e6"
+    },
+    "evidenceValidation": {
+      "command": "node evidence/lwbridge-0.3.17/ui/LWB317-UI-CORRECT-003D/validate-evidence.mjs",
+      "result": "LWB317_UI_CORRECT003D_EVIDENCE_OK"
+    },
+    "diffCheck": {
+      "command": "git diff --check",
+      "result": "PASS"
+    }
+  },
+  "scope": {
+    "changedProductLogic": "Trade Station cross-server setting disabled predicate only: online saves no longer disable the switch; offline remains disabled.",
+    "preservedBehavior": [
+      "crossServerEnabled default false",
+      "immediate edit plus flush timing",
+      "Trade enabled state",
+      "selected goods and currencies",
+      "accepted weekly settings",
+      "accepted Trade selection/composition",
+      "accepted Purchased-items presentation"
+    ],
+    "remainingLimits": [
+      "No cross-server gameplay or server operation was implemented or invoked.",
+      "QA uses local synthetic Trade fixtures and the local offline view; native persistence/original pixels/full Automation parity remain outside this unit."
+    ],
+    "preservedWip": [
+      "src/LWBridge.UI-0.3.17/src/previewAfkFixtures.js",
+      ".scratch-lwb317/",
+      "evidence/lwbridge-0.3.17/ui/LWB317-UI-CORRECT-003/screenshots/"
+    ]
+  }
+}

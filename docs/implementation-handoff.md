@@ -62,9 +62,10 @@ ordering/day totals/repeated summaries, names/row fields and empty state pass
 independent helper/regression/package/evidence checks. Native images remain
 declared placeholders; original/native parity and purchasing remain unaccepted.
 Review: `reviews/2026-10-02-LWB317-PM-013-trade-history-acceptance.md`.
-Active small assignment: `work-items/LWB317-UI-CORRECT-003D.md`, only Trade's
-cross-server configuration switch/save states. Its save-time disabled predicate
-still differs from source. No cross-server gameplay or other panel work.
+CORRECT-003D is `AWAITING_REVIEW`; worker report:
+`reviews/2026-10-02-LWB317-UI-CORRECT-003D.md`. The Trade cross-server switch now
+matches the source offline-only disabled predicate, and actual deferred/recovery
+callbacks plus focused browser QA pass. No cross-server gameplay or other panel work.
 Do not restart broad CORRECT-003 or reopen accepted weekly/selection/history work.
 Trade/Assist/runtime/AFK work remains preserved for later separate validation tasks.
 Physical drag, native config persistence and original pixels remain unproved.

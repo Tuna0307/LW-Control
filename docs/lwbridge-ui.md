@@ -154,9 +154,10 @@ build/package and evidence validation. Worker browser evidence is retained.
 PM-013 accepts CORRECT-003C `1a25a9c` for source/local Purchased-items presentation:
 actual helper, grouping/totals/names/row fields, empty state and package/evidence
 checks pass; worker populated/empty/Portuguese browser QA is retained. Native
-images remain declared placeholders. Active CORRECT-003D is only the Trade
-cross-server setting and save states. Other panels/purchasing and full UI/native/
-pixel parity remain unaccepted.
+images remain declared placeholders. CORRECT-003D is `AWAITING_REVIEW`: the Trade
+cross-server switch now uses the source offline-only disabled predicate and passes
+actual deferred/recovery callback plus focused browser checks. Other panels/
+purchasing and full UI/native/pixel parity remain unaccepted.
 
 Correction evidence is under
 `evidence/lwbridge-0.3.17/ui/LWB317-UI-CORRECT-001/`; worker report:

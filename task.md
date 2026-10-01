@@ -101,9 +101,11 @@ PM-012 accepts focused local Trade selection CORRECT-003B/R1 at bfc652f after
 composition/selection/recovery/package/evidence checks pass. Both assignments
 are closed; PM-011's failing baseline is preserved. PM-013 accepts source/local
 Purchased-items presentation CORRECT-003C at 1a25a9c after helper/regression/
-package/evidence checks. Native images remain declared placeholders. Active task:
-`docs/work-items/LWB317-UI-CORRECT-003D.md`, only Trade's cross-server setting and
-local save behavior. No cross-server gameplay, purchase execution or other panels.
+package/evidence checks. Native images remain declared placeholders. CORRECT-003D
+is now `AWAITING_REVIEW`: the source-correct Trade cross-server switch stays
+editable during local saves, remains disabled offline, and passes actual deferred/
+recovery callback plus focused browser QA. No cross-server gameplay, purchase
+execution or other panels were added.
 Preserve accepted history/selection/weekly work and uncommitted AFK/scratch files.
 No new native/gameplay family is opened; all-page parity is not accepted.
 
