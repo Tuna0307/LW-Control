@@ -1,0 +1,26 @@
+{
+  "task": "LWB317-UI-CORRECT-003E",
+  "date": "2026-10-02",
+  "state": "AWAITING_REVIEW",
+  "executor": "Project lead, owner-requested takeover",
+  "baseline": "841843365006f79a4c7724ce4b6f3444e4b6566a",
+  "referenceExeHash": "4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783",
+  "checks": {
+    "differentialRender": "PASS",
+    "tradeSelection": "PASS",
+    "tradeComposition": "PASS",
+    "tradeHistory": "PASS",
+    "tradeCrossServer": "PASS",
+    "canonicalCheck": "PASS",
+    "productionBuild": "PASS",
+    "productionPackage": "PASS",
+    "browserQA": "PASS"
+  },
+  "buildFingerprint": "9bda489db383ac27b9961718771cfb8fdc47ec1ab7b201ef7d3982eeadb6800b",
+  "packageFingerprint": "8ab5653d2df8fe2f237cf61af01a927f09f2a0628a7152a443a5013df6df2e41",
+  "browserObservations": 12,
+  "renderFixtures": 11,
+  "sparseStatusCases": 4,
+  "cleanup": "Owned IAB tab 4 closed; pre-existing port-4319 server preserved",
+  "limits": "Local synthetic QA. Independent review pending; native/original pixels/full parity unproved."
+}

@@ -156,8 +156,11 @@ actual helper, grouping/totals/names/row fields, empty state and package/evidenc
 checks pass; worker populated/empty/Portuguese browser QA is retained. Native
 images remain declared placeholders. PM-014 accepts local/source cross-server
 setting CORRECT-003D at `bd808994` after actual-callback/regression/package/
-evidence checks. Active CORRECT-003E covers only Trade counters/last-result and
-goods loading/fetch-error presentation. Other panels/native providers/purchasing
+evidence checks. CORRECT-003E is AWAITING_REVIEW after project-lead implementation
+takeover: exact-shaped status defaults, supplied fetch-error text and independent
+goods/purchases are checked by differential render fixtures and local browser QA.
+See `reviews/2026-10-02-LWB317-UI-CORRECT-003E.md`; independent review pending.
+Other panels/native providers/purchasing
 and full UI/native/pixel parity remain unaccepted.
 
 Correction evidence is under

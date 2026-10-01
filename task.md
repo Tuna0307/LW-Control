@@ -103,9 +103,12 @@ are closed; PM-011's failing baseline is preserved. PM-013 accepts source/local
 Purchased-items presentation CORRECT-003C at 1a25a9c after helper/regression/
 package/evidence checks. Native images remain declared placeholders. PM-014 accepts
 local/source cross-server setting CORRECT-003D at bd808994 after actual callback/
-regression/package/evidence checks. Active assignment:
-`docs/work-items/LWB317-UI-CORRECT-003E.md`, only Trade counters/last-result and
-goods loading/fetch-error presentation. No native providers, cross-server gameplay,
+regression/package/evidence checks. Owner requested project-lead takeover of
+`docs/work-items/LWB317-UI-CORRECT-003E.md`; it is now AWAITING_REVIEW after
+Trade counters/last-result defaults, supplied fetch-error text and independent
+goods/purchases were implemented and source/local/browser checked. Independent
+review is the exact continuation point; parent CORRECT-003 remains PARTIAL.
+Do not run a second worker on this unit concurrently. No native providers, cross-server gameplay,
 purchase execution or other panels are opened.
 Preserve accepted history/selection/weekly work and uncommitted AFK/scratch files.
 No new native/gameplay family is opened; all-page parity is not accepted.

@@ -1,0 +1,260 @@
+{
+  "task": "LWB317-UI-CORRECT-003E",
+  "date": "2026-10-02",
+  "browser": "Codex In-app Browser",
+  "preview": "http://127.0.0.1:4319",
+  "syntheticBrowserOnly": true,
+  "flows": [
+    {
+      "state": "automation-trade-error",
+      "observed": {
+        "error": "Error: Fixture Trade goods request failed",
+        "goods": 0,
+        "muted": [
+          "No trade goods are available from the current season template."
+        ],
+        "stats": "Detected: 3\nAttempted: 2\nSucceeded: 2\nLast result: Success",
+        "tabs": [
+          {
+            "selected": "true",
+            "text": "Goods to buy"
+          },
+          {
+            "selected": "false",
+            "text": "Purchased items (2)"
+          }
+        ]
+      }
+    },
+    {
+      "state": "automation-trade-error/history",
+      "observed": {
+        "error": "Error: Fixture Trade goods request failed",
+        "goods": 0,
+        "muted": [],
+        "stats": "Detected: 3\nAttempted: 2\nSucceeded: 2\nLast result: Success",
+        "tabs": [
+          {
+            "selected": "false",
+            "text": "Goods to buy"
+          },
+          {
+            "selected": "true",
+            "text": "Purchased items (2)"
+          }
+        ]
+      },
+      "history": "Thu, October 1, 2026\nPurchased today: 7\nFixture Resource Crate ×5\nFixture Speedup Chest ×2\nFixture Resource Crate\nQuantity: 5\nPrice: 44 Fixture Market Credit\nPurchased at: 5:22:00 PM\nServer: #901\nToday's item #2\nPurchase confirmed after timeout\nFixture Speedup Chest\nQuantity: 2\nPrice: 120 Fixture Trade Token\nPurchased at: 4:14:00 PM\nServer: #901\nToday's item #1"
+    },
+    {
+      "state": "automation-trade-loading-retained",
+      "observed": {
+        "error": "",
+        "goods": 2,
+        "muted": [
+          "Loading goods..."
+        ],
+        "stats": "Detected: 3\nAttempted: 2\nSucceeded: 2\nLast result: Success",
+        "tabs": [
+          {
+            "selected": "true",
+            "text": "Goods to buy"
+          },
+          {
+            "selected": "false",
+            "text": "Purchased items (2)"
+          }
+        ]
+      }
+    },
+    {
+      "state": "automation-trade-error-retained",
+      "observed": {
+        "error": "Error: Fixture Trade goods request failed",
+        "goods": 2,
+        "muted": [],
+        "stats": "Detected: 3\nAttempted: 2\nSucceeded: 2\nLast result: Success",
+        "tabs": [
+          {
+            "selected": "true",
+            "text": "Goods to buy"
+          },
+          {
+            "selected": "false",
+            "text": "Purchased items (2)"
+          }
+        ]
+      }
+    },
+    {
+      "state": "automation-trade-loading",
+      "observed": {
+        "error": "",
+        "goods": 0,
+        "muted": [
+          "Loading goods..."
+        ],
+        "stats": "Detected: 3\nAttempted: 2\nSucceeded: 2\nLast result: Success",
+        "tabs": [
+          {
+            "selected": "true",
+            "text": "Goods to buy"
+          },
+          {
+            "selected": "false",
+            "text": "Purchased items (2)"
+          }
+        ]
+      }
+    },
+    {
+      "state": "automation-trade-empty",
+      "observed": {
+        "error": "",
+        "goods": 0,
+        "muted": [
+          "No trade goods are available from the current season template."
+        ],
+        "stats": "Detected: 0\nAttempted: 0\nSucceeded: 0\nLast result: -",
+        "tabs": [
+          {
+            "selected": "true",
+            "text": "Goods to buy"
+          },
+          {
+            "selected": "false",
+            "text": "Purchased items (0)"
+          }
+        ]
+      }
+    },
+    {
+      "state": "automation-trade-status-absent",
+      "observed": {
+        "error": "",
+        "goods": 2,
+        "muted": [],
+        "stats": "Detected: 0\nAttempted: 0\nSucceeded: 0\nLast result: -",
+        "tabs": [
+          {
+            "selected": "true",
+            "text": "Goods to buy"
+          },
+          {
+            "selected": "false",
+            "text": "Purchased items (0)"
+          }
+        ]
+      }
+    },
+    {
+      "state": "automation-trade-status-failed",
+      "observed": {
+        "error": "",
+        "goods": 2,
+        "muted": [],
+        "stats": "Detected: 3\nAttempted: 2\nSucceeded: 2\nLast result: Failed",
+        "tabs": [
+          {
+            "selected": "true",
+            "text": "Goods to buy"
+          },
+          {
+            "selected": "false",
+            "text": "Purchased items (2)"
+          }
+        ]
+      }
+    },
+    {
+      "state": "automation-trade-status-skipped",
+      "observed": {
+        "error": "",
+        "goods": 2,
+        "muted": [],
+        "stats": "Detected: 3\nAttempted: 2\nSucceeded: 2\nLast result: Skipped",
+        "tabs": [
+          {
+            "selected": "true",
+            "text": "Goods to buy"
+          },
+          {
+            "selected": "false",
+            "text": "Purchased items (2)"
+          }
+        ]
+      }
+    },
+    {
+      "state": "automation-trade-confirmed-timeout",
+      "observed": {
+        "error": "",
+        "goods": 2,
+        "muted": [],
+        "stats": "Detected: 3\nAttempted: 2\nSucceeded: 2\nLast result: Confirmed after timeout",
+        "tabs": [
+          {
+            "selected": "true",
+            "text": "Goods to buy"
+          },
+          {
+            "selected": "false",
+            "text": "Purchased items (2)"
+          }
+        ]
+      }
+    },
+    {
+      "state": "automation-trade-save-error",
+      "observed": {
+        "error": "",
+        "goods": 2,
+        "muted": [],
+        "stats": "Detected: 3\nAttempted: 2\nSucceeded: 2\nLast result: Success",
+        "tabs": [
+          {
+            "selected": "true",
+            "text": "Goods to buy"
+          },
+          {
+            "selected": "false",
+            "text": "Purchased items (2)"
+          }
+        ]
+      }
+    },
+    {
+      "state": "automation-trade-save-error/after-toggle",
+      "action": "Clicked the visible cross-server configuration switch",
+      "goods": 2,
+      "muted": [],
+      "stats": "Detected: 3\nAttempted: 2\nSucceeded: 2\nLast result: Success",
+      "tabs": [
+        {
+          "selected": "true",
+          "text": "Goods to buy"
+        },
+        {
+          "selected": "false",
+          "text": "Purchased items (2)"
+        }
+      ],
+      "sharedConfigError": "Changes have not been saved.",
+      "panelErrorBlocks": "Changes have not been saved. Retry Discard unsaved changes"
+    }
+  ],
+  "consoleErrors": [],
+  "screenshots": [
+    {
+      "file": "loading.jpg",
+      "state": "automation-trade-loading-retained",
+      "sha256": "94C1B2BE2A70F8A7E974478A0615F148785A85DDD6EF409DA5B53971E610C340"
+    },
+    {
+      "file": "fetch-error.jpg",
+      "state": "automation-trade-error-retained",
+      "sha256": "C0E990EDC1EF2D556A7202A2E51EB82C1BCE21558BC8AA94F85EEBC6FF1BB98C"
+    }
+  ],
+  "limits": "Local browser fixtures only; no original authenticated pixels or native/gameplay actions."
+}

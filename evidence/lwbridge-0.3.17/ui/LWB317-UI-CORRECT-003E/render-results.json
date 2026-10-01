@@ -1,0 +1,129 @@
+{
+  "task": "LWB317-UI-CORRECT-003E",
+  "result": "LWB317_UI_CORRECT003E_TRADE_PRESENTATION_OK",
+  "sourceHash": "6DB2328191AF33E5631D507271C36D7008B287DAA7C8CD1A957B23EF6F871725",
+  "results": [
+    {
+      "state": "automation-trade-positive",
+      "stats": "Detected: 3Attempted: 2Succeeded: 2Last result: Success",
+      "loading": "",
+      "noGoods": "",
+      "fetchError": "",
+      "goods": 3,
+      "purchases": 2
+    },
+    {
+      "state": "automation-trade-empty",
+      "stats": "Detected: 0Attempted: 0Succeeded: 0Last result: -",
+      "loading": "",
+      "noGoods": "No trade goods are available from the current season template.",
+      "fetchError": "",
+      "goods": 0,
+      "purchases": 0
+    },
+    {
+      "state": "automation-trade-status-absent",
+      "stats": "Detected: 0Attempted: 0Succeeded: 0Last result: -",
+      "loading": "",
+      "noGoods": "",
+      "fetchError": "",
+      "goods": 3,
+      "purchases": 0
+    },
+    {
+      "state": "automation-trade-loading",
+      "stats": "Detected: 3Attempted: 2Succeeded: 2Last result: Success",
+      "loading": "Loading goods...",
+      "noGoods": "",
+      "fetchError": "",
+      "goods": 0,
+      "purchases": 2
+    },
+    {
+      "state": "automation-trade-loading-retained",
+      "stats": "Detected: 3Attempted: 2Succeeded: 2Last result: Success",
+      "loading": "Loading goods...",
+      "noGoods": "",
+      "fetchError": "",
+      "goods": 3,
+      "purchases": 2
+    },
+    {
+      "state": "automation-trade-error",
+      "stats": "Detected: 3Attempted: 2Succeeded: 2Last result: Success",
+      "loading": "",
+      "noGoods": "No trade goods are available from the current season template.",
+      "fetchError": "Error: Fixture Trade goods request failed",
+      "goods": 0,
+      "purchases": 2
+    },
+    {
+      "state": "automation-trade-error-retained",
+      "stats": "Detected: 3Attempted: 2Succeeded: 2Last result: Success",
+      "loading": "",
+      "noGoods": "",
+      "fetchError": "Error: Fixture Trade goods request failed",
+      "goods": 3,
+      "purchases": 2
+    },
+    {
+      "state": "automation-trade-confirmed-timeout",
+      "stats": "Detected: 3Attempted: 2Succeeded: 2Last result: Confirmed after timeout",
+      "loading": "",
+      "noGoods": "",
+      "fetchError": "",
+      "goods": 3,
+      "purchases": 2
+    },
+    {
+      "state": "automation-trade-status-failed",
+      "stats": "Detected: 3Attempted: 2Succeeded: 2Last result: Failed",
+      "loading": "",
+      "noGoods": "",
+      "fetchError": "",
+      "goods": 3,
+      "purchases": 2
+    },
+    {
+      "state": "automation-trade-status-skipped",
+      "stats": "Detected: 3Attempted: 2Succeeded: 2Last result: Skipped",
+      "loading": "",
+      "noGoods": "",
+      "fetchError": "",
+      "goods": 3,
+      "purchases": 2
+    },
+    {
+      "state": "automation-trade-save-error",
+      "stats": "Detected: 3Attempted: 2Succeeded: 2Last result: Success",
+      "loading": "",
+      "noGoods": "",
+      "fetchError": "",
+      "goods": 3,
+      "purchases": 2
+    }
+  ],
+  "missingStatusCases": 4,
+  "sourceLocators": {
+    "stats": {
+      "utf8ByteOffset": 8498,
+      "expression": "(0,S.jsxs)(`div`,{className:`trade-station-stats`,children:[(0,S.jsxs)(`span`,{children:[c(`automation.tradeStation.detected`),`: `,a?.detectedCount??0]}),(0,S.jsxs)(`span`,{children:[c(`automation.tradeStation.attempted`),`: `,a?.attemptedCount??0]}),(0,S.jsxs)(`span`,{children:[c(`automation.tradeStation.succeeded`),`: `,a?.succeededCount??0]}),(0,S.jsxs)(`span`,{children:[c(`automation.tradeStation.lastResult`),`: `,w?c(`automation.tradeStation.state.${w}`):`-`]})]})"
+    },
+    "loading": {
+      "utf8ByteOffset": 9840,
+      "expression": "ie&&(0,S.jsx)(`span`,{className:`muted`,children:c(`automation.tradeStation.loading`)})"
+    },
+    "noGoods": {
+      "utf8ByteOffset": 9928,
+      "expression": "!ie&&d.length===0&&(0,S.jsx)(`span`,{className:`muted`,children:c(`automation.tradeStation.noGoods`)})"
+    },
+    "fetchError": {
+      "utf8ByteOffset": 10261,
+      "expression": "se&&(0,S.jsx)(`div`,{className:`automation-error`,children:se})"
+    },
+    "fetchEffect": {
+      "utf8ByteOffset": 6774,
+      "expression": "o(e).then(e=>{t||ne(e.items)}).catch(e=>{t||b(String(e))}).finally(()=>{t||ae(!1)})"
+    }
+  }
+}

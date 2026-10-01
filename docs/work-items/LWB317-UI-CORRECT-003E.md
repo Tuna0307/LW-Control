@@ -1,6 +1,10 @@
 # LWB317-UI-CORRECT-003E — Trade status/loading/error presentation only
 
-Project-lead assignment: 2026-10-02. State: READY.
+Project-lead assignment: 2026-10-02. State: AWAITING_REVIEW.
+Owner requested project-lead takeover while the worker rests. Implementation,
+focused source/local render checks, browser QA and canonical checks are complete.
+Delivery: docs/reviews/2026-10-02-LWB317-UI-CORRECT-003E.md and focused evidence.
+Independent review is the continuation point; parent CORRECT-003 remains PARTIAL.
 One remaining presentation unit within Trade Station, not broad CORRECT-003.
 
 ## Fresh-chat context

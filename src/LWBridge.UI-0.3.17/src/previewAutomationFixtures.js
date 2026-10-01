@@ -150,21 +150,28 @@ const previewTradeHistoryGameTexts = {
 
 export function previewTradeFixture(previewState) {
   const empty = previewState === "automation-trade-empty";
-  const loading = previewState === "automation-trade-loading";
-  const error = previewState === "automation-trade-error";
+  const loading = previewState === "automation-trade-loading" || previewState === "automation-trade-loading-retained";
+  const fetchFailed = previewState === "automation-trade-error" || previewState === "automation-trade-error-retained";
+  const retainedGoods = previewState === "automation-trade-loading-retained" || previewState === "automation-trade-error-retained";
+  const absentStatus = previewState === "automation-trade-status-absent";
   const historyQa = previewState === "automation-trade-history";
   const emptyHistoryQa = previewState === "automation-trade-history-empty";
-  const purchases = empty || loading || error || emptyHistoryQa ? [] : historyQa ? previewTradeHistoryPurchases : previewTradePurchases;
+  // Template fetching and purchase status are independent in the recovered UI.
+  // These are disclosed QA scenarios, not simulated template/network operations.
+  const purchases = empty || emptyHistoryQa || absentStatus ? [] : historyQa ? previewTradeHistoryPurchases : previewTradePurchases;
+  const resultState = previewState === "automation-trade-confirmed-timeout" ? "confirmed_after_timeout" : previewState === "automation-trade-status-failed" ? "failed" : previewState === "automation-trade-status-skipped" ? "skipped" : "success";
   return {
-    goods: empty || loading || error ? [] : previewTradeGoods,
+    goods: empty || ((loading || fetchFailed) && !retainedGoods) ? [] : previewTradeGoods,
     purchases,
     gameTexts: historyQa ? previewTradeHistoryGameTexts : {},
     loading,
-    error,
-    detected: empty ? 0 : 3,
-    attempted: empty ? 0 : 2,
-    succeeded: empty ? 0 : 2,
-    lastResult: empty ? null : error ? "failed" : previewState === "automation-trade-confirmed-timeout" ? "confirmed_after_timeout" : "success",
+    error: fetchFailed ? String(new Error("Fixture Trade goods request failed")) : "",
+    status: absentStatus ? undefined : {
+      detectedCount: empty ? 0 : 3,
+      attemptedCount: empty ? 0 : 2,
+      succeededCount: empty ? 0 : 2,
+      lastResult: empty ? undefined : { state: resultState },
+    },
   };
 }
 

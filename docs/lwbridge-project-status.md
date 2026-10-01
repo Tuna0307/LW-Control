@@ -54,8 +54,11 @@ canonical build/package and evidence hashes pass. PM-013 accepts CORRECT-003C
 `1a25a9c` for source/local history presentation after independent helper/regression/
 package/evidence checks. Native images remain declared placeholders. PM-014 accepts
 CORRECT-003D `bd808994` for local/source cross-server setting UI after actual
-callback/regression/package/evidence checks. Active 003E is only Trade counters/
-last-result and goods loading/fetch-error presentation. Native providers,
+callback/regression/package/evidence checks. 003E is AWAITING_REVIEW after
+owner-requested project-lead implementation takeover: Trade status defaults,
+supplied fetch-error text and retained goods/purchases pass source/local render,
+browser, regression and canonical checks. Independent review is pending; see
+`reviews/2026-10-02-LWB317-UI-CORRECT-003E.md`. Native providers,
 purchasing and cross-server gameplay remain separate.
 Full Automation/native/pixel parity remains unaccepted.
 
@@ -274,8 +277,9 @@ at `bfc652f`, closing PM-011's two composition defects with all three unchanged
 actual-expression cases and selection/recovery/package/evidence checks passing.
 PM-013 accepts CORRECT-003C at `1a25a9c` for local/source purchase-history
 presentation with declared native-image placeholders. PM-014 accepts local/source
-cross-server setting CORRECT-003D at `bd808994`. Active 003E covers Trade stats/
-last-result/loading/fetch-error presentation only. Purchase execution, native
+cross-server setting CORRECT-003D at `bd808994`. 003E Trade stats/last-result/
+loading/fetch-error presentation is implemented and locally checked, AWAITING_REVIEW
+after project-lead takeover. Parent CORRECT-003 remains PARTIAL. Purchase execution, native
 providers, other runtime panels, Assist and AFK remain separate. Other WIP stays
 preserved. No full UI acceptance is recorded.
 PM-007's historical CHANGES_REQUIRED

@@ -1,0 +1,58 @@
+{
+  "task": "LWB317-UI-CORRECT-003E",
+  "reference": {
+    "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/AutomationPanel-BJ0gIqFh.js",
+    "sha256": "6DB2328191AF33E5631D507271C36D7008B287DAA7C8CD1A957B23EF6F871725"
+  },
+  "sourceLocators": {
+    "stats": {
+      "utf8ByteOffset": 8498,
+      "expression": "(0,S.jsxs)(`div`,{className:`trade-station-stats`,children:[(0,S.jsxs)(`span`,{children:[c(`automation.tradeStation.detected`),`: `,a?.detectedCount??0]}),(0,S.jsxs)(`span`,{children:[c(`automation.tradeStation.attempted`),`: `,a?.attemptedCount??0]}),(0,S.jsxs)(`span`,{children:[c(`automation.tradeStation.succeeded`),`: `,a?.succeededCount??0]}),(0,S.jsxs)(`span`,{children:[c(`automation.tradeStation.lastResult`),`: `,w?c(`automation.tradeStation.state.${w}`):`-`]})]})"
+    },
+    "loading": {
+      "utf8ByteOffset": 9840,
+      "expression": "ie&&(0,S.jsx)(`span`,{className:`muted`,children:c(`automation.tradeStation.loading`)})"
+    },
+    "noGoods": {
+      "utf8ByteOffset": 9928,
+      "expression": "!ie&&d.length===0&&(0,S.jsx)(`span`,{className:`muted`,children:c(`automation.tradeStation.noGoods`)})"
+    },
+    "fetchError": {
+      "utf8ByteOffset": 10261,
+      "expression": "se&&(0,S.jsx)(`div`,{className:`automation-error`,children:se})"
+    },
+    "fetchEffect": {
+      "utf8ByteOffset": 6774,
+      "expression": "o(e).then(e=>{t||ne(e.items)}).catch(e=>{t||b(String(e))}).finally(()=>{t||ae(!1)})"
+    }
+  },
+  "locale": {
+    "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/en-BisSXcTB.js",
+    "sha256": "0BF43D180EB93692A93B830B5D984E9D01DDEEA524340F2334FC63CBA527A731",
+    "locators": {
+      "automation.tradeStation.state.success": {
+        "utf8ByteOffset": 21759,
+        "expression": "\"automation.tradeStation.state.success\":`Success`"
+      },
+      "automation.tradeStation.state.confirmed_after_timeout": {
+        "utf8ByteOffset": 21809,
+        "expression": "\"automation.tradeStation.state.confirmed_after_timeout\":`Confirmed after timeout`"
+      },
+      "automation.tradeStation.state.failed": {
+        "utf8ByteOffset": 21891,
+        "expression": "\"automation.tradeStation.state.failed\":`Failed`"
+      },
+      "automation.tradeStation.state.skipped": {
+        "utf8ByteOffset": 21939,
+        "expression": "\"automation.tradeStation.state.skipped\":`Skipped`"
+      }
+    }
+  },
+  "resultTranslations": {
+    "automation.tradeStation.state.success": "Success",
+    "automation.tradeStation.state.confirmed_after_timeout": "Confirmed after timeout",
+    "automation.tradeStation.state.failed": "Failed",
+    "automation.tradeStation.state.skipped": "Skipped"
+  },
+  "limits": "All values are local QA fixtures. No native/template provider or purchase execution is implemented."
+}

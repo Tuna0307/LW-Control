@@ -66,9 +66,14 @@ PM-014 accepts CORRECT-003D `bd808994` for local/source cross-server setting UI:
 actual immediate/concurrent/recovery callbacks, offline predicate, Trade regressions
 and package/evidence checks pass. Review:
 `reviews/2026-10-02-LWB317-PM-014-trade-switch-acceptance.md`.
-Active small task: `work-items/LWB317-UI-CORRECT-003E.md`, only Trade counters/
-last-result and goods loading/fetch-error presentation. No native provider,
-purchase execution or cross-server gameplay is opened.
+CORRECT-003E is AWAITING_REVIEW after owner-requested project-lead takeover:
+Trade counters/last-result defaults, supplied fetch-error text and retained
+goods/purchases are implemented. Eleven differential render fixtures, four sparse
+status inputs, twelve browser observations, Trade regressions and canonical checks
+pass. Review: `reviews/2026-10-02-LWB317-UI-CORRECT-003E.md`.
+Next: independently review this checkpoint before acceptance, then assign another
+bounded UI unit. No native provider, purchase execution or cross-server gameplay
+is opened. Parent CORRECT-003 remains PARTIAL.
 Do not restart broad CORRECT-003 or reopen accepted weekly/selection/history work.
 Trade/Assist/runtime/AFK work remains preserved for later separate validation tasks.
 Physical drag, native config persistence and original pixels remain unproved.
