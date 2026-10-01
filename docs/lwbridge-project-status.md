@@ -45,6 +45,11 @@ re-ran current canonical/state checks successfully; it does not accept the new
 branches as parity-proven. The owner requested smaller continuations, starting
 with CORRECT-003A weekly quality settings. Preserve all other code and WIP.
 
+PM-010 subsequently accepted the focused weekly CORRECT-003A/R1 delivery at
+`d065d08` after the actual handlers, deferred writes, recovery, anchors and package
+checks passed. This is local/source acceptance, not full Automation/native/pixel
+parity. The next small unit is CORRECT-003B, Trade selection controls only.
+
 Phase 1 static UI recovery has been accepted. The active target remains exact
 LWBridge 0.3.17. The Map-only `LWB317-RE-MAP-001` campaign has completed its
 ordered continuation and is `AWAITING_REVIEW`; no other Phase 2 function family
@@ -254,12 +259,11 @@ Historical auth research remains archived evidence, not a current reconstruction
 PM-008 inspected pushed CORRECT-003 implementation `5204f67`; code/state checks
 pass but Stage B evidence and delivery are incomplete. At the owner's request,
 the broad task is PARTIAL and split.
-CORRECT-003A returned at `2f439ce`; PM-009 found its actual weekly callbacks still
-debounce instead of immediately writing. The unit is CHANGES_REQUIRED despite
-correct saving editability/defaults/store checks. Active continuation is
-`work-items/LWB317-UI-CORRECT-003A-R1.md`, only that handler correction, actual-handler
-proof and two locator anchors. Other branches/WIP stay preserved for later
-separate validation. No full UI acceptance is recorded.
+PM-010 accepted the focused weekly unit at `d065d08` after R1 closed the actual
+callback defect. Active continuation is `work-items/LWB317-UI-CORRECT-003B.md`,
+only Trade Station currency/goods/exclusive selection and local save states.
+Purchase history, Assist, runtime and AFK remain separate later units. Other
+branches/WIP stay preserved. No full UI acceptance is recorded.
 PM-007's historical CHANGES_REQUIRED
 decision and accepted Home scope fix remain preserved. Separately close or reassign the awaiting
 `LWB317-RE-MAP-001` Goal.

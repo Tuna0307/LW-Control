@@ -1,12 +1,13 @@
 # LWB317-UI-CORRECT-003A — finish weekly quality settings only
 
-Project-lead assignment: 2026-10-01. State: CHANGES_REQUIRED after PM-009.
+Project-lead assignment: 2026-10-01. State: COMPLETE / ACCEPTED by PM-010.
 This replaces the active broad CORRECT-003 assignment with one smaller unit.
 The parent remains PARTIAL; do not resume its other work during this task.
 
-Worker delivery 2f439ce retains useful weekly save-lock corrections, but PM-009
-found both actual weekly callbacks still debounce instead of writing immediately.
-Active correction is LWB317-UI-CORRECT-003A-R1; do not broaden this task.
+Worker delivery 2f439ce retained useful save-lock corrections; PM-009 found the
+remaining immediate-write defect. R1 delivery d065d08 corrects it and is accepted
+by PM-010 with actual-handler/evidence/package checks. This closes the local weekly
+unit only. Next separately assigned unit is CORRECT-003B, Trade selection controls.
 
 ## Context and inputs
 

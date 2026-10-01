@@ -143,11 +143,12 @@ active CORRECT-003A limited to weekly quality controls and save-state verificati
 Earlier gap statements describe the reviewed CORRECT-002 baseline; validate the
 new implementation before changing their completion disposition.
 
-PM-009 reviewed CORRECT-003A delivery `2f439ce` as CHANGES_REQUIRED. Correct
-selector editability during saving, defaults and local store checks are retained;
-both actual weekly change callbacks still use debounce/blur instead of the
-original immediate write. Active CORRECT-003A-R1 is limited to that handler fix,
-actual-callback proof and two source-locator anchors. No full UI acceptance.
+PM-009 returned CORRECT-003A `2f439ce` for its missing immediate write. R1 at
+`d065d08` fixes both actual callbacks; PM-010 accepts the focused local weekly unit
+after default, saving editability, actual deferred-callback/recovery and source
+anchor checks. Native persistence/original pixels/full UI remain unaccepted.
+Active CORRECT-003B covers only Trade Station currency/goods/exclusive selection
+and local save states. History and other panel validation remain separate.
 
 Correction evidence is under
 `evidence/lwbridge-0.3.17/ui/LWB317-UI-CORRECT-001/`; worker report:

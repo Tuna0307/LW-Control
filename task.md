@@ -94,14 +94,13 @@ fixture queries pass targeted contract/state/browser QA. Current delivery:
 records remaining source-recoverable UI gaps. CORRECT-003 subsequently pushed
 substantial implementation at 5204f67, but Stage B evidence/delivery is unfinished.
 The owner requested smaller tasks, replacing its active broad scope.
-CORRECT-003A returned at 2f439ce. PM-009 found one remaining weekly-save defect:
-saving editability was correct but actual weekly changes still debounced instead
-of writing immediately. `LWB317-UI-CORRECT-003A-R1` now returns AWAITING_REVIEW
-with the two weekly handlers changed to patch without debounce and flush
-immediately, actual-handler deferred/failure proof, local Retry/Discard browser
-rechecks and the two source-locator corrections. Preserve other code and
-uncommitted AFK/scratch work. No new native/gameplay family is opened; all-page
-parity is not accepted.
+PM-010 reviewed R1 delivery d065d08 and accepted the focused local weekly unit
+(CORRECT-003A/R1): immediate actual callbacks, concurrent drafts, Retry/Discard
+and source anchors pass. Native persistence/original pixels/full UI are unaccepted.
+Active assignment is `docs/work-items/LWB317-UI-CORRECT-003B.md`, only Trade Station
+currency/goods/exclusive selection and local save states. History/other panels
+remain separate. Preserve other code and uncommitted AFK/scratch work. No new
+native/gameplay family is opened; all-page parity is not accepted.
 
 Direct original post-auth screenshot/pixel comparison remains `BLOCKED` by the
 documented reference access boundary, so affected UI rows remain
