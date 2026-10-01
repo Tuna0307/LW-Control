@@ -1,0 +1,68 @@
+{
+  "task": "LWB317-UI-CORRECT-003B-R1",
+  "status": "AWAITING_REVIEW",
+  "baseline": "d2de257",
+  "reviewedParent": "a24bf6c736398e76c2e01451e6761e4d96fd28ec",
+  "reference": {
+    "automationPanel": {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/AutomationPanel-BJ0gIqFh.js",
+      "sha256": "6DB2328191AF33E5631D507271C36D7008B287DAA7C8CD1A957B23EF6F871725",
+      "byteOffsets": {
+        "firstCurrencyOffer": 5605,
+        "goodsCurrenciesById": 1197
+      }
+    },
+    "preservedFailingBaseline": {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-PM-011/composition-baseline.json",
+      "sha256": "6B4572E7103C3B7F971FA65E9C33FBCC3F9412C273B08B457328CCA77A31DC0E"
+    }
+  },
+  "checks": {
+    "composition": {
+      "command": "node evidence/lwbridge-0.3.17/ui/LWB317-PM-011/check-trade-composition.mjs evidence/lwbridge-0.3.17/ui/LWB317-UI-CORRECT-003B-R1/composition-results.json",
+      "result": "PASS_ALL_3_CASES"
+    },
+    "tradeSelection": {
+      "command": "node evidence/lwbridge-0.3.17/ui/LWB317-UI-CORRECT-003B/check-trade-selection.mjs",
+      "result": "LWB317_UI_CORRECT003B_TRADE_SELECTION_OK"
+    },
+    "browser": {
+      "state": "automation-trade-positive",
+      "result": "PASS",
+      "record": "browser-results.json"
+    },
+    "uiCheck": {
+      "command": "npm.cmd run check",
+      "result": "PASS"
+    },
+    "productionBuild": {
+      "command": "npm.cmd run build",
+      "result": "PASS",
+      "marker": "LWB317_PRODUCTION_UI_BUILD_OK ac160064f925ef2c17eb40e5f1ca91b76b50085dd0c88f66218e2b9e5ef6c37e 43ac4d3d94fd709561e422e3192c2761330b1fddf87bee24824f9ef9ff4a93ec"
+    },
+    "productionPackageCheck": {
+      "command": "npm.cmd run check:production-build",
+      "result": "PASS",
+      "marker": "LWB317_PRODUCTION_UI_PACKAGE_OK ac160064f925ef2c17eb40e5f1ca91b76b50085dd0c88f66218e2b9e5ef6c37e 43ac4d3d94fd709561e422e3192c2761330b1fddf87bee24824f9ef9ff4a93ec"
+    },
+    "diffCheck": {
+      "command": "git diff --check",
+      "result": "PASS"
+    }
+  },
+  "scope": {
+    "changedProductLogic": [
+      "Trade Station currency options retain the first offer per positive currency ID before sorting by ID.",
+      "Trade Station goods currency labels deduplicate by currency ID and retain the first encountered label."
+    ],
+    "preserved": [
+      "accepted weekly settings work",
+      "CORRECT-003B selection/save/Retry/Discard behavior",
+      "purchase history and other Automation panels",
+      "native/gameplay Last War interaction",
+      "pre-existing src/LWBridge.UI-0.3.17/src/previewAfkFixtures.js change",
+      "pre-existing .scratch-lwb317 files",
+      "pre-existing LWB317-UI-CORRECT-003 screenshots"
+    ]
+  }
+}

@@ -56,8 +56,10 @@ save-time locks passes source and actual-handler checks. Last-currency protectio
 goods selection, Show exclusive and Retry/Discard evidence is retained. The unit
 is `CHANGES_REQUIRED` for two existing composition mismatches: currency options
 must keep the first offer per ID, and goods currency labels must deduplicate by ID.
-Active small continuation: `work-items/LWB317-UI-CORRECT-003B-R1.md`. Lead actual-
-expression failing proof is in `evidence/lwbridge-0.3.17/ui/LWB317-PM-011/`.
+CORRECT-003B-R1 fixes only those two expressions. The unchanged PM-011 actual-
+expression harness now passes all three cases, with focused Trade browser and
+canonical package checks passing. R1 is `AWAITING_REVIEW`; evidence is under
+`evidence/lwbridge-0.3.17/ui/LWB317-UI-CORRECT-003B-R1/`.
 Purchase history and other panels stay separate. Do not restart broad CORRECT-003
 or reopen weekly work.
 Trade/Assist/runtime/AFK work remains preserved for later separate validation tasks.

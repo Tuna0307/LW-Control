@@ -1,0 +1,39 @@
+{
+  "task": "LWB317-UI-CORRECT-003B-R1",
+  "date": "2026-10-01",
+  "browser": "existing local Vite preview on 127.0.0.1:4319",
+  "state": "automation-trade-positive",
+  "gameLaunched": false,
+  "taskOwnedTabClosed": true,
+  "actions": [
+    "Inspected existing browser tabs and processes before opening one task-owned preview tab.",
+    "Opened Automation and selected Trade Station through a real browser control.",
+    "Verified the initial currency and goods labels in the rendered Trade Station panel.",
+    "Unselected Fixture Market Credit through its checkbox.",
+    "Selected the visible Fixture Resource Crate card through a real browser click.",
+    "Toggled Show city-owner exclusive on and then off through its checkbox.",
+    "Closed only the task-owned preview tab."
+  ],
+  "observed": [
+    "Purchase currencies rendered Fixture Trade Token followed by Fixture Market Credit, with both initially checked.",
+    "Fixture Speedup Chest rendered Possible cost: Fixture Trade Token / Fixture Market Credit; Fixture Resource Crate rendered Possible cost: Fixture Trade Token.",
+    "After Fixture Market Credit was unselected, Fixture Trade Token remained checked and became disabled as the last-currency guard.",
+    "Fixture Resource Crate became checked through the production selection path while its currency label remained Fixture Trade Token.",
+    "With Show city-owner exclusive enabled, Fixture City-Owner Offer appeared disabled with Possible cost: Fixture Market Credit and the skipped-exclusive label.",
+    "After Show city-owner exclusive was disabled again, Fixture City-Owner Offer was hidden while the non-exclusive goods and their labels remained intact."
+  ],
+  "reusedScreenshots": [
+    {
+      "path": "../LWB317-UI-CORRECT-003B/screenshots/selected-goods-currency.jpg",
+      "sha256": "BAEE4E669B89E357980F60A0C0D4725D3676CEFBEF6050B39B8A0176EB3451DF"
+    },
+    {
+      "path": "../LWB317-UI-CORRECT-003B/screenshots/show-exclusive.jpg",
+      "sha256": "D90C9F37BB97431E97DDDB70F3E62C5E7E7C678AF3432D681B2BE5147D3B98AA"
+    },
+    {
+      "path": "../LWB317-UI-CORRECT-003B/screenshots/save-error.jpg",
+      "sha256": "8F32B38AC08DF0EBBB780A9937BFFEC990E51B56C61D1FD59670E18F9A4589CE"
+    }
+  ]
+}

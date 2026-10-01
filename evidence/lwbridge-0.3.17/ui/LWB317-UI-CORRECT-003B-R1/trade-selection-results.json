@@ -1,0 +1,32 @@
+{
+  "result": "LWB317_UI_CORRECT003B_TRADE_SELECTION_OK",
+  "sourceHashes": {
+    "panel": "6DB2328191AF33E5631D507271C36D7008B287DAA7C8CD1A957B23EF6F871725",
+    "card": "24ED773623C237F8219EFF5443FAC3BA7B55B6E99E168E52FF066FAF2ABE7A61",
+    "shared": "44C4E4043825B7DB296B64171951B27176F8850FF8D7D337CC991DF4765524C6"
+  },
+  "sourceLocators": {
+    "defaultConfig": 400,
+    "normalizedCurrencies": 561,
+    "goodsFilterSort": 974,
+    "goodsDisabled": 1468,
+    "currencyDisabled": 6130,
+    "immediateSave": 7213,
+    "goodsHandler": 7292,
+    "currencyHandler": 7466,
+    "enableGuard": 7673,
+    "currencyCallerNoSavingLock": 8412,
+    "goodsCallerNoSavingLock": 10054,
+    "showExclusive": 9747,
+    "tradeConfigDisabledOfflineOnly": 7909
+  },
+  "handlers": {
+    "save": "(draft) => { config.store.edit(draft, false); config.store.flush().catch(() => {}); }",
+    "toggleItem": "(itemId, checked) => {\n    const selectedItemIds = checked ? [...new Set([...config.draft.selectedItemIds, itemId])].sort((a, b) => a - b) : config.draft.selectedItemIds.filter((entry) => entry !== itemId);\n    save({ ...config.store.getSnapshot().draft, enabled: selectedItemIds.length > 0 && enabled, selectedItemIds });\n  }",
+    "toggleCurrency": "(currencyId, checked) => {\n    if (!checked && config.draft.selectedCurrencyIds.length === 1) return;\n    const selectedCurrencyIds = checked ? [...new Set([...config.draft.selectedCurrencyIds, currencyId])].sort((a, b) => a - b) : config.draft.selectedCurrencyIds.filter((entry) => entry !== currencyId);\n    save({ ...config.store.getSnapshot().draft, selectedCurrencyIds });\n  }"
+  },
+  "recoveryCallbacks": {
+    "retry": "() => config.store.flush().catch(() => {})",
+    "discard": "() => config.store.refresh(true).catch(() => {})"
+  }
+}

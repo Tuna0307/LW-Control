@@ -1,0 +1,54 @@
+{
+  "task": "LWB317-PM-011",
+  "sourceHash": "6DB2328191AF33E5631D507271C36D7008B287DAA7C8CD1A957B23EF6F871725",
+  "sourceLocators": {
+    "firstCurrencyOffer": 5605,
+    "goodsCurrenciesById": 1197
+  },
+  "expressions": {
+    "currencies": "[...fixture.goods.flatMap((item) => item.offers).filter((offer) => offer.currencyId > 0).reduce((offers, offer) => offers.has(offer.currencyId) ? offers : offers.set(offer.currencyId, offer), new Map()).values()].sort((a, b) => a.currencyId - b.currencyId)",
+    "possibleCurrencies": "[...item.offers.reduce((labels, offer) => labels.has(offer.currencyId) ? labels : labels.set(offer.currencyId, offer.currencyName), new Map()).values()]"
+  },
+  "cases": [
+    {
+      "name": "currency selector keeps the first offer for a repeated currency ID",
+      "expected": [
+        {
+          "currencyId": 15,
+          "currencyName": "First QA name"
+        }
+      ],
+      "actual": [
+        {
+          "currencyId": 15,
+          "currencyName": "First QA name"
+        }
+      ],
+      "pass": true
+    },
+    {
+      "name": "goods currency labels keep the first label per currency ID",
+      "expected": [
+        "First QA name"
+      ],
+      "actual": [
+        "First QA name"
+      ],
+      "pass": true
+    },
+    {
+      "name": "distinct currency IDs are retained even when labels match",
+      "expected": [
+        "Shared QA name",
+        "Shared QA name"
+      ],
+      "actual": [
+        "Shared QA name",
+        "Shared QA name"
+      ],
+      "pass": true
+    }
+  ],
+  "pass": true,
+  "note": "Synthetic QA metadata; not current-game currency claims. Actual production expressions are evaluated."
+}

@@ -150,10 +150,12 @@ anchor checks. Native persistence/original pixels/full UI remain unaccepted.
 PM-011 reviewed CORRECT-003B `a24bf6c`: the Trade currency/goods saving-lock
 correction matches explicit source `saving:false`, with passing actual-handler
 selection/queued-save/Retry/Discard checks and retained worker browser evidence.
-Status is `CHANGES_REQUIRED` for two existing composition mismatches: retain first
-offer metadata per currency ID and deduplicate goods labels by ID rather than
-name. Actual-expression failing proof is under `LWB317-PM-011`; the next unit is
-CORRECT-003B-R1, only those two expressions. History and other panels stay separate.
+PM-011 returned two existing composition mismatches: first-offer metadata per
+currency ID and goods-label deduplication by ID. CORRECT-003B-R1 now corrects only
+those two expressions; the unchanged lead actual-expression harness passes all
+three cases and focused selection/package/browser checks pass. R1 is
+`AWAITING_REVIEW`. History and other panels stay separate; full UI/native/pixel
+parity remains unaccepted.
 
 Correction evidence is under
 `evidence/lwbridge-0.3.17/ui/LWB317-UI-CORRECT-001/`; worker report:

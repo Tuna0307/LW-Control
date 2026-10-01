@@ -1,6 +1,6 @@
 # LWB317-UI-CORRECT-003B-R1 — currency composition only
 
-Project-lead assignment: 2026-10-01. State: READY.
+Project-lead assignment: 2026-10-01. State: AWAITING_REVIEW.
 One small correction to CORRECT-003B. Do not resume parent CORRECT-003.
 
 ## Context for a fresh worker

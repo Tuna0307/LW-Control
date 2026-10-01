@@ -99,11 +99,12 @@ PM-010 reviewed R1 delivery d065d08 and accepted the focused local weekly unit
 and source anchors pass. Native persistence/original pixels/full UI are unaccepted.
 PM-011 reviewed Trade delivery a24bf6c. Saving/selection/recovery checks pass, but
 currency composition keeps last-offer metadata and deduplicates goods labels by
-name rather than ID. CORRECT-003B is CHANGES_REQUIRED. Active assignment is
-`docs/work-items/LWB317-UI-CORRECT-003B-R1.md`, only these two expressions and
-focused verification. History/other panels remain separate. Preserve other code
-and uncommitted AFK/scratch work. No new native/gameplay family is opened;
-all-page parity is not accepted.
+name rather than ID. CORRECT-003B-R1 now corrects only those two expressions; the
+unchanged PM-011 composition harness passes all three cases and focused
+selection/package/browser verification passes. R1 is `AWAITING_REVIEW` under
+`docs/work-items/LWB317-UI-CORRECT-003B-R1.md`. History/other panels remain
+separate. Preserve other code and uncommitted AFK/scratch work. No new
+native/gameplay family is opened; all-page parity is not accepted.
 
 Direct original post-auth screenshot/pixel comparison remains `BLOCKED` by the
 documented reference access boundary, so affected UI rows remain

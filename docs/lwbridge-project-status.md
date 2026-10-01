@@ -50,8 +50,10 @@ PM-010 subsequently accepted the focused weekly CORRECT-003A/R1 delivery at
 checks passed. This is local/source acceptance, not full Automation/native/pixel
 parity. PM-011 reviewed CORRECT-003B at `a24bf6c`: the saving fix and focused
 handler/package checks pass, but currency composition needs first-offer retention
-and ID-based goods-label deduplication. State is CHANGES_REQUIRED; active small
-assignment is CORRECT-003B-R1, only those two expressions.
+and ID-based goods-label deduplication. CORRECT-003B-R1 corrects only those two
+expressions; the PM-011 actual-expression harness now passes all three cases and
+focused selection/package/browser verification passes. R1 is `AWAITING_REVIEW`;
+full Automation/native/pixel parity remains unaccepted.
 
 Phase 1 static UI recovery has been accepted. The active target remains exact
 LWBridge 0.3.17. The Map-only `LWB317-RE-MAP-001` campaign has completed its
