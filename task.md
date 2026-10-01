@@ -112,6 +112,12 @@ Do not run a second worker on this unit concurrently. No native providers, cross
 purchase execution or other panels are opened.
 Preserve accepted history/selection/weekly work and uncommitted AFK/scratch files.
 No new native/gameplay family is opened; all-page parity is not accepted.
+Owner subsequently requested tasks for the lead while the worker rests. PM-015
+Home source/state audit is COMPLETE, with 960 synthetic comparisons and exact
+source locators. See `docs/reviews/2026-10-02-LWB317-PM-015-home-audit.md`.
+Queued lead continuations: Home error translation/channels, Home busy presentation,
+then shared switch-state localization as separate small units. No worker dispatch,
+production edit or native lifecycle implementation is implied by this audit.
 
 Direct original post-auth screenshot/pixel comparison remains `BLOCKED` by the
 documented reference access boundary, so affected UI rows remain

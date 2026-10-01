@@ -1,0 +1,816 @@
+{
+  "task": "LWB317-PM-015",
+  "result": "LWB317_PM015_HOME_AUDIT_OK",
+  "baseline": "dd46685b2ba634cc0f70fe9f278d38ba3b166a1e",
+  "reference": {
+    "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-BVfnK1wp.js",
+    "sha256": "44C4E4043825B7DB296B64171951B27176F8850FF8D7D337CC991DF4765524C6",
+    "locators": {
+      "Kr": {
+        "utf8ByteOffset": 336469,
+        "expression": "function Kr({rootResolved:e,rootValid:t,gameRunning:n,needsRepair:r=!1,recovering:i,busy:a,launching:o=!1}){return{showRootPicker:e&&!t,canStart:e&&t&&!n&&!i&&!a&&!o,canStop:e&&t&&(n||i)&&!a&&!o,repairOnClose:e&&t&&n&&r&&!i}}"
+      },
+      "qr": {
+        "utf8ByteOffset": 336694,
+        "expression": "function qr({proxyStatus:e,online:t,gameRecoveryStatus:n,proxyBusy:r,gameLaunchBusy:i,gameRootStatus:a,gameRootBusy:o,gameRootError:s,gameActionError:c,autoLaunchGame:l,autoReconnect:u,onAutoLaunchGameChange:d,onAutoReconnectChange:f,onGameRootSelect:p,onStartGame:m,onStopGame:h,onUpdateAndRestart:g}){let{t:_}=De(),v=a!=null,y=n!=null&&[`waiting`,`updating`,`repairing`,`launching`,`verifying`,`maintenance`].includes(n.state),b=e?.repairRequired===!0,x=Kr({rootResolved:v,rootValid:a?.valid===!0,gameRunning:e?.gameRunning===!0,needsRepair:b,recovering:y,busy:r,launching:i}),S=v?x.showRootPicker?_(`setup.gameRootMissing`):i?_(`setup.launchingGame`):r?_(`common.processing`):y?_(`recovery.state.${n.state}`):b?_(`setup.repairRequired`):e?.gameRunning?_(t?`status.gameRunning`:`setup.bridgeDisconnected`):_(`setup.gameStopped`):_(`setup.checking`);return(0,M.jsxs)(`section`,{className:`panel quick-actions-panel`,children:[(0,M.jsxs)(`div`,{className:`panel-title`,children:[(0,M.jsx)(`h2`,{children:_(`setup.title`)}),(0,M.jsx)(`span`,{className:e?.gameRunning&&t?`status-ok`:`muted`,children:S})]}),v?x.showRootPicker?(0,M.jsxs)(`div`,{className:`game-root-missing`,children:[(0,M.jsx)(`span`,{children:s?Lr(_,s):_(`setup.gameRootMissing`)}),(0,M.jsx)(`button`,{className:`primary`,disabled:o,onClick:p,children:_(o?`common.processing`:`setup.gameRootSelect`)})]}):(0,M.jsxs)(`div`,{className:`game-controls`,children:[!x.repairOnClose&&(0,M.jsx)(`button`,{className:`primary`,disabled:!x.canStart,onClick:m,children:_(i?`setup.launchingGame`:r?`common.processing`:`top.launchGame`)}),(0,M.jsx)(`button`,{disabled:!x.canStop,onClick:x.repairOnClose?g:h,children:r&&e?.gameRunning?_(`common.processing`):_(x.repairOnClose?`setup.updateAndLaunch`:`setup.closeGameAction`)}),x.repairOnClose&&(0,M.jsx)(`span`,{className:`muted`,children:_(`setup.updateCloseGame`)})]}):null,c&&(0,M.jsx)(`span`,{className:`game-root-error`,children:Lr(_,c)}),(0,M.jsx)(Bn,{label:`auth.autoLaunchGame`,checked:l,onChange:d}),(0,M.jsx)(Bn,{label:`automation.autoReconnect.title`,checked:u,onChange:f}),n?.state===`failed`&&n.error&&(0,M.jsx)(`span`,{className:`game-root-error`,children:_(`recovery.failedDetail`,{error:Lr(_,n.error)})})]})}"
+      },
+      "Ir": {
+        "utf8ByteOffset": 328453,
+        "expression": "function Ir(e){let t=[];e&&typeof e==`object`&&`code`in e&&typeof e.code==`string`&&t.push(e.code);let n=e instanceof Error?e.message:String(e??``);return t.push(...n.match(/\\b[A-Z][A-Z0-9_]{2,}\\b/g)||[]),[...new Set(t)].reverse()}"
+      },
+      "Lr": {
+        "utf8ByteOffset": 328684,
+        "expression": "function Lr(e,t,n=`common.actionFailed`){for(let n of Ir(t))for(let t of[`error`,`auth.error`,`update.error`]){let r=`${t}.${n}`,i=e(r);if(i!==r)return i}return e(n)}"
+      },
+      "Bn": {
+        "utf8ByteOffset": 213332,
+        "expression": "function Bn({label:e,checked:t,disabled:n=!1,variant:r=`switch`,onChange:i}){let{t:a}=De();return r===`checkbox`?(0,M.jsxs)(`label`,{className:`automation-checkbox-row`,children:[(0,M.jsx)(`input`,{type:`checkbox`,checked:t,disabled:n,onChange:e=>i(e.target.checked)}),(0,M.jsx)(`span`,{children:a(e)})]}):(0,M.jsxs)(`button`,{type:`button`,className:`toggle-row`,role:`switch`,\"aria-checked\":t,\"aria-label\":`${a(e)}: ${a(t?`common.enabled`:`common.disabled`)}`,disabled:n,onClick:()=>i(!t),children:[(0,M.jsx)(`span`,{children:a(e)}),(0,M.jsx)(zn,{checked:t})]})}"
+      }
+    }
+  },
+  "clone": {
+    "path": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+    "sha256": "3CD4B5144869808DD6E8742E790432CD29ADDC11BF22E0819D60728C1D415B5A"
+  },
+  "localeEvidence": {
+    "en": {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/en-BisSXcTB.js",
+      "sha256": "0BF43D180EB93692A93B830B5D984E9D01DDEEA524340F2334FC63CBA527A731",
+      "locators": {
+        "common.enabled": {
+          "utf8ByteOffset": 36408,
+          "expression": "\"common.enabled\":`Enabled`"
+        },
+        "common.disabled": {
+          "utf8ByteOffset": 36354,
+          "expression": "\"common.disabled\":`Disabled`"
+        },
+        "common.actionFailed": {
+          "utf8ByteOffset": 35900,
+          "expression": "\"common.actionFailed\":`The action could not be completed.`"
+        }
+      }
+    },
+    "ja": {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/ja-UrbzJu-m.js",
+      "sha256": "35969183AB623B6701BC850FDF28BCF268C93127FF6C9693F77E588EE7BDBE38",
+      "locators": {
+        "common.enabled": {
+          "utf8ByteOffset": 33147,
+          "expression": "\"common.enabled\":`有効`"
+        },
+        "common.disabled": {
+          "utf8ByteOffset": 33092,
+          "expression": "\"common.disabled\":`無効`"
+        },
+        "common.actionFailed": {
+          "utf8ByteOffset": 32534,
+          "expression": "\"common.actionFailed\":`操作を完了できませんでした。`"
+        }
+      }
+    }
+  },
+  "combinations": 960,
+  "differences": {
+    "status": {
+      "count": 64,
+      "examples": [
+        {
+          "input": {
+            "root": true,
+            "gameRunning": false,
+            "online": false,
+            "repairRequired": false,
+            "recovery": "idle",
+            "busy": "gameRoot"
+          },
+          "expected": {
+            "status": "Game stopped",
+            "controls": [
+              {
+                "text": "Launch Game",
+                "disabled": false
+              },
+              {
+                "text": "Close game",
+                "disabled": true
+              }
+            ],
+            "rootPicker": false,
+            "errors": [],
+            "switches": [
+              {
+                "ariaLabel": "Open games at startup: Disabled",
+                "checked": false,
+                "disabled": false
+              },
+              {
+                "ariaLabel": "Automatic Reconnection: Disabled",
+                "checked": false,
+                "disabled": false
+              }
+            ],
+            "rootText": ""
+          },
+          "actual": {
+            "status": "Processing",
+            "controls": [
+              {
+                "text": "Launch Game",
+                "disabled": true
+              },
+              {
+                "text": "Close game",
+                "disabled": true
+              }
+            ],
+            "rootPicker": false,
+            "errors": [],
+            "switches": [
+              {
+                "ariaLabel": "Open games at startup: Disabled",
+                "checked": false,
+                "disabled": false
+              },
+              {
+                "ariaLabel": "Automatic Reconnection: Disabled",
+                "checked": false,
+                "disabled": false
+              }
+            ],
+            "rootText": ""
+          }
+        },
+        {
+          "input": {
+            "root": true,
+            "gameRunning": false,
+            "online": false,
+            "repairRequired": false,
+            "recovery": "waiting",
+            "busy": "gameRoot"
+          },
+          "expected": {
+            "status": "Waiting for the game to restart…",
+            "controls": [
+              {
+                "text": "Launch Game",
+                "disabled": true
+              },
+              {
+                "text": "Close game",
+                "disabled": false
+              }
+            ],
+            "rootPicker": false,
+            "errors": [],
+            "switches": [
+              {
+                "ariaLabel": "Open games at startup: Disabled",
+                "checked": false,
+                "disabled": false
+              },
+              {
+                "ariaLabel": "Automatic Reconnection: Disabled",
+                "checked": false,
+                "disabled": false
+              }
+            ],
+            "rootText": ""
+          },
+          "actual": {
+            "status": "Processing",
+            "controls": [
+              {
+                "text": "Launch Game",
+                "disabled": true
+              },
+              {
+                "text": "Close game",
+                "disabled": true
+              }
+            ],
+            "rootPicker": false,
+            "errors": [],
+            "switches": [
+              {
+                "ariaLabel": "Open games at startup: Disabled",
+                "checked": false,
+                "disabled": false
+              },
+              {
+                "ariaLabel": "Automatic Reconnection: Disabled",
+                "checked": false,
+                "disabled": false
+              }
+            ],
+            "rootText": ""
+          }
+        },
+        {
+          "input": {
+            "root": true,
+            "gameRunning": false,
+            "online": false,
+            "repairRequired": false,
+            "recovery": "updating",
+            "busy": "gameRoot"
+          },
+          "expected": {
+            "status": "Waiting for the game update to finish…",
+            "controls": [
+              {
+                "text": "Launch Game",
+                "disabled": true
+              },
+              {
+                "text": "Close game",
+                "disabled": false
+              }
+            ],
+            "rootPicker": false,
+            "errors": [],
+            "switches": [
+              {
+                "ariaLabel": "Open games at startup: Disabled",
+                "checked": false,
+                "disabled": false
+              },
+              {
+                "ariaLabel": "Automatic Reconnection: Disabled",
+                "checked": false,
+                "disabled": false
+              }
+            ],
+            "rootText": ""
+          },
+          "actual": {
+            "status": "Processing",
+            "controls": [
+              {
+                "text": "Launch Game",
+                "disabled": true
+              },
+              {
+                "text": "Close game",
+                "disabled": true
+              }
+            ],
+            "rootPicker": false,
+            "errors": [],
+            "switches": [
+              {
+                "ariaLabel": "Open games at startup: Disabled",
+                "checked": false,
+                "disabled": false
+              },
+              {
+                "ariaLabel": "Automatic Reconnection: Disabled",
+                "checked": false,
+                "disabled": false
+              }
+            ],
+            "rootText": ""
+          }
+        }
+      ]
+    },
+    "buttonText": {
+      "count": 64,
+      "examples": [
+        {
+          "input": {
+            "root": true,
+            "gameRunning": false,
+            "online": false,
+            "repairRequired": false,
+            "recovery": "idle",
+            "busy": "proxy"
+          },
+          "expected": {
+            "status": "Processing",
+            "controls": [
+              {
+                "text": "Processing",
+                "disabled": true
+              },
+              {
+                "text": "Close game",
+                "disabled": true
+              }
+            ],
+            "rootPicker": false,
+            "errors": [],
+            "switches": [
+              {
+                "ariaLabel": "Open games at startup: Disabled",
+                "checked": false,
+                "disabled": false
+              },
+              {
+                "ariaLabel": "Automatic Reconnection: Disabled",
+                "checked": false,
+                "disabled": false
+              }
+            ],
+            "rootText": ""
+          },
+          "actual": {
+            "status": "Processing",
+            "controls": [
+              {
+                "text": "Launch Game",
+                "disabled": true
+              },
+              {
+                "text": "Close game",
+                "disabled": true
+              }
+            ],
+            "rootPicker": false,
+            "errors": [],
+            "switches": [
+              {
+                "ariaLabel": "Open games at startup: Disabled",
+                "checked": false,
+                "disabled": false
+              },
+              {
+                "ariaLabel": "Automatic Reconnection: Disabled",
+                "checked": false,
+                "disabled": false
+              }
+            ],
+            "rootText": ""
+          }
+        },
+        {
+          "input": {
+            "root": true,
+            "gameRunning": false,
+            "online": false,
+            "repairRequired": false,
+            "recovery": "waiting",
+            "busy": "proxy"
+          },
+          "expected": {
+            "status": "Processing",
+            "controls": [
+              {
+                "text": "Processing",
+                "disabled": true
+              },
+              {
+                "text": "Close game",
+                "disabled": true
+              }
+            ],
+            "rootPicker": false,
+            "errors": [],
+            "switches": [
+              {
+                "ariaLabel": "Open games at startup: Disabled",
+                "checked": false,
+                "disabled": false
+              },
+              {
+                "ariaLabel": "Automatic Reconnection: Disabled",
+                "checked": false,
+                "disabled": false
+              }
+            ],
+            "rootText": ""
+          },
+          "actual": {
+            "status": "Processing",
+            "controls": [
+              {
+                "text": "Launch Game",
+                "disabled": true
+              },
+              {
+                "text": "Close game",
+                "disabled": true
+              }
+            ],
+            "rootPicker": false,
+            "errors": [],
+            "switches": [
+              {
+                "ariaLabel": "Open games at startup: Disabled",
+                "checked": false,
+                "disabled": false
+              },
+              {
+                "ariaLabel": "Automatic Reconnection: Disabled",
+                "checked": false,
+                "disabled": false
+              }
+            ],
+            "rootText": ""
+          }
+        },
+        {
+          "input": {
+            "root": true,
+            "gameRunning": false,
+            "online": false,
+            "repairRequired": false,
+            "recovery": "updating",
+            "busy": "proxy"
+          },
+          "expected": {
+            "status": "Processing",
+            "controls": [
+              {
+                "text": "Processing",
+                "disabled": true
+              },
+              {
+                "text": "Close game",
+                "disabled": true
+              }
+            ],
+            "rootPicker": false,
+            "errors": [],
+            "switches": [
+              {
+                "ariaLabel": "Open games at startup: Disabled",
+                "checked": false,
+                "disabled": false
+              },
+              {
+                "ariaLabel": "Automatic Reconnection: Disabled",
+                "checked": false,
+                "disabled": false
+              }
+            ],
+            "rootText": ""
+          },
+          "actual": {
+            "status": "Processing",
+            "controls": [
+              {
+                "text": "Launch Game",
+                "disabled": true
+              },
+              {
+                "text": "Close game",
+                "disabled": true
+              }
+            ],
+            "rootPicker": false,
+            "errors": [],
+            "switches": [
+              {
+                "ariaLabel": "Open games at startup: Disabled",
+                "checked": false,
+                "disabled": false
+              },
+              {
+                "ariaLabel": "Automatic Reconnection: Disabled",
+                "checked": false,
+                "disabled": false
+              }
+            ],
+            "rootText": ""
+          }
+        }
+      ]
+    },
+    "fence": {
+      "count": 192,
+      "examples": [
+        {
+          "input": {
+            "root": true,
+            "gameRunning": false,
+            "online": false,
+            "repairRequired": false,
+            "recovery": "idle",
+            "busy": ""
+          },
+          "expected": {
+            "status": "Game stopped",
+            "controls": [
+              {
+                "text": "Launch Game",
+                "disabled": false
+              },
+              {
+                "text": "Close game",
+                "disabled": true
+              }
+            ],
+            "rootPicker": false,
+            "errors": [],
+            "switches": [
+              {
+                "ariaLabel": "Open games at startup: Disabled",
+                "checked": false,
+                "disabled": false
+              },
+              {
+                "ariaLabel": "Automatic Reconnection: Disabled",
+                "checked": false,
+                "disabled": false
+              }
+            ],
+            "rootText": ""
+          },
+          "actual": {
+            "status": "Game stopped",
+            "controls": [
+              {
+                "text": "Launch Game",
+                "disabled": true
+              },
+              {
+                "text": "Close game",
+                "disabled": true
+              }
+            ],
+            "rootPicker": false,
+            "errors": [],
+            "switches": [
+              {
+                "ariaLabel": "Open games at startup: Disabled",
+                "checked": false,
+                "disabled": false
+              },
+              {
+                "ariaLabel": "Automatic Reconnection: Disabled",
+                "checked": false,
+                "disabled": false
+              }
+            ],
+            "rootText": ""
+          }
+        },
+        {
+          "input": {
+            "root": true,
+            "gameRunning": false,
+            "online": false,
+            "repairRequired": false,
+            "recovery": "idle",
+            "busy": "gameRoot"
+          },
+          "expected": {
+            "status": "Game stopped",
+            "controls": [
+              {
+                "text": "Launch Game",
+                "disabled": false
+              },
+              {
+                "text": "Close game",
+                "disabled": true
+              }
+            ],
+            "rootPicker": false,
+            "errors": [],
+            "switches": [
+              {
+                "ariaLabel": "Open games at startup: Disabled",
+                "checked": false,
+                "disabled": false
+              },
+              {
+                "ariaLabel": "Automatic Reconnection: Disabled",
+                "checked": false,
+                "disabled": false
+              }
+            ],
+            "rootText": ""
+          },
+          "actual": {
+            "status": "Processing",
+            "controls": [
+              {
+                "text": "Launch Game",
+                "disabled": true
+              },
+              {
+                "text": "Close game",
+                "disabled": true
+              }
+            ],
+            "rootPicker": false,
+            "errors": [],
+            "switches": [
+              {
+                "ariaLabel": "Open games at startup: Disabled",
+                "checked": false,
+                "disabled": false
+              },
+              {
+                "ariaLabel": "Automatic Reconnection: Disabled",
+                "checked": false,
+                "disabled": false
+              }
+            ],
+            "rootText": ""
+          }
+        },
+        {
+          "input": {
+            "root": true,
+            "gameRunning": false,
+            "online": false,
+            "repairRequired": false,
+            "recovery": "idle",
+            "busy": "autoReconnect"
+          },
+          "expected": {
+            "status": "Game stopped",
+            "controls": [
+              {
+                "text": "Launch Game",
+                "disabled": false
+              },
+              {
+                "text": "Close game",
+                "disabled": true
+              }
+            ],
+            "rootPicker": false,
+            "errors": [],
+            "switches": [
+              {
+                "ariaLabel": "Open games at startup: Disabled",
+                "checked": false,
+                "disabled": false
+              },
+              {
+                "ariaLabel": "Automatic Reconnection: Disabled",
+                "checked": false,
+                "disabled": false
+              }
+            ],
+            "rootText": ""
+          },
+          "actual": {
+            "status": "Game stopped",
+            "controls": [
+              {
+                "text": "Launch Game",
+                "disabled": true
+              },
+              {
+                "text": "Close game",
+                "disabled": true
+              }
+            ],
+            "rootPicker": false,
+            "errors": [],
+            "switches": [
+              {
+                "ariaLabel": "Open games at startup: Disabled",
+                "checked": false,
+                "disabled": false
+              },
+              {
+                "ariaLabel": "Automatic Reconnection: Disabled",
+                "checked": false,
+                "disabled": true
+              }
+            ],
+            "rootText": ""
+          }
+        }
+      ]
+    }
+  },
+  "errorComparison": {
+    "expected": {
+      "status": "Game stopped",
+      "controls": [
+        {
+          "text": "Launch Game",
+          "disabled": false
+        },
+        {
+          "text": "Close game",
+          "disabled": true
+        }
+      ],
+      "rootPicker": false,
+      "errors": [
+        "The action could not be completed."
+      ],
+      "switches": [
+        {
+          "ariaLabel": "Open games at startup: Disabled",
+          "checked": false,
+          "disabled": false
+        },
+        {
+          "ariaLabel": "Automatic Reconnection: Disabled",
+          "checked": false,
+          "disabled": false
+        }
+      ],
+      "rootText": ""
+    },
+    "actual": {
+      "status": "Game stopped",
+      "controls": [
+        {
+          "text": "Launch Game",
+          "disabled": true
+        },
+        {
+          "text": "Close game",
+          "disabled": true
+        }
+      ],
+      "rootPicker": false,
+      "errors": [
+        "PM015_UNKNOWN_QA_ERROR"
+      ],
+      "switches": [
+        {
+          "ariaLabel": "Open games at startup: Disabled",
+          "checked": false,
+          "disabled": false
+        },
+        {
+          "ariaLabel": "Automatic Reconnection: Disabled",
+          "checked": false,
+          "disabled": false
+        }
+      ],
+      "rootText": ""
+    }
+  },
+  "errorScope": {
+    "expected": {
+      "status": "Not detected",
+      "controls": [],
+      "rootPicker": true,
+      "errors": [
+        "The action could not be completed."
+      ],
+      "switches": [
+        {
+          "ariaLabel": "Open games at startup: Disabled",
+          "checked": false,
+          "disabled": false
+        },
+        {
+          "ariaLabel": "Automatic Reconnection: Disabled",
+          "checked": false,
+          "disabled": false
+        }
+      ],
+      "rootText": "The action could not be completed.Choose Folder"
+    },
+    "actual": {
+      "status": "Not detected",
+      "controls": [],
+      "rootPicker": true,
+      "errors": [],
+      "switches": [
+        {
+          "ariaLabel": "Open games at startup: Disabled",
+          "checked": false,
+          "disabled": false
+        },
+        {
+          "ariaLabel": "Automatic Reconnection: Disabled",
+          "checked": false,
+          "disabled": false
+        }
+      ],
+      "rootText": "PM015_ACTION_QA_ERRORChoose Folder"
+    }
+  },
+  "ariaComparison": {
+    "expected": [
+      {
+        "ariaLabel": "起動時にゲームを開く: 無効",
+        "checked": false,
+        "disabled": false
+      },
+      {
+        "ariaLabel": "自動再接続: 無効",
+        "checked": false,
+        "disabled": false
+      }
+    ],
+    "actual": [
+      {
+        "ariaLabel": "起動時にゲームを開く: Disabled",
+        "checked": false,
+        "disabled": false
+      },
+      {
+        "ariaLabel": "自動再接続: Disabled",
+        "checked": false,
+        "disabled": false
+      }
+    ]
+  },
+  "limits": "State adapter is disclosed: proxy/root/launch busy map to one existing clone busy value; separate source errors map to the clone's single error. Synthetic combinations include hypothetical lifecycle states, not reachable/live assertions. Native button fencing is intentional and must remain until a real provider is proven. No native/gameplay or original runtime was invoked."
+}

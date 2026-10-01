@@ -164,6 +164,11 @@ Other panels/native providers/purchasing
 and full UI/native/pixel parity remain unaccepted.
 
 Correction evidence is under
+`evidence/lwbridge-0.3.17/ui/LWB317-PM-015/` for the additional Home source/state
+audit: 960 synthetic comparisons identify remaining error translation/channels,
+busy presentation and localized switch-description gaps; no product/native change.
+Finding: `reviews/2026-10-02-LWB317-PM-015-home-audit.md`.
+Earlier correction evidence is under
 `evidence/lwbridge-0.3.17/ui/LWB317-UI-CORRECT-001/`; worker report:
 `reviews/2026-10-01-LWB317-UI-CORRECT-001.md`. Previous lead disposition:
 `reviews/2026-10-01-LWB317-PM-007-ui-correction-lead-review.md`. PM-006 and

@@ -1,0 +1,57 @@
+# Small Home presentation queue
+
+Owner requested project-lead tasks while another AI rests, 2026-10-02.
+Owner: project lead. State: QUEUED; not dispatched to another worker.
+Do not execute all items as one broad campaign. Assign/run one ID at a time.
+Input finding: docs/reviews/2026-10-02-LWB317-PM-015-home-audit.md and
+evidence/lwbridge-0.3.17/ui/LWB317-PM-015/home-audit.json.
+Read AGENTS.md, AI_WORK_PROTOCOL, current task/status and exact reference first.
+
+## HOME-ERROR-001 — translation only
+
+Goal: match Home error token extraction, namespace priority and localized fallback.
+Allowed: Pages.jsx translatedError and focused Home error QA/evidence; inspect
+App.jsx error producers but do not refactor their state channels in this unit.
+Source Ir byte 328453 and Lr byte 328684 in index-BVfnK1wp.js, SHA-256
+44C4E4043825B7DB296B64171951B27176F8850FF8D7D337CC991DF4765524C6.
+Check actual helper against original for string/object/Error, duplicate/embedded
+codes, recognized keys, unknown and empty input, and recovery detail rendering.
+Preserve missing-error visibility predicates. No new native providers/commands.
+Outputs: dated focused review, exact locators, handler/render/browser results.
+Acceptance: focused source differential and representative local browser QA,
+Home integration/canonical check/build/package checks, evidence/diff validation.
+Commit/push/remote verify; return for independent review. Error channels remain next.
+
+## HOME-ERROR-002 — separate display channels
+
+After 001: preserve separate root-selection and action errors through Home state
+producers/consumers. Compare qr at byte 336694 for simultaneous/missing-root cases.
+Keep accepted profile-scoped reconnect, missing-profile rejection, busy/ack/error
+ordering and native fences unchanged. Verify actual callbacks, failed root select
+versus preference update, state clearing and independent placement. Do not add
+lifecycle providers. Same focused evidence/canonical/checkpoint delivery pattern.
+
+## HOME-BUSY-001 — presentation only
+
+Recover source header and launch/close labels from qr; preserve Kr predicates
+(byte 336469) and current intentional native disable fences. Keep root-selection,
+proxy-action and launch busy display distinct using recovered input contracts.
+Record whether each producer exists; synthetic cases are not live proof. Do not
+fabricate actual launch/update/close state transitions or enable lifecycle controls.
+Check actual render branches and local preview states; same bounded delivery checks.
+
+## UI-SWITCH-LOCALE-001 — state descriptions only
+
+Correct literal Enabled/Disabled in shared ToggleRow using recovered Bn at byte
+213332 and existing common.enabled/common.disabled keys. Preserve click handlers,
+checked/disabled predicates, visible content and CSS. This shared helper has Home,
+Trade, AFK, Mini Games and Settings callers: verify generated description text
+across nine catalogs and representative controls. Do not refactor accepted controls.
+Source/local differential, representative browser QA, existing control regression
+and canonical checks required. No broader locale rewrite or native actions.
+
+All units: no original service/auth bypass, Last War launch/control, fallback,
+subagents, WIP discard or full UI parity claim. Preserve previewAfkFixtures.js,
+.scratch-lwb317/ and parent CORRECT-003 screenshots unchanged/unstaged. Use
+research/offline-controller, explicit staged paths, no force-push. Complete the
+selected acceptance criteria without fixed time limits; stop at that unit.

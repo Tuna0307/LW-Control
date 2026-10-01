@@ -49,6 +49,8 @@ the Map closeout awaits a separate independent acceptance review.
 |---|---|---|---|
 | LWB317-PM-001 | Project lead | COMPLETE | Repository/documentation reset for 0.3.17 |
 | LWB317-PM-003 | Project lead | COMPLETE | Takeover source/evidence audit, current path map and exact CSS checkout repair; no new live test/full Map acceptance |
+| LWB317-PM-015 | Project lead, owner requested own tasks while worker rests | COMPLETE for source/state audit | 960 Home comparisons locate busy-label/header, error translation/channels and localized switch-description gaps. No product edit/native test; review 2026-10-02-LWB317-PM-015-home-audit.md |
+| LWB317-UI-HOME-PRESENTATION-QUEUE | Project lead | QUEUED, one unit at a time | Home error translation, separate error channels, busy presentation, then shared switch-state localization; assignment file docs/work-items/LWB317-UI-HOME-PRESENTATION-QUEUE.md. No worker dispatch/native lifecycle scope |
 | LWB317-UI-HOME-STATES-001 | None | SUPERSEDED | Historical Home-only proposal; replaced by full UI coverage |
 | LWB317-UI-COMPLETE-001 | Previous worker | CHANGES_REQUIRED | Useful partial UI checkpoint at `a253cce`; PM-006 found missing Home preference scope, incorrect Automation forms and incomplete Equipment interactions; full source-backed coverage not accepted |
 | LWB317-UI-CORRECT-001 | Previous worker | CHANGES_REQUIRED | PM-007 accepts Home profile-scope fix and retains useful nested UI work; Automation controls remain omitted, AFK drafts leak and Map fixture QA ignores query semantics |

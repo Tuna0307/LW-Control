@@ -74,6 +74,11 @@ pass. Review: `reviews/2026-10-02-LWB317-UI-CORRECT-003E.md`.
 Next: independently review this checkpoint before acceptance, then assign another
 bounded UI unit. No native provider, purchase execution or cross-server gameplay
 is opened. Parent CORRECT-003 remains PARTIAL.
+PM-015 completed a separate read-only Home audit at the owner's request: 960
+synthetic comparisons identify error translation/channels, busy presentation and
+switch-state localization gaps. See `reviews/2026-10-02-LWB317-PM-015-home-audit.md`.
+Lead's next small queue: Home errors first, Home busy labels second, shared switch
+localization separately. These are not worker-dispatched or product-corrected yet.
 Do not restart broad CORRECT-003 or reopen accepted weekly/selection/history work.
 Trade/Assist/runtime/AFK work remains preserved for later separate validation tasks.
 Physical drag, native config persistence and original pixels remain unproved.
