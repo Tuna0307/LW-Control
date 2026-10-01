@@ -1,0 +1,1708 @@
+{
+  "task": "LWB317-UI-HOME-BUSY-001",
+  "result": "LWB317_HOME_BUSY001_OK",
+  "reference": {
+    "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-BVfnK1wp.js",
+    "sha256": "44C4E4043825B7DB296B64171951B27176F8850FF8D7D337CC991DF4765524C6",
+    "locators": {
+      "Ir": {
+        "utf8ByteOffset": 328453,
+        "expression": "function Ir(e){let t=[];e&&typeof e==`object`&&`code`in e&&typeof e.code==`string`&&t.push(e.code);let n=e instanceof Error?e.message:String(e??``);return t.push(...n.match(/\\b[A-Z][A-Z0-9_]{2,}\\b/g)||[]),[...new Set(t)].reverse()}"
+      },
+      "Lr": {
+        "utf8ByteOffset": 328684,
+        "expression": "function Lr(e,t,n=`common.actionFailed`){for(let n of Ir(t))for(let t of[`error`,`auth.error`,`update.error`]){let r=`${t}.${n}`,i=e(r);if(i!==r)return i}return e(n)}"
+      },
+      "Kr": {
+        "utf8ByteOffset": 336469,
+        "expression": "function Kr({rootResolved:e,rootValid:t,gameRunning:n,needsRepair:r=!1,recovering:i,busy:a,launching:o=!1}){return{showRootPicker:e&&!t,canStart:e&&t&&!n&&!i&&!a&&!o,canStop:e&&t&&(n||i)&&!a&&!o,repairOnClose:e&&t&&n&&r&&!i}}"
+      },
+      "qr": {
+        "utf8ByteOffset": 336694,
+        "expression": "function qr({proxyStatus:e,online:t,gameRecoveryStatus:n,proxyBusy:r,gameLaunchBusy:i,gameRootStatus:a,gameRootBusy:o,gameRootError:s,gameActionError:c,autoLaunchGame:l,autoReconnect:u,onAutoLaunchGameChange:d,onAutoReconnectChange:f,onGameRootSelect:p,onStartGame:m,onStopGame:h,onUpdateAndRestart:g}){let{t:_}=De(),v=a!=null,y=n!=null&&[`waiting`,`updating`,`repairing`,`launching`,`verifying`,`maintenance`].includes(n.state),b=e?.repairRequired===!0,x=Kr({rootResolved:v,rootValid:a?.valid===!0,gameRunning:e?.gameRunning===!0,needsRepair:b,recovering:y,busy:r,launching:i}),S=v?x.showRootPicker?_(`setup.gameRootMissing`):i?_(`setup.launchingGame`):r?_(`common.processing`):y?_(`recovery.state.${n.state}`):b?_(`setup.repairRequired`):e?.gameRunning?_(t?`status.gameRunning`:`setup.bridgeDisconnected`):_(`setup.gameStopped`):_(`setup.checking`);return(0,M.jsxs)(`section`,{className:`panel quick-actions-panel`,children:[(0,M.jsxs)(`div`,{className:`panel-title`,children:[(0,M.jsx)(`h2`,{children:_(`setup.title`)}),(0,M.jsx)(`span`,{className:e?.gameRunning&&t?`status-ok`:`muted`,children:S})]}),v?x.showRootPicker?(0,M.jsxs)(`div`,{className:`game-root-missing`,children:[(0,M.jsx)(`span`,{children:s?Lr(_,s):_(`setup.gameRootMissing`)}),(0,M.jsx)(`button`,{className:`primary`,disabled:o,onClick:p,children:_(o?`common.processing`:`setup.gameRootSelect`)})]}):(0,M.jsxs)(`div`,{className:`game-controls`,children:[!x.repairOnClose&&(0,M.jsx)(`button`,{className:`primary`,disabled:!x.canStart,onClick:m,children:_(i?`setup.launchingGame`:r?`common.processing`:`top.launchGame`)}),(0,M.jsx)(`button`,{disabled:!x.canStop,onClick:x.repairOnClose?g:h,children:r&&e?.gameRunning?_(`common.processing`):_(x.repairOnClose?`setup.updateAndLaunch`:`setup.closeGameAction`)}),x.repairOnClose&&(0,M.jsx)(`span`,{className:`muted`,children:_(`setup.updateCloseGame`)})]}):null,c&&(0,M.jsx)(`span`,{className:`game-root-error`,children:Lr(_,c)}),(0,M.jsx)(Bn,{label:`auth.autoLaunchGame`,checked:l,onChange:d}),(0,M.jsx)(Bn,{label:`automation.autoReconnect.title`,checked:u,onChange:f}),n?.state===`failed`&&n.error&&(0,M.jsx)(`span`,{className:`game-root-error`,children:_(`recovery.failedDetail`,{error:Lr(_,n.error)})})]})}"
+      },
+      "HomeCaller": {
+        "utf8ByteOffset": 373291,
+        "expression": "(0,M.jsx)(qr,{proxyStatus:d,online:at,gameRecoveryStatus:w,proxyBusy:p,gameLaunchBusy:n.gameLaunchBusy,gameRootStatus:h,gameRootBusy:_,gameRootError:y,gameActionError:S,autoLaunchGame:n.autoLaunchGame,autoReconnect:de,onAutoLaunchGameChange:n.setAutoLaunchGame,onAutoReconnectChange:e=>{It(`autoForceUpdateReload`,e)},onGameRootSelect:Xt,onStartGame:Nt,onStopGame:Pt,onUpdateAndRestart:Ft})"
+      },
+      "RootBusyState": {
+        "utf8ByteOffset": 361581,
+        "expression": "[_,v]=(0,b.useState)(!1)"
+      },
+      "ProxyBusyState": {
+        "utf8ByteOffset": 361529,
+        "expression": "[p,m]=(0,b.useState)(!1)"
+      },
+      "LaunchBusyProperty": {
+        "utf8ByteOffset": 248345,
+        "expression": "gameLaunchBusy:u>0"
+      }
+    }
+  },
+  "counts": {
+    "renderComparisons": 13824,
+    "predicateCases": 384,
+    "preferencesChecks": 27,
+    "previewFixtures": 63
+  },
+  "localeResults": [
+    {
+      "language": "en",
+      "comparisons": 1536,
+      "pass": true
+    },
+    {
+      "language": "zh-CN",
+      "comparisons": 1536,
+      "pass": true
+    },
+    {
+      "language": "zh-TW",
+      "comparisons": 1536,
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "comparisons": 1536,
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "comparisons": 1536,
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "comparisons": 1536,
+      "pass": true
+    },
+    {
+      "language": "id",
+      "comparisons": 1536,
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "comparisons": 1536,
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "comparisons": 1536,
+      "pass": true
+    }
+  ],
+  "samples": [
+    {
+      "input": {
+        "gameRootStatus": {
+          "valid": true
+        },
+        "proxyStatus": {
+          "gameRunning": true,
+          "repairRequired": true
+        },
+        "online": true,
+        "gameRecoveryStatus": {
+          "state": "idle"
+        },
+        "proxyBusy": false,
+        "gameLaunchBusy": false,
+        "gameRootBusy": false
+      },
+      "expected": {
+        "status": "Game connection needs repair",
+        "statusClass": "status-ok",
+        "controls": [
+          {
+            "text": "Update and restart game",
+            "disabled": false
+          }
+        ],
+        "repairHint": "The game will close automatically, update the component, and restart through the official launcher.",
+        "rootPicker": false,
+        "pickerButton": null
+      },
+      "actual": {
+        "status": "Game connection needs repair",
+        "statusClass": "status-ok",
+        "controls": [
+          {
+            "text": "Update and restart game",
+            "disabled": true
+          }
+        ],
+        "repairHint": "The game will close automatically, update the component, and restart through the official launcher.",
+        "rootPicker": false,
+        "pickerButton": null
+      }
+    },
+    {
+      "input": {
+        "gameRootStatus": {
+          "valid": true
+        },
+        "proxyStatus": {
+          "gameRunning": true,
+          "repairRequired": true
+        },
+        "online": true,
+        "gameRecoveryStatus": {
+          "state": "idle"
+        },
+        "proxyBusy": false,
+        "gameLaunchBusy": false,
+        "gameRootBusy": true
+      },
+      "expected": {
+        "status": "Game connection needs repair",
+        "statusClass": "status-ok",
+        "controls": [
+          {
+            "text": "Update and restart game",
+            "disabled": false
+          }
+        ],
+        "repairHint": "The game will close automatically, update the component, and restart through the official launcher.",
+        "rootPicker": false,
+        "pickerButton": null
+      },
+      "actual": {
+        "status": "Game connection needs repair",
+        "statusClass": "status-ok",
+        "controls": [
+          {
+            "text": "Update and restart game",
+            "disabled": true
+          }
+        ],
+        "repairHint": "The game will close automatically, update the component, and restart through the official launcher.",
+        "rootPicker": false,
+        "pickerButton": null
+      }
+    },
+    {
+      "input": {
+        "gameRootStatus": {
+          "valid": true
+        },
+        "proxyStatus": {
+          "gameRunning": true,
+          "repairRequired": true
+        },
+        "online": true,
+        "gameRecoveryStatus": {
+          "state": "idle"
+        },
+        "proxyBusy": false,
+        "gameLaunchBusy": true,
+        "gameRootBusy": false
+      },
+      "expected": {
+        "status": "Launching game…",
+        "statusClass": "status-ok",
+        "controls": [
+          {
+            "text": "Update and restart game",
+            "disabled": true
+          }
+        ],
+        "repairHint": "The game will close automatically, update the component, and restart through the official launcher.",
+        "rootPicker": false,
+        "pickerButton": null
+      },
+      "actual": {
+        "status": "Launching game…",
+        "statusClass": "status-ok",
+        "controls": [
+          {
+            "text": "Update and restart game",
+            "disabled": true
+          }
+        ],
+        "repairHint": "The game will close automatically, update the component, and restart through the official launcher.",
+        "rootPicker": false,
+        "pickerButton": null
+      }
+    },
+    {
+      "input": {
+        "gameRootStatus": {
+          "valid": true
+        },
+        "proxyStatus": {
+          "gameRunning": true,
+          "repairRequired": true
+        },
+        "online": true,
+        "gameRecoveryStatus": {
+          "state": "idle"
+        },
+        "proxyBusy": false,
+        "gameLaunchBusy": true,
+        "gameRootBusy": true
+      },
+      "expected": {
+        "status": "Launching game…",
+        "statusClass": "status-ok",
+        "controls": [
+          {
+            "text": "Update and restart game",
+            "disabled": true
+          }
+        ],
+        "repairHint": "The game will close automatically, update the component, and restart through the official launcher.",
+        "rootPicker": false,
+        "pickerButton": null
+      },
+      "actual": {
+        "status": "Launching game…",
+        "statusClass": "status-ok",
+        "controls": [
+          {
+            "text": "Update and restart game",
+            "disabled": true
+          }
+        ],
+        "repairHint": "The game will close automatically, update the component, and restart through the official launcher.",
+        "rootPicker": false,
+        "pickerButton": null
+      }
+    },
+    {
+      "input": {
+        "gameRootStatus": {
+          "valid": true
+        },
+        "proxyStatus": {
+          "gameRunning": true,
+          "repairRequired": true
+        },
+        "online": true,
+        "gameRecoveryStatus": {
+          "state": "idle"
+        },
+        "proxyBusy": true,
+        "gameLaunchBusy": false,
+        "gameRootBusy": false
+      },
+      "expected": {
+        "status": "Processing",
+        "statusClass": "status-ok",
+        "controls": [
+          {
+            "text": "Processing",
+            "disabled": true
+          }
+        ],
+        "repairHint": "The game will close automatically, update the component, and restart through the official launcher.",
+        "rootPicker": false,
+        "pickerButton": null
+      },
+      "actual": {
+        "status": "Processing",
+        "statusClass": "status-ok",
+        "controls": [
+          {
+            "text": "Processing",
+            "disabled": true
+          }
+        ],
+        "repairHint": "The game will close automatically, update the component, and restart through the official launcher.",
+        "rootPicker": false,
+        "pickerButton": null
+      }
+    },
+    {
+      "input": {
+        "gameRootStatus": {
+          "valid": true
+        },
+        "proxyStatus": {
+          "gameRunning": true,
+          "repairRequired": true
+        },
+        "online": true,
+        "gameRecoveryStatus": {
+          "state": "idle"
+        },
+        "proxyBusy": true,
+        "gameLaunchBusy": false,
+        "gameRootBusy": true
+      },
+      "expected": {
+        "status": "Processing",
+        "statusClass": "status-ok",
+        "controls": [
+          {
+            "text": "Processing",
+            "disabled": true
+          }
+        ],
+        "repairHint": "The game will close automatically, update the component, and restart through the official launcher.",
+        "rootPicker": false,
+        "pickerButton": null
+      },
+      "actual": {
+        "status": "Processing",
+        "statusClass": "status-ok",
+        "controls": [
+          {
+            "text": "Processing",
+            "disabled": true
+          }
+        ],
+        "repairHint": "The game will close automatically, update the component, and restart through the official launcher.",
+        "rootPicker": false,
+        "pickerButton": null
+      }
+    },
+    {
+      "input": {
+        "gameRootStatus": {
+          "valid": true
+        },
+        "proxyStatus": {
+          "gameRunning": true,
+          "repairRequired": true
+        },
+        "online": true,
+        "gameRecoveryStatus": {
+          "state": "idle"
+        },
+        "proxyBusy": true,
+        "gameLaunchBusy": true,
+        "gameRootBusy": false
+      },
+      "expected": {
+        "status": "Launching game…",
+        "statusClass": "status-ok",
+        "controls": [
+          {
+            "text": "Processing",
+            "disabled": true
+          }
+        ],
+        "repairHint": "The game will close automatically, update the component, and restart through the official launcher.",
+        "rootPicker": false,
+        "pickerButton": null
+      },
+      "actual": {
+        "status": "Launching game…",
+        "statusClass": "status-ok",
+        "controls": [
+          {
+            "text": "Processing",
+            "disabled": true
+          }
+        ],
+        "repairHint": "The game will close automatically, update the component, and restart through the official launcher.",
+        "rootPicker": false,
+        "pickerButton": null
+      }
+    },
+    {
+      "input": {
+        "gameRootStatus": {
+          "valid": true
+        },
+        "proxyStatus": {
+          "gameRunning": true,
+          "repairRequired": true
+        },
+        "online": true,
+        "gameRecoveryStatus": {
+          "state": "idle"
+        },
+        "proxyBusy": true,
+        "gameLaunchBusy": true,
+        "gameRootBusy": true
+      },
+      "expected": {
+        "status": "Launching game…",
+        "statusClass": "status-ok",
+        "controls": [
+          {
+            "text": "Processing",
+            "disabled": true
+          }
+        ],
+        "repairHint": "The game will close automatically, update the component, and restart through the official launcher.",
+        "rootPicker": false,
+        "pickerButton": null
+      },
+      "actual": {
+        "status": "Launching game…",
+        "statusClass": "status-ok",
+        "controls": [
+          {
+            "text": "Processing",
+            "disabled": true
+          }
+        ],
+        "repairHint": "The game will close automatically, update the component, and restart through the official launcher.",
+        "rootPicker": false,
+        "pickerButton": null
+      }
+    }
+  ],
+  "fixtureResults": [
+    {
+      "language": "en",
+      "fixture": "home-launching",
+      "actual": {
+        "status": "Launching game…",
+        "statusClass": "muted",
+        "controls": [
+          {
+            "text": "Launching game…",
+            "disabled": true
+          },
+          {
+            "text": "Close game",
+            "disabled": true
+          }
+        ],
+        "repairHint": "",
+        "rootPicker": false,
+        "pickerButton": null
+      }
+    },
+    {
+      "language": "en",
+      "fixture": "home-proxy-busy-stopped",
+      "actual": {
+        "status": "Processing",
+        "statusClass": "muted",
+        "controls": [
+          {
+            "text": "Processing",
+            "disabled": true
+          },
+          {
+            "text": "Close game",
+            "disabled": true
+          }
+        ],
+        "repairHint": "",
+        "rootPicker": false,
+        "pickerButton": null
+      }
+    },
+    {
+      "language": "en",
+      "fixture": "home-proxy-busy-running",
+      "actual": {
+        "status": "Processing",
+        "statusClass": "muted",
+        "controls": [
+          {
+            "text": "Processing",
+            "disabled": true
+          },
+          {
+            "text": "Processing",
+            "disabled": true
+          }
+        ],
+        "repairHint": "",
+        "rootPicker": false,
+        "pickerButton": null
+      }
+    },
+    {
+      "language": "en",
+      "fixture": "home-proxy-busy-repair",
+      "actual": {
+        "status": "Processing",
+        "statusClass": "muted",
+        "controls": [
+          {
+            "text": "Processing",
+            "disabled": true
+          }
+        ],
+        "repairHint": "The game will close automatically, update the component, and restart through the official launcher.",
+        "rootPicker": false,
+        "pickerButton": null
+      }
+    },
+    {
+      "language": "en",
+      "fixture": "home-busy-overlap",
+      "actual": {
+        "status": "Launching game…",
+        "statusClass": "muted",
+        "controls": [
+          {
+            "text": "Launching game…",
+            "disabled": true
+          },
+          {
+            "text": "Processing",
+            "disabled": true
+          }
+        ],
+        "repairHint": "",
+        "rootPicker": false,
+        "pickerButton": null
+      }
+    },
+    {
+      "language": "en",
+      "fixture": "home-root-busy-missing",
+      "actual": {
+        "status": "Not detected",
+        "statusClass": "muted",
+        "controls": [],
+        "repairHint": "",
+        "rootPicker": true,
+        "pickerButton": {
+          "text": "Processing",
+          "disabled": true
+        }
+      }
+    },
+    {
+      "language": "en",
+      "fixture": "home-root-busy-valid",
+      "actual": {
+        "status": "Game stopped",
+        "statusClass": "muted",
+        "controls": [
+          {
+            "text": "Launch Game",
+            "disabled": true
+          },
+          {
+            "text": "Close game",
+            "disabled": true
+          }
+        ],
+        "repairHint": "",
+        "rootPicker": false,
+        "pickerButton": null
+      }
+    },
+    {
+      "language": "zh-CN",
+      "fixture": "home-launching",
+      "actual": {
+        "status": "正在启动游戏…",
+        "statusClass": "muted",
+        "controls": [
+          {
+            "text": "正在启动游戏…",
+            "disabled": true
+          },
+          {
+            "text": "关闭游戏",
+            "disabled": true
+          }
+        ],
+        "repairHint": "",
+        "rootPicker": false,
+        "pickerButton": null
+      }
+    },
+    {
+      "language": "zh-CN",
+      "fixture": "home-proxy-busy-stopped",
+      "actual": {
+        "status": "处理中",
+        "statusClass": "muted",
+        "controls": [
+          {
+            "text": "处理中",
+            "disabled": true
+          },
+          {
+            "text": "关闭游戏",
+            "disabled": true
+          }
+        ],
+        "repairHint": "",
+        "rootPicker": false,
+        "pickerButton": null
+      }
+    },
+    {
+      "language": "zh-CN",
+      "fixture": "home-proxy-busy-running",
+      "actual": {
+        "status": "处理中",
+        "statusClass": "muted",
+        "controls": [
+          {
+            "text": "处理中",
+            "disabled": true
+          },
+          {
+            "text": "处理中",
+            "disabled": true
+          }
+        ],
+        "repairHint": "",
+        "rootPicker": false,
+        "pickerButton": null
+      }
+    },
+    {
+      "language": "zh-CN",
+      "fixture": "home-proxy-busy-repair",
+      "actual": {
+        "status": "处理中",
+        "statusClass": "muted",
+        "controls": [
+          {
+            "text": "处理中",
+            "disabled": true
+          }
+        ],
+        "repairHint": "点击后将自动关闭游戏、更新组件，并通过官方启动器重启。",
+        "rootPicker": false,
+        "pickerButton": null
+      }
+    },
+    {
+      "language": "zh-CN",
+      "fixture": "home-busy-overlap",
+      "actual": {
+        "status": "正在启动游戏…",
+        "statusClass": "muted",
+        "controls": [
+          {
+            "text": "正在启动游戏…",
+            "disabled": true
+          },
+          {
+            "text": "处理中",
+            "disabled": true
+          }
+        ],
+        "repairHint": "",
+        "rootPicker": false,
+        "pickerButton": null
+      }
+    },
+    {
+      "language": "zh-CN",
+      "fixture": "home-root-busy-missing",
+      "actual": {
+        "status": "未检测到",
+        "statusClass": "muted",
+        "controls": [],
+        "repairHint": "",
+        "rootPicker": true,
+        "pickerButton": {
+          "text": "处理中",
+          "disabled": true
+        }
+      }
+    },
+    {
+      "language": "zh-CN",
+      "fixture": "home-root-busy-valid",
+      "actual": {
+        "status": "游戏已停止",
+        "statusClass": "muted",
+        "controls": [
+          {
+            "text": "启动游戏",
+            "disabled": true
+          },
+          {
+            "text": "关闭游戏",
+            "disabled": true
+          }
+        ],
+        "repairHint": "",
+        "rootPicker": false,
+        "pickerButton": null
+      }
+    },
+    {
+      "language": "zh-TW",
+      "fixture": "home-launching",
+      "actual": {
+        "status": "正在啟動遊戲…",
+        "statusClass": "muted",
+        "controls": [
+          {
+            "text": "正在啟動遊戲…",
+            "disabled": true
+          },
+          {
+            "text": "關閉遊戲",
+            "disabled": true
+          }
+        ],
+        "repairHint": "",
+        "rootPicker": false,
+        "pickerButton": null
+      }
+    },
+    {
+      "language": "zh-TW",
+      "fixture": "home-proxy-busy-stopped",
+      "actual": {
+        "status": "處理中",
+        "statusClass": "muted",
+        "controls": [
+          {
+            "text": "處理中",
+            "disabled": true
+          },
+          {
+            "text": "關閉遊戲",
+            "disabled": true
+          }
+        ],
+        "repairHint": "",
+        "rootPicker": false,
+        "pickerButton": null
+      }
+    },
+    {
+      "language": "zh-TW",
+      "fixture": "home-proxy-busy-running",
+      "actual": {
+        "status": "處理中",
+        "statusClass": "muted",
+        "controls": [
+          {
+            "text": "處理中",
+            "disabled": true
+          },
+          {
+            "text": "處理中",
+            "disabled": true
+          }
+        ],
+        "repairHint": "",
+        "rootPicker": false,
+        "pickerButton": null
+      }
+    },
+    {
+      "language": "zh-TW",
+      "fixture": "home-proxy-busy-repair",
+      "actual": {
+        "status": "處理中",
+        "statusClass": "muted",
+        "controls": [
+          {
+            "text": "處理中",
+            "disabled": true
+          }
+        ],
+        "repairHint": "點擊後將自動關閉遊戲、更新元件，並透過官方啟動器重新啟動。",
+        "rootPicker": false,
+        "pickerButton": null
+      }
+    },
+    {
+      "language": "zh-TW",
+      "fixture": "home-busy-overlap",
+      "actual": {
+        "status": "正在啟動遊戲…",
+        "statusClass": "muted",
+        "controls": [
+          {
+            "text": "正在啟動遊戲…",
+            "disabled": true
+          },
+          {
+            "text": "處理中",
+            "disabled": true
+          }
+        ],
+        "repairHint": "",
+        "rootPicker": false,
+        "pickerButton": null
+      }
+    },
+    {
+      "language": "zh-TW",
+      "fixture": "home-root-busy-missing",
+      "actual": {
+        "status": "未偵測到",
+        "statusClass": "muted",
+        "controls": [],
+        "repairHint": "",
+        "rootPicker": true,
+        "pickerButton": {
+          "text": "處理中",
+          "disabled": true
+        }
+      }
+    },
+    {
+      "language": "zh-TW",
+      "fixture": "home-root-busy-valid",
+      "actual": {
+        "status": "遊戲已停止",
+        "statusClass": "muted",
+        "controls": [
+          {
+            "text": "啟動遊戲",
+            "disabled": true
+          },
+          {
+            "text": "關閉遊戲",
+            "disabled": true
+          }
+        ],
+        "repairHint": "",
+        "rootPicker": false,
+        "pickerButton": null
+      }
+    },
+    {
+      "language": "ja",
+      "fixture": "home-launching",
+      "actual": {
+        "status": "ゲームを起動中…",
+        "statusClass": "muted",
+        "controls": [
+          {
+            "text": "ゲームを起動中…",
+            "disabled": true
+          },
+          {
+            "text": "ゲームを閉じる",
+            "disabled": true
+          }
+        ],
+        "repairHint": "",
+        "rootPicker": false,
+        "pickerButton": null
+      }
+    },
+    {
+      "language": "ja",
+      "fixture": "home-proxy-busy-stopped",
+      "actual": {
+        "status": "処理中",
+        "statusClass": "muted",
+        "controls": [
+          {
+            "text": "処理中",
+            "disabled": true
+          },
+          {
+            "text": "ゲームを閉じる",
+            "disabled": true
+          }
+        ],
+        "repairHint": "",
+        "rootPicker": false,
+        "pickerButton": null
+      }
+    },
+    {
+      "language": "ja",
+      "fixture": "home-proxy-busy-running",
+      "actual": {
+        "status": "処理中",
+        "statusClass": "muted",
+        "controls": [
+          {
+            "text": "処理中",
+            "disabled": true
+          },
+          {
+            "text": "処理中",
+            "disabled": true
+          }
+        ],
+        "repairHint": "",
+        "rootPicker": false,
+        "pickerButton": null
+      }
+    },
+    {
+      "language": "ja",
+      "fixture": "home-proxy-busy-repair",
+      "actual": {
+        "status": "処理中",
+        "statusClass": "muted",
+        "controls": [
+          {
+            "text": "処理中",
+            "disabled": true
+          }
+        ],
+        "repairHint": "ゲームを自動で閉じ、コンポーネントを更新した後、公式ランチャーから再起動します。",
+        "rootPicker": false,
+        "pickerButton": null
+      }
+    },
+    {
+      "language": "ja",
+      "fixture": "home-busy-overlap",
+      "actual": {
+        "status": "ゲームを起動中…",
+        "statusClass": "muted",
+        "controls": [
+          {
+            "text": "ゲームを起動中…",
+            "disabled": true
+          },
+          {
+            "text": "処理中",
+            "disabled": true
+          }
+        ],
+        "repairHint": "",
+        "rootPicker": false,
+        "pickerButton": null
+      }
+    },
+    {
+      "language": "ja",
+      "fixture": "home-root-busy-missing",
+      "actual": {
+        "status": "未検出",
+        "statusClass": "muted",
+        "controls": [],
+        "repairHint": "",
+        "rootPicker": true,
+        "pickerButton": {
+          "text": "処理中",
+          "disabled": true
+        }
+      }
+    },
+    {
+      "language": "ja",
+      "fixture": "home-root-busy-valid",
+      "actual": {
+        "status": "ゲーム停止中",
+        "statusClass": "muted",
+        "controls": [
+          {
+            "text": "ゲームを起動",
+            "disabled": true
+          },
+          {
+            "text": "ゲームを閉じる",
+            "disabled": true
+          }
+        ],
+        "repairHint": "",
+        "rootPicker": false,
+        "pickerButton": null
+      }
+    },
+    {
+      "language": "ko",
+      "fixture": "home-launching",
+      "actual": {
+        "status": "게임 실행 중…",
+        "statusClass": "muted",
+        "controls": [
+          {
+            "text": "게임 실행 중…",
+            "disabled": true
+          },
+          {
+            "text": "게임 종료",
+            "disabled": true
+          }
+        ],
+        "repairHint": "",
+        "rootPicker": false,
+        "pickerButton": null
+      }
+    },
+    {
+      "language": "ko",
+      "fixture": "home-proxy-busy-stopped",
+      "actual": {
+        "status": "처리 중",
+        "statusClass": "muted",
+        "controls": [
+          {
+            "text": "처리 중",
+            "disabled": true
+          },
+          {
+            "text": "게임 종료",
+            "disabled": true
+          }
+        ],
+        "repairHint": "",
+        "rootPicker": false,
+        "pickerButton": null
+      }
+    },
+    {
+      "language": "ko",
+      "fixture": "home-proxy-busy-running",
+      "actual": {
+        "status": "처리 중",
+        "statusClass": "muted",
+        "controls": [
+          {
+            "text": "처리 중",
+            "disabled": true
+          },
+          {
+            "text": "처리 중",
+            "disabled": true
+          }
+        ],
+        "repairHint": "",
+        "rootPicker": false,
+        "pickerButton": null
+      }
+    },
+    {
+      "language": "ko",
+      "fixture": "home-proxy-busy-repair",
+      "actual": {
+        "status": "처리 중",
+        "statusClass": "muted",
+        "controls": [
+          {
+            "text": "처리 중",
+            "disabled": true
+          }
+        ],
+        "repairHint": "게임을 자동으로 종료하고 구성 요소를 업데이트한 후 공식 런처로 다시 시작합니다.",
+        "rootPicker": false,
+        "pickerButton": null
+      }
+    },
+    {
+      "language": "ko",
+      "fixture": "home-busy-overlap",
+      "actual": {
+        "status": "게임 실행 중…",
+        "statusClass": "muted",
+        "controls": [
+          {
+            "text": "게임 실행 중…",
+            "disabled": true
+          },
+          {
+            "text": "처리 중",
+            "disabled": true
+          }
+        ],
+        "repairHint": "",
+        "rootPicker": false,
+        "pickerButton": null
+      }
+    },
+    {
+      "language": "ko",
+      "fixture": "home-root-busy-missing",
+      "actual": {
+        "status": "감지되지 않음",
+        "statusClass": "muted",
+        "controls": [],
+        "repairHint": "",
+        "rootPicker": true,
+        "pickerButton": {
+          "text": "처리 중",
+          "disabled": true
+        }
+      }
+    },
+    {
+      "language": "ko",
+      "fixture": "home-root-busy-valid",
+      "actual": {
+        "status": "게임 중지됨",
+        "statusClass": "muted",
+        "controls": [
+          {
+            "text": "게임 실행",
+            "disabled": true
+          },
+          {
+            "text": "게임 종료",
+            "disabled": true
+          }
+        ],
+        "repairHint": "",
+        "rootPicker": false,
+        "pickerButton": null
+      }
+    },
+    {
+      "language": "vi",
+      "fixture": "home-launching",
+      "actual": {
+        "status": "Đang khởi chạy trò chơi…",
+        "statusClass": "muted",
+        "controls": [
+          {
+            "text": "Đang khởi chạy trò chơi…",
+            "disabled": true
+          },
+          {
+            "text": "Đóng trò chơi",
+            "disabled": true
+          }
+        ],
+        "repairHint": "",
+        "rootPicker": false,
+        "pickerButton": null
+      }
+    },
+    {
+      "language": "vi",
+      "fixture": "home-proxy-busy-stopped",
+      "actual": {
+        "status": "Đang Xử Lý",
+        "statusClass": "muted",
+        "controls": [
+          {
+            "text": "Đang Xử Lý",
+            "disabled": true
+          },
+          {
+            "text": "Đóng trò chơi",
+            "disabled": true
+          }
+        ],
+        "repairHint": "",
+        "rootPicker": false,
+        "pickerButton": null
+      }
+    },
+    {
+      "language": "vi",
+      "fixture": "home-proxy-busy-running",
+      "actual": {
+        "status": "Đang Xử Lý",
+        "statusClass": "muted",
+        "controls": [
+          {
+            "text": "Đang Xử Lý",
+            "disabled": true
+          },
+          {
+            "text": "Đang Xử Lý",
+            "disabled": true
+          }
+        ],
+        "repairHint": "",
+        "rootPicker": false,
+        "pickerButton": null
+      }
+    },
+    {
+      "language": "vi",
+      "fixture": "home-proxy-busy-repair",
+      "actual": {
+        "status": "Đang Xử Lý",
+        "statusClass": "muted",
+        "controls": [
+          {
+            "text": "Đang Xử Lý",
+            "disabled": true
+          }
+        ],
+        "repairHint": "Trò chơi sẽ tự đóng, cập nhật thành phần rồi khởi động lại qua trình khởi chạy chính thức.",
+        "rootPicker": false,
+        "pickerButton": null
+      }
+    },
+    {
+      "language": "vi",
+      "fixture": "home-busy-overlap",
+      "actual": {
+        "status": "Đang khởi chạy trò chơi…",
+        "statusClass": "muted",
+        "controls": [
+          {
+            "text": "Đang khởi chạy trò chơi…",
+            "disabled": true
+          },
+          {
+            "text": "Đang Xử Lý",
+            "disabled": true
+          }
+        ],
+        "repairHint": "",
+        "rootPicker": false,
+        "pickerButton": null
+      }
+    },
+    {
+      "language": "vi",
+      "fixture": "home-root-busy-missing",
+      "actual": {
+        "status": "Chưa phát hiện",
+        "statusClass": "muted",
+        "controls": [],
+        "repairHint": "",
+        "rootPicker": true,
+        "pickerButton": {
+          "text": "Đang Xử Lý",
+          "disabled": true
+        }
+      }
+    },
+    {
+      "language": "vi",
+      "fixture": "home-root-busy-valid",
+      "actual": {
+        "status": "Trò chơi đã dừng",
+        "statusClass": "muted",
+        "controls": [
+          {
+            "text": "Khởi động trò chơi",
+            "disabled": true
+          },
+          {
+            "text": "Đóng trò chơi",
+            "disabled": true
+          }
+        ],
+        "repairHint": "",
+        "rootPicker": false,
+        "pickerButton": null
+      }
+    },
+    {
+      "language": "id",
+      "fixture": "home-launching",
+      "actual": {
+        "status": "Meluncurkan game…",
+        "statusClass": "muted",
+        "controls": [
+          {
+            "text": "Meluncurkan game…",
+            "disabled": true
+          },
+          {
+            "text": "Tutup game",
+            "disabled": true
+          }
+        ],
+        "repairHint": "",
+        "rootPicker": false,
+        "pickerButton": null
+      }
+    },
+    {
+      "language": "id",
+      "fixture": "home-proxy-busy-stopped",
+      "actual": {
+        "status": "Memproses",
+        "statusClass": "muted",
+        "controls": [
+          {
+            "text": "Memproses",
+            "disabled": true
+          },
+          {
+            "text": "Tutup game",
+            "disabled": true
+          }
+        ],
+        "repairHint": "",
+        "rootPicker": false,
+        "pickerButton": null
+      }
+    },
+    {
+      "language": "id",
+      "fixture": "home-proxy-busy-running",
+      "actual": {
+        "status": "Memproses",
+        "statusClass": "muted",
+        "controls": [
+          {
+            "text": "Memproses",
+            "disabled": true
+          },
+          {
+            "text": "Memproses",
+            "disabled": true
+          }
+        ],
+        "repairHint": "",
+        "rootPicker": false,
+        "pickerButton": null
+      }
+    },
+    {
+      "language": "id",
+      "fixture": "home-proxy-busy-repair",
+      "actual": {
+        "status": "Memproses",
+        "statusClass": "muted",
+        "controls": [
+          {
+            "text": "Memproses",
+            "disabled": true
+          }
+        ],
+        "repairHint": "Game akan ditutup otomatis, komponennya diperbarui, lalu dimulai ulang melalui launcher resmi.",
+        "rootPicker": false,
+        "pickerButton": null
+      }
+    },
+    {
+      "language": "id",
+      "fixture": "home-busy-overlap",
+      "actual": {
+        "status": "Meluncurkan game…",
+        "statusClass": "muted",
+        "controls": [
+          {
+            "text": "Meluncurkan game…",
+            "disabled": true
+          },
+          {
+            "text": "Memproses",
+            "disabled": true
+          }
+        ],
+        "repairHint": "",
+        "rootPicker": false,
+        "pickerButton": null
+      }
+    },
+    {
+      "language": "id",
+      "fixture": "home-root-busy-missing",
+      "actual": {
+        "status": "Tidak terdeteksi",
+        "statusClass": "muted",
+        "controls": [],
+        "repairHint": "",
+        "rootPicker": true,
+        "pickerButton": {
+          "text": "Memproses",
+          "disabled": true
+        }
+      }
+    },
+    {
+      "language": "id",
+      "fixture": "home-root-busy-valid",
+      "actual": {
+        "status": "Game dihentikan",
+        "statusClass": "muted",
+        "controls": [
+          {
+            "text": "Jalankan Game",
+            "disabled": true
+          },
+          {
+            "text": "Tutup game",
+            "disabled": true
+          }
+        ],
+        "repairHint": "",
+        "rootPicker": false,
+        "pickerButton": null
+      }
+    },
+    {
+      "language": "ru",
+      "fixture": "home-launching",
+      "actual": {
+        "status": "Запуск игры…",
+        "statusClass": "muted",
+        "controls": [
+          {
+            "text": "Запуск игры…",
+            "disabled": true
+          },
+          {
+            "text": "Закрыть игру",
+            "disabled": true
+          }
+        ],
+        "repairHint": "",
+        "rootPicker": false,
+        "pickerButton": null
+      }
+    },
+    {
+      "language": "ru",
+      "fixture": "home-proxy-busy-stopped",
+      "actual": {
+        "status": "Обработка",
+        "statusClass": "muted",
+        "controls": [
+          {
+            "text": "Обработка",
+            "disabled": true
+          },
+          {
+            "text": "Закрыть игру",
+            "disabled": true
+          }
+        ],
+        "repairHint": "",
+        "rootPicker": false,
+        "pickerButton": null
+      }
+    },
+    {
+      "language": "ru",
+      "fixture": "home-proxy-busy-running",
+      "actual": {
+        "status": "Обработка",
+        "statusClass": "muted",
+        "controls": [
+          {
+            "text": "Обработка",
+            "disabled": true
+          },
+          {
+            "text": "Обработка",
+            "disabled": true
+          }
+        ],
+        "repairHint": "",
+        "rootPicker": false,
+        "pickerButton": null
+      }
+    },
+    {
+      "language": "ru",
+      "fixture": "home-proxy-busy-repair",
+      "actual": {
+        "status": "Обработка",
+        "statusClass": "muted",
+        "controls": [
+          {
+            "text": "Обработка",
+            "disabled": true
+          }
+        ],
+        "repairHint": "Игра автоматически закроется, компонент обновится, затем игра перезапустится через официальный лаунчер.",
+        "rootPicker": false,
+        "pickerButton": null
+      }
+    },
+    {
+      "language": "ru",
+      "fixture": "home-busy-overlap",
+      "actual": {
+        "status": "Запуск игры…",
+        "statusClass": "muted",
+        "controls": [
+          {
+            "text": "Запуск игры…",
+            "disabled": true
+          },
+          {
+            "text": "Обработка",
+            "disabled": true
+          }
+        ],
+        "repairHint": "",
+        "rootPicker": false,
+        "pickerButton": null
+      }
+    },
+    {
+      "language": "ru",
+      "fixture": "home-root-busy-missing",
+      "actual": {
+        "status": "Не обнаружена",
+        "statusClass": "muted",
+        "controls": [],
+        "repairHint": "",
+        "rootPicker": true,
+        "pickerButton": {
+          "text": "Обработка",
+          "disabled": true
+        }
+      }
+    },
+    {
+      "language": "ru",
+      "fixture": "home-root-busy-valid",
+      "actual": {
+        "status": "Игра остановлена",
+        "statusClass": "muted",
+        "controls": [
+          {
+            "text": "Запустить игру",
+            "disabled": true
+          },
+          {
+            "text": "Закрыть игру",
+            "disabled": true
+          }
+        ],
+        "repairHint": "",
+        "rootPicker": false,
+        "pickerButton": null
+      }
+    },
+    {
+      "language": "pt",
+      "fixture": "home-launching",
+      "actual": {
+        "status": "Iniciando o jogo…",
+        "statusClass": "muted",
+        "controls": [
+          {
+            "text": "Iniciando o jogo…",
+            "disabled": true
+          },
+          {
+            "text": "Fechar jogo",
+            "disabled": true
+          }
+        ],
+        "repairHint": "",
+        "rootPicker": false,
+        "pickerButton": null
+      }
+    },
+    {
+      "language": "pt",
+      "fixture": "home-proxy-busy-stopped",
+      "actual": {
+        "status": "Processando",
+        "statusClass": "muted",
+        "controls": [
+          {
+            "text": "Processando",
+            "disabled": true
+          },
+          {
+            "text": "Fechar jogo",
+            "disabled": true
+          }
+        ],
+        "repairHint": "",
+        "rootPicker": false,
+        "pickerButton": null
+      }
+    },
+    {
+      "language": "pt",
+      "fixture": "home-proxy-busy-running",
+      "actual": {
+        "status": "Processando",
+        "statusClass": "muted",
+        "controls": [
+          {
+            "text": "Processando",
+            "disabled": true
+          },
+          {
+            "text": "Processando",
+            "disabled": true
+          }
+        ],
+        "repairHint": "",
+        "rootPicker": false,
+        "pickerButton": null
+      }
+    },
+    {
+      "language": "pt",
+      "fixture": "home-proxy-busy-repair",
+      "actual": {
+        "status": "Processando",
+        "statusClass": "muted",
+        "controls": [
+          {
+            "text": "Processando",
+            "disabled": true
+          }
+        ],
+        "repairHint": "O jogo será fechado automaticamente, o componente será atualizado e o jogo reiniciará pelo inicializador oficial.",
+        "rootPicker": false,
+        "pickerButton": null
+      }
+    },
+    {
+      "language": "pt",
+      "fixture": "home-busy-overlap",
+      "actual": {
+        "status": "Iniciando o jogo…",
+        "statusClass": "muted",
+        "controls": [
+          {
+            "text": "Iniciando o jogo…",
+            "disabled": true
+          },
+          {
+            "text": "Processando",
+            "disabled": true
+          }
+        ],
+        "repairHint": "",
+        "rootPicker": false,
+        "pickerButton": null
+      }
+    },
+    {
+      "language": "pt",
+      "fixture": "home-root-busy-missing",
+      "actual": {
+        "status": "Não detectada",
+        "statusClass": "muted",
+        "controls": [],
+        "repairHint": "",
+        "rootPicker": true,
+        "pickerButton": {
+          "text": "Processando",
+          "disabled": true
+        }
+      }
+    },
+    {
+      "language": "pt",
+      "fixture": "home-root-busy-valid",
+      "actual": {
+        "status": "Jogo parado",
+        "statusClass": "muted",
+        "controls": [
+          {
+            "text": "Iniciar jogo",
+            "disabled": true
+          },
+          {
+            "text": "Fechar jogo",
+            "disabled": true
+          }
+        ],
+        "repairHint": "",
+        "rootPicker": false,
+        "pickerButton": null
+      }
+    }
+  ],
+  "actualPredicates": {
+    "rootBusy": "state.busy === \"gameRoot\"",
+    "proxyBusy": "state.proxyBusy === true",
+    "launching": "state.gameLaunchBusy === true",
+    "showRootPicker": "rootResolved && !rootValid",
+    "repairOnClose": "rootResolved && rootValid && gameRunning && repairRequired && !recovering",
+    "canStart": "lifecycleProviderAvailable && rootResolved && rootValid && !gameRunning && !recovering && !proxyBusy && !launching",
+    "canStop": "lifecycleProviderAvailable && rootResolved && rootValid && (gameRunning || recovering) && !proxyBusy && !launching"
+  },
+  "currentProducers": {
+    "busyWrites": [
+      "autoLaunchGame",
+      "",
+      "autoReconnect",
+      "",
+      "gameRoot",
+      ""
+    ],
+    "rootSelection": "existing App setHomeBusy(\"gameRoot\") maps to rootBusy",
+    "proxyBusy": "no production producer; recovered render input only",
+    "gameLaunchBusy": "no production producer; recovered render input only",
+    "appSha256NormalizedLF": "136C6361B8C8871ECB33ADFB249A6334BD874F94C604E63C85EABC8C0D46CBE7"
+  },
+  "limits": "Render/predicate combinations and explicit browser-preview fixtures only. Isolated predicate evaluation with lifecycleProviderAvailable=true is a test input; actual product lifecycleProviderAvailable remains false. No native/gameplay/auth function invoked; no live lifecycle reachability or original pixels proven."
+}

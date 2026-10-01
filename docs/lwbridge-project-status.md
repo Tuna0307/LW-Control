@@ -71,8 +71,11 @@ source/local/nine-locale/browser/canonical checks. See its dated review.
 HOME-ERROR-002 channels correction is also AWAITING_REVIEW: actual callback,
 original picker/render and local browser checks pass for independent errors and
 cancel/invalid/acknowledged valid selections. Existing host contract inspected;
-native picker/persistence unproved. Busy presentation and switch descriptions
-remain open; no native lifecycle or full Home acceptance is implied.
+native picker/persistence unproved. HOME-BUSY-001 display correction is also
+AWAITING_REVIEW: nine-locale actual render/predicate and local browser checks pass
+for independent busy inputs and header/button precedence. Production lifecycle
+busy producers remain absent. Switch descriptions remain open; no native
+lifecycle or full Home acceptance is implied.
 
 Phase 1 static UI recovery has been accepted. The active target remains exact
 LWBridge 0.3.17. The Map-only `LWB317-RE-MAP-001` campaign has completed its

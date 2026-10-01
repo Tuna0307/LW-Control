@@ -84,8 +84,12 @@ AWAITING_REVIEW: picker cancel/invalid/acknowledged valid outcomes preserve the
 independent action error; 9 actual callback scenarios, 4 original picker cases,
 72 render comparisons and 5 browser observations pass. Review:
 `reviews/2026-10-02-LWB317-UI-HOME-ERROR-002.md`. Existing polling/rejection
-string reduction retained; native picker not executed. Next bounded continuation:
-HOME-BUSY-001. Switch descriptions/native lifecycle stay open.
+string reduction retained; native picker not executed. HOME-BUSY-001 is also
+AWAITING_REVIEW: independent proxy/launch display inputs and root/header/button
+precedence now match source; 13,824 nine-locale render comparisons, 384 predicate
+cases and 9 browser observations pass. App/callbacks unchanged and lifecycle
+busy producers remain absent. Review: `reviews/2026-10-02-LWB317-UI-HOME-BUSY-001.md`.
+Next bounded continuation: UI-SWITCH-LOCALE-001. Native lifecycle stays separate.
 Remaining units are queued separately and have not been dispatched to another AI.
 Do not restart broad CORRECT-003 or reopen accepted weekly/selection/history work.
 Trade/Assist/runtime/AFK work remains preserved for later separate validation tasks.

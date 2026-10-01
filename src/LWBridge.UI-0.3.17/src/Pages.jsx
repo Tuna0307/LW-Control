@@ -58,6 +58,8 @@ function previewHomeState(name) {
     autoLaunchGame: false,
     autoReconnect: false,
     busy: "",
+    proxyBusy: false,
+    gameLaunchBusy: false,
     gameRootError: "",
     gameActionError: "",
     production: false,
@@ -65,7 +67,13 @@ function previewHomeState(name) {
   switch (name) {
     case "home-checking": return { ...base, rootResolved: false, gameRootStatus: null, proxyStatus: null };
     case "home-missing": return { ...base, gameRootStatus: { valid: false, root: "" } };
-    case "home-launching": return { ...base, busy: "launch" };
+    case "home-launching": return { ...base, gameLaunchBusy: true };
+    case "home-proxy-busy-stopped": return { ...base, proxyBusy: true };
+    case "home-proxy-busy-running": return { ...base, proxyBusy: true, proxyStatus: { gameRunning: true, repairRequired: false } };
+    case "home-proxy-busy-repair": return { ...base, proxyBusy: true, proxyStatus: { gameRunning: true, repairRequired: true } };
+    case "home-busy-overlap": return { ...base, proxyBusy: true, gameLaunchBusy: true, proxyStatus: { gameRunning: true, repairRequired: false } };
+    case "home-root-busy-missing": return { ...base, busy: "gameRoot", gameRootStatus: { valid: false, root: "" } };
+    case "home-root-busy-valid": return { ...base, busy: "gameRoot" };
     case "home-running-disconnected": return { ...base, proxyStatus: { gameRunning: true, repairRequired: false } };
     case "home-connected": return { ...base, proxyStatus: { gameRunning: true, repairRequired: false }, online: true, autoLaunchGame: true, autoReconnect: true };
     case "home-repair": return { ...base, proxyStatus: { gameRunning: true, repairRequired: true } };
@@ -117,19 +125,20 @@ export function HomePage({
   const repairRequired = state.proxyStatus?.repairRequired === true;
   const recoveryState = state.gameRecoveryStatus?.state || "idle";
   const recovering = RECOVERY_ACTIVE_STATES.has(recoveryState);
-  const launching = state.busy === "launch";
+  const launching = state.gameLaunchBusy === true;
+  const proxyBusy = state.proxyBusy === true;
   const rootBusy = state.busy === "gameRoot";
   const showRootPicker = rootResolved && !rootValid;
   const repairOnClose = rootResolved && rootValid && gameRunning && repairRequired && !recovering;
   const lifecycleProviderAvailable = false;
-  const canStart = lifecycleProviderAvailable && rootResolved && rootValid && !gameRunning && !recovering && !launching;
-  const canStop = lifecycleProviderAvailable && rootResolved && rootValid && (gameRunning || recovering) && !launching;
+  const canStart = lifecycleProviderAvailable && rootResolved && rootValid && !gameRunning && !recovering && !proxyBusy && !launching;
+  const canStop = lifecycleProviderAvailable && rootResolved && rootValid && (gameRunning || recovering) && !proxyBusy && !launching;
 
   let status = t("setup.checking");
   if (rootResolved) {
     if (showRootPicker) status = t("setup.gameRootMissing");
     else if (launching) status = t("setup.launchingGame");
-    else if (state.busy && state.busy !== "autoLaunchGame" && state.busy !== "autoReconnect") status = t("common.processing");
+    else if (proxyBusy) status = t("common.processing");
     else if (recovering) status = t(`recovery.state.${recoveryState}`);
     else if (repairRequired) status = t("setup.repairRequired");
     else if (gameRunning) status = t(state.online ? "status.gameRunning" : "setup.bridgeDisconnected");
@@ -152,10 +161,10 @@ export function HomePage({
       ) : (
         <div className="game-controls">
           {!repairOnClose ? (
-            <button className="primary" type="button" disabled={!canStart}>{t(launching ? "setup.launchingGame" : "top.launchGame")}</button>
+            <button className="primary" type="button" disabled={!canStart}>{t(launching ? "setup.launchingGame" : proxyBusy ? "common.processing" : "top.launchGame")}</button>
           ) : null}
           <button type="button" disabled={!canStop}>
-            {t(repairOnClose ? "setup.updateAndLaunch" : "setup.closeGameAction")}
+            {t(proxyBusy && gameRunning ? "common.processing" : repairOnClose ? "setup.updateAndLaunch" : "setup.closeGameAction")}
           </button>
           {repairOnClose ? <span className="muted">{t("setup.updateCloseGame")}</span> : null}
         </div>

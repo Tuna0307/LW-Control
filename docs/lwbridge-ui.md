@@ -172,8 +172,11 @@ HOME-ERROR-001 implements the translation-only correction and is AWAITING_REVIEW
 actual helper/render/nine-locale/browser checks pass. HOME-ERROR-002 separate
 channels correction is also AWAITING_REVIEW after 9 callback scenarios, 4 original
 picker cases, 72 render comparisons and 5 browser observations. See
-`reviews/2026-10-02-LWB317-UI-HOME-ERROR-002.md`. Busy text and localized
-switch descriptions remain queued. See
+`reviews/2026-10-02-LWB317-UI-HOME-ERROR-002.md`. HOME-BUSY-001 is also
+AWAITING_REVIEW after nine-locale render/predicate and local browser checks;
+independent proxy/launch inputs have no production lifecycle producers. See
+`reviews/2026-10-02-LWB317-UI-HOME-BUSY-001.md`. Localized switch descriptions
+remain queued. See
 `reviews/2026-10-02-LWB317-UI-HOME-ERROR-001.md`; original/native parity unproved.
 Earlier correction evidence is under
 `evidence/lwbridge-0.3.17/ui/LWB317-UI-CORRECT-001/`; worker report:

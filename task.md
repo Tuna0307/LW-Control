@@ -125,8 +125,11 @@ nine-locale, browser and canonical checks pass; no state-channel/native changes.
 HOME-ERROR-002 is also AWAITING_REVIEW after independent root/action errors,
 picker cancel/invalid/acknowledged valid handling and actual callback/original
 render/browser checks. See docs/reviews/2026-10-02-LWB317-UI-HOME-ERROR-002.md.
-Next bounded unit: HOME-BUSY-001. Switch correction remains queued; native
-picker/persistence and original pixels remain unproved.
+HOME-BUSY-001 is also AWAITING_REVIEW: independent proxy/launch display inputs
+and header/button precedence pass nine-locale render/predicate and browser checks.
+App unchanged; lifecycle busy producers absent. See its dated review.
+Next bounded unit: UI-SWITCH-LOCALE-001. Native picker/persistence/lifecycle and
+original pixels remain unproved.
 
 Direct original post-auth screenshot/pixel comparison remains `BLOCKED` by the
 documented reference access boundary, so affected UI rows remain

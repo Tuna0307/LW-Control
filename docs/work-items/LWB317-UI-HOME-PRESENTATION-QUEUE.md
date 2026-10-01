@@ -1,7 +1,7 @@
 # Small Home presentation queue
 
 Owner requested project-lead tasks while another AI rests, 2026-10-02.
-Owner: project lead. State: PARTIAL; translation/channels AWAITING_REVIEW, remaining units
+Owner: project lead. State: PARTIAL; translation/channels/busy AWAITING_REVIEW, remaining unit
 QUEUED. Not dispatched to another worker.
 Do not execute all items as one broad campaign. Assign/run one ID at a time.
 Input finding: docs/reviews/2026-10-02-LWB317-PM-015-home-audit.md and
@@ -42,7 +42,9 @@ lifecycle providers. Same focused evidence/canonical/checkpoint delivery pattern
 
 ## HOME-BUSY-001 — presentation only
 
-State: QUEUED; next bounded continuation after the channels checkpoint.
+State: AWAITING_REVIEW after project-lead implementation on 2026-10-02.
+See LWB317-UI-HOME-BUSY-001.md and its dated review/evidence. Nine-locale actual
+render/predicate and local browser checks pass; lifecycle producers remain absent.
 
 Recover source header and launch/close labels from qr; preserve Kr predicates
 (byte 336469) and current intentional native disable fences. Keep root-selection,
@@ -52,6 +54,8 @@ fabricate actual launch/update/close state transitions or enable lifecycle contr
 Check actual render branches and local preview states; same bounded delivery checks.
 
 ## UI-SWITCH-LOCALE-001 — state descriptions only
+
+State: QUEUED; next bounded continuation after the busy presentation checkpoint.
 
 Correct literal Enabled/Disabled in shared ToggleRow using recovered Bn at byte
 213332 and existing common.enabled/common.disabled keys. Preserve click handlers,

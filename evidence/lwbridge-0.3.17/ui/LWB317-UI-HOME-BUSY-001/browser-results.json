@@ -1,0 +1,305 @@
+{
+  "task": "LWB317-UI-HOME-BUSY-001",
+  "date": "2026-10-02",
+  "browser": "Codex In-app Browser",
+  "preview": "http://127.0.0.1:4319",
+  "syntheticBrowserOnly": true,
+  "flows": [
+    {
+      "state": "home-proxy-busy-running",
+      "action": "Opened explicit running/proxy-busy fixture",
+      "observed": {
+        "controls": [
+          {
+            "disabled": true,
+            "text": "Processing"
+          },
+          {
+            "disabled": true,
+            "text": "Processing"
+          }
+        ],
+        "fixture": "home-proxy-busy-running",
+        "language": "en",
+        "picker": [],
+        "repairHint": "",
+        "status": "Processing",
+        "statusClass": "muted",
+        "switches": [
+          {
+            "disabled": true,
+            "text": "Open games at startup"
+          },
+          {
+            "disabled": true,
+            "text": "Automatic Reconnection"
+          }
+        ]
+      }
+    },
+    {
+      "state": "home-proxy-busy-running/navigation-return",
+      "action": "Automation then Home",
+      "observed": {
+        "controls": [
+          {
+            "disabled": true,
+            "text": "Processing"
+          },
+          {
+            "disabled": true,
+            "text": "Processing"
+          }
+        ],
+        "fixture": "home-proxy-busy-running",
+        "language": "en",
+        "picker": [],
+        "repairHint": "",
+        "status": "Processing",
+        "statusClass": "muted",
+        "switches": [
+          {
+            "disabled": true,
+            "text": "Open games at startup"
+          },
+          {
+            "disabled": true,
+            "text": "Automatic Reconnection"
+          }
+        ]
+      }
+    },
+    {
+      "state": "home-proxy-busy-stopped",
+      "action": "Opened explicit browser-only fixture",
+      "observed": {
+        "controls": [
+          {
+            "disabled": true,
+            "text": "Processing"
+          },
+          {
+            "disabled": true,
+            "text": "Close game"
+          }
+        ],
+        "fixture": "home-proxy-busy-stopped",
+        "language": "en",
+        "picker": [],
+        "repairHint": "",
+        "status": "Processing",
+        "statusClass": "muted",
+        "switches": [
+          {
+            "disabled": true,
+            "text": "Open games at startup"
+          },
+          {
+            "disabled": true,
+            "text": "Automatic Reconnection"
+          }
+        ]
+      }
+    },
+    {
+      "state": "home-proxy-busy-repair",
+      "action": "Opened explicit browser-only fixture",
+      "observed": {
+        "controls": [
+          {
+            "disabled": true,
+            "text": "Processing"
+          }
+        ],
+        "fixture": "home-proxy-busy-repair",
+        "language": "en",
+        "picker": [],
+        "repairHint": "The game will close automatically, update the component, and restart through the official launcher.",
+        "status": "Processing",
+        "statusClass": "muted",
+        "switches": [
+          {
+            "disabled": true,
+            "text": "Open games at startup"
+          },
+          {
+            "disabled": true,
+            "text": "Automatic Reconnection"
+          }
+        ]
+      }
+    },
+    {
+      "state": "home-busy-overlap",
+      "action": "Opened explicit browser-only fixture",
+      "observed": {
+        "controls": [
+          {
+            "disabled": true,
+            "text": "Launching game…"
+          },
+          {
+            "disabled": true,
+            "text": "Processing"
+          }
+        ],
+        "fixture": "home-busy-overlap",
+        "language": "en",
+        "picker": [],
+        "repairHint": "",
+        "status": "Launching game…",
+        "statusClass": "muted",
+        "switches": [
+          {
+            "disabled": true,
+            "text": "Open games at startup"
+          },
+          {
+            "disabled": true,
+            "text": "Automatic Reconnection"
+          }
+        ]
+      }
+    },
+    {
+      "state": "home-root-busy-missing",
+      "action": "Opened explicit browser-only fixture",
+      "observed": {
+        "controls": [],
+        "fixture": "home-root-busy-missing",
+        "language": "en",
+        "picker": [
+          {
+            "disabled": true,
+            "text": "Processing"
+          }
+        ],
+        "repairHint": "",
+        "status": "Not detected",
+        "statusClass": "muted",
+        "switches": [
+          {
+            "disabled": true,
+            "text": "Open games at startup"
+          },
+          {
+            "disabled": true,
+            "text": "Automatic Reconnection"
+          }
+        ]
+      }
+    },
+    {
+      "state": "home-root-busy-valid",
+      "action": "Opened explicit browser-only fixture",
+      "observed": {
+        "controls": [
+          {
+            "disabled": true,
+            "text": "Launch Game"
+          },
+          {
+            "disabled": true,
+            "text": "Close game"
+          }
+        ],
+        "fixture": "home-root-busy-valid",
+        "language": "en",
+        "picker": [],
+        "repairHint": "",
+        "status": "Game stopped",
+        "statusClass": "muted",
+        "switches": [
+          {
+            "disabled": true,
+            "text": "Open games at startup"
+          },
+          {
+            "disabled": true,
+            "text": "Automatic Reconnection"
+          }
+        ]
+      }
+    },
+    {
+      "state": "home-launching",
+      "action": "Opened explicit browser-only fixture",
+      "observed": {
+        "controls": [
+          {
+            "disabled": true,
+            "text": "Launching game…"
+          },
+          {
+            "disabled": true,
+            "text": "Close game"
+          }
+        ],
+        "fixture": "home-launching",
+        "language": "en",
+        "picker": [],
+        "repairHint": "",
+        "status": "Launching game…",
+        "statusClass": "muted",
+        "switches": [
+          {
+            "disabled": true,
+            "text": "Open games at startup"
+          },
+          {
+            "disabled": true,
+            "text": "Automatic Reconnection"
+          }
+        ]
+      }
+    },
+    {
+      "state": "home-launching/ja",
+      "action": "Changed visible language selector to Japanese",
+      "observed": {
+        "controls": [
+          {
+            "disabled": true,
+            "text": "ゲームを起動中…"
+          },
+          {
+            "disabled": true,
+            "text": "ゲームを閉じる"
+          }
+        ],
+        "fixture": "home-launching",
+        "language": "ja",
+        "picker": [],
+        "repairHint": "",
+        "status": "ゲームを起動中…",
+        "statusClass": "muted",
+        "switches": [
+          {
+            "disabled": true,
+            "text": "起動時にゲームを開く"
+          },
+          {
+            "disabled": true,
+            "text": "自動再接続"
+          }
+        ]
+      }
+    }
+  ],
+  "consoleErrors": [],
+  "screenshots": [
+    {
+      "file": "proxy-busy-running-en.jpg",
+      "state": "home-proxy-busy-running",
+      "language": "en",
+      "sha256": "D0603724847E1FF85269063F599145C0505FA0F69E5BD1E9375815ADC3AE8F5E"
+    },
+    {
+      "file": "launching-ja.jpg",
+      "state": "home-launching/ja",
+      "language": "ja",
+      "sha256": "865F4A6B3C8E927C2459868A9BA0AA3CA8EFFECD11DFB25E8401C5B4AF3F4EDA"
+    }
+  ],
+  "limits": "Explicit browser-only preview fixtures, not live/native lifecycle states. No game/picker/function action invoked; language restored to English."
+}
