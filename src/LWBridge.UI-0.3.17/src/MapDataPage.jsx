@@ -11,11 +11,33 @@ import {
   normalizeScanState,
   updateSelectedTypes,
 } from "./mapBackend.js";
+import { useI18n } from "./i18n.jsx";
 
 const DEFAULT_SORTS = Object.freeze(
   Object.fromEntries(MAP_KIND_KEYS.map((kind) => [kind, [{ sortBy: "updatedAt", sortOrder: "desc" }]])),
 );
 const AUTO_DEFAULT_TYPES = ["truck", "railway", "dispatch", "ghost", "treasure"];
+const SCAN_TYPE_LABEL_KEYS = Object.freeze({
+  city: "map.playerCity",
+  resource: "map.resourcePoint",
+  monster: "map.monster",
+  truck: "map.truck",
+  railway: "map.allianceTrain",
+  dispatch: "map.secretTask",
+  ghost: "map.ghostScout",
+  treasure: "map.treasure",
+});
+const TAB_LABEL_KEYS = Object.freeze({
+  city: "map.city",
+  resource: "map.resource",
+  monster: "map.monster",
+  truck: "map.truck",
+  railway: "map.allianceTrain",
+  dispatch: "map.secretTask",
+  ghost: "map.ghostScout",
+  treasure: "map.treasure",
+  scheduledPlunder: "map.scheduledPlunder",
+});
 
 function normalizeAutoConfig(value) {
   const source = value && typeof value === "object" ? value : {};
@@ -86,68 +108,101 @@ function amountText(row) {
     : "—";
 }
 
-function rowColumns(kind) {
-  const coordinates = { label: "Coordinates", coordinate: true };
-  const updated = { label: "Updated At", sortBy: "updatedAt", value: (row) => dateText(row.updatedAt) };
+function taskStatusText(row, t) {
+  const status = String(row?.completionStatus || row?.status || "").toLowerCase();
+  if (status === "completed") return t("common.completed");
+  if (status === "pending" || status === "in_progress") return t("common.inProgress");
+  return status || "-";
+}
+
+function truckPlunderText(row, t) {
+  const robbed = Math.max(0, Number(row?.robTimes) || 0);
+  const max = Math.max(robbed, Number(row?.maxRobTimes) || Number(row?.robMaxTimes) || 0);
+  if (max > 0 && robbed >= max) return `${t("map.truckPlunderFull")} ${robbed}/${max}`;
+  const protection = Number(row?.protectTime);
+  if (Number.isFinite(protection) && protection > Date.now()) return `${t("map.truckProtected")} · ${t("map.truckRobbedCount", { count: robbed, max: max || "-" })}`;
+  return `${t("map.truckReady")} · ${t("map.truckRobbedCount", { count: robbed, max: max || "-" })}`;
+}
+
+function rowColumns(kind, t) {
+  const coordinates = { label: kind === "truck" || kind === "dispatch" || kind === "ghost" ? t("map.liveTarget") : t("map.coordinates"), coordinate: true };
+  const updated = { label: t("map.updatedAt"), sortBy: "updatedAt", value: (row) => dateText(row.updatedAt) };
   switch (kind) {
     case "city":
       return [
-        { label: "Marked", mark: true },
+        { label: t("map.marked"), mark: true },
         coordinates,
-        { label: "Player", value: (row) => row.ownerName || row.ownerUid || "-" },
-        { label: "Alliance", value: (row) => row.allianceName || row.allianceAbbr || "-" },
-        { label: "Level", sortBy: "level", value: (row) => numberText(row.level) },
+        { label: t("map.player"), value: (row) => row.ownerName || "-" },
+        { label: t("map.alliance"), value: (row) => row.allianceName || "-" },
+        { label: t("map.level"), sortBy: "level", value: (row) => numberText(row.level) },
         { label: "HP", sortBy: "health", value: (row) => numberText(row.health) },
+        { label: t("automation.shieldEnds"), sortBy: "shield", value: (row) => dateText(row.protectEndTime || row.shieldEndTime) },
         updated,
       ];
     case "resource":
       return [
         coordinates,
-        { label: "Resource", value: (row) => row.resourceNameKey || row.name || "Unknown resource" },
-        { label: "Level", sortBy: "level", value: (row) => numberText(row.level) },
-        { label: "Amount", value: amountText },
-        { label: "Status", value: resourceStatus },
+        { label: t("map.resource"), value: (row) => row.resourceNameKey || row.name || t("map.unknownResource") },
+        { label: t("map.level"), sortBy: "level", value: (row) => numberText(row.level) },
+        { label: t("common.status"), value: (row) => resourceStatus(row) === "Gathering" ? t("map.resourceGathering") : t("map.resourceIdle") },
         updated,
       ];
     case "monster":
       return [
         coordinates,
-        { label: "Name", value: (row) => row.monsterNameKey || row.name || "Unknown monster" },
-        { label: "Level", sortBy: "level", value: (row) => numberText(row.level) },
-        { label: "Distance", value: (row) => numberText(row.distanceFromHome) },
+        { label: t("common.name"), value: (row) => row.monsterNameKey || row.name || t("map.unknownMonster") },
+        { label: t("map.level"), sortBy: "level", value: (row) => numberText(row.level) },
+        { label: t("map.distance"), sortBy: "distance", value: (row) => numberText(row.distanceFromHome) },
         updated,
       ];
     case "truck":
       return [
+        { label: t("map.selectTask"), select: true },
         coordinates,
-        { label: "Player / Alliance", value: (row) => row.ownerName || row.allianceName || "-" },
-        { label: "Quality", sortBy: "quality", value: (row) => qualityText(row.quality) },
-        { label: "Escort Power", sortBy: "power", value: (row) => numberText(row.power) },
+        { label: t("map.playerAlliance"), value: (row) => row.ownerName || row.allianceName || "-" },
+        { label: t("map.quality"), sortBy: "quality", value: (row) => row.isSpecialURQuality === true ? t("map.reindeerQuality") : qualityText(row.quality) },
+        { label: t("map.escortPower"), sortBy: "power", value: (row) => numberText(row.power) },
+        { label: t("map.retainedGoods"), sortBy: "itemCount", value: (row) => Array.isArray(row.currentGoods) ? row.currentGoods.map((item) => `${item.name || item.key || "-"} ×${numberText(item.count)}`).join(" · ") || "-" : "-" },
+        { label: t("map.plunderStatus"), sortBy: "remainingLootCount", value: (row) => truckPlunderText(row, t) },
+        { label: t("map.arrivalTime"), sortBy: "arriveTime", value: (row) => dateText(row.arriveTs) },
         updated,
       ];
     case "railway":
       return [
         coordinates,
-        { label: "Alliance", value: (row) => row.allianceName || row.allianceAbbr || "-" },
-        { label: "Quality", value: (row) => qualityText(row.quality) },
-        { label: "Power", sortBy: "power", value: (row) => numberText(row.power) },
+        { label: t("map.alliance"), value: (row) => row.allianceName || row.allianceAbbr || "-" },
+        { label: t("map.quality"), sortBy: "quality", value: (row) => qualityText(row.quality) },
+        { label: t("map.power"), sortBy: "power", value: (row) => numberText(row.power) },
+        { label: t("map.retainedGoods"), sortBy: "itemCount", value: (row) => Array.isArray(row.currentGoods) ? row.currentGoods.map((item) => `${item.name || item.key || "-"} ×${numberText(item.count)}`).join(" · ") || "-" : "-" },
+        { label: t("map.protectionTime"), sortBy: "protectTime", value: (row) => dateText(row.protectTime) },
         updated,
       ];
     case "treasure":
       return [
         coordinates,
-        { label: "Treasure", value: (row) => row.treasureNameKey || row.name || row.treasureType || "-" },
-        { label: "Remaining Boxes", value: (row) => numberText(row.remainingBoxes) },
+        { label: t("map.treasureType"), value: (row) => row.treasureNameKey || row.name || row.treasureType || t("map.treasureTypeUnknown") },
+        { label: t("map.remainingBoxes"), value: (row) => numberText(row.remainingBoxes) },
+        { label: t("map.treasureWorldState"), value: (row) => row.worldClaimState ? t(`map.treasureState${String(row.worldClaimState).charAt(0).toUpperCase()}${String(row.worldClaimState).slice(1)}`) : "-" },
+        { label: t("map.treasurePlayerState"), value: (row) => row.playerClaimState || "-" },
+        { label: t("map.claimedCount"), value: (row) => numberText(row.rewardedCount) },
+        { label: t("map.diggingCount"), value: (row) => numberText(row.diggingCount) },
+        { label: t("map.expireTime"), value: (row) => dateText(row.expireTime) },
+        { label: t("map.owner"), value: (row) => row.ownerName || row.ownerUid || "-" },
+        { label: t("map.alliance"), value: (row) => row.allianceAbbr || row.allianceId || "-" },
+        { label: t("map.actions"), action: true },
         updated,
       ];
     case "dispatch":
     case "ghost":
       return [
+        { label: t("map.selectTask"), select: true },
         coordinates,
-        { label: "Owner", value: (row) => row.ownerName || row.ownerUid || "-" },
-        { label: "Level", sortBy: "level", value: (row) => numberText(row.level) },
-        { label: "Quality", sortBy: "quality", value: (row) => qualityText(row.quality) },
-        { label: "Status", value: (row) => row.completionStatus || row.status || "-" },
+        { label: t("map.owner"), value: (row) => row.ownerName || row.ownerUid || "-" },
+        { label: t("map.level"), sortBy: "level", value: (row) => numberText(row.level) },
+        { label: t("map.quality"), sortBy: "quality", value: (row) => row.isSpecial === true ? t("map.specialQuality") : qualityText(row.quality) },
+        { label: t("map.taskStatus"), value: (row) => taskStatusText(row, t) },
+        { label: t("map.rewards"), value: (row) => Array.isArray(row.rewards) ? row.rewards.map((item) => `${item.name || item.key || "-"} ×${numberText(item.count)}`).join(" · ") || "-" : "-" },
+        { label: t("map.completionTime"), sortBy: "completionTime", value: (row) => dateText(row.completionTime) },
         updated,
       ];
     default:
@@ -155,8 +210,10 @@ function rowColumns(kind) {
   }
 }
 
-function MapTable({ kind, rows, loading, sorts, onSort, onCoordinateJump, onPlayerMark, actionBusy, actionDisabled }) {
-  const columns = useMemo(() => rowColumns(kind), [kind]);
+function MapTable({ kind, rows, loading, sorts, onSort, onCoordinateJump, onPlayerMark, actionBusy, actionDisabled, selectedKeys, onSelect }) {
+  const { t } = useI18n();
+  const columns = useMemo(() => rowColumns(kind, t), [kind, t]);
+  const rowKey = (row, index) => `${kind}:${row.serverId ?? 0}:${row.recordKey || row.uuid || row.marchUuid || row.pointIndex || index}`;
   return (
     <div className="map-table-scroll">
       <table className={`map-table map-table--${kind}`} aria-label={MAP_TABS.find((item) => item.key === kind)?.label} aria-busy={loading}>
@@ -188,10 +245,12 @@ function MapTable({ kind, rows, loading, sorts, onSort, onCoordinateJump, onPlay
         </thead>
         <tbody>
           {rows.map((row, index) => (
-            <tr className="map-row" key={`${kind}:${row.serverId ?? 0}:${row.recordKey || row.uuid || row.pointIndex || index}`}>
+            <tr className="map-row" key={rowKey(row, index)}>
               {columns.map((column) => (
                 <td key={column.label}>
-                  {column.mark ? (
+                  {column.select ? (
+                    <input type="checkbox" aria-label={t("map.selectNamedTask", { name: row.ownerName || row.allianceName || row.uuid || "-", server: row.serverId || "-" })} checked={selectedKeys?.has(rowKey(row, index)) || false} onChange={() => onSelect?.(rowKey(row, index), row)} />
+                  ) : column.mark ? (
                     <button className={`map-mark-button${row.marked ? " active" : ""}`} type="button" disabled={actionDisabled || !row.ownerUid || actionBusy} aria-label={row.marked ? "Unmark player" : "Mark player"} onClick={() => onPlayerMark(row)}>
                       {row.marked ? "★" : "☆"}
                     </button>
@@ -200,13 +259,15 @@ function MapTable({ kind, rows, loading, sorts, onSort, onCoordinateJump, onPlay
                       <span className="map-coordinate-icon" aria-hidden="true" />
                       <span>{coordinateText(row)}</span>
                     </button>
+                  ) : column.action ? (
+                    <button className="map-schedule-button" type="button" disabled>{t("map.claimTreasure")}</button>
                   ) : column.value?.(row)}
                 </td>
               ))}
             </tr>
           ))}
           {rows.length === 0 ? (
-            <tr><td className="map-empty" colSpan={columns.length}>{loading ? "Processing…" : "No saved data for this type."}</td></tr>
+            <tr><td className="map-empty" colSpan={columns.length}>{loading ? t("common.processing") : t("map.empty")}</td></tr>
           ) : null}
         </tbody>
       </table>
@@ -215,18 +276,20 @@ function MapTable({ kind, rows, loading, sorts, onSort, onCoordinateJump, onPlay
 }
 
 function Pagination({ page, total, onPage }) {
+  const { t } = useI18n();
   const totalPages = mapPageCount(total);
   if (totalPages <= 1) return null;
   return (
     <div className="map-pagination">
-      <button type="button" disabled={page <= 1} onClick={() => onPage(page - 1)}>Previous</button>
-      <span>Page {page} of {totalPages}</span>
-      <button type="button" disabled={page >= totalPages} onClick={() => onPage(page + 1)}>Next</button>
+      <button type="button" disabled={page <= 1} onClick={() => onPage(page - 1)}>{t("map.previousPage")}</button>
+      <span>{t("map.pageInfo", { page, total: totalPages })}</span>
+      <button type="button" disabled={page >= totalPages} onClick={() => onPage(page + 1)}>{t("map.nextPage")}</button>
     </div>
   );
 }
 
 export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, currentServerId = 0 }) {
+  const { t } = useI18n();
   const [scanTab, setScanTab] = useState("manual");
   const [speed, setSpeed] = useState(() => {
     const saved = window.localStorage.getItem("lwbridge.mapScanMode");
@@ -245,6 +308,15 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
   const [monsterNameKey, setMonsterNameKey] = useState("");
   const [alliance, setAlliance] = useState("all");
   const [markedOnly, setMarkedOnly] = useState(false);
+  const [treasureType, setTreasureType] = useState("");
+  const [completionStatus, setCompletionStatus] = useState("");
+  const [quality, setQuality] = useState("");
+  const [itemKey, setItemKey] = useState("");
+  const [plunderableOnly, setPlunderableOnly] = useState(false);
+  const [includeForeignRadarTreasures, setIncludeForeignRadarTreasures] = useState(false);
+  const [luckyFirst, setLuckyFirst] = useState(false);
+  const [minLevel, setMinLevel] = useState("");
+  const [selectedRows, setSelectedRows] = useState(() => new Set());
   const [page, setPage] = useState(1);
   const [sortsByKind, setSortsByKind] = useState(() => Object.fromEntries(
     Object.entries(DEFAULT_SORTS).map(([kind, sorts]) => [kind, sorts.map((sort) => ({ ...sort }))]),
@@ -344,6 +416,7 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
     setRows([]);
     setTotal(0);
     setQueryError("");
+    setSelectedRows(new Set());
   }, [tab, dataServerId]);
 
   useEffect(() => {
@@ -363,6 +436,20 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
       if (alliance === "none") query.withoutAlliance = true;
       else if (alliance !== "all") query.alliance = alliance;
       if (markedOnly) query.markedOnly = true;
+    }
+    if (tab === "treasure") {
+      if (treasureType) query.treasureType = treasureType;
+      if (includeForeignRadarTreasures) query.includeForeignRadarTreasures = true;
+      if (luckyFirst) query.luckyFirst = true;
+    }
+    if (tab === "dispatch" || tab === "ghost" || tab === "truck" || tab === "railway") {
+      if (completionStatus && (tab === "dispatch" || tab === "ghost")) query.completionStatus = completionStatus;
+      if (quality && quality !== "special" && quality !== "reindeer") query.quality = quality;
+      if (quality === "special") query.specialOnly = true;
+      if (quality === "reindeer") query.reindeerOnly = true;
+      if (itemKey) query.itemKey = itemKey;
+      if (plunderableOnly && (tab === "dispatch" || tab === "truck" || tab === "railway")) query.plunderableOnly = true;
+      if (minLevel && tab === "dispatch") query.minLevel = Number(minLevel);
     }
     mapApi.search(tab, query).then((result) => {
       if (cancelled) return;
@@ -384,8 +471,9 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
     });
     return () => { cancelled = true; };
   }, [
-    activeSorts, alliance, backendAvailable, dataServerId, mapApi, markedOnly, monsterNameKey,
-    page, resourceNameKey, searchRevision, submittedKeyword, tab,
+    activeSorts, alliance, backendAvailable, completionStatus, dataServerId, includeForeignRadarTreasures, itemKey,
+    luckyFirst, mapApi, markedOnly, minLevel, monsterNameKey, page, plunderableOnly, quality, resourceNameKey,
+    searchRevision, submittedKeyword, tab, treasureType,
   ]);
 
   async function startScan() {
@@ -553,30 +641,30 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
 
   const progress = Math.max(0, Math.min(100, Math.round(Number(scanState.progressPercent) || 0)));
   const statusLabel = scanState.isReading
-    ? scanState.phase === "publishing" ? "Processing" : "Reading"
-    : scanState.phase === "completed" ? "Completed" : "Stopped";
+    ? scanState.phase === "publishing" ? t("common.processing") : t("map.reading")
+    : scanState.phase === "completed" ? t("common.completed") : t("common.stopped");
   const phaseLabel = scanState.phase || "idle";
 
   return (
     <section className="panel map-panel" data-bridge-mode={bridgeMode}>
-      <div className="map-scan-tabs" role="tablist" aria-label="Map scan mode">
-        <button type="button" role="tab" className={scanTab === "manual" ? "active" : ""} aria-selected={scanTab === "manual"} onClick={() => setScanTab("manual")}>Manual Scan</button>
-        <button type="button" role="tab" className={scanTab === "auto" ? "active" : ""} aria-selected={scanTab === "auto"} onClick={() => setScanTab("auto")}>Auto Scan</button>
+      <div className="map-scan-tabs" role="tablist" aria-label={t("map.scanModeTabs")}>
+        <button type="button" role="tab" className={scanTab === "manual" ? "active" : ""} aria-selected={scanTab === "manual"} onClick={() => setScanTab("manual")}>{t("map.manualScan")}</button>
+        <button type="button" role="tab" className={scanTab === "auto" ? "active" : ""} aria-selected={scanTab === "auto"} onClick={() => setScanTab("auto")}>{t("map.autoScan")}</button>
       </div>
 
       <div className="map-header">
-        <h2>World Map Data</h2>
+        <h2>{t("map.title")}</h2>
         <div className="map-actions">
           {scanTab === "manual" ? (
             <>
               <fieldset className={`map-speed-toggle${speed === "fast" ? " fast" : ""}`} disabled={scanState.isReading || autoRunning}>
                 <span className="map-speed-slider" aria-hidden="true" />
-                <label><input type="radio" name="map-scan-speed" checked={speed === "normal"} onChange={() => { selectionTouched.current = true; setSpeed("normal"); }} /><span>Normal</span></label>
-                <label><input type="radio" name="map-scan-speed" checked={speed === "fast"} onChange={() => { selectionTouched.current = true; setSpeed("fast"); }} /><span>Fast</span></label>
+                <label><input type="radio" name="map-scan-speed" checked={speed === "normal"} onChange={() => { selectionTouched.current = true; setSpeed("normal"); }} /><span>{t("map.normalSpeed")}</span></label>
+                <label><input type="radio" name="map-scan-speed" checked={speed === "fast"} onChange={() => { selectionTouched.current = true; setSpeed("fast"); }} /><span>{t("map.fastSpeed")}</span></label>
               </fieldset>
-              <button type="button" className={!scanState.isReading ? "primary" : ""} disabled={!online || scanState.isReading || autoRunning} onClick={startScan}>Start Scan</button>
-              <button type="button" className={scanState.isReading ? "danger" : ""} disabled={!backendAvailable || !scanState.isReading} onClick={stopScan}>Stop</button>
-              <button type="button" disabled={!backendAvailable || !dataServerId || scanState.isReading || autoRunning} onClick={clearData}>Clear Map Data</button>
+              <button type="button" className={!scanState.isReading ? "primary" : ""} disabled={!online || scanState.isReading || autoRunning} onClick={startScan}>{t("map.startReading")}</button>
+              <button type="button" className={scanState.isReading ? "danger" : ""} disabled={!backendAvailable || !scanState.isReading} onClick={stopScan}>{t("common.stop")}</button>
+              <button type="button" disabled={!backendAvailable || !dataServerId || scanState.isReading || autoRunning} onClick={clearData}>{t("map.clearServer")}</button>
             </>
           ) : null}
         </div>
@@ -586,41 +674,41 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
         <div className="map-auto-scan-card" data-runtime-state={autoRunning ? "running" : autoConfig.enabled ? "enabled" : "disabled"}>
           <label className="map-auto-scan-master">
             <input type="checkbox" checked={autoConfig.enabled} onChange={(event) => setAutoConfig((current) => ({ ...current, enabled: event.target.checked, nextRunAt: event.target.checked ? Date.now() : 0 }))} />
-            <strong>Enable automatic scanning</strong>
-            <span>{autoRunning ? "Running" : autoConfig.enabled ? "Enabled" : "Disabled"}</span>
+            <strong>{t("map.enableAutoScan")}</strong>
+            <span>{autoRunning ? t("map.autoScanRunning") : autoConfig.enabled ? t("map.autoScanWaiting") : t("map.autoScanDisabled")}</span>
           </label>
           <div className="map-auto-scan-grid">
             <div className="map-auto-scan-server-field">
-              <span>Target servers</span>
-              <div className="map-auto-scan-server-input"><input value={autoServerInput} disabled={autoRunning} onChange={(event) => setAutoServerInput(event.target.value)} /><button type="button" disabled={autoRunning || !autoServerInput.trim()} onClick={addAutoServers}>Add</button></div>
+              <span>{t("map.targetServers")}</span>
+              <div className="map-auto-scan-server-input"><input value={autoServerInput} disabled={autoRunning} onChange={(event) => setAutoServerInput(event.target.value)} /><button type="button" disabled={autoRunning || !autoServerInput.trim()} onClick={addAutoServers}>{t("common.add")}</button></div>
               {autoConfig.serverIds.length ? <div>{autoConfig.serverIds.map((id) => <button type="button" key={id} disabled={autoRunning} onClick={() => setAutoConfig((current) => ({ ...current, serverIds: current.serverIds.filter((value) => value !== id) }))}>{id} ×</button>)}</div> : null}
-              <small>Enter server IDs and click Add. Commas add several at once; × removes one. No entries scans the current server.</small>
+              <small>{t("map.targetServersHint")}</small>
             </div>
-            <label><span>Interval (minutes)</span><input type="number" min="20" max="1440" value={autoConfig.intervalMinutes} disabled={autoRunning} onChange={(event) => setAutoConfig((current) => normalizeAutoConfig({ ...current, intervalMinutes: event.target.value }))} /></label>
-            <label><span>Speed</span><select value={autoConfig.scanMode} disabled={autoRunning} onChange={(event) => setAutoConfig((current) => ({ ...current, scanMode: event.target.value }))}><option value="normal">Normal</option><option value="fast">Fast</option></select></label>
+            <label><span>{t("map.scanIntervalMinutes")}</span><input type="number" min="20" max="1440" value={autoConfig.intervalMinutes} disabled={autoRunning} onChange={(event) => setAutoConfig((current) => normalizeAutoConfig({ ...current, intervalMinutes: event.target.value }))} /></label>
+            <label><span>{t("map.speed")}</span><select value={autoConfig.scanMode} disabled={autoRunning} onChange={(event) => setAutoConfig((current) => ({ ...current, scanMode: event.target.value }))}><option value="normal">{t("map.normalSpeed")}</option><option value="fast">{t("map.fastSpeed")}</option></select></label>
           </div>
           <div className="map-controls">
-            <span className="map-controls-label">Scan contents</span>
+            <span className="map-controls-label">{t("map.scanTypes")}</span>
             <div className="map-types map-types--compact">
-              {MAP_SCAN_TYPES.map(({ key, label }) => (
-                <label key={key}><input type="checkbox" checked={autoConfig.selectedTypes.includes(key)} disabled={autoRunning || (autoConfig.selectedTypes.length === 1 && autoConfig.selectedTypes[0] === key)} onChange={(event) => toggleAutoType(key, event.target.checked)} /><span>{label}</span></label>
+              {MAP_SCAN_TYPES.map(({ key }) => (
+                <label key={key}><input type="checkbox" checked={autoConfig.selectedTypes.includes(key)} disabled={autoRunning || (autoConfig.selectedTypes.length === 1 && autoConfig.selectedTypes[0] === key)} onChange={(event) => toggleAutoType(key, event.target.checked)} /><span>{t(SCAN_TYPE_LABEL_KEYS[key])}</span></label>
               ))}
             </div>
           </div>
           <div className="map-auto-scan-options">
-            <label><input type="checkbox" checked={autoConfig.returnToOriginalServer} disabled={autoRunning} onChange={(event) => setAutoConfig((current) => ({ ...current, returnToOriginalServer: event.target.checked }))} />Return to the original server after scanning</label>
-            <button type="button" disabled={!autoConfig.enabled || autoRunning || scanState.isReading || !online} onClick={() => setAutoConfig((current) => ({ ...current, nextRunAt: Date.now() }))}>Run now</button>
+            <label><input type="checkbox" checked={autoConfig.returnToOriginalServer} disabled={autoRunning} onChange={(event) => setAutoConfig((current) => ({ ...current, returnToOriginalServer: event.target.checked }))} />{t("map.returnAfterAutoScan")}</label>
+            <button type="button" disabled={!autoConfig.enabled || autoRunning || scanState.isReading || !online} onClick={() => setAutoConfig((current) => ({ ...current, nextRunAt: Date.now() }))}>{t("map.runAutoScanNow")}</button>
           </div>
-          <small>Each target server is entered before scanning; a server ID alone cannot scan another server.</small>
-          <small>Next scan: {autoConfig.nextRunAt > 0 ? dateText(autoConfig.nextRunAt) : "-"}</small>
+          <small>{t("map.autoScanNavigationNotice")}</small>
+          <small>{t("map.nextAutoScan")}: {autoConfig.nextRunAt > 0 ? dateText(autoConfig.nextRunAt) : "-"}</small>
         </div>
       ) : null}
 
       <div className="map-scan-summary">
         <span className={`map-status-pill${scanState.isReading ? " active" : ""}`}>{statusLabel}</span>
-        <span>Server <strong>{scanState.serverId || "-"}</strong></span>
+        <span>{t("map.server")} <strong>{scanState.serverId || "-"}</strong></span>
         <div className={`map-progress${progress < 50 ? " low" : ""}${scanState.isReading ? " active" : ""}`}>
-          <progress className="map-progress-bar" max="100" value={scanState.totalBlocks > 0 || scanState.isReading ? progress : undefined} aria-label="Scan progress" />
+          <progress className="map-progress-bar" max="100" value={scanState.totalBlocks > 0 || scanState.isReading ? progress : undefined} aria-label={t("map.scanProgress")} />
           <span>{scanState.totalBlocks > 0 || scanState.isReading ? `${progress}%` : "—"}</span>
         </div>
       </div>
@@ -644,12 +732,12 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
 
       {scanTab === "manual" ? (
         <div className="map-controls">
-          <span className="map-controls-label">Scan contents</span>
+          <span className="map-controls-label">{t("map.scanTypes")}</span>
           <div className="map-types map-types--compact">
-            {MAP_SCAN_TYPES.map(({ key, label }) => (
+            {MAP_SCAN_TYPES.map(({ key }) => (
               <label key={key}>
                 <input type="checkbox" checked={selectedTypes.includes(key)} disabled={selectedTypes.length === 1 && selectedTypes[0] === key} onChange={(event) => toggleType(key, event.target.checked)} />
-                <span>{label}</span>
+                <span>{t(SCAN_TYPE_LABEL_KEYS[key])}</span>
               </label>
             ))}
           </div>
@@ -657,10 +745,10 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
       ) : null}
 
       <div className="map-search">
-        <div className="map-tabs" role="tablist" aria-label="Map data types">
-          {MAP_TABS.map(({ key, label }) => (
+        <div className="map-tabs" role="tablist" aria-label={t("map.title")}>
+          {MAP_TABS.map(({ key }) => (
             <button key={key} type="button" role="tab" className={tab === key ? "active" : ""} aria-selected={tab === key} onClick={() => setTab(key)}>
-              <span className="map-tab-label">{label}</span>
+              <span className="map-tab-label">{t(TAB_LABEL_KEYS[key])}</span>
               <span className="map-tab-count">{key === "scheduledPlunder" ? "0" : summaryReady ? counts[key] || 0 : "—"}</span>
             </button>
           ))}
@@ -668,46 +756,86 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
 
         {tab !== "scheduledPlunder" ? (
           <div className="map-searchbar">
-            <input value={keyword} onChange={(event) => setKeyword(event.target.value)} aria-label="Search map data" placeholder="Search name, Alliance, or UUID" />
+            <input value={keyword} onChange={(event) => setKeyword(event.target.value)} aria-label={t("map.searchLabel")} placeholder={t("map.searchLabel")} />
             {tab === "resource" ? (
               <select aria-label="Resource name" value={resourceNameKey} onChange={(event) => { setResourceNameKey(event.target.value); setPage(1); }}>
-                <option value="">All Names</option>
+                <option value="">{t("map.allNames")}</option>
                 {(options?.names?.resource || []).map((item) => <option key={item.key} value={item.key}>{item.key} ({item.count})</option>)}
               </select>
             ) : null}
             {tab === "monster" ? (
               <select aria-label="Monster name" value={monsterNameKey} onChange={(event) => { setMonsterNameKey(event.target.value); setPage(1); }}>
-                <option value="">All Names</option>
+                <option value="">{t("map.allNames")}</option>
                 {(options?.names?.monster || []).map((item) => <option key={item.key} value={item.key}>{item.key} ({item.count})</option>)}
               </select>
             ) : null}
             {tab === "city" ? (
               <>
-                <select aria-label="Filter by Alliance" value={alliance} onChange={(event) => { setAlliance(event.target.value); setPage(1); }}>
-                  <option value="all">All Alliances</option>
-                  {(options?.noAllianceCount || 0) > 0 ? <option value="none">No Alliance ({options.noAllianceCount})</option> : null}
+                <select aria-label={t("map.allianceFilter")} value={alliance} onChange={(event) => { setAlliance(event.target.value); setPage(1); }}>
+                  <option value="all">{t("map.allAlliances")}</option>
+                  {(options?.noAllianceCount || 0) > 0 ? <option value="none">{t("map.noAlliance")} ({options.noAllianceCount})</option> : null}
                   {(options?.alliances || []).map((item) => <option key={item.name} value={item.name}>{item.name} ({item.count})</option>)}
                 </select>
-                <label className="map-filter-field"><input type="checkbox" checked={markedOnly} onChange={(event) => { setMarkedOnly(event.target.checked); setPage(1); }} /> <span>Marked only</span></label>
+                <label className="map-filter-field"><input type="checkbox" checked={markedOnly} onChange={(event) => { setMarkedOnly(event.target.checked); setPage(1); }} /> <span>{t("map.markedOnly")}</span></label>
               </>
             ) : null}
-            <button type="button" disabled={!backendAvailable || !dataServerId || loading} onClick={submitSearch}>Search</button>
-            {tab === "city" ? <button type="button" disabled={!backendAvailable || !dataServerId || scanState.isReading || actionBusy === "export"} onClick={exportCities}>{actionBusy === "export" ? "Exporting…" : "Export Excel"}</button> : null}
-            <span className="map-result-count">{total.toLocaleString()} items</span>
+            {tab === "treasure" ? (
+              <>
+                <select aria-label={t("map.treasureType")} value={treasureType} onChange={(event) => { setTreasureType(event.target.value); setPage(1); }}>
+                  <option value="">{t("map.allTreasureTypes")}</option>
+                  {(options?.treasureTypes || []).map((item) => <option key={item.key || item.value || item} value={item.key || item.value || item}>{item.name || item.label || item.key || item.value || item}</option>)}
+                </select>
+                <label className="map-filter-field"><input type="checkbox" checked={includeForeignRadarTreasures} onChange={(event) => { setIncludeForeignRadarTreasures(event.target.checked); setPage(1); }} /><span>{t("map.showForeignRadarTreasures")}</span></label>
+                <label className="map-filter-field"><input type="checkbox" checked={luckyFirst} onChange={(event) => { setLuckyFirst(event.target.checked); setPage(1); }} /><span>{t("map.prioritizeLuckyTreasures")}</span></label>
+              </>
+            ) : null}
+            {["truck", "railway", "dispatch", "ghost"].includes(tab) ? (
+              <>
+                {(tab === "dispatch" || tab === "ghost") ? (
+                  <select aria-label={t("common.status")} value={completionStatus} onChange={(event) => { setCompletionStatus(event.target.value); setPage(1); }}>
+                    <option value="">{t("common.status")}</option><option value="completed">{t("common.completed")}</option><option value="pending">{t("common.inProgress")}</option>
+                  </select>
+                ) : null}
+                {tab === "dispatch" ? (
+                  <select aria-label={t("map.level")} value={minLevel} onChange={(event) => { setMinLevel(event.target.value); setPage(1); }}>
+                    <option value="">{t("squad.afkAnyLevel")}</option>{(options?.dispatchLevels || []).map((level) => <option key={level} value={level}>{level}</option>)}
+                  </select>
+                ) : null}
+                <select aria-label={t("map.quality")} value={quality} onChange={(event) => { setQuality(event.target.value); setPage(1); }}>
+                  <option value="">{t("map.allQualities")}</option><option value="n">N</option><option value="r">R</option><option value="sr">SR</option><option value="ssr">SSR</option><option value="ur">UR</option>
+                  {(tab === "dispatch" || tab === "ghost") ? <option value="special">{t("map.specialQuality")}</option> : null}
+                  {tab === "truck" ? <option value="reindeer">{t("map.reindeerQuality")}</option> : null}
+                </select>
+                {(tab === "truck" || tab === "railway") ? (
+                  <select aria-label={t("map.itemFilter")} value={itemKey} onChange={(event) => { setItemKey(event.target.value); setPage(1); }}>
+                    <option value="">{t("map.allRetainedGoods")}</option>{(options?.rewardItems?.[tab] || []).map((item) => <option key={item.key || item.value || item} value={item.key || item.value || item}>{item.name || item.label || item.key || item.value || item}</option>)}
+                  </select>
+                ) : null}
+                {(tab === "truck" || tab === "railway" || tab === "dispatch") ? <label className="map-filter-field"><input type="checkbox" checked={plunderableOnly} onChange={(event) => { setPlunderableOnly(event.target.checked); setPage(1); }} /><span>{t("map.plunderableOnly")}</span></label> : null}
+              </>
+            ) : null}
+            <button type="button" disabled={!backendAvailable || !dataServerId || loading} onClick={submitSearch}>{t("common.search")}</button>
+            {tab === "city" ? <button type="button" disabled={!backendAvailable || !dataServerId || scanState.isReading || actionBusy === "export"} onClick={exportCities}>{t(actionBusy === "export" ? "map.exportingExcel" : "map.exportExcel")}</button> : null}
+            {(tab === "dispatch" || tab === "ghost") ? <label className="map-random-delay-field"><span>{t("map.randomDelaySeconds")}</span><input type="number" min="0" step="1" defaultValue="0" disabled /></label> : null}
+            {(tab === "dispatch" || tab === "ghost") ? <button className="map-schedule-button" type="button" disabled>{t("map.scheduleSelected", { count: selectedRows.size })}</button> : null}
+            {tab === "dispatch" ? <button className="map-schedule-button" type="button" disabled>{t("map.shareAlliance")}</button> : null}
+            {tab === "truck" ? <button className="map-schedule-button" type="button" disabled>{t("map.scheduleSelectedTrucks", { count: selectedRows.size })}</button> : null}
+            {tab === "treasure" ? <><button className="map-schedule-button" type="button" disabled>{t("map.claimTreasureBoxes")}</button><button className="map-schedule-button" type="button" disabled>{t("map.claimSeasonTreasures")}</button></> : null}
+            <span className="map-result-count">{t("common.itemCount", { count: total.toLocaleString() })}</span>
           </div>
         ) : (
-          <div className="map-searchbar"><span className="map-result-count">0 items</span></div>
+          <div className="map-searchbar"><span className="map-result-count">{t("common.itemCount", { count: 0 })}</span></div>
         )}
       </div>
 
       {queryError ? <div className="map-scan-error" role="alert">{queryError}</div> : null}
       {tab !== "scheduledPlunder" ? (
         <>
-          <MapTable kind={tab} rows={rows} loading={loading} sorts={activeSorts} onSort={changeSort} onCoordinateJump={coordinateJump} onPlayerMark={togglePlayerMark} actionBusy={Boolean(actionBusy)} actionDisabled={!online || scanState.isReading} />
+          <MapTable kind={tab} rows={rows} loading={loading} sorts={activeSorts} onSort={changeSort} onCoordinateJump={coordinateJump} onPlayerMark={togglePlayerMark} actionBusy={Boolean(actionBusy)} actionDisabled={!online || scanState.isReading} selectedKeys={selectedRows} onSelect={(key) => setSelectedRows((current) => { const next = new Set(current); if (next.has(key)) next.delete(key); else next.add(key); return next; })} />
           <Pagination page={page} total={total} onPage={setPage} />
         </>
       ) : (
-        <div className="map-table-scroll"><table className="map-table map-table--scheduled-plunder"><tbody><tr><td className="map-empty">No scheduled plunder jobs.</td></tr></tbody></table></div>
+        <div className="map-table-scroll"><table className="map-table map-table--scheduled-plunder"><tbody><tr><td className="map-empty">{t("map.scheduledPlunder")} · {t("map.empty")}</td></tr></tbody></table></div>
       )}
     </section>
   );

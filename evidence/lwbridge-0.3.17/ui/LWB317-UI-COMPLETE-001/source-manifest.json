@@ -1,0 +1,49 @@
+{
+  "workItem": "LWB317-UI-COMPLETE-001",
+  "capturedUtc": "2026-10-01",
+  "referenceExecutable": {
+    "path": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW\\lwbridge-0.3.17.exe",
+    "sha256": "4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783",
+    "status": "EXACT_BYTES"
+  },
+  "frontendSources": [
+    {"file":"index-BVfnK1wp.js","sha256":"44C4E4043825B7DB296B64171951B27176F8850FF8D7D337CC991DF4765524C6","status":"EXACT_BYTES","use":"shared shell, Home predicates/status precedence, navigation/i18n loader"},
+    {"file":"index-rIL9Fpht.css","sha256":"3D87E9F65B39EACE6A1A254BFC90A38ACB72613D1FFF7236C7CEE7AB9BFAF545","status":"EXACT_BYTES","use":"shared visual system and page styles"},
+    {"file":"AutomationPanel-BJ0gIqFh.js","sha256":"6DB2328191AF33E5631D507271C36D7008B287DAA7C8CD1A957B23EF6F871725","status":"EXACT_BYTES","use":"Automation categories and nested surfaces"},
+    {"file":"AutomationCard-LCx_jIi7.js","sha256":"24ED773623C237F8219EFF5443FAC3BA7B55B6E99E168E52FF066FAF2ABE7A61","status":"EXACT_BYTES","use":"Automation card switch/settings expander structure"},
+    {"file":"MapDataPanel-B4GXEND2.js","sha256":"CE74345518BE72E417A510B982C591729E5683F69751E190805598C4C05D3089","status":"EXACT_BYTES","use":"Map scan tabs, filters, columns, selections and action presentation"},
+    {"file":"SquadPanel-HC3-DJei.js","sha256":"ED466E353AA896D8C3FC783FF1802930156FB9E9EB54327AEF73F2FF86FA06C7","status":"EXACT_BYTES","use":"AFK profiles, rally/garrison/drill/zombie bus and equipment surfaces"},
+    {"file":"CityLayoutPanel-DoNWkywK.js","sha256":"C1B83A0B6524EF9AF510A114DF9679DAE0260D34B633659EB1A5FFB2AC5CF49C","status":"EXACT_BYTES","use":"city workbench/grid/inspector/actions/validation structure"},
+    {"file":"HotkeyPanel-XA8idRHB.js","sha256":"9BD7C11768693705391060D4F79119B5EA4A5229E042758165D3AD751A961BE6","status":"EXACT_BYTES","use":"Hotkeys and Mini Games cards/status/action presentation"},
+    {"file":"SettingsPanel-DqxIWv_E.js","sha256":"129CCBACDD5F309070A3E2728912165006F0FA35FCF748D56F7AA9500D690C2B","status":"EXACT_BYTES","use":"Settings metrics/profile-focus/feedback/update states"}
+  ],
+  "localeSources": [
+    {"file":"en-BisSXcTB.js","sha256":"0BF43D180EB93692A93B830B5D984E9D01DDEEA524340F2334FC63CBA527A731","keys":1282},
+    {"file":"zh-CN-ByrbNejR.js","sha256":"521521C8DF711A9D49FD98CE951C4D2A316A9DBFE704BD9E5F65E7686079E9BE","keys":1282},
+    {"file":"zh-TW-B9GVGLk3.js","sha256":"94580DA17BFCE95E121D49274C70724BB92BE2FA5806527CC01B96EDBB564C8E","keys":1233},
+    {"file":"ja-UrbzJu-m.js","sha256":"35969183AB623B6701BC850FDF28BCF268C93127FF6C9693F77E588EE7BDBE38","keys":1233},
+    {"file":"ko-SaFvwwmo.js","sha256":"A1F507D7624A20CFB7136C18D6E91DBC2FB6453F808D8BC0AFD093D9AD76A409","keys":1233},
+    {"file":"vi-BAUQ1cwP.js","sha256":"F3290C7D819FDD3032A42D396B56FD3CADC313759FF7CD6A5165C51171ED085E","keys":1233},
+    {"file":"id-D9oeC8zM.js","sha256":"06379AC43DEC11717971160BB090156C0B0BD307788BBFCA5CC5C5B0D46CE0B1","keys":1233},
+    {"file":"ru-YncvPDv4.js","sha256":"1C41C89AD46D07A34673B9A72B0F66E139A28992C6D393A00133B870EC10C25D","keys":1233},
+    {"file":"pt-BaH2E9ai.js","sha256":"18FE76A3A039EC0CE8041B178013752A83E7A913C4593227F6BAEF0859C5B862","keys":1233}
+  ],
+  "cloneScreenshots": [
+    {"file":"automation-config-en-light.png","sha256":"B804D867B7715533749D08A4A9D92B0E6A156F090614EB0DB58D7552FC8334C2","status":"IMPLEMENTED_NOT_VALIDATED"},
+    {"file":"city-layout-populated-en-light.png","sha256":"83743662F57FF5343B8135A0C65B6056CAC6A338529E20A26802026A6A150CD0","status":"IMPLEMENTED_NOT_VALIDATED"},
+    {"file":"home-connected-en-light.png","sha256":"A27E5BC57BE9114700204CE0354823A02BC798B1F06DCC995C90C2D7808F6482","status":"IMPLEMENTED_NOT_VALIDATED"},
+    {"file":"home-recovery-failed-en-dark.png","sha256":"D16B989F016FE6905AFC09E63D92CDCFE071C9030D4463D0C151987CC9547D28","status":"IMPLEMENTED_NOT_VALIDATED"},
+    {"file":"home-repair-zhCN-dark-responsive.png","sha256":"24A91B5177BCCF2FBD35A7150800A743D39F55193AA1EAFB084396ED89C7910E","status":"IMPLEMENTED_NOT_VALIDATED"},
+    {"file":"hotkeys-connected-ja-dark.png","sha256":"C1DFDEEF4672E4311B38A98DB1CFCE086A358B8900A51B2421B554DA997B916E","status":"IMPLEMENTED_NOT_VALIDATED"},
+    {"file":"map-default-en-dark.png","sha256":"D3A3390896936F4183FF2551E16D03F09DA2EAFF781625D515769A2639D22DAB","status":"IMPLEMENTED_NOT_VALIDATED"},
+    {"file":"mini-games-active-en-light.png","sha256":"4E67E7F3FF6C7000B1AAA407BA91C3302B81119537E15FED841DFB097F6A6AC1","status":"IMPLEMENTED_NOT_VALIDATED"},
+    {"file":"settings-update-available-en-dark.png","sha256":"BA659B415AB421C7E1F799B38571ED0539621D6ECAA78AF2537041F1E098FEAD","status":"IMPLEMENTED_NOT_VALIDATED"},
+    {"file":"squads-equipment-en-dark.png","sha256":"E9D57EDC9E35B57E29C8EC33F71682F9CFCB4252741C5726CAF860B7B4911223","status":"IMPLEMENTED_NOT_VALIDATED"},
+    {"file":"squads-profile-en-light.png","sha256":"5BB4EC0ADEF29F59C4D3F78AF907BF3F728859CA64B55E39B5DA2A6DD7439D63","status":"IMPLEMENTED_NOT_VALIDATED"}
+  ],
+  "limits": [
+    "Clone screenshots prove clone rendering and interactions only; they are not original-reference pixel proof.",
+    "No authenticated post-auth reference process/window was available during this work item, so direct original comparison remains BLOCKED.",
+    "No live scan, server jump, attack, march, gather, plunder, claim, alliance share, native Home launch/close/repair or other gameplay action was executed."
+  ]
+}

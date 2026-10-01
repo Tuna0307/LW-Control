@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import offlineDot from "./assets/dot-offline.png";
 import onlineDot from "./assets/dot-online.png";
 import { backendBridge } from "./backendBridge.js";
+import { LANGUAGES, useI18n } from "./i18n.jsx";
 import { connectionState, createMapApi } from "./mapBackend.js";
 import { NavIcon } from "./NavIcon.jsx";
 import { PageForRoute } from "./Pages.jsx";
@@ -31,6 +32,10 @@ function initialRoute() {
 
 function initialTheme() {
   try {
+    if (backendBridge.mode === "preview") {
+      const requested = new URLSearchParams(window.location.search).get("previewTheme");
+      if (requested === "dark" || requested === "light") return requested;
+    }
     return localStorage.getItem(THEME_KEY) === "dark" ? "dark" : "light";
   } catch {
     return "light";
@@ -38,12 +43,17 @@ function initialTheme() {
 }
 
 export function App() {
+  const { language, setLanguage, t } = useI18n();
   const [activeRoute, setActiveRoute] = useState(initialRoute);
   const [theme, setTheme] = useState(initialTheme);
-  const [language, setLanguage] = useState("en");
   const [serverJumpOpen, setServerJumpOpen] = useState(false);
   const [runtimeStatus, setRuntimeStatus] = useState(null);
   const [proxyStatus, setProxyStatus] = useState(null);
+  const [gameRootStatus, setGameRootStatus] = useState(null);
+  const [gameRecoveryStatus, setGameRecoveryStatus] = useState(null);
+  const [localConfig, setLocalConfig] = useState(null);
+  const [homeBusy, setHomeBusy] = useState("");
+  const [homeError, setHomeError] = useState("");
   const [currentServerId, setCurrentServerId] = useState(0);
   const [mapRuntime, setMapRuntime] = useState({ isReading: false, homeServerId: 0, seasonServerIds: [], truckMatchServerIds: [] });
   const [serverTarget, setServerTarget] = useState("");
@@ -52,12 +62,21 @@ export function App() {
   const [serverHistory, setServerHistory] = useState([]);
   const [connectionError, setConnectionError] = useState("");
 
+  useEffect(() => {
+    if (backendBridge.mode !== "preview") return;
+    const requested = new URLSearchParams(window.location.search).get("previewLanguage");
+    if (LANGUAGES.some(({ code }) => code === requested) && requested !== language) setLanguage(requested);
+  }, [language, setLanguage]);
+
   const refreshStatus = useCallback(async () => {
     if (!backendBridge.available) return;
-    const [statusResult, proxyResult, scanResult] = await Promise.allSettled([
+    const [statusResult, proxyResult, scanResult, rootResult, recoveryResult, configResult] = await Promise.allSettled([
       mapApi.readStatus(),
       mapApi.readProxyStatus(),
       mapApi.scanStatus(),
+      backendBridge.invoke("game_root_status", {}),
+      backendBridge.invoke("game_recovery_status", backendBridge.profileId ? { profileId: backendBridge.profileId } : {}),
+      backendBridge.invoke("local_config_get", {}),
     ]);
     if (statusResult.status === "fulfilled") setRuntimeStatus(statusResult.value);
     if (proxyResult.status === "fulfilled") setProxyStatus(proxyResult.value);
@@ -65,12 +84,23 @@ export function App() {
       setCurrentServerId(scanResult.value.serverId);
     }
     if (scanResult.status === "fulfilled") setMapRuntime(scanResult.value);
+    if (rootResult.status === "fulfilled") setGameRootStatus(rootResult.value);
+    if (recoveryResult.status === "fulfilled") setGameRecoveryStatus(recoveryResult.value);
+    if (configResult.status === "fulfilled") setLocalConfig(configResult.value);
     if (statusResult.status === "rejected" || proxyResult.status === "rejected") {
       const failure = statusResult.status === "rejected" ? statusResult.reason : proxyResult.reason;
       setConnectionError(failure?.message || String(failure));
     } else {
       setConnectionError("");
     }
+  }, []);
+
+  useEffect(() => {
+    if (!backendBridge.available) return undefined;
+    return backendBridge.listen("bridge://game-recovery", (event) => {
+      const payload = event && typeof event === "object" && "payload" in event ? event.payload : event;
+      if (payload) setGameRecoveryStatus(payload);
+    });
   }, []);
 
   useEffect(() => {
@@ -121,6 +151,49 @@ export function App() {
     : connectionState(runtimeStatus, proxyStatus, backendBridge.mode);
   const online = bridgeState === "connected";
 
+  const updateAutoLaunch = useCallback(async (value) => {
+    if (!backendBridge.available) return;
+    setHomeBusy("autoLaunchGame");
+    setHomeError("");
+    try {
+      const next = await backendBridge.invoke("local_config_set", { autoLaunchGame: value });
+      setLocalConfig(next);
+    } catch (error) {
+      setHomeError(error?.message || String(error));
+    } finally {
+      setHomeBusy("");
+    }
+  }, []);
+
+  const updateAutoReconnect = useCallback(async (value) => {
+    if (!backendBridge.available) return;
+    setHomeBusy("autoReconnect");
+    setHomeError("");
+    try {
+      await backendBridge.invoke("set_automation", { name: "autoForceUpdateReload", enabled: value });
+      setLocalConfig((current) => ({ ...(current || {}), autoReconnect: value }));
+    } catch (error) {
+      setHomeError(error?.message || String(error));
+    } finally {
+      setHomeBusy("");
+    }
+  }, []);
+
+  const selectGameRoot = useCallback(async () => {
+    if (!backendBridge.available) return;
+    setHomeBusy("gameRoot");
+    setHomeError("");
+    try {
+      await backendBridge.invoke("game_root_select", {});
+      const next = await backendBridge.invoke("game_root_status", {});
+      setGameRootStatus(next);
+    } catch (error) {
+      setHomeError(error?.message || String(error));
+    } finally {
+      setHomeBusy("");
+    }
+  }, []);
+
   const jumpServer = useCallback(async (serverId) => {
     if (!Number.isInteger(serverId) || serverId < 1 || serverId > 99999) {
       setServerJumpError("Invalid server ID");
@@ -154,13 +227,13 @@ export function App() {
   }, [mapRuntime.isReading, online, refreshStatus, serverHistory]);
 
   const stateText = {
-    connected: "Connected",
-    disconnected: "Disconnected",
-    stopped: "Stopped",
+    connected: t("status.connected"),
+    disconnected: t("status.disconnected"),
+    stopped: t("setup.gameStopped"),
     preview: "Preview",
     unavailable: "Unavailable",
-    checking: "Checking",
-  }[bridgeState] || "Checking";
+    checking: t("status.checking"),
+  }[bridgeState] || t("status.checking");
   const pendingTasks = Number(runtimeStatus?.pending ?? 0);
 
   return (
@@ -186,7 +259,7 @@ export function App() {
             </strong>
           </div>
           <div className="status-card">
-            <span>Pending tasks</span>
+            <span>{t("status.pendingTasks")}</span>
             <strong>{Number.isFinite(pendingTasks) ? pendingTasks : 0}</strong>
           </div>
         </section>
@@ -195,8 +268,8 @@ export function App() {
           <button
             className="theme-toggle"
             type="button"
-            title={theme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
-            aria-label={theme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
+            title={t(theme === "dark" ? "theme.switchToLight" : "theme.switchToDark")}
+            aria-label={t(theme === "dark" ? "theme.switchToLight" : "theme.switchToDark")}
             aria-pressed={theme === "dark"}
             onClick={() => setTheme((value) => (value === "dark" ? "light" : "dark"))}
           >
@@ -213,21 +286,13 @@ export function App() {
           </button>
 
           <label className="language-select">
-            <span>Language</span>
+            <span>{t("top.language")}</span>
             <select
               value={language}
-              aria-label="Language"
+              aria-label={t("top.language")}
               onChange={(event) => setLanguage(event.target.value)}
             >
-              <option value="en">English</option>
-              <option value="zh-CN">Chinese (Simplified)</option>
-              <option value="zh-TW">Chinese (Traditional)</option>
-              <option value="ja">Japanese</option>
-              <option value="ko">Korean</option>
-              <option value="vi">Vietnamese</option>
-              <option value="id">Indonesian</option>
-              <option value="ru">Русский</option>
-              <option value="pt">Português</option>
+              {LANGUAGES.map(({ code, name }) => <option value={code} key={code}>{name}</option>)}
             </select>
           </label>
 
@@ -237,20 +302,20 @@ export function App() {
               type="button"
               onClick={() => setServerJumpOpen((value) => !value)}
             >
-              {currentServerId > 0 ? `Server ${currentServerId}` : "Cross-server"}
+              {currentServerId > 0 ? t("server.switchLabelWithId", { server: currentServerId }) : t("server.switchLabel")}
             </button>
             {serverJumpOpen ? (
-              <section className="server-jump-popover" aria-label="Cross-server map jump">
+              <section className="server-jump-popover" aria-label={t("server.dialogLabel")}>
                 <div className="server-jump-heading">
-                  <strong>Jump to Server</strong>
-                  <span>Current: {currentServerId || "-"}</span>
+                  <strong>{t("server.title")}</strong>
+                  <span>{t("server.current", { server: currentServerId || "-" })}</span>
                 </div>
                 <div className="server-jump-form">
                   <input
                     inputMode="numeric"
                     min="1"
                     max="99999"
-                    placeholder="Target server ID"
+                    placeholder={t("server.targetPlaceholder")}
                     type="number"
                     value={serverTarget}
                     onChange={(event) => setServerTarget(event.target.value)}
@@ -259,18 +324,18 @@ export function App() {
                     }}
                   />
                   <button className="top-action primary" type="button" disabled={serverJumpBusy > 0 || !online || mapRuntime.isReading} onClick={() => jumpServer(Number(serverTarget))}>
-                    {serverJumpBusy > 0 ? `Switching to ${serverJumpBusy}` : "Jump"}
+                    {serverJumpBusy > 0 ? t("server.switching", { server: serverJumpBusy }) : t("server.switchAction")}
                   </button>
                 </div>
                 {mapRuntime.homeServerId > 0 && currentServerId !== mapRuntime.homeServerId ? (
-                  <div className="server-jump-home"><span>Home: {mapRuntime.homeServerId}</span><button type="button" disabled={serverJumpBusy > 0 || !online || mapRuntime.isReading} onClick={() => jumpServer(mapRuntime.homeServerId)}>Return Home</button></div>
+                  <div className="server-jump-home"><span>{t("server.home", { server: mapRuntime.homeServerId })}</span><button type="button" disabled={serverJumpBusy > 0 || !online || mapRuntime.isReading} onClick={() => jumpServer(mapRuntime.homeServerId)}>{t("server.returnHome")}</button></div>
                 ) : null}
-                {!online ? <p className="server-jump-error">Game disconnected</p> : null}
-                {online && mapRuntime.isReading ? <p className="server-jump-error">Stop the map scan first</p> : null}
+                {!online ? <p className="server-jump-error">{t("status.gameDisconnected")}</p> : null}
+                {online && mapRuntime.isReading ? <p className="server-jump-error">{t("server.stopScanFirst")}</p> : null}
                 {serverJumpError ? <p className="server-jump-error">{serverJumpError}</p> : null}
-                {mapRuntime.seasonServerIds?.length ? <div className="server-jump-history"><span>Season servers</span><div>{mapRuntime.seasonServerIds.map((serverId) => <button type="button" key={serverId} disabled={serverJumpBusy > 0 || !online || mapRuntime.isReading || serverId === currentServerId} onClick={() => jumpServer(serverId)}>{serverId}</button>)}</div></div> : null}
-                {mapRuntime.truckMatchServerIds?.length ? <div className="server-jump-history"><span>Plunderable servers</span><div>{mapRuntime.truckMatchServerIds.map((serverId) => <button type="button" key={serverId} disabled={serverJumpBusy > 0 || !online || mapRuntime.isReading || serverId === currentServerId} onClick={() => jumpServer(serverId)}>{serverId}</button>)}</div></div> : null}
-                {serverHistory.length ? <div className="server-jump-history"><span>Recent</span><div>{serverHistory.map((serverId) => <button type="button" key={serverId} disabled={serverJumpBusy > 0 || !online || mapRuntime.isReading} onClick={() => jumpServer(serverId)}>{serverId}</button>)}</div></div> : null}
+                {mapRuntime.seasonServerIds?.length ? <div className="server-jump-history"><span>{t("server.seasonServers")}</span><div>{mapRuntime.seasonServerIds.map((serverId) => <button type="button" key={serverId} disabled={serverJumpBusy > 0 || !online || mapRuntime.isReading || serverId === currentServerId} onClick={() => jumpServer(serverId)}>{serverId}</button>)}</div></div> : null}
+                {mapRuntime.truckMatchServerIds?.length ? <div className="server-jump-history"><span>{t("server.plunderableServers")}</span><div>{mapRuntime.truckMatchServerIds.map((serverId) => <button type="button" key={serverId} disabled={serverJumpBusy > 0 || !online || mapRuntime.isReading || serverId === currentServerId} onClick={() => jumpServer(serverId)}>{serverId}</button>)}</div></div> : null}
+                {serverHistory.length ? <div className="server-jump-history"><span>{t("server.recent")}</span><div>{serverHistory.map((serverId) => <button type="button" key={serverId} disabled={serverJumpBusy > 0 || !online || mapRuntime.isReading} onClick={() => jumpServer(serverId)}>{serverId}</button>)}</div></div> : null}
               </section>
             ) : null}
           </div>
@@ -281,7 +346,7 @@ export function App() {
             disabled={!backendBridge.available}
             onClick={refreshStatus}
           >
-            Refresh Status
+            {t("top.refreshStatus")}
           </button>
         </div>
       </header>
@@ -289,7 +354,7 @@ export function App() {
       <div className="app-layout single-profile">
         <nav className="side-nav" aria-label="Navigation">
           <div className="nav-heading">
-            <strong>Navigation</strong>
+            <strong>{t("nav.title")}</strong>
           </div>
           {routes.map((route) => (
             <button
@@ -302,7 +367,7 @@ export function App() {
               <span className="nav-icon" aria-hidden="true">
                 <NavIcon name={route.key} />
               </span>
-              <span className="nav-label">{route.label}</span>
+              <span className="nav-label">{t(route.labelKey)}</span>
             </button>
           ))}
         </nav>
@@ -315,6 +380,22 @@ export function App() {
             backendAvailable={backendBridge.available}
             online={online}
             currentServerId={currentServerId}
+            previewState={backendBridge.mode === "preview" ? new URLSearchParams(window.location.search).get("previewState") || "" : ""}
+            homeState={{
+              rootResolved: gameRootStatus !== null,
+              gameRootStatus,
+              proxyStatus,
+              online,
+              gameRecoveryStatus,
+              autoLaunchGame: localConfig?.autoLaunchGame,
+              autoReconnect: localConfig?.autoReconnect,
+              busy: homeBusy,
+              error: homeError,
+              production: backendBridge.available,
+            }}
+            onAutoLaunchGameChange={updateAutoLaunch}
+            onAutoReconnectChange={updateAutoReconnect}
+            onGameRootSelect={selectGameRoot}
           />
         </section>
       </div>
