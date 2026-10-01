@@ -52,10 +52,11 @@ parity. PM-012 accepts Trade selection CORRECT-003B/R1 at `bfc652f`: PM-011's
 composition defects are fixed; actual-expression/selection/recovery checks,
 canonical build/package and evidence hashes pass. PM-013 accepts CORRECT-003C
 `1a25a9c` for source/local history presentation after independent helper/regression/
-package/evidence checks. Native images remain declared placeholders. CORRECT-003D
-is `AWAITING_REVIEW`: the Trade cross-server setting now matches the recovered
-offline-only disabled predicate and passes actual concurrent/recovery save checks
-plus focused browser QA. Cross-server gameplay remains outside the unit.
+package/evidence checks. Native images remain declared placeholders. PM-014 accepts
+CORRECT-003D `bd808994` for local/source cross-server setting UI after actual
+callback/regression/package/evidence checks. Active 003E is only Trade counters/
+last-result and goods loading/fetch-error presentation. Native providers,
+purchasing and cross-server gameplay remain separate.
 Full Automation/native/pixel parity remains unaccepted.
 
 Phase 1 static UI recovery has been accepted. The active target remains exact
@@ -272,10 +273,10 @@ callback defect. PM-012 accepts focused local Trade selection CORRECT-003B/R1
 at `bfc652f`, closing PM-011's two composition defects with all three unchanged
 actual-expression cases and selection/recovery/package/evidence checks passing.
 PM-013 accepts CORRECT-003C at `1a25a9c` for local/source purchase-history
-presentation with declared native-image placeholders. CORRECT-003D is now
-`AWAITING_REVIEW` after source/default/disabled/save-state and browser checks pass
-for Trade's cross-server configuration switch. Purchase execution,
-Assist, runtime/loading/error and AFK remain separate later units. Other WIP stays
+presentation with declared native-image placeholders. PM-014 accepts local/source
+cross-server setting CORRECT-003D at `bd808994`. Active 003E covers Trade stats/
+last-result/loading/fetch-error presentation only. Purchase execution, native
+providers, other runtime panels, Assist and AFK remain separate. Other WIP stays
 preserved. No full UI acceptance is recorded.
 PM-007's historical CHANGES_REQUIRED
 decision and accepted Home scope fix remain preserved. Separately close or reassign the awaiting

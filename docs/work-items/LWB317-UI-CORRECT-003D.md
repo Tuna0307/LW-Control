@@ -1,7 +1,11 @@
 # LWB317-UI-CORRECT-003D — Trade cross-server setting only
 
-Project-lead assignment: 2026-10-02. State: READY.
+Project-lead assignment: 2026-10-02. State: COMPLETE / ACCEPTED for focused local scope after PM-014.
 One switch and its local save behavior. Do not resume broad CORRECT-003.
+
+Worker bd808994 passed independent actual-callback/regression/package/evidence
+checks. PM-014 accepts the local/source setting UI, not cross-server gameplay.
+This unit is closed; the next separate task is LWB317-UI-CORRECT-003E.md.
 
 ## Fresh-chat context
 
