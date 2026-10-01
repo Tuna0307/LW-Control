@@ -118,6 +118,11 @@ source locators. See `docs/reviews/2026-10-02-LWB317-PM-015-home-audit.md`.
 Queued lead continuations: Home error translation/channels, Home busy presentation,
 then shared switch-state localization as separate small units. No worker dispatch,
 production edit or native lifecycle implementation is implied by this audit.
+Owner requested continuation; lead completed HOME-ERROR-001 translation-only
+implementation, now AWAITING_REVIEW. Delivery:
+`docs/reviews/2026-10-02-LWB317-UI-HOME-ERROR-001.md`. Exact helper/render,
+nine-locale, browser and canonical checks pass; no state-channel/native changes.
+Next bounded unit: HOME-ERROR-002. Busy and switch corrections remain queued.
 
 Direct original post-auth screenshot/pixel comparison remains `BLOCKED` by the
 documented reference access boundary, so affected UI rows remain

@@ -168,6 +168,10 @@ Correction evidence is under
 audit: 960 synthetic comparisons identify remaining error translation/channels,
 busy presentation and localized switch-description gaps; no product/native change.
 Finding: `reviews/2026-10-02-LWB317-PM-015-home-audit.md`.
+HOME-ERROR-001 implements the translation-only correction and is AWAITING_REVIEW:
+actual helper/render/nine-locale/browser checks pass. Separate error channels,
+busy text and localized switch descriptions remain queued. See
+`reviews/2026-10-02-LWB317-UI-HOME-ERROR-001.md`; original/native parity unproved.
 Earlier correction evidence is under
 `evidence/lwbridge-0.3.17/ui/LWB317-UI-CORRECT-001/`; worker report:
 `reviews/2026-10-01-LWB317-UI-CORRECT-001.md`. Previous lead disposition:

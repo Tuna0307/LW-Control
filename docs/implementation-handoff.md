@@ -77,8 +77,11 @@ is opened. Parent CORRECT-003 remains PARTIAL.
 PM-015 completed a separate read-only Home audit at the owner's request: 960
 synthetic comparisons identify error translation/channels, busy presentation and
 switch-state localization gaps. See `reviews/2026-10-02-LWB317-PM-015-home-audit.md`.
-Lead's next small queue: Home errors first, Home busy labels second, shared switch
-localization separately. These are not worker-dispatched or product-corrected yet.
+HOME-ERROR-001 translation is implemented and AWAITING_REVIEW; see
+`reviews/2026-10-02-LWB317-UI-HOME-ERROR-001.md`. Source/helper/render, nine-locale,
+browser and canonical checks pass. HOME-ERROR-002 separate error channels is the
+next bounded continuation. Busy text/switch descriptions/native lifecycle stay open.
+Remaining units are queued separately and have not been dispatched to another AI.
 Do not restart broad CORRECT-003 or reopen accepted weekly/selection/history work.
 Trade/Assist/runtime/AFK work remains preserved for later separate validation tasks.
 Physical drag, native config persistence and original pixels remain unproved.

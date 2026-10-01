@@ -65,6 +65,11 @@ PM-015 additionally completed a read-only Home source/state audit: error
 translation/channels, busy presentation and shared switch-state localization remain
 demonstrated gaps. 960 synthetic comparisons are reproducible; no production UI or
 native changes were made. Finding: `reviews/2026-10-02-LWB317-PM-015-home-audit.md`.
+Subsequent HOME-ERROR-001 translation-only implementation is AWAITING_REVIEW:
+recovered helper priority/namespaces/generic message and recovery detail pass
+source/local/nine-locale/browser/canonical checks. See its dated review. Separate
+error channels, busy presentation and switch descriptions remain open; no native
+lifecycle or full Home acceptance is implied.
 
 Phase 1 static UI recovery has been accepted. The active target remains exact
 LWBridge 0.3.17. The Map-only `LWB317-RE-MAP-001` campaign has completed its

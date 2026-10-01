@@ -1,0 +1,133 @@
+{
+  "task": "LWB317-UI-HOME-ERROR-001",
+  "date": "2026-10-02",
+  "browser": "Codex In-app Browser",
+  "preview": "http://127.0.0.1:4319",
+  "syntheticBrowserOnly": true,
+  "flows": [
+    {
+      "state": "home-error-unknown",
+      "language": "en",
+      "action": "Opened explicit browser preview state",
+      "observed": {
+        "controls": [
+          {
+            "disabled": true,
+            "text": "Launch Game"
+          },
+          {
+            "disabled": true,
+            "text": "Close game"
+          }
+        ],
+        "errors": [
+          "The action could not be completed."
+        ],
+        "fixture": "home-error-unknown",
+        "panelText": "Game Setup\nGame stopped\nLaunch Game\nClose game\nThe action could not be completed.\nOpen games at startup\nAutomatic Reconnection"
+      }
+    },
+    {
+      "state": "home-error-embedded",
+      "language": "en",
+      "action": "Opened explicit browser preview with embedded recovered error code",
+      "observed": {
+        "controls": [
+          {
+            "disabled": true,
+            "text": "Launch Game"
+          },
+          {
+            "disabled": true,
+            "text": "Close game"
+          }
+        ],
+        "errors": [
+          "The game xLua component is not supported. Close Bridge and repair the game with the official launcher."
+        ],
+        "fixture": "home-error-embedded",
+        "panelText": "Game Setup\nGame stopped\nLaunch Game\nClose game\nThe game xLua component is not supported. Close Bridge and repair the game with the official launcher.\nOpen games at startup\nAutomatic Reconnection"
+      }
+    },
+    {
+      "state": "home-error-embedded/navigation-return",
+      "language": "en",
+      "action": "Clicked Automation then Home",
+      "observed": {
+        "controls": [
+          {
+            "disabled": true,
+            "text": "Launch Game"
+          },
+          {
+            "disabled": true,
+            "text": "Close game"
+          }
+        ],
+        "errors": [
+          "The game xLua component is not supported. Close Bridge and repair the game with the official launcher."
+        ],
+        "fixture": "home-error-embedded",
+        "panelText": "Game Setup\nGame stopped\nLaunch Game\nClose game\nThe game xLua component is not supported. Close Bridge and repair the game with the official launcher.\nOpen games at startup\nAutomatic Reconnection"
+      }
+    },
+    {
+      "state": "home-recovery-error-unknown",
+      "language": "ja",
+      "action": "Opened explicit Japanese recovery-error preview",
+      "observed": {
+        "controls": [
+          {
+            "disabled": true,
+            "text": "ゲームを起動"
+          },
+          {
+            "disabled": true,
+            "text": "ゲームを閉じる"
+          }
+        ],
+        "errors": [
+          "原因：操作を完了できませんでした。"
+        ],
+        "fixture": "home-recovery-error-unknown",
+        "panelText": "ゲーム設定\nゲーム停止中\nゲームを起動\nゲームを閉じる\n起動時にゲームを開く\n自動再接続\n原因：操作を完了できませんでした。"
+      }
+    },
+    {
+      "state": "home-connected",
+      "language": "en",
+      "action": "Opened no-error preview to check visibility guards",
+      "observed": {
+        "controls": [
+          {
+            "disabled": true,
+            "text": "Launch Game"
+          },
+          {
+            "disabled": true,
+            "text": "Close game"
+          }
+        ],
+        "errors": [],
+        "fixture": "home-connected",
+        "panelText": "Game Setup\nGame running\nLaunch Game\nClose game\nOpen games at startup\nAutomatic Reconnection"
+      }
+    }
+  ],
+  "consoleErrors": [],
+  "screenshots": [
+    {
+      "file": "unknown-error-en.jpg",
+      "state": "home-error-unknown",
+      "language": "en",
+      "sha256": "DF4E001937146E1BE81ACF1CC2529FFEF787ED2B8D3B208078B37A5C98692B04"
+    },
+    {
+      "file": "recovery-error-ja.jpg",
+      "state": "home-recovery-error-unknown",
+      "language": "ja",
+      "sha256": "80840A9C9861979FF2783B5A5AB30E02FC13CFA3B70D6EE1AB885D8768A8F8BC"
+    }
+  ],
+  "limits": "Local browser fixtures; no game/original runtime actions. Disabled lifecycle buttons preserved."
+}

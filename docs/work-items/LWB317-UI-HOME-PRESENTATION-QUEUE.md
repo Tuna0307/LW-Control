@@ -1,13 +1,17 @@
 # Small Home presentation queue
 
 Owner requested project-lead tasks while another AI rests, 2026-10-02.
-Owner: project lead. State: QUEUED; not dispatched to another worker.
+Owner: project lead. State: PARTIAL; translation AWAITING_REVIEW, remaining units
+QUEUED. Not dispatched to another worker.
 Do not execute all items as one broad campaign. Assign/run one ID at a time.
 Input finding: docs/reviews/2026-10-02-LWB317-PM-015-home-audit.md and
 evidence/lwbridge-0.3.17/ui/LWB317-PM-015/home-audit.json.
 Read AGENTS.md, AI_WORK_PROTOCOL, current task/status and exact reference first.
 
 ## HOME-ERROR-001 — translation only
+
+State: AWAITING_REVIEW after project-lead implementation on 2026-10-02.
+See LWB317-UI-HOME-ERROR-001.md and its dated delivery review/evidence.
 
 Goal: match Home error token extraction, namespace priority and localized fallback.
 Allowed: Pages.jsx translatedError and focused Home error QA/evidence; inspect

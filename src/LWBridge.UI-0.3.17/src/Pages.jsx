@@ -75,15 +75,26 @@ function previewHomeState(name) {
     case "home-recovery-verifying": return { ...base, proxyStatus: { gameRunning: true, repairRequired: false }, gameRecoveryStatus: { state: "verifying" } };
     case "home-recovery-maintenance": return { ...base, proxyStatus: { gameRunning: true, repairRequired: false }, gameRecoveryStatus: { state: "maintenance" } };
     case "home-recovery-failed": return { ...base, gameRecoveryStatus: { state: "failed", error: "GAME_RECOVERY_FAILED" } };
+    case "home-error-unknown": return { ...base, error: "HOME_ERROR001_UNKNOWN_QA" };
+    case "home-error-embedded": return { ...base, error: "QA fixture: GAME_XLUA_ABI_UNSUPPORTED while preparing startup" };
+    case "home-recovery-error-unknown": return { ...base, gameRecoveryStatus: { state: "failed", error: "HOME_ERROR001_UNKNOWN_QA" } };
     default: return null;
   }
 }
 
 function translatedError(t, value) {
-  if (!value) return "";
-  const code = typeof value === "string" ? value : value.code || value.message || String(value);
-  const translated = t(`error.${code}`);
-  return translated === `error.${code}` ? code : translated;
+  const codes = [];
+  if (value && typeof value === "object" && "code" in value && typeof value.code === "string") codes.push(value.code);
+  const message = value instanceof Error ? value.message : String(value ?? "");
+  codes.push(...message.match(/\b[A-Z][A-Z0-9_]{2,}\b/g) || []);
+  for (const code of [...new Set(codes)].reverse()) {
+    for (const namespace of ["error", "auth.error", "update.error"]) {
+      const key = `${namespace}.${code}`;
+      const translated = t(key);
+      if (translated !== key) return translated;
+    }
+  }
+  return t("common.actionFailed");
 }
 
 export function HomePage({

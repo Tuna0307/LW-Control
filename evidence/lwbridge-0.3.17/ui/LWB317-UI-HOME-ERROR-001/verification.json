@@ -1,0 +1,26 @@
+{
+  "task": "LWB317-UI-HOME-ERROR-001",
+  "date": "2026-10-02",
+  "state": "AWAITING_REVIEW",
+  "baseline": "80e7a752d22d1d6d474dc56fe0b827a68ae062e6",
+  "referenceExeHash": "4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783",
+  "checks": {
+    "helperDifferential": "PASS",
+    "localeComposition": "PASS",
+    "homeRenderGuards": "PASS",
+    "homeNativeIntegration": "PASS",
+    "browserQA": "PASS",
+    "canonicalCheck": "PASS",
+    "productionBuild": "PASS",
+    "productionPackage": "PASS"
+  },
+  "syntheticChecks": 60,
+  "localeChecks": 4230,
+  "locales": 9,
+  "homeRenderStates": 27,
+  "browserObservations": 5,
+  "buildFingerprint": "2e2ed1f0df271f2d95c76729a11e725f415c098bd2056ca9014b99048bbfd120",
+  "packageFingerprint": "14b3fecffb90ab258349ab9fdf4651e01b04a3d7b77f26bfc6e8ee9956f7715c",
+  "limits": "Source/local synthetic UI QA; independent review pending; channels/native/pixels unchanged",
+  "cleanup": "Owned IAB tab 5 closed; pre-existing port 4319 PID 62280 preserved"
+}
