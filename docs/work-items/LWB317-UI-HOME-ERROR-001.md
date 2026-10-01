@@ -1,11 +1,13 @@
 # LWB317-UI-HOME-ERROR-001 — Home error translation only
 
-Owner: project lead. State: AWAITING_REVIEW, assigned 2026-10-02 after owner said
+Owner: project lead. State: COMPLETE / ACCEPTED for focused source/local scope
+after independent worker review and PM-017 integration on 2026-10-02. Assigned after owner said
 continue while the other AI is not ready. Queue entry: HOME-ERROR-001.
 Baseline: 80e7a752d22d1d6d474dc56fe0b827a68ae062e6.
 Implementation/source differential/render/browser/canonical checks completed.
 Delivery: docs/reviews/2026-10-02-LWB317-UI-HOME-ERROR-001.md and focused evidence.
-Independent review pending; error channels and other Home corrections stay queued.
+Independent review baf5473 is integrated by PM-017. Error channels/busy remain
+AWAITING_REVIEW. Acceptance: docs/reviews/2026-10-02-LWB317-PM-017-home-translation-acceptance.md.
 
 Goal/scope: match actual Home translatedError helper to original Ir/Lr token
 extraction, reversed unique-code priority, error/auth.error/update.error lookup and

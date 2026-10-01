@@ -168,7 +168,8 @@ Correction evidence is under
 audit: 960 synthetic comparisons identify remaining error translation/channels,
 busy presentation and localized switch-description gaps; no product/native change.
 Finding: `reviews/2026-10-02-LWB317-PM-015-home-audit.md`.
-HOME-ERROR-001 implements the translation-only correction and is AWAITING_REVIEW:
+PM-017 accepts HOME-ERROR-001 translation/recovery composition for source/local scope
+after independent review baf5473:
 actual helper/render/nine-locale/browser checks pass. HOME-ERROR-002 separate
 channels correction is also AWAITING_REVIEW after 9 callback scenarios, 4 original
 picker cases, 72 render comparisons and 5 browser observations. See
@@ -180,8 +181,9 @@ independent proxy/launch inputs have no production lifecycle producers. See
 across all nine locales and browser QA confirms Settings off/on/off plus Japanese
 Home checked/unchecked disabled descriptions. See
 `reviews/2026-10-02-LWB317-PM-016-switch-locale-acceptance.md`; original/native parity unproved.
-LWB317-REVIEW-HOME-ERROR-001 is assigned for independent translation-only review;
-other lead Home deliveries retain AWAITING_REVIEW.
+See `reviews/2026-10-02-LWB317-PM-017-home-translation-acceptance.md`.
+LWB317-REVIEW-HOME-ERROR-002 is assigned for independent channel/callback review;
+channels/busy retain AWAITING_REVIEW.
 Earlier correction evidence is under
 `evidence/lwbridge-0.3.17/ui/LWB317-UI-CORRECT-001/`; worker report:
 `reviews/2026-10-01-LWB317-UI-CORRECT-001.md`. Previous lead disposition:

@@ -119,7 +119,8 @@ Queued lead continuations: Home error translation/channels, Home busy presentati
 then shared switch-state localization as separate small units. No worker dispatch,
 production edit or native lifecycle implementation is implied by this audit.
 Owner requested continuation; lead completed HOME-ERROR-001 translation-only
-implementation, now AWAITING_REVIEW. Delivery:
+implementation, now ACCEPTED for focused source/local scope after independent
+review baf5473 and PM-017 integration. Delivery:
 `docs/reviews/2026-10-02-LWB317-UI-HOME-ERROR-001.md`. Exact helper/render,
 nine-locale, browser and canonical checks pass; no state-channel/native changes.
 HOME-ERROR-002 is also AWAITING_REVIEW after independent root/action errors,
@@ -132,8 +133,9 @@ PM-016 accepts UI-SWITCH-LOCALE-001 47c243a for focused source/local scope:
 recovered/production ToggleRow comparison passes 360 nine-locale cases, all 11
 callers are inventoried, focused browser QA passes and canonical/Home regressions
 remain green. See docs/reviews/2026-10-02-LWB317-PM-016-switch-locale-acceptance.md.
-Next assignment: docs/work-items/LWB317-REVIEW-HOME-ERROR-001.md, independent
-review of lead translation implementation only. Other Home lead deliveries remain
+PM-017 acceptance: docs/reviews/2026-10-02-LWB317-PM-017-home-translation-acceptance.md.
+Next assignment: docs/work-items/LWB317-REVIEW-HOME-ERROR-002.md, independent
+review of lead channels/callbacks only. Channels/busy lead deliveries remain
 AWAITING_REVIEW; no product code or native lifecycle work is assigned.
 Native picker/persistence/lifecycle and original pixels remain unproved.
 

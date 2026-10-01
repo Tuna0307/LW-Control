@@ -77,7 +77,8 @@ is opened. Parent CORRECT-003 remains PARTIAL.
 PM-015 completed a separate read-only Home audit at the owner's request: 960
 synthetic comparisons identify error translation/channels, busy presentation and
 switch-state localization gaps. See `reviews/2026-10-02-LWB317-PM-015-home-audit.md`.
-HOME-ERROR-001 translation is implemented and AWAITING_REVIEW; see
+HOME-ERROR-001 translation is COMPLETE / ACCEPTED for focused source/local scope
+after independent review baf5473 and PM-017 integration; see
 `reviews/2026-10-02-LWB317-UI-HOME-ERROR-001.md`. Source/helper/render, nine-locale,
 browser and canonical checks pass. HOME-ERROR-002 separate error channels is also
 AWAITING_REVIEW: picker cancel/invalid/acknowledged valid outcomes preserve the
@@ -98,10 +99,12 @@ current Home regression checkers pass. Review:
 `reviews/2026-10-02-LWB317-UI-SWITCH-LOCALE-001.md`. This helper localization
 delivery does not accept prior lead deliveries or open native lifecycle work.
 Acceptance: `reviews/2026-10-02-LWB317-PM-016-switch-locale-acceptance.md`.
-Three prior lead Home deliveries remain AWAITING_REVIEW. Next small assignment:
-`work-items/LWB317-REVIEW-HOME-ERROR-001.md`, independent translation-only review
-by the returning worker. Product changes and other pending-unit reviews are outside
-that assignment; the lead decides final acceptance after its return.
+PM-017 acceptance: `reviews/2026-10-02-LWB317-PM-017-home-translation-acceptance.md`.
+Channels and busy presentation remain AWAITING_REVIEW. Next small assignment:
+`work-items/LWB317-REVIEW-HOME-ERROR-002.md`, independent channel/callback review
+by the returning worker, using synthetic local bridge responses only. Product
+changes, native picker/gameplay and other pending-unit reviews are outside that
+assignment; the lead decides final acceptance after its return.
 Do not restart broad CORRECT-003 or reopen accepted weekly/selection/history work.
 Trade/Assist/runtime/AFK work remains preserved for later separate validation tasks.
 Physical drag, native config persistence and original pixels remain unproved.

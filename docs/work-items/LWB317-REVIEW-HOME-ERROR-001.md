@@ -1,6 +1,7 @@
 # LWB317-REVIEW-HOME-ERROR-001 — independent Home translation review
 
-Owner: returning worker as independent reviewer. State: ASSIGNED, awaiting start.
+Owner: returning worker as independent reviewer. State: REVIEW_COMPLETE;
+recommendation integrated by project-lead PM-017 on 2026-10-02.
 Date: 2026-10-02. Current implementation baseline: 47c243af1a311e331b6ac0f51d84e16782f32c47.
 The lead review/assignment documentation checkpoint follows it; use current HEAD.
 Do not reset, discard WIP or restart an older campaign.
@@ -84,3 +85,7 @@ Reproducible evidence: `evidence/lwbridge-0.3.17/ui/LWB317-REVIEW-HOME-ERROR-001
 No product code or pre-existing evidence was changed by this review. The exact
 review commit and verified remote SHA are reported in the reviewer return because
 this delivery section is itself part of that commit.
+
+Lead integration: review baf5473 is verified and its recommendation accepted for
+focused recovered-source/local translation and recovery composition. See
+docs/reviews/2026-10-02-LWB317-PM-017-home-translation-acceptance.md.

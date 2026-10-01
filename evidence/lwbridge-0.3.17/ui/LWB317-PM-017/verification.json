@@ -1,0 +1,24 @@
+{
+  "task": "LWB317-PM-017",
+  "date": "2026-10-02",
+  "state": "COMPLETE",
+  "disposition": "ACCEPTED for focused recovered-source/local Home translation and recovery composition",
+  "independentReviewCommit": "baf5473c09bcb371780b947a9d624e04a45517ad",
+  "reviewedImplementation": "537a2b35ec79b021310f141f32ed0d00997c3597 retained in current product",
+  "checks": {
+    "reviewCommitProductDiff": "PASS - no product changes",
+    "independent13CasesReplay": "PASS",
+    "sourceLocaleHashesAndByteLocators": "PASS",
+    "reviewEvidence": "PASS",
+    "existingTranslationRecord": "PASS - 60 edge, 4230 catalog, 27 Home renders",
+    "existingTranslationEvidence": "PASS",
+    "canonicalCheck": "PASS",
+    "productionPackageVerification": "PASS",
+    "targetExeHash": "PASS",
+    "remoteRevision": "PASS",
+    "diffCheck": "PASS"
+  },
+  "buildFingerprint": "53201aabb3833ec593a92f23ca6ced0f12bb3c645ad9dbfca159a32f1692f13e",
+  "packageFingerprint": "96b9dd1a99d67a6bf4dee3e39035915401de25395f99cdf2c0af5bbe4ccd9782",
+  "limits": "Accepts frontend translation/default recovery rendering only. No native error contracts, App transport shape, persistence, original pixels or gameplay/lifecycle parity. Browser observations remain reviewer evidence; no new lead browser session."
+}

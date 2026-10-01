@@ -65,7 +65,8 @@ PM-015 additionally completed a read-only Home source/state audit: error
 translation/channels, busy presentation and shared switch-state localization remain
 demonstrated gaps. 960 synthetic comparisons are reproducible; no production UI or
 native changes were made. Finding: `reviews/2026-10-02-LWB317-PM-015-home-audit.md`.
-Subsequent HOME-ERROR-001 translation-only implementation is AWAITING_REVIEW:
+PM-017 accepts HOME-ERROR-001 translation/recovery composition for focused
+source/local scope after independent review baf5473:
 recovered helper priority/namespaces/generic message and recovery detail pass
 source/local/nine-locale/browser/canonical checks. See its dated review.
 HOME-ERROR-002 channels correction is also AWAITING_REVIEW: actual callback,
@@ -76,8 +77,8 @@ AWAITING_REVIEW: nine-locale actual render/predicate and local browser checks pa
 for independent busy inputs and header/button precedence. Production lifecycle
 busy producers remain absent. PM-016 accepts UI-SWITCH-LOCALE-001 47c243a for
 focused source/local scope after independent scope/hash/locator, 360 comparisons,
-Home regression and rebuilt package checks. Other lead Home deliveries await
-independent review; LWB317-REVIEW-HOME-ERROR-001 is assigned for translation only.
+Home regression and rebuilt package checks. Channels/busy await independent
+review; LWB317-REVIEW-HOME-ERROR-002 is assigned for channels/callbacks only.
 No native lifecycle or full Home acceptance is implied.
 
 Phase 1 static UI recovery has been accepted. The active target remains exact
