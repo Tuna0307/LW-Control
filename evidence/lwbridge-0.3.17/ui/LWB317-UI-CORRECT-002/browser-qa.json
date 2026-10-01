@@ -1,0 +1,219 @@
+{
+  "provider": "cua browser locators and read-only DOM assertions",
+  "fixtures": "local preview only; online:false; synthetic values",
+  "checks": [
+    {
+      "name": "Construction ArrowRight activates Economy",
+      "passed": true
+    },
+    {
+      "name": "Construction End activates Other",
+      "passed": true
+    },
+    {
+      "name": "Construction empty selection shows source hint",
+      "passed": true
+    },
+    {
+      "name": "Construction invalid builder count shows alert",
+      "passed": true
+    },
+    {
+      "name": "Construction collapsed form preserves builder draft",
+      "passed": true
+    },
+    {
+      "name": "Construction tab roundtrip preserves selection",
+      "passed": true
+    },
+    {
+      "name": "Training invalid quantity shows alert",
+      "passed": true
+    },
+    {
+      "name": "Training invalid quantity cannot enable",
+      "passed": true
+    },
+    {
+      "name": "Training enabled quantity is locked",
+      "passed": true
+    },
+    {
+      "name": "Training camp action shows failure instead of gameplay success",
+      "passed": true
+    },
+    {
+      "name": "Gather resource-dependent levels",
+      "passed": true
+    },
+    {
+      "name": "Gather no squads cannot enable",
+      "passed": true
+    },
+    {
+      "name": "Gather tab roundtrip preserves drafts",
+      "passed": true
+    },
+    {
+      "name": "Normal Train selection can clear",
+      "passed": true
+    },
+    {
+      "name": "Normal Train remains one-or-none",
+      "passed": true
+    },
+    {
+      "name": "Train Driver disabled",
+      "passed": true
+    },
+    {
+      "name": "VIP Train limits new selection to two",
+      "passed": true
+    },
+    {
+      "name": "Train rewards reorder",
+      "passed": true
+    },
+    {
+      "name": "Train reward draft persists across tabs",
+      "passed": true
+    },
+    {
+      "name": "AFK second profile initial target independent",
+      "passed": true
+    },
+    {
+      "name": "AFK first profile roundtrip preserves target count distance squads",
+      "passed": true
+    },
+    {
+      "name": "AFK custom-target exit restores previous Food target",
+      "passed": true
+    },
+    {
+      "name": "New AFK profile does not inherit execution draft",
+      "passed": true
+    },
+    {
+      "name": "Join defaults match recovered new-profile rules",
+      "passed": true
+    },
+    {
+      "name": "Second join profile has independent delays and members",
+      "passed": true
+    },
+    {
+      "name": "First join profile restores own delays and member",
+      "passed": true
+    },
+    {
+      "name": "AFK drafts survive Equipment tab roundtrip",
+      "passed": true
+    },
+    {
+      "name": "Map first page has 50 data rows",
+      "passed": true
+    },
+    {
+      "name": "Map final page has two data rows",
+      "passed": true
+    },
+    {
+      "name": "Map applied alliance filter matches total",
+      "passed": true
+    },
+    {
+      "name": "Map UI sort updates row order descending",
+      "passed": true
+    },
+    {
+      "name": "Map zero-match result shows source empty state",
+      "passed": true
+    },
+    {
+      "name": "AFK failed save preserves edited target",
+      "passed": true
+    },
+    {
+      "name": "AFK discard restores confirmed target",
+      "passed": true
+    },
+    {
+      "name": "AFK post-error next save and roundtrip retain latest draft",
+      "passed": true
+    },
+    {
+      "name": "Automation failure keeps builder draft",
+      "passed": true
+    },
+    {
+      "name": "Automation retry clears error",
+      "passed": true
+    },
+    {
+      "name": "Chat enabled reply requires phrases",
+      "passed": true
+    },
+    {
+      "name": "Chat replyRequired exact error",
+      "passed": true
+    },
+    {
+      "name": "Chat reversed reply delays rejected",
+      "passed": true
+    },
+    {
+      "name": "Chat controlled drafts survive tab changes",
+      "passed": true
+    },
+    {
+      "name": "Responsive Chinese Construction translated",
+      "passed": true
+    },
+    {
+      "name": "Training saved unavailable level remains visible and disabled",
+      "passed": true
+    },
+    {
+      "name": "automation-training-no-camps",
+      "visibleText": "Auto Training\n\nTrain and promote in large batches, then finish the remaining troops.\n\nDisabled\nSettings\nNew soldiers\nTarget level\nHighest unlocked level\n\nStops starting new training at the limit, collects the final soldiers, then switches off.\n\nCollected 360/1000 · Training 240 · Unconfirmed 40\n\nTraining soldiers.\n\nThis session: trained 420 · Promoted 180 · Collected 360\n\nNo barracks available. Connect the game and refresh.",
+      "passed": true,
+      "assertion": "No barracks available"
+    },
+    {
+      "name": "automation-training-data-unavailable",
+      "visibleText": "Auto Training\n\nTrain and promote in large batches, then finish the remaining troops.\n\nDisabled\nSettings\nNew soldiers\nTarget level\nHighest unlocked level\nLevel 1\nLevel 2\nLevel 3\nLevel 4\nLevel 5\nLevel 6\nLevel 7\n\nStops starting new training at the limit, collects the final soldiers, then switches off.\n\nCollected 360/1000 · Training 240 · Unconfirmed 40\n\nTraining soldiers.\n\nThis session: trained 420 · Promoted 180 · Collected 360\n\nBarracks status unavailable\n\nBarracks 1\nLevel 30\nReady to train\nBarracks 2\nLevel 28\nLevel 6 × 240, completes: 1/4, 02:28 AM",
+      "passed": true,
+      "assertion": "Barracks status unavailable"
+    },
+    {
+      "name": "automation-training-error",
+      "visibleText": "Auto Training\n\nTrain and promote in large batches, then finish the remaining troops.\n\nDisabled\nSettings\n\nThe order progress could not be confirmed. Automation is paused. Retry or contact support.\n\nNew soldiers\nTarget level\nHighest unlocked level\nLevel 1\nLevel 2\nLevel 3\nLevel 4\nLevel 5\nLevel 6\nLevel 7\n\nStops starting new training at the limit, collects the final soldiers, then switches off.\n\nCollected 360/1000 · Training 240 · Unconfirmed 40\n\nTraining result unconfirmed. Check the game; enabling again starts a new order.\n\nThis session: trained 420 · Promoted 180 · Collected 360\n\nBarracks 1\nLevel 30\nReady to train\nBarracks 2\nLevel 28\nLevel 6 × 240, completes: 1/4, 02:28 AM",
+      "passed": true,
+      "assertion": "The order progress could not be confirmed"
+    },
+    {
+      "name": "automation-training-no-order",
+      "visibleText": "Auto Training\n\nTrain and promote in large batches, then finish the remaining troops.\n\nDisabled\nSettings\nNew soldiers\nTarget level\nHighest unlocked level\nLevel 1\nLevel 2\nLevel 3\nLevel 4\nLevel 5\nLevel 6\nLevel 7\n\nStops starting new training at the limit, collects the final soldiers, then switches off.\n\nThis session: trained 420 · Promoted 180 · Collected 360\n\nBarracks 1\nLevel 30\nReady to train\nBarracks 2\nLevel 28\nLevel 6 × 240, completes: 1/4, 02:28 AM",
+      "passed": true,
+      "assertion": "Order progress absent"
+    },
+    {
+      "name": "Japanese AFK roundtrip preserves draft",
+      "passed": true
+    },
+    {
+      "name": "AFK drafts survive main navigation",
+      "passed": true
+    },
+    {
+      "name": "Automation drafts survive main navigation",
+      "passed": true
+    }
+  ],
+  "consoleErrors": [],
+  "limitations": [
+    "No physical HTML5 drag tested in this continuation",
+    "No original authenticated runtime or gameplay tested"
+  ]
+}

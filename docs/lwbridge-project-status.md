@@ -18,16 +18,26 @@ remains historically `CHANGES_REQUIRED` after PM-006. PM-007 independently
 reviewed correction HEAD `543b6eb` and returned UI-CORRECT-001 as
 `CHANGES_REQUIRED`: Home profile-scope correction is accepted, and useful
 Equipment/dialog/locale work is retained, but Automation controls remain omitted
-and AFK drafts leak across profiles. Map fixture QA cannot prove applied query
-semantics. Next assignment: `LWB317-UI-CORRECT-002`. Implementation milestones
+and AFK drafts leak across profiles. Map fixture QA could not prove applied query
+semantics at that reviewed revision. Implementation milestones
 `239254a` and `591409d` and their evidence are preserved under
 `evidence/lwbridge-0.3.17/ui/LWB317-UI-CORRECT-001/`.
 Native Home launch/close/repair stays separate. No new live scan/backend campaign
 was opened. Original post-auth pixel comparison remains separately `BLOCKED`.
 See `reviews/2026-10-01-LWB317-PM-007-ui-correction-lead-review.md` for the
-current decision and `reviews/2026-10-01-LWB317-UI-CORRECT-001.md` for the
+historical decision and `reviews/2026-10-01-LWB317-UI-CORRECT-001.md` for the
 preserved worker return. Missing UI implementation is separate from unavailable
 original pixel validation or future native providers.
+
+The owner subsequently requested recovery of the interrupted CORRECT-002 worker.
+Its three modified files and two screenshots were preserved at baseline `a19905d`.
+`LWB317-UI-CORRECT-002` is now `AWAITING_REVIEW`: focused Automation controls,
+independent AFK drafts/save states and applied read-only Map fixture queries are
+implemented with 17 source-contract records, 50 browser observations/assertions
+and targeted state/provider checks. Canonical check/build/package checks pass.
+See `reviews/2026-10-01-LWB317-UI-CORRECT-002.md` and its affected coverage matrix.
+Additional Automation runtime/Trade/Assist, weekly quality adapter wiring and
+AFK target/member variants remain implementation gaps; all-page parity is open.
 
 Phase 1 static UI recovery has been accepted. The active target remains exact
 LWBridge 0.3.17. The Map-only `LWB317-RE-MAP-001` campaign has completed its
@@ -235,9 +245,10 @@ Historical auth research remains archived evidence, not a current reconstruction
 
 ## Next project-lead milestone
 
-Dispatch `LWB317-UI-CORRECT-002` and independently review its targeted field/
-draft/query assertions. PM-007 has reviewed UI-CORRECT-001 as CHANGES_REQUIRED,
-with the Home scope fix accepted. Separately close or reassign the awaiting
+Independently review the recovered `LWB317-UI-CORRECT-002` checkpoint and its
+targeted field/draft/query assertions. Assign the explicitly remaining UI gaps
+from its coverage matrix after review. PM-007's historical CHANGES_REQUIRED
+decision and accepted Home scope fix remain preserved. Separately close or reassign the awaiting
 `LWB317-RE-MAP-001` Goal.
 Native Home lifecycle and new backend subsystems require their own project-lead
 assignment.

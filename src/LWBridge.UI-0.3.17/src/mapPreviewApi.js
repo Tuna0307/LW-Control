@@ -3,6 +3,7 @@ import { MAP_KIND_KEYS, normalizeOptions, normalizeScanState, normalizeSearchRes
 const FIXTURE_SERVER_ID = 321;
 const FIXTURE_TIME = 1_799_000_000_000;
 const FIXTURE_COUNTS = Object.freeze(Object.fromEntries(MAP_KIND_KEYS.map((kind, index) => [kind, 52 + index])));
+const QUALITY_VALUES = Object.freeze({ n: 1, r: 2, sr: 3, ssr: 4 });
 
 function blocked(action) {
   const error = new Error(`Browser preview cannot execute native Map action: ${action}`);
@@ -13,62 +14,153 @@ function blocked(action) {
 function baseRow(kind, index) {
   return {
     serverId: FIXTURE_SERVER_ID,
-    recordKey: `${kind}-fixture-${index}`,
-    uuid: `${kind}-uuid-${index}`,
+    recordKey: `${kind}-fixture-${String(index).padStart(3, "0")}`,
+    uuid: `${kind}-uuid-${String(index).padStart(3, "0")}`,
     x: 410 + index,
     y: 520 + index,
     updatedAt: FIXTURE_TIME - index * 60_000,
   };
 }
 
-function rowsFor(kind, page = 1) {
-  const offset = Math.max(0, page - 1) * 2;
-  const a = baseRow(kind, offset + 1);
-  const b = baseRow(kind, offset + 2);
+function fixtureRow(kind, index) {
+  const row = baseRow(kind, index);
   switch (kind) {
     case "city":
-      return [
-        { ...a, ownerUid: "fixture-city-1", ownerName: "Fixture Commander", allianceName: "QA", level: 30, health: 12_500_000, protectEndTime: FIXTURE_TIME + 7_200_000, marked: true },
-        { ...b, ownerUid: "fixture-city-2", ownerName: "Second Commander", allianceName: "", level: 28, health: 8_400_000, marked: false },
-      ];
+      return { ...row, ownerUid: `fixture-city-${index}`, ownerName: `Fixture Commander ${index}`, allianceName: index % 4 === 0 ? "" : index % 2 === 0 ? "TST" : "QA", level: 20 + (index % 11), health: 5_000_000 + index * 125_000, protectEndTime: index % 3 === 0 ? FIXTURE_TIME + index * 60_000 : 0, marked: index % 5 === 0 };
     case "resource":
-      return [
-        { ...a, resourceNameKey: "100281", level: 10, rebuildGatherOccupancyKnown: true, rebuildGatherOccupied: false, resourceRemainingAmount: 180_000, resourceFullAmount: 200_000 },
-        { ...b, resourceNameKey: "100282", level: 9, rebuildGatherOccupancyKnown: true, rebuildGatherOccupied: true, resourceRemainingAmount: 75_000, resourceFullAmount: 180_000 },
-      ];
+      return { ...row, resourceNameKey: index % 2 === 0 ? "100282" : "100281", level: 1 + (index % 10), rebuildGatherOccupancyKnown: true, rebuildGatherOccupied: index % 3 === 0, resourceRemainingAmount: 50_000 + index * 2_000, resourceFullAmount: 200_000 };
     case "monster":
-      return [
-        { ...a, monsterNameKey: "Fixture Monster A", level: 35, distanceFromHome: 128 },
-        { ...b, monsterNameKey: "Fixture Monster B", level: 31, distanceFromHome: 244 },
-      ];
+      return { ...row, monsterNameKey: index % 2 === 0 ? "Fixture Monster B" : "Fixture Monster A", level: 20 + (index % 16), distanceFromHome: 40 + index * 7 };
     case "truck":
-      return [
-        { ...a, ownerName: "Truck Owner", allianceName: "QA", quality: 5, power: 22_400_000, currentGoods: [{ name: "Fixture Reward", count: 3 }], robTimes: 0, maxRobTimes: 2, arriveTs: FIXTURE_TIME + 600_000 },
-        { ...b, ownerName: "Reindeer Owner", isSpecialURQuality: true, quality: 5, power: 26_100_000, currentGoods: [{ name: "Fixture Medal", count: 8 }], robTimes: 2, maxRobTimes: 2, arriveTs: FIXTURE_TIME + 900_000 },
-      ];
+      return { ...row, ownerName: `Truck Owner ${index}`, allianceName: index % 3 === 0 ? "TST" : "QA", quality: 1 + (index % 5), isSpecialURQuality: index % 11 === 0, power: 18_000_000 + index * 175_000, currentGoods: [{ key: index % 2 === 0 ? "fixture-medal" : "fixture-reward", name: index % 2 === 0 ? "Fixture Medal" : "Fixture Reward", count: 1 + (index % 8) }], robTimes: index % 3, maxRobTimes: 2, remainingLootCount: index % 3 === 2 ? 0 : 2 - (index % 2), arriveTs: FIXTURE_TIME + 600_000 + index * 10_000 };
     case "railway":
-      return [
-        { ...a, allianceName: "QA Alliance", quality: 5, power: 31_000_000, currentGoods: [{ name: "Fixture Cargo", count: 4 }], protectTime: FIXTURE_TIME + 300_000 },
-        { ...b, allianceAbbr: "TST", quality: 4, power: 27_500_000, currentGoods: [{ name: "Fixture Supply", count: 2 }], protectTime: FIXTURE_TIME + 120_000 },
-      ];
+      return { ...row, allianceName: index % 2 === 0 ? "TST Alliance" : "QA Alliance", allianceAbbr: index % 2 === 0 ? "TST" : "QA", quality: 1 + (index % 5), power: 24_000_000 + index * 150_000, currentGoods: [{ key: index % 2 === 0 ? "fixture-supply" : "fixture-cargo", name: index % 2 === 0 ? "Fixture Supply" : "Fixture Cargo", count: 1 + (index % 6) }], robTimes: index % 3, maxRobTimes: 2, remainingLootCount: index % 4 === 0 ? 0 : 1, arriveTs: FIXTURE_TIME + 900_000 + index * 10_000, protectTime: FIXTURE_TIME + index * 15_000 };
     case "dispatch":
-      return [
-        { ...a, ownerUid: "dispatch-owner-1", ownerName: "Task Owner", level: 8, quality: 5, completionStatus: "pending", rewards: [{ name: "Fixture Intel", count: 2 }], completionTime: FIXTURE_TIME + 1_200_000 },
-        { ...b, ownerUid: "dispatch-owner-2", ownerName: "Completed Owner", level: 7, quality: 4, completionStatus: "completed", rewards: [{ name: "Fixture Chest", count: 1 }], completionTime: FIXTURE_TIME - 300_000 },
-      ];
+      return { ...row, ownerUid: `dispatch-owner-${index}`, ownerName: `Task Owner ${index}`, level: 5 + (index % 4), quality: 1 + (index % 5), isSpecial: index % 9 === 0, rewards: [{ name: "Fixture Intel", count: 1 + (index % 3) }], completionTime: index % 2 === 0 ? FIXTURE_TIME - index * 30_000 : FIXTURE_TIME + index * 30_000, plunderAt: FIXTURE_TIME - 60_000, taskExpireTime: FIXTURE_TIME + 3_600_000, maxStealCount: 2, stolenCount: index % 3 };
     case "ghost":
-      return [
-        { ...a, ownerUid: "ghost-owner-1", ownerName: "Ghost Owner", level: 6, quality: 5, isSpecial: true, completionStatus: "pending", rewards: [{ name: "Fixture Ghost Reward", count: 5 }], completionTime: FIXTURE_TIME + 600_000 },
-        { ...b, ownerUid: "ghost-owner-2", ownerName: "Ghost Ally", level: 5, quality: 4, completionStatus: "completed", rewards: [{ name: "Fixture Token", count: 3 }], completionTime: FIXTURE_TIME - 600_000 },
-      ];
+      return { ...row, ownerUid: `ghost-owner-${index}`, ownerName: `Ghost Owner ${index}`, level: 4 + (index % 5), quality: 1 + (index % 5), isSpecial: index % 7 === 0, rewards: [{ name: "Fixture Ghost Reward", count: 1 + (index % 5) }], completionTime: index % 2 === 0 ? FIXTURE_TIME - index * 20_000 : FIXTURE_TIME + index * 20_000 };
     case "treasure":
-      return [
-        { ...a, treasureNameKey: "Fixture Lucky Treasure", remainingBoxes: 5, worldClaimState: "available", playerClaimState: "eligible", rewardedCount: 2, diggingCount: 1, expireTime: FIXTURE_TIME + 3_600_000, ownerName: "Treasure Owner", allianceAbbr: "QA" },
-        { ...b, treasureNameKey: "Fixture Radar Treasure", remainingBoxes: 1, worldClaimState: "digging", playerClaimState: "waiting", rewardedCount: 4, diggingCount: 3, expireTime: FIXTURE_TIME + 1_800_000, ownerName: "Radar Owner", allianceAbbr: "TST" },
-      ];
+      return { ...row, treasureNameKey: index % 2 === 0 ? "Fixture Radar Treasure" : "Fixture Lucky Treasure", treasureType: index % 2 === 0 ? 1 : 2, suppliesType: 0, remainingBoxes: 1 + (index % 5), worldClaimState: index % 3 === 0 ? "digging" : "available", playerClaimState: index % 3 === 0 ? "waiting" : "eligible", rewardedCount: index % 6, diggingCount: index % 4, expireTime: FIXTURE_TIME + 1_800_000 + index * 5_000, ownerName: `Treasure Owner ${index}`, allianceAbbr: index % 4 === 0 ? "TST" : "QA", allianceId: index % 4 === 0 ? "fixture-foreign" : "fixture-viewer-alliance", viewerAllianceId: "fixture-viewer-alliance", claimPriority: index % 5 === 0 ? 0 : 1 };
     default:
-      return [];
+      return row;
   }
+}
+
+const FIXTURE_ROWS = Object.freeze(Object.fromEntries(MAP_KIND_KEYS.map((kind) => [kind, Object.freeze(Array.from({ length: FIXTURE_COUNTS[kind] }, (_, index) => Object.freeze(fixtureRow(kind, index + 1))))])));
+
+function itemCount(row, itemKey) {
+  return (row.currentGoods || []).filter((item) => String(item.key) === String(itemKey)).reduce((sum, item) => sum + Number(item.count || 0), 0);
+}
+
+function filterRows(kind, query) {
+  const keyword = String(query.keyword || "").toLowerCase();
+  return (FIXTURE_ROWS[kind] || []).filter((row) => {
+    if (keyword && !`${row.ownerName || ""} ${row.allianceName || ""} ${row.uuid || ""} ${JSON.stringify(row)}`.toLowerCase().includes(keyword)) return false;
+    if (query.alliance != null && row.allianceName !== query.alliance) return false;
+    if (query.withoutAlliance && row.allianceName) return false;
+    if (query.markedOnly && row.marked !== true) return false;
+    if (query.resourceNameKey != null && String(row.resourceNameKey) !== String(query.resourceNameKey)) return false;
+    if (query.monsterNameKey != null && String(row.monsterNameKey) !== String(query.monsterNameKey)) return false;
+    if (Number(query.suppliesType) > 0 && Number(row.suppliesType) !== Number(query.suppliesType)) return false;
+    if (Number(query.treasureType) > 0 && (Number(row.treasureType) !== Number(query.treasureType) || Number(row.suppliesType || 0) !== 0)) return false;
+    if (kind === "treasure" && !query.includeForeignRadarTreasures && Number(row.treasureType) === 1) {
+      const viewerAllianceId = query.viewerAllianceId || row.viewerAllianceId;
+      if (!viewerAllianceId || String(row.allianceId || "") !== String(viewerAllianceId)) return false;
+    }
+    if (query.quality != null) {
+      if (query.quality === "ur") {
+        if (!(Number(row.quality) >= 5) || (kind === "truck" && row.isSpecialURQuality === true)) return false;
+      } else if (QUALITY_VALUES[query.quality] == null || Number(row.quality) !== QUALITY_VALUES[query.quality]) return false;
+    }
+    if (query.specialOnly && row.isSpecial !== true) return false;
+    if (query.reindeerOnly && row.isSpecialURQuality !== true) return false;
+    if (query.itemKey != null && itemCount(row, query.itemKey) <= 0) return false;
+    if (query.completionStatus === "pending" && !(Number(row.completionTime || 0) <= 0 || Number(row.completionTime) > FIXTURE_TIME)) return false;
+    if (query.completionStatus === "completed" && !(Number(row.completionTime) > 0 && Number(row.completionTime) <= FIXTURE_TIME)) return false;
+    if (query.completionStatus != null && !["pending", "completed"].includes(query.completionStatus)) return false;
+    if (query.plunderableOnly && (kind === "truck" || kind === "railway") && !(row.arriveTs != null && Number(row.remainingLootCount ?? Math.max(Number(row.maxLootCount || 0) - Number(row.robTimes || 0), 0)) > 0)) return false;
+    if (query.plunderableOnly && kind === "dispatch" && !(Number(row.completionTime || 0) > 0 && Number(row.plunderAt || row.completionTime || 0) > 0 && (Number(row.taskExpireTime || 0) <= 0 || Number(row.taskExpireTime) > FIXTURE_TIME) && (Number(row.maxStealCount || 0) <= 0 || Number(row.stolenCount || 0) < Number(row.maxStealCount)))) return false;
+    if (query.minLevel != null && Number(row.level) < Number(query.minLevel)) return false;
+    if (query.maxLevel != null && Number(row.level) > Number(query.maxLevel)) return false;
+    return true;
+  });
+}
+
+function sortValue(kind, key, row, query) {
+  const table = {
+    city: { level: () => row.level, health: () => row.health || null, shield: () => Number(row.protectEndTime || 0) > FIXTURE_TIME ? row.protectEndTime : null, updatedAt: () => row.updatedAt },
+    resource: { level: () => row.level, updatedAt: () => row.updatedAt },
+    monster: { level: () => row.level, distance: () => row.distanceFromHome, updatedAt: () => row.updatedAt },
+    truck: { quality: () => row.isSpecialURQuality ? 100 : row.quality, power: () => row.power, itemCount: () => itemCount(row, query.itemKey), remainingLootCount: () => row.remainingLootCount ?? 0, arriveTime: () => row.arriveTs || null, updatedAt: () => row.updatedAt },
+    railway: { quality: () => row.quality, power: () => row.power, itemCount: () => itemCount(row, query.itemKey), protectTime: () => row.protectTime || null, updatedAt: () => row.updatedAt },
+    dispatch: { level: () => row.level, quality: () => row.isSpecial ? 100 : row.quality, completionTime: () => row.completionTime || null, updatedAt: () => row.updatedAt },
+    ghost: { level: () => row.level, quality: () => row.isSpecial ? 100 : row.quality, completionTime: () => row.completionTime || null, updatedAt: () => row.updatedAt },
+    treasure: { updatedAt: () => row.updatedAt },
+  };
+  const getter = table[kind]?.[key];
+  if (key === "itemCount" && !query.itemKey) {
+    const error = new Error(`unsupported ${kind} sort column '${key}'`);
+    error.code = "INVALID_REQUEST";
+    throw error;
+  }
+  if (!getter) {
+    const error = new Error(`unsupported ${kind} sort column '${key}'`);
+    error.code = "INVALID_REQUEST";
+    throw error;
+  }
+  return getter();
+}
+
+function searchFixture(kind, query = {}) {
+  if (query.quality != null && !["n", "r", "sr", "ssr", "ur"].includes(query.quality)) {
+    const error = new Error("invalid map quality");
+    error.code = "INVALID_REQUEST";
+    throw error;
+  }
+  if (query.completionStatus != null && !["pending", "completed"].includes(query.completionStatus)) {
+    const error = new Error("invalid completion status");
+    error.code = "INVALID_REQUEST";
+    throw error;
+  }
+  const sorts = Array.isArray(query.sorts) && query.sorts.length ? query.sorts : [{ sortBy: "updatedAt", sortOrder: "desc" }];
+  // Validate before filtering: an empty or single-row result must still reject
+  // a query that the production Map store rejects.
+  for (const sort of sorts) {
+    if (!["asc", "desc"].includes(sort.sortOrder)) {
+      const error = new Error("invalid map sort order");
+      error.code = "INVALID_REQUEST";
+      throw error;
+    }
+    sortValue(kind, sort.sortBy, {}, query);
+  }
+  const rows = filterRows(kind, query);
+  rows.sort((left, right) => {
+    if (kind === "treasure" && query.luckyFirst) {
+      const priority = Number(left.claimPriority ?? 1) - Number(right.claimPriority ?? 1);
+      if (priority !== 0) return priority;
+    }
+    for (const sort of sorts) {
+      if (!['asc', 'desc'].includes(sort.sortOrder)) {
+        const error = new Error("invalid map sort order");
+        error.code = "INVALID_REQUEST";
+        throw error;
+      }
+      const a = sortValue(kind, sort.sortBy, left, query);
+      const b = sortValue(kind, sort.sortBy, right, query);
+      if (a == null && b != null) return 1;
+      if (a != null && b == null) return -1;
+      if (a == null && b == null) continue;
+      if (a === b) continue;
+      const direction = kind === "monster" && sort.sortBy === "distance" ? 1 : sort.sortOrder === "asc" ? 1 : -1;
+      return a < b ? -direction : direction;
+    }
+    return String(left.recordKey).localeCompare(String(right.recordKey));
+  });
+  const page = Math.max(1, Number.parseInt(query.page, 10) || 1);
+  const requestedPageSize = Number.parseInt(query.pageSize, 10);
+  const pageSize = Math.min(200, Math.max(1, Number.isFinite(requestedPageSize) && requestedPageSize > 0 ? requestedPageSize : 50));
+  const offset = (page - 1) * pageSize;
+  return normalizeSearchResult({ rows: rows.slice(offset, offset + pageSize), total: rows.length });
 }
 
 function fixtureSummary() {
@@ -91,21 +183,20 @@ function fixtureSummary() {
 }
 
 function fixtureOptions() {
+  const cities = FIXTURE_ROWS.city;
+  const countBy = (rows, field) => Object.entries(rows.reduce((counts, row) => { const key = String(row[field] ?? ""); counts[key] = (counts[key] || 0) + 1; return counts; }, {}));
   return normalizeOptions({
     serverId: FIXTURE_SERVER_ID,
     counts: FIXTURE_COUNTS,
-    alliances: [{ name: "QA", count: 21 }, { name: "TST", count: 14 }],
-    noAllianceCount: 9,
+    alliances: countBy(cities.filter((row) => row.allianceName), "allianceName").map(([name, count]) => ({ name, count })),
+    noAllianceCount: cities.filter((row) => !row.allianceName).length,
     names: {
-      resource: [{ key: "100281", count: 18 }, { key: "100282", count: 12 }],
-      monster: [{ key: "Fixture Monster A", count: 11 }, { key: "Fixture Monster B", count: 8 }],
+      resource: countBy(FIXTURE_ROWS.resource, "resourceNameKey").map(([key, count]) => ({ key, count })),
+      monster: countBy(FIXTURE_ROWS.monster, "monsterNameKey").map(([key, count]) => ({ key, count })),
     },
     dispatchLevels: [5, 6, 7, 8],
-    rewardItems: {
-      truck: [{ key: "fixture-reward", name: "Fixture Reward" }],
-      railway: [{ key: "fixture-cargo", name: "Fixture Cargo" }],
-    },
-    treasureTypes: [{ key: "lucky", name: "Fixture Lucky Treasure" }, { key: "radar", name: "Fixture Radar Treasure" }],
+    rewardItems: { truck: [{ key: "fixture-reward", name: "Fixture Reward" }, { key: "fixture-medal", name: "Fixture Medal" }], railway: [{ key: "fixture-cargo", name: "Fixture Cargo" }, { key: "fixture-supply", name: "Fixture Supply" }] },
+    treasureTypes: [{ key: 2, name: "Fixture Lucky Treasure" }, { key: 1, name: "Fixture Radar Treasure" }],
   });
 }
 
@@ -128,7 +219,7 @@ export function getMapPreviewProvider(bridgeMode, previewState) {
         error.code = "MAP_FIXTURE_QUERY_FAILED";
         throw error;
       }
-      return normalizeSearchResult({ rows: rowsFor(kind, query.page), total: FIXTURE_COUNTS[kind] || 0 });
+      return searchFixture(kind, query);
     },
     scanStatus: async () => normalizeScanState(summary.scanState),
     listenScanStatus: () => () => {},

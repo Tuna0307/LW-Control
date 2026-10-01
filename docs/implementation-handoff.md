@@ -18,9 +18,9 @@ Current path map: `PROJECT_STRUCTURE.md`.
 PM-007 reviewed follow-on worker HEAD `543b6eb` and returned
 `LWB317-UI-CORRECT-001` as `CHANGES_REQUIRED`. Home profile-scoped reconnect
 is accepted at the source/transport boundary. Preserve useful `239254a`/`591409d`
-Equipment/dialog/locale/preview work. Remaining Automation controls, leaking AFK
-drafts and Map fixture query QA require `work-items/LWB317-UI-CORRECT-002.md`.
-Current lead review: `reviews/2026-10-01-LWB317-PM-007-ui-correction-lead-review.md`.
+Equipment/dialog/locale/preview work. Those findings led to
+`work-items/LWB317-UI-CORRECT-002.md`.
+Historical lead review: `reviews/2026-10-01-LWB317-PM-007-ui-correction-lead-review.md`.
 Correction evidence:
 `evidence/lwbridge-0.3.17/ui/LWB317-UI-CORRECT-001/`. Worker review:
 `reviews/2026-10-01-LWB317-UI-CORRECT-001.md`. Lead review that motivated the
@@ -31,9 +31,25 @@ implements the recovered presentation/precedence, but native game launch/close/
 repair remains deliberately unimplemented for the separate lifecycle task.
 Map's existing production adapter/data path was preserved and no new live Map
 campaign was started. Direct post-auth reference visual comparison is still
-`BLOCKED`; clone screenshots are not pixel-parity proof. Complete the focused
-UI-CORRECT-002 assignment and return to review before native Home integration
-or another backend campaign.
+`BLOCKED`; clone screenshots are not pixel-parity proof.
+
+The owner requested recovery of the interrupted CORRECT-002 worker. At clean
+lead baseline `a19905d`, three worker-modified files and two screenshots existed
+without a delivery commit. They were preserved and completed into a focused
+`AWAITING_REVIEW` checkpoint. Construction/Training/Gather/Train local controls,
+whole per-ID AFK drafts, exact join normalization/validation, local save-state
+handling and applied read-only Map fixture queries now have targeted evidence.
+Review: `reviews/2026-10-01-LWB317-UI-CORRECT-002.md`.
+Evidence: `evidence/lwbridge-0.3.17/ui/LWB317-UI-CORRECT-002/`, especially
+`source-contracts.json`, `browser-qa.json`, `coverage-matrix.md` and
+`verification.json`. Native Map/other pages and exact reference assets were preserved.
+
+Exact continuation: independently review CORRECT-002, then assign the recorded
+Automation runtime/Trade/Assist/weekly-quality and AFK target/member UI gaps.
+Physical drag, native config persistence and original pixels remain unproved.
+Do not restart the completed correction or resume gameplay/native Home/another
+backend campaign automatically. No new worker prompt or dispatch was made during
+this recovery.
 
 The exact recovered CSS checkout conversion remains hash-protected; keep the
 checker intact.

@@ -1,0 +1,71 @@
+{
+  "source_files": [
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/AutomationPanel-BJ0gIqFh.js",
+      "sha256": "6DB2328191AF33E5631D507271C36D7008B287DAA7C8CD1A957B23EF6F871725"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/SquadPanel-HC3-DJei.js",
+      "sha256": "ED466E353AA896D8C3FC783FF1802930156FB9E9EB54327AEF73F2FF86FA06C7"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-BVfnK1wp.js",
+      "sha256": "44C4E4043825B7DB296B64171951B27176F8850FF8D7D337CC991DF4765524C6"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-rIL9Fpht.css",
+      "sha256": "3D87E9F65B39EACE6A1A254BFC90A38ACB72613D1FFF7236C7CEE7AB9BFAF545"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/GameAssetImage-Diy9VTIr.js",
+      "sha256": "2F92A87C3268497DF6425B1175DB6140E10AABCBDFAE02615F065D00E16458E0"
+    }
+  ],
+  "screenshots": [
+    {
+      "file": "afk-desktop-dark-ja.jpg",
+      "sha256": "CF10627931E1ED77180A41A375AF50CF3D66E7A27C34B5713D92709F330A8FC0",
+      "disposition": "Fresh continuation capture; see browser-qa.json"
+    },
+    {
+      "file": "afk-drafts-desktop-light-en.jpg",
+      "sha256": "D2DFE9B76CD6D264EEE05B665EC78E75301112DE8D53314B434C6A370A12D01C",
+      "disposition": "Fresh continuation capture; see browser-qa.json"
+    },
+    {
+      "file": "afk-responsive-light-en.png",
+      "sha256": "8E97D1EB34F237C85BE49BA60A68864F15D69EDE5F7BEFC9DEB8358BDA74F26A",
+      "disposition": "Interrupted worker artifact: preserved, not fresh checkpoint proof"
+    },
+    {
+      "file": "automation-responsive-dark-zh-CN.png",
+      "sha256": "5CDD824D81FA4E1A015CB0CA03B1E7F21E463D96D02DF6AE3D62DD037B7E9035",
+      "disposition": "Interrupted worker artifact: preserved, not fresh checkpoint proof"
+    },
+    {
+      "file": "construction-desktop-light-en.jpg",
+      "sha256": "86BBDC46323699435BFC2DB2A12AC3E6E5EB2B095F7355382690A5EE030B2D34",
+      "disposition": "Fresh continuation capture; see browser-qa.json"
+    },
+    {
+      "file": "construction-responsive-dark-zh-CN.jpg",
+      "sha256": "A54889B1EFEF1D31E6E78097147A9341A893C19A615BFE3BC1D301C4086D457F",
+      "disposition": "Fresh continuation capture; see browser-qa.json"
+    },
+    {
+      "file": "map-zero-match-desktop-light-en.jpg",
+      "sha256": "DD791FEF084FAA0CF009540801951F8793FF58F6882A0AEE71FA4127376A5F3A",
+      "disposition": "Fresh continuation capture; see browser-qa.json"
+    },
+    {
+      "file": "train-desktop-light-en.jpg",
+      "sha256": "23A37541BD2F49F9B2F6D6324A6D7211351007A1CBB59A578BFD55D134A4B7DC",
+      "disposition": "Fresh continuation capture; see browser-qa.json"
+    },
+    {
+      "file": "training-unavailable-level-desktop-light-en.jpg",
+      "sha256": "5CF3E0AC4AF4E8F6B22D054BAF26AB44D846726AED43F371C02F87B2F0D380D8",
+      "disposition": "Fresh continuation capture; see browser-qa.json"
+    }
+  ]
+}

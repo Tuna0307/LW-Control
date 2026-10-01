@@ -1,0 +1,462 @@
+{
+  "scope": "Focused CORRECT-002 controls, not whole-product parity",
+  "fixtures": "All preview identifiers, building names/levels, counts, camps, reward rows, AFK targets and members are synthetic, never game contracts",
+  "contracts": [
+    {
+      "id": "construction-category",
+      "source": "AutomationPanel-BJ0gIqFh.js",
+      "sha256": "6DB2328191AF33E5631D507271C36D7008B287DAA7C8CD1A957B23EF6F871725",
+      "evidence": "EXACT_BYTES",
+      "locators": [
+        {
+          "anchor": "construction-category-tabs",
+          "utf8_byte": 47933,
+          "excerpt": "elect-arrow`,\"aria-hidden\":`true`,children:`⌄`})]}),(0,S.jsx)(`div`,{className:`construction-category-tabs`,role:`tablist`,\"aria-label\":M(`automation.construction.buildingTypes`),children:q.map(e=>(0,S.jsx)(`button`,{type:`button`,role:`tab`,id:`${fn}-${e}`,\"aria-controls\":fn,\"aria-selected\":hn===e,tabIndex:hn===e?0:-1,onClick:()=>mn(e),onKeyDown:t=>{let n=q.indexOf(e),r=t.key===`ArrowRight`?(n+1)%q.length:t.key===`ArrowLeft`?(n+q.length-1)%q.length:t.key===`Home`?0:t.key===`End`?q.length-1:-1;r<0||(t.preventDefault(),mn(q[r]),t.currentTarget.parentElement?.querySelectorAll(`[role=\"tab\"]`)[r]?"
+        },
+        {
+          "anchor": "construction-target-types",
+          "utf8_byte": 48556,
+          "excerpt": "automation.construction.category.${e}`)},e))}),(0,S.jsx)(`fieldset`,{className:`construction-target-types`,role:`tabpanel`,id:fn,\"aria-labelledby\":`${fn}-${hn}`,disabled:$(`construction`),children:gn.map(e=>(0,S.jsxs)(`label`,{className:`automation-checkbox-row`,children:[(0,S.jsx)(`input`,{type:`checkbox`,checked:vn.includes(e.itemId),onChange:t=>{W(`construction`,{buildingTypeIds:t.target.checked?[...vn,e.itemId]:vn.filter(t=>t!==e.itemId)})}}),(0,S.jsx)(`span`,{children:bn(e)})]},e.itemId))})]}),(0,S.jsx)(`p`,{className:`muted`,children:M(vn.length?`automation.construction.targetHint`:`auto"
+        }
+      ],
+      "rule": "Filter ordered all/economy/military/decoration/season/other categories by available building data. ArrowLeft/Right wrap; Home/End; active tab receives focus. Per-building choices update buildingTypeIds; summary joins selected names with ideographic comma. Empty choices show selectTypes; the source does not prohibit saving an empty list.",
+      "producer": "status.tasks.construction.buildingTypes and translated nameKey",
+      "consumer": "task construction draft: buildingTypeIds",
+      "limits": "None asserted beyond the rule",
+      "clone_state": "IMPLEMENTED_NOT_VALIDATED: original/native parity; local assertions recorded separately"
+    },
+    {
+      "id": "construction-values",
+      "source": "AutomationPanel-BJ0gIqFh.js",
+      "sha256": "6DB2328191AF33E5631D507271C36D7008B287DAA7C8CD1A957B23EF6F871725",
+      "evidence": "EXACT_BYTES",
+      "locators": [
+        {
+          "anchor": "targetEnabled??!1",
+          "utf8_byte": 29783,
+          "excerpt": "ll`,gn=cn.filter(e=>hn===`all`||(e.category??`other`)===hn),_n=F?.construction?.targetEnabled??!1,vn=F?.construction?.buildingTypeIds??[],yn=F?.construction?.targetLevel??30,bn=e=>{let t=ln[e.nameKey];return t&&t!==e.nameKey?t:e.name||M(`automation.currentBuilding`)},xn=k?.tasks.stamina,J=k?.tasks.treatment,Sn=k?.tasks.allianceDonate,Cn=k?.tasks.officialPosition,Y=k?.tasks.allianceTrainRide,wn=k?.tasks.allianceHelp,Tn=k?.tasks.allianceGift,En=k?.tasks.strongholdResource,Dn=k?.tasks.allianceCenterResource,On=k?.tasks.allianceGather,X=k?.tasks.railway,Z=k?.tasks.dispatch,kn=k?.tasks.ghostRecon,A"
+        },
+        {
+          "anchor": "automation.maxBuilders",
+          "utf8_byte": 49370,
+          "excerpt": "`div`,{className:`automation-actions`,children:(0,S.jsxs)(`label`,{children:[M(`automation.maxBuilders`),(0,S.jsx)(`input`,{type:`number`,min:1,max:Nn,step:1,value:vt,disabled:$(`construction`),onChange:e=>{let t=e.target.value,n=Number(t);yt(t),Number.isInteger(n)&&n>=1&&n<=Nn?G(`construction:maxBuilders`,`construction`,{maxBuilders:n}):R(`construction:maxBuilders`)?.pause()},onBlur:()=>z(`construction:maxBuilders`)})]})})]}),(0,S.jsx)(y,{online:l,title:`automation.stamina.title`,description:`automation.stamina.description`,state:O(xn?.state,Fn),enabled:Fn,disabled:$(`stamina`),onToggle:e=>A("
+        },
+        {
+          "anchor": "automation.builderLimitError",
+          "utf8_byte": 46914,
+          "excerpt": "(K?.processed??0)],[`automation.nextCheck`,T(K?.nextRunAt,j)]],error:Pn?void 0:`automation.builderLimitError`,children:[(0,S.jsx)(g,{variant:`checkbox`,label:`automation.construction.targetEnabled`,checked:_n,disabled:$(`construction`),onChange:e=>{W(`construction`,{targetEnabled:e})}}),_n&&(0,S.jsxs)(S.Fragment,{children:[(0,S.jsx)(`div`,{className:`automation-actions`,children:(0,S.jsxs)(`label`,{children:[M(`automation.construction.targetLevel`),(0,S.jsx)(`input`,{type:`number`,min:1,max:100,step:1,value:yn,disabled:$(`construction`),onChange:e=>P.construction.edit(t=>({...t,targetLevel:e.t"
+        }
+      ],
+      "rule": "targetEnabled gates level/choices; targetLevel defaults 30, maxBuilders 1, autoClaimCompleted true. Numeric drafts remain local until valid; blur flushes.",
+      "producer": "construction config and status.totalBuilders",
+      "consumer": "task adapter valid/edit/flush",
+      "limits": "targetLevel integer 1..100; maxBuilders integer 1..max(1,totalBuilders??20). Fixture totalBuilders is 20, not an invariant.",
+      "clone_state": "IMPLEMENTED_NOT_VALIDATED: original/native parity; local assertions recorded separately"
+    },
+    {
+      "id": "training-quantity",
+      "source": "AutomationPanel-BJ0gIqFh.js",
+      "sha256": "6DB2328191AF33E5631D507271C36D7008B287DAA7C8CD1A957B23EF6F871725",
+      "evidence": "EXACT_BYTES",
+      "locators": [
+        {
+          "anchor": "function he(",
+          "utf8_byte": 14619,
+          "excerpt": "At`,{time:new Date(r.shieldEndAt).toLocaleString(o)})})]})]},e.squadIndex)})]})}function he({profileId:e,config:t,status:n,disabled:r,online:i=!0,onPatch:a,onFlush:o}){let{t:s,language:c}=te(),[l,u]=(0,x.useState)({}),[d,ne]=(0,x.useState)(!1),f=n?.camps??[],p=JSON.stringify([...new Set(f.flatMap(e=>[e.nameKey,...Object.values(e.soldierNameKeys??{})]).filter(Boolean))].sort());(0,x.useEffect)(()=>{let e=!0;return u({}),p!==`[]`&&ee(c,JSON.parse(p)).then(t=>{e&&u(t)}).catch(()=>{}),()=>{e=!1}},[p,c,e]);let m=n?.order,h=t?.totalCount??0,g=Number.isInteger(h)&&h>0&&h<=1e6,v=t?.trainEnabled===!0&&"
+        },
+        {
+          "anchor": "soldier-training-fields",
+          "utf8_byte": 16042,
+          "excerpt": "ldren:s(`automation.soldierTraining.stateError`)}),(0,S.jsxs)(`div`,{className:`soldier-training-fields`,children:[(0,S.jsxs)(`label`,{children:[s(`automation.soldierTraining.totalCount`),(0,S.jsx)(`input`,{type:`number`,min:1,max:1e6,step:1,value:h||``,disabled:r||re&&v,\"aria-invalid\":h!==0&&!g,onBlur:o,onChange:e=>a({totalCount:Number(e.target.value),trainEnabled:!1})})]}),(0,S.jsxs)(`label`,{children:[s(`automation.soldierTraining.target`),(0,S.jsxs)(`select`,{value:ie,disabled:r,onChange:e=>a({targetLevel:Number(e.target.value)}),children:[(0,S.jsx)(`option`,{value:0,children:s(`automation"
+        },
+        {
+          "anchor": "automation.soldierTraining.quantityError",
+          "utf8_byte": 16967,
+          "excerpt": "ierTraining.quantityHint`)}),h!==0&&!g&&(0,S.jsx)(`p`,{role:`alert`,children:s(`automation.soldierTraining.quantityError`)}),m?.orderId&&(0,S.jsxs)(`div`,{role:`status`,children:[(0,S.jsx)(`p`,{children:s(`automation.soldierTraining.progress`,m)}),(0,S.jsx)(`p`,{className:`muted`,children:s(`automation.soldierTraining.order.${m.reason}`)})]}),(0,S.jsx)(`p`,{className:`muted`,children:s(`automation.soldierTraining.summary`,{trained:n?.trained??0,promoted:n?.promoted??0,collected:n?.collected??0})}),f.length===0&&(0,S.jsx)(`p`,{className:`muted`,children:s(`automation.soldierTraining.noCamps`)})"
+        }
+      ],
+      "rule": "Quantity defaults zero, positive integer required for enabling. Input blank when zero. Changing total disables trainEnabled. Disable edits during active confirmed training; activation enables train/promote/collect. Order reuse/new UUID depends on reason/total/completed/activation identity.",
+      "producer": "config.totalCount/trainEnabled/enabled/activationId and status.order/trainEnabled",
+      "consumer": "soldierTraining onPatch/onFlush",
+      "limits": "positive integer <=1000000 for enable; adapter accepts zero while training inactive",
+      "clone_state": "IMPLEMENTED_NOT_VALIDATED: original/native parity; local assertions recorded separately"
+    },
+    {
+      "id": "training-level",
+      "source": "AutomationPanel-BJ0gIqFh.js",
+      "sha256": "6DB2328191AF33E5631D507271C36D7008B287DAA7C8CD1A957B23EF6F871725",
+      "evidence": "EXACT_BYTES",
+      "locators": [
+        {
+          "anchor": "automation.soldierTraining.target",
+          "utf8_byte": 16373,
+          "excerpt": ":Number(e.target.value),trainEnabled:!1})})]}),(0,S.jsxs)(`label`,{children:[s(`automation.soldierTraining.target`),(0,S.jsxs)(`select`,{value:ie,disabled:r,onChange:e=>a({targetLevel:Number(e.target.value)}),children:[(0,S.jsx)(`option`,{value:0,children:s(`automation.soldierTraining.highest`)}),ae.map(e=>{let t=f.find(t=>t.availableLevels.includes(e)),n=l[t?.soldierNameKeys?.[String(e)]??``];return(0,S.jsxs)(`option`,{value:e,disabled:!t,children:[s(`automation.soldierTraining.level`,{level:e}),n?` · ${n}`:``]},e)})]})]})]}),(0,S.jsx)(`p`,{className:`muted`,children:s(`automation.soldierTrai"
+        },
+        {
+          "anchor": "availableLevels",
+          "utf8_byte": 15313,
+          "excerpt": "===!1),re=t?.enabled??!1,ie=t?.targetLevel??0,ae=[...new Set([...f.flatMap(e=>e.availableLevels),...ie>0?[ie]:[]])].sort((e,t)=>e-t);return(0,S.jsxs)(y,{online:i,title:`automation.soldierTraining.title`,description:`automation.soldierTraining.description`,state:n?.state===`error`?`common.failed`:n?.state===`checking`?`automation.running`:`common.waiting`,enabled:re,onToggle:e=>{if(!e){a({enabled:!1});return}g&&a({enabled:!0,trainEnabled:!0,promoteEnabled:!0,collectEnabled:!0,orderId:m&&![`identity_changed`,`unconfirmed`].includes(m.reason)&&m.total===h&&m.completed<m.total&&m.orderId?m.orderId"
+        }
+      ],
+      "rule": "Union camp availableLevels plus selected level, sorted ascending; 0 Highest first; unavailable selected levels remain disabled; resolved soldier names augment labels.",
+      "producer": "status.camps availableLevels/soldierNameKeys",
+      "consumer": "config.targetLevel",
+      "limits": "None asserted beyond the rule",
+      "clone_state": "IMPLEMENTED_NOT_VALIDATED: original/native parity; local assertions recorded separately"
+    },
+    {
+      "id": "training-state",
+      "source": "AutomationPanel-BJ0gIqFh.js",
+      "sha256": "6DB2328191AF33E5631D507271C36D7008B287DAA7C8CD1A957B23EF6F871725",
+      "evidence": "EXACT_BYTES",
+      "locators": [
+        {
+          "anchor": "automation.soldierTraining.progress",
+          "utf8_byte": 17093,
+          "excerpt": "?.orderId&&(0,S.jsxs)(`div`,{role:`status`,children:[(0,S.jsx)(`p`,{children:s(`automation.soldierTraining.progress`,m)}),(0,S.jsx)(`p`,{className:`muted`,children:s(`automation.soldierTraining.order.${m.reason}`)})]}),(0,S.jsx)(`p`,{className:`muted`,children:s(`automation.soldierTraining.summary`,{trained:n?.trained??0,promoted:n?.promoted??0,collected:n?.collected??0})}),f.length===0&&(0,S.jsx)(`p`,{className:`muted`,children:s(`automation.soldierTraining.noCamps`)}),n?.reason===`data_unavailable`&&(0,S.jsx)(`p`,{role:`status`,children:s(`automation.soldierTraining.reason.data_unavailable`)"
+        },
+        {
+          "anchor": "automation.soldierTraining.noCamps",
+          "utf8_byte": 17449,
+          "excerpt": ":n?.collected??0})}),f.length===0&&(0,S.jsx)(`p`,{className:`muted`,children:s(`automation.soldierTraining.noCamps`)}),n?.reason===`data_unavailable`&&(0,S.jsx)(`p`,{role:`status`,children:s(`automation.soldierTraining.reason.data_unavailable`)}),d&&(0,S.jsx)(`p`,{role:`alert`,children:s(`automation.soldierTraining.openFailed`)}),(0,S.jsx)(`div`,{className:`soldier-training-camps`,children:f.map((t,i)=>(0,S.jsxs)(`div`,{className:`soldier-training-camp`,children:[(0,S.jsxs)(`button`,{type:`button`,title:s(`automation.soldierTraining.openCamp`),disabled:r||!n?.atHome,onClick:()=>{ne(!1),_(`open"
+        },
+        {
+          "anchor": "automation.soldierTraining.openFailed",
+          "utf8_byte": 17659,
+          "excerpt": "Training.reason.data_unavailable`)}),d&&(0,S.jsx)(`p`,{role:`alert`,children:s(`automation.soldierTraining.openFailed`)}),(0,S.jsx)(`div`,{className:`soldier-training-camps`,children:f.map((t,i)=>(0,S.jsxs)(`div`,{className:`soldier-training-camp`,children:[(0,S.jsxs)(`button`,{type:`button`,title:s(`automation.soldierTraining.openCamp`),disabled:r||!n?.atHome,onClick:()=>{ne(!1),_(`openSoldierTrainingCamp`,{uuid:t.uuid},e).catch(()=>ne(!0))},children:[l[t.nameKey]||s(`automation.soldierTraining.building`),` `,i+1]}),(0,S.jsx)(`span`,{className:`muted`,children:s(`automation.soldierTraining.le"
+        },
+        {
+          "anchor": "soldier-training-camps",
+          "utf8_byte": 17729,
+          "excerpt": "ildren:s(`automation.soldierTraining.openFailed`)}),(0,S.jsx)(`div`,{className:`soldier-training-camps`,children:f.map((t,i)=>(0,S.jsxs)(`div`,{className:`soldier-training-camp`,children:[(0,S.jsxs)(`button`,{type:`button`,title:s(`automation.soldierTraining.openCamp`),disabled:r||!n?.atHome,onClick:()=>{ne(!1),_(`openSoldierTrainingCamp`,{uuid:t.uuid},e).catch(()=>ne(!0))},children:[l[t.nameKey]||s(`automation.soldierTraining.building`),` `,i+1]}),(0,S.jsx)(`span`,{className:`muted`,children:s(`automation.soldierTraining.level`,{level:t.level})}),(0,S.jsx)(`span`,{className:`soldier-training-"
+        }
+      ],
+      "rule": "Order/reason and trained/promoted/collected summaries; no-camps/data-unavailable/error; camp count/production/time/reason. Camp open clears old error and shows failure on rejected action; requires atHome. Preview never dispatches that action.",
+      "producer": "soldierTraining status/camps/order",
+      "consumer": "visible branches; openSoldierTrainingCamp requires separate native provider",
+      "limits": "None asserted beyond the rule",
+      "clone_state": "IMPLEMENTED_NOT_VALIDATED: original/native parity; local assertions recorded separately"
+    },
+    {
+      "id": "gather-options",
+      "source": "AutomationPanel-BJ0gIqFh.js",
+      "sha256": "6DB2328191AF33E5631D507271C36D7008B287DAA7C8CD1A957B23EF6F871725",
+      "evidence": "EXACT_BYTES",
+      "locators": [
+        {
+          "anchor": "function me(",
+          "utf8_byte": 7466,
+          "excerpt": "mIds.filter(t=>t!==e);C({...u,enabled:n.length>0&&u.enabled,selectedItemIds:n})}function me(e,t){if(!t&&u.selectedCurrencyIds.length===1)return;let n=t?[...new Set([...u.selectedCurrencyIds,e])].sort((e,t)=>e-t):u.selectedCurrencyIds.filter(t=>t!==e);C({...u,selectedCurrencyIds:n})}let he=u.enabled||u.selectedItemIds.length>0,w=a?.lastResult?.state;return(0,S.jsxs)(`div`,{className:`trade-station-panel`,children:[(0,S.jsx)(oe,{state:l.state,label:c(`automation.tradeStation.title`),disabled:!r}),(0,S.jsxs)(y,{online:r,configDisabled:!r,title:`automation.tradeStation.title`,description:`automati"
+        },
+        {
+          "anchor": "automation-resource-gather-options",
+          "utf8_byte": 11308,
+          "excerpt": "led:f,onToggle:e=>h(e,m),error:l||void 0,children:[(0,S.jsxs)(`div`,{className:`automation-resource-gather-options`,children:[(0,S.jsxs)(`label`,{className:`automation-resource-gather-radius`,children:[(0,S.jsx)(`span`,{children:a(`automation.resourceGather.scanRadius`)}),(0,S.jsx)(`select`,{\"aria-label\":a(`automation.resourceGather.scanRadius`),value:e?.scanRadius??200,onChange:t=>r({...e,enabled:f,squads:m,scanRadius:Number(t.target.value)}),children:[50,100,150,200,250,300,400,500].map(e=>(0,S.jsx)(`option`,{value:e,children:e},e))})]}),(0,S.jsxs)(`label`,{children:[(0,S.jsx)(`span`,{childr"
+        }
+      ],
+      "rule": "Radius defaults200 with 50,100,150,200,250,300,400,500; delay defaults120 seconds represented by 1..30 minutes, multiplied by60 when saved; recall defaultfalse.",
+      "producer": "resourceGather config and status.worldTileCount??1000",
+      "consumer": "onSave config",
+      "limits": "None asserted beyond the rule",
+      "clone_state": "IMPLEMENTED_NOT_VALIDATED: original/native parity; local assertions recorded separately"
+    },
+    {
+      "id": "gather-squads",
+      "source": "AutomationPanel-BJ0gIqFh.js",
+      "sha256": "6DB2328191AF33E5631D507271C36D7008B287DAA7C8CD1A957B23EF6F871725",
+      "evidence": "EXACT_BYTES",
+      "locators": [
+        {
+          "anchor": "automation-resource-gather-squad",
+          "utf8_byte": 13088,
+          "excerpt": "t`?`runtime_wait`:r?.step??`idle`:`disabled`;return(0,S.jsxs)(`div`,{className:`automation-resource-gather-squad`,role:`group`,\"aria-label\":a(`automation.squad`,{index:e.squadIndex}),children:[(0,S.jsxs)(`label`,{className:`automation-resource-gather-enable`,children:[(0,S.jsx)(`input`,{type:`checkbox`,checked:e.enabled,onChange:e=>i({enabled:e.target.checked})}),(0,S.jsx)(`span`,{children:a(`automation.squad`,{index:e.squadIndex})})]}),(0,S.jsx)(`select`,{\"aria-label\":`${a(`automation.squad`,{index:e.squadIndex})} ${a(`automation.resourceGather.resource`)}`,value:e.resource,onChange:e=>i({res"
+        },
+        {
+          "anchor": "automation.resourceGather.manualResumeAt",
+          "utf8_byte": 14342,
+          "excerpt": "?.pauseReason===`manual_wait`&&r.manualResumeAt&&(0,S.jsx)(`small`,{children:a(`automation.resourceGather.manualResumeAt`,{time:new Date(r.manualResumeAt).toLocaleTimeString(o)})}),f&&e.enabled&&r?.shieldEndAt&&(0,S.jsx)(`small`,{children:a(`automation.resourceGather.shieldEndAt`,{time:new Date(r.shieldEndAt).toLocaleString(o)})})]})]},e.squadIndex)})]})}function he({profileId:e,config:t,status:n,disabled:r,online:i=!0,onPatch:a,onFlush:o}){let{t:s,language:c}=te(),[l,u]=(0,x.useState)({}),[d,ne]=(0,x.useState)(!1),f=n?.camps??[],p=JSON.stringify([...new Set(f.flatMap(e=>[e.nameKey,...Object.v"
+        },
+        {
+          "anchor": "automation.resourceGather.shieldEndAt",
+          "utf8_byte": 14504,
+          "excerpt": "eTimeString(o)})}),f&&e.enabled&&r?.shieldEndAt&&(0,S.jsx)(`small`,{children:a(`automation.resourceGather.shieldEndAt`,{time:new Date(r.shieldEndAt).toLocaleString(o)})})]})]},e.squadIndex)})]})}function he({profileId:e,config:t,status:n,disabled:r,online:i=!0,onPatch:a,onFlush:o}){let{t:s,language:c}=te(),[l,u]=(0,x.useState)({}),[d,ne]=(0,x.useState)(!1),f=n?.camps??[],p=JSON.stringify([...new Set(f.flatMap(e=>[e.nameKey,...Object.values(e.soldierNameKeys??{})]).filter(Boolean))].sort());(0,x.useEffect)(()=>{let e=!0;return u({}),p!==`[]`&&ee(c,JSON.parse(p)).then(t=>{e&&u(t)}).catch(()=>{})"
+        }
+      ],
+      "rule": "Squad union from runtime indexes/config; fallback disabled metal level10. Resource metal/food/gold resolved by gatherResources names; resource-specific max level <=10. Last squad off disables gathering without error; enabling none rejects. recalling/recall_failed/state_unconfirmed override enabled state; manual wait/shield details conditional.",
+      "producer": "squadIndexes/status.gatherSquadIndexes/config.squads, status.gatherResources/gatherSquads",
+      "consumer": "onSave config; no gameplay in preview",
+      "limits": "None asserted beyond the rule",
+      "clone_state": "IMPLEMENTED_NOT_VALIDATED: original/native parity; local assertions recorded separately"
+    },
+    {
+      "id": "train-fixed",
+      "source": "AutomationPanel-BJ0gIqFh.js",
+      "sha256": "6DB2328191AF33E5631D507271C36D7008B287DAA7C8CD1A957B23EF6F871725",
+      "evidence": "EXACT_BYTES",
+      "locators": [
+        {
+          "anchor": "automation.normalCarriageSelection",
+          "utf8_byte": 54166,
+          "excerpt": "assName:`automation-settings-section`,children:[(0,S.jsx)(`strong`,{children:M(`automation.normalCarriageSelection`)}),(0,S.jsx)(`span`,{className:`muted`,children:M(`automation.normalCarriageHint`)}),(0,S.jsx)(`fieldset`,{className:`automation-compact-choice-group automation-selection-mode-choices`,\"aria-label\":M(`automation.normalCarriageSelection`),children:[`reward`,`fixed`].map(e=>(0,S.jsxs)(`label`,{className:`automation-compact-choice`,children:[(0,S.jsx)(`input`,{type:`radio`,name:`train-normal-selection-mode`,checked:qn===e,disabled:$(`allianceTrainRide`),onChange:()=>{W(`allianceTrai"
+        },
+        {
+          "anchor": "automation.vipCarriageSelection",
+          "utf8_byte": 57663,
+          "excerpt": "assName:`automation-settings-section`,children:[(0,S.jsx)(`strong`,{children:M(`automation.vipCarriageSelection`)}),(0,S.jsx)(g,{variant:`checkbox`,label:`automation.autoAcceptTrainVip`,checked:Wn,disabled:$(`allianceTrainRide`),onChange:e=>{W(`allianceTrainRide`,{autoAcceptVip:e})}}),(0,S.jsx)(`span`,{className:`muted`,children:M(`automation.vipCarriageHint`)}),(0,S.jsx)(`fieldset`,{className:`automation-compact-choice-group automation-selection-mode-choices`,\"aria-label\":M(`automation.vipCarriageSelection`),children:[`reward`,`fixed`].map(e=>(0,S.jsxs)(`label`,{className:`automation-compact-"
+        },
+        {
+          "anchor": "automation.driver",
+          "utf8_byte": 55169,
+          "excerpt": "[(0,S.jsx)(`input`,{type:`checkbox`,disabled:!0}),(0,S.jsx)(`span`,{children:M(`automation.driver`)})]}),xe.map(e=>(0,S.jsxs)(`label`,{className:`automation-compact-choice`,children:[(0,S.jsx)(`input`,{type:`checkbox`,checked:Gn.includes(e),disabled:$(`allianceTrainRide`),onChange:t=>{W(`allianceTrainRide`,{fixedCarriageIds:t.target.checked?[e]:[]})}}),(0,S.jsx)(`span`,{children:M(`automation.carriage${e}`)})]},`normal-${e}`))]})]}),Yn&&(0,S.jsxs)(`div`,{className:`automation-train-rewards automation-settings-section`,children:[(0,S.jsx)(`h3`,{children:M(`automation.section.rewardPreferences`)"
+        }
+      ],
+      "rule": "Normal fixed choices are one-or-none; unchecking clears. VIP permits up to2; selected choices stay enabled for clearing. Driver is always disabled. Selection mode falls back to fixed only for1 normal/2 VIP existing IDs.",
+      "producer": "allianceTrainRide fixedCarriageIds/vipFixedCarriageIds/selectionMode/vipSelectionMode",
+      "consumer": "allianceTrainRide draft writes",
+      "limits": "carriage IDs1..4",
+      "clone_state": "IMPLEMENTED_NOT_VALIDATED: original/native parity; local assertions recorded separately"
+    },
+    {
+      "id": "train-rewards",
+      "source": "AutomationPanel-BJ0gIqFh.js",
+      "sha256": "6DB2328191AF33E5631D507271C36D7008B287DAA7C8CD1A957B23EF6F871725",
+      "evidence": "EXACT_BYTES",
+      "locators": [
+        {
+          "anchor": "automation-train-rewards",
+          "utf8_byte": 55559,
+          "excerpt": "ation.carriage${e}`)})]},`normal-${e}`))]})]}),Yn&&(0,S.jsxs)(`div`,{className:`automation-train-rewards automation-settings-section`,children:[(0,S.jsx)(`h3`,{children:M(`automation.section.rewardPreferences`)}),(0,S.jsxs)(`div`,{className:`automation-preference-list`,children:[H.length===0&&(0,S.jsx)(`span`,{className:`muted`,children:M(`automation.noPreferredRewards`)}),$n.map(e=>{let t=H.indexOf(e.key),n=t>=0;return(0,S.jsxs)(`div`,{className:`automation-preference-item${n?` selected`:``}${Ct===e.key?` dragging`:``}${Tt===e.key?` drag-over`:``}`,draggable:n,onDragStart:t=>{n&&(t.dataTransf"
+        },
+        {
+          "anchor": "automation.moveUp",
+          "utf8_byte": 57091,
+          "excerpt": ":`automation-reward-order`,children:[(0,S.jsx)(`button`,{type:`button`,title:M(`automation.moveUp`),\"aria-label\":M(`automation.moveUp`),disabled:t===0,onClick:()=>sn(e.key,-1),children:(0,S.jsx)(v,{name:`arrow-up`})}),(0,S.jsx)(`button`,{type:`button`,title:M(`automation.moveDown`),\"aria-label\":M(`automation.moveDown`),disabled:t===H.length-1,onClick:()=>sn(e.key,1),children:(0,S.jsx)(v,{name:`arrow-down`})}),(0,S.jsx)(`span`,{className:`automation-reward-drag-handle`,\"aria-hidden\":`true`,children:(0,S.jsx)(v,{name:`drag`})})]})]},e.key)})]})]}),(0,S.jsxs)(`div`,{className:`automation-settings"
+        },
+        {
+          "anchor": "automation-reward-icon",
+          "utf8_byte": 56799,
+          "excerpt": "ewardKeys:n})}}),(0,S.jsx)(b,{assetPath:e.iconPath,alt:e.name||e.key,className:`automation-reward-icon`}),(0,S.jsx)(`span`,{children:e.name||e.key})]}),(0,S.jsx)(`strong`,{className:`automation-reward-count`,children:e.count===void 0?`—`:`×${se(e.count)}`}),n&&(0,S.jsxs)(`span`,{className:`automation-reward-order`,children:[(0,S.jsx)(`button`,{type:`button`,title:M(`automation.moveUp`),\"aria-label\":M(`automation.moveUp`),disabled:t===0,onClick:()=>sn(e.key,-1),children:(0,S.jsx)(v,{name:`arrow-up`})}),(0,S.jsx)(`button`,{type:`button`,title:M(`automation.moveDown`),\"aria-label\":M(`automation.m"
+        }
+      ],
+      "rule": "Reward section visible when either selection mode reward; selected keys first in user order, remaining options after. Checkbox select/remove; up/down and HTML5 drag reorder selected keys; reward quantity and thanks conditional controls. Asset image placeholder must occupy its grid cell.",
+      "producer": "status.tasks.allianceTrainRide.rewardOptions and preferredRewardKeys",
+      "consumer": "allianceTrainRide draft",
+      "limits": "thanks like/tickets; rendered ticket choices1,2,3; adapter ticket integer1..9999",
+      "clone_state": "IMPLEMENTED_NOT_VALIDATED: original/native parity; local assertions recorded separately"
+    },
+    {
+      "id": "task-numeric-validation",
+      "source": "AutomationPanel-BJ0gIqFh.js",
+      "sha256": "6DB2328191AF33E5631D507271C36D7008B287DAA7C8CD1A957B23EF6F871725",
+      "evidence": "EXACT_BYTES",
+      "locators": [
+        {
+          "anchor": "new Set([`targetLevel`",
+          "utf8_byte": 20945,
+          "excerpt": "Gather`,`resourceGather`,`railway`,`dispatch`,`dispatchAssist`,`ghostRecon`],De=new Set([`targetLevel`,`maxBuilders`,`amountPerArmy`,`threshold`,`intervalMinutes`,`delayMinutes`,`positionId`,`ticketCount`,`intervalSeconds`]);function Oe(e){return Object.fromEntries(Object.entries(e).map(([e,t])=>[e,De.has(e)?Number(t):e===`delaySeconds`&&Array.isArray(t)?t.map(Number):t]))}function ke(e){return{enabled:e?.enabled===!0,min:String(e?.claimDelaySeconds?.[0]??0),max:String(e?.claimDelaySeconds?.[1]??0),replyEnabled:e?.replyEnabled===!0,replies:(e?.replyPhrases??[]).join(`\n`),dispatchEnabled:e?.dis"
+        },
+        {
+          "anchor": "amountPerArmy:[1,1e6]",
+          "utf8_byte": 22787,
+          "excerpt": "el:[1,100],maxBuilders:[1,Math.max(1,k?.tasks.construction?.totalBuilders??20)],amountPerArmy:[1,1e6],threshold:[1,30],intervalMinutes:[1,1440],delayMinutes:[0,1440],ticketCount:[1,9999],intervalSeconds:[5,300],positionId:[0,10007]};if(!Object.entries(t).every(([e,t])=>!De.has(e)||String(t).trim()!==``&&Number.isInteger(Number(t))&&Number(t)>=n[e][0]&&Number(t)<=n[e][1]))return!1;if(Array.isArray(t.delaySeconds)){let[e,n]=t.delaySeconds;if([e,n].some(e=>String(e).trim()===``||!Number.isInteger(Number(e)))||Number(e)<0||Number(n)>86400||Number(e)>Number(n))return!1}return!0}})])),F=Object.fromE"
+        }
+      ],
+      "rule": "Task-specific ranges and integer validation; invalid local values prevent flush. Runtime result/summary data is a separate branch audit.",
+      "producer": "task draft fields",
+      "consumer": "task adapter valid",
+      "limits": "threshold1..30; intervalMinutes1..1440; delayMinutes0..1440; positionId0..10007; intervalSeconds5..300",
+      "clone_state": "IMPLEMENTED_NOT_VALIDATED: original/native parity; local assertions recorded separately"
+    },
+    {
+      "id": "chat-validation",
+      "source": "AutomationPanel-BJ0gIqFh.js",
+      "sha256": "6DB2328191AF33E5631D507271C36D7008B287DAA7C8CD1A957B23EF6F871725",
+      "evidence": "EXACT_BYTES",
+      "locators": [
+        {
+          "anchor": "function Vr(",
+          "utf8_byte": 33454,
+          "excerpt": "[e].edit({enabled:t,intervalMinutes:n},!1),await L[e].flush().catch(()=>void 0)}function Vr(e,t){let n=Number(t.min),r=Number(t.max),i=we(t.replies),a=e===`treasure`?600:60,o=t.min.trim()!==``&&t.max.trim()!==``&&Number.isFinite(n)&&Number.isFinite(r)&&n>=0&&r<=a&&n<=r,s=``;if(o?[[t.replyMin,t.replyMax],...e===`treasure`?[[t.dispatchMin,t.dispatchMax]]:[]].some(([e,t])=>!e.trim()||!t.trim()||!Number.isFinite(Number(e))||!Number.isFinite(Number(t))||Number(e)<.1||Number(t)>600||Number(e)>Number(t))?s=M(`automation.interactionDelayError`):t.replyEnabled&&i.length===0?s=M(`automation.replyRequire"
+        },
+        {
+          "anchor": "automation.replyRequired",
+          "utf8_byte": 33951,
+          "excerpt": "r(t))?s=M(`automation.interactionDelayError`):t.replyEnabled&&i.length===0?s=M(`automation.replyRequired`):e===`treasure`&&t.dispatchEnabled&&!t.dispatchSquads?.length?s=M(`automation.treasureDispatchSquadRequired`):e===`treasure`&&(!Number.isInteger(Number(t.dispatchRetrySeconds))||Number(t.dispatchRetrySeconds)<1||Number(t.dispatchRetrySeconds)>300)&&(s=M(`automation.treasureDispatchRetryError`)):s=M(e===`treasure`?`automation.treasureDelayError`:e===`fireworks`?`automation.fireworksDelayError`:`automation.redPacketDelayError`),nt(t=>({...t,[e]:s})),s)return null;let c={enabled:t.enabled,cla"
+        },
+        {
+          "anchor": "automation.treasureDispatchSquadRequired",
+          "utf8_byte": 34044,
+          "excerpt": "plyRequired`):e===`treasure`&&t.dispatchEnabled&&!t.dispatchSquads?.length?s=M(`automation.treasureDispatchSquadRequired`):e===`treasure`&&(!Number.isInteger(Number(t.dispatchRetrySeconds))||Number(t.dispatchRetrySeconds)<1||Number(t.dispatchRetrySeconds)>300)&&(s=M(`automation.treasureDispatchRetryError`)):s=M(e===`treasure`?`automation.treasureDelayError`:e===`fireworks`?`automation.fireworksDelayError`:`automation.redPacketDelayError`),nt(t=>({...t,[e]:s})),s)return null;let c={enabled:t.enabled,claimDelaySeconds:[n,r],replyEnabled:t.replyEnabled,replyPhrases:i,replyDelaySeconds:[Number(t.r"
+        }
+      ],
+      "rule": "Claim delay finite ordered range; reply/dispatch delay ordered >=0.1 <=600; enabled reply requires nonblank deduplicated phrases; enabled Treasure dispatch requires squad priorities; retry integer1..300. Defaults claim0/0, reply2/5, dispatch2/5, retry30.",
+      "producer": "ke chat config normalization",
+      "consumer": "Vr normalized write payload",
+      "limits": "claim<=60 RedPacket/Fireworks or600 Treasure",
+      "clone_state": "IMPLEMENTED_NOT_VALIDATED: original/native parity; local assertions recorded separately"
+    },
+    {
+      "id": "assist-validation",
+      "source": "AutomationPanel-BJ0gIqFh.js",
+      "sha256": "6DB2328191AF33E5631D507271C36D7008B287DAA7C8CD1A957B23EF6F871725",
+      "evidence": "EXACT_BYTES",
+      "locators": [
+        {
+          "anchor": "function Wr(",
+          "utf8_byte": 35147,
+          "excerpt": "mation.nothingToClaim`)}))}catch{it(t=>({...t,[e]:M(`automation.runFailed`)}))}}function Wr(e,t=qt,n=yr,r=br,i=xr){if(!Number.isInteger(n)||!Number.isInteger(r)||n<0||r>86400||n>r||!Number.isInteger(i)||i<5||i>300||e&&!t.length){U(M(`automation.dispatchAssistConfigError`));return}U(``),W(`dispatchAssist`,{autoHelp:e,qualities:t,delaySeconds:[n,r],intervalSeconds:i})}function Gr(e,t,n){if(!(Number.isInteger(e)&&Number.isInteger(t)&&e>=0&&t<=86400&&e<=t&&Number.isInteger(n)&&n>=5&&n<=300)){R(`dispatchAssist:settings`)?.pause(),U(M(`automation.dispatchAssistConfigError`));return}U(``),P.dispatchA"
+        },
+        {
+          "anchor": "function Gr(",
+          "utf8_byte": 35436,
+          "excerpt": "`dispatchAssist`,{autoHelp:e,qualities:t,delaySeconds:[n,r],intervalSeconds:i})}function Gr(e,t,n){if(!(Number.isInteger(e)&&Number.isInteger(t)&&e>=0&&t<=86400&&e<=t&&Number.isInteger(n)&&n>=5&&n<=300)){R(`dispatchAssist:settings`)?.pause(),U(M(`automation.dispatchAssistConfigError`));return}U(``),P.dispatchAssist.edit(r=>({...r,autoHelp:vr,qualities:qt,delaySeconds:[e,t],intervalSeconds:n}))}function Kr(e){let t=e.qualityKey.toUpperCase(),n=e.isSpecial?` · ${M(`automation.assistQuality.special`)}`:``;return`${e.ownerName||e.ownerUid} · ${t}${n}`}async function qr(){if(tn.length){an(`schedule"
+        }
+      ],
+      "rule": "Assist requires selected qualities on enabling; integer ordered delays0..86400 and check interval5..300. Invalid settings pause autosave. Defaults qualities[],delay0/0,interval30.",
+      "producer": "dispatchAssist draft",
+      "consumer": "dispatchAssist W/G writes",
+      "limits": "None asserted beyond the rule",
+      "clone_state": "IMPLEMENTED_NOT_VALIDATED: original/native parity; local assertions recorded separately"
+    },
+    {
+      "id": "afk-join-defaults",
+      "source": "SquadPanel-HC3-DJei.js",
+      "sha256": "ED466E353AA896D8C3FC783FF1802930156FB9E9EB54327AEF73F2FF86FA06C7",
+      "evidence": "EXACT_BYTES",
+      "locators": [
+        {
+          "anchor": "function oe(",
+          "utf8_byte": 389,
+          "excerpt": "ard-LCx_jIi7.js\";import{t as ae}from\"./GameAssetImage-Diy9VTIr.js\";var O=i(o());function oe(e,t=1,n=!1){let r=e?.mode===`slotRange`,i=e?.slotRange??[t+1,t+1];return{enabled:e?.enabled??!n,mode:r?`slot`:e?.mode??(n?`delay`:`slot`),slotRange:r?[i[0],i[0]]:[i[0],i[1]],slotDelaySeconds:r?0:e?.slotDelaySeconds??0,delaySeconds:e?.delaySeconds??(n?[1,3]:[0,0]),maxWaitMinutes:e?.maxWaitMinutes??(n?5:0),leaderListMode:e?.leaderListMode??`off`,leaders:e?.leaders??[],skipSoloLeader:e?.skipSoloLeader??!1,skipKicked:e?.skipKicked??n}}function se(e){return typeof e.enabled==`boolean`&&[`slot`,`delay`].inclu"
+        },
+        {
+          "anchor": "function se(",
+          "utf8_byte": 836,
+          "excerpt": "?.leaders??[],skipSoloLeader:e?.skipSoloLeader??!1,skipKicked:e?.skipKicked??n}}function se(e){return typeof e.enabled==`boolean`&&[`slot`,`delay`].includes(e.mode)&&Number.isFinite(e.slotDelaySeconds)&&e.slotDelaySeconds>=0&&e.slotDelaySeconds<=6e3&&Math.abs(e.slotDelaySeconds*100-Math.round(e.slotDelaySeconds*100))<1e-6&&Array.isArray(e.slotRange)&&e.slotRange.length===2&&e.slotRange.every(e=>Number.isSafeInteger(e)&&e>=2&&e<=5)&&e.slotRange[1]>=e.slotRange[0]&&Array.isArray(e.delaySeconds)&&e.delaySeconds.length===2&&e.delaySeconds.every(e=>Number.isFinite(e)&&e>=0&&e<=6e3&&Math.abs(e*100-M"
+        }
+      ],
+      "rule": "New profile join restrictions: enabledfalse, delay mode, slot[2,2], delay[1,3], maxWait5, listoff, no leaders, skipSolo false, skipKicked true. Existing defaults differ; historical slotRange normalizes to slot with collapsed range. Validate enabled/mode/list/uid/duplicate/ranges/precision.",
+      "producer": "joinRestrictions plus old minMembers",
+      "consumer": "oe normalization/se validation",
+      "limits": "slots safeinteger2..5; seconds finite0..6000 with <=2 decimal places; maxWait finite>=0; leader UID positive digits, unique",
+      "clone_state": "IMPLEMENTED_NOT_VALIDATED: original/native parity; local assertions recorded separately"
+    },
+    {
+      "id": "afk-profile-drafts",
+      "source": "SquadPanel-HC3-DJei.js",
+      "sha256": "ED466E353AA896D8C3FC783FF1802930156FB9E9EB54327AEF73F2FF86FA06C7",
+      "evidence": "EXACT_BYTES",
+      "locators": [
+        {
+          "anchor": "function Ce(",
+          "utf8_byte": 6014,
+          "excerpt": "e garrison config saved`)}function Se(e){h.state.edit(N(e,v?.allies||[]))}async function Ce(e){if(e&&(!g.targets.length||!g.squadPriority.length)){P(l(g.targets.length?`garrison.squadRequired`:`garrison.targetRequired`));return}try{!e&&t?(he(`stop`),await h.state.runAction(()=>re(`allianceGarrison`,{recallOwned:g.recallOnDisable!==!1},p),e=>({...e,enabled:!1}))):await xe({...h.state.getSnapshot().draft,enabled:e}),P(``)}catch(e){P(_(l,e))}finally{he(``)}}async function we(){if(!g.targets.length||!g.squadPriority.length){P(l(g.targets.length?`garrison.squadRequired`:`garrison.targetRequired`));"
+        },
+        {
+          "anchor": "function Te(",
+          "utf8_byte": 27540,
+          "excerpt": "evel>t.attackMaxLevel:e.minLevel<t.attackMinLevel||e.maxLevel>t.attackMaxLevel)}function Te(e){return!!(![e.executionLimit,e.minMembers,e.minLevel,e.maxLevel,e.maxDistance].some(e=>typeof e==`number`&&!Number.isFinite(e))&&e.name.trim()&&e.targetKey.trim()&&(!e.targetKey.startsWith(`query:`)||e.targetNameQuery?.trim())&&Number.isInteger(e.monsterType)&&e.monsterType>=0&&(!e.levelFilterEnabled||e.minLevel>0&&(e.progressiveLevels||e.maxLevel>=e.minLevel))&&k(e)&&Number.isInteger(e.executionLimit)&&e.executionLimit>=0&&(e.kind!==`join`||se(oe(e.joinRestrictions,e.minMembers??1)))&&e.squadIndexes."
+        },
+        {
+          "anchor": "function st(",
+          "utf8_byte": 33322,
+          "excerpt": "tTimeout(()=>H.current?.scrollIntoView({behavior:`smooth`,block:`nearest`}),0))}function st(e){let t=ue(M,e);R(t?{...e,targetKey:t.key,monsterNameKey:t.monsterNameKey,monsterIds:t.monsterIds,monsterSpecial:t.monsterSpecial,monsterType:t.monsterType,searchable:t.searchable,source:t.source,action:t.action,rally:t.rally,continuousAttack:t.rally?!1:e.continuousAttack}:{...e}),V(``)}function ct(e){if(!L)return;let t=e.trim();V(``),R({...L,lastListTargetKey:L.targetKey.startsWith(`query:`)?L.lastListTargetKey:Ke?.key||L.targetKey,targetKey:`query:${t}`,targetNameQuery:e,monsterNameKey:void 0,monster"
+        },
+        {
+          "anchor": "function at(",
+          "utf8_byte": 32711,
+          "excerpt": "ll,r=be(n.squadIndexes,t,e);r!==n.squadIndexes&&await tt({...n,squadIndexes:r})}function at(e){let t=M.find(t=>t.key===e);!t||!L||(V(``),R({...L,targetKey:t.key,lastListTargetKey:t.key,targetNameQuery:void 0,monsterNameKey:t.monsterNameKey,monsterType:t.monsterType,monsterIds:t.monsterIds,monsterSpecial:t.monsterSpecial,source:t.source,action:t.action,searchable:t.searchable,rally:t.rally,continuousAttack:t.rally?!1:L.continuousAttack,minLevel:t.minLevel,maxLevel:t.maxLevel}))}function ot(e){let t=M.find(t=>!t.key.startsWith(`name:`)&&(e===`farm`?!t.rally:t.rally));t&&(R(Ce(t,Ne,e)),F(!1),V(``"
+        }
+      ],
+      "rule": "Whole selected profile object retained; per-ID edit maps array entry, not shared editor state. Name blur trims/flushes valid draft; Enter blurs. Selection applies recovered target identity fields. New strategy enabledtrue, first available squad, execution0, filtersfalse,distance200. Sort/delete flush config.",
+      "producer": "strategies draft, confirmed and target options/squad indexes",
+      "consumer": "R helper and config store",
+      "limits": "nonblank name/key; query names nonblank; monsterType nonnegative integer; execution nonnegativeinteger; nonempty squads; enabled filters valid",
+      "clone_state": "IMPLEMENTED_NOT_VALIDATED: original/native parity; local assertions recorded separately"
+    },
+    {
+      "id": "afk-targets-filters",
+      "source": "SquadPanel-HC3-DJei.js",
+      "sha256": "ED466E353AA896D8C3FC783FF1802930156FB9E9EB54327AEF73F2FF86FA06C7",
+      "evidence": "EXACT_BYTES",
+      "locators": [
+        {
+          "anchor": "monster-afk-custom-target",
+          "utf8_byte": 45720,
+          "excerpt": "e:e.key,children:G(e)},e.key))},e.group))]})]})]}),(0,A.jsxs)(`div`,{className:`monster-afk-custom-target`,children:[(0,A.jsxs)(`label`,{className:`monster-afk-check-row`,children:[(0,A.jsx)(`input`,{type:`checkbox`,checked:Oe,onChange:e=>{e.target.checked?ct(``):L.lastListTargetKey&&M.some(e=>e.key===L.lastListTargetKey)?at(L.lastListTargetKey):V(h(`squad.afkRestoreTargetRequired`))}}),h(`squad.afkCustomTarget`)]}),Oe&&(0,A.jsxs)(`label`,{className:`monster-afk-custom-name`,children:[h(`squad.afkCustomName`),(0,A.jsx)(`input`,{value:L.targetNameQuery||``,\"aria-invalid\":!L.targetNameQuery?.tri"
+        },
+        {
+          "anchor": "monster-afk-number-grid",
+          "utf8_byte": 49004,
+          "excerpt": ",{className:`monster-afk-filter-content`,children:[(0,A.jsxs)(`div`,{className:`monster-afk-number-grid`,children:[(0,A.jsxs)(`label`,{children:[h(`squad.afkMinLevel`),(0,A.jsx)(`input`,{type:`number`,min:1,value:Number.isNaN(L.minLevel)?``:L.minLevel,onChange:e=>R({...L,minLevel:e.target.valueAsNumber})})]}),!L.progressiveLevels&&(0,A.jsxs)(`label`,{children:[h(`squad.afkMaxLevel`),(0,A.jsx)(`input`,{type:`number`,min:1,value:Number.isNaN(L.maxLevel)?``:L.maxLevel,onChange:e=>R({...L,maxLevel:e.target.valueAsNumber})})]})]}),L.kind===`farm`&&L.searchable&&(0,A.jsxs)(`label`,{className:`monste"
+        },
+        {
+          "anchor": "monster-afk-squad-toggle",
+          "utf8_byte": 47253,
+          "excerpt": "el\":h(`squad.afkAssignments`),children:Ne.map(e=>(0,A.jsx)(`button`,{className:`monster-afk-squad-toggle`,type:`button`,\"aria-label\":h(`squad.number`,{number:e}),\"aria-pressed\":L.squadIndexes.includes(e),title:h(`squad.number`,{number:e}),onClick:()=>R(t=>t&&{...t,squadIndexes:t.squadIndexes.includes(e)?t.squadIndexes.filter(t=>t!==e):[...t.squadIndexes,e].sort((e,t)=>e-t)}),children:e},e))})]}),(0,A.jsxs)(`label`,{title:h(`squad.afkExecutionLimitHint`),children:[h(`squad.afkExecutionLimitLabel`),(0,A.jsx)(`input`,{type:`number`,min:0,step:1,value:Number.isNaN(L.executionLimit)?``:L.executionL"
+        }
+      ],
+      "rule": "Custom query stores previous list key; switching back restores it. Target option groups normal/elite/running/leader/ally/drill/invader/other filtered by kind. Target change updates metadata/min/max; rally disables continuous attack. Progressive branch only farm searchable; disabling level filter clears progressive. Distance conditional.",
+      "producer": "target option producer and selected profile",
+      "consumer": "selected draft target/filter fields",
+      "limits": "None asserted beyond the rule",
+      "clone_state": "IMPLEMENTED_NOT_VALIDATED: original/native parity; local assertions recorded separately"
+    },
+    {
+      "id": "afk-members",
+      "source": "SquadPanel-HC3-DJei.js",
+      "sha256": "ED466E353AA896D8C3FC783FF1802930156FB9E9EB54327AEF73F2FF86FA06C7",
+      "evidence": "EXACT_BYTES",
+      "locators": [
+        {
+          "anchor": "function ye(",
+          "utf8_byte": 19216,
+          "excerpt": "lly`,`drill`,`invader`,`other`],ve={enabled:!1,activeRally:!1,squadIndexes:[1]};function ye({value:e,onChange:t,online:n,disabled:r=!1,label:i=`squad.afkJoinConditions`}){let{t:o}=d(),s=c(),[l,u]=(0,O.useState)(null),[f,p]=(0,O.useState)(!1),[m,h]=(0,O.useState)(``),[g,_]=(0,O.useState)(new Set),[v,b]=(0,O.useState)(!1);(0,O.useEffect)(()=>{if(u(null),p(!1),b(!1),!n||!e.enabled||e.leaderListMode===`off`)return;let t=!1,r=!1,i=async()=>{if(!r){r=!0;try{let e=await a(s);t||(u({profileId:s,data:e}),b(!1))}catch{t||(u(null),b(!0))}finally{r=!1}}};i();let o=window.setInterval(()=>{i()},5e3);return("
+        },
+        {
+          "anchor": "garrison-ally-list",
+          "utf8_byte": 15014,
+          "excerpt": "placeholder:l(`garrison.searchAlly`),autoFocus:!0}),(0,A.jsx)(`div`,{className:`garrison-ally-list`,children:ke.map(e=>(0,A.jsxs)(`label`,{className:e.available?``:`unavailable`,children:[(0,A.jsx)(`input`,{type:`checkbox`,checked:ue.has(e.uid),disabled:!e.available,onChange:t=>pe(n=>{let r=new Set(n);return t.target.checked?r.add(e.uid):r.delete(e.uid),r})}),(0,A.jsxs)(`span`,{children:[(0,A.jsx)(`strong`,{children:e.name}),(0,A.jsx)(`small`,{children:l(`garrison.allyDetail`,{level:e.level,power:Math.round(e.power/1e4)})})]}),(0,A.jsx)(`em`,{children:e.available?l(e.online?`garrison.online`:`"
+        },
+        {
+          "anchor": "squad.join.confirmMembers",
+          "utf8_byte": 24911,
+          "excerpt": "filter(e=>g.has(e.uid)).map(e=>({uid:e.uid,name:e.name}))]}),p(!1)},children:o(`squad.join.confirmMembers`)})})]})})]})}function be(e,t,n){let r=e.indexOf(t),i=e.indexOf(n);if(r<0||i<0||r===i)return e;let a=[...e],[o]=a.splice(r,1);return a.splice(i,0,o),a}function F(e,t=e.kind){let n=e.source||(e.searchable?`search`:e.monsterIds.length?`map`:`undiscovered`),r=t===`join`||e.rally||P(e.monsterType);return{...ce(e),kind:t,source:n,rally:r,action:r?`rally`:`attack`,attackEnabled:t===`farm`,joinEnabled:t===`join`,continuousAttack:t===`farm`&&e.continuousAttack===!0&&!r,continuousJoin:t===`join`&&e"
+        }
+      ],
+      "rule": "Enabled conditions gate fields; listoff/blacklist/whitelist. Picker stages selection/search, excludes self, confirms current members while preserving unresolved leaders. Members-ready/failed/offline/left branches are data dependent.",
+      "producer": "authorized alliance member data; preview disclosed fixtures",
+      "consumer": "selected profile joinRestrictions.leaders",
+      "limits": "None asserted beyond the rule",
+      "clone_state": "IMPLEMENTED_NOT_VALIDATED: original/native parity; local assertions recorded separately"
+    },
+    {
+      "id": "draft-save-state",
+      "source": "index-BVfnK1wp.js",
+      "sha256": "44C4E4043825B7DB296B64171951B27176F8850FF8D7D337CC991DF4765524C6",
+      "evidence": "EXACT_BYTES",
+      "locators": [
+        {
+          "anchor": "CONFIG_SAVE_DISPOSED",
+          "utf8_byte": 191834,
+          "excerpt": ").catch(()=>void 0)},t))}function v(e=!0){if(h(),u)return Promise.reject(Error(`CONFIG_SAVE_DISPOSED`));if(a)return!e&&g()&&(o={value:structuredClone(n.draft),generation:r}),a;if(c)return Promise.reject(Error(`CONFIG_ACTION_PENDING`));if(!n.dirty)return Promise.resolve(n.confirmed);if(d||!g()){let e=Error(`CONFIG_DRAFT_INVALID`);return m({error:e}),Promise.reject(e)}return m({saving:!0,error:null}),a=(async()=>{try{for(;(n.dirty||o)&&!u&&!c&&!d&&g();){let i=o?.value??structuredClone(n.draft),a=o?.generation??r;o=void 0;let s=await t.write(i);if(u||(m({confirmed:s,...r===a?{draft:s}:{}}),!e&&!o"
+        },
+        {
+          "anchor": "CONFIG_DRAFT_INVALID",
+          "utf8_byte": 192062,
+          "excerpt": "ING`));if(!n.dirty)return Promise.resolve(n.confirmed);if(d||!g()){let e=Error(`CONFIG_DRAFT_INVALID`);return m({error:e}),Promise.reject(e)}return m({saving:!0,error:null}),a=(async()=>{try{for(;(n.dirty||o)&&!u&&!c&&!d&&g();){let i=o?.value??structuredClone(n.draft),a=o?.generation??r;o=void 0;let s=await t.write(i);if(u||(m({confirmed:s,...r===a?{draft:s}:{}}),!e&&!o))break}return n.confirmed}catch(e){throw u||m({error:e}),h(),o=void 0,e}finally{a=void 0,u||m({saving:!1})}})(),a}async function y(e=!1){if(u||n.saving||c||!e&&n.dirty)return;if(s&&!e)return s;let i=r,a=(async()=>{let e=await t"
+        },
+        {
+          "anchor": "configSave.discard",
+          "utf8_byte": 199603,
+          "excerpt": ",disabled:n||i.saving,onClick:()=>{e.refresh(!0).catch(()=>void 0)},children:r(`configSave.discard`)})]}):null}var ke=_(),Ae;(function(e){e.WINDOW_RESIZED=`tauri://resize`,e.WINDOW_MOVED=`tauri://move`,e.WINDOW_CLOSE_REQUESTED=`tauri://close-requested`,e.WINDOW_DESTROYED=`tauri://destroyed`,e.WINDOW_FOCUS=`tauri://focus`,e.WINDOW_BLUR=`tauri://blur`,e.WINDOW_SCALE_FACTOR_CHANGED=`tauri://scale-change`,e.WINDOW_THEME_CHANGED=`tauri://theme-changed`,e.WINDOW_CREATED=`tauri://window-created`,e.WINDOW_SUSPENDED=`tauri://suspended`,e.WINDOW_RESUMED=`tauri://resumed`,e.WEBVIEW_CREATED=`tauri://webvi"
+        }
+      ],
+      "rule": "Serialized draft vs confirmed; edit generation; default400ms debounce. Invalid does not dispatch. Older ack must not replace newer edits; drain next write. Error preserves dirty draft; retry flush/discard confirmed; scoped stores retained across views. Local preview adapter only echoes memory; it proves no native persistence.",
+      "producer": "config draft adapter read/write/valid",
+      "consumer": "store getSnapshot/edit/flush/refresh and error component",
+      "limits": "None asserted beyond the rule",
+      "clone_state": "IMPLEMENTED_NOT_VALIDATED: original/native parity; local assertions recorded separately"
+    }
+  ]
+}

@@ -15,10 +15,12 @@ If it is encountered, record only the access boundary. Do not rebuild it or bypa
 PM-006 lead review keeps `LWB317-UI-COMPLETE-001` historically
 **CHANGES_REQUIRED**. PM-007 has reviewed follow-on `LWB317-UI-CORRECT-001`
 as **CHANGES_REQUIRED**, accepting Home request scoping and retaining useful
-nested UI work. Remaining Automation controls, AFK draft isolation and Map
-fixture query assertions continue via `LWB317-UI-CORRECT-002`. Complete all-page
-UI parity is not accepted. Original visual validation and existing Map live-proof
-scopes remain separate.
+nested UI work. `LWB317-UI-CORRECT-002` is now **AWAITING_REVIEW** after recovery
+of the interrupted worker: focused Automation controls, AFK draft isolation and
+Map fixture queries have contract, state tests and real browser evidence.
+Its `coverage-matrix.md` explicitly records remaining source-recoverable branches.
+Complete all-page UI parity is not accepted. Original visual validation and
+existing Map live-proof scopes remain separate.
 
 | ID | Surface/state | Reference evidence | Reproduction status | Visual validation | Open gaps |
 |---|---|---|---|---|---|
@@ -26,9 +28,9 @@ scopes remain separate.
 | UI-001 | App launch / initial in-scope shell | EXACT_BYTES shell/CSS + all nine recovered locale chunks; runtime blocked by auth | IMPLEMENTED_NOT_VALIDATED | BLOCKED | Locale/theme/responsive clone QA complete under `LWB317-UI-COMPLETE-001`; reference post-auth geometry/theme/profile-sidebar state unavailable |
 | UI-002 | Top-level navigation | EXACT_BYTES definition + locale chunks + inline SVGs + CSS | IMPLEMENTED_NOT_VALIDATED | BLOCKED | Exact eight-item order, translated rendering and selected-state clone QA implemented; reference hover/focus pixels unavailable; Advanced stays off |
 | UI-003 | Home | EXACT_BYTES component/status predicates + locale/CSS inventory; existing Desktop read/config contracts | IMPLEMENTED_NOT_VALIDATED | BLOCKED | PM-007 accepts R1 source/transport correction; actual callback deferred ack/error/missing-profile checks pass. Native preference/live lifecycle proof and original pixels remain separate |
-| UI-004 | Automation | EXACT_BYTES tab/card/nested-surface/locale/CSS inventory | IMPLEMENTED_NOT_VALIDATED | BLOCKED | PM-007 C1: Construction category/choices, Training camp/level/status, Gather options/squad branches and Train selection/reward branches remain incomplete. Useful Chat/Treasure work retained; UI-CORRECT-002 continues local UI |
-| UI-005 | Map Data | EXACT_BYTES scan/tab/filter/table/action/locale/CSS inventory | IMPLEMENTED_NOT_VALIDATED overall; clean Resource runtime flow LIVE_PROVEN | BLOCKED for direct original post-auth visual comparison | Canonical native Map path preserved; source-backed filters/columns/selections/Auto/disabled safe action presentation completed. Existing per-category/live-state status remains as documented by Map Goal |
-| UI-006 | Squads / AFK | EXACT_BYTES AFK/profile/equipment/nested locale/CSS inventory | IMPLEMENTED_NOT_VALIDATED | BLOCKED | Equipment Rename and useful nested handlers retained. PM-007 C2 real browser QA proves AFK target edits leak across profiles; complete per-profile drafts/validation remain open. Physical drag and runtime provider limits remain separate |
+| UI-004 | Automation | EXACT_BYTES tab/card/nested-surface/locale/CSS inventory | IMPLEMENTED_NOT_VALIDATED | BLOCKED | CORRECT-002 AWAITING_REVIEW: Construction keyboard/choices/validation, Training camp/level/status/order, Gather options/squads, Train clear/reward ordering and config draft/error handling implemented locally. Weekly quality draft wiring, positive Trade/Assist data and detailed runtime summaries/timing remain gaps; affected coverage matrix is authoritative |
+| UI-005 | Map Data | EXACT_BYTES scan/tab/filter/table/action/locale/CSS inventory | IMPLEMENTED_NOT_VALIDATED overall; clean Resource runtime flow LIVE_PROVEN | BLOCKED for direct original post-auth visual comparison | CORRECT-002 read-only synthetic dataset honors filters/sort/pages/totals/zero matches; native modes cannot select it and mutations reject. Canonical native Map path preserved. Existing per-category/live-state status remains as documented by Map Goal |
+| UI-006 | Squads / AFK | EXACT_BYTES AFK/profile/equipment/nested locale/CSS inventory | IMPLEMENTED_NOT_VALIDATED | BLOCKED | CORRECT-002 AWAITING_REVIEW: complete per-ID target/squad/execution/filter/join/member drafts, new-profile independence, navigation retention and local retry/discard proved in targeted QA. Actual target inventory/range warning and member loading/left/self variants need further UI coverage; physical drag/native persistence/original pixels unproved. Equipment corrections preserved |
 | UI-007 | City Layout | EXACT_BYTES disconnected + workbench/grid/inspector/locale/CSS inventory | IMPLEMENTED_NOT_VALIDATED | BLOCKED | Fenced local draft/history/selection/movement/validation model audited; browser DOM drag, invalid-overlap, Undo and Ctrl+Y QA recorded. Exact runtime city data/geometry unavailable |
 | UI-008 | Hotkeys | EXACT_BYTES shortcut/card/conditional config/locale/CSS inventory | IMPLEMENTED_NOT_VALIDATED | BLOCKED | Seven cards plus attack speedup option states and load/save errors audited; real browser Attack/item/diamond interaction recorded. Persisted config/reference pixels unavailable |
 | UI-009 | Mini Games | EXACT_BYTES helper/card/status/locale/CSS inventory | IMPLEMENTED_NOT_VALIDATED | BLOCKED | Recovered Land/Food House result/status branches and local chest toggle audited; gameplay buttons stay disabled and no native success is fabricated |

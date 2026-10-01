@@ -8,7 +8,7 @@
     "build": "node scripts/build-production.mjs",
     "check:production-build": "node scripts/check-production-build.mjs",
     "preview": "vite preview",
-    "check": "node scripts/check-static.mjs && node scripts/check-home-integration.mjs && node scripts/check-map-integration.mjs && node scripts/check-ui-complete.mjs"
+    "check": "node scripts/check-static.mjs && node scripts/check-home-integration.mjs && node scripts/check-map-integration.mjs && node scripts/check-ui-complete.mjs && node scripts/check-ui-drafts.mjs"
   },
   "dependencies": {
     "react": "^19.1.1",

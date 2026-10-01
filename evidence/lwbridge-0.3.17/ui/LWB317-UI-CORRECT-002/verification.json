@@ -1,0 +1,27 @@
+{
+  "work_item": "LWB317-UI-CORRECT-002",
+  "date": "2026-10-01",
+  "baseline": "a19905dd3a4f91bbc250d054fc242cd11c4376d1",
+  "state": "AWAITING_REVIEW",
+  "reference_executable_sha256": "4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783",
+  "checks": [
+    { "command": "npm.cmd run check", "cwd": "src/LWBridge.UI-0.3.17", "exit_code": 0, "result": "Static/CSS, Home, Map, locale/coverage and actual draft/helper checks pass; 457 referenced keys; nine catalogs of 1383 messages" },
+    { "command": "npm.cmd run build", "cwd": "src/LWBridge.UI-0.3.17", "exit_code": 0, "result": "LWB317_PRODUCTION_UI_BUILD_OK; 54 modules" },
+    { "command": "npm.cmd run check:production-build", "cwd": "src/LWBridge.UI-0.3.17", "exit_code": 0, "result": "LWB317_PRODUCTION_UI_PACKAGE_OK" },
+    { "command": "node evidence/lwbridge-0.3.17/ui/LWB317-UI-CORRECT-001/lead-review/check-home-callback.mjs", "exit_code": 0, "result": "ACKNOWLEDGED_OK, REJECTED_OK, MISSING_PROFILE_OK" },
+    { "command": "dotnet run --project tests/LWBridge.Map-0.3.17.Checks/LWBridge.Map-0.3.17.Checks.csproj -c Release", "exit_code": 0, "result": "LWB317_MAP_CHECKS_OK" },
+    { "command": "node evidence/lwbridge-0.3.17/ui/LWB317-UI-CORRECT-002/collect-contracts.mjs", "exit_code": 0, "result": "17 contracts; 9 screenshot hashes (7 fresh and 2 preserved interrupted artifacts)" },
+    { "command": "node evidence/lwbridge-0.3.17/ui/LWB317-UI-CORRECT-002/verify-evidence.mjs", "exit_code": 0, "result": "Source hashes, UTF-8 byte anchors and screenshot hashes match; 50 browser assertions/observations" },
+    { "command": "git diff --check", "exit_code": 0, "result": "No whitespace errors; normal LF/CRLF checkout warnings" }
+  ],
+  "build": {
+    "source_fingerprint": "9f15189222b347768b9bd72c0bbe5ec09621e20f0a1068a352699cc80370b820",
+    "artifact_fingerprint": "60541fd504ee0474885e1da3a22a5999846305433e95524315d4efea1c13aa39",
+    "output": "src/LWBridge.UI-0.3.17/dist",
+    "node": "v24.18.0",
+    "vite": "7.3.6"
+  },
+  "browser_qa": { "tool": "CUA in-app browser locators/keyboard and read-only DOM", "checks": 50, "console_errors": [], "physical_html5_drag_proved": false },
+  "cleanup": { "owned_tab": "3 closed", "viewport": "temporary override reset", "owned_listener": "127.0.0.1:4319 PID45868 command line verified before stop", "owner_sessions": "untouched" },
+  "limitations": ["Source-recoverable UI gaps listed in coverage-matrix.md", "No full all-page parity", "Original post-auth pixels unavailable", "Local config memory acknowledgments only", "No native persistence or gameplay proof", "Existing Map live-proof dispositions unchanged"]
+}

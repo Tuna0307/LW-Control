@@ -1,8 +1,15 @@
 # LWB317-UI-CORRECT-002 — finish source-backed forms and isolate UI drafts
 
-Project-lead assignment: 2026-10-01. State: READY.
+Project-lead assignment: 2026-10-01. State: AWAITING_REVIEW.
 Parent UI-CORRECT-001 is CHANGES_REQUIRED after PM-007; its Home fix is accepted
 at the source/transport boundary. Preserve useful corrections and evidence.
+
+2026-10-01 recovery: the owner asked the project lead to finish the interrupted
+worker. The lead preserved its uncommitted Pages/Map/test changes and two captures
+at baseline `a19905d`, then completed the focused correction and QA checkpoint.
+Delivery: `docs/reviews/2026-10-01-LWB317-UI-CORRECT-002.md` and the matching
+evidence tree. Independent review remains pending; full eight-page parity is
+not claimed. Remaining source-recoverable branches are explicitly inventoried.
 
 ## Fresh-chat context
 

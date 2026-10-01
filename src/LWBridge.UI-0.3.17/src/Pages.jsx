@@ -2,6 +2,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { MapDataPage } from "./MapDataPage.jsx";
 import { getMapPreviewProvider } from "./mapPreviewApi.js";
 import { useI18n } from "./i18n.jsx";
+import { usePreviewConfig, PreviewConfigError } from "./previewConfigHook.jsx";
+import { normalizeJoinRestrictions, validJoinRestrictions, previewAfkTargets, makePreviewAfkProfile, previewAfkProfileValid, applyAfkTarget } from "./previewAfkContracts.js";
+import { initialAutomationDraft, automationDraftError, previewTrainingOrder, activateTraining } from "./previewAutomationContracts.js";
 
 export { MapDataPage } from "./MapDataPage.jsx";
 
@@ -251,61 +254,152 @@ function WeeklyQualityPreview({ enabled, defaults }) {
   return <div className="automation-weekly-quality">{days.map((day, index) => <label key={day}><span>{day}</span><select defaultValue={defaults[index]} disabled={!enabled}><option value="none">{t("automation.noQualityRefresh")}</option><option value="ssr">{t("automation.ssrOrAbove")}</option><option value="ur">UR</option></select></label>)}</div>;
 }
 
-function AutomationConfigPreview({ title, enabled, previewState = "" }) {
+const previewConstructionBuildingTypes = [
+  { itemId: 1101, category: "economy", name: "Fixture Steelworks" },
+  { itemId: 1102, category: "economy", name: "Fixture Farm" },
+  { itemId: 1201, category: "military", name: "Fixture Barracks" },
+  { itemId: 1301, category: "decoration", name: "Fixture Monument" },
+  { itemId: 1401, category: "season", name: "Fixture Season Hall" },
+  { itemId: 1501, category: "other", name: "Fixture Headquarters" },
+];
+
+const previewSoldierCamps = [
+  { uuid: "fixture-camp-1", level: 30, availableLevels: [1, 2, 3, 4, 5, 6, 7], reason: "train", productionCount: 0 },
+  { uuid: "fixture-camp-2", level: 28, availableLevels: [1, 2, 3, 4, 5, 6], reason: "training", productionCount: 240, productionLevel: 6, completionTime: 1_799_000_900_000 },
+];
+
+const previewTrainRewards = [
+  { key: "fixture-medal", name: "Fixture Medal", count: 8 },
+  { key: "fixture-parts", name: "Fixture Parts", count: 5 },
+  { key: "fixture-chest", name: "Fixture Chest", count: 2 },
+];
+
+function AutomationConfigPreview({ title, enabled, previewState = "", config }) {
   const { t } = useI18n();
-  const [constructionTargetEnabled, setConstructionTargetEnabled] = useState(true);
-  const [replyEnabled, setReplyEnabled] = useState(false);
-  const [treasureDispatchEnabled, setTreasureDispatchEnabled] = useState(false);
-  const [dispatchAssistEnabled, setDispatchAssistEnabled] = useState(false);
-  const [ghostJoinEnabled, setGhostJoinEnabled] = useState(false);
-  const [trainMode, setTrainMode] = useState("reward");
-  const [vipTrainMode, setVipTrainMode] = useState("reward");
-  const [thanksMode, setThanksMode] = useState("like");
+  const error = automationDraftError(title, config.draft);
+  return <div data-draft-dirty={config.dirty} data-draft-saving={config.saving} onBlur={() => config.store.flush().catch(() => {})}>
+    <PreviewConfigError config={config} t={t} />
+    <AutomationFields title={title} enabled={enabled} previewState={previewState} config={config} />
+    {error && title !== "Automatic Construction" && title !== "Auto Training" ? <p className="automation-error" role="alert">{t(error)}</p> : null}
+  </div>;
+}
+
+function AutomationFields({ title, enabled, previewState, config }) {
+  const { t, language } = useI18n();
+  const fieldState = (key, initial) => [config.draft[key] ?? initial, (value) => config.store.edit((draft) => ({ ...draft, [key]: typeof value === "function" ? value(draft[key] ?? initial) : value }))];
+  const field = (key, initial) => ({ value: config.draft[key] ?? initial, onChange: (event) => config.store.edit((draft) => ({ ...draft, [key]: event.target.value })) });
+  const check = (key, initial = false) => ({ checked: config.draft[key] ?? initial, onChange: (event) => config.store.edit((draft) => ({ ...draft, [key]: event.target.checked })) });
+  const [constructionTargetEnabled, setConstructionTargetEnabled] = fieldState("constructionTargetEnabled", false);
+  const [constructionCategory, setConstructionCategory] = useState("all");
+  const [constructionBuildingTypeIds, setConstructionBuildingTypeIds] = fieldState("constructionBuildingTypeIds", []);
+  const [trainingTotalCount, setTrainingTotalCount] = fieldState("trainingTotalCount", 0);
+  const [trainingTargetLevel, setTrainingTargetLevel] = fieldState("trainingTargetLevel", 0);
+  const [trainingOpenFailed, setTrainingOpenFailed] = useState(previewState === "automation-training-open-failed");
+  const [replyEnabled, setReplyEnabled] = fieldState("replyEnabled", false);
+  const [treasureDispatchEnabled, setTreasureDispatchEnabled] = fieldState("treasureDispatchEnabled", false);
+  const [dispatchAssistEnabled, setDispatchAssistEnabled] = fieldState("dispatchAssistEnabled", false);
+  const [ghostJoinEnabled, setGhostJoinEnabled] = fieldState("ghostJoinEnabled", false);
+  const [trainMode, setTrainMode] = fieldState("trainMode", "reward");
+  const [vipTrainMode, setVipTrainMode] = fieldState("vipTrainMode", "reward");
+  const [normalFixedCarriageIds, setNormalFixedCarriageIds] = fieldState("normalFixedCarriageIds", [1]);
+  const [vipFixedCarriageIds, setVipFixedCarriageIds] = fieldState("vipFixedCarriageIds", [1, 2]);
+  const [preferredRewardKeys, setPreferredRewardKeys] = fieldState("preferredRewardKeys", ["fixture-medal"]);
+  const [preferRewardQuantity, setPreferRewardQuantity] = fieldState("preferRewardQuantity", false);
+  const [thanksMode, setThanksMode] = fieldState("thanksMode", "like");
+  const [draggedReward, setDraggedReward] = useState("");
+  const [draggedGatherSquad, setDraggedGatherSquad] = useState(null);
+  const [gatherSquadError, setGatherSquadError] = useState("");
   if (title === "Auto Training") {
-    return <div className="automation-form-grid"><label><span>{t("automation.soldierTraining.totalCount")}</span><input type="number" min="1" max="1000000" defaultValue="1000" disabled={!enabled} /></label><label><span>{t("automation.soldierTraining.target")}</span><select defaultValue="highest" disabled={!enabled}><option value="highest">{t("automation.soldierTraining.highest")}</option></select></label></div>;
+    const camps = previewState === "automation-training-no-camps" ? [] : previewSoldierCamps;
+    const availableLevels = [...new Set([...camps.flatMap((camp) => camp.availableLevels), ...(trainingTargetLevel > 0 ? [trainingTargetLevel] : [])])].sort((a, b) => a - b);
+    const validQuantity = Number.isInteger(trainingTotalCount) && trainingTotalCount > 0 && trainingTotalCount <= 1000000;
+    const order = previewTrainingOrder(previewState);
+    return <>
+      {previewState === "automation-training-error" ? <p role="alert">{t("automation.soldierTraining.stateError")}</p> : null}
+      <div className="soldier-training-fields">
+        <label><span>{t("automation.soldierTraining.totalCount")}</span><input type="number" min="1" max="1000000" step="1" value={trainingTotalCount || ""} aria-invalid={trainingTotalCount !== 0 && !validQuantity} disabled={!enabled || (config.draft.enabled && config.draft.trainEnabled)} onChange={(event) => config.store.edit((draft) => ({ ...draft, trainingTotalCount: Number(event.target.value), trainEnabled: false }))} /></label>
+        <label><span>{t("automation.soldierTraining.target")}</span><select value={trainingTargetLevel} disabled={!enabled} onChange={(event) => setTrainingTargetLevel(Number(event.target.value))}><option value="0">{t("automation.soldierTraining.highest")}</option>{availableLevels.map((level) => { const available = camps.some((camp) => camp.availableLevels.includes(level)); return <option key={level} value={level} disabled={!available}>{t("automation.soldierTraining.level", { level })}</option>; })}</select></label>
+      </div>
+      <p className="muted">{t("automation.soldierTraining.quantityHint")}</p>
+      {trainingTotalCount !== 0 && !validQuantity ? <p role="alert" className="automation-error">{t("automation.soldierTraining.quantityError")}</p> : null}
+      {order ? <div role="status"><p>{t("automation.soldierTraining.progress", order)}</p><p className="muted">{t(`automation.soldierTraining.order.${order.reason}`)}</p></div> : null}
+      <p className="muted">{t("automation.soldierTraining.summary", { trained: 420, promoted: 180, collected: 360 })}</p>
+      {camps.length === 0 ? <p className="muted">{t("automation.soldierTraining.noCamps")}</p> : null}
+      {previewState === "automation-training-data-unavailable" ? <p role="status">{t("automation.soldierTraining.reason.data_unavailable")}</p> : null}
+      {trainingOpenFailed ? <p role="alert">{t("automation.soldierTraining.openFailed")}</p> : null}
+      <div className="soldier-training-camps">{camps.map((camp, index) => <div className="soldier-training-camp" key={camp.uuid}><button type="button" title={t("automation.soldierTraining.openCamp")} disabled={!enabled} onClick={() => setTrainingOpenFailed(true)}>{t("automation.soldierTraining.building")} {index + 1}</button><span className="muted">{t("automation.soldierTraining.level", { level: camp.level })}</span><span className="soldier-training-camp-detail">{camp.productionCount > 0 ? t("automation.soldierTraining.production", { level: camp.productionLevel, count: camp.productionCount, time: new Date(camp.completionTime).toLocaleString(language, { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" }) }) : t(`automation.soldierTraining.reason.${camp.reason}`)}</span></div>)}</div>
+    </>;
   }
   if (title === "Automatic Construction") {
-    const invalidBuilderLimit = previewState === "automation-validation-error";
-    return <><label className="automation-checkbox-row"><input type="checkbox" checked={constructionTargetEnabled} disabled={!enabled} onChange={(event) => setConstructionTargetEnabled(event.target.checked)} /><span>{t("automation.construction.targetEnabled")}</span></label>{constructionTargetEnabled ? <><div className="automation-actions"><label><span>{t("automation.construction.targetLevel")}</span><input type="number" min="1" max="100" step="1" defaultValue="30" disabled={!enabled} /></label></div><details className="construction-type-select"><summary><span>{t("automation.construction.buildingTypes")}</span><strong>{t("automation.construction.selectTypes")}</strong><span aria-hidden="true">⌄</span></summary><p className="muted">{t("automation.construction.selectTypes")}</p></details></> : null}<label className="automation-checkbox-row"><input type="checkbox" defaultChecked disabled={!enabled} /><span>{t("automation.autoCollectRewards")}</span></label><div className="automation-actions"><label><span>{t("automation.maxBuilders")}</span><input type="number" min="1" max="20" step="1" defaultValue={invalidBuilderLimit ? "21" : "1"} disabled={!enabled} aria-invalid={invalidBuilderLimit || undefined} /></label></div>{invalidBuilderLimit ? <p className="automation-error" role="alert">{t("automation.builderLimitError")}</p> : null}</>;
+    const builderLimit = config.draft.maxBuilders ?? (previewState === "automation-validation-error" ? "21" : "1");
+    const invalidBuilderLimit = !Number.isInteger(Number(builderLimit)) || Number(builderLimit) < 1 || Number(builderLimit) > 20;
+    const categories = ["all", "economy", "military", "decoration", "season", "other"].filter((category) => category === "all" || previewConstructionBuildingTypes.some((building) => building.category === category));
+    const activeCategory = categories.includes(constructionCategory) ? constructionCategory : "all";
+    const visibleBuildings = previewConstructionBuildingTypes.filter((building) => activeCategory === "all" || building.category === activeCategory);
+    const selectedSummary = constructionBuildingTypeIds.length ? previewConstructionBuildingTypes.filter((building) => constructionBuildingTypeIds.includes(building.itemId)).map((building) => building.name).join("、") : t("automation.construction.selectTypes");
+    const moveConstructionTab = (event, category) => {
+      const index = categories.indexOf(category);
+      const nextIndex = event.key === "ArrowRight" ? (index + 1) % categories.length : event.key === "ArrowLeft" ? (index + categories.length - 1) % categories.length : event.key === "Home" ? 0 : event.key === "End" ? categories.length - 1 : -1;
+      if (nextIndex < 0) return;
+      event.preventDefault();
+      setConstructionCategory(categories[nextIndex]);
+      event.currentTarget.parentElement?.querySelectorAll('[role="tab"]')[nextIndex]?.focus();
+    };
+    return <><label className="automation-checkbox-row"><input type="checkbox" checked={constructionTargetEnabled} disabled={!enabled} onChange={(event) => setConstructionTargetEnabled(event.target.checked)} /><span>{t("automation.construction.targetEnabled")}</span></label>{constructionTargetEnabled ? <><div className="automation-actions"><label><span>{t("automation.construction.targetLevel")}</span><input type="number" min="1" max="100" step="1" {...field("constructionTargetLevel", "30")} disabled={!enabled} /></label></div><details className="construction-type-select"><summary><span>{t("automation.construction.buildingTypes")}</span><strong>{selectedSummary}</strong><span className="construction-select-arrow" aria-hidden="true">⌄</span></summary><div className="construction-category-tabs" role="tablist" aria-label={t("automation.construction.buildingTypes")}>{categories.map((category) => <button type="button" role="tab" id={`preview-construction-${category}`} aria-controls="preview-construction-types" aria-selected={activeCategory === category} tabIndex={activeCategory === category ? 0 : -1} key={category} onClick={() => setConstructionCategory(category)} onKeyDown={(event) => moveConstructionTab(event, category)}>{t(`automation.construction.category.${category}`)}</button>)}</div><fieldset className="construction-target-types" role="tabpanel" id="preview-construction-types" aria-labelledby={`preview-construction-${activeCategory}`} disabled={!enabled}>{visibleBuildings.map((building) => <label className="automation-checkbox-row" key={building.itemId}><input type="checkbox" checked={constructionBuildingTypeIds.includes(building.itemId)} onChange={(event) => setConstructionBuildingTypeIds((current) => event.target.checked ? [...current, building.itemId] : current.filter((itemId) => itemId !== building.itemId))} /><span>{building.name}</span></label>)}</fieldset></details><p className="muted">{t(constructionBuildingTypeIds.length ? "automation.construction.targetHint" : "automation.construction.selectTypes")}</p></> : null}<label className="automation-checkbox-row"><input type="checkbox" {...check("autoClaimCompleted", true)} disabled={!enabled} /><span>{t("automation.autoCollectRewards")}</span></label><div className="automation-actions"><label><span>{t("automation.maxBuilders")}</span><input type="number" min="1" max="20" step="1" {...field("maxBuilders", previewState === "automation-validation-error" ? "21" : "1")} disabled={!enabled} aria-invalid={invalidBuilderLimit || undefined} /></label></div>{invalidBuilderLimit ? <p className="automation-error" role="alert">{t("automation.builderLimitError")}</p> : null}</>;
   }
   if (title === "Automatic Treatment") {
-    return <div className="automation-actions"><label><span>{t("automation.treatmentAmountPerArmy")}</span><input type="number" min="1" max="1000000" step="1" defaultValue="1" disabled={!enabled} /></label></div>;
+    return <div className="automation-actions"><label><span>{t("automation.treatmentAmountPerArmy")}</span><input type="number" min="1" max="1000000" step="1" {...field("amountPerArmy", "1")} disabled={!enabled} /></label></div>;
   }
   if (title === "Automatic Official Application") {
-    return <div className="automation-actions"><label><span>{t("automation.targetPosition")}</span><select defaultValue="0" disabled={!enabled}><option value="0">{t("automation.position.none")}</option><option value="10002">{t("automation.position.vicePresident")}</option><option value="10003">{t("automation.position.strategyMinister")}</option><option value="10004">{t("automation.position.defenseMinister")}</option><option value="10005">{t("automation.position.constructionMinister")}</option><option value="10006">{t("automation.position.scienceMinister")}</option><option value="10007">{t("automation.position.internalAffairsMinister")}</option></select></label></div>;
+    return <div className="automation-actions"><label><span>{t("automation.targetPosition")}</span><select {...field("positionId", "0")} disabled={!enabled}><option value="0">{t("automation.position.none")}</option><option value="10002">{t("automation.position.vicePresident")}</option><option value="10003">{t("automation.position.strategyMinister")}</option><option value="10004">{t("automation.position.defenseMinister")}</option><option value="10005">{t("automation.position.constructionMinister")}</option><option value="10006">{t("automation.position.scienceMinister")}</option><option value="10007">{t("automation.position.internalAffairsMinister")}</option></select></label></div>;
   }
   if (["Red Packet", "Fireworks / Egg", "Treasure"].includes(title)) {
     const treasure = title === "Treasure";
-    return <><section className="automation-settings-section"><h3>{t("automation.section.claim")}</h3>{treasure ? <p className="hint">{t("automation.treasureTargetDelayHint")}</p> : null}<div className="automation-form-grid"><label><span>{t("automation.minDelaySeconds")}</span><input type="number" min="0" max={treasure ? "600" : "60"} step="0.01" defaultValue="0" disabled={!enabled} /></label><label><span>{t("automation.maxDelaySeconds")}</span><input type="number" min="0" max={treasure ? "600" : "60"} step="0.01" defaultValue="0" disabled={!enabled} /></label></div></section><section className="automation-settings-section"><label className="automation-checkbox-row"><input type="checkbox" checked={replyEnabled} disabled={!enabled} onChange={(event) => setReplyEnabled(event.target.checked)} /><span>{t("automation.autoReply")}</span></label>{replyEnabled ? <div className="automation-subsettings"><div className="automation-form-grid"><label><span>{t("automation.replyDelayMin")}</span><input type="number" min="0.1" max="600" step="0.1" defaultValue="2" /></label><label><span>{t("automation.replyDelayMax")}</span><input type="number" min="0.1" max="600" step="0.1" defaultValue="5" /></label></div><label className="automation-replies"><span>{t("automation.replyPhrases")}</span><textarea rows="4" defaultValue="" /></label></div> : null}</section>{treasure ? <section className="automation-settings-section"><label className="automation-checkbox-row"><input type="checkbox" disabled={!enabled} /><span>{t("automation.treasureAutoSearch")}</span></label><p className="muted">{t("automation.treasureAutoSearchHint")}</p><label className="automation-checkbox-row"><input type="checkbox" checked={treasureDispatchEnabled} disabled={!enabled} onChange={(event) => setTreasureDispatchEnabled(event.target.checked)} /><span>{t("automation.treasureAutoDispatch")}</span></label>{treasureDispatchEnabled ? <div className="automation-subsettings"><div className="automation-form-grid"><label><span>{t("automation.dispatchDelayMin")}</span><input type="number" min="0.1" max="600" step="0.1" defaultValue="2" /></label><label><span>{t("automation.dispatchDelayMax")}</span><input type="number" min="0.1" max="600" step="0.1" defaultValue="5" /></label></div><label><span>{t("automation.treasureDispatchRetrySeconds")}</span><input type="number" min="1" max="300" step="1" defaultValue="30" /></label><div className="automation-squad-choices">{[1,2,3,4].map((index) => <label key={index}><input type="checkbox" defaultChecked={index === 1} /><span>{t("automation.squad", { index })}</span></label>)}</div><p className="muted">{t("automation.treasureDispatchPriorityHint")}</p></div> : null}</section> : null}</>;
+    return <><section className="automation-settings-section"><h3>{t("automation.section.claim")}</h3>{treasure ? <p className="hint">{t("automation.treasureTargetDelayHint")}</p> : null}<div className="automation-form-grid"><label><span>{t("automation.minDelaySeconds")}</span><input type="number" min="0" max={treasure ? "600" : "60"} step="0.01" {...field("claimMin", "0")} disabled={!enabled} /></label><label><span>{t("automation.maxDelaySeconds")}</span><input type="number" min="0" max={treasure ? "600" : "60"} step="0.01" {...field("claimMax", "0")} disabled={!enabled} /></label></div></section><section className="automation-settings-section"><label className="automation-checkbox-row"><input type="checkbox" checked={replyEnabled} disabled={!enabled} onChange={(event) => setReplyEnabled(event.target.checked)} /><span>{t("automation.autoReply")}</span></label>{replyEnabled ? <div className="automation-subsettings"><div className="automation-form-grid"><label><span>{t("automation.replyDelayMin")}</span><input type="number" min="0.1" max="600" step="0.1" {...field("replyMin", "2")} /></label><label><span>{t("automation.replyDelayMax")}</span><input type="number" min="0.1" max="600" step="0.1" {...field("replyMax", "5")} /></label></div><label className="automation-replies"><span>{t("automation.replyPhrases")}</span><textarea rows="4" {...field("replies", "")} /></label></div> : null}</section>{treasure ? <section className="automation-settings-section"><label className="automation-checkbox-row"><input type="checkbox" {...check("treasureSearchEnabled")} disabled={!enabled} /><span>{t("automation.treasureAutoSearch")}</span></label><p className="muted">{t("automation.treasureAutoSearchHint")}</p><label className="automation-checkbox-row"><input type="checkbox" checked={treasureDispatchEnabled} disabled={!enabled} onChange={(event) => setTreasureDispatchEnabled(event.target.checked)} /><span>{t("automation.treasureAutoDispatch")}</span></label>{treasureDispatchEnabled ? <div className="automation-subsettings"><div className="automation-form-grid"><label><span>{t("automation.dispatchDelayMin")}</span><input type="number" min="0.1" max="600" step="0.1" {...field("dispatchMin", "2")} /></label><label><span>{t("automation.dispatchDelayMax")}</span><input type="number" min="0.1" max="600" step="0.1" {...field("dispatchMax", "5")} /></label></div><label><span>{t("automation.treasureDispatchRetrySeconds")}</span><input type="number" min="1" max="300" step="1" {...field("dispatchRetry", "30")} /></label><div className="automation-squad-choices">{[1,2,3,4].map((index) => <label key={index}><input type="checkbox" checked={(config.draft.dispatchSquads ?? [1]).includes(index)} onChange={(event) => config.store.edit((draft) => ({ ...draft, dispatchSquads: event.target.checked ? [...(draft.dispatchSquads ?? [1]), index] : (draft.dispatchSquads ?? [1]).filter((entry) => entry !== index) }))} /><span>{t("automation.squad", { index })}</span></label>)}</div><p className="muted">{t("automation.treasureDispatchPriorityHint")}</p></div> : null}</section> : null}</>;
   }
   if (title === "Trucks") {
-    return <><section className="automation-settings-section"><h3>{t("automation.section.schedule")}</h3><div className="automation-actions"><label><span>{t("automation.delayAfterResetMinutes")}</span><input type="number" min="0" max="1440" step="1" defaultValue="2" disabled={!enabled} /></label></div></section><section className="automation-settings-section"><h3>{t("automation.section.quality")}</h3><WeeklyQualityPreview enabled={enabled} defaults={["ssr","ur","ssr","ssr","ssr","ur","ssr"]} /></section><section className="automation-settings-section"><h3>{t("automation.section.departure")}</h3><label className="automation-checkbox-row"><input type="checkbox" disabled={!enabled} /><span>{t("automation.railwayDepartWhenTicketsInsufficient")}</span></label></section></>;
+    return <><section className="automation-settings-section"><h3>{t("automation.section.schedule")}</h3><div className="automation-actions"><label><span>{t("automation.delayAfterResetMinutes")}</span><input type="number" min="0" max="1440" step="1" {...field("delayMinutes", "2")} disabled={!enabled} /></label></div></section><section className="automation-settings-section"><h3>{t("automation.section.quality")}</h3><WeeklyQualityPreview enabled={enabled} defaults={["ssr","ur","ssr","ssr","ssr","ur","ssr"]} /></section><section className="automation-settings-section"><h3>{t("automation.section.departure")}</h3><label className="automation-checkbox-row"><input type="checkbox" {...check("departWhenTicketsInsufficient")} disabled={!enabled} /><span>{t("automation.railwayDepartWhenTicketsInsufficient")}</span></label></section></>;
   }
   if (title === "Secret Task") {
-    return <><section className="automation-settings-section"><h3>{t("squad.afkExecutionSettings")}</h3><label className="automation-checkbox-row"><input type="checkbox" defaultChecked disabled={!enabled} /><span>{t("automation.autoCollectRewards")}</span></label><div className="automation-actions"><label><span>{t("automation.delayAfterResetMinutes")}</span><input type="number" min="0" max="1440" step="1" defaultValue="3" disabled={!enabled} /></label></div></section><section className="automation-settings-section"><h3>{t("automation.section.quality")}</h3><WeeklyQualityPreview enabled={enabled} defaults={["none","ur","none","none","none","ur","none"]} /></section><section className="automation-settings-section"><label className="automation-checkbox-row"><input type="checkbox" checked={dispatchAssistEnabled} disabled={!enabled} onChange={(event) => setDispatchAssistEnabled(event.target.checked)} /><span>{t("automation.dispatchAssist")}</span></label>{dispatchAssistEnabled ? <><div className="automation-squad-choices">{["n","r","sr","ssr","ur","special"].map((quality) => <label key={quality}><input type="checkbox" defaultChecked={quality === "ur"} /><span>{quality === "special" ? t("automation.assistQuality.special") : quality.toUpperCase()}</span></label>)}</div><div className="automation-form-grid"><label><span>{t("automation.minDelaySeconds")}</span><input type="number" min="0" max="86400" step="1" defaultValue="0" /></label><label><span>{t("automation.maxDelaySeconds")}</span><input type="number" min="0" max="86400" step="1" defaultValue="0" /></label><label><span>{t("automation.assistIntervalSeconds")}</span><input type="number" min="5" max="300" step="1" defaultValue="30" /></label></div></> : <><strong>{t("automation.allySecretTasks")}</strong><span className="muted">{t("automation.noAllySecretTasks")}</span></>}</section></>;
+    return <><section className="automation-settings-section"><h3>{t("squad.afkExecutionSettings")}</h3><label className="automation-checkbox-row"><input type="checkbox" {...check("collectRewards", true)} disabled={!enabled} /><span>{t("automation.autoCollectRewards")}</span></label><div className="automation-actions"><label><span>{t("automation.delayAfterResetMinutes")}</span><input type="number" min="0" max="1440" step="1" {...field("delayMinutes", "3")} disabled={!enabled} /></label></div></section><section className="automation-settings-section"><h3>{t("automation.section.quality")}</h3><WeeklyQualityPreview enabled={enabled} defaults={["none","ur","none","none","none","ur","none"]} /></section><section className="automation-settings-section"><label className="automation-checkbox-row"><input type="checkbox" checked={dispatchAssistEnabled} disabled={!enabled} onChange={(event) => setDispatchAssistEnabled(event.target.checked)} /><span>{t("automation.dispatchAssist")}</span></label>{dispatchAssistEnabled ? <><div className="automation-squad-choices">{["n","r","sr","ssr","ur","special"].map((quality) => <label key={quality}><input type="checkbox" checked={(config.draft.assistQualities ?? []).includes(quality)} onChange={(event) => config.store.edit((draft) => ({ ...draft, assistQualities: event.target.checked ? [...(draft.assistQualities ?? []), quality] : (draft.assistQualities ?? []).filter((entry) => entry !== quality) }))} /><span>{quality === "special" ? t("automation.assistQuality.special") : quality.toUpperCase()}</span></label>)}</div><div className="automation-form-grid"><label><span>{t("automation.minDelaySeconds")}</span><input type="number" min="0" max="86400" step="1" {...field("assistMin", "0")} /></label><label><span>{t("automation.maxDelaySeconds")}</span><input type="number" min="0" max="86400" step="1" {...field("assistMax", "0")} /></label><label><span>{t("automation.assistIntervalSeconds")}</span><input type="number" min="5" max="300" step="1" {...field("assistInterval", "30")} /></label></div></> : <><strong>{t("automation.allySecretTasks")}</strong><span className="muted">{t("automation.noAllySecretTasks")}</span></>}</section></>;
   }
   if (title === "Ghost Ops") {
-    return <><label className="automation-checkbox-row"><input type="checkbox" checked={ghostJoinEnabled} disabled={!enabled} onChange={(event) => setGhostJoinEnabled(event.target.checked)} /><span>{t("automation.ghost.autoJoinAlliance")}</span></label>{ghostJoinEnabled ? <div className="automation-section"><strong>{t("automation.ghost.allianceFilter")}</strong><div className="automation-compact-choice-group">{["sr","ur","special"].map((filter) => <label className="automation-compact-choice" key={filter}><input type="radio" name="preview-ghost-filter" value={filter} defaultChecked={filter === "special"} disabled={!enabled} /><span>{t(`automation.ghost.filter.${filter}`)}</span></label>)}</div></div> : null}<label className="automation-checkbox-row"><input type="checkbox" disabled={!enabled} /><span>{t("automation.ghost.autoClaimRewards")}</span></label><div className="automation-inline-status"><span>{t("automation.ghost.ownPending")}: 0</span><span>{t("automation.ghost.allianceCandidates")}: 0</span><span>{t("automation.claimed")}: 0</span></div></>;
+    return <><label className="automation-checkbox-row"><input type="checkbox" checked={ghostJoinEnabled} disabled={!enabled} onChange={(event) => setGhostJoinEnabled(event.target.checked)} /><span>{t("automation.ghost.autoJoinAlliance")}</span></label>{ghostJoinEnabled ? <div className="automation-section"><strong>{t("automation.ghost.allianceFilter")}</strong><div className="automation-compact-choice-group">{["sr","ur","special"].map((filter) => <label className="automation-compact-choice" key={filter}><input type="radio" name="preview-ghost-filter" value={filter} checked={(config.draft.ghostFilter ?? "special") === filter} onChange={() => config.store.edit((draft) => ({ ...draft, ghostFilter: filter }))} disabled={!enabled} /><span>{t(`automation.ghost.filter.${filter}`)}</span></label>)}</div></div> : null}<label className="automation-checkbox-row"><input type="checkbox" {...check("ghostClaimRewards")} disabled={!enabled} /><span>{t("automation.ghost.autoClaimRewards")}</span></label><div className="automation-inline-status"><span>{t("automation.ghost.ownPending")}: 0</span><span>{t("automation.ghost.allianceCandidates")}: 0</span><span>{t("automation.claimed")}: 0</span></div></>;
   }
   if (title === "Automatic Alliance Train Boarding") {
-    return <><section className="automation-settings-section"><strong>{t("automation.normalCarriageSelection")}</strong><span className="muted">{t("automation.normalCarriageHint")}</span><div className="automation-compact-choice-group">{["reward","fixed"].map((mode) => <label className="automation-compact-choice" key={mode}><input type="radio" name="preview-train-mode" checked={trainMode === mode} onChange={() => setTrainMode(mode)} /><span>{t(mode === "reward" ? "automation.rewardSelectionMode" : "automation.fixedSelectionMode")}</span></label>)}</div>{trainMode === "fixed" ? <div className="automation-compact-choice-group">{[1,2,3,4].map((carriage) => <label className="automation-compact-choice" key={carriage}><input type="radio" name="preview-normal-carriage" defaultChecked={carriage === 1} /><span>{t(`automation.carriage${carriage}`)}</span></label>)}</div> : <p className="muted">{t("automation.noPreferredRewards")}</p>}</section><section className="automation-settings-section"><strong>{t("automation.vipCarriageSelection")}</strong><label className="automation-checkbox-row"><input type="checkbox" disabled={!enabled} /><span>{t("automation.autoAcceptTrainVip")}</span></label><span className="muted">{t("automation.vipCarriageHint")}</span><div className="automation-compact-choice-group">{["reward","fixed"].map((mode) => <label className="automation-compact-choice" key={mode}><input type="radio" name="preview-vip-train-mode" checked={vipTrainMode === mode} onChange={() => setVipTrainMode(mode)} /><span>{t(mode === "reward" ? "automation.rewardSelectionMode" : "automation.fixedSelectionMode")}</span></label>)}</div>{vipTrainMode === "fixed" ? <div className="automation-compact-choice-group">{[1,2,3,4].map((carriage) => <label className="automation-compact-choice" key={carriage}><input type="checkbox" defaultChecked={carriage < 3} /><span>{t(`automation.carriage${carriage}`)}</span></label>)}</div> : null}</section><section className="automation-settings-section"><h3>{t("automation.section.additional")}</h3><div className="automation-actions"><label><span>{t("automation.thanksMode")}</span><select value={thanksMode} onChange={(event) => setThanksMode(event.target.value)}><option value="like">{t("automation.thanksLike")}</option><option value="tickets">{t("automation.thanksTickets")}</option></select></label>{thanksMode === "tickets" ? <label><span>{t("automation.ticketCount")}</span><select defaultValue="1"><option>1</option><option>2</option><option>3</option></select></label> : null}</div><p className="muted">{t("automation.ticketFallbackLike")}</p></section></>;
+    const rewardSelectionVisible = trainMode === "reward" || vipTrainMode === "reward";
+    const orderedRewards = [...preferredRewardKeys.map((key) => previewTrainRewards.find((reward) => reward.key === key)).filter(Boolean), ...previewTrainRewards.filter((reward) => !preferredRewardKeys.includes(reward.key))];
+    const moveReward = (key, direction) => setPreferredRewardKeys((current) => { const index = current.indexOf(key); const target = index + direction; if (index < 0 || target < 0 || target >= current.length) return current; const next = [...current]; const [moved] = next.splice(index, 1); next.splice(target, 0, moved); return next; });
+    return <><section className="automation-settings-section"><strong>{t("automation.normalCarriageSelection")}</strong><span className="muted">{t("automation.normalCarriageHint")}</span><div className="automation-compact-choice-group automation-selection-mode-choices">{["reward","fixed"].map((mode) => <label className="automation-compact-choice" key={mode}><input type="radio" name="preview-train-mode" checked={trainMode === mode} disabled={!enabled} onChange={() => setTrainMode(mode)} /><span>{t(mode === "reward" ? "automation.rewardSelectionMode" : "automation.fixedSelectionMode")}</span></label>)}</div>{trainMode === "fixed" ? <fieldset className="automation-compact-choice-group automation-carriage-choices"><label className="automation-compact-choice"><input type="checkbox" disabled /><span>{t("automation.driver")}</span></label>{[1,2,3,4].map((carriage) => <label className="automation-compact-choice" key={carriage}><input type="checkbox" checked={normalFixedCarriageIds.includes(carriage)} disabled={!enabled} onChange={(event) => setNormalFixedCarriageIds(event.target.checked ? [carriage] : [])} /><span>{t(`automation.carriage${carriage}`)}</span></label>)}</fieldset> : null}</section>{rewardSelectionVisible ? <section className="automation-train-rewards automation-settings-section"><h3>{t("automation.section.rewardPreferences")}</h3><div className="automation-preference-list">{preferredRewardKeys.length === 0 ? <span className="muted">{t("automation.noPreferredRewards")}</span> : null}{orderedRewards.map((reward) => { const order = preferredRewardKeys.indexOf(reward.key); const selected = order >= 0; return <div className={`automation-preference-item${selected ? " selected" : ""}${draggedReward === reward.key ? " dragging" : ""}`} key={reward.key} draggable={selected} onDragStart={(event) => { if (selected) { event.dataTransfer.effectAllowed = "move"; setDraggedReward(reward.key); } }} onDragOver={(event) => { if (selected && draggedReward && draggedReward !== reward.key) { event.preventDefault(); event.dataTransfer.dropEffect = "move"; } }} onDrop={(event) => { event.preventDefault(); if (selected && draggedReward) setPreferredRewardKeys((current) => { const source = current.indexOf(draggedReward), target = current.indexOf(reward.key); if (source < 0 || target < 0 || source === target) return current; const next = [...current]; next.splice(target, 0, next.splice(source, 1)[0]); return next; }); setDraggedReward(""); }} onDragEnd={() => setDraggedReward("")}><label className="automation-reward-choice"><input type="checkbox" checked={selected} disabled={!enabled} onChange={(event) => setPreferredRewardKeys((current) => event.target.checked ? [...current, reward.key] : current.filter((key) => key !== reward.key))} /><span className="automation-reward-icon game-asset-placeholder" aria-hidden="true" /> <span>{reward.name}</span></label><strong className="automation-reward-count">×{reward.count}</strong>{selected ? <span className="automation-reward-order"><button type="button" title={t("automation.moveUp")} aria-label={t("automation.moveUp")} disabled={!enabled || order === 0} onClick={() => moveReward(reward.key, -1)}>↑</button><button type="button" title={t("automation.moveDown")} aria-label={t("automation.moveDown")} disabled={!enabled || order === preferredRewardKeys.length - 1} onClick={() => moveReward(reward.key, 1)}>↓</button><span className="automation-reward-drag-handle" aria-hidden="true">↕</span></span> : null}</div>; })}</div></section> : null}<section className="automation-settings-section"><strong>{t("automation.vipCarriageSelection")}</strong><label className="automation-checkbox-row"><input type="checkbox" {...check("autoAcceptVip")} disabled={!enabled} /><span>{t("automation.autoAcceptTrainVip")}</span></label><span className="muted">{t("automation.vipCarriageHint")}</span><div className="automation-compact-choice-group automation-selection-mode-choices">{["reward","fixed"].map((mode) => <label className="automation-compact-choice" key={mode}><input type="radio" name="preview-vip-train-mode" checked={vipTrainMode === mode} disabled={!enabled} onChange={() => setVipTrainMode(mode)} /><span>{t(mode === "reward" ? "automation.rewardSelectionMode" : "automation.fixedSelectionMode")}</span></label>)}</div>{vipTrainMode === "fixed" ? <fieldset className="automation-compact-choice-group automation-carriage-choices"><label className="automation-compact-choice"><input type="checkbox" disabled /><span>{t("automation.driver")}</span></label>{[1,2,3,4].map((carriage) => { const selected = vipFixedCarriageIds.includes(carriage); return <label className="automation-compact-choice" key={carriage}><input type="checkbox" checked={selected} disabled={!enabled || (!selected && vipFixedCarriageIds.length >= 2)} onChange={(event) => setVipFixedCarriageIds((current) => event.target.checked ? [...current, carriage] : current.filter((item) => item !== carriage))} /><span>{t(`automation.carriage${carriage}`)}</span></label>; })}</fieldset> : null}</section><section className="automation-settings-section"><h3>{t("automation.section.additional")}</h3>{rewardSelectionVisible ? <label className="automation-checkbox-row"><input type="checkbox" checked={preferRewardQuantity} disabled={!enabled} onChange={(event) => setPreferRewardQuantity(event.target.checked)} /><span>{t("automation.preferRewardQuantity")}</span></label> : null}<div className="automation-actions"><label><span>{t("automation.thanksMode")}</span><select value={thanksMode} disabled={!enabled} onChange={(event) => setThanksMode(event.target.value)}><option value="like">{t("automation.thanksLike")}</option><option value="tickets">{t("automation.thanksTickets")}</option></select></label>{thanksMode === "tickets" ? <label><span>{t("automation.ticketCount")}</span><select {...field("ticketCount", "1")} disabled={!enabled}><option>1</option><option>2</option><option>3</option></select></label> : null}</div><p className="muted">{t("automation.ticketFallbackLike")}</p></section></>;
   }
   if (title === "Alliance Tech Donations") {
-    return <div className="automation-actions"><label><span>{t("automation.donateThreshold")}</span><input type="number" min="1" max="30" step="1" defaultValue="15" disabled={!enabled} /></label></div>;
+    return <div className="automation-actions"><label><span>{t("automation.donateThreshold")}</span><input type="number" min="1" max="30" step="1" {...field("threshold", "15")} disabled={!enabled} /></label></div>;
   }
   if (["Alliance Gifts", "Excavation Stronghold Resources", "Alliance Center Resources", "Building Resource Collection", "Armed Truck"].includes(title)) {
     const defaultInterval = title === "Alliance Gifts" ? 120 : 60;
-    return <div className="automation-actions"><label><span>{t("automation.intervalMinutes")}</span><input type="number" min="1" max="1440" step="1" defaultValue={defaultInterval} disabled={!enabled} /></label></div>;
+    return <div className="automation-actions"><label><span>{t("automation.intervalMinutes")}</span><input type="number" min="1" max="1440" step="1" {...field("intervalMinutes", defaultInterval)} disabled={!enabled} /></label></div>;
   }
   if (title === "Alliance Gathering Dispatch") {
-    return <><p className="muted">{t("automation.allianceGatherSquadPriority")}</p><div className="automation-compact-choice-group automation-squad-priority" role="group" aria-label={t("automation.allianceGatherSquadPriority")}>{[1,2,3,4].map((index) => <label key={index}><input type="checkbox" defaultChecked={index < 3} disabled={!enabled} /><span>{t("automation.squad", { index })}</span></label>)}</div></>;
+    const selected = config.draft.allianceGatherSquads ?? [1, 2];
+    const ordered = [...selected, ...[1, 2, 3, 4].filter((index) => !selected.includes(index))];
+    return <><p className="muted">{t("automation.allianceGatherSquadPriority")}</p><div className="automation-compact-choice-group automation-squad-priority" role="group" aria-label={t("automation.allianceGatherSquadPriority")}>{ordered.map((index) => <div className={`automation-squad-priority-item${selected.includes(index) ? " selected" : ""}`} draggable={selected.includes(index)} key={index} onDragStart={(event) => { if (selected.includes(index)) { event.dataTransfer.effectAllowed = "move"; event.dataTransfer.setData("text/plain", String(index)); setDraggedGatherSquad(index); } }} onDragOver={(event) => { if (selected.includes(index) && draggedGatherSquad !== null && draggedGatherSquad !== index) event.preventDefault(); }} onDrop={(event) => { event.preventDefault(); const source = selected.indexOf(draggedGatherSquad), target = selected.indexOf(index); if (source >= 0 && target >= 0 && source !== target) { const next = [...selected]; next.splice(target, 0, next.splice(source, 1)[0]); config.store.edit((draft) => ({ ...draft, allianceGatherSquads: next })); } setDraggedGatherSquad(null); }} onDragEnd={() => setDraggedGatherSquad(null)}><label><input type="checkbox" checked={selected.includes(index)} disabled={!enabled} onChange={(event) => { const next = event.target.checked ? [...selected, index] : selected.filter((entry) => entry !== index); if (config.draft.enabled && next.length === 0) { setGatherSquadError("automation.allianceGatherSquadRequired"); return; } setGatherSquadError(""); config.store.edit((draft) => ({ ...draft, allianceGatherSquads: next })); }} /><span>{t("automation.squad", { index })}</span></label>{selected.includes(index) ? <span className="automation-squad-drag-handle" aria-hidden="true">↕</span> : null}</div>)}</div>{gatherSquadError ? <p className="automation-error" role="alert">{t(gatherSquadError)}</p> : null}</>;
   }
   return null;
 }
 
-function AutomationCard({ title, description, previewEnabled, previewState = "" }) {
+function AutomationCard({ title, description, previewEnabled, previewState = "", onConfigStatus }) {
   const { english, t } = useI18n();
-  const [enabled, setEnabled] = useState(false);
+  const config = usePreviewConfig(() => initialAutomationDraft(title, previewState), (draft) => !automationDraftError(title, draft), previewState === "automation-save-error", `automation:${previewState}:${title}`);
+  const enabled = config.draft.enabled === true;
+  const [toggleError, setToggleError] = useState("");
+  const setEnabled = (next) => {
+    const value = typeof next === "function" ? next(enabled) : next;
+    if (title === "Auto Training" && value && !(Number.isInteger(config.draft.trainingTotalCount) && config.draft.trainingTotalCount > 0 && config.draft.trainingTotalCount <= 1000000)) return;
+    if (title === "Alliance Gathering Dispatch" && value && !(config.draft.allianceGatherSquads ?? [1, 2]).length) { setToggleError("automation.allianceGatherSquadRequired"); return; }
+    setToggleError("");
+    config.store.edit((draft) => title === "Auto Training" ? activateTraining(draft, value, previewTrainingOrder(previewState)) : { ...draft, enabled: value });
+  };
+  useEffect(() => { onConfigStatus?.(title, config.error ? "error" : config.saving ? "saving" : ""); }, [title, config.error, config.saving]);
   const settingsCollapsible = !nonCollapsibleAutomationSettings.has(title);
   const hasSettings = !automationCardsWithoutSettings.has(title);
   const [expanded, setExpanded] = useState(previewEnabled && title === "Automatic Construction");
@@ -319,12 +413,13 @@ function AutomationCard({ title, description, previewEnabled, previewState = "" 
           {description ? <p>{english(description)}</p> : null}
         </div>
         <div className="automation-card-header-actions">
-          <button className="automation-header-switch" type="button" role="switch" aria-checked={enabled} disabled={!previewEnabled} aria-label={`${t(toggleLabel)}: ${t(enabled ? "common.enabled" : "common.disabled")}`} onClick={() => setEnabled((value) => !value)}><Switch checked={enabled} /></button>
+          <button className="automation-header-switch" type="button" role="switch" aria-checked={enabled} disabled={!previewEnabled || (title === "Automatic Official Application" && Number(config.draft.positionId ?? 0) === 0)} aria-label={`${t(toggleLabel)}: ${t(enabled ? "common.enabled" : "common.disabled")}`} onClick={() => setEnabled((value) => !value)}><Switch checked={enabled} /></button>
         </div>
       </div>
       <div className="automation-card-meta-row" role="status">
-        <span className={`automation-state ${enabled ? "state-enabled" : "state-disabled"}`}>{previewEnabled ? t(enabled ? "common.enabled" : "common.disabled") : t("status.disconnected")}</span>
+        <span className={`automation-state ${enabled ? "state-enabled" : "state-disabled"}`}>{previewEnabled ? t(title === "Auto Training" ? previewState === "automation-training-error" ? "common.failed" : previewState === "automation-training-checking" ? "automation.running" : "common.waiting" : enabled ? "common.enabled" : "common.disabled") : t("status.disconnected")}</span>
       </div>
+      {toggleError ? <p role="alert" className="automation-error">{t(toggleError)}</p> : null}
       {(hasSettings || actionLabel) ? <div className="automation-config">
         {(settingsCollapsible || actionLabel) ? <div className="automation-config-actions">
           {hasSettings && settingsCollapsible ? <button className={`automation-config-trigger${expanded ? " is-open" : ""}`} type="button" disabled={!previewEnabled} aria-expanded={expanded} onClick={() => setExpanded((value) => !value)}>
@@ -336,16 +431,41 @@ function AutomationCard({ title, description, previewEnabled, previewState = "" 
           </button> : null}
           {actionLabel ? <button type="button" className="automation-run-action" disabled title={t("status.gameDisconnectedDisabled")}>{t(actionLabel)}</button> : null}
         </div> : null}
-        {hasSettings && (!settingsCollapsible || expanded) ? <fieldset className="automation-config-body" disabled={!previewEnabled}><AutomationConfigPreview title={title} enabled={previewEnabled} previewState={previewState} /></fieldset> : null}
+        {hasSettings ? <fieldset className="automation-config-body" style={settingsCollapsible && !expanded ? { display: "none" } : undefined} disabled={!previewEnabled}><AutomationConfigPreview title={title} enabled={previewEnabled} previewState={previewState} config={config} /></fieldset> : null}
       </div> : null}
     </article>
   );
 }
 
-function ResourceGatherCard({ previewEnabled }) {
+function ResourceGatherCard({ previewEnabled, previewState }) {
   const { t } = useI18n();
   const [enabled, setEnabled] = useState(false);
+  const [error, setError] = useState("");
+  const [scanRadius, setScanRadius] = useState(200);
+  const [manualResumeDelayMinutes, setManualResumeDelayMinutes] = useState(2);
   const [recallOnDisable, setRecallOnDisable] = useState(false);
+  const [squads, setSquads] = useState(previewEnabled && previewState !== "automation-gather-no-squads" ? [
+    { squadIndex: 1, enabled: true, resource: "metal", level: 10, maxLevel: 10, state: "idle" },
+    { squadIndex: 2, enabled: false, resource: "food", level: 8, maxLevel: 9, state: "disabled" },
+  ] : []);
+  const updateSquad = (squadIndex, patch) => {
+    const next = squads.map((squad) => squad.squadIndex === squadIndex ? { ...squad, ...patch } : squad);
+    setSquads(next);
+    if (next.some((squad) => squad.enabled)) setError("");
+    else if (enabled) {
+      setEnabled(false);
+      setError("");
+    }
+  };
+  const toggleEnabled = (nextEnabled) => {
+    if (nextEnabled && !squads.some((squad) => squad.enabled)) {
+      setError("automation.resourceGather.squadRequired");
+      return;
+    }
+    setError("");
+    setEnabled(nextEnabled);
+  };
+  const resourceLabels = { metal: "squad.afkResourceMetal", food: "squad.afkResourceFood", gold: "squad.afkResourceGold" };
   return (
     <article className="automation-card" data-preview-fixture={previewEnabled ? "automation-config" : "runtime-config-unobserved"}>
       <div className="automation-card-header">
@@ -353,7 +473,7 @@ function ResourceGatherCard({ previewEnabled }) {
           <h3>{t("automation.category.resourceGather")}</h3>
           <p>{t("automation.resourceGather.description")}</p>
         </div>
-        <button className="automation-header-switch" type="button" role="switch" aria-checked={enabled} disabled={!previewEnabled} onClick={() => setEnabled((value) => !value)}><Switch checked={enabled} /></button>
+        <button className="automation-header-switch" type="button" role="switch" aria-checked={enabled} disabled={!previewEnabled} onClick={() => toggleEnabled(!enabled)}><Switch checked={enabled} /></button>
       </div>
       <div className="automation-card-meta-row" role="status">
         <span className={`automation-state ${enabled ? "state-enabled" : "state-disabled"}`}>{previewEnabled ? t(enabled ? "common.enabled" : "common.disabled") : t("status.disconnected")}</span>
@@ -363,11 +483,11 @@ function ResourceGatherCard({ previewEnabled }) {
           <div className="automation-resource-gather-options">
             <label className="automation-resource-gather-radius">
               <span>{t("automation.resourceGather.scanRadius")}</span>
-              <select value="200" readOnly><option value="200">200</option></select>
+              <select value={scanRadius} onChange={(event) => setScanRadius(Number(event.target.value))}>{[50,100,150,200,250,300,400,500].map((radius) => <option value={radius} key={radius}>{radius}</option>)}</select>
             </label>
             <label>
               <span>{t("automation.resourceGather.manualResumeDelay")}</span>
-              <select value="2" readOnly><option value="2">2</option></select>
+              <select value={manualResumeDelayMinutes} onChange={(event) => setManualResumeDelayMinutes(Number(event.target.value))}>{Array.from({ length: 30 }, (_, index) => index + 1).map((minutes) => <option value={minutes} key={minutes}>{minutes}</option>)}</select>
             </label>
             <label className="automation-resource-gather-recall">
               <input type="checkbox" checked={recallOnDisable} disabled={!previewEnabled} onChange={(event) => setRecallOnDisable(event.target.checked)} />
@@ -377,7 +497,9 @@ function ResourceGatherCard({ previewEnabled }) {
               {t("automation.resourceGather.scanRadiusHint", { size: 1000 })}
             </small>
           </div>
-          <p className="muted">{t("automation.resourceGather.squadsLoading")}</p>
+          {squads.length === 0 ? <p className="muted">{t("automation.resourceGather.squadsLoading")}</p> : null}
+          {squads.map((squad) => <div className="automation-resource-gather-squad" role="group" aria-label={t("automation.squad", { index: squad.squadIndex })} key={squad.squadIndex}><label className="automation-resource-gather-enable"><input type="checkbox" checked={squad.enabled} onChange={(event) => updateSquad(squad.squadIndex, { enabled: event.target.checked, state: event.target.checked ? "idle" : "disabled" })} /><span>{t("automation.squad", { index: squad.squadIndex })}</span></label><select aria-label={`${t("automation.squad", { index: squad.squadIndex })} ${t("automation.resourceGather.resource")}`} value={squad.resource} onChange={(event) => updateSquad(squad.squadIndex, { resource: event.target.value })}>{["metal","food","gold"].map((resource) => <option value={resource} key={resource}>{t(resourceLabels[resource])}</option>)}</select><select aria-label={`${t("automation.squad", { index: squad.squadIndex })} ${t("automation.resourceGather.level")}`} value={squad.level} onChange={(event) => updateSquad(squad.squadIndex, { level: Number(event.target.value) })}>{Array.from({ length: Math.min(10, ({ metal: 10, food: 9, gold: 8 })[squad.resource]) }, (_, index) => index + 1).map((level) => <option value={level} key={level}>{level}</option>)}</select><span className="automation-resource-gather-state muted">{t(`automation.resourceGather.state.${["recalling", "recall_failed", "state_unconfirmed"].includes(previewState.replace("automation-gather-", "")) ? previewState.replace("automation-gather-", "") : enabled && squad.enabled ? previewState.startsWith("automation-gather-") ? previewState.replace("automation-gather-", "") : squad.state : "disabled"}`)}{enabled && squad.enabled && previewState === "automation-gather-manual_wait" ? <small>{t("automation.resourceGather.manualResumeAt", { time: new Date(1799000300000).toLocaleTimeString() })}</small> : null}{enabled && squad.enabled && previewState === "automation-gather-shield_paused" ? <small>{t("automation.resourceGather.shieldEndAt", { time: new Date(1799003600000).toLocaleString() })}</small> : null}</span></div>)}
+          {error ? <p className="automation-error" role="alert">{t(error)}</p> : null}
         </fieldset>
       </div>
     </article>
@@ -442,17 +564,20 @@ function TradeStationCard({ previewEnabled }) {
 export function AutomationPage({ previewState = "" }) {
   const { t } = useI18n();
   const [category, setCategory] = useState("daily");
+  const [configStates, setConfigStates] = useState({});
+  const onConfigStatus = (title, state) => setConfigStates((current) => current[title] === state ? current : { ...current, [title]: state });
+  const aggregateState = Object.values(configStates).includes("error") ? "error" : Object.values(configStates).includes("saving") ? "saving" : "";
   const previewEnabled = previewState.startsWith("automation-");
-  const pageStatus = previewState === "automation-saving"
+  const pageStatus = aggregateState === "error" ? "automation.configSave.error" : aggregateState === "saving" ? "automation.configSave.saving" : previewState === "automation-saving"
     ? "automation.configSave.saving"
     : previewState === "automation-save-error"
       ? "automation.configSave.error"
       : previewState === "automation-saved"
         ? "automation.configSave.saved"
-        : "status.gameDisconnectedDisabled";
+        : "";
   return (
     <section className="panel" data-preview-fixture={previewEnabled ? previewState : undefined}>
-      <PanelTitle title={t("nav.automation")} subtitle={previewEnabled ? t(pageStatus) : t("status.gameDisconnected")} />
+      <PanelTitle title={t("nav.automation")} subtitle={previewEnabled ? (pageStatus ? t(pageStatus) : "") : t("status.gameDisconnected")} />
       <div className="automation-categories" role="tablist" aria-label={t("nav.automation")}>
         {automationCategories.map(([key, label]) => (
           <button
@@ -467,13 +592,11 @@ export function AutomationPage({ previewState = "" }) {
           </button>
         ))}
       </div>
-      <div className="automation-grid">
-        {category === "resourceGather" ? <ResourceGatherCard previewEnabled={previewEnabled} /> : null}
-        {category === "trade" ? <TradeStationCard previewEnabled={previewEnabled} /> : null}
-        {(automationCards[category] ?? []).map(([title, description]) => (
-          <AutomationCard key={title} title={title} description={description} previewEnabled={previewEnabled} previewState={previewState} />
-        ))}
-      </div>
+      <>{automationCategories.map(([key]) => <div className="automation-grid" key={key} style={category === key ? undefined : { display: "none" }}>
+        {key === "resourceGather" ? <ResourceGatherCard previewEnabled={previewEnabled} previewState={previewState} /> : null}
+        {key === "trade" ? <TradeStationCard previewEnabled={previewEnabled} /> : null}
+        {(automationCards[key] ?? []).map(([title, description]) => <AutomationCard key={title} title={title} description={description} previewEnabled={previewEnabled} previewState={previewState} onConfigStatus={onConfigStatus} />)}
+      </div>)}</>
     </section>
   );
 }
@@ -481,7 +604,7 @@ export function AutomationPage({ previewState = "" }) {
 export function SquadsPage({ previewState = "" }) {
   const { t } = useI18n();
   const equipmentPreview = previewState.startsWith("squads-equipment");
-  const previewEnabled = previewState === "squads-profile" || equipmentPreview;
+  const previewEnabled = previewState.startsWith("squads-profile") || equipmentPreview;
   const [tab, setTab] = useState(equipmentPreview ? "equipment" : "afk");
   return (
     <section className="panel squad-panel" data-preview-fixture={previewEnabled ? previewState : undefined}>
@@ -493,7 +616,7 @@ export function SquadsPage({ previewState = "" }) {
         <button type="button" role="tab" className={tab === "afk" ? "active" : ""} aria-selected={tab === "afk"} onClick={() => setTab("afk")}>{t("squad.tabAfk")}</button>
         <button type="button" role="tab" className={tab === "equipment" ? "active" : ""} aria-selected={tab === "equipment"} onClick={() => setTab("equipment")}>{t("squad.tabEquipment")}</button>
       </div>
-      {tab === "afk" ? <AfkContent previewEnabled={previewEnabled} /> : <EquipmentContent previewEnabled={previewEnabled} previewState={previewState} />}
+      <div style={tab === "afk" ? undefined : { display: "none" }}><AfkContent previewEnabled={previewEnabled} previewState={previewState} /></div><div style={tab === "equipment" ? undefined : { display: "none" }}><EquipmentContent previewEnabled={previewEnabled} previewState={previewState} /></div>
     </section>
   );
 }
@@ -504,57 +627,71 @@ const previewAllianceMembers = [
   { uid: "10003", name: "Casey", level: 28, power: 15120, online: true },
 ];
 
-function AfkProfileEditor({ enabled, isNew = false, profileName, onProfileNameChange }) {
+function AfkProfileEditor({ enabled, isNew = false, profile, onProfileChange }) {
   const { t } = useI18n();
-  const [joinMode, setJoinMode] = useState("slot");
-  const [joinEnabled, setJoinEnabled] = useState(false);
-  const [leaderListMode, setLeaderListMode] = useState("off");
   const [memberPickerOpen, setMemberPickerOpen] = useState(false);
   const [memberSearch, setMemberSearch] = useState("");
   const [selectedMemberIds, setSelectedMemberIds] = useState(new Set());
-  const [leaders, setLeaders] = useState([]);
   const filteredMembers = previewAllianceMembers.filter((member) => !memberSearch.trim() || `${member.name} ${member.uid}`.toLowerCase().includes(memberSearch.trim().toLowerCase()));
+  const availableTargets = previewAfkTargets.filter((target) => target.kind === profile.kind);
+  const join = profile.joinRestrictions || normalizeJoinRestrictions(undefined, 1, true);
+  const patch = (changes) => onProfileChange({ ...profile, ...changes });
+  const patchJoin = (changes) => patch({ joinRestrictions: { ...join, ...changes } });
+  useEffect(() => {
+    if (!memberPickerOpen) return;
+    const closeOnEscape = (event) => { if (event.key === "Escape") setMemberPickerOpen(false); };
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, [memberPickerOpen]);
+  useEffect(() => {
+    setMemberPickerOpen(false);
+    setMemberSearch("");
+    setSelectedMemberIds(new Set());
+  }, [profile.id]);
   return (
     <section className={`monster-afk-editor ${isNew ? "is-new" : "is-editing"}`} data-preview-fixture="afk-profile-editor">
-      <div className="monster-afk-editor-heading"><strong>{t(isNew ? "squad.afkNewProfile" : "squad.afkEditProfile")}</strong><span className="monster-afk-mode-badge attack">{t("squad.afkFarmStrategies")}</span></div>
+      <div className="monster-afk-editor-heading"><strong>{t(isNew ? "squad.afkNewProfile" : "squad.afkEditProfile")}</strong><span className={`monster-afk-mode-badge ${profile.kind}`}>{t(profile.kind === "farm" ? "squad.afkActiveAttack" : "squad.afkJoin")}</span></div>
       <div className="monster-afk-config-section">
         <strong>{t("squad.afkBasicSettings")}</strong>
         <div className="monster-afk-basic-grid">
-          <label><span>{t("squad.afkProfileName")}</span><input value={profileName} disabled={!enabled} onChange={(event) => onProfileNameChange(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter" && !event.nativeEvent.isComposing) event.currentTarget.blur(); }} /></label>
-          <label><span>{t("squad.afkTarget")}</span><select defaultValue="steel" disabled={!enabled}><option value="steel">{t("squad.afkResourceMetal")}</option><option value="food">{t("squad.afkResourceFood")}</option><option value="gold">{t("squad.afkResourceGold")}</option><option value="boss">{t("squad.afkResourceBoss")}</option></select></label>
-          <label className="monster-afk-field-wide"><span>{t("squad.afkCustomName")}</span><input placeholder={t("squad.afkCustomTargetHint")} disabled={!enabled} /></label>
+          <label><span>{t("squad.afkProfileName")}</span><input value={profile.name} disabled={!enabled} onChange={(event) => patch({ name: event.target.value })} onBlur={() => { if (previewAfkProfileValid(profile)) patch({ name: profile.name.trim() }); }} onKeyDown={(event) => { if (event.key === "Enter" && !event.nativeEvent.isComposing) event.currentTarget.blur(); }} /></label>
+          <label><span>{t("squad.afkTarget")}</span><select value={profile.customTarget ? profile.lastListTargetKey : profile.targetKey} disabled={!enabled} onChange={(event) => { const target = previewAfkTargets.find((entry) => entry.key === event.target.value); if (!target) return; onProfileChange(applyAfkTarget(profile, target)); }}>{profile.customTarget && !availableTargets.some((target) => target.key === profile.lastListTargetKey) ? <option value={profile.lastListTargetKey}>{t("squad.afkSelectListTarget")}</option> : null}{["normal", "elite", "running", "leader", "ally", "drill", "invader", "other"].filter((group) => availableTargets.some((target) => target.group === group)).map((group) => <optgroup label={t(`squad.afkGroup.${group}`)} key={group}>{availableTargets.filter((target) => target.group === group).map((target) => <option value={target.key} key={target.key}>{t(target.labelKey)} · {t(target.source === "search" ? "squad.afkSearchable" : "squad.afkLocalTarget")} · {t(profile.kind === "join" ? "squad.afkJoin" : target.action === "rally" ? "squad.afkActionRally" : "squad.afkActionAttack")}</option>)}</optgroup>)}</select></label>
         </div>
-        <div className="monster-afk-check-row"><label><input type="checkbox" defaultChecked disabled={!enabled} />{t("squad.afkActiveAttack")}</label><label><input type="checkbox" disabled={!enabled} />{t("squad.afkContinuousAttack")}</label></div>
+        <div className="monster-afk-custom-target"><label className="monster-afk-check-row"><input type="checkbox" checked={profile.customTarget} disabled={!enabled} onChange={(event) => event.target.checked ? patch({ customTarget: true, lastListTargetKey: profile.targetKey, targetKey: "query:", targetNameQuery: "", monsterType: 0, monsterNameKey: undefined, monsterIds: [], source: "undiscovered", action: profile.kind === "join" ? "rally" : "attack", rally: profile.kind === "join", searchable: false, minLevel: 1, maxLevel: 999 }) : onProfileChange(applyAfkTarget(profile, previewAfkTargets.find((target) => target.key === profile.lastListTargetKey) || availableTargets[0]))} />{t("squad.afkCustomTarget")}</label>{profile.customTarget ? <label className="monster-afk-custom-name"><span>{t("squad.afkCustomName")}</span><input value={profile.targetNameQuery} aria-invalid={!profile.targetNameQuery.trim()} disabled={!enabled} onChange={(event) => patch({ targetKey: `query:${event.target.value.trim()}`, targetNameQuery: event.target.value })} /><span className="muted">{t("squad.afkCustomTargetHint")}</span>{!profile.targetNameQuery.trim() ? <span role="status" className="status-error">{t("squad.afkCustomTargetRequired")}</span> : null}</label> : null}</div>
       </div>
-      <div className="monster-afk-config-section">
-        <strong>{t("squad.afkAssignments")}</strong>
-        <div className="monster-afk-squads">{[1,2,3,4].map((number) => <label className="monster-afk-squad-toggle" key={number}><input type="checkbox" defaultChecked={number === 1} disabled={!enabled} /><span>{t("squad.number", { number })}</span></label>)}</div>
-      </div>
+      {profile.kind === "join" ? <div className="monster-afk-config-section monster-afk-join-section">
+        <strong>{t("squad.afkJoinConditions")}</strong>
+        <div className="rally-join-settings">
+          <ToggleRow label={t("squad.afkJoinConditions")} checked={join.enabled} disabled={!enabled} onChange={(value) => patchJoin({ enabled: value })} />
+          {join.enabled ? <fieldset disabled={!enabled}>
+          <label><span>{t("squad.join.mode")}</span><select value={join.mode} disabled={!enabled} onChange={(event) => patchJoin({ mode: event.target.value })}><option value="slot">{t("squad.join.mode.slot")}</option><option value="delay">{t("squad.join.mode.delay")}</option></select></label>
+          {join.mode === "slot" ? <div className="rally-join-range">{[0,1].map((index) => <label key={index}><span>{t(`squad.join.slotRange.${index === 0 ? "min" : "max"}`)}</span><input type="number" min="2" max="5" step="1" value={Number.isNaN(join.slotRange[index]) ? "" : join.slotRange[index]} disabled={!enabled} onChange={(event) => { const next = [...join.slotRange]; next[index] = Math.min(5, Math.max(2, Number.isFinite(event.target.valueAsNumber) ? Math.trunc(event.target.valueAsNumber) : 2)); patchJoin({ slotRange: next }); }} /></label>)}</div> : <div className="rally-join-range">{[0,1].map((index) => <label key={index}><span>{t(`squad.join.delaySeconds.${index === 0 ? "min" : "max"}`)}</span><input type="number" min="0" max="6000" step="0.01" value={Number.isNaN(join.delaySeconds[index]) ? "" : join.delaySeconds[index]} disabled={!enabled} onChange={(event) => { const next = [...join.delaySeconds]; next[index] = event.target.valueAsNumber; patchJoin({ delaySeconds: next }); }} /></label>)}</div>}
+          {join.mode === "slot" ? <label><span>{t("squad.join.slotDelay")}</span><input type="number" min="0" max="6000" step="0.01" value={Number.isNaN(join.slotDelaySeconds) ? "" : join.slotDelaySeconds} disabled={!enabled} onChange={(event) => patchJoin({ slotDelaySeconds: event.target.valueAsNumber })} /></label> : null}
+          <label><span>{t("squad.join.maxWait")}</span><input type="number" min="0" step="1" value={Number.isNaN(join.maxWaitMinutes) ? "" : join.maxWaitMinutes} disabled={!enabled} onChange={(event) => patchJoin({ maxWaitMinutes: event.target.valueAsNumber })} /></label>
+          <label><span>{t("squad.join.list")}</span><select value={join.leaderListMode} disabled={!enabled} onChange={(event) => patchJoin({ leaderListMode: event.target.value })}><option value="off">{t("squad.join.list.off")}</option><option value="blacklist">{t("squad.join.list.blacklist")}</option><option value="whitelist">{t("squad.join.list.whitelist")}</option></select></label>
+          {join.leaderListMode !== "off" ? <div className="rally-join-leaders"><button type="button" disabled={!enabled} onClick={() => { setSelectedMemberIds(new Set(join.leaders.map((leader) => leader.uid))); setMemberSearch(""); setMemberPickerOpen(true); }}>{t("squad.join.chooseMembers")}</button>{join.leaders.map((leader) => <div className="rally-join-leader" key={leader.uid}><span className="rally-join-member-name"><strong>{leader.name}</strong><small>{leader.uid}</small></span><button type="button" className="danger" onClick={() => patchJoin({ leaders: join.leaders.filter((entry) => entry.uid !== leader.uid) })}>{t("common.delete")}</button></div>)}{join.leaderListMode === "whitelist" && join.leaders.length === 0 ? <span className="muted">{t("squad.join.emptyWhitelist")}</span> : null}</div> : null}
+          <label><input type="checkbox" checked={join.skipSoloLeader} disabled={!enabled} onChange={(event) => patchJoin({ skipSoloLeader: event.target.checked })} />{t("squad.join.skipSolo")}</label><label><input type="checkbox" checked={join.skipKicked} disabled={!enabled} onChange={(event) => patchJoin({ skipKicked: event.target.checked })} />{t("squad.join.skipKicked")}</label>
+          {!validJoinRestrictions(join) ? <p role="alert" className="status-error">{t("squad.join.invalid")}</p> : null}
+          </fieldset> : null}
+        </div>
+      </div> : null}
       <div className="monster-afk-config-section">
         <strong>{t("squad.afkExecutionSettings")}</strong>
         <div className="monster-afk-basic-grid monster-afk-execution-grid">
-          <label><span>{t("squad.afkExecutionLimitLabel")}</span><input type="number" min="0" defaultValue="0" disabled={!enabled} /></label>
-          <label><span>{t("squad.afkRepeatPerLevel")}</span><input type="number" min="1" defaultValue="1" disabled={!enabled} /></label>
-          <label><span>{t("squad.maxDistance")}</span><input type="number" min="0" defaultValue="0" disabled={!enabled} /></label>
-          <label><input type="checkbox" defaultChecked disabled={!enabled} />{t("squad.loop")}</label>
+          <div className="monster-afk-squad-field"><span>{t("squad.afkAssignments")}</span><div className="monster-afk-squads" role="group" aria-label={t("squad.afkAssignments")}>{[1,2,3,4].map((number) => <button className="monster-afk-squad-toggle" type="button" aria-label={t("squad.number", { number })} aria-pressed={profile.squadIndexes.includes(number)} disabled={!enabled} key={number} onClick={() => patch({ squadIndexes: profile.squadIndexes.includes(number) ? profile.squadIndexes.filter((entry) => entry !== number) : [...profile.squadIndexes, number].sort((a, b) => a - b) })}>{number}</button>)}</div></div>
+          <label title={t("squad.afkExecutionLimitHint")}><span>{t("squad.afkExecutionLimitLabel")}</span><input type="number" min="0" step="1" value={Number.isNaN(profile.executionLimit) ? "" : profile.executionLimit} disabled={!enabled} onChange={(event) => patch({ executionLimit: event.target.valueAsNumber })} /></label>
         </div>
+        {profile.kind === "farm" ? <label className="monster-afk-check-row"><input type="checkbox" checked={profile.continuousAttack} disabled={!enabled || profile.rally} onChange={(event) => patch({ continuousAttack: event.target.checked })} />{t("squad.afkContinuousAttack")}{profile.rally ? <span className="muted">{t("squad.afkContinuousAttackUnavailable")}</span> : null}</label> : <label className="monster-afk-check-row"><input type="checkbox" checked={profile.continuousJoin} disabled={!enabled} onChange={(event) => patch({ continuousJoin: event.target.checked })} />{t("squad.afkContinuousJoin")}</label>}
       </div>
       <div className="monster-afk-config-section monster-afk-filter">
         <strong>{t("squad.afkTargetFilters")}</strong>
-        <div className="monster-afk-number-grid"><label><span>{t("squad.afkMinLevel")}</span><input type="number" min="1" defaultValue="1" disabled={!enabled} /></label><label><span>{t("squad.afkMaxLevel")}</span><input type="number" min="1" defaultValue="99" disabled={!enabled} /></label></div>
+        <label className="monster-afk-check-row"><input type="checkbox" checked={profile.levelFilterEnabled} disabled={!enabled} onChange={(event) => patch({ levelFilterEnabled: event.target.checked, progressiveLevels: event.target.checked && profile.progressiveLevels })} />{t("squad.afkLevelFilter")}</label>
+        {profile.levelFilterEnabled ? <div className="monster-afk-filter-content"><div className="monster-afk-number-grid"><label><span>{t("squad.afkMinLevel")}</span><input type="number" min="1" value={Number.isNaN(profile.minLevel) ? "" : profile.minLevel} disabled={!enabled} onChange={(event) => patch({ minLevel: event.target.valueAsNumber })} /></label>{!profile.progressiveLevels ? <label><span>{t("squad.afkMaxLevel")}</span><input type="number" min="1" value={Number.isNaN(profile.maxLevel) ? "" : profile.maxLevel} disabled={!enabled} onChange={(event) => patch({ maxLevel: event.target.valueAsNumber })} /></label> : null}</div>{profile.kind === "farm" && profile.searchable ? <label className="monster-afk-check-row"><input type="checkbox" checked={profile.progressiveLevels} disabled={!enabled} onChange={(event) => patch({ progressiveLevels: event.target.checked })} />{t("squad.afkProgressiveLevels")}</label> : null}</div> : null}
+        <label className="monster-afk-check-row"><input type="checkbox" checked={profile.distanceFilterEnabled} disabled={!enabled} onChange={(event) => patch({ distanceFilterEnabled: event.target.checked })} />{t("squad.afkDistanceFilter")}</label>
+        {profile.distanceFilterEnabled ? <div className="monster-afk-filter-content"><label><span>{t("squad.maxDistance")}</span><input type="number" min="1" value={Number.isNaN(profile.maxDistance) ? "" : profile.maxDistance} disabled={!enabled} onChange={(event) => patch({ maxDistance: event.target.valueAsNumber })} /></label></div> : null}
       </div>
-      <div className="monster-afk-config-section monster-afk-join-section">
-        <strong>{t("squad.afkJoinConditions")}</strong>
-        <label className="monster-afk-check-row"><input type="checkbox" checked={joinEnabled} disabled={!enabled} onChange={(event) => setJoinEnabled(event.target.checked)} />{t("squad.afkJoin")}</label>
-        {joinEnabled ? <div className="rally-join-settings">
-          <label><span>{t("squad.join.mode")}</span><select value={joinMode} disabled={!enabled} onChange={(event) => setJoinMode(event.target.value)}><option value="slot">{t("squad.join.mode.slot")}</option><option value="delay">{t("squad.join.mode.delay")}</option></select></label>
-          {joinMode === "slot" ? <div className="rally-join-range"><label><span>{t("squad.join.slotRange.min")}</span><input type="number" min="2" max="5" defaultValue="2" disabled={!enabled} /></label><label><span>{t("squad.join.slotRange.max")}</span><input type="number" min="2" max="5" defaultValue="5" disabled={!enabled} /></label></div> : <div className="rally-join-range"><label><span>{t("squad.join.delaySeconds.min")}</span><input type="number" min="0" max="6000" defaultValue="0" disabled={!enabled} /></label><label><span>{t("squad.join.delaySeconds.max")}</span><input type="number" min="0" max="6000" defaultValue="5" disabled={!enabled} /></label></div>}
-          <label><span>{t("squad.join.list")}</span><select value={leaderListMode} disabled={!enabled} onChange={(event) => setLeaderListMode(event.target.value)}><option value="off">{t("squad.join.list.off")}</option><option value="blacklist">{t("squad.join.list.blacklist")}</option><option value="whitelist">{t("squad.join.list.whitelist")}</option></select></label>
-          {leaderListMode !== "off" ? <div className="rally-join-leaders"><button type="button" disabled={!enabled} onClick={() => { setSelectedMemberIds(new Set(leaders.map((leader) => leader.uid))); setMemberSearch(""); setMemberPickerOpen(true); }}>{t("squad.join.chooseMembers")}</button>{leaders.map((leader) => <div className="rally-join-leader" key={leader.uid}><span className="rally-join-member-name"><strong>{leader.name}</strong><small>{leader.uid}</small></span><button type="button" className="danger" onClick={() => setLeaders((current) => current.filter((entry) => entry.uid !== leader.uid))}>{t("common.delete")}</button></div>)}{leaderListMode === "whitelist" && leaders.length === 0 ? <span className="muted">{t("squad.join.emptyWhitelist")}</span> : null}</div> : null}
-          <label><input type="checkbox" disabled={!enabled} />{t("squad.join.skipSolo")}</label><label><input type="checkbox" disabled={!enabled} />{t("squad.join.skipKicked")}</label>
-        </div> : null}
-      </div>
-      {joinEnabled && memberPickerOpen ? <div className="garrison-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setMemberPickerOpen(false); }}><section className="garrison-modal" role="dialog" aria-modal="true" aria-label={t("squad.join.chooseMembers")}><div className="garrison-modal-heading"><strong>{t("squad.join.chooseMembers")}</strong><button type="button" onClick={() => setMemberPickerOpen(false)}>{t("common.cancel")}</button></div><input aria-label={t("squad.join.searchMembers")} placeholder={t("squad.join.searchMembers")} value={memberSearch} onChange={(event) => setMemberSearch(event.target.value)} autoFocus /><div className="garrison-ally-list">{filteredMembers.map((member) => <label key={member.uid}><input type="checkbox" checked={selectedMemberIds.has(member.uid)} onChange={(event) => setSelectedMemberIds((current) => { const next = new Set(current); if (event.target.checked) next.add(member.uid); else next.delete(member.uid); return next; })} /><span><strong>{member.name}</strong><small>{member.uid}</small></span></label>)}{filteredMembers.length === 0 ? <span className="muted">{t("squad.join.noMembers")}</span> : null}</div><div className="garrison-modal-actions"><button type="button" className="primary-action" onClick={() => { setLeaders(previewAllianceMembers.filter((member) => selectedMemberIds.has(member.uid)).map(({ uid, name }) => ({ uid, name }))); setMemberPickerOpen(false); }}>{t("squad.join.confirmMembers")}</button></div></section></div> : null}
+
+      {profile.kind === "join" && memberPickerOpen ? <div className="garrison-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setMemberPickerOpen(false); }}><section className="garrison-modal" role="dialog" aria-modal="true" aria-label={t("squad.join.chooseMembers")}><div className="garrison-modal-heading"><strong>{t("squad.join.chooseMembers")}</strong><button type="button" onClick={() => setMemberPickerOpen(false)}>{t("common.cancel")}</button></div><input aria-label={t("squad.join.searchMembers")} placeholder={t("squad.join.searchMembers")} value={memberSearch} onChange={(event) => setMemberSearch(event.target.value)} autoFocus /><div className="garrison-ally-list">{filteredMembers.map((member) => <label key={member.uid}><input type="checkbox" checked={selectedMemberIds.has(member.uid)} onChange={(event) => setSelectedMemberIds((current) => { const next = new Set(current); if (event.target.checked) next.add(member.uid); else next.delete(member.uid); return next; })} /><span><strong>{member.name}</strong><small>{member.uid}</small></span></label>)}{filteredMembers.length === 0 ? <span className="muted">{t("squad.join.noMembers")}</span> : null}</div><div className="garrison-modal-actions"><button type="button" className="primary-action" onClick={() => { patchJoin({ leaders: [...join.leaders.filter((leader) => !previewAllianceMembers.some((member) => member.uid === leader.uid)), ...previewAllianceMembers.filter((member) => selectedMemberIds.has(member.uid)).map(({ uid, name }) => ({ uid, name }))] }); setMemberPickerOpen(false); }}>{t("squad.join.confirmMembers")}</button></div></section></div> : null}
     </section>
   );
 }
@@ -599,14 +736,19 @@ function GarrisonPreviewSettings({ enabled }) {
   </div>;
 }
 
-function AfkContent({ previewEnabled }) {
+function AfkContent({ previewEnabled, previewState }) {
   const { t } = useI18n();
   const [showEditor, setShowEditor] = useState(previewEnabled);
-  const [profiles, setProfiles] = useState(() => previewEnabled ? [{ id: "steel", name: "Steel Hunt", enabled: false }, { id: "gold", name: "Gold Hunt", enabled: false }] : []);
+  const config = usePreviewConfig(() => previewEnabled ? [makePreviewAfkProfile("steel", "Steel Hunt", "farm", "steel"), { ...makePreviewAfkProfile("gold", "Gold Hunt", "farm", "gold"), squadIndexes: [2], minLevel: 3, maxLevel: 8, levelFilterEnabled: true }] : [], (profiles) => profiles.every(previewAfkProfileValid), previewState === "squads-profile-save-error", `afk:${previewState}`);
+  const profiles = config.draft;
+  const setProfiles = (value, delay = 400) => config.store.edit(value, delay);
   const [editingId, setEditingId] = useState(() => previewEnabled ? "steel" : "");
   const [draggedProfileId, setDraggedProfileId] = useState("");
+  const [addMenuOpen, setAddMenuOpen] = useState(false);
   const newProfileCounter = useRef(1);
   const editingProfile = profiles.find((profile) => profile.id === editingId) || null;
+  const updateProfile = (nextProfile) => setProfiles((current) => current.map((profile) => profile.id === nextProfile.id ? nextProfile : profile));
+  const addProfile = (kind) => { const id = `preview-new-${newProfileCounter.current++}`; const profile = makePreviewAfkProfile(id, t("squad.afkNewProfile"), kind); setProfiles((current) => [...current, profile]); setEditingId(id); setShowEditor(true); setAddMenuOpen(false); };
   const moveProfile = (sourceId, targetId) => setProfiles((current) => {
     const sourceIndex = current.findIndex((profile) => profile.id === sourceId);
     const targetIndex = current.findIndex((profile) => profile.id === targetId);
@@ -617,7 +759,8 @@ function AfkContent({ previewEnabled }) {
     return next;
   });
   return (
-    <div className="monster-afk-layout" data-preview-fixture={previewEnabled ? "squads-profile" : "runtime-config-unobserved"}>
+    <div className="monster-afk-layout" data-draft-dirty={config.dirty} data-draft-saving={config.saving} data-preview-fixture={previewEnabled ? "squads-profile" : "runtime-config-unobserved"}>
+      <PreviewConfigError config={config} t={t} />
       <div className="monster-afk-toolbar">
         <CompactAfkCard title={t("squad.afkMaster")} summary={t("common.disabled")} previewEnabled={previewEnabled} details={<p className="muted">{t("squad.afkMasterDescription")}</p>} />
         <CompactAfkCard title={t("squad.afkAllianceDrill")} summary={t("squad.afkAllianceDrillWaiting")} previewEnabled={previewEnabled} details={<AllianceDrillPreviewSettings enabled={previewEnabled} />} />
@@ -627,12 +770,12 @@ function AfkContent({ previewEnabled }) {
       <section className="monster-afk-profiles">
         <div className="monster-section-title">
           <strong>{t("squad.afkProfiles")}</strong>
-          <div className="monster-afk-add-control"><button type="button" disabled={!previewEnabled} onClick={() => { const id = `preview-new-${newProfileCounter.current++}`; setProfiles((current) => [...current, { id, name: t("squad.afkNewProfile"), enabled: false }]); setEditingId(id); setShowEditor(true); }}>{t("common.add")}</button></div>
+          <div className="monster-afk-add-control"><button type="button" aria-haspopup="menu" aria-expanded={addMenuOpen} disabled={!previewEnabled} onClick={() => setAddMenuOpen((open) => !open)}>{t("common.add")}</button>{addMenuOpen ? <div className="monster-afk-add-menu" role="menu"><button type="button" role="menuitem" onClick={() => addProfile("farm")}><strong>{t("squad.afkActiveAttack")}</strong><span>{t("squad.afkActionAttack")}</span></button><button type="button" role="menuitem" onClick={() => addProfile("join")}><strong>{t("squad.afkJoin")}</strong><span>{t("squad.autoJoinRally")}</span></button></div> : null}</div>
         </div>
         <div className="monster-afk-profile-list">
-          {profiles.length ? profiles.map((profile) => <article className="monster-afk-profile-card" key={profile.id} onDragOver={(event) => { if (draggedProfileId) event.preventDefault(); }} onDrop={(event) => { event.preventDefault(); moveProfile(draggedProfileId, profile.id); setDraggedProfileId(""); }}><label className={`monster-afk-enabled ${profile.enabled ? "is-enabled" : ""}`}><input type="checkbox" checked={profile.enabled} onChange={(event) => setProfiles((current) => current.map((entry) => entry.id === profile.id ? { ...entry, enabled: event.target.checked } : entry))} /><span className="monster-afk-master-track" aria-hidden="true" /><span>{t(profile.enabled ? "common.enabled" : "common.disabled")}</span></label><button type="button" className="monster-afk-profile-select" aria-pressed={editingId === profile.id} onClick={() => { setEditingId(profile.id); setShowEditor(true); }}><span className="monster-afk-profile-heading"><strong>{profile.name}</strong><span className="monster-afk-mode-badge attack">{t("squad.afkActionAttack")}</span></span><span>{t("squad.afkBoundSquads", { count: 1 })}</span></button><button type="button" className="danger" onClick={() => { setProfiles((current) => current.filter((entry) => entry.id !== profile.id)); if (editingId === profile.id) { setEditingId(""); setShowEditor(false); } }}>{t("common.delete")}</button><button type="button" className="monster-afk-profile-drag" draggable aria-label={t("squad.afkReorder", { name: profile.name })} title={t("squad.afkReorder", { name: profile.name })} onDragStart={() => setDraggedProfileId(profile.id)} onDragEnd={() => setDraggedProfileId("")} onKeyDown={(event) => { if (event.key !== "ArrowUp" && event.key !== "ArrowDown") return; event.preventDefault(); const index = profiles.findIndex((entry) => entry.id === profile.id); const target = profiles[index + (event.key === "ArrowUp" ? -1 : 1)]; if (target) moveProfile(profile.id, target.id); }}>↕</button></article>) : <span className="muted">{t("squad.afkNoProfiles")}</span>}
+          {profiles.length ? profiles.map((profile) => <article className={`monster-afk-profile-card ${editingId === profile.id ? "active" : ""} ${profile.enabled ? "" : "disabled"}`} key={profile.id} onDragOver={(event) => { if (draggedProfileId) event.preventDefault(); }} onDrop={(event) => { event.preventDefault(); moveProfile(draggedProfileId, profile.id); setDraggedProfileId(""); }}><label className={`monster-afk-enabled ${profile.enabled ? "is-enabled" : ""} ${profile.squadIndexes.length === 0 ? "is-disabled" : ""}`}><input type="checkbox" checked={profile.enabled} disabled={!previewEnabled || profile.squadIndexes.length === 0} onChange={(event) => updateProfile({ ...profile, enabled: event.target.checked })} /><span className="monster-afk-enabled-track" aria-hidden="true" /><span>{t(profile.enabled ? "common.enabled" : "common.disabled")}</span></label><button type="button" className="monster-afk-profile-select" aria-pressed={editingId === profile.id} onClick={() => { setEditingId(profile.id); setShowEditor(true); }}><span className="monster-afk-profile-heading"><strong>{profile.name}</strong><span className={`monster-afk-mode-badge ${profile.kind}`}>{t(profile.kind === "farm" ? "squad.afkActiveAttack" : "squad.afkJoin")}</span></span><span>{profile.levelFilterEnabled ? `${profile.minLevel}-${profile.maxLevel}` : t("squad.afkAnyLevel")} · {profile.distanceFilterEnabled ? profile.maxDistance : t("squad.afkAnyDistance")}</span><span>{`${t(profile.source === "search" ? "squad.afkSearchable" : profile.source === "map" ? "squad.afkLocalTarget" : "squad.afkUndiscovered")} · ${t(profile.kind === "join" ? "squad.afkJoin" : profile.action === "rally" ? "squad.afkActionRally" : "squad.afkActionAttack")} · ${t("squad.afkBoundSquads", { count: profile.squadIndexes.join(", ") || "-" })}`}</span></button><button type="button" className="danger" onClick={() => { setProfiles((current) => current.filter((entry) => entry.id !== profile.id)); if (editingId === profile.id) { setEditingId(""); setShowEditor(false); } }}>{t("common.delete")}</button><button type="button" className="monster-afk-profile-drag" draggable aria-label={t("squad.afkReorder", { name: profile.name })} title={t("squad.afkReorder", { name: profile.name })} onDragStart={() => setDraggedProfileId(profile.id)} onDragEnd={() => setDraggedProfileId("")} onKeyDown={(event) => { if (event.key !== "ArrowUp" && event.key !== "ArrowDown") return; event.preventDefault(); const index = profiles.findIndex((entry) => entry.id === profile.id); const target = profiles[index + (event.key === "ArrowUp" ? -1 : 1)]; if (target) moveProfile(profile.id, target.id); }}>↕</button></article>) : <span className="muted">{t("squad.afkNoProfiles")}</span>}
         </div>
-        {showEditor && editingProfile ? <AfkProfileEditor enabled={previewEnabled} isNew={editingProfile.id.startsWith("preview-new-")} profileName={editingProfile.name} onProfileNameChange={(name) => setProfiles((current) => current.map((profile) => profile.id === editingProfile.id ? { ...profile, name } : profile))} /> : null}
+        {showEditor && editingProfile ? <AfkProfileEditor enabled={previewEnabled} isNew={!config.confirmed.some((profile) => profile.id === editingProfile.id)} profile={editingProfile} onProfileChange={updateProfile} /> : null}
       </section>
     </div>
   );

@@ -80,12 +80,19 @@ Live-prove each implemented in-scope function against an assistant-owned/current
 PM-007 reviewed the UI-CORRECT-001 worker return at `543b6eb` and marked it
 `CHANGES_REQUIRED`. Home reconnect profile scoping is accepted; preserve useful
 Equipment/dialog/locale and other UI corrections. Source-recoverable Automation
-controls remain missing, AFK drafts leak between profiles, and Map fixture QA
-does not apply query semantics. Next assignment:
-`docs/work-items/LWB317-UI-CORRECT-002.md`. Current lead review:
+controls were missing, AFK drafts leaked between profiles, and Map fixture QA
+did not apply query semantics at that reviewed revision. Historical lead review:
 `docs/reviews/2026-10-01-LWB317-PM-007-ui-correction-lead-review.md`.
 Evidence: `evidence/lwbridge-0.3.17/ui/LWB317-UI-CORRECT-001/lead-review/`.
 Earlier UI-COMPLETE-001/PM-006 history remains preserved.
+
+The owner requested recovery of the interrupted worker. The focused
+`docs/work-items/LWB317-UI-CORRECT-002.md` checkpoint is now `AWAITING_REVIEW`:
+Automation controls, per-ID AFK drafts/save states and applied read-only Map
+fixture queries pass targeted contract/state/browser QA. Current delivery:
+`docs/reviews/2026-10-01-LWB317-UI-CORRECT-002.md`. Its affected coverage matrix
+records remaining source-recoverable UI gaps. Next action is independent review,
+then an explicit remaining-UI assignment; all-page parity is not accepted.
 
 Direct original post-auth screenshot/pixel comparison remains `BLOCKED` by the
 documented reference access boundary, so affected UI rows remain

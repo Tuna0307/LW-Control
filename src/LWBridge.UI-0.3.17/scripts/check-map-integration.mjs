@@ -181,10 +181,59 @@ const previewProvider = getMapPreviewProvider("preview", "map-city");
 assert.equal(previewProvider.online, false, "browser-only Map fixture must never claim a live game connection");
 assert.equal(previewProvider.mapApi.previewFixture, true);
 const previewRows = await previewProvider.mapApi.search("city", { page: 1 });
-assert.equal(previewRows.rows.length, 2);
+assert.equal(previewRows.rows.length, MAP_PAGE_SIZE, "preview search should use the native default page size");
 assert.ok(previewRows.total > MAP_PAGE_SIZE, "browser-only Map fixture should cover pagination");
-await assert.rejects(() => previewProvider.mapApi.start(["city"], "normal"), (error) => error.code === "PREVIEW_NATIVE_ACTION_BLOCKED");
-await assert.rejects(() => previewProvider.mapApi.coordinateJump(previewRows.rows[0]), (error) => error.code === "PREVIEW_NATIVE_ACTION_BLOCKED");
+const previewLastPage = await previewProvider.mapApi.search("city", { page: 2 });
+assert.equal(previewLastPage.rows.length, previewRows.total - MAP_PAGE_SIZE, "preview final page must expose the real remainder");
+const previewSizedPage = await previewProvider.mapApi.search("city", { page: 8, pageSize: 7 });
+assert.equal(previewSizedPage.rows.length, 3, "preview pageSize/page arithmetic mismatch");
+assert.equal(previewSizedPage.total, previewRows.total, "pagination must not alter filtered total");
+
+const qaCities = await previewProvider.mapApi.search("city", { alliance: "QA", markedOnly: true, pageSize: 200 });
+assert.ok(qaCities.rows.length > 0, "fixture should expose a non-empty combined city filter");
+assert.ok(qaCities.rows.every((row) => row.allianceName === "QA" && row.marked === true));
+const noCities = await previewProvider.mapApi.search("city", { keyword: "definitely-no-fixture-match", pageSize: 10 });
+assert.deepEqual(noCities, { rows: [], total: 0 }, "zero-match query must have a zero total and empty page");
+const healthSorted = await previewProvider.mapApi.search("city", { sorts: [{ sortBy: "health", sortOrder: "desc" }], pageSize: 20 });
+assert.ok(healthSorted.rows.every((row, index, rows) => index === 0 || rows[index - 1].health >= row.health), "city health sort mismatch");
+
+const resourceFiltered = await previewProvider.mapApi.search("resource", { resourceNameKey: "100281", pageSize: 6 });
+assert.equal(resourceFiltered.rows.length, 6);
+assert.ok(resourceFiltered.rows.every((row) => row.resourceNameKey === "100281"), "resource name filter mismatch");
+assert.ok(resourceFiltered.total > resourceFiltered.rows.length, "resource filter should still exercise pagination");
+const monsterDistance = await previewProvider.mapApi.search("monster", { sorts: [{ sortBy: "distance", sortOrder: "desc" }], pageSize: 10 });
+assert.ok(monsterDistance.rows.every((row, index, rows) => index === 0 || rows[index - 1].distanceFromHome <= row.distanceFromHome), "monster distance must force ascending order like the store");
+const plunderableTrucks = await previewProvider.mapApi.search("truck", { itemKey: "fixture-reward", plunderableOnly: true, pageSize: 200 });
+assert.ok(plunderableTrucks.rows.length > 0);
+assert.ok(plunderableTrucks.rows.every((row) => row.remainingLootCount > 0 && row.currentGoods.some((item) => item.key === "fixture-reward")), "truck item/plunder filter mismatch");
+const completedDispatch = await previewProvider.mapApi.search("dispatch", { completionStatus: "completed", minLevel: 7, pageSize: 200 });
+assert.ok(completedDispatch.rows.length > 0);
+assert.ok(completedDispatch.rows.every((row) => row.completionTime <= 1_799_000_000_000 && row.level >= 7), "dispatch status/level filter mismatch");
+const localRadar = await previewProvider.mapApi.search("treasure", { treasureType: 1, pageSize: 200 });
+const allRadar = await previewProvider.mapApi.search("treasure", { treasureType: 1, includeForeignRadarTreasures: true, pageSize: 200 });
+assert.ok(localRadar.total > 0 && allRadar.total > localRadar.total, "foreign radar toggle must change the fixture result set");
+const luckyFirst = await previewProvider.mapApi.search("treasure", { luckyFirst: true, includeForeignRadarTreasures: true, pageSize: 200 });
+assert.equal(luckyFirst.rows[0].claimPriority, 0, "lucky-first ordering should place priority zero first");
+await assert.rejects(() => previewProvider.mapApi.search("city", { sorts: [{ sortBy: "distance", sortOrder: "desc" }] }), (error) => error.code === "INVALID_REQUEST");
+await assert.rejects(() => previewProvider.mapApi.search("truck", { quality: "special" }), (error) => error.code === "INVALID_REQUEST");
+await assert.rejects(() => previewProvider.mapApi.search("dispatch", { completionStatus: "unknown" }), (error) => error.code === "INVALID_REQUEST");
+await assert.rejects(() => previewProvider.mapApi.search("truck", { sorts: [{ sortBy: "itemCount", sortOrder: "desc" }] }), (error) => error.code === "INVALID_REQUEST");
+for (const keyword of ["no-fixture-match", "Fixture Commander 52"]) {
+  await assert.rejects(() => previewProvider.mapApi.search("city", { keyword, sorts: [{ sortBy: "distance", sortOrder: "desc" }] }), (error) => error.code === "INVALID_REQUEST");
+  await assert.rejects(() => previewProvider.mapApi.search("city", { keyword, sorts: [{ sortBy: "level", sortOrder: "wrong" }] }), (error) => error.code === "INVALID_REQUEST");
+}
+
+for (const action of [
+  () => previewProvider.mapApi.start(["city"], "normal"),
+  () => previewProvider.mapApi.stop(),
+  () => previewProvider.mapApi.clear(),
+  () => previewProvider.mapApi.jumpServer(321),
+  () => previewProvider.mapApi.coordinateJump(previewRows.rows[0]),
+  () => previewProvider.mapApi.setPlayerMark("fixture-city-1", true),
+  () => previewProvider.mapApi.exportCities({}),
+]) {
+  await assert.rejects(action, (error) => error.code === "PREVIEW_NATIVE_ACTION_BLOCKED");
+}
 
 const missingNativeBridge = createBackendBridge({ __LWBridgeBootstrap: { mode: "live", sessionId: "s" } });
 assert.equal(missingNativeBridge.available, false);

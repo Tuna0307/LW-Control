@@ -124,14 +124,21 @@ runtime pixel parity.
 The follow-on `LWB317-UI-CORRECT-001` is also `CHANGES_REQUIRED` after PM-007
 review of `543b6eb`. The Home reconnect scope fix is accepted at the actual
 callback/transport boundary; useful Equipment dialog/drag/result/progress and
-locale corrections are retained. Construction choices, Training/Gather states
-and Train controls remain incomplete; AFK profile drafts leak; Map fixture QA
-ignores filter/sort/page-size semantics. Continue via `LWB317-UI-CORRECT-002`.
-These are source-backed implementation/QA gaps, separate from original pixels.
+locale corrections are retained. Those reviewed defects motivated
+`LWB317-UI-CORRECT-002`, now `AWAITING_REVIEW` after the owner requested recovery
+of the interrupted worker's uncommitted changes at lead baseline `a19905d`.
+Construction/Training/Gather/Train local controls, per-ID AFK drafts and applied
+Map fixture queries now have targeted contract and browser evidence. The config
+store handles concurrent edits, failed saves, retry and discard in local memory.
+This is a focused correction checkpoint, not complete all-page UI acceptance.
+Additional Automation runtime/Trade/Assist branches, weekly quality draft wiring
+and AFK target/member variants remain source-recoverable implementation gaps.
+See `reviews/2026-10-01-LWB317-UI-CORRECT-002.md` and the complete affected
+`evidence/lwbridge-0.3.17/ui/LWB317-UI-CORRECT-002/coverage-matrix.md`.
 
 Correction evidence is under
 `evidence/lwbridge-0.3.17/ui/LWB317-UI-CORRECT-001/`; worker report:
-`reviews/2026-10-01-LWB317-UI-CORRECT-001.md`. Current lead disposition:
+`reviews/2026-10-01-LWB317-UI-CORRECT-001.md`. Previous lead disposition:
 `reviews/2026-10-01-LWB317-PM-007-ui-correction-lead-review.md`. PM-006 and
 previous worker findings remain preserved.
 Direct post-auth original visual
