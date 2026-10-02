@@ -77,11 +77,19 @@ Live-prove each implemented in-scope function against an assistant-owned/current
 
 ## Current instruction
 
-Latest decision, 2026-10-02: PM-024 accepts UI-MAP-FILTERS-001 and its independent
+Current assignment, 2026-10-02: **LWB317-UI-MAP-NAVIGATION-001 ASSIGNED** to the
+returning worker through manual owner relay; execution not yet confirmed.
+Read `docs/work-items/LWB317-UI-MAP-NAVIGATION-001.md`. Correct Map tab page/row
+restoration, loading/query races and source-derived server invalidation;
+Scheduled Plunder is navigation-only. Preserve accepted filters and preview
+fences. No native/gameplay/function campaign is assigned. Baseline f21b4ac;
+assignment documentation may be newer. Lead makes the final acceptance decision.
+
+Previous decision, 2026-10-02: PM-024 accepts UI-MAP-FILTERS-001 and its independent
 review af73d18 for the six focused source/local behaviors. The lead verified
 actual-code/source/evidence/package checks and recorded the reviewer's empty
 Checking browser-session limit. Do not repeat that review. Other UI/native/pixel
-gaps remain open; no new implementation or native scope is assigned here.
+gaps remain open; the bounded navigation assignment above is the next UI unit.
 
 Historical PM-023 assignment, superseded by PM-024 above: LWB317-UI-MAP-FILTERS-001 was
 AWAITING_REVIEW. Lead corrected per-kind Map filters, exact Secret Task level

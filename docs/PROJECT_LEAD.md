@@ -26,15 +26,13 @@ retirement task. Preserve its source as historical evidence.
 
 ## Current phase
 
-**Phase 2 — function recovery**
+**Active assignment — UI parity, Map navigation/state transitions**
 
-Phase 1A static UI recovery/reconstruction has been project-lead reviewed and
-accepted. Direct post-auth runtime visual comparison remains legitimately
-blocked by the original auth boundary and stays `BLOCKED`, not fabricated.
-
-The first Phase 2 Goal is the complete Map Data subsystem recovery:
-
-`docs/GOAL_CAMPAIGN_PHASE2_MAP.md`
+Earlier static UI baseline acceptance does not establish complete UI/UX parity.
+The current owner priority is UI reproduction before function integration.
+Direct post-auth runtime visual comparison remains `BLOCKED` by the original
+auth boundary. The historical Phase 2 Map campaign is preserved at
+`docs/GOAL_CAMPAIGN_PHASE2_MAP.md`; this assignment does not reopen it.
 
 ## Current work items
 
@@ -47,6 +45,7 @@ the Map closeout awaits a separate independent acceptance review.
 
 | Work item / campaign | Owner | State | Scope |
 |---|---|---|---|
+| LWB317-UI-MAP-NAVIGATION-001 | Returning worker through owner relay | ASSIGNED — execution not confirmed | Medium implementation: per-tab page/rows/total cache, loading/search races, data-server invalidation and Scheduled Plunder navigation boundary. No native/gameplay or scheduling implementation |
 | LWB317-PM-024 | Project lead | COMPLETE | Lead accepts focused FILTERS-001 after inspecting independent review af73d18 and replaying actual-code/source/evidence/package checks. Independent Checking browser limitation recorded; full UI/native/pixels remain open |
 | LWB317-PM-023 | Project lead takeover | COMPLETE implementation checkpoint | Per-kind Map filter ownership and exact Secret Task level corrected; isolated EN/JA Checking preview added. Focused acceptance subsequently recorded by PM-024 |
 | LWB317-UI-MAP-FILTERS-001 | Project lead, independently reviewed | COMPLETE / ACCEPTED for focused source/local scope | Four per-kind filters, query/table projection, goods-sort clear, exact level and isolated Checking inputs accepted by PM-024. Native/full UI/pixel reachability remains open |

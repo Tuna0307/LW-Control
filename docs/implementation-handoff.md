@@ -2,7 +2,24 @@
 
 **Target:** LWBridge 0.3.17  
 **Branch:** `research/offline-controller`  
-**Phase:** Phase 2 function recovery / Map Data clean-UI live-integration checkpoint
+**Active scope:** UI parity / Map navigation and view restoration; no new native integration
+
+## 2026-10-02 — next worker assignment: Map navigation
+
+`LWB317-UI-MAP-NAVIGATION-001` is ASSIGNED; self-contained prompt prepared for
+manual owner relay, execution not yet confirmed. Read its work item before
+editing. Product baseline is f21b4acc74dc51a44d2734d86022de5b2b843f7d; a newer
+documentation-only assignment commit is expected.
+
+Lead verified original component-local tab caching (`ye` byte 554, `ir` 39238),
+search generation fencing (`rr` 38513) and server invalidation (effect 33502).
+Current MapDataPage instead clears page/rows/total on every tab/server change.
+Recover surrounding effects and correct this bounded navigation unit, with
+actual async/effect tests and populated preview browser evidence. Preserve
+accepted filters/Checking and unrelated WIP. Scheduled Plunder is a navigation
+boundary only; no native/gameplay scope is opened. Lead remains final reviewer.
+
+Earlier PM-024 acceptance below remains valid; do not repeat its completed review.
 
 ## 2026-10-02 PM-024 — Map filter review accepted by project lead
 

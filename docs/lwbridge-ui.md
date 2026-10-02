@@ -12,6 +12,12 @@ If the reference opens into a login/locked state, capture only enough evidence t
 
 ## Required inventory
 
+Current assignment, 2026-10-02: `LWB317-UI-MAP-NAVIGATION-001` is ASSIGNED for
+per-tab page/rows/total restoration, async loading/query races, server invalidation
+and Scheduled Plunder navigation boundaries. Prompt prepared for manual relay;
+execution not confirmed. Full selection/scheduling/native/pixel parity remains
+outside this bounded task. See `work-items/LWB317-UI-MAP-NAVIGATION-001.md`.
+
 Latest decision, 2026-10-02: PM-024 **ACCEPTS** FILTERS-001 for its six focused
 source/local behaviors after inspecting reviewer af73d18 and replaying actual
 source/code/evidence/package checks. The independent Checking browser session
