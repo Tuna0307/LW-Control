@@ -1,0 +1,63 @@
+{
+  "status": "PASS",
+  "scope": "Actual production App body executed in the persistent hook adapter. Profile changes rerender the same mount; then a fresh mount replays stored data. No native/gameplay calls are used for Auto config.",
+  "cases": [
+    {
+      "name": "initial-profile-load-no-write",
+      "status": "PASS",
+      "detail": {
+        "profileId": "profile-a",
+        "autoWrites": 0
+      }
+    },
+    {
+      "name": "user-edit-normalizes-and-writes-active-profile",
+      "status": "PASS",
+      "detail": {
+        "key": "lwbridge.mapAutoScan.profile-a",
+        "storedInterval": 20
+      }
+    },
+    {
+      "name": "same-mount-profile-switch-loads-without-leak",
+      "status": "PASS",
+      "detail": {
+        "from": "profile-a",
+        "to": "profile-b",
+        "addedWrites": 0
+      }
+    },
+    {
+      "name": "post-switch-edit-writes-new-profile-only",
+      "status": "PASS",
+      "detail": {
+        "key": "lwbridge.mapAutoScan.profile-b"
+      }
+    },
+    {
+      "name": "switch-back-reloads-own-persisted-config",
+      "status": "PASS",
+      "detail": {
+        "profileId": "profile-a",
+        "intervalMinutes": 20,
+        "addedWrites": 0
+      }
+    },
+    {
+      "name": "remount-load-no-prior-profile-write",
+      "status": "PASS",
+      "detail": {
+        "profileId": "profile-b",
+        "writes": 0
+      }
+    },
+    {
+      "name": "production-source-ownership-boundary",
+      "status": "PASS",
+      "detail": {
+        "layoutLoad": true,
+        "selectedProfileSave": true
+      }
+    }
+  ]
+}

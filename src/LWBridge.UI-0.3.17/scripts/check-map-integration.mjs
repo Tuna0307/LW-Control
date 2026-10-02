@@ -26,6 +26,8 @@ assert.deepEqual(
 );
 
 const mapPageSource = fs.readFileSync(new URL("../src/MapDataPage.jsx", import.meta.url), "utf8");
+const appSource = fs.readFileSync(new URL("../src/App.jsx", import.meta.url), "utf8");
+const autoConfigSource = fs.readFileSync(new URL("../src/mapAutoConfig.js", import.meta.url), "utf8");
 assert.match(mapPageSource, /localStorage\.getItem\("lwbridge\.mapScanMode"\)/,
   "canonical Map UI must restore the exact recovered persisted Manual scan-mode key");
 assert.match(mapPageSource, /localStorage\.setItem\("lwbridge\.mapScanMode", speed\)/,
@@ -34,12 +36,18 @@ for (const unsupportedKey of ["selectedTypes", "browseServer", "resultTab", "sca
   assert.doesNotMatch(mapPageSource, new RegExp(`localStorage\\.(?:getItem|setItem)\\([^\\n]*${unsupportedKey}`),
     `canonical Map UI must not invent recovered persistence for ${unsupportedKey}`);
 }
-assert.match(mapPageSource, /lwbridge\.mapAutoScan\.\$\{mapApi\.profileId \|\| "default"\}/,
-  "canonical Auto Scan must use the recovered per-profile local-storage key");
-assert.match(mapPageSource, /const AUTO_DEFAULT_TYPES = \["truck", "railway", "dispatch", "ghost", "treasure"\]/,
+assert.match(autoConfigSource, /`lwbridge\.mapAutoScan\.\$\{profileId\}`/,
+  "canonical Auto Scan must use the exact recovered selected-profile local-storage key");
+assert.doesNotMatch(autoConfigSource, /mapAutoScan[^\n]*\|\|\s*["']default["']/,
+  "canonical Auto Scan must not invent a default profile suffix");
+assert.match(appSource, /useLayoutEffect\(\(\) => \{[\s\S]*initialAutoScanConfig\(selectedProfileId, previewState\)[\s\S]*autoScanConfigRef\.current = next[\s\S]*setAutoScanConfig\(next\)[\s\S]*\}, \[selectedProfileId\]\)/,
+  "canonical App must synchronously load the selected profile before later effects can persist anything");
+assert.match(appSource, /applyAutoScanConfigEdit\(autoScanConfigRef\.current, candidate, Date\.now\(\)\)[\s\S]*saveAutoScanConfig\(selectedProfileId, next, window\.localStorage\)/,
+  "canonical App must normalize and save user edits at one profile-aware boundary");
+assert.match(autoConfigSource, /"truck",\s*\n\s*"railway",\s*\n\s*"dispatch",\s*\n\s*"ghost",\s*\n\s*"treasure"/,
   "canonical Auto Scan must preserve recovered default selected types");
-assert.match(mapPageSource, /interval >= 20 && interval <= 1440 \? interval : 60/,
-  "canonical Auto Scan must preserve the recovered 20..1440 minute interval contract");
+assert.match(autoConfigSource, /Math\.min\([\s\S]*1440[\s\S]*Math\.max\(20, Math\.trunc\(Number\(/,
+  "canonical Auto Scan must preserve the recovered truncating 20..1440 interval clamp");
 assert.match(mapPageSource, /window\.setInterval\(tick, 5000\)/,
   "canonical Auto Scan scheduler must preserve the recovered five-second due check");
 assert.match(mapPageSource, /2_700_000/,

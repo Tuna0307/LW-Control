@@ -1,9 +1,16 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import offlineDot from "./assets/dot-offline.png";
 import onlineDot from "./assets/dot-online.png";
 import { backendBridge } from "./backendBridge.js";
 import { LANGUAGES, useI18n } from "./i18n.jsx";
 import { DEFAULT_SCAN_STATE, connectionState, createMapApi } from "./mapBackend.js";
+import {
+  AUTO_SCAN_DEFAULT_TYPES,
+  applyAutoScanConfigEdit,
+  loadAutoScanConfig,
+  normalizeAutoScanConfig,
+  saveAutoScanConfig,
+} from "./mapAutoConfig.js";
 import { NavIcon } from "./NavIcon.jsx";
 import { PageForRoute } from "./Pages.jsx";
 import { initialRouteKey, routes } from "./routes.js";
@@ -42,9 +49,25 @@ function initialTheme() {
   }
 }
 
+function initialAutoScanConfig(profileId, previewState) {
+  if (previewState === "map-auto-scheduled" || previewState === "map-auto-running") {
+    return normalizeAutoScanConfig({
+      enabled: true,
+      intervalMinutes: 60,
+      serverIds: [321, 322],
+      selectedTypes: AUTO_SCAN_DEFAULT_TYPES,
+      scanMode: "fast",
+      returnToOriginalServer: true,
+      nextRunAt: 1_893_456_000_000,
+    });
+  }
+  return loadAutoScanConfig(profileId, window.localStorage);
+}
+
 export function App() {
   const { language, setLanguage, t } = useI18n();
   const selectedProfileId = backendBridge.profileId;
+  const previewState = backendBridge.mode === "preview" ? new URLSearchParams(window.location.search).get("previewState") || "" : "";
   const [activeRoute, setActiveRoute] = useState(initialRoute);
   const [theme, setTheme] = useState(initialTheme);
   const [serverJumpOpen, setServerJumpOpen] = useState(false);
@@ -64,9 +87,25 @@ export function App() {
   const [serverJumpError, setServerJumpError] = useState("");
   const [serverHistory, setServerHistory] = useState([]);
   const [connectionError, setConnectionError] = useState("");
+  const [autoScanConfig, setAutoScanConfig] = useState(() => initialAutoScanConfig(selectedProfileId, previewState));
+  const [autoScanRunning, setAutoScanRunning] = useState(() => previewState === "map-auto-running");
   const mapReadingRef = useRef(false);
   const mapRuntimeRef = useRef({ ...DEFAULT_SCAN_STATE });
   const mapSummaryGeneration = useRef(0);
+  const autoScanConfigRef = useRef(autoScanConfig);
+
+  useLayoutEffect(() => {
+    const next = initialAutoScanConfig(selectedProfileId, previewState);
+    autoScanConfigRef.current = next;
+    setAutoScanConfig(next);
+  }, [selectedProfileId]);
+
+  const updateAutoScanConfig = useCallback((candidate) => {
+    const next = applyAutoScanConfigEdit(autoScanConfigRef.current, candidate, Date.now());
+    autoScanConfigRef.current = next;
+    setAutoScanConfig(next);
+    saveAutoScanConfig(selectedProfileId, next, window.localStorage);
+  }, [selectedProfileId]);
 
   useEffect(() => {
     if (backendBridge.mode !== "preview") return;
@@ -468,7 +507,11 @@ export function App() {
             summary={mapSummary}
             onState={acknowledgeMapScan}
             onCounts={acknowledgeMapCounts}
-            previewState={backendBridge.mode === "preview" ? new URLSearchParams(window.location.search).get("previewState") || "" : ""}
+            autoScanConfig={autoScanConfig}
+            autoScanRunning={autoScanRunning}
+            onAutoScanConfig={updateAutoScanConfig}
+            onAutoScanRunningChange={setAutoScanRunning}
+            previewState={previewState}
             homeState={{
               rootResolved: gameRootStatus !== null,
               gameRootStatus,

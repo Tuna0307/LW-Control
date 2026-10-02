@@ -49,7 +49,7 @@ if (!app.includes('backendBridge.mode === "preview" ? new URLSearchParams(window
 const pages = fs.readFileSync(path.join(root, "src", "Pages.jsx"), "utf8");
 const mapPage = fs.readFileSync(path.join(root, "src", "MapDataPage.jsx"), "utf8");
 const mapPreview = fs.readFileSync(path.join(root, "src", "mapPreviewApi.js"), "utf8");
-const previewCoverageSource = [pages, mapPage, mapPreview].join("\n");
+const previewCoverageSource = [app, pages, mapPage, mapPreview].join("\n");
 for (const marker of [
   "home-missing", "home-connected", "home-repair", "home-recovery-failed",
   "automation-config", "automation-saving", "automation-saved", "automation-save-error", "automation-validation-error",
