@@ -75,6 +75,15 @@ If runtime visual comparison is blocked by auth, mark that validation gap explic
 
 ## Current work
 
+2026-10-02 PM-021 accepts `LWB317-UI-HOME-BUSY-001` after independent review
+`ff787e3`: 17 distinguishing original/current render/predicate cases and existing
+Home/source/image/package regressions pass. The saved Japanese screenshot shows
+the header and disabled lifecycle controls. App's folder/preference busy inputs
+exist; proxy/launch busy producers remain absent and lifecycle availability remains
+false. This accepts source/local busy presentation, not complete Home/native/pixels.
+The sole worker assignment is now `LWB317-REVIEW-MAP-TRANSPORT-001` for Truck/Train
+table review only. See `reviews/2026-10-02-LWB317-PM-021-home-busy-acceptance.md`.
+
 2026-10-02 PM-020 accepts independent review `LWB317-REVIEW-MAP-STATES-001`
 at `6f52096` for Secret Task, Ghost Ops and Treasure source/local formatting,
 state precedence, names and selection only. Lead replay and source/image/package
@@ -85,7 +94,7 @@ under queued `LWB317-UI-MAP-TREASURE-REFRESH-001`, distinct from native refresh.
 The saved review screenshots are clipped and do not visibly establish all reported
 row states; the acceptance uses executable checks and recorded browser DOM results,
 not those images as full visual proof. No original-pixel/native/global upgrade.
-Next sole worker assignment: `LWB317-REVIEW-HOME-BUSY-001` (ASSIGNED).
+That Home review is now accepted by PM-021 above; its assignment is closed.
 See `reviews/2026-10-02-LWB317-PM-020-map-states-acceptance.md`.
 
 2026-10-02 lead takeover while the worker rests: `LWB317-UI-LEAD-TABLES-001`
@@ -97,8 +106,7 @@ adapter. Exact original helpers/callbacks, 288 metadata cases, 15,264 value
 comparisons and 72 actual JSX cases cover all eight kinds/nine languages. Browser
 tab/state/sort/locale/theme checks and package regressions pass. See
 `reviews/2026-10-02-LWB317-UI-LEAD-TABLES-001.md` and its granular coverage matrix.
-Home busy and Trade 003E pass additional author rechecks, but stay pending
-independent review. Scheduled Plunder, per-tab filter/action details, native texts/
+Home busy is accepted by PM-021; Trade 003E remains pending independent review. Scheduled Plunder, per-tab filter/action details, native texts/
 images/providers and original pixels remain separate; no global/live upgrade.
 
 `LWB317-UI-001A` established the 0.3.17 frontend package statically. The exact
@@ -199,8 +207,7 @@ after independent review baf5473:
 actual helper/render/nine-locale/browser checks pass. HOME-ERROR-002 separate
 channels correction is COMPLETE / ACCEPTED by PM-019 after R1; historical 9 callback scenarios, 4 original
 picker cases, 72 render comparisons and 5 browser observations. See
-`reviews/2026-10-02-LWB317-UI-HOME-ERROR-002.md`. HOME-BUSY-001 is also
-AWAITING_REVIEW after nine-locale render/predicate and local browser checks;
+`reviews/2026-10-02-LWB317-UI-HOME-ERROR-002.md`. HOME-BUSY-001 is COMPLETE / ACCEPTED by PM-021 after nine-locale render/predicate and local browser checks;
 independent proxy/launch inputs have no production lifecycle producers. See
 `reviews/2026-10-02-LWB317-UI-HOME-BUSY-001.md`. PM-016 accepts UI-SWITCH-LOCALE-001
 47c243a for focused source/local scope: recovered/production ToggleRow comparison passes 360 cases
@@ -212,8 +219,7 @@ PM-019 accepts HOME-ERROR-002 and R1 at 8415316 for focused source/local
 error-channel and root acknowledgement/polling scope. Fourteen actual-callback/
 effect scenarios and four independent acknowledgement comparisons pass; accepted
 translation/switch regressions and package verification remain green. Native
-contracts/persistence/lifecycle and original pixels remain unproved. Busy remains
-AWAITING_REVIEW; LWB317-REVIEW-HOME-BUSY-001 is ASSIGNED for presentation only.
+contracts/persistence/lifecycle and original pixels remain unproved. PM-021 subsequently accepts busy presentation after independent review ff787e3.
 See `reviews/2026-10-02-LWB317-PM-019-home-root-correction-acceptance.md` and
 `work-items/LWB317-REVIEW-HOME-BUSY-001.md`.
 Earlier correction evidence is under

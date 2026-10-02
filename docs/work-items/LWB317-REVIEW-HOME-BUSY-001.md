@@ -1,6 +1,10 @@
 # LWB317-REVIEW-HOME-BUSY-001 — independent Home busy presentation review
 
-Owner: returning worker as independent reviewer. State: ASSIGNED.
+Owner: returning worker as independent reviewer. State: REVIEW_COMPLETE / lead-integrated.
+PM-021 accepts ff787e31acd048df8091a74da18e9ee3b595eb93 for focused
+source/local presentation and predicate scope. The original assignment below is
+closed; no further Home work is assigned here. Production proxy/launch producers,
+native lifecycle and original pixels remain separate.
 2026-10-02 PM-020 lead update: the Map-states review is complete and accepted
 for its narrow source/local scope. This is now the worker's only active assignment,
 delivered by manual relay. Review this one unit; Map follow-ups and Trade stay
@@ -76,3 +80,11 @@ src/LWBridge.UI-0.3.17/src/previewAfkFixtures.js, .scratch-lwb317/ and parent
 CORRECT-003 screenshots unchanged/unstaged. Stay on research/offline-controller;
 review diff, stage explicit owned files, commit/push, verify direct remote SHA.
 Complete this unit without fixed time limits and stop for lead integration.
+
+## Lead integration
+
+2026-10-02 PM-021: accepts the independent 17-case review after actual-code replay,
+historical source/image checks, current regressions and package verification.
+The saved Japanese screenshot clearly shows the reviewed labels and controls.
+No product code changed. See reviews/2026-10-02-LWB317-PM-021-home-busy-acceptance.md.
+Next separate assignment: LWB317-REVIEW-MAP-TRANSPORT-001, Truck/Train tables only.

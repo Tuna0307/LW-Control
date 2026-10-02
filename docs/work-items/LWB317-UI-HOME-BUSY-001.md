@@ -1,6 +1,9 @@
 # LWB317-UI-HOME-BUSY-001 — Home busy presentation
 
-Owner: project lead. State: AWAITING_REVIEW. Assigned 2026-10-02 on owner continuation.
+Owner: project lead. State: COMPLETE / ACCEPTED for focused source/local scope.
+PM-021 integrates independent review ff787e3 on 2026-10-02. Native lifecycle,
+production proxy/launch busy producers and original pixels are not accepted.
+Original assignment: 2026-10-02 on owner continuation.
 Baseline: 09a929ee94da90228403a5885c11d45ea80bd6a2.
 
 Goal: recover distinct root-selection/proxy-action/launch busy display in Home;
@@ -31,4 +34,5 @@ Stop at AWAITING_REVIEW; next bounded task is UI-SWITCH-LOCALE-001.
 Delivery: docs/reviews/2026-10-02-LWB317-UI-HOME-BUSY-001.md and task evidence.
 13,824 render comparisons, 384 predicate cases, 27 preference isolation checks,
 63 localized preview cases and 9 browser observations pass. App unchanged;
-native lifecycle producers remain absent. Independent review pending.
+native lifecycle producers remain absent. Independent review accepted by PM-021
+after 17 distinguishing source/current cases, source/image validation and regressions.

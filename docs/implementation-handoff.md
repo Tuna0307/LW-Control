@@ -4,6 +4,25 @@
 **Branch:** `research/offline-controller`  
 **Phase:** Phase 2 function recovery / Map Data clean-UI live-integration checkpoint
 
+## 2026-10-02 PM-021 — Home busy accepted; Truck/Train review next
+
+Lead integrates reviewer `ff787e31acd048df8091a74da18e9ee3b595eb93` and accepts
+HOME-BUSY-001 for focused source/local header/button/picker precedence and
+predicates. Seventeen independent cases, historical source/image checks, current
+Home regressions and package verification pass. The saved Japanese image visibly
+shows the launching header and disabled controls. No product code changed.
+
+App supplies folder/preference busy values, but no proxyBusy/gameLaunchBusy
+producers. Lifecycle availability remains false; no game launch or native/pixel
+parity is established. Full Home UI remains IMPLEMENTED_NOT_VALIDATED. Read
+`reviews/2026-10-02-LWB317-PM-021-home-busy-acceptance.md` for exact limits.
+
+Current sole worker assignment: **LWB317-REVIEW-MAP-TRANSPORT-001 ASSIGNED**,
+manually relayed. Review Truck/Train table columns, state/cap/countdown,
+eligibility and retained goods only. No product changes or gameplay. Treasure
+Checking producer, City/Resource/Monster, other interactions and Trade 003E remain
+separate. Protected AFK/scratch/parent screenshots remain unchanged and unstaged.
+
 ## 2026-10-02 PM-020 — Map state review accepted; Home busy review next
 
 Lead integrates reviewer commit `6f52096d050c7d2b005d61e6c5b6e80cd1538eeb`:
@@ -19,10 +38,9 @@ refresh remains separate. The saved screenshots do not fully show the asserted
 row states, so they are not complete visual evidence. Review/evidence details:
 `reviews/2026-10-02-LWB317-PM-020-map-states-acceptance.md`.
 
-Current sole worker assignment: **LWB317-REVIEW-HOME-BUSY-001 ASSIGNED**, manually
-relayed by the owner. Read that work item and review only Home busy labels,
-precedence, disabling and input mapping. No product edits or native launch.
-Trade 003E, other Map tables/interactions and the Treasure follow-up stay separate.
+Earlier assignment: LWB317-REVIEW-HOME-BUSY-001, now accepted and closed by PM-021
+above. Follow the latest continuation. Trade 003E, other Map tables/interactions
+and the Treasure follow-up stay separate.
 Protected AFK/scratch/parent screenshot WIP remains unchanged and unstaged.
 
 ## 2026-10-02 manual AI relay restored — collaboration experiment retired
@@ -160,8 +178,7 @@ COMPLETE / ACCEPTED by PM-019 after R1; historical delivery: picker cancel/inval
 independent action error; 9 actual callback scenarios, 4 original picker cases,
 72 render comparisons and 5 browser observations pass. Review:
 `reviews/2026-10-02-LWB317-UI-HOME-ERROR-002.md`. Existing polling/rejection
-string reduction retained; native picker not executed. HOME-BUSY-001 is also
-AWAITING_REVIEW: independent proxy/launch display inputs and root/header/button
+string reduction retained; native picker not executed. HOME-BUSY-001 is COMPLETE / ACCEPTED by PM-021 for source/local scope: independent proxy/launch display inputs and root/header/button
 precedence now match source; 13,824 nine-locale render comparisons, 384 predicate
 cases and 9 browser observations pass. App/callbacks unchanged and lifecycle
 busy producers remain absent. Review: `reviews/2026-10-02-LWB317-UI-HOME-BUSY-001.md`.
@@ -179,8 +196,7 @@ PM-019 accepts HOME-ERROR-002 and R1 at 8415316 for focused source/local
 error-channel and root acknowledgement/polling scope. Fourteen actual-callback/
 effect scenarios and four independent acknowledgement comparisons pass; accepted
 translation/switch regressions and package verification remain green. Native
-contracts/persistence/lifecycle and original pixels remain unproved. Busy remains
-AWAITING_REVIEW; LWB317-REVIEW-HOME-BUSY-001 is QUEUED for presentation only.
+contracts/persistence/lifecycle and original pixels remain unproved. PM-021 subsequently accepts busy presentation after independent review ff787e3.
 See `reviews/2026-10-02-LWB317-PM-019-home-root-correction-acceptance.md` and
 `work-items/LWB317-REVIEW-HOME-BUSY-001.md`.
 Do not restart broad CORRECT-003 or reopen accepted weekly/selection/history work.
