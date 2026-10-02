@@ -304,6 +304,7 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
   const [scanError, setScanError] = useState("");
   const [queryError, setQueryError] = useState("");
   const [actionBusy, setActionBusy] = useState("");
+  const [exporting, setExporting] = useState(false);
   const autoStorageKey = `lwbridge.mapAutoScan.${mapApi.profileId || "default"}`;
   const [autoConfig, setAutoConfig] = useState(() => {
     if (previewState === "map-auto-scheduled") return normalizeAutoConfig({
@@ -324,6 +325,8 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
   const [searchRevision, setSearchRevision] = useState(0);
   const selectionTouched = useRef(false);
   const previousReading = useRef(false);
+  const previousRowsReading = useRef(false);
+  const scanProgressTimer = useRef(null);
   const summaryGeneration = useRef(0);
   const optionsGeneration = useRef(0);
   const searchGeneration = useRef(0);
@@ -400,7 +403,6 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
         await loadOptions(summary.serverId);
       }
       if (generation !== summaryGeneration.current) return;
-      setScanError(summary.scanState.lastError || "");
     } catch (error) {
       if (generation !== summaryGeneration.current) return;
       setScanError(errorText(error));
@@ -418,7 +420,6 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
       previousReading.current = next.isReading;
       setScanState(next);
       setScanStateAvailable(true);
-      setScanError(next.lastError || "");
       setBrowseServerId(next.serverId > 0 ? next.serverId : 0);
       if (wasReading && !next.isReading) refreshSummary();
     });
@@ -534,6 +535,32 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
     searchRevision, tab, treasureType,
   ]);
 
+  // Original Vn/X effects: one coalesced trailing refresh, rearmed only by a
+  // reading/readBlocks change; completion refreshes rows and cancels the timer.
+  useEffect(() => {
+    const wasReading = previousRowsReading.current;
+    previousRowsReading.current = scanState.isReading;
+    if (wasReading && !scanState.isReading) setSearchRevision((value) => value + 1);
+  }, [scanState.isReading]);
+
+  useEffect(() => {
+    if (!scanState.isReading) {
+      if (scanProgressTimer.current !== null) window.clearTimeout(scanProgressTimer.current);
+      scanProgressTimer.current = null;
+      return;
+    }
+    if (scanProgressTimer.current === null) {
+      scanProgressTimer.current = window.setTimeout(() => {
+        scanProgressTimer.current = null;
+        setSearchRevision((value) => value + 1);
+      }, 1000);
+    }
+  }, [scanState.isReading, scanState.readBlocks]);
+
+  useEffect(() => () => {
+    if (scanProgressTimer.current !== null) window.clearTimeout(scanProgressTimer.current);
+  }, []);
+
   // Original page clock (`rn`, 1 s). MapTable keeps its own accepted 1 s clock for the three task tables, so the
   // Recovered page clock also drives elapsed scan time, even on City/Resource.
   useEffect(() => {
@@ -572,6 +599,7 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
   }
 
   async function startScan() {
+    setOptions((current) => current ? { ...current, scanProgress: null } : current);
     setScanError("");
     try {
       const next = await mapApi.start(selectedTypes, speed);
@@ -581,7 +609,7 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
       setScanStateAvailable(true);
       if (next.serverId > 0) setBrowseServerId(next.serverId);
     } catch (error) {
-      setScanError(errorText(error));
+      setScanError(String(error));
     }
   }
 
@@ -713,12 +741,12 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
   }
 
   async function exportCities() {
-    if (!dataServerId) return;
-    setActionBusy("export");
-    setQueryError("");
+    if (tab !== "city" || !dataServerId) return;
+    setExporting(true);
+    setActionMessage("");
     try {
       const allianceName = decodeAllianceFilter(alliance);
-      await mapApi.exportCities({
+      const result = await mapApi.exportCities({
         serverId: dataServerId,
         keyword,
         alliance: allianceName || undefined,
@@ -728,13 +756,14 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
         pageSize: 200,
         sorts: activeSorts,
       }, {
-        headers: ["Server", "X", "Y", "Player", "UID", "UUID", "Alliance", "Level", "HP", "Shield Ends", "Marked", "Updated At"],
-        sheetName: "City",
-        yesLabel: "Yes",
-        noLabel: "No",
+        headers: [t("map.server"), "X", "Y", t("map.player"), "UID", "UUID", t("map.alliance"), t("map.level"), "HP", t("automation.shieldEnds"), t("map.marked"), t("map.updatedAt")],
+        sheetName: t("map.city"),
+        yesLabel: t("common.yes"),
+        noLabel: t("common.no"),
       });
-    } catch (error) { setQueryError(errorText(error)); }
-    finally { setActionBusy(""); }
+      if (!result.canceled) setActionMessage(t("map.exportExcelSuccess", { count: result.rowCount, path: result.path }));
+    } catch (error) { setActionMessage(translateActionError(t, error)); }
+    finally { setExporting(false); }
   }
 
   async function runAutoCycle() {
@@ -988,13 +1017,14 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
         </div>
       </div>
 
-      {scanError ? <div className="map-scan-error" role="alert">{scanError}</div> : null}
-      {!scanError && !backendAvailable ? (
+      {scanError ? <div className="map-scan-error" role="alert">{translateActionError(t, scanError)}</div> : null}
+      {!scanError && scanView.error ? <div className="map-scan-error" role="status">{translateActionError(t, scanView.error)}</div> : null}
+      {!scanError && !scanView.error && !backendAvailable ? (
         <div className="map-scan-error" role="status">
           {bridgeMode === "preview" ? "Browser preview mode. Native Map actions are unavailable." : "Native backend unavailable."}
         </div>
       ) : null}
-      {!scanError && backendAvailable && !online ? <div className="map-scan-error" role="status">Game disconnected. Start Scan is disabled; saved Map data remains available.</div> : null}
+      {!scanError && !scanView.error && backendAvailable && !online ? <div className="map-scan-error" role="status">Game disconnected. Start Scan is disabled; saved Map data remains available.</div> : null}
 
       {scanTab === "manual" ? (
         <div className="map-controls">
@@ -1070,7 +1100,7 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
               </>
             ) : null}
             <button type="button" disabled={!backendAvailable || !dataServerId} onClick={submitSearch}>{t("common.search")}</button>
-            {tab === "city" ? <button type="button" disabled={!backendAvailable || !dataServerId || scanState.isReading || actionBusy === "export"} onClick={exportCities}>{t(actionBusy === "export" ? "map.exportingExcel" : "map.exportExcel")}</button> : null}
+            {tab === "city" ? <button type="button" disabled={!backendAvailable || !dataServerId || scanState.isReading || exporting} onClick={exportCities}>{t(exporting ? "map.exportingExcel" : "map.exportExcel")}</button> : null}
             {(tab === "dispatch" || tab === "ghost") ? <label className="map-random-delay-field"><span>{t("map.randomDelaySeconds")}</span><input type="number" min="0" step="1" aria-label={t("map.randomDelaySeconds")} value={randomDelay} onChange={(event) => setRandomDelay(event.target.value)} /></label> : null}
             {(tab === "dispatch" || tab === "ghost") ? <button className="map-schedule-button" type="button" data-runtime-fenced={!scheduleProvider} disabled={scheduleSelectedDisabled({ count: dispatchCount, busyKey, sharing, delayValid: delay.valid }) || !scheduleProvider} onClick={scheduleSelectedDispatch}>{t("map.scheduleSelected", { count: dispatchCount })}</button> : null}
             {tab === "dispatch" ? <button className="map-schedule-button" type="button" data-runtime-fenced={!shareProvider} disabled={shareAllianceDisabled({ online, isReading: scanState.isReading, count: dispatchCount, busyKey, sharing }) || !shareProvider} onClick={shareSelectedDispatch}>{t(shareAllianceLabelKey(sharing))}</button> : null}

@@ -267,7 +267,7 @@ export function getMapPreviewProvider(bridgeMode, previewState) {
 
   const tableTime = Date.now();
   const headerFixture = scanHeaderFixture(previewState, tableTime);
-  const summary = fixtureSummary(headerFixture?.scanState);
+  const summary = fixtureSummary(previewState === "map-scan-feedback-error" ? { lastError: "MAP_SCAN_START_FAILED" } : headerFixture?.scanState);
   const tableRows = previewState === "map-filter-lifecycle" ? filterLifecycleFixtureRows() : previewState === "map-row-actions" ? rowActionFixtureRows(tableTime) : previewState === "map-treasure-checking" ? treasureCheckingFixtureRows(tableTime) : previewState === "map-table-states" || previewState.startsWith("map-actions-") ? tableStateFixtureRows(tableTime) : null;
   const plunderFixture = plunderFixtureFor(previewState, tableTime) || { dispatchJobs: [], truckJobs: [], online: null, busyKey: "" };
   const api = {
@@ -319,6 +319,7 @@ export function getMapPreviewProvider(bridgeMode, previewState) {
     previewBusyKey: plunderFixture.busyKey || (previewState === "map-actions-schedule-busy" ? "schedule" : previewState === "map-actions-truck-busy" ? "schedule-truck" : ""),
     previewSharing: previewState === "map-actions-share-busy",
     previewActionMessage: previewState === "map-actions-message" ? { key: "map.shareAllianceSuccess", values: { count: 3 } }
+      : previewState === "map-export-feedback" ? { key: "map.exportExcelSuccess", values: { count: 37, path: "C:/Fixture/東京 export.xlsx" } }
       : previewState === "map-actions-message-partial" ? { key: "map.shareAlliancePartial", values: { shared: 2, failed: 1 } } : null,
     mapApi: api,
     backendAvailable: true,

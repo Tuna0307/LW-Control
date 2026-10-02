@@ -1,12 +1,23 @@
 # Current implementation/research handoff
 
-Current lead decision, 2026-10-03: MAP-SCAN-HEADER-001 is COMPLETE implementation for focused source/local UI scope: recovered start/end/duration, stored-run matching, publishing precedence, fractional progress and optional-state display; non-original diagnostic counters removed. 270 original/current comparisons, clock/fixture fences, browser en/light + ja/dark and all maintained Map/package checks pass. The two picker implementations and PM-028 acceptance remain unchanged. Independent returning-worker review is a follow-up; full UI/original pixels/native timing are not accepted. See the dated SCAN-HEADER review/work item.
+Current lead decision, 2026-10-03: MAP-REFRESH-FEEDBACK-001 is COMPLETE implementation for focused source/local UI scope: one-second coalesced row refresh/completion cleanup, separate export busy/result/localized labels and recovered scan error priority/translation/start retirement. Original/current 45 export, 19 scan and 11 row checkpoints, browser en/light + ja/dark, fixture fences and maintained checks pass. Header/picker and PM-028 acceptance remain preserved. Summary/options request ownership is the next separate UI task; full UI/original pixels/native parity remain unaccepted. Independent returning-worker review is a follow-up.
 
 **Target:** LWBridge 0.3.17  
 **Branch:** `research/offline-controller`  
-**Active scope:** UI parity / scan header and both pickers complete; no new native integration
+**Active scope:** UI parity / Map header/row refresh/feedback and both pickers implemented; no new native integration
 
 ## Current continuation — project-lead takeover checkpoint
+
+2026-10-03 REFRESH-FEEDBACK-001: row revision timer/completion cleanup, scan error
+priority/translation/start retirement and localized export busy/result behavior
+are implemented. Read its dated review, work item and evidence README.
+Next implementation is summary/options refresh ownership and query side effects:
+the source polls parent summary at five seconds while component options are
+revision-owned. Preserve accepted server redirect and delayed-Clear behavior.
+Returning worker can independently review header, both pickers and this unit.
+No active external assignment. Protected WIP and historical evidence preserved.
+
+Previous header checkpoint:
 
 2026-10-03 SCAN-HEADER-001 checkpoint: timing and source-like summary are
 implemented and verified (270 cases, six clock stages/unmount, fixture fences,

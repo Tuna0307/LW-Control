@@ -1,6 +1,6 @@
 # Project lead control sheet
 
-Current lead decision, 2026-10-03: MAP-SCAN-HEADER-001 is COMPLETE implementation for focused source/local UI scope: recovered start/end/duration, stored-run matching, publishing precedence, fractional progress and optional-state display; non-original diagnostic counters removed. 270 original/current comparisons, clock/fixture fences, browser en/light + ja/dark and all maintained Map/package checks pass. The two picker implementations and PM-028 acceptance remain unchanged. Independent returning-worker review is a follow-up; full UI/original pixels/native timing are not accepted. See the dated SCAN-HEADER review/work item.
+Current lead decision, 2026-10-03: MAP-REFRESH-FEEDBACK-001 is COMPLETE implementation for focused source/local UI scope: one-second coalesced row refresh/completion cleanup, separate export busy/result/localized labels and recovered scan error priority/translation/start retirement. Original/current 45 export, 19 scan and 11 row checkpoints, browser en/light + ja/dark, fixture fences and maintained checks pass. Header/picker and PM-028 acceptance remain preserved. Summary/options request ownership is the next separate UI task; full UI/original pixels/native parity remain unaccepted. Independent returning-worker review is a follow-up.
 
 The main project lead owns integration and should keep this file small and current.
 
@@ -28,7 +28,7 @@ retirement task. Preserve its source as historical evidence.
 
 ## Current phase
 
-**UI parity — scan header and both pickers implemented; peer review follow-up**
+**UI parity — Map header/row refresh/feedback and both pickers implemented; peer review follow-up**
 
 Earlier static UI baseline acceptance does not establish complete UI/UX parity.
 The current owner priority is UI reproduction before function integration.
@@ -47,6 +47,7 @@ the Map closeout awaits a separate independent acceptance review.
 
 | Work item / campaign | Owner | State | Scope |
 |---|---|---|---|
+| LWB317-UI-MAP-REFRESH-FEEDBACK-001 | Project lead takeover | COMPLETE implementation / independent review follow-up | Row revision timing, scan error rendering/priority and export localized labels/result/busy; 45/19/11 checks pass. Full options/poll/native/pixels excluded |
 | LWB317-UI-MAP-SCAN-HEADER-001 | Project lead takeover | COMPLETE implementation / independent review follow-up | Original timing/summary, stored-run matching, fractional progress and optional state; 270 comparisons/clock/fences/browser pass. Native timing/actions/pixels excluded |
 | LWB317-UI-MAP-GOODS-PICKER-001 | Project lead takeover | COMPLETE implementation / independent review follow-up | Original Truck/Train details menu, strict raw keys/icon placeholders and close-after-change; 144 comparisons, actual parent query/sort and browser controls pass; native icons/pixels excluded |
 | LWB317-PM-028 | Project lead | COMPLETE | Accepts ff4ed369 R1 and parent for focused source/local UI scope after actual diff/original/regression/package checks. PM-027 failed baseline retained |

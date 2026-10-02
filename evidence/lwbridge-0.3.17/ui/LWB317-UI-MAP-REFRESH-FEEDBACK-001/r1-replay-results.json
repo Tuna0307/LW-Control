@@ -1,0 +1,263 @@
+{
+  "source": {
+    "originalSha256": "ce74345518be72e417a510b982c591729e5683f69751e190805598c4c05d3089",
+    "currentPath": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+    "currentSha256": "1630a79b5021b90b46cdca504541e5837dacf16fe1f376390081268ec26424a2"
+  },
+  "cases": [
+    {
+      "case": "same-server options reply",
+      "pass": true,
+      "original": {
+        "serverId": 321,
+        "scanServerId": 321,
+        "optionServers": [
+          321
+        ],
+        "alliances": [
+          "SAME"
+        ],
+        "page": 1,
+        "rows": [
+          {
+            "serverId": 321,
+            "uuid": "same"
+          }
+        ],
+        "total": 1,
+        "loading": false,
+        "cacheKeys": []
+      },
+      "current": {
+        "serverId": 321,
+        "scanServerId": 321,
+        "optionServers": [
+          321
+        ],
+        "alliances": [
+          "SAME"
+        ],
+        "page": 1,
+        "rows": [
+          {
+            "serverId": 321,
+            "uuid": "same"
+          }
+        ],
+        "total": 1,
+        "loading": false,
+        "cacheKeys": []
+      }
+    },
+    {
+      "case": "redirected options reply resynchronizes to scan server",
+      "pass": true,
+      "original": {
+        "serverId": 321,
+        "scanServerId": 321,
+        "optionServers": [
+          321,
+          322,
+          321
+        ],
+        "alliances": [
+          "CURRENT"
+        ],
+        "page": 1,
+        "rows": [
+          {
+            "serverId": 321,
+            "uuid": "redirect-current"
+          }
+        ],
+        "total": 1,
+        "loading": false,
+        "cacheKeys": []
+      },
+      "current": {
+        "serverId": 321,
+        "scanServerId": 321,
+        "optionServers": [
+          321,
+          322,
+          321
+        ],
+        "alliances": [
+          "CURRENT"
+        ],
+        "page": 1,
+        "rows": [
+          {
+            "serverId": 321,
+            "uuid": "redirect-current"
+          }
+        ],
+        "total": 1,
+        "loading": false,
+        "cacheKeys": []
+      }
+    },
+    {
+      "case": "obsolete redirect response is generation-fenced",
+      "pass": true,
+      "original": {
+        "serverId": 322,
+        "scanServerId": 322,
+        "optionServers": [
+          321,
+          322
+        ],
+        "alliances": [
+          "FRESH-322"
+        ],
+        "page": 1,
+        "rows": [
+          {
+            "serverId": 322,
+            "uuid": "fresh-322"
+          }
+        ],
+        "total": 1,
+        "loading": false,
+        "cacheKeys": []
+      },
+      "current": {
+        "serverId": 322,
+        "scanServerId": 322,
+        "optionServers": [
+          321,
+          322
+        ],
+        "alliances": [
+          "FRESH-322"
+        ],
+        "page": 1,
+        "rows": [
+          {
+            "serverId": 322,
+            "uuid": "fresh-322"
+          }
+        ],
+        "total": 1,
+        "loading": false,
+        "cacheKeys": []
+      }
+    },
+    {
+      "case": "actual scan-server transition owns cache/page/loading",
+      "pass": true,
+      "pending": {
+        "original": {
+          "serverId": 322,
+          "scanServerId": 322,
+          "optionServers": [
+            321,
+            322
+          ],
+          "alliances": [
+            "INITIAL"
+          ],
+          "page": 1,
+          "rows": [],
+          "total": 0,
+          "loading": true,
+          "cacheKeys": []
+        },
+        "current": {
+          "serverId": 322,
+          "scanServerId": 322,
+          "optionServers": [
+            321,
+            322
+          ],
+          "alliances": [
+            "INITIAL"
+          ],
+          "page": 1,
+          "rows": [],
+          "total": 0,
+          "loading": true,
+          "cacheKeys": []
+        }
+      },
+      "settled": {
+        "original": {
+          "serverId": 322,
+          "scanServerId": 322,
+          "optionServers": [
+            321,
+            322
+          ],
+          "alliances": [
+            "SERVER-322"
+          ],
+          "page": 1,
+          "rows": [
+            {
+              "serverId": 322,
+              "uuid": "server-322"
+            }
+          ],
+          "total": 1,
+          "loading": false,
+          "cacheKeys": []
+        },
+        "current": {
+          "serverId": 322,
+          "scanServerId": 322,
+          "optionServers": [
+            321,
+            322
+          ],
+          "alliances": [
+            "SERVER-322"
+          ],
+          "page": 1,
+          "rows": [
+            {
+              "serverId": 322,
+              "uuid": "server-322"
+            }
+          ],
+          "total": 1,
+          "loading": false,
+          "cacheKeys": []
+        }
+      }
+    },
+    {
+      "case": "positive scan-server loss clears view and retires options",
+      "pass": true,
+      "original": {
+        "serverId": 0,
+        "scanServerId": 0,
+        "optionServers": [
+          321
+        ],
+        "alliances": [
+          "STALE-AFTER-LOSS"
+        ],
+        "page": 1,
+        "rows": [],
+        "total": 0,
+        "loading": false,
+        "cacheKeys": []
+      },
+      "current": {
+        "serverId": 0,
+        "scanServerId": 0,
+        "optionServers": [
+          321
+        ],
+        "alliances": [
+          "STALE-AFTER-LOSS"
+        ],
+        "page": 1,
+        "rows": [],
+        "total": 0,
+        "loading": false,
+        "cacheKeys": []
+      }
+    }
+  ]
+}

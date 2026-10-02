@@ -1,0 +1,22 @@
+{
+  "status": "PASS",
+  "exportSuccess": "Exported 37 cities to C:/Fixture/東京 export.xlsx",
+  "exportRejected": "The action could not be completed.",
+  "exportButtonAfterRejectEnabled": true,
+  "queryAlertCountAfterReject": 0,
+  "scanErrorJapanese": "マップスキャンを開始できませんでした。",
+  "scanErrorCount": 1,
+  "startEnabled": false,
+  "consoleErrorsAndWarnings": [],
+  "proof": "offline preview; success text seeded only, rejected export uses real production callback; no native invocation",
+  "localeNote": "The initial stored zh-CN seeded message survived previewLanguage=en asynchronous load; English reload produced the expected English fixture. Production callback differential uses loaded catalog in all nine languages. Existing stored-message language semantics preserved.",
+  "preferencesRestored": "zh-CN/light",
+  "screenshots": [
+    "screenshots/export-en-light.jpg",
+    "screenshots/scan-error-ja-dark.jpg"
+  ],
+  "screenshotHashes": {
+    "screenshots/export-en-light.jpg": "be906f4d7631517bf5a82df9937eda8e702bee1e23a85acfbb2888d4aa2aaf67",
+    "screenshots/scan-error-ja-dark.jpg": "1a8ad24efb4030a8d4d754a2692c278a0108e3f61a5f2773d1a189686fd479a7"
+  }
+}

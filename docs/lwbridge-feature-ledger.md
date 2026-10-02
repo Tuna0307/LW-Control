@@ -1,8 +1,10 @@
 # LWBridge 0.3.17 feature ledger
 
-Current lead decision, 2026-10-03: MAP-SCAN-HEADER-001 is COMPLETE implementation for focused source/local UI scope: recovered start/end/duration, stored-run matching, publishing precedence, fractional progress and optional-state display; non-original diagnostic counters removed. 270 original/current comparisons, clock/fixture fences, browser en/light + ja/dark and all maintained Map/package checks pass. The two picker implementations and PM-028 acceptance remain unchanged. Independent returning-worker review is a follow-up; full UI/original pixels/native timing are not accepted. See the dated SCAN-HEADER review/work item.
+Current lead decision, 2026-10-03: MAP-REFRESH-FEEDBACK-001 is COMPLETE implementation for focused source/local UI scope: one-second coalesced row refresh/completion cleanup, separate export busy/result/localized labels and recovered scan error priority/translation/start retirement. Original/current 45 export, 19 scan and 11 row checkpoints, browser en/light + ja/dark, fixture fences and maintained checks pass. Header/picker and PM-028 acceptance remain preserved. Summary/options request ownership is the next separate UI task; full UI/original pixels/native parity remain unaccepted. Independent returning-worker review is a follow-up.
 
 This ledger starts clean for 0.3.17.
+
+Map row-refresh/scan-export feedback: REFRESH-FEEDBACK-001 implements the recovered frontend contract and validates it locally (45/19/11). No native provider/live status upgrade. Source locators and remaining options-request ownership gap are in its dated review/evidence packet.
 
 Do not copy feature names or statuses from the 0.3.1 ledger until the 0.3.17 reference itself establishes them.
 

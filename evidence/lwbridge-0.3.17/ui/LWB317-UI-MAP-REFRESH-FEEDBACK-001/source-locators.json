@@ -1,0 +1,59 @@
+{
+  "exeSha256": "4e9c3113dedfd7e1a752404c6936aab304e67d7ffdb0952a5003c2ec948d6783",
+  "locators": [
+    {
+      "file": "MapDataPanel-B4GXEND2.js",
+      "sha256": "ce74345518be72e417a510b982c591729e5683f69751e190805598c4c05d3089",
+      "anchor": "function _e",
+      "utf8Byte": 413
+    },
+    {
+      "file": "MapDataPanel-B4GXEND2.js",
+      "sha256": "ce74345518be72e417a510b982c591729e5683f69751e190805598c4c05d3089",
+      "anchor": "Fe=1e3",
+      "utf8Byte": 5640
+    },
+    {
+      "file": "MapDataPanel-B4GXEND2.js",
+      "sha256": "ce74345518be72e417a510b982c591729e5683f69751e190805598c4c05d3089",
+      "anchor": "Vn.current=C.isReading",
+      "utf8Byte": 34224
+    },
+    {
+      "file": "MapDataPanel-B4GXEND2.js",
+      "sha256": "ce74345518be72e417a510b982c591729e5683f69751e190805598c4c05d3089",
+      "anchor": "X.current===null",
+      "utf8Byte": 34459
+    },
+    {
+      "file": "MapDataPanel-B4GXEND2.js",
+      "sha256": "ce74345518be72e417a510b982c591729e5683f69751e190805598c4c05d3089",
+      "anchor": "async function $n",
+      "utf8Byte": 36787
+    },
+    {
+      "file": "MapDataPanel-B4GXEND2.js",
+      "sha256": "ce74345518be72e417a510b982c591729e5683f69751e190805598c4c05d3089",
+      "anchor": "async function fr",
+      "utf8Byte": 41134
+    },
+    {
+      "file": "MapDataPanel-B4GXEND2.js",
+      "sha256": "ce74345518be72e417a510b982c591729e5683f69751e190805598c4c05d3089",
+      "anchor": "bn&&(0,E.jsx)",
+      "utf8Byte": 49591
+    },
+    {
+      "file": "index-BVfnK1wp.js",
+      "sha256": "44c4e4043825b7db296b64171951b27176f8850ff8d7d337cc991df4765524c6",
+      "anchor": "async function _t(e=r.selectedProfileId)",
+      "utf8Byte": 363957
+    },
+    {
+      "file": "index-BVfnK1wp.js",
+      "sha256": "44c4e4043825b7db296b64171951b27176f8850ff8d7d337cc991df4765524c6",
+      "anchor": "if(!at)return;let e=!1,t=async()=>",
+      "utf8Byte": 370275
+    }
+  ]
+}

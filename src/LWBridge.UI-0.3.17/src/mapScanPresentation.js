@@ -50,6 +50,7 @@ export function mapScanPresentation(scanState, stored, browseServerId, now) {
     end,
     duration: start > 0 ? Math.max(0, (scanState.isReading ? now : end || start) - start) : -1,
     progress: Math.max(0, Math.min(100, Number(scanState.progressPercent) || 0)),
+    error: storedCurrent ? stored.error : scanState.lastError,
     statusKey: scanState.phase === "publishing" ? "common.processing" : scanState.isReading ? "map.reading"
       : storedCurrent && stored.status === "completed" ? "common.completed" : "common.stopped",
   };

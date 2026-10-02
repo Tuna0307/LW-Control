@@ -1,0 +1,426 @@
+{
+  "exportCases": [
+    {
+      "language": "en",
+      "id": "success",
+      "pass": true
+    },
+    {
+      "language": "en",
+      "id": "canceled",
+      "pass": true
+    },
+    {
+      "language": "en",
+      "id": "known-error",
+      "pass": true
+    },
+    {
+      "language": "en",
+      "id": "generic-error",
+      "pass": true
+    },
+    {
+      "language": "en",
+      "id": "object-error",
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "id": "success",
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "id": "canceled",
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "id": "known-error",
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "id": "generic-error",
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "id": "object-error",
+      "pass": true
+    },
+    {
+      "language": "zh-CN",
+      "id": "success",
+      "pass": true
+    },
+    {
+      "language": "zh-CN",
+      "id": "canceled",
+      "pass": true
+    },
+    {
+      "language": "zh-CN",
+      "id": "known-error",
+      "pass": true
+    },
+    {
+      "language": "zh-CN",
+      "id": "generic-error",
+      "pass": true
+    },
+    {
+      "language": "zh-CN",
+      "id": "object-error",
+      "pass": true
+    },
+    {
+      "language": "zh-TW",
+      "id": "success",
+      "pass": true
+    },
+    {
+      "language": "zh-TW",
+      "id": "canceled",
+      "pass": true
+    },
+    {
+      "language": "zh-TW",
+      "id": "known-error",
+      "pass": true
+    },
+    {
+      "language": "zh-TW",
+      "id": "generic-error",
+      "pass": true
+    },
+    {
+      "language": "zh-TW",
+      "id": "object-error",
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "id": "success",
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "id": "canceled",
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "id": "known-error",
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "id": "generic-error",
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "id": "object-error",
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "id": "success",
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "id": "canceled",
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "id": "known-error",
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "id": "generic-error",
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "id": "object-error",
+      "pass": true
+    },
+    {
+      "language": "id",
+      "id": "success",
+      "pass": true
+    },
+    {
+      "language": "id",
+      "id": "canceled",
+      "pass": true
+    },
+    {
+      "language": "id",
+      "id": "known-error",
+      "pass": true
+    },
+    {
+      "language": "id",
+      "id": "generic-error",
+      "pass": true
+    },
+    {
+      "language": "id",
+      "id": "object-error",
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "id": "success",
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "id": "canceled",
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "id": "known-error",
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "id": "generic-error",
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "id": "object-error",
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "id": "success",
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "id": "canceled",
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "id": "known-error",
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "id": "generic-error",
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "id": "object-error",
+      "pass": true
+    }
+  ],
+  "scanCases": [
+    {
+      "language": "en",
+      "id": "live-error",
+      "pass": true
+    },
+    {
+      "language": "en",
+      "id": "stored-error",
+      "pass": true
+    },
+    {
+      "language": "en",
+      "id": "stored-empty-hides-live",
+      "pass": true
+    },
+    {
+      "language": "en",
+      "id": "wrong-stored-uses-live",
+      "pass": true
+    },
+    {
+      "language": "en",
+      "id": "local-start-error-persists",
+      "pass": true
+    },
+    {
+      "language": "en",
+      "id": "local-generic-start-error",
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "id": "live-error",
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "id": "stored-error",
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "id": "stored-empty-hides-live",
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "id": "wrong-stored-uses-live",
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "id": "local-start-error-persists",
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "id": "local-generic-start-error",
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "id": "live-error",
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "id": "stored-error",
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "id": "stored-empty-hides-live",
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "id": "wrong-stored-uses-live",
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "id": "local-start-error-persists",
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "id": "local-generic-start-error",
+      "pass": true
+    },
+    {
+      "id": "retire-stored-and-keep-local-error-after-poll",
+      "pass": true
+    }
+  ],
+  "refreshCases": [
+    {
+      "id": "mount",
+      "originalRevision": 0,
+      "currentRevision": 0,
+      "originalRequests": 0,
+      "currentRequests": 0,
+      "pass": true
+    },
+    {
+      "id": "reading-no-immediate-search",
+      "originalRevision": 0,
+      "currentRevision": 0,
+      "originalRequests": 0,
+      "currentRequests": 0,
+      "pass": true
+    },
+    {
+      "id": "coalesced-at-900",
+      "originalRevision": 0,
+      "currentRevision": 0,
+      "originalRequests": 0,
+      "currentRequests": 0,
+      "pass": true
+    },
+    {
+      "id": "one-trailing-search-at-1000",
+      "originalRevision": 1,
+      "currentRevision": 1,
+      "originalRequests": 1,
+      "currentRequests": 1,
+      "pass": true
+    },
+    {
+      "id": "no-periodic-search-without-read-change",
+      "originalRevision": 1,
+      "currentRevision": 1,
+      "originalRequests": 1,
+      "currentRequests": 1,
+      "pass": true
+    },
+    {
+      "id": "same-read-count-no-rearm",
+      "originalRevision": 1,
+      "currentRevision": 1,
+      "originalRequests": 1,
+      "currentRequests": 1,
+      "pass": true
+    },
+    {
+      "id": "read-change-rearms",
+      "originalRevision": 2,
+      "currentRevision": 2,
+      "originalRequests": 2,
+      "currentRequests": 2,
+      "pass": true
+    },
+    {
+      "id": "completion-immediate-search",
+      "originalRevision": 3,
+      "currentRevision": 3,
+      "originalRequests": 4,
+      "currentRequests": 3,
+      "pass": true
+    },
+    {
+      "id": "completion-cancels-trailing",
+      "originalRevision": 3,
+      "currentRevision": 3,
+      "originalRequests": 4,
+      "currentRequests": 3,
+      "pass": true
+    },
+    {
+      "id": "unmount-cancels",
+      "pass": true
+    },
+    {
+      "id": "scheduled-boundary",
+      "pass": true
+    }
+  ],
+  "baselineDefects": [
+    "export/en/success",
+    "export/en/known-error",
+    "export/en/generic-error",
+    "export/en/object-error",
+    "export/ja/success",
+    "export/ja/canceled",
+    "export/ja/known-error",
+    "export/ja/generic-error",
+    "export/ja/object-error",
+    "refresh/one-trailing-search-at-1000",
+    "refresh/no-periodic-search-without-read-change",
+    "refresh/same-read-count-no-rearm",
+    "refresh/read-change-rearms",
+    "refresh/completion-immediate-search",
+    "refresh/completion-cancels-trailing"
+  ],
+  "status": "PASS",
+  "pageSha256": "25f6cc423a0b7c4425bf22e64a38d72dcad8028f15fafee8ecf373f81fab5b42"
+}

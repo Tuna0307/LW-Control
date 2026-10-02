@@ -1,0 +1,10 @@
+{
+  "check": "PASS",
+  "build": "PASS",
+  "productionPackage": "PASS",
+  "buildFingerprint": "7887d40b642c7fbba9700c832c2e68eacd1a818729c03c4c6faddab63a264c23",
+  "packageFingerprint": "7772b41abe185a67a6eaa12d15e0fdcab43d16ca2ca4992f02d64dd7fdadc839",
+  "node": "v24.18.0",
+  "vite": "7.3.6",
+  "nativeGameplay": false
+}
