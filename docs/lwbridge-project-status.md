@@ -6,6 +6,15 @@
 
 ## Current state
 
+Latest checkpoint: **PM-023 / UI-MAP-FILTERS-001 AWAITING_REVIEW**.
+Per-tab Map filter ownership, exact Secret Task level and isolated Treasure
+Checking preview are corrected and source/local/browser/package checked.
+Native refresh handlers exist, but canonical frontend methods/context/lifecycle
+still need a separate connection task. Independent REVIEW-MAP-FILTERS-001 is
+queued for manual relay when the worker returns. Overall UI remains
+IMPLEMENTED_NOT_VALIDATED; original pixels and broader Map/Automation/AFK states
+remain open. See `reviews/2026-10-02-LWB317-UI-MAP-FILTERS-001.md`.
+
 Latest lead delivery: **PM-022 / UI-PARALLEL-001 COMPLETE for assigned source/local
 scope**. Corrected Map row actions, keys/classes/mark visuals and independently
 reviewed the remaining normal-table scope; accepted Trade status/loading/error/

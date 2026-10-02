@@ -1,0 +1,123 @@
+{
+  "evidenceState": "EXACT_BYTES",
+  "scope": "Local frontend source only; no service or gameplay execution",
+  "source": {
+    "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js",
+    "sha256": "ce74345518be72e417a510b982c591729e5683f69751e190805598c4c05d3089"
+  },
+  "states": {
+    "It": {
+      "byte": 30908,
+      "expression": "[It,Lt]=(0,y.useState)({})"
+    },
+    "Rt": {
+      "byte": 30935,
+      "expression": "[Rt,zt]=(0,y.useState)({})"
+    },
+    "Ht": {
+      "byte": 30989,
+      "expression": "[Ht,Ut]=(0,y.useState)({})"
+    },
+    "Wt": {
+      "byte": 31016,
+      "expression": "[Wt,Gt]=(0,y.useState)({})"
+    },
+    "jn": {
+      "byte": 31675,
+      "expression": "[jn,Mn]=(0,y.useState)(!1)"
+    }
+  },
+  "sets": {
+    "Re": {
+      "byte": 6098,
+      "expression": "Re=new Set([`truck`,`railway`,`dispatch`,`ghost`])"
+    },
+    "O": {
+      "byte": 6149,
+      "expression": "O=new Set([`truck`,`railway`])"
+    }
+  },
+  "helpers": {
+    "Ue": {
+      "byte": 7288,
+      "expression": "function Ue(e){return Re.has(e)}"
+    },
+    "A": {
+      "byte": 7320,
+      "expression": "function A(e){return O.has(e)}"
+    },
+    "We": {
+      "byte": 7350,
+      "expression": "function We(e){return e===`truck`||e===`railway`||e===`dispatch`}"
+    },
+    "ve": {
+      "byte": 472,
+      "expression": "function ve(e,t){return t&&(e===`truck`||e===`railway`||e===`dispatch`)?!0:void 0}"
+    },
+    "nr": {
+      "byte": 37497,
+      "expression": "function nr(e=B,t=je){let n=L===`scheduledPlunder`?`city`:L,r=tt(Ot),i=Ue(n)?n:null,a=A(n)?n:null,o=i?It[i]:void 0,s=n===`treasure`?Ct.find(e=>e.key===Bt):void 0;return{serverId:R,keyword:et,resourceNameKey:n===`resource`?At.resource:void 0,monsterNameKey:n===`monster`?At.monster:void 0,treasureType:s?.treasureType,suppliesType:s?.suppliesType,alliance:n===`city`&&r?r:void 0,withoutAlliance:n===`city`&&Ot===`none`?!0:void 0,markedOnly:n===`city`&&Mt?!0:void 0,page:e,pageSize:t,sorts:Jt[n],quality:o===`special`||o===`reindeer`?void 0:o,specialOnly:o===`special`?!0:void 0,reindeerOnly:o===`reindeer`?!0:void 0,itemKey:a?Rt[a]:void 0,completionStatus:n===`dispatch`||n===`ghost`?Ht[n]:void 0,plunderableOnly:ve(n,We(n)&&Wt[n]===!0),includeForeignRadarTreasures:n===`treasure`?Nn:void 0,luckyFirst:n===`treasure`?J:void 0,viewerUid:n===`treasure`?In.playerUid:void 0,viewerAllianceId:n===`treasure`?In.allianceId:void 0,minLevel:n===`dispatch`&&Kt?Number(Kt):void 0,maxLevel:n===`dispatch`&&Kt?Number(Kt):void 0}}"
+    },
+    "rr": {
+      "byte": 38513,
+      "expression": "async function rr(e=B){if(L===`scheduledPlunder`)return;let t=T.current+1;T.current=t,Zt(!0);try{let n=nr(e),r=await ce(L,n);if(t===T.current){let t=Math.max(1,Math.ceil(r.total/je));if(e>t){V(t);return}if(U(r.rows),W(r.total),L===`treasure`&&l&&!C.isReading&&C.serverId===R&&r.rows.length>0){let e=Le.current+1;Le.current=e,Mn(!0),g(R,r.rows).then(t=>{e===Le.current&&U(e=>He(e,t.states))}).catch(e=>{let t=String(e);!t.includes(`SCAN_RUNNING`)&&!t.includes(`stop the map scan first`)&&w.current(`treasure state refresh error `+t)}).finally(()=>{e===Le.current&&Mn(!1)})}else L===`treasure`&&Mn(!1)}}catch(e){t===T.current&&(L===`treasure`&&Mn(!1),U([]),W(0),b(`map search error `+String(e)))}finally{t===T.current&&Zt(!1)}}"
+    },
+    "He": {
+      "byte": 7093,
+      "expression": "function He(e,t){let n=Array.isArray(t)?t:Object.values(t),r=new Map(n.map(e=>[String(e.uuid||``),e]));return r.size===0?e:e.map(e=>{let t=r.get(String(k(e,`uuid`)||``));return t?{...e,...t}:e})}"
+    }
+  },
+  "handlers": {
+    "quality": {
+      "byte": 53247,
+      "expression": "e=>{Lt(t=>({...t,[L]:e.target.value||void 0})),V(1)}"
+    },
+    "item": {
+      "byte": 53914,
+      "expression": "e=>{zt(t=>({...t,[L]:e||void 0})),!e&&Jt[L].some(e=>e.sortBy===`itemCount`)&&Yt(e=>({...e,[L]:e[L].filter(e=>e.sortBy!==`itemCount`)})),V(1)}"
+    },
+    "completion": {
+      "byte": 52663,
+      "expression": "e=>{Ut(t=>({...t,[L]:e.target.value||void 0})),V(1)}"
+    },
+    "plunderable": {
+      "byte": 54210,
+      "expression": "e=>{Gt(t=>({...t,[L]:e.target.checked||void 0})),V(1)}"
+    }
+  },
+  "treasure": {
+    "tableCaller": {
+      "byte": 56776,
+      "expression": "treasureStatesRefreshing:jn"
+    },
+    "effect": {
+      "byte": 32168,
+      "expression": "(0,y.useEffect)(()=>{if(L!==`treasure`||!l||R<=0||C.serverId!==R)return;let e=!1;return(async()=>{let n=await t();if(e)return;if(Ln({playerUid:n.playerUid,allianceId:n.allianceId}),U(e=>He(e,n.states)),!J||C.isReading){Re.current=``;return}let r=`${R}:${C.scanRunId||`stored`}`;if(Re.current!==r){Re.current=r,Mn(!0);try{let t=await de(R);if(e)return;Ln({playerUid:t.playerUid,allianceId:t.allianceId}),U(e=>He(e,t.states)),_n(e=>e+1)}catch(e){throw Re.current=``,e}finally{e||Mn(!1)}}})().catch(e=>w.current(`treasure context error `+String(e))),()=>{e=!0}},[L,R,l,J,C.isReading,C.scanRunId,C.serverId])"
+    },
+    "search": {
+      "byte": 38513,
+      "expression": "async function rr(e=B){if(L===`scheduledPlunder`)return;let t=T.current+1;T.current=t,Zt(!0);try{let n=nr(e),r=await ce(L,n);if(t===T.current){let t=Math.max(1,Math.ceil(r.total/je));if(e>t){V(t);return}if(U(r.rows),W(r.total),L===`treasure`&&l&&!C.isReading&&C.serverId===R&&r.rows.length>0){let e=Le.current+1;Le.current=e,Mn(!0),g(R,r.rows).then(t=>{e===Le.current&&U(e=>He(e,t.states))}).catch(e=>{let t=String(e);!t.includes(`SCAN_RUNNING`)&&!t.includes(`stop the map scan first`)&&w.current(`treasure state refresh error `+t)}).finally(()=>{e===Le.current&&Mn(!1)})}else L===`treasure`&&Mn(!1)}}catch(e){t===T.current&&(L===`treasure`&&Mn(!1),U([]),W(0),b(`map search error `+String(e)))}finally{t===T.current&&Zt(!1)}}"
+    },
+    "index": {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-BVfnK1wp.js",
+      "sha256": "44c4e4043825b7db296b64171951b27176f8850ff8d7d337cc991df4765524c6"
+    },
+    "dependencies": {
+      "B": {
+        "local": "En",
+        "byte": 207747,
+        "expression": "function En(){return N(`map_treasure_claim_status`)}"
+      },
+      "nt": {
+        "local": "wn",
+        "byte": 207597,
+        "expression": "function wn(e,t){return N(`map_treasure_state_refresh`,{serverId:e,records:t})}"
+      },
+      "tt": {
+        "local": "Tn",
+        "byte": 207676,
+        "expression": "function Tn(e){return N(`map_treasure_state_refresh_all`,{serverId:e})}"
+      }
+    }
+  }
+}

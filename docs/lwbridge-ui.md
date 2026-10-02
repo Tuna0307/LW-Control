@@ -12,6 +12,17 @@ If the reference opens into a login/locked state, capture only enough evidence t
 
 ## Required inventory
 
+Latest checkpoint, 2026-10-02: PM-023 / UI-MAP-FILTERS-001 is
+**AWAITING_REVIEW**. Quality, completion, retained-goods and plunderable choices
+now belong to their tabs; Secret Task level is exact and goods-sort clearing is
+tab-local. Checking is reachable in a strictly isolated offline Treasure fixture.
+472 original/current query comparisons, nine-locale Checking checks, fifteen
+browser flows and canonical package checks pass. The exact live-refresh dependency
+is recovered; existing host handlers remain unconnected through canonical mapApi.
+Independent review is queued for the returning worker. Other Map transitions,
+scheduling, conditional Automation/AFK states, assets and original pixels remain
+open. See `reviews/2026-10-02-LWB317-UI-MAP-FILTERS-001.md`.
+
 Current delivery, 2026-10-02: PM-022 lead takeover completed all
 three lanes. Transport/basic row defects are corrected and independently reviewed;
 Trade status and the inactive synthetic-data correction are accepted for focused

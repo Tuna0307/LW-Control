@@ -1,0 +1,45 @@
+{
+  "workItem": "LWB317-UI-MAP-FILTERS-001",
+  "scope": "Source/local/UI-preview; independent acceptance remains pending",
+  "checks": [
+    {
+      "command": "npm.cmd run check",
+      "exitCode": 0,
+      "marker": "LWB317_UI_DRAFT_CHECKS_OK; nine catalogs 1383 messages"
+    },
+    {
+      "command": "npm.cmd run build",
+      "exitCode": 0,
+      "output": "\n> lwbridge-ui-0.3.17@0.3.17-ui-preview build\n> node scripts/build-production.mjs\n\nvite v7.3.6 building client environment for production...\ntransforming...\n✓ 58 modules transformed.\nrendering chunks...\ncomputing gzip size...\ndist/index.html                         0.52 kB │ gzip:   0.32 kB\ndist/.vite/manifest.json                1.97 kB │ gzip:   0.47 kB\ndist/assets/dot-offline-CDBA2902.png    5.89 kB\ndist/assets/dot-online-gjSbTzBh.png     6.11 kB\ndist/assets/index-B5AeiHlM.css        126.21 kB │ gzip:  20.89 kB\ndist/assets/zh-CN-itVnuDKE.js          76.68 kB │ gzip:  24.56 kB\ndist/assets/zh-TW-DVthOXyu.js          76.83 kB │ gzip:  24.63 kB\ndist/assets/id-BtyGe98E.js             83.18 kB │ gzip:  23.59 kB\ndist/assets/pt-Cul_YYVr.js             88.30 kB │ gzip:  25.02 kB\ndist/assets/ko-DE-iQMo2.js             89.11 kB │ gzip:  25.28 kB\ndist/assets/ja-jFyUdeaw.js             92.76 kB │ gzip:  26.17 kB\ndist/assets/vi-fYT0cU8d.js             95.47 kB │ gzip:  25.18 kB\ndist/assets/ru-DLfZC5wd.js            119.26 kB │ gzip:  29.33 kB\ndist/assets/index-Csaqm0Ya.js         534.92 kB │ gzip: 150.82 kB\n\n(!) Some chunks are larger than 500 kB after minification. Consider:\n- Using dynamic import() to code-split the application\n- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks\n- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.\n✓ built in 3.18s\nLWB317_PRODUCTION_UI_BUILD_OK b09ef2120b8f67b5de0f9430a814ae0c9d33e50a5e0ba267597063c70c10f7eb b56793f5b4a7934be8e56032ca447c87ee0f81eb3f430e9def803dd015119d34\n"
+    },
+    {
+      "command": "npm.cmd run check:production-build",
+      "exitCode": 0,
+      "output": "\n> lwbridge-ui-0.3.17@0.3.17-ui-preview check:production-build\n> node scripts/check-production-build.mjs\n\nLWB317_PRODUCTION_UI_PACKAGE_OK b09ef2120b8f67b5de0f9430a814ae0c9d33e50a5e0ba267597063c70c10f7eb b56793f5b4a7934be8e56032ca447c87ee0f81eb3f430e9def803dd015119d34\n"
+    },
+    {
+      "command": "node check-filters.mjs --record",
+      "exitCode": 0,
+      "comparisons": 472,
+      "baselineMismatches": 330
+    },
+    {
+      "command": "node check-treasure-checking.mjs --record",
+      "exitCode": 0,
+      "displayComparisons": 216,
+      "inputFences": 384,
+      "originalProducerCases": 8
+    },
+    {
+      "command": "node check-table-regression.mjs",
+      "exitCode": 0,
+      "columns": 288,
+      "values": 15264,
+      "renders": 72,
+      "adaptation": "Historical scalar setter test dependency adapted read-only; historical records remain unchanged"
+    }
+  ],
+  "browserFlows": 15,
+  "consoleErrors": 0,
+  "nativeOrGameplayExecution": false
+}

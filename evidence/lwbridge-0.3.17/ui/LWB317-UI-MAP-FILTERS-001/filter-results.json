@@ -1,0 +1,2945 @@
+{
+  "status": "PASS",
+  "scope": "Extracted actual production component with persistent hook cells, actual rendered controls and search effect; unrelated effects suppressed. Exact original callbacks/query executed. Not native or pixel proof.",
+  "original": {
+    "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js",
+    "sha256": "ce74345518be72e417a510b982c591729e5683f69751e190805598c4c05d3089"
+  },
+  "current": {
+    "path": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+    "sha256": "2457d4a801385a74165de69c4e4961882529ee7cf9c36a050fcad0100a3da51b"
+  },
+  "baseline": {
+    "path": "baseline.MapDataPage.jsx",
+    "sha256": "d37f54cb1ddb05160fedfd32ff22ec45f5ff2df6a7da2cc389d27cd2dfa0c58c",
+    "comparisons": 472,
+    "failures": [
+      {
+        "label": "truck/quality/reindeer",
+        "kind": "railway",
+        "actual": {
+          "reindeerOnly": true
+        },
+        "expected": {}
+      },
+      {
+        "label": "truck/quality/reindeer",
+        "kind": "dispatch",
+        "actual": {
+          "reindeerOnly": true
+        },
+        "expected": {}
+      },
+      {
+        "label": "truck/quality/reindeer",
+        "kind": "ghost",
+        "actual": {
+          "reindeerOnly": true
+        },
+        "expected": {}
+      },
+      {
+        "label": "truck/item/fixture-reward",
+        "kind": "city",
+        "tableItemKey": "fixture-reward",
+        "wantedItem": ""
+      },
+      {
+        "label": "truck/item/fixture-reward",
+        "kind": "resource",
+        "tableItemKey": "fixture-reward",
+        "wantedItem": ""
+      },
+      {
+        "label": "truck/item/fixture-reward",
+        "kind": "monster",
+        "tableItemKey": "fixture-reward",
+        "wantedItem": ""
+      },
+      {
+        "label": "truck/item/fixture-reward",
+        "kind": "railway",
+        "actual": {
+          "reindeerOnly": true,
+          "itemKey": "fixture-reward"
+        },
+        "expected": {}
+      },
+      {
+        "label": "truck/item/fixture-reward",
+        "kind": "railway",
+        "tableItemKey": "fixture-reward",
+        "wantedItem": ""
+      },
+      {
+        "label": "truck/item/fixture-reward",
+        "kind": "dispatch",
+        "actual": {
+          "reindeerOnly": true,
+          "itemKey": "fixture-reward"
+        },
+        "expected": {}
+      },
+      {
+        "label": "truck/item/fixture-reward",
+        "kind": "dispatch",
+        "tableItemKey": "fixture-reward",
+        "wantedItem": ""
+      },
+      {
+        "label": "truck/item/fixture-reward",
+        "kind": "ghost",
+        "actual": {
+          "reindeerOnly": true,
+          "itemKey": "fixture-reward"
+        },
+        "expected": {}
+      },
+      {
+        "label": "truck/item/fixture-reward",
+        "kind": "ghost",
+        "tableItemKey": "fixture-reward",
+        "wantedItem": ""
+      },
+      {
+        "label": "truck/item/fixture-reward",
+        "kind": "treasure",
+        "tableItemKey": "fixture-reward",
+        "wantedItem": ""
+      },
+      {
+        "label": "truck/plunderable/true",
+        "kind": "city",
+        "tableItemKey": "fixture-reward",
+        "wantedItem": ""
+      },
+      {
+        "label": "truck/plunderable/true",
+        "kind": "resource",
+        "tableItemKey": "fixture-reward",
+        "wantedItem": ""
+      },
+      {
+        "label": "truck/plunderable/true",
+        "kind": "monster",
+        "tableItemKey": "fixture-reward",
+        "wantedItem": ""
+      },
+      {
+        "label": "truck/plunderable/true",
+        "kind": "railway",
+        "actual": {
+          "reindeerOnly": true,
+          "itemKey": "fixture-reward",
+          "plunderableOnly": true
+        },
+        "expected": {}
+      },
+      {
+        "label": "truck/plunderable/true",
+        "kind": "railway",
+        "tableItemKey": "fixture-reward",
+        "wantedItem": ""
+      },
+      {
+        "label": "truck/plunderable/true",
+        "kind": "dispatch",
+        "actual": {
+          "reindeerOnly": true,
+          "itemKey": "fixture-reward",
+          "plunderableOnly": true
+        },
+        "expected": {}
+      },
+      {
+        "label": "truck/plunderable/true",
+        "kind": "dispatch",
+        "tableItemKey": "fixture-reward",
+        "wantedItem": ""
+      },
+      {
+        "label": "truck/plunderable/true",
+        "kind": "ghost",
+        "actual": {
+          "reindeerOnly": true,
+          "itemKey": "fixture-reward"
+        },
+        "expected": {}
+      },
+      {
+        "label": "truck/plunderable/true",
+        "kind": "ghost",
+        "tableItemKey": "fixture-reward",
+        "wantedItem": ""
+      },
+      {
+        "label": "truck/plunderable/true",
+        "kind": "treasure",
+        "tableItemKey": "fixture-reward",
+        "wantedItem": ""
+      },
+      {
+        "label": "railway/quality/ssr",
+        "kind": "city",
+        "tableItemKey": "fixture-reward",
+        "wantedItem": ""
+      },
+      {
+        "label": "railway/quality/ssr",
+        "kind": "resource",
+        "tableItemKey": "fixture-reward",
+        "wantedItem": ""
+      },
+      {
+        "label": "railway/quality/ssr",
+        "kind": "monster",
+        "tableItemKey": "fixture-reward",
+        "wantedItem": ""
+      },
+      {
+        "label": "railway/quality/ssr",
+        "kind": "truck",
+        "actual": {
+          "quality": "ssr",
+          "itemKey": "fixture-reward",
+          "plunderableOnly": true
+        },
+        "expected": {
+          "reindeerOnly": true,
+          "itemKey": "fixture-reward",
+          "plunderableOnly": true
+        }
+      },
+      {
+        "label": "railway/quality/ssr",
+        "kind": "railway",
+        "actual": {
+          "quality": "ssr",
+          "itemKey": "fixture-reward",
+          "plunderableOnly": true
+        },
+        "expected": {
+          "quality": "ssr"
+        }
+      },
+      {
+        "label": "railway/quality/ssr",
+        "kind": "railway",
+        "tableItemKey": "fixture-reward",
+        "wantedItem": ""
+      },
+      {
+        "label": "railway/quality/ssr",
+        "kind": "dispatch",
+        "actual": {
+          "quality": "ssr",
+          "itemKey": "fixture-reward",
+          "plunderableOnly": true
+        },
+        "expected": {}
+      },
+      {
+        "label": "railway/quality/ssr",
+        "kind": "dispatch",
+        "tableItemKey": "fixture-reward",
+        "wantedItem": ""
+      },
+      {
+        "label": "railway/quality/ssr",
+        "kind": "ghost",
+        "actual": {
+          "quality": "ssr",
+          "itemKey": "fixture-reward"
+        },
+        "expected": {}
+      },
+      {
+        "label": "railway/quality/ssr",
+        "kind": "ghost",
+        "tableItemKey": "fixture-reward",
+        "wantedItem": ""
+      },
+      {
+        "label": "railway/quality/ssr",
+        "kind": "treasure",
+        "tableItemKey": "fixture-reward",
+        "wantedItem": ""
+      },
+      {
+        "label": "railway/item/fixture-supply",
+        "kind": "city",
+        "tableItemKey": "fixture-supply",
+        "wantedItem": ""
+      },
+      {
+        "label": "railway/item/fixture-supply",
+        "kind": "resource",
+        "tableItemKey": "fixture-supply",
+        "wantedItem": ""
+      },
+      {
+        "label": "railway/item/fixture-supply",
+        "kind": "monster",
+        "tableItemKey": "fixture-supply",
+        "wantedItem": ""
+      },
+      {
+        "label": "railway/item/fixture-supply",
+        "kind": "truck",
+        "actual": {
+          "quality": "ssr",
+          "itemKey": "fixture-supply",
+          "plunderableOnly": true
+        },
+        "expected": {
+          "reindeerOnly": true,
+          "itemKey": "fixture-reward",
+          "plunderableOnly": true
+        }
+      },
+      {
+        "label": "railway/item/fixture-supply",
+        "kind": "truck",
+        "tableItemKey": "fixture-supply",
+        "wantedItem": "fixture-reward"
+      },
+      {
+        "label": "railway/item/fixture-supply",
+        "kind": "railway",
+        "actual": {
+          "quality": "ssr",
+          "itemKey": "fixture-supply",
+          "plunderableOnly": true
+        },
+        "expected": {
+          "quality": "ssr",
+          "itemKey": "fixture-supply"
+        }
+      },
+      {
+        "label": "railway/item/fixture-supply",
+        "kind": "dispatch",
+        "actual": {
+          "quality": "ssr",
+          "itemKey": "fixture-supply",
+          "plunderableOnly": true
+        },
+        "expected": {}
+      },
+      {
+        "label": "railway/item/fixture-supply",
+        "kind": "dispatch",
+        "tableItemKey": "fixture-supply",
+        "wantedItem": ""
+      },
+      {
+        "label": "railway/item/fixture-supply",
+        "kind": "ghost",
+        "actual": {
+          "quality": "ssr",
+          "itemKey": "fixture-supply"
+        },
+        "expected": {}
+      },
+      {
+        "label": "railway/item/fixture-supply",
+        "kind": "ghost",
+        "tableItemKey": "fixture-supply",
+        "wantedItem": ""
+      },
+      {
+        "label": "railway/item/fixture-supply",
+        "kind": "treasure",
+        "tableItemKey": "fixture-supply",
+        "wantedItem": ""
+      },
+      {
+        "label": "railway/plunderable/false",
+        "kind": "city",
+        "tableItemKey": "fixture-supply",
+        "wantedItem": ""
+      },
+      {
+        "label": "railway/plunderable/false",
+        "kind": "resource",
+        "tableItemKey": "fixture-supply",
+        "wantedItem": ""
+      },
+      {
+        "label": "railway/plunderable/false",
+        "kind": "monster",
+        "tableItemKey": "fixture-supply",
+        "wantedItem": ""
+      },
+      {
+        "label": "railway/plunderable/false",
+        "kind": "truck",
+        "actual": {
+          "quality": "ssr",
+          "itemKey": "fixture-supply"
+        },
+        "expected": {
+          "reindeerOnly": true,
+          "itemKey": "fixture-reward",
+          "plunderableOnly": true
+        }
+      },
+      {
+        "label": "railway/plunderable/false",
+        "kind": "truck",
+        "tableItemKey": "fixture-supply",
+        "wantedItem": "fixture-reward"
+      },
+      {
+        "label": "railway/plunderable/false",
+        "kind": "dispatch",
+        "actual": {
+          "quality": "ssr",
+          "itemKey": "fixture-supply"
+        },
+        "expected": {}
+      },
+      {
+        "label": "railway/plunderable/false",
+        "kind": "dispatch",
+        "tableItemKey": "fixture-supply",
+        "wantedItem": ""
+      },
+      {
+        "label": "railway/plunderable/false",
+        "kind": "ghost",
+        "actual": {
+          "quality": "ssr",
+          "itemKey": "fixture-supply"
+        },
+        "expected": {}
+      },
+      {
+        "label": "railway/plunderable/false",
+        "kind": "ghost",
+        "tableItemKey": "fixture-supply",
+        "wantedItem": ""
+      },
+      {
+        "label": "railway/plunderable/false",
+        "kind": "treasure",
+        "tableItemKey": "fixture-supply",
+        "wantedItem": ""
+      },
+      {
+        "label": "dispatch/quality/special",
+        "kind": "city",
+        "tableItemKey": "fixture-supply",
+        "wantedItem": ""
+      },
+      {
+        "label": "dispatch/quality/special",
+        "kind": "resource",
+        "tableItemKey": "fixture-supply",
+        "wantedItem": ""
+      },
+      {
+        "label": "dispatch/quality/special",
+        "kind": "monster",
+        "tableItemKey": "fixture-supply",
+        "wantedItem": ""
+      },
+      {
+        "label": "dispatch/quality/special",
+        "kind": "truck",
+        "actual": {
+          "specialOnly": true,
+          "itemKey": "fixture-supply"
+        },
+        "expected": {
+          "reindeerOnly": true,
+          "itemKey": "fixture-reward",
+          "plunderableOnly": true
+        }
+      },
+      {
+        "label": "dispatch/quality/special",
+        "kind": "truck",
+        "tableItemKey": "fixture-supply",
+        "wantedItem": "fixture-reward"
+      },
+      {
+        "label": "dispatch/quality/special",
+        "kind": "railway",
+        "actual": {
+          "specialOnly": true,
+          "itemKey": "fixture-supply"
+        },
+        "expected": {
+          "quality": "ssr",
+          "itemKey": "fixture-supply"
+        }
+      },
+      {
+        "label": "dispatch/quality/special",
+        "kind": "dispatch",
+        "actual": {
+          "specialOnly": true,
+          "itemKey": "fixture-supply"
+        },
+        "expected": {
+          "specialOnly": true
+        }
+      },
+      {
+        "label": "dispatch/quality/special",
+        "kind": "dispatch",
+        "tableItemKey": "fixture-supply",
+        "wantedItem": ""
+      },
+      {
+        "label": "dispatch/quality/special",
+        "kind": "ghost",
+        "actual": {
+          "specialOnly": true,
+          "itemKey": "fixture-supply"
+        },
+        "expected": {}
+      },
+      {
+        "label": "dispatch/quality/special",
+        "kind": "ghost",
+        "tableItemKey": "fixture-supply",
+        "wantedItem": ""
+      },
+      {
+        "label": "dispatch/quality/special",
+        "kind": "treasure",
+        "tableItemKey": "fixture-supply",
+        "wantedItem": ""
+      },
+      {
+        "label": "dispatch/completion/pending",
+        "kind": "city",
+        "tableItemKey": "fixture-supply",
+        "wantedItem": ""
+      },
+      {
+        "label": "dispatch/completion/pending",
+        "kind": "resource",
+        "tableItemKey": "fixture-supply",
+        "wantedItem": ""
+      },
+      {
+        "label": "dispatch/completion/pending",
+        "kind": "monster",
+        "tableItemKey": "fixture-supply",
+        "wantedItem": ""
+      },
+      {
+        "label": "dispatch/completion/pending",
+        "kind": "truck",
+        "actual": {
+          "specialOnly": true,
+          "itemKey": "fixture-supply"
+        },
+        "expected": {
+          "reindeerOnly": true,
+          "itemKey": "fixture-reward",
+          "plunderableOnly": true
+        }
+      },
+      {
+        "label": "dispatch/completion/pending",
+        "kind": "truck",
+        "tableItemKey": "fixture-supply",
+        "wantedItem": "fixture-reward"
+      },
+      {
+        "label": "dispatch/completion/pending",
+        "kind": "railway",
+        "actual": {
+          "specialOnly": true,
+          "itemKey": "fixture-supply"
+        },
+        "expected": {
+          "quality": "ssr",
+          "itemKey": "fixture-supply"
+        }
+      },
+      {
+        "label": "dispatch/completion/pending",
+        "kind": "dispatch",
+        "actual": {
+          "specialOnly": true,
+          "itemKey": "fixture-supply",
+          "completionStatus": "pending"
+        },
+        "expected": {
+          "specialOnly": true,
+          "completionStatus": "pending"
+        }
+      },
+      {
+        "label": "dispatch/completion/pending",
+        "kind": "dispatch",
+        "tableItemKey": "fixture-supply",
+        "wantedItem": ""
+      },
+      {
+        "label": "dispatch/completion/pending",
+        "kind": "ghost",
+        "actual": {
+          "specialOnly": true,
+          "itemKey": "fixture-supply",
+          "completionStatus": "pending"
+        },
+        "expected": {}
+      },
+      {
+        "label": "dispatch/completion/pending",
+        "kind": "ghost",
+        "tableItemKey": "fixture-supply",
+        "wantedItem": ""
+      },
+      {
+        "label": "dispatch/completion/pending",
+        "kind": "treasure",
+        "tableItemKey": "fixture-supply",
+        "wantedItem": ""
+      },
+      {
+        "label": "dispatch/plunderable/true",
+        "kind": "city",
+        "tableItemKey": "fixture-supply",
+        "wantedItem": ""
+      },
+      {
+        "label": "dispatch/plunderable/true",
+        "kind": "resource",
+        "tableItemKey": "fixture-supply",
+        "wantedItem": ""
+      },
+      {
+        "label": "dispatch/plunderable/true",
+        "kind": "monster",
+        "tableItemKey": "fixture-supply",
+        "wantedItem": ""
+      },
+      {
+        "label": "dispatch/plunderable/true",
+        "kind": "truck",
+        "actual": {
+          "specialOnly": true,
+          "itemKey": "fixture-supply",
+          "plunderableOnly": true
+        },
+        "expected": {
+          "reindeerOnly": true,
+          "itemKey": "fixture-reward",
+          "plunderableOnly": true
+        }
+      },
+      {
+        "label": "dispatch/plunderable/true",
+        "kind": "truck",
+        "tableItemKey": "fixture-supply",
+        "wantedItem": "fixture-reward"
+      },
+      {
+        "label": "dispatch/plunderable/true",
+        "kind": "railway",
+        "actual": {
+          "specialOnly": true,
+          "itemKey": "fixture-supply",
+          "plunderableOnly": true
+        },
+        "expected": {
+          "quality": "ssr",
+          "itemKey": "fixture-supply"
+        }
+      },
+      {
+        "label": "dispatch/plunderable/true",
+        "kind": "dispatch",
+        "actual": {
+          "specialOnly": true,
+          "itemKey": "fixture-supply",
+          "completionStatus": "pending",
+          "plunderableOnly": true
+        },
+        "expected": {
+          "specialOnly": true,
+          "completionStatus": "pending",
+          "plunderableOnly": true
+        }
+      },
+      {
+        "label": "dispatch/plunderable/true",
+        "kind": "dispatch",
+        "tableItemKey": "fixture-supply",
+        "wantedItem": ""
+      },
+      {
+        "label": "dispatch/plunderable/true",
+        "kind": "ghost",
+        "actual": {
+          "specialOnly": true,
+          "itemKey": "fixture-supply",
+          "completionStatus": "pending"
+        },
+        "expected": {}
+      },
+      {
+        "label": "dispatch/plunderable/true",
+        "kind": "ghost",
+        "tableItemKey": "fixture-supply",
+        "wantedItem": ""
+      },
+      {
+        "label": "dispatch/plunderable/true",
+        "kind": "treasure",
+        "tableItemKey": "fixture-supply",
+        "wantedItem": ""
+      },
+      {
+        "label": "dispatch/level/6",
+        "kind": "city",
+        "tableItemKey": "fixture-supply",
+        "wantedItem": ""
+      },
+      {
+        "label": "dispatch/level/6",
+        "kind": "resource",
+        "tableItemKey": "fixture-supply",
+        "wantedItem": ""
+      },
+      {
+        "label": "dispatch/level/6",
+        "kind": "monster",
+        "tableItemKey": "fixture-supply",
+        "wantedItem": ""
+      },
+      {
+        "label": "dispatch/level/6",
+        "kind": "truck",
+        "actual": {
+          "specialOnly": true,
+          "itemKey": "fixture-supply",
+          "plunderableOnly": true
+        },
+        "expected": {
+          "reindeerOnly": true,
+          "itemKey": "fixture-reward",
+          "plunderableOnly": true
+        }
+      },
+      {
+        "label": "dispatch/level/6",
+        "kind": "truck",
+        "tableItemKey": "fixture-supply",
+        "wantedItem": "fixture-reward"
+      },
+      {
+        "label": "dispatch/level/6",
+        "kind": "railway",
+        "actual": {
+          "specialOnly": true,
+          "itemKey": "fixture-supply",
+          "plunderableOnly": true
+        },
+        "expected": {
+          "quality": "ssr",
+          "itemKey": "fixture-supply"
+        }
+      },
+      {
+        "label": "dispatch/level/6",
+        "kind": "dispatch",
+        "actual": {
+          "specialOnly": true,
+          "itemKey": "fixture-supply",
+          "completionStatus": "pending",
+          "plunderableOnly": true,
+          "minLevel": 6
+        },
+        "expected": {
+          "specialOnly": true,
+          "completionStatus": "pending",
+          "plunderableOnly": true,
+          "minLevel": 6,
+          "maxLevel": 6
+        }
+      },
+      {
+        "label": "dispatch/level/6",
+        "kind": "dispatch",
+        "tableItemKey": "fixture-supply",
+        "wantedItem": ""
+      },
+      {
+        "label": "dispatch/level/6",
+        "kind": "ghost",
+        "actual": {
+          "specialOnly": true,
+          "itemKey": "fixture-supply",
+          "completionStatus": "pending"
+        },
+        "expected": {}
+      },
+      {
+        "label": "dispatch/level/6",
+        "kind": "ghost",
+        "tableItemKey": "fixture-supply",
+        "wantedItem": ""
+      },
+      {
+        "label": "dispatch/level/6",
+        "kind": "treasure",
+        "tableItemKey": "fixture-supply",
+        "wantedItem": ""
+      },
+      {
+        "label": "ghost/quality/ur",
+        "kind": "city",
+        "tableItemKey": "fixture-supply",
+        "wantedItem": ""
+      },
+      {
+        "label": "ghost/quality/ur",
+        "kind": "resource",
+        "tableItemKey": "fixture-supply",
+        "wantedItem": ""
+      },
+      {
+        "label": "ghost/quality/ur",
+        "kind": "monster",
+        "tableItemKey": "fixture-supply",
+        "wantedItem": ""
+      },
+      {
+        "label": "ghost/quality/ur",
+        "kind": "truck",
+        "actual": {
+          "quality": "ur",
+          "itemKey": "fixture-supply",
+          "plunderableOnly": true
+        },
+        "expected": {
+          "reindeerOnly": true,
+          "itemKey": "fixture-reward",
+          "plunderableOnly": true
+        }
+      },
+      {
+        "label": "ghost/quality/ur",
+        "kind": "truck",
+        "tableItemKey": "fixture-supply",
+        "wantedItem": "fixture-reward"
+      },
+      {
+        "label": "ghost/quality/ur",
+        "kind": "railway",
+        "actual": {
+          "quality": "ur",
+          "itemKey": "fixture-supply",
+          "plunderableOnly": true
+        },
+        "expected": {
+          "quality": "ssr",
+          "itemKey": "fixture-supply"
+        }
+      },
+      {
+        "label": "ghost/quality/ur",
+        "kind": "dispatch",
+        "actual": {
+          "quality": "ur",
+          "itemKey": "fixture-supply",
+          "completionStatus": "pending",
+          "plunderableOnly": true,
+          "minLevel": 6
+        },
+        "expected": {
+          "specialOnly": true,
+          "completionStatus": "pending",
+          "plunderableOnly": true,
+          "minLevel": 6,
+          "maxLevel": 6
+        }
+      },
+      {
+        "label": "ghost/quality/ur",
+        "kind": "dispatch",
+        "tableItemKey": "fixture-supply",
+        "wantedItem": ""
+      },
+      {
+        "label": "ghost/quality/ur",
+        "kind": "ghost",
+        "actual": {
+          "quality": "ur",
+          "itemKey": "fixture-supply",
+          "completionStatus": "pending"
+        },
+        "expected": {
+          "quality": "ur"
+        }
+      },
+      {
+        "label": "ghost/quality/ur",
+        "kind": "ghost",
+        "tableItemKey": "fixture-supply",
+        "wantedItem": ""
+      },
+      {
+        "label": "ghost/quality/ur",
+        "kind": "treasure",
+        "tableItemKey": "fixture-supply",
+        "wantedItem": ""
+      },
+      {
+        "label": "ghost/completion/completed",
+        "kind": "city",
+        "tableItemKey": "fixture-supply",
+        "wantedItem": ""
+      },
+      {
+        "label": "ghost/completion/completed",
+        "kind": "resource",
+        "tableItemKey": "fixture-supply",
+        "wantedItem": ""
+      },
+      {
+        "label": "ghost/completion/completed",
+        "kind": "monster",
+        "tableItemKey": "fixture-supply",
+        "wantedItem": ""
+      },
+      {
+        "label": "ghost/completion/completed",
+        "kind": "truck",
+        "actual": {
+          "quality": "ur",
+          "itemKey": "fixture-supply",
+          "plunderableOnly": true
+        },
+        "expected": {
+          "reindeerOnly": true,
+          "itemKey": "fixture-reward",
+          "plunderableOnly": true
+        }
+      },
+      {
+        "label": "ghost/completion/completed",
+        "kind": "truck",
+        "tableItemKey": "fixture-supply",
+        "wantedItem": "fixture-reward"
+      },
+      {
+        "label": "ghost/completion/completed",
+        "kind": "railway",
+        "actual": {
+          "quality": "ur",
+          "itemKey": "fixture-supply",
+          "plunderableOnly": true
+        },
+        "expected": {
+          "quality": "ssr",
+          "itemKey": "fixture-supply"
+        }
+      },
+      {
+        "label": "ghost/completion/completed",
+        "kind": "dispatch",
+        "actual": {
+          "quality": "ur",
+          "itemKey": "fixture-supply",
+          "completionStatus": "completed",
+          "plunderableOnly": true,
+          "minLevel": 6
+        },
+        "expected": {
+          "specialOnly": true,
+          "completionStatus": "pending",
+          "plunderableOnly": true,
+          "minLevel": 6,
+          "maxLevel": 6
+        }
+      },
+      {
+        "label": "ghost/completion/completed",
+        "kind": "dispatch",
+        "tableItemKey": "fixture-supply",
+        "wantedItem": ""
+      },
+      {
+        "label": "ghost/completion/completed",
+        "kind": "ghost",
+        "actual": {
+          "quality": "ur",
+          "itemKey": "fixture-supply",
+          "completionStatus": "completed"
+        },
+        "expected": {
+          "quality": "ur",
+          "completionStatus": "completed"
+        }
+      },
+      {
+        "label": "ghost/completion/completed",
+        "kind": "ghost",
+        "tableItemKey": "fixture-supply",
+        "wantedItem": ""
+      },
+      {
+        "label": "ghost/completion/completed",
+        "kind": "treasure",
+        "tableItemKey": "fixture-supply",
+        "wantedItem": ""
+      },
+      {
+        "label": "truck/quality/",
+        "kind": "city",
+        "tableItemKey": "fixture-supply",
+        "wantedItem": ""
+      },
+      {
+        "label": "truck/quality/",
+        "kind": "resource",
+        "tableItemKey": "fixture-supply",
+        "wantedItem": ""
+      },
+      {
+        "label": "truck/quality/",
+        "kind": "monster",
+        "tableItemKey": "fixture-supply",
+        "wantedItem": ""
+      },
+      {
+        "label": "truck/quality/",
+        "kind": "truck",
+        "actual": {
+          "itemKey": "fixture-supply",
+          "plunderableOnly": true
+        },
+        "expected": {
+          "itemKey": "fixture-reward",
+          "plunderableOnly": true
+        }
+      },
+      {
+        "label": "truck/quality/",
+        "kind": "truck",
+        "tableItemKey": "fixture-supply",
+        "wantedItem": "fixture-reward"
+      },
+      {
+        "label": "truck/quality/",
+        "kind": "railway",
+        "actual": {
+          "itemKey": "fixture-supply",
+          "plunderableOnly": true
+        },
+        "expected": {
+          "quality": "ssr",
+          "itemKey": "fixture-supply"
+        }
+      },
+      {
+        "label": "truck/quality/",
+        "kind": "dispatch",
+        "actual": {
+          "itemKey": "fixture-supply",
+          "completionStatus": "completed",
+          "plunderableOnly": true,
+          "minLevel": 6
+        },
+        "expected": {
+          "specialOnly": true,
+          "completionStatus": "pending",
+          "plunderableOnly": true,
+          "minLevel": 6,
+          "maxLevel": 6
+        }
+      },
+      {
+        "label": "truck/quality/",
+        "kind": "dispatch",
+        "tableItemKey": "fixture-supply",
+        "wantedItem": ""
+      },
+      {
+        "label": "truck/quality/",
+        "kind": "ghost",
+        "actual": {
+          "itemKey": "fixture-supply",
+          "completionStatus": "completed"
+        },
+        "expected": {
+          "quality": "ur",
+          "completionStatus": "completed"
+        }
+      },
+      {
+        "label": "truck/quality/",
+        "kind": "ghost",
+        "tableItemKey": "fixture-supply",
+        "wantedItem": ""
+      },
+      {
+        "label": "truck/quality/",
+        "kind": "treasure",
+        "tableItemKey": "fixture-supply",
+        "wantedItem": ""
+      },
+      {
+        "label": "truck/item/",
+        "kind": "railway",
+        "actual": {
+          "plunderableOnly": true
+        },
+        "expected": {
+          "quality": "ssr",
+          "itemKey": "fixture-supply"
+        }
+      },
+      {
+        "label": "truck/item/",
+        "kind": "railway",
+        "tableItemKey": "",
+        "wantedItem": "fixture-supply"
+      },
+      {
+        "label": "truck/item/",
+        "kind": "dispatch",
+        "actual": {
+          "completionStatus": "completed",
+          "plunderableOnly": true,
+          "minLevel": 6
+        },
+        "expected": {
+          "specialOnly": true,
+          "completionStatus": "pending",
+          "plunderableOnly": true,
+          "minLevel": 6,
+          "maxLevel": 6
+        }
+      },
+      {
+        "label": "truck/item/",
+        "kind": "ghost",
+        "actual": {
+          "completionStatus": "completed"
+        },
+        "expected": {
+          "quality": "ur",
+          "completionStatus": "completed"
+        }
+      },
+      {
+        "label": "truck/plunderable/false",
+        "kind": "railway",
+        "actual": {},
+        "expected": {
+          "quality": "ssr",
+          "itemKey": "fixture-supply"
+        }
+      },
+      {
+        "label": "truck/plunderable/false",
+        "kind": "railway",
+        "tableItemKey": "",
+        "wantedItem": "fixture-supply"
+      },
+      {
+        "label": "truck/plunderable/false",
+        "kind": "dispatch",
+        "actual": {
+          "completionStatus": "completed",
+          "minLevel": 6
+        },
+        "expected": {
+          "specialOnly": true,
+          "completionStatus": "pending",
+          "plunderableOnly": true,
+          "minLevel": 6,
+          "maxLevel": 6
+        }
+      },
+      {
+        "label": "truck/plunderable/false",
+        "kind": "ghost",
+        "actual": {
+          "completionStatus": "completed"
+        },
+        "expected": {
+          "quality": "ur",
+          "completionStatus": "completed"
+        }
+      },
+      {
+        "label": "dispatch/completion/",
+        "kind": "railway",
+        "actual": {},
+        "expected": {
+          "quality": "ssr",
+          "itemKey": "fixture-supply"
+        }
+      },
+      {
+        "label": "dispatch/completion/",
+        "kind": "railway",
+        "tableItemKey": "",
+        "wantedItem": "fixture-supply"
+      },
+      {
+        "label": "dispatch/completion/",
+        "kind": "dispatch",
+        "actual": {
+          "minLevel": 6
+        },
+        "expected": {
+          "specialOnly": true,
+          "plunderableOnly": true,
+          "minLevel": 6,
+          "maxLevel": 6
+        }
+      },
+      {
+        "label": "dispatch/completion/",
+        "kind": "ghost",
+        "actual": {},
+        "expected": {
+          "quality": "ur",
+          "completionStatus": "completed"
+        }
+      },
+      {
+        "label": "dispatch/level/",
+        "kind": "railway",
+        "actual": {},
+        "expected": {
+          "quality": "ssr",
+          "itemKey": "fixture-supply"
+        }
+      },
+      {
+        "label": "dispatch/level/",
+        "kind": "railway",
+        "tableItemKey": "",
+        "wantedItem": "fixture-supply"
+      },
+      {
+        "label": "dispatch/level/",
+        "kind": "dispatch",
+        "actual": {},
+        "expected": {
+          "specialOnly": true,
+          "plunderableOnly": true
+        }
+      },
+      {
+        "label": "dispatch/level/",
+        "kind": "ghost",
+        "actual": {},
+        "expected": {
+          "quality": "ur",
+          "completionStatus": "completed"
+        }
+      },
+      {
+        "label": "ghost/quality/",
+        "kind": "railway",
+        "actual": {},
+        "expected": {
+          "quality": "ssr",
+          "itemKey": "fixture-supply"
+        }
+      },
+      {
+        "label": "ghost/quality/",
+        "kind": "railway",
+        "tableItemKey": "",
+        "wantedItem": "fixture-supply"
+      },
+      {
+        "label": "ghost/quality/",
+        "kind": "dispatch",
+        "actual": {},
+        "expected": {
+          "specialOnly": true,
+          "plunderableOnly": true
+        }
+      },
+      {
+        "label": "ghost/quality/",
+        "kind": "ghost",
+        "actual": {},
+        "expected": {
+          "completionStatus": "completed"
+        }
+      },
+      {
+        "label": "sort-clear Truck only",
+        "kind": "railway",
+        "actual": {},
+        "expected": {
+          "quality": "ssr",
+          "itemKey": "fixture-supply"
+        }
+      },
+      {
+        "label": "sort-clear Truck only",
+        "kind": "railway",
+        "tableItemKey": "",
+        "wantedItem": "fixture-supply"
+      },
+      {
+        "label": "sort-clear Truck only",
+        "kind": "dispatch",
+        "actual": {},
+        "expected": {
+          "specialOnly": true,
+          "plunderableOnly": true
+        }
+      },
+      {
+        "label": "sort-clear Truck only",
+        "kind": "ghost",
+        "actual": {},
+        "expected": {
+          "completionStatus": "completed"
+        }
+      },
+      {
+        "label": "truck/quality/n",
+        "kind": "railway",
+        "actual": {
+          "quality": "n"
+        },
+        "expected": {
+          "quality": "ssr",
+          "itemKey": "fixture-supply"
+        }
+      },
+      {
+        "label": "truck/quality/n",
+        "kind": "railway",
+        "tableItemKey": "",
+        "wantedItem": "fixture-supply"
+      },
+      {
+        "label": "truck/quality/n",
+        "kind": "dispatch",
+        "actual": {
+          "quality": "n"
+        },
+        "expected": {
+          "specialOnly": true,
+          "plunderableOnly": true
+        }
+      },
+      {
+        "label": "truck/quality/n",
+        "kind": "ghost",
+        "actual": {
+          "quality": "n"
+        },
+        "expected": {
+          "completionStatus": "completed"
+        }
+      },
+      {
+        "label": "truck/quality/r",
+        "kind": "railway",
+        "actual": {
+          "quality": "r"
+        },
+        "expected": {
+          "quality": "ssr",
+          "itemKey": "fixture-supply"
+        }
+      },
+      {
+        "label": "truck/quality/r",
+        "kind": "railway",
+        "tableItemKey": "",
+        "wantedItem": "fixture-supply"
+      },
+      {
+        "label": "truck/quality/r",
+        "kind": "dispatch",
+        "actual": {
+          "quality": "r"
+        },
+        "expected": {
+          "specialOnly": true,
+          "plunderableOnly": true
+        }
+      },
+      {
+        "label": "truck/quality/r",
+        "kind": "ghost",
+        "actual": {
+          "quality": "r"
+        },
+        "expected": {
+          "completionStatus": "completed"
+        }
+      },
+      {
+        "label": "truck/quality/sr",
+        "kind": "railway",
+        "actual": {
+          "quality": "sr"
+        },
+        "expected": {
+          "quality": "ssr",
+          "itemKey": "fixture-supply"
+        }
+      },
+      {
+        "label": "truck/quality/sr",
+        "kind": "railway",
+        "tableItemKey": "",
+        "wantedItem": "fixture-supply"
+      },
+      {
+        "label": "truck/quality/sr",
+        "kind": "dispatch",
+        "actual": {
+          "quality": "sr"
+        },
+        "expected": {
+          "specialOnly": true,
+          "plunderableOnly": true
+        }
+      },
+      {
+        "label": "truck/quality/sr",
+        "kind": "ghost",
+        "actual": {
+          "quality": "sr"
+        },
+        "expected": {
+          "completionStatus": "completed"
+        }
+      },
+      {
+        "label": "truck/quality/ssr",
+        "kind": "railway",
+        "actual": {
+          "quality": "ssr"
+        },
+        "expected": {
+          "quality": "ssr",
+          "itemKey": "fixture-supply"
+        }
+      },
+      {
+        "label": "truck/quality/ssr",
+        "kind": "railway",
+        "tableItemKey": "",
+        "wantedItem": "fixture-supply"
+      },
+      {
+        "label": "truck/quality/ssr",
+        "kind": "dispatch",
+        "actual": {
+          "quality": "ssr"
+        },
+        "expected": {
+          "specialOnly": true,
+          "plunderableOnly": true
+        }
+      },
+      {
+        "label": "truck/quality/ssr",
+        "kind": "ghost",
+        "actual": {
+          "quality": "ssr"
+        },
+        "expected": {
+          "completionStatus": "completed"
+        }
+      },
+      {
+        "label": "truck/quality/ur",
+        "kind": "railway",
+        "actual": {
+          "quality": "ur"
+        },
+        "expected": {
+          "quality": "ssr",
+          "itemKey": "fixture-supply"
+        }
+      },
+      {
+        "label": "truck/quality/ur",
+        "kind": "railway",
+        "tableItemKey": "",
+        "wantedItem": "fixture-supply"
+      },
+      {
+        "label": "truck/quality/ur",
+        "kind": "dispatch",
+        "actual": {
+          "quality": "ur"
+        },
+        "expected": {
+          "specialOnly": true,
+          "plunderableOnly": true
+        }
+      },
+      {
+        "label": "truck/quality/ur",
+        "kind": "ghost",
+        "actual": {
+          "quality": "ur"
+        },
+        "expected": {
+          "completionStatus": "completed"
+        }
+      },
+      {
+        "label": "truck/quality/",
+        "kind": "railway",
+        "actual": {},
+        "expected": {
+          "quality": "ssr",
+          "itemKey": "fixture-supply"
+        }
+      },
+      {
+        "label": "truck/quality/",
+        "kind": "railway",
+        "tableItemKey": "",
+        "wantedItem": "fixture-supply"
+      },
+      {
+        "label": "truck/quality/",
+        "kind": "dispatch",
+        "actual": {},
+        "expected": {
+          "specialOnly": true,
+          "plunderableOnly": true
+        }
+      },
+      {
+        "label": "truck/quality/",
+        "kind": "ghost",
+        "actual": {},
+        "expected": {
+          "completionStatus": "completed"
+        }
+      },
+      {
+        "label": "truck/quality/reindeer",
+        "kind": "railway",
+        "actual": {
+          "reindeerOnly": true
+        },
+        "expected": {
+          "quality": "ssr",
+          "itemKey": "fixture-supply"
+        }
+      },
+      {
+        "label": "truck/quality/reindeer",
+        "kind": "railway",
+        "tableItemKey": "",
+        "wantedItem": "fixture-supply"
+      },
+      {
+        "label": "truck/quality/reindeer",
+        "kind": "dispatch",
+        "actual": {
+          "reindeerOnly": true
+        },
+        "expected": {
+          "specialOnly": true,
+          "plunderableOnly": true
+        }
+      },
+      {
+        "label": "truck/quality/reindeer",
+        "kind": "ghost",
+        "actual": {
+          "reindeerOnly": true
+        },
+        "expected": {
+          "completionStatus": "completed"
+        }
+      },
+      {
+        "label": "railway/quality/n",
+        "kind": "truck",
+        "actual": {
+          "quality": "n"
+        },
+        "expected": {
+          "reindeerOnly": true
+        }
+      },
+      {
+        "label": "railway/quality/n",
+        "kind": "railway",
+        "actual": {
+          "quality": "n"
+        },
+        "expected": {
+          "quality": "n",
+          "itemKey": "fixture-supply"
+        }
+      },
+      {
+        "label": "railway/quality/n",
+        "kind": "railway",
+        "tableItemKey": "",
+        "wantedItem": "fixture-supply"
+      },
+      {
+        "label": "railway/quality/n",
+        "kind": "dispatch",
+        "actual": {
+          "quality": "n"
+        },
+        "expected": {
+          "specialOnly": true,
+          "plunderableOnly": true
+        }
+      },
+      {
+        "label": "railway/quality/n",
+        "kind": "ghost",
+        "actual": {
+          "quality": "n"
+        },
+        "expected": {
+          "completionStatus": "completed"
+        }
+      },
+      {
+        "label": "railway/quality/r",
+        "kind": "truck",
+        "actual": {
+          "quality": "r"
+        },
+        "expected": {
+          "reindeerOnly": true
+        }
+      },
+      {
+        "label": "railway/quality/r",
+        "kind": "railway",
+        "actual": {
+          "quality": "r"
+        },
+        "expected": {
+          "quality": "r",
+          "itemKey": "fixture-supply"
+        }
+      },
+      {
+        "label": "railway/quality/r",
+        "kind": "railway",
+        "tableItemKey": "",
+        "wantedItem": "fixture-supply"
+      },
+      {
+        "label": "railway/quality/r",
+        "kind": "dispatch",
+        "actual": {
+          "quality": "r"
+        },
+        "expected": {
+          "specialOnly": true,
+          "plunderableOnly": true
+        }
+      },
+      {
+        "label": "railway/quality/r",
+        "kind": "ghost",
+        "actual": {
+          "quality": "r"
+        },
+        "expected": {
+          "completionStatus": "completed"
+        }
+      },
+      {
+        "label": "railway/quality/sr",
+        "kind": "truck",
+        "actual": {
+          "quality": "sr"
+        },
+        "expected": {
+          "reindeerOnly": true
+        }
+      },
+      {
+        "label": "railway/quality/sr",
+        "kind": "railway",
+        "actual": {
+          "quality": "sr"
+        },
+        "expected": {
+          "quality": "sr",
+          "itemKey": "fixture-supply"
+        }
+      },
+      {
+        "label": "railway/quality/sr",
+        "kind": "railway",
+        "tableItemKey": "",
+        "wantedItem": "fixture-supply"
+      },
+      {
+        "label": "railway/quality/sr",
+        "kind": "dispatch",
+        "actual": {
+          "quality": "sr"
+        },
+        "expected": {
+          "specialOnly": true,
+          "plunderableOnly": true
+        }
+      },
+      {
+        "label": "railway/quality/sr",
+        "kind": "ghost",
+        "actual": {
+          "quality": "sr"
+        },
+        "expected": {
+          "completionStatus": "completed"
+        }
+      },
+      {
+        "label": "railway/quality/ssr",
+        "kind": "truck",
+        "actual": {
+          "quality": "ssr"
+        },
+        "expected": {
+          "reindeerOnly": true
+        }
+      },
+      {
+        "label": "railway/quality/ssr",
+        "kind": "railway",
+        "actual": {
+          "quality": "ssr"
+        },
+        "expected": {
+          "quality": "ssr",
+          "itemKey": "fixture-supply"
+        }
+      },
+      {
+        "label": "railway/quality/ssr",
+        "kind": "railway",
+        "tableItemKey": "",
+        "wantedItem": "fixture-supply"
+      },
+      {
+        "label": "railway/quality/ssr",
+        "kind": "dispatch",
+        "actual": {
+          "quality": "ssr"
+        },
+        "expected": {
+          "specialOnly": true,
+          "plunderableOnly": true
+        }
+      },
+      {
+        "label": "railway/quality/ssr",
+        "kind": "ghost",
+        "actual": {
+          "quality": "ssr"
+        },
+        "expected": {
+          "completionStatus": "completed"
+        }
+      },
+      {
+        "label": "railway/quality/ur",
+        "kind": "truck",
+        "actual": {
+          "quality": "ur"
+        },
+        "expected": {
+          "reindeerOnly": true
+        }
+      },
+      {
+        "label": "railway/quality/ur",
+        "kind": "railway",
+        "actual": {
+          "quality": "ur"
+        },
+        "expected": {
+          "quality": "ur",
+          "itemKey": "fixture-supply"
+        }
+      },
+      {
+        "label": "railway/quality/ur",
+        "kind": "railway",
+        "tableItemKey": "",
+        "wantedItem": "fixture-supply"
+      },
+      {
+        "label": "railway/quality/ur",
+        "kind": "dispatch",
+        "actual": {
+          "quality": "ur"
+        },
+        "expected": {
+          "specialOnly": true,
+          "plunderableOnly": true
+        }
+      },
+      {
+        "label": "railway/quality/ur",
+        "kind": "ghost",
+        "actual": {
+          "quality": "ur"
+        },
+        "expected": {
+          "completionStatus": "completed"
+        }
+      },
+      {
+        "label": "railway/quality/",
+        "kind": "truck",
+        "actual": {},
+        "expected": {
+          "reindeerOnly": true
+        }
+      },
+      {
+        "label": "railway/quality/",
+        "kind": "railway",
+        "actual": {},
+        "expected": {
+          "itemKey": "fixture-supply"
+        }
+      },
+      {
+        "label": "railway/quality/",
+        "kind": "railway",
+        "tableItemKey": "",
+        "wantedItem": "fixture-supply"
+      },
+      {
+        "label": "railway/quality/",
+        "kind": "dispatch",
+        "actual": {},
+        "expected": {
+          "specialOnly": true,
+          "plunderableOnly": true
+        }
+      },
+      {
+        "label": "railway/quality/",
+        "kind": "ghost",
+        "actual": {},
+        "expected": {
+          "completionStatus": "completed"
+        }
+      },
+      {
+        "label": "dispatch/quality/n",
+        "kind": "truck",
+        "actual": {
+          "quality": "n"
+        },
+        "expected": {
+          "reindeerOnly": true
+        }
+      },
+      {
+        "label": "dispatch/quality/n",
+        "kind": "railway",
+        "actual": {
+          "quality": "n"
+        },
+        "expected": {
+          "itemKey": "fixture-supply"
+        }
+      },
+      {
+        "label": "dispatch/quality/n",
+        "kind": "railway",
+        "tableItemKey": "",
+        "wantedItem": "fixture-supply"
+      },
+      {
+        "label": "dispatch/quality/n",
+        "kind": "dispatch",
+        "actual": {
+          "quality": "n"
+        },
+        "expected": {
+          "quality": "n",
+          "plunderableOnly": true
+        }
+      },
+      {
+        "label": "dispatch/quality/n",
+        "kind": "ghost",
+        "actual": {
+          "quality": "n"
+        },
+        "expected": {
+          "completionStatus": "completed"
+        }
+      },
+      {
+        "label": "dispatch/quality/r",
+        "kind": "truck",
+        "actual": {
+          "quality": "r"
+        },
+        "expected": {
+          "reindeerOnly": true
+        }
+      },
+      {
+        "label": "dispatch/quality/r",
+        "kind": "railway",
+        "actual": {
+          "quality": "r"
+        },
+        "expected": {
+          "itemKey": "fixture-supply"
+        }
+      },
+      {
+        "label": "dispatch/quality/r",
+        "kind": "railway",
+        "tableItemKey": "",
+        "wantedItem": "fixture-supply"
+      },
+      {
+        "label": "dispatch/quality/r",
+        "kind": "dispatch",
+        "actual": {
+          "quality": "r"
+        },
+        "expected": {
+          "quality": "r",
+          "plunderableOnly": true
+        }
+      },
+      {
+        "label": "dispatch/quality/r",
+        "kind": "ghost",
+        "actual": {
+          "quality": "r"
+        },
+        "expected": {
+          "completionStatus": "completed"
+        }
+      },
+      {
+        "label": "dispatch/quality/sr",
+        "kind": "truck",
+        "actual": {
+          "quality": "sr"
+        },
+        "expected": {
+          "reindeerOnly": true
+        }
+      },
+      {
+        "label": "dispatch/quality/sr",
+        "kind": "railway",
+        "actual": {
+          "quality": "sr"
+        },
+        "expected": {
+          "itemKey": "fixture-supply"
+        }
+      },
+      {
+        "label": "dispatch/quality/sr",
+        "kind": "railway",
+        "tableItemKey": "",
+        "wantedItem": "fixture-supply"
+      },
+      {
+        "label": "dispatch/quality/sr",
+        "kind": "dispatch",
+        "actual": {
+          "quality": "sr"
+        },
+        "expected": {
+          "quality": "sr",
+          "plunderableOnly": true
+        }
+      },
+      {
+        "label": "dispatch/quality/sr",
+        "kind": "ghost",
+        "actual": {
+          "quality": "sr"
+        },
+        "expected": {
+          "completionStatus": "completed"
+        }
+      },
+      {
+        "label": "dispatch/quality/ssr",
+        "kind": "truck",
+        "actual": {
+          "quality": "ssr"
+        },
+        "expected": {
+          "reindeerOnly": true
+        }
+      },
+      {
+        "label": "dispatch/quality/ssr",
+        "kind": "railway",
+        "actual": {
+          "quality": "ssr"
+        },
+        "expected": {
+          "itemKey": "fixture-supply"
+        }
+      },
+      {
+        "label": "dispatch/quality/ssr",
+        "kind": "railway",
+        "tableItemKey": "",
+        "wantedItem": "fixture-supply"
+      },
+      {
+        "label": "dispatch/quality/ssr",
+        "kind": "dispatch",
+        "actual": {
+          "quality": "ssr"
+        },
+        "expected": {
+          "quality": "ssr",
+          "plunderableOnly": true
+        }
+      },
+      {
+        "label": "dispatch/quality/ssr",
+        "kind": "ghost",
+        "actual": {
+          "quality": "ssr"
+        },
+        "expected": {
+          "completionStatus": "completed"
+        }
+      },
+      {
+        "label": "dispatch/quality/ur",
+        "kind": "truck",
+        "actual": {
+          "quality": "ur"
+        },
+        "expected": {
+          "reindeerOnly": true
+        }
+      },
+      {
+        "label": "dispatch/quality/ur",
+        "kind": "railway",
+        "actual": {
+          "quality": "ur"
+        },
+        "expected": {
+          "itemKey": "fixture-supply"
+        }
+      },
+      {
+        "label": "dispatch/quality/ur",
+        "kind": "railway",
+        "tableItemKey": "",
+        "wantedItem": "fixture-supply"
+      },
+      {
+        "label": "dispatch/quality/ur",
+        "kind": "dispatch",
+        "actual": {
+          "quality": "ur"
+        },
+        "expected": {
+          "quality": "ur",
+          "plunderableOnly": true
+        }
+      },
+      {
+        "label": "dispatch/quality/ur",
+        "kind": "ghost",
+        "actual": {
+          "quality": "ur"
+        },
+        "expected": {
+          "completionStatus": "completed"
+        }
+      },
+      {
+        "label": "dispatch/quality/",
+        "kind": "truck",
+        "actual": {},
+        "expected": {
+          "reindeerOnly": true
+        }
+      },
+      {
+        "label": "dispatch/quality/",
+        "kind": "railway",
+        "actual": {},
+        "expected": {
+          "itemKey": "fixture-supply"
+        }
+      },
+      {
+        "label": "dispatch/quality/",
+        "kind": "railway",
+        "tableItemKey": "",
+        "wantedItem": "fixture-supply"
+      },
+      {
+        "label": "dispatch/quality/",
+        "kind": "dispatch",
+        "actual": {},
+        "expected": {
+          "plunderableOnly": true
+        }
+      },
+      {
+        "label": "dispatch/quality/",
+        "kind": "ghost",
+        "actual": {},
+        "expected": {
+          "completionStatus": "completed"
+        }
+      },
+      {
+        "label": "dispatch/quality/special",
+        "kind": "truck",
+        "actual": {
+          "specialOnly": true
+        },
+        "expected": {
+          "reindeerOnly": true
+        }
+      },
+      {
+        "label": "dispatch/quality/special",
+        "kind": "railway",
+        "actual": {
+          "specialOnly": true
+        },
+        "expected": {
+          "itemKey": "fixture-supply"
+        }
+      },
+      {
+        "label": "dispatch/quality/special",
+        "kind": "railway",
+        "tableItemKey": "",
+        "wantedItem": "fixture-supply"
+      },
+      {
+        "label": "dispatch/quality/special",
+        "kind": "dispatch",
+        "actual": {
+          "specialOnly": true
+        },
+        "expected": {
+          "specialOnly": true,
+          "plunderableOnly": true
+        }
+      },
+      {
+        "label": "dispatch/quality/special",
+        "kind": "ghost",
+        "actual": {
+          "specialOnly": true
+        },
+        "expected": {
+          "completionStatus": "completed"
+        }
+      },
+      {
+        "label": "ghost/quality/n",
+        "kind": "truck",
+        "actual": {
+          "quality": "n"
+        },
+        "expected": {
+          "reindeerOnly": true
+        }
+      },
+      {
+        "label": "ghost/quality/n",
+        "kind": "railway",
+        "actual": {
+          "quality": "n"
+        },
+        "expected": {
+          "itemKey": "fixture-supply"
+        }
+      },
+      {
+        "label": "ghost/quality/n",
+        "kind": "railway",
+        "tableItemKey": "",
+        "wantedItem": "fixture-supply"
+      },
+      {
+        "label": "ghost/quality/n",
+        "kind": "dispatch",
+        "actual": {
+          "quality": "n"
+        },
+        "expected": {
+          "specialOnly": true,
+          "plunderableOnly": true
+        }
+      },
+      {
+        "label": "ghost/quality/n",
+        "kind": "ghost",
+        "actual": {
+          "quality": "n"
+        },
+        "expected": {
+          "quality": "n",
+          "completionStatus": "completed"
+        }
+      },
+      {
+        "label": "ghost/quality/r",
+        "kind": "truck",
+        "actual": {
+          "quality": "r"
+        },
+        "expected": {
+          "reindeerOnly": true
+        }
+      },
+      {
+        "label": "ghost/quality/r",
+        "kind": "railway",
+        "actual": {
+          "quality": "r"
+        },
+        "expected": {
+          "itemKey": "fixture-supply"
+        }
+      },
+      {
+        "label": "ghost/quality/r",
+        "kind": "railway",
+        "tableItemKey": "",
+        "wantedItem": "fixture-supply"
+      },
+      {
+        "label": "ghost/quality/r",
+        "kind": "dispatch",
+        "actual": {
+          "quality": "r"
+        },
+        "expected": {
+          "specialOnly": true,
+          "plunderableOnly": true
+        }
+      },
+      {
+        "label": "ghost/quality/r",
+        "kind": "ghost",
+        "actual": {
+          "quality": "r"
+        },
+        "expected": {
+          "quality": "r",
+          "completionStatus": "completed"
+        }
+      },
+      {
+        "label": "ghost/quality/sr",
+        "kind": "truck",
+        "actual": {
+          "quality": "sr"
+        },
+        "expected": {
+          "reindeerOnly": true
+        }
+      },
+      {
+        "label": "ghost/quality/sr",
+        "kind": "railway",
+        "actual": {
+          "quality": "sr"
+        },
+        "expected": {
+          "itemKey": "fixture-supply"
+        }
+      },
+      {
+        "label": "ghost/quality/sr",
+        "kind": "railway",
+        "tableItemKey": "",
+        "wantedItem": "fixture-supply"
+      },
+      {
+        "label": "ghost/quality/sr",
+        "kind": "dispatch",
+        "actual": {
+          "quality": "sr"
+        },
+        "expected": {
+          "specialOnly": true,
+          "plunderableOnly": true
+        }
+      },
+      {
+        "label": "ghost/quality/sr",
+        "kind": "ghost",
+        "actual": {
+          "quality": "sr"
+        },
+        "expected": {
+          "quality": "sr",
+          "completionStatus": "completed"
+        }
+      },
+      {
+        "label": "ghost/quality/ssr",
+        "kind": "truck",
+        "actual": {
+          "quality": "ssr"
+        },
+        "expected": {
+          "reindeerOnly": true
+        }
+      },
+      {
+        "label": "ghost/quality/ssr",
+        "kind": "railway",
+        "actual": {
+          "quality": "ssr"
+        },
+        "expected": {
+          "itemKey": "fixture-supply"
+        }
+      },
+      {
+        "label": "ghost/quality/ssr",
+        "kind": "railway",
+        "tableItemKey": "",
+        "wantedItem": "fixture-supply"
+      },
+      {
+        "label": "ghost/quality/ssr",
+        "kind": "dispatch",
+        "actual": {
+          "quality": "ssr"
+        },
+        "expected": {
+          "specialOnly": true,
+          "plunderableOnly": true
+        }
+      },
+      {
+        "label": "ghost/quality/ssr",
+        "kind": "ghost",
+        "actual": {
+          "quality": "ssr"
+        },
+        "expected": {
+          "quality": "ssr",
+          "completionStatus": "completed"
+        }
+      },
+      {
+        "label": "ghost/quality/ur",
+        "kind": "truck",
+        "actual": {
+          "quality": "ur"
+        },
+        "expected": {
+          "reindeerOnly": true
+        }
+      },
+      {
+        "label": "ghost/quality/ur",
+        "kind": "railway",
+        "actual": {
+          "quality": "ur"
+        },
+        "expected": {
+          "itemKey": "fixture-supply"
+        }
+      },
+      {
+        "label": "ghost/quality/ur",
+        "kind": "railway",
+        "tableItemKey": "",
+        "wantedItem": "fixture-supply"
+      },
+      {
+        "label": "ghost/quality/ur",
+        "kind": "dispatch",
+        "actual": {
+          "quality": "ur"
+        },
+        "expected": {
+          "specialOnly": true,
+          "plunderableOnly": true
+        }
+      },
+      {
+        "label": "ghost/quality/ur",
+        "kind": "ghost",
+        "actual": {
+          "quality": "ur"
+        },
+        "expected": {
+          "quality": "ur",
+          "completionStatus": "completed"
+        }
+      },
+      {
+        "label": "ghost/quality/",
+        "kind": "truck",
+        "actual": {},
+        "expected": {
+          "reindeerOnly": true
+        }
+      },
+      {
+        "label": "ghost/quality/",
+        "kind": "railway",
+        "actual": {},
+        "expected": {
+          "itemKey": "fixture-supply"
+        }
+      },
+      {
+        "label": "ghost/quality/",
+        "kind": "railway",
+        "tableItemKey": "",
+        "wantedItem": "fixture-supply"
+      },
+      {
+        "label": "ghost/quality/",
+        "kind": "dispatch",
+        "actual": {},
+        "expected": {
+          "specialOnly": true,
+          "plunderableOnly": true
+        }
+      },
+      {
+        "label": "ghost/quality/",
+        "kind": "ghost",
+        "actual": {},
+        "expected": {
+          "completionStatus": "completed"
+        }
+      },
+      {
+        "label": "ghost/quality/special",
+        "kind": "truck",
+        "actual": {
+          "specialOnly": true
+        },
+        "expected": {
+          "reindeerOnly": true
+        }
+      },
+      {
+        "label": "ghost/quality/special",
+        "kind": "railway",
+        "actual": {
+          "specialOnly": true
+        },
+        "expected": {
+          "itemKey": "fixture-supply"
+        }
+      },
+      {
+        "label": "ghost/quality/special",
+        "kind": "railway",
+        "tableItemKey": "",
+        "wantedItem": "fixture-supply"
+      },
+      {
+        "label": "ghost/quality/special",
+        "kind": "dispatch",
+        "actual": {
+          "specialOnly": true
+        },
+        "expected": {
+          "specialOnly": true,
+          "plunderableOnly": true
+        }
+      },
+      {
+        "label": "ghost/quality/special",
+        "kind": "ghost",
+        "actual": {
+          "specialOnly": true
+        },
+        "expected": {
+          "specialOnly": true,
+          "completionStatus": "completed"
+        }
+      },
+      {
+        "label": "dispatch/completion/pending",
+        "kind": "truck",
+        "actual": {
+          "specialOnly": true
+        },
+        "expected": {
+          "reindeerOnly": true
+        }
+      },
+      {
+        "label": "dispatch/completion/pending",
+        "kind": "railway",
+        "actual": {
+          "specialOnly": true
+        },
+        "expected": {
+          "itemKey": "fixture-supply"
+        }
+      },
+      {
+        "label": "dispatch/completion/pending",
+        "kind": "railway",
+        "tableItemKey": "",
+        "wantedItem": "fixture-supply"
+      },
+      {
+        "label": "dispatch/completion/pending",
+        "kind": "dispatch",
+        "actual": {
+          "specialOnly": true,
+          "completionStatus": "pending"
+        },
+        "expected": {
+          "specialOnly": true,
+          "completionStatus": "pending",
+          "plunderableOnly": true
+        }
+      },
+      {
+        "label": "dispatch/completion/pending",
+        "kind": "ghost",
+        "actual": {
+          "specialOnly": true,
+          "completionStatus": "pending"
+        },
+        "expected": {
+          "specialOnly": true,
+          "completionStatus": "completed"
+        }
+      },
+      {
+        "label": "dispatch/completion/completed",
+        "kind": "truck",
+        "actual": {
+          "specialOnly": true
+        },
+        "expected": {
+          "reindeerOnly": true
+        }
+      },
+      {
+        "label": "dispatch/completion/completed",
+        "kind": "railway",
+        "actual": {
+          "specialOnly": true
+        },
+        "expected": {
+          "itemKey": "fixture-supply"
+        }
+      },
+      {
+        "label": "dispatch/completion/completed",
+        "kind": "railway",
+        "tableItemKey": "",
+        "wantedItem": "fixture-supply"
+      },
+      {
+        "label": "dispatch/completion/completed",
+        "kind": "dispatch",
+        "actual": {
+          "specialOnly": true,
+          "completionStatus": "completed"
+        },
+        "expected": {
+          "specialOnly": true,
+          "completionStatus": "completed",
+          "plunderableOnly": true
+        }
+      },
+      {
+        "label": "dispatch/completion/",
+        "kind": "truck",
+        "actual": {
+          "specialOnly": true
+        },
+        "expected": {
+          "reindeerOnly": true
+        }
+      },
+      {
+        "label": "dispatch/completion/",
+        "kind": "railway",
+        "actual": {
+          "specialOnly": true
+        },
+        "expected": {
+          "itemKey": "fixture-supply"
+        }
+      },
+      {
+        "label": "dispatch/completion/",
+        "kind": "railway",
+        "tableItemKey": "",
+        "wantedItem": "fixture-supply"
+      },
+      {
+        "label": "dispatch/completion/",
+        "kind": "dispatch",
+        "actual": {
+          "specialOnly": true
+        },
+        "expected": {
+          "specialOnly": true,
+          "plunderableOnly": true
+        }
+      },
+      {
+        "label": "dispatch/completion/",
+        "kind": "ghost",
+        "actual": {
+          "specialOnly": true
+        },
+        "expected": {
+          "specialOnly": true,
+          "completionStatus": "completed"
+        }
+      },
+      {
+        "label": "ghost/completion/pending",
+        "kind": "truck",
+        "actual": {
+          "specialOnly": true
+        },
+        "expected": {
+          "reindeerOnly": true
+        }
+      },
+      {
+        "label": "ghost/completion/pending",
+        "kind": "railway",
+        "actual": {
+          "specialOnly": true
+        },
+        "expected": {
+          "itemKey": "fixture-supply"
+        }
+      },
+      {
+        "label": "ghost/completion/pending",
+        "kind": "railway",
+        "tableItemKey": "",
+        "wantedItem": "fixture-supply"
+      },
+      {
+        "label": "ghost/completion/pending",
+        "kind": "dispatch",
+        "actual": {
+          "specialOnly": true,
+          "completionStatus": "pending"
+        },
+        "expected": {
+          "specialOnly": true,
+          "plunderableOnly": true
+        }
+      },
+      {
+        "label": "ghost/completion/completed",
+        "kind": "truck",
+        "actual": {
+          "specialOnly": true
+        },
+        "expected": {
+          "reindeerOnly": true
+        }
+      },
+      {
+        "label": "ghost/completion/completed",
+        "kind": "railway",
+        "actual": {
+          "specialOnly": true
+        },
+        "expected": {
+          "itemKey": "fixture-supply"
+        }
+      },
+      {
+        "label": "ghost/completion/completed",
+        "kind": "railway",
+        "tableItemKey": "",
+        "wantedItem": "fixture-supply"
+      },
+      {
+        "label": "ghost/completion/completed",
+        "kind": "dispatch",
+        "actual": {
+          "specialOnly": true,
+          "completionStatus": "completed"
+        },
+        "expected": {
+          "specialOnly": true,
+          "plunderableOnly": true
+        }
+      },
+      {
+        "label": "ghost/completion/",
+        "kind": "truck",
+        "actual": {
+          "specialOnly": true
+        },
+        "expected": {
+          "reindeerOnly": true
+        }
+      },
+      {
+        "label": "ghost/completion/",
+        "kind": "railway",
+        "actual": {
+          "specialOnly": true
+        },
+        "expected": {
+          "itemKey": "fixture-supply"
+        }
+      },
+      {
+        "label": "ghost/completion/",
+        "kind": "railway",
+        "tableItemKey": "",
+        "wantedItem": "fixture-supply"
+      },
+      {
+        "label": "ghost/completion/",
+        "kind": "dispatch",
+        "actual": {
+          "specialOnly": true
+        },
+        "expected": {
+          "specialOnly": true,
+          "plunderableOnly": true
+        }
+      },
+      {
+        "label": "truck/plunderable/true",
+        "kind": "truck",
+        "actual": {
+          "specialOnly": true,
+          "plunderableOnly": true
+        },
+        "expected": {
+          "reindeerOnly": true,
+          "plunderableOnly": true
+        }
+      },
+      {
+        "label": "truck/plunderable/true",
+        "kind": "railway",
+        "actual": {
+          "specialOnly": true,
+          "plunderableOnly": true
+        },
+        "expected": {
+          "itemKey": "fixture-supply"
+        }
+      },
+      {
+        "label": "truck/plunderable/true",
+        "kind": "railway",
+        "tableItemKey": "",
+        "wantedItem": "fixture-supply"
+      },
+      {
+        "label": "truck/plunderable/false",
+        "kind": "truck",
+        "actual": {
+          "specialOnly": true
+        },
+        "expected": {
+          "reindeerOnly": true
+        }
+      },
+      {
+        "label": "truck/plunderable/false",
+        "kind": "railway",
+        "actual": {
+          "specialOnly": true
+        },
+        "expected": {
+          "itemKey": "fixture-supply"
+        }
+      },
+      {
+        "label": "truck/plunderable/false",
+        "kind": "railway",
+        "tableItemKey": "",
+        "wantedItem": "fixture-supply"
+      },
+      {
+        "label": "truck/plunderable/false",
+        "kind": "dispatch",
+        "actual": {
+          "specialOnly": true
+        },
+        "expected": {
+          "specialOnly": true,
+          "plunderableOnly": true
+        }
+      },
+      {
+        "label": "railway/plunderable/true",
+        "kind": "truck",
+        "actual": {
+          "specialOnly": true,
+          "plunderableOnly": true
+        },
+        "expected": {
+          "reindeerOnly": true
+        }
+      },
+      {
+        "label": "railway/plunderable/true",
+        "kind": "railway",
+        "actual": {
+          "specialOnly": true,
+          "plunderableOnly": true
+        },
+        "expected": {
+          "itemKey": "fixture-supply",
+          "plunderableOnly": true
+        }
+      },
+      {
+        "label": "railway/plunderable/true",
+        "kind": "railway",
+        "tableItemKey": "",
+        "wantedItem": "fixture-supply"
+      },
+      {
+        "label": "railway/plunderable/false",
+        "kind": "truck",
+        "actual": {
+          "specialOnly": true
+        },
+        "expected": {
+          "reindeerOnly": true
+        }
+      },
+      {
+        "label": "railway/plunderable/false",
+        "kind": "railway",
+        "actual": {
+          "specialOnly": true
+        },
+        "expected": {
+          "itemKey": "fixture-supply"
+        }
+      },
+      {
+        "label": "railway/plunderable/false",
+        "kind": "railway",
+        "tableItemKey": "",
+        "wantedItem": "fixture-supply"
+      },
+      {
+        "label": "railway/plunderable/false",
+        "kind": "dispatch",
+        "actual": {
+          "specialOnly": true
+        },
+        "expected": {
+          "specialOnly": true,
+          "plunderableOnly": true
+        }
+      },
+      {
+        "label": "dispatch/plunderable/true",
+        "kind": "truck",
+        "actual": {
+          "specialOnly": true,
+          "plunderableOnly": true
+        },
+        "expected": {
+          "reindeerOnly": true
+        }
+      },
+      {
+        "label": "dispatch/plunderable/true",
+        "kind": "railway",
+        "actual": {
+          "specialOnly": true,
+          "plunderableOnly": true
+        },
+        "expected": {
+          "itemKey": "fixture-supply"
+        }
+      },
+      {
+        "label": "dispatch/plunderable/true",
+        "kind": "railway",
+        "tableItemKey": "",
+        "wantedItem": "fixture-supply"
+      },
+      {
+        "label": "dispatch/plunderable/false",
+        "kind": "truck",
+        "actual": {
+          "specialOnly": true
+        },
+        "expected": {
+          "reindeerOnly": true
+        }
+      },
+      {
+        "label": "dispatch/plunderable/false",
+        "kind": "railway",
+        "actual": {
+          "specialOnly": true
+        },
+        "expected": {
+          "itemKey": "fixture-supply"
+        }
+      },
+      {
+        "label": "dispatch/plunderable/false",
+        "kind": "railway",
+        "tableItemKey": "",
+        "wantedItem": "fixture-supply"
+      }
+    ]
+  },
+  "currentResults": {
+    "comparisons": 472,
+    "failures": []
+  },
+  "preview": {
+    "offline": true,
+    "blockedActions": 7,
+    "nativeIsolation": true,
+    "exactLevelRows": 15
+  }
+}

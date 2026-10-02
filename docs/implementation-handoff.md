@@ -4,6 +4,27 @@
 **Branch:** `research/offline-controller`  
 **Phase:** Phase 2 function recovery / Map Data clean-UI live-integration checkpoint
 
+## 2026-10-02 PM-023 — Map filters and Checking preview
+
+Current checkpoint: **UI-MAP-FILTERS-001 AWAITING_REVIEW**. Lead took over while
+the external worker rests. Per-kind quality/status/goods/plunderable choices,
+applicable-kind query/table item projection, active-tab sort clear and exact
+Secret Task min/max level are corrected. Checking is now reachable in the explicit
+offline `map-treasure-checking` fixture with strict native/other-fixture fences.
+472 query comparisons (330 baseline mismatches preserved), 216 display comparisons,
+384 input fences, eight original producer scenarios, fifteen browser flows,
+historical table replay and canonical check/build/package all pass.
+
+Read `reviews/2026-10-02-LWB317-UI-MAP-FILTERS-001.md`. Existing host Treasure
+handlers are present; current mapApi does not expose them. Live context/refresh
+lifecycle connection remains separately queued. No native operation was invoked.
+Other Map transitions/scheduling, broader Automation/AFK states, missing assets
+and original pixels remain open. Protected WIP is unchanged/unstaged.
+
+Next external-worker task: `work-items/LWB317-REVIEW-MAP-FILTERS-001.md`, QUEUED,
+not dispatched. Give the owner a self-contained review prompt when they say the
+worker is ready. Do not restart UI-PARALLEL-001 or native/gameplay work.
+
 ## 2026-10-02 — owner-authorized parallel UI acceleration
 
 Current checkpoint: **LWB317-UI-PARALLEL-001 COMPLETE for assigned source/local scope**.

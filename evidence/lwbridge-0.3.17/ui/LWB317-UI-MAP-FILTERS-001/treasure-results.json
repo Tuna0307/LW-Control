@@ -1,0 +1,284 @@
+{
+  "status": "PASS",
+  "scope": "Original/current display and isolated preview reachability; recovered producer exercised using synthetic responses only. Native host not invoked.",
+  "comparisons": 216,
+  "fenceCases": 384,
+  "producerResults": [
+    {
+      "name": "offline",
+      "whilePending": {
+        "flags": [
+          false
+        ],
+        "rows": [
+          {
+            "uuid": "a",
+            "worldClaimState": ""
+          }
+        ],
+        "refreshCalls": 0
+      },
+      "flags": [
+        false
+      ],
+      "rows": [
+        {
+          "uuid": "a",
+          "worldClaimState": ""
+        }
+      ],
+      "refreshCalls": 0,
+      "logs": []
+    },
+    {
+      "name": "scanRunning",
+      "whilePending": {
+        "flags": [
+          false
+        ],
+        "rows": [
+          {
+            "uuid": "a",
+            "worldClaimState": ""
+          }
+        ],
+        "refreshCalls": 0
+      },
+      "flags": [
+        false
+      ],
+      "rows": [
+        {
+          "uuid": "a",
+          "worldClaimState": ""
+        }
+      ],
+      "refreshCalls": 0,
+      "logs": []
+    },
+    {
+      "name": "wrongServer",
+      "whilePending": {
+        "flags": [
+          false
+        ],
+        "rows": [
+          {
+            "uuid": "a",
+            "worldClaimState": ""
+          }
+        ],
+        "refreshCalls": 0
+      },
+      "flags": [
+        false
+      ],
+      "rows": [
+        {
+          "uuid": "a",
+          "worldClaimState": ""
+        }
+      ],
+      "refreshCalls": 0,
+      "logs": []
+    },
+    {
+      "name": "empty",
+      "whilePending": {
+        "flags": [
+          false
+        ],
+        "rows": [],
+        "refreshCalls": 0
+      },
+      "flags": [
+        false
+      ],
+      "rows": [],
+      "refreshCalls": 0,
+      "logs": []
+    },
+    {
+      "name": "queryFailure",
+      "whilePending": {
+        "flags": [
+          false
+        ],
+        "rows": [],
+        "refreshCalls": 0
+      },
+      "flags": [
+        false
+      ],
+      "rows": [],
+      "refreshCalls": 0,
+      "logs": [
+        "map search error Error: query failed"
+      ]
+    },
+    {
+      "name": "deferredSuccess",
+      "whilePending": {
+        "flags": [
+          true
+        ],
+        "rows": [
+          {
+            "uuid": "a",
+            "worldClaimState": ""
+          }
+        ],
+        "refreshCalls": 1
+      },
+      "flags": [
+        true,
+        false
+      ],
+      "rows": [
+        {
+          "uuid": "a",
+          "worldClaimState": "claimable",
+          "playerClaimState": "unclaimed"
+        }
+      ],
+      "refreshCalls": 1,
+      "logs": []
+    },
+    {
+      "name": "refreshFailure",
+      "whilePending": {
+        "flags": [
+          true
+        ],
+        "rows": [
+          {
+            "uuid": "a",
+            "worldClaimState": ""
+          }
+        ],
+        "refreshCalls": 1
+      },
+      "flags": [
+        true,
+        false
+      ],
+      "rows": [
+        {
+          "uuid": "a",
+          "worldClaimState": ""
+        }
+      ],
+      "refreshCalls": 1,
+      "logs": [
+        "treasure state refresh error Error: refresh failed"
+      ]
+    },
+    {
+      "name": "scanFailureSuppressed",
+      "whilePending": {
+        "flags": [
+          true
+        ],
+        "rows": [
+          {
+            "uuid": "a",
+            "worldClaimState": ""
+          }
+        ],
+        "refreshCalls": 1
+      },
+      "flags": [
+        true,
+        false
+      ],
+      "rows": [
+        {
+          "uuid": "a",
+          "worldClaimState": ""
+        }
+      ],
+      "refreshCalls": 1,
+      "logs": []
+    }
+  ],
+  "source": {
+    "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js",
+    "sha256": "ce74345518be72e417a510b982c591729e5683f69751e190805598c4c05d3089"
+  },
+  "current": {
+    "path": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+    "sha256": "2457d4a801385a74165de69c4e4961882529ee7cf9c36a050fcad0100a3da51b"
+  },
+  "frontend": {
+    "path": "src/LWBridge.UI-0.3.17/src/mapBackend.js",
+    "sha256": "2951b824039d1a60bd305e3b4ec4e8b37992183e84294c7d7c21aa7ccc0c5c99",
+    "treasureMethodsExposed": false
+  },
+  "hosts": [
+    {
+      "path": "src/LWBridge.Desktop/Map317CommandService.cs",
+      "sha256": "70167fe25d74dba58b7df37b2b3d50862f49268348076a5e1cb1f654f3ab61a7",
+      "locators": [
+        {
+          "line": 19,
+          "text": "\"map_treasure_state_refresh\", \"map_treasure_state_refresh_all\","
+        },
+        {
+          "line": 20,
+          "text": "\"map_treasure_claim\", \"map_treasure_claim_status\","
+        },
+        {
+          "line": 146,
+          "text": "case \"map_treasure_state_refresh\":"
+        },
+        {
+          "line": 150,
+          "text": "case \"map_treasure_state_refresh_all\":"
+        },
+        {
+          "line": 153,
+          "text": "case \"map_treasure_claim_status\":"
+        }
+      ]
+    },
+    {
+      "path": "src/LWBridge.Desktop/ManualMapScanCommandService.cs",
+      "sha256": "aae7d12fabb2e1819bb7a4c9ce23d631dbcde7394b442f5ac3a16e3032bb1f29",
+      "locators": [
+        {
+          "line": 127,
+          "text": "\"map_treasure_state_refresh\" or \"map_treasure_state_refresh_all\" or"
+        },
+        {
+          "line": 128,
+          "text": "\"map_treasure_claim_status\";"
+        },
+        {
+          "line": 161,
+          "text": "if (command is \"map_treasure_state_refresh\" or"
+        },
+        {
+          "line": 162,
+          "text": "\"map_treasure_state_refresh_all\" or"
+        },
+        {
+          "line": 163,
+          "text": "\"map_treasure_claim_status\")"
+        },
+        {
+          "line": 252,
+          "text": "if (command == \"map_treasure_claim_status\")"
+        },
+        {
+          "line": 292,
+          "text": "if (command == \"map_treasure_claim_status\")"
+        },
+        {
+          "line": 296,
+          "text": "else if (command == \"map_treasure_state_refresh_all\")"
+        }
+      ]
+    }
+  ],
+  "nativeReachability": "BLOCKED within this UI-only scope: frontend methods, viewer context and operation lifecycle still require a separate connection assignment; host handlers already exist, usability is not established here."
+}

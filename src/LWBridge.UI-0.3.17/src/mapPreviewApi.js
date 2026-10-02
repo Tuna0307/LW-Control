@@ -233,13 +233,23 @@ function rowActionFixtureRows(fixtureTime) {
   return rows;
 }
 
+function treasureCheckingFixtureRows(now) {
+  const rows = tableStateFixtureRows(now);
+  // The recovered refreshing flag fills missing states only; known states and
+  // blocking reasons keep their existing precedence. All inputs are synthetic.
+  rows.treasure = rows.treasure.map((row, index) => index === 0 || index === 2
+    ? { ...row, worldClaimState: "", playerClaimState: "", claimBlockReason: index === 2 ? "other_alliance" : "" }
+    : row);
+  return rows;
+}
+
 export function getMapPreviewProvider(bridgeMode, previewState) {
   if (bridgeMode !== "preview" || !String(previewState || "").startsWith("map-")) return null;
   if (cache.has(previewState)) return cache.get(previewState);
 
   const summary = fixtureSummary();
   const tableTime = Date.now();
-  const tableRows = previewState === "map-row-actions" ? rowActionFixtureRows(tableTime) : previewState === "map-table-states" ? tableStateFixtureRows(tableTime) : null;
+  const tableRows = previewState === "map-row-actions" ? rowActionFixtureRows(tableTime) : previewState === "map-treasure-checking" ? treasureCheckingFixtureRows(tableTime) : previewState === "map-table-states" ? tableStateFixtureRows(tableTime) : null;
   const api = {
     profileId: "preview-map-profile",
     previewFixture: true,
@@ -265,6 +275,7 @@ export function getMapPreviewProvider(bridgeMode, previewState) {
     exportCities: () => blocked("city export"),
   };
   const provider = {
+    previewTreasureStatesRefreshing: previewState === "map-treasure-checking",
     previewJumpingKeys: previewState === "map-row-actions" ? { truck: `${FIXTURE_SERVER_ID}:fixture-following`, railway: `${FIXTURE_SERVER_ID}:fixture-following`, city: `${FIXTURE_SERVER_ID}:413:523` } : null,
     // Synthetic labels for browser-only presentation checks, not recovered game text.
     gameTexts: { "100282": "Fixture Resource A", "100281": "Fixture Resource B", "Fixture Monster A": "Fixture Monster A Label", "Fixture Monster B": "Fixture Monster B Label", "Fixture Radar Treasure": "Fixture Radar Treasure Label", "Fixture Lucky Treasure": "Fixture Lucky Treasure Label" },

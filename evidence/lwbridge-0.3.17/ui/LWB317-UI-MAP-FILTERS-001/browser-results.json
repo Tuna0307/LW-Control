@@ -1,0 +1,1355 @@
+{
+  "status": "PASS",
+  "scope": "Real browser preview controls; synthetic data, offline native actions; screenshots clipped by the application viewport",
+  "flows": [
+    {
+      "case": "Truck distinct choices",
+      "view": {
+        "checkboxes": [
+          {
+            "checked": true,
+            "label": "Only plunderable or pending"
+          }
+        ],
+        "filters": [
+          {
+            "label": "Quality",
+            "value": "ssr"
+          },
+          {
+            "label": "Item",
+            "value": "fixture-reward"
+          }
+        ],
+        "headers": [
+          "Select",
+          "Live Target",
+          "Player / Alliance",
+          "Quality",
+          "Escort Power",
+          "Items",
+          "Plunder status",
+          "Arrival Time",
+          "Updated At1"
+        ],
+        "loading": "false",
+        "nativeButtonsDisabled": true,
+        "result": "4 items",
+        "rows": [
+          [
+            "",
+            "-",
+            "Truck Owner 3",
+            "SSR",
+            "18,525,000",
+            "×4",
+            "Ready｜Plundered 0/2",
+            "1/4/2027, 2:23:50 AM",
+            "1/4/2027, 2:10:20 AM"
+          ],
+          [
+            "",
+            "-",
+            "Truck Owner 13",
+            "SSR",
+            "20,275,000",
+            "×6",
+            "Ready｜Plundered 1/2",
+            "1/4/2027, 2:25:30 AM",
+            "1/4/2027, 2:00:20 AM"
+          ],
+          [
+            "",
+            "-",
+            "Truck Owner 33",
+            "Reindeer",
+            "23,775,000",
+            "×2",
+            "Ready｜Plundered 0/1",
+            "1/4/2027, 2:28:50 AM",
+            "1/4/2027, 1:40:20 AM"
+          ],
+          [
+            "",
+            "-",
+            "Truck Owner 43",
+            "SSR",
+            "25,525,000",
+            "×4",
+            "Ready｜Plundered 1/2",
+            "1/4/2027, 2:30:30 AM",
+            "1/4/2027, 1:30:20 AM"
+          ]
+        ],
+        "tab": "Truck55"
+      }
+    },
+    {
+      "case": "Train starts with independent defaults",
+      "view": {
+        "checkboxes": [
+          {
+            "checked": false,
+            "label": "Only plunderable or pending"
+          }
+        ],
+        "filters": [
+          {
+            "label": "Quality",
+            "value": ""
+          },
+          {
+            "label": "Item",
+            "value": ""
+          }
+        ],
+        "headers": [
+          "Live Target",
+          "Alliance",
+          "Quality",
+          "Power",
+          "Items",
+          "Protection Time",
+          "Updated At1"
+        ],
+        "loading": "false",
+        "nativeButtonsDisabled": true,
+        "result": "56 items",
+        "rows": [
+          [
+            "-",
+            "QA Alliance",
+            "R",
+            "24,150,000",
+            "×2",
+            "1/4/2027, 2:13:35 AM",
+            "1/4/2027, 2:12:20 AM"
+          ],
+          [
+            "-",
+            "TST Alliance",
+            "SR",
+            "24,300,000",
+            "×3",
+            "1/4/2027, 2:13:50 AM",
+            "1/4/2027, 2:11:20 AM"
+          ],
+          [
+            "-",
+            "QA Alliance",
+            "SSR",
+            "24,450,000",
+            "×4",
+            "1/4/2027, 2:14:05 AM",
+            "1/4/2027, 2:10:20 AM"
+          ],
+          [
+            "-",
+            "TST Alliance",
+            "UR",
+            "24,600,000",
+            "×5",
+            "1/4/2027, 2:14:20 AM",
+            "1/4/2027, 2:09:20 AM"
+          ],
+          [
+            "-",
+            "QA Alliance",
+            "N",
+            "24,750,000",
+            "×6",
+            "1/4/2027, 2:14:35 AM",
+            "1/4/2027, 2:08:20 AM"
+          ]
+        ],
+        "tab": "Train56"
+      }
+    },
+    {
+      "case": "Train distinct choice and item-count sort",
+      "view": {
+        "checkboxes": [
+          {
+            "checked": false,
+            "label": "Only plunderable or pending"
+          }
+        ],
+        "filters": [
+          {
+            "label": "Quality",
+            "value": "ur"
+          },
+          {
+            "label": "Item",
+            "value": "fixture-supply"
+          }
+        ],
+        "headers": [
+          "Live Target",
+          "Alliance",
+          "Quality",
+          "Power",
+          "Items1",
+          "Protection Time",
+          "Updated At2"
+        ],
+        "loading": "false",
+        "nativeButtonsDisabled": true,
+        "result": "6 items",
+        "rows": [
+          [
+            "-",
+            "TST Alliance",
+            "UR",
+            "24,600,000",
+            "×5",
+            "1/4/2027, 2:14:20 AM",
+            "1/4/2027, 2:09:20 AM"
+          ],
+          [
+            "-",
+            "TST Alliance",
+            "UR",
+            "29,100,000",
+            "×5",
+            "1/4/2027, 2:21:50 AM",
+            "1/4/2027, 1:39:20 AM"
+          ],
+          [
+            "-",
+            "TST Alliance",
+            "UR",
+            "26,100,000",
+            "×3",
+            "1/4/2027, 2:16:50 AM",
+            "1/4/2027, 1:59:20 AM"
+          ],
+          [
+            "-",
+            "TST Alliance",
+            "UR",
+            "30,600,000",
+            "×3",
+            "1/4/2027, 2:24:20 AM",
+            "1/4/2027, 1:29:20 AM"
+          ],
+          [
+            "-",
+            "TST Alliance",
+            "UR",
+            "27,600,000",
+            "×1",
+            "1/4/2027, 2:19:20 AM",
+            "1/4/2027, 1:49:20 AM"
+          ]
+        ],
+        "tab": "Train56"
+      }
+    },
+    {
+      "case": "Truck choices restored after Train edits",
+      "view": {
+        "checkboxes": [
+          {
+            "checked": true,
+            "label": "Only plunderable or pending"
+          }
+        ],
+        "filters": [
+          {
+            "label": "Quality",
+            "value": "ssr"
+          },
+          {
+            "label": "Item",
+            "value": "fixture-reward"
+          }
+        ],
+        "headers": [
+          "Select",
+          "Live Target",
+          "Player / Alliance",
+          "Quality",
+          "Escort Power",
+          "Items",
+          "Plunder status",
+          "Arrival Time",
+          "Updated At1"
+        ],
+        "loading": "false",
+        "nativeButtonsDisabled": true,
+        "result": "4 items",
+        "rows": [
+          [
+            "",
+            "-",
+            "Truck Owner 3",
+            "SSR",
+            "18,525,000",
+            "×4",
+            "Ready｜Plundered 0/2",
+            "1/4/2027, 2:23:50 AM",
+            "1/4/2027, 2:10:20 AM"
+          ],
+          [
+            "",
+            "-",
+            "Truck Owner 13",
+            "SSR",
+            "20,275,000",
+            "×6",
+            "Ready｜Plundered 1/2",
+            "1/4/2027, 2:25:30 AM",
+            "1/4/2027, 2:00:20 AM"
+          ],
+          [
+            "",
+            "-",
+            "Truck Owner 33",
+            "Reindeer",
+            "23,775,000",
+            "×2",
+            "Ready｜Plundered 0/1",
+            "1/4/2027, 2:28:50 AM",
+            "1/4/2027, 1:40:20 AM"
+          ],
+          [
+            "",
+            "-",
+            "Truck Owner 43",
+            "SSR",
+            "25,525,000",
+            "×4",
+            "Ready｜Plundered 1/2",
+            "1/4/2027, 2:30:30 AM",
+            "1/4/2027, 1:30:20 AM"
+          ]
+        ],
+        "tab": "Truck55"
+      }
+    },
+    {
+      "case": "Truck item clear removes only Truck item-count sort",
+      "view": {
+        "checkboxes": [
+          {
+            "checked": true,
+            "label": "Only plunderable or pending"
+          }
+        ],
+        "filters": [
+          {
+            "label": "Quality",
+            "value": "ssr"
+          },
+          {
+            "label": "Item",
+            "value": ""
+          }
+        ],
+        "headers": [
+          "Select",
+          "Live Target",
+          "Player / Alliance",
+          "Quality",
+          "Escort Power",
+          "Items",
+          "Plunder status",
+          "Arrival Time",
+          "Updated At1"
+        ],
+        "loading": "false",
+        "nativeButtonsDisabled": true,
+        "result": "7 items",
+        "rows": [
+          [
+            "",
+            "-",
+            "Truck Owner 3",
+            "SSR",
+            "18,525,000",
+            "×4",
+            "Ready｜Plundered 0/2",
+            "1/4/2027, 2:23:50 AM",
+            "1/4/2027, 2:10:20 AM"
+          ],
+          [
+            "",
+            "-",
+            "Truck Owner 13",
+            "SSR",
+            "20,275,000",
+            "×6",
+            "Ready｜Plundered 1/2",
+            "1/4/2027, 2:25:30 AM",
+            "1/4/2027, 2:00:20 AM"
+          ],
+          [
+            "",
+            "-",
+            "Truck Owner 18",
+            "SSR",
+            "21,150,000",
+            "×3",
+            "Ready｜Plundered 0/2",
+            "1/4/2027, 2:26:20 AM",
+            "1/4/2027, 1:55:20 AM"
+          ],
+          [
+            "",
+            "-",
+            "Truck Owner 28",
+            "SSR",
+            "22,900,000",
+            "×5",
+            "Ready｜Plundered 1/2",
+            "1/4/2027, 2:28:00 AM",
+            "1/4/2027, 1:45:20 AM"
+          ],
+          [
+            "",
+            "-",
+            "Truck Owner 33",
+            "Reindeer",
+            "23,775,000",
+            "×2",
+            "Ready｜Plundered 0/1",
+            "1/4/2027, 2:28:50 AM",
+            "1/4/2027, 1:40:20 AM"
+          ]
+        ],
+        "tab": "Truck55"
+      }
+    },
+    {
+      "case": "Train choice and item-count sort survive Truck clear",
+      "view": {
+        "checkboxes": [
+          {
+            "checked": false,
+            "label": "Only plunderable or pending"
+          }
+        ],
+        "filters": [
+          {
+            "label": "Quality",
+            "value": "ur"
+          },
+          {
+            "label": "Item",
+            "value": "fixture-supply"
+          }
+        ],
+        "headers": [
+          "Live Target",
+          "Alliance",
+          "Quality",
+          "Power",
+          "Items1",
+          "Protection Time",
+          "Updated At2"
+        ],
+        "loading": "false",
+        "nativeButtonsDisabled": true,
+        "result": "6 items",
+        "rows": [
+          [
+            "-",
+            "TST Alliance",
+            "UR",
+            "24,600,000",
+            "×5",
+            "1/4/2027, 2:14:20 AM",
+            "1/4/2027, 2:09:20 AM"
+          ],
+          [
+            "-",
+            "TST Alliance",
+            "UR",
+            "29,100,000",
+            "×5",
+            "1/4/2027, 2:21:50 AM",
+            "1/4/2027, 1:39:20 AM"
+          ],
+          [
+            "-",
+            "TST Alliance",
+            "UR",
+            "26,100,000",
+            "×3",
+            "1/4/2027, 2:16:50 AM",
+            "1/4/2027, 1:59:20 AM"
+          ],
+          [
+            "-",
+            "TST Alliance",
+            "UR",
+            "30,600,000",
+            "×3",
+            "1/4/2027, 2:24:20 AM",
+            "1/4/2027, 1:29:20 AM"
+          ],
+          [
+            "-",
+            "TST Alliance",
+            "UR",
+            "27,600,000",
+            "×1",
+            "1/4/2027, 2:19:20 AM",
+            "1/4/2027, 1:49:20 AM"
+          ]
+        ],
+        "tab": "Train56"
+      }
+    },
+    {
+      "case": "Secret Task starts with independent defaults",
+      "view": {
+        "checkboxes": [
+          {
+            "checked": false,
+            "label": "Only plunderable or pending"
+          }
+        ],
+        "filters": [
+          {
+            "label": "Status",
+            "value": ""
+          },
+          {
+            "label": "Level",
+            "value": ""
+          },
+          {
+            "label": "Quality",
+            "value": ""
+          }
+        ],
+        "headers": [
+          "Select",
+          "Coordinates",
+          "Owner",
+          "Level",
+          "Quality",
+          "Status",
+          "Rewards",
+          "Completion Time",
+          "Updated At1"
+        ],
+        "loading": "false",
+        "nativeButtonsDisabled": true,
+        "result": "57 items",
+        "rows": [
+          [
+            "",
+            "411,521Jump",
+            "Task Owner 1",
+            "6",
+            "R",
+            "In progress",
+            "×2",
+            "1/4/2027, 2:13:50 AM",
+            "1/4/2027, 2:12:20 AM"
+          ],
+          [
+            "",
+            "412,522Jump",
+            "Task Owner 2",
+            "7",
+            "SR",
+            "Fully plundered",
+            "×3",
+            "1/4/2027, 2:12:20 AM",
+            "1/4/2027, 2:11:20 AM"
+          ],
+          [
+            "",
+            "413,523Jump",
+            "Task Owner 3",
+            "8",
+            "SSR",
+            "In progress",
+            "×1",
+            "1/4/2027, 2:14:50 AM",
+            "1/4/2027, 2:10:20 AM"
+          ],
+          [
+            "",
+            "414,524Jump",
+            "Task Owner 4",
+            "5",
+            "UR",
+            "In progress",
+            "×2",
+            "1/4/2027, 2:11:20 AM",
+            "1/4/2027, 2:09:20 AM"
+          ],
+          [
+            "",
+            "415,525Jump",
+            "Task Owner 5",
+            "6",
+            "N",
+            "Fully plundered",
+            "×3",
+            "1/4/2027, 2:15:50 AM",
+            "1/4/2027, 2:08:20 AM"
+          ]
+        ],
+        "tab": "Secret Task57"
+      }
+    },
+    {
+      "case": "Secret Task exact level 6",
+      "view": {
+        "checkboxes": [
+          {
+            "checked": false,
+            "label": "Only plunderable or pending"
+          }
+        ],
+        "filters": [
+          {
+            "label": "Status",
+            "value": ""
+          },
+          {
+            "label": "Level",
+            "value": "6"
+          },
+          {
+            "label": "Quality",
+            "value": ""
+          }
+        ],
+        "headers": [
+          "Select",
+          "Coordinates",
+          "Owner",
+          "Level",
+          "Quality",
+          "Status",
+          "Rewards",
+          "Completion Time",
+          "Updated At1"
+        ],
+        "loading": "false",
+        "nativeButtonsDisabled": true,
+        "result": "15 items",
+        "rows": [
+          [
+            "",
+            "411,521Jump",
+            "Task Owner 1",
+            "6",
+            "R",
+            "In progress",
+            "×2",
+            "1/4/2027, 2:13:50 AM",
+            "1/4/2027, 2:12:20 AM"
+          ],
+          [
+            "",
+            "415,525Jump",
+            "Task Owner 5",
+            "6",
+            "N",
+            "Fully plundered",
+            "×3",
+            "1/4/2027, 2:15:50 AM",
+            "1/4/2027, 2:08:20 AM"
+          ],
+          [
+            "",
+            "419,529Jump",
+            "Task Owner 9",
+            "6",
+            "Special (starred)",
+            "In progress",
+            "×1",
+            "1/4/2027, 2:17:50 AM",
+            "1/4/2027, 2:04:20 AM"
+          ],
+          [
+            "",
+            "423,533Jump",
+            "Task Owner 13",
+            "6",
+            "SSR",
+            "In progress",
+            "×2",
+            "1/4/2027, 2:19:50 AM",
+            "1/4/2027, 2:00:20 AM"
+          ],
+          [
+            "",
+            "427,537Jump",
+            "Task Owner 17",
+            "6",
+            "SR",
+            "Fully plundered",
+            "×3",
+            "1/4/2027, 2:21:50 AM",
+            "1/4/2027, 1:56:20 AM"
+          ]
+        ],
+        "tab": "Secret Task57"
+      },
+      "allLevelValues": [
+        "6",
+        "6",
+        "6",
+        "6",
+        "6",
+        "6",
+        "6",
+        "6",
+        "6",
+        "6",
+        "6",
+        "6",
+        "6",
+        "6",
+        "6"
+      ]
+    },
+    {
+      "case": "Secret Task distinct filters",
+      "view": {
+        "checkboxes": [
+          {
+            "checked": true,
+            "label": "Only plunderable or pending"
+          }
+        ],
+        "filters": [
+          {
+            "label": "Status",
+            "value": "pending"
+          },
+          {
+            "label": "Level",
+            "value": "6"
+          },
+          {
+            "label": "Quality",
+            "value": "special"
+          }
+        ],
+        "headers": [
+          "Select",
+          "Coordinates",
+          "Owner",
+          "Level",
+          "Quality",
+          "Status",
+          "Rewards",
+          "Completion Time",
+          "Updated At1"
+        ],
+        "loading": "false",
+        "nativeButtonsDisabled": true,
+        "result": "2 items",
+        "rows": [
+          [
+            "",
+            "419,529Jump",
+            "Task Owner 9",
+            "6",
+            "Special (starred)",
+            "In progress",
+            "×1",
+            "1/4/2027, 2:17:50 AM",
+            "1/4/2027, 2:04:20 AM"
+          ],
+          [
+            "",
+            "455,565Jump",
+            "Task Owner 45",
+            "6",
+            "Special (starred)",
+            "In progress",
+            "×1",
+            "1/4/2027, 2:35:50 AM",
+            "1/4/2027, 1:28:20 AM"
+          ]
+        ],
+        "tab": "Secret Task57"
+      }
+    },
+    {
+      "case": "Ghost Ops starts with independent defaults",
+      "view": {
+        "checkboxes": [],
+        "filters": [
+          {
+            "label": "Status",
+            "value": ""
+          },
+          {
+            "label": "Quality",
+            "value": ""
+          }
+        ],
+        "headers": [
+          "Select",
+          "Coordinates",
+          "Owner",
+          "Level",
+          "Quality",
+          "Status",
+          "Rewards",
+          "Completion Time",
+          "Updated At1"
+        ],
+        "loading": "false",
+        "nativeButtonsDisabled": true,
+        "result": "58 items",
+        "rows": [
+          [
+            "",
+            "411,521Jump",
+            "Ghost Owner 1",
+            "5",
+            "R",
+            "In progress",
+            "×2",
+            "1/4/2027, 2:13:40 AM",
+            "1/4/2027, 2:12:20 AM"
+          ],
+          [
+            "",
+            "412,522Jump",
+            "Ghost Owner 2",
+            "6",
+            "SR",
+            "In progress",
+            "×3",
+            "1/4/2027, 2:12:40 AM",
+            "1/4/2027, 2:11:20 AM"
+          ],
+          [
+            "",
+            "413,523Jump",
+            "Ghost Owner 3",
+            "7",
+            "SSR",
+            "In progress",
+            "×4",
+            "1/4/2027, 2:14:20 AM",
+            "1/4/2027, 2:10:20 AM"
+          ],
+          [
+            "",
+            "414,524Jump",
+            "Ghost Owner 4",
+            "8",
+            "UR",
+            "In progress",
+            "×5",
+            "1/4/2027, 2:12:00 AM",
+            "1/4/2027, 2:09:20 AM"
+          ],
+          [
+            "",
+            "415,525Jump",
+            "Ghost Owner 5",
+            "4",
+            "N",
+            "In progress",
+            "×1",
+            "1/4/2027, 2:15:00 AM",
+            "1/4/2027, 2:08:20 AM"
+          ]
+        ],
+        "tab": "Ghost Ops58"
+      }
+    },
+    {
+      "case": "Ghost Ops distinct filters",
+      "view": {
+        "checkboxes": [],
+        "filters": [
+          {
+            "label": "Status",
+            "value": "completed"
+          },
+          {
+            "label": "Quality",
+            "value": "r"
+          }
+        ],
+        "headers": [
+          "Select",
+          "Coordinates",
+          "Owner",
+          "Level",
+          "Quality",
+          "Status",
+          "Rewards",
+          "Completion Time",
+          "Updated At1"
+        ],
+        "loading": "false",
+        "nativeButtonsDisabled": true,
+        "result": "6 items",
+        "rows": [
+          [
+            "",
+            "416,526Jump",
+            "Ghost Owner 6",
+            "5",
+            "R",
+            "In progress",
+            "×2",
+            "1/4/2027, 2:11:20 AM",
+            "1/4/2027, 2:07:20 AM"
+          ],
+          [
+            "",
+            "426,536Jump",
+            "Ghost Owner 16",
+            "5",
+            "R",
+            "In progress",
+            "×2",
+            "1/4/2027, 2:08:00 AM",
+            "1/4/2027, 1:57:20 AM"
+          ],
+          [
+            "",
+            "436,546Jump",
+            "Ghost Owner 26",
+            "5",
+            "R",
+            "In progress",
+            "×2",
+            "1/4/2027, 2:04:40 AM",
+            "1/4/2027, 1:47:20 AM"
+          ],
+          [
+            "",
+            "446,556Jump",
+            "Ghost Owner 36",
+            "5",
+            "R",
+            "In progress",
+            "×2",
+            "1/4/2027, 2:01:20 AM",
+            "1/4/2027, 1:37:20 AM"
+          ],
+          [
+            "",
+            "456,566Jump",
+            "Ghost Owner 46",
+            "5",
+            "R",
+            "In progress",
+            "×2",
+            "1/4/2027, 1:58:00 AM",
+            "1/4/2027, 1:27:20 AM"
+          ]
+        ],
+        "tab": "Ghost Ops58"
+      }
+    },
+    {
+      "case": "Secret Task filters restored after Ghost edits",
+      "view": {
+        "checkboxes": [
+          {
+            "checked": true,
+            "label": "Only plunderable or pending"
+          }
+        ],
+        "filters": [
+          {
+            "label": "Status",
+            "value": "pending"
+          },
+          {
+            "label": "Level",
+            "value": "6"
+          },
+          {
+            "label": "Quality",
+            "value": "special"
+          }
+        ],
+        "headers": [
+          "Select",
+          "Coordinates",
+          "Owner",
+          "Level",
+          "Quality",
+          "Status",
+          "Rewards",
+          "Completion Time",
+          "Updated At1"
+        ],
+        "loading": "false",
+        "nativeButtonsDisabled": true,
+        "result": "2 items",
+        "rows": [
+          [
+            "",
+            "419,529Jump",
+            "Task Owner 9",
+            "6",
+            "Special (starred)",
+            "In progress",
+            "×1",
+            "1/4/2027, 2:17:50 AM",
+            "1/4/2027, 2:04:20 AM"
+          ],
+          [
+            "",
+            "455,565Jump",
+            "Task Owner 45",
+            "6",
+            "Special (starred)",
+            "In progress",
+            "×1",
+            "1/4/2027, 2:35:50 AM",
+            "1/4/2027, 1:28:20 AM"
+          ]
+        ],
+        "tab": "Secret Task57"
+      }
+    },
+    {
+      "case": "Treasure Checking English preview",
+      "view": {
+        "checkboxes": [
+          {
+            "checked": false,
+            "label": "Show other-alliance Radar Treasures"
+          },
+          {
+            "checked": false,
+            "label": "Prioritize lucky positions"
+          }
+        ],
+        "filters": [
+          {
+            "label": "Treasure Type",
+            "value": ""
+          }
+        ],
+        "headers": [
+          "Coordinates",
+          "Treasure Type",
+          "Remaining boxes",
+          "Treasure status",
+          "My status",
+          "Claimed",
+          "Digging",
+          "Expire Time",
+          "Owner",
+          "Alliance",
+          "Actions",
+          "Updated At1"
+        ],
+        "loading": "false",
+        "nativeButtonsDisabled": true,
+        "result": "45 items",
+        "rows": [
+          [
+            "411,521Jump",
+            "Fixture Lucky Treasure Label",
+            "2",
+            "Checking",
+            "Checking",
+            "1",
+            "1",
+            "1/4/2027, 2:43:25 AM",
+            "Treasure Owner 1",
+            "QA",
+            "Claim",
+            "1/4/2027, 2:12:20 AM"
+          ],
+          [
+            "412,522Jump",
+            "Fixture Radar Treasure Label",
+            "3",
+            "Claimable",
+            "Claimed",
+            "2",
+            "2",
+            "1/4/2027, 2:43:30 AM",
+            "Treasure Owner 2",
+            "QA",
+            "Claim",
+            "1/4/2027, 2:11:20 AM"
+          ],
+          [
+            "413,523Jump",
+            "Fixture Lucky Treasure Label",
+            "4",
+            "Checking",
+            "Other alliance",
+            "3",
+            "3",
+            "1/4/2027, 2:43:35 AM",
+            "Treasure Owner 3",
+            "QA",
+            "Claim",
+            "1/4/2027, 2:10:20 AM"
+          ],
+          [
+            "415,525Jump",
+            "Fixture Lucky Treasure Label",
+            "1",
+            "Charging 38%",
+            "Not claimed",
+            "5",
+            "1",
+            "1/4/2027, 2:43:45 AM",
+            "Treasure Owner 5",
+            "QA",
+            "Claim",
+            "1/4/2027, 2:08:20 AM"
+          ],
+          [
+            "416,526Jump",
+            "Fixture Radar Treasure Label",
+            "2",
+            "Claimable",
+            "Claimed",
+            "0",
+            "2",
+            "1/4/2027, 2:43:50 AM",
+            "Treasure Owner 6",
+            "QA",
+            "Claim",
+            "1/4/2027, 2:07:20 AM"
+          ]
+        ],
+        "tab": "Treasure59"
+      }
+    },
+    {
+      "case": "Treasure Checking Japanese preview",
+      "view": {
+        "checkboxes": [
+          {
+            "checked": false,
+            "label": "他同盟のレーダー宝物を表示"
+          },
+          {
+            "checked": false,
+            "label": "幸運位置を優先"
+          }
+        ],
+        "filters": [
+          {
+            "label": "宝物タイプ",
+            "value": ""
+          }
+        ],
+        "headers": [
+          "座標",
+          "宝物タイプ",
+          "残り宝箱",
+          "宝物状態",
+          "自分の状態",
+          "受取済み",
+          "発掘中",
+          "有効期限",
+          "所属プレイヤー",
+          "連盟",
+          "操作",
+          "更新日時1"
+        ],
+        "loading": "false",
+        "nativeButtonsDisabled": true,
+        "result": "45件",
+        "rows": [
+          [
+            "411,521移動",
+            "Fixture Lucky Treasure Label",
+            "2",
+            "確認中",
+            "確認中",
+            "1",
+            "1",
+            "2027/1/4 2:43:25",
+            "Treasure Owner 1",
+            "QA",
+            "受取",
+            "2027/1/4 2:12:20"
+          ],
+          [
+            "412,522移動",
+            "Fixture Radar Treasure Label",
+            "3",
+            "受取可能",
+            "受取済み",
+            "2",
+            "2",
+            "2027/1/4 2:43:30",
+            "Treasure Owner 2",
+            "QA",
+            "受取",
+            "2027/1/4 2:11:20"
+          ],
+          [
+            "413,523移動",
+            "Fixture Lucky Treasure Label",
+            "4",
+            "確認中",
+            "他同盟",
+            "3",
+            "3",
+            "2027/1/4 2:43:35",
+            "Treasure Owner 3",
+            "QA",
+            "受取",
+            "2027/1/4 2:10:20"
+          ],
+          [
+            "415,525移動",
+            "Fixture Lucky Treasure Label",
+            "1",
+            "充電中 38%",
+            "未受取",
+            "5",
+            "1",
+            "2027/1/4 2:43:45",
+            "Treasure Owner 5",
+            "QA",
+            "受取",
+            "2027/1/4 2:08:20"
+          ],
+          [
+            "416,526移動",
+            "Fixture Radar Treasure Label",
+            "2",
+            "受取可能",
+            "受取済み",
+            "0",
+            "2",
+            "2027/1/4 2:43:50",
+            "Treasure Owner 6",
+            "QA",
+            "受取",
+            "2027/1/4 2:07:20"
+          ]
+        ],
+        "tab": "宝物59"
+      }
+    },
+    {
+      "case": "Ordinary Treasure preview stays outside Checking fixture",
+      "view": {
+        "checkboxes": [
+          {
+            "checked": false,
+            "label": "Show other-alliance Radar Treasures"
+          },
+          {
+            "checked": false,
+            "label": "Prioritize lucky positions"
+          }
+        ],
+        "filters": [
+          {
+            "label": "Treasure Type",
+            "value": ""
+          }
+        ],
+        "headers": [
+          "Coordinates",
+          "Treasure Type",
+          "Remaining boxes",
+          "Treasure status",
+          "My status",
+          "Claimed",
+          "Digging",
+          "Expire Time",
+          "Owner",
+          "Alliance",
+          "Actions",
+          "Updated At1"
+        ],
+        "loading": "false",
+        "nativeButtonsDisabled": true,
+        "result": "45 items",
+        "rows": [
+          [
+            "411,521Jump",
+            "Fixture Lucky Treasure Label",
+            "2",
+            "-",
+            "-",
+            "1",
+            "1",
+            "1/4/2027, 2:43:25 AM",
+            "Treasure Owner 1",
+            "QA",
+            "Claim",
+            "1/4/2027, 2:12:20 AM"
+          ],
+          [
+            "412,522Jump",
+            "Fixture Radar Treasure Label",
+            "3",
+            "-",
+            "-",
+            "2",
+            "2",
+            "1/4/2027, 2:43:30 AM",
+            "Treasure Owner 2",
+            "QA",
+            "Claim",
+            "1/4/2027, 2:11:20 AM"
+          ],
+          [
+            "413,523Jump",
+            "Fixture Lucky Treasure Label",
+            "4",
+            "-",
+            "-",
+            "3",
+            "3",
+            "1/4/2027, 2:43:35 AM",
+            "Treasure Owner 3",
+            "QA",
+            "Claim",
+            "1/4/2027, 2:10:20 AM"
+          ],
+          [
+            "415,525Jump",
+            "Fixture Lucky Treasure Label",
+            "1",
+            "-",
+            "-",
+            "5",
+            "1",
+            "1/4/2027, 2:43:45 AM",
+            "Treasure Owner 5",
+            "QA",
+            "Claim",
+            "1/4/2027, 2:08:20 AM"
+          ],
+          [
+            "416,526Jump",
+            "Fixture Radar Treasure Label",
+            "2",
+            "-",
+            "-",
+            "0",
+            "2",
+            "1/4/2027, 2:43:50 AM",
+            "Treasure Owner 6",
+            "QA",
+            "Claim",
+            "1/4/2027, 2:07:20 AM"
+          ]
+        ],
+        "tab": "Treasure59"
+      }
+    }
+  ],
+  "consoleErrors": []
+}

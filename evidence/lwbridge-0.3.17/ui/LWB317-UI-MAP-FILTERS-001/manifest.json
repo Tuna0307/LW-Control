@@ -1,0 +1,138 @@
+{
+  "workItem": "LWB317-UI-MAP-FILTERS-001",
+  "status": "AWAITING_REVIEW",
+  "baseline": "c7c3a3271c6b3b433a2295e79b56feb074b24f67",
+  "target": {
+    "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW/lwbridge-0.3.17.exe",
+    "sha256": "4e9c3113dedfd7e1a752404c6936aab304e67d7ffdb0952a5003c2ec948d6783"
+  },
+  "tools": {
+    "node": "v24.18.0",
+    "babelParser": "7.29.9",
+    "esbuild": "0.28.2",
+    "vite": "7.3.6"
+  },
+  "files": [
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+      "sha256": "2457d4a801385a74165de69c4e4961882529ee7cf9c36a050fcad0100a3da51b",
+      "bytes": 45087
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/mapPreviewApi.js",
+      "sha256": "b828f138ef26f1d9297b5b16b77f6afb9287ffd3694ebf78245fb882bd0650f0",
+      "bytes": 18459
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-FILTERS-001/source-contract.json",
+      "sha256": "4b920d3831bc3b8222c97235a3ce6404448038c9fb3eaed79560f6db3871df30",
+      "bytes": 6475
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-FILTERS-001/filter-results.json",
+      "sha256": "a70bfc1a21d7dd13f7259c0ec78e8a88b12c37646bfab2ffbe206b6d2f0abfa9",
+      "bytes": 68960
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-FILTERS-001/treasure-results.json",
+      "sha256": "12257a3507214512eb63e5c2e61720f45b9a20ebfc88655e22cb8d71eca7d3f2",
+      "bytes": 6267
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-FILTERS-001/browser-results.json",
+      "sha256": "29cc96708030cef3416ae17b2fb5adcc2f7ff9f22f7b12a84d4599b22e9d0aae",
+      "bytes": 30570
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-FILTERS-001/baseline.MapDataPage.jsx",
+      "sha256": "d37f54cb1ddb05160fedfd32ff22ec45f5ff2df6a7da2cc389d27cd2dfa0c58c",
+      "bytes": 44089
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-FILTERS-001/recover-source.mjs",
+      "sha256": "1d92ff6dce3e90f51d6f2038e558be2d8f9faf08528b83ded991ad0966000ab3",
+      "bytes": 4148
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-FILTERS-001/check-filters.mjs",
+      "sha256": "4546ed9eee2e3e78f6e9a2368527da47317d9794496c4f3138a4f43afb3ecd91",
+      "bytes": 12611
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-FILTERS-001/check-treasure-checking.mjs",
+      "sha256": "6809ee0fa0d4f3c7a1f9ce94875b60751207408b1874b0a43ab61803ebeef061",
+      "bytes": 9230
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-FILTERS-001/check-table-regression.mjs",
+      "sha256": "2e9fe817f19f6c65f2f5e6288e7fa1997a52e3940d91f7ff627733d230aa20b1",
+      "bytes": 1986
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-LEAD-TABLES-001/check-map-tables.mjs",
+      "sha256": "659a5e627c2a42e347716f9fee531c0a17ccf9d41114a10363e3c431151cce3a",
+      "bytes": 20573
+    }
+  ],
+  "images": [
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-FILTERS-001/train-filters.png",
+      "sha256": "aed803bacf05f2e5d24d4633fcefb59b0fe0b6f4a65c543cf4fa7cf7fb411b30",
+      "bytes": 92209,
+      "width": 65536,
+      "height": 4293001688,
+      "visuallyInspected": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-FILTERS-001/treasure-checking-en.png",
+      "sha256": "89c8219115467a064bb8132fc691436022e2c7ff00410e753af3bf21e0a5bb48",
+      "bytes": 93273,
+      "width": 65536,
+      "height": 4293001688,
+      "visuallyInspected": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-FILTERS-001/treasure-checking-ja.png",
+      "sha256": "c7148cc6e068b50747974c57c16d8e58b920282effd78030e36b7c876f0a30ad",
+      "bytes": 85510,
+      "width": 65536,
+      "height": 4293001688,
+      "visuallyInspected": true
+    }
+  ],
+  "protectedWip": [
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/previewAfkFixtures.js",
+      "sha256": "a41e07a3487fc71b78376ba99609c030ddad6b30e71daac5c428b42eaa6bc447",
+      "bytes": 4239
+    },
+    {
+      "path": ".scratch-lwb317/AutomationPanel.pretty.js",
+      "sha256": "8e7173c71afe650cf1839e7eaa78e67bfa066ff6289ac2141410441e49da2d79",
+      "bytes": 90848
+    },
+    {
+      "path": ".scratch-lwb317/baseline-check.mjs",
+      "sha256": "9c308b07b2a79632b92eec959e2d1108d61b5809c58f33f3fab69e42403275c9",
+      "bytes": 5482
+    },
+    {
+      "path": ".scratch-lwb317/SquadPanel.pretty.js",
+      "sha256": "dc973a3adac1f9bc06230229c4a292e8659d0aaa82cdbb6812e97cbc4fc3d3d5",
+      "bytes": 255421
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-CORRECT-003/screenshots/weekly-save-error-light-en.png",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  ],
+  "build": {
+    "schemaVersion": 1,
+    "project": "LWBridge.UI-0.3.17",
+    "canonicalSource": "src/LWBridge.UI-0.3.17",
+    "sourceFingerprint": "b09ef2120b8f67b5de0f9430a814ae0c9d33e50a5e0ba267597063c70c10f7eb",
+    "artifactFingerprint": "b56793f5b4a7934be8e56032ca447c87ee0f81eb3f430e9def803dd015119d34",
+    "entrypoint": "index.html"
+  }
+}

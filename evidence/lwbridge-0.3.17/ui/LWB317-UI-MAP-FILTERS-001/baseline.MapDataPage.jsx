@@ -205,12 +205,11 @@ const PREVIEW_TAB_BY_STATE = Object.freeze({
   "map-ghost": "ghost",
   "map-treasure": "treasure",
   "map-table-states": "treasure",
-  "map-treasure-checking": "treasure",
   "map-row-actions": "truck",
   "map-scheduled": "scheduledPlunder",
 });
 
-export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, currentServerId = 0, previewState = "", gameTexts = EMPTY_GAME_TEXTS, previewJumpingKeys = null, previewTreasureStatesRefreshing = false }) {
+export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, currentServerId = 0, previewState = "", gameTexts = EMPTY_GAME_TEXTS, previewJumpingKeys = null }) {
   const { t } = useI18n();
   const previewFixture = bridgeMode === "preview" && previewState.startsWith("map-");
   const [scanTab, setScanTab] = useState(previewState.startsWith("map-auto") ? "auto" : "manual");
@@ -233,10 +232,10 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
   const [alliance, setAlliance] = useState("all");
   const [markedOnly, setMarkedOnly] = useState(false);
   const [treasureType, setTreasureType] = useState("");
-  const [completionStatusByKind, setCompletionStatusByKind] = useState({});
-  const [qualityByKind, setQualityByKind] = useState({});
-  const [itemKeyByKind, setItemKeyByKind] = useState({});
-  const [plunderableOnlyByKind, setPlunderableOnlyByKind] = useState({});
+  const [completionStatus, setCompletionStatus] = useState("");
+  const [quality, setQuality] = useState("");
+  const [itemKey, setItemKey] = useState("");
+  const [plunderableOnly, setPlunderableOnly] = useState(false);
   const [includeForeignRadarTreasures, setIncludeForeignRadarTreasures] = useState(false);
   const [luckyFirst, setLuckyFirst] = useState(false);
   const [minLevel, setMinLevel] = useState("");
@@ -275,10 +274,6 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
 
   const dataServerId = browseServerId || scanState.serverId || currentServerId;
   const activeSorts = sortsByKind[tab] || [{ sortBy: "updatedAt", sortOrder: "desc" }];
-  const completionStatus = tab === "dispatch" || tab === "ghost" ? completionStatusByKind[tab] || "" : "";
-  const quality = ["truck", "railway", "dispatch", "ghost"].includes(tab) ? qualityByKind[tab] || "" : "";
-  const itemKey = tab === "truck" || tab === "railway" ? itemKeyByKind[tab] || "" : "";
-  const plunderableOnly = plunderableOnlyByKind[tab] === true;
 
   useEffect(() => {
     window.localStorage.setItem("lwbridge.mapScanMode", speed);
@@ -386,10 +381,7 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
       if (quality === "reindeer") query.reindeerOnly = true;
       if (itemKey) query.itemKey = itemKey;
       if (plunderableOnly && (tab === "dispatch" || tab === "truck" || tab === "railway")) query.plunderableOnly = true;
-      if (minLevel && tab === "dispatch") {
-        query.minLevel = Number(minLevel);
-        query.maxLevel = Number(minLevel);
-      }
+      if (minLevel && tab === "dispatch") query.minLevel = Number(minLevel);
     }
     mapApi.search(tab, query).then((result) => {
       if (cancelled) return;
@@ -479,8 +471,8 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
   }
 
   function changeItemFilter(value) {
-    setItemKeyByKind((current) => ({ ...current, [tab]: value || undefined }));
-    if (!value && activeSorts.some((sort) => sort.sortBy === "itemCount")) {
+    setItemKey(value);
+    if (!value) {
       setSortsByKind((current) => ({ ...current, [tab]: current[tab].filter((sort) => sort.sortBy !== "itemCount") }));
     }
     setPage(1);
@@ -740,7 +732,7 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
             {["truck", "railway", "dispatch", "ghost"].includes(tab) ? (
               <>
                 {(tab === "dispatch" || tab === "ghost") ? (
-                  <select aria-label={t("common.status")} value={completionStatus} onChange={(event) => { setCompletionStatusByKind((current) => ({ ...current, [tab]: event.target.value || undefined })); setPage(1); }}>
+                  <select aria-label={t("common.status")} value={completionStatus} onChange={(event) => { setCompletionStatus(event.target.value); setPage(1); }}>
                     <option value="">{t("common.status")}</option><option value="completed">{t("common.completed")}</option><option value="pending">{t("common.inProgress")}</option>
                   </select>
                 ) : null}
@@ -749,7 +741,7 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
                     <option value="">{t("squad.afkAnyLevel")}</option>{(options?.dispatchLevels || []).map((level) => <option key={level} value={level}>{level}</option>)}
                   </select>
                 ) : null}
-                <select aria-label={t("map.quality")} value={quality} onChange={(event) => { setQualityByKind((current) => ({ ...current, [tab]: event.target.value || undefined })); setPage(1); }}>
+                <select aria-label={t("map.quality")} value={quality} onChange={(event) => { setQuality(event.target.value); setPage(1); }}>
                   <option value="">{t("map.allQualities")}</option><option value="n">N</option><option value="r">R</option><option value="sr">SR</option><option value="ssr">SSR</option><option value="ur">UR</option>
                   {(tab === "dispatch" || tab === "ghost") ? <option value="special">{t("map.specialQuality")}</option> : null}
                   {tab === "truck" ? <option value="reindeer">{t("map.reindeerQuality")}</option> : null}
@@ -759,7 +751,7 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
                     <option value="">{t("map.allRetainedGoods")}</option>{(options?.rewardItems?.[tab] || []).map((item) => <option key={item.key || item.value || item} value={item.key || item.value || item}>{item.name || item.label || item.key || item.value || item}</option>)}
                   </select>
                 ) : null}
-                {(tab === "truck" || tab === "railway" || tab === "dispatch") ? <label className="map-filter-field"><input type="checkbox" checked={plunderableOnly} onChange={(event) => { setPlunderableOnlyByKind((current) => ({ ...current, [tab]: event.target.checked || undefined })); setPage(1); }} /><span>{t("map.plunderableOnly")}</span></label> : null}
+                {(tab === "truck" || tab === "railway" || tab === "dispatch") ? <label className="map-filter-field"><input type="checkbox" checked={plunderableOnly} onChange={(event) => { setPlunderableOnly(event.target.checked); setPage(1); }} /><span>{t("map.plunderableOnly")}</span></label> : null}
               </>
             ) : null}
             <button type="button" disabled={!backendAvailable || !dataServerId || loading} onClick={submitSearch}>{t("common.search")}</button>
@@ -779,7 +771,7 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
       {queryError ? <div className="map-scan-error" role="alert">{queryError}</div> : null}
       {tab !== "scheduledPlunder" ? (
         <>
-          <MapTable kind={tab} gameTexts={gameTexts} itemKey={itemKey} rows={rows} loading={loading} treasureStatesRefreshing={previewFixture && previewState === "map-treasure-checking" && tab === "treasure" && previewTreasureStatesRefreshing === true} sorts={activeSorts} onSort={changeSort} onCoordinateJump={coordinateJump} onPlayerMark={togglePlayerMark} actionBusy={Boolean(actionBusy)} actionDisabled={!online || scanState.isReading} jumpingKey={previewFixture && previewState === "map-row-actions" ? previewJumpingKeys?.[tab] || "" : actionBusy.startsWith("jump:") ? actionBusy.slice(5) : ""} selectedKeys={selectedRows} onSelect={(key) => setSelectedRows((current) => { const next = new Set(current); if (next.has(key)) next.delete(key); else next.add(key); return next; })} />
+          <MapTable kind={tab} gameTexts={gameTexts} itemKey={itemKey} rows={rows} loading={loading} sorts={activeSorts} onSort={changeSort} onCoordinateJump={coordinateJump} onPlayerMark={togglePlayerMark} actionBusy={Boolean(actionBusy)} actionDisabled={!online || scanState.isReading} jumpingKey={previewFixture && previewState === "map-row-actions" ? previewJumpingKeys?.[tab] || "" : actionBusy.startsWith("jump:") ? actionBusy.slice(5) : ""} selectedKeys={selectedRows} onSelect={(key) => setSelectedRows((current) => { const next = new Set(current); if (next.has(key)) next.delete(key); else next.add(key); return next; })} />
           <Pagination page={page} total={total} onPage={setPage} />
         </>
       ) : (
