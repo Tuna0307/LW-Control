@@ -1,0 +1,43 @@
+{
+  "task": "LWB317-POLICY-COS-001",
+  "date": "2026-10-02",
+  "baseline": "69bde9e32dbadbc71b123708662dc53c9c20d02c",
+  "documentationDecision": "Lead adopts the owner-requested project policy after the owner clarified that the internet text should be adapted and authorized lead-selected pushes.",
+  "scope": "Documentation and connector capability evidence only; no product code, parity acceptance, app settings or gameplay changes.",
+  "policyModel": "gpt-5-6-thinking",
+  "policyEffort": "high",
+  "meaningfulImplementationCheckpoints": [
+    "Hypothesis review before code edits",
+    "Complete owned diff review before submission: Where could this break?"
+  ],
+  "documentationException": "Routine progress records, handoffs, research notes and housekeeping proceed after lead verification; product scope, contract and acceptance changes still require review.",
+  "earlierAttempt": "connector-results.json preserves the previous blocked draft/worker-review attempt without rewriting its results.",
+  "coreCommandCheck": {
+    "tool": "mcp__codex_apps__chat_on_steroids_core_exec_command",
+    "command": "git status --short",
+    "workdir": "/github/LW-Control",
+    "exitCode": 0,
+    "chunkId": "2c3789",
+    "completedSessionId": 69141,
+    "result": "PASS: actual current dirty-file inventory returned",
+    "notice": "Unattributed; functioning file and command tools remain available"
+  },
+  "workerCoordination": "BLOCKED: follow-up/status ownership failures recorded in connector-results.json",
+  "workerPolicyReportReceived": false,
+  "independentPolicyReviewClaimed": false,
+  "upstreamSources": [
+    "https://github.com/totec448-spec/chat-on-steroids",
+    "https://github.com/totec448-spec/chat-on-steroids/blob/main/docs/setup.md"
+  ],
+  "sourceLimits": "Setup describes attribution and companion pairing; it does not prove the cause of this caller's worker ownership failure.",
+  "verification": {
+    "policyDiscoveryLinksAndOwnedPaths": "PASS: LWB317_COS_POLICY_LINKS_JSON_OK",
+    "evidenceJsonParsing": "PASS",
+    "protectedWipAndExistingSourceEvidence": "PASS: LWB317_LEAD_TABLES_EVIDENCE_OK",
+    "trackedDiffWhitespace": "PASS: git diff --check",
+    "runtimeBuild": "NOT_APPLICABLE: documentation-only changes",
+    "submissionProcedure": "Review the complete staged owned diff and git diff --cached --check before committing; verify the direct remote revision after pushing."
+  },
+  "gitDelivery": "Explicit owned files only; commit/push to research/offline-controller and verify the direct remote ref at delivery.",
+  "continuation": "Establish stable authorized caller ownership and obtain an actual existing-worker report before claiming worker review completion. Do not duplicate workers or bypass ownership checks."
+}

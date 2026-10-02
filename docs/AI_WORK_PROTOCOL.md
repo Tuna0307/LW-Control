@@ -2,6 +2,15 @@
 
 This project is expected to use multiple AIs. The main project lead controls scope and integrates results.
 
+Owner's collaboration policy: read and follow
+[Chat On Steroids Collaboration](CHAT_ON_STEROIDS_COLLABORATION.md).
+Use 5.6 Thinking / High effort for delegated collaborators. Meaningful code
+changes require a hypothesis review before editing and a complete-diff review
+before submission. Apply the policy's documentation exceptions and connector
+rules. The lead owns dispatch/integration; workers must not spawn nested workers
+or grant themselves independent acceptance. Every assigned scope still applies.
+A collaborator's self-check does not replace independent review.
+
 ## Roles
 
 ### Project lead

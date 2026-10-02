@@ -4,6 +4,28 @@
 **Branch:** `research/offline-controller`  
 **Phase:** Phase 2 function recovery / Map Data clean-UI live-integration checkpoint
 
+## 2026-10-02 collaboration policy adopted — worker coordination still blocked
+
+Owner requested Chat On Steroids delegation, two code-review checkpoints and
+always 5.6 Thinking/High, then asked the lead to adapt the internet-sourced text
+to our style and authorized lead-selected pushes. `LWB317-POLICY-COS-001` is
+COMPLETE for this documentation adoption. Read `CHAT_ON_STEROIDS_COLLABORATION.md`,
+linked from AGENTS.md and AI_WORK_PROTOCOL. Routine documentation can proceed
+after lead verification; meaningful implementation still requires both reviews.
+
+Core file reads and a fresh command execution work directly without window clicks.
+Worker coordination remains BLOCKED: creation returned invited worker-1 in family
+93800f05-7d76-4831-8441-300c1fe85068 with gpt-5-6-thinking/high, but subsequent
+message/status report no family belongs to this caller. No substantive worker
+report or independent verdict was received. Attribution is a hypothesis, not a
+confirmed cause. Do not duplicate workers or bypass ownership checks.
+
+Read `reviews/2026-10-02-LWB317-POLICY-COS-001.md` and the connector/delivery evidence
+under `evidence/collaboration/LWB317-POLICY-COS-001/`. Before the next required
+collaborator review, establish stable authorized caller ownership and obtain an
+actual worker response. This policy task changes no product code or parity status;
+Map-states review remains a separate assignment below and was not dispatched here.
+
 ## 2026-10-02 Map table takeover — latest continuation
 
 Latest worker assignment: **LWB317-REVIEW-MAP-STATES-001 ASSIGNED** at owner's

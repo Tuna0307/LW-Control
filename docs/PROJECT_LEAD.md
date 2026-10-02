@@ -47,6 +47,7 @@ the Map closeout awaits a separate independent acceptance review.
 
 | Work item / campaign | Owner | State | Scope |
 |---|---|---|---|
+| LWB317-POLICY-COS-001 | Project lead | COMPLETE for documentation; worker coordination BLOCKED | Owner-adapted policy adopted and linked from AGENTS.md / AI_WORK_PROTOCOL. Always gpt-5-6-thinking/high; both meaningful-code review checkpoints retained. Core reads/commands work, worker follow-up fails ownership; no independent worker verdict, product change or Map dispatch |
 | LWB317-REVIEW-MAP-STATES-001 | Returning worker | ASSIGNED — only active worker item | Medium independent source/local review of Secret Task, Ghost Ops and Treasure table labels/states/selection; review/evidence only. Home busy review queued for a later assignment; no gameplay or global acceptance |
 | LWB317-UI-LEAD-TABLES-001 | Project lead takeover while worker rests | AWAITING_REVIEW | Eight normal Map tables corrected against exact 0.3.17 source: columns/widths, time/status/quality/text fallback, reward rendering/sorting and eligibility. 288 metadata / 15,264 value / 72 actual render cases across nine locales; browser variants and package checks pass. Home busy/Trade 003E strengthened by author rechecks, independent reviews remain pending |
 | LWB317-PM-001 | Project lead | COMPLETE | Repository/documentation reset for 0.3.17 |

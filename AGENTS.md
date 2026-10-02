@@ -2,6 +2,14 @@
 
 Read this file before doing any work.
 
+Also read and follow [Chat On Steroids Collaboration](docs/CHAT_ON_STEROIDS_COLLABORATION.md).
+Owner instruction, 2026-10-02: delegate routine work through Chat On Steroids;
+use 5.6 Thinking with High effort; review hypotheses before meaningful code edits
+and the complete diff before submitting meaningful implementation work. Apply
+the documentation exceptions and connector-blocker rules in that policy.
+Do not substitute native/local subagents. The project lead independently
+verifies collaborator output and owns final acceptance.
+
 ## 1. Current target
 
 The active product/research target is:

@@ -1,0 +1,39 @@
+{
+  "task": "LWB317-POLICY-COS-001",
+  "date": "2026-10-02",
+  "state": "BLOCKED",
+  "requestedModel": "5.6 reasoning / Thinking",
+  "requestedEffort": "high",
+  "observedModels": {
+    "gpt-5-6": ["none"],
+    "gpt-5-6-thinking": ["medium", "high"],
+    "gpt-5-5-instant": ["none"],
+    "gpt-5-5-thinking": ["medium", "high"]
+  },
+  "spawn": {
+    "runId": "93800f05-7d76-4831-8441-300c1fe85068",
+    "worker": "worker-1",
+    "state": "invited",
+    "model": "gpt-5-6-thinking",
+    "reasoningEffort": "high",
+    "toolReported": "This request is now the prime agent of run 93800f05-7d76-4831-8441-300c1fe85068. 1 worker(s) matched: worker-1 (Collaboration policy, invited, model gpt-5-6-thinking, reasoning high). New worker chats are opening with their briefs already in them."
+  },
+  "followup": {
+    "action": "message",
+    "runId": "93800f05-7d76-4831-8441-300c1fe85068",
+    "to": "worker-1",
+    "result": "AGENTS_BUSY: no agent family belongs to this conversation. Other primes and their workers are isolated. Call agents action=spawn to create workers owned by this chat."
+  },
+  "ownershipCheck": {
+    "action": "status",
+    "runId": "93800f05-7d76-4831-8441-300c1fe85068",
+    "result": "AGENTS_BUSY: no agent family belongs to this conversation. Other primes and their workers are isolated. Call agents action=spawn to create workers owned by this chat."
+  },
+  "identityNotice": "This call is filed as Unattributed because its exact ChatGPT conversation is not known yet.",
+  "coreFileAccess": "PASS",
+  "substantiveWorkerReportReceived": false,
+  "beforeCodeCheckpoint": "NOT_APPLICABLE: no product code edits",
+  "preSubmissionReview": "PENDING",
+  "committedOrPushed": false,
+  "continuation": "Restore stable authorized caller ownership; recover existing collaborator, obtain and evaluate first-pass and complete-diff reviews. Do not create duplicate workers or bypass ownership checks."
+}
