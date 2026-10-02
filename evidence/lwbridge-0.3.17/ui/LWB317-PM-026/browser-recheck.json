@@ -1,0 +1,99 @@
+{
+  "reviewTarget": "5b76ae8111e160ad7673e1162e8a354d1c3cbd45",
+  "attribution": "Independently performed by project lead through the in-app browser; semantic browser input. Offline synthetic fixtures; no native/gameplay execution.",
+  "clearEnglish": {
+    "fixture": "map-scheduled-populated",
+    "action": "Truck Clear history via semantic browser locator",
+    "before": [
+      11,
+      4,
+      15
+    ],
+    "after": [
+      11,
+      4,
+      15
+    ],
+    "message": "The action could not be completed.",
+    "fixtureMarker": "map-scheduled-populated"
+  },
+  "search": {
+    "fixture": "map-city",
+    "input": "semantic browser fill and click",
+    "before": {
+      "count": "52 items",
+      "rows": 50
+    },
+    "afterTyping": {
+      "count": "52 items",
+      "rows": 50
+    },
+    "afterSearch": {
+      "count": "1 items",
+      "rows": 1,
+      "rowText": "\t\n417,527\nJump\n\tFixture Commander 7\tQA\t27\t5,875,000\t-\t1/4/2027, 2:06:20 AM"
+    }
+  },
+  "dispatch": {
+    "fixture": "map-actions-ready",
+    "input": "semantic browser checkbox/click",
+    "selectedBefore": {
+      "schedule": true,
+      "share": false
+    },
+    "rejectedSchedule": {
+      "button": "Add to schedule (2)",
+      "scheduledTab": "Scheduled Plunder\n0"
+    },
+    "returnedButton": "Add to schedule (0)"
+  },
+  "truck": {
+    "fixture": "map-actions-ready",
+    "selectedBeforeLeaving": "Plunder selected trucks (2)",
+    "afterTrainRoundTrip": {
+      "selection": "Plunder selected trucks (2)",
+      "page": "Page 2 of 2",
+      "row": "\t-\tTruck Owner 51\tR\t26,925,000\t\n×4\n\tReady｜Plundered 1/3\t1/4/2027, 2:31:50 AM\t1/4/2027, 1:22:20 AM"
+    }
+  },
+  "clearJapanese": {
+    "fixture": "map-scheduled-populated",
+    "language": "ja",
+    "message": "操作を完了できませんでした。",
+    "counts": [
+      11,
+      4,
+      15
+    ]
+  },
+  "narrow": {
+    "counts": [
+      11,
+      4,
+      15
+    ],
+    "documentWidth": 365,
+    "horizontalPageOverflow": false,
+    "language": "ja",
+    "message": "操作を完了できませんでした。",
+    "viewport": {
+      "height": 812,
+      "width": 375
+    }
+  },
+  "console": [],
+  "scopeLimits": [
+    "Existing worker observations are not all independently repeated. This record supersedes BR6 final-message text and independently checks selected search/selection/cache flows.",
+    "No original post-auth pixel comparison or native operation.",
+    "The existing worker Vite listener was reused and must not be stopped as a lead-owned process."
+  ],
+  "screenshots": [
+    "screenshots/scheduled-clear-final-en.png",
+    "screenshots/scheduled-clear-final-ja-375.png"
+  ],
+  "cleanup": {
+    "ownedTabClosed": true,
+    "temporaryViewportReset": true,
+    "existingWorkerViteListenerLeftRunning": true
+  }
+}

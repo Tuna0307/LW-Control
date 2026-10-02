@@ -75,7 +75,7 @@ Status vocabulary follows `AGENTS.md` section 4. `IMPLEMENTED_NOT_VALIDATED` = i
 | E5 | Schedule success: busy `schedule`, selection cleared, job list reloaded, navigate to Scheduled Plunder; failure keeps selection and tab | `delay-schedule-handler` 40873-41134, `fn-ur` 40620-40873 | `scheduleSelectedDispatch/Trucks` | O `flow.schedule-dispatch-success...`, `flow.schedule-dispatch-failure...`, `flow.schedule-truck-success...`, `flow.schedule-with-invalid-delay...`; S | IMPLEMENTED_NOT_VALIDATED (provider is a harness stub) |
 | E6 | Share: only shared uuids leave the selection; success/partial messages; label restored | `fn-pr` 41655-42146 | `shareSelectedDispatch` | O `flow.share-*`; S | IMPLEMENTED_NOT_VALIDATED |
 | E7 | Action message is cleared by every tab change | `tab-ir` 39238-39496 | `changeTab` | O `flow.action-message-is-cleared-by-a-tab-change`; M | IMPLEMENTED_NOT_VALIDATED |
-| E8 | Share error text is the original's translated `m(t, error)`; canonical shows the raw `code: message` | `fn-pr` | `errorText` | DOCUMENTED difference (translator `m` not recovered into the canonical page) | PARTIAL |
+| E8 | Share/Clear error text uses the original's translated `m(t, error)` with localized fallback | `fn-pr`; main-asset `Lr`/`Ir` | `translateActionError` | O share/clear failure scenarios; M translator mutation; PM-026 fresh en/ja browser Clear checks | IMPLEMENTED_NOT_VALIDATED (source/local accepted scope; no native proof) |
 | E9 | Treasure claim buttons, claim result, polling | `btn-claim-*` | untouched (still disabled) | - | OUT_OF_SCOPE (native Treasure wiring) |
 
 ## F. Scheduled Plunder presentation

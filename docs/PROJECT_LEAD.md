@@ -26,7 +26,7 @@ retirement task. Preserve its source as historical evidence.
 
 ## Current phase
 
-**Active assignment — UI parity, Map search/selection and Scheduled Plunder presentation**
+**UI parity — Map interactions campaign complete; next UI gap unassigned**
 
 Earlier static UI baseline acceptance does not establish complete UI/UX parity.
 The current owner priority is UI reproduction before function integration.
@@ -45,9 +45,10 @@ the Map closeout awaits a separate independent acceptance review.
 
 | Work item / campaign | Owner | State | Scope |
 |---|---|---|---|
-| LWB317-UI-MAP-INTERACTIONS-001 | Returning worker through owner relay; up to two subagents authorized | ASSIGNED — execution not confirmed | Large UI campaign: navigation disposal correction, search/name behavior, per-kind selection and Scheduled Plunder presentation. Four integrated milestones; no native/gameplay integration |
+| LWB317-PM-026 | Project lead continuation | COMPLETE | Independently replays all four milestones and full scheduled suite, closes final en/ja BR6 evidence, corrects stale docs and accepts scoped UI work. Remaining original/UI/native gaps stay explicit |
+| LWB317-UI-MAP-INTERACTIONS-001 | Worker + two subagents; lead verified | COMPLETE / ACCEPTED for focused source/local UI scope | 5b76ae8 A-D accepted by PM-026: request disposal, search/names/selection, Scheduled presentation and integrated QA. Full scheduled replay plus fresh browser checks pass; native/functions/pixels excluded |
 | LWB317-PM-025 | Project lead | COMPLETE review / CHANGES_REQUIRED | Delivery checks pass, but two independent availability cases show obsolete search success/rejection after backend loss; baseline ignored both. Correction is milestone A of INTERACTIONS-001 |
-| LWB317-UI-MAP-NAVIGATION-001 | Worker delivery 305240e; lead-reviewed | CHANGES_REQUIRED | Keep useful cache/page/loading correction. Pending request lifetime must be fenced on effect disposal/backend loss; supplied campaign omitted this transition. No native/gameplay acceptance |
+| LWB317-UI-MAP-NAVIGATION-001 | Worker delivery plus INTERACTIONS correction; lead-reviewed | COMPLETE / ACCEPTED for focused source/local UI scope | PM-026 verifies disposal correction and source-like first-page server requests. PM-025 failed evidence retained; no full Map/native/pixel acceptance |
 | LWB317-PM-024 | Project lead | COMPLETE | Lead accepts focused FILTERS-001 after inspecting independent review af73d18 and replaying actual-code/source/evidence/package checks. Independent Checking browser limitation recorded; full UI/native/pixels remain open |
 | LWB317-PM-023 | Project lead takeover | COMPLETE implementation checkpoint | Per-kind Map filter ownership and exact Secret Task level corrected; isolated EN/JA Checking preview added. Focused acceptance subsequently recorded by PM-024 |
 | LWB317-UI-MAP-FILTERS-001 | Project lead, independently reviewed | COMPLETE / ACCEPTED for focused source/local scope | Four per-kind filters, query/table projection, goods-sort clear, exact level and isolated Checking inputs accepted by PM-024. Native/full UI/pixel reachability remains open |

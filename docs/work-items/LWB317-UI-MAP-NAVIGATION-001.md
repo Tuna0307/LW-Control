@@ -1,10 +1,10 @@
 # LWB317-UI-MAP-NAVIGATION-001
 
-Owner: returning worker through manual owner relay. Status: CHANGES_REQUIRED.
-Lead PM-025 reviewed delivery 305240e on 2026-10-02. Useful navigation correction
-is retained; pending search success/rejection must be ignored after backend
-unavailability/effect disposal. Independent lead evidence preserves two failures.
-Correction is assigned as milestone A of LWB317-UI-MAP-INTERACTIONS-001.
+Owner: worker delivery plus INTERACTIONS correction; project-lead reviewed.
+Status: **COMPLETE / ACCEPTED for focused source/local UI scope**, PM-026.
+PM-025's failed disposal cases remain preserved; current request-lifetime and
+navigation replays pass after INTERACTIONS milestone A and the server-first-page
+correction. No full Map/native/pixel acceptance. See the PM-026 closeout review.
 
 ## Goal
 

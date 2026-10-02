@@ -12,13 +12,13 @@ If the reference opens into a login/locked state, capture only enough evidence t
 
 ## Required inventory
 
-Current assignment, 2026-10-02: `LWB317-UI-MAP-INTERACTIONS-001` is ASSIGNED for
-request disposal correction, search/name inputs, selection lifecycle and Scheduled
-Plunder presentation; up to two subagents with exclusive file ownership. Prompt
-prepared for manual relay, execution not confirmed. PM-025 leaves NAVIGATION-001
-CHANGES_REQUIRED after two independent backend-unavailability failures. Retain
-its useful cache correction. Native scheduling/claims/pixels remain separate.
-See the new work item and `reviews/2026-10-02-LWB317-PM-025-navigation-review.md`.
+Current decision, 2026-10-02: PM-026 accepts `LWB317-UI-MAP-INTERACTIONS-001`
+and corrected NAVIGATION-001 for focused source/local UI scope. Lead continued
+the worker handoff, replayed all A-D checks including the full scheduled suite,
+independently checked final browser messages/search/selection and corrected stale
+evidence descriptions. No active worker assignment remains in this campaign.
+Overall UI remains IMPLEMENTED_NOT_VALIDATED; options/scan/Treasure and native/
+pixel gaps remain explicit. See the PM-026 closeout review.
 
 Latest decision, 2026-10-02: PM-024 **ACCEPTS** FILTERS-001 for its six focused
 source/local behaviors after inspecting reviewer af73d18 and replaying actual
@@ -278,7 +278,7 @@ native Treasure wiring, scheduling/claims or original-pixel gaps.
 
 ## 0.3.17 Map interaction checkpoint — 2026-10-02
 
-LWB317-UI-MAP-INTERACTIONS-001 is AWAITING_REVIEW. Recovered 0.3.17 Map behavior now reproduced in the canonical page:
+LWB317-UI-MAP-INTERACTIONS-001 is COMPLETE / ACCEPTED for focused source/local UI scope by PM-026. Recovered 0.3.17 Map behavior now reproduced in the canonical page:
 the keyword is not a search-effect dependency and nothing debounces it, so typing never searches while any dependency
 change or the Search button applies the typed text (Search is never disabled by loading; on page 1 it searches
 directly, otherwise it returns to page 1); selecting a Resource/Monster name empties the keyword and typing drops the

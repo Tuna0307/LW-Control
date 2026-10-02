@@ -1,0 +1,34 @@
+{
+  "status": "PASS",
+  "productCheckpoint": "5b76ae8111e160ad7673e1162e8a354d1c3cbd45",
+  "decision": "ACCEPTED for focused source/local UI scope only",
+  "productHashes": {
+    "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx": "982a5bb277ae3f4386e14ffcd66d7a3e7c9b4d56c15d0624693bdb0ccb995a50",
+    "src/LWBridge.UI-0.3.17/src/mapInteractions.js": "37b174098685e5c4da540e514c1ce467a5cbad61bc18569e8366b9f7085cf7dc",
+    "src/LWBridge.UI-0.3.17/src/ScheduledPlunder.jsx": "6c573ff16da883a5d18136dd6fae01c9da045361a6e95b98d3be188bfa64d010",
+    "src/LWBridge.UI-0.3.17/src/mapPlunderPresentation.js": "6e4bf5315990966823c5e162cf4875c9d1db3a897cd7bacc40752c9a7c2a62fd",
+    "src/LWBridge.UI-0.3.17/src/mapPlunderFixtures.js": "73b6bf73db557088bdc8bc45286095f61b0af7c829a55e6c1b5bc9e1abb72b60",
+    "src/LWBridge.UI-0.3.17/src/mapPreviewApi.js": "167a24201cd829f78b413d048b78de4b4e66bb0d1cf9c002d935c0ac45f6ea7e",
+    "src/LWBridge.UI-0.3.17/src/mapTablePresentation.js": "b6c0d9b369d3e78ccc74aa7296f2b88eabf6b6560c3669a199546fc299839427"
+  },
+  "artifactHashes": {
+    "evidence/lwbridge-0.3.17/ui/LWB317-PM-026/browser-recheck.json": "410d9f4569c43b0144be3e2565523d7d104959dc7eb2a7c47df2f9f09d574657",
+    "evidence/lwbridge-0.3.17/ui/LWB317-PM-026/scheduled-replay.txt": "ffe827453132ed98544935e81db865acc598b1982179b354cd67e0d5dc31c6fc",
+    "evidence/lwbridge-0.3.17/ui/LWB317-PM-026/screenshots/scheduled-clear-final-en.png": "05788f3c1731e57032128ecd0fea346752fd085b7f6c7ed11e617ae24801ce1e",
+    "evidence/lwbridge-0.3.17/ui/LWB317-PM-026/screenshots/scheduled-clear-final-ja-375.png": "0483db1fce4010c508b7f6dc2db09d73f5f65d0d5888411c5de9f5d71b1a572e",
+    "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-INTERACTIONS-001/request-lifetime-results.json": "701f11c0ea3662aa90c634255732bf97582693f32919cb11265fd28e98b5a92a",
+    "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-INTERACTIONS-001/navigation-replay-results.json": "1f24bf7e4c535c85ab80fbd097717a47dc0b7e29b5826a01eced6fd27b5c846f",
+    "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-INTERACTIONS-001/interaction-results.json": "99d38360a6ef28a91338c24da940e270723a4fe44a1c36957d586c1c194de184",
+    "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-INTERACTIONS-001/mutation-results.json": "8a15efe512dd003711b487ef42c3dbb822011a90654f789331452f66ec8b4dca",
+    "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-INTERACTIONS-001/integration-results.json": "46257451a45ab3b76f5bb2699656c924ebe07ada5a3ada93307c26284a17ef67",
+    "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-INTERACTIONS-001/historical-replay-results.json": "f5a02f4703097aed979f638f3ccb39628a39b3d1193d7dc7f4d781145eaf873c",
+    "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-INTERACTIONS-001/scheduled/results.json": "f038a0ff511718453d323d20e2c18ea3169be4138fc4779aba4201ba5fe653a0",
+    "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-INTERACTIONS-001/browser-results.json": "8e2f77d4a496862a0ed4081818c107f6d8cc696599e678b0ce8472366c8d5f34",
+    "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-INTERACTIONS-001/original/final-review-results.json": "11e12664bbf51c4d68641b2c5f52d6e177e2fbe3943cd445a1bbd8cd27acf8eb"
+  },
+  "proofLimits": [
+    "Existing worker observations are not all independently repeated. This record supersedes BR6 final-message text and independently checks selected search/selection/cache flows.",
+    "No original post-auth pixel comparison or native operation.",
+    "The existing worker Vite listener was reused and must not be stopped as a lead-owned process."
+  ]
+}

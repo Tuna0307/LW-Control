@@ -77,6 +77,15 @@ Live-prove each implemented in-scope function against an assistant-owned/current
 
 ## Current instruction
 
+Latest decision, 2026-10-02: **PM-026 accepts INTERACTIONS-001 and corrected
+NAVIGATION-001 for focused source/local UI scope**. Lead continued the usage-limit
+handoff, reran all A-D checks including the full scheduled render/mutation suite,
+closed final English/Japanese browser evidence and fixed stale docs. Product
+checkpoint 5b76ae8; this review checkpoint adds evidence/docs only. No active
+worker implementation remains; do not restart the completed campaign. The next
+bounded UI gap needs a separate assignment; native/gameplay work remains outside
+this closeout. Read the PM-026 review for exact open gaps and proof limits.
+
 Current delivery, 2026-10-02: **LWB317-UI-MAP-INTERACTIONS-001 AWAITING_REVIEW** (all four milestones). A (3e8617c) restored request disposal fencing; B/C (c57be79) recovered keyword/search/name/selection/random-delay behavior and the Scheduled Plunder Dispatch/Ghost/Truck tables with the original component executed as oracle; D verified the combination (differential, mutation, replay, integration, offline-browser en/ja light/dark/375 px). Native job producer, scheduling/sharing/cancel/clear, Treasure wiring, scan/options polling parity and original pixels remain open; nothing native or gameplay ran. Lead makes the acceptance decision. See `docs/reviews/2026-10-02-LWB317-UI-MAP-INTERACTIONS-001.md`.
 
 Historical assignment text, superseded by the delivery above: **LWB317-UI-MAP-INTERACTIONS-001 ASSIGNED**.

@@ -48,7 +48,7 @@ reviewer: `original/contract.md` 88 locators, `original/results.json` 59 scenari
 `original/negative-cases.md` 51 cases, `original/canonical-differential.json`). `scenarios.mjs` +
 `driver.mjs` + `flavors.mjs` run 38 user-level scenarios against the original, production and the immutable
 pre-campaign page `baseline-3e8617c.MapDataPage.jsx`; `interaction-results.json` records every observation.
-Production equals the original in 35/35; the baseline differs in 31. `check-mutations.mjs` proves 14/14
+Production equals the original in 38/38; the baseline differs in 31. `check-mutations.mjs` proves 14/14
 deliberate defects are detected. Documented non-reproduced differences are listed in
 `docs/reviews/2026-10-02-LWB317-UI-MAP-INTERACTIONS-001.md`.
 
@@ -83,6 +83,10 @@ node evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-INTERACTIONS-001/validate-evidenc
 `--record` (the replay adapter does not pass it).
 
 ## Limits
+
+Project-lead browser recheck is recorded separately under `../LWB317-PM-026/`.
+It supersedes BR6's pre-final-translation message without rewriting the historical
+worker browser observations. See the PM-026 review for the final decision.
 
 Synthetic deferred local replies and controlled clocks (hook-adapter evidence), offline preview (browser
 evidence). Not original pixel, native, persistence or gameplay evidence. Preview stays `online:false`.

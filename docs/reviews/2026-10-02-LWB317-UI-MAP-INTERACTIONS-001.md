@@ -1,7 +1,9 @@
 # LWB317-UI-MAP-INTERACTIONS-001 — worker delivery
 
-Status: **AWAITING_REVIEW**. This is a worker implementation handoff for the large
-UI campaign; the project lead owns the acceptance decision. Evidence packet:
+Worker submission status: AWAITING_REVIEW at 5b76ae8. **Project lead PM-026 now
+accepts the focused source/local UI scope** after independent continuation and
+verification; see its separate closeout review. This file records the worker
+implementation handoff for the large UI campaign. Evidence packet:
 `evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-INTERACTIONS-001/` (README, coverage matrix,
 per-milestone results, validator). Scope is UI/UX only: no native provider, scan,
 scheduling, sharing, cancel, claim or gameplay operation was added or executed.
@@ -83,8 +85,8 @@ options reply because its name-selection object is always replaced, and refreshe
 scanning and at scan completion — canonical options/scan polling differs and is outside this scope;
 (2) the original only logs a search failure, the canonical page keeps its accepted visible error banner;
 (3) with no data server the original still sends `serverId:0`, the canonical page disables Search;
-(4) share failure shows the raw `code: message` (the original's translator `m` is not in the canonical
-page); (5) alliance / level / treasure-type validation after an options refresh is not implemented (filter
+(4) share/clear translation was corrected in final commit 5b76ae8 and is no longer an open difference;
+(5) alliance / level / treasure-type validation after an options refresh is not implemented (filter
 scope, accepted behavior left unchanged).
 
 ## C — Scheduled Plunder presentation
@@ -136,7 +138,7 @@ clock. No state enum, dialog or skeleton was added; unknown values follow the so
 
 Original pixel/visual parity; native job producer, row schema and native scheduling/cancel/clear/share/
 claims; Treasure native wiring; scan header timing display, scan/options polling parity and the extra
-post-options search; share-error translator; alliance/level/treasure-type refresh validation; the narrow
+post-options search; alliance/level/treasure-type refresh validation; the narrow
 viewport keyword-input height (existing CSS, unchanged). Nothing here establishes full Map, overall UI,
 original pixel, native persistence or gameplay parity.
 
@@ -152,4 +154,7 @@ persistence plus always-sent boolean treasure query fields (`C08`, `C28`); allia
 (`C09`); player-mark button also disabled offline/scanning/busy in the canonical page (`C15`, native availability fence).
 Note: after the translator change a rejected preview action shows the localized `common.actionFailed` text instead of
 the raw `PREVIEW_NATIVE_ACTION_BLOCKED` text recorded in browser-results.json BR6 (that browser observation predates
-the change; the synthetic integration test covers the new text).
+the change; the synthetic integration test covers the new text). PM-026 now independently
+rechecks the final English/Japanese browser message and unchanged row counts under
+`evidence/lwbridge-0.3.17/ui/LWB317-PM-026/browser-recheck.json`. The historical BR6
+record is preserved and superseded, rather than rewritten as a final-state observation.

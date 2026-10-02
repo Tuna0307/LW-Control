@@ -100,7 +100,8 @@ Historical R7 performance and acceptance data remains evidence, not current prod
 
 ## 0.3.17 UI navigation checkpoint — 2026-10-02
 
-LWB317-UI-MAP-NAVIGATION-001 is AWAITING_REVIEW for a bounded source/local UI
+Historical submission (now accepted after correction by PM-026):
+LWB317-UI-MAP-NAVIGATION-001 was AWAITING_REVIEW for a bounded source/local UI
 correction. Recovered 0.3.17 behavior keeps a component-local normal-tab cache of
 page/rows/total. Leaving a normal tab stores its current view; returning restores
 that view and then performs a fresh search. An uncached tab starts at page 1 with
@@ -120,7 +121,7 @@ Treasure wiring and original post-auth pixels remain separate scopes.
 
 ## 0.3.17 Map interactions checkpoint — 2026-10-02
 
-LWB317-UI-MAP-INTERACTIONS-001 is AWAITING_REVIEW. Source-recovered (`MapDataPanel-B4GXEND2.js`) behavior now
+LWB317-UI-MAP-INTERACTIONS-001 is COMPLETE / ACCEPTED for focused source/local UI scope by PM-026. Source-recovered (`MapDataPanel-B4GXEND2.js`) behavior now
 implemented in `src/LWBridge.UI-0.3.17/src/MapDataPage.jsx`, `mapInteractions.js`, `ScheduledPlunder.jsx`,
 `mapPlunderPresentation.js` and the offline fixtures in `mapPlunderFixtures.js`:
 
@@ -137,5 +138,5 @@ implemented in `src/LWBridge.UI-0.3.17/src/MapDataPage.jsx`, `mapInteractions.js
 
 Provider-dependent operations stay fenced; the job producer and its row schema are UNKNOWN. Differences not
 reproduced (extra search after each options reply, scan-time row refresh, hidden search errors, `serverId:0` search,
-share-error translator, other filters' refresh validation) are listed in
+other filters' refresh validation) are listed in
 `docs/reviews/2026-10-02-LWB317-UI-MAP-INTERACTIONS-001.md`.

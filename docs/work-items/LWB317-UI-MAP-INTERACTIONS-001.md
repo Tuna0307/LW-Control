@@ -1,7 +1,10 @@
 # LWB317-UI-MAP-INTERACTIONS-001
 
-Owner: returning worker through manual relay. Status: AWAITING_REVIEW (all four
-milestones delivered; see `docs/reviews/2026-10-02-LWB317-UI-MAP-INTERACTIONS-001.md`). Project lead assignment 2026-10-02, after owner requests a large
+Owner: worker delivery, project-lead verified continuation. Status:
+**COMPLETE / ACCEPTED for focused source/local UI scope**, PM-026 at product
+5b76ae8. All four milestones and final browser evidence are closed; native/full
+UI/pixel parity remains open. See the PM-026 closeout review. Historical
+project lead assignment 2026-10-02, after owner requests a large
 task. One UI campaign with four required milestones; no fixed time limit.
 
 ## Goal and inputs

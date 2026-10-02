@@ -4,7 +4,28 @@
 **Branch:** `research/offline-controller`  
 **Active scope:** UI parity / Map interactions and Scheduled Plunder presentation; no new native integration
 
-## 2026-10-02 PM-025 — lead review and large worker assignment
+## 2026-10-02 PM-026 — campaign complete and accepted
+
+INTERACTIONS-001 at 5b76ae8111e160ad7673e1162e8a354d1c3cbd45 is
+**COMPLETE / ACCEPTED for focused source/local UI scope**. Lead continued after
+the worker usage limit, replayed all four milestones (including the exhaustive
+10,482 scheduled renders and 51 mutations), independently checked search,
+selection/cache and final en/ja Clear messages in the browser, and corrected
+stale docs. NAVIGATION-001's request-lifetime defect is resolved and accepted.
+Read `reviews/2026-10-02-LWB317-PM-026-map-interactions-closeout.md`.
+
+Historical worker BR6 remains preserved; final observations, inspected screenshots
+and replay/source hashes are under `LWB317-PM-026` in the UI evidence tree. No
+additional product code was needed. No worker implementation remains active in
+this campaign; do not restart A-D or wait for another AI approval.
+
+Continuation: separately assign the next UI gap. Options/filter validation,
+clear-data resets, export/scan feedback, scan row-refresh timing, Treasure
+defaults/persistence and alliance sentinel handling remain open, as do native
+providers/assets and original post-auth pixels. This checkpoint starts no native
+or gameplay work. Protected AFK/scratch/screenshot WIP remains unchanged/unstaged.
+
+## Historical 2026-10-02 PM-025 — lead review and large worker assignment
 
 NAVIGATION-001 at 305240e is **CHANGES_REQUIRED**. Delivered navigation, filters,
 Checking, evidence and canonical checks pass, but lead added two availability
@@ -13,7 +34,7 @@ backend becomes unavailable. Pre-navigation cleanup ignored both. Retain tab
 caching; restore request lifetime fencing. Read the PM-025 review and independent
 evidence under `LWB317-PM-025`. This supersedes the worker status below.
 
-Current assignment: **LWB317-UI-MAP-INTERACTIONS-001 ASSIGNED**, prompt prepared
+Historical assignment: **LWB317-UI-MAP-INTERACTIONS-001 ASSIGNED**, prompt prepared
 for owner relay, execution not yet confirmed. Product baseline 305240e; this
 documentation/evidence checkpoint is newer. Complete four milestones: disposal
 correction, search/name and selection semantics, Scheduled Plunder presentation,
@@ -38,8 +59,9 @@ of them, so the controls stay disabled and the job list stays empty; preview fix
 `map-actions-*` and `map-scheduled*` states, reject every action and keep `online:false`. Documented non-reproduced
 differences are in the dated review. Exact continuation: lead review of
 `reviews/2026-10-02-LWB317-UI-MAP-INTERACTIONS-001.md` and the evidence packet; open scopes are the native job
-producer/row schema and scheduling, Treasure native wiring, scan header timing and polling parity, share-error
-translator, alliance/level/treasure-type refresh validation and original pixel comparison.
+producer/row schema and scheduling, Treasure native wiring, scan header timing and polling parity,
+alliance/level/treasure-type refresh validation and original pixel comparison. Share/Clear
+translation is fixed in 5b76ae8; PM-026 records the final browser recheck separately.
 
 ## 2026-10-02 — Map navigation worker delivery
 
