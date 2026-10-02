@@ -4,27 +4,25 @@
 **Branch:** `research/offline-controller`  
 **Phase:** Phase 2 function recovery / Map Data clean-UI live-integration checkpoint
 
-## 2026-10-02 collaboration policy adopted — worker coordination still blocked
+## 2026-10-02 manual AI relay restored — collaboration experiment retired
 
-Owner requested Chat On Steroids delegation, two code-review checkpoints and
-always 5.6 Thinking/High, then asked the lead to adapt the internet-sourced text
-to our style and authorized lead-selected pushes. `LWB317-POLICY-COS-001` is
-COMPLETE for this documentation adoption. Read `CHAT_ON_STEROIDS_COLLABORATION.md`,
-linked from AGENTS.md and AI_WORK_PROTOCOL. Routine documentation can proceed
-after lead verification; meaningful implementation still requires both reviews.
+The owner abandoned automatic Chat On Steroids collaboration and will forward
+prompts/replies as before. `LWB317-POLICY-COS-001` is RETIRED / SUPERSEDED.
+The lead writes self-contained prompts for fresh chats and independently checks
+returned work. AGENTS.md and AI_WORK_PROTOCOL.md reflect this current workflow.
+No mandatory Chat On Steroids delegation, model setting or review checkpoints
+remain. Existing project evidence, scope and lead acceptance rules still apply.
 
-Core file reads and a fresh command execution work directly without window clicks.
-Worker coordination remains BLOCKED: creation returned invited worker-1 in family
-93800f05-7d76-4831-8441-300c1fe85068 with gpt-5-6-thinking/high, but subsequent
-message/status report no family belongs to this caller. No substantive worker
-report or independent verdict was received. Attribution is a hypothesis, not a
-confirmed cause. Do not duplicate workers or bypass ownership checks.
+The earlier adoption was pushed at bfe261d79fe5b29c01dcde5684882c602a2eaff2.
+Core reads/commands worked, but worker follow-up/status failed ownership checks
+and no worker policy verdict was received. Earlier policy and connector evidence
+are retained as history, with the policy clearly marked retired. Connector repair
+is no longer a project blocker or continuation task. See
+`reviews/2026-10-02-LWB317-POLICY-COS-001-retirement.md`.
 
-Read `reviews/2026-10-02-LWB317-POLICY-COS-001.md` and the connector/delivery evidence
-under `evidence/collaboration/LWB317-POLICY-COS-001/`. Before the next required
-collaborator review, establish stable authorized caller ownership and obtain an
-actual worker response. This policy task changes no product code or parity status;
-Map-states review remains a separate assignment below and was not dispatched here.
+Product code/parity status and protected WIP are unchanged. The medium Map-states
+review remains the next separate worker assignment below, delivered by manual
+relay; it was not dispatched by this documentation task.
 
 ## 2026-10-02 Map table takeover — latest continuation
 

@@ -2,13 +2,11 @@
 
 Read this file before doing any work.
 
-Also read and follow [Chat On Steroids Collaboration](docs/CHAT_ON_STEROIDS_COLLABORATION.md).
-Owner instruction, 2026-10-02: delegate routine work through Chat On Steroids;
-use 5.6 Thinking with High effort; review hypotheses before meaningful code edits
-and the complete diff before submitting meaningful implementation work. Apply
-the documentation exceptions and connector-blocker rules in that policy.
-Do not substitute native/local subagents. The project lead independently
-verifies collaborator output and owns final acceptance.
+Owner direction, 2026-10-02: use manual relay between AI chats. The project lead
+writes self-contained task prompts for the owner to forward and independently
+reviews returned work. The Chat On Steroids collaboration policy is retired;
+its mandatory delegation, model-selection and two-checkpoint requirements no
+longer apply. Follow the existing project evidence and review rules below.
 
 ## 1. Current target
 
@@ -91,7 +89,7 @@ on auth dependency research in historical documents are superseded by this rule.
 As of 2026-09-29, the owner has explicitly re-enabled desktop-control tooling
 for the UI-parity phase.
 
-Chat On Steroids Desktop / equivalent approved desktop tooling may be used for
+Approved desktop tooling may be used for
 bounded LWBridge 0.3.17 UI observation tasks assigned by the project lead.
 
 This permission does **not** automatically authorize gameplay/live-function

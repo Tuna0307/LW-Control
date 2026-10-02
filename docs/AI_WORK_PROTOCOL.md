@@ -2,14 +2,11 @@
 
 This project is expected to use multiple AIs. The main project lead controls scope and integrates results.
 
-Owner's collaboration policy: read and follow
-[Chat On Steroids Collaboration](CHAT_ON_STEROIDS_COLLABORATION.md).
-Use 5.6 Thinking / High effort for delegated collaborators. Meaningful code
-changes require a hypothesis review before editing and a complete-diff review
-before submission. Apply the policy's documentation exceptions and connector
-rules. The lead owns dispatch/integration; workers must not spawn nested workers
-or grant themselves independent acceptance. Every assigned scope still applies.
-A collaborator's self-check does not replace independent review.
+Owner direction, 2026-10-02: the owner relays prompts and replies between AI chats.
+The lead supplies one self-contained, bounded prompt per assignment, assuming a
+fresh worker chat, then verifies the returned files, evidence and checks before
+acceptance. Chat On Steroids collaboration requirements are retired; no connector
+setup or repair is required to continue. Existing scope and review rules apply.
 
 ## Roles
 

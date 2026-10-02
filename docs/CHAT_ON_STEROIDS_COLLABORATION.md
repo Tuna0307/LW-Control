@@ -1,4 +1,12 @@
-# Chat On Steroids collaboration
+# Chat On Steroids collaboration — RETIRED
+
+Owner direction, 2026-10-02: abandon automatic collaboration and return to manual
+prompt/reply relay through the owner. This file is historical only. None of its
+delegation, model, checkpoint or connector-repair requirements remain mandatory.
+Current workflow: `AGENTS.md` and `AI_WORK_PROTOCOL.md`. Keep the earlier text as
+a record of the experiment; do not use it to block ongoing project work.
+
+## Historical policy
 
 Owner policy, adapted for LW-Control on 2026-10-02. Read with `AGENTS.md` and
 `AI_WORK_PROTOCOL.md`. The project lead assigns work, checks evidence and makes

@@ -1,8 +1,14 @@
 # LWB317-POLICY-COS-001 — Chat On Steroids collaboration policy
 
 Date: 2026-10-02. Owner: project lead.
-State: COMPLETE for documentation adoption; worker coordination remains BLOCKED.
+State: RETIRED / SUPERSEDED by owner-directed manual relay.
 Baseline: 69bde9e32dbadbc71b123708662dc53c9c20d02c.
+
+The owner abandoned automatic Chat On Steroids collaboration after the worker
+follow-up failure. Mandatory policy pointers are removed; the lead writes prompts
+for the owner to forward and reviews the replies. Connector repair is no longer
+a project blocker or continuation task. The remaining sections record the earlier
+assignment only. See reviews/2026-10-02-LWB317-POLICY-COS-001-retirement.md.
 
 ## Assignment and owner clarification
 
