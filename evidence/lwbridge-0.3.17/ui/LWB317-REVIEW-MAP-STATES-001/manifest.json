@@ -1,0 +1,71 @@
+{
+  "task": "LWB317-REVIEW-MAP-STATES-001",
+  "recommendation": "ACCEPT",
+  "reviewInputs": {
+    "implementation": "bf84bbdca8a86c1a45e9cbb3bd0170c8fbfcdd7f",
+    "deliveryBaseline": "3939ac045ef9c01ac454e06f8a35c72a220cea4b",
+    "startingHead": "ceffe100f896af7dc8ce6ea5f443c9ace31ea6fd"
+  },
+  "referenceExe": "C:/Users/chimw/OneDrive/Desktop/Github/LW/lwbridge-0.3.17.exe",
+  "referenceExeSha256": "4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783",
+  "source": {
+    "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js",
+    "sha256": "CE74345518BE72E417A510B982C591729E5683F69751E190805598C4C05D3089"
+  },
+  "productionFiles": [
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/mapTablePresentation.js",
+      "sha256NormalizedLF": "B6C0D9B369D3E78CCC74AA7296F2B88EABF6B6560C3669A199546FC299839427"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+      "sha256NormalizedLF": "EE9EB9EC5E9001118CCD502FE86B4CFBB8E050CA57DED9566D9FD7E4ABE58FEC"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/mapPreviewApi.js",
+      "sha256NormalizedLF": "ACF4258508D7D6BEE7B24B51BC0CED562FCD56AE7366E0C4088185FD8BA98D5F"
+    }
+  ],
+  "evidence": [
+    {
+      "file": "check-review-map-states.mjs",
+      "sha256NormalizedLF": "A5D73A75F5FE0CA18351B0CEDE4146F26770603C665F50F8DFF1776D6E971706"
+    },
+    {
+      "file": "source-local-results.json",
+      "sha256NormalizedLF": "4B565D8704E5C08AC53D5D98F29BA15023363B233CF28BE782E198DE525CE8A7"
+    },
+    {
+      "file": "browser-results.json",
+      "sha256NormalizedLF": "D98AE6283D4CF9163828EB7D8A5C78D5063CDF187B336E595D5422E8FE1332AF"
+    }
+  ],
+  "screenshots": [
+    {
+      "file": "secret-task-states.jpg",
+      "sha256": "0C3A09F64D9C54A255755CE3E6553D4552C21DB7BDFD4B999A623C4CC8EEE98D",
+      "bytes": 78712
+    },
+    {
+      "file": "treasure-ja.jpg",
+      "sha256": "D01C8862DB0B906CB0E7245B524F9235C818367799CFC51FC0195BB00F8BF612",
+      "bytes": 71691
+    }
+  ],
+  "browser": {
+    "previewState": "map-table-states",
+    "cases": [
+      "secret-task-en-fresh",
+      "ghost-ops-en-fresh",
+      "treasure-en",
+      "treasure-ja"
+    ],
+    "consoleErrors": []
+  },
+  "tools": {
+    "node": "v24.18.0",
+    "babelParser": "7.29.9",
+    "esbuild": "0.28.2"
+  },
+  "limits": "Recovered-source/local UI presentation for Secret Task, Ghost Ops and Treasure only. Synthetic preview data does not establish gameplay/native actions or original post-auth pixel parity. The recovered Treasure refreshing formatter matches when supplied, but current MapDataPage does not expose the original async refreshing producer flag to MapTable."
+}

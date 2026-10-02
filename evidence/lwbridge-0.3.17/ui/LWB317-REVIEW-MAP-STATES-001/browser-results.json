@@ -1,0 +1,138 @@
+{
+  "task": "LWB317-REVIEW-MAP-STATES-001",
+  "mode": "browser-preview-only",
+  "url": "http://127.0.0.1:4178/?previewPage=map-data&previewState=map-table-states",
+  "previewState": "map-table-states",
+  "cases": [
+    {
+      "case": "secret-task-en-fresh",
+      "tab": "Secret Task",
+      "language": "en",
+      "headersRaw": [
+        "Select",
+        "Coordinates",
+        "Owner",
+        "Level",
+        "Quality",
+        "Status",
+        "Rewards",
+        "Completion Time",
+        "Updated At1"
+      ],
+      "statuses": [
+        { "text": "In progress", "className": "map-task-status pending" },
+        { "text": "Fully plundered", "className": "map-task-status full" },
+        { "text": "Protected", "className": "map-task-status protected" },
+        { "text": "Expired", "className": "map-task-status expired" },
+        { "text": "Available", "className": "map-task-status ready" }
+      ],
+      "disabledSelections": [false, true, false, true, false],
+      "coordinateButtonsDisabled": [true, true, true, true, true]
+    },
+    {
+      "case": "ghost-ops-en-fresh",
+      "tab": "Ghost Ops",
+      "language": "en",
+      "headersRaw": [
+        "Select",
+        "Coordinates",
+        "Owner",
+        "Level",
+        "Quality",
+        "Status",
+        "Rewards",
+        "Completion Time",
+        "Updated At1"
+      ],
+      "statuses": [
+        { "text": "In progress", "className": "map-task-status pending" },
+        { "text": "Fully plundered", "className": "map-task-status full" },
+        { "text": "Protected", "className": "map-task-status protected" },
+        { "text": "Expired", "className": "map-task-status expired" },
+        { "text": "Available", "className": "map-task-status ready" }
+      ],
+      "disabledSelections": [false, true, false, true, false],
+      "coordinateButtonsDisabled": [true, true, true, true, true]
+    },
+    {
+      "case": "treasure-en",
+      "tab": "Treasure",
+      "language": "en",
+      "headersRaw": [
+        "Coordinates",
+        "Treasure Type",
+        "Remaining boxes",
+        "Treasure status",
+        "My status",
+        "Claimed",
+        "Digging",
+        "Expire Time",
+        "Owner",
+        "Alliance",
+        "Actions",
+        "Updated At1"
+      ],
+      "firstRows": [
+        ["411,521", "Fixture Lucky Treasure Label", "2", "Charging 38%", "Not claimed", "1", "1", "1/4/2027, 2:43:25 AM", "Treasure Owner 1", "QA", "Claim", "1/4/2027, 2:12:20 AM"],
+        ["412,522", "Fixture Radar Treasure Label", "3", "Claimable", "Claimed", "2", "2", "1/4/2027, 2:43:30 AM", "Treasure Owner 2", "QA", "Claim", "1/4/2027, 2:11:20 AM"],
+        ["413,523", "Fixture Lucky Treasure Label", "4", "Depleted", "Other alliance", "3", "3", "1/4/2027, 2:43:35 AM", "Treasure Owner 3", "QA", "Claim", "1/4/2027, 2:10:20 AM"]
+      ],
+      "claimButtonsDisabled": [true, true, true],
+      "coordinateButtonsDisabled": [true, true, true]
+    },
+    {
+      "case": "treasure-ja",
+      "tab": "Treasure",
+      "language": "ja",
+      "headersRaw": [
+        "座標",
+        "宝物タイプ",
+        "残り宝箱",
+        "宝物状態",
+        "自分の状態",
+        "受取済み",
+        "発掘中",
+        "有効期限",
+        "所属プレイヤー",
+        "連盟",
+        "操作",
+        "更新日時1"
+      ],
+      "firstRows": [
+        ["411,521", "Fixture Lucky Treasure Label", "2", "充電中 38%", "未受取", "1", "1", "2027/1/4 2:43:25", "Treasure Owner 1", "QA", "受取", "2027/1/4 2:12:20"],
+        ["412,522", "Fixture Radar Treasure Label", "3", "受取可能", "受取済み", "2", "2", "2027/1/4 2:43:30", "Treasure Owner 2", "QA", "受取", "2027/1/4 2:11:20"],
+        ["413,523", "Fixture Lucky Treasure Label", "4", "受取終了", "他同盟", "3", "3", "2027/1/4 2:43:35", "Treasure Owner 3", "QA", "受取", "2027/1/4 2:10:20"]
+      ],
+      "claimButtonsDisabled": [true, true, true],
+      "coordinateButtonsDisabled": [true, true, true]
+    }
+  ],
+  "deadlineObservation": {
+    "staleGhostPass": ["Available", "Fully plundered", "Available", "Expired", "Available"],
+    "freshGhostPass": ["In progress", "Fully plundered", "Protected", "Expired", "Available"],
+    "explanation": "The first Ghost Ops pass crossed the synthetic one-minute completion/protection deadlines. Reloading the preview rebuilt fresh fixture timestamps and restored the intended pending/protected rows before the deadline."
+  },
+  "screenshots": [
+    {
+      "file": "secret-task-states.jpg",
+      "sha256": "0C3A09F64D9C54A255755CE3E6553D4552C21DB7BDFD4B999A623C4CC8EEE98D",
+      "bytes": 78712,
+      "visuallyInspected": true
+    },
+    {
+      "file": "treasure-ja.jpg",
+      "sha256": "D01C8862DB0B906CB0E7245B524F9235C818367799CFC51FC0195BB00F8BF612",
+      "bytes": 71691,
+      "visuallyInspected": true
+    }
+  ],
+  "consoleErrors": [],
+  "consoleNotes": [
+    "Vite connection debug messages only.",
+    "React DevTools development info notice only."
+  ],
+  "cleanup": {
+    "reviewerTabClosed": true,
+    "reviewerViteServerStopped": true
+  }
+}

@@ -1,0 +1,667 @@
+{
+  "task": "LWB317-REVIEW-MAP-STATES-001",
+  "result": "LWB317_REVIEW_MAP_STATES_SOURCE_LOCAL_OK",
+  "fixedNow": 1799000000000,
+  "counts": {
+    "timestampCases": 7,
+    "taskCasesPerKindPerLocale": 14,
+    "taskComparisons": 56,
+    "treasureWorldCasesPerLocale": 9,
+    "treasurePlayerCasesPerLocale": 11,
+    "treasureNameCasesPerLocale": 9,
+    "renderedTables": 6
+  },
+  "source": {
+    "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js",
+    "sha256": "CE74345518BE72E417A510B982C591729E5683F69751E190805598C4C05D3089",
+    "locators": {
+      "P": {
+        "utf8ByteOffset": 8666,
+        "expression": "function P(e){let t=Number(e);return!Number.isFinite(t)||t<=0?0:t<0xe8d4a51000?t*1e3:t}"
+      },
+      "F": {
+        "utf8ByteOffset": 8753,
+        "expression": "function F(e,t){let n=P(k(e,`taskExpireTime`)),r=P(k(e,`completionTime`)),i=P(k(e,`plunderAt`))||r,a=Number(k(e,`stolenCount`)),o=Number(k(e,`maxStealCount`));return n&&t>=n?`expired`:o>0&&a>=o?`full`:!r||t<r?`pending`:i&&t<i?`protected`:`ready`}"
+      },
+      "w": {
+        "utf8ByteOffset": 4705,
+        "expression": "function w(e){return{charging:`map.treasureStateCharging`,claimable:`map.treasureStateClaimable`,depleted:`map.treasureStateDepleted`,expired:`map.treasureStateExpired`,verifying:`map.treasureStateVerifying`}[String(e||``)]||`map.treasureStateUnknown`}"
+      },
+      "T": {
+        "utf8ByteOffset": 4957,
+        "expression": "function T(e,t){return e===`claimed`?`map.treasurePlayerClaimed`:t===`other_alliance`?`map.treasurePlayerOtherAlliance`:t===`no_scout`||t===`no_squad`||t===`squad_reserved`?`map.treasurePlayerNoScout`:{unclaimed:`map.treasurePlayerUnclaimed`,dispatching:`map.treasurePlayerDispatching`,scouting:`map.treasurePlayerScouting`,digging:`map.treasurePlayerDigging`,claiming:`map.treasurePlayerClaiming`,claimed:`map.treasurePlayerClaimed`,failed:`map.treasurePlayerUnclaimed`,verifying:`map.treasurePlayerVerifying`}[String(e||``)]||`map.treasurePlayerUnknown`}"
+      },
+      "Ke": {
+        "utf8ByteOffset": 7610,
+        "expression": "function Ke(e,t,n,r,i){let a=String(Oe(r)||i||``).trim(),o=e(a===`challenge_zombie_box_title`?`map.treasureTypeTrialGift`:ke(r));return a?j(t,a,o):e(De(n))}"
+      },
+      "nt": {
+        "utf8ByteOffset": 9594,
+        "expression": "function nt(e,t,n,i,a,o){let s={label:A(e)?t(`map.liveTarget`):t(`map.coordinates`),width:`190px`,className:`map-column-coordinate`,value:et,coordinate:!0},c={label:t(`map.updatedAt`),width:`150px`,sortBy:`updatedAt`,value:e=>Qe(e.updatedAt,n)};return e===`city`?[{label:t(`map.marked`),width:`48px`,className:`map-column-mark`,mark:!0},s,{label:t(`map.player`),width:`minmax(130px, 1fr)`,value:e=>String(k(e,`ownerName`)||`-`)},{label:t(`map.alliance`),width:`minmax(110px, 1fr)`,value:e=>String(k(e,`allianceName`)||`-`)},{label:t(`map.level`),width:`70px`,sortBy:`level`,value:e=>I(k(e,`level`),n)},{label:`HP`,width:`90px`,sortBy:`health`,value:e=>I(k(e,`health`),n)},{label:t(`automation.shieldEnds`),width:`150px`,sortBy:`shield`,value:e=>$e(k(e,`protectEndTime`)||k(e,`shieldEndTime`),n)},c]:e===`resource`?[s,{label:t(`map.resource`),width:`minmax(150px, 1fr)`,value:e=>j(i,k(e,`resourceNameKey`),t(`map.unknownResource`))},{label:t(`map.level`),width:`70px`,sortBy:`level`,value:e=>I(k(e,`level`),n)},{label:t(`common.status`),width:`80px`,value:e=>{let n=qe(e);return j(i,n?`300039`:`372138`,t(n?`map.resourceGathering`:`map.resourceIdle`))}},c]:e===`monster`?[s,{label:t(`common.name`),width:`minmax(150px, 1fr)`,value:e=>j(i,k(e,`monsterNameKey`),t(`map.unknownMonster`))},{label:t(`map.level`),width:`70px`,sortBy:`level`,value:e=>I(k(e,`level`),n)},{label:t(`map.distance`),width:`90px`,sortBy:`distance`,value:e=>I(k(e,`distanceFromHome`),n)},c]:e===`truck`?[{label:t(`map.selectTask`),width:`56px`,className:`map-task-select`,select:!0},s,{label:t(`map.playerAlliance`),width:`minmax(170px, 1fr)`,value:e=>String(k(e,`ownerName`)||k(e,`allianceName`)||`-`)},{label:t(`map.quality`),width:`70px`,sortBy:`quality`,value:e=>k(e,`isSpecialURQuality`)===!0?t(`map.reindeerQuality`):L(k(e,`quality`))},{label:t(`map.escortPower`),width:`120px`,sortBy:`power`,value:e=>I(k(e,`power`),n)},{label:t(`map.retainedGoods`),width:`minmax(360px, 2fr)`,sortBy:a?`itemCount`:void 0,rewards:`currentGoods`},{label:t(`map.plunderStatus`),width:`190px`,sortBy:`remainingLootCount`,value:e=>{let n=e,i=l(n),a=Math.max(0,Number(n.robTimes)||0),o=r(n,Date.now());return o===`full`?`${t(`map.truckPlunderFull`)} ${a}/${i}`:o===`protected`?`${t(`map.truckProtected`)} ${Je(Number(n.protectTime)-Date.now())}｜${t(`map.truckRobbedCount`,{count:a,max:i})}`:`${t(`map.truckReady`)}｜${t(`map.truckRobbedCount`,{count:a,max:i})}`}},{label:t(`map.arrivalTime`),width:`150px`,sortBy:`arriveTime`,value:e=>N(k(e,`arriveTs`),n)},c]:e===`railway`?[s,{label:t(`map.alliance`),width:`minmax(160px, 1fr)`,value:e=>String(k(e,`allianceName`)||k(e,`allianceAbbr`)||`-`)},{label:t(`map.quality`),width:`70px`,sortBy:`quality`,value:e=>L(k(e,`quality`))},{label:t(`map.power`),width:`120px`,sortBy:`power`,value:e=>I(k(e,`power`),n)},{label:t(`map.retainedGoods`),width:`minmax(360px, 2fr)`,sortBy:a?`itemCount`:void 0,rewards:`currentGoods`},{label:t(`map.protectionTime`),width:`150px`,sortBy:`protectTime`,value:e=>N(k(e,`protectTime`),n)},c]:e===`treasure`?[s,{label:t(`map.treasureType`),width:`160px`,value:e=>Ke(t,i,k(e,`treasureType`),k(e,`suppliesType`),k(e,`treasureNameKey`))},{label:t(`map.remainingBoxes`),width:`90px`,value:e=>I(k(e,`remainingBoxes`),n)},{label:t(`map.treasureWorldState`),width:`110px`,value:e=>{let n=k(e,`worldClaimState`)||(o?`verifying`:`unknown`),r=Number(k(e,`chargePercent`));return n===`charging`&&Number.isFinite(r)?`${t(w(n))} ${Math.round(r*100)}%`:t(w(n))}},{label:t(`map.treasurePlayerState`),width:`110px`,value:e=>t(T(k(e,`playerClaimState`)||(o?`verifying`:`unknown`),k(e,`claimBlockReason`)))},{label:t(`map.claimedCount`),width:`90px`,value:e=>I(k(e,`rewardedCount`),n)},{label:t(`map.diggingCount`),width:`90px`,value:e=>I(k(e,`diggingCount`),n)},{label:t(`map.expireTime`),width:`150px`,value:e=>N(Number(k(e,`expireTime`)),n)},{label:t(`map.owner`),width:`minmax(140px, 1fr)`,value:e=>String(k(e,`ownerName`)||k(e,`ownerUid`)||`-`)},{label:t(`map.alliance`),width:`minmax(110px, 1fr)`,value:e=>String(k(e,`allianceAbbr`)||k(e,`allianceId`)||`-`)},{label:t(`map.actions`),width:`90px`,action:!0},c]:[...e===`dispatch`||e===`ghost`?[{label:t(`map.selectTask`),width:`56px`,className:`map-task-select`,select:!0}]:[],s,{label:t(`map.owner`),width:`minmax(150px, 1fr)`,value:e=>String(k(e,`ownerName`)||k(e,`ownerUid`)||`-`)},{label:t(`map.level`),width:`70px`,sortBy:`level`,value:e=>I(k(e,`level`),n)},{label:t(`map.quality`),width:`110px`,sortBy:`quality`,value:e=>k(e,`isSpecial`)===!0?t(`map.specialQuality`):L(k(e,`quality`))},{label:t(`map.taskStatus`),width:`90px`,status:!0},{label:t(`map.rewards`),width:`minmax(360px, 2fr)`,rewards:`rewards`},{label:t(`map.completionTime`),width:`150px`,sortBy:`completionTime`,value:e=>N(k(e,`completionTime`),n)},c]}"
+      }
+    },
+    "tableFunctions": {
+      "me": {
+        "utf8ByteOffset": 17072,
+        "expression": "function me(t){if(e===`truck`){let e=t,n=String(e.uuid||``).trim(),i=`${e.serverId}:${n}`,a=r(e,o);return(0,E.jsx)(`input`,{type:`checkbox`,\"aria-label\":g(`map.selectNamedTask`,{name:String(k(t,`ownerName`)||k(t,`allianceName`)||k(t,`uuid`)),server:t.serverId}),checked:l.has(i),disabled:[`invalid`,`full`,`expired`].includes(a),onChange:()=>ne(e)})}let n=t,i=String(n.uuid||``).trim(),a=`${n.serverId}:${i}`,s=!/^\\d+$/.test(i)||!P(n.completionTime)||!P(n.plunderAt)||[`expired`,`full`].includes(F(n,o));return(0,E.jsx)(`input`,{type:`checkbox`,\"aria-label\":g(`map.selectNamedTask`,{name:String(k(t,`ownerName`)||k(t,`allianceName`)||k(t,`uuid`)),server:t.serverId}),checked:c.has(a),disabled:s,onChange:()=>h({...n,taskKind:e===`ghost`?`ghost`:`dispatch`})})}"
+      },
+      "pe": {
+        "utf8ByteOffset": 16822,
+        "expression": "function pe(e){let t=F(e,o),n=g(t===`expired`?`map.taskExpired`:t===`full`?`map.taskPlunderFull`:t===`protected`?`map.taskProtected`:t===`ready`?`map.taskReady`:`map.taskPending`);return(0,E.jsx)(`span`,{className:`map-task-status ${t}`,children:n})}"
+      }
+    },
+    "treasureRefreshing": {
+      "state": {
+        "utf8ByteOffset": 31675,
+        "expression": "[jn,Mn]=(0,y.useState)(!1)"
+      },
+      "tableProp": {
+        "utf8ByteOffset": 56776,
+        "expression": "treasureStatesRefreshing:jn"
+      }
+    },
+    "treasureTypes": {
+      "utf8ByteOffset": 3601,
+      "expression": "Ee={1:`map.treasureTypeRadar`,2:`map.treasureTypeSiege`,3:`map.treasureTypeActivityRadar`,5:`map.treasureTypeInvasion`,6:`map.treasureTypeZoneMobilization`,7:`map.treasureTypeSandworm`,8:`map.treasureTypeAllianceBossSandbox`,9:`map.treasureTypePlayerKillMonster`,10:`map.treasureTypeFlowerCar`,11:`map.treasureTypeOffSeason`,12:`map.treasureTypeBloodyQueen`,13:`map.treasureTypeGeneFragment`,15:`map.treasureTypeFlowerTrainUpgrade`,16:`map.treasureTypeFlowerTrainCheer`,17:`map.treasureTypeWolfShadow`,18:`map.treasureTypeSeasonBoss`,19:`map.treasureTypeWorldBoss`,20:`map.treasureTypeZwlGift`}"
+    },
+    "ntCalls": [
+      {
+        "utf8ByteOffset": 15225,
+        "expression": "nt(e,g,oe,i,a,p)"
+      },
+      {
+        "utf8ByteOffset": 50971,
+        "expression": "nt(e.target.value)"
+      },
+      {
+        "utf8ByteOffset": 51231,
+        "expression": "nt(``)"
+      }
+    ]
+  },
+  "production": {
+    "helperPath": "src/LWBridge.UI-0.3.17/src/mapTablePresentation.js",
+    "pagePath": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+    "helperSha256NormalizedLF": "B6C0D9B369D3E78CCC74AA7296F2B88EABF6B6560C3669A199546FC299839427",
+    "pageSha256NormalizedLF": "EE9EB9EC5E9001118CCD502FE86B4CFBB8E050CA57DED9566D9FD7E4ABE58FEC",
+    "locators": {
+      "mapTaskState": {
+        "utf8ByteOffset": 3933,
+        "expression": "function mapTaskState(row, now) {\n  const expires = mapTimestamp(row.taskExpireTime);\n  const completed = mapTimestamp(row.completionTime);\n  const plunderAt = mapTimestamp(row.plunderAt) || completed;\n  const stolen = Number(row.stolenCount), maximum = Number(row.maxStealCount);\n  return expires && now >= expires ? \"expired\" : maximum > 0 && stolen >= maximum ? \"full\"\n    : !completed || now < completed ? \"pending\" : plunderAt && now < plunderAt ? \"protected\" : \"ready\";\n}"
+      },
+      "mapTaskSelectable": {
+        "utf8ByteOffset": 4665,
+        "expression": "function mapTaskSelectable(kind, row, now) {\n  if (kind === \"truck\") return ![\"invalid\", \"full\", \"expired\"].includes(truckState(row, now));\n  const uuid = String(row.uuid || \"\").trim();\n  return /^\\d+$/.test(uuid) && !!mapTimestamp(row.completionTime) && !!mapTimestamp(row.plunderAt)\n    && ![\"expired\", \"full\"].includes(mapTaskState(row, now));\n}"
+      },
+      "treasureName": {
+        "utf8ByteOffset": 5663,
+        "expression": "function treasureName(t, texts, type, suppliesType, nameKey) {\n  const key = String(suppliesNameKey(suppliesType) || nameKey || \"\").trim();\n  const name = t(key === \"challenge_zombie_box_title\" ? \"map.treasureTypeTrialGift\" : suppliesTypeKey(suppliesType));\n  return key ? lookupMapText(texts, key, name) : t(treasureTypeKey(type));\n}"
+      },
+      "MapTable": {
+        "utf8ByteOffset": 3247,
+        "expression": "function MapTable({ kind, rows, loading, sorts, onSort, onCoordinateJump, onPlayerMark, actionBusy, actionDisabled, selectedKeys, onSelect, gameTexts = EMPTY_GAME_TEXTS, itemKey = \"\", treasureStatesRefreshing = false }) {\n  const { language, t } = useI18n();\n  const [currentTime, setCurrentTime] = useState(() => Date.now());\n  useEffect(() => {\n    if (![\"truck\", \"dispatch\", \"ghost\"].includes(kind)) return undefined;\n    setCurrentTime(Date.now());\n    const timer = window.setInterval(() => setCurrentTime(Date.now()), 1000);\n    return () => window.clearInterval(timer);\n  }, [kind]);\n  const columns = useMemo(() => buildMapColumns(kind, t, language, gameTexts, itemKey, treasureStatesRefreshing), [kind, t, language, gameTexts, itemKey, treasureStatesRefreshing]);\n  const columnWidths = columns.map((column) => Number(column.width.match(/\\d+/)[0]) + 8);\n  const rowKey = (row, index) => `${kind}:${row.serverId ?? 0}:${row.recordKey || row.uuid || row.marchUuid || row.pointIndex || index}`;\n  return (\n    <div className=\"map-table-scroll\">\n      <table className={`map-table map-table--${kind}`} style={{ minWidth: columnWidths.reduce((total, width) => total + width, 0) }} aria-label={t(SCAN_TYPE_LABEL_KEYS[kind])} aria-busy={loading}>\n        <colgroup>{columnWidths.map((width, index) => <col key={index} style={{ width }} />)}</colgroup>\n        <thead>\n          <tr className=\"map-row map-head\">\n            {columns.map((column) => {\n              const sortIndex = column.sortBy ? sorts.findIndex((sort) => sort.sortBy === column.sortBy) : -1;\n              const sort = sortIndex >= 0 ? sorts[sortIndex] : null;\n              return (\n                <th key={column.label} scope=\"col\" className={column.className || \"\"} aria-sort={sortIndex === 0 ? (sort.sortOrder === \"asc\" ? \"ascending\" : \"descending\") : undefined}>\n                  {column.sortBy ? (\n                    <button\n                      type=\"button\"\n                      className={`map-sort-button${sort ? \" active\" : \"\"}`}\n                      aria-label={sort ? t(\"map.sortDescription\", { column: column.label, direction: t(sort.sortOrder === \"asc\" ? \"map.sortAscending\" : \"map.sortDescending\"), priority: sortIndex + 1 }) : column.label}\n                      onClick={() => onSort(column.sortBy)}\n                    >\n                      {column.label}\n                      {sort ? <span className=\"map-sort-priority\" aria-hidden=\"true\">{sortIndex + 1}</span> : null}\n                      <span className=\"map-sort-arrows\" aria-hidden=\"true\">\n                        <span className={`map-sort-arrow${sort?.sortOrder === \"asc\" ? \" active\" : \"\"}`}><svg className=\"ui-icon\" viewBox=\"0 0 16 16\" aria-hidden=\"true\" focusable=\"false\"><path d=\"M8 13.5v-11M3.5 7 8 2.5 12.5 7\" /></svg></span>\n                        <span className={`map-sort-arrow${sort?.sortOrder === \"desc\" ? \" active\" : \"\"}`}><svg className=\"ui-icon\" viewBox=\"0 0 16 16\" aria-hidden=\"true\" focusable=\"false\"><path d=\"M8 2.5v11M3.5 9 8 13.5 12.5 9\" /></svg></span>\n                      </span>\n                    </button>\n                  ) : column.label}\n                </th>\n              );\n            })}\n          </tr>\n        </thead>\n        <tbody>\n          {rows.map((row, index) => (\n            <tr className=\"map-row\" key={rowKey(row, index)}>\n              {columns.map((column) => (\n                <td key={column.label} className={column.className || \"\"}>\n                  {column.select ? (\n                    <input type=\"checkbox\" aria-label={t(\"map.selectNamedTask\", { name: row.ownerName || row.allianceName || row.uuid || \"-\", server: row.serverId || \"-\" })} checked={selectedKeys?.has(rowKey(row, index)) || false} disabled={!mapTaskSelectable(kind, row, currentTime)} onChange={() => onSelect?.(rowKey(row, index), row)} />\n                  ) : column.mark ? (\n                    <button className={`map-mark-button${row.marked ? \" active\" : \"\"}`} type=\"button\" disabled={actionDisabled || !row.ownerUid || actionBusy} aria-label={t(row.marked ? \"map.unmarkPlayer\" : \"map.markPlayer\")} onClick={() => onPlayerMark(row)}>\n                      {row.marked ? \"★\" : \"☆\"}\n                    </button>\n                  ) : column.coordinate ? (\n                    <button className=\"map-coordinate-button\" type=\"button\" disabled={actionDisabled || actionBusy || kind === \"truck\" || kind === \"railway\" || !Number.isInteger(Number(row.x)) || !Number.isInteger(Number(row.y))} onClick={() => onCoordinateJump(row)}>\n                      <span className=\"map-coordinate-icon\" aria-hidden=\"true\" />\n                      <span>{coordinateText(row)}</span>\n                    </button>\n                  ) : column.action ? (\n                    <button className=\"map-schedule-button\" type=\"button\" disabled>{t(\"map.claimTreasure\")}</button>\n                  ) : column.status ? (\n                    <span className={`map-task-status ${mapTaskState(row, currentTime)}`}>{mapTaskLabel(mapTaskState(row, currentTime), t)}</span>\n                  ) : column.rewards ? (\n                    !Array.isArray(row[column.rewards]) || row[column.rewards].length === 0 ? \"-\" : <span className=\"map-reward-list map-reward-list--retained\">{[...row[column.rewards]].sort((left, right) => column.rewards === \"currentGoods\" && itemKey ? Number(right.key === itemKey) - Number(left.key === itemKey) : 0).map((item, rewardIndex) => { const name = mapRewardName(item, gameTexts); const description = `${name} ×${mapNumber(item.count, language)}`; return <span className=\"map-reward-item\" key={`${item.key}:${rewardIndex}`} title={description} aria-label={description}><span className=\"map-reward-icon game-asset-placeholder\" aria-hidden=\"true\" /><strong>×{mapRewardCount(item.count)}</strong></span>; })}</span>\n                  ) : kind === \"resource\" && column.label === t(\"common.status\") ? mapResourceStatus(row, t, gameTexts) : column.value?.(row)}\n                </td>\n              ))}\n            </tr>\n          ))}\n          {rows.length === 0 ? (\n            <tr><td className=\"map-empty\" colSpan={columns.length}>{loading ? t(\"common.processing\") : t(\"map.empty\")}</td></tr>\n          ) : null}\n        </tbody>\n      </table>\n    </div>\n  );\n}"
+      },
+      "MapTableCall": {
+        "utf8ByteOffset": 40877,
+        "expression": "<MapTable kind={tab} gameTexts={gameTexts} itemKey={itemKey} rows={rows} loading={loading} sorts={activeSorts} onSort={changeSort} onCoordinateJump={coordinateJump} onPlayerMark={togglePlayerMark} actionBusy={Boolean(actionBusy)} actionDisabled={!online || scanState.isReading} selectedKeys={selectedRows} onSelect={(key) => setSelectedRows((current) => { const next = new Set(current); if (next.has(key)) next.delete(key); else next.add(key); return next; })} />"
+      }
+    },
+    "treasureRefreshingPropPassedByPage": false
+  },
+  "timestamps": [
+    {
+      "input": 0,
+      "expected": 0,
+      "actual": 0
+    },
+    {
+      "input": null,
+      "expected": 0,
+      "actual": 0
+    },
+    {
+      "input": null,
+      "expected": 0,
+      "actual": 0
+    },
+    {
+      "input": "bad",
+      "expected": 0,
+      "actual": 0
+    },
+    {
+      "input": 1799000000000,
+      "expected": 1799000000000,
+      "actual": 1799000000000
+    },
+    {
+      "input": 1799000000,
+      "expected": 1799000000000,
+      "actual": 1799000000000
+    },
+    {
+      "input": 1799000001,
+      "expected": 1799000001000,
+      "actual": 1799000001000
+    }
+  ],
+  "tasks": [
+    {
+      "kind": "dispatch",
+      "id": "pending-missing-completion",
+      "state": "pending",
+      "label": "In progress",
+      "className": "map-task-status pending",
+      "disabled": true
+    },
+    {
+      "kind": "dispatch",
+      "id": "pending-future-completion",
+      "state": "pending",
+      "label": "In progress",
+      "className": "map-task-status pending",
+      "disabled": false
+    },
+    {
+      "kind": "dispatch",
+      "id": "expired-boundary-over-full",
+      "state": "expired",
+      "label": "Expired",
+      "className": "map-task-status expired",
+      "disabled": true
+    },
+    {
+      "kind": "dispatch",
+      "id": "full-over-pending",
+      "state": "full",
+      "label": "Fully plundered",
+      "className": "map-task-status full",
+      "disabled": true
+    },
+    {
+      "kind": "dispatch",
+      "id": "protected-completion-boundary",
+      "state": "protected",
+      "label": "Protected",
+      "className": "map-task-status protected",
+      "disabled": false
+    },
+    {
+      "kind": "dispatch",
+      "id": "ready-plunder-boundary",
+      "state": "ready",
+      "label": "Available",
+      "className": "map-task-status ready",
+      "disabled": false
+    },
+    {
+      "kind": "dispatch",
+      "id": "ready-missing-plunder-disabled",
+      "state": "ready",
+      "label": "Available",
+      "className": "map-task-status ready",
+      "disabled": true
+    },
+    {
+      "kind": "dispatch",
+      "id": "ready-seconds-normalized",
+      "state": "ready",
+      "label": "Available",
+      "className": "map-task-status ready",
+      "disabled": false
+    },
+    {
+      "kind": "dispatch",
+      "id": "ready-invalid-alpha-uuid",
+      "state": "ready",
+      "label": "Available",
+      "className": "map-task-status ready",
+      "disabled": true
+    },
+    {
+      "kind": "dispatch",
+      "id": "ready-empty-uuid",
+      "state": "ready",
+      "label": "Available",
+      "className": "map-task-status ready",
+      "disabled": true
+    },
+    {
+      "kind": "dispatch",
+      "id": "ready-leading-zero-numeric-uuid",
+      "state": "ready",
+      "label": "Available",
+      "className": "map-task-status ready",
+      "disabled": false
+    },
+    {
+      "kind": "dispatch",
+      "id": "ready-numeric-uuid-value",
+      "state": "ready",
+      "label": "Available",
+      "className": "map-task-status ready",
+      "disabled": false
+    },
+    {
+      "kind": "dispatch",
+      "id": "ready-missing-counts",
+      "state": "ready",
+      "label": "Available",
+      "className": "map-task-status ready",
+      "disabled": false
+    },
+    {
+      "kind": "dispatch",
+      "id": "ready-invalid-expiry",
+      "state": "ready",
+      "label": "Available",
+      "className": "map-task-status ready",
+      "disabled": false
+    },
+    {
+      "kind": "ghost",
+      "id": "pending-missing-completion",
+      "state": "pending",
+      "label": "In progress",
+      "className": "map-task-status pending",
+      "disabled": true
+    },
+    {
+      "kind": "ghost",
+      "id": "pending-future-completion",
+      "state": "pending",
+      "label": "In progress",
+      "className": "map-task-status pending",
+      "disabled": false
+    },
+    {
+      "kind": "ghost",
+      "id": "expired-boundary-over-full",
+      "state": "expired",
+      "label": "Expired",
+      "className": "map-task-status expired",
+      "disabled": true
+    },
+    {
+      "kind": "ghost",
+      "id": "full-over-pending",
+      "state": "full",
+      "label": "Fully plundered",
+      "className": "map-task-status full",
+      "disabled": true
+    },
+    {
+      "kind": "ghost",
+      "id": "protected-completion-boundary",
+      "state": "protected",
+      "label": "Protected",
+      "className": "map-task-status protected",
+      "disabled": false
+    },
+    {
+      "kind": "ghost",
+      "id": "ready-plunder-boundary",
+      "state": "ready",
+      "label": "Available",
+      "className": "map-task-status ready",
+      "disabled": false
+    },
+    {
+      "kind": "ghost",
+      "id": "ready-missing-plunder-disabled",
+      "state": "ready",
+      "label": "Available",
+      "className": "map-task-status ready",
+      "disabled": true
+    },
+    {
+      "kind": "ghost",
+      "id": "ready-seconds-normalized",
+      "state": "ready",
+      "label": "Available",
+      "className": "map-task-status ready",
+      "disabled": false
+    },
+    {
+      "kind": "ghost",
+      "id": "ready-invalid-alpha-uuid",
+      "state": "ready",
+      "label": "Available",
+      "className": "map-task-status ready",
+      "disabled": true
+    },
+    {
+      "kind": "ghost",
+      "id": "ready-empty-uuid",
+      "state": "ready",
+      "label": "Available",
+      "className": "map-task-status ready",
+      "disabled": true
+    },
+    {
+      "kind": "ghost",
+      "id": "ready-leading-zero-numeric-uuid",
+      "state": "ready",
+      "label": "Available",
+      "className": "map-task-status ready",
+      "disabled": false
+    },
+    {
+      "kind": "ghost",
+      "id": "ready-numeric-uuid-value",
+      "state": "ready",
+      "label": "Available",
+      "className": "map-task-status ready",
+      "disabled": false
+    },
+    {
+      "kind": "ghost",
+      "id": "ready-missing-counts",
+      "state": "ready",
+      "label": "Available",
+      "className": "map-task-status ready",
+      "disabled": false
+    },
+    {
+      "kind": "ghost",
+      "id": "ready-invalid-expiry",
+      "state": "ready",
+      "label": "Available",
+      "className": "map-task-status ready",
+      "disabled": false
+    }
+  ],
+  "treasure": {
+    "world": [
+      {
+        "id": "charging-rounds-percentage",
+        "value": "Charging 38%",
+        "refreshing": false
+      },
+      {
+        "id": "charging-invalid-percentage",
+        "value": "Charging",
+        "refreshing": false
+      },
+      {
+        "id": "claimable",
+        "value": "Claimable",
+        "refreshing": false
+      },
+      {
+        "id": "depleted",
+        "value": "Depleted",
+        "refreshing": false
+      },
+      {
+        "id": "expired",
+        "value": "Expired",
+        "refreshing": false
+      },
+      {
+        "id": "verifying-explicit",
+        "value": "Checking",
+        "refreshing": false
+      },
+      {
+        "id": "unknown-enum",
+        "value": "-",
+        "refreshing": false
+      },
+      {
+        "id": "missing-state-not-refreshing",
+        "value": "-",
+        "refreshing": false
+      },
+      {
+        "id": "missing-state-refreshing",
+        "value": "Checking",
+        "refreshing": true
+      }
+    ],
+    "player": [
+      {
+        "id": "claimed-over-foreign",
+        "value": "Claimed",
+        "refreshing": false
+      },
+      {
+        "id": "claimed-over-no-scout",
+        "value": "Claimed",
+        "refreshing": false
+      },
+      {
+        "id": "foreign-over-unclaimed",
+        "value": "Other alliance",
+        "refreshing": false
+      },
+      {
+        "id": "foreign-over-failed",
+        "value": "Other alliance",
+        "refreshing": false
+      },
+      {
+        "id": "no-scout",
+        "value": "No free squad",
+        "refreshing": false
+      },
+      {
+        "id": "no-squad",
+        "value": "No free squad",
+        "refreshing": false
+      },
+      {
+        "id": "squad-reserved",
+        "value": "No free squad",
+        "refreshing": false
+      },
+      {
+        "id": "failed-falls-back-unclaimed",
+        "value": "Not claimed",
+        "refreshing": false
+      },
+      {
+        "id": "unknown-player-state",
+        "value": "-",
+        "refreshing": false
+      },
+      {
+        "id": "missing-player-state",
+        "value": "-",
+        "refreshing": false
+      },
+      {
+        "id": "missing-player-state-refreshing",
+        "value": "Checking",
+        "refreshing": true
+      }
+    ],
+    "names": [
+      {
+        "id": "known-radar-type",
+        "value": "Radar Treasure"
+      },
+      {
+        "id": "unknown-type",
+        "value": "Unknown Treasure"
+      },
+      {
+        "id": "ice-supplies-fallback",
+        "value": "Scattered Supplies"
+      },
+      {
+        "id": "desert-supplies-fallback",
+        "value": "Desert Artifacts"
+      },
+      {
+        "id": "lucky-cat-supplies-fallback",
+        "value": "Large Lucky Cat"
+      },
+      {
+        "id": "trial-gift-fallback",
+        "value": "Trial Gift"
+      },
+      {
+        "id": "supplied-name",
+        "value": "Supplied Treasure Name"
+      },
+      {
+        "id": "same-key-is-missing",
+        "value": "Unknown Treasure"
+      },
+      {
+        "id": "supplies-key-precedes-row-name",
+        "value": "Scattered Supplies"
+      }
+    ]
+  },
+  "renders": [
+    {
+      "language": "en",
+      "kind": "dispatch",
+      "headers": [
+        "Select",
+        "Coordinates",
+        "Owner",
+        "Level",
+        "Quality",
+        "Status",
+        "Rewards",
+        "Completion Time",
+        "Updated At"
+      ],
+      "headerClasses": [
+        "map-task-select",
+        "map-column-coordinate",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ]
+    },
+    {
+      "language": "en",
+      "kind": "ghost",
+      "headers": [
+        "Select",
+        "Coordinates",
+        "Owner",
+        "Level",
+        "Quality",
+        "Status",
+        "Rewards",
+        "Completion Time",
+        "Updated At"
+      ],
+      "headerClasses": [
+        "map-task-select",
+        "map-column-coordinate",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ]
+    },
+    {
+      "language": "en",
+      "kind": "treasure",
+      "headers": [
+        "Coordinates",
+        "Treasure Type",
+        "Remaining boxes",
+        "Treasure status",
+        "My status",
+        "Claimed",
+        "Digging",
+        "Expire Time",
+        "Owner",
+        "Alliance",
+        "Actions",
+        "Updated At"
+      ],
+      "world": "Charging 38%",
+      "player": "Claimed",
+      "actionDisabled": true
+    },
+    {
+      "language": "ja",
+      "kind": "dispatch",
+      "headers": [
+        "選択",
+        "座標",
+        "所属プレイヤー",
+        "レベル",
+        "品質",
+        "状態",
+        "報酬",
+        "完了時間",
+        "更新日時"
+      ],
+      "headerClasses": [
+        "map-task-select",
+        "map-column-coordinate",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ]
+    },
+    {
+      "language": "ja",
+      "kind": "ghost",
+      "headers": [
+        "選択",
+        "座標",
+        "所属プレイヤー",
+        "レベル",
+        "品質",
+        "状態",
+        "報酬",
+        "完了時間",
+        "更新日時"
+      ],
+      "headerClasses": [
+        "map-task-select",
+        "map-column-coordinate",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ]
+    },
+    {
+      "language": "ja",
+      "kind": "treasure",
+      "headers": [
+        "座標",
+        "宝物タイプ",
+        "残り宝箱",
+        "宝物状態",
+        "自分の状態",
+        "受取済み",
+        "発掘中",
+        "有効期限",
+        "所属プレイヤー",
+        "連盟",
+        "操作",
+        "更新日時"
+      ],
+      "world": "充電中 38%",
+      "player": "受取済み",
+      "actionDisabled": true
+    }
+  ],
+  "limits": "Synthetic source/local differential and actual production MapTable render checks only. Native/gameplay/original pixel proof is outside this review."
+}
