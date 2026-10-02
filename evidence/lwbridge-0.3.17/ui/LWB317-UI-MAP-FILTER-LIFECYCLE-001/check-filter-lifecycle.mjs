@@ -404,6 +404,11 @@ async function staleOptionsAfterClear(file, label) {
 
 async function delayedClearAckAfterServerChange(file, label) {
   const { h } = await boot(file, label + "-delayed-clear");
+  const optionCalls = [];
+  h.api.dataOptions = async (serverId) => {
+    optionCalls.push(serverId);
+    return { ...emptyOptions(serverId), serverId };
+  };
   const clearCall = deferred();
   h.api.clear = () => clearCall.promise;
   button(h, "map.clearServer").props.onClick();
@@ -416,6 +421,7 @@ async function delayedClearAckAfterServerChange(file, label) {
     scanServerId: h.getState("scanState").serverId,
     browseServerId: h.getState("browseServerId"),
     alliance: h.getState("alliance"),
+    optionCalls,
   };
 }
 
@@ -568,6 +574,7 @@ assert.deepEqual(results.corrected.delayedClearAckAfterServerChange, {
   scanServerId: 321,
   browseServerId: 321,
   alliance: "all",
+  optionCalls: [322, 321],
 });
 
 assert.deepEqual(results.corrected.treasureMissing.initial.query, { includeForeignRadarTreasures: false, luckyFirst: true });

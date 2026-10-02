@@ -619,7 +619,7 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
       setDispatchSelection({});
       setTruckSelection({});
       setSearchRevision((value) => value + 1);
-      if (backendAvailable && next.serverId > 0) loadOptions(next.serverId);
+      if (backendAvailable && next.serverId > 0 && next.serverId === dataServerIdRef.current) loadOptions(next.serverId);
     } catch (error) {
       setScanError(errorText(error));
     }

@@ -6,7 +6,7 @@
     },
     "corrected": {
       "path": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
-      "sha256": "46487357d19629086487a06b461db531dc8850879c83cee2a3b21b3f7e214322"
+      "sha256": "f336a56216788787a3002171fcb1494d0a093c74aa3dbc23dd129cfc1d86a899"
     }
   },
   "baseline": {
@@ -1271,7 +1271,11 @@
     "delayedClearAckAfterServerChange": {
       "scanServerId": 321,
       "browseServerId": 321,
-      "alliance": "all"
+      "alliance": "all",
+      "optionCalls": [
+        322,
+        321
+      ]
     }
   }
 }
