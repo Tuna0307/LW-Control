@@ -1,7 +1,7 @@
 # LWB317-UI-MAP-INTERACTIONS-001
 
-Owner: returning worker through manual relay. Status: ASSIGNED; execution not
-yet confirmed. Project lead assignment 2026-10-02, after owner requests a large
+Owner: returning worker through manual relay. Status: AWAITING_REVIEW (all four
+milestones delivered; see `docs/reviews/2026-10-02-LWB317-UI-MAP-INTERACTIONS-001.md`). Project lead assignment 2026-10-02, after owner requests a large
 task. One UI campaign with four required milestones; no fixed time limit.
 
 ## Goal and inputs

@@ -1,0 +1,832 @@
+{
+  "canonicalSource": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+  "canonicalSha256": "fef7b678ffb673073eaa7183b7bfb9f19eb0ef691584f8512e92d6a29d1da83c",
+  "candidates": [
+    {
+      "id": "C01-server-change-at-page-3",
+      "classification": "DEFECT?",
+      "description": "Server change while on page 3: every search request that follows",
+      "differs": true,
+      "original": {
+        "page": 1,
+        "requests": [
+          {
+            "keyword": "",
+            "kind": "city",
+            "page": 1,
+            "serverId": 456
+          },
+          {
+            "keyword": "",
+            "kind": "city",
+            "page": 1,
+            "serverId": 456
+          }
+        ]
+      },
+      "canonical": {
+        "page": 1,
+        "requests": [
+          {
+            "keyword": "",
+            "kind": "city",
+            "page": 3,
+            "serverId": 456
+          },
+          {
+            "keyword": "",
+            "kind": "city",
+            "page": 1,
+            "serverId": 456
+          }
+        ]
+      }
+    },
+    {
+      "id": "C02-options-refresh-validates-alliance-level-treasure",
+      "classification": "DEFECT?",
+      "description": "Options refresh no longer offers the selected alliance / dispatch level: filter state afterwards",
+      "differs": true,
+      "original": {
+        "allianceValueAfterRefresh": "all",
+        "lastQueryAlliance": null,
+        "requestsAfterRefresh": true
+      },
+      "canonical": {
+        "allianceValueAfterRefresh": "still-Foo",
+        "lastQueryAlliance": "Foo",
+        "requestsAfterRefresh": false
+      }
+    },
+    {
+      "id": "C03-clear-data-resets-filters",
+      "classification": "DEFECT?",
+      "description": "Clear-data: alliance, dispatch level, name selection and keyword afterwards",
+      "differs": true,
+      "original": {
+        "keywordAfter": "kw",
+        "lastQuery": {
+          "keyword": "kw"
+        },
+        "levelAfter": "",
+        "levelBefore": "5"
+      },
+      "canonical": {
+        "keywordAfter": "kw",
+        "lastQuery": {
+          "keyword": "kw",
+          "maxLevel": 5,
+          "minLevel": 5
+        },
+        "levelAfter": "5",
+        "levelBefore": "5"
+      }
+    },
+    {
+      "id": "C04-clear-data-resets-name-selection",
+      "classification": "DEFECT?",
+      "description": "Clear-data on the resource tab with a selected name (options keep offering the name afterwards)",
+      "differs": true,
+      "original": {
+        "nameAfterClear": ""
+      },
+      "canonical": {
+        "nameAfterClear": "r2"
+      }
+    },
+    {
+      "id": "C05-share-failure-message",
+      "classification": "DEFECT?",
+      "description": "Share rejects with an error that has a code: visible message text",
+      "differs": true,
+      "original": {
+        "message": [
+          "common.actionFailed"
+        ]
+      },
+      "canonical": {
+        "message": [
+          "DISPATCH_PLUNDER_GAME_DISCONNECTED: game disconnected"
+        ]
+      }
+    },
+    {
+      "id": "C06-export-messages",
+      "classification": "DEFECT?",
+      "description": "City export success and failure: message text",
+      "differs": true,
+      "original": {
+        "afterFailureAlerts": [],
+        "afterFailureMessages": [
+          "common.actionFailed"
+        ],
+        "success": [
+          "map.exportExcelSuccess"
+        ]
+      },
+      "canonical": {
+        "afterFailureAlerts": [
+          "X: boom"
+        ],
+        "afterFailureMessages": [],
+        "success": []
+      }
+    },
+    {
+      "id": "C07-scan-completion-and-progress-refetch",
+      "classification": "DEFECT?",
+      "description": "Rows refetch while a scan reads (1 s) and when it completes",
+      "differs": true,
+      "original": {
+        "searchRequestsAtCompletion": 2,
+        "searchRequestsDuringScan": 1
+      },
+      "canonical": {
+        "searchRequestsAtCompletion": 0,
+        "searchRequestsDuringScan": 0
+      }
+    },
+    {
+      "id": "C08-treasure-defaults-and-query",
+      "classification": "DEFECT?",
+      "description": "Treasure tab: default checkboxes and query fields",
+      "differs": true,
+      "original": {
+        "foreignChecked": false,
+        "luckyChecked": true,
+        "query": {
+          "includeForeignRadarTreasures": false,
+          "luckyFirst": true,
+          "page": 1,
+          "serverId": 321,
+          "sorts": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ]
+        },
+        "rawQueryKeys": [
+          "includeForeignRadarTreasures",
+          "keyword",
+          "luckyFirst",
+          "page",
+          "pageSize",
+          "serverId",
+          "sorts",
+          "viewerAllianceId",
+          "viewerUid"
+        ]
+      },
+      "canonical": {
+        "foreignChecked": false,
+        "luckyChecked": false,
+        "query": {
+          "page": 1,
+          "serverId": 321,
+          "sorts": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ]
+        },
+        "rawQueryKeys": [
+          "keyword",
+          "page",
+          "serverId",
+          "sorts"
+        ]
+      }
+    },
+    {
+      "id": "C09-alliance-name-none-collision",
+      "classification": "DEFECT?",
+      "description": "Alliance literally named none: choosing it must filter that alliance, not 'without alliance'",
+      "differs": true,
+      "original": {
+        "alliance": "none",
+        "withoutAlliance": null
+      },
+      "canonical": {
+        "alliance": null,
+        "withoutAlliance": true
+      }
+    },
+    {
+      "id": "C10-job-list-load-counts",
+      "classification": "DEFECT?",
+      "description": "Plunder job list loads: mount, Scheduled entry, change event, after schedule success",
+      "differs": false,
+      "original": {
+        "afterScheduleSuccess": 2,
+        "entry": 1,
+        "event": 1,
+        "mount": 1,
+        "tab": "scheduledPlunder"
+      },
+      "canonical": {
+        "afterScheduleSuccess": 2,
+        "entry": 1,
+        "event": 1,
+        "mount": 1,
+        "tab": "scheduledPlunder"
+      }
+    },
+    {
+      "id": "C11-online-toggle-refetch",
+      "classification": "DEFECT?",
+      "description": "online prop false -> true refetches",
+      "differs": false,
+      "original": {
+        "newRequests": 1
+      },
+      "canonical": {
+        "newRequests": 1
+      }
+    },
+    {
+      "id": "C12-name-select-at-page-3",
+      "classification": "DEFECT?",
+      "description": "Select a name at page 3: requests",
+      "differs": false,
+      "original": {
+        "keyword": "",
+        "page": 1,
+        "requests": [
+          {
+            "keyword": "",
+            "kind": "resource",
+            "page": 1,
+            "serverId": 321
+          }
+        ]
+      },
+      "canonical": {
+        "keyword": "",
+        "page": 1,
+        "requests": [
+          {
+            "keyword": "",
+            "kind": "resource",
+            "page": 1,
+            "serverId": 321
+          }
+        ]
+      }
+    },
+    {
+      "id": "C13-sort-at-page-3",
+      "classification": "DEFECT?",
+      "description": "Sort click at page 3: page and request",
+      "differs": false,
+      "original": {
+        "page": 1,
+        "requests": [
+          {
+            "page": 1,
+            "sorts": [
+              {
+                "sortBy": "level",
+                "sortOrder": "desc"
+              },
+              {
+                "sortBy": "updatedAt",
+                "sortOrder": "desc"
+              }
+            ]
+          }
+        ]
+      },
+      "canonical": {
+        "page": 1,
+        "requests": [
+          {
+            "page": 1,
+            "sorts": [
+              {
+                "sortBy": "level",
+                "sortOrder": "desc"
+              },
+              {
+                "sortBy": "updatedAt",
+                "sortOrder": "desc"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "C14-tab-counts-after-clear-data",
+      "classification": "DEFECT?",
+      "description": "Tab count badges at mount and after clear-data",
+      "differs": true,
+      "original": {
+        "afterClear": [
+          "map.city0",
+          "map.resource0",
+          "map.monster0",
+          "map.truck0",
+          "map.allianceTrain0",
+          "map.secretTask0",
+          "map.ghostScout0",
+          "map.treasure0",
+          "map.scheduledPlunder0"
+        ],
+        "mount": [
+          "map.city0",
+          "map.resource0",
+          "map.monster0",
+          "map.truck0",
+          "map.allianceTrain0",
+          "map.secretTask0",
+          "map.ghostScout0",
+          "map.treasure0",
+          "map.scheduledPlunder0"
+        ]
+      },
+      "canonical": {
+        "afterClear": [
+          "map.city0",
+          "map.resource0",
+          "map.monster0",
+          "map.truck0",
+          "map.allianceTrain0",
+          "map.secretTask0",
+          "map.ghostScout0",
+          "map.treasure0",
+          "map.scheduledPlunder0"
+        ],
+        "mount": [
+          "map.city60",
+          "map.resource60",
+          "map.monster60",
+          "map.truck60",
+          "map.allianceTrain60",
+          "map.secretTask60",
+          "map.ghostScout60",
+          "map.treasure60",
+          "map.scheduledPlunder0"
+        ]
+      }
+    },
+    {
+      "id": "C15-mark-button-predicate",
+      "classification": "DEFECT?",
+      "description": "Player-mark button in the city table: disabled offline / while scanning / with a busy action",
+      "differs": true,
+      "original": {
+        "offline": [
+          false,
+          true
+        ],
+        "online": [
+          false,
+          true
+        ],
+        "scanReading": [
+          false,
+          true
+        ]
+      },
+      "canonical": {
+        "offline": [
+          true,
+          true
+        ],
+        "online": [
+          false,
+          true
+        ],
+        "scanReading": [
+          true,
+          true
+        ]
+      }
+    },
+    {
+      "id": "C16-coordinate-and-jump-buttons",
+      "classification": "DOCUMENTED",
+      "description": "Coordinate jump button disabled predicate (offline / online)",
+      "differs": false,
+      "original": {
+        "offline": [
+          true
+        ],
+        "online": [
+          false
+        ]
+      },
+      "canonical": {
+        "offline": [
+          true
+        ],
+        "online": [
+          false
+        ]
+      }
+    },
+    {
+      "id": "C17-checkbox-expiry-clock",
+      "classification": "DEFECT?",
+      "description": "Selected dispatch row expires while the tab is open: checkbox disabled/checked after 6 s",
+      "differs": false,
+      "original": {
+        "after": {
+          "checked": true,
+          "disabled": true
+        },
+        "before": {
+          "checked": true,
+          "disabled": false
+        }
+      },
+      "canonical": {
+        "after": {
+          "checked": true,
+          "disabled": true
+        },
+        "before": {
+          "checked": true,
+          "disabled": false
+        }
+      }
+    },
+    {
+      "id": "C18-ticker-intervals",
+      "classification": "DEFECT?",
+      "description": "Active 1 s intervals per tab (page + table clocks together)",
+      "differs": true,
+      "original": {
+        "city": [],
+        "dispatch": [
+          1000
+        ],
+        "railway": [],
+        "scheduledPlunder": [
+          1000
+        ],
+        "truck": [
+          1000
+        ]
+      },
+      "canonical": {
+        "city": "n/a",
+        "dispatch": "n/a",
+        "railway": "n/a",
+        "scheduledPlunder": "n/a",
+        "truck": "n/a"
+      }
+    },
+    {
+      "id": "C19-schedule-handler-busy-and-failure",
+      "classification": "DEFECT?",
+      "description": "Schedule / truck schedule busy keys, disabled states, failure keeps selection and busy cleared",
+      "differs": false,
+      "original": {
+        "after": [
+          {
+            "disabled": false,
+            "text": "map.scheduleSelected:1"
+          },
+          {
+            "disabled": false,
+            "text": "map.shareAlliance"
+          }
+        ],
+        "during": {
+          "buttons": [
+            {
+              "disabled": true,
+              "text": "map.scheduleSelected:1"
+            },
+            {
+              "disabled": true,
+              "text": "map.shareAlliance"
+            }
+          ],
+          "call": 1
+        },
+        "keys": [
+          "321:1001"
+        ],
+        "tab": "dispatch"
+      },
+      "canonical": {
+        "after": [
+          {
+            "disabled": false,
+            "text": "map.scheduleSelected:1"
+          },
+          {
+            "disabled": false,
+            "text": "map.shareAlliance"
+          }
+        ],
+        "during": {
+          "buttons": [
+            {
+              "disabled": true,
+              "text": "map.scheduleSelected:1"
+            },
+            {
+              "disabled": true,
+              "text": "map.shareAlliance"
+            }
+          ],
+          "call": 1
+        },
+        "keys": [
+          "321:1001"
+        ],
+        "tab": "dispatch"
+      }
+    },
+    {
+      "id": "C20-cancel-clear-busy",
+      "classification": "DEFECT?",
+      "description": "Scheduled actions: busy key and calls for cancel/clear",
+      "differs": false,
+      "original": {
+        "afterAll": "truck:321:t1",
+        "clear": {
+          "args": [
+            "number",
+            "ghost"
+          ],
+          "busy": "clear:ghost"
+        },
+        "ghostCancel": {
+          "args": [
+            321,
+            "ghost:g1"
+          ],
+          "busy": "321:g1"
+        },
+        "truckBusy": "truck:321:t1"
+      },
+      "canonical": {
+        "afterAll": "truck:321:t1",
+        "clear": {
+          "args": [
+            "number",
+            "ghost"
+          ],
+          "busy": "clear:ghost"
+        },
+        "ghostCancel": {
+          "args": [
+            321,
+            "ghost:g1"
+          ],
+          "busy": "321:g1"
+        },
+        "truckBusy": "truck:321:t1"
+      }
+    },
+    {
+      "id": "C21-selection-after-clear-data",
+      "classification": "DEFECT?",
+      "description": "Dispatch and truck selections after clear-data",
+      "differs": false,
+      "original": {
+        "truckKeys": []
+      },
+      "canonical": {
+        "truckKeys": []
+      }
+    },
+    {
+      "id": "C22-search-error-message",
+      "classification": "DOCUMENTED",
+      "description": "Search failure visible surface",
+      "differs": true,
+      "original": {
+        "alerts": 0,
+        "rows": 0
+      },
+      "canonical": {
+        "alerts": 1,
+        "rows": 0
+      }
+    },
+    {
+      "id": "C23-quality-filter-per-tab-and-reset",
+      "classification": "DEFECT?",
+      "description": "Quality filter kept per tab, not applied to city; page reset on change",
+      "differs": false,
+      "original": {
+        "afterQuality": {
+          "page": 1,
+          "q": {
+            "page": 1,
+            "quality": "ur",
+            "serverId": 321,
+            "sorts": [
+              {
+                "sortBy": "updatedAt",
+                "sortOrder": "desc"
+              }
+            ]
+          }
+        },
+        "back": {
+          "page": 1,
+          "quality": "ur",
+          "serverId": 321,
+          "sorts": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ]
+        },
+        "cityQuery": {
+          "page": 1,
+          "serverId": 321,
+          "sorts": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ]
+        }
+      },
+      "canonical": {
+        "afterQuality": {
+          "page": 1,
+          "q": {
+            "page": 1,
+            "quality": "ur",
+            "serverId": 321,
+            "sorts": [
+              {
+                "sortBy": "updatedAt",
+                "sortOrder": "desc"
+              }
+            ]
+          }
+        },
+        "back": {
+          "page": 1,
+          "quality": "ur",
+          "serverId": 321,
+          "sorts": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ]
+        },
+        "cityQuery": {
+          "page": 1,
+          "serverId": 321,
+          "sorts": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "C24-item-filter-sort-cleanup",
+      "classification": "DEFECT?",
+      "description": "Clearing the item filter removes the itemCount sort",
+      "differs": false,
+      "original": {
+        "itemKeyAfter": null,
+        "sortsAfter": [
+          {
+            "sortBy": "updatedAt",
+            "sortOrder": "desc"
+          }
+        ],
+        "sortsBefore": [
+          {
+            "sortBy": "itemCount",
+            "sortOrder": "desc"
+          },
+          {
+            "sortBy": "updatedAt",
+            "sortOrder": "desc"
+          }
+        ]
+      },
+      "canonical": {
+        "itemKeyAfter": null,
+        "sortsAfter": [
+          {
+            "sortBy": "updatedAt",
+            "sortOrder": "desc"
+          }
+        ],
+        "sortsBefore": [
+          {
+            "sortBy": "itemCount",
+            "sortOrder": "desc"
+          },
+          {
+            "sortBy": "updatedAt",
+            "sortOrder": "desc"
+          }
+        ]
+      }
+    },
+    {
+      "id": "C25-pagination-prop-range",
+      "classification": "DEFECT?",
+      "description": "Pagination onPage with 0 and -3",
+      "differs": false,
+      "original": {
+        "minus3": -3,
+        "zero": 0
+      },
+      "canonical": {
+        "minus3": -3,
+        "zero": 0
+      }
+    },
+    {
+      "id": "C26-stale-selection-snapshot",
+      "classification": "DEFECT?",
+      "description": "Selected row refreshed by the backend: payload scheduled is the old snapshot",
+      "differs": false,
+      "original": {
+        "plunderAtSent": 1000
+      },
+      "canonical": {
+        "plunderAtSent": 1000
+      }
+    },
+    {
+      "id": "C04b-clear-data-name-with-real-backend-names-empty",
+      "classification": "DEFECT?",
+      "description": "Clear-data on the resource tab when the backend then offers no names (what a cleared server returns)",
+      "differs": false,
+      "original": {
+        "lastQueryResourceNameKey": null,
+        "nameAfterClear": ""
+      },
+      "canonical": {
+        "lastQueryResourceNameKey": null,
+        "nameAfterClear": ""
+      }
+    },
+    {
+      "id": "C27-scan-start-error-banner",
+      "classification": "DEFECT?",
+      "description": "Start-scan failure with a coded error: banner text",
+      "differs": true,
+      "original": {
+        "alerts": [
+          "common.actionFailed"
+        ]
+      },
+      "canonical": {
+        "alerts": [
+          "GAME_DISCONNECTED: GAME_DISCONNECTED"
+        ]
+      }
+    },
+    {
+      "id": "C28-treasure-checkbox-persistence",
+      "classification": "DEFECT?",
+      "description": "Treasure checkboxes initialise from / persist to localStorage in the original",
+      "original": {
+        "luckyFromStorageFalse": false,
+        "foreignFromStorageTrue": true,
+        "storageKeysWritten": [
+          "lwbridge.mapIncludeForeignRadarTreasures",
+          "lwbridge.mapLuckyTreasurePriority",
+          "lwbridge.mapScanMode"
+        ]
+      },
+      "canonical": {
+        "localStorageKeysInPage": [
+          "\"lwbridge.mapScanMode\"",
+          "autoStorageKey"
+        ]
+      },
+      "differs": true
+    }
+  ],
+  "differing": [
+    "C01-server-change-at-page-3",
+    "C02-options-refresh-validates-alliance-level-treasure",
+    "C03-clear-data-resets-filters",
+    "C04-clear-data-resets-name-selection",
+    "C05-share-failure-message",
+    "C06-export-messages",
+    "C07-scan-completion-and-progress-refetch",
+    "C08-treasure-defaults-and-query",
+    "C09-alliance-name-none-collision",
+    "C14-tab-counts-after-clear-data",
+    "C15-mark-button-predicate",
+    "C18-ticker-intervals",
+    "C22-search-error-message",
+    "C27-scan-start-error-banner"
+  ]
+}

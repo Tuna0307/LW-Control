@@ -91,6 +91,16 @@
       "id": "Scheduled actions: busy keys, ghost cancel identity, reload, error message and fences",
       "status": "FAIL",
       "message": "Cannot read properties of null (reading 'actionsEnabled')"
+    },
+    {
+      "id": "clear-data empties both the Dispatch/Ghost and the Truck selection (original tr: on({}), cn({}))",
+      "status": "FAIL",
+      "message": "Expected values to be strictly deep-equal:"
+    },
+    {
+      "id": "a selected Resource name that the refreshed options no longer offer is cleared",
+      "status": "FAIL",
+      "message": "Expected values to be strictly equal:"
     }
   ]
 }

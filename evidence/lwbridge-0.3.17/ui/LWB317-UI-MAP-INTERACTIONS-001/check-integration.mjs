@@ -283,8 +283,40 @@ await check("Scheduled actions: busy keys, ghost cancel identity, reload, error 
   await new Promise((resolve) => setImmediate(resolve));
   await run.h.settle();
   assert.equal(run.h.getState("busyKey"), "");
-  assert.deepEqual(message(run), ["PREVIEW_NATIVE_ACTION_BLOCKED: Browser preview cannot execute native Map action"]);
+  assert.deepEqual(message(run), ["common.actionFailed"]); // original translator: no catalog entry for the code -> common.actionFailed
   return { message: message(run) };
+});
+
+await check("clear-data empties both the Dispatch/Ghost and the Truck selection (original tr: on({}), cn({}))", async () => {
+  const run = await boot({ tab: "truck" });
+  await run.h.mount();
+  await resolveAll(run);
+  await run.d.toggleRow("truck", truckRow(501));
+  await run.h.clickTab("dispatch");
+  await resolveAll(run);
+  await run.d.toggleRow("dispatch", dispatchRow(1001));
+  assert.deepEqual(run.d.selectionKeys(), ["321:1001"]);
+  await run.d.clickButtonByText("map.clearServer");
+  await run.d.settleFlow();
+  assert.deepEqual(run.d.selectionKeys(), []);
+  await run.h.clickTab("truck");
+  assert.deepEqual(run.d.selectionKeys(), []);
+  return { dispatch: [], truck: [] };
+});
+
+await check("a selected Resource name that the refreshed options no longer offer is cleared", async () => {
+  const options = { names: { resource: [{ key: "100282", count: 3 }, { key: "100281", count: 2 }], monster: [] } };
+  const run = await boot({ tab: "resource", dataOptions: options });
+  await run.h.mount();
+  await resolveAll(run);
+  await run.h.advance(5000);
+  await run.d.selectName("100282");
+  assert.equal(run.d.nameValue(), "100282");
+  options.names.resource = [{ key: "100281", count: 2 }];
+  await run.h.advance(5000);
+  assert.equal(run.d.nameValue(), "");
+  assert.equal(run.d.lastQuery().resourceNameKey, undefined);
+  return { nameAfterRefresh: run.d.nameValue() };
 });
 
 const failed = results.filter((entry) => entry.status !== "PASS");

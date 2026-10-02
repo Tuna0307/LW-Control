@@ -17,6 +17,8 @@ const stable = (value) => Array.isArray(value) ? value.map(stable)
 const source = fs.readFileSync(SOURCES.current, "utf8").replace(/\r\n/g, "\n");
 
 const mutations = [
+  ["server change request keeps the stale page (defect found by the independent final review)", "runSearch(serverTransitioning ? 1 : page);", "runSearch(page);"],
+  ["share failure shows the raw error text instead of the original translation", "    } catch (error) {\n      setActionMessage(translateActionError(t, error));\n    } finally {\n      setSharing(false);", "    } catch (error) {\n      setActionMessage(errorText(error));\n    } finally {\n      setSharing(false);"],
   ["tab change keeps the action message (defect found by the independent original-runtime comparison)", "    setQueryError(\"\");\n    setActionMessage(\"\");\n  }", "    setQueryError(\"\");\n  }"],
   ["keyword is a search-effect dependency (typing searches)", "    searchRevision, tab, treasureType,\n", "    searchRevision, tab, treasureType, keyword,\n"],
   ["tab change resets the Truck selection", "    setDispatchSelection((current) => selectionCount(current) === 0 ? current : {});\n", "    setDispatchSelection((current) => selectionCount(current) === 0 ? current : {});\n    setTruckSelection({});\n"],

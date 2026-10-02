@@ -21,6 +21,26 @@ then integrated QA. Up to two subagents are authorized with exclusive files;
 main worker owns MapDataPage/integration/masters. No native/gameplay scope or
 unrelated Automation/AFK recovery. Protected WIP remains unchanged/unstaged.
 
+## 2026-10-02 — Map interactions campaign delivery
+
+LWB317-UI-MAP-INTERACTIONS-001 is AWAITING_REVIEW (four milestones, one campaign; lead decides). Milestone A
+(`3e8617c`) restored request disposal fencing lost in NAVIGATION-001 (PM-025) and kept the tab cache. Milestones
+B/C (`c57be79`) recovered keyword typing-versus-submit (no keyword dependency, no debounce), Search, Resource/Monster
+name interaction, separate Dispatch/Ghost and Truck selection ownership, random-delay validation and action
+predicates, and replaced the hardcoded Scheduled Plunder placeholder with the recovered Dispatch, Ghost and Truck
+job tables. Milestone D is the combined verification: differential scenarios against the ACTUAL original component
+executed from the asset bytes (38/38 equal, baseline differs in 31), mutation controls, differential render of the
+original scheduled tables, a documented historical replay adapter, 14 integration scenarios and real offline-browser
+checks (en/ja, light/dark, 375 px).
+
+Runtime scheduling, sharing, cancel, clear, job listing and claims are fenced: the production map API implements none
+of them, so the controls stay disabled and the job list stays empty; preview fixtures exist only for the dedicated
+`map-actions-*` and `map-scheduled*` states, reject every action and keep `online:false`. Documented non-reproduced
+differences are in the dated review. Exact continuation: lead review of
+`reviews/2026-10-02-LWB317-UI-MAP-INTERACTIONS-001.md` and the evidence packet; open scopes are the native job
+producer/row schema and scheduling, Treasure native wiring, scan header timing and polling parity, share-error
+translator, alliance/level/treasure-type refresh validation and original pixel comparison.
+
 ## 2026-10-02 — Map navigation worker delivery
 
 LWB317-UI-MAP-NAVIGATION-001 is AWAITING_REVIEW. The worker corrected the

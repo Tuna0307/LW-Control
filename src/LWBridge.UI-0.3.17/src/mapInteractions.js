@@ -91,3 +91,22 @@ export const SCHEDULING_PROVIDER_METHODS = Object.freeze({
 export function providerSupports(mapApi, methods) {
   return methods.every((name) => typeof mapApi?.[name] === "function");
 }
+
+// Original action-failure translator (`m` = Lr in the main asset, byte 328684; its helper Ir extracts error codes):
+// collect the error's `code` plus every upper-case token of the message, newest first, and return the first
+// `error.*`, `auth.error.*` or `update.error.*` catalog entry that exists, else `common.actionFailed`.
+// Identical to the Home-page `translatedError` accepted earlier.
+export function translateActionError(t, value, fallbackKey = "common.actionFailed") {
+  const codes = [];
+  if (value && typeof value === "object" && "code" in value && typeof value.code === "string") codes.push(value.code);
+  const message = value instanceof Error ? value.message : String(value ?? "");
+  codes.push(...message.match(/\b[A-Z][A-Z0-9_]{2,}\b/g) || []);
+  for (const code of [...new Set(codes)].reverse()) {
+    for (const namespace of ["error", "auth.error", "update.error"]) {
+      const key = `${namespace}.${code}`;
+      const translated = t(key);
+      if (translated !== key) return translated;
+    }
+  }
+  return t(fallbackKey);
+}

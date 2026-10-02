@@ -29,6 +29,7 @@ import {
   shareAllianceDisabled,
   shareAllianceLabelKey,
   toggleSelection,
+  translateActionError,
 } from "./mapInteractions.js";
 import { ScheduledPlunder } from "./ScheduledPlunder.jsx";
 
@@ -460,8 +461,11 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
   // The recovered dependency list has no keyword and no timer: a keyword is applied by the Search button or by
   // any listed dependency changing. Disposal (dependency change, backend loss, provider replacement, unmount)
   // retires the in-flight request; the generation also fences tab and server transitions that advance it earlier.
+  // The original data server is state set by its server effect (page reset in the same update), so its first search for a new
+  // server already uses page 1. Here the data server is derived, so the render that sees a new server forces page 1 too.
+  const serverTransitioning = dataServerIdRef.current !== dataServerId;
   useEffect(() => {
-    runSearch(page);
+    runSearch(serverTransitioning ? 1 : page);
     return () => { searchGeneration.current += 1; };
   // keyword is deliberately absent (recovered effect dependencies); runSearch closes over the committing render.
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -775,7 +779,7 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
       setDispatchSelection((current) => removeSharedSelection(current, result.sharedUuids));
       setActionMessage(result.failed > 0 ? t("map.shareAlliancePartial", { shared: result.shared, failed: result.failed }) : t("map.shareAllianceSuccess", { count: result.shared }));
     } catch (error) {
-      setActionMessage(errorText(error));
+      setActionMessage(translateActionError(t, error));
     } finally {
       setSharing(false);
     }
@@ -790,7 +794,7 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
       else await mapApi.clearDispatchPlunderHistory(before, kind);
       await loadPlunderJobs();
     } catch (error) {
-      setActionMessage(errorText(error));
+      setActionMessage(translateActionError(t, error));
     } finally {
       setBusyKey("");
     }

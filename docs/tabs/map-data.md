@@ -117,3 +117,25 @@ an immutable failing baseline, persistent production callback/effect tests and
 real offline preview navigation at server 321 with populated Truck rows.
 Scheduling, keyword/debounce recovery, selection/plunder lifecycle, native
 Treasure wiring and original post-auth pixels remain separate scopes.
+
+## 0.3.17 Map interactions checkpoint — 2026-10-02
+
+LWB317-UI-MAP-INTERACTIONS-001 is AWAITING_REVIEW. Source-recovered (`MapDataPanel-B4GXEND2.js`) behavior now
+implemented in `src/LWBridge.UI-0.3.17/src/MapDataPage.jsx`, `mapInteractions.js`, `ScheduledPlunder.jsx`,
+`mapPlunderPresentation.js` and the offline fixtures in `mapPlunderFixtures.js`:
+
+* Search: keyword (raw, untrimmed, shared by tabs) is absent from the effect dependencies (34816-34869) and there is
+  no timer; Search at page 1 searches directly (54355-54377); the query uses the text currently typed.
+* Names: selecting clears the keyword and resets the page (51184-51243); typing drops the name (50967-51031);
+  Resource/Monster independent; option text from game text or raw key.
+* Selection: Dispatch/Ghost map reset by every tab change (34121-34182); Truck map persistent; keys/payload
+  (39593-39866); membership uses a trimmed key (17072-17832).
+* Delay and actions: raw string default `0`, valid when a safe non-negative integer (32925-32959); schedule/share/truck
+  predicates (55466-56076).
+* Scheduled Plunder: `ot` (20712) and `st` (24391) tables, status/result chains, error translators, counts, loading
+  on mount/events/entry.
+
+Provider-dependent operations stay fenced; the job producer and its row schema are UNKNOWN. Differences not
+reproduced (extra search after each options reply, scan-time row refresh, hidden search errors, `serverId:0` search,
+share-error translator, other filters' refresh validation) are listed in
+`docs/reviews/2026-10-02-LWB317-UI-MAP-INTERACTIONS-001.md`.

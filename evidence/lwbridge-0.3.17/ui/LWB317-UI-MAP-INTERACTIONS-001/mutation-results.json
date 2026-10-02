@@ -1,8 +1,22 @@
 {
   "status": "PASS",
-  "mutations": 12,
-  "detected": 12,
+  "mutations": 14,
+  "detected": 14,
   "results": [
+    {
+      "mutation": "server change request keeps the stale page (defect found by the independent final review)",
+      "detected": true,
+      "detectedBy": [
+        "navigation.server-change-on-page-3-first-request-uses-page-1"
+      ]
+    },
+    {
+      "mutation": "share failure shows the raw error text instead of the original translation",
+      "detected": true,
+      "detectedBy": [
+        "flow.share-failure-message-uses-the-original-error-translator"
+      ]
+    },
     {
       "mutation": "tab change keeps the action message (defect found by the independent original-runtime comparison)",
       "detected": true,

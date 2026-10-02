@@ -116,8 +116,23 @@
       "status": "PASS",
       "observation": {
         "message": [
-          "PREVIEW_NATIVE_ACTION_BLOCKED: Browser preview cannot execute native Map action"
+          "common.actionFailed"
         ]
+      }
+    },
+    {
+      "id": "clear-data empties both the Dispatch/Ghost and the Truck selection (original tr: on({}), cn({}))",
+      "status": "PASS",
+      "observation": {
+        "dispatch": [],
+        "truck": []
+      }
+    },
+    {
+      "id": "a selected Resource name that the refreshed options no longer offer is cleared",
+      "status": "PASS",
+      "observation": {
+        "nameAfterRefresh": ""
       }
     }
   ]

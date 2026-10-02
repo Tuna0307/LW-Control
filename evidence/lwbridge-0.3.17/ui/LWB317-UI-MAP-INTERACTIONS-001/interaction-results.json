@@ -3,10 +3,10 @@
   "scope": "User-level scenarios through the persistent hook adapters: ACTUAL original component (asset bytes), production page and the immutable pre-campaign baseline; synthetic deferred local replies and controlled clock. Not browser/native evidence.",
   "originalAssetSha256": "ce74345518be72e417a510b982c591729e5683f69751e190805598c4c05d3089",
   "sources": {
-    "current": "fef7b678ffb673073eaa7183b7bfb9f19eb0ef691584f8512e92d6a29d1da83c",
+    "current": "fc7c8c5e2ad7dae75f38fcb0a7454249b02cfe7b351dc6e41cf0d320938ad452",
     "baseline": "cb9ec836aa33db22096d43968f27070bf860124b94959607572a4cda679cdb77"
   },
-  "scenarioCount": 35,
+  "scenarioCount": 38,
   "currentMismatches": [],
   "baselineMismatches": [
     "keyword.typed-but-unsubmitted-text-is-used-by-a-filter-change",
@@ -36,7 +36,10 @@
     "flow.scheduled-tab-lists-counts-and-reloads-on-entry-and-change-events",
     "flow.scheduled-cancel-identities-busy-keys-and-reload",
     "flow.scheduled-plunder-again-and-clear-history",
-    "flow.action-message-is-cleared-by-a-tab-change"
+    "flow.action-message-is-cleared-by-a-tab-change",
+    "flow.share-failure-message-uses-the-original-error-translator",
+    "flow.clear-failure-message-uses-the-original-error-translator",
+    "navigation.server-change-on-page-3-first-request-uses-page-1"
   ],
   "originalErrors": [],
   "documentedDifferences": [
@@ -2972,6 +2975,132 @@
       },
       "baseline": {
         "error": "baseline: button map.shareAlliance disabled"
+      }
+    },
+    {
+      "id": "flow.share-failure-message-uses-the-original-error-translator",
+      "currentMatchesOriginal": true,
+      "baselineMatchesOriginal": false,
+      "original": {
+        "value": {
+          "active": [
+            "map.secretTask"
+          ],
+          "busyKey": null,
+          "buttons": [
+            {
+              "disabled": false,
+              "text": "map.scheduleSelected:1"
+            },
+            {
+              "disabled": false,
+              "text": "map.shareAlliance"
+            }
+          ],
+          "jobs": null,
+          "message": [
+            "common.actionFailed"
+          ],
+          "scheduledTab": "map.scheduledPlunder0",
+          "selection": [
+            "321:1001"
+          ]
+        }
+      },
+      "current": {
+        "value": {
+          "active": [
+            "map.secretTask"
+          ],
+          "busyKey": null,
+          "buttons": [
+            {
+              "disabled": false,
+              "text": "map.scheduleSelected:1"
+            },
+            {
+              "disabled": false,
+              "text": "map.shareAlliance"
+            }
+          ],
+          "jobs": null,
+          "message": [
+            "common.actionFailed"
+          ],
+          "scheduledTab": "map.scheduledPlunder0",
+          "selection": [
+            "321:1001"
+          ]
+        }
+      },
+      "baseline": {
+        "error": "baseline: button map.shareAlliance disabled"
+      }
+    },
+    {
+      "id": "flow.clear-failure-message-uses-the-original-error-translator",
+      "currentMatchesOriginal": true,
+      "baselineMatchesOriginal": false,
+      "original": {
+        "value": {
+          "busy": "",
+          "message": [
+            "common.actionFailed"
+          ]
+        }
+      },
+      "current": {
+        "value": {
+          "busy": "",
+          "message": [
+            "common.actionFailed"
+          ]
+        }
+      },
+      "baseline": {
+        "error": "Cannot read properties of null (reading 'clear')"
+      }
+    },
+    {
+      "id": "navigation.server-change-on-page-3-first-request-uses-page-1",
+      "currentMatchesOriginal": true,
+      "baselineMatchesOriginal": false,
+      "original": {
+        "value": {
+          "finalPage": 1,
+          "first": {
+            "page": 1,
+            "server": 456
+          },
+          "pagesIssued": [
+            1
+          ]
+        }
+      },
+      "current": {
+        "value": {
+          "finalPage": 1,
+          "first": {
+            "page": 1,
+            "server": 456
+          },
+          "pagesIssued": [
+            1
+          ]
+        }
+      },
+      "baseline": {
+        "value": {
+          "finalPage": 1,
+          "first": {
+            "page": 3,
+            "server": 456
+          },
+          "pagesIssued": [
+            3,
+            1
+          ]
+        }
       }
     }
   ]

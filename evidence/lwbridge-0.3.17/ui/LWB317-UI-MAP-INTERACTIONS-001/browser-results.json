@@ -1,0 +1,90 @@
+{
+  "status": "PASS",
+  "scope": "In-app browser observations of the offline preview served by Vite at http://127.0.0.1:5173 (dev server started from src/LWBridge.UI-0.3.17 by the worker). Browser evidence, distinct from the synthetic hook tests and the differential against the original component. No native or gameplay action was invoked; every preview provider action is rejected with PREVIEW_NATIVE_ACTION_BLOCKED.",
+  "attribution": "Worker-run observations. The project lead has not independently rerun them.",
+  "baseUrl": "http://127.0.0.1:5173/?previewPage=map-data&previewLanguage=en&previewTheme=light&previewState=<state>",
+  "providerMarkers": [
+    { "state": "map-city", "bridgeMode": "preview", "server": "321", "gameDisconnectedBanner": true, "rows": 50, "scheduledTab": "Scheduled Plunder0" },
+    { "state": "map-resource", "bridgeMode": "preview", "server": "321", "gameDisconnectedBanner": true, "rows": 50, "scheduledTab": "Scheduled Plunder0" },
+    { "state": "map-actions-ready", "bridgeMode": "preview", "server": "321", "gameDisconnectedBanner": true, "rows": 50, "scheduledTab": "Scheduled Plunder0" },
+    { "state": "map-scheduled", "bridgeMode": "preview", "server": "321", "gameDisconnectedBanner": true, "scheduledRows": 0, "scheduledTab": "Scheduled Plunder0" },
+    { "state": "map-scheduled-populated", "bridgeMode": "preview", "server": "321", "gameDisconnectedBanner": true, "scheduledRows": 30, "scheduledTab": "Scheduled Plunder30" },
+    { "state": "map-scheduled-conditional", "bridgeMode": "preview", "server": "321", "gameDisconnectedBanner": true, "scheduledRows": 50, "scheduledTab": "Scheduled Plunder50" }
+  ],
+  "interactions": [
+    {
+      "id": "BR1-keyword-typing-vs-search",
+      "state": "map-city",
+      "steps": [
+        { "action": "click keyword input, type 'Fixture Commander 7' (19 characters)", "input": "real browser pointer/keyboard", "observed": "52 items unchanged and 50 rows after 2.5 s; input value kept" },
+        { "action": "click Search", "input": "real browser pointer", "observed": "1 item: 'Fixture Commander 7' row" }
+      ]
+    },
+    {
+      "id": "BR2-name-select-and-typing",
+      "state": "map-resource",
+      "steps": [
+        { "action": "type 'zzz' into keyword, then choose 'Fixture Resource A (26)'", "input": "keyboard real; select via form_input (DOM-dispatched change)", "observed": "keyword emptied, select value 100282, 26 items (option labels show recovered game-text lookup, not raw keys)" },
+        { "action": "click keyword, type '7' while the name is selected", "input": "real browser pointer/keyboard", "observed": "name select returned to All Names, keyword '7', 53 items (a search ran with the typed text)" }
+      ]
+    },
+    {
+      "id": "BR3-selection-and-fenced-schedule",
+      "state": "map-actions-ready",
+      "steps": [
+        { "action": "click enabled Secret Task checkboxes (Task Owner 1 and 3; Task Owner 2 is Fully plundered and disabled)", "input": "real browser pointer", "observed": "button 'Add to schedule (2)' enabled; Share to Alliance disabled (offline)" },
+        { "action": "click Add to schedule", "input": "real browser pointer", "observed": "provider rejected silently as in the original: still on Secret Task, selection still 2, Scheduled Plunder stays 0, no job created" }
+      ]
+    },
+    {
+      "id": "BR4-selection-ownership-across-tabs-pages",
+      "state": "map-actions-ready",
+      "steps": [
+        { "action": "select 2 Secret Task rows, click Ghost Ops, click Secret Task", "input": "DOM click dispatched through javascript_tool", "observed": "(2) -> Ghost button (0) -> back Secret Task (0): Dispatch/Ghost selection emptied by tab change" },
+        { "action": "Truck tab: select 2 rows, Next page, Train tab, Secret Task (select 1), Truck tab", "input": "DOM click dispatched through javascript_tool", "observed": "'Plunder selected trucks (2)' stayed enabled across page change and tab switches; Secret Task selection independent (1)" }
+      ]
+    },
+    {
+      "id": "BR5-share-busy-presentation",
+      "state": "map-actions-share-busy",
+      "steps": [{ "action": "load fixture (explicit preview render input previewSharing=true)", "input": "navigation", "observed": "label 'Sharing…', schedule and share disabled; screenshots/actions-share-busy-en-light.jpg" }]
+    },
+    {
+      "id": "BR6-scheduled-populated-and-fence",
+      "state": "map-scheduled-populated",
+      "steps": [
+        { "action": "open fixture", "input": "navigation", "observed": "Secret Task 11, Ghost Ops 4, Truck 15 rows (30 items = tab count); statuses Ready/Protected 01:01:41 countdown/Waiting for connection/Plundering/Victory/Defeat visible; Cancel and Plunder Again enabled per recovered predicates" },
+        { "action": "click Clear history in the Truck group", "input": "real browser pointer", "observed": "status line 'PREVIEW_NATIVE_ACTION_BLOCKED: Browser preview cannot execute native Map action: truck plunder history clear'; rows still 15; tab count still 30; no job changed" }
+      ]
+    },
+    {
+      "id": "BR7-scheduled-conditional-busy",
+      "state": "map-scheduled-conditional (ja, dark)",
+      "steps": [{ "action": "open fixture", "input": "navigation", "observed": "23 / 4 / 23 rows; status classes failed, succeeded, cancelled, expired, running, waiting; Clear history disabled by the explicit busy key; one Cancel disabled (its own busy key)" }]
+    }
+  ],
+  "viewports": [
+    { "name": "desktop pane 1024x768 (default)", "states": ["map-city", "map-resource", "map-actions-ready", "map-scheduled-populated", "map-scheduled-conditional"] },
+    { "name": "mobile 375x812 emulation", "states": ["map-scheduled-populated (en, light)", "map-actions-ready (ja, dark)"], "horizontalPageOverflow": false, "note": "Tables scroll inside their own container. The keyword input stacks very tall in the narrow action bar; no style was changed in this campaign (styles.css/reference.css untouched), so this is the existing layout and is not claimed as original parity." }
+  ],
+  "locales": ["en", "ja"],
+  "themes": ["light", "dark"],
+  "console": {
+    "freshLoadAndTenTabCycle": { "state": "map-actions-ready", "tabsVisited": ["Truck", "Train", "Secret Task", "Ghost Ops", "Scheduled Plunder", "City", "Resource", "Monster", "Treasure", "Secret Task"], "errors": 0 },
+    "developmentArtifact": "One React 'final argument passed to useEffect changed size' error appeared once during development after the page-clock effect dependency list was edited under Vite hot module replacement ([dispatch, false] -> [dispatch]). It does not reproduce on a fresh load."
+  },
+  "screenshots": [
+    { "path": "screenshots/actions-secret-selection-ja-dark.jpg", "observation": "Japanese/dark Secret Task: two selected rows, delay input 0, schedule enabled '(2)', share disabled." },
+    { "path": "screenshots/actions-share-busy-en-light.jpg", "observation": "English/light: 'Sharing…' label with schedule and share disabled." },
+    { "path": "screenshots/scheduled-populated-ghost-truck-en-light.jpg", "observation": "English/light Scheduled Plunder Ghost Ops and Truck groups with result states." },
+    { "path": "screenshots/scheduled-conditional-ja-dark.jpg", "observation": "Japanese/dark Scheduled Plunder conditional fixture: Clear history disabled by busy key." },
+    { "path": "screenshots/scheduled-populated-narrow-375-en-light.jpg", "observation": "375 px emulation: three groups stacked, Clear history buttons, internal horizontal scroll." },
+    { "path": "screenshots/actions-secret-narrow-375-ja-dark.jpg", "observation": "375 px Japanese/dark Secret Task action bar stacked; schedule/share disabled with no selection." }
+  ],
+  "limits": [
+    "Preview fixtures are deterministic offline data; a row showing Victory or Succeeded renders a recovered branch and is not the result of any game operation.",
+    "Several selection/tab checks used DOM click dispatch for speed; those are marked 'dom'. Real pointer/keyboard input was used where marked 'real'.",
+    "Screenshots are preview evidence, not original post-auth pixel comparison.",
+    "The preview scheduling/cancel/clear/share methods exist only for the dedicated map-actions-* and map-scheduled* fixture states so the recovered button predicates can be shown; in every other state and in production the buttons stay fenced."
+  ]
+}

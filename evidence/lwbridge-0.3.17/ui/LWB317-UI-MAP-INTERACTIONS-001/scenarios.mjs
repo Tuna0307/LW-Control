@@ -537,6 +537,39 @@ const flows = [
       return { shown, afterTabChange: run.d.messageText() };
     },
   },
+  {
+    id: "flow.share-failure-message-uses-the-original-error-translator",
+    run: async (ctx) => {
+      const run = await initial(ctx, { tab: "dispatch", online: true, schedulingProvider: true });
+      await resolveAll(run);
+      await run.d.toggleRow("dispatch", dispatchRow(1001));
+      await run.d.clickButtonByText("map.shareAlliance");
+      await run.d.rejectCall(run.d.callsOf("share")[0], Object.assign(new Error("game disconnected"), { code: "UNMAPPED_QA_CODE" }));
+      return view(run);
+    },
+  },
+  {
+    id: "flow.clear-failure-message-uses-the-original-error-translator",
+    run: async (ctx) => {
+      const run = await initial(ctx, { tab: "scheduledPlunder", schedulingProvider: true, jobs: JOBS });
+      run.d.scheduled().clear("truck"); await run.d.settleFlow();
+      await run.d.rejectCall(run.d.callsOf("clearTruck").at(-1), new Error("boom"));
+      return { message: run.d.messageText(), busy: view(run).busyKey };
+    },
+  },
+  {
+    id: "navigation.server-change-on-page-3-first-request-uses-page-1",
+    run: async (ctx) => {
+      const run = await initial(ctx, { tab: "city" });
+      await resolveAll(run, 230);
+      await run.d.setPage(3);
+      await resolveAll(run, 230);
+      const before = run.h.requests.length;
+      await run.h.emitServer(456);
+      const issued = run.h.requests.slice(before).map((request) => ({ server: request.query.serverId, page: request.query.page }));
+      return { first: issued[0], pagesIssued: [...new Set(issued.map((entry) => entry.page))], finalPage: run.d.page() };
+    },
+  },
 ];
 scenarios.push(...flows);
 

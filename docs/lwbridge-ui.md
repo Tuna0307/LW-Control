@@ -275,3 +275,22 @@ locators, six baseline failures, zero current deferred-effect failures and
 populated server-321 preview navigation are recorded under the matching evidence
 directory. This does not close keyword/debounce, selection/plunder lifecycle,
 native Treasure wiring, scheduling/claims or original-pixel gaps.
+
+## 0.3.17 Map interaction checkpoint — 2026-10-02
+
+LWB317-UI-MAP-INTERACTIONS-001 is AWAITING_REVIEW. Recovered 0.3.17 Map behavior now reproduced in the canonical page:
+the keyword is not a search-effect dependency and nothing debounces it, so typing never searches while any dependency
+change or the Search button applies the typed text (Search is never disabled by loading; on page 1 it searches
+directly, otherwise it returns to page 1); selecting a Resource/Monster name empties the keyword and typing drops the
+name; Dispatch/Ghost and Truck selections are separate `serverId:uuid` maps (Dispatch/Ghost emptied by every tab
+change, Truck persistent; neither reset by page/filter/search/refresh/server change; clear-data empties both; stored
+key untrimmed vs trimmed membership lookup); the random delay is a shared raw string valid when it parses to a safe
+non-negative integer; schedule/share/truck predicates, busy and message ownership follow the source. Request
+disposal fencing (PM-025) is restored.
+
+The Scheduled Plunder tab renders the recovered Dispatch, Ghost Scout and Truck job tables with their statuses,
+countdowns, conditional Cancel/Plunder Again/Clear controls and counts. Scheduling, sharing, cancel, clear and the job
+list require provider methods that the production map API does not have, so those controls are fenced and the list is
+empty in production; offline preview fixtures (`map-scheduled*`, `map-actions-*`) reject every action. Evidence
+packet: `evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-INTERACTIONS-001/` (original component executed as oracle). Native
+job schema/producer, Treasure wiring, scan/options polling parity and original pixels remain open.
