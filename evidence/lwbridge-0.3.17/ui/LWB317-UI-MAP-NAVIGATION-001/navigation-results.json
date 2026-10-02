@@ -1,0 +1,54 @@
+{
+  "status": "PASS",
+  "source": {
+    "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js",
+    "sha256": "ce74345518be72e417a510b982c591729e5683f69751e190805598c4c05d3089"
+  },
+  "baseline": {
+    "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-NAVIGATION-001/baseline.MapDataPage.jsx",
+    "sha256": "2457d4a801385a74165de69c4e4961882529ee7cf9c36a050fcad0100a3da51b",
+    "failures": [
+      {
+        "name": "uncached Train starts empty/page1/loading and refreshes",
+        "message": "Expected values to be strictly equal:\n\n4 !== 3\n"
+      },
+      {
+        "name": "Truck page2 cached view restores before fresh search",
+        "message": "Expected values to be strictly equal:\n\n1 !== 2\n"
+      },
+      {
+        "name": "independent Train page3 view restores",
+        "message": "Expected values to be strictly equal:\n\n1 !== 3\n"
+      },
+      {
+        "name": "server loss invalidates cache and leaves loading false with no search",
+        "message": "Expected values to be strictly deep-equal:\n+ actual - expected\n\n+ [\n+   {\n+     recordKey: 'server-322-truck'\n+   }\n+ ]\n- []\n"
+      },
+      {
+        "name": "Scheduled Plunder entry is a navigation boundary",
+        "message": "Expected values to be strictly equal:\n\n1 !== 2\n"
+      },
+      {
+        "name": "Scheduled Plunder exit restores normal view then refreshes",
+        "message": "Expected values to be strictly equal:\n\n1 !== 2\n"
+      }
+    ]
+  },
+  "current": {
+    "path": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+    "sha256": "dd1fc599ea32fe0f66581b2d4b3a06f9e11942ceec15dae749743c8964c2f3b2",
+    "failures": []
+  },
+  "scope": "Actual production MapDataPage callbacks and useEffect bodies with persistent hook state and deferred search promises; synthetic local Map responses only. No native/gameplay execution.",
+  "scenarios": [
+    "Truck page 2 -> Train -> Truck restoration",
+    "independent normal-tab pages",
+    "cached/uncached loading",
+    "active-tab no-op",
+    "rapid A/B/A obsolete success/failure/finally",
+    "current search failure",
+    "shrinking page-count clamp/requery",
+    "positive server switch and server loss",
+    "Scheduled Plunder entry/exit navigation boundary"
+  ]
+}

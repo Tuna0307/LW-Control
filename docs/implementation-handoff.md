@@ -4,20 +4,28 @@
 **Branch:** `research/offline-controller`  
 **Active scope:** UI parity / Map navigation and view restoration; no new native integration
 
-## 2026-10-02 — next worker assignment: Map navigation
+## 2026-10-02 — Map navigation worker delivery
 
-`LWB317-UI-MAP-NAVIGATION-001` is ASSIGNED; self-contained prompt prepared for
-manual owner relay, execution not yet confirmed. Read its work item before
-editing. Product baseline is f21b4acc74dc51a44d2734d86022de5b2b843f7d; a newer
-documentation-only assignment commit is expected.
+LWB317-UI-MAP-NAVIGATION-001 is AWAITING_REVIEW. The worker corrected the
+source-local Map navigation unit at the assigned 4fe27c35 checkpoint: normal
+tabs keep component-local page/rows/total views, cached/uncached loading matches
+the recovered handler, same-tab clicks are no-ops, search replies are generation
+fenced, and data-server change/loss clears the cache. Scheduled Plunder is only
+a navigation boundary; no scheduling/native/gameplay work was added.
 
-Lead verified original component-local tab caching (`ye` byte 554, `ir` 39238),
-search generation fencing (`rr` 38513) and server invalidation (effect 33502).
-Current MapDataPage instead clears page/rows/total on every tab/server change.
-Recover surrounding effects and correct this bounded navigation unit, with
-actual async/effect tests and populated preview browser evidence. Preserve
-accepted filters/Checking and unrelated WIP. Scheduled Plunder is a navigation
-boundary only; no native/gameplay scope is opened. Lead remains final reviewer.
+Recovered exact source anchors are ye 554, server transition 33502, normal-query
+effect 34677, rr 38513 and ir 39238. The immutable baseline shows six
+distinguishing failures while the current actual-callback/effect campaign passes
+all required deferred-promise scenarios. Real preview QA verified map-truck,
+server 321, populated rows, Truck page 2 -> Train -> Truck page 2 restoration
+and Scheduled Plunder entry/exit, with zero captured console errors.
+
+Accepted filters, Treasure Checking and row actions remain green. Canonical
+check/build/package passes and protected WIP remains unchanged/unstaged. See
+reviews/2026-10-02-LWB317-UI-MAP-NAVIGATION-001.md and the matching evidence
+directory. Keyword/debounce, selection/plunder lifecycle, native Treasure
+wiring, scheduling/claims and original pixels remain separate. Lead remains
+final reviewer.
 
 Earlier PM-024 acceptance below remains valid; do not repeat its completed review.
 

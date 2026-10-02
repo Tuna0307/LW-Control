@@ -97,3 +97,23 @@ The old complete traversal may remain only as an isolated comparison oracle/test
 7. Only then consider invisible performance work that preserves exact parity.
 
 Historical R7 performance and acceptance data remains evidence, not current product authority.
+
+## 0.3.17 UI navigation checkpoint — 2026-10-02
+
+LWB317-UI-MAP-NAVIGATION-001 is AWAITING_REVIEW for a bounded source/local UI
+correction. Recovered 0.3.17 behavior keeps a component-local normal-tab cache of
+page/rows/total. Leaving a normal tab stores its current view; returning restores
+that view and then performs a fresh search. An uncached tab starts at page 1 with
+empty rows/loading, while clicking the current tab is a no-op.
+
+The production page now also matches the recovered query-generation boundary:
+obsolete search success, failure and finally callbacks cannot alter the active
+tab. Data-server change or loss clears all cached tab views. Scheduled Plunder
+does not participate in the normal cache/search/pagination flow and is handled
+only as an entry/exit navigation boundary in this work item.
+
+Evidence under LWB317-UI-MAP-NAVIGATION-001 records exact 0.3.17 byte locators,
+an immutable failing baseline, persistent production callback/effect tests and
+real offline preview navigation at server 321 with populated Truck rows.
+Scheduling, keyword/debounce recovery, selection/plunder lifecycle, native
+Treasure wiring and original post-auth pixels remain separate scopes.

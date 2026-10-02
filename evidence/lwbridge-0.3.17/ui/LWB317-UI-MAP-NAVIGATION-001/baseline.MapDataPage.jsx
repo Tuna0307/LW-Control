@@ -272,11 +272,8 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
   const selectionTouched = useRef(false);
   const previousReading = useRef(false);
   const summaryGeneration = useRef(0);
-  const searchGeneration = useRef(0);
-  const tabViewCache = useRef(new Map());
-  const dataServerIdRef = useRef(currentServerId);
 
-  const dataServerId = summaryReady ? browseServerId : browseServerId || scanState.serverId || currentServerId;
+  const dataServerId = browseServerId || scanState.serverId || currentServerId;
   const activeSorts = sortsByKind[tab] || [{ sortBy: "updatedAt", sortOrder: "desc" }];
   const completionStatus = tab === "dispatch" || tab === "ghost" ? completionStatusByKind[tab] || "" : "";
   const quality = ["truck", "railway", "dispatch", "ghost"].includes(tab) ? qualityByKind[tab] || "" : "";
@@ -310,12 +307,12 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
       setScanState(summary.scanState);
       setCounts(summary.counts);
       setSummaryReady(true);
-      setBrowseServerId(summary.serverId > 0 ? summary.serverId : 0);
       if (!selectionTouched.current) {
         setSelectedTypes(summary.scanState.selectedTypes);
         setSpeed(summary.scanState.scanMode);
       }
       if (summary.serverId > 0) {
+        setBrowseServerId(summary.serverId);
         await loadOptions(summary.serverId);
       }
       if (generation !== summaryGeneration.current) return;
@@ -337,7 +334,7 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
       previousReading.current = next.isReading;
       setScanState(next);
       setScanError(next.lastError || "");
-      setBrowseServerId(next.serverId > 0 ? next.serverId : 0);
+      if (next.serverId > 0) setBrowseServerId(next.serverId);
       if (wasReading && !next.isReading) refreshSummary();
     });
     refreshSummary();
@@ -352,22 +349,16 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
   }, [backendAvailable, mapApi, refreshSummary]);
 
   useEffect(() => {
-    if (dataServerIdRef.current === dataServerId) return;
-    dataServerIdRef.current = dataServerId;
-    searchGeneration.current += 1;
-    tabViewCache.current.clear();
     setPage(1);
     setRows([]);
     setTotal(0);
-    setLoading(dataServerId > 0);
     setQueryError("");
     setSelectedRows(new Set());
-  }, [dataServerId]);
+  }, [tab, dataServerId]);
 
   useEffect(() => {
     if (!backendAvailable || !dataServerId || tab === "scheduledPlunder") return undefined;
-    const generation = searchGeneration.current + 1;
-    searchGeneration.current = generation;
+    let cancelled = false;
     setLoading(true);
     setQueryError("");
     const query = {
@@ -401,7 +392,7 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
       }
     }
     mapApi.search(tab, query).then((result) => {
-      if (generation !== searchGeneration.current) return;
+      if (cancelled) return;
       const totalPages = mapPageCount(result.total);
       if (page > totalPages) {
         setPage(totalPages);
@@ -410,15 +401,15 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
       setRows(result.rows);
       setTotal(result.total);
     }).catch((error) => {
-      if (generation === searchGeneration.current) {
+      if (!cancelled) {
         setRows([]);
         setTotal(0);
         setQueryError(errorText(error));
       }
     }).finally(() => {
-      if (generation === searchGeneration.current) setLoading(false);
+      if (!cancelled) setLoading(false);
     });
-    return undefined;
+    return () => { cancelled = true; };
   }, [
     activeSorts, alliance, backendAvailable, completionStatus, dataServerId, includeForeignRadarTreasures, itemKey,
     luckyFirst, mapApi, markedOnly, minLevel, monsterNameKey, page, plunderableOnly, quality, resourceNameKey,
@@ -461,12 +452,9 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
       setScanState(next);
       setCounts({ ...EMPTY_COUNTS });
       setOptions(null);
-      searchGeneration.current += 1;
-      tabViewCache.current.clear();
       setRows([]);
       setTotal(0);
       setPage(1);
-      setLoading(false);
       await refreshSummary();
       setSearchRevision((value) => value + 1);
     } catch (error) {
@@ -483,24 +471,6 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
     setSubmittedKeyword(keyword);
     setPage(1);
     setSearchRevision((value) => value + 1);
-  }
-
-  function changeTab(nextTab) {
-    if (nextTab === tab) return;
-    searchGeneration.current += 1;
-    const outgoingTab = tab === "scheduledPlunder" ? null : tab;
-    const incomingTab = nextTab === "scheduledPlunder" ? null : nextTab;
-    const incomingCached = incomingTab ? tabViewCache.current.has(incomingTab) : true;
-    const currentView = { page, rows, total };
-    if (outgoingTab) tabViewCache.current.set(outgoingTab, currentView);
-    const restoredView = incomingTab ? tabViewCache.current.get(incomingTab) || { page: 1, rows: [], total: 0 } : currentView;
-    setTab(nextTab);
-    setPage(restoredView.page);
-    setRows(restoredView.rows);
-    setTotal(restoredView.total);
-    setLoading(Boolean(incomingTab && !incomingCached));
-    setQueryError("");
-    setSelectedRows(new Set());
   }
 
   function changeSort(sortBy) {
@@ -725,7 +695,7 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
       <div className="map-search">
         <div className="map-tabs" role="tablist" aria-label={t("map.title")}>
           {MAP_TABS.map(({ key }) => (
-            <button key={key} type="button" role="tab" className={tab === key ? "active" : ""} aria-selected={tab === key} onClick={() => changeTab(key)}>
+            <button key={key} type="button" role="tab" className={tab === key ? "active" : ""} aria-selected={tab === key} onClick={() => setTab(key)}>
               <span className="map-tab-label">{t(TAB_LABEL_KEYS[key])}</span>
               <span className="map-tab-count">{key === "scheduledPlunder" ? "0" : summaryReady ? counts[key] || 0 : "—"}</span>
             </button>

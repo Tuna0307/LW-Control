@@ -1,0 +1,66 @@
+{
+  "status": "PASS",
+  "url": "http://127.0.0.1:5173/?previewPage=map-data&previewState=map-truck&previewLanguage=en&previewTheme=light",
+  "fixture": "map-truck",
+  "bridgeMode": "preview",
+  "online": false,
+  "serverId": 321,
+  "truckTotal": 55,
+  "initialRow": "Truck Owner 1",
+  "navigation": [
+    {
+      "action": "Truck page 1 -> Next",
+      "input": "browser action",
+      "observedPage": "Page 2 of 2",
+      "observedRow": "Truck Owner 51"
+    },
+    {
+      "action": "Truck page 2 -> Train",
+      "input": "browser action",
+      "observedPage": "Page 1 of 2",
+      "observedTab": "Train56"
+    },
+    {
+      "action": "Train -> Truck",
+      "input": "attached-page DOM click after live refs were replaced by the refresh render",
+      "observedPage": "Page 2 of 2",
+      "observedRow": "Truck Owner 51"
+    },
+    {
+      "action": "Truck page 2 -> Scheduled Plunder",
+      "input": "attached-page DOM click",
+      "observedTab": "Scheduled Plunder0",
+      "normalPaginationPresent": false
+    },
+    {
+      "action": "Scheduled Plunder -> Truck",
+      "input": "attached-page DOM click",
+      "observedPage": "Page 2 of 2",
+      "observedRow": "Truck Owner 51",
+      "observedServer": "Server 321"
+    }
+  ],
+  "consoleErrors": 0,
+  "screenshots": [
+    {
+      "path": "screenshots/map-truck-server321.png",
+      "sha256": "c2081ed0933316c317b2361c386754d07a72780fd7fcf38c8741b9a7e0409a7c",
+      "observation": "Light/en preview visibly shows server 321, Truck 55, and populated Truck rows."
+    },
+    {
+      "path": "screenshots/map-loading.png",
+      "sha256": "379100894a6bad321942237643038c024a8bdc237553c526cc67d22e98379100",
+      "observation": "Deterministic browser-only loading fixture visibly shows Processing with native actions fenced."
+    },
+    {
+      "path": "screenshots/map-error.png",
+      "sha256": "70ecb960eff872b69a96e5243e3a44d2c774d62e318a0c3364f40f29ccf03041",
+      "observation": "Deterministic browser-only failure visibly clears rows and reports MAP_FIXTURE_QUERY_FAILED."
+    }
+  ],
+  "limits": [
+    "The interactive return/Scheduled clicks used attached-page DOM click after React refreshes made previously observed browser-input refs stale; Next and Train were dispatched through browser input.",
+    "Screenshots are deterministic offline preview evidence, not original post-auth pixel comparison.",
+    "No native/gameplay action was invoked."
+  ]
+}

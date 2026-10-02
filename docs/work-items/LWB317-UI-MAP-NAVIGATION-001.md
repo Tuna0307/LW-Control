@@ -1,7 +1,7 @@
 # LWB317-UI-MAP-NAVIGATION-001
 
-Owner: returning worker through manual owner relay. Status: ASSIGNED; prompt
-prepared, worker execution not yet confirmed. Assigned by project lead 2026-10-02.
+Owner: returning worker through manual owner relay. Status: AWAITING_REVIEW.
+Delivered by worker 2026-10-02; project lead retains final acceptance decision.
 
 ## Goal
 
@@ -108,3 +108,41 @@ under `LWB317-UI-LEAD-TABLES-001/protected-wip.json` in the UI evidence tree.
 
 Complete this bounded unit or document a concrete evidence/provider blocker.
 There is no fixed time limit and no automatic broader follow-on assignment.
+
+## Worker delivery — 2026-10-02
+
+Implemented the recovered component-local normal-tab view cache in
+MapDataPage.jsx. Normal tabs now store and restore page/rows/total, a same-tab
+click is a no-op, uncached entry starts empty at page 1, cached entry restores
+the prior view and still refreshes, and Scheduled Plunder acts only as a
+navigation boundary.
+
+Search callbacks now use a generation fence matching the recovered rr behavior:
+obsolete success, failure and finally paths cannot replace another tab's rows,
+error state or loading state. The current request still reports failures and
+page-count shrink still clamps/requeries. Server changes and server loss
+invalidate the mounted cache; no browser persistence was added.
+
+Exact recovered UTF-8 byte anchors are recorded under the work-item evidence:
+ye 554, server transition 33502, normal-query effect 34677, rr 38513 and ir
+39238. The immutable pre-edit MapDataPage baseline reproduces six distinguishing
+navigation failures; the corrected component passes the same persistent
+hook/deferred-promise campaign with zero failures.
+
+Browser preview at the required map-truck URL confirms server 321, Truck total
+55 and populated rows. The observed flow reaches Truck page 2 / Truck Owner 51,
+enters Train at page 1, returns to Truck page 2, and crosses Scheduled Plunder
+without normal pagination before returning to Truck page 2. Captured console
+errors are zero. Loading and deterministic query-error screenshots are also
+recorded. Preview remains offline and no native/gameplay action ran.
+
+Focused accepted filter, Treasure Checking and row-action regressions pass.
+Canonical npm check/build/production-package verification passes. Historical
+LEAD-TABLES/transport executable scripts still contain their pre-FILTERS
+changeItemFilter harness and fail on that stale harness; historical manifests
+were preserved. The FILTERS evidence validator likewise pins the prior
+MapDataPage hash by design. This work item provides its own passing validator.
+
+Remaining outside this assignment: keyword/debounce recovery, exact selection
+and plunder lifecycle, native Treasure context/refresh wiring, Scheduled Plunder
+scheduling/claims, native images/text integration and original post-auth pixels.

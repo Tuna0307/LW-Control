@@ -262,3 +262,13 @@ Direct post-auth original visual
 comparison remains `BLOCKED`, so these rows stay `IMPLEMENTED_NOT_VALIDATED`
 unless they already have separately scoped live proof. No product-wide parity
 claim is made. The Map Goal remains awaiting independent project-lead closeout.
+
+LWB317-UI-MAP-NAVIGATION-001 is AWAITING_REVIEW after worker delivery on
+2026-10-02. The source-local Map page now restores each normal tab's cached
+page/rows/total, refreshes after restoration, fences obsolete query
+success/failure/finally callbacks, invalidates the mounted cache on data-server
+change/loss and treats Scheduled Plunder as a navigation boundary. Exact source
+locators, six baseline failures, zero current deferred-effect failures and
+populated server-321 preview navigation are recorded under the matching evidence
+directory. This does not close keyword/debounce, selection/plunder lifecycle,
+native Treasure wiring, scheduling/claims or original-pixel gaps.

@@ -1,0 +1,27 @@
+{
+  "evidenceState": "EXACT_BYTES",
+  "source": {
+    "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js",
+    "sha256": "ce74345518be72e417a510b982c591729e5683f69751e190805598c4c05d3089"
+  },
+  "cacheHelper": {
+    "byte": 554,
+    "expression": "function ye(e,t,n,r){return t&&e.set(t,n),r?e.get(r)??{page:1,rows:[],total:0}:n}"
+  },
+  "serverTransitionEffect": {
+    "byte": 33502,
+    "expression": "(0,y.useEffect)(()=>{if(C.serverId!==R){if(T.current+=1,D.current.clear(),C.serverId<=0){ut(0),V(1),U([]),W(0),Zt(!1);return}ut(C.serverId),V(1),U([]),W(0),Zt(!0)}},[R,C.serverId])"
+  },
+  "tabSelectionEffect": {
+    "byte": 34677,
+    "expression": "(0,y.useEffect)(()=>{if(L!==`scheduledPlunder`&&!(L===`treasure`&&l&&J&&!In.playerUid)){if(!R){T.current+=1,V(1),U([]),W(0);return}rr(B)}},[L,Ot,R,B,It,Rt,Bt,Ht,Wt,Kt,At,Jt,Mt,Pt,gn,Nn,l,J,In])"
+  },
+  "search": {
+    "byte": 38513,
+    "expression": "async function rr(e=B){if(L===`scheduledPlunder`)return;let t=T.current+1;T.current=t,Zt(!0);try{let n=nr(e),r=await ce(L,n);if(t===T.current){let t=Math.max(1,Math.ceil(r.total/je));if(e>t){V(t);return}if(U(r.rows),W(r.total),L===`treasure`&&l&&!C.isReading&&C.serverId===R&&r.rows.length>0){let e=Le.current+1;Le.current=e,Mn(!0),g(R,r.rows).then(t=>{e===Le.current&&U(e=>He(e,t.states))}).catch(e=>{let t=String(e);!t.includes(`SCAN_RUNNING`)&&!t.includes(`stop the map scan first`)&&w.current(`treasure state refresh error `+t)}).finally(()=>{e===Le.current&&Mn(!1)})}else L===`treasure`&&Mn(!1)}}catch(e){t===T.current&&(L===`treasure`&&Mn(!1),U([]),W(0),b(`map search error `+String(e)))}finally{t===T.current&&Zt(!1)}}"
+  },
+  "tabHandler": {
+    "byte": 39238,
+    "expression": "function ir(e){if(e===L)return;T.current+=1,Le.current+=1;let t=L===`scheduledPlunder`?null:L,n=e===`scheduledPlunder`?null:e,r=n?D.current.has(n):!0,a=ye(D.current,t,{page:B,rows:H,total:en},n);i?i(e):I(e),V(a.page),U(a.rows),W(a.total),Zt(!!(n&&!r)),q(``)}"
+  }
+}

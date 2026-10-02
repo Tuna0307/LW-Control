@@ -77,13 +77,15 @@ Live-prove each implemented in-scope function against an assistant-owned/current
 
 ## Current instruction
 
-Current assignment, 2026-10-02: **LWB317-UI-MAP-NAVIGATION-001 ASSIGNED** to the
-returning worker through manual owner relay; execution not yet confirmed.
-Read `docs/work-items/LWB317-UI-MAP-NAVIGATION-001.md`. Correct Map tab page/row
-restoration, loading/query races and source-derived server invalidation;
-Scheduled Plunder is navigation-only. Preserve accepted filters and preview
-fences. No native/gameplay/function campaign is assigned. Baseline f21b4ac;
-assignment documentation may be newer. Lead makes the final acceptance decision.
+Current delivery, 2026-10-02: **LWB317-UI-MAP-NAVIGATION-001 AWAITING_REVIEW**.
+The returning worker implemented source-derived normal-tab page/row/total
+restoration, cached/uncached loading, search-generation fencing and data-server
+cache invalidation. Scheduled Plunder remains a navigation-only boundary.
+Persistent callback/effect tests, populated server-321 browser navigation,
+focused Map regressions and canonical check/build/package pass. No
+native/gameplay/function work was added. Project lead makes the final acceptance
+decision; keyword/debounce, selection/plunder lifecycle, native Treasure wiring,
+scheduling/claims and original pixels remain separate.
 
 Previous decision, 2026-10-02: PM-024 accepts UI-MAP-FILTERS-001 and its independent
 review af73d18 for the six focused source/local behaviors. The lead verified
