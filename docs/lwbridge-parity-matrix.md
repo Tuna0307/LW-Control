@@ -22,7 +22,13 @@ Its `coverage-matrix.md` explicitly records remaining source-recoverable branche
 Complete all-page UI parity is not accepted. Original visual validation and
 existing Map live-proof scopes remain separate.
 
-Current Map update, 2026-10-02: `LWB317-UI-MAP-FILTER-LIFECYCLE-001` is
+Current lead update, 2026-10-02: FILTER-LIFECYCLE-001 is CHANGES_REQUIRED by
+PM-027: ordinary delivered gates pass, but original/current options-only server
+redirect synchronization differs. Focused R1 assigned; no full Map/UI/native/
+pixel status upgrade. The delivered four milestones and prior accepted scopes
+are retained pending this correction and lead acceptance.
+
+Historical worker Map update, superseded by PM-027: `LWB317-UI-MAP-FILTER-LIFECYCLE-001` is
 **AWAITING_REVIEW** after corrected product commit `3e20fa1` and superseding
 independent PASS review `6b654c5`. The focused source/local delivery covers
 refreshed alliance/Secret Task level/Treasure type validation, encoded real

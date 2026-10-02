@@ -13,7 +13,12 @@ meaningful read-only Map fixture queries pass targeted local QA. Its affected
 coverage matrix records remaining implementation gaps. Full all-page UI parity
 is not accepted. Separately recorded Map live proofs are unchanged.
 
-Current Map update, 2026-10-02: `LWB317-UI-MAP-FILTER-LIFECYCLE-001` is
+Current lead update, 2026-10-02: FILTER-LIFECYCLE-001 is CHANGES_REQUIRED by
+PM-027 for an executed options-only redirect/server-sync mismatch; focused R1
+assigned. Delivered regressions/package pass; prior accepted scopes and native/
+live/global UI statuses remain unchanged. See the PM-027 review.
+
+Historical worker Map update, superseded by PM-027: `LWB317-UI-MAP-FILTER-LIFECYCLE-001` is
 **AWAITING_REVIEW**. Corrected `3e20fa1` plus independent PASS review
 `6b654c5` cover refreshed option validation, real-alliance/sentinel identity,
 acknowledged Clear frontend reset/retention, and Treasure preference

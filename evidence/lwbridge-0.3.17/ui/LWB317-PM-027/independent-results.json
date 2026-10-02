@@ -1,0 +1,47 @@
+[
+  {
+    "case": "mismatched options response follows original server synchronization",
+    "proof": "original and production callbacks",
+    "original": {
+      "serverId": 321,
+      "optionServers": [
+        321,
+        322,
+        321
+      ]
+    },
+    "current": {
+      "serverId": 322,
+      "optionServers": [
+        321,
+        322
+      ]
+    },
+    "pass": false
+  },
+  {
+    "case": "backend-loss ignores pending options success",
+    "proof": "production callback; canonical availability boundary",
+    "pass": true
+  },
+  {
+    "case": "backend-loss ignores pending options failure",
+    "proof": "production callback; canonical availability boundary",
+    "pass": true
+  },
+  {
+    "case": "unmount ignores pending options success",
+    "proof": "production callback; canonical availability boundary",
+    "pass": true
+  },
+  {
+    "case": "unmount ignores pending options failure",
+    "proof": "production callback; canonical availability boundary",
+    "pass": true
+  },
+  {
+    "case": "old-server options rejection cannot replace current success",
+    "proof": "production callbacks",
+    "pass": true
+  }
+]

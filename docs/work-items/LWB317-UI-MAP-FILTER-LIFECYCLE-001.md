@@ -1,6 +1,14 @@
 # LWB317-UI-MAP-FILTER-LIFECYCLE-001
 
-Project-lead assignment, 2026-10-02. Status: **AWAITING_REVIEW**.
+Current lead decision, 2026-10-02: **CHANGES_REQUIRED by PM-027** at submitted
+c99c761. Delivered checks pass, but a lead-added options-only redirect case
+settles on a different server from the original. Read the PM-027 review; only
+the focused R1 work item is assigned next. Preserve implemented milestones.
+Historical assignment/delivery below is retained; global UI/native/pixel status
+is unchanged.
+
+Historical worker delivery status: **AWAITING_REVIEW**, superseded by the
+project-lead CHANGES_REQUIRED decision above. Original assignment 2026-10-02.
 Owner: manually relayed worker AI; project lead owns final acceptance.
 
 ## Goal and starting point

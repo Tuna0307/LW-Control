@@ -4,7 +4,23 @@
 **Branch:** `research/offline-controller`  
 **Active scope:** UI parity / Map filter lifecycle; no new native integration
 
-## 2026-10-02 — Map filter lifecycle worker delivery
+## 2026-10-02 PM-027 — focused correction required
+
+Lead reviewed c99c761; parent FILTER-LIFECYCLE-001 is **CHANGES_REQUIRED**.
+Worker/source/regression/check/build/package replays pass, but one lead-added
+options-only server redirect case differs from executed original behavior:
+options(321) returns server 322 while scan server stays 321; original settles
+at 321 with [321,322,321] requests, current at 322 with [321,322]. Five other
+new ownership cases pass. Read the PM-027 review and evidence checker.
+
+Only `LWB317-UI-MAP-FILTER-LIFECYCLE-001-R1` is ASSIGNED for manual relay;
+execution is not confirmed. Correct the combined options/scan-server lifecycle,
+retaining the delivered four milestones and delayed-Clear [322,321] correction.
+Do not restart the parent or begin native/scan/gameplay work. The lead inspected
+worker browser evidence but ran no fresh browser session. Overall UI/native/
+pixels and protected WIP remain unchanged.
+
+## Historical worker delivery — superseded by PM-027 decision
 
 `LWB317-UI-MAP-FILTER-LIFECYCLE-001` is **AWAITING_REVIEW**. The worker
 implemented current options validation for City alliance, Secret Task level and

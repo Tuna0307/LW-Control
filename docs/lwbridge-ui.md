@@ -12,7 +12,15 @@ If the reference opens into a login/locked state, capture only enough evidence t
 
 ## Required inventory
 
-Current delivery, 2026-10-02: `LWB317-UI-MAP-FILTER-LIFECYCLE-001` is
+Current lead decision, 2026-10-02: PM-027 marks FILTER-LIFECYCLE-001
+CHANGES_REQUIRED for one options-only redirect/scan-server synchronization
+mismatch. Delivered gates and five extra ownership cases pass, but executed
+original settles at 321 after [321,322,321] requests while current settles
+at 322 after [321,322]. Focused R1 is ASSIGNED for manual relay; retain the
+delivered milestones and delayed-Clear correction. Overall UI remains
+IMPLEMENTED_NOT_VALIDATED. See the PM-027 review and R1 work item.
+
+Historical worker delivery, superseded by PM-027: `LWB317-UI-MAP-FILTER-LIFECYCLE-001` is
 **AWAITING_REVIEW**. Refreshed option validation, encoded alliance identity,
 acknowledged Clear frontend resets and Treasure defaults/persistence/query
 fields are implemented with immutable baseline/current callback evidence,
