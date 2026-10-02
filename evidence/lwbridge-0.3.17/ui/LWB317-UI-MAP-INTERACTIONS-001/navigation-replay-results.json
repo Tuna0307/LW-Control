@@ -1,0 +1,23 @@
+{
+  "status": "PASS",
+  "adapter": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-INTERACTIONS-001/harness.mjs",
+  "historicalCampaignSha256": "37aebf501ed64761695b5ea93978e6892183fcf7f8183712aca0c8fb02d21278",
+  "scope": "Historical NAVIGATION-001 campaign() text replayed through the generic hook adapter against the actual production MapDataPage callbacks/effects. Synthetic deferred local responses; not browser/native evidence.",
+  "baseline": {
+    "failures": [
+      "uncached Train starts empty/page1/loading and refreshes",
+      "Truck page2 cached view restores before fresh search",
+      "independent Train page3 view restores",
+      "server loss invalidates cache and leaves loading false with no search",
+      "Scheduled Plunder entry is a navigation boundary",
+      "Scheduled Plunder exit restores normal view then refreshes"
+    ],
+    "requests": 19
+  },
+  "current": {
+    "path": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+    "sha256LfNormalized": "cb9ec836aa33db22096d43968f27070bf860124b94959607572a4cda679cdb77",
+    "failures": [],
+    "requests": 17
+  }
+}

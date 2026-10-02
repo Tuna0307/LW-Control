@@ -1,0 +1,855 @@
+{
+  "status": "PASS",
+  "scope": "Actual MapDataPage callbacks/effects in the persistent hook replay adapter (harness.mjs); synthetic deferred local responses. Not browser or native evidence.",
+  "sources": {
+    "baseline": {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-NAVIGATION-001/baseline.MapDataPage.jsx",
+      "sha256LfNormalized": "dc1a29a366d5b6a3dba631c37f66a230c05181b220ce06cb24158ef8adabc3b9"
+    },
+    "delivery-305240e": {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-INTERACTIONS-001/delivery-305240e.MapDataPage.jsx",
+      "sha256LfNormalized": "c6e65cbdd53adf476bad5947ce892c058254ee60ce3c6a80acf53198728c6710"
+    },
+    "current": {
+      "path": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+      "sha256LfNormalized": "cb9ec836aa33db22096d43968f27070bf860124b94959607572a4cda679cdb77"
+    }
+  },
+  "scenarioCount": 13,
+  "failures": {
+    "baseline": [],
+    "delivery-305240e": [
+      "backend loss: pending success",
+      "backend loss: pending rejection",
+      "unmount: pending success",
+      "unmount: pending rejection"
+    ],
+    "current": []
+  },
+  "results": [
+    {
+      "label": "baseline",
+      "scenario": "backend loss: pending success",
+      "before": {
+        "rows": [],
+        "total": 0,
+        "loading": true,
+        "queryError": "",
+        "page": 1
+      },
+      "after": {
+        "rows": [],
+        "total": 0,
+        "loading": true,
+        "queryError": "",
+        "page": 1
+      },
+      "staleReplyIgnored": true,
+      "followUpCurrentRequestApplies": null,
+      "passed": true
+    },
+    {
+      "label": "baseline",
+      "scenario": "backend loss: pending rejection",
+      "before": {
+        "rows": [],
+        "total": 0,
+        "loading": true,
+        "queryError": "",
+        "page": 1
+      },
+      "after": {
+        "rows": [],
+        "total": 0,
+        "loading": true,
+        "queryError": "",
+        "page": 1
+      },
+      "staleReplyIgnored": true,
+      "followUpCurrentRequestApplies": null,
+      "passed": true
+    },
+    {
+      "label": "baseline",
+      "scenario": "unmount: pending success",
+      "before": {
+        "rows": [],
+        "total": 0,
+        "loading": true,
+        "queryError": "",
+        "page": 1
+      },
+      "after": {
+        "rows": [],
+        "total": 0,
+        "loading": true,
+        "queryError": "",
+        "page": 1
+      },
+      "staleReplyIgnored": true,
+      "followUpCurrentRequestApplies": null,
+      "passed": true
+    },
+    {
+      "label": "baseline",
+      "scenario": "unmount: pending rejection",
+      "before": {
+        "rows": [],
+        "total": 0,
+        "loading": true,
+        "queryError": "",
+        "page": 1
+      },
+      "after": {
+        "rows": [],
+        "total": 0,
+        "loading": true,
+        "queryError": "",
+        "page": 1
+      },
+      "staleReplyIgnored": true,
+      "followUpCurrentRequestApplies": null,
+      "passed": true
+    },
+    {
+      "label": "baseline",
+      "scenario": "provider replacement: old success after new request starts",
+      "before": {
+        "rows": [],
+        "total": 0,
+        "loading": true,
+        "queryError": "",
+        "page": 1
+      },
+      "after": {
+        "rows": [],
+        "total": 0,
+        "loading": true,
+        "queryError": "",
+        "page": 1
+      },
+      "staleReplyIgnored": true,
+      "followUpCurrentRequestApplies": true,
+      "passed": true
+    },
+    {
+      "label": "baseline",
+      "scenario": "provider replacement: old rejection after new request starts",
+      "before": {
+        "rows": [],
+        "total": 0,
+        "loading": true,
+        "queryError": "",
+        "page": 1
+      },
+      "after": {
+        "rows": [],
+        "total": 0,
+        "loading": true,
+        "queryError": "",
+        "page": 1
+      },
+      "staleReplyIgnored": true,
+      "followUpCurrentRequestApplies": true,
+      "passed": true
+    },
+    {
+      "label": "baseline",
+      "scenario": "re-entry: stale success while re-entered request is pending",
+      "before": {
+        "rows": [],
+        "total": 0,
+        "loading": true,
+        "queryError": "",
+        "page": 1
+      },
+      "after": {
+        "rows": [],
+        "total": 0,
+        "loading": true,
+        "queryError": "",
+        "page": 1
+      },
+      "staleReplyIgnored": true,
+      "followUpCurrentRequestApplies": true,
+      "passed": true
+    },
+    {
+      "label": "baseline",
+      "scenario": "re-entry: stale rejection after re-entered request succeeded",
+      "before": {
+        "rows": [
+          {
+            "recordKey": "re-entry-row"
+          }
+        ],
+        "total": 1,
+        "loading": false,
+        "queryError": "",
+        "page": 1
+      },
+      "after": {
+        "rows": [
+          {
+            "recordKey": "re-entry-row"
+          }
+        ],
+        "total": 1,
+        "loading": false,
+        "queryError": "",
+        "page": 1
+      },
+      "staleReplyIgnored": true,
+      "followUpCurrentRequestApplies": null,
+      "passed": true
+    },
+    {
+      "label": "baseline",
+      "scenario": "stale finally cannot clear the newer pending request's loading",
+      "before": {
+        "rows": [],
+        "total": 0,
+        "loading": true,
+        "queryError": "",
+        "page": 2
+      },
+      "after": {
+        "rows": [],
+        "total": 0,
+        "loading": true,
+        "queryError": "",
+        "page": 2
+      },
+      "staleReplyIgnored": true,
+      "followUpCurrentRequestApplies": true,
+      "passed": true
+    },
+    {
+      "label": "baseline",
+      "scenario": "effect re-run (page change): stale rejection leaves newer pending untouched",
+      "before": {
+        "rows": [],
+        "total": 0,
+        "loading": true,
+        "queryError": "",
+        "page": 2
+      },
+      "after": {
+        "rows": [],
+        "total": 0,
+        "loading": true,
+        "queryError": "",
+        "page": 2
+      },
+      "staleReplyIgnored": true,
+      "followUpCurrentRequestApplies": null,
+      "passed": true
+    },
+    {
+      "label": "baseline",
+      "scenario": "server transition: pending success",
+      "before": {
+        "rows": [],
+        "total": 0,
+        "loading": true,
+        "queryError": "",
+        "page": 1
+      },
+      "after": {
+        "rows": [],
+        "total": 0,
+        "loading": true,
+        "queryError": "",
+        "page": 1
+      },
+      "staleReplyIgnored": true,
+      "followUpCurrentRequestApplies": null,
+      "passed": true
+    },
+    {
+      "label": "baseline",
+      "scenario": "current request still applies after backend recovery (positive control)",
+      "before": null,
+      "after": {
+        "rows": [
+          {
+            "recordKey": "positive-control"
+          }
+        ],
+        "total": 1,
+        "loading": false,
+        "queryError": "",
+        "page": 1
+      },
+      "staleReplyIgnored": null,
+      "followUpCurrentRequestApplies": true,
+      "passed": true
+    },
+    {
+      "label": "delivery-305240e",
+      "scenario": "backend loss: pending success",
+      "before": {
+        "rows": [],
+        "total": 0,
+        "loading": true,
+        "queryError": "",
+        "page": 1
+      },
+      "after": {
+        "rows": [
+          {
+            "recordKey": "obsolete-after-unavailable"
+          }
+        ],
+        "total": 1,
+        "loading": false,
+        "queryError": "",
+        "page": 1
+      },
+      "staleReplyIgnored": false,
+      "followUpCurrentRequestApplies": null,
+      "passed": false
+    },
+    {
+      "label": "delivery-305240e",
+      "scenario": "backend loss: pending rejection",
+      "before": {
+        "rows": [],
+        "total": 0,
+        "loading": true,
+        "queryError": "",
+        "page": 1
+      },
+      "after": {
+        "rows": [],
+        "total": 0,
+        "loading": false,
+        "queryError": "OBSOLETE: obsolete-after-unavailable",
+        "page": 1
+      },
+      "staleReplyIgnored": false,
+      "followUpCurrentRequestApplies": null,
+      "passed": false
+    },
+    {
+      "label": "delivery-305240e",
+      "scenario": "unmount: pending success",
+      "before": {
+        "rows": [],
+        "total": 0,
+        "loading": true,
+        "queryError": "",
+        "page": 1
+      },
+      "after": {
+        "rows": [
+          {
+            "recordKey": "obsolete-after-unmount"
+          }
+        ],
+        "total": 1,
+        "loading": false,
+        "queryError": "",
+        "page": 1
+      },
+      "staleReplyIgnored": false,
+      "followUpCurrentRequestApplies": null,
+      "passed": false
+    },
+    {
+      "label": "delivery-305240e",
+      "scenario": "unmount: pending rejection",
+      "before": {
+        "rows": [],
+        "total": 0,
+        "loading": true,
+        "queryError": "",
+        "page": 1
+      },
+      "after": {
+        "rows": [],
+        "total": 0,
+        "loading": false,
+        "queryError": "OBSOLETE: obsolete-after-unmount",
+        "page": 1
+      },
+      "staleReplyIgnored": false,
+      "followUpCurrentRequestApplies": null,
+      "passed": false
+    },
+    {
+      "label": "delivery-305240e",
+      "scenario": "provider replacement: old success after new request starts",
+      "before": {
+        "rows": [],
+        "total": 0,
+        "loading": true,
+        "queryError": "",
+        "page": 1
+      },
+      "after": {
+        "rows": [],
+        "total": 0,
+        "loading": true,
+        "queryError": "",
+        "page": 1
+      },
+      "staleReplyIgnored": true,
+      "followUpCurrentRequestApplies": true,
+      "passed": true
+    },
+    {
+      "label": "delivery-305240e",
+      "scenario": "provider replacement: old rejection after new request starts",
+      "before": {
+        "rows": [],
+        "total": 0,
+        "loading": true,
+        "queryError": "",
+        "page": 1
+      },
+      "after": {
+        "rows": [],
+        "total": 0,
+        "loading": true,
+        "queryError": "",
+        "page": 1
+      },
+      "staleReplyIgnored": true,
+      "followUpCurrentRequestApplies": true,
+      "passed": true
+    },
+    {
+      "label": "delivery-305240e",
+      "scenario": "re-entry: stale success while re-entered request is pending",
+      "before": {
+        "rows": [],
+        "total": 0,
+        "loading": true,
+        "queryError": "",
+        "page": 1
+      },
+      "after": {
+        "rows": [],
+        "total": 0,
+        "loading": true,
+        "queryError": "",
+        "page": 1
+      },
+      "staleReplyIgnored": true,
+      "followUpCurrentRequestApplies": true,
+      "passed": true
+    },
+    {
+      "label": "delivery-305240e",
+      "scenario": "re-entry: stale rejection after re-entered request succeeded",
+      "before": {
+        "rows": [
+          {
+            "recordKey": "re-entry-row"
+          }
+        ],
+        "total": 1,
+        "loading": false,
+        "queryError": "",
+        "page": 1
+      },
+      "after": {
+        "rows": [
+          {
+            "recordKey": "re-entry-row"
+          }
+        ],
+        "total": 1,
+        "loading": false,
+        "queryError": "",
+        "page": 1
+      },
+      "staleReplyIgnored": true,
+      "followUpCurrentRequestApplies": null,
+      "passed": true
+    },
+    {
+      "label": "delivery-305240e",
+      "scenario": "stale finally cannot clear the newer pending request's loading",
+      "before": {
+        "rows": [],
+        "total": 0,
+        "loading": true,
+        "queryError": "",
+        "page": 2
+      },
+      "after": {
+        "rows": [],
+        "total": 0,
+        "loading": true,
+        "queryError": "",
+        "page": 2
+      },
+      "staleReplyIgnored": true,
+      "followUpCurrentRequestApplies": true,
+      "passed": true
+    },
+    {
+      "label": "delivery-305240e",
+      "scenario": "effect re-run (page change): stale rejection leaves newer pending untouched",
+      "before": {
+        "rows": [],
+        "total": 0,
+        "loading": true,
+        "queryError": "",
+        "page": 2
+      },
+      "after": {
+        "rows": [],
+        "total": 0,
+        "loading": true,
+        "queryError": "",
+        "page": 2
+      },
+      "staleReplyIgnored": true,
+      "followUpCurrentRequestApplies": null,
+      "passed": true
+    },
+    {
+      "label": "delivery-305240e",
+      "scenario": "server transition: pending success",
+      "before": {
+        "rows": [],
+        "total": 0,
+        "loading": true,
+        "queryError": "",
+        "page": 1
+      },
+      "after": {
+        "rows": [],
+        "total": 0,
+        "loading": true,
+        "queryError": "",
+        "page": 1
+      },
+      "staleReplyIgnored": true,
+      "followUpCurrentRequestApplies": null,
+      "passed": true
+    },
+    {
+      "label": "delivery-305240e",
+      "scenario": "Scheduled Plunder entry: pending success",
+      "before": {
+        "rows": [],
+        "total": 0,
+        "loading": false,
+        "queryError": "",
+        "page": 1
+      },
+      "after": {
+        "rows": [],
+        "total": 0,
+        "loading": false,
+        "queryError": "",
+        "page": 1
+      },
+      "staleReplyIgnored": true,
+      "followUpCurrentRequestApplies": null,
+      "passed": true
+    },
+    {
+      "label": "delivery-305240e",
+      "scenario": "current request still applies after backend recovery (positive control)",
+      "before": null,
+      "after": {
+        "rows": [
+          {
+            "recordKey": "positive-control"
+          }
+        ],
+        "total": 1,
+        "loading": false,
+        "queryError": "",
+        "page": 1
+      },
+      "staleReplyIgnored": null,
+      "followUpCurrentRequestApplies": true,
+      "passed": true
+    },
+    {
+      "label": "current",
+      "scenario": "backend loss: pending success",
+      "before": {
+        "rows": [],
+        "total": 0,
+        "loading": true,
+        "queryError": "",
+        "page": 1
+      },
+      "after": {
+        "rows": [],
+        "total": 0,
+        "loading": true,
+        "queryError": "",
+        "page": 1
+      },
+      "staleReplyIgnored": true,
+      "followUpCurrentRequestApplies": null,
+      "passed": true
+    },
+    {
+      "label": "current",
+      "scenario": "backend loss: pending rejection",
+      "before": {
+        "rows": [],
+        "total": 0,
+        "loading": true,
+        "queryError": "",
+        "page": 1
+      },
+      "after": {
+        "rows": [],
+        "total": 0,
+        "loading": true,
+        "queryError": "",
+        "page": 1
+      },
+      "staleReplyIgnored": true,
+      "followUpCurrentRequestApplies": null,
+      "passed": true
+    },
+    {
+      "label": "current",
+      "scenario": "unmount: pending success",
+      "before": {
+        "rows": [],
+        "total": 0,
+        "loading": true,
+        "queryError": "",
+        "page": 1
+      },
+      "after": {
+        "rows": [],
+        "total": 0,
+        "loading": true,
+        "queryError": "",
+        "page": 1
+      },
+      "staleReplyIgnored": true,
+      "followUpCurrentRequestApplies": null,
+      "passed": true
+    },
+    {
+      "label": "current",
+      "scenario": "unmount: pending rejection",
+      "before": {
+        "rows": [],
+        "total": 0,
+        "loading": true,
+        "queryError": "",
+        "page": 1
+      },
+      "after": {
+        "rows": [],
+        "total": 0,
+        "loading": true,
+        "queryError": "",
+        "page": 1
+      },
+      "staleReplyIgnored": true,
+      "followUpCurrentRequestApplies": null,
+      "passed": true
+    },
+    {
+      "label": "current",
+      "scenario": "provider replacement: old success after new request starts",
+      "before": {
+        "rows": [],
+        "total": 0,
+        "loading": true,
+        "queryError": "",
+        "page": 1
+      },
+      "after": {
+        "rows": [],
+        "total": 0,
+        "loading": true,
+        "queryError": "",
+        "page": 1
+      },
+      "staleReplyIgnored": true,
+      "followUpCurrentRequestApplies": true,
+      "passed": true
+    },
+    {
+      "label": "current",
+      "scenario": "provider replacement: old rejection after new request starts",
+      "before": {
+        "rows": [],
+        "total": 0,
+        "loading": true,
+        "queryError": "",
+        "page": 1
+      },
+      "after": {
+        "rows": [],
+        "total": 0,
+        "loading": true,
+        "queryError": "",
+        "page": 1
+      },
+      "staleReplyIgnored": true,
+      "followUpCurrentRequestApplies": true,
+      "passed": true
+    },
+    {
+      "label": "current",
+      "scenario": "re-entry: stale success while re-entered request is pending",
+      "before": {
+        "rows": [],
+        "total": 0,
+        "loading": true,
+        "queryError": "",
+        "page": 1
+      },
+      "after": {
+        "rows": [],
+        "total": 0,
+        "loading": true,
+        "queryError": "",
+        "page": 1
+      },
+      "staleReplyIgnored": true,
+      "followUpCurrentRequestApplies": true,
+      "passed": true
+    },
+    {
+      "label": "current",
+      "scenario": "re-entry: stale rejection after re-entered request succeeded",
+      "before": {
+        "rows": [
+          {
+            "recordKey": "re-entry-row"
+          }
+        ],
+        "total": 1,
+        "loading": false,
+        "queryError": "",
+        "page": 1
+      },
+      "after": {
+        "rows": [
+          {
+            "recordKey": "re-entry-row"
+          }
+        ],
+        "total": 1,
+        "loading": false,
+        "queryError": "",
+        "page": 1
+      },
+      "staleReplyIgnored": true,
+      "followUpCurrentRequestApplies": null,
+      "passed": true
+    },
+    {
+      "label": "current",
+      "scenario": "stale finally cannot clear the newer pending request's loading",
+      "before": {
+        "rows": [],
+        "total": 0,
+        "loading": true,
+        "queryError": "",
+        "page": 2
+      },
+      "after": {
+        "rows": [],
+        "total": 0,
+        "loading": true,
+        "queryError": "",
+        "page": 2
+      },
+      "staleReplyIgnored": true,
+      "followUpCurrentRequestApplies": true,
+      "passed": true
+    },
+    {
+      "label": "current",
+      "scenario": "effect re-run (page change): stale rejection leaves newer pending untouched",
+      "before": {
+        "rows": [],
+        "total": 0,
+        "loading": true,
+        "queryError": "",
+        "page": 2
+      },
+      "after": {
+        "rows": [],
+        "total": 0,
+        "loading": true,
+        "queryError": "",
+        "page": 2
+      },
+      "staleReplyIgnored": true,
+      "followUpCurrentRequestApplies": null,
+      "passed": true
+    },
+    {
+      "label": "current",
+      "scenario": "server transition: pending success",
+      "before": {
+        "rows": [],
+        "total": 0,
+        "loading": true,
+        "queryError": "",
+        "page": 1
+      },
+      "after": {
+        "rows": [],
+        "total": 0,
+        "loading": true,
+        "queryError": "",
+        "page": 1
+      },
+      "staleReplyIgnored": true,
+      "followUpCurrentRequestApplies": null,
+      "passed": true
+    },
+    {
+      "label": "current",
+      "scenario": "Scheduled Plunder entry: pending success",
+      "before": {
+        "rows": [],
+        "total": 0,
+        "loading": false,
+        "queryError": "",
+        "page": 1
+      },
+      "after": {
+        "rows": [],
+        "total": 0,
+        "loading": false,
+        "queryError": "",
+        "page": 1
+      },
+      "staleReplyIgnored": true,
+      "followUpCurrentRequestApplies": null,
+      "passed": true
+    },
+    {
+      "label": "current",
+      "scenario": "current request still applies after backend recovery (positive control)",
+      "before": null,
+      "after": {
+        "rows": [
+          {
+            "recordKey": "positive-control"
+          }
+        ],
+        "total": 1,
+        "loading": false,
+        "queryError": "",
+        "page": 1
+      },
+      "staleReplyIgnored": null,
+      "followUpCurrentRequestApplies": true,
+      "passed": true
+    }
+  ]
+}

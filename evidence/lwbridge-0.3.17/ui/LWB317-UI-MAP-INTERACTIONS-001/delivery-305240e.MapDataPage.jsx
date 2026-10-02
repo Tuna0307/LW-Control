@@ -418,9 +418,7 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
     }).finally(() => {
       if (generation === searchGeneration.current) setLoading(false);
     });
-    // Disposal (dependency change, backend loss, provider replacement, unmount) retires this
-    // request; the generation also fences tab and server transitions that advance it earlier.
-    return () => { searchGeneration.current += 1; };
+    return undefined;
   }, [
     activeSorts, alliance, backendAvailable, completionStatus, dataServerId, includeForeignRadarTreasures, itemKey,
     luckyFirst, mapApi, markedOnly, minLevel, monsterNameKey, page, plunderableOnly, quality, resourceNameKey,
