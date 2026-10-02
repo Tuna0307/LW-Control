@@ -1,0 +1,444 @@
+{
+  "pins": {
+    "panel": "ce74345518be72e417a510b982c591729e5683f69751e190805598c4c05d3089",
+    "index": "44c4e4043825b7db296b64171951b27176f8850ff8d7d337cc991df4765524c6",
+    "asset": "2f92a87c3268497df6425b1175db6140e10aabcbdfae02615f065d00e16458e0"
+  },
+  "treasure": [
+    {
+      "id": "strict-2",
+      "view": {
+        "summary": "map.treasureTypeSiege",
+        "active": [
+          1
+        ],
+        "buttonText": [
+          "map.allTreasureTypes",
+          "map.treasureTypeSiege (4)",
+          "Recovered (5)",
+          "map.treasureTypeIceSupplies (0)"
+        ]
+      },
+      "pass": true
+    },
+    {
+      "id": "strict-\"2\"",
+      "view": {
+        "summary": "Recovered",
+        "active": [
+          2
+        ],
+        "buttonText": [
+          "map.allTreasureTypes",
+          "map.treasureTypeSiege (4)",
+          "Recovered (5)",
+          "map.treasureTypeIceSupplies (0)"
+        ]
+      },
+      "pass": true
+    },
+    {
+      "id": "strict-0",
+      "view": {
+        "summary": "map.treasureTypeIceSupplies",
+        "active": [
+          0,
+          3
+        ],
+        "buttonText": [
+          "map.allTreasureTypes",
+          "map.treasureTypeSiege (4)",
+          "Recovered (5)",
+          "map.treasureTypeIceSupplies (0)"
+        ]
+      },
+      "pass": true
+    },
+    {
+      "id": "strict-\"missing\"",
+      "view": {
+        "summary": "map.allTreasureTypes",
+        "active": [],
+        "buttonText": [
+          "map.allTreasureTypes",
+          "map.treasureTypeSiege (4)",
+          "Recovered (5)",
+          "map.treasureTypeIceSupplies (0)"
+        ]
+      },
+      "pass": true
+    },
+    {
+      "id": "original-successful-change-before-close",
+      "trace": [
+        [
+          "change",
+          2
+        ],
+        [
+          "remove",
+          "open"
+        ]
+      ],
+      "pass": true
+    },
+    {
+      "id": "original-throw-keeps-open-and-null-ref-safe",
+      "pass": true
+    },
+    {
+      "id": "current-successful-change-before-close",
+      "trace": [
+        [
+          "change",
+          2
+        ],
+        [
+          "remove",
+          "open"
+        ]
+      ],
+      "pass": true
+    },
+    {
+      "id": "current-throw-keeps-open-and-null-ref-safe",
+      "pass": true
+    }
+  ],
+  "goods": [
+    {
+      "id": "strict-2",
+      "view": {
+        "summary": "Numeric",
+        "active": [
+          1
+        ],
+        "buttonText": [
+          "All",
+          "Numeric",
+          "String",
+          "Zero"
+        ]
+      },
+      "pass": true
+    },
+    {
+      "id": "strict-\"2\"",
+      "view": {
+        "summary": "String",
+        "active": [
+          2
+        ],
+        "buttonText": [
+          "All",
+          "Numeric",
+          "String",
+          "Zero"
+        ]
+      },
+      "pass": true
+    },
+    {
+      "id": "strict-0",
+      "view": {
+        "summary": "Zero",
+        "active": [
+          0,
+          3
+        ],
+        "buttonText": [
+          "All",
+          "Numeric",
+          "String",
+          "Zero"
+        ]
+      },
+      "pass": true
+    },
+    {
+      "id": "strict-\"missing\"",
+      "view": {
+        "summary": "All",
+        "active": [],
+        "buttonText": [
+          "All",
+          "Numeric",
+          "String",
+          "Zero"
+        ]
+      },
+      "pass": true
+    },
+    {
+      "id": "original-successful-change-before-close",
+      "trace": [
+        [
+          "change",
+          2
+        ],
+        [
+          "remove",
+          "open"
+        ]
+      ],
+      "pass": true
+    },
+    {
+      "id": "original-throw-keeps-open",
+      "pass": true
+    },
+    {
+      "id": "current-successful-change-before-close",
+      "trace": [
+        [
+          "change",
+          2
+        ],
+        [
+          "remove",
+          "open"
+        ]
+      ],
+      "pass": true
+    },
+    {
+      "id": "current-throw-keeps-open",
+      "pass": true
+    }
+  ],
+  "header": [
+    {
+      "id": "strict-run-id",
+      "view": {
+        "text": "common.stoppedmap.server 3210%",
+        "progressValue": 0,
+        "progressMax": 100,
+        "statusText": "common.stopped"
+      },
+      "pass": true
+    },
+    {
+      "id": "strict-server-id",
+      "view": {
+        "text": "common.stoppedmap.server 3210%",
+        "progressValue": 0,
+        "progressMax": 100,
+        "statusText": "common.stopped"
+      },
+      "pass": true
+    },
+    {
+      "id": "stored-running-ignored",
+      "view": {
+        "text": "common.stoppedmap.server 3210%",
+        "progressValue": 0,
+        "progressMax": 100,
+        "statusText": "common.stopped"
+      },
+      "pass": true
+    },
+    {
+      "id": "publishing-stopped-priority",
+      "view": {
+        "text": "common.processingmap.server 32199.75%",
+        "progressValue": 99.75,
+        "progressMax": 100,
+        "statusText": "common.processing"
+      },
+      "pass": true
+    },
+    {
+      "id": "provided-zero",
+      "view": {
+        "text": "common.stoppedmap.server 3210%",
+        "progressValue": 0,
+        "progressMax": 100,
+        "statusText": "common.stopped"
+      },
+      "pass": true
+    },
+    {
+      "id": "optional-absent",
+      "view": {
+        "text": "common.stoppedmap.server -—",
+        "progressMax": 100,
+        "statusText": "common.stopped"
+      },
+      "pass": true
+    }
+  ],
+  "headerClock": [
+    {
+      "id": "t0",
+      "original": 1791028800000,
+      "current": 1791028800000,
+      "pass": true
+    },
+    {
+      "id": "t999",
+      "original": 1791028800000,
+      "current": 1791028800000,
+      "pass": true
+    },
+    {
+      "id": "t1000",
+      "original": 1791028801000,
+      "current": 1791028801000,
+      "pass": true
+    },
+    {
+      "id": "stop-and-unmount-cleanup",
+      "pass": true
+    }
+  ],
+  "export": [
+    {
+      "id": "cancellation-and-busy",
+      "trace": {
+        "message": [],
+        "busy": false,
+        "label": "map.exportExcel"
+      },
+      "pass": true
+    },
+    {
+      "id": "concurrent-second-then-first",
+      "trace": {
+        "afterSecond": {
+          "busy": false,
+          "message": [
+            "map.exportExcelSuccess:2:second.xlsx"
+          ]
+        },
+        "final": {
+          "busy": false,
+          "message": [
+            "map.exportExcelSuccess:1:first.xlsx"
+          ]
+        }
+      },
+      "pass": true
+    }
+  ],
+  "errorPriority": [
+    {
+      "id": "matching-stored-error-over-live",
+      "view": [
+        {
+          "role": "status",
+          "text": "common.actionFailed"
+        }
+      ],
+      "pass": true
+    },
+    {
+      "id": "local-start-error-over-stored-live",
+      "view": [
+        {
+          "role": "alert",
+          "text": "common.actionFailed"
+        }
+      ],
+      "pass": true
+    }
+  ],
+  "refresh": [
+    {
+      "id": "read-change-at-999ms-keeps-original-deadline",
+      "delta": 1,
+      "pass": true
+    },
+    {
+      "id": "completion-at-999ms-cancels-trailing",
+      "afterCompletion": [
+        1,
+        1
+      ],
+      "afterDeadline": [
+        1,
+        1
+      ],
+      "pass": true
+    }
+  ],
+  "disposal": [
+    {
+      "id": "original-timer-request-navigation-fence",
+      "pass": true
+    },
+    {
+      "id": "current-timer-request-navigation-fence",
+      "pass": true
+    }
+  ],
+  "baselines": [
+    {
+      "id": "treasure-parent-native-select",
+      "parent": "fbde5d6^",
+      "pass": true
+    },
+    {
+      "id": "goods-parent-native-select",
+      "parent": "315c5a7^",
+      "pass": true
+    },
+    {
+      "id": "header-parent-publishing-mismatch",
+      "parent": "123459d^",
+      "original": {
+        "text": "common.processingmap.server 32199.75%",
+        "progressValue": 99.75,
+        "progressMax": 100,
+        "statusText": "common.processing"
+      },
+      "parentView": {
+        "text": "common.stoppedmap.server 321—",
+        "progressMax": "100",
+        "statusText": "common.stopped"
+      },
+      "pass": true
+    },
+    {
+      "id": "feedback-parent-export-success-mismatch",
+      "parent": "f8f3f4e^",
+      "original": {
+        "message": [
+          "map.exportExcelSuccess:7:baseline.xlsx"
+        ],
+        "busy": false,
+        "label": "map.exportExcel"
+      },
+      "parentView": {
+        "message": [],
+        "busy": false,
+        "label": "map.exportExcel"
+      },
+      "pass": true
+    },
+    {
+      "id": "feedback-parent-row-refresh-mismatch",
+      "parent": "f8f3f4e^",
+      "originalDelta": 1,
+      "parentDelta": 0,
+      "pass": true
+    }
+  ],
+  "inheritedOrSeparate": [
+    {
+      "id": "mount-reading-completion-options-ownership",
+      "originalDataOptionsDelta": 1,
+      "currentPreviousReadingBeforeCompletion": false,
+      "currentOptionsGenerationBefore": 1,
+      "currentOptionsGenerationAfter": 1,
+      "currentOptionsGenerationDelta": 0,
+      "note": "Recorded for Milestone B ownership; not attributed to f8f3f4e without parent comparison."
+    }
+  ],
+  "status": "PASS",
+  "reviewedCommits": {
+    "treasure": "fbde5d6",
+    "goods": "315c5a7",
+    "header": "123459d",
+    "feedback": "f8f3f4e"
+  }
+}
