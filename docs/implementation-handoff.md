@@ -6,6 +6,12 @@
 
 ## 2026-10-02 Map table takeover — latest continuation
 
+Latest worker assignment: **LWB317-REVIEW-MAP-STATES-001 ASSIGNED** at owner's
+request for one medium task. Review Secret Task/Ghost Ops/Treasure presentation
+only; no product writes or gameplay. Read its work item. Home busy review is now
+QUEUED; Trade 003E and broader Map acceptance remain pending. This supersedes the
+earlier review order below. Stop after this one review for lead integration.
+
 Owner requested a larger lead implementation block while the worker rests.
 `LWB317-UI-LEAD-TABLES-001` is **AWAITING_REVIEW**: the eight normal Map tables
 now use exact recovered column/value/width definitions, time-derived task and
@@ -25,8 +31,8 @@ actual original selection/status/reward/filter functions, fixture queries/fences
 accepted Home/Trade regressions and canonical package checks pass. Original pixels,
 native providers, Scheduled Plunder and per-tab filter/action details remain open.
 
-Next returning worker: finish the already assigned independent Home busy review,
-then receive a bounded independent Map-table review. Trade 003E still awaits
+Earlier review order (superseded by the assignment above): independent Home busy
+review followed by a bounded Map-table review. Trade 003E still awaits
 independent review. This takeover rechecked Home busy/Trade 003E as their author;
 it does not independently accept them. No worker/chat was restarted. Parent
 CORRECT-003 remains PARTIAL; its old boolean Trade-error assertion is stale and
@@ -134,7 +140,7 @@ error-channel and root acknowledgement/polling scope. Fourteen actual-callback/
 effect scenarios and four independent acknowledgement comparisons pass; accepted
 translation/switch regressions and package verification remain green. Native
 contracts/persistence/lifecycle and original pixels remain unproved. Busy remains
-AWAITING_REVIEW; LWB317-REVIEW-HOME-BUSY-001 is ASSIGNED for presentation only.
+AWAITING_REVIEW; LWB317-REVIEW-HOME-BUSY-001 is QUEUED for presentation only.
 See `reviews/2026-10-02-LWB317-PM-019-home-root-correction-acceptance.md` and
 `work-items/LWB317-REVIEW-HOME-BUSY-001.md`.
 Do not restart broad CORRECT-003 or reopen accepted weekly/selection/history work.

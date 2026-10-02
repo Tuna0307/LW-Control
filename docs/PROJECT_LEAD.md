@@ -47,6 +47,7 @@ the Map closeout awaits a separate independent acceptance review.
 
 | Work item / campaign | Owner | State | Scope |
 |---|---|---|---|
+| LWB317-REVIEW-MAP-STATES-001 | Returning worker | ASSIGNED — only active worker item | Medium independent source/local review of Secret Task, Ghost Ops and Treasure table labels/states/selection; review/evidence only. Home busy review queued for a later assignment; no gameplay or global acceptance |
 | LWB317-UI-LEAD-TABLES-001 | Project lead takeover while worker rests | AWAITING_REVIEW | Eight normal Map tables corrected against exact 0.3.17 source: columns/widths, time/status/quality/text fallback, reward rendering/sorting and eligibility. 288 metadata / 15,264 value / 72 actual render cases across nine locales; browser variants and package checks pass. Home busy/Trade 003E strengthened by author rechecks, independent reviews remain pending |
 | LWB317-PM-001 | Project lead | COMPLETE | Repository/documentation reset for 0.3.17 |
 | LWB317-PM-003 | Project lead | COMPLETE | Takeover source/evidence audit, current path map and exact CSS checkout repair; no new live test/full Map acceptance |
@@ -62,7 +63,7 @@ the Map closeout awaits a separate independent acceptance review.
 | LWB317-PM-018 | Project lead | COMPLETE | Integrates independent channel review; root acknowledgement/polling defect reproduced; correction assigned, not implemented |
 | LWB317-UI-HOME-ERROR-002-R1 | Returning worker, lead-reviewed | COMPLETE / ACCEPTED for focused source/local scope | PM-019 accepts 8415316: profile-effect initial root request, shared acknowledgement, no repeated root polling; 14 scenarios and four independent comparisons pass |
 | LWB317-PM-019 | Project lead | COMPLETE | Accepts source/local root correction; no native/pixel/global UI acceptance |
-| LWB317-REVIEW-HOME-BUSY-001 | Returning worker as independent reviewer | ASSIGNED | Review distinct busy display, source predicates and current input reachability; no product/native edits |
+| LWB317-REVIEW-HOME-BUSY-001 | Returning worker as independent reviewer | QUEUED | Deferred by 2026-10-02 medium Map-states assignment; scope remains distinct busy display/predicates/input reachability, no product/native edits |
 | LWB317-UI-HOME-BUSY-001 | Project lead | AWAITING_REVIEW | Independent busy display inputs and source header/button precedence; 13,824 nine-locale render comparisons, 384 predicate cases and 9 browser observations pass. App unchanged; lifecycle producers absent; switch localization accepted separately by PM-016 |
 | LWB317-UI-HOME-STATES-001 | None | SUPERSEDED | Historical Home-only proposal; replaced by full UI coverage |
 | LWB317-UI-COMPLETE-001 | Previous worker | CHANGES_REQUIRED | Useful partial UI checkpoint at `a253cce`; PM-006 found missing Home preference scope, incorrect Automation forms and incomplete Equipment interactions; full source-backed coverage not accepted |

@@ -1,6 +1,9 @@
 # LWB317-REVIEW-HOME-BUSY-001 — independent Home busy presentation review
 
-Owner: returning worker as independent reviewer. State: ASSIGNED.
+Owner: returning worker as independent reviewer. State: QUEUED.
+2026-10-02 lead update: owner requested a fresh medium assignment; only
+LWB317-REVIEW-MAP-STATES-001 is active for the returning worker. This review
+is deferred, not cancelled or accepted. Resume only when separately reassigned.
 Date: 2026-10-02. Implementation baseline: 8415316ef1c7bd66ca94ff44670a7654d03688d6;
 PM-019 acceptance/assignment documentation follows it. Use current HEAD without reset.
 
