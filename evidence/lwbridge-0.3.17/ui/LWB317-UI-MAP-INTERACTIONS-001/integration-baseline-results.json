@@ -1,0 +1,96 @@
+{
+  "source": "baseline",
+  "status": "FAIL",
+  "scope": "Actual production MapDataPage callbacks/effects in the hook replay adapter; synthetic deferred provider replies and controlled clock. Not browser/native evidence.",
+  "results": [
+    {
+      "id": "cache restoration keeps the typed keyword and refreshes the restored page with it",
+      "status": "PASS",
+      "observation": {
+        "restored": {
+          "page": 2,
+          "rows": 1,
+          "keyword": "k1"
+        },
+        "refresh": {
+          "serverId": 321,
+          "keyword": "k1",
+          "page": 2,
+          "sorts": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "name selection survives tab cache restoration and refreshes with the name and restored page",
+      "status": "PASS",
+      "observation": {
+        "serverId": 321,
+        "page": 2,
+        "sorts": [
+          {
+            "sortBy": "updatedAt",
+            "sortOrder": "desc"
+          }
+        ],
+        "resourceNameKey": "100282"
+      }
+    },
+    {
+      "id": "Dispatch selection resets on tab change while the cached page and rows are restored",
+      "status": "FAIL",
+      "message": "Expected values to be strictly deep-equal:"
+    },
+    {
+      "id": "selection is retained across row refresh (connection change) and search while rows are replaced",
+      "status": "FAIL",
+      "message": "Expected values to be strictly deep-equal:"
+    },
+    {
+      "id": "rapid navigation with deferred replies settles on the final tab only",
+      "status": "PASS",
+      "observation": {
+        "requests": 5
+      }
+    },
+    {
+      "id": "Normal/Scheduled transitions: counts, list loading on entry, change events and normal state untouched",
+      "status": "FAIL",
+      "message": "The input did not match the regular expression /4$/. Input:"
+    },
+    {
+      "id": "the page clock drives Scheduled Plunder once per second from the controlled clock",
+      "status": "FAIL",
+      "message": "Cannot read properties of null (reading 'currentTime')"
+    },
+    {
+      "id": "fence: without a provider every job/schedule/share control stays disabled and calls nothing",
+      "status": "FAIL",
+      "message": "Cannot read properties of null (reading 'actionsEnabled')"
+    },
+    {
+      "id": "schedule success: busy, selection cleared, list reloaded, navigation to Scheduled Plunder; failure keeps selection",
+      "status": "FAIL",
+      "message": "node.props.onChange is not a function"
+    },
+    {
+      "id": "truck schedule success clears only the Truck selection",
+      "status": "FAIL",
+      "message": "baseline: button map.scheduleSelectedTrucks:1 disabled"
+    },
+    {
+      "id": "share: label flips while sharing, only shared uuids leave the selection, partial/success messages",
+      "status": "FAIL",
+      "message": "baseline: button map.shareAlliance disabled"
+    },
+    {
+      "id": "Scheduled actions: busy keys, ghost cancel identity, reload, error message and fences",
+      "status": "FAIL",
+      "message": "Cannot read properties of null (reading 'actionsEnabled')"
+    }
+  ]
+}

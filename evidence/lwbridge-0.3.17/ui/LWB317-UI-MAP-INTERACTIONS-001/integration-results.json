@@ -1,0 +1,124 @@
+{
+  "source": "current",
+  "status": "PASS",
+  "scope": "Actual production MapDataPage callbacks/effects in the hook replay adapter; synthetic deferred provider replies and controlled clock. Not browser/native evidence.",
+  "results": [
+    {
+      "id": "cache restoration keeps the typed keyword and refreshes the restored page with it",
+      "status": "PASS",
+      "observation": {
+        "restored": {
+          "page": 2,
+          "rows": 1,
+          "keyword": "k1"
+        },
+        "refresh": {
+          "serverId": 321,
+          "keyword": "k1",
+          "page": 2,
+          "sorts": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "name selection survives tab cache restoration and refreshes with the name and restored page",
+      "status": "PASS",
+      "observation": {
+        "serverId": 321,
+        "page": 2,
+        "sorts": [
+          {
+            "sortBy": "updatedAt",
+            "sortOrder": "desc"
+          }
+        ],
+        "resourceNameKey": "100282"
+      }
+    },
+    {
+      "id": "Dispatch selection resets on tab change while the cached page and rows are restored",
+      "status": "PASS",
+      "observation": {
+        "selection": [],
+        "page": 2
+      }
+    },
+    {
+      "id": "selection is retained across row refresh (connection change) and search while rows are replaced",
+      "status": "PASS",
+      "observation": [
+        "321:501"
+      ]
+    },
+    {
+      "id": "rapid navigation with deferred replies settles on the final tab only",
+      "status": "PASS",
+      "observation": {
+        "requests": 5
+      }
+    },
+    {
+      "id": "Normal/Scheduled transitions: counts, list loading on entry, change events and normal state untouched",
+      "status": "PASS",
+      "observation": {
+        "count": "map.scheduledPlunder1"
+      }
+    },
+    {
+      "id": "the page clock drives Scheduled Plunder once per second from the controlled clock",
+      "status": "PASS",
+      "observation": {
+        "start": 1790942400000,
+        "afterSixSeconds": 1790942406000
+      }
+    },
+    {
+      "id": "fence: without a provider every job/schedule/share control stays disabled and calls nothing",
+      "status": "PASS",
+      "observation": {
+        "fenced": true
+      }
+    },
+    {
+      "id": "schedule success: busy, selection cleared, list reloaded, navigation to Scheduled Plunder; failure keeps selection",
+      "status": "PASS",
+      "observation": {
+        "navigated": true,
+        "failureKeepsSelection": true
+      }
+    },
+    {
+      "id": "truck schedule success clears only the Truck selection",
+      "status": "PASS",
+      "observation": {
+        "cleared": true
+      }
+    },
+    {
+      "id": "share: label flips while sharing, only shared uuids leave the selection, partial/success messages",
+      "status": "PASS",
+      "observation": {
+        "selection": [
+          "321:1002"
+        ],
+        "message": [
+          "map.shareAlliancePartial"
+        ]
+      }
+    },
+    {
+      "id": "Scheduled actions: busy keys, ghost cancel identity, reload, error message and fences",
+      "status": "PASS",
+      "observation": {
+        "message": [
+          "PREVIEW_NATIVE_ACTION_BLOCKED: Browser preview cannot execute native Map action"
+        ]
+      }
+    }
+  ]
+}

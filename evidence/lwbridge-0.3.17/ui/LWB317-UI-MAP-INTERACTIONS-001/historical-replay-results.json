@@ -1,0 +1,35 @@
+{
+  "status": "PASS",
+  "results": [
+    {
+      "target": "LWB317-UI-MAP-FILTERS-001/check-filters.mjs",
+      "mode": "filters",
+      "exitCode": 0,
+      "lastLine": "LWB317_MAP_FILTERS_OK 472 original/current queries; baseline 330 mismatches; fences PASS"
+    },
+    {
+      "target": "LWB317-UI-MAP-FILTERS-001/check-table-regression.mjs",
+      "mode": "unchanged",
+      "exitCode": 0,
+      "lastLine": "LWB317_MAP_TABLE_REGRESSION_OK historical evidence unchanged; only test setter dependency adapted"
+    },
+    {
+      "target": "LWB317-UI-MAP-FILTERS-001/check-treasure-checking.mjs",
+      "mode": "unchanged",
+      "exitCode": 0,
+      "lastLine": "LWB317_TREASURE_CHECKING_OK 216 display comparisons; 384 input fences; 8 original producer cases"
+    },
+    {
+      "target": "LWB317-UI-MAP-ROWS-001/check-row-actions.mjs",
+      "mode": "rows",
+      "exitCode": 0,
+      "lastLine": "LWB317_MAP_ROW_ACTIONS_OK 160 comparisons; preview/native fences PASS"
+    },
+    {
+      "target": "LWB317-REVIEW-MAP-STATES-001/check-review-map-states.mjs",
+      "mode": "unchanged",
+      "exitCode": 0,
+      "lastLine": "}"
+    }
+  ]
+}

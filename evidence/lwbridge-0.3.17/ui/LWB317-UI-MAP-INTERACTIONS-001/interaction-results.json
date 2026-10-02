@@ -1,0 +1,2978 @@
+{
+  "status": "PASS",
+  "scope": "User-level scenarios through the persistent hook adapters: ACTUAL original component (asset bytes), production page and the immutable pre-campaign baseline; synthetic deferred local replies and controlled clock. Not browser/native evidence.",
+  "originalAssetSha256": "ce74345518be72e417a510b982c591729e5683f69751e190805598c4c05d3089",
+  "sources": {
+    "current": "fef7b678ffb673073eaa7183b7bfb9f19eb0ef691584f8512e92d6a29d1da83c",
+    "baseline": "cb9ec836aa33db22096d43968f27070bf860124b94959607572a4cda679cdb77"
+  },
+  "scenarioCount": 35,
+  "currentMismatches": [],
+  "baselineMismatches": [
+    "keyword.typed-but-unsubmitted-text-is-used-by-a-filter-change",
+    "keyword.tab-change-keeps-input-and-queries-with-it",
+    "keyword.page-change-queries-with-typed-text",
+    "search.button-is-not-disabled-by-loading",
+    "search.click-while-loading-issues-a-newer-request-and-retires-the-older",
+    "search.connection-change-refreshes",
+    "name.select-clears-keyword-resets-page-and-searches-once",
+    "name.typing-after-selecting-drops-the-name-and-searches-with-the-text",
+    "name.option-text-uses-game-text-then-key",
+    "selection.dispatch-toggle-membership-and-count",
+    "selection.dispatch-survives-page-filter-sort-search-and-server-change",
+    "selection.dispatch-resets-on-any-tab-change-including-dispatch-ghost",
+    "selection.truck-is-independent-and-persists-across-tabs-pages-and-servers",
+    "selection.payload-keys-and-identifier-edge-cases",
+    "delay.input-default-and-controlled-value",
+    "delay.schedule-button-predicate-per-delay-text",
+    "actions.schedule-and-share-predicates-with-and-without-selection-online-busy",
+    "actions.truck-schedule-predicate",
+    "flow.schedule-dispatch-success-busy-then-clear-reload-and-navigate",
+    "flow.schedule-dispatch-failure-keeps-selection-and-tab",
+    "flow.schedule-with-invalid-delay-never-calls-the-provider",
+    "flow.schedule-truck-success-clears-only-truck-selection",
+    "flow.share-label-selection-pruning-and-partial-message",
+    "flow.share-full-success-message-and-selection",
+    "flow.scheduled-tab-lists-counts-and-reloads-on-entry-and-change-events",
+    "flow.scheduled-cancel-identities-busy-keys-and-reload",
+    "flow.scheduled-plunder-again-and-clear-history",
+    "flow.action-message-is-cleared-by-a-tab-change"
+  ],
+  "originalErrors": [],
+  "documentedDifferences": [
+    "Original issues one extra search after mount (options reply replaces the name-selection object, a search-effect dependency). Requests are counted relative to the post-mount base. Not reproduced: the canonical page polls options every 5 s, so copying it would refetch continuously."
+  ],
+  "rows": [
+    {
+      "id": "keyword.typing-does-not-search",
+      "currentMatchesOriginal": true,
+      "baselineMatchesOriginal": true,
+      "original": {
+        "value": {
+          "after": {
+            "keyword": "abcd",
+            "lastQuery": {
+              "page": 1,
+              "serverId": 321,
+              "sorts": [
+                {
+                  "sortBy": "updatedAt",
+                  "sortOrder": "desc"
+                }
+              ]
+            },
+            "name": null,
+            "page": 1,
+            "requests": 0
+          },
+          "before": {
+            "keyword": "",
+            "lastQuery": {
+              "page": 1,
+              "serverId": 321,
+              "sorts": [
+                {
+                  "sortBy": "updatedAt",
+                  "sortOrder": "desc"
+                }
+              ]
+            },
+            "name": null,
+            "page": 1,
+            "requests": 0
+          }
+        }
+      },
+      "current": {
+        "value": {
+          "after": {
+            "keyword": "abcd",
+            "lastQuery": {
+              "page": 1,
+              "serverId": 321,
+              "sorts": [
+                {
+                  "sortBy": "updatedAt",
+                  "sortOrder": "desc"
+                }
+              ]
+            },
+            "name": null,
+            "page": 1,
+            "requests": 0
+          },
+          "before": {
+            "keyword": "",
+            "lastQuery": {
+              "page": 1,
+              "serverId": 321,
+              "sorts": [
+                {
+                  "sortBy": "updatedAt",
+                  "sortOrder": "desc"
+                }
+              ]
+            },
+            "name": null,
+            "page": 1,
+            "requests": 0
+          }
+        }
+      },
+      "baseline": {
+        "value": {
+          "after": {
+            "keyword": "abcd",
+            "lastQuery": {
+              "page": 1,
+              "serverId": 321,
+              "sorts": [
+                {
+                  "sortBy": "updatedAt",
+                  "sortOrder": "desc"
+                }
+              ]
+            },
+            "name": null,
+            "page": 1,
+            "requests": 0
+          },
+          "before": {
+            "keyword": "",
+            "lastQuery": {
+              "page": 1,
+              "serverId": 321,
+              "sorts": [
+                {
+                  "sortBy": "updatedAt",
+                  "sortOrder": "desc"
+                }
+              ]
+            },
+            "name": null,
+            "page": 1,
+            "requests": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "keyword.search-click-on-page-1-searches-once-with-typed-text",
+      "currentMatchesOriginal": true,
+      "baselineMatchesOriginal": true,
+      "original": {
+        "value": {
+          "keyword": "abc",
+          "lastQuery": {
+            "keyword": "abc",
+            "page": 1,
+            "serverId": 321,
+            "sorts": [
+              {
+                "sortBy": "updatedAt",
+                "sortOrder": "desc"
+              }
+            ]
+          },
+          "name": null,
+          "page": 1,
+          "requests": 1
+        }
+      },
+      "current": {
+        "value": {
+          "keyword": "abc",
+          "lastQuery": {
+            "keyword": "abc",
+            "page": 1,
+            "serverId": 321,
+            "sorts": [
+              {
+                "sortBy": "updatedAt",
+                "sortOrder": "desc"
+              }
+            ]
+          },
+          "name": null,
+          "page": 1,
+          "requests": 1
+        }
+      },
+      "baseline": {
+        "value": {
+          "keyword": "abc",
+          "lastQuery": {
+            "keyword": "abc",
+            "page": 1,
+            "serverId": 321,
+            "sorts": [
+              {
+                "sortBy": "updatedAt",
+                "sortOrder": "desc"
+              }
+            ]
+          },
+          "name": null,
+          "page": 1,
+          "requests": 1
+        }
+      }
+    },
+    {
+      "id": "keyword.search-click-on-page-2-goes-to-page-1-and-searches-once",
+      "currentMatchesOriginal": true,
+      "baselineMatchesOriginal": true,
+      "original": {
+        "value": {
+          "after": {
+            "keyword": "xyz",
+            "lastQuery": {
+              "keyword": "xyz",
+              "page": 1,
+              "serverId": 321,
+              "sorts": [
+                {
+                  "sortBy": "updatedAt",
+                  "sortOrder": "desc"
+                }
+              ]
+            },
+            "name": null,
+            "page": 1,
+            "requests": 2
+          },
+          "before": {
+            "keyword": "xyz",
+            "lastQuery": {
+              "page": 2,
+              "serverId": 321,
+              "sorts": [
+                {
+                  "sortBy": "updatedAt",
+                  "sortOrder": "desc"
+                }
+              ]
+            },
+            "name": null,
+            "page": 2,
+            "requests": 1
+          }
+        }
+      },
+      "current": {
+        "value": {
+          "after": {
+            "keyword": "xyz",
+            "lastQuery": {
+              "keyword": "xyz",
+              "page": 1,
+              "serverId": 321,
+              "sorts": [
+                {
+                  "sortBy": "updatedAt",
+                  "sortOrder": "desc"
+                }
+              ]
+            },
+            "name": null,
+            "page": 1,
+            "requests": 2
+          },
+          "before": {
+            "keyword": "xyz",
+            "lastQuery": {
+              "page": 2,
+              "serverId": 321,
+              "sorts": [
+                {
+                  "sortBy": "updatedAt",
+                  "sortOrder": "desc"
+                }
+              ]
+            },
+            "name": null,
+            "page": 2,
+            "requests": 1
+          }
+        }
+      },
+      "baseline": {
+        "value": {
+          "after": {
+            "keyword": "xyz",
+            "lastQuery": {
+              "keyword": "xyz",
+              "page": 1,
+              "serverId": 321,
+              "sorts": [
+                {
+                  "sortBy": "updatedAt",
+                  "sortOrder": "desc"
+                }
+              ]
+            },
+            "name": null,
+            "page": 1,
+            "requests": 2
+          },
+          "before": {
+            "keyword": "xyz",
+            "lastQuery": {
+              "page": 2,
+              "serverId": 321,
+              "sorts": [
+                {
+                  "sortBy": "updatedAt",
+                  "sortOrder": "desc"
+                }
+              ]
+            },
+            "name": null,
+            "page": 2,
+            "requests": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "keyword.typed-but-unsubmitted-text-is-used-by-a-filter-change",
+      "currentMatchesOriginal": true,
+      "baselineMatchesOriginal": false,
+      "original": {
+        "value": {
+          "keyword": "typed",
+          "lastQuery": {
+            "keyword": "typed",
+            "markedOnly": true,
+            "page": 1,
+            "serverId": 321,
+            "sorts": [
+              {
+                "sortBy": "updatedAt",
+                "sortOrder": "desc"
+              }
+            ]
+          },
+          "name": null,
+          "page": 1,
+          "requests": 1
+        }
+      },
+      "current": {
+        "value": {
+          "keyword": "typed",
+          "lastQuery": {
+            "keyword": "typed",
+            "markedOnly": true,
+            "page": 1,
+            "serverId": 321,
+            "sorts": [
+              {
+                "sortBy": "updatedAt",
+                "sortOrder": "desc"
+              }
+            ]
+          },
+          "name": null,
+          "page": 1,
+          "requests": 1
+        }
+      },
+      "baseline": {
+        "value": {
+          "keyword": "typed",
+          "lastQuery": {
+            "markedOnly": true,
+            "page": 1,
+            "serverId": 321,
+            "sorts": [
+              {
+                "sortBy": "updatedAt",
+                "sortOrder": "desc"
+              }
+            ]
+          },
+          "name": null,
+          "page": 1,
+          "requests": 1
+        }
+      }
+    },
+    {
+      "id": "keyword.tab-change-keeps-input-and-queries-with-it",
+      "currentMatchesOriginal": true,
+      "baselineMatchesOriginal": false,
+      "original": {
+        "value": {
+          "keyword": "kw",
+          "lastQuery": {
+            "keyword": "kw",
+            "page": 1,
+            "serverId": 321,
+            "sorts": [
+              {
+                "sortBy": "updatedAt",
+                "sortOrder": "desc"
+              }
+            ]
+          },
+          "name": "",
+          "page": 1,
+          "requests": 1
+        }
+      },
+      "current": {
+        "value": {
+          "keyword": "kw",
+          "lastQuery": {
+            "keyword": "kw",
+            "page": 1,
+            "serverId": 321,
+            "sorts": [
+              {
+                "sortBy": "updatedAt",
+                "sortOrder": "desc"
+              }
+            ]
+          },
+          "name": "",
+          "page": 1,
+          "requests": 1
+        }
+      },
+      "baseline": {
+        "value": {
+          "keyword": "kw",
+          "lastQuery": {
+            "page": 1,
+            "serverId": 321,
+            "sorts": [
+              {
+                "sortBy": "updatedAt",
+                "sortOrder": "desc"
+              }
+            ]
+          },
+          "name": "",
+          "page": 1,
+          "requests": 1
+        }
+      }
+    },
+    {
+      "id": "keyword.page-change-queries-with-typed-text",
+      "currentMatchesOriginal": true,
+      "baselineMatchesOriginal": false,
+      "original": {
+        "value": {
+          "keyword": "pg",
+          "lastQuery": {
+            "keyword": "pg",
+            "page": 2,
+            "serverId": 321,
+            "sorts": [
+              {
+                "sortBy": "updatedAt",
+                "sortOrder": "desc"
+              }
+            ]
+          },
+          "name": null,
+          "page": 2,
+          "requests": 1
+        }
+      },
+      "current": {
+        "value": {
+          "keyword": "pg",
+          "lastQuery": {
+            "keyword": "pg",
+            "page": 2,
+            "serverId": 321,
+            "sorts": [
+              {
+                "sortBy": "updatedAt",
+                "sortOrder": "desc"
+              }
+            ]
+          },
+          "name": null,
+          "page": 2,
+          "requests": 1
+        }
+      },
+      "baseline": {
+        "value": {
+          "keyword": "pg",
+          "lastQuery": {
+            "page": 2,
+            "serverId": 321,
+            "sorts": [
+              {
+                "sortBy": "updatedAt",
+                "sortOrder": "desc"
+              }
+            ]
+          },
+          "name": null,
+          "page": 2,
+          "requests": 1
+        }
+      }
+    },
+    {
+      "id": "keyword.no-timer-or-debounce-after-time-passes",
+      "currentMatchesOriginal": true,
+      "baselineMatchesOriginal": true,
+      "original": {
+        "value": {
+          "after": {
+            "keyword": "slow",
+            "lastQuery": {
+              "page": 1,
+              "serverId": 321,
+              "sorts": [
+                {
+                  "sortBy": "updatedAt",
+                  "sortOrder": "desc"
+                }
+              ]
+            },
+            "name": null,
+            "page": 1,
+            "requests": 0
+          },
+          "before": {
+            "keyword": "slow",
+            "lastQuery": {
+              "page": 1,
+              "serverId": 321,
+              "sorts": [
+                {
+                  "sortBy": "updatedAt",
+                  "sortOrder": "desc"
+                }
+              ]
+            },
+            "name": null,
+            "page": 1,
+            "requests": 0
+          }
+        }
+      },
+      "current": {
+        "value": {
+          "after": {
+            "keyword": "slow",
+            "lastQuery": {
+              "page": 1,
+              "serverId": 321,
+              "sorts": [
+                {
+                  "sortBy": "updatedAt",
+                  "sortOrder": "desc"
+                }
+              ]
+            },
+            "name": null,
+            "page": 1,
+            "requests": 0
+          },
+          "before": {
+            "keyword": "slow",
+            "lastQuery": {
+              "page": 1,
+              "serverId": 321,
+              "sorts": [
+                {
+                  "sortBy": "updatedAt",
+                  "sortOrder": "desc"
+                }
+              ]
+            },
+            "name": null,
+            "page": 1,
+            "requests": 0
+          }
+        }
+      },
+      "baseline": {
+        "value": {
+          "after": {
+            "keyword": "slow",
+            "lastQuery": {
+              "page": 1,
+              "serverId": 321,
+              "sorts": [
+                {
+                  "sortBy": "updatedAt",
+                  "sortOrder": "desc"
+                }
+              ]
+            },
+            "name": null,
+            "page": 1,
+            "requests": 0
+          },
+          "before": {
+            "keyword": "slow",
+            "lastQuery": {
+              "page": 1,
+              "serverId": 321,
+              "sorts": [
+                {
+                  "sortBy": "updatedAt",
+                  "sortOrder": "desc"
+                }
+              ]
+            },
+            "name": null,
+            "page": 1,
+            "requests": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "search.button-is-not-disabled-by-loading",
+      "currentMatchesOriginal": true,
+      "baselineMatchesOriginal": false,
+      "original": {
+        "value": {
+          "disabledWhileInitialRequestPending": false
+        }
+      },
+      "current": {
+        "value": {
+          "disabledWhileInitialRequestPending": false
+        }
+      },
+      "baseline": {
+        "value": {
+          "disabledWhileInitialRequestPending": true
+        }
+      }
+    },
+    {
+      "id": "search.click-while-loading-issues-a-newer-request-and-retires-the-older",
+      "currentMatchesOriginal": true,
+      "baselineMatchesOriginal": false,
+      "original": {
+        "value": {
+          "afterFresh": {
+            "requests": 1,
+            "rows": [
+              {
+                "recordKey": "fresh",
+                "serverId": 321,
+                "uuid": "fresh"
+              }
+            ]
+          },
+          "afterStale": {
+            "requests": 1,
+            "rows": []
+          }
+        }
+      },
+      "current": {
+        "value": {
+          "afterFresh": {
+            "requests": 1,
+            "rows": [
+              {
+                "recordKey": "fresh",
+                "serverId": 321,
+                "uuid": "fresh"
+              }
+            ]
+          },
+          "afterStale": {
+            "requests": 1,
+            "rows": []
+          }
+        }
+      },
+      "baseline": {
+        "error": "baseline: search button is disabled"
+      }
+    },
+    {
+      "id": "search.connection-change-refreshes",
+      "currentMatchesOriginal": true,
+      "baselineMatchesOriginal": false,
+      "original": {
+        "value": {
+          "after": {
+            "keyword": "",
+            "lastQuery": {
+              "page": 1,
+              "serverId": 321,
+              "sorts": [
+                {
+                  "sortBy": "updatedAt",
+                  "sortOrder": "desc"
+                }
+              ]
+            },
+            "name": null,
+            "page": 1,
+            "requests": 1
+          },
+          "before": {
+            "keyword": "",
+            "lastQuery": {
+              "page": 1,
+              "serverId": 321,
+              "sorts": [
+                {
+                  "sortBy": "updatedAt",
+                  "sortOrder": "desc"
+                }
+              ]
+            },
+            "name": null,
+            "page": 1,
+            "requests": 0
+          }
+        }
+      },
+      "current": {
+        "value": {
+          "after": {
+            "keyword": "",
+            "lastQuery": {
+              "page": 1,
+              "serverId": 321,
+              "sorts": [
+                {
+                  "sortBy": "updatedAt",
+                  "sortOrder": "desc"
+                }
+              ]
+            },
+            "name": null,
+            "page": 1,
+            "requests": 1
+          },
+          "before": {
+            "keyword": "",
+            "lastQuery": {
+              "page": 1,
+              "serverId": 321,
+              "sorts": [
+                {
+                  "sortBy": "updatedAt",
+                  "sortOrder": "desc"
+                }
+              ]
+            },
+            "name": null,
+            "page": 1,
+            "requests": 0
+          }
+        }
+      },
+      "baseline": {
+        "value": {
+          "after": {
+            "keyword": "",
+            "lastQuery": {
+              "page": 1,
+              "serverId": 321,
+              "sorts": [
+                {
+                  "sortBy": "updatedAt",
+                  "sortOrder": "desc"
+                }
+              ]
+            },
+            "name": null,
+            "page": 1,
+            "requests": 0
+          },
+          "before": {
+            "keyword": "",
+            "lastQuery": {
+              "page": 1,
+              "serverId": 321,
+              "sorts": [
+                {
+                  "sortBy": "updatedAt",
+                  "sortOrder": "desc"
+                }
+              ]
+            },
+            "name": null,
+            "page": 1,
+            "requests": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "search.failure-clears-rows-and-total",
+      "currentMatchesOriginal": true,
+      "baselineMatchesOriginal": true,
+      "original": {
+        "value": {
+          "count": 1,
+          "rows": []
+        }
+      },
+      "current": {
+        "value": {
+          "count": 1,
+          "rows": []
+        }
+      },
+      "baseline": {
+        "value": {
+          "count": 1,
+          "rows": []
+        }
+      }
+    },
+    {
+      "id": "name.select-clears-keyword-resets-page-and-searches-once",
+      "currentMatchesOriginal": true,
+      "baselineMatchesOriginal": false,
+      "original": {
+        "value": {
+          "after": {
+            "keyword": "",
+            "lastQuery": {
+              "page": 1,
+              "resourceNameKey": "100282",
+              "serverId": 321,
+              "sorts": [
+                {
+                  "sortBy": "updatedAt",
+                  "sortOrder": "desc"
+                }
+              ]
+            },
+            "name": "100282",
+            "page": 1,
+            "requests": 2
+          },
+          "before": {
+            "keyword": "foo",
+            "lastQuery": {
+              "page": 3,
+              "serverId": 321,
+              "sorts": [
+                {
+                  "sortBy": "updatedAt",
+                  "sortOrder": "desc"
+                }
+              ]
+            },
+            "name": "",
+            "page": 3,
+            "requests": 1
+          }
+        }
+      },
+      "current": {
+        "value": {
+          "after": {
+            "keyword": "",
+            "lastQuery": {
+              "page": 1,
+              "resourceNameKey": "100282",
+              "serverId": 321,
+              "sorts": [
+                {
+                  "sortBy": "updatedAt",
+                  "sortOrder": "desc"
+                }
+              ]
+            },
+            "name": "100282",
+            "page": 1,
+            "requests": 2
+          },
+          "before": {
+            "keyword": "foo",
+            "lastQuery": {
+              "page": 3,
+              "serverId": 321,
+              "sorts": [
+                {
+                  "sortBy": "updatedAt",
+                  "sortOrder": "desc"
+                }
+              ]
+            },
+            "name": "",
+            "page": 3,
+            "requests": 1
+          }
+        }
+      },
+      "baseline": {
+        "value": {
+          "after": {
+            "keyword": "foo",
+            "lastQuery": {
+              "page": 1,
+              "resourceNameKey": "100282",
+              "serverId": 321,
+              "sorts": [
+                {
+                  "sortBy": "updatedAt",
+                  "sortOrder": "desc"
+                }
+              ]
+            },
+            "name": "100282",
+            "page": 1,
+            "requests": 2
+          },
+          "before": {
+            "keyword": "foo",
+            "lastQuery": {
+              "page": 3,
+              "serverId": 321,
+              "sorts": [
+                {
+                  "sortBy": "updatedAt",
+                  "sortOrder": "desc"
+                }
+              ]
+            },
+            "name": "",
+            "page": 3,
+            "requests": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "name.typing-after-selecting-drops-the-name-and-searches-with-the-text",
+      "currentMatchesOriginal": true,
+      "baselineMatchesOriginal": false,
+      "original": {
+        "value": {
+          "after": {
+            "keyword": "x",
+            "lastQuery": {
+              "keyword": "x",
+              "page": 1,
+              "serverId": 321,
+              "sorts": [
+                {
+                  "sortBy": "updatedAt",
+                  "sortOrder": "desc"
+                }
+              ]
+            },
+            "name": "",
+            "page": 1,
+            "requests": 2
+          },
+          "before": {
+            "keyword": "",
+            "lastQuery": {
+              "page": 1,
+              "resourceNameKey": "100282",
+              "serverId": 321,
+              "sorts": [
+                {
+                  "sortBy": "updatedAt",
+                  "sortOrder": "desc"
+                }
+              ]
+            },
+            "name": "100282",
+            "page": 1,
+            "requests": 1
+          }
+        }
+      },
+      "current": {
+        "value": {
+          "after": {
+            "keyword": "x",
+            "lastQuery": {
+              "keyword": "x",
+              "page": 1,
+              "serverId": 321,
+              "sorts": [
+                {
+                  "sortBy": "updatedAt",
+                  "sortOrder": "desc"
+                }
+              ]
+            },
+            "name": "",
+            "page": 1,
+            "requests": 2
+          },
+          "before": {
+            "keyword": "",
+            "lastQuery": {
+              "page": 1,
+              "resourceNameKey": "100282",
+              "serverId": 321,
+              "sorts": [
+                {
+                  "sortBy": "updatedAt",
+                  "sortOrder": "desc"
+                }
+              ]
+            },
+            "name": "100282",
+            "page": 1,
+            "requests": 1
+          }
+        }
+      },
+      "baseline": {
+        "value": {
+          "after": {
+            "keyword": "x",
+            "lastQuery": {
+              "page": 1,
+              "resourceNameKey": "100282",
+              "serverId": 321,
+              "sorts": [
+                {
+                  "sortBy": "updatedAt",
+                  "sortOrder": "desc"
+                }
+              ]
+            },
+            "name": "100282",
+            "page": 1,
+            "requests": 1
+          },
+          "before": {
+            "keyword": "",
+            "lastQuery": {
+              "page": 1,
+              "resourceNameKey": "100282",
+              "serverId": 321,
+              "sorts": [
+                {
+                  "sortBy": "updatedAt",
+                  "sortOrder": "desc"
+                }
+              ]
+            },
+            "name": "100282",
+            "page": 1,
+            "requests": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "name.typing-without-a-selected-name-does-not-search",
+      "currentMatchesOriginal": true,
+      "baselineMatchesOriginal": true,
+      "original": {
+        "value": {
+          "after": {
+            "keyword": "m",
+            "lastQuery": {
+              "page": 1,
+              "serverId": 321,
+              "sorts": [
+                {
+                  "sortBy": "updatedAt",
+                  "sortOrder": "desc"
+                }
+              ]
+            },
+            "name": "",
+            "page": 1,
+            "requests": 0
+          },
+          "before": {
+            "keyword": "",
+            "lastQuery": {
+              "page": 1,
+              "serverId": 321,
+              "sorts": [
+                {
+                  "sortBy": "updatedAt",
+                  "sortOrder": "desc"
+                }
+              ]
+            },
+            "name": "",
+            "page": 1,
+            "requests": 0
+          }
+        }
+      },
+      "current": {
+        "value": {
+          "after": {
+            "keyword": "m",
+            "lastQuery": {
+              "page": 1,
+              "serverId": 321,
+              "sorts": [
+                {
+                  "sortBy": "updatedAt",
+                  "sortOrder": "desc"
+                }
+              ]
+            },
+            "name": "",
+            "page": 1,
+            "requests": 0
+          },
+          "before": {
+            "keyword": "",
+            "lastQuery": {
+              "page": 1,
+              "serverId": 321,
+              "sorts": [
+                {
+                  "sortBy": "updatedAt",
+                  "sortOrder": "desc"
+                }
+              ]
+            },
+            "name": "",
+            "page": 1,
+            "requests": 0
+          }
+        }
+      },
+      "baseline": {
+        "value": {
+          "after": {
+            "keyword": "m",
+            "lastQuery": {
+              "page": 1,
+              "serverId": 321,
+              "sorts": [
+                {
+                  "sortBy": "updatedAt",
+                  "sortOrder": "desc"
+                }
+              ]
+            },
+            "name": "",
+            "page": 1,
+            "requests": 0
+          },
+          "before": {
+            "keyword": "",
+            "lastQuery": {
+              "page": 1,
+              "serverId": 321,
+              "sorts": [
+                {
+                  "sortBy": "updatedAt",
+                  "sortOrder": "desc"
+                }
+              ]
+            },
+            "name": "",
+            "page": 1,
+            "requests": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "name.resource-and-monster-selections-are-independent",
+      "currentMatchesOriginal": true,
+      "baselineMatchesOriginal": true,
+      "original": {
+        "value": {
+          "monsterBack": {
+            "keyword": "",
+            "lastQuery": {
+              "monsterNameKey": "Fixture Monster A",
+              "page": 1,
+              "serverId": 321,
+              "sorts": [
+                {
+                  "sortBy": "updatedAt",
+                  "sortOrder": "desc"
+                }
+              ]
+            },
+            "name": "Fixture Monster A",
+            "page": 1,
+            "requests": 5
+          },
+          "monsterBefore": "",
+          "resourceBack": {
+            "keyword": "",
+            "lastQuery": {
+              "page": 1,
+              "resourceNameKey": "100282",
+              "serverId": 321,
+              "sorts": [
+                {
+                  "sortBy": "updatedAt",
+                  "sortOrder": "desc"
+                }
+              ]
+            },
+            "name": "100282",
+            "page": 1,
+            "requests": 4
+          }
+        }
+      },
+      "current": {
+        "value": {
+          "monsterBack": {
+            "keyword": "",
+            "lastQuery": {
+              "monsterNameKey": "Fixture Monster A",
+              "page": 1,
+              "serverId": 321,
+              "sorts": [
+                {
+                  "sortBy": "updatedAt",
+                  "sortOrder": "desc"
+                }
+              ]
+            },
+            "name": "Fixture Monster A",
+            "page": 1,
+            "requests": 5
+          },
+          "monsterBefore": "",
+          "resourceBack": {
+            "keyword": "",
+            "lastQuery": {
+              "page": 1,
+              "resourceNameKey": "100282",
+              "serverId": 321,
+              "sorts": [
+                {
+                  "sortBy": "updatedAt",
+                  "sortOrder": "desc"
+                }
+              ]
+            },
+            "name": "100282",
+            "page": 1,
+            "requests": 4
+          }
+        }
+      },
+      "baseline": {
+        "value": {
+          "monsterBack": {
+            "keyword": "",
+            "lastQuery": {
+              "monsterNameKey": "Fixture Monster A",
+              "page": 1,
+              "serverId": 321,
+              "sorts": [
+                {
+                  "sortBy": "updatedAt",
+                  "sortOrder": "desc"
+                }
+              ]
+            },
+            "name": "Fixture Monster A",
+            "page": 1,
+            "requests": 5
+          },
+          "monsterBefore": "",
+          "resourceBack": {
+            "keyword": "",
+            "lastQuery": {
+              "page": 1,
+              "resourceNameKey": "100282",
+              "serverId": 321,
+              "sorts": [
+                {
+                  "sortBy": "updatedAt",
+                  "sortOrder": "desc"
+                }
+              ]
+            },
+            "name": "100282",
+            "page": 1,
+            "requests": 4
+          }
+        }
+      }
+    },
+    {
+      "id": "name.option-text-uses-game-text-then-key",
+      "currentMatchesOriginal": true,
+      "baselineMatchesOriginal": false,
+      "original": {
+        "value": [
+          {
+            "text": "map.allNames",
+            "value": ""
+          },
+          {
+            "text": "Label Resource A (3)",
+            "value": "100282"
+          },
+          {
+            "text": "100281 (2)",
+            "value": "100281"
+          }
+        ]
+      },
+      "current": {
+        "value": [
+          {
+            "text": "map.allNames",
+            "value": ""
+          },
+          {
+            "text": "Label Resource A (3)",
+            "value": "100282"
+          },
+          {
+            "text": "100281 (2)",
+            "value": "100281"
+          }
+        ]
+      },
+      "baseline": {
+        "value": [
+          {
+            "text": "map.allNames",
+            "value": ""
+          },
+          {
+            "text": "100282 (3)",
+            "value": "100282"
+          },
+          {
+            "text": "100281 (2)",
+            "value": "100281"
+          }
+        ]
+      }
+    },
+    {
+      "id": "selection.dispatch-toggle-membership-and-count",
+      "currentMatchesOriginal": true,
+      "baselineMatchesOriginal": false,
+      "original": {
+        "value": [
+          [
+            [
+              "321:1001"
+            ],
+            [
+              {
+                "disabled": false,
+                "text": "map.scheduleSelected:1"
+              },
+              {
+                "disabled": true,
+                "text": "map.shareAlliance"
+              }
+            ]
+          ],
+          [
+            [
+              "321:1001",
+              "321:1002"
+            ],
+            [
+              {
+                "disabled": false,
+                "text": "map.scheduleSelected:2"
+              },
+              {
+                "disabled": true,
+                "text": "map.shareAlliance"
+              }
+            ]
+          ],
+          [
+            [
+              "321:1002"
+            ],
+            [
+              {
+                "disabled": false,
+                "text": "map.scheduleSelected:1"
+              },
+              {
+                "disabled": true,
+                "text": "map.shareAlliance"
+              }
+            ]
+          ]
+        ]
+      },
+      "current": {
+        "value": [
+          [
+            [
+              "321:1001"
+            ],
+            [
+              {
+                "disabled": false,
+                "text": "map.scheduleSelected:1"
+              },
+              {
+                "disabled": true,
+                "text": "map.shareAlliance"
+              }
+            ]
+          ],
+          [
+            [
+              "321:1001",
+              "321:1002"
+            ],
+            [
+              {
+                "disabled": false,
+                "text": "map.scheduleSelected:2"
+              },
+              {
+                "disabled": true,
+                "text": "map.shareAlliance"
+              }
+            ]
+          ],
+          [
+            [
+              "321:1002"
+            ],
+            [
+              {
+                "disabled": false,
+                "text": "map.scheduleSelected:1"
+              },
+              {
+                "disabled": true,
+                "text": "map.shareAlliance"
+              }
+            ]
+          ]
+        ]
+      },
+      "baseline": {
+        "value": [
+          [
+            [
+              {
+                "completionTime": 1790942340000,
+                "level": 6,
+                "ownerName": "Owner 1001",
+                "plunderAt": 1790942370000,
+                "quality": 3,
+                "rewards": [],
+                "serverId": 321,
+                "taskExpireTime": 1790946000000,
+                "uuid": "1001"
+              }
+            ],
+            [
+              {
+                "disabled": true,
+                "text": "map.scheduleSelected:1"
+              },
+              {
+                "disabled": true,
+                "text": "map.shareAlliance"
+              }
+            ]
+          ],
+          [
+            [
+              {
+                "completionTime": 1790942340000,
+                "level": 6,
+                "ownerName": "Owner 1001",
+                "plunderAt": 1790942370000,
+                "quality": 3,
+                "rewards": [],
+                "serverId": 321,
+                "taskExpireTime": 1790946000000,
+                "uuid": "1001"
+              },
+              {
+                "completionTime": 1790942340000,
+                "level": 6,
+                "ownerName": "Owner 1002",
+                "plunderAt": 1790942370000,
+                "quality": 3,
+                "rewards": [],
+                "serverId": 321,
+                "taskExpireTime": 1790946000000,
+                "uuid": "1002"
+              }
+            ],
+            [
+              {
+                "disabled": true,
+                "text": "map.scheduleSelected:2"
+              },
+              {
+                "disabled": true,
+                "text": "map.shareAlliance"
+              }
+            ]
+          ],
+          [
+            [
+              {
+                "completionTime": 1790942340000,
+                "level": 6,
+                "ownerName": "Owner 1002",
+                "plunderAt": 1790942370000,
+                "quality": 3,
+                "rewards": [],
+                "serverId": 321,
+                "taskExpireTime": 1790946000000,
+                "uuid": "1002"
+              }
+            ],
+            [
+              {
+                "disabled": true,
+                "text": "map.scheduleSelected:1"
+              },
+              {
+                "disabled": true,
+                "text": "map.shareAlliance"
+              }
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "id": "selection.dispatch-survives-page-filter-sort-search-and-server-change",
+      "currentMatchesOriginal": true,
+      "baselineMatchesOriginal": false,
+      "original": {
+        "value": {
+          "afterPage": [
+            "321:1001"
+          ],
+          "afterSearch": [
+            "321:1001"
+          ],
+          "afterServer": [
+            "321:1001"
+          ]
+        }
+      },
+      "current": {
+        "value": {
+          "afterPage": [
+            "321:1001"
+          ],
+          "afterSearch": [
+            "321:1001"
+          ],
+          "afterServer": [
+            "321:1001"
+          ]
+        }
+      },
+      "baseline": {
+        "value": {
+          "afterPage": [
+            {
+              "completionTime": 1790942340000,
+              "level": 6,
+              "ownerName": "Owner 1001",
+              "plunderAt": 1790942370000,
+              "quality": 3,
+              "rewards": [],
+              "serverId": 321,
+              "taskExpireTime": 1790946000000,
+              "uuid": "1001"
+            }
+          ],
+          "afterSearch": [
+            {
+              "completionTime": 1790942340000,
+              "level": 6,
+              "ownerName": "Owner 1001",
+              "plunderAt": 1790942370000,
+              "quality": 3,
+              "rewards": [],
+              "serverId": 321,
+              "taskExpireTime": 1790946000000,
+              "uuid": "1001"
+            }
+          ],
+          "afterServer": []
+        }
+      }
+    },
+    {
+      "id": "selection.dispatch-resets-on-any-tab-change-including-dispatch-ghost",
+      "currentMatchesOriginal": true,
+      "baselineMatchesOriginal": false,
+      "original": {
+        "value": {
+          "back": [],
+          "before": [
+            "321:1001"
+          ],
+          "ghost": [],
+          "ghostSelected": [
+            "321:2001"
+          ]
+        }
+      },
+      "current": {
+        "value": {
+          "back": [],
+          "before": [
+            "321:1001"
+          ],
+          "ghost": [],
+          "ghostSelected": [
+            "321:2001"
+          ]
+        }
+      },
+      "baseline": {
+        "value": {
+          "back": [],
+          "before": [
+            {
+              "completionTime": 1790942340000,
+              "level": 6,
+              "ownerName": "Owner 1001",
+              "plunderAt": 1790942370000,
+              "quality": 3,
+              "rewards": [],
+              "serverId": 321,
+              "taskExpireTime": 1790946000000,
+              "uuid": "1001"
+            }
+          ],
+          "ghost": [],
+          "ghostSelected": [
+            {
+              "completionTime": 1790942340000,
+              "level": 6,
+              "ownerName": "Owner 2001",
+              "plunderAt": 1790942370000,
+              "quality": 3,
+              "rewards": [],
+              "serverId": 321,
+              "taskExpireTime": 1790946000000,
+              "uuid": "2001"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "selection.truck-is-independent-and-persists-across-tabs-pages-and-servers",
+      "currentMatchesOriginal": true,
+      "baselineMatchesOriginal": false,
+      "original": {
+        "value": {
+          "afterPage": [
+            "321:501"
+          ],
+          "afterServer": [
+            "321:501"
+          ],
+          "afterTabs": [
+            "321:501"
+          ],
+          "first": [
+            "321:501"
+          ]
+        }
+      },
+      "current": {
+        "value": {
+          "afterPage": [
+            "321:501"
+          ],
+          "afterServer": [
+            "321:501"
+          ],
+          "afterTabs": [
+            "321:501"
+          ],
+          "first": [
+            "321:501"
+          ]
+        }
+      },
+      "baseline": {
+        "value": {
+          "afterPage": [
+            {
+              "arriveTs": 1790946000000,
+              "currentGoods": [],
+              "maxLootCount": 3,
+              "ownerName": "Truck 501",
+              "protectTime": 0,
+              "quality": 3,
+              "robTimes": 0,
+              "serverId": 321,
+              "uuid": "501"
+            }
+          ],
+          "afterServer": [],
+          "afterTabs": [],
+          "first": [
+            {
+              "arriveTs": 1790946000000,
+              "currentGoods": [],
+              "maxLootCount": 3,
+              "ownerName": "Truck 501",
+              "protectTime": 0,
+              "quality": 3,
+              "robTimes": 0,
+              "serverId": 321,
+              "uuid": "501"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "selection.payload-keys-and-identifier-edge-cases",
+      "currentMatchesOriginal": true,
+      "baselineMatchesOriginal": false,
+      "original": {
+        "value": [
+          [
+            "321: 1001 "
+          ],
+          [],
+          [
+            "321:"
+          ],
+          [],
+          [
+            "999:7"
+          ]
+        ]
+      },
+      "current": {
+        "value": [
+          [
+            "321: 1001 "
+          ],
+          [],
+          [
+            "321:"
+          ],
+          [],
+          [
+            "999:7"
+          ]
+        ]
+      },
+      "baseline": {
+        "value": [
+          [
+            {
+              "completionTime": 1790942340000,
+              "level": 6,
+              "ownerName": "Owner  1001 ",
+              "plunderAt": 1790942370000,
+              "quality": 3,
+              "rewards": [],
+              "serverId": 321,
+              "taskExpireTime": 1790946000000,
+              "uuid": " 1001 "
+            }
+          ],
+          [
+            {
+              "completionTime": 1790942340000,
+              "level": 6,
+              "ownerName": "Owner  1001 ",
+              "plunderAt": 1790942370000,
+              "quality": 3,
+              "rewards": [],
+              "serverId": 321,
+              "taskExpireTime": 1790946000000,
+              "uuid": " 1001 "
+            },
+            {
+              "completionTime": 1790942340000,
+              "level": 6,
+              "ownerName": "Owner  1001 ",
+              "plunderAt": 1790942370000,
+              "quality": 3,
+              "rewards": [],
+              "serverId": 321,
+              "taskExpireTime": 1790946000000,
+              "uuid": " 1001 "
+            }
+          ],
+          [
+            {
+              "completionTime": 1790942340000,
+              "level": 6,
+              "ownerName": "Owner  1001 ",
+              "plunderAt": 1790942370000,
+              "quality": 3,
+              "rewards": [],
+              "serverId": 321,
+              "taskExpireTime": 1790946000000,
+              "uuid": " 1001 "
+            },
+            {
+              "completionTime": 1790942340000,
+              "level": 6,
+              "ownerName": "Owner  1001 ",
+              "plunderAt": 1790942370000,
+              "quality": 3,
+              "rewards": [],
+              "serverId": 321,
+              "taskExpireTime": 1790946000000,
+              "uuid": " 1001 "
+            },
+            {
+              "completionTime": 1790942340000,
+              "level": 6,
+              "ownerName": "Owner undefined",
+              "plunderAt": 1790942370000,
+              "quality": 3,
+              "rewards": [],
+              "serverId": 321,
+              "taskExpireTime": 1790946000000
+            }
+          ],
+          [
+            {
+              "completionTime": 1790942340000,
+              "level": 6,
+              "ownerName": "Owner  1001 ",
+              "plunderAt": 1790942370000,
+              "quality": 3,
+              "rewards": [],
+              "serverId": 321,
+              "taskExpireTime": 1790946000000,
+              "uuid": " 1001 "
+            },
+            {
+              "completionTime": 1790942340000,
+              "level": 6,
+              "ownerName": "Owner  1001 ",
+              "plunderAt": 1790942370000,
+              "quality": 3,
+              "rewards": [],
+              "serverId": 321,
+              "taskExpireTime": 1790946000000,
+              "uuid": " 1001 "
+            },
+            {
+              "completionTime": 1790942340000,
+              "level": 6,
+              "ownerName": "Owner undefined",
+              "plunderAt": 1790942370000,
+              "quality": 3,
+              "rewards": [],
+              "serverId": 321,
+              "taskExpireTime": 1790946000000
+            },
+            {
+              "completionTime": 1790942340000,
+              "level": 6,
+              "ownerName": "dup",
+              "plunderAt": 1790942370000,
+              "quality": 3,
+              "rewards": [],
+              "serverId": 321,
+              "taskExpireTime": 1790946000000,
+              "uuid": ""
+            }
+          ],
+          [
+            {
+              "completionTime": 1790942340000,
+              "level": 6,
+              "ownerName": "Owner  1001 ",
+              "plunderAt": 1790942370000,
+              "quality": 3,
+              "rewards": [],
+              "serverId": 321,
+              "taskExpireTime": 1790946000000,
+              "uuid": " 1001 "
+            },
+            {
+              "completionTime": 1790942340000,
+              "level": 6,
+              "ownerName": "Owner  1001 ",
+              "plunderAt": 1790942370000,
+              "quality": 3,
+              "rewards": [],
+              "serverId": 321,
+              "taskExpireTime": 1790946000000,
+              "uuid": " 1001 "
+            },
+            {
+              "completionTime": 1790942340000,
+              "level": 6,
+              "ownerName": "Owner undefined",
+              "plunderAt": 1790942370000,
+              "quality": 3,
+              "rewards": [],
+              "serverId": 321,
+              "taskExpireTime": 1790946000000
+            },
+            {
+              "completionTime": 1790942340000,
+              "level": 6,
+              "ownerName": "dup",
+              "plunderAt": 1790942370000,
+              "quality": 3,
+              "rewards": [],
+              "serverId": 321,
+              "taskExpireTime": 1790946000000,
+              "uuid": ""
+            },
+            {
+              "completionTime": 1790942340000,
+              "level": 6,
+              "ownerName": "Owner 7",
+              "plunderAt": 1790942370000,
+              "quality": 3,
+              "rewards": [],
+              "serverId": 999,
+              "taskExpireTime": 1790946000000,
+              "uuid": "7"
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "id": "delay.input-default-and-controlled-value",
+      "currentMatchesOriginal": true,
+      "baselineMatchesOriginal": false,
+      "original": {
+        "value": [
+          {
+            "disabled": false,
+            "label": "map.randomDelaySeconds",
+            "value": "0"
+          },
+          "15",
+          "",
+          "  ",
+          "1e2",
+          "-3",
+          "-3"
+        ]
+      },
+      "current": {
+        "value": [
+          {
+            "disabled": false,
+            "label": "map.randomDelaySeconds",
+            "value": "0"
+          },
+          "15",
+          "",
+          "  ",
+          "1e2",
+          "-3",
+          "-3"
+        ]
+      },
+      "baseline": {
+        "error": "node.props.onChange is not a function"
+      }
+    },
+    {
+      "id": "delay.schedule-button-predicate-per-delay-text",
+      "currentMatchesOriginal": true,
+      "baselineMatchesOriginal": false,
+      "original": {
+        "value": {
+          "\" \"": false,
+          "\"\"": false,
+          "\"-1\"": true,
+          "\"0\"": false,
+          "\"0x10\"": false,
+          "\"1.5\"": true,
+          "\"1e2\"": false,
+          "\"5\"": false,
+          "\"9007199254740991\"": false,
+          "\"9007199254740993\"": true,
+          "\"Infinity\"": true,
+          "\"abc\"": true
+        }
+      },
+      "current": {
+        "value": {
+          "\" \"": false,
+          "\"\"": false,
+          "\"-1\"": true,
+          "\"0\"": false,
+          "\"0x10\"": false,
+          "\"1.5\"": true,
+          "\"1e2\"": false,
+          "\"5\"": false,
+          "\"9007199254740991\"": false,
+          "\"9007199254740993\"": true,
+          "\"Infinity\"": true,
+          "\"abc\"": true
+        }
+      },
+      "baseline": {
+        "error": "node.props.onChange is not a function"
+      }
+    },
+    {
+      "id": "actions.schedule-and-share-predicates-with-and-without-selection-online-busy",
+      "currentMatchesOriginal": true,
+      "baselineMatchesOriginal": false,
+      "original": {
+        "value": [
+          {
+            "empty": [
+              {
+                "disabled": true,
+                "text": "map.scheduleSelected:0"
+              },
+              {
+                "disabled": true,
+                "text": "map.shareAlliance"
+              }
+            ],
+            "online": false
+          },
+          {
+            "online": false,
+            "selected": [
+              {
+                "disabled": false,
+                "text": "map.scheduleSelected:1"
+              },
+              {
+                "disabled": true,
+                "text": "map.shareAlliance"
+              }
+            ]
+          },
+          {
+            "empty": [
+              {
+                "disabled": true,
+                "text": "map.scheduleSelected:0"
+              },
+              {
+                "disabled": true,
+                "text": "map.shareAlliance"
+              }
+            ],
+            "online": true
+          },
+          {
+            "online": true,
+            "selected": [
+              {
+                "disabled": false,
+                "text": "map.scheduleSelected:1"
+              },
+              {
+                "disabled": false,
+                "text": "map.shareAlliance"
+              }
+            ]
+          }
+        ]
+      },
+      "current": {
+        "value": [
+          {
+            "empty": [
+              {
+                "disabled": true,
+                "text": "map.scheduleSelected:0"
+              },
+              {
+                "disabled": true,
+                "text": "map.shareAlliance"
+              }
+            ],
+            "online": false
+          },
+          {
+            "online": false,
+            "selected": [
+              {
+                "disabled": false,
+                "text": "map.scheduleSelected:1"
+              },
+              {
+                "disabled": true,
+                "text": "map.shareAlliance"
+              }
+            ]
+          },
+          {
+            "empty": [
+              {
+                "disabled": true,
+                "text": "map.scheduleSelected:0"
+              },
+              {
+                "disabled": true,
+                "text": "map.shareAlliance"
+              }
+            ],
+            "online": true
+          },
+          {
+            "online": true,
+            "selected": [
+              {
+                "disabled": false,
+                "text": "map.scheduleSelected:1"
+              },
+              {
+                "disabled": false,
+                "text": "map.shareAlliance"
+              }
+            ]
+          }
+        ]
+      },
+      "baseline": {
+        "value": [
+          {
+            "empty": [
+              {
+                "disabled": true,
+                "text": "map.scheduleSelected:0"
+              },
+              {
+                "disabled": true,
+                "text": "map.shareAlliance"
+              }
+            ],
+            "online": false
+          },
+          {
+            "online": false,
+            "selected": [
+              {
+                "disabled": true,
+                "text": "map.scheduleSelected:1"
+              },
+              {
+                "disabled": true,
+                "text": "map.shareAlliance"
+              }
+            ]
+          },
+          {
+            "empty": [
+              {
+                "disabled": true,
+                "text": "map.scheduleSelected:0"
+              },
+              {
+                "disabled": true,
+                "text": "map.shareAlliance"
+              }
+            ],
+            "online": true
+          },
+          {
+            "online": true,
+            "selected": [
+              {
+                "disabled": true,
+                "text": "map.scheduleSelected:1"
+              },
+              {
+                "disabled": true,
+                "text": "map.shareAlliance"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "actions.truck-schedule-predicate",
+      "currentMatchesOriginal": true,
+      "baselineMatchesOriginal": false,
+      "original": {
+        "value": {
+          "empty": [
+            {
+              "disabled": true,
+              "text": "map.scheduleSelectedTrucks:0"
+            }
+          ],
+          "selected": [
+            {
+              "disabled": false,
+              "text": "map.scheduleSelectedTrucks:1"
+            }
+          ]
+        }
+      },
+      "current": {
+        "value": {
+          "empty": [
+            {
+              "disabled": true,
+              "text": "map.scheduleSelectedTrucks:0"
+            }
+          ],
+          "selected": [
+            {
+              "disabled": false,
+              "text": "map.scheduleSelectedTrucks:1"
+            }
+          ]
+        }
+      },
+      "baseline": {
+        "value": {
+          "empty": [
+            {
+              "disabled": true,
+              "text": "map.scheduleSelectedTrucks:0"
+            }
+          ],
+          "selected": [
+            {
+              "disabled": true,
+              "text": "map.scheduleSelectedTrucks:1"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "flow.schedule-dispatch-success-busy-then-clear-reload-and-navigate",
+      "currentMatchesOriginal": true,
+      "baselineMatchesOriginal": false,
+      "original": {
+        "value": {
+          "done": {
+            "active": [
+              "map.scheduledPlunder4"
+            ],
+            "busyKey": "",
+            "buttons": [],
+            "jobs": [
+              2,
+              1,
+              1
+            ],
+            "message": [],
+            "scheduledTab": "map.scheduledPlunder4",
+            "selection": null
+          },
+          "pending": {
+            "args": [
+              [
+                [
+                  "1001",
+                  "dispatch"
+                ],
+                [
+                  "1002",
+                  "dispatch"
+                ]
+              ],
+              5
+            ],
+            "view": {
+              "active": [
+                "map.secretTask"
+              ],
+              "busyKey": null,
+              "buttons": [
+                {
+                  "disabled": true,
+                  "text": "map.scheduleSelected:2"
+                },
+                {
+                  "disabled": true,
+                  "text": "map.shareAlliance"
+                }
+              ],
+              "jobs": null,
+              "message": [],
+              "scheduledTab": "map.scheduledPlunder4",
+              "selection": [
+                "321:1001",
+                "321:1002"
+              ]
+            }
+          },
+          "selectionAfterReturn": []
+        }
+      },
+      "current": {
+        "value": {
+          "done": {
+            "active": [
+              "map.scheduledPlunder4"
+            ],
+            "busyKey": "",
+            "buttons": [],
+            "jobs": [
+              2,
+              1,
+              1
+            ],
+            "message": [],
+            "scheduledTab": "map.scheduledPlunder4",
+            "selection": null
+          },
+          "pending": {
+            "args": [
+              [
+                [
+                  "1001",
+                  "dispatch"
+                ],
+                [
+                  "1002",
+                  "dispatch"
+                ]
+              ],
+              5
+            ],
+            "view": {
+              "active": [
+                "map.secretTask"
+              ],
+              "busyKey": null,
+              "buttons": [
+                {
+                  "disabled": true,
+                  "text": "map.scheduleSelected:2"
+                },
+                {
+                  "disabled": true,
+                  "text": "map.shareAlliance"
+                }
+              ],
+              "jobs": null,
+              "message": [],
+              "scheduledTab": "map.scheduledPlunder4",
+              "selection": [
+                "321:1001",
+                "321:1002"
+              ]
+            }
+          },
+          "selectionAfterReturn": []
+        }
+      },
+      "baseline": {
+        "error": "node.props.onChange is not a function"
+      }
+    },
+    {
+      "id": "flow.schedule-dispatch-failure-keeps-selection-and-tab",
+      "currentMatchesOriginal": true,
+      "baselineMatchesOriginal": false,
+      "original": {
+        "value": {
+          "active": [
+            "map.secretTask"
+          ],
+          "busyKey": null,
+          "buttons": [
+            {
+              "disabled": false,
+              "text": "map.scheduleSelected:1"
+            },
+            {
+              "disabled": true,
+              "text": "map.shareAlliance"
+            }
+          ],
+          "jobs": null,
+          "message": [],
+          "scheduledTab": "map.scheduledPlunder0",
+          "selection": [
+            "321:1001"
+          ]
+        }
+      },
+      "current": {
+        "value": {
+          "active": [
+            "map.secretTask"
+          ],
+          "busyKey": null,
+          "buttons": [
+            {
+              "disabled": false,
+              "text": "map.scheduleSelected:1"
+            },
+            {
+              "disabled": true,
+              "text": "map.shareAlliance"
+            }
+          ],
+          "jobs": null,
+          "message": [],
+          "scheduledTab": "map.scheduledPlunder0",
+          "selection": [
+            "321:1001"
+          ]
+        }
+      },
+      "baseline": {
+        "error": "baseline: button map.scheduleSelected:1 disabled"
+      }
+    },
+    {
+      "id": "flow.schedule-with-invalid-delay-never-calls-the-provider",
+      "currentMatchesOriginal": true,
+      "baselineMatchesOriginal": false,
+      "original": {
+        "value": {
+          "calls": 0,
+          "states": [
+            {
+              "disabled": true,
+              "text": "map.scheduleSelected:1"
+            },
+            {
+              "disabled": true,
+              "text": "map.shareAlliance"
+            }
+          ]
+        }
+      },
+      "current": {
+        "value": {
+          "calls": 0,
+          "states": [
+            {
+              "disabled": true,
+              "text": "map.scheduleSelected:1"
+            },
+            {
+              "disabled": true,
+              "text": "map.shareAlliance"
+            }
+          ]
+        }
+      },
+      "baseline": {
+        "error": "node.props.onChange is not a function"
+      }
+    },
+    {
+      "id": "flow.schedule-truck-success-clears-only-truck-selection",
+      "currentMatchesOriginal": true,
+      "baselineMatchesOriginal": false,
+      "original": {
+        "value": {
+          "done": {
+            "active": [
+              "map.scheduledPlunder4"
+            ],
+            "busyKey": "",
+            "buttons": [],
+            "jobs": [
+              2,
+              1,
+              1
+            ],
+            "message": [],
+            "scheduledTab": "map.scheduledPlunder4",
+            "selection": null
+          },
+          "pending": {
+            "rows": [
+              [
+                "501",
+                null
+              ]
+            ],
+            "view": {
+              "active": [
+                "map.truck"
+              ],
+              "busyKey": null,
+              "buttons": [
+                {
+                  "disabled": true,
+                  "text": "map.scheduleSelectedTrucks:1"
+                }
+              ],
+              "jobs": null,
+              "message": [],
+              "scheduledTab": "map.scheduledPlunder4",
+              "selection": [
+                "321:501"
+              ]
+            }
+          },
+          "selectionAfterReturn": []
+        }
+      },
+      "current": {
+        "value": {
+          "done": {
+            "active": [
+              "map.scheduledPlunder4"
+            ],
+            "busyKey": "",
+            "buttons": [],
+            "jobs": [
+              2,
+              1,
+              1
+            ],
+            "message": [],
+            "scheduledTab": "map.scheduledPlunder4",
+            "selection": null
+          },
+          "pending": {
+            "rows": [
+              [
+                "501",
+                null
+              ]
+            ],
+            "view": {
+              "active": [
+                "map.truck"
+              ],
+              "busyKey": null,
+              "buttons": [
+                {
+                  "disabled": true,
+                  "text": "map.scheduleSelectedTrucks:1"
+                }
+              ],
+              "jobs": null,
+              "message": [],
+              "scheduledTab": "map.scheduledPlunder4",
+              "selection": [
+                "321:501"
+              ]
+            }
+          },
+          "selectionAfterReturn": []
+        }
+      },
+      "baseline": {
+        "error": "baseline: button map.scheduleSelectedTrucks:1 disabled"
+      }
+    },
+    {
+      "id": "flow.share-label-selection-pruning-and-partial-message",
+      "currentMatchesOriginal": true,
+      "baselineMatchesOriginal": false,
+      "original": {
+        "value": {
+          "done": {
+            "active": [
+              "map.secretTask"
+            ],
+            "busyKey": null,
+            "buttons": [
+              {
+                "disabled": false,
+                "text": "map.scheduleSelected:1"
+              },
+              {
+                "disabled": false,
+                "text": "map.shareAlliance"
+              }
+            ],
+            "jobs": null,
+            "message": [
+              "map.shareAlliancePartial"
+            ],
+            "scheduledTab": "map.scheduledPlunder0",
+            "selection": [
+              "321:1002"
+            ]
+          },
+          "pending": {
+            "buttons": [
+              {
+                "disabled": true,
+                "text": "map.scheduleSelected:2"
+              },
+              {
+                "disabled": true,
+                "text": "map.sharingAlliance"
+              }
+            ],
+            "rows": [
+              [
+                "1001",
+                "dispatch"
+              ],
+              [
+                "1002",
+                "dispatch"
+              ]
+            ]
+          }
+        }
+      },
+      "current": {
+        "value": {
+          "done": {
+            "active": [
+              "map.secretTask"
+            ],
+            "busyKey": null,
+            "buttons": [
+              {
+                "disabled": false,
+                "text": "map.scheduleSelected:1"
+              },
+              {
+                "disabled": false,
+                "text": "map.shareAlliance"
+              }
+            ],
+            "jobs": null,
+            "message": [
+              "map.shareAlliancePartial"
+            ],
+            "scheduledTab": "map.scheduledPlunder0",
+            "selection": [
+              "321:1002"
+            ]
+          },
+          "pending": {
+            "buttons": [
+              {
+                "disabled": true,
+                "text": "map.scheduleSelected:2"
+              },
+              {
+                "disabled": true,
+                "text": "map.sharingAlliance"
+              }
+            ],
+            "rows": [
+              [
+                "1001",
+                "dispatch"
+              ],
+              [
+                "1002",
+                "dispatch"
+              ]
+            ]
+          }
+        }
+      },
+      "baseline": {
+        "error": "baseline: button map.shareAlliance disabled"
+      }
+    },
+    {
+      "id": "flow.share-full-success-message-and-selection",
+      "currentMatchesOriginal": true,
+      "baselineMatchesOriginal": false,
+      "original": {
+        "value": {
+          "active": [
+            "map.secretTask"
+          ],
+          "busyKey": null,
+          "buttons": [
+            {
+              "disabled": true,
+              "text": "map.scheduleSelected:0"
+            },
+            {
+              "disabled": true,
+              "text": "map.shareAlliance"
+            }
+          ],
+          "jobs": null,
+          "message": [
+            "map.shareAllianceSuccess"
+          ],
+          "scheduledTab": "map.scheduledPlunder0",
+          "selection": []
+        }
+      },
+      "current": {
+        "value": {
+          "active": [
+            "map.secretTask"
+          ],
+          "busyKey": null,
+          "buttons": [
+            {
+              "disabled": true,
+              "text": "map.scheduleSelected:0"
+            },
+            {
+              "disabled": true,
+              "text": "map.shareAlliance"
+            }
+          ],
+          "jobs": null,
+          "message": [
+            "map.shareAllianceSuccess"
+          ],
+          "scheduledTab": "map.scheduledPlunder0",
+          "selection": []
+        }
+      },
+      "baseline": {
+        "error": "baseline: button map.shareAlliance disabled"
+      }
+    },
+    {
+      "id": "flow.scheduled-tab-lists-counts-and-reloads-on-entry-and-change-events",
+      "currentMatchesOriginal": true,
+      "baselineMatchesOriginal": false,
+      "original": {
+        "value": {
+          "afterMount": {
+            "tab": "map.scheduledPlunder4"
+          },
+          "changed": {
+            "active": [
+              "map.scheduledPlunder1"
+            ],
+            "busyKey": "",
+            "buttons": [],
+            "jobs": [
+              1,
+              0,
+              0
+            ],
+            "message": [],
+            "scheduledTab": "map.scheduledPlunder1",
+            "selection": null
+          },
+          "entered": {
+            "active": [
+              "map.scheduledPlunder4"
+            ],
+            "busyKey": "",
+            "buttons": [],
+            "jobs": [
+              2,
+              1,
+              1
+            ],
+            "message": [],
+            "scheduledTab": "map.scheduledPlunder4",
+            "selection": null
+          },
+          "resultCount": [
+            "1 items"
+          ]
+        }
+      },
+      "current": {
+        "value": {
+          "afterMount": {
+            "tab": "map.scheduledPlunder4"
+          },
+          "changed": {
+            "active": [
+              "map.scheduledPlunder1"
+            ],
+            "busyKey": "",
+            "buttons": [],
+            "jobs": [
+              1,
+              0,
+              0
+            ],
+            "message": [],
+            "scheduledTab": "map.scheduledPlunder1",
+            "selection": null
+          },
+          "entered": {
+            "active": [
+              "map.scheduledPlunder4"
+            ],
+            "busyKey": "",
+            "buttons": [],
+            "jobs": [
+              2,
+              1,
+              1
+            ],
+            "message": [],
+            "scheduledTab": "map.scheduledPlunder4",
+            "selection": null
+          },
+          "resultCount": [
+            "1 items"
+          ]
+        }
+      },
+      "baseline": {
+        "error": "h.ctx.jobsChanged is not a function"
+      }
+    },
+    {
+      "id": "flow.scheduled-cancel-identities-busy-keys-and-reload",
+      "currentMatchesOriginal": true,
+      "baselineMatchesOriginal": false,
+      "original": {
+        "value": {
+          "afterGhost": "",
+          "afterTruckFailure": "",
+          "dispatch": {
+            "args": [
+              321,
+              "9001"
+            ],
+            "busy": "321:9001"
+          },
+          "ghost": {
+            "args": [
+              321,
+              "ghost:9003"
+            ],
+            "busy": "321:9003"
+          },
+          "truck": {
+            "args": [
+              321,
+              "501"
+            ],
+            "busy": "truck:321:501"
+          }
+        }
+      },
+      "current": {
+        "value": {
+          "afterGhost": "",
+          "afterTruckFailure": "",
+          "dispatch": {
+            "args": [
+              321,
+              "9001"
+            ],
+            "busy": "321:9001"
+          },
+          "ghost": {
+            "args": [
+              321,
+              "ghost:9003"
+            ],
+            "busy": "321:9003"
+          },
+          "truck": {
+            "args": [
+              321,
+              "501"
+            ],
+            "busy": "truck:321:501"
+          }
+        }
+      },
+      "baseline": {
+        "error": "Cannot read properties of null (reading 'cancelDispatch')"
+      }
+    },
+    {
+      "id": "flow.scheduled-plunder-again-and-clear-history",
+      "currentMatchesOriginal": true,
+      "baselineMatchesOriginal": false,
+      "original": {
+        "value": {
+          "again": {
+            "busy": "truck:321:501",
+            "rows": [
+              [
+                "501",
+                null
+              ]
+            ],
+            "stillScheduled": [
+              "map.scheduledPlunder4"
+            ]
+          },
+          "clearGhost": {
+            "busy": "clear:ghost",
+            "hasBefore": "number",
+            "kind": "ghost"
+          },
+          "clearTruck": {
+            "argc": 1,
+            "busy": "clear:truck"
+          },
+          "done": ""
+        }
+      },
+      "current": {
+        "value": {
+          "again": {
+            "busy": "truck:321:501",
+            "rows": [
+              [
+                "501",
+                null
+              ]
+            ],
+            "stillScheduled": [
+              "map.scheduledPlunder4"
+            ]
+          },
+          "clearGhost": {
+            "busy": "clear:ghost",
+            "hasBefore": "number",
+            "kind": "ghost"
+          },
+          "clearTruck": {
+            "argc": 1,
+            "busy": "clear:truck"
+          },
+          "done": ""
+        }
+      },
+      "baseline": {
+        "error": "Cannot read properties of null (reading 'again')"
+      }
+    },
+    {
+      "id": "flow.action-message-is-cleared-by-a-tab-change",
+      "currentMatchesOriginal": true,
+      "baselineMatchesOriginal": false,
+      "original": {
+        "value": {
+          "afterTabChange": [],
+          "shown": [
+            "map.shareAllianceSuccess"
+          ]
+        }
+      },
+      "current": {
+        "value": {
+          "afterTabChange": [],
+          "shown": [
+            "map.shareAllianceSuccess"
+          ]
+        }
+      },
+      "baseline": {
+        "error": "baseline: button map.shareAlliance disabled"
+      }
+    }
+  ]
+}

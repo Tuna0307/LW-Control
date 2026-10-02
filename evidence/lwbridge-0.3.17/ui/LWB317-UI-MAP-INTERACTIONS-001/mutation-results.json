@@ -1,0 +1,104 @@
+{
+  "status": "PASS",
+  "mutations": 12,
+  "detected": 12,
+  "results": [
+    {
+      "mutation": "tab change keeps the action message (defect found by the independent original-runtime comparison)",
+      "detected": true,
+      "detectedBy": [
+        "flow.action-message-is-cleared-by-a-tab-change"
+      ]
+    },
+    {
+      "mutation": "keyword is a search-effect dependency (typing searches)",
+      "detected": true,
+      "detectedBy": [
+        "keyword.typing-does-not-search",
+        "keyword.search-click-on-page-1-searches-once-with-typed-text",
+        "keyword.search-click-on-page-2-goes-to-page-1-and-searches-once",
+        "keyword.typed-but-unsubmitted-text-is-used-by-a-filter-change",
+        "keyword.tab-change-keeps-input-and-queries-with-it",
+        "keyword.page-change-queries-with-typed-text",
+        "keyword.no-timer-or-debounce-after-time-passes",
+        "search.click-while-loading-issues-a-newer-request-and-retires-the-older",
+        "name.select-clears-keyword-resets-page-and-searches-once",
+        "name.typing-without-a-selected-name-does-not-search"
+      ]
+    },
+    {
+      "mutation": "tab change resets the Truck selection",
+      "detected": true,
+      "detectedBy": [
+        "selection.truck-is-independent-and-persists-across-tabs-pages-and-servers"
+      ]
+    },
+    {
+      "mutation": "tab change keeps the Dispatch selection",
+      "detected": true,
+      "detectedBy": [
+        "selection.dispatch-resets-on-any-tab-change-including-dispatch-ghost"
+      ]
+    },
+    {
+      "mutation": "name select keeps the keyword text",
+      "detected": true,
+      "detectedBy": [
+        "name.select-clears-keyword-resets-page-and-searches-once"
+      ]
+    },
+    {
+      "mutation": "typing keeps the selected name",
+      "detected": true,
+      "detectedBy": [
+        "name.typing-after-selecting-drops-the-name-and-searches-with-the-text"
+      ]
+    },
+    {
+      "mutation": "Search button disabled while loading",
+      "detected": true,
+      "detectedBy": [
+        "search.button-is-not-disabled-by-loading",
+        "search.click-while-loading-issues-a-newer-request-and-retires-the-older"
+      ]
+    },
+    {
+      "mutation": "Search on page 1 only resets the page (no direct request)",
+      "detected": true,
+      "detectedBy": [
+        "keyword.search-click-on-page-1-searches-once-with-typed-text",
+        "search.click-while-loading-issues-a-newer-request-and-retires-the-older",
+        "search.failure-clears-rows-and-total"
+      ]
+    },
+    {
+      "mutation": "online is not a search-effect dependency",
+      "detected": true,
+      "detectedBy": [
+        "search.connection-change-refreshes"
+      ]
+    },
+    {
+      "mutation": "server change clears the Dispatch selection",
+      "detected": true,
+      "detectedBy": [
+        "selection.dispatch-survives-page-filter-sort-search-and-server-change"
+      ]
+    },
+    {
+      "mutation": "name options show raw keys (no game-text lookup)",
+      "detected": true,
+      "detectedBy": [
+        "name.option-text-uses-game-text-then-key"
+      ]
+    },
+    {
+      "mutation": "selection shares one collection between Dispatch and Truck",
+      "detected": true,
+      "detectedBy": [
+        "selection.truck-is-independent-and-persists-across-tabs-pages-and-servers",
+        "flow.schedule-truck-success-clears-only-truck-selection"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,921 @@
+[
+  {
+    "topic": 1,
+    "id": "kw-empty-search",
+    "description": "Search with an empty keyword",
+    "observed": {
+      "requests": [
+        {
+          "id": 3,
+          "kind": "city",
+          "keyword": "",
+          "page": 1,
+          "serverId": 321
+        }
+      ],
+      "keywordSent": "\"\""
+    }
+  },
+  {
+    "topic": 1,
+    "id": "kw-whitespace-only",
+    "description": "Keyword of three spaces, then Search",
+    "observed": {
+      "keywordSent": "\"   \"",
+      "requests": 1
+    }
+  },
+  {
+    "topic": 1,
+    "id": "kw-unicode-and-very-long",
+    "description": "Emoji/CJK plus 5000 characters",
+    "observed": {
+      "sentEqualsTyped": true,
+      "sentLength": 5004,
+      "inputKeepsAll": 5004
+    }
+  },
+  {
+    "topic": 1,
+    "id": "kw-enter-key-and-form",
+    "description": "Enter key: handlers on the input, wrapping <form>",
+    "observed": {
+      "inputProps": [
+        "value",
+        "onChange",
+        "aria-label",
+        "placeholder"
+      ],
+      "hasOnKeyDown": false,
+      "formElementsInTree": 0
+    }
+  },
+  {
+    "topic": 1,
+    "id": "kw-typing-while-request-pending",
+    "description": "Keyword typed while the tab-entry request is still pending, then the old reply arrives",
+    "observed": {
+      "pendingRequestIds": [
+        1,
+        2
+      ],
+      "rowsApplied": [
+        "old-query-row"
+      ],
+      "keywordInInput": "later",
+      "newRequestsFromTyping": 0
+    }
+  },
+  {
+    "topic": 1,
+    "id": "kw-search-with-no-data-server",
+    "description": "Search clicked while the data server is 0 (no scan server)",
+    "observed": {
+      "requests": [
+        {
+          "id": 3,
+          "kind": "city",
+          "keyword": "",
+          "page": 1,
+          "serverId": 0
+        }
+      ],
+      "page": 1,
+      "loading": true
+    }
+  },
+  {
+    "topic": 1,
+    "id": "kw-search-offline-and-scanning",
+    "description": "Search while offline and while a scan is reading",
+    "observed": {
+      "requestsWhileOffline": 1,
+      "requestsWhileScanning": 1
+    }
+  },
+  {
+    "topic": 1,
+    "id": "kw-rapid-search-clicks",
+    "description": "Three quick Search clicks at page 1, replies out of order",
+    "observed": {
+      "requests": [
+        {
+          "kind": "city",
+          "keyword": "k0",
+          "page": 1,
+          "serverId": 321
+        },
+        {
+          "kind": "city",
+          "keyword": "k1",
+          "page": 1,
+          "serverId": 321
+        },
+        {
+          "kind": "city",
+          "keyword": "k2",
+          "page": 1,
+          "serverId": 321
+        }
+      ],
+      "rowsAfterAllReplies": [
+        "c"
+      ]
+    }
+  },
+  {
+    "topic": 1,
+    "id": "kw-search-rejected",
+    "description": "Backend rejects the search",
+    "observed": {
+      "state": {
+        "tab": "city",
+        "page": 1,
+        "total": 0,
+        "rows": [],
+        "loading": false
+      },
+      "log": "map search error Error: backend gone",
+      "message": ""
+    }
+  },
+  {
+    "topic": 1,
+    "id": "kw-stale-rejection",
+    "description": "A superseded request rejects after a newer request succeeded",
+    "observed": {
+      "state": {
+        "tab": "city",
+        "page": 1,
+        "total": 1,
+        "rows": [
+          "y"
+        ],
+        "loading": false
+      },
+      "newLogLines": 0
+    }
+  },
+  {
+    "topic": 1,
+    "id": "kw-stale-after-tab-change",
+    "description": "City request pending, tab switched, city reply arrives",
+    "observed": {
+      "afterStaleCityReply": {
+        "tab": "monster",
+        "page": 1,
+        "total": 0,
+        "rows": [],
+        "loading": true
+      },
+      "afterMonsterReply": {
+        "tab": "monster",
+        "page": 1,
+        "total": 1,
+        "rows": [
+          "M"
+        ],
+        "loading": false
+      },
+      "cacheHasCity": [
+        "city"
+      ]
+    }
+  },
+  {
+    "topic": 2,
+    "id": "search-page3-pending-then-search",
+    "description": "Page-3 request still pending, Search clicked",
+    "observed": {
+      "requests": [
+        {
+          "kind": "city",
+          "keyword": "",
+          "page": 3,
+          "serverId": 321
+        },
+        {
+          "kind": "city",
+          "keyword": "",
+          "page": 1,
+          "serverId": 321
+        }
+      ],
+      "pageNow": 1,
+      "page3RequestIsStale": true
+    }
+  },
+  {
+    "topic": 2,
+    "id": "search-treasure-tab-waiting-for-viewer",
+    "description": "Treasure tab, online, viewer identity unknown: effect waits, Search button still requests",
+    "observed": {
+      "treasureRequestsAfterTabEntry": 0,
+      "treasureRequestsAfterSearchClick": 1,
+      "viewerUidSent": ""
+    }
+  },
+  {
+    "topic": 3,
+    "id": "name-unknown-value",
+    "description": "Select value not offered by the options",
+    "observed": {
+      "storedAndSent": "nope",
+      "selectValueShown": "nope",
+      "afterOptionsRefresh": {}
+    }
+  },
+  {
+    "topic": 3,
+    "id": "name-empty-string",
+    "description": "Choose All (empty string)",
+    "observed": {
+      "nameSelection": {},
+      "requests": [
+        {
+          "id": 5,
+          "kind": "resource",
+          "keyword": "",
+          "page": 1,
+          "serverId": 321
+        }
+      ],
+      "keyword": ""
+    }
+  },
+  {
+    "topic": 3,
+    "id": "name-select-while-loading",
+    "description": "Select while the tab-entry request is pending",
+    "observed": {
+      "requests": [
+        {
+          "id": 3
+        },
+        {
+          "id": 4,
+          "name": "r2"
+        }
+      ],
+      "rowsAfterObsoleteReply": []
+    }
+  },
+  {
+    "topic": 3,
+    "id": "name-key-with-whitespace",
+    "description": "Option key with surrounding whitespace is selected",
+    "observed": {
+      "sentKey": "\" r3 \"",
+      "keptAfterRefresh": "\" r3 \""
+    }
+  },
+  {
+    "topic": 3,
+    "id": "name-duplicate-option-keys",
+    "description": "Backend offers the same key twice",
+    "observed": {
+      "options": [
+        {
+          "value": "",
+          "key": null,
+          "text": "map.allNames"
+        },
+        {
+          "value": "r1",
+          "key": "r1",
+          "text": "r1 (1)"
+        },
+        {
+          "value": "r1",
+          "key": "r1",
+          "text": "r1 (2)"
+        }
+      ],
+      "selected": {
+        "resource": "r1"
+      }
+    }
+  },
+  {
+    "topic": 3,
+    "id": "name-typing-on-other-tab-keeps-this-tab-selection",
+    "description": "Resource selection survives typing on the monster tab",
+    "observed": {
+      "nameSelection": {
+        "resource": "r1"
+      }
+    }
+  },
+  {
+    "topic": 3,
+    "id": "name-options-refresh-empty-list",
+    "description": "Options refresh returns empty name lists while a name is selected",
+    "observed": {
+      "nameSelection": {},
+      "optionCount": 1
+    }
+  },
+  {
+    "topic": 3,
+    "id": "name-options-for-wrong-server-reply",
+    "description": "Options reply for a different server than the data server",
+    "observed": {
+      "dataServerIdAfter": 321,
+      "namesApplied": 0,
+      "newOptionCalls": [
+        321,
+        999,
+        321
+      ]
+    }
+  },
+  {
+    "topic": 4,
+    "id": "nr-level-not-a-number",
+    "description": "Dispatch level select receives 'abc' and '0'",
+    "observed": {
+      "abc": {
+        "minLevel": "NaN",
+        "maxLevel": "NaN"
+      },
+      "zero": {
+        "minLevel": 0,
+        "maxLevel": 0
+      }
+    }
+  },
+  {
+    "topic": 4,
+    "id": "nr-alliance-values",
+    "description": "Alliance filter values: malformed percent-encoding, empty name, none",
+    "observed": {
+      "name:%E0%A4%A": {},
+      "name:": {},
+      "none": {
+        "withoutAlliance": true
+      },
+      "name:Foo%20Bar": {
+        "alliance": "Foo Bar"
+      },
+      "bogus": {}
+    }
+  },
+  {
+    "topic": 4,
+    "id": "nr-unknown-filter-values",
+    "description": "Unknown quality/status values pass straight through",
+    "observed": {
+      "quality": "xyz",
+      "completionStatus": "foo"
+    }
+  },
+  {
+    "topic": 4,
+    "id": "nr-plunderable-per-tab",
+    "description": "plunderableOnly projection: railway vs ghost",
+    "observed": {
+      "railwayPlunderableOnly": true,
+      "ghostHasPlunderableCheckbox": false
+    }
+  },
+  {
+    "topic": 4,
+    "id": "nr-filter-of-other-tab-ignored",
+    "description": "A quality chosen on truck does not leak into city/resource queries",
+    "observed": {
+      "truckQualityOnReturn": "ur"
+    }
+  },
+  {
+    "topic": 4,
+    "id": "nr-sort-click",
+    "description": "Sorting a column: page reset and sorts array",
+    "observed": {
+      "afterFirst": {
+        "page": 1,
+        "sorts": [
+          {
+            "sortBy": "level",
+            "sortOrder": "desc"
+          },
+          {
+            "sortBy": "updatedAt",
+            "sortOrder": "desc"
+          }
+        ]
+      },
+      "afterSecond": [
+        {
+          "sortBy": "level",
+          "sortOrder": "asc"
+        },
+        {
+          "sortBy": "updatedAt",
+          "sortOrder": "desc"
+        }
+      ],
+      "afterThird": [
+        {
+          "sortBy": "updatedAt",
+          "sortOrder": "desc"
+        }
+      ]
+    }
+  },
+  {
+    "topic": 5,
+    "id": "tab-rapid-switch-out-of-order",
+    "description": "city -> monster -> truck without replies, replies arrive in the worst order",
+    "observed": {
+      "finalState": {
+        "tab": "truck",
+        "page": 1,
+        "total": 1,
+        "rows": [
+          "T"
+        ],
+        "loading": false
+      },
+      "cache": {
+        "city": {
+          "page": 1,
+          "rows": [],
+          "total": 0
+        },
+        "monster": {
+          "page": 1,
+          "rows": [],
+          "total": 0
+        }
+      }
+    }
+  },
+  {
+    "topic": 5,
+    "id": "tab-leave-while-loading",
+    "description": "Leave a tab before its first reply, come back",
+    "observed": {
+      "atReturn": {
+        "tab": "city",
+        "page": 1,
+        "total": 0,
+        "rows": [],
+        "loading": true
+      },
+      "cacheKeys": [
+        "city",
+        "monster"
+      ]
+    }
+  },
+  {
+    "topic": 5,
+    "id": "server-change-same-id",
+    "description": "Scan state re-emitted with the same server id",
+    "observed": {
+      "newRequests": 0,
+      "generation": 2
+    }
+  },
+  {
+    "topic": 5,
+    "id": "server-flap",
+    "description": "Server 321 -> 0 -> 321 -> 456 quickly with replies for the old servers arriving late",
+    "observed": {
+      "afterZero": {
+        "tab": "city",
+        "page": 1,
+        "total": 0,
+        "rows": [],
+        "loading": false
+      },
+      "afterLate321": {
+        "tab": "city",
+        "page": 1,
+        "total": 0,
+        "rows": [],
+        "loading": true
+      },
+      "afterCurrent": {
+        "tab": "city",
+        "page": 1,
+        "total": 0,
+        "rows": [],
+        "loading": true
+      },
+      "dataServerId": 456
+    }
+  },
+  {
+    "topic": 5,
+    "id": "controlled-unknown-tab",
+    "description": "Controlled mode with an unknown activeTab",
+    "observed": {
+      "requestKinds": [
+        "bogus",
+        "bogus"
+      ],
+      "activeTabButtons": 1,
+      "expandedTableThrows": "Cannot read properties of undefined (reading 'label')"
+    }
+  },
+  {
+    "topic": 5,
+    "id": "no-scan-state-prop",
+    "description": "scanState prop null (parent has not loaded it yet)",
+    "observed": {
+      "requests": 0,
+      "dataServerId": 0,
+      "loading": false,
+      "tabCountText": "—"
+    }
+  },
+  {
+    "topic": 5,
+    "id": "backend-loss-offline-midsession",
+    "description": "online prop turns false while on dispatch with a selection",
+    "observed": {
+      "newRequests": 1,
+      "selectionKept": [
+        "321:1001"
+      ],
+      "schedule": {
+        "disabled": false,
+        "text": "map.scheduleSelected:1"
+      },
+      "share": {
+        "disabled": true,
+        "text": "map.shareAlliance"
+      },
+      "jumpDisabledProp": true
+    }
+  },
+  {
+    "topic": 5,
+    "id": "page-change-prop-beyond-range",
+    "description": "Pagination prop invoked with out-of-range pages",
+    "observed": {
+      "page99": {
+        "tab": "city",
+        "page": 3,
+        "total": 120,
+        "rows": [],
+        "loading": true
+      },
+      "page0RequestPage": 0,
+      "pageMinus3RequestPage": -3
+    }
+  },
+  {
+    "topic": 6,
+    "id": "sel-odd-identifiers",
+    "description": "Rows with null/undefined/number/object/missing-serverId identifiers (toggled through the production callbacks)",
+    "observed": {
+      "uuid null": {
+        "disabled": true,
+        "checkedAfterToggle": true,
+        "storedKey": "321:",
+        "countAfter": 1,
+        "before": 0
+      },
+      "uuid undefined": {
+        "disabled": true,
+        "checkedAfterToggle": true,
+        "storedKey": "321:",
+        "countAfter": 1,
+        "before": 0
+      },
+      "uuid number 1001": {
+        "disabled": false,
+        "checkedAfterToggle": true,
+        "storedKey": "321:1001",
+        "countAfter": 1,
+        "before": 0
+      },
+      "uuid number 0": {
+        "disabled": true,
+        "checkedAfterToggle": true,
+        "storedKey": "321:",
+        "countAfter": 1,
+        "before": 0
+      },
+      "uuid padded numeric": {
+        "disabled": false,
+        "checkedAfterToggle": false,
+        "storedKey": "321: 7 ",
+        "countAfter": 1,
+        "before": 0
+      },
+      "serverId missing": {
+        "disabled": false,
+        "checkedAfterToggle": true,
+        "storedKey": "undefined:55",
+        "countAfter": 1,
+        "before": 0
+      },
+      "uuid boolean true": {
+        "disabled": true,
+        "checkedAfterToggle": true,
+        "storedKey": "321:true",
+        "countAfter": 1,
+        "before": 0
+      }
+    }
+  },
+  {
+    "topic": 6,
+    "id": "sel-snapshot-stale-after-refetch",
+    "description": "Selected row changes on the server; refetch shows new data; schedule sends the old snapshot",
+    "observed": {
+      "plunderAtSent": 1000,
+      "plunderAtShownNow": 99999
+    }
+  },
+  {
+    "topic": 6,
+    "id": "sel-selected-row-leaves-the-list",
+    "description": "Selected row no longer returned by the backend",
+    "observed": {
+      "selectedKeys": [
+        "321:1001"
+      ],
+      "schedule": {
+        "disabled": false,
+        "text": "map.scheduleSelected:1"
+      }
+    }
+  },
+  {
+    "topic": 6,
+    "id": "sel-invalid-truck-via-callback",
+    "description": "Invalid truck row (empty uuid) toggled through the production callback (a real disabled checkbox cannot fire it)",
+    "observed": {
+      "checkboxDisabled": true,
+      "storedKeys": [
+        "321:"
+      ],
+      "scheduleButton": {
+        "disabled": false,
+        "text": "map.scheduleSelectedTrucks:1"
+      }
+    }
+  },
+  {
+    "topic": 6,
+    "id": "sel-same-uuid-other-server",
+    "description": "Same uuid on two servers keeps separate entries",
+    "observed": {
+      "keys": [
+        "321:1001",
+        "456:1001"
+      ],
+      "boxes": [
+        true,
+        true
+      ]
+    }
+  },
+  {
+    "topic": 6,
+    "id": "sel-toggle-while-sharing",
+    "description": "Toggle a row while a share request is in flight",
+    "observed": {
+      "checkboxesDisabledDuringShare": [
+        false,
+        false
+      ],
+      "keysAfter": [
+        "321:1002"
+      ]
+    }
+  },
+  {
+    "topic": 6,
+    "id": "sel-share-reply-without-shared-uuids",
+    "description": "Share reply lacking sharedUuids",
+    "observed": {
+      "keysAfter": [
+        "321:1001"
+      ],
+      "message": "map.shareAllianceSuccess",
+      "sharing": false
+    }
+  },
+  {
+    "topic": 7,
+    "id": "delay-strings",
+    "description": "Random delay strings: button state, parsed value passed to the schedule call (one fresh page per string)",
+    "observed": {
+      "\"\"": {
+        "disabled": false,
+        "passed": 0
+      },
+      "\" \"": {
+        "disabled": false,
+        "passed": 0
+      },
+      "\"0\"": {
+        "disabled": false,
+        "passed": 0
+      },
+      "\"-1\"": {
+        "disabled": true,
+        "passed": "(not called)"
+      },
+      "\"-0\"": {
+        "disabled": false,
+        "passed": "-0"
+      },
+      "\"1.5\"": {
+        "disabled": true,
+        "passed": "(not called)"
+      },
+      "\"1e2\"": {
+        "disabled": false,
+        "passed": 100
+      },
+      "\"0x10\"": {
+        "disabled": false,
+        "passed": 16
+      },
+      "\"0b11\"": {
+        "disabled": false,
+        "passed": 3
+      },
+      "\"9007199254740991\"": {
+        "disabled": false,
+        "passed": 9007199254740991
+      },
+      "\"9007199254740992\"": {
+        "disabled": true,
+        "passed": "(not called)"
+      },
+      "\"9007199254740993\"": {
+        "disabled": true,
+        "passed": "(not called)"
+      },
+      "\"1e21\"": {
+        "disabled": true,
+        "passed": "(not called)"
+      },
+      "\"Infinity\"": {
+        "disabled": true,
+        "passed": "(not called)"
+      },
+      "\"NaN\"": {
+        "disabled": true,
+        "passed": "(not called)"
+      },
+      "\"abc\"": {
+        "disabled": true,
+        "passed": "(not called)"
+      },
+      "\"1,5\"": {
+        "disabled": true,
+        "passed": "(not called)"
+      },
+      "\"٣\"": {
+        "disabled": true,
+        "passed": "(not called)"
+      }
+    }
+  },
+  {
+    "topic": 7,
+    "id": "delay-changed-while-in-flight",
+    "description": "Delay edited after Schedule was clicked",
+    "observed": {
+      "argSent": 4,
+      "inputNow": "99"
+    }
+  },
+  {
+    "topic": 7,
+    "id": "delay-nonempty-selection-empty",
+    "description": "Valid delay but no selection",
+    "observed": {
+      "disabled": true,
+      "calls": 0
+    }
+  },
+  {
+    "topic": 8,
+    "id": "btn-double-invocation",
+    "description": "onClick invoked twice from the same render (no re-entry guard besides the disabled attribute)",
+    "observed": {
+      "schedule": 2,
+      "share": 2,
+      "truckSchedule": 2
+    }
+  },
+  {
+    "topic": 8,
+    "id": "btn-schedule-job-list-fails",
+    "description": "Schedule succeeds but the job list refresh fails",
+    "observed": {
+      "tab": "scheduledPlunder",
+      "selection": [],
+      "busyKey": "",
+      "logsInOrder": [
+        "dispatch plunder list error Error: list gone",
+        "scheduled 1 secret task plunder jobs",
+        "dispatch plunder list error Error: list gone"
+      ],
+      "jobListCalls": 3
+    }
+  },
+  {
+    "topic": 8,
+    "id": "btn-cancel-and-clear-failures",
+    "description": "Cancel / clear / plunder-again failures",
+    "observed": {
+      "afterCancel": {
+        "busyKey": "",
+        "message": "",
+        "logs": [
+          "dispatch plunder cancel error Error: cancel failed"
+        ],
+        "jobListReloaded": 0
+      },
+      "afterClear": {
+        "busyKey": "",
+        "message": "The game is not connected.",
+        "jobListReloaded": 0
+      },
+      "afterAgain": {
+        "busyKey": "",
+        "message": "The game is not connected.",
+        "logs": [
+          "truck plunder reschedule error Error: again failed"
+        ]
+      }
+    }
+  },
+  {
+    "topic": 8,
+    "id": "btn-treasure-claim-failure-and-empty",
+    "description": "Treasure claim rejects; claim with queued=0; row claim",
+    "observed": {
+      "failed": {
+        "message": "The game is not connected.",
+        "busy": false
+      },
+      "queuedZero": {
+        "message": "Found 0, submitted 0, skipped 3",
+        "pollCallsAfter5s": 0
+      },
+      "rowClaimArgs": [
+        321,
+        "single",
+        true,
+        "900"
+      ]
+    }
+  },
+  {
+    "topic": 8,
+    "id": "btn-export-guards",
+    "description": "Export: canceled dialog, no data server, called from a non-city tab",
+    "observed": {
+      "canceled": {
+        "message": "",
+        "exporting": false,
+        "calls": 1
+      },
+      "disabledAtServer0": true,
+      "callsAfterFreshHandlerAtServer0": 1,
+      "callsAfterStaleCityClosureInvokedOnMonsterTab": 2,
+      "exportButtonRenderedOnMonsterTab": false
+    }
+  },
+  {
+    "topic": 8,
+    "id": "btn-jump-handlers",
+    "description": "Coordinate jump / march follow guards",
+    "observed": {
+      "staleServer": {
+        "calls": 0,
+        "log": "map jump blocked stale server=999 current=321"
+      },
+      "invalidCoordinates": {
+        "calls": 0
+      },
+      "valid": {
+        "calls": [
+          {
+            "serverId": 321,
+            "x": 10,
+            "y": 20
+          }
+        ],
+        "log": "map coordinate jump server=321 x=10 y=20"
+      },
+      "truckFollow": [
+        {
+          "serverId": 321,
+          "marchUuid": "m1"
+        }
+      ]
+    }
+  }
+]

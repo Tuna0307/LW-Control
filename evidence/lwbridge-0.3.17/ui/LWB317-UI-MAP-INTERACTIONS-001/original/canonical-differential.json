@@ -1,0 +1,186 @@
+{
+  "canonicalSha256": "ee5cf83080b24280710a56215900831ec7e888d9f8bbc4bab3b5e963341cd624",
+  "canonicalFile": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+  "note": "observations of each implementation (canonical source = working tree at run time, hash recorded); 'differs' compares the listed observables only",
+  "scenarios": {
+    "mount-requests": {
+      "description": "Search requests after mount (before any reply is resolved)",
+      "original": {
+        "requests": [
+          {
+            "kind": "city",
+            "keyword": "",
+            "page": 1,
+            "serverId": 321
+          },
+          {
+            "kind": "city",
+            "keyword": "",
+            "page": 1,
+            "serverId": 321
+          }
+        ]
+      },
+      "canonical": {
+        "requests": [
+          {
+            "kind": "city",
+            "keyword": "",
+            "page": 1,
+            "serverId": 321
+          }
+        ]
+      },
+      "differs": true
+    },
+    "mount-requests-after-options": {
+      "description": "Search requests after mount once all replies were resolved",
+      "original": {
+        "requestCount": 2
+      },
+      "canonical": {
+        "requestCount": 1
+      },
+      "differs": true
+    },
+    "typing-no-request": {
+      "description": "Typing three characters",
+      "original": {
+        "newRequests": 0
+      },
+      "canonical": {
+        "newRequests": 0
+      },
+      "differs": false
+    },
+    "search-at-page-3": {
+      "description": "Search click at page 3 with a typed keyword",
+      "original": {
+        "requests": [
+          {
+            "kind": "city",
+            "keyword": "xyz",
+            "page": 1,
+            "serverId": 321
+          }
+        ],
+        "page": 1
+      },
+      "canonical": {
+        "requests": [
+          {
+            "kind": "city",
+            "keyword": "xyz",
+            "page": 1,
+            "serverId": 321
+          }
+        ],
+        "page": 1
+      },
+      "differs": false
+    },
+    "search-with-no-data-server": {
+      "description": "Server id 0 (no scan server): Search button state and click",
+      "original": {
+        "disabled": false,
+        "requestsAfterClick": [
+          {
+            "kind": "city",
+            "keyword": "",
+            "page": 1,
+            "serverId": 0
+          }
+        ]
+      },
+      "canonical": {
+        "disabled": true,
+        "requestsAfterClick": []
+      },
+      "differs": true
+    },
+    "search-button-while-offline-backend-unavailable": {
+      "description": "Search button when the backend/provider is unavailable (backendAvailable=false) and when offline",
+      "original": {
+        "offline": false
+      },
+      "canonical": {
+        "offline": false,
+        "backendUnavailableCanonicalOnly": true
+      },
+      "differs": true
+    },
+    "scan-completion-refetch": {
+      "description": "Rows refetch when a scan completes (isReading true -> false)",
+      "original": {
+        "requestsDuringScanAfter1500ms": 1,
+        "requestsAtCompletion": 2
+      },
+      "canonical": {
+        "requestsDuringScanAfter1500ms": 0,
+        "requestsAtCompletion": 0
+      },
+      "differs": true
+    },
+    "message-cleared-on-tab-change": {
+      "description": "Share message after a tab change",
+      "original": {
+        "messageBefore": "map.shareAllianceSuccess",
+        "messageAfterTabChange": ""
+      },
+      "canonical": {
+        "messageBefore": "map.shareAllianceSuccess",
+        "messageAfterTabChange": "map.shareAllianceSuccess"
+      },
+      "differs": true
+    },
+    "search-error-visible": {
+      "description": "Search failure: visible error text and rows",
+      "original": {
+        "rows": 0,
+        "visibleAlerts": 0,
+        "log": "map search error Error: backend gone"
+      },
+      "canonical": {
+        "rows": 0,
+        "visibleAlerts": 1,
+        "log": "(no log surface)"
+      },
+      "differs": true
+    },
+    "name-first-keystroke": {
+      "description": "Typing while a resource name is selected: requests caused by the first keystroke",
+      "original": {
+        "afterFirst": 1,
+        "afterSecond": 0
+      },
+      "canonical": {
+        "afterFirst": 1,
+        "afterSecond": 0
+      },
+      "differs": false
+    },
+    "truck-selection-survives-tab-change": {
+      "description": "Truck selection after truck -> city -> truck",
+      "original": {
+        "keys": [
+          "321:t1"
+        ]
+      },
+      "canonical": {
+        "keys": [
+          "321:t1"
+        ]
+      },
+      "differs": false
+    }
+  },
+  "differs": [
+    "mount-requests",
+    "mount-requests-after-options",
+    "search-with-no-data-server",
+    "search-button-while-offline-backend-unavailable",
+    "scan-completion-refetch",
+    "message-cleared-on-tab-change",
+    "search-error-visible"
+  ]
+}

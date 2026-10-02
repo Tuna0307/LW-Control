@@ -12,25 +12,7 @@ import {
   updateSelectedTypes,
 } from "./mapBackend.js";
 import { useI18n } from "./i18n.jsx";
-import { buildMapColumns, lookupMapText, mapNumber, mapResourceStatus, mapRewardCount, mapRewardName, mapTaskLabel, mapTaskSelectable, mapTaskState } from "./mapTablePresentation.js";
-import {
-  DEFAULT_RANDOM_DELAY_TEXT,
-  SCHEDULING_PROVIDER_METHODS,
-  dispatchSelectionPayload,
-  isNameFilterKind,
-  parseRandomDelay,
-  providerSupports,
-  removeSharedSelection,
-  scheduleSelectedDisabled,
-  scheduleTrucksDisabled,
-  selectionCount,
-  selectionKeySet,
-  selectionMembershipKey,
-  shareAllianceDisabled,
-  shareAllianceLabelKey,
-  toggleSelection,
-} from "./mapInteractions.js";
-import { ScheduledPlunder } from "./ScheduledPlunder.jsx";
+import { buildMapColumns, mapNumber, mapResourceStatus, mapRewardCount, mapRewardName, mapTaskLabel, mapTaskSelectable, mapTaskState } from "./mapTablePresentation.js";
 
 const EMPTY_GAME_TEXTS = Object.freeze({});
 
@@ -173,7 +155,7 @@ function MapTable({ kind, rows, loading, sorts, onSort, onCoordinateJump, onPlay
               {columns.map((column) => (
                 <td key={column.label} className={[column.className, column.rewards ? "map-reward-cell" : ""].filter(Boolean).join(" ")}>
                   {column.select ? (
-                    <input type="checkbox" aria-label={t("map.selectNamedTask", { name: String(row.ownerName || row.allianceName || row.uuid), server: row.serverId })} checked={selectedKeys?.has(selectionMembershipKey(row)) || false} disabled={!mapTaskSelectable(kind, row, currentTime)} onChange={() => onSelect?.(row)} />
+                    <input type="checkbox" aria-label={t("map.selectNamedTask", { name: String(row.ownerName || row.allianceName || row.uuid), server: row.serverId })} checked={selectedKeys?.has(rowKey(row)) || false} disabled={!mapTaskSelectable(kind, row, currentTime)} onChange={() => onSelect?.(rowKey(row), row)} />
                   ) : column.mark ? (
                     <button className={`map-mark-button${row.marked ? " active" : ""}`} type="button" disabled={actionDisabled || !row.ownerUid || actionBusy} title={markTitle(row)} aria-label={t(row.marked ? "map.unmarkPlayer" : "map.markPlayer")} onClick={() => onPlayerMark(row)}>
                       <svg className={`ui-icon${row.marked ? " is-filled" : ""}`} viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="m8 2 1.8 3.65 4.03.59-2.92 2.84.69 4.02L8 11.2l-3.6 1.9.69-4.02-2.92-2.84 4.03-.59L8 2Z" /></svg>
@@ -226,17 +208,9 @@ const PREVIEW_TAB_BY_STATE = Object.freeze({
   "map-treasure-checking": "treasure",
   "map-row-actions": "truck",
   "map-scheduled": "scheduledPlunder",
-  "map-scheduled-populated": "scheduledPlunder",
-  "map-scheduled-conditional": "scheduledPlunder",
-  "map-actions-ready": "dispatch",
-  "map-actions-schedule-busy": "dispatch",
-  "map-actions-share-busy": "dispatch",
-  "map-actions-truck-busy": "truck",
-  "map-actions-message": "dispatch",
-  "map-actions-message-partial": "dispatch",
 });
 
-export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, currentServerId = 0, previewState = "", gameTexts = EMPTY_GAME_TEXTS, previewJumpingKeys = null, previewTreasureStatesRefreshing = false, previewBusyKey = "", previewSharing = false, previewActionMessage = null, previewPlunderOnline = null }) {
+export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, currentServerId = 0, previewState = "", gameTexts = EMPTY_GAME_TEXTS, previewJumpingKeys = null, previewTreasureStatesRefreshing = false }) {
   const { t } = useI18n();
   const previewFixture = bridgeMode === "preview" && previewState.startsWith("map-");
   const [scanTab, setScanTab] = useState(previewState.startsWith("map-auto") ? "auto" : "manual");
@@ -253,6 +227,7 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
   const [browseServerId, setBrowseServerId] = useState(0);
   const [tab, setTab] = useState(PREVIEW_TAB_BY_STATE[previewState] || "city");
   const [keyword, setKeyword] = useState("");
+  const [submittedKeyword, setSubmittedKeyword] = useState("");
   const [resourceNameKey, setResourceNameKey] = useState("");
   const [monsterNameKey, setMonsterNameKey] = useState("");
   const [alliance, setAlliance] = useState("all");
@@ -265,15 +240,7 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
   const [includeForeignRadarTreasures, setIncludeForeignRadarTreasures] = useState(false);
   const [luckyFirst, setLuckyFirst] = useState(false);
   const [minLevel, setMinLevel] = useState("");
-  // Recovered ownership: Dispatch/Ghost and Truck selections are separate maps of `${serverId}:${uuid}` -> row payload.
-  const [dispatchSelection, setDispatchSelection] = useState({});
-  const [truckSelection, setTruckSelection] = useState({});
-  const [randomDelay, setRandomDelay] = useState(DEFAULT_RANDOM_DELAY_TEXT);
-  const [busyKey, setBusyKey] = useState(() => previewFixture ? previewBusyKey : "");
-  const [sharing, setSharing] = useState(() => previewFixture && previewSharing === true);
-  const [actionMessage, setActionMessage] = useState(() => previewFixture && previewActionMessage?.key ? t(previewActionMessage.key, previewActionMessage.values) : "");
-  const [plunderJobs, setPlunderJobs] = useState({ dispatchJobs: [], truckJobs: [] });
-  const [currentTime, setCurrentTime] = useState(() => Date.now());
+  const [selectedRows, setSelectedRows] = useState(() => new Set());
   const [page, setPage] = useState(1);
   const [sortsByKind, setSortsByKind] = useState(() => Object.fromEntries(
     Object.entries(DEFAULT_SORTS).map(([kind, sorts]) => [kind, sorts.map((sort) => ({ ...sort }))]),
@@ -328,11 +295,7 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
   const loadOptions = useCallback(async (serverId) => {
     if (!backendAvailable || !serverId) return;
     try {
-      const loaded = await mapApi.dataOptions(serverId);
-      setOptions(loaded);
-      // Original options handler drops a selected Resource/Monster name that is no longer offered.
-      setResourceNameKey((current) => !current || loaded.names.resource.some((item) => item.key === current) ? current : "");
-      setMonsterNameKey((current) => !current || loaded.names.monster.some((item) => item.key === current) ? current : "");
+      setOptions(await mapApi.dataOptions(serverId));
     } catch (error) {
       setQueryError(errorText(error));
     }
@@ -398,19 +361,19 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
     setTotal(0);
     setLoading(dataServerId > 0);
     setQueryError("");
+    setSelectedRows(new Set());
   }, [dataServerId]);
 
-  // Original `rr`: the query uses the keyword of the render that invoked it; typing alone never searches.
-  function runSearch(requestedPage = page) {
-    if (!backendAvailable || !dataServerId || tab === "scheduledPlunder") return;
+  useEffect(() => {
+    if (!backendAvailable || !dataServerId || tab === "scheduledPlunder") return undefined;
     const generation = searchGeneration.current + 1;
     searchGeneration.current = generation;
     setLoading(true);
     setQueryError("");
     const query = {
       serverId: dataServerId,
-      keyword,
-      page: requestedPage,
+      keyword: submittedKeyword,
+      page,
       sorts: activeSorts,
     };
     if (tab === "resource" && resourceNameKey) query.resourceNameKey = resourceNameKey;
@@ -440,7 +403,7 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
     mapApi.search(tab, query).then((result) => {
       if (generation !== searchGeneration.current) return;
       const totalPages = mapPageCount(result.total);
-      if (requestedPage > totalPages) {
+      if (page > totalPages) {
         setPage(totalPages);
         return;
       }
@@ -455,58 +418,14 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
     }).finally(() => {
       if (generation === searchGeneration.current) setLoading(false);
     });
-  }
-
-  // The recovered dependency list has no keyword and no timer: a keyword is applied by the Search button or by
-  // any listed dependency changing. Disposal (dependency change, backend loss, provider replacement, unmount)
-  // retires the in-flight request; the generation also fences tab and server transitions that advance it earlier.
-  useEffect(() => {
-    runSearch(page);
+    // Disposal (dependency change, backend loss, provider replacement, unmount) retires this
+    // request; the generation also fences tab and server transitions that advance it earlier.
     return () => { searchGeneration.current += 1; };
-  // keyword is deliberately absent (recovered effect dependencies); runSearch closes over the committing render.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     activeSorts, alliance, backendAvailable, completionStatus, dataServerId, includeForeignRadarTreasures, itemKey,
-    luckyFirst, mapApi, markedOnly, minLevel, monsterNameKey, online, page, plunderableOnly, quality, resourceNameKey,
-    searchRevision, tab, treasureType,
+    luckyFirst, mapApi, markedOnly, minLevel, monsterNameKey, page, plunderableOnly, quality, resourceNameKey,
+    searchRevision, submittedKeyword, tab, treasureType,
   ]);
-
-  // Original page clock (`rn`, 1 s). MapTable keeps its own accepted 1 s clock for the three task tables, so the
-  // page-level clock only has to drive the Scheduled Plunder tables.
-  useEffect(() => {
-    if (tab !== "scheduledPlunder") return undefined;
-    setCurrentTime(Date.now());
-    const timer = window.setInterval(() => setCurrentTime(Date.now()), 1000);
-    return () => window.clearInterval(timer);
-  }, [tab]);
-
-  // Original: the Dispatch/Ghost selection is emptied on every tab change (the Truck selection is not).
-  useEffect(() => {
-    setDispatchSelection((current) => selectionCount(current) === 0 ? current : {});
-    if (tab === "scheduledPlunder") loadPlunderJobs();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tab]);
-
-  // Original: jobs load on mount and whenever the provider announces a change; no provider means no jobs.
-  useEffect(() => {
-    loadPlunderJobs();
-    const unsubscribe = typeof mapApi.listenPlunderJobsChanged === "function" ? mapApi.listenPlunderJobsChanged(loadPlunderJobs) : undefined;
-    return () => { if (typeof unsubscribe === "function") unsubscribe(); };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mapApi]);
-
-  async function loadPlunderJobs() {
-    if (typeof mapApi.listPlunderJobs !== "function") return;
-    try {
-      const result = await mapApi.listPlunderJobs();
-      setPlunderJobs({
-        dispatchJobs: Array.isArray(result?.dispatchJobs) ? result.dispatchJobs : [],
-        truckJobs: Array.isArray(result?.truckJobs) ? result.truckJobs : [],
-      });
-    } catch {
-      // The original only logs "dispatch plunder list error"; the canonical page has no log surface.
-    }
-  }
 
   async function startScan() {
     setScanError("");
@@ -550,8 +469,6 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
       setTotal(0);
       setPage(1);
       setLoading(false);
-      setDispatchSelection({});
-      setTruckSelection({});
       await refreshSummary();
       setSearchRevision((value) => value + 1);
     } catch (error) {
@@ -564,29 +481,11 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
     setSelectedTypes((current) => updateSelectedTypes(current, kind, checked));
   }
 
-  function changeKeyword(value) {
-    setKeyword(value);
-    // Original keyword onChange: typing drops the selected Resource/Monster name of the active tab.
-    if (tab === "resource" && resourceNameKey) setResourceNameKey("");
-    if (tab === "monster" && monsterNameKey) setMonsterNameKey("");
-  }
-
-  function selectName(kind, value) {
-    // Original name onChange: select it, empty the keyword text, go to page 1.
-    if (kind === "resource") setResourceNameKey(value);
-    else setMonsterNameKey(value);
-    setKeyword("");
-    setPage(1);
-  }
-
-  // Original Search button: on page 1 search directly, otherwise page 1 triggers the effect. Never disabled by loading.
   function submitSearch() {
-    if (page === 1) runSearch(1);
-    else setPage(1);
+    setSubmittedKeyword(keyword);
+    setPage(1);
+    setSearchRevision((value) => value + 1);
   }
-
-  const toggleDispatchRow = (row) => setDispatchSelection((current) => toggleSelection(current, dispatchSelectionPayload(tab, row)));
-  const toggleTruckRow = (row) => setTruckSelection((current) => toggleSelection(current, row));
 
   function changeTab(nextTab) {
     if (nextTab === tab) return;
@@ -603,7 +502,7 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
     setTotal(restoredView.total);
     setLoading(Boolean(incomingTab && !incomingCached));
     setQueryError("");
-    setActionMessage("");
+    setSelectedRows(new Set());
   }
 
   function changeSort(sortBy) {
@@ -644,7 +543,7 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
     try {
       await mapApi.exportCities({
         serverId: dataServerId,
-        keyword,
+        keyword: submittedKeyword,
         alliance: alliance !== "all" && alliance !== "none" ? alliance : undefined,
         withoutAlliance: alliance === "none" || undefined,
         markedOnly: markedOnly || undefined,
@@ -718,118 +617,6 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
 
   function toggleAutoType(kind, checked) {
     setAutoConfig((current) => ({ ...current, selectedTypes: updateSelectedTypes(current.selectedTypes, kind, checked) }));
-  }
-
-  // Recovered action callbacks. They exist only to define selection retention and busy/message ownership; the
-  // provider methods they call are absent from the production map API, so the buttons stay fenced (disabled).
-  const dispatchCount = selectionCount(dispatchSelection);
-  const truckCount = selectionCount(truckSelection);
-  const dispatchKeys = useMemo(() => selectionKeySet(dispatchSelection), [dispatchSelection]);
-  const truckKeys = useMemo(() => selectionKeySet(truckSelection), [truckSelection]);
-  const delay = parseRandomDelay(randomDelay);
-  const scheduleProvider = providerSupports(mapApi, SCHEDULING_PROVIDER_METHODS.dispatch);
-  const truckProvider = providerSupports(mapApi, SCHEDULING_PROVIDER_METHODS.truck);
-  const shareProvider = providerSupports(mapApi, SCHEDULING_PROVIDER_METHODS.share);
-  const jobActionsEnabled = providerSupports(mapApi, SCHEDULING_PROVIDER_METHODS.jobActions);
-  const scheduledCount = plunderJobs.dispatchJobs.length + plunderJobs.truckJobs.length;
-
-  async function scheduleSelectedDispatch() {
-    const selected = Object.values(dispatchSelection);
-    if (selected.length === 0 || !delay.valid || !scheduleProvider) return;
-    setBusyKey("schedule");
-    try {
-      await mapApi.scheduleDispatchPlunder(selected, delay.seconds);
-      setDispatchSelection({});
-      await loadPlunderJobs();
-      changeTab("scheduledPlunder");
-    } catch {
-      // The original logs "dispatch plunder schedule error"; selection is kept.
-    } finally {
-      setBusyKey("");
-    }
-  }
-
-  async function scheduleSelectedTrucks() {
-    const selected = Object.values(truckSelection);
-    if (selected.length === 0 || !truckProvider) return;
-    setBusyKey("schedule-truck");
-    try {
-      await mapApi.scheduleTruckPlunder(selected);
-      setTruckSelection({});
-      await loadPlunderJobs();
-      changeTab("scheduledPlunder");
-    } catch {
-      // The original logs "truck plunder schedule error"; selection is kept.
-    } finally {
-      setBusyKey("");
-    }
-  }
-
-  async function shareSelectedDispatch() {
-    const selected = Object.values(dispatchSelection);
-    if (selected.length === 0 || !shareProvider) return;
-    setSharing(true);
-    setActionMessage("");
-    try {
-      const result = await mapApi.shareDispatchToAlliance(selected);
-      setDispatchSelection((current) => removeSharedSelection(current, result.sharedUuids));
-      setActionMessage(result.failed > 0 ? t("map.shareAlliancePartial", { shared: result.shared, failed: result.failed }) : t("map.shareAllianceSuccess", { count: result.shared }));
-    } catch (error) {
-      setActionMessage(errorText(error));
-    } finally {
-      setSharing(false);
-    }
-  }
-
-  async function clearPlunderHistory(kind) {
-    setBusyKey(`clear:${kind}`);
-    setActionMessage("");
-    try {
-      const before = Date.now();
-      if (kind === "truck") await mapApi.clearTruckPlunderHistory(before);
-      else await mapApi.clearDispatchPlunderHistory(before, kind);
-      await loadPlunderJobs();
-    } catch (error) {
-      setActionMessage(errorText(error));
-    } finally {
-      setBusyKey("");
-    }
-  }
-
-  async function cancelDispatchJob(job) {
-    setBusyKey(`${job.serverId}:${job.uuid}`);
-    try {
-      await mapApi.cancelDispatchPlunder(job.serverId, job.taskKind === "ghost" ? `ghost:${job.uuid}` : job.uuid);
-      await loadPlunderJobs();
-    } catch {
-      // The original logs "dispatch plunder cancel error".
-    } finally {
-      setBusyKey("");
-    }
-  }
-
-  async function cancelTruckJob(job) {
-    setBusyKey(`truck:${job.serverId}:${job.uuid}`);
-    try {
-      await mapApi.cancelTruckPlunder(job.serverId, job.uuid);
-      await loadPlunderJobs();
-    } catch {
-      // The original logs "truck plunder cancel error".
-    } finally {
-      setBusyKey("");
-    }
-  }
-
-  async function plunderTruckAgain(job) {
-    setBusyKey(`truck:${job.serverId}:${job.uuid}`);
-    try {
-      await mapApi.scheduleTruckPlunder([job]);
-      await loadPlunderJobs();
-    } catch {
-      // The original logs "truck plunder reschedule error".
-    } finally {
-      setBusyKey("");
-    }
   }
 
   const progress = Math.max(0, Math.min(100, Math.round(Number(scanState.progressPercent) || 0)));
@@ -942,18 +729,24 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
           {MAP_TABS.map(({ key }) => (
             <button key={key} type="button" role="tab" className={tab === key ? "active" : ""} aria-selected={tab === key} onClick={() => changeTab(key)}>
               <span className="map-tab-label">{t(TAB_LABEL_KEYS[key])}</span>
-              <span className="map-tab-count">{key === "scheduledPlunder" ? scheduledCount : summaryReady ? counts[key] || 0 : "—"}</span>
+              <span className="map-tab-count">{key === "scheduledPlunder" ? "0" : summaryReady ? counts[key] || 0 : "—"}</span>
             </button>
           ))}
         </div>
 
         {tab !== "scheduledPlunder" ? (
           <div className="map-searchbar">
-            <input value={keyword} onChange={(event) => changeKeyword(event.target.value)} aria-label={t("map.searchLabel")} placeholder={t("map.searchLabel")} />
-            {isNameFilterKind(tab) ? (
-              <select aria-label={t("common.name")} value={tab === "resource" ? resourceNameKey : monsterNameKey} onChange={(event) => selectName(tab, event.target.value)}>
+            <input value={keyword} onChange={(event) => setKeyword(event.target.value)} aria-label={t("map.searchLabel")} placeholder={t("map.searchLabel")} />
+            {tab === "resource" ? (
+              <select aria-label="Resource name" value={resourceNameKey} onChange={(event) => { setResourceNameKey(event.target.value); setPage(1); }}>
                 <option value="">{t("map.allNames")}</option>
-                {(options?.names?.[tab] || []).map((item) => <option key={item.key} value={item.key}>{lookupMapText(gameTexts, item.key, item.key)} ({item.count})</option>)}
+                {(options?.names?.resource || []).map((item) => <option key={item.key} value={item.key}>{item.key} ({item.count})</option>)}
+              </select>
+            ) : null}
+            {tab === "monster" ? (
+              <select aria-label="Monster name" value={monsterNameKey} onChange={(event) => { setMonsterNameKey(event.target.value); setPage(1); }}>
+                <option value="">{t("map.allNames")}</option>
+                {(options?.names?.monster || []).map((item) => <option key={item.key} value={item.key}>{item.key} ({item.count})</option>)}
               </select>
             ) : null}
             {tab === "city" ? (
@@ -1001,44 +794,28 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
                 {(tab === "truck" || tab === "railway" || tab === "dispatch") ? <label className="map-filter-field"><input type="checkbox" checked={plunderableOnly} onChange={(event) => { setPlunderableOnlyByKind((current) => ({ ...current, [tab]: event.target.checked || undefined })); setPage(1); }} /><span>{t("map.plunderableOnly")}</span></label> : null}
               </>
             ) : null}
-            <button type="button" disabled={!backendAvailable || !dataServerId} onClick={submitSearch}>{t("common.search")}</button>
+            <button type="button" disabled={!backendAvailable || !dataServerId || loading} onClick={submitSearch}>{t("common.search")}</button>
             {tab === "city" ? <button type="button" disabled={!backendAvailable || !dataServerId || scanState.isReading || actionBusy === "export"} onClick={exportCities}>{t(actionBusy === "export" ? "map.exportingExcel" : "map.exportExcel")}</button> : null}
-            {(tab === "dispatch" || tab === "ghost") ? <label className="map-random-delay-field"><span>{t("map.randomDelaySeconds")}</span><input type="number" min="0" step="1" aria-label={t("map.randomDelaySeconds")} value={randomDelay} onChange={(event) => setRandomDelay(event.target.value)} /></label> : null}
-            {(tab === "dispatch" || tab === "ghost") ? <button className="map-schedule-button" type="button" data-runtime-fenced={!scheduleProvider} disabled={scheduleSelectedDisabled({ count: dispatchCount, busyKey, sharing, delayValid: delay.valid }) || !scheduleProvider} onClick={scheduleSelectedDispatch}>{t("map.scheduleSelected", { count: dispatchCount })}</button> : null}
-            {tab === "dispatch" ? <button className="map-schedule-button" type="button" data-runtime-fenced={!shareProvider} disabled={shareAllianceDisabled({ online, isReading: scanState.isReading, count: dispatchCount, busyKey, sharing }) || !shareProvider} onClick={shareSelectedDispatch}>{t(shareAllianceLabelKey(sharing))}</button> : null}
-            {tab === "truck" ? <button className="map-schedule-button" type="button" data-runtime-fenced={!truckProvider} disabled={scheduleTrucksDisabled({ count: truckCount, busyKey }) || !truckProvider} onClick={scheduleSelectedTrucks}>{t("map.scheduleSelectedTrucks", { count: truckCount })}</button> : null}
+            {(tab === "dispatch" || tab === "ghost") ? <label className="map-random-delay-field"><span>{t("map.randomDelaySeconds")}</span><input type="number" min="0" step="1" defaultValue="0" disabled /></label> : null}
+            {(tab === "dispatch" || tab === "ghost") ? <button className="map-schedule-button" type="button" disabled>{t("map.scheduleSelected", { count: selectedRows.size })}</button> : null}
+            {tab === "dispatch" ? <button className="map-schedule-button" type="button" disabled>{t("map.shareAlliance")}</button> : null}
+            {tab === "truck" ? <button className="map-schedule-button" type="button" disabled>{t("map.scheduleSelectedTrucks", { count: selectedRows.size })}</button> : null}
             {tab === "treasure" ? <><button className="map-schedule-button" type="button" disabled>{t("map.claimTreasureBoxes")}</button><button className="map-schedule-button" type="button" disabled>{t("map.claimSeasonTreasures")}</button></> : null}
-            {actionMessage ? <span className="map-claim-result" role="status">{actionMessage}</span> : null}
             <span className="map-result-count">{t("common.itemCount", { count: total.toLocaleString() })}</span>
           </div>
         ) : (
-          <div className="map-searchbar">
-            {actionMessage ? <span className="map-claim-result" role="status">{actionMessage}</span> : null}
-            <span className="map-result-count">{t("common.itemCount", { count: scheduledCount })}</span>
-          </div>
+          <div className="map-searchbar"><span className="map-result-count">{t("common.itemCount", { count: 0 })}</span></div>
         )}
       </div>
 
       {queryError ? <div className="map-scan-error" role="alert">{queryError}</div> : null}
       {tab !== "scheduledPlunder" ? (
         <>
-          <MapTable kind={tab} gameTexts={gameTexts} itemKey={itemKey} rows={rows} loading={loading} treasureStatesRefreshing={previewFixture && previewState === "map-treasure-checking" && tab === "treasure" && previewTreasureStatesRefreshing === true} sorts={activeSorts} onSort={changeSort} onCoordinateJump={coordinateJump} onPlayerMark={togglePlayerMark} actionBusy={Boolean(actionBusy)} actionDisabled={!online || scanState.isReading} jumpingKey={previewFixture && previewState === "map-row-actions" ? previewJumpingKeys?.[tab] || "" : actionBusy.startsWith("jump:") ? actionBusy.slice(5) : ""} selectedKeys={tab === "truck" ? truckKeys : dispatchKeys} onSelect={tab === "truck" ? toggleTruckRow : toggleDispatchRow} />
+          <MapTable kind={tab} gameTexts={gameTexts} itemKey={itemKey} rows={rows} loading={loading} treasureStatesRefreshing={previewFixture && previewState === "map-treasure-checking" && tab === "treasure" && previewTreasureStatesRefreshing === true} sorts={activeSorts} onSort={changeSort} onCoordinateJump={coordinateJump} onPlayerMark={togglePlayerMark} actionBusy={Boolean(actionBusy)} actionDisabled={!online || scanState.isReading} jumpingKey={previewFixture && previewState === "map-row-actions" ? previewJumpingKeys?.[tab] || "" : actionBusy.startsWith("jump:") ? actionBusy.slice(5) : ""} selectedKeys={selectedRows} onSelect={(key) => setSelectedRows((current) => { const next = new Set(current); if (next.has(key)) next.delete(key); else next.add(key); return next; })} />
           <Pagination page={page} total={total} onPage={setPage} />
         </>
       ) : (
-        <ScheduledPlunder
-          dispatchJobs={plunderJobs.dispatchJobs}
-          truckJobs={plunderJobs.truckJobs}
-          gameTexts={gameTexts}
-          currentTime={currentTime}
-          online={previewFixture && previewPlunderOnline !== null ? previewPlunderOnline : online}
-          busyKey={busyKey}
-          actionsEnabled={jobActionsEnabled}
-          onCancelDispatch={cancelDispatchJob}
-          onCancelTruck={cancelTruckJob}
-          onPlunderAgain={plunderTruckAgain}
-          onClear={clearPlunderHistory}
-        />
+        <div className="map-table-scroll"><table className="map-table map-table--scheduled-plunder"><tbody><tr><td className="map-empty">{t("map.scheduledPlunder")} · {t("map.empty")}</td></tr></tbody></table></div>
       )}
     </section>
   );

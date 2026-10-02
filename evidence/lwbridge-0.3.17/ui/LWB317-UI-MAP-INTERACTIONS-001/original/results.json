@@ -1,0 +1,2996 @@
+{
+  "evidenceNote": "observed = data produced by executing the original component R; claims = contract statements checked against it",
+  "sourceSha256": "ce74345518be72e417a510b982c591729e5683f69751e190805598c4c05d3089",
+  "scenarios": {
+    "harness-executes-original-bytes": {
+      "description": "The harness evaluates the unmodified component text of the asset",
+      "observed": {
+        "sourceSha256": "ce74345518be72e417a510b982c591729e5683f69751e190805598c4c05d3089",
+        "componentTextIdenticalToAsset": true,
+        "childComponentTypesInTree": [
+          "at",
+          "it"
+        ],
+        "importSources": [
+          "./index-BVfnK1wp.js",
+          "./rewardDisplay-eZWrd6iS.js",
+          "./GameAssetImage-Diy9VTIr.js"
+        ],
+        "stateCount": 52
+      },
+      "claims": [
+        {
+          "text": "component source equals the asset bytes of function R",
+          "held": true
+        },
+        {
+          "text": "pinned asset hash",
+          "held": true
+        }
+      ]
+    },
+    "kw-typing-no-request": {
+      "description": "Typing in the keyword input: no request, no timer, no page change",
+      "observed": {
+        "requestsAfterTyping": 0,
+        "requestsAfterIdle60s": 0,
+        "steps": [
+          {
+            "typed": "a",
+            "newRequests": 0,
+            "keyword": "a"
+          },
+          {
+            "typed": "ab",
+            "newRequests": 0,
+            "keyword": "ab"
+          },
+          {
+            "typed": "abc",
+            "newRequests": 0,
+            "keyword": "abc"
+          }
+        ],
+        "timersBefore": {
+          "intervals": [],
+          "timeouts": []
+        },
+        "timersAfter": {
+          "intervals": [],
+          "timeouts": []
+        },
+        "page": 1,
+        "loading": false
+      },
+      "claims": [
+        {
+          "text": "no request while typing",
+          "held": true
+        },
+        {
+          "text": "no request after 60 s of idle fake time (no debounce)",
+          "held": true
+        },
+        {
+          "text": "no timers registered by typing",
+          "held": true
+        },
+        {
+          "text": "keyword state holds the raw text",
+          "held": true
+        }
+      ]
+    },
+    "kw-shared-across-tabs": {
+      "description": "Unsubmitted keyword survives tab changes and is sent by the tab-entry request",
+      "observed": {
+        "afterResourceTab": [
+          {
+            "id": 3,
+            "kind": "resource",
+            "keyword": "abc",
+            "page": 1,
+            "serverId": 321
+          }
+        ],
+        "afterMonsterTab": [
+          {
+            "id": 4,
+            "kind": "monster",
+            "keyword": "abc",
+            "page": 1,
+            "serverId": 321
+          }
+        ],
+        "keywordAfter": "abc",
+        "inputValueShown": "abc"
+      },
+      "claims": [
+        {
+          "text": "resource tab entry request carries the typed keyword",
+          "held": true
+        },
+        {
+          "text": "monster tab entry request carries the typed keyword",
+          "held": true
+        },
+        {
+          "text": "keyword input still shows the keyword",
+          "held": true
+        }
+      ]
+    },
+    "kw-tab-change-uses-typed-keyword": {
+      "sameAs": "kw-shared-across-tabs"
+    },
+    "kw-filter-change-uses-typed-keyword": {
+      "description": "A non-keyword filter change sends the typed (unsubmitted) keyword",
+      "observed": {
+        "newRequests": [
+          {
+            "kind": "city",
+            "query": {
+              "serverId": 321,
+              "keyword": "zzz",
+              "withoutAlliance": true,
+              "page": 1,
+              "pageSize": 50,
+              "sorts": [
+                {
+                  "sortBy": "updatedAt",
+                  "sortOrder": "desc"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "claims": [
+        {
+          "text": "exactly one new request",
+          "held": true
+        },
+        {
+          "text": "request has keyword zzz and withoutAlliance true",
+          "held": true
+        }
+      ]
+    },
+    "kw-clears-name-selection": {
+      "description": "Typing while a name is selected clears the selection; the first keystroke issues a request (At dependency), later ones do not",
+      "observed": {
+        "nameBefore": {
+          "resource": "r2"
+        },
+        "nameAfterFirstKeystroke": {},
+        "requestsAfterFirstKeystroke": [
+          {
+            "id": 5,
+            "kind": "resource",
+            "keyword": "a",
+            "page": 1,
+            "serverId": 321
+          }
+        ],
+        "requestsAfterSecondKeystroke": [],
+        "selectValueShown": ""
+      },
+      "claims": [
+        {
+          "text": "name selection cleared by typing",
+          "held": true
+        },
+        {
+          "text": "first keystroke issued exactly one request, with the new keyword and no name key",
+          "held": true
+        },
+        {
+          "text": "second keystroke issued no request",
+          "held": true
+        }
+      ]
+    },
+    "kw-first-keystroke-with-name-requests": {
+      "sameAs": "kw-clears-name-selection"
+    },
+    "kw-options-refresh-refires-search": {
+      "description": "Every options reply replaces At with a new object and so re-fires the search effect",
+      "observed": {
+        "requestsAtMountBeforeOptionsReply": [
+          {
+            "id": 1,
+            "kind": "city",
+            "keyword": "",
+            "page": 1,
+            "serverId": 321
+          }
+        ],
+        "requestsAfterOptionsReply": [
+          {
+            "id": 1,
+            "kind": "city",
+            "keyword": "",
+            "page": 1,
+            "serverId": 321
+          },
+          {
+            "id": 2,
+            "kind": "city",
+            "keyword": "",
+            "page": 1,
+            "serverId": 321
+          }
+        ],
+        "nameSelectionIdentityChanged": true,
+        "nameSelectionBefore": {},
+        "nameSelectionAfter": {},
+        "queriesIdentical": true
+      },
+      "claims": [
+        {
+          "text": "one request at mount",
+          "held": true
+        },
+        {
+          "text": "a second, identical request after the options reply",
+          "held": true
+        },
+        {
+          "text": "At identity changed although content is the same",
+          "held": true
+        }
+      ]
+    },
+    "rr-stale-reply-dropped": {
+      "description": "Overlapping searches: only the newest request's reply is applied; Search is clickable while loading",
+      "observed": {
+        "requestIds": [
+          3,
+          4
+        ],
+        "loadingAfterFirstSearch": true,
+        "searchButtonWhileLoading": {
+          "text": "common.search"
+        },
+        "afterNewestReply": {
+          "rows": [
+            "Y"
+          ],
+          "total": 1,
+          "loading": false
+        },
+        "afterObsoleteReply": {
+          "rows": [
+            "Y"
+          ],
+          "total": 1,
+          "loading": false
+        }
+      },
+      "claims": [
+        {
+          "text": "Search button not disabled while loading",
+          "held": true
+        },
+        {
+          "text": "second Search issued a second request while the first was pending",
+          "held": true
+        },
+        {
+          "text": "obsolete reply did not change rows/total/loading",
+          "held": true
+        }
+      ]
+    },
+    "search-while-loading": {
+      "sameAs": "rr-stale-reply-dropped"
+    },
+    "rr-page-clamp": {
+      "description": "A reply whose total makes the requested page too high clamps the page and stores no rows",
+      "observed": {
+        "before": {
+          "tab": "city",
+          "page": 5,
+          "total": 230,
+          "rows": [
+            "a"
+          ],
+          "loading": true,
+          "message": "",
+          "keyword": ""
+        },
+        "afterClamp": {
+          "tab": "city",
+          "page": 3,
+          "total": 230,
+          "rows": [
+            "a"
+          ],
+          "loading": true,
+          "message": "",
+          "keyword": ""
+        },
+        "followUpRequests": [
+          {
+            "id": 4,
+            "kind": "city",
+            "keyword": "",
+            "page": 3,
+            "serverId": 321
+          }
+        ]
+      },
+      "claims": [
+        {
+          "text": "page clamped to ceil(120/50)=3",
+          "held": true
+        },
+        {
+          "text": "rows of the clamped reply not stored",
+          "held": true
+        },
+        {
+          "text": "loading cleared",
+          "held": true
+        },
+        {
+          "text": "a follow-up request for page 3 is issued",
+          "held": true
+        }
+      ]
+    },
+    "search-button-page1-vs-page-gt-1": {
+      "description": "Search at page 1 requests directly; at page>1 it only resets the page and the effect requests once",
+      "observed": {
+        "atPage1": {
+          "newRequests": [
+            {
+              "id": 3,
+              "kind": "city",
+              "keyword": "abc",
+              "page": 1,
+              "serverId": 321
+            }
+          ],
+          "renderedPage": 1
+        },
+        "atPage3": {
+          "newRequests": [
+            {
+              "id": 5,
+              "kind": "city",
+              "keyword": "xyz",
+              "page": 1,
+              "serverId": 321
+            }
+          ],
+          "pageAfter": 1
+        }
+      },
+      "claims": [
+        {
+          "text": "page 1: one request carrying the typed keyword, page unchanged",
+          "held": true
+        },
+        {
+          "text": "page 3: exactly one request, page 1, keyword xyz; page state reset to 1",
+          "held": true
+        }
+      ]
+    },
+    "search-button-no-disabled": {
+      "description": "The Search button has no disabled predicate: observed in loading, idle, offline, scanning and busy states",
+      "observed": {
+        "loadingFirstRequestPending": {
+          "propNames": [
+            "onClick",
+            "children"
+          ]
+        },
+        "idle": {
+          "propNames": [
+            "onClick",
+            "children"
+          ]
+        },
+        "offline": {
+          "propNames": [
+            "onClick",
+            "children"
+          ]
+        },
+        "scanReading": {
+          "propNames": [
+            "onClick",
+            "children"
+          ]
+        },
+        "scheduleBusy": {
+          "propNames": [
+            "onClick",
+            "children"
+          ]
+        }
+      },
+      "claims": [
+        {
+          "text": "disabled is undefined in every state",
+          "held": true
+        },
+        {
+          "text": "props are exactly onClick and children",
+          "held": true
+        }
+      ]
+    },
+    "export-city-query": {
+      "description": "City export reuses nr(1,200); button/label/busy/message behaviour",
+      "observed": {
+        "idle": {
+          "disabled": false,
+          "text": "map.exportExcel"
+        },
+        "busyDuringExport": {
+          "disabled": true,
+          "text": "map.exportingExcel"
+        },
+        "queryKeys": [
+          "serverId",
+          "keyword",
+          "page",
+          "pageSize",
+          "sorts"
+        ],
+        "query": {
+          "keyword": "kk",
+          "page": 1,
+          "pageSize": 200,
+          "serverId": 321
+        },
+        "options": {
+          "sheetName": "map.city",
+          "headerCount": 12
+        },
+        "messageAfter": "map.exportExcelSuccess",
+        "exportingAfter": false
+      },
+      "claims": [
+        {
+          "text": "export query is nr(1,200) with the typed keyword",
+          "held": true
+        },
+        {
+          "text": "button disabled with busy label during export",
+          "held": true
+        },
+        {
+          "text": "success message set",
+          "held": true
+        }
+      ]
+    },
+    "nr-per-tab-fields": {
+      "description": "Query projection per tab (defined keys) and with filters applied",
+      "observed": {
+        "perTab": {
+          "city": {
+            "kind": "city",
+            "definedKeys": [
+              "serverId",
+              "keyword",
+              "page",
+              "pageSize",
+              "sorts"
+            ]
+          },
+          "resource": {
+            "kind": "resource",
+            "definedKeys": [
+              "serverId",
+              "keyword",
+              "page",
+              "pageSize",
+              "sorts"
+            ]
+          },
+          "monster": {
+            "kind": "monster",
+            "definedKeys": [
+              "serverId",
+              "keyword",
+              "page",
+              "pageSize",
+              "sorts"
+            ]
+          },
+          "truck": {
+            "kind": "truck",
+            "definedKeys": [
+              "serverId",
+              "keyword",
+              "page",
+              "pageSize",
+              "sorts"
+            ]
+          },
+          "railway": {
+            "kind": "railway",
+            "definedKeys": [
+              "serverId",
+              "keyword",
+              "page",
+              "pageSize",
+              "sorts"
+            ]
+          },
+          "dispatch": {
+            "kind": "dispatch",
+            "definedKeys": [
+              "serverId",
+              "keyword",
+              "page",
+              "pageSize",
+              "sorts"
+            ]
+          },
+          "ghost": {
+            "kind": "ghost",
+            "definedKeys": [
+              "serverId",
+              "keyword",
+              "page",
+              "pageSize",
+              "sorts"
+            ]
+          },
+          "treasure": {
+            "kind": "treasure",
+            "definedKeys": [
+              "serverId",
+              "keyword",
+              "page",
+              "pageSize",
+              "sorts",
+              "includeForeignRadarTreasures",
+              "luckyFirst",
+              "viewerUid",
+              "viewerAllianceId"
+            ]
+          }
+        },
+        "dispatchFiltered": {
+          "minLevel": 5,
+          "maxLevel": 5,
+          "specialOnly": true,
+          "completionStatus": "completed",
+          "plunderableOnly": true
+        },
+        "truckReindeer": {
+          "reindeerOnly": true
+        },
+        "cityAlliance": {
+          "alliance": "Foo Bar"
+        },
+        "cityMarked": {
+          "alliance": "Foo Bar",
+          "markedOnly": true
+        },
+        "resourceNamed": {
+          "resourceNameKey": "r1",
+          "keyword": ""
+        },
+        "cityKeywordUntrimmed": "\"  Padded  \""
+      },
+      "claims": [
+        {
+          "text": "dispatch level yields identical min/max (5/5)",
+          "held": true
+        },
+        {
+          "text": "special quality is specialOnly with quality undefined",
+          "held": true
+        },
+        {
+          "text": "truck reindeer is reindeerOnly",
+          "held": true
+        },
+        {
+          "text": "city alliance decoded",
+          "held": true
+        },
+        {
+          "text": "city has no minLevel and resource tab has no alliance",
+          "held": true
+        },
+        {
+          "text": "keyword is sent untrimmed",
+          "held": true
+        }
+      ]
+    },
+    "name-select-render": {
+      "description": "Name select options and the text derivation (translation vs raw key, trimmed lookup)",
+      "observed": {
+        "cityTabHasNameSelect": false,
+        "ariaLabel": "common.name",
+        "optionsBeforeTranslation": [
+          {
+            "value": "",
+            "text": "map.allNames"
+          },
+          {
+            "value": "r1",
+            "text": "r1 (3)"
+          },
+          {
+            "value": "r2",
+            "text": "r2 (5)"
+          },
+          {
+            "value": " r3 ",
+            "text": " r3  (1)"
+          }
+        ],
+        "optionsAfterReplyKeyedByRawKey": [
+          {
+            "value": "",
+            "text": "map.allNames"
+          },
+          {
+            "value": "r1",
+            "text": "Iron (3)"
+          },
+          {
+            "value": "r2",
+            "text": "r2 (5)"
+          },
+          {
+            "value": " r3 ",
+            "text": " r3  (1)"
+          }
+        ],
+        "optionsAfterReplyKeyedByTrimmedKey": [
+          {
+            "value": "",
+            "text": "map.allNames"
+          },
+          {
+            "value": "r1",
+            "text": "Iron (3)"
+          },
+          {
+            "value": "r2",
+            "text": "r2 (5)"
+          },
+          {
+            "value": " r3 ",
+            "text": "Wood(trimmed key) (1)"
+          }
+        ],
+        "localizeKeysRequested": [
+          "r1",
+          "r2",
+          " r3 ",
+          "300039",
+          "372138"
+        ],
+        "selectValue": ""
+      },
+      "claims": [
+        {
+          "text": "no name select on the city tab",
+          "held": true
+        },
+        {
+          "text": "first option is All names with empty value",
+          "held": true
+        },
+        {
+          "text": "before translation the raw key + count is shown",
+          "held": true
+        },
+        {
+          "text": "translated text + count after reply",
+          "held": true
+        },
+        {
+          "text": "untrimmed backend key does not match the trimmed lookup; raw key shown",
+          "held": true
+        },
+        {
+          "text": "reply keyed by trimmed key is used",
+          "held": true
+        }
+      ]
+    },
+    "name-option-text-derivation": {
+      "sameAs": "name-select-render"
+    },
+    "name-select-request": {
+      "description": "Selecting a name: one request, page 1, keyword cleared",
+      "observed": {
+        "requests": [
+          {
+            "id": 5,
+            "kind": "resource",
+            "keyword": "",
+            "page": 1,
+            "serverId": 321,
+            "resourceNameKey": "r2"
+          }
+        ],
+        "page": 1,
+        "keyword": "",
+        "nameSelection": {
+          "resource": "r2"
+        },
+        "afterAll": {
+          "nameSelection": {},
+          "requests": [
+            {
+              "id": 6,
+              "kind": "resource",
+              "keyword": "",
+              "page": 1,
+              "serverId": 321
+            }
+          ]
+        }
+      },
+      "claims": [
+        {
+          "text": "one request with name key r2, keyword '' and page 1",
+          "held": true
+        },
+        {
+          "text": "page and keyword reset",
+          "held": true
+        },
+        {
+          "text": "choosing All stores undefined and issues a request without name key",
+          "held": true
+        }
+      ]
+    },
+    "name-select-resets-page-and-keyword": {
+      "sameAs": "name-select-request"
+    },
+    "name-selection-persists-across-tabs": {
+      "description": "Name selections are per tab and survive tab changes",
+      "observed": {
+        "nameSelection": {
+          "resource": "r2",
+          "monster": "m1"
+        },
+        "selectValueOnResource": "r2",
+        "requestOnReturn": {
+          "id": 7,
+          "kind": "resource",
+          "keyword": "",
+          "page": 1,
+          "serverId": 321,
+          "resourceNameKey": "r2"
+        }
+      },
+      "claims": [
+        {
+          "text": "both selections kept",
+          "held": true
+        },
+        {
+          "text": "return to resource requests with resourceNameKey r2",
+          "held": true
+        }
+      ]
+    },
+    "name-invalid-after-refresh-cleared": {
+      "description": "A selected name that disappears from the refreshed options is cleared; a request follows",
+      "observed": {
+        "nameSelectionAfter": {},
+        "requestsAfterRefresh": [
+          {
+            "id": 5,
+            "kind": "resource",
+            "keyword": "",
+            "page": 1,
+            "serverId": 321,
+            "resourceNameKey": "r2"
+          },
+          {
+            "id": 6,
+            "kind": "resource",
+            "keyword": "",
+            "page": 1,
+            "serverId": 321
+          }
+        ],
+        "optionsCalls": 2
+      },
+      "claims": [
+        {
+          "text": "selection cleared",
+          "held": true
+        },
+        {
+          "text": "a request without the stale name key was issued",
+          "held": true
+        }
+      ]
+    },
+    "tab-change-effects": {
+      "description": "Tab change: what is reset/restored/kept; same-tab click is a no-op; Scheduled keeps the current page/rows",
+      "observed": {
+        "before": {
+          "tab": "city",
+          "page": 3,
+          "total": 230,
+          "rows": [
+            "c1"
+          ],
+          "loading": false,
+          "message": "map.exportExcelSuccess",
+          "keyword": "kw"
+        },
+        "afterMonster": {
+          "tab": "monster",
+          "page": 1,
+          "total": 0,
+          "rows": [],
+          "loading": true,
+          "message": "",
+          "keyword": "kw",
+          "requests": [
+            {
+              "id": 4,
+              "kind": "monster",
+              "keyword": "kw",
+              "page": 1,
+              "serverId": 321
+            }
+          ],
+          "searchGenerationDelta": 2,
+          "cacheKeys": [
+            "city"
+          ]
+        },
+        "afterBack": {
+          "tab": "city",
+          "page": 3,
+          "total": 230,
+          "rows": [
+            "c1"
+          ],
+          "loading": true,
+          "message": "",
+          "keyword": "kw",
+          "requests": [
+            {
+              "id": 5,
+              "kind": "city",
+              "keyword": "kw",
+              "page": 3,
+              "serverId": 321
+            }
+          ]
+        },
+        "sameTab": {
+          "requestsDelta": 0,
+          "snapshot": {
+            "tab": "city",
+            "page": 3,
+            "total": 230,
+            "rows": [
+              "c1"
+            ],
+            "loading": false,
+            "message": "",
+            "keyword": "kw"
+          }
+        },
+        "afterScheduled": {
+          "tab": "scheduledPlunder",
+          "page": 3,
+          "total": 230,
+          "rows": [
+            "c1"
+          ],
+          "loading": false,
+          "message": "",
+          "keyword": "kw",
+          "searchRequestsDelta": 0,
+          "jobListCallsDelta": 1
+        },
+        "backFromScheduled": {
+          "tab": "city",
+          "page": 3,
+          "total": 230,
+          "rows": [
+            "c1"
+          ],
+          "loading": true,
+          "message": "",
+          "keyword": "kw",
+          "requests": [
+            {
+              "id": 6,
+              "kind": "city",
+              "keyword": "kw",
+              "page": 3,
+              "serverId": 321
+            }
+          ]
+        }
+      },
+      "claims": [
+        {
+          "text": "before: page 3, keyword kw, message set",
+          "held": true
+        },
+        {
+          "text": "entering a new tab: page 1, rows [], total 0, loading true, message cleared, keyword kept",
+          "held": true
+        },
+        {
+          "text": "tab entry issues a request with the kept keyword",
+          "held": true
+        },
+        {
+          "text": "search generation bumped",
+          "held": true
+        },
+        {
+          "text": "returning restores the cached page/rows/total immediately and still refetches (loading true)",
+          "held": true
+        },
+        {
+          "text": "same-tab click changes nothing and requests nothing",
+          "held": true
+        },
+        {
+          "text": "Scheduled: no search request, jobs reloaded, page/rows/total kept, loading false",
+          "held": true
+        },
+        {
+          "text": "leaving Scheduled restores the city cache and refetches",
+          "held": true
+        }
+      ]
+    },
+    "tab-cache-restore": {
+      "sameAs": "tab-change-effects"
+    },
+    "tab-change-same-tab-noop": {
+      "sameAs": "tab-change-effects"
+    },
+    "selection-dispatch-toggle": {
+      "description": "Dispatch/Ghost selection: key, payload, toggle, counts, taskKind",
+      "observed": {
+        "initial": {
+          "keys": [],
+          "boxes": [
+            {
+              "ariaLabel": "map.selectNamedTask",
+              "checked": false,
+              "disabled": false
+            },
+            {
+              "ariaLabel": "map.selectNamedTask",
+              "checked": false,
+              "disabled": false
+            }
+          ],
+          "label": "map.scheduleSelected:0",
+          "disabled": true
+        },
+        "one": {
+          "keys": [
+            "321:1001"
+          ],
+          "boxes": [
+            {
+              "ariaLabel": "map.selectNamedTask",
+              "checked": true,
+              "disabled": false
+            },
+            {
+              "ariaLabel": "map.selectNamedTask",
+              "checked": false,
+              "disabled": false
+            }
+          ],
+          "payload": {
+            "uuid": "1001",
+            "serverId": 321,
+            "x": 10,
+            "y": 20,
+            "ownerName": "Owner 1001",
+            "quality": 3,
+            "level": 5,
+            "completionTime": 1790942340000,
+            "plunderAt": 1790946000000,
+            "taskExpireTime": 1790949600000,
+            "stolenCount": 0,
+            "maxStealCount": 3,
+            "rewards": [],
+            "updatedAt": 1790942399000,
+            "taskKind": "dispatch"
+          },
+          "label": "map.scheduleSelected:1"
+        },
+        "two": {
+          "keys": [
+            "321:1001",
+            "321:1002"
+          ]
+        },
+        "backToOne": {
+          "keys": [
+            "321:1002"
+          ]
+        },
+        "ghost": {
+          "payloadTaskKind": "ghost",
+          "keys": [
+            "321:2001"
+          ]
+        },
+        "tableProps": [
+          "currentTime",
+          "gameTexts",
+          "itemKey",
+          "jumpDisabled",
+          "jumpingKey",
+          "kind",
+          "loading",
+          "onClaimTreasure",
+          "onCoordinateJump",
+          "onPlayerMark",
+          "onSort",
+          "onToggleDispatch",
+          "onToggleTruck",
+          "rows",
+          "selectedDispatchKeys",
+          "selectedTruckKeys",
+          "sortState",
+          "treasureClaimBusy",
+          "treasureClaimDisabled",
+          "treasureStatesRefreshing"
+        ]
+      },
+      "claims": [
+        {
+          "text": "key is serverId:uuid; payload is the row plus taskKind dispatch",
+          "held": true
+        },
+        {
+          "text": "checkbox shows checked; label counts keys",
+          "held": true
+        },
+        {
+          "text": "toggling again removes",
+          "held": true
+        },
+        {
+          "text": "ghost payload taskKind ghost",
+          "held": true
+        },
+        {
+          "text": "schedule button disabled with no selection",
+          "held": true
+        }
+      ]
+    },
+    "selection-dispatch-cleared-on-tab-change": {
+      "description": "Dispatch selection is cleared by ANY tab change; truck selection survives tab/page/refetch/scan completion",
+      "observed": {
+        "dispatch": {
+          "selectedBefore": [
+            "321:1001"
+          ],
+          "afterTabChangeToGhost": [],
+          "afterReturn": []
+        },
+        "truck": {
+          "keys": [
+            "321:t1"
+          ],
+          "payload": {
+            "uuid": "t1",
+            "serverId": 321,
+            "x": 11,
+            "y": 21,
+            "ownerName": "Truck t1",
+            "quality": 3,
+            "power": 1000,
+            "arriveTs": 1790946000000,
+            "maxLootCount": 3,
+            "robTimes": 0,
+            "protectTime": 0,
+            "currentGoods": [],
+            "updatedAt": 1790942399000
+          },
+          "hasTaskKind": false,
+          "boxes": [
+            {
+              "ariaLabel": "map.selectNamedTask",
+              "checked": true,
+              "disabled": false
+            },
+            {
+              "ariaLabel": "map.selectNamedTask",
+              "checked": false,
+              "disabled": false
+            }
+          ],
+          "label": "map.scheduleSelectedTrucks:1"
+        },
+        "truckAfterCityTab": [
+          "321:t1"
+        ],
+        "truckBackOnTruck": {
+          "keys": [
+            "321:t1"
+          ],
+          "boxes": [
+            {
+              "ariaLabel": "map.selectNamedTask",
+              "checked": true,
+              "disabled": false
+            },
+            {
+              "ariaLabel": "map.selectNamedTask",
+              "checked": false,
+              "disabled": false
+            }
+          ]
+        },
+        "afterPageChange": [
+          "321:t1"
+        ],
+        "afterSearchRefetch": [
+          "321:t1"
+        ],
+        "afterScanCompletion": [
+          "321:t1"
+        ]
+      },
+      "claims": [
+        {
+          "text": "dispatch selection had 1 key then 0 after tab change",
+          "held": true
+        },
+        {
+          "text": "truck payload is the plain row (no taskKind) under serverId:uuid",
+          "held": true
+        },
+        {
+          "text": "truck selection survives city tab, page change, refetch, scan completion",
+          "held": true
+        },
+        {
+          "text": "returning to truck shows the row checked",
+          "held": true
+        }
+      ]
+    },
+    "selection-truck-toggle": {
+      "sameAs": "selection-dispatch-cleared-on-tab-change"
+    },
+    "selection-truck-survives-tab-change": {
+      "sameAs": "selection-dispatch-cleared-on-tab-change"
+    },
+    "selection-survives-server-change": {
+      "description": "Server change: data server switched, page/rows/total reset, tab cache cleared; keyword/selection/name/delay/message retained; stale in-flight reply ignored",
+      "observed": {
+        "before": {
+          "tab": "dispatch",
+          "page": 1,
+          "total": 1,
+          "rows": [
+            "1001"
+          ],
+          "loading": true,
+          "message": "",
+          "keyword": "kw",
+          "dispatchKeys": [
+            "321:1001"
+          ],
+          "truckKeys": [
+            "321:t1"
+          ],
+          "delay": "7",
+          "nameSelection": {
+            "resource": "r2"
+          },
+          "cacheKeys": [
+            "city",
+            "dispatch",
+            "truck",
+            "resource"
+          ],
+          "dataServerId": 321
+        },
+        "afterSwitch": {
+          "tab": "dispatch",
+          "page": 1,
+          "total": 0,
+          "rows": [],
+          "loading": true,
+          "message": "",
+          "keyword": "kw",
+          "dispatchKeys": [
+            "321:1001"
+          ],
+          "truckKeys": [
+            "321:t1"
+          ],
+          "delay": "7",
+          "nameSelection": {
+            "resource": "r2"
+          },
+          "cacheKeys": [],
+          "dataServerId": 456,
+          "newRequests": [
+            {
+              "id": 11,
+              "kind": "dispatch",
+              "keyword": "kw",
+              "page": 1,
+              "serverId": 456
+            },
+            {
+              "id": 12,
+              "kind": "dispatch",
+              "keyword": "kw",
+              "page": 1,
+              "serverId": 456
+            }
+          ],
+          "optionCalls": [
+            456
+          ]
+        },
+        "afterStaleReply": {
+          "tab": "dispatch",
+          "page": 1,
+          "total": 0,
+          "rows": [],
+          "loading": true,
+          "message": "",
+          "keyword": "kw"
+        }
+      },
+      "claims": [
+        {
+          "text": "data server follows scan state, page 1, rows [], total 0, loading true",
+          "held": true
+        },
+        {
+          "text": "tab cache cleared by the server effect",
+          "held": true
+        },
+        {
+          "text": "keyword, delay, name selection, both selections retained",
+          "held": true
+        },
+        {
+          "text": "a request for the new server is issued and options re-fetched",
+          "held": true
+        },
+        {
+          "text": "stale reply of the old server is ignored",
+          "held": true
+        }
+      ]
+    },
+    "server-change-effects": {
+      "sameAs": "selection-survives-server-change"
+    },
+    "server-loss-no-request": {
+      "description": "Server id 0 (scan state without server): no search request, rows cleared, loading false; recovery requests again",
+      "observed": {
+        "lost": {
+          "tab": "city",
+          "page": 1,
+          "total": 0,
+          "rows": [],
+          "loading": false,
+          "message": "",
+          "keyword": "kw",
+          "newRequests": [],
+          "dataServerId": 0,
+          "optionCalls": 0,
+          "tabCountsLoaded": false,
+          "exportDisabled": true,
+          "clearServerDisabled": true
+        },
+        "recovered": {
+          "tab": "city",
+          "page": 1,
+          "total": 0,
+          "rows": [],
+          "loading": true,
+          "message": "",
+          "keyword": "kw",
+          "newRequests": [
+            {
+              "id": 3,
+              "kind": "city",
+              "keyword": "kw",
+              "page": 1,
+              "serverId": 789
+            },
+            {
+              "id": 4,
+              "kind": "city",
+              "keyword": "kw",
+              "page": 1,
+              "serverId": 789
+            }
+          ],
+          "dataServerId": 789
+        }
+      },
+      "claims": [
+        {
+          "text": "no search request at server 0; rows cleared; loading false",
+          "held": true
+        },
+        {
+          "text": "Search stays enabled; export and clear-server are disabled",
+          "held": true
+        },
+        {
+          "text": "recovery requests the new server with the kept keyword",
+          "held": true
+        }
+      ]
+    },
+    "clear-data-resets": {
+      "description": "Clear-data handler: what is reset and what is kept",
+      "observed": {
+        "clearButtonDisabledBefore": false,
+        "scanClearArgs": [
+          321
+        ],
+        "after": {
+          "tab": "dispatch",
+          "page": 1,
+          "total": 0,
+          "rows": [],
+          "loading": true,
+          "message": "",
+          "keyword": "kw",
+          "dispatchKeys": [],
+          "truckKeys": [],
+          "nameSelection": {},
+          "delay": "5",
+          "nameOptions": {
+            "resource": [
+              {
+                "key": "r1",
+                "count": 3
+              },
+              {
+                "key": "r2",
+                "count": 5
+              }
+            ],
+            "monster": [
+              {
+                "key": "m1",
+                "count": 2
+              },
+              {
+                "key": "m2",
+                "count": 1
+              }
+            ]
+          },
+          "rowsRevision": 1,
+          "optionsRevision": 1
+        },
+        "newRequests": [
+          {
+            "id": 8,
+            "kind": "dispatch",
+            "keyword": "kw",
+            "page": 1,
+            "serverId": 321
+          },
+          {
+            "id": 9,
+            "kind": "dispatch",
+            "keyword": "kw",
+            "page": 1,
+            "serverId": 321
+          }
+        ],
+        "logs": [
+          "map scan data cleared"
+        ]
+      },
+      "claims": [
+        {
+          "text": "scan_clear called with the data server",
+          "held": true
+        },
+        {
+          "text": "both selections cleared, name selection reset",
+          "held": true
+        },
+        {
+          "text": "keyword and random delay are kept",
+          "held": true
+        },
+        {
+          "text": "rows revision bumped -> a refetch request follows",
+          "held": true
+        }
+      ]
+    },
+    "selection-key-trim-mismatch": {
+      "description": "Stored key is untrimmed, lookup key trimmed: whitespace-padded uuids toggle but never show checked",
+      "observed": {
+        "dispatch": {
+          "boxBefore": {
+            "ariaLabel": "map.selectNamedTask",
+            "checked": false,
+            "disabled": false
+          },
+          "afterToggle": {
+            "keys": [
+              "321: 1003 "
+            ],
+            "box": {
+              "ariaLabel": "map.selectNamedTask",
+              "checked": false,
+              "disabled": false
+            },
+            "scheduleDisabled": false,
+            "label": "map.scheduleSelected:1"
+          },
+          "afterSecondToggle": {
+            "keys": []
+          }
+        },
+        "truck": {
+          "keys": [
+            "321: t9 "
+          ],
+          "box": {
+            "ariaLabel": "map.selectNamedTask",
+            "checked": false,
+            "disabled": false
+          }
+        }
+      },
+      "claims": [
+        {
+          "text": "padded numeric uuid is enabled",
+          "held": true
+        },
+        {
+          "text": "stored key is untrimmed",
+          "held": true
+        },
+        {
+          "text": "checkbox does not show checked although counted",
+          "held": true
+        },
+        {
+          "text": "second toggle removes the entry",
+          "held": true
+        },
+        {
+          "text": "truck behaves the same",
+          "held": true
+        }
+      ]
+    },
+    "selection-duplicate-ids": {
+      "description": "Duplicate serverId:uuid rows share one entry",
+      "observed": {
+        "after0": {
+          "keys": [
+            "321:1001"
+          ],
+          "boxes": [
+            {
+              "ariaLabel": "map.selectNamedTask",
+              "checked": true,
+              "disabled": false
+            },
+            {
+              "ariaLabel": "map.selectNamedTask",
+              "checked": true,
+              "disabled": false
+            }
+          ],
+          "payloadOwner": "first"
+        },
+        "after1": {
+          "keys": [],
+          "boxes": [
+            {
+              "ariaLabel": "map.selectNamedTask",
+              "checked": false,
+              "disabled": false
+            },
+            {
+              "ariaLabel": "map.selectNamedTask",
+              "checked": false,
+              "disabled": false
+            }
+          ]
+        }
+      },
+      "claims": [
+        {
+          "text": "both checkboxes checked, one entry, payload of the toggled row",
+          "held": true
+        },
+        {
+          "text": "toggling the duplicate removes the shared entry",
+          "held": true
+        }
+      ]
+    },
+    "selection-checkbox-predicates": {
+      "description": "Checkbox disabled predicate matrix (dispatch/ghost and truck)",
+      "observed": {
+        "dispatch": {
+          "ok": {
+            "disabled": false
+          },
+          "nonDigitUuid": {
+            "disabled": true
+          },
+          "emptyUuid": {
+            "disabled": true
+          },
+          "decimalUuid": {
+            "disabled": true
+          },
+          "noCompletionTime": {
+            "disabled": true
+          },
+          "noPlunderAt": {
+            "disabled": true
+          },
+          "expired": {
+            "disabled": true
+          },
+          "full": {
+            "disabled": true
+          },
+          "pendingFutureCompletion": {
+            "disabled": false
+          },
+          "protectedWindow": {
+            "disabled": false
+          },
+          "secondsTimestamps": {
+            "disabled": false
+          },
+          "paddedNumericUuid": {
+            "disabled": false
+          },
+          "maxStealZero": {
+            "disabled": false
+          }
+        },
+        "ghost": {
+          "ok": {
+            "disabled": false
+          },
+          "nonDigitUuid": {
+            "disabled": true
+          },
+          "emptyUuid": {
+            "disabled": true
+          },
+          "decimalUuid": {
+            "disabled": true
+          },
+          "noCompletionTime": {
+            "disabled": true
+          },
+          "noPlunderAt": {
+            "disabled": true
+          },
+          "expired": {
+            "disabled": true
+          },
+          "full": {
+            "disabled": true
+          },
+          "pendingFutureCompletion": {
+            "disabled": false
+          },
+          "protectedWindow": {
+            "disabled": false
+          },
+          "secondsTimestamps": {
+            "disabled": false
+          },
+          "paddedNumericUuid": {
+            "disabled": false
+          },
+          "maxStealZero": {
+            "disabled": false
+          }
+        },
+        "truck": {
+          "ok": {
+            "disabled": false
+          },
+          "emptyUuid": {
+            "disabled": true
+          },
+          "blankUuid": {
+            "disabled": true
+          },
+          "serverZero": {
+            "disabled": true
+          },
+          "serverFraction": {
+            "disabled": true
+          },
+          "expired": {
+            "disabled": true
+          },
+          "arriveNow": {
+            "disabled": true
+          },
+          "full": {
+            "disabled": true
+          },
+          "specialURFullAfterOne": {
+            "disabled": true
+          },
+          "protected": {
+            "disabled": false
+          },
+          "noMaxLoot": {
+            "disabled": false
+          }
+        }
+      },
+      "claims": [
+        {
+          "text": "dispatch: enabled only when uuid is digits AND completionTime>0 AND plunderAt>0 AND not expired/full",
+          "held": true
+        },
+        {
+          "text": "pending/protected windows and padded numeric uuid are enabled",
+          "held": true
+        },
+        {
+          "text": "ghost uses the same predicate",
+          "held": true
+        },
+        {
+          "text": "truck: invalid/expired/full disabled; protected enabled",
+          "held": true
+        }
+      ]
+    },
+    "selection-disabled-stays-selected": {
+      "description": "A selected row that becomes disabled (expiry) stays checked and is still scheduled",
+      "observed": {
+        "before": {
+          "box": {
+            "ariaLabel": "map.selectNamedTask",
+            "checked": true,
+            "disabled": false
+          }
+        },
+        "after": {
+          "box": {
+            "ariaLabel": "map.selectNamedTask",
+            "checked": true,
+            "disabled": true
+          },
+          "keys": [
+            "321:1001"
+          ],
+          "scheduleDisabled": false
+        },
+        "scheduledRowUuids": [
+          "1001"
+        ]
+      },
+      "claims": [
+        {
+          "text": "after expiry: checkbox disabled AND checked, selection retained, Schedule enabled",
+          "held": true
+        },
+        {
+          "text": "the expired row is still passed to the schedule call",
+          "held": true
+        }
+      ]
+    },
+    "selection-across-page": {
+      "description": "Selections span pages; scheduling uses stored snapshots",
+      "observed": {
+        "onPage2": {
+          "keys": [
+            "321:1001"
+          ],
+          "boxes": [
+            {
+              "ariaLabel": "map.selectNamedTask",
+              "checked": false,
+              "disabled": false
+            }
+          ]
+        },
+        "dispatchSelectionSizeAfter": {
+          "afterSearchRefetch": 2,
+          "afterPageChange": 2,
+          "afterScanCompletion": 2,
+          "afterServerChange": 2
+        },
+        "scheduleArgs": {
+          "rowUuids": [
+            "1001",
+            "2001"
+          ],
+          "delay": 0
+        }
+      },
+      "claims": [
+        {
+          "text": "dispatch selection survives Search refetch, page change, scan completion and server change",
+          "held": true
+        },
+        {
+          "text": "page-1 selection kept on page 2",
+          "held": true
+        },
+        {
+          "text": "schedule receives both rows (one not on screen)",
+          "held": true
+        }
+      ]
+    },
+    "delay-parse-matrix": {
+      "description": "Random delay strings: Schedule button predicate, value passed to the schedule call, and the extracted Gn/Kn expressions",
+      "observed": {
+        "matrix": {
+          "\"0\"": {
+            "inputValueShown": "0",
+            "Gn": 0,
+            "Kn": true,
+            "buttonDisabled": false,
+            "valuePassedToSchedule": 0,
+            "pureExpressionAgreesWithButton": true
+          },
+          "\"\"": {
+            "inputValueShown": "",
+            "Gn": 0,
+            "Kn": true,
+            "buttonDisabled": false,
+            "valuePassedToSchedule": 0,
+            "pureExpressionAgreesWithButton": true
+          },
+          "\" \"": {
+            "inputValueShown": " ",
+            "Gn": 0,
+            "Kn": true,
+            "buttonDisabled": false,
+            "valuePassedToSchedule": 0,
+            "pureExpressionAgreesWithButton": true
+          },
+          "\"   \"": {
+            "inputValueShown": "   ",
+            "Gn": 0,
+            "Kn": true,
+            "buttonDisabled": false,
+            "valuePassedToSchedule": 0,
+            "pureExpressionAgreesWithButton": true
+          },
+          "\"5\"": {
+            "inputValueShown": "5",
+            "Gn": 5,
+            "Kn": true,
+            "buttonDisabled": false,
+            "valuePassedToSchedule": 5,
+            "pureExpressionAgreesWithButton": true
+          },
+          "\"-1\"": {
+            "inputValueShown": "-1",
+            "Gn": -1,
+            "Kn": false,
+            "buttonDisabled": true,
+            "valuePassedToSchedule": "(not called)",
+            "pureExpressionAgreesWithButton": true
+          },
+          "\"-0\"": {
+            "inputValueShown": "-0",
+            "Gn": "-0",
+            "Kn": true,
+            "buttonDisabled": false,
+            "valuePassedToSchedule": "-0",
+            "pureExpressionAgreesWithButton": true
+          },
+          "\"1.5\"": {
+            "inputValueShown": "1.5",
+            "Gn": 1.5,
+            "Kn": false,
+            "buttonDisabled": true,
+            "valuePassedToSchedule": "(not called)",
+            "pureExpressionAgreesWithButton": true
+          },
+          "\"1e2\"": {
+            "inputValueShown": "1e2",
+            "Gn": 100,
+            "Kn": true,
+            "buttonDisabled": false,
+            "valuePassedToSchedule": 100,
+            "pureExpressionAgreesWithButton": true
+          },
+          "\"0x10\"": {
+            "inputValueShown": "0x10",
+            "Gn": 16,
+            "Kn": true,
+            "buttonDisabled": false,
+            "valuePassedToSchedule": 16,
+            "pureExpressionAgreesWithButton": true
+          },
+          "\"abc\"": {
+            "inputValueShown": "abc",
+            "Gn": "NaN",
+            "Kn": false,
+            "buttonDisabled": true,
+            "valuePassedToSchedule": "(not called)",
+            "pureExpressionAgreesWithButton": true
+          },
+          "\"Infinity\"": {
+            "inputValueShown": "Infinity",
+            "Gn": "Infinity",
+            "Kn": false,
+            "buttonDisabled": true,
+            "valuePassedToSchedule": "(not called)",
+            "pureExpressionAgreesWithButton": true
+          },
+          "\"1e400\"": {
+            "inputValueShown": "1e400",
+            "Gn": "Infinity",
+            "Kn": false,
+            "buttonDisabled": true,
+            "valuePassedToSchedule": "(not called)",
+            "pureExpressionAgreesWithButton": true
+          },
+          "\"9007199254740991\"": {
+            "inputValueShown": "9007199254740991",
+            "Gn": 9007199254740991,
+            "Kn": true,
+            "buttonDisabled": false,
+            "valuePassedToSchedule": 9007199254740991,
+            "pureExpressionAgreesWithButton": true
+          },
+          "\"9007199254740992\"": {
+            "inputValueShown": "9007199254740992",
+            "Gn": 9007199254740992,
+            "Kn": false,
+            "buttonDisabled": true,
+            "valuePassedToSchedule": "(not called)",
+            "pureExpressionAgreesWithButton": true
+          },
+          "\"9007199254740993\"": {
+            "inputValueShown": "9007199254740993",
+            "Gn": 9007199254740992,
+            "Kn": false,
+            "buttonDisabled": true,
+            "valuePassedToSchedule": "(not called)",
+            "pureExpressionAgreesWithButton": true
+          },
+          "\"007\"": {
+            "inputValueShown": "007",
+            "Gn": 7,
+            "Kn": true,
+            "buttonDisabled": false,
+            "valuePassedToSchedule": 7,
+            "pureExpressionAgreesWithButton": true
+          },
+          "\"+3\"": {
+            "inputValueShown": "+3",
+            "Gn": 3,
+            "Kn": true,
+            "buttonDisabled": false,
+            "valuePassedToSchedule": 3,
+            "pureExpressionAgreesWithButton": true
+          }
+        },
+        "conditions": {
+          "noSelection": {
+            "disabled": true,
+            "text": "map.scheduleSelected:0"
+          },
+          "selected": {
+            "disabled": false,
+            "text": "map.scheduleSelected:1"
+          },
+          "offline": {
+            "disabled": false,
+            "text": "map.scheduleSelected:1"
+          },
+          "scanReading": {
+            "disabled": false,
+            "text": "map.scheduleSelected:1"
+          },
+          "scheduleInFlight": {
+            "disabled": true,
+            "text": "map.scheduleSelected:1",
+            "busyKey": "schedule",
+            "shareDisabled": true
+          }
+        }
+      },
+      "claims": [
+        {
+          "text": "every pure Gn/Kn evaluation agrees with the button predicate",
+          "held": true
+        },
+        {
+          "text": "'' and whitespace are valid (Number -> 0)",
+          "held": true
+        },
+        {
+          "text": "-1, 1.5, abc, Infinity, 2^53 and above are invalid",
+          "held": true
+        },
+        {
+          "text": "1e2 and 0x10 are valid and the parsed number is passed",
+          "held": true
+        },
+        {
+          "text": "2^53-1 valid",
+          "held": true
+        },
+        {
+          "text": "online and scan state do not affect Schedule",
+          "held": true
+        },
+        {
+          "text": "in-flight schedule disables Schedule and Share",
+          "held": true
+        }
+      ]
+    },
+    "schedule-button-disabled-predicate": {
+      "sameAs": "delay-parse-matrix"
+    },
+    "delay-shared-and-persistent": {
+      "description": "One delay state for Dispatch and Ghost; survives tab/page changes and a successful schedule",
+      "observed": {
+        "onDispatch": "7",
+        "onGhost": "7",
+        "afterSchedule": "7",
+        "truckTabHasDelayInput": false,
+        "attrs": null,
+        "inputAttributes": {
+          "type": "number",
+          "min": "0",
+          "step": "1",
+          "value": "0",
+          "ariaLabel": "map.randomDelaySeconds"
+        }
+      },
+      "claims": [
+        {
+          "text": "same value shown on both tabs",
+          "held": true
+        },
+        {
+          "text": "kept after scheduling and tab changes",
+          "held": true
+        },
+        {
+          "text": "no delay input on the truck tab",
+          "held": true
+        },
+        {
+          "text": "input is type=number min=0 step=1 value '0'",
+          "held": true
+        }
+      ]
+    },
+    "schedule-dispatch-success-clears": {
+      "description": "Schedule (dispatch): busy state, call arguments, success path and failure path",
+      "observed": {
+        "success": {
+          "during": {
+            "busyKey": "schedule",
+            "scheduleButton": {
+              "disabled": true,
+              "text": "map.scheduleSelected:2"
+            },
+            "shareButton": {
+              "disabled": true,
+              "text": "map.shareAlliance"
+            },
+            "args": {
+              "rowUuids": [
+                "1001",
+                "1002"
+              ],
+              "taskKinds": [
+                "dispatch",
+                "dispatch"
+              ],
+              "delay": 3
+            }
+          },
+          "after": {
+            "busyKey": "",
+            "tab": "scheduledPlunder",
+            "selectedKeys": [],
+            "message": "",
+            "delay": "3",
+            "jobListCalls": 2,
+            "logs": [
+              "scheduled 2 secret task plunder jobs"
+            ]
+          }
+        },
+        "failure": {
+          "during": {
+            "busyKey": "schedule",
+            "scheduleButton": {
+              "disabled": true,
+              "text": "map.scheduleSelected:2"
+            },
+            "shareButton": {
+              "disabled": true,
+              "text": "map.shareAlliance"
+            },
+            "args": {
+              "rowUuids": [
+                "1001",
+                "1002"
+              ],
+              "taskKinds": [
+                "dispatch",
+                "dispatch"
+              ],
+              "delay": 3
+            }
+          },
+          "after": {
+            "busyKey": "",
+            "tab": "dispatch",
+            "selectedKeys": [
+              "321:1001",
+              "321:1002"
+            ],
+            "message": "",
+            "delay": "3",
+            "jobListCalls": 0,
+            "logs": [
+              "dispatch plunder schedule error Error: boom"
+            ]
+          }
+        }
+      },
+      "claims": [
+        {
+          "text": "during: busyKey schedule, Schedule+Share disabled, call args rows + numeric delay 3",
+          "held": true
+        },
+        {
+          "text": "success: selection cleared, switched to Scheduled, job list loaded, busy cleared",
+          "held": true
+        },
+        {
+          "text": "success log line",
+          "held": true
+        },
+        {
+          "text": "failure: selection kept, stays on tab, busy cleared, only a log line",
+          "held": true
+        }
+      ]
+    },
+    "schedule-dispatch-failure-keeps-selection": {
+      "sameAs": "schedule-dispatch-success-clears"
+    },
+    "schedule-truck-success-clears": {
+      "description": "Schedule trucks: predicate, busy key, success/failure",
+      "observed": {
+        "none": {
+          "disabled": true,
+          "text": "map.scheduleSelectedTrucks:0"
+        },
+        "two": {
+          "disabled": false,
+          "text": "map.scheduleSelectedTrucks:2"
+        },
+        "offline": {
+          "disabled": false,
+          "text": "map.scheduleSelectedTrucks:2"
+        },
+        "reading": {
+          "disabled": false,
+          "text": "map.scheduleSelectedTrucks:2"
+        },
+        "during": {
+          "busyKey": "schedule-truck",
+          "button": {
+            "disabled": true,
+            "text": "map.scheduleSelectedTrucks:2"
+          },
+          "rowUuids": [
+            "t1",
+            "t2"
+          ]
+        },
+        "failure": {
+          "selectedKeys": [
+            "321:t1",
+            "321:t2"
+          ],
+          "tab": "truck",
+          "busyKey": "",
+          "logs": [
+            "truck plunder schedule error Error: nope"
+          ]
+        },
+        "success": {
+          "selectedKeys": [],
+          "tab": "scheduledPlunder",
+          "busyKey": "",
+          "logs": [
+            "scheduled 2 truck plunder jobs"
+          ],
+          "jobListCallsDelta": 2
+        }
+      },
+      "claims": [
+        {
+          "text": "disabled only without selection or while schedule-truck is busy",
+          "held": true
+        },
+        {
+          "text": "failure keeps selection and tab",
+          "held": true
+        },
+        {
+          "text": "success clears selection and switches to Scheduled",
+          "held": true
+        }
+      ]
+    },
+    "schedule-truck-failure-keeps-selection": {
+      "sameAs": "schedule-truck-success-clears"
+    },
+    "truck-schedule-button-predicate": {
+      "sameAs": "schedule-truck-success-clears"
+    },
+    "share-button-disabled-predicate": {
+      "description": "Share to alliance predicate matrix",
+      "observed": {
+        "noSelection": {
+          "disabled": true,
+          "text": "map.shareAlliance"
+        },
+        "selectedOnline": {
+          "disabled": false,
+          "text": "map.shareAlliance"
+        },
+        "offline": {
+          "disabled": true,
+          "text": "map.shareAlliance"
+        },
+        "scanReading": {
+          "disabled": true,
+          "text": "map.shareAlliance"
+        },
+        "invalidDelay": {
+          "share": {
+            "disabled": false,
+            "text": "map.shareAlliance"
+          },
+          "schedule": {
+            "disabled": true,
+            "text": "map.scheduleSelected:1"
+          }
+        },
+        "sharing": {
+          "share": {
+            "disabled": true,
+            "text": "map.sharingAlliance"
+          },
+          "schedule": {
+            "disabled": true,
+            "text": "map.scheduleSelected:1"
+          },
+          "sharingFlag": true
+        },
+        "ghostTabHasShare": false
+      },
+      "claims": [
+        {
+          "text": "disabled when no selection, offline, scan reading, sharing; enabled otherwise",
+          "held": true
+        },
+        {
+          "text": "independent of the delay while Schedule is disabled by it",
+          "held": true
+        },
+        {
+          "text": "sharing label and Schedule disabled during sharing; no share on ghost",
+          "held": true
+        }
+      ]
+    },
+    "share-success-prunes-and-message": {
+      "description": "Share: reply prunes exactly sharedUuids (string compare, untrimmed), messages, failure keeps selection",
+      "observed": {
+        "partial": {
+          "sentRows": [
+            {
+              "uuid": "1001",
+              "taskKind": "dispatch"
+            },
+            {
+              "uuid": "1002",
+              "taskKind": "dispatch"
+            },
+            {
+              "uuid": " 1003 ",
+              "taskKind": "dispatch"
+            },
+            {
+              "uuid": "1004",
+              "taskKind": "dispatch"
+            }
+          ],
+          "keys": [
+            "321:1002",
+            "321: 1003 ",
+            "321:1004"
+          ],
+          "message": "Shared 2 Secret Tasks; 1 failed.",
+          "sharing": false,
+          "busyKey": ""
+        },
+        "full": {
+          "sentRows": [
+            {
+              "uuid": "1001",
+              "taskKind": "dispatch"
+            },
+            {
+              "uuid": "1002",
+              "taskKind": "dispatch"
+            },
+            {
+              "uuid": " 1003 ",
+              "taskKind": "dispatch"
+            },
+            {
+              "uuid": "1004",
+              "taskKind": "dispatch"
+            }
+          ],
+          "keys": [
+            "321:1002",
+            "321: 1003 ",
+            "321:1004"
+          ],
+          "message": "Shared 1 Secret Tasks to the Alliance channel.",
+          "sharing": false,
+          "busyKey": ""
+        },
+        "failed": {
+          "sentRows": [
+            {
+              "uuid": "1001",
+              "taskKind": "dispatch"
+            },
+            {
+              "uuid": "1002",
+              "taskKind": "dispatch"
+            },
+            {
+              "uuid": " 1003 ",
+              "taskKind": "dispatch"
+            },
+            {
+              "uuid": "1004",
+              "taskKind": "dispatch"
+            }
+          ],
+          "keys": [
+            "321:1001",
+            "321:1002",
+            "321: 1003 ",
+            "321:1004"
+          ],
+          "message": "Game disconnected; waiting to reconnect.",
+          "sharing": false,
+          "busyKey": ""
+        }
+      },
+      "claims": [
+        {
+          "text": "the share call receives the stored row snapshots (with taskKind) in selection order; the 7-field IPC mapping is inside the stubbed imported function",
+          "held": true
+        },
+        {
+          "text": "partial: 1001 pruned, padded ' 1003 ' NOT pruned (untrimmed compare), partial message",
+          "held": true
+        },
+        {
+          "text": "full success message and other rows kept",
+          "held": true
+        },
+        {
+          "text": "failure keeps all 4 and sets a translated error message",
+          "held": true
+        }
+      ]
+    },
+    "share-failure-keeps-selection": {
+      "sameAs": "share-success-prunes-and-message"
+    },
+    "treasure-claim-button-predicate": {
+      "description": "Treasure claim buttons and flow",
+      "observed": {
+        "idle": {
+          "disabled": false,
+          "text": "map.claimTreasureBoxes"
+        },
+        "offline": {
+          "disabled": true,
+          "text": "map.claimTreasureBoxes"
+        },
+        "reading": {
+          "disabled": true,
+          "text": "map.claimTreasureBoxes"
+        },
+        "serverZero": {
+          "disabled": true,
+          "text": "map.claimTreasureBoxes"
+        },
+        "rowButtons": {
+          "ok": {
+            "disabled": false,
+            "text": "map.claimTreasure"
+          },
+          "uuidZero": {
+            "disabled": true,
+            "text": "map.claimTreasure"
+          },
+          "emptyUuid": {
+            "disabled": true,
+            "text": "map.claimTreasure"
+          },
+          "otherSupplyIncomplete": {
+            "disabled": true,
+            "text": "map.claimTreasure"
+          },
+          "otherSupplyComplete": {
+            "disabled": false,
+            "text": "map.claimTreasure"
+          },
+          "claimed": {
+            "disabled": true,
+            "text": "map.claimTreasure"
+          },
+          "claiming": {
+            "disabled": true,
+            "text": "map.claimTreasure"
+          },
+          "depleted": {
+            "disabled": true,
+            "text": "map.claimTreasure"
+          },
+          "expired": {
+            "disabled": true,
+            "text": "map.claimTreasure"
+          },
+          "otherAlliance": {
+            "disabled": true,
+            "text": "map.claimTreasure"
+          }
+        },
+        "flow": {
+          "claimArgs": [
+            321,
+            "boxes",
+            true,
+            ""
+          ],
+          "afterClick": {
+            "message": "map.treasuresQueued",
+            "busy": true,
+            "buttonText": "map.claimingTreasures",
+            "buttonDisabled": true
+          },
+          "pollCallsRightAfterClick": 0,
+          "after1s": {
+            "pollCalls": 1,
+            "message": "map.treasureClaimSummary",
+            "busy": true
+          },
+          "after2s": {
+            "pollCalls": 2,
+            "message": "map.treasureClaimSummary",
+            "busy": false,
+            "rowsRevision": 4,
+            "newSearchRequests": 1
+          }
+        }
+      },
+      "claims": [
+        {
+          "text": "claim buttons: enabled idle; disabled offline, scanning and with no data server",
+          "held": true
+        },
+        {
+          "text": "row button matrix: ok enabled; uuid 0/empty, incomplete other supply, claimed/claiming, depleted/expired, other alliance disabled",
+          "held": true
+        },
+        {
+          "text": "single claim passes (serverId, scope, luckyFirst, '')",
+          "held": true
+        },
+        {
+          "text": "busy label/disabled during claim and polling once per second until not running",
+          "held": true
+        }
+      ]
+    },
+    "treasure-row-claim-predicate": {
+      "sameAs": "treasure-claim-button-predicate"
+    },
+    "treasure-claim-flow": {
+      "sameAs": "treasure-claim-button-predicate"
+    },
+    "scheduled-loads-on-mount-and-events": {
+      "description": "Job list loading at mount and on events; listener lifecycle",
+      "observed": {
+        "listeners": [
+          {
+            "name": "bridge://player-mark-changed",
+            "active": true
+          },
+          {
+            "name": "bridge://dispatch-plunder-changed",
+            "active": true
+          },
+          {
+            "name": "bridge://truck-plunder-changed",
+            "active": true
+          }
+        ],
+        "jobListCallsAtMount": 1,
+        "afterDispatchEvent": 2,
+        "afterTruckEvent": 3,
+        "afterPlayerMarkEvent": 3,
+        "searchRequestsAfterPlayerMarkEvent": [
+          {
+            "id": 3,
+            "kind": "city",
+            "keyword": "",
+            "page": 1,
+            "serverId": 321
+          }
+        ],
+        "afterUnknownEvent": 3,
+        "activeListenersAfterUnmount": 0
+      },
+      "claims": [
+        {
+          "text": "three subscriptions at mount, one job list load",
+          "held": true
+        },
+        {
+          "text": "dispatch and truck events each reload jobs",
+          "held": true
+        },
+        {
+          "text": "player-mark event does not reload jobs but refetches the search",
+          "held": true
+        },
+        {
+          "text": "unknown event: nothing; unmount removes all listeners",
+          "held": true
+        }
+      ]
+    },
+    "scheduled-loads-on-entry": {
+      "description": "Scheduled tab entry loads jobs; job replies are applied in arrival order",
+      "observed": {
+        "entry": {
+          "jobListCallsDelta": 1,
+          "searchRequestsDelta": 0,
+          "tabCountBefore": "2",
+          "tabCountAfter": "2",
+          "otherTabEntryJobListCalls": 0
+        },
+        "arrival": {
+          "callIds": [
+            2,
+            8
+          ],
+          "afterNewestReply": [
+            "NEW"
+          ],
+          "afterOlderReplyArrivesLast": [
+            "OLD"
+          ]
+        }
+      },
+      "claims": [
+        {
+          "text": "entering Scheduled reloads once and issues no search; entering another tab does not reload jobs",
+          "held": true
+        },
+        {
+          "text": "count badge is dispatch+truck job total",
+          "held": true
+        },
+        {
+          "text": "an older reply that arrives last overwrites the newer one (no generation guard)",
+          "held": true
+        }
+      ]
+    },
+    "scheduled-stale-job-reply-applies-in-arrival-order": {
+      "sameAs": "scheduled-loads-on-entry"
+    },
+    "scheduled-count-and-render-order": {
+      "description": "Scheduled tab: tab count, three groups in order, rows in backend order",
+      "observed": {
+        "tabCountsAcrossTabs": [
+          "5",
+          "4",
+          "3",
+          "2",
+          "1",
+          "6",
+          "7",
+          "8",
+          "5"
+        ],
+        "groupsInRenderOrder": [
+          {
+            "component": "ot",
+            "kind": "dispatch",
+            "jobUuids": [
+              "2",
+              "1"
+            ]
+          },
+          {
+            "component": "ot",
+            "kind": "ghost",
+            "jobUuids": [
+              "g1"
+            ]
+          },
+          {
+            "component": "st",
+            "kind": "truck",
+            "jobUuids": [
+              "tb",
+              "ta"
+            ]
+          }
+        ],
+        "groupTitles": [
+          [
+            "map.secretTask"
+          ],
+          [
+            "map.ghostScout"
+          ],
+          [
+            "map.truck"
+          ]
+        ],
+        "resultCountOnScheduledTab": [
+          "5 items"
+        ],
+        "searchbarInputPresent": false
+      },
+      "claims": [
+        {
+          "text": "scheduled badge is the job total (5)",
+          "held": true
+        },
+        {
+          "text": "groups: secret(dispatch, non-ghost), ghost, truck in that order with backend row order",
+          "held": true
+        },
+        {
+          "text": "no keyword input on the Scheduled tab; result count shows the total",
+          "held": true
+        }
+      ]
+    },
+    "scheduled-ticker-conditions": {
+      "description": "currentTime ticker runs only for reading scans and dispatch/ghost/truck/scheduledPlunder tabs",
+      "observed": {
+        "perTab": {
+          "city": {
+            "intervals": [],
+            "currentTimeAdvanced": 0
+          },
+          "resource": {
+            "intervals": [],
+            "currentTimeAdvanced": 0
+          },
+          "monster": {
+            "intervals": [],
+            "currentTimeAdvanced": 0
+          },
+          "truck": {
+            "intervals": [
+              1000
+            ],
+            "currentTimeAdvanced": 2000
+          },
+          "railway": {
+            "intervals": [],
+            "currentTimeAdvanced": 0
+          },
+          "dispatch": {
+            "intervals": [
+              1000
+            ],
+            "currentTimeAdvanced": 2000
+          },
+          "ghost": {
+            "intervals": [
+              1000
+            ],
+            "currentTimeAdvanced": 2000
+          },
+          "treasure": {
+            "intervals": [],
+            "currentTimeAdvanced": 0
+          },
+          "scheduledPlunder": {
+            "intervals": [
+              1000
+            ],
+            "currentTimeAdvanced": 2000
+          }
+        },
+        "cityWhileReading": {
+          "intervals": [
+            1000
+          ],
+          "scanProgressTimeouts": [
+            1000
+          ]
+        },
+        "cityAfterReading": {
+          "intervals": []
+        }
+      },
+      "claims": [
+        {
+          "text": "interval (1000 ms) only on truck, dispatch, ghost, scheduledPlunder",
+          "held": true
+        },
+        {
+          "text": "currentTime advances only where the interval runs",
+          "held": true
+        },
+        {
+          "text": "a reading scan starts the interval on any tab and stops with it",
+          "held": true
+        }
+      ]
+    },
+    "scheduled-clear-and-cancel": {
+      "description": "Scheduled groups: clear/cancel/plunder-again predicates and calls",
+      "observed": {
+        "initial": [
+          {
+            "component": "ot",
+            "kind": "dispatch",
+            "buttons": [
+              {
+                "text": "map.clearPlunderHistory",
+                "disabled": false
+              },
+              {
+                "text": "common.cancel",
+                "disabled": false
+              }
+            ]
+          },
+          {
+            "component": "ot",
+            "kind": "ghost",
+            "buttons": [
+              {
+                "text": "map.clearPlunderHistory",
+                "disabled": false
+              },
+              {
+                "text": "common.cancel",
+                "disabled": false
+              }
+            ]
+          },
+          {
+            "component": "st",
+            "kind": "truck",
+            "buttons": [
+              {
+                "text": "map.clearPlunderHistory",
+                "disabled": false
+              },
+              {
+                "text": "map.plunderAgain",
+                "disabled": false
+              },
+              {
+                "text": "common.cancel",
+                "disabled": false
+              },
+              {
+                "text": "common.cancel",
+                "disabled": false
+              }
+            ]
+          }
+        ],
+        "duringClear": {
+          "busyKey": "clear:dispatch",
+          "args": [
+            "number",
+            "dispatch"
+          ],
+          "view": [
+            {
+              "component": "ot",
+              "kind": "dispatch",
+              "buttons": [
+                {
+                  "text": "map.clearPlunderHistory",
+                  "disabled": true
+                },
+                {
+                  "text": "common.cancel",
+                  "disabled": false
+                }
+              ]
+            },
+            {
+              "component": "ot",
+              "kind": "ghost",
+              "buttons": [
+                {
+                  "text": "map.clearPlunderHistory",
+                  "disabled": true
+                },
+                {
+                  "text": "common.cancel",
+                  "disabled": false
+                }
+              ]
+            },
+            {
+              "component": "st",
+              "kind": "truck",
+              "buttons": [
+                {
+                  "text": "map.clearPlunderHistory",
+                  "disabled": true
+                },
+                {
+                  "text": "map.plunderAgain",
+                  "disabled": false
+                },
+                {
+                  "text": "common.cancel",
+                  "disabled": false
+                },
+                {
+                  "text": "common.cancel",
+                  "disabled": false
+                }
+              ]
+            }
+          ]
+        },
+        "afterClear": {
+          "busyKey": "",
+          "jobListReloaded": 3
+        },
+        "duringTruckCancel": {
+          "busyKey": "truck:321:t2",
+          "args": [
+            321,
+            "t2"
+          ]
+        },
+        "truckViewOffline": {
+          "component": "st",
+          "kind": "truck",
+          "buttons": [
+            {
+              "text": "map.clearPlunderHistory",
+              "disabled": false
+            },
+            {
+              "text": "common.cancel",
+              "disabled": false
+            },
+            {
+              "text": "common.cancel",
+              "disabled": false
+            }
+          ]
+        },
+        "plunderAgainButtonsOnline": 1,
+        "plunderAgainCall": {
+          "rowUuids": [
+            "t1"
+          ],
+          "count": 1
+        },
+        "busyAfterAgain": ""
+      },
+      "claims": [
+        {
+          "text": "secret group: Cancel only for scheduled (not for succeeded); clear enabled because a finished job exists",
+          "held": true
+        },
+        {
+          "text": "ghost group Cancel for waiting_connection; truck group has Cancel x2 and Plunder again for the only inactive succeeded truck",
+          "held": true
+        },
+        {
+          "text": "clear call: (timestamp, 'dispatch'), busyKey clear:dispatch disables every clear button",
+          "held": true
+        },
+        {
+          "text": "truck cancel call (serverId, uuid) with busyKey truck:serverId:uuid",
+          "held": true
+        },
+        {
+          "text": "Plunder again hidden while offline; calls schedule with exactly the job row",
+          "held": true
+        }
+      ]
+    },
+    "app-controlled-vs-uncontrolled-tab": {
+      "description": "Uncontrolled vs controlled tab and the Activity hide/show model",
+      "observed": {
+        "uncontrolled": {
+          "tab": "monster",
+          "internalState": "monster",
+          "propCalls": 0
+        },
+        "controlled": {
+          "tab": "monster",
+          "internalState": "city",
+          "propCalls": [
+            "monster"
+          ],
+          "requests": [
+            "city",
+            "city",
+            "monster"
+          ]
+        },
+        "activity": {
+          "before": {
+            "requests": 2,
+            "jobCalls": 1,
+            "optionCalls": 1,
+            "activeListeners": 3
+          },
+          "hidden": {
+            "activeListeners": 0,
+            "intervals": 0
+          },
+          "shown": {
+            "requestsDelta": 2,
+            "jobCallsDelta": 1,
+            "optionCallsDelta": 1,
+            "activeListeners": 3
+          },
+          "status": "IMPLEMENTED_NOT_VALIDATED (models React Activity: effects disconnected while hidden, all re-created on reveal)"
+        }
+      },
+      "claims": [
+        {
+          "text": "uncontrolled: internal state drives the tab; the prop callback is never called",
+          "held": true
+        },
+        {
+          "text": "controlled: the parent value drives the tab, internal state untouched, callback called",
+          "held": true
+        },
+        {
+          "text": "hide: listeners released; show: all effects rerun (search, jobs, options requested again)",
+          "held": true
+        }
+      ]
+    },
+    "activity-hide-show-modelled": {
+      "sameAs": "app-controlled-vs-uncontrolled-tab"
+    }
+  },
+  "contractCrossCheck": {
+    "referencedConfirmationIds": [
+      "activity-hide-show-modelled",
+      "app-controlled-vs-uncontrolled-tab",
+      "clear-data-resets",
+      "delay-parse-matrix",
+      "delay-shared-and-persistent",
+      "export-city-query",
+      "kw-clears-name-selection",
+      "kw-filter-change-uses-typed-keyword",
+      "kw-first-keystroke-with-name-requests",
+      "kw-options-refresh-refires-search",
+      "kw-shared-across-tabs",
+      "kw-tab-change-uses-typed-keyword",
+      "kw-typing-no-request",
+      "name-invalid-after-refresh-cleared",
+      "name-option-text-derivation",
+      "name-select-render",
+      "name-select-request",
+      "name-select-resets-page-and-keyword",
+      "name-selection-persists-across-tabs",
+      "nr-per-tab-fields",
+      "rr-page-clamp",
+      "rr-stale-reply-dropped",
+      "schedule-button-disabled-predicate",
+      "schedule-dispatch-failure-keeps-selection",
+      "schedule-dispatch-success-clears",
+      "schedule-truck-failure-keeps-selection",
+      "schedule-truck-success-clears",
+      "scheduled-clear-and-cancel",
+      "scheduled-count-and-render-order",
+      "scheduled-loads-on-entry",
+      "scheduled-loads-on-mount-and-events",
+      "scheduled-stale-job-reply-applies-in-arrival-order",
+      "scheduled-ticker-conditions",
+      "search-button-no-disabled",
+      "search-button-page1-vs-page-gt-1",
+      "search-while-loading",
+      "selection-across-page",
+      "selection-checkbox-predicates",
+      "selection-disabled-stays-selected",
+      "selection-dispatch-cleared-on-tab-change",
+      "selection-dispatch-toggle",
+      "selection-duplicate-ids",
+      "selection-key-trim-mismatch",
+      "selection-survives-server-change",
+      "selection-truck-survives-tab-change",
+      "selection-truck-toggle",
+      "server-change-effects",
+      "server-loss-no-request",
+      "share-button-disabled-predicate",
+      "share-failure-keeps-selection",
+      "share-success-prunes-and-message",
+      "tab-cache-restore",
+      "tab-change-effects",
+      "tab-change-same-tab-noop",
+      "treasure-claim-button-predicate",
+      "treasure-claim-flow",
+      "treasure-row-claim-predicate",
+      "truck-schedule-button-predicate"
+    ],
+    "missingScenarioIds": []
+  },
+  "summary": {
+    "scenarios": 59,
+    "claims": 145,
+    "failedClaims": 0
+  }
+}

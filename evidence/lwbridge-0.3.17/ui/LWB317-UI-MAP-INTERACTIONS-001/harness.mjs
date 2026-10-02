@@ -80,6 +80,79 @@ async function realModule(file) {
   return moduleCache.get(file);
 }
 
+// Persistent hook runtime shared by every adapter (canonical page and original component).
+export function createHookRuntime() {
+  const stateCells = [];
+  const refCells = [];
+  const callbackCells = [];
+  const memoCells = [];
+  const effectCells = [];
+  let stateCursor = 0;
+  let refCursor = 0;
+  let callbackCursor = 0;
+  let memoCursor = 0;
+  let effectCursor = 0;
+  let renderDirty = false;
+  const setCell = (slot, value) => {
+    const next = typeof value === "function" ? value(stateCells[slot]) : value;
+    if (!Object.is(next, stateCells[slot])) {
+      stateCells[slot] = next;
+      renderDirty = true;
+    }
+  };
+  const useState = (initial) => {
+    const slot = stateCursor++;
+    if (!(slot in stateCells)) stateCells[slot] = typeof initial === "function" ? initial() : initial;
+    return [stateCells[slot], (value) => setCell(slot, value)];
+  };
+  const useRef = (initial) => {
+    const slot = refCursor++;
+    if (!(slot in refCells)) refCells[slot] = { current: initial };
+    return refCells[slot];
+  };
+  const useCallback = (fn, deps) => {
+    const slot = callbackCursor++;
+    const current = callbackCells[slot];
+    if (!current || !sameDeps(current.deps, deps)) callbackCells[slot] = { value: fn, deps };
+    return callbackCells[slot].value;
+  };
+  const useMemo = (fn, deps) => {
+    const slot = memoCursor++;
+    const current = memoCells[slot];
+    if (!current || !sameDeps(current.deps, deps)) memoCells[slot] = { value: fn(), deps };
+    return memoCells[slot].value;
+  };
+  const useEffect = (fn, deps) => {
+    const slot = effectCursor++;
+    const current = effectCells[slot];
+    if (!current || deps === undefined || !sameDeps(current.deps, deps)) {
+      effectCells[slot] = { ...(current || {}), fn, deps, pending: true };
+    }
+  };
+  return {
+    hooks: { useState, useRef, useCallback, useMemo, useEffect, useLayoutEffect: useEffect, memo: (fn) => fn },
+    stateCells,
+    refCells,
+    beginRender() {
+      stateCursor = 0; refCursor = 0; callbackCursor = 0; memoCursor = 0; effectCursor = 0; renderDirty = false;
+    },
+    isDirty: () => renderDirty,
+    // React order: every cleanup of a changed effect first, then every new effect body.
+    commitEffects() {
+      const pending = effectCells.filter((cell) => cell?.pending);
+      for (const cell of pending) { cell.pending = false; cell.cleanup?.(); cell.cleanup = undefined; }
+      for (const cell of pending) {
+        const cleanup = cell.fn();
+        cell.cleanup = typeof cleanup === "function" ? cleanup : undefined;
+      }
+      return pending.length > 0;
+    },
+    disposeEffects() {
+      for (const cell of effectCells) { cell?.cleanup?.(); if (cell) cell.cleanup = undefined; }
+    },
+  };
+}
+
 export const TAB_LABEL_KEYS = {
   city: "map.city", resource: "map.resource", monster: "map.monster", truck: "map.truck",
   railway: "map.allianceTrain", dispatch: "map.secretTask", ghost: "map.ghostScout",
@@ -135,17 +208,9 @@ export async function createHarness(source, label, options = {}) {
   ).code;
 
   // ---- persistent hook runtime -----------------------------------------------------
-  const stateCells = [];
-  const refCells = [];
-  const callbackCells = [];
-  const memoCells = [];
-  const effectCells = [];
-  let stateCursor = 0;
-  let refCursor = 0;
-  let callbackCursor = 0;
-  let memoCursor = 0;
-  let effectCursor = 0;
-  let renderDirty = false;
+  const runtime = createHookRuntime();
+  const { stateCells, refCells } = runtime;
+  const { useState, useRef, useCallback, useMemo, useEffect } = runtime.hooks;
   let tree = null;
   let serverId = options.serverId ?? 321;
   let statusListener = null;
@@ -158,43 +223,6 @@ export async function createHarness(source, label, options = {}) {
   const timeouts = new Map();
   const storage = new Map();
   const apiCalls = [];
-
-  const setCell = (slot, value) => {
-    const next = typeof value === "function" ? value(stateCells[slot]) : value;
-    if (!Object.is(next, stateCells[slot])) {
-      stateCells[slot] = next;
-      renderDirty = true;
-    }
-  };
-  const useState = (initial) => {
-    const slot = stateCursor++;
-    if (!(slot in stateCells)) stateCells[slot] = typeof initial === "function" ? initial() : initial;
-    return [stateCells[slot], (value) => setCell(slot, value)];
-  };
-  const useRef = (initial) => {
-    const slot = refCursor++;
-    if (!(slot in refCells)) refCells[slot] = { current: initial };
-    return refCells[slot];
-  };
-  const useCallback = (fn, deps) => {
-    const slot = callbackCursor++;
-    const current = callbackCells[slot];
-    if (!current || !sameDeps(current.deps, deps)) callbackCells[slot] = { value: fn, deps };
-    return callbackCells[slot].value;
-  };
-  const useMemo = (fn, deps) => {
-    const slot = memoCursor++;
-    const current = memoCells[slot];
-    if (!current || !sameDeps(current.deps, deps)) memoCells[slot] = { value: fn(), deps };
-    return memoCells[slot].value;
-  };
-  const useEffect = (fn, deps) => {
-    const slot = effectCursor++;
-    const current = effectCells[slot];
-    if (!current || deps === undefined || !sameDeps(current.deps, deps)) {
-      effectCells[slot] = { ...(current || {}), fn, deps, pending: true };
-    }
-  };
 
   class FakeDate extends Date {
     constructor(...args) { if (args.length === 0) super(clock); else super(...args); }
@@ -232,6 +260,7 @@ export async function createHarness(source, label, options = {}) {
       rewardItems: { truck: [], railway: [] },
       treasureTypes: [],
       noAllianceCount: 0,
+      ...(options.dataOptions || {}),
     }),
     listenScanStatus: (listener) => {
       ctx.setStatusListener(listener);
@@ -260,6 +289,7 @@ export async function createHarness(source, label, options = {}) {
     apiCalls,
   };
   const api = makeApi(ctx);
+  Object.assign(api, options.apiExtensions?.(ctx) || {});
 
   const hookBindings = { useState, useRef, useCallback, useMemo, useEffect, useI18n };
   const names = [
@@ -293,45 +323,26 @@ export async function createHarness(source, label, options = {}) {
   };
 
   function render() {
-    stateCursor = 0; refCursor = 0; callbackCursor = 0; memoCursor = 0; effectCursor = 0;
-    renderDirty = false;
+    runtime.beginRender();
     renderCount += 1;
     tree = Page(props);
-  }
-
-  // React order: every cleanup of a changed effect first, then every new effect body.
-  function commitEffects() {
-    const pending = effectCells.filter((cell) => cell?.pending);
-    for (const cell of pending) {
-      cell.pending = false;
-      cell.cleanup?.();
-      cell.cleanup = undefined;
-    }
-    for (const cell of pending) {
-      const cleanup = cell.fn();
-      cell.cleanup = typeof cleanup === "function" ? cleanup : undefined;
-    }
-    return pending.length > 0;
   }
 
   async function settle(maxRounds = 30) {
     if (unmounted) return;
     for (let round = 0; round < maxRounds; round += 1) {
       render();
-      commitEffects();
+      runtime.commitEffects();
       await Promise.resolve();
       await Promise.resolve();
       await tick();
-      if (!renderDirty) return;
+      if (!runtime.isDirty()) return;
     }
     throw new Error(`${label}: hook runtime did not settle`);
   }
 
   async function unmount() {
-    for (const cell of effectCells) {
-      cell?.cleanup?.();
-      if (cell) cell.cleanup = undefined;
-    }
+    runtime.disposeEffects();
     unmounted = true;
   }
 
@@ -384,7 +395,7 @@ export async function createHarness(source, label, options = {}) {
   const setProps = async (next) => { Object.assign(props, next); await settle(); };
 
   return {
-    label, requests, api, props, mount: settle, settle, unmount, advance, setProps,
+    label, requests, calls: apiCalls, ctx, api, props, mount: settle, settle, unmount, advance, setProps,
     getState, hasState, getRef, clickTab, setPage: setPageThroughProductionProp, emitServer,
     resolveRequest, rejectRequest,
     requestCount: () => requests.length,
