@@ -1,5 +1,7 @@
 # Project lead control sheet
 
+Current lead decision, 2026-10-02: PM-028 ACCEPTS FILTER-LIFECYCLE-001 and R1 for focused source/local UI scope at ff4ed369. Lead replays pass, including PM-027 6/6, R1 5/5, parent assertions and maintained regression/package checks. MAP-TREASURE-PICKER-001 implementation is COMPLETE under project-lead takeover: source details/menu, resolved names/counts, strict keys and close behavior; 28 original/current comparisons, parent/regression checks and fresh en/ja browser QA pass. Independent peer review remains a follow-up; no native/gameplay integration. Overall UI/pixel/native status remains unchanged. See the PM-028 acceptance review and picker work item.
+
 The main project lead owns integration and should keep this file small and current.
 
 ## Current target
@@ -26,7 +28,7 @@ retirement task. Preserve its source as historical evidence.
 
 ## Current phase
 
-**UI parity — Map filter lifecycle CHANGES_REQUIRED; focused R1 awaiting review**
+**UI parity — filter lifecycle accepted; Treasure picker implemented, peer review follow-up**
 
 Earlier static UI baseline acceptance does not establish complete UI/UX parity.
 The current owner priority is UI reproduction before function integration.
@@ -45,9 +47,11 @@ the Map closeout awaits a separate independent acceptance review.
 
 | Work item / campaign | Owner | State | Scope |
 |---|---|---|---|
+| LWB317-PM-028 | Project lead | COMPLETE | Accepts ff4ed369 R1 and parent for focused source/local UI scope after actual diff/original/regression/package checks. PM-027 failed baseline retained |
+| LWB317-UI-MAP-TREASURE-PICKER-001 | Project lead takeover | COMPLETE implementation / independent review follow-up | Source details/menu, resolved labels/counts, strict key selection and close-after-change; 28 original/current cases, actual parent callback, adapters and browser en/ja light/dark pass. Full Map/pixels/native excluded |
 | LWB317-PM-027 | Project lead | COMPLETE review / CHANGES_REQUIRED | Delivery/source/regression/package replays pass; one added exact original/current options-only redirect case settles on different servers. Five extra availability/obsolete-rejection cases pass; scoped R1 assigned |
-| LWB317-UI-MAP-FILTER-LIFECYCLE-001-R1 | Returning worker via manual relay | AWAITING_REVIEW | Worker restores source-backed scan/data-server synchronization: original/current both settle at 321 after [321,322,321]; delayed Clear stays [322,321]. R1 5/5 + lead 6/6 and maintained/package/browser gates pass. UI only; lead decides acceptance |
-| LWB317-UI-MAP-FILTER-LIFECYCLE-001 | Returning worker + independent evidence/review workers | CHANGES_REQUIRED by PM-027; R1 delivered | Submitted c99c761 mismatch has a focused worker correction awaiting lead review. Preserve four delivered milestones. Native/original-pixel/global status unchanged |
+| LWB317-UI-MAP-FILTER-LIFECYCLE-001-R1 | Returning worker, lead-reviewed | COMPLETE / ACCEPTED for focused source/local UI scope | PM-028 accepts ff4ed369: lead 6/6, R1 5/5, delayed-Clear and maintained regression/package checks pass. UI only |
+| LWB317-UI-MAP-FILTER-LIFECYCLE-001 | Returning worker, lead-reviewed | COMPLETE / ACCEPTED for focused source/local UI scope | PM-028 closes PM-027 through ff4ed369 R1. Four delivered milestones and delayed-Clear behavior retained; native/original-pixel/global status unchanged |
 | LWB317-PM-026 | Project lead continuation | COMPLETE | Independently replays all four milestones and full scheduled suite, closes final en/ja BR6 evidence, corrects stale docs and accepts scoped UI work. Remaining original/UI/native gaps stay explicit |
 | LWB317-UI-MAP-INTERACTIONS-001 | Worker + two subagents; lead verified | COMPLETE / ACCEPTED for focused source/local UI scope | 5b76ae8 A-D accepted by PM-026: request disposal, search/names/selection, Scheduled presentation and integrated QA. Full scheduled replay plus fresh browser checks pass; native/functions/pixels excluded |
 | LWB317-PM-025 | Project lead | COMPLETE review / CHANGES_REQUIRED | Delivery checks pass, but two independent availability cases show obsolete search success/rejection after backend loss; baseline ignored both. Correction is milestone A of INTERACTIONS-001 |

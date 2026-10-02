@@ -32,6 +32,7 @@ import {
   translateActionError,
 } from "./mapInteractions.js";
 import { ScheduledPlunder } from "./ScheduledPlunder.jsx";
+import { MapTreasureTypeFilter } from "./MapTreasureTypeFilter.jsx";
 
 const EMPTY_GAME_TEXTS = Object.freeze({});
 
@@ -1040,15 +1041,7 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
             ) : null}
             {tab === "treasure" ? (
               <>
-                <select aria-label={t("map.treasureType")} value={treasureType === "" ? "" : String(treasureType)} onChange={(event) => {
-                  const value = event.target.value;
-                  const selected = (options?.treasureTypes || []).find((item) => String(item.key) === value);
-                  setTreasureType(value ? selected?.key ?? value : "");
-                  setPage(1);
-                }}>
-                  <option value="">{t("map.allTreasureTypes")}</option>
-                  {(options?.treasureTypes || []).map((item) => <option key={item.key || item.value || item} value={String(item.key || item.value || item)}>{item.name || item.label || item.key || item.value || item}</option>)}
-                </select>
+                <MapTreasureTypeFilter items={options?.treasureTypes || []} value={treasureType} gameTexts={gameTexts} onChange={(value) => { setTreasureType(value); setPage(1); }} />
                 <label className="map-filter-field"><input type="checkbox" checked={includeForeignRadarTreasures} onChange={(event) => { setIncludeForeignRadarTreasures(event.target.checked); setPage(1); }} /><span>{t("map.showForeignRadarTreasures")}</span></label>
                 <label className="map-filter-field"><input type="checkbox" checked={luckyFirst} onChange={(event) => { setLuckyFirst(event.target.checked); setPage(1); }} /><span>{t("map.prioritizeLuckyTreasures")}</span></label>
               </>

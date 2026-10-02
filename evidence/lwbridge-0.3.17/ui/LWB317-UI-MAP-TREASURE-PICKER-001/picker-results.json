@@ -1,0 +1,204 @@
+{
+  "comparisons": 28,
+  "cases": [
+    {
+      "language": "en",
+      "value": "",
+      "options": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "en",
+      "value": "",
+      "options": 5,
+      "buttons": 6,
+      "pass": true
+    },
+    {
+      "language": "en",
+      "value": 2,
+      "options": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "en",
+      "value": 2,
+      "options": 5,
+      "buttons": 6,
+      "pass": true
+    },
+    {
+      "language": "en",
+      "value": "2",
+      "options": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "en",
+      "value": "2",
+      "options": 5,
+      "buttons": 6,
+      "pass": true
+    },
+    {
+      "language": "en",
+      "value": 0,
+      "options": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "en",
+      "value": 0,
+      "options": 5,
+      "buttons": 6,
+      "pass": true
+    },
+    {
+      "language": "en",
+      "value": "trial",
+      "options": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "en",
+      "value": "trial",
+      "options": 5,
+      "buttons": 6,
+      "pass": true
+    },
+    {
+      "language": "en",
+      "value": "unknown",
+      "options": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "en",
+      "value": "unknown",
+      "options": 5,
+      "buttons": 6,
+      "pass": true
+    },
+    {
+      "language": "en",
+      "value": "missing",
+      "options": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "en",
+      "value": "missing",
+      "options": 5,
+      "buttons": 6,
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "value": "",
+      "options": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "value": "",
+      "options": 5,
+      "buttons": 6,
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "value": 2,
+      "options": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "value": 2,
+      "options": 5,
+      "buttons": 6,
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "value": "2",
+      "options": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "value": "2",
+      "options": 5,
+      "buttons": 6,
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "value": 0,
+      "options": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "value": 0,
+      "options": 5,
+      "buttons": 6,
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "value": "trial",
+      "options": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "value": "trial",
+      "options": 5,
+      "buttons": 6,
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "value": "unknown",
+      "options": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "value": "unknown",
+      "options": 5,
+      "buttons": 6,
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "value": "missing",
+      "options": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "value": "missing",
+      "options": 5,
+      "buttons": 6,
+      "pass": true
+    }
+  ],
+  "parentCallback": "PASS",
+  "baseline": "native select differs from source details/menu",
+  "sourceSha256": "675e0bf8c2c7e6b6e7a5f90e368c6f8796b100581b24987eb6c7536bc4926ab7"
+}

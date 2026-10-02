@@ -1,0 +1,30 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import path from 'node:path';
+import crypto from 'node:crypto';
+import { fileURLToPath } from 'node:url';
+const here = path.dirname(fileURLToPath(import.meta.url));
+const repo = path.resolve(here, '../../../..');
+const read = p => JSON.parse(fs.readFileSync(path.join(here, p), 'utf8'));
+const hash = p => crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex');
+const lfHash = p => crypto.createHash('sha256').update(fs.readFileSync(p, 'utf8').replace(/\r\n/g, '\n')).digest('hex');
+assert.equal(hash(path.join(repo, 'evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js')), 'ce74345518be72e417a510b982c591729e5683f69751e190805598c4c05d3089');
+const result = read('picker-results.json');
+assert.equal(result.comparisons, 28);
+assert.ok(result.cases.every(c => c.pass));
+assert.equal(result.sourceSha256, lfHash(path.join(repo, 'src/LWBridge.UI-0.3.17/src/MapTreasureTypeFilter.jsx')));
+assert.equal(read('r1-replay-results.json').source.currentSha256, lfHash(path.join(repo, 'src/LWBridge.UI-0.3.17/src/MapDataPage.jsx')));
+assert.deepEqual(read('parent-replay-results.json').corrected.delayedClearAckAfterServerChange.optionCalls, [322, 321]);
+const browser = read('browser-results.json');
+assert.equal(browser.status, 'PASS');
+assert.equal(browser.english.selection.open, false);
+assert.equal(browser.english.keyboardAll.count, '45 items');
+assert.equal(browser.japanese.selection.count, '15件');
+assert.deepEqual(browser.consoleErrorsAndWarnings, []);
+for (const file of browser.screenshots) {
+  const data = fs.readFileSync(path.join(here, file));
+  assert.equal(data.readUInt16BE(0), 0xffd8);
+  assert.ok(data.length > 1000);
+  assert.equal(hash(path.join(here, file)), browser.screenshotHashes[file]);
+}
+console.log('LWB317_MAP_TREASURE_PICKER_EVIDENCE_OK');

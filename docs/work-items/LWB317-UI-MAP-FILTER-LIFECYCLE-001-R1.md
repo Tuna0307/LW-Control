@@ -1,7 +1,8 @@
 # LWB317-UI-MAP-FILTER-LIFECYCLE-001-R1
 
-Status: **AWAITING_REVIEW**, 2026-10-02.
-Worker correction delivered; parent remains CHANGES_REQUIRED pending project-lead review.
+Current status: **COMPLETE / ACCEPTED for focused source/local UI scope**, PM-028
+at ff4ed369, 2026-10-02. Lead reran 6/6 + 5/5 and all affected regressions/package
+checks. Parent is accepted for the same scope. Historical assignment below retained.
 
 ## Goal and inputs
 

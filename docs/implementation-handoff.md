@@ -1,10 +1,34 @@
 # Current implementation/research handoff
 
+Current lead decision, 2026-10-02: PM-028 ACCEPTS FILTER-LIFECYCLE-001 and R1 for focused source/local UI scope at ff4ed369. Lead replays pass, including PM-027 6/6, R1 5/5, parent assertions and maintained regression/package checks. MAP-TREASURE-PICKER-001 implementation is COMPLETE under project-lead takeover: source details/menu, resolved names/counts, strict keys and close behavior; 28 original/current comparisons, parent/regression checks and fresh en/ja browser QA pass. Independent peer review remains a follow-up; no native/gameplay integration. Overall UI/pixel/native status remains unchanged. See the PM-028 acceptance review and picker work item.
+
 **Target:** LWBridge 0.3.17  
 **Branch:** `research/offline-controller`  
-**Active scope:** UI parity / Map filter lifecycle; no new native integration
+**Active scope:** UI parity / Treasure picker checkpoint complete; no new native integration
 
-## 2026-10-02 R1 delivery — awaiting project-lead review
+## Current continuation — project-lead takeover checkpoint
+
+PM-028 accepts parent filter lifecycle/R1 at ff4ed369. Lead then completed
+MAP-TREASURE-PICKER-001: new canonical MapTreasureTypeFilter and one parent call,
+source-like details/menu, resolved names/counts, strict raw key handling and
+change-before-close. 28 exact renderer/handler cases, parent/reset/query proof,
+filter/R1/navigation/integration/historical adapters and canonical build/package
+pass. Fresh owned browser QA/saved screenshots cover en/light and ja/dark plus
+real Enter activation. Read its review, work item and evidence README.
+
+No active external worker is assigned; owner will announce when it returns.
+Independent picker peer review is a useful next checkpoint, not a worker approval
+requirement for starting unrelated work. Before implementation of a further gap,
+assign it explicitly: remaining scan/header/row-refresh timing and export/start
+feedback, then remaining all-page UI coverage. Full UI/native/pixel parity is not
+accepted. Original protected runtime was not entered and no gameplay ran.
+
+Fresh-chat resume: read AGENTS.md, task.md, PROJECT_LEAD.md, this section and the
+latest two reviews; inspect actual HEAD/status. Do not restart accepted Map
+campaigns. Protected AFK/scratch/CORRECT-003 WIP and historical parent JSON
+normalization remain untouched/unstaged; owned picker preview resources are closed.
+
+## Historical R1 delivery — superseded by PM-028 acceptance
 
 Lead review PM-027 keeps parent FILTER-LIFECYCLE-001 **CHANGES_REQUIRED** pending
 review of the focused R1. The worker corrected the added options-only redirect

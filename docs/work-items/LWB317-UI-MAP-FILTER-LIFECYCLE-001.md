@@ -1,6 +1,10 @@
 # LWB317-UI-MAP-FILTER-LIFECYCLE-001
 
-Current lead decision, 2026-10-02: **CHANGES_REQUIRED by PM-027** at submitted
+Current decision: **COMPLETE / ACCEPTED for focused source/local UI scope** by
+PM-028 at corrected ff4ed369. Lead verifies parent/R1 assertions, regressions and
+package. No full UI/native/pixel upgrade. Historical decisions below retained.
+
+Historical lead decision, 2026-10-02: **CHANGES_REQUIRED by PM-027** at submitted
 c99c761. Delivered checks pass, but a lead-added options-only redirect case
 settles on a different server from the original. Read the PM-027 review; only
 the focused R1 work item is assigned next. Preserve implemented milestones.

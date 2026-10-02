@@ -1,5 +1,7 @@
 # LWBridge 0.3.17 feature ledger
 
+Current lead decision, 2026-10-02: PM-028 ACCEPTS FILTER-LIFECYCLE-001 and R1 for focused source/local UI scope at ff4ed369. Lead replays pass, including PM-027 6/6, R1 5/5, parent assertions and maintained regression/package checks. MAP-TREASURE-PICKER-001 implementation is COMPLETE under project-lead takeover: source details/menu, resolved names/counts, strict keys and close behavior; 28 original/current comparisons, parent/regression checks and fresh en/ja browser QA pass. Independent peer review remains a follow-up; no native/gameplay integration. Overall UI/pixel/native status remains unchanged. See the PM-028 acceptance review and picker work item.
+
 This ledger starts clean for 0.3.17.
 
 Do not copy feature names or statuses from the 0.3.1 ledger until the 0.3.17 reference itself establishes them.

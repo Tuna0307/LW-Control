@@ -1,0 +1,48 @@
+{
+  "status": "PASS",
+  "scope": "Lead real UI interactions against owned offline preview; no native gameplay or original runtime pixels",
+  "serverId": 321,
+  "english": {
+    "open": true,
+    "options": [
+      "All Treasure Types",
+      "Fixture Lucky Treasure Label (28)",
+      "Fixture Radar Treasure Label (31)"
+    ],
+    "selection": {
+      "summary": "Fixture Lucky Treasure Label",
+      "open": false,
+      "count": "30 items"
+    },
+    "keyboardOpen": true,
+    "keyboardAll": {
+      "summary": "All Treasure Types",
+      "open": false,
+      "count": "45 items"
+    }
+  },
+  "japanese": {
+    "language": "ja",
+    "theme": "dark",
+    "selection": {
+      "count": "15件",
+      "open": false,
+      "summary": "Fixture Radar Treasure Label"
+    },
+    "reopen": {
+      "active": [
+        "Fixture Radar Treasure Label (31)"
+      ],
+      "open": true
+    }
+  },
+  "consoleErrorsAndWarnings": [],
+  "screenshots": [
+    "screenshots/menu-open-en-light.jpg",
+    "screenshots/menu-open-ja-dark.jpg"
+  ],
+  "screenshotHashes": {
+    "screenshots/menu-open-en-light.jpg": "6d677d268207c12d2f759ebc91d7395e58b8467fda56c590df2617fc9ed4e57b",
+    "screenshots/menu-open-ja-dark.jpg": "7d3d7c21a6eae011ac1b826802dc165d615d43634d30d45632490f5a2bbc8c40"
+  }
+}
