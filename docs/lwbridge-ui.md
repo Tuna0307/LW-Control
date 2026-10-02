@@ -12,13 +12,14 @@ If the reference opens into a login/locked state, capture only enough evidence t
 
 ## Required inventory
 
-Current lead decision, 2026-10-02: PM-027 marks FILTER-LIFECYCLE-001
-CHANGES_REQUIRED for one options-only redirect/scan-server synchronization
-mismatch. Delivered gates and five extra ownership cases pass, but executed
-original settles at 321 after [321,322,321] requests while current settles
-at 322 after [321,322]. Focused R1 is ASSIGNED for manual relay; retain the
-delivered milestones and delayed-Clear correction. Overall UI remains
-IMPLEMENTED_NOT_VALIDATED. See the PM-027 review and R1 work item.
+Current worker delivery, 2026-10-02: FILTER-LIFECYCLE-001-R1 is
+**AWAITING_REVIEW**. The PM-027 options-only redirect/scan-server mismatch is
+corrected: executed original/current both settle at 321 after [321,322,321]
+option requests, while delayed Clear remains [322,321]. The lead checker, five
+new exact R1 cases, maintained regressions, canonical package gates and offline
+browser smoke pass. Parent FILTER-LIFECYCLE-001 remains CHANGES_REQUIRED until
+project-lead review. Overall UI remains IMPLEMENTED_NOT_VALIDATED; native/
+functions/original pixels remain outside this scope.
 
 Historical worker delivery, superseded by PM-027: `LWB317-UI-MAP-FILTER-LIFECYCLE-001` is
 **AWAITING_REVIEW**. Refreshed option validation, encoded alliance identity,

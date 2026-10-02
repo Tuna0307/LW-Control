@@ -434,9 +434,14 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
   }, [backendAvailable, mapApi, refreshSummary]);
 
   useEffect(() => {
+    if (scanState.serverId === dataServerId) return;
+    setBrowseServerId(scanState.serverId > 0 ? scanState.serverId : 0);
+  }, [dataServerId, scanState.serverId]);
+
+  useEffect(() => {
     if (dataServerIdRef.current === dataServerId) return;
     dataServerIdRef.current = dataServerId;
-    optionsGeneration.current += 1;
+    if (dataServerId > 0) optionsGeneration.current += 1;
     searchGeneration.current += 1;
     tabViewCache.current.clear();
     setPage(1);

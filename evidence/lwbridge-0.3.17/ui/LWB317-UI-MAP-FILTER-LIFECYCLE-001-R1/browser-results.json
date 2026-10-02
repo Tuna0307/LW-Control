@@ -1,0 +1,38 @@
+{
+  "status": "PASS",
+  "scope": "Offline preview browser smoke for the bounded R1 correction. No native/gameplay operation was executed.",
+  "url": "http://127.0.0.1:4319/?previewPage=map-data&previewState=map-filter-lifecycle",
+  "fixture": "map-filter-lifecycle",
+  "serverId": 321,
+  "cityFilterSmoke": true,
+  "cityFilter": {
+    "selection": "name:none",
+    "resultCountBefore": 55,
+    "resultCountAfter": 1,
+    "note": "Real browser select input kept the named alliance distinct from the raw none sentinel."
+  },
+  "treasurePreferenceSmoke": true,
+  "treasurePreferences": {
+    "afterStorageReset": {
+      "includeForeignRadarTreasures": false,
+      "luckyFirst": true
+    },
+    "afterRealClicks": {
+      "includeForeignRadarTreasures": true,
+      "luckyFirst": false,
+      "storage": {
+        "lwbridge.mapIncludeForeignRadarTreasures": "true",
+        "lwbridge.mapLuckyTreasurePriority": "false"
+      }
+    },
+    "afterCleanup": {
+      "lwbridge.mapIncludeForeignRadarTreasures": null,
+      "lwbridge.mapLuckyTreasurePriority": null
+    }
+  },
+  "consoleErrors": [],
+  "limits": [
+    "This is deterministic offline preview evidence, not original post-auth runtime or native gameplay proof.",
+    "The R1 server redirect lifecycle is proved by the exact original/current deferred hook runners; the browser fixture remains on normal server 321."
+  ]
+}

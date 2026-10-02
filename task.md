@@ -77,13 +77,14 @@ Live-prove each implemented in-scope function against an assistant-owned/current
 
 ## Current instruction
 
-Current decision, 2026-10-02: **PM-027 requires changes to FILTER-LIFECYCLE-001**.
-The delivered gates pass, but an added exact original/current case shows a
-mismatched options reply leaves current UI on server 322 whereas original
-synchronizes back to scan server 321. Read the PM-027 review. Only
-`LWB317-UI-MAP-FILTER-LIFECYCLE-001-R1` is ASSIGNED; execution not confirmed.
-Read its work item, correct this lifecycle and preserve the four delivered
-milestones and delayed-Clear [322,321] behavior. No native/gameplay campaign.
+Current worker update, 2026-10-02: **LWB317-UI-MAP-FILTER-LIFECYCLE-001-R1 is
+AWAITING_REVIEW**. The PM-027 options-only redirect mismatch is corrected using
+the source `C.serverId` / local `R` lifecycle: original and current now settle on
+scan server 321 after options requests [321,322,321]. Delayed Clear remains
+[322,321]. The lead six-case checker, five new exact original/current R1 cases,
+maintained regressions, canonical check/build/package, evidence validation and
+offline browser smoke pass. Parent acceptance remains with the project lead;
+overall UI/native/original-pixel status is unchanged. No native/gameplay campaign.
 
 Historical worker delivery, superseded by PM-027: **LWB317-UI-MAP-FILTER-LIFECYCLE-001
 AWAITING_REVIEW**. The worker completed all four UI milestones: refreshed-option

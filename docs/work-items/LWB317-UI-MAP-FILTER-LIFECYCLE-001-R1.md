@@ -1,7 +1,7 @@
 # LWB317-UI-MAP-FILTER-LIFECYCLE-001-R1
 
-Status: **ASSIGNED; execution not confirmed**, 2026-10-02.
-Project-lead correction assignment; parent is CHANGES_REQUIRED after PM-027.
+Status: **AWAITING_REVIEW**, 2026-10-02.
+Worker correction delivered; parent remains CHANGES_REQUIRED pending project-lead review.
 
 ## Goal and inputs
 
@@ -80,3 +80,21 @@ blocker is established; no timed stop or intermediate approval pause.
 Return AWAITING_REVIEW with the correction, exact original/current cases,
 regressions/browser/limits, commit and remote SHA. Parent acceptance belongs
 to the project lead; do not upgrade overall UI/native/pixel status.
+
+## Worker delivery
+
+The exact source mapping is `C.serverId` -> canonical `scanState.serverId` and
+original local `R` -> canonical `browseServerId` / derived `dataServerId`.
+Canonical now resynchronizes an options-only redirect to the parent scan server,
+so options(321) -> payload server 322 produces `[321,322,321]` and settles on
+321 like the original. Server-transition option invalidation now also matches the
+source distinction between a positive-server transition and loss to server 0;
+backend-availability and unmount disposal fences remain separate and intact.
+
+New R1 evidence executes five original/current cases and redirects the unchanged
+parent filter checker output into the R1 directory. The lead PM-027 checker is
+6/6, the R1 comparison is 5/5, delayed Clear remains `[322,321]`, maintained
+request/navigation/interaction/integration and historical replay pass, canonical
+check/build/package pass, offline browser smoke passes with zero console errors,
+and protected WIP remains unchanged/unstaged. See the dated R1 review and evidence
+directory. Parent/global UI/native/pixel acceptance is unchanged.

@@ -4,21 +4,20 @@
 **Branch:** `research/offline-controller`  
 **Active scope:** UI parity / Map filter lifecycle; no new native integration
 
-## 2026-10-02 PM-027 — focused correction required
+## 2026-10-02 R1 delivery — awaiting project-lead review
 
-Lead reviewed c99c761; parent FILTER-LIFECYCLE-001 is **CHANGES_REQUIRED**.
-Worker/source/regression/check/build/package replays pass, but one lead-added
-options-only server redirect case differs from executed original behavior:
-options(321) returns server 322 while scan server stays 321; original settles
-at 321 with [321,322,321] requests, current at 322 with [321,322]. Five other
-new ownership cases pass. Read the PM-027 review and evidence checker.
+Lead review PM-027 keeps parent FILTER-LIFECYCLE-001 **CHANGES_REQUIRED** pending
+review of the focused R1. The worker corrected the added options-only redirect
+case by restoring the original combined scan-server/local-data-server lifecycle:
+options(321) returning server 322 now settles back at 321 with [321,322,321]
+requests in both original and current production.
 
-Only `LWB317-UI-MAP-FILTER-LIFECYCLE-001-R1` is ASSIGNED for manual relay;
-execution is not confirmed. Correct the combined options/scan-server lifecycle,
-retaining the delivered four milestones and delayed-Clear [322,321] correction.
-Do not restart the parent or begin native/scan/gameplay work. The lead inspected
-worker browser evidence but ran no fresh browser session. Overall UI/native/
-pixels and protected WIP remain unchanged.
+`LWB317-UI-MAP-FILTER-LIFECYCLE-001-R1` is **AWAITING_REVIEW**. Five new exact
+original/current lifecycle cases pass, the unchanged lead checker is 6/6, and
+delayed Clear remains [322,321]. Maintained source/request/navigation/interaction/
+integration plus historical replay, canonical check/build/package, new evidence
+validation and a fresh offline browser smoke pass. Protected WIP is unchanged/
+unstaged. Overall UI/native/pixels remain unchanged pending project-lead acceptance.
 
 ## Historical worker delivery — superseded by PM-027 decision
 
