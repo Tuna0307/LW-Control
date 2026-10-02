@@ -12,11 +12,13 @@ If the reference opens into a login/locked state, capture only enough evidence t
 
 ## Required inventory
 
-Current assignment, 2026-10-02: `LWB317-UI-MAP-NAVIGATION-001` is ASSIGNED for
-per-tab page/rows/total restoration, async loading/query races, server invalidation
-and Scheduled Plunder navigation boundaries. Prompt prepared for manual relay;
-execution not confirmed. Full selection/scheduling/native/pixel parity remains
-outside this bounded task. See `work-items/LWB317-UI-MAP-NAVIGATION-001.md`.
+Current assignment, 2026-10-02: `LWB317-UI-MAP-INTERACTIONS-001` is ASSIGNED for
+request disposal correction, search/name inputs, selection lifecycle and Scheduled
+Plunder presentation; up to two subagents with exclusive file ownership. Prompt
+prepared for manual relay, execution not confirmed. PM-025 leaves NAVIGATION-001
+CHANGES_REQUIRED after two independent backend-unavailability failures. Retain
+its useful cache correction. Native scheduling/claims/pixels remain separate.
+See the new work item and `reviews/2026-10-02-LWB317-PM-025-navigation-review.md`.
 
 Latest decision, 2026-10-02: PM-024 **ACCEPTS** FILTERS-001 for its six focused
 source/local behaviors after inspecting reviewer af73d18 and replaying actual
@@ -263,7 +265,8 @@ comparison remains `BLOCKED`, so these rows stay `IMPLEMENTED_NOT_VALIDATED`
 unless they already have separately scoped live proof. No product-wide parity
 claim is made. The Map Goal remains awaiting independent project-lead closeout.
 
-LWB317-UI-MAP-NAVIGATION-001 is AWAITING_REVIEW after worker delivery on
+Historical worker submission, superseded by PM-025 CHANGES_REQUIRED above:
+LWB317-UI-MAP-NAVIGATION-001 was AWAITING_REVIEW after worker delivery on
 2026-10-02. The source-local Map page now restores each normal tab's cached
 page/rows/total, refreshes after restoration, fences obsolete query
 success/failure/finally callbacks, invalidates the mounted cache on data-server

@@ -77,7 +77,19 @@ Live-prove each implemented in-scope function against an assistant-owned/current
 
 ## Current instruction
 
-Current delivery, 2026-10-02: **LWB317-UI-MAP-NAVIGATION-001 AWAITING_REVIEW**.
+Current assignment, 2026-10-02: **LWB317-UI-MAP-INTERACTIONS-001 ASSIGNED**.
+Owner requests a large task. Read its work item; complete disposal correction,
+exact local search/name and per-kind selection behavior, Scheduled Plunder
+presentation, and integrated UI checks. Two subagents may work with exclusive
+file ownership. Main worker integrates; lead makes final acceptance. No native
+or gameplay work. Assignment prepared for manual relay; execution not confirmed.
+
+PM-025 leaves NAVIGATION-001 **CHANGES_REQUIRED** at 305240e: lead reproduced
+pending success/rejection changing UI after backend unavailability; previous
+cancellation ignored both. Preserve useful caching and fix disposal first.
+See `docs/reviews/2026-10-02-LWB317-PM-025-navigation-review.md`.
+
+Previous worker delivery, superseded by PM-025: **LWB317-UI-MAP-NAVIGATION-001 AWAITING_REVIEW**.
 The returning worker implemented source-derived normal-tab page/row/total
 restoration, cached/uncached loading, search-generation fencing and data-server
 cache invalidation. Scheduled Plunder remains a navigation-only boundary.

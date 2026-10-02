@@ -2,7 +2,24 @@
 
 **Target:** LWBridge 0.3.17  
 **Branch:** `research/offline-controller`  
-**Active scope:** UI parity / Map navigation and view restoration; no new native integration
+**Active scope:** UI parity / Map interactions and Scheduled Plunder presentation; no new native integration
+
+## 2026-10-02 PM-025 — lead review and large worker assignment
+
+NAVIGATION-001 at 305240e is **CHANGES_REQUIRED**. Delivered navigation, filters,
+Checking, evidence and canonical checks pass, but lead added two availability
+cases: a pending success/rejection still changes rows/error/loading after the
+backend becomes unavailable. Pre-navigation cleanup ignored both. Retain tab
+caching; restore request lifetime fencing. Read the PM-025 review and independent
+evidence under `LWB317-PM-025`. This supersedes the worker status below.
+
+Current assignment: **LWB317-UI-MAP-INTERACTIONS-001 ASSIGNED**, prompt prepared
+for owner relay, execution not yet confirmed. Product baseline 305240e; this
+documentation/evidence checkpoint is newer. Complete four milestones: disposal
+correction, search/name and selection semantics, Scheduled Plunder presentation,
+then integrated QA. Up to two subagents are authorized with exclusive files;
+main worker owns MapDataPage/integration/masters. No native/gameplay scope or
+unrelated Automation/AFK recovery. Protected WIP remains unchanged/unstaged.
 
 ## 2026-10-02 — Map navigation worker delivery
 

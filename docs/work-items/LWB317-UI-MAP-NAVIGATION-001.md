@@ -1,7 +1,10 @@
 # LWB317-UI-MAP-NAVIGATION-001
 
-Owner: returning worker through manual owner relay. Status: AWAITING_REVIEW.
-Delivered by worker 2026-10-02; project lead retains final acceptance decision.
+Owner: returning worker through manual owner relay. Status: CHANGES_REQUIRED.
+Lead PM-025 reviewed delivery 305240e on 2026-10-02. Useful navigation correction
+is retained; pending search success/rejection must be ignored after backend
+unavailability/effect disposal. Independent lead evidence preserves two failures.
+Correction is assigned as milestone A of LWB317-UI-MAP-INTERACTIONS-001.
 
 ## Goal
 
