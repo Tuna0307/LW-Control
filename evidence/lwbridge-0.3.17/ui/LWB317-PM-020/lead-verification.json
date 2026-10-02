@@ -1,0 +1,50 @@
+{
+  "task": "LWB317-PM-020",
+  "date": "2026-10-02",
+  "reviewerCommit": "6f52096d050c7d2b005d61e6c5b6e80cd1538eeb",
+  "decision": "ACCEPT for Secret Task/Ghost Ops/Treasure focused source/local formatting, state precedence, names and selection review",
+  "parentStatus": "AWAITING_REVIEW for remaining scope",
+  "reviewerRemoteRevisionVerified": true,
+  "productChanges": false,
+  "checks": {
+    "independentCheckerVerifyRecord": "PASS: LWB317_REVIEW_MAP_STATES_SOURCE_LOCAL_OK",
+    "independentEvidenceValidator": "PASS: LWB317_REVIEW_MAP_STATES_EVIDENCE_OK",
+    "priorMapCheckerVerifyRecord": "PASS: LWB317_MAP_TABLES_SOURCE_LOCAL_OK",
+    "protectedWipAndPriorSourceValidator": "PASS: LWB317_LEAD_TABLES_EVIDENCE_OK",
+    "npmCheck": "PASS",
+    "productionPackageCheck": "PASS",
+    "runtimeBuild": "NOT_APPLICABLE: no product change"
+  },
+  "counts": {
+    "independentTaskComparisons": 56,
+    "independentTimestampInputs": 7,
+    "treasureWorldCasesPerLocale": 9,
+    "treasurePlayerCasesPerLocale": 11,
+    "treasureNameCasesPerLocale": 9,
+    "independentTableRenders": 6,
+    "priorColumnCases": 288,
+    "priorValueComparisons": 15264,
+    "priorTableRenders": 72
+  },
+  "packageSourceFingerprint": "1280d8a4df7aec2f81260a8081c0dda7626bad06e8771d25cea4e3ae0c49daf2",
+  "packageFingerprint": "b2a903176188b57cd02f281ffaded42aa05a0d6503595e25ee3e5fcfa09127ae",
+  "openUiGap": {
+    "id": "LWB317-UI-MAP-TREASURE-REFRESH-001",
+    "state": "QUEUED",
+    "sourcePath": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js",
+    "originalRefreshingStateUtf8Byte": 31675,
+    "originalTablePropUtf8Byte": 56776,
+    "currentPagePath": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+    "currentTableCallNormalizedLfUtf8Byte": 40877,
+    "refreshingFlagPassedByCurrentPage": false,
+    "judgment": "Checking formatter verified with supplied input; page-level producer reachability remains unimplemented/unvalidated separately from native refresh"
+  },
+  "screenshots": {
+    "exactSavedImagesOpenedByLead": ["secret-task-states.jpg", "treasure-ja.jpg"],
+    "judgment": "Clipped relevant rows/columns; not full visual evidence for all asserted states",
+    "freshBrowserReplayByLead": false,
+    "recordedBrowserDomChecks": "Validated from reviewer evidence; no original-pixel proof"
+  },
+  "nextWorkerAssignment": "LWB317-REVIEW-HOME-BUSY-001",
+  "limits": "Focused source/local acceptance only; no full Map, original runtime pixels, native functions, live gameplay or asset parity upgrade"
+}

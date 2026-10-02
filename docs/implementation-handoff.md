@@ -4,6 +4,27 @@
 **Branch:** `research/offline-controller`  
 **Phase:** Phase 2 function recovery / Map Data clean-UI live-integration checkpoint
 
+## 2026-10-02 PM-020 — Map state review accepted; Home busy review next
+
+Lead integrates reviewer commit `6f52096d050c7d2b005d61e6c5b6e80cd1538eeb`:
+Secret Task/Ghost Ops/Treasure source/local formatting, precedence, names and
+selection ACCEPTED after actual-code replay, evidence/source/image/package checks.
+The parent eight-table unit remains AWAITING_REVIEW for remaining scope. Original
+pixels, live functions and native providers are not accepted by this review.
+
+Treasure's `Checking` formatter matches with the refreshing flag supplied, but
+MapDataPage does not pass the recovered producer flag. This remains an open UI
+reachability gap under QUEUED `LWB317-UI-MAP-TREASURE-REFRESH-001`; native Treasure
+refresh remains separate. The saved screenshots do not fully show the asserted
+row states, so they are not complete visual evidence. Review/evidence details:
+`reviews/2026-10-02-LWB317-PM-020-map-states-acceptance.md`.
+
+Current sole worker assignment: **LWB317-REVIEW-HOME-BUSY-001 ASSIGNED**, manually
+relayed by the owner. Read that work item and review only Home busy labels,
+precedence, disabling and input mapping. No product edits or native launch.
+Trade 003E, other Map tables/interactions and the Treasure follow-up stay separate.
+Protected AFK/scratch/parent screenshot WIP remains unchanged and unstaged.
+
 ## 2026-10-02 manual AI relay restored — collaboration experiment retired
 
 The owner abandoned automatic Chat On Steroids collaboration and will forward
@@ -26,11 +47,10 @@ relay; it was not dispatched by this documentation task.
 
 ## 2026-10-02 Map table takeover — latest continuation
 
-Latest worker assignment: **LWB317-REVIEW-MAP-STATES-001 ASSIGNED** at owner's
-request for one medium task. Review Secret Task/Ghost Ops/Treasure presentation
-only; no product writes or gameplay. Read its work item. Home busy review is now
-QUEUED; Trade 003E and broader Map acceptance remain pending. This supersedes the
-earlier review order below. Stop after this one review for lead integration.
+Earlier assignment (now closed by PM-020 above): LWB317-REVIEW-MAP-STATES-001
+reviewed Secret Task/Ghost Ops/Treasure presentation only. Home busy was queued
+during that review and is now reassigned. Trade 003E and broader Map acceptance
+remain pending. Follow the latest PM-020 continuation above.
 
 Owner requested a larger lead implementation block while the worker rests.
 `LWB317-UI-LEAD-TABLES-001` is **AWAITING_REVIEW**: the eight normal Map tables

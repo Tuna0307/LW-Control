@@ -1,14 +1,14 @@
 # LWB317-REVIEW-MAP-STATES-001 — independent review of three Map tables
 
-Date: 2026-10-02. Owner: returning worker. State: ASSIGNED.
+Date: 2026-10-02. Owner: returning worker. State: REVIEW_COMPLETE / lead-integrated.
 Project lead assignment requested by owner: one medium UI-only review.
 Implementation: bf84bbdca8a86c1a45e9cbb3bd0170c8fbfcdd7f.
 Delivery baseline: 3939ac045ef9c01ac454e06f8a35c72a220cea4b;
 assignment documentation follows it. Use current HEAD without reset.
 
-This is the worker's only active assignment. The earlier independent Home busy
-review is queued, not cancelled or accepted. Trade 003E and the broader Map table
-unit remain pending. Do not execute several reviews in one run.
+This review is closed by PM-020 for its narrow source/local scope. The Home busy
+review is separately reassigned; Trade 003E and the broader Map table unit remain
+pending. The remaining assignment text records the original review scope.
 
 ## Goal and scope
 
@@ -106,3 +106,9 @@ Reproducible evidence: `evidence/lwbridge-0.3.17/ui/LWB317-REVIEW-MAP-STATES-001
 No product code or pre-existing evidence was changed by this review. The exact
 review commit and verified remote SHA are reported in the reviewer return because
 this delivery section is itself part of that commit.
+
+PM-020 lead integration, 2026-10-02: accepts reviewer commit
+6f52096d050c7d2b005d61e6c5b6e80cd1538eeb after replaying actual-source/current
+checks, validating source/images/package and inspecting the diff. Treasure
+refreshing-to-Checking producer reachability remains an explicit open UI gap;
+this does not accept the full Map parent, native functions or original pixels.

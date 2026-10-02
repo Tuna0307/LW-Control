@@ -75,6 +75,19 @@ If runtime visual comparison is blocked by auth, mark that validation gap explic
 
 ## Current work
 
+2026-10-02 PM-020 accepts independent review `LWB317-REVIEW-MAP-STATES-001`
+at `6f52096` for Secret Task, Ghost Ops and Treasure source/local formatting,
+state precedence, names and selection only. Lead replay and source/image/package
+checks pass. This is partial acceptance within the eight-table parent below.
+Treasure's transient `Checking` formatter matches when supplied, but the current
+page omits the original refreshing producer flag: UI reachability remains open
+under queued `LWB317-UI-MAP-TREASURE-REFRESH-001`, distinct from native refresh.
+The saved review screenshots are clipped and do not visibly establish all reported
+row states; the acceptance uses executable checks and recorded browser DOM results,
+not those images as full visual proof. No original-pixel/native/global upgrade.
+Next sole worker assignment: `LWB317-REVIEW-HOME-BUSY-001` (ASSIGNED).
+See `reviews/2026-10-02-LWB317-PM-020-map-states-acceptance.md`.
+
 2026-10-02 lead takeover while the worker rests: `LWB317-UI-LEAD-TABLES-001`
 is **AWAITING_REVIEW**. Eight normal Map tables now use recovered column/value/
 width definitions, task eligibility/time states, Truck caps, Treasure type/state/

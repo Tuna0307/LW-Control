@@ -1,9 +1,11 @@
 # LWB317-REVIEW-HOME-BUSY-001 — independent Home busy presentation review
 
-Owner: returning worker as independent reviewer. State: QUEUED.
-2026-10-02 lead update: owner requested a fresh medium assignment; only
-LWB317-REVIEW-MAP-STATES-001 is active for the returning worker. This review
-is deferred, not cancelled or accepted. Resume only when separately reassigned.
+Owner: returning worker as independent reviewer. State: ASSIGNED.
+2026-10-02 PM-020 lead update: the Map-states review is complete and accepted
+for its narrow source/local scope. This is now the worker's only active assignment,
+delivered by manual relay. Review this one unit; Map follow-ups and Trade stay
+separate. Current assignment baseline: 6f52096d050c7d2b005d61e6c5b6e80cd1538eeb;
+lead integration documentation follows it. Use current HEAD without reset.
 Date: 2026-10-02. Implementation baseline: 8415316ef1c7bd66ca94ff44670a7654d03688d6;
 PM-019 acceptance/assignment documentation follows it. Use current HEAD without reset.
 
@@ -48,6 +50,9 @@ Use a short browser-preview recheck: root busy with valid root, proxy busy while
 stopped/running, overlapping launch/proxy flags, and one Japanese label. Controls
 must remain disabled; capture one useful screenshot and console results. Do not
 press native/gameplay controls. Retain unowned preview processes.
+Choose a viewport/crop that clearly shows the Home header, button labels and
+disabled controls being reviewed. Inspect the saved image itself; record DOM
+checks separately and do not use a clipped capture as proof of hidden states.
 
 Run current R1 acknowledgement checker --verify-record and validator, accepted
 translation/switch checkers --verify-record and validators, npm.cmd run check and
