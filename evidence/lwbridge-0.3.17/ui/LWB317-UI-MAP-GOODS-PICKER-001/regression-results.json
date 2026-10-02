@@ -1,0 +1,50 @@
+{
+  "status": "PASS",
+  "results": [
+    {
+      "script": "LWB317-UI-MAP-GOODS-PICKER-001/check-picker.mjs",
+      "exitCode": 0,
+      "output": "LWB317_MAP_GOODS_PICKER_OK comparisons=144 parent=PASS placeholders=6 baselineMismatch=YES"
+    },
+    {
+      "script": "LWB317-UI-MAP-TREASURE-PICKER-001/check-picker.mjs",
+      "exitCode": 0,
+      "output": "LWB317_MAP_TREASURE_PICKER_OK comparisons=28 parent=PASS baselineMismatch=YES"
+    },
+    {
+      "script": "LWB317-UI-MAP-GOODS-PICKER-001/replay-parent.mjs",
+      "exitCode": 0,
+      "output": "LWB317_UI_MAP_FILTER_LIFECYCLE_CHECKS_OK\nLWB317_GOODS_PARENT_REPLAY_OK historical assertions and bytes preserved"
+    },
+    {
+      "script": "LWB317-UI-MAP-GOODS-PICKER-001/replay-r1.mjs",
+      "exitCode": 0,
+      "output": "LWB317_UI_MAP_FILTER_LIFECYCLE_R1 cases=5 failures=0\nLWB317_GOODS_R1_REPLAY_OK historical record preserved"
+    },
+    {
+      "script": "LWB317-UI-MAP-INTERACTIONS-001/check-request-lifetime.mjs",
+      "exitCode": 0,
+      "output": "LWB317_REQUEST_LIFETIME_OK baselineFailures=0 deliveryFailures=4 currentFailures=0 scenarios=38"
+    },
+    {
+      "script": "LWB317-UI-MAP-INTERACTIONS-001/check-navigation-replay.mjs",
+      "exitCode": 0,
+      "output": "LWB317_NAVIGATION_REPLAY_OK baseline=6 current=0 requests=17"
+    },
+    {
+      "script": "LWB317-UI-MAP-INTERACTIONS-001/check-interactions.mjs",
+      "exitCode": 0,
+      "output": "PARITY (baseline same) keyword.typing-does-not-search\nPARITY (baseline same) keyword.search-click-on-page-1-searches-once-with-typed-text\nPARITY (baseline same) keyword.search-click-on-page-2-goes-to-page-1-and-searches-once\nPARITY (baseline differs) keyword.typed-but-unsubmitted-text-is-used-by-a-filter-change\nPARITY (baseline differs) keyword.tab-change-keeps-input-and-queries-with-it\nPARITY (baseline differs) keyword.page-change-queries-with-typed-text\nPARITY (baseline same) keyword.no-timer-or-debounce-after-time-passes\nPARITY (baseline differs) search.button-is-not-disabled-by-loading\nPARITY (baseline differs) search.click-while-loading-issues-a-newer-request-and-retires-the-older\nPARITY (baseline differs) search.connection-change-refreshes\nPARITY (baseline same) search.failure-clears-rows-and-total\nPARITY (baseline differs) name.select-clears-keyword-resets-page-and-searches-once\nPARITY (baseline differs) name.typing-after-selecting-drops-the-name-and-searches-with-the-text\nPARITY (baseline same) name.typing-without-a-selected-name-does-not-search\nPARITY (baseline same) name.resource-and-monster-selections-are-independent\nPARITY (baseline differs) name.option-text-uses-game-text-then-key\nPARITY (baseline differs) selection.dispatch-toggle-membership-and-count\nPARITY (baseline differs) selection.dispatch-survives-page-filter-sort-search-and-server-change\nPARITY (baseline differs) selection.dispatch-resets-on-any-tab-change-including-dispatch-ghost\nPARITY (baseline differs) selection.truck-is-independent-and-persists-across-tabs-pages-and-servers\nPARITY (baseline differs) selection.payload-keys-and-identifier-edge-cases\nPARITY (baseline differs) delay.input-default-and-controlled-value\nPARITY (baseline differs) delay.schedule-button-predicate-per-delay-text\nPARITY (baseline differs) actions.schedule-and-share-predicates-with-and-without-selection-online-busy\nPARITY (baseline differs) actions.truck-schedule-predicate\nPARITY (baseline differs) flow.schedule-dispatch-success-busy-then-clear-reload-and-navigate\nPARITY (baseline differs) flow.schedule-dispatch-failure-keeps-selection-and-tab\nPARITY (baseline differs) flow.schedule-with-invalid-delay-never-calls-the-provider\nPARITY (baseline differs) flow.schedule-truck-success-clears-only-truck-selection\nPARITY (baseline differs) flow.share-label-selection-pruning-and-partial-message\nPARITY (baseline differs) flow.share-full-success-message-and-selection\nPARITY (baseline differs) flow.scheduled-tab-lists-counts-and-reloads-on-entry-and-change-events\nPARITY (baseline differs) flow.scheduled-cancel-identities-busy-keys-and-reload\nPARITY (baseline differs) flow.scheduled-plunder-again-and-clear-history\nPARITY (baseline differs) flow.action-message-is-cleared-by-a-tab-change\nPARITY (baseline differs) flow.share-failure-message-uses-the-original-error-translator\nPARITY (baseline differs) flow.clear-failure-message-uses-the-original-error-translator\nPARITY (baseline differs) navigation.server-change-on-page-3-first-request-uses-page-1\nLWB317_INTERACTIONS PASS scenarios=38 currentMismatches=0 baselineMismatches=31 originalErrors=0"
+    },
+    {
+      "script": "LWB317-UI-MAP-INTERACTIONS-001/check-integration.mjs",
+      "exitCode": 0,
+      "output": "PASS cache restoration keeps the typed keyword and refreshes the restored page with it\nPASS name selection survives tab cache restoration and refreshes with the name and restored page\nPASS Dispatch selection resets on tab change while the cached page and rows are restored\nPASS selection is retained across row refresh (connection change) and search while rows are replaced\nPASS rapid navigation with deferred replies settles on the final tab only\nPASS Normal/Scheduled transitions: counts, list loading on entry, change events and normal state untouched\nPASS the page clock drives Scheduled Plunder once per second from the controlled clock\nPASS fence: without a provider every job/schedule/share control stays disabled and calls nothing\nPASS schedule success: busy, selection cleared, list reloaded, navigation to Scheduled Plunder; failure keeps selection\nPASS truck schedule success clears only the Truck selection\nPASS share: label flips while sharing, only shared uuids leave the selection, partial/success messages\nPASS Scheduled actions: busy keys, ghost cancel identity, reload, error message and fences\nPASS clear-data empties both the Dispatch/Ghost and the Truck selection (original tr: on({}), cn({}))\nPASS a selected Resource name that the refreshed options no longer offer is cleared\nLWB317_INTEGRATION_OK 14 scenarios"
+    },
+    {
+      "script": "LWB317-UI-MAP-GOODS-PICKER-001/replay-historical.mjs",
+      "exitCode": 0,
+      "output": "PASS LWB317-UI-MAP-FILTERS-001/check-filters.mjs (filters) :: LWB317_MAP_FILTERS_OK 472 original/current queries; baseline 330 mismatches; fences PASS\nPASS LWB317-UI-MAP-FILTERS-001/check-table-regression.mjs (unchanged) :: LWB317_MAP_TABLE_REGRESSION_OK historical evidence unchanged; only test setter dependency adapted\nPASS LWB317-UI-MAP-FILTERS-001/check-treasure-checking.mjs (unchanged) :: LWB317_TREASURE_CHECKING_OK 216 display comparisons; 384 input fences; 8 original producer cases\nPASS LWB317-UI-MAP-ROWS-001/check-row-actions.mjs (rows) :: LWB317_MAP_ROW_ACTIONS_OK 160 comparisons; preview/native fences PASS\nPASS LWB317-REVIEW-MAP-STATES-001/check-review-map-states.mjs (unchanged) :: }"
+    }
+  ]
+}

@@ -1,0 +1,74 @@
+{
+  "status": "PASS",
+  "proof": "Project-lead real browser controls in owned offline IAB localhost:4328 preview. Fixture names/counts; not original runtime/native proof.",
+  "english": {
+    "truckInitial": "All Items / 55 items",
+    "menu": [
+      "All Items",
+      "Fixture Reward",
+      "Fixture Medal"
+    ],
+    "truckSelection": {
+      "summary": "Fixture Reward",
+      "count": "28 items",
+      "open": false,
+      "iconLabel": "Fixture Reward"
+    },
+    "trainInitial": "All Items / 56 items",
+    "trainKeyboardSelection": {
+      "summary": "Fixture Cargo",
+      "count": "28 items",
+      "open": false
+    },
+    "truckRestore": "Fixture Reward",
+    "keyboardReopen": {
+      "open": true,
+      "active": [
+        "Fixture Reward"
+      ]
+    },
+    "keyboardAll": {
+      "summary": "All Items",
+      "count": "55 items",
+      "open": false
+    }
+  },
+  "japanese": {
+    "theme": "dark",
+    "initial": "56件",
+    "menu": [
+      "すべてのアイテム",
+      "Fixture Cargo",
+      "Fixture Supply"
+    ],
+    "selection": {
+      "summary": "Fixture Supply",
+      "count": "28件",
+      "open": false
+    },
+    "sortBeforeClear": [
+      "品質",
+      "戦力",
+      "アイテム1",
+      "保護時間",
+      "更新日時2"
+    ],
+    "sortAfterClear": [
+      "品質",
+      "戦力",
+      "保護時間",
+      "更新日時1"
+    ],
+    "clearCount": "56件"
+  },
+  "consoleErrorsAndWarnings": [],
+  "screenshots": [
+    "screenshots/truck-menu-en-light.jpg",
+    "screenshots/train-menu-ja-dark.jpg"
+  ],
+  "cleanup": "Owned tab and Vite listener closed before delivery. No owner tabs, WIP, native/gameplay actions or source files for fixtures changed.",
+  "screenshotHashes": {
+    "screenshots/truck-menu-en-light.jpg": "c66db2406c664bb022d7914ac999472dda65906f0ed2aeadf8c64513404e6982",
+    "screenshots/train-menu-ja-dark.jpg": "b9b2ade7dc2423890ca1018cbbc2cce8fa12c53873b16e511f1d2899f930aaaf"
+  }
+}

@@ -1,0 +1,23 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import path from 'node:path';
+import crypto from 'node:crypto';
+import {fileURLToPath} from 'node:url';
+const here=path.dirname(fileURLToPath(import.meta.url)),repo=path.resolve(here,'../../../..');
+const read=p=>JSON.parse(fs.readFileSync(path.join(here,p),'utf8'));
+const hash=p=>crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex');
+const lf=p=>crypto.createHash('sha256').update(fs.readFileSync(p,'utf8').replace(/\r\n/g,'\n')).digest('hex');
+const result=read('picker-results.json'), browser=read('browser-results.json');
+assert.equal(result.comparisons,144);assert.ok(result.cases.every(c=>c.pass));assert.deepEqual(result.parentCurrent,result.parentOriginal);
+assert.equal(result.placeholderComparisons,6);assert.equal(result.callbackExceptions,'PASS');
+assert.equal(result.sourceSha256,lf(path.join(repo,'src/LWBridge.UI-0.3.17/src/MapRetainedGoodsFilter.jsx')));
+assert.equal(result.pageSha256,lf(path.join(repo,'src/LWBridge.UI-0.3.17/src/MapDataPage.jsx')));
+assert.equal(hash(path.join(repo,'evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js')),'ce74345518be72e417a510b982c591729e5683f69751e190805598c4c05d3089');
+assert.equal(hash(path.join(repo,'evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/GameAssetImage-Diy9VTIr.js')),'2f92a87c3268497df6425b1175db6140e10aabcbdfae02615f065d00e16458e0');
+assert.equal(read('regression-results.json').status,'PASS');assert.ok(read('regression-results.json').results.every(r=>r.exitCode===0));
+assert.deepEqual(read('parent-replay-results.json').corrected.delayedClearAckAfterServerChange.optionCalls,[322,321]);
+assert.equal(read('r1-replay-results.json').source.currentSha256,result.pageSha256);
+assert.equal(browser.status,'PASS');assert.equal(browser.english.keyboardAll.count,'55 items');assert.equal(browser.japanese.selection.open,false);assert.deepEqual(browser.consoleErrorsAndWarnings,[]);
+for(const p of browser.screenshots){const bytes=fs.readFileSync(path.join(here,p));assert.equal(bytes.readUInt16BE(0),0xffd8);assert.ok(bytes.length>1000);assert.equal(hash(path.join(here,p)),browser.screenshotHashes[p]);}
+for(const [p,expected] of Object.entries(read('protected-wip.json')))assert.equal(hash(path.join(repo,p)),expected,'protected '+p);
+console.log('LWB317_MAP_GOODS_PICKER_EVIDENCE_OK protectedWip=PASS');

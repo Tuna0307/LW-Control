@@ -1,0 +1,1189 @@
+{
+  "comparisons": 144,
+  "cases": [
+    {
+      "language": "en",
+      "value": "",
+      "items": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "en",
+      "value": "",
+      "items": 6,
+      "buttons": 7,
+      "pass": true
+    },
+    {
+      "language": "en",
+      "value": 2,
+      "items": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "en",
+      "value": 2,
+      "items": 6,
+      "buttons": 7,
+      "pass": true
+    },
+    {
+      "language": "en",
+      "value": "2",
+      "items": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "en",
+      "value": "2",
+      "items": 6,
+      "buttons": 7,
+      "pass": true
+    },
+    {
+      "language": "en",
+      "value": 0,
+      "items": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "en",
+      "value": 0,
+      "items": 6,
+      "buttons": 7,
+      "pass": true
+    },
+    {
+      "language": "en",
+      "value": "null",
+      "items": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "en",
+      "value": "null",
+      "items": 6,
+      "buttons": 7,
+      "pass": true
+    },
+    {
+      "language": "en",
+      "value": "missing",
+      "items": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "en",
+      "value": "missing",
+      "items": 6,
+      "buttons": 7,
+      "pass": true
+    },
+    {
+      "language": "en",
+      "value": "absent",
+      "items": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "en",
+      "value": "absent",
+      "items": 6,
+      "buttons": 7,
+      "pass": true
+    },
+    {
+      "language": "en",
+      "value": "東京/%",
+      "items": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "en",
+      "value": "東京/%",
+      "items": 6,
+      "buttons": 7,
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "value": "",
+      "items": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "value": "",
+      "items": 6,
+      "buttons": 7,
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "value": 2,
+      "items": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "value": 2,
+      "items": 6,
+      "buttons": 7,
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "value": "2",
+      "items": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "value": "2",
+      "items": 6,
+      "buttons": 7,
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "value": 0,
+      "items": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "value": 0,
+      "items": 6,
+      "buttons": 7,
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "value": "null",
+      "items": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "value": "null",
+      "items": 6,
+      "buttons": 7,
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "value": "missing",
+      "items": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "value": "missing",
+      "items": 6,
+      "buttons": 7,
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "value": "absent",
+      "items": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "value": "absent",
+      "items": 6,
+      "buttons": 7,
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "value": "東京/%",
+      "items": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "value": "東京/%",
+      "items": 6,
+      "buttons": 7,
+      "pass": true
+    },
+    {
+      "language": "zh-CN",
+      "value": "",
+      "items": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "zh-CN",
+      "value": "",
+      "items": 6,
+      "buttons": 7,
+      "pass": true
+    },
+    {
+      "language": "zh-CN",
+      "value": 2,
+      "items": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "zh-CN",
+      "value": 2,
+      "items": 6,
+      "buttons": 7,
+      "pass": true
+    },
+    {
+      "language": "zh-CN",
+      "value": "2",
+      "items": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "zh-CN",
+      "value": "2",
+      "items": 6,
+      "buttons": 7,
+      "pass": true
+    },
+    {
+      "language": "zh-CN",
+      "value": 0,
+      "items": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "zh-CN",
+      "value": 0,
+      "items": 6,
+      "buttons": 7,
+      "pass": true
+    },
+    {
+      "language": "zh-CN",
+      "value": "null",
+      "items": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "zh-CN",
+      "value": "null",
+      "items": 6,
+      "buttons": 7,
+      "pass": true
+    },
+    {
+      "language": "zh-CN",
+      "value": "missing",
+      "items": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "zh-CN",
+      "value": "missing",
+      "items": 6,
+      "buttons": 7,
+      "pass": true
+    },
+    {
+      "language": "zh-CN",
+      "value": "absent",
+      "items": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "zh-CN",
+      "value": "absent",
+      "items": 6,
+      "buttons": 7,
+      "pass": true
+    },
+    {
+      "language": "zh-CN",
+      "value": "東京/%",
+      "items": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "zh-CN",
+      "value": "東京/%",
+      "items": 6,
+      "buttons": 7,
+      "pass": true
+    },
+    {
+      "language": "zh-TW",
+      "value": "",
+      "items": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "zh-TW",
+      "value": "",
+      "items": 6,
+      "buttons": 7,
+      "pass": true
+    },
+    {
+      "language": "zh-TW",
+      "value": 2,
+      "items": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "zh-TW",
+      "value": 2,
+      "items": 6,
+      "buttons": 7,
+      "pass": true
+    },
+    {
+      "language": "zh-TW",
+      "value": "2",
+      "items": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "zh-TW",
+      "value": "2",
+      "items": 6,
+      "buttons": 7,
+      "pass": true
+    },
+    {
+      "language": "zh-TW",
+      "value": 0,
+      "items": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "zh-TW",
+      "value": 0,
+      "items": 6,
+      "buttons": 7,
+      "pass": true
+    },
+    {
+      "language": "zh-TW",
+      "value": "null",
+      "items": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "zh-TW",
+      "value": "null",
+      "items": 6,
+      "buttons": 7,
+      "pass": true
+    },
+    {
+      "language": "zh-TW",
+      "value": "missing",
+      "items": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "zh-TW",
+      "value": "missing",
+      "items": 6,
+      "buttons": 7,
+      "pass": true
+    },
+    {
+      "language": "zh-TW",
+      "value": "absent",
+      "items": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "zh-TW",
+      "value": "absent",
+      "items": 6,
+      "buttons": 7,
+      "pass": true
+    },
+    {
+      "language": "zh-TW",
+      "value": "東京/%",
+      "items": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "zh-TW",
+      "value": "東京/%",
+      "items": 6,
+      "buttons": 7,
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "value": "",
+      "items": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "value": "",
+      "items": 6,
+      "buttons": 7,
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "value": 2,
+      "items": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "value": 2,
+      "items": 6,
+      "buttons": 7,
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "value": "2",
+      "items": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "value": "2",
+      "items": 6,
+      "buttons": 7,
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "value": 0,
+      "items": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "value": 0,
+      "items": 6,
+      "buttons": 7,
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "value": "null",
+      "items": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "value": "null",
+      "items": 6,
+      "buttons": 7,
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "value": "missing",
+      "items": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "value": "missing",
+      "items": 6,
+      "buttons": 7,
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "value": "absent",
+      "items": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "value": "absent",
+      "items": 6,
+      "buttons": 7,
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "value": "東京/%",
+      "items": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "value": "東京/%",
+      "items": 6,
+      "buttons": 7,
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "value": "",
+      "items": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "value": "",
+      "items": 6,
+      "buttons": 7,
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "value": 2,
+      "items": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "value": 2,
+      "items": 6,
+      "buttons": 7,
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "value": "2",
+      "items": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "value": "2",
+      "items": 6,
+      "buttons": 7,
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "value": 0,
+      "items": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "value": 0,
+      "items": 6,
+      "buttons": 7,
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "value": "null",
+      "items": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "value": "null",
+      "items": 6,
+      "buttons": 7,
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "value": "missing",
+      "items": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "value": "missing",
+      "items": 6,
+      "buttons": 7,
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "value": "absent",
+      "items": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "value": "absent",
+      "items": 6,
+      "buttons": 7,
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "value": "東京/%",
+      "items": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "value": "東京/%",
+      "items": 6,
+      "buttons": 7,
+      "pass": true
+    },
+    {
+      "language": "id",
+      "value": "",
+      "items": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "id",
+      "value": "",
+      "items": 6,
+      "buttons": 7,
+      "pass": true
+    },
+    {
+      "language": "id",
+      "value": 2,
+      "items": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "id",
+      "value": 2,
+      "items": 6,
+      "buttons": 7,
+      "pass": true
+    },
+    {
+      "language": "id",
+      "value": "2",
+      "items": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "id",
+      "value": "2",
+      "items": 6,
+      "buttons": 7,
+      "pass": true
+    },
+    {
+      "language": "id",
+      "value": 0,
+      "items": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "id",
+      "value": 0,
+      "items": 6,
+      "buttons": 7,
+      "pass": true
+    },
+    {
+      "language": "id",
+      "value": "null",
+      "items": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "id",
+      "value": "null",
+      "items": 6,
+      "buttons": 7,
+      "pass": true
+    },
+    {
+      "language": "id",
+      "value": "missing",
+      "items": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "id",
+      "value": "missing",
+      "items": 6,
+      "buttons": 7,
+      "pass": true
+    },
+    {
+      "language": "id",
+      "value": "absent",
+      "items": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "id",
+      "value": "absent",
+      "items": 6,
+      "buttons": 7,
+      "pass": true
+    },
+    {
+      "language": "id",
+      "value": "東京/%",
+      "items": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "id",
+      "value": "東京/%",
+      "items": 6,
+      "buttons": 7,
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "value": "",
+      "items": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "value": "",
+      "items": 6,
+      "buttons": 7,
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "value": 2,
+      "items": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "value": 2,
+      "items": 6,
+      "buttons": 7,
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "value": "2",
+      "items": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "value": "2",
+      "items": 6,
+      "buttons": 7,
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "value": 0,
+      "items": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "value": 0,
+      "items": 6,
+      "buttons": 7,
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "value": "null",
+      "items": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "value": "null",
+      "items": 6,
+      "buttons": 7,
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "value": "missing",
+      "items": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "value": "missing",
+      "items": 6,
+      "buttons": 7,
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "value": "absent",
+      "items": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "value": "absent",
+      "items": 6,
+      "buttons": 7,
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "value": "東京/%",
+      "items": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "value": "東京/%",
+      "items": 6,
+      "buttons": 7,
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "value": "",
+      "items": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "value": "",
+      "items": 6,
+      "buttons": 7,
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "value": 2,
+      "items": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "value": 2,
+      "items": 6,
+      "buttons": 7,
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "value": "2",
+      "items": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "value": "2",
+      "items": 6,
+      "buttons": 7,
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "value": 0,
+      "items": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "value": 0,
+      "items": 6,
+      "buttons": 7,
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "value": "null",
+      "items": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "value": "null",
+      "items": 6,
+      "buttons": 7,
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "value": "missing",
+      "items": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "value": "missing",
+      "items": 6,
+      "buttons": 7,
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "value": "absent",
+      "items": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "value": "absent",
+      "items": 6,
+      "buttons": 7,
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "value": "東京/%",
+      "items": 0,
+      "buttons": 1,
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "value": "東京/%",
+      "items": 6,
+      "buttons": 7,
+      "pass": true
+    }
+  ],
+  "parentOriginal": [
+    {
+      "kind": "truck",
+      "page": 1,
+      "itemKey": 2,
+      "sorts": [
+        {
+          "sortBy": "updatedAt",
+          "sortOrder": "desc"
+        }
+      ]
+    },
+    {
+      "kind": "truck",
+      "page": 1,
+      "itemKey": "2",
+      "sorts": [
+        {
+          "sortBy": "itemCount",
+          "sortOrder": "desc"
+        },
+        {
+          "sortBy": "updatedAt",
+          "sortOrder": "desc"
+        }
+      ]
+    },
+    {
+      "kind": "truck",
+      "page": 1,
+      "sorts": [
+        {
+          "sortBy": "updatedAt",
+          "sortOrder": "desc"
+        }
+      ]
+    },
+    {
+      "kind": "truck",
+      "page": 1,
+      "itemKey": "東京/%",
+      "sorts": [
+        {
+          "sortBy": "updatedAt",
+          "sortOrder": "desc"
+        }
+      ]
+    },
+    {
+      "kind": "railway",
+      "page": 1,
+      "itemKey": "2",
+      "sorts": [
+        {
+          "sortBy": "updatedAt",
+          "sortOrder": "desc"
+        }
+      ]
+    },
+    {
+      "kind": "truck",
+      "page": 1,
+      "sorts": [
+        {
+          "sortBy": "updatedAt",
+          "sortOrder": "desc"
+        }
+      ]
+    },
+    {
+      "kind": "railway",
+      "page": 1,
+      "itemKey": "2",
+      "sorts": [
+        {
+          "sortBy": "itemCount",
+          "sortOrder": "desc"
+        },
+        {
+          "sortBy": "updatedAt",
+          "sortOrder": "desc"
+        }
+      ]
+    }
+  ],
+  "parentCurrent": [
+    {
+      "kind": "truck",
+      "page": 1,
+      "itemKey": 2,
+      "sorts": [
+        {
+          "sortBy": "updatedAt",
+          "sortOrder": "desc"
+        }
+      ]
+    },
+    {
+      "kind": "truck",
+      "page": 1,
+      "itemKey": "2",
+      "sorts": [
+        {
+          "sortBy": "itemCount",
+          "sortOrder": "desc"
+        },
+        {
+          "sortBy": "updatedAt",
+          "sortOrder": "desc"
+        }
+      ]
+    },
+    {
+      "kind": "truck",
+      "page": 1,
+      "sorts": [
+        {
+          "sortBy": "updatedAt",
+          "sortOrder": "desc"
+        }
+      ]
+    },
+    {
+      "kind": "truck",
+      "page": 1,
+      "itemKey": "東京/%",
+      "sorts": [
+        {
+          "sortBy": "updatedAt",
+          "sortOrder": "desc"
+        }
+      ]
+    },
+    {
+      "kind": "railway",
+      "page": 1,
+      "itemKey": "2",
+      "sorts": [
+        {
+          "sortBy": "updatedAt",
+          "sortOrder": "desc"
+        }
+      ]
+    },
+    {
+      "kind": "truck",
+      "page": 1,
+      "sorts": [
+        {
+          "sortBy": "updatedAt",
+          "sortOrder": "desc"
+        }
+      ]
+    },
+    {
+      "kind": "railway",
+      "page": 1,
+      "itemKey": "2",
+      "sorts": [
+        {
+          "sortBy": "itemCount",
+          "sortOrder": "desc"
+        },
+        {
+          "sortBy": "updatedAt",
+          "sortOrder": "desc"
+        }
+      ]
+    }
+  ],
+  "parent": "PASS",
+  "placeholderComparisons": 6,
+  "callbackExceptions": "PASS",
+  "baseline": "native select mismatch confirmed",
+  "sourceSha256": "d95908d6b112509a1a432cdc0e4b6df69a3289e1bd4d86e9cdda3f361f88c497",
+  "pageSha256": "3322ac52a21085bed2756d550e034f87735a23263b7c31437bf6e8e83a002514"
+}

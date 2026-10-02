@@ -1,12 +1,23 @@
 # Current implementation/research handoff
 
-Current lead decision, 2026-10-02: PM-028 ACCEPTS FILTER-LIFECYCLE-001 and R1 for focused source/local UI scope at ff4ed369. Lead replays pass, including PM-027 6/6, R1 5/5, parent assertions and maintained regression/package checks. MAP-TREASURE-PICKER-001 implementation is COMPLETE under project-lead takeover: source details/menu, resolved names/counts, strict keys and close behavior; 28 original/current comparisons, parent/regression checks and fresh en/ja browser QA pass. Independent peer review remains a follow-up; no native/gameplay integration. Overall UI/pixel/native status remains unchanged. See the PM-028 acceptance review and picker work item.
+Current lead decision, 2026-10-03: MAP-GOODS-PICKER-001 is COMPLETE implementation for focused source/local UI scope: original Truck/Train icon/name details menu, strict keys and close-after-change; 144 original/current comparisons across nine languages, six unavailable-image renders, exact parent query/sort traces and fresh en/light + ja/dark browser controls pass. Prior Treasure picker and accepted Map filter/lifecycle/navigation/interaction tests remain green. PM-028 acceptance is unchanged. Both picker units have independent returning-worker review as a follow-up; full UI/original pixels/native scope is not accepted. See the dated GOODS-PICKER review/work item.
 
 **Target:** LWBridge 0.3.17  
 **Branch:** `research/offline-controller`  
-**Active scope:** UI parity / Treasure picker checkpoint complete; no new native integration
+**Active scope:** UI parity / both picker checkpoints complete; no new native integration
 
 ## Current continuation — project-lead takeover checkpoint
+
+2026-10-03: GOODS-PICKER-001 completes the Truck/Train goods menu. Read its
+dated review, work item and evidence README. Actual original/current render
+cases 144, unloaded assets six, parent query/sort traces and owned en/light +
+ja/dark browser/Enter/tab/sort-clear QA pass. All maintained Map and package
+checks pass. Both picker units await an optional independent returning-worker
+checkpoint; do not reopen accepted filter-lifecycle work. Next lead UI unit:
+manual scan header/summary/timing and feedback, based on exact source and
+inert provider tests; no native/gameplay phase. Preserve protected WIP.
+
+Previous 2026-10-02 checkpoint:
 
 PM-028 accepts parent filter lifecycle/R1 at ff4ed369. Lead then completed
 MAP-TREASURE-PICKER-001: new canonical MapTreasureTypeFilter and one parent call,

@@ -1,6 +1,6 @@
 # Project lead control sheet
 
-Current lead decision, 2026-10-02: PM-028 ACCEPTS FILTER-LIFECYCLE-001 and R1 for focused source/local UI scope at ff4ed369. Lead replays pass, including PM-027 6/6, R1 5/5, parent assertions and maintained regression/package checks. MAP-TREASURE-PICKER-001 implementation is COMPLETE under project-lead takeover: source details/menu, resolved names/counts, strict keys and close behavior; 28 original/current comparisons, parent/regression checks and fresh en/ja browser QA pass. Independent peer review remains a follow-up; no native/gameplay integration. Overall UI/pixel/native status remains unchanged. See the PM-028 acceptance review and picker work item.
+Current lead decision, 2026-10-03: MAP-GOODS-PICKER-001 is COMPLETE implementation for focused source/local UI scope: original Truck/Train icon/name details menu, strict keys and close-after-change; 144 original/current comparisons across nine languages, six unavailable-image renders, exact parent query/sort traces and fresh en/light + ja/dark browser controls pass. Prior Treasure picker and accepted Map filter/lifecycle/navigation/interaction tests remain green. PM-028 acceptance is unchanged. Both picker units have independent returning-worker review as a follow-up; full UI/original pixels/native scope is not accepted. See the dated GOODS-PICKER review/work item.
 
 The main project lead owns integration and should keep this file small and current.
 
@@ -28,7 +28,7 @@ retirement task. Preserve its source as historical evidence.
 
 ## Current phase
 
-**UI parity — filter lifecycle accepted; Treasure picker implemented, peer review follow-up**
+**UI parity — Treasure and retained-goods menus implemented; peer review follow-up**
 
 Earlier static UI baseline acceptance does not establish complete UI/UX parity.
 The current owner priority is UI reproduction before function integration.
@@ -47,6 +47,7 @@ the Map closeout awaits a separate independent acceptance review.
 
 | Work item / campaign | Owner | State | Scope |
 |---|---|---|---|
+| LWB317-UI-MAP-GOODS-PICKER-001 | Project lead takeover | COMPLETE implementation / independent review follow-up | Original Truck/Train details menu, strict raw keys/icon placeholders and close-after-change; 144 comparisons, actual parent query/sort and browser controls pass; native icons/pixels excluded |
 | LWB317-PM-028 | Project lead | COMPLETE | Accepts ff4ed369 R1 and parent for focused source/local UI scope after actual diff/original/regression/package checks. PM-027 failed baseline retained |
 | LWB317-UI-MAP-TREASURE-PICKER-001 | Project lead takeover | COMPLETE implementation / independent review follow-up | Source details/menu, resolved labels/counts, strict key selection and close-after-change; 28 original/current cases, actual parent callback, adapters and browser en/ja light/dark pass. Full Map/pixels/native excluded |
 | LWB317-PM-027 | Project lead | COMPLETE review / CHANGES_REQUIRED | Delivery/source/regression/package replays pass; one added exact original/current options-only redirect case settles on different servers. Five extra availability/obsolete-rejection cases pass; scoped R1 assigned |

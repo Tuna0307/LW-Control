@@ -33,6 +33,7 @@ import {
 } from "./mapInteractions.js";
 import { ScheduledPlunder } from "./ScheduledPlunder.jsx";
 import { MapTreasureTypeFilter } from "./MapTreasureTypeFilter.jsx";
+import { MapRetainedGoodsFilter } from "./MapRetainedGoodsFilter.jsx";
 
 const EMPTY_GAME_TEXTS = Object.freeze({});
 
@@ -1064,9 +1065,7 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
                   {tab === "truck" ? <option value="reindeer">{t("map.reindeerQuality")}</option> : null}
                 </select>
                 {(tab === "truck" || tab === "railway") ? (
-                  <select aria-label={t("map.itemFilter")} value={itemKey} onChange={(event) => changeItemFilter(event.target.value)}>
-                    <option value="">{t("map.allRetainedGoods")}</option>{(options?.rewardItems?.[tab] || []).map((item) => <option key={item.key || item.value || item} value={item.key || item.value || item}>{item.name || item.label || item.key || item.value || item}</option>)}
-                  </select>
+                  <MapRetainedGoodsFilter label={t("map.itemFilter")} allLabel={t("map.allRetainedGoods")} items={options?.rewardItems?.[tab] || []} value={itemKey} onChange={changeItemFilter} />
                 ) : null}
                 {(tab === "truck" || tab === "railway" || tab === "dispatch") ? <label className="map-filter-field"><input type="checkbox" checked={plunderableOnly} onChange={(event) => { setPlunderableOnlyByKind((current) => ({ ...current, [tab]: event.target.checked || undefined })); setPage(1); }} /><span>{t("map.plunderableOnly")}</span></label> : null}
               </>
