@@ -321,6 +321,8 @@ export function getMapPreviewProvider(bridgeMode, previewState) {
     previewActionMessage: previewState === "map-actions-message" ? { key: "map.shareAllianceSuccess", values: { count: 3 } }
       : previewState === "map-export-feedback" ? { key: "map.exportExcelSuccess", values: { count: 37, path: "C:/Fixture/東京 export.xlsx" } }
       : previewState === "map-actions-message-partial" ? { key: "map.shareAlliancePartial", values: { shared: 2, failed: 1 } } : null,
+    scanState: normalizeScanState(summary.scanState),
+    summary,
     mapApi: api,
     backendAvailable: true,
     online: false,

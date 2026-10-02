@@ -1,0 +1,57 @@
+{
+  "exeSha256": "4e9c3113dedfd7e1a752404c6936aab304e67d7ffdb0952a5003c2ec948d6783",
+  "assets": {
+    "panel": {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js",
+      "sha256": "ce74345518be72e417a510b982c591729e5683f69751e190805598c4c05d3089"
+    },
+    "index": {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-BVfnK1wp.js",
+      "sha256": "44c4e4043825b7db296b64171951b27176f8850ff8d7d337cc991df4765524c6"
+    }
+  },
+  "locators": [
+    {
+      "asset": "panel",
+      "anchor": "Vn.current=C.isReading",
+      "utf8Byte": 34224,
+      "meaning": "scan completion advances rows and options revisions"
+    },
+    {
+      "asset": "panel",
+      "anchor": "X.current===null",
+      "utf8Byte": 34459,
+      "meaning": "scan-progress trailing row refresh timer"
+    },
+    {
+      "asset": "panel",
+      "anchor": "O.current+1",
+      "utf8Byte": 34913,
+      "meaning": "options request generation begins inside server/options-revision effect"
+    },
+    {
+      "asset": "panel",
+      "anchor": "ke.current(t.serverId,t.counts)",
+      "utf8Byte": 35085,
+      "meaning": "panel acknowledges option counts to parent"
+    },
+    {
+      "asset": "panel",
+      "anchor": "[R,vn]",
+      "utf8Byte": 35643,
+      "meaning": "options effect dependency boundary: data server and options revision"
+    },
+    {
+      "asset": "index",
+      "anchor": "async function _t(e=r.selectedProfileId)",
+      "utf8Byte": 363957,
+      "meaning": "parent Map summary producer with profile/generation ownership"
+    },
+    {
+      "asset": "index",
+      "anchor": "if(!at)return;let e=!1,t=async()=>",
+      "utf8Byte": 370275,
+      "meaning": "connected parent five-second summary poll with overlap guard"
+    }
+  ]
+}

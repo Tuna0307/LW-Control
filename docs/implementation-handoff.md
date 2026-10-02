@@ -1,6 +1,6 @@
 # Current implementation/research handoff
 
-Current lead decision, 2026-10-03: interrupted MAP-CLOSEOUT-002 is PARTIAL / SPLIT. Independent review bbfc470 and lead case replay accept the two picker, scan-header and refresh-feedback units for focused source/local scope. Auto contract recovery a6140b2 passes 12 cases; implementation is deferred. Pending App/Map summary-options ownership code is uncommitted and NOT ACCEPTED; continue only under medium MAP-REFRESH-OWNERSHIP-001. Full UI/original pixels/native parity remains unaccepted. See the dated campaign recovery review.
+Current worker delivery, 2026-10-03: interrupted MAP-CLOSEOUT-002 remains PARTIAL / SPLIT. Independent review bbfc470 and lead case replay accept the two picker, scan-header and refresh-feedback units for focused source/local scope. MAP-REFRESH-OWNERSHIP-001 is now AWAITING_REVIEW: the saved App/Map summary-options ownership integration is completed with actual App/panel lifecycle proof, source-backed count-readiness correction, canonical build/package checks and saved en/light + ja/dark offline browser evidence. Auto contract recovery a6140b2 still has implementation deferred. Full UI/original pixels/native parity remains unaccepted. See the dated refresh-ownership review and campaign recovery review.
 
 **Target:** LWBridge 0.3.17  
 **Branch:** `research/offline-controller`  
@@ -11,18 +11,17 @@ Current lead decision, 2026-10-03: interrupted MAP-CLOSEOUT-002 is PARTIAL / SPL
 2026-10-03 REFRESH-FEEDBACK-001: row revision timer/completion cleanup, scan error
 priority/translation/start retirement and localized export busy/result behavior
 are implemented. Read its dated review, work item and evidence README.
-Next implementation is summary/options refresh ownership and query side effects:
-the source polls parent summary at five seconds while component options are
-revision-owned. Preserve accepted server redirect and delayed-Clear behavior.
-Returning worker can independently review header, both pickers and this unit.
-Current external assignment: LWB317-UI-MAP-REFRESH-OWNERSHIP-001, medium
-continuation after interrupted CLOSEOUT-002. Read its work item and dated lead
-recovery review. A independent review is complete/lead accepted; Auto contract
-is recovered but implementation deferred. App/Map/preview B code and untracked
-evidence remain unfinished/unstaged. Fix malformed B result JSON and prove actual
-App lifetimes; do not restart the whole parent campaign. Lead avoids concurrent
-App/Map edits while this child runs.
-Protected WIP and historical evidence preserved.
+MAP-REFRESH-OWNERSHIP-001 is delivered AWAITING_REVIEW. The parent owns summary
+bootstrap/listener/completion and the guarded five-second connected poll; the
+mounted panel owns options on data-server/options-revision triggers. Summary-only
+polling does not reload options. The executable actual-App/current-panel proof
+covers overlap, offline/reconnect, profile replacement, deferred cleanup/unmount,
+progress rows-only, completion rows/options/parent summary and mount-already-
+reading. PM-027 keeps `[321,322,321]`; the focused current Clear replay keeps
+`[322,321]`. Canonical checks/build/package and en/light + ja/dark offline browser
+smoke pass. Read the new dated review and milestone-B README before review.
+Auto implementation remains deferred; do not begin it from this checkpoint.
+Protected WIP and historical evidence remain preserved and unstaged.
 
 Previous header checkpoint:
 

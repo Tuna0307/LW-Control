@@ -251,7 +251,25 @@ const PREVIEW_TAB_BY_STATE = Object.freeze({
   "map-actions-message-partial": "dispatch",
 });
 
-export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, currentServerId = 0, previewState = "", gameTexts = EMPTY_GAME_TEXTS, previewJumpingKeys = null, previewTreasureStatesRefreshing = false, previewBusyKey = "", previewSharing = false, previewActionMessage = null, previewPlunderOnline = null }) {
+export function MapDataPage({
+  mapApi,
+  bridgeMode,
+  backendAvailable,
+  online,
+  currentServerId = 0,
+  scanState: suppliedScanState = null,
+  summary: suppliedSummary = null,
+  onState = null,
+  onCounts = null,
+  previewState = "",
+  gameTexts = EMPTY_GAME_TEXTS,
+  previewJumpingKeys = null,
+  previewTreasureStatesRefreshing = false,
+  previewBusyKey = "",
+  previewSharing = false,
+  previewActionMessage = null,
+  previewPlunderOnline = null,
+}) {
   const { language, t } = useI18n();
   const previewFixture = bridgeMode === "preview" && previewState.startsWith("map-");
   const [scanTab, setScanTab] = useState(previewState.startsWith("map-auto") ? "auto" : "manual");
@@ -261,12 +279,13 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
     return saved === "normal" || saved === "fast" ? saved : "normal";
   });
   const [selectedTypes, setSelectedTypes] = useState(() => [...MAP_KIND_KEYS]);
-  const [scanState, setScanState] = useState(() => ({ ...DEFAULT_SCAN_STATE }));
-  const [scanStateAvailable, setScanStateAvailable] = useState(false);
+  const [scanState, setScanState] = useState(() => suppliedScanState ? { ...suppliedScanState } : { ...DEFAULT_SCAN_STATE });
+  const externallyManaged = suppliedScanState !== null && typeof onState === "function";
+  const [scanStateAvailable, setScanStateAvailable] = useState(suppliedScanState !== null);
   const [counts, setCounts] = useState(() => ({ ...EMPTY_COUNTS }));
   const [summaryReady, setSummaryReady] = useState(false);
   const [options, setOptions] = useState(null);
-  const [browseServerId, setBrowseServerId] = useState(0);
+  const [browseServerId, setBrowseServerId] = useState(() => suppliedScanState?.serverId > 0 ? suppliedScanState.serverId : 0);
   const [tab, setTab] = useState(PREVIEW_TAB_BY_STATE[previewState] || "city");
   const [keyword, setKeyword] = useState("");
   const [resourceNameKey, setResourceNameKey] = useState("");
@@ -323,6 +342,7 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
   const [autoRunning, setAutoRunning] = useState(false);
   const autoConfigRef = useRef(autoConfig);
   const [searchRevision, setSearchRevision] = useState(0);
+  const [optionsRevision, setOptionsRevision] = useState(0);
   const selectionTouched = useRef(false);
   const previousReading = useRef(false);
   const previousRowsReading = useRef(false);
@@ -333,7 +353,14 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
   const tabViewCache = useRef(new Map());
   const dataServerIdRef = useRef(currentServerId);
 
-  const dataServerId = summaryReady ? browseServerId : browseServerId || scanState.serverId || currentServerId;
+  const commitScanState = useCallback((next) => {
+    setScanState(next);
+    if (typeof onState === "function") onState(next);
+  }, [onState]);
+
+  const dataServerId = externallyManaged
+    ? browseServerId || scanState.serverId || 0
+    : summaryReady ? browseServerId : browseServerId || scanState.serverId || currentServerId;
   const activeSorts = sortsByKind[tab] || [{ sortBy: "updatedAt", sortOrder: "desc" }];
   const completionStatus = tab === "dispatch" || tab === "ghost" ? completionStatusByKind[tab] || "" : "";
   const quality = ["truck", "railway", "dispatch", "ghost"].includes(tab) ? qualityByKind[tab] || "" : "";
@@ -357,6 +384,26 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
     window.localStorage.setItem(autoStorageKey, JSON.stringify(autoConfig));
   }, [autoConfig, autoStorageKey]);
 
+  useEffect(() => {
+    if (suppliedScanState === null) return;
+    setScanState(suppliedScanState);
+    setScanStateAvailable(true);
+  }, [suppliedScanState]);
+
+  useEffect(() => {
+    if (!externallyManaged) return;
+    const matchingCounts = suppliedSummary && dataServerId > 0 && suppliedSummary.serverId === dataServerId
+      ? suppliedSummary.counts || { ...EMPTY_COUNTS }
+      : null;
+    setCounts(matchingCounts || { ...EMPTY_COUNTS });
+    setSummaryReady(matchingCounts !== null);
+  }, [dataServerId, externallyManaged, suppliedSummary]);
+
+  useEffect(() => {
+    if (selectionTouched.current) return;
+    setSelectedTypes(scanState.selectedTypes);
+  }, [scanState.selectedTypes]);
+
   const loadOptions = useCallback(async (serverId) => {
     if (!backendAvailable || !serverId) return;
     const generation = optionsGeneration.current + 1;
@@ -369,6 +416,9 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
         return;
       }
       setOptions(loaded);
+      setCounts(loaded.counts || { ...EMPTY_COUNTS });
+      setSummaryReady(true);
+      if (typeof onCounts === "function") onCounts(loaded.serverId, loaded.counts || { ...EMPTY_COUNTS });
       // Original options handler drops a selected Resource/Monster name that is no longer offered.
       setResourceNameKey((current) => !current || loaded.names.resource.some((item) => item.key === current) ? current : "");
       setMonsterNameKey((current) => !current || loaded.names.monster.some((item) => item.key === current) ? current : "");
@@ -382,7 +432,7 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
     } catch (error) {
       if (generation === optionsGeneration.current) setQueryError(errorText(error));
     }
-  }, [backendAvailable, mapApi]);
+  }, [backendAvailable, mapApi, onCounts]);
 
   const refreshSummary = useCallback(async () => {
     if (!backendAvailable) return;
@@ -390,7 +440,7 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
     try {
       const summary = await mapApi.summary();
       if (generation !== summaryGeneration.current) return;
-      setScanState(summary.scanState);
+      commitScanState(summary.scanState);
       setScanStateAvailable(true);
       setCounts(summary.counts);
       setSummaryReady(true);
@@ -399,18 +449,14 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
         setSelectedTypes(summary.scanState.selectedTypes);
         setSpeed(summary.scanState.scanMode);
       }
-      if (summary.serverId > 0 && summary.serverId === dataServerIdRef.current) {
-        await loadOptions(summary.serverId);
-      }
-      if (generation !== summaryGeneration.current) return;
     } catch (error) {
       if (generation !== summaryGeneration.current) return;
       setScanError(errorText(error));
     }
-  }, [backendAvailable, loadOptions, mapApi]);
+  }, [backendAvailable, commitScanState, mapApi]);
 
   useEffect(() => {
-    if (!backendAvailable) return undefined;
+    if (externallyManaged || !backendAvailable) return undefined;
     let closed = false;
     previousReading.current = scanState.isReading;
     const unsubscribe = mapApi.listenScanStatus((next) => {
@@ -418,7 +464,7 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
       summaryGeneration.current++;
       const wasReading = previousReading.current;
       previousReading.current = next.isReading;
-      setScanState(next);
+      commitScanState(next);
       setScanStateAvailable(true);
       setBrowseServerId(next.serverId > 0 ? next.serverId : 0);
       if (wasReading && !next.isReading) refreshSummary();
@@ -433,7 +479,7 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
     };
   // scanState is deliberately event-owned after the first subscription.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [backendAvailable, mapApi, refreshSummary]);
+  }, [backendAvailable, commitScanState, externallyManaged, mapApi, refreshSummary]);
 
   useEffect(() => {
     if (scanState.serverId === dataServerId) return;
@@ -451,8 +497,12 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
     setTotal(0);
     setLoading(dataServerId > 0);
     setQueryError("");
-    if (backendAvailable && dataServerId > 0) loadOptions(dataServerId);
-  }, [backendAvailable, dataServerId, loadOptions]);
+  }, [dataServerId]);
+
+  useEffect(() => {
+    if (!backendAvailable || dataServerId <= 0) return undefined;
+    loadOptions(dataServerId);
+  }, [backendAvailable, dataServerId, loadOptions, optionsRevision]);
 
   // Original `rr`: the query uses the keyword of the render that invoked it; typing alone never searches.
   function runSearch(requestedPage = page) {
@@ -540,7 +590,10 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
   useEffect(() => {
     const wasReading = previousRowsReading.current;
     previousRowsReading.current = scanState.isReading;
-    if (wasReading && !scanState.isReading) setSearchRevision((value) => value + 1);
+    if (wasReading && !scanState.isReading) {
+      setSearchRevision((value) => value + 1);
+      setOptionsRevision((value) => value + 1);
+    }
   }, [scanState.isReading]);
 
   useEffect(() => {
@@ -605,7 +658,7 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
       const next = await mapApi.start(selectedTypes, speed);
       summaryGeneration.current++;
       previousReading.current = next.isReading;
-      setScanState(next);
+      commitScanState(next);
       setScanStateAvailable(true);
       if (next.serverId > 0) setBrowseServerId(next.serverId);
     } catch (error) {
@@ -619,10 +672,10 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
       const next = await mapApi.stop();
       summaryGeneration.current++;
       previousReading.current = next.isReading;
-      setScanState(next);
+      commitScanState(next);
       setScanStateAvailable(true);
       if (next.serverId > 0) setBrowseServerId(next.serverId);
-      await refreshSummary();
+      if (!externallyManaged) await refreshSummary();
     } catch (error) {
       setScanError(errorText(error));
     }
@@ -636,9 +689,10 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
       summaryGeneration.current++;
       optionsGeneration.current++;
       searchGeneration.current += 1;
-      setScanState(next);
+      commitScanState(next);
       setScanStateAvailable(true);
       setCounts({ ...EMPTY_COUNTS });
+      if (typeof onCounts === "function") onCounts(next.serverId, { ...EMPTY_COUNTS });
       setSummaryReady(true);
       setOptions(null);
       setAlliance("all");
@@ -656,7 +710,7 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
       setDispatchSelection({});
       setTruckSelection({});
       setSearchRevision((value) => value + 1);
-      if (backendAvailable && next.serverId > 0 && next.serverId === dataServerIdRef.current) loadOptions(next.serverId);
+      setOptionsRevision((value) => value + 1);
     } catch (error) {
       setScanError(errorText(error));
     }

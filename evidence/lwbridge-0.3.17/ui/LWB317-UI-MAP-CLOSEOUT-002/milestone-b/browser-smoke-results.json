@@ -1,0 +1,36 @@
+{
+  "status": "PASS",
+  "scope": "Offline preview Map smoke only; no native provider or gameplay action.",
+  "server": 321,
+  "states": [
+    {
+      "locale": "en",
+      "theme": "light",
+      "previewState": "map-city",
+      "heading": "World Map Data",
+      "counts": ["52", "53", "54", "55", "56", "57", "58", "59", "0"],
+      "renderedRows": 50,
+      "consoleErrors": 0,
+      "consoleWarnings": 0,
+      "screenshot": "screenshots/map-city-en-light.png",
+      "screenshotSha256": "4bb9f1816ead76335375ab3415fbf27366860055e7651a1fb6d3daef7350eca7"
+    },
+    {
+      "locale": "ja",
+      "theme": "dark",
+      "previewState": "map-city",
+      "heading": "世界地図データ",
+      "counts": ["52", "53", "54", "55", "56", "57", "58", "59", "0"],
+      "renderedRows": 50,
+      "consoleErrors": 0,
+      "consoleWarnings": 0,
+      "screenshot": "screenshots/map-city-ja-dark.png",
+      "screenshotSha256": "ae4afb7358f78a80cc7cce4c68959ecc928675c8f140492fee8cdd4e83638141"
+    }
+  ],
+  "notes": [
+    "Both connected-browser DOM inspections showed the expected locale/theme, server 321, all nine Map tab counts and 50 City rows.",
+    "Captured console traffic contained only Vite connection/debug and React DevTools informational messages.",
+    "The preview fixture's disconnected-status sentence remains English in the Japanese state; this pre-existing fixture text is outside refresh-ownership scope."
+  ]
+}

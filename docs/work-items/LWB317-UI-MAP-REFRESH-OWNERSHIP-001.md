@@ -1,6 +1,6 @@
 # LWB317-UI-MAP-REFRESH-OWNERSHIP-001 — medium continuation
 
-Status: ASSIGNED by project lead, owner manual relay. Complete only the interrupted summary/options ownership milestone. Do not resume all of MAP-CLOSEOUT-002.
+Status: AWAITING_REVIEW. The interrupted summary/options ownership milestone is complete and pushed as one bounded delivery; project lead decides acceptance. MAP-CLOSEOUT-002 remains PARTIAL because Auto implementation is separate.
 
 ## Start and context
 
@@ -36,3 +36,31 @@ Keep continuation evidence in CLOSEOUT-002/milestone-b or a clearly named child 
 Commit only the finished B code/evidence/docs, push to origin/research/offline-controller and verify the direct remote SHA. No fixed time block. Stop when this medium unit passes; do not begin Auto or another milestone. If blocked, save a coherent checkpoint with the exact remaining case.
 
 Final report: AWAITING_REVIEW, changes, actual App/panel proof and distinguishing results, regression/build/browser checks, evidence/review paths, exact commit/remote SHA, protected-WIP status, and precise remaining limitations. Project lead decides acceptance.
+
+## Delivery checkpoint — 2026-10-03
+
+The saved App/Map/preview integration was retained and completed. Exact 0.3.17
+source confirms one parent summary producer/bootstrap/listener/completion refresh
+and connected five-second poll, with panel options keyed by data server plus the
+options revision. A narrow correction now clears panel count readiness when its
+controlled parent summary is cleared or no longer matches the data server; the
+legacy/uncontrolled path remains unchanged.
+
+`CLOSEOUT-002/milestone-b/check-refresh-ownership.mjs` now executes the actual
+`App.jsx` lifecycle and the actual controlled `MapDataPage.jsx` boundary with an
+interval+timeout clock. The immutable `123459d` baseline demonstrates child
+summary/listener ownership; current controlled panel requests summary/listener
+zero times. Parent poll overlap, offline/reconnect, completion acknowledgement,
+profile replacement, deferred success/rejection and unmount fencing pass. Panel
+progress is rows-only; completion is rows+options; mount-already-reading then
+completion refreshes options once. PM-027 retains `[321,322,321]`; focused delayed
+Clear retains `[322,321]`.
+
+Focused header, R1, refresh-feedback, request-lifetime and current interactions
+checks pass, as do canonical check/build/package. Historical fixed extractors that
+assume older component shapes are recorded as stale rather than rewritten; the
+new/current replay covers their affected refresh/navigation boundaries. Saved
+offline browser evidence covers en/light and ja/dark at server 321 with zero
+console warning/error. See
+`docs/reviews/2026-10-03-LWB317-UI-MAP-REFRESH-OWNERSHIP-001.md` and
+`evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-CLOSEOUT-002/milestone-b/`.

@@ -1,9 +1,9 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import offlineDot from "./assets/dot-offline.png";
 import onlineDot from "./assets/dot-online.png";
 import { backendBridge } from "./backendBridge.js";
 import { LANGUAGES, useI18n } from "./i18n.jsx";
-import { connectionState, createMapApi } from "./mapBackend.js";
+import { DEFAULT_SCAN_STATE, connectionState, createMapApi } from "./mapBackend.js";
 import { NavIcon } from "./NavIcon.jsx";
 import { PageForRoute } from "./Pages.jsx";
 import { initialRouteKey, routes } from "./routes.js";
@@ -57,12 +57,16 @@ export function App() {
   const [gameRootError, setGameRootError] = useState("");
   const [gameActionError, setGameActionError] = useState("");
   const [currentServerId, setCurrentServerId] = useState(0);
-  const [mapRuntime, setMapRuntime] = useState({ isReading: false, homeServerId: 0, seasonServerIds: [], truckMatchServerIds: [] });
+  const [mapRuntime, setMapRuntime] = useState(() => ({ ...DEFAULT_SCAN_STATE }));
+  const [mapSummary, setMapSummary] = useState(null);
   const [serverTarget, setServerTarget] = useState("");
   const [serverJumpBusy, setServerJumpBusy] = useState(0);
   const [serverJumpError, setServerJumpError] = useState("");
   const [serverHistory, setServerHistory] = useState([]);
   const [connectionError, setConnectionError] = useState("");
+  const mapReadingRef = useRef(false);
+  const mapRuntimeRef = useRef({ ...DEFAULT_SCAN_STATE });
+  const mapSummaryGeneration = useRef(0);
 
   useEffect(() => {
     if (backendBridge.mode !== "preview") return;
@@ -75,21 +79,50 @@ export function App() {
     setGameRootError("");
   }, []);
 
+  const refreshMapSummary = useCallback(async () => {
+    if (!backendBridge.available) return null;
+    const generation = mapSummaryGeneration.current + 1;
+    mapSummaryGeneration.current = generation;
+    const profileId = selectedProfileId;
+    const summary = await mapApi.summary();
+    if (generation !== mapSummaryGeneration.current || profileId !== backendBridge.profileId) return summary;
+    setMapSummary(summary);
+    mapReadingRef.current = summary.scanState?.isReading === true;
+    mapRuntimeRef.current = summary.scanState;
+    setMapRuntime(summary.scanState);
+    setCurrentServerId(summary.scanState?.serverId > 0 ? summary.scanState.serverId : 0);
+    return summary;
+  }, [selectedProfileId]);
+
+  const acknowledgeMapScan = useCallback((scan) => {
+    if (!scan) return;
+    const wasReading = mapReadingRef.current;
+    mapReadingRef.current = scan.isReading === true;
+    mapRuntimeRef.current = scan;
+    setCurrentServerId(scan.serverId > 0 ? scan.serverId : 0);
+    setMapRuntime(scan);
+    setMapSummary((current) => current?.serverId === scan.serverId ? { ...current, scanState: scan } : current);
+    if (wasReading && !scan.isReading) refreshMapSummary().catch(() => {});
+  }, [refreshMapSummary]);
+
+  const acknowledgeMapCounts = useCallback((serverId, counts) => {
+    setMapSummary((current) => {
+      if (current?.serverId === serverId) return { ...current, counts };
+      if (mapRuntimeRef.current?.serverId === serverId) return { serverId, counts, scanState: mapRuntimeRef.current };
+      return current;
+    });
+  }, []);
+
   const refreshStatus = useCallback(async () => {
     if (!backendBridge.available) return;
-    const [statusResult, proxyResult, scanResult, recoveryResult, configResult] = await Promise.allSettled([
+    const [statusResult, proxyResult, recoveryResult, configResult] = await Promise.allSettled([
       mapApi.readStatus(),
       mapApi.readProxyStatus(),
-      mapApi.scanStatus(),
       backendBridge.invoke("game_recovery_status", backendBridge.profileId ? { profileId: backendBridge.profileId } : {}),
       backendBridge.invoke("local_config_get", {}),
     ]);
     if (statusResult.status === "fulfilled") setRuntimeStatus(statusResult.value);
     if (proxyResult.status === "fulfilled") setProxyStatus(proxyResult.value);
-    if (scanResult.status === "fulfilled" && scanResult.value.serverId > 0) {
-      setCurrentServerId(scanResult.value.serverId);
-    }
-    if (scanResult.status === "fulfilled") setMapRuntime(scanResult.value);
     if (recoveryResult.status === "fulfilled") setGameRecoveryStatus(recoveryResult.value);
     if (configResult.status === "fulfilled") setLocalConfig(configResult.value);
     if (statusResult.status === "rejected" || proxyResult.status === "rejected") {
@@ -131,10 +164,7 @@ export function App() {
       if (!closed) setRuntimeStatus(status);
     });
     const unsubscribeScan = mapApi.listenScanStatus((scan) => {
-      if (!closed) {
-        if (scan.serverId > 0) setCurrentServerId(scan.serverId);
-        setMapRuntime((current) => ({ ...current, ...scan }));
-      }
+      if (!closed) acknowledgeMapScan(scan);
     });
     refreshStatus();
     const timer = window.setInterval(refreshStatus, 5000);
@@ -144,7 +174,17 @@ export function App() {
       unsubscribeStatus();
       unsubscribeScan();
     };
-  }, [refreshStatus]);
+  }, [acknowledgeMapScan, refreshStatus]);
+
+  useEffect(() => {
+    if (!backendBridge.available || !selectedProfileId) return undefined;
+    mapReadingRef.current = false;
+    mapRuntimeRef.current = { ...DEFAULT_SCAN_STATE };
+    setMapRuntime({ ...DEFAULT_SCAN_STATE });
+    setMapSummary(null);
+    refreshMapSummary().catch(() => {});
+    return () => { mapSummaryGeneration.current += 1; };
+  }, [refreshMapSummary, selectedProfileId]);
 
   useEffect(() => {
     if (!backendBridge.available) return undefined;
@@ -162,6 +202,33 @@ export function App() {
     ? "unavailable"
     : connectionState(runtimeStatus, proxyStatus, backendBridge.mode);
   const online = bridgeState === "connected";
+
+  useEffect(() => {
+    if (!online || !backendBridge.available) return undefined;
+    let closed = false;
+    let polling = false;
+    const poll = async () => {
+      if (closed || polling) return;
+      polling = true;
+      try {
+        await refreshMapSummary();
+      } catch {
+        // The reference parent logs summary failures without replacing the current Map state.
+      } finally {
+        polling = false;
+      }
+    };
+    poll();
+    const timer = window.setInterval(poll, 5000);
+    return () => {
+      closed = true;
+      window.clearInterval(timer);
+    };
+  }, [online, refreshMapSummary]);
+
+  useEffect(() => {
+    if (activeRoute === "map-data" && backendBridge.available) refreshMapSummary().catch(() => {});
+  }, [activeRoute, refreshMapSummary]);
 
   const updateAutoLaunch = useCallback(async (value) => {
     if (!backendBridge.available) return;
@@ -235,12 +302,13 @@ export function App() {
       setServerTarget("");
       setServerJumpOpen(false);
       await refreshStatus();
+      await refreshMapSummary();
     } catch {
       setServerJumpError("Action failed");
     } finally {
       setServerJumpBusy(0);
     }
-  }, [mapRuntime.isReading, online, refreshStatus, serverHistory]);
+  }, [mapRuntime.isReading, online, refreshMapSummary, refreshStatus, serverHistory]);
 
   const stateText = {
     connected: t("status.connected"),
@@ -396,6 +464,10 @@ export function App() {
             backendAvailable={backendBridge.available}
             online={online}
             currentServerId={currentServerId}
+            scanState={mapRuntime}
+            summary={mapSummary}
+            onState={acknowledgeMapScan}
+            onCounts={acknowledgeMapCounts}
             previewState={backendBridge.mode === "preview" ? new URLSearchParams(window.location.search).get("previewState") || "" : ""}
             homeState={{
               rootResolved: gameRootStatus !== null,
