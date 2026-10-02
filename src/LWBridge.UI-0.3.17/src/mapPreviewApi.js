@@ -183,8 +183,8 @@ function fixtureSummary() {
   });
 }
 
-function fixtureOptions() {
-  const cities = FIXTURE_ROWS.city;
+function fixtureOptions(fixtureRows = FIXTURE_ROWS) {
+  const cities = fixtureRows.city;
   const countBy = (rows, field) => Object.entries(rows.reduce((counts, row) => { const key = String(row[field] ?? ""); counts[key] = (counts[key] || 0) + 1; return counts; }, {}));
   return normalizeOptions({
     serverId: FIXTURE_SERVER_ID,
@@ -192,13 +192,28 @@ function fixtureOptions() {
     alliances: countBy(cities.filter((row) => row.allianceName), "allianceName").map(([name, count]) => ({ name, count })),
     noAllianceCount: cities.filter((row) => !row.allianceName).length,
     names: {
-      resource: countBy(FIXTURE_ROWS.resource, "resourceNameKey").map(([key, count]) => ({ key, count })),
-      monster: countBy(FIXTURE_ROWS.monster, "monsterNameKey").map(([key, count]) => ({ key, count })),
+      resource: countBy(fixtureRows.resource, "resourceNameKey").map(([key, count]) => ({ key, count })),
+      monster: countBy(fixtureRows.monster, "monsterNameKey").map(([key, count]) => ({ key, count })),
     },
     dispatchLevels: [5, 6, 7, 8],
     rewardItems: { truck: [{ key: "fixture-reward", name: "Fixture Reward" }, { key: "fixture-medal", name: "Fixture Medal" }], railway: [{ key: "fixture-cargo", name: "Fixture Cargo" }, { key: "fixture-supply", name: "Fixture Supply" }] },
-    treasureTypes: [{ key: 2, name: "Fixture Lucky Treasure" }, { key: 1, name: "Fixture Radar Treasure" }],
+    treasureTypes: [
+      { key: 2, treasureType: 2, suppliesType: 0, treasureNameKey: "Fixture Lucky Treasure", name: "Fixture Lucky Treasure", count: 28 },
+      { key: 1, treasureType: 1, suppliesType: 0, treasureNameKey: "Fixture Radar Treasure", name: "Fixture Radar Treasure", count: 31 },
+    ],
   });
+}
+
+function filterLifecycleFixtureRows() {
+  const specialCities = [
+    { ...baseRow("city", 901), ownerUid: "fixture-sentinel-none", ownerName: "Sentinel Alliance none", allianceName: "none", level: 31, health: 9_100_000, marked: false },
+    { ...baseRow("city", 902), ownerUid: "fixture-sentinel-all", ownerName: "Sentinel Alliance all", allianceName: "all", level: 32, health: 9_200_000, marked: false },
+    { ...baseRow("city", 903), ownerUid: "fixture-uri-alliance", ownerName: "URI Alliance Commander", allianceName: "A/B 東京 & %", level: 33, health: 9_300_000, marked: false },
+  ];
+  return Object.fromEntries(MAP_KIND_KEYS.map((kind) => [
+    kind,
+    kind === "city" ? [...specialCities, ...FIXTURE_ROWS.city] : FIXTURE_ROWS[kind],
+  ]));
 }
 
 const cache = new Map();
@@ -250,13 +265,13 @@ export function getMapPreviewProvider(bridgeMode, previewState) {
 
   const summary = fixtureSummary();
   const tableTime = Date.now();
-  const tableRows = previewState === "map-row-actions" ? rowActionFixtureRows(tableTime) : previewState === "map-treasure-checking" ? treasureCheckingFixtureRows(tableTime) : previewState === "map-table-states" || previewState.startsWith("map-actions-") ? tableStateFixtureRows(tableTime) : null;
+  const tableRows = previewState === "map-filter-lifecycle" ? filterLifecycleFixtureRows() : previewState === "map-row-actions" ? rowActionFixtureRows(tableTime) : previewState === "map-treasure-checking" ? treasureCheckingFixtureRows(tableTime) : previewState === "map-table-states" || previewState.startsWith("map-actions-") ? tableStateFixtureRows(tableTime) : null;
   const plunderFixture = plunderFixtureFor(previewState, tableTime) || { dispatchJobs: [], truckJobs: [], online: null, busyKey: "" };
   const api = {
     profileId: "preview-map-profile",
     previewFixture: true,
     summary: async () => summary,
-    dataOptions: async () => fixtureOptions(),
+    dataOptions: async () => fixtureOptions(tableRows || FIXTURE_ROWS),
     search: async (kind, query = {}) => {
       if (previewState === "map-loading") return new Promise(() => {});
       if (previewState === "map-error") {

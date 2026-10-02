@@ -39,8 +39,6 @@ const DEFAULT_SORTS = Object.freeze(
   Object.fromEntries(MAP_KIND_KEYS.map((kind) => [kind, [{ sortBy: "updatedAt", sortOrder: "desc" }]])),
 );
 const AUTO_DEFAULT_TYPES = ["truck", "railway", "dispatch", "ghost", "treasure"];
-const INCLUDE_FOREIGN_RADAR_STORAGE_KEY = "lwbridge.mapIncludeForeignRadarTreasures";
-const LUCKY_TREASURE_STORAGE_KEY = "lwbridge.mapLuckyTreasurePriority";
 const SCAN_TYPE_LABEL_KEYS = Object.freeze({
   city: "map.playerCity",
   resource: "map.resourcePoint",
@@ -62,19 +60,6 @@ const TAB_LABEL_KEYS = Object.freeze({
   treasure: "map.treasure",
   scheduledPlunder: "map.scheduledPlunder",
 });
-
-function allianceFilterValue(name) {
-  return `name:${encodeURIComponent(name)}`;
-}
-
-function decodeAllianceFilter(value) {
-  if (!String(value || "").startsWith("name:")) return "";
-  try {
-    return decodeURIComponent(String(value).slice(5));
-  } catch {
-    return "";
-  }
-}
 
 function normalizeAutoConfig(value) {
   const source = value && typeof value === "object" ? value : {};
@@ -238,7 +223,6 @@ const PREVIEW_TAB_BY_STATE = Object.freeze({
   "map-dispatch": "dispatch",
   "map-ghost": "ghost",
   "map-treasure": "treasure",
-  "map-filter-lifecycle": "city",
   "map-table-states": "treasure",
   "map-treasure-checking": "treasure",
   "map-row-actions": "truck",
@@ -279,12 +263,8 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
   const [qualityByKind, setQualityByKind] = useState({});
   const [itemKeyByKind, setItemKeyByKind] = useState({});
   const [plunderableOnlyByKind, setPlunderableOnlyByKind] = useState({});
-  const [includeForeignRadarTreasures, setIncludeForeignRadarTreasures] = useState(
-    () => window.localStorage.getItem(INCLUDE_FOREIGN_RADAR_STORAGE_KEY) === "true",
-  );
-  const [luckyFirst, setLuckyFirst] = useState(
-    () => window.localStorage.getItem(LUCKY_TREASURE_STORAGE_KEY) !== "false",
-  );
+  const [includeForeignRadarTreasures, setIncludeForeignRadarTreasures] = useState(false);
+  const [luckyFirst, setLuckyFirst] = useState(false);
   const [minLevel, setMinLevel] = useState("");
   // Recovered ownership: Dispatch/Ghost and Truck selections are separate maps of `${serverId}:${uuid}` -> row payload.
   const [dispatchSelection, setDispatchSelection] = useState({});
@@ -326,7 +306,6 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
   const selectionTouched = useRef(false);
   const previousReading = useRef(false);
   const summaryGeneration = useRef(0);
-  const optionsGeneration = useRef(0);
   const searchGeneration = useRef(0);
   const tabViewCache = useRef(new Map());
   const dataServerIdRef = useRef(currentServerId);
@@ -343,42 +322,20 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
   }, [speed]);
 
   useEffect(() => {
-    window.localStorage.setItem(INCLUDE_FOREIGN_RADAR_STORAGE_KEY, String(includeForeignRadarTreasures));
-  }, [includeForeignRadarTreasures]);
-
-  useEffect(() => {
-    window.localStorage.setItem(LUCKY_TREASURE_STORAGE_KEY, String(luckyFirst));
-  }, [luckyFirst]);
-
-  useEffect(() => {
     autoConfigRef.current = autoConfig;
     window.localStorage.setItem(autoStorageKey, JSON.stringify(autoConfig));
   }, [autoConfig, autoStorageKey]);
 
   const loadOptions = useCallback(async (serverId) => {
     if (!backendAvailable || !serverId) return;
-    const generation = optionsGeneration.current + 1;
-    optionsGeneration.current = generation;
     try {
       const loaded = await mapApi.dataOptions(serverId);
-      if (generation !== optionsGeneration.current) return;
-      if (loaded.serverId !== serverId) {
-        setBrowseServerId(loaded.serverId);
-        return;
-      }
       setOptions(loaded);
       // Original options handler drops a selected Resource/Monster name that is no longer offered.
       setResourceNameKey((current) => !current || loaded.names.resource.some((item) => item.key === current) ? current : "");
       setMonsterNameKey((current) => !current || loaded.names.monster.some((item) => item.key === current) ? current : "");
-      setAlliance((current) => {
-        if (current === "none") return loaded.noAllianceCount > 0 ? current : "all";
-        const name = decodeAllianceFilter(current);
-        return !name || loaded.alliances.some((item) => item.name === name) ? current : "all";
-      });
-      setMinLevel((current) => !current || loaded.dispatchLevels.includes(Number(current)) ? current : "");
-      setTreasureType((current) => !current || loaded.treasureTypes.some((item) => item.key === current) ? current : "");
     } catch (error) {
-      if (generation === optionsGeneration.current) setQueryError(errorText(error));
+      setQueryError(errorText(error));
     }
   }, [backendAvailable, mapApi]);
 
@@ -396,7 +353,7 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
         setSelectedTypes(summary.scanState.selectedTypes);
         setSpeed(summary.scanState.scanMode);
       }
-      if (summary.serverId > 0 && summary.serverId === dataServerIdRef.current) {
+      if (summary.serverId > 0) {
         await loadOptions(summary.serverId);
       }
       if (generation !== summaryGeneration.current) return;
@@ -425,7 +382,6 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
     const timer = window.setInterval(refreshSummary, 5000);
     return () => {
       closed = true;
-      optionsGeneration.current += 1;
       window.clearInterval(timer);
       unsubscribe();
     };
@@ -436,7 +392,6 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
   useEffect(() => {
     if (dataServerIdRef.current === dataServerId) return;
     dataServerIdRef.current = dataServerId;
-    optionsGeneration.current += 1;
     searchGeneration.current += 1;
     tabViewCache.current.clear();
     setPage(1);
@@ -444,8 +399,7 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
     setTotal(0);
     setLoading(dataServerId > 0);
     setQueryError("");
-    if (backendAvailable && dataServerId > 0) loadOptions(dataServerId);
-  }, [backendAvailable, dataServerId, loadOptions]);
+  }, [dataServerId]);
 
   // Original `rr`: the query uses the keyword of the render that invoked it; typing alone never searches.
   function runSearch(requestedPage = page) {
@@ -464,20 +418,13 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
     if (tab === "monster" && monsterNameKey) query.monsterNameKey = monsterNameKey;
     if (tab === "city") {
       if (alliance === "none") query.withoutAlliance = true;
-      else {
-        const allianceName = decodeAllianceFilter(alliance);
-        if (allianceName) query.alliance = allianceName;
-      }
+      else if (alliance !== "all") query.alliance = alliance;
       if (markedOnly) query.markedOnly = true;
     }
     if (tab === "treasure") {
-      const selectedTreasureType = options?.treasureTypes?.find((item) => item.key === treasureType);
-      if (selectedTreasureType) {
-        query.treasureType = selectedTreasureType.treasureType;
-        query.suppliesType = selectedTreasureType.suppliesType;
-      }
-      query.includeForeignRadarTreasures = includeForeignRadarTreasures;
-      query.luckyFirst = luckyFirst;
+      if (treasureType) query.treasureType = treasureType;
+      if (includeForeignRadarTreasures) query.includeForeignRadarTreasures = true;
+      if (luckyFirst) query.luckyFirst = true;
     }
     if (tab === "dispatch" || tab === "ghost" || tab === "truck" || tab === "railway") {
       if (completionStatus && (tab === "dispatch" || tab === "ghost")) query.completionStatus = completionStatus;
@@ -598,19 +545,10 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
     try {
       const next = await mapApi.clear(dataServerId);
       summaryGeneration.current++;
-      optionsGeneration.current++;
-      searchGeneration.current += 1;
       setScanState(next);
       setCounts({ ...EMPTY_COUNTS });
-      setSummaryReady(true);
       setOptions(null);
-      setAlliance("all");
-      setResourceNameKey("");
-      setMonsterNameKey("");
-      setMinLevel("");
-      setItemKeyByKind({});
-      setTreasureType("");
-      setBrowseServerId(next.serverId);
+      searchGeneration.current += 1;
       tabViewCache.current.clear();
       setRows([]);
       setTotal(0);
@@ -618,8 +556,8 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
       setLoading(false);
       setDispatchSelection({});
       setTruckSelection({});
+      await refreshSummary();
       setSearchRevision((value) => value + 1);
-      if (backendAvailable && next.serverId > 0) loadOptions(next.serverId);
     } catch (error) {
       setScanError(errorText(error));
     }
@@ -708,11 +646,10 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
     setActionBusy("export");
     setQueryError("");
     try {
-      const allianceName = decodeAllianceFilter(alliance);
       await mapApi.exportCities({
         serverId: dataServerId,
         keyword,
-        alliance: allianceName || undefined,
+        alliance: alliance !== "all" && alliance !== "none" ? alliance : undefined,
         withoutAlliance: alliance === "none" || undefined,
         markedOnly: markedOnly || undefined,
         page: 1,
@@ -1028,21 +965,16 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
                 <select aria-label={t("map.allianceFilter")} value={alliance} onChange={(event) => { setAlliance(event.target.value); setPage(1); }}>
                   <option value="all">{t("map.allAlliances")}</option>
                   {(options?.noAllianceCount || 0) > 0 ? <option value="none">{t("map.noAlliance")} ({options.noAllianceCount})</option> : null}
-                  {(options?.alliances || []).map((item) => <option key={item.name} value={allianceFilterValue(item.name)}>{item.name} ({item.count})</option>)}
+                  {(options?.alliances || []).map((item) => <option key={item.name} value={item.name}>{item.name} ({item.count})</option>)}
                 </select>
                 <label className="map-filter-field"><input type="checkbox" checked={markedOnly} onChange={(event) => { setMarkedOnly(event.target.checked); setPage(1); }} /> <span>{t("map.markedOnly")}</span></label>
               </>
             ) : null}
             {tab === "treasure" ? (
               <>
-                <select aria-label={t("map.treasureType")} value={treasureType === "" ? "" : String(treasureType)} onChange={(event) => {
-                  const value = event.target.value;
-                  const selected = (options?.treasureTypes || []).find((item) => String(item.key) === value);
-                  setTreasureType(value ? selected?.key ?? value : "");
-                  setPage(1);
-                }}>
+                <select aria-label={t("map.treasureType")} value={treasureType} onChange={(event) => { setTreasureType(event.target.value); setPage(1); }}>
                   <option value="">{t("map.allTreasureTypes")}</option>
-                  {(options?.treasureTypes || []).map((item) => <option key={item.key || item.value || item} value={String(item.key || item.value || item)}>{item.name || item.label || item.key || item.value || item}</option>)}
+                  {(options?.treasureTypes || []).map((item) => <option key={item.key || item.value || item} value={item.key || item.value || item}>{item.name || item.label || item.key || item.value || item}</option>)}
                 </select>
                 <label className="map-filter-field"><input type="checkbox" checked={includeForeignRadarTreasures} onChange={(event) => { setIncludeForeignRadarTreasures(event.target.checked); setPage(1); }} /><span>{t("map.showForeignRadarTreasures")}</span></label>
                 <label className="map-filter-field"><input type="checkbox" checked={luckyFirst} onChange={(event) => { setLuckyFirst(event.target.checked); setPage(1); }} /><span>{t("map.prioritizeLuckyTreasures")}</span></label>
