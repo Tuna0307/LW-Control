@@ -2,7 +2,20 @@
 
 **Target:** LWBridge 0.3.17  
 **Branch:** `research/offline-controller`  
-**Active scope:** UI parity / Map interactions and Scheduled Plunder presentation; no new native integration
+**Active scope:** UI parity / Map filter lifecycle; no new native integration
+
+## 2026-10-02 — next worker assignment
+
+`LWB317-UI-MAP-FILTER-LIFECYCLE-001` is **ASSIGNED; execution not confirmed**
+for manual owner relay. Read its work item under `docs/work-items/`. Recover and
+implement options validation, encoded alliance identity, successful Clear UI
+resets and Treasure defaults/storage/query fields, then verify the combination.
+Use accepted product 5b76ae8 and lead closeout 9d8fa4f as starting evidence; do
+not reset HEAD. Main worker may use two subagents with exclusive evidence/test
+ownership, completes all milestones, and returns AWAITING_REVIEW to the lead.
+This is UI implementation only; no native clear/scan/Treasure/gameplay work.
+PM-026 acceptance below remains valid for its prior focused scope. Historical
+evidence and protected AFK/scratch/screenshots stay unchanged.
 
 ## 2026-10-02 PM-026 — campaign complete and accepted
 
