@@ -1,6 +1,6 @@
 # LWB317-UI-MAP-REFRESH-OWNERSHIP-001 — medium continuation
 
-Status: AWAITING_REVIEW. The interrupted summary/options ownership milestone is complete and pushed as one bounded delivery; project lead decides acceptance. MAP-CLOSEOUT-002 remains PARTIAL because Auto implementation is separate.
+Status: COMPLETE / ACCEPTED for focused source/local UI scope, 2026-10-03. The lead reviewed cf75b4e's production diff and reran ownership/Clear, R1/PM-027, request lifetime, interactions, evidence and canonical checks. See 2026-10-03-LWB317-PM-MAP-AUTO-CONFIG-001-dispatch.md. Original pixels/native parity remain unaccepted. MAP-CLOSEOUT-002 stays PARTIAL until its separate Auto implementation is delivered.
 
 ## Start and context
 

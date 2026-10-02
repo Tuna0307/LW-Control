@@ -1,17 +1,17 @@
 # Current implementation/research handoff
 
-Current worker delivery, 2026-10-03: interrupted MAP-CLOSEOUT-002 remains PARTIAL / SPLIT. Independent review bbfc470 and lead case replay accept the two picker, scan-header and refresh-feedback units for focused source/local scope. MAP-REFRESH-OWNERSHIP-001 is now AWAITING_REVIEW: the saved App/Map summary-options ownership integration is completed with actual App/panel lifecycle proof, source-backed count-readiness correction, canonical build/package checks and saved en/light + ja/dark offline browser evidence. Auto contract recovery a6140b2 still has implementation deferred. Full UI/original pixels/native parity remains unaccepted. See the dated refresh-ownership review and campaign recovery review.
+Current lead decision, 2026-10-03: MAP-REFRESH-OWNERSHIP-001 at cf75b4e is accepted for focused source/local UI scope. The parent MAP-CLOSEOUT-002 stays PARTIAL. Continue only under LWB317-UI-MAP-AUTO-CONFIG-001 to complete Auto UI/configuration; reuse a6140b2 source recovery. One worker, no subagents. Native executor, gameplay and original pixel/global acceptance remain outside this assignment. See the dated Auto dispatch review.
 
 **Target:** LWBridge 0.3.17  
 **Branch:** `research/offline-controller`  
-**Active scope:** UI parity / Map header/row refresh/feedback and both pickers implemented; no new native integration
+**Active scope:** UI parity / complete Map Auto UI/configuration; no new native integration
 
 ## Current continuation — project-lead takeover checkpoint
 
 2026-10-03 REFRESH-FEEDBACK-001: row revision timer/completion cleanup, scan error
 priority/translation/start retirement and localized export busy/result behavior
 are implemented. Read its dated review, work item and evidence README.
-MAP-REFRESH-OWNERSHIP-001 is delivered AWAITING_REVIEW. The parent owns summary
+MAP-REFRESH-OWNERSHIP-001 is lead-accepted for focused scope. The parent owns summary
 bootstrap/listener/completion and the guarded five-second connected poll; the
 mounted panel owns options on data-server/options-revision triggers. Summary-only
 polling does not reload options. The executable actual-App/current-panel proof
@@ -19,8 +19,11 @@ covers overlap, offline/reconnect, profile replacement, deferred cleanup/unmount
 progress rows-only, completion rows/options/parent summary and mount-already-
 reading. PM-027 keeps `[321,322,321]`; the focused current Clear replay keeps
 `[322,321]`. Canonical checks/build/package and en/light + ja/dark offline browser
-smoke pass. Read the new dated review and milestone-B README before review.
-Auto implementation remains deferred; do not begin it from this checkpoint.
+smoke pass. Lead reruns of ownership, Clear, R1/PM-027, request lifetime,
+interactions, evidence and canonical package checks pass. Read the dated Auto
+dispatch review and milestone-B README. Continue Auto implementation only
+under the full AUTO-CONFIG-001 work item: exact helpers, App profile ownership,
+all controls and integrated evidence, sequentially with no subagents.
 Protected WIP and historical evidence remain preserved and unstaged.
 
 Previous header checkpoint:
@@ -57,7 +60,7 @@ pass. Fresh owned browser QA/saved screenshots cover en/light and ja/dark plus
 real Enter activation. Read its review, work item and evidence README.
 
 Historical note: no worker was assigned at that earlier checkpoint.
-Current assignment is MAP-CLOSEOUT-002 as recorded above.
+Current assignment is MAP-AUTO-CONFIG-001 as recorded above; do not restart the old CLOSEOUT-002 prompt.
 Independent picker peer review is a useful next checkpoint, not a worker approval
 requirement for starting unrelated work. Before implementation of a further gap,
 assign it explicitly: remaining scan/header/row-refresh timing and export/start

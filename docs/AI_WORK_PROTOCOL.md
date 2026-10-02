@@ -8,6 +8,10 @@ fresh worker chat, then verifies the returned files, evidence and checks before
 acceptance. Chat On Steroids collaboration requirements are retired; no connector
 setup or repair is required to continue. Existing scope and review rules apply.
 
+Owner direction, 2026-10-03: each worker works alone. Do not spawn subagents or
+delegate to another agent, including when an older assignment allowed it.
+Use sequential milestones and durable checkpoints for larger assignments.
+
 ## Roles
 
 ### Project lead
@@ -97,8 +101,9 @@ Commit:
 Recommended next task:
 ```
 
-## Parallelism rule
+## Single-worker rule
 
-Avoid two workers editing the same master file at the same time.
-
-Prefer splitting by evidence/workstream and letting the project lead integrate master status.
+Work sequentially within the assigned scope. Do not start subagents or another
+worker chat. The owner relays assignments; the project lead integrates results
+and makes acceptance decisions. Preserve historical evidence created by earlier
+subagents; its directory names do not authorize new delegation.

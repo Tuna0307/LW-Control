@@ -1,8 +1,8 @@
 # Project lead control sheet
 
-Current lead decision, 2026-10-03: interrupted MAP-CLOSEOUT-002 is PARTIAL / SPLIT. Independent review bbfc470 and lead case replay accept the two picker, scan-header and refresh-feedback units for focused source/local scope. Auto contract recovery a6140b2 passes 12 cases; implementation is deferred. Pending App/Map summary-options ownership code is uncommitted and NOT ACCEPTED; continue only under medium MAP-REFRESH-OWNERSHIP-001. Full UI/original pixels/native parity remains unaccepted. See the dated campaign recovery review.
+Current lead decision, 2026-10-03: MAP-REFRESH-OWNERSHIP-001 at cf75b4e is COMPLETE / ACCEPTED for focused source/local UI scope after lead diff, lifecycle, regression, evidence and package checks. The prior four Map units remain accepted for their focused scope. MAP-CLOSEOUT-002 remains PARTIAL; its remaining Auto UI/configuration implementation is assigned under LWB317-UI-MAP-AUTO-CONFIG-001, reusing a6140b2 source recovery. One worker, no subagents. Full UI/original pixels/native parity remains unaccepted. See the dated Auto dispatch review.
 
-Recovery update, 2026-10-03: interrupted CLOSEOUT-002 inspected. Four prior units accepted for focused source/local scope after independent-case replay; pending B stays unaccepted and Auto implementation deferred. Medium child OWNERSHIP-001 assigned. See dated recovery review.
+Recovery update, 2026-10-03: four prior Map units and completed ownership child are accepted for focused scope. Remaining Auto UI/configuration is assigned separately to one worker; the parent campaign stays PARTIAL. See dated Auto dispatch review.
 
 The main project lead owns integration and should keep this file small and current.
 
@@ -30,7 +30,7 @@ retirement task. Preserve its source as historical evidence.
 
 ## Current phase
 
-**UI parity — Map header/row refresh/feedback and both pickers implemented; peer review follow-up**
+**UI parity — Map refresh ownership accepted; complete Auto UI/configuration next**
 
 Earlier static UI baseline acceptance does not establish complete UI/UX parity.
 The current owner priority is UI reproduction before function integration.
@@ -49,8 +49,9 @@ the Map closeout awaits a separate independent acceptance review.
 
 | Work item / campaign | Owner | State | Scope |
 |---|---|---|---|
-| LWB317-UI-MAP-REFRESH-OWNERSHIP-001 | Returning worker, owner relay | ASSIGNED medium continuation | Finish and execute-test pending App/panel summary/options ownership only; no Auto/native work |
-| LWB317-UI-MAP-CLOSEOUT-002 | Interrupted worker | PARTIAL / SPLIT | A independent review lead-accepted for focused scope; C contract recovery only; B uncommitted and not accepted. Continue B under the medium child assignment |
+| LWB317-UI-MAP-AUTO-CONFIG-001 | Single worker, owner relay | ASSIGNED | Complete recovered Auto UI, helpers and profile-scoped frontend persistence; no subagents/native executor |
+| LWB317-UI-MAP-REFRESH-OWNERSHIP-001 | Returning worker, lead reviewed | COMPLETE / ACCEPTED for focused source/local scope | cf75b4e actual App/panel ownership, overlap/disposal/count reset, redirect/Clear and interaction/package replays pass |
+| LWB317-UI-MAP-CLOSEOUT-002 | Interrupted worker, split into children | PARTIAL / SPLIT | A and B accepted for focused scope; C source recovered, implementation assigned under AUTO-CONFIG-001 |
 | LWB317-UI-MAP-REFRESH-FEEDBACK-001 | Project lead takeover | COMPLETE / ACCEPTED for focused source/local scope | Row revision timing, scan error rendering/priority and export localized labels/result/busy; 45/19/11 checks pass. Full options/poll/native/pixels excluded |
 | LWB317-UI-MAP-SCAN-HEADER-001 | Project lead takeover | COMPLETE / ACCEPTED for focused source/local scope | Original timing/summary, stored-run matching, fractional progress and optional state; 270 comparisons/clock/fences/browser pass. Native timing/actions/pixels excluded |
 | LWB317-UI-MAP-GOODS-PICKER-001 | Project lead takeover | COMPLETE / ACCEPTED for focused source/local scope | Original Truck/Train details menu, strict raw keys/icon placeholders and close-after-change; 144 comparisons, actual parent query/sort and browser controls pass; native icons/pixels excluded |

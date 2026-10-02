@@ -1,6 +1,6 @@
 # Current project directive
 
-Current lead decision, 2026-10-03: interrupted MAP-CLOSEOUT-002 is PARTIAL / SPLIT. Independent review bbfc470 and lead case replay accept the two picker, scan-header and refresh-feedback units for focused source/local scope. Auto contract recovery a6140b2 passes 12 cases; implementation is deferred. Pending App/Map summary-options ownership code is uncommitted and NOT ACCEPTED; continue only under medium MAP-REFRESH-OWNERSHIP-001. Full UI/original pixels/native parity remains unaccepted. See the dated campaign recovery review.
+Current lead decision, 2026-10-03: MAP-REFRESH-OWNERSHIP-001 at cf75b4e is COMPLETE / ACCEPTED for focused source/local UI scope after lead diff, lifecycle, regression, evidence and package checks. The prior four Map units remain accepted for their focused scope. MAP-CLOSEOUT-002 remains PARTIAL; its remaining Auto UI/configuration implementation is assigned under LWB317-UI-MAP-AUTO-CONFIG-001, reusing a6140b2 source recovery. One worker, no subagents. Full UI/original pixels/native parity remains unaccepted. See the dated Auto dispatch review.
 
 ## Target
 

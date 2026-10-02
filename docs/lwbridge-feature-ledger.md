@@ -1,10 +1,10 @@
 # LWBridge 0.3.17 feature ledger
 
-Current lead decision, 2026-10-03: interrupted MAP-CLOSEOUT-002 is PARTIAL / SPLIT. Independent review bbfc470 and lead case replay accept the two picker, scan-header and refresh-feedback units for focused source/local scope. Auto contract recovery a6140b2 passes 12 cases; implementation is deferred. Pending App/Map summary-options ownership code is uncommitted and NOT ACCEPTED; continue only under medium MAP-REFRESH-OWNERSHIP-001. Full UI/original pixels/native parity remains unaccepted. See the dated campaign recovery review.
+Current lead decision, 2026-10-03: MAP-REFRESH-OWNERSHIP-001 at cf75b4e is COMPLETE / ACCEPTED for focused source/local UI scope after lead diff, lifecycle, regression, evidence and package checks. The prior four Map units remain accepted for their focused scope. MAP-CLOSEOUT-002 remains PARTIAL; its remaining Auto UI/configuration implementation is assigned under LWB317-UI-MAP-AUTO-CONFIG-001, reusing a6140b2 source recovery. One worker, no subagents. Full UI/original pixels/native parity remains unaccepted. See the dated Auto dispatch review.
 
 This ledger starts clean for 0.3.17.
 
-2026-10-03 recovery: four recent Map UI units receive focused source/local acceptance through agent-A review plus lead distinguishing-case replay. Uncommitted summary/options ownership remains PARTIAL; Auto findings establish recovered contracts only. See campaign recovery review and medium OWNERSHIP-001 assignment.
+2026-10-03 recovery: four recent Map UI units and completed summary/options ownership receive focused source/local acceptance. Auto findings establish recovered contracts only; implementation is assigned under AUTO-CONFIG-001. See the dated Auto dispatch review. Native/live status remains unchanged.
 
 Map row-refresh/scan-export feedback: REFRESH-FEEDBACK-001 implements the recovered frontend contract and validates it locally (45/19/11). No native provider/live status upgrade. Source locators and remaining options-request ownership gap are in its dated review/evidence packet.
 

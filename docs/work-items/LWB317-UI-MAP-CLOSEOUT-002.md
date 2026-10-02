@@ -1,6 +1,6 @@
 # LWB317-UI-MAP-CLOSEOUT-002 — worker assignment
 
-Status: PARTIAL / SPLIT after interrupted worker, 2026-10-03. A review completed; C source recovery completed but implementation deferred. Pending B continues ONLY under LWB317-UI-MAP-REFRESH-OWNERSHIP-001. Do not execute this whole original assignment again. See the dated lead recovery review.
+Status: PARTIAL / SPLIT, 2026-10-03. A is lead-accepted for focused scope. B is delivered at cf75b4e and lead-accepted for focused source/local scope. C source recovery is complete; implementation is now assigned ONLY under LWB317-UI-MAP-AUTO-CONFIG-001. Do not execute this whole original assignment again. See the dated recovery and Auto dispatch reviews.
 Project lead: the AI in the owner's lead chat. Return findings to that lead through committed files and the owner-relayed delivery report. Your review is a recommendation; project-lead acceptance is separate.
 
 ## Goal and context
@@ -29,7 +29,10 @@ Preserve these pre-existing unrelated paths byte-for-byte and unstaged:
 
 Use the protected-wip.json from MAP-REFRESH-FEEDBACK-001 as a starting guard; inventory and preserve actual additional WIP if present. Do not reset, clean, stash, stage broadly, rewrite historical evidence or force-push.
 
-## Parallel arrangement
+## Historical parallel arrangement — superseded
+
+The owner's 2026-10-03 direction prohibits new subagents. The following records
+the interrupted assignment's historical arrangement only; do not execute it.
 
 You may summon up to TWO subagents. This is authorized for this assignment.
 - Subagent A: independent review of Milestone A, counter-evidence and distinguishing cases. Initially read-only production files; write only its own review/evidence directory.

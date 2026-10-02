@@ -8,6 +8,11 @@ reviews returned work. The Chat On Steroids collaboration policy is retired;
 its mandatory delegation, model-selection and two-checkpoint requirements no
 longer apply. Follow the existing project evidence and review rules below.
 
+Owner direction, 2026-10-03: use one AI per assigned worker chat. Do not spawn
+subagents or delegate to other agents. This supersedes earlier work-item
+permission to use subagents. Complete larger assignments through sequential,
+coherent milestones; the owner continues to relay between worker and lead chats.
+
 ## 1. Current target
 
 The active product/research target is:
