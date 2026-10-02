@@ -47,6 +47,7 @@ the Map closeout awaits a separate independent acceptance review.
 
 | Work item / campaign | Owner | State | Scope |
 |---|---|---|---|
+| LWB317-UI-MAP-CLOSEOUT-002 | Returning worker, owner relay | ASSIGNED | Independent four-unit checkpoint; summary/options ownership; Auto Scan frontend configuration. Up to two subagents; UI only, no native executor |
 | LWB317-UI-MAP-REFRESH-FEEDBACK-001 | Project lead takeover | COMPLETE implementation / independent review follow-up | Row revision timing, scan error rendering/priority and export localized labels/result/busy; 45/19/11 checks pass. Full options/poll/native/pixels excluded |
 | LWB317-UI-MAP-SCAN-HEADER-001 | Project lead takeover | COMPLETE implementation / independent review follow-up | Original timing/summary, stored-run matching, fractional progress and optional state; 270 comparisons/clock/fences/browser pass. Native timing/actions/pixels excluded |
 | LWB317-UI-MAP-GOODS-PICKER-001 | Project lead takeover | COMPLETE implementation / independent review follow-up | Original Truck/Train details menu, strict raw keys/icon placeholders and close-after-change; 144 comparisons, actual parent query/sort and browser controls pass; native icons/pixels excluded |

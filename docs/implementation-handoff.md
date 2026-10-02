@@ -15,7 +15,11 @@ Next implementation is summary/options refresh ownership and query side effects:
 the source polls parent summary at five seconds while component options are
 revision-owned. Preserve accepted server redirect and delayed-Clear behavior.
 Returning worker can independently review header, both pickers and this unit.
-No active external assignment. Protected WIP and historical evidence preserved.
+Current external assignment: LWB317-UI-MAP-CLOSEOUT-002, dispatched by owner relay.
+Read its complete work-item prompt: review four lead units, correct summary/options
+ownership, recover Auto configuration UI; up to two subagents authorized.
+Lead should avoid concurrent edits to MapDataPage.jsx during that campaign.
+Protected WIP and historical evidence preserved.
 
 Previous header checkpoint:
 
@@ -50,7 +54,8 @@ filter/R1/navigation/integration/historical adapters and canonical build/package
 pass. Fresh owned browser QA/saved screenshots cover en/light and ja/dark plus
 real Enter activation. Read its review, work item and evidence README.
 
-No active external worker is assigned; owner will announce when it returns.
+Historical note: no worker was assigned at that earlier checkpoint.
+Current assignment is MAP-CLOSEOUT-002 as recorded above.
 Independent picker peer review is a useful next checkpoint, not a worker approval
 requirement for starting unrelated work. Before implementation of a further gap,
 assign it explicitly: remaining scan/header/row-refresh timing and export/start
