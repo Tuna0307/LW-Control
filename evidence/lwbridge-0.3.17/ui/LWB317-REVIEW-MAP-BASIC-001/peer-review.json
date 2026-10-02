@@ -1,0 +1,429 @@
+{
+  "recommendation": "ACCEPT focused source/local Map row correction",
+  "blockers": [],
+  "distinguishingCases": 41,
+  "cases": [
+    {
+      "language": "en",
+      "kind": "truck",
+      "test": "zero server and normalized march id",
+      "marchUuid": null,
+      "result": {
+        "text": "-",
+        "button": false,
+        "disabled": null
+      }
+    },
+    {
+      "language": "en",
+      "kind": "truck",
+      "test": "zero server and normalized march id",
+      "marchUuid": null,
+      "result": {
+        "text": "-",
+        "button": false,
+        "disabled": null
+      }
+    },
+    {
+      "language": "en",
+      "kind": "truck",
+      "test": "zero server and normalized march id",
+      "marchUuid": 0,
+      "result": {
+        "text": "-",
+        "button": false,
+        "disabled": null
+      }
+    },
+    {
+      "language": "en",
+      "kind": "truck",
+      "test": "zero server and normalized march id",
+      "marchUuid": "0",
+      "result": {
+        "text": "Following…",
+        "button": true,
+        "disabled": false
+      }
+    },
+    {
+      "language": "en",
+      "kind": "truck",
+      "test": "zero server and normalized march id",
+      "marchUuid": "\t\n ",
+      "result": {
+        "text": "-",
+        "button": false,
+        "disabled": null
+      }
+    },
+    {
+      "language": "en",
+      "kind": "truck",
+      "test": "zero server and normalized march id",
+      "marchUuid": " id ",
+      "result": {
+        "text": "Following…",
+        "button": true,
+        "disabled": false
+      }
+    },
+    {
+      "language": "en",
+      "kind": "railway",
+      "test": "zero server and normalized march id",
+      "marchUuid": null,
+      "result": {
+        "text": "-",
+        "button": false,
+        "disabled": null
+      }
+    },
+    {
+      "language": "en",
+      "kind": "railway",
+      "test": "zero server and normalized march id",
+      "marchUuid": null,
+      "result": {
+        "text": "-",
+        "button": false,
+        "disabled": null
+      }
+    },
+    {
+      "language": "en",
+      "kind": "railway",
+      "test": "zero server and normalized march id",
+      "marchUuid": 0,
+      "result": {
+        "text": "-",
+        "button": false,
+        "disabled": null
+      }
+    },
+    {
+      "language": "en",
+      "kind": "railway",
+      "test": "zero server and normalized march id",
+      "marchUuid": "0",
+      "result": {
+        "text": "Following…",
+        "button": true,
+        "disabled": false
+      }
+    },
+    {
+      "language": "en",
+      "kind": "railway",
+      "test": "zero server and normalized march id",
+      "marchUuid": "\t\n ",
+      "result": {
+        "text": "-",
+        "button": false,
+        "disabled": null
+      }
+    },
+    {
+      "language": "en",
+      "kind": "railway",
+      "test": "zero server and normalized march id",
+      "marchUuid": " id ",
+      "result": {
+        "text": "Following…",
+        "button": true,
+        "disabled": false
+      }
+    },
+    {
+      "language": "en",
+      "test": "source label and paired local selection",
+      "input": {
+        "serverId": 0,
+        "uuid": "",
+        "ownerName": "",
+        "allianceName": ""
+      },
+      "label": "Select , server 0",
+      "key": "truck:0:::"
+    },
+    {
+      "language": "en",
+      "test": "source label and paired local selection",
+      "input": {
+        "uuid": "123",
+        "ownerName": 0,
+        "allianceName": false
+      },
+      "label": "Select 123, server {server}",
+      "key": "truck:undefined:123"
+    },
+    {
+      "language": "en",
+      "test": "source label and paired local selection",
+      "input": {},
+      "label": "Select undefined, server {server}",
+      "key": "truck:undefined:::"
+    },
+    {
+      "language": "en",
+      "test": "source label and paired local selection",
+      "input": {
+        "serverId": 321,
+        "uuid": " 123 ",
+        "recordKey": "other",
+        "ownerName": "Owner"
+      },
+      "label": "Select Owner, server 321",
+      "key": "truck:321: 123 "
+    },
+    {
+      "language": "ja",
+      "kind": "truck",
+      "test": "zero server and normalized march id",
+      "marchUuid": null,
+      "result": {
+        "text": "-",
+        "button": false,
+        "disabled": null
+      }
+    },
+    {
+      "language": "ja",
+      "kind": "truck",
+      "test": "zero server and normalized march id",
+      "marchUuid": null,
+      "result": {
+        "text": "-",
+        "button": false,
+        "disabled": null
+      }
+    },
+    {
+      "language": "ja",
+      "kind": "truck",
+      "test": "zero server and normalized march id",
+      "marchUuid": 0,
+      "result": {
+        "text": "-",
+        "button": false,
+        "disabled": null
+      }
+    },
+    {
+      "language": "ja",
+      "kind": "truck",
+      "test": "zero server and normalized march id",
+      "marchUuid": "0",
+      "result": {
+        "text": "追跡中…",
+        "button": true,
+        "disabled": false
+      }
+    },
+    {
+      "language": "ja",
+      "kind": "truck",
+      "test": "zero server and normalized march id",
+      "marchUuid": "\t\n ",
+      "result": {
+        "text": "-",
+        "button": false,
+        "disabled": null
+      }
+    },
+    {
+      "language": "ja",
+      "kind": "truck",
+      "test": "zero server and normalized march id",
+      "marchUuid": " id ",
+      "result": {
+        "text": "追跡中…",
+        "button": true,
+        "disabled": false
+      }
+    },
+    {
+      "language": "ja",
+      "kind": "railway",
+      "test": "zero server and normalized march id",
+      "marchUuid": null,
+      "result": {
+        "text": "-",
+        "button": false,
+        "disabled": null
+      }
+    },
+    {
+      "language": "ja",
+      "kind": "railway",
+      "test": "zero server and normalized march id",
+      "marchUuid": null,
+      "result": {
+        "text": "-",
+        "button": false,
+        "disabled": null
+      }
+    },
+    {
+      "language": "ja",
+      "kind": "railway",
+      "test": "zero server and normalized march id",
+      "marchUuid": 0,
+      "result": {
+        "text": "-",
+        "button": false,
+        "disabled": null
+      }
+    },
+    {
+      "language": "ja",
+      "kind": "railway",
+      "test": "zero server and normalized march id",
+      "marchUuid": "0",
+      "result": {
+        "text": "追跡中…",
+        "button": true,
+        "disabled": false
+      }
+    },
+    {
+      "language": "ja",
+      "kind": "railway",
+      "test": "zero server and normalized march id",
+      "marchUuid": "\t\n ",
+      "result": {
+        "text": "-",
+        "button": false,
+        "disabled": null
+      }
+    },
+    {
+      "language": "ja",
+      "kind": "railway",
+      "test": "zero server and normalized march id",
+      "marchUuid": " id ",
+      "result": {
+        "text": "追跡中…",
+        "button": true,
+        "disabled": false
+      }
+    },
+    {
+      "language": "ja",
+      "test": "source label and paired local selection",
+      "input": {
+        "serverId": 0,
+        "uuid": "",
+        "ownerName": "",
+        "allianceName": ""
+      },
+      "label": "サーバー 0 の  を選択",
+      "key": "truck:0:::"
+    },
+    {
+      "language": "ja",
+      "test": "source label and paired local selection",
+      "input": {
+        "uuid": "123",
+        "ownerName": 0,
+        "allianceName": false
+      },
+      "label": "サーバー {server} の 123 を選択",
+      "key": "truck:undefined:123"
+    },
+    {
+      "language": "ja",
+      "test": "source label and paired local selection",
+      "input": {},
+      "label": "サーバー {server} の undefined を選択",
+      "key": "truck:undefined:::"
+    },
+    {
+      "language": "ja",
+      "test": "source label and paired local selection",
+      "input": {
+        "serverId": 321,
+        "uuid": " 123 ",
+        "recordKey": "other",
+        "ownerName": "Owner"
+      },
+      "label": "サーバー 321 の Owner を選択",
+      "key": "truck:321: 123 "
+    },
+    {
+      "mode": "native",
+      "state": "",
+      "key": ""
+    },
+    {
+      "mode": "native",
+      "state": "map-row-actions",
+      "key": ""
+    },
+    {
+      "mode": "native",
+      "state": "map-table-states",
+      "key": ""
+    },
+    {
+      "mode": "native-unavailable",
+      "state": "",
+      "key": ""
+    },
+    {
+      "mode": "native-unavailable",
+      "state": "map-row-actions",
+      "key": ""
+    },
+    {
+      "mode": "native-unavailable",
+      "state": "map-table-states",
+      "key": ""
+    },
+    {
+      "mode": "preview",
+      "state": "",
+      "key": ""
+    },
+    {
+      "mode": "preview",
+      "state": "map-row-actions",
+      "key": "injected"
+    },
+    {
+      "mode": "preview",
+      "state": "map-table-states",
+      "key": ""
+    }
+  ],
+  "sourceLocators": {
+    "de": {
+      "byte": 15490,
+      "expression": "function de(t){if(A(e)){let e=String(k(t,`marchUuid`)||``).trim();if(!e)return`-`;let n=`${t.serverId}:${e}`;return(0,E.jsxs)(`button`,{className:`map-coordinate-button`,disabled:f,onClick:()=>re(t),children:[(0,E.jsx)(`span`,{className:`map-coordinate-icon`,\"aria-hidden\":`true`}),(0,E.jsx)(`strong`,{children:g(d===n?`map.following`:`map.follow`)})]})}let n=Number(k(t,`x`)),r=Number(k(t,`y`));if(!Number.isInteger(n)||!Number.isInteger(r)||n<1||r<1)return`-`;let i=`${t.serverId}:${n}:${r}`;return(0,E.jsxs)(`button`,{className:`map-coordinate-button`,disabled:f,onClick:()=>re(t),children:[(0,E.jsx)(`span`,{className:`map-coordinate-icon`,\"aria-hidden\":`true`}),(0,E.jsx)(`span`,{children:et(t)}),(0,E.jsx)(`strong`,{children:g(d===i?`map.jumping`:`map.jump`)})]})}"
+    },
+    "me": {
+      "byte": 17072,
+      "expression": "function me(t){if(e===`truck`){let e=t,n=String(e.uuid||``).trim(),i=`${e.serverId}:${n}`,a=r(e,o);return(0,E.jsx)(`input`,{type:`checkbox`,\"aria-label\":g(`map.selectNamedTask`,{name:String(k(t,`ownerName`)||k(t,`allianceName`)||k(t,`uuid`)),server:t.serverId}),checked:l.has(i),disabled:[`invalid`,`full`,`expired`].includes(a),onChange:()=>ne(e)})}let n=t,i=String(n.uuid||``).trim(),a=`${n.serverId}:${i}`,s=!/^\\d+$/.test(i)||!P(n.completionTime)||!P(n.plunderAt)||[`expired`,`full`].includes(F(n,o));return(0,E.jsx)(`input`,{type:`checkbox`,\"aria-label\":g(`map.selectNamedTask`,{name:String(k(t,`ownerName`)||k(t,`allianceName`)||k(t,`uuid`)),server:t.serverId}),checked:c.has(a),disabled:s,onChange:()=>h({...n,taskKind:e===`ghost`?`ghost`:`dispatch`})})}"
+    },
+    "ue": {
+      "byte": 15306,
+      "expression": "function ue(t){let n=k(t,`uuid`)||k(t,`marchUuid`)||k(t,`recordKey`)||`${k(t,`pointIndex`)||``}:${k(t,`ownerUid`)||``}:${k(t,`updatedAt`)||``}`;return`${e}:${t.serverId}:${String(n)}`}"
+    },
+    "he": {
+      "byte": 17832,
+      "expression": "function he(e){let t=e,n=t.trackerState===`missing`?g(`map.positionMissing`):t.trackerState===`replaced`?g(`map.positionReplaced`):``,r=t.marked?g(`map.unmarkPlayer`):g(`map.markPlayer`);return(0,E.jsx)(`button`,{className:`map-mark-button${t.marked?` active`:``}`,disabled:!t.ownerUid,title:n?`${r} · ${n}`:r,\"aria-label\":r,onClick:()=>ie(t),children:(0,E.jsx)(se,{name:t.marked?`favorite-filled`:`favorite`})})}"
+    }
+  },
+  "finalHashes": {
+    "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx": "D37F54CB1DDB05160FEDFD32FF22EC45F5FF2DF6A7DA2CC389D27CD2DFA0C58C",
+    "src/LWBridge.UI-0.3.17/src/mapPreviewApi.js": "320C906D16630961F2A70CE7C40335B4A4539F37408745ACF566944AFA842F90",
+    "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js": "CE74345518BE72E417A510B982C591729E5683F69751E190805598C4C05D3089"
+  },
+  "limits": [
+    "Canonical native-follow availability fence remains",
+    "Local generic selectedKeys intentionally pairs with onSelect producer; source uses separate typed key sets",
+    "No original pixels or native gameplay",
+    "Broader filters and claim/scheduling branches excluded"
+  ]
+}

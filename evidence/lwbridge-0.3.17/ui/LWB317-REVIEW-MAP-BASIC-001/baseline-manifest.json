@@ -1,0 +1,26 @@
+{
+  "files": [
+    {
+      "original": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+      "sha256": "447906BD0C35EF59A9D12DEBD4F611188768E1F6674718EAF13DF70823DEC175",
+      "snapshot": "evidence/lwbridge-0.3.17/ui/LWB317-REVIEW-MAP-BASIC-001/baseline/MapDataPage.jsx"
+    },
+    {
+      "original": "src/LWBridge.UI-0.3.17/src/mapTablePresentation.js",
+      "sha256": "B6C0D9B369D3E78CCC74AA7296F2B88EABF6B6560C3669A199546FC299839427",
+      "snapshot": "evidence/lwbridge-0.3.17/ui/LWB317-REVIEW-MAP-BASIC-001/baseline/mapTablePresentation.js"
+    },
+    {
+      "original": "src/LWBridge.UI-0.3.17/src/mapBackend.js",
+      "sha256": "2951B824039D1A60BD305E3B4EC4E8B37992183E84294C7D7C21AA7CCC0C5C99",
+      "snapshot": "evidence/lwbridge-0.3.17/ui/LWB317-REVIEW-MAP-BASIC-001/baseline/mapBackend.js"
+    },
+    {
+      "original": "src/LWBridge.UI-0.3.17/src/i18n.jsx",
+      "sha256": "3AD3480810F36215DB058FDD029BEB2ADBD2FF036BBC101C37ED5D0BCE9D2E2E",
+      "snapshot": "evidence/lwbridge-0.3.17/ui/LWB317-REVIEW-MAP-BASIC-001/baseline/i18n.jsx"
+    }
+  ],
+  "head": "6a03a328f25e475bf8e0a8e711d172b62b25fe29",
+  "capturedAt": "2026-10-02T14:17:11.0412612+08:00"
+}

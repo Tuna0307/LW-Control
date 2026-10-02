@@ -1,7 +1,12 @@
 # LWB317-UI-LEAD-TABLES-001 — lead takeover and Map table parity
 
 Date: 2026-10-02. Owner: project lead, explicitly requested by owner while worker rests.
-State: AWAITING_REVIEW. Baseline: 4e29806db72c83e37c0ba96f82270c66b5a4cbba.
+State: COMPLETE / ACCEPTED for reviewed normal-table source/local scope.
+PM-020 three-table review and PM-022 corrected transport/basic-table reviews close
+the named formatting/metadata/row presentation/selection unit. Broader actions,
+filters, scheduling, Treasure refresh producer, assets/native/original pixels
+remain separate gaps. The historical delivery/evidence below is preserved.
+Baseline: 4e29806db72c83e37c0ba96f82270c66b5a4cbba.
 
 Goal: complete a substantial source/local UI block: verify pending Home busy and
 Trade display units, recover and correct Map table presentation across its eight

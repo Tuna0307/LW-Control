@@ -1,0 +1,45 @@
+{
+  "task": "LWB317-REVIEW-TRADE-STATUS-001",
+  "case": "fresh-native-unavailable-default",
+  "productionHash": "FB1A8544C9FA9CE2ACDF67720994CA527ADC0C6BF76FDFF4162761CAC8BBB8C3",
+  "original": {
+    "stats": "Detected: 0Attempted: 0Succeeded: 0Last result: -",
+    "tabs": [
+      {
+        "label": "Goods to buy",
+        "selected": true
+      },
+      {
+        "label": "Purchased items (0)",
+        "selected": false
+      }
+    ],
+    "loadingOrEmpty": "No trade goods are available from the current season template.",
+    "fetchError": "",
+    "fetchErrorInsidePanel": false,
+    "goodsCount": 0,
+    "purchasesCount": 0,
+    "purchaseCopy": ""
+  },
+  "current": {
+    "stats": "Detected: 3Attempted: 2Succeeded: 2Last result: Success",
+    "tabs": [
+      {
+        "label": "Goods to buy",
+        "selected": true
+      },
+      {
+        "label": "Purchased items (2)",
+        "selected": false
+      }
+    ],
+    "loadingOrEmpty": "",
+    "fetchError": "",
+    "fetchErrorInsidePanel": false,
+    "goodsCount": 2,
+    "purchasesCount": 0,
+    "purchaseCopy": ""
+  },
+  "matches": false,
+  "scope": "App passes empty previewState in native modes; current original offline renderer starts with no goods/status."
+}

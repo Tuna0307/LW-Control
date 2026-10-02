@@ -148,7 +148,10 @@ const previewTradeHistoryGameTexts = {
   "fixture.trade.decoratedCurrency": "Fixture <color=#00aaff>Decorated</color> Credit",
 };
 
-export function previewTradeFixture(previewState) {
+export function previewTradeFixture(previewState = "") {
+  // App removes preview state in native/native-unavailable modes. An inactive
+  // preview must not supply synthetic goods, purchase history or success stats.
+  if (!previewState.startsWith("automation-")) return { goods: [], purchases: [], gameTexts: {}, loading: false, error: "", status: undefined };
   const empty = previewState === "automation-trade-empty";
   const loading = previewState === "automation-trade-loading" || previewState === "automation-trade-loading-retained";
   const fetchFailed = previewState === "automation-trade-error" || previewState === "automation-trade-error-retained";

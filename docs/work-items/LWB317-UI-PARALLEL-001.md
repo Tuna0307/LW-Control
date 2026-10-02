@@ -1,6 +1,12 @@
 # LWB317-UI-PARALLEL-001 — parallel Map correction and Trade closeout
 
-Project-lead assignment: 2026-10-02. State: ASSIGNED, awaiting manual relay.
+Project-lead assignment: 2026-10-02. State: COMPLETE for assigned source/local scope.
+Owner requested lead takeover while the worker rests. PM-022 integrates all three
+lanes, accepts independently reviewed Map row corrections/basic tables and Trade
+status/inactive-fixture corrections after source/browser/integrated checks. No
+active implementation remains in this assignment. Historical execution rules
+below describe the completed campaign, not an instruction to restart it.
+Delivery: docs/reviews/2026-10-02-LWB317-PM-022-parallel-takeover.md.
 Owner requests faster UI progress and authorizes the worker to use two subagents.
 This replaces the previous single active Truck/Train review assignment. It does
 not reopen the broad interrupted CORRECT-003 campaign or any native campaign.

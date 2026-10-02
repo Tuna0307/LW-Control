@@ -1,0 +1,43 @@
+{
+  "campaign": "LWB317-UI-PARALLEL-001",
+  "leadReview": "LWB317-PM-022",
+  "baseline": "6a03a328f25e475bf8e0a8e711d172b62b25fe29",
+  "decision": "COMPLETE_ACCEPTED_FOCUSED_SOURCE_LOCAL_SCOPE",
+  "globalUiStatus": "IMPLEMENTED_NOT_VALIDATED",
+  "originalPixels": "BLOCKED",
+  "checks": {
+    "actualOriginalCurrentLiveTargets160": "PASS",
+    "independentMapBasic372": "PASS",
+    "independentFinalMapPeer41": "PASS",
+    "priorTransportCurrentAssertions": "PASS",
+    "priorEightTableCurrentAssertions": "PASS",
+    "independentTrade68Plus6EffectsPlus2Inactive": "PASS",
+    "existingFocusedTradeRegressions": "PASS",
+    "homeTranslation": "PASS",
+    "homeRootAcknowledgement14": "PASS",
+    "homeBusy13824Renders384Predicates": "PASS",
+    "switchLocale360": "PASS",
+    "canonicalCheck": "PASS",
+    "productionBuild": "PASS",
+    "productionPackage": "PASS",
+    "browserMapEightFlows": "PASS",
+    "browserTradeEightFlows": "PASS",
+    "newEvidenceValidators": "PASS",
+    "protectedWipHashes": "PASS"
+  },
+  "package": {
+    "sourceFingerprint": "c5c2d829456ce964ef7dacecf3892f29e2c408a7aa94cecf6dfab30e47b93787",
+    "artifactFingerprint": "12646559327e6f33b67d9549fc40dc291183af8e99cde6824c32045b42fb8528"
+  },
+  "historicalValidation": {
+    "oldLeadTablesWholeCurrentManifest": "EXPECTED_HASH_DRIFT",
+    "reason": "MapDataPage.jsx and mapPreviewApi.js changed intentionally; original records retained.",
+    "oldProductionHashesAtBaseline": "PASS",
+    "actualCurrentTableAssertions": "PASS"
+  },
+  "scopeLimits": [
+    "No Last War/original protected runtime launch or native/gameplay operation.",
+    "Native tracking and Trade providers remain unavailable; only UI corrected.",
+    "Original pixels, assets, filters, scheduling, Treasure refresh producer and other conditional states remain separate gaps."
+  ]
+}

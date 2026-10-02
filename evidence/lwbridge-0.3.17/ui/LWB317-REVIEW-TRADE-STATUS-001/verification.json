@@ -1,0 +1,23 @@
+{
+  "task": "LWB317-REVIEW-TRADE-STATUS-001",
+  "date": "2026-10-02",
+  "state": "AWAITING_REVIEW",
+  "recommendation": "AWAITING_REVIEW for narrow browser-fixture fencing correction; reviewed source/local status behavior matches",
+  "baseline": "6a03a328f25e475bf8e0a8e711d172b62b25fe29",
+  "referenceExeHash": "4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783",
+  "tool": "Node.js v24.18.0; repository @babel/parser and esbuild",
+  "productEdits": true,
+  "focusedChecks": {
+    "independentOriginalCurrentComponents": "PASS",
+    "actualOriginalFetchEffectTransitions": "PASS",
+    "nativeInactiveFixtureFencing": "PASS",
+    "acceptedTradeSelection": "PASS",
+    "acceptedCurrencyComposition": "PASS",
+    "acceptedPurchaseHistory": "PASS",
+    "acceptedCrossServerSwitch": "PASS",
+    "author003EPresentationRegression": "PASS"
+  },
+  "browser": "PASS: coordinator supplied eight actual browser observations, two inspected screenshots, zero captured page console errors; child independently inspected images and validated full evidence",
+  "integratedBuilds": "COORDINATOR_OWNED",
+  "scope": "Trade counters, result labels/defaults, loading/empty/fetch-error, retained goods/purchases, Goods/Purchased tab state. No native provider or other card changes."
+}

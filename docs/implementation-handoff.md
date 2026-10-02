@@ -6,7 +6,19 @@
 
 ## 2026-10-02 — owner-authorized parallel UI acceleration
 
-Current worker assignment: **LWB317-UI-PARALLEL-001 ASSIGNED**, manual relay.
+Current checkpoint: **LWB317-UI-PARALLEL-001 COMPLETE for assigned source/local scope**.
+Owner asked project-lead takeover while external worker rests. PM-022 integrates
+two authorized subagents' evidence, independently checks their findings, and
+accepts focused Map normal-row correction/basic-table and Trade status/fixture
+fencing units. All new validators and canonical check/build/package pass.
+See `reviews/2026-10-02-LWB317-PM-022-parallel-takeover.md`.
+
+The external worker should NOT repeat this campaign. Next UI continuation is a
+new bounded assignment for Treasure Checking producer or per-tab Map filters;
+Scheduled Plunder and other recorded Automation/AFK states remain separate gaps.
+None is assigned by this checkpoint. No function/native scope is opened.
+
+Historical assignment, superseded by delivery above:
 Read `work-items/LWB317-UI-PARALLEL-001.md`. The owner authorizes two subagents:
 coordinator corrects Map row presentation, A reviews/corrects focused Trade 003E,
 B independently reviews City/Resource/Monster normal tables read-only. Coordinator

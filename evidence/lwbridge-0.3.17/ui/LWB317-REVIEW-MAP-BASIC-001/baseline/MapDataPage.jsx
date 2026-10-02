@@ -90,7 +90,7 @@ function coordinateText(row) {
   return Number.isFinite(x) && Number.isFinite(y) ? `${x},${y}` : "-";
 }
 
-function MapTable({ kind, rows, loading, sorts, onSort, onCoordinateJump, onPlayerMark, actionBusy, actionDisabled, jumpingKey = "", liveTargetDisabled = true, selectedKeys, onSelect, gameTexts = EMPTY_GAME_TEXTS, itemKey = "", treasureStatesRefreshing = false }) {
+function MapTable({ kind, rows, loading, sorts, onSort, onCoordinateJump, onPlayerMark, actionBusy, actionDisabled, selectedKeys, onSelect, gameTexts = EMPTY_GAME_TEXTS, itemKey = "", treasureStatesRefreshing = false }) {
   const { language, t } = useI18n();
   const [currentTime, setCurrentTime] = useState(() => Date.now());
   useEffect(() => {
@@ -101,23 +101,7 @@ function MapTable({ kind, rows, loading, sorts, onSort, onCoordinateJump, onPlay
   }, [kind]);
   const columns = useMemo(() => buildMapColumns(kind, t, language, gameTexts, itemKey, treasureStatesRefreshing), [kind, t, language, gameTexts, itemKey, treasureStatesRefreshing]);
   const columnWidths = columns.map((column) => Number(column.width.match(/\d+/)[0]) + 8);
-  const rowKey = (row) => `${kind}:${row.serverId}:${String(row.uuid || row.marchUuid || row.recordKey || `${row.pointIndex || ""}:${row.ownerUid || ""}:${row.updatedAt || ""}`)}`;
-  function coordinateCell(row) {
-    if (kind === "truck" || kind === "railway") {
-      const marchUuid = String(row.marchUuid || "").trim();
-      if (!marchUuid) return "-";
-      return <button className="map-coordinate-button" type="button" disabled={actionDisabled || actionBusy || liveTargetDisabled} onClick={() => onCoordinateJump(row)}><span className="map-coordinate-icon" aria-hidden="true" /><strong>{t(jumpingKey === `${row.serverId}:${marchUuid}` ? "map.following" : "map.follow")}</strong></button>;
-    }
-    const x = Number(row.x);
-    const y = Number(row.y);
-    if (!Number.isInteger(x) || !Number.isInteger(y) || x < 1 || y < 1) return "-";
-    return <button className="map-coordinate-button" type="button" disabled={actionDisabled || actionBusy} onClick={() => onCoordinateJump(row)}><span className="map-coordinate-icon" aria-hidden="true" /><span>{coordinateText(row)}</span><strong>{t(jumpingKey === `${row.serverId}:${x}:${y}` ? "map.jumping" : "map.jump")}</strong></button>;
-  }
-  function markTitle(row) {
-    const label = t(row.marked ? "map.unmarkPlayer" : "map.markPlayer");
-    const position = row.trackerState === "missing" ? t("map.positionMissing") : row.trackerState === "replaced" ? t("map.positionReplaced") : "";
-    return position ? `${label} · ${position}` : label;
-  }
+  const rowKey = (row, index) => `${kind}:${row.serverId ?? 0}:${row.recordKey || row.uuid || row.marchUuid || row.pointIndex || index}`;
   return (
     <div className="map-table-scroll">
       <table className={`map-table map-table--${kind}`} style={{ minWidth: columnWidths.reduce((total, width) => total + width, 0) }} aria-label={t(SCAN_TYPE_LABEL_KEYS[kind])} aria-busy={loading}>
@@ -150,18 +134,21 @@ function MapTable({ kind, rows, loading, sorts, onSort, onCoordinateJump, onPlay
           </tr>
         </thead>
         <tbody>
-          {rows.map((row) => (
-            <tr className={`map-row${row.marked === true ? " is-marked" : ""}${row.trackerState === "missing" ? " is-missing" : ""}${row.trackerState === "replaced" ? " is-replaced" : ""}`} key={rowKey(row)}>
+          {rows.map((row, index) => (
+            <tr className="map-row" key={rowKey(row, index)}>
               {columns.map((column) => (
-                <td key={column.label} className={[column.className, column.rewards ? "map-reward-cell" : ""].filter(Boolean).join(" ")}>
+                <td key={column.label} className={column.className || ""}>
                   {column.select ? (
-                    <input type="checkbox" aria-label={t("map.selectNamedTask", { name: String(row.ownerName || row.allianceName || row.uuid), server: row.serverId })} checked={selectedKeys?.has(rowKey(row)) || false} disabled={!mapTaskSelectable(kind, row, currentTime)} onChange={() => onSelect?.(rowKey(row), row)} />
+                    <input type="checkbox" aria-label={t("map.selectNamedTask", { name: row.ownerName || row.allianceName || row.uuid || "-", server: row.serverId || "-" })} checked={selectedKeys?.has(rowKey(row, index)) || false} disabled={!mapTaskSelectable(kind, row, currentTime)} onChange={() => onSelect?.(rowKey(row, index), row)} />
                   ) : column.mark ? (
-                    <button className={`map-mark-button${row.marked ? " active" : ""}`} type="button" disabled={actionDisabled || !row.ownerUid || actionBusy} title={markTitle(row)} aria-label={t(row.marked ? "map.unmarkPlayer" : "map.markPlayer")} onClick={() => onPlayerMark(row)}>
-                      <svg className={`ui-icon${row.marked ? " is-filled" : ""}`} viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="m8 2 1.8 3.65 4.03.59-2.92 2.84.69 4.02L8 11.2l-3.6 1.9.69-4.02-2.92-2.84 4.03-.59L8 2Z" /></svg>
+                    <button className={`map-mark-button${row.marked ? " active" : ""}`} type="button" disabled={actionDisabled || !row.ownerUid || actionBusy} aria-label={t(row.marked ? "map.unmarkPlayer" : "map.markPlayer")} onClick={() => onPlayerMark(row)}>
+                      {row.marked ? "★" : "☆"}
                     </button>
                   ) : column.coordinate ? (
-                    coordinateCell(row)
+                    <button className="map-coordinate-button" type="button" disabled={actionDisabled || actionBusy || kind === "truck" || kind === "railway" || !Number.isInteger(Number(row.x)) || !Number.isInteger(Number(row.y))} onClick={() => onCoordinateJump(row)}>
+                      <span className="map-coordinate-icon" aria-hidden="true" />
+                      <span>{coordinateText(row)}</span>
+                    </button>
                   ) : column.action ? (
                     <button className="map-schedule-button" type="button" disabled>{t("map.claimTreasure")}</button>
                   ) : column.status ? (
@@ -205,11 +192,10 @@ const PREVIEW_TAB_BY_STATE = Object.freeze({
   "map-ghost": "ghost",
   "map-treasure": "treasure",
   "map-table-states": "treasure",
-  "map-row-actions": "truck",
   "map-scheduled": "scheduledPlunder",
 });
 
-export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, currentServerId = 0, previewState = "", gameTexts = EMPTY_GAME_TEXTS, previewJumpingKeys = null }) {
+export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, currentServerId = 0, previewState = "", gameTexts = EMPTY_GAME_TEXTS }) {
   const { t } = useI18n();
   const previewFixture = bridgeMode === "preview" && previewState.startsWith("map-");
   const [scanTab, setScanTab] = useState(previewState.startsWith("map-auto") ? "auto" : "manual");
@@ -771,7 +757,7 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
       {queryError ? <div className="map-scan-error" role="alert">{queryError}</div> : null}
       {tab !== "scheduledPlunder" ? (
         <>
-          <MapTable kind={tab} gameTexts={gameTexts} itemKey={itemKey} rows={rows} loading={loading} sorts={activeSorts} onSort={changeSort} onCoordinateJump={coordinateJump} onPlayerMark={togglePlayerMark} actionBusy={Boolean(actionBusy)} actionDisabled={!online || scanState.isReading} jumpingKey={previewFixture && previewState === "map-row-actions" ? previewJumpingKeys?.[tab] || "" : actionBusy.startsWith("jump:") ? actionBusy.slice(5) : ""} selectedKeys={selectedRows} onSelect={(key) => setSelectedRows((current) => { const next = new Set(current); if (next.has(key)) next.delete(key); else next.add(key); return next; })} />
+          <MapTable kind={tab} gameTexts={gameTexts} itemKey={itemKey} rows={rows} loading={loading} sorts={activeSorts} onSort={changeSort} onCoordinateJump={coordinateJump} onPlayerMark={togglePlayerMark} actionBusy={Boolean(actionBusy)} actionDisabled={!online || scanState.isReading} selectedKeys={selectedRows} onSelect={(key) => setSelectedRows((current) => { const next = new Set(current); if (next.has(key)) next.delete(key); else next.add(key); return next; })} />
           <Pagination page={page} total={total} onPage={setPage} />
         </>
       ) : (

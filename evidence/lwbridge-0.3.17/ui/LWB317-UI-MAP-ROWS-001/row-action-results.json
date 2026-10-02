@@ -1,0 +1,19 @@
+{
+  "status": "PASS",
+  "actualOriginalCurrentComparisons": 160,
+  "source": {
+    "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js",
+    "sha256": "CE74345518BE72E417A510B982C591729E5683F69751E190805598C4C05D3089",
+    "de": {
+      "byte": 15490,
+      "expression": "function de(t){if(A(e)){let e=String(k(t,`marchUuid`)||``).trim();if(!e)return`-`;let n=`${t.serverId}:${e}`;return(0,E.jsxs)(`button`,{className:`map-coordinate-button`,disabled:f,onClick:()=>re(t),children:[(0,E.jsx)(`span`,{className:`map-coordinate-icon`,\"aria-hidden\":`true`}),(0,E.jsx)(`strong`,{children:g(d===n?`map.following`:`map.follow`)})]})}let n=Number(k(t,`x`)),r=Number(k(t,`y`));if(!Number.isInteger(n)||!Number.isInteger(r)||n<1||r<1)return`-`;let i=`${t.serverId}:${n}:${r}`;return(0,E.jsxs)(`button`,{className:`map-coordinate-button`,disabled:f,onClick:()=>re(t),children:[(0,E.jsx)(`span`,{className:`map-coordinate-icon`,\"aria-hidden\":`true`}),(0,E.jsx)(`span`,{children:et(t)}),(0,E.jsx)(`strong`,{children:g(d===i?`map.jumping`:`map.jump`)})]})}"
+    }
+  },
+  "current": {
+    "path": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+    "sha256": "D37F54CB1DDB05160FEDFD32FF22EC45F5FF2DF6A7DA2CC389D27CD2DFA0C58C"
+  },
+  "nativeTrackingUnavailableFence": true,
+  "previewIsolation": true,
+  "blockedNativeActions": 7
+}

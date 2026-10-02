@@ -6,7 +6,19 @@
 
 ## Current state
 
-Latest owner-requested lead takeover: **LWB317-UI-LEAD-TABLES-001 AWAITING_REVIEW**.
+Latest lead delivery: **PM-022 / UI-PARALLEL-001 COMPLETE for assigned source/local
+scope**. Corrected Map row actions, keys/classes/mark visuals and independently
+reviewed the remaining normal-table scope; accepted Trade status/loading/error/
+retained-data review and the inactive/native synthetic-data leak correction.
+Source/code/browser regressions and production package checks pass. No gameplay
+or new native provider was added. Next continuation is a separately assigned UI
+gap (Treasure Checking producer, per-tab filters, scheduling or conditional states).
+Full original pixels/global UI remain unaccepted. Older pending-review statements
+below describe historical checkpoints, superseded for these named units only.
+
+## Historical checkpoints
+
+Earlier owner-requested lead takeover: **LWB317-UI-LEAD-TABLES-001 AWAITING_REVIEW**.
 The eight normal Map tables now have recovered columns/widths, text/time/quality
 formatting, task/Truck/Treasure states and eligibility, reward rendering and item
 sorting/clear behavior. Source/local differential and actual-render checks cover

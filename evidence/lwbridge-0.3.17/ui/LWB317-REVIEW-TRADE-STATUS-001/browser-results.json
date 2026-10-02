@@ -1,0 +1,327 @@
+{
+  "flows": [
+    {
+      "state": "automation-trade-loading-retained",
+      "language": "en",
+      "tab": "goods",
+      "observed": {
+        "controls": [
+          {
+            "disabled": true,
+            "label": ""
+          },
+          {
+            "disabled": false,
+            "label": "Scan cross-server trade stations: Disabled"
+          },
+          {
+            "disabled": false,
+            "label": ""
+          },
+          {
+            "disabled": false,
+            "label": ""
+          },
+          {
+            "disabled": false,
+            "label": ""
+          },
+          {
+            "disabled": false,
+            "label": ""
+          },
+          {
+            "disabled": false,
+            "label": ""
+          }
+        ],
+        "errorText": "",
+        "goodsCount": 2,
+        "loadingText": "Loading goods...",
+        "purchaseCount": 0,
+        "selectedTab": "Goods to buy",
+        "stats": "Detected: 3 Attempted: 2 Succeeded: 2 Last result: Success"
+      }
+    },
+    {
+      "state": "automation-trade-loading-retained",
+      "language": "en",
+      "tab": "purchases",
+      "observed": {
+        "controls": [
+          {
+            "disabled": true,
+            "label": ""
+          },
+          {
+            "disabled": false,
+            "label": "Scan cross-server trade stations: Disabled"
+          },
+          {
+            "disabled": false,
+            "label": ""
+          },
+          {
+            "disabled": false,
+            "label": ""
+          }
+        ],
+        "errorText": "",
+        "goodsCount": 0,
+        "loadingText": "",
+        "purchaseCount": 2,
+        "selectedTab": "Purchased items (2)",
+        "stats": "Detected: 3 Attempted: 2 Succeeded: 2 Last result: Success"
+      }
+    },
+    {
+      "state": "automation-trade-loading-retained",
+      "language": "en",
+      "tab": "goods-return",
+      "observed": {
+        "controls": [
+          {
+            "disabled": true,
+            "label": ""
+          },
+          {
+            "disabled": false,
+            "label": "Scan cross-server trade stations: Disabled"
+          },
+          {
+            "disabled": false,
+            "label": ""
+          },
+          {
+            "disabled": false,
+            "label": ""
+          },
+          {
+            "disabled": false,
+            "label": ""
+          },
+          {
+            "disabled": false,
+            "label": ""
+          },
+          {
+            "disabled": false,
+            "label": ""
+          }
+        ],
+        "errorText": "",
+        "goodsCount": 2,
+        "loadingText": "Loading goods...",
+        "purchaseCount": 0,
+        "selectedTab": "Goods to buy",
+        "stats": "Detected: 3 Attempted: 2 Succeeded: 2 Last result: Success"
+      }
+    },
+    {
+      "state": "automation-trade-error-retained",
+      "language": "ja",
+      "tab": "goods",
+      "observed": {
+        "controls": [
+          {
+            "disabled": true,
+            "label": ""
+          },
+          {
+            "disabled": false,
+            "label": "他サーバーの交易所を検索: 無効"
+          },
+          {
+            "disabled": false,
+            "label": ""
+          },
+          {
+            "disabled": false,
+            "label": ""
+          },
+          {
+            "disabled": false,
+            "label": ""
+          },
+          {
+            "disabled": false,
+            "label": ""
+          },
+          {
+            "disabled": false,
+            "label": ""
+          }
+        ],
+        "errorText": "Error: Fixture Trade goods request failed",
+        "goodsCount": 2,
+        "loadingText": "",
+        "purchaseCount": 0,
+        "selectedTab": "購入商品",
+        "stats": "検出した交易所: 3 購入試行: 2 購入成功: 2 最新結果: 成功"
+      }
+    },
+    {
+      "state": "automation-trade-error-retained",
+      "language": "ja",
+      "tab": "purchases",
+      "observed": {
+        "controls": [
+          {
+            "disabled": true,
+            "label": ""
+          },
+          {
+            "disabled": false,
+            "label": "他サーバーの交易所を検索: 無効"
+          },
+          {
+            "disabled": false,
+            "label": ""
+          },
+          {
+            "disabled": false,
+            "label": ""
+          }
+        ],
+        "errorText": "Error: Fixture Trade goods request failed",
+        "goodsCount": 0,
+        "loadingText": "",
+        "purchaseCount": 2,
+        "selectedTab": "購入済み（2）",
+        "stats": "検出した交易所: 3 購入試行: 2 購入成功: 2 最新結果: 成功"
+      }
+    },
+    {
+      "state": "automation-trade-error-retained",
+      "language": "ja",
+      "tab": "goods-return",
+      "observed": {
+        "controls": [
+          {
+            "disabled": true,
+            "label": ""
+          },
+          {
+            "disabled": false,
+            "label": "他サーバーの交易所を検索: 無効"
+          },
+          {
+            "disabled": false,
+            "label": ""
+          },
+          {
+            "disabled": false,
+            "label": ""
+          },
+          {
+            "disabled": false,
+            "label": ""
+          },
+          {
+            "disabled": false,
+            "label": ""
+          },
+          {
+            "disabled": false,
+            "label": ""
+          }
+        ],
+        "errorText": "Error: Fixture Trade goods request failed",
+        "goodsCount": 2,
+        "loadingText": "",
+        "purchaseCount": 0,
+        "selectedTab": "購入商品",
+        "stats": "検出した交易所: 3 購入試行: 2 購入成功: 2 最新結果: 成功"
+      }
+    },
+    {
+      "state": "automation-trade-status-absent",
+      "language": "en",
+      "tab": "goods",
+      "observed": {
+        "controls": [
+          {
+            "disabled": true,
+            "label": ""
+          },
+          {
+            "disabled": false,
+            "label": "Scan cross-server trade stations: Disabled"
+          },
+          {
+            "disabled": false,
+            "label": ""
+          },
+          {
+            "disabled": false,
+            "label": ""
+          },
+          {
+            "disabled": false,
+            "label": ""
+          },
+          {
+            "disabled": false,
+            "label": ""
+          },
+          {
+            "disabled": false,
+            "label": ""
+          }
+        ],
+        "errorText": "",
+        "goodsCount": 2,
+        "loadingText": "",
+        "purchaseCount": 0,
+        "selectedTab": "Goods to buy",
+        "stats": "Detected: 0 Attempted: 0 Succeeded: 0 Last result: -"
+      }
+    },
+    {
+      "state": "",
+      "language": "en",
+      "tab": "goods",
+      "observed": {
+        "controls": [
+          {
+            "disabled": true,
+            "label": ""
+          },
+          {
+            "disabled": true,
+            "label": "Scan cross-server trade stations: Disabled"
+          },
+          {
+            "disabled": true,
+            "label": ""
+          }
+        ],
+        "errorText": "",
+        "goodsCount": 0,
+        "loadingText": "No trade goods are available from the current season template.",
+        "purchaseCount": 0,
+        "selectedTab": "Goods to buy",
+        "stats": "Detected: 0 Attempted: 0 Succeeded: 0 Last result: -"
+      }
+    }
+  ],
+  "consoleErrors": [],
+  "screenshots": [
+    {
+      "file": "loading-retained.png",
+      "sha256": "DCD958F502FE5E7896D2C40816EC123BB7E490269AFCACCEE9096F1EA476B863",
+      "inspected": true
+    },
+    {
+      "file": "error-retained-ja.png",
+      "sha256": "0BC1E22D5C68D93524245B24C28833D585F90589E68D1B14BD19CC88712C4E12",
+      "inspected": true
+    }
+  ],
+  "inactivePurchaseTabDisabled": true,
+  "blockedInactiveTabClick": true,
+  "limits": [
+    "Default inactive browser preview represents offline rendering, not a native WebView test. No native purchases/actions executed.",
+    "Inactive Purchased tab is disabled by its parent fieldset; click was rejected, and zero history is covered by actual component assertions."
+  ]
+}

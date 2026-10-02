@@ -1,0 +1,30 @@
+{
+  "reviewedFlows": [
+    "city/en",
+    "city/ja",
+    "resource/en",
+    "monster/en"
+  ],
+  "images": [
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-ROWS-001/city-row-actions.png",
+      "sha256": "B863FB95B1F7B816CD2953967C44028D40F3516BD1830507812C4DF7934C5D6E",
+      "reviewerInspected": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-ROWS-001/truck-row-actions-ja.png",
+      "sha256": "C8CBE7C5A943BF009248531B66F39864F454DDB90A172C44EC68DA1FBD5661EA",
+      "coordinatorInspected": true,
+      "reviewerInspected": false
+    }
+  ],
+  "sha256": "7CE7E33F21393184CF561747C0EC0238E2DA283BC7A4ECBB40E44DBBE39DD98C",
+  "limitations": [
+    "Viewport screenshots clip lower/right edges; DOM observations establish asserted rows",
+    "No original post-auth pixel comparison",
+    "No native actions"
+  ],
+  "recommendation": "ACCEPT corrected current focused source/local scope",
+  "source": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-ROWS-001/browser-results.json",
+  "scope": "Recorded DOM observations independently reviewed; City screenshot additionally visually inspected by reviewer"
+}

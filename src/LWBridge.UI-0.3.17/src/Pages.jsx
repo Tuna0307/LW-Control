@@ -619,7 +619,7 @@ function ResourceGatherCard({ previewEnabled, previewState }) {
 
 function TradeStationCard({ previewEnabled, previewState = "" }) {
   const { language, t } = useI18n();
-  const fixture = previewTradeFixture(previewState);
+  const fixture = previewTradeFixture(previewEnabled ? previewState : "");
   const config = usePreviewConfig(() => ({ enabled: false, crossServerEnabled: false, selectedItemIds: previewState === "automation-trade-positive" || previewState === "automation-trade-history" ? [7001] : [], selectedCurrencyIds: [15, 650053] }), (draft) => typeof draft.enabled === "boolean" && typeof draft.crossServerEnabled === "boolean" && Array.isArray(draft.selectedItemIds) && Array.isArray(draft.selectedCurrencyIds) && draft.selectedCurrencyIds.length > 0, previewState === "automation-trade-save-error", `automation:trade:${previewState}`);
   const [tradeTab, setTradeTab] = useState("goods");
   const [showExclusive, setShowExclusive] = useState(false);

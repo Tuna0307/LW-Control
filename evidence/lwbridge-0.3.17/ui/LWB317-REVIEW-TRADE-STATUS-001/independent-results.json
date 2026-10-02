@@ -1,0 +1,2740 @@
+{
+  "task": "LWB317-REVIEW-TRADE-STATUS-001",
+  "recommendation": "AWAITING_REVIEW",
+  "result": "LWB317_REVIEW_TRADE_STATUS_OK",
+  "reference": {
+    "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/AutomationPanel-BJ0gIqFh.js",
+    "sha256": "6DB2328191AF33E5631D507271C36D7008B287DAA7C8CD1A957B23EF6F871725"
+  },
+  "current": {
+    "path": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+    "sha256": "8354248D138EB18027FB5E67D5FACFCA32B22278D78FAA0A7A17FC5E6DA80F5E",
+    "scopeSha256": "C06729AF9CB67DD65F5664DBA0BA40E88F8EDFFFD2261745FC5CEC474AB43229"
+  },
+  "sourceLocators": {
+    "component": {
+      "utf8ByteOffset": 6352,
+      "expression": "function pe({profileId:e,online:r,config:i,status:a}){let{language:s,t:c}=te(),l=n(`tradeStation`,le(i),{read:async()=>le((await f(e)).config?.trade_station),write:async n=>(await t(n,e)).config},e),u=l.draft,[d,ne]=(0,x.useState)([]),[p,m]=(0,x.useState)(`goods`),[h,_]=(0,x.useState)(!1),[v,re]=(0,x.useState)({}),[ie,ae]=(0,x.useState)(!1),[se,b]=(0,x.useState)(``);(0,x.useEffect)(()=>{let t=!1;return b(``),r?(ae(!0),o(e).then(e=>{t||ne(e.items)}).catch(e=>{t||b(String(e))}).finally(()=>{t||ae(!1)}),()=>{t=!0}):(ae(!1),()=>{t=!0})},[r,e]);let ce=[...new Set([...d.flatMap(e=>[e.nameKey,...e.offers.map(e=>e.currencyNameKey)]),...(a?.purchases??[]).flatMap(e=>[e.itemNameKey,e.currencyNameKey])].filter(Boolean))].sort().join(`\\0`);(0,x.useEffect)(()=>{let e=!1;return re({}),ce&&ee(s,ce.split(`\\0`)).then(t=>{e||re(t)}).catch(()=>{}),()=>{e=!0}},[s,ce]);async function C(e){l.state.edit(e,!1),await l.state.flush().catch(()=>void 0)}function pe(e,t){let n=t?[...new Set([...u.selectedItemIds,e])].sort((e,t)=>e-t):u.selectedItemIds.filter(t=>t!==e);C({...u,enabled:n.length>0&&u.enabled,selectedItemIds:n})}function me(e,t){if(!t&&u.selectedCurrencyIds.length===1)return;let n=t?[...new Set([...u.selectedCurrencyIds,e])].sort((e,t)=>e-t):u.selectedCurrencyIds.filter(t=>t!==e);C({...u,selectedCurrencyIds:n})}let he=u.enabled||u.selectedItemIds.length>0,w=a?.lastResult?.state;return(0,S.jsxs)(`div`,{className:`trade-station-panel`,children:[(0,S.jsx)(oe,{state:l.state,label:c(`automation.tradeStation.title`),disabled:!r}),(0,S.jsxs)(y,{online:r,configDisabled:!r,title:`automation.tradeStation.title`,description:`automation.tradeStation.description`,state:u.enabled?`common.waiting`:`common.disabled`,enabled:u.enabled,disabled:!r||!he,onToggle:e=>{C({...u,enabled:e})},children:[(0,S.jsx)(`div`,{className:`trade-station-warning`,children:c(`automation.tradeStation.warning`)}),(0,S.jsx)(g,{label:`automation.tradeStation.crossServer`,checked:u.crossServerEnabled,disabled:!r,onChange:e=>{C({...u,crossServerEnabled:e})}}),(0,S.jsx)(fe,{online:r,saving:!1,selectedCurrencyIds:u.selectedCurrencyIds,items:d,gameTexts:v,onToggle:me}),(0,S.jsxs)(`div`,{className:`trade-station-stats`,children:[(0,S.jsxs)(`span`,{children:[c(`automation.tradeStation.detected`),`: `,a?.detectedCount??0]}),(0,S.jsxs)(`span`,{children:[c(`automation.tradeStation.attempted`),`: `,a?.attemptedCount??0]}),(0,S.jsxs)(`span`,{children:[c(`automation.tradeStation.succeeded`),`: `,a?.succeededCount??0]}),(0,S.jsxs)(`span`,{children:[c(`automation.tradeStation.lastResult`),`: `,w?c(`automation.tradeStation.state.${w}`):`-`]})]}),(0,S.jsxs)(`div`,{className:`trade-station-tabs`,role:`tablist`,children:[(0,S.jsx)(`button`,{type:`button`,role:`tab`,\"aria-selected\":p===`goods`,className:p===`goods`?`active`:``,onClick:()=>m(`goods`),children:c(`automation.tradeStation.goods`)}),(0,S.jsx)(`button`,{type:`button`,role:`tab`,\"aria-selected\":p===`purchases`,className:p===`purchases`?`active`:``,onClick:()=>m(`purchases`),children:c(`automation.tradeStation.purchasedItems`,{count:a?.purchases?.length??0})})]}),p===`goods`?(0,S.jsxs)(`div`,{className:`trade-station-goods`,role:`tabpanel`,children:[(0,S.jsxs)(`div`,{className:`trade-station-goods-heading`,children:[(0,S.jsx)(`strong`,{children:c(`automation.tradeStation.goodsToBuy`)}),(0,S.jsxs)(`label`,{children:[(0,S.jsx)(`input`,{type:`checkbox`,checked:h,onChange:e=>_(e.target.checked)}),c(`automation.tradeStation.showExclusive`)]})]}),ie&&(0,S.jsx)(`span`,{className:`muted`,children:c(`automation.tradeStation.loading`)}),!ie&&d.length===0&&(0,S.jsx)(`span`,{className:`muted`,children:c(`automation.tradeStation.noGoods`)}),(0,S.jsx)(ue,{online:r,saving:!1,showExclusive:h,selectedItemIds:u.selectedItemIds,items:d,gameTexts:v,onToggle:pe})]}):(0,S.jsx)(`div`,{role:`tabpanel`,children:(0,S.jsx)(de,{language:s,gameTexts:v,purchases:a?.purchases??[]})}),se&&(0,S.jsx)(`div`,{className:`automation-error`,children:se})]})]})}"
+    },
+    "fetchEffect": {
+      "utf8ByteOffset": 6721,
+      "expression": "(0,x.useEffect)(()=>{let t=!1;return b(``),r?(ae(!0),o(e).then(e=>{t||ne(e.items)}).catch(e=>{t||b(String(e))}).finally(()=>{t||ae(!1)}),()=>{t=!0}):(ae(!1),()=>{t=!0})},[r,e])"
+    },
+    "stats": {
+      "utf8ByteOffset": 8515,
+      "expression": "{className:`trade-station-stats`,children:[(0,S.jsxs)(`span`,{children:[c(`automation.tradeStation.detected`),`: `,a?.detectedCount??0]}),(0,S.jsxs)(`span`,{children:[c(`automation.tradeStation.attempted`),`: `,a?.attemptedCount??0]}),(0,S.jsxs)(`span`,{children:[c(`automation.tradeStation.succeeded`),`: `,a?.succeededCount??0]}),(0,S.jsxs)(`span`,{children:[c(`automation.tradeStation.lastResult`),`: `,w?c(`automation.tradeStation.state.${w}`):`-`]})]}"
+    },
+    "lastResult": {
+      "utf8ByteOffset": 7714,
+      "expression": "w=a?.lastResult?.state"
+    },
+    "loading": {
+      "utf8ByteOffset": 9840,
+      "expression": "ie&&(0,S.jsx)(`span`,{className:`muted`,children:c(`automation.tradeStation.loading`)})"
+    },
+    "emptyGoods": {
+      "utf8ByteOffset": 9928,
+      "expression": "!ie&&d.length===0&&(0,S.jsx)(`span`,{className:`muted`,children:c(`automation.tradeStation.noGoods`)})"
+    },
+    "fetchError": {
+      "utf8ByteOffset": 10261,
+      "expression": "se&&(0,S.jsx)(`div`,{className:`automation-error`,children:se})"
+    },
+    "tabs": {
+      "utf8ByteOffset": 9130,
+      "expression": "p===`goods`?`active`:``"
+    }
+  },
+  "locales": [
+    {
+      "language": "en",
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/en-BisSXcTB.js",
+      "sha256": "0BF43D180EB93692A93B830B5D984E9D01DDEEA524340F2334FC63CBA527A731",
+      "entries": [
+        {
+          "key": "automation.tradeStation.detected",
+          "utf8ByteOffset": 20442,
+          "expression": "\"automation.tradeStation.detected\":`Detected`",
+          "value": "Detected"
+        },
+        {
+          "key": "automation.tradeStation.attempted",
+          "utf8ByteOffset": 20488,
+          "expression": "\"automation.tradeStation.attempted\":`Attempted`",
+          "value": "Attempted"
+        },
+        {
+          "key": "automation.tradeStation.succeeded",
+          "utf8ByteOffset": 20536,
+          "expression": "\"automation.tradeStation.succeeded\":`Succeeded`",
+          "value": "Succeeded"
+        },
+        {
+          "key": "automation.tradeStation.lastResult",
+          "utf8ByteOffset": 20584,
+          "expression": "\"automation.tradeStation.lastResult\":`Last result`",
+          "value": "Last result"
+        },
+        {
+          "key": "automation.tradeStation.loading",
+          "utf8ByteOffset": 21397,
+          "expression": "\"automation.tradeStation.loading\":`Loading goods...`",
+          "value": "Loading goods..."
+        },
+        {
+          "key": "automation.tradeStation.noGoods",
+          "utf8ByteOffset": 21450,
+          "expression": "\"automation.tradeStation.noGoods\":`No trade goods are available from the current season template.`",
+          "value": "No trade goods are available from the current season template."
+        },
+        {
+          "key": "automation.tradeStation.goods",
+          "utf8ByteOffset": 20635,
+          "expression": "\"automation.tradeStation.goods\":`Goods to buy`",
+          "value": "Goods to buy"
+        },
+        {
+          "key": "automation.tradeStation.purchasedItems",
+          "utf8ByteOffset": 20734,
+          "expression": "\"automation.tradeStation.purchasedItems\":`Purchased items ({count})`",
+          "value": "Purchased items ({count})"
+        },
+        {
+          "key": "automation.tradeStation.state.success",
+          "utf8ByteOffset": 21759,
+          "expression": "\"automation.tradeStation.state.success\":`Success`",
+          "value": "Success"
+        },
+        {
+          "key": "automation.tradeStation.state.failed",
+          "utf8ByteOffset": 21891,
+          "expression": "\"automation.tradeStation.state.failed\":`Failed`",
+          "value": "Failed"
+        },
+        {
+          "key": "automation.tradeStation.state.skipped",
+          "utf8ByteOffset": 21939,
+          "expression": "\"automation.tradeStation.state.skipped\":`Skipped`",
+          "value": "Skipped"
+        },
+        {
+          "key": "automation.tradeStation.state.confirmed_after_timeout",
+          "utf8ByteOffset": 21809,
+          "expression": "\"automation.tradeStation.state.confirmed_after_timeout\":`Confirmed after timeout`",
+          "value": "Confirmed after timeout"
+        }
+      ]
+    },
+    {
+      "language": "ja",
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/ja-UrbzJu-m.js",
+      "sha256": "35969183AB623B6701BC850FDF28BCF268C93127FF6C9693F77E588EE7BDBE38",
+      "entries": [
+        {
+          "key": "automation.tradeStation.detected",
+          "utf8ByteOffset": 16968,
+          "expression": "\"automation.tradeStation.detected\":`検出した交易所`",
+          "value": "検出した交易所"
+        },
+        {
+          "key": "automation.tradeStation.attempted",
+          "utf8ByteOffset": 17027,
+          "expression": "\"automation.tradeStation.attempted\":`購入試行`",
+          "value": "購入試行"
+        },
+        {
+          "key": "automation.tradeStation.succeeded",
+          "utf8ByteOffset": 17078,
+          "expression": "\"automation.tradeStation.succeeded\":`購入成功`",
+          "value": "購入成功"
+        },
+        {
+          "key": "automation.tradeStation.lastResult",
+          "utf8ByteOffset": 17129,
+          "expression": "\"automation.tradeStation.lastResult\":`最新結果`",
+          "value": "最新結果"
+        },
+        {
+          "key": "automation.tradeStation.loading",
+          "utf8ByteOffset": 17983,
+          "expression": "\"automation.tradeStation.loading\":`商品を読み込み中…`",
+          "value": "商品を読み込み中…"
+        },
+        {
+          "key": "automation.tradeStation.noGoods",
+          "utf8ByteOffset": 18047,
+          "expression": "\"automation.tradeStation.noGoods\":`現在のシーズン設定に利用可能な交易商品がありません。`",
+          "value": "現在のシーズン設定に利用可能な交易商品がありません。"
+        },
+        {
+          "key": "automation.tradeStation.goods",
+          "utf8ByteOffset": 17181,
+          "expression": "\"automation.tradeStation.goods\":`購入商品`",
+          "value": "購入商品"
+        },
+        {
+          "key": "automation.tradeStation.purchasedItems",
+          "utf8ByteOffset": 17289,
+          "expression": "\"automation.tradeStation.purchasedItems\":`購入済み（{count}）`",
+          "value": "購入済み（{count}）"
+        },
+        {
+          "key": "automation.tradeStation.state.success",
+          "utf8ByteOffset": 18396,
+          "expression": "\"automation.tradeStation.state.success\":`成功`",
+          "value": "成功"
+        },
+        {
+          "key": "automation.tradeStation.state.failed",
+          "utf8ByteOffset": 18543,
+          "expression": "\"automation.tradeStation.state.failed\":`失敗`",
+          "value": "失敗"
+        },
+        {
+          "key": "automation.tradeStation.state.skipped",
+          "utf8ByteOffset": 18591,
+          "expression": "\"automation.tradeStation.state.skipped\":`スキップ済み`",
+          "value": "スキップ済み"
+        },
+        {
+          "key": "automation.tradeStation.state.confirmed_after_timeout",
+          "utf8ByteOffset": 18445,
+          "expression": "\"automation.tradeStation.state.confirmed_after_timeout\":`タイムアウト後に成功を確認`",
+          "value": "タイムアウト後に成功を確認"
+        }
+      ]
+    }
+  ],
+  "renderComparisons": [
+    {
+      "language": "en",
+      "name": "missing",
+      "original": {
+        "stats": "Detected: 0Attempted: 0Succeeded: 0Last result: -",
+        "tabs": [
+          {
+            "label": "Goods to buy",
+            "selected": true
+          },
+          {
+            "label": "Purchased items (0)",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "No trade goods are available from the current season template.",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      },
+      "current": {
+        "stats": "Detected: 0Attempted: 0Succeeded: 0Last result: -",
+        "tabs": [
+          {
+            "label": "Goods to buy",
+            "selected": true
+          },
+          {
+            "label": "Purchased items (0)",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "No trade goods are available from the current season template.",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      }
+    },
+    {
+      "language": "en",
+      "name": "null",
+      "original": {
+        "stats": "Detected: 0Attempted: 0Succeeded: 0Last result: -",
+        "tabs": [
+          {
+            "label": "Goods to buy",
+            "selected": true
+          },
+          {
+            "label": "Purchased items (0)",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "No trade goods are available from the current season template.",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      },
+      "current": {
+        "stats": "Detected: 0Attempted: 0Succeeded: 0Last result: -",
+        "tabs": [
+          {
+            "label": "Goods to buy",
+            "selected": true
+          },
+          {
+            "label": "Purchased items (0)",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "No trade goods are available from the current season template.",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      }
+    },
+    {
+      "language": "en",
+      "name": "empty-object",
+      "original": {
+        "stats": "Detected: 0Attempted: 0Succeeded: 0Last result: -",
+        "tabs": [
+          {
+            "label": "Goods to buy",
+            "selected": true
+          },
+          {
+            "label": "Purchased items (0)",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "No trade goods are available from the current season template.",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      },
+      "current": {
+        "stats": "Detected: 0Attempted: 0Succeeded: 0Last result: -",
+        "tabs": [
+          {
+            "label": "Goods to buy",
+            "selected": true
+          },
+          {
+            "label": "Purchased items (0)",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "No trade goods are available from the current season template.",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      }
+    },
+    {
+      "language": "en",
+      "name": "null-fields",
+      "original": {
+        "stats": "Detected: 0Attempted: 0Succeeded: 0Last result: -",
+        "tabs": [
+          {
+            "label": "Goods to buy",
+            "selected": true
+          },
+          {
+            "label": "Purchased items (0)",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "No trade goods are available from the current season template.",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      },
+      "current": {
+        "stats": "Detected: 0Attempted: 0Succeeded: 0Last result: -",
+        "tabs": [
+          {
+            "label": "Goods to buy",
+            "selected": true
+          },
+          {
+            "label": "Purchased items (0)",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "No trade goods are available from the current season template.",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      }
+    },
+    {
+      "language": "en",
+      "name": "zero-fields",
+      "original": {
+        "stats": "Detected: 0Attempted: 0Succeeded: 0Last result: -",
+        "tabs": [
+          {
+            "label": "Goods to buy",
+            "selected": true
+          },
+          {
+            "label": "Purchased items (0)",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "No trade goods are available from the current season template.",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      },
+      "current": {
+        "stats": "Detected: 0Attempted: 0Succeeded: 0Last result: -",
+        "tabs": [
+          {
+            "label": "Goods to buy",
+            "selected": true
+          },
+          {
+            "label": "Purchased items (0)",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "No trade goods are available from the current season template.",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      }
+    },
+    {
+      "language": "en",
+      "name": "distinct-counters",
+      "original": {
+        "stats": "Detected: 17Attempted: 5Succeeded: 2Last result: -",
+        "tabs": [
+          {
+            "label": "Goods to buy",
+            "selected": true
+          },
+          {
+            "label": "Purchased items (0)",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "No trade goods are available from the current season template.",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      },
+      "current": {
+        "stats": "Detected: 17Attempted: 5Succeeded: 2Last result: -",
+        "tabs": [
+          {
+            "label": "Goods to buy",
+            "selected": true
+          },
+          {
+            "label": "Purchased items (0)",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "No trade goods are available from the current season template.",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      }
+    },
+    {
+      "language": "en",
+      "name": "success",
+      "original": {
+        "stats": "Detected: 17Attempted: 5Succeeded: 2Last result: Success",
+        "tabs": [
+          {
+            "label": "Goods to buy",
+            "selected": true
+          },
+          {
+            "label": "Purchased items (0)",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "No trade goods are available from the current season template.",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      },
+      "current": {
+        "stats": "Detected: 17Attempted: 5Succeeded: 2Last result: Success",
+        "tabs": [
+          {
+            "label": "Goods to buy",
+            "selected": true
+          },
+          {
+            "label": "Purchased items (0)",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "No trade goods are available from the current season template.",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      }
+    },
+    {
+      "language": "en",
+      "name": "failed",
+      "original": {
+        "stats": "Detected: 17Attempted: 5Succeeded: 2Last result: Failed",
+        "tabs": [
+          {
+            "label": "Goods to buy",
+            "selected": true
+          },
+          {
+            "label": "Purchased items (0)",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "No trade goods are available from the current season template.",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      },
+      "current": {
+        "stats": "Detected: 17Attempted: 5Succeeded: 2Last result: Failed",
+        "tabs": [
+          {
+            "label": "Goods to buy",
+            "selected": true
+          },
+          {
+            "label": "Purchased items (0)",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "No trade goods are available from the current season template.",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      }
+    },
+    {
+      "language": "en",
+      "name": "skipped",
+      "original": {
+        "stats": "Detected: 17Attempted: 5Succeeded: 2Last result: Skipped",
+        "tabs": [
+          {
+            "label": "Goods to buy",
+            "selected": true
+          },
+          {
+            "label": "Purchased items (0)",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "No trade goods are available from the current season template.",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      },
+      "current": {
+        "stats": "Detected: 17Attempted: 5Succeeded: 2Last result: Skipped",
+        "tabs": [
+          {
+            "label": "Goods to buy",
+            "selected": true
+          },
+          {
+            "label": "Purchased items (0)",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "No trade goods are available from the current season template.",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      }
+    },
+    {
+      "language": "en",
+      "name": "confirmed_after_timeout",
+      "original": {
+        "stats": "Detected: 17Attempted: 5Succeeded: 2Last result: Confirmed after timeout",
+        "tabs": [
+          {
+            "label": "Goods to buy",
+            "selected": true
+          },
+          {
+            "label": "Purchased items (0)",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "No trade goods are available from the current season template.",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      },
+      "current": {
+        "stats": "Detected: 17Attempted: 5Succeeded: 2Last result: Confirmed after timeout",
+        "tabs": [
+          {
+            "label": "Goods to buy",
+            "selected": true
+          },
+          {
+            "label": "Purchased items (0)",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "No trade goods are available from the current season template.",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      }
+    },
+    {
+      "language": "en",
+      "name": "automation-trade-loading/goods",
+      "original": {
+        "stats": "Detected: 3Attempted: 2Succeeded: 2Last result: Success",
+        "tabs": [
+          {
+            "label": "Goods to buy",
+            "selected": true
+          },
+          {
+            "label": "Purchased items (2)",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "Loading goods...",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      },
+      "current": {
+        "stats": "Detected: 3Attempted: 2Succeeded: 2Last result: Success",
+        "tabs": [
+          {
+            "label": "Goods to buy",
+            "selected": true
+          },
+          {
+            "label": "Purchased items (2)",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "Loading goods...",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      }
+    },
+    {
+      "language": "en",
+      "name": "automation-trade-loading/purchases",
+      "original": {
+        "stats": "Detected: 3Attempted: 2Succeeded: 2Last result: Success",
+        "tabs": [
+          {
+            "label": "Goods to buy",
+            "selected": false
+          },
+          {
+            "label": "Purchased items (2)",
+            "selected": true
+          }
+        ],
+        "loadingOrEmpty": "",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 2,
+        "purchaseCopy": "Fixture Resource CrateQuantity: 5Price: 44 Fixture Market CreditPurchased at: 5:22:00 PMServer: #901Today's item #2Purchase confirmed after timeoutFixture Speedup ChestQuantity: 2Price: 120 Fixture Trade TokenPurchased at: 4:14:00 PMServer: #901Today's item #1"
+      },
+      "current": {
+        "stats": "Detected: 3Attempted: 2Succeeded: 2Last result: Success",
+        "tabs": [
+          {
+            "label": "Goods to buy",
+            "selected": false
+          },
+          {
+            "label": "Purchased items (2)",
+            "selected": true
+          }
+        ],
+        "loadingOrEmpty": "",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 2,
+        "purchaseCopy": "Fixture Resource CrateQuantity: 5Price: 44 Fixture Market CreditPurchased at: 5:22:00 PMServer: #901Today's item #2Purchase confirmed after timeoutFixture Speedup ChestQuantity: 2Price: 120 Fixture Trade TokenPurchased at: 4:14:00 PMServer: #901Today's item #1"
+      }
+    },
+    {
+      "language": "en",
+      "name": "automation-trade-loading/goods",
+      "original": {
+        "stats": "Detected: 3Attempted: 2Succeeded: 2Last result: Success",
+        "tabs": [
+          {
+            "label": "Goods to buy",
+            "selected": true
+          },
+          {
+            "label": "Purchased items (2)",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "Loading goods...",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      },
+      "current": {
+        "stats": "Detected: 3Attempted: 2Succeeded: 2Last result: Success",
+        "tabs": [
+          {
+            "label": "Goods to buy",
+            "selected": true
+          },
+          {
+            "label": "Purchased items (2)",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "Loading goods...",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      }
+    },
+    {
+      "language": "en",
+      "name": "automation-trade-loading/status-update-retains-purchases-tab",
+      "pass": true
+    },
+    {
+      "language": "en",
+      "name": "automation-trade-loading-retained/goods",
+      "original": {
+        "stats": "Detected: 3Attempted: 2Succeeded: 2Last result: Success",
+        "tabs": [
+          {
+            "label": "Goods to buy",
+            "selected": true
+          },
+          {
+            "label": "Purchased items (2)",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "Loading goods...",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 2,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      },
+      "current": {
+        "stats": "Detected: 3Attempted: 2Succeeded: 2Last result: Success",
+        "tabs": [
+          {
+            "label": "Goods to buy",
+            "selected": true
+          },
+          {
+            "label": "Purchased items (2)",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "Loading goods...",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 2,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      }
+    },
+    {
+      "language": "en",
+      "name": "automation-trade-loading-retained/purchases",
+      "original": {
+        "stats": "Detected: 3Attempted: 2Succeeded: 2Last result: Success",
+        "tabs": [
+          {
+            "label": "Goods to buy",
+            "selected": false
+          },
+          {
+            "label": "Purchased items (2)",
+            "selected": true
+          }
+        ],
+        "loadingOrEmpty": "",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 2,
+        "purchaseCopy": "Fixture Resource CrateQuantity: 5Price: 44 Fixture Market CreditPurchased at: 5:22:00 PMServer: #901Today's item #2Purchase confirmed after timeoutFixture Speedup ChestQuantity: 2Price: 120 Fixture Trade TokenPurchased at: 4:14:00 PMServer: #901Today's item #1"
+      },
+      "current": {
+        "stats": "Detected: 3Attempted: 2Succeeded: 2Last result: Success",
+        "tabs": [
+          {
+            "label": "Goods to buy",
+            "selected": false
+          },
+          {
+            "label": "Purchased items (2)",
+            "selected": true
+          }
+        ],
+        "loadingOrEmpty": "",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 2,
+        "purchaseCopy": "Fixture Resource CrateQuantity: 5Price: 44 Fixture Market CreditPurchased at: 5:22:00 PMServer: #901Today's item #2Purchase confirmed after timeoutFixture Speedup ChestQuantity: 2Price: 120 Fixture Trade TokenPurchased at: 4:14:00 PMServer: #901Today's item #1"
+      }
+    },
+    {
+      "language": "en",
+      "name": "automation-trade-loading-retained/goods",
+      "original": {
+        "stats": "Detected: 3Attempted: 2Succeeded: 2Last result: Success",
+        "tabs": [
+          {
+            "label": "Goods to buy",
+            "selected": true
+          },
+          {
+            "label": "Purchased items (2)",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "Loading goods...",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 2,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      },
+      "current": {
+        "stats": "Detected: 3Attempted: 2Succeeded: 2Last result: Success",
+        "tabs": [
+          {
+            "label": "Goods to buy",
+            "selected": true
+          },
+          {
+            "label": "Purchased items (2)",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "Loading goods...",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 2,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      }
+    },
+    {
+      "language": "en",
+      "name": "automation-trade-loading-retained/status-update-retains-purchases-tab",
+      "pass": true
+    },
+    {
+      "language": "en",
+      "name": "automation-trade-error/goods",
+      "original": {
+        "stats": "Detected: 3Attempted: 2Succeeded: 2Last result: Success",
+        "tabs": [
+          {
+            "label": "Goods to buy",
+            "selected": true
+          },
+          {
+            "label": "Purchased items (2)",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "No trade goods are available from the current season template.",
+        "fetchError": "Error: Fixture Trade goods request failed",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      },
+      "current": {
+        "stats": "Detected: 3Attempted: 2Succeeded: 2Last result: Success",
+        "tabs": [
+          {
+            "label": "Goods to buy",
+            "selected": true
+          },
+          {
+            "label": "Purchased items (2)",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "No trade goods are available from the current season template.",
+        "fetchError": "Error: Fixture Trade goods request failed",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      }
+    },
+    {
+      "language": "en",
+      "name": "automation-trade-error/purchases",
+      "original": {
+        "stats": "Detected: 3Attempted: 2Succeeded: 2Last result: Success",
+        "tabs": [
+          {
+            "label": "Goods to buy",
+            "selected": false
+          },
+          {
+            "label": "Purchased items (2)",
+            "selected": true
+          }
+        ],
+        "loadingOrEmpty": "",
+        "fetchError": "Error: Fixture Trade goods request failed",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 2,
+        "purchaseCopy": "Fixture Resource CrateQuantity: 5Price: 44 Fixture Market CreditPurchased at: 5:22:00 PMServer: #901Today's item #2Purchase confirmed after timeoutFixture Speedup ChestQuantity: 2Price: 120 Fixture Trade TokenPurchased at: 4:14:00 PMServer: #901Today's item #1"
+      },
+      "current": {
+        "stats": "Detected: 3Attempted: 2Succeeded: 2Last result: Success",
+        "tabs": [
+          {
+            "label": "Goods to buy",
+            "selected": false
+          },
+          {
+            "label": "Purchased items (2)",
+            "selected": true
+          }
+        ],
+        "loadingOrEmpty": "",
+        "fetchError": "Error: Fixture Trade goods request failed",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 2,
+        "purchaseCopy": "Fixture Resource CrateQuantity: 5Price: 44 Fixture Market CreditPurchased at: 5:22:00 PMServer: #901Today's item #2Purchase confirmed after timeoutFixture Speedup ChestQuantity: 2Price: 120 Fixture Trade TokenPurchased at: 4:14:00 PMServer: #901Today's item #1"
+      }
+    },
+    {
+      "language": "en",
+      "name": "automation-trade-error/goods",
+      "original": {
+        "stats": "Detected: 3Attempted: 2Succeeded: 2Last result: Success",
+        "tabs": [
+          {
+            "label": "Goods to buy",
+            "selected": true
+          },
+          {
+            "label": "Purchased items (2)",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "No trade goods are available from the current season template.",
+        "fetchError": "Error: Fixture Trade goods request failed",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      },
+      "current": {
+        "stats": "Detected: 3Attempted: 2Succeeded: 2Last result: Success",
+        "tabs": [
+          {
+            "label": "Goods to buy",
+            "selected": true
+          },
+          {
+            "label": "Purchased items (2)",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "No trade goods are available from the current season template.",
+        "fetchError": "Error: Fixture Trade goods request failed",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      }
+    },
+    {
+      "language": "en",
+      "name": "automation-trade-error/status-update-retains-purchases-tab",
+      "pass": true
+    },
+    {
+      "language": "en",
+      "name": "automation-trade-error-retained/goods",
+      "original": {
+        "stats": "Detected: 3Attempted: 2Succeeded: 2Last result: Success",
+        "tabs": [
+          {
+            "label": "Goods to buy",
+            "selected": true
+          },
+          {
+            "label": "Purchased items (2)",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "",
+        "fetchError": "Error: Fixture Trade goods request failed",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 2,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      },
+      "current": {
+        "stats": "Detected: 3Attempted: 2Succeeded: 2Last result: Success",
+        "tabs": [
+          {
+            "label": "Goods to buy",
+            "selected": true
+          },
+          {
+            "label": "Purchased items (2)",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "",
+        "fetchError": "Error: Fixture Trade goods request failed",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 2,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      }
+    },
+    {
+      "language": "en",
+      "name": "automation-trade-error-retained/purchases",
+      "original": {
+        "stats": "Detected: 3Attempted: 2Succeeded: 2Last result: Success",
+        "tabs": [
+          {
+            "label": "Goods to buy",
+            "selected": false
+          },
+          {
+            "label": "Purchased items (2)",
+            "selected": true
+          }
+        ],
+        "loadingOrEmpty": "",
+        "fetchError": "Error: Fixture Trade goods request failed",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 2,
+        "purchaseCopy": "Fixture Resource CrateQuantity: 5Price: 44 Fixture Market CreditPurchased at: 5:22:00 PMServer: #901Today's item #2Purchase confirmed after timeoutFixture Speedup ChestQuantity: 2Price: 120 Fixture Trade TokenPurchased at: 4:14:00 PMServer: #901Today's item #1"
+      },
+      "current": {
+        "stats": "Detected: 3Attempted: 2Succeeded: 2Last result: Success",
+        "tabs": [
+          {
+            "label": "Goods to buy",
+            "selected": false
+          },
+          {
+            "label": "Purchased items (2)",
+            "selected": true
+          }
+        ],
+        "loadingOrEmpty": "",
+        "fetchError": "Error: Fixture Trade goods request failed",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 2,
+        "purchaseCopy": "Fixture Resource CrateQuantity: 5Price: 44 Fixture Market CreditPurchased at: 5:22:00 PMServer: #901Today's item #2Purchase confirmed after timeoutFixture Speedup ChestQuantity: 2Price: 120 Fixture Trade TokenPurchased at: 4:14:00 PMServer: #901Today's item #1"
+      }
+    },
+    {
+      "language": "en",
+      "name": "automation-trade-error-retained/goods",
+      "original": {
+        "stats": "Detected: 3Attempted: 2Succeeded: 2Last result: Success",
+        "tabs": [
+          {
+            "label": "Goods to buy",
+            "selected": true
+          },
+          {
+            "label": "Purchased items (2)",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "",
+        "fetchError": "Error: Fixture Trade goods request failed",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 2,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      },
+      "current": {
+        "stats": "Detected: 3Attempted: 2Succeeded: 2Last result: Success",
+        "tabs": [
+          {
+            "label": "Goods to buy",
+            "selected": true
+          },
+          {
+            "label": "Purchased items (2)",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "",
+        "fetchError": "Error: Fixture Trade goods request failed",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 2,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      }
+    },
+    {
+      "language": "en",
+      "name": "automation-trade-error-retained/status-update-retains-purchases-tab",
+      "pass": true
+    },
+    {
+      "language": "en",
+      "name": "automation-trade-empty/goods",
+      "original": {
+        "stats": "Detected: 0Attempted: 0Succeeded: 0Last result: -",
+        "tabs": [
+          {
+            "label": "Goods to buy",
+            "selected": true
+          },
+          {
+            "label": "Purchased items (0)",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "No trade goods are available from the current season template.",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      },
+      "current": {
+        "stats": "Detected: 0Attempted: 0Succeeded: 0Last result: -",
+        "tabs": [
+          {
+            "label": "Goods to buy",
+            "selected": true
+          },
+          {
+            "label": "Purchased items (0)",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "No trade goods are available from the current season template.",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      }
+    },
+    {
+      "language": "en",
+      "name": "automation-trade-empty/purchases",
+      "original": {
+        "stats": "Detected: 0Attempted: 0Succeeded: 0Last result: -",
+        "tabs": [
+          {
+            "label": "Goods to buy",
+            "selected": false
+          },
+          {
+            "label": "Purchased items (0)",
+            "selected": true
+          }
+        ],
+        "loadingOrEmpty": "No goods have been purchased yet.",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      },
+      "current": {
+        "stats": "Detected: 0Attempted: 0Succeeded: 0Last result: -",
+        "tabs": [
+          {
+            "label": "Goods to buy",
+            "selected": false
+          },
+          {
+            "label": "Purchased items (0)",
+            "selected": true
+          }
+        ],
+        "loadingOrEmpty": "No goods have been purchased yet.",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      }
+    },
+    {
+      "language": "en",
+      "name": "automation-trade-empty/goods",
+      "original": {
+        "stats": "Detected: 0Attempted: 0Succeeded: 0Last result: -",
+        "tabs": [
+          {
+            "label": "Goods to buy",
+            "selected": true
+          },
+          {
+            "label": "Purchased items (0)",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "No trade goods are available from the current season template.",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      },
+      "current": {
+        "stats": "Detected: 0Attempted: 0Succeeded: 0Last result: -",
+        "tabs": [
+          {
+            "label": "Goods to buy",
+            "selected": true
+          },
+          {
+            "label": "Purchased items (0)",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "No trade goods are available from the current season template.",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      }
+    },
+    {
+      "language": "en",
+      "name": "automation-trade-empty/status-update-retains-purchases-tab",
+      "pass": true
+    },
+    {
+      "language": "en",
+      "name": "automation-trade-save-error/goods",
+      "original": {
+        "stats": "Detected: 3Attempted: 2Succeeded: 2Last result: Success",
+        "tabs": [
+          {
+            "label": "Goods to buy",
+            "selected": true
+          },
+          {
+            "label": "Purchased items (2)",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 2,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      },
+      "current": {
+        "stats": "Detected: 3Attempted: 2Succeeded: 2Last result: Success",
+        "tabs": [
+          {
+            "label": "Goods to buy",
+            "selected": true
+          },
+          {
+            "label": "Purchased items (2)",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 2,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      }
+    },
+    {
+      "language": "en",
+      "name": "automation-trade-save-error/purchases",
+      "original": {
+        "stats": "Detected: 3Attempted: 2Succeeded: 2Last result: Success",
+        "tabs": [
+          {
+            "label": "Goods to buy",
+            "selected": false
+          },
+          {
+            "label": "Purchased items (2)",
+            "selected": true
+          }
+        ],
+        "loadingOrEmpty": "",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 2,
+        "purchaseCopy": "Fixture Resource CrateQuantity: 5Price: 44 Fixture Market CreditPurchased at: 5:22:00 PMServer: #901Today's item #2Purchase confirmed after timeoutFixture Speedup ChestQuantity: 2Price: 120 Fixture Trade TokenPurchased at: 4:14:00 PMServer: #901Today's item #1"
+      },
+      "current": {
+        "stats": "Detected: 3Attempted: 2Succeeded: 2Last result: Success",
+        "tabs": [
+          {
+            "label": "Goods to buy",
+            "selected": false
+          },
+          {
+            "label": "Purchased items (2)",
+            "selected": true
+          }
+        ],
+        "loadingOrEmpty": "",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 2,
+        "purchaseCopy": "Fixture Resource CrateQuantity: 5Price: 44 Fixture Market CreditPurchased at: 5:22:00 PMServer: #901Today's item #2Purchase confirmed after timeoutFixture Speedup ChestQuantity: 2Price: 120 Fixture Trade TokenPurchased at: 4:14:00 PMServer: #901Today's item #1"
+      }
+    },
+    {
+      "language": "en",
+      "name": "automation-trade-save-error/goods",
+      "original": {
+        "stats": "Detected: 3Attempted: 2Succeeded: 2Last result: Success",
+        "tabs": [
+          {
+            "label": "Goods to buy",
+            "selected": true
+          },
+          {
+            "label": "Purchased items (2)",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 2,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      },
+      "current": {
+        "stats": "Detected: 3Attempted: 2Succeeded: 2Last result: Success",
+        "tabs": [
+          {
+            "label": "Goods to buy",
+            "selected": true
+          },
+          {
+            "label": "Purchased items (2)",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 2,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      }
+    },
+    {
+      "language": "en",
+      "name": "automation-trade-save-error/status-update-retains-purchases-tab",
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "name": "missing",
+      "original": {
+        "stats": "検出した交易所: 0購入試行: 0購入成功: 0最新結果: -",
+        "tabs": [
+          {
+            "label": "購入商品",
+            "selected": true
+          },
+          {
+            "label": "購入済み（0）",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "現在のシーズン設定に利用可能な交易商品がありません。",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      },
+      "current": {
+        "stats": "検出した交易所: 0購入試行: 0購入成功: 0最新結果: -",
+        "tabs": [
+          {
+            "label": "購入商品",
+            "selected": true
+          },
+          {
+            "label": "購入済み（0）",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "現在のシーズン設定に利用可能な交易商品がありません。",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      }
+    },
+    {
+      "language": "ja",
+      "name": "null",
+      "original": {
+        "stats": "検出した交易所: 0購入試行: 0購入成功: 0最新結果: -",
+        "tabs": [
+          {
+            "label": "購入商品",
+            "selected": true
+          },
+          {
+            "label": "購入済み（0）",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "現在のシーズン設定に利用可能な交易商品がありません。",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      },
+      "current": {
+        "stats": "検出した交易所: 0購入試行: 0購入成功: 0最新結果: -",
+        "tabs": [
+          {
+            "label": "購入商品",
+            "selected": true
+          },
+          {
+            "label": "購入済み（0）",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "現在のシーズン設定に利用可能な交易商品がありません。",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      }
+    },
+    {
+      "language": "ja",
+      "name": "empty-object",
+      "original": {
+        "stats": "検出した交易所: 0購入試行: 0購入成功: 0最新結果: -",
+        "tabs": [
+          {
+            "label": "購入商品",
+            "selected": true
+          },
+          {
+            "label": "購入済み（0）",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "現在のシーズン設定に利用可能な交易商品がありません。",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      },
+      "current": {
+        "stats": "検出した交易所: 0購入試行: 0購入成功: 0最新結果: -",
+        "tabs": [
+          {
+            "label": "購入商品",
+            "selected": true
+          },
+          {
+            "label": "購入済み（0）",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "現在のシーズン設定に利用可能な交易商品がありません。",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      }
+    },
+    {
+      "language": "ja",
+      "name": "null-fields",
+      "original": {
+        "stats": "検出した交易所: 0購入試行: 0購入成功: 0最新結果: -",
+        "tabs": [
+          {
+            "label": "購入商品",
+            "selected": true
+          },
+          {
+            "label": "購入済み（0）",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "現在のシーズン設定に利用可能な交易商品がありません。",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      },
+      "current": {
+        "stats": "検出した交易所: 0購入試行: 0購入成功: 0最新結果: -",
+        "tabs": [
+          {
+            "label": "購入商品",
+            "selected": true
+          },
+          {
+            "label": "購入済み（0）",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "現在のシーズン設定に利用可能な交易商品がありません。",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      }
+    },
+    {
+      "language": "ja",
+      "name": "zero-fields",
+      "original": {
+        "stats": "検出した交易所: 0購入試行: 0購入成功: 0最新結果: -",
+        "tabs": [
+          {
+            "label": "購入商品",
+            "selected": true
+          },
+          {
+            "label": "購入済み（0）",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "現在のシーズン設定に利用可能な交易商品がありません。",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      },
+      "current": {
+        "stats": "検出した交易所: 0購入試行: 0購入成功: 0最新結果: -",
+        "tabs": [
+          {
+            "label": "購入商品",
+            "selected": true
+          },
+          {
+            "label": "購入済み（0）",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "現在のシーズン設定に利用可能な交易商品がありません。",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      }
+    },
+    {
+      "language": "ja",
+      "name": "distinct-counters",
+      "original": {
+        "stats": "検出した交易所: 17購入試行: 5購入成功: 2最新結果: -",
+        "tabs": [
+          {
+            "label": "購入商品",
+            "selected": true
+          },
+          {
+            "label": "購入済み（0）",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "現在のシーズン設定に利用可能な交易商品がありません。",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      },
+      "current": {
+        "stats": "検出した交易所: 17購入試行: 5購入成功: 2最新結果: -",
+        "tabs": [
+          {
+            "label": "購入商品",
+            "selected": true
+          },
+          {
+            "label": "購入済み（0）",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "現在のシーズン設定に利用可能な交易商品がありません。",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      }
+    },
+    {
+      "language": "ja",
+      "name": "success",
+      "original": {
+        "stats": "検出した交易所: 17購入試行: 5購入成功: 2最新結果: 成功",
+        "tabs": [
+          {
+            "label": "購入商品",
+            "selected": true
+          },
+          {
+            "label": "購入済み（0）",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "現在のシーズン設定に利用可能な交易商品がありません。",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      },
+      "current": {
+        "stats": "検出した交易所: 17購入試行: 5購入成功: 2最新結果: 成功",
+        "tabs": [
+          {
+            "label": "購入商品",
+            "selected": true
+          },
+          {
+            "label": "購入済み（0）",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "現在のシーズン設定に利用可能な交易商品がありません。",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      }
+    },
+    {
+      "language": "ja",
+      "name": "failed",
+      "original": {
+        "stats": "検出した交易所: 17購入試行: 5購入成功: 2最新結果: 失敗",
+        "tabs": [
+          {
+            "label": "購入商品",
+            "selected": true
+          },
+          {
+            "label": "購入済み（0）",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "現在のシーズン設定に利用可能な交易商品がありません。",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      },
+      "current": {
+        "stats": "検出した交易所: 17購入試行: 5購入成功: 2最新結果: 失敗",
+        "tabs": [
+          {
+            "label": "購入商品",
+            "selected": true
+          },
+          {
+            "label": "購入済み（0）",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "現在のシーズン設定に利用可能な交易商品がありません。",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      }
+    },
+    {
+      "language": "ja",
+      "name": "skipped",
+      "original": {
+        "stats": "検出した交易所: 17購入試行: 5購入成功: 2最新結果: スキップ済み",
+        "tabs": [
+          {
+            "label": "購入商品",
+            "selected": true
+          },
+          {
+            "label": "購入済み（0）",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "現在のシーズン設定に利用可能な交易商品がありません。",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      },
+      "current": {
+        "stats": "検出した交易所: 17購入試行: 5購入成功: 2最新結果: スキップ済み",
+        "tabs": [
+          {
+            "label": "購入商品",
+            "selected": true
+          },
+          {
+            "label": "購入済み（0）",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "現在のシーズン設定に利用可能な交易商品がありません。",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      }
+    },
+    {
+      "language": "ja",
+      "name": "confirmed_after_timeout",
+      "original": {
+        "stats": "検出した交易所: 17購入試行: 5購入成功: 2最新結果: タイムアウト後に成功を確認",
+        "tabs": [
+          {
+            "label": "購入商品",
+            "selected": true
+          },
+          {
+            "label": "購入済み（0）",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "現在のシーズン設定に利用可能な交易商品がありません。",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      },
+      "current": {
+        "stats": "検出した交易所: 17購入試行: 5購入成功: 2最新結果: タイムアウト後に成功を確認",
+        "tabs": [
+          {
+            "label": "購入商品",
+            "selected": true
+          },
+          {
+            "label": "購入済み（0）",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "現在のシーズン設定に利用可能な交易商品がありません。",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      }
+    },
+    {
+      "language": "ja",
+      "name": "automation-trade-loading/goods",
+      "original": {
+        "stats": "検出した交易所: 3購入試行: 2購入成功: 2最新結果: 成功",
+        "tabs": [
+          {
+            "label": "購入商品",
+            "selected": true
+          },
+          {
+            "label": "購入済み（2）",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "商品を読み込み中…",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      },
+      "current": {
+        "stats": "検出した交易所: 3購入試行: 2購入成功: 2最新結果: 成功",
+        "tabs": [
+          {
+            "label": "購入商品",
+            "selected": true
+          },
+          {
+            "label": "購入済み（2）",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "商品を読み込み中…",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      }
+    },
+    {
+      "language": "ja",
+      "name": "automation-trade-loading/purchases",
+      "original": {
+        "stats": "検出した交易所: 3購入試行: 2購入成功: 2最新結果: 成功",
+        "tabs": [
+          {
+            "label": "購入商品",
+            "selected": false
+          },
+          {
+            "label": "購入済み（2）",
+            "selected": true
+          }
+        ],
+        "loadingOrEmpty": "",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 2,
+        "purchaseCopy": "Fixture Resource Crate数量：5価格：44 Fixture Market Credit購入日時：17:22:00サーバー：#901本日 2 個目タイムアウト後の再確認で購入成功Fixture Speedup Chest数量：2価格：120 Fixture Trade Token購入日時：16:14:00サーバー：#901本日 1 個目"
+      },
+      "current": {
+        "stats": "検出した交易所: 3購入試行: 2購入成功: 2最新結果: 成功",
+        "tabs": [
+          {
+            "label": "購入商品",
+            "selected": false
+          },
+          {
+            "label": "購入済み（2）",
+            "selected": true
+          }
+        ],
+        "loadingOrEmpty": "",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 2,
+        "purchaseCopy": "Fixture Resource Crate数量：5価格：44 Fixture Market Credit購入日時：17:22:00サーバー：#901本日 2 個目タイムアウト後の再確認で購入成功Fixture Speedup Chest数量：2価格：120 Fixture Trade Token購入日時：16:14:00サーバー：#901本日 1 個目"
+      }
+    },
+    {
+      "language": "ja",
+      "name": "automation-trade-loading/goods",
+      "original": {
+        "stats": "検出した交易所: 3購入試行: 2購入成功: 2最新結果: 成功",
+        "tabs": [
+          {
+            "label": "購入商品",
+            "selected": true
+          },
+          {
+            "label": "購入済み（2）",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "商品を読み込み中…",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      },
+      "current": {
+        "stats": "検出した交易所: 3購入試行: 2購入成功: 2最新結果: 成功",
+        "tabs": [
+          {
+            "label": "購入商品",
+            "selected": true
+          },
+          {
+            "label": "購入済み（2）",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "商品を読み込み中…",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      }
+    },
+    {
+      "language": "ja",
+      "name": "automation-trade-loading/status-update-retains-purchases-tab",
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "name": "automation-trade-loading-retained/goods",
+      "original": {
+        "stats": "検出した交易所: 3購入試行: 2購入成功: 2最新結果: 成功",
+        "tabs": [
+          {
+            "label": "購入商品",
+            "selected": true
+          },
+          {
+            "label": "購入済み（2）",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "商品を読み込み中…",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 2,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      },
+      "current": {
+        "stats": "検出した交易所: 3購入試行: 2購入成功: 2最新結果: 成功",
+        "tabs": [
+          {
+            "label": "購入商品",
+            "selected": true
+          },
+          {
+            "label": "購入済み（2）",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "商品を読み込み中…",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 2,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      }
+    },
+    {
+      "language": "ja",
+      "name": "automation-trade-loading-retained/purchases",
+      "original": {
+        "stats": "検出した交易所: 3購入試行: 2購入成功: 2最新結果: 成功",
+        "tabs": [
+          {
+            "label": "購入商品",
+            "selected": false
+          },
+          {
+            "label": "購入済み（2）",
+            "selected": true
+          }
+        ],
+        "loadingOrEmpty": "",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 2,
+        "purchaseCopy": "Fixture Resource Crate数量：5価格：44 Fixture Market Credit購入日時：17:22:00サーバー：#901本日 2 個目タイムアウト後の再確認で購入成功Fixture Speedup Chest数量：2価格：120 Fixture Trade Token購入日時：16:14:00サーバー：#901本日 1 個目"
+      },
+      "current": {
+        "stats": "検出した交易所: 3購入試行: 2購入成功: 2最新結果: 成功",
+        "tabs": [
+          {
+            "label": "購入商品",
+            "selected": false
+          },
+          {
+            "label": "購入済み（2）",
+            "selected": true
+          }
+        ],
+        "loadingOrEmpty": "",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 2,
+        "purchaseCopy": "Fixture Resource Crate数量：5価格：44 Fixture Market Credit購入日時：17:22:00サーバー：#901本日 2 個目タイムアウト後の再確認で購入成功Fixture Speedup Chest数量：2価格：120 Fixture Trade Token購入日時：16:14:00サーバー：#901本日 1 個目"
+      }
+    },
+    {
+      "language": "ja",
+      "name": "automation-trade-loading-retained/goods",
+      "original": {
+        "stats": "検出した交易所: 3購入試行: 2購入成功: 2最新結果: 成功",
+        "tabs": [
+          {
+            "label": "購入商品",
+            "selected": true
+          },
+          {
+            "label": "購入済み（2）",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "商品を読み込み中…",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 2,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      },
+      "current": {
+        "stats": "検出した交易所: 3購入試行: 2購入成功: 2最新結果: 成功",
+        "tabs": [
+          {
+            "label": "購入商品",
+            "selected": true
+          },
+          {
+            "label": "購入済み（2）",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "商品を読み込み中…",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 2,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      }
+    },
+    {
+      "language": "ja",
+      "name": "automation-trade-loading-retained/status-update-retains-purchases-tab",
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "name": "automation-trade-error/goods",
+      "original": {
+        "stats": "検出した交易所: 3購入試行: 2購入成功: 2最新結果: 成功",
+        "tabs": [
+          {
+            "label": "購入商品",
+            "selected": true
+          },
+          {
+            "label": "購入済み（2）",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "現在のシーズン設定に利用可能な交易商品がありません。",
+        "fetchError": "Error: Fixture Trade goods request failed",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      },
+      "current": {
+        "stats": "検出した交易所: 3購入試行: 2購入成功: 2最新結果: 成功",
+        "tabs": [
+          {
+            "label": "購入商品",
+            "selected": true
+          },
+          {
+            "label": "購入済み（2）",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "現在のシーズン設定に利用可能な交易商品がありません。",
+        "fetchError": "Error: Fixture Trade goods request failed",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      }
+    },
+    {
+      "language": "ja",
+      "name": "automation-trade-error/purchases",
+      "original": {
+        "stats": "検出した交易所: 3購入試行: 2購入成功: 2最新結果: 成功",
+        "tabs": [
+          {
+            "label": "購入商品",
+            "selected": false
+          },
+          {
+            "label": "購入済み（2）",
+            "selected": true
+          }
+        ],
+        "loadingOrEmpty": "",
+        "fetchError": "Error: Fixture Trade goods request failed",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 2,
+        "purchaseCopy": "Fixture Resource Crate数量：5価格：44 Fixture Market Credit購入日時：17:22:00サーバー：#901本日 2 個目タイムアウト後の再確認で購入成功Fixture Speedup Chest数量：2価格：120 Fixture Trade Token購入日時：16:14:00サーバー：#901本日 1 個目"
+      },
+      "current": {
+        "stats": "検出した交易所: 3購入試行: 2購入成功: 2最新結果: 成功",
+        "tabs": [
+          {
+            "label": "購入商品",
+            "selected": false
+          },
+          {
+            "label": "購入済み（2）",
+            "selected": true
+          }
+        ],
+        "loadingOrEmpty": "",
+        "fetchError": "Error: Fixture Trade goods request failed",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 2,
+        "purchaseCopy": "Fixture Resource Crate数量：5価格：44 Fixture Market Credit購入日時：17:22:00サーバー：#901本日 2 個目タイムアウト後の再確認で購入成功Fixture Speedup Chest数量：2価格：120 Fixture Trade Token購入日時：16:14:00サーバー：#901本日 1 個目"
+      }
+    },
+    {
+      "language": "ja",
+      "name": "automation-trade-error/goods",
+      "original": {
+        "stats": "検出した交易所: 3購入試行: 2購入成功: 2最新結果: 成功",
+        "tabs": [
+          {
+            "label": "購入商品",
+            "selected": true
+          },
+          {
+            "label": "購入済み（2）",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "現在のシーズン設定に利用可能な交易商品がありません。",
+        "fetchError": "Error: Fixture Trade goods request failed",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      },
+      "current": {
+        "stats": "検出した交易所: 3購入試行: 2購入成功: 2最新結果: 成功",
+        "tabs": [
+          {
+            "label": "購入商品",
+            "selected": true
+          },
+          {
+            "label": "購入済み（2）",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "現在のシーズン設定に利用可能な交易商品がありません。",
+        "fetchError": "Error: Fixture Trade goods request failed",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      }
+    },
+    {
+      "language": "ja",
+      "name": "automation-trade-error/status-update-retains-purchases-tab",
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "name": "automation-trade-error-retained/goods",
+      "original": {
+        "stats": "検出した交易所: 3購入試行: 2購入成功: 2最新結果: 成功",
+        "tabs": [
+          {
+            "label": "購入商品",
+            "selected": true
+          },
+          {
+            "label": "購入済み（2）",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "",
+        "fetchError": "Error: Fixture Trade goods request failed",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 2,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      },
+      "current": {
+        "stats": "検出した交易所: 3購入試行: 2購入成功: 2最新結果: 成功",
+        "tabs": [
+          {
+            "label": "購入商品",
+            "selected": true
+          },
+          {
+            "label": "購入済み（2）",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "",
+        "fetchError": "Error: Fixture Trade goods request failed",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 2,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      }
+    },
+    {
+      "language": "ja",
+      "name": "automation-trade-error-retained/purchases",
+      "original": {
+        "stats": "検出した交易所: 3購入試行: 2購入成功: 2最新結果: 成功",
+        "tabs": [
+          {
+            "label": "購入商品",
+            "selected": false
+          },
+          {
+            "label": "購入済み（2）",
+            "selected": true
+          }
+        ],
+        "loadingOrEmpty": "",
+        "fetchError": "Error: Fixture Trade goods request failed",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 2,
+        "purchaseCopy": "Fixture Resource Crate数量：5価格：44 Fixture Market Credit購入日時：17:22:00サーバー：#901本日 2 個目タイムアウト後の再確認で購入成功Fixture Speedup Chest数量：2価格：120 Fixture Trade Token購入日時：16:14:00サーバー：#901本日 1 個目"
+      },
+      "current": {
+        "stats": "検出した交易所: 3購入試行: 2購入成功: 2最新結果: 成功",
+        "tabs": [
+          {
+            "label": "購入商品",
+            "selected": false
+          },
+          {
+            "label": "購入済み（2）",
+            "selected": true
+          }
+        ],
+        "loadingOrEmpty": "",
+        "fetchError": "Error: Fixture Trade goods request failed",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 2,
+        "purchaseCopy": "Fixture Resource Crate数量：5価格：44 Fixture Market Credit購入日時：17:22:00サーバー：#901本日 2 個目タイムアウト後の再確認で購入成功Fixture Speedup Chest数量：2価格：120 Fixture Trade Token購入日時：16:14:00サーバー：#901本日 1 個目"
+      }
+    },
+    {
+      "language": "ja",
+      "name": "automation-trade-error-retained/goods",
+      "original": {
+        "stats": "検出した交易所: 3購入試行: 2購入成功: 2最新結果: 成功",
+        "tabs": [
+          {
+            "label": "購入商品",
+            "selected": true
+          },
+          {
+            "label": "購入済み（2）",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "",
+        "fetchError": "Error: Fixture Trade goods request failed",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 2,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      },
+      "current": {
+        "stats": "検出した交易所: 3購入試行: 2購入成功: 2最新結果: 成功",
+        "tabs": [
+          {
+            "label": "購入商品",
+            "selected": true
+          },
+          {
+            "label": "購入済み（2）",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "",
+        "fetchError": "Error: Fixture Trade goods request failed",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 2,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      }
+    },
+    {
+      "language": "ja",
+      "name": "automation-trade-error-retained/status-update-retains-purchases-tab",
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "name": "automation-trade-empty/goods",
+      "original": {
+        "stats": "検出した交易所: 0購入試行: 0購入成功: 0最新結果: -",
+        "tabs": [
+          {
+            "label": "購入商品",
+            "selected": true
+          },
+          {
+            "label": "購入済み（0）",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "現在のシーズン設定に利用可能な交易商品がありません。",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      },
+      "current": {
+        "stats": "検出した交易所: 0購入試行: 0購入成功: 0最新結果: -",
+        "tabs": [
+          {
+            "label": "購入商品",
+            "selected": true
+          },
+          {
+            "label": "購入済み（0）",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "現在のシーズン設定に利用可能な交易商品がありません。",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      }
+    },
+    {
+      "language": "ja",
+      "name": "automation-trade-empty/purchases",
+      "original": {
+        "stats": "検出した交易所: 0購入試行: 0購入成功: 0最新結果: -",
+        "tabs": [
+          {
+            "label": "購入商品",
+            "selected": false
+          },
+          {
+            "label": "購入済み（0）",
+            "selected": true
+          }
+        ],
+        "loadingOrEmpty": "購入済みの商品はありません。",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      },
+      "current": {
+        "stats": "検出した交易所: 0購入試行: 0購入成功: 0最新結果: -",
+        "tabs": [
+          {
+            "label": "購入商品",
+            "selected": false
+          },
+          {
+            "label": "購入済み（0）",
+            "selected": true
+          }
+        ],
+        "loadingOrEmpty": "購入済みの商品はありません。",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      }
+    },
+    {
+      "language": "ja",
+      "name": "automation-trade-empty/goods",
+      "original": {
+        "stats": "検出した交易所: 0購入試行: 0購入成功: 0最新結果: -",
+        "tabs": [
+          {
+            "label": "購入商品",
+            "selected": true
+          },
+          {
+            "label": "購入済み（0）",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "現在のシーズン設定に利用可能な交易商品がありません。",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      },
+      "current": {
+        "stats": "検出した交易所: 0購入試行: 0購入成功: 0最新結果: -",
+        "tabs": [
+          {
+            "label": "購入商品",
+            "selected": true
+          },
+          {
+            "label": "購入済み（0）",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "現在のシーズン設定に利用可能な交易商品がありません。",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      }
+    },
+    {
+      "language": "ja",
+      "name": "automation-trade-empty/status-update-retains-purchases-tab",
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "name": "automation-trade-save-error/goods",
+      "original": {
+        "stats": "検出した交易所: 3購入試行: 2購入成功: 2最新結果: 成功",
+        "tabs": [
+          {
+            "label": "購入商品",
+            "selected": true
+          },
+          {
+            "label": "購入済み（2）",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 2,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      },
+      "current": {
+        "stats": "検出した交易所: 3購入試行: 2購入成功: 2最新結果: 成功",
+        "tabs": [
+          {
+            "label": "購入商品",
+            "selected": true
+          },
+          {
+            "label": "購入済み（2）",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 2,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      }
+    },
+    {
+      "language": "ja",
+      "name": "automation-trade-save-error/purchases",
+      "original": {
+        "stats": "検出した交易所: 3購入試行: 2購入成功: 2最新結果: 成功",
+        "tabs": [
+          {
+            "label": "購入商品",
+            "selected": false
+          },
+          {
+            "label": "購入済み（2）",
+            "selected": true
+          }
+        ],
+        "loadingOrEmpty": "",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 2,
+        "purchaseCopy": "Fixture Resource Crate数量：5価格：44 Fixture Market Credit購入日時：17:22:00サーバー：#901本日 2 個目タイムアウト後の再確認で購入成功Fixture Speedup Chest数量：2価格：120 Fixture Trade Token購入日時：16:14:00サーバー：#901本日 1 個目"
+      },
+      "current": {
+        "stats": "検出した交易所: 3購入試行: 2購入成功: 2最新結果: 成功",
+        "tabs": [
+          {
+            "label": "購入商品",
+            "selected": false
+          },
+          {
+            "label": "購入済み（2）",
+            "selected": true
+          }
+        ],
+        "loadingOrEmpty": "",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 2,
+        "purchaseCopy": "Fixture Resource Crate数量：5価格：44 Fixture Market Credit購入日時：17:22:00サーバー：#901本日 2 個目タイムアウト後の再確認で購入成功Fixture Speedup Chest数量：2価格：120 Fixture Trade Token購入日時：16:14:00サーバー：#901本日 1 個目"
+      }
+    },
+    {
+      "language": "ja",
+      "name": "automation-trade-save-error/goods",
+      "original": {
+        "stats": "検出した交易所: 3購入試行: 2購入成功: 2最新結果: 成功",
+        "tabs": [
+          {
+            "label": "購入商品",
+            "selected": true
+          },
+          {
+            "label": "購入済み（2）",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 2,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      },
+      "current": {
+        "stats": "検出した交易所: 3購入試行: 2購入成功: 2最新結果: 成功",
+        "tabs": [
+          {
+            "label": "購入商品",
+            "selected": true
+          },
+          {
+            "label": "購入済み（2）",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 2,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      }
+    },
+    {
+      "language": "ja",
+      "name": "automation-trade-save-error/status-update-retains-purchases-tab",
+      "pass": true
+    }
+  ],
+  "fetchEffectCases": [
+    {
+      "mode": "success",
+      "fetchCalls": [
+        "fixture-review"
+      ],
+      "retainedGoods": false,
+      "error": "",
+      "loading": false,
+      "pass": true
+    },
+    {
+      "mode": "Error-rejection",
+      "fetchCalls": [
+        "fixture-review"
+      ],
+      "retainedGoods": true,
+      "error": "Error: review supplied failure",
+      "loading": false,
+      "pass": true
+    },
+    {
+      "mode": "string-rejection",
+      "fetchCalls": [
+        "fixture-review"
+      ],
+      "retainedGoods": true,
+      "error": "review string failure",
+      "loading": false,
+      "pass": true
+    },
+    {
+      "mode": "cancel-success",
+      "fetchCalls": [
+        "fixture-review"
+      ],
+      "retainedGoods": true,
+      "error": "",
+      "loading": true,
+      "pass": true
+    },
+    {
+      "mode": "cancel-failure",
+      "fetchCalls": [
+        "fixture-review"
+      ],
+      "retainedGoods": true,
+      "error": "",
+      "loading": true,
+      "pass": true
+    },
+    {
+      "mode": "offline",
+      "fetchCalls": [],
+      "retainedGoods": true,
+      "error": "",
+      "loading": false,
+      "pass": true
+    }
+  ],
+  "nativeFenceComparisons": [
+    {
+      "name": "fresh-native-default",
+      "original": {
+        "stats": "Detected: 0Attempted: 0Succeeded: 0Last result: -",
+        "tabs": [
+          {
+            "label": "Goods to buy",
+            "selected": true
+          },
+          {
+            "label": "Purchased items (0)",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "No trade goods are available from the current season template.",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      },
+      "current": {
+        "stats": "Detected: 0Attempted: 0Succeeded: 0Last result: -",
+        "tabs": [
+          {
+            "label": "Goods to buy",
+            "selected": true
+          },
+          {
+            "label": "Purchased items (0)",
+            "selected": false
+          }
+        ],
+        "loadingOrEmpty": "No trade goods are available from the current season template.",
+        "fetchError": "",
+        "fetchErrorInsidePanel": false,
+        "goodsCount": 0,
+        "purchasesCount": 0,
+        "purchaseCopy": ""
+      }
+    },
+    {
+      "name": "disabled-preview-supplied-state",
+      "pass": true
+    }
+  ],
+  "limits": "Synthetic local full-component hooks/render checks and original fetch-effect contracts. No clone native fetch provider, purchases, persistence, original protected runtime or pixel comparison. Purchase grouping/control behavior independently checked by existing regression harnesses, not duplicated here.",
+  "producerBoundary": {
+    "path": "src/LWBridge.UI-0.3.17/src/App.jsx",
+    "sha256": "8B754AECF84022BF082A10EC4F498C76C1B318E6C292C0DE5A0A18F729F42012",
+    "utf8ByteOffset": 17379,
+    "expression": "previewState={backendBridge.mode === \"preview\" ? new URLSearchParams(window.location.search).get(\"previewState\") || \"\" : \"\"}"
+  },
+  "fixtures": {
+    "path": "src/LWBridge.UI-0.3.17/src/previewAutomationFixtures.js",
+    "sha256": "9A09AE38613821230A3E727C7178012664EFC0B1297EE2EEE146946C138A4A2D"
+  }
+}

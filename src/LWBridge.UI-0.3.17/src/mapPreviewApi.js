@@ -212,13 +212,34 @@ function tableStateFixtureRows(now) {
   })]));
 }
 
+function rowActionFixtureRows(fixtureTime) {
+  // Synthetic inputs exercise recovered render branches; no native action runs.
+  const rows = tableStateFixtureRows(fixtureTime);
+  for (const kind of ["truck", "railway"]) {
+    rows[kind] = [
+      { ...fixtureRow(kind, 1), uuid: "1001", marchUuid: "" },
+      { ...fixtureRow(kind, 2), uuid: "1002", marchUuid: "fixture-follow" },
+      { ...fixtureRow(kind, 3), uuid: "1003", marchUuid: "fixture-following" },
+      { ...fixtureRow(kind, 4), serverId: 0, uuid: "", ownerName: "", allianceName: "", marchUuid: "   " },
+    ];
+  }
+  rows.city = [
+    { ...fixtureRow("city", 1), marked: true, trackerState: "missing" },
+    { ...fixtureRow("city", 2), marked: false, trackerState: "replaced" },
+    { ...fixtureRow("city", 3), marked: true },
+    { ...fixtureRow("city", 4), x: 0 },
+    { ...fixtureRow("city", 5), y: 2.5 },
+  ];
+  return rows;
+}
+
 export function getMapPreviewProvider(bridgeMode, previewState) {
   if (bridgeMode !== "preview" || !String(previewState || "").startsWith("map-")) return null;
   if (cache.has(previewState)) return cache.get(previewState);
 
   const summary = fixtureSummary();
   const tableTime = Date.now();
-  const tableRows = previewState === "map-table-states" ? tableStateFixtureRows(tableTime) : null;
+  const tableRows = previewState === "map-row-actions" ? rowActionFixtureRows(tableTime) : previewState === "map-table-states" ? tableStateFixtureRows(tableTime) : null;
   const api = {
     profileId: "preview-map-profile",
     previewFixture: true,
@@ -244,6 +265,7 @@ export function getMapPreviewProvider(bridgeMode, previewState) {
     exportCities: () => blocked("city export"),
   };
   const provider = {
+    previewJumpingKeys: previewState === "map-row-actions" ? { truck: `${FIXTURE_SERVER_ID}:fixture-following`, railway: `${FIXTURE_SERVER_ID}:fixture-following`, city: `${FIXTURE_SERVER_ID}:413:523` } : null,
     // Synthetic labels for browser-only presentation checks, not recovered game text.
     gameTexts: { "100282": "Fixture Resource A", "100281": "Fixture Resource B", "Fixture Monster A": "Fixture Monster A Label", "Fixture Monster B": "Fixture Monster B Label", "Fixture Radar Treasure": "Fixture Radar Treasure Label", "Fixture Lucky Treasure": "Fixture Lucky Treasure Label" },
     mapApi: api,

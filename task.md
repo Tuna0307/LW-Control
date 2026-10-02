@@ -77,9 +77,17 @@ Live-prove each implemented in-scope function against an assistant-owned/current
 
 ## Current instruction
 
-Latest owner direction, 2026-10-02: speed up UI progress using the returning
+Latest delivery, 2026-10-02: owner requested project-lead takeover while worker
+rests. LWB317-UI-PARALLEL-001 is COMPLETE for its assigned source/local scope;
+PM-022 accepts independently reviewed Map row/basic-table and Trade status/
+inactive-fixture corrections. Relevant checks/build/package and new validators
+pass. Do not restart the campaign. Broader Map interactions, Treasure Checking
+producer, Automation/AFK conditional states, assets and original pixels remain
+open; a next named UI task must be assigned separately. No native/gameplay work.
+
+Historical assignment direction, superseded by delivery above: speed up UI progress using the returning
 worker and two subagents. Current assignment:
-`docs/work-items/LWB317-UI-PARALLEL-001.md` (ASSIGNED, awaiting manual relay).
+`docs/work-items/LWB317-UI-PARALLEL-001.md` (now delivered by lead takeover).
 Coordinator corrects Map row defects, A independently reviews/corrects Trade 003E,
 B reviews City/Resource/Monster tables read-only. This explicitly supersedes
 historical single-worker/no-subagent limits only for those three lanes. It does

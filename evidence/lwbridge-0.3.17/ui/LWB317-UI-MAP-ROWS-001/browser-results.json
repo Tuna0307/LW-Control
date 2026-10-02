@@ -1,0 +1,733 @@
+{
+  "fixture": "map-row-actions",
+  "online": false,
+  "synthetic": true,
+  "flows": [
+    {
+      "kind": "truck",
+      "language": "en",
+      "rows": [
+        {
+          "actions": [],
+          "cells": [
+            "",
+            "-",
+            "Truck Owner 1",
+            "R",
+            "18,175,000",
+            "×2",
+            "Ready｜Plundered 1/2",
+            "1/4/2027, 2:23:30 AM",
+            "1/4/2027, 2:12:20 AM"
+          ],
+          "className": "map-row",
+          "label": "Select Truck Owner 1, server 321"
+        },
+        {
+          "actions": [
+            {
+              "disabled": true,
+              "text": "Follow"
+            }
+          ],
+          "cells": [
+            "",
+            "Follow",
+            "Truck Owner 2",
+            "SR",
+            "18,350,000",
+            "×3",
+            "Fully plundered 2/2",
+            "1/4/2027, 2:23:40 AM",
+            "1/4/2027, 2:11:20 AM"
+          ],
+          "className": "map-row",
+          "label": "Select Truck Owner 2, server 321"
+        },
+        {
+          "actions": [
+            {
+              "disabled": true,
+              "text": "Following…"
+            }
+          ],
+          "cells": [
+            "",
+            "Following…",
+            "Truck Owner 3",
+            "SSR",
+            "18,525,000",
+            "×4",
+            "Ready｜Plundered 0/2",
+            "1/4/2027, 2:23:50 AM",
+            "1/4/2027, 2:10:20 AM"
+          ],
+          "className": "map-row",
+          "label": "Select Truck Owner 3, server 321"
+        },
+        {
+          "actions": [],
+          "cells": [
+            "",
+            "-",
+            "-",
+            "UR",
+            "18,700,000",
+            "×5",
+            "Ready｜Plundered 1/2",
+            "1/4/2027, 2:24:00 AM",
+            "1/4/2027, 2:09:20 AM"
+          ],
+          "className": "map-row",
+          "label": "Select , server 0"
+        }
+      ]
+    },
+    {
+      "kind": "railway",
+      "language": "en",
+      "rows": [
+        {
+          "actions": [],
+          "cells": [
+            "-",
+            "QA Alliance",
+            "R",
+            "24,150,000",
+            "×2",
+            "1/4/2027, 2:13:35 AM",
+            "1/4/2027, 2:12:20 AM"
+          ],
+          "className": "map-row"
+        },
+        {
+          "actions": [
+            {
+              "disabled": true,
+              "text": "Follow"
+            }
+          ],
+          "cells": [
+            "Follow",
+            "TST Alliance",
+            "SR",
+            "24,300,000",
+            "×3",
+            "1/4/2027, 2:13:50 AM",
+            "1/4/2027, 2:11:20 AM"
+          ],
+          "className": "map-row"
+        },
+        {
+          "actions": [
+            {
+              "disabled": true,
+              "text": "Following…"
+            }
+          ],
+          "cells": [
+            "Following…",
+            "QA Alliance",
+            "SSR",
+            "24,450,000",
+            "×4",
+            "1/4/2027, 2:14:05 AM",
+            "1/4/2027, 2:10:20 AM"
+          ],
+          "className": "map-row"
+        },
+        {
+          "actions": [],
+          "cells": [
+            "-",
+            "TST",
+            "UR",
+            "24,600,000",
+            "×5",
+            "1/4/2027, 2:14:20 AM",
+            "1/4/2027, 2:09:20 AM"
+          ],
+          "className": "map-row"
+        }
+      ]
+    },
+    {
+      "kind": "city",
+      "language": "en",
+      "headers": [
+        "Marked",
+        "Coordinates",
+        "Player",
+        "Alliance",
+        "Level",
+        "HP",
+        "Shield Ends",
+        "Updated At1"
+      ],
+      "rows": [
+        {
+          "actions": [
+            {
+              "disabled": true,
+              "label": "Unmark player",
+              "svg": "ui-icon is-filled",
+              "text": "",
+              "title": "Unmark player · Original position is empty"
+            },
+            {
+              "disabled": true,
+              "label": null,
+              "text": "411,521Jump",
+              "title": ""
+            }
+          ],
+          "cells": [
+            "",
+            "411,521Jump",
+            "Fixture Commander 1",
+            "QA",
+            "21",
+            "5,125,000",
+            "-",
+            "1/4/2027, 2:12:20 AM"
+          ],
+          "className": "map-row is-marked is-missing"
+        },
+        {
+          "actions": [
+            {
+              "disabled": true,
+              "label": "Mark player",
+              "svg": "ui-icon",
+              "text": "",
+              "title": "Mark player · Original position is occupied by another player"
+            },
+            {
+              "disabled": true,
+              "label": null,
+              "text": "412,522Jump",
+              "title": ""
+            }
+          ],
+          "cells": [
+            "",
+            "412,522Jump",
+            "Fixture Commander 2",
+            "TST",
+            "22",
+            "5,250,000",
+            "-",
+            "1/4/2027, 2:11:20 AM"
+          ],
+          "className": "map-row is-replaced"
+        },
+        {
+          "actions": [
+            {
+              "disabled": true,
+              "label": "Unmark player",
+              "svg": "ui-icon is-filled",
+              "text": "",
+              "title": "Unmark player"
+            },
+            {
+              "disabled": true,
+              "label": null,
+              "text": "413,523Jumping…",
+              "title": ""
+            }
+          ],
+          "cells": [
+            "",
+            "413,523Jumping…",
+            "Fixture Commander 3",
+            "QA",
+            "23",
+            "5,375,000",
+            "1/4/2027, 2:16:20 AM",
+            "1/4/2027, 2:10:20 AM"
+          ],
+          "className": "map-row is-marked"
+        },
+        {
+          "actions": [
+            {
+              "disabled": true,
+              "label": "Mark player",
+              "svg": "ui-icon",
+              "text": "",
+              "title": "Mark player"
+            }
+          ],
+          "cells": [
+            "",
+            "-",
+            "Fixture Commander 4",
+            "-",
+            "24",
+            "5,500,000",
+            "-",
+            "1/4/2027, 2:09:20 AM"
+          ],
+          "className": "map-row"
+        },
+        {
+          "actions": [
+            {
+              "disabled": true,
+              "label": "Unmark player",
+              "svg": "ui-icon is-filled",
+              "text": "",
+              "title": "Unmark player"
+            }
+          ],
+          "cells": [
+            "",
+            "-",
+            "Fixture Commander 5",
+            "QA",
+            "25",
+            "5,625,000",
+            "-",
+            "1/4/2027, 2:08:20 AM"
+          ],
+          "className": "map-row is-marked"
+        }
+      ]
+    },
+    {
+      "kind": "resource",
+      "language": "en",
+      "headers": [
+        "Coordinates",
+        "Resource",
+        "Level",
+        "Status",
+        "Updated At1"
+      ],
+      "rows": [
+        {
+          "actions": [
+            {
+              "disabled": true,
+              "text": "411,521Jump"
+            }
+          ],
+          "cells": [
+            "411,521Jump",
+            "Fixture Resource B",
+            "2",
+            "—",
+            "1/4/2027, 2:12:20 AM"
+          ],
+          "className": "map-row"
+        },
+        {
+          "actions": [
+            {
+              "disabled": true,
+              "text": "412,522Jump"
+            }
+          ],
+          "cells": [
+            "412,522Jump",
+            "Fixture Resource A",
+            "3",
+            "Idle",
+            "1/4/2027, 2:11:20 AM"
+          ],
+          "className": "map-row"
+        },
+        {
+          "actions": [
+            {
+              "disabled": true,
+              "text": "413,523Jump"
+            }
+          ],
+          "cells": [
+            "413,523Jump",
+            "Fixture Resource B",
+            "4",
+            "Gathering",
+            "1/4/2027, 2:10:20 AM"
+          ],
+          "className": "map-row"
+        },
+        {
+          "actions": [
+            {
+              "disabled": true,
+              "text": "414,524Jump"
+            }
+          ],
+          "cells": [
+            "414,524Jump",
+            "Fixture Resource A",
+            "5",
+            "Idle",
+            "1/4/2027, 2:09:20 AM"
+          ],
+          "className": "map-row"
+        }
+      ]
+    },
+    {
+      "kind": "monster",
+      "language": "en",
+      "headers": [
+        "Coordinates",
+        "Name",
+        "Level",
+        "Distance",
+        "Updated At1"
+      ],
+      "rows": [
+        {
+          "actions": [
+            {
+              "disabled": true,
+              "text": "411,521Jump"
+            }
+          ],
+          "cells": [
+            "411,521Jump",
+            "Fixture Monster A Label",
+            "21",
+            "47",
+            "1/4/2027, 2:12:20 AM"
+          ]
+        },
+        {
+          "actions": [
+            {
+              "disabled": true,
+              "text": "412,522Jump"
+            }
+          ],
+          "cells": [
+            "412,522Jump",
+            "Fixture Monster B Label",
+            "22",
+            "54",
+            "1/4/2027, 2:11:20 AM"
+          ]
+        },
+        {
+          "actions": [
+            {
+              "disabled": true,
+              "text": "413,523Jump"
+            }
+          ],
+          "cells": [
+            "413,523Jump",
+            "Fixture Monster A Label",
+            "23",
+            "61",
+            "1/4/2027, 2:10:20 AM"
+          ]
+        },
+        {
+          "actions": [
+            {
+              "disabled": true,
+              "text": "414,524Jump"
+            }
+          ],
+          "cells": [
+            "414,524Jump",
+            "Fixture Monster B Label",
+            "24",
+            "68",
+            "1/4/2027, 2:09:20 AM"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "truck",
+      "language": "ja",
+      "rows": [
+        {
+          "actions": [],
+          "cells": [
+            "",
+            "-",
+            "Truck Owner 1",
+            "R",
+            "18,175,000",
+            "×2",
+            "略奪可能｜略奪 1/2",
+            "2027/1/4 2:23:30",
+            "2027/1/4 2:12:20"
+          ],
+          "label": "サーバー 321 の Truck Owner 1 を選択"
+        },
+        {
+          "actions": [
+            {
+              "disabled": true,
+              "text": "追跡"
+            }
+          ],
+          "cells": [
+            "",
+            "追跡",
+            "Truck Owner 2",
+            "SR",
+            "18,350,000",
+            "×3",
+            "略奪済み 2/2",
+            "2027/1/4 2:23:40",
+            "2027/1/4 2:11:20"
+          ],
+          "label": "サーバー 321 の Truck Owner 2 を選択"
+        },
+        {
+          "actions": [
+            {
+              "disabled": true,
+              "text": "追跡中…"
+            }
+          ],
+          "cells": [
+            "",
+            "追跡中…",
+            "Truck Owner 3",
+            "SSR",
+            "18,525,000",
+            "×4",
+            "略奪可能｜略奪 0/2",
+            "2027/1/4 2:23:50",
+            "2027/1/4 2:10:20"
+          ],
+          "label": "サーバー 321 の Truck Owner 3 を選択"
+        },
+        {
+          "actions": [],
+          "cells": [
+            "",
+            "-",
+            "-",
+            "UR",
+            "18,700,000",
+            "×5",
+            "略奪可能｜略奪 1/2",
+            "2027/1/4 2:24:00",
+            "2027/1/4 2:09:20"
+          ],
+          "label": "サーバー 0 の  を選択"
+        }
+      ]
+    },
+    {
+      "kind": "railway",
+      "language": "ja",
+      "rows": [
+        {
+          "actions": [],
+          "cells": [
+            "-",
+            "QA Alliance",
+            "R",
+            "24,150,000",
+            "×2",
+            "2027/1/4 2:13:35",
+            "2027/1/4 2:12:20"
+          ]
+        },
+        {
+          "actions": [
+            {
+              "disabled": true,
+              "text": "追跡"
+            }
+          ],
+          "cells": [
+            "追跡",
+            "TST Alliance",
+            "SR",
+            "24,300,000",
+            "×3",
+            "2027/1/4 2:13:50",
+            "2027/1/4 2:11:20"
+          ]
+        },
+        {
+          "actions": [
+            {
+              "disabled": true,
+              "text": "追跡中…"
+            }
+          ],
+          "cells": [
+            "追跡中…",
+            "QA Alliance",
+            "SSR",
+            "24,450,000",
+            "×4",
+            "2027/1/4 2:14:05",
+            "2027/1/4 2:10:20"
+          ]
+        },
+        {
+          "actions": [],
+          "cells": [
+            "-",
+            "TST",
+            "UR",
+            "24,600,000",
+            "×5",
+            "2027/1/4 2:14:20",
+            "2027/1/4 2:09:20"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "city",
+      "language": "ja",
+      "rows": [
+        {
+          "actions": [
+            {
+              "disabled": true,
+              "label": "マークを解除",
+              "text": "",
+              "title": "マークを解除 · 元の位置は空です"
+            },
+            {
+              "disabled": true,
+              "label": null,
+              "text": "411,521移動",
+              "title": ""
+            }
+          ],
+          "cells": [
+            "",
+            "411,521移動",
+            "Fixture Commander 1",
+            "QA",
+            "21",
+            "5,125,000",
+            "-",
+            "2027/1/4 2:12:20"
+          ],
+          "className": "map-row is-marked is-missing"
+        },
+        {
+          "actions": [
+            {
+              "disabled": true,
+              "label": "プレイヤーをマーク",
+              "text": "",
+              "title": "プレイヤーをマーク · 元の位置は別のプレイヤーに占有されています"
+            },
+            {
+              "disabled": true,
+              "label": null,
+              "text": "412,522移動",
+              "title": ""
+            }
+          ],
+          "cells": [
+            "",
+            "412,522移動",
+            "Fixture Commander 2",
+            "TST",
+            "22",
+            "5,250,000",
+            "-",
+            "2027/1/4 2:11:20"
+          ],
+          "className": "map-row is-replaced"
+        },
+        {
+          "actions": [
+            {
+              "disabled": true,
+              "label": "マークを解除",
+              "text": "",
+              "title": "マークを解除"
+            },
+            {
+              "disabled": true,
+              "label": null,
+              "text": "413,523移動中…",
+              "title": ""
+            }
+          ],
+          "cells": [
+            "",
+            "413,523移動中…",
+            "Fixture Commander 3",
+            "QA",
+            "23",
+            "5,375,000",
+            "2027/1/4 2:16:20",
+            "2027/1/4 2:10:20"
+          ],
+          "className": "map-row is-marked"
+        },
+        {
+          "actions": [
+            {
+              "disabled": true,
+              "label": "プレイヤーをマーク",
+              "text": "",
+              "title": "プレイヤーをマーク"
+            }
+          ],
+          "cells": [
+            "",
+            "-",
+            "Fixture Commander 4",
+            "-",
+            "24",
+            "5,500,000",
+            "-",
+            "2027/1/4 2:09:20"
+          ],
+          "className": "map-row"
+        },
+        {
+          "actions": [
+            {
+              "disabled": true,
+              "label": "マークを解除",
+              "text": "",
+              "title": "マークを解除"
+            }
+          ],
+          "cells": [
+            "",
+            "-",
+            "Fixture Commander 5",
+            "QA",
+            "25",
+            "5,625,000",
+            "-",
+            "2027/1/4 2:08:20"
+          ],
+          "className": "map-row is-marked"
+        }
+      ]
+    }
+  ],
+  "consoleErrors": [],
+  "screenshots": [
+    {
+      "file": "city-row-actions.png",
+      "inspected": true
+    },
+    {
+      "file": "truck-row-actions-ja.png",
+      "inspected": true
+    }
+  ],
+  "limits": [
+    "Screenshots are viewport captures with clipped lower/right table edges; DOM observations cover all asserted rows.",
+    "No native actions executed."
+  ]
+}

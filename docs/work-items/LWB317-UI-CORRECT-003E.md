@@ -1,6 +1,10 @@
 # LWB317-UI-CORRECT-003E — Trade status/loading/error presentation only
 
-Project-lead assignment: 2026-10-02. State: AWAITING_REVIEW.
+Project-lead assignment: 2026-10-02. State: COMPLETE / ACCEPTED for focused source/local scope.
+PM-022 integrates independent TRADE-STATUS-001 review and the proven inactive
+fixture correction. Source/component/effect/fencing, eight new browser flows,
+regressions and package checks pass. Native providers/original pixels remain open.
+Continuation below is historical; do not restart this completed unit.
 Owner requested project-lead takeover while the worker rests. Implementation,
 focused source/local render checks, browser QA and canonical checks are complete.
 Delivery: docs/reviews/2026-10-02-LWB317-UI-CORRECT-003E.md and focused evidence.

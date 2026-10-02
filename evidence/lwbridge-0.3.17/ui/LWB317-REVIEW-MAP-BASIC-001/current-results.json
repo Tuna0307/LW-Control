@@ -1,0 +1,73 @@
+{
+  "mode": "current",
+  "baselineHead": "6a03a328f25e475bf8e0a8e711d172b62b25fe29",
+  "status": "ACCEPT_SOURCE_LOCAL",
+  "files": {
+    "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx": "D37F54CB1DDB05160FEDFD32FF22EC45F5FF2DF6A7DA2CC389D27CD2DFA0C58C",
+    "src/LWBridge.UI-0.3.17/src/mapTablePresentation.js": "B6C0D9B369D3E78CCC74AA7296F2B88EABF6B6560C3669A199546FC299839427",
+    "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js": "CE74345518BE72E417A510B982C591729E5683F69751E190805598C4C05D3089",
+    "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-BVfnK1wp.js": "44C4E4043825B7DB296B64171951B27176F8850FF8D7D337CC991DF4765524C6"
+  },
+  "locators": {
+    "k": {
+      "byte": 7065,
+      "expression": "function k(e,t){return e[t]}"
+    },
+    "A": {
+      "byte": 7320,
+      "expression": "function A(e){return O.has(e)}"
+    },
+    "j": {
+      "byte": 7467,
+      "expression": "function j(e,t,n){let r=String(t||``).trim();if(!r)return n;let i=e[r];return i&&i!==r?i:n}"
+    },
+    "qe": {
+      "byte": 7766,
+      "expression": "function qe(e){return[`gatherMarchUuid`,`gatherUid`].some(t=>{let n=String(k(e,t)||``).trim();return n!==``&&n!==`0`})}"
+    },
+    "N": {
+      "byte": 7885,
+      "expression": "function N(e,t){let n=Number(e);if(!Number.isFinite(n)||n<=0)return`-`;let r=n<0xe8d4a51000?n*1e3:n;return new Date(r).toLocaleString(t)}"
+    },
+    "Qe": {
+      "byte": 8999,
+      "expression": "function Qe(e,t){return e?N(e,t):`-`}"
+    },
+    "$e": {
+      "byte": 9036,
+      "expression": "function $e(e,t){let n=Number(e);if(!Number.isFinite(n)||n<=0)return`-`;let r=n<0xe8d4a51000?n*1e3:n;return r>Date.now()?new Date(r).toLocaleString(t):`-`}"
+    },
+    "I": {
+      "byte": 9191,
+      "expression": "function I(e,t){let n=Number(e);return Number.isFinite(n)?n.toLocaleString(t):`-`}"
+    },
+    "et": {
+      "byte": 9367,
+      "expression": "function et(e){let t=Number(k(e,`x`)),n=Number(k(e,`y`));return Number.isFinite(t)&&Number.isFinite(n)?`${t},${n}`:`-`}"
+    },
+    "nt": {
+      "byte": 9594,
+      "expression": "function nt(e,t,n,i,a,o){let s={label:A(e)?t(`map.liveTarget`):t(`map.coordinates`),width:`190px`,className:`map-column-coordinate`,value:et,coordinate:!0},c={label:t(`map.updatedAt`),width:`150px`,sortBy:`updatedAt`,value:e=>Qe(e.updatedAt,n)};return e===`city`?[{label:t(`map.marked`),width:`48px`,className:`map-column-mark`,mark:!0},s,{label:t(`map.player`),width:`minmax(130px, 1fr)`,value:e=>String(k(e,`ownerName`)||`-`)},{label:t(`map.alliance`),width:`minmax(110px, 1fr)`,value:e=>String(k(e,`allianceName`)||`-`)},{label:t(`map.level`),width:`70px`,sortBy:`level`,value:e=>I(k(e,`level`),n)},{label:`HP`,width:`90px`,sortBy:`health`,value:e=>I(k(e,`health`),n)},{label:t(`automation.shieldEnds`),width:`150px`,sortBy:`shield`,value:e=>$e(k(e,`protectEndTime`)||k(e,`shieldEndTime`),n)},c]:e===`resource`?[s,{label:t(`map.resource`),width:`minmax(150px, 1fr)`,value:e=>j(i,k(e,`resourceNameKey`),t(`map.unknownResource`))},{label:t(`map.level`),width:`70px`,sortBy:`level`,value:e=>I(k(e,`level`),n)},{label:t(`common.status`),width:`80px`,value:e=>{let n=qe(e);return j(i,n?`300039`:`372138`,t(n?`map.resourceGathering`:`map.resourceIdle`))}},c]:e===`monster`?[s,{label:t(`common.name`),width:`minmax(150px, 1fr)`,value:e=>j(i,k(e,`monsterNameKey`),t(`map.unknownMonster`))},{label:t(`map.level`),width:`70px`,sortBy:`level`,value:e=>I(k(e,`level`),n)},{label:t(`map.distance`),width:`90px`,sortBy:`distance`,value:e=>I(k(e,`distanceFromHome`),n)},c]:e===`truck`?[{label:t(`map.selectTask`),width:`56px`,className:`map-task-select`,select:!0},s,{label:t(`map.playerAlliance`),width:`minmax(170px, 1fr)`,value:e=>String(k(e,`ownerName`)||k(e,`allianceName`)||`-`)},{label:t(`map.quality`),width:`70px`,sortBy:`quality`,value:e=>k(e,`isSpecialURQuality`)===!0?t(`map.reindeerQuality`):L(k(e,`quality`))},{label:t(`map.escortPower`),width:`120px`,sortBy:`power`,value:e=>I(k(e,`power`),n)},{label:t(`map.retainedGoods`),width:`minmax(360px, 2fr)`,sortBy:a?`itemCount`:void 0,rewards:`currentGoods`},{label:t(`map.plunderStatus`),width:`190px`,sortBy:`remainingLootCount`,value:e=>{let n=e,i=l(n),a=Math.max(0,Number(n.robTimes)||0),o=r(n,Date.now());return o===`full`?`${t(`map.truckPlunderFull`)} ${a}/${i}`:o===`protected`?`${t(`map.truckProtected`)} ${Je(Number(n.protectTime)-Date.now())}｜${t(`map.truckRobbedCount`,{count:a,max:i})}`:`${t(`map.truckReady`)}｜${t(`map.truckRobbedCount`,{count:a,max:i})}`}},{label:t(`map.arrivalTime`),width:`150px`,sortBy:`arriveTime`,value:e=>N(k(e,`arriveTs`),n)},c]:e===`railway`?[s,{label:t(`map.alliance`),width:`minmax(160px, 1fr)`,value:e=>String(k(e,`allianceName`)||k(e,`allianceAbbr`)||`-`)},{label:t(`map.quality`),width:`70px`,sortBy:`quality`,value:e=>L(k(e,`quality`))},{label:t(`map.power`),width:`120px`,sortBy:`power`,value:e=>I(k(e,`power`),n)},{label:t(`map.retainedGoods`),width:`minmax(360px, 2fr)`,sortBy:a?`itemCount`:void 0,rewards:`currentGoods`},{label:t(`map.protectionTime`),width:`150px`,sortBy:`protectTime`,value:e=>N(k(e,`protectTime`),n)},c]:e===`treasure`?[s,{label:t(`map.treasureType`),width:`160px`,value:e=>Ke(t,i,k(e,`treasureType`),k(e,`suppliesType`),k(e,`treasureNameKey`))},{label:t(`map.remainingBoxes`),width:`90px`,value:e=>I(k(e,`remainingBoxes`),n)},{label:t(`map.treasureWorldState`),width:`110px`,value:e=>{let n=k(e,`worldClaimState`)||(o?`verifying`:`unknown`),r=Number(k(e,`chargePercent`));return n===`charging`&&Number.isFinite(r)?`${t(w(n))} ${Math.round(r*100)}%`:t(w(n))}},{label:t(`map.treasurePlayerState`),width:`110px`,value:e=>t(T(k(e,`playerClaimState`)||(o?`verifying`:`unknown`),k(e,`claimBlockReason`)))},{label:t(`map.claimedCount`),width:`90px`,value:e=>I(k(e,`rewardedCount`),n)},{label:t(`map.diggingCount`),width:`90px`,value:e=>I(k(e,`diggingCount`),n)},{label:t(`map.expireTime`),width:`150px`,value:e=>N(Number(k(e,`expireTime`)),n)},{label:t(`map.owner`),width:`minmax(140px, 1fr)`,value:e=>String(k(e,`ownerName`)||k(e,`ownerUid`)||`-`)},{label:t(`map.alliance`),width:`minmax(110px, 1fr)`,value:e=>String(k(e,`allianceAbbr`)||k(e,`allianceId`)||`-`)},{label:t(`map.actions`),width:`90px`,action:!0},c]:[...e===`dispatch`||e===`ghost`?[{label:t(`map.selectTask`),width:`56px`,className:`map-task-select`,select:!0}]:[],s,{label:t(`map.owner`),width:`minmax(150px, 1fr)`,value:e=>String(k(e,`ownerName`)||k(e,`ownerUid`)||`-`)},{label:t(`map.level`),width:`70px`,sortBy:`level`,value:e=>I(k(e,`level`),n)},{label:t(`map.quality`),width:`110px`,sortBy:`quality`,value:e=>k(e,`isSpecial`)===!0?t(`map.specialQuality`):L(k(e,`quality`))},{label:t(`map.taskStatus`),width:`90px`,status:!0},{label:t(`map.rewards`),width:`minmax(360px, 2fr)`,rewards:`rewards`},{label:t(`map.completionTime`),width:`150px`,sortBy:`completionTime`,value:e=>N(k(e,`completionTime`),n)},c]}"
+    },
+    "ue": {
+      "byte": 15306,
+      "expression": "function ue(t){let n=k(t,`uuid`)||k(t,`marchUuid`)||k(t,`recordKey`)||`${k(t,`pointIndex`)||``}:${k(t,`ownerUid`)||``}:${k(t,`updatedAt`)||``}`;return`${e}:${t.serverId}:${String(n)}`}"
+    },
+    "de": {
+      "byte": 15490,
+      "expression": "function de(t){if(A(e)){let e=String(k(t,`marchUuid`)||``).trim();if(!e)return`-`;let n=`${t.serverId}:${e}`;return(0,E.jsxs)(`button`,{className:`map-coordinate-button`,disabled:f,onClick:()=>re(t),children:[(0,E.jsx)(`span`,{className:`map-coordinate-icon`,\"aria-hidden\":`true`}),(0,E.jsx)(`strong`,{children:g(d===n?`map.following`:`map.follow`)})]})}let n=Number(k(t,`x`)),r=Number(k(t,`y`));if(!Number.isInteger(n)||!Number.isInteger(r)||n<1||r<1)return`-`;let i=`${t.serverId}:${n}:${r}`;return(0,E.jsxs)(`button`,{className:`map-coordinate-button`,disabled:f,onClick:()=>re(t),children:[(0,E.jsx)(`span`,{className:`map-coordinate-icon`,\"aria-hidden\":`true`}),(0,E.jsx)(`span`,{children:et(t)}),(0,E.jsx)(`strong`,{children:g(d===i?`map.jumping`:`map.jump`)})]})}"
+    },
+    "he": {
+      "byte": 17832,
+      "expression": "function he(e){let t=e,n=t.trackerState===`missing`?g(`map.positionMissing`):t.trackerState===`replaced`?g(`map.positionReplaced`):``,r=t.marked?g(`map.unmarkPlayer`):g(`map.markPlayer`);return(0,E.jsx)(`button`,{className:`map-mark-button${t.marked?` active`:``}`,disabled:!t.ownerUid,title:n?`${r} · ${n}`:r,\"aria-label\":r,onClick:()=>ie(t),children:(0,E.jsx)(se,{name:t.marked?`favorite-filled`:`favorite`})})}"
+    },
+    "icon": {
+      "byte": 330489,
+      "expression": "function Vr({name:e}){return(0,M.jsxs)(`svg`,{className:`ui-icon${e===`favorite-filled`?` is-filled`:``}`,viewBox:`0 0 16 16`,\"aria-hidden\":`true`,focusable:`false`,children:[e===`add`&&(0,M.jsx)(`path`,{d:`M8 3v10M3 8h10`}),e===`arrow-down`&&(0,M.jsx)(`path`,{d:`M8 2.5v11M3.5 9 8 13.5 12.5 9`}),e===`arrow-up`&&(0,M.jsx)(`path`,{d:`M8 13.5v-11M3.5 7 8 2.5 12.5 7`}),e===`chevron-left`&&(0,M.jsx)(`path`,{d:`m10 3-5 5 5 5`}),e===`chevron-right`&&(0,M.jsx)(`path`,{d:`m6 3 5 5-5 5`}),e===`drag`&&(0,M.jsx)(`path`,{d:`M5 4h.01M11 4h.01M5 8h.01M11 8h.01M5 12h.01M11 12h.01`}),e===`edit`&&(0,M.jsxs)(M.Fragment,{children:[(0,M.jsx)(`path`,{d:`m3 11-.5 2.5L5 13l7.5-7.5-2-2L3 11Z`}),(0,M.jsx)(`path`,{d:`m9.5 4.5 2 2`})]}),(e===`favorite`||e===`favorite-filled`)&&(0,M.jsx)(`path`,{d:`m8 2 1.8 3.65 4.03.59-2.92 2.84.69 4.02L8 11.2l-3.6 1.9.69-4.02-2.92-2.84 4.03-.59L8 2Z`}),e===`play`&&(0,M.jsx)(`path`,{d:`m5 3 8 5-8 5V3Z`}),e===`remove`&&(0,M.jsx)(`path`,{d:`m4 4 8 8M12 4l-8 8`}),e===`settings`&&(0,M.jsxs)(M.Fragment,{children:[(0,M.jsx)(`circle`,{cx:`8`,cy:`8`,r:`2.5`}),(0,M.jsx)(`path`,{d:`M8 1.5v1.8M8 12.7v1.8M1.5 8h1.8M12.7 8h1.8M3.4 3.4l1.3 1.3M11.3 11.3l1.3 1.3M3.4 12.6l1.3-1.3M11.3 4.7l1.3-1.3`})]}),e===`stop`&&(0,M.jsx)(`rect`,{x:`4`,y:`4`,width:`8`,height:`8`,rx:`1`})]})}"
+    }
+  },
+  "passedAssertions": 372,
+  "failedAssertions": 0,
+  "failures": [],
+  "scope": "City Resource Monster normal table source/local presentation only; no original pixels or native execution"
+}

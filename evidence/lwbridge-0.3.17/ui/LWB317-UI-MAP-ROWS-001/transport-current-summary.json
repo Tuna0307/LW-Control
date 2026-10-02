@@ -1,0 +1,16 @@
+{
+  "result": "ACCEPT",
+  "mismatchCount": 0,
+  "checks": {
+    "metadata": 8,
+    "value": 104,
+    "truckState": 26,
+    "eligibility": 26,
+    "selectionLabel": 26,
+    "liveTarget": 8,
+    "rewards": 12,
+    "compactCounts": 24,
+    "itemSortMetadata": 8,
+    "itemFilterCallbacks": 4
+  }
+}
