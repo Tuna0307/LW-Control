@@ -1,6 +1,6 @@
 # Current implementation/research handoff
 
-Current lead decision, 2026-10-03: MAP-REFRESH-FEEDBACK-001 is COMPLETE implementation for focused source/local UI scope: one-second coalesced row refresh/completion cleanup, separate export busy/result/localized labels and recovered scan error priority/translation/start retirement. Original/current 45 export, 19 scan and 11 row checkpoints, browser en/light + ja/dark, fixture fences and maintained checks pass. Header/picker and PM-028 acceptance remain preserved. Summary/options request ownership is the next separate UI task; full UI/original pixels/native parity remain unaccepted. Independent returning-worker review is a follow-up.
+Current lead decision, 2026-10-03: interrupted MAP-CLOSEOUT-002 is PARTIAL / SPLIT. Independent review bbfc470 and lead case replay accept the two picker, scan-header and refresh-feedback units for focused source/local scope. Auto contract recovery a6140b2 passes 12 cases; implementation is deferred. Pending App/Map summary-options ownership code is uncommitted and NOT ACCEPTED; continue only under medium MAP-REFRESH-OWNERSHIP-001. Full UI/original pixels/native parity remains unaccepted. See the dated campaign recovery review.
 
 **Target:** LWBridge 0.3.17  
 **Branch:** `research/offline-controller`  
@@ -15,10 +15,13 @@ Next implementation is summary/options refresh ownership and query side effects:
 the source polls parent summary at five seconds while component options are
 revision-owned. Preserve accepted server redirect and delayed-Clear behavior.
 Returning worker can independently review header, both pickers and this unit.
-Current external assignment: LWB317-UI-MAP-CLOSEOUT-002, dispatched by owner relay.
-Read its complete work-item prompt: review four lead units, correct summary/options
-ownership, recover Auto configuration UI; up to two subagents authorized.
-Lead should avoid concurrent edits to MapDataPage.jsx during that campaign.
+Current external assignment: LWB317-UI-MAP-REFRESH-OWNERSHIP-001, medium
+continuation after interrupted CLOSEOUT-002. Read its work item and dated lead
+recovery review. A independent review is complete/lead accepted; Auto contract
+is recovered but implementation deferred. App/Map/preview B code and untracked
+evidence remain unfinished/unstaged. Fix malformed B result JSON and prove actual
+App lifetimes; do not restart the whole parent campaign. Lead avoids concurrent
+App/Map edits while this child runs.
 Protected WIP and historical evidence preserved.
 
 Previous header checkpoint:

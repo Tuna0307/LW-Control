@@ -1,8 +1,10 @@
 # LWBridge 0.3.17 feature ledger
 
-Current lead decision, 2026-10-03: MAP-REFRESH-FEEDBACK-001 is COMPLETE implementation for focused source/local UI scope: one-second coalesced row refresh/completion cleanup, separate export busy/result/localized labels and recovered scan error priority/translation/start retirement. Original/current 45 export, 19 scan and 11 row checkpoints, browser en/light + ja/dark, fixture fences and maintained checks pass. Header/picker and PM-028 acceptance remain preserved. Summary/options request ownership is the next separate UI task; full UI/original pixels/native parity remain unaccepted. Independent returning-worker review is a follow-up.
+Current lead decision, 2026-10-03: interrupted MAP-CLOSEOUT-002 is PARTIAL / SPLIT. Independent review bbfc470 and lead case replay accept the two picker, scan-header and refresh-feedback units for focused source/local scope. Auto contract recovery a6140b2 passes 12 cases; implementation is deferred. Pending App/Map summary-options ownership code is uncommitted and NOT ACCEPTED; continue only under medium MAP-REFRESH-OWNERSHIP-001. Full UI/original pixels/native parity remains unaccepted. See the dated campaign recovery review.
 
 This ledger starts clean for 0.3.17.
+
+2026-10-03 recovery: four recent Map UI units receive focused source/local acceptance through agent-A review plus lead distinguishing-case replay. Uncommitted summary/options ownership remains PARTIAL; Auto findings establish recovered contracts only. See campaign recovery review and medium OWNERSHIP-001 assignment.
 
 Map row-refresh/scan-export feedback: REFRESH-FEEDBACK-001 implements the recovered frontend contract and validates it locally (45/19/11). No native provider/live status upgrade. Source locators and remaining options-request ownership gap are in its dated review/evidence packet.
 

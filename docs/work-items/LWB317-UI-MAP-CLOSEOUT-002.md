@@ -1,6 +1,6 @@
 # LWB317-UI-MAP-CLOSEOUT-002 — worker assignment
 
-Status: ASSIGNED; owner will relay this prompt to a fresh worker chat.
+Status: PARTIAL / SPLIT after interrupted worker, 2026-10-03. A review completed; C source recovery completed but implementation deferred. Pending B continues ONLY under LWB317-UI-MAP-REFRESH-OWNERSHIP-001. Do not execute this whole original assignment again. See the dated lead recovery review.
 Project lead: the AI in the owner's lead chat. Return findings to that lead through committed files and the owner-relayed delivery report. Your review is a recommendation; project-lead acceptance is separate.
 
 ## Goal and context
