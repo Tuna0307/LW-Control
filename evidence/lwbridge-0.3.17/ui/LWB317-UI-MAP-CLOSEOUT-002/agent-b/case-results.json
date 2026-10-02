@@ -1,0 +1,186 @@
+{
+  "evidenceState": "EXACT_BYTES_EXECUTED",
+  "indexSha256": "44c4e4043825b7db296b64171951b27176f8850ff8d7d337cc991df4765524c6",
+  "panelSha256": "ce74345518be72e417a510b982c591729e5683f69751e190805598c4c05d3089",
+  "passed": 12,
+  "failed": 0,
+  "cases": [
+    {
+      "name": "defaults-and-normalization",
+      "status": "PASS",
+      "detail": {
+        "defaults": {
+          "enabled": false,
+          "intervalMinutes": 60,
+          "serverIds": [],
+          "selectedTypes": [
+            "truck",
+            "railway",
+            "dispatch",
+            "ghost",
+            "treasure"
+          ],
+          "scanMode": "fast",
+          "returnToOriginalServer": true,
+          "nextRunAt": 0
+        },
+        "malformedIntervalRemainsNaNUntilSerialized": true
+      }
+    },
+    {
+      "name": "server-parser-add-remove-contract",
+      "status": "PASS",
+      "detail": {
+        "parsed": [
+          8,
+          15,
+          120,
+          121,
+          122,
+          123,
+          100,
+          16,
+          1
+        ],
+        "separators": [
+          "space",
+          "comma",
+          "fullwidth comma",
+          "semicolon",
+          "fullwidth semicolon"
+        ],
+        "maxServers": 20
+      }
+    },
+    {
+      "name": "profile-scoped-load-malformed-and-change",
+      "status": "PASS",
+      "detail": {
+        "keys": [
+          "lwbridge.mapAutoScan.p1",
+          "lwbridge.mapAutoScan.p2"
+        ],
+        "loadWrites": 0
+      }
+    },
+    {
+      "name": "parent-normalizes-user-edits-and-deadlines",
+      "status": "PASS",
+      "detail": {
+        "writes": 4,
+        "final": {
+          "enabled": true,
+          "intervalMinutes": 1440,
+          "serverIds": [],
+          "selectedTypes": [
+            "truck",
+            "railway",
+            "dispatch",
+            "ghost",
+            "treasure"
+          ],
+          "scanMode": "fast",
+          "returnToOriginalServer": true,
+          "nextRunAt": 1800000000222
+        }
+      }
+    },
+    {
+      "name": "manual-auto-switch-preserves-shared-header-and-draft",
+      "status": "PASS",
+      "detail": {
+        "defaultMode": "manual",
+        "autoDraftAfterRoundTrip": "9;10",
+        "sharedTimingAndSummary": true
+      }
+    },
+    {
+      "name": "master-status-and-running-editability",
+      "status": "PASS",
+      "detail": {
+        "precedence": [
+          "running",
+          "waiting when enabled",
+          "disabled"
+        ],
+        "configFieldsDisabledByAutoRunning": false
+      }
+    },
+    {
+      "name": "target-server-ui-add-enter-chips-placeholder",
+      "status": "PASS",
+      "detail": {
+        "currentServerPlaceholder": "321",
+        "fallbackPlaceholder": "8, 15, 120",
+        "added": [
+          9,
+          8,
+          7
+        ],
+        "afterRemove": [
+          9,
+          7
+        ]
+      }
+    },
+    {
+      "name": "target-server-ui-valid-input-at-cap-clears",
+      "status": "PASS",
+      "detail": {
+        "count": 20,
+        "inputCleared": true
+      }
+    },
+    {
+      "name": "panel-raw-interval-parent-normalized-interval",
+      "status": "PASS",
+      "detail": {
+        "panelEmits": [
+          19,
+          0
+        ],
+        "parentStores": 20
+      }
+    },
+    {
+      "name": "scan-types-default-order-and-last-selection",
+      "status": "PASS",
+      "detail": {
+        "renderedKinds": 8,
+        "defaults": [
+          "truck",
+          "railway",
+          "dispatch",
+          "ghost",
+          "treasure"
+        ],
+        "final": [
+          "resource"
+        ]
+      }
+    },
+    {
+      "name": "speed-return-run-now-and-next-run",
+      "status": "PASS",
+      "detail": {
+        "invalidSpeedUiMapsTo": "normal",
+        "returnToggle": false,
+        "runNowTimestamp": 1800000321000,
+        "secondsTimestampFormatting": "2/14/2009, 7:31:30 AM",
+        "disabledPositiveDeadlineDisplays": "-"
+      }
+    },
+    {
+      "name": "no-explicit-auto-reset-control",
+      "status": "PASS",
+      "detail": {
+        "explicitResetControl": false,
+        "resetLikeTransitions": [
+          "missing/malformed profile load -> defaults",
+          "disable -> nextRunAt 0",
+          "profile change -> selected profile load"
+        ]
+      }
+    }
+  ]
+}
