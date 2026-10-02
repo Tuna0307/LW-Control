@@ -1,0 +1,1693 @@
+{
+  "task": "LWB317-REVIEW-HOME-BUSY-001",
+  "result": "LWB317_REVIEW_HOME_BUSY001_OK",
+  "reference": {
+    "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-BVfnK1wp.js",
+    "sha256": "44C4E4043825B7DB296B64171951B27176F8850FF8D7D337CC991DF4765524C6",
+    "locators": {
+      "Kr": {
+        "utf8ByteOffset": 336469,
+        "expression": "function Kr({rootResolved:e,rootValid:t,gameRunning:n,needsRepair:r=!1,recovering:i,busy:a,launching:o=!1}){return{showRootPicker:e&&!t,canStart:e&&t&&!n&&!i&&!a&&!o,canStop:e&&t&&(n||i)&&!a&&!o,repairOnClose:e&&t&&n&&r&&!i}}"
+      },
+      "qr": {
+        "utf8ByteOffset": 336694,
+        "expression": "function qr({proxyStatus:e,online:t,gameRecoveryStatus:n,proxyBusy:r,gameLaunchBusy:i,gameRootStatus:a,gameRootBusy:o,gameRootError:s,gameActionError:c,autoLaunchGame:l,autoReconnect:u,onAutoLaunchGameChange:d,onAutoReconnectChange:f,onGameRootSelect:p,onStartGame:m,onStopGame:h,onUpdateAndRestart:g}){let{t:_}=De(),v=a!=null,y=n!=null&&[`waiting`,`updating`,`repairing`,`launching`,`verifying`,`maintenance`].includes(n.state),b=e?.repairRequired===!0,x=Kr({rootResolved:v,rootValid:a?.valid===!0,gameRunning:e?.gameRunning===!0,needsRepair:b,recovering:y,busy:r,launching:i}),S=v?x.showRootPicker?_(`setup.gameRootMissing`):i?_(`setup.launchingGame`):r?_(`common.processing`):y?_(`recovery.state.${n.state}`):b?_(`setup.repairRequired`):e?.gameRunning?_(t?`status.gameRunning`:`setup.bridgeDisconnected`):_(`setup.gameStopped`):_(`setup.checking`);return(0,M.jsxs)(`section`,{className:`panel quick-actions-panel`,children:[(0,M.jsxs)(`div`,{className:`panel-title`,children:[(0,M.jsx)(`h2`,{children:_(`setup.title`)}),(0,M.jsx)(`span`,{className:e?.gameRunning&&t?`status-ok`:`muted`,children:S})]}),v?x.showRootPicker?(0,M.jsxs)(`div`,{className:`game-root-missing`,children:[(0,M.jsx)(`span`,{children:s?Lr(_,s):_(`setup.gameRootMissing`)}),(0,M.jsx)(`button`,{className:`primary`,disabled:o,onClick:p,children:_(o?`common.processing`:`setup.gameRootSelect`)})]}):(0,M.jsxs)(`div`,{className:`game-controls`,children:[!x.repairOnClose&&(0,M.jsx)(`button`,{className:`primary`,disabled:!x.canStart,onClick:m,children:_(i?`setup.launchingGame`:r?`common.processing`:`top.launchGame`)}),(0,M.jsx)(`button`,{disabled:!x.canStop,onClick:x.repairOnClose?g:h,children:r&&e?.gameRunning?_(`common.processing`):_(x.repairOnClose?`setup.updateAndLaunch`:`setup.closeGameAction`)}),x.repairOnClose&&(0,M.jsx)(`span`,{className:`muted`,children:_(`setup.updateCloseGame`)})]}):null,c&&(0,M.jsx)(`span`,{className:`game-root-error`,children:Lr(_,c)}),(0,M.jsx)(Bn,{label:`auth.autoLaunchGame`,checked:l,onChange:d}),(0,M.jsx)(Bn,{label:`automation.autoReconnect.title`,checked:u,onChange:f}),n?.state===`failed`&&n.error&&(0,M.jsx)(`span`,{className:`game-root-error`,children:_(`recovery.failedDetail`,{error:Lr(_,n.error)})})]})}"
+      },
+      "HomeCaller": {
+        "utf8ByteOffset": 373291,
+        "expression": "(0,M.jsx)(qr,{proxyStatus:d,online:at,gameRecoveryStatus:w,proxyBusy:p,gameLaunchBusy:n.gameLaunchBusy,gameRootStatus:h,gameRootBusy:_,gameRootError:y,gameActionError:S,autoLaunchGame:n.autoLaunchGame,autoReconnect:de,onAutoLaunchGameChange:n.setAutoLaunchGame,onAutoReconnectChange:e=>{It(`autoForceUpdateReload`,e)},onGameRootSelect:Xt,onStartGame:Nt,onStopGame:Pt,onUpdateAndRestart:Ft})"
+      },
+      "RootBusyState": {
+        "utf8ByteOffset": 361581,
+        "expression": "[_,v]=(0,b.useState)(!1)"
+      },
+      "ProxyBusyState": {
+        "utf8ByteOffset": 361529,
+        "expression": "[p,m]=(0,b.useState)(!1)"
+      },
+      "LaunchBusyProperty": {
+        "utf8ByteOffset": 248345,
+        "expression": "gameLaunchBusy:u>0"
+      }
+    }
+  },
+  "current": {
+    "pagesPath": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+    "pagesSha256NormalizedLF": "FB1A8544C9FA9CE2ACDF67720994CA527ADC0C6BF76FDFF4162761CAC8BBB8C3",
+    "appPath": "src/LWBridge.UI-0.3.17/src/App.jsx",
+    "appSha256NormalizedLF": "BA4A300D525A271C61A8061406CA81DE2414AACC15DF10A728B0E1A8641B2701",
+    "homeExpressions": {
+      "rootBusy": "state.busy === \"gameRoot\"",
+      "proxyBusy": "state.proxyBusy === true",
+      "launching": "state.gameLaunchBusy === true",
+      "showRootPicker": "rootResolved && !rootValid",
+      "repairOnClose": "rootResolved && rootValid && gameRunning && repairRequired && !recovering",
+      "lifecycleProviderAvailable": "false",
+      "canStart": "lifecycleProviderAvailable && rootResolved && rootValid && !gameRunning && !recovering && !proxyBusy && !launching",
+      "canStop": "lifecycleProviderAvailable && rootResolved && rootValid && (gameRunning || recovering) && !proxyBusy && !launching"
+    },
+    "appInputMapping": {
+      "homeStateKeys": [
+        "rootResolved",
+        "gameRootStatus",
+        "proxyStatus",
+        "online",
+        "gameRecoveryStatus",
+        "autoLaunchGame",
+        "autoReconnect",
+        "busy",
+        "gameRootError",
+        "gameActionError",
+        "production"
+      ],
+      "setHomeBusyWrites": [
+        "autoLaunchGame",
+        "",
+        "autoReconnect",
+        "",
+        "gameRoot",
+        ""
+      ],
+      "previewExpression": "backendBridge.mode === \"preview\" ? new URLSearchParams(window.location.search).get(\"previewState\") || \"\" : \"\"",
+      "productionProxyBusy": false,
+      "productionGameLaunchBusy": false,
+      "previewOnlyBusyInputs": [
+        "proxyBusy",
+        "gameLaunchBusy"
+      ]
+    }
+  },
+  "cases": [
+    {
+      "name": "root-unresolved",
+      "inputs": {
+        "root": null,
+        "gameRunning": false,
+        "online": false,
+        "repairRequired": false,
+        "recoveryState": "idle",
+        "proxyBusy": false,
+        "launching": false,
+        "gameRootBusy": false,
+        "currentBusy": ""
+      },
+      "expected": {
+        "statusKey": "setup.checking",
+        "status": "Checking game setup…",
+        "statusClass": "muted",
+        "predicates": {
+          "showRootPicker": false,
+          "canStart": false,
+          "canStop": false,
+          "repairOnClose": false
+        },
+        "controlKeys": [],
+        "pickerKey": null,
+        "repairHintKey": null
+      },
+      "original": {
+        "status": "Checking game setup…",
+        "statusClass": "muted",
+        "controls": [],
+        "picker": [],
+        "repairHint": "",
+        "switches": [
+          {
+            "text": "auth.autoLaunchGame",
+            "disabled": false
+          },
+          {
+            "text": "automation.autoReconnect.title",
+            "disabled": false
+          }
+        ]
+      },
+      "current": {
+        "status": "Checking game setup…",
+        "statusClass": "muted",
+        "controls": [],
+        "picker": [],
+        "repairHint": "",
+        "switches": [
+          {
+            "text": "Open games at startup",
+            "disabled": false
+          },
+          {
+            "text": "Automatic Reconnection",
+            "disabled": false
+          }
+        ]
+      },
+      "currentParityPredicates": {
+        "showRootPicker": false,
+        "repairOnClose": false,
+        "canStart": false,
+        "canStop": false
+      },
+      "currentFencedPredicates": {
+        "showRootPicker": false,
+        "repairOnClose": false,
+        "canStart": false,
+        "canStop": false
+      }
+    },
+    {
+      "name": "root-invalid-idle",
+      "inputs": {
+        "root": {
+          "valid": false,
+          "root": ""
+        },
+        "gameRunning": false,
+        "online": false,
+        "repairRequired": false,
+        "recoveryState": "idle",
+        "proxyBusy": false,
+        "launching": false,
+        "gameRootBusy": false,
+        "currentBusy": ""
+      },
+      "expected": {
+        "statusKey": "setup.gameRootMissing",
+        "status": "Not detected",
+        "statusClass": "muted",
+        "predicates": {
+          "showRootPicker": true,
+          "canStart": false,
+          "canStop": false,
+          "repairOnClose": false
+        },
+        "controlKeys": [],
+        "pickerKey": "setup.gameRootSelect",
+        "repairHintKey": null
+      },
+      "original": {
+        "status": "Not detected",
+        "statusClass": "muted",
+        "controls": [],
+        "picker": [
+          {
+            "text": "Choose Folder",
+            "disabled": false
+          }
+        ],
+        "repairHint": "",
+        "switches": [
+          {
+            "text": "auth.autoLaunchGame",
+            "disabled": false
+          },
+          {
+            "text": "automation.autoReconnect.title",
+            "disabled": false
+          }
+        ]
+      },
+      "current": {
+        "status": "Not detected",
+        "statusClass": "muted",
+        "controls": [],
+        "picker": [
+          {
+            "text": "Choose Folder",
+            "disabled": false
+          }
+        ],
+        "repairHint": "",
+        "switches": [
+          {
+            "text": "Open games at startup",
+            "disabled": false
+          },
+          {
+            "text": "Automatic Reconnection",
+            "disabled": false
+          }
+        ]
+      },
+      "currentParityPredicates": {
+        "showRootPicker": true,
+        "repairOnClose": false,
+        "canStart": false,
+        "canStop": false
+      },
+      "currentFencedPredicates": {
+        "showRootPicker": true,
+        "repairOnClose": false,
+        "canStart": false,
+        "canStop": false
+      }
+    },
+    {
+      "name": "root-invalid-folder-busy",
+      "inputs": {
+        "root": {
+          "valid": false,
+          "root": ""
+        },
+        "gameRunning": false,
+        "online": false,
+        "repairRequired": false,
+        "recoveryState": "idle",
+        "proxyBusy": false,
+        "launching": false,
+        "gameRootBusy": true,
+        "currentBusy": "gameRoot"
+      },
+      "expected": {
+        "statusKey": "setup.gameRootMissing",
+        "status": "Not detected",
+        "statusClass": "muted",
+        "predicates": {
+          "showRootPicker": true,
+          "canStart": false,
+          "canStop": false,
+          "repairOnClose": false
+        },
+        "controlKeys": [],
+        "pickerKey": "common.processing",
+        "repairHintKey": null
+      },
+      "original": {
+        "status": "Not detected",
+        "statusClass": "muted",
+        "controls": [],
+        "picker": [
+          {
+            "text": "Processing",
+            "disabled": true
+          }
+        ],
+        "repairHint": "",
+        "switches": [
+          {
+            "text": "auth.autoLaunchGame",
+            "disabled": false
+          },
+          {
+            "text": "automation.autoReconnect.title",
+            "disabled": false
+          }
+        ]
+      },
+      "current": {
+        "status": "Not detected",
+        "statusClass": "muted",
+        "controls": [],
+        "picker": [
+          {
+            "text": "Processing",
+            "disabled": true
+          }
+        ],
+        "repairHint": "",
+        "switches": [
+          {
+            "text": "Open games at startup",
+            "disabled": false
+          },
+          {
+            "text": "Automatic Reconnection",
+            "disabled": false
+          }
+        ]
+      },
+      "currentParityPredicates": {
+        "showRootPicker": true,
+        "repairOnClose": false,
+        "canStart": false,
+        "canStop": false
+      },
+      "currentFencedPredicates": {
+        "showRootPicker": true,
+        "repairOnClose": false,
+        "canStart": false,
+        "canStop": false
+      }
+    },
+    {
+      "name": "root-valid-folder-busy",
+      "inputs": {
+        "root": {
+          "valid": true
+        },
+        "gameRunning": false,
+        "online": false,
+        "repairRequired": false,
+        "recoveryState": "idle",
+        "proxyBusy": false,
+        "launching": false,
+        "gameRootBusy": true,
+        "currentBusy": "gameRoot"
+      },
+      "expected": {
+        "statusKey": "setup.gameStopped",
+        "status": "Game stopped",
+        "statusClass": "muted",
+        "predicates": {
+          "showRootPicker": false,
+          "canStart": true,
+          "canStop": false,
+          "repairOnClose": false
+        },
+        "controlKeys": [
+          "top.launchGame",
+          "setup.closeGameAction"
+        ],
+        "pickerKey": null,
+        "repairHintKey": null
+      },
+      "original": {
+        "status": "Game stopped",
+        "statusClass": "muted",
+        "controls": [
+          {
+            "text": "Launch Game",
+            "disabled": false
+          },
+          {
+            "text": "Close game",
+            "disabled": true
+          }
+        ],
+        "picker": [],
+        "repairHint": "",
+        "switches": [
+          {
+            "text": "auth.autoLaunchGame",
+            "disabled": false
+          },
+          {
+            "text": "automation.autoReconnect.title",
+            "disabled": false
+          }
+        ]
+      },
+      "current": {
+        "status": "Game stopped",
+        "statusClass": "muted",
+        "controls": [
+          {
+            "text": "Launch Game",
+            "disabled": true
+          },
+          {
+            "text": "Close game",
+            "disabled": true
+          }
+        ],
+        "picker": [],
+        "repairHint": "",
+        "switches": [
+          {
+            "text": "Open games at startup",
+            "disabled": false
+          },
+          {
+            "text": "Automatic Reconnection",
+            "disabled": false
+          }
+        ]
+      },
+      "currentParityPredicates": {
+        "showRootPicker": false,
+        "repairOnClose": false,
+        "canStart": true,
+        "canStop": false
+      },
+      "currentFencedPredicates": {
+        "showRootPicker": false,
+        "repairOnClose": false,
+        "canStart": false,
+        "canStop": false
+      }
+    },
+    {
+      "name": "stopped-proxy-busy",
+      "inputs": {
+        "root": {
+          "valid": true
+        },
+        "gameRunning": false,
+        "online": false,
+        "repairRequired": false,
+        "recoveryState": "idle",
+        "proxyBusy": true,
+        "launching": false,
+        "gameRootBusy": false,
+        "currentBusy": ""
+      },
+      "expected": {
+        "statusKey": "common.processing",
+        "status": "Processing",
+        "statusClass": "muted",
+        "predicates": {
+          "showRootPicker": false,
+          "canStart": false,
+          "canStop": false,
+          "repairOnClose": false
+        },
+        "controlKeys": [
+          "common.processing",
+          "setup.closeGameAction"
+        ],
+        "pickerKey": null,
+        "repairHintKey": null
+      },
+      "original": {
+        "status": "Processing",
+        "statusClass": "muted",
+        "controls": [
+          {
+            "text": "Processing",
+            "disabled": true
+          },
+          {
+            "text": "Close game",
+            "disabled": true
+          }
+        ],
+        "picker": [],
+        "repairHint": "",
+        "switches": [
+          {
+            "text": "auth.autoLaunchGame",
+            "disabled": false
+          },
+          {
+            "text": "automation.autoReconnect.title",
+            "disabled": false
+          }
+        ]
+      },
+      "current": {
+        "status": "Processing",
+        "statusClass": "muted",
+        "controls": [
+          {
+            "text": "Processing",
+            "disabled": true
+          },
+          {
+            "text": "Close game",
+            "disabled": true
+          }
+        ],
+        "picker": [],
+        "repairHint": "",
+        "switches": [
+          {
+            "text": "Open games at startup",
+            "disabled": false
+          },
+          {
+            "text": "Automatic Reconnection",
+            "disabled": false
+          }
+        ]
+      },
+      "currentParityPredicates": {
+        "showRootPicker": false,
+        "repairOnClose": false,
+        "canStart": false,
+        "canStop": false
+      },
+      "currentFencedPredicates": {
+        "showRootPicker": false,
+        "repairOnClose": false,
+        "canStart": false,
+        "canStop": false
+      }
+    },
+    {
+      "name": "running-proxy-busy-offline",
+      "inputs": {
+        "root": {
+          "valid": true
+        },
+        "gameRunning": true,
+        "online": false,
+        "repairRequired": false,
+        "recoveryState": "idle",
+        "proxyBusy": true,
+        "launching": false,
+        "gameRootBusy": false,
+        "currentBusy": ""
+      },
+      "expected": {
+        "statusKey": "common.processing",
+        "status": "Processing",
+        "statusClass": "muted",
+        "predicates": {
+          "showRootPicker": false,
+          "canStart": false,
+          "canStop": false,
+          "repairOnClose": false
+        },
+        "controlKeys": [
+          "common.processing",
+          "common.processing"
+        ],
+        "pickerKey": null,
+        "repairHintKey": null
+      },
+      "original": {
+        "status": "Processing",
+        "statusClass": "muted",
+        "controls": [
+          {
+            "text": "Processing",
+            "disabled": true
+          },
+          {
+            "text": "Processing",
+            "disabled": true
+          }
+        ],
+        "picker": [],
+        "repairHint": "",
+        "switches": [
+          {
+            "text": "auth.autoLaunchGame",
+            "disabled": false
+          },
+          {
+            "text": "automation.autoReconnect.title",
+            "disabled": false
+          }
+        ]
+      },
+      "current": {
+        "status": "Processing",
+        "statusClass": "muted",
+        "controls": [
+          {
+            "text": "Processing",
+            "disabled": true
+          },
+          {
+            "text": "Processing",
+            "disabled": true
+          }
+        ],
+        "picker": [],
+        "repairHint": "",
+        "switches": [
+          {
+            "text": "Open games at startup",
+            "disabled": false
+          },
+          {
+            "text": "Automatic Reconnection",
+            "disabled": false
+          }
+        ]
+      },
+      "currentParityPredicates": {
+        "showRootPicker": false,
+        "repairOnClose": false,
+        "canStart": false,
+        "canStop": false
+      },
+      "currentFencedPredicates": {
+        "showRootPicker": false,
+        "repairOnClose": false,
+        "canStart": false,
+        "canStop": false
+      }
+    },
+    {
+      "name": "running-proxy-busy-online",
+      "inputs": {
+        "root": {
+          "valid": true
+        },
+        "gameRunning": true,
+        "online": true,
+        "repairRequired": false,
+        "recoveryState": "idle",
+        "proxyBusy": true,
+        "launching": false,
+        "gameRootBusy": false,
+        "currentBusy": ""
+      },
+      "expected": {
+        "statusKey": "common.processing",
+        "status": "Processing",
+        "statusClass": "status-ok",
+        "predicates": {
+          "showRootPicker": false,
+          "canStart": false,
+          "canStop": false,
+          "repairOnClose": false
+        },
+        "controlKeys": [
+          "common.processing",
+          "common.processing"
+        ],
+        "pickerKey": null,
+        "repairHintKey": null
+      },
+      "original": {
+        "status": "Processing",
+        "statusClass": "status-ok",
+        "controls": [
+          {
+            "text": "Processing",
+            "disabled": true
+          },
+          {
+            "text": "Processing",
+            "disabled": true
+          }
+        ],
+        "picker": [],
+        "repairHint": "",
+        "switches": [
+          {
+            "text": "auth.autoLaunchGame",
+            "disabled": false
+          },
+          {
+            "text": "automation.autoReconnect.title",
+            "disabled": false
+          }
+        ]
+      },
+      "current": {
+        "status": "Processing",
+        "statusClass": "status-ok",
+        "controls": [
+          {
+            "text": "Processing",
+            "disabled": true
+          },
+          {
+            "text": "Processing",
+            "disabled": true
+          }
+        ],
+        "picker": [],
+        "repairHint": "",
+        "switches": [
+          {
+            "text": "Open games at startup",
+            "disabled": false
+          },
+          {
+            "text": "Automatic Reconnection",
+            "disabled": false
+          }
+        ]
+      },
+      "currentParityPredicates": {
+        "showRootPicker": false,
+        "repairOnClose": false,
+        "canStart": false,
+        "canStop": false
+      },
+      "currentFencedPredicates": {
+        "showRootPicker": false,
+        "repairOnClose": false,
+        "canStart": false,
+        "canStop": false
+      }
+    },
+    {
+      "name": "stopped-launch-busy",
+      "inputs": {
+        "root": {
+          "valid": true
+        },
+        "gameRunning": false,
+        "online": false,
+        "repairRequired": false,
+        "recoveryState": "idle",
+        "proxyBusy": false,
+        "launching": true,
+        "gameRootBusy": false,
+        "currentBusy": ""
+      },
+      "expected": {
+        "statusKey": "setup.launchingGame",
+        "status": "Launching game…",
+        "statusClass": "muted",
+        "predicates": {
+          "showRootPicker": false,
+          "canStart": false,
+          "canStop": false,
+          "repairOnClose": false
+        },
+        "controlKeys": [
+          "setup.launchingGame",
+          "setup.closeGameAction"
+        ],
+        "pickerKey": null,
+        "repairHintKey": null
+      },
+      "original": {
+        "status": "Launching game…",
+        "statusClass": "muted",
+        "controls": [
+          {
+            "text": "Launching game…",
+            "disabled": true
+          },
+          {
+            "text": "Close game",
+            "disabled": true
+          }
+        ],
+        "picker": [],
+        "repairHint": "",
+        "switches": [
+          {
+            "text": "auth.autoLaunchGame",
+            "disabled": false
+          },
+          {
+            "text": "automation.autoReconnect.title",
+            "disabled": false
+          }
+        ]
+      },
+      "current": {
+        "status": "Launching game…",
+        "statusClass": "muted",
+        "controls": [
+          {
+            "text": "Launching game…",
+            "disabled": true
+          },
+          {
+            "text": "Close game",
+            "disabled": true
+          }
+        ],
+        "picker": [],
+        "repairHint": "",
+        "switches": [
+          {
+            "text": "Open games at startup",
+            "disabled": false
+          },
+          {
+            "text": "Automatic Reconnection",
+            "disabled": false
+          }
+        ]
+      },
+      "currentParityPredicates": {
+        "showRootPicker": false,
+        "repairOnClose": false,
+        "canStart": false,
+        "canStop": false
+      },
+      "currentFencedPredicates": {
+        "showRootPicker": false,
+        "repairOnClose": false,
+        "canStart": false,
+        "canStop": false
+      }
+    },
+    {
+      "name": "overlap-launch-proxy-running",
+      "inputs": {
+        "root": {
+          "valid": true
+        },
+        "gameRunning": true,
+        "online": false,
+        "repairRequired": false,
+        "recoveryState": "idle",
+        "proxyBusy": true,
+        "launching": true,
+        "gameRootBusy": false,
+        "currentBusy": ""
+      },
+      "expected": {
+        "statusKey": "setup.launchingGame",
+        "status": "Launching game…",
+        "statusClass": "muted",
+        "predicates": {
+          "showRootPicker": false,
+          "canStart": false,
+          "canStop": false,
+          "repairOnClose": false
+        },
+        "controlKeys": [
+          "setup.launchingGame",
+          "common.processing"
+        ],
+        "pickerKey": null,
+        "repairHintKey": null
+      },
+      "original": {
+        "status": "Launching game…",
+        "statusClass": "muted",
+        "controls": [
+          {
+            "text": "Launching game…",
+            "disabled": true
+          },
+          {
+            "text": "Processing",
+            "disabled": true
+          }
+        ],
+        "picker": [],
+        "repairHint": "",
+        "switches": [
+          {
+            "text": "auth.autoLaunchGame",
+            "disabled": false
+          },
+          {
+            "text": "automation.autoReconnect.title",
+            "disabled": false
+          }
+        ]
+      },
+      "current": {
+        "status": "Launching game…",
+        "statusClass": "muted",
+        "controls": [
+          {
+            "text": "Launching game…",
+            "disabled": true
+          },
+          {
+            "text": "Processing",
+            "disabled": true
+          }
+        ],
+        "picker": [],
+        "repairHint": "",
+        "switches": [
+          {
+            "text": "Open games at startup",
+            "disabled": false
+          },
+          {
+            "text": "Automatic Reconnection",
+            "disabled": false
+          }
+        ]
+      },
+      "currentParityPredicates": {
+        "showRootPicker": false,
+        "repairOnClose": false,
+        "canStart": false,
+        "canStop": false
+      },
+      "currentFencedPredicates": {
+        "showRootPicker": false,
+        "repairOnClose": false,
+        "canStart": false,
+        "canStop": false
+      }
+    },
+    {
+      "name": "running-repair",
+      "inputs": {
+        "root": {
+          "valid": true
+        },
+        "gameRunning": true,
+        "online": false,
+        "repairRequired": true,
+        "recoveryState": "idle",
+        "proxyBusy": false,
+        "launching": false,
+        "gameRootBusy": false,
+        "currentBusy": ""
+      },
+      "expected": {
+        "statusKey": "setup.repairRequired",
+        "status": "Game connection needs repair",
+        "statusClass": "muted",
+        "predicates": {
+          "showRootPicker": false,
+          "canStart": false,
+          "canStop": true,
+          "repairOnClose": true
+        },
+        "controlKeys": [
+          "setup.updateAndLaunch"
+        ],
+        "pickerKey": null,
+        "repairHintKey": "setup.updateCloseGame"
+      },
+      "original": {
+        "status": "Game connection needs repair",
+        "statusClass": "muted",
+        "controls": [
+          {
+            "text": "Update and restart game",
+            "disabled": false
+          }
+        ],
+        "picker": [],
+        "repairHint": "The game will close automatically, update the component, and restart through the official launcher.",
+        "switches": [
+          {
+            "text": "auth.autoLaunchGame",
+            "disabled": false
+          },
+          {
+            "text": "automation.autoReconnect.title",
+            "disabled": false
+          }
+        ]
+      },
+      "current": {
+        "status": "Game connection needs repair",
+        "statusClass": "muted",
+        "controls": [
+          {
+            "text": "Update and restart game",
+            "disabled": true
+          }
+        ],
+        "picker": [],
+        "repairHint": "The game will close automatically, update the component, and restart through the official launcher.",
+        "switches": [
+          {
+            "text": "Open games at startup",
+            "disabled": false
+          },
+          {
+            "text": "Automatic Reconnection",
+            "disabled": false
+          }
+        ]
+      },
+      "currentParityPredicates": {
+        "showRootPicker": false,
+        "repairOnClose": true,
+        "canStart": false,
+        "canStop": true
+      },
+      "currentFencedPredicates": {
+        "showRootPicker": false,
+        "repairOnClose": true,
+        "canStart": false,
+        "canStop": false
+      }
+    },
+    {
+      "name": "running-repair-proxy-busy",
+      "inputs": {
+        "root": {
+          "valid": true
+        },
+        "gameRunning": true,
+        "online": false,
+        "repairRequired": true,
+        "recoveryState": "idle",
+        "proxyBusy": true,
+        "launching": false,
+        "gameRootBusy": false,
+        "currentBusy": ""
+      },
+      "expected": {
+        "statusKey": "common.processing",
+        "status": "Processing",
+        "statusClass": "muted",
+        "predicates": {
+          "showRootPicker": false,
+          "canStart": false,
+          "canStop": false,
+          "repairOnClose": true
+        },
+        "controlKeys": [
+          "common.processing"
+        ],
+        "pickerKey": null,
+        "repairHintKey": "setup.updateCloseGame"
+      },
+      "original": {
+        "status": "Processing",
+        "statusClass": "muted",
+        "controls": [
+          {
+            "text": "Processing",
+            "disabled": true
+          }
+        ],
+        "picker": [],
+        "repairHint": "The game will close automatically, update the component, and restart through the official launcher.",
+        "switches": [
+          {
+            "text": "auth.autoLaunchGame",
+            "disabled": false
+          },
+          {
+            "text": "automation.autoReconnect.title",
+            "disabled": false
+          }
+        ]
+      },
+      "current": {
+        "status": "Processing",
+        "statusClass": "muted",
+        "controls": [
+          {
+            "text": "Processing",
+            "disabled": true
+          }
+        ],
+        "picker": [],
+        "repairHint": "The game will close automatically, update the component, and restart through the official launcher.",
+        "switches": [
+          {
+            "text": "Open games at startup",
+            "disabled": false
+          },
+          {
+            "text": "Automatic Reconnection",
+            "disabled": false
+          }
+        ]
+      },
+      "currentParityPredicates": {
+        "showRootPicker": false,
+        "repairOnClose": true,
+        "canStart": false,
+        "canStop": false
+      },
+      "currentFencedPredicates": {
+        "showRootPicker": false,
+        "repairOnClose": true,
+        "canStart": false,
+        "canStop": false
+      }
+    },
+    {
+      "name": "running-recovery",
+      "inputs": {
+        "root": {
+          "valid": true
+        },
+        "gameRunning": true,
+        "online": false,
+        "repairRequired": false,
+        "recoveryState": "waiting",
+        "proxyBusy": false,
+        "launching": false,
+        "gameRootBusy": false,
+        "currentBusy": ""
+      },
+      "expected": {
+        "statusKey": "recovery.state.waiting",
+        "status": "Waiting for the game to restart…",
+        "statusClass": "muted",
+        "predicates": {
+          "showRootPicker": false,
+          "canStart": false,
+          "canStop": true,
+          "repairOnClose": false
+        },
+        "controlKeys": [
+          "top.launchGame",
+          "setup.closeGameAction"
+        ],
+        "pickerKey": null,
+        "repairHintKey": null
+      },
+      "original": {
+        "status": "Waiting for the game to restart…",
+        "statusClass": "muted",
+        "controls": [
+          {
+            "text": "Launch Game",
+            "disabled": true
+          },
+          {
+            "text": "Close game",
+            "disabled": false
+          }
+        ],
+        "picker": [],
+        "repairHint": "",
+        "switches": [
+          {
+            "text": "auth.autoLaunchGame",
+            "disabled": false
+          },
+          {
+            "text": "automation.autoReconnect.title",
+            "disabled": false
+          }
+        ]
+      },
+      "current": {
+        "status": "Waiting for the game to restart…",
+        "statusClass": "muted",
+        "controls": [
+          {
+            "text": "Launch Game",
+            "disabled": true
+          },
+          {
+            "text": "Close game",
+            "disabled": true
+          }
+        ],
+        "picker": [],
+        "repairHint": "",
+        "switches": [
+          {
+            "text": "Open games at startup",
+            "disabled": false
+          },
+          {
+            "text": "Automatic Reconnection",
+            "disabled": false
+          }
+        ]
+      },
+      "currentParityPredicates": {
+        "showRootPicker": false,
+        "repairOnClose": false,
+        "canStart": false,
+        "canStop": true
+      },
+      "currentFencedPredicates": {
+        "showRootPicker": false,
+        "repairOnClose": false,
+        "canStart": false,
+        "canStop": false
+      }
+    },
+    {
+      "name": "repair-suppressed-by-recovery",
+      "inputs": {
+        "root": {
+          "valid": true
+        },
+        "gameRunning": true,
+        "online": false,
+        "repairRequired": true,
+        "recoveryState": "waiting",
+        "proxyBusy": false,
+        "launching": false,
+        "gameRootBusy": false,
+        "currentBusy": ""
+      },
+      "expected": {
+        "statusKey": "recovery.state.waiting",
+        "status": "Waiting for the game to restart…",
+        "statusClass": "muted",
+        "predicates": {
+          "showRootPicker": false,
+          "canStart": false,
+          "canStop": true,
+          "repairOnClose": false
+        },
+        "controlKeys": [
+          "top.launchGame",
+          "setup.closeGameAction"
+        ],
+        "pickerKey": null,
+        "repairHintKey": null
+      },
+      "original": {
+        "status": "Waiting for the game to restart…",
+        "statusClass": "muted",
+        "controls": [
+          {
+            "text": "Launch Game",
+            "disabled": true
+          },
+          {
+            "text": "Close game",
+            "disabled": false
+          }
+        ],
+        "picker": [],
+        "repairHint": "",
+        "switches": [
+          {
+            "text": "auth.autoLaunchGame",
+            "disabled": false
+          },
+          {
+            "text": "automation.autoReconnect.title",
+            "disabled": false
+          }
+        ]
+      },
+      "current": {
+        "status": "Waiting for the game to restart…",
+        "statusClass": "muted",
+        "controls": [
+          {
+            "text": "Launch Game",
+            "disabled": true
+          },
+          {
+            "text": "Close game",
+            "disabled": true
+          }
+        ],
+        "picker": [],
+        "repairHint": "",
+        "switches": [
+          {
+            "text": "Open games at startup",
+            "disabled": false
+          },
+          {
+            "text": "Automatic Reconnection",
+            "disabled": false
+          }
+        ]
+      },
+      "currentParityPredicates": {
+        "showRootPicker": false,
+        "repairOnClose": false,
+        "canStart": false,
+        "canStop": true
+      },
+      "currentFencedPredicates": {
+        "showRootPicker": false,
+        "repairOnClose": false,
+        "canStart": false,
+        "canStop": false
+      }
+    },
+    {
+      "name": "running-offline",
+      "inputs": {
+        "root": {
+          "valid": true
+        },
+        "gameRunning": true,
+        "online": false,
+        "repairRequired": false,
+        "recoveryState": "idle",
+        "proxyBusy": false,
+        "launching": false,
+        "gameRootBusy": false,
+        "currentBusy": ""
+      },
+      "expected": {
+        "statusKey": "setup.bridgeDisconnected",
+        "status": "Game bridge is not connected",
+        "statusClass": "muted",
+        "predicates": {
+          "showRootPicker": false,
+          "canStart": false,
+          "canStop": true,
+          "repairOnClose": false
+        },
+        "controlKeys": [
+          "top.launchGame",
+          "setup.closeGameAction"
+        ],
+        "pickerKey": null,
+        "repairHintKey": null
+      },
+      "original": {
+        "status": "Game bridge is not connected",
+        "statusClass": "muted",
+        "controls": [
+          {
+            "text": "Launch Game",
+            "disabled": true
+          },
+          {
+            "text": "Close game",
+            "disabled": false
+          }
+        ],
+        "picker": [],
+        "repairHint": "",
+        "switches": [
+          {
+            "text": "auth.autoLaunchGame",
+            "disabled": false
+          },
+          {
+            "text": "automation.autoReconnect.title",
+            "disabled": false
+          }
+        ]
+      },
+      "current": {
+        "status": "Game bridge is not connected",
+        "statusClass": "muted",
+        "controls": [
+          {
+            "text": "Launch Game",
+            "disabled": true
+          },
+          {
+            "text": "Close game",
+            "disabled": true
+          }
+        ],
+        "picker": [],
+        "repairHint": "",
+        "switches": [
+          {
+            "text": "Open games at startup",
+            "disabled": false
+          },
+          {
+            "text": "Automatic Reconnection",
+            "disabled": false
+          }
+        ]
+      },
+      "currentParityPredicates": {
+        "showRootPicker": false,
+        "repairOnClose": false,
+        "canStart": false,
+        "canStop": true
+      },
+      "currentFencedPredicates": {
+        "showRootPicker": false,
+        "repairOnClose": false,
+        "canStart": false,
+        "canStop": false
+      }
+    },
+    {
+      "name": "running-online",
+      "inputs": {
+        "root": {
+          "valid": true
+        },
+        "gameRunning": true,
+        "online": true,
+        "repairRequired": false,
+        "recoveryState": "idle",
+        "proxyBusy": false,
+        "launching": false,
+        "gameRootBusy": false,
+        "currentBusy": ""
+      },
+      "expected": {
+        "statusKey": "status.gameRunning",
+        "status": "Game running",
+        "statusClass": "status-ok",
+        "predicates": {
+          "showRootPicker": false,
+          "canStart": false,
+          "canStop": true,
+          "repairOnClose": false
+        },
+        "controlKeys": [
+          "top.launchGame",
+          "setup.closeGameAction"
+        ],
+        "pickerKey": null,
+        "repairHintKey": null
+      },
+      "original": {
+        "status": "Game running",
+        "statusClass": "status-ok",
+        "controls": [
+          {
+            "text": "Launch Game",
+            "disabled": true
+          },
+          {
+            "text": "Close game",
+            "disabled": false
+          }
+        ],
+        "picker": [],
+        "repairHint": "",
+        "switches": [
+          {
+            "text": "auth.autoLaunchGame",
+            "disabled": false
+          },
+          {
+            "text": "automation.autoReconnect.title",
+            "disabled": false
+          }
+        ]
+      },
+      "current": {
+        "status": "Game running",
+        "statusClass": "status-ok",
+        "controls": [
+          {
+            "text": "Launch Game",
+            "disabled": true
+          },
+          {
+            "text": "Close game",
+            "disabled": true
+          }
+        ],
+        "picker": [],
+        "repairHint": "",
+        "switches": [
+          {
+            "text": "Open games at startup",
+            "disabled": false
+          },
+          {
+            "text": "Automatic Reconnection",
+            "disabled": false
+          }
+        ]
+      },
+      "currentParityPredicates": {
+        "showRootPicker": false,
+        "repairOnClose": false,
+        "canStart": false,
+        "canStop": true
+      },
+      "currentFencedPredicates": {
+        "showRootPicker": false,
+        "repairOnClose": false,
+        "canStart": false,
+        "canStop": false
+      }
+    },
+    {
+      "name": "preference-auto-launch-busy",
+      "inputs": {
+        "root": {
+          "valid": true
+        },
+        "gameRunning": false,
+        "online": false,
+        "repairRequired": false,
+        "recoveryState": "idle",
+        "proxyBusy": false,
+        "launching": false,
+        "gameRootBusy": false,
+        "currentBusy": "autoLaunchGame"
+      },
+      "expected": {
+        "statusKey": "setup.gameStopped",
+        "status": "Game stopped",
+        "statusClass": "muted",
+        "predicates": {
+          "showRootPicker": false,
+          "canStart": true,
+          "canStop": false,
+          "repairOnClose": false
+        },
+        "controlKeys": [
+          "top.launchGame",
+          "setup.closeGameAction"
+        ],
+        "pickerKey": null,
+        "repairHintKey": null
+      },
+      "original": {
+        "status": "Game stopped",
+        "statusClass": "muted",
+        "controls": [
+          {
+            "text": "Launch Game",
+            "disabled": false
+          },
+          {
+            "text": "Close game",
+            "disabled": true
+          }
+        ],
+        "picker": [],
+        "repairHint": "",
+        "switches": [
+          {
+            "text": "auth.autoLaunchGame",
+            "disabled": false
+          },
+          {
+            "text": "automation.autoReconnect.title",
+            "disabled": false
+          }
+        ]
+      },
+      "current": {
+        "status": "Game stopped",
+        "statusClass": "muted",
+        "controls": [
+          {
+            "text": "Launch Game",
+            "disabled": true
+          },
+          {
+            "text": "Close game",
+            "disabled": true
+          }
+        ],
+        "picker": [],
+        "repairHint": "",
+        "switches": [
+          {
+            "text": "Open games at startup",
+            "disabled": true
+          },
+          {
+            "text": "Automatic Reconnection",
+            "disabled": false
+          }
+        ]
+      },
+      "currentParityPredicates": {
+        "showRootPicker": false,
+        "repairOnClose": false,
+        "canStart": true,
+        "canStop": false
+      },
+      "currentFencedPredicates": {
+        "showRootPicker": false,
+        "repairOnClose": false,
+        "canStart": false,
+        "canStop": false
+      }
+    },
+    {
+      "name": "preference-auto-reconnect-busy",
+      "inputs": {
+        "root": {
+          "valid": true
+        },
+        "gameRunning": false,
+        "online": false,
+        "repairRequired": false,
+        "recoveryState": "idle",
+        "proxyBusy": false,
+        "launching": false,
+        "gameRootBusy": false,
+        "currentBusy": "autoReconnect"
+      },
+      "expected": {
+        "statusKey": "setup.gameStopped",
+        "status": "Game stopped",
+        "statusClass": "muted",
+        "predicates": {
+          "showRootPicker": false,
+          "canStart": true,
+          "canStop": false,
+          "repairOnClose": false
+        },
+        "controlKeys": [
+          "top.launchGame",
+          "setup.closeGameAction"
+        ],
+        "pickerKey": null,
+        "repairHintKey": null
+      },
+      "original": {
+        "status": "Game stopped",
+        "statusClass": "muted",
+        "controls": [
+          {
+            "text": "Launch Game",
+            "disabled": false
+          },
+          {
+            "text": "Close game",
+            "disabled": true
+          }
+        ],
+        "picker": [],
+        "repairHint": "",
+        "switches": [
+          {
+            "text": "auth.autoLaunchGame",
+            "disabled": false
+          },
+          {
+            "text": "automation.autoReconnect.title",
+            "disabled": false
+          }
+        ]
+      },
+      "current": {
+        "status": "Game stopped",
+        "statusClass": "muted",
+        "controls": [
+          {
+            "text": "Launch Game",
+            "disabled": true
+          },
+          {
+            "text": "Close game",
+            "disabled": true
+          }
+        ],
+        "picker": [],
+        "repairHint": "",
+        "switches": [
+          {
+            "text": "Open games at startup",
+            "disabled": false
+          },
+          {
+            "text": "Automatic Reconnection",
+            "disabled": true
+          }
+        ]
+      },
+      "currentParityPredicates": {
+        "showRootPicker": false,
+        "repairOnClose": false,
+        "canStart": true,
+        "canStop": false
+      },
+      "currentFencedPredicates": {
+        "showRootPicker": false,
+        "repairOnClose": false,
+        "canStart": false,
+        "canStop": false
+      }
+    }
+  ],
+  "counts": {
+    "distinguishingCases": 17,
+    "sourceLocatorChecks": 6
+  },
+  "historicalEvidence": {
+    "savedAppSha256NormalizedLF": "136C6361B8C8871ECB33ADFB249A6334BD874F94C604E63C85EABC8C0D46CBE7",
+    "currentAppSha256NormalizedLF": "BA4A300D525A271C61A8061406CA81DE2414AACC15DF10A728B0E1A8641B2701",
+    "appHashMatchesSavedReport": false,
+    "sourceLocatorsVerified": 8,
+    "screenshots": [
+      {
+        "file": "proxy-busy-running-en.jpg",
+        "sha256": "D0603724847E1FF85269063F599145C0505FA0F69E5BD1E9375815ADC3AE8F5E",
+        "verified": true
+      },
+      {
+        "file": "launching-ja.jpg",
+        "sha256": "865F4A6B3C8E927C2459868A9BA0AA3CA8EFFECD11DFB25E8401C5B4AF3F4EDA",
+        "verified": true
+      }
+    ]
+  },
+  "limits": "Recovered source and current local presentation/predicate review only. Current lifecycleProviderAvailable is false, so current start/stop controls remain disabled. proxyBusy/gameLaunchBusy are render inputs without App production producers. Preview fixtures do not establish lifecycle reachability or original runtime pixels."
+}

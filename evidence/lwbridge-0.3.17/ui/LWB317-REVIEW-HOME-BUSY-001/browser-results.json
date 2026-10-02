@@ -1,0 +1,92 @@
+{
+  "task": "LWB317-REVIEW-HOME-BUSY-001",
+  "date": "2026-10-02",
+  "browser": "Chat On Steroids Desktop existing browser",
+  "preview": "http://127.0.0.1:4319",
+  "syntheticBrowserOnly": true,
+  "flows": [
+    {
+      "state": "home-root-busy-valid",
+      "language": "en",
+      "observed": {
+        "status": "Game stopped",
+        "statusClass": "muted",
+        "controls": [
+          { "text": "Launch Game", "disabled": true },
+          { "text": "Close game", "disabled": true }
+        ],
+        "picker": [],
+        "switchesDisabled": [true, true]
+      }
+    },
+    {
+      "state": "home-proxy-busy-stopped",
+      "language": "en",
+      "observed": {
+        "status": "Processing",
+        "statusClass": "muted",
+        "controls": [
+          { "text": "Processing", "disabled": true },
+          { "text": "Close game", "disabled": true }
+        ],
+        "picker": [],
+        "switchesDisabled": [true, true]
+      }
+    },
+    {
+      "state": "home-proxy-busy-running",
+      "language": "en",
+      "observed": {
+        "status": "Processing",
+        "statusClass": "muted",
+        "controls": [
+          { "text": "Processing", "disabled": true },
+          { "text": "Processing", "disabled": true }
+        ],
+        "picker": [],
+        "switchesDisabled": [true, true]
+      }
+    },
+    {
+      "state": "home-busy-overlap",
+      "language": "en",
+      "observed": {
+        "status": "Launching game…",
+        "statusClass": "muted",
+        "controls": [
+          { "text": "Launching game…", "disabled": true },
+          { "text": "Processing", "disabled": true }
+        ],
+        "picker": [],
+        "switchesDisabled": [true, true]
+      }
+    },
+    {
+      "state": "home-launching",
+      "language": "ja",
+      "observed": {
+        "status": "ゲームを起動中…",
+        "statusClass": "muted",
+        "controls": [
+          { "text": "ゲームを起動中…", "disabled": true },
+          { "text": "ゲームを閉じる", "disabled": true }
+        ],
+        "picker": [],
+        "switchesDisabled": [true, true]
+      }
+    }
+  ],
+  "consoleErrors": [],
+  "screenshots": [
+    {
+      "file": "home-launching-ja.jpg",
+      "state": "home-launching",
+      "language": "ja",
+      "width": 774,
+      "height": 415,
+      "sha256": "1F190D6484F2777D78E93D461C70434626A8D3D2737DA0DCD68FD854F6B0101B"
+    }
+  ],
+  "cleanup": "Visible language restored to English; task-owned browser tab closed; task-owned Vite preview process stopped.",
+  "limits": "These are explicit browser-only preview fixtures. No native picker, game launch/control, lifecycle provider or protected runtime action was invoked."
+}

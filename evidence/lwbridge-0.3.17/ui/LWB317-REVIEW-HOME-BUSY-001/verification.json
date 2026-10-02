@@ -1,0 +1,29 @@
+{
+  "task": "LWB317-REVIEW-HOME-BUSY-001",
+  "date": "2026-10-02",
+  "state": "REVIEW_COMPLETE",
+  "verdict": "ACCEPT",
+  "reviewedHead": "6277295755ae37f99d5ef5cbf7a9a6650ba656ec",
+  "referenceExeHash": "4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783",
+  "sourceBundleHash": "44C4E4043825B7DB296B64171951B27176F8850FF8D7D337CC991DF4765524C6",
+  "currentAppSha256NormalizedLF": "BA4A300D525A271C61A8061406CA81DE2414AACC15DF10A728B0E1A8641B2701",
+  "historicalBusyReportAppSha256NormalizedLF": "136C6361B8C8871ECB33ADFB249A6334BD874F94C604E63C85EABC8C0D46CBE7",
+  "checks": {
+    "independentSourceAndRenderCases": "PASS",
+    "historicalBusyCheckerLive": "PASS",
+    "historicalSourceAndImages": "PASS",
+    "browserPreview": "PASS",
+    "browserConsole": "PASS",
+    "rootAcknowledgementRegression": "PASS",
+    "translationRegression": "PASS",
+    "switchLocalizationRegression": "PASS",
+    "uiCheck": "PASS",
+    "productionPackageCheck": "PASS",
+    "reviewEvidenceValidation": "PASS",
+    "diffCheck": "PASS"
+  },
+  "productionPackageFingerprint": "1280d8a4df7aec2f81260a8081c0dda7626bad06e8771d25cea4e3ae0c49daf2",
+  "productionPackageSecondaryFingerprint": "b2a903176188b57cd02f281ffaded42aa05a0d6503595e25ee3e5fcfa09127ae",
+  "limits": "ACCEPT is for recovered-source/current-local Home busy presentation only. App produces folder/preference busy but still does not produce proxyBusy or gameLaunchBusy; lifecycleProviderAvailable remains false, so live game start/stop reachability and original runtime pixels are outside this review.",
+  "cleanup": "Visible preview language restored to English; task-owned browser tab and Vite preview stopped; unrelated AFK, scratch and parent screenshot WIP left untouched and unstaged."
+}
