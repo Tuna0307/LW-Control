@@ -34,6 +34,7 @@ import {
 import { ScheduledPlunder } from "./ScheduledPlunder.jsx";
 import { MapTreasureTypeFilter } from "./MapTreasureTypeFilter.jsx";
 import { MapRetainedGoodsFilter } from "./MapRetainedGoodsFilter.jsx";
+import { mapScanPresentation, scanDateTitle, scanDuration, scanIsoTime, scanSameDay, scanTimeText } from "./mapScanPresentation.js";
 
 const EMPTY_GAME_TEXTS = Object.freeze({});
 
@@ -107,11 +108,6 @@ function uiLocale() {
   return typeof document !== "undefined" && document.documentElement.lang
     ? document.documentElement.lang
     : "en";
-}
-
-function numberText(value) {
-  const parsed = Number(value);
-  return Number.isFinite(parsed) ? parsed.toLocaleString(uiLocale()) : "-";
 }
 
 function dateText(value) {
@@ -256,7 +252,7 @@ const PREVIEW_TAB_BY_STATE = Object.freeze({
 });
 
 export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, currentServerId = 0, previewState = "", gameTexts = EMPTY_GAME_TEXTS, previewJumpingKeys = null, previewTreasureStatesRefreshing = false, previewBusyKey = "", previewSharing = false, previewActionMessage = null, previewPlunderOnline = null }) {
-  const { t } = useI18n();
+  const { language, t } = useI18n();
   const previewFixture = bridgeMode === "preview" && previewState.startsWith("map-");
   const [scanTab, setScanTab] = useState(previewState.startsWith("map-auto") ? "auto" : "manual");
   const [speed, setSpeed] = useState(() => {
@@ -266,6 +262,7 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
   });
   const [selectedTypes, setSelectedTypes] = useState(() => [...MAP_KIND_KEYS]);
   const [scanState, setScanState] = useState(() => ({ ...DEFAULT_SCAN_STATE }));
+  const [scanStateAvailable, setScanStateAvailable] = useState(false);
   const [counts, setCounts] = useState(() => ({ ...EMPTY_COUNTS }));
   const [summaryReady, setSummaryReady] = useState(false);
   const [options, setOptions] = useState(null);
@@ -391,6 +388,7 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
       const summary = await mapApi.summary();
       if (generation !== summaryGeneration.current) return;
       setScanState(summary.scanState);
+      setScanStateAvailable(true);
       setCounts(summary.counts);
       setSummaryReady(true);
       setBrowseServerId(summary.serverId > 0 ? summary.serverId : 0);
@@ -419,6 +417,7 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
       const wasReading = previousReading.current;
       previousReading.current = next.isReading;
       setScanState(next);
+      setScanStateAvailable(true);
       setScanError(next.lastError || "");
       setBrowseServerId(next.serverId > 0 ? next.serverId : 0);
       if (wasReading && !next.isReading) refreshSummary();
@@ -536,13 +535,13 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
   ]);
 
   // Original page clock (`rn`, 1 s). MapTable keeps its own accepted 1 s clock for the three task tables, so the
-  // page-level clock only has to drive the Scheduled Plunder tables.
+  // Recovered page clock also drives elapsed scan time, even on City/Resource.
   useEffect(() => {
-    if (tab !== "scheduledPlunder") return undefined;
+    if (!scanState.isReading && !["dispatch", "ghost", "truck", "scheduledPlunder"].includes(tab)) return undefined;
     setCurrentTime(Date.now());
     const timer = window.setInterval(() => setCurrentTime(Date.now()), 1000);
     return () => window.clearInterval(timer);
-  }, [tab]);
+  }, [tab, scanState.isReading]);
 
   // Original: the Dispatch/Ghost selection is emptied on every tab change (the Truck selection is not).
   useEffect(() => {
@@ -579,6 +578,7 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
       summaryGeneration.current++;
       previousReading.current = next.isReading;
       setScanState(next);
+      setScanStateAvailable(true);
       if (next.serverId > 0) setBrowseServerId(next.serverId);
     } catch (error) {
       setScanError(errorText(error));
@@ -592,6 +592,7 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
       summaryGeneration.current++;
       previousReading.current = next.isReading;
       setScanState(next);
+      setScanStateAvailable(true);
       if (next.serverId > 0) setBrowseServerId(next.serverId);
       await refreshSummary();
     } catch (error) {
@@ -608,6 +609,7 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
       optionsGeneration.current++;
       searchGeneration.current += 1;
       setScanState(next);
+      setScanStateAvailable(true);
       setCounts({ ...EMPTY_COUNTS });
       setSummaryReady(true);
       setOptions(null);
@@ -757,6 +759,7 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
           }
           const state = await mapApi.scanStatus();
           setScanState(state);
+          setScanStateAvailable(true);
           if (!state.isReading) {
             if (state.lastError) setScanError(state.lastError);
             break;
@@ -906,11 +909,8 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
     }
   }
 
-  const progress = Math.max(0, Math.min(100, Math.round(Number(scanState.progressPercent) || 0)));
-  const statusLabel = scanState.isReading
-    ? scanState.phase === "publishing" ? t("common.processing") : t("map.reading")
-    : scanState.phase === "completed" ? t("common.completed") : t("common.stopped");
-  const phaseLabel = scanState.phase || "idle";
+  const scanView = mapScanPresentation(scanState, options?.scanProgress, dataServerId, currentTime);
+  const progress = scanView.progress;
 
   return (
     <section className="panel map-panel" data-bridge-mode={bridgeMode} data-preview-fixture={previewFixture ? previewState : undefined}>
@@ -922,9 +922,17 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
       <div className="map-header">
         <h2>{t("map.title")}</h2>
         <div className="map-actions">
+          {scanView.start > 0 ? (
+            <div className="map-scan-timing">
+              <span title={scanDateTitle(scanView.start, language)}><small>{t("map.startTime")}</small><time dateTime={scanIsoTime(scanView.start)}>{scanTimeText(scanView.start)}</time></span>
+              <i aria-hidden="true">→</i>
+              <span title={scanDateTitle(scanView.end, language)}><small>{t("map.endTime")}</small><time dateTime={scanIsoTime(scanView.end)}>{scanTimeText(scanView.end, !scanSameDay(scanView.start, scanView.end))}</time></span>
+              <span className="map-scan-duration"><small>{t("map.totalDuration")}</small><time>{scanDuration(scanView.duration)}</time></span>
+            </div>
+          ) : null}
           {scanTab === "manual" ? (
             <>
-              <fieldset className={`map-speed-toggle${speed === "fast" ? " fast" : ""}`} disabled={scanState.isReading || autoRunning}>
+              <fieldset className={`map-speed-toggle${speed === "fast" ? " fast" : ""}`} aria-label={t("map.speed")} disabled={scanState.isReading || autoRunning}>
                 <span className="map-speed-slider" aria-hidden="true" />
                 <label><input type="radio" name="map-scan-speed" checked={speed === "normal"} onChange={() => { selectionTouched.current = true; setSpeed("normal"); }} /><span>{t("map.normalSpeed")}</span></label>
                 <label><input type="radio" name="map-scan-speed" checked={speed === "fast"} onChange={() => { selectionTouched.current = true; setSpeed("fast"); }} /><span>{t("map.fastSpeed")}</span></label>
@@ -972,21 +980,12 @@ export function MapDataPage({ mapApi, bridgeMode, backendAvailable, online, curr
       ) : null}
 
       <div className="map-scan-summary">
-        <span className={`map-status-pill${scanState.isReading ? " active" : ""}`}>{statusLabel}</span>
-        <span>{t("map.server")} <strong>{scanState.serverId || "-"}</strong></span>
+        <span className={`map-status-pill${scanState.isReading ? " active" : ""}`}>{t(scanView.statusKey)}</span>
+        <span>{t("map.server")} <strong>{scanView.serverId || "-"}</strong></span>
         <div className={`map-progress${progress < 50 ? " low" : ""}${scanState.isReading ? " active" : ""}`}>
-          <progress className="map-progress-bar" max="100" value={scanState.totalBlocks > 0 || scanState.isReading ? progress : undefined} aria-label={t("map.scanProgress")} />
-          <span>{scanState.totalBlocks > 0 || scanState.isReading ? `${progress}%` : "—"}</span>
+          <progress className="map-progress-bar" max={100} value={scanStateAvailable ? progress : undefined} aria-label={t("map.scanProgress")} />
+          <span>{scanStateAvailable ? `${progress}%` : "—"}</span>
         </div>
-      </div>
-
-      <div className="map-counters" aria-label="Scan details">
-        <span><small>Phase</small><strong>{phaseLabel}</strong></span>
-        <span><small>Total blocks</small><strong>{numberText(scanState.totalBlocks)}</strong></span>
-        <span><small>Read</small><strong>{numberText(scanState.readBlocks)}</strong></span>
-        <span><small>Failed</small><strong>{numberText(scanState.failedBlocks)}</strong></span>
-        <span><small>Unread</small><strong>{numberText(scanState.unreadBlocks)}</strong></span>
-        <span><small>Mode</small><strong>{scanState.scanMode}</strong></span>
       </div>
 
       {scanError ? <div className="map-scan-error" role="alert">{scanError}</div> : null}

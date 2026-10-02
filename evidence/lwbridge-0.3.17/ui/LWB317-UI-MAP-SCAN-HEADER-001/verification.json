@@ -1,0 +1,15 @@
+{
+  "date": "2026-10-03",
+  "check": "PASS",
+  "build": "PASS",
+  "productionPackage": "PASS",
+  "sourceFingerprint": "b5ac5b5db4f33f3c890e6d8be6e164088c310fccfbca33cd62e7e1f08d62e88f",
+  "packageFingerprint": "3a10201330f71435d21077c57143ea780e32f4fafbb6a1fb5e58f82669530211",
+  "locales": 9,
+  "messagesPerLocale": 1383,
+  "tools": {
+    "node": "v24.18.0",
+    "vite": "7.3.6"
+  },
+  "limits": "Source/component and offline-browser UI proof only; no live/native scan or original pixels"
+}

@@ -1,5 +1,6 @@
 import { MAP_KIND_KEYS, normalizeOptions, normalizeScanState, normalizeSearchResult, normalizeSummary } from "./mapBackend.js";
 import { plunderFixtureFor, plunderFixtureGameTexts } from "./mapPlunderFixtures.js";
+import { scanHeaderFixture } from "./mapScanHeaderFixtures.js";
 
 const FIXTURE_SERVER_ID = 321;
 const FIXTURE_TIME = 1_799_000_000_000;
@@ -164,7 +165,7 @@ function searchFixture(kind, query = {}, fixtureRows, fixtureTime = FIXTURE_TIME
   return normalizeSearchResult({ rows: rows.slice(offset, offset + pageSize), total: rows.length });
 }
 
-function fixtureSummary() {
+function fixtureSummary(scanOverride = {}) {
   return normalizeSummary({
     serverId: FIXTURE_SERVER_ID,
     counts: FIXTURE_COUNTS,
@@ -179,6 +180,7 @@ function fixtureSummary() {
       readBlocks: 256,
       scanMode: "normal",
       progressPercent: 100,
+      ...scanOverride,
     },
   });
 }
@@ -263,15 +265,16 @@ export function getMapPreviewProvider(bridgeMode, previewState) {
   if (bridgeMode !== "preview" || !String(previewState || "").startsWith("map-")) return null;
   if (cache.has(previewState)) return cache.get(previewState);
 
-  const summary = fixtureSummary();
   const tableTime = Date.now();
+  const headerFixture = scanHeaderFixture(previewState, tableTime);
+  const summary = fixtureSummary(headerFixture?.scanState);
   const tableRows = previewState === "map-filter-lifecycle" ? filterLifecycleFixtureRows() : previewState === "map-row-actions" ? rowActionFixtureRows(tableTime) : previewState === "map-treasure-checking" ? treasureCheckingFixtureRows(tableTime) : previewState === "map-table-states" || previewState.startsWith("map-actions-") ? tableStateFixtureRows(tableTime) : null;
   const plunderFixture = plunderFixtureFor(previewState, tableTime) || { dispatchJobs: [], truckJobs: [], online: null, busyKey: "" };
   const api = {
     profileId: "preview-map-profile",
     previewFixture: true,
     summary: async () => summary,
-    dataOptions: async () => fixtureOptions(tableRows || FIXTURE_ROWS),
+    dataOptions: async () => ({ ...fixtureOptions(tableRows || FIXTURE_ROWS), ...(headerFixture ? { scanProgress: headerFixture.scanProgress } : {}) }),
     search: async (kind, query = {}) => {
       if (previewState === "map-loading") return new Promise(() => {});
       if (previewState === "map-error") {

@@ -1,0 +1,7 @@
+{
+  "status": "PASS",
+  "states": 4,
+  "nativeModeFences": 8,
+  "rejectedActions": 28,
+  "priorFixtures": "UNCHANGED"
+}

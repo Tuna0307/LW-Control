@@ -1,0 +1,1421 @@
+{
+  "comparisons": 270,
+  "cases": [
+    {
+      "language": "en",
+      "id": "no-state",
+      "pass": true
+    },
+    {
+      "language": "en",
+      "id": "provided-zero",
+      "pass": true
+    },
+    {
+      "language": "en",
+      "id": "phase-completed-without-stored",
+      "pass": true
+    },
+    {
+      "language": "en",
+      "id": "publishing-stopped",
+      "pass": true
+    },
+    {
+      "language": "en",
+      "id": "publishing-reading",
+      "pass": true
+    },
+    {
+      "language": "en",
+      "id": "reading-fraction",
+      "pass": true
+    },
+    {
+      "language": "en",
+      "id": "reading-ignores-stored",
+      "pass": true
+    },
+    {
+      "language": "en",
+      "id": "stored-completed",
+      "pass": true
+    },
+    {
+      "language": "en",
+      "id": "stored-failed",
+      "pass": true
+    },
+    {
+      "language": "en",
+      "id": "stored-stopped",
+      "pass": true
+    },
+    {
+      "language": "en",
+      "id": "stored-running-ignored",
+      "pass": true
+    },
+    {
+      "language": "en",
+      "id": "stored-run-id-mismatch",
+      "pass": true
+    },
+    {
+      "language": "en",
+      "id": "stored-server-mismatch",
+      "pass": true
+    },
+    {
+      "language": "en",
+      "id": "strict-stored-server-key",
+      "pass": true
+    },
+    {
+      "language": "en",
+      "id": "strict-stored-run-key",
+      "pass": true
+    },
+    {
+      "language": "en",
+      "id": "stopped-end-missing",
+      "pass": true
+    },
+    {
+      "language": "en",
+      "id": "end-before-start",
+      "pass": true
+    },
+    {
+      "language": "en",
+      "id": "cross-day",
+      "pass": true
+    },
+    {
+      "language": "en",
+      "id": "second-timestamps",
+      "pass": true
+    },
+    {
+      "language": "en",
+      "id": "string-timestamps",
+      "pass": true
+    },
+    {
+      "language": "en",
+      "id": "progress-0",
+      "pass": true
+    },
+    {
+      "language": "en",
+      "id": "progress-1",
+      "pass": true
+    },
+    {
+      "language": "en",
+      "id": "progress-2",
+      "pass": true
+    },
+    {
+      "language": "en",
+      "id": "progress-3",
+      "pass": true
+    },
+    {
+      "language": "en",
+      "id": "progress-4",
+      "pass": true
+    },
+    {
+      "language": "en",
+      "id": "progress-5",
+      "pass": true
+    },
+    {
+      "language": "en",
+      "id": "progress-6",
+      "pass": true
+    },
+    {
+      "language": "en",
+      "id": "progress-7",
+      "pass": true
+    },
+    {
+      "language": "en",
+      "id": "progress-8",
+      "pass": true
+    },
+    {
+      "language": "en",
+      "id": "progress-9",
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "id": "no-state",
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "id": "provided-zero",
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "id": "phase-completed-without-stored",
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "id": "publishing-stopped",
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "id": "publishing-reading",
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "id": "reading-fraction",
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "id": "reading-ignores-stored",
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "id": "stored-completed",
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "id": "stored-failed",
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "id": "stored-stopped",
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "id": "stored-running-ignored",
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "id": "stored-run-id-mismatch",
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "id": "stored-server-mismatch",
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "id": "strict-stored-server-key",
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "id": "strict-stored-run-key",
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "id": "stopped-end-missing",
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "id": "end-before-start",
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "id": "cross-day",
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "id": "second-timestamps",
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "id": "string-timestamps",
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "id": "progress-0",
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "id": "progress-1",
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "id": "progress-2",
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "id": "progress-3",
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "id": "progress-4",
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "id": "progress-5",
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "id": "progress-6",
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "id": "progress-7",
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "id": "progress-8",
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "id": "progress-9",
+      "pass": true
+    },
+    {
+      "language": "zh-CN",
+      "id": "no-state",
+      "pass": true
+    },
+    {
+      "language": "zh-CN",
+      "id": "provided-zero",
+      "pass": true
+    },
+    {
+      "language": "zh-CN",
+      "id": "phase-completed-without-stored",
+      "pass": true
+    },
+    {
+      "language": "zh-CN",
+      "id": "publishing-stopped",
+      "pass": true
+    },
+    {
+      "language": "zh-CN",
+      "id": "publishing-reading",
+      "pass": true
+    },
+    {
+      "language": "zh-CN",
+      "id": "reading-fraction",
+      "pass": true
+    },
+    {
+      "language": "zh-CN",
+      "id": "reading-ignores-stored",
+      "pass": true
+    },
+    {
+      "language": "zh-CN",
+      "id": "stored-completed",
+      "pass": true
+    },
+    {
+      "language": "zh-CN",
+      "id": "stored-failed",
+      "pass": true
+    },
+    {
+      "language": "zh-CN",
+      "id": "stored-stopped",
+      "pass": true
+    },
+    {
+      "language": "zh-CN",
+      "id": "stored-running-ignored",
+      "pass": true
+    },
+    {
+      "language": "zh-CN",
+      "id": "stored-run-id-mismatch",
+      "pass": true
+    },
+    {
+      "language": "zh-CN",
+      "id": "stored-server-mismatch",
+      "pass": true
+    },
+    {
+      "language": "zh-CN",
+      "id": "strict-stored-server-key",
+      "pass": true
+    },
+    {
+      "language": "zh-CN",
+      "id": "strict-stored-run-key",
+      "pass": true
+    },
+    {
+      "language": "zh-CN",
+      "id": "stopped-end-missing",
+      "pass": true
+    },
+    {
+      "language": "zh-CN",
+      "id": "end-before-start",
+      "pass": true
+    },
+    {
+      "language": "zh-CN",
+      "id": "cross-day",
+      "pass": true
+    },
+    {
+      "language": "zh-CN",
+      "id": "second-timestamps",
+      "pass": true
+    },
+    {
+      "language": "zh-CN",
+      "id": "string-timestamps",
+      "pass": true
+    },
+    {
+      "language": "zh-CN",
+      "id": "progress-0",
+      "pass": true
+    },
+    {
+      "language": "zh-CN",
+      "id": "progress-1",
+      "pass": true
+    },
+    {
+      "language": "zh-CN",
+      "id": "progress-2",
+      "pass": true
+    },
+    {
+      "language": "zh-CN",
+      "id": "progress-3",
+      "pass": true
+    },
+    {
+      "language": "zh-CN",
+      "id": "progress-4",
+      "pass": true
+    },
+    {
+      "language": "zh-CN",
+      "id": "progress-5",
+      "pass": true
+    },
+    {
+      "language": "zh-CN",
+      "id": "progress-6",
+      "pass": true
+    },
+    {
+      "language": "zh-CN",
+      "id": "progress-7",
+      "pass": true
+    },
+    {
+      "language": "zh-CN",
+      "id": "progress-8",
+      "pass": true
+    },
+    {
+      "language": "zh-CN",
+      "id": "progress-9",
+      "pass": true
+    },
+    {
+      "language": "zh-TW",
+      "id": "no-state",
+      "pass": true
+    },
+    {
+      "language": "zh-TW",
+      "id": "provided-zero",
+      "pass": true
+    },
+    {
+      "language": "zh-TW",
+      "id": "phase-completed-without-stored",
+      "pass": true
+    },
+    {
+      "language": "zh-TW",
+      "id": "publishing-stopped",
+      "pass": true
+    },
+    {
+      "language": "zh-TW",
+      "id": "publishing-reading",
+      "pass": true
+    },
+    {
+      "language": "zh-TW",
+      "id": "reading-fraction",
+      "pass": true
+    },
+    {
+      "language": "zh-TW",
+      "id": "reading-ignores-stored",
+      "pass": true
+    },
+    {
+      "language": "zh-TW",
+      "id": "stored-completed",
+      "pass": true
+    },
+    {
+      "language": "zh-TW",
+      "id": "stored-failed",
+      "pass": true
+    },
+    {
+      "language": "zh-TW",
+      "id": "stored-stopped",
+      "pass": true
+    },
+    {
+      "language": "zh-TW",
+      "id": "stored-running-ignored",
+      "pass": true
+    },
+    {
+      "language": "zh-TW",
+      "id": "stored-run-id-mismatch",
+      "pass": true
+    },
+    {
+      "language": "zh-TW",
+      "id": "stored-server-mismatch",
+      "pass": true
+    },
+    {
+      "language": "zh-TW",
+      "id": "strict-stored-server-key",
+      "pass": true
+    },
+    {
+      "language": "zh-TW",
+      "id": "strict-stored-run-key",
+      "pass": true
+    },
+    {
+      "language": "zh-TW",
+      "id": "stopped-end-missing",
+      "pass": true
+    },
+    {
+      "language": "zh-TW",
+      "id": "end-before-start",
+      "pass": true
+    },
+    {
+      "language": "zh-TW",
+      "id": "cross-day",
+      "pass": true
+    },
+    {
+      "language": "zh-TW",
+      "id": "second-timestamps",
+      "pass": true
+    },
+    {
+      "language": "zh-TW",
+      "id": "string-timestamps",
+      "pass": true
+    },
+    {
+      "language": "zh-TW",
+      "id": "progress-0",
+      "pass": true
+    },
+    {
+      "language": "zh-TW",
+      "id": "progress-1",
+      "pass": true
+    },
+    {
+      "language": "zh-TW",
+      "id": "progress-2",
+      "pass": true
+    },
+    {
+      "language": "zh-TW",
+      "id": "progress-3",
+      "pass": true
+    },
+    {
+      "language": "zh-TW",
+      "id": "progress-4",
+      "pass": true
+    },
+    {
+      "language": "zh-TW",
+      "id": "progress-5",
+      "pass": true
+    },
+    {
+      "language": "zh-TW",
+      "id": "progress-6",
+      "pass": true
+    },
+    {
+      "language": "zh-TW",
+      "id": "progress-7",
+      "pass": true
+    },
+    {
+      "language": "zh-TW",
+      "id": "progress-8",
+      "pass": true
+    },
+    {
+      "language": "zh-TW",
+      "id": "progress-9",
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "id": "no-state",
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "id": "provided-zero",
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "id": "phase-completed-without-stored",
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "id": "publishing-stopped",
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "id": "publishing-reading",
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "id": "reading-fraction",
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "id": "reading-ignores-stored",
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "id": "stored-completed",
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "id": "stored-failed",
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "id": "stored-stopped",
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "id": "stored-running-ignored",
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "id": "stored-run-id-mismatch",
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "id": "stored-server-mismatch",
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "id": "strict-stored-server-key",
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "id": "strict-stored-run-key",
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "id": "stopped-end-missing",
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "id": "end-before-start",
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "id": "cross-day",
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "id": "second-timestamps",
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "id": "string-timestamps",
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "id": "progress-0",
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "id": "progress-1",
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "id": "progress-2",
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "id": "progress-3",
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "id": "progress-4",
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "id": "progress-5",
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "id": "progress-6",
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "id": "progress-7",
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "id": "progress-8",
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "id": "progress-9",
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "id": "no-state",
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "id": "provided-zero",
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "id": "phase-completed-without-stored",
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "id": "publishing-stopped",
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "id": "publishing-reading",
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "id": "reading-fraction",
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "id": "reading-ignores-stored",
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "id": "stored-completed",
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "id": "stored-failed",
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "id": "stored-stopped",
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "id": "stored-running-ignored",
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "id": "stored-run-id-mismatch",
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "id": "stored-server-mismatch",
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "id": "strict-stored-server-key",
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "id": "strict-stored-run-key",
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "id": "stopped-end-missing",
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "id": "end-before-start",
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "id": "cross-day",
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "id": "second-timestamps",
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "id": "string-timestamps",
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "id": "progress-0",
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "id": "progress-1",
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "id": "progress-2",
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "id": "progress-3",
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "id": "progress-4",
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "id": "progress-5",
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "id": "progress-6",
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "id": "progress-7",
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "id": "progress-8",
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "id": "progress-9",
+      "pass": true
+    },
+    {
+      "language": "id",
+      "id": "no-state",
+      "pass": true
+    },
+    {
+      "language": "id",
+      "id": "provided-zero",
+      "pass": true
+    },
+    {
+      "language": "id",
+      "id": "phase-completed-without-stored",
+      "pass": true
+    },
+    {
+      "language": "id",
+      "id": "publishing-stopped",
+      "pass": true
+    },
+    {
+      "language": "id",
+      "id": "publishing-reading",
+      "pass": true
+    },
+    {
+      "language": "id",
+      "id": "reading-fraction",
+      "pass": true
+    },
+    {
+      "language": "id",
+      "id": "reading-ignores-stored",
+      "pass": true
+    },
+    {
+      "language": "id",
+      "id": "stored-completed",
+      "pass": true
+    },
+    {
+      "language": "id",
+      "id": "stored-failed",
+      "pass": true
+    },
+    {
+      "language": "id",
+      "id": "stored-stopped",
+      "pass": true
+    },
+    {
+      "language": "id",
+      "id": "stored-running-ignored",
+      "pass": true
+    },
+    {
+      "language": "id",
+      "id": "stored-run-id-mismatch",
+      "pass": true
+    },
+    {
+      "language": "id",
+      "id": "stored-server-mismatch",
+      "pass": true
+    },
+    {
+      "language": "id",
+      "id": "strict-stored-server-key",
+      "pass": true
+    },
+    {
+      "language": "id",
+      "id": "strict-stored-run-key",
+      "pass": true
+    },
+    {
+      "language": "id",
+      "id": "stopped-end-missing",
+      "pass": true
+    },
+    {
+      "language": "id",
+      "id": "end-before-start",
+      "pass": true
+    },
+    {
+      "language": "id",
+      "id": "cross-day",
+      "pass": true
+    },
+    {
+      "language": "id",
+      "id": "second-timestamps",
+      "pass": true
+    },
+    {
+      "language": "id",
+      "id": "string-timestamps",
+      "pass": true
+    },
+    {
+      "language": "id",
+      "id": "progress-0",
+      "pass": true
+    },
+    {
+      "language": "id",
+      "id": "progress-1",
+      "pass": true
+    },
+    {
+      "language": "id",
+      "id": "progress-2",
+      "pass": true
+    },
+    {
+      "language": "id",
+      "id": "progress-3",
+      "pass": true
+    },
+    {
+      "language": "id",
+      "id": "progress-4",
+      "pass": true
+    },
+    {
+      "language": "id",
+      "id": "progress-5",
+      "pass": true
+    },
+    {
+      "language": "id",
+      "id": "progress-6",
+      "pass": true
+    },
+    {
+      "language": "id",
+      "id": "progress-7",
+      "pass": true
+    },
+    {
+      "language": "id",
+      "id": "progress-8",
+      "pass": true
+    },
+    {
+      "language": "id",
+      "id": "progress-9",
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "id": "no-state",
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "id": "provided-zero",
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "id": "phase-completed-without-stored",
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "id": "publishing-stopped",
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "id": "publishing-reading",
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "id": "reading-fraction",
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "id": "reading-ignores-stored",
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "id": "stored-completed",
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "id": "stored-failed",
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "id": "stored-stopped",
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "id": "stored-running-ignored",
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "id": "stored-run-id-mismatch",
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "id": "stored-server-mismatch",
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "id": "strict-stored-server-key",
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "id": "strict-stored-run-key",
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "id": "stopped-end-missing",
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "id": "end-before-start",
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "id": "cross-day",
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "id": "second-timestamps",
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "id": "string-timestamps",
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "id": "progress-0",
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "id": "progress-1",
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "id": "progress-2",
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "id": "progress-3",
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "id": "progress-4",
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "id": "progress-5",
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "id": "progress-6",
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "id": "progress-7",
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "id": "progress-8",
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "id": "progress-9",
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "id": "no-state",
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "id": "provided-zero",
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "id": "phase-completed-without-stored",
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "id": "publishing-stopped",
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "id": "publishing-reading",
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "id": "reading-fraction",
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "id": "reading-ignores-stored",
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "id": "stored-completed",
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "id": "stored-failed",
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "id": "stored-stopped",
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "id": "stored-running-ignored",
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "id": "stored-run-id-mismatch",
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "id": "stored-server-mismatch",
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "id": "strict-stored-server-key",
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "id": "strict-stored-run-key",
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "id": "stopped-end-missing",
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "id": "end-before-start",
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "id": "cross-day",
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "id": "second-timestamps",
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "id": "string-timestamps",
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "id": "progress-0",
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "id": "progress-1",
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "id": "progress-2",
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "id": "progress-3",
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "id": "progress-4",
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "id": "progress-5",
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "id": "progress-6",
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "id": "progress-7",
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "id": "progress-8",
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "id": "progress-9",
+      "pass": true
+    }
+  ],
+  "baselineMismatches": [
+    "provided-zero",
+    "phase-completed-without-stored",
+    "publishing-stopped",
+    "publishing-reading",
+    "reading-fraction",
+    "reading-ignores-stored",
+    "stored-completed",
+    "stored-failed",
+    "stored-stopped",
+    "stored-running-ignored",
+    "stored-run-id-mismatch",
+    "stored-server-mismatch",
+    "strict-stored-server-key",
+    "strict-stored-run-key",
+    "stopped-end-missing",
+    "end-before-start",
+    "cross-day",
+    "second-timestamps",
+    "string-timestamps",
+    "progress-0",
+    "progress-1",
+    "progress-2",
+    "progress-3",
+    "progress-4",
+    "progress-5",
+    "progress-6",
+    "progress-7",
+    "progress-8",
+    "progress-9"
+  ],
+  "clock": [
+    {
+      "phase": "initial",
+      "pass": true,
+      "currentTime": 1791028800000
+    },
+    {
+      "phase": "tick",
+      "pass": true,
+      "currentTime": 1791028801000
+    },
+    {
+      "phase": "stop",
+      "pass": true,
+      "currentTime": 1791028801000
+    },
+    {
+      "phase": "stopped-tick",
+      "pass": true,
+      "currentTime": 1791028801000
+    },
+    {
+      "phase": "resume",
+      "pass": true,
+      "currentTime": 1791028802000
+    },
+    {
+      "phase": "resumed-tick",
+      "pass": true,
+      "currentTime": 1791028803000
+    }
+  ],
+  "unmount": "PASS",
+  "pageSha256": "d510c02572182ae8acc7d4ed53e12d513f6a44d015d431ead5cf652fae18afeb",
+  "helperSha256": "cf3e6fd01dbbbb42605d96155e2679267a1b7859d8458cea8957fcb0b9be24a2"
+}

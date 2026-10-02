@@ -1,0 +1,1281 @@
+{
+  "sources": {
+    "baseline": {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-FILTER-LIFECYCLE-001/baseline-c72aae6.MapDataPage.jsx",
+      "sha256": "fc7c8c5e2ad7dae75f38fcb0a7454249b02cfe7b351dc6e41cf0d320938ad452"
+    },
+    "corrected": {
+      "path": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+      "sha256": "d510c02572182ae8acc7d4ed53e12d513f6a44d015d431ead5cf652fae18afeb"
+    }
+  },
+  "baseline": {
+    "alliance": {
+      "none": {
+        "optionValue": "none",
+        "query": {
+          "withoutAlliance": true
+        }
+      },
+      "all": {
+        "optionValue": "all",
+        "query": {}
+      },
+      "A/B 東京 & %": {
+        "optionValue": "A/B 東京 & %",
+        "query": {
+          "alliance": "A/B 東京 & %"
+        }
+      },
+      "malformed": {
+        "alliance": "name:%E0%A4%A"
+      }
+    },
+    "exportAlliance": {
+      "namedNone": {
+        "withoutAlliance": true
+      },
+      "namedAll": {},
+      "uri": {
+        "alliance": "A/B 東京 & %"
+      },
+      "noAlliance": {
+        "withoutAlliance": true
+      }
+    },
+    "refresh": {
+      "alliance": "Foo",
+      "level": "5",
+      "treasureType": "radar"
+    },
+    "validRefresh": {
+      "alliancePreserved": true,
+      "levelPreserved": true,
+      "treasurePreserved": true
+    },
+    "refreshEdges": {
+      "noneAfterCountDisappears": "none",
+      "malformedAfterRefresh": "name:%E0%A4%A",
+      "malformedQuery": {
+        "alliance": "name:%E0%A4%A"
+      }
+    },
+    "staleOptions": {
+      "optionCalls": [
+        321
+      ],
+      "afterOld": [
+        "STALE-321"
+      ],
+      "afterFresh": [
+        "STALE-321"
+      ]
+    },
+    "clearSuccess": {
+      "before": {
+        "tab": "dispatch",
+        "keyword": "kw",
+        "resourceNameKey": "r2",
+        "monsterNameKey": "",
+        "alliance": "Foo",
+        "markedOnly": true,
+        "treasureType": "radar",
+        "completionStatusByKind": {
+          "dispatch": "pending"
+        },
+        "qualityByKind": {
+          "dispatch": "ur"
+        },
+        "itemKeyByKind": {
+          "truck": "gold"
+        },
+        "plunderableOnlyByKind": {
+          "dispatch": true
+        },
+        "includeForeignRadarTreasures": false,
+        "luckyFirst": false,
+        "minLevel": "5",
+        "dispatchSelectionKeys": [
+          "321:dispatch-1"
+        ],
+        "truckSelectionKeys": [
+          "321:truck-1"
+        ],
+        "sortsByKind": {
+          "city": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "resource": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "monster": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "truck": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "railway": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "dispatch": [
+            {
+              "sortBy": "level",
+              "sortOrder": "desc"
+            },
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "ghost": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "treasure": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ]
+        },
+        "page": 1,
+        "rows": [],
+        "total": 0,
+        "loading": false
+      },
+      "after": {
+        "tab": "dispatch",
+        "keyword": "kw",
+        "resourceNameKey": "",
+        "monsterNameKey": "",
+        "alliance": "Foo",
+        "markedOnly": true,
+        "treasureType": "radar",
+        "completionStatusByKind": {
+          "dispatch": "pending"
+        },
+        "qualityByKind": {
+          "dispatch": "ur"
+        },
+        "itemKeyByKind": {
+          "truck": "gold"
+        },
+        "plunderableOnlyByKind": {
+          "dispatch": true
+        },
+        "includeForeignRadarTreasures": false,
+        "luckyFirst": false,
+        "minLevel": "5",
+        "dispatchSelectionKeys": [],
+        "truckSelectionKeys": [],
+        "sortsByKind": {
+          "city": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "resource": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "monster": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "truck": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "railway": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "dispatch": [
+            {
+              "sortBy": "level",
+              "sortOrder": "desc"
+            },
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "ghost": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "treasure": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ]
+        },
+        "page": 1,
+        "rows": [],
+        "total": 0,
+        "loading": false
+      },
+      "scanError": ""
+    },
+    "clearFailure": {
+      "before": {
+        "tab": "dispatch",
+        "keyword": "kw",
+        "resourceNameKey": "r2",
+        "monsterNameKey": "",
+        "alliance": "Foo",
+        "markedOnly": true,
+        "treasureType": "radar",
+        "completionStatusByKind": {
+          "dispatch": "pending"
+        },
+        "qualityByKind": {
+          "dispatch": "ur"
+        },
+        "itemKeyByKind": {
+          "truck": "gold"
+        },
+        "plunderableOnlyByKind": {
+          "dispatch": true
+        },
+        "includeForeignRadarTreasures": false,
+        "luckyFirst": false,
+        "minLevel": "5",
+        "dispatchSelectionKeys": [
+          "321:dispatch-1"
+        ],
+        "truckSelectionKeys": [
+          "321:truck-1"
+        ],
+        "sortsByKind": {
+          "city": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "resource": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "monster": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "truck": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "railway": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "dispatch": [
+            {
+              "sortBy": "level",
+              "sortOrder": "desc"
+            },
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "ghost": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "treasure": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ]
+        },
+        "page": 1,
+        "rows": [],
+        "total": 0,
+        "loading": false
+      },
+      "pending": {
+        "tab": "dispatch",
+        "keyword": "kw",
+        "resourceNameKey": "r2",
+        "monsterNameKey": "",
+        "alliance": "Foo",
+        "markedOnly": true,
+        "treasureType": "radar",
+        "completionStatusByKind": {
+          "dispatch": "pending"
+        },
+        "qualityByKind": {
+          "dispatch": "ur"
+        },
+        "itemKeyByKind": {
+          "truck": "gold"
+        },
+        "plunderableOnlyByKind": {
+          "dispatch": true
+        },
+        "includeForeignRadarTreasures": false,
+        "luckyFirst": false,
+        "minLevel": "5",
+        "dispatchSelectionKeys": [
+          "321:dispatch-1"
+        ],
+        "truckSelectionKeys": [
+          "321:truck-1"
+        ],
+        "sortsByKind": {
+          "city": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "resource": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "monster": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "truck": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "railway": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "dispatch": [
+            {
+              "sortBy": "level",
+              "sortOrder": "desc"
+            },
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "ghost": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "treasure": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ]
+        },
+        "page": 1,
+        "rows": [],
+        "total": 0,
+        "loading": false
+      },
+      "afterFailure": {
+        "tab": "dispatch",
+        "keyword": "kw",
+        "resourceNameKey": "r2",
+        "monsterNameKey": "",
+        "alliance": "Foo",
+        "markedOnly": true,
+        "treasureType": "radar",
+        "completionStatusByKind": {
+          "dispatch": "pending"
+        },
+        "qualityByKind": {
+          "dispatch": "ur"
+        },
+        "itemKeyByKind": {
+          "truck": "gold"
+        },
+        "plunderableOnlyByKind": {
+          "dispatch": true
+        },
+        "includeForeignRadarTreasures": false,
+        "luckyFirst": false,
+        "minLevel": "5",
+        "dispatchSelectionKeys": [
+          "321:dispatch-1"
+        ],
+        "truckSelectionKeys": [
+          "321:truck-1"
+        ],
+        "sortsByKind": {
+          "city": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "resource": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "monster": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "truck": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "railway": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "dispatch": [
+            {
+              "sortBy": "level",
+              "sortOrder": "desc"
+            },
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "ghost": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "treasure": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ]
+        },
+        "page": 1,
+        "rows": [],
+        "total": 0,
+        "loading": false
+      },
+      "scanError": "CLEAR_FAILED: clear failed"
+    },
+    "staleSearchAfterClear": {
+      "staleRowApplied": false,
+      "total": 0,
+      "loading": true,
+      "newerRequests": 1
+    },
+    "treasureMissing": {
+      "initial": {
+        "foreign": false,
+        "lucky": false,
+        "query": {},
+        "storage": {
+          "lwbridge.mapScanMode": "normal",
+          "lwbridge.mapAutoScan.interactions-harness": "{\"enabled\":false,\"intervalMinutes\":60,\"serverIds\":[],\"selectedTypes\":[\"truck\",\"railway\",\"dispatch\",\"ghost\",\"treasure\"],\"scanMode\":\"fast\",\"returnToOriginalServer\":true,\"nextRunAt\":0}"
+        }
+      },
+      "afterToggle": {
+        "foreign": true,
+        "lucky": true,
+        "query": {
+          "includeForeignRadarTreasures": true,
+          "luckyFirst": true
+        },
+        "storage": {
+          "lwbridge.mapScanMode": "normal",
+          "lwbridge.mapAutoScan.interactions-harness": "{\"enabled\":false,\"intervalMinutes\":60,\"serverIds\":[],\"selectedTypes\":[\"truck\",\"railway\",\"dispatch\",\"ghost\",\"treasure\"],\"scanMode\":\"fast\",\"returnToOriginalServer\":true,\"nextRunAt\":0}"
+        },
+        "writes": []
+      },
+      "cityQuery": {},
+      "treasureQueryAfterReturn": {
+        "includeForeignRadarTreasures": true,
+        "luckyFirst": true
+      },
+      "reloaded": {
+        "foreign": false,
+        "lucky": false,
+        "query": {}
+      }
+    },
+    "treasureSeeded": {
+      "initial": {
+        "foreign": false,
+        "lucky": false,
+        "query": {},
+        "storage": {
+          "lwbridge.mapIncludeForeignRadarTreasures": "true",
+          "lwbridge.mapLuckyTreasurePriority": "false",
+          "lwbridge.mapScanMode": "normal",
+          "lwbridge.mapAutoScan.interactions-harness": "{\"enabled\":false,\"intervalMinutes\":60,\"serverIds\":[],\"selectedTypes\":[\"truck\",\"railway\",\"dispatch\",\"ghost\",\"treasure\"],\"scanMode\":\"fast\",\"returnToOriginalServer\":true,\"nextRunAt\":0}"
+        }
+      },
+      "afterToggle": {
+        "foreign": true,
+        "lucky": true,
+        "query": {
+          "includeForeignRadarTreasures": true,
+          "luckyFirst": true
+        },
+        "storage": {
+          "lwbridge.mapIncludeForeignRadarTreasures": "true",
+          "lwbridge.mapLuckyTreasurePriority": "false",
+          "lwbridge.mapScanMode": "normal",
+          "lwbridge.mapAutoScan.interactions-harness": "{\"enabled\":false,\"intervalMinutes\":60,\"serverIds\":[],\"selectedTypes\":[\"truck\",\"railway\",\"dispatch\",\"ghost\",\"treasure\"],\"scanMode\":\"fast\",\"returnToOriginalServer\":true,\"nextRunAt\":0}"
+        },
+        "writes": []
+      },
+      "cityQuery": {},
+      "treasureQueryAfterReturn": {
+        "includeForeignRadarTreasures": true,
+        "luckyFirst": true
+      },
+      "reloaded": {
+        "foreign": false,
+        "lucky": false,
+        "query": {}
+      }
+    },
+    "treasureUnexpected": {
+      "foreign": false,
+      "lucky": false,
+      "normalizedStorage": {
+        "foreign": "TRUE",
+        "lucky": "0"
+      }
+    },
+    "treasureType": {
+      "radar": {
+        "treasureType": "radar"
+      },
+      "ice": {
+        "treasureType": "ice"
+      }
+    }
+  },
+  "corrected": {
+    "alliance": {
+      "none": {
+        "optionValue": "name:none",
+        "query": {
+          "alliance": "none"
+        }
+      },
+      "all": {
+        "optionValue": "name:all",
+        "query": {
+          "alliance": "all"
+        }
+      },
+      "A/B 東京 & %": {
+        "optionValue": "name:A%2FB%20%E6%9D%B1%E4%BA%AC%20%26%20%25",
+        "query": {
+          "alliance": "A/B 東京 & %"
+        }
+      },
+      "malformed": {}
+    },
+    "exportAlliance": {
+      "namedNone": {
+        "alliance": "none"
+      },
+      "namedAll": {
+        "alliance": "all"
+      },
+      "uri": {
+        "alliance": "A/B 東京 & %"
+      },
+      "noAlliance": {
+        "withoutAlliance": true
+      }
+    },
+    "refresh": {
+      "alliance": "all",
+      "level": "",
+      "treasureType": ""
+    },
+    "validRefresh": {
+      "alliancePreserved": true,
+      "levelPreserved": true,
+      "treasurePreserved": true
+    },
+    "refreshEdges": {
+      "noneAfterCountDisappears": "all",
+      "malformedAfterRefresh": "name:%E0%A4%A",
+      "malformedQuery": {}
+    },
+    "staleOptions": {
+      "optionCalls": [
+        321,
+        322
+      ],
+      "afterOld": [
+        "none",
+        "all",
+        "Foo",
+        "A/B 東京 & %"
+      ],
+      "afterFresh": [
+        "FRESH-322"
+      ]
+    },
+    "clearSuccess": {
+      "before": {
+        "tab": "dispatch",
+        "keyword": "kw",
+        "resourceNameKey": "r2",
+        "monsterNameKey": "",
+        "alliance": "name:Foo",
+        "markedOnly": true,
+        "treasureType": "radar",
+        "completionStatusByKind": {
+          "dispatch": "pending"
+        },
+        "qualityByKind": {
+          "dispatch": "ur"
+        },
+        "itemKeyByKind": {
+          "truck": "gold"
+        },
+        "plunderableOnlyByKind": {
+          "dispatch": true
+        },
+        "includeForeignRadarTreasures": false,
+        "luckyFirst": true,
+        "minLevel": "5",
+        "dispatchSelectionKeys": [
+          "321:dispatch-1"
+        ],
+        "truckSelectionKeys": [
+          "321:truck-1"
+        ],
+        "sortsByKind": {
+          "city": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "resource": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "monster": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "truck": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "railway": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "dispatch": [
+            {
+              "sortBy": "level",
+              "sortOrder": "desc"
+            },
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "ghost": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "treasure": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ]
+        },
+        "page": 1,
+        "rows": [],
+        "total": 0,
+        "loading": false
+      },
+      "after": {
+        "tab": "dispatch",
+        "keyword": "kw",
+        "resourceNameKey": "",
+        "monsterNameKey": "",
+        "alliance": "all",
+        "markedOnly": true,
+        "treasureType": "",
+        "completionStatusByKind": {
+          "dispatch": "pending"
+        },
+        "qualityByKind": {
+          "dispatch": "ur"
+        },
+        "itemKeyByKind": {},
+        "plunderableOnlyByKind": {
+          "dispatch": true
+        },
+        "includeForeignRadarTreasures": false,
+        "luckyFirst": true,
+        "minLevel": "",
+        "dispatchSelectionKeys": [],
+        "truckSelectionKeys": [],
+        "sortsByKind": {
+          "city": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "resource": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "monster": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "truck": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "railway": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "dispatch": [
+            {
+              "sortBy": "level",
+              "sortOrder": "desc"
+            },
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "ghost": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "treasure": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ]
+        },
+        "page": 1,
+        "rows": [],
+        "total": 0,
+        "loading": false
+      },
+      "scanError": ""
+    },
+    "clearFailure": {
+      "before": {
+        "tab": "dispatch",
+        "keyword": "kw",
+        "resourceNameKey": "r2",
+        "monsterNameKey": "",
+        "alliance": "name:Foo",
+        "markedOnly": true,
+        "treasureType": "radar",
+        "completionStatusByKind": {
+          "dispatch": "pending"
+        },
+        "qualityByKind": {
+          "dispatch": "ur"
+        },
+        "itemKeyByKind": {
+          "truck": "gold"
+        },
+        "plunderableOnlyByKind": {
+          "dispatch": true
+        },
+        "includeForeignRadarTreasures": false,
+        "luckyFirst": true,
+        "minLevel": "5",
+        "dispatchSelectionKeys": [
+          "321:dispatch-1"
+        ],
+        "truckSelectionKeys": [
+          "321:truck-1"
+        ],
+        "sortsByKind": {
+          "city": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "resource": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "monster": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "truck": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "railway": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "dispatch": [
+            {
+              "sortBy": "level",
+              "sortOrder": "desc"
+            },
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "ghost": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "treasure": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ]
+        },
+        "page": 1,
+        "rows": [],
+        "total": 0,
+        "loading": false
+      },
+      "pending": {
+        "tab": "dispatch",
+        "keyword": "kw",
+        "resourceNameKey": "r2",
+        "monsterNameKey": "",
+        "alliance": "name:Foo",
+        "markedOnly": true,
+        "treasureType": "radar",
+        "completionStatusByKind": {
+          "dispatch": "pending"
+        },
+        "qualityByKind": {
+          "dispatch": "ur"
+        },
+        "itemKeyByKind": {
+          "truck": "gold"
+        },
+        "plunderableOnlyByKind": {
+          "dispatch": true
+        },
+        "includeForeignRadarTreasures": false,
+        "luckyFirst": true,
+        "minLevel": "5",
+        "dispatchSelectionKeys": [
+          "321:dispatch-1"
+        ],
+        "truckSelectionKeys": [
+          "321:truck-1"
+        ],
+        "sortsByKind": {
+          "city": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "resource": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "monster": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "truck": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "railway": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "dispatch": [
+            {
+              "sortBy": "level",
+              "sortOrder": "desc"
+            },
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "ghost": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "treasure": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ]
+        },
+        "page": 1,
+        "rows": [],
+        "total": 0,
+        "loading": false
+      },
+      "afterFailure": {
+        "tab": "dispatch",
+        "keyword": "kw",
+        "resourceNameKey": "r2",
+        "monsterNameKey": "",
+        "alliance": "name:Foo",
+        "markedOnly": true,
+        "treasureType": "radar",
+        "completionStatusByKind": {
+          "dispatch": "pending"
+        },
+        "qualityByKind": {
+          "dispatch": "ur"
+        },
+        "itemKeyByKind": {
+          "truck": "gold"
+        },
+        "plunderableOnlyByKind": {
+          "dispatch": true
+        },
+        "includeForeignRadarTreasures": false,
+        "luckyFirst": true,
+        "minLevel": "5",
+        "dispatchSelectionKeys": [
+          "321:dispatch-1"
+        ],
+        "truckSelectionKeys": [
+          "321:truck-1"
+        ],
+        "sortsByKind": {
+          "city": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "resource": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "monster": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "truck": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "railway": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "dispatch": [
+            {
+              "sortBy": "level",
+              "sortOrder": "desc"
+            },
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "ghost": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "treasure": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ]
+        },
+        "page": 1,
+        "rows": [],
+        "total": 0,
+        "loading": false
+      },
+      "scanError": "CLEAR_FAILED: clear failed"
+    },
+    "staleSearchAfterClear": {
+      "staleRowApplied": false,
+      "total": 0,
+      "loading": true,
+      "newerRequests": 1
+    },
+    "treasureMissing": {
+      "initial": {
+        "foreign": false,
+        "lucky": true,
+        "query": {
+          "includeForeignRadarTreasures": false,
+          "luckyFirst": true
+        },
+        "storage": {
+          "lwbridge.mapScanMode": "normal",
+          "lwbridge.mapIncludeForeignRadarTreasures": "false",
+          "lwbridge.mapLuckyTreasurePriority": "true",
+          "lwbridge.mapAutoScan.interactions-harness": "{\"enabled\":false,\"intervalMinutes\":60,\"serverIds\":[],\"selectedTypes\":[\"truck\",\"railway\",\"dispatch\",\"ghost\",\"treasure\"],\"scanMode\":\"fast\",\"returnToOriginalServer\":true,\"nextRunAt\":0}"
+        }
+      },
+      "afterToggle": {
+        "foreign": true,
+        "lucky": false,
+        "query": {
+          "includeForeignRadarTreasures": true,
+          "luckyFirst": false
+        },
+        "storage": {
+          "lwbridge.mapScanMode": "normal",
+          "lwbridge.mapIncludeForeignRadarTreasures": "true",
+          "lwbridge.mapLuckyTreasurePriority": "false",
+          "lwbridge.mapAutoScan.interactions-harness": "{\"enabled\":false,\"intervalMinutes\":60,\"serverIds\":[],\"selectedTypes\":[\"truck\",\"railway\",\"dispatch\",\"ghost\",\"treasure\"],\"scanMode\":\"fast\",\"returnToOriginalServer\":true,\"nextRunAt\":0}"
+        },
+        "writes": [
+          [
+            "lwbridge.mapIncludeForeignRadarTreasures",
+            "false"
+          ],
+          [
+            "lwbridge.mapLuckyTreasurePriority",
+            "true"
+          ],
+          [
+            "lwbridge.mapIncludeForeignRadarTreasures",
+            "true"
+          ],
+          [
+            "lwbridge.mapLuckyTreasurePriority",
+            "false"
+          ]
+        ]
+      },
+      "cityQuery": {},
+      "treasureQueryAfterReturn": {
+        "includeForeignRadarTreasures": true,
+        "luckyFirst": false
+      },
+      "reloaded": {
+        "foreign": true,
+        "lucky": false,
+        "query": {
+          "includeForeignRadarTreasures": true,
+          "luckyFirst": false
+        }
+      }
+    },
+    "treasureSeeded": {
+      "initial": {
+        "foreign": true,
+        "lucky": false,
+        "query": {
+          "includeForeignRadarTreasures": true,
+          "luckyFirst": false
+        },
+        "storage": {
+          "lwbridge.mapIncludeForeignRadarTreasures": "true",
+          "lwbridge.mapLuckyTreasurePriority": "false",
+          "lwbridge.mapScanMode": "normal",
+          "lwbridge.mapAutoScan.interactions-harness": "{\"enabled\":false,\"intervalMinutes\":60,\"serverIds\":[],\"selectedTypes\":[\"truck\",\"railway\",\"dispatch\",\"ghost\",\"treasure\"],\"scanMode\":\"fast\",\"returnToOriginalServer\":true,\"nextRunAt\":0}"
+        }
+      },
+      "afterToggle": {
+        "foreign": false,
+        "lucky": true,
+        "query": {
+          "includeForeignRadarTreasures": false,
+          "luckyFirst": true
+        },
+        "storage": {
+          "lwbridge.mapIncludeForeignRadarTreasures": "false",
+          "lwbridge.mapLuckyTreasurePriority": "true",
+          "lwbridge.mapScanMode": "normal",
+          "lwbridge.mapAutoScan.interactions-harness": "{\"enabled\":false,\"intervalMinutes\":60,\"serverIds\":[],\"selectedTypes\":[\"truck\",\"railway\",\"dispatch\",\"ghost\",\"treasure\"],\"scanMode\":\"fast\",\"returnToOriginalServer\":true,\"nextRunAt\":0}"
+        },
+        "writes": [
+          [
+            "lwbridge.mapIncludeForeignRadarTreasures",
+            "true"
+          ],
+          [
+            "lwbridge.mapLuckyTreasurePriority",
+            "false"
+          ],
+          [
+            "lwbridge.mapIncludeForeignRadarTreasures",
+            "false"
+          ],
+          [
+            "lwbridge.mapLuckyTreasurePriority",
+            "true"
+          ]
+        ]
+      },
+      "cityQuery": {},
+      "treasureQueryAfterReturn": {
+        "includeForeignRadarTreasures": false,
+        "luckyFirst": true
+      },
+      "reloaded": {
+        "foreign": false,
+        "lucky": true,
+        "query": {
+          "includeForeignRadarTreasures": false,
+          "luckyFirst": true
+        }
+      }
+    },
+    "treasureUnexpected": {
+      "foreign": false,
+      "lucky": true,
+      "normalizedStorage": {
+        "foreign": "false",
+        "lucky": "true"
+      }
+    },
+    "treasureType": {
+      "radar": {
+        "treasureType": 1,
+        "suppliesType": 0
+      },
+      "ice": {
+        "treasureType": 0,
+        "suppliesType": 1
+      }
+    },
+    "staleOptionsAfterClear": {
+      "optionCalls": [
+        321,
+        321
+      ],
+      "staleApplied": false,
+      "afterFresh": []
+    },
+    "delayedClearAckAfterServerChange": {
+      "scanServerId": 321,
+      "browseServerId": 321,
+      "alliance": "all",
+      "optionCalls": [
+        322,
+        321
+      ]
+    }
+  }
+}

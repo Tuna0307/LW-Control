@@ -1,0 +1,66 @@
+{
+  "status": "PASS",
+  "scope": "Real browser UI against owned localhost:4329 offline fixtures. No original protected runtime or native scan proof.",
+  "reading": {
+    "language": "en",
+    "theme": "light",
+    "status": "Scanning",
+    "progress": "37.75%",
+    "end": "-",
+    "durationBeforeNavigation": "00:01:45",
+    "durationAfterNavigation": "00:01:56",
+    "autoTab": {
+      "timingRetained": true,
+      "manualSpeedCount": 0,
+      "autoCardCount": 1
+    },
+    "manualTabReturned": true,
+    "counterCount": 0
+  },
+  "completed": {
+    "language": "ja",
+    "theme": "dark",
+    "status": "完了",
+    "progress": "100%",
+    "labels": [
+      "開始時刻",
+      "終了時刻",
+      "合計時間"
+    ],
+    "times": [
+      "10-03 00:27:46",
+      "00:28:51",
+      "00:01:05"
+    ],
+    "titles": [
+      "2026/10/3 0:27:46",
+      "2026/10/3 0:28:51"
+    ],
+    "counterCount": 0
+  },
+  "publishing": {
+    "language": "ja",
+    "theme": "dark",
+    "status": "処理中",
+    "progress": "99.75%",
+    "duration": "00:01:05"
+  },
+  "stopped": {
+    "language": "en",
+    "theme": "light",
+    "status": "Stopped",
+    "progress": "49.5%",
+    "duration": "00:01:05",
+    "counterCount": 0
+  },
+  "consoleErrorsAndWarnings": [],
+  "screenshots": [
+    "screenshots/reading-en-light.jpg",
+    "screenshots/completed-ja-dark.jpg"
+  ],
+  "cleanup": "Owned tab and Vite listener closed before delivery. Native action buttons were not pressed.",
+  "screenshotHashes": {
+    "screenshots/reading-en-light.jpg": "a91a7a715bcac69c940f133f9fc27ff34cfa4dc79b3c7ea29d4f4f18f6e3a739",
+    "screenshots/completed-ja-dark.jpg": "62d02d27927f93995fa94cf60584df1c78bae4dd175064a3e9421cef98451949"
+  }
+}

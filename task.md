@@ -1,6 +1,6 @@
 # Current project directive
 
-Current lead decision, 2026-10-03: MAP-GOODS-PICKER-001 is COMPLETE implementation for focused source/local UI scope: original Truck/Train icon/name details menu, strict keys and close-after-change; 144 original/current comparisons across nine languages, six unavailable-image renders, exact parent query/sort traces and fresh en/light + ja/dark browser controls pass. Prior Treasure picker and accepted Map filter/lifecycle/navigation/interaction tests remain green. PM-028 acceptance is unchanged. Both picker units have independent returning-worker review as a follow-up; full UI/original pixels/native scope is not accepted. See the dated GOODS-PICKER review/work item.
+Current lead decision, 2026-10-03: MAP-SCAN-HEADER-001 is COMPLETE implementation for focused source/local UI scope: recovered start/end/duration, stored-run matching, publishing precedence, fractional progress and optional-state display; non-original diagnostic counters removed. 270 original/current comparisons, clock/fixture fences, browser en/light + ja/dark and all maintained Map/package checks pass. The two picker implementations and PM-028 acceptance remain unchanged. Independent returning-worker review is a follow-up; full UI/original pixels/native timing are not accepted. See the dated SCAN-HEADER review/work item.
 
 ## Target
 

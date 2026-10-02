@@ -1,0 +1,22 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import path from 'node:path';
+import crypto from 'node:crypto';
+import {fileURLToPath} from 'node:url';
+const here=path.dirname(fileURLToPath(import.meta.url)),repo=path.resolve(here,'../../../..');
+const json=p=>JSON.parse(fs.readFileSync(path.join(here,p),'utf8'));
+const hash=p=>crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex');
+const lf=p=>crypto.createHash('sha256').update(fs.readFileSync(p,'utf8').replace(/\r\n/g,'\n')).digest('hex');
+const r=json('header-results.json');assert.equal(r.comparisons,270);assert.ok(r.cases.every(c=>c.pass));assert.equal(r.baselineMismatches.length,29);assert.ok(r.clock.every(c=>c.pass));assert.equal(r.unmount,'PASS');
+assert.equal(r.pageSha256,lf(path.join(repo,'src/LWBridge.UI-0.3.17/src/MapDataPage.jsx')));
+assert.equal(r.helperSha256,lf(path.join(repo,'src/LWBridge.UI-0.3.17/src/mapScanPresentation.js')));
+assert.equal(hash(path.join(repo,'evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js')),'ce74345518be72e417a510b982c591729e5683f69751e190805598c4c05d3089');
+const fixtures=json('fixture-results.json');assert.equal(fixtures.status,'PASS');assert.equal(fixtures.rejectedActions,28);assert.equal(fixtures.nativeModeFences,8);
+assert.equal(json('regression-results.json').status,'PASS');assert.ok(json('regression-results.json').results.every(c=>c.exitCode===0));
+assert.equal(json('r1-replay-results.json').source.currentSha256,r.pageSha256);
+assert.deepEqual(json('parent-replay-results.json').corrected.delayedClearAckAfterServerChange.optionCalls,[322,321]);
+const b=json('browser-results.json');assert.equal(b.status,'PASS');assert.equal(b.reading.progress,'37.75%');assert.ok(b.reading.durationAfterNavigation>b.reading.durationBeforeNavigation);assert.equal(b.completed.times[2],'00:01:05');assert.equal(b.publishing.status,'処理中');assert.equal(b.stopped.progress,'49.5%');assert.deepEqual(b.consoleErrorsAndWarnings,[]);
+for(const p of b.screenshots){const bytes=fs.readFileSync(path.join(here,p));assert.equal(bytes.readUInt16BE(0),0xffd8);assert.ok(bytes.length>1000);assert.equal(hash(path.join(here,p)),b.screenshotHashes[p]);}
+for(const [p,h] of Object.entries(json('protected-wip.json')))assert.equal(hash(path.join(repo,p)),h,'protected '+p);
+const v=json('verification.json');assert.equal(v.check,'PASS');assert.equal(v.build,'PASS');assert.equal(v.productionPackage,'PASS');
+console.log('LWB317_MAP_SCAN_HEADER_EVIDENCE_OK protectedWip=PASS');
