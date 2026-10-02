@@ -1,0 +1,235 @@
+{
+  "kind": "immutable-cf75b4e-baseline-vs-original",
+  "original": {
+    "indexSha256": "44c4e4043825b7db296b64171951b27176f8850ff8d7d337cc991df4765524c6",
+    "panelSha256": "ce74345518be72e417a510b982c591729e5683f69751e190805598c4c05d3089"
+  },
+  "baseline": {
+    "commit": "cf75b4e3cd8b602c17cef9a244385e6db7c02daf",
+    "gitBlob": "e429778ed2d7555676ed2844a5e204f8c6723f47",
+    "sha256": "bbdfcf42174122a9880ec03127aec7426589c400af0e7437abacc9eb85b3c5d9"
+  },
+  "passed": 3,
+  "failed": 9,
+  "cases": [
+    {
+      "label": "defaults",
+      "pass": true,
+      "expected": {
+        "enabled": false,
+        "intervalMinutes": 60,
+        "serverIds": [],
+        "selectedTypes": [
+          "truck",
+          "railway",
+          "dispatch",
+          "ghost",
+          "treasure"
+        ],
+        "scanMode": "fast",
+        "returnToOriginalServer": true,
+        "nextRunAt": 0
+      },
+      "actual": {
+        "enabled": false,
+        "intervalMinutes": 60,
+        "serverIds": [],
+        "selectedTypes": [
+          "truck",
+          "railway",
+          "dispatch",
+          "ghost",
+          "treasure"
+        ],
+        "scanMode": "fast",
+        "returnToOriginalServer": true,
+        "nextRunAt": 0
+      }
+    },
+    {
+      "label": "parser-mixed-separators-and-number-forms",
+      "pass": false,
+      "expected": [
+        8,
+        15,
+        120,
+        121,
+        122,
+        123,
+        100,
+        16,
+        1
+      ],
+      "actual": []
+    },
+    {
+      "label": "parser-cap-20",
+      "pass": false,
+      "expected": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20
+      ],
+      "actual": []
+    },
+    {
+      "label": "normalization-full-shape",
+      "pass": true,
+      "expected": {
+        "enabled": false,
+        "intervalMinutes": 1440,
+        "serverIds": [
+          8,
+          100,
+          16
+        ],
+        "selectedTypes": [
+          "treasure",
+          "city"
+        ],
+        "scanMode": "fast",
+        "returnToOriginalServer": true,
+        "nextRunAt": 1234
+      },
+      "actual": {
+        "enabled": false,
+        "intervalMinutes": 1440,
+        "serverIds": [
+          8,
+          100,
+          16
+        ],
+        "selectedTypes": [
+          "treasure",
+          "city"
+        ],
+        "scanMode": "fast",
+        "returnToOriginalServer": true,
+        "nextRunAt": 1234
+      }
+    },
+    {
+      "label": "interval-low-clamp",
+      "pass": false,
+      "expected": {
+        "enabled": false,
+        "intervalMinutes": 20,
+        "serverIds": [],
+        "selectedTypes": [
+          "truck",
+          "railway",
+          "dispatch",
+          "ghost",
+          "treasure"
+        ],
+        "scanMode": "fast",
+        "returnToOriginalServer": true,
+        "nextRunAt": 0
+      },
+      "actual": {
+        "enabled": false,
+        "intervalMinutes": 60,
+        "serverIds": [],
+        "selectedTypes": [
+          "truck",
+          "railway",
+          "dispatch",
+          "ghost",
+          "treasure"
+        ],
+        "scanMode": "fast",
+        "returnToOriginalServer": true,
+        "nextRunAt": 0
+      }
+    },
+    {
+      "label": "interval-empty-clamp",
+      "pass": false,
+      "expected": {
+        "enabled": false,
+        "intervalMinutes": 20,
+        "serverIds": [],
+        "selectedTypes": [
+          "truck",
+          "railway",
+          "dispatch",
+          "ghost",
+          "treasure"
+        ],
+        "scanMode": "fast",
+        "returnToOriginalServer": true,
+        "nextRunAt": 0
+      },
+      "actual": {
+        "enabled": false,
+        "intervalMinutes": 60,
+        "serverIds": [],
+        "selectedTypes": [
+          "truck",
+          "railway",
+          "dispatch",
+          "ghost",
+          "treasure"
+        ],
+        "scanMode": "fast",
+        "returnToOriginalServer": true,
+        "nextRunAt": 0
+      }
+    },
+    {
+      "label": "interval-bad-preserves-nan",
+      "pass": false,
+      "expected": "NaN",
+      "actual": 60
+    },
+    {
+      "label": "structural-serverIds-throws",
+      "pass": false,
+      "expectedThrows": true,
+      "actualThrows": false,
+      "message": ""
+    },
+    {
+      "label": "structural-selectedTypes-throws",
+      "pass": false,
+      "expectedThrows": true,
+      "actualThrows": false,
+      "message": ""
+    },
+    {
+      "label": "date-seconds",
+      "pass": true,
+      "expected": "2/14/2009, 7:31:30 AM",
+      "actual": "2/14/2009, 7:31:30 AM"
+    },
+    {
+      "label": "profile-key-has-no-default-fallback",
+      "pass": false,
+      "expected": "exact selected profile suffix",
+      "actual": "default fallback present"
+    },
+    {
+      "label": "profile-load-precedes-save",
+      "pass": false,
+      "expected": "parent layout load before user-save path",
+      "actual": "Map page save effect writes current in-memory config whenever storage key changes"
+    }
+  ]
+}

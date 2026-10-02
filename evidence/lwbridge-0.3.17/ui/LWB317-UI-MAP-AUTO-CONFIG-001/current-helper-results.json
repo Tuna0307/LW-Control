@@ -1,0 +1,658 @@
+{
+  "kind": "current-canonical-helpers-vs-original",
+  "original": {
+    "indexSha256": "44c4e4043825b7db296b64171951b27176f8850ff8d7d337cc991df4765524c6",
+    "panelSha256": "ce74345518be72e417a510b982c591729e5683f69751e190805598c4c05d3089"
+  },
+  "baseline": {
+    "commit": "cf75b4e3cd8b602c17cef9a244385e6db7c02daf",
+    "gitBlob": "e429778ed2d7555676ed2844a5e204f8c6723f47",
+    "sha256": "bbdfcf42174122a9880ec03127aec7426589c400af0e7437abacc9eb85b3c5d9"
+  },
+  "passed": 29,
+  "failed": 0,
+  "cases": [
+    {
+      "label": "defaults",
+      "pass": true,
+      "expected": {
+        "enabled": false,
+        "intervalMinutes": 60,
+        "serverIds": [],
+        "selectedTypes": [
+          "truck",
+          "railway",
+          "dispatch",
+          "ghost",
+          "treasure"
+        ],
+        "scanMode": "fast",
+        "returnToOriginalServer": true,
+        "nextRunAt": 0
+      },
+      "actual": {
+        "enabled": false,
+        "intervalMinutes": 60,
+        "serverIds": [],
+        "selectedTypes": [
+          "truck",
+          "railway",
+          "dispatch",
+          "ghost",
+          "treasure"
+        ],
+        "scanMode": "fast",
+        "returnToOriginalServer": true,
+        "nextRunAt": 0
+      }
+    },
+    {
+      "label": "parser-mixed-separators-and-number-forms",
+      "pass": true,
+      "expected": [
+        8,
+        15,
+        120,
+        121,
+        122,
+        123,
+        100,
+        16,
+        1
+      ],
+      "actual": [
+        8,
+        15,
+        120,
+        121,
+        122,
+        123,
+        100,
+        16,
+        1
+      ]
+    },
+    {
+      "label": "parser-cap-20",
+      "pass": true,
+      "expected": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20
+      ],
+      "actual": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20
+      ]
+    },
+    {
+      "label": "append-first-occurrence-order",
+      "pass": true,
+      "expected": [
+        8,
+        15,
+        120,
+        121,
+        16
+      ],
+      "actual": [
+        8,
+        15,
+        120,
+        121,
+        16
+      ]
+    },
+    {
+      "label": "remove-order",
+      "pass": true,
+      "expected": [
+        8,
+        120
+      ],
+      "actual": [
+        8,
+        120
+      ]
+    },
+    {
+      "label": "normalization-full-shape",
+      "pass": true,
+      "expected": {
+        "enabled": false,
+        "intervalMinutes": 1440,
+        "serverIds": [
+          8,
+          100,
+          16
+        ],
+        "selectedTypes": [
+          "treasure",
+          "city"
+        ],
+        "scanMode": "fast",
+        "returnToOriginalServer": true,
+        "nextRunAt": 1234
+      },
+      "actual": {
+        "enabled": false,
+        "intervalMinutes": 1440,
+        "serverIds": [
+          8,
+          100,
+          16
+        ],
+        "selectedTypes": [
+          "treasure",
+          "city"
+        ],
+        "scanMode": "fast",
+        "returnToOriginalServer": true,
+        "nextRunAt": 1234
+      }
+    },
+    {
+      "label": "interval-low-clamp",
+      "pass": true,
+      "expected": {
+        "enabled": false,
+        "intervalMinutes": 20,
+        "serverIds": [],
+        "selectedTypes": [
+          "truck",
+          "railway",
+          "dispatch",
+          "ghost",
+          "treasure"
+        ],
+        "scanMode": "fast",
+        "returnToOriginalServer": true,
+        "nextRunAt": 0
+      },
+      "actual": {
+        "enabled": false,
+        "intervalMinutes": 20,
+        "serverIds": [],
+        "selectedTypes": [
+          "truck",
+          "railway",
+          "dispatch",
+          "ghost",
+          "treasure"
+        ],
+        "scanMode": "fast",
+        "returnToOriginalServer": true,
+        "nextRunAt": 0
+      }
+    },
+    {
+      "label": "interval-empty-clamp",
+      "pass": true,
+      "expected": {
+        "enabled": false,
+        "intervalMinutes": 20,
+        "serverIds": [],
+        "selectedTypes": [
+          "truck",
+          "railway",
+          "dispatch",
+          "ghost",
+          "treasure"
+        ],
+        "scanMode": "fast",
+        "returnToOriginalServer": true,
+        "nextRunAt": 0
+      },
+      "actual": {
+        "enabled": false,
+        "intervalMinutes": 20,
+        "serverIds": [],
+        "selectedTypes": [
+          "truck",
+          "railway",
+          "dispatch",
+          "ghost",
+          "treasure"
+        ],
+        "scanMode": "fast",
+        "returnToOriginalServer": true,
+        "nextRunAt": 0
+      }
+    },
+    {
+      "label": "interval-null-default",
+      "pass": true,
+      "expected": {
+        "enabled": false,
+        "intervalMinutes": 60,
+        "serverIds": [],
+        "selectedTypes": [
+          "truck",
+          "railway",
+          "dispatch",
+          "ghost",
+          "treasure"
+        ],
+        "scanMode": "fast",
+        "returnToOriginalServer": true,
+        "nextRunAt": 0
+      },
+      "actual": {
+        "enabled": false,
+        "intervalMinutes": 60,
+        "serverIds": [],
+        "selectedTypes": [
+          "truck",
+          "railway",
+          "dispatch",
+          "ghost",
+          "treasure"
+        ],
+        "scanMode": "fast",
+        "returnToOriginalServer": true,
+        "nextRunAt": 0
+      }
+    },
+    {
+      "label": "interval-bad-preserves-nan",
+      "pass": true,
+      "expected": "NaN",
+      "actual": "NaN"
+    },
+    {
+      "label": "structural-serverIds-throws",
+      "pass": true,
+      "expectedThrows": true,
+      "actualThrows": true,
+      "message": "((intermediate value) || []).join is not a function"
+    },
+    {
+      "label": "structural-selectedTypes-throws",
+      "pass": true,
+      "expectedThrows": true,
+      "actualThrows": true,
+      "message": "((intermediate value) || []).filter is not a function"
+    },
+    {
+      "label": "target-current-server-fallback",
+      "pass": true,
+      "expected": [
+        321
+      ],
+      "actual": [
+        321
+      ]
+    },
+    {
+      "label": "target-empty-without-current",
+      "pass": true,
+      "expected": [],
+      "actual": []
+    },
+    {
+      "label": "deadline-advance",
+      "pass": true,
+      "expected": {
+        "enabled": false,
+        "intervalMinutes": 20,
+        "serverIds": [],
+        "selectedTypes": [
+          "truck",
+          "railway",
+          "dispatch",
+          "ghost",
+          "treasure"
+        ],
+        "scanMode": "fast",
+        "returnToOriginalServer": true,
+        "nextRunAt": 1800001200000
+      },
+      "actual": {
+        "enabled": false,
+        "intervalMinutes": 20,
+        "serverIds": [],
+        "selectedTypes": [
+          "truck",
+          "railway",
+          "dispatch",
+          "ghost",
+          "treasure"
+        ],
+        "scanMode": "fast",
+        "returnToOriginalServer": true,
+        "nextRunAt": 1800001200000
+      }
+    },
+    {
+      "label": "admission-true",
+      "pass": true,
+      "expected": true,
+      "actual": true
+    },
+    {
+      "label": "admission-reading-false",
+      "pass": true,
+      "expected": false,
+      "actual": false
+    },
+    {
+      "label": "date-seconds",
+      "pass": true,
+      "expected": "2/14/2009, 7:31:30 AM",
+      "actual": "2/14/2009, 7:31:30 AM"
+    },
+    {
+      "label": "date-milliseconds",
+      "pass": true,
+      "expected": "1/15/2027, 4:00:00 PM",
+      "actual": "1/15/2027, 4:00:00 PM"
+    },
+    {
+      "label": "transition-disabled-to-enabled",
+      "pass": true,
+      "expected": {
+        "enabled": true,
+        "intervalMinutes": 60,
+        "serverIds": [],
+        "selectedTypes": [
+          "truck",
+          "railway",
+          "dispatch",
+          "ghost",
+          "treasure"
+        ],
+        "scanMode": "fast",
+        "returnToOriginalServer": true,
+        "nextRunAt": 1800000000111
+      },
+      "actual": {
+        "enabled": true,
+        "intervalMinutes": 60,
+        "serverIds": [],
+        "selectedTypes": [
+          "truck",
+          "railway",
+          "dispatch",
+          "ghost",
+          "treasure"
+        ],
+        "scanMode": "fast",
+        "returnToOriginalServer": true,
+        "nextRunAt": 1800000000111
+      }
+    },
+    {
+      "label": "transition-enabled-edit-preserves-deadline",
+      "pass": true,
+      "expected": {
+        "enabled": true,
+        "intervalMinutes": 1440,
+        "serverIds": [],
+        "selectedTypes": [
+          "truck",
+          "railway",
+          "dispatch",
+          "ghost",
+          "treasure"
+        ],
+        "scanMode": "fast",
+        "returnToOriginalServer": true,
+        "nextRunAt": 12345
+      },
+      "actual": {
+        "enabled": true,
+        "intervalMinutes": 1440,
+        "serverIds": [],
+        "selectedTypes": [
+          "truck",
+          "railway",
+          "dispatch",
+          "ghost",
+          "treasure"
+        ],
+        "scanMode": "fast",
+        "returnToOriginalServer": true,
+        "nextRunAt": 12345
+      }
+    },
+    {
+      "label": "transition-disable-clears-deadline",
+      "pass": true,
+      "expected": {
+        "enabled": false,
+        "intervalMinutes": 60,
+        "serverIds": [],
+        "selectedTypes": [
+          "truck",
+          "railway",
+          "dispatch",
+          "ghost",
+          "treasure"
+        ],
+        "scanMode": "fast",
+        "returnToOriginalServer": true,
+        "nextRunAt": 0
+      },
+      "actual": {
+        "enabled": false,
+        "intervalMinutes": 60,
+        "serverIds": [],
+        "selectedTypes": [
+          "truck",
+          "railway",
+          "dispatch",
+          "ghost",
+          "treasure"
+        ],
+        "scanMode": "fast",
+        "returnToOriginalServer": true,
+        "nextRunAt": 0
+      }
+    },
+    {
+      "label": "load-p1",
+      "pass": true,
+      "expected": {
+        "enabled": false,
+        "intervalMinutes": 20,
+        "serverIds": [
+          8,
+          100
+        ],
+        "selectedTypes": [
+          "truck",
+          "railway",
+          "dispatch",
+          "ghost",
+          "treasure"
+        ],
+        "scanMode": "fast",
+        "returnToOriginalServer": true,
+        "nextRunAt": 0
+      },
+      "actual": {
+        "enabled": false,
+        "intervalMinutes": 20,
+        "serverIds": [
+          8,
+          100
+        ],
+        "selectedTypes": [
+          "truck",
+          "railway",
+          "dispatch",
+          "ghost",
+          "treasure"
+        ],
+        "scanMode": "fast",
+        "returnToOriginalServer": true,
+        "nextRunAt": 0
+      }
+    },
+    {
+      "label": "load-missing",
+      "pass": true,
+      "expected": {
+        "enabled": false,
+        "intervalMinutes": 60,
+        "serverIds": [],
+        "selectedTypes": [
+          "truck",
+          "railway",
+          "dispatch",
+          "ghost",
+          "treasure"
+        ],
+        "scanMode": "fast",
+        "returnToOriginalServer": true,
+        "nextRunAt": 0
+      },
+      "actual": {
+        "enabled": false,
+        "intervalMinutes": 60,
+        "serverIds": [],
+        "selectedTypes": [
+          "truck",
+          "railway",
+          "dispatch",
+          "ghost",
+          "treasure"
+        ],
+        "scanMode": "fast",
+        "returnToOriginalServer": true,
+        "nextRunAt": 0
+      }
+    },
+    {
+      "label": "load-bad-json",
+      "pass": true,
+      "expected": {
+        "enabled": false,
+        "intervalMinutes": 60,
+        "serverIds": [],
+        "selectedTypes": [
+          "truck",
+          "railway",
+          "dispatch",
+          "ghost",
+          "treasure"
+        ],
+        "scanMode": "fast",
+        "returnToOriginalServer": true,
+        "nextRunAt": 0
+      },
+      "actual": {
+        "enabled": false,
+        "intervalMinutes": 60,
+        "serverIds": [],
+        "selectedTypes": [
+          "truck",
+          "railway",
+          "dispatch",
+          "ghost",
+          "treasure"
+        ],
+        "scanMode": "fast",
+        "returnToOriginalServer": true,
+        "nextRunAt": 0
+      }
+    },
+    {
+      "label": "load-bad-structure",
+      "pass": true,
+      "expected": {
+        "enabled": false,
+        "intervalMinutes": 60,
+        "serverIds": [],
+        "selectedTypes": [
+          "truck",
+          "railway",
+          "dispatch",
+          "ghost",
+          "treasure"
+        ],
+        "scanMode": "fast",
+        "returnToOriginalServer": true,
+        "nextRunAt": 0
+      },
+      "actual": {
+        "enabled": false,
+        "intervalMinutes": 60,
+        "serverIds": [],
+        "selectedTypes": [
+          "truck",
+          "railway",
+          "dispatch",
+          "ghost",
+          "treasure"
+        ],
+        "scanMode": "fast",
+        "returnToOriginalServer": true,
+        "nextRunAt": 0
+      }
+    },
+    {
+      "label": "load-does-not-write",
+      "pass": true,
+      "expected": [],
+      "actual": []
+    },
+    {
+      "label": "save-key-and-normalized-json",
+      "pass": true,
+      "expected": [
+        [
+          "lwbridge.mapAutoScan.profile-save",
+          "{\"enabled\":false,\"intervalMinutes\":20,\"serverIds\":[1,100],\"selectedTypes\":[\"truck\",\"railway\",\"dispatch\",\"ghost\",\"treasure\"],\"scanMode\":\"fast\",\"returnToOriginalServer\":true,\"nextRunAt\":0}"
+        ]
+      ],
+      "actual": [
+        [
+          "lwbridge.mapAutoScan.profile-save",
+          "{\"enabled\":false,\"intervalMinutes\":20,\"serverIds\":[1,100],\"selectedTypes\":[\"truck\",\"railway\",\"dispatch\",\"ghost\",\"treasure\"],\"scanMode\":\"fast\",\"returnToOriginalServer\":true,\"nextRunAt\":0}"
+        ]
+      ]
+    },
+    {
+      "label": "storage-key-no-default-suffix",
+      "pass": true,
+      "expected": "lwbridge.mapAutoScan.",
+      "actual": "lwbridge.mapAutoScan."
+    }
+  ]
+}

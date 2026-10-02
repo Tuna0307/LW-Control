@@ -1,0 +1,301 @@
+{
+  "evidenceState": "EXACT_BYTES",
+  "target": "LWBridge 0.3.17 Auto Scan frontend/config contract",
+  "assets": {
+    "index": {
+      "asset": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-BVfnK1wp.js",
+      "sha256": "44c4e4043825b7db296b64171951b27176f8850ff8d7d337cc991df4765524c6"
+    },
+    "panel": {
+      "asset": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js",
+      "sha256": "ce74345518be72e417a510b982c591729e5683f69751e190805598c4c05d3089"
+    },
+    "english": {
+      "asset": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/en-BisSXcTB.js",
+      "sha256": "0bf43d180eb93692a93b830b5d984e9d01ddeea524340f2334fc63cba527a731"
+    }
+  },
+  "index": {
+    "knownKinds": {
+      "asset": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-BVfnK1wp.js",
+      "sha256": "44c4e4043825b7db296b64171951b27176f8850ff8d7d337cc991df4765524c6",
+      "byteStart": 358818,
+      "byteEnd": 358904,
+      "source": "new Set([`city`,`resource`,`monster`,`truck`,`railway`,`dispatch`,`ghost`,`treasure`])",
+      "note": "known Auto Scan config kind set"
+    },
+    "defaults": {
+      "asset": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-BVfnK1wp.js",
+      "sha256": "44c4e4043825b7db296b64171951b27176f8850ff8d7d337cc991df4765524c6",
+      "byteStart": 358908,
+      "byteEnd": 359070,
+      "source": "{enabled:!1,intervalMinutes:60,serverIds:[],selectedTypes:[`truck`,`railway`,`dispatch`,`ghost`,`treasure`],scanMode:`fast`,returnToOriginalServer:!0,nextRunAt:0}",
+      "note": "default Auto Scan config"
+    },
+    "helpers": {
+      "Ci": {
+        "asset": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-BVfnK1wp.js",
+        "sha256": "44c4e4043825b7db296b64171951b27176f8850ff8d7d337cc991df4765524c6",
+        "byteStart": 359071,
+        "byteEnd": 359234,
+        "source": "function Ci(e){let t=[];for(let n of e.split(/[\\s,，;；]+/)){let e=Number(n);Number.isInteger(e)&&e>=1&&e<=99999&&!t.includes(e)&&t.push(e)}return t.slice(0,20)}",
+        "note": "parse server input"
+      },
+      "wi": {
+        "asset": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-BVfnK1wp.js",
+        "sha256": "44c4e4043825b7db296b64171951b27176f8850ff8d7d337cc991df4765524c6",
+        "byteStart": 359234,
+        "byteEnd": 359284,
+        "source": "function wi(e,t){return Ci(`${e.join(`,`)},${t}`)}",
+        "note": "append parsed server IDs"
+      },
+      "Ti": {
+        "asset": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-BVfnK1wp.js",
+        "sha256": "44c4e4043825b7db296b64171951b27176f8850ff8d7d337cc991df4765524c6",
+        "byteStart": 359284,
+        "byteEnd": 359327,
+        "source": "function Ti(e,t){return e.filter(e=>e!==t)}",
+        "note": "remove server ID"
+      },
+      "Ei": {
+        "asset": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-BVfnK1wp.js",
+        "sha256": "44c4e4043825b7db296b64171951b27176f8850ff8d7d337cc991df4765524c6",
+        "byteStart": 359327,
+        "byteEnd": 359801,
+        "source": "function Ei(e){let t=Math.min(1440,Math.max(20,Math.trunc(Number(e?.intervalMinutes??Si.intervalMinutes)))),n=Ci((e?.serverIds||[]).join(`,`)),r=[...new Set((e?.selectedTypes||[]).filter(e=>xi.has(e)))];return{enabled:e?.enabled===!0,intervalMinutes:t,serverIds:n,selectedTypes:r.length>0?r:[...Si.selectedTypes],scanMode:e?.scanMode===`normal`?`normal`:`fast`,returnToOriginalServer:e?.returnToOriginalServer!==!1,nextRunAt:Math.max(0,Math.trunc(Number(e?.nextRunAt)||0))}}",
+        "note": "normalize Auto Scan config"
+      },
+      "Di": {
+        "asset": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-BVfnK1wp.js",
+        "sha256": "44c4e4043825b7db296b64171951b27176f8850ff8d7d337cc991df4765524c6",
+        "byteStart": 359801,
+        "byteEnd": 359870,
+        "source": "function Di(e,t){return e.length>0?e:Number.isInteger(t)&&t>0?[t]:[]}",
+        "note": "fallback target list to current server"
+      },
+      "Oi": {
+        "asset": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-BVfnK1wp.js",
+        "sha256": "44c4e4043825b7db296b64171951b27176f8850ff8d7d337cc991df4765524c6",
+        "byteStart": 359870,
+        "byteEnd": 359946,
+        "source": "function Oi(e,t){let n=Ei(e);return{...n,nextRunAt:t+n.intervalMinutes*6e4}}",
+        "note": "advance next-run deadline"
+      },
+      "ki": {
+        "asset": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-BVfnK1wp.js",
+        "sha256": "44c4e4043825b7db296b64171951b27176f8850ff8d7d337cc991df4765524c6",
+        "byteStart": 359946,
+        "byteEnd": 360013,
+        "source": "function ki(e,t,n,r,i){return e.enabled&&n&&!r&&!i&&t>=e.nextRunAt}",
+        "note": "Auto Scan admission predicate"
+      },
+      "Ai": {
+        "asset": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-BVfnK1wp.js",
+        "sha256": "44c4e4043825b7db296b64171951b27176f8850ff8d7d337cc991df4765524c6",
+        "byteStart": 360013,
+        "byteEnd": 360170,
+        "source": "function Ai(e){try{return Ei(JSON.parse(localStorage.getItem(`lwbridge.mapAutoScan.${e}`)||`null`))}catch{return{...Si,selectedTypes:[...Si.selectedTypes]}}}",
+        "note": "profile-scoped config load"
+      },
+      "ji": {
+        "asset": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-BVfnK1wp.js",
+        "sha256": "44c4e4043825b7db296b64171951b27176f8850ff8d7d337cc991df4765524c6",
+        "byteStart": 360170,
+        "byteEnd": 360259,
+        "source": "function ji(e,t){localStorage.setItem(`lwbridge.mapAutoScan.${e}`,JSON.stringify(Ei(t)))}",
+        "note": "profile-scoped normalized config save"
+      }
+    },
+    "parentConfigCallback": {
+      "asset": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-BVfnK1wp.js",
+      "sha256": "44c4e4043825b7db296b64171951b27176f8850ff8d7d337cc991df4765524c6",
+      "byteStart": 364217,
+      "byteEnd": 364377,
+      "source": "function Ct(e){let t=Ce.current,n=Ei(e);n.enabled&&!t.enabled&&(n.nextRunAt=Date.now()),n.enabled||(n.nextRunAt=0),Ce.current=n,ye(n),ji(r.selectedProfileId,n)}",
+      "note": "App callback: normalize, enable/disable deadline, update state/ref, persist"
+    },
+    "profileLoadEffect": {
+      "asset": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-BVfnK1wp.js",
+      "sha256": "44c4e4043825b7db296b64171951b27176f8850ff8d7d337cc991df4765524c6",
+      "byteStart": 370501,
+      "byteEnd": 370600,
+      "source": "(0,b.useLayoutEffect)(()=>{let e=Ai(r.selectedProfileId);Ce.current=e,ye(e)},[r.selectedProfileId])",
+      "note": "profile change: load selected profile config into state/ref"
+    },
+    "mapPanelProducer": {
+      "asset": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-BVfnK1wp.js",
+      "sha256": "44c4e4043825b7db296b64171951b27176f8850ff8d7d337cc991df4765524c6",
+      "byteStart": 374455,
+      "byteEnd": 374646,
+      "source": "(0,M.jsx)(Bi,{activeTab:rt?Ke:void 0,onActiveTabChange:rt?qe:void 0,scanState:pe,summary:ge,online:at,onState:pt,onCounts:bt,onLog:F,autoScanConfig:ve,autoScanRunning:be,onAutoScanConfig:Ct})",
+      "note": "App passes Auto config/running/callback into MapDataPanel"
+    }
+  },
+  "panel": {
+    "scanModeState": {
+      "asset": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js",
+      "sha256": "ce74345518be72e417a510b982c591729e5683f69751e190805598c4c05d3089",
+      "byteStart": 31879,
+      "byteEnd": 31910,
+      "source": "[Y,Rn]=(0,y.useState)(`manual`)",
+      "note": "Manual/Auto local tab defaults to manual"
+    },
+    "serverInputState": {
+      "asset": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js",
+      "sha256": "ce74345518be72e417a510b982c591729e5683f69751e190805598c4c05d3089",
+      "byteStart": 31911,
+      "byteEnd": 31937,
+      "source": "[zn,Bn]=(0,y.useState)(``)",
+      "note": "target-server draft input defaults empty"
+    },
+    "mergeCallback": {
+      "asset": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js",
+      "sha256": "ce74345518be72e417a510b982c591729e5683f69751e190805598c4c05d3089",
+      "byteStart": 40514,
+      "byteEnd": 40544,
+      "source": "function $(e){we({...x,...e})}",
+      "note": "MapDataPanel emits shallow-merged config edits without normalizing"
+    },
+    "addServersCallback": {
+      "asset": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js",
+      "sha256": "ce74345518be72e417a510b982c591729e5683f69751e190805598c4c05d3089",
+      "byteStart": 40544,
+      "byteEnd": 40620,
+      "source": "function lr(){oe(zn).length!==0&&($({serverIds:ue(x.serverIds,zn)}),Bn(``))}",
+      "note": "Add/Enter callback parses, appends and clears only when at least one valid ID parses"
+    },
+    "dateFormatter": {
+      "asset": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js",
+      "sha256": "ce74345518be72e417a510b982c591729e5683f69751e190805598c4c05d3089",
+      "byteStart": 7885,
+      "byteEnd": 8022,
+      "source": "function N(e,t){let n=Number(e);if(!Number.isFinite(n)||n<=0)return`-`;let r=n<0xe8d4a51000?n*1e3:n;return new Date(r).toLocaleString(t)}",
+      "note": "next-run and date title locale formatter; seconds below 1e12, otherwise milliseconds"
+    },
+    "scanModeTabs": {
+      "asset": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js",
+      "sha256": "ce74345518be72e417a510b982c591729e5683f69751e190805598c4c05d3089",
+      "byteStart": 43893,
+      "byteEnd": 44321,
+      "source": "(0,E.jsxs)(`div`,{className:`map-scan-tabs`,role:`tablist`,\"aria-label\":S(`map.scanModeTabs`),children:[(0,E.jsx)(`button`,{type:`button`,role:`tab`,\"aria-selected\":Y===`manual`,className:Y===`manual`?`active`:``,onClick:()=>Rn(`manual`),children:S(`map.manualScan`)}),(0,E.jsx)(`button`,{type:`button`,role:`tab`,\"aria-selected\":Y===`auto`,className:Y===`auto`?`active`:``,onClick:()=>Rn(`auto`),children:S(`map.autoScan`)})]})",
+      "note": "Manual/Auto tab controls"
+    },
+    "autoCard": {
+      "asset": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js",
+      "sha256": "ce74345518be72e417a510b982c591729e5683f69751e190805598c4c05d3089",
+      "byteStart": 46001,
+      "byteEnd": 48950,
+      "source": "(0,E.jsxs)(`div`,{className:`map-auto-scan-card`,children:[(0,E.jsxs)(`label`,{className:`map-auto-scan-master`,children:[(0,E.jsx)(`input`,{type:`checkbox`,checked:x.enabled,onChange:e=>$({enabled:e.target.checked})}),(0,E.jsx)(`strong`,{children:S(`map.enableAutoScan`)}),(0,E.jsx)(`span`,{children:Ce?S(`map.autoScanRunning`):x.enabled?S(`map.autoScanWaiting`):S(`map.autoScanDisabled`)})]}),(0,E.jsxs)(`div`,{className:`map-auto-scan-grid`,children:[(0,E.jsxs)(`div`,{className:`map-auto-scan-server-field`,children:[(0,E.jsx)(`span`,{children:S(`map.targetServers`)}),(0,E.jsxs)(`span`,{className:`map-auto-scan-server-input`,children:[(0,E.jsx)(`input`,{value:zn,inputMode:`numeric`,placeholder:C.serverId>0?String(C.serverId):`8, 15, 120`,onChange:e=>Bn(e.target.value),onKeyDown:e=>{e.key===`Enter`&&(e.preventDefault(),lr())}}),(0,E.jsx)(`button`,{type:`button`,disabled:oe(zn).length===0,onClick:lr,children:S(`common.add`)})]}),(0,E.jsx)(`small`,{children:S(`map.targetServersHint`)}),(0,E.jsx)(`span`,{className:`map-auto-scan-server-chips`,children:x.serverIds.map(e=>(0,E.jsxs)(`span`,{children:[e,(0,E.jsx)(`button`,{type:`button`,\"aria-label\":`${S(`common.remove`)} ${e}`,onClick:()=>$({serverIds:le(x.serverIds,e)}),children:(0,E.jsx)(se,{name:`remove`})})]},e))})]}),(0,E.jsxs)(`label`,{children:[(0,E.jsx)(`span`,{children:S(`map.scanIntervalMinutes`)}),(0,E.jsx)(`input`,{type:`number`,min:20,max:`1440`,value:x.intervalMinutes,onChange:e=>$({intervalMinutes:Number(e.target.value)})})]}),(0,E.jsxs)(`label`,{children:[(0,E.jsx)(`span`,{children:S(`map.speed`)}),(0,E.jsxs)(`select`,{value:x.scanMode,onChange:e=>$({scanMode:e.target.value===`fast`?`fast`:`normal`}),children:[(0,E.jsx)(`option`,{value:`normal`,children:S(`map.normalSpeed`)}),(0,E.jsx)(`option`,{value:`fast`,children:S(`map.fastSpeed`)})]})]})]}),(0,E.jsxs)(`div`,{className:`map-controls`,children:[(0,E.jsx)(`span`,{className:`map-controls-label`,children:S(`map.scanTypes`)}),(0,E.jsx)(`div`,{className:`map-types map-types--compact`,children:Ie.map(e=>(0,E.jsxs)(`label`,{children:[(0,E.jsx)(`input`,{type:`checkbox`,checked:x.selectedTypes.includes(e.key),disabled:x.selectedTypes.length===1&&x.selectedTypes[0]===e.key,onChange:t=>$({selectedTypes:t.target.checked?[...x.selectedTypes,e.key]:x.selectedTypes.filter(t=>t!==e.key)})}),S(e.label)]},e.key))})]}),(0,E.jsxs)(`div`,{className:`map-auto-scan-options`,children:[(0,E.jsxs)(`label`,{children:[(0,E.jsx)(`input`,{type:`checkbox`,checked:x.returnToOriginalServer,onChange:e=>$({returnToOriginalServer:e.target.checked})}),S(`map.returnAfterAutoScan`)]}),(0,E.jsx)(`button`,{type:`button`,className:`primary`,disabled:!l||!x.enabled||Ce||C.isReading,onClick:()=>$({nextRunAt:Date.now()}),children:S(`map.runAutoScanNow`)})]}),(0,E.jsx)(`small`,{children:S(`map.autoScanNavigationNotice`)}),(0,E.jsxs)(`small`,{children:[S(`map.nextAutoScan`),`: `,x.enabled&&x.nextRunAt>0?N(x.nextRunAt,Te):`-`]})]})",
+      "note": "complete Auto Scan card JSX contract"
+    },
+    "scanTiming": {
+      "asset": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js",
+      "sha256": "ce74345518be72e417a510b982c591729e5683f69751e190805598c4c05d3089",
+      "byteStart": 44472,
+      "byteEnd": 45035,
+      "source": "(0,E.jsxs)(`div`,{className:`map-scan-timing`,children:[(0,E.jsxs)(`span`,{title:N(Z,Te),children:[(0,E.jsx)(`small`,{children:S(`map.startTime`)}),(0,E.jsx)(`time`,{dateTime:Ze(Z),children:Ye(Z)})]}),(0,E.jsx)(`i`,{\"aria-hidden\":`true`,children:`→`}),(0,E.jsxs)(`span`,{title:N(Yn,Te),children:[(0,E.jsx)(`small`,{children:S(`map.endTime`)}),(0,E.jsx)(`time`,{dateTime:Ze(Yn),children:Ye(Yn,!Xe(Z,Yn))})]}),(0,E.jsxs)(`span`,{className:`map-scan-duration`,children:[(0,E.jsx)(`small`,{children:S(`map.totalDuration`)}),(0,E.jsx)(`time`,{children:Je(Xn)})]})]})",
+      "note": "shared scan timing header rendered outside Manual/Auto card branch"
+    },
+    "scanSummary": {
+      "asset": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js",
+      "sha256": "ce74345518be72e417a510b982c591729e5683f69751e190805598c4c05d3089",
+      "byteStart": 48951,
+      "byteEnd": 49590,
+      "source": "(0,E.jsxs)(`div`,{className:`map-scan-summary`,children:[(0,E.jsx)(`span`,{className:`map-status-pill${C.isReading?` active`:``}`,children:C.phase===`publishing`?S(`common.processing`):C.isReading?S(`map.reading`):qn&&z.status===`completed`?S(`common.completed`):S(`common.stopped`)}),(0,E.jsxs)(`span`,{children:[S(`map.server`),` `,(0,E.jsx)(`strong`,{children:Jn||`-`})]}),(0,E.jsxs)(`div`,{className:`map-progress${Zn<50?` low`:``}${C.isReading?` active`:``}`,children:[(0,E.jsx)(`progress`,{className:`map-progress-bar`,max:100,value:a?Zn:void 0,\"aria-label\":S(`map.scanProgress`)}),(0,E.jsx)(`span`,{children:a?`${Zn}%`:`—`})]})]})",
+      "note": "shared scan summary rendered outside Manual/Auto branch"
+    }
+  },
+  "englishLabels": {
+    "map.manualScan": {
+      "asset": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/en-BisSXcTB.js",
+      "sha256": "0bf43d180eb93692a93b830b5d984e9d01ddeea524340f2334fc63cba527a731",
+      "byteStart": 42068,
+      "byteEnd": 42099,
+      "source": "\"map.manualScan\":`Manual Scan`,"
+    },
+    "map.autoScan": {
+      "asset": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/en-BisSXcTB.js",
+      "sha256": "0bf43d180eb93692a93b830b5d984e9d01ddeea524340f2334fc63cba527a731",
+      "byteStart": 42099,
+      "byteEnd": 42126,
+      "source": "\"map.autoScan\":`Auto Scan`,"
+    },
+    "map.enableAutoScan": {
+      "asset": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/en-BisSXcTB.js",
+      "sha256": "0bf43d180eb93692a93b830b5d984e9d01ddeea524340f2334fc63cba527a731",
+      "byteStart": 42126,
+      "byteEnd": 42175,
+      "source": "\"map.enableAutoScan\":`Enable automatic scanning`,"
+    },
+    "map.autoScanRunning": {
+      "asset": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/en-BisSXcTB.js",
+      "sha256": "0bf43d180eb93692a93b830b5d984e9d01ddeea524340f2334fc63cba527a731",
+      "byteStart": 42175,
+      "byteEnd": 42207,
+      "source": "\"map.autoScanRunning\":`Running`,"
+    },
+    "map.autoScanWaiting": {
+      "asset": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/en-BisSXcTB.js",
+      "sha256": "0bf43d180eb93692a93b830b5d984e9d01ddeea524340f2334fc63cba527a731",
+      "byteStart": 42207,
+      "byteEnd": 42252,
+      "source": "\"map.autoScanWaiting\":`Waiting for schedule`,"
+    },
+    "map.autoScanDisabled": {
+      "asset": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/en-BisSXcTB.js",
+      "sha256": "0bf43d180eb93692a93b830b5d984e9d01ddeea524340f2334fc63cba527a731",
+      "byteStart": 42252,
+      "byteEnd": 42286,
+      "source": "\"map.autoScanDisabled\":`Disabled`,"
+    },
+    "map.targetServers": {
+      "asset": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/en-BisSXcTB.js",
+      "sha256": "0bf43d180eb93692a93b830b5d984e9d01ddeea524340f2334fc63cba527a731",
+      "byteStart": 42286,
+      "byteEnd": 42323,
+      "source": "\"map.targetServers\":`Target servers`,"
+    },
+    "map.targetServersHint": {
+      "asset": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/en-BisSXcTB.js",
+      "sha256": "0bf43d180eb93692a93b830b5d984e9d01ddeea524340f2334fc63cba527a731",
+      "byteStart": 42323,
+      "byteEnd": 42462,
+      "source": "\"map.targetServersHint\":`Enter server IDs and click Add. Commas add several at once; × removes one. No entries scans the current server.`,"
+    },
+    "map.scanIntervalMinutes": {
+      "asset": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/en-BisSXcTB.js",
+      "sha256": "0bf43d180eb93692a93b830b5d984e9d01ddeea524340f2334fc63cba527a731",
+      "byteStart": 42462,
+      "byteEnd": 42509,
+      "source": "\"map.scanIntervalMinutes\":`Interval (minutes)`,"
+    },
+    "map.returnAfterAutoScan": {
+      "asset": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/en-BisSXcTB.js",
+      "sha256": "0bf43d180eb93692a93b830b5d984e9d01ddeea524340f2334fc63cba527a731",
+      "byteStart": 42509,
+      "byteEnd": 42582,
+      "source": "\"map.returnAfterAutoScan\":`Return to the original server after scanning`,"
+    },
+    "map.runAutoScanNow": {
+      "asset": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/en-BisSXcTB.js",
+      "sha256": "0bf43d180eb93692a93b830b5d984e9d01ddeea524340f2334fc63cba527a731",
+      "byteStart": 42582,
+      "byteEnd": 42613,
+      "source": "\"map.runAutoScanNow\":`Run now`,"
+    },
+    "map.autoScanNavigationNotice": {
+      "asset": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/en-BisSXcTB.js",
+      "sha256": "0bf43d180eb93692a93b830b5d984e9d01ddeea524340f2334fc63cba527a731",
+      "byteStart": 42613,
+      "byteEnd": 42739,
+      "source": "\"map.autoScanNavigationNotice\":`Each target server is entered before scanning; a server ID alone cannot scan another server.`,"
+    },
+    "map.nextAutoScan": {
+      "asset": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/en-BisSXcTB.js",
+      "sha256": "0bf43d180eb93692a93b830b5d984e9d01ddeea524340f2334fc63cba527a731",
+      "byteStart": 42739,
+      "byteEnd": 42770,
+      "source": "\"map.nextAutoScan\":`Next scan`,"
+    }
+  }
+}
