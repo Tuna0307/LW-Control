@@ -841,13 +841,17 @@ export function MapDataPage({
   }, [autoConfig.enabled, autoConfig.nextRunAt, autoRunning, currentServerId, online, scanState.isReading]);
 
   function addAutoServers() {
-    const added = autoServerInput.split(",").map((value) => Number(value.trim())).filter((id) => Number.isInteger(id) && id >= 1 && id <= 99999);
-    emitAutoConfig({ serverIds: [...new Set([...autoConfig.serverIds, ...added])].slice(0, 20) });
+    if (parseAutoServerIds(autoServerInput).length === 0) return;
+    emitAutoConfig({ serverIds: appendAutoServerIds(autoConfig.serverIds, autoServerInput) });
     setAutoServerInput("");
   }
 
   function toggleAutoType(kind, checked) {
-    emitAutoConfig({ selectedTypes: updateSelectedTypes(autoConfig.selectedTypes, kind, checked) });
+    emitAutoConfig({
+      selectedTypes: checked
+        ? [...autoConfig.selectedTypes, kind]
+        : autoConfig.selectedTypes.filter((value) => value !== kind),
+    });
   }
 
   // Recovered action callbacks. They exist only to define selection retention and busy/message ownership; the
@@ -999,7 +1003,7 @@ export function MapDataPage({
       </div>
 
       {scanTab === "auto" ? (
-        <div className="map-auto-scan-card" data-runtime-state={autoRunning ? "running" : autoConfig.enabled ? "enabled" : "disabled"}>
+        <div className="map-auto-scan-card">
           <label className="map-auto-scan-master">
             <input type="checkbox" checked={autoConfig.enabled} onChange={(event) => emitAutoConfig({ enabled: event.target.checked })} />
             <strong>{t("map.enableAutoScan")}</strong>
@@ -1008,27 +1012,50 @@ export function MapDataPage({
           <div className="map-auto-scan-grid">
             <div className="map-auto-scan-server-field">
               <span>{t("map.targetServers")}</span>
-              <div className="map-auto-scan-server-input"><input value={autoServerInput} disabled={autoRunning} onChange={(event) => setAutoServerInput(event.target.value)} /><button type="button" disabled={autoRunning || !autoServerInput.trim()} onClick={addAutoServers}>{t("common.add")}</button></div>
-              {autoConfig.serverIds.length ? <div>{autoConfig.serverIds.map((id) => <button type="button" key={id} disabled={autoRunning} onClick={() => emitAutoConfig({ serverIds: removeAutoServerId(autoConfig.serverIds, id) })}>{id} ×</button>)}</div> : null}
+              <span className="map-auto-scan-server-input">
+                <input
+                  value={autoServerInput}
+                  inputMode="numeric"
+                  placeholder={scanState.serverId > 0 ? String(scanState.serverId) : "8, 15, 120"}
+                  onChange={(event) => setAutoServerInput(event.target.value)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter") {
+                      event.preventDefault();
+                      addAutoServers();
+                    }
+                  }}
+                />
+                <button type="button" disabled={parseAutoServerIds(autoServerInput).length === 0} onClick={addAutoServers}>{t("common.add")}</button>
+              </span>
               <small>{t("map.targetServersHint")}</small>
+              <span className="map-auto-scan-server-chips">
+                {autoConfig.serverIds.map((id) => (
+                  <span key={id}>
+                    {id}
+                    <button type="button" aria-label={`${t("common.remove")} ${id}`} onClick={() => emitAutoConfig({ serverIds: removeAutoServerId(autoConfig.serverIds, id) })}>
+                      <span aria-hidden="true">×</span>
+                    </button>
+                  </span>
+                ))}
+              </span>
             </div>
-            <label><span>{t("map.scanIntervalMinutes")}</span><input type="number" min="20" max="1440" value={autoConfig.intervalMinutes} disabled={autoRunning} onChange={(event) => emitAutoConfig({ intervalMinutes: Number(event.target.value) })} /></label>
-            <label><span>{t("map.speed")}</span><select value={autoConfig.scanMode} disabled={autoRunning} onChange={(event) => emitAutoConfig({ scanMode: event.target.value === "fast" ? "fast" : "normal" })}><option value="normal">{t("map.normalSpeed")}</option><option value="fast">{t("map.fastSpeed")}</option></select></label>
+            <label><span>{t("map.scanIntervalMinutes")}</span><input type="number" min={20} max="1440" value={autoConfig.intervalMinutes} onChange={(event) => emitAutoConfig({ intervalMinutes: Number(event.target.value) })} /></label>
+            <label><span>{t("map.speed")}</span><select value={autoConfig.scanMode} onChange={(event) => emitAutoConfig({ scanMode: event.target.value === "fast" ? "fast" : "normal" })}><option value="normal">{t("map.normalSpeed")}</option><option value="fast">{t("map.fastSpeed")}</option></select></label>
           </div>
           <div className="map-controls">
             <span className="map-controls-label">{t("map.scanTypes")}</span>
             <div className="map-types map-types--compact">
               {MAP_SCAN_TYPES.map(({ key }) => (
-                <label key={key}><input type="checkbox" checked={autoConfig.selectedTypes.includes(key)} disabled={autoRunning || (autoConfig.selectedTypes.length === 1 && autoConfig.selectedTypes[0] === key)} onChange={(event) => toggleAutoType(key, event.target.checked)} /><span>{t(SCAN_TYPE_LABEL_KEYS[key])}</span></label>
+                <label key={key}><input type="checkbox" checked={autoConfig.selectedTypes.includes(key)} disabled={autoConfig.selectedTypes.length === 1 && autoConfig.selectedTypes[0] === key} onChange={(event) => toggleAutoType(key, event.target.checked)} />{t(SCAN_TYPE_LABEL_KEYS[key])}</label>
               ))}
             </div>
           </div>
           <div className="map-auto-scan-options">
-            <label><input type="checkbox" checked={autoConfig.returnToOriginalServer} disabled={autoRunning} onChange={(event) => emitAutoConfig({ returnToOriginalServer: event.target.checked })} />{t("map.returnAfterAutoScan")}</label>
-            <button type="button" disabled={!autoConfig.enabled || autoRunning || scanState.isReading || !online} onClick={() => emitAutoConfig({ nextRunAt: Date.now() })}>{t("map.runAutoScanNow")}</button>
+            <label><input type="checkbox" checked={autoConfig.returnToOriginalServer} onChange={(event) => emitAutoConfig({ returnToOriginalServer: event.target.checked })} />{t("map.returnAfterAutoScan")}</label>
+            <button type="button" className="primary" disabled={!online || !autoConfig.enabled || autoRunning || scanState.isReading} onClick={() => emitAutoConfig({ nextRunAt: Date.now() })}>{t("map.runAutoScanNow")}</button>
           </div>
           <small>{t("map.autoScanNavigationNotice")}</small>
-          <small>{t("map.nextAutoScan")}: {autoConfig.nextRunAt > 0 ? formatAutoScanDate(autoConfig.nextRunAt, language) : "-"}</small>
+          <small>{t("map.nextAutoScan")}: {autoConfig.enabled && autoConfig.nextRunAt > 0 ? formatAutoScanDate(autoConfig.nextRunAt, language) : "-"}</small>
         </div>
       ) : null}
 

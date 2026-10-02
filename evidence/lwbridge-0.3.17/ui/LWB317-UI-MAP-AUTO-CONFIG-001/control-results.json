@@ -1,0 +1,118 @@
+{
+  "status": "PASS",
+  "scope": "Actual production MapDataPage body and rendered Auto controls in the persistent hook adapter; parent normalization/persistence is tested separately. Native Auto execution is not invoked.",
+  "originalAgentB": {
+    "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-CLOSEOUT-002/agent-b/case-results.json",
+    "status": "PASS",
+    "cases": 12
+  },
+  "currentCases": [
+    {
+      "name": "target-input-contract",
+      "status": "PASS",
+      "detail": {
+        "placeholder": "321",
+        "inputMode": "numeric",
+        "emptyAddDisabled": true
+      }
+    },
+    {
+      "name": "invalid-enter-keeps-draft-and-does-not-emit",
+      "status": "PASS",
+      "detail": {
+        "prevented": 1,
+        "draft": "bad only"
+      }
+    },
+    {
+      "name": "valid-enter-parses-appends-and-clears",
+      "status": "PASS",
+      "detail": {
+        "serverIds": [
+          8,
+          15,
+          120,
+          16
+        ],
+        "prevented": 1
+      }
+    },
+    {
+      "name": "valid-add-at-cap-still-emits-and-clears",
+      "status": "PASS",
+      "detail": {
+        "count": 20
+      }
+    },
+    {
+      "name": "chips-preserve-order-and-remove-one",
+      "status": "PASS",
+      "detail": {
+        "labels": [
+          "common.remove 15",
+          "common.remove 8",
+          "common.remove 120"
+        ],
+        "remaining": [
+          15,
+          120
+        ]
+      }
+    },
+    {
+      "name": "running-status-wins-and-config-remains-editable",
+      "status": "PASS",
+      "detail": {
+        "runningText": true,
+        "runNowDisabled": true
+      }
+    },
+    {
+      "name": "interval-and-speed-emit-raw-panel-values",
+      "status": "PASS",
+      "detail": {
+        "intervalMinutes": 19,
+        "fallbackSpeed": "normal"
+      }
+    },
+    {
+      "name": "all-eight-types-and-sole-selection-guard",
+      "status": "PASS",
+      "detail": {
+        "rendered": 8,
+        "append": [
+          "city",
+          "resource"
+        ],
+        "remove": [
+          "resource"
+        ]
+      }
+    },
+    {
+      "name": "run-now-exact-gate-and-deadline-edit",
+      "status": "PASS",
+      "detail": {
+        "onlineEnabled": true,
+        "runningDisabled": true,
+        "readingDisabled": true,
+        "nextRunAt": 1800000000000
+      }
+    },
+    {
+      "name": "next-scan-display-requires-enabled-and-positive-deadline",
+      "status": "PASS",
+      "detail": {
+        "disabled": "-",
+        "enabled": "map.nextAutoScan: 1/15/2027, 4:02:03 PM"
+      }
+    },
+    {
+      "name": "no-reset-control-token",
+      "status": "PASS",
+      "detail": {
+        "present": false
+      }
+    }
+  ]
+}
