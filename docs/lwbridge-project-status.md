@@ -6,7 +6,13 @@
 
 ## Current state
 
-Latest checkpoint: **PM-023 / UI-MAP-FILTERS-001 AWAITING_REVIEW**.
+Latest decision: **PM-024 ACCEPTS UI-MAP-FILTERS-001 for focused source/local
+scope**. Reviewer af73d18 supplied an independent recommendation; the lead
+verified the evidence/checks and made final acceptance. Independent Checking
+browser limits are recorded. The two completed filter/review units are closed;
+broader UI/native/pixel gaps remain open and no new campaign is assigned here.
+
+Historical implementation checkpoint: **PM-023 / UI-MAP-FILTERS-001 AWAITING_REVIEW**, superseded by PM-024 above.
 Per-tab Map filter ownership, exact Secret Task level and isolated Treasure
 Checking preview are corrected and source/local/browser/package checked.
 Native refresh handlers exist, but canonical frontend methods/context/lifecycle

@@ -12,7 +12,13 @@ If the reference opens into a login/locked state, capture only enough evidence t
 
 ## Required inventory
 
-Latest checkpoint, 2026-10-02: PM-023 / UI-MAP-FILTERS-001 is
+Latest decision, 2026-10-02: PM-024 **ACCEPTS** FILTERS-001 for its six focused
+source/local behaviors after inspecting reviewer af73d18 and replaying actual
+source/code/evidence/package checks. The independent Checking browser session
+was empty; its visual limitation is preserved. Original/native/global UI gaps
+remain open. See `reviews/2026-10-02-LWB317-PM-024-map-filter-acceptance.md`.
+
+Earlier delivery, superseded by PM-024 acceptance: PM-023 / UI-MAP-FILTERS-001 was
 **AWAITING_REVIEW**. Quality, completion, retained-goods and plunderable choices
 now belong to their tabs; Secret Task level is exact and goods-sort clearing is
 tab-local. Checking is reachable in a strictly isolated offline Treasure fixture.

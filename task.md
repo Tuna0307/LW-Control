@@ -77,7 +77,13 @@ Live-prove each implemented in-scope function against an assistant-owned/current
 
 ## Current instruction
 
-Latest checkpoint, 2026-10-02: PM-023 / LWB317-UI-MAP-FILTERS-001 is
+Latest decision, 2026-10-02: PM-024 accepts UI-MAP-FILTERS-001 and its independent
+review af73d18 for the six focused source/local behaviors. The lead verified
+actual-code/source/evidence/package checks and recorded the reviewer's empty
+Checking browser-session limit. Do not repeat that review. Other UI/native/pixel
+gaps remain open; no new implementation or native scope is assigned here.
+
+Historical PM-023 assignment, superseded by PM-024 above: LWB317-UI-MAP-FILTERS-001 was
 AWAITING_REVIEW. Lead corrected per-kind Map filters, exact Secret Task level
 and an isolated Treasure Checking preview; source/query/render/browser/package
 checks pass. Returning-worker independent review is ASSIGNED under

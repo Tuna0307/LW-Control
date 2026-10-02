@@ -1,0 +1,63 @@
+{
+  "decision": "ACCEPT for assigned source/local scope",
+  "reviewCommit": "af73d18a3b04fb44930760e4f43ee4ae210368f3",
+  "implementationCommit": "3d2f6ba3ad99ef8386b784de972db8c2f1461fe4",
+  "checks": [
+    {
+      "name": "independent",
+      "chunk_id": "efea78",
+      "wall_time_seconds": 0.0000505,
+      "exit_code": 0,
+      "original_token_count": 155,
+      "output": "{\n  \"status\": \"PASS\",\n  \"checkingRows\": 45,\n  \"missingState\": {\n    \"world\": \"map.treasureStateVerifying\",\n    \"player\": \"map.treasurePlayerVerifying\"\n  },\n  \"blockedMissingState\": {\n    \"world\": \"map.treasureStateVerifying\",\n    \"player\": \"map.treasurePlayerOtherAlliance\"\n  },\n  \"knownState\": {\n    \"worldInput\": \"claimable\",\n    \"playerInput\": \"claimed\",\n    \"worldOutput\": \"map.treasureStateClaimable\",\n    \"playerOutput\": \"map.treasurePlayerClaimed\"\n  },\n  \"fences\": {\n    \"mapTableStatesRefreshing\": false,\n    \"nativeProvider\": null,\n    \"nativeUnavailableProvider\": null,\n    \"nonMapPreviewProvider\": null\n  }\n}\n"
+    },
+    {
+      "name": "filters",
+      "chunk_id": "3e4a29",
+      "wall_time_seconds": 0.0002688,
+      "exit_code": 0,
+      "original_token_count": 23,
+      "output": "LWB317_MAP_FILTERS_OK 472 original/current queries; baseline 330 mismatches; fences PASS\n"
+    },
+    {
+      "name": "checking",
+      "chunk_id": "588940",
+      "wall_time_seconds": 0.0000219,
+      "exit_code": 0,
+      "original_token_count": 25,
+      "output": "LWB317_TREASURE_CHECKING_OK 216 display comparisons; 384 input fences; 8 original producer cases\n"
+    },
+    {
+      "name": "evidence",
+      "chunk_id": "398b54",
+      "wall_time_seconds": 0.0257719,
+      "exit_code": 0,
+      "original_token_count": 22,
+      "output": "LWB317_MAP_FILTER_EVIDENCE_OK source/code/baseline/browser/images/package/protected WIP\n"
+    },
+    {
+      "name": "package",
+      "chunk_id": "7d5327",
+      "wall_time_seconds": 0.5207516,
+      "exit_code": 0,
+      "original_token_count": 67,
+      "output": "\n> lwbridge-ui-0.3.17@0.3.17-ui-preview check:production-build\n> node scripts/check-production-build.mjs\n\nLWB317_PRODUCTION_UI_PACKAGE_OK b09ef2120b8f67b5de0f9430a814ae0c9d33e50a5e0ba267597063c70c10f7eb b56793f5b4a7934be8e56032ca447c87ee0f81eb3f430e9def803dd015119d34\n"
+    },
+    {
+      "name": "review diff",
+      "chunk_id": "968bd6",
+      "wall_time_seconds": 0.4182302,
+      "exit_code": 0,
+      "original_token_count": 73,
+      "output": "af73d18 docs: review map filter parity\n .../2026-10-02-LWB317-REVIEW-MAP-FILTERS-001.md    | 150 +++++++++++++++++++++\n .../independent-cases.mjs                          |  64 +++++++++\n .../independent-results.md                         |  71 ++++++++++\n 3 files changed, 285 insertions(+)\n"
+    },
+    {
+      "name": "remote",
+      "chunk_id": "0c8c74",
+      "wall_time_seconds": 1.1167832,
+      "exit_code": 0,
+      "original_token_count": 20,
+      "output": "af73d18a3b04fb44930760e4f43ee4ae210368f3\trefs/heads/research/offline-controller\n"
+    }
+  ]
+}

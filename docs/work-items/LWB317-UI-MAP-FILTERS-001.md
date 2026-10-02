@@ -1,6 +1,7 @@
 # LWB317-UI-MAP-FILTERS-001
 
-Owner: project lead takeover. Status: AWAITING_REVIEW.
+Owner: project lead takeover. Status: COMPLETE / ACCEPTED for focused source/local
+scope by PM-024 after independent review af73d18.
 
 ## Goal and scope
 
@@ -54,4 +55,5 @@ Source/local implementation and preview delivery completed on 2026-10-02.
 eight original producer cases, fifteen browser flows and canonical checks pass.
 See `docs/reviews/2026-10-02-LWB317-UI-MAP-FILTERS-001.md` and focused evidence.
 Native Treasure reachability still needs separately assigned frontend/host
-connection work. Independent REVIEW-MAP-FILTERS-001 is queued for manual relay.
+connection work. Independent REVIEW-MAP-FILTERS-001 returned ACCEPT; the lead
+verified and adopted it under PM-024. No full UI/native/pixel acceptance.

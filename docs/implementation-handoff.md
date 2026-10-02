@@ -4,6 +4,21 @@
 **Branch:** `research/offline-controller`  
 **Phase:** Phase 2 function recovery / Map Data clean-UI live-integration checkpoint
 
+## 2026-10-02 PM-024 — Map filter review accepted by project lead
+
+UI-MAP-FILTERS-001 and REVIEW-MAP-FILTERS-001 are COMPLETE / ACCEPTED for their
+six focused source/local behaviors. The lead verified reviewer af73d18, replayed
+independent/current/original/evidence/package checks and made the final decision.
+Read `reviews/2026-10-02-LWB317-PM-024-map-filter-acceptance.md`.
+
+The reviewer's Checking browser session had no populated rows; this is recorded
+as a visual limit, not adopted as independent populated browser proof. Native
+Treasure connection, other Map transitions/scheduling, conditional Automation/AFK
+states, assets and original pixels remain open. Overall UI stays
+IMPLEMENTED_NOT_VALIDATED. No product correction or live operation was needed.
+Protected WIP remains unchanged/unstaged. Do not repeat the completed review;
+next implementation needs a new bounded assignment.
+
 ## 2026-10-02 PM-023 — Map filters and Checking preview
 
 Current checkpoint: **UI-MAP-FILTERS-001 AWAITING_REVIEW**. Lead took over while
