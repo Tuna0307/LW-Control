@@ -21,9 +21,11 @@ lifecycle connection remains separately queued. No native operation was invoked.
 Other Map transitions/scheduling, broader Automation/AFK states, missing assets
 and original pixels remain open. Protected WIP is unchanged/unstaged.
 
-Next external-worker task: `work-items/LWB317-REVIEW-MAP-FILTERS-001.md`, QUEUED,
-not dispatched. Give the owner a self-contained review prompt when they say the
-worker is ready. Do not restart UI-PARALLEL-001 or native/gameplay work.
+Current external-worker assignment: `work-items/LWB317-REVIEW-MAP-FILTERS-001.md`.
+Owner reports worker ready; self-contained review prompt prepared for manual
+relay. Execution is not yet confirmed. Review target is
+3d2f6ba3ad99ef8386b784de972db8c2f1461fe4 against c7c3a32. Do not restart
+UI-PARALLEL-001 or native/gameplay work.
 
 ## 2026-10-02 — owner-authorized parallel UI acceleration
 

@@ -1,6 +1,11 @@
 # LWB317-REVIEW-MAP-FILTERS-001
 
-Owner: returning worker, via manual owner relay. Status: QUEUED, not dispatched.
+Owner: returning worker, via manual owner relay. Status: ASSIGNED; prompt prepared
+for owner relay on 2026-10-02. Worker execution is not yet confirmed.
+
+Review target: 3d2f6ba3ad99ef8386b784de972db8c2f1461fe4. Compare the production
+diff against c7c3a3271c6b3b433a2295e79b56feb074b24f67. Later assignment-document
+commits do not expand the product scope.
 
 ## Goal
 

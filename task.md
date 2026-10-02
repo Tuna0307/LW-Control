@@ -80,8 +80,9 @@ Live-prove each implemented in-scope function against an assistant-owned/current
 Latest checkpoint, 2026-10-02: PM-023 / LWB317-UI-MAP-FILTERS-001 is
 AWAITING_REVIEW. Lead corrected per-kind Map filters, exact Secret Task level
 and an isolated Treasure Checking preview; source/query/render/browser/package
-checks pass. Returning-worker independent review is QUEUED under
-`docs/work-items/LWB317-REVIEW-MAP-FILTERS-001.md`, not yet relayed. Existing host
+checks pass. Returning-worker independent review is ASSIGNED under
+`docs/work-items/LWB317-REVIEW-MAP-FILTERS-001.md`; prompt prepared for owner
+relay, execution not confirmed. Review product checkpoint 3d2f6ba only. Existing host
 Treasure handlers still need canonical frontend context/refresh wiring in a
 separate assignment. Other UI gaps and original pixel validation remain open;
 no native/gameplay phase is opened by this checkpoint.
