@@ -1,0 +1,3227 @@
+{
+  "task": "LWB317-REVIEW-MAP-TRANSPORT-001",
+  "fixedTime": 1799000000000,
+  "languages": [
+    "en",
+    "ja"
+  ],
+  "result": "CHANGES_REQUIRED",
+  "checks": {
+    "metadata": 8,
+    "value": 104,
+    "truckState": 26,
+    "eligibility": 26,
+    "selectionLabel": 26,
+    "liveTarget": 8,
+    "rewards": 12,
+    "compactCounts": 24,
+    "itemSortMetadata": 8,
+    "itemFilterCallbacks": 4
+  },
+  "mismatchCount": 14,
+  "mismatches": [
+    {
+      "category": "truck-selection-label",
+      "case": "en/missing-uuid",
+      "expected": "Select , server 321",
+      "actual": "Select -, server 321",
+      "expectedDisabled": true,
+      "actualDisabled": true
+    },
+    {
+      "category": "truck-selection-label",
+      "case": "en/server-zero",
+      "expected": "Select Owner, server 0",
+      "actual": "Select Owner, server -",
+      "expectedDisabled": true,
+      "actualDisabled": true
+    },
+    {
+      "category": "truck-selection-label",
+      "case": "en/server-missing",
+      "expected": "Select Owner, server {server}",
+      "actual": "Select Owner, server -",
+      "expectedDisabled": true,
+      "actualDisabled": true
+    },
+    {
+      "category": "live-target",
+      "case": "en/truck/missing-march",
+      "expected": {
+        "text": "-",
+        "button": false,
+        "disabled": null
+      },
+      "actual": {
+        "text": "12,34",
+        "button": true,
+        "disabled": true
+      }
+    },
+    {
+      "category": "live-target",
+      "case": "en/truck/with-march",
+      "expected": {
+        "text": "Follow",
+        "button": true,
+        "disabled": true
+      },
+      "actual": {
+        "text": "12,34",
+        "button": true,
+        "disabled": true
+      }
+    },
+    {
+      "category": "live-target",
+      "case": "en/railway/missing-march",
+      "expected": {
+        "text": "-",
+        "button": false,
+        "disabled": null
+      },
+      "actual": {
+        "text": "21,43",
+        "button": true,
+        "disabled": true
+      }
+    },
+    {
+      "category": "live-target",
+      "case": "en/railway/with-march",
+      "expected": {
+        "text": "Follow",
+        "button": true,
+        "disabled": true
+      },
+      "actual": {
+        "text": "21,43",
+        "button": true,
+        "disabled": true
+      }
+    },
+    {
+      "category": "truck-selection-label",
+      "case": "ja/missing-uuid",
+      "expected": "サーバー 321 の  を選択",
+      "actual": "サーバー 321 の - を選択",
+      "expectedDisabled": true,
+      "actualDisabled": true
+    },
+    {
+      "category": "truck-selection-label",
+      "case": "ja/server-zero",
+      "expected": "サーバー 0 の Owner を選択",
+      "actual": "サーバー - の Owner を選択",
+      "expectedDisabled": true,
+      "actualDisabled": true
+    },
+    {
+      "category": "truck-selection-label",
+      "case": "ja/server-missing",
+      "expected": "サーバー {server} の Owner を選択",
+      "actual": "サーバー - の Owner を選択",
+      "expectedDisabled": true,
+      "actualDisabled": true
+    },
+    {
+      "category": "live-target",
+      "case": "ja/truck/missing-march",
+      "expected": {
+        "text": "-",
+        "button": false,
+        "disabled": null
+      },
+      "actual": {
+        "text": "12,34",
+        "button": true,
+        "disabled": true
+      }
+    },
+    {
+      "category": "live-target",
+      "case": "ja/truck/with-march",
+      "expected": {
+        "text": "追跡",
+        "button": true,
+        "disabled": true
+      },
+      "actual": {
+        "text": "12,34",
+        "button": true,
+        "disabled": true
+      }
+    },
+    {
+      "category": "live-target",
+      "case": "ja/railway/missing-march",
+      "expected": {
+        "text": "-",
+        "button": false,
+        "disabled": null
+      },
+      "actual": {
+        "text": "21,43",
+        "button": true,
+        "disabled": true
+      }
+    },
+    {
+      "category": "live-target",
+      "case": "ja/railway/with-march",
+      "expected": {
+        "text": "追跡",
+        "button": true,
+        "disabled": true
+      },
+      "actual": {
+        "text": "21,43",
+        "button": true,
+        "disabled": true
+      }
+    }
+  ],
+  "observations": [
+    {
+      "category": "metadata",
+      "case": "en/truck/item=none",
+      "equal": true,
+      "expected": [
+        {
+          "label": "Select",
+          "width": "56px",
+          "className": "map-task-select",
+          "select": true
+        },
+        {
+          "label": "Live Target",
+          "width": "190px",
+          "className": "map-column-coordinate",
+          "coordinate": true
+        },
+        {
+          "label": "Player / Alliance",
+          "width": "minmax(170px, 1fr)"
+        },
+        {
+          "label": "Quality",
+          "width": "70px",
+          "sortBy": "quality"
+        },
+        {
+          "label": "Escort Power",
+          "width": "120px",
+          "sortBy": "power"
+        },
+        {
+          "label": "Items",
+          "width": "minmax(360px, 2fr)",
+          "rewards": "currentGoods"
+        },
+        {
+          "label": "Plunder status",
+          "width": "190px",
+          "sortBy": "remainingLootCount"
+        },
+        {
+          "label": "Arrival Time",
+          "width": "150px",
+          "sortBy": "arriveTime"
+        },
+        {
+          "label": "Updated At",
+          "width": "150px",
+          "sortBy": "updatedAt"
+        }
+      ],
+      "actual": [
+        {
+          "label": "Select",
+          "width": "56px",
+          "className": "map-task-select",
+          "select": true
+        },
+        {
+          "label": "Live Target",
+          "width": "190px",
+          "className": "map-column-coordinate",
+          "coordinate": true
+        },
+        {
+          "label": "Player / Alliance",
+          "width": "minmax(170px, 1fr)"
+        },
+        {
+          "label": "Quality",
+          "width": "70px",
+          "sortBy": "quality"
+        },
+        {
+          "label": "Escort Power",
+          "width": "120px",
+          "sortBy": "power"
+        },
+        {
+          "label": "Items",
+          "width": "minmax(360px, 2fr)",
+          "rewards": "currentGoods"
+        },
+        {
+          "label": "Plunder status",
+          "width": "190px",
+          "sortBy": "remainingLootCount"
+        },
+        {
+          "label": "Arrival Time",
+          "width": "150px",
+          "sortBy": "arriveTime"
+        },
+        {
+          "label": "Updated At",
+          "width": "150px",
+          "sortBy": "updatedAt"
+        }
+      ]
+    },
+    {
+      "category": "item-sort-metadata",
+      "case": "en/truck/item=none",
+      "equal": true,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "category": "metadata",
+      "case": "en/truck/item=item-a",
+      "equal": true,
+      "expected": [
+        {
+          "label": "Select",
+          "width": "56px",
+          "className": "map-task-select",
+          "select": true
+        },
+        {
+          "label": "Live Target",
+          "width": "190px",
+          "className": "map-column-coordinate",
+          "coordinate": true
+        },
+        {
+          "label": "Player / Alliance",
+          "width": "minmax(170px, 1fr)"
+        },
+        {
+          "label": "Quality",
+          "width": "70px",
+          "sortBy": "quality"
+        },
+        {
+          "label": "Escort Power",
+          "width": "120px",
+          "sortBy": "power"
+        },
+        {
+          "label": "Items",
+          "width": "minmax(360px, 2fr)",
+          "sortBy": "itemCount",
+          "rewards": "currentGoods"
+        },
+        {
+          "label": "Plunder status",
+          "width": "190px",
+          "sortBy": "remainingLootCount"
+        },
+        {
+          "label": "Arrival Time",
+          "width": "150px",
+          "sortBy": "arriveTime"
+        },
+        {
+          "label": "Updated At",
+          "width": "150px",
+          "sortBy": "updatedAt"
+        }
+      ],
+      "actual": [
+        {
+          "label": "Select",
+          "width": "56px",
+          "className": "map-task-select",
+          "select": true
+        },
+        {
+          "label": "Live Target",
+          "width": "190px",
+          "className": "map-column-coordinate",
+          "coordinate": true
+        },
+        {
+          "label": "Player / Alliance",
+          "width": "minmax(170px, 1fr)"
+        },
+        {
+          "label": "Quality",
+          "width": "70px",
+          "sortBy": "quality"
+        },
+        {
+          "label": "Escort Power",
+          "width": "120px",
+          "sortBy": "power"
+        },
+        {
+          "label": "Items",
+          "width": "minmax(360px, 2fr)",
+          "sortBy": "itemCount",
+          "rewards": "currentGoods"
+        },
+        {
+          "label": "Plunder status",
+          "width": "190px",
+          "sortBy": "remainingLootCount"
+        },
+        {
+          "label": "Arrival Time",
+          "width": "150px",
+          "sortBy": "arriveTime"
+        },
+        {
+          "label": "Updated At",
+          "width": "150px",
+          "sortBy": "updatedAt"
+        }
+      ]
+    },
+    {
+      "category": "item-sort-metadata",
+      "case": "en/truck/item=item-a",
+      "equal": true,
+      "expected": "itemCount",
+      "actual": "itemCount"
+    },
+    {
+      "category": "metadata",
+      "case": "en/railway/item=none",
+      "equal": true,
+      "expected": [
+        {
+          "label": "Live Target",
+          "width": "190px",
+          "className": "map-column-coordinate",
+          "coordinate": true
+        },
+        {
+          "label": "Alliance",
+          "width": "minmax(160px, 1fr)"
+        },
+        {
+          "label": "Quality",
+          "width": "70px",
+          "sortBy": "quality"
+        },
+        {
+          "label": "Power",
+          "width": "120px",
+          "sortBy": "power"
+        },
+        {
+          "label": "Items",
+          "width": "minmax(360px, 2fr)",
+          "rewards": "currentGoods"
+        },
+        {
+          "label": "Protection Time",
+          "width": "150px",
+          "sortBy": "protectTime"
+        },
+        {
+          "label": "Updated At",
+          "width": "150px",
+          "sortBy": "updatedAt"
+        }
+      ],
+      "actual": [
+        {
+          "label": "Live Target",
+          "width": "190px",
+          "className": "map-column-coordinate",
+          "coordinate": true
+        },
+        {
+          "label": "Alliance",
+          "width": "minmax(160px, 1fr)"
+        },
+        {
+          "label": "Quality",
+          "width": "70px",
+          "sortBy": "quality"
+        },
+        {
+          "label": "Power",
+          "width": "120px",
+          "sortBy": "power"
+        },
+        {
+          "label": "Items",
+          "width": "minmax(360px, 2fr)",
+          "rewards": "currentGoods"
+        },
+        {
+          "label": "Protection Time",
+          "width": "150px",
+          "sortBy": "protectTime"
+        },
+        {
+          "label": "Updated At",
+          "width": "150px",
+          "sortBy": "updatedAt"
+        }
+      ]
+    },
+    {
+      "category": "item-sort-metadata",
+      "case": "en/railway/item=none",
+      "equal": true,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "category": "metadata",
+      "case": "en/railway/item=item-a",
+      "equal": true,
+      "expected": [
+        {
+          "label": "Live Target",
+          "width": "190px",
+          "className": "map-column-coordinate",
+          "coordinate": true
+        },
+        {
+          "label": "Alliance",
+          "width": "minmax(160px, 1fr)"
+        },
+        {
+          "label": "Quality",
+          "width": "70px",
+          "sortBy": "quality"
+        },
+        {
+          "label": "Power",
+          "width": "120px",
+          "sortBy": "power"
+        },
+        {
+          "label": "Items",
+          "width": "minmax(360px, 2fr)",
+          "sortBy": "itemCount",
+          "rewards": "currentGoods"
+        },
+        {
+          "label": "Protection Time",
+          "width": "150px",
+          "sortBy": "protectTime"
+        },
+        {
+          "label": "Updated At",
+          "width": "150px",
+          "sortBy": "updatedAt"
+        }
+      ],
+      "actual": [
+        {
+          "label": "Live Target",
+          "width": "190px",
+          "className": "map-column-coordinate",
+          "coordinate": true
+        },
+        {
+          "label": "Alliance",
+          "width": "minmax(160px, 1fr)"
+        },
+        {
+          "label": "Quality",
+          "width": "70px",
+          "sortBy": "quality"
+        },
+        {
+          "label": "Power",
+          "width": "120px",
+          "sortBy": "power"
+        },
+        {
+          "label": "Items",
+          "width": "minmax(360px, 2fr)",
+          "sortBy": "itemCount",
+          "rewards": "currentGoods"
+        },
+        {
+          "label": "Protection Time",
+          "width": "150px",
+          "sortBy": "protectTime"
+        },
+        {
+          "label": "Updated At",
+          "width": "150px",
+          "sortBy": "updatedAt"
+        }
+      ]
+    },
+    {
+      "category": "item-sort-metadata",
+      "case": "en/railway/item=item-a",
+      "equal": true,
+      "expected": "itemCount",
+      "actual": "itemCount"
+    },
+    {
+      "category": "truck-state",
+      "case": "en/ready",
+      "equal": true,
+      "expected": "ready",
+      "actual": "ready"
+    },
+    {
+      "category": "truck-eligibility",
+      "case": "en/ready",
+      "equal": true,
+      "expected": false,
+      "actual": false
+    },
+    {
+      "category": "truck-status-label",
+      "case": "en/ready",
+      "equal": true,
+      "expected": "Ready｜Plundered 1/3",
+      "actual": "Ready｜Plundered 1/3",
+      "state": "ready"
+    },
+    {
+      "category": "truck-selection-label",
+      "case": "en/ready",
+      "equal": true,
+      "expected": "Select Owner, server 321",
+      "actual": "Select Owner, server 321",
+      "expectedDisabled": false,
+      "actualDisabled": false
+    },
+    {
+      "category": "truck-state",
+      "case": "en/arrival-boundary-minus-one",
+      "equal": true,
+      "expected": "ready",
+      "actual": "ready"
+    },
+    {
+      "category": "truck-eligibility",
+      "case": "en/arrival-boundary-minus-one",
+      "equal": true,
+      "expected": false,
+      "actual": false
+    },
+    {
+      "category": "truck-status-label",
+      "case": "en/arrival-boundary-minus-one",
+      "equal": true,
+      "expected": "Ready｜Plundered 1/3",
+      "actual": "Ready｜Plundered 1/3",
+      "state": "ready"
+    },
+    {
+      "category": "truck-selection-label",
+      "case": "en/arrival-boundary-minus-one",
+      "equal": true,
+      "expected": "Select Owner, server 321",
+      "actual": "Select Owner, server 321",
+      "expectedDisabled": false,
+      "actualDisabled": false
+    },
+    {
+      "category": "truck-state",
+      "case": "en/arrival-boundary",
+      "equal": true,
+      "expected": "expired",
+      "actual": "expired"
+    },
+    {
+      "category": "truck-eligibility",
+      "case": "en/arrival-boundary",
+      "equal": true,
+      "expected": true,
+      "actual": true
+    },
+    {
+      "category": "truck-status-label",
+      "case": "en/arrival-boundary",
+      "equal": true,
+      "expected": "Ready｜Plundered 1/3",
+      "actual": "Ready｜Plundered 1/3",
+      "state": "expired"
+    },
+    {
+      "category": "truck-selection-label",
+      "case": "en/arrival-boundary",
+      "equal": true,
+      "expected": "Select Owner, server 321",
+      "actual": "Select Owner, server 321",
+      "expectedDisabled": true,
+      "actualDisabled": true
+    },
+    {
+      "category": "truck-state",
+      "case": "en/protection-boundary",
+      "equal": true,
+      "expected": "ready",
+      "actual": "ready"
+    },
+    {
+      "category": "truck-eligibility",
+      "case": "en/protection-boundary",
+      "equal": true,
+      "expected": false,
+      "actual": false
+    },
+    {
+      "category": "truck-status-label",
+      "case": "en/protection-boundary",
+      "equal": true,
+      "expected": "Ready｜Plundered 1/3",
+      "actual": "Ready｜Plundered 1/3",
+      "state": "ready"
+    },
+    {
+      "category": "truck-selection-label",
+      "case": "en/protection-boundary",
+      "equal": true,
+      "expected": "Select Owner, server 321",
+      "actual": "Select Owner, server 321",
+      "expectedDisabled": false,
+      "actualDisabled": false
+    },
+    {
+      "category": "truck-state",
+      "case": "en/protected-one-second",
+      "equal": true,
+      "expected": "protected",
+      "actual": "protected"
+    },
+    {
+      "category": "truck-eligibility",
+      "case": "en/protected-one-second",
+      "equal": true,
+      "expected": false,
+      "actual": false
+    },
+    {
+      "category": "truck-status-label",
+      "case": "en/protected-one-second",
+      "equal": true,
+      "expected": "Protected 00:00:01｜Plundered 1/3",
+      "actual": "Protected 00:00:01｜Plundered 1/3",
+      "state": "protected"
+    },
+    {
+      "category": "truck-selection-label",
+      "case": "en/protected-one-second",
+      "equal": true,
+      "expected": "Select Owner, server 321",
+      "actual": "Select Owner, server 321",
+      "expectedDisabled": false,
+      "actualDisabled": false
+    },
+    {
+      "category": "truck-state",
+      "case": "en/full-over-protected",
+      "equal": true,
+      "expected": "full",
+      "actual": "full"
+    },
+    {
+      "category": "truck-eligibility",
+      "case": "en/full-over-protected",
+      "equal": true,
+      "expected": true,
+      "actual": true
+    },
+    {
+      "category": "truck-status-label",
+      "case": "en/full-over-protected",
+      "equal": true,
+      "expected": "Fully plundered 2/2",
+      "actual": "Fully plundered 2/2",
+      "state": "full"
+    },
+    {
+      "category": "truck-selection-label",
+      "case": "en/full-over-protected",
+      "equal": true,
+      "expected": "Select Owner, server 321",
+      "actual": "Select Owner, server 321",
+      "expectedDisabled": true,
+      "actualDisabled": true
+    },
+    {
+      "category": "truck-state",
+      "case": "en/reindeer-cap",
+      "equal": true,
+      "expected": "full",
+      "actual": "full"
+    },
+    {
+      "category": "truck-eligibility",
+      "case": "en/reindeer-cap",
+      "equal": true,
+      "expected": true,
+      "actual": true
+    },
+    {
+      "category": "truck-status-label",
+      "case": "en/reindeer-cap",
+      "equal": true,
+      "expected": "Fully plundered 1/1",
+      "actual": "Fully plundered 1/1",
+      "state": "full"
+    },
+    {
+      "category": "truck-selection-label",
+      "case": "en/reindeer-cap",
+      "equal": true,
+      "expected": "Select Owner, server 321",
+      "actual": "Select Owner, server 321",
+      "expectedDisabled": true,
+      "actualDisabled": true
+    },
+    {
+      "category": "truck-state",
+      "case": "en/missing-count",
+      "equal": true,
+      "expected": "ready",
+      "actual": "ready"
+    },
+    {
+      "category": "truck-eligibility",
+      "case": "en/missing-count",
+      "equal": true,
+      "expected": false,
+      "actual": false
+    },
+    {
+      "category": "truck-status-label",
+      "case": "en/missing-count",
+      "equal": true,
+      "expected": "Ready｜Plundered 8/0",
+      "actual": "Ready｜Plundered 8/0",
+      "state": "ready"
+    },
+    {
+      "category": "truck-selection-label",
+      "case": "en/missing-count",
+      "equal": true,
+      "expected": "Select Owner, server 321",
+      "actual": "Select Owner, server 321",
+      "expectedDisabled": false,
+      "actualDisabled": false
+    },
+    {
+      "category": "truck-state",
+      "case": "en/invalid-count",
+      "equal": true,
+      "expected": "ready",
+      "actual": "ready"
+    },
+    {
+      "category": "truck-eligibility",
+      "case": "en/invalid-count",
+      "equal": true,
+      "expected": false,
+      "actual": false
+    },
+    {
+      "category": "truck-status-label",
+      "case": "en/invalid-count",
+      "equal": true,
+      "expected": "Ready｜Plundered 8/0",
+      "actual": "Ready｜Plundered 8/0",
+      "state": "ready"
+    },
+    {
+      "category": "truck-selection-label",
+      "case": "en/invalid-count",
+      "equal": true,
+      "expected": "Select Owner, server 321",
+      "actual": "Select Owner, server 321",
+      "expectedDisabled": false,
+      "actualDisabled": false
+    },
+    {
+      "category": "truck-state",
+      "case": "en/missing-uuid",
+      "equal": true,
+      "expected": "invalid",
+      "actual": "invalid"
+    },
+    {
+      "category": "truck-eligibility",
+      "case": "en/missing-uuid",
+      "equal": true,
+      "expected": true,
+      "actual": true
+    },
+    {
+      "category": "truck-status-label",
+      "case": "en/missing-uuid",
+      "equal": true,
+      "expected": "Ready｜Plundered 1/3",
+      "actual": "Ready｜Plundered 1/3",
+      "state": "invalid"
+    },
+    {
+      "category": "truck-selection-label",
+      "case": "en/missing-uuid",
+      "equal": false,
+      "expected": "Select , server 321",
+      "actual": "Select -, server 321",
+      "expectedDisabled": true,
+      "actualDisabled": true
+    },
+    {
+      "category": "truck-state",
+      "case": "en/server-zero",
+      "equal": true,
+      "expected": "invalid",
+      "actual": "invalid"
+    },
+    {
+      "category": "truck-eligibility",
+      "case": "en/server-zero",
+      "equal": true,
+      "expected": true,
+      "actual": true
+    },
+    {
+      "category": "truck-status-label",
+      "case": "en/server-zero",
+      "equal": true,
+      "expected": "Ready｜Plundered 1/3",
+      "actual": "Ready｜Plundered 1/3",
+      "state": "invalid"
+    },
+    {
+      "category": "truck-selection-label",
+      "case": "en/server-zero",
+      "equal": false,
+      "expected": "Select Owner, server 0",
+      "actual": "Select Owner, server -",
+      "expectedDisabled": true,
+      "actualDisabled": true
+    },
+    {
+      "category": "truck-state",
+      "case": "en/server-missing",
+      "equal": true,
+      "expected": "invalid",
+      "actual": "invalid"
+    },
+    {
+      "category": "truck-eligibility",
+      "case": "en/server-missing",
+      "equal": true,
+      "expected": true,
+      "actual": true
+    },
+    {
+      "category": "truck-status-label",
+      "case": "en/server-missing",
+      "equal": true,
+      "expected": "Ready｜Plundered 1/3",
+      "actual": "Ready｜Plundered 1/3",
+      "state": "invalid"
+    },
+    {
+      "category": "truck-selection-label",
+      "case": "en/server-missing",
+      "equal": false,
+      "expected": "Select Owner, server {server}",
+      "actual": "Select Owner, server -",
+      "expectedDisabled": true,
+      "actualDisabled": true
+    },
+    {
+      "category": "truck-state",
+      "case": "en/server-string",
+      "equal": true,
+      "expected": "invalid",
+      "actual": "invalid"
+    },
+    {
+      "category": "truck-eligibility",
+      "case": "en/server-string",
+      "equal": true,
+      "expected": true,
+      "actual": true
+    },
+    {
+      "category": "truck-status-label",
+      "case": "en/server-string",
+      "equal": true,
+      "expected": "Ready｜Plundered 1/3",
+      "actual": "Ready｜Plundered 1/3",
+      "state": "invalid"
+    },
+    {
+      "category": "truck-selection-label",
+      "case": "en/server-string",
+      "equal": true,
+      "expected": "Select Owner, server 321",
+      "actual": "Select Owner, server 321",
+      "expectedDisabled": true,
+      "actualDisabled": true
+    },
+    {
+      "category": "column-value",
+      "case": "en/truck/row0/Live Target",
+      "equal": true,
+      "expected": "12,34",
+      "actual": "12,34"
+    },
+    {
+      "category": "column-value",
+      "case": "en/truck/row0/Player / Alliance",
+      "equal": true,
+      "expected": "Owner",
+      "actual": "Owner"
+    },
+    {
+      "category": "column-value",
+      "case": "en/truck/row0/Quality",
+      "equal": true,
+      "expected": "UR",
+      "actual": "UR"
+    },
+    {
+      "category": "column-value",
+      "case": "en/truck/row0/Escort Power",
+      "equal": true,
+      "expected": "1,234,567",
+      "actual": "1,234,567"
+    },
+    {
+      "category": "column-value",
+      "case": "en/truck/row0/Plunder status",
+      "equal": true,
+      "expected": "Ready｜Plundered 1/3",
+      "actual": "Ready｜Plundered 1/3"
+    },
+    {
+      "category": "column-value",
+      "case": "en/truck/row0/Arrival Time",
+      "equal": true,
+      "expected": "1/4/2027, 2:14:20 AM",
+      "actual": "1/4/2027, 2:14:20 AM"
+    },
+    {
+      "category": "column-value",
+      "case": "en/truck/row0/Updated At",
+      "equal": true,
+      "expected": "1/4/2027, 2:13:18 AM",
+      "actual": "1/4/2027, 2:13:18 AM"
+    },
+    {
+      "category": "column-value",
+      "case": "en/truck/row1/Live Target",
+      "equal": true,
+      "expected": "12,34",
+      "actual": "12,34"
+    },
+    {
+      "category": "column-value",
+      "case": "en/truck/row1/Player / Alliance",
+      "equal": true,
+      "expected": "Fallback Alliance",
+      "actual": "Fallback Alliance"
+    },
+    {
+      "category": "column-value",
+      "case": "en/truck/row1/Quality",
+      "equal": true,
+      "expected": "Reindeer",
+      "actual": "Reindeer"
+    },
+    {
+      "category": "column-value",
+      "case": "en/truck/row1/Escort Power",
+      "equal": true,
+      "expected": "-",
+      "actual": "-"
+    },
+    {
+      "category": "column-value",
+      "case": "en/truck/row1/Plunder status",
+      "equal": true,
+      "expected": "Ready｜Plundered 1/1",
+      "actual": "Ready｜Plundered 1/1"
+    },
+    {
+      "category": "column-value",
+      "case": "en/truck/row1/Arrival Time",
+      "equal": true,
+      "expected": "1/4/2027, 2:15:20 AM",
+      "actual": "1/4/2027, 2:15:20 AM"
+    },
+    {
+      "category": "column-value",
+      "case": "en/truck/row1/Updated At",
+      "equal": true,
+      "expected": "1/4/2027, 2:13:15 AM",
+      "actual": "1/4/2027, 2:13:15 AM"
+    },
+    {
+      "category": "column-value",
+      "case": "en/truck/row2/Live Target",
+      "equal": true,
+      "expected": "12,34",
+      "actual": "12,34"
+    },
+    {
+      "category": "column-value",
+      "case": "en/truck/row2/Player / Alliance",
+      "equal": true,
+      "expected": "-",
+      "actual": "-"
+    },
+    {
+      "category": "column-value",
+      "case": "en/truck/row2/Quality",
+      "equal": true,
+      "expected": "-",
+      "actual": "-"
+    },
+    {
+      "category": "column-value",
+      "case": "en/truck/row2/Escort Power",
+      "equal": true,
+      "expected": "0",
+      "actual": "0"
+    },
+    {
+      "category": "column-value",
+      "case": "en/truck/row2/Plunder status",
+      "equal": true,
+      "expected": "Ready｜Plundered 1/3",
+      "actual": "Ready｜Plundered 1/3"
+    },
+    {
+      "category": "column-value",
+      "case": "en/truck/row2/Arrival Time",
+      "equal": true,
+      "expected": "-",
+      "actual": "-"
+    },
+    {
+      "category": "column-value",
+      "case": "en/truck/row2/Updated At",
+      "equal": true,
+      "expected": "-",
+      "actual": "-"
+    },
+    {
+      "category": "column-value",
+      "case": "en/railway/row0/Live Target",
+      "equal": true,
+      "expected": "21,43",
+      "actual": "21,43"
+    },
+    {
+      "category": "column-value",
+      "case": "en/railway/row0/Alliance",
+      "equal": true,
+      "expected": "Alliance Name",
+      "actual": "Alliance Name"
+    },
+    {
+      "category": "column-value",
+      "case": "en/railway/row0/Quality",
+      "equal": true,
+      "expected": "UR",
+      "actual": "UR"
+    },
+    {
+      "category": "column-value",
+      "case": "en/railway/row0/Power",
+      "equal": true,
+      "expected": "9,876,543",
+      "actual": "9,876,543"
+    },
+    {
+      "category": "column-value",
+      "case": "en/railway/row0/Protection Time",
+      "equal": true,
+      "expected": "1/4/2027, 2:14:20 AM",
+      "actual": "1/4/2027, 2:14:20 AM"
+    },
+    {
+      "category": "column-value",
+      "case": "en/railway/row0/Updated At",
+      "equal": true,
+      "expected": "1/4/2027, 2:13:17 AM",
+      "actual": "1/4/2027, 2:13:17 AM"
+    },
+    {
+      "category": "column-value",
+      "case": "en/railway/row1/Live Target",
+      "equal": true,
+      "expected": "22,44",
+      "actual": "22,44"
+    },
+    {
+      "category": "column-value",
+      "case": "en/railway/row1/Alliance",
+      "equal": true,
+      "expected": "ABR",
+      "actual": "ABR"
+    },
+    {
+      "category": "column-value",
+      "case": "en/railway/row1/Quality",
+      "equal": true,
+      "expected": "SSR",
+      "actual": "SSR"
+    },
+    {
+      "category": "column-value",
+      "case": "en/railway/row1/Power",
+      "equal": true,
+      "expected": "-",
+      "actual": "-"
+    },
+    {
+      "category": "column-value",
+      "case": "en/railway/row1/Protection Time",
+      "equal": true,
+      "expected": "1/4/2027, 2:15:20 AM",
+      "actual": "1/4/2027, 2:15:20 AM"
+    },
+    {
+      "category": "column-value",
+      "case": "en/railway/row1/Updated At",
+      "equal": true,
+      "expected": "1/4/2027, 2:13:13 AM",
+      "actual": "1/4/2027, 2:13:13 AM"
+    },
+    {
+      "category": "column-value",
+      "case": "en/railway/row2/Live Target",
+      "equal": true,
+      "expected": "23,45",
+      "actual": "23,45"
+    },
+    {
+      "category": "column-value",
+      "case": "en/railway/row2/Alliance",
+      "equal": true,
+      "expected": "-",
+      "actual": "-"
+    },
+    {
+      "category": "column-value",
+      "case": "en/railway/row2/Quality",
+      "equal": true,
+      "expected": "-",
+      "actual": "-"
+    },
+    {
+      "category": "column-value",
+      "case": "en/railway/row2/Power",
+      "equal": true,
+      "expected": "0",
+      "actual": "0"
+    },
+    {
+      "category": "column-value",
+      "case": "en/railway/row2/Protection Time",
+      "equal": true,
+      "expected": "-",
+      "actual": "-"
+    },
+    {
+      "category": "column-value",
+      "case": "en/railway/row2/Updated At",
+      "equal": true,
+      "expected": "-",
+      "actual": "-"
+    },
+    {
+      "category": "live-target",
+      "case": "en/truck/missing-march",
+      "equal": false,
+      "expected": {
+        "text": "-",
+        "button": false,
+        "disabled": null
+      },
+      "actual": {
+        "text": "12,34",
+        "button": true,
+        "disabled": true
+      }
+    },
+    {
+      "category": "live-target",
+      "case": "en/truck/with-march",
+      "equal": false,
+      "expected": {
+        "text": "Follow",
+        "button": true,
+        "disabled": true
+      },
+      "actual": {
+        "text": "12,34",
+        "button": true,
+        "disabled": true
+      }
+    },
+    {
+      "category": "live-target",
+      "case": "en/railway/missing-march",
+      "equal": false,
+      "expected": {
+        "text": "-",
+        "button": false,
+        "disabled": null
+      },
+      "actual": {
+        "text": "21,43",
+        "button": true,
+        "disabled": true
+      }
+    },
+    {
+      "category": "live-target",
+      "case": "en/railway/with-march",
+      "equal": false,
+      "expected": {
+        "text": "Follow",
+        "button": true,
+        "disabled": true
+      },
+      "actual": {
+        "text": "21,43",
+        "button": true,
+        "disabled": true
+      }
+    },
+    {
+      "category": "retained-goods",
+      "case": "en/truck/item=none",
+      "equal": true,
+      "expected": [
+        {
+          "title": "Beta ×999",
+          "ariaLabel": "Beta ×999",
+          "count": "×999"
+        },
+        {
+          "title": "Supplied Name ×1,000",
+          "ariaLabel": "Supplied Name ×1,000",
+          "count": "×1.0K"
+        },
+        {
+          "title": "item-c ×1,000,000",
+          "ariaLabel": "item-c ×1,000,000",
+          "count": "×1.0M"
+        }
+      ],
+      "actual": [
+        {
+          "title": "Beta ×999",
+          "ariaLabel": "Beta ×999",
+          "count": "×999"
+        },
+        {
+          "title": "Supplied Name ×1,000",
+          "ariaLabel": "Supplied Name ×1,000",
+          "count": "×1.0K"
+        },
+        {
+          "title": "item-c ×1,000,000",
+          "ariaLabel": "item-c ×1,000,000",
+          "count": "×1.0M"
+        }
+      ]
+    },
+    {
+      "category": "retained-goods",
+      "case": "en/truck/item=item-a",
+      "equal": true,
+      "expected": [
+        {
+          "title": "Supplied Name ×1,000",
+          "ariaLabel": "Supplied Name ×1,000",
+          "count": "×1.0K"
+        },
+        {
+          "title": "Beta ×999",
+          "ariaLabel": "Beta ×999",
+          "count": "×999"
+        },
+        {
+          "title": "item-c ×1,000,000",
+          "ariaLabel": "item-c ×1,000,000",
+          "count": "×1.0M"
+        }
+      ],
+      "actual": [
+        {
+          "title": "Supplied Name ×1,000",
+          "ariaLabel": "Supplied Name ×1,000",
+          "count": "×1.0K"
+        },
+        {
+          "title": "Beta ×999",
+          "ariaLabel": "Beta ×999",
+          "count": "×999"
+        },
+        {
+          "title": "item-c ×1,000,000",
+          "ariaLabel": "item-c ×1,000,000",
+          "count": "×1.0M"
+        }
+      ]
+    },
+    {
+      "category": "retained-goods-empty",
+      "case": "en/truck",
+      "equal": true,
+      "expected": "-",
+      "actual": "-"
+    },
+    {
+      "category": "retained-goods",
+      "case": "en/railway/item=none",
+      "equal": true,
+      "expected": [
+        {
+          "title": "Beta ×999",
+          "ariaLabel": "Beta ×999",
+          "count": "×999"
+        },
+        {
+          "title": "Supplied Name ×1,000",
+          "ariaLabel": "Supplied Name ×1,000",
+          "count": "×1.0K"
+        },
+        {
+          "title": "item-c ×1,000,000",
+          "ariaLabel": "item-c ×1,000,000",
+          "count": "×1.0M"
+        }
+      ],
+      "actual": [
+        {
+          "title": "Beta ×999",
+          "ariaLabel": "Beta ×999",
+          "count": "×999"
+        },
+        {
+          "title": "Supplied Name ×1,000",
+          "ariaLabel": "Supplied Name ×1,000",
+          "count": "×1.0K"
+        },
+        {
+          "title": "item-c ×1,000,000",
+          "ariaLabel": "item-c ×1,000,000",
+          "count": "×1.0M"
+        }
+      ]
+    },
+    {
+      "category": "retained-goods",
+      "case": "en/railway/item=item-a",
+      "equal": true,
+      "expected": [
+        {
+          "title": "Supplied Name ×1,000",
+          "ariaLabel": "Supplied Name ×1,000",
+          "count": "×1.0K"
+        },
+        {
+          "title": "Beta ×999",
+          "ariaLabel": "Beta ×999",
+          "count": "×999"
+        },
+        {
+          "title": "item-c ×1,000,000",
+          "ariaLabel": "item-c ×1,000,000",
+          "count": "×1.0M"
+        }
+      ],
+      "actual": [
+        {
+          "title": "Supplied Name ×1,000",
+          "ariaLabel": "Supplied Name ×1,000",
+          "count": "×1.0K"
+        },
+        {
+          "title": "Beta ×999",
+          "ariaLabel": "Beta ×999",
+          "count": "×999"
+        },
+        {
+          "title": "item-c ×1,000,000",
+          "ariaLabel": "item-c ×1,000,000",
+          "count": "×1.0M"
+        }
+      ]
+    },
+    {
+      "category": "retained-goods-empty",
+      "case": "en/railway",
+      "equal": true,
+      "expected": "-",
+      "actual": "-"
+    },
+    {
+      "category": "compact-count",
+      "case": "en/undefined",
+      "equal": true,
+      "expected": "-",
+      "actual": "-"
+    },
+    {
+      "category": "compact-count",
+      "case": "en/null",
+      "equal": true,
+      "expected": "0",
+      "actual": "0"
+    },
+    {
+      "category": "compact-count",
+      "case": "en/0",
+      "equal": true,
+      "expected": "0",
+      "actual": "0"
+    },
+    {
+      "category": "compact-count",
+      "case": "en/-1",
+      "equal": true,
+      "expected": "-1",
+      "actual": "-1"
+    },
+    {
+      "category": "compact-count",
+      "case": "en/999",
+      "equal": true,
+      "expected": "999",
+      "actual": "999"
+    },
+    {
+      "category": "compact-count",
+      "case": "en/1000",
+      "equal": true,
+      "expected": "1.0K",
+      "actual": "1.0K"
+    },
+    {
+      "category": "compact-count",
+      "case": "en/1250",
+      "equal": true,
+      "expected": "1.3K",
+      "actual": "1.3K"
+    },
+    {
+      "category": "compact-count",
+      "case": "en/999999",
+      "equal": true,
+      "expected": "1000.0K",
+      "actual": "1000.0K"
+    },
+    {
+      "category": "compact-count",
+      "case": "en/1000000",
+      "equal": true,
+      "expected": "1.0M",
+      "actual": "1.0M"
+    },
+    {
+      "category": "compact-count",
+      "case": "en/1000000000",
+      "equal": true,
+      "expected": "1.0G",
+      "actual": "1.0G"
+    },
+    {
+      "category": "compact-count",
+      "case": "en/-1234",
+      "equal": true,
+      "expected": "-1.2K",
+      "actual": "-1.2K"
+    },
+    {
+      "category": "compact-count",
+      "case": "en/bad",
+      "equal": true,
+      "expected": "-",
+      "actual": "-"
+    },
+    {
+      "category": "metadata",
+      "case": "ja/truck/item=none",
+      "equal": true,
+      "expected": [
+        {
+          "label": "選択",
+          "width": "56px",
+          "className": "map-task-select",
+          "select": true
+        },
+        {
+          "label": "リアルタイム対象",
+          "width": "190px",
+          "className": "map-column-coordinate",
+          "coordinate": true
+        },
+        {
+          "label": "プレイヤー / 連盟",
+          "width": "minmax(170px, 1fr)"
+        },
+        {
+          "label": "品質",
+          "width": "70px",
+          "sortBy": "quality"
+        },
+        {
+          "label": "護衛戦力",
+          "width": "120px",
+          "sortBy": "power"
+        },
+        {
+          "label": "アイテム",
+          "width": "minmax(360px, 2fr)",
+          "rewards": "currentGoods"
+        },
+        {
+          "label": "略奪状態",
+          "width": "190px",
+          "sortBy": "remainingLootCount"
+        },
+        {
+          "label": "到着時間",
+          "width": "150px",
+          "sortBy": "arriveTime"
+        },
+        {
+          "label": "更新日時",
+          "width": "150px",
+          "sortBy": "updatedAt"
+        }
+      ],
+      "actual": [
+        {
+          "label": "選択",
+          "width": "56px",
+          "className": "map-task-select",
+          "select": true
+        },
+        {
+          "label": "リアルタイム対象",
+          "width": "190px",
+          "className": "map-column-coordinate",
+          "coordinate": true
+        },
+        {
+          "label": "プレイヤー / 連盟",
+          "width": "minmax(170px, 1fr)"
+        },
+        {
+          "label": "品質",
+          "width": "70px",
+          "sortBy": "quality"
+        },
+        {
+          "label": "護衛戦力",
+          "width": "120px",
+          "sortBy": "power"
+        },
+        {
+          "label": "アイテム",
+          "width": "minmax(360px, 2fr)",
+          "rewards": "currentGoods"
+        },
+        {
+          "label": "略奪状態",
+          "width": "190px",
+          "sortBy": "remainingLootCount"
+        },
+        {
+          "label": "到着時間",
+          "width": "150px",
+          "sortBy": "arriveTime"
+        },
+        {
+          "label": "更新日時",
+          "width": "150px",
+          "sortBy": "updatedAt"
+        }
+      ]
+    },
+    {
+      "category": "item-sort-metadata",
+      "case": "ja/truck/item=none",
+      "equal": true,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "category": "metadata",
+      "case": "ja/truck/item=item-a",
+      "equal": true,
+      "expected": [
+        {
+          "label": "選択",
+          "width": "56px",
+          "className": "map-task-select",
+          "select": true
+        },
+        {
+          "label": "リアルタイム対象",
+          "width": "190px",
+          "className": "map-column-coordinate",
+          "coordinate": true
+        },
+        {
+          "label": "プレイヤー / 連盟",
+          "width": "minmax(170px, 1fr)"
+        },
+        {
+          "label": "品質",
+          "width": "70px",
+          "sortBy": "quality"
+        },
+        {
+          "label": "護衛戦力",
+          "width": "120px",
+          "sortBy": "power"
+        },
+        {
+          "label": "アイテム",
+          "width": "minmax(360px, 2fr)",
+          "sortBy": "itemCount",
+          "rewards": "currentGoods"
+        },
+        {
+          "label": "略奪状態",
+          "width": "190px",
+          "sortBy": "remainingLootCount"
+        },
+        {
+          "label": "到着時間",
+          "width": "150px",
+          "sortBy": "arriveTime"
+        },
+        {
+          "label": "更新日時",
+          "width": "150px",
+          "sortBy": "updatedAt"
+        }
+      ],
+      "actual": [
+        {
+          "label": "選択",
+          "width": "56px",
+          "className": "map-task-select",
+          "select": true
+        },
+        {
+          "label": "リアルタイム対象",
+          "width": "190px",
+          "className": "map-column-coordinate",
+          "coordinate": true
+        },
+        {
+          "label": "プレイヤー / 連盟",
+          "width": "minmax(170px, 1fr)"
+        },
+        {
+          "label": "品質",
+          "width": "70px",
+          "sortBy": "quality"
+        },
+        {
+          "label": "護衛戦力",
+          "width": "120px",
+          "sortBy": "power"
+        },
+        {
+          "label": "アイテム",
+          "width": "minmax(360px, 2fr)",
+          "sortBy": "itemCount",
+          "rewards": "currentGoods"
+        },
+        {
+          "label": "略奪状態",
+          "width": "190px",
+          "sortBy": "remainingLootCount"
+        },
+        {
+          "label": "到着時間",
+          "width": "150px",
+          "sortBy": "arriveTime"
+        },
+        {
+          "label": "更新日時",
+          "width": "150px",
+          "sortBy": "updatedAt"
+        }
+      ]
+    },
+    {
+      "category": "item-sort-metadata",
+      "case": "ja/truck/item=item-a",
+      "equal": true,
+      "expected": "itemCount",
+      "actual": "itemCount"
+    },
+    {
+      "category": "metadata",
+      "case": "ja/railway/item=none",
+      "equal": true,
+      "expected": [
+        {
+          "label": "リアルタイム対象",
+          "width": "190px",
+          "className": "map-column-coordinate",
+          "coordinate": true
+        },
+        {
+          "label": "連盟",
+          "width": "minmax(160px, 1fr)"
+        },
+        {
+          "label": "品質",
+          "width": "70px",
+          "sortBy": "quality"
+        },
+        {
+          "label": "戦力",
+          "width": "120px",
+          "sortBy": "power"
+        },
+        {
+          "label": "アイテム",
+          "width": "minmax(360px, 2fr)",
+          "rewards": "currentGoods"
+        },
+        {
+          "label": "保護時間",
+          "width": "150px",
+          "sortBy": "protectTime"
+        },
+        {
+          "label": "更新日時",
+          "width": "150px",
+          "sortBy": "updatedAt"
+        }
+      ],
+      "actual": [
+        {
+          "label": "リアルタイム対象",
+          "width": "190px",
+          "className": "map-column-coordinate",
+          "coordinate": true
+        },
+        {
+          "label": "連盟",
+          "width": "minmax(160px, 1fr)"
+        },
+        {
+          "label": "品質",
+          "width": "70px",
+          "sortBy": "quality"
+        },
+        {
+          "label": "戦力",
+          "width": "120px",
+          "sortBy": "power"
+        },
+        {
+          "label": "アイテム",
+          "width": "minmax(360px, 2fr)",
+          "rewards": "currentGoods"
+        },
+        {
+          "label": "保護時間",
+          "width": "150px",
+          "sortBy": "protectTime"
+        },
+        {
+          "label": "更新日時",
+          "width": "150px",
+          "sortBy": "updatedAt"
+        }
+      ]
+    },
+    {
+      "category": "item-sort-metadata",
+      "case": "ja/railway/item=none",
+      "equal": true,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "category": "metadata",
+      "case": "ja/railway/item=item-a",
+      "equal": true,
+      "expected": [
+        {
+          "label": "リアルタイム対象",
+          "width": "190px",
+          "className": "map-column-coordinate",
+          "coordinate": true
+        },
+        {
+          "label": "連盟",
+          "width": "minmax(160px, 1fr)"
+        },
+        {
+          "label": "品質",
+          "width": "70px",
+          "sortBy": "quality"
+        },
+        {
+          "label": "戦力",
+          "width": "120px",
+          "sortBy": "power"
+        },
+        {
+          "label": "アイテム",
+          "width": "minmax(360px, 2fr)",
+          "sortBy": "itemCount",
+          "rewards": "currentGoods"
+        },
+        {
+          "label": "保護時間",
+          "width": "150px",
+          "sortBy": "protectTime"
+        },
+        {
+          "label": "更新日時",
+          "width": "150px",
+          "sortBy": "updatedAt"
+        }
+      ],
+      "actual": [
+        {
+          "label": "リアルタイム対象",
+          "width": "190px",
+          "className": "map-column-coordinate",
+          "coordinate": true
+        },
+        {
+          "label": "連盟",
+          "width": "minmax(160px, 1fr)"
+        },
+        {
+          "label": "品質",
+          "width": "70px",
+          "sortBy": "quality"
+        },
+        {
+          "label": "戦力",
+          "width": "120px",
+          "sortBy": "power"
+        },
+        {
+          "label": "アイテム",
+          "width": "minmax(360px, 2fr)",
+          "sortBy": "itemCount",
+          "rewards": "currentGoods"
+        },
+        {
+          "label": "保護時間",
+          "width": "150px",
+          "sortBy": "protectTime"
+        },
+        {
+          "label": "更新日時",
+          "width": "150px",
+          "sortBy": "updatedAt"
+        }
+      ]
+    },
+    {
+      "category": "item-sort-metadata",
+      "case": "ja/railway/item=item-a",
+      "equal": true,
+      "expected": "itemCount",
+      "actual": "itemCount"
+    },
+    {
+      "category": "truck-state",
+      "case": "ja/ready",
+      "equal": true,
+      "expected": "ready",
+      "actual": "ready"
+    },
+    {
+      "category": "truck-eligibility",
+      "case": "ja/ready",
+      "equal": true,
+      "expected": false,
+      "actual": false
+    },
+    {
+      "category": "truck-status-label",
+      "case": "ja/ready",
+      "equal": true,
+      "expected": "略奪可能｜略奪 1/3",
+      "actual": "略奪可能｜略奪 1/3",
+      "state": "ready"
+    },
+    {
+      "category": "truck-selection-label",
+      "case": "ja/ready",
+      "equal": true,
+      "expected": "サーバー 321 の Owner を選択",
+      "actual": "サーバー 321 の Owner を選択",
+      "expectedDisabled": false,
+      "actualDisabled": false
+    },
+    {
+      "category": "truck-state",
+      "case": "ja/arrival-boundary-minus-one",
+      "equal": true,
+      "expected": "ready",
+      "actual": "ready"
+    },
+    {
+      "category": "truck-eligibility",
+      "case": "ja/arrival-boundary-minus-one",
+      "equal": true,
+      "expected": false,
+      "actual": false
+    },
+    {
+      "category": "truck-status-label",
+      "case": "ja/arrival-boundary-minus-one",
+      "equal": true,
+      "expected": "略奪可能｜略奪 1/3",
+      "actual": "略奪可能｜略奪 1/3",
+      "state": "ready"
+    },
+    {
+      "category": "truck-selection-label",
+      "case": "ja/arrival-boundary-minus-one",
+      "equal": true,
+      "expected": "サーバー 321 の Owner を選択",
+      "actual": "サーバー 321 の Owner を選択",
+      "expectedDisabled": false,
+      "actualDisabled": false
+    },
+    {
+      "category": "truck-state",
+      "case": "ja/arrival-boundary",
+      "equal": true,
+      "expected": "expired",
+      "actual": "expired"
+    },
+    {
+      "category": "truck-eligibility",
+      "case": "ja/arrival-boundary",
+      "equal": true,
+      "expected": true,
+      "actual": true
+    },
+    {
+      "category": "truck-status-label",
+      "case": "ja/arrival-boundary",
+      "equal": true,
+      "expected": "略奪可能｜略奪 1/3",
+      "actual": "略奪可能｜略奪 1/3",
+      "state": "expired"
+    },
+    {
+      "category": "truck-selection-label",
+      "case": "ja/arrival-boundary",
+      "equal": true,
+      "expected": "サーバー 321 の Owner を選択",
+      "actual": "サーバー 321 の Owner を選択",
+      "expectedDisabled": true,
+      "actualDisabled": true
+    },
+    {
+      "category": "truck-state",
+      "case": "ja/protection-boundary",
+      "equal": true,
+      "expected": "ready",
+      "actual": "ready"
+    },
+    {
+      "category": "truck-eligibility",
+      "case": "ja/protection-boundary",
+      "equal": true,
+      "expected": false,
+      "actual": false
+    },
+    {
+      "category": "truck-status-label",
+      "case": "ja/protection-boundary",
+      "equal": true,
+      "expected": "略奪可能｜略奪 1/3",
+      "actual": "略奪可能｜略奪 1/3",
+      "state": "ready"
+    },
+    {
+      "category": "truck-selection-label",
+      "case": "ja/protection-boundary",
+      "equal": true,
+      "expected": "サーバー 321 の Owner を選択",
+      "actual": "サーバー 321 の Owner を選択",
+      "expectedDisabled": false,
+      "actualDisabled": false
+    },
+    {
+      "category": "truck-state",
+      "case": "ja/protected-one-second",
+      "equal": true,
+      "expected": "protected",
+      "actual": "protected"
+    },
+    {
+      "category": "truck-eligibility",
+      "case": "ja/protected-one-second",
+      "equal": true,
+      "expected": false,
+      "actual": false
+    },
+    {
+      "category": "truck-status-label",
+      "case": "ja/protected-one-second",
+      "equal": true,
+      "expected": "保護中 00:00:01｜略奪 1/3",
+      "actual": "保護中 00:00:01｜略奪 1/3",
+      "state": "protected"
+    },
+    {
+      "category": "truck-selection-label",
+      "case": "ja/protected-one-second",
+      "equal": true,
+      "expected": "サーバー 321 の Owner を選択",
+      "actual": "サーバー 321 の Owner を選択",
+      "expectedDisabled": false,
+      "actualDisabled": false
+    },
+    {
+      "category": "truck-state",
+      "case": "ja/full-over-protected",
+      "equal": true,
+      "expected": "full",
+      "actual": "full"
+    },
+    {
+      "category": "truck-eligibility",
+      "case": "ja/full-over-protected",
+      "equal": true,
+      "expected": true,
+      "actual": true
+    },
+    {
+      "category": "truck-status-label",
+      "case": "ja/full-over-protected",
+      "equal": true,
+      "expected": "略奪済み 2/2",
+      "actual": "略奪済み 2/2",
+      "state": "full"
+    },
+    {
+      "category": "truck-selection-label",
+      "case": "ja/full-over-protected",
+      "equal": true,
+      "expected": "サーバー 321 の Owner を選択",
+      "actual": "サーバー 321 の Owner を選択",
+      "expectedDisabled": true,
+      "actualDisabled": true
+    },
+    {
+      "category": "truck-state",
+      "case": "ja/reindeer-cap",
+      "equal": true,
+      "expected": "full",
+      "actual": "full"
+    },
+    {
+      "category": "truck-eligibility",
+      "case": "ja/reindeer-cap",
+      "equal": true,
+      "expected": true,
+      "actual": true
+    },
+    {
+      "category": "truck-status-label",
+      "case": "ja/reindeer-cap",
+      "equal": true,
+      "expected": "略奪済み 1/1",
+      "actual": "略奪済み 1/1",
+      "state": "full"
+    },
+    {
+      "category": "truck-selection-label",
+      "case": "ja/reindeer-cap",
+      "equal": true,
+      "expected": "サーバー 321 の Owner を選択",
+      "actual": "サーバー 321 の Owner を選択",
+      "expectedDisabled": true,
+      "actualDisabled": true
+    },
+    {
+      "category": "truck-state",
+      "case": "ja/missing-count",
+      "equal": true,
+      "expected": "ready",
+      "actual": "ready"
+    },
+    {
+      "category": "truck-eligibility",
+      "case": "ja/missing-count",
+      "equal": true,
+      "expected": false,
+      "actual": false
+    },
+    {
+      "category": "truck-status-label",
+      "case": "ja/missing-count",
+      "equal": true,
+      "expected": "略奪可能｜略奪 8/0",
+      "actual": "略奪可能｜略奪 8/0",
+      "state": "ready"
+    },
+    {
+      "category": "truck-selection-label",
+      "case": "ja/missing-count",
+      "equal": true,
+      "expected": "サーバー 321 の Owner を選択",
+      "actual": "サーバー 321 の Owner を選択",
+      "expectedDisabled": false,
+      "actualDisabled": false
+    },
+    {
+      "category": "truck-state",
+      "case": "ja/invalid-count",
+      "equal": true,
+      "expected": "ready",
+      "actual": "ready"
+    },
+    {
+      "category": "truck-eligibility",
+      "case": "ja/invalid-count",
+      "equal": true,
+      "expected": false,
+      "actual": false
+    },
+    {
+      "category": "truck-status-label",
+      "case": "ja/invalid-count",
+      "equal": true,
+      "expected": "略奪可能｜略奪 8/0",
+      "actual": "略奪可能｜略奪 8/0",
+      "state": "ready"
+    },
+    {
+      "category": "truck-selection-label",
+      "case": "ja/invalid-count",
+      "equal": true,
+      "expected": "サーバー 321 の Owner を選択",
+      "actual": "サーバー 321 の Owner を選択",
+      "expectedDisabled": false,
+      "actualDisabled": false
+    },
+    {
+      "category": "truck-state",
+      "case": "ja/missing-uuid",
+      "equal": true,
+      "expected": "invalid",
+      "actual": "invalid"
+    },
+    {
+      "category": "truck-eligibility",
+      "case": "ja/missing-uuid",
+      "equal": true,
+      "expected": true,
+      "actual": true
+    },
+    {
+      "category": "truck-status-label",
+      "case": "ja/missing-uuid",
+      "equal": true,
+      "expected": "略奪可能｜略奪 1/3",
+      "actual": "略奪可能｜略奪 1/3",
+      "state": "invalid"
+    },
+    {
+      "category": "truck-selection-label",
+      "case": "ja/missing-uuid",
+      "equal": false,
+      "expected": "サーバー 321 の  を選択",
+      "actual": "サーバー 321 の - を選択",
+      "expectedDisabled": true,
+      "actualDisabled": true
+    },
+    {
+      "category": "truck-state",
+      "case": "ja/server-zero",
+      "equal": true,
+      "expected": "invalid",
+      "actual": "invalid"
+    },
+    {
+      "category": "truck-eligibility",
+      "case": "ja/server-zero",
+      "equal": true,
+      "expected": true,
+      "actual": true
+    },
+    {
+      "category": "truck-status-label",
+      "case": "ja/server-zero",
+      "equal": true,
+      "expected": "略奪可能｜略奪 1/3",
+      "actual": "略奪可能｜略奪 1/3",
+      "state": "invalid"
+    },
+    {
+      "category": "truck-selection-label",
+      "case": "ja/server-zero",
+      "equal": false,
+      "expected": "サーバー 0 の Owner を選択",
+      "actual": "サーバー - の Owner を選択",
+      "expectedDisabled": true,
+      "actualDisabled": true
+    },
+    {
+      "category": "truck-state",
+      "case": "ja/server-missing",
+      "equal": true,
+      "expected": "invalid",
+      "actual": "invalid"
+    },
+    {
+      "category": "truck-eligibility",
+      "case": "ja/server-missing",
+      "equal": true,
+      "expected": true,
+      "actual": true
+    },
+    {
+      "category": "truck-status-label",
+      "case": "ja/server-missing",
+      "equal": true,
+      "expected": "略奪可能｜略奪 1/3",
+      "actual": "略奪可能｜略奪 1/3",
+      "state": "invalid"
+    },
+    {
+      "category": "truck-selection-label",
+      "case": "ja/server-missing",
+      "equal": false,
+      "expected": "サーバー {server} の Owner を選択",
+      "actual": "サーバー - の Owner を選択",
+      "expectedDisabled": true,
+      "actualDisabled": true
+    },
+    {
+      "category": "truck-state",
+      "case": "ja/server-string",
+      "equal": true,
+      "expected": "invalid",
+      "actual": "invalid"
+    },
+    {
+      "category": "truck-eligibility",
+      "case": "ja/server-string",
+      "equal": true,
+      "expected": true,
+      "actual": true
+    },
+    {
+      "category": "truck-status-label",
+      "case": "ja/server-string",
+      "equal": true,
+      "expected": "略奪可能｜略奪 1/3",
+      "actual": "略奪可能｜略奪 1/3",
+      "state": "invalid"
+    },
+    {
+      "category": "truck-selection-label",
+      "case": "ja/server-string",
+      "equal": true,
+      "expected": "サーバー 321 の Owner を選択",
+      "actual": "サーバー 321 の Owner を選択",
+      "expectedDisabled": true,
+      "actualDisabled": true
+    },
+    {
+      "category": "column-value",
+      "case": "ja/truck/row0/リアルタイム対象",
+      "equal": true,
+      "expected": "12,34",
+      "actual": "12,34"
+    },
+    {
+      "category": "column-value",
+      "case": "ja/truck/row0/プレイヤー / 連盟",
+      "equal": true,
+      "expected": "Owner",
+      "actual": "Owner"
+    },
+    {
+      "category": "column-value",
+      "case": "ja/truck/row0/品質",
+      "equal": true,
+      "expected": "UR",
+      "actual": "UR"
+    },
+    {
+      "category": "column-value",
+      "case": "ja/truck/row0/護衛戦力",
+      "equal": true,
+      "expected": "1,234,567",
+      "actual": "1,234,567"
+    },
+    {
+      "category": "column-value",
+      "case": "ja/truck/row0/略奪状態",
+      "equal": true,
+      "expected": "略奪可能｜略奪 1/3",
+      "actual": "略奪可能｜略奪 1/3"
+    },
+    {
+      "category": "column-value",
+      "case": "ja/truck/row0/到着時間",
+      "equal": true,
+      "expected": "2027/1/4 2:14:20",
+      "actual": "2027/1/4 2:14:20"
+    },
+    {
+      "category": "column-value",
+      "case": "ja/truck/row0/更新日時",
+      "equal": true,
+      "expected": "2027/1/4 2:13:18",
+      "actual": "2027/1/4 2:13:18"
+    },
+    {
+      "category": "column-value",
+      "case": "ja/truck/row1/リアルタイム対象",
+      "equal": true,
+      "expected": "12,34",
+      "actual": "12,34"
+    },
+    {
+      "category": "column-value",
+      "case": "ja/truck/row1/プレイヤー / 連盟",
+      "equal": true,
+      "expected": "Fallback Alliance",
+      "actual": "Fallback Alliance"
+    },
+    {
+      "category": "column-value",
+      "case": "ja/truck/row1/品質",
+      "equal": true,
+      "expected": "トナカイ",
+      "actual": "トナカイ"
+    },
+    {
+      "category": "column-value",
+      "case": "ja/truck/row1/護衛戦力",
+      "equal": true,
+      "expected": "-",
+      "actual": "-"
+    },
+    {
+      "category": "column-value",
+      "case": "ja/truck/row1/略奪状態",
+      "equal": true,
+      "expected": "略奪可能｜略奪 1/1",
+      "actual": "略奪可能｜略奪 1/1"
+    },
+    {
+      "category": "column-value",
+      "case": "ja/truck/row1/到着時間",
+      "equal": true,
+      "expected": "2027/1/4 2:15:20",
+      "actual": "2027/1/4 2:15:20"
+    },
+    {
+      "category": "column-value",
+      "case": "ja/truck/row1/更新日時",
+      "equal": true,
+      "expected": "2027/1/4 2:13:15",
+      "actual": "2027/1/4 2:13:15"
+    },
+    {
+      "category": "column-value",
+      "case": "ja/truck/row2/リアルタイム対象",
+      "equal": true,
+      "expected": "12,34",
+      "actual": "12,34"
+    },
+    {
+      "category": "column-value",
+      "case": "ja/truck/row2/プレイヤー / 連盟",
+      "equal": true,
+      "expected": "-",
+      "actual": "-"
+    },
+    {
+      "category": "column-value",
+      "case": "ja/truck/row2/品質",
+      "equal": true,
+      "expected": "-",
+      "actual": "-"
+    },
+    {
+      "category": "column-value",
+      "case": "ja/truck/row2/護衛戦力",
+      "equal": true,
+      "expected": "0",
+      "actual": "0"
+    },
+    {
+      "category": "column-value",
+      "case": "ja/truck/row2/略奪状態",
+      "equal": true,
+      "expected": "略奪可能｜略奪 1/3",
+      "actual": "略奪可能｜略奪 1/3"
+    },
+    {
+      "category": "column-value",
+      "case": "ja/truck/row2/到着時間",
+      "equal": true,
+      "expected": "-",
+      "actual": "-"
+    },
+    {
+      "category": "column-value",
+      "case": "ja/truck/row2/更新日時",
+      "equal": true,
+      "expected": "-",
+      "actual": "-"
+    },
+    {
+      "category": "column-value",
+      "case": "ja/railway/row0/リアルタイム対象",
+      "equal": true,
+      "expected": "21,43",
+      "actual": "21,43"
+    },
+    {
+      "category": "column-value",
+      "case": "ja/railway/row0/連盟",
+      "equal": true,
+      "expected": "Alliance Name",
+      "actual": "Alliance Name"
+    },
+    {
+      "category": "column-value",
+      "case": "ja/railway/row0/品質",
+      "equal": true,
+      "expected": "UR",
+      "actual": "UR"
+    },
+    {
+      "category": "column-value",
+      "case": "ja/railway/row0/戦力",
+      "equal": true,
+      "expected": "9,876,543",
+      "actual": "9,876,543"
+    },
+    {
+      "category": "column-value",
+      "case": "ja/railway/row0/保護時間",
+      "equal": true,
+      "expected": "2027/1/4 2:14:20",
+      "actual": "2027/1/4 2:14:20"
+    },
+    {
+      "category": "column-value",
+      "case": "ja/railway/row0/更新日時",
+      "equal": true,
+      "expected": "2027/1/4 2:13:17",
+      "actual": "2027/1/4 2:13:17"
+    },
+    {
+      "category": "column-value",
+      "case": "ja/railway/row1/リアルタイム対象",
+      "equal": true,
+      "expected": "22,44",
+      "actual": "22,44"
+    },
+    {
+      "category": "column-value",
+      "case": "ja/railway/row1/連盟",
+      "equal": true,
+      "expected": "ABR",
+      "actual": "ABR"
+    },
+    {
+      "category": "column-value",
+      "case": "ja/railway/row1/品質",
+      "equal": true,
+      "expected": "SSR",
+      "actual": "SSR"
+    },
+    {
+      "category": "column-value",
+      "case": "ja/railway/row1/戦力",
+      "equal": true,
+      "expected": "-",
+      "actual": "-"
+    },
+    {
+      "category": "column-value",
+      "case": "ja/railway/row1/保護時間",
+      "equal": true,
+      "expected": "2027/1/4 2:15:20",
+      "actual": "2027/1/4 2:15:20"
+    },
+    {
+      "category": "column-value",
+      "case": "ja/railway/row1/更新日時",
+      "equal": true,
+      "expected": "2027/1/4 2:13:13",
+      "actual": "2027/1/4 2:13:13"
+    },
+    {
+      "category": "column-value",
+      "case": "ja/railway/row2/リアルタイム対象",
+      "equal": true,
+      "expected": "23,45",
+      "actual": "23,45"
+    },
+    {
+      "category": "column-value",
+      "case": "ja/railway/row2/連盟",
+      "equal": true,
+      "expected": "-",
+      "actual": "-"
+    },
+    {
+      "category": "column-value",
+      "case": "ja/railway/row2/品質",
+      "equal": true,
+      "expected": "-",
+      "actual": "-"
+    },
+    {
+      "category": "column-value",
+      "case": "ja/railway/row2/戦力",
+      "equal": true,
+      "expected": "0",
+      "actual": "0"
+    },
+    {
+      "category": "column-value",
+      "case": "ja/railway/row2/保護時間",
+      "equal": true,
+      "expected": "-",
+      "actual": "-"
+    },
+    {
+      "category": "column-value",
+      "case": "ja/railway/row2/更新日時",
+      "equal": true,
+      "expected": "-",
+      "actual": "-"
+    },
+    {
+      "category": "live-target",
+      "case": "ja/truck/missing-march",
+      "equal": false,
+      "expected": {
+        "text": "-",
+        "button": false,
+        "disabled": null
+      },
+      "actual": {
+        "text": "12,34",
+        "button": true,
+        "disabled": true
+      }
+    },
+    {
+      "category": "live-target",
+      "case": "ja/truck/with-march",
+      "equal": false,
+      "expected": {
+        "text": "追跡",
+        "button": true,
+        "disabled": true
+      },
+      "actual": {
+        "text": "12,34",
+        "button": true,
+        "disabled": true
+      }
+    },
+    {
+      "category": "live-target",
+      "case": "ja/railway/missing-march",
+      "equal": false,
+      "expected": {
+        "text": "-",
+        "button": false,
+        "disabled": null
+      },
+      "actual": {
+        "text": "21,43",
+        "button": true,
+        "disabled": true
+      }
+    },
+    {
+      "category": "live-target",
+      "case": "ja/railway/with-march",
+      "equal": false,
+      "expected": {
+        "text": "追跡",
+        "button": true,
+        "disabled": true
+      },
+      "actual": {
+        "text": "21,43",
+        "button": true,
+        "disabled": true
+      }
+    },
+    {
+      "category": "retained-goods",
+      "case": "ja/truck/item=none",
+      "equal": true,
+      "expected": [
+        {
+          "title": "Beta ×999",
+          "ariaLabel": "Beta ×999",
+          "count": "×999"
+        },
+        {
+          "title": "提供名 ×1,000",
+          "ariaLabel": "提供名 ×1,000",
+          "count": "×1.0K"
+        },
+        {
+          "title": "item-c ×1,000,000",
+          "ariaLabel": "item-c ×1,000,000",
+          "count": "×1.0M"
+        }
+      ],
+      "actual": [
+        {
+          "title": "Beta ×999",
+          "ariaLabel": "Beta ×999",
+          "count": "×999"
+        },
+        {
+          "title": "提供名 ×1,000",
+          "ariaLabel": "提供名 ×1,000",
+          "count": "×1.0K"
+        },
+        {
+          "title": "item-c ×1,000,000",
+          "ariaLabel": "item-c ×1,000,000",
+          "count": "×1.0M"
+        }
+      ]
+    },
+    {
+      "category": "retained-goods",
+      "case": "ja/truck/item=item-a",
+      "equal": true,
+      "expected": [
+        {
+          "title": "提供名 ×1,000",
+          "ariaLabel": "提供名 ×1,000",
+          "count": "×1.0K"
+        },
+        {
+          "title": "Beta ×999",
+          "ariaLabel": "Beta ×999",
+          "count": "×999"
+        },
+        {
+          "title": "item-c ×1,000,000",
+          "ariaLabel": "item-c ×1,000,000",
+          "count": "×1.0M"
+        }
+      ],
+      "actual": [
+        {
+          "title": "提供名 ×1,000",
+          "ariaLabel": "提供名 ×1,000",
+          "count": "×1.0K"
+        },
+        {
+          "title": "Beta ×999",
+          "ariaLabel": "Beta ×999",
+          "count": "×999"
+        },
+        {
+          "title": "item-c ×1,000,000",
+          "ariaLabel": "item-c ×1,000,000",
+          "count": "×1.0M"
+        }
+      ]
+    },
+    {
+      "category": "retained-goods-empty",
+      "case": "ja/truck",
+      "equal": true,
+      "expected": "-",
+      "actual": "-"
+    },
+    {
+      "category": "retained-goods",
+      "case": "ja/railway/item=none",
+      "equal": true,
+      "expected": [
+        {
+          "title": "Beta ×999",
+          "ariaLabel": "Beta ×999",
+          "count": "×999"
+        },
+        {
+          "title": "提供名 ×1,000",
+          "ariaLabel": "提供名 ×1,000",
+          "count": "×1.0K"
+        },
+        {
+          "title": "item-c ×1,000,000",
+          "ariaLabel": "item-c ×1,000,000",
+          "count": "×1.0M"
+        }
+      ],
+      "actual": [
+        {
+          "title": "Beta ×999",
+          "ariaLabel": "Beta ×999",
+          "count": "×999"
+        },
+        {
+          "title": "提供名 ×1,000",
+          "ariaLabel": "提供名 ×1,000",
+          "count": "×1.0K"
+        },
+        {
+          "title": "item-c ×1,000,000",
+          "ariaLabel": "item-c ×1,000,000",
+          "count": "×1.0M"
+        }
+      ]
+    },
+    {
+      "category": "retained-goods",
+      "case": "ja/railway/item=item-a",
+      "equal": true,
+      "expected": [
+        {
+          "title": "提供名 ×1,000",
+          "ariaLabel": "提供名 ×1,000",
+          "count": "×1.0K"
+        },
+        {
+          "title": "Beta ×999",
+          "ariaLabel": "Beta ×999",
+          "count": "×999"
+        },
+        {
+          "title": "item-c ×1,000,000",
+          "ariaLabel": "item-c ×1,000,000",
+          "count": "×1.0M"
+        }
+      ],
+      "actual": [
+        {
+          "title": "提供名 ×1,000",
+          "ariaLabel": "提供名 ×1,000",
+          "count": "×1.0K"
+        },
+        {
+          "title": "Beta ×999",
+          "ariaLabel": "Beta ×999",
+          "count": "×999"
+        },
+        {
+          "title": "item-c ×1,000,000",
+          "ariaLabel": "item-c ×1,000,000",
+          "count": "×1.0M"
+        }
+      ]
+    },
+    {
+      "category": "retained-goods-empty",
+      "case": "ja/railway",
+      "equal": true,
+      "expected": "-",
+      "actual": "-"
+    },
+    {
+      "category": "compact-count",
+      "case": "ja/undefined",
+      "equal": true,
+      "expected": "-",
+      "actual": "-"
+    },
+    {
+      "category": "compact-count",
+      "case": "ja/null",
+      "equal": true,
+      "expected": "0",
+      "actual": "0"
+    },
+    {
+      "category": "compact-count",
+      "case": "ja/0",
+      "equal": true,
+      "expected": "0",
+      "actual": "0"
+    },
+    {
+      "category": "compact-count",
+      "case": "ja/-1",
+      "equal": true,
+      "expected": "-1",
+      "actual": "-1"
+    },
+    {
+      "category": "compact-count",
+      "case": "ja/999",
+      "equal": true,
+      "expected": "999",
+      "actual": "999"
+    },
+    {
+      "category": "compact-count",
+      "case": "ja/1000",
+      "equal": true,
+      "expected": "1.0K",
+      "actual": "1.0K"
+    },
+    {
+      "category": "compact-count",
+      "case": "ja/1250",
+      "equal": true,
+      "expected": "1.3K",
+      "actual": "1.3K"
+    },
+    {
+      "category": "compact-count",
+      "case": "ja/999999",
+      "equal": true,
+      "expected": "1000.0K",
+      "actual": "1000.0K"
+    },
+    {
+      "category": "compact-count",
+      "case": "ja/1000000",
+      "equal": true,
+      "expected": "1.0M",
+      "actual": "1.0M"
+    },
+    {
+      "category": "compact-count",
+      "case": "ja/1000000000",
+      "equal": true,
+      "expected": "1.0G",
+      "actual": "1.0G"
+    },
+    {
+      "category": "compact-count",
+      "case": "ja/-1234",
+      "equal": true,
+      "expected": "-1.2K",
+      "actual": "-1.2K"
+    },
+    {
+      "category": "compact-count",
+      "case": "ja/bad",
+      "equal": true,
+      "expected": "-",
+      "actual": "-"
+    },
+    {
+      "category": "item-filter-callback",
+      "case": "truck/value=empty",
+      "equal": true,
+      "expected": {
+        "sorts": {
+          "truck": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "railway": [
+            {
+              "sortBy": "itemCount",
+              "sortOrder": "desc"
+            },
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ]
+        },
+        "page": 1
+      },
+      "actual": {
+        "sorts": {
+          "truck": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "railway": [
+            {
+              "sortBy": "itemCount",
+              "sortOrder": "desc"
+            },
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ]
+        },
+        "page": 1
+      }
+    },
+    {
+      "category": "item-filter-callback",
+      "case": "truck/value=item-a",
+      "equal": true,
+      "expected": {
+        "key": "item-a",
+        "sorts": {
+          "truck": [
+            {
+              "sortBy": "itemCount",
+              "sortOrder": "desc"
+            },
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "railway": [
+            {
+              "sortBy": "itemCount",
+              "sortOrder": "desc"
+            },
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ]
+        },
+        "page": 1
+      },
+      "actual": {
+        "key": "item-a",
+        "sorts": {
+          "truck": [
+            {
+              "sortBy": "itemCount",
+              "sortOrder": "desc"
+            },
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "railway": [
+            {
+              "sortBy": "itemCount",
+              "sortOrder": "desc"
+            },
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ]
+        },
+        "page": 1
+      }
+    },
+    {
+      "category": "item-filter-callback",
+      "case": "railway/value=empty",
+      "equal": true,
+      "expected": {
+        "sorts": {
+          "truck": [
+            {
+              "sortBy": "itemCount",
+              "sortOrder": "desc"
+            },
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "railway": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ]
+        },
+        "page": 1
+      },
+      "actual": {
+        "sorts": {
+          "truck": [
+            {
+              "sortBy": "itemCount",
+              "sortOrder": "desc"
+            },
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "railway": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ]
+        },
+        "page": 1
+      }
+    },
+    {
+      "category": "item-filter-callback",
+      "case": "railway/value=item-a",
+      "equal": true,
+      "expected": {
+        "key": "item-a",
+        "sorts": {
+          "truck": [
+            {
+              "sortBy": "itemCount",
+              "sortOrder": "desc"
+            },
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "railway": [
+            {
+              "sortBy": "itemCount",
+              "sortOrder": "desc"
+            },
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ]
+        },
+        "page": 1
+      },
+      "actual": {
+        "key": "item-a",
+        "sorts": {
+          "truck": [
+            {
+              "sortBy": "itemCount",
+              "sortOrder": "desc"
+            },
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "railway": [
+            {
+              "sortBy": "itemCount",
+              "sortOrder": "desc"
+            },
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ]
+        },
+        "page": 1
+      }
+    }
+  ],
+  "source": {
+    "mapPanel": {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js",
+      "sha256": "CE74345518BE72E417A510B982C591729E5683F69751E190805598C4C05D3089",
+      "columnFactory": {
+        "utf8ByteOffset": 9594,
+        "expression": "function nt(e,t,n,i,a,o){let s={label:A(e)?t(`map.liveTarget`):t(`map.coordinates`),width:`190px`,className:`map-column-coordinate`,value:et,coordinate:!0},c={label:t(`map.updatedAt`),width:`150px`,sortBy:`updatedAt`,value:e=>Qe(e.updatedAt,n)};return e===`city`?[{label:t(`map.marked`),width:`48px`,className:`map-column-mark`,mark:!0},s,{label:t(`map.player`),width:`minmax(130px, 1fr)`,value:e=>String(k(e,`ownerName`)||`-`)},{label:t(`map.alliance`),width:`minmax(110px, 1fr)`,value:e=>String(k(e,`allianceName`)||`-`)},{label:t(`map.level`),width:`70px`,sortBy:`level`,value:e=>I(k(e,`level`),n)},{label:`HP`,width:`90px`,sortBy:`health`,value:e=>I(k(e,`health`),n)},{label:t(`automation.shieldEnds`),width:`150px`,sortBy:`shield`,value:e=>$e(k(e,`protectEndTime`)||k(e,`shieldEndTime`),n)},c]:e===`resource`?[s,{label:t(`map.resource`),width:`minmax(150px, 1fr)`,value:e=>j(i,k(e,`resourceNameKey`),t(`map.unknownResource`))},{label:t(`map.level`),width:`70px`,sortBy:`level`,value:e=>I(k(e,`level`),n)},{label:t(`common.status`),width:`80px`,value:e=>{let n=qe(e);return j(i,n?`300039`:`372138`,t(n?`map.resourceGathering`:`map.resourceIdle`))}},c]:e===`monster`?[s,{label:t(`common.name`),width:`minmax(150px, 1fr)`,value:e=>j(i,k(e,`monsterNameKey`),t(`map.unknownMonster`))},{label:t(`map.level`),width:`70px`,sortBy:`level`,value:e=>I(k(e,`level`),n)},{label:t(`map.distance`),width:`90px`,sortBy:`distance`,value:e=>I(k(e,`distanceFromHome`),n)},c]:e===`truck`?[{label:t(`map.selectTask`),width:`56px`,className:`map-task-select`,select:!0},s,{label:t(`map.playerAlliance`),width:`minmax(170px, 1fr)`,value:e=>String(k(e,`ownerName`)||k(e,`allianceName`)||`-`)},{label:t(`map.quality`),width:`70px`,sortBy:`quality`,value:e=>k(e,`isSpecialURQuality`)===!0?t(`map.reindeerQuality`):L(k(e,`quality`))},{label:t(`map.escortPower`),width:`120px`,sortBy:`power`,value:e=>I(k(e,`power`),n)},{label:t(`map.retainedGoods`),width:`minmax(360px, 2fr)`,sortBy:a?`itemCount`:void 0,rewards:`currentGoods`},{label:t(`map.plunderStatus`),width:`190px`,sortBy:`remainingLootCount`,value:e=>{let n=e,i=l(n),a=Math.max(0,Number(n.robTimes)||0),o=r(n,Date.now());return o===`full`?`${t(`map.truckPlunderFull`)} ${a}/${i}`:o===`protected`?`${t(`map.truckProtected`)} ${Je(Number(n.protectTime)-Date.now())}｜${t(`map.truckRobbedCount`,{count:a,max:i})}`:`${t(`map.truckReady`)}｜${t(`map.truckRobbedCount`,{count:a,max:i})}`}},{label:t(`map.arrivalTime`),width:`150px`,sortBy:`arriveTime`,value:e=>N(k(e,`arriveTs`),n)},c]:e===`railway`?[s,{label:t(`map.alliance`),width:`minmax(160px, 1fr)`,value:e=>String(k(e,`allianceName`)||k(e,`allianceAbbr`)||`-`)},{label:t(`map.quality`),width:`70px`,sortBy:`quality`,value:e=>L(k(e,`quality`))},{label:t(`map.power`),width:`120px`,sortBy:`power`,value:e=>I(k(e,`power`),n)},{label:t(`map.retainedGoods`),width:`minmax(360px, 2fr)`,sortBy:a?`itemCount`:void 0,rewards:`currentGoods`},{label:t(`map.protectionTime`),width:`150px`,sortBy:`protectTime`,value:e=>N(k(e,`protectTime`),n)},c]:e===`treasure`?[s,{label:t(`map.treasureType`),width:`160px`,value:e=>Ke(t,i,k(e,`treasureType`),k(e,`suppliesType`),k(e,`treasureNameKey`))},{label:t(`map.remainingBoxes`),width:`90px`,value:e=>I(k(e,`remainingBoxes`),n)},{label:t(`map.treasureWorldState`),width:`110px`,value:e=>{let n=k(e,`worldClaimState`)||(o?`verifying`:`unknown`),r=Number(k(e,`chargePercent`));return n===`charging`&&Number.isFinite(r)?`${t(w(n))} ${Math.round(r*100)}%`:t(w(n))}},{label:t(`map.treasurePlayerState`),width:`110px`,value:e=>t(T(k(e,`playerClaimState`)||(o?`verifying`:`unknown`),k(e,`claimBlockReason`)))},{label:t(`map.claimedCount`),width:`90px`,value:e=>I(k(e,`rewardedCount`),n)},{label:t(`map.diggingCount`),width:`90px`,value:e=>I(k(e,`diggingCount`),n)},{label:t(`map.expireTime`),width:`150px`,value:e=>N(Number(k(e,`expireTime`)),n)},{label:t(`map.owner`),width:`minmax(140px, 1fr)`,value:e=>String(k(e,`ownerName`)||k(e,`ownerUid`)||`-`)},{label:t(`map.alliance`),width:`minmax(110px, 1fr)`,value:e=>String(k(e,`allianceAbbr`)||k(e,`allianceId`)||`-`)},{label:t(`map.actions`),width:`90px`,action:!0},c]:[...e===`dispatch`||e===`ghost`?[{label:t(`map.selectTask`),width:`56px`,className:`map-task-select`,select:!0}]:[],s,{label:t(`map.owner`),width:`minmax(150px, 1fr)`,value:e=>String(k(e,`ownerName`)||k(e,`ownerUid`)||`-`)},{label:t(`map.level`),width:`70px`,sortBy:`level`,value:e=>I(k(e,`level`),n)},{label:t(`map.quality`),width:`110px`,sortBy:`quality`,value:e=>k(e,`isSpecial`)===!0?t(`map.specialQuality`):L(k(e,`quality`))},{label:t(`map.taskStatus`),width:`90px`,status:!0},{label:t(`map.rewards`),width:`minmax(360px, 2fr)`,rewards:`rewards`},{label:t(`map.completionTime`),width:`150px`,sortBy:`completionTime`,value:e=>N(k(e,`completionTime`),n)},c]}"
+      },
+      "tableRenderer": {
+        "utf8ByteOffset": 14837,
+        "expression": "at=(0,y.memo)(function({kind:e,rows:t,loading:n,gameTexts:i,itemKey:a,currentTime:o,sortState:s,selectedDispatchKeys:c,selectedTruckKeys:l,jumpingKey:d,jumpDisabled:f,treasureStatesRefreshing:p,treasureClaimBusy:ee,treasureClaimDisabled:te,onSort:m,onToggleDispatch:h,onToggleTruck:ne,onCoordinateJump:re,onPlayerMark:ie,onClaimTreasure:ae}){let{language:oe,t:g}=u(),ce=(0,y.useMemo)(()=>nt(e,g,oe,i,a,p),[i,a,e,oe,g,p]),le=ce.map(e=>Number(e.width.match(/\\d+/)[0])+8);function ue(t){let n=k(t,`uuid`)||k(t,`marchUuid`)||k(t,`recordKey`)||`${k(t,`pointIndex`)||``}:${k(t,`ownerUid`)||``}:${k(t,`updatedAt`)||``}`;return`${e}:${t.serverId}:${String(n)}`}function de(t){if(A(e)){let e=String(k(t,`marchUuid`)||``).trim();if(!e)return`-`;let n=`${t.serverId}:${e}`;return(0,E.jsxs)(`button`,{className:`map-coordinate-button`,disabled:f,onClick:()=>re(t),children:[(0,E.jsx)(`span`,{className:`map-coordinate-icon`,\"aria-hidden\":`true`}),(0,E.jsx)(`strong`,{children:g(d===n?`map.following`:`map.follow`)})]})}let n=Number(k(t,`x`)),r=Number(k(t,`y`));if(!Number.isInteger(n)||!Number.isInteger(r)||n<1||r<1)return`-`;let i=`${t.serverId}:${n}:${r}`;return(0,E.jsxs)(`button`,{className:`map-coordinate-button`,disabled:f,onClick:()=>re(t),children:[(0,E.jsx)(`span`,{className:`map-coordinate-icon`,\"aria-hidden\":`true`}),(0,E.jsx)(`span`,{children:et(t)}),(0,E.jsx)(`strong`,{children:g(d===i?`map.jumping`:`map.jump`)})]})}function fe(e,t){let n=k(e,t);if(!Array.isArray(n)||n.length===0)return`-`;let r=[...n];return t===`currentGoods`&&a&&r.sort((e,t)=>Number(t.key===a)-Number(e.key===a)),(0,E.jsx)(`span`,{className:`map-reward-list map-reward-list--${t===`lostGoods`?`lost`:`retained`}`,children:r.map((e,t)=>{let n=M(e,i),r=`${n} ×${I(e.count,oe)}`;return(0,E.jsxs)(`span`,{className:`map-reward-item`,title:r,\"aria-label\":r,children:[(0,E.jsx)(v,{assetPath:e.iconPath,alt:n,className:`map-reward-icon`}),(0,E.jsxs)(`strong`,{children:[`×`,_(e.count)]})]},`${e.key}:${t}`)})})}function pe(e){let t=F(e,o),n=g(t===`expired`?`map.taskExpired`:t===`full`?`map.taskPlunderFull`:t===`protected`?`map.taskProtected`:t===`ready`?`map.taskReady`:`map.taskPending`);return(0,E.jsx)(`span`,{className:`map-task-status ${t}`,children:n})}function me(t){if(e===`truck`){let e=t,n=String(e.uuid||``).trim(),i=`${e.serverId}:${n}`,a=r(e,o);return(0,E.jsx)(`input`,{type:`checkbox`,\"aria-label\":g(`map.selectNamedTask`,{name:String(k(t,`ownerName`)||k(t,`allianceName`)||k(t,`uuid`)),server:t.serverId}),checked:l.has(i),disabled:[`invalid`,`full`,`expired`].includes(a),onChange:()=>ne(e)})}let n=t,i=String(n.uuid||``).trim(),a=`${n.serverId}:${i}`,s=!/^\\d+$/.test(i)||!P(n.completionTime)||!P(n.plunderAt)||[`expired`,`full`].includes(F(n,o));return(0,E.jsx)(`input`,{type:`checkbox`,\"aria-label\":g(`map.selectNamedTask`,{name:String(k(t,`ownerName`)||k(t,`allianceName`)||k(t,`uuid`)),server:t.serverId}),checked:c.has(a),disabled:s,onChange:()=>h({...n,taskKind:e===`ghost`?`ghost`:`dispatch`})})}function he(e){let t=e,n=t.trackerState===`missing`?g(`map.positionMissing`):t.trackerState===`replaced`?g(`map.positionReplaced`):``,r=t.marked?g(`map.unmarkPlayer`):g(`map.markPlayer`);return(0,E.jsx)(`button`,{className:`map-mark-button${t.marked?` active`:``}`,disabled:!t.ownerUid,title:n?`${r} · ${n}`:r,\"aria-label\":r,onClick:()=>ie(t),children:(0,E.jsx)(se,{name:t.marked?`favorite-filled`:`favorite`})})}function ge(e){let t=e,n=String(t.uuid||``).trim(),r=Number(t.suppliesType),i=r===1||r===3||r===4,a=String(t.playerClaimState||``);return(0,E.jsx)(`button`,{className:`map-schedule-button`,disabled:te||!n||n===`0`||!i&&t.complete!==!0||[`dispatching`,`scouting`,`digging`,`claiming`,`claimed`].includes(a)||t.worldClaimState===`depleted`||t.worldClaimState===`expired`||t.claimBlockReason===`other_alliance`,onClick:()=>ae(t),children:g(ee?`map.claimingTreasure`:`map.claimTreasure`)})}return(0,E.jsx)(`div`,{className:`map-table-scroll`,children:(0,E.jsxs)(`table`,{className:`map-table map-table--${e}`,style:{minWidth:le.reduce((e,t)=>e+t,0)},\"aria-label\":g(Ie.find(t=>t.key===e).label),\"aria-busy\":n,children:[(0,E.jsx)(`colgroup`,{children:le.map((e,t)=>(0,E.jsx)(`col`,{style:{width:e}},t))}),(0,E.jsx)(`thead`,{children:(0,E.jsx)(`tr`,{className:`map-row map-head`,children:ce.map(e=>{let t=e.sortBy?s.findIndex(t=>t.sortBy===e.sortBy):-1,n=t>=0?s[t]:void 0;return(0,E.jsx)(`th`,{scope:`col`,className:e.className||``,\"aria-sort\":t===0?n?.sortOrder===`asc`?`ascending`:`descending`:void 0,children:e.sortBy?(0,E.jsxs)(`button`,{type:`button`,className:`map-sort-button${n?` active`:``}`,\"aria-label\":n?g(`map.sortDescription`,{column:e.label,direction:g(n.sortOrder===`asc`?`map.sortAscending`:`map.sortDescending`),priority:t+1}):e.label,onClick:()=>m(e.sortBy),children:[e.label,n&&(0,E.jsx)(`span`,{className:`map-sort-priority`,\"aria-hidden\":`true`,children:t+1}),(0,E.jsxs)(`span`,{className:`map-sort-arrows`,\"aria-hidden\":`true`,children:[(0,E.jsx)(`span`,{className:`map-sort-arrow${n?.sortOrder===`asc`?` active`:``}`,children:(0,E.jsx)(se,{name:`arrow-up`})}),(0,E.jsx)(`span`,{className:`map-sort-arrow${n?.sortOrder===`desc`?` active`:``}`,children:(0,E.jsx)(se,{name:`arrow-down`})})]})]}):e.label},e.label)})})}),(0,E.jsxs)(`tbody`,{children:[t.map(e=>(0,E.jsx)(`tr`,{className:`map-row${k(e,`marked`)===!0?` is-marked`:``}${k(e,`trackerState`)===`missing`?` is-missing`:``}${k(e,`trackerState`)===`replaced`?` is-replaced`:``}`,children:ce.map(t=>(0,E.jsx)(`td`,{className:[t.className,t.rewards?`map-reward-cell`:``].filter(Boolean).join(` `),children:t.mark?he(e):t.select?me(e):t.coordinate?de(e):t.rewards?fe(e,t.rewards):t.status?pe(e):t.action?ge(e):t.value?.(e)},t.label))},ue(e))),t.length===0&&(0,E.jsx)(`tr`,{children:(0,E.jsx)(`td`,{colSpan:ce.length,className:`map-empty`,children:g(n?`common.processing`:`map.empty`)})})]})]})})})"
+      },
+      "liveTargetRenderer": {
+        "utf8ByteOffset": 15490,
+        "expression": "function de(t){if(A(e)){let e=String(k(t,`marchUuid`)||``).trim();if(!e)return`-`;let n=`${t.serverId}:${e}`;return(0,E.jsxs)(`button`,{className:`map-coordinate-button`,disabled:f,onClick:()=>re(t),children:[(0,E.jsx)(`span`,{className:`map-coordinate-icon`,\"aria-hidden\":`true`}),(0,E.jsx)(`strong`,{children:g(d===n?`map.following`:`map.follow`)})]})}let n=Number(k(t,`x`)),r=Number(k(t,`y`));if(!Number.isInteger(n)||!Number.isInteger(r)||n<1||r<1)return`-`;let i=`${t.serverId}:${n}:${r}`;return(0,E.jsxs)(`button`,{className:`map-coordinate-button`,disabled:f,onClick:()=>re(t),children:[(0,E.jsx)(`span`,{className:`map-coordinate-icon`,\"aria-hidden\":`true`}),(0,E.jsx)(`span`,{children:et(t)}),(0,E.jsx)(`strong`,{children:g(d===i?`map.jumping`:`map.jump`)})]})}"
+      },
+      "rewardRenderer": {
+        "utf8ByteOffset": 16260,
+        "expression": "function fe(e,t){let n=k(e,t);if(!Array.isArray(n)||n.length===0)return`-`;let r=[...n];return t===`currentGoods`&&a&&r.sort((e,t)=>Number(t.key===a)-Number(e.key===a)),(0,E.jsx)(`span`,{className:`map-reward-list map-reward-list--${t===`lostGoods`?`lost`:`retained`}`,children:r.map((e,t)=>{let n=M(e,i),r=`${n} ×${I(e.count,oe)}`;return(0,E.jsxs)(`span`,{className:`map-reward-item`,title:r,\"aria-label\":r,children:[(0,E.jsx)(v,{assetPath:e.iconPath,alt:n,className:`map-reward-icon`}),(0,E.jsxs)(`strong`,{children:[`×`,_(e.count)]})]},`${e.key}:${t}`)})})}"
+      },
+      "selectionRenderer": {
+        "utf8ByteOffset": 17072,
+        "expression": "function me(t){if(e===`truck`){let e=t,n=String(e.uuid||``).trim(),i=`${e.serverId}:${n}`,a=r(e,o);return(0,E.jsx)(`input`,{type:`checkbox`,\"aria-label\":g(`map.selectNamedTask`,{name:String(k(t,`ownerName`)||k(t,`allianceName`)||k(t,`uuid`)),server:t.serverId}),checked:l.has(i),disabled:[`invalid`,`full`,`expired`].includes(a),onChange:()=>ne(e)})}let n=t,i=String(n.uuid||``).trim(),a=`${n.serverId}:${i}`,s=!/^\\d+$/.test(i)||!P(n.completionTime)||!P(n.plunderAt)||[`expired`,`full`].includes(F(n,o));return(0,E.jsx)(`input`,{type:`checkbox`,\"aria-label\":g(`map.selectNamedTask`,{name:String(k(t,`ownerName`)||k(t,`allianceName`)||k(t,`uuid`)),server:t.serverId}),checked:c.has(a),disabled:s,onChange:()=>h({...n,taskKind:e===`ghost`?`ghost`:`dispatch`})})}"
+      },
+      "itemFilter": {
+        "utf8ByteOffset": 53914,
+        "expression": "e=>{zt(t=>({...t,[L]:e||void 0})),!e&&Jt[L].some(e=>e.sortBy===`itemCount`)&&Yt(e=>({...e,[L]:e[L].filter(e=>e.sortBy!==`itemCount`)})),V(1)}"
+      }
+    },
+    "main": {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-BVfnK1wp.js",
+      "sha256": "44C4E4043825B7DB296B64171951B27176F8850FF8D7D337CC991DF4765524C6",
+      "truckMaximum": {
+        "utf8ByteOffset": 201275,
+        "expression": "function Fe(e){if(e.isSpecialURQuality)return 1;let t=Number(e.maxLootCount);return Number.isFinite(t)&&t>0?Math.floor(t):0}"
+      },
+      "truckState": {
+        "utf8ByteOffset": 201399,
+        "expression": "function Ie(e,t){if(!String(e.uuid||``).trim()||!Number.isInteger(e.serverId)||Number(e.serverId)<=0)return`invalid`;let n=Number(e.arriveTs)||0;if(n>0&&n<=t)return`expired`;let r=Fe(e),i=Math.max(0,Math.floor(Number(e.robTimes)||0));return r>0&&i>=r?`full`:(Number(e.protectTime)||0)>t?`protected`:`ready`}"
+      }
+    },
+    "rewards": {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/rewardDisplay-eZWrd6iS.js",
+      "sha256": "7F65DD3F5B81C96117AF5E83E8310D6C6A3A48787B1F693D387020255C78E73E",
+      "compactCount": {
+        "utf8ByteOffset": 0,
+        "expression": "function e(e){let t=Number(e);if(!Number.isFinite(t))return`-`;let n=Math.abs(t),r=t<0?`-`:``;return n>=1e9?`${r}${(n/1e9).toFixed(1)}G`:n>=1e6?`${r}${(n/1e6).toFixed(1)}M`:n>=1e3?`${r}${(n/1e3).toFixed(1)}K`:String(t)}"
+      }
+    }
+  },
+  "current": {
+    "page": {
+      "path": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+      "mapTable": {
+        "utf8ByteOffset": 3247,
+        "expression": "function MapTable({ kind, rows, loading, sorts, onSort, onCoordinateJump, onPlayerMark, actionBusy, actionDisabled, selectedKeys, onSelect, gameTexts = EMPTY_GAME_TEXTS, itemKey = \"\", treasureStatesRefreshing = false }) {\n  const { language, t } = useI18n();\n  const [currentTime, setCurrentTime] = useState(() => Date.now());\n  useEffect(() => {\n    if (![\"truck\", \"dispatch\", \"ghost\"].includes(kind)) return undefined;\n    setCurrentTime(Date.now());\n    const timer = window.setInterval(() => setCurrentTime(Date.now()), 1000);\n    return () => window.clearInterval(timer);\n  }, [kind]);\n  const columns = useMemo(() => buildMapColumns(kind, t, language, gameTexts, itemKey, treasureStatesRefreshing), [kind, t, language, gameTexts, itemKey, treasureStatesRefreshing]);\n  const columnWidths = columns.map((column) => Number(column.width.match(/\\d+/)[0]) + 8);\n  const rowKey = (row, index) => `${kind}:${row.serverId ?? 0}:${row.recordKey || row.uuid || row.marchUuid || row.pointIndex || index}`;\n  return (\n    <div className=\"map-table-scroll\">\n      <table className={`map-table map-table--${kind}`} style={{ minWidth: columnWidths.reduce((total, width) => total + width, 0) }} aria-label={t(SCAN_TYPE_LABEL_KEYS[kind])} aria-busy={loading}>\n        <colgroup>{columnWidths.map((width, index) => <col key={index} style={{ width }} />)}</colgroup>\n        <thead>\n          <tr className=\"map-row map-head\">\n            {columns.map((column) => {\n              const sortIndex = column.sortBy ? sorts.findIndex((sort) => sort.sortBy === column.sortBy) : -1;\n              const sort = sortIndex >= 0 ? sorts[sortIndex] : null;\n              return (\n                <th key={column.label} scope=\"col\" className={column.className || \"\"} aria-sort={sortIndex === 0 ? (sort.sortOrder === \"asc\" ? \"ascending\" : \"descending\") : undefined}>\n                  {column.sortBy ? (\n                    <button\n                      type=\"button\"\n                      className={`map-sort-button${sort ? \" active\" : \"\"}`}\n                      aria-label={sort ? t(\"map.sortDescription\", { column: column.label, direction: t(sort.sortOrder === \"asc\" ? \"map.sortAscending\" : \"map.sortDescending\"), priority: sortIndex + 1 }) : column.label}\n                      onClick={() => onSort(column.sortBy)}\n                    >\n                      {column.label}\n                      {sort ? <span className=\"map-sort-priority\" aria-hidden=\"true\">{sortIndex + 1}</span> : null}\n                      <span className=\"map-sort-arrows\" aria-hidden=\"true\">\n                        <span className={`map-sort-arrow${sort?.sortOrder === \"asc\" ? \" active\" : \"\"}`}><svg className=\"ui-icon\" viewBox=\"0 0 16 16\" aria-hidden=\"true\" focusable=\"false\"><path d=\"M8 13.5v-11M3.5 7 8 2.5 12.5 7\" /></svg></span>\n                        <span className={`map-sort-arrow${sort?.sortOrder === \"desc\" ? \" active\" : \"\"}`}><svg className=\"ui-icon\" viewBox=\"0 0 16 16\" aria-hidden=\"true\" focusable=\"false\"><path d=\"M8 2.5v11M3.5 9 8 13.5 12.5 9\" /></svg></span>\n                      </span>\n                    </button>\n                  ) : column.label}\n                </th>\n              );\n            })}\n          </tr>\n        </thead>\n        <tbody>\n          {rows.map((row, index) => (\n            <tr className=\"map-row\" key={rowKey(row, index)}>\n              {columns.map((column) => (\n                <td key={column.label} className={column.className || \"\"}>\n                  {column.select ? (\n                    <input type=\"checkbox\" aria-label={t(\"map.selectNamedTask\", { name: row.ownerName || row.allianceName || row.uuid || \"-\", server: row.serverId || \"-\" })} checked={selectedKeys?.has(rowKey(row, index)) || false} disabled={!mapTaskSelectable(kind, row, currentTime)} onChange={() => onSelect?.(rowKey(row, index), row)} />\n                  ) : column.mark ? (\n                    <button className={`map-mark-button${row.marked ? \" active\" : \"\"}`} type=\"button\" disabled={actionDisabled || !row.ownerUid || actionBusy} aria-label={t(row.marked ? \"map.unmarkPlayer\" : \"map.markPlayer\")} onClick={() => onPlayerMark(row)}>\n                      {row.marked ? \"★\" : \"☆\"}\n                    </button>\n                  ) : column.coordinate ? (\n                    <button className=\"map-coordinate-button\" type=\"button\" disabled={actionDisabled || actionBusy || kind === \"truck\" || kind === \"railway\" || !Number.isInteger(Number(row.x)) || !Number.isInteger(Number(row.y))} onClick={() => onCoordinateJump(row)}>\n                      <span className=\"map-coordinate-icon\" aria-hidden=\"true\" />\n                      <span>{coordinateText(row)}</span>\n                    </button>\n                  ) : column.action ? (\n                    <button className=\"map-schedule-button\" type=\"button\" disabled>{t(\"map.claimTreasure\")}</button>\n                  ) : column.status ? (\n                    <span className={`map-task-status ${mapTaskState(row, currentTime)}`}>{mapTaskLabel(mapTaskState(row, currentTime), t)}</span>\n                  ) : column.rewards ? (\n                    !Array.isArray(row[column.rewards]) || row[column.rewards].length === 0 ? \"-\" : <span className=\"map-reward-list map-reward-list--retained\">{[...row[column.rewards]].sort((left, right) => column.rewards === \"currentGoods\" && itemKey ? Number(right.key === itemKey) - Number(left.key === itemKey) : 0).map((item, rewardIndex) => { const name = mapRewardName(item, gameTexts); const description = `${name} ×${mapNumber(item.count, language)}`; return <span className=\"map-reward-item\" key={`${item.key}:${rewardIndex}`} title={description} aria-label={description}><span className=\"map-reward-icon game-asset-placeholder\" aria-hidden=\"true\" /><strong>×{mapRewardCount(item.count)}</strong></span>; })}</span>\n                  ) : kind === \"resource\" && column.label === t(\"common.status\") ? mapResourceStatus(row, t, gameTexts) : column.value?.(row)}\n                </td>\n              ))}\n            </tr>\n          ))}\n          {rows.length === 0 ? (\n            <tr><td className=\"map-empty\" colSpan={columns.length}>{loading ? t(\"common.processing\") : t(\"map.empty\")}</td></tr>\n          ) : null}\n        </tbody>\n      </table>\n    </div>\n  );\n}"
+      },
+      "itemFilter": {
+        "utf8ByteOffset": 20525,
+        "expression": "function changeItemFilter(value) {\n    setItemKey(value);\n    if (!value) {\n      setSortsByKind((current) => ({ ...current, [tab]: current[tab].filter((sort) => sort.sortBy !== \"itemCount\") }));\n    }\n    setPage(1);\n  }"
+      }
+    },
+    "presentationPath": "src/LWBridge.UI-0.3.17/src/mapTablePresentation.js"
+  },
+  "limits": [
+    "Source/local execution only; no original post-auth pixel comparison.",
+    "Current native reward images are placeholders; this checker compares retained-goods order/count/name/title/aria behavior.",
+    "Shared Truck/Train item-filter state and broader query/filter ownership are recorded separately from this focused callback check."
+  ]
+}

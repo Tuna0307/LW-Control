@@ -93,3 +93,17 @@ src/LWBridge.UI-0.3.17/src/previewAfkFixtures.js, .scratch-lwb317/ and parent
 CORRECT-003 screenshots. Close only your preview tab/server. No other panels,
 backend changes, Last War launch/control, auth bypass, fallback or subagents.
 No fixed elapsed-time stop; complete the scope or report a concrete blocker.
+
+## Delivery
+
+REVIEW_COMPLETE — **CHANGES_REQUIRED** on 2026-10-02.
+
+Independent fixed-time English/Japanese source execution and bounded browser
+preview found two source-parity defect classes: Truck/Train Live Target cells
+render coordinates instead of recovered `-` / Follow presentation, and Truck
+invalid-row selection aria labels add `-` fallbacks absent from the recovered
+renderer. Truck state/eligibility boundaries, independent Train layout, other
+column values, retained-goods behavior, compact counts and conditional item-sort
+clearing matched the recovered source. Full detail and evidence are in
+`docs/reviews/2026-10-02-LWB317-REVIEW-MAP-TRANSPORT-001.md` and
+`evidence/lwbridge-0.3.17/ui/LWB317-REVIEW-MAP-TRANSPORT-001/`.

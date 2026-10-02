@@ -1,0 +1,79 @@
+{
+  "task": "LWB317-REVIEW-MAP-TRANSPORT-001",
+  "previewServer": "http://127.0.0.1:4183/",
+  "consoleErrors": 0,
+  "checks": {
+    "truckStates": {
+      "url": "http://127.0.0.1:4183/?previewPage=map-data&previewState=map-table-states&previewLanguage=en",
+      "fixture": "map-table-states",
+      "observed": [
+        {
+          "owner": "Truck Owner 1",
+          "status": "Protected 00:01:03｜Plundered 1/3",
+          "selectionDisabled": false,
+          "liveTarget": "411,521",
+          "liveTargetDisabled": true
+        },
+        {
+          "owner": "Truck Owner 2",
+          "status": "Fully plundered 3/3",
+          "selectionDisabled": true,
+          "liveTarget": "412,522",
+          "liveTargetDisabled": true
+        },
+        {
+          "owner": "Truck Owner 3",
+          "status": "Ready｜Plundered 1/3",
+          "selectionDisabled": false,
+          "liveTarget": "413,523",
+          "liveTargetDisabled": true
+        }
+      ],
+      "nativeActionControlsDisabled": true,
+      "liveTargetDifferenceVisible": "Fixture rows have no marchUuid, so recovered source expects '-' while current preview displays disabled coordinate buttons."
+    },
+    "retainedGoodsSort": {
+      "fixtureLimit": "Existing preview Truck/Train rows contain one retained-good entry each; intra-row selected-item-first ordering is therefore covered by the executable JSX harness rather than browser fixture rows.",
+      "item": "fixture-reward",
+      "afterItemSort": {
+        "itemsAriaSort": "descending",
+        "updatedAtPriority": 2,
+        "firstCounts": [8, 8, 8, 8, 8, 8, 8, 6]
+      },
+      "afterClear": {
+        "itemValue": "",
+        "itemsAriaSort": null,
+        "updatedAtAriaSort": "descending",
+        "firstOwners": ["Truck Owner 1", "Truck Owner 2", "Truck Owner 3"]
+      }
+    },
+    "trainJapanese": {
+      "url": "http://127.0.0.1:4183/?previewPage=map-data&previewState=map-railway&previewLanguage=ja&previewTheme=dark",
+      "fixture": "map-railway",
+      "tableAriaLabel": "列車",
+      "headers": ["リアルタイム対象", "連盟", "品質", "戦力", "アイテム", "保護時間", "更新日時"],
+      "renderedColumnWidthsPx": [198, 168, 78, 128, 368, 158, 158],
+      "hasSelectionColumn": false,
+      "firstLiveTarget": "411,521",
+      "firstLiveTargetDisabled": true,
+      "firstRewardAriaLabel": "Fixture Cargo ×2",
+      "liveTargetDifferenceVisible": "Fixture row has no marchUuid, so recovered source expects '-' while current preview displays a disabled coordinate button."
+    }
+  },
+  "screenshots": [
+    {
+      "path": "truck-en.png",
+      "sha256": "994E88261AAC12ED12EEAC965B6228A8530734FF3299AAE4C95AC77558FB5ABB",
+      "description": "English Truck preview showing Live Target coordinates, retained goods, Ready/Fully plundered states, and disabled native controls."
+    },
+    {
+      "path": "train-ja.png",
+      "sha256": "3E1B29E8873C023C51B662A0F524D231D266F1AC6F34B5C68F59C936DAA03D9E",
+      "description": "Japanese Train preview showing its seven-column layout, retained goods, timestamps, and disabled Live Target coordinate controls."
+    }
+  ],
+  "imageInspection": {
+    "truck-en.png": "Rendered app/table inspected after capture; not the earlier loading-spinner capture.",
+    "train-ja.png": "Rendered Japanese dark-theme Train table inspected after capture."
+  }
+}
