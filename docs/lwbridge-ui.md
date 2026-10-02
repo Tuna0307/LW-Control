@@ -12,6 +12,15 @@ If the reference opens into a login/locked state, capture only enough evidence t
 
 ## Required inventory
 
+Current assignment, 2026-10-02: `work-items/LWB317-UI-PARALLEL-001.md` accelerates
+source/local completion with an owner-authorized coordinator and two subagents.
+It covers Map row corrections, Trade 003E independent review/correction, and
+City/Resource/Monster normal-table review. Transport review 266ce2a found two
+presentation defects; lead replay reproduced 14 cases and validated evidence.
+Those defects remain CHANGES_REQUIRED until correction/lead review. Existing
+accepted narrow units and broader UNKNOWN/BLOCKED gaps retain their status;
+this assignment does not establish global UI/pixel or native/gameplay parity.
+
 For every accessible in-scope screen/state, capture or record:
 
 - window size/minimum behavior;

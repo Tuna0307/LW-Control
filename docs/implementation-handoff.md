@@ -4,6 +4,23 @@
 **Branch:** `research/offline-controller`  
 **Phase:** Phase 2 function recovery / Map Data clean-UI live-integration checkpoint
 
+## 2026-10-02 — owner-authorized parallel UI acceleration
+
+Current worker assignment: **LWB317-UI-PARALLEL-001 ASSIGNED**, manual relay.
+Read `work-items/LWB317-UI-PARALLEL-001.md`. The owner authorizes two subagents:
+coordinator corrects Map row presentation, A reviews/corrects focused Trade 003E,
+B independently reviews City/Resource/Monster normal tables read-only. Coordinator
+owns all integration, master updates, shared browser/build execution and Git.
+Pin the Map baseline before edits so B does not review moving code.
+
+Transport review 266ce2a returned CHANGES_REQUIRED. Lead replay reproduced its
+14 mismatches grouped into Live Target content and Truck selection labels;
+its evidence validator passed. Correct these demonstrated UI defects and verified
+basic-table defects in this campaign. Broader Map interactions, Treasure Checking
+producer and original post-auth pixels remain separate gaps. No native/gameplay
+scope opens. Preserve the AFK/scratch/parent screenshot WIP unchanged/unstaged.
+Historical single-worker-only assignments below are superseded by this entry.
+
 ## 2026-10-02 PM-021 — Home busy accepted; Truck/Train review next
 
 Lead integrates reviewer `ff787e31acd048df8091a74da18e9ee3b595eb93` and accepts

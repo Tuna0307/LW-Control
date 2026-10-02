@@ -1,7 +1,10 @@
 # LWB317-REVIEW-MAP-TRANSPORT-001 — independent Truck and Train table review
 
-Date: 2026-10-02. Owner: returning worker. State: ASSIGNED.
-This is the worker's only active assignment after PM-021 Home busy acceptance.
+Date: 2026-10-02. Owner: returning worker. State: REVIEW_COMPLETE / CHANGES_REQUIRED.
+Delivered at 266ce2a. Lead replay reproduced 14 mismatches grouped into two
+presentation defects and validated the evidence. Current continuation is
+LWB317-UI-PARALLEL-001; the single-worker-only scope below is historical.
+This was the worker's only active assignment after PM-021 Home busy acceptance.
 Baseline: ff787e31acd048df8091a74da18e9ee3b595eb93; lead integration documentation
 follows it. Use current HEAD without reset. Implementation under review:
 bf84bbdca8a86c1a45e9cbb3bd0170c8fbfcdd7f.

@@ -77,6 +77,18 @@ Live-prove each implemented in-scope function against an assistant-owned/current
 
 ## Current instruction
 
+Latest owner direction, 2026-10-02: speed up UI progress using the returning
+worker and two subagents. Current assignment:
+`docs/work-items/LWB317-UI-PARALLEL-001.md` (ASSIGNED, awaiting manual relay).
+Coordinator corrects Map row defects, A independently reviews/corrects Trade 003E,
+B reviews City/Resource/Monster tables read-only. This explicitly supersedes
+historical single-worker/no-subagent limits only for those three lanes. It does
+not reopen gameplay/native integration or the interrupted broad campaign.
+Transport review 266ce2a returned CHANGES_REQUIRED; lead independently reproduced
+14 mismatches grouped into two defects and validated its evidence. No product
+code changed in this assignment checkpoint. Historical instructions below remain
+context; follow the latest named scope and ownership rules.
+
 2026-10-02 owner-requested larger lead takeover is delivered as
 `LWB317-UI-LEAD-TABLES-001` **AWAITING_REVIEW**: eight normal Map tables corrected
 against exact source with nine-locale differential/render, browser and package
