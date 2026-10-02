@@ -4,18 +4,31 @@
 **Branch:** `research/offline-controller`  
 **Active scope:** UI parity / Map filter lifecycle; no new native integration
 
-## 2026-10-02 — next worker assignment
+## 2026-10-02 — Map filter lifecycle worker delivery
 
-`LWB317-UI-MAP-FILTER-LIFECYCLE-001` is **ASSIGNED; execution not confirmed**
-for manual owner relay. Read its work item under `docs/work-items/`. Recover and
-implement options validation, encoded alliance identity, successful Clear UI
-resets and Treasure defaults/storage/query fields, then verify the combination.
-Use accepted product 5b76ae8 and lead closeout 9d8fa4f as starting evidence; do
-not reset HEAD. Main worker may use two subagents with exclusive evidence/test
-ownership, completes all milestones, and returns AWAITING_REVIEW to the lead.
-This is UI implementation only; no native clear/scan/Treasure/gameplay work.
-PM-026 acceptance below remains valid for its prior focused scope. Historical
-evidence and protected AFK/scratch/screenshots stay unchanged.
+`LWB317-UI-MAP-FILTER-LIFECYCLE-001` is **AWAITING_REVIEW**. The worker
+implemented current options validation for City alliance, Secret Task level and
+Treasure type; recovered encoded alliance identity including literal `none` /
+`all` names; matched the acknowledged Clear frontend reset/retention lifecycle;
+and restored Treasure lazy defaults, local-storage persistence/reload and
+false-valued query fields.
+
+The exact c72aae6 baseline and current page run through actual production
+callbacks/effects in the new evidence packet. Accepted request-lifetime,
+navigation, search/selection, Checking, table and Scheduled boundaries remain
+green. Browser proof covers real sentinel/name choices, Treasure toggles and
+reload, en/ja light/dark, plus an inspected 375 px Japanese/dark Edge capture.
+Successful Clear acknowledgement is controlled synthetic proof only; preview
+and native Clear/Treasure actions remain unavailable.
+
+Independent source recovery is `d04f470`. The main implementation is
+`9c38591`; independent review `e1d556a` found a duplicate option reload in the
+delayed-Clear/server-transition race, corrected by `3e20fa1`. Superseding
+independent review `6b654c5` reports PASS for this focused source/local UI
+scope. Project lead owns acceptance. Overall UI remains
+IMPLEMENTED_NOT_VALIDATED; original pixels, native providers and separately
+tracked scan/feedback/Treasure gaps remain open. Protected AFK/scratch/
+CORRECT-003 screenshot WIP is unchanged and unstaged.
 
 ## 2026-10-02 PM-026 — campaign complete and accepted
 

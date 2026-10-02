@@ -13,6 +13,13 @@ meaningful read-only Map fixture queries pass targeted local QA. Its affected
 coverage matrix records remaining implementation gaps. Full all-page UI parity
 is not accepted. Separately recorded Map live proofs are unchanged.
 
+Current Map update, 2026-10-02: `LWB317-UI-MAP-FILTER-LIFECYCLE-001` is
+**AWAITING_REVIEW**. Corrected `3e20fa1` plus independent PASS review
+`6b654c5` cover refreshed option validation, real-alliance/sentinel identity,
+acknowledged Clear frontend reset/retention, and Treasure preference
+defaults/persistence/query booleans in the focused source/local UI. Existing
+native/live/original-pixel statuses in the Map row remain unchanged.
+
 | Surface | 0.3.17 inventory | UI parity | Function recovery | Current-client mapping | Live proof | Notes |
 |---|---|---|---|---|---|---|
 | Login/account/licensing boundary | OUT_OF_SCOPE | OUT_OF_SCOPE | OUT_OF_SCOPE except dependency trace | OUT_OF_SCOPE except dependency map | OUT_OF_SCOPE | Document boundary only; no recreation/bypass |

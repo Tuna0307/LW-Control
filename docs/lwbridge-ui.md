@@ -12,12 +12,16 @@ If the reference opens into a login/locked state, capture only enough evidence t
 
 ## Required inventory
 
-Current assignment, 2026-10-02: `LWB317-UI-MAP-FILTER-LIFECYCLE-001` is ASSIGNED
-for manual relay; execution is not confirmed. The worker will implement current
-options validation, encoded alliance identity, acknowledged Clear UI resets and
-Treasure defaults/persistence/query fields. Accepted INTERACTIONS/NAVIGATION
-behavior remains the baseline. No master parity upgrade follows from assignment;
-native/functions/original pixels remain outside this scope. See its work item.
+Current delivery, 2026-10-02: `LWB317-UI-MAP-FILTER-LIFECYCLE-001` is
+**AWAITING_REVIEW**. Refreshed option validation, encoded alliance identity,
+acknowledged Clear frontend resets and Treasure defaults/persistence/query
+fields are implemented with immutable baseline/current callback evidence,
+real offline browser controls and an inspected 375 px Japanese/dark preview.
+Accepted INTERACTIONS/NAVIGATION regressions remain green. Independent review
+identified one duplicate post-Clear option reload, corrected in `3e20fa1`; the
+superseding `6b654c5` review passes the focused source/local scope. No master
+parity upgrade follows before lead acceptance; native/functions/original pixels
+remain outside this scope. See its work item and dated delivery review.
 
 Previous decision, 2026-10-02: PM-026 accepts `LWB317-UI-MAP-INTERACTIONS-001`
 and corrected NAVIGATION-001 for focused source/local UI scope. Lead continued

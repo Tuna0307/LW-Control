@@ -1,6 +1,6 @@
 # LWB317-UI-MAP-FILTER-LIFECYCLE-001
 
-Project-lead assignment, 2026-10-02. Status: **ASSIGNED; execution not confirmed**.
+Project-lead assignment, 2026-10-02. Status: **AWAITING_REVIEW**.
 Owner: manually relayed worker AI; project lead owns final acceptance.
 
 ## Goal and starting point
@@ -157,3 +157,21 @@ behavior, baseline versus corrected results, check commands/results, browser
 proof versus synthetic proof, subagent findings and your independent assessment,
 protected-WIP verification, remaining unknowns, and exact continuation if blocked.
 Do not claim full UI/native/pixel parity or assign the next campaign yourself.
+
+## Worker delivery, 2026-10-02
+
+All four milestones are complete and awaiting project-lead acceptance. Source
+recovery is committed at `d04f470`; the main implementation at `9c38591`; the
+first independent review at `e1d556a` found one duplicate post-Clear options
+request in a delayed acknowledgement/server-transition race; correction
+`3e20fa1` matches the original `[322, 321]` request sequence; superseding
+independent review `6b654c5` reports PASS for the assigned focused source/local
+UI scope.
+
+Evidence is under
+`evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-FILTER-LIFECYCLE-001/` and the dated
+delivery review is
+`docs/reviews/2026-10-02-LWB317-UI-MAP-FILTER-LIFECYCLE-001.md`. Successful
+Clear acknowledgement remains controlled synthetic callback/effect proof only;
+preview/native Clear and Treasure actions remain unavailable. Overall
+UI/native/original-pixel status is unchanged.

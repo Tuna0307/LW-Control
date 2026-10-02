@@ -1,0 +1,85 @@
+{
+  "status": "PASS",
+  "scope": "Offline preview browser evidence only. Interactive checks used the existing attached Chrome browser against the worker-started Vite server. One isolated headless Edge capture supplied the required real 375 px narrow viewport. No native/gameplay operation succeeded.",
+  "interactive": {
+    "baseUrl": "http://127.0.0.1:4319/?previewPage=map-data",
+    "cityAllianceIdentity": [
+      {
+        "selection": "name:none",
+        "observed": "1 item; Sentinel Alliance none present"
+      },
+      {
+        "selection": "none",
+        "observed": "13 items; Sentinel Alliance none absent"
+      },
+      {
+        "selection": "name:all",
+        "observed": "1 item; Sentinel Alliance all present"
+      },
+      {
+        "selection": "name:A%2FB%20%E6%9D%B1%E4%BA%AC%20%26%20%25",
+        "observed": "1 item; URI Alliance Commander present"
+      }
+    ],
+    "treasurePreferences": {
+      "missingStorageInitial": {
+        "includeForeignRadarTreasures": false,
+        "luckyFirst": true
+      },
+      "afterRealPointerToggles": {
+        "includeForeignRadarTreasures": true,
+        "luckyFirst": false,
+        "storage": {
+          "lwbridge.mapIncludeForeignRadarTreasures": "true",
+          "lwbridge.mapLuckyTreasurePriority": "false"
+        }
+      },
+      "typeSelection": {
+        "selectedKey": "2",
+        "result": "30 items",
+        "firstRows": "Fixture Lucky Treasure"
+      },
+      "remountAndReload": {
+        "includeForeignRadarTreasures": true,
+        "luckyFirst": false
+      },
+      "nativeClaimButtonsDisabled": true
+    },
+    "localeTheme": {
+      "englishLight": "City and Treasure controls exercised",
+      "japaneseDark": {
+        "documentLang": "ja",
+        "documentTheme": "dark",
+        "includeForeignRadarTreasures": true,
+        "luckyFirst": false
+      }
+    },
+    "previewClear": {
+      "input": "real browser pointer click",
+      "successfulDeletionObserved": false,
+      "note": "Preview clear remains rejection-only. Successful Clear lifecycle proof is synthetic callback/effect evidence, not browser/native deletion proof."
+    },
+    "consoleErrors": [],
+    "taskStorageAfterInteractiveCleanup": {
+      "lwbridge.mapIncludeForeignRadarTreasures": null,
+      "lwbridge.mapLuckyTreasurePriority": null
+    }
+  },
+  "narrowViewport": {
+    "browser": "Microsoft Edge headless",
+    "width": 375,
+    "height": 3000,
+    "language": "ja",
+    "theme": "dark",
+    "state": "map-treasure",
+    "screenshot": "screenshots/treasure-ja-dark-narrow-375.png",
+    "sha256": "bc6856dde8749c87b19996c41c7f8f82836ef634a2b4a352e3fd24c9f021bf46",
+    "note": "Inspected image shows Japanese/dark Map Treasure controls and rows at 375 px width. The Treasure type field, both checkboxes, Search, disabled native claim controls, result count and table remain visible; the table is intentionally wider than the narrow viewport and uses its existing internal overflow behavior."
+  },
+  "limits": [
+    "Browser data is deterministic offline preview data, not original post-auth runtime or native gameplay proof.",
+    "The attached browser connector exposes a fixed 1920 CSS-pixel page viewport. Two reversible background Chrome-window resize attempts did not alter that viewport and both native window bounds were restored; the isolated Edge capture provides the actual 375 px evidence.",
+    "Successful Clear acknowledgement behavior is exercised only by the controlled production callback/effect harness. Preview/native Clear remains unavailable.",
+    "Task-owned interactive localStorage changes were removed before the attached browser tab was closed. The isolated Edge profile was deleted after the narrow screenshot."
+  ]
+}

@@ -26,7 +26,7 @@ retirement task. Preserve its source as historical evidence.
 
 ## Current phase
 
-**UI parity — Map filter lifecycle assigned; execution not confirmed**
+**UI parity — Map filter lifecycle awaiting project-lead review**
 
 Earlier static UI baseline acceptance does not establish complete UI/UX parity.
 The current owner priority is UI reproduction before function integration.
@@ -45,7 +45,7 @@ the Map closeout awaits a separate independent acceptance review.
 
 | Work item / campaign | Owner | State | Scope |
 |---|---|---|---|
-| LWB317-UI-MAP-FILTER-LIFECYCLE-001 | Returning worker via manual relay | ASSIGNED; execution not confirmed | Options validation, alliance sentinel separation, acknowledged Clear UI reset, Treasure defaults/persistence/query fields; four milestones, UI only. Lead owns acceptance |
+| LWB317-UI-MAP-FILTER-LIFECYCLE-001 | Returning worker + independent evidence/review workers | AWAITING_REVIEW | Four UI-only milestones delivered through corrected `3e20fa1`; superseding independent review `6b654c5` passes. Options validation, alliance sentinel separation, acknowledged Clear UI reset and Treasure defaults/persistence/query fields have callback/effect plus offline-browser evidence. Native/original-pixel/global status unchanged; lead owns acceptance |
 | LWB317-PM-026 | Project lead continuation | COMPLETE | Independently replays all four milestones and full scheduled suite, closes final en/ja BR6 evidence, corrects stale docs and accepts scoped UI work. Remaining original/UI/native gaps stay explicit |
 | LWB317-UI-MAP-INTERACTIONS-001 | Worker + two subagents; lead verified | COMPLETE / ACCEPTED for focused source/local UI scope | 5b76ae8 A-D accepted by PM-026: request disposal, search/names/selection, Scheduled presentation and integrated QA. Full scheduled replay plus fresh browser checks pass; native/functions/pixels excluded |
 | LWB317-PM-025 | Project lead | COMPLETE review / CHANGES_REQUIRED | Delivery checks pass, but two independent availability cases show obsolete search success/rejection after backend loss; baseline ignored both. Correction is milestone A of INTERACTIONS-001 |

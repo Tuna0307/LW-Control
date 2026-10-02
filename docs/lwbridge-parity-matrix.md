@@ -22,6 +22,15 @@ Its `coverage-matrix.md` explicitly records remaining source-recoverable branche
 Complete all-page UI parity is not accepted. Original visual validation and
 existing Map live-proof scopes remain separate.
 
+Current Map update, 2026-10-02: `LWB317-UI-MAP-FILTER-LIFECYCLE-001` is
+**AWAITING_REVIEW** after corrected product commit `3e20fa1` and superseding
+independent PASS review `6b654c5`. The focused source/local delivery covers
+refreshed alliance/Secret Task level/Treasure type validation, encoded real
+alliance identity versus raw sentinels, acknowledged Clear frontend reset
+semantics, and Treasure preference defaults/storage/query projection. Overall
+Map/UI status below is deliberately unchanged; native Clear/Treasure providers,
+scan/feedback follow-ups and original post-auth pixels remain separate gaps.
+
 | ID | Surface/state | Reference evidence | Reproduction status | Visual validation | Open gaps |
 |---|---|---|---|---|---|
 | UI-000 | Login/account/licensing boundary | RUNTIME OBSERVED 2026-09-29; redacted boundary screenshot | OUT_OF_SCOPE | OUT_OF_SCOPE | Dependency-only investigation if later required |

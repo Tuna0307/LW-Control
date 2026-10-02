@@ -77,14 +77,16 @@ Live-prove each implemented in-scope function against an assistant-owned/current
 
 ## Current instruction
 
-Current assignment, 2026-10-02: **LWB317-UI-MAP-FILTER-LIFECYCLE-001 ASSIGNED;
-execution not confirmed**. Read `docs/work-items/LWB317-UI-MAP-FILTER-LIFECYCLE-001.md`.
-Complete its four UI milestones: refreshed-option validation and alliance identity,
-acknowledged clear-data reset, Treasure defaults/persistence/query projection,
-then integration/evidence. Main worker may use two evidence/test subagents with
-exclusive file ownership. Keep accepted INTERACTIONS/NAVIGATION behavior and
-protected WIP; no native/gameplay work. Finish the bounded task and return to the
-project lead for acceptance without restarting the prior campaign.
+Current delivery, 2026-10-02: **LWB317-UI-MAP-FILTER-LIFECYCLE-001
+AWAITING_REVIEW**. The worker completed all four UI milestones: refreshed-option
+validation, encoded alliance identity, acknowledged Clear frontend resets,
+Treasure defaults/persistence/query projection and integrated evidence. The
+controlled callback/effect suite, accepted INTERACTIONS/NAVIGATION regressions,
+real offline browser controls and a 375 px Japanese/dark preview pass; native
+Clear/Treasure operations remain unavailable. Independent review found one
+duplicate post-Clear option reload, corrected in `3e20fa1`, and the superseding
+review at `6b654c5` reports PASS for the focused source/local scope. Project lead
+owns acceptance; overall UI/native/original-pixel status is unchanged.
 
 Previous decision, 2026-10-02: **PM-026 accepts INTERACTIONS-001 and corrected
 NAVIGATION-001 for focused source/local UI scope**. Lead continued the usage-limit
