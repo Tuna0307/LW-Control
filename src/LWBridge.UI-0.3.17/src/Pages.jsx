@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Activity, useEffect, useMemo, useRef, useState } from "react";
 import { AutomationMeta, previewFutureTime } from "./AutomationMeta.jsx";
 import { DispatchAssistManual } from "./DispatchAssistManual.jsx";
 import { RallyJoinSettings } from "./RallyJoinSettings.jsx";
@@ -763,8 +763,8 @@ export function SquadsPage({ previewState = "" }) {
         <button type="button" role="tab" className={tab === "afk" ? "active" : ""} aria-selected={tab === "afk"} onClick={() => selectTab("afk")}>{t("squad.tabAfk")}</button>
         <button type="button" role="tab" className={tab === "equipment" ? "active" : ""} aria-selected={tab === "equipment"} onClick={() => selectTab("equipment")}>{t("squad.tabEquipment")}</button>
       </div>
-      {visitedTabs.has("afk") ? <div style={tab === "afk" ? undefined : { display: "none" }}><AfkContent previewEnabled={previewEnabled} previewState={previewState} /></div> : null}
-      {visitedTabs.has("equipment") ? <div style={tab === "equipment" ? undefined : { display: "none" }}><EquipmentContent previewEnabled={previewEnabled} previewState={previewState} /></div> : null}
+      {visitedTabs.has("afk") ? <Activity mode={tab === "afk" ? "visible" : "hidden"}><AfkContent previewEnabled={previewEnabled} previewState={previewState} /></Activity> : null}
+      {visitedTabs.has("equipment") ? <Activity mode={tab === "equipment" ? "visible" : "hidden"}><EquipmentContent previewEnabled={previewEnabled} previewState={previewState} /></Activity> : null}
     </section>
   );
 }
@@ -1119,7 +1119,14 @@ function EquipmentContent({ previewEnabled, previewState = "" }) {
   const [dropSuccess, setDropSuccess] = useState([]);
   const [toast, setToast] = useState("");
   const [lastPreviewAction, setLastPreviewAction] = useState("");
-  const busyKey = fixture.busyKey;
+  const [actionBusyKey, setActionBusyKey] = useState("");
+  const [configSaving, setConfigSaving] = useState(false);
+  const [configError, setConfigError] = useState(null);
+  const acknowledgementState = useRef({ previewState, rejectionConsumed: false, pendingPromise: null });
+  if (acknowledgementState.current.previewState !== previewState) {
+    acknowledgementState.current = { previewState, rejectionConsumed: false, pendingPromise: null };
+  }
+  const busyKey = fixture.busyKey || actionBusyKey;
   const busy = Boolean(busyKey);
   const online = fixture.online;
   const selectedPreset = presets.find((preset) => preset.id === selectedPresetId) || presets[0];
@@ -1130,6 +1137,57 @@ function EquipmentContent({ previewEnabled, previewState = "" }) {
   const catalog = useMemo(() => equipmentCatalog(fixture.initialEquipmentConfig, fixture.squads), [fixture.initialEquipmentConfig, fixture.squads]);
   const positionCount = selectedPreset ? equipmentPositionCount(selectedPreset) : 0;
   const equipmentCount = selectedPreset ? equipmentItemCount(selectedPreset) : 0;
+
+  const editPresets = (next) => {
+    setPresets(next);
+    setConfigError(null);
+  };
+
+  const acknowledgePreviewConfig = () => {
+    if (previewState === "squads-equipment-rename-pending") {
+      acknowledgementState.current.pendingPromise ||= new Promise(() => {});
+      return acknowledgementState.current.pendingPromise;
+    }
+    if (previewState === "squads-equipment-rename-error" && !acknowledgementState.current.rejectionConsumed) {
+      acknowledgementState.current.rejectionConsumed = true;
+      return Promise.reject(new Error("PREVIEW_EQUIPMENT_SAVE_FAILED"));
+    }
+    return true;
+  };
+
+  const flushPreviewConfig = (nextPresets = presets) => {
+    setConfigError(null);
+    const acknowledgement = acknowledgePreviewConfig();
+    const confirm = () => {
+      const confirmed = cloneEquipmentValue(nextPresets);
+      setConfirmedPresets(confirmed);
+      return confirmed;
+    };
+    if (!acknowledgement || typeof acknowledgement.then !== "function") return acknowledgement ? confirm() : null;
+    setConfigSaving(true);
+    return acknowledgement
+      .then((value) => value ? confirm() : null)
+      .catch((error) => {
+        setConfigError(error instanceof Error ? error : new Error(String(error)));
+        return null;
+      })
+      .finally(() => setConfigSaving(false));
+  };
+
+  const discardPreviewConfig = () => {
+    setPresets(cloneEquipmentValue(confirmedPresets));
+    setConfigError(null);
+    return cloneEquipmentValue(confirmedPresets);
+  };
+
+  const configFeedback = {
+    error: configError,
+    saving: configSaving,
+    store: {
+      flush: () => flushPreviewConfig(presets),
+      refresh: () => discardPreviewConfig(),
+    },
+  };
 
   const markDropSuccess = (keys) => {
     setDropSuccess(keys);
@@ -1144,7 +1202,7 @@ function EquipmentContent({ previewEnabled, previewState = "" }) {
       return;
     }
     if (!result.handled) return;
-    setPresets(result.presets);
+    editPresets(result.presets);
     markDropSuccess(result.successKeys);
   };
 
@@ -1152,7 +1210,7 @@ function EquipmentContent({ previewEnabled, previewState = "" }) {
     if (dragged?.kind !== "squad" || !selectedPreset || busy) return;
     const result = swapEquipmentSquads(presets, selectedPreset.id, dragged.squadIndex, targetSquadIndex, fixture.squads);
     if (!result.handled) return;
-    setPresets(result.presets);
+    editPresets(result.presets);
     markDropSuccess(result.successKeys);
   };
 
@@ -1177,16 +1235,30 @@ function EquipmentContent({ previewEnabled, previewState = "" }) {
       return;
     }
     const nextPresets = presets.map((preset) => preset.id === selectedPreset.id ? { ...preset, name } : preset);
-    setPresets(nextPresets);
-    setConfirmedPresets(cloneEquipmentValue(nextPresets));
-    setRenameOpen(false);
-    setRenameValue("");
+    editPresets(nextPresets);
+    setActionBusyKey("rename");
+    const acknowledgement = flushPreviewConfig(nextPresets);
+    const finish = (value) => {
+      if (value) {
+        setRenameOpen(false);
+        setRenameValue("");
+      }
+      setActionBusyKey("");
+    };
+    if (acknowledgement && typeof acknowledgement.then === "function") acknowledgement.then(finish, () => finish(null));
+    else finish(acknowledgement);
   };
 
   const savePreviewConfig = () => {
-    if (!selectedPreset) return;
-    setConfirmedPresets(cloneEquipmentValue(presets));
-    setToast(t("squad.equipmentConfigSaved"));
+    if (!selectedPreset || busy) return;
+    setActionBusyKey("save-all");
+    const acknowledgement = flushPreviewConfig(presets);
+    const finish = (value) => {
+      if (value) setToast(t("squad.equipmentConfigSaved"));
+      setActionBusyKey("");
+    };
+    if (acknowledgement && typeof acknowledgement.then === "function") acknowledgement.then(finish, () => finish(null));
+    else finish(acknowledgement);
   };
 
   const resultText = fixture.result ? t(
@@ -1224,6 +1296,7 @@ function EquipmentContent({ previewEnabled, previewState = "" }) {
 
   return (
     <div className="equipment-preset-layout" data-preview-fixture={previewEnabled ? previewState || "squads-equipment" : "no-equipment-presets"} data-preview-action={lastPreviewAction || undefined} data-equipment-busy={busyKey || undefined}>
+      {!renameOpen ? <PreviewConfigError config={configFeedback} t={t} label={t("squad.equipmentPresets")} /> : null}
       <aside className="equipment-preset-rail">
         <strong>{t("squad.equipmentPresets")}</strong>
         <div className="equipment-preset-list">{presets.length ? presets.slice(0, EQUIPMENT_PRESET_LIMIT).map((preset, index) => <button type="button" key={preset.id} className={preset.id === selectedPreset?.id ? "active" : ""} onClick={() => setSelectedPresetId(preset.id)}><span>{preset.name}{dirtyPresetIds.has(preset.id) ? " *" : ""}</span><small>{index < 4 ? `Alt+${index + 1} · ` : ""}{t("squad.presetSummary", { positions: equipmentPositionCount(preset), equips: equipmentItemCount(preset) })}</small></button>) : <span className="muted">{t("squad.noEquipmentPresets")}</span>}</div>
@@ -1271,7 +1344,7 @@ function EquipmentContent({ previewEnabled, previewState = "" }) {
         </div>
         {fixture.result ? <div className={`equipment-result equipment-result-${fixture.result.state}`}>{resultText}</div> : null}
       </main>
-      {renameOpen ? <EquipmentDialog busy={busy} onClose={closeRename}><div className="equipment-preset-dialog"><strong id="equipment-preset-title">{t("common.rename")}</strong><label>{t("squad.presetNamePrompt")}<input autoFocus disabled={busy} value={renameValue} onChange={(event) => setRenameValue(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); saveRename(); } }} /></label><div className="equipment-preset-actions"><button type="button" disabled={busy} onClick={closeRename}>{t("common.cancel")}</button><button type="button" className="primary" disabled={!renameValue.trim() || busy} onClick={saveRename}>{t("common.saveConfig")}</button></div></div></EquipmentDialog> : null}
+      {renameOpen ? <EquipmentDialog busy={busy} onClose={closeRename}><div className="equipment-preset-dialog"><PreviewConfigError config={configFeedback} t={t} label={t("squad.equipmentPresets")} /><strong id="equipment-preset-title">{t("common.rename")}</strong><label>{t("squad.presetNamePrompt")}<input autoFocus disabled={busy} value={renameValue} onChange={(event) => setRenameValue(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); saveRename(); } }} /></label><div className="equipment-preset-actions"><button type="button" disabled={busy} onClick={closeRename}>{t("common.cancel")}</button><button type="button" className="primary" disabled={!renameValue.trim() || busy} onClick={saveRename}>{t("common.saveConfig")}</button></div></div></EquipmentDialog> : null}
       {toast ? <div className="equipment-toast" role="status">{toast}</div> : null}
       {fixture.progress ? <div className="equipment-apply-progress" role="status"><strong>{progressText}</strong><progress max={Math.max(1, fixture.progress.total)} value={fixture.progress.total > 0 ? fixture.progress.current : undefined} /></div> : null}
     </div>

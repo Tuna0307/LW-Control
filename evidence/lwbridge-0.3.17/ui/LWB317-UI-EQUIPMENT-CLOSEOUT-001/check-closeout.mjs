@@ -207,6 +207,7 @@ function renderEquipment(state, catalog = en) {
     useI18n: () => ({ t: tFor(catalog) }),
     ...equipment,
     EquipmentDialog: "Dialog",
+    PreviewConfigError: () => null,
     window: fakeWindow,
   });
   const render = () => { hook.begin(); return component({ previewEnabled: true, previewState: state }); };

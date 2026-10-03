@@ -1,0 +1,126 @@
+{
+  "result": "LWB317_EQUIPMENT_R1_BROWSER_OK",
+  "viewport": {
+    "cssWidth": 1920,
+    "cssHeight": 855,
+    "devicePixelRatio": 1,
+    "capturedScreenshotWidth": 1600,
+    "capturedScreenshotHeight": 713,
+    "capturedScreenshotScale": 0.8333333333333334
+  },
+  "enLight": {
+    "success": {
+      "renamedTo": "Retained R1",
+      "dialogClosed": true,
+      "dirtyCleared": true,
+      "movedItemStateRetained": true
+    },
+    "pending": {
+      "value": "Pending EN",
+      "dialogOpen": true,
+      "ariaBusy": "true",
+      "busyKey": "rename",
+      "inputDisabled": true,
+      "saveDisabled": true,
+      "screenshot": "screenshots/rename-pending-en-light.jpg",
+      "screenshotSha256": "6A9ED4045DB4C99361EBE3B88B843053A55FE13DC40F43BDECCD8083592D8725"
+    },
+    "error": {
+      "dialogOpen": true,
+      "busyKey": null,
+      "copy": "Equipment presets Changes have not been saved. Retry Discard unsaved changes",
+      "buttons": [
+        "Retry",
+        "Discard unsaved changes"
+      ]
+    }
+  },
+  "jaDark": {
+    "success": {
+      "renamedTo": "成功 R1",
+      "dialogClosed": true,
+      "dirtyCleared": true
+    },
+    "pending": {
+      "value": "保留 R1",
+      "dialogOpen": true,
+      "ariaBusy": "true",
+      "busyKey": "rename",
+      "inputDisabled": true,
+      "saveDisabled": true
+    },
+    "error": {
+      "value": "エラー R1",
+      "dialogOpen": true,
+      "ariaBusy": "false",
+      "busyKey": null,
+      "inputDisabled": false,
+      "copy": "装備プリセット 変更は保存されていません。 再試行 未保存の変更を破棄",
+      "buttons": [
+        "再試行",
+        "未保存の変更を破棄"
+      ],
+      "retryKeptDialogOpen": true,
+      "retryClearedError": true,
+      "saveAfterRetryClosedDialog": true,
+      "saveAfterRetrySelectedName": "エラー R1",
+      "screenshot": "screenshots/rename-error-ja-dark.jpg",
+      "screenshotSha256": "AA6B732369947D9491A7C3303BB2D5E95CFF5BC77141ED5F5C204D11FDA60067"
+    }
+  },
+  "activityLifecycle": {
+    "visibleEquipmentAlt2": {
+      "defaultPrevented": true,
+      "action": "apply-all:equipment-preset-fixed-2"
+    },
+    "hiddenEquipmentAlt3": {
+      "activeTab": "AFK Tasks",
+      "defaultPrevented": false,
+      "hiddenActionUnchanged": "apply-all:equipment-preset-fixed-2",
+      "netEquipmentKeydownListeners": 0
+    },
+    "returnedEquipment": {
+      "netEquipmentKeydownListeners": 1,
+      "selectedName": "Retained R1",
+      "movedSourceTitle": "Fixture Item 1-2-1",
+      "movedTargetTitle": "Fixture Item 1-1-1",
+      "alt4Action": "apply-all:equipment-preset-fixed-4"
+    },
+    "renameDialog": {
+      "beforeHide": {
+        "open": true,
+        "value": "Modal retained"
+      },
+      "whileHidden": {
+        "open": false,
+        "value": "Modal retained"
+      },
+      "afterReturn": {
+        "open": true,
+        "value": "Modal retained"
+      },
+      "escapeWhileVisibleClosed": true
+    },
+    "toastTimer": {
+      "visibleBeforeHide": true,
+      "retainedAfter1950msHidden": true,
+      "visibleImmediatelyAfterReturn": true,
+      "clearedAfter1950msVisible": true
+    },
+    "dropTimer": {
+      "scheduled450ms": 1,
+      "firedWhileTab": "AFK Tasks",
+      "staleDropSuccessAfterReturn": false
+    },
+    "afkEffect": {
+      "pickerOpenBeforeHide": true,
+      "pickerRetainedAfterEscapeWhileHidden": true,
+      "pickerClosedAfterEscapeWhenVisibleAgain": true
+    }
+  },
+  "console": {
+    "warnings": [],
+    "errors": []
+  },
+  "limits": "Browser proof uses deterministic preview fixtures and the real React 19 mounted UI. It does not prove native gameplay/provider integration or post-auth original pixels."
+}

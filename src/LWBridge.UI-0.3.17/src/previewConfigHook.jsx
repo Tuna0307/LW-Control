@@ -35,11 +35,12 @@ export function usePreviewConfig(initial, valid, failFirstSave = false, scope = 
   return { ...state, store };
 }
 
-export function PreviewConfigError({ config, t }) {
+export function PreviewConfigError({ config, t, label = "", disabled = false }) {
   if (!config.error) return null;
   return <div className="automation-error" role="alert">
+    {label ? <strong>{label} </strong> : null}
     <span>{t("configSave.failed")}</span>{" "}
-    <button type="button" disabled={config.saving} onClick={() => config.store.flush().catch(() => {})}>{t("common.retry")}</button>{" "}
-    <button type="button" disabled={config.saving} onClick={() => config.store.refresh(true).catch(() => {})}>{t("configSave.discard")}</button>
+    <button type="button" disabled={disabled || config.saving} onClick={() => Promise.resolve(config.store.flush()).catch(() => {})}>{t("common.retry")}</button>{" "}
+    <button type="button" disabled={disabled || config.saving} onClick={() => Promise.resolve(config.store.refresh(true)).catch(() => {})}>{t("configSave.discard")}</button>
   </div>;
 }
