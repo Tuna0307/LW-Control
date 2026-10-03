@@ -15,7 +15,7 @@ const hash=data=>crypto.createHash('sha256').update(data).digest('hex').toUpperC
 const original=(name)=>compile(squad,name,{oe:afk.normalizeJoinRestrictions,se:afk.validJoinRestrictions,k:p=>!p.distanceFilterEnabled||p.maxDistance>0});
 const record=(name,count)=>results.push({name,count,result:'PASS'});
 const tFor=catalog=>(key,vars={})=>String(catalog[key]||key||'').replace(/\{(\w+)\}/g,(m,k)=>vars[k]??m);
-for(const name of ['oe','se','ue','Ce','we','Te','ye','pe','me','I']){
+for(const name of ['oe','se','ue','Ce','we','Te','ye','pe','me','I','N','de']){
  const n=fn(squad,name); locators[`Squad.${name}`]={asset:'SquadPanel-HC3-DJei.js',utf8ByteOffset:Buffer.byteLength(squad.slice(0,n.start)),utf8ByteLength:Buffer.byteLength(raw(squad,n)),sha256:hash(raw(squad,n))};
 }
 for(const name of ['me','O','E','T','Ce']){
@@ -85,6 +85,7 @@ const originalFuture=compile(automation,'E',{S:jsx});
 const stateFn=compile(pages,'sourceAutomationState');
 const presentation=compile(pages,'automationRuntimePresentation',{previewTime:compile(pages,'previewTime'),previewFutureTime:future});
 const originalCard=compile(cardSource,'c',{r:()=>({t:tFor(en)}),o:{useState:()=>[false,()=>{}],useId:()=>''},s:jsx,a:'Switch',i:'Icon'});
+const cardNode=fn(cardSource,'c');locators['AutomationCard.c']={asset:'AutomationCard-LCx_jIi7.js',utf8ByteOffset:Buffer.byteLength(cardSource.slice(0,cardNode.start)),utf8ByteLength:Buffer.byteLength(raw(cardSource,cardNode)),sha256:hash(raw(cardSource,cardNode))};
 const slices=tree=>flatten(tree).filter(n=>['automation-card-meta-row','automation-card-summary'].includes(n.props?.className)).map(stable);
 let metaCount=0;
 for(const online of [false,true])for(const active of [false,true])for(const state of ['common.waiting','common.success','common.failed','automation.running'])for(const actionBusy of [false,true]){
@@ -115,12 +116,9 @@ for(const [title,key,runtimeName,enabledName] of defs){
   const expectedMeta=originalCard({state:stateFn('',enabled),active:enabled,online:true,...props});
   const actualMeta=meta({state:stateFn('',enabled),active:enabled,online:true,presentation:current});
   // Replace now-dependent future date labels with identical time props before comparison.
-  const compact=tree=>JSON.stringify(slices(tree)).replace(/today|tomorrow/g,'relative-day');
-  if(title==='Trucks'||title==='Secret Task'||title.startsWith('Alliance')||title.startsWith('Excavation')){
    const expectedSummaries=flatten(expectedMeta).filter(n=>n.props?.className==='automation-card-summary').map(n=>text(n));
    const currentSummaries=flatten(actualMeta).filter(n=>n.props?.className==='automation-card-summary').map(n=>text(n));
    assert.deepEqual(currentSummaries,expectedSummaries,title);
-  }
   summaryCount++;
  }
 }
@@ -210,6 +208,72 @@ assert.deepEqual(store.getSnapshot().draft[1],b);await store.flush();assert.deep
 store.edit(v=>v.map(p=>p.id==='profile-b'?{...p,name:'B changed'}:p),false);await store.refresh(true);assert.equal(store.getSnapshot().draft[1].name,'B');store.dispose();
 record('two profile IDs and real draft error Retry/Discard',5);
 
+// JS confirmation is inert here; execute the actual production Delete callback
+// and the original nested I.lt (the top-level lt is an unrelated animation helper).
+const originalI=raw(squad,fn(squad,'I'));
+const originalDeleteNode=nodes(originalI).find(n=>n.type==='FunctionDeclaration'&&n.id.name==='lt'&&raw(originalI,n).includes('window.confirm'));
+const originalDeleteSource=raw(originalI,originalDeleteNode);
+const originalDeleteOffset=fn(squad,'I').start+originalDeleteNode.start;
+locators['Squad.I.lt']={asset:'SquadPanel-HC3-DJei.js',utf8ByteOffset:Buffer.byteLength(squad.slice(0,originalDeleteOffset)),utf8ByteLength:Buffer.byteLength(originalDeleteSource),sha256:hash(originalDeleteSource)};
+let deletionCases=0;
+for(const accept of [false,true]){
+ const start=[a,b];let current=structuredClone(start),edits=0,flushes=0,currentPrompt,originalPrompt,originalSaved,originalSelection;
+ const hook=hooks();
+ const config={confirmed:start,get draft(){return current;},store:{getSnapshot:()=>({draft:current}),edit:(v,delay)=>{assert.equal(delay,false);current=typeof v==='function'?v(current):v;edits++;},flush:async()=>{flushes++;}}};
+ const toolbar={draft:fixtures.initialAfkToolbarConfig('squads-profile-positive')};
+ let calls=0;
+ const component=compile(pages,'AfkContent',{h,Fragment,...hook,useI18n:()=>({t:tFor(en)}),usePreviewConfig:()=>calls++%2===0?config:toolbar,...afk,...fixtures,
+   initialAfkProfiles:()=>start,validAfkToolbarConfig:()=>true,PreviewConfigError:'Error',CompactAfkCard:'Card',AfkProfileEditor:'Editor',AllianceDrillPreviewSettings:'Drill',GarrisonPreviewSettings:'Garrison',ZombieBusPreviewSettings:'Zombie',
+   window:{confirm:message=>{currentPrompt=message;return accept;}}});
+ const render=()=>{hook.begin();return component({previewEnabled:true,previewState:'squads-profile-positive'});};
+ const tree=render();const card=flatten(tree).find(n=>n.type==='article'&&n.props.key==='profile-a');
+ flatten(card).find(n=>n.type==='button'&&text(n)==='Delete').props.onClick();
+ const originalDelete=compile(originalDeleteSource,'lt',{window:{confirm:message=>{originalPrompt=message;return accept;}},h:tFor(en),S:start,De:{current:'profile-a'},Ee:id=>originalSelection=id,Ze:async value=>originalSaved=value,V:()=>{},Fe:()=>{}});
+ await originalDelete(a);
+ assert.equal(currentPrompt,originalPrompt);
+ assert.deepEqual(current,accept?originalSaved:start);assert.equal(edits,accept?1:0);assert.equal(flushes,accept?1:0);
+ if(accept){assert.equal(hook.values[1],originalSelection);assert.equal(originalSelection,'profile-b');}
+ deletionCases++;
+}
+record('actual original/current profile Delete confirmation cancel and accept',deletionCases);
+
+let toolbarCases=0;
+const sourceToolbar=name=>nodes(originalI).find(n=>n.type==='LogicalExpression'&&raw(originalI,n.left)===`k===\`${name}\``);
+for(const name of ['potion','drill']){
+ const node=sourceToolbar(name),offset=fn(squad,'I').start+node.start;
+ locators[`Squad.I.${name}`]={asset:'SquadPanel-HC3-DJei.js',utf8ByteOffset:Buffer.byteLength(squad.slice(0,offset)),utf8ByteLength:Buffer.byteLength(raw(originalI,node)),sha256:hash(raw(originalI,node))};
+}
+for(const catalog of [en,ja])for(const disabled of [false,true]){
+ const t=tFor(catalog),value={enabled:true,squadIndexes:[2,1],activeRally:true,joinRestrictions:afk.normalizeJoinRestrictions(undefined,1,true)};
+ let changed;const hook=hooks();
+ const component=compile(pages,'AllianceDrillPreviewSettings',{h,Fragment,...hook,useI18n:()=>({t}),...afk,...fixtures,ToggleRow:'Toggle',RallyJoinSettings:'Join'});
+ const render=()=>{hook.begin();return component({disabled,value,onChange:next=>changed=next,previewState:'squads-profile-drill-waiting'});};
+ const current=render(),runtime=fixtures.previewDrillRuntime('squads-profile-drill-waiting');
+ const original=evaluate(raw(originalI,sourceToolbar('drill')),{k:'drill',A:jsx,h:t,ht:'2 → 1',E:value,B:disabled?'save':'',w:props=>({type:'Toggle',props}),tt:()=>{},_t:[2,1,3,4],gt:new Set([2,1]),Re:null,Be:null,ze:()=>{},Ve:()=>{},it:()=>{},rt:()=>{},T:'Icon',ye:'Join',t:false,y:{state:{edit(){}}},K:runtime,Ae:{}});
+ const currentGroup=flatten(current).find(n=>n.props?.className==='automation-compact-choice-group automation-squad-priority');
+ const originalGroup=flatten(original).find(n=>n.props?.className==='automation-compact-choice-group automation-squad-priority');
+ assert.equal(currentGroup.props['aria-label'],originalGroup.props['aria-label']);
+ const controls=tree=>flatten(tree).filter(n=>n.type==='input').map(n=>({checked:n.props.checked,disabled:n.props.disabled}));
+ assert.deepEqual(controls(currentGroup),controls(originalGroup));
+ const detail=tree=>flatten(tree).filter(n=>n.type==='span'&&n.props.className==='muted').map(text);
+ assert.deepEqual(detail(current),detail(original));toolbarCases+=3;
+ if(!disabled){const priorities=flatten(currentGroup).filter(n=>n.props.className?.startsWith('automation-squad-priority-item'));
+ priorities[0].props.onDragStart();const dragging=render();const target=flatten(dragging).find(n=>n.props.key===1&&n.props.className?.startsWith('automation-squad-priority-item'));
+ target.props.onDragOver({preventDefault(){}});assert.ok(flatten(render()).some(n=>n.props.className?.includes('drag-over')));target.props.onDrop({preventDefault(){}});assert.deepEqual(changed.squadIndexes,[1,2]);toolbarCases+=2;}
+}
+for(const catalog of [en,ja])for(const enabled of [false,true])for(const stamina of [0,50,9999,NaN]){
+ const t=tFor(catalog),hook=hooks(),toolbar={draft:{...fixtures.initialAfkToolbarConfig('squads-profile-potion-positive'),minStamina:stamina,preferFifty:true},store:{getSnapshot(){return {draft:this.value};},value:null,edit(){},flush:async()=>{}}};
+ let calls=0;const config={draft:[],confirmed:[]};
+ const component=compile(pages,'AfkContent',{h,Fragment,...hook,useI18n:()=>({t}),usePreviewConfig:()=>calls++%2===0?config:toolbar,...afk,...fixtures,initialAfkProfiles:()=>[],validAfkToolbarConfig:()=>true,PreviewConfigError:'Error',CompactAfkCard:'Card',AfkProfileEditor:'Editor',AllianceDrillPreviewSettings:'Drill',GarrisonPreviewSettings:'Garrison',ZombieBusPreviewSettings:'Zombie'});
+ hook.begin();const current=component({previewEnabled:enabled,previewState:'squads-profile-potion-positive'});
+ const potion=flatten(current).find(n=>n.type==='section'&&n.props.className==='automation-card monster-afk-toolbar-settings');
+ const original=evaluate(raw(originalI,sourceToolbar('potion')),{k:'potion',A:jsx,h:t,te:stamina,re:true,B:enabled?'':'busy',ae:()=>{},ce:()=>{}});
+ const controls=tree=>flatten(tree).filter(n=>n.type==='input').map(n=>Object.fromEntries(['type','min','max','step','value','checked','disabled'].filter(k=>n.props[k]!==undefined).map(k=>[k,['min','max','step'].includes(k)?Number(n.props[k]):n.props[k]])));
+ assert.deepEqual(controls(potion),controls(original));assert.equal(text(potion),text(original));toolbarCases+=2;
+}
+for(const state of ['','native','native-unavailable','map-truck'])assert.deepEqual(fixtures.previewDrillRuntime(state),[]);
+record('actual Potion form Drill source wait-detail priority and drag predicates',toolbarCases+4);
+
 // Distinguishing immutable worker checkpoint: test the actual previous imports/functions.
 const baseline=read('evidence/lwbridge-0.3.17/ui/LWB317-UI-AUTOMATION-AFK-CLOSEOUT-001/takeover-baseline/Pages.jsx');
 const before=[];
@@ -223,7 +287,7 @@ before.push({case:'unrecovered full status grid',failed:baseline.includes('class
 assert.equal(before.filter(c=>c.failed).length,5);
 record('immutable baseline distinguishes five corrected render omissions',5);
 
-const assets=['AutomationPanel-BJ0gIqFh.js','SquadPanel-HC3-DJei.js','index-BVfnK1wp.js','GameAssetImage-Diy9VTIr.js','AutomationCard-LCx_jIi7.js'].map(name=>({path:`evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/${name}`,sha256:hash(read(`evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/${name}`))}));
+const assets=['AutomationPanel-BJ0gIqFh.js','SquadPanel-HC3-DJei.js','index-BVfnK1wp.js','GameAssetImage-Diy9VTIr.js','AutomationCard-LCx_jIi7.js','rewardDisplay-eZWrd6iS.js'].map(name=>({path:`evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/${name}`,sha256:hash(read(`evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/${name}`))}));
 const report={result:'LWB317_AUTOMATION_AFK_ACTUAL_SOURCE_OK',results,baseline:before,locators,assets,limits:'Inert actual original/current render and local payload proof. No live game, native provider or original post-auth pixels.'};
 if(process.argv.includes('--record'))fs.writeFileSync(path.join(here,'actual-source-results.json'),JSON.stringify(report,null,2)+'\n');
 console.log(JSON.stringify({result:report.result,results},null,2));

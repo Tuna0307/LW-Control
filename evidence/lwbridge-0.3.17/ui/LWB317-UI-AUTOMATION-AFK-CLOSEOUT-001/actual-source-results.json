@@ -57,6 +57,16 @@
       "result": "PASS"
     },
     {
+      "name": "actual original/current profile Delete confirmation cancel and accept",
+      "count": 2,
+      "result": "PASS"
+    },
+    {
+      "name": "actual Potion form Drill source wait-detail priority and drag predicates",
+      "count": 52,
+      "result": "PASS"
+    },
+    {
       "name": "immutable baseline distinguishes five corrected render omissions",
       "count": 5,
       "result": "PASS"
@@ -145,6 +155,18 @@
       "utf8ByteLength": 22554,
       "sha256": "0A4895C21AD443AA7A1C05B54CFF2E8DD89F9038BED10DBFFFB9001A4128EE2E"
     },
+    "Squad.N": {
+      "asset": "SquadPanel-HC3-DJei.js",
+      "utf8ByteOffset": 4078,
+      "utf8ByteLength": 362,
+      "sha256": "D06C66780701EB991752B439537488AC511A0F5EB95E1BE10C8E0AC516E411FB"
+    },
+    "Squad.de": {
+      "asset": "SquadPanel-HC3-DJei.js",
+      "utf8ByteOffset": 3975,
+      "utf8ByteLength": 103,
+      "sha256": "9B52541F652548212D4763E2CA9DE5179F98CEB569040E530DB0D76FE2582818"
+    },
     "Automation.me": {
       "asset": "AutomationPanel-BJ0gIqFh.js",
       "utf8ByteOffset": 10331,
@@ -174,6 +196,12 @@
       "utf8ByteOffset": 20446,
       "utf8ByteLength": 79,
       "sha256": "F726F00C0F721D605E76AA763A5970C5B853226415355D17663292E79BB7E1D4"
+    },
+    "AutomationCard.c": {
+      "asset": "AutomationCard-LCx_jIi7.js",
+      "utf8ByteOffset": 98,
+      "utf8ByteLength": 3773,
+      "sha256": "A3FA760F0D42AA4A927C8B6E810407723F2BA314360CD35AC05D3DF08F639657"
     },
     "automation.railway.title": {
       "asset": "AutomationPanel-BJ0gIqFh.js",
@@ -228,6 +256,24 @@
       "utf8ByteOffset": 71741,
       "utf8ByteLength": 1950,
       "sha256": "DDB29B1B93577E19987150618DEB56C89873510B78AA2AEF57BD118C56DAE107"
+    },
+    "Squad.I.lt": {
+      "asset": "SquadPanel-HC3-DJei.js",
+      "utf8ByteOffset": 34009,
+      "utf8ByteLength": 246,
+      "sha256": "824A6F9CA0138BBF6C7FEF1FC4DFDF215C1B59C87D0B8F9554E0B0BFE0C76B84"
+    },
+    "Squad.I.potion": {
+      "asset": "SquadPanel-HC3-DJei.js",
+      "utf8ByteOffset": 37041,
+      "utf8ByteLength": 789,
+      "sha256": "650037C19911156E548374EF1A9DB4AEDEAFB797F605F98F036CD37745AD4DBF"
+    },
+    "Squad.I.drill": {
+      "asset": "SquadPanel-HC3-DJei.js",
+      "utf8ByteOffset": 37831,
+      "utf8ByteLength": 1925,
+      "sha256": "205A191857C8FFB73EE7EAF5B01B670936E7A0152556842B22CBC9B9AB49EAA7"
     }
   },
   "assets": [
@@ -250,6 +296,10 @@
     {
       "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/AutomationCard-LCx_jIi7.js",
       "sha256": "24ED773623C237F8219EFF5443FAC3BA7B55B6E99E168E52FF066FAF2ABE7A61"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/rewardDisplay-eZWrd6iS.js",
+      "sha256": "7F65DD3F5B81C96117AF5E83E8310D6C6A3A48787B1F693D387020255C78E73E"
     }
   ],
   "limits": "Inert actual original/current render and local payload proof. No live game, native provider or original post-auth pixels."

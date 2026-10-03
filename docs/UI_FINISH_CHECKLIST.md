@@ -29,15 +29,16 @@ inflate a percentage using test-case counts or declare unknown surfaces done.
 | Order | UI area | Current basis | Remaining completion gate |
 |---|---|---|---|
 | 0 | Map Auto configuration | COMPLETE / ACCEPTED focused scope by PM-UI-FINISH-001; ten regressions and seven additional lead App cases pass | Closed assigned scope; no new executor campaign |
-| 1 | Automation residuals | CORRECT-002/003 implementations; weekly and Trade follow-ons accepted | Verify Assist selection/status, Gather draft retention, remaining card summaries/errors/timing/shield against current exact source; correct actual gaps and close evidence |
-| 1 | Squads/AFK residuals | Profile/range/member and toolbar code already exists | Verify target grouping/range, member negatives and Potion/Master/Drill/Garrison/Zombie toolbar states; preserve per-ID drafts and verify actual rendered handlers |
+| 1 | Automation residuals | COMPLETE for named source/local branches in AUTOMATION-AFK-CLOSEOUT-001; accepted weekly/Trade unchanged | Assigned gate closed; native assets/producers and original pixels remain outside acceptance |
+| 1 | Squads/AFK residuals | COMPLETE for listed source/local contracts/handlers; real profile/member/toolbar QA recorded | Assigned gate closed; physical drag/confirmation and shared focus breadth remain disclosed proof limits for final audit |
 | 2 | Equipment, City Layout, Hotkeys, Mini Games, Settings | Existing recovered implementations and earlier local QA | Current source-backed audit of conditional states, actual interactions, dialogs and keyboard/drag; fix demonstrated omissions and record asset/data limits |
 | 3 | Shell, Home and Map integration | Existing focused accepted Home/Map work | Final eight-page navigation/theme/locale/layout and fixture/native separation smoke; audit shared shell/profile/popover and the untranslated English Map offline notice visible in Japanese. Preserve accepted units absent counter-evidence |
 | 3 | Overall UI inventory and acceptance | Current parity matrix/ledger contain historical statuses | Reconcile every listed gap against current code/evidence, count remaining source-recoverable branches, retain real unresolved visual/asset dependencies, package final canonical UI and write one current completion report |
 
-The active next assignment is
-docs/work-items/LWB317-UI-AUTOMATION-AFK-CLOSEOUT-001.md (order 1 only).
-Orders 2 and 3 require their own bounded lead assignment after order 1 review.
+Order 1 is closed by the lead takeover/review recorded in
+docs/reviews/2026-10-03-LWB317-UI-AUTOMATION-AFK-CLOSEOUT-001.md.
+Next assign order 2 in medium units: Equipment/City Layout, then Hotkeys/Mini Games/Settings.
+Order 3 remains separate. No subsequent implementation is started by this closeout.
 Do not combine this whole queue into another unbounded worker investigation.
 
 ## Verification discipline

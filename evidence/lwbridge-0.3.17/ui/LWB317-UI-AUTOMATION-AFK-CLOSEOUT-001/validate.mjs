@@ -1,61 +1,27 @@
-import assert from "node:assert/strict";
-import { createHash } from "node:crypto";
-import { readFileSync } from "node:fs";
-import path from "node:path";
-import { fileURLToPath, pathToFileURL } from "node:url";
-
-const here = path.dirname(fileURLToPath(import.meta.url));
-const repo = path.resolve(here, "../../../..");
-const fixtureModule = await import(pathToFileURL(path.join(repo, "src/LWBridge.UI-0.3.17/src/previewAutomationFixtures.js")));
-
-const activeAssist = new Set(["scheduled", "waiting_connection", "retry_wait", "running"]);
-for (const [state, status] of Object.entries({
-  "automation-assist-waiting": "waiting_connection",
-  "automation-assist-retry-wait": "retry_wait",
-  "automation-assist-running": "running",
-  "automation-assist-failed": "failed",
-  "automation-assist-expired": "expired",
-})) {
-  const fixture = fixtureModule.previewAssistFixture(state);
-  assert.equal(fixture.jobs[0].scheduleStatus, status, state);
-  assert.equal(activeAssist.has(status), !["failed", "expired"].includes(status), `${state}: task-row active predicate`);
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import path from 'node:path';
+import crypto from 'node:crypto';
+import {execFileSync} from 'node:child_process';
+import {here,repo} from './harness.mjs';
+const json=name=>JSON.parse(fs.readFileSync(path.join(here,name),'utf8'));
+const hash=b=>crypto.createHash('sha256').update(b).digest('hex').toUpperCase();
+const manifest=json('source-locators.json');
+assert.equal(manifest.targetExecutable.sha256,'4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783');
+assert.equal(hash(fs.readFileSync(manifest.targetExecutable.path)),manifest.targetExecutable.sha256,'actual reference EXE');
+for(const asset of manifest.assets)assert.equal(hash(fs.readFileSync(path.join(repo,asset.path))),asset.sha256,asset.path);
+for(const [name,locator] of Object.entries(manifest.locators)){
+ const bytes=fs.readFileSync(path.join(repo,'evidence/lwbridge-0.3.17/ui/frontend-package/web/assets',locator.asset));
+ assert.equal(hash(bytes.subarray(locator.utf8ByteOffset,locator.utf8ByteOffset+locator.utf8ByteLength)),locator.sha256,name);
 }
-const scheduled = fixtureModule.previewAssistFixture("automation-assist-schedule");
-assert.equal(scheduled.jobs.find((job) => job.scheduleStatus === "failed")?.uuid, "fixture-assist-2");
-assert.equal(scheduled.tasks.some((task) => task.uuid === "fixture-assist-2"), true);
-assert.equal(fixtureModule.previewAssistFixture("automation-assist-empty").tasks.length, 0);
-assert.equal(fixtureModule.previewAssistFixture("automation-assist-busy").busy, true);
-
-for (const state of ["manual_wait", "shield_paused", "runtime_wait", "recalling", "recall_failed", "state_unconfirmed"]) {
-  const previewState = `automation-gather-${state}`;
-  assert.equal(fixtureModule.previewResourceGatherConfig(previewState).enabled, true, previewState);
-}
-assert.deepEqual(fixtureModule.previewResourceGatherRuntime("automation-gather-no-squads").gatherSquadIndexes, []);
-assert.equal(fixtureModule.previewResourceGatherRuntime("automation-gather-runtime_wait").step, "runtime_wait");
-assert.equal(fixtureModule.previewResourceGatherRuntime("automation-gather-manual_wait").gatherSquads[0].pauseReason, "manual_wait");
-assert.equal(fixtureModule.previewResourceGatherRuntime("automation-gather-shield_paused").gatherSquads[0].step, "shield_paused");
-assert.equal(fixtureModule.previewResourceGatherRuntime("automation-gather-view-change").gatherSquadIndexes.includes(3), true);
-
-assert.equal(fixtureModule.previewAutomationRuntime("Trucks").capabilities.batchDeparture, true);
-assert.equal(fixtureModule.previewAutomationRuntime("Secret Task").capabilities.superRefresh, false);
-
-const pages = readFileSync(path.join(repo, "src/LWBridge.UI-0.3.17/src/Pages.jsx"), "utf8");
-assert.match(pages, /runtime\.capabilities\?\.batchDeparture === true/);
-assert.match(pages, /runtime\.capabilities\?\.superRefresh === true/);
-assert.match(pages, /\["recalling", "recall_failed", "state_unconfirmed"\]\.includes\(squadRuntime\?\.step\)/);
-assert.match(pages, /squadRuntime\?\.pauseReason === "manual_wait"/);
-assert.match(pages, /squadRuntime\?\.shieldEndAt/);
-
-const sha256 = (file) => createHash("sha256").update(readFileSync(file)).digest("hex");
-const protectedFiles = new Map([
-  ["src/LWBridge.UI-0.3.17/src/previewAfkFixtures.js", "a41e07a3487fc71b78376ba99609c030ddad6b30e71daac5c428b42eaa6bc447"],
-  ["evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-FILTER-LIFECYCLE-001/filter-lifecycle-results.json", "d7b32b2fbce9f8f4c3945f82c80506d9b22536604058b6228cadf921169afd04"],
-  ["evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-FILTER-LIFECYCLE-001-R1/independent-results.json", "4e1f78a93e8d5a5e3995ba137c08089c48d900b7915f6c896e20fc555a94d2fc"],
-  [".scratch-lwb317/AutomationPanel.pretty.js", "8e7173c71afe650cf1839e7eaa78e67bfa066ff6289ac2141410441e49da2d79"],
-  [".scratch-lwb317/baseline-check.mjs", "9c308b07b2a79632b92eec959e2d1108d61b5809c58f33f3fab69e42403275c9"],
-  [".scratch-lwb317/SquadPanel.pretty.js", "dc973a3adac1f9bc06230229c4a292e8659d0aaa82cdbb6812e97cbc4fc3d3d5"],
-  ["evidence/lwbridge-0.3.17/ui/LWB317-UI-CORRECT-003/screenshots/weekly-save-error-light-en.png", "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"],
-]);
-for (const [relative, expected] of protectedFiles) assert.equal(sha256(path.join(repo, relative)), expected, `protected ${relative}`);
-
-console.log("LWB317_AUTOMATION_AFK_CLOSEOUT_VALIDATOR_OK");
+for(const file of manifest.files)assert.equal(hash(fs.readFileSync(path.join(repo,file.path),'utf8').replace(/\r\n/g,'\n')),file.sha256LF,file.path);
+assert.ok(manifest.screenshots.length>=6);
+for(const file of manifest.screenshots){const bytes=fs.readFileSync(path.join(repo,file.path));assert.equal(hash(bytes),file.sha256,file.path);assert.ok(file.visuallyInspected);assert.ok(bytes.length>1000);}
+const browser=json('browser-results.json');assert.equal(browser.console.length,0);assert.ok(browser.records.length>=15);
+for(const id of ['join-self-confirm','two-id-discard-navigation','departed-member-modal-escape','range-custom-restore-ja','garrison-availability-member-last-squad','assist-preview-select-schedule-cancel','assist-empty-quality-validation','gather-new-squad-radius-retention-ja','inactive-afk-data-fence','drill-wait-detail-ja','potion-range-master-local-toggle','zombie-runtime-table'])assert.equal(browser.records.find(r=>(r.id||r.case)===id)?.result,'PASS',id);
+const verification=json('verification-results.json');assert.ok(verification.results.length>=10);assert.ok(verification.results.every(r=>r.result==='PASS'));
+const report=json('actual-source-results.json');assert.equal(report.result,'LWB317_AUTOMATION_AFK_ACTUAL_SOURCE_OK');assert.ok(report.baseline.every(r=>r.failed));
+const actual=JSON.parse(execFileSync(process.execPath,[path.join(here,'check-closeout.mjs')],{cwd:repo,encoding:'utf8',maxBuffer:8e6}));assert.deepEqual(actual.results,report.results);
+for(const script of ['recover-join-renderer.mjs','recover-assist-renderer.mjs'])execFileSync(process.execPath,[path.join(here,script)],{cwd:repo,stdio:'pipe'});
+const protectedGuard=path.join(here,'../LWB317-UI-MAP-AUTO-CONFIG-001/check-protected-wip.mjs');execFileSync(process.execPath,[protectedGuard],{cwd:repo,stdio:'pipe'});
+console.log(`LWB317_AUTOMATION_AFK_CLOSEOUT_EVIDENCE_OK cases=${report.results.reduce((s,r)=>s+r.count,0)} locators=${Object.keys(manifest.locators).length} screenshots=${manifest.screenshots.length} browser=${browser.records.length} protected=7`);

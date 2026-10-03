@@ -1,6 +1,13 @@
 # LWBridge 0.3.17 feature ledger
 
-Current lead decision, 2026-10-03: MAP-AUTO-CONFIG-001 at ec27577 is COMPLETE / ACCEPTED for focused source/local UI/configuration scope after lead replays, seven additional actual-App cases, saved-layout inspection and evidence/package checks. MAP-CLOSEOUT-002 is closed for its assigned A/B/C scope. Remaining UI follows docs/UI_FINISH_CHECKLIST.md: Automation/AFK residuals, other-page review, final eight-page integration. Active worker: LWB317-UI-AUTOMATION-AFK-CLOSEOUT-001, one AI, no subagents. Aim for source-recoverable UI completion today if feasible; original pixels/native/global parity remain unaccepted.
+Current lead decision, 2026-10-03: AUTOMATION-AFK-CLOSEOUT-001 is COMPLETE for its bounded source/local residual assignment after lead takeover, exact original/current render/handler comparisons, real preview browser QA and evidence/package checks. Code checkpoint 5082968 is followed by Drill wait-detail and evidence closeout. This is lead self-review; full page/pixel/native acceptance is not claimed. MAP-AUTO-CONFIG-001 and its assigned parent closeout retain focused acceptance. Finish-queue order 1 is closed; next is the bounded order-2 Equipment/City Layout audit, then Hotkeys/Mini Games/Settings and final eight-page integration. One AI per chat, no subagents. See the dated AUTOMATION-AFK-CLOSEOUT-001 review and docs/UI_FINISH_CHECKLIST.md.
+
+2026-10-03 Automation/AFK closeout: recovered branch contracts remain
+EXACT_CONTRACT; the assigned current local render/handler/configuration branches
+are validated by the closeout packet and lead review. Native/live states remain
+UNKNOWN / IMPLEMENTED_NOT_VALIDATED, original pixels BLOCKED. Historical broad
+CORRECT-002/003 statuses below are preserved; this bounded follow-on supersedes
+only its named residual branches, not full campaign/page acceptance.
 
 This ledger starts clean for 0.3.17.
 

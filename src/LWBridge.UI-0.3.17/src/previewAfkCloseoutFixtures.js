@@ -12,6 +12,12 @@ import {
 export { previewAllianceMembers, previewGarrisonBuildings };
 
 const isAfkPreview = (state) => state.startsWith("squads-profile");
+// Synthetic supplied rows use the exact I runtime consumer fields. No executor.
+export function previewDrillRuntime(state) {
+  if (!['squads-profile-drill-leading', 'squads-profile-drill-joining', 'squads-profile-drill-waiting'].includes(state)) return [];
+  return [{ activity: 'allianceDrill', running: true, activityRole: state.endsWith('leading') ? 'leader' : 'member', squadIndex: 1,
+    step: state.endsWith('waiting') ? 'waiting_join_delay' : 'joining', joinTargetName: 'Fixture Drill rally', joinWaitSeconds: 3 }];
+}
 export function previewMemberFixture(state) {
   return isAfkPreview(state) ? baseMemberFixture(state)
     : { ready: false, failed: false, online: false, selfUid: "", members: [] };

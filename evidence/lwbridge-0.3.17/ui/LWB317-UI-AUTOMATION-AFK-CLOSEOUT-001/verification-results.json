@@ -1,0 +1,60 @@
+{
+  "results": [
+    {
+      "name": "check",
+      "result": "PASS",
+      "output": "\n> lwbridge-ui-0.3.17@0.3.17-ui-preview check\n> node scripts/check-static.mjs && node scripts/check-home-integration.mjs && node scripts/check-map-integration.mjs && node scripts/check-ui-complete.mjs && node scripts/check-ui-drafts.mjs\n\nLWBridge 0.3.17 static UI scaffold checks passed.\nLWB317_HOME_UI_INTEGRATION_CHECKS_OK\nLWB317_MAP_UI_INTEGRATION_CHECKS_OK\nLWB317_UI_COMPLETE_CHECKS_OK 464 referenced keys {\"en\":1383,\"zh-CN\":1383,\"zh-TW\":1383,\"ja\":1383,\"ko\":1383,\"vi\":1383,\"id\":1383,\"ru\":1383,\"pt\":1383}\nLWB317_UI_DRAFT_CHECKS_OK: concurrent edits, ack, error/retry/discard, no invalid dispatch, join defaults/precision, profile independence and card validation\n"
+    },
+    {
+      "name": "build",
+      "result": "PASS",
+      "output": "\n> lwbridge-ui-0.3.17@0.3.17-ui-preview build\n> node scripts/build-production.mjs\n\nvite v7.3.6 building client environment for production...\ntransforming...\n✓ 71 modules transformed.\nrendering chunks...\ncomputing gzip size...\ndist/index.html                         0.52 kB │ gzip:   0.32 kB\ndist/.vite/manifest.json                1.97 kB │ gzip:   0.47 kB\ndist/assets/dot-offline-CDBA2902.png    5.89 kB\ndist/assets/dot-online-gjSbTzBh.png     6.11 kB\ndist/assets/index-B5AeiHlM.css        126.21 kB │ gzip:  20.89 kB\ndist/assets/zh-CN-itVnuDKE.js          76.68 kB │ gzip:  24.56 kB\ndist/assets/zh-TW-DVthOXyu.js          76.83 kB │ gzip:  24.63 kB\ndist/assets/id-BtyGe98E.js             83.18 kB │ gzip:  23.59 kB\ndist/assets/pt-Cul_YYVr.js             88.30 kB │ gzip:  25.02 kB\ndist/assets/ko-DE-iQMo2.js             89.11 kB │ gzip:  25.28 kB\ndist/assets/ja-jFyUdeaw.js             92.76 kB │ gzip:  26.17 kB\ndist/assets/vi-fYT0cU8d.js             95.47 kB │ gzip:  25.18 kB\ndist/assets/ru-DLfZC5wd.js            119.26 kB │ gzip:  29.33 kB\ndist/assets/index-BJVP-hGN.js         578.67 kB │ gzip: 163.92 kB\n✓ built in 3.57s\nLWB317_PRODUCTION_UI_BUILD_OK 5c102b71b5b5daf93d0e77085f1b7f511edd5b9d32e58badcc50f5b2dd75e14a 6c34f00d26cbb18a921cf015e99684d1fbda7dc1d5a65fbb4c2f1167a1dbfae2\n"
+    },
+    {
+      "name": "check:production-build",
+      "result": "PASS",
+      "output": "\n> lwbridge-ui-0.3.17@0.3.17-ui-preview check:production-build\n> node scripts/check-production-build.mjs\n\nLWB317_PRODUCTION_UI_PACKAGE_OK 5c102b71b5b5daf93d0e77085f1b7f511edd5b9d32e58badcc50f5b2dd75e14a 6c34f00d26cbb18a921cf015e99684d1fbda7dc1d5a65fbb4c2f1167a1dbfae2\n"
+    },
+    {
+      "name": "actual source comparison",
+      "result": "PASS",
+      "output": "{\n  \"result\": \"LWB317_AUTOMATION_AFK_ACTUAL_SOURCE_OK\",\n  \"results\": [\n    {\n      \"name\": \"actual original/current AFK helpers and new profile defaults\",\n      \"count\": 320,\n      \"result\": \"PASS\"\n    },\n    {\n      \"name\": \"whole original/current join renderer in English and Japanese\",\n      \"count\": 112,\n      \"result\": \"PASS\"\n    },\n    {\n      \"name\": \"actual member modal confirmation preserves self/departed and source order\",\n      \"count\": 3,\n      \"result\": \"PASS\"\n    },\n    {\n      \"name\": \"actual original/current Automation meta and future-time renderer\",\n      \"count\": 52,\n      \"result\": \"PASS\"\n    },\n    {\n      \"name\": \"named Automation runtime branches through the original shared card\",\n      \"count\": 48,\n      \"result\": \"PASS\"\n    },\n    {\n      \"name\": \"actual original/current manual Assist rows queue states and controls\",\n      \"count\": 32,\n      \"result\": \"PASS\"\n    },\n    {\n      \"name\": \"actual original/current Gather callbacks and runtime precedence\",\n      \"count\": 54,\n      \"result\": \"PASS\"\n    },\n    {\n      \"name\": \"Garrison actual priority handlers availability runtime and source snapshot normalization\",\n      \"count\": 10,\n      \"result\": \"PASS\"\n    },\n    {\n      \"name\": \"actual original/current Zombie table empty gold normal unknown and supplied names\",\n      \"count\": 4,\n      \"result\": \"PASS\"\n    },\n    {\n      \"name\": \"explicit AFK/Assist fixture mode fencing\",\n      \"count\": 30,\n      \"result\": \"PASS\"\n    },\n    {\n      \"name\": \"two profile IDs and real draft error Retry/Discard\",\n      \"count\": 5,\n      \"result\": \"PASS\"\n    },\n    {\n      \"name\": \"actual original/current profile Delete confirmation cancel and accept\",\n      \"count\": 2,\n      \"result\": \"PASS\"\n    },\n    {\n      \"name\": \"actual Potion form Drill source wait-detail priority and drag predicates\",\n      \"count\": 52,\n      \"result\": \"PASS\"\n    },\n    {\n      \"name\": \"immutable baseline distinguishes five corrected render omissions\",\n      \"count\": 5,\n      \"result\": \"PASS\"\n    }\n  ]\n}\n"
+    },
+    {
+      "name": "exact Join renderer",
+      "result": "PASS",
+      "output": "{\"result\":\"RECOVERED_JOIN_RENDERER_OK\",\"utf8ByteOffset\":20099}\n"
+    },
+    {
+      "name": "exact Assist renderer",
+      "result": "PASS",
+      "output": "RECOVERED_ASSIST_RENDERER_OK\n"
+    },
+    {
+      "name": "accepted weekly",
+      "result": "PASS",
+      "output": "LWB317_UI_CORRECT003A_WEEKLY_OK {\n  days: [\n    'Mon', 'Tue',\n    'Wed', 'Thu',\n    'Fri', 'Sat',\n    'Sun'\n  ],\n  railwayWeeklyQualities: [\n    'ssr', 'ur',\n    'ssr', 'ssr',\n    'ssr', 'ur',\n    'ssr'\n  ],\n  dispatchWeeklyQualities: [\n    'none', 'ur',\n    'none', 'none',\n    'none', 'ur',\n    'none'\n  ],\n  deferredWrites: [\n    [\n      'ur',  'ur',\n      'ssr', 'ssr',\n      'ssr', 'ur',\n      'ssr'\n    ],\n    [\n      'ur',   'ur',\n      'none', 'ssr',\n      'ssr',  'ur',\n      'ssr'\n    ]\n  ]\n}\n"
+    },
+    {
+      "name": "accepted Trade selection",
+      "result": "PASS",
+      "output": "{\n  \"result\": \"LWB317_UI_CORRECT003B_TRADE_SELECTION_OK\",\n  \"sourceHashes\": {\n    \"panel\": \"6DB2328191AF33E5631D507271C36D7008B287DAA7C8CD1A957B23EF6F871725\",\n    \"card\": \"24ED773623C237F8219EFF5443FAC3BA7B55B6E99E168E52FF066FAF2ABE7A61\",\n    \"shared\": \"44C4E4043825B7DB296B64171951B27176F8850FF8D7D337CC991DF4765524C6\"\n  },\n  \"sourceLocators\": {\n    \"defaultConfig\": 400,\n    \"normalizedCurrencies\": 561,\n    \"goodsFilterSort\": 974,\n    \"goodsDisabled\": 1468,\n    \"currencyDisabled\": 6130,\n    \"immediateSave\": 7213,\n    \"goodsHandler\": 7292,\n    \"currencyHandler\": 7466,\n    \"enableGuard\": 7673,\n    \"currencyCallerNoSavingLock\": 8412,\n    \"goodsCallerNoSavingLock\": 10054,\n    \"showExclusive\": 9747,\n    \"tradeConfigDisabledOfflineOnly\": 7909\n  },\n  \"handlers\": {\n    \"save\": \"(draft) => { config.store.edit(draft, false); config.store.flush().catch(() => {}); }\",\n    \"toggleItem\": \"(itemId, checked) => {\\n    const selectedItemIds = checked ? [...new Set([...config.draft.selectedItemIds, itemId])].sort((a, b) => a - b) : config.draft.selectedItemIds.filter((entry) => entry !== itemId);\\n    save({ ...config.store.getSnapshot().draft, enabled: selectedItemIds.length > 0 && enabled, selectedItemIds });\\n  }\",\n    \"toggleCurrency\": \"(currencyId, checked) => {\\n    if (!checked && config.draft.selectedCurrencyIds.length === 1) return;\\n    const selectedCurrencyIds = checked ? [...new Set([...config.draft.selectedCurrencyIds, currencyId])].sort((a, b) => a - b) : config.draft.selectedCurrencyIds.filter((entry) => entry !== currencyId);\\n    save({ ...config.store.getSnapshot().draft, selectedCurrencyIds });\\n  }\"\n  },\n  \"recoveryCallbacks\": {\n    \"retry\": \"() => config.store.flush().catch(() => {})\",\n    \"discard\": \"() => config.store.refresh(true).catch(() => {})\"\n  }\n}\n"
+    },
+    {
+      "name": "accepted Trade presentation",
+      "result": "PASS",
+      "output": "{\n  \"result\": \"LWB317_UI_CORRECT003E_TRADE_PRESENTATION_OK\",\n  \"scenarios\": 11,\n  \"missingStatusCases\": 4,\n  \"sourceHash\": \"6DB2328191AF33E5631D507271C36D7008B287DAA7C8CD1A957B23EF6F871725\"\n}\n"
+    },
+    {
+      "name": "protected WIP",
+      "result": "PASS",
+      "output": "LWB317_AUTO_CONFIG_PROTECTED_WIP_OK count=7\n"
+    },
+    {
+      "name": "diff check",
+      "result": "PASS",
+      "output": ""
+    }
+  ],
+  "limits": "Inert source/local and offline browser only; no Last War or native operations."
+}

@@ -1,18 +1,16 @@
 {
   "targetExecutable": {
-    "path": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW\\lwbridge-0.3.17.exe",
-    "sha256": "4E9C15565EBA27BFCC592CDBE3655A2B8AE9EED73C4117131FD1924264EB6783"
+    "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW/lwbridge-0.3.17.exe",
+    "sha256": "4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783"
   },
   "assets": [
     {
       "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/AutomationPanel-BJ0gIqFh.js",
-      "sha256": "6DB2328191AF33E5631D507271C36D7008B287DAA7C8CD1A957B23EF6F871725",
-      "locators": ["pretty lines 90-118 resource gather", "pretty lines 525-554 Railway, Secret Task and Assist"]
+      "sha256": "6DB2328191AF33E5631D507271C36D7008B287DAA7C8CD1A957B23EF6F871725"
     },
     {
       "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/SquadPanel-HC3-DJei.js",
-      "sha256": "ED466E353AA896D8C3FC783FF1802930156FB9E9EB54327AEF73F2FF86FA06C7",
-      "locators": ["pretty lines 236-274 join-member branches", "pretty lines 311-519 AFK target/toolbar/profile branches", "pretty lines 62-230 garrison/zombie branches"]
+      "sha256": "ED466E353AA896D8C3FC783FF1802930156FB9E9EB54327AEF73F2FF86FA06C7"
     },
     {
       "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-BVfnK1wp.js",
@@ -21,7 +19,333 @@
     {
       "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/GameAssetImage-Diy9VTIr.js",
       "sha256": "2F92A87C3268497DF6425B1175DB6140E10AABCBDFAE02615F065D00E16458E0"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/AutomationCard-LCx_jIi7.js",
+      "sha256": "24ED773623C237F8219EFF5443FAC3BA7B55B6E99E168E52FF066FAF2ABE7A61"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/rewardDisplay-eZWrd6iS.js",
+      "sha256": "7F65DD3F5B81C96117AF5E83E8310D6C6A3A48787B1F693D387020255C78E73E"
     }
   ],
-  "method": "SHA-256 revalidated from the pinned executable/assets; source behavior was read from the retained UTF-8 pretty copies without executing Last War."
+  "locators": {
+    "Squad.oe": {
+      "asset": "SquadPanel-HC3-DJei.js",
+      "utf8ByteOffset": 389,
+      "utf8ByteLength": 447,
+      "sha256": "AAE79F1953AACE0C59A56C8263DF8FD7E9315818B527143278A438CB59F9C96B"
+    },
+    "Squad.se": {
+      "asset": "SquadPanel-HC3-DJei.js",
+      "utf8ByteOffset": 836,
+      "utf8ByteLength": 964,
+      "sha256": "94CD5A5BFE04032B2B8D1C0C10583F0911C12BEE82B42BE4AAF9647EB61130A8"
+    },
+    "Squad.ue": {
+      "asset": "SquadPanel-HC3-DJei.js",
+      "utf8ByteOffset": 3297,
+      "utf8ByteLength": 517,
+      "sha256": "38C18D846C63D24F49B91D3FE4B6EC4B3A603F0A6DE33136B0BD956306F8AA49"
+    },
+    "Squad.Ce": {
+      "asset": "SquadPanel-HC3-DJei.js",
+      "utf8ByteOffset": 26646,
+      "utf8ByteLength": 663,
+      "sha256": "99AEF53AA709B29D04B8690347BCBCA8391964A023E52009CF699D8470CBF7F3"
+    },
+    "Squad.we": {
+      "asset": "SquadPanel-HC3-DJei.js",
+      "utf8ByteOffset": 27309,
+      "utf8ByteLength": 231,
+      "sha256": "09954DE038618DA6E499194AD7EE1D70A592F7DE5199C36A7605E00BB3854FC3"
+    },
+    "Squad.Te": {
+      "asset": "SquadPanel-HC3-DJei.js",
+      "utf8ByteOffset": 27540,
+      "utf8ByteLength": 530,
+      "sha256": "868DC63027CAE33DAA67E86719C9589B30C6716E08F1E91C02D4D8D275812AD8"
+    },
+    "Squad.ye": {
+      "asset": "SquadPanel-HC3-DJei.js",
+      "utf8ByteOffset": 19216,
+      "utf8ByteLength": 5735,
+      "sha256": "2432C955C17B6097120E4AD3D493140BF78AC851394B730E0D5067E70E95B030"
+    },
+    "Squad.pe": {
+      "asset": "SquadPanel-HC3-DJei.js",
+      "utf8ByteOffset": 4586,
+      "utf8ByteLength": 11256,
+      "sha256": "4DD8A8770C7726AA3CCE0657BC88C6B0FB2146FA161BCF2C3017A231D0953C85"
+    },
+    "Squad.me": {
+      "asset": "SquadPanel-HC3-DJei.js",
+      "utf8ByteOffset": 15842,
+      "utf8ByteLength": 687,
+      "sha256": "7232700BC71C76F9E5B0DA56A2DCC43D369191701C45CE28A87D5A966058DAB8"
+    },
+    "Squad.I": {
+      "asset": "SquadPanel-HC3-DJei.js",
+      "utf8ByteOffset": 28070,
+      "utf8ByteLength": 22554,
+      "sha256": "0A4895C21AD443AA7A1C05B54CFF2E8DD89F9038BED10DBFFFB9001A4128EE2E"
+    },
+    "Squad.N": {
+      "asset": "SquadPanel-HC3-DJei.js",
+      "utf8ByteOffset": 4078,
+      "utf8ByteLength": 362,
+      "sha256": "D06C66780701EB991752B439537488AC511A0F5EB95E1BE10C8E0AC516E411FB"
+    },
+    "Squad.de": {
+      "asset": "SquadPanel-HC3-DJei.js",
+      "utf8ByteOffset": 3975,
+      "utf8ByteLength": 103,
+      "sha256": "9B52541F652548212D4763E2CA9DE5179F98CEB569040E530DB0D76FE2582818"
+    },
+    "Automation.me": {
+      "asset": "AutomationPanel-BJ0gIqFh.js",
+      "utf8ByteOffset": 10331,
+      "utf8ByteLength": 4288,
+      "sha256": "65AF81300489FD6682CD8309DD3089426E14170691768AFA8C4750D059C0509D"
+    },
+    "Automation.O": {
+      "asset": "AutomationPanel-BJ0gIqFh.js",
+      "utf8ByteOffset": 20214,
+      "utf8ByteLength": 232,
+      "sha256": "15E2290599F6543D22E7728991FDFEC07476BF8803440D81C7BD3C20D07842DD"
+    },
+    "Automation.E": {
+      "asset": "AutomationPanel-BJ0gIqFh.js",
+      "utf8ByteOffset": 19426,
+      "utf8ByteLength": 603,
+      "sha256": "BD308340C092C52A1E08DADCAA6C0476BBA2BD39D559FB99BF4E2EC7F0C88B8A"
+    },
+    "Automation.T": {
+      "asset": "AutomationPanel-BJ0gIqFh.js",
+      "utf8ByteOffset": 19367,
+      "utf8ByteLength": 59,
+      "sha256": "1830F3BF4E2E31692E67AD2B3348AD496385D87763CC5A828D966699E8C7BE37"
+    },
+    "Automation.Ce": {
+      "asset": "AutomationPanel-BJ0gIqFh.js",
+      "utf8ByteOffset": 20446,
+      "utf8ByteLength": 79,
+      "sha256": "F726F00C0F721D605E76AA763A5970C5B853226415355D17663292E79BB7E1D4"
+    },
+    "AutomationCard.c": {
+      "asset": "AutomationCard-LCx_jIi7.js",
+      "utf8ByteOffset": 98,
+      "utf8ByteLength": 3773,
+      "sha256": "A3FA760F0D42AA4A927C8B6E810407723F2BA314360CD35AC05D3DF08F639657"
+    },
+    "automation.railway.title": {
+      "asset": "AutomationPanel-BJ0gIqFh.js",
+      "utf8ByteOffset": 66545,
+      "utf8ByteLength": 2009,
+      "sha256": "DB53D3327FA5045DAA89534DDC6B45D3DEC1F0A6DC660C1C9EED67B19583ABFB"
+    },
+    "automation.secretTask.title": {
+      "asset": "AutomationPanel-BJ0gIqFh.js",
+      "utf8ByteOffset": 68569,
+      "utf8ByteLength": 5187,
+      "sha256": "3EE0C4E1AED0A05614A0A3A3C5E02A06DDCDE77C29F322D2D76B558563FF1B04"
+    },
+    "automation.allianceHelp.title": {
+      "asset": "AutomationPanel-BJ0gIqFh.js",
+      "utf8ByteOffset": 60395,
+      "utf8ByteLength": 474,
+      "sha256": "234BC1A5CDDF1E2974ECA97A2B2B68D2AD746B56C3D7411B51E668976A8E63E3"
+    },
+    "automation.allianceGift.title": {
+      "asset": "AutomationPanel-BJ0gIqFh.js",
+      "utf8ByteOffset": 60883,
+      "utf8ByteLength": 1004,
+      "sha256": "919C27F118C54FF603BF9D7C7ADE90DB42555BBCC6C393AD7C7F323B0CF6A7ED"
+    },
+    "automation.strongholdResource.title": {
+      "asset": "AutomationPanel-BJ0gIqFh.js",
+      "utf8ByteOffset": 61901,
+      "utf8ByteLength": 1040,
+      "sha256": "73D47F2A811C932B0707E886124F8926678C7C6EFEDDACF22B195EE42A5D8C30"
+    },
+    "automation.allianceCenterResource.title": {
+      "asset": "AutomationPanel-BJ0gIqFh.js",
+      "utf8ByteOffset": 62955,
+      "utf8ByteLength": 1080,
+      "sha256": "7798A5375E9954DA6CEBF7C9CED05A13E11F9E66E9796C363E71B3AE08AB96AC"
+    },
+    "automation.weekendShield.title": {
+      "asset": "AutomationPanel-BJ0gIqFh.js",
+      "utf8ByteOffset": 43514,
+      "utf8ByteLength": 528,
+      "sha256": "DBA3CE5CEDC4172A6CC24CB3623C889C70872FB547D20343CBC9315AE13D4F96"
+    },
+    "automation.attackShield.title": {
+      "asset": "AutomationPanel-BJ0gIqFh.js",
+      "utf8ByteOffset": 44056,
+      "utf8ByteLength": 330,
+      "sha256": "64F56D51E88E277EC763F47766417C3E83F3AD784602BEF60314FB1B9ED7604C"
+    },
+    "Automation.manualAssist": {
+      "asset": "AutomationPanel-BJ0gIqFh.js",
+      "utf8ByteOffset": 71741,
+      "utf8ByteLength": 1950,
+      "sha256": "DDB29B1B93577E19987150618DEB56C89873510B78AA2AEF57BD118C56DAE107"
+    },
+    "Squad.I.lt": {
+      "asset": "SquadPanel-HC3-DJei.js",
+      "utf8ByteOffset": 34009,
+      "utf8ByteLength": 246,
+      "sha256": "824A6F9CA0138BBF6C7FEF1FC4DFDF215C1B59C87D0B8F9554E0B0BFE0C76B84"
+    },
+    "Squad.I.potion": {
+      "asset": "SquadPanel-HC3-DJei.js",
+      "utf8ByteOffset": 37041,
+      "utf8ByteLength": 789,
+      "sha256": "650037C19911156E548374EF1A9DB4AEDEAFB797F605F98F036CD37745AD4DBF"
+    },
+    "Squad.I.drill": {
+      "asset": "SquadPanel-HC3-DJei.js",
+      "utf8ByteOffset": 37831,
+      "utf8ByteLength": 1925,
+      "sha256": "205A191857C8FFB73EE7EAF5B01B670936E7A0152556842B22CBC9B9AB49EAA7"
+    }
+  },
+  "files": [
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "sha256LF": "2B68DFBC6A8444B5C6561DF774A60945473BE6F5E5590EE6AB0228F96043414F"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/previewAfkContracts.js",
+      "sha256LF": "F75B4D22ECCD19F69D4AD139ABC2FFBC150B0007662BA47127CFB600CBF61EE3"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/previewAfkCloseoutFixtures.js",
+      "sha256LF": "B8BADF0AC5A330712298EAA85F842906A98106413E4311CAB1A0C3C4E56D3491"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/previewAutomationFixtures.js",
+      "sha256LF": "993F0708DAA88A3C8CA80FBC39555BF84DB021A3639C46F466E06C8F44F3FDF1"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/AutomationMeta.jsx",
+      "sha256LF": "47F84DED5D76E037BCBABC2F81D8C294D63ECD6409137320B46078985BF95678"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/RallyJoinSettings.jsx",
+      "sha256LF": "B7FA092427701B2D7E83980E0F8D949EC78117C7B7A8616857CB0EE695A091FC"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/DispatchAssistManual.jsx",
+      "sha256LF": "7374E3CE64ADC531EEB8FF5E7B7C0CB39F6B602AF7110AF840659D8BC2A52785"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/scripts/check-ui-complete.mjs",
+      "sha256LF": "F8B883ED6138ADB041377161ED8937CA7003788581AC2672742B7F5270C5A61B"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-AUTOMATION-AFK-CLOSEOUT-001/check-closeout.mjs",
+      "sha256LF": "A4A2163661A0FF31BA3A5E171AAF036ACBB82817E0E3099B46CA5EC3784817A9"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-AUTOMATION-AFK-CLOSEOUT-001/harness.mjs",
+      "sha256LF": "AC30514237A6A90F1C98CFE5F4847CB18FD14658F6E41333E405E7F5A795493C"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-AUTOMATION-AFK-CLOSEOUT-001/recover-join-renderer.mjs",
+      "sha256LF": "37DC870AB06B84C9CFBD954C890CABAC113BB6A4FB997966D48716E67485A085"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-AUTOMATION-AFK-CLOSEOUT-001/recover-assist-renderer.mjs",
+      "sha256LF": "86ABFF307DDCCE21A6C11CCCADC184D9CAE51B3F3D88B690414F7E071C1E980C"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-AUTOMATION-AFK-CLOSEOUT-001/validate.mjs",
+      "sha256LF": "AFC443C530F91D56E35BD9AD6EAAB1F8DDFB0D3C519C7D6ED0363990D29CDC44"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-AUTOMATION-AFK-CLOSEOUT-001/record-verification.mjs",
+      "sha256LF": "2C41A8B60A52F205C889E7499D1EB0EEA7A93ACE9C3597271D7EE52610434CFC"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-AUTOMATION-AFK-CLOSEOUT-001/record-manifest.mjs",
+      "sha256LF": "633CD6E0AB861C3D1DEBEA22B9C99FC04B44B1934D65CC78AF7735637A3F6E93"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-AUTOMATION-AFK-CLOSEOUT-001/actual-source-results.json",
+      "sha256LF": "1294B61CB80CDC626B97CE527A7B8C30AF86F00A8E458101B9430284C54402BE"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-AUTOMATION-AFK-CLOSEOUT-001/browser-results.json",
+      "sha256LF": "7545BEE5B427E6C43815D35AF52C6271190C4DFBDF026FDB807679CA054F68BD"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-AUTOMATION-AFK-CLOSEOUT-001/verification-results.json",
+      "sha256LF": "91A2B389356A668C38BC125353FC9FD7B8981D6E1F48960E742C216B091A6EA1"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-AUTOMATION-AFK-CLOSEOUT-001/takeover-baseline/Pages.jsx",
+      "sha256LF": "7BE192DD15D5943794C4A316A7B30D48134F565FA44D1FC4E5C7D2D042946138"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-AUTOMATION-AFK-CLOSEOUT-001/takeover-baseline/previewAfkContracts.js",
+      "sha256LF": "D32CA1FE6E080CBD29CDD20EC23B44A8EE21603134EFFAB7558F45CB6CE54E53"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-AUTOMATION-AFK-CLOSEOUT-001/takeover-baseline/previewAfkCloseoutFixtures.js",
+      "sha256LF": "6A31573F8754788D2D1CAADBA611606F0162AB5419D88BC34505EE0D67038C8F"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-AUTOMATION-AFK-CLOSEOUT-001/takeover-baseline/worker-source-locators.json",
+      "sha256LF": "2313379DEEB15872D42E0DCE68E61914AF0DBE3ADC1FC2EC4C40F38F16C53C1C"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-AUTOMATION-AFK-CLOSEOUT-001/takeover-baseline/worker-validate.mjs",
+      "sha256LF": "A25E70A4E07A3EB58A1BFD20CD463EB6AFA06BF383DBE1F3D9323D28DBE6C655"
+    }
+  ],
+  "screenshots": [
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-AUTOMATION-AFK-CLOSEOUT-001/screenshots/assist-validation-en.png",
+      "sha256": "FB6A334A9AE0FA2F4B3BE6B3D44431BF930F1D607C272A2A795C0D5512F7681D",
+      "visuallyInspected": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-AUTOMATION-AFK-CLOSEOUT-001/screenshots/drill-wait-ja-dark.png",
+      "sha256": "275AEE6E0D8828F929B3914F77B6BF02EB04DB4A85F48133D8CFEF6C552DDA59",
+      "visuallyInspected": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-AUTOMATION-AFK-CLOSEOUT-001/screenshots/garrison-validation-en.png",
+      "sha256": "5D8F78178608266FD13321180E449652F2CC224F64F51E42FDDA9FC09D11FEC2",
+      "visuallyInspected": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-AUTOMATION-AFK-CLOSEOUT-001/screenshots/garrison-viewport-en.png",
+      "sha256": "C113C94B3061E457BD0DBA139892C91809BEA35DAB52D39C0D90CFEB559EA652",
+      "visuallyInspected": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-AUTOMATION-AFK-CLOSEOUT-001/screenshots/gather-retention-ja-dark.png",
+      "sha256": "26038B642A9FA1FFE6D2B6A3A70ADEC68D06DB8DF23EF8ADE17233D1B2311FAF",
+      "visuallyInspected": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-AUTOMATION-AFK-CLOSEOUT-001/screenshots/inactive-garrison-en.png",
+      "sha256": "859F6B739A25D03F2FF5C8ADCEDFD44FCCF6D543A385CC1A8656F7AC36DCF590",
+      "visuallyInspected": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-AUTOMATION-AFK-CLOSEOUT-001/screenshots/join-self-retained-en.png",
+      "sha256": "2E5A7CD934CC9CC8B7DDF635F551B04C7F4735EBEEC6969BBEA46FE88CAAD3B8",
+      "visuallyInspected": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-AUTOMATION-AFK-CLOSEOUT-001/screenshots/range-warning-ja-dark.png",
+      "sha256": "0882FD07086567612B7038339AE9E0C5498DE023C3849261C079A01B342CD402",
+      "visuallyInspected": true
+    }
+  ],
+  "method": "Exact source asset bytes and UTF-8 slices; executed original/current comparisons; real local browser controls. Text delivery hashes normalize CRLF to LF. Supersedes incorrect worker EXE hash; worker packet retained under takeover-baseline."
 }

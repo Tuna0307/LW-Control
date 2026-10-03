@@ -1,8 +1,8 @@
 # Project lead control sheet
 
-Current lead decision, 2026-10-03: MAP-AUTO-CONFIG-001 at ec27577 is COMPLETE / ACCEPTED for focused source/local UI/configuration scope after lead replays, seven additional actual-App cases, saved-layout inspection and evidence/package checks. MAP-CLOSEOUT-002 is closed for its assigned A/B/C scope. Remaining UI follows docs/UI_FINISH_CHECKLIST.md: Automation/AFK residuals, other-page review, final eight-page integration. Active worker: LWB317-UI-AUTOMATION-AFK-CLOSEOUT-001, one AI, no subagents. Aim for source-recoverable UI completion today if feasible; original pixels/native/global parity remain unaccepted.
+Current lead decision, 2026-10-03: AUTOMATION-AFK-CLOSEOUT-001 is COMPLETE for its bounded source/local residual assignment after lead takeover, exact original/current render/handler comparisons, real preview browser QA and evidence/package checks. Code checkpoint 5082968 is followed by Drill wait-detail and evidence closeout. This is lead self-review; full page/pixel/native acceptance is not claimed. MAP-AUTO-CONFIG-001 and its assigned parent closeout retain focused acceptance. Finish-queue order 1 is closed; next is the bounded order-2 Equipment/City Layout audit, then Hotkeys/Mini Games/Settings and final eight-page integration. One AI per chat, no subagents. See the dated AUTOMATION-AFK-CLOSEOUT-001 review and docs/UI_FINISH_CHECKLIST.md.
 
-Recovery update, 2026-10-03: Auto and its parent assigned Map closeout are accepted for focused scope. The fixed remaining UI queue and medium Automation/AFK assignment are ready. See PM-UI-FINISH-001 and UI_FINISH_CHECKLIST.md.
+Recovery update, 2026-10-03: interrupted Automation/AFK work is completed and locally reviewed. Its finite source/render/handler proof and remaining limits are recorded; other-page audit is next. See the dated closeout review and UI_FINISH_CHECKLIST.md.
 
 The main project lead owns integration and should keep this file small and current.
 
@@ -30,7 +30,7 @@ retirement task. Preserve its source as historical evidence.
 
 ## Current phase
 
-**UI parity — Map Auto accepted; close Automation/AFK and remaining page audit**
+**UI parity — Automation/AFK residual unit closed; remaining page audit and final integration**
 
 Earlier static UI baseline acceptance does not establish complete UI/UX parity.
 The current owner priority is UI reproduction before function integration.

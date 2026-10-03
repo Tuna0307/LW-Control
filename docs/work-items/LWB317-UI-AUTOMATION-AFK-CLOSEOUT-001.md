@@ -1,9 +1,9 @@
 # LWB317-UI-AUTOMATION-AFK-CLOSEOUT-001 — medium residual completion
 
-Status: PARTIAL — project lead resumed the interrupted worker on 2026-10-03.
-Automation checkpoint c3da2a7 and saved AFK edits were retained and reviewed.
-Recovered renderer/handler comparisons and canonical checks pass at the new
-code checkpoint; final browser coverage and evidence closeout continue below.
+Status: COMPLETE — bounded source/local residual scope, completed and reviewed by
+the project lead after worker interruption on 2026-10-03. This is lead self-review,
+not independent-worker acceptance or full Automation/AFK pixel/native parity.
+See the dated closeout review and the packet's fixed coverage matrix.
 Single worker, no subagents. Owner priority is to finish UI/UX
 today if feasible; keep this assignment bounded and checkpoint sequentially.
 
@@ -149,7 +149,10 @@ Zombie rows, inactive fixture fencing and two-profile Retry/Discard. Distinguish
 baseline render omissions are retained. Weekly and Trade remain green; all seven
 protected hashes remain unchanged.
 
-Continuation: finish real browser AFK two-ID, target/custom, modal cancel/Escape,
-negative/member/toolbar and Automation Assist/Gather flows; capture inspectable
-screenshots and a fresh final console. Then pin source/product/evidence hashes,
-run the complete evidence validator, write conservative master closeout and push.
+Closeout: source/render/handler comparison now passes 729 heterogeneous cases
+in 14 proof groups; canonical and weekly/Trade gates pass. 18 browser observations,
+eight inspected screenshots, corrected EXE/source manifest and executable validator
+are complete. Seven protected WIP hashes are unchanged/unstaged. Native JS dialog
+is a disclosed connector limit with actual original/current callback proof; physical
+HTML5 drag, original pixels/native producers remain unverified. Finish-queue order 2
+awaits a separate bounded assignment. No work beyond this A/B unit was started.

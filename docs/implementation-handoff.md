@@ -1,100 +1,24 @@
 # Current implementation/research handoff
 
-Current lead decision, 2026-10-03: MAP-AUTO-CONFIG-001 at ec27577 is COMPLETE / ACCEPTED for focused source/local UI/configuration scope after lead replays, seven additional actual-App cases, saved-layout inspection and evidence/package checks. MAP-CLOSEOUT-002 is closed for its assigned A/B/C scope. Remaining UI follows docs/UI_FINISH_CHECKLIST.md: Automation/AFK residuals, other-page review, final eight-page integration. Active worker: LWB317-UI-AUTOMATION-AFK-CLOSEOUT-001, one AI, no subagents. Aim for source-recoverable UI completion today if feasible; original pixels/native/global parity remain unaccepted.
+Current lead decision, 2026-10-03: AUTOMATION-AFK-CLOSEOUT-001 is COMPLETE for its bounded source/local residual assignment after lead takeover, exact original/current render/handler comparisons, real preview browser QA and evidence/package checks. Code checkpoint 5082968 is followed by Drill wait-detail and evidence closeout. This is lead self-review; full page/pixel/native acceptance is not claimed. MAP-AUTO-CONFIG-001 and its assigned parent closeout retain focused acceptance. Finish-queue order 1 is closed; next is the bounded order-2 Equipment/City Layout audit, then Hotkeys/Mini Games/Settings and final eight-page integration. One AI per chat, no subagents. See the dated AUTOMATION-AFK-CLOSEOUT-001 review and docs/UI_FINISH_CHECKLIST.md.
 
 **Target:** LWBridge 0.3.17  
 **Branch:** `research/offline-controller`  
-**Active scope:** UI parity / complete Automation/AFK residuals under the medium closeout; no native integration
+**Active scope:** UI parity / order-2 remaining page audit awaiting its next bounded assignment; no native integration
 
-## Current continuation — Auto configuration delivery
+## Current continuation — Automation / AFK residual unit closed
 
-Lead update: ec27577 Auto delivery is now accepted for focused source/local
-scope by PM-UI-FINISH-001; all ten regressions and seven new App cases pass.
-Do not reopen Auto. Follow UI_FINISH_CHECKLIST.md and the active
-UI-AUTOMATION-AFK-CLOSEOUT-001 assignment only. Reuse existing CORRECT-003 code,
-verify named remaining branches and close evidence in two sequential milestones.
-The historical CORRECT-003 state check has a stale boolean Trade error assertion;
-recover the current expected shape rather than reverting accepted Trade.
-Other pages/final integration follow separate bounded assignments. One worker,
-no subagents. Today's goal does not waive source or validation requirements.
+The lead finished the interrupted A/B unit, source comparisons, browser records,
+inspected screenshots, corrected EXE/source manifest and executable validator.
+See docs/reviews/2026-10-03-LWB317-UI-AUTOMATION-AFK-CLOSEOUT-001.md and its packet.
+All seven protected WIP paths are unchanged and unstaged. Native confirmation
+has controlled callback proof; its physical browser dialog is unverified.
+Physical HTML5 drag and original pixel/runtime comparisons are not claimed.
 
-Historical worker delivery before lead acceptance:
-
-2026-10-03 MAP-AUTO-CONFIG-001 worker delivery: milestone D is complete and
-AWAITING_REVIEW. The current runner adapts the stale NAVIGATION-001 extractor
-with real production helper dependencies and uses the maintained current App
-ownership harness; the stale historical ownership redirect remains disclosed as
-a reproducer and is not regression authority. Ten affected Map regressions
-pass, including request lifetime, Scheduled Plunder, R1 redirects/Clear and
-current summary/options ownership. English/light and Japanese/dark offline
-browser controls pass; the saved narrow capture was inspected for layout.
-Evidence/protected guards and canonical check/build/package pass. Seven
-protected WIP hashes remain unchanged/unstaged. Read the dated Auto delivery
-review and evidence README. No final acceptance or native phase is authorized.
-
-2026-10-03 REFRESH-FEEDBACK-001: row revision timer/completion cleanup, scan error
-priority/translation/start retirement and localized export busy/result behavior
-are implemented. Read its dated review, work item and evidence README.
-MAP-REFRESH-OWNERSHIP-001 is lead-accepted for focused scope. The parent owns summary
-bootstrap/listener/completion and the guarded five-second connected poll; the
-mounted panel owns options on data-server/options-revision triggers. Summary-only
-polling does not reload options. The executable actual-App/current-panel proof
-covers overlap, offline/reconnect, profile replacement, deferred cleanup/unmount,
-progress rows-only, completion rows/options/parent summary and mount-already-
-reading. PM-027 keeps `[321,322,321]`; the focused current Clear replay keeps
-`[322,321]`. Canonical checks/build/package and en/light + ja/dark offline browser
-smoke pass. Lead reruns of ownership, Clear, R1/PM-027, request lifetime,
-interactions, evidence and canonical package checks pass. Read the dated Auto
-dispatch review and milestone-B README. Continue Auto implementation only
-under the full AUTO-CONFIG-001 work item: exact helpers, App profile ownership,
-all controls and integrated evidence, sequentially with no subagents.
-Protected WIP and historical evidence remain preserved and unstaged.
-
-Previous header checkpoint:
-
-2026-10-03 SCAN-HEADER-001 checkpoint: timing and source-like summary are
-implemented and verified (270 cases, six clock stages/unmount, fixture fences,
-real browser and Map/package regression). The extra counters are removed.
-Read its dated review/work item/evidence README. Independent returning worker
-can review both picker units and this header together. Next implementation:
-scan row-refresh/poll ownership and start/export feedback; Auto controls and
-other pages remain separate. Native timing producers/live/pixels are unproved.
-The current native state type has no UpdatedAt; stored runs have timestamps.
-Do not reopen accepted lifecycle work or touch protected WIP.
-
-Previous goods-menu checkpoint:
-
-2026-10-03: GOODS-PICKER-001 completes the Truck/Train goods menu. Read its
-dated review, work item and evidence README. Actual original/current render
-cases 144, unloaded assets six, parent query/sort traces and owned en/light +
-ja/dark browser/Enter/tab/sort-clear QA pass. All maintained Map and package
-checks pass. Both picker units await an optional independent returning-worker
-checkpoint; do not reopen accepted filter-lifecycle work. Next lead UI unit:
-scan row-refresh/poll ownership and feedback, based on exact source and
-inert provider tests; no native/gameplay phase. Preserve protected WIP.
-
-Previous 2026-10-02 checkpoint:
-
-PM-028 accepts parent filter lifecycle/R1 at ff4ed369. Lead then completed
-MAP-TREASURE-PICKER-001: new canonical MapTreasureTypeFilter and one parent call,
-source-like details/menu, resolved names/counts, strict raw key handling and
-change-before-close. 28 exact renderer/handler cases, parent/reset/query proof,
-filter/R1/navigation/integration/historical adapters and canonical build/package
-pass. Fresh owned browser QA/saved screenshots cover en/light and ja/dark plus
-real Enter activation. Read its review, work item and evidence README.
-
-Historical note: no worker was assigned at that earlier checkpoint.
-Current assignment is MAP-AUTO-CONFIG-001 as recorded above; do not restart the old CLOSEOUT-002 prompt.
-Independent picker peer review is a useful next checkpoint, not a worker approval
-requirement for starting unrelated work. Before implementation of a further gap,
-assign it explicitly: remaining scan/header/row-refresh timing and export/start
-feedback, then remaining all-page UI coverage. Full UI/native/pixel parity is not
-accepted. Original protected runtime was not entered and no gameplay ran.
-
-Fresh-chat resume: read AGENTS.md, task.md, PROJECT_LEAD.md, this section and the
-latest two reviews; inspect actual HEAD/status. Do not restart accepted Map
-campaigns. Protected AFK/scratch/CORRECT-003 WIP and historical parent JSON
-normalization remain untouched/unstaged; owned picker preview resources are closed.
+Next: bounded Equipment/City Layout source/local audit under finish-queue order 2,
+then Hotkeys/Mini Games/Settings. Order 3 handles final shell/Home/Map integration,
+shared focus/narrow layouts and exact remaining-gap inventory. Do not resume
+CORRECT-003 wholesale or native work. No subsequent task has started here.
 
 ## Historical R1 delivery — superseded by PM-028 acceptance
 
