@@ -1,0 +1,94 @@
+{
+  "result": "LWB317_CROSSSERVER_BROWSER_QA_OK",
+  "url": "http://127.0.0.1:4327/?previewPage=overview",
+  "previewLanguageQueryOmitted": true,
+  "mode": "true offline Preview mode",
+  "mainWindow": {
+    "cssViewport": { "width": 1920, "height": 855, "devicePixelRatio": 1 },
+    "englishLight": {
+      "popoverOpen": true,
+      "inputEnabled": true,
+      "jumpDisabled": true,
+      "errors": ["Game disconnected"],
+      "screenshot": {
+        "path": "browser/en-light-open.jpg",
+        "mimeType": "image/jpeg",
+        "width": 1600,
+        "height": 713,
+        "captureScale": 0.8333333333333334,
+        "sha256": "596A7AD27C8DB5E53339D07BF119A959B6AEA1F432A48CE3238CE15C147A7A40",
+        "jpegSignature": "FF-D8-FF",
+        "inspected": true
+      }
+    },
+    "keyboardAndRoute": {
+      "typedValue": "0",
+      "offlineEnterErrors": ["Game disconnected"],
+      "offlineEnterDidNotAddStoredValidationOrActionError": true,
+      "escapeLeftPopoverOpen": true,
+      "mapNavigationClosedPopoverViaOutsidePointerDown": true,
+      "homeReturnReopenPreservedInput": "0"
+    },
+    "japaneseDark": {
+      "language": "ja",
+      "themePressed": "true",
+      "popoverOpen": true,
+      "input": "0",
+      "errors": ["ゲーム未接続"],
+      "screenshot": {
+        "path": "browser/ja-dark-open.jpg",
+        "mimeType": "image/jpeg",
+        "width": 1600,
+        "height": 713,
+        "captureScale": 0.8333333333333334,
+        "sha256": "6549097C524AC571352719742DCF4AE6610AE44AD33D669CE74ACA37B61B08E5",
+        "jpegSignature": "FF-D8-FF",
+        "inspected": true
+      }
+    },
+    "console": {
+      "warnings": 0,
+      "errors": 0,
+      "entries": [
+        { "level": "debug", "message": "[vite] connecting..." },
+        { "level": "debug", "message": "[vite] connected." },
+        { "level": "info", "message": "React DevTools development-build notice" }
+      ],
+      "capture": "Since debugger attachment; older events are unavailable."
+    }
+  },
+  "narrowWindow": {
+    "cssViewport": { "width": 800, "height": 543, "devicePixelRatio": 1 },
+    "outerBounds": { "width": 816, "height": 673 },
+    "visualViewport": { "width": 800, "height": 543 },
+    "language": "ja",
+    "themePressed": "true",
+    "previewStatus": "Preview",
+    "popoverRect": { "left": 390, "top": 59, "right": 680, "bottom": 178, "width": 290, "height": 119 },
+    "inputRect": { "left": 405, "top": 107, "right": 581, "bottom": 142, "width": 176, "height": 35 },
+    "errors": ["ゲーム未接続"],
+    "fullyInsideMeasuredViewport": true,
+    "screenshot": {
+      "path": "browser/narrow-ja-dark-open.jpg",
+      "mimeType": "image/jpeg",
+      "width": 800,
+      "height": 543,
+      "captureScale": 1,
+      "sha256": "C7932474571287010A675970807BD9587106826E1DA56951F706A07F0CE509E9",
+      "jpegSignature": "FF-D8-FF",
+      "inspected": true
+    },
+    "console": {
+      "warnings": 0,
+      "errors": 0,
+      "entries": [
+        { "level": "debug", "message": "[vite] connecting..." },
+        { "level": "debug", "message": "[vite] connected." },
+        { "level": "info", "message": "React DevTools development-build notice" }
+      ],
+      "capture": "Since debugger attachment; older events are unavailable."
+    }
+  },
+  "actionProofBoundary": "Successful, unchanged, deferred and error server-jump branches are proven by milestone-b/run-focused.mjs against the actual production App with controlled inert API bindings. Browser QA remained true offline Preview mode and never spoofed a live game/server action.",
+  "cleanup": "Both owned QA windows were closed. The owned Vite listener on 127.0.0.1:4327 was identified by exact command line and stopped; no listener remained."
+}

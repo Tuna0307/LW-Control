@@ -1,8 +1,9 @@
 # Current implementation/research handoff
 
-Dispatch, 2026-10-04: SHELL-CROSSSERVER-001 is READY through owner relay. Read its
-work item for the finite popover source/baseline/correction/verification scope.
-No next-page, profile architecture, Map notices or live native action is assigned.
+Worker delivery, 2026-10-04: SHELL-CROSSSERVER-001 is AWAITING_REVIEW. Recovery,
+canonical correction, focused/affected/package checks, bounded browser QA and current
+integrity are complete. Project lead owns acceptance; no next-page, profile architecture,
+Map notices or live native action is assigned by this delivery.
 
 Lead takeover/acceptance, 2026-10-04: SHELL-RETENTION-001 is COMPLETE / ACCEPTED
 for assigned source/local retention scope. Preserve worker A/B 1786fc5/081ffc8;
@@ -15,14 +16,17 @@ Lead takeover/acceptance, 2026-10-03: REMAINING-PAGES parent/R1 are **COMPLETE /
 
 **Target:** LWBridge 0.3.17  
 **Branch:** `research/offline-controller`  
-**Active scope:** UI parity / SHELL-CROSSSERVER-001 READY; retention accepted; native/original pixels separate
+**Active scope:** UI parity / SHELL-CROSSSERVER-001 AWAITING_REVIEW; retention accepted; native/original pixels separate
 
-## Current continuation — Cross-server popover assigned
+## Current continuation — Cross-server popover awaiting lead review
 
-Read docs/work-items/LWB317-UI-SHELL-CROSSSERVER-001.md. Start from current HEAD;
-55c9ca1 is its baseline, not a reset target. Work alone through A/B/C. Retention has
-no unfinished assigned work. Broader profile/shell/Map notices/navigation scheduling
-and final inventory remain subsequent; native functions/original pixels unaccepted.
+Read `docs/reviews/2026-10-04-LWB317-UI-SHELL-CROSSSERVER-001.md` and the matching
+evidence README. Worker A/B checkpoints are `a74aba9` / `5318467`; C supplies current
+checks, browser evidence and integrity. Lead should verify the final pushed SHA, rerun
+the validator/guard and inspect the owned App diff before accepting or returning a
+focused finding. Retention has no unfinished assigned work. Broader profile/shell/Map
+notices/navigation scheduling and final inventory remain subsequent; native functions/
+original pixels remain unaccepted.
 
 ## Prior continuation — four-page R1 closed
 

@@ -1,8 +1,9 @@
 # Project lead control sheet
 
-Dispatch, 2026-10-04: SHELL-CROSSSERVER-001 is READY for one worker through owner
-relay. Only the Cross-server popover and its frontend action/history lifecycle are
-assigned. SHELL-RETENTION-001 stays accepted; broader shell audit remains separate.
+Worker delivery, 2026-10-04: SHELL-CROSSSERVER-001 is AWAITING_REVIEW. Exact source
+recovery, canonical popover/history/action correction, focused/affected/package checks,
+bounded browser QA and current integrity are delivered. Lead acceptance is pending;
+SHELL-RETENTION-001 stays accepted and the broader shell audit remains separate.
 
 Lead takeover/acceptance, 2026-10-04: SHELL-RETENTION-001 is COMPLETE / ACCEPTED
 for assigned source/local retention scope. Product 081ffc8 is retained; mounted
@@ -42,7 +43,7 @@ retirement task. Preserve its source as historical evidence.
 
 ## Current phase
 
-**UI parity — shell retention accepted; focused Cross-server popover audit assigned**
+**UI parity — shell retention accepted; focused Cross-server popover awaiting review**
 
 Earlier static UI baseline acceptance does not establish complete UI/UX parity.
 The current owner priority is UI reproduction before function integration.
@@ -61,6 +62,7 @@ the Map closeout awaits a separate independent acceptance review.
 
 | Work item / campaign | Owner | State | Scope |
 |---|---|---|---|
+| LWB317-UI-SHELL-CROSSSERVER-001 | Single worker, lead review pending | AWAITING_REVIEW | Exact recovered Cross-server popover/history/action lifecycle; App correction, 12 focused + 3 affected cases, canonical package checks, EN/light + JA/dark + measured 800x543 browser proof; no native/server jump/global shell acceptance |
 | LWB317-UI-SHELL-RETENTION-001 | Single worker, owner relay | READY | Exact visited top-level panel lifetime, Activity hidden effects, retained current state/props and bounded mounted/browser proof; no native/full audit |
 | LWB317-UI-REMAINING-PAGES-001-R1 | Worker checkpoints, lead takeover/review | COMPLETE / ACCEPTED for bounded source/local scope | A/B/C retained; D finished with integrity packet and source-backed confirmation/ref corrections at 2174553. Native/shell/pixels separate |
 | LWB317-UI-REMAINING-PAGES-001 | Worker, lead reviewed | COMPLETE / ACCEPTED for bounded source/local scope | R1 closes twelve initial lead cases plus two continuation differences. Original failure packet preserved; global/native/pixel acceptance unchanged |

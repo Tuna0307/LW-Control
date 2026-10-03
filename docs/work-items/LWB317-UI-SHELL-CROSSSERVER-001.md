@@ -1,8 +1,7 @@
 # LWB317-UI-SHELL-CROSSSERVER-001 — Cross-server popover
 
-Status: READY through owner relay, 2026-10-04. One medium worker assignment.
-Work alone, without subagents/delegation, through A -> B -> C. Stop after this
-unit. Quality and exact evidence take priority over the completion date.
+Status: AWAITING_REVIEW, worker delivery 2026-10-04. A -> B -> C are complete;
+project-lead acceptance remains pending. The worker must stop after this unit.
 
 ## Goal and context
 
