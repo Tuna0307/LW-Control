@@ -37,7 +37,10 @@ inflate a percentage using test-case counts or declare unknown surfaces done.
 
 Order 1 is closed by the lead takeover/review recorded in
 docs/reviews/2026-10-03-LWB317-UI-AUTOMATION-AFK-CLOSEOUT-001.md.
-Active order-2 assignment: LWB317-UI-EQUIPMENT-CLOSEOUT-001, Equipment only.
+Active order-2 assignment: LWB317-UI-EQUIPMENT-CLOSEOUT-001-R1, Equipment only.
+Lead review of parent 4bafcd4 returned CHANGES_REQUIRED: hidden-tab Alt effects,
+local rename acknowledgement states and new evidence validation. Existing passing
+proofs are preserved; the focused R1 work item is READY through owner relay.
 City Layout and then Hotkeys/Mini Games/Settings remain separate medium units.
 The no-subagent restriction applies to workers; the owner permits lead subagents.
 Order 3 remains separate. No subsequent implementation is started by this closeout.

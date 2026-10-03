@@ -1,0 +1,70 @@
+{
+  "submittedCommit": "4bafcd437929f2f905b557ca700657467afbdcbc",
+  "referenceExecutableSha256": "4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783",
+  "files": [
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-EQUIPMENT-CLOSEOUT-001/actual-source-results.json",
+      "sha256": "59BF73C323A3F9D7BCB24DD1694434E8569BF0BED4290FE9225675F7E36636BB"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-EQUIPMENT-CLOSEOUT-001/baseline-check.mjs",
+      "sha256": "6EBB9A6B083171952A1F95552161C25131F8CEE5AC0690FCE16D1A6D9510F1D3"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-EQUIPMENT-CLOSEOUT-001/baseline-results.json",
+      "sha256": "D38256A0827762EE85CD0E3560A67AE4CD8553D3228F0B96F4D1DFB2A8EAF08F"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-EQUIPMENT-CLOSEOUT-001/browser-results.json",
+      "sha256": "EC728DA26FE96D70119C93EAD36B2FC0493A86A6E1081B37946EA98D62A131AB"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-EQUIPMENT-CLOSEOUT-001/check-closeout.mjs",
+      "sha256": "680FECC7D8047A75D0BCCCE7DF8BA3FC86FD18845582554DF0D8BE636B213233"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-EQUIPMENT-CLOSEOUT-001/coverage-matrix.md",
+      "sha256": "3BFFC52C3FC7F903945B74C9D72ECAD51CB25A71B971C42D4C3C69C9436D60B4"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-EQUIPMENT-CLOSEOUT-001/screenshots/equipment-narrow-ja-dark.jpg",
+      "sha256": "B5688581A4D09D5855A0EFE885E46F07D320D1328084F20D6AE92833DB59BCC4"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-EQUIPMENT-CLOSEOUT-001/screenshots/equipment-result-ja-dark.jpg",
+      "sha256": "D8B95980199AA671AAC1F3F1B46B95033937516E296F9962AFEA585280D8218D"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-EQUIPMENT-CLOSEOUT-001/screenshots/rename-dialog-en-light.jpg",
+      "sha256": "6FC7B6255439FAF334873CEB89404E53E83986CB05DA078173566F77F7FA432B"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-EQUIPMENT-CLOSEOUT-001/source-manifest.json",
+      "sha256": "84DAE44C256F7D24D333E2994006C5313CDF99A4E7977384E727F1858A8F48C5"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-EQUIPMENT-CLOSEOUT-001/verification-results.json",
+      "sha256": "637CE0840C003FD9751EB481C278239A6F88FFE4642A1A1E3C0225627079619D"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "sha256": "A07D08E1546824B5D7342B3F473C0569ED4775C36DF07784CD59529A309D130C"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/previewEquipmentContracts.js",
+      "sha256": "2E57B79B1211582A9FF5E9A96A2158F8918C2D690694A6DDDDC338AF95BA44B0"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-REVIEW-EQUIPMENT-CLOSEOUT-001/independent-results.json",
+      "sha256": "70BD9FDE1900E6C10D1AA107E5A8EFE2F84D8E0E0B039084E6661424BA77CCA5"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-REVIEW-EQUIPMENT-CLOSEOUT-001/check-review.mjs",
+      "sha256": "D064C67A5DA0DE739A6B471D3FF20BD9E6AAC203AFC303B6BDE18C91BA1360EF"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-REVIEW-EQUIPMENT-CLOSEOUT-001/verification-results.json",
+      "sha256": "98668744BA75FA82631D4F6E9D06DA46AEC244FADCF69162DA347BAAADB15DB1"
+    }
+  ]
+}

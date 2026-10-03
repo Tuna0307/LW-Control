@@ -1,12 +1,21 @@
 # Current implementation/research handoff
 
-Current worker return, 2026-10-03: LWB317-UI-EQUIPMENT-CLOSEOUT-001 is **AWAITING_REVIEW** for its bounded Equipment Schemes source/local assignment. The worker recovered and corrected the five assigned Equipment groups, refreshed original/current and AFK regression proof, completed real preview QA/evidence, and preserved all seven protected WIP paths. This is not project-lead acceptance and does not advance City Layout or any native/gameplay phase. See the dated Equipment closeout review and evidence packet.
+Project-lead review, 2026-10-03: LWB317-UI-EQUIPMENT-CLOSEOUT-001 is **CHANGES_REQUIRED** at 4bafcd4. Current effects still handle Equipment Alt shortcuts while AFK is shown; local rename deferred/failure states and assigned evidence validator are missing. Existing 105-assertion Equipment/729-case AFK checks, canonical check/package and seven protected hashes pass. See the dated REVIEW-EQUIPMENT-CLOSEOUT-001 review; medium R1 is the next task.
 
 **Target:** LWBridge 0.3.17  
 **Branch:** `research/offline-controller`  
-**Active scope:** UI parity / LWB317-UI-EQUIPMENT-CLOSEOUT-001 AWAITING_REVIEW; no native integration and no next page started
+**Active scope:** UI parity / LWB317-UI-EQUIPMENT-CLOSEOUT-001-R1 READY; parent CHANGES_REQUIRED; no native integration or next page
 
-## Current continuation — Equipment Schemes worker delivery awaiting review
+## Current continuation — Equipment Schemes correction R1
+
+Read docs/work-items/LWB317-UI-EQUIPMENT-CLOSEOUT-001-R1.md and the dated lead
+review. Preserve the reviewed implementation and passing transformation/AFK work.
+Fix hidden-tab effect suspension with retained state, recover acknowledgement-driven
+rename pending/failure/success locally, and validate the new evidence packet. The
+lead's independent failing reproduction is preserved separately from worker proof.
+Do not treat its source-marker checks as executed effects or deferred saves.
+
+## Prior worker delivery — reviewed with changes required
 
 The Equipment-only packet now covers selected/current identity, dirty derivation,
 summaries, rename dialog semantics, item/hero/squad movement, supplied result/progress/
@@ -18,7 +27,7 @@ Japanese/dark browser evidence includes a recorded 800x543 narrow layout and thr
 inspected screenshots. Physical connector pointer drag did not emit HTML5 drag
 events, so only rendered-handler DOM-dispatch plus exact source/current move proof
 is claimed. Native Equipment providers/persistence/gameplay and original post-auth
-pixel comparison remain unproved. Project-lead review is the next action.
+pixel comparison remain unproved. Lead review found the bounded R1 gaps above.
 
 ## Current continuation — Automation / AFK residual unit closed
 
@@ -29,8 +38,8 @@ All seven protected WIP paths are unchanged and unstaged. Native confirmation
 has controlled callback proof; its physical browser dialog is unverified.
 Physical HTML5 drag and original pixel/runtime comparisons are not claimed.
 
-Equipment is now awaiting lead review under
-docs/work-items/LWB317-UI-EQUIPMENT-CLOSEOUT-001.md. City Layout and then
+Equipment now requires the focused R1 under
+docs/work-items/LWB317-UI-EQUIPMENT-CLOSEOUT-001-R1.md. City Layout and then
 Hotkeys/Mini Games/Settings remain separate and have not started. The owner permits
 lead subagents, but this worker used none. Order 3 handles final shell/Home/Map
 integration, shared focus/narrow layouts and exact remaining-gap inventory. Do not

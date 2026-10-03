@@ -1,6 +1,6 @@
 # Current project directive
 
-Current worker return, 2026-10-03: LWB317-UI-EQUIPMENT-CLOSEOUT-001 is **AWAITING_REVIEW** after completing the bounded Equipment Schemes source/local assignment. The delivery reports exact recovered-source/current checks, real preview QA, affected AFK regression, package checks and protected-WIP preservation passing. Project-lead review is still required. No City Layout, Hotkeys/Mini Games/Settings, native provider, gameplay or final integration work was started by this worker.
+Project-lead review, 2026-10-03: LWB317-UI-EQUIPMENT-CLOSEOUT-001 is **CHANGES_REQUIRED** after independent review of 4bafcd4. Passing delivered checks do not cover the reproduced hidden-tab Alt listener or deferred/failed rename acknowledgements. Medium R1 is READY at docs/work-items/LWB317-UI-EQUIPMENT-CLOSEOUT-001-R1.md; includes a new evidence validator. No next page or native/gameplay phase has started.
 
 ## Target
 

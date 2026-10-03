@@ -1,0 +1,20 @@
+{
+  "submittedCommit": "4bafcd437929f2f905b557ca700657467afbdcbc",
+  "decision": "CHANGES_REQUIRED",
+  "hiddenTab": {
+    "originalUsesActivity": true,
+    "originalEffectCleanupRemovesListener": true,
+    "originalAltEffectUtf8Byte": 179906,
+    "currentHiddenEquipmentRetained": true,
+    "currentHiddenAltPrevented": true,
+    "currentHiddenAltAction": "apply-all:equipment-preset-fixed-2"
+  },
+  "renameProofGap": {
+    "originalPendingBusy": "rename",
+    "originalPendingDialogOpen": true,
+    "originalFailedAcknowledgementDialogOpen": true,
+    "currentPreviewSaveSynchronous": true,
+    "currentDialogClosesImmediately": true
+  },
+  "limits": "Inert actual callbacks/effects and original hidden Activity boundary. No browser input, React DOM Activity scheduling, native provider or gameplay executed. Rename proves the missing acknowledgement branch, not a native persistence result."
+}

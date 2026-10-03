@@ -1,6 +1,6 @@
 # Project lead control sheet
 
-Current worker return, 2026-10-03: LWB317-UI-EQUIPMENT-CLOSEOUT-001 is **AWAITING_REVIEW** for its bounded Equipment-only source/local delivery. The worker reports 105 Equipment original/current assertions, affected 729-case AFK regression, canonical package checks, real en/light and ja/dark browser evidence, and protected-WIP preservation passing. Project-lead acceptance is still required. City Layout, Hotkeys/Mini Games/Settings and final integration remain separate and have not started from this worker chat.
+Project-lead review, 2026-10-03: LWB317-UI-EQUIPMENT-CLOSEOUT-001 is **CHANGES_REQUIRED** at reviewed implementation 4bafcd4. Existing Equipment/AFK checks pass, but actual effect execution finds Alt shortcuts active while Equipment is hidden under AFK. Deferred/failed rename acknowledgement states and the assigned evidence validator are missing. Medium R1 is READY through owner relay; see the dated REVIEW-EQUIPMENT-CLOSEOUT-001 review and R1 work item. City Layout and the remaining finish queue have not started.
 
 Recovery update, 2026-10-03: interrupted Automation/AFK work is completed and locally reviewed. Its finite source/render/handler proof and remaining limits are recorded; other-page audit is next. See the dated closeout review and UI_FINISH_CHECKLIST.md.
 
@@ -49,7 +49,8 @@ the Map closeout awaits a separate independent acceptance review.
 
 | Work item / campaign | Owner | State | Scope |
 |---|---|---|---|
-| LWB317-UI-EQUIPMENT-CLOSEOUT-001 | Returning worker, owner relay | AWAITING_REVIEW | Five Equipment source/local groups delivered with actual-source/current, browser, AFK-regression, package and protected-WIP evidence; lead review pending, no native work or other pages |
+| LWB317-UI-EQUIPMENT-CLOSEOUT-001-R1 | Returning worker, owner relay | READY | Medium correction: hidden-tab effect suspension, local rename pending/failure acknowledgement states, new evidence validator. No native provider or next page |
+| LWB317-UI-EQUIPMENT-CLOSEOUT-001 | Returning worker, lead reviewed | CHANGES_REQUIRED | 4bafcd4 inspected; 105 assertions/729 AFK cases and package pass. Hidden Alt effect defect plus rename/evidence proof gaps require R1; original/native/pixels unproved |
 | LWB317-UI-AUTOMATION-AFK-CLOSEOUT-001 | Interrupted worker, lead takeover | COMPLETE for bounded source/local residuals | 7e7eb12: 729 comparisons, 18 browser records, eight images and package/evidence checks. Physical dialog/drag and original/native/pixels remain unverified |
 | LWB317-UI-MAP-AUTO-CONFIG-001 | Single worker, lead reviewed | COMPLETE / ACCEPTED for focused source/local scope | ec27577 accepted by PM-UI-FINISH-001: ten regressions, seven new App cases, focused checks/evidence/package and saved-layout inspection pass. Native/pixels excluded |
 | LWB317-UI-MAP-REFRESH-OWNERSHIP-001 | Returning worker, lead reviewed | COMPLETE / ACCEPTED for focused source/local scope | cf75b4e actual App/panel ownership, overlap/disposal/count reset, redirect/Clear and interaction/package replays pass |

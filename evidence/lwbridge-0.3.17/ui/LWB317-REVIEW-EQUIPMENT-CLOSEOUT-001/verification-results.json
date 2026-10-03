@@ -1,0 +1,16 @@
+{
+  "submittedCommit": "4bafcd437929f2f905b557ca700657467afbdcbc",
+  "reviewer": "project lead",
+  "date": "2026-10-03",
+  "checks": [
+    { "command": "node evidence/lwbridge-0.3.17/ui/LWB317-UI-EQUIPMENT-CLOSEOUT-001/check-closeout.mjs", "result": "PASS", "assertions": 105, "qualification": "Includes two source-marker checks; useEffect is stubbed and hidden-tab lifecycle is not exercised." },
+    { "command": "node evidence/lwbridge-0.3.17/ui/LWB317-UI-EQUIPMENT-CLOSEOUT-001/baseline-check.mjs", "result": "PASS", "qualification": "Nine source-marker predicates, not nine independently executed behavior cases." },
+    { "command": "node evidence/lwbridge-0.3.17/ui/LWB317-UI-AUTOMATION-AFK-CLOSEOUT-001/check-closeout.mjs", "result": "PASS", "cases": 729 },
+    { "check": "AFK Join and Assist recovered renderers", "result": "PASS" },
+    { "command": "npm.cmd run check", "cwd": "src/LWBridge.UI-0.3.17", "result": "PASS" },
+    { "command": "npm.cmd run check:production-build", "cwd": "src/LWBridge.UI-0.3.17", "result": "PASS", "sourceSha256": "bf976ceb3f2340b1a9a786a228ea0cf4b9692e59cbc608125005a2de302f5067", "artifactSha256": "c8db1f1ac129bfccf9a373bed408ea954e123a5e5c6a9e32ed2b682f0d224e71" },
+    { "command": "node evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-AUTO-CONFIG-001/check-protected-wip.mjs", "result": "PASS", "paths": 7 }
+  ],
+  "browser": "Lead inspected all three saved worker screenshots and browser-results.json; no new independent browser interaction was performed. Japanese partial-result screenshot does not expose the below-fold result. Physical HTML5 drag remains unproved.",
+  "build": "Worker build report inspected; current package identity checked independently. No production edits were made during this review."
+}

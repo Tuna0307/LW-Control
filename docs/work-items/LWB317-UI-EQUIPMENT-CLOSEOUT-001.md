@@ -1,6 +1,9 @@
 # LWB317-UI-EQUIPMENT-CLOSEOUT-001 — medium Equipment-only task
 
-Status: AWAITING_REVIEW. Worker delivery complete; project-lead review pending. Work alone: no subagents or delegation. The owner's permission
+Status: CHANGES_REQUIRED. Worker delivery at 4bafcd4 reviewed by the lead.
+Hidden-tab Alt effects and local rename acknowledgement/evidence gaps are assigned
+to LWB317-UI-EQUIPMENT-CLOSEOUT-001-R1. See the dated independent lead review.
+Preserve this original assignment and worker evidence. Work alone: no subagents or delegation. The owner's permission
 for project-lead subagents does not apply to this worker chat.
 
 ## Start and intent
