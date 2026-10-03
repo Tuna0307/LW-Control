@@ -12,7 +12,7 @@ import { dispatchWeeklyQualities, previewAssistFixture, previewAutomationRuntime
 import { initialAfkToolbarConfig, previewDrillRuntime, previewGarrisonMemberFixture, previewGarrisonRuntime, previewMemberFixture, previewZombieBusRuntime } from "./previewAfkCloseoutFixtures.js";
 import { EQUIPMENT_PRESET_LIMIT, EQUIPMENT_SLOTS, cloneEquipmentValue, currentEquipmentPresetLabel, currentEquipmentPresetMatches, equipmentCatalog, equipmentDirtyPresetIds, equipmentItemCount, equipmentPositionCount, findEquipmentSquad, previewEquipmentFixture, swapEquipmentSquads, swapEquipmentTarget } from "./previewEquipmentContracts.js";
 import { buildTradePurchaseDays, resolveTradeName, tradePurchaseRowKey } from "./tradePurchaseHistory.js";
-import { CITY_BASE_CELL_SIZE, cityGridRow, cityLayoutIssues, cityMovedOccupiedPoints, cityPlacementMap, cityPlacementSignature, cityRegionForPoint, citySetPlacement, previewCityLayoutFixture } from "./previewRemainingPagesContracts.js";
+import { CITY_BASE_CELL_SIZE, HOTKEY_CARDS, MINI_GAME_HOTKEY_CARDS, cityGridRow, cityLayoutIssues, cityMovedOccupiedPoints, cityPlacementMap, cityPlacementSignature, cityRegionForPoint, citySetPlacement, mergeHotkeyField, previewCityLayoutFixture, previewHotkeyConfig } from "./previewRemainingPagesContracts.js";
 
 export { MapDataPage } from "./MapDataPage.jsx";
 
@@ -1693,56 +1693,81 @@ export function CityLayoutPage({ previewState = "", online = false }) {
   );
 }
 
-const hotkeyCards = [
-  ["Q / W / E / R", "Attack target", "Q/W/E/R each send one march at whatever is under the cursor: enemy city, ally city reinforcement, monster, resource node, or city ruin. World bosses and rally monsters are skipped. A/S/D/F recalls."],
-  ["A / S / D / F", "Recall squad", "Recall squads 1–4 to the Headquarters."],
-  ["Space", "Shield countdown", "Hold Space to display remaining Shield time above protected cities."],
-  ["F6 / F7 / F8", "Use Shield", "F6 uses an 8-hour Shield, F7 a 12-hour Shield, and F8 a 24-hour Shield.", "This shortcut consumes the matching Shield item immediately."],
-  ["Alt + 1～4", "Equipment preset", "Apply equipment presets 1–4 to all configured squads."],
-  ["F9", "Random relocation", "Press F9 to use a Random Relocator.", "Relocation may consume an item. This shortcut is disabled by default."],
-  ["F10", "Alliance relocation", "Press F10 to relocate to the Alliance rally point.", "Relocation may consume an item. This shortcut is disabled by default."],
-];
-
-function HotkeyCard({ binding, title, description, warning, attack = false, previewEnabled = false }) {
+function HotkeyCard({ card = null, config = null, pendingField = null, onSaveField = null, binding = "", title = "", description = "", warning = "", previewEnabled = false }) {
   const { english, t } = useI18n();
-  const [enabled, setEnabled] = useState(false);
-  const [itemSpeedup, setItemSpeedup] = useState(false);
-  const [diamondSpeedup, setDiamondSpeedup] = useState(false);
+  const [legacyEnabled, setLegacyEnabled] = useState(false);
+  const controlled = Boolean(card && config && onSaveField);
+  const enabled = controlled ? config[card.key] === true : legacyEnabled;
+  const cardBinding = card?.binding ?? binding;
+  const cardTitle = card ? t(card.title) : english(title);
+  const cardDescription = card ? t(card.description) : english(description);
+  const cardWarning = card?.warning ? t(card.warning) : warning ? english(warning) : "";
+  const sourceAttack = card?.key === "attack";
+  const busy = controlled ? pendingField !== null : false;
+  const toggle = () => {
+    if (controlled) onSaveField({ ...config, [card.key]: !enabled }, card.key);
+    else setLegacyEnabled((value) => !value);
+  };
   return (
-    <article className={`hotkey-card${warning ? " hotkey-card-danger" : ""}`} data-preview-fixture={previewEnabled ? "hotkeys-connected" : "runtime-config-unobserved"}>
+    <article className={`hotkey-card${cardWarning ? " hotkey-card-danger" : ""}`} data-preview-fixture={previewEnabled ? "hotkeys-connected" : controlled ? "hotkeys-config" : "runtime-config-unobserved"}>
       <div className="hotkey-card-header">
-        <kbd className="hotkey-binding">{binding}</kbd>
-        <button className="hotkey-switch" type="button" disabled={!previewEnabled} aria-label={`${english(title)}: ${t(enabled ? "common.enabled" : "common.disabled")}`} onClick={() => setEnabled((value) => !value)}><Switch checked={enabled} /></button>
+        <kbd className="hotkey-binding">{cardBinding}</kbd>
+        <button className="hotkey-switch" type="button" disabled={controlled ? busy : !previewEnabled} aria-label={`${cardTitle}: ${t(enabled ? "common.enabled" : "common.disabled")}`} onClick={toggle}><Switch checked={enabled} /></button>
       </div>
-      <h3>{english(title)}</h3>
-      <p>{english(description)}</p>
-      {attack ? (
+      <h3>{cardTitle}</h3>
+      <p>{cardDescription}</p>
+      {sourceAttack ? (
         <div className="hotkey-attack-settings">
-          <label className="hotkey-attack-toggle"><input type="checkbox" disabled={!previewEnabled || !enabled} checked={itemSpeedup} onChange={(event) => setItemSpeedup(event.target.checked)} /><span>{t("hotkeys.attackSpeedupItem")}</span></label>
-          <label className="hotkey-attack-toggle"><input type="checkbox" disabled={!previewEnabled || !enabled} checked={diamondSpeedup} onChange={(event) => setDiamondSpeedup(event.target.checked)} /><span>{t("hotkeys.attackSpeedupDiamond")}</span></label>
+          <label className="hotkey-attack-toggle"><input type="checkbox" checked={config.attackMarchSpeedupItem === true} disabled={pendingField !== null} onChange={() => onSaveField({ ...config, attackMarchSpeedupItem: config.attackMarchSpeedupItem !== true }, "attackMarchSpeedupItem")} /><span>{t("hotkeys.attackSpeedupItem")}</span></label>
+          <label className="hotkey-attack-toggle"><input type="checkbox" checked={config.attackMarchSpeedupDiamond === true} disabled={pendingField !== null} onChange={() => onSaveField({ ...config, attackMarchSpeedupDiamond: config.attackMarchSpeedupDiamond !== true }, "attackMarchSpeedupDiamond")} /><span>{t("hotkeys.attackSpeedupDiamond")}</span></label>
           <small>{t("hotkeys.attackSpeedupWarning")}</small>
         </div>
       ) : null}
       <span className={`hotkey-state${enabled ? " enabled" : ""}`}>{t(enabled ? "common.enabled" : "common.disabled")}</span>
-      {warning ? <div className="hotkey-danger">{english(warning)}</div> : null}
+      {cardWarning ? <div className="hotkey-danger">{cardWarning}</div> : null}
     </article>
   );
 }
 
-export function HotkeysPage({ previewState = "" }) {
+export function HotkeysPage({ previewState = "", online = false }) {
   const { t } = useI18n();
-  const previewEnabled = previewState === "hotkeys-connected" || previewState === "hotkeys-save-error";
-  const hotkeyError = previewState === "hotkeys-load-error" ? t("hotkeys.loadFailed") : previewState === "hotkeys-save-error" ? t("hotkeys.saveFailed") : "";
+  const previewEnabled = previewState.startsWith("hotkeys-");
+  const effectiveOnline = previewEnabled ? previewState === "hotkeys-connected" || previewState === "hotkeys-saving" : online;
+  const statusKey = previewEnabled ? (effectiveOnline ? "status.gameConnected" : "hotkeys.offlineHint") : (online ? "status.gameConnected" : "hotkeys.offlineHint");
+  const [hotkeyConfig, setHotkeyConfig] = useState(() => previewState === "hotkeys-load-error" || previewState === "hotkeys-loading" || !previewEnabled ? null : previewHotkeyConfig());
+  const [pendingField, setPendingField] = useState(() => previewState === "hotkeys-saving" ? "attack" : null);
+  const [hotkeyError, setHotkeyError] = useState(() => previewState === "hotkeys-load-error" ? "hotkeys.loadFailed" : previewState === "hotkeys-save-error" ? "hotkeys.saveFailed" : "");
+  const sourceConfigRef = useRef(hotkeyConfig ?? previewHotkeyConfig());
+
+  async function saveHotkeyField(nextConfig, field) {
+    if (!hotkeyConfig || pendingField !== null) return;
+    const previous = hotkeyConfig;
+    setHotkeyConfig(nextConfig);
+    setPendingField(field);
+    setHotkeyError("");
+    try {
+      await Promise.resolve();
+      if (previewState === "hotkeys-save-error") throw new Error("preview hotkey save failure");
+      const saved = mergeHotkeyField(sourceConfigRef.current, nextConfig, field);
+      sourceConfigRef.current = saved;
+      setHotkeyConfig(saved);
+    } catch {
+      setHotkeyConfig(previous);
+      setHotkeyError("hotkeys.saveFailed");
+    } finally {
+      setPendingField(null);
+    }
+  }
+
   return (
     <section className="panel hotkey-panel" data-preview-fixture={previewState.startsWith("hotkeys-") ? previewState : undefined}>
       <PanelTitle title={t("hotkeys.title")} subtitle={t("hotkeys.description")} />
-      {!previewEnabled ? <div className="hotkey-status">{t("hotkeys.offlineHint")}</div> : null}
-      {hotkeyError ? <div className="automation-error" role="alert">{hotkeyError}</div> : null}
-      <div className="hotkey-grid">
-        {hotkeyCards.map(([binding, title, description, warning], index) => (
-          <HotkeyCard key={title} binding={binding} title={title} description={description} warning={warning} attack={index === 0} previewEnabled={previewEnabled} />
-        ))}
-      </div>
+      <div className="hotkey-status">{t(statusKey)}</div>
+      {hotkeyConfig === null && !hotkeyError ? <div className="muted">{t("common.processing")}</div> : null}
+      {hotkeyConfig ? <div className="hotkey-grid">
+        {HOTKEY_CARDS.map((card) => <HotkeyCard key={card.key} card={card} config={hotkeyConfig} pendingField={pendingField} onSaveField={saveHotkeyField} previewEnabled={previewEnabled} />)}
+      </div> : null}
+      {hotkeyError ? <div className="automation-error" role="alert">{t(hotkeyError)}</div> : null}
     </section>
   );
 }

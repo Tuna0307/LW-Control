@@ -8,7 +8,7 @@ Status: **IN PROGRESS**. This worker owns only City Layout, Hotkeys, Mini Games 
 |---|---|---|
 | A — inventory/baseline | COMPLETE | 54 inventoried source branches, 15 exact recovered byte-locator groups, immutable 16-failure dispatch baseline and protected-WIP starting guard |
 | B — City Layout | COMPLETE | Recovered placement/cell validation, pointer selection/group movement, 4–72 zoom, history/shortcuts, stale/outside-city/server/apply progress, 500 ms draft effect and inert apply confirmation |
-| C — Hotkeys | PENDING | — |
+| C — Hotkeys | COMPLETE | Exact seven-card locale-key catalog, shared config/loading/error state, source-style single pending field, optimistic single-field save/rollback and offline-edit predicates |
 | D — Mini Games | PENDING | — |
 | E — Settings | PENDING | — |
 | F — integration/evidence | PENDING | — |
@@ -20,3 +20,7 @@ Milestone A treats the recovered minified assets as authority rather than the cu
 Milestone B removes the clone's guessed `cityCellKind`/8×8 validation contract. The preview fixture remains synthetic but now carries the same cell/building fields consumed by recovered `te/ne/m/re/ie/oe` semantics. `check-city-layout.mjs` executes **935 assertions**: 897 direct recovered/current helper comparisons across every fixture building/cell, 16 invalid/boundary scenario assertions, 16 production callback/state assertions in English/Japanese, two zoom callback assertions and four timer/cleanup/native-confirm guards. The four immutable City baseline predicates now pass while the later-page predicates remain intentionally open.
 
 Real browser QA exercised the rendered zoom button, inert Apply confirmation, Japanese/dark stale branch and physical pointer movement. The first physical move exposed duplicate `pointerup` bubbling that created a no-op Undo entry; the building handler now stops propagation and one Undo restores the prior placement. Fresh browser console capture is empty. The recovered shell retains visited top-level pages through `Activity`; this clone's existing `PageForRoute` shell unmounts them. That cross-page shell architecture is outside this bounded page-component campaign and remains recorded as a known limit rather than being silently converted into a pass.
+
+Milestone C replaces seven hard-coded English/per-card Hotkeys states with the exact recovered `p` card catalog and one source-shaped config. `check-hotkeys.mjs` passes **70 checks**, including direct execution of the recovered renderer while offline, its fresh-config single-field merge behavior, production controlled-card callbacks/pending gating, and the recovered English/Japanese locale keys. All four immutable Hotkeys baseline predicates now pass.
+
+Mounted browser QA confirms offline edits remain available, attack speedup fields are not gated by connection or attack-enabled state, pending acknowledgement disables all seven switches plus both speedup fields, and failed edits restore the previous value while focus remains on the switch. A Japanese/dark fixture exposed an initial English save-error caused by storing translated text before query locale initialization; Hotkeys now stores the locale key and translates on render. The load-error branch shows translated failure copy with no stale cards, and fresh console capture is empty. No native/global keyboard listener or gameplay action was introduced.

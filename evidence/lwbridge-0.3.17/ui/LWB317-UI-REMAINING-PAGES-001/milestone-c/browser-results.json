@@ -1,0 +1,63 @@
+{
+  "result": "LWB317_HOTKEYS_BROWSER_OK",
+  "urlBase": "http://127.0.0.1:4319/",
+  "records": [
+    {
+      "name": "English/light disconnected config remains editable",
+      "state": "hotkeys-disconnected",
+      "language": "en",
+      "theme": "light",
+      "observed": {
+        "cards": 7,
+        "status": "Game disconnected. Settings are saved and will apply after connection.",
+        "attackBefore": "Enabled",
+        "attackAfterPhysicalClick": "Disabled",
+        "firstSwitchDisabledAfterAck": false,
+        "attackSpeedupsDisabledAfterAttackDisabled": [false, false]
+      }
+    },
+    {
+      "name": "Japanese/dark save failure rolls back the edited field",
+      "state": "hotkeys-save-error",
+      "language": "ja",
+      "theme": "dark",
+      "observed": {
+        "initialError": "ショートカット設定を保存できませんでした。",
+        "recallBefore": "有効",
+        "recallAfterPhysicalClickAndFailure": "有効",
+        "errorAfterFailure": "ショートカット設定を保存できませんでした。",
+        "focusRetainedOnSwitch": true
+      },
+      "finding": "Browser QA exposed a preview locale-lifetime defect: the initial fixture error had been translated before the query-selected Japanese locale settled. Error state now stores the source locale key and translates at render time."
+    },
+    {
+      "name": "Pending save gates every editable Hotkeys control",
+      "state": "hotkeys-saving",
+      "language": "en",
+      "theme": "light",
+      "observed": {
+        "status": "Game connected",
+        "switches": 7,
+        "disabledSwitches": 7,
+        "attackInputs": 2,
+        "disabledAttackInputs": 2
+      }
+    },
+    {
+      "name": "Japanese/dark load failure has no stale config cards",
+      "state": "hotkeys-load-error",
+      "language": "ja",
+      "theme": "dark",
+      "observed": {
+        "cards": 0,
+        "error": "ショートカット設定を読み込めませんでした。"
+      }
+    }
+  ],
+  "console": {
+    "errors": [],
+    "warnings": [],
+    "capture": "Fresh since Desktop debugger attachment"
+  },
+  "nativeLimit": "No OS/global listener registration, game-window keyboard injection, attack, recall, shield, equipment or relocation action was invoked. Browser clicks exercised only local configuration callbacks."
+}

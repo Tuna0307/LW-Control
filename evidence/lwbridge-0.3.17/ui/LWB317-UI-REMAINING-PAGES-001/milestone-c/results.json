@@ -1,0 +1,35 @@
+{
+  "result": "LWB317_HOTKEYS_SOURCE_LOCAL_OK",
+  "results": [
+    {
+      "name": "exact recovered shortcut and shared Mini Games card catalogs",
+      "count": 8,
+      "result": "PASS"
+    },
+    {
+      "name": "production single-field merge preserves unrelated fresh fields",
+      "count": 4,
+      "result": "PASS"
+    },
+    {
+      "name": "actual recovered renderer order/offline editability and save-fresh-field semantics",
+      "count": 15,
+      "result": "PASS"
+    },
+    {
+      "name": "actual production controlled card callbacks and shared pending gate",
+      "count": 9,
+      "result": "PASS"
+    },
+    {
+      "name": "English/Japanese recovered card locale keys",
+      "count": 34,
+      "result": "PASS"
+    }
+  ],
+  "current": {
+    "pagesSha256": "88DEE08F2B51B1821B2E4CA22BB16DABECB1F343C2023FB236050C253BEBA4B1",
+    "contractsSha256": "1C2F604A7C02E35483129835FC6F8169007E2091B8AAE95065E91281C6060D42"
+  },
+  "limits": "Original HotkeyPanel is executed with controlled config/provider stubs and production HotkeyCard callbacks are invoked directly. No OS/global listener, game-window key injection, attack, recall, shield, equipment or relocation action is registered or executed."
+}
