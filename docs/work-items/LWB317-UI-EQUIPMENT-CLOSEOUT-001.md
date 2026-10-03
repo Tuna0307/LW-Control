@@ -1,8 +1,8 @@
 # LWB317-UI-EQUIPMENT-CLOSEOUT-001 — medium Equipment-only task
 
-Status: CHANGES_REQUIRED. Worker delivery at 4bafcd4 reviewed by the lead.
-Hidden-tab Alt effects and local rename acknowledgement/evidence gaps are assigned
-to LWB317-UI-EQUIPMENT-CLOSEOUT-001-R1. See the dated independent lead review.
+Status: COMPLETE / ACCEPTED for bounded recovered-source/local scope through R1
+2e4acce/32b2906 and the dated independent lead R1 acceptance review. The historical
+4bafcd4 findings and source/native/physical drag/pixel proof limits remain preserved.
 Preserve this original assignment and worker evidence. Work alone: no subagents or delegation. The owner's permission
 for project-lead subagents does not apply to this worker chat.
 

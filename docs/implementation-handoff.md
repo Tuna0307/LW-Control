@@ -1,12 +1,22 @@
 # Current implementation/research handoff
 
-Worker R1 delivery, 2026-10-03: `LWB317-UI-EQUIPMENT-CLOSEOUT-001-R1` is **AWAITING_REVIEW** at implementation/evidence commit `2e4accef7b0709a903034293126cb63fe389b105`. React Activity now suspends hidden AFK/Equipment effects while retaining state, and Equipment rename/save use the recovered acknowledgement lifecycle including pending/failure Retry/Discard. R1 61, parent Equipment 105 and AFK 729 checks pass with build/package, mounted browser lifecycle QA and a 71-assertion evidence validator. The parent remains **CHANGES_REQUIRED** until project-lead acceptance.
+Lead acceptance, 2026-10-03: Equipment parent/R1 are COMPLETE / ACCEPTED for bounded source/local scope at implementation 2e4accef and delivery 32b2906. Independent diff/source, R1 61, Equipment 105, AFK 729, integrity 71, check/package, protected-WIP and saved-image review pass. Native/physical drag/original pixels remain unproved. Next is owner-requested large four-page LWB317-UI-REMAINING-PAGES-001, READY through manual relay.
 
 **Target:** LWBridge 0.3.17  
 **Branch:** `research/offline-controller`  
-**Active scope:** UI parity / LWB317-UI-EQUIPMENT-CLOSEOUT-001-R1 AWAITING_REVIEW; parent CHANGES_REQUIRED; no native integration or next page
+**Active scope:** UI parity / LWB317-UI-REMAINING-PAGES-001 READY; Equipment correction accepted; native/full shell integration separate
 
-## Current continuation — project-lead review of Equipment Schemes R1
+## Current continuation — large four-page UI campaign
+
+Read docs/work-items/LWB317-UI-REMAINING-PAGES-001.md. Execute A inventory/baseline,
+B City Layout, C Hotkeys, D Mini Games, E Settings and F affected closeout sequentially.
+Keep milestones independently recoverable; no fixed time stop or permission wait
+between pages, no worker subagents. Preserve existing accepted UI and protected WIP.
+Stop at these four pages and return AWAITING_REVIEW; full shell/Home/Map integration
+and native function work are separate. This supersedes the earlier medium-unit
+dispatch plan at the owner's explicit request, without relaxing quality standards.
+
+## Prior continuation — Equipment Schemes R1 accepted
 
 Review docs/work-items/LWB317-UI-EQUIPMENT-CLOSEOUT-001-R1.md, the original dated
 lead review and the new dated R1 delivery. The correction is complete at
@@ -14,7 +24,8 @@ lead review and the new dated R1 delivery. The correction is complete at
 visited-tab lifecycle and the shared local Equipment acknowledgement path covers
 rename/save pending, error, Retry/Discard and success. The immutable lead failure
 packet remains preserved separately from corrected proof. Project lead decides
-acceptance; do not start City Layout, native work or another page from this handoff.
+acceptance; the dated lead R1 review now records focused acceptance. The next four
+pages are authorized only by the new campaign above; native work remains separate.
 
 ## Prior worker delivery — reviewed with changes required
 
@@ -39,12 +50,11 @@ All seven protected WIP paths are unchanged and unstaged. Native confirmation
 has controlled callback proof; its physical browser dialog is unverified.
 Physical HTML5 drag and original pixel/runtime comparisons are not claimed.
 
-Equipment R1 is delivered and awaits project-lead review under
-docs/work-items/LWB317-UI-EQUIPMENT-CLOSEOUT-001-R1.md. City Layout and then
-Hotkeys/Mini Games/Settings remain separate and have not started. This worker used
-no subagents. Order 3 handles final shell/Home/Map integration, shared focus/narrow
-layouts and exact remaining-gap inventory. Do not resume CORRECT-003 wholesale,
-start the next page or begin native work from this handoff.
+Equipment R1 under docs/work-items/LWB317-UI-EQUIPMENT-CLOSEOUT-001-R1.md is now
+accepted. City Layout and Hotkeys/Mini Games/Settings are assigned sequentially in
+the new large campaign and have not started from the lead review. Order 3 handles
+final shell/Home/Map integration, shared focus/narrow layouts and exact remaining-gap
+inventory. Do not resume CORRECT-003 wholesale or begin native work from this handoff.
 
 ## Historical R1 delivery — superseded by PM-028 acceptance
 

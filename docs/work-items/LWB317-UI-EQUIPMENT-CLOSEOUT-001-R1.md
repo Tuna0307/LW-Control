@@ -1,6 +1,8 @@
 # LWB317-UI-EQUIPMENT-CLOSEOUT-001-R1 — medium Equipment correction
 
-Status: AWAITING_REVIEW. Worker correction delivered without subagents or delegation.
+Status: COMPLETE / ACCEPTED for bounded recovered-source/local scope by the dated
+project-lead REVIEW-EQUIPMENT-CLOSEOUT-001-R1 review of 2e4acce/32b2906.
+Native/pixels/physical drag unproved. Original worker assignment/delivery retained.
 
 ## Start
 

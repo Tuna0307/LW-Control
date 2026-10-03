@@ -1,6 +1,6 @@
 # Current project directive
 
-Project-lead review, 2026-10-03: LWB317-UI-EQUIPMENT-CLOSEOUT-001 is **CHANGES_REQUIRED** after independent review of 4bafcd4. Passing delivered checks do not cover the reproduced hidden-tab Alt listener or deferred/failed rename acknowledgements. Medium R1 is READY at docs/work-items/LWB317-UI-EQUIPMENT-CLOSEOUT-001-R1.md; includes a new evidence validator. No next page or native/gameplay phase has started.
+Project-lead review, 2026-10-03: Equipment parent/R1 accepted for bounded source/local scope after independent diff/source/check/image review of 2e4acce/32b2906. Owner requests a large assignment: docs/work-items/LWB317-UI-REMAINING-PAGES-001.md is READY for City Layout, Hotkeys, Mini Games and Settings, sequential A–F milestones without worker subagents. Quality and evidence rules remain; native/gameplay and full shell/global/pixel acceptance are separate.
 
 ## Target
 
