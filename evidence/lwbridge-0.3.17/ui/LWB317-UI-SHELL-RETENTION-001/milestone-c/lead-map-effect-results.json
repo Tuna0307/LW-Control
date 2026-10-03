@@ -1,0 +1,212 @@
+{
+  "result": "LWB317_SHELL_LEAD_MAP_EFFECT_PARITY_OK",
+  "sources": [
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js",
+      "sha256": "CE74345518BE72E417A510B982C591729E5683F69751E190805598C4C05D3089"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+      "sha256": "C773900413D23E0BE06CD2FA4A8C02FE3036E764BCDBFE4F2E519DE5C17A9D01"
+    }
+  ],
+  "callbacks": {
+    "original": {
+      "progress": {
+        "code": "()=>{if(!C.isReading){X.current!==null&&(window.clearTimeout(X.current),X.current=null);return}X.current===null&&(X.current=window.setTimeout(()=>{X.current=null,_e(`scan-progress`).rows&&_n(e=>e+1)},Fe))}",
+        "utf8ByteOffset": 34364,
+        "utf8ByteLength": 205,
+        "sha256": "FCE60E454355DF693F3D401A2081842079DE3081E7D3C86993294C923E790DD5"
+      },
+      "disposal": {
+        "code": "()=>()=>{X.current!==null&&window.clearTimeout(X.current)}",
+        "utf8ByteOffset": 34614,
+        "utf8ByteLength": 58,
+        "sha256": "415111D9BBC38C7817EAC57FF756BEC6600811D351547F111BF8819E6C99E3DF"
+      }
+    },
+    "current": {
+      "progress": {
+        "code": "() => {\r\n    if (!scanState.isReading) {\r\n      if (scanProgressTimer.current !== null) window.clearTimeout(scanProgressTimer.current);\r\n      scanProgressTimer.current = null;\r\n      return;\r\n    }\r\n    if (scanProgressTimer.current === null) {\r\n      scanProgressTimer.current = window.setTimeout(() => {\r\n        scanProgressTimer.current = null;\r\n        setSearchRevision((value) => value + 1);\r\n      }, 1000);\r\n    }\r\n  }",
+        "utf8ByteOffset": 27932,
+        "utf8ByteLength": 428,
+        "sha256": "77B415B78077745A609D445352D279C59167A77EC0215AE06E30994E5215320F"
+      },
+      "disposal": {
+        "code": "() => () => {\r\n    if (scanProgressTimer.current !== null) window.clearTimeout(scanProgressTimer.current);\r\n  }",
+        "utf8ByteOffset": 28423,
+        "utf8ByteLength": 111,
+        "sha256": "8A890E653F129F93BBC08BD5E882145FA0ADDB8C264658BDD6AF06B85CD113B7"
+      }
+    }
+  },
+  "originalDelay": {
+    "value": 1000,
+    "declaration": "Fe=1e3",
+    "utf8ByteOffset": 5640
+  },
+  "cases": [
+    {
+      "name": "canceled timer retains sentinel until reading stops",
+      "result": "PARITY",
+      "original": [
+        {
+          "stage": "visible-reading",
+          "activeTimers": 1,
+          "timerRef": 1,
+          "revision": 0
+        },
+        {
+          "stage": "hidden-cleanup",
+          "activeTimers": 0,
+          "timerRef": 1,
+          "revision": 0
+        },
+        {
+          "stage": "visible-reconnect",
+          "activeTimers": 0,
+          "timerRef": 1,
+          "revision": 0
+        },
+        {
+          "stage": "reading-progress-after-return",
+          "activeTimers": 0,
+          "timerRef": 1,
+          "revision": 0
+        },
+        {
+          "stage": "reading-stopped",
+          "activeTimers": 0,
+          "timerRef": null,
+          "revision": 0
+        },
+        {
+          "stage": "reading-restarted",
+          "activeTimers": 1,
+          "timerRef": 2,
+          "revision": 0
+        },
+        {
+          "stage": "returned-timer-fired",
+          "activeTimers": 0,
+          "timerRef": null,
+          "revision": 1
+        }
+      ],
+      "current": [
+        {
+          "stage": "visible-reading",
+          "activeTimers": 1,
+          "timerRef": 1,
+          "revision": 0
+        },
+        {
+          "stage": "hidden-cleanup",
+          "activeTimers": 0,
+          "timerRef": 1,
+          "revision": 0
+        },
+        {
+          "stage": "visible-reconnect",
+          "activeTimers": 0,
+          "timerRef": 1,
+          "revision": 0
+        },
+        {
+          "stage": "reading-progress-after-return",
+          "activeTimers": 0,
+          "timerRef": 1,
+          "revision": 0
+        },
+        {
+          "stage": "reading-stopped",
+          "activeTimers": 0,
+          "timerRef": null,
+          "revision": 0
+        },
+        {
+          "stage": "reading-restarted",
+          "activeTimers": 1,
+          "timerRef": 2,
+          "revision": 0
+        },
+        {
+          "stage": "returned-timer-fired",
+          "activeTimers": 0,
+          "timerRef": null,
+          "revision": 1
+        }
+      ]
+    },
+    {
+      "name": "completed timer reconnects",
+      "result": "PARITY",
+      "original": [
+        {
+          "stage": "visible-reading",
+          "activeTimers": 1,
+          "timerRef": 1,
+          "revision": 0
+        },
+        {
+          "stage": "timer-completed-before-hide",
+          "activeTimers": 0,
+          "timerRef": null,
+          "revision": 1
+        },
+        {
+          "stage": "hidden-cleanup",
+          "activeTimers": 0,
+          "timerRef": null,
+          "revision": 1
+        },
+        {
+          "stage": "visible-reconnect",
+          "activeTimers": 1,
+          "timerRef": 2,
+          "revision": 1
+        },
+        {
+          "stage": "returned-timer-fired",
+          "activeTimers": 0,
+          "timerRef": null,
+          "revision": 2
+        }
+      ],
+      "current": [
+        {
+          "stage": "visible-reading",
+          "activeTimers": 1,
+          "timerRef": 1,
+          "revision": 0
+        },
+        {
+          "stage": "timer-completed-before-hide",
+          "activeTimers": 0,
+          "timerRef": null,
+          "revision": 1
+        },
+        {
+          "stage": "hidden-cleanup",
+          "activeTimers": 0,
+          "timerRef": null,
+          "revision": 1
+        },
+        {
+          "stage": "visible-reconnect",
+          "activeTimers": 1,
+          "timerRef": 2,
+          "revision": 1
+        },
+        {
+          "stage": "returned-timer-fired",
+          "activeTimers": 0,
+          "timerRef": null,
+          "revision": 2
+        }
+      ]
+    }
+  ],
+  "conclusion": "Both exact source callbacks retain the canceled non-null timer sentinel on hide. Reconnection does not rearm scan-progress refresh until reading stops; a timer completed before hiding reconnects normally. This is original/current parity, not a clone-only defect.",
+  "limits": "Executes exact extracted effect setup/cleanup callbacks with controlled inert timer ownership and source-declared Fe delay. The original refresh policy is supplied as rows=true to exercise its scan-progress callback. Explicit cleanup/reconnect models Activity effect disconnection; this is not a React mount, browser, native function, or live gameplay proof."
+}

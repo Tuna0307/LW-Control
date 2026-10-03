@@ -1,8 +1,10 @@
 # Project lead control sheet
 
-Dispatch, 2026-10-03: SHELL-RETENTION-001 is READY for one worker through owner relay.
-It closes only retained top-level page state/effect lifetime plus bounded navigation
-smoke. Popover/profile/Map notice audit and overall inventory remain subsequent.
+Lead takeover/acceptance, 2026-10-04: SHELL-RETENTION-001 is COMPLETE / ACCEPTED
+for assigned source/local retention scope. Product 081ffc8 is retained; mounted
+React/page/App/Map and browser C proofs, canonical checks and integrity are complete.
+See the dated shell review. Shared shell/profile/popover/Map notices/scheduling
+audit and final inventory remain subsequent; no native/pixel/global acceptance.
 
 Project-lead review, 2026-10-03: Equipment parent/R1 are **COMPLETE / ACCEPTED for bounded source/local scope** at implementation 2e4acce and delivery 32b2906. Lead inspected the diff/screenshots and independently reran R1 61, integrity 71, Equipment 105, AFK 729, canonical check/package and protected-WIP checks. Native/physical drag/original pixels remain unproved.
 
@@ -36,7 +38,7 @@ retirement task. Preserve its source as historical evidence.
 
 ## Current phase
 
-**UI parity — four-page worker closeout awaiting review; order-3 shell/global integration remains separate**
+**UI parity — shell retention accepted; broader shell audit and final inventory next**
 
 Earlier static UI baseline acceptance does not establish complete UI/UX parity.
 The current owner priority is UI reproduction before function integration.

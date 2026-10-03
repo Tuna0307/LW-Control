@@ -1,8 +1,11 @@
 # LWB317-UI-SHELL-RETENTION-001 — retained top-level pages
 
-Status: READY through owner relay. This is one medium assignment, completed alone
-through three sequential milestones. No subagents or delegation. Stop after this
-item; do not extend it into the whole final UI audit.
+Status: COMPLETE / ACCEPTED for assigned source/local retention scope, 2026-10-04.
+Worker A/B are preserved at 1786fc5/081ffc8; the project lead completed and reviewed
+C after interruption. Read docs/reviews/2026-10-04-LWB317-UI-SHELL-RETENTION-001.md.
+No unfinished assigned work remains. Broader shell/inventory/native/pixel acceptance
+is separate. Original worker instruction below remains for historical context:
+one medium assignment alone through A/B/C, no worker subagents or delegation.
 
 ## Context and goal
 

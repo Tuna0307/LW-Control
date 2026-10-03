@@ -1,0 +1,183 @@
+{
+  "workItem": "LWB317-UI-SHELL-RETENTION-001",
+  "reviewer": "project lead",
+  "status": "PASS",
+  "baseUrl": "http://127.0.0.1:4319/",
+  "cases": [
+    {
+      "id": "equipment-rename-inner-outer-return",
+      "fixture": "squads-equipment",
+      "result": "PASS",
+      "observed": "Preset2 renamed Lead retained equipment via local preview configuration; Equipment -> AFK -> Home -> Squads returns AFK; Equipment returns selected renamed preset2 without reload; no native provider/action used."
+    },
+    {
+      "id": "eight-navigation-smoke",
+      "result": "PASS",
+      "observed": [
+        {
+          "name": "Home",
+          "visible": [
+            {
+              "class": "panel quick-actions-panel",
+              "text": "Game SetupChecking game setup…Open games at startupAutomatic Reconnection"
+            }
+          ],
+          "headings": [
+            "heading \"lwbridge\" [level=1]",
+            "heading \"Game Setup\" [level=2]"
+          ]
+        },
+        {
+          "name": "Automation",
+          "visible": [
+            {
+              "class": "panel",
+              "text": "AutomationGame disconnectedDaily TasksAllianceResource gatheringResource ClaimsChatTrade StationProtection & SystemAuto TrainingTrain and promote in large batches, then finish the "
+            }
+          ],
+          "headings": [
+            "heading \"lwbridge\" [level=1]",
+            "heading \"Automation\" [level=2]",
+            "heading \"Auto Training\" [level=3]",
+            "heading \"Automatic Construction\" [level=3]",
+            "heading \"Free Stamina\" [level=3]",
+            "heading \"Automatic Treatment\" [level=3]",
+            "heading \"Trucks\" [level=3]",
+            "heading \"Secret Task\" [level=3]",
+            "heading \"Ghost Ops\" [level=3]"
+          ]
+        },
+        {
+          "name": "Map Data",
+          "visible": [
+            {
+              "class": "panel map-panel",
+              "text": "Manual ScanAuto ScanWorld Map DataNormalFastStart ScanStopClear Map DataStoppedServer -0%Browser preview mode. Native Map actions are unavailable.Scan contentsPlayer CityResource P"
+            }
+          ],
+          "headings": [
+            "heading \"lwbridge\" [level=1]",
+            "heading \"World Map Data\" [level=2]"
+          ]
+        },
+        {
+          "name": "Squads / AFK",
+          "visible": [
+            {
+              "class": "panel squad-panel",
+              "text": "Squads / AFKRefreshAFK TasksEquipment SchemesMonster AFK master switchDisabledUse Stamina items automaticallyUse below Stamina 50Auto Alliance DrillLaunch priority: 1 · Join Allian"
+            }
+          ],
+          "headings": [
+            "heading \"lwbridge\" [level=1]",
+            "heading \"Squads / AFK\" [level=2]"
+          ]
+        },
+        {
+          "name": "City Layout",
+          "visible": [
+            {
+              "class": "panel city-layout-empty",
+              "text": "The game is disconnected, so the city layout cannot be loaded."
+            }
+          ],
+          "headings": [
+            "heading \"lwbridge\" [level=1]"
+          ]
+        },
+        {
+          "name": "Hotkeys",
+          "visible": [
+            {
+              "class": "panel hotkey-panel",
+              "text": "Game HotkeysFixed shortcuts that respond while the Last War game window is active.Game disconnected. Settings are saved and will apply after connection.Processing"
+            }
+          ],
+          "headings": [
+            "heading \"lwbridge\" [level=1]",
+            "heading \"Game Hotkeys\" [level=2]"
+          ]
+        },
+        {
+          "name": "Mini Games",
+          "visible": [
+            {
+              "class": "panel hotkey-panel",
+              "text": "Mini GamesOptional helpers for in-game mini games.Game disconnected. Settings are saved and will apply after connection.ProcessingBlack Market ChestsMark the grand prize chest in t"
+            }
+          ],
+          "headings": [
+            "heading \"lwbridge\" [level=1]",
+            "heading \"Mini Games\" [level=2]",
+            "heading \"Black Market Chests\" [level=3]",
+            "heading \"Unlock Land Cell\" [level=3]",
+            "heading \"Food House Auto Clear\" [level=3]"
+          ]
+        },
+        {
+          "name": "Settings",
+          "visible": [
+            {
+              "class": "panel settings-panel",
+              "text": "SettingsIn-game display, application information, and client updates.In-game performanceShow real-time performance and network latency in the top-left corner of the game.Processing"
+            }
+          ],
+          "headings": [
+            "heading \"lwbridge\" [level=1]",
+            "heading \"Settings\" [level=2]"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "city-history-return",
+      "result": "PASS",
+      "fixture": "city-layout-populated-moved",
+      "observed": "Restore -> Undo reinstates pending Hospital move. Home -> City retains Pending changes(1), draft revision8 and enabled Redo; no URL change/reload inside journey."
+    },
+    {
+      "id": "city-hidden-keyboard",
+      "result": "PASS",
+      "observed": "Ctrl+Y on visible Home does not consume hidden City redo. Return still has pending Hospital1 / Redo enabled."
+    },
+    {
+      "id": "map-page-return",
+      "result": "PASS",
+      "fixture": "map-truck",
+      "observed": "Truck page2 -> Home -> Map restores Truck page2, rows Owner51..55, server321 and total55; single visible page; no URL/reload inside journey."
+    },
+    {
+      "id": "hotkey-event-time-return",
+      "result": "PASS",
+      "fixture": "hotkeys-save-error",
+      "observed": "EN failure -> Home -> Japanese/dark -> Hotkeys: labels update Japanese, stored failure remains Failed to save hotkey settings. No previewLanguage pin or reload."
+    },
+    {
+      "id": "hotkey-new-event-language",
+      "result": "PASS",
+      "observed": "Fresh failed save after returning in Japanese displays ショートカット設定を保存できませんでした。"
+    },
+    {
+      "id": "settings-event-time-return",
+      "result": "PASS",
+      "fixture": "settings-visual-save-error",
+      "observed": "EN ShowFPS failure -> Home -> Japanese -> Settings keeps English Failed to save in-game display settings while labels update Japanese. No previewLanguage or reload inside journey."
+    },
+    {
+      "id": "settings-new-event-language",
+      "result": "PASS",
+      "observed": "Fresh failed Show FPS action displays ゲーム内表示設定を保存できませんでした。"
+    },
+    {
+      "id": "narrow-japanese-return",
+      "result": "PASS",
+      "viewport": {
+        "width": 800,
+        "height": 600
+      },
+      "observed": "Settings -> Home -> Settings at actual800x600, Japanese/dark, visible Settings and retained Japanese error; document scrollWidth790 <= viewport800."
+    }
+  ],
+  "console": [],
+  "limits": "Inert offline preview only. Eight-entry smoke is not full page/pixel parity. Equipment movement is covered by mounted React production handlers, not physical browser HTML5 drag. No original protected runtime, native provider, LastWar or service operations."
+}

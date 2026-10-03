@@ -1,0 +1,28 @@
+{
+  "status": "PASS",
+  "proof": "Separate controlled shell harness on owned4321 server, exact RetainedPages and actual Pages/I18n and recognized equipment fixture. Real browser native HTMLDialogElement, no showModal shim.",
+  "beforeHide": {
+    "active": "INPUT",
+    "dialogOpen": true,
+    "modal": true,
+    "phase": "armed-3000ms"
+  },
+  "hidden": {
+    "activeId": "visible-home-focus",
+    "dialogOpen": false,
+    "modal": false,
+    "phase": "hidden",
+    "visiblePage": 1
+  },
+  "returned": {
+    "activeInsideDialog": true,
+    "activeTag": "INPUT",
+    "dialogOpen": true,
+    "modal": true,
+    "phase": "returned"
+  },
+  "visibleTargetClickAndTabAllowed": true,
+  "escapeDismissed": true,
+  "console": [],
+  "limits": "Harness drives an automatic route transition and deliberately focuses visible Home target; it proves modal release and ability to use visible page, not every product focus restoration branch. No native game/OS/provider action."
+}

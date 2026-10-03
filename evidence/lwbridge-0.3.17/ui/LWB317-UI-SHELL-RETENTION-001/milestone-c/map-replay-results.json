@@ -1,0 +1,46 @@
+{
+  "status": "PASS",
+  "scope": "Minimal current request disposal, maintained navigation adapter and shell-local App/controlled Map ownership replay. No browser/native execution; Activity remains inert in ownership adapter. Scheduled campaign not rerun.",
+  "historicalBytesUnchanged": [
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-AUTO-CONFIG-001/app-harness.mjs",
+      "sha256": "4e3e12236fe8cd656de803a815682f35624913049b0d5868c3d5568be499f7a4"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-AUTO-CONFIG-001/regression-results.json",
+      "sha256": "4118e07d74304963c8093ec9305d0d178a94a3f75c48d3c6a87059ae3f80d70c"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-AUTO-CONFIG-001/regression-refresh-ownership.json",
+      "sha256": "2fccd88701cbcf2a30a7e1af32091f59c1a514a83559941f927d721bfb72f656"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-NAVIGATION-001/navigation-results.json",
+      "sha256": "ac020bc6cba96ef3cec3d27f3378c18f86e82215d9c3e096329cf5b313ebb254"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-INTERACTIONS-001/request-lifetime-results.json",
+      "sha256": "701f11c0ea3662aa90c634255732bf97582693f32919cb11265fd28e98b5a92a"
+    }
+  ],
+  "results": [
+    {
+      "script": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-INTERACTIONS-001/check-request-lifetime.mjs",
+      "exitCode": 0,
+      "stdout": "LWB317_REQUEST_LIFETIME_OK baselineFailures=0 deliveryFailures=4 currentFailures=0 scenarios=38",
+      "stderr": ""
+    },
+    {
+      "script": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-AUTO-CONFIG-001/replay-navigation-current.mjs",
+      "exitCode": 0,
+      "stdout": "LWB317_MAP_NAVIGATION_OK baseline=6 current=0 requests=17\nLWB317_AUTO_CONFIG_NAVIGATION_CURRENT_OK",
+      "stderr": ""
+    },
+    {
+      "script": "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-RETENTION-001/milestone-c/replay-map-ownership.mjs",
+      "exitCode": 0,
+      "stdout": "LWB317_MAP_CLOSEOUT_REFRESH_OWNERSHIP_OK parent=2 childSummary=0 childListeners=0 options=321,321",
+      "stderr": ""
+    }
+  ]
+}

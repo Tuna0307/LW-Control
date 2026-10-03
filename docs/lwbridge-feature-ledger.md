@@ -1,5 +1,12 @@
 # LWBridge 0.3.17 feature ledger
 
+Lead acceptance, 2026-10-04: SHELL-RETENTION-001 is COMPLETE / ACCEPTED for bounded
+source/local retained-page state/effect scope at product 081ffc8. Lazy first visits,
+retained drafts/tab/page identity, hidden listener/timer ownership, runtime props,
+native modal release and bounded eight-entry browser smoke have current proof.
+Overall shell/UI/native/pixel dispositions are not upgraded. Shared shell/profile/
+Map notice/scheduling audit and inventory remain subsequent; see the dated review.
+
 Lead review, 2026-10-03: Equipment parent/R1 are **COMPLETE / ACCEPTED for bounded source/local scope** at 2e4acce/32b2906. Original Activity/rename contracts remain EXACT_CONTRACT; current focused proof is accepted after independent checks/diff/image review. Overall native/global/pixel status remains unchanged.
 
 Lead acceptance, 2026-10-03: REMAINING-PAGES parent/R1 are **COMPLETE / ACCEPTED for bounded source/local scope** after lead takeover/product 2174553. Twelve original failing cases and two continuation differences are closed with source/callback/browser/package evidence; historical packets preserved. Four page rows retain `IMPLEMENTED_NOT_VALIDATED` / `BLOCKED` overall status pending final integration/native/pixels. See `docs/reviews/2026-10-03-LWB317-REVIEW-REMAINING-PAGES-001-R1.md`.

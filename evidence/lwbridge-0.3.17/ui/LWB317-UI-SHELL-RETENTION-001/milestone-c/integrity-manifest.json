@@ -1,0 +1,280 @@
+{
+  "scope": "Current shell identity and executed evidence; historical four-page R1 preserved, not re-pinned to changed App.",
+  "files": [
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-INTERACTIONS-001/reference/MapDataPanel.pretty.js",
+      "sha256": "78A0CC816D40B0036C171D708BA033A8954275F8321FF539D7AA5BB4DD4B6F94",
+      "bytes": 72346
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-RETENTION-001/README.md",
+      "sha256": "8FFAE10320E90A998C132CC563953F515EEFADDE05513FB953CA990E5A63ABB5",
+      "bytes": 6014
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-RETENTION-001/milestone-a/baseline-results.json",
+      "sha256": "7FF9F0314F94532DF42515E38CADF1230184B547BF93B85617AAE3047573DE6E",
+      "bytes": 1942
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-RETENTION-001/milestone-a/check-baseline.mjs",
+      "sha256": "BA4B32F5961C3F27A57C61E10A736517172A6FC6856494E920018CBDEF6A8430",
+      "bytes": 1302
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-RETENTION-001/milestone-a/recover-contract.mjs",
+      "sha256": "8F7310E957E5C13A0532AA81FFB11A23E082058369F8CDBAB78F03B4202A324F",
+      "bytes": 3532
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-RETENTION-001/milestone-a/source-contract.md",
+      "sha256": "D2E7B7F04B2C16D5981FE51C4236B02573DB32883D91115FBDE5FE17B1A4C1A7",
+      "bytes": 2757
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-RETENTION-001/milestone-a/source-manifest.json",
+      "sha256": "91C4D1349E71A2893CEA19E1333D2289C82BC44A742A865A684877ABBAE6FAB1",
+      "bytes": 1761
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-RETENTION-001/milestone-b/browser-results.json",
+      "sha256": "2E977216D53E4CE8F7CD087FBDB8F2D6CEE3F96945B4F723AD8C47FAEA140500",
+      "bytes": 2713
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-RETENTION-001/milestone-b/check-retention.mjs",
+      "sha256": "97C266EDF52D54DA69FDA990488545CDB7FE6D788493FD8D52FFDE24327B70A4",
+      "bytes": 4104
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-RETENTION-001/milestone-b/focused-results.json",
+      "sha256": "CA196D16449DAA9F1BB37E9CB436610ABDC489191DECBCE899653F40126DC6C4",
+      "bytes": 958
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-RETENTION-001/milestone-c/app-ownership-harness.mjs",
+      "sha256": "B381803D6048EC26EA222EC5A1B8E47B8BD507A45DB5324F5F9AD05722235C21",
+      "bytes": 11836
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-RETENTION-001/milestone-c/browser-dialog-entry.jsx",
+      "sha256": "9CFD69A353F12FB648EA664DDCCBF29B65AF202E696918FDFFE81734BB177E9C",
+      "bytes": 2701
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-RETENTION-001/milestone-c/browser-dialog-retained.jsx",
+      "sha256": "ADDCC73017EB496F86271DD54DFF26A3C3976665D441528551DB01656E5CFBE5",
+      "bytes": 603
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-RETENTION-001/milestone-c/browser-dialog-source-manifest.json",
+      "sha256": "25C79AC00BD71C2698C314844324F01D8C0AC375946733FEB856FFBB31376E60",
+      "bytes": 862
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-RETENTION-001/milestone-c/browser-dialog-vite.config.mjs",
+      "sha256": "2EEE8729FAC7AF365245455E455C6EB5783687779C8C77532D1EB902C4FFF4E1",
+      "bytes": 630
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-RETENTION-001/milestone-c/browser-dialog.html",
+      "sha256": "3E49EC9CF8FB8981B295836495475A41ADF5A48B2919183FECE3B9B74D5C8CD7",
+      "bytes": 334
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-RETENTION-001/milestone-c/browser-results.json",
+      "sha256": "0D2686DEE295BBDDD99F05D701F4C589ECDB546C6E9BA8A5AE4BF059F521C9E1",
+      "bytes": 7223
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-RETENTION-001/milestone-c/continuation-preservation.json",
+      "sha256": "591AF6528028365127D0F9A47E223C2A9C7BBEF8A0DF3B8493B593600562FA2A",
+      "bytes": 1176
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-RETENTION-001/milestone-c/continuation-snapshots/app-harness.mjs",
+      "sha256": "DFA39CD3DB821BAF80841906C14FC32E9645D3C9E1D70CE11545B54D5C223498",
+      "bytes": 11688
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-RETENTION-001/milestone-c/continuation-snapshots/manifest.json",
+      "sha256": "CD2AD7DE61DFA8CE7442DBBA381F9DB06C3B6414D5A5F732599F691F94D41D15",
+      "bytes": 608
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-RETENTION-001/milestone-c/continuation-snapshots/regression-refresh-ownership.json",
+      "sha256": "6753117C4B7E44AF645137B8EDE6BA75E9CC9ACFB3E1A4385F59767D56D2084D",
+      "bytes": 1661
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-RETENTION-001/milestone-c/continuation-snapshots/regression-results.json",
+      "sha256": "F0A8A1705E24D88C94791B54186F38B1520076084FB974F1B8A8B51C48501CFD",
+      "bytes": 6794
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-RETENTION-001/milestone-c/current-checks.json",
+      "sha256": "B1ED57BE57CDD077F3A8295166EF9DCC4500D3A54B6DA3C73CC7A3EAB109FFFD",
+      "bytes": 28983
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-RETENTION-001/milestone-c/lead-map-effect-results.json",
+      "sha256": "50C558FB4C4CF38F18025A4A62E1CE8A0137C846E039512DE899E429BFE81141",
+      "bytes": 6586
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-RETENTION-001/milestone-c/lead-map-effect.mjs",
+      "sha256": "DD812140BEC466BD0575FBCFFE8BBD8F357EA94FCF916C64A4E4AB3751FBB840",
+      "bytes": 5723
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-RETENTION-001/milestone-c/lead-mounted-rerun.json",
+      "sha256": "19E50A79705408F33E24C42E36B727DD888782931F832E787FEC58376F93C394",
+      "bytes": 7596
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-RETENTION-001/milestone-c/lead-mounted-retention-results.json",
+      "sha256": "3F8D5E10D38BE552BD3B0766BBBD0AE5C2F0F48D5ECB186B893B48A319AD014A",
+      "bytes": 6695
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-RETENTION-001/milestone-c/lead-mounted-retention.mjs",
+      "sha256": "F2184727E9FA9F26199AD41A461F92AE511ED2CA507F1C43262E4FCB91166AAC",
+      "bytes": 18846
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-RETENTION-001/milestone-c/map-mounted-retention-results.json",
+      "sha256": "D513A4CB1238A127D06CD1E39E80644CF13BD3315057D1D871BE0EC1575DBB46",
+      "bytes": 14896
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-RETENTION-001/milestone-c/map-mounted-retention.mjs",
+      "sha256": "5736160C6A3D42C370D740664EB22C9E0BA4083DA24EA13D517D04257B49D2F3",
+      "bytes": 22606
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-RETENTION-001/milestone-c/map-ownership-results.json",
+      "sha256": "6753117C4B7E44AF645137B8EDE6BA75E9CC9ACFB3E1A4385F59767D56D2084D",
+      "bytes": 1661
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-RETENTION-001/milestone-c/map-replay-results.json",
+      "sha256": "4E758F37E3D192D6D3069E5FD93E7104572DC19DB1E9A04DF953BC84BD1D4B39",
+      "bytes": 2132
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-RETENTION-001/milestone-c/native-dialog-browser-results.json",
+      "sha256": "C3FB888671EEDDFAB4E9171F599AB97192DAC8D691047B657692541B949DC6AB",
+      "bytes": 964
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-RETENTION-001/milestone-c/prepare-browser-dialog.mjs",
+      "sha256": "6B3B1BE57EA330818A2EEE3C59E221435CC7926CFDB33FCDDEFAA57B2D2A3660",
+      "bytes": 2089
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-RETENTION-001/milestone-c/prepare-map-replays.mjs",
+      "sha256": "B37149182136B1B048A8FCCACA43F66AD83659E01FD44091387CFE1EDE76361E",
+      "bytes": 2479
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-RETENTION-001/milestone-c/preserve-continuation.mjs",
+      "sha256": "22D46F00B69F47264E8A9AF7CF2CBECC993E655D554AB7BEC78A7C462D109F33",
+      "bytes": 1537
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-RETENTION-001/milestone-c/replay-map-ownership.mjs",
+      "sha256": "6CA31D1E20E522B1B1F1B05432B5C7E62D969E34B70FE1D04AAF7A2C154F9D03",
+      "bytes": 17766
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-RETENTION-001/milestone-c/run-current-checks.mjs",
+      "sha256": "93E6109093EC597E43DD094C9A3438D8C8F46326F548B9DD8C900D3E085ECE69",
+      "bytes": 2164
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-RETENTION-001/milestone-c/run-map-replays.mjs",
+      "sha256": "421EA048E8260CAB4ACA6DDB780F4A975E9D0168BCA725A0221F335863B6CC58",
+      "bytes": 2107
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-RETENTION-001/milestone-c/run-mounted-checks.mjs",
+      "sha256": "1B31410970DA17355433F58F52A5B3E968555F3702A6FFC6C020A1CB6B689FE2",
+      "bytes": 852
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-RETENTION-001/milestone-c/screenshots/city-history-return-en.jpg",
+      "sha256": "DB814043B97E99EDA8C69DB2CA10B4400D7FD7085D912CA4791914229B327631",
+      "bytes": 71576
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-RETENTION-001/milestone-c/screenshots/equipment-return-en.jpg",
+      "sha256": "4D0E5920B73EB00C4CF0BFA79656ACE03A59987693490CBA474C8CE9552CE701",
+      "bytes": 99821
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-RETENTION-001/milestone-c/screenshots/hotkey-return-ja-dark.jpg",
+      "sha256": "49C12A6263A07CBC18231EE4FDBFB77EA6F0BF8088A6A43D715CBD7595BA8657",
+      "bytes": 77876
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-RETENTION-001/milestone-c/screenshots/map-page-return-en.jpg",
+      "sha256": "AE46F0EEA42F4684276AE23EA5467CD7AF637C4A38A380418359873CF1B7F683",
+      "bytes": 88837
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-RETENTION-001/milestone-c/screenshots/native-dialog-return-en.jpg",
+      "sha256": "4C48807D41956BE13DC53A0BB3AFE0797B21B58EDFA8E93B6F919A997F901149",
+      "bytes": 81900
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-RETENTION-001/milestone-c/screenshots/settings-return-ja-dark-narrow.jpg",
+      "sha256": "4E286B8975EE30B6957185782105F456392636089058B94C063CAD31F9E00662",
+      "bytes": 39979
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-RETENTION-001/milestone-c/screenshots/settings-return-ja-dark.jpg",
+      "sha256": "487CCAC7139F556A696C64B90540EF63E4EB8DDD78A527DE24B6823372C9E901",
+      "bytes": 63696
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-RETENTION-001/milestone-c/validate-current.mjs",
+      "sha256": "6992500954E20695DFA468242B697DA2762A9CCBF027D3850A0856B874F6017C",
+      "bytes": 6237
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js",
+      "sha256": "CE74345518BE72E417A510B982C591729E5683F69751E190805598C4C05D3089",
+      "bytes": 57600
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-BVfnK1wp.js",
+      "sha256": "44C4E4043825B7DB296B64171951B27176F8850FF8D7D337CC991DF4765524C6",
+      "bytes": 377972
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/App.jsx",
+      "sha256": "8806B35D5A94A2895A1649F7A8F48AA74E23E784F8AC50A4987C8F61CDF74B68",
+      "bytes": 23428
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+      "sha256": "C773900413D23E0BE06CD2FA4A8C02FE3036E764BCDBFE4F2E519DE5C17A9D01",
+      "bytes": 61746
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "sha256": "7056D9684C242C17B06162AAEF87F01498A270834EA205FEA3E65AE277822F4D",
+      "bytes": 202300
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/backendBridge.js",
+      "sha256": "E50C904508A17A2AC682B7D195359B51C6348D73835888513095D1E789EC99C5",
+      "bytes": 4773
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/routes.js",
+      "sha256": "2DA41EBFE3F4D898AE9E447F7A368C4EC9B270A0BAB46F2F3F049A8C0AADCF03",
+      "bytes": 627
+    }
+  ]
+}

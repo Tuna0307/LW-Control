@@ -1,0 +1,207 @@
+{
+  "result": "LWB317_SHELL_LEAD_MOUNTED_RETENTION_OK",
+  "toolVersions": {
+    "node": "v24.18.0",
+    "react": "19.3.0",
+    "reactDom": "19.3.0",
+    "jsdom": "27.0.0",
+    "esbuild": "0.28.2"
+  },
+  "toolSource": "Isolated npm registry jsdom@27.0.0 installation with --ignore-scripts; product React/react-dom/esbuild resolve from canonical UI node_modules.",
+  "sources": [
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/App.jsx",
+      "sha256": "8806B35D5A94A2895A1649F7A8F48AA74E23E784F8AC50A4987C8F61CDF74B68"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "sha256": "7056D9684C242C17B06162AAEF87F01498A270834EA205FEA3E65AE277822F4D"
+    }
+  ],
+  "observations": [
+    {
+      "label": "probe-hidden-home",
+      "activeIntervals": 0,
+      "activeTimeouts": 0,
+      "activeKeydownListeners": 0,
+      "identity": 1,
+      "counts": {
+        "routeKey": "overview",
+        "setup": 1,
+        "cleanup": 1,
+        "layoutSetup": 1,
+        "layoutCleanup": 1
+      }
+    },
+    {
+      "label": "probe-returned-home",
+      "activeIntervals": 0,
+      "activeTimeouts": 0,
+      "activeKeydownListeners": 0,
+      "identity": 1,
+      "counts": {
+        "routeKey": "overview",
+        "setup": 2,
+        "cleanup": 1,
+        "layoutSetup": 2,
+        "layoutCleanup": 1
+      },
+      "latestProps": {
+        "marker": "returned-props",
+        "online": "true"
+      }
+    },
+    {
+      "label": "profile-key-remount",
+      "activeIntervals": 0,
+      "activeTimeouts": 0,
+      "activeKeydownListeners": 0,
+      "oldIdentity": 1,
+      "newIdentity": 9,
+      "retainedRouteDomCount": 8
+    },
+    {
+      "label": "mini-games-visible",
+      "activeIntervals": 1,
+      "activeTimeouts": 0,
+      "activeKeydownListeners": 0
+    },
+    {
+      "label": "mini-games-hidden",
+      "activeIntervals": 0,
+      "activeTimeouts": 0,
+      "activeKeydownListeners": 0
+    },
+    {
+      "label": "mini-games-returned",
+      "activeIntervals": 1,
+      "activeTimeouts": 0,
+      "activeKeydownListeners": 0
+    },
+    {
+      "label": "settings-visible",
+      "activeIntervals": 1,
+      "activeTimeouts": 0,
+      "activeKeydownListeners": 0
+    },
+    {
+      "label": "settings-hidden",
+      "activeIntervals": 0,
+      "activeTimeouts": 0,
+      "activeKeydownListeners": 0
+    },
+    {
+      "label": "settings-returned",
+      "activeIntervals": 1,
+      "activeTimeouts": 0,
+      "activeKeydownListeners": 0
+    },
+    {
+      "label": "city-visible-pending-draft",
+      "activeIntervals": 0,
+      "activeTimeouts": 1,
+      "activeKeydownListeners": 1,
+      "draftTimers": 1
+    },
+    {
+      "label": "city-hidden",
+      "activeIntervals": 0,
+      "activeTimeouts": 0,
+      "activeKeydownListeners": 0,
+      "draftTimers": 0
+    },
+    {
+      "label": "city-returned",
+      "activeIntervals": 0,
+      "activeTimeouts": 1,
+      "activeKeydownListeners": 1,
+      "draftTimers": 1,
+      "editedStateRetained": true
+    },
+    {
+      "label": "city-returned-draft-fired",
+      "activeIntervals": 0,
+      "activeTimeouts": 0,
+      "activeKeydownListeners": 1,
+      "draftTimers": 0
+    },
+    {
+      "label": "equipment-dialog-visible",
+      "activeIntervals": 0,
+      "activeTimeouts": 0,
+      "activeKeydownListeners": 1,
+      "modalOpenCalls": 1,
+      "modalCloseCalls": 0,
+      "open": true
+    },
+    {
+      "label": "equipment-dialog-hidden",
+      "activeIntervals": 0,
+      "activeTimeouts": 0,
+      "activeKeydownListeners": 0,
+      "modalOpenCalls": 1,
+      "modalCloseCalls": 1,
+      "open": false,
+      "activeElement": "INPUT",
+      "focusLimit": "React autoFocus occurs before the passive dialog effect captures previousFocus; jsdom does not implement hidden-element focus or modal inertness."
+    },
+    {
+      "label": "equipment-dialog-returned",
+      "activeIntervals": 0,
+      "activeTimeouts": 0,
+      "activeKeydownListeners": 1,
+      "modalOpenCalls": 2,
+      "modalCloseCalls": 1,
+      "open": true
+    },
+    {
+      "label": "equipment-moved-dirty",
+      "activeIntervals": 0,
+      "activeTimeouts": 1,
+      "activeKeydownListeners": 1,
+      "retainedDirty": true,
+      "dropFeedbackTimeouts": 1
+    },
+    {
+      "label": "equipment-moved-dirty-returned",
+      "activeIntervals": 0,
+      "activeTimeouts": 1,
+      "activeKeydownListeners": 1,
+      "retainedDirty": true
+    },
+    {
+      "label": "equipment-inner-afk-retained-through-outer-return",
+      "activeIntervals": 0,
+      "activeTimeouts": 1,
+      "activeKeydownListeners": 0,
+      "selectedInnerTab": "afk",
+      "equipmentHidden": true
+    },
+    {
+      "label": "equipment-inner-return-retains-dirty",
+      "activeIntervals": 0,
+      "activeTimeouts": 1,
+      "activeKeydownListeners": 1,
+      "retainedDirty": true
+    }
+  ],
+  "verified": [
+    "production RetainedPages actual React DOM mount",
+    "never-visited probe page not rendered",
+    "same-route rerender preserves state/effect identity",
+    "hidden passive/layout effects disconnect",
+    "return preserves DOM/state identity and reconnects once",
+    "two repeated leave/returns remain balanced",
+    "current runtime props on return",
+    "all eight probe routes have single visibility",
+    "profile fragment key remount resets local state",
+    "actual Mini/Settings interval owners 1/0/1",
+    "actual City keyboard listener 1/0/1",
+    "actual City edited state retained and pending draft timer 1/0/1 then fires",
+    "actual Equipment keyboard listener 1/0/1",
+    "actual EquipmentDialog close/reopen effect calls",
+    "actual Equipment HTML drag handlers move a loadout and preserve dirty state through outer leave/return",
+    "Equipment dirty state survives inner AFK -> outer Home -> Squads AFK -> Equipment with balanced listener ownership"
+  ],
+  "limits": "Real React DOM + jsdom. The shell state/effect/current-props/profile tests use an instrumented PageForRoute probe in the unchanged production wrapper; Mini/Settings/City/Equipment tests mount the actual bundled production Pages and I18nProvider with recognized inert preview fixtures. Timers are controlled maps. HTML drag events invoke actual React production handlers but do not prove physical browser drag behavior. Native dialog top-layer/Tab focus behavior uses a documented showModal/close shim; React autoFocus may become the passive effect's previousFocus, and jsdom does not enforce hidden-element focus or modal inertness, so browser focus/inertness remains unverified. Does not mount App-owned bootstrap/polling, exercise App selectRoute callbacks, prove original pixels/native functions, or invoke gameplay/updater/export/global hotkeys."
+}

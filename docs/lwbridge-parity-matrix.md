@@ -1,5 +1,12 @@
 # LWBridge 0.3.17 parity matrix
 
+Lead acceptance, 2026-10-04: SHELL-RETENTION-001 is COMPLETE / ACCEPTED for bounded
+source/local retained-page state/effect scope at product 081ffc8. Original route/
+Activity/profile behavior remains EXACT_CONTRACT; current mounted/browser checks
+validate the assigned implementation. Broader shared shell/profile/Map notice/
+scheduling and inventory, unavailable native assets/functions and original pixels
+remain separate. See docs/reviews/2026-10-04-LWB317-UI-SHELL-RETENTION-001.md.
+
 Lead review, 2026-10-03: Equipment parent/R1 are **COMPLETE / ACCEPTED for bounded source/local scope** at 2e4acce/32b2906. Original Activity/rename contracts remain EXACT_CONTRACT; current focused proof is accepted after independent checks/diff/image review. Overall native/global/pixel status remains unchanged.
 
 Lead acceptance, 2026-10-03: REMAINING-PAGES parent/R1 are **COMPLETE / ACCEPTED for bounded source/local scope** after lead takeover/product2174553. Initial failure packets retained; final integrity and executed source/current/browser/package proof recorded. City/Hotkeys/Mini/Settings retain `IMPLEMENTED_NOT_VALIDATED` / `BLOCKED` global dispositions. See `docs/reviews/2026-10-03-LWB317-REVIEW-REMAINING-PAGES-001-R1.md`.

@@ -1,0 +1,546 @@
+{
+  "result": "LWB317_SHELL_MAP_MOUNTED_OK",
+  "reactVersion": "19.3.0",
+  "jsdomVersion": "27.0.0",
+  "domDependencyPackage": "C:/Users/chimw/AppData/Local/Temp/lwb317-shell-mount-deps/package.json",
+  "sources": [
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+      "sha256": "c773900413d23e0be06cd2fa4a8c02fe3036e764bcdbfe4f2e519de5c17a9d01"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/App.jsx",
+      "sha256": "8806b35d5a94a2895a1649f7a8f48aa74e23e784f8ac50a4987c8f61cdf74b68"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-INTERACTIONS-001/reference/MapDataPanel.pretty.js",
+      "sha256": "78a0cc816d40b0036c171d708ba033a8954275f8321ff539d7aa5bb4dd4b6f94"
+    }
+  ],
+  "originalFacts": [
+    {
+      "name": "options have no cleanup",
+      "source": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-INTERACTIONS-001/reference/MapDataPanel.pretty.js",
+      "utf8ByteOffset": 43192,
+      "utf8ByteLength": 1112,
+      "sha256": "b306b6774e91542aca74dcce3742e030890023247bfed9fedfa013f28ca7a8ed",
+      "interpretation": "Options effect returns no cleanup; its current generation may settle and acknowledge counts while Activity is hidden."
+    },
+    {
+      "name": "Dispatch selection reconnect reset",
+      "source": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-INTERACTIONS-001/reference/MapDataPanel.pretty.js",
+      "utf8ByteOffset": 42130,
+      "utf8ByteLength": 81,
+      "sha256": "8d92f11bb0c3ed15a7db8456cf15c01e80987afa18a39ca857ff382541c2b63b",
+      "interpretation": "Tab-dependent effect resets Dispatch selection when its setup reconnects; retained state does not override source effect behavior."
+    },
+    {
+      "name": "progress cleanup preserves sentinel",
+      "source": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-INTERACTIONS-001/reference/MapDataPanel.pretty.js",
+      "utf8ByteOffset": 42793,
+      "utf8ByteLength": 97,
+      "sha256": "5ed67275b87cfb49d1051bd8487ab8faab84143e62cb04f6ae3c950cdefd76ce",
+      "interpretation": "Cleanup clears timeout without clearing its ref. Exact callback parity is separately recorded in lead-map-effect-results.json."
+    }
+  ],
+  "cases": [
+    {
+      "name": "pending search success hidden and fresh return",
+      "status": "PASS",
+      "childSummaries": 0,
+      "childScanListeners": 0,
+      "observations": [
+        {
+          "stage": "hidden-before-settlement",
+          "tab": "city",
+          "page": 1,
+          "loading": true,
+          "total": 0,
+          "queryError": "",
+          "scanServer": 321,
+          "dataServer": 321,
+          "searchServers": [
+            321
+          ],
+          "optionServers": [
+            321
+          ],
+          "jobsActive": 0,
+          "intervals": 0,
+          "timeouts": 0,
+          "timerRef": null
+        },
+        {
+          "stage": "hidden-after-settlement",
+          "tab": "city",
+          "page": 1,
+          "loading": true,
+          "total": 0,
+          "queryError": "",
+          "scanServer": 321,
+          "dataServer": 321,
+          "searchServers": [
+            321
+          ],
+          "optionServers": [
+            321
+          ],
+          "jobsActive": 0,
+          "intervals": 0,
+          "timeouts": 0,
+          "timerRef": null
+        },
+        {
+          "stage": "fresh-return-settled",
+          "tab": "city",
+          "page": 1,
+          "loading": false,
+          "total": 88,
+          "queryError": "",
+          "scanServer": 321,
+          "dataServer": 321,
+          "searchServers": [
+            321,
+            321
+          ],
+          "optionServers": [
+            321,
+            321
+          ],
+          "jobsActive": 1,
+          "intervals": 0,
+          "timeouts": 0,
+          "timerRef": null
+        }
+      ]
+    },
+    {
+      "name": "pending search rejection hidden and fresh return",
+      "status": "PASS",
+      "childSummaries": 0,
+      "childScanListeners": 0,
+      "observations": [
+        {
+          "stage": "hidden-before-settlement",
+          "tab": "city",
+          "page": 1,
+          "loading": true,
+          "total": 0,
+          "queryError": "",
+          "scanServer": 321,
+          "dataServer": 321,
+          "searchServers": [
+            321
+          ],
+          "optionServers": [
+            321
+          ],
+          "jobsActive": 0,
+          "intervals": 0,
+          "timeouts": 0,
+          "timerRef": null
+        },
+        {
+          "stage": "hidden-after-settlement",
+          "tab": "city",
+          "page": 1,
+          "loading": true,
+          "total": 0,
+          "queryError": "",
+          "scanServer": 321,
+          "dataServer": 321,
+          "searchServers": [
+            321
+          ],
+          "optionServers": [
+            321
+          ],
+          "jobsActive": 0,
+          "intervals": 0,
+          "timeouts": 0,
+          "timerRef": null
+        },
+        {
+          "stage": "fresh-return-settled",
+          "tab": "city",
+          "page": 1,
+          "loading": false,
+          "total": 88,
+          "queryError": "",
+          "scanServer": 321,
+          "dataServer": 321,
+          "searchServers": [
+            321,
+            321
+          ],
+          "optionServers": [
+            321,
+            321
+          ],
+          "jobsActive": 1,
+          "intervals": 0,
+          "timeouts": 0,
+          "timerRef": null
+        }
+      ]
+    },
+    {
+      "name": "pending options may acknowledge while hidden; return refreshes once",
+      "status": "PASS",
+      "childSummaries": 0,
+      "childScanListeners": 0,
+      "observations": [
+        {
+          "stage": "hidden-options-settled",
+          "tab": "city",
+          "page": 1,
+          "loading": true,
+          "total": 0,
+          "queryError": "",
+          "scanServer": 321,
+          "dataServer": 321,
+          "searchServers": [
+            321
+          ],
+          "optionServers": [
+            321
+          ],
+          "jobsActive": 0,
+          "intervals": 0,
+          "timeouts": 0,
+          "timerRef": null
+        },
+        {
+          "stage": "returned-options-refreshed",
+          "tab": "city",
+          "page": 1,
+          "loading": true,
+          "total": 0,
+          "queryError": "",
+          "scanServer": 321,
+          "dataServer": 321,
+          "searchServers": [
+            321,
+            321
+          ],
+          "optionServers": [
+            321,
+            321
+          ],
+          "jobsActive": 1,
+          "intervals": 0,
+          "timeouts": 0,
+          "timerRef": null
+        }
+      ],
+      "countAcknowledgements": [
+        {
+          "serverId": 321,
+          "counts": {
+            "city": 9,
+            "resource": 9,
+            "monster": 0,
+            "truck": 0,
+            "railway": 0,
+            "dispatch": 0,
+            "ghost": 0,
+            "treasure": 0
+          }
+        },
+        {
+          "serverId": 321,
+          "counts": {
+            "city": 10,
+            "resource": 10,
+            "monster": 0,
+            "truck": 0,
+            "railway": 0,
+            "dispatch": 0,
+            "ghost": 0,
+            "treasure": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "normal resource tab and page survive return; hidden server transition settles current server",
+      "status": "PASS",
+      "childSummaries": 0,
+      "childScanListeners": 0,
+      "observations": [
+        {
+          "stage": "hidden-page-two",
+          "tab": "resource",
+          "page": 2,
+          "loading": false,
+          "total": 120,
+          "queryError": "",
+          "scanServer": 321,
+          "dataServer": 321,
+          "searchServers": [
+            321,
+            321,
+            321
+          ],
+          "optionServers": [
+            321
+          ],
+          "jobsActive": 0,
+          "intervals": 0,
+          "timeouts": 0,
+          "timerRef": null
+        },
+        {
+          "stage": "returned-page-two",
+          "tab": "resource",
+          "page": 2,
+          "loading": true,
+          "total": 120,
+          "queryError": "",
+          "scanServer": 321,
+          "dataServer": 321,
+          "searchServers": [
+            321,
+            321,
+            321,
+            321
+          ],
+          "optionServers": [
+            321,
+            321
+          ],
+          "jobsActive": 1,
+          "intervals": 0,
+          "timeouts": 0,
+          "timerRef": null
+        },
+        {
+          "stage": "parent-server-updated-hidden",
+          "tab": "resource",
+          "page": 2,
+          "loading": true,
+          "total": 120,
+          "queryError": "",
+          "scanServer": 321,
+          "dataServer": 321,
+          "searchServers": [
+            321,
+            321,
+            321,
+            321
+          ],
+          "optionServers": [
+            321,
+            321
+          ],
+          "jobsActive": 0,
+          "intervals": 0,
+          "timeouts": 0,
+          "timerRef": null
+        },
+        {
+          "stage": "current-server-settled",
+          "tab": "resource",
+          "page": 1,
+          "loading": false,
+          "total": 55,
+          "queryError": "",
+          "scanServer": 322,
+          "dataServer": 322,
+          "searchServers": [
+            321,
+            321,
+            321,
+            321,
+            321,
+            322,
+            322
+          ],
+          "optionServers": [
+            321,
+            321,
+            321,
+            322
+          ],
+          "jobsActive": 1,
+          "intervals": 0,
+          "timeouts": 0,
+          "timerRef": null
+        }
+      ],
+      "returnOptions": [
+        321,
+        322
+      ],
+      "note": "Return may bootstrap retained data server before scan-prop synchronization; generation fencing preserves the newer current-server owner."
+    },
+    {
+      "name": "reading timeout canceled on hide retains original non-null sentinel",
+      "status": "PASS",
+      "childSummaries": 0,
+      "childScanListeners": 0,
+      "observations": [
+        {
+          "stage": "reading-visible",
+          "tab": "city",
+          "page": 1,
+          "loading": true,
+          "total": 0,
+          "queryError": "",
+          "scanServer": 321,
+          "dataServer": 321,
+          "searchServers": [
+            321
+          ],
+          "optionServers": [
+            321
+          ],
+          "jobsActive": 1,
+          "intervals": 1,
+          "timeouts": 1,
+          "timerRef": 1
+        },
+        {
+          "stage": "reading-hidden",
+          "tab": "city",
+          "page": 1,
+          "loading": true,
+          "total": 0,
+          "queryError": "",
+          "scanServer": 321,
+          "dataServer": 321,
+          "searchServers": [
+            321
+          ],
+          "optionServers": [
+            321
+          ],
+          "jobsActive": 0,
+          "intervals": 0,
+          "timeouts": 0,
+          "timerRef": 1
+        },
+        {
+          "stage": "reading-returned",
+          "tab": "city",
+          "page": 1,
+          "loading": true,
+          "total": 0,
+          "queryError": "",
+          "scanServer": 321,
+          "dataServer": 321,
+          "searchServers": [
+            321,
+            321
+          ],
+          "optionServers": [
+            321,
+            321
+          ],
+          "jobsActive": 1,
+          "intervals": 1,
+          "timeouts": 0,
+          "timerRef": 1
+        },
+        {
+          "stage": "reading-restarted",
+          "tab": "city",
+          "page": 1,
+          "loading": true,
+          "total": 0,
+          "queryError": "",
+          "scanServer": 321,
+          "dataServer": 321,
+          "searchServers": [
+            321,
+            321,
+            321
+          ],
+          "optionServers": [
+            321,
+            321,
+            321
+          ],
+          "jobsActive": 1,
+          "intervals": 1,
+          "timeouts": 1,
+          "timerRef": 4
+        }
+      ],
+      "originalParity": "Exact original/current effect callback parity recorded in lead-map-effect-results.json; no timer-ref reset was invented."
+    },
+    {
+      "name": "actual mounted App retains parent five-second polling/status/scan listeners while Map Activity hides",
+      "status": "PASS",
+      "observations": [
+        {
+          "stage": "Map-visible",
+          "summaryCalls": 3,
+          "statusCalls": 1,
+          "proxyCalls": 1,
+          "statusActive": 1,
+          "scanActive": 1,
+          "jobsActive": 1,
+          "intervals": 2,
+          "mapServer": 321,
+          "mapTab": "city",
+          "mapPage": 1,
+          "pendingText": "0"
+        },
+        {
+          "stage": "Map-hidden",
+          "summaryCalls": 3,
+          "statusCalls": 1,
+          "proxyCalls": 1,
+          "statusActive": 1,
+          "scanActive": 1,
+          "jobsActive": 0,
+          "intervals": 2,
+          "mapServer": 321,
+          "mapTab": "city",
+          "mapPage": 1,
+          "pendingText": "0"
+        },
+        {
+          "stage": "five-second-parent-work-while-Map-hidden",
+          "summaryCalls": 4,
+          "statusCalls": 2,
+          "proxyCalls": 2,
+          "statusActive": 1,
+          "scanActive": 1,
+          "jobsActive": 0,
+          "intervals": 2,
+          "mapServer": 321,
+          "mapTab": "city",
+          "mapPage": 1,
+          "pendingText": "7"
+        },
+        {
+          "stage": "Map-returned-current-props",
+          "summaryCalls": 5,
+          "statusCalls": 2,
+          "proxyCalls": 2,
+          "statusActive": 1,
+          "scanActive": 1,
+          "jobsActive": 1,
+          "intervals": 2,
+          "mapServer": 322,
+          "mapTab": "city",
+          "mapPage": 1,
+          "pendingText": "7"
+        }
+      ],
+      "listenerOwnership": {
+        "statusAdds": 1,
+        "statusRemoves": 1,
+        "scanAdds": 1,
+        "scanRemoves": 1,
+        "jobsAdds": 2,
+        "jobsRemoves": 2
+      },
+      "limits": "Actual App body and React hooks with inert bridge/map API bindings; non-Map routes and NavIcon are inert. This proves parent lifetime and current prop delivery, not native provider behavior."
+    }
+  ],
+  "consoleErrors": [],
+  "limits": "Actual React DOM Activity, exact RetainedPages and production MapDataPage hooks/effects. JSX imports are inert child components; inline MapTable/Pagination remain actual. Translation is stable key identity. First five cases use a controlled prop supplier; the sixth mounts the actual App body with inert bridge/map API bindings. Deferred local APIs and controlled timers; no browser pixels, native function, gameplay or protected reference runtime. Exact original request ordering is not mounted-proven. Original effect quirks are pinned above and timer callbacks compared separately by lead-map-effect.mjs."
+}

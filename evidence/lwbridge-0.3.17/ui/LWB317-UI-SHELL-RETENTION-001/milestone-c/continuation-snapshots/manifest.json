@@ -1,0 +1,20 @@
+{
+  "purpose": "Worker continuation bytes before restoring historical packet; not revised historical evidence.",
+  "files": [
+    {
+      "file": "app-harness.mjs",
+      "sha256": "dfa39cd3db821baf80841906c14fc32e9645d3c9e1d70ce11545b54d5c223498",
+      "bytes": 11688
+    },
+    {
+      "file": "regression-results.json",
+      "sha256": "f0a8a1705e24d88c94791b54186f38b1520076084fb974f1b8a8b51c48501cfd",
+      "bytes": 6794
+    },
+    {
+      "file": "regression-refresh-ownership.json",
+      "sha256": "6753117c4b7e44af645137b8ede6ba75e9cc9acfb3e1a4385f59767d56d2084d",
+      "bytes": 1661
+    }
+  ]
+}

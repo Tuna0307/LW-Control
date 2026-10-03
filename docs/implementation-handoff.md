@@ -1,19 +1,24 @@
 # Current implementation/research handoff
 
+Lead takeover/acceptance, 2026-10-04: SHELL-RETENTION-001 is COMPLETE / ACCEPTED
+for assigned source/local retention scope. Preserve worker A/B 1786fc5/081ffc8;
+C mounted/browser/regression/integrity closeout is finished. See the dated review
+and evidence README. No unfinished assigned work remains.
+
 Lead acceptance, 2026-10-03: Equipment parent/R1 are COMPLETE / ACCEPTED for bounded source/local scope at implementation 2e4accef and delivery 32b2906. Independent diff/source, R1 61, Equipment 105, AFK 729, integrity 71, check/package, protected-WIP and saved-image review pass. Native/physical drag/original pixels remain unproved.
 
 Lead takeover/acceptance, 2026-10-03: REMAINING-PAGES parent/R1 are **COMPLETE / ACCEPTED for bounded source/local scope** after product 2174553. The lead finished saved D evidence and its integrity validator, corrected City busy-through-confirm and synchronous pointer release, and reran focused/affected/package checks. Historical failing packets remain unchanged. See the dated REVIEW-REMAINING-PAGES-001-R1 review.
 
 **Target:** LWBridge 0.3.17  
 **Branch:** `research/offline-controller`  
-**Active scope:** UI parity / SHELL-RETENTION-001 READY; four-page parent/R1 accepted; broader integration/native/original pixels separate
+**Active scope:** UI parity / shell retention accepted; broader shell audit and final inventory remain; native/original pixels separate
 
-## Current continuation — top-level shell retention assigned
+## Current continuation — retained shell unit closed
 
-Read docs/work-items/LWB317-UI-SHELL-RETENTION-001.md. One worker, medium A/B/C
-assignment: source contract/baseline, retained first-visited panels with hidden
-effect suspension, actual mounted/browser return proof. Stop after this unit.
-Do not start the broader popover/profile/Map notices or final inventory campaign.
+No unfinished A/B/C work remains. The next assignment should separately audit
+shared shell/profile/popovers and Map notices/summary scheduling, followed by
+the final UI inventory. Native function recovery and original post-auth pixels
+remain unaccepted. No next campaign was started by this takeover.
 
 ## Prior continuation — four-page R1 closed
 

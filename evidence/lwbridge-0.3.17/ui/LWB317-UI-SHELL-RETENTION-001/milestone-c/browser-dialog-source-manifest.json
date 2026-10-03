@@ -1,0 +1,17 @@
+{
+  "source": {
+    "path": "src/LWBridge.UI-0.3.17/src/App.jsx",
+    "sha256": "8806B35D5A94A2895A1649F7A8F48AA74E23E784F8AC50A4987C8F61CDF74B68"
+  },
+  "extractedFunction": {
+    "name": "RetainedPages",
+    "utf8ByteOffset": 2375,
+    "utf8ByteLength": 412,
+    "sha256": "3DC75A9F844C7824A61A9B9232AC1D346E167F97413FEE869F3E46B80E10D1F4"
+  },
+  "wrapper": {
+    "path": "browser-dialog-retained.jsx",
+    "sha256": "ADDCC73017EB496F86271DD54DFF26A3C3976665D441528551DB01656E5CFBE5"
+  },
+  "limits": "Exact production RetainedPages function bytes with imports and export alias added for evidence harness. Actual PageForRoute/Pages/I18nProvider are imported through the existing Vite server. The harness controls route state only; it uses the existing squads-equipment recognized fixture and has no native transport/provider/updater/export/gameplay action."
+}

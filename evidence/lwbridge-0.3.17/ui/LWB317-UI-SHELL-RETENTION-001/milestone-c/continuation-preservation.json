@@ -1,0 +1,24 @@
+{
+  "status": "PASS",
+  "reason": "Worker current-shell adapter/replays relocated to this packet; historical Auto evidence restored byte-for-byte. Unrelated seven-path WIP is untouched.",
+  "results": [
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-AUTO-CONFIG-001/app-harness.mjs",
+      "preservedSha256": "dfa39cd3db821baf80841906c14fc32e9645d3c9e1d70ce11545b54d5c223498",
+      "historicalSha256": "4e3e12236fe8cd656de803a815682f35624913049b0d5868c3d5568be499f7a4",
+      "restored": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-AUTO-CONFIG-001/regression-refresh-ownership.json",
+      "preservedSha256": "6753117c4b7e44af645137b8ede6ba75e9cc9acfb3e1a4385f59767d56d2084d",
+      "historicalSha256": "2fccd88701cbcf2a30a7e1af32091f59c1a514a83559941f927d721bfb72f656",
+      "restored": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-AUTO-CONFIG-001/regression-results.json",
+      "preservedSha256": "f0a8a1705e24d88c94791b54186f38b1520076084fb974f1b8a8b51c48501cfd",
+      "historicalSha256": "4118e07d74304963c8093ec9305d0d178a94a3f75c48d3c6a87059ae3f80d70c",
+      "restored": true
+    }
+  ]
+}
