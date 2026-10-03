@@ -1,6 +1,6 @@
 # LWB317-UI-EQUIPMENT-CLOSEOUT-001-R1 — medium Equipment correction
 
-Status: READY / assigned through owner relay. Work alone: no subagents or delegation.
+Status: AWAITING_REVIEW. Worker correction delivered without subagents or delegation.
 
 ## Start
 
@@ -88,3 +88,31 @@ AWAITING_REVIEW, leaving parent CHANGES_REQUIRED until project-lead acceptance.
 Commit coherent milestones, push origin/research/offline-controller and verify its
 full SHA directly. Return changed behavior, checks/evidence, proof limits, commit/
 remote SHA and exact continuation if interrupted. Stop at R1; do not start a page.
+
+## Worker delivery — 2026-10-03
+
+Implementation/evidence milestone:
+`2e4accef7b0709a903034293126cb63fe389b105`.
+
+The visited AFK/Equipment boundary now uses installed React Activity so hidden effects
+are suspended while component state is retained. Equipment rename and the save-only
+consumer now share a controlled local acknowledgement path with pending, success,
+rejection, Retry and Discard behavior matching the recovered frontend contract.
+
+The R1 executable proof records 61 assertions. Parent Equipment remains 105/105 and
+the affected AFK regression remains 729/729 with exact Join/Assist renderer recovery.
+Canonical check/build/production-package checks pass. The R1 evidence validator passes
+71 integrity assertions and pins the reference EXE, exact recovered byte slices,
+current production/evidence hashes, screenshots, immutable submitted failure packet
+and all seven protected-WIP paths.
+
+Real mounted browser QA covers Equipment -> AFK -> Equipment effect cleanup/reinstall,
+retained selected/dirty/renamed/moved state, dialog/timer lifecycle, affected AFK
+Escape handling, and pending/error/success acknowledgement states in English/light
+and Japanese/dark. Fresh console capture has zero warnings/errors. Native Equipment
+providers/persistence/gameplay, physical connector HTML5 drag and original post-auth
+pixel equivalence remain outside this correction.
+
+Parent `LWB317-UI-EQUIPMENT-CLOSEOUT-001` remains **CHANGES_REQUIRED** until the
+project lead accepts this R1. Do not start City Layout or another page from this
+worker delivery.

@@ -1,19 +1,20 @@
 # Current implementation/research handoff
 
-Project-lead review, 2026-10-03: LWB317-UI-EQUIPMENT-CLOSEOUT-001 is **CHANGES_REQUIRED** at 4bafcd4. Current effects still handle Equipment Alt shortcuts while AFK is shown; local rename deferred/failure states and assigned evidence validator are missing. Existing 105-assertion Equipment/729-case AFK checks, canonical check/package and seven protected hashes pass. See the dated REVIEW-EQUIPMENT-CLOSEOUT-001 review; medium R1 is the next task.
+Worker R1 delivery, 2026-10-03: `LWB317-UI-EQUIPMENT-CLOSEOUT-001-R1` is **AWAITING_REVIEW** at implementation/evidence commit `2e4accef7b0709a903034293126cb63fe389b105`. React Activity now suspends hidden AFK/Equipment effects while retaining state, and Equipment rename/save use the recovered acknowledgement lifecycle including pending/failure Retry/Discard. R1 61, parent Equipment 105 and AFK 729 checks pass with build/package, mounted browser lifecycle QA and a 71-assertion evidence validator. The parent remains **CHANGES_REQUIRED** until project-lead acceptance.
 
 **Target:** LWBridge 0.3.17  
 **Branch:** `research/offline-controller`  
-**Active scope:** UI parity / LWB317-UI-EQUIPMENT-CLOSEOUT-001-R1 READY; parent CHANGES_REQUIRED; no native integration or next page
+**Active scope:** UI parity / LWB317-UI-EQUIPMENT-CLOSEOUT-001-R1 AWAITING_REVIEW; parent CHANGES_REQUIRED; no native integration or next page
 
-## Current continuation — Equipment Schemes correction R1
+## Current continuation — project-lead review of Equipment Schemes R1
 
-Read docs/work-items/LWB317-UI-EQUIPMENT-CLOSEOUT-001-R1.md and the dated lead
-review. Preserve the reviewed implementation and passing transformation/AFK work.
-Fix hidden-tab effect suspension with retained state, recover acknowledgement-driven
-rename pending/failure/success locally, and validate the new evidence packet. The
-lead's independent failing reproduction is preserved separately from worker proof.
-Do not treat its source-marker checks as executed effects or deferred saves.
+Review docs/work-items/LWB317-UI-EQUIPMENT-CLOSEOUT-001-R1.md, the original dated
+lead review and the new dated R1 delivery. The correction is complete at
+`2e4accef7b0709a903034293126cb63fe389b105`: Activity provides the source-shaped
+visited-tab lifecycle and the shared local Equipment acknowledgement path covers
+rename/save pending, error, Retry/Discard and success. The immutable lead failure
+packet remains preserved separately from corrected proof. Project lead decides
+acceptance; do not start City Layout, native work or another page from this handoff.
 
 ## Prior worker delivery — reviewed with changes required
 
@@ -38,12 +39,12 @@ All seven protected WIP paths are unchanged and unstaged. Native confirmation
 has controlled callback proof; its physical browser dialog is unverified.
 Physical HTML5 drag and original pixel/runtime comparisons are not claimed.
 
-Equipment now requires the focused R1 under
+Equipment R1 is delivered and awaits project-lead review under
 docs/work-items/LWB317-UI-EQUIPMENT-CLOSEOUT-001-R1.md. City Layout and then
-Hotkeys/Mini Games/Settings remain separate and have not started. The owner permits
-lead subagents, but this worker used none. Order 3 handles final shell/Home/Map
-integration, shared focus/narrow layouts and exact remaining-gap inventory. Do not
-resume CORRECT-003 wholesale or native work.
+Hotkeys/Mini Games/Settings remain separate and have not started. This worker used
+no subagents. Order 3 handles final shell/Home/Map integration, shared focus/narrow
+layouts and exact remaining-gap inventory. Do not resume CORRECT-003 wholesale,
+start the next page or begin native work from this handoff.
 
 ## Historical R1 delivery — superseded by PM-028 acceptance
 
