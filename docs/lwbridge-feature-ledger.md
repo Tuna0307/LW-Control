@@ -1,6 +1,6 @@
 # LWBridge 0.3.17 feature ledger
 
-Current lead decision, 2026-10-03: MAP-REFRESH-OWNERSHIP-001 at cf75b4e is COMPLETE / ACCEPTED for focused source/local UI scope after lead diff, lifecycle, regression, evidence and package checks. The prior four Map units remain accepted for their focused scope. MAP-CLOSEOUT-002 remains PARTIAL; its remaining Auto UI/configuration implementation is assigned under LWB317-UI-MAP-AUTO-CONFIG-001, reusing a6140b2 source recovery. One worker, no subagents. Full UI/original pixels/native parity remains unaccepted. See the dated Auto dispatch review.
+Current lead decision, 2026-10-03: MAP-REFRESH-OWNERSHIP-001 and the prior four Map units remain accepted for focused source/local UI scope. MAP-AUTO-CONFIG-001 is PARTIAL after interruption: A/B/C implementation is pushed through f5a1eaf; focused helper/profile/control/current-ownership and check/package reruns pass. Resume milestone D verification/evidence only; historical extractors need current adapters. MAP-CLOSEOUT-002 remains PARTIAL. One worker, no subagents. Full UI/original pixels/native parity remains unaccepted. See the dated Auto interrupted-progress review.
 
 This ledger starts clean for 0.3.17.
 

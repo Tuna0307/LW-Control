@@ -1,6 +1,6 @@
 # LWB317-UI-MAP-AUTO-CONFIG-001 — complete Auto Scan UI/configuration
 
-Status: ASSIGNED. One worker, sequential milestones, no subagents.
+Status: PARTIAL, interrupted after pushed A/B/C checkpoints through f5a1eaf. Lead reruns of helpers 29/29, profiles 7/7, controls 11/11, current ownership and canonical check/package pass. Milestone D remains unfinished: old navigation/ownership extractors fail on missing Auto imports; saved current ownership adapter passes. Resume final verification/evidence only. See docs/reviews/2026-10-03-LWB317-PM-MAP-AUTO-CONFIG-001-interrupted.md. One worker, no subagents; no complete-work-item acceptance yet.
 
 ## Goal and start
 

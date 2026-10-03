@@ -1,12 +1,23 @@
 # Current implementation/research handoff
 
-Current lead decision, 2026-10-03: MAP-REFRESH-OWNERSHIP-001 at cf75b4e is accepted for focused source/local UI scope. The parent MAP-CLOSEOUT-002 stays PARTIAL. Continue only under LWB317-UI-MAP-AUTO-CONFIG-001 to complete Auto UI/configuration; reuse a6140b2 source recovery. One worker, no subagents. Native executor, gameplay and original pixel/global acceptance remain outside this assignment. See the dated Auto dispatch review.
+Current lead decision, 2026-10-03: refresh ownership remains accepted for focused scope. Auto configuration A/B/C is pushed through f5a1eaf; milestone D verification/evidence remains PARTIAL. Resume its saved work under AUTO-CONFIG-001 only; see the dated interrupted-progress review below. No subagents. Native executor, gameplay and original pixel/global acceptance remain outside this assignment.
 
 **Target:** LWBridge 0.3.17  
 **Branch:** `research/offline-controller`  
 **Active scope:** UI parity / complete Map Auto UI/configuration; no new native integration
 
 ## Current continuation — project-lead takeover checkpoint
+
+2026-10-03 Auto worker interruption: A/B/C are pushed through f5a1eaf;
+helpers 29/29, profiles 7/7, controls 11/11, current ownership and canonical
+check/package pass on lead rerun. Resume milestone D only under the existing
+AUTO-CONFIG-001 assignment. Its saved runner still invokes historical
+navigation/ownership extractors missing the new Auto imports. The untracked
+current ownership checker passes. Finish current regression adapters, browser
+records, validator, complete-diff review and delivery docs; do not restart
+implemented controls. Read the dated interrupted-progress review. Worker
+regression files/screenshots remain untracked; seven protected hashes match.
+No final acceptance or native phase is authorized.
 
 2026-10-03 REFRESH-FEEDBACK-001: row revision timer/completion cleanup, scan error
 priority/translation/start retirement and localized export busy/result behavior

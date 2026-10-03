@@ -1,6 +1,6 @@
 # Project lead control sheet
 
-Current lead decision, 2026-10-03: MAP-REFRESH-OWNERSHIP-001 at cf75b4e is COMPLETE / ACCEPTED for focused source/local UI scope after lead diff, lifecycle, regression, evidence and package checks. The prior four Map units remain accepted for their focused scope. MAP-CLOSEOUT-002 remains PARTIAL; its remaining Auto UI/configuration implementation is assigned under LWB317-UI-MAP-AUTO-CONFIG-001, reusing a6140b2 source recovery. One worker, no subagents. Full UI/original pixels/native parity remains unaccepted. See the dated Auto dispatch review.
+Current lead decision, 2026-10-03: MAP-REFRESH-OWNERSHIP-001 and the prior four Map units remain accepted for focused source/local UI scope. MAP-AUTO-CONFIG-001 is PARTIAL after interruption: A/B/C implementation is pushed through f5a1eaf; focused helper/profile/control/current-ownership and check/package reruns pass. Resume milestone D verification/evidence only; historical extractors need current adapters. MAP-CLOSEOUT-002 remains PARTIAL. One worker, no subagents. Full UI/original pixels/native parity remains unaccepted. See the dated Auto interrupted-progress review.
 
 Recovery update, 2026-10-03: four prior Map units and completed ownership child are accepted for focused scope. Remaining Auto UI/configuration is assigned separately to one worker; the parent campaign stays PARTIAL. See dated Auto dispatch review.
 
@@ -49,7 +49,7 @@ the Map closeout awaits a separate independent acceptance review.
 
 | Work item / campaign | Owner | State | Scope |
 |---|---|---|---|
-| LWB317-UI-MAP-AUTO-CONFIG-001 | Single worker, owner relay | ASSIGNED | Complete recovered Auto UI, helpers and profile-scoped frontend persistence; no subagents/native executor |
+| LWB317-UI-MAP-AUTO-CONFIG-001 | Single worker, interrupted | PARTIAL / A-B-C pushed | f5a1eaf saves helpers, profile ownership and controls; focused checks pass. Resume D: current regression adapters, browser evidence, validator and delivery. No subagents/native executor |
 | LWB317-UI-MAP-REFRESH-OWNERSHIP-001 | Returning worker, lead reviewed | COMPLETE / ACCEPTED for focused source/local scope | cf75b4e actual App/panel ownership, overlap/disposal/count reset, redirect/Clear and interaction/package replays pass |
 | LWB317-UI-MAP-CLOSEOUT-002 | Interrupted worker, split into children | PARTIAL / SPLIT | A and B accepted for focused scope; C source recovered, implementation assigned under AUTO-CONFIG-001 |
 | LWB317-UI-MAP-REFRESH-FEEDBACK-001 | Project lead takeover | COMPLETE / ACCEPTED for focused source/local scope | Row revision timing, scan error rendering/priority and export localized labels/result/busy; 45/19/11 checks pass. Full options/poll/native/pixels excluded |
