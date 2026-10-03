@@ -1,6 +1,8 @@
 # Project lead control sheet
 
-Project-lead review, 2026-10-03: Equipment parent/R1 are **COMPLETE / ACCEPTED for bounded source/local scope** at implementation 2e4acce and delivery 32b2906. Lead inspected the diff/screenshots and independently reran R1 61, integrity 71, Equipment 105, AFK 729, canonical check/package and protected-WIP checks. Native/physical drag/original pixels remain unproved. Owner requests a larger assignment: LWB317-UI-REMAINING-PAGES-001 is READY, covering City Layout, Hotkeys, Mini Games and Settings through sequential A–F milestones; no worker subagents or native phase.
+Project-lead review, 2026-10-03: Equipment parent/R1 are **COMPLETE / ACCEPTED for bounded source/local scope** at implementation 2e4acce and delivery 32b2906. Lead inspected the diff/screenshots and independently reran R1 61, integrity 71, Equipment 105, AFK 729, canonical check/package and protected-WIP checks. Native/physical drag/original pixels remain unproved.
+
+Worker return, 2026-10-03: LWB317-UI-REMAINING-PAGES-001 completed sequential A–F and is **AWAITING_REVIEW** for City Layout, Hotkeys, Mini Games and Settings source/local UI. The packet reports 54 reconciled branches, actual `784×415` narrow browser proof, nine-locale audit, canonical package checks, affected Equipment/AFK regressions and current integrity validation. This line records delivery only, not project-lead acceptance; native/order-3 shell/global/pixel work remains separate.
 
 Recovery update, 2026-10-03: interrupted Automation/AFK work is completed and locally reviewed. Its finite source/render/handler proof and remaining limits are recorded; other-page audit is next. See the dated closeout review and UI_FINISH_CHECKLIST.md.
 
@@ -30,7 +32,7 @@ retirement task. Preserve its source as historical evidence.
 
 ## Current phase
 
-**UI parity — Automation/AFK residual unit closed; remaining page audit and final integration**
+**UI parity — four-page worker closeout awaiting review; order-3 shell/global integration remains separate**
 
 Earlier static UI baseline acceptance does not establish complete UI/UX parity.
 The current owner priority is UI reproduction before function integration.
@@ -49,7 +51,7 @@ the Map closeout awaits a separate independent acceptance review.
 
 | Work item / campaign | Owner | State | Scope |
 |---|---|---|---|
-| LWB317-UI-REMAINING-PAGES-001 | Single worker, owner relay | READY | Owner-requested large four-page source/local campaign: inventory, City Layout, Hotkeys, Mini Games, Settings and affected closeout; sequential checkpoints, no native/shell campaign |
+| LWB317-UI-REMAINING-PAGES-001 | Single worker, owner relay | AWAITING_REVIEW | Worker completed inventory, City Layout, Hotkeys, Mini Games, Settings and affected closeout A–F; lead acceptance pending, no native/shell campaign |
 | LWB317-UI-EQUIPMENT-CLOSEOUT-001-R1 | Returning worker, lead reviewed | COMPLETE / ACCEPTED for bounded source/local scope | 2e4acce/32b2906: hidden effects suspended, local rename/save acknowledgement states and evidence validator pass. Native/pixels/physical drag excluded |
 | LWB317-UI-EQUIPMENT-CLOSEOUT-001 | Returning worker, lead reviewed | COMPLETE / ACCEPTED for bounded source/local scope | R1 closes the lead's hidden Alt/rename/evidence findings; 105 Equipment/729 AFK checks remain green. Historical failing packet retained; overall/native/pixels unproved |
 | LWB317-UI-AUTOMATION-AFK-CLOSEOUT-001 | Interrupted worker, lead takeover | COMPLETE for bounded source/local residuals | 7e7eb12: 729 comparisons, 18 browser records, eight images and package/evidence checks. Physical dialog/drag and original/native/pixels remain unverified |

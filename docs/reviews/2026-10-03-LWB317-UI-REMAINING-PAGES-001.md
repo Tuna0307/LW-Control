@@ -1,6 +1,6 @@
 # LWB317-UI-REMAINING-PAGES-001 worker campaign — 2026-10-03
 
-Status: **IN PROGRESS**. This worker owns only City Layout, Hotkeys, Mini Games and Settings source/local UI closeout. Native gameplay/service integration, login/account/licensing UI and unrelated accepted surfaces remain outside the assignment.
+Status: **AWAITING_REVIEW**. Milestones A–F are complete for the bounded City Layout, Hotkeys, Mini Games and Settings source/local UI closeout. Native gameplay/service integration, login/account/licensing UI, original post-auth pixel equality and unrelated accepted surfaces remain outside the assignment; project-lead acceptance is still pending.
 
 ## Milestones
 
@@ -11,7 +11,7 @@ Status: **IN PROGRESS**. This worker owns only City Layout, Hotkeys, Mini Games 
 | C — Hotkeys | COMPLETE | Exact seven-card locale-key catalog, shared config/loading/error state, source-style single pending field, optimistic single-field save/rollback and offline-edit predicates |
 | D — Mini Games | COMPLETE | Shared `category="miniGames"` config/card path, Frontline loading ownership, online treasure save gate, Land lifecycle/error placement, exact Sheep status/time/progress/start-stop/error and timer cleanup |
 | E — Settings | COMPLETE | Visual preference loading/save busy/rollback, conditional profile-focus row, exact feedback byte/progress/result/error/cancel branches and recovered updater phases/metadata/cooldown/download predicates |
-| F — integration/evidence | PENDING | — |
+| F — integration/evidence | COMPLETE | 12 settled browser screenshots across EN/light, JA/dark and actual 784×415 narrow viewport; route/effect/native-fence review; nine-locale audit; current integrity validator; canonical package plus Equipment/AFK regressions green |
 
 The starting HEAD is `0c181ebc353556bc3c505eb93f1568f7d429172d`. Seven pre-existing protected paths were present exactly as expected and the protected-WIP checker passed before campaign edits. The reference executable hash also matches the required `4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783`.
 
@@ -32,3 +32,9 @@ Mounted browser QA confirms a running Sheep fixture advances elapsed time on the
 Milestone E replaces the static Settings preview with source-shaped local state. `check-settings.mjs` passes **71 focused checks** across the exact recovered byte formatter, recovered visual/profile renderer, feedback exporting/success/error renderer, recovered updater renderer/predicates/cooldown, production optimistic save success/rollback, feedback cancel/success, updater metadata/download/opening/cooldown/error, and source ownership guards. The immutable 16-case dispatch baseline now passes in full.
 
 Mounted browser QA confirms English/light Settings toggles and the conditional profile-focus row, Japanese/dark visual-save rollback with focus retained, feedback finalizing at a single 92% phase, success text using `4.2 MiB`, Japanese update metadata/date/error, the newer-version download predicate after error, local Download→Opening transition, and an active manual-check cooldown. Fresh console capture is empty. Diagnostic export, updater and native visual preference operations remain fenced.
+
+Milestone F reconciles all 54 inventoried branches and preserves the immutable 16-failure dispatch baseline while the executable baseline predicates now pass 16/16. The final browser packet contains 12 settled screenshots: each changed page has wide English/light and Japanese/dark coverage across meaningful states plus a real narrow capture at `window.innerWidth = 784` CSS px (`774×415` browser image). The earlier failed desktop-only resize is not counted; the valid captures were recorded only after the already-owned preview tab itself reported the narrow viewport. A physical City → Hotkeys → City route cycle returned cleanly with zero captured console errors/warnings and no leaked dialog. The existing shell difference remains explicit: the clone unmounts top-level pages on route leave while the recovered shell retains visited panels with React `Activity`, so page-local state resets on return.
+
+The closeout audit checks 99 recovered four-page locale keys in every one of the nine 1,383-key catalogs with no missing values. City keydown cleanup, Mini Games Sheep interval cleanup and Settings updater cooldown cleanup remain source/current guarded by their focused executable verifiers; Hotkeys adds no OS/global listener. No City apply provider, gameplay hotkey, Land/Sheep native operation, diagnostic archive write, updater download/install/open/restart or native visual-preference persistence was invoked.
+
+Final replay is green: City 935 assertions, Hotkeys 70, Mini Games 86, Settings 71, Equipment 105, Equipment R1 61 and AFK/shared-draft 729 checks; `npm.cmd run check`, `build` and `check:production-build` pass. `milestone-f/validate-current.mjs` independently verifies the required EXE SHA-256, four recovered asset hashes, all 15 exact byte slices, both current production hashes, 13 pinned campaign JSON files, all 12 screenshots and all seven protected-WIP paths. The remaining limits are native/provider/gameplay integration, original protected-runtime pixel comparison, and the pre-existing top-level route-retention shell difference; none is relabeled as a pass.

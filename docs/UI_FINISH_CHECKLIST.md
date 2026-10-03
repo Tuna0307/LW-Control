@@ -32,14 +32,14 @@ inflate a percentage using test-case counts or declare unknown surfaces done.
 | 1 | Automation residuals | COMPLETE for named source/local branches in AUTOMATION-AFK-CLOSEOUT-001; accepted weekly/Trade unchanged | Assigned gate closed; native assets/producers and original pixels remain outside acceptance |
 | 1 | Squads/AFK residuals | COMPLETE for listed source/local contracts/handlers; real profile/member/toolbar QA recorded | Assigned gate closed; physical drag/confirmation and shared focus breadth remain disclosed proof limits for final audit |
 | 2 | Equipment | COMPLETE / ACCEPTED bounded source/local scope through R1 2e4acce/32b2906 and lead review | Assigned gate closed; native/physical drag/original pixels remain disclosed limitations |
-| 2 | City Layout, Hotkeys, Mini Games, Settings | Existing recovered implementations; owner-requested REMAINING-PAGES-001 READY | Sequential four-page source-backed audit, correction and verification through A–F; no worker subagents |
+| 2 | City Layout, Hotkeys, Mini Games, Settings | REMAINING-PAGES-001 worker A–F COMPLETE / AWAITING_REVIEW with 54-branch reconciliation, wide/narrow browser evidence and current integrity validator | Project-lead review only; native providers, original pixels and order-3 shell/global integration remain separate |
 | 3 | Shell, Home and Map integration | Existing focused accepted Home/Map work | Final eight-page navigation/theme/locale/layout and fixture/native separation smoke; audit shared shell/profile/popover and the untranslated English Map offline notice visible in Japanese. Preserve accepted units absent counter-evidence |
 | 3 | Overall UI inventory and acceptance | Current parity matrix/ledger contain historical statuses | Reconcile every listed gap against current code/evidence, count remaining source-recoverable branches, retain real unresolved visual/asset dependencies, package final canonical UI and write one current completion report |
 
 Order 1 is closed by the lead takeover/review recorded in
 docs/reviews/2026-10-03-LWB317-UI-AUTOMATION-AFK-CLOSEOUT-001.md.
 Equipment parent/R1 are accepted for bounded scope by the dated lead R1 review.
-Active order-2 assignment: LWB317-UI-REMAINING-PAGES-001, READY through owner relay.
+Order-2 worker delivery: LWB317-UI-REMAINING-PAGES-001 is AWAITING_REVIEW after completing A–F through owner relay.
 Owner explicitly requests a larger assignment after the worker update; this replaces
 the separate medium-unit dispatch plan with sequential inventory/City/Hotkeys/Mini
 Games/Settings/closeout milestones. All quality and proof requirements remain.

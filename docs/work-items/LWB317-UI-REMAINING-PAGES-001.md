@@ -1,6 +1,7 @@
 # LWB317-UI-REMAINING-PAGES-001 — large four-page UI closeout
 
-Status: READY. Owner requested a larger assignment after the worker model update.
+Status: AWAITING_REVIEW. Worker completed milestones A–F and the bounded four-page
+source/local UI closeout; project-lead acceptance is still pending.
 Work alone: no subagents, delegation or another worker chat. Complete sequential
 milestones within this assignment without waiting for permission between them.
 The project lead performs final acceptance through the owner's manual relay.

@@ -1,0 +1,19 @@
+{
+  "workItem": "LWB317-UI-REMAINING-PAGES-001",
+  "wideViewport": "1920x855 CSS / 1600x713 capture",
+  "narrowViewport": "784x415 CSS / 774x415 capture",
+  "screenshots": [
+    {"file":"screenshots/city-layout-moved-en-light-wide.jpg","bytes":72108,"sha256":"54D02A6AD4130DF0846FEEE93082DFB27128321FEF9AB43C7F694A84889C8279"},
+    {"file":"screenshots/city-layout-stale-ja-dark-narrow.jpg","bytes":40549,"sha256":"CB4640E6A82FC8027CD2E3E60233D5A858AD59903A8E15C594DBD8C19F4887A5"},
+    {"file":"screenshots/city-layout-stale-ja-dark-wide.jpg","bytes":67481,"sha256":"9D6DAD4180DAE1B48D8627F324B6CF58A849CB49BB71972D6142B1D3B9486549"},
+    {"file":"screenshots/hotkeys-disconnected-en-light-wide.jpg","bytes":92364,"sha256":"58ADAC5FE969E2B615CEBFE8C3B337D72E3775F49B0A91EC9F126F767AA63D7A"},
+    {"file":"screenshots/hotkeys-save-error-ja-dark-narrow.jpg","bytes":41223,"sha256":"FF680971E9917F90D93404AC21FCA70890ED0CED5E1897176D9A523551B0BD4E"},
+    {"file":"screenshots/hotkeys-save-error-ja-dark-wide.jpg","bytes":81462,"sha256":"ACE2489AD4235DB8AE96754E3B498D87C96C743869CFFDC039D59FB5DF293051"},
+    {"file":"screenshots/mini-games-active-en-light-wide.jpg","bytes":69757,"sha256":"829F21145E9B3B79A49B7B101146DA7218B4FC5DF906F578D4DC7D20CFB67D5C"},
+    {"file":"screenshots/mini-games-config-loading-ja-dark-narrow.jpg","bytes":34849,"sha256":"2C07CB4862CBEC27E5C7C7BB140C5C880691BE2DDD09F03AE3BC31D325251352"},
+    {"file":"screenshots/mini-games-config-loading-ja-dark-wide.jpg","bytes":56427,"sha256":"009E3F1DB478C1CE146039BC98AA232CF36AE98478F453FDD4CBA326A3D63457"},
+    {"file":"screenshots/settings-complete-en-light-wide.jpg","bytes":70722,"sha256":"10374AF073F63E3AACC8D065C2CE6D51F2618621C64584CA05455728E89F9A43"},
+    {"file":"screenshots/settings-update-available-ja-dark-narrow.jpg","bytes":30861,"sha256":"6B7C9AA71A0F4F57DB65F468B8A8B3006C13D64A24B5CA4A7ABD183C93B86C88"},
+    {"file":"screenshots/settings-update-available-ja-dark-wide.jpg","bytes":64961,"sha256":"48839095E2CAEBA802290E633EF525C1EEAF8DA446E93DBAB32DE5E89F27BC3D"}
+  ]
+}

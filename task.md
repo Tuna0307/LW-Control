@@ -1,6 +1,6 @@
 # Current project directive
 
-Project-lead review, 2026-10-03: Equipment parent/R1 accepted for bounded source/local scope after independent diff/source/check/image review of 2e4acce/32b2906. Owner requests a large assignment: docs/work-items/LWB317-UI-REMAINING-PAGES-001.md is READY for City Layout, Hotkeys, Mini Games and Settings, sequential A–F milestones without worker subagents. Quality and evidence rules remain; native/gameplay and full shell/global/pixel acceptance are separate.
+Worker delivery update, 2026-10-03: `LWB317-UI-REMAINING-PAGES-001` completed sequential milestones A–F for City Layout, Hotkeys, Mini Games and Settings and is **AWAITING_REVIEW**. The bounded source/local packet includes real wide/narrow browser proof, nine-locale audit, canonical package checks, affected Equipment/AFK regressions and a current integrity validator. Project-lead acceptance, native/gameplay integration and full shell/global/pixel acceptance remain separate.
 
 ## Target
 

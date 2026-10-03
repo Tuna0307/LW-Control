@@ -1,0 +1,67 @@
+{
+  "result": "LWB317_REMAINING_PAGES_CLOSEOUT_OK",
+  "inventoryBranches": 54,
+  "pages": [
+    {
+      "page": "City Layout",
+      "count": 16
+    },
+    {
+      "page": "Hotkeys",
+      "count": 9
+    },
+    {
+      "page": "Mini Games",
+      "count": 13
+    },
+    {
+      "page": "Settings",
+      "count": 16
+    }
+  ],
+  "localeSummary": {
+    "en": {
+      "totalCatalogKeys": 1383,
+      "recoveredKeysChecked": 99
+    },
+    "zh-CN": {
+      "totalCatalogKeys": 1383,
+      "recoveredKeysChecked": 99
+    },
+    "zh-TW": {
+      "totalCatalogKeys": 1383,
+      "recoveredKeysChecked": 99
+    },
+    "ja": {
+      "totalCatalogKeys": 1383,
+      "recoveredKeysChecked": 99
+    },
+    "ko": {
+      "totalCatalogKeys": 1383,
+      "recoveredKeysChecked": 99
+    },
+    "vi": {
+      "totalCatalogKeys": 1383,
+      "recoveredKeysChecked": 99
+    },
+    "id": {
+      "totalCatalogKeys": 1383,
+      "recoveredKeysChecked": 99
+    },
+    "ru": {
+      "totalCatalogKeys": 1383,
+      "recoveredKeysChecked": 99
+    },
+    "pt": {
+      "totalCatalogKeys": 1383,
+      "recoveredKeysChecked": 99
+    }
+  },
+  "screenshots": 12,
+  "narrowViewport": "784x415",
+  "routeConsole": {
+    "errors": 0,
+    "warnings": 0
+  },
+  "knownLimit": "The clone's existing PageForRoute unmounts top-level pages on navigation. The recovered original shell retains visited panels with React Activity. Page-local state therefore resets on return in this clone. Cross-page shell retention is outside LWB317-UI-REMAINING-PAGES-001; source/effect cleanup for City key handlers, Mini Games interval and Settings cooldown interval is verified separately."
+}

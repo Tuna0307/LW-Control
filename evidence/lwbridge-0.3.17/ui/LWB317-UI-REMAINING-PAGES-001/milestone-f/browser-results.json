@@ -1,0 +1,46 @@
+{
+  "result": "LWB317_REMAINING_PAGES_BROWSER_CLOSEOUT_OK",
+  "wideViewport": {
+    "browserCapturePixels": "1600x713",
+    "pageCssViewport": "1920x855",
+    "scale": 0.8333333333333334
+  },
+  "narrowViewport": {
+    "pageCssViewport": "784x415",
+    "browserCapturePixels": "774x415",
+    "scale": 1,
+    "method": "Restored the existing Chrome window to ~800x600 and explicitly foregrounded the already-owned preview tab before capture. This changed the actual page innerWidth to 784 CSS px; Chrome and the user's original ChatGPT tab were restored afterward."
+  },
+  "screenshots": [
+    {"file":"screenshots/city-layout-moved-en-light-wide.jpg","page":"City Layout","state":"city-layout-populated-moved","language":"en","theme":"light","viewport":"wide"},
+    {"file":"screenshots/city-layout-stale-ja-dark-wide.jpg","page":"City Layout","state":"city-layout-stale","language":"ja","theme":"dark","viewport":"wide"},
+    {"file":"screenshots/city-layout-stale-ja-dark-narrow.jpg","page":"City Layout","state":"city-layout-stale","language":"ja","theme":"dark","viewport":"784x415","documentScrollWidth":774,"documentScrollHeight":1153},
+    {"file":"screenshots/hotkeys-disconnected-en-light-wide.jpg","page":"Hotkeys","state":"hotkeys-disconnected","language":"en","theme":"light","viewport":"wide"},
+    {"file":"screenshots/hotkeys-save-error-ja-dark-wide.jpg","page":"Hotkeys","state":"hotkeys-save-error","language":"ja","theme":"dark","viewport":"wide"},
+    {"file":"screenshots/hotkeys-save-error-ja-dark-narrow.jpg","page":"Hotkeys","state":"hotkeys-save-error","language":"ja","theme":"dark","viewport":"784x415","documentScrollWidth":774,"documentScrollHeight":1350},
+    {"file":"screenshots/mini-games-active-en-light-wide.jpg","page":"Mini Games","state":"mini-games-active","language":"en","theme":"light","viewport":"wide"},
+    {"file":"screenshots/mini-games-config-loading-ja-dark-wide.jpg","page":"Mini Games","state":"mini-games-config-loading","language":"ja","theme":"dark","viewport":"wide"},
+    {"file":"screenshots/mini-games-config-loading-ja-dark-narrow.jpg","page":"Mini Games","state":"mini-games-config-loading","language":"ja","theme":"dark","viewport":"784x415","documentScrollWidth":774,"documentScrollHeight":710},
+    {"file":"screenshots/settings-complete-en-light-wide.jpg","page":"Settings","state":"settings-complete","language":"en","theme":"light","viewport":"wide"},
+    {"file":"screenshots/settings-update-available-ja-dark-wide.jpg","page":"Settings","state":"settings-update-available","language":"ja","theme":"dark","viewport":"wide"},
+    {"file":"screenshots/settings-update-available-ja-dark-narrow.jpg","page":"Settings","state":"settings-update-available","language":"ja","theme":"dark","viewport":"784x415","documentScrollWidth":774}
+  ],
+  "visualInspection": {
+    "contactSheet": "screenshot-contact-sheet.jpg",
+    "settled": true,
+    "horizontalClippingObserved": false,
+    "notes": "All 12 saved screenshots were inspected together. Wide states are settled; narrow states reflow without horizontal document overflow and use vertical scrolling where content exceeds 415px height."
+  },
+  "routeLeaveReturn": {
+    "sequence": ["City Layout", "Hotkeys", "City Layout"],
+    "physicalDomClicks": true,
+    "returnedCityVisible": true,
+    "returnedFixtureChanges": "Hospital Level 27",
+    "returnedZoom": "100%",
+    "dialogsAfterReturn": 0,
+    "consoleErrors": [],
+    "consoleWarnings": [],
+    "knownShellLimit": "The clone's existing PageForRoute unmounts top-level pages on navigation. The recovered original shell retains visited panels with React Activity. Page-local state therefore resets on return in this clone. Cross-page shell retention is outside LWB317-UI-REMAINING-PAGES-001; source/effect cleanup for City key handlers, Mini Games interval and Settings cooldown interval is verified separately."
+  },
+  "nativeFence": "No game, diagnostic-export, updater-download/install/restart, OS hotkey or native preference operation was invoked. All interactive proof uses source-shaped preview data and local acknowledgements."
+}

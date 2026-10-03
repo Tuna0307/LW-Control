@@ -1,0 +1,27 @@
+{
+  "result": "LWB317_REMAINING_PAGES_FINAL_SUITE_OK",
+  "commands": [
+    {"command":"node milestone-f/check-closeout.mjs","result":"LWB317_REMAINING_PAGES_CLOSEOUT_OK","inventoryBranches":54,"localeCatalogs":9,"recoveredLocaleKeysPerCatalog":99,"screenshots":12},
+    {"command":"node milestone-a/baseline-check.mjs","result":"PASS","cases":16,"failures":0},
+    {"command":"node milestone-b/check-city-layout.mjs","result":"LWB317_CITY_LAYOUT_SOURCE_LOCAL_OK","assertions":935},
+    {"command":"node milestone-c/check-hotkeys.mjs","result":"LWB317_HOTKEYS_SOURCE_LOCAL_OK","checks":70},
+    {"command":"node milestone-d/check-mini-games.mjs","result":"LWB317_MINI_GAMES_SOURCE_LOCAL_OK","checks":86},
+    {"command":"node milestone-e/check-settings.mjs","result":"LWB317_SETTINGS_SOURCE_LOCAL_OK","checks":71},
+    {"command":"node LWB317-UI-EQUIPMENT-CLOSEOUT-001/check-closeout.mjs","result":"LWB317_EQUIPMENT_ACTUAL_SOURCE_OK","checks":105},
+    {"command":"node LWB317-UI-EQUIPMENT-CLOSEOUT-001-R1/check-r1.mjs","result":"LWB317_EQUIPMENT_R1_ACTUAL_OK","checks":61},
+    {"command":"node LWB317-UI-AUTOMATION-AFK-CLOSEOUT-001/check-closeout.mjs","result":"LWB317_AUTOMATION_AFK_ACTUAL_SOURCE_OK","checks":729},
+    {"command":"npm.cmd run check --prefix src/LWBridge.UI-0.3.17","result":"PASS","uiCompleteReferencedKeys":462,"localeKeyCounts":{"en":1383,"zh-CN":1383,"zh-TW":1383,"ja":1383,"ko":1383,"vi":1383,"id":1383,"ru":1383,"pt":1383}},
+    {"command":"npm.cmd run build --prefix src/LWBridge.UI-0.3.17","result":"LWB317_PRODUCTION_UI_BUILD_OK","packageHashes":["bbfcfbf09c7fa1a6fd849fa3fcb3a7921cef2aea6947b7518a1053e73962b573","6675c3003439f849ae20e57a77ad9a7b80cf70ca0b42e3467a074fb3ea1afdb7"]},
+    {"command":"npm.cmd run check:production-build --prefix src/LWBridge.UI-0.3.17","result":"LWB317_PRODUCTION_UI_PACKAGE_OK"},
+    {"command":"node LWB317-UI-MAP-AUTO-CONFIG-001/check-protected-wip.mjs","result":"LWB317_AUTO_CONFIG_PROTECTED_WIP_OK count=7"}
+  ],
+  "browser": {
+    "englishLight": true,
+    "japaneseDark": true,
+    "actualNarrowViewport": "784x415",
+    "savedScreenshots": 12,
+    "consoleErrors": 0,
+    "consoleWarnings": 0,
+    "nativeActionsInvoked": false
+  }
+}

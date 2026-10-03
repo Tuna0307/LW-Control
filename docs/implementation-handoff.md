@@ -1,20 +1,21 @@
 # Current implementation/research handoff
 
-Lead acceptance, 2026-10-03: Equipment parent/R1 are COMPLETE / ACCEPTED for bounded source/local scope at implementation 2e4accef and delivery 32b2906. Independent diff/source, R1 61, Equipment 105, AFK 729, integrity 71, check/package, protected-WIP and saved-image review pass. Native/physical drag/original pixels remain unproved. Next is owner-requested large four-page LWB317-UI-REMAINING-PAGES-001, READY through manual relay.
+Lead acceptance, 2026-10-03: Equipment parent/R1 are COMPLETE / ACCEPTED for bounded source/local scope at implementation 2e4accef and delivery 32b2906. Independent diff/source, R1 61, Equipment 105, AFK 729, integrity 71, check/package, protected-WIP and saved-image review pass. Native/physical drag/original pixels remain unproved.
+
+Worker delivery, 2026-10-03: LWB317-UI-REMAINING-PAGES-001 completed A–F for City Layout, Hotkeys, Mini Games and Settings and is **AWAITING_REVIEW**. The packet reconciles 54 branches, records wide EN/light + JA/dark and actual `784×415` narrow browser evidence, audits all nine locale catalogs, replays affected Equipment/AFK/shared-draft checks and pins the EXE/assets/slices/current/evidence/screenshots with a current validator. Lead acceptance and order-3 shell/native/global work remain separate.
 
 **Target:** LWBridge 0.3.17  
 **Branch:** `research/offline-controller`  
-**Active scope:** UI parity / LWB317-UI-REMAINING-PAGES-001 READY; Equipment correction accepted; native/full shell integration separate
+**Active scope:** UI parity / LWB317-UI-REMAINING-PAGES-001 AWAITING_REVIEW; Equipment correction accepted; native/full shell integration separate
 
-## Current continuation — large four-page UI campaign
+## Current continuation — four-page UI campaign awaiting review
 
-Read docs/work-items/LWB317-UI-REMAINING-PAGES-001.md. Execute A inventory/baseline,
-B City Layout, C Hotkeys, D Mini Games, E Settings and F affected closeout sequentially.
-Keep milestones independently recoverable; no fixed time stop or permission wait
-between pages, no worker subagents. Preserve existing accepted UI and protected WIP.
-Stop at these four pages and return AWAITING_REVIEW; full shell/Home/Map integration
-and native function work are separate. This supersedes the earlier medium-unit
-dispatch plan at the owner's explicit request, without relaxing quality standards.
+Review docs/work-items/LWB317-UI-REMAINING-PAGES-001.md and the dated campaign review.
+A–F are complete and the worker return is AWAITING_REVIEW. Re-run the bounded current
+validator and focused checks as needed; do not restart the page campaign or upgrade
+native/global/pixel status from this source/local packet. The known shell retention
+difference remains explicit. Order-3 full shell/Home/Map integration and native
+function work are separate assignments owned by the project lead.
 
 ## Prior continuation — Equipment Schemes R1 accepted
 

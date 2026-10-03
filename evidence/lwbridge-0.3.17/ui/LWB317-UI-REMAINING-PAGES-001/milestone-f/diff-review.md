@@ -1,0 +1,9 @@
+# LWB317-UI-REMAINING-PAGES-001 final production diff review
+
+Compared with dispatch `0c181ebc353556bc3c505eb93f1568f7d429172d`, the campaign changes only two production files: `src/LWBridge.UI-0.3.17/src/Pages.jsx` and the new directly used `src/LWBridge.UI-0.3.17/src/previewRemainingPagesContracts.js`. No locale catalog, style sheet, backend/native module, Home/Map/Automation/AFK/Equipment implementation, authentication surface or service provider is changed.
+
+`Pages.jsx` changes are confined to City Layout, shared Hotkeys/Mini Games and Settings page code. City now uses recovered point/cell placement semantics, pointer selection/movement/history and source warnings/progress. Hotkeys and Mini Games share the recovered configuration ownership and Mini Games uses the recovered Sheep status/time precedence. Settings now uses source-shaped visual preference acknowledgement, feedback progress and updater status/action predicates. `previewRemainingPagesContracts.js` contains only recovered pure UI helpers and explicit preview fixtures/contracts used by those four pages.
+
+The campaign does not add native gameplay, global hotkey registration, diagnostic archive creation, updater download/install/restart, native visual-preference persistence or commercial/account/licensing behavior. Confirmation remains local/inert. Synthetic city, Sheep, updater and diagnostic values are labelled preview fixtures and are not represented as native data.
+
+The known cross-page shell gap remains: the current clone's existing `PageForRoute` unmounts top-level pages on route changes while the recovered original shell retains visited panels with React `Activity`. A real City → Hotkeys → City cycle produced no console errors/warnings and no leaked dialog, but local page state resets on return. Shell retention is explicitly outside this four-page assignment and is recorded as a remaining UI proof/product gap rather than a pass.
