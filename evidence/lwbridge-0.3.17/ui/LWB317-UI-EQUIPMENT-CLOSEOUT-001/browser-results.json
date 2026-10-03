@@ -1,0 +1,70 @@
+{
+  "workItem": "LWB317-UI-EQUIPMENT-CLOSEOUT-001",
+  "referenceVersion": "0.3.17",
+  "recordedAt": "2026-10-03",
+  "results": [
+    {
+      "name": "English light selection and current identity",
+      "result": "PASS",
+      "viewport": "1920x855",
+      "observed": "Four disclosed fixture presets render; selecting preset 2 leaves the current-equipment label on Fixture equipment preset 1, proving selected identity and current identity are distinct."
+    },
+    {
+      "name": "Alt+1..4 apply shortcut",
+      "result": "PASS",
+      "observed": "With preset 2 selected, Alt+3 preserved selection and set inert preview action apply-all:equipment-preset-fixed-3."
+    },
+    {
+      "name": "Rename dialog",
+      "result": "PASS",
+      "observed": "Initial selected name, no backdrop dismissal, blank Save disabled, Escape close with focus restoration, and trimmed Enter save were observed. Enter uses preventDefault before synchronous preview save to avoid same-gesture reactivation after focus restoration."
+    },
+    {
+      "name": "Inert native-looking callbacks",
+      "result": "PASS",
+      "observed": "Refresh increments data-equipment-refresh-count; Read current equipment and Save and apply expose inert data-preview-action values. No native Equipment provider or gameplay call was made."
+    },
+    {
+      "name": "Progress presentation",
+      "result": "PASS",
+      "observed": "squads-equipment-progress reports Applying 3/8: Fixture Hero 2-1, data-equipment-busy=apply-all, disables toolbar/native-looking actions, and changes the primary label to Applying equipment...."
+    },
+    {
+      "name": "Japanese dark partial result",
+      "result": "PASS",
+      "viewport": "1920x855",
+      "observed": "lang=ja, dark theme, Equipment tab 装備プラン, partial result class, and 7/8 applied text stopping at Fixture Hero 4-2 with EQUIPMENT_STATE_CHANGED."
+    },
+    {
+      "name": "Narrow Japanese dark layout",
+      "result": "PASS",
+      "viewport": "800x543",
+      "observed": "Document scroll width 790px and Equipment layout width 552px; action controls wrap without document-level horizontal clipping."
+    },
+    {
+      "name": "Rendered production move handlers",
+      "result": "PASS_WITH_INPUT_LIMIT",
+      "observed": "Connector pointer drag was accepted but did not emit the page HTML5 drag lifecycle. A separate DOM-dispatch path exercised the rendered React dragstart/dragover/drop handlers, swapped the two same-slot items, marked the preset dirty, and changed overall current match to Mixed presets. Exact original/current transformations are independently covered by check-closeout.mjs."
+    },
+    {
+      "name": "Equipment to AFK to Equipment retention",
+      "result": "PASS",
+      "observed": "A renamed dirty preset and moved slot values remained mounted while Equipment was hidden on AFK and were unchanged after returning to Equipment."
+    },
+    {
+      "name": "Fresh rename screenshot and console",
+      "result": "PASS",
+      "observed": "Fresh owned-tab rename modal capture was visually inspected. Console since attachment contained only Vite debug connection messages and React DevTools info; warning/error count was zero."
+    }
+  ],
+  "screenshots": [
+    "screenshots/rename-dialog-en-light.jpg",
+    "screenshots/equipment-result-ja-dark.jpg",
+    "screenshots/equipment-narrow-ja-dark.jpg"
+  ],
+  "limits": [
+    "Physical HTML5 drag is not claimed through connector pointer input.",
+    "No live game, native Equipment provider, persistence, or gameplay was exercised.",
+    "Original post-auth pixel-for-pixel runtime imagery and geometry remain outside this source/local closeout."
+  ]
+}

@@ -1,6 +1,6 @@
 # LWB317-UI-EQUIPMENT-CLOSEOUT-001 — medium Equipment-only task
 
-Status: ASSIGNED. Work alone: no subagents or delegation. The owner's permission
+Status: AWAITING_REVIEW. Worker delivery complete; project-lead review pending. Work alone: no subagents or delegation. The owner's permission
 for project-lead subagents does not apply to this worker chat.
 
 ## Start and intent

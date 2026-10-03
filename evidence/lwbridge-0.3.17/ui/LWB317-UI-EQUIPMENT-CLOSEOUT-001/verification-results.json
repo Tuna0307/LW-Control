@@ -1,0 +1,22 @@
+{
+  "workItem": "LWB317-UI-EQUIPMENT-CLOSEOUT-001",
+  "recordedAt": "2026-10-03",
+  "dispatchHead": "d51d6b1fdd224c1e6dd479d1f05c82eb8a1e9f17",
+  "currentHashes": {
+    "src/LWBridge.UI-0.3.17/src/Pages.jsx": "A07D08E1546824B5D7342B3F473C0569ED4775C36DF07784CD59529A309D130C",
+    "src/LWBridge.UI-0.3.17/src/previewEquipmentContracts.js": "2E57B79B1211582A9FF5E9A96A2158F8918C2D690694A6DDDDC338AF95BA44B0"
+  },
+  "checks": [
+    {"command": "node evidence/lwbridge-0.3.17/ui/LWB317-UI-EQUIPMENT-CLOSEOUT-001/check-closeout.mjs --record", "result": "PASS", "detail": "105 executable original/current and production callback assertions"},
+    {"command": "node evidence/lwbridge-0.3.17/ui/LWB317-UI-EQUIPMENT-CLOSEOUT-001/baseline-check.mjs", "result": "PASS", "detail": "All nine dispatch mismatch predicates are corrected; immutable baseline-results.json remains the dispatch failure record"},
+    {"command": "node evidence/lwbridge-0.3.17/ui/LWB317-UI-AUTOMATION-AFK-CLOSEOUT-001/check-closeout.mjs", "result": "PASS", "detail": "729 behavioral/source regression cases"},
+    {"command": "node evidence/lwbridge-0.3.17/ui/LWB317-UI-AUTOMATION-AFK-CLOSEOUT-001/recover-join-renderer.mjs", "result": "PASS", "detail": "RECOVERED_JOIN_RENDERER_OK"},
+    {"command": "node evidence/lwbridge-0.3.17/ui/LWB317-UI-AUTOMATION-AFK-CLOSEOUT-001/recover-assist-renderer.mjs", "result": "PASS", "detail": "RECOVERED_ASSIST_RENDERER_OK"},
+    {"command": "npm.cmd run check", "workdir": "src/LWBridge.UI-0.3.17", "result": "PASS", "detail": "Static/Home/Map/UI completeness/draft checks pass"},
+    {"command": "npm.cmd run build", "workdir": "src/LWBridge.UI-0.3.17", "result": "PASS", "detail": "LWB317_PRODUCTION_UI_BUILD_OK bf976ceb3f2340b1a9a786a228ea0cf4b9692e59cbc608125005a2de302f5067 c8db1f1ac129bfccf9a373bed408ea954e123a5e5c6a9e32ed2b682f0d224e71"},
+    {"command": "npm.cmd run check:production-build", "workdir": "src/LWBridge.UI-0.3.17", "result": "PASS", "detail": "LWB317_PRODUCTION_UI_PACKAGE_OK with the same build/package fingerprints"},
+    {"command": "node evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-AUTO-CONFIG-001/check-protected-wip.mjs", "result": "PASS", "detail": "Seven protected WIP paths unchanged"},
+    {"command": "git diff --check", "result": "PASS"},
+    {"command": "node evidence/lwbridge-0.3.17/ui/LWB317-UI-AUTOMATION-AFK-CLOSEOUT-001/validate.mjs", "result": "EXPECTED_HISTORICAL_STALENESS", "detail": "Fails only the historical Pages.jsx SHA pin: current A07D08E1546824B5D7342B3F473C0569ED4775C36DF07784CD59529A309D130C vs prior 2B68DFBC6A8444B5C6561DF774A60945473BE6F5E5590EE6AB0228F96043414F. Historical manifest is intentionally preserved."}
+  ]
+}

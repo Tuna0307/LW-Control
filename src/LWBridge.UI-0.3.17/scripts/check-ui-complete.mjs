@@ -4,7 +4,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(here, "..");
-const sourceFiles = ["src/App.jsx", "src/Pages.jsx", "src/MapDataPage.jsx", "src/mapTablePresentation.js", "src/previewConfigHook.jsx", "src/AutomationMeta.jsx", "src/RallyJoinSettings.jsx", "src/DispatchAssistManual.jsx"];
+const sourceFiles = ["src/App.jsx", "src/Pages.jsx", "src/MapDataPage.jsx", "src/mapTablePresentation.js", "src/previewConfigHook.jsx", "src/AutomationMeta.jsx", "src/RallyJoinSettings.jsx", "src/DispatchAssistManual.jsx", "src/previewEquipmentContracts.js"];
 const localeCodes = ["en", "zh-CN", "zh-TW", "ja", "ko", "vi", "id", "ru", "pt"];
 
 const en = (await import(pathToFileURL(path.join(root, "src", "locales", "en.js")))).default;
@@ -54,14 +54,15 @@ if (!app.includes('backendBridge.mode === "preview" ? new URLSearchParams(window
 const pages = fs.readFileSync(path.join(root, "src", "Pages.jsx"), "utf8");
 const mapPage = fs.readFileSync(path.join(root, "src", "MapDataPage.jsx"), "utf8");
 const mapPreview = fs.readFileSync(path.join(root, "src", "mapPreviewApi.js"), "utf8");
-const previewCoverageSource = [app, pages, mapPage, mapPreview].join("\n");
+const equipmentPreview = fs.readFileSync(path.join(root, "src", "previewEquipmentContracts.js"), "utf8");
+const previewCoverageSource = [app, pages, mapPage, mapPreview, equipmentPreview].join("\n");
 for (const marker of [
   "home-missing", "home-connected", "home-repair", "home-recovery-failed",
   "automation-config", "automation-saving", "automation-saved", "automation-save-error", "automation-validation-error",
   "map-city", "map-resource", "map-monster", "map-truck", "map-railway", "map-dispatch", "map-ghost", "map-treasure", "map-scheduled",
   "map-auto-scheduled", "map-loading", "map-error",
   "squads-profile", "squads-equipment", "city-layout-populated", "city-layout-populated-conflict",
-  "squads-equipment-rename", "squads-equipment-rename-busy", "squads-equipment-result", "squads-equipment-progress",
+  "squads-equipment-rename", "squads-equipment-rename-busy", "squads-equipment-result", "squads-equipment-error", "squads-equipment-progress", "squads-equipment-offline",
   "hotkeys-connected", "hotkeys-load-error", "hotkeys-save-error",
   "mini-games-active", "mini-games-solving", "mini-games-executing", "mini-games-complete", "mini-games-all-complete",
   "mini-games-activity-ended", "mini-games-ui-open", "mini-games-conflict", "mini-games-solve-failed", "mini-games-unsupported", "mini-games-start-failed",

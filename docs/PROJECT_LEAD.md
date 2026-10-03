@@ -1,6 +1,6 @@
 # Project lead control sheet
 
-Current lead decision, 2026-10-03: AUTOMATION-AFK-CLOSEOUT-001 is COMPLETE for its bounded source/local residual assignment after lead takeover, exact original/current render/handler comparisons, real preview browser QA and evidence/package checks. Code checkpoint 5082968 is followed by Drill wait-detail and evidence closeout. This is lead self-review; full page/pixel/native acceptance is not claimed. MAP-AUTO-CONFIG-001 and its assigned parent closeout retain focused acceptance. Finish-queue order 1 is closed. Active returning worker: LWB317-UI-EQUIPMENT-CLOSEOUT-001 (Equipment only). City Layout, Hotkeys/Mini Games/Settings and final eight-page integration follow separately. Workers use one AI without subagents; owner permits project-lead subagents. See the dated AUTOMATION-AFK-CLOSEOUT-001 review and docs/UI_FINISH_CHECKLIST.md.
+Current worker return, 2026-10-03: LWB317-UI-EQUIPMENT-CLOSEOUT-001 is **AWAITING_REVIEW** for its bounded Equipment-only source/local delivery. The worker reports 105 Equipment original/current assertions, affected 729-case AFK regression, canonical package checks, real en/light and ja/dark browser evidence, and protected-WIP preservation passing. Project-lead acceptance is still required. City Layout, Hotkeys/Mini Games/Settings and final integration remain separate and have not started from this worker chat.
 
 Recovery update, 2026-10-03: interrupted Automation/AFK work is completed and locally reviewed. Its finite source/render/handler proof and remaining limits are recorded; other-page audit is next. See the dated closeout review and UI_FINISH_CHECKLIST.md.
 
@@ -49,7 +49,7 @@ the Map closeout awaits a separate independent acceptance review.
 
 | Work item / campaign | Owner | State | Scope |
 |---|---|---|---|
-| LWB317-UI-EQUIPMENT-CLOSEOUT-001 | Returning worker, owner relay | ASSIGNED medium Equipment-only unit | Verify five Equipment source/local groups; no worker subagents, native work or other pages |
+| LWB317-UI-EQUIPMENT-CLOSEOUT-001 | Returning worker, owner relay | AWAITING_REVIEW | Five Equipment source/local groups delivered with actual-source/current, browser, AFK-regression, package and protected-WIP evidence; lead review pending, no native work or other pages |
 | LWB317-UI-AUTOMATION-AFK-CLOSEOUT-001 | Interrupted worker, lead takeover | COMPLETE for bounded source/local residuals | 7e7eb12: 729 comparisons, 18 browser records, eight images and package/evidence checks. Physical dialog/drag and original/native/pixels remain unverified |
 | LWB317-UI-MAP-AUTO-CONFIG-001 | Single worker, lead reviewed | COMPLETE / ACCEPTED for focused source/local scope | ec27577 accepted by PM-UI-FINISH-001: ten regressions, seven new App cases, focused checks/evidence/package and saved-layout inspection pass. Native/pixels excluded |
 | LWB317-UI-MAP-REFRESH-OWNERSHIP-001 | Returning worker, lead reviewed | COMPLETE / ACCEPTED for focused source/local scope | cf75b4e actual App/panel ownership, overlap/disposal/count reset, redirect/Clear and interaction/package replays pass |

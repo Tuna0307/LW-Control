@@ -1,10 +1,24 @@
 # Current implementation/research handoff
 
-Current lead decision, 2026-10-03: AUTOMATION-AFK-CLOSEOUT-001 is COMPLETE for its bounded source/local residual assignment after lead takeover, exact original/current render/handler comparisons, real preview browser QA and evidence/package checks. Code checkpoint 5082968 is followed by Drill wait-detail and evidence closeout. This is lead self-review; full page/pixel/native acceptance is not claimed. MAP-AUTO-CONFIG-001 and its assigned parent closeout retain focused acceptance. Finish-queue order 1 is closed; next is the bounded order-2 Equipment/City Layout audit, then Hotkeys/Mini Games/Settings and final eight-page integration. One AI per chat, no subagents. See the dated AUTOMATION-AFK-CLOSEOUT-001 review and docs/UI_FINISH_CHECKLIST.md.
+Current worker return, 2026-10-03: LWB317-UI-EQUIPMENT-CLOSEOUT-001 is **AWAITING_REVIEW** for its bounded Equipment Schemes source/local assignment. The worker recovered and corrected the five assigned Equipment groups, refreshed original/current and AFK regression proof, completed real preview QA/evidence, and preserved all seven protected WIP paths. This is not project-lead acceptance and does not advance City Layout or any native/gameplay phase. See the dated Equipment closeout review and evidence packet.
 
 **Target:** LWBridge 0.3.17  
 **Branch:** `research/offline-controller`  
-**Active scope:** UI parity / LWB317-UI-EQUIPMENT-CLOSEOUT-001 assigned to the returning worker; no native integration
+**Active scope:** UI parity / LWB317-UI-EQUIPMENT-CLOSEOUT-001 AWAITING_REVIEW; no native integration and no next page started
+
+## Current continuation — Equipment Schemes worker delivery awaiting review
+
+The Equipment-only packet now covers selected/current identity, dirty derivation,
+summaries, rename dialog semantics, item/hero/squad movement, supplied result/progress/
+error/action states, and Equipment → AFK → Equipment retention against recovered
+`0.3.17` source. The executable closeout passes 105 assertions; the affected AFK
+behavioral closeout passes 729 cases plus Join/Assist renderer recovery. Canonical
+check/build/package and protected-WIP checks pass. Real English/light and
+Japanese/dark browser evidence includes a recorded 800x543 narrow layout and three
+inspected screenshots. Physical connector pointer drag did not emit HTML5 drag
+events, so only rendered-handler DOM-dispatch plus exact source/current move proof
+is claimed. Native Equipment providers/persistence/gameplay and original post-auth
+pixel comparison remain unproved. Project-lead review is the next action.
 
 ## Current continuation — Automation / AFK residual unit closed
 
@@ -15,11 +29,12 @@ All seven protected WIP paths are unchanged and unstaged. Native confirmation
 has controlled callback proof; its physical browser dialog is unverified.
 Physical HTML5 drag and original pixel/runtime comparisons are not claimed.
 
-Active next task: docs/work-items/LWB317-UI-EQUIPMENT-CLOSEOUT-001.md,
-Equipment only, returning worker, no worker subagents. City Layout and then
-Hotkeys/Mini Games/Settings remain separate. The owner permits lead subagents. Order 3 handles final shell/Home/Map integration,
-shared focus/narrow layouts and exact remaining-gap inventory. Do not resume
-CORRECT-003 wholesale or native work. No subsequent task has started here.
+Equipment is now awaiting lead review under
+docs/work-items/LWB317-UI-EQUIPMENT-CLOSEOUT-001.md. City Layout and then
+Hotkeys/Mini Games/Settings remain separate and have not started. The owner permits
+lead subagents, but this worker used none. Order 3 handles final shell/Home/Map
+integration, shared focus/narrow layouts and exact remaining-gap inventory. Do not
+resume CORRECT-003 wholesale or native work.
 
 ## Historical R1 delivery — superseded by PM-028 acceptance
 

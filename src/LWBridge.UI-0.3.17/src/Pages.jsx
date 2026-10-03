@@ -10,6 +10,7 @@ import { normalizeJoinRestrictions, validJoinRestrictions, previewAfkTargets, ma
 import { initialAutomationDraft, automationDraftError, previewTrainingOrder, activateTraining } from "./previewAutomationContracts.js";
 import { dispatchWeeklyQualities, previewAssistFixture, previewAutomationRuntime, previewResourceGatherConfig, previewResourceGatherRuntime, previewTradeFixture, railwayWeeklyQualities, validPreviewResourceGatherConfig } from "./previewAutomationFixtures.js";
 import { initialAfkToolbarConfig, previewDrillRuntime, previewGarrisonMemberFixture, previewGarrisonRuntime, previewMemberFixture, previewZombieBusRuntime } from "./previewAfkCloseoutFixtures.js";
+import { EQUIPMENT_PRESET_LIMIT, EQUIPMENT_SLOTS, cloneEquipmentValue, currentEquipmentPresetLabel, currentEquipmentPresetMatches, equipmentCatalog, equipmentDirtyPresetIds, equipmentItemCount, equipmentPositionCount, findEquipmentSquad, previewEquipmentFixture, swapEquipmentSquads, swapEquipmentTarget } from "./previewEquipmentContracts.js";
 import { buildTradePurchaseDays, resolveTradeName, tradePurchaseRowKey } from "./tradePurchaseHistory.js";
 
 export { MapDataPage } from "./MapDataPage.jsx";
@@ -740,17 +741,30 @@ export function SquadsPage({ previewState = "" }) {
   const equipmentPreview = previewState.startsWith("squads-equipment");
   const previewEnabled = previewState.startsWith("squads-profile") || equipmentPreview;
   const [tab, setTab] = useState(equipmentPreview ? "equipment" : "afk");
+  const [visitedTabs, setVisitedTabs] = useState(() => new Set([equipmentPreview ? "equipment" : "afk"]));
+  const [equipmentRefreshCount, setEquipmentRefreshCount] = useState(0);
+  const equipmentOnline = equipmentPreview && previewState !== "squads-equipment-offline";
+  const selectTab = (nextTab) => {
+    setVisitedTabs((current) => {
+      if (current.has(nextTab)) return current;
+      const next = new Set(current);
+      next.add(nextTab);
+      return next;
+    });
+    setTab(nextTab);
+  };
   return (
-    <section className="panel squad-panel" data-preview-fixture={previewEnabled ? previewState : undefined}>
+    <section className="panel squad-panel" data-preview-fixture={previewEnabled ? previewState : undefined} data-equipment-refresh-count={equipmentRefreshCount}>
       <div className="squad-header">
         <h2>{t("squad.title")}</h2>
-        {tab === "equipment" ? <button type="button" disabled title={t("status.gameDisconnectedDisabled")}>{t("squad.refresh")}</button> : null}
+        {tab === "equipment" ? <button type="button" disabled={!equipmentOnline} title={!equipmentOnline ? t("status.gameDisconnectedDisabled") : undefined} onClick={equipmentOnline ? () => setEquipmentRefreshCount((count) => count + 1) : undefined}>{t("squad.refresh")}</button> : null}
       </div>
       <div className="squad-tabs" role="tablist" aria-label={t("squad.title")}>
-        <button type="button" role="tab" className={tab === "afk" ? "active" : ""} aria-selected={tab === "afk"} onClick={() => setTab("afk")}>{t("squad.tabAfk")}</button>
-        <button type="button" role="tab" className={tab === "equipment" ? "active" : ""} aria-selected={tab === "equipment"} onClick={() => setTab("equipment")}>{t("squad.tabEquipment")}</button>
+        <button type="button" role="tab" className={tab === "afk" ? "active" : ""} aria-selected={tab === "afk"} onClick={() => selectTab("afk")}>{t("squad.tabAfk")}</button>
+        <button type="button" role="tab" className={tab === "equipment" ? "active" : ""} aria-selected={tab === "equipment"} onClick={() => selectTab("equipment")}>{t("squad.tabEquipment")}</button>
       </div>
-      <div style={tab === "afk" ? undefined : { display: "none" }}><AfkContent previewEnabled={previewEnabled} previewState={previewState} /></div><div style={tab === "equipment" ? undefined : { display: "none" }}><EquipmentContent previewEnabled={previewEnabled} previewState={previewState} /></div>
+      {visitedTabs.has("afk") ? <div style={tab === "afk" ? undefined : { display: "none" }}><AfkContent previewEnabled={previewEnabled} previewState={previewState} /></div> : null}
+      {visitedTabs.has("equipment") ? <div style={tab === "equipment" ? undefined : { display: "none" }}><EquipmentContent previewEnabled={previewEnabled} previewState={previewState} /></div> : null}
     </section>
   );
 }
@@ -1041,51 +1055,81 @@ function CompactAfkCard({ title, description, summary, enabled, disabled = false
   );
 }
 
-function previewEquipmentPreset(number, t) {
-  return {
-    id: `preview-preset-${number}`,
-    name: t("squad.presetDefaultName", { number }),
-    squads: [1,2,3,4].map((squadIndex) => ({
-      squadIndex,
-      positions: [1,2,3,4,5].map((position) => ({
-        position,
-        equips: position <= 2 ? [
-          { slot: 1, equipUuid: `${number}-${squadIndex}-${position}-1`, level: 40 - position, quality: position === 1 ? 5 : 4 },
-          { slot: 2, equipUuid: `${number}-${squadIndex}-${position}-2`, level: 38 - position, quality: 4 },
-        ] : [],
-      })),
-    })),
-  };
+function EquipmentDialog({ busy, onClose, children }) {
+  const ref = useRef(null);
+  useEffect(() => {
+    const dialog = ref.current;
+    const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    if (!dialog) return undefined;
+    if (typeof dialog.showModal === "function") dialog.showModal();
+    else dialog.setAttribute("open", "");
+    return () => {
+      if (dialog.open && typeof dialog.close === "function") dialog.close();
+      else dialog.removeAttribute("open");
+      if (previousFocus?.isConnected) previousFocus.focus({ preventScroll: true });
+    };
+  }, []);
+  return (
+    <dialog
+      ref={ref}
+      className="app-dialog equipment-preset-dialog-backdrop"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="equipment-preset-title"
+      aria-busy={busy}
+      onCancel={(event) => {
+        event.preventDefault();
+        if (!busy) onClose();
+      }}
+      onKeyDown={(event) => {
+        event.stopPropagation();
+        if (event.key !== "Tab") return;
+        const focusable = [...event.currentTarget.querySelectorAll("button, [href], input, select, textarea, [tabindex]")]
+          .filter((element) => element.tabIndex >= 0 && !element.matches(":disabled") && element.getClientRects().length > 0);
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (!first) {
+          event.preventDefault();
+          return;
+        }
+        if (event.shiftKey && (document.activeElement === first || !focusable.includes(document.activeElement))) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && (document.activeElement === last || !focusable.includes(document.activeElement))) {
+          event.preventDefault();
+          first.focus();
+        }
+      }}
+    >
+      {children}
+    </dialog>
+  );
 }
 
 function EquipmentContent({ previewEnabled, previewState = "" }) {
   const { t } = useI18n();
-  const [presets, setPresets] = useState(() => previewEnabled ? [1,2,3,4].map((number) => previewEquipmentPreset(number, t)) : []);
+  const fixture = useMemo(() => previewEquipmentFixture(previewState, t), [previewState, t]);
+  const [presets, setPresets] = useState(() => cloneEquipmentValue(fixture.presets));
+  const [confirmedPresets, setConfirmedPresets] = useState(() => cloneEquipmentValue(fixture.confirmedPresets));
   const [selectedPresetId, setSelectedPresetId] = useState(() => presets[0]?.id || "");
-  const [dirtyPresetIds, setDirtyPresetIds] = useState(() => new Set());
-  const [renameOpen, setRenameOpen] = useState(previewState === "squads-equipment-rename" || previewState === "squads-equipment-rename-busy");
+  const [renameOpen, setRenameOpen] = useState(fixture.renameOpen);
   const [renameValue, setRenameValue] = useState(() => presets[0]?.name || "");
   const [dragged, setDragged] = useState(null);
   const [dropTarget, setDropTarget] = useState("");
   const [dropSuccess, setDropSuccess] = useState([]);
   const [toast, setToast] = useState("");
-  const dialogBusy = previewState === "squads-equipment-rename-busy";
+  const [lastPreviewAction, setLastPreviewAction] = useState("");
+  const busyKey = fixture.busyKey;
+  const busy = Boolean(busyKey);
+  const online = fixture.online;
   const selectedPreset = presets.find((preset) => preset.id === selectedPresetId) || presets[0];
-  const fixtureResult = previewState === "squads-equipment-result" ? { state: "partial", applied: 7, requested: 8, failedHeroName: "Hero 8", reason: "EQUIPMENT_STATE_CHANGED" } : null;
-  const fixtureProgress = previewState === "squads-equipment-progress" ? { phase: "running", current: 3, total: 8, heroName: "Hero 3" } : null;
-  const positionCount = selectedPreset?.squads.reduce((count, squad) => count + squad.positions.filter((position) => position.equips.length > 0).length, 0) || 0;
-  const equipmentCount = selectedPreset?.squads.reduce((count, squad) => count + squad.positions.reduce((sum, position) => sum + position.equips.length, 0), 0) || 0;
-
-  const updateSelectedPreset = (mutator) => {
-    if (!selectedPreset) return;
-    setPresets((current) => current.map((preset) => {
-      if (preset.id !== selectedPreset.id) return preset;
-      const next = structuredClone(preset);
-      mutator(next);
-      return next;
-    }));
-    setDirtyPresetIds((current) => new Set(current).add(selectedPreset.id));
-  };
+  const dirtyPresetIds = useMemo(() => new Set(equipmentDirtyPresetIds(presets, confirmedPresets)), [presets, confirmedPresets]);
+  const availableSquadIndexes = useMemo(() => [...new Set(fixture.squads.map((squad) => squad.index))].filter((index) => index >= 1 && index <= 4).sort((left, right) => left - right), [fixture.squads]);
+  const currentMatches = useMemo(() => currentEquipmentPresetMatches(presets, selectedPreset, fixture.squads), [presets, selectedPreset, fixture.squads]);
+  const currentEquipmentLabel = useMemo(() => currentEquipmentPresetLabel(currentMatches, availableSquadIndexes, t), [currentMatches, availableSquadIndexes, t]);
+  const catalog = useMemo(() => equipmentCatalog(fixture.initialEquipmentConfig, fixture.squads), [fixture.initialEquipmentConfig, fixture.squads]);
+  const positionCount = selectedPreset ? equipmentPositionCount(selectedPreset) : 0;
+  const equipmentCount = selectedPreset ? equipmentItemCount(selectedPreset) : 0;
 
   const markDropSuccess = (keys) => {
     setDropSuccess(keys);
@@ -1093,98 +1137,84 @@ function EquipmentContent({ previewEnabled, previewState = "" }) {
   };
 
   const swapPositions = (target) => {
-    if (!dragged || !selectedPreset || dragged.kind === "squad" || dragged.kind !== target.kind) return;
-    if (dragged.kind === "equip" && dragged.slot !== target.slot) {
-      setToast(t("squad.sameSlotRequired"));
+    if (!dragged || !selectedPreset || busy) return;
+    const result = swapEquipmentTarget(presets, selectedPreset.id, dragged, target);
+    if (result.error) {
+      setToast(t(result.error));
       return;
     }
-    const sourceKey = `${dragged.squadIndex}-${dragged.position}`;
-    const targetKey = `${target.squadIndex}-${target.position}`;
-    if (sourceKey === targetKey) return;
-    updateSelectedPreset((preset) => {
-      const sourceSquad = preset.squads.find((squad) => squad.squadIndex === dragged.squadIndex);
-      const targetSquad = preset.squads.find((squad) => squad.squadIndex === target.squadIndex);
-      const sourcePosition = sourceSquad?.positions.find((position) => position.position === dragged.position);
-      const targetPosition = targetSquad?.positions.find((position) => position.position === target.position);
-      if (!sourcePosition || !targetPosition) return;
-      if (dragged.kind === "loadout") {
-        [sourcePosition.equips, targetPosition.equips] = [targetPosition.equips, sourcePosition.equips];
-        return;
-      }
-      const sourceIndex = sourcePosition.equips.findIndex((equip) => equip.slot === dragged.slot);
-      if (sourceIndex < 0) return;
-      const targetIndex = targetPosition.equips.findIndex((equip) => equip.slot === dragged.slot);
-      const sourceEquip = sourcePosition.equips[sourceIndex];
-      if (targetIndex >= 0) {
-        const targetEquip = targetPosition.equips[targetIndex];
-        sourcePosition.equips[sourceIndex] = targetEquip;
-        targetPosition.equips[targetIndex] = sourceEquip;
-      } else {
-        sourcePosition.equips.splice(sourceIndex, 1);
-        targetPosition.equips.push(sourceEquip);
-        targetPosition.equips.sort((a, b) => a.slot - b.slot);
-      }
-    });
-    markDropSuccess([sourceKey, targetKey]);
+    if (!result.handled) return;
+    setPresets(result.presets);
+    markDropSuccess(result.successKeys);
   };
 
   const swapSquads = (targetSquadIndex) => {
-    if (dragged?.kind !== "squad" || dragged.squadIndex === targetSquadIndex) return;
-    updateSelectedPreset((preset) => {
-      const sourceSquad = preset.squads.find((squad) => squad.squadIndex === dragged.squadIndex);
-      const targetSquad = preset.squads.find((squad) => squad.squadIndex === targetSquadIndex);
-      if (!sourceSquad || !targetSquad) return;
-      const count = Math.min(sourceSquad.positions.length, targetSquad.positions.length, 5);
-      for (let index = 0; index < count; index += 1) {
-        [sourceSquad.positions[index].equips, targetSquad.positions[index].equips] = [targetSquad.positions[index].equips, sourceSquad.positions[index].equips];
-      }
-    });
-    markDropSuccess([`squad-${dragged.squadIndex}`, `squad-${targetSquadIndex}`]);
+    if (dragged?.kind !== "squad" || !selectedPreset || busy) return;
+    const result = swapEquipmentSquads(presets, selectedPreset.id, dragged.squadIndex, targetSquadIndex, fixture.squads);
+    if (!result.handled) return;
+    setPresets(result.presets);
+    markDropSuccess(result.successKeys);
   };
 
   const openRename = () => {
-    if (!selectedPreset) return;
+    if (!selectedPreset || busy) return;
     setRenameValue(selectedPreset.name);
     setRenameOpen(true);
   };
 
   const closeRename = () => {
-    if (dialogBusy) return;
+    if (busy) return;
     setRenameOpen(false);
     setRenameValue("");
   };
 
   const saveRename = () => {
     const name = renameValue.trim();
-    if (!name || !selectedPreset || dialogBusy) return;
-    setPresets((current) => current.map((preset) => preset.id === selectedPreset.id ? { ...preset, name } : preset));
+    if (!name || !selectedPreset || busy || !renameOpen) return;
+    if (name === selectedPreset.name && !dirtyPresetIds.has(selectedPreset.id)) {
+      setRenameOpen(false);
+      setRenameValue("");
+      return;
+    }
+    const nextPresets = presets.map((preset) => preset.id === selectedPreset.id ? { ...preset, name } : preset);
+    setPresets(nextPresets);
+    setConfirmedPresets(cloneEquipmentValue(nextPresets));
     setRenameOpen(false);
     setRenameValue("");
-    setToast(t("squad.equipmentConfigSaved"));
   };
 
   const savePreviewConfig = () => {
     if (!selectedPreset) return;
-    setDirtyPresetIds((current) => {
-      const next = new Set(current);
-      next.delete(selectedPreset.id);
-      return next;
-    });
+    setConfirmedPresets(cloneEquipmentValue(presets));
     setToast(t("squad.equipmentConfigSaved"));
   };
 
-  const resultText = fixtureResult ? t(
-    fixtureResult.state === "success" ? "squad.equipmentApplySuccess" : fixtureResult.state === "partial" ? "squad.equipmentApplyPartial" : "squad.equipmentApplyRejected",
-    { applied: fixtureResult.applied, requested: fixtureResult.requested, hero: fixtureResult.failedHeroName || "-", reason: fixtureResult.reason || "-" },
+  const resultText = fixture.result ? t(
+    fixture.result.state === "success" ? "squad.equipmentApplySuccess" : fixture.result.state === "partial" ? "squad.equipmentApplyPartial" : "squad.equipmentApplyRejected",
+    { applied: fixture.result.applied, requested: fixture.result.requested, hero: fixture.result.failedHeroName || "-", reason: fixture.result.reason || "-" },
   ) : "";
 
-  const progressText = fixtureProgress
-    ? fixtureProgress.phase === "preparing"
+  const progressText = fixture.progress
+    ? fixture.progress.phase === "preparing"
       ? t("squad.equipmentApplyPreparing")
-      : fixtureProgress.phase === "verifying"
-        ? t("squad.equipmentApplyVerifying", { current: fixtureProgress.current, total: fixtureProgress.total })
-        : t("squad.equipmentApplyRunning", { current: fixtureProgress.current, total: fixtureProgress.total, hero: fixtureProgress.heroName || "-" })
+      : fixture.progress.phase === "verifying"
+        ? t("squad.equipmentApplyVerifying", { current: fixture.progress.current, total: fixture.progress.total })
+        : t("squad.equipmentApplyRunning", { current: fixture.progress.current, total: fixture.progress.total, hero: fixture.progress.heroName || "-" })
     : "";
+
+  useEffect(() => {
+    const onKeyDown = (event) => {
+      if (!event.altKey || event.repeat || !/^[1-4]$/.test(event.key) || !presets.length || busy) return;
+      const target = event.target;
+      if (target?.isContentEditable || ["INPUT", "SELECT", "TEXTAREA"].includes(target?.tagName || "")) return;
+      const preset = presets[Number(event.key) - 1];
+      if (!preset) return;
+      event.preventDefault();
+      if (previewEnabled) setLastPreviewAction(`apply-all:${preset.id}`);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [busy, presets, previewEnabled]);
 
   useEffect(() => {
     if (!toast) return undefined;
@@ -1193,52 +1223,57 @@ function EquipmentContent({ previewEnabled, previewState = "" }) {
   }, [toast]);
 
   return (
-    <div className="equipment-preset-layout" data-preview-fixture={previewEnabled ? previewState || "squads-equipment" : "no-equipment-presets"}>
+    <div className="equipment-preset-layout" data-preview-fixture={previewEnabled ? previewState || "squads-equipment" : "no-equipment-presets"} data-preview-action={lastPreviewAction || undefined} data-equipment-busy={busyKey || undefined}>
       <aside className="equipment-preset-rail">
         <strong>{t("squad.equipmentPresets")}</strong>
-        <div className="equipment-preset-list">{presets.length ? presets.map((preset, index) => <button type="button" key={preset.id} className={preset.id === selectedPreset?.id ? "active" : ""} onClick={() => setSelectedPresetId(preset.id)}><span>{preset.name}{dirtyPresetIds.has(preset.id) ? " *" : ""}</span><small>{index < 4 ? `Alt+${index + 1} · ` : ""}{t("squad.presetSummary", { positions: preset.squads.reduce((count, squad) => count + squad.positions.filter((position) => position.equips.length > 0).length, 0), equips: preset.squads.reduce((count, squad) => count + squad.positions.reduce((sum, position) => sum + position.equips.length, 0), 0) })}</small></button>) : <span className="muted">{t("squad.noEquipmentPresets")}</span>}</div>
+        <div className="equipment-preset-list">{presets.length ? presets.slice(0, EQUIPMENT_PRESET_LIMIT).map((preset, index) => <button type="button" key={preset.id} className={preset.id === selectedPreset?.id ? "active" : ""} onClick={() => setSelectedPresetId(preset.id)}><span>{preset.name}{dirtyPresetIds.has(preset.id) ? " *" : ""}</span><small>{index < 4 ? `Alt+${index + 1} · ` : ""}{t("squad.presetSummary", { positions: equipmentPositionCount(preset), equips: equipmentItemCount(preset) })}</small></button>) : <span className="muted">{t("squad.noEquipmentPresets")}</span>}</div>
       </aside>
       <main className="equipment-preset-main">
         <div className="equipment-preset-toolbar">
-          <div><strong>{selectedPreset?.name || t("squad.noEquipmentPresets")}</strong>{selectedPreset ? <span>{t("squad.allSquadPresetSummary", { positions: positionCount, equips: equipmentCount })}{dirtyPresetIds.has(selectedPreset.id) ? ` · ${t("squad.equipmentConfigUnsaved")}` : ""}</span> : null}<span className="equipment-current-config">{t("squad.currentEquipmentPreset", { name: t("squad.unmatchedEquipmentPreset") })}</span></div>
+          <div><strong>{selectedPreset?.name || t("squad.noEquipmentPresets")}</strong>{selectedPreset ? <span>{t("squad.allSquadPresetSummary", { positions: positionCount, equips: equipmentCount })}{dirtyPresetIds.has(selectedPreset.id) ? ` · ${t("squad.equipmentConfigUnsaved")}` : ""}</span> : null}<span className="equipment-current-config">{t("squad.currentEquipmentPreset", { name: currentEquipmentLabel })}</span></div>
           <div className="equipment-preset-actions">
-            <button type="button" disabled={!selectedPreset || dialogBusy} onClick={openRename}>{t("common.rename")}</button>
-            <button type="button" disabled title={t("status.gameDisconnectedDisabled")}>{t("squad.loadCurrentEquipment")}</button>
-            <button type="button" disabled={!selectedPreset || dialogBusy} onClick={savePreviewConfig}>{t("squad.saveEquipmentConfig")}</button>
-            <button type="button" className="primary" disabled title={t("status.gameDisconnectedDisabled")}>{t("squad.saveAndApplyEquipmentConfig")}</button>
+            <button type="button" disabled={!selectedPreset || busy} onClick={openRename}>{t("common.rename")}</button>
+            <button type="button" disabled={!selectedPreset || !online || busy} title={!online ? t("status.gameDisconnectedDisabled") : undefined} onClick={selectedPreset && online && !busy ? () => setLastPreviewAction(`load-current:${selectedPreset.id}`) : undefined}>{t("squad.loadCurrentEquipment")}</button>
+            <button type="button" disabled={!selectedPreset || busy} onClick={savePreviewConfig}>{t("squad.saveEquipmentConfig")}</button>
+            <button type="button" className="primary" disabled={!selectedPreset || !online || busy} title={!online ? t("status.gameDisconnectedDisabled") : undefined} onClick={selectedPreset && online && !busy ? () => setLastPreviewAction(`apply-all:${selectedPreset.id}`) : undefined}>{t(busyKey === "apply-all" ? "squad.equipmentApplying" : "squad.saveAndApplyEquipmentConfig")}</button>
           </div>
         </div>
-        {selectedPreset ? <div className="equipment-preset-squads">{selectedPreset.squads.map((squad) => {
-          const squadKey = `squad-${squad.squadIndex}`;
-          const squadPositions = squad.positions.filter((position) => position.equips.length > 0).length;
-          const squadEquips = squad.positions.reduce((sum, position) => sum + position.equips.length, 0);
-          return <section className={`equipment-preset-squad ${dropTarget === squadKey ? "drop-target" : ""} ${dropSuccess.includes(squadKey) ? "drop-success" : ""}`} key={squad.squadIndex} onDragOver={(event) => { if (dragged?.kind === "squad") { event.preventDefault(); setDropTarget(squadKey); } }} onDragLeave={() => setDropTarget((current) => current === squadKey ? "" : current)} onDrop={(event) => { if (dragged?.kind === "squad") { event.preventDefault(); swapSquads(squad.squadIndex); setDropTarget(""); setDragged(null); } }}>
-            <div className="equipment-preset-squad-header"><div><strong>{t("squad.number", { number: squad.squadIndex })}</strong><span>{t("squad.positionEquipmentCount", { positions: squadPositions, equips: squadEquips })}</span><span className="equipment-current-config">{t("squad.currentEquipmentPreset", { name: t("squad.unmatchedEquipmentPreset") })}</span></div><div className="equipment-preset-actions"><div className="equipment-squad-drag-handle" draggable={previewEnabled} onDragStart={() => setDragged({ kind: "squad", squadIndex: squad.squadIndex })} onDragEnd={() => { setDragged(null); setDropTarget(""); }}>{t("squad.dragSquadLoadout")}</div><button type="button" disabled title={t("status.gameDisconnectedDisabled")}>{t("squad.applySquad")}</button></div></div>
-            <div className="equipment-preset-positions">{squad.positions.map((position) => {
-              const positionKey = `${squad.squadIndex}-${position.position}`;
+        {selectedPreset ? <div className="equipment-preset-squads">{availableSquadIndexes.map((squadIndex) => {
+          const presetSquad = findEquipmentSquad(selectedPreset.squads, squadIndex);
+          const liveSquad = fixture.squads.find((squad) => squad.index === squadIndex);
+          const squadKey = `squad-${squadIndex}`;
+          const squadPositions = presetSquad?.positions.filter((position) => position.equips.length > 0).length || 0;
+          const squadEquips = presetSquad?.positions.reduce((sum, position) => sum + position.equips.length, 0) || 0;
+          return <section className={`equipment-preset-squad ${dropTarget === squadKey ? "drop-target" : ""}`} key={squadIndex} onDragOver={(event) => { if (dragged?.kind === "squad") { event.preventDefault(); setDropTarget(squadKey); } }} onDragLeave={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) setDropTarget((current) => current === squadKey ? "" : current); }} onDrop={(event) => { if (dragged?.kind === "squad") { event.preventDefault(); setDropTarget(""); swapSquads(squadIndex); } }}>
+            <div className="equipment-preset-squad-header"><div><strong>{t("squad.number", { number: squadIndex })}</strong><span>{t("squad.positionEquipmentCount", { positions: squadPositions, equips: squadEquips })}</span><span className="equipment-current-config">{t("squad.currentEquipmentPreset", { name: currentMatches.get(squadIndex)?.name || t("squad.unmatchedEquipmentPreset") })}</span></div><div className="equipment-preset-actions"><div className="equipment-squad-drag-handle" draggable={!busy} onDragStart={() => setDragged({ kind: "squad", squadIndex })} onDragEnd={() => { setDragged(null); setDropTarget(""); }}>{t("squad.dragSquadLoadout")}</div><button type="button" disabled={!online || busy} title={!online ? t("status.gameDisconnectedDisabled") : undefined} onClick={online && !busy ? () => setLastPreviewAction(`apply-${squadIndex}:${selectedPreset.id}`) : undefined}>{t(busyKey === `apply-${squadIndex}` ? "squad.equipmentApplying" : "squad.applySquad")}</button></div></div>
+            <div className="equipment-preset-positions">{(liveSquad?.heroes || []).slice(0, 5).map((hero, heroIndex) => {
+              const positionNumber = heroIndex + 1;
+              const position = presetSquad?.positions.find((entry) => entry.position === positionNumber) || { position: positionNumber, equips: [] };
+              const positionKey = `${squadIndex}-${positionNumber}`;
               const loadoutKey = `loadout-${positionKey}`;
-              return <article className={`equipment-position-card ${dropTarget === loadoutKey ? "drop-target" : ""} ${dropSuccess.includes(positionKey) ? "drop-success" : ""}`} key={position.position} onDragOver={(event) => { if (dragged?.kind === "loadout") { event.preventDefault(); setDropTarget(loadoutKey); } }} onDragLeave={() => setDropTarget((current) => current === loadoutKey ? "" : current)} onDrop={(event) => { if (dragged?.kind === "loadout") { event.preventDefault(); swapPositions({ kind: "loadout", squadIndex: squad.squadIndex, position: position.position }); setDropTarget(""); setDragged(null); } }}>
-                <div className="equipment-position-header"><strong>{t("squad.position", { number: position.position })}</strong><span>{t("squad.heroFixed")}</span></div>
-                <div className="equipment-position-hero"><span className="equipment-position-hero-icon game-asset-placeholder" /><div><strong>Hero {squad.squadIndex}-{position.position}</strong><span>Lv.{30 - position.position}</span></div></div>
-                <div className="equipment-loadout-handle" draggable={previewEnabled} onDragStart={() => setDragged({ kind: "loadout", squadIndex: squad.squadIndex, position: position.position })} onDragEnd={() => { setDragged(null); setDropTarget(""); }}><span>{t("squad.dragLoadout")}</span></div>
-                <div className="equipment-position-items">{[1,2,3,4].map((slot) => {
-                  const equip = position.equips.find((item) => item.slot === slot);
-                  const equipTarget = `equip-${squad.squadIndex}-${position.position}-${slot}`;
-                  return <div className={`preset-equipment-slot quality-${equip?.quality || 0} ${dropTarget === equipTarget ? "drop-target" : ""}`} key={slot} draggable={!!equip && previewEnabled} title={t(`squad.equipmentSlot${slot}`)} onDragStart={(event) => { if (!equip) return; event.stopPropagation(); setDragged({ kind: "equip", squadIndex: squad.squadIndex, position: position.position, slot }); }} onDragOver={(event) => { if (dragged?.kind === "equip" && dragged.slot === slot) { event.preventDefault(); event.stopPropagation(); setDropTarget(equipTarget); } }} onDragLeave={() => setDropTarget((current) => current === equipTarget ? "" : current)} onDrop={(event) => { if (dragged?.kind === "equip" && dragged.slot === slot) { event.preventDefault(); event.stopPropagation(); swapPositions({ kind: "equip", squadIndex: squad.squadIndex, position: position.position, slot }); setDropTarget(""); setDragged(null); } }} onDragEnd={() => { setDragged(null); setDropTarget(""); }}>{equip ? <><span className="equipment-icon game-asset-placeholder" /><span>Lv.{equip.level ?? "-"}</span></> : <><span className="equipment-icon game-asset-placeholder" /><span>{t("squad.emptyEquipment")}</span></>}</div>;
+              return <article className={`equipment-position-card ${dropTarget === loadoutKey ? "drop-target" : ""} ${dropSuccess.includes(positionKey) ? "drop-success" : ""}`} key={positionNumber} onDragOver={(event) => { if (dragged?.kind === "loadout") { event.preventDefault(); setDropTarget(loadoutKey); } }} onDragLeave={() => setDropTarget((current) => current === loadoutKey ? "" : current)} onDrop={(event) => { if (dragged?.kind === "loadout") { event.preventDefault(); setDropTarget(""); swapPositions({ kind: "loadout", squadIndex, position: positionNumber }); } }}>
+                <div className="equipment-position-header"><strong>{t("squad.position", { number: positionNumber })}</strong><span>{t("squad.heroFixed")}</span></div>
+                <div className="equipment-position-hero"><span className="equipment-position-hero-icon game-asset-placeholder" role="img" aria-label={hero.name} /><div><strong>{hero.name}</strong><span>Lv.{hero.level}</span></div></div>
+                <div className="equipment-loadout-handle" draggable={!busy} onDragStart={() => setDragged({ kind: "loadout", squadIndex, position: positionNumber })} onDragEnd={() => { setDragged(null); setDropTarget(""); }}><span>{t("squad.dragLoadout")}</span></div>
+                <div className="equipment-position-items">{EQUIPMENT_SLOTS.map((slot) => {
+                  const savedEquip = position.equips.find((item) => item.slot === slot);
+                  const equip = savedEquip ? { ...catalog.get(savedEquip.equipUuid), ...savedEquip } : undefined;
+                  const equipTarget = `equip-${squadIndex}-${positionNumber}-${slot}`;
+                  return <div className={`preset-equipment-slot quality-${equip?.quality || 0} ${dropTarget === equipTarget ? "drop-target" : ""}`} key={slot} draggable={!!savedEquip && !busy} title={equip?.name || t(`squad.equipmentSlot${slot}`)} onDragStart={(event) => { if (!savedEquip) return; event.stopPropagation(); setDragged({ kind: "equip", squadIndex, position: positionNumber, slot }); }} onDragOver={(event) => { if (dragged?.kind === "equip" && dragged.slot === slot) { event.preventDefault(); event.stopPropagation(); setDropTarget(equipTarget); } }} onDragLeave={(event) => { if (dragged?.kind === "equip" && dragged.slot === slot) { event.stopPropagation(); setDropTarget((current) => current === equipTarget ? "" : current); } }} onDrop={(event) => { if (dragged?.kind === "equip" && dragged.slot === slot) { event.preventDefault(); event.stopPropagation(); setDropTarget(""); swapPositions({ kind: "equip", squadIndex, position: positionNumber, slot }); } }} onDragEnd={() => { setDragged(null); setDropTarget(""); }}>{equip ? <><span className="equipment-icon game-asset-placeholder" role="img" aria-label={equip.name || String(equip.equipUuid)} /><span>Lv.{equip.level ?? "-"}{equip.promote ? ` +${equip.promote}` : ""}</span></> : <><span className="equipment-icon game-asset-placeholder" /><span>{t("squad.emptyEquipment")}</span></>}</div>;
                 })}</div>
               </article>;
             })}</div>
           </section>;
-        })}</div> : <div className="map-empty">{t("squad.createFirstPreset")}</div>}
+        })}{!availableSquadIndexes.length ? <div className="map-empty">{t("squad.empty")}</div> : null}</div> : <div className="map-empty">{t("squad.createFirstPreset")}</div>}
         <div className="equipment-preset-hint">
           <span>{t("squad.dragEquipmentHint")}</span>
           <strong>{t("squad.quickShortcutHint")}</strong>
         </div>
-        {fixtureResult ? <div className={`equipment-result equipment-result-${fixtureResult.state}`}>{resultText}</div> : null}
+        {fixture.result ? <div className={`equipment-result equipment-result-${fixture.result.state}`}>{resultText}</div> : null}
       </main>
-      {renameOpen ? <div className="equipment-preset-dialog-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) closeRename(); }}><div className="equipment-preset-dialog" role="dialog" aria-modal="true" aria-labelledby="equipment-preset-title"><strong id="equipment-preset-title">{t("common.rename")}</strong><label>{t("squad.presetNamePrompt")}<input autoFocus disabled={dialogBusy} value={renameValue} onChange={(event) => setRenameValue(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") saveRename(); if (event.key === "Escape") closeRename(); }} /></label><div className="equipment-preset-actions"><button type="button" disabled={dialogBusy} onClick={closeRename}>{t("common.cancel")}</button><button type="button" className="primary" disabled={!renameValue.trim() || dialogBusy} onClick={saveRename}>{t("common.saveConfig")}</button></div></div></div> : null}
+      {renameOpen ? <EquipmentDialog busy={busy} onClose={closeRename}><div className="equipment-preset-dialog"><strong id="equipment-preset-title">{t("common.rename")}</strong><label>{t("squad.presetNamePrompt")}<input autoFocus disabled={busy} value={renameValue} onChange={(event) => setRenameValue(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); saveRename(); } }} /></label><div className="equipment-preset-actions"><button type="button" disabled={busy} onClick={closeRename}>{t("common.cancel")}</button><button type="button" className="primary" disabled={!renameValue.trim() || busy} onClick={saveRename}>{t("common.saveConfig")}</button></div></div></EquipmentDialog> : null}
       {toast ? <div className="equipment-toast" role="status">{toast}</div> : null}
-      {fixtureProgress ? <div className="equipment-apply-progress" role="status"><strong>{progressText}</strong><progress max={Math.max(1, fixtureProgress.total)} value={fixtureProgress.total > 0 ? fixtureProgress.current : undefined} /></div> : null}
+      {fixture.progress ? <div className="equipment-apply-progress" role="status"><strong>{progressText}</strong><progress max={Math.max(1, fixture.progress.total)} value={fixture.progress.total > 0 ? fixture.progress.current : undefined} /></div> : null}
     </div>
   );
 }

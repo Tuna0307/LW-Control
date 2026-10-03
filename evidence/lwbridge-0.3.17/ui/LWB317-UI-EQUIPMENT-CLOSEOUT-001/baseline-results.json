@@ -1,0 +1,18 @@
+{
+  "capturedAt": "2026-10-03",
+  "dispatchHead": "d51d6b1fdd224c1e6dd479d1f05c82eb8a1e9f17",
+  "pagesSha256": "2B68DFBC6A8444B5C6561DF774A60945473BE6F5E5590EE6AB0228F96043414F",
+  "command": "node evidence/lwbridge-0.3.17/ui/LWB317-UI-EQUIPMENT-CLOSEOUT-001/baseline-check.mjs",
+  "exitCode": 1,
+  "failures": [
+    "EQ-BL-001",
+    "EQ-BL-002",
+    "EQ-BL-003",
+    "EQ-BL-004",
+    "EQ-BL-005",
+    "EQ-BL-006",
+    "EQ-BL-007",
+    "EQ-BL-008",
+    "EQ-BL-009"
+  ]
+}
