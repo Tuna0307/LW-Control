@@ -1770,7 +1770,7 @@ function RecoveredHotkeyPanel({ category = "hotkeys", previewState = "", online:
   const [landResult, setLandResult] = useState(() => previewState === "mini-games-land-success" ? { key: "miniGames.landCellSent", vars: { id: 17 } } : null);
   const [sheepBusy, setSheepBusy] = useState(previewState === "mini-games-sheep-pending");
   const [sheepActionError, setSheepActionError] = useState(previewState === "mini-games-start-failed" ? "miniGames.sheep.failed" : "");
-  const [sheepStatus] = useState(() => previewSheepStatus(previewState, Date.now()));
+  const [sheepStatus] = useState(() => previewEnabled ? previewSheepStatus(previewState, Date.now()) : null);
   const [now, setNow] = useState(() => Date.now());
   const sheepRunning = sheepStatus?.running === true;
 
@@ -1802,7 +1802,7 @@ function RecoveredHotkeyPanel({ category = "hotkeys", previewState = "", online:
   }, [isMiniGames, sheepRunning]);
 
   async function openLandCell() {
-    if (!online || landBusy) return;
+    if (!previewEnabled || !online || landBusy) return;
     setLandBusy(true);
     setLandResult(null);
     setHotkeyError("");
@@ -1818,7 +1818,7 @@ function RecoveredHotkeyPanel({ category = "hotkeys", previewState = "", online:
   }
 
   async function toggleSheepGame() {
-    if (!online || sheepBusy) return;
+    if (!previewEnabled || !online || sheepBusy) return;
     setSheepBusy(true);
     setSheepActionError("");
     try {
@@ -1854,7 +1854,7 @@ function RecoveredHotkeyPanel({ category = "hotkeys", previewState = "", online:
         {isMiniGames ? <article className="hotkey-card">
           <h3>{t("miniGames.landCell.title")}</h3>
           <p>{t("miniGames.landCell.description")}</p>
-          <div className="mini-game-actions"><button className="primary" type="button" disabled={!online || landBusy} onClick={() => void openLandCell()}>{t(landBusy ? "miniGames.landCellOpening" : "miniGames.landCellAction")}</button></div>
+          <div className="mini-game-actions"><button className="primary" type="button" disabled={!previewEnabled || !online || landBusy} onClick={() => void openLandCell()}>{t(landBusy ? "miniGames.landCellOpening" : "miniGames.landCellAction")}</button></div>
           {landResult ? <span className="hotkey-state enabled">{t(landResult.key, landResult.vars)}</span> : null}
         </article> : null}
         {isMiniGames ? <article className="hotkey-card">
@@ -1863,7 +1863,7 @@ function RecoveredHotkeyPanel({ category = "hotkeys", previewState = "", online:
           {sheepStatus?.currentLevel ? <span className="hotkey-state">{t("miniGames.sheep.level", { level: sheepStatus.currentLevel })}</span> : null}
           {showSheepElapsed ? <span className="hotkey-state">{t("miniGames.sheep.elapsed", { time: formatSheepElapsed(sheepDurationMs) })}</span> : null}
           <span className={sheepStatus?.step === "completed" ? "hotkey-state enabled" : "hotkey-state"}>{sheepStatusText}</span>
-          <div className="mini-game-actions"><button className={sheepRunning ? "" : "primary"} type="button" disabled={!online || sheepBusy} onClick={() => void toggleSheepGame()}>{t(sheepBusy ? "common.processing" : sheepRunning ? "common.stop" : "common.start")}</button></div>
+          <div className="mini-game-actions"><button className={sheepRunning ? "" : "primary"} type="button" disabled={!previewEnabled || !online || sheepBusy} onClick={() => void toggleSheepGame()}>{t(sheepBusy ? "common.processing" : sheepRunning ? "common.stop" : "common.start")}</button></div>
           {sheepActionError ? <div className="automation-error" role="alert">{t(sheepActionError)}</div> : null}
         </article> : null}
       </div> : null}
@@ -1936,7 +1936,7 @@ export function SettingsPage({ previewState = "", showProfileFocus: runtimeShowP
   const [focusGamePreview, setFocusGamePreview] = useState(focusGameOnProfileSelect);
   const [feedbackState, setFeedbackState] = useState(() => initialFeedbackState(previewState));
   const feedbackProgress = feedbackState.progress;
-  const [updateStatus, setUpdateStatus] = useState(() => previewUpdateStatus(previewState, Date.now()));
+  const [updateStatus, setUpdateStatus] = useState(() => previewUpdateStatus(previewEnabled ? previewState : "", Date.now()));
   const [updateNow, setUpdateNow] = useState(() => Date.now());
   const updateCooldown = updateManualCooldownSeconds(updateStatus, updateNow);
   const updateBusy = updateStatusBusy(updateStatus);
@@ -1981,7 +1981,7 @@ export function SettingsPage({ previewState = "", showProfileFocus: runtimeShowP
   }
 
   async function exportFeedback() {
-    if (feedbackState.phase === "exporting") return;
+    if (!previewEnabled || feedbackState.phase === "exporting") return;
     setFeedbackState({ phase: "exporting", result: null, progress: { exportId: "preview-feedback-click", state: "preparing", processedBytes: 0, totalBytes: 0, percent: 0 } });
     await Promise.resolve();
     if (previewState === "settings-feedback-canceled") {
@@ -1996,7 +1996,7 @@ export function SettingsPage({ previewState = "", showProfileFocus: runtimeShowP
   }
 
   async function checkForUpdates() {
-    if (updateBusy || updateCooldown > 0) return;
+    if (!previewEnabled || updateBusy || updateCooldown > 0) return;
     setUpdateStatus((current) => ({ ...current, phase: "checking", message: null }));
     await Promise.resolve();
     if (previewState === "settings-update-check-error") {
@@ -2007,7 +2007,7 @@ export function SettingsPage({ previewState = "", showProfileFocus: runtimeShowP
   }
 
   async function downloadAndOpenUpdate() {
-    if (!showUpdateDownload) return;
+    if (!previewEnabled || !showUpdateDownload) return;
     setUpdateStatus((current) => ({ ...current, phase: "downloading", progress: 0, message: null }));
     await Promise.resolve();
     if (previewState === "settings-update-download-error") {
@@ -2039,7 +2039,7 @@ export function SettingsPage({ previewState = "", showProfileFocus: runtimeShowP
         {feedbackState.phase === "error" ? <p className="update-error" role="alert">{t("feedback.failed")}</p> : null}
         <div className="update-actions">
           {feedbackState.phase === "exporting" && feedbackProgress ? <div className="feedback-export-progress"><span>{t(`feedback.progress.${feedbackProgress.state}`)}</span><progress aria-label={t("feedback.progress.label")} max="100" value={feedbackProgress.percent} /><strong>{feedbackProgress.percent}%</strong></div> : null}
-          <button type="button" disabled={feedbackState.phase === "exporting"} onClick={() => void exportFeedback()}>{t(feedbackState.phase === "exporting" ? "feedback.exporting" : "feedback.export")}</button>
+          <button type="button" disabled={!previewEnabled || feedbackState.phase === "exporting"} onClick={() => void exportFeedback()}>{t(feedbackState.phase === "exporting" ? "feedback.exporting" : "feedback.export")}</button>
         </div>
       </section>
       <section className="update-panel">
@@ -2058,7 +2058,7 @@ export function SettingsPage({ previewState = "", showProfileFocus: runtimeShowP
         {updateStatus.downloadDirectory ? <p className="update-directory">{t("update.downloadDirectory", { path: updateStatus.downloadDirectory })}</p> : null}
         {updateStatus.phase === "downloading" ? <div className="update-progress"><progress max="100" value={updateStatus.progress || 0} /><span>{t("update.downloading", { progress: updateStatus.progress || 0 })}</span></div> : null}
         <div className="update-actions">
-          <button type="button" disabled={updateBusy || updateCooldown > 0} onClick={() => void checkForUpdates()}>{updateCooldown > 0 ? t("update.checkCooldown", { seconds: updateCooldown }) : t("update.check")}</button>
+          <button type="button" disabled={!previewEnabled || updateBusy || updateCooldown > 0} onClick={() => void checkForUpdates()}>{updateCooldown > 0 ? t("update.checkCooldown", { seconds: updateCooldown }) : t("update.check")}</button>
           {showUpdateDownload ? <button className="primary" type="button" onClick={() => void downloadAndOpenUpdate()}>{t("update.downloadAndOpen")}</button> : null}
         </div>
       </section>

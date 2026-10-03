@@ -1,0 +1,69 @@
+{
+  "workItem": "LWB317-UI-REMAINING-PAGES-001-R1",
+  "milestone": "A",
+  "result": "PASS",
+  "results": [
+    {
+      "name": "Mini Games unavailable-provider boundaries",
+      "cases": [
+        "preview-empty",
+        "native-connected",
+        "native-unavailable",
+        "unrecognized-fixture"
+      ],
+      "result": "PASS"
+    },
+    {
+      "name": "Mini Games recognized preview acknowledgements",
+      "cases": [
+        "Land success",
+        "Sheep controlled failure"
+      ],
+      "result": "PASS"
+    },
+    {
+      "name": "Settings unavailable-provider and initial Ln boundaries",
+      "cases": [
+        "preview-empty",
+        "native-connected",
+        "native-unavailable",
+        "unrecognized-fixture"
+      ],
+      "result": "PASS"
+    },
+    {
+      "name": "Settings recognized preview acknowledgements",
+      "cases": [
+        "feedback cancel",
+        "update check",
+        "download/open preview"
+      ],
+      "result": "PASS"
+    },
+    {
+      "name": "PageForRoute runtime prop forwarding",
+      "cases": [
+        "mini-games",
+        "settings"
+      ],
+      "result": "PASS"
+    }
+  ],
+  "originalContract": {
+    "miniLandSheepRequireProviders": true,
+    "settingsFeedbackUpdaterRequireProviders": true,
+    "updateInitial": {
+      "phase": "idle",
+      "currentVersion": "",
+      "latestVersion": null,
+      "releaseNotes": "",
+      "publishedAt": null,
+      "progress": null,
+      "message": null,
+      "nextManualCheckAt": null,
+      "downloadDirectory": ""
+    }
+  },
+  "submittedBaseline": "Preserved in ../LWB317-REVIEW-REMAINING-PAGES-001/independent-results.json; native/default callbacks fabricated success and Sheep/updater state.",
+  "limits": "Recognized preview fixtures exercise controlled synthetic acknowledgements. Native/default/unrecognized paths have no provider and remain inert. No archive, updater, game input, native provider, network, or gameplay action is invoked."
+}

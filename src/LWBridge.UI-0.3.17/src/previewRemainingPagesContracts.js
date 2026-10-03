@@ -89,6 +89,20 @@ export function previewSheepStatus(previewState, now = Date.now()) {
   }
 }
 
+export function emptyUpdateStatus() {
+  return {
+    phase: "idle",
+    currentVersion: "",
+    latestVersion: null,
+    releaseNotes: "",
+    publishedAt: null,
+    progress: null,
+    message: null,
+    nextManualCheckAt: null,
+    downloadDirectory: "",
+  };
+}
+
 export function formatDiagnosticBytes(bytes) {
   return bytes < 1024
     ? `${bytes} B`
@@ -113,8 +127,9 @@ export function updateDownloadVisible(status) {
 }
 
 export function previewUpdateStatus(previewState, now = Date.now()) {
+  if (!previewState) return emptyUpdateStatus();
   const base = {
-    phase: previewState.startsWith("settings-") ? "upToDate" : "idle",
+    phase: "upToDate",
     currentVersion: "0.3.17",
     latestVersion: "0.3.17",
     releaseNotes: "",
