@@ -107,6 +107,8 @@ export function App() {
   const mapRuntimeRef = useRef({ ...DEFAULT_SCAN_STATE });
   const mapSummaryGeneration = useRef(0);
   const autoScanConfigRef = useRef(autoScanConfig);
+  const serverJumpRef = useRef(null);
+  const serverHistoryRef = useRef([]);
 
   useLayoutEffect(() => {
     const next = initialAutoScanConfig(selectedProfileId, previewState);
@@ -253,16 +255,31 @@ export function App() {
   }, [refreshMapSummary, selectedProfileId]);
 
   useEffect(() => {
-    if (!backendBridge.available) return undefined;
+    if (!backendBridge.available || !selectedProfileId) return undefined;
     let closed = false;
+    serverHistoryRef.current = [];
+    setServerHistory([]);
+    setServerJumpError("");
     mapApi.importServerJumpHistory(legacyServerHistory()).then((history) => {
-      if (!closed) setServerHistory(Array.isArray(history) ? history : []);
+      if (!closed) {
+        serverHistoryRef.current = history;
+        setServerHistory(history);
+      }
       try { localStorage.removeItem(LEGACY_SERVER_HISTORY_KEY); } catch {}
     }).catch(() => {
-      if (!closed) setServerJumpError("Action failed");
+      if (!closed) setServerJumpError(t("common.actionFailed"));
     });
     return () => { closed = true; };
-  }, []);
+  }, [selectedProfileId]);
+
+  useEffect(() => {
+    if (!serverJumpOpen) return undefined;
+    const closeOutside = (event) => {
+      if (!serverJumpRef.current?.contains(event.target)) setServerJumpOpen(false);
+    };
+    document.addEventListener("pointerdown", closeOutside);
+    return () => document.removeEventListener("pointerdown", closeOutside);
+  }, [serverJumpOpen]);
 
   const bridgeState = connectionError
     ? "unavailable"
@@ -343,38 +360,52 @@ export function App() {
     }
   }, [acknowledgeGameRootStatus]);
 
+  const requestServerJump = useCallback(async (serverId) => {
+    const result = await mapApi.jumpServer(serverId);
+    try {
+      await refreshMapSummary();
+    } catch {
+      // The reference parent logs this refresh failure and still acknowledges the jump result.
+    }
+    return result;
+  }, [refreshMapSummary]);
+
   const jumpServer = useCallback(async (serverId) => {
     if (!Number.isInteger(serverId) || serverId < 1 || serverId > 99999) {
-      setServerJumpError("Invalid server ID");
+      setServerJumpError(t("server.invalidId"));
       return;
     }
     if (!online) {
-      setServerJumpError("Game disconnected");
+      setServerJumpError(t("status.gameDisconnected"));
       return;
     }
     if (mapRuntime.isReading) {
-      setServerJumpError("Stop the map scan first");
+      setServerJumpError(t("server.stopScanFirst"));
       return;
     }
     setServerJumpBusy(serverId);
     setServerJumpError("");
     try {
-      const result = await mapApi.jumpServer(serverId);
-      if (result?.changed) {
-        const history = [Number(result.serverId), ...serverHistory.filter((value) => value !== Number(result.serverId))].slice(0, 5);
+      const result = await requestServerJump(serverId);
+      if (result.changed) {
+        const history = [result.serverId, ...serverHistoryRef.current.filter((value) => value !== result.serverId)].slice(0, 5);
         const persisted = await mapApi.setServerJumpHistory(history);
-        setServerHistory(Array.isArray(persisted) ? persisted : history);
+        serverHistoryRef.current = persisted;
+        setServerHistory(persisted);
       }
       setServerTarget("");
       setServerJumpOpen(false);
-      await refreshStatus();
-      await refreshMapSummary();
     } catch {
-      setServerJumpError("Action failed");
+      setServerJumpError(t("common.actionFailed"));
     } finally {
       setServerJumpBusy(0);
     }
-  }, [mapRuntime.isReading, online, refreshMapSummary, refreshStatus, serverHistory]);
+  }, [mapRuntime.isReading, online, requestServerJump, t]);
+
+  const serverJumpBlockedText = online
+    ? mapRuntime.isReading ? t("server.stopScanFirst") : ""
+    : t("status.gameDisconnected");
+  const serverJumpBusyActive = serverJumpBusy > 0;
 
   const stateText = {
     connected: t("status.connected"),
@@ -478,7 +509,7 @@ export function App() {
             </select>
           </label>
 
-          <div className="server-jump">
+          <div className="server-jump" ref={serverJumpRef}>
             <button
               className="top-action secondary"
               type="button"
@@ -502,22 +533,21 @@ export function App() {
                     value={serverTarget}
                     onChange={(event) => setServerTarget(event.target.value)}
                     onKeyDown={(event) => {
-                      if (event.key === "Enter" && !serverJumpBusy) jumpServer(Number(serverTarget));
+                      if (event.key === "Enter" && !serverJumpBusyActive && !serverJumpBlockedText) jumpServer(Number(serverTarget));
                     }}
                   />
-                  <button className="top-action primary" type="button" disabled={serverJumpBusy > 0 || !online || mapRuntime.isReading} onClick={() => jumpServer(Number(serverTarget))}>
-                    {serverJumpBusy > 0 ? t("server.switching", { server: serverJumpBusy }) : t("server.switchAction")}
+                  <button className="top-action primary" type="button" disabled={serverJumpBusyActive || !!serverJumpBlockedText} onClick={() => jumpServer(Number(serverTarget))}>
+                    {serverJumpBusyActive ? t("server.switching", { server: serverJumpBusy }) : t("server.switchAction")}
                   </button>
                 </div>
                 {mapRuntime.homeServerId > 0 && currentServerId !== mapRuntime.homeServerId ? (
-                  <div className="server-jump-home"><span>{t("server.home", { server: mapRuntime.homeServerId })}</span><button type="button" disabled={serverJumpBusy > 0 || !online || mapRuntime.isReading} onClick={() => jumpServer(mapRuntime.homeServerId)}>{t("server.returnHome")}</button></div>
+                  <div className="server-jump-home"><span>{t("server.home", { server: mapRuntime.homeServerId })}</span><button type="button" disabled={serverJumpBusyActive || !!serverJumpBlockedText} onClick={() => jumpServer(mapRuntime.homeServerId)}>{t("server.returnHome")}</button></div>
                 ) : null}
-                {!online ? <p className="server-jump-error">{t("status.gameDisconnected")}</p> : null}
-                {online && mapRuntime.isReading ? <p className="server-jump-error">{t("server.stopScanFirst")}</p> : null}
+                {serverJumpBlockedText ? <p className="server-jump-error">{serverJumpBlockedText}</p> : null}
                 {serverJumpError ? <p className="server-jump-error">{serverJumpError}</p> : null}
-                {mapRuntime.seasonServerIds?.length ? <div className="server-jump-history"><span>{t("server.seasonServers")}</span><div>{mapRuntime.seasonServerIds.map((serverId) => <button type="button" key={serverId} disabled={serverJumpBusy > 0 || !online || mapRuntime.isReading || serverId === currentServerId} onClick={() => jumpServer(serverId)}>{serverId}</button>)}</div></div> : null}
-                {mapRuntime.truckMatchServerIds?.length ? <div className="server-jump-history"><span>{t("server.plunderableServers")}</span><div>{mapRuntime.truckMatchServerIds.map((serverId) => <button type="button" key={serverId} disabled={serverJumpBusy > 0 || !online || mapRuntime.isReading || serverId === currentServerId} onClick={() => jumpServer(serverId)}>{serverId}</button>)}</div></div> : null}
-                {serverHistory.length ? <div className="server-jump-history"><span>{t("server.recent")}</span><div>{serverHistory.map((serverId) => <button type="button" key={serverId} disabled={serverJumpBusy > 0 || !online || mapRuntime.isReading} onClick={() => jumpServer(serverId)}>{serverId}</button>)}</div></div> : null}
+                {mapRuntime.seasonServerIds?.length ? <div className="server-jump-history"><span>{t("server.seasonServers")}</span><div>{mapRuntime.seasonServerIds.map((serverId) => <button type="button" key={serverId} disabled={serverJumpBusyActive || !!serverJumpBlockedText || serverId === currentServerId} onClick={() => jumpServer(serverId)}>{serverId}</button>)}</div></div> : null}
+                {mapRuntime.truckMatchServerIds?.length ? <div className="server-jump-history"><span>{t("server.plunderableServers")}</span><div>{mapRuntime.truckMatchServerIds.map((serverId) => <button type="button" key={serverId} disabled={serverJumpBusyActive || !!serverJumpBlockedText || serverId === currentServerId} onClick={() => jumpServer(serverId)}>{serverId}</button>)}</div></div> : null}
+                {serverHistory.length ? <div className="server-jump-history"><span>{t("server.recent")}</span><div>{serverHistory.map((serverId) => <button type="button" key={serverId} disabled={serverJumpBusyActive || !!serverJumpBlockedText} onClick={() => jumpServer(serverId)}>{serverId}</button>)}</div></div> : null}
               </section>
             ) : null}
           </div>
