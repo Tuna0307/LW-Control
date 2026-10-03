@@ -1,8 +1,8 @@
 # LWB317-UI-REMAINING-PAGES-001 — large four-page UI closeout
 
-Status: CHANGES_REQUIRED after independent lead review of afd65b6. A–F delivery and
-passing proof are preserved; twelve omitted-boundary cases require focused R1.
-See the dated REVIEW-REMAINING-PAGES-001 review and new R1 work item.
+Status: COMPLETE / ACCEPTED for bounded source/local scope through R1 and lead
+takeover product 2174553. Historical afd65b6 failures remain preserved; see the dated
+REVIEW-REMAINING-PAGES-001-R1 review. Global/native/original-pixel acceptance separate.
 Work alone: no subagents, delegation or another worker chat. Complete sequential
 milestones within this assignment without waiting for permission between them.
 The project lead performs final acceptance through the owner's manual relay.

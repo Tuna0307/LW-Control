@@ -1,0 +1,139 @@
+{
+  "workItem": "LWB317-UI-REMAINING-PAGES-001-R1",
+  "milestone": "D",
+  "result": "PASS",
+  "baseUrl": "http://127.0.0.1:4319/",
+  "ownedBrowserTabClosed": true,
+  "cases": [
+    {
+      "name": "City loading null-layout branch",
+      "url": "?previewPage=city-layout&previewState=city-layout-loading&previewLanguage=en&previewTheme=light",
+      "input": "navigation only",
+      "observed": {
+        "language": "en",
+        "theme": "light",
+        "workbenchMounted": false,
+        "processingStateVisible": true
+      },
+      "screenshot": "screenshots/city-loading-en-light.jpg"
+    },
+    {
+      "name": "City error null-layout branch",
+      "url": "?previewPage=city-layout&previewState=city-layout-error&previewLanguage=ja&previewTheme=dark",
+      "input": "navigation only",
+      "observed": {
+        "shellLanguage": "ja",
+        "theme": "dark",
+        "workbenchMounted": false,
+        "errorText": "The action could not be completed."
+      },
+      "screenshot": "screenshots/city-error-ja-dark.jpg"
+    },
+    {
+      "name": "City pointer offset and valid-axis fallback",
+      "input": "physical pointer drag and one physical Undo",
+      "observed": {
+        "proof": "Reused current-product Milestone-B mounted proof after the City correction: Barracks rect y 290.1875 -> 338.1875 (source target505 row); one Undo restored y 290.1875 and No changes; non-origin Hospital down/up left No changes with Undo disabled.",
+        "actualHandlerOracle": "../milestone-b/results.json",
+        "mountedProof": "../milestone-b/browser-results.json"
+      }
+    },
+    {
+      "name": "City Apply preparation and inert confirmation",
+      "url": "?previewPage=city-layout&previewState=city-layout-populated-moved&previewLanguage=en&previewTheme=light",
+      "input": "physical click on Apply to game, then physical Cancel",
+      "observed": {
+        "localDialog": true,
+        "nativeDialog": false,
+        "confirmationText": "Run 1 building moves? A failure stops immediately and is not rolled back automatically.",
+        "actualPendingBusyProof": "../milestone-b/results.json proves the immediate preparation window disables Undo/Refresh and direct Undo callback is inert, then cancel/reject/failure clears busy while retaining the draft."
+      },
+      "screenshot": "screenshots/city-apply-confirm-en-light.jpg"
+    },
+    {
+      "name": "Mini Games default provider-unavailable state",
+      "url": "?previewPage=mini-games&previewState=&previewLanguage=en&previewTheme=light",
+      "input": "navigation only",
+      "observed": {
+        "previewFixture": null,
+        "landDisabled": true,
+        "sheepDisabled": true,
+        "syntheticSheepLevel4": false,
+        "syntheticLandSuccess": false
+      },
+      "screenshot": "screenshots/mini-default-en-light.jpg"
+    },
+    {
+      "name": "Mini Games explicit preview state",
+      "url": "?previewPage=mini-games&previewState=mini-games-active&previewLanguage=ja&previewTheme=dark",
+      "input": "navigation only",
+      "observed": {
+        "previewFixture": "mini-games-active",
+        "landDisabled": false,
+        "sheepDisabled": false,
+        "sheepLevel": 4,
+        "plannedProgress": "18/42"
+      },
+      "screenshot": "screenshots/mini-preview-ja-dark.jpg"
+    },
+    {
+      "name": "Settings default provider-unavailable state",
+      "url": "?previewPage=settings&previewState=&previewLanguage=en&previewTheme=light",
+      "input": "navigation only",
+      "observed": {
+        "previewFixture": null,
+        "feedbackExportDisabled": true,
+        "updateCheckDisabled": true,
+        "currentVersion": "-",
+        "latestVersionVisible": false,
+        "previewDownloadDirectoryVisible": false
+      },
+      "screenshot": "screenshots/settings-default-en-light.jpg"
+    },
+    {
+      "name": "Settings explicit updater preview",
+      "url": "?previewPage=settings&previewState=settings-update-available&previewLanguage=ja&previewTheme=dark",
+      "input": "navigation only",
+      "observed": {
+        "previewFixture": "settings-update-available",
+        "currentVersion": "0.3.17",
+        "latestVersion": "0.3.18",
+        "downloadDirectory": "Preview/updates",
+        "downloadAndOpenEnabled": true
+      },
+      "screenshot": "screenshots/settings-preview-ja-dark.jpg"
+    },
+    {
+      "name": "Hotkeys event-time failure language lifetime",
+      "url": "?previewPage=hotkeys&previewState=hotkeys-save-error",
+      "input": "physical language select to English; physical Attack-target switch click; physical language select to Japanese; physical Equipment-preset switch click",
+      "observed": {
+        "englishFailure": "Failed to save hotkey settings.",
+        "afterJapaneseSwitch": "Failed to save hotkey settings.",
+        "japaneseHeadingAfterSwitch": "ゲームショートカット",
+        "newJapaneseFailure": "ショートカット設定を保存できませんでした。",
+        "themeDuringRetainedCapture": "dark"
+      },
+      "screenshot": "screenshots/hotkeys-retained-en-error-ja-dark.jpg"
+    },
+    {
+      "name": "Settings event-time failure language lifetime",
+      "url": "?previewPage=settings&previewState=settings-visual-save-error",
+      "input": "physical language select to English; physical Show-FPS click; physical language select to Japanese; physical Show-Ping click",
+      "observed": {
+        "englishFailure": "Failed to save in-game display settings.",
+        "afterJapaneseSwitch": "Failed to save in-game display settings.",
+        "japaneseHeadingAfterSwitch": "設定",
+        "newJapaneseFailure": "ゲーム内表示設定を保存できませんでした。",
+        "themeDuringRetainedCapture": "dark"
+      },
+      "screenshot": "screenshots/settings-retained-en-error-ja-dark.jpg"
+    }
+  ],
+  "console": {
+    "capture": "fresh since debugger attachment for the final R1 sequence",
+    "errors": [],
+    "warnings": []
+  },
+  "safetyBoundary": "Browser actions stayed inside preview fixtures/default inert states. No Last War/gameplay/service provider, diagnostic archive creation, updater download/open/install/restart, OS/global hotkey, native City apply, or window.confirm was invoked."
+}

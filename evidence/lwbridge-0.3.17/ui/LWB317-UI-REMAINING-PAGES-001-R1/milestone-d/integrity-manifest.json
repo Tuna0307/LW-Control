@@ -1,0 +1,248 @@
+{
+  "workItem": "LWB317-UI-REMAINING-PAGES-001-R1",
+  "referenceExecutableSha256": "4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783",
+  "parentSlices": 15,
+  "extraSlices": [
+    {
+      "asset": "CityLayoutPanel-DoNWkywK.js",
+      "name": "it",
+      "utf8ByteOffset": 7661,
+      "utf8ByteLength": 558,
+      "sha256": "E429F6327B78E492A9CFD165A049BB32C46140831657CCF088D4CBBE6D28BCCD"
+    },
+    {
+      "asset": "CityLayoutPanel-DoNWkywK.js",
+      "name": "at",
+      "utf8ByteOffset": 8219,
+      "utf8ByteLength": 345,
+      "sha256": "44E37AA570ACF0313B9600499E95CCB69391BAE1642FF71E229F3CBC64B02275"
+    },
+    {
+      "asset": "CityLayoutPanel-DoNWkywK.js",
+      "name": "ot",
+      "utf8ByteOffset": 8564,
+      "utf8ByteLength": 508,
+      "sha256": "FE9BBAA63426AEF5FCB170E8E457214D4AF3252E345A03DE7CF66A26F7B970BA"
+    },
+    {
+      "asset": "CityLayoutPanel-DoNWkywK.js",
+      "name": "ct",
+      "utf8ByteOffset": 9199,
+      "utf8ByteLength": 389,
+      "sha256": "1F7AF7274F6BD01B3314F2ADCD9FB542D06A80D69701C40D3EAA393648F14115"
+    },
+    {
+      "asset": "HotkeyPanel-XA8idRHB.js",
+      "name": "L",
+      "utf8ByteOffset": 2818,
+      "utf8ByteLength": 304,
+      "sha256": "21B290E64F2651F64153A35443C35647E3C847F5775A7AD2708741CF90D28560"
+    },
+    {
+      "asset": "HotkeyPanel-XA8idRHB.js",
+      "name": "z",
+      "utf8ByteOffset": 3161,
+      "utf8ByteLength": 291,
+      "sha256": "677EBD5B72389F32CABBB77B37F0DF448150AA1E81DBDCF1FC1F81F833C53539"
+    },
+    {
+      "asset": "HotkeyPanel-XA8idRHB.js",
+      "name": "B",
+      "utf8ByteOffset": 3452,
+      "utf8ByteLength": 244,
+      "sha256": "15ACBD17882D700C588FCBDBBBCD338A5CCD0EA7097F28178BD98583879D4077"
+    },
+    {
+      "asset": "SettingsPanel-DqxIWv_E.js",
+      "name": "v",
+      "utf8ByteOffset": 2074,
+      "utf8ByteLength": 164,
+      "sha256": "E9BE21039FBF33057E417CBE15ADE4B2D25790423D6F6938C0B8928CEEFBFF45"
+    },
+    {
+      "asset": "index-BVfnK1wp.js",
+      "name": "Ln",
+      "utf8ByteOffset": 40894,
+      "utf8ByteLength": 207,
+      "sha256": "FA0B6A6857F8FD6A5175205E3FAB523D641D2D29BE699EA9733204AA88FB2D95"
+    }
+  ],
+  "files": [
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-REVIEW-REMAINING-PAGES-001/README.md",
+      "sha256": "BB2BB36D348367AC65295503852C30CE194A9C3D522A5E9997D9A3B8DE1E6F36"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-REVIEW-REMAINING-PAGES-001/check-review.mjs",
+      "sha256": "A47794D814CB3D311A6B09A2DFFA3E9496FD9B006EDE5F5A981DD65D8E5449CD"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-REVIEW-REMAINING-PAGES-001/independent-results.json",
+      "sha256": "6F0F69AADFCDC6426DBB669E04D225A23CBEC04F6260888875413825C6CDE0AC"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-REVIEW-REMAINING-PAGES-001/review-manifest.json",
+      "sha256": "17515AAC3C2C865B99F88AB25A6F583AD50D0D63B843239ADB35FDCF84374A93"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-REVIEW-REMAINING-PAGES-001/validate-evidence.mjs",
+      "sha256": "9FA62AE73D002C62D00BC843EFCF8FEA92B5D6DC6FCF304CE38E0768AFDFD472"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-REVIEW-REMAINING-PAGES-001/verification-results.json",
+      "sha256": "C5B79E9DA4E65B9532D6CB0207213A5DABE100126D486CB15D8B039C06A2C015"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-AUTOMATION-AFK-CLOSEOUT-001/harness.mjs",
+      "sha256": "AC30514237A6A90F1C98CFE5F4847CB18FD14658F6E41333E405E7F5A795493C"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-REMAINING-PAGES-001-R1/README.md",
+      "sha256": "367A2E5682FFB28786850E20CA4AB1993AD4750FC5CF8A81B968B2ED4C0278F9"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-REMAINING-PAGES-001-R1/continuation.md",
+      "sha256": "12710B5DB54C951A0A4ECCB9050C0E68210D53FB51FBBFCF55759FE9F5746EDD"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-REMAINING-PAGES-001-R1/coverage-delta.md",
+      "sha256": "BD3895236E3A55C1A68B768407EA8EF2694062925FAB5F808C07FBA7520FEE8E"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-REMAINING-PAGES-001-R1/milestone-a/check-boundaries.mjs",
+      "sha256": "099C6B6DB8AE6A1B150EEF19EE27D5283FCB3C17EBD4153BB98EDCCE0DAA05EE"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-REMAINING-PAGES-001-R1/milestone-a/results.json",
+      "sha256": "2D42C4D5677C36C6D33C940B768D8A1CBF8C9CBC2F77E82F4140833EE2D8723D"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-REMAINING-PAGES-001-R1/milestone-b/browser-results.json",
+      "sha256": "39DBF0F5A769258206172679E76922D7B65E6CF4791FB43272F3203D02AB4B80"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-REMAINING-PAGES-001-R1/milestone-b/check-city-r1.mjs",
+      "sha256": "46DB9B7283E87EE341CF695CDB29BFA814DB5B95BC282E3C01A2D6DE34671D50"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-REMAINING-PAGES-001-R1/milestone-b/results.json",
+      "sha256": "A7BA9DD93A6964747C31AD3F71D10C21E04062A0E3597328B9A79447AD8F8543"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-REMAINING-PAGES-001-R1/milestone-c/check-feedback-lifetime.mjs",
+      "sha256": "20B9365E21737EF5531FFCACA85D67EA5FE4A4DF87C4BC8F9B02D6BD62B922E5"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-REMAINING-PAGES-001-R1/milestone-c/results.json",
+      "sha256": "F8A45163A6BF89BA1D9821CCA8DD00CD253F2F30C9367B026847885200C2E1EF"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-REMAINING-PAGES-001-R1/milestone-d/browser-results.json",
+      "sha256": "885FA903528EC69069A1D4795789053570EEB90D58358C2FD8898D63FF68A9E8"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-REMAINING-PAGES-001-R1/milestone-d/lead-browser-results.json",
+      "sha256": "069CFB55C1B8F234E6DDCD178016914B816D1B5FC227D2A6C38F4158E81B28B4"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-REMAINING-PAGES-001-R1/milestone-d/lead-city-review-results.json",
+      "sha256": "94D5DC05B3DA3549C7427C2F0ED3CA6A89C6931139D3AA6A6F949C529AA2055D"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-REMAINING-PAGES-001-R1/milestone-d/lead-city-review.mjs",
+      "sha256": "B4E207DEE0B520B5E13A34762C738E36635C17343108F324E5CE0B94FAE8F359"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-REMAINING-PAGES-001-R1/milestone-d/lead-verification.json",
+      "sha256": "FD594742F96B11A7145A05DD3994F22502C23245654218E4A231C6AD900A87EA"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-REMAINING-PAGES-001-R1/milestone-d/screenshots/city-apply-confirm-en-light.jpg",
+      "sha256": "54DDA8F311FCF5B2FA923420A3D0C5E37E242DB8ACC45F6671E13600F87AE947"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-REMAINING-PAGES-001-R1/milestone-d/screenshots/city-error-ja-dark.jpg",
+      "sha256": "5354B5F2B624B131EC0C44CDF843F7D1EC91D6916DFDD1DDCF0B4EAB8445179D"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-REMAINING-PAGES-001-R1/milestone-d/screenshots/city-loading-en-light.jpg",
+      "sha256": "EE4E91D687D3069D3B896B6AEAB55AB0E044C72EAB8BEED4F1223089415D78C3"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-REMAINING-PAGES-001-R1/milestone-d/screenshots/hotkeys-retained-en-error-ja-dark.jpg",
+      "sha256": "B4E60C83091F5E7C51F44EB8A288BAAD7945120B1AC2D2A77BAB7FC493F32ACB"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-REMAINING-PAGES-001-R1/milestone-d/screenshots/mini-default-en-light.jpg",
+      "sha256": "05FAA9CB4FE8C83FC7C4CD36DD3284D265F0CA89D0A320C6E2CFF53DA81B1B37"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-REMAINING-PAGES-001-R1/milestone-d/screenshots/mini-preview-ja-dark.jpg",
+      "sha256": "FA1915694C0F06800631C7E1ECD48928294B862FED36BF3320D726C6958946B5"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-REMAINING-PAGES-001-R1/milestone-d/screenshots/settings-default-en-light.jpg",
+      "sha256": "C4541D22B2DFB63F8AD7C9DFF3C695E8BB83A196E08C8876D6256ECB95C635C2"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-REMAINING-PAGES-001-R1/milestone-d/screenshots/settings-preview-ja-dark.jpg",
+      "sha256": "18AE29A1189FE87057C680E9B5406401498317A2545EDE8F7EA0F4E2DE4C3460"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-REMAINING-PAGES-001-R1/milestone-d/screenshots/settings-retained-en-error-ja-dark.jpg",
+      "sha256": "FC664528574B0956350CD5ED17E32C8B03B7DBBD57C7465E028D1BF175F01573"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-REMAINING-PAGES-001-R1/milestone-d/validate-current.mjs",
+      "sha256": "564F5AD8926DC727C338398C42CFF21DB2DAB816D4C0BD2D408F997CC937C81B"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-REMAINING-PAGES-001-R1/milestone-d/verification-summary.json",
+      "sha256": "06D2746B52DA1529227C95E3B72C70DA62A6AB5CD2D1BA7856868E1E61F79A21"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-REMAINING-PAGES-001/milestone-a/baseline-results.json",
+      "sha256": "FD342E3A54C3BD24C0437C8F88758D771E5F1205364DBAE72C071B0925527DBD"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-REMAINING-PAGES-001/milestone-a/source-manifest.json",
+      "sha256": "E4479CFB706E0CADBC1139C0E4706D805CC7464F12AF63D1C2C00ABF054A1BB1"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/CityLayoutPanel-DoNWkywK.js",
+      "sha256": "C1B83A0B6524EF9AF510A114DF9679DAE0260D34B633659EB1A5FFB2AC5CF49C"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/HotkeyPanel-XA8idRHB.js",
+      "sha256": "9BD7C11768693705391060D4F79119B5EA4A5229E042758165D3AD751A961BE6"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/SettingsPanel-DqxIWv_E.js",
+      "sha256": "129CCBACDD5F309070A3E2728912165006F0FA35FCF748D56F7AA9500D690C2B"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-BVfnK1wp.js",
+      "sha256": "44C4E4043825B7DB296B64171951B27176F8850FF8D7D337CC991DF4765524C6"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/App.jsx",
+      "sha256": "AE6663BC9E71C9FB2FED5F7BFFC8398447F357E6E6120701D81DA572269C5F52"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "sha256": "7056D9684C242C17B06162AAEF87F01498A270834EA205FEA3E65AE277822F4D"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/locales/en.js",
+      "sha256": "357682D9179AE712EE563950467B7A93B5AEA89322AFC993E079FEDEE28432C1"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/locales/ja.js",
+      "sha256": "E1FED1E9AAF052963E3D8F5A5F8B9AE96B002A05A9DD7BB06A460A66187755EB"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/previewRemainingPagesContracts.js",
+      "sha256": "2F0C9EF1E28734ED3131A41E734A8D4A2B09CFFF56C3D23A5A359DF979769810"
+    }
+  ]
+}

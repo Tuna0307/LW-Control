@@ -2,20 +2,20 @@
 
 Lead acceptance, 2026-10-03: Equipment parent/R1 are COMPLETE / ACCEPTED for bounded source/local scope at implementation 2e4accef and delivery 32b2906. Independent diff/source, R1 61, Equipment 105, AFK 729, integrity 71, check/package, protected-WIP and saved-image review pass. Native/physical drag/original pixels remain unproved.
 
-Lead review, 2026-10-03: LWB317-UI-REMAINING-PAGES-001 is **CHANGES_REQUIRED** at afd65b6. All A–F milestones and passing worker checks are retained. Twelve actual independent cases expose omitted City pointer/null-layout/preparation behavior, Mini/Settings native-mode false success/state and event-time error-language lifetime. R1 is READY; dated lead review and immutable reproduction distinguish implementation from supplied test coverage.
+Lead takeover/acceptance, 2026-10-03: REMAINING-PAGES parent/R1 are **COMPLETE / ACCEPTED for bounded source/local scope** after product 2174553. The lead finished saved D evidence and its integrity validator, corrected City busy-through-confirm and synchronous pointer release, and reran focused/affected/package checks. Historical failing packets remain unchanged. See the dated REVIEW-REMAINING-PAGES-001-R1 review.
 
 **Target:** LWBridge 0.3.17  
 **Branch:** `research/offline-controller`  
-**Active scope:** UI parity / LWB317-UI-REMAINING-PAGES-001-R1 READY; parent CHANGES_REQUIRED; Equipment accepted; native/full shell integration separate
+**Active scope:** UI parity / four-page parent/R1 accepted; next order3 integration separately assigned; native/original pixels separate
 
-## Current continuation — focused four-page R1 correction
+## Current continuation — four-page R1 closed
 
-Read docs/work-items/LWB317-UI-REMAINING-PAGES-001-R1.md and the dated independent
-lead review. A native/preview boundaries, B City pointer/null/preparation, C retained
-feedback language, D focused verification. Reuse passing helpers/proofs and preserve
-the twelve-case submitted failure packet. Parent remains CHANGES_REQUIRED until
-lead acceptance. Don't restart A–F or begin native/shell work. Top-level Activity
-retention and original pixels remain separate known gaps.
+R1 has no unfinished assigned work. Product 2174553 adds the lead's two City
+corrections to worker A/B/C. Final evidence/validator and acceptance are recorded.
+Next assignment follows order3 in UI_FINISH_CHECKLIST.md: retained top-level shell
+panels and final eight-page navigation/theme/locale/layout integration, followed by
+honest overall inventory reconciliation. Do not restart A–F/R1 or begin native work.
+Original pixels and unavailable native providers remain explicit limits.
 
 ## Prior continuation — Equipment Schemes R1 accepted
 

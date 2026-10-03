@@ -1,0 +1,34 @@
+{
+  "workItem": "LWB317-UI-REMAINING-PAGES-001-R1",
+  "role": "project lead takeover and independent review",
+  "productCommit": "21745539ebfaf8936ba7331bd2943f7f9bcbbe40",
+  "decision": "ACCEPT for bounded source/local scope",
+  "executed": [
+    {"name": "R1 boundary oracle", "result": "PASS"},
+    {"name": "R1 City oracle", "result": "PASS"},
+    {"name": "R1 feedback lifetime oracle", "result": "PASS"},
+    {"name": "Lead original/submitted/current City confirmation and synchronous release", "result": "PASS"},
+    {"name": "Parent City", "cases": 935, "result": "PASS"},
+    {"name": "Parent Hotkeys", "cases": 70, "result": "PASS"},
+    {"name": "Parent Mini Games", "cases": 86, "result": "PASS"},
+    {"name": "Parent Settings", "cases": 71, "result": "PASS"},
+    {"name": "Equipment", "cases": 105, "result": "PASS"},
+    {"name": "Equipment R1", "cases": 61, "result": "PASS"},
+    {"name": "Automation/AFK", "cases": 729, "result": "PASS"},
+    {"name": "npm.cmd run check", "result": "PASS"},
+    {"name": "npm.cmd run build", "result": "PASS"},
+    {"name": "npm.cmd run check:production-build", "result": "PASS"},
+    {"name": "Protected WIP", "paths": 7, "result": "PASS"}
+  ],
+  "package": {
+    "sourceFingerprint": "d1344ffac9a4403600fb0dffc3a6304da68f1f354ae7676720718d7b9500fcd1",
+    "artifactFingerprint": "15d5788fbc7ebf1786c40fca21f7c8957f0c81ca25271b62e7ca885a6aba0435"
+  },
+  "peerReview": {
+    "providerBoundaries": "Read-only actual-page execution: 48 additional mode/online/empty/unknown combinations and two runtime profile-focus callbacks passed; current App sanitizes fixtures outside preview. No native producer parity established.",
+    "City": "Original/source/current review found busy-through-confirm and synchronous-release omissions. Lead independently reproduced confirmation keyboard mutation and fixed both source-backed differences. Expanded 726 render-per-move drag cases matched; no-render physical scheduler reachability remains unproved.",
+    "feedback": "Independent original/current save/action callbacks including deferred settlement across locale switch match event-time strings, rollback and fresh-field merge. Original mount-load effects were independently executed; current load is fixture initialization with no native producer. Ordinary labels/structural status remain translated at render time."
+  },
+  "historicalEvidence": "Parent and twelve-case lead failure packets preserved. Worker milestone-D verification describes pre-takeover product 20298d5; this file supersedes its current-product/build/acceptance claims.",
+  "limits": "Source/local callbacks, explicit preview browser and current package only. Original pixels, top-level Activity retention, native producers/persistence/gameplay/global hotkeys remain separate. Integrity pins do not prove behavior. No live Last War or service action was performed."
+}

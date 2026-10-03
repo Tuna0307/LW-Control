@@ -1,0 +1,17 @@
+{
+  "result": "PASS",
+  "role": "fresh project-lead browser smoke",
+  "baseUrl": "http://127.0.0.1:4319/",
+  "browser": "owned Codex in-app browser tab",
+  "cases": [
+    {"name": "Mini default", "state": "empty", "observed": "Unlock One Cell and Start disabled; no level4 or success message"},
+    {"name": "Settings default", "state": "empty", "observed": "Export and Check disabled; current version -, no latest version or Preview directory"},
+    {"name": "City submitted confirmation mutation", "product": "20298d5", "input": "Restore initial -> Undo -> Apply -> Ctrl+Y", "observed": "Confirmation stayed open while Pending changes changed 1 -> 0"},
+    {"name": "City corrected confirmation lock", "product": "2174553", "input": "Reload -> Restore initial -> Undo -> Apply -> Ctrl+Y -> Cancel", "observed": "Refresh/Redo/Restore/Save/Apply disabled while confirmation open; Ctrl+Y retained Pending changes1; Cancel retained draft and enabled Redo/Refresh again"},
+    {"name": "Settings event-time feedback", "input": "EN failure fixture -> select Japanese -> click FPS -> select English", "observed": "English error survived Japanese labels; new failure became Japanese; Japanese error survived return to English", "urlConstraint": "Interactive locale check omits previewLanguage because that URL parameter intentionally pins the language"}
+  ],
+  "console": {"errors": [], "warnings": []},
+  "visual": "Corrected City confirmation screenshot inspected in the tool output. Representative worker file-backed City loading, Mini default and Settings retained-error images were also inspected. Worker nine screenshots remain independently hash-pinned; this smoke adds no screenshot file.",
+  "cleanup": "Owned tab closed; locale restored to English/light. Existing reused Vite process was left running because it was not created by this lead turn.",
+  "limits": "Current mounted browser smoke only. Worker physical City movement/Hotkeys QA remains attributed to worker. No native apply/confirmation, Last War, diagnostic archive, updater download/open/install, OS hotkey or external service was invoked."
+}

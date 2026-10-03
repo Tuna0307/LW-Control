@@ -1,7 +1,9 @@
 # LWB317-UI-REMAINING-PAGES-001-R1 — focused four-page corrections
 
-Status: READY through owner relay. Work alone; no subagents/delegation. This is
-four coherent correction milestones, not another A–F page audit.
+Status: COMPLETE / ACCEPTED for bounded source/local scope. Worker A/B/C checkpoints
+were preserved; lead takeover finished D and corrected confirmation/ref lifetime at
+2174553. Parent is accepted for the same bounded scope. No follow-on campaign opened.
+See docs/reviews/2026-10-03-LWB317-REVIEW-REMAINING-PAGES-001-R1.md.
 
 Repository: `C:/Users/chimw/OneDrive/Desktop/Github/LW-Control`.
 Branch: `research/offline-controller`.

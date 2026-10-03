@@ -1,6 +1,6 @@
 # Current project directive
 
-Lead review, 2026-10-03: `LWB317-UI-REMAINING-PAGES-001` is **CHANGES_REQUIRED** at afd65b6 despite passing delivery checks. Actual callbacks expose false native-mode success/synthetic state and City pointer/null-layout/preparation plus retained error-language mismatches. `docs/work-items/LWB317-UI-REMAINING-PAGES-001-R1.md` is READY with finite corrections; preserve completed passing work. No shell/native/global/pixel acceptance.
+Lead takeover/acceptance, 2026-10-03: `LWB317-UI-REMAINING-PAGES-001` and R1 are **COMPLETE / ACCEPTED for bounded source/local scope** after product `2174553`. The lead finished the interrupted closeout, corrected confirmation lifetime/synchronous City drag release, replayed focused and affected regressions and current check/build/package, and preserved seven WIP hashes. Read the dated REVIEW-REMAINING-PAGES-001-R1 review. Order3 shell/eight-page integration remains the next separate assignment; native functionality and original pixels are not accepted. No new campaign started.
 
 ## Target
 

@@ -1,0 +1,50 @@
+{
+  "workItem": "LWB317-UI-REMAINING-PAGES-001-R1",
+  "milestone": "D",
+  "result": "PASS",
+  "productCheckpointBeforeCloseoutDocs": "20298d59ddd5777e134406a75e0ff7fb144eccb1",
+  "referenceExecutableSha256": "4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783",
+  "currentProductSha256": {
+    "src/LWBridge.UI-0.3.17/src/Pages.jsx": "5A8FD44BC1C07180E771A8814D2A512E35E2585BE7EA88838C84FEE21C0C1F28",
+    "src/LWBridge.UI-0.3.17/src/previewRemainingPagesContracts.js": "2F0C9EF1E28734ED3131A41E734A8D4A2B09CFFF56C3D23A5A359DF979769810"
+  },
+  "focusedR1": [
+    { "command": "node evidence/lwbridge-0.3.17/ui/LWB317-UI-REMAINING-PAGES-001-R1/milestone-a/check-boundaries.mjs", "result": "PASS" },
+    { "command": "node evidence/lwbridge-0.3.17/ui/LWB317-UI-REMAINING-PAGES-001-R1/milestone-b/check-city-r1.mjs", "result": "PASS" },
+    { "command": "node evidence/lwbridge-0.3.17/ui/LWB317-UI-REMAINING-PAGES-001-R1/milestone-c/check-feedback-lifetime.mjs", "result": "PASS" }
+  ],
+  "parentAndAffectedRegressions": [
+    { "name": "City Layout", "result": "PASS", "assertions": 935 },
+    { "name": "Hotkeys", "result": "PASS", "assertions": 70 },
+    { "name": "Mini Games", "result": "PASS", "assertions": 86 },
+    { "name": "Settings", "result": "PASS", "assertions": 71 },
+    { "name": "Equipment closeout", "result": "PASS", "assertions": 105 },
+    { "name": "Equipment R1", "result": "PASS", "assertions": 61 },
+    { "name": "Automation/AFK/shared-draft", "result": "PASS", "assertions": 729 }
+  ],
+  "canonicalFrontend": [
+    { "command": "npm.cmd run check --prefix src/LWBridge.UI-0.3.17", "result": "PASS" },
+    { "command": "npm.cmd run build --prefix src/LWBridge.UI-0.3.17", "result": "PASS" },
+    { "command": "npm.cmd run check:production-build --prefix src/LWBridge.UI-0.3.17", "result": "PASS" }
+  ],
+  "browser": {
+    "result": "PASS",
+    "evidence": "browser-results.json",
+    "screenshots": 9,
+    "consoleErrors": 0,
+    "consoleWarnings": 0
+  },
+  "repositoryGuards": [
+    { "command": "node evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-AUTO-CONFIG-001/check-protected-wip.mjs", "result": "LWB317_AUTO_CONFIG_PROTECTED_WIP_OK count=7" },
+    { "command": "git diff --check", "result": "PASS" }
+  ],
+  "integrityValidatorExpectedResult": "LWB317_REMAINING_PAGES_R1_INTEGRITY_OK",
+  "historicalLeadPacket": {
+    "decision": "CHANGES_REQUIRED at afd65b64808e0fd43175dbbaa5afc36e32def9ef",
+    "preserved": true,
+    "runnerSha256": "A47794D814CB3D311A6B09A2DFFA3E9496FD9B006EDE5F5A981DD65D8E5449CD",
+    "resultsSha256": "6F0F69AADFCDC6426DBB669E04D225A23CBEC04F6260888875413825C6CDE0AC",
+    "manifestSha256": "17515AAC3C2C865B99F88AB25A6F583AD50D0D63B843239ADB35FDCF84374A93"
+  },
+  "limits": "R1 corrects only the twelve lead-review defects and source-backed adjacent handler cases. Parent remains CHANGES_REQUIRED pending lead acceptance. Shell Activity retention, native/provider/gameplay implementation, global hotkey execution and original-pixel acceptance remain separate work."
+}
