@@ -26,10 +26,11 @@ inflate a percentage using test-case counts or declare unknown surfaces done.
 
 ## Fixed finish queue
 
-Current dispatch, 2026-10-04: SHELL-CROSSSERVER-001 is one medium worker assignment
-within order 3. It closes only the header popover and associated frontend/history
-action lifecycle. Other shared-shell/profile/Map-notice/scheduling and inventory
-gates remain separate. Accepted retained-page state/effect proof is preserved.
+Lead review, 2026-10-04: SHELL-CROSSSERVER-001 is COMPLETE / ACCEPTED for its bounded
+header popover/frontend/history lifecycle at 52710d3. Lead original/current 11/11,
+focused 12/12, affected 3/3 and package/integrity/protected checks pass. Other shared
+shell/profile/Map-notice/scheduling and inventory gates remain separate. Retained-page
+proof is preserved; no new implementation campaign started by this review.
 
 | Order | UI area | Current basis | Remaining completion gate |
 |---|---|---|---|
@@ -38,7 +39,7 @@ gates remain separate. Accepted retained-page state/effect proof is preserved.
 | 1 | Squads/AFK residuals | COMPLETE for listed source/local contracts/handlers; real profile/member/toolbar QA recorded | Assigned gate closed; physical drag/confirmation and shared focus breadth remain disclosed proof limits for final audit |
 | 2 | Equipment | COMPLETE / ACCEPTED bounded source/local scope through R1 2e4acce/32b2906 and lead review | Assigned gate closed; native/physical drag/original pixels remain disclosed limitations |
 | 2 | City Layout, Hotkeys, Mini Games, Settings | COMPLETE / ACCEPTED bounded source/local scope through R1 and lead correction 2174553 | Assigned gate closed; final shell integration, unavailable native providers/assets and original pixels remain separate |
-| 3 | Shell, Home and Map integration | Existing focused accepted Home/Map work; SHELL-RETENTION-001 COMPLETE / ACCEPTED bounded retention scope on 2026-10-04 | Retained state/effects and bounded eight-route smoke closed. Separately finish broader navigation/theme/locale/layout, shared shell/profile/popover, Map summary scheduling and untranslated notices. Preserve accepted units absent counter-evidence |
+| 3 | Shell, Home and Map integration | Existing focused accepted Home/Map work; SHELL-RETENTION-001 and SHELL-CROSSSERVER-001 COMPLETE / ACCEPTED bounded source/local scopes on 2026-10-04 | Retention/effects, bounded eight-route smoke and Cross-server popover/history gates closed. Separately finish broader navigation/theme/locale/layout, shared shell/profile surfaces, Map summary scheduling and untranslated notices. Preserve accepted units absent counter-evidence |
 | 3 | Overall UI inventory and acceptance | Current parity matrix/ledger contain historical statuses | Reconcile every listed gap against current code/evidence, count remaining source-recoverable branches, retain real unresolved visual/asset dependencies, package final canonical UI and write one current completion report |
 
 Order 1 is closed by the lead takeover/review recorded in

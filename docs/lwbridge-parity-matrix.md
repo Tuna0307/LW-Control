@@ -1,5 +1,12 @@
 # LWBridge 0.3.17 parity matrix
 
+Lead acceptance, 2026-10-04: SHELL-CROSSSERVER-001 is COMPLETE / ACCEPTED for its
+assigned source/local popover/history/action acknowledgement scope at 52710d3.
+Original bytes/contracts remain EXACT_BYTES / EXACT_CONTRACT; 11 added original/
+current lead cases and rerun 12 focused/3 affected/package/integrity proofs pass.
+Overall shell/native/pixel status remains unchanged; broader shell/Map scheduling/
+notices and inventory remain open. See the dated REVIEW-SHELL-CROSSSERVER-001.
+
 Lead acceptance, 2026-10-04: SHELL-RETENTION-001 is COMPLETE / ACCEPTED for bounded
 source/local retained-page state/effect scope at product 081ffc8. Original route/
 Activity/profile behavior remains EXACT_CONTRACT; current mounted/browser checks

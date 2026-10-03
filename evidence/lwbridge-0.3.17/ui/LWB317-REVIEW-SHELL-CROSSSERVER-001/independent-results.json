@@ -1,0 +1,1376 @@
+{
+  "result": "LWB317_CROSSSERVER_INDEPENDENT_OK",
+  "cases": [
+    {
+      "name": "numeric \"\"",
+      "status": "PASS",
+      "original": {
+        "open": true,
+        "inputValue": "",
+        "inputDisabled": false,
+        "triggerDisabled": false,
+        "errors": [
+          "en:server.invalidId"
+        ],
+        "submit": {
+          "text": "en:server.switchAction",
+          "disabled": false
+        },
+        "home": "en:server.home:{\"server\":320}en:server.returnHome",
+        "sections": [
+          {
+            "label": "en:server.seasonServers",
+            "buttons": [
+              {
+                "text": "321",
+                "disabled": true
+              },
+              {
+                "text": "322",
+                "disabled": false
+              }
+            ]
+          },
+          {
+            "label": "en:server.plunderableServers",
+            "buttons": [
+              {
+                "text": "323",
+                "disabled": false
+              },
+              {
+                "text": "321",
+                "disabled": true
+              }
+            ]
+          }
+        ]
+      },
+      "current": {
+        "open": true,
+        "inputValue": "",
+        "inputDisabled": false,
+        "triggerDisabled": false,
+        "errors": [
+          "en:server.invalidId"
+        ],
+        "submit": {
+          "text": "en:server.switchAction",
+          "disabled": false
+        },
+        "home": "en:server.home:{\"server\":320}en:server.returnHome",
+        "sections": [
+          {
+            "label": "en:server.seasonServers",
+            "buttons": [
+              {
+                "text": "321",
+                "disabled": true
+              },
+              {
+                "text": "322",
+                "disabled": false
+              }
+            ]
+          },
+          {
+            "label": "en:server.plunderableServers",
+            "buttons": [
+              {
+                "text": "323",
+                "disabled": false
+              },
+              {
+                "text": "321",
+                "disabled": true
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "numeric \"-1\"",
+      "status": "PASS",
+      "original": {
+        "open": true,
+        "inputValue": "-1",
+        "inputDisabled": false,
+        "triggerDisabled": false,
+        "errors": [
+          "en:server.invalidId"
+        ],
+        "submit": {
+          "text": "en:server.switchAction",
+          "disabled": false
+        },
+        "home": "en:server.home:{\"server\":320}en:server.returnHome",
+        "sections": [
+          {
+            "label": "en:server.seasonServers",
+            "buttons": [
+              {
+                "text": "321",
+                "disabled": true
+              },
+              {
+                "text": "322",
+                "disabled": false
+              }
+            ]
+          },
+          {
+            "label": "en:server.plunderableServers",
+            "buttons": [
+              {
+                "text": "323",
+                "disabled": false
+              },
+              {
+                "text": "321",
+                "disabled": true
+              }
+            ]
+          }
+        ]
+      },
+      "current": {
+        "open": true,
+        "inputValue": "-1",
+        "inputDisabled": false,
+        "triggerDisabled": false,
+        "errors": [
+          "en:server.invalidId"
+        ],
+        "submit": {
+          "text": "en:server.switchAction",
+          "disabled": false
+        },
+        "home": "en:server.home:{\"server\":320}en:server.returnHome",
+        "sections": [
+          {
+            "label": "en:server.seasonServers",
+            "buttons": [
+              {
+                "text": "321",
+                "disabled": true
+              },
+              {
+                "text": "322",
+                "disabled": false
+              }
+            ]
+          },
+          {
+            "label": "en:server.plunderableServers",
+            "buttons": [
+              {
+                "text": "323",
+                "disabled": false
+              },
+              {
+                "text": "321",
+                "disabled": true
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "numeric \"0\"",
+      "status": "PASS",
+      "original": {
+        "open": true,
+        "inputValue": "0",
+        "inputDisabled": false,
+        "triggerDisabled": false,
+        "errors": [
+          "en:server.invalidId"
+        ],
+        "submit": {
+          "text": "en:server.switchAction",
+          "disabled": false
+        },
+        "home": "en:server.home:{\"server\":320}en:server.returnHome",
+        "sections": [
+          {
+            "label": "en:server.seasonServers",
+            "buttons": [
+              {
+                "text": "321",
+                "disabled": true
+              },
+              {
+                "text": "322",
+                "disabled": false
+              }
+            ]
+          },
+          {
+            "label": "en:server.plunderableServers",
+            "buttons": [
+              {
+                "text": "323",
+                "disabled": false
+              },
+              {
+                "text": "321",
+                "disabled": true
+              }
+            ]
+          }
+        ]
+      },
+      "current": {
+        "open": true,
+        "inputValue": "0",
+        "inputDisabled": false,
+        "triggerDisabled": false,
+        "errors": [
+          "en:server.invalidId"
+        ],
+        "submit": {
+          "text": "en:server.switchAction",
+          "disabled": false
+        },
+        "home": "en:server.home:{\"server\":320}en:server.returnHome",
+        "sections": [
+          {
+            "label": "en:server.seasonServers",
+            "buttons": [
+              {
+                "text": "321",
+                "disabled": true
+              },
+              {
+                "text": "322",
+                "disabled": false
+              }
+            ]
+          },
+          {
+            "label": "en:server.plunderableServers",
+            "buttons": [
+              {
+                "text": "323",
+                "disabled": false
+              },
+              {
+                "text": "321",
+                "disabled": true
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "numeric \"1\"",
+      "status": "PASS",
+      "original": {
+        "open": false,
+        "inputValue": null,
+        "inputDisabled": null,
+        "triggerDisabled": false,
+        "errors": [],
+        "submit": null,
+        "home": null,
+        "sections": []
+      },
+      "current": {
+        "open": false,
+        "inputValue": null,
+        "inputDisabled": null,
+        "triggerDisabled": false,
+        "errors": [],
+        "submit": null,
+        "home": null,
+        "sections": []
+      }
+    },
+    {
+      "name": "numeric \"1.5\"",
+      "status": "PASS",
+      "original": {
+        "open": true,
+        "inputValue": "1.5",
+        "inputDisabled": false,
+        "triggerDisabled": false,
+        "errors": [
+          "en:server.invalidId"
+        ],
+        "submit": {
+          "text": "en:server.switchAction",
+          "disabled": false
+        },
+        "home": "en:server.home:{\"server\":320}en:server.returnHome",
+        "sections": [
+          {
+            "label": "en:server.seasonServers",
+            "buttons": [
+              {
+                "text": "321",
+                "disabled": true
+              },
+              {
+                "text": "322",
+                "disabled": false
+              }
+            ]
+          },
+          {
+            "label": "en:server.plunderableServers",
+            "buttons": [
+              {
+                "text": "323",
+                "disabled": false
+              },
+              {
+                "text": "321",
+                "disabled": true
+              }
+            ]
+          }
+        ]
+      },
+      "current": {
+        "open": true,
+        "inputValue": "1.5",
+        "inputDisabled": false,
+        "triggerDisabled": false,
+        "errors": [
+          "en:server.invalidId"
+        ],
+        "submit": {
+          "text": "en:server.switchAction",
+          "disabled": false
+        },
+        "home": "en:server.home:{\"server\":320}en:server.returnHome",
+        "sections": [
+          {
+            "label": "en:server.seasonServers",
+            "buttons": [
+              {
+                "text": "321",
+                "disabled": true
+              },
+              {
+                "text": "322",
+                "disabled": false
+              }
+            ]
+          },
+          {
+            "label": "en:server.plunderableServers",
+            "buttons": [
+              {
+                "text": "323",
+                "disabled": false
+              },
+              {
+                "text": "321",
+                "disabled": true
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "numeric \"99999\"",
+      "status": "PASS",
+      "original": {
+        "open": false,
+        "inputValue": null,
+        "inputDisabled": null,
+        "triggerDisabled": false,
+        "errors": [],
+        "submit": null,
+        "home": null,
+        "sections": []
+      },
+      "current": {
+        "open": false,
+        "inputValue": null,
+        "inputDisabled": null,
+        "triggerDisabled": false,
+        "errors": [],
+        "submit": null,
+        "home": null,
+        "sections": []
+      }
+    },
+    {
+      "name": "numeric \"100000\"",
+      "status": "PASS",
+      "original": {
+        "open": true,
+        "inputValue": "100000",
+        "inputDisabled": false,
+        "triggerDisabled": false,
+        "errors": [
+          "en:server.invalidId"
+        ],
+        "submit": {
+          "text": "en:server.switchAction",
+          "disabled": false
+        },
+        "home": "en:server.home:{\"server\":320}en:server.returnHome",
+        "sections": [
+          {
+            "label": "en:server.seasonServers",
+            "buttons": [
+              {
+                "text": "321",
+                "disabled": true
+              },
+              {
+                "text": "322",
+                "disabled": false
+              }
+            ]
+          },
+          {
+            "label": "en:server.plunderableServers",
+            "buttons": [
+              {
+                "text": "323",
+                "disabled": false
+              },
+              {
+                "text": "321",
+                "disabled": true
+              }
+            ]
+          }
+        ]
+      },
+      "current": {
+        "open": true,
+        "inputValue": "100000",
+        "inputDisabled": false,
+        "triggerDisabled": false,
+        "errors": [
+          "en:server.invalidId"
+        ],
+        "submit": {
+          "text": "en:server.switchAction",
+          "disabled": false
+        },
+        "home": "en:server.home:{\"server\":320}en:server.returnHome",
+        "sections": [
+          {
+            "label": "en:server.seasonServers",
+            "buttons": [
+              {
+                "text": "321",
+                "disabled": true
+              },
+              {
+                "text": "322",
+                "disabled": false
+              }
+            ]
+          },
+          {
+            "label": "en:server.plunderableServers",
+            "buttons": [
+              {
+                "text": "323",
+                "disabled": false
+              },
+              {
+                "text": "321",
+                "disabled": true
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "obsolete profile import ignored",
+      "status": "PASS",
+      "original": {
+        "open": true,
+        "inputValue": "",
+        "inputDisabled": false,
+        "triggerDisabled": false,
+        "errors": [],
+        "submit": {
+          "text": "en:server.switchAction",
+          "disabled": false
+        },
+        "home": "en:server.home:{\"server\":320}en:server.returnHome",
+        "sections": [
+          {
+            "label": "en:server.seasonServers",
+            "buttons": [
+              {
+                "text": "321",
+                "disabled": true
+              },
+              {
+                "text": "322",
+                "disabled": false
+              }
+            ]
+          },
+          {
+            "label": "en:server.plunderableServers",
+            "buttons": [
+              {
+                "text": "323",
+                "disabled": false
+              },
+              {
+                "text": "321",
+                "disabled": true
+              }
+            ]
+          },
+          {
+            "label": "en:server.recent",
+            "buttons": [
+              {
+                "text": "410",
+                "disabled": false
+              }
+            ]
+          }
+        ]
+      },
+      "current": {
+        "open": true,
+        "inputValue": "",
+        "inputDisabled": false,
+        "triggerDisabled": false,
+        "errors": [],
+        "submit": {
+          "text": "en:server.switchAction",
+          "disabled": false
+        },
+        "home": "en:server.home:{\"server\":320}en:server.returnHome",
+        "sections": [
+          {
+            "label": "en:server.seasonServers",
+            "buttons": [
+              {
+                "text": "321",
+                "disabled": true
+              },
+              {
+                "text": "322",
+                "disabled": false
+              }
+            ]
+          },
+          {
+            "label": "en:server.plunderableServers",
+            "buttons": [
+              {
+                "text": "323",
+                "disabled": false
+              },
+              {
+                "text": "321",
+                "disabled": true
+              }
+            ]
+          },
+          {
+            "label": "en:server.recent",
+            "buttons": [
+              {
+                "text": "410",
+                "disabled": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "delayed history success and pending edit/locale",
+      "status": "PASS",
+      "original": {
+        "log": [
+          [
+            322,
+            410
+          ]
+        ],
+        "pending": {
+          "open": true,
+          "inputValue": "322",
+          "inputDisabled": false,
+          "triggerDisabled": false,
+          "errors": [],
+          "submit": {
+            "text": "en:server.switching:{\"server\":322}",
+            "disabled": true
+          },
+          "home": "en:server.home:{\"server\":320}en:server.returnHome",
+          "sections": [
+            {
+              "label": "en:server.seasonServers",
+              "buttons": [
+                {
+                  "text": "321",
+                  "disabled": true
+                },
+                {
+                  "text": "322",
+                  "disabled": true
+                }
+              ]
+            },
+            {
+              "label": "en:server.plunderableServers",
+              "buttons": [
+                {
+                  "text": "323",
+                  "disabled": true
+                },
+                {
+                  "text": "321",
+                  "disabled": true
+                }
+              ]
+            },
+            {
+              "label": "en:server.recent",
+              "buttons": [
+                {
+                  "text": "410",
+                  "disabled": true
+                }
+              ]
+            }
+          ]
+        },
+        "edited": {
+          "open": true,
+          "inputValue": "444",
+          "inputDisabled": false,
+          "triggerDisabled": false,
+          "errors": [],
+          "submit": {
+            "text": "ja:server.switching:{\"server\":322}",
+            "disabled": true
+          },
+          "home": "ja:server.home:{\"server\":320}ja:server.returnHome",
+          "sections": [
+            {
+              "label": "ja:server.seasonServers",
+              "buttons": [
+                {
+                  "text": "321",
+                  "disabled": true
+                },
+                {
+                  "text": "322",
+                  "disabled": true
+                }
+              ]
+            },
+            {
+              "label": "ja:server.plunderableServers",
+              "buttons": [
+                {
+                  "text": "323",
+                  "disabled": true
+                },
+                {
+                  "text": "321",
+                  "disabled": true
+                }
+              ]
+            },
+            {
+              "label": "ja:server.recent",
+              "buttons": [
+                {
+                  "text": "410",
+                  "disabled": true
+                }
+              ]
+            }
+          ]
+        },
+        "settled": {
+          "open": false,
+          "inputValue": null,
+          "inputDisabled": null,
+          "triggerDisabled": false,
+          "errors": [],
+          "submit": null,
+          "home": null,
+          "sections": []
+        },
+        "reopened": {
+          "open": true,
+          "inputValue": "",
+          "inputDisabled": false,
+          "triggerDisabled": false,
+          "errors": [],
+          "submit": {
+            "text": "ja:server.switchAction",
+            "disabled": false
+          },
+          "home": "ja:server.home:{\"server\":320}ja:server.returnHome",
+          "sections": [
+            {
+              "label": "ja:server.seasonServers",
+              "buttons": [
+                {
+                  "text": "321",
+                  "disabled": false
+                },
+                {
+                  "text": "322",
+                  "disabled": true
+                }
+              ]
+            },
+            {
+              "label": "ja:server.plunderableServers",
+              "buttons": [
+                {
+                  "text": "323",
+                  "disabled": false
+                },
+                {
+                  "text": "321",
+                  "disabled": false
+                }
+              ]
+            },
+            {
+              "label": "ja:server.recent",
+              "buttons": [
+                {
+                  "text": "322",
+                  "disabled": false
+                },
+                {
+                  "text": "410",
+                  "disabled": false
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "current": {
+        "log": [
+          [
+            322,
+            410
+          ]
+        ],
+        "pending": {
+          "open": true,
+          "inputValue": "322",
+          "inputDisabled": false,
+          "triggerDisabled": false,
+          "errors": [],
+          "submit": {
+            "text": "en:server.switching:{\"server\":322}",
+            "disabled": true
+          },
+          "home": "en:server.home:{\"server\":320}en:server.returnHome",
+          "sections": [
+            {
+              "label": "en:server.seasonServers",
+              "buttons": [
+                {
+                  "text": "321",
+                  "disabled": true
+                },
+                {
+                  "text": "322",
+                  "disabled": true
+                }
+              ]
+            },
+            {
+              "label": "en:server.plunderableServers",
+              "buttons": [
+                {
+                  "text": "323",
+                  "disabled": true
+                },
+                {
+                  "text": "321",
+                  "disabled": true
+                }
+              ]
+            },
+            {
+              "label": "en:server.recent",
+              "buttons": [
+                {
+                  "text": "410",
+                  "disabled": true
+                }
+              ]
+            }
+          ]
+        },
+        "edited": {
+          "open": true,
+          "inputValue": "444",
+          "inputDisabled": false,
+          "triggerDisabled": false,
+          "errors": [],
+          "submit": {
+            "text": "ja:server.switching:{\"server\":322}",
+            "disabled": true
+          },
+          "home": "ja:server.home:{\"server\":320}ja:server.returnHome",
+          "sections": [
+            {
+              "label": "ja:server.seasonServers",
+              "buttons": [
+                {
+                  "text": "321",
+                  "disabled": true
+                },
+                {
+                  "text": "322",
+                  "disabled": true
+                }
+              ]
+            },
+            {
+              "label": "ja:server.plunderableServers",
+              "buttons": [
+                {
+                  "text": "323",
+                  "disabled": true
+                },
+                {
+                  "text": "321",
+                  "disabled": true
+                }
+              ]
+            },
+            {
+              "label": "ja:server.recent",
+              "buttons": [
+                {
+                  "text": "410",
+                  "disabled": true
+                }
+              ]
+            }
+          ]
+        },
+        "settled": {
+          "open": false,
+          "inputValue": null,
+          "inputDisabled": null,
+          "triggerDisabled": false,
+          "errors": [],
+          "submit": null,
+          "home": null,
+          "sections": []
+        },
+        "reopened": {
+          "open": true,
+          "inputValue": "",
+          "inputDisabled": false,
+          "triggerDisabled": false,
+          "errors": [],
+          "submit": {
+            "text": "ja:server.switchAction",
+            "disabled": false
+          },
+          "home": "ja:server.home:{\"server\":320}ja:server.returnHome",
+          "sections": [
+            {
+              "label": "ja:server.seasonServers",
+              "buttons": [
+                {
+                  "text": "321",
+                  "disabled": false
+                },
+                {
+                  "text": "322",
+                  "disabled": true
+                }
+              ]
+            },
+            {
+              "label": "ja:server.plunderableServers",
+              "buttons": [
+                {
+                  "text": "323",
+                  "disabled": false
+                },
+                {
+                  "text": "321",
+                  "disabled": false
+                }
+              ]
+            },
+            {
+              "label": "ja:server.recent",
+              "buttons": [
+                {
+                  "text": "322",
+                  "disabled": false
+                },
+                {
+                  "text": "410",
+                  "disabled": false
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "delayed history failure and pending edit/locale",
+      "status": "PASS",
+      "original": {
+        "log": [
+          [
+            322,
+            410
+          ]
+        ],
+        "pending": {
+          "open": true,
+          "inputValue": "322",
+          "inputDisabled": false,
+          "triggerDisabled": false,
+          "errors": [],
+          "submit": {
+            "text": "en:server.switching:{\"server\":322}",
+            "disabled": true
+          },
+          "home": "en:server.home:{\"server\":320}en:server.returnHome",
+          "sections": [
+            {
+              "label": "en:server.seasonServers",
+              "buttons": [
+                {
+                  "text": "321",
+                  "disabled": true
+                },
+                {
+                  "text": "322",
+                  "disabled": true
+                }
+              ]
+            },
+            {
+              "label": "en:server.plunderableServers",
+              "buttons": [
+                {
+                  "text": "323",
+                  "disabled": true
+                },
+                {
+                  "text": "321",
+                  "disabled": true
+                }
+              ]
+            },
+            {
+              "label": "en:server.recent",
+              "buttons": [
+                {
+                  "text": "410",
+                  "disabled": true
+                }
+              ]
+            }
+          ]
+        },
+        "edited": {
+          "open": true,
+          "inputValue": "444",
+          "inputDisabled": false,
+          "triggerDisabled": false,
+          "errors": [],
+          "submit": {
+            "text": "ja:server.switching:{\"server\":322}",
+            "disabled": true
+          },
+          "home": "ja:server.home:{\"server\":320}ja:server.returnHome",
+          "sections": [
+            {
+              "label": "ja:server.seasonServers",
+              "buttons": [
+                {
+                  "text": "321",
+                  "disabled": true
+                },
+                {
+                  "text": "322",
+                  "disabled": true
+                }
+              ]
+            },
+            {
+              "label": "ja:server.plunderableServers",
+              "buttons": [
+                {
+                  "text": "323",
+                  "disabled": true
+                },
+                {
+                  "text": "321",
+                  "disabled": true
+                }
+              ]
+            },
+            {
+              "label": "ja:server.recent",
+              "buttons": [
+                {
+                  "text": "410",
+                  "disabled": true
+                }
+              ]
+            }
+          ]
+        },
+        "settled": {
+          "open": true,
+          "inputValue": "444",
+          "inputDisabled": false,
+          "triggerDisabled": false,
+          "errors": [
+            "ja:common.actionFailed"
+          ],
+          "submit": {
+            "text": "ja:server.switchAction",
+            "disabled": false
+          },
+          "home": "ja:server.home:{\"server\":320}ja:server.returnHome",
+          "sections": [
+            {
+              "label": "ja:server.seasonServers",
+              "buttons": [
+                {
+                  "text": "321",
+                  "disabled": false
+                },
+                {
+                  "text": "322",
+                  "disabled": true
+                }
+              ]
+            },
+            {
+              "label": "ja:server.plunderableServers",
+              "buttons": [
+                {
+                  "text": "323",
+                  "disabled": false
+                },
+                {
+                  "text": "321",
+                  "disabled": false
+                }
+              ]
+            },
+            {
+              "label": "ja:server.recent",
+              "buttons": [
+                {
+                  "text": "410",
+                  "disabled": false
+                }
+              ]
+            }
+          ]
+        },
+        "reopened": {
+          "open": true,
+          "inputValue": "444",
+          "inputDisabled": false,
+          "triggerDisabled": false,
+          "errors": [
+            "ja:common.actionFailed"
+          ],
+          "submit": {
+            "text": "ja:server.switchAction",
+            "disabled": false
+          },
+          "home": "ja:server.home:{\"server\":320}ja:server.returnHome",
+          "sections": [
+            {
+              "label": "ja:server.seasonServers",
+              "buttons": [
+                {
+                  "text": "321",
+                  "disabled": false
+                },
+                {
+                  "text": "322",
+                  "disabled": true
+                }
+              ]
+            },
+            {
+              "label": "ja:server.plunderableServers",
+              "buttons": [
+                {
+                  "text": "323",
+                  "disabled": false
+                },
+                {
+                  "text": "321",
+                  "disabled": false
+                }
+              ]
+            },
+            {
+              "label": "ja:server.recent",
+              "buttons": [
+                {
+                  "text": "410",
+                  "disabled": false
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "current": {
+        "log": [
+          [
+            322,
+            410
+          ]
+        ],
+        "pending": {
+          "open": true,
+          "inputValue": "322",
+          "inputDisabled": false,
+          "triggerDisabled": false,
+          "errors": [],
+          "submit": {
+            "text": "en:server.switching:{\"server\":322}",
+            "disabled": true
+          },
+          "home": "en:server.home:{\"server\":320}en:server.returnHome",
+          "sections": [
+            {
+              "label": "en:server.seasonServers",
+              "buttons": [
+                {
+                  "text": "321",
+                  "disabled": true
+                },
+                {
+                  "text": "322",
+                  "disabled": true
+                }
+              ]
+            },
+            {
+              "label": "en:server.plunderableServers",
+              "buttons": [
+                {
+                  "text": "323",
+                  "disabled": true
+                },
+                {
+                  "text": "321",
+                  "disabled": true
+                }
+              ]
+            },
+            {
+              "label": "en:server.recent",
+              "buttons": [
+                {
+                  "text": "410",
+                  "disabled": true
+                }
+              ]
+            }
+          ]
+        },
+        "edited": {
+          "open": true,
+          "inputValue": "444",
+          "inputDisabled": false,
+          "triggerDisabled": false,
+          "errors": [],
+          "submit": {
+            "text": "ja:server.switching:{\"server\":322}",
+            "disabled": true
+          },
+          "home": "ja:server.home:{\"server\":320}ja:server.returnHome",
+          "sections": [
+            {
+              "label": "ja:server.seasonServers",
+              "buttons": [
+                {
+                  "text": "321",
+                  "disabled": true
+                },
+                {
+                  "text": "322",
+                  "disabled": true
+                }
+              ]
+            },
+            {
+              "label": "ja:server.plunderableServers",
+              "buttons": [
+                {
+                  "text": "323",
+                  "disabled": true
+                },
+                {
+                  "text": "321",
+                  "disabled": true
+                }
+              ]
+            },
+            {
+              "label": "ja:server.recent",
+              "buttons": [
+                {
+                  "text": "410",
+                  "disabled": true
+                }
+              ]
+            }
+          ]
+        },
+        "settled": {
+          "open": true,
+          "inputValue": "444",
+          "inputDisabled": false,
+          "triggerDisabled": false,
+          "errors": [
+            "ja:common.actionFailed"
+          ],
+          "submit": {
+            "text": "ja:server.switchAction",
+            "disabled": false
+          },
+          "home": "ja:server.home:{\"server\":320}ja:server.returnHome",
+          "sections": [
+            {
+              "label": "ja:server.seasonServers",
+              "buttons": [
+                {
+                  "text": "321",
+                  "disabled": false
+                },
+                {
+                  "text": "322",
+                  "disabled": true
+                }
+              ]
+            },
+            {
+              "label": "ja:server.plunderableServers",
+              "buttons": [
+                {
+                  "text": "323",
+                  "disabled": false
+                },
+                {
+                  "text": "321",
+                  "disabled": false
+                }
+              ]
+            },
+            {
+              "label": "ja:server.recent",
+              "buttons": [
+                {
+                  "text": "410",
+                  "disabled": false
+                }
+              ]
+            }
+          ]
+        },
+        "reopened": {
+          "open": true,
+          "inputValue": "444",
+          "inputDisabled": false,
+          "triggerDisabled": false,
+          "errors": [
+            "ja:common.actionFailed"
+          ],
+          "submit": {
+            "text": "ja:server.switchAction",
+            "disabled": false
+          },
+          "home": "ja:server.home:{\"server\":320}ja:server.returnHome",
+          "sections": [
+            {
+              "label": "ja:server.seasonServers",
+              "buttons": [
+                {
+                  "text": "321",
+                  "disabled": false
+                },
+                {
+                  "text": "322",
+                  "disabled": true
+                }
+              ]
+            },
+            {
+              "label": "ja:server.plunderableServers",
+              "buttons": [
+                {
+                  "text": "323",
+                  "disabled": false
+                },
+                {
+                  "text": "321",
+                  "disabled": false
+                }
+              ]
+            },
+            {
+              "label": "ja:server.recent",
+              "buttons": [
+                {
+                  "text": "410",
+                  "disabled": false
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "exact original parent summary rejection contract",
+      "status": "PASS",
+      "parentLog": [
+        "jump:321",
+        "summary"
+      ]
+    }
+  ],
+  "original": {
+    "assetSha256": "44C4E4043825B7DB296B64171951B27176F8850FF8D7D337CC991DF4765524C6",
+    "popoverOffset": 350405,
+    "popoverLength": 3406,
+    "parentOffset": 365565,
+    "parentLength": 229
+  },
+  "current": {
+    "appSha256": "7FD95D74D66A762F19DC202E88944C0FD450155104BE33E80B4B3F1A26797F5C"
+  },
+  "limits": "Actual original bytes and current App hooks/rendered callbacks with controlled inert APIs and page children. No native/game/network action; no new browser observations. Failed subagent produced no review evidence; lead executed these independently."
+}

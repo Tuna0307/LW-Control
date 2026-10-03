@@ -1,9 +1,10 @@
 # Current implementation/research handoff
 
-Worker delivery, 2026-10-04: SHELL-CROSSSERVER-001 is AWAITING_REVIEW. Recovery,
-canonical correction, focused/affected/package checks, bounded browser QA and current
-integrity are complete. Project lead owns acceptance; no next-page, profile architecture,
-Map notices or live native action is assigned by this delivery.
+Lead acceptance, 2026-10-04: SHELL-CROSSSERVER-001 is COMPLETE / ACCEPTED for assigned
+source/local UI scope at delivery 52710d3. Lead original/current 11/11, focused 12/12,
+affected 3/3, package/integrity and protected-WIP checks pass; three saved images
+inspected. No product correction was needed. Broader shell/inventory/native/original
+pixel gates remain separate and no next implementation is assigned by this review.
 
 Lead takeover/acceptance, 2026-10-04: SHELL-RETENTION-001 is COMPLETE / ACCEPTED
 for assigned source/local retention scope. Preserve worker A/B 1786fc5/081ffc8;
@@ -16,17 +17,18 @@ Lead takeover/acceptance, 2026-10-03: REMAINING-PAGES parent/R1 are **COMPLETE /
 
 **Target:** LWBridge 0.3.17  
 **Branch:** `research/offline-controller`  
-**Active scope:** UI parity / SHELL-CROSSSERVER-001 AWAITING_REVIEW; retention accepted; native/original pixels separate
+**Active scope:** UI parity / focused Cross-server and retention accepted; remaining shell/inventory gates open
 
-## Current continuation — Cross-server popover awaiting lead review
+## Current continuation — Cross-server popover accepted
 
-Read `docs/reviews/2026-10-04-LWB317-UI-SHELL-CROSSSERVER-001.md` and the matching
-evidence README. Worker A/B checkpoints are `a74aba9` / `5318467`; C supplies current
-checks, browser evidence and integrity. Lead should verify the final pushed SHA, rerun
-the validator/guard and inspect the owned App diff before accepting or returning a
-focused finding. Retention has no unfinished assigned work. Broader profile/shell/Map
-notices/navigation scheduling and final inventory remain subsequent; native functions/
-original pixels remain unaccepted.
+Read `docs/reviews/2026-10-04-LWB317-REVIEW-SHELL-CROSSSERVER-001.md` and independent
+evidence README. Worker A/B/C at a74aba9/5318467/52710d3 are preserved and accepted
+for the assigned scope. The lead reran current validation and added exact original/
+current comparisons. Cross-server and retention have no unfinished assigned work.
+Next queue gates are broader profile/shell surfaces, Map notices/navigation summary
+scheduling and final inventory, requiring a new bounded assignment. Native functions/
+original pixels remain unaccepted. Historical worker continuation describes the
+delivery-time review boundary; this current handoff supersedes it.
 
 ## Prior continuation — four-page R1 closed
 

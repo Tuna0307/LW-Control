@@ -1,7 +1,12 @@
 # LWB317-UI-SHELL-CROSSSERVER-001 — Cross-server popover
 
-Status: AWAITING_REVIEW, worker delivery 2026-10-04. A -> B -> C are complete;
-project-lead acceptance remains pending. The worker must stop after this unit.
+Status: COMPLETE / ACCEPTED for assigned source/local UI scope, project-lead
+review 2026-10-04. Worker A -> B -> C at 52710d3 are retained. Lead independently
+compared original/current behavior in 11 additional cases, reran focused/affected/
+package/integrity checks and inspected all three images; no product correction
+was needed. See docs/reviews/2026-10-04-LWB317-REVIEW-SHELL-CROSSSERVER-001.md.
+This unit is closed; worker must await a separate assignment. Native/original
+pixels and broader shell/inventory acceptance remain separate.
 
 ## Goal and context
 

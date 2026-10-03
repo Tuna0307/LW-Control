@@ -1,5 +1,12 @@
 # LWBridge 0.3.17 feature ledger
 
+Lead acceptance, 2026-10-04: SHELL-CROSSSERVER-001 is COMPLETE / ACCEPTED for its
+assigned source/local popover/history/action acknowledgement scope at 52710d3.
+Outside close, profile import, event-time localization and summary/history ordering
+pass exact original/current review plus 11 additional cases and focused/affected/
+package/integrity checks. Native jump/history persistence and original pixels remain
+unproved; overall shell status unchanged. See the dated REVIEW-SHELL-CROSSSERVER-001.
+
 Lead acceptance, 2026-10-04: SHELL-RETENTION-001 is COMPLETE / ACCEPTED for bounded
 source/local retained-page state/effect scope at product 081ffc8. Lazy first visits,
 retained drafts/tab/page identity, hidden listener/timer ownership, runtime props,

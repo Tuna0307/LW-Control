@@ -1,0 +1,63 @@
+{
+  "result": "LWB317_CROSSSERVER_LEAD_REVIEW_OK",
+  "reviewedDelivery": "52710d3d1950cceccee2439c4979d3b99c797782",
+  "decision": "COMPLETE / ACCEPTED for assigned source/local UI scope",
+  "independentCases": 11,
+  "currentChecks": [
+    {
+      "name": "focused production mount",
+      "status": "PASS",
+      "command": "node evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-CROSSSERVER-001/milestone-b/run-focused.mjs",
+      "stdout": "LWB317_CROSSSERVER_FOCUSED_OK cases=12"
+    },
+    {
+      "name": "affected ownership regressions",
+      "status": "PASS",
+      "command": "node evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-CROSSSERVER-001/milestone-c/run-regressions.mjs",
+      "stdout": "LWB317_CROSSSERVER_REGRESSIONS_OK cases=3"
+    },
+    {
+      "name": "canonical package check",
+      "status": "PASS",
+      "command": "C:\\WINDOWS\\system32\\cmd.exe /d /s /c npm.cmd run check",
+      "stdout": "> lwbridge-ui-0.3.17@0.3.17-ui-preview check\n> node scripts/check-static.mjs && node scripts/check-home-integration.mjs && node scripts/check-map-integration.mjs && node scripts/check-ui-complete.mjs && node scripts/check-ui-drafts.mjs\n\nLWBridge 0.3.17 static UI scaffold checks passed.\nLWB317_HOME_UI_INTEGRATION_CHECKS_OK\nLWB317_MAP_UI_INTEGRATION_CHECKS_OK\nLWB317_UI_COMPLETE_CHECKS_OK 470 referenced keys {\"en\":1383,\"zh-CN\":1383,\"zh-TW\":1383,\"ja\":1383,\"ko\":1383,\"vi\":1383,\"id\":1383,\"ru\":1383,\"pt\":1383}\nLWB317_UI_DRAFT_CHECKS_OK: concurrent edits, ack, error/retry/discard, no invalid dispatch, join defaults/precision, profile independence and card validation"
+    },
+    {
+      "name": "canonical build",
+      "status": "PASS",
+      "command": "C:\\WINDOWS\\system32\\cmd.exe /d /s /c npm.cmd run build",
+      "stdout": "> lwbridge-ui-0.3.17@0.3.17-ui-preview build\n> node scripts/build-production.mjs\n\nvite v7.3.6 building client environment for production...\ntransforming...\n✓ 73 modules transformed.\nrendering chunks...\ncomputing gzip size...\ndist/index.html                         0.52 kB │ gzip:   0.32 kB\ndist/.vite/manifest.json                1.97 kB │ gzip:   0.47 kB\ndist/assets/dot-offline-CDBA2902.png    5.89 kB\ndist/assets/dot-online-gjSbTzBh.png     6.11 kB\ndist/assets/index-B5AeiHlM.css        126.21 kB │ gzip:  20.89 kB\ndist/assets/zh-CN-itVnuDKE.js          76.68 kB │ gzip:  24.56 kB\ndist/assets/zh-TW-DVthOXyu.js          76.83 kB │ gzip:  24.63 kB\ndist/assets/id-BtyGe98E.js             83.18 kB │ gzip:  23.59 kB\ndist/assets/pt-Cul_YYVr.js             88.30 kB │ gzip:  25.02 kB\ndist/assets/ko-DE-iQMo2.js             89.11 kB │ gzip:  25.28 kB\ndist/assets/ja-jFyUdeaw.js             92.76 kB │ gzip:  26.17 kB\ndist/assets/vi-fYT0cU8d.js             95.47 kB │ gzip:  25.18 kB\ndist/assets/ru-DLfZC5wd.js            119.26 kB │ gzip:  29.33 kB\ndist/assets/index-bCTMm-y6.js         607.90 kB │ gzip: 172.69 kB\n✓ built in 3.33s\nLWB317_PRODUCTION_UI_BUILD_OK 3f143006b576d3b4a092a3b90b71b4deae21726b98205696de422d3baa819b4c cdf1f32abcba11c8a27642a091c633e8c694b9ff75ad01a9c1dd443359ebc228"
+    },
+    {
+      "name": "production package check",
+      "status": "PASS",
+      "command": "C:\\WINDOWS\\system32\\cmd.exe /d /s /c npm.cmd run check:production-build",
+      "stdout": "> lwbridge-ui-0.3.17@0.3.17-ui-preview check:production-build\n> node scripts/check-production-build.mjs\n\nLWB317_PRODUCTION_UI_PACKAGE_OK 3f143006b576d3b4a092a3b90b71b4deae21726b98205696de422d3baa819b4c cdf1f32abcba11c8a27642a091c633e8c694b9ff75ad01a9c1dd443359ebc228"
+    },
+    {
+      "name": "protected WIP guard",
+      "status": "PASS",
+      "command": "node evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-AUTO-CONFIG-001/check-protected-wip.mjs",
+      "stdout": "LWB317_AUTO_CONFIG_PROTECTED_WIP_OK count=7"
+    },
+    {
+      "name": "repository diff check",
+      "status": "PASS",
+      "command": "git diff --check",
+      "stdout": ""
+    }
+  ],
+  "integrity": "LWB317_CROSSSERVER_CURRENT_INTEGRITY_OK focused=12 regressions=3 screenshots=3 protected=7",
+  "inputs": {
+    "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-CROSSSERVER-001/milestone-b/run-focused.mjs": "4EFEF6C090F270FD07D082EC53631C8D6E4499BF864C8561C4AC73C50AF0031C",
+    "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-CROSSSERVER-001/milestone-b/focused-results.json": "FFF807CB4DC2C6126F1234174B7431AE3398FE97E912CF76DFB0F2F4A4426DEC",
+    "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-CROSSSERVER-001/milestone-c/run-regressions.mjs": "BCFD6455F23A3EA17BED5F4B731191726A743F7760A160FD40C342F640237471",
+    "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-CROSSSERVER-001/milestone-c/regression-results.json": "8EE490078A49125F6DB4F385429F1CEDF43314F37A75117BFCAE88A3F5FD4EE6",
+    "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-CROSSSERVER-001/milestone-c/run-current-checks.mjs": "BA92E6E6B40D47C193E9E20235F5DB4230788537502547C25F5B65336259F26C",
+    "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-CROSSSERVER-001/milestone-c/current-checks.json": "38662EF88EFA1553B9BCCC05F46CEEEC78657F402A71F46FD86C24755232FBAE",
+    "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-CROSSSERVER-001/milestone-c/validate-current.mjs": "77D82969E52A7853D2A6D0B9B0FADC2A42622763C6C5A99468001820F398441F",
+    "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-CROSSSERVER-001/milestone-c/browser/observations.json": "8F461ADC6EBEE172AE597195ED3DD8C43F4457B2EDCFA30CEF403C8CA6BF8199"
+  },
+  "browser": "Three worker screenshots inspected; worker interactions retained as worker observations, no new lead browser session.",
+  "productionCorrection": false
+}

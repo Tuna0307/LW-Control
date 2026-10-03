@@ -1,9 +1,11 @@
 # Current project directive
 
-Worker delivery, 2026-10-04: `LWB317-UI-SHELL-CROSSSERVER-001` is AWAITING_REVIEW.
-Exact recovery, canonical correction, focused/affected/package checks, bounded browser
-QA and current integrity are complete. Project lead owns acceptance; do not broaden
-this unit into profile redesign, Map notices/scheduling, final inventory or native work.
+Lead acceptance, 2026-10-04: `LWB317-UI-SHELL-CROSSSERVER-001` is COMPLETE / ACCEPTED
+for assigned source/local UI scope at 52710d3. Lead 11/11 exact original/current
+comparisons, focused 12/12, affected 3/3 and package/integrity/protected checks pass.
+No product correction was needed. Read the dated REVIEW-SHELL-CROSSSERVER-001.
+Broader shell/profile/Map notices/scheduling and final inventory require subsequent
+bounded assignments; native functions and original pixel parity remain separate.
 
 Lead takeover/acceptance, 2026-10-04: `LWB317-UI-SHELL-RETENTION-001` is COMPLETE /
 ACCEPTED for assigned source/local retention scope. Worker A/B at 1786fc5/081ffc8

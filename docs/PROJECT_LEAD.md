@@ -1,9 +1,11 @@
 # Project lead control sheet
 
-Worker delivery, 2026-10-04: SHELL-CROSSSERVER-001 is AWAITING_REVIEW. Exact source
-recovery, canonical popover/history/action correction, focused/affected/package checks,
-bounded browser QA and current integrity are delivered. Lead acceptance is pending;
-SHELL-RETENTION-001 stays accepted and the broader shell audit remains separate.
+Lead acceptance, 2026-10-04: SHELL-CROSSSERVER-001 is COMPLETE / ACCEPTED for assigned
+source/local UI scope at worker delivery 52710d3. Original/current lead comparisons
+11/11, focused 12/12, affected 3/3, canonical package/integrity and protected 7/7
+checks pass; three worker images inspected. No production correction needed.
+See the dated REVIEW-SHELL-CROSSSERVER-001. Broader shell/inventory/native/pixels
+remain separate; no follow-on campaign has started.
 
 Lead takeover/acceptance, 2026-10-04: SHELL-RETENTION-001 is COMPLETE / ACCEPTED
 for assigned source/local retention scope. Product 081ffc8 is retained; mounted
@@ -43,7 +45,7 @@ retirement task. Preserve its source as historical evidence.
 
 ## Current phase
 
-**UI parity — shell retention accepted; focused Cross-server popover awaiting review**
+**UI parity — shell retention and focused Cross-server accepted; remaining shell/inventory gates open**
 
 Earlier static UI baseline acceptance does not establish complete UI/UX parity.
 The current owner priority is UI reproduction before function integration.
@@ -62,8 +64,8 @@ the Map closeout awaits a separate independent acceptance review.
 
 | Work item / campaign | Owner | State | Scope |
 |---|---|---|---|
-| LWB317-UI-SHELL-CROSSSERVER-001 | Single worker, lead review pending | AWAITING_REVIEW | Exact recovered Cross-server popover/history/action lifecycle; App correction, 12 focused + 3 affected cases, canonical package checks, EN/light + JA/dark + measured 800x543 browser proof; no native/server jump/global shell acceptance |
-| LWB317-UI-SHELL-RETENTION-001 | Single worker, owner relay | READY | Exact visited top-level panel lifetime, Activity hidden effects, retained current state/props and bounded mounted/browser proof; no native/full audit |
+| LWB317-UI-SHELL-CROSSSERVER-001 | Worker delivered, lead reviewed | COMPLETE / ACCEPTED for assigned source/local scope | 52710d3 retained; 11 additional exact original/current lead cases, 12 focused + 3 affected, package/integrity/protected checks pass; saved browser images inspected. Native/original pixels/global shell remain separate |
+| LWB317-UI-SHELL-RETENTION-001 | Worker checkpoints, lead takeover/review | COMPLETE / ACCEPTED for bounded source/local scope | Exact visited top-level panel lifetime, Activity hidden effects, retained current state/props and mounted/browser proof accepted at 55c9ca1; no native/full audit |
 | LWB317-UI-REMAINING-PAGES-001-R1 | Worker checkpoints, lead takeover/review | COMPLETE / ACCEPTED for bounded source/local scope | A/B/C retained; D finished with integrity packet and source-backed confirmation/ref corrections at 2174553. Native/shell/pixels separate |
 | LWB317-UI-REMAINING-PAGES-001 | Worker, lead reviewed | COMPLETE / ACCEPTED for bounded source/local scope | R1 closes twelve initial lead cases plus two continuation differences. Original failure packet preserved; global/native/pixel acceptance unchanged |
 | LWB317-UI-EQUIPMENT-CLOSEOUT-001-R1 | Returning worker, lead reviewed | COMPLETE / ACCEPTED for bounded source/local scope | 2e4acce/32b2906: hidden effects suspended, local rename/save acknowledgement states and evidence validator pass. Native/pixels/physical drag excluded |
