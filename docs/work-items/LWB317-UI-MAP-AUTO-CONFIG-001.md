@@ -1,6 +1,6 @@
 # LWB317-UI-MAP-AUTO-CONFIG-001 — complete Auto Scan UI/configuration
 
-Status: PARTIAL, interrupted after pushed A/B/C checkpoints through f5a1eaf. Lead reruns of helpers 29/29, profiles 7/7, controls 11/11, current ownership and canonical check/package pass. Milestone D remains unfinished: old navigation/ownership extractors fail on missing Auto imports; saved current ownership adapter passes. Resume final verification/evidence only. See docs/reviews/2026-10-03-LWB317-PM-MAP-AUTO-CONFIG-001-interrupted.md. One worker, no subagents; no complete-work-item acceptance yet.
+Status: AWAITING_REVIEW. A/B/C remain at their pushed checkpoints through f5a1eaf and milestone D is complete in the task-owned evidence packet. Helpers 29/29, profiles 7/7, controls 11/11, current ownership, ten affected Map regressions, offline browser QA, evidence/protected guards and canonical check/build/package all pass. The two old extractor failures are documented harness incompatibilities with current adapters; historical evidence is unchanged. Project-lead acceptance is still pending.
 
 ## Goal and start
 
@@ -167,3 +167,32 @@ versus original/current results, valid/invalid self-review findings and fixes,
 browser/canonical checks, evidence/review paths, exact commit/remote SHA,
 protected-WIP status and remaining UI/native/pixel limits. Stop at this feature;
 the project lead makes acceptance decisions and assigns further work.
+
+## Delivery — 2026-10-03
+
+Milestone D completed without a further production-code correction. The
+complete A/B/C production diff was reviewed against the recovered source,
+actual-App/Map harnesses and the affected accepted regressions. No confirmed
+source mismatch or regression justified changing production during D.
+
+The current regression runner uses a reviewed navigation adapter for the
+historical import-stripping checker and the maintained current App ownership
+harness. Ten affected Map checks pass, including request retirement, summary /
+options ownership, navigation, server redirects, delayed Clear and Scheduled
+Plunder. The historical navigation result remains baseline=6/current=0 and the
+original result files are not rewritten.
+
+Offline browser verification covers real English/light and Japanese/dark input,
+invalid and valid keyboard Enter, chip removal, interval/speed/type/return
+settings, Manual/Auto draft retention, enable/disable and reload persistence.
+The saved 860x900 narrow capture was inspected for layout; live narrow
+interaction was not separately driven because the browser connector exposes no
+viewport-resize action. Console capture had zero warnings and zero errors.
+Preview Run now stayed disabled and no native action was dispatched.
+
+Evidence is under
+evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-AUTO-CONFIG-001/. The executable
+validator and protected-WIP guard pass. All seven pre-existing protected WIP
+hashes remain byte-identical and unstaged. Native Auto execution, Last War
+control, original-runtime pixel comparison and global Map/all-page parity remain
+outside this delivery.

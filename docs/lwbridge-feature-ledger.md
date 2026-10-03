@@ -1,10 +1,10 @@
 # LWBridge 0.3.17 feature ledger
 
-Current lead decision, 2026-10-03: MAP-REFRESH-OWNERSHIP-001 and the prior four Map units remain accepted for focused source/local UI scope. MAP-AUTO-CONFIG-001 is PARTIAL after interruption: A/B/C implementation is pushed through f5a1eaf; focused helper/profile/control/current-ownership and check/package reruns pass. Resume milestone D verification/evidence only; historical extractors need current adapters. MAP-CLOSEOUT-002 remains PARTIAL. One worker, no subagents. Full UI/original pixels/native parity remains unaccepted. See the dated Auto interrupted-progress review.
+Current worker delivery pending project-lead review, 2026-10-03: MAP-AUTO-CONFIG-001 is AWAITING_REVIEW after complete A/B/C/D source/local UI/config verification. Ten affected Map regressions, real offline browser controls, evidence/protected guards and canonical check/build/package pass. Native Auto execution, original pixels and full UI/global parity remain unaccepted.
 
 This ledger starts clean for 0.3.17.
 
-2026-10-03 recovery: four recent Map UI units and completed summary/options ownership receive focused source/local acceptance. Auto findings establish recovered contracts only; implementation is assigned under AUTO-CONFIG-001. See the dated Auto dispatch review. Native/live status remains unchanged.
+2026-10-03 Auto delivery: four recent Map UI units and completed summary/options ownership remain accepted for focused source/local scope. AUTO-CONFIG-001 now awaits project-lead review with helpers/profile ownership/controls and integrated evidence complete. Native/live status remains unchanged.
 
 Map row-refresh/scan-export feedback: REFRESH-FEEDBACK-001 implements the recovered frontend contract and validates it locally (45/19/11). No native provider/live status upgrade. Source locators and remaining options-request ownership gap are in its dated review/evidence packet.
 

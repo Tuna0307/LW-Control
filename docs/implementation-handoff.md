@@ -1,23 +1,24 @@
 # Current implementation/research handoff
 
-Current lead decision, 2026-10-03: refresh ownership remains accepted for focused scope. Auto configuration A/B/C is pushed through f5a1eaf; milestone D verification/evidence remains PARTIAL. Resume its saved work under AUTO-CONFIG-001 only; see the dated interrupted-progress review below. No subagents. Native executor, gameplay and original pixel/global acceptance remain outside this assignment.
+Current worker delivery, 2026-10-03: refresh ownership remains accepted for focused scope and MAP-AUTO-CONFIG-001 is AWAITING_REVIEW. A/B/C remain pushed through f5a1eaf; milestone D now has current regression adapters, browser evidence, executable evidence/protected guards, complete-diff review and canonical check/build/package PASS. No milestone-D production correction was justified. Project-lead acceptance is pending; native executor, gameplay and original pixel/global acceptance remain outside this assignment.
 
 **Target:** LWBridge 0.3.17  
 **Branch:** `research/offline-controller`  
 **Active scope:** UI parity / complete Map Auto UI/configuration; no new native integration
 
-## Current continuation — project-lead takeover checkpoint
+## Current continuation — Auto configuration delivery
 
-2026-10-03 Auto worker interruption: A/B/C are pushed through f5a1eaf;
-helpers 29/29, profiles 7/7, controls 11/11, current ownership and canonical
-check/package pass on lead rerun. Resume milestone D only under the existing
-AUTO-CONFIG-001 assignment. Its saved runner still invokes historical
-navigation/ownership extractors missing the new Auto imports. The untracked
-current ownership checker passes. Finish current regression adapters, browser
-records, validator, complete-diff review and delivery docs; do not restart
-implemented controls. Read the dated interrupted-progress review. Worker
-regression files/screenshots remain untracked; seven protected hashes match.
-No final acceptance or native phase is authorized.
+2026-10-03 MAP-AUTO-CONFIG-001 worker delivery: milestone D is complete and
+AWAITING_REVIEW. The current runner adapts the stale NAVIGATION-001 extractor
+with real production helper dependencies and uses the maintained current App
+ownership harness; the stale historical ownership redirect remains disclosed as
+a reproducer and is not regression authority. Ten affected Map regressions
+pass, including request lifetime, Scheduled Plunder, R1 redirects/Clear and
+current summary/options ownership. English/light and Japanese/dark offline
+browser controls pass; the saved narrow capture was inspected for layout.
+Evidence/protected guards and canonical check/build/package pass. Seven
+protected WIP hashes remain unchanged/unstaged. Read the dated Auto delivery
+review and evidence README. No final acceptance or native phase is authorized.
 
 2026-10-03 REFRESH-FEEDBACK-001: row revision timer/completion cleanup, scan error
 priority/translation/start retirement and localized export busy/result behavior

@@ -1,6 +1,6 @@
 # LWBridge 0.3.17 parity matrix
 
-Current lead decision, 2026-10-03: MAP-REFRESH-OWNERSHIP-001 and the prior four Map units remain accepted for focused source/local UI scope. MAP-AUTO-CONFIG-001 is PARTIAL after interruption: A/B/C implementation is pushed through f5a1eaf; focused helper/profile/control/current-ownership and check/package reruns pass. Resume milestone D verification/evidence only; historical extractors need current adapters. MAP-CLOSEOUT-002 remains PARTIAL. One worker, no subagents. Full UI/original pixels/native parity remains unaccepted. See the dated Auto interrupted-progress review.
+Current worker delivery pending project-lead review, 2026-10-03: MAP-AUTO-CONFIG-001 is AWAITING_REVIEW after complete A/B/C/D source/local UI/config verification. Ten affected Map regressions, real offline browser controls, evidence/protected guards and canonical check/build/package pass. Native Auto execution, original pixels and full UI/global parity remain unaccepted.
 
 This is the current completion authority for the new 0.3.17 program.
 

@@ -1,0 +1,15 @@
+{
+  "capturedAt": "2026-10-03",
+  "checkpoint": "ef5cda03a5a8f0788668ae24548efeca287a56dc",
+  "algorithm": "sha256",
+  "files": [
+    {"path": "src/LWBridge.UI-0.3.17/src/mapAutoConfig.js", "sha256": "c88faa13ebf8d15d2ec9ea54e800fddec5ecb38df70d9d97e8d67768ec42ef4e"},
+    {"path": "src/LWBridge.UI-0.3.17/src/App.jsx", "sha256": "ae6663bc9e71c9fb2fed5f7bffc8398447f357e6e6120701d81da572269c5f52"},
+    {"path": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx", "sha256": "c773900413d23e0be06cd2fa4a8c02fe3036e764bcdbfe4f2e519de5c17a9d01"},
+    {"path": "src/LWBridge.UI-0.3.17/scripts/check-map-integration.mjs", "sha256": "ad03cc8249d31ebc678bee18dfb20de16212561ed02b7749b0eaad13e3e4099f"},
+    {"path": "src/LWBridge.UI-0.3.17/scripts/check-ui-complete.mjs", "sha256": "32b44ad99d93492510b1ec1533cfaaa66e9f862282063ae7249ef9254b525393"},
+    {"path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-AUTO-CONFIG-001/screenshots/auto-en-light.png", "sha256": "b0793c401624850189329a7b5c1b10a2daabd8a27c90f16ec899dc7134448d78"},
+    {"path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-AUTO-CONFIG-001/screenshots/auto-ja-dark.png", "sha256": "6a7cb6f6646de0ae702bbacac0f49ec54c8c586a1c0ac36672cc0165bebe7873"},
+    {"path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-AUTO-CONFIG-001/screenshots/auto-narrow-en-light.png", "sha256": "9e9a5c9a5c878892145335bd760b45ec15b4236b5c9a3a11346e5c1c33ab2558"}
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "capturedAt": "2026-10-03",
+  "status": "PASS",
+  "note": "All seven pre-existing protected WIP files match protected-wip-before.json byte-for-byte.",
+  "paths": [
+    {"path": "src/LWBridge.UI-0.3.17/src/previewAfkFixtures.js", "sha256": "a41e07a3487fc71b78376ba99609c030ddad6b30e71daac5c428b42eaa6bc447"},
+    {"path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-FILTER-LIFECYCLE-001/filter-lifecycle-results.json", "sha256": "d7b32b2fbce9f8f4c3945f82c80506d9b22536604058b6228cadf921169afd04"},
+    {"path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-FILTER-LIFECYCLE-001-R1/independent-results.json", "sha256": "4e1f78a93e8d5a5e3995ba137c08089c48d900b7915f6c896e20fc555a94d2fc"},
+    {"path": ".scratch-lwb317/AutomationPanel.pretty.js", "sha256": "8e7173c71afe650cf1839e7eaa78e67bfa066ff6289ac2141410441e49da2d79"},
+    {"path": ".scratch-lwb317/baseline-check.mjs", "sha256": "9c308b07b2a79632b92eec959e2d1108d61b5809c58f33f3fab69e42403275c9"},
+    {"path": ".scratch-lwb317/SquadPanel.pretty.js", "sha256": "dc973a3adac1f9bc06230229c4a292e8659d0aaa82cdbb6812e97cbc4fc3d3d5"},
+    {"path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-CORRECT-003/screenshots/weekly-save-error-light-en.png", "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"}
+  ]
+}

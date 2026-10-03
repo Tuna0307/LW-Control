@@ -1,6 +1,6 @@
 # Current project directive
 
-Current lead decision, 2026-10-03: MAP-REFRESH-OWNERSHIP-001 and the prior four Map units remain accepted for focused source/local UI scope. MAP-AUTO-CONFIG-001 is PARTIAL after interruption: A/B/C implementation is pushed through f5a1eaf; focused helper/profile/control/current-ownership and check/package reruns pass. Resume milestone D verification/evidence only; historical extractors need current adapters. MAP-CLOSEOUT-002 remains PARTIAL. One worker, no subagents. Full UI/original pixels/native parity remains unaccepted. See the dated Auto interrupted-progress review.
+Current worker delivery, 2026-10-03: MAP-AUTO-CONFIG-001 is AWAITING_REVIEW after milestone D closeout. A/B/C remain pushed through f5a1eaf; helpers 29/29, profiles 7/7, controls 11/11, current ownership, ten affected Map regressions, offline browser QA, evidence/protected guards and canonical check/build/package pass. Historical extractor incompatibilities are handled by current adapters without rewriting old evidence. Project-lead acceptance remains pending; full UI/original pixels/native parity remains unaccepted.
 
 ## Target
 

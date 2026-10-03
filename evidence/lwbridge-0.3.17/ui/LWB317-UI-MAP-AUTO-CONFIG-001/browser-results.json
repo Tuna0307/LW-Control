@@ -1,0 +1,38 @@
+{
+  "status": "PASS",
+  "date": "2026-10-03",
+  "scope": "Offline preview browser verification only. No Last War process was launched or controlled; no native Auto executor, server jump, scan start, or original protected runtime was invoked.",
+  "environment": {
+    "urlBase": "http://127.0.0.1:4319/",
+    "providerMode": "preview/offline",
+    "serverOwnership": "pre-existing Vite server reused and left running",
+    "ownedBrowserTabClosed": true,
+    "testStorageRestored": true
+  },
+  "savedScreenshots": [
+    {"path": "screenshots/auto-en-light.png", "width": 1600, "height": 900, "sha256": "b0793c401624850189329a7b5c1b10a2daabd8a27c90f16ec899dc7134448d78", "observation": "English/light Auto card, enabled scheduled state, target chips, interval, speed, type controls, return option, disabled Run now and Map rows are visibly composed."},
+    {"path": "screenshots/auto-ja-dark.png", "width": 1600, "height": 900, "sha256": "6a7cb6f6646de0ae702bbacac0f49ec54c8c586a1c0ac36672cc0165bebe7873", "observation": "Japanese/dark Auto card is localized and composed without visible overlap or clipping in the full-width capture."},
+    {"path": "screenshots/auto-narrow-en-light.png", "width": 860, "height": 900, "sha256": "9e9a5c9a5c878892145335bd760b45ec15b4236b5c9a3a11346e5c1c33ab2558", "observation": "Saved narrow English/light capture shows the Auto controls wrapping within the Map panel and the expected horizontally constrained table boundary. This image supports layout only, not an interaction claim."}
+  ],
+  "liveChecks": [
+    {"name": "english-invalid-enter", "status": "PASS", "observation": "Typing 'bad only' and pressing Enter kept the draft, kept Add disabled, and did not change chips or persisted configuration."},
+    {"name": "english-keyboard-add-and-dedupe", "status": "PASS", "observation": "Typing '8, 15；120 16' and pressing Enter cleared the draft and persisted ordered deduplicated server IDs [15,16,8,120]."},
+    {"name": "chip-remove", "status": "PASS", "observation": "Removing chip 15 persisted [16,8,120]."},
+    {"name": "manual-auto-mode-round-trip", "status": "PASS", "observation": "An unsaved invalid draft 'keep-draft' survived Manual Scan -> Auto Scan; the configuration store did not change from the mode switch."},
+    {"name": "settings-edits", "status": "PASS", "observation": "Real input actions persisted interval 45, speed fast, Resource Point selected, and return-to-original enabled while retaining the existing selected types."},
+    {"name": "disable-enable", "status": "PASS", "observation": "Disable produced status Disabled, nextRunAt 0 and Next scan '-'. Re-enable produced Waiting for schedule and a new positive nextRunAt. Run now remained disabled offline."},
+    {"name": "reload-persistence", "status": "PASS", "observation": "After reload, enabled=true, interval=45, speed=fast, Resource Point selected, return=true and server IDs [16,8,120] were restored. The component-local unsaved draft reset to empty."},
+    {"name": "japanese-dark-keyboard-add", "status": "PASS", "observation": "The persisted configuration rendered with Japanese labels in dark theme. Typing 321 and pressing Enter added chip 321 and cleared the draft; removing it restored [16,8,120]. Run now stayed disabled."}
+  ],
+  "console": {
+    "capture": "Since debugger attachment across initial, English test, reload and Japanese/dark page loads",
+    "warnings": 0,
+    "errors": 0,
+    "other": "Only Vite connect/connected debug lines and the React DevTools informational message were observed."
+  },
+  "nativeFence": {"runNowDisabledOffline": true, "nativeActionsDispatched": 0},
+  "limitations": [
+    "The saved 860x900 narrow capture was inspected as visual evidence; live interaction assertions above come from the full-width English/light and Japanese/dark sessions.",
+    "Running/online Run-now predicate coverage is from the inert production control harness, not live gameplay."
+  ]
+}
