@@ -1841,12 +1841,12 @@ function RecoveredHotkeyPanel({ category = "hotkeys", previewState = "", online:
   const savingState = isMiniGames ? "mini-games-config-saving" : "hotkeys-saving";
   const [hotkeyConfig, setHotkeyConfig] = useState(() => previewState === loadErrorState || previewState === loadingState || !previewEnabled ? null : previewHotkeyConfig());
   const [pendingField, setPendingField] = useState(() => previewState === savingState ? (isMiniGames ? "treasureChestHint" : "attack") : null);
-  const [hotkeyError, setHotkeyError] = useState(() => previewState === loadErrorState ? "hotkeys.loadFailed" : previewState === saveErrorState ? "hotkeys.saveFailed" : previewState === "mini-games-land-error" ? "miniGames.landCellFailed" : "");
+  const [hotkeyError, setHotkeyError] = useState(() => previewState === loadErrorState ? t("hotkeys.loadFailed") : previewState === saveErrorState ? t("hotkeys.saveFailed") : previewState === "mini-games-land-error" ? t("miniGames.landCellFailed") : "");
   const sourceConfigRef = useRef(hotkeyConfig ?? previewHotkeyConfig());
   const [landBusy, setLandBusy] = useState(previewState === "mini-games-land-opening");
-  const [landResult, setLandResult] = useState(() => previewState === "mini-games-land-success" ? { key: "miniGames.landCellSent", vars: { id: 17 } } : null);
+  const [landResult, setLandResult] = useState(() => previewState === "mini-games-land-success" ? t("miniGames.landCellSent", { id: 17 }) : "");
   const [sheepBusy, setSheepBusy] = useState(previewState === "mini-games-sheep-pending");
-  const [sheepActionError, setSheepActionError] = useState(previewState === "mini-games-start-failed" ? "miniGames.sheep.failed" : "");
+  const [sheepActionError, setSheepActionError] = useState(() => previewState === "mini-games-start-failed" ? t("miniGames.sheep.failed") : "");
   const [sheepStatus] = useState(() => previewEnabled ? previewSheepStatus(previewState, Date.now()) : null);
   const [now, setNow] = useState(() => Date.now());
   const sheepRunning = sheepStatus?.running === true;
@@ -1865,7 +1865,7 @@ function RecoveredHotkeyPanel({ category = "hotkeys", previewState = "", online:
       setHotkeyConfig(saved);
     } catch {
       setHotkeyConfig(previous);
-      setHotkeyError("hotkeys.saveFailed");
+      setHotkeyError(t("hotkeys.saveFailed"));
     } finally {
       setPendingField(null);
     }
@@ -1881,14 +1881,14 @@ function RecoveredHotkeyPanel({ category = "hotkeys", previewState = "", online:
   async function openLandCell() {
     if (!previewEnabled || !online || landBusy) return;
     setLandBusy(true);
-    setLandResult(null);
+    setLandResult("");
     setHotkeyError("");
     try {
       await Promise.resolve();
       if (previewState === "mini-games-land-error") throw new Error("preview land cell failure");
-      setLandResult({ key: "miniGames.landCellSent", vars: { id: 17 } });
+      setLandResult(t("miniGames.landCellSent", { id: 17 }));
     } catch {
-      setHotkeyError("miniGames.landCellFailed");
+      setHotkeyError(t("miniGames.landCellFailed"));
     } finally {
       setLandBusy(false);
     }
@@ -1902,7 +1902,7 @@ function RecoveredHotkeyPanel({ category = "hotkeys", previewState = "", online:
       await Promise.resolve();
       if (previewState === "mini-games-start-failed") throw new Error("preview sheep failure");
     } catch {
-      setSheepActionError("miniGames.sheep.failed");
+      setSheepActionError(t("miniGames.sheep.failed"));
     } finally {
       setSheepBusy(false);
     }
@@ -1932,7 +1932,7 @@ function RecoveredHotkeyPanel({ category = "hotkeys", previewState = "", online:
           <h3>{t("miniGames.landCell.title")}</h3>
           <p>{t("miniGames.landCell.description")}</p>
           <div className="mini-game-actions"><button className="primary" type="button" disabled={!previewEnabled || !online || landBusy} onClick={() => void openLandCell()}>{t(landBusy ? "miniGames.landCellOpening" : "miniGames.landCellAction")}</button></div>
-          {landResult ? <span className="hotkey-state enabled">{t(landResult.key, landResult.vars)}</span> : null}
+          {landResult ? <span className="hotkey-state enabled">{landResult}</span> : null}
         </article> : null}
         {isMiniGames ? <article className="hotkey-card">
           <h3>{t("miniGames.sheep.title")}</h3>
@@ -1941,10 +1941,10 @@ function RecoveredHotkeyPanel({ category = "hotkeys", previewState = "", online:
           {showSheepElapsed ? <span className="hotkey-state">{t("miniGames.sheep.elapsed", { time: formatSheepElapsed(sheepDurationMs) })}</span> : null}
           <span className={sheepStatus?.step === "completed" ? "hotkey-state enabled" : "hotkey-state"}>{sheepStatusText}</span>
           <div className="mini-game-actions"><button className={sheepRunning ? "" : "primary"} type="button" disabled={!previewEnabled || !online || sheepBusy} onClick={() => void toggleSheepGame()}>{t(sheepBusy ? "common.processing" : sheepRunning ? "common.stop" : "common.start")}</button></div>
-          {sheepActionError ? <div className="automation-error" role="alert">{t(sheepActionError)}</div> : null}
+          {sheepActionError ? <div className="automation-error" role="alert">{sheepActionError}</div> : null}
         </article> : null}
       </div> : null}
-      {hotkeyError ? <div className="automation-error" role="alert">{t(hotkeyError)}</div> : null}
+      {hotkeyError ? <div className="automation-error" role="alert">{hotkeyError}</div> : null}
     </section>
   );
 }
@@ -2008,7 +2008,7 @@ export function SettingsPage({ previewState = "", showProfileFocus: runtimeShowP
     : runtimeShowProfileFocus;
   const [visualPreferences, setVisualPreferences] = useState(() => previewState === "settings-visual-error" || previewState === "settings-visual-loading" || !previewEnabled ? null : { showFps: false, showPing: false, previewUnrelatedField: "preserve-me" });
   const [visualBusy, setVisualBusy] = useState(previewState === "settings-visual-saving");
-  const [visualErrorKey, setVisualErrorKey] = useState(() => previewState === "settings-visual-error" ? "settings.visualMetrics.loadFailed" : previewState === "settings-visual-save-error" ? "settings.visualMetrics.saveFailed" : "");
+  const [visualErrorText, setVisualErrorText] = useState(() => previewState === "settings-visual-error" ? t("settings.visualMetrics.loadFailed") : previewState === "settings-visual-save-error" ? t("settings.visualMetrics.saveFailed") : "");
   const visualSourceRef = useRef(visualPreferences ?? { showFps: false, showPing: false, previewUnrelatedField: "preserve-me" });
   const [focusGamePreview, setFocusGamePreview] = useState(focusGameOnProfileSelect);
   const [feedbackState, setFeedbackState] = useState(() => initialFeedbackState(previewState));
@@ -2037,7 +2037,7 @@ export function SettingsPage({ previewState = "", showProfileFocus: runtimeShowP
     const optimistic = { ...visualPreferences, [field]: value };
     setVisualPreferences(optimistic);
     setVisualBusy(true);
-    setVisualErrorKey("");
+    setVisualErrorText("");
     try {
       await Promise.resolve();
       if (previewState === "settings-visual-save-error") throw new Error("preview visual metrics save failure");
@@ -2046,7 +2046,7 @@ export function SettingsPage({ previewState = "", showProfileFocus: runtimeShowP
       setVisualPreferences(saved);
     } catch {
       setVisualPreferences(previousVisual);
-      setVisualErrorKey("settings.visualMetrics.saveFailed");
+      setVisualErrorText(t("settings.visualMetrics.saveFailed"));
     } finally {
       setVisualBusy(false);
     }
@@ -2104,9 +2104,9 @@ export function SettingsPage({ previewState = "", showProfileFocus: runtimeShowP
             <span>{t("settings.visualMetrics.description")}</span>
           </div>
         </div>
-        {visualPreferences === null && !visualErrorKey ? <p>{t("common.processing")}</p> : null}
+        {visualPreferences === null && !visualErrorText ? <p>{t("common.processing")}</p> : null}
         {visualPreferences ? <div className="settings-stack"><ToggleRow label={t("settings.visualMetrics.showFps")} checked={visualPreferences.showFps} disabled={visualBusy} onChange={(value) => void saveVisualPreference("showFps", value)} /><ToggleRow label={t("settings.visualMetrics.showPing")} checked={visualPreferences.showPing} disabled={visualBusy} onChange={(value) => void saveVisualPreference("showPing", value)} /></div> : null}
-        {visualErrorKey ? <p className="update-error" role="alert">{t(visualErrorKey)}</p> : null}
+        {visualErrorText ? <p className="update-error" role="alert">{visualErrorText}</p> : null}
       </section>
       {showProfileFocus ? <section className="update-panel"><div className="update-heading"><div><strong>{t("settings.accountInteraction.title")}</strong><span>{t("settings.accountInteraction.description")}</span></div></div><div className="settings-stack"><ToggleRow label={t("settings.accountInteraction.focusGameOnProfileSelect")} checked={previewEnabled ? focusGamePreview : focusGameOnProfileSelect} onChange={changeProfileFocus} /></div></section> : null}
       <section className="update-panel feedback-panel">
