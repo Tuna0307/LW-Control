@@ -1367,7 +1367,7 @@ const CITY_LAYOUT_PREVIEW_STATES = new Set([
 export function CityLayoutPage({ previewState = "", online = false }) {
   const { t } = useI18n();
   const previewEnabled = CITY_LAYOUT_PREVIEW_STATES.has(previewState);
-  const fixture = useMemo(() => previewEnabled ? previewCityLayoutFixture(previewState) : null, [previewEnabled, previewState]);
+  const fixture = useMemo(() => previewEnabled && previewState !== "city-layout-loading" && previewState !== "city-layout-error" ? previewCityLayoutFixture(previewState) : null, [previewEnabled, previewState]);
   const layout = fixture;
   const loading = previewState === "city-layout-loading";
   const [history, setHistory] = useState(() => ({ past: [], present: fixture?.placements ?? [], future: [] }));
@@ -1382,13 +1382,15 @@ export function CityLayoutPage({ previewState = "", online = false }) {
   const [stale, setStale] = useState(previewState === "city-layout-stale");
   const [errorText, setErrorText] = useState(previewState === "city-layout-error" ? t("common.actionFailed") : "");
   const [applyConfirmOpen, setApplyConfirmOpen] = useState(false);
+  const [applyPreparing, setApplyPreparing] = useState(false);
   const viewportRef = useRef(null);
   const gridRef = useRef(null);
   const draftTimerRef = useRef(0);
   const savedSignatureRef = useRef(cityPlacementSignature(fixture?.placements ?? []));
   const placements = history.present;
   const applyStatus = previewState === "city-layout-applying" ? { state: "running", totalMoves: 4, completedMoves: 2, jobId: "preview-city-layout" } : null;
-  const busy = applyStatus?.state === "running" || applyStatus?.state === "cancelling";
+  const applyRunning = applyStatus?.state === "running" || applyStatus?.state === "cancelling";
+  const busy = applyPreparing || applyRunning;
   const cellsByPoint = useMemo(() => new Map(layout?.cells.map((cell) => [cell.pointId, cell]) ?? []), [layout]);
   const cellsByCoordinate = useMemo(() => new Map(layout?.cells.map((cell) => [`${cell.x}:${cell.y}`, cell]) ?? []), [layout]);
   const buildingsByUuid = useMemo(() => new Map(layout?.buildings.map((building) => [building.uuid, building]) ?? []), [layout]);
@@ -1407,17 +1409,23 @@ export function CityLayoutPage({ previewState = "", online = false }) {
     setServerValidation(null);
   };
 
-  const undo = () => setHistory((current) => {
+  const undo = () => {
+    if (busy) return;
+    setHistory((current) => {
     const previous = current.past[current.past.length - 1];
     return previous ? { past: current.past.slice(0, -1), present: previous, future: [current.present, ...current.future] } : current;
-  });
-  const redo = () => setHistory((current) => {
+    });
+  };
+  const redo = () => {
+    if (busy) return;
+    setHistory((current) => {
     const next = current.future[0];
     return next ? { past: [...current.past, current.present], present: next, future: current.future.slice(1) } : current;
-  });
+    });
+  };
 
   const restoreInitial = () => {
-    if (placements.length) commitPlacements([]);
+    if (!busy && placements.length) commitPlacements([]);
   };
 
   const toggleSelection = (building, additive = false) => {
@@ -1437,7 +1445,7 @@ export function CityLayoutPage({ previewState = "", online = false }) {
     });
   };
 
-  const pointFromClient = (clientX, clientY, clamp = false) => {
+  const pointFromClient = (clientX, clientY) => {
     if (!gridRef.current || !region) return 0;
     const rect = gridRef.current.getBoundingClientRect();
     const style = window.getComputedStyle(gridRef.current);
@@ -1445,34 +1453,79 @@ export function CityLayoutPage({ previewState = "", online = false }) {
     const paddingTop = Number.parseFloat(style.paddingTop) || 0;
     const width = region.bounds.maxX - region.bounds.minX + 1;
     const height = region.bounds.maxY - region.bounds.minY + 1;
-    let column = Math.floor((clientX - rect.left - paddingLeft) / zoom);
-    let row = Math.floor((clientY - rect.top - paddingTop) / zoom);
-    if (clamp) {
-      column = Math.min(width - 1, Math.max(0, column));
-      row = Math.min(height - 1, Math.max(0, row));
-    } else if (column < 0 || column >= width || row < 0 || row >= height) return 0;
+    const column = Math.floor((clientX - rect.left - paddingLeft) / zoom);
+    const row = Math.floor((clientY - rect.top - paddingTop) / zoom);
+    if (column < 0 || column >= width || row < 0 || row >= height) return 0;
     const x = region.bounds.minX + column;
     const y = region.bounds.maxY - row;
     return cellsByCoordinate.get(`${x}:${y}`)?.pointId ?? 0;
   };
 
-  const groupPlacementFor = (anchorUuid, targetPointId, uuids) => {
+  const dragPointFromClient = (clientX, clientY, grabOffset) => {
+    if (!gridRef.current || !region) return 0;
+    const rect = gridRef.current.getBoundingClientRect();
+    const style = window.getComputedStyle(gridRef.current);
+    const paddingLeft = Number.parseFloat(style.paddingLeft) || 0;
+    const paddingTop = Number.parseFloat(style.paddingTop) || 0;
+    const width = region.bounds.maxX - region.bounds.minX + 1;
+    const height = region.bounds.maxY - region.bounds.minY + 1;
+    const column = Math.min(width - 1, Math.max(0, Math.floor((clientX - rect.left - paddingLeft) / zoom)));
+    const row = Math.min(height - 1, Math.max(0, Math.floor((clientY - rect.top - paddingTop) / zoom)));
+    const x = Math.min(region.bounds.maxX, Math.max(region.bounds.minX, region.bounds.minX + column + (grabOffset?.x ?? 0)));
+    const y = Math.min(region.bounds.maxY, Math.max(region.bounds.minY, region.bounds.maxY - row + (grabOffset?.y ?? 0)));
+    return cellsByCoordinate.get(`${x}:${y}`)?.pointId ?? 0;
+  };
+
+  const groupTargetPointFor = (anchorUuid, targetPointId, uuid) => {
     const anchor = buildingsByUuid.get(anchorUuid);
     const anchorSource = cellsByPoint.get(placementMap.get(anchorUuid) ?? anchor?.pointId);
     const anchorTarget = cellsByPoint.get(targetPointId);
-    if (!anchor || !anchorSource || !anchorTarget) return null;
+    const building = buildingsByUuid.get(uuid);
+    const source = cellsByPoint.get(placementMap.get(uuid) ?? building?.pointId);
+    if (!anchor || !anchorSource || !anchorTarget || !building || !source) return 0;
+    return cellsByCoordinate.get(`${anchorTarget.x + source.x - anchorSource.x}:${anchorTarget.y + source.y - anchorSource.y}`)?.pointId ?? 0;
+  };
+
+  const groupFitsRegion = (anchorUuid, targetPointId, uuids) => {
+    if (!region || !targetPointId || !uuids.length) return false;
+    return uuids.every((uuid) => {
+      const building = buildingsByUuid.get(uuid);
+      const memberTarget = groupTargetPointFor(anchorUuid, targetPointId, uuid);
+      if (!building || !memberTarget) return false;
+      const occupied = cityMovedOccupiedPoints(building, memberTarget, cellsByPoint, cellsByCoordinate);
+      return occupied.length === building.tileX * building.tileY && occupied.every((pointId) => cellsByPoint.get(pointId)?.regionId === region.id);
+    });
+  };
+
+  const groupPlacementFor = (anchorUuid, targetPointId, uuids) => {
+    if (!groupFitsRegion(anchorUuid, targetPointId, uuids)) return null;
     let next = placements;
     for (const uuid of uuids) {
       const building = buildingsByUuid.get(uuid);
-      const source = cellsByPoint.get(placementMap.get(uuid) ?? building?.pointId);
-      if (!building || !source) return null;
-      const target = cellsByCoordinate.get(`${anchorTarget.x + source.x - anchorSource.x}:${anchorTarget.y + source.y - anchorSource.y}`);
-      if (!target) return null;
-      const occupied = cityMovedOccupiedPoints(building, target.pointId, cellsByPoint, cellsByCoordinate);
-      if (occupied.length !== building.tileX * building.tileY || occupied.some((pointId) => cellsByPoint.get(pointId)?.regionId !== region.id)) return null;
-      next = citySetPlacement(next, building, target.pointId);
+      const memberTarget = groupTargetPointFor(anchorUuid, targetPointId, uuid);
+      if (!building || !memberTarget) return null;
+      next = citySetPlacement(next, building, memberTarget);
     }
     return next;
+  };
+
+  const moveDragToClient = (clientX, clientY) => {
+    setDragState((current) => {
+      if (!current) return current;
+      const candidate = dragPointFromClient(clientX, clientY, current.grabOffset);
+      let accepted = groupFitsRegion(current.anchorUuid, candidate, current.uuids) ? candidate : 0;
+      if (!accepted) {
+        const previous = cellsByPoint.get(current.targetPointId);
+        const candidateCell = cellsByPoint.get(candidate);
+        if (previous && candidateCell) {
+          const sameX = cellsByCoordinate.get(`${previous.x}:${candidateCell.y}`)?.pointId ?? 0;
+          const sameY = cellsByCoordinate.get(`${candidateCell.x}:${previous.y}`)?.pointId ?? 0;
+          if (sameX !== current.targetPointId && groupFitsRegion(current.anchorUuid, sameX, current.uuids)) accepted = sameX;
+          else if (sameY !== current.targetPointId && groupFitsRegion(current.anchorUuid, sameY, current.uuids)) accepted = sameY;
+        }
+      }
+      return accepted ? { ...current, targetPointId: accepted } : current;
+    });
   };
 
   const finishPointer = () => {
@@ -1515,6 +1568,26 @@ export function CityLayoutPage({ previewState = "", online = false }) {
     if (draftTimerRef.current) window.clearTimeout(draftTimerRef.current);
     savedSignatureRef.current = cityPlacementSignature(placements);
     setDraftRevision((revision) => revision + 1);
+  };
+
+  const prepareApply = async () => {
+    if (!layout || stale || busy || !placements.length || !previewEnabled) return;
+    setApplyConfirmOpen(false);
+    setApplyPreparing(true);
+    try {
+      await Promise.resolve();
+      const nextIssues = cityLayoutIssues(layout, placements);
+      if (nextIssues.length) {
+        setServerValidation({ valid: false, issues: nextIssues, totalMoves: 0, temporaryMoves: 0 });
+        return;
+      }
+      setServerValidation({ valid: true, issues: [], totalMoves: placements.length, temporaryMoves: 0 });
+      setApplyConfirmOpen(true);
+    } catch {
+      setErrorText(t("common.actionFailed"));
+    } finally {
+      setApplyPreparing(false);
+    }
   };
 
   useEffect(() => {
@@ -1579,7 +1652,7 @@ export function CityLayoutPage({ previewState = "", online = false }) {
           <button type="button" disabled={!history.future.length || busy} onClick={redo}>{t("cityLayout.redo")}</button>
           <button type="button" disabled={!placements.length || busy} onClick={restoreInitial}>{t("cityLayout.restoreInitial")}</button>
           <button type="button" disabled={stale || busy || !previewEnabled} onClick={saveDraftNow}>{t("cityLayout.saveDraft")}</button>
-          <button type="button" className="primary" disabled={stale || !placements.length || busy || !previewEnabled} onClick={() => { const nextIssues = cityLayoutIssues(layout, placements); if (nextIssues.length) setServerValidation({ valid: false, issues: nextIssues, totalMoves: 0, temporaryMoves: 0 }); else { setServerValidation({ valid: true, issues: [], totalMoves: placements.length, temporaryMoves: 0 }); setApplyConfirmOpen(true); } }}>{t("cityLayout.apply")}</button>
+          <button type="button" className="primary" disabled={stale || !placements.length || busy || !previewEnabled} onClick={() => void prepareApply()}>{t("cityLayout.apply")}</button>
         </div>
       </header>
       {stale ? <div className="city-layout-warning">{t("cityLayout.stale")} <button type="button" onClick={() => { setHistory({ past: [], present: [], future: [] }); setDraftRevision(0); savedSignatureRef.current = ""; setStale(false); }}>{t("cityLayout.discardDraft")}</button></div> : null}
@@ -1611,9 +1684,11 @@ export function CityLayoutPage({ previewState = "", online = false }) {
                 setCitySelectionState({ startPointId: pointId, currentPointId: pointId, additive: event.ctrlKey });
               }}
               onPointerMove={(event) => {
-                const pointId = pointFromClient(event.clientX, event.clientY, Boolean(dragState));
-                if (dragState && pointId) setDragState((current) => current ? { ...current, targetPointId: pointId } : current);
-                else if (citySelectionState && pointId) setCitySelectionState((current) => current ? { ...current, currentPointId: pointId } : current);
+                if (dragState) moveDragToClient(event.clientX, event.clientY);
+                else if (citySelectionState) {
+                  const pointId = pointFromClient(event.clientX, event.clientY);
+                  if (pointId) setCitySelectionState((current) => current ? { ...current, currentPointId: pointId } : current);
+                }
               }}
               onPointerUp={finishPointer}
               onPointerCancel={() => { setDragState(null); setCitySelectionState(null); }}
@@ -1660,12 +1735,14 @@ export function CityLayoutPage({ previewState = "", online = false }) {
                   const uuids = (selectedSet.has(building.uuid) ? selectedUuids : [building.uuid]).filter((uuid) => buildingsByUuid.get(uuid)?.movable);
                   if (!selectedSet.has(building.uuid)) setSelectedUuids([building.uuid]);
                   setSelectedUuid(building.uuid);
-                  setDragState({ anchorUuid: building.uuid, uuids, targetPointId: placementMap.get(building.uuid) ?? building.pointId });
+                  const pointerPoint = cellsByPoint.get(pointFromClient(event.clientX, event.clientY));
+                  const anchorPoint = cellsByPoint.get(placementMap.get(building.uuid) ?? building.pointId);
+                  const grabOffset = pointerPoint && anchorPoint ? { x: anchorPoint.x - pointerPoint.x, y: anchorPoint.y - pointerPoint.y } : { x: 0, y: 0 };
+                  setDragState({ anchorUuid: building.uuid, uuids, targetPointId: placementMap.get(building.uuid) ?? building.pointId, grabOffset });
                 }}
                 onPointerMove={(event) => {
                   if (!dragState || dragState.anchorUuid !== building.uuid) return;
-                  const pointId = pointFromClient(event.clientX, event.clientY, true);
-                  if (pointId) setDragState((current) => current ? { ...current, targetPointId: pointId } : current);
+                  moveDragToClient(event.clientX, event.clientY);
                 }}
                 onPointerUp={(event) => {
                   event.stopPropagation();
@@ -1684,7 +1761,7 @@ export function CityLayoutPage({ previewState = "", online = false }) {
           {serverValidation?.valid ? <div className="city-layout-validation valid">{t("cityLayout.validation.server", { moves: serverValidation.totalMoves, temporary: serverValidation.temporaryMoves })}</div> : null}
           <strong>{t("cityLayout.changes", { count: placements.length })}</strong>
           <div className="city-layout-changes">{placements.length === 0 ? <span>{t("cityLayout.noChanges")}</span> : placements.map((placement) => { const building = buildingsByUuid.get(placement.uuid); return building ? <div key={placement.uuid}><span>{displayName(building)}</span><small>{t("cityLayout.level", { level: building.level })}</small></div> : null; })}</div>
-          {busy ? <div className="city-layout-progress"><span>{t("cityLayout.applyProgress", { current: applyStatus.completedMoves, total: applyStatus.totalMoves })}</span><progress max={applyStatus.totalMoves || 1} value={applyStatus.completedMoves} /><button type="button" onClick={() => setErrorText(t("common.actionFailed"))}>{t("cityLayout.cancelApply")}</button></div> : null}
+          {applyRunning ? <div className="city-layout-progress"><span>{t("cityLayout.applyProgress", { current: applyStatus.completedMoves, total: applyStatus.totalMoves })}</span><progress max={applyStatus.totalMoves || 1} value={applyStatus.completedMoves} /><button type="button" onClick={() => setErrorText(t("common.actionFailed"))}>{t("cityLayout.cancelApply")}</button></div> : null}
         </aside>
       </div>
       <footer className="city-layout-footer"><span>{t("cityLayout.draftRevision", { revision: draftRevision })}</span><span>{t("cityLayout.conflicts", { count: issues.length })}</span></footer>

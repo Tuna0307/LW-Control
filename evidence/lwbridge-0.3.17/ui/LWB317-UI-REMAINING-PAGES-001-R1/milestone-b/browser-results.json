@@ -1,0 +1,47 @@
+{
+  "workItem": "LWB317-UI-REMAINING-PAGES-001-R1",
+  "milestone": "B",
+  "result": "PASS",
+  "urlBase": "http://127.0.0.1:4319/",
+  "state": "city-layout-populated",
+  "language": "en",
+  "theme": "light",
+  "records": [
+    {
+      "name": "Physical valid-axis fallback drag",
+      "input": "Browser pointer drag from Barracks interior at the source-equivalent grab point toward the invalid right-edge candidate",
+      "observed": {
+        "beforeRect": { "x": 312, "y": 290.1875, "width": 48, "height": 48 },
+        "afterRect": { "x": 312, "y": 338.1875, "width": 48, "height": 48 },
+        "pendingChanges": "Barracks / Level 28",
+        "validation": "Local layout checks passed",
+        "undoEnabled": true,
+        "sourceEquivalentTargetPointId": 505
+      }
+    },
+    {
+      "name": "Single physical Undo after fallback",
+      "observed": {
+        "restoredRect": { "x": 312, "y": 290.1875 },
+        "pendingChanges": "No changes",
+        "undoDisabled": true,
+        "undoClicks": 1
+      }
+    },
+    {
+      "name": "Physical non-origin pointer down/up is a no-op",
+      "input": "Browser click on Hospital second cell using the recovered grab-offset path",
+      "observed": {
+        "hospitalRect": { "x": 264, "y": 362.1875, "width": 48, "height": 24 },
+        "pendingChanges": "No changes",
+        "undoDisabled": true
+      }
+    }
+  ],
+  "console": {
+    "errors": [],
+    "warnings": [],
+    "capture": "Fresh since this continuation attached its owned preview tab"
+  },
+  "proofBoundary": "Physical browser input confirms mounted pointer/Undo behavior. Exact original/current Hospital (84,108) and Barracks (108,36)->(180,84) callback equivalence plus Apply-preparation timing are proved by check-city-r1.mjs. No native City provider, game action, window.confirm, or service call was invoked."
+}

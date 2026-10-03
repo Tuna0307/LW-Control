@@ -1,0 +1,86 @@
+{
+  "workItem": "LWB317-UI-REMAINING-PAGES-001-R1",
+  "milestone": "B",
+  "result": "PASS",
+  "results": [
+    {
+      "name": "null-layout loading/error branch",
+      "cases": [
+        "loading",
+        "error"
+      ],
+      "result": "PASS"
+    },
+    {
+      "name": "exact lead pointer offset/fallback cases",
+      "cases": [
+        "Hospital 84,108 no-op",
+        "Barracks 108,36 -> 180,84 target505"
+      ],
+      "result": "PASS"
+    },
+    {
+      "name": "release validation and previous-target behavior",
+      "cases": [
+        "road rejection",
+        "locked rejection",
+        "overlap rejection",
+        "boundary candidate/fallback",
+        "previous accepted target retained"
+      ],
+      "result": "PASS"
+    },
+    {
+      "name": "invalid group candidate",
+      "cases": [
+        "Hospital+Barracks boundary move"
+      ],
+      "result": "PASS"
+    },
+    {
+      "name": "pointer cancel cleanup",
+      "cases": [
+        "drag state cleared",
+        "history unchanged"
+      ],
+      "result": "PASS"
+    },
+    {
+      "name": "Apply preparation/cancel busy lifecycle",
+      "cases": [
+        "pending Undo/Refresh gate",
+        "direct Undo inert",
+        "confirmation",
+        "cancel clears busy",
+        "draft retained"
+      ],
+      "result": "PASS"
+    },
+    {
+      "name": "Apply rejected validation cleanup",
+      "cases": [
+        "busy enters",
+        "no confirm",
+        "draft retained"
+      ],
+      "result": "PASS"
+    },
+    {
+      "name": "Apply preparation failure cleanup",
+      "cases": [
+        "error surfaced",
+        "busy clears",
+        "draft retained"
+      ],
+      "result": "PASS"
+    }
+  ],
+  "sourceLocators": {
+    "nullLayout": "CityLayoutPanel-DoNWkywK.js ue null-layout branch byte19149",
+    "dragCandidate": "CityLayoutPanel-DoNWkywK.js it byte7661 / at byte8219 / tt source-local region predicate",
+    "grabOffset": "CityLayoutPanel-DoNWkywK.js pointer-down producer around byte15627",
+    "applyPreparation": "CityLayoutPanel-DoNWkywK.js U=!!ze||Oe and ct around byte9199"
+  },
+  "submittedBaseline": "Preserved lead packet records populated loading/error fixtures, missing grab offset, whole-move rejection, and missing Apply preparation busy gate at afd65b6.",
+  "limits": "Actual recovered/current component callbacks are compared in an inert harness. Confirmation remains local/inert. No native validation, City apply, gameplay, service, or window.confirm is invoked."
+}
