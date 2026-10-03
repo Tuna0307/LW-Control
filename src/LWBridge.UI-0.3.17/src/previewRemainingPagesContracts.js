@@ -35,6 +35,60 @@ export function mergeHotkeyField(freshConfig, optimisticConfig, field) {
   return { ...freshConfig, [field]: optimisticConfig[field] };
 }
 
+export function sheepStatusKey(status) {
+  switch (status?.step) {
+    case "solving": return "miniGames.sheep.solving";
+    case "executing": return "miniGames.sheep.executing";
+    case "completed": return "common.completed";
+    case "daily_limit": return "miniGames.sheep.dailyLimit";
+    case "all_completed": return "miniGames.sheep.allCompleted";
+    case "activity_ended": return "miniGames.sheep.activityEnded";
+    case "ui_open": return "miniGames.sheep.uiOpen";
+    case "manual_or_state_conflict": return "miniGames.sheep.conflict";
+    case "solve_failed": return "miniGames.sheep.solveFailed";
+    case "unsupported_client": return "miniGames.sheep.unsupported";
+    case "refreshing":
+    case "starting":
+    case "opening":
+    case "initial_delay": return "common.processing";
+    default: return status?.running ? "common.processing" : status?.state === "error" ? "common.failed" : "common.stopped";
+  }
+}
+
+export function formatSheepElapsed(milliseconds) {
+  const totalSeconds = Math.max(0, Math.floor(milliseconds / 1000));
+  const seconds = totalSeconds % 60;
+  const totalMinutes = Math.floor(totalSeconds / 60);
+  const minutes = totalMinutes % 60;
+  const hours = Math.floor(totalMinutes / 60);
+  return hours > 0
+    ? `${hours}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`
+    : `${totalMinutes}:${String(seconds).padStart(2, "0")}`;
+}
+
+export function previewSheepStatus(previewState, now = Date.now()) {
+  const base = { running: false, state: "idle", step: "idle", currentLevel: 4 };
+  switch (previewState) {
+    case "mini-games-active": return { ...base, running: true, state: "running", step: "executing", startedAt: now - 31_000, plannedMoves: 42, confirmedMoves: 18 };
+    case "mini-games-solving": return { ...base, running: true, state: "running", step: "solving", startedAt: now - 9_000 };
+    case "mini-games-executing": return { ...base, running: true, state: "running", step: "executing", startedAt: now - 31_000 };
+    case "mini-games-completed": return { ...base, step: "completed", durationMs: 3_661_000 };
+    case "mini-games-complete": return { ...base, step: "daily_limit" };
+    case "mini-games-all-complete": return { ...base, step: "all_completed" };
+    case "mini-games-activity-ended": return { ...base, step: "activity_ended" };
+    case "mini-games-ui-open": return { ...base, step: "ui_open" };
+    case "mini-games-conflict": return { ...base, step: "manual_or_state_conflict" };
+    case "mini-games-solve-failed": return { ...base, state: "error", step: "solve_failed" };
+    case "mini-games-unsupported": return { ...base, state: "error", step: "unsupported_client" };
+    case "mini-games-refreshing": return { ...base, running: true, state: "running", step: "refreshing", startedAt: now - 4_000 };
+    case "mini-games-starting": return { ...base, running: true, state: "running", step: "starting", startedAt: now - 2_000 };
+    case "mini-games-opening": return { ...base, running: true, state: "running", step: "opening", startedAt: now - 1_000 };
+    case "mini-games-initial-delay": return { ...base, running: true, state: "running", step: "initial_delay", startedAt: now - 6_000 };
+    case "mini-games-state-error": return { ...base, state: "error", step: "idle" };
+    default: return base;
+  }
+}
+
 export function cityPlacementMap(placements) {
   return new Map(placements.map((placement) => [placement.uuid, placement.targetPointId]));
 }

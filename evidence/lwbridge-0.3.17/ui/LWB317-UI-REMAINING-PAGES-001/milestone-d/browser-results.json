@@ -1,0 +1,64 @@
+{
+  "result": "LWB317_MINI_GAMES_BROWSER_OK",
+  "urlBase": "http://127.0.0.1:4319/",
+  "records": [
+    {
+      "name": "English/light running shared panel",
+      "state": "mini-games-active",
+      "language": "en",
+      "theme": "light",
+      "observed": {
+        "cards": 4,
+        "frontlinePresent": true,
+        "status": "Game connected",
+        "elapsedAdvanced": true,
+        "progress": "Confirmed 18/42 moves",
+        "stopClass": "",
+        "treasureAfterPhysicalToggle": true,
+        "landResultAfterPhysicalClick": "Unlock request sent for cell #17"
+      }
+    },
+    {
+      "name": "Japanese/dark config loading keeps non-config helpers",
+      "state": "mini-games-config-loading",
+      "language": "ja",
+      "theme": "dark",
+      "observed": {
+        "processingVisible": true,
+        "cards": 3,
+        "frontlinePresent": false,
+        "treasureDisabled": true,
+        "landPresent": true,
+        "sheepPresent": true
+      }
+    },
+    {
+      "name": "Japanese/dark Sheep action failure stays in card",
+      "state": "mini-games-start-failed",
+      "language": "ja",
+      "theme": "dark",
+      "observed": {
+        "sheepStatus": "停止中",
+        "button": "開始",
+        "cardError": "グルメハウス自動クリアを開始できませんでした。"
+      }
+    },
+    {
+      "name": "English/light Land failure uses shared panel error",
+      "state": "mini-games-land-error",
+      "language": "en",
+      "theme": "light",
+      "observed": {
+        "landButton": "Unlock One Cell",
+        "landSuccessStateAbsent": true,
+        "sharedError": "Failed to unlock the land cell."
+      }
+    }
+  ],
+  "console": {
+    "errors": [],
+    "warnings": [],
+    "capture": "Fresh since Desktop debugger attachment"
+  },
+  "nativeLimit": "Treasure config, Land and Sheep browser clicks used preview-local state acknowledgements only. No native Land unlock, Sheep producer/action or game-window input was invoked."
+}

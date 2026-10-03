@@ -1,0 +1,45 @@
+{
+  "result": "LWB317_MINI_GAMES_SOURCE_LOCAL_OK",
+  "results": [
+    {
+      "name": "exact recovered Sheep status-key precedence",
+      "count": 18,
+      "result": "PASS"
+    },
+    {
+      "name": "exact recovered Sheep elapsed formatter",
+      "count": 10,
+      "result": "PASS"
+    },
+    {
+      "name": "source-shaped preview Sheep branch fixtures",
+      "count": 34,
+      "result": "PASS"
+    },
+    {
+      "name": "exact recovered Frontline card catalog",
+      "count": 1,
+      "result": "PASS"
+    },
+    {
+      "name": "actual recovered Mini renderer populated/running branch",
+      "count": 9,
+      "result": "PASS"
+    },
+    {
+      "name": "actual recovered Mini renderer config-null/offline branch",
+      "count": 5,
+      "result": "PASS"
+    },
+    {
+      "name": "production shared Mini ownership/timer/action source guards",
+      "count": 9,
+      "result": "PASS"
+    }
+  ],
+  "current": {
+    "pagesSha256": "B29858F5CCF7607093AA0DD10C17669E7CB78FC6A5F8A2253BF936073AB636EF",
+    "contractsSha256": "B895803E62585E7137E1AEE7485269900274805F80110053D2928C2BAA30BCA5"
+  },
+  "limits": "Recovered Sheep helpers and the original shared Mini Games renderer are executed directly. Current production actions are preview-local acknowledgements only; no native Land unlock, Sheep start/stop, gameplay producer or game-window input is invoked."
+}
