@@ -1,0 +1,46 @@
+{
+  "result": "LWB317_MAP_ENTRY_CURRENT_CHECKS_OK",
+  "checks": [
+    {
+      "name": "exact original and dispatch baseline",
+      "status": "PASS",
+      "marker": "LWB317_MAP_ENTRY_BASELINE_OK cases=5"
+    },
+    {
+      "name": "current focused App behavior",
+      "status": "PASS",
+      "marker": "LWB317_MAP_ENTRY_FOCUSED_OK cases=10"
+    },
+    {
+      "name": "affected retention Cross-server Home and Map ownership",
+      "status": "PASS",
+      "marker": "LWB317_MAP_ENTRY_AFFECTED_OK checks=4"
+    },
+    {
+      "name": "canonical npm check",
+      "status": "PASS",
+      "marker": "LWB317_UI_DRAFT_CHECKS_OK"
+    },
+    {
+      "name": "canonical production build",
+      "status": "PASS",
+      "marker": "LWB317_PRODUCTION_UI_BUILD_OK"
+    },
+    {
+      "name": "canonical production package check",
+      "status": "PASS",
+      "marker": "LWB317_PRODUCTION_UI_PACKAGE_OK"
+    },
+    {
+      "name": "protected WIP guard",
+      "status": "PASS",
+      "marker": "LWB317_AUTO_CONFIG_PROTECTED_WIP_OK count=7"
+    },
+    {
+      "name": "repository diff check",
+      "status": "PASS",
+      "marker": "PASS"
+    }
+  ],
+  "note": "The canonical npm commands are executed from src/LWBridge.UI-0.3.17. A prior ad-hoc root-directory invocation during this session failed with ENOENT because the repository root has no package.json; these recorded runs use the canonical package directory and pass."
+}

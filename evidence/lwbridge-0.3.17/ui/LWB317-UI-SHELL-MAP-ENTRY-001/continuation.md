@@ -1,6 +1,10 @@
 # LWB317-UI-SHELL-MAP-ENTRY-001 continuation
 
-Current milestone: B correction complete locally after recovery checkpoint `4b9ccc98229d449a8a1669c36bdb48fd0969281c`; browser/delivery milestone C has not started at this checkpoint.
+Current milestone: COMPLETE / ACCEPTED for assigned source/local scope by lead
+takeover, 2026-10-04. Product 147e5cf is retained; C browser/check/validator files
+were preserved, rerun and completed with README and dated acceptance review.
+No unfinished assigned work remains. Entries below retain the worker's B-time
+history; its former next step is superseded by this closeout.
 
 The worktree began with pre-existing protected WIP in three old Map result JSON files, `src/LWBridge.UI-0.3.17/src/previewAfkFixtures.js`, `.scratch-lwb317/`, and `evidence/lwbridge-0.3.17/ui/LWB317-UI-CORRECT-003/screenshots/`. They remain unrelated and must stay unstaged. The protected-WIP guard passed 7/7 before work.
 

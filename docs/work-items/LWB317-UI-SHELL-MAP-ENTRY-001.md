@@ -1,6 +1,9 @@
 # LWB317-UI-SHELL-MAP-ENTRY-001 — Map navigation request timing
 
-Status: READY. One medium worker assignment; no subagents or delegation.
+Status: COMPLETE / ACCEPTED for assigned source/local UI scope, 2026-10-04 lead
+takeover. Worker product 147e5cf retained; C packet completed and checks rerun.
+See docs/reviews/2026-10-04-LWB317-UI-SHELL-MAP-ENTRY-001.md. Native/original
+pixels and broader shell/inventory acceptance remain separate.
 
 ## Goal and context
 

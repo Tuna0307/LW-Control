@@ -1,0 +1,82 @@
+{
+  "result": "LWB317_MAP_ENTRY_BROWSER_OK",
+  "mode": "true offline Preview fixture",
+  "url": "http://127.0.0.1:4324/?previewPage=overview&previewState=map-city",
+  "previewLanguageQueryUsed": false,
+  "wideCssViewport": {
+    "width": 1920,
+    "height": 855,
+    "devicePixelRatio": 1
+  },
+  "englishLight": {
+    "status": "PASS",
+    "interaction": "Language and theme were changed through the rendered controls. Home -> Map was followed by selecting Truck, Map -> Home -> Map preserved Truck, and re-clicking already-active Map remained inert. Cross-server opened in the offline state with Jump disabled and Game disconnected, then closed on an outside Truck-tab click.",
+    "finalState": {
+      "language": "en",
+      "theme": "light",
+      "activeRoute": "Map Data",
+      "activeMapTab": "Truck55",
+      "popoverOpen": false,
+      "offlineNotice": "Game disconnected. Start Scan is disabled; saved Map data remains available."
+    },
+    "consoleErrors": 0,
+    "capture": {
+      "path": "en-light-crossserver.jpg",
+      "jpegWidth": 1600,
+      "jpegHeight": 713,
+      "connectorScale": 0.8333333333333334,
+      "sha256": "2603B8DC010E2E985399251D4B64AAF4E6A23DC44C9DCD0850A1F43345925F0C"
+    }
+  },
+  "japaneseDark": {
+    "status": "PASS",
+    "interaction": "Language and theme were changed through the rendered controls. The retained Map instance stayed on the Truck tab while offline.",
+    "state": {
+      "language": "ja",
+      "theme": "dark",
+      "activeRoute": "地図データ",
+      "activeMapTab": "輸送車55",
+      "offlineNotice": "Game disconnected. Start Scan is disabled; saved Map data remains available."
+    },
+    "capture": {
+      "path": "ja-dark-map-truck.jpg",
+      "jpegWidth": 1600,
+      "jpegHeight": 713,
+      "connectorScale": 0.8333333333333334,
+      "sha256": "098A8A3443D582001B01D2F311092B2AA1555A56DCD62DE64B9D23921ED0ED1E"
+    }
+  },
+  "japaneseDarkNarrow": {
+    "status": "PASS",
+    "cssViewport": {
+      "width": 800,
+      "height": 543,
+      "outerWidth": 816,
+      "outerHeight": 673,
+      "devicePixelRatio": 1
+    },
+    "interaction": "A separate owned popup used the same URL and persisted locale/theme with no previewLanguage query. It began on Home, navigated to Map, selected Truck, opened the offline Cross-server popover, and closed it through an outside Truck-tab click.",
+    "finalState": {
+      "language": "ja",
+      "theme": "dark",
+      "activeRoute": "地図データ",
+      "activeMapTab": "輸送車55",
+      "popoverOpen": false
+    },
+    "consoleErrors": 0,
+    "capture": {
+      "path": "ja-dark-narrow-crossserver.jpg",
+      "jpegWidth": 790,
+      "jpegHeight": 543,
+      "sha256": "A61CD1448E14314B7A64802C104AD99B1BF225A1C69B75B4D7103E9947E8E211"
+    },
+    "popoverRect": {
+      "left": 380,
+      "top": 59,
+      "width": 290,
+      "height": 119,
+      "fullyInsideViewport": true
+    }
+  },
+  "limits": "Browser QA used Preview fixtures and did not invoke a native provider, real Last War process, server jump, scan, gameplay action, updater, diagnostics export, or protected original service. The original post-auth runtime remains unavailable for direct pixel comparison."
+}
