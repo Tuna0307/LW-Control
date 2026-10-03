@@ -79,4 +79,3 @@ const manifest = {
 
 fs.writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
 console.log(`LWB317_MAP_ENTRY_EXTRACT_OK Tt=${tStart}..${tEnd} baseline=${manifest.baselineApp.gitBlob}`);
-
