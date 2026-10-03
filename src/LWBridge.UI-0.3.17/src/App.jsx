@@ -123,19 +123,6 @@ export function App() {
     saveAutoScanConfig(selectedProfileId, next, window.localStorage);
   }, [selectedProfileId]);
 
-  const selectRoute = useCallback((routeKey) => {
-    if (routeKey === activeRoute) return;
-    startRouteTransition(() => {
-      setVisitedRoutes((current) => {
-        if (current.has(routeKey)) return current;
-        const next = new Set(current);
-        next.add(routeKey);
-        return next;
-      });
-      setActiveRoute(routeKey);
-    });
-  }, [activeRoute, startRouteTransition]);
-
   useEffect(() => {
     if (backendBridge.mode !== "preview") return;
     const requested = new URLSearchParams(window.location.search).get("previewLanguage");
@@ -161,6 +148,20 @@ export function App() {
     setCurrentServerId(summary.scanState?.serverId > 0 ? summary.scanState.serverId : 0);
     return summary;
   }, [selectedProfileId]);
+
+  const selectRoute = useCallback((routeKey) => {
+    if (routeKey === activeRoute) return;
+    if (routeKey === "map-data") refreshMapSummary().catch(() => {});
+    startRouteTransition(() => {
+      setVisitedRoutes((current) => {
+        if (current.has(routeKey)) return current;
+        const next = new Set(current);
+        next.add(routeKey);
+        return next;
+      });
+      setActiveRoute(routeKey);
+    });
+  }, [activeRoute, refreshMapSummary, startRouteTransition]);
 
   const acknowledgeMapScan = useCallback((scan) => {
     if (!scan) return;
@@ -308,10 +309,6 @@ export function App() {
       window.clearInterval(timer);
     };
   }, [online, refreshMapSummary]);
-
-  useEffect(() => {
-    if (activeRoute === "map-data" && backendBridge.available) refreshMapSummary().catch(() => {});
-  }, [activeRoute, refreshMapSummary]);
 
   const updateAutoLaunch = useCallback(async (value) => {
     if (!backendBridge.available) return;

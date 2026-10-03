@@ -1,0 +1,49 @@
+{
+  "result": "LWB317_MAP_ENTRY_AFFECTED_OK",
+  "currentApp": {
+    "path": "src/LWBridge.UI-0.3.17/src/App.jsx",
+    "sha256": "210842f74c49e0195c7684a7b1cfbea24d22b516df87c3082038559304836131"
+  },
+  "acceptedChecks": [
+    {
+      "name": "Cross-server focused mount",
+      "status": "PASS",
+      "sourceScript": "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-CROSSSERVER-001/milestone-b/run-focused.mjs",
+      "taskLocalOutput": "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-MAP-ENTRY-001/milestone-b/crossserver-focused-results.json",
+      "historicalOutput": "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-CROSSSERVER-001/milestone-b/focused-results.json",
+      "historicalSha256Before": "fff807cb4dc2c6126f1234174b7431ae3398fe97e912cf76dfb0f2f4a4426dec",
+      "historicalSha256After": "fff807cb4dc2c6126f1234174b7431ae3398fe97e912cf76dfb0f2f4a4426dec"
+    },
+    {
+      "name": "Cross-server App ownership and Home acknowledgement regressions",
+      "status": "PASS",
+      "sourceScript": "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-CROSSSERVER-001/milestone-c/run-regressions.mjs",
+      "taskLocalOutput": "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-MAP-ENTRY-001/milestone-b/crossserver-regression-results.json",
+      "historicalOutput": "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-CROSSSERVER-001/milestone-c/regression-results.json",
+      "historicalSha256Before": "8ee490078a49125f6db4f385429f1cedf43314f37a75117bfcae88a3f5fd4ee6",
+      "historicalSha256After": "8ee490078a49125f6db4f385429f1cedf43314f37a75117bfcae88a3f5fd4ee6"
+    },
+    {
+      "name": "accepted Map parent ownership replay",
+      "status": "PASS",
+      "sourceScript": "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-RETENTION-001/milestone-c/replay-map-ownership.mjs",
+      "taskLocalOutput": "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-MAP-ENTRY-001/milestone-b/map-ownership-results.json",
+      "historicalOutput": "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-RETENTION-001/milestone-c/map-ownership-results.json",
+      "historicalSha256Before": "6753117c4b7e44af645137b8ede6ba75e9cc9acfb3e1a4385f59767d56d2084d",
+      "historicalSha256After": "6753117c4b7e44af645137b8ede6ba75e9cc9acfb3e1a4385f59767d56d2084d"
+    }
+  ],
+  "retention": {
+    "status": "PASS",
+    "method": "Exact normalized RetainedPages function equality against immutable dispatch App plus Cross-server mounted regression's accepted Activity boundary assertion.",
+    "sha256": "3dc75a9f844c7824a61a9b9232ac1d346e167f97413fee869f3e46b80e10d1f4"
+  },
+  "coverage": [
+    "current Cross-server mounted interaction and deferred summary ordering",
+    "current parent Map bootstrap/poll/scan-completion ownership",
+    "current Home auto-reconnect acknowledgement ordering",
+    "accepted RetainedPages Activity/profile identity"
+  ],
+  "preservation": "Accepted historical scripts execute unchanged. Their writes are redirected to this task's milestone-b directory, and the original result-file hashes are asserted byte-identical before/after.",
+  "limits": "Controlled local React/jsdom/hook transports only. No native provider, server jump, Last War, live scan, network or gameplay action is invoked."
+}
