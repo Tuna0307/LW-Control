@@ -1,0 +1,13 @@
+{
+  "asset": {
+    "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-BVfnK1wp.js",
+    "sha256": "44C4E4043825B7DB296B64171951B27176F8850FF8D7D337CC991DF4765524C6",
+    "bytes": 377972
+  },
+  "baseline": {
+    "spec": "55c9ca118d31a9fcdbc0ec0cf86930474303930e:src/LWBridge.UI-0.3.17/src/App.jsx",
+    "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-CROSSSERVER-001/recovery/baseline-55c9ca1-App.jsx",
+    "sha256": "F201E28E4DD678E735AE91B5DFA52D86DF32FCDACB0C0F10C03FE4C767046CDF",
+    "bytes": 23213
+  }
+}

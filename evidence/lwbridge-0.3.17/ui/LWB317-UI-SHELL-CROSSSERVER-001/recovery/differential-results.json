@@ -1,0 +1,885 @@
+{
+  "result": "LWB317_CROSSSERVER_RECOVERY_DIFFERENTIAL_OK",
+  "reactVersion": "19.3.0",
+  "jsdomVersion": "27.0.0",
+  "identities": {
+    "original": {
+      "popover": {
+        "utf8ByteOffset": 350656,
+        "utf8ByteLength": 3155,
+        "sha256": "04B9D1EE3469A345EB2F41368FE06EDFFD43645CDE880B9541E75B84B101FD05"
+      },
+      "popoverWithLegacyHistoryHelper": {
+        "utf8ByteOffset": 350405,
+        "utf8ByteLength": 3406,
+        "sha256": "3561F63EF6D6E35A6AB18B631165D41B6A79F2ADDF78CADAA059D8498BCFD8B5"
+      },
+      "parentJump": {
+        "utf8ByteOffset": 365565,
+        "utf8ByteLength": 229,
+        "sha256": "653AEDF4F9BD17B78EAA3D6F8F37031D49C1DBBC52EC6C0A71B3CD035B8C6284"
+      },
+      "serverJumpApiMarker": {
+        "utf8ByteOffset": 205541
+      },
+      "api": {
+        "serverJump": {
+          "utf8ByteOffset": 205541,
+          "utf8ByteLength": 52,
+          "sha256": "05E61BE11CCD6168A8C68818AF5B4E003FDDB1048479085E982658702FAAC90C"
+        },
+        "historySet": {
+          "utf8ByteOffset": 206712,
+          "utf8ByteLength": 73,
+          "sha256": "04F6DD312F0CCBEBD8F64E70D1E9FDB53ABDAD40F09BAFDD3D2D8FD9750F2E1D"
+        },
+        "historyImport": {
+          "utf8ByteOffset": 206785,
+          "utf8ByteLength": 76,
+          "sha256": "36BEFAA05424A7248DC5E80D04ECACCB448EFB81CDB48C5A4181D2DD29489250"
+        },
+        "mapSummary": {
+          "utf8ByteOffset": 207057,
+          "utf8ByteLength": 44,
+          "sha256": "09394C78B18B547060B6D1DAE0C515A95B9AD595168229C3641ADD6FD627B752"
+        }
+      },
+      "headerOnJumpBinding": {
+        "utf8ByteOffset": 372334
+      }
+    },
+    "baseline": {
+      "path": "recovery/baseline-55c9ca1-App.jsx",
+      "sha256": "F201E28E4DD678E735AE91B5DFA52D86DF32FCDACB0C0F10C03FE4C767046CDF",
+      "bytes": 23213
+    },
+    "current": {
+      "path": "src/LWBridge.UI-0.3.17/src/App.jsx",
+      "sha256": "8806B35D5A94A2895A1649F7A8F48AA74E23E784F8AC50A4987C8F61CDF74B68",
+      "bytes": 23428,
+      "legacyServerHistory": {
+        "utf8ByteOffset": 862,
+        "utf8ByteLength": 379,
+        "sha256": "BA49DC4DCA1100BF40E1BA3CC82D86AEAA82F5F88E851D25D549406ACCB59FC2"
+      },
+      "historyImportEffect": {
+        "utf8ByteOffset": 10597,
+        "utf8ByteLength": 463,
+        "sha256": "DD9F2604253BDE9C571549BDD85581CD51D6FADB5C9363ECEEE5922103DAD3D5"
+      },
+      "jumpServer": {
+        "utf8ByteOffset": 13600,
+        "utf8ByteLength": 1162,
+        "sha256": "1AD363B2BD8243FAC6C91202AEE848B9A9476A4B35F97CD9D7DEDF4288BA47D1"
+      },
+      "serverJumpRender": {
+        "utf8ByteOffset": 18448,
+        "utf8ByteLength": 3598,
+        "sha256": "93072EDE5345FE8CF2D11D6DD7BA07C417FCB9E3E1829E4C0D115FDB10C55247"
+      }
+    },
+    "normalizedDiff": "EQUAL"
+  },
+  "originalCases": [
+    {
+      "name": "migration and source lists",
+      "status": "PASS",
+      "import": {
+        "history": [
+          324,
+          325,
+          326,
+          327,
+          328
+        ],
+        "profileId": "profile-a"
+      },
+      "snapshot": {
+        "open": true,
+        "inputValue": "",
+        "inputDisabled": false,
+        "triggerDisabled": false,
+        "errors": [],
+        "buttons": [
+          {
+            "text": "en:server.switchAction",
+            "disabled": false
+          },
+          {
+            "text": "en:server.returnHome",
+            "disabled": false
+          },
+          {
+            "text": "321",
+            "disabled": true
+          },
+          {
+            "text": "322",
+            "disabled": false
+          },
+          {
+            "text": "323",
+            "disabled": false
+          },
+          {
+            "text": "321",
+            "disabled": true
+          },
+          {
+            "text": "330",
+            "disabled": false
+          },
+          {
+            "text": "324",
+            "disabled": false
+          }
+        ]
+      }
+    },
+    {
+      "name": "pointerdown outside closes",
+      "status": "PASS"
+    },
+    {
+      "name": "invalid Enter localized event-time error",
+      "status": "PASS",
+      "snapshot": {
+        "open": true,
+        "inputValue": "0",
+        "inputDisabled": false,
+        "triggerDisabled": false,
+        "errors": [
+          "en:server.invalidId"
+        ],
+        "buttons": [
+          {
+            "text": "en:server.switchAction",
+            "disabled": false
+          },
+          {
+            "text": "en:server.returnHome",
+            "disabled": false
+          },
+          {
+            "text": "321",
+            "disabled": true
+          },
+          {
+            "text": "322",
+            "disabled": false
+          },
+          {
+            "text": "323",
+            "disabled": false
+          },
+          {
+            "text": "321",
+            "disabled": true
+          },
+          {
+            "text": "330",
+            "disabled": false
+          },
+          {
+            "text": "324",
+            "disabled": false
+          }
+        ]
+      }
+    },
+    {
+      "name": "stored action error retains event-time locale",
+      "status": "PASS",
+      "snapshot": {
+        "open": true,
+        "inputValue": "0",
+        "inputDisabled": false,
+        "triggerDisabled": false,
+        "errors": [
+          "en:server.invalidId"
+        ],
+        "buttons": [
+          {
+            "text": "ja:server.switchAction",
+            "disabled": false
+          },
+          {
+            "text": "ja:server.returnHome",
+            "disabled": false
+          },
+          {
+            "text": "321",
+            "disabled": true
+          },
+          {
+            "text": "322",
+            "disabled": false
+          },
+          {
+            "text": "323",
+            "disabled": false
+          },
+          {
+            "text": "321",
+            "disabled": true
+          },
+          {
+            "text": "330",
+            "disabled": false
+          },
+          {
+            "text": "324",
+            "disabled": false
+          }
+        ]
+      }
+    },
+    {
+      "name": "offline Enter blocked without replacing stored error",
+      "status": "PASS",
+      "snapshot": {
+        "open": true,
+        "inputValue": "0",
+        "inputDisabled": false,
+        "triggerDisabled": false,
+        "errors": [
+          "ja:status.gameDisconnected",
+          "en:server.invalidId"
+        ],
+        "buttons": [
+          {
+            "text": "ja:server.switchAction",
+            "disabled": true
+          },
+          {
+            "text": "ja:server.returnHome",
+            "disabled": true
+          },
+          {
+            "text": "321",
+            "disabled": true
+          },
+          {
+            "text": "322",
+            "disabled": true
+          },
+          {
+            "text": "323",
+            "disabled": true
+          },
+          {
+            "text": "321",
+            "disabled": true
+          },
+          {
+            "text": "330",
+            "disabled": true
+          },
+          {
+            "text": "324",
+            "disabled": true
+          }
+        ]
+      }
+    },
+    {
+      "name": "profile change resets history/error and reimports",
+      "status": "PASS",
+      "import": {
+        "history": [],
+        "profileId": "profile-b"
+      }
+    },
+    {
+      "name": "unchanged waits for summary before close/history",
+      "status": "PASS",
+      "pending": {
+        "open": true,
+        "inputValue": "321",
+        "inputDisabled": false,
+        "triggerDisabled": false,
+        "errors": [],
+        "buttons": [
+          {
+            "text": "en:server.switching:{\"server\":321}",
+            "disabled": true
+          },
+          {
+            "text": "en:server.returnHome",
+            "disabled": true
+          },
+          {
+            "text": "321",
+            "disabled": true
+          },
+          {
+            "text": "322",
+            "disabled": true
+          },
+          {
+            "text": "323",
+            "disabled": true
+          },
+          {
+            "text": "321",
+            "disabled": true
+          }
+        ]
+      },
+      "log": [
+        "jump:321",
+        "summary:start",
+        "summary:done",
+        "log:already on server 321"
+      ]
+    },
+    {
+      "name": "changed waits for summary before close/history",
+      "status": "PASS",
+      "pending": {
+        "open": true,
+        "inputValue": "322",
+        "inputDisabled": false,
+        "triggerDisabled": false,
+        "errors": [],
+        "buttons": [
+          {
+            "text": "en:server.switching:{\"server\":322}",
+            "disabled": true
+          },
+          {
+            "text": "en:server.returnHome",
+            "disabled": true
+          },
+          {
+            "text": "321",
+            "disabled": true
+          },
+          {
+            "text": "322",
+            "disabled": true
+          },
+          {
+            "text": "323",
+            "disabled": true
+          },
+          {
+            "text": "321",
+            "disabled": true
+          }
+        ]
+      },
+      "log": [
+        "jump:322",
+        "summary:start",
+        "summary:done",
+        "log:server changed 321 -> 322",
+        "history:322:profile-a"
+      ]
+    },
+    {
+      "name": "summary rejection swallowed before changed history acknowledgement",
+      "status": "PASS",
+      "log": [
+        "jump",
+        "summary",
+        "log:server jump map status refresh failed Error: controlled summary failure",
+        "log:server changed 321 -> 322",
+        "history"
+      ],
+      "reopened": {
+        "open": true,
+        "inputValue": "",
+        "inputDisabled": false,
+        "triggerDisabled": false,
+        "errors": [],
+        "buttons": [
+          {
+            "text": "en:server.switchAction",
+            "disabled": false
+          },
+          {
+            "text": "en:server.returnHome",
+            "disabled": false
+          },
+          {
+            "text": "321",
+            "disabled": true
+          },
+          {
+            "text": "322",
+            "disabled": false
+          },
+          {
+            "text": "323",
+            "disabled": false
+          },
+          {
+            "text": "321",
+            "disabled": true
+          },
+          {
+            "text": "322",
+            "disabled": false
+          }
+        ]
+      }
+    }
+  ],
+  "currentCases": [
+    {
+      "implementation": "baseline-55c9ca1",
+      "name": "profile change does not reimport/reset history",
+      "status": "MISMATCH",
+      "actionLog": [
+        "bridge:game_root_status",
+        "readStatus",
+        "readProxyStatus",
+        "bridge:game_recovery_status",
+        "bridge:local_config_get",
+        "summary",
+        "summary"
+      ]
+    },
+    {
+      "implementation": "baseline-55c9ca1",
+      "name": "pointerdown outside leaves popover open",
+      "status": "MISMATCH",
+      "snapshot": {
+        "open": true,
+        "inputValue": "",
+        "inputDisabled": false,
+        "triggerDisabled": false,
+        "errors": [],
+        "buttons": [
+          {
+            "text": "en:server.switchAction",
+            "disabled": false
+          },
+          {
+            "text": "en:server.returnHome",
+            "disabled": false
+          },
+          {
+            "text": "321",
+            "disabled": true
+          },
+          {
+            "text": "322",
+            "disabled": false
+          },
+          {
+            "text": "323",
+            "disabled": false
+          },
+          {
+            "text": "321",
+            "disabled": true
+          }
+        ]
+      }
+    },
+    {
+      "implementation": "baseline-55c9ca1",
+      "name": "offline Enter submits into handler and duplicates feedback",
+      "status": "MISMATCH",
+      "snapshot": {
+        "open": true,
+        "inputValue": "322",
+        "inputDisabled": false,
+        "triggerDisabled": false,
+        "errors": [
+          "en:status.gameDisconnected",
+          "Game disconnected"
+        ],
+        "buttons": [
+          {
+            "text": "en:server.switchAction",
+            "disabled": true
+          },
+          {
+            "text": "en:server.returnHome",
+            "disabled": true
+          },
+          {
+            "text": "321",
+            "disabled": true
+          },
+          {
+            "text": "322",
+            "disabled": true
+          },
+          {
+            "text": "323",
+            "disabled": true
+          },
+          {
+            "text": "321",
+            "disabled": true
+          }
+        ]
+      }
+    },
+    {
+      "implementation": "baseline-55c9ca1",
+      "name": "unchanged closes before deferred summary and refreshes status",
+      "status": "MISMATCH",
+      "beforeSummary": {
+        "snapshot": {
+          "open": false,
+          "inputValue": null,
+          "inputDisabled": null,
+          "triggerDisabled": false,
+          "errors": [],
+          "buttons": []
+        },
+        "actionLog": [
+          "jump:321",
+          "readStatus",
+          "readProxyStatus",
+          "bridge:game_recovery_status",
+          "bridge:local_config_get",
+          "summary"
+        ]
+      },
+      "final": {
+        "open": false,
+        "inputValue": null,
+        "inputDisabled": null,
+        "triggerDisabled": false,
+        "errors": [],
+        "buttons": []
+      },
+      "actionLog": [
+        "jump:321",
+        "readStatus",
+        "readProxyStatus",
+        "bridge:game_recovery_status",
+        "bridge:local_config_get",
+        "summary"
+      ]
+    },
+    {
+      "implementation": "baseline-55c9ca1",
+      "name": "changed closes before deferred summary and refreshes status",
+      "status": "MISMATCH",
+      "beforeSummary": {
+        "snapshot": {
+          "open": false,
+          "inputValue": null,
+          "inputDisabled": null,
+          "triggerDisabled": false,
+          "errors": [],
+          "buttons": []
+        },
+        "actionLog": [
+          "jump:322",
+          "history:322",
+          "readStatus",
+          "readProxyStatus",
+          "bridge:game_recovery_status",
+          "bridge:local_config_get",
+          "summary"
+        ]
+      },
+      "final": {
+        "open": false,
+        "inputValue": null,
+        "inputDisabled": null,
+        "triggerDisabled": false,
+        "errors": [],
+        "buttons": []
+      },
+      "actionLog": [
+        "jump:322",
+        "history:322",
+        "readStatus",
+        "readProxyStatus",
+        "bridge:game_recovery_status",
+        "bridge:local_config_get",
+        "summary"
+      ]
+    },
+    {
+      "implementation": "baseline-55c9ca1",
+      "name": "summary rejection becomes stored action failure after close",
+      "status": "MISMATCH",
+      "reopened": {
+        "open": true,
+        "inputValue": "",
+        "inputDisabled": false,
+        "triggerDisabled": false,
+        "errors": [
+          "Action failed"
+        ],
+        "buttons": [
+          {
+            "text": "en:server.switchAction",
+            "disabled": false
+          },
+          {
+            "text": "en:server.returnHome",
+            "disabled": false
+          },
+          {
+            "text": "321",
+            "disabled": true
+          },
+          {
+            "text": "322",
+            "disabled": false
+          },
+          {
+            "text": "323",
+            "disabled": false
+          },
+          {
+            "text": "321",
+            "disabled": true
+          },
+          {
+            "text": "322",
+            "disabled": false
+          }
+        ]
+      },
+      "actionLog": [
+        "jump:322",
+        "history:322",
+        "readStatus",
+        "readProxyStatus",
+        "bridge:game_recovery_status",
+        "bridge:local_config_get",
+        "summary"
+      ]
+    },
+    {
+      "implementation": "current-dispatch",
+      "name": "profile change does not reimport/reset history",
+      "status": "MISMATCH",
+      "actionLog": [
+        "bridge:game_root_status",
+        "readStatus",
+        "readProxyStatus",
+        "bridge:game_recovery_status",
+        "bridge:local_config_get",
+        "summary",
+        "summary"
+      ]
+    },
+    {
+      "implementation": "current-dispatch",
+      "name": "pointerdown outside leaves popover open",
+      "status": "MISMATCH",
+      "snapshot": {
+        "open": true,
+        "inputValue": "",
+        "inputDisabled": false,
+        "triggerDisabled": false,
+        "errors": [],
+        "buttons": [
+          {
+            "text": "en:server.switchAction",
+            "disabled": false
+          },
+          {
+            "text": "en:server.returnHome",
+            "disabled": false
+          },
+          {
+            "text": "321",
+            "disabled": true
+          },
+          {
+            "text": "322",
+            "disabled": false
+          },
+          {
+            "text": "323",
+            "disabled": false
+          },
+          {
+            "text": "321",
+            "disabled": true
+          }
+        ]
+      }
+    },
+    {
+      "implementation": "current-dispatch",
+      "name": "offline Enter submits into handler and duplicates feedback",
+      "status": "MISMATCH",
+      "snapshot": {
+        "open": true,
+        "inputValue": "322",
+        "inputDisabled": false,
+        "triggerDisabled": false,
+        "errors": [
+          "en:status.gameDisconnected",
+          "Game disconnected"
+        ],
+        "buttons": [
+          {
+            "text": "en:server.switchAction",
+            "disabled": true
+          },
+          {
+            "text": "en:server.returnHome",
+            "disabled": true
+          },
+          {
+            "text": "321",
+            "disabled": true
+          },
+          {
+            "text": "322",
+            "disabled": true
+          },
+          {
+            "text": "323",
+            "disabled": true
+          },
+          {
+            "text": "321",
+            "disabled": true
+          }
+        ]
+      }
+    },
+    {
+      "implementation": "current-dispatch",
+      "name": "unchanged closes before deferred summary and refreshes status",
+      "status": "MISMATCH",
+      "beforeSummary": {
+        "snapshot": {
+          "open": false,
+          "inputValue": null,
+          "inputDisabled": null,
+          "triggerDisabled": false,
+          "errors": [],
+          "buttons": []
+        },
+        "actionLog": [
+          "jump:321",
+          "readStatus",
+          "readProxyStatus",
+          "bridge:game_recovery_status",
+          "bridge:local_config_get",
+          "summary"
+        ]
+      },
+      "final": {
+        "open": false,
+        "inputValue": null,
+        "inputDisabled": null,
+        "triggerDisabled": false,
+        "errors": [],
+        "buttons": []
+      },
+      "actionLog": [
+        "jump:321",
+        "readStatus",
+        "readProxyStatus",
+        "bridge:game_recovery_status",
+        "bridge:local_config_get",
+        "summary"
+      ]
+    },
+    {
+      "implementation": "current-dispatch",
+      "name": "changed closes before deferred summary and refreshes status",
+      "status": "MISMATCH",
+      "beforeSummary": {
+        "snapshot": {
+          "open": false,
+          "inputValue": null,
+          "inputDisabled": null,
+          "triggerDisabled": false,
+          "errors": [],
+          "buttons": []
+        },
+        "actionLog": [
+          "jump:322",
+          "history:322",
+          "readStatus",
+          "readProxyStatus",
+          "bridge:game_recovery_status",
+          "bridge:local_config_get",
+          "summary"
+        ]
+      },
+      "final": {
+        "open": false,
+        "inputValue": null,
+        "inputDisabled": null,
+        "triggerDisabled": false,
+        "errors": [],
+        "buttons": []
+      },
+      "actionLog": [
+        "jump:322",
+        "history:322",
+        "readStatus",
+        "readProxyStatus",
+        "bridge:game_recovery_status",
+        "bridge:local_config_get",
+        "summary"
+      ]
+    },
+    {
+      "implementation": "current-dispatch",
+      "name": "summary rejection becomes stored action failure after close",
+      "status": "MISMATCH",
+      "reopened": {
+        "open": true,
+        "inputValue": "",
+        "inputDisabled": false,
+        "triggerDisabled": false,
+        "errors": [
+          "Action failed"
+        ],
+        "buttons": [
+          {
+            "text": "en:server.switchAction",
+            "disabled": false
+          },
+          {
+            "text": "en:server.returnHome",
+            "disabled": false
+          },
+          {
+            "text": "321",
+            "disabled": true
+          },
+          {
+            "text": "322",
+            "disabled": false
+          },
+          {
+            "text": "323",
+            "disabled": false
+          },
+          {
+            "text": "321",
+            "disabled": true
+          },
+          {
+            "text": "322",
+            "disabled": false
+          }
+        ]
+      },
+      "actionLog": [
+        "jump:322",
+        "history:322",
+        "readStatus",
+        "readProxyStatus",
+        "bridge:game_recovery_status",
+        "bridge:local_config_get",
+        "summary"
+      ]
+    }
+  ],
+  "conclusion": "The normalized 55c9ca1 baseline and dispatch App are equal. Exact original component/parent bytes demonstrate click-away, profile-scoped import/reset, Enter availability fencing, localized event-time errors, and summary-before-history/close sequencing. Baseline/current mounted App reproduces the corresponding mismatches with inert APIs.",
+  "limits": "Exact original minified popover and parent callback bytes are executed with React/i18n/API symbol bindings only. Baseline/current App bodies are compiled from their source with actual React hooks; imported page/icon children and native bridge/provider calls are inert. No Last War, server jump, scan, network, updater, or native gameplay/provider action is invoked."
+}
