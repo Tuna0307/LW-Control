@@ -89,6 +89,61 @@ export function previewSheepStatus(previewState, now = Date.now()) {
   }
 }
 
+export function formatDiagnosticBytes(bytes) {
+  return bytes < 1024
+    ? `${bytes} B`
+    : bytes < 1024 * 1024
+      ? `${(bytes / 1024).toFixed(1)} KiB`
+      : `${(bytes / (1024 * 1024)).toFixed(1)} MiB`;
+}
+
+export function updateManualCooldownSeconds(status, now = Date.now()) {
+  return status.nextManualCheckAt
+    ? Math.max(0, Math.ceil((Date.parse(status.nextManualCheckAt) - now) / 1000))
+    : 0;
+}
+
+export function updateStatusBusy(status) {
+  return status.phase === "checking" || status.phase === "downloading" || status.phase === "opening";
+}
+
+export function updateDownloadVisible(status) {
+  return status.phase === "available"
+    || (status.phase === "error" && status.latestVersion !== null && status.latestVersion !== status.currentVersion);
+}
+
+export function previewUpdateStatus(previewState, now = Date.now()) {
+  const base = {
+    phase: previewState.startsWith("settings-") ? "upToDate" : "idle",
+    currentVersion: "0.3.17",
+    latestVersion: "0.3.17",
+    releaseNotes: "",
+    publishedAt: null,
+    progress: null,
+    message: null,
+    nextManualCheckAt: null,
+    downloadDirectory: "Preview/updates",
+  };
+  const available = {
+    ...base,
+    latestVersion: "0.3.18",
+    releaseNotes: "Preview release notes for 0.3.18.",
+    publishedAt: "2026-10-03T09:00:00.000Z",
+  };
+  switch (previewState) {
+    case "settings-update-idle": return { ...base, phase: "idle", latestVersion: null };
+    case "settings-update-checking": return { ...base, phase: "checking" };
+    case "settings-update-available": return { ...available, phase: "available" };
+    case "settings-update-downloading": return { ...available, phase: "downloading", progress: 42 };
+    case "settings-update-opening": return { ...available, phase: "opening", progress: 100 };
+    case "settings-update-error": return { ...available, phase: "error", message: "UPDATE_STATUS_FAILED" };
+    case "settings-update-check-error": return { ...base, phase: "error", message: "UPDATE_CHECK_FAILED" };
+    case "settings-update-download-error": return { ...available, phase: "error", message: "UPDATE_DOWNLOAD_FAILED" };
+    case "settings-update-cooldown": return { ...base, nextManualCheckAt: new Date(now + 30_000).toISOString() };
+    default: return base;
+  }
+}
+
 export function cityPlacementMap(placements) {
   return new Map(placements.map((placement) => [placement.uuid, placement.targetPointId]));
 }

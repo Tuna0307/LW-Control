@@ -1,0 +1,97 @@
+{
+  "result": "LWB317_SETTINGS_BROWSER_OK",
+  "urlBase": "http://127.0.0.1:4319/",
+  "records": [
+    {
+      "name": "English/light complete Settings interaction",
+      "state": "settings-complete",
+      "language": "en",
+      "theme": "light",
+      "observed": {
+        "visualToggles": 2,
+        "profileFocusVisible": true,
+        "fpsAfterPhysicalClick": true,
+        "focusAfterPhysicalClick": false,
+        "feedbackButton": "Export diagnostic archive",
+        "updater": "You are using the latest version.",
+        "horizontalDocumentOverflow": false
+      }
+    },
+    {
+      "name": "Japanese/dark visual save failure rolls back",
+      "state": "settings-visual-save-error",
+      "language": "ja",
+      "theme": "dark",
+      "observed": {
+        "fpsAfterPhysicalClickAndFailure": false,
+        "error": "ゲーム内表示設定を保存できませんでした。",
+        "focusRetainedOnFpsToggle": true
+      }
+    },
+    {
+      "name": "English/light feedback finalizing progress",
+      "state": "settings-feedback-finalizing",
+      "language": "en",
+      "theme": "light",
+      "observed": {
+        "activePhaseOnly": "Finishing",
+        "progress": 92,
+        "percent": "92%",
+        "exportButtonDisabled": true
+      }
+    },
+    {
+      "name": "English/light feedback success uses recovered byte formatter",
+      "state": "settings-feedback-success",
+      "language": "en",
+      "theme": "light",
+      "observed": {
+        "result": "Exported diagnostic archive (4.2 MiB) to: Preview/diagnostics.zip"
+      }
+    },
+    {
+      "name": "Japanese/dark update available metadata and local opening transition",
+      "state": "settings-update-available",
+      "language": "ja",
+      "theme": "dark",
+      "observed": {
+        "currentVersion": "0.3.17",
+        "latestVersion": "0.3.18",
+        "publishedAtLocalized": true,
+        "releaseNotes": "Preview release notes for 0.3.18.",
+        "downloadDirectory": "Preview/updates",
+        "downloadVisible": true,
+        "afterPhysicalDownloadClick": "新しいバージョンを起動しています。このウィンドウは閉じます。",
+        "downloadHiddenWhileOpening": true,
+        "manualCheckDisabledWhileOpening": true
+      }
+    },
+    {
+      "name": "Japanese/dark updater error retains newer-version download",
+      "state": "settings-update-error",
+      "language": "ja",
+      "theme": "dark",
+      "observed": {
+        "error": "更新状態を読み取れませんでした。",
+        "downloadVisible": true
+      }
+    },
+    {
+      "name": "English/light updater manual cooldown",
+      "state": "settings-update-cooldown",
+      "language": "en",
+      "theme": "light",
+      "observed": {
+        "buttonExample": "Check again in 26s",
+        "buttonDisabled": true,
+        "countdownActive": true
+      }
+    }
+  ],
+  "console": {
+    "errors": [],
+    "warnings": [],
+    "capture": "Fresh since Desktop debugger attachment"
+  },
+  "nativeLimit": "Visual preference writes, diagnostic export and updater actions use preview-local acknowledgement only. No native preference provider, owner diagnostic archive, updater download/open/install/restart or service call was invoked."
+}

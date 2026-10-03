@@ -1,0 +1,85 @@
+{
+  "result": "LWB317_SETTINGS_SOURCE_LOCAL_OK",
+  "results": [
+    {
+      "name": "exact recovered diagnostic byte formatter",
+      "count": 9,
+      "result": "PASS"
+    },
+    {
+      "name": "actual recovered Settings visual/profile populated renderer",
+      "count": 5,
+      "result": "PASS"
+    },
+    {
+      "name": "actual recovered Settings visual load-error renderer",
+      "count": 2,
+      "result": "PASS"
+    },
+    {
+      "name": "actual recovered Settings shared visual busy gate",
+      "count": 2,
+      "result": "PASS"
+    },
+    {
+      "name": "actual recovered feedback exporting/success/error renderer",
+      "count": 6,
+      "result": "PASS"
+    },
+    {
+      "name": "actual recovered updater renderer and current predicates across phases",
+      "count": 15,
+      "result": "PASS"
+    },
+    {
+      "name": "exact recovered manual update cooldown presentation",
+      "count": 3,
+      "result": "PASS"
+    },
+    {
+      "name": "production visual save success and profile row callbacks",
+      "count": 4,
+      "result": "PASS"
+    },
+    {
+      "name": "production visual optimistic rollback/error in Japanese",
+      "count": 2,
+      "result": "PASS"
+    },
+    {
+      "name": "production feedback canceled-to-idle callback",
+      "count": 2,
+      "result": "PASS"
+    },
+    {
+      "name": "production feedback exact byte-sized success",
+      "count": 1,
+      "result": "PASS"
+    },
+    {
+      "name": "production updater metadata/download-to-opening callback",
+      "count": 4,
+      "result": "PASS"
+    },
+    {
+      "name": "production updater cooldown gate",
+      "count": 2,
+      "result": "PASS"
+    },
+    {
+      "name": "production updater translated error with newer-version download",
+      "count": 2,
+      "result": "PASS"
+    },
+    {
+      "name": "production Settings source ownership guards",
+      "count": 12,
+      "result": "PASS"
+    }
+  ],
+  "current": {
+    "pagesSha256": "25B0908A7FFC548047ED045C53E42BCAF1370044F6175DC7041AAA16DB75EA21",
+    "contractsSha256": "C0F81103BC85D3B27D7A952B13EB76173EA27393AEB72B0AD312A31C8AB6CDA7"
+  },
+  "limits": "Recovered Settings/Feedback/Updater renderers and helper predicates are executed directly. Current export and updater actions settle preview-local state only; no diagnostic archive is written and no update is downloaded, opened, installed or restarted."
+}
