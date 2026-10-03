@@ -1,6 +1,6 @@
 # Current project directive
 
-Worker delivery update, 2026-10-03: `LWB317-UI-REMAINING-PAGES-001` completed sequential milestones A–F for City Layout, Hotkeys, Mini Games and Settings and is **AWAITING_REVIEW**. The bounded source/local packet includes real wide/narrow browser proof, nine-locale audit, canonical package checks, affected Equipment/AFK regressions and a current integrity validator. Project-lead acceptance, native/gameplay integration and full shell/global/pixel acceptance remain separate.
+Lead review, 2026-10-03: `LWB317-UI-REMAINING-PAGES-001` is **CHANGES_REQUIRED** at afd65b6 despite passing delivery checks. Actual callbacks expose false native-mode success/synthetic state and City pointer/null-layout/preparation plus retained error-language mismatches. `docs/work-items/LWB317-UI-REMAINING-PAGES-001-R1.md` is READY with finite corrections; preserve completed passing work. No shell/native/global/pixel acceptance.
 
 ## Target
 

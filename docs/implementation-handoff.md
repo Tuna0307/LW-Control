@@ -2,20 +2,20 @@
 
 Lead acceptance, 2026-10-03: Equipment parent/R1 are COMPLETE / ACCEPTED for bounded source/local scope at implementation 2e4accef and delivery 32b2906. Independent diff/source, R1 61, Equipment 105, AFK 729, integrity 71, check/package, protected-WIP and saved-image review pass. Native/physical drag/original pixels remain unproved.
 
-Worker delivery, 2026-10-03: LWB317-UI-REMAINING-PAGES-001 completed A–F for City Layout, Hotkeys, Mini Games and Settings and is **AWAITING_REVIEW**. The packet reconciles 54 branches, records wide EN/light + JA/dark and actual `784×415` narrow browser evidence, audits all nine locale catalogs, replays affected Equipment/AFK/shared-draft checks and pins the EXE/assets/slices/current/evidence/screenshots with a current validator. Lead acceptance and order-3 shell/native/global work remain separate.
+Lead review, 2026-10-03: LWB317-UI-REMAINING-PAGES-001 is **CHANGES_REQUIRED** at afd65b6. All A–F milestones and passing worker checks are retained. Twelve actual independent cases expose omitted City pointer/null-layout/preparation behavior, Mini/Settings native-mode false success/state and event-time error-language lifetime. R1 is READY; dated lead review and immutable reproduction distinguish implementation from supplied test coverage.
 
 **Target:** LWBridge 0.3.17  
 **Branch:** `research/offline-controller`  
-**Active scope:** UI parity / LWB317-UI-REMAINING-PAGES-001 AWAITING_REVIEW; Equipment correction accepted; native/full shell integration separate
+**Active scope:** UI parity / LWB317-UI-REMAINING-PAGES-001-R1 READY; parent CHANGES_REQUIRED; Equipment accepted; native/full shell integration separate
 
-## Current continuation — four-page UI campaign awaiting review
+## Current continuation — focused four-page R1 correction
 
-Review docs/work-items/LWB317-UI-REMAINING-PAGES-001.md and the dated campaign review.
-A–F are complete and the worker return is AWAITING_REVIEW. Re-run the bounded current
-validator and focused checks as needed; do not restart the page campaign or upgrade
-native/global/pixel status from this source/local packet. The known shell retention
-difference remains explicit. Order-3 full shell/Home/Map integration and native
-function work are separate assignments owned by the project lead.
+Read docs/work-items/LWB317-UI-REMAINING-PAGES-001-R1.md and the dated independent
+lead review. A native/preview boundaries, B City pointer/null/preparation, C retained
+feedback language, D focused verification. Reuse passing helpers/proofs and preserve
+the twelve-case submitted failure packet. Parent remains CHANGES_REQUIRED until
+lead acceptance. Don't restart A–F or begin native/shell work. Top-level Activity
+retention and original pixels remain separate known gaps.
 
 ## Prior continuation — Equipment Schemes R1 accepted
 

@@ -1,7 +1,8 @@
 # LWB317-UI-REMAINING-PAGES-001 — large four-page UI closeout
 
-Status: AWAITING_REVIEW. Worker completed milestones A–F and the bounded four-page
-source/local UI closeout; project-lead acceptance is still pending.
+Status: CHANGES_REQUIRED after independent lead review of afd65b6. A–F delivery and
+passing proof are preserved; twelve omitted-boundary cases require focused R1.
+See the dated REVIEW-REMAINING-PAGES-001 review and new R1 work item.
 Work alone: no subagents, delegation or another worker chat. Complete sequential
 milestones within this assignment without waiting for permission between them.
 The project lead performs final acceptance through the owner's manual relay.

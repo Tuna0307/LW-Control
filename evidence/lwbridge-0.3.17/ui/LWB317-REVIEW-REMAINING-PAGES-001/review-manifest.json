@@ -1,0 +1,102 @@
+{
+  "submittedCommit": "afd65b64808e0fd43175dbbaa5afc36e32def9ef",
+  "referenceExecutableSha256": "4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783",
+  "files": [
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "sha256": "25B0908A7FFC548047ED045C53E42BCAF1370044F6175DC7041AAA16DB75EA21"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/previewRemainingPagesContracts.js",
+      "sha256": "C0F81103BC85D3B27D7A952B13EB76173EA27393AEB72B0AD312A31C8AB6CDA7"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/App.jsx",
+      "sha256": "AE6663BC9E71C9FB2FED5F7BFFC8398447F357E6E6120701D81DA572269C5F52"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-REMAINING-PAGES-001/milestone-a/source-manifest.json",
+      "sha256": "E4479CFB706E0CADBC1139C0E4706D805CC7464F12AF63D1C2C00ABF054A1BB1"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-REMAINING-PAGES-001/milestone-a/baseline-results.json",
+      "sha256": "FD342E3A54C3BD24C0437C8F88758D771E5F1205364DBAE72C071B0925527DBD"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/CityLayoutPanel-DoNWkywK.js",
+      "sha256": "C1B83A0B6524EF9AF510A114DF9679DAE0260D34B633659EB1A5FFB2AC5CF49C"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/HotkeyPanel-XA8idRHB.js",
+      "sha256": "9BD7C11768693705391060D4F79119B5EA4A5229E042758165D3AD751A961BE6"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/SettingsPanel-DqxIWv_E.js",
+      "sha256": "129CCBACDD5F309070A3E2728912165006F0FA35FCF748D56F7AA9500D690C2B"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-BVfnK1wp.js",
+      "sha256": "44C4E4043825B7DB296B64171951B27176F8850FF8D7D337CC991DF4765524C6"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-REMAINING-PAGES-001/milestone-f/screenshots/city-layout-moved-en-light-wide.jpg",
+      "sha256": "54D02A6AD4130DF0846FEEE93082DFB27128321FEF9AB43C7F694A84889C8279"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-REMAINING-PAGES-001/milestone-f/screenshots/city-layout-stale-ja-dark-narrow.jpg",
+      "sha256": "CB4640E6A82FC8027CD2E3E60233D5A858AD59903A8E15C594DBD8C19F4887A5"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-REMAINING-PAGES-001/milestone-f/screenshots/city-layout-stale-ja-dark-wide.jpg",
+      "sha256": "9D6DAD4180DAE1B48D8627F324B6CF58A849CB49BB71972D6142B1D3B9486549"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-REMAINING-PAGES-001/milestone-f/screenshots/hotkeys-disconnected-en-light-wide.jpg",
+      "sha256": "58ADAC5FE969E2B615CEBFE8C3B337D72E3775F49B0A91EC9F126F767AA63D7A"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-REMAINING-PAGES-001/milestone-f/screenshots/hotkeys-save-error-ja-dark-narrow.jpg",
+      "sha256": "FF680971E9917F90D93404AC21FCA70890ED0CED5E1897176D9A523551B0BD4E"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-REMAINING-PAGES-001/milestone-f/screenshots/hotkeys-save-error-ja-dark-wide.jpg",
+      "sha256": "ACE2489AD4235DB8AE96754E3B498D87C96C743869CFFDC039D59FB5DF293051"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-REMAINING-PAGES-001/milestone-f/screenshots/mini-games-active-en-light-wide.jpg",
+      "sha256": "829F21145E9B3B79A49B7B101146DA7218B4FC5DF906F578D4DC7D20CFB67D5C"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-REMAINING-PAGES-001/milestone-f/screenshots/mini-games-config-loading-ja-dark-narrow.jpg",
+      "sha256": "2C07CB4862CBEC27E5C7C7BB140C5C880691BE2DDD09F03AE3BC31D325251352"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-REMAINING-PAGES-001/milestone-f/screenshots/mini-games-config-loading-ja-dark-wide.jpg",
+      "sha256": "009E3F1DB478C1CE146039BC98AA232CF36AE98478F453FDD4CBA326A3D63457"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-REMAINING-PAGES-001/milestone-f/screenshots/settings-complete-en-light-wide.jpg",
+      "sha256": "10374AF073F63E3AACC8D065C2CE6D51F2618621C64584CA05455728E89F9A43"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-REMAINING-PAGES-001/milestone-f/screenshots/settings-update-available-ja-dark-narrow.jpg",
+      "sha256": "6B7C9AA71A0F4F57DB65F468B8A8B3006C13D64A24B5CA4A7ABD183C93B86C88"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-REMAINING-PAGES-001/milestone-f/screenshots/settings-update-available-ja-dark-wide.jpg",
+      "sha256": "48839095E2CAEBA802290E633EF525C1EEAF8DA446E93DBAB32DE5E89F27BC3D"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-REVIEW-REMAINING-PAGES-001/check-review.mjs",
+      "sha256": "A47794D814CB3D311A6B09A2DFFA3E9496FD9B006EDE5F5A981DD65D8E5449CD"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-REVIEW-REMAINING-PAGES-001/independent-results.json",
+      "sha256": "6F0F69AADFCDC6426DBB669E04D225A23CBEC04F6260888875413825C6CDE0AC"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-REVIEW-REMAINING-PAGES-001/verification-results.json",
+      "sha256": "C5B79E9DA4E65B9532D6CB0207213A5DABE100126D486CB15D8B039C06A2C015"
+    }
+  ]
+}

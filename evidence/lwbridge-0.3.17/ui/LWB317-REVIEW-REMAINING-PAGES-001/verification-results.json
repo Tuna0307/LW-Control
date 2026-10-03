@@ -1,0 +1,24 @@
+{
+  "submittedCommit": "afd65b64808e0fd43175dbbaa5afc36e32def9ef",
+  "reviewer": "project lead",
+  "date": "2026-10-03",
+  "decision": "CHANGES_REQUIRED",
+  "leadReruns": {
+    "city": 935,
+    "hotkeys": 70,
+    "miniGames": 86,
+    "settings": 71,
+    "equipment": 105,
+    "equipmentR1": 61,
+    "afk": 729,
+    "canonicalCheck": "PASS",
+    "productionPackage": "PASS",
+    "workerIntegrity": "PASS assets=4 slices=15 products=2 JSON=13 screenshots=12 protected=7",
+    "workerCloseout": "PASS; inventory/marker/catalog/record checks rather than full behavioral branch coverage"
+  },
+  "independentFailingCases": 12,
+  "independentSharedPanelReview": "40 supplied original/current states and two save callbacks pass; later native and locale cases reveal omitted boundaries",
+  "browser": "Lead inspected twelve-image contact sheet and enlarged City narrow/Settings wide images. No fresh lead browser interactions; worker console/image evidence remains separately attributed.",
+  "build": "Worker build record inspected; current package hashes independently verified. No production edits by lead.",
+  "limits": "No native/provider/gameplay operation, protected-runtime pixel comparison or shell-retention correction. Passing record integrity does not validate omitted callbacks."
+}

@@ -1,0 +1,163 @@
+{
+  "submittedCommit": "afd65b64808e0fd43175dbbaa5afc36e32def9ef",
+  "decision": "CHANGES_REQUIRED",
+  "results": [
+    {
+      "name": "Mini Games native has unavailable actions and synthetic state",
+      "original": {
+        "providerAvailable": false,
+        "syntheticLevel": null,
+        "success": false
+      },
+      "current": {
+        "landEnabled": true,
+        "sheepEnabled": true,
+        "syntheticLevel": 4,
+        "landSuccessCellId": 17
+      },
+      "proof": "Actual current renderer/callback; no provider is invoked. Original z/B await supplied providers and Land uses returned cellId.",
+      "decision": "CHANGES_REQUIRED"
+    },
+    {
+      "name": "Mini Games native-unavailable has unavailable actions and synthetic state",
+      "original": {
+        "providerAvailable": false,
+        "syntheticLevel": null,
+        "success": false
+      },
+      "current": {
+        "landEnabled": false,
+        "sheepEnabled": false,
+        "syntheticLevel": 4,
+        "landSuccessCellId": null
+      },
+      "proof": "Actual current renderer/callback; no provider is invoked. Original z/B await supplied providers and Land uses returned cellId.",
+      "decision": "CHANGES_REQUIRED"
+    },
+    {
+      "name": "Settings native fabricated export/check acknowledgement",
+      "original": {
+        "providerAvailable": false,
+        "archive": null,
+        "checkSuccess": false
+      },
+      "current": {
+        "exportEnabled": true,
+        "checkEnabled": true,
+        "archive": {
+          "archiveBytes": 4404019,
+          "path": "Preview/diagnostics.zip"
+        },
+        "phase": "upToDate"
+      },
+      "proof": "Actual current callbacks; original Settings.p and Index.Rn require provider acknowledgements.",
+      "decision": "CHANGES_REQUIRED"
+    },
+    {
+      "name": "Settings native-unavailable fabricated export/check acknowledgement",
+      "original": {
+        "providerAvailable": false,
+        "archive": null,
+        "checkSuccess": false
+      },
+      "current": {
+        "exportEnabled": true,
+        "checkEnabled": true,
+        "archive": {
+          "archiveBytes": 4404019,
+          "path": "Preview/diagnostics.zip"
+        },
+        "phase": "upToDate"
+      },
+      "proof": "Actual current callbacks; original Settings.p and Index.Rn require provider acknowledgements.",
+      "decision": "CHANGES_REQUIRED"
+    },
+    {
+      "name": "Settings initial updater metadata",
+      "original": {
+        "currentVersion": "",
+        "latestVersion": null,
+        "downloadDirectory": ""
+      },
+      "current": {
+        "currentVersion": "0.3.17",
+        "latestVersion": "0.3.17",
+        "downloadDirectory": "Preview/updates"
+      },
+      "proof": "Exact original Ln byte210230 length158 versus current initial helper.",
+      "decision": "CHANGES_REQUIRED"
+    },
+    {
+      "name": "city-layout-loading",
+      "original": {
+        "workbench": false
+      },
+      "current": {
+        "workbench": true
+      },
+      "proof": "Actual original/current null-layout/loading/error renderer.",
+      "decision": "CHANGES_REQUIRED"
+    },
+    {
+      "name": "city-layout-error",
+      "original": {
+        "workbench": false
+      },
+      "current": {
+        "workbench": true
+      },
+      "proof": "Actual original/current null-layout/loading/error renderer.",
+      "decision": "CHANGES_REQUIRED"
+    },
+    {
+      "name": "City non-origin grab with zero pointer movement",
+      "original": [],
+      "current": [
+        {
+          "uuid": "preview-hospital",
+          "targetPointId": 404
+        }
+      ],
+      "proof": "Actual original/current pointerdown/move/up callbacks.",
+      "decision": "CHANGES_REQUIRED"
+    },
+    {
+      "name": "City invalid target valid-axis fallback",
+      "original": [
+        {
+          "uuid": "preview-barracks",
+          "targetPointId": 505
+        }
+      ],
+      "current": [],
+      "proof": "Actual original/current pointer callbacks.",
+      "decision": "CHANGES_REQUIRED"
+    },
+    {
+      "name": "City Apply preparation busy gate",
+      "original": {
+        "undoDisabled": true
+      },
+      "current": {
+        "undoDisabled": false
+      },
+      "proof": "Original Apply awaits an inert pending validation; current opens its local confirmation without entering the source busy gate. No native confirmation or apply operation is invoked.",
+      "decision": "CHANGES_REQUIRED"
+    },
+    {
+      "name": "Settings EN failure then JA locale",
+      "original": "Failed to save in-game display settings.",
+      "current": "ゲーム内表示設定を保存できませんでした。",
+      "proof": "Actual rejected-save callbacks followed by same-state locale rerender; original load effect has [] dependencies.",
+      "decision": "CHANGES_REQUIRED"
+    },
+    {
+      "name": "Hotkeys EN failure then JA locale",
+      "original": "Failed to save hotkey settings.",
+      "current": "ショートカット設定を保存できませんでした。",
+      "proof": "Actual rejected-save callbacks followed by same-state locale rerender; original load effect has [] dependencies.",
+      "decision": "CHANGES_REQUIRED"
+    }
+  ],
+  "limits": "Actual inert callbacks/renderers against recovered source. No provider/network/native/gameplay/browser operation. Historical shell retention/pixels remain separate."
+}
