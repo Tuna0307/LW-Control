@@ -1,5 +1,11 @@
 # Current project directive
 
+Dispatch, 2026-10-04: `LWB317-UI-SHELL-CROSSSERVER-001` is READY through owner relay.
+One medium worker task: exact recovered Cross-server popover input/list/error/busy/
+acknowledgement/lifecycle parity. Work alone through A/B/C; read its work item.
+Do not include global profile redesign, Map-tab scheduling, notices, final inventory
+or native gameplay. Preserve accepted shell retention and all existing WIP.
+
 Lead takeover/acceptance, 2026-10-04: `LWB317-UI-SHELL-RETENTION-001` is COMPLETE /
 ACCEPTED for assigned source/local retention scope. Worker A/B at 1786fc5/081ffc8
 are preserved; the lead completed mounted/browser C, affected/package checks and

@@ -26,6 +26,11 @@ inflate a percentage using test-case counts or declare unknown surfaces done.
 
 ## Fixed finish queue
 
+Current dispatch, 2026-10-04: SHELL-CROSSSERVER-001 is one medium worker assignment
+within order 3. It closes only the header popover and associated frontend/history
+action lifecycle. Other shared-shell/profile/Map-notice/scheduling and inventory
+gates remain separate. Accepted retained-page state/effect proof is preserved.
+
 | Order | UI area | Current basis | Remaining completion gate |
 |---|---|---|---|
 | 0 | Map Auto configuration | COMPLETE / ACCEPTED focused scope by PM-UI-FINISH-001; ten regressions and seven additional lead App cases pass | Closed assigned scope; no new executor campaign |

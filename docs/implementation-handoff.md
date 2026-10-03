@@ -1,5 +1,9 @@
 # Current implementation/research handoff
 
+Dispatch, 2026-10-04: SHELL-CROSSSERVER-001 is READY through owner relay. Read its
+work item for the finite popover source/baseline/correction/verification scope.
+No next-page, profile architecture, Map notices or live native action is assigned.
+
 Lead takeover/acceptance, 2026-10-04: SHELL-RETENTION-001 is COMPLETE / ACCEPTED
 for assigned source/local retention scope. Preserve worker A/B 1786fc5/081ffc8;
 C mounted/browser/regression/integrity closeout is finished. See the dated review
@@ -11,14 +15,14 @@ Lead takeover/acceptance, 2026-10-03: REMAINING-PAGES parent/R1 are **COMPLETE /
 
 **Target:** LWBridge 0.3.17  
 **Branch:** `research/offline-controller`  
-**Active scope:** UI parity / shell retention accepted; broader shell audit and final inventory remain; native/original pixels separate
+**Active scope:** UI parity / SHELL-CROSSSERVER-001 READY; retention accepted; native/original pixels separate
 
-## Current continuation — retained shell unit closed
+## Current continuation — Cross-server popover assigned
 
-No unfinished A/B/C work remains. The next assignment should separately audit
-shared shell/profile/popovers and Map notices/summary scheduling, followed by
-the final UI inventory. Native function recovery and original post-auth pixels
-remain unaccepted. No next campaign was started by this takeover.
+Read docs/work-items/LWB317-UI-SHELL-CROSSSERVER-001.md. Start from current HEAD;
+55c9ca1 is its baseline, not a reset target. Work alone through A/B/C. Retention has
+no unfinished assigned work. Broader profile/shell/Map notices/navigation scheduling
+and final inventory remain subsequent; native functions/original pixels unaccepted.
 
 ## Prior continuation — four-page R1 closed
 

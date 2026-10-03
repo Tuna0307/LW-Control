@@ -1,5 +1,9 @@
 # Project lead control sheet
 
+Dispatch, 2026-10-04: SHELL-CROSSSERVER-001 is READY for one worker through owner
+relay. Only the Cross-server popover and its frontend action/history lifecycle are
+assigned. SHELL-RETENTION-001 stays accepted; broader shell audit remains separate.
+
 Lead takeover/acceptance, 2026-10-04: SHELL-RETENTION-001 is COMPLETE / ACCEPTED
 for assigned source/local retention scope. Product 081ffc8 is retained; mounted
 React/page/App/Map and browser C proofs, canonical checks and integrity are complete.
@@ -38,7 +42,7 @@ retirement task. Preserve its source as historical evidence.
 
 ## Current phase
 
-**UI parity — shell retention accepted; broader shell audit and final inventory next**
+**UI parity — shell retention accepted; focused Cross-server popover audit assigned**
 
 Earlier static UI baseline acceptance does not establish complete UI/UX parity.
 The current owner priority is UI reproduction before function integration.
