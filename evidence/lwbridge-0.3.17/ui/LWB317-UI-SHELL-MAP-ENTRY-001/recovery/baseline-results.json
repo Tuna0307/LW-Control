@@ -1,0 +1,124 @@
+{
+  "result": "LWB317_MAP_ENTRY_BASELINE_OK",
+  "source": {
+    "originalAsset": {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-BVfnK1wp.js",
+      "sha256": "44C4E4043825B7DB296B64171951B27176F8850FF8D7D337CC991DF4765524C6"
+    },
+    "originalTtByteStart": 364377,
+    "originalTtSha256": "46F42FD3B323F00D1714F3981BE3C2F3BB4F16FEEA142AF46A493A42D1CF4C78",
+    "baselineApp": {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-MAP-ENTRY-001/recovery/baseline-74ceaf7-App.jsx",
+      "sha256": "74EA23D7BDDF3A1EB9D5CF8B051C54BE3893553F4FF7AA6239BBAE1D8F0B1BCB"
+    }
+  },
+  "cases": [
+    {
+      "name": "original different-route Map entry starts summary before preload/transition and rejection does not block navigation",
+      "status": "PASS",
+      "events": [
+        {
+          "event": "summary:start",
+          "activeRoute": "overview"
+        },
+        {
+          "event": "preload",
+          "routeKey": "map-data"
+        },
+        {
+          "event": "transition:start",
+          "activeRoute": "overview"
+        },
+        {
+          "event": "visited",
+          "values": [
+            "overview",
+            "map-data"
+          ]
+        },
+        {
+          "event": "active:set",
+          "from": "overview",
+          "to": "map-data"
+        },
+        {
+          "event": "log",
+          "message": "map summary error Error: controlled rejection"
+        }
+      ]
+    },
+    {
+      "name": "original active Map selection is inert",
+      "status": "PASS",
+      "events": []
+    },
+    {
+      "name": "original non-Map selection does not request summary",
+      "status": "PASS",
+      "events": [
+        {
+          "event": "preload",
+          "routeKey": "automation"
+        },
+        {
+          "event": "transition:start",
+          "activeRoute": "overview"
+        },
+        {
+          "event": "visited",
+          "values": [
+            "overview",
+            "automation"
+          ]
+        },
+        {
+          "event": "active:set",
+          "from": "overview",
+          "to": "automation"
+        }
+      ]
+    },
+    {
+      "name": "baseline App has failing post-transition Map entry ordering",
+      "status": "EXPECTED_BASELINE_FAILURE",
+      "events": [
+        {
+          "event": "click",
+          "routeKey": "map-data",
+          "activeRoute": "overview"
+        },
+        {
+          "event": "transition:start",
+          "activeRoute": "overview"
+        },
+        {
+          "event": "summary:start",
+          "id": 2,
+          "activeRoute": "map-data",
+          "profileId": "profile-a"
+        }
+      ]
+    },
+    {
+      "name": "baseline direct initial Map route has bootstrap plus active-route request",
+      "status": "EXPECTED_BASELINE_FAILURE",
+      "requestCount": 2,
+      "events": [
+        {
+          "event": "summary:start",
+          "id": 1,
+          "activeRoute": "map-data",
+          "profileId": "profile-a"
+        },
+        {
+          "event": "summary:start",
+          "id": 2,
+          "activeRoute": "map-data",
+          "profileId": "profile-a"
+        }
+      ]
+    }
+  ],
+  "interpretation": "Exact original Tt starts map summary, then route preload, then React transition. It attaches catch and returns without awaiting settlement. Dispatch App instead transitions first and an activeRoute effect starts summary afterward; direct initial Map also receives an extra route-effect request in addition to the profile bootstrap request.",
+  "limits": "Original Tt is executed verbatim from the pinned asset with inert summary/log/preload/transition/setter bindings. Baseline App is the immutable dispatch App source executed through its actual callbacks/effects with a persistent hook runtime, inert page/icon children, controlled native bridge/map API, no network/native/gameplay. Connected polling is held disconnected so bootstrap and entry traffic are distinguishable."
+}

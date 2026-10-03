@@ -1,0 +1,40 @@
+{
+  "task": "LWB317-UI-SHELL-MAP-ENTRY-001",
+  "dispatchCommit": "74ceaf78dc24c08068320dfc9766cf349faa1b7e",
+  "referenceExe": {
+    "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW/lwbridge-0.3.17.exe",
+    "bytes": 15866880,
+    "sha256": "4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783"
+  },
+  "originalAsset": {
+    "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-BVfnK1wp.js",
+    "bytes": 377972,
+    "sha256": "44C4E4043825B7DB296B64171951B27176F8850FF8D7D337CC991DF4765524C6"
+  },
+  "baselineApp": {
+    "spec": "74ceaf78dc24c08068320dfc9766cf349faa1b7e:src/LWBridge.UI-0.3.17/src/App.jsx",
+    "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-MAP-ENTRY-001/recovery/baseline-74ceaf7-App.jsx",
+    "bytes": 24163,
+    "sha256": "74EA23D7BDDF3A1EB9D5CF8B051C54BE3893553F4FF7AA6239BBAE1D8F0B1BCB",
+    "gitBlob": "ff88eb5d96cc0f135ee2d3144e967e84ad049339"
+  },
+  "originalLocators": {
+    "mapEntryFunction": {
+      "name": "Tt",
+      "byteStart": 364377,
+      "byteEndExclusive": 364550,
+      "bytes": 173,
+      "sha256": "46F42FD3B323F00D1714F3981BE3C2F3BB4F16FEEA142AF46A493A42D1CF4C78",
+      "utf8": "function Tt(e){e!==i&&(e===`map-data`&&_t().catch(e=>F(`map summary error `+String(e))),Wi(e),c(()=>{s(t=>{if(t.has(e))return t;let n=new Set(t);return n.add(e),n}),a(e)}))}"
+    },
+    "summaryHelperByteStart": 363957,
+    "preloadHelperByteStart": 361263,
+    "connectedSummaryPollMarkerByteStart": 370349,
+    "savedSlice": {
+      "byteStart": 363600,
+      "byteEndExclusive": 366200,
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-MAP-ENTRY-001/recovery/original-map-entry-byte363600-366200.js",
+      "sha256": "A046756D577A5609358FDF92945101DD936CBBDB971DCF67011298DFB4CC224A"
+    }
+  }
+}
