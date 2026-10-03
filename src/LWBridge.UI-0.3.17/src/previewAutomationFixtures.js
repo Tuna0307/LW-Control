@@ -209,6 +209,7 @@ export const previewAssistJobs = [
 ];
 
 export function previewAssistFixture(previewState) {
+  if (!previewState.startsWith("automation-")) return { tasks: [], jobs: [], busy: false };
   const tasks = previewState === "automation-assist-empty" ? [] : previewAssistTasks;
   const task = previewAssistTasks[0];
   const statusByState = {
@@ -255,7 +256,7 @@ export function previewResourceGatherRuntime(previewState) {
   const status = {
     worldTileCount: 1000,
     gatherSquadIndexes: !hasSquadData ? [] : previewState === "automation-gather-view-change" ? [1, 2, 3] : [1, 2],
-    gatherResources: [
+    gatherResources: !hasSquadData ? [] : [
       { resource: "metal", maxLevel: 10 },
       { resource: "food", maxLevel: 9 },
       { resource: "gold", maxLevel: 8 },

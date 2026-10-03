@@ -4,7 +4,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(here, "..");
-const sourceFiles = ["src/App.jsx", "src/Pages.jsx", "src/MapDataPage.jsx", "src/mapTablePresentation.js", "src/previewConfigHook.jsx"];
+const sourceFiles = ["src/App.jsx", "src/Pages.jsx", "src/MapDataPage.jsx", "src/mapTablePresentation.js", "src/previewConfigHook.jsx", "src/AutomationMeta.jsx", "src/RallyJoinSettings.jsx", "src/DispatchAssistManual.jsx"];
 const localeCodes = ["en", "zh-CN", "zh-TW", "ja", "ko", "vi", "id", "ru", "pt"];
 
 const en = (await import(pathToFileURL(path.join(root, "src", "locales", "en.js")))).default;
@@ -14,7 +14,12 @@ for (const relative of sourceFiles) {
   for (const match of source.matchAll(/\bt\(["`]([A-Za-z0-9._]+)["`]/g)) literalKeys.add(match[1]);
 }
 
-const missing = [...literalKeys].filter((key) => !key.includes("${") && !(key in en)).sort();
+// Exact original Gather me requests common.loading, absent from the original
+// English catalog. Preserve its key-as-text result rather than invent a label.
+const recoveredMissingKeys = new Set(["common.loading"]);
+const originalPanel = fs.readFileSync(path.join(root, "../../evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/AutomationPanel-BJ0gIqFh.js"), "utf8");
+if (!originalPanel.includes("a(`common.loading`)") || "common.loading" in en) throw new Error("Revalidate original Gather missing-key exception.");
+const missing = [...literalKeys].filter((key) => !key.includes("${") && !(key in en) && !recoveredMissingKeys.has(key)).sort();
 if (missing.length) throw new Error(`Missing recovered English locale keys:\n${missing.join("\n")}`);
 
 const localeCounts = {};

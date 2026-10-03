@@ -1,0 +1,256 @@
+{
+  "result": "LWB317_AUTOMATION_AFK_ACTUAL_SOURCE_OK",
+  "results": [
+    {
+      "name": "actual original/current AFK helpers and new profile defaults",
+      "count": 320,
+      "result": "PASS"
+    },
+    {
+      "name": "whole original/current join renderer in English and Japanese",
+      "count": 112,
+      "result": "PASS"
+    },
+    {
+      "name": "actual member modal confirmation preserves self/departed and source order",
+      "count": 3,
+      "result": "PASS"
+    },
+    {
+      "name": "actual original/current Automation meta and future-time renderer",
+      "count": 52,
+      "result": "PASS"
+    },
+    {
+      "name": "named Automation runtime branches through the original shared card",
+      "count": 48,
+      "result": "PASS"
+    },
+    {
+      "name": "actual original/current manual Assist rows queue states and controls",
+      "count": 32,
+      "result": "PASS"
+    },
+    {
+      "name": "actual original/current Gather callbacks and runtime precedence",
+      "count": 54,
+      "result": "PASS"
+    },
+    {
+      "name": "Garrison actual priority handlers availability runtime and source snapshot normalization",
+      "count": 10,
+      "result": "PASS"
+    },
+    {
+      "name": "actual original/current Zombie table empty gold normal unknown and supplied names",
+      "count": 4,
+      "result": "PASS"
+    },
+    {
+      "name": "explicit AFK/Assist fixture mode fencing",
+      "count": 30,
+      "result": "PASS"
+    },
+    {
+      "name": "two profile IDs and real draft error Retry/Discard",
+      "count": 5,
+      "result": "PASS"
+    },
+    {
+      "name": "immutable baseline distinguishes five corrected render omissions",
+      "count": 5,
+      "result": "PASS"
+    }
+  ],
+  "baseline": [
+    {
+      "case": "Trucks unknown capability",
+      "failed": true
+    },
+    {
+      "case": "Secret Task unknown capability",
+      "failed": true
+    },
+    {
+      "case": "join recovered hint squad.join.hint",
+      "failed": true
+    },
+    {
+      "case": "join recovered hint squad.join.hint.${e.mode}",
+      "failed": true
+    },
+    {
+      "case": "unrecovered full status grid",
+      "failed": true
+    }
+  ],
+  "locators": {
+    "Squad.oe": {
+      "asset": "SquadPanel-HC3-DJei.js",
+      "utf8ByteOffset": 389,
+      "utf8ByteLength": 447,
+      "sha256": "AAE79F1953AACE0C59A56C8263DF8FD7E9315818B527143278A438CB59F9C96B"
+    },
+    "Squad.se": {
+      "asset": "SquadPanel-HC3-DJei.js",
+      "utf8ByteOffset": 836,
+      "utf8ByteLength": 964,
+      "sha256": "94CD5A5BFE04032B2B8D1C0C10583F0911C12BEE82B42BE4AAF9647EB61130A8"
+    },
+    "Squad.ue": {
+      "asset": "SquadPanel-HC3-DJei.js",
+      "utf8ByteOffset": 3297,
+      "utf8ByteLength": 517,
+      "sha256": "38C18D846C63D24F49B91D3FE4B6EC4B3A603F0A6DE33136B0BD956306F8AA49"
+    },
+    "Squad.Ce": {
+      "asset": "SquadPanel-HC3-DJei.js",
+      "utf8ByteOffset": 26646,
+      "utf8ByteLength": 663,
+      "sha256": "99AEF53AA709B29D04B8690347BCBCA8391964A023E52009CF699D8470CBF7F3"
+    },
+    "Squad.we": {
+      "asset": "SquadPanel-HC3-DJei.js",
+      "utf8ByteOffset": 27309,
+      "utf8ByteLength": 231,
+      "sha256": "09954DE038618DA6E499194AD7EE1D70A592F7DE5199C36A7605E00BB3854FC3"
+    },
+    "Squad.Te": {
+      "asset": "SquadPanel-HC3-DJei.js",
+      "utf8ByteOffset": 27540,
+      "utf8ByteLength": 530,
+      "sha256": "868DC63027CAE33DAA67E86719C9589B30C6716E08F1E91C02D4D8D275812AD8"
+    },
+    "Squad.ye": {
+      "asset": "SquadPanel-HC3-DJei.js",
+      "utf8ByteOffset": 19216,
+      "utf8ByteLength": 5735,
+      "sha256": "2432C955C17B6097120E4AD3D493140BF78AC851394B730E0D5067E70E95B030"
+    },
+    "Squad.pe": {
+      "asset": "SquadPanel-HC3-DJei.js",
+      "utf8ByteOffset": 4586,
+      "utf8ByteLength": 11256,
+      "sha256": "4DD8A8770C7726AA3CCE0657BC88C6B0FB2146FA161BCF2C3017A231D0953C85"
+    },
+    "Squad.me": {
+      "asset": "SquadPanel-HC3-DJei.js",
+      "utf8ByteOffset": 15842,
+      "utf8ByteLength": 687,
+      "sha256": "7232700BC71C76F9E5B0DA56A2DCC43D369191701C45CE28A87D5A966058DAB8"
+    },
+    "Squad.I": {
+      "asset": "SquadPanel-HC3-DJei.js",
+      "utf8ByteOffset": 28070,
+      "utf8ByteLength": 22554,
+      "sha256": "0A4895C21AD443AA7A1C05B54CFF2E8DD89F9038BED10DBFFFB9001A4128EE2E"
+    },
+    "Automation.me": {
+      "asset": "AutomationPanel-BJ0gIqFh.js",
+      "utf8ByteOffset": 10331,
+      "utf8ByteLength": 4288,
+      "sha256": "65AF81300489FD6682CD8309DD3089426E14170691768AFA8C4750D059C0509D"
+    },
+    "Automation.O": {
+      "asset": "AutomationPanel-BJ0gIqFh.js",
+      "utf8ByteOffset": 20214,
+      "utf8ByteLength": 232,
+      "sha256": "15E2290599F6543D22E7728991FDFEC07476BF8803440D81C7BD3C20D07842DD"
+    },
+    "Automation.E": {
+      "asset": "AutomationPanel-BJ0gIqFh.js",
+      "utf8ByteOffset": 19426,
+      "utf8ByteLength": 603,
+      "sha256": "BD308340C092C52A1E08DADCAA6C0476BBA2BD39D559FB99BF4E2EC7F0C88B8A"
+    },
+    "Automation.T": {
+      "asset": "AutomationPanel-BJ0gIqFh.js",
+      "utf8ByteOffset": 19367,
+      "utf8ByteLength": 59,
+      "sha256": "1830F3BF4E2E31692E67AD2B3348AD496385D87763CC5A828D966699E8C7BE37"
+    },
+    "Automation.Ce": {
+      "asset": "AutomationPanel-BJ0gIqFh.js",
+      "utf8ByteOffset": 20446,
+      "utf8ByteLength": 79,
+      "sha256": "F726F00C0F721D605E76AA763A5970C5B853226415355D17663292E79BB7E1D4"
+    },
+    "automation.railway.title": {
+      "asset": "AutomationPanel-BJ0gIqFh.js",
+      "utf8ByteOffset": 66545,
+      "utf8ByteLength": 2009,
+      "sha256": "DB53D3327FA5045DAA89534DDC6B45D3DEC1F0A6DC660C1C9EED67B19583ABFB"
+    },
+    "automation.secretTask.title": {
+      "asset": "AutomationPanel-BJ0gIqFh.js",
+      "utf8ByteOffset": 68569,
+      "utf8ByteLength": 5187,
+      "sha256": "3EE0C4E1AED0A05614A0A3A3C5E02A06DDCDE77C29F322D2D76B558563FF1B04"
+    },
+    "automation.allianceHelp.title": {
+      "asset": "AutomationPanel-BJ0gIqFh.js",
+      "utf8ByteOffset": 60395,
+      "utf8ByteLength": 474,
+      "sha256": "234BC1A5CDDF1E2974ECA97A2B2B68D2AD746B56C3D7411B51E668976A8E63E3"
+    },
+    "automation.allianceGift.title": {
+      "asset": "AutomationPanel-BJ0gIqFh.js",
+      "utf8ByteOffset": 60883,
+      "utf8ByteLength": 1004,
+      "sha256": "919C27F118C54FF603BF9D7C7ADE90DB42555BBCC6C393AD7C7F323B0CF6A7ED"
+    },
+    "automation.strongholdResource.title": {
+      "asset": "AutomationPanel-BJ0gIqFh.js",
+      "utf8ByteOffset": 61901,
+      "utf8ByteLength": 1040,
+      "sha256": "73D47F2A811C932B0707E886124F8926678C7C6EFEDDACF22B195EE42A5D8C30"
+    },
+    "automation.allianceCenterResource.title": {
+      "asset": "AutomationPanel-BJ0gIqFh.js",
+      "utf8ByteOffset": 62955,
+      "utf8ByteLength": 1080,
+      "sha256": "7798A5375E9954DA6CEBF7C9CED05A13E11F9E66E9796C363E71B3AE08AB96AC"
+    },
+    "automation.weekendShield.title": {
+      "asset": "AutomationPanel-BJ0gIqFh.js",
+      "utf8ByteOffset": 43514,
+      "utf8ByteLength": 528,
+      "sha256": "DBA3CE5CEDC4172A6CC24CB3623C889C70872FB547D20343CBC9315AE13D4F96"
+    },
+    "automation.attackShield.title": {
+      "asset": "AutomationPanel-BJ0gIqFh.js",
+      "utf8ByteOffset": 44056,
+      "utf8ByteLength": 330,
+      "sha256": "64F56D51E88E277EC763F47766417C3E83F3AD784602BEF60314FB1B9ED7604C"
+    },
+    "Automation.manualAssist": {
+      "asset": "AutomationPanel-BJ0gIqFh.js",
+      "utf8ByteOffset": 71741,
+      "utf8ByteLength": 1950,
+      "sha256": "DDB29B1B93577E19987150618DEB56C89873510B78AA2AEF57BD118C56DAE107"
+    }
+  },
+  "assets": [
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/AutomationPanel-BJ0gIqFh.js",
+      "sha256": "6DB2328191AF33E5631D507271C36D7008B287DAA7C8CD1A957B23EF6F871725"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/SquadPanel-HC3-DJei.js",
+      "sha256": "ED466E353AA896D8C3FC783FF1802930156FB9E9EB54327AEF73F2FF86FA06C7"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-BVfnK1wp.js",
+      "sha256": "44C4E4043825B7DB296B64171951B27176F8850FF8D7D337CC991DF4765524C6"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/GameAssetImage-Diy9VTIr.js",
+      "sha256": "2F92A87C3268497DF6425B1175DB6140E10AABCBDFAE02615F065D00E16458E0"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/AutomationCard-LCx_jIi7.js",
+      "sha256": "24ED773623C237F8219EFF5443FAC3BA7B55B6E99E168E52FF066FAF2ABE7A61"
+    }
+  ],
+  "limits": "Inert actual original/current render and local payload proof. No live game, native provider or original post-auth pixels."
+}

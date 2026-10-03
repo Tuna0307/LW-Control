@@ -69,18 +69,5 @@ export function previewAfkProfileValid(profile) {
 
 
 export function applyAfkTarget(profile, target) {
-  return { ...profile, targetKey: target.key, lastListTargetKey: target.key, customTarget: false, targetNameQuery: "", monsterNameKey: target.monsterNameKey, monsterSpecial: target.monsterSpecial, monsterType: target.monsterType, monsterIds: [...target.monsterIds], source: target.source, action: target.action, rally: target.rally, searchable: target.searchable, continuousAttack: target.rally ? false : profile.continuousAttack, minLevel: target.minLevel, maxLevel: target.maxLevel };
-}
-
-// SquadPanel N: refresh only ally snapshots that have a current supplied row.
-export function refreshGarrisonTargets(config, allies) {
-  if (!allies.length) return config;
-  const byUid = new Map(allies.map((ally) => [ally.uid, ally]));
-  return { ...config, targets: config.targets.map((target) => {
-    if (target.kind !== "allyCity") return target;
-    const ally = byUid.get(target.uid);
-    return ally ? { kind: "allyCity", uid: ally.uid, nameSnapshot: ally.name || target.nameSnapshot,
-      serverIdSnapshot: ally.serverId, pointIdSnapshot: ally.pointId,
-      ...(ally.uuid ? { uuidSnapshot: ally.uuid, uuidUpdatedAt: ally.uuidUpdatedAt || 0 } : {}) } : target;
-  }) };
+  return { ...profile, targetKey: target.key, lastListTargetKey: target.key, customTarget: false, targetNameQuery: "", monsterNameKey: target.monsterNameKey, monsterType: target.monsterType, monsterIds: [...target.monsterIds], source: target.source, action: target.action, rally: target.rally, searchable: target.searchable, continuousAttack: target.rally ? false : profile.continuousAttack, minLevel: target.minLevel, maxLevel: target.maxLevel };
 }
