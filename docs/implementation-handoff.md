@@ -1,5 +1,11 @@
 # Current implementation/research handoff
 
+Current dispatch, 2026-10-04: SHELL-MAP-ENTRY-001 is READY. Read its work item for
+the next finite worker assignment. Exact Tt at byte 364377 dispatches Map summary
+before transition without awaiting it; current App uses a post-route effect.
+Recover and verify this bounded correction, preserving independent polling and
+accepted retention/Cross-server. Other shell surfaces/notices/inventory are separate.
+
 Lead acceptance, 2026-10-04: SHELL-CROSSSERVER-001 is COMPLETE / ACCEPTED for assigned
 source/local UI scope at delivery 52710d3. Lead original/current 11/11, focused 12/12,
 affected 3/3, package/integrity and protected-WIP checks pass; three saved images

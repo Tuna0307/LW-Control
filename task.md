@@ -1,5 +1,11 @@
 # Current project directive
 
+Dispatch, 2026-10-04: `LWB317-UI-SHELL-MAP-ENTRY-001` is READY for one worker,
+without subagents. Restore source-backed Map-entry summary dispatch ordering
+without blocking navigation on acknowledgement. Read its work item and preserve
+accepted retention/Cross-server and independent App polling. Broader UI/native
+work remains outside this assignment.
+
 Lead acceptance, 2026-10-04: `LWB317-UI-SHELL-CROSSSERVER-001` is COMPLETE / ACCEPTED
 for assigned source/local UI scope at 52710d3. Lead 11/11 exact original/current
 comparisons, focused 12/12, affected 3/3 and package/integrity/protected checks pass.

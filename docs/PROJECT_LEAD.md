@@ -1,5 +1,10 @@
 # Project lead control sheet
 
+Dispatch, 2026-10-04: SHELL-MAP-ENTRY-001 is READY for one medium worker assignment.
+Recover/correct only Map-selection summary dispatch before transition, without
+awaiting settlement. Preserve accepted retention/Cross-server and parent polling.
+See its work item; broader shell/profile/notices/inventory remain separate.
+
 Lead acceptance, 2026-10-04: SHELL-CROSSSERVER-001 is COMPLETE / ACCEPTED for assigned
 source/local UI scope at worker delivery 52710d3. Original/current lead comparisons
 11/11, focused 12/12, affected 3/3, canonical package/integrity and protected 7/7
@@ -64,6 +69,7 @@ the Map closeout awaits a separate independent acceptance review.
 
 | Work item / campaign | Owner | State | Scope |
 |---|---|---|---|
+| LWB317-UI-SHELL-MAP-ENTRY-001 | Single worker, owner relay | READY | Exact Map-entry request/transition ordering and bounded lifecycle/browser proof; no native/broad shell |
 | LWB317-UI-SHELL-CROSSSERVER-001 | Worker delivered, lead reviewed | COMPLETE / ACCEPTED for assigned source/local scope | 52710d3 retained; 11 additional exact original/current lead cases, 12 focused + 3 affected, package/integrity/protected checks pass; saved browser images inspected. Native/original pixels/global shell remain separate |
 | LWB317-UI-SHELL-RETENTION-001 | Worker checkpoints, lead takeover/review | COMPLETE / ACCEPTED for bounded source/local scope | Exact visited top-level panel lifetime, Activity hidden effects, retained current state/props and mounted/browser proof accepted at 55c9ca1; no native/full audit |
 | LWB317-UI-REMAINING-PAGES-001-R1 | Worker checkpoints, lead takeover/review | COMPLETE / ACCEPTED for bounded source/local scope | A/B/C retained; D finished with integrity packet and source-backed confirmation/ref corrections at 2174553. Native/shell/pixels separate |

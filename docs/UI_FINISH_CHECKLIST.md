@@ -26,6 +26,11 @@ inflate a percentage using test-case counts or declare unknown surfaces done.
 
 ## Fixed finish queue
 
+Next dispatch, 2026-10-04: SHELL-MAP-ENTRY-001 covers only Map navigation summary
+dispatch timing, active-route no-op and bounded lifecycle proof. Original starts
+summary before transition without waiting for its result. Other remaining queue
+gates are preserved; no native phase is assigned.
+
 Lead review, 2026-10-04: SHELL-CROSSSERVER-001 is COMPLETE / ACCEPTED for its bounded
 header popover/frontend/history lifecycle at 52710d3. Lead original/current 11/11,
 focused 12/12, affected 3/3 and package/integrity/protected checks pass. Other shared
