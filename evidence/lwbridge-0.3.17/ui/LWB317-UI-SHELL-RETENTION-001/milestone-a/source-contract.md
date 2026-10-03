@@ -1,0 +1,13 @@
+# LWB317-UI-SHELL-RETENTION-001 source contract
+
+Authority is the recovered LWBridge 0.3.17 frontend bundle `index-BVfnK1wp.js` with SHA-256 `44C4E4043825B7DB296B64171951B27176F8850FF8D7D337CC991DF4765524C6`, from the required executable `4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783`. `recover-contract.mjs` pins exact UTF-8 byte locators and hashes in `source-manifest.json`.
+
+The original shell has eight normal routes in this order: `overview`, `automation`, `map-data`, `march`, `city-layout`, `hotkeys`, `mini-games`, `settings`. `overview` is the normal initial active route and the initial visited set contains only `overview`. The shell also owns a lazy loader map; selecting a different route preloads its panel, adds it to the visited set inside a React transition, and then selects it. Selecting the already-active route is a no-op. Map selection additionally requests the current map summary before the transition.
+
+Rendering is first-visit retained. Each route is rendered only after membership in the visited set. Every visited route has one stable React `Activity` boundary whose mode is `visible` only when its route is active and `hidden` otherwise. This retains page component state while React disconnects hidden layout/passive effects and reconnects them when shown again. Because the Activity children are produced from the current shell render, current runtime/status/config/locale inputs continue to flow to the retained route; a return does not recreate the page merely to receive new props.
+
+All visited page Activities are inside a fragment keyed by `selectedProfileId`. A profile identity change therefore remounts the retained page subtree while the shell's visited-route set itself remains App-owned. This is the recovered profile reset boundary; there is no source basis for clearing the visited set on ordinary route changes or inventing persistence beyond that component lifetime.
+
+The current clone at accepted product checkpoint `35b5cab9ce42eb8514145ce815af0432e48e4c10` has App blob `0af21cf0500ef28037f5d4f4c7a52813f58289bc` and renders one `PageForRoute` from `activeRoute`. Route changes therefore unmount the previous page. Milestone A's mounted browser baseline demonstrates the practical distinction: Equipment selection state is lost across Squads -> Home -> Squads, and the page's keyboard effect is cleaned up because the entire page is removed rather than retained hidden.
+
+The clone keeps its preview-only initial route query for deterministic UI evidence. In ordinary product use, that still resolves to `overview`; the retained implementation must seed the visited set with whichever route the current shell actually selects first so a preview does not eagerly mount an unrelated route.

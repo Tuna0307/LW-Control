@@ -1,0 +1,45 @@
+{
+  "workItem": "LWB317-UI-SHELL-RETENTION-001",
+  "referenceExecutable": "C:/Users/chimw/OneDrive/Desktop/Github/LW/lwbridge-0.3.17.exe",
+  "referenceExecutableSha256": "4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783",
+  "originalShellAsset": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-BVfnK1wp.js",
+  "originalShellAssetSha256": "44C4E4043825B7DB296B64171951B27176F8850FF8D7D337CC991DF4765524C6",
+  "baseline": {
+    "commit": "35b5cab9ce42eb8514145ce815af0432e48e4c10",
+    "appPath": "src/LWBridge.UI-0.3.17/src/App.jsx",
+    "appGitBlob": "0af21cf0500ef28037f5d4f4c7a52813f58289bc",
+    "appSha256FromGitBlobBytes": "AC6CDD8EAFFA23BE63290F2B2FE4788B9D1809EF69A8B4023C9DE50CE0E793D9"
+  },
+  "locators": [
+    {
+      "name": "shell.routeCatalog",
+      "utf8ByteOffset": 349461,
+      "utf8ByteLength": 317,
+      "sha256": "9B8F71878D67F83E447B23EC3A99F28D824EF68B5BEDC749B392BBC1DA2BCD6F"
+    },
+    {
+      "name": "shell.initialActiveAndVisited",
+      "utf8ByteOffset": 361367,
+      "utf8ByteLength": 107,
+      "sha256": "0C1935F089271C05F416C6360A245E2F2539C4BACA7F9DB264D3353AF70EEDB6"
+    },
+    {
+      "name": "shell.lazyPanelPreloadMap",
+      "utf8ByteOffset": 361150,
+      "utf8ByteLength": 156,
+      "sha256": "AC7A55617F66DB7FE8210F0C0EA88793FBB137B0C809D1982E8A3EAA81675785"
+    },
+    {
+      "name": "shell.selectRoute",
+      "utf8ByteOffset": 364377,
+      "utf8ByteLength": 173,
+      "sha256": "46F42FD3B323F00D1714F3981BE3C2F3BB4F16FEEA142AF46A493A42D1CF4C78"
+    },
+    {
+      "name": "shell.retainedVisitedActivitiesAndProfileKey",
+      "utf8ByteOffset": 373202,
+      "utf8ByteLength": 2516,
+      "sha256": "0F5493631E95BFB5E344D8AB9F6975DF0DDE080F808E38A56EB744162F122848"
+    }
+  ]
+}

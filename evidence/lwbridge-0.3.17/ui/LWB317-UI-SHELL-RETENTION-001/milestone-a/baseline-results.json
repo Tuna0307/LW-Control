@@ -1,0 +1,45 @@
+{
+  "workItem": "LWB317-UI-SHELL-RETENTION-001",
+  "result": "EXPECTED_FAILING_BASELINE_CAPTURED",
+  "productCheckpoint": "35b5cab9ce42eb8514145ce815af0432e48e4c10",
+  "dispatchHead": "f08779b",
+  "appGitBlob": "0af21cf0500ef28037f5d4f4c7a52813f58289bc",
+  "mount": {
+    "url": "http://127.0.0.1:4319/?previewPage=march&previewState=squads-equipment",
+    "viewport": { "width": 1920, "height": 855, "devicePixelRatio": 1 },
+    "react": "actual Vite-mounted canonical UI in existing browser"
+  },
+  "journey": {
+    "beforeLeave": {
+      "activeRoute": "Squads / AFK",
+      "selectedEquipmentPreset": "Fixture equipment preset 2",
+      "equipmentDomPresent": true,
+      "keydownProbe": { "addsSinceProbeInstall": 0, "removesSinceProbeInstall": 0 }
+    },
+    "whileHome": {
+      "activeRoute": "Home",
+      "equipmentDomPresent": false,
+      "squadDomPresent": false,
+      "keydownProbe": { "addsSinceProbeInstall": 0, "removesSinceProbeInstall": 1 }
+    },
+    "afterReturn": {
+      "activeRoute": "Squads / AFK",
+      "selectedEquipmentPreset": "Fixture equipment preset 1",
+      "equipmentDomPresent": true,
+      "keydownProbe": { "addsSinceProbeInstall": 2, "removesSinceProbeInstall": 2 }
+    }
+  },
+  "observations": {
+    "stateLossReproduced": true,
+    "previousPageUnmountedWhileAway": true,
+    "visibleEffectCleanupObserved": true,
+    "effectReinstallObservedOnRemount": true,
+    "note": "Raw add/remove counts include development React effect replay; the distinguishing failure is full page removal and preset reset. Milestone C will verify net listener ownership after Activity retention."
+  },
+  "console": {
+    "warnings": [],
+    "errors": [],
+    "other": ["Vite connection debug entries", "React DevTools development info"]
+  },
+  "limits": "Deterministic preview fixture only. No native provider, gameplay, protected original runtime, diagnostic export, updater action or OS/global hotkey was invoked."
+}
