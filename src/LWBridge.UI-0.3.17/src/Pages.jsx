@@ -1376,13 +1376,19 @@ export function CityLayoutPage({ previewState = "", online = false }) {
   const [selectedUuids, setSelectedUuids] = useState(() => fixture?.buildings[0] ? [fixture.buildings[0].uuid] : []);
   const [hoveredUuid, setHoveredUuid] = useState("");
   const [citySelectionState, setCitySelectionState] = useState(null);
-  const [dragState, setDragState] = useState(null);
+  const [dragState, setRenderedDragState] = useState(null);
   const [serverValidation, setServerValidation] = useState(() => previewState === "city-layout-server-valid" ? { valid: true, issues: [], totalMoves: 1, temporaryMoves: 0 } : null);
   const [draftRevision, setDraftRevision] = useState(() => fixture?.draftRevision ?? 0);
   const [stale, setStale] = useState(previewState === "city-layout-stale");
   const [errorText, setErrorText] = useState(previewState === "city-layout-error" ? t("common.actionFailed") : "");
   const [applyConfirmOpen, setApplyConfirmOpen] = useState(false);
   const [applyPreparing, setApplyPreparing] = useState(false);
+  const dragStateRef = useRef(null);
+  const setDragState = (next) => {
+    const value = typeof next === "function" ? next(dragStateRef.current) : next;
+    dragStateRef.current = value;
+    setRenderedDragState(value);
+  };
   const viewportRef = useRef(null);
   const gridRef = useRef(null);
   const draftTimerRef = useRef(0);
@@ -1390,7 +1396,7 @@ export function CityLayoutPage({ previewState = "", online = false }) {
   const placements = history.present;
   const applyStatus = previewState === "city-layout-applying" ? { state: "running", totalMoves: 4, completedMoves: 2, jobId: "preview-city-layout" } : null;
   const applyRunning = applyStatus?.state === "running" || applyStatus?.state === "cancelling";
-  const busy = applyPreparing || applyRunning;
+  const busy = applyPreparing || applyConfirmOpen || applyRunning;
   const cellsByPoint = useMemo(() => new Map(layout?.cells.map((cell) => [cell.pointId, cell]) ?? []), [layout]);
   const cellsByCoordinate = useMemo(() => new Map(layout?.cells.map((cell) => [`${cell.x}:${cell.y}`, cell]) ?? []), [layout]);
   const buildingsByUuid = useMemo(() => new Map(layout?.buildings.map((building) => [building.uuid, building]) ?? []), [layout]);
@@ -1529,8 +1535,9 @@ export function CityLayoutPage({ previewState = "", online = false }) {
   };
 
   const finishPointer = () => {
-    if (dragState) {
-      const next = groupPlacementFor(dragState.anchorUuid, dragState.targetPointId, dragState.uuids);
+    const currentDrag = dragStateRef.current;
+    if (currentDrag) {
+      const next = groupPlacementFor(currentDrag.anchorUuid, currentDrag.targetPointId, currentDrag.uuids);
       if (next) {
         const nextIssues = cityLayoutIssues(layout, next);
         if (nextIssues.length) setServerValidation({ valid: false, issues: nextIssues, totalMoves: 0, temporaryMoves: 0 });
@@ -1684,7 +1691,7 @@ export function CityLayoutPage({ previewState = "", online = false }) {
                 setCitySelectionState({ startPointId: pointId, currentPointId: pointId, additive: event.ctrlKey });
               }}
               onPointerMove={(event) => {
-                if (dragState) moveDragToClient(event.clientX, event.clientY);
+                if (dragStateRef.current) moveDragToClient(event.clientX, event.clientY);
                 else if (citySelectionState) {
                   const pointId = pointFromClient(event.clientX, event.clientY);
                   if (pointId) setCitySelectionState((current) => current ? { ...current, currentPointId: pointId } : current);
@@ -1741,7 +1748,7 @@ export function CityLayoutPage({ previewState = "", online = false }) {
                   setDragState({ anchorUuid: building.uuid, uuids, targetPointId: placementMap.get(building.uuid) ?? building.pointId, grabOffset });
                 }}
                 onPointerMove={(event) => {
-                  if (!dragState || dragState.anchorUuid !== building.uuid) return;
+                  if (!dragStateRef.current || dragStateRef.current.anchorUuid !== building.uuid) return;
                   moveDragToClient(event.clientX, event.clientY);
                 }}
                 onPointerUp={(event) => {

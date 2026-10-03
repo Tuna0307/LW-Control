@@ -1,0 +1,160 @@
+{
+  "submittedRevision": "20298d59ddd5777e134406a75e0ff7fb144eccb1",
+  "original": {
+    "during": {
+      "undoDisabled": true,
+      "refreshDisabled": true,
+      "preparing": true
+    },
+    "afterCancelPreparing": false,
+    "afterCancelPlacements": [
+      {
+        "uuid": "preview-hospital",
+        "targetPointId": 405
+      }
+    ]
+  },
+  "submitted": {
+    "confirmation": {
+      "during": {
+        "dialogOpen": true,
+        "undoDisabled": false,
+        "refreshDisabled": false
+      },
+      "before": [
+        {
+          "uuid": "preview-hospital",
+          "targetPointId": 405
+        }
+      ],
+      "afterUndo": [],
+      "dialogStillOpen": true,
+      "afterCancel": {
+        "dialogOpen": false,
+        "undoDisabled": true,
+        "placements": []
+      }
+    },
+    "keyboard": {
+      "during": {
+        "dialogOpen": true,
+        "undoDisabled": false,
+        "refreshDisabled": false
+      },
+      "before": [
+        {
+          "uuid": "preview-hospital",
+          "targetPointId": 405
+        }
+      ],
+      "afterUndo": [],
+      "dialogStillOpen": true,
+      "afterCancel": {
+        "dialogOpen": false,
+        "undoDisabled": true,
+        "placements": []
+      }
+    },
+    "noRenderDrag": [],
+    "renderedDrag": [
+      {
+        "uuid": "preview-barracks",
+        "targetPointId": 505
+      }
+    ]
+  },
+  "current": {
+    "confirmation": {
+      "during": {
+        "dialogOpen": true,
+        "undoDisabled": true,
+        "refreshDisabled": true
+      },
+      "before": [
+        {
+          "uuid": "preview-hospital",
+          "targetPointId": 405
+        }
+      ],
+      "afterUndo": [
+        {
+          "uuid": "preview-hospital",
+          "targetPointId": 405
+        }
+      ],
+      "dialogStillOpen": true,
+      "afterCancel": {
+        "dialogOpen": false,
+        "undoDisabled": false,
+        "placements": [
+          {
+            "uuid": "preview-hospital",
+            "targetPointId": 405
+          }
+        ]
+      }
+    },
+    "keyboard": {
+      "during": {
+        "dialogOpen": true,
+        "undoDisabled": true,
+        "refreshDisabled": true
+      },
+      "before": [
+        {
+          "uuid": "preview-hospital",
+          "targetPointId": 405
+        }
+      ],
+      "afterUndo": [
+        {
+          "uuid": "preview-hospital",
+          "targetPointId": 405
+        }
+      ],
+      "dialogStillOpen": true,
+      "afterCancel": {
+        "dialogOpen": false,
+        "undoDisabled": false,
+        "placements": [
+          {
+            "uuid": "preview-hospital",
+            "targetPointId": 405
+          }
+        ]
+      }
+    },
+    "noRenderDrag": [
+      {
+        "uuid": "preview-barracks",
+        "targetPointId": 505
+      }
+    ],
+    "renderedDrag": [
+      {
+        "uuid": "preview-barracks",
+        "targetPointId": 505
+      }
+    ]
+  },
+  "originalDrags": {
+    "noRenderDrag": [
+      {
+        "uuid": "preview-barracks",
+        "targetPointId": 505
+      }
+    ],
+    "renderedDrag": [
+      {
+        "uuid": "preview-barracks",
+        "targetPointId": 505
+      }
+    ]
+  },
+  "sourceLocators": {
+    "busy": "CityLayoutPanel-DoNWkywK.js byte2648 U=!!ze||Oe; ct byte9199 ke(true), window.confirm, finally ke(false)",
+    "move": "CityLayoutPanel-DoNWkywK.js at byte8219 writes V.current=n synchronously before M(n)",
+    "release": "CityLayoutPanel-DoNWkywK.js ot byte8564 reads V.current synchronously"
+  },
+  "limits": "Actual recovered/submitted/current callbacks in inert hooks. Keyboard effect executes with inert timers; original confirm is an injected observation callback returning false. No browser, native/gameplay/service, real confirmation or React scheduler is invoked. The no-render callback discrepancy is established; physical scheduler reachability is unproved. Run existing B checker separately for full drag/null/preparation regressions."
+}
