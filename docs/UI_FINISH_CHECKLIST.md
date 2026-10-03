@@ -37,7 +37,9 @@ inflate a percentage using test-case counts or declare unknown surfaces done.
 
 Order 1 is closed by the lead takeover/review recorded in
 docs/reviews/2026-10-03-LWB317-UI-AUTOMATION-AFK-CLOSEOUT-001.md.
-Next assign order 2 in medium units: Equipment/City Layout, then Hotkeys/Mini Games/Settings.
+Active order-2 assignment: LWB317-UI-EQUIPMENT-CLOSEOUT-001, Equipment only.
+City Layout and then Hotkeys/Mini Games/Settings remain separate medium units.
+The no-subagent restriction applies to workers; the owner permits lead subagents.
 Order 3 remains separate. No subsequent implementation is started by this closeout.
 Do not combine this whole queue into another unbounded worker investigation.
 

@@ -4,7 +4,7 @@ Current lead decision, 2026-10-03: AUTOMATION-AFK-CLOSEOUT-001 is COMPLETE for i
 
 **Target:** LWBridge 0.3.17  
 **Branch:** `research/offline-controller`  
-**Active scope:** UI parity / order-2 remaining page audit awaiting its next bounded assignment; no native integration
+**Active scope:** UI parity / LWB317-UI-EQUIPMENT-CLOSEOUT-001 assigned to the returning worker; no native integration
 
 ## Current continuation — Automation / AFK residual unit closed
 
@@ -15,8 +15,9 @@ All seven protected WIP paths are unchanged and unstaged. Native confirmation
 has controlled callback proof; its physical browser dialog is unverified.
 Physical HTML5 drag and original pixel/runtime comparisons are not claimed.
 
-Next: bounded Equipment/City Layout source/local audit under finish-queue order 2,
-then Hotkeys/Mini Games/Settings. Order 3 handles final shell/Home/Map integration,
+Active next task: docs/work-items/LWB317-UI-EQUIPMENT-CLOSEOUT-001.md,
+Equipment only, returning worker, no worker subagents. City Layout and then
+Hotkeys/Mini Games/Settings remain separate. The owner permits lead subagents. Order 3 handles final shell/Home/Map integration,
 shared focus/narrow layouts and exact remaining-gap inventory. Do not resume
 CORRECT-003 wholesale or native work. No subsequent task has started here.
 

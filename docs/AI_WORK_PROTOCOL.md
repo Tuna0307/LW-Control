@@ -12,6 +12,10 @@ Owner direction, 2026-10-03: each worker works alone. Do not spawn subagents or
 delegate to another agent, including when an older assignment allowed it.
 Use sequential milestones and durable checkpoints for larger assignments.
 
+Owner clarification, 2026-10-03: that restriction applies to worker chats only.
+The project lead may use subagents, review their evidence and integrate results.
+Keep their edits separate from an active worker's owned scope.
+
 ## Roles
 
 ### Project lead

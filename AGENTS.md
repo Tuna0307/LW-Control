@@ -13,6 +13,11 @@ subagents or delegate to other agents. This supersedes earlier work-item
 permission to use subagents. Complete larger assignments through sequential,
 coherent milestones; the owner continues to relay between worker and lead chats.
 
+Owner clarification, 2026-10-03: the no-subagent rule applies to assigned worker
+chats (the other AI). The project lead may use subagents as needed and remains
+responsible for reviewing their work. This does not expand worker scopes or
+authorize concurrent edits to a worker's assigned files.
+
 ## 1. Current target
 
 The active product/research target is:
