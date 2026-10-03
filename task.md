@@ -1,5 +1,10 @@
 # Current project directive
 
+Dispatch, 2026-10-03: `LWB317-UI-SHELL-RETENTION-001` is READY through owner relay.
+One medium worker assignment: recover and implement retained top-level pages, then
+prove mounted leave/return state/effect behavior. Read its work item; work alone
+through A/B/C. No full page audit, native work or final global acceptance in this scope.
+
 Lead takeover/acceptance, 2026-10-03: `LWB317-UI-REMAINING-PAGES-001` and R1 are **COMPLETE / ACCEPTED for bounded source/local scope** after product `2174553`. The lead finished the interrupted closeout, corrected confirmation lifetime/synchronous City drag release, replayed focused and affected regressions and current check/build/package, and preserved seven WIP hashes. Read the dated REVIEW-REMAINING-PAGES-001-R1 review. Order3 shell/eight-page integration remains the next separate assignment; native functionality and original pixels are not accepted. No new campaign started.
 
 ## Target

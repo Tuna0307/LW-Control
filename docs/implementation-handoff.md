@@ -6,9 +6,16 @@ Lead takeover/acceptance, 2026-10-03: REMAINING-PAGES parent/R1 are **COMPLETE /
 
 **Target:** LWBridge 0.3.17  
 **Branch:** `research/offline-controller`  
-**Active scope:** UI parity / four-page parent/R1 accepted; next order3 integration separately assigned; native/original pixels separate
+**Active scope:** UI parity / SHELL-RETENTION-001 READY; four-page parent/R1 accepted; broader integration/native/original pixels separate
 
-## Current continuation — four-page R1 closed
+## Current continuation — top-level shell retention assigned
+
+Read docs/work-items/LWB317-UI-SHELL-RETENTION-001.md. One worker, medium A/B/C
+assignment: source contract/baseline, retained first-visited panels with hidden
+effect suspension, actual mounted/browser return proof. Stop after this unit.
+Do not start the broader popover/profile/Map notices or final inventory campaign.
+
+## Prior continuation — four-page R1 closed
 
 R1 has no unfinished assigned work. Product 2174553 adds the lead's two City
 corrections to worker A/B/C. Final evidence/validator and acceptance are recorded.

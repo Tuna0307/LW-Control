@@ -1,5 +1,9 @@
 # Project lead control sheet
 
+Dispatch, 2026-10-03: SHELL-RETENTION-001 is READY for one worker through owner relay.
+It closes only retained top-level page state/effect lifetime plus bounded navigation
+smoke. Popover/profile/Map notice audit and overall inventory remain subsequent.
+
 Project-lead review, 2026-10-03: Equipment parent/R1 are **COMPLETE / ACCEPTED for bounded source/local scope** at implementation 2e4acce and delivery 32b2906. Lead inspected the diff/screenshots and independently reran R1 61, integrity 71, Equipment 105, AFK 729, canonical check/package and protected-WIP checks. Native/physical drag/original pixels remain unproved.
 
 Lead takeover/acceptance, 2026-10-03: REMAINING-PAGES parent/R1 are **COMPLETE / ACCEPTED for bounded source/local scope** after product 2174553. Worker A/B/C were retained; the lead finished D, corrected City confirmation locking and synchronous drag release, and independently replayed focused/affected/package proofs. See the dated REVIEW-REMAINING-PAGES-001-R1 review. Shell integration, native functionality and original pixels remain separate; no follow-on campaign was started.
@@ -51,6 +55,7 @@ the Map closeout awaits a separate independent acceptance review.
 
 | Work item / campaign | Owner | State | Scope |
 |---|---|---|---|
+| LWB317-UI-SHELL-RETENTION-001 | Single worker, owner relay | READY | Exact visited top-level panel lifetime, Activity hidden effects, retained current state/props and bounded mounted/browser proof; no native/full audit |
 | LWB317-UI-REMAINING-PAGES-001-R1 | Worker checkpoints, lead takeover/review | COMPLETE / ACCEPTED for bounded source/local scope | A/B/C retained; D finished with integrity packet and source-backed confirmation/ref corrections at 2174553. Native/shell/pixels separate |
 | LWB317-UI-REMAINING-PAGES-001 | Worker, lead reviewed | COMPLETE / ACCEPTED for bounded source/local scope | R1 closes twelve initial lead cases plus two continuation differences. Original failure packet preserved; global/native/pixel acceptance unchanged |
 | LWB317-UI-EQUIPMENT-CLOSEOUT-001-R1 | Returning worker, lead reviewed | COMPLETE / ACCEPTED for bounded source/local scope | 2e4acce/32b2906: hidden effects suspended, local rename/save acknowledgement states and evidence validator pass. Native/pixels/physical drag excluded |

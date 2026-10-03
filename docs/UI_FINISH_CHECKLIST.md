@@ -33,7 +33,7 @@ inflate a percentage using test-case counts or declare unknown surfaces done.
 | 1 | Squads/AFK residuals | COMPLETE for listed source/local contracts/handlers; real profile/member/toolbar QA recorded | Assigned gate closed; physical drag/confirmation and shared focus breadth remain disclosed proof limits for final audit |
 | 2 | Equipment | COMPLETE / ACCEPTED bounded source/local scope through R1 2e4acce/32b2906 and lead review | Assigned gate closed; native/physical drag/original pixels remain disclosed limitations |
 | 2 | City Layout, Hotkeys, Mini Games, Settings | COMPLETE / ACCEPTED bounded source/local scope through R1 and lead correction 2174553 | Assigned gate closed; final shell integration, unavailable native providers/assets and original pixels remain separate |
-| 3 | Shell, Home and Map integration | Existing focused accepted Home/Map work | Final eight-page navigation/theme/locale/layout and fixture/native separation smoke; audit shared shell/profile/popover and the untranslated English Map offline notice visible in Japanese. Preserve accepted units absent counter-evidence |
+| 3 | Shell, Home and Map integration | Existing focused accepted Home/Map work; SHELL-RETENTION-001 READY | First close top-level retained-page lifetime and bounded mounted route smoke. Then separately finish broader navigation/theme/locale/layout and fixture/native separation, shared shell/profile/popover and untranslated Map notices. Preserve accepted units absent counter-evidence |
 | 3 | Overall UI inventory and acceptance | Current parity matrix/ledger contain historical statuses | Reconcile every listed gap against current code/evidence, count remaining source-recoverable branches, retain real unresolved visual/asset dependencies, package final canonical UI and write one current completion report |
 
 Order 1 is closed by the lead takeover/review recorded in
@@ -47,7 +47,10 @@ Owner explicitly requests a larger assignment after the worker update; this repl
 the separate medium-unit dispatch plan with sequential inventory/City/Hotkeys/Mini
 Games/Settings/closeout milestones. All quality and proof requirements remain.
 The no-subagent restriction applies to workers; the owner permits lead subagents.
-Order 3 remains separate. No subsequent implementation is started by this closeout.
+Order3 starts with the separate medium SHELL-RETENTION-001 dispatch through owner
+relay. Its A/B/C scope is retained top-level state/effect lifetime and bounded smoke;
+the broader integration/inventory audit remains subsequent. No implementation was
+started by the four-page closeout itself.
 The four-page campaign is finite; do not extend it into the whole finish queue.
 
 ## Verification discipline
