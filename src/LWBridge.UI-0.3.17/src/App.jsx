@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { Activity, Fragment, useCallback, useEffect, useLayoutEffect, useRef, useState, useTransition } from "react";
 import offlineDot from "./assets/dot-offline.png";
 import onlineDot from "./assets/dot-online.png";
 import { backendBridge } from "./backendBridge.js";
@@ -64,11 +64,25 @@ function initialAutoScanConfig(profileId, previewState) {
   return loadAutoScanConfig(profileId, window.localStorage);
 }
 
+function RetainedPages({ activeRoute, visitedRoutes, selectedProfileId, pageProps }) {
+  return (
+    <Fragment key={selectedProfileId}>
+      {routes.map((route) => visitedRoutes.has(route.key) ? (
+        <Activity key={route.key} mode={route.key === activeRoute ? "visible" : "hidden"}>
+          <PageForRoute routeKey={route.key} {...pageProps} />
+        </Activity>
+      ) : null)}
+    </Fragment>
+  );
+}
+
 export function App() {
   const { language, setLanguage, t } = useI18n();
   const selectedProfileId = backendBridge.profileId;
   const previewState = backendBridge.mode === "preview" ? new URLSearchParams(window.location.search).get("previewState") || "" : "";
   const [activeRoute, setActiveRoute] = useState(initialRoute);
+  const [visitedRoutes, setVisitedRoutes] = useState(() => new Set([initialRoute()]));
+  const [, startRouteTransition] = useTransition();
   const [theme, setTheme] = useState(initialTheme);
   const [serverJumpOpen, setServerJumpOpen] = useState(false);
   const [runtimeStatus, setRuntimeStatus] = useState(null);
@@ -106,6 +120,19 @@ export function App() {
     setAutoScanConfig(next);
     saveAutoScanConfig(selectedProfileId, next, window.localStorage);
   }, [selectedProfileId]);
+
+  const selectRoute = useCallback((routeKey) => {
+    if (routeKey === activeRoute) return;
+    startRouteTransition(() => {
+      setVisitedRoutes((current) => {
+        if (current.has(routeKey)) return current;
+        const next = new Set(current);
+        next.add(routeKey);
+        return next;
+      });
+      setActiveRoute(routeKey);
+    });
+  }, [activeRoute, startRouteTransition]);
 
   useEffect(() => {
     if (backendBridge.mode !== "preview") return;
@@ -358,6 +385,38 @@ export function App() {
     checking: t("status.checking"),
   }[bridgeState] || t("status.checking");
   const pendingTasks = Number(runtimeStatus?.pending ?? 0);
+  const pageProps = {
+    mapApi,
+    bridgeMode: backendBridge.mode,
+    backendAvailable: backendBridge.available,
+    online,
+    currentServerId,
+    scanState: mapRuntime,
+    summary: mapSummary,
+    onState: acknowledgeMapScan,
+    onCounts: acknowledgeMapCounts,
+    autoScanConfig,
+    autoScanRunning,
+    onAutoScanConfig: updateAutoScanConfig,
+    onAutoScanRunningChange: setAutoScanRunning,
+    previewState,
+    homeState: {
+      rootResolved: gameRootStatus !== null,
+      gameRootStatus,
+      proxyStatus,
+      online,
+      gameRecoveryStatus,
+      autoLaunchGame: localConfig?.autoLaunchGame,
+      autoReconnect: localConfig?.autoReconnect,
+      busy: homeBusy,
+      gameRootError,
+      gameActionError,
+      production: backendBridge.available,
+    },
+    onAutoLaunchGameChange: updateAutoLaunch,
+    onAutoReconnectChange: updateAutoReconnect,
+    onGameRootSelect: selectGameRoot,
+  };
 
   return (
     <main className="app-shell" data-reference-version="0.3.17" data-ui-project="LWBridge.UI-0.3.17">
@@ -485,7 +544,7 @@ export function App() {
               type="button"
               className={route.key === activeRoute ? "active" : ""}
               aria-current={route.key === activeRoute ? "page" : undefined}
-              onClick={() => setActiveRoute(route.key)}
+              onClick={() => selectRoute(route.key)}
             >
               <span className="nav-icon" aria-hidden="true">
                 <NavIcon name={route.key} />
@@ -496,38 +555,11 @@ export function App() {
         </nav>
 
         <section className="main-view">
-          <PageForRoute
-            routeKey={activeRoute}
-            mapApi={mapApi}
-            bridgeMode={backendBridge.mode}
-            backendAvailable={backendBridge.available}
-            online={online}
-            currentServerId={currentServerId}
-            scanState={mapRuntime}
-            summary={mapSummary}
-            onState={acknowledgeMapScan}
-            onCounts={acknowledgeMapCounts}
-            autoScanConfig={autoScanConfig}
-            autoScanRunning={autoScanRunning}
-            onAutoScanConfig={updateAutoScanConfig}
-            onAutoScanRunningChange={setAutoScanRunning}
-            previewState={previewState}
-            homeState={{
-              rootResolved: gameRootStatus !== null,
-              gameRootStatus,
-              proxyStatus,
-              online,
-              gameRecoveryStatus,
-              autoLaunchGame: localConfig?.autoLaunchGame,
-              autoReconnect: localConfig?.autoReconnect,
-              busy: homeBusy,
-              gameRootError,
-              gameActionError,
-              production: backendBridge.available,
-            }}
-            onAutoLaunchGameChange={updateAutoLaunch}
-            onAutoReconnectChange={updateAutoReconnect}
-            onGameRootSelect={selectGameRoot}
+          <RetainedPages
+            activeRoute={activeRoute}
+            visitedRoutes={visitedRoutes}
+            selectedProfileId={selectedProfileId}
+            pageProps={pageProps}
           />
         </section>
       </div>

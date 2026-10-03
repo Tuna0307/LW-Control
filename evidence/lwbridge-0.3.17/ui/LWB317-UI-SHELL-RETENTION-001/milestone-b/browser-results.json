@@ -1,0 +1,83 @@
+{
+  "result": "LWB317_SHELL_RETENTION_BROWSER_FOCUSED_OK",
+  "url": "http://127.0.0.1:4319/?previewPage=overview&previewState=squads-equipment",
+  "viewport": {
+    "cssWidth": 1920,
+    "cssHeight": 855,
+    "devicePixelRatio": 1
+  },
+  "journey": [
+    {
+      "label": "initial-home",
+      "activeRoute": "Home",
+      "squadDomPresent": false,
+      "equipmentDomPresent": false,
+      "selectedEquipmentPreset": null,
+      "activeWindowKeydownListeners": 0
+    },
+    {
+      "label": "first-squads-visit",
+      "activeRoute": "Squads / AFK",
+      "squadDomPresent": true,
+      "equipmentDomPresent": true,
+      "selectedEquipmentPreset": "Fixture equipment preset 1",
+      "activeWindowKeydownListeners": 1
+    },
+    {
+      "label": "preset-2-selected",
+      "activeRoute": "Squads / AFK",
+      "squadDomPresent": true,
+      "equipmentDomPresent": true,
+      "selectedEquipmentPreset": "Fixture equipment preset 2",
+      "activeWindowKeydownListeners": 1
+    },
+    {
+      "label": "hidden-on-home",
+      "activeRoute": "Home",
+      "squadDomPresent": true,
+      "equipmentDomPresent": true,
+      "selectedEquipmentPreset": "Fixture equipment preset 2",
+      "activeWindowKeydownListeners": 0
+    },
+    {
+      "label": "returned-squads",
+      "activeRoute": "Squads / AFK",
+      "squadDomPresent": true,
+      "equipmentDomPresent": true,
+      "selectedEquipmentPreset": "Fixture equipment preset 2",
+      "activeWindowKeydownListeners": 1
+    },
+    {
+      "label": "same-tab-click",
+      "activeRoute": "Squads / AFK",
+      "squadDomPresent": true,
+      "equipmentDomPresent": true,
+      "selectedEquipmentPreset": "Fixture equipment preset 2",
+      "activeWindowKeydownListeners": 1
+    }
+  ],
+  "listenerProbe": {
+    "windowKeydownAdds": 4,
+    "windowKeydownRemoves": 3,
+    "netActiveAfterReturn": 1,
+    "note": "Raw add/remove totals include React development effect replay. Net active ownership is measured with a Set of listener identities and is 1 visible, 0 hidden, 1 returned."
+  },
+  "assertions": {
+    "firstVisitLazyMount": true,
+    "hiddenPageRemainsMounted": true,
+    "selectedLocalStateRetained": true,
+    "hiddenEffectSuspended": true,
+    "effectReinstalledOnceOnReturn": true,
+    "sameTabClickNoLifecycleChange": true
+  },
+  "console": {
+    "warnings": [],
+    "errors": [],
+    "other": [
+      "Vite connection/debug entries",
+      "Vite App hot-update entry before the fresh navigation",
+      "React DevTools development info"
+    ]
+  },
+  "limits": "Deterministic preview fixture and actual React 19 mounted UI. No native provider, gameplay, protected original runtime, updater action, diagnostic export or OS/global hotkey was invoked."
+}

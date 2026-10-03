@@ -1,0 +1,28 @@
+{
+  "result": "LWB317_SHELL_RETENTION_FOCUSED_OK",
+  "assertions": 22,
+  "results": [
+    {
+      "name": "initial route only; never-visited routes are not mounted",
+      "count": 5,
+      "result": "PASS"
+    },
+    {
+      "name": "visited routes retain one visible/one hidden Activity and receive current props",
+      "count": 5,
+      "result": "PASS"
+    },
+    {
+      "name": "all eight routes keep stable route identity and recovered profile reset key",
+      "count": 5,
+      "result": "PASS"
+    },
+    {
+      "name": "same-tab/first-visit transition and App-owned polling/Map guards remain present",
+      "count": 7,
+      "result": "PASS"
+    }
+  ],
+  "reactVersion": "19.3.0",
+  "limits": "Executable component-tree proof covers first-visit mounting, Activity modes, stable route/profile identity and current prop flow. Effect suspension and retained hook state are proven in the real browser mount, not inferred from this tree harness."
+}
