@@ -1,6 +1,6 @@
 # Current project directive
 
-Current worker delivery, 2026-10-03: MAP-AUTO-CONFIG-001 is AWAITING_REVIEW after milestone D closeout. A/B/C remain pushed through f5a1eaf; helpers 29/29, profiles 7/7, controls 11/11, current ownership, ten affected Map regressions, offline browser QA, evidence/protected guards and canonical check/build/package pass. Historical extractor incompatibilities are handled by current adapters without rewriting old evidence. Project-lead acceptance remains pending; full UI/original pixels/native parity remains unaccepted.
+Current lead decision, 2026-10-03: MAP-AUTO-CONFIG-001 at ec27577 is COMPLETE / ACCEPTED for focused source/local UI/configuration scope after lead replays, seven additional actual-App cases, saved-layout inspection and evidence/package checks. MAP-CLOSEOUT-002 is closed for its assigned A/B/C scope. Remaining UI follows docs/UI_FINISH_CHECKLIST.md: Automation/AFK residuals, other-page review, final eight-page integration. Active worker: LWB317-UI-AUTOMATION-AFK-CLOSEOUT-001, one AI, no subagents. Aim for source-recoverable UI completion today if feasible; original pixels/native/global parity remain unaccepted.
 
 ## Target
 

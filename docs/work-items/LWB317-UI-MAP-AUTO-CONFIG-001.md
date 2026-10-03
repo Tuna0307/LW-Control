@@ -1,6 +1,6 @@
 # LWB317-UI-MAP-AUTO-CONFIG-001 — complete Auto Scan UI/configuration
 
-Status: AWAITING_REVIEW. A/B/C remain at their pushed checkpoints through f5a1eaf and milestone D is complete in the task-owned evidence packet. Helpers 29/29, profiles 7/7, controls 11/11, current ownership, ten affected Map regressions, offline browser QA, evidence/protected guards and canonical check/build/package all pass. The two old extractor failures are documented harness incompatibilities with current adapters; historical evidence is unchanged. Project-lead acceptance is still pending.
+Status: COMPLETE / ACCEPTED for focused source/local UI/configuration scope. Lead accepts ec27577 on 2026-10-03 after current diff/evidence review, focused and ten Map regression replays, seven additional actual-App cases, saved-layout inspection and canonical/evidence/protected checks. See docs/reviews/2026-10-03-LWB317-PM-UI-FINISH-001.md. Original pixels/native/global acceptance remains unproved. Stop this assignment.
 
 ## Goal and start
 

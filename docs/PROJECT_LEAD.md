@@ -1,8 +1,8 @@
 # Project lead control sheet
 
-Current worker delivery pending project-lead review, 2026-10-03: MAP-REFRESH-OWNERSHIP-001 and the prior four Map units remain accepted for focused source/local UI scope. MAP-AUTO-CONFIG-001 is now AWAITING_REVIEW after milestone D: A/B/C remain through f5a1eaf and focused Auto/current-ownership, ten affected Map regressions, browser QA, evidence/protected guards and canonical check/build/package pass. No milestone-D production correction was justified. MAP-CLOSEOUT-002 remains PARTIAL. Full UI/original pixels/native parity remains unaccepted.
+Current lead decision, 2026-10-03: MAP-AUTO-CONFIG-001 at ec27577 is COMPLETE / ACCEPTED for focused source/local UI/configuration scope after lead replays, seven additional actual-App cases, saved-layout inspection and evidence/package checks. MAP-CLOSEOUT-002 is closed for its assigned A/B/C scope. Remaining UI follows docs/UI_FINISH_CHECKLIST.md: Automation/AFK residuals, other-page review, final eight-page integration. Active worker: LWB317-UI-AUTOMATION-AFK-CLOSEOUT-001, one AI, no subagents. Aim for source-recoverable UI completion today if feasible; original pixels/native/global parity remain unaccepted.
 
-Recovery update, 2026-10-03: four prior Map units and completed ownership child are accepted for focused scope. Remaining Auto UI/configuration is assigned separately to one worker; the parent campaign stays PARTIAL. See dated Auto dispatch review.
+Recovery update, 2026-10-03: Auto and its parent assigned Map closeout are accepted for focused scope. The fixed remaining UI queue and medium Automation/AFK assignment are ready. See PM-UI-FINISH-001 and UI_FINISH_CHECKLIST.md.
 
 The main project lead owns integration and should keep this file small and current.
 
@@ -30,7 +30,7 @@ retirement task. Preserve its source as historical evidence.
 
 ## Current phase
 
-**UI parity — Map refresh ownership accepted; Auto UI/configuration awaiting project-lead review**
+**UI parity — Map Auto accepted; close Automation/AFK and remaining page audit**
 
 Earlier static UI baseline acceptance does not establish complete UI/UX parity.
 The current owner priority is UI reproduction before function integration.
@@ -49,9 +49,10 @@ the Map closeout awaits a separate independent acceptance review.
 
 | Work item / campaign | Owner | State | Scope |
 |---|---|---|---|
-| LWB317-UI-MAP-AUTO-CONFIG-001 | Single worker | AWAITING_REVIEW | A/B/C through f5a1eaf plus completed D evidence: current adapters, 10 affected Map regressions, offline browser QA, validator/protected guard and canonical check/build/package PASS. Native executor/pixels excluded |
+| LWB317-UI-AUTOMATION-AFK-CLOSEOUT-001 | Single worker, owner relay | ASSIGNED medium continuation | Verify/correct existing residual Assist/card/Gather and AFK target/member/toolbar branches, close actual source/handler/browser evidence; no subagents/native work |
+| LWB317-UI-MAP-AUTO-CONFIG-001 | Single worker, lead reviewed | COMPLETE / ACCEPTED for focused source/local scope | ec27577 accepted by PM-UI-FINISH-001: ten regressions, seven new App cases, focused checks/evidence/package and saved-layout inspection pass. Native/pixels excluded |
 | LWB317-UI-MAP-REFRESH-OWNERSHIP-001 | Returning worker, lead reviewed | COMPLETE / ACCEPTED for focused source/local scope | cf75b4e actual App/panel ownership, overlap/disposal/count reset, redirect/Clear and interaction/package replays pass |
-| LWB317-UI-MAP-CLOSEOUT-002 | Interrupted worker, split into children | PARTIAL / SPLIT | A and B accepted for focused scope; C source recovered, implementation assigned under AUTO-CONFIG-001 |
+| LWB317-UI-MAP-CLOSEOUT-002 | Interrupted worker, split into children | COMPLETE for assigned source/local scope | A recovered review, B cf75b4e ownership and C ec27577 Auto accepted; full Map/UI/native/pixels remain unaccepted |
 | LWB317-UI-MAP-REFRESH-FEEDBACK-001 | Project lead takeover | COMPLETE / ACCEPTED for focused source/local scope | Row revision timing, scan error rendering/priority and export localized labels/result/busy; 45/19/11 checks pass. Full options/poll/native/pixels excluded |
 | LWB317-UI-MAP-SCAN-HEADER-001 | Project lead takeover | COMPLETE / ACCEPTED for focused source/local scope | Original timing/summary, stored-run matching, fractional progress and optional state; 270 comparisons/clock/fences/browser pass. Native timing/actions/pixels excluded |
 | LWB317-UI-MAP-GOODS-PICKER-001 | Project lead takeover | COMPLETE / ACCEPTED for focused source/local scope | Original Truck/Train details menu, strict raw keys/icon placeholders and close-after-change; 144 comparisons, actual parent query/sort and browser controls pass; native icons/pixels excluded |

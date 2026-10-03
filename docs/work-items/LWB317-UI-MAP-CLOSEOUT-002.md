@@ -1,6 +1,6 @@
 # LWB317-UI-MAP-CLOSEOUT-002 — worker assignment
 
-Status: PARTIAL / SPLIT, 2026-10-03. A is lead-accepted for focused scope. B is delivered at cf75b4e and lead-accepted for focused source/local scope. C source recovery is complete; implementation is now assigned ONLY under LWB317-UI-MAP-AUTO-CONFIG-001. Do not execute this whole original assignment again. See the dated recovery and Auto dispatch reviews.
+Status: COMPLETE for the assigned A/B/C source/local campaign, 2026-10-03. A was lead-accepted through the recovery review; B through cf75b4e OWNERSHIP-001; C through ec27577 AUTO-CONFIG-001 and PM-UI-FINISH-001. Global Map/UI/original-pixel/native parity is not accepted. Do not restart this historical assignment.
 Project lead: the AI in the owner's lead chat. Return findings to that lead through committed files and the owner-relayed delivery report. Your review is a recommendation; project-lead acceptance is separate.
 
 ## Goal and context

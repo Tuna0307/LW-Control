@@ -1,0 +1,34 @@
+{
+  "scope": "Independent lead cases executing actual App through inert hook/storage adapter; no native operation. Source contracts: index Ct byte 364217, Ei 359327, Ai/ji 360013/360170 in the pinned Auto locator packet.",
+  "appSha256": "ae6663bc9e71c9fb2fed5f7bffc8398447f357e6e6120701d81da572269c5f52",
+  "cases": [
+    {
+      "name": "missing-storage-load-does-not-write",
+      "pass": true
+    },
+    {
+      "name": "enable-overrides-supplied-deadline-with-clock-in-state-and-storage",
+      "pass": true
+    },
+    {
+      "name": "enabled-edit-preserves-supplied-future-deadline",
+      "pass": true
+    },
+    {
+      "name": "source-NaN-state-is-serialized-to-null",
+      "pass": true
+    },
+    {
+      "name": "reload-null-interval-restores-default-without-losing-deadline",
+      "pass": true
+    },
+    {
+      "name": "disable-clears-positive-deadline-in-state-and-storage",
+      "pass": true
+    },
+    {
+      "name": "same-turn-enable-disable-keeps-last-edit-without-stale-deadline",
+      "pass": true
+    }
+  ]
+}

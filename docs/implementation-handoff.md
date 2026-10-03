@@ -1,12 +1,24 @@
 # Current implementation/research handoff
 
-Current worker delivery, 2026-10-03: refresh ownership remains accepted for focused scope and MAP-AUTO-CONFIG-001 is AWAITING_REVIEW. A/B/C remain pushed through f5a1eaf; milestone D now has current regression adapters, browser evidence, executable evidence/protected guards, complete-diff review and canonical check/build/package PASS. No milestone-D production correction was justified. Project-lead acceptance is pending; native executor, gameplay and original pixel/global acceptance remain outside this assignment.
+Current lead decision, 2026-10-03: MAP-AUTO-CONFIG-001 at ec27577 is COMPLETE / ACCEPTED for focused source/local UI/configuration scope after lead replays, seven additional actual-App cases, saved-layout inspection and evidence/package checks. MAP-CLOSEOUT-002 is closed for its assigned A/B/C scope. Remaining UI follows docs/UI_FINISH_CHECKLIST.md: Automation/AFK residuals, other-page review, final eight-page integration. Active worker: LWB317-UI-AUTOMATION-AFK-CLOSEOUT-001, one AI, no subagents. Aim for source-recoverable UI completion today if feasible; original pixels/native/global parity remain unaccepted.
 
 **Target:** LWBridge 0.3.17  
 **Branch:** `research/offline-controller`  
-**Active scope:** UI parity / complete Map Auto UI/configuration; no new native integration
+**Active scope:** UI parity / complete Automation/AFK residuals under the medium closeout; no native integration
 
 ## Current continuation — Auto configuration delivery
+
+Lead update: ec27577 Auto delivery is now accepted for focused source/local
+scope by PM-UI-FINISH-001; all ten regressions and seven new App cases pass.
+Do not reopen Auto. Follow UI_FINISH_CHECKLIST.md and the active
+UI-AUTOMATION-AFK-CLOSEOUT-001 assignment only. Reuse existing CORRECT-003 code,
+verify named remaining branches and close evidence in two sequential milestones.
+The historical CORRECT-003 state check has a stale boolean Trade error assertion;
+recover the current expected shape rather than reverting accepted Trade.
+Other pages/final integration follow separate bounded assignments. One worker,
+no subagents. Today's goal does not waive source or validation requirements.
+
+Historical worker delivery before lead acceptance:
 
 2026-10-03 MAP-AUTO-CONFIG-001 worker delivery: milestone D is complete and
 AWAITING_REVIEW. The current runner adapts the stale NAVIGATION-001 extractor

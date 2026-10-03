@@ -1,10 +1,10 @@
 # LWBridge 0.3.17 feature ledger
 
-Current worker delivery pending project-lead review, 2026-10-03: MAP-AUTO-CONFIG-001 is AWAITING_REVIEW after complete A/B/C/D source/local UI/config verification. Ten affected Map regressions, real offline browser controls, evidence/protected guards and canonical check/build/package pass. Native Auto execution, original pixels and full UI/global parity remain unaccepted.
+Current lead decision, 2026-10-03: MAP-AUTO-CONFIG-001 at ec27577 is COMPLETE / ACCEPTED for focused source/local UI/configuration scope after lead replays, seven additional actual-App cases, saved-layout inspection and evidence/package checks. MAP-CLOSEOUT-002 is closed for its assigned A/B/C scope. Remaining UI follows docs/UI_FINISH_CHECKLIST.md: Automation/AFK residuals, other-page review, final eight-page integration. Active worker: LWB317-UI-AUTOMATION-AFK-CLOSEOUT-001, one AI, no subagents. Aim for source-recoverable UI completion today if feasible; original pixels/native/global parity remain unaccepted.
 
 This ledger starts clean for 0.3.17.
 
-2026-10-03 Auto delivery: four recent Map UI units and completed summary/options ownership remain accepted for focused source/local scope. AUTO-CONFIG-001 now awaits project-lead review with helpers/profile ownership/controls and integrated evidence complete. Native/live status remains unchanged.
+2026-10-03 Auto acceptance: PM-UI-FINISH-001 accepts ec27577 for focused source/local helpers/profile ownership/controls and integrated evidence. Four prior Map units and ownership retain acceptance. Automation/AFK residuals are assigned next; native/live status remains unchanged.
 
 Map row-refresh/scan-export feedback: REFRESH-FEEDBACK-001 implements the recovered frontend contract and validates it locally (45/19/11). No native provider/live status upgrade. Source locators and remaining options-request ownership gap are in its dated review/evidence packet.
 
