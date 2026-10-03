@@ -1,0 +1,28 @@
+{
+  "milestoneA": [
+    {
+      "url": "http://127.0.0.1:4319/?previewPage=automation&previewState=automation-assist-schedule&previewTheme=light&previewLanguage=en",
+      "theme": "light",
+      "language": "en",
+      "observed": [
+        "Secret Task shows recovered Qualified/Total, dispatched/refreshed/claimed/pending and next-claim rows plus Normal Refresh capability fallback.",
+        "Opening Settings shows the manual allied-task list. The scheduled task is disabled and labelled Scheduled; the failed job is associated with the second visible task while that task remains selectable and labelled Not scheduled; the manual queue exposes both Cancel and Retry actions.",
+        "No native/gameplay action was invoked; run-now/dispatch-all remains disconnected/disabled in preview."
+      ],
+      "screenshotId": "2960bb23-9d78-4abf-908d-47b863f1cc34"
+    },
+    {
+      "url": "http://127.0.0.1:4319/?previewPage=automation&previewState=automation-gather-manual_wait&previewTheme=dark&previewLanguage=ja",
+      "theme": "dark",
+      "language": "ja",
+      "observed": [
+        "Resource Gather is enabled for the runtime fixture and retains the recovered radius choices 50-500, two-minute manual resume default, recall-on-disable control and per-squad resource/level controls.",
+        "Squad 1 renders manual_wait as its main runtime step and a separate manual-resume timestamp; disabled Squad 2 remains Disabled.",
+        "The radius hint uses the fixture worldTileCount (1000x1000)."
+      ],
+      "screenshotId": "e59ff4a5-daaf-44df-bb3a-0338d6e4dc5e"
+    }
+  ],
+  "captureTool": "Chat On Steroids Desktop background browser DOM snapshot and full-page screenshot",
+  "notes": "Screenshot IDs are immutable connector capture references for this review run; DOM observations are the authoritative textual record in this packet."
+}

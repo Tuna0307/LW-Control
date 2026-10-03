@@ -205,13 +205,41 @@ export const previewAssistTasks = [
 
 export const previewAssistJobs = [
   { uuid: "fixture-assist-1", scheduleSource: "manual", scheduleStatus: "scheduled", assistAt: Date.UTC(2026, 9, 1, 19, 2, 0), qualityKey: "ssr", ownerName: "Fixture Ally One", ownerUid: "81001", isSpecial: false },
-  { uuid: "fixture-assist-failed", scheduleSource: "manual", scheduleStatus: "failed", assistAt: Date.UTC(2026, 9, 1, 18, 48, 0), qualityKey: "sr", ownerName: "Fixture Ally Three", ownerUid: "81003", isSpecial: false },
+  { uuid: "fixture-assist-2", scheduleSource: "manual", scheduleStatus: "failed", assistAt: Date.UTC(2026, 9, 1, 18, 48, 0), qualityKey: "ur", ownerName: "Fixture Ally Two", ownerUid: "81002", isSpecial: true },
 ];
+
+export function previewAssistFixture(previewState) {
+  const tasks = previewState === "automation-assist-empty" ? [] : previewAssistTasks;
+  const task = previewAssistTasks[0];
+  const statusByState = {
+    "automation-assist-waiting": "waiting_connection",
+    "automation-assist-retry-wait": "retry_wait",
+    "automation-assist-running": "running",
+    "automation-assist-failed": "failed",
+    "automation-assist-expired": "expired",
+  };
+  const status = statusByState[previewState];
+  const jobs = previewState === "automation-assist-schedule"
+    ? previewAssistJobs
+    : status
+      ? [{ ...task, scheduleSource: "manual", scheduleStatus: status, assistAt: Date.UTC(2026, 9, 1, 19, 2, 0) }]
+      : [];
+  return { tasks, jobs, busy: previewState === "automation-assist-busy" };
+}
 
 export function previewResourceGatherConfig(previewState) {
   const noSquads = previewState === "automation-gather-no-squads";
+  const enabled = [
+    "automation-gather-runtime_wait",
+    "automation-gather-manual_wait",
+    "automation-gather-shield_paused",
+    "automation-gather-recalling",
+    "automation-gather-recall_failed",
+    "automation-gather-state_unconfirmed",
+    "automation-gather-view-change",
+  ].includes(previewState);
   return {
-    enabled: false,
+    enabled,
     scanRadius: 200,
     manualResumeDelaySeconds: 120,
     recallOnDisable: false,
@@ -220,6 +248,30 @@ export function previewResourceGatherConfig(previewState) {
       { squadIndex: 2, enabled: false, resource: "food", level: 8, maxLevel: 9 },
     ],
   };
+}
+
+export function previewResourceGatherRuntime(previewState) {
+  const hasSquadData = previewState.startsWith("automation-") && previewState !== "automation-gather-no-squads";
+  const status = {
+    worldTileCount: 1000,
+    gatherSquadIndexes: !hasSquadData ? [] : previewState === "automation-gather-view-change" ? [1, 2, 3] : [1, 2],
+    gatherResources: [
+      { resource: "metal", maxLevel: 10 },
+      { resource: "food", maxLevel: 9 },
+      { resource: "gold", maxLevel: 8 },
+    ],
+    step: previewState === "automation-gather-runtime_wait" ? "runtime_wait" : "idle",
+    gatherSquads: [],
+  };
+  const squad = { squadIndex: 1, step: "idle" };
+  if (previewState === "automation-gather-manual_wait") Object.assign(squad, { step: "manual_wait", pauseReason: "manual_wait", manualResumeAt: Date.UTC(2026, 9, 1, 19, 30, 0) });
+  if (previewState === "automation-gather-shield_paused") Object.assign(squad, { step: "shield_paused", shieldEndAt: Date.UTC(2026, 9, 1, 20, 30, 0) });
+  if (previewState === "automation-gather-recalling") squad.step = "recalling";
+  if (previewState === "automation-gather-recall_failed") squad.step = "recall_failed";
+  if (previewState === "automation-gather-state_unconfirmed") squad.step = "state_unconfirmed";
+  if (hasSquadData) status.gatherSquads.push(squad);
+  if (previewState === "automation-gather-view-change") status.gatherSquads.push({ squadIndex: 3, step: "idle" });
+  return status;
 }
 
 export function validPreviewResourceGatherConfig(config) {
@@ -244,8 +296,8 @@ export function previewAutomationRuntime(title, previewState = "") {
     "Automatic Construction": { ...common, candidateName: "Fixture Steelworks", candidateLevel: 29, automaticBuilders: 1, maxBuilders: 2, occupiedBuilders: 2, totalBuilders: 4, processed: 3, nextRunAt: fixtureTime(19, 5) },
     "Free Stamina": { ...common, todayCount: 1, dailyLimit: 2, processed: 1, nextClaimAt: fixtureTime(20, 0) },
     "Automatic Treatment": { ...common, wounded: 148, treating: 96, batchesStarted: 2, soldiersQueued: 96, helpsRequested: 2, collected: 52 },
-    "Trucks": { ...common, qualified: 3, total: 4, refreshed: 2, departed: 2, claimed: 1, pendingClaims: 1, nextScheduledAt: fixtureTime(20, 15), nextContinuationAt: fixtureTime(19, 45), batchDeparture: true, running },
-    "Secret Task": { ...common, qualified: 4, available: 6, refreshed: 2, dispatched: 3, claimed: 2, pendingClaims: 1, nextScheduledAt: fixtureTime(20, 25), nextContinuationAt: fixtureTime(19, 55), superRefresh: false, running },
+    "Trucks": { ...common, qualified: 3, total: 4, refreshed: 2, departed: 2, claimed: 1, pendingClaims: 1, nextScheduledAt: fixtureTime(20, 15), nextContinuationAt: fixtureTime(19, 45), capabilities: { batchDeparture: true }, running },
+    "Secret Task": { ...common, qualified: 4, available: 6, refreshed: 2, dispatched: 3, claimed: 2, pendingClaims: 1, nextScheduledAt: fixtureTime(20, 25), nextContinuationAt: fixtureTime(19, 55), capabilities: { superRefresh: false }, running },
     "Ghost Ops": { ...common, nextClaimAt: fixtureTime(19, 35), ownPending: 1, allianceCandidates: 2, claimed: 4 },
     "Alliance Tech Donations": { ...common, scienceId: 71001, remaining: 6, donated: 24 },
     "Automatic Official Application": { ...common, positionId: 10005, currentPositionId: 0, applyQueueLength: 3 },

@@ -1,0 +1,27 @@
+{
+  "targetExecutable": {
+    "path": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW\\lwbridge-0.3.17.exe",
+    "sha256": "4E9C15565EBA27BFCC592CDBE3655A2B8AE9EED73C4117131FD1924264EB6783"
+  },
+  "assets": [
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/AutomationPanel-BJ0gIqFh.js",
+      "sha256": "6DB2328191AF33E5631D507271C36D7008B287DAA7C8CD1A957B23EF6F871725",
+      "locators": ["pretty lines 90-118 resource gather", "pretty lines 525-554 Railway, Secret Task and Assist"]
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/SquadPanel-HC3-DJei.js",
+      "sha256": "ED466E353AA896D8C3FC783FF1802930156FB9E9EB54327AEF73F2FF86FA06C7",
+      "locators": ["pretty lines 236-274 join-member branches", "pretty lines 311-519 AFK target/toolbar/profile branches", "pretty lines 62-230 garrison/zombie branches"]
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-BVfnK1wp.js",
+      "sha256": "44C4E4043825B7DB296B64171951B27176F8850FF8D7D337CC991DF4765524C6"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/GameAssetImage-Diy9VTIr.js",
+      "sha256": "2F92A87C3268497DF6425B1175DB6140E10AABCBDFAE02615F065D00E16458E0"
+    }
+  ],
+  "method": "SHA-256 revalidated from the pinned executable/assets; source behavior was read from the retained UTF-8 pretty copies without executing Last War."
+}

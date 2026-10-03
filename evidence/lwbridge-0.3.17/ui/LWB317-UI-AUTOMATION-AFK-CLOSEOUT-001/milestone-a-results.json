@@ -1,0 +1,17 @@
+{
+  "status": "PASS",
+  "scope": "Automation Assist/Gather plus remaining status/timing branches",
+  "sourceCases": {
+    "assist": ["scheduled", "waiting_connection", "retry_wait", "running", "failed", "expired", "empty", "busy", "failed/expired task identity remains untracked while queue exposes Retry"],
+    "resourceGather": ["scan radius", "manual resume delay", "recall on disable", "status/config squad union", "runtime_wait", "manual_wait detail", "shield detail", "recalling", "recall_failed", "state_unconfirmed", "no squads", "view-change status squad"],
+    "statusTiming": ["Railway nested batchDeparture capability", "Secret Task nested superRefresh capability", "nextContinuationAt", "alliance counters/times", "Weekend Shield", "Attack Shield"]
+  },
+  "checks": [
+    "npm.cmd run check",
+    "npm.cmd run build",
+    "npm.cmd run check:production-build",
+    "git diff --check"
+  ],
+  "browser": "See browser-qa.json; light/en and dark/ja representative states are recorded separately.",
+  "limits": "All positive runtime/game data are disclosed deterministic preview fixtures; no Last War process was launched and no native/gameplay action was executed."
+}

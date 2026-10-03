@@ -1,0 +1,21 @@
+{
+  "dispatchCommit": "78ef791532b9127ad4c78e656c62d117cce63e22",
+  "capturedBeforeTaskEdits": true,
+  "milestoneA": [
+    {
+      "case": "resource-gather-runtime-fixtures",
+      "dispatchObservation": "previewResourceGatherConfig returned enabled=false for manual_wait, shield_paused, runtime_wait, recalling, recall_failed and state_unconfirmed, so the source runtime branches could not be rendered as active squad states. ResourceGatherCard also derived the main state directly from previewState instead of the recovered task/per-squad runtime precedence.",
+      "sourceExpectation": "AutomationPanel-BJ0gIqFh.js lines 101-117 unions configured/status squad indexes, prioritizes recalling/recall_failed/state_unconfirmed, then task runtime_wait, then the per-squad step, and shows manualResumeAt/shieldEndAt as secondary details."
+    },
+    {
+      "case": "automation-capability-shape",
+      "dispatchObservation": "Railway and Secret Task preview fixtures flattened batchDeparture and superRefresh onto the runtime root.",
+      "sourceExpectation": "AutomationPanel-BJ0gIqFh.js lines 525-554 reads status.capabilities.batchDeparture and status.capabilities.superRefresh while continuation timing remains on nextContinuationAt."
+    },
+    {
+      "case": "assist-failed-expired-identity",
+      "dispatchObservation": "The UI predicate was already correct, but the dispatch fixture did not associate its failed manual job with a visible allied task, so the recovered distinction could not be verified in-browser.",
+      "sourceExpectation": "AutomationPanel-BJ0gIqFh.js lines 551-554 treats only scheduled/waiting_connection/retry_wait/running as active for the task row; failed/expired remain in the manual queue with Retry while the task row is untracked."
+    }
+  ]
+}
