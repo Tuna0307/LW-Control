@@ -1,0 +1,72 @@
+{
+  "result": "LWB317_CITY_LAYOUT_BROWSER_OK",
+  "urlBase": "http://127.0.0.1:4319/",
+  "records": [
+    {
+      "name": "English/light moved fixture renders recovered workbench controls",
+      "state": "city-layout-populated-moved",
+      "language": "en",
+      "theme": "light",
+      "observed": {
+        "viewportCss": "1920x855",
+        "zoomInitial": "100%",
+        "zoomAfterPhysicalClick": "117%",
+        "documentWidth": 1920,
+        "viewportWidth": 1920,
+        "draftChanges": "Hospital Level 27"
+      }
+    },
+    {
+      "name": "Apply confirmation stays local and inert",
+      "state": "city-layout-populated-moved",
+      "observed": {
+        "dialogText": "Run 1 building moves? A failure stops immediately and is not rolled back automatically.",
+        "cancelClosedDialog": true,
+        "nativeWindowConfirmOpened": false
+      }
+    },
+    {
+      "name": "Physical pointer move and single-step Undo",
+      "state": "city-layout-populated-moved",
+      "input": "browser viewport drag on rendered Hospital building",
+      "observed": {
+        "hospitalStartCssX": 312,
+        "hospitalMovedCssX": 288,
+        "undoRestoredCssX": 312,
+        "undoRequiredClicks": 1,
+        "validationAfterMove": "Local layout checks passed"
+      },
+      "note": "This physical test exposed and then verified the fix for duplicate pointerup bubbling/history commits."
+    },
+    {
+      "name": "Japanese/dark stale draft branch",
+      "state": "city-layout-stale",
+      "language": "ja",
+      "theme": "dark",
+      "observed": {
+        "heading": "都市レイアウト",
+        "warningVisible": true,
+        "discardVisible": true,
+        "saveDisabled": true,
+        "applyDisabled": true,
+        "zoom": "100%",
+        "horizontalDocumentOverflow": false
+      },
+      "connectorScreenshot": {
+        "screenshotId": "79109ce0-48ce-4eb0-a4d2-6d2a31400c7f",
+        "width": 1600,
+        "height": 713,
+        "scale": 0.8333333333333334,
+        "visuallyInspected": true,
+        "durability": "Connector screenshot ID only; final closeout captures file-backed screenshots for integrity hashing."
+      }
+    }
+  ],
+  "console": {
+    "errors": [],
+    "warnings": [],
+    "capture": "Fresh since Desktop debugger attachment"
+  },
+  "navigationLimit": "The current clone shell unmounts top-level PageForRoute content when switching routes, whereas the recovered original shell retains visited panels with Activity. This cross-page shell lifetime is explicitly outside this four-page page-component assignment and is retained as a known proof/product gap for final review; City timer/key listener cleanup on unmount is source-located and canonical browser navigation produced no console errors.",
+  "nativeLimit": "No native city layout load/draft/validation/apply provider or game operation was called. Synthetic city objects are explicit preview fixtures only."
+}

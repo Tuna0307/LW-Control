@@ -12,6 +12,7 @@ import { dispatchWeeklyQualities, previewAssistFixture, previewAutomationRuntime
 import { initialAfkToolbarConfig, previewDrillRuntime, previewGarrisonMemberFixture, previewGarrisonRuntime, previewMemberFixture, previewZombieBusRuntime } from "./previewAfkCloseoutFixtures.js";
 import { EQUIPMENT_PRESET_LIMIT, EQUIPMENT_SLOTS, cloneEquipmentValue, currentEquipmentPresetLabel, currentEquipmentPresetMatches, equipmentCatalog, equipmentDirtyPresetIds, equipmentItemCount, equipmentPositionCount, findEquipmentSquad, previewEquipmentFixture, swapEquipmentSquads, swapEquipmentTarget } from "./previewEquipmentContracts.js";
 import { buildTradePurchaseDays, resolveTradeName, tradePurchaseRowKey } from "./tradePurchaseHistory.js";
+import { CITY_BASE_CELL_SIZE, cityGridRow, cityLayoutIssues, cityMovedOccupiedPoints, cityPlacementMap, cityPlacementSignature, cityRegionForPoint, citySetPlacement, previewCityLayoutFixture } from "./previewRemainingPagesContracts.js";
 
 export { MapDataPage } from "./MapDataPage.jsx";
 
@@ -1351,125 +1352,196 @@ function EquipmentContent({ previewEnabled, previewState = "" }) {
   );
 }
 
-const CITY_PREVIEW_BUILDINGS = Object.freeze([
-  { id: 1, name: "HQ", level: 30, x: 2, y: 2, width: 2, height: 2, movable: false },
-  { id: 2, name: "Barracks", level: 28, x: 5, y: 2, width: 2, height: 2, movable: true },
-  { id: 3, name: "Hospital", level: 27, x: 3, y: 5, width: 2, height: 1, movable: true },
+const CITY_LAYOUT_PREVIEW_STATES = new Set([
+  "city-layout-populated",
+  "city-layout-populated-conflict",
+  "city-layout-populated-moved",
+  "city-layout-stale",
+  "city-layout-outside-city",
+  "city-layout-server-valid",
+  "city-layout-applying",
+  "city-layout-loading",
+  "city-layout-error",
 ]);
 
-function sameCityLayout(a, b) {
-  return a.length === b.length && a.every((building, index) => building.id === b[index]?.id && building.x === b[index]?.x && building.y === b[index]?.y);
-}
+export function CityLayoutPage({ previewState = "", online = false }) {
+  const { t } = useI18n();
+  const previewEnabled = CITY_LAYOUT_PREVIEW_STATES.has(previewState);
+  const fixture = useMemo(() => previewEnabled ? previewCityLayoutFixture(previewState) : null, [previewEnabled, previewState]);
+  const layout = fixture;
+  const loading = previewState === "city-layout-loading";
+  const [history, setHistory] = useState(() => ({ past: [], present: fixture?.placements ?? [], future: [] }));
+  const [zoom, setZoom] = useState(CITY_BASE_CELL_SIZE);
+  const [selectedUuid, setSelectedUuid] = useState(() => fixture?.buildings[0]?.uuid ?? "");
+  const [selectedUuids, setSelectedUuids] = useState(() => fixture?.buildings[0] ? [fixture.buildings[0].uuid] : []);
+  const [hoveredUuid, setHoveredUuid] = useState("");
+  const [citySelectionState, setCitySelectionState] = useState(null);
+  const [dragState, setDragState] = useState(null);
+  const [serverValidation, setServerValidation] = useState(() => previewState === "city-layout-server-valid" ? { valid: true, issues: [], totalMoves: 1, temporaryMoves: 0 } : null);
+  const [draftRevision, setDraftRevision] = useState(() => fixture?.draftRevision ?? 0);
+  const [stale, setStale] = useState(previewState === "city-layout-stale");
+  const [errorText, setErrorText] = useState(previewState === "city-layout-error" ? t("common.actionFailed") : "");
+  const [applyConfirmOpen, setApplyConfirmOpen] = useState(false);
+  const viewportRef = useRef(null);
+  const gridRef = useRef(null);
+  const draftTimerRef = useRef(0);
+  const savedSignatureRef = useRef(cityPlacementSignature(fixture?.placements ?? []));
+  const placements = history.present;
+  const applyStatus = previewState === "city-layout-applying" ? { state: "running", totalMoves: 4, completedMoves: 2, jobId: "preview-city-layout" } : null;
+  const busy = applyStatus?.state === "running" || applyStatus?.state === "cancelling";
+  const cellsByPoint = useMemo(() => new Map(layout?.cells.map((cell) => [cell.pointId, cell]) ?? []), [layout]);
+  const cellsByCoordinate = useMemo(() => new Map(layout?.cells.map((cell) => [`${cell.x}:${cell.y}`, cell]) ?? []), [layout]);
+  const buildingsByUuid = useMemo(() => new Map(layout?.buildings.map((building) => [building.uuid, building]) ?? []), [layout]);
+  const placementMap = useMemo(() => cityPlacementMap(placements), [placements]);
+  const selectedSet = useMemo(() => new Set(selectedUuids), [selectedUuids]);
+  const selected = buildingsByUuid.get(selectedUuid) ?? null;
+  const region = layout?.regions[0] ?? null;
+  const regionBuildings = useMemo(() => !layout || !region ? [] : layout.buildings.filter((building) => cityRegionForPoint(layout, placementMap.get(building.uuid) ?? building.pointId) === region.id), [layout, placementMap, region]);
+  const issues = useMemo(() => layout ? cityLayoutIssues(layout, placements) : [], [layout, placements]);
+  const changedIds = useMemo(() => new Set(placements.map((placement) => placement.uuid)), [placements]);
+  const displayName = (building) => building?.name || building?.nameKey || "";
 
-function cityBoxesOverlap(a, b) {
-  return a.x < b.x + b.width && a.x + a.width > b.x && a.y < b.y + b.height && a.y + a.height > b.y;
-}
+  const commitPlacements = (next) => {
+    if (cityPlacementSignature(next) === cityPlacementSignature(placements)) return;
+    setHistory((current) => ({ past: [...current.past, current.present], present: next, future: [] }));
+    setServerValidation(null);
+  };
 
-function cityCellKind(x, y) {
-  if (y === 8) return "locked";
-  if (x === 1) return "road";
-  if (y === 4 && x >= 7) return "flag-only";
-  return "available";
-}
+  const undo = () => setHistory((current) => {
+    const previous = current.past[current.past.length - 1];
+    return previous ? { past: current.past.slice(0, -1), present: previous, future: [current.present, ...current.future] } : current;
+  });
+  const redo = () => setHistory((current) => {
+    const next = current.future[0];
+    return next ? { past: [...current.past, current.present], present: next, future: current.future.slice(1) } : current;
+  });
 
-function cityLayoutConflicts(buildings) {
-  const conflicts = [];
-  for (let index = 0; index < buildings.length; index += 1) {
-    const building = buildings[index];
-    if (building.x < 1 || building.y < 1 || building.x + building.width - 1 > 8 || building.y + building.height - 1 > 8) conflicts.push(building.id);
-    if (building.movable) {
-      for (let y = building.y; y < building.y + building.height; y += 1) {
-        for (let x = building.x; x < building.x + building.width; x += 1) {
-          if (cityCellKind(x, y) !== "available") conflicts.push(building.id);
+  const restoreInitial = () => {
+    if (placements.length) commitPlacements([]);
+  };
+
+  const toggleSelection = (building, additive = false) => {
+    if (!additive) {
+      setSelectedUuid(building.uuid);
+      setSelectedUuids([building.uuid]);
+      return;
+    }
+    setSelectedUuids((current) => {
+      if (current.includes(building.uuid)) {
+        const next = current.filter((uuid) => uuid !== building.uuid);
+        if (selectedUuid === building.uuid) setSelectedUuid(next[0] ?? "");
+        return next;
+      }
+      setSelectedUuid(building.uuid);
+      return [...current, building.uuid];
+    });
+  };
+
+  const pointFromClient = (clientX, clientY, clamp = false) => {
+    if (!gridRef.current || !region) return 0;
+    const rect = gridRef.current.getBoundingClientRect();
+    const style = window.getComputedStyle(gridRef.current);
+    const paddingLeft = Number.parseFloat(style.paddingLeft) || 0;
+    const paddingTop = Number.parseFloat(style.paddingTop) || 0;
+    const width = region.bounds.maxX - region.bounds.minX + 1;
+    const height = region.bounds.maxY - region.bounds.minY + 1;
+    let column = Math.floor((clientX - rect.left - paddingLeft) / zoom);
+    let row = Math.floor((clientY - rect.top - paddingTop) / zoom);
+    if (clamp) {
+      column = Math.min(width - 1, Math.max(0, column));
+      row = Math.min(height - 1, Math.max(0, row));
+    } else if (column < 0 || column >= width || row < 0 || row >= height) return 0;
+    const x = region.bounds.minX + column;
+    const y = region.bounds.maxY - row;
+    return cellsByCoordinate.get(`${x}:${y}`)?.pointId ?? 0;
+  };
+
+  const groupPlacementFor = (anchorUuid, targetPointId, uuids) => {
+    const anchor = buildingsByUuid.get(anchorUuid);
+    const anchorSource = cellsByPoint.get(placementMap.get(anchorUuid) ?? anchor?.pointId);
+    const anchorTarget = cellsByPoint.get(targetPointId);
+    if (!anchor || !anchorSource || !anchorTarget) return null;
+    let next = placements;
+    for (const uuid of uuids) {
+      const building = buildingsByUuid.get(uuid);
+      const source = cellsByPoint.get(placementMap.get(uuid) ?? building?.pointId);
+      if (!building || !source) return null;
+      const target = cellsByCoordinate.get(`${anchorTarget.x + source.x - anchorSource.x}:${anchorTarget.y + source.y - anchorSource.y}`);
+      if (!target) return null;
+      const occupied = cityMovedOccupiedPoints(building, target.pointId, cellsByPoint, cellsByCoordinate);
+      if (occupied.length !== building.tileX * building.tileY || occupied.some((pointId) => cellsByPoint.get(pointId)?.regionId !== region.id)) return null;
+      next = citySetPlacement(next, building, target.pointId);
+    }
+    return next;
+  };
+
+  const finishPointer = () => {
+    if (dragState) {
+      const next = groupPlacementFor(dragState.anchorUuid, dragState.targetPointId, dragState.uuids);
+      if (next) {
+        const nextIssues = cityLayoutIssues(layout, next);
+        if (nextIssues.length) setServerValidation({ valid: false, issues: nextIssues, totalMoves: 0, temporaryMoves: 0 });
+        else {
+          commitPlacements(next);
+          setServerValidation({ valid: true, issues: [], totalMoves: next.length, temporaryMoves: 0 });
         }
       }
+      setDragState(null);
+      return;
     }
-    for (let otherIndex = index + 1; otherIndex < buildings.length; otherIndex += 1) {
-      if (cityBoxesOverlap(building, buildings[otherIndex])) {
-        conflicts.push(building.id, buildings[otherIndex].id);
-      }
+    if (!citySelectionState || !layout || !region) return;
+    const start = cellsByPoint.get(citySelectionState.startPointId);
+    const current = cellsByPoint.get(citySelectionState.currentPointId);
+    if (start && current) {
+      const minX = Math.min(start.x, current.x);
+      const maxX = Math.max(start.x, current.x);
+      const minY = Math.min(start.y, current.y);
+      const maxY = Math.max(start.y, current.y);
+      const hits = regionBuildings.filter((building) => building.movable).filter((building) => {
+        const occupied = cityMovedOccupiedPoints(building, placementMap.get(building.uuid) ?? building.pointId, cellsByPoint, cellsByCoordinate);
+        return occupied.some((pointId) => {
+          const cell = cellsByPoint.get(pointId);
+          return cell && cell.x >= minX && cell.x <= maxX && cell.y >= minY && cell.y <= maxY;
+        });
+      }).map((building) => building.uuid);
+      setSelectedUuids((currentSelection) => citySelectionState.additive ? [...new Set([...currentSelection, ...hits])] : hits);
+      setSelectedUuid(hits[0] ?? (citySelectionState.additive ? selectedUuid : ""));
     }
-  }
-  return [...new Set(conflicts)];
-}
-
-export function CityLayoutPage({ previewState = "" }) {
-  const { t } = useI18n();
-  const previewEnabled = previewState.startsWith("city-layout-populated");
-  const [zoom, setZoom] = useState(24);
-  const [buildings, setBuildings] = useState(() => CITY_PREVIEW_BUILDINGS.map((building) => previewState === "city-layout-populated-conflict" && building.id === 3 ? { ...building, x: 5, y: 2 } : { ...building }));
-  const [selectedIds, setSelectedIds] = useState(() => new Set(previewEnabled ? [1] : []));
-  const [history, setHistory] = useState({ past: [], future: [] });
-  const [dragAnchorId, setDragAnchorId] = useState(null);
-  const [selectionBox, setSelectionBox] = useState(null);
-  const gridRef = useRef(null);
-  const cells = Array.from({ length: 64 }, (_, index) => index);
-  const selected = buildings.find((building) => selectedIds.has(building.id)) || null;
-  const changedIds = new Set(buildings.filter((building) => {
-    const initial = CITY_PREVIEW_BUILDINGS.find((entry) => entry.id === building.id);
-    return initial && (initial.x !== building.x || initial.y !== building.y);
-  }).map((building) => building.id));
-  const conflictIds = cityLayoutConflicts(buildings);
-  const hasChanges = changedIds.size > 0;
-
-  const commitBuildings = (next) => {
-    if (sameCityLayout(buildings, next)) return;
-    setHistory((current) => ({ past: [...current.past, buildings.map((building) => ({ ...building }))], future: [] }));
-    setBuildings(next.map((building) => ({ ...building })));
+    setCitySelectionState(null);
   };
 
-  const undo = () => {
-    setHistory((current) => {
-      if (!current.past.length) return current;
-      const previous = current.past[current.past.length - 1];
-      setBuildings(previous.map((building) => ({ ...building })));
-      return { past: current.past.slice(0, -1), future: [buildings.map((building) => ({ ...building })), ...current.future] };
-    });
-  };
-
-  const redo = () => {
-    setHistory((current) => {
-      if (!current.future.length) return current;
-      const next = current.future[0];
-      setBuildings(next.map((building) => ({ ...building })));
-      return { past: [...current.past, buildings.map((building) => ({ ...building }))], future: current.future.slice(1) };
-    });
-  };
-
-  const moveSelection = (anchorId, x, y) => {
-    const anchor = buildings.find((building) => building.id === anchorId);
-    if (!anchor?.movable) return;
-    const movingIds = selectedIds.has(anchorId)
-      ? new Set([...selectedIds].filter((id) => buildings.find((building) => building.id === id)?.movable))
-      : new Set([anchorId]);
-    const dx = x - anchor.x;
-    const dy = y - anchor.y;
-    const next = buildings.map((building) => movingIds.has(building.id) ? { ...building, x: building.x + dx, y: building.y + dy } : { ...building });
-    if (cityLayoutConflicts(next).length === 0) commitBuildings(next);
-  };
-
-  const finishSelectionBox = (event) => {
-    if (!selectionBox || !gridRef.current) return;
-    const left = Math.min(selectionBox.startX, event.clientX);
-    const right = Math.max(selectionBox.startX, event.clientX);
-    const top = Math.min(selectionBox.startY, event.clientY);
-    const bottom = Math.max(selectionBox.startY, event.clientY);
-    const hits = [...gridRef.current.querySelectorAll("[data-city-building-id]")].filter((element) => {
-      const rect = element.getBoundingClientRect();
-      return rect.left < right && rect.right > left && rect.top < bottom && rect.bottom > top;
-    }).map((element) => Number(element.dataset.cityBuildingId));
-    setSelectedIds((current) => selectionBox.additive ? new Set([...current, ...hits]) : new Set(hits));
-    setSelectionBox(null);
+  const saveDraftNow = () => {
+    if (!previewEnabled || stale || busy) return;
+    if (draftTimerRef.current) window.clearTimeout(draftTimerRef.current);
+    savedSignatureRef.current = cityPlacementSignature(placements);
+    setDraftRevision((revision) => revision + 1);
   };
 
   useEffect(() => {
-    if (!previewEnabled) return undefined;
+    if (!previewEnabled || stale) return undefined;
+    const signature = cityPlacementSignature(placements);
+    if (signature === savedSignatureRef.current) return undefined;
+    draftTimerRef.current = window.setTimeout(() => {
+      savedSignatureRef.current = signature;
+      setDraftRevision((revision) => revision + 1);
+      draftTimerRef.current = 0;
+    }, 500);
+    return () => {
+      if (draftTimerRef.current) window.clearTimeout(draftTimerRef.current);
+      draftTimerRef.current = 0;
+    };
+  }, [placements, previewEnabled, stale]);
+
+  useEffect(() => {
     const onKeyDown = (event) => {
       if (event.key === "Escape") {
-        setSelectedIds(new Set());
+        setDragState(null);
+        setCitySelectionState(null);
+        setSelectedUuids([]);
+        setSelectedUuid("");
         return;
       }
-      if (!(event.ctrlKey || event.metaKey)) return;
+      if (busy || !(event.ctrlKey || event.metaKey)) return;
       if (event.key.toLowerCase() === "z") {
         event.preventDefault();
         if (event.shiftKey) redo();
@@ -1481,105 +1553,142 @@ export function CityLayoutPage({ previewState = "" }) {
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  });
+  }, [busy]);
 
-  if (!previewEnabled) return <div className="panel city-layout-empty">{t("cityLayout.offline")}</div>;
+  if (!previewEnabled && !online) return <div className="panel city-layout-empty">{t("cityLayout.offline")}</div>;
+  if (!layout) return <div className="panel city-layout-empty">{loading ? t("common.processing") : errorText || t("cityLayout.noData")}</div>;
+  const currentHover = buildingsByUuid.get(hoveredUuid) ?? selected;
+  const lassoStyle = (() => {
+    if (!citySelectionState || !region) return null;
+    const start = cellsByPoint.get(citySelectionState.startPointId);
+    const current = cellsByPoint.get(citySelectionState.currentPointId);
+    if (!start || !current) return null;
+    const minX = Math.min(start.x, current.x);
+    const maxX = Math.max(start.x, current.x);
+    const minY = Math.min(start.y, current.y);
+    const maxY = Math.max(start.y, current.y);
+    return { gridColumn: `${minX - region.bounds.minX + 1} / span ${maxX - minX + 1}`, gridRow: `${cityGridRow(region.bounds, maxY)} / span ${maxY - minY + 1}` };
+  })();
   return (
-    <section className="panel city-layout-panel" data-preview-fixture="city-layout-populated">
-      <div className="city-layout-header">
-        <div><h2>{t("cityLayout.title")}</h2><span>{t("cityLayout.stats", { cells: 64, buildings: buildings.length, movable: buildings.filter((item) => item.movable).length })}</span></div>
+    <section className="city-layout-panel" data-preview-fixture={previewEnabled ? previewState : undefined}>
+      <header className="city-layout-header">
+        <div><h2>{t("cityLayout.title")}</h2><span>{t("cityLayout.stats", { cells: layout.cells.filter((cell) => cell.unlocked).length, buildings: layout.buildings.length, movable: layout.buildings.filter((item) => item.movable).length })}</span></div>
         <div className="city-layout-actions">
-          <button type="button" disabled title={t("status.gameDisconnectedDisabled")}>{t("common.refresh")}</button>
-          <button type="button" disabled={!history.past.length} onClick={undo}>{t("cityLayout.undo")}</button>
-          <button type="button" disabled={!history.future.length} onClick={redo}>{t("cityLayout.redo")}</button>
-          <button type="button" disabled={!hasChanges} onClick={() => commitBuildings(CITY_PREVIEW_BUILDINGS)}>{t("cityLayout.restoreInitial")}</button>
-          <button type="button" disabled title={t("status.gameDisconnectedDisabled")}>{t("cityLayout.saveDraft")}</button>
-          <button type="button" className="primary" disabled title={t("status.gameDisconnectedDisabled")}>{t("cityLayout.apply")}</button>
+          <button type="button" disabled={loading || busy} onClick={() => { setErrorText(""); setServerValidation(null); }}>{t("common.refresh")}</button>
+          <button type="button" disabled={!history.past.length || busy} onClick={undo}>{t("cityLayout.undo")}</button>
+          <button type="button" disabled={!history.future.length || busy} onClick={redo}>{t("cityLayout.redo")}</button>
+          <button type="button" disabled={!placements.length || busy} onClick={restoreInitial}>{t("cityLayout.restoreInitial")}</button>
+          <button type="button" disabled={stale || busy || !previewEnabled} onClick={saveDraftNow}>{t("cityLayout.saveDraft")}</button>
+          <button type="button" className="primary" disabled={stale || !placements.length || busy || !previewEnabled} onClick={() => { const nextIssues = cityLayoutIssues(layout, placements); if (nextIssues.length) setServerValidation({ valid: false, issues: nextIssues, totalMoves: 0, temporaryMoves: 0 }); else { setServerValidation({ valid: true, issues: [], totalMoves: placements.length, temporaryMoves: 0 }); setApplyConfirmOpen(true); } }}>{t("cityLayout.apply")}</button>
         </div>
-      </div>
+      </header>
+      {stale ? <div className="city-layout-warning">{t("cityLayout.stale")} <button type="button" onClick={() => { setHistory({ past: [], present: [], future: [] }); setDraftRevision(0); savedSignatureRef.current = ""; setStale(false); }}>{t("cityLayout.discardDraft")}</button></div> : null}
+      {layout.isInCity ? null : <div className="city-layout-warning">{t("cityLayout.enterCity")}</div>}
+      {errorText ? <div className="city-layout-error">{errorText}</div> : null}
       <div className="city-layout-workbench">
-        <main className="city-layout-center">
+        <div className="city-layout-center">
           <div className="city-layout-main-heading">
-            <div className="city-layout-zoom" aria-label={t("cityLayout.zoom")}>
-              <button type="button" onClick={() => setZoom((value) => Math.max(16, value - 2))} aria-label={t("cityLayout.zoomOut")}>−</button>
-              <span>{zoom}px</span>
-              <button type="button" onClick={() => setZoom((value) => Math.min(40, value + 2))} aria-label={t("cityLayout.zoomIn")}>+</button>
-              <button type="button" onClick={() => setZoom(24)}>{t("cityLayout.fitCanvas")}</button>
+            <strong>{t("cityLayout.region.main")}</strong>
+            <div className="city-layout-zoom" role="group" aria-label={t("cityLayout.zoom")}>
+              <button type="button" disabled={zoom <= 4 || Boolean(dragState) || Boolean(citySelectionState)} onClick={() => setZoom((value) => Math.max(4, value - 4))}>{t("cityLayout.zoomOut")}</button>
+              <output aria-live="polite">{Math.round(zoom / CITY_BASE_CELL_SIZE * 100)}%</output>
+              <button type="button" disabled={zoom >= 72 || Boolean(dragState) || Boolean(citySelectionState)} onClick={() => setZoom((value) => Math.min(72, value + 4))}>{t("cityLayout.zoomIn")}</button>
+              <button type="button" disabled={Boolean(dragState) || Boolean(citySelectionState)} onClick={() => { const element = viewportRef.current; if (!element || !region) return; const width = region.bounds.maxX - region.bounds.minX + 1; const height = region.bounds.maxY - region.bounds.minY + 1; setZoom(Math.max(4, Math.min(72, Math.floor(Math.min((element.clientWidth - 28) / width, (element.clientHeight - 28) / height))))); element.scrollTo?.(0, 0); }}>{t("cityLayout.fitCanvas")}</button>
             </div>
-            <span className="city-layout-name-preview">{selected?.name || t("cityLayout.selectBuilding")}</span>
           </div>
-          <details className="city-layout-controls"><summary>{t("cityLayout.controls.title")}</summary><div>{t("cityLayout.controls.boxSelect")} · {t("cityLayout.controls.addSelect")} · {t("cityLayout.controls.toggle")} · {t("cityLayout.controls.move")}</div><small>{t("cityLayout.controls.history")}</small></details>
-          <div className="city-layout-grid-viewport">
+          <div className="city-layout-name-preview" aria-live="polite">{currentHover ? `${displayName(currentHover)} · ${t("cityLayout.level", { level: currentHover.level })}` : t("cityLayout.selectBuilding")}</div>
+          <div className="city-layout-controls"><strong>{t("cityLayout.controls.title")}</strong><span>{t("cityLayout.controls.boxSelect")}</span><span>{t("cityLayout.controls.addSelect")}</span><span>{t("cityLayout.controls.toggle")}</span><span>{t("cityLayout.controls.move")}</span><span>{t("cityLayout.controls.history")}</span></div>
+          <div className="city-layout-grid-viewport" ref={viewportRef}>
             <div
               ref={gridRef}
-              className="city-layout-grid"
-              style={{ gridTemplateColumns: "repeat(8, " + zoom + "px)", gridAutoRows: zoom + "px", position: "relative" }}
+              className={`city-layout-grid${dragState ? " dragging" : ""}`}
+              style={{ gridTemplateColumns: `repeat(${region.bounds.maxX - region.bounds.minX + 1}, ${zoom}px)`, gridTemplateRows: `repeat(${region.bounds.maxY - region.bounds.minY + 1}, ${zoom}px)` }}
               onPointerDown={(event) => {
-                const canStart = event.target === event.currentTarget || (event.target instanceof HTMLElement && event.target.dataset.cityCell != null) || event.shiftKey;
-                if (!canStart || event.button !== 0) return;
+                if (event.target !== event.currentTarget || busy) return;
+                const pointId = pointFromClient(event.clientX, event.clientY);
+                if (!pointId) return;
                 event.currentTarget.setPointerCapture?.(event.pointerId);
-                setSelectionBox({ startX: event.clientX, startY: event.clientY, currentX: event.clientX, currentY: event.clientY, additive: event.shiftKey });
+                setCitySelectionState({ startPointId: pointId, currentPointId: pointId, additive: event.ctrlKey });
               }}
               onPointerMove={(event) => {
-                if (selectionBox) setSelectionBox((current) => current ? { ...current, currentX: event.clientX, currentY: event.clientY } : current);
+                const pointId = pointFromClient(event.clientX, event.clientY, Boolean(dragState));
+                if (dragState && pointId) setDragState((current) => current ? { ...current, targetPointId: pointId } : current);
+                else if (citySelectionState && pointId) setCitySelectionState((current) => current ? { ...current, currentPointId: pointId } : current);
               }}
-              onPointerUp={finishSelectionBox}
-              onDragOver={(event) => { if (dragAnchorId) event.preventDefault(); }}
-              onDrop={(event) => {
-                if (!dragAnchorId || !gridRef.current) return;
-                event.preventDefault();
-                const rect = gridRef.current.getBoundingClientRect();
-                const x = Math.max(1, Math.min(8, Math.floor((event.clientX - rect.left) / zoom) + 1));
-                const y = Math.max(1, Math.min(8, Math.floor((event.clientY - rect.top) / zoom) + 1));
-                moveSelection(dragAnchorId, x, y);
-                setDragAnchorId(null);
-              }}
+              onPointerUp={finishPointer}
+              onPointerCancel={() => { setDragState(null); setCitySelectionState(null); }}
             >
-              {cells.map((index) => {
-                const x = index % 8 + 1;
-                const y = Math.floor(index / 8) + 1;
-                return <span
-                  key={index}
-                  data-city-cell={index}
-                  className={"city-layout-cell " + cityCellKind(x, y)}
-                  style={{ gridColumn: x, gridRow: y }}
-                />;
-              })}
-              {buildings.map((building) => <button
-                key={building.id}
-                data-city-building-id={building.id}
+              {layout.cells.filter((cell) => cell.regionId === region.id).map((cell) => <span key={cell.pointId} className={`city-layout-cell${cell.unlocked ? "" : " locked"}${cell.road ? " road" : ""}${cell.flagOnly ? " flag-only" : ""}`} style={{ gridColumn: cell.x - region.bounds.minX + 1, gridRow: cityGridRow(region.bounds, cell.y) }} />)}
+              {lassoStyle ? <span className="city-layout-lasso" style={lassoStyle} /> : null}
+              {regionBuildings.map((building) => {
+                const previewTarget = dragState?.uuids.includes(building.uuid) ? (() => {
+                  const next = groupPlacementFor(dragState.anchorUuid, dragState.targetPointId, dragState.uuids);
+                  return cityPlacementMap(next ?? placements).get(building.uuid) ?? building.pointId;
+                })() : placementMap.get(building.uuid) ?? building.pointId;
+                const occupied = cityMovedOccupiedPoints(building, previewTarget, cellsByPoint, cellsByCoordinate).map((pointId) => cellsByPoint.get(pointId)).filter(Boolean);
+                if (!occupied.length) return null;
+                const minX = Math.min(...occupied.map((cell) => cell.x));
+                const maxX = Math.max(...occupied.map((cell) => cell.x));
+                const minY = Math.min(...occupied.map((cell) => cell.y));
+                const maxY = Math.max(...occupied.map((cell) => cell.y));
+                return <button
+                key={building.uuid}
+                data-city-building-id={building.uuid}
                 type="button"
-                draggable={building.movable}
-                className={"city-layout-building" + (selectedIds.has(building.id) ? " selected" : "") + (changedIds.has(building.id) ? " changed" : "")}
-                style={{ gridColumn: building.x + " / span " + building.width, gridRow: building.y + " / span " + building.height }}
-                onClick={(event) => setSelectedIds((current) => {
-                  if (event.ctrlKey || event.metaKey) {
-                    const next = new Set(current);
-                    if (next.has(building.id)) next.delete(building.id);
-                    else next.add(building.id);
-                    return next;
+                title={`${displayName(building)} · ${t("cityLayout.level", { level: building.level })}`}
+                className={`city-layout-building${selectedSet.has(building.uuid) ? " selected" : ""}${changedIds.has(building.uuid) ? " changed" : ""}`}
+                style={{ gridColumn: `${minX - region.bounds.minX + 1} / span ${maxX - minX + 1}`, gridRow: `${cityGridRow(region.bounds, maxY)} / span ${maxY - minY + 1}` }}
+                aria-label={`${displayName(building)} · ${t("cityLayout.level", { level: building.level })}`}
+                aria-pressed={selectedSet.has(building.uuid)}
+                onMouseEnter={() => setHoveredUuid(building.uuid)}
+                onMouseLeave={(event) => { if (document.activeElement !== event.currentTarget) setHoveredUuid(""); }}
+                onFocus={() => setHoveredUuid(building.uuid)}
+                onBlur={() => setHoveredUuid("")}
+                onClick={(event) => { event.stopPropagation(); if (event.detail === 0 && !busy) toggleSelection(building, event.ctrlKey); }}
+                onPointerDown={(event) => {
+                  if (!building.movable || busy) return;
+                  event.stopPropagation();
+                  if (event.shiftKey) {
+                    const pointId = pointFromClient(event.clientX, event.clientY);
+                    if (!pointId) return;
+                    event.currentTarget.setPointerCapture?.(event.pointerId);
+                    setCitySelectionState({ startPointId: pointId, currentPointId: pointId, additive: true });
+                    return;
                   }
-                  return new Set([building.id]);
-                })}
-                onDragStart={() => {
-                  if (!selectedIds.has(building.id)) setSelectedIds(new Set([building.id]));
-                  setDragAnchorId(building.id);
+                  if (event.ctrlKey) { toggleSelection(building, true); return; }
+                  event.currentTarget.setPointerCapture?.(event.pointerId);
+                  const uuids = (selectedSet.has(building.uuid) ? selectedUuids : [building.uuid]).filter((uuid) => buildingsByUuid.get(uuid)?.movable);
+                  if (!selectedSet.has(building.uuid)) setSelectedUuids([building.uuid]);
+                  setSelectedUuid(building.uuid);
+                  setDragState({ anchorUuid: building.uuid, uuids, targetPointId: placementMap.get(building.uuid) ?? building.pointId });
                 }}
-                onDragEnd={() => setDragAnchorId(null)}
-              ><span className="city-layout-building-name">{building.name}</span><span className="city-layout-building-level">{t("cityLayout.level", { level: building.level })}</span></button>)}
-              {selectionBox ? <span className="city-layout-selection-box" aria-hidden="true" style={{ position: "fixed", pointerEvents: "none", zIndex: 20, left: Math.min(selectionBox.startX, selectionBox.currentX), top: Math.min(selectionBox.startY, selectionBox.currentY), width: Math.abs(selectionBox.currentX - selectionBox.startX), height: Math.abs(selectionBox.currentY - selectionBox.startY), border: "1px solid currentColor", background: "rgba(80, 130, 255, 0.12)" }} /> : null}
+                onPointerMove={(event) => {
+                  if (!dragState || dragState.anchorUuid !== building.uuid) return;
+                  const pointId = pointFromClient(event.clientX, event.clientY, true);
+                  if (pointId) setDragState((current) => current ? { ...current, targetPointId: pointId } : current);
+                }}
+                onPointerUp={(event) => {
+                  event.stopPropagation();
+                  finishPointer();
+                }}
+              >{(maxX - minX + 1) * zoom >= 64 && (maxY - minY + 1) * zoom >= 48 ? <strong className="city-layout-building-name">{displayName(building)}</strong> : null}<small className="city-layout-building-level">{t("cityLayout.level", { level: building.level })}</small></button>;
+              })}
             </div>
           </div>
-          <div className="city-layout-legend"><span className="available">{t("cityLayout.cell.available")}</span><span className="road">{t("cityLayout.cell.road")}</span><span className="flag-only">{t("cityLayout.cell.flagOnly")}</span><span className="locked">{t("cityLayout.cell.locked")}</span></div>
-        </main>
+          <div className="city-layout-legend"><span><i className="available" />{t("cityLayout.cell.available")}</span><span><i className="road" />{t("cityLayout.cell.road")}</span><span><i className="flag-only" />{t("cityLayout.cell.flagOnly")}</span><span><i className="locked" />{t("cityLayout.cell.locked")}</span></div>
+        </div>
         <aside className="city-layout-inspector">
           <strong>{t("cityLayout.properties")}</strong>
-          {selected ? <div className="city-layout-selected"><div><strong>{selected.name}</strong><span>{t("cityLayout.level", { level: selected.level })}</span></div><dl><dt>{t("cityLayout.footprint")}</dt><dd>{selected.width}×{selected.height}</dd><dt>{t("cityLayout.current")}</dt><dd>{(() => { const initial = CITY_PREVIEW_BUILDINGS.find((building) => building.id === selected.id); return (initial?.x ?? selected.x) + "," + (initial?.y ?? selected.y); })()}</dd><dt>{t("cityLayout.target")}</dt><dd>{selected.x},{selected.y}</dd><dt>{t("cityLayout.movable")}</dt><dd>{t(selected.movable ? "common.yes" : "common.no")}</dd><dt>{t("cityLayout.rule")}</dt><dd>{t(selected.movable ? "cityLayout.rule.normal" : "cityLayout.rule.flag")}</dd></dl></div> : <span className="muted">{t("cityLayout.selectBuilding")}</span>}
-          <div className={"city-layout-validation " + (conflictIds.length ? "invalid" : "valid")}>{conflictIds.length ? t("cityLayout.conflicts", { count: conflictIds.length }) : t("cityLayout.validation.valid")}</div>
-          <div className="city-layout-changes"><strong>{hasChanges ? t("cityLayout.changes", { count: changedIds.size }) : t("cityLayout.noChanges")}</strong>{hasChanges ? <button type="button" onClick={undo}>{t("cityLayout.undo")}</button> : null}</div>
+          {selected ? <><div className="city-layout-selected"><span><strong>{displayName(selected)}</strong><small>{t("cityLayout.level", { level: selected.level })}</small></span></div><dl><div><dt>{t("cityLayout.footprint")}</dt><dd>{selected.tileX}×{selected.tileY}</dd></div><div><dt>{t("cityLayout.movable")}</dt><dd>{t(selected.movable ? "common.yes" : "common.no")}</dd></div><div><dt>{t("cityLayout.rule")}</dt><dd>{t(selected.isFlag ? "cityLayout.rule.flag" : "cityLayout.rule.normal")}</dd></div></dl></> : null}
+          <div className={`city-layout-validation ${issues.length === 0 ? "valid" : "invalid"}`}>{issues.length === 0 ? t("cityLayout.validation.valid") : t(`cityLayout.issue.${issues[0].code}`)}</div>
+          {serverValidation?.valid ? <div className="city-layout-validation valid">{t("cityLayout.validation.server", { moves: serverValidation.totalMoves, temporary: serverValidation.temporaryMoves })}</div> : null}
+          <strong>{t("cityLayout.changes", { count: placements.length })}</strong>
+          <div className="city-layout-changes">{placements.length === 0 ? <span>{t("cityLayout.noChanges")}</span> : placements.map((placement) => { const building = buildingsByUuid.get(placement.uuid); return building ? <div key={placement.uuid}><span>{displayName(building)}</span><small>{t("cityLayout.level", { level: building.level })}</small></div> : null; })}</div>
+          {busy ? <div className="city-layout-progress"><span>{t("cityLayout.applyProgress", { current: applyStatus.completedMoves, total: applyStatus.totalMoves })}</span><progress max={applyStatus.totalMoves || 1} value={applyStatus.completedMoves} /><button type="button" onClick={() => setErrorText(t("common.actionFailed"))}>{t("cityLayout.cancelApply")}</button></div> : null}
         </aside>
       </div>
-      <footer className="city-layout-footer"><span>{t("cityLayout.draftRevision", { revision: 1 })}</span><span>{t("cityLayout.conflicts", { count: conflictIds.length })}</span></footer>
+      <footer className="city-layout-footer"><span>{t("cityLayout.draftRevision", { revision: draftRevision })}</span><span>{t("cityLayout.conflicts", { count: issues.length })}</span></footer>
+      {applyConfirmOpen ? <div className="scheme-modal-backdrop" data-preview-only-confirm="city-layout"><section className="scheme-modal" role="dialog" aria-modal="true"><strong>{t("cityLayout.applyConfirm", { count: serverValidation?.totalMoves ?? placements.length })}</strong><div className="scheme-modal-actions"><button type="button" onClick={() => setApplyConfirmOpen(false)}>{t("common.cancel")}</button><button className="primary" type="button" onClick={() => { setApplyConfirmOpen(false); setErrorText(t("common.actionFailed")); }}>{t("cityLayout.apply")}</button></div></section></div> : null}
     </section>
   );
 }

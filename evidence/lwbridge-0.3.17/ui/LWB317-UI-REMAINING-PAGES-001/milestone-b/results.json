@@ -1,0 +1,35 @@
+{
+  "result": "LWB317_CITY_LAYOUT_SOURCE_LOCAL_OK",
+  "results": [
+    {
+      "name": "actual recovered/current placement translation validation region and grid helpers",
+      "count": 897,
+      "result": "PASS"
+    },
+    {
+      "name": "source-equivalent valid overlap road locked flag immovable and outside scenarios",
+      "count": 16,
+      "result": "PASS"
+    },
+    {
+      "name": "actual production callbacks and supplied stale/progress presentation in English/Japanese",
+      "count": 16,
+      "result": "PASS"
+    },
+    {
+      "name": "production zoom callbacks use recovered 4px step and 24px percentage base",
+      "count": 2,
+      "result": "PASS"
+    },
+    {
+      "name": "source-located 500ms draft debounce, key cleanup, and native-confirm fence",
+      "count": 4,
+      "result": "PASS"
+    }
+  ],
+  "current": {
+    "pagesSha256": "837B342E6FBDE43B7C70253CA1D1B9FDE4866DE9400095AE262F47A52D098910",
+    "contractsSha256": "CD77E49A7ADC33D0EB6607870C7F6AA2E3570FBCC0A7E14060326BDFA3F55635"
+  },
+  "limits": "Recovered helper functions are executed directly against the source-shaped fixture and compared to production helpers. Browser/native-provider proof is separate. No native city-layout provider, persistence, apply job, gameplay action, or original post-auth pixel comparison is exercised."
+}
