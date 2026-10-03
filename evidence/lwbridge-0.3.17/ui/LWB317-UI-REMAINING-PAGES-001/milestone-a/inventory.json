@@ -1,0 +1,107 @@
+{
+  "inventory": [
+    {
+      "page": "City Layout",
+      "count": 16,
+      "branches": [
+        "offline",
+        "online loading / no-data-or-error",
+        "populated header/actions",
+        "stale draft warning + discard",
+        "outside-city warning",
+        "grid/zoom/fit/name preview",
+        "box/add/toggle selection",
+        "single/group pointer movement",
+        "local placement rejection",
+        "Escape cleanup",
+        "Undo/Redo + Ctrl/Cmd shortcuts",
+        "restore-initial history transition",
+        "500 ms draft persistence effect",
+        "server validation result",
+        "apply confirm/progress/cancel/result polling",
+        "inspector/changes/footer"
+      ],
+      "locators": [
+        "City.ue.panel",
+        "City.ne.setPlacement",
+        "City.m.occupiedAtTarget",
+        "City.re.validate"
+      ],
+      "unavailable": "Native city layout/profile draft providers and apply job are outside this UI-only assignment; preview fixtures may supply source-shaped data and inert acknowledgements."
+    },
+    {
+      "page": "Hotkeys",
+      "count": 9,
+      "branches": [
+        "seven-card order and recovered locale keys",
+        "connected/disconnected status text",
+        "initial config loading",
+        "config load failure",
+        "boolean shortcut toggle",
+        "attack item speedup edit",
+        "attack diamond speedup edit",
+        "single-field save pending / unrelated-field preservation",
+        "save success or rollback+error"
+      ],
+      "locators": [
+        "Hotkey._.panel"
+      ],
+      "unavailable": "No OS/global listener or gameplay hotkey injection is enabled; the supplied local config interaction is preview-only."
+    },
+    {
+      "page": "Mini Games",
+      "count": 13,
+      "branches": [
+        "shared Frontline config card",
+        "config loading/failure while non-config cards remain",
+        "treasure chest persisted config toggle + offline/pending gate",
+        "Land idle/opening/success/failure presentation",
+        "Sheep running vs stopped action label",
+        "Sheep current level conditional",
+        "Sheep elapsed conditional",
+        "Sheep planned move progress",
+        "Sheep solving/executing/completed",
+        "Sheep daily/all/activity-ended",
+        "Sheep ui-open/manual-conflict/solve-failed/unsupported",
+        "Sheep refreshing/starting/opening/initial-delay processing",
+        "Sheep action failure"
+      ],
+      "locators": [
+        "Index.route.miniGames",
+        "Hotkey.h.sheepStatusKey",
+        "Hotkey.g.formatSheepElapsed",
+        "Hotkey._.panel"
+      ],
+      "unavailable": "Land and Sheep native producers/actions remain inert; controlled supplied runtime state is used for UI proof."
+    },
+    {
+      "page": "Settings",
+      "count": 16,
+      "branches": [
+        "visual metrics loading",
+        "visual metrics loaded defaults",
+        "optimistic single-field edit + both-controls pending disable",
+        "visual save success",
+        "visual load/save error",
+        "conditional account/profile focus row",
+        "feedback idle",
+        "feedback exporting progress event",
+        "feedback success size/path",
+        "feedback failure",
+        "feedback canceled-to-idle",
+        "updater idle/checking/upToDate/available",
+        "updater downloading progress/opening",
+        "updater translated/default error",
+        "published date/release notes/download directory",
+        "manual check cooldown + download action predicate"
+      ],
+      "locators": [
+        "Settings.f.formatBytes",
+        "Settings.p.feedback",
+        "Settings.m.panel",
+        "Index.Rn.updatePanel"
+      ],
+      "unavailable": "Diagnostic archive generation and updater check/download/open providers are fenced; preview state supplies presentation only."
+    }
+  ]
+}

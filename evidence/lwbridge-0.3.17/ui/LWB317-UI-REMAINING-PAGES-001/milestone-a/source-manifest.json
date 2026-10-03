@@ -1,0 +1,115 @@
+{
+  "workItem": "LWB317-UI-REMAINING-PAGES-001",
+  "referenceExecutable": "C:/Users/chimw/OneDrive/Desktop/Github/LW/lwbridge-0.3.17.exe",
+  "referenceExecutableSha256": "4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783",
+  "assets": [
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/CityLayoutPanel-DoNWkywK.js",
+      "sha256": "C1B83A0B6524EF9AF510A114DF9679DAE0260D34B633659EB1A5FFB2AC5CF49C"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/HotkeyPanel-XA8idRHB.js",
+      "sha256": "9BD7C11768693705391060D4F79119B5EA4A5229E042758165D3AD751A961BE6"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/SettingsPanel-DqxIWv_E.js",
+      "sha256": "129CCBACDD5F309070A3E2728912165006F0FA35FCF748D56F7AA9500D690C2B"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-BVfnK1wp.js",
+      "sha256": "44C4E4043825B7DB296B64171951B27176F8850FF8D7D337CC991DF4765524C6"
+    }
+  ],
+  "locators": {
+    "City.te.placementMap": {
+      "asset": "CityLayoutPanel-DoNWkywK.js",
+      "utf8ByteOffset": 194,
+      "utf8ByteLength": 66,
+      "sha256": "D6B4A91EADB250C5D8E645410D236507B302FF98CD1445A997C5639FC9566FC5"
+    },
+    "City.ne.setPlacement": {
+      "asset": "CityLayoutPanel-DoNWkywK.js",
+      "utf8ByteOffset": 260,
+      "utf8ByteLength": 158,
+      "sha256": "CEDC8CC403827D69BE99B0CA5772DAECB122D31F71AEFAED84ADAE35043DCA8C"
+    },
+    "City.m.occupiedAtTarget": {
+      "asset": "CityLayoutPanel-DoNWkywK.js",
+      "utf8ByteOffset": 418,
+      "utf8ByteLength": 224,
+      "sha256": "FD24529350F4BED305C449F5D5D796C01325ECDBF1854F24BB111402EB04986B"
+    },
+    "City.re.validate": {
+      "asset": "CityLayoutPanel-DoNWkywK.js",
+      "utf8ByteOffset": 642,
+      "utf8ByteLength": 741,
+      "sha256": "E172576298763E32A18B42DB6D47C7CC5151B6EBB399B352511ADCD755BC7E5B"
+    },
+    "City.ie.regionForPoint": {
+      "asset": "CityLayoutPanel-DoNWkywK.js",
+      "utf8ByteOffset": 1383,
+      "utf8ByteLength": 87,
+      "sha256": "5F68E10CCFA4F93E20825E161362F67DD10F4ABB20DFE479FB6A3FBB836AE3BA"
+    },
+    "City.oe.gridRow": {
+      "asset": "CityLayoutPanel-DoNWkywK.js",
+      "utf8ByteOffset": 1550,
+      "utf8ByteLength": 35,
+      "sha256": "8C7756AE94C23018A66560A5B19D33FF11A58BF99158775A0EE69CB920A2AB05"
+    },
+    "City.ue.panel": {
+      "asset": "CityLayoutPanel-DoNWkywK.js",
+      "utf8ByteOffset": 1752,
+      "utf8ByteLength": 17540,
+      "sha256": "5A778C995B935084B0C42F9236085F650996EECB3ACED7923733F3A271709BF6"
+    },
+    "Hotkey.h.sheepStatusKey": {
+      "asset": "HotkeyPanel-XA8idRHB.js",
+      "utf8ByteOffset": 1261,
+      "utf8ByteLength": 752,
+      "sha256": "29E0523EA5B3C71DE685280577AC5A3835243E9536730402C80127CDD2C4807B"
+    },
+    "Hotkey.g.formatSheepElapsed": {
+      "asset": "HotkeyPanel-XA8idRHB.js",
+      "utf8ByteOffset": 2013,
+      "utf8ByteLength": 214,
+      "sha256": "51702DE86E8458B78774340576421A2040F343C021FB4B7472AC6719B31B5A65"
+    },
+    "Hotkey._.panel": {
+      "asset": "HotkeyPanel-XA8idRHB.js",
+      "utf8ByteOffset": 2227,
+      "utf8ByteLength": 5505,
+      "sha256": "FF42B27BE3D36E89DE55586FF11016D4A2605E242F719D529906308386430589"
+    },
+    "Settings.f.formatBytes": {
+      "asset": "SettingsPanel-DqxIWv_E.js",
+      "utf8ByteOffset": 127,
+      "utf8ByteLength": 114,
+      "sha256": "F815961410F9A5BB7F184E9FE5B935253B76B8CA9B238FDE24F16CFC3D2A307A"
+    },
+    "Settings.p.feedback": {
+      "asset": "SettingsPanel-DqxIWv_E.js",
+      "utf8ByteOffset": 241,
+      "utf8ByteLength": 1557,
+      "sha256": "6DB6E3F905F852D0E4547F043F2ADBF79EBC5EAEAB4DB4AB97CA69B80410A917"
+    },
+    "Settings.m.panel": {
+      "asset": "SettingsPanel-DqxIWv_E.js",
+      "utf8ByteOffset": 1798,
+      "utf8ByteLength": 1848,
+      "sha256": "9DE561FDCE4159A6985E0F648C3CE3353C0159C0344F067BF1A825B7710EE0A5"
+    },
+    "Index.Rn.updatePanel": {
+      "asset": "index-BVfnK1wp.js",
+      "utf8ByteOffset": 210389,
+      "utf8ByteLength": 2833,
+      "sha256": "16EAFB54FE9D3516F686C4F9009F0AF807B1C5ADB5C88FA4470024EEF951B38B"
+    },
+    "Index.route.miniGames": {
+      "asset": "index-BVfnK1wp.js",
+      "utf8ByteOffset": 375154,
+      "utf8ByteLength": 182,
+      "sha256": "50AAA5D6C5AF246BAB1DB0CA27DD24B519C45B7832EA93F0215F354ED1A24A91"
+    }
+  }
+}
