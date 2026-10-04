@@ -1,0 +1,9 @@
+{
+  "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js",
+  "assetSha256": "ce74345518be72e417a510b982c591729e5683f69751e190805598c4c05d3089",
+  "byteOffset": 39114,
+  "bytes": 93,
+  "source": "catch(e){t===T.current&&(L===`treasure`&&Mn(!1),U([]),W(0),b(`map search error `+String(e)))}",
+  "baselineSha256": "46c6defd2a5d7af7a50e9587486eaede68f9020573f2ed8efe9c38287eef66df",
+  "correction": "Omit only cloned search-rejection visible query error update; original clears rows/total and logs. Other operation feedback untouched."
+}

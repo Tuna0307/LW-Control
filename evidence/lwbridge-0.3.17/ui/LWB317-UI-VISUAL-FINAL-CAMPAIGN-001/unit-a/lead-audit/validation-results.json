@@ -1,0 +1,170 @@
+{
+  "result": "LEAD_A_B_EVIDENCE_REPLAY_PASS",
+  "inputFiles": 821,
+  "decodedSubmittedPairs": 28,
+  "immutableBaselineFailures": [
+    {
+      "unit": "unit-b",
+      "pair": "city-error-en-dark",
+      "changedPixels": 99918,
+      "outsideNativeControlPixels": 99918,
+      "nativeMasks": [],
+      "outsideBBox": [
+        175,
+        365,
+        1268,
+        503
+      ]
+    }
+  ],
+  "correctedUnmaskedExactPairs": 3,
+  "freshDescendantPairs": 28,
+  "independentOriginalCatalogValues": 12447,
+  "descendantDifferences": [
+    {
+      "unit": "unit-a",
+      "pair": "treasure-en-light-desktop",
+      "count": 8
+    },
+    {
+      "unit": "unit-a",
+      "pair": "treasure-en-dark-desktop",
+      "count": 8
+    },
+    {
+      "unit": "unit-a",
+      "pair": "treasure-ja-light-375",
+      "count": 8
+    },
+    {
+      "unit": "unit-a",
+      "pair": "treasure-ja-dark-desktop",
+      "count": 8
+    },
+    {
+      "unit": "unit-a",
+      "pair": "dispatch-empty-en-light",
+      "count": 0
+    },
+    {
+      "unit": "unit-a",
+      "pair": "dispatch-populated-en-light",
+      "count": 0
+    },
+    {
+      "unit": "unit-a",
+      "pair": "ghost-empty-en-light",
+      "count": 0
+    },
+    {
+      "unit": "unit-a",
+      "pair": "ghost-populated-en-light",
+      "count": 0
+    },
+    {
+      "unit": "unit-a",
+      "pair": "dispatch-empty-ja-dark",
+      "count": 0
+    },
+    {
+      "unit": "unit-a",
+      "pair": "dispatch-populated-ja-dark",
+      "count": 0
+    },
+    {
+      "unit": "unit-a",
+      "pair": "ghost-empty-ja-dark",
+      "count": 0
+    },
+    {
+      "unit": "unit-a",
+      "pair": "ghost-populated-ja-dark",
+      "count": 0
+    },
+    {
+      "unit": "unit-b",
+      "pair": "city-populated-en-light",
+      "count": 868
+    },
+    {
+      "unit": "unit-b",
+      "pair": "resource-populated-ja-dark",
+      "count": 666
+    },
+    {
+      "unit": "unit-b",
+      "pair": "monster-populated-en-dark",
+      "count": 709
+    },
+    {
+      "unit": "unit-b",
+      "pair": "truck-populated-ja-light-375",
+      "count": 1031
+    },
+    {
+      "unit": "unit-b",
+      "pair": "railway-populated-en-light",
+      "count": 925
+    },
+    {
+      "unit": "unit-b",
+      "pair": "dispatch-populated-ja-dark",
+      "count": 979
+    },
+    {
+      "unit": "unit-b",
+      "pair": "ghost-populated-en-dark",
+      "count": 928
+    },
+    {
+      "unit": "unit-b",
+      "pair": "treasure-populated-ja-light-375",
+      "count": 797
+    },
+    {
+      "unit": "unit-b",
+      "pair": "city-empty-en-light",
+      "count": 736
+    },
+    {
+      "unit": "unit-b",
+      "pair": "city-loading-ja-dark",
+      "count": 736
+    },
+    {
+      "unit": "unit-b",
+      "pair": "city-error-en-dark",
+      "count": 667
+    },
+    {
+      "unit": "unit-b",
+      "pair": "scheduled-empty-en-light",
+      "count": 835
+    },
+    {
+      "unit": "unit-b",
+      "pair": "scheduled-populated-ja-dark",
+      "count": 2538
+    },
+    {
+      "unit": "unit-b",
+      "pair": "scheduled-conditional-en-dark",
+      "count": 3088
+    },
+    {
+      "unit": "unit-b",
+      "pair": "auto-configured-en-dark",
+      "count": 1
+    },
+    {
+      "unit": "unit-b",
+      "pair": "auto-configured-ja-light-375",
+      "count": 8
+    }
+  ],
+  "limits": [
+    "Submitted City error remains an immutable failing baseline; three corrected source-rendered pairs now pass without any mask.",
+    "Raw descendant comparisons retain structural/accessibility/native-disabled differences rather than claiming all descendants identical.",
+    "This read-only validator proves current pinned submitted/corrected HTML evidence, not global source/local or native runtime completeness."
+  ]
+}

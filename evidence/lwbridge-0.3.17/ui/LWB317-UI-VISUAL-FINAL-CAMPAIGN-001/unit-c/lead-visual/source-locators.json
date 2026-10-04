@@ -1,0 +1,94 @@
+{
+  "locators": [
+    {
+      "asset": "AutomationPanel-BJ0gIqFh.js",
+      "assetSha256": "6db2328191af33e5631d507271c36d7008b287daa7c8cd1a957b23ef6f871725",
+      "marker": "automation.chatClaimDescription",
+      "utf8ByteOffset": 37144,
+      "bytes": 1120,
+      "sha256": "5828980178abbdf17fb8ae46365c0d58992da8fd6162b6c9f5fadfb01e994671",
+      "source": "spatchSquads??[],ee=new Set(u),d=[...u,...Ut.filter(e=>!ee.has(e))];return(0,S.jsxs)(y,{online:l,title:c,description:M(`automation.chatClaimDescription`,{type:M(c)}),state:O(r?.lastResult?.state,i.enabled),enabled:i.enabled,disabled:!l||le===e,onToggle:e=>s({enabled:e},!0),actionLabel:`common.runNow`,actionBusy:le===e,onAction:()=>void Ur(e),summaryRows:[[`automation.pendingClaims`,r?.pendingCount],n?[`automation.treasureDispatchPending`,r?.dispatchPendingCount]:[`automation.latestResult`,rt[e]||(r?.lastResult?.state===`success`?`common.success`:r?.lastResult?.state===`failed`?`common.failed`:null)]],error:tt[e]||void 0,children:[(0,S.jsxs)(`section`,{className:`automation-settings-section`,children:[(0,S.jsx)(`h3`,{children:M(`automation.section.claim`)}),n&&(0,S.jsx)(`p`,{className:`hint`,children:M(`automation.treasureTargetDelayHint`)}),(0,S.jsxs)(`div`,{className:`automation-form-grid`,children:[(0,S.jsxs)(`label`,{children:[M(`automation.minDelaySeconds`),(0,S.jsx)(`input`,{type:`number`,min:0,max:n?600:60,step:.01,value:i.min,onChange:e=>s({min:e.target.value}),onBlur:()=>z(o)})]}),(0,S.jsxs)(`la"
+    },
+    {
+      "asset": "AutomationPanel-BJ0gIqFh.js",
+      "assetSha256": "6db2328191af33e5631d507271c36d7008b287daa7c8cd1a957b23ef6f871725",
+      "marker": "automation.railwayDepartWhenTicketsInsufficient",
+      "utf8ByteOffset": 68273,
+      "bytes": 1120,
+      "sha256": "c9b177c7d2007af8c5a32596725f1b4c902981f89828ca141a593758e87cea04",
+      "source": "-section`,children:[(0,S.jsx)(`h3`,{children:M(`automation.section.departure`)}),(0,S.jsx)(g,{variant:`checkbox`,label:`automation.railwayDepartWhenTicketsInsufficient`,checked:lr,disabled:$(`railway`)||X?.running,onChange:e=>{W(`railway`,{departWhenTicketsInsufficient:e})}})]})]}),(0,S.jsxs)(y,{online:l,title:`automation.secretTask.title`,description:`automation.secretTask.description`,state:O(Z?.state,fr),enabled:ur,active:fr,disabled:$(`dispatch`),onToggle:e=>{W(`dispatch`,{autoExecute:e})},actionLabel:Z?.running?`common.stop`:`automation.dispatchAll`,actionBusy:_===`dispatch`,onAction:()=>Ie(`dispatch`,Z?.running===!0,{runNow:!0,weeklyQualities:wr}),summaryRows:[[`automation.dispatched`,Z?.dispatched],[`automation.pendingClaims`,Z?.pendingClaims]],statusRows:[[`automation.nextRun`,fr?E(Z?.nextScheduledAt,j):`-`],[`automation.qualifiedTotal`,`${D(Z?.qualified??Fr?.qualified??0)} / ${D(Z?.available??Fr?.available??0)}`],[`automation.dispatched`,D(Z?.dispatched??0)],[`automation.refreshed`,D(Z?.refreshed??0)],[`automation.claimed`,D(Z?.claimed??0)],[`automation.pendingClaims`,D(Z?.pendingClaims??0)],[`"
+    },
+    {
+      "asset": "AutomationPanel-BJ0gIqFh.js",
+      "assetSha256": "6db2328191af33e5631d507271c36d7008b287daa7c8cd1a957b23ef6f871725",
+      "marker": "automation.ghost.autoClaimRewards",
+      "utf8ByteOffset": 74667,
+      "bytes": 721,
+      "sha256": "b26d33cd8d63248d6f816ae4fc69f3818de65e1e1b2b10431f96797ba77f5b37",
+      "source": "e})}}),(0,S.jsx)(`span`,{children:M(`automation.ghost.filter.${e}`)})]},e))})]}),(0,S.jsx)(g,{variant:`checkbox`,label:`automation.ghost.autoClaimRewards`,checked:hr,disabled:$(`ghostRecon`),onChange:e=>{W(`ghostRecon`,{autoClaimRewards:e})}}),(0,S.jsxs)(`div`,{className:`automation-inline-status`,children:[(0,S.jsxs)(`span`,{children:[M(`automation.ghost.ownPending`),`: `,D(kn?.ownPending??0)]}),(0,S.jsxs)(`span`,{children:[M(`automation.ghost.allianceCandidates`),`: `,D(kn?.allianceCandidates??0)]}),(0,S.jsxs)(`span`,{children:[M(`automation.claimed`),`: `,D(kn?.claimed??0)]})]})]})]})})]})]})}export{Ae as AutomationPanel,E as formatAutomationNextTime,Se as reorderSquadPriority,Te as usesTrainRewardSelection};"
+    },
+    {
+      "asset": "AutomationPanel-BJ0gIqFh.js",
+      "assetSha256": "6db2328191af33e5631d507271c36d7008b287daa7c8cd1a957b23ef6f871725",
+      "marker": "automation.autoCollectRewards",
+      "utf8ByteOffset": 49034,
+      "bytes": 1120,
+      "sha256": "e98de861923e26015e372478ed6dccede20cbd22f140d07918d50d9d11f27049",
+      "source": "`automation.construction.targetHint`:`automation.construction.selectTypes`)})]}),(0,S.jsx)(g,{variant:`checkbox`,label:`automation.autoCollectRewards`,checked:jn,disabled:$(`construction`),onChange:e=>{W(`construction`,{autoClaimCompleted:e})}}),(0,S.jsx)(`div`,{className:`automation-actions`,children:(0,S.jsxs)(`label`,{children:[M(`automation.maxBuilders`),(0,S.jsx)(`input`,{type:`number`,min:1,max:Nn,step:1,value:vt,disabled:$(`construction`),onChange:e=>{let t=e.target.value,n=Number(t);yt(t),Number.isInteger(n)&&n>=1&&n<=Nn?G(`construction:maxBuilders`,`construction`,{maxBuilders:n}):R(`construction:maxBuilders`)?.pause()},onBlur:()=>z(`construction:maxBuilders`)})]})})]}),(0,S.jsx)(y,{online:l,title:`automation.stamina.title`,description:`automation.stamina.description`,state:O(xn?.state,Fn),enabled:Fn,disabled:$(`stamina`),onToggle:e=>A(`stamina`,e),statusRows:[[`automation.claimedToday`,`${D(xn?.todayCount)} / ${D(xn?.dailyLimit)}`],[`automation.processed`,D(xn?.processed??0)],[`automation.nextClaim`,E(xn?.nextClaimAt??xn?.nextRunAt,j)]]}),(0,S.jsx)(y,{online:l,title:`automation.treatment.title`"
+    },
+    {
+      "asset": "AutomationPanel-BJ0gIqFh.js",
+      "assetSha256": "6db2328191af33e5631d507271c36d7008b287daa7c8cd1a957b23ef6f871725",
+      "marker": "automation.allianceGatherAvailable",
+      "utf8ByteOffset": 64565,
+      "bytes": 1120,
+      "sha256": "a15376e99e88c06bb6e208e71d822a7b23ca888bac4c6fc91be2e67ad340d8c2",
+      "source": "tion-status-grid`,children:[(0,S.jsxs)(`div`,{className:`automation-status-row`,children:[(0,S.jsx)(`span`,{children:M(`automation.allianceGatherAvailable`)}),(0,S.jsx)(`strong`,{children:D(On?.available??0)})]}),(0,S.jsxs)(`div`,{className:`automation-status-row`,children:[(0,S.jsx)(`span`,{children:M(`automation.dispatched`)}),(0,S.jsx)(`strong`,{children:D(On?.dispatched??0)})]}),(0,S.jsxs)(`div`,{className:`automation-status-row`,children:[(0,S.jsx)(`span`,{children:M(`automation.lastRun`)}),(0,S.jsx)(`strong`,{children:T(On?.lastRunAt,j)})]})]}),(0,S.jsx)(`p`,{className:`muted`,children:M(`automation.allianceGatherSquadPriority`)}),(0,S.jsx)(`div`,{className:`automation-compact-choice-group automation-squad-priority`,role:`group`,\"aria-label\":M(`automation.allianceGatherSquadPriority`),children:sr.map(e=>{let t=or.has(e);return(0,S.jsxs)(`div`,{className:`automation-squad-priority-item${t?` selected`:``}${jt===e?` dragging`:``}${Nt===e?` drag-over`:``}`,draggable:t,onDragStart:n=>{t&&(n.dataTransfer.effectAllowed=`move`,n.dataTransfer.setData(`text/plain`,String(e)),Mt(e))},onDragOver:n=>{!t||jt==="
+    },
+    {
+      "asset": "AutomationPanel-BJ0gIqFh.js",
+      "assetSha256": "6db2328191af33e5631d507271c36d7008b287daa7c8cd1a957b23ef6f871725",
+      "marker": "automation-selection-mode-choices",
+      "utf8ByteOffset": 54232,
+      "bytes": 1120,
+      "sha256": "a9a5facd6f1cab4f2810d6bfbbe7fba1e1a537f3359d4c1d8cccdb538adb64a5",
+      "source": ":`muted`,children:M(`automation.normalCarriageHint`)}),(0,S.jsx)(`fieldset`,{className:`automation-compact-choice-group automation-selection-mode-choices`,\"aria-label\":M(`automation.normalCarriageSelection`),children:[`reward`,`fixed`].map(e=>(0,S.jsxs)(`label`,{className:`automation-compact-choice`,children:[(0,S.jsx)(`input`,{type:`radio`,name:`train-normal-selection-mode`,checked:qn===e,disabled:$(`allianceTrainRide`),onChange:()=>{W(`allianceTrainRide`,{selectionMode:e})}}),(0,S.jsx)(`span`,{children:M(e===`reward`?`automation.rewardSelectionMode`:`automation.fixedSelectionMode`)})]},`normal-mode-${e}`))}),qn===`fixed`&&(0,S.jsxs)(`fieldset`,{className:`automation-compact-choice-group automation-carriage-choices`,\"aria-label\":M(`automation.normalCarriageSelection`),children:[(0,S.jsxs)(`label`,{className:`automation-compact-choice`,children:[(0,S.jsx)(`input`,{type:`checkbox`,disabled:!0}),(0,S.jsx)(`span`,{children:M(`automation.driver`)})]}),xe.map(e=>(0,S.jsxs)(`label`,{className:`automation-compact-choice`,children:[(0,S.jsx)(`input`,{type:`checkbox`,checked:Gn.includes(e),disabled:$(`allianceTr"
+    },
+    {
+      "asset": "AutomationPanel-BJ0gIqFh.js",
+      "assetSha256": "6db2328191af33e5631d507271c36d7008b287daa7c8cd1a957b23ef6f871725",
+      "marker": "automation-reward-drag-handle",
+      "utf8ByteOffset": 57333,
+      "bytes": 1120,
+      "sha256": "9961fcb3d39781f4f61bc38a6aa1980325263365426a1ade8263d1943084fee7",
+      "source": "isabled:t===H.length-1,onClick:()=>sn(e.key,1),children:(0,S.jsx)(v,{name:`arrow-down`})}),(0,S.jsx)(`span`,{className:`automation-reward-drag-handle`,\"aria-hidden\":`true`,children:(0,S.jsx)(v,{name:`drag`})})]})]},e.key)})]})]}),(0,S.jsxs)(`div`,{className:`automation-settings-section`,children:[(0,S.jsx)(`strong`,{children:M(`automation.vipCarriageSelection`)}),(0,S.jsx)(g,{variant:`checkbox`,label:`automation.autoAcceptTrainVip`,checked:Wn,disabled:$(`allianceTrainRide`),onChange:e=>{W(`allianceTrainRide`,{autoAcceptVip:e})}}),(0,S.jsx)(`span`,{className:`muted`,children:M(`automation.vipCarriageHint`)}),(0,S.jsx)(`fieldset`,{className:`automation-compact-choice-group automation-selection-mode-choices`,\"aria-label\":M(`automation.vipCarriageSelection`),children:[`reward`,`fixed`].map(e=>(0,S.jsxs)(`label`,{className:`automation-compact-choice`,children:[(0,S.jsx)(`input`,{type:`radio`,name:`train-vip-selection-mode`,checked:Jn===e,disabled:$(`allianceTrainRide`),onChange:()=>{W(`allianceTrainRide`,{vipSelectionMode:e})}}),(0,S.jsx)(`span`,{children:M(e===`reward`?`automation.rewardSelectionMode`:`auto"
+    },
+    {
+      "asset": "AutomationPanel-BJ0gIqFh.js",
+      "assetSha256": "6db2328191af33e5631d507271c36d7008b287daa7c8cd1a957b23ef6f871725",
+      "marker": "Nn=Math.max(1,K?.totalBuilders??20)",
+      "utf8ByteOffset": 30283,
+      "bytes": 1120,
+      "sha256": "76352c4952d1f11cba92fb6dbd1b86db6ce281e899feca292c91373df42dbb20",
+      "source": "?.tasks.ghostRecon,An=F?.construction?.enabled??K?.enabled??!1,jn=F?.construction?.autoClaimCompleted??!0,Mn=Number(vt),Nn=Math.max(1,K?.totalBuilders??20),Pn=Number.isInteger(Mn)&&Mn>=1&&Mn<=Nn,Fn=F?.stamina?.enabled??xn?.enabled??!1,In=F?.treatment?.enabled??J?.enabled??!1,Ln=Number($e),Rn=Number.isInteger(Ln)&&Ln>=1&&Ln<=1e6,zn=F?.allianceDonate?.enabled??Sn?.enabled??!1,Bn=F?.officialPosition?.enabled??Cn?.enabled??!1,Vn=Number(bt),Hn=Vn===0||ve.some(e=>e.id===Vn),Un=F?.allianceTrainRide?.enabled??Y?.enabled??!1,Wn=F?.allianceTrainRide?.autoAcceptVip??!1,Gn=(F?.allianceTrainRide?.fixedCarriageIds??[]).filter(e=>e>=1&&e<=4),Kn=(F?.allianceTrainRide?.vipFixedCarriageIds??[]).filter(e=>e>=1&&e<=4),qn=F?.allianceTrainRide?.selectionMode??(Gn.length===1?`fixed`:`reward`),Jn=F?.allianceTrainRide?.vipSelectionMode??(Kn.length===2?`fixed`:`reward`),Yn=Te(qn,Jn),Xn=Y?.rewardOptions??[],Zn=new Map(Xn.map(e=>[e.key,e])),Qn=new Set(H),$n=[...H.map(e=>Zn.get(e)).filter(e=>e!==void 0),...Xn.filter(e=>!Qn.has(e.key))];Number(Ze);let er=F?.allianceHelp?.enabled??wn?.enabled??!1,tr=F?.allianceGift?.enabled??Tn?.enab"
+    },
+    {
+      "asset": "AutomationCard-LCx_jIi7.js",
+      "assetSha256": "24ed773623c237f8219eff5443fac3ba7b55b6e99e168e52ff066faf2abe7a61",
+      "marker": "automation-config-body",
+      "utf8ByteOffset": 3625,
+      "bytes": 1120,
+      "sha256": "001fec0e77872ccf4b6be28244b73b32ac81b38392964d9cc6d4f334949a74f4",
+      "source": ":!l||u||g,onClick:_,children:S(g?`automation.runningEllipsis`:h)})]}),x&&(!f||C)&&(0,s.jsx)(`fieldset`,{id:T,className:`automation-config-body`,disabled:M,onClickCapture:N,onChangeCapture:N,onDragStartCapture:N,onDropCapture:N,children:x})]})]})}function l({title:e,description:t,summary:n,enabled:r,disabled:a,settingsOpen:o=!1,cardSelectable:c=!1,onToggle:l,onSettings:u,settingsLabel:d}){return(0,s.jsx)(`article`,{className:`automation-card monster-afk-compact-card${c?` is-selectable`:``}${o?` is-selected`:``}`,title:t,role:c?`button`:void 0,tabIndex:c?0:void 0,onClick:c?u:void 0,onKeyDown:c?e=>{(e.key===`Enter`||e.key===` `)&&(e.preventDefault(),u?.())}:void 0,children:(0,s.jsxs)(`div`,{className:`automation-card-header`,children:[(0,s.jsxs)(`div`,{children:[(0,s.jsx)(`h3`,{children:e}),(0,s.jsx)(`p`,{children:n})]}),(0,s.jsxs)(`div`,{className:`monster-afk-compact-actions`,children:[u&&(0,s.jsx)(`button`,{type:`button`,className:o?`active`:``,\"aria-label\":d,\"aria-pressed\":o,onClick:e=>{e.stopPropagation(),u()},children:c?(0,s.jsx)(i,{name:`settings`}):d}),(0,s.jsxs)(`label`,{className:`monster-afk-com"
+    },
+    {
+      "asset": "index-BVfnK1wp.js",
+      "assetSha256": "44c4e4043825b7db296b64171951b27176f8850ff8d7d337cc991df4765524c6",
+      "marker": "function Vr(",
+      "utf8ByteOffset": 330369,
+      "bytes": 1120,
+      "sha256": "ccb8ed8ecaf6de75313563ebe7d91711cbef97ee3849112e164d559fdb7cd27f",
+      "source": "value:p,children:e})}function Br(){let e=(0,b.useContext)(Rr);if(!e)throw Error(`ProfileProvider is required`);return e}function Vr({name:e}){return(0,M.jsxs)(`svg`,{className:`ui-icon${e===`favorite-filled`?` is-filled`:``}`,viewBox:`0 0 16 16`,\"aria-hidden\":`true`,focusable:`false`,children:[e===`add`&&(0,M.jsx)(`path`,{d:`M8 3v10M3 8h10`}),e===`arrow-down`&&(0,M.jsx)(`path`,{d:`M8 2.5v11M3.5 9 8 13.5 12.5 9`}),e===`arrow-up`&&(0,M.jsx)(`path`,{d:`M8 13.5v-11M3.5 7 8 2.5 12.5 7`}),e===`chevron-left`&&(0,M.jsx)(`path`,{d:`m10 3-5 5 5 5`}),e===`chevron-right`&&(0,M.jsx)(`path`,{d:`m6 3 5 5-5 5`}),e===`drag`&&(0,M.jsx)(`path`,{d:`M5 4h.01M11 4h.01M5 8h.01M11 8h.01M5 12h.01M11 12h.01`}),e===`edit`&&(0,M.jsxs)(M.Fragment,{children:[(0,M.jsx)(`path`,{d:`m3 11-.5 2.5L5 13l7.5-7.5-2-2L3 11Z`}),(0,M.jsx)(`path`,{d:`m9.5 4.5 2 2`})]}),(e===`favorite`||e===`favorite-filled`)&&(0,M.jsx)(`path`,{d:`m8 2 1.8 3.65 4.03.59-2.92 2.84.69 4.02L8 11.2l-3.6 1.9.69-4.02-2.92-2.84 4.03-.59L8 2Z`}),e===`play`&&(0,M.jsx)(`path`,{d:`m5 3 8 5-8 5V3Z`}),e===`remove`&&(0,M.jsx)(`path`,{d:`m4 4 8 8M12 4l-8 8`}),e===`settings`&&(0,"
+    }
+  ]
+}

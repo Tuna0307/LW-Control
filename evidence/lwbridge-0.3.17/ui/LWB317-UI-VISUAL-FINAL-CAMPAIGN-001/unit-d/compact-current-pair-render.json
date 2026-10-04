@@ -1,0 +1,98 @@
+{
+  "marker": "LWB317_UNIT_D_COMPACT_PAIRS",
+  "cases": [
+    {
+      "id": "en-disabled-closed",
+      "language": "en",
+      "state": "disabled-closed",
+      "narrow": true,
+      "originalHtmlSha256": "85d71ae0d4c71706e13e20c37b607d92a9190d112d604ce947494c50d5920fad",
+      "currentHtmlSha256": "85d71ae0d4c71706e13e20c37b607d92a9190d112d604ce947494c50d5920fad",
+      "rawEqual": true
+    },
+    {
+      "id": "en-disabled-open",
+      "language": "en",
+      "state": "disabled-open",
+      "narrow": true,
+      "originalHtmlSha256": "1218a2dd10a556931a69e9ecb11a795d57c4085c71cf47c872d7bcfd2e149f2e",
+      "currentHtmlSha256": "1218a2dd10a556931a69e9ecb11a795d57c4085c71cf47c872d7bcfd2e149f2e",
+      "rawEqual": true
+    },
+    {
+      "id": "en-enabled-closed",
+      "language": "en",
+      "state": "enabled-closed",
+      "narrow": true,
+      "originalHtmlSha256": "63e7e20ea81d3ab6d25c83e855887e8e237c17d84cfaee2a972a8e08070b50eb",
+      "currentHtmlSha256": "63e7e20ea81d3ab6d25c83e855887e8e237c17d84cfaee2a972a8e08070b50eb",
+      "rawEqual": true
+    },
+    {
+      "id": "en-enabled-open",
+      "language": "en",
+      "state": "enabled-open",
+      "narrow": true,
+      "originalHtmlSha256": "0c3717f273fbcde9d266b85bc7dff8b5aaeaf969bb06d8cb7da8dd55cbdd9732",
+      "currentHtmlSha256": "0c3717f273fbcde9d266b85bc7dff8b5aaeaf969bb06d8cb7da8dd55cbdd9732",
+      "rawEqual": true
+    },
+    {
+      "id": "ja-disabled-closed",
+      "language": "ja",
+      "state": "disabled-closed",
+      "narrow": true,
+      "originalHtmlSha256": "339a0653432b30a00514439cac7bf14af977d8765f6ece9acedb11e9e4ba0ba1",
+      "currentHtmlSha256": "339a0653432b30a00514439cac7bf14af977d8765f6ece9acedb11e9e4ba0ba1",
+      "rawEqual": true
+    },
+    {
+      "id": "ja-disabled-open",
+      "language": "ja",
+      "state": "disabled-open",
+      "narrow": true,
+      "originalHtmlSha256": "7386a680264730695f5d30ba656161dee90f58a33e39803babad88346fd1247d",
+      "currentHtmlSha256": "7386a680264730695f5d30ba656161dee90f58a33e39803babad88346fd1247d",
+      "rawEqual": true
+    },
+    {
+      "id": "ja-enabled-closed",
+      "language": "ja",
+      "state": "enabled-closed",
+      "narrow": true,
+      "originalHtmlSha256": "cd55557ba7b01de88e981eea9911bef6649e66b1088d695af0ac86253debc923",
+      "currentHtmlSha256": "cd55557ba7b01de88e981eea9911bef6649e66b1088d695af0ac86253debc923",
+      "rawEqual": true
+    },
+    {
+      "id": "ja-enabled-open",
+      "language": "ja",
+      "state": "enabled-open",
+      "narrow": true,
+      "originalHtmlSha256": "544248b62f35c3a04e535b8ee776a48f2f1ffe543a2d1fc879d79b74ab72306a",
+      "currentHtmlSha256": "544248b62f35c3a04e535b8ee776a48f2f1ffe543a2d1fc879d79b74ab72306a",
+      "rawEqual": true
+    }
+  ],
+  "slices": [
+    {
+      "asset": "AutomationCard-LCx_jIi7.js",
+      "name": "l",
+      "offset": 3871,
+      "length": 1199,
+      "sha256": "aa83935e41d3eb5b0e1e676259639ab8e33a407889541a97961caa0ecaba0f60"
+    },
+    {
+      "asset": "index-BVfnK1wp.js",
+      "name": "Vr",
+      "offset": 330489,
+      "length": 1287,
+      "sha256": "7d4ce469f53cac0f5b81864b48a4cf410194a0dbfdf14e5606bf93217fdf2919"
+    }
+  ],
+  "current": {
+    "path": "src/LWBridge.UI-0.3.17/src/SquadsPage.jsx",
+    "sha256": "2fb3a72b4ce79655608739f3de87d4af9186444dd76aef83a15194f42e7cde83"
+  },
+  "scope": "Executed exact original l/Vr and actual canonical compact card with independent recovered locale values, source CSS/current CSS and inert local callbacks."
+}

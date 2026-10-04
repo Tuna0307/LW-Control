@@ -1,0 +1,647 @@
+{
+  "keys": [
+    "common.actionFailed",
+    "cityLayout.applyConfirm",
+    "cityLayout.title",
+    "cityLayout.stats",
+    "common.refresh",
+    "cityLayout.undo",
+    "cityLayout.redo",
+    "cityLayout.restoreInitial",
+    "cityLayout.saveDraft",
+    "cityLayout.apply",
+    "cityLayout.stale",
+    "cityLayout.discardDraft",
+    "cityLayout.enterCity",
+    "cityLayout.region.main",
+    "cityLayout.zoom",
+    "cityLayout.zoomOut",
+    "cityLayout.zoomIn",
+    "cityLayout.fitCanvas",
+    "cityLayout.level",
+    "cityLayout.selectBuilding",
+    "cityLayout.controls.title",
+    "cityLayout.controls.boxSelect",
+    "cityLayout.controls.addSelect",
+    "cityLayout.controls.toggle",
+    "cityLayout.controls.move",
+    "cityLayout.controls.history",
+    "cityLayout.cell.available",
+    "cityLayout.cell.road",
+    "cityLayout.cell.flagOnly",
+    "cityLayout.cell.locked",
+    "cityLayout.properties",
+    "cityLayout.footprint",
+    "cityLayout.movable",
+    "common.yes",
+    "common.no",
+    "cityLayout.rule",
+    "cityLayout.rule.flag",
+    "cityLayout.rule.normal",
+    "cityLayout.validation.valid",
+    "cityLayout.validation.server",
+    "cityLayout.changes",
+    "cityLayout.noChanges",
+    "cityLayout.applyProgress",
+    "cityLayout.cancelApply",
+    "cityLayout.draftRevision",
+    "cityLayout.conflicts",
+    "common.processing",
+    "cityLayout.noData",
+    "cityLayout.offline"
+  ],
+  "values": {
+    "en": [
+      {
+        "key": "common.actionFailed",
+        "original": "The action could not be completed.",
+        "current": "The action could not be completed.",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.applyConfirm",
+        "original": "Run {count} building moves? A failure stops immediately and is not rolled back automatically.",
+        "current": "Run {count} building moves? A failure stops immediately and is not rolled back automatically.",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.title",
+        "original": "City Layout",
+        "current": "City Layout",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.stats",
+        "original": "{cells} unlocked cells · {buildings} buildings · {movable} movable",
+        "current": "{cells} unlocked cells · {buildings} buildings · {movable} movable",
+        "equal": true
+      },
+      {
+        "key": "common.refresh",
+        "original": "Refresh",
+        "current": "Refresh",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.undo",
+        "original": "Undo",
+        "current": "Undo",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.redo",
+        "original": "Redo",
+        "current": "Redo",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.restoreInitial",
+        "original": "Restore initial layout",
+        "current": "Restore initial layout",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.saveDraft",
+        "original": "Save draft",
+        "current": "Save draft",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.apply",
+        "original": "Apply to game",
+        "current": "Apply to game",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.stale",
+        "original": "The game layout changed. This draft cannot be applied directly.",
+        "current": "The game layout changed. This draft cannot be applied directly.",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.discardDraft",
+        "original": "Discard draft",
+        "current": "Discard draft",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.enterCity",
+        "original": "Return to the inner city before applying the layout.",
+        "current": "Return to the inner city before applying the layout.",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.region.main",
+        "original": "Main city",
+        "current": "Main city",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.zoom",
+        "original": "Canvas zoom",
+        "current": "Canvas zoom",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.zoomOut",
+        "original": "Zoom out",
+        "current": "Zoom out",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.zoomIn",
+        "original": "Zoom in",
+        "current": "Zoom in",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.fitCanvas",
+        "original": "Fit canvas",
+        "current": "Fit canvas",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.level",
+        "original": "Level {level}",
+        "current": "Level {level}",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.selectBuilding",
+        "original": "Select a building to view its full name",
+        "current": "Select a building to view its full name",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.controls.title",
+        "original": "Controls",
+        "current": "Controls",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.controls.boxSelect",
+        "original": "Drag a blank area: box select",
+        "current": "Drag a blank area: box select",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.controls.addSelect",
+        "original": "Shift + drag: add box selection (can start on a building)",
+        "current": "Shift + drag: add box selection (can start on a building)",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.controls.toggle",
+        "original": "Ctrl + click: add or remove",
+        "current": "Ctrl + click: add or remove",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.controls.move",
+        "original": "Drag a selected building: move the group",
+        "current": "Drag a selected building: move the group",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.controls.history",
+        "original": "Ctrl+Z undo · Ctrl+Y redo · Esc clear selection",
+        "current": "Ctrl+Z undo · Ctrl+Y redo · Esc clear selection",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.cell.available",
+        "original": "Available",
+        "current": "Available",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.cell.road",
+        "original": "Road: blocked",
+        "current": "Road: blocked",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.cell.flagOnly",
+        "original": "Flag only",
+        "current": "Flag only",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.cell.locked",
+        "original": "Locked",
+        "current": "Locked",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.properties",
+        "original": "Building properties",
+        "current": "Building properties",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.footprint",
+        "original": "Footprint",
+        "current": "Footprint",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.movable",
+        "original": "Movable",
+        "current": "Movable",
+        "equal": true
+      },
+      {
+        "key": "common.yes",
+        "original": "Yes",
+        "current": "Yes",
+        "equal": true
+      },
+      {
+        "key": "common.no",
+        "original": "No",
+        "current": "No",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.rule",
+        "original": "Placement rule",
+        "current": "Placement rule",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.rule.flag",
+        "original": "Allowed on ordinary non-road and flag-only cells",
+        "current": "Allowed on ordinary non-road and flag-only cells",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.rule.normal",
+        "original": "Roads and flag-only cells are blocked",
+        "current": "Roads and flag-only cells are blocked",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.validation.valid",
+        "original": "Local layout checks passed",
+        "current": "Local layout checks passed",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.validation.server",
+        "original": "Execution plan: {moves} moves, including {temporary} temporary moves",
+        "current": "Execution plan: {moves} moves, including {temporary} temporary moves",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.changes",
+        "original": "Pending changes ({count})",
+        "current": "Pending changes ({count})",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.noChanges",
+        "original": "No changes",
+        "current": "No changes",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.applyProgress",
+        "original": "Applying {current}/{total}",
+        "current": "Applying {current}/{total}",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.cancelApply",
+        "original": "Stop remaining moves",
+        "current": "Stop remaining moves",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.draftRevision",
+        "original": "Draft revision {revision}",
+        "current": "Draft revision {revision}",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.conflicts",
+        "original": "{count} conflicts",
+        "current": "{count} conflicts",
+        "equal": true
+      },
+      {
+        "key": "common.processing",
+        "original": "Processing",
+        "current": "Processing",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.noData",
+        "original": "No city layout data is available.",
+        "current": "No city layout data is available.",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.offline",
+        "original": "The game is disconnected, so the city layout cannot be loaded.",
+        "current": "The game is disconnected, so the city layout cannot be loaded.",
+        "equal": true
+      }
+    ],
+    "ja": [
+      {
+        "key": "common.actionFailed",
+        "original": "操作を完了できませんでした。",
+        "current": "操作を完了できませんでした。",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.applyConfirm",
+        "original": "建物を {count} 回移動しますか？失敗時は直ちに停止し、自動では元に戻しません。",
+        "current": "建物を {count} 回移動しますか？失敗時は直ちに停止し、自動では元に戻しません。",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.title",
+        "original": "都市レイアウト",
+        "current": "都市レイアウト",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.stats",
+        "original": "解放済み {cells} マス · 建物 {buildings} 棟 · 移動可能 {movable} 棟",
+        "current": "解放済み {cells} マス · 建物 {buildings} 棟 · 移動可能 {movable} 棟",
+        "equal": true
+      },
+      {
+        "key": "common.refresh",
+        "original": "更新",
+        "current": "更新",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.undo",
+        "original": "元に戻す",
+        "current": "元に戻す",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.redo",
+        "original": "やり直す",
+        "current": "やり直す",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.restoreInitial",
+        "original": "初期配置に戻す",
+        "current": "初期配置に戻す",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.saveDraft",
+        "original": "下書きを保存",
+        "current": "下書きを保存",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.apply",
+        "original": "ゲームに適用",
+        "current": "ゲームに適用",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.stale",
+        "original": "ゲーム内レイアウトが変更されたため、この下書きは適用できません。",
+        "current": "ゲーム内レイアウトが変更されたため、この下書きは適用できません。",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.discardDraft",
+        "original": "下書きを破棄",
+        "current": "下書きを破棄",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.enterCity",
+        "original": "適用前にゲームを都市内へ戻してください。",
+        "current": "適用前にゲームを都市内へ戻してください。",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.region.main",
+        "original": "中心市街地",
+        "current": "中心市街地",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.zoom",
+        "original": "キャンバスの拡大縮小",
+        "current": "キャンバスの拡大縮小",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.zoomOut",
+        "original": "縮小",
+        "current": "縮小",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.zoomIn",
+        "original": "拡大",
+        "current": "拡大",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.fitCanvas",
+        "original": "全体を表示",
+        "current": "全体を表示",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.level",
+        "original": "レベル {level}",
+        "current": "レベル {level}",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.selectBuilding",
+        "original": "建物を選択すると名前全体を表示します",
+        "current": "建物を選択すると名前全体を表示します",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.controls.title",
+        "original": "操作",
+        "current": "操作",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.controls.boxSelect",
+        "original": "空白をドラッグ：範囲選択",
+        "current": "空白をドラッグ：範囲選択",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.controls.addSelect",
+        "original": "Shift + ドラッグ：選択追加（建物上から開始可能）",
+        "current": "Shift + ドラッグ：選択追加（建物上から開始可能）",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.controls.toggle",
+        "original": "Ctrl + クリック：選択追加／解除",
+        "current": "Ctrl + クリック：選択追加／解除",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.controls.move",
+        "original": "選択済み建物をドラッグ：まとめて移動",
+        "current": "選択済み建物をドラッグ：まとめて移動",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.controls.history",
+        "original": "Ctrl+Z 元に戻す · Ctrl+Y やり直す · Esc 選択解除",
+        "current": "Ctrl+Z 元に戻す · Ctrl+Y やり直す · Esc 選択解除",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.cell.available",
+        "original": "使用可能",
+        "current": "使用可能",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.cell.road",
+        "original": "道路・配置不可",
+        "current": "道路・配置不可",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.cell.flagOnly",
+        "original": "軍旗専用",
+        "current": "軍旗専用",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.cell.locked",
+        "original": "未解放",
+        "current": "未解放",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.properties",
+        "original": "建物情報",
+        "current": "建物情報",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.footprint",
+        "original": "占有範囲",
+        "current": "占有範囲",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.movable",
+        "original": "移動可能",
+        "current": "移動可能",
+        "equal": true
+      },
+      {
+        "key": "common.yes",
+        "original": "はい",
+        "current": "はい",
+        "equal": true
+      },
+      {
+        "key": "common.no",
+        "original": "いいえ",
+        "current": "いいえ",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.rule",
+        "original": "配置ルール",
+        "current": "配置ルール",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.rule.flag",
+        "original": "道路以外の通常マスと軍旗専用マスに配置可能",
+        "current": "道路以外の通常マスと軍旗専用マスに配置可能",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.rule.normal",
+        "original": "道路と軍旗専用マスには配置不可",
+        "current": "道路と軍旗専用マスには配置不可",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.validation.valid",
+        "original": "ローカル配置チェック完了",
+        "current": "ローカル配置チェック完了",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.validation.server",
+        "original": "実行計画：{moves} 回移動、うち一時移動 {temporary} 回",
+        "current": "実行計画：{moves} 回移動、うち一時移動 {temporary} 回",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.changes",
+        "original": "適用待ち（{count}）",
+        "current": "適用待ち（{count}）",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.noChanges",
+        "original": "変更なし",
+        "current": "変更なし",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.applyProgress",
+        "original": "適用中 {current}/{total}",
+        "current": "適用中 {current}/{total}",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.cancelApply",
+        "original": "残りの移動を停止",
+        "current": "残りの移動を停止",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.draftRevision",
+        "original": "下書き版 {revision}",
+        "current": "下書き版 {revision}",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.conflicts",
+        "original": "競合 {count} 件",
+        "current": "競合 {count} 件",
+        "equal": true
+      },
+      {
+        "key": "common.processing",
+        "original": "処理中",
+        "current": "処理中",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.noData",
+        "original": "都市レイアウトデータがありません。",
+        "current": "都市レイアウトデータがありません。",
+        "equal": true
+      },
+      {
+        "key": "cityLayout.offline",
+        "original": "ゲーム未接続のため都市レイアウトを読み込めません。",
+        "current": "ゲーム未接続のため都市レイアウトを読み込めません。",
+        "equal": true
+      }
+    ]
+  }
+}

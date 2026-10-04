@@ -1,0 +1,1067 @@
+{
+  "results": [
+    {
+      "name": "en/light/1280 daily cards",
+      "actual": 7,
+      "expected": 7
+    },
+    {
+      "name": "daily/0 offline expansion is local",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "daily/0 expands",
+      "actual": "true",
+      "expected": "true"
+    },
+    {
+      "name": "daily/0 expansion roundtrip",
+      "actual": "false",
+      "expected": "false"
+    },
+    {
+      "name": "daily/1 offline expansion is local",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "daily/1 expands",
+      "actual": "true",
+      "expected": "true"
+    },
+    {
+      "name": "daily/1 expansion roundtrip",
+      "actual": "false",
+      "expected": "false"
+    },
+    {
+      "name": "daily/2 offline expansion is local",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "daily/2 expands",
+      "actual": "true",
+      "expected": "true"
+    },
+    {
+      "name": "daily/2 expansion roundtrip",
+      "actual": "false",
+      "expected": "false"
+    },
+    {
+      "name": "daily/3 offline expansion is local",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "daily/3 expands",
+      "actual": "true",
+      "expected": "true"
+    },
+    {
+      "name": "daily/3 expansion roundtrip",
+      "actual": "false",
+      "expected": "false"
+    },
+    {
+      "name": "daily/4 offline expansion is local",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "daily/4 expands",
+      "actual": "true",
+      "expected": "true"
+    },
+    {
+      "name": "daily/4 expansion roundtrip",
+      "actual": "false",
+      "expected": "false"
+    },
+    {
+      "name": "daily native run actions fenced",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "en/light/1280 alliance cards",
+      "actual": 8,
+      "expected": 8
+    },
+    {
+      "name": "alliance/0 offline expansion is local",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "alliance/0 expands",
+      "actual": "true",
+      "expected": "true"
+    },
+    {
+      "name": "alliance/0 expansion roundtrip",
+      "actual": "false",
+      "expected": "false"
+    },
+    {
+      "name": "alliance/1 offline expansion is local",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "alliance/1 expands",
+      "actual": "true",
+      "expected": "true"
+    },
+    {
+      "name": "alliance/1 expansion roundtrip",
+      "actual": "false",
+      "expected": "false"
+    },
+    {
+      "name": "alliance native run actions fenced",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "en/light/1280 gather cards",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "gather/0 offline expansion is local",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "gather/0 expands",
+      "actual": "true",
+      "expected": "true"
+    },
+    {
+      "name": "gather/0 expansion roundtrip",
+      "actual": "false",
+      "expected": "false"
+    },
+    {
+      "name": "gather native run actions fenced",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "en/light/1280 resources cards",
+      "actual": 2,
+      "expected": 2
+    },
+    {
+      "name": "resources native run actions fenced",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "en/light/1280 chat cards",
+      "actual": 3,
+      "expected": 3
+    },
+    {
+      "name": "chat/0 offline expansion is local",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "chat/0 expands",
+      "actual": "true",
+      "expected": "true"
+    },
+    {
+      "name": "chat/0 expansion roundtrip",
+      "actual": "false",
+      "expected": "false"
+    },
+    {
+      "name": "chat/1 offline expansion is local",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "chat/1 expands",
+      "actual": "true",
+      "expected": "true"
+    },
+    {
+      "name": "chat/1 expansion roundtrip",
+      "actual": "false",
+      "expected": "false"
+    },
+    {
+      "name": "chat/2 offline expansion is local",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "chat/2 expands",
+      "actual": "true",
+      "expected": "true"
+    },
+    {
+      "name": "chat/2 expansion roundtrip",
+      "actual": "false",
+      "expected": "false"
+    },
+    {
+      "name": "chat native run actions fenced",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "en/light/1280 trade cards",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "trade/0 offline expansion is local",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "trade/0 expands",
+      "actual": "true",
+      "expected": "true"
+    },
+    {
+      "name": "trade/0 expansion roundtrip",
+      "actual": "false",
+      "expected": "false"
+    },
+    {
+      "name": "trade native run actions fenced",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "en/light/1280 system cards",
+      "actual": 2,
+      "expected": 2
+    },
+    {
+      "name": "system native run actions fenced",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "ja/dark/1280 daily cards",
+      "actual": 7,
+      "expected": 7
+    },
+    {
+      "name": "daily/0 offline expansion is local",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "daily/0 expands",
+      "actual": "true",
+      "expected": "true"
+    },
+    {
+      "name": "daily/0 expansion roundtrip",
+      "actual": "false",
+      "expected": "false"
+    },
+    {
+      "name": "daily/1 offline expansion is local",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "daily/1 expands",
+      "actual": "true",
+      "expected": "true"
+    },
+    {
+      "name": "daily/1 expansion roundtrip",
+      "actual": "false",
+      "expected": "false"
+    },
+    {
+      "name": "daily/2 offline expansion is local",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "daily/2 expands",
+      "actual": "true",
+      "expected": "true"
+    },
+    {
+      "name": "daily/2 expansion roundtrip",
+      "actual": "false",
+      "expected": "false"
+    },
+    {
+      "name": "daily/3 offline expansion is local",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "daily/3 expands",
+      "actual": "true",
+      "expected": "true"
+    },
+    {
+      "name": "daily/3 expansion roundtrip",
+      "actual": "false",
+      "expected": "false"
+    },
+    {
+      "name": "daily/4 offline expansion is local",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "daily/4 expands",
+      "actual": "true",
+      "expected": "true"
+    },
+    {
+      "name": "daily/4 expansion roundtrip",
+      "actual": "false",
+      "expected": "false"
+    },
+    {
+      "name": "daily native run actions fenced",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "ja/dark/1280 alliance cards",
+      "actual": 8,
+      "expected": 8
+    },
+    {
+      "name": "alliance/0 offline expansion is local",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "alliance/0 expands",
+      "actual": "true",
+      "expected": "true"
+    },
+    {
+      "name": "alliance/0 expansion roundtrip",
+      "actual": "false",
+      "expected": "false"
+    },
+    {
+      "name": "alliance/1 offline expansion is local",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "alliance/1 expands",
+      "actual": "true",
+      "expected": "true"
+    },
+    {
+      "name": "alliance/1 expansion roundtrip",
+      "actual": "false",
+      "expected": "false"
+    },
+    {
+      "name": "alliance native run actions fenced",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "ja/dark/1280 gather cards",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "gather/0 offline expansion is local",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "gather/0 expands",
+      "actual": "true",
+      "expected": "true"
+    },
+    {
+      "name": "gather/0 expansion roundtrip",
+      "actual": "false",
+      "expected": "false"
+    },
+    {
+      "name": "gather native run actions fenced",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "ja/dark/1280 resources cards",
+      "actual": 2,
+      "expected": 2
+    },
+    {
+      "name": "resources native run actions fenced",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "ja/dark/1280 chat cards",
+      "actual": 3,
+      "expected": 3
+    },
+    {
+      "name": "chat/0 offline expansion is local",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "chat/0 expands",
+      "actual": "true",
+      "expected": "true"
+    },
+    {
+      "name": "chat/0 expansion roundtrip",
+      "actual": "false",
+      "expected": "false"
+    },
+    {
+      "name": "chat/1 offline expansion is local",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "chat/1 expands",
+      "actual": "true",
+      "expected": "true"
+    },
+    {
+      "name": "chat/1 expansion roundtrip",
+      "actual": "false",
+      "expected": "false"
+    },
+    {
+      "name": "chat/2 offline expansion is local",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "chat/2 expands",
+      "actual": "true",
+      "expected": "true"
+    },
+    {
+      "name": "chat/2 expansion roundtrip",
+      "actual": "false",
+      "expected": "false"
+    },
+    {
+      "name": "chat native run actions fenced",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "ja/dark/1280 trade cards",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "trade/0 offline expansion is local",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "trade/0 expands",
+      "actual": "true",
+      "expected": "true"
+    },
+    {
+      "name": "trade/0 expansion roundtrip",
+      "actual": "false",
+      "expected": "false"
+    },
+    {
+      "name": "trade native run actions fenced",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "ja/dark/1280 system cards",
+      "actual": 2,
+      "expected": 2
+    },
+    {
+      "name": "system native run actions fenced",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "en/dark/375 daily cards",
+      "actual": 7,
+      "expected": 7
+    },
+    {
+      "name": "daily/0 offline expansion is local",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "daily/0 expands",
+      "actual": "true",
+      "expected": "true"
+    },
+    {
+      "name": "daily/0 expansion roundtrip",
+      "actual": "false",
+      "expected": "false"
+    },
+    {
+      "name": "daily/1 offline expansion is local",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "daily/1 expands",
+      "actual": "true",
+      "expected": "true"
+    },
+    {
+      "name": "daily/1 expansion roundtrip",
+      "actual": "false",
+      "expected": "false"
+    },
+    {
+      "name": "daily/2 offline expansion is local",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "daily/2 expands",
+      "actual": "true",
+      "expected": "true"
+    },
+    {
+      "name": "daily/2 expansion roundtrip",
+      "actual": "false",
+      "expected": "false"
+    },
+    {
+      "name": "daily/3 offline expansion is local",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "daily/3 expands",
+      "actual": "true",
+      "expected": "true"
+    },
+    {
+      "name": "daily/3 expansion roundtrip",
+      "actual": "false",
+      "expected": "false"
+    },
+    {
+      "name": "daily/4 offline expansion is local",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "daily/4 expands",
+      "actual": "true",
+      "expected": "true"
+    },
+    {
+      "name": "daily/4 expansion roundtrip",
+      "actual": "false",
+      "expected": "false"
+    },
+    {
+      "name": "daily native run actions fenced",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "en/dark/375 alliance cards",
+      "actual": 8,
+      "expected": 8
+    },
+    {
+      "name": "alliance/0 offline expansion is local",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "alliance/0 expands",
+      "actual": "true",
+      "expected": "true"
+    },
+    {
+      "name": "alliance/0 expansion roundtrip",
+      "actual": "false",
+      "expected": "false"
+    },
+    {
+      "name": "alliance/1 offline expansion is local",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "alliance/1 expands",
+      "actual": "true",
+      "expected": "true"
+    },
+    {
+      "name": "alliance/1 expansion roundtrip",
+      "actual": "false",
+      "expected": "false"
+    },
+    {
+      "name": "alliance native run actions fenced",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "en/dark/375 gather cards",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "gather/0 offline expansion is local",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "gather/0 expands",
+      "actual": "true",
+      "expected": "true"
+    },
+    {
+      "name": "gather/0 expansion roundtrip",
+      "actual": "false",
+      "expected": "false"
+    },
+    {
+      "name": "gather native run actions fenced",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "en/dark/375 resources cards",
+      "actual": 2,
+      "expected": 2
+    },
+    {
+      "name": "resources native run actions fenced",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "en/dark/375 chat cards",
+      "actual": 3,
+      "expected": 3
+    },
+    {
+      "name": "chat/0 offline expansion is local",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "chat/0 expands",
+      "actual": "true",
+      "expected": "true"
+    },
+    {
+      "name": "chat/0 expansion roundtrip",
+      "actual": "false",
+      "expected": "false"
+    },
+    {
+      "name": "chat/1 offline expansion is local",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "chat/1 expands",
+      "actual": "true",
+      "expected": "true"
+    },
+    {
+      "name": "chat/1 expansion roundtrip",
+      "actual": "false",
+      "expected": "false"
+    },
+    {
+      "name": "chat/2 offline expansion is local",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "chat/2 expands",
+      "actual": "true",
+      "expected": "true"
+    },
+    {
+      "name": "chat/2 expansion roundtrip",
+      "actual": "false",
+      "expected": "false"
+    },
+    {
+      "name": "chat native run actions fenced",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "en/dark/375 trade cards",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "trade/0 offline expansion is local",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "trade/0 expands",
+      "actual": "true",
+      "expected": "true"
+    },
+    {
+      "name": "trade/0 expansion roundtrip",
+      "actual": "false",
+      "expected": "false"
+    },
+    {
+      "name": "trade native run actions fenced",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "en/dark/375 system cards",
+      "actual": 2,
+      "expected": 2
+    },
+    {
+      "name": "system native run actions fenced",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "ja/light/375 daily cards",
+      "actual": 7,
+      "expected": 7
+    },
+    {
+      "name": "daily/0 offline expansion is local",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "daily/0 expands",
+      "actual": "true",
+      "expected": "true"
+    },
+    {
+      "name": "daily/0 expansion roundtrip",
+      "actual": "false",
+      "expected": "false"
+    },
+    {
+      "name": "daily/1 offline expansion is local",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "daily/1 expands",
+      "actual": "true",
+      "expected": "true"
+    },
+    {
+      "name": "daily/1 expansion roundtrip",
+      "actual": "false",
+      "expected": "false"
+    },
+    {
+      "name": "daily/2 offline expansion is local",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "daily/2 expands",
+      "actual": "true",
+      "expected": "true"
+    },
+    {
+      "name": "daily/2 expansion roundtrip",
+      "actual": "false",
+      "expected": "false"
+    },
+    {
+      "name": "daily/3 offline expansion is local",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "daily/3 expands",
+      "actual": "true",
+      "expected": "true"
+    },
+    {
+      "name": "daily/3 expansion roundtrip",
+      "actual": "false",
+      "expected": "false"
+    },
+    {
+      "name": "daily/4 offline expansion is local",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "daily/4 expands",
+      "actual": "true",
+      "expected": "true"
+    },
+    {
+      "name": "daily/4 expansion roundtrip",
+      "actual": "false",
+      "expected": "false"
+    },
+    {
+      "name": "daily native run actions fenced",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "ja/light/375 alliance cards",
+      "actual": 8,
+      "expected": 8
+    },
+    {
+      "name": "alliance/0 offline expansion is local",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "alliance/0 expands",
+      "actual": "true",
+      "expected": "true"
+    },
+    {
+      "name": "alliance/0 expansion roundtrip",
+      "actual": "false",
+      "expected": "false"
+    },
+    {
+      "name": "alliance/1 offline expansion is local",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "alliance/1 expands",
+      "actual": "true",
+      "expected": "true"
+    },
+    {
+      "name": "alliance/1 expansion roundtrip",
+      "actual": "false",
+      "expected": "false"
+    },
+    {
+      "name": "alliance native run actions fenced",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "ja/light/375 gather cards",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "gather/0 offline expansion is local",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "gather/0 expands",
+      "actual": "true",
+      "expected": "true"
+    },
+    {
+      "name": "gather/0 expansion roundtrip",
+      "actual": "false",
+      "expected": "false"
+    },
+    {
+      "name": "gather native run actions fenced",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "ja/light/375 resources cards",
+      "actual": 2,
+      "expected": 2
+    },
+    {
+      "name": "resources native run actions fenced",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "ja/light/375 chat cards",
+      "actual": 3,
+      "expected": 3
+    },
+    {
+      "name": "chat/0 offline expansion is local",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "chat/0 expands",
+      "actual": "true",
+      "expected": "true"
+    },
+    {
+      "name": "chat/0 expansion roundtrip",
+      "actual": "false",
+      "expected": "false"
+    },
+    {
+      "name": "chat/1 offline expansion is local",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "chat/1 expands",
+      "actual": "true",
+      "expected": "true"
+    },
+    {
+      "name": "chat/1 expansion roundtrip",
+      "actual": "false",
+      "expected": "false"
+    },
+    {
+      "name": "chat/2 offline expansion is local",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "chat/2 expands",
+      "actual": "true",
+      "expected": "true"
+    },
+    {
+      "name": "chat/2 expansion roundtrip",
+      "actual": "false",
+      "expected": "false"
+    },
+    {
+      "name": "chat native run actions fenced",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "ja/light/375 trade cards",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "trade/0 offline expansion is local",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "trade/0 expands",
+      "actual": "true",
+      "expected": "true"
+    },
+    {
+      "name": "trade/0 expansion roundtrip",
+      "actual": "false",
+      "expected": "false"
+    },
+    {
+      "name": "trade native run actions fenced",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "ja/light/375 system cards",
+      "actual": 2,
+      "expected": 2
+    },
+    {
+      "name": "system native run actions fenced",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "Trade starts collapsed",
+      "actual": "false",
+      "expected": "false"
+    },
+    {
+      "name": "Trade fieldset initially hidden",
+      "actual": false,
+      "expected": false
+    },
+    {
+      "name": "Trade expands actual production state",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "Trade edit retained before collapse",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "Trade edit retained across collapse",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "Purchase tab actual retained state",
+      "actual": "true",
+      "expected": "true"
+    },
+    {
+      "name": "Trade expanded retained across category",
+      "actual": "true",
+      "expected": "true"
+    },
+    {
+      "name": "Trade purchase selection retained across category",
+      "actual": "true",
+      "expected": "true"
+    },
+    {
+      "name": "Recovered Reply switch reveals nested form",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "Reply text retained across local toggles",
+      "actual": "Fixture reply",
+      "expected": "Fixture reply"
+    },
+    {
+      "name": "Recovered Treasure dispatch reveals priority form",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "All native Run buttons remain disabled",
+      "actual": true,
+      "expected": true
+    }
+  ],
+  "consoleIssues": [],
+  "assertions": 212,
+  "limits": "Actual canonical React + local preview config callbacks. No gameplay/native action invoked. Offline expansion checked in four real locale/theme/viewport combinations; inert edit/retention states in English light."
+}

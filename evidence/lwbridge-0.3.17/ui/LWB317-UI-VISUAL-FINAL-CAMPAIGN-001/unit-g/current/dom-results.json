@@ -1,0 +1,321 @@
+{
+  "normalizedDifferencesOnly": [
+    "preview/id data attributes",
+    "explicit type=button",
+    "Settings redundant muted subtitle class; descendant styles/pixels separately checked"
+  ],
+  "cases": [
+    {
+      "id": "mini-games-active-en",
+      "equal": true
+    },
+    {
+      "id": "mini-games-offline-en",
+      "equal": true
+    },
+    {
+      "id": "mini-games-config-loading-en",
+      "equal": true
+    },
+    {
+      "id": "mini-games-load-error-en",
+      "equal": true
+    },
+    {
+      "id": "mini-games-config-saving-en",
+      "equal": true
+    },
+    {
+      "id": "mini-games-save-error-en",
+      "equal": true
+    },
+    {
+      "id": "mini-games-land-success-en",
+      "equal": true
+    },
+    {
+      "id": "mini-games-land-error-en",
+      "equal": true
+    },
+    {
+      "id": "mini-games-land-opening-en",
+      "equal": true
+    },
+    {
+      "id": "mini-games-sheep-pending-en",
+      "equal": true
+    },
+    {
+      "id": "mini-games-start-failed-en",
+      "equal": true
+    },
+    {
+      "id": "mini-games-solving-en",
+      "equal": true
+    },
+    {
+      "id": "mini-games-executing-en",
+      "equal": true
+    },
+    {
+      "id": "mini-games-completed-en",
+      "equal": true
+    },
+    {
+      "id": "mini-games-complete-en",
+      "equal": true
+    },
+    {
+      "id": "mini-games-all-complete-en",
+      "equal": true
+    },
+    {
+      "id": "mini-games-activity-ended-en",
+      "equal": true
+    },
+    {
+      "id": "mini-games-ui-open-en",
+      "equal": true
+    },
+    {
+      "id": "mini-games-conflict-en",
+      "equal": true
+    },
+    {
+      "id": "mini-games-solve-failed-en",
+      "equal": true
+    },
+    {
+      "id": "mini-games-unsupported-en",
+      "equal": true
+    },
+    {
+      "id": "mini-games-refreshing-en",
+      "equal": true
+    },
+    {
+      "id": "mini-games-starting-en",
+      "equal": true
+    },
+    {
+      "id": "mini-games-opening-en",
+      "equal": true
+    },
+    {
+      "id": "mini-games-initial-delay-en",
+      "equal": true
+    },
+    {
+      "id": "mini-games-state-error-en",
+      "equal": true
+    },
+    {
+      "id": "mini-games-active-ja",
+      "equal": true
+    },
+    {
+      "id": "mini-games-offline-ja",
+      "equal": true
+    },
+    {
+      "id": "mini-games-config-loading-ja",
+      "equal": true
+    },
+    {
+      "id": "mini-games-load-error-ja",
+      "equal": true
+    },
+    {
+      "id": "mini-games-config-saving-ja",
+      "equal": true
+    },
+    {
+      "id": "mini-games-save-error-ja",
+      "equal": true
+    },
+    {
+      "id": "mini-games-land-success-ja",
+      "equal": true
+    },
+    {
+      "id": "mini-games-land-error-ja",
+      "equal": true
+    },
+    {
+      "id": "mini-games-land-opening-ja",
+      "equal": true
+    },
+    {
+      "id": "mini-games-sheep-pending-ja",
+      "equal": true
+    },
+    {
+      "id": "mini-games-start-failed-ja",
+      "equal": true
+    },
+    {
+      "id": "mini-games-solving-ja",
+      "equal": true
+    },
+    {
+      "id": "mini-games-executing-ja",
+      "equal": true
+    },
+    {
+      "id": "mini-games-completed-ja",
+      "equal": true
+    },
+    {
+      "id": "mini-games-complete-ja",
+      "equal": true
+    },
+    {
+      "id": "mini-games-all-complete-ja",
+      "equal": true
+    },
+    {
+      "id": "mini-games-activity-ended-ja",
+      "equal": true
+    },
+    {
+      "id": "mini-games-ui-open-ja",
+      "equal": true
+    },
+    {
+      "id": "mini-games-conflict-ja",
+      "equal": true
+    },
+    {
+      "id": "mini-games-solve-failed-ja",
+      "equal": true
+    },
+    {
+      "id": "mini-games-unsupported-ja",
+      "equal": true
+    },
+    {
+      "id": "mini-games-refreshing-ja",
+      "equal": true
+    },
+    {
+      "id": "mini-games-starting-ja",
+      "equal": true
+    },
+    {
+      "id": "mini-games-opening-ja",
+      "equal": true
+    },
+    {
+      "id": "mini-games-initial-delay-ja",
+      "equal": true
+    },
+    {
+      "id": "mini-games-state-error-ja",
+      "equal": true
+    },
+    {
+      "id": "mini-games-active-ru",
+      "equal": true
+    },
+    {
+      "id": "mini-games-offline-ru",
+      "equal": true
+    },
+    {
+      "id": "mini-games-config-loading-ru",
+      "equal": true
+    },
+    {
+      "id": "mini-games-load-error-ru",
+      "equal": true
+    },
+    {
+      "id": "mini-games-config-saving-ru",
+      "equal": true
+    },
+    {
+      "id": "mini-games-save-error-ru",
+      "equal": true
+    },
+    {
+      "id": "mini-games-land-success-ru",
+      "equal": true
+    },
+    {
+      "id": "mini-games-land-error-ru",
+      "equal": true
+    },
+    {
+      "id": "mini-games-land-opening-ru",
+      "equal": true
+    },
+    {
+      "id": "mini-games-sheep-pending-ru",
+      "equal": true
+    },
+    {
+      "id": "mini-games-start-failed-ru",
+      "equal": true
+    },
+    {
+      "id": "mini-games-solving-ru",
+      "equal": true
+    },
+    {
+      "id": "mini-games-executing-ru",
+      "equal": true
+    },
+    {
+      "id": "mini-games-completed-ru",
+      "equal": true
+    },
+    {
+      "id": "mini-games-complete-ru",
+      "equal": true
+    },
+    {
+      "id": "mini-games-all-complete-ru",
+      "equal": true
+    },
+    {
+      "id": "mini-games-activity-ended-ru",
+      "equal": true
+    },
+    {
+      "id": "mini-games-ui-open-ru",
+      "equal": true
+    },
+    {
+      "id": "mini-games-conflict-ru",
+      "equal": true
+    },
+    {
+      "id": "mini-games-solve-failed-ru",
+      "equal": true
+    },
+    {
+      "id": "mini-games-unsupported-ru",
+      "equal": true
+    },
+    {
+      "id": "mini-games-refreshing-ru",
+      "equal": true
+    },
+    {
+      "id": "mini-games-starting-ru",
+      "equal": true
+    },
+    {
+      "id": "mini-games-opening-ru",
+      "equal": true
+    },
+    {
+      "id": "mini-games-initial-delay-ru",
+      "equal": true
+    },
+    {
+      "id": "mini-games-state-error-ru",
+      "equal": true
+    }
+  ]
+}

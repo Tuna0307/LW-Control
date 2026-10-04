@@ -1,0 +1,247 @@
+{
+  "tool": "playwright 1.63.0",
+  "browser": "154.0.8037.95",
+  "result": "RECORDED_UNCLASSIFIED",
+  "results": [
+    {
+      "id": "settings-en-light-1280",
+      "state": "settings-complete",
+      "lang": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900,
+      "originalElements": 43,
+      "currentElements": 43,
+      "differences": [
+        {
+          "i": 0,
+          "kind": "attrs",
+          "tag": "SECTION",
+          "text": "",
+          "original": [
+            [
+              "class",
+              "panel settings-panel"
+            ]
+          ],
+          "current": [
+            [
+              "class",
+              "panel settings-panel"
+            ],
+            [
+              "data-preview-fixture",
+              "settings-complete"
+            ]
+          ]
+        },
+        {
+          "i": 3,
+          "kind": "attrs",
+          "tag": "SPAN",
+          "text": "In-game display, application information, and client updates.",
+          "original": [],
+          "current": [
+            [
+              "class",
+              "muted"
+            ]
+          ]
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "settings-ja-dark-1280",
+      "state": "settings-complete",
+      "lang": "ja",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900,
+      "originalElements": 43,
+      "currentElements": 43,
+      "differences": [
+        {
+          "i": 0,
+          "kind": "attrs",
+          "tag": "SECTION",
+          "text": "",
+          "original": [
+            [
+              "class",
+              "panel settings-panel"
+            ]
+          ],
+          "current": [
+            [
+              "class",
+              "panel settings-panel"
+            ],
+            [
+              "data-preview-fixture",
+              "settings-complete"
+            ]
+          ]
+        },
+        {
+          "i": 3,
+          "kind": "attrs",
+          "tag": "SPAN",
+          "text": "ゲーム内表示、アプリ情報、クライアント更新の設定。",
+          "original": [],
+          "current": [
+            [
+              "class",
+              "muted"
+            ]
+          ]
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "settings-en-dark-375",
+      "state": "settings-complete",
+      "lang": "en",
+      "theme": "dark",
+      "width": 375,
+      "height": 1000,
+      "originalElements": 43,
+      "currentElements": 43,
+      "differences": [
+        {
+          "i": 0,
+          "kind": "attrs",
+          "tag": "SECTION",
+          "text": "",
+          "original": [
+            [
+              "class",
+              "panel settings-panel"
+            ]
+          ],
+          "current": [
+            [
+              "class",
+              "panel settings-panel"
+            ],
+            [
+              "data-preview-fixture",
+              "settings-complete"
+            ]
+          ]
+        },
+        {
+          "i": 3,
+          "kind": "attrs",
+          "tag": "SPAN",
+          "text": "In-game display, application information, and client updates.",
+          "original": [],
+          "current": [
+            [
+              "class",
+              "muted"
+            ]
+          ]
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "settings-ja-light-375",
+      "state": "settings-complete",
+      "lang": "ja",
+      "theme": "light",
+      "width": 375,
+      "height": 1000,
+      "originalElements": 43,
+      "currentElements": 43,
+      "differences": [
+        {
+          "i": 0,
+          "kind": "attrs",
+          "tag": "SECTION",
+          "text": "",
+          "original": [
+            [
+              "class",
+              "panel settings-panel"
+            ]
+          ],
+          "current": [
+            [
+              "class",
+              "panel settings-panel"
+            ],
+            [
+              "data-preview-fixture",
+              "settings-complete"
+            ]
+          ]
+        },
+        {
+          "i": 3,
+          "kind": "attrs",
+          "tag": "SPAN",
+          "text": "ゲーム内表示、アプリ情報、クライアント更新の設定。",
+          "original": [],
+          "current": [
+            [
+              "class",
+              "muted"
+            ]
+          ]
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "settings-ru-dark-375",
+      "state": "settings-complete",
+      "lang": "ru",
+      "theme": "dark",
+      "width": 375,
+      "height": 1000,
+      "originalElements": 43,
+      "currentElements": 43,
+      "differences": [
+        {
+          "i": 0,
+          "kind": "attrs",
+          "tag": "SECTION",
+          "text": "",
+          "original": [
+            [
+              "class",
+              "panel settings-panel"
+            ]
+          ],
+          "current": [
+            [
+              "class",
+              "panel settings-panel"
+            ],
+            [
+              "data-preview-fixture",
+              "settings-complete"
+            ]
+          ]
+        },
+        {
+          "i": 3,
+          "kind": "attrs",
+          "tag": "SPAN",
+          "text": "Настройки отображения в игре, сведения о приложении и обновления клиента.",
+          "original": [],
+          "current": [
+            [
+              "class",
+              "muted"
+            ]
+          ]
+        }
+      ],
+      "console": []
+    }
+  ]
+}

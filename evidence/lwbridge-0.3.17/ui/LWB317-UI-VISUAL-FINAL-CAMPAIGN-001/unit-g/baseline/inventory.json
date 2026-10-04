@@ -1,0 +1,527 @@
+{
+  "page": "mini-games",
+  "states": [
+    "mini-games-active",
+    "mini-games-offline",
+    "mini-games-config-loading",
+    "mini-games-load-error",
+    "mini-games-config-saving",
+    "mini-games-save-error",
+    "mini-games-land-success",
+    "mini-games-land-error",
+    "mini-games-land-opening",
+    "mini-games-sheep-pending",
+    "mini-games-start-failed",
+    "mini-games-solving",
+    "mini-games-executing",
+    "mini-games-completed",
+    "mini-games-complete",
+    "mini-games-all-complete",
+    "mini-games-activity-ended",
+    "mini-games-ui-open",
+    "mini-games-conflict",
+    "mini-games-solve-failed",
+    "mini-games-unsupported",
+    "mini-games-refreshing",
+    "mini-games-starting",
+    "mini-games-opening",
+    "mini-games-initial-delay",
+    "mini-games-state-error"
+  ],
+  "proof": "EXACT_CONTRACT; synthetic hook states supplied to actual source functions, effects intentionally inert",
+  "functions": [
+    {
+      "name": "_",
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/HotkeyPanel-XA8idRHB.js",
+      "utf8Offset": 2227,
+      "bytes": 5505,
+      "sha256": "ff42b27be3d36e89de55586ff11016d4a2605e242f719d529906308386430589"
+    },
+    {
+      "name": "h",
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/HotkeyPanel-XA8idRHB.js",
+      "utf8Offset": 1261,
+      "bytes": 752,
+      "sha256": "29e0523ea5b3c71de685280577ac5a3835243e9536730402c80127cdd2c4807b"
+    },
+    {
+      "name": "g",
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/HotkeyPanel-XA8idRHB.js",
+      "utf8Offset": 2013,
+      "bytes": 214,
+      "sha256": "51702de86e8458b78774340576421a2040f343c021fb4b7472ac6719b31b5a65"
+    }
+  ],
+  "native": "No commands, OS hotkeys, providers, diagnostics, updater or gameplay invoked",
+  "clock": 1770026400000,
+  "timezone": "Asia/Singapore",
+  "currentSource": {
+    "path": "src/LWBridge.UI-0.3.17/src/HotkeyPages.jsx",
+    "sha256": "5dae6e4ffe8875bcebc366109ad4c1e3fff690ea17273ebb50226e9107551634"
+  },
+  "originalCSS": {
+    "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-rIL9Fpht.css",
+    "sha256": "3d87e9f65b39eace6a1a254bfc90a38acb72613d1fff7236c7cee7ab9bfaf545"
+  },
+  "dependencyPaths": [
+    "unit-e/page-harness.mjs",
+    "unit-e/recover-pages.mjs"
+  ],
+  "substitutions": [
+    "State/ref seeds disclosed in page-harness.mjs",
+    "useMemo/useCallback executed synchronously; effects not executed in static source proof",
+    "Actual recovered/current GameAssetImage both rendered unresolved-source placeholder, no invented image"
+  ],
+  "statesRendered": [
+    {
+      "state": "mini-games-active",
+      "lang": "en",
+      "id": "mini-games-active-en",
+      "rawEqual": false,
+      "currentSha256": "e4e8d91b1eacedcad8037af492d4633c756ae565193d296f2d5a3da85cfcc012",
+      "originalSha256": "1fc0ac54f9dd88fe15da382fc24086b32c4ea01bf7aafc4eb3411011176f688c"
+    },
+    {
+      "state": "mini-games-offline",
+      "lang": "en",
+      "id": "mini-games-offline-en",
+      "rawEqual": false,
+      "currentSha256": "f219470585cfdbfec3f94386e7271519e8774b9e40d70248201847ed250fbb67",
+      "originalSha256": "b8bbd22bbce04e7816ef607a86b88bc19cfaee31530695ae4b5778aae03831f5"
+    },
+    {
+      "state": "mini-games-config-loading",
+      "lang": "en",
+      "id": "mini-games-config-loading-en",
+      "rawEqual": false,
+      "currentSha256": "51f204fd2c9a8cd34f3bc946a7ba0c26fb0aeb1fa6cc8898741d22b25ca67250",
+      "originalSha256": "f5d1afc4aed9b82cd8f3d01cc3b9d7bfad66b895c7405df4ab123e2a48c6de0d"
+    },
+    {
+      "state": "mini-games-load-error",
+      "lang": "en",
+      "id": "mini-games-load-error-en",
+      "rawEqual": false,
+      "currentSha256": "4751a4b60b27855ae66f2172f70d421ec4680b7af346a681717c7ccf37ac9de7",
+      "originalSha256": "d0980418e0e71a57da8b23365a9b6b8e996c728b8b0646fec4b9e1d8fe080392"
+    },
+    {
+      "state": "mini-games-config-saving",
+      "lang": "en",
+      "id": "mini-games-config-saving-en",
+      "rawEqual": false,
+      "currentSha256": "fd2fcf14bfdfbbdfded35e3ae61c58a0708f7ec2373c6b3cea6902727f1ad97d",
+      "originalSha256": "2b7851287ab32e98b65a807fcc54f076f069480769ccc5d1be9567579d533705"
+    },
+    {
+      "state": "mini-games-save-error",
+      "lang": "en",
+      "id": "mini-games-save-error-en",
+      "rawEqual": false,
+      "currentSha256": "c3639adf7f99c03f3f6c74f9401e754aecf6800329f97a1dddec2dbe0048e16c",
+      "originalSha256": "ef46798f71a59f2c93ab989e25ca08e3527c07d660aaae8560c51878bcb34426"
+    },
+    {
+      "state": "mini-games-land-success",
+      "lang": "en",
+      "id": "mini-games-land-success-en",
+      "rawEqual": false,
+      "currentSha256": "8eefe447f8003b60def584752da40899da9ef4c5d3706d8a04661b9399165698",
+      "originalSha256": "92bac6b1ab20df2ff49a5bbc40d045de6bcc36dd2c10e97269593e8178d6682e"
+    },
+    {
+      "state": "mini-games-land-error",
+      "lang": "en",
+      "id": "mini-games-land-error-en",
+      "rawEqual": false,
+      "currentSha256": "33a32dab70f2c1767e48c95c9383e5987236262594c4107ec96501ff0ff4a097",
+      "originalSha256": "19c1ac30b45a92f2d23c03113430dd8d4b085f9d4af49a834ef37b611a3d4901"
+    },
+    {
+      "state": "mini-games-land-opening",
+      "lang": "en",
+      "id": "mini-games-land-opening-en",
+      "rawEqual": false,
+      "currentSha256": "2390f41b911dd149bb13d7e1d8921d7914728b0014e882decdeb0adb39d4181c",
+      "originalSha256": "3109076efb34cb328710c6800a40f2e7593eac445a4b5d985e4419522ce28245"
+    },
+    {
+      "state": "mini-games-sheep-pending",
+      "lang": "en",
+      "id": "mini-games-sheep-pending-en",
+      "rawEqual": false,
+      "currentSha256": "4a7c0ddfdb61f6b5a632e1afce5a6969ea3fbbedf366ad8c5c0bb51e55610a7b",
+      "originalSha256": "f84322d93d9cc5c72e608a905de99ae2eca96063c703c5f8b8c6d4da7fe9549b"
+    },
+    {
+      "state": "mini-games-start-failed",
+      "lang": "en",
+      "id": "mini-games-start-failed-en",
+      "rawEqual": false,
+      "currentSha256": "7d4ae5bceeb95d5466efb73a7ae7d6ed7ede8167deefde428f6f0cba138763e6",
+      "originalSha256": "5b4640607d21a0be951bb815421163b48797b6a2207e3fd257bab93c26bd2ca1"
+    },
+    {
+      "state": "mini-games-solving",
+      "lang": "en",
+      "id": "mini-games-solving-en",
+      "rawEqual": false,
+      "currentSha256": "3d648ed8c443f9d48bbbbe394a064847623241151d5c298b3d0f83acb78c1627",
+      "originalSha256": "f1561c2e9e8ccdf0fb86955a295a0b3e19634788508af89b520115535f29b3d4"
+    },
+    {
+      "state": "mini-games-executing",
+      "lang": "en",
+      "id": "mini-games-executing-en",
+      "rawEqual": false,
+      "currentSha256": "253189bfd2c04cdab67ad15080146f5996ac03c344470f326c4e1795b1df0093",
+      "originalSha256": "7d7d9aa3bfa1a73a4dd4692a1fe69abdf04e8b197440d4dcb2d3239926439848"
+    },
+    {
+      "state": "mini-games-completed",
+      "lang": "en",
+      "id": "mini-games-completed-en",
+      "rawEqual": false,
+      "currentSha256": "991e6a316cb1c06a959a4b2a43bfe17bdeb1ce2b7fb8ec1c7e114859db1ed949",
+      "originalSha256": "c6608b535741782d8ec27b86a813f75e764fa77b19fd6ab57f8ed15c6ba6a52b"
+    },
+    {
+      "state": "mini-games-complete",
+      "lang": "en",
+      "id": "mini-games-complete-en",
+      "rawEqual": false,
+      "currentSha256": "d22a7de6fb74129f63e46cdc96b4284b35a6feebbd8cbcc132a3239d8b59de9f",
+      "originalSha256": "aaf649c66bd996b634f1560412303316b69e48fbaaee394b327ea124ae1374b8"
+    },
+    {
+      "state": "mini-games-all-complete",
+      "lang": "en",
+      "id": "mini-games-all-complete-en",
+      "rawEqual": false,
+      "currentSha256": "ef8a00fee516ebf15b8977bc314ba7f4f7923ab64ae1f72ac44ce0139b44b617",
+      "originalSha256": "fa61b46f1a50cb4b3b62dae8ebcb170933dd9195c5efd49ffc6cfc5a6b48c3c5"
+    },
+    {
+      "state": "mini-games-activity-ended",
+      "lang": "en",
+      "id": "mini-games-activity-ended-en",
+      "rawEqual": false,
+      "currentSha256": "79047c5f14b59ea4b053dd2a412497a074e7c5daf1721279e0ed63809b63dade",
+      "originalSha256": "b162c7e2de54882a6f0a123a8946ada033af3d05d0f4d87526b911743bbb480f"
+    },
+    {
+      "state": "mini-games-ui-open",
+      "lang": "en",
+      "id": "mini-games-ui-open-en",
+      "rawEqual": false,
+      "currentSha256": "94ff0b65e0bfc69bfd17071dade0b342b314e2f7173e61983be1c8fe8639cc70",
+      "originalSha256": "86cf3dc940f5da37b478aa70b4bf3198e578a44b1e63f2f59c173b1e933ea99f"
+    },
+    {
+      "state": "mini-games-conflict",
+      "lang": "en",
+      "id": "mini-games-conflict-en",
+      "rawEqual": false,
+      "currentSha256": "c54de0a6eef8086e768b9b6c1c065bce387d913dc2422e68033bfba6a6116a55",
+      "originalSha256": "f5b5355abda773496ee7bda9032ebf0104749c12458c41e254763a2c30176171"
+    },
+    {
+      "state": "mini-games-solve-failed",
+      "lang": "en",
+      "id": "mini-games-solve-failed-en",
+      "rawEqual": false,
+      "currentSha256": "a1799ead5a0d43974217777fa191cf95dab33790e5e06d0aeeee71e3ccf58aac",
+      "originalSha256": "06b7097676900748349a91bfdeaca135afd1ce21dcbc141959aa20c4304586ff"
+    },
+    {
+      "state": "mini-games-unsupported",
+      "lang": "en",
+      "id": "mini-games-unsupported-en",
+      "rawEqual": false,
+      "currentSha256": "0954179ba69f0323f9d69474365db0b219cd8c30a24542528bfcc67ef707f073",
+      "originalSha256": "2f4dcd6645138e2ce8ff8b631a3b7a0c2108c336fb8d2bb0192b2343223066ed"
+    },
+    {
+      "state": "mini-games-refreshing",
+      "lang": "en",
+      "id": "mini-games-refreshing-en",
+      "rawEqual": false,
+      "currentSha256": "ed4ba353acfdd01bad4752042c34231f4fd5a10a49e8e79ccd9935988f29b1d7",
+      "originalSha256": "0662df5256cd4fae9e2bd9a79262bece63a9d2b27558e875e4ec9e57162c7b76"
+    },
+    {
+      "state": "mini-games-starting",
+      "lang": "en",
+      "id": "mini-games-starting-en",
+      "rawEqual": false,
+      "currentSha256": "c33ddcfbc69d2a9ea84aa5b4bd42c86b56f1d6693bc2654471fabb6b14f38793",
+      "originalSha256": "57616c1fe3ff1779e2c2cab9d6a3b8d56a3f70f1c54c030d7bf26ad7536f2f85"
+    },
+    {
+      "state": "mini-games-opening",
+      "lang": "en",
+      "id": "mini-games-opening-en",
+      "rawEqual": false,
+      "currentSha256": "7f3b7d9ed57bb2ed31f25f8be5e9ae82186e0e0bc7bd589ac4a61fc7979c8ae3",
+      "originalSha256": "9baef1fbe8d2b18688693ca824454c48f551c9b3ce3ba8aa33cefd29c6d74711"
+    },
+    {
+      "state": "mini-games-initial-delay",
+      "lang": "en",
+      "id": "mini-games-initial-delay-en",
+      "rawEqual": false,
+      "currentSha256": "0df25e8b4a2f6ab58a45061817b70eccfed9af8824f92bddf56e506a3bd9f591",
+      "originalSha256": "bf1ea6ffcef17284f16925631c9241edb3315179acee4158236e6d578e66956c"
+    },
+    {
+      "state": "mini-games-state-error",
+      "lang": "en",
+      "id": "mini-games-state-error-en",
+      "rawEqual": false,
+      "currentSha256": "b1e5aec5240cae3d3b7141d3e4046bebe556c3250c7876895c2feea36e6899c8",
+      "originalSha256": "03f660f4dd45fed686c5e041293d51770a0de9801c21e32717ade477ebed9529"
+    },
+    {
+      "state": "mini-games-active",
+      "lang": "ja",
+      "id": "mini-games-active-ja",
+      "rawEqual": false,
+      "currentSha256": "8288c11cf120755ad4e9191fd812a1865728e70d97d9225bd108124795e18728",
+      "originalSha256": "fd53108d545ad4677e7cfd70b751cb9f09b45951c272a769f82d9042a2f6e9af"
+    },
+    {
+      "state": "mini-games-offline",
+      "lang": "ja",
+      "id": "mini-games-offline-ja",
+      "rawEqual": false,
+      "currentSha256": "ae6eee6125f20ecbddc27907586f6e5266d1c7bfc5a788fad2b17433c361543e",
+      "originalSha256": "da90e07f8bf122fc0ff298aa538f61384c41cd2757e8abb5512d1d058ec90f29"
+    },
+    {
+      "state": "mini-games-config-loading",
+      "lang": "ja",
+      "id": "mini-games-config-loading-ja",
+      "rawEqual": false,
+      "currentSha256": "5f511bbc8809d0ad0f2b968ca1c60ac34e509e5b756e86140646ef7b8f8d396c",
+      "originalSha256": "b482a9744fbe8b859ff9901d8a5fb6fb1d8cec7b1f3d83f652423e25d0527672"
+    },
+    {
+      "state": "mini-games-load-error",
+      "lang": "ja",
+      "id": "mini-games-load-error-ja",
+      "rawEqual": false,
+      "currentSha256": "d5ec9a67f6bb6e1a39e385d3ad0daabfe5b22e6cb2a7319b79673b638fed57b6",
+      "originalSha256": "eca3d5f5735d559125b6fe6c6b5a1794fec635cdd2192f3acb2cdfed43f5dd46"
+    },
+    {
+      "state": "mini-games-config-saving",
+      "lang": "ja",
+      "id": "mini-games-config-saving-ja",
+      "rawEqual": false,
+      "currentSha256": "b76713276f8bdfc430fbc5e7bd01184ee4ef5be9e3af8cd8cf2eacaf8647d210",
+      "originalSha256": "30ca5965b2ae4835830ee1566e0ee0d9321b77468d56621b7b035bab425f18d1"
+    },
+    {
+      "state": "mini-games-save-error",
+      "lang": "ja",
+      "id": "mini-games-save-error-ja",
+      "rawEqual": false,
+      "currentSha256": "1ce6980187d01439956f63e030aa62bcb69a82640d057fd0a6c21900582caf77",
+      "originalSha256": "8f9e8498ead8a46b721776b6e01979c5eb1c407dadde06b963a141c6a64d9e7f"
+    },
+    {
+      "state": "mini-games-land-success",
+      "lang": "ja",
+      "id": "mini-games-land-success-ja",
+      "rawEqual": false,
+      "currentSha256": "708cb55355685cc699526d833523dbf94de8e3ccdb037aea534882de85172046",
+      "originalSha256": "5f83acd4ffea9e3fbf42944dfc38b160e3f8c4654499414a73c809abedf18b82"
+    },
+    {
+      "state": "mini-games-land-error",
+      "lang": "ja",
+      "id": "mini-games-land-error-ja",
+      "rawEqual": false,
+      "currentSha256": "9f5415dde1a6ffca0fcba7863a6d813214ccc2909a871921eb86102ecad8eeab",
+      "originalSha256": "e96959dbfb823a36892936aabed078d8dd14389ef32975f902cba65f4cb85f28"
+    },
+    {
+      "state": "mini-games-land-opening",
+      "lang": "ja",
+      "id": "mini-games-land-opening-ja",
+      "rawEqual": false,
+      "currentSha256": "b165a91a459658072e1e3922d9f598f08da5fac1a5de12497f05b879d1f493e4",
+      "originalSha256": "55c2a9375ea62c4b65eddb9052f98eaa4b6fff5d487df1ac9dbe089493178fc5"
+    },
+    {
+      "state": "mini-games-sheep-pending",
+      "lang": "ja",
+      "id": "mini-games-sheep-pending-ja",
+      "rawEqual": false,
+      "currentSha256": "34c113730cb4a262eb3ea21651cf4a35b6a6715f04e6e4a1cb08f8b3fc4f2b36",
+      "originalSha256": "dd7e3c2a964c178ef45c4593b16113432ee00816140a603c1d1930bc66a9da3b"
+    },
+    {
+      "state": "mini-games-start-failed",
+      "lang": "ja",
+      "id": "mini-games-start-failed-ja",
+      "rawEqual": false,
+      "currentSha256": "0ad6dc4fb80584688e1087c93283a0ab8c0295c3f048ff9cb8b30b42d591ce65",
+      "originalSha256": "7e7f87076db3afd96e0f346bf6d54af743780a96bfe15db0d23c05672e589491"
+    },
+    {
+      "state": "mini-games-solving",
+      "lang": "ja",
+      "id": "mini-games-solving-ja",
+      "rawEqual": false,
+      "currentSha256": "6a27c6a72b3dc4705d730fc08458a5a622798966583fd29575871a6fff0841c1",
+      "originalSha256": "3c6fa9e38b7f9fae9294381c080592152f6cd8a869db7de9ab14b8add6d82230"
+    },
+    {
+      "state": "mini-games-executing",
+      "lang": "ja",
+      "id": "mini-games-executing-ja",
+      "rawEqual": false,
+      "currentSha256": "c1f8fdb0ad7da05696b7aeffdc89e2c0f23865f51bf89b9cce6d3507c2401999",
+      "originalSha256": "9c12e144a8845677f5db70a980e31ee897ed46a14b2d511f39aebc220593ce22"
+    },
+    {
+      "state": "mini-games-completed",
+      "lang": "ja",
+      "id": "mini-games-completed-ja",
+      "rawEqual": false,
+      "currentSha256": "6f83be33b74a543c9742befbc1abe5c181e4492bd49929664f1e1fceaaa8a96a",
+      "originalSha256": "0c6f33eb74263984a58fa4ed559033264a23be0038e990edaaf02758f0c1403e"
+    },
+    {
+      "state": "mini-games-complete",
+      "lang": "ja",
+      "id": "mini-games-complete-ja",
+      "rawEqual": false,
+      "currentSha256": "3f96878ddff9e50a5fb59d193d44e565fc77ea2a35748d7327a9ef87aeeed92f",
+      "originalSha256": "2d93c79d50834609e1fd38259d2bb1b64ee16061ea4c051eddad319005616fb6"
+    },
+    {
+      "state": "mini-games-all-complete",
+      "lang": "ja",
+      "id": "mini-games-all-complete-ja",
+      "rawEqual": false,
+      "currentSha256": "d38014c00dc0e0ddbf5b556bc81bb55db4c59f1289d05a2b154f468fa3968c38",
+      "originalSha256": "c1b1d293327d7b8efd91938125669332d40836f2ec7177125680bea22fb3c512"
+    },
+    {
+      "state": "mini-games-activity-ended",
+      "lang": "ja",
+      "id": "mini-games-activity-ended-ja",
+      "rawEqual": false,
+      "currentSha256": "1d4e556a6e3f7c465ee2d36480d4bda17f1850a39eb6a74a9548eb6124debafe",
+      "originalSha256": "eab58818573c4b38942831cf8439a224c5592d94487799ac2d66f69e3e5df13a"
+    },
+    {
+      "state": "mini-games-ui-open",
+      "lang": "ja",
+      "id": "mini-games-ui-open-ja",
+      "rawEqual": false,
+      "currentSha256": "860773b86c3df0a562915a52d93903a8de089bc795ba50aafa7d4c736e81436d",
+      "originalSha256": "59676167d76c9e46b6ad10ab62e34d38194ca0df64541fed541a4917cd1467fe"
+    },
+    {
+      "state": "mini-games-conflict",
+      "lang": "ja",
+      "id": "mini-games-conflict-ja",
+      "rawEqual": false,
+      "currentSha256": "a21650f0c462748384733e1af8f0f25a308aa1755284113993d5ed209ed7cd21",
+      "originalSha256": "16655662fbad6cfdd94164d82797d288fcab7f8b873bba3b69f6efbfe453e7ae"
+    },
+    {
+      "state": "mini-games-solve-failed",
+      "lang": "ja",
+      "id": "mini-games-solve-failed-ja",
+      "rawEqual": false,
+      "currentSha256": "511290b5bde2ee5c31b91d92001dabc16e08f460fa6750b5755b8823db99d353",
+      "originalSha256": "43614f12d5d1013932b7b0b53eaf70b26b47104bd6eacf62b504ec31da888c1e"
+    },
+    {
+      "state": "mini-games-unsupported",
+      "lang": "ja",
+      "id": "mini-games-unsupported-ja",
+      "rawEqual": false,
+      "currentSha256": "36765d3091b007253565313693c2a785085a51fe248848d0f3c64d1834bbb0e7",
+      "originalSha256": "9b354bf815f979c33e5f2891731e0f2d8c8e6b9e402853fbf2d260c2bc7d3339"
+    },
+    {
+      "state": "mini-games-refreshing",
+      "lang": "ja",
+      "id": "mini-games-refreshing-ja",
+      "rawEqual": false,
+      "currentSha256": "22dec1deba9ce25b64b069035bcedc0c07e466e03a177c1cd5f1c387947f70af",
+      "originalSha256": "20207eabdcc49200673a18243dbcf52e42ba7ec38e402980edaf0a4afa8de98c"
+    },
+    {
+      "state": "mini-games-starting",
+      "lang": "ja",
+      "id": "mini-games-starting-ja",
+      "rawEqual": false,
+      "currentSha256": "ac5e58b28d2ea7342c2a9cdf861543056c53d001764db367971e371f8c4126de",
+      "originalSha256": "9eff28f646fb9d691cafda4213504056a3a31bdf876a9a5868e2361ae737ad7b"
+    },
+    {
+      "state": "mini-games-opening",
+      "lang": "ja",
+      "id": "mini-games-opening-ja",
+      "rawEqual": false,
+      "currentSha256": "52e480b4e10a9d06132bbc2e1b9b1466aedeeb23b966a310b363166772b8b428",
+      "originalSha256": "228ca0655c4af0952a492b791295958985c0d2c70724c975047017347ebac432"
+    },
+    {
+      "state": "mini-games-initial-delay",
+      "lang": "ja",
+      "id": "mini-games-initial-delay-ja",
+      "rawEqual": false,
+      "currentSha256": "b8b7bcabe23037f0222d25278cc5e5575a9de7da410bda2ab69af9430c0c0f94",
+      "originalSha256": "14d0daaee60d98f0e09af3240662ba559e8b6bd318e4e3561dcb3f4ad8072c72"
+    },
+    {
+      "state": "mini-games-state-error",
+      "lang": "ja",
+      "id": "mini-games-state-error-ja",
+      "rawEqual": false,
+      "currentSha256": "4667d4e3fb013a6f06e889e87f56a03768b5adc0a0fe1070db4901e6a7ad0119",
+      "originalSha256": "2d53fd3416fb6d6539defd57eb02e874201bc6d00c8682065848c0d8f1ac6f9a"
+    }
+  ],
+  "pairs": [
+    {
+      "id": "mini-games-en-light-1280",
+      "state": "mini-games-active",
+      "lang": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "id": "mini-games-ja-dark-1280",
+      "state": "mini-games-active",
+      "lang": "ja",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "id": "mini-games-en-dark-375",
+      "state": "mini-games-active",
+      "lang": "en",
+      "theme": "dark",
+      "width": 375,
+      "height": 1000
+    },
+    {
+      "id": "mini-games-ja-light-375",
+      "state": "mini-games-active",
+      "lang": "ja",
+      "theme": "light",
+      "width": 375,
+      "height": 1000
+    }
+  ]
+}

@@ -1,0 +1,1354 @@
+{
+  "pairs": [
+    {
+      "id": "daily-collapsed-en-light-1280",
+      "category": "daily",
+      "expanded": false,
+      "language": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900,
+      "original": {
+        "measurement": "daily-collapsed-en-light-1280-original.json",
+        "screenshot": "daily-collapsed-en-light-1280-original.png",
+        "sha256": "1f21e31a7c71a225f16a0eb31c008429ad55ffd743e21f3c892334652b1dac9d",
+        "rawSha256": "a6c72cbb590a727925d5973f336bbfe27b5979b9e916e72a8fa8fd8fc3f2604d",
+        "cardCount": 7
+      },
+      "current": {
+        "measurement": "daily-collapsed-en-light-1280-current.json",
+        "screenshot": "daily-collapsed-en-light-1280-current.png",
+        "sha256": "4a0e8a318e3fefb4e710f64b66823e64cae1bc4bfb2d99e07d328116553bfdec",
+        "rawSha256": "0161c65ea0f70c0a4e8ba9442a9e643e909dc8e98d91c2d757853366cc2fb3ee",
+        "cardCount": 7
+      },
+      "masks": []
+    },
+    {
+      "id": "daily-collapsed-en-dark-375",
+      "category": "daily",
+      "expanded": false,
+      "language": "en",
+      "theme": "dark",
+      "width": 375,
+      "height": 1000,
+      "original": {
+        "measurement": "daily-collapsed-en-dark-375-original.json",
+        "screenshot": "daily-collapsed-en-dark-375-original.png",
+        "sha256": "a645dc9298c0b7c50a6613a46a75f7333b9925434fa2e472277c896693a2354a",
+        "rawSha256": "a6c72cbb590a727925d5973f336bbfe27b5979b9e916e72a8fa8fd8fc3f2604d",
+        "cardCount": 7
+      },
+      "current": {
+        "measurement": "daily-collapsed-en-dark-375-current.json",
+        "screenshot": "daily-collapsed-en-dark-375-current.png",
+        "sha256": "1e998173377726e913a77dbdcfcdc4fe92e364e571c4441e3d6c1f749ca7ba19",
+        "rawSha256": "0161c65ea0f70c0a4e8ba9442a9e643e909dc8e98d91c2d757853366cc2fb3ee",
+        "cardCount": 7
+      },
+      "masks": []
+    },
+    {
+      "id": "daily-expanded-en-light-1280",
+      "category": "daily",
+      "expanded": true,
+      "language": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900,
+      "original": {
+        "measurement": "daily-expanded-en-light-1280-original.json",
+        "screenshot": "daily-expanded-en-light-1280-original.png",
+        "sha256": "c30f5ef0a16f29564cc198a38de25aecfd6978e928e25625c943ddb3b8e9db6f",
+        "rawSha256": "b941400ed756edae18066ecb8c37fb48791f7a371382700e4ee1342f043043b3",
+        "cardCount": 7
+      },
+      "current": {
+        "measurement": "daily-expanded-en-light-1280-current.json",
+        "screenshot": "daily-expanded-en-light-1280-current.png",
+        "sha256": "f5de97c109f932e9effeeb0c27b9409a5a624375b03b2b0c3c56ed1b903004bd",
+        "rawSha256": "6eac631ff988cfa049d32d07fd0ae5041cb9670260c3b95a31cc3ddf911bbcd2",
+        "cardCount": 7
+      },
+      "masks": []
+    },
+    {
+      "id": "daily-expanded-en-dark-375",
+      "category": "daily",
+      "expanded": true,
+      "language": "en",
+      "theme": "dark",
+      "width": 375,
+      "height": 1000,
+      "original": {
+        "measurement": "daily-expanded-en-dark-375-original.json",
+        "screenshot": "daily-expanded-en-dark-375-original.png",
+        "sha256": "dd622c7b0a8d5b71d1843ee4748fb14eddd9299fd15888bed482dfc03db4dfd5",
+        "rawSha256": "b941400ed756edae18066ecb8c37fb48791f7a371382700e4ee1342f043043b3",
+        "cardCount": 7
+      },
+      "current": {
+        "measurement": "daily-expanded-en-dark-375-current.json",
+        "screenshot": "daily-expanded-en-dark-375-current.png",
+        "sha256": "5c881fb5b0050c9ade6aae4f2a0565a65942ed5ac7d407ecd7c888107fc97ef9",
+        "rawSha256": "6eac631ff988cfa049d32d07fd0ae5041cb9670260c3b95a31cc3ddf911bbcd2",
+        "cardCount": 7
+      },
+      "masks": []
+    },
+    {
+      "id": "alliance-collapsed-en-light-1280",
+      "category": "alliance",
+      "expanded": false,
+      "language": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900,
+      "original": {
+        "measurement": "alliance-collapsed-en-light-1280-original.json",
+        "screenshot": "alliance-collapsed-en-light-1280-original.png",
+        "sha256": "58fb3bc89e1cbb13f40871bf6eaabf031e19c12d2598d806fd0790cb4ad53f3f",
+        "rawSha256": "ec5e781e52d4a6670afa4b3b095520045ee0c30283124702e4ef5baa54ec395f",
+        "cardCount": 8
+      },
+      "current": {
+        "measurement": "alliance-collapsed-en-light-1280-current.json",
+        "screenshot": "alliance-collapsed-en-light-1280-current.png",
+        "sha256": "1d34479266de03e18c672918183ee232800dbc870eb570068cc8f6b9819d8ee9",
+        "rawSha256": "bdded1d861c0754278ab5dc69a141cddabe7a6db98146bf9178764eba58ba66c",
+        "cardCount": 8
+      },
+      "masks": []
+    },
+    {
+      "id": "alliance-collapsed-en-dark-375",
+      "category": "alliance",
+      "expanded": false,
+      "language": "en",
+      "theme": "dark",
+      "width": 375,
+      "height": 1000,
+      "original": {
+        "measurement": "alliance-collapsed-en-dark-375-original.json",
+        "screenshot": "alliance-collapsed-en-dark-375-original.png",
+        "sha256": "7fbd1b6e108b03066dbb8be4b310c1cbe47173754984c517cbfbbaaf203a19f7",
+        "rawSha256": "ec5e781e52d4a6670afa4b3b095520045ee0c30283124702e4ef5baa54ec395f",
+        "cardCount": 8
+      },
+      "current": {
+        "measurement": "alliance-collapsed-en-dark-375-current.json",
+        "screenshot": "alliance-collapsed-en-dark-375-current.png",
+        "sha256": "235a1e6274975e3444010d5e002d796bacdd40aa7f54b0fdd3034b3ba128e0fc",
+        "rawSha256": "bdded1d861c0754278ab5dc69a141cddabe7a6db98146bf9178764eba58ba66c",
+        "cardCount": 8
+      },
+      "masks": []
+    },
+    {
+      "id": "alliance-expanded-en-light-1280",
+      "category": "alliance",
+      "expanded": true,
+      "language": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900,
+      "original": {
+        "measurement": "alliance-expanded-en-light-1280-original.json",
+        "screenshot": "alliance-expanded-en-light-1280-original.png",
+        "sha256": "bd8b0332bb4c778255e34872950ce101f53ac8a69f6848e2e261f903e466b8a3",
+        "rawSha256": "7faa66563895a5c9ed697096498021fb7e574a9dce28449a4fb4c283a5ab9260",
+        "cardCount": 8
+      },
+      "current": {
+        "measurement": "alliance-expanded-en-light-1280-current.json",
+        "screenshot": "alliance-expanded-en-light-1280-current.png",
+        "sha256": "2d87b249e3f7f556ba25d712808b38299f5bbf8e53ef42fc53fe665077703c4f",
+        "rawSha256": "c1b10c74d29f7003134477bfa4f00872cf46dd665c7681636be82607c854cd81",
+        "cardCount": 8
+      },
+      "masks": []
+    },
+    {
+      "id": "alliance-expanded-en-dark-375",
+      "category": "alliance",
+      "expanded": true,
+      "language": "en",
+      "theme": "dark",
+      "width": 375,
+      "height": 1000,
+      "original": {
+        "measurement": "alliance-expanded-en-dark-375-original.json",
+        "screenshot": "alliance-expanded-en-dark-375-original.png",
+        "sha256": "fd1feb05cb3871b1587e09cf3bfc776ec9287260cbf5d4dde650be19ed405cb5",
+        "rawSha256": "7faa66563895a5c9ed697096498021fb7e574a9dce28449a4fb4c283a5ab9260",
+        "cardCount": 8
+      },
+      "current": {
+        "measurement": "alliance-expanded-en-dark-375-current.json",
+        "screenshot": "alliance-expanded-en-dark-375-current.png",
+        "sha256": "1bd3325a2d8e5b950a32c8dee9be97a17bf3203aa49fa99fb28a8b0bb8309197",
+        "rawSha256": "c1b10c74d29f7003134477bfa4f00872cf46dd665c7681636be82607c854cd81",
+        "cardCount": 8
+      },
+      "masks": []
+    },
+    {
+      "id": "resourceGather-collapsed-en-light-1280",
+      "category": "resourceGather",
+      "expanded": false,
+      "language": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900,
+      "original": {
+        "measurement": "resourceGather-collapsed-en-light-1280-original.json",
+        "screenshot": "resourceGather-collapsed-en-light-1280-original.png",
+        "sha256": "76bd4f8ec7f2803448285c63959ab5b025537dbda111edffde82d4671cdc9eec",
+        "rawSha256": "e4f129af5ccbd028a4c0cf2f8aed3cf135660697c6e7cfe5d0b1ea6d3fe0449e",
+        "cardCount": 1
+      },
+      "current": {
+        "measurement": "resourceGather-collapsed-en-light-1280-current.json",
+        "screenshot": "resourceGather-collapsed-en-light-1280-current.png",
+        "sha256": "f6aa1df138adacc37081645b955deac3467ec680cd132b21d938d62a00042c01",
+        "rawSha256": "851e685f067dfe5e184b203ddd36f448c3ff6d428e053d0560ad0e9980ae4bc7",
+        "cardCount": 1
+      },
+      "masks": []
+    },
+    {
+      "id": "resourceGather-collapsed-en-dark-375",
+      "category": "resourceGather",
+      "expanded": false,
+      "language": "en",
+      "theme": "dark",
+      "width": 375,
+      "height": 1000,
+      "original": {
+        "measurement": "resourceGather-collapsed-en-dark-375-original.json",
+        "screenshot": "resourceGather-collapsed-en-dark-375-original.png",
+        "sha256": "653cffaf6fdaa3ded1f3425ef909c5a432e047b563e91e042501cf2d3fc9cf1a",
+        "rawSha256": "e4f129af5ccbd028a4c0cf2f8aed3cf135660697c6e7cfe5d0b1ea6d3fe0449e",
+        "cardCount": 1
+      },
+      "current": {
+        "measurement": "resourceGather-collapsed-en-dark-375-current.json",
+        "screenshot": "resourceGather-collapsed-en-dark-375-current.png",
+        "sha256": "ad6fc786415118f47613b937624ba78fb5a3092f3137388c1cbcfaabc58830f9",
+        "rawSha256": "851e685f067dfe5e184b203ddd36f448c3ff6d428e053d0560ad0e9980ae4bc7",
+        "cardCount": 1
+      },
+      "masks": []
+    },
+    {
+      "id": "resourceGather-expanded-en-light-1280",
+      "category": "resourceGather",
+      "expanded": true,
+      "language": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900,
+      "original": {
+        "measurement": "resourceGather-expanded-en-light-1280-original.json",
+        "screenshot": "resourceGather-expanded-en-light-1280-original.png",
+        "sha256": "36f327fba1a134e5c361553802db0b1771da791fc3dbdf26087bd2ac9a56024f",
+        "rawSha256": "4bba7492cbacf8bd64eeed11b64a0b67918420680d7882bf29b603bb9437d0fc",
+        "cardCount": 1
+      },
+      "current": {
+        "measurement": "resourceGather-expanded-en-light-1280-current.json",
+        "screenshot": "resourceGather-expanded-en-light-1280-current.png",
+        "sha256": "71da1a9dbc8e435258e940beeca966b60c97922d71233f83481ce7cd86eb1ca5",
+        "rawSha256": "380706a637c3658e2418f696059bcf1444bbee126b086c928403a2f76b6b45f7",
+        "cardCount": 1
+      },
+      "masks": []
+    },
+    {
+      "id": "resourceGather-expanded-en-dark-375",
+      "category": "resourceGather",
+      "expanded": true,
+      "language": "en",
+      "theme": "dark",
+      "width": 375,
+      "height": 1000,
+      "original": {
+        "measurement": "resourceGather-expanded-en-dark-375-original.json",
+        "screenshot": "resourceGather-expanded-en-dark-375-original.png",
+        "sha256": "eaf44578ef6d8ffe0bcb49f7245cbca9595a5d5e0d1408ff8a2457e077d1069c",
+        "rawSha256": "4bba7492cbacf8bd64eeed11b64a0b67918420680d7882bf29b603bb9437d0fc",
+        "cardCount": 1
+      },
+      "current": {
+        "measurement": "resourceGather-expanded-en-dark-375-current.json",
+        "screenshot": "resourceGather-expanded-en-dark-375-current.png",
+        "sha256": "01333c3a942f567c92e66c8a7879875520920d42bd6b1ae4ec35555f778038d9",
+        "rawSha256": "380706a637c3658e2418f696059bcf1444bbee126b086c928403a2f76b6b45f7",
+        "cardCount": 1
+      },
+      "masks": []
+    },
+    {
+      "id": "resources-collapsed-en-light-1280",
+      "category": "resources",
+      "expanded": false,
+      "language": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900,
+      "original": {
+        "measurement": "resources-collapsed-en-light-1280-original.json",
+        "screenshot": "resources-collapsed-en-light-1280-original.png",
+        "sha256": "182b5749c279a6b1410029f9ec63496663b348858ede53782166aeb1254c0069",
+        "rawSha256": "2a13e15d2978a7fd059e4cee0025267b2473488797c4d0e6c38b9b636497edab",
+        "cardCount": 2
+      },
+      "current": {
+        "measurement": "resources-collapsed-en-light-1280-current.json",
+        "screenshot": "resources-collapsed-en-light-1280-current.png",
+        "sha256": "c7c1121b0466fd0a7b9186272ae6b2006e31099df984a8e27de27af38efc25b2",
+        "rawSha256": "7a908656d46725e0ee7d3b5ec0c80ced4eb338903a76fc8bcdec65d75c98bca8",
+        "cardCount": 2
+      },
+      "masks": []
+    },
+    {
+      "id": "resources-collapsed-en-dark-375",
+      "category": "resources",
+      "expanded": false,
+      "language": "en",
+      "theme": "dark",
+      "width": 375,
+      "height": 1000,
+      "original": {
+        "measurement": "resources-collapsed-en-dark-375-original.json",
+        "screenshot": "resources-collapsed-en-dark-375-original.png",
+        "sha256": "d1c7ed8e88ca4e80f42738c334f0f5ddc203b9aeb7dfb2b54186769c5e8a3ec2",
+        "rawSha256": "2a13e15d2978a7fd059e4cee0025267b2473488797c4d0e6c38b9b636497edab",
+        "cardCount": 2
+      },
+      "current": {
+        "measurement": "resources-collapsed-en-dark-375-current.json",
+        "screenshot": "resources-collapsed-en-dark-375-current.png",
+        "sha256": "982ccf9b9e2a4566fbb7a81235d1a8330ac16b30c5fe742b5ba06b0444714695",
+        "rawSha256": "7a908656d46725e0ee7d3b5ec0c80ced4eb338903a76fc8bcdec65d75c98bca8",
+        "cardCount": 2
+      },
+      "masks": []
+    },
+    {
+      "id": "resources-expanded-en-light-1280",
+      "category": "resources",
+      "expanded": true,
+      "language": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900,
+      "original": {
+        "measurement": "resources-expanded-en-light-1280-original.json",
+        "screenshot": "resources-expanded-en-light-1280-original.png",
+        "sha256": "182b5749c279a6b1410029f9ec63496663b348858ede53782166aeb1254c0069",
+        "rawSha256": "2a13e15d2978a7fd059e4cee0025267b2473488797c4d0e6c38b9b636497edab",
+        "cardCount": 2
+      },
+      "current": {
+        "measurement": "resources-expanded-en-light-1280-current.json",
+        "screenshot": "resources-expanded-en-light-1280-current.png",
+        "sha256": "c7c1121b0466fd0a7b9186272ae6b2006e31099df984a8e27de27af38efc25b2",
+        "rawSha256": "7a908656d46725e0ee7d3b5ec0c80ced4eb338903a76fc8bcdec65d75c98bca8",
+        "cardCount": 2
+      },
+      "masks": []
+    },
+    {
+      "id": "resources-expanded-en-dark-375",
+      "category": "resources",
+      "expanded": true,
+      "language": "en",
+      "theme": "dark",
+      "width": 375,
+      "height": 1000,
+      "original": {
+        "measurement": "resources-expanded-en-dark-375-original.json",
+        "screenshot": "resources-expanded-en-dark-375-original.png",
+        "sha256": "d1c7ed8e88ca4e80f42738c334f0f5ddc203b9aeb7dfb2b54186769c5e8a3ec2",
+        "rawSha256": "2a13e15d2978a7fd059e4cee0025267b2473488797c4d0e6c38b9b636497edab",
+        "cardCount": 2
+      },
+      "current": {
+        "measurement": "resources-expanded-en-dark-375-current.json",
+        "screenshot": "resources-expanded-en-dark-375-current.png",
+        "sha256": "982ccf9b9e2a4566fbb7a81235d1a8330ac16b30c5fe742b5ba06b0444714695",
+        "rawSha256": "7a908656d46725e0ee7d3b5ec0c80ced4eb338903a76fc8bcdec65d75c98bca8",
+        "cardCount": 2
+      },
+      "masks": []
+    },
+    {
+      "id": "chat-collapsed-en-light-1280",
+      "category": "chat",
+      "expanded": false,
+      "language": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900,
+      "original": {
+        "measurement": "chat-collapsed-en-light-1280-original.json",
+        "screenshot": "chat-collapsed-en-light-1280-original.png",
+        "sha256": "eee205424aa8d038577b96534009b07ab62d3da245f6ff98859475639262f372",
+        "rawSha256": "93efa624ab174c89725a8bb54bb9e309d0a405002378aa25a0028ff1aa658149",
+        "cardCount": 3
+      },
+      "current": {
+        "measurement": "chat-collapsed-en-light-1280-current.json",
+        "screenshot": "chat-collapsed-en-light-1280-current.png",
+        "sha256": "632493a77f54821aa4d45fc10affc98a46de5945c6118c905eb413f41aea0d34",
+        "rawSha256": "bf11154f49ed53cc9bfd31566895a9e3caf317e73e2b0d2c09c13ec27131e4ee",
+        "cardCount": 3
+      },
+      "masks": []
+    },
+    {
+      "id": "chat-collapsed-en-dark-375",
+      "category": "chat",
+      "expanded": false,
+      "language": "en",
+      "theme": "dark",
+      "width": 375,
+      "height": 1000,
+      "original": {
+        "measurement": "chat-collapsed-en-dark-375-original.json",
+        "screenshot": "chat-collapsed-en-dark-375-original.png",
+        "sha256": "70c0cfea75649195fee62d05ed802af45a6d8c13f51153d2a7141d3072b72cd6",
+        "rawSha256": "93efa624ab174c89725a8bb54bb9e309d0a405002378aa25a0028ff1aa658149",
+        "cardCount": 3
+      },
+      "current": {
+        "measurement": "chat-collapsed-en-dark-375-current.json",
+        "screenshot": "chat-collapsed-en-dark-375-current.png",
+        "sha256": "465ddfe7d3ff876b06646f212d7c40d7143d5aa8a09bb4c1948ae51b6622ab42",
+        "rawSha256": "bf11154f49ed53cc9bfd31566895a9e3caf317e73e2b0d2c09c13ec27131e4ee",
+        "cardCount": 3
+      },
+      "masks": []
+    },
+    {
+      "id": "chat-expanded-en-light-1280",
+      "category": "chat",
+      "expanded": true,
+      "language": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900,
+      "original": {
+        "measurement": "chat-expanded-en-light-1280-original.json",
+        "screenshot": "chat-expanded-en-light-1280-original.png",
+        "sha256": "f971c3dc679ced2b89d8b099b7138c3dc80e1c920cf1d21b74c69d27bd58ae4d",
+        "rawSha256": "ea8bc859a61602d67a165be5dd43633ff10a51d2281e2b6e990dc0cb9a9f8fd8",
+        "cardCount": 3
+      },
+      "current": {
+        "measurement": "chat-expanded-en-light-1280-current.json",
+        "screenshot": "chat-expanded-en-light-1280-current.png",
+        "sha256": "3c22fef510ac4e7f058e690b2e387388d7ea1058122f4b331a836e971b8d865d",
+        "rawSha256": "f9fe29463c1e2b3dc39de2f622a7682bc1358ecc6e3738ca468da93fd2f296a7",
+        "cardCount": 3
+      },
+      "masks": []
+    },
+    {
+      "id": "chat-expanded-en-dark-375",
+      "category": "chat",
+      "expanded": true,
+      "language": "en",
+      "theme": "dark",
+      "width": 375,
+      "height": 1000,
+      "original": {
+        "measurement": "chat-expanded-en-dark-375-original.json",
+        "screenshot": "chat-expanded-en-dark-375-original.png",
+        "sha256": "fa564f1c5f9930be7007039a72c295a759a7b98c5c474fd65babc06a4786eb9b",
+        "rawSha256": "ea8bc859a61602d67a165be5dd43633ff10a51d2281e2b6e990dc0cb9a9f8fd8",
+        "cardCount": 3
+      },
+      "current": {
+        "measurement": "chat-expanded-en-dark-375-current.json",
+        "screenshot": "chat-expanded-en-dark-375-current.png",
+        "sha256": "5705ab0f22c5b4f947968746373f54d06996d5ae67cf0d5bb6822115fe1bf33b",
+        "rawSha256": "f9fe29463c1e2b3dc39de2f622a7682bc1358ecc6e3738ca468da93fd2f296a7",
+        "cardCount": 3
+      },
+      "masks": []
+    },
+    {
+      "id": "trade-collapsed-en-light-1280",
+      "category": "trade",
+      "expanded": false,
+      "language": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900,
+      "original": {
+        "measurement": "trade-collapsed-en-light-1280-original.json",
+        "screenshot": "trade-collapsed-en-light-1280-original.png",
+        "sha256": "cbb8d993098324dcc2d7de4677af7a94652a5201cdc7f32cd84ddec4c8b4400a",
+        "rawSha256": "b6cbabebefe3f175b257404050f5bdfbafd4820ca38eab73b98c08c2c655c08d",
+        "cardCount": 1
+      },
+      "current": {
+        "measurement": "trade-collapsed-en-light-1280-current.json",
+        "screenshot": "trade-collapsed-en-light-1280-current.png",
+        "sha256": "f0bb38287d06d93652891e6b72a63fa4b9461b21853e098a0d81b906c4c7ce5e",
+        "rawSha256": "f8d78917f6145be68e1cf43698cf1c757864d226ed3bff229d2dfb354680eea9",
+        "cardCount": 1
+      },
+      "masks": []
+    },
+    {
+      "id": "trade-collapsed-en-dark-375",
+      "category": "trade",
+      "expanded": false,
+      "language": "en",
+      "theme": "dark",
+      "width": 375,
+      "height": 1000,
+      "original": {
+        "measurement": "trade-collapsed-en-dark-375-original.json",
+        "screenshot": "trade-collapsed-en-dark-375-original.png",
+        "sha256": "8fa2277d600e851bc28fd4c22c9b27019c647be25e05a902c0ab8803cf3c4ae7",
+        "rawSha256": "b6cbabebefe3f175b257404050f5bdfbafd4820ca38eab73b98c08c2c655c08d",
+        "cardCount": 1
+      },
+      "current": {
+        "measurement": "trade-collapsed-en-dark-375-current.json",
+        "screenshot": "trade-collapsed-en-dark-375-current.png",
+        "sha256": "65265b8ed2dc95541cd9f90216097769ec0075660271ea82acd32d4a905b5a31",
+        "rawSha256": "f8d78917f6145be68e1cf43698cf1c757864d226ed3bff229d2dfb354680eea9",
+        "cardCount": 1
+      },
+      "masks": []
+    },
+    {
+      "id": "trade-expanded-en-light-1280",
+      "category": "trade",
+      "expanded": true,
+      "language": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900,
+      "original": {
+        "measurement": "trade-expanded-en-light-1280-original.json",
+        "screenshot": "trade-expanded-en-light-1280-original.png",
+        "sha256": "fd95610dd7a6e7feb82be933a82adf3866b2f3c6b2e8f4d3f0890c6cbab3aae8",
+        "rawSha256": "2cae1ca35fd0c5302e8785adff1b766b9a0232345a99eb6e8ef4ff90e6fa8f95",
+        "cardCount": 1
+      },
+      "current": {
+        "measurement": "trade-expanded-en-light-1280-current.json",
+        "screenshot": "trade-expanded-en-light-1280-current.png",
+        "sha256": "f0bb38287d06d93652891e6b72a63fa4b9461b21853e098a0d81b906c4c7ce5e",
+        "rawSha256": "f8d78917f6145be68e1cf43698cf1c757864d226ed3bff229d2dfb354680eea9",
+        "cardCount": 1
+      },
+      "masks": []
+    },
+    {
+      "id": "trade-expanded-en-dark-375",
+      "category": "trade",
+      "expanded": true,
+      "language": "en",
+      "theme": "dark",
+      "width": 375,
+      "height": 1000,
+      "original": {
+        "measurement": "trade-expanded-en-dark-375-original.json",
+        "screenshot": "trade-expanded-en-dark-375-original.png",
+        "sha256": "15226daf2cc76ebda1e9026e0a435f5215769450b4341202d779d0d115c9c6d3",
+        "rawSha256": "2cae1ca35fd0c5302e8785adff1b766b9a0232345a99eb6e8ef4ff90e6fa8f95",
+        "cardCount": 1
+      },
+      "current": {
+        "measurement": "trade-expanded-en-dark-375-current.json",
+        "screenshot": "trade-expanded-en-dark-375-current.png",
+        "sha256": "65265b8ed2dc95541cd9f90216097769ec0075660271ea82acd32d4a905b5a31",
+        "rawSha256": "f8d78917f6145be68e1cf43698cf1c757864d226ed3bff229d2dfb354680eea9",
+        "cardCount": 1
+      },
+      "masks": []
+    },
+    {
+      "id": "system-collapsed-en-light-1280",
+      "category": "system",
+      "expanded": false,
+      "language": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900,
+      "original": {
+        "measurement": "system-collapsed-en-light-1280-original.json",
+        "screenshot": "system-collapsed-en-light-1280-original.png",
+        "sha256": "fcd6be9430594573679f8dfbb77a063a2dcbc74c5b40e84d383f2cb22090b917",
+        "rawSha256": "e7e173d833d1c1a0b9ef8ad964106450e002c475292b18447d757cbfecccadb7",
+        "cardCount": 2
+      },
+      "current": {
+        "measurement": "system-collapsed-en-light-1280-current.json",
+        "screenshot": "system-collapsed-en-light-1280-current.png",
+        "sha256": "b48d1d0d224d37348d07a08dbef2b74ddaf10fa514758a1b3e9c6fb80f200f83",
+        "rawSha256": "e4a77509f26d7d6e6e17a00f41c572d1a70d51548b902f787fc0c769d3c01623",
+        "cardCount": 2
+      },
+      "masks": []
+    },
+    {
+      "id": "system-collapsed-en-dark-375",
+      "category": "system",
+      "expanded": false,
+      "language": "en",
+      "theme": "dark",
+      "width": 375,
+      "height": 1000,
+      "original": {
+        "measurement": "system-collapsed-en-dark-375-original.json",
+        "screenshot": "system-collapsed-en-dark-375-original.png",
+        "sha256": "ed697e8f16e8b432000ee482322575077e712370e5f44e0afd44fc2179e55f71",
+        "rawSha256": "e7e173d833d1c1a0b9ef8ad964106450e002c475292b18447d757cbfecccadb7",
+        "cardCount": 2
+      },
+      "current": {
+        "measurement": "system-collapsed-en-dark-375-current.json",
+        "screenshot": "system-collapsed-en-dark-375-current.png",
+        "sha256": "f2ba1e658478456f5252b7a081549ea9b1087a155432f31d23eff52f2d1e3943",
+        "rawSha256": "e4a77509f26d7d6e6e17a00f41c572d1a70d51548b902f787fc0c769d3c01623",
+        "cardCount": 2
+      },
+      "masks": []
+    },
+    {
+      "id": "system-expanded-en-light-1280",
+      "category": "system",
+      "expanded": true,
+      "language": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900,
+      "original": {
+        "measurement": "system-expanded-en-light-1280-original.json",
+        "screenshot": "system-expanded-en-light-1280-original.png",
+        "sha256": "fcd6be9430594573679f8dfbb77a063a2dcbc74c5b40e84d383f2cb22090b917",
+        "rawSha256": "e7e173d833d1c1a0b9ef8ad964106450e002c475292b18447d757cbfecccadb7",
+        "cardCount": 2
+      },
+      "current": {
+        "measurement": "system-expanded-en-light-1280-current.json",
+        "screenshot": "system-expanded-en-light-1280-current.png",
+        "sha256": "b48d1d0d224d37348d07a08dbef2b74ddaf10fa514758a1b3e9c6fb80f200f83",
+        "rawSha256": "e4a77509f26d7d6e6e17a00f41c572d1a70d51548b902f787fc0c769d3c01623",
+        "cardCount": 2
+      },
+      "masks": []
+    },
+    {
+      "id": "system-expanded-en-dark-375",
+      "category": "system",
+      "expanded": true,
+      "language": "en",
+      "theme": "dark",
+      "width": 375,
+      "height": 1000,
+      "original": {
+        "measurement": "system-expanded-en-dark-375-original.json",
+        "screenshot": "system-expanded-en-dark-375-original.png",
+        "sha256": "ed697e8f16e8b432000ee482322575077e712370e5f44e0afd44fc2179e55f71",
+        "rawSha256": "e7e173d833d1c1a0b9ef8ad964106450e002c475292b18447d757cbfecccadb7",
+        "cardCount": 2
+      },
+      "current": {
+        "measurement": "system-expanded-en-dark-375-current.json",
+        "screenshot": "system-expanded-en-dark-375-current.png",
+        "sha256": "f2ba1e658478456f5252b7a081549ea9b1087a155432f31d23eff52f2d1e3943",
+        "rawSha256": "e4a77509f26d7d6e6e17a00f41c572d1a70d51548b902f787fc0c769d3c01623",
+        "cardCount": 2
+      },
+      "masks": []
+    },
+    {
+      "id": "daily-collapsed-ja-dark-1280",
+      "category": "daily",
+      "expanded": false,
+      "language": "ja",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900,
+      "original": {
+        "measurement": "daily-collapsed-ja-dark-1280-original.json",
+        "screenshot": "daily-collapsed-ja-dark-1280-original.png",
+        "sha256": "bfe72f7315df8a90623630c4e250bc52990f7ef405e4f9cf0e483d4d70ebf11f",
+        "rawSha256": "e30938257f42059174e3daa2dcf1862000b4b5496484faa90d359ed8a941837e",
+        "cardCount": 7
+      },
+      "current": {
+        "measurement": "daily-collapsed-ja-dark-1280-current.json",
+        "screenshot": "daily-collapsed-ja-dark-1280-current.png",
+        "sha256": "f84a9742796ecbf03192bd5535206ebdfa6ac68dbba7bd8e61bc7f2e6313ae93",
+        "rawSha256": "c4ee6f4709ac82876918a0a5c14d5f746d43f928b8ce0817275d6565caef2f3d",
+        "cardCount": 7
+      },
+      "masks": []
+    },
+    {
+      "id": "daily-collapsed-ja-light-375",
+      "category": "daily",
+      "expanded": false,
+      "language": "ja",
+      "theme": "light",
+      "width": 375,
+      "height": 1000,
+      "original": {
+        "measurement": "daily-collapsed-ja-light-375-original.json",
+        "screenshot": "daily-collapsed-ja-light-375-original.png",
+        "sha256": "beef414db438bba5a6ab1f9dff7847e96f5749d127bfee4be9fe77375be53382",
+        "rawSha256": "e30938257f42059174e3daa2dcf1862000b4b5496484faa90d359ed8a941837e",
+        "cardCount": 7
+      },
+      "current": {
+        "measurement": "daily-collapsed-ja-light-375-current.json",
+        "screenshot": "daily-collapsed-ja-light-375-current.png",
+        "sha256": "47b83c525dadd07e8769b8f9f434762d2266123af31c3d349f878f9cb4b457d4",
+        "rawSha256": "c4ee6f4709ac82876918a0a5c14d5f746d43f928b8ce0817275d6565caef2f3d",
+        "cardCount": 7
+      },
+      "masks": []
+    },
+    {
+      "id": "daily-expanded-ja-dark-1280",
+      "category": "daily",
+      "expanded": true,
+      "language": "ja",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900,
+      "original": {
+        "measurement": "daily-expanded-ja-dark-1280-original.json",
+        "screenshot": "daily-expanded-ja-dark-1280-original.png",
+        "sha256": "1f6d2d3b0f069020c98a04daf2da3b3b09cc1fc314e9cd58accb26bfc95e8551",
+        "rawSha256": "c1f01cfbcfb15ef8872752bcb8b1325de82b4c8a4d2b42955c846f60a5bc4718",
+        "cardCount": 7
+      },
+      "current": {
+        "measurement": "daily-expanded-ja-dark-1280-current.json",
+        "screenshot": "daily-expanded-ja-dark-1280-current.png",
+        "sha256": "3d88051ff98f926ed8cd25fe649e91740ccd1ef02b10769740e2a8e124c707b8",
+        "rawSha256": "30e645e1d144e0fe84c6225e726394086126d5e5f40087e1d486f6b99706fc6c",
+        "cardCount": 7
+      },
+      "masks": []
+    },
+    {
+      "id": "daily-expanded-ja-light-375",
+      "category": "daily",
+      "expanded": true,
+      "language": "ja",
+      "theme": "light",
+      "width": 375,
+      "height": 1000,
+      "original": {
+        "measurement": "daily-expanded-ja-light-375-original.json",
+        "screenshot": "daily-expanded-ja-light-375-original.png",
+        "sha256": "fb7227b92cbcca1f050a99b3916976ef7b79eacdd7d27a97157a29513684018e",
+        "rawSha256": "c1f01cfbcfb15ef8872752bcb8b1325de82b4c8a4d2b42955c846f60a5bc4718",
+        "cardCount": 7
+      },
+      "current": {
+        "measurement": "daily-expanded-ja-light-375-current.json",
+        "screenshot": "daily-expanded-ja-light-375-current.png",
+        "sha256": "1446a27fcc05892f9da5d9ac81cac5d923919fb0ba4b52ce46d96bf14f86635e",
+        "rawSha256": "30e645e1d144e0fe84c6225e726394086126d5e5f40087e1d486f6b99706fc6c",
+        "cardCount": 7
+      },
+      "masks": []
+    },
+    {
+      "id": "alliance-collapsed-ja-dark-1280",
+      "category": "alliance",
+      "expanded": false,
+      "language": "ja",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900,
+      "original": {
+        "measurement": "alliance-collapsed-ja-dark-1280-original.json",
+        "screenshot": "alliance-collapsed-ja-dark-1280-original.png",
+        "sha256": "dddc0f25a85e4381a7bb7db538432d8f8d21d17393e0ac7e84b7808ac74e27b8",
+        "rawSha256": "a19db478e991a30f7d8e5716c675881452598a251e0853207583ddf2f3704341",
+        "cardCount": 8
+      },
+      "current": {
+        "measurement": "alliance-collapsed-ja-dark-1280-current.json",
+        "screenshot": "alliance-collapsed-ja-dark-1280-current.png",
+        "sha256": "7ff3bdcc124dc024338e36c23e412fb3474f17c55407a51684a286f62358c350",
+        "rawSha256": "762a3a3b65829bc0a1a14e3a926a2bec8f3f284ddc7cf901911295232d42c9bc",
+        "cardCount": 8
+      },
+      "masks": []
+    },
+    {
+      "id": "alliance-collapsed-ja-light-375",
+      "category": "alliance",
+      "expanded": false,
+      "language": "ja",
+      "theme": "light",
+      "width": 375,
+      "height": 1000,
+      "original": {
+        "measurement": "alliance-collapsed-ja-light-375-original.json",
+        "screenshot": "alliance-collapsed-ja-light-375-original.png",
+        "sha256": "df0bfaa637f7809d295b554f8c6c98f64e81219cdaedd5d226fc02ec3ec8412d",
+        "rawSha256": "a19db478e991a30f7d8e5716c675881452598a251e0853207583ddf2f3704341",
+        "cardCount": 8
+      },
+      "current": {
+        "measurement": "alliance-collapsed-ja-light-375-current.json",
+        "screenshot": "alliance-collapsed-ja-light-375-current.png",
+        "sha256": "97b8017a81337f86a487d0238525098a2628a2c451c16dd733ca5019e9d4164f",
+        "rawSha256": "762a3a3b65829bc0a1a14e3a926a2bec8f3f284ddc7cf901911295232d42c9bc",
+        "cardCount": 8
+      },
+      "masks": []
+    },
+    {
+      "id": "alliance-expanded-ja-dark-1280",
+      "category": "alliance",
+      "expanded": true,
+      "language": "ja",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900,
+      "original": {
+        "measurement": "alliance-expanded-ja-dark-1280-original.json",
+        "screenshot": "alliance-expanded-ja-dark-1280-original.png",
+        "sha256": "1e8599db59ed521a51da91e6d83a48423ecc7eabdb973557e9b3c1e6b5d5a89b",
+        "rawSha256": "ab1756766fc629373733829ebe243384e8c25918dc0178fa547b691a1b0e3cbf",
+        "cardCount": 8
+      },
+      "current": {
+        "measurement": "alliance-expanded-ja-dark-1280-current.json",
+        "screenshot": "alliance-expanded-ja-dark-1280-current.png",
+        "sha256": "33028e63e40e482dc2e954bd4491c365be1e495a0f6a138aa2a1947694a2af80",
+        "rawSha256": "73b145633b490d38f57c74d620e01e9e4042e36660c1f7b0378ad406676494f6",
+        "cardCount": 8
+      },
+      "masks": []
+    },
+    {
+      "id": "alliance-expanded-ja-light-375",
+      "category": "alliance",
+      "expanded": true,
+      "language": "ja",
+      "theme": "light",
+      "width": 375,
+      "height": 1000,
+      "original": {
+        "measurement": "alliance-expanded-ja-light-375-original.json",
+        "screenshot": "alliance-expanded-ja-light-375-original.png",
+        "sha256": "2a76973a71156894f559970ff5568d72a413288864cb73c4d92531eb083b8839",
+        "rawSha256": "ab1756766fc629373733829ebe243384e8c25918dc0178fa547b691a1b0e3cbf",
+        "cardCount": 8
+      },
+      "current": {
+        "measurement": "alliance-expanded-ja-light-375-current.json",
+        "screenshot": "alliance-expanded-ja-light-375-current.png",
+        "sha256": "2722e586df01871804e6197bacc3a724855842e448c795ac9810cf0373b89980",
+        "rawSha256": "73b145633b490d38f57c74d620e01e9e4042e36660c1f7b0378ad406676494f6",
+        "cardCount": 8
+      },
+      "masks": []
+    },
+    {
+      "id": "resourceGather-collapsed-ja-dark-1280",
+      "category": "resourceGather",
+      "expanded": false,
+      "language": "ja",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900,
+      "original": {
+        "measurement": "resourceGather-collapsed-ja-dark-1280-original.json",
+        "screenshot": "resourceGather-collapsed-ja-dark-1280-original.png",
+        "sha256": "9aa351b2ae096bc33c007ba203cf7cf3587176754866e476fd1333db94788210",
+        "rawSha256": "0d9644e94497e7f2c5de6ebb023a452451be36a21e95e3898de77997e0860f6b",
+        "cardCount": 1
+      },
+      "current": {
+        "measurement": "resourceGather-collapsed-ja-dark-1280-current.json",
+        "screenshot": "resourceGather-collapsed-ja-dark-1280-current.png",
+        "sha256": "8634b62189046ed3b3fdd5b8b89c6848189afddde72b718a88d1a62e8a53bb7a",
+        "rawSha256": "5b6b87476ef3ca37720b066629fbf9fbc237e0c904c572c66502e124ec0f3e78",
+        "cardCount": 1
+      },
+      "masks": []
+    },
+    {
+      "id": "resourceGather-collapsed-ja-light-375",
+      "category": "resourceGather",
+      "expanded": false,
+      "language": "ja",
+      "theme": "light",
+      "width": 375,
+      "height": 1000,
+      "original": {
+        "measurement": "resourceGather-collapsed-ja-light-375-original.json",
+        "screenshot": "resourceGather-collapsed-ja-light-375-original.png",
+        "sha256": "647260b6d76e748816f1ce7133e261419cd4712707a3a66292c31a9fcd9ff24f",
+        "rawSha256": "0d9644e94497e7f2c5de6ebb023a452451be36a21e95e3898de77997e0860f6b",
+        "cardCount": 1
+      },
+      "current": {
+        "measurement": "resourceGather-collapsed-ja-light-375-current.json",
+        "screenshot": "resourceGather-collapsed-ja-light-375-current.png",
+        "sha256": "6d7b941a2116c7fe41e0617b45723140e34b729a0325060b802e654d769c9999",
+        "rawSha256": "5b6b87476ef3ca37720b066629fbf9fbc237e0c904c572c66502e124ec0f3e78",
+        "cardCount": 1
+      },
+      "masks": []
+    },
+    {
+      "id": "resourceGather-expanded-ja-dark-1280",
+      "category": "resourceGather",
+      "expanded": true,
+      "language": "ja",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900,
+      "original": {
+        "measurement": "resourceGather-expanded-ja-dark-1280-original.json",
+        "screenshot": "resourceGather-expanded-ja-dark-1280-original.png",
+        "sha256": "25c6e6b3695666c7d37358b7af8f0a4fa517a65220ba4e64bc008bf38a80b547",
+        "rawSha256": "a8b0c9aed4899f043b90cea0d0ef07715aa65343ff72102bdc5a1082b2e86c73",
+        "cardCount": 1
+      },
+      "current": {
+        "measurement": "resourceGather-expanded-ja-dark-1280-current.json",
+        "screenshot": "resourceGather-expanded-ja-dark-1280-current.png",
+        "sha256": "2a363ea01b00b081be6adc1ba50058dbe192dcf40a4999e4dab21e9a03734321",
+        "rawSha256": "6c27dce26d1bf4b1bfa15e9dce66d810a21b4e707c73dba20f265cc950747cff",
+        "cardCount": 1
+      },
+      "masks": []
+    },
+    {
+      "id": "resourceGather-expanded-ja-light-375",
+      "category": "resourceGather",
+      "expanded": true,
+      "language": "ja",
+      "theme": "light",
+      "width": 375,
+      "height": 1000,
+      "original": {
+        "measurement": "resourceGather-expanded-ja-light-375-original.json",
+        "screenshot": "resourceGather-expanded-ja-light-375-original.png",
+        "sha256": "efb2fb3d341f5555cdaef7d634062c0a4bdda964f79c0963044742cc629e292c",
+        "rawSha256": "a8b0c9aed4899f043b90cea0d0ef07715aa65343ff72102bdc5a1082b2e86c73",
+        "cardCount": 1
+      },
+      "current": {
+        "measurement": "resourceGather-expanded-ja-light-375-current.json",
+        "screenshot": "resourceGather-expanded-ja-light-375-current.png",
+        "sha256": "6ab3d3fcf0da88551790fbb4beb4d2346fda5cf0e090fca282d1a5f58f461b5e",
+        "rawSha256": "6c27dce26d1bf4b1bfa15e9dce66d810a21b4e707c73dba20f265cc950747cff",
+        "cardCount": 1
+      },
+      "masks": []
+    },
+    {
+      "id": "resources-collapsed-ja-dark-1280",
+      "category": "resources",
+      "expanded": false,
+      "language": "ja",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900,
+      "original": {
+        "measurement": "resources-collapsed-ja-dark-1280-original.json",
+        "screenshot": "resources-collapsed-ja-dark-1280-original.png",
+        "sha256": "ae1b6f8de1731501b2d629fd70c0d01b0ec953230b4fca7d54e49c1677eb994a",
+        "rawSha256": "2ab25158a6ef937dbee117acbc758815612598fb0b8c070c87833d0e7f0bf5dd",
+        "cardCount": 2
+      },
+      "current": {
+        "measurement": "resources-collapsed-ja-dark-1280-current.json",
+        "screenshot": "resources-collapsed-ja-dark-1280-current.png",
+        "sha256": "d071380a7a971a7465830a401b2675e33fd787227aa8e2bfffe44c96bf644087",
+        "rawSha256": "59100e157aecbcd382b414b434dbf6cba70c2d8c003c10bdf4344a90e20c8d7c",
+        "cardCount": 2
+      },
+      "masks": []
+    },
+    {
+      "id": "resources-collapsed-ja-light-375",
+      "category": "resources",
+      "expanded": false,
+      "language": "ja",
+      "theme": "light",
+      "width": 375,
+      "height": 1000,
+      "original": {
+        "measurement": "resources-collapsed-ja-light-375-original.json",
+        "screenshot": "resources-collapsed-ja-light-375-original.png",
+        "sha256": "0de5b1ce0d828f016ee2d7d786163b3a5d9e7656e1be0d1d570f17c68e93dc17",
+        "rawSha256": "2ab25158a6ef937dbee117acbc758815612598fb0b8c070c87833d0e7f0bf5dd",
+        "cardCount": 2
+      },
+      "current": {
+        "measurement": "resources-collapsed-ja-light-375-current.json",
+        "screenshot": "resources-collapsed-ja-light-375-current.png",
+        "sha256": "5cf1b41584d0f29303d567c0d6573dcce8613f9c19a50cd99dc226465198b65b",
+        "rawSha256": "59100e157aecbcd382b414b434dbf6cba70c2d8c003c10bdf4344a90e20c8d7c",
+        "cardCount": 2
+      },
+      "masks": []
+    },
+    {
+      "id": "resources-expanded-ja-dark-1280",
+      "category": "resources",
+      "expanded": true,
+      "language": "ja",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900,
+      "original": {
+        "measurement": "resources-expanded-ja-dark-1280-original.json",
+        "screenshot": "resources-expanded-ja-dark-1280-original.png",
+        "sha256": "ae1b6f8de1731501b2d629fd70c0d01b0ec953230b4fca7d54e49c1677eb994a",
+        "rawSha256": "2ab25158a6ef937dbee117acbc758815612598fb0b8c070c87833d0e7f0bf5dd",
+        "cardCount": 2
+      },
+      "current": {
+        "measurement": "resources-expanded-ja-dark-1280-current.json",
+        "screenshot": "resources-expanded-ja-dark-1280-current.png",
+        "sha256": "d071380a7a971a7465830a401b2675e33fd787227aa8e2bfffe44c96bf644087",
+        "rawSha256": "59100e157aecbcd382b414b434dbf6cba70c2d8c003c10bdf4344a90e20c8d7c",
+        "cardCount": 2
+      },
+      "masks": []
+    },
+    {
+      "id": "resources-expanded-ja-light-375",
+      "category": "resources",
+      "expanded": true,
+      "language": "ja",
+      "theme": "light",
+      "width": 375,
+      "height": 1000,
+      "original": {
+        "measurement": "resources-expanded-ja-light-375-original.json",
+        "screenshot": "resources-expanded-ja-light-375-original.png",
+        "sha256": "0de5b1ce0d828f016ee2d7d786163b3a5d9e7656e1be0d1d570f17c68e93dc17",
+        "rawSha256": "2ab25158a6ef937dbee117acbc758815612598fb0b8c070c87833d0e7f0bf5dd",
+        "cardCount": 2
+      },
+      "current": {
+        "measurement": "resources-expanded-ja-light-375-current.json",
+        "screenshot": "resources-expanded-ja-light-375-current.png",
+        "sha256": "5cf1b41584d0f29303d567c0d6573dcce8613f9c19a50cd99dc226465198b65b",
+        "rawSha256": "59100e157aecbcd382b414b434dbf6cba70c2d8c003c10bdf4344a90e20c8d7c",
+        "cardCount": 2
+      },
+      "masks": []
+    },
+    {
+      "id": "chat-collapsed-ja-dark-1280",
+      "category": "chat",
+      "expanded": false,
+      "language": "ja",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900,
+      "original": {
+        "measurement": "chat-collapsed-ja-dark-1280-original.json",
+        "screenshot": "chat-collapsed-ja-dark-1280-original.png",
+        "sha256": "f17ddc2cdcc3316f3236c38d62f4bfd42838e4e81785d29ce53541e863d99f53",
+        "rawSha256": "c99afffa4e77802e1c540d100a3af748bd6c093eb633682cf895d87b9a345de8",
+        "cardCount": 3
+      },
+      "current": {
+        "measurement": "chat-collapsed-ja-dark-1280-current.json",
+        "screenshot": "chat-collapsed-ja-dark-1280-current.png",
+        "sha256": "930f4e52d2d31987a3e914d37a6beb3cca3d5537a2c3fd142f3b38a654e370ae",
+        "rawSha256": "9b8f2ed4941c93ee5be20a9aee832b2b0d174a2d1f65f8f9a7117323460aa0f4",
+        "cardCount": 3
+      },
+      "masks": []
+    },
+    {
+      "id": "chat-collapsed-ja-light-375",
+      "category": "chat",
+      "expanded": false,
+      "language": "ja",
+      "theme": "light",
+      "width": 375,
+      "height": 1000,
+      "original": {
+        "measurement": "chat-collapsed-ja-light-375-original.json",
+        "screenshot": "chat-collapsed-ja-light-375-original.png",
+        "sha256": "5822aba07f0b71e2ec799b772ed314b3b0e4f3ef0593572f55612671ed509fd1",
+        "rawSha256": "c99afffa4e77802e1c540d100a3af748bd6c093eb633682cf895d87b9a345de8",
+        "cardCount": 3
+      },
+      "current": {
+        "measurement": "chat-collapsed-ja-light-375-current.json",
+        "screenshot": "chat-collapsed-ja-light-375-current.png",
+        "sha256": "4110716c722aa9ffca9f2e172cf7596eb598203eb38bb0edef8e3f233298097c",
+        "rawSha256": "9b8f2ed4941c93ee5be20a9aee832b2b0d174a2d1f65f8f9a7117323460aa0f4",
+        "cardCount": 3
+      },
+      "masks": []
+    },
+    {
+      "id": "chat-expanded-ja-dark-1280",
+      "category": "chat",
+      "expanded": true,
+      "language": "ja",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900,
+      "original": {
+        "measurement": "chat-expanded-ja-dark-1280-original.json",
+        "screenshot": "chat-expanded-ja-dark-1280-original.png",
+        "sha256": "311d23fd02beb8051b91b03c7698a8c1d7400c68c0fd35e230be0a0ebb355d85",
+        "rawSha256": "cbb58e557610836ad66d6f159d718e3f525028be814ab5841af0e96a3b2e0be2",
+        "cardCount": 3
+      },
+      "current": {
+        "measurement": "chat-expanded-ja-dark-1280-current.json",
+        "screenshot": "chat-expanded-ja-dark-1280-current.png",
+        "sha256": "eea33bcb90fcdc5f467df4fa9cc6fd66a75f3b42d88216e64d7a12f5bbe50c13",
+        "rawSha256": "0b9fa6a99bd9cc52359adb440586409a9406bbb0e5b1ff932752cd19141c550b",
+        "cardCount": 3
+      },
+      "masks": []
+    },
+    {
+      "id": "chat-expanded-ja-light-375",
+      "category": "chat",
+      "expanded": true,
+      "language": "ja",
+      "theme": "light",
+      "width": 375,
+      "height": 1000,
+      "original": {
+        "measurement": "chat-expanded-ja-light-375-original.json",
+        "screenshot": "chat-expanded-ja-light-375-original.png",
+        "sha256": "21a5751e357915635d6778ea7cc953d56019f8deebe9771a0b0da0daf75422a5",
+        "rawSha256": "cbb58e557610836ad66d6f159d718e3f525028be814ab5841af0e96a3b2e0be2",
+        "cardCount": 3
+      },
+      "current": {
+        "measurement": "chat-expanded-ja-light-375-current.json",
+        "screenshot": "chat-expanded-ja-light-375-current.png",
+        "sha256": "0608fa63ab66fbef02d391bf5a91c6d43b774503d197529f6fee48ec85781cb0",
+        "rawSha256": "0b9fa6a99bd9cc52359adb440586409a9406bbb0e5b1ff932752cd19141c550b",
+        "cardCount": 3
+      },
+      "masks": []
+    },
+    {
+      "id": "trade-collapsed-ja-dark-1280",
+      "category": "trade",
+      "expanded": false,
+      "language": "ja",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900,
+      "original": {
+        "measurement": "trade-collapsed-ja-dark-1280-original.json",
+        "screenshot": "trade-collapsed-ja-dark-1280-original.png",
+        "sha256": "1bd5074168911ef0b151747488559854e983c46c7a75c5c088382a7c3804b472",
+        "rawSha256": "2dafa783a533c91b87072c27193cea2fc7e1bd4dc2a8087a83bb95ea9ef8c26c",
+        "cardCount": 1
+      },
+      "current": {
+        "measurement": "trade-collapsed-ja-dark-1280-current.json",
+        "screenshot": "trade-collapsed-ja-dark-1280-current.png",
+        "sha256": "d9ba525b4ca2a46ca153fca485dbbc425d684df5a88597116dfec3be881aeaf5",
+        "rawSha256": "d9026cb643fb268454cb002a3429073219a0ee9566227879fe97a9f3690bb057",
+        "cardCount": 1
+      },
+      "masks": []
+    },
+    {
+      "id": "trade-collapsed-ja-light-375",
+      "category": "trade",
+      "expanded": false,
+      "language": "ja",
+      "theme": "light",
+      "width": 375,
+      "height": 1000,
+      "original": {
+        "measurement": "trade-collapsed-ja-light-375-original.json",
+        "screenshot": "trade-collapsed-ja-light-375-original.png",
+        "sha256": "893abf59f7f2497c38bbca5148ec047d6eb657e9461e4d312f8dd5e4d267f950",
+        "rawSha256": "2dafa783a533c91b87072c27193cea2fc7e1bd4dc2a8087a83bb95ea9ef8c26c",
+        "cardCount": 1
+      },
+      "current": {
+        "measurement": "trade-collapsed-ja-light-375-current.json",
+        "screenshot": "trade-collapsed-ja-light-375-current.png",
+        "sha256": "6cfc29850c6a761df59f6b5e9c638e67e6d758ed32286c0691dc7412f0e350e6",
+        "rawSha256": "d9026cb643fb268454cb002a3429073219a0ee9566227879fe97a9f3690bb057",
+        "cardCount": 1
+      },
+      "masks": []
+    },
+    {
+      "id": "trade-expanded-ja-dark-1280",
+      "category": "trade",
+      "expanded": true,
+      "language": "ja",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900,
+      "original": {
+        "measurement": "trade-expanded-ja-dark-1280-original.json",
+        "screenshot": "trade-expanded-ja-dark-1280-original.png",
+        "sha256": "5390bde3a61d5f12e0bde311fd26678edc4f02c6b2e22f4f731f50cbe37449a8",
+        "rawSha256": "1439fa96222e739a9ba28800e07de45fb4c1963f3c5edd992b7d4dcf8b3f8890",
+        "cardCount": 1
+      },
+      "current": {
+        "measurement": "trade-expanded-ja-dark-1280-current.json",
+        "screenshot": "trade-expanded-ja-dark-1280-current.png",
+        "sha256": "d9ba525b4ca2a46ca153fca485dbbc425d684df5a88597116dfec3be881aeaf5",
+        "rawSha256": "d9026cb643fb268454cb002a3429073219a0ee9566227879fe97a9f3690bb057",
+        "cardCount": 1
+      },
+      "masks": []
+    },
+    {
+      "id": "trade-expanded-ja-light-375",
+      "category": "trade",
+      "expanded": true,
+      "language": "ja",
+      "theme": "light",
+      "width": 375,
+      "height": 1000,
+      "original": {
+        "measurement": "trade-expanded-ja-light-375-original.json",
+        "screenshot": "trade-expanded-ja-light-375-original.png",
+        "sha256": "9002e987dddf4e3a3f7725ff7b955a6fe6c361383e8cac4b6370890a8e2b9009",
+        "rawSha256": "1439fa96222e739a9ba28800e07de45fb4c1963f3c5edd992b7d4dcf8b3f8890",
+        "cardCount": 1
+      },
+      "current": {
+        "measurement": "trade-expanded-ja-light-375-current.json",
+        "screenshot": "trade-expanded-ja-light-375-current.png",
+        "sha256": "6cfc29850c6a761df59f6b5e9c638e67e6d758ed32286c0691dc7412f0e350e6",
+        "rawSha256": "d9026cb643fb268454cb002a3429073219a0ee9566227879fe97a9f3690bb057",
+        "cardCount": 1
+      },
+      "masks": []
+    },
+    {
+      "id": "system-collapsed-ja-dark-1280",
+      "category": "system",
+      "expanded": false,
+      "language": "ja",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900,
+      "original": {
+        "measurement": "system-collapsed-ja-dark-1280-original.json",
+        "screenshot": "system-collapsed-ja-dark-1280-original.png",
+        "sha256": "318e81e31ce0a01f8e9a89044fdb0b41cd89d0d2b26282c2394ab2226fb9d3ba",
+        "rawSha256": "895e05d69689eaea6cb65493da09afda568016ce4e921a97286f222888bf8c56",
+        "cardCount": 2
+      },
+      "current": {
+        "measurement": "system-collapsed-ja-dark-1280-current.json",
+        "screenshot": "system-collapsed-ja-dark-1280-current.png",
+        "sha256": "dd360b95a900a6561435a0798d313ea84aa76853c06364dda6b7e89d054ecc20",
+        "rawSha256": "ce94d884dd673200aae0f29cfbb056a35e9100bf3155c411695f56cd78041666",
+        "cardCount": 2
+      },
+      "masks": []
+    },
+    {
+      "id": "system-collapsed-ja-light-375",
+      "category": "system",
+      "expanded": false,
+      "language": "ja",
+      "theme": "light",
+      "width": 375,
+      "height": 1000,
+      "original": {
+        "measurement": "system-collapsed-ja-light-375-original.json",
+        "screenshot": "system-collapsed-ja-light-375-original.png",
+        "sha256": "e70ee68781d0897a2862fa93ce08b6a57468bd742a7bc605de0ec5fcd5585133",
+        "rawSha256": "895e05d69689eaea6cb65493da09afda568016ce4e921a97286f222888bf8c56",
+        "cardCount": 2
+      },
+      "current": {
+        "measurement": "system-collapsed-ja-light-375-current.json",
+        "screenshot": "system-collapsed-ja-light-375-current.png",
+        "sha256": "73d13ece825f83596eee5053c30b6388e43a87c1bb4acd495ab42a018da7774d",
+        "rawSha256": "ce94d884dd673200aae0f29cfbb056a35e9100bf3155c411695f56cd78041666",
+        "cardCount": 2
+      },
+      "masks": []
+    },
+    {
+      "id": "system-expanded-ja-dark-1280",
+      "category": "system",
+      "expanded": true,
+      "language": "ja",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900,
+      "original": {
+        "measurement": "system-expanded-ja-dark-1280-original.json",
+        "screenshot": "system-expanded-ja-dark-1280-original.png",
+        "sha256": "318e81e31ce0a01f8e9a89044fdb0b41cd89d0d2b26282c2394ab2226fb9d3ba",
+        "rawSha256": "895e05d69689eaea6cb65493da09afda568016ce4e921a97286f222888bf8c56",
+        "cardCount": 2
+      },
+      "current": {
+        "measurement": "system-expanded-ja-dark-1280-current.json",
+        "screenshot": "system-expanded-ja-dark-1280-current.png",
+        "sha256": "dd360b95a900a6561435a0798d313ea84aa76853c06364dda6b7e89d054ecc20",
+        "rawSha256": "ce94d884dd673200aae0f29cfbb056a35e9100bf3155c411695f56cd78041666",
+        "cardCount": 2
+      },
+      "masks": []
+    },
+    {
+      "id": "system-expanded-ja-light-375",
+      "category": "system",
+      "expanded": true,
+      "language": "ja",
+      "theme": "light",
+      "width": 375,
+      "height": 1000,
+      "original": {
+        "measurement": "system-expanded-ja-light-375-original.json",
+        "screenshot": "system-expanded-ja-light-375-original.png",
+        "sha256": "e70ee68781d0897a2862fa93ce08b6a57468bd742a7bc605de0ec5fcd5585133",
+        "rawSha256": "895e05d69689eaea6cb65493da09afda568016ce4e921a97286f222888bf8c56",
+        "cardCount": 2
+      },
+      "current": {
+        "measurement": "system-expanded-ja-light-375-current.json",
+        "screenshot": "system-expanded-ja-light-375-current.png",
+        "sha256": "73d13ece825f83596eee5053c30b6388e43a87c1bb4acd495ab42a018da7774d",
+        "rawSha256": "ce94d884dd673200aae0f29cfbb056a35e9100bf3155c411695f56cd78041666",
+        "cardCount": 2
+      },
+      "masks": []
+    }
+  ],
+  "errors": [],
+  "tool": {
+    "playwright": "1.63.0",
+    "node": "v24.18.0"
+  },
+  "scope": "Actual original/current scoped offline category renderers. Equal declared main-view host. Independent original/current CSS with no compatibility overlay. No pixel masks. Original asset-complete runtime is unavailable."
+}

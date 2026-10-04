@@ -1,0 +1,41 @@
+{
+  "comparison": "Decoded RGBA, zero tolerance, no masks",
+  "pairs": [
+    {
+      "id": "settings-en-light-1280",
+      "size": [
+        1280,
+        900
+      ],
+      "changedPixels": 0,
+      "pixelIdentical": true
+    },
+    {
+      "id": "settings-ja-dark-1280",
+      "size": [
+        1280,
+        900
+      ],
+      "changedPixels": 0,
+      "pixelIdentical": true
+    },
+    {
+      "id": "settings-en-dark-375",
+      "size": [
+        375,
+        1000
+      ],
+      "changedPixels": 0,
+      "pixelIdentical": true
+    },
+    {
+      "id": "settings-ja-light-375",
+      "size": [
+        375,
+        1039
+      ],
+      "changedPixels": 0,
+      "pixelIdentical": true
+    }
+  ]
+}

@@ -1,0 +1,90 @@
+{
+  "result": "ORIGINAL_CATALOG_VALUES_EXACT",
+  "count": 12447,
+  "hashes": [
+    {
+      "locale": "en",
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/en-BisSXcTB.js",
+      "sha256": "0bf43d180eb93692a93b830b5d984e9d01ddeea524340f2334fc63cba527a731",
+      "objectByteOffset": 46,
+      "objectBytes": 72251,
+      "keys": 1383
+    },
+    {
+      "locale": "ja",
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/ja-UrbzJu-m.js",
+      "sha256": "35969183ab623b6701bc850fdf28bcf268c93127ff6c9693f77e588ee7bdbe38",
+      "objectByteOffset": 46,
+      "objectBytes": 77479,
+      "keys": 1383
+    },
+    {
+      "locale": "id",
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/id-D9oeC8zM.js",
+      "sha256": "06379ac43dec11717971160bb090156c0b0bd307788bbfca5cc5c5b0d46ce0b1",
+      "objectByteOffset": 46,
+      "objectBytes": 71247,
+      "keys": 1383
+    },
+    {
+      "locale": "ko",
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/ko-SaFvwwmo.js",
+      "sha256": "a1f507d7624a20cfb7136c18d6e91dbc2fb6453f808d8bc0afd093d9ad76a409",
+      "objectByteOffset": 46,
+      "objectBytes": 74928,
+      "keys": 1383
+    },
+    {
+      "locale": "pt",
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/pt-BaH2E9ai.js",
+      "sha256": "18fe76a3a039ec0ce8041b178013752a83e7a913c4593227f6baef0859c5b862",
+      "objectByteOffset": 46,
+      "objectBytes": 74942,
+      "keys": 1383
+    },
+    {
+      "locale": "ru",
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/ru-YncvPDv4.js",
+      "sha256": "1c41c89ad46d07a34673b9a72b0f66e139a28992c6d393a00133b870ec10c25d",
+      "objectByteOffset": 46,
+      "objectBytes": 101101,
+      "keys": 1383
+    },
+    {
+      "locale": "vi",
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/vi-BAUQ1cwP.js",
+      "sha256": "f3290c7d819fdd3032a42d396b56fd3cadc313759ff7cd6a5165c51171ed085e",
+      "objectByteOffset": 46,
+      "objectBytes": 81061,
+      "keys": 1383
+    },
+    {
+      "locale": "zh-CN",
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/zh-CN-ByrbNejR.js",
+      "sha256": "521521c8df711a9d49fd98ce951c4d2a316a9dbfe704bd9e5f65e7686079e9be",
+      "objectByteOffset": 46,
+      "objectBytes": 69225,
+      "keys": 1383
+    },
+    {
+      "locale": "zh-TW",
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/zh-TW-B9GVGLk3.js",
+      "sha256": "94580da17bfce95e121d49274c70724bb92be2fa5806527cc01b96edbb564c8e",
+      "objectByteOffset": 46,
+      "objectBytes": 66004,
+      "keys": 1383
+    }
+  ],
+  "differences": [],
+  "sharedErrorLocator": {
+    "asset": "index-BVfnK1wp.js",
+    "byteOffset": 328172,
+    "bytes": 280,
+    "dependencies": [
+      "jr",
+      "Mr",
+      "Nr",
+      "Pr"
+    ]
+  }
+}

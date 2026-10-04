@@ -1,0 +1,4692 @@
+{
+  "viewport": {
+    "width": 375,
+    "height": 1000
+  },
+  "fonts": "loaded",
+  "html": "<section class=\"panel\"><div class=\"panel-title\"><h2>自動化</h2><span class=\"muted\">ゲーム未接続</span></div><div class=\"automation-categories\" role=\"tablist\" aria-label=\"自動化\"><button type=\"button\" role=\"tab\" class=\"\" aria-selected=\"false\">デイリー任務</button><button type=\"button\" role=\"tab\" class=\"\" aria-selected=\"false\">同盟</button><button type=\"button\" role=\"tab\" class=\"active\" aria-selected=\"true\">資源採集</button><button type=\"button\" role=\"tab\" class=\"\" aria-selected=\"false\">資源受取</button><button type=\"button\" role=\"tab\" class=\"\" aria-selected=\"false\">チャット</button><button type=\"button\" role=\"tab\" class=\"\" aria-selected=\"false\">交易所</button><button type=\"button\" role=\"tab\" class=\"\" aria-selected=\"false\">保護とシステム</button></div><div class=\"automation-grid\"><article class=\"automation-card\" data-preview-fixture=\"runtime-config-unobserved\" data-draft-dirty=\"false\" data-draft-saving=\"false\"><div class=\"automation-card-header\"><div class=\"automation-card-title-group\"><h3>資源採集</h3><p>通常資源を継続採集します。自動戦闘とイベント任務を優先し、シールド中は停止します。手動操作後は設定時間を待って再開します。</p></div><button class=\"automation-header-switch\" type=\"button\" role=\"switch\" aria-checked=\"false\" disabled=\"\"><span class=\"ui-switch\" aria-hidden=\"true\"></span></button></div><div class=\"automation-card-meta-row\" role=\"status\"><span class=\"automation-state state-disabled\">未接続</span></div><div class=\"automation-config\"><div class=\"automation-config-actions\"><button type=\"button\" class=\"automation-config-trigger is-open\" aria-expanded=\"true\">設定</button></div><fieldset class=\"automation-config-body\" disabled=\"\"><div class=\"automation-resource-gather-options\"><label class=\"automation-resource-gather-radius\"><span>スキャン半径（マス）</span><select aria-label=\"スキャン半径（マス）\"><option value=\"50\">50</option><option value=\"100\">100</option><option value=\"150\">150</option><option value=\"200\" selected=\"\">200</option><option value=\"250\">250</option><option value=\"300\">300</option><option value=\"400\">400</option><option value=\"500\">500</option></select></label><label><span>手動操作後の待機時間（分）</span><select><option value=\"1\">1</option><option value=\"2\" selected=\"\">2</option><option value=\"3\">3</option><option value=\"4\">4</option><option value=\"5\">5</option><option value=\"6\">6</option><option value=\"7\">7</option><option value=\"8\">8</option><option value=\"9\">9</option><option value=\"10\">10</option><option value=\"11\">11</option><option value=\"12\">12</option><option value=\"13\">13</option><option value=\"14\">14</option><option value=\"15\">15</option><option value=\"16\">16</option><option value=\"17\">17</option><option value=\"18\">18</option><option value=\"19\">19</option><option value=\"20\">20</option><option value=\"21\">21</option><option value=\"22\">22</option><option value=\"23\">23</option><option value=\"24\">24</option><option value=\"25\">25</option><option value=\"26\">26</option><option value=\"27\">27</option><option value=\"28\">28</option><option value=\"29\">29</option><option value=\"30\">30</option></select></label><label class=\"automation-resource-gather-recall\"><input type=\"checkbox\" disabled=\"\"><span>採集を無効にしたとき部隊を帰還</span></label><small class=\"automation-resource-gather-radius-hint muted\">50～500マスから選択できます。ワールドマップは 1000×1000 マスです。基地を中心とする直線半径で、範囲が広いほどスキャンに時間がかかります。</small></div><p class=\"muted\">部隊設定を読み込み中</p></fieldset></div></article></div></section>",
+  "elements": [
+    {
+      "index": 0,
+      "tag": "SECTION",
+      "cls": "panel",
+      "text": "",
+      "attrs": [
+        [
+          "class",
+          "panel"
+        ]
+      ],
+      "rect": {
+        "x": 15,
+        "y": 15,
+        "width": 345,
+        "height": 573.640625
+      },
+      "visible": true,
+      "styles": {
+        "display": "grid",
+        "position": "static",
+        "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(29, 29, 31)",
+        "backgroundColor": "rgb(255, 255, 255)",
+        "borderColor": "rgb(229, 229, 234)",
+        "borderWidth": "1px",
+        "borderRadius": "10px",
+        "padding": "16px",
+        "margin": "0px",
+        "gap": "14px",
+        "gridTemplateColumns": "311px",
+        "flexDirection": "row",
+        "alignItems": "normal",
+        "opacity": "1",
+        "cursor": "auto"
+      },
+      "pseudo": {
+        "::before": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "block"
+        },
+        "::after": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "block"
+        }
+      }
+    },
+    {
+      "index": 1,
+      "tag": "DIV",
+      "cls": "panel-title",
+      "text": "",
+      "attrs": [
+        [
+          "class",
+          "panel-title"
+        ]
+      ],
+      "rect": {
+        "x": 32,
+        "y": 32,
+        "width": 311,
+        "height": 51
+      },
+      "visible": true,
+      "styles": {
+        "display": "grid",
+        "position": "static",
+        "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(29, 29, 31)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(29, 29, 31)",
+        "borderWidth": "0px",
+        "borderRadius": "0px",
+        "padding": "0px",
+        "margin": "0px",
+        "gap": "4px",
+        "gridTemplateColumns": "311px",
+        "flexDirection": "row",
+        "alignItems": "normal",
+        "opacity": "1",
+        "cursor": "auto"
+      },
+      "pseudo": {
+        "::before": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "block"
+        },
+        "::after": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "block"
+        }
+      }
+    },
+    {
+      "index": 2,
+      "tag": "H2",
+      "cls": "",
+      "text": "自動化",
+      "attrs": [],
+      "rect": {
+        "x": 32,
+        "y": 32,
+        "width": 311,
+        "height": 26
+      },
+      "visible": true,
+      "styles": {
+        "display": "block",
+        "position": "static",
+        "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+        "fontSize": "16px",
+        "fontWeight": "650",
+        "lineHeight": "normal",
+        "color": "rgb(29, 29, 31)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(29, 29, 31)",
+        "borderWidth": "0px",
+        "borderRadius": "0px",
+        "padding": "0px",
+        "margin": "0px",
+        "gap": "normal",
+        "gridTemplateColumns": "none",
+        "flexDirection": "row",
+        "alignItems": "normal",
+        "opacity": "1",
+        "cursor": "auto"
+      },
+      "pseudo": {
+        "::before": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        },
+        "::after": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        }
+      }
+    },
+    {
+      "index": 3,
+      "tag": "SPAN",
+      "cls": "muted",
+      "text": "ゲーム未接続",
+      "attrs": [
+        [
+          "class",
+          "muted"
+        ]
+      ],
+      "rect": {
+        "x": 32,
+        "y": 62,
+        "width": 311,
+        "height": 21
+      },
+      "visible": true,
+      "styles": {
+        "display": "block",
+        "position": "static",
+        "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(95, 95, 99)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(95, 95, 99)",
+        "borderWidth": "0px",
+        "borderRadius": "0px",
+        "padding": "0px",
+        "margin": "0px",
+        "gap": "normal",
+        "gridTemplateColumns": "none",
+        "flexDirection": "row",
+        "alignItems": "normal",
+        "opacity": "1",
+        "cursor": "auto"
+      },
+      "pseudo": {
+        "::before": {
+          "content": "none",
+          "color": "rgb(95, 95, 99)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        },
+        "::after": {
+          "content": "none",
+          "color": "rgb(95, 95, 99)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        }
+      }
+    },
+    {
+      "index": 4,
+      "tag": "DIV",
+      "cls": "automation-categories",
+      "text": "",
+      "attrs": [
+        [
+          "class",
+          "automation-categories"
+        ],
+        [
+          "role",
+          "tablist"
+        ],
+        [
+          "aria-label",
+          "自動化"
+        ]
+      ],
+      "rect": {
+        "x": 32,
+        "y": 97,
+        "width": 311,
+        "height": 38
+      },
+      "visible": true,
+      "styles": {
+        "display": "flex",
+        "position": "static",
+        "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(29, 29, 31)",
+        "backgroundColor": "rgb(235, 235, 237)",
+        "borderColor": "rgb(229, 229, 234)",
+        "borderWidth": "1px",
+        "borderRadius": "8px",
+        "padding": "3px",
+        "margin": "0px 0px 10px",
+        "gap": "3px",
+        "gridTemplateColumns": "none",
+        "flexDirection": "row",
+        "alignItems": "normal",
+        "opacity": "1",
+        "cursor": "auto"
+      },
+      "pseudo": {
+        "::before": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "block"
+        },
+        "::after": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "block"
+        }
+      }
+    },
+    {
+      "index": 5,
+      "tag": "BUTTON",
+      "cls": "",
+      "text": "デイリー任務",
+      "attrs": [
+        [
+          "type",
+          "button"
+        ],
+        [
+          "role",
+          "tab"
+        ],
+        [
+          "class",
+          ""
+        ],
+        [
+          "aria-selected",
+          "false"
+        ]
+      ],
+      "rect": {
+        "x": 36,
+        "y": 101,
+        "width": 105.484375,
+        "height": 30
+      },
+      "visible": true,
+      "styles": {
+        "display": "block",
+        "position": "static",
+        "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+        "fontSize": "13px",
+        "fontWeight": "500",
+        "lineHeight": "normal",
+        "color": "rgb(95, 95, 99)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(95, 95, 99)",
+        "borderWidth": "0px",
+        "borderRadius": "6px",
+        "padding": "0px 14px",
+        "margin": "0px",
+        "gap": "normal",
+        "gridTemplateColumns": "none",
+        "flexDirection": "row",
+        "alignItems": "normal",
+        "opacity": "1",
+        "cursor": "pointer"
+      },
+      "pseudo": {
+        "::before": {
+          "content": "none",
+          "color": "rgb(95, 95, 99)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        },
+        "::after": {
+          "content": "none",
+          "color": "rgb(95, 95, 99)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        }
+      }
+    },
+    {
+      "index": 6,
+      "tag": "BUTTON",
+      "cls": "",
+      "text": "同盟",
+      "attrs": [
+        [
+          "type",
+          "button"
+        ],
+        [
+          "role",
+          "tab"
+        ],
+        [
+          "class",
+          ""
+        ],
+        [
+          "aria-selected",
+          "false"
+        ]
+      ],
+      "rect": {
+        "x": 144.484375,
+        "y": 101,
+        "width": 54,
+        "height": 30
+      },
+      "visible": true,
+      "styles": {
+        "display": "block",
+        "position": "static",
+        "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+        "fontSize": "13px",
+        "fontWeight": "500",
+        "lineHeight": "normal",
+        "color": "rgb(95, 95, 99)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(95, 95, 99)",
+        "borderWidth": "0px",
+        "borderRadius": "6px",
+        "padding": "0px 14px",
+        "margin": "0px",
+        "gap": "normal",
+        "gridTemplateColumns": "none",
+        "flexDirection": "row",
+        "alignItems": "normal",
+        "opacity": "1",
+        "cursor": "pointer"
+      },
+      "pseudo": {
+        "::before": {
+          "content": "none",
+          "color": "rgb(95, 95, 99)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        },
+        "::after": {
+          "content": "none",
+          "color": "rgb(95, 95, 99)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        }
+      }
+    },
+    {
+      "index": 7,
+      "tag": "BUTTON",
+      "cls": "active",
+      "text": "資源採集",
+      "attrs": [
+        [
+          "type",
+          "button"
+        ],
+        [
+          "role",
+          "tab"
+        ],
+        [
+          "class",
+          "active"
+        ],
+        [
+          "aria-selected",
+          "true"
+        ]
+      ],
+      "rect": {
+        "x": 201.484375,
+        "y": 101,
+        "width": 80,
+        "height": 30
+      },
+      "visible": true,
+      "styles": {
+        "display": "block",
+        "position": "static",
+        "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+        "fontSize": "13px",
+        "fontWeight": "600",
+        "lineHeight": "normal",
+        "color": "rgb(31, 29, 29)",
+        "backgroundColor": "rgb(255, 255, 255)",
+        "borderColor": "rgb(31, 29, 29)",
+        "borderWidth": "0px",
+        "borderRadius": "6px",
+        "padding": "0px 14px",
+        "margin": "0px",
+        "gap": "normal",
+        "gridTemplateColumns": "none",
+        "flexDirection": "row",
+        "alignItems": "normal",
+        "opacity": "1",
+        "cursor": "pointer"
+      },
+      "pseudo": {
+        "::before": {
+          "content": "none",
+          "color": "rgb(31, 29, 29)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        },
+        "::after": {
+          "content": "none",
+          "color": "rgb(31, 29, 29)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        }
+      }
+    },
+    {
+      "index": 8,
+      "tag": "BUTTON",
+      "cls": "",
+      "text": "資源受取",
+      "attrs": [
+        [
+          "type",
+          "button"
+        ],
+        [
+          "role",
+          "tab"
+        ],
+        [
+          "class",
+          ""
+        ],
+        [
+          "aria-selected",
+          "false"
+        ]
+      ],
+      "rect": {
+        "x": 284.484375,
+        "y": 101,
+        "width": 80,
+        "height": 30
+      },
+      "visible": true,
+      "styles": {
+        "display": "block",
+        "position": "static",
+        "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+        "fontSize": "13px",
+        "fontWeight": "500",
+        "lineHeight": "normal",
+        "color": "rgb(95, 95, 99)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(95, 95, 99)",
+        "borderWidth": "0px",
+        "borderRadius": "6px",
+        "padding": "0px 14px",
+        "margin": "0px",
+        "gap": "normal",
+        "gridTemplateColumns": "none",
+        "flexDirection": "row",
+        "alignItems": "normal",
+        "opacity": "1",
+        "cursor": "pointer"
+      },
+      "pseudo": {
+        "::before": {
+          "content": "none",
+          "color": "rgb(95, 95, 99)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        },
+        "::after": {
+          "content": "none",
+          "color": "rgb(95, 95, 99)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        }
+      }
+    },
+    {
+      "index": 9,
+      "tag": "BUTTON",
+      "cls": "",
+      "text": "チャット",
+      "attrs": [
+        [
+          "type",
+          "button"
+        ],
+        [
+          "role",
+          "tab"
+        ],
+        [
+          "class",
+          ""
+        ],
+        [
+          "aria-selected",
+          "false"
+        ]
+      ],
+      "rect": {
+        "x": 367.484375,
+        "y": 101,
+        "width": 80,
+        "height": 30
+      },
+      "visible": true,
+      "styles": {
+        "display": "block",
+        "position": "static",
+        "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+        "fontSize": "13px",
+        "fontWeight": "500",
+        "lineHeight": "normal",
+        "color": "rgb(95, 95, 99)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(95, 95, 99)",
+        "borderWidth": "0px",
+        "borderRadius": "6px",
+        "padding": "0px 14px",
+        "margin": "0px",
+        "gap": "normal",
+        "gridTemplateColumns": "none",
+        "flexDirection": "row",
+        "alignItems": "normal",
+        "opacity": "1",
+        "cursor": "pointer"
+      },
+      "pseudo": {
+        "::before": {
+          "content": "none",
+          "color": "rgb(95, 95, 99)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        },
+        "::after": {
+          "content": "none",
+          "color": "rgb(95, 95, 99)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        }
+      }
+    },
+    {
+      "index": 10,
+      "tag": "BUTTON",
+      "cls": "",
+      "text": "交易所",
+      "attrs": [
+        [
+          "type",
+          "button"
+        ],
+        [
+          "role",
+          "tab"
+        ],
+        [
+          "class",
+          ""
+        ],
+        [
+          "aria-selected",
+          "false"
+        ]
+      ],
+      "rect": {
+        "x": 450.484375,
+        "y": 101,
+        "width": 67,
+        "height": 30
+      },
+      "visible": true,
+      "styles": {
+        "display": "block",
+        "position": "static",
+        "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+        "fontSize": "13px",
+        "fontWeight": "500",
+        "lineHeight": "normal",
+        "color": "rgb(95, 95, 99)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(95, 95, 99)",
+        "borderWidth": "0px",
+        "borderRadius": "6px",
+        "padding": "0px 14px",
+        "margin": "0px",
+        "gap": "normal",
+        "gridTemplateColumns": "none",
+        "flexDirection": "row",
+        "alignItems": "normal",
+        "opacity": "1",
+        "cursor": "pointer"
+      },
+      "pseudo": {
+        "::before": {
+          "content": "none",
+          "color": "rgb(95, 95, 99)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        },
+        "::after": {
+          "content": "none",
+          "color": "rgb(95, 95, 99)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        }
+      }
+    },
+    {
+      "index": 11,
+      "tag": "BUTTON",
+      "cls": "",
+      "text": "保護とシステム",
+      "attrs": [
+        [
+          "type",
+          "button"
+        ],
+        [
+          "role",
+          "tab"
+        ],
+        [
+          "class",
+          ""
+        ],
+        [
+          "aria-selected",
+          "false"
+        ]
+      ],
+      "rect": {
+        "x": 520.484375,
+        "y": 101,
+        "width": 118.359375,
+        "height": 30
+      },
+      "visible": true,
+      "styles": {
+        "display": "block",
+        "position": "static",
+        "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+        "fontSize": "13px",
+        "fontWeight": "500",
+        "lineHeight": "normal",
+        "color": "rgb(95, 95, 99)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(95, 95, 99)",
+        "borderWidth": "0px",
+        "borderRadius": "6px",
+        "padding": "0px 14px",
+        "margin": "0px",
+        "gap": "normal",
+        "gridTemplateColumns": "none",
+        "flexDirection": "row",
+        "alignItems": "normal",
+        "opacity": "1",
+        "cursor": "pointer"
+      },
+      "pseudo": {
+        "::before": {
+          "content": "none",
+          "color": "rgb(95, 95, 99)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        },
+        "::after": {
+          "content": "none",
+          "color": "rgb(95, 95, 99)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        }
+      }
+    },
+    {
+      "index": 12,
+      "tag": "DIV",
+      "cls": "automation-grid",
+      "text": "",
+      "attrs": [
+        [
+          "class",
+          "automation-grid"
+        ]
+      ],
+      "rect": {
+        "x": 32,
+        "y": 159,
+        "width": 311,
+        "height": 412.640625
+      },
+      "visible": true,
+      "styles": {
+        "display": "grid",
+        "position": "static",
+        "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(29, 29, 31)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(29, 29, 31)",
+        "borderWidth": "0px",
+        "borderRadius": "0px",
+        "padding": "0px",
+        "margin": "0px",
+        "gap": "10px",
+        "gridTemplateColumns": "311px",
+        "flexDirection": "row",
+        "alignItems": "start",
+        "opacity": "1",
+        "cursor": "auto"
+      },
+      "pseudo": {
+        "::before": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "block"
+        },
+        "::after": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "block"
+        }
+      }
+    },
+    {
+      "index": 13,
+      "tag": "ARTICLE",
+      "cls": "automation-card",
+      "text": "",
+      "attrs": [
+        [
+          "class",
+          "automation-card"
+        ],
+        [
+          "data-preview-fixture",
+          "runtime-config-unobserved"
+        ],
+        [
+          "data-draft-dirty",
+          "false"
+        ],
+        [
+          "data-draft-saving",
+          "false"
+        ]
+      ],
+      "rect": {
+        "x": 32,
+        "y": 159,
+        "width": 311,
+        "height": 412.640625
+      },
+      "visible": true,
+      "styles": {
+        "display": "grid",
+        "position": "static",
+        "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(29, 29, 31)",
+        "backgroundColor": "rgb(255, 255, 255)",
+        "borderColor": "rgb(229, 229, 234)",
+        "borderWidth": "1px",
+        "borderRadius": "8px",
+        "padding": "10px 12px",
+        "margin": "0px",
+        "gap": "8px",
+        "gridTemplateColumns": "285px",
+        "flexDirection": "row",
+        "alignItems": "normal",
+        "opacity": "1",
+        "cursor": "auto"
+      },
+      "pseudo": {
+        "::before": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "block"
+        },
+        "::after": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "block"
+        }
+      }
+    },
+    {
+      "index": 14,
+      "tag": "DIV",
+      "cls": "automation-card-header",
+      "text": "",
+      "attrs": [
+        [
+          "class",
+          "automation-card-header"
+        ]
+      ],
+      "rect": {
+        "x": 45,
+        "y": 170,
+        "width": 285,
+        "height": 83.640625
+      },
+      "visible": true,
+      "styles": {
+        "display": "flex",
+        "position": "static",
+        "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(29, 29, 31)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(29, 29, 31)",
+        "borderWidth": "0px",
+        "borderRadius": "0px",
+        "padding": "0px",
+        "margin": "0px",
+        "gap": "8px",
+        "gridTemplateColumns": "none",
+        "flexDirection": "row",
+        "alignItems": "center",
+        "opacity": "1",
+        "cursor": "auto"
+      },
+      "pseudo": {
+        "::before": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "block"
+        },
+        "::after": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "block"
+        }
+      }
+    },
+    {
+      "index": 15,
+      "tag": "DIV",
+      "cls": "automation-card-title-group",
+      "text": "",
+      "attrs": [
+        [
+          "class",
+          "automation-card-title-group"
+        ]
+      ],
+      "rect": {
+        "x": 45,
+        "y": 170,
+        "width": 209,
+        "height": 83.640625
+      },
+      "visible": true,
+      "styles": {
+        "display": "grid",
+        "position": "static",
+        "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(29, 29, 31)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(29, 29, 31)",
+        "borderWidth": "0px",
+        "borderRadius": "0px",
+        "padding": "0px",
+        "margin": "0px",
+        "gap": "2px",
+        "gridTemplateColumns": "209px",
+        "flexDirection": "row",
+        "alignItems": "normal",
+        "opacity": "1",
+        "cursor": "auto"
+      },
+      "pseudo": {
+        "::before": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "block"
+        },
+        "::after": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "block"
+        }
+      }
+    },
+    {
+      "index": 16,
+      "tag": "H3",
+      "cls": "",
+      "text": "資源採集",
+      "attrs": [],
+      "rect": {
+        "x": 45,
+        "y": 170,
+        "width": 209,
+        "height": 16.890625
+      },
+      "visible": true,
+      "styles": {
+        "display": "block",
+        "position": "static",
+        "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+        "fontSize": "13px",
+        "fontWeight": "650",
+        "lineHeight": "16.9px",
+        "color": "rgb(29, 29, 31)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(29, 29, 31)",
+        "borderWidth": "0px",
+        "borderRadius": "0px",
+        "padding": "0px",
+        "margin": "0px",
+        "gap": "normal",
+        "gridTemplateColumns": "none",
+        "flexDirection": "row",
+        "alignItems": "normal",
+        "opacity": "1",
+        "cursor": "auto"
+      },
+      "pseudo": {
+        "::before": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        },
+        "::after": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        }
+      }
+    },
+    {
+      "index": 17,
+      "tag": "P",
+      "cls": "",
+      "text": "通常資源を継続採集します。自動戦闘とイベント任務を優先し、シールド中は停止します。手動操作後は設定時間を待って再開します。",
+      "attrs": [],
+      "rect": {
+        "x": 45,
+        "y": 188.890625,
+        "width": 209,
+        "height": 64.75
+      },
+      "visible": true,
+      "styles": {
+        "display": "block",
+        "position": "static",
+        "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+        "fontSize": "12px",
+        "fontWeight": "400",
+        "lineHeight": "16.2px",
+        "color": "rgb(95, 95, 99)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(95, 95, 99)",
+        "borderWidth": "0px",
+        "borderRadius": "0px",
+        "padding": "0px",
+        "margin": "0px",
+        "gap": "normal",
+        "gridTemplateColumns": "none",
+        "flexDirection": "row",
+        "alignItems": "normal",
+        "opacity": "1",
+        "cursor": "auto"
+      },
+      "pseudo": {
+        "::before": {
+          "content": "none",
+          "color": "rgb(95, 95, 99)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        },
+        "::after": {
+          "content": "none",
+          "color": "rgb(95, 95, 99)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        }
+      }
+    },
+    {
+      "index": 18,
+      "tag": "BUTTON",
+      "cls": "automation-header-switch",
+      "text": "",
+      "attrs": [
+        [
+          "class",
+          "automation-header-switch"
+        ],
+        [
+          "type",
+          "button"
+        ],
+        [
+          "role",
+          "switch"
+        ],
+        [
+          "aria-checked",
+          "false"
+        ],
+        [
+          "disabled",
+          ""
+        ]
+      ],
+      "rect": {
+        "x": 262,
+        "y": 193.8125,
+        "width": 68,
+        "height": 36
+      },
+      "visible": true,
+      "styles": {
+        "display": "flex",
+        "position": "static",
+        "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(29, 29, 31)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(29, 29, 31)",
+        "borderWidth": "0px",
+        "borderRadius": "999px",
+        "padding": "2px",
+        "margin": "0px",
+        "gap": "normal",
+        "gridTemplateColumns": "none",
+        "flexDirection": "row",
+        "alignItems": "center",
+        "opacity": "0.45",
+        "cursor": "not-allowed"
+      },
+      "pseudo": {
+        "::before": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "block"
+        },
+        "::after": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "block"
+        }
+      }
+    },
+    {
+      "index": 19,
+      "tag": "SPAN",
+      "cls": "ui-switch",
+      "text": "",
+      "attrs": [
+        [
+          "class",
+          "ui-switch"
+        ],
+        [
+          "aria-hidden",
+          "true"
+        ]
+      ],
+      "rect": {
+        "x": 264,
+        "y": 195.8125,
+        "width": 64,
+        "height": 32
+      },
+      "visible": true,
+      "styles": {
+        "display": "block",
+        "position": "relative",
+        "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(29, 29, 31)",
+        "backgroundColor": "rgb(229, 229, 234)",
+        "borderColor": "rgb(209, 209, 214)",
+        "borderWidth": "1px",
+        "borderRadius": "999px",
+        "padding": "0px",
+        "margin": "0px",
+        "gap": "normal",
+        "gridTemplateColumns": "none",
+        "flexDirection": "row",
+        "alignItems": "normal",
+        "opacity": "1",
+        "cursor": "not-allowed"
+      },
+      "pseudo": {
+        "::before": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        },
+        "::after": {
+          "content": "\"\"",
+          "color": "rgb(29, 29, 31)",
+          "width": "24px",
+          "height": "24px",
+          "display": "block"
+        }
+      }
+    },
+    {
+      "index": 20,
+      "tag": "DIV",
+      "cls": "automation-card-meta-row",
+      "text": "",
+      "attrs": [
+        [
+          "class",
+          "automation-card-meta-row"
+        ],
+        [
+          "role",
+          "status"
+        ]
+      ],
+      "rect": {
+        "x": 45,
+        "y": 261.640625,
+        "width": 285,
+        "height": 23
+      },
+      "visible": true,
+      "styles": {
+        "display": "flex",
+        "position": "static",
+        "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(29, 29, 31)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(29, 29, 31)",
+        "borderWidth": "0px",
+        "borderRadius": "0px",
+        "padding": "0px",
+        "margin": "0px",
+        "gap": "8px",
+        "gridTemplateColumns": "none",
+        "flexDirection": "row",
+        "alignItems": "center",
+        "opacity": "1",
+        "cursor": "auto"
+      },
+      "pseudo": {
+        "::before": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "block"
+        },
+        "::after": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "block"
+        }
+      }
+    },
+    {
+      "index": 21,
+      "tag": "SPAN",
+      "cls": "automation-state state-disabled",
+      "text": "未接続",
+      "attrs": [
+        [
+          "class",
+          "automation-state state-disabled"
+        ]
+      ],
+      "rect": {
+        "x": 45,
+        "y": 261.640625,
+        "width": 51,
+        "height": 23
+      },
+      "visible": true,
+      "styles": {
+        "display": "block",
+        "position": "static",
+        "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+        "fontSize": "11px",
+        "fontWeight": "600",
+        "lineHeight": "normal",
+        "color": "rgb(95, 95, 99)",
+        "backgroundColor": "rgb(229, 229, 234)",
+        "borderColor": "rgb(229, 229, 234)",
+        "borderWidth": "1px",
+        "borderRadius": "5px",
+        "padding": "2px 8px",
+        "margin": "0px",
+        "gap": "normal",
+        "gridTemplateColumns": "none",
+        "flexDirection": "row",
+        "alignItems": "normal",
+        "opacity": "1",
+        "cursor": "auto"
+      },
+      "pseudo": {
+        "::before": {
+          "content": "none",
+          "color": "rgb(95, 95, 99)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        },
+        "::after": {
+          "content": "none",
+          "color": "rgb(95, 95, 99)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        }
+      }
+    },
+    {
+      "index": 22,
+      "tag": "DIV",
+      "cls": "automation-config",
+      "text": "",
+      "attrs": [
+        [
+          "class",
+          "automation-config"
+        ]
+      ],
+      "rect": {
+        "x": 45,
+        "y": 296.640625,
+        "width": 285,
+        "height": 264
+      },
+      "visible": true,
+      "styles": {
+        "display": "block",
+        "position": "static",
+        "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(29, 29, 31)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(229, 229, 234) rgb(29, 29, 31) rgb(29, 29, 31)",
+        "borderWidth": "1px 0px 0px",
+        "borderRadius": "0px",
+        "padding": "4px 0px 0px",
+        "margin": "4px 0px 0px",
+        "gap": "normal",
+        "gridTemplateColumns": "none",
+        "flexDirection": "row",
+        "alignItems": "normal",
+        "opacity": "1",
+        "cursor": "auto"
+      },
+      "pseudo": {
+        "::before": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        },
+        "::after": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        }
+      }
+    },
+    {
+      "index": 23,
+      "tag": "DIV",
+      "cls": "automation-config-actions",
+      "text": "",
+      "attrs": [
+        [
+          "class",
+          "automation-config-actions"
+        ]
+      ],
+      "rect": {
+        "x": 45,
+        "y": 301.640625,
+        "width": 285,
+        "height": 32
+      },
+      "visible": true,
+      "styles": {
+        "display": "flex",
+        "position": "static",
+        "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(29, 29, 31)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(29, 29, 31)",
+        "borderWidth": "0px",
+        "borderRadius": "0px",
+        "padding": "0px",
+        "margin": "0px",
+        "gap": "8px",
+        "gridTemplateColumns": "none",
+        "flexDirection": "row",
+        "alignItems": "center",
+        "opacity": "1",
+        "cursor": "auto"
+      },
+      "pseudo": {
+        "::before": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "block"
+        },
+        "::after": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "block"
+        }
+      }
+    },
+    {
+      "index": 24,
+      "tag": "BUTTON",
+      "cls": "automation-config-trigger is-open",
+      "text": "設定",
+      "attrs": [
+        [
+          "type",
+          "button"
+        ],
+        [
+          "class",
+          "automation-config-trigger is-open"
+        ],
+        [
+          "aria-expanded",
+          "true"
+        ]
+      ],
+      "rect": {
+        "x": 45,
+        "y": 301.640625,
+        "width": 42,
+        "height": 32
+      },
+      "visible": true,
+      "styles": {
+        "display": "flex",
+        "position": "static",
+        "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+        "fontSize": "12px",
+        "fontWeight": "600",
+        "lineHeight": "normal",
+        "color": "rgb(0, 113, 227)",
+        "backgroundColor": "rgba(0, 113, 227, 0.1)",
+        "borderColor": "rgb(196, 222, 249)",
+        "borderWidth": "1px",
+        "borderRadius": "6px",
+        "padding": "5px 8px",
+        "margin": "0px",
+        "gap": "8px",
+        "gridTemplateColumns": "none",
+        "flexDirection": "row",
+        "alignItems": "center",
+        "opacity": "1",
+        "cursor": "pointer"
+      },
+      "pseudo": {
+        "::before": {
+          "content": "none",
+          "color": "rgb(0, 113, 227)",
+          "width": "auto",
+          "height": "auto",
+          "display": "block"
+        },
+        "::after": {
+          "content": "none",
+          "color": "rgb(0, 113, 227)",
+          "width": "auto",
+          "height": "auto",
+          "display": "block"
+        }
+      }
+    },
+    {
+      "index": 25,
+      "tag": "FIELDSET",
+      "cls": "automation-config-body",
+      "text": "",
+      "attrs": [
+        [
+          "class",
+          "automation-config-body"
+        ],
+        [
+          "disabled",
+          ""
+        ]
+      ],
+      "rect": {
+        "x": 45,
+        "y": 333.640625,
+        "width": 285,
+        "height": 227
+      },
+      "visible": true,
+      "styles": {
+        "display": "grid",
+        "position": "static",
+        "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(29, 29, 31)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(29, 29, 31)",
+        "borderWidth": "0px",
+        "borderRadius": "0px",
+        "padding": "10px 0px 0px",
+        "margin": "0px",
+        "gap": "9px",
+        "gridTemplateColumns": "none",
+        "flexDirection": "row",
+        "alignItems": "normal",
+        "opacity": "1",
+        "cursor": "auto"
+      },
+      "pseudo": {
+        "::before": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "block"
+        },
+        "::after": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "block"
+        }
+      }
+    },
+    {
+      "index": 26,
+      "tag": "DIV",
+      "cls": "automation-resource-gather-options",
+      "text": "",
+      "attrs": [
+        [
+          "class",
+          "automation-resource-gather-options"
+        ]
+      ],
+      "rect": {
+        "x": 45,
+        "y": 343.640625,
+        "width": 285,
+        "height": 161
+      },
+      "visible": true,
+      "styles": {
+        "display": "flex",
+        "position": "static",
+        "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(29, 29, 31)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(29, 29, 31)",
+        "borderWidth": "0px",
+        "borderRadius": "0px",
+        "padding": "0px",
+        "margin": "0px",
+        "gap": "8px 16px",
+        "gridTemplateColumns": "none",
+        "flexDirection": "row",
+        "alignItems": "center",
+        "opacity": "1",
+        "cursor": "auto"
+      },
+      "pseudo": {
+        "::before": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "block"
+        },
+        "::after": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "block"
+        }
+      }
+    },
+    {
+      "index": 27,
+      "tag": "LABEL",
+      "cls": "automation-resource-gather-radius",
+      "text": "",
+      "attrs": [
+        [
+          "class",
+          "automation-resource-gather-radius"
+        ]
+      ],
+      "rect": {
+        "x": 45,
+        "y": 343.640625,
+        "width": 190,
+        "height": 28
+      },
+      "visible": true,
+      "styles": {
+        "display": "flex",
+        "position": "static",
+        "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(29, 29, 31)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(29, 29, 31)",
+        "borderWidth": "0px",
+        "borderRadius": "0px",
+        "padding": "0px",
+        "margin": "0px",
+        "gap": "6px",
+        "gridTemplateColumns": "none",
+        "flexDirection": "row",
+        "alignItems": "center",
+        "opacity": "1",
+        "cursor": "default"
+      },
+      "pseudo": {
+        "::before": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "block"
+        },
+        "::after": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "block"
+        }
+      }
+    },
+    {
+      "index": 28,
+      "tag": "SPAN",
+      "cls": "",
+      "text": "スキャン半径（マス）",
+      "attrs": [],
+      "rect": {
+        "x": 45,
+        "y": 347.140625,
+        "width": 130,
+        "height": 21
+      },
+      "visible": true,
+      "styles": {
+        "display": "block",
+        "position": "static",
+        "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(29, 29, 31)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(29, 29, 31)",
+        "borderWidth": "0px",
+        "borderRadius": "0px",
+        "padding": "0px",
+        "margin": "0px",
+        "gap": "normal",
+        "gridTemplateColumns": "none",
+        "flexDirection": "row",
+        "alignItems": "normal",
+        "opacity": "1",
+        "cursor": "default"
+      },
+      "pseudo": {
+        "::before": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        },
+        "::after": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        }
+      }
+    },
+    {
+      "index": 29,
+      "tag": "SELECT",
+      "cls": "",
+      "text": "",
+      "attrs": [
+        [
+          "aria-label",
+          "スキャン半径（マス）"
+        ]
+      ],
+      "rect": {
+        "x": 181,
+        "y": 343.640625,
+        "width": 54,
+        "height": 28
+      },
+      "visible": true,
+      "styles": {
+        "display": "block",
+        "position": "static",
+        "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(29, 29, 31)",
+        "backgroundColor": "rgb(255, 255, 255)",
+        "borderColor": "rgb(229, 229, 234)",
+        "borderWidth": "1px",
+        "borderRadius": "8px",
+        "padding": "3px 6px",
+        "margin": "0px",
+        "gap": "normal",
+        "gridTemplateColumns": "none",
+        "flexDirection": "row",
+        "alignItems": "center",
+        "opacity": "0.7",
+        "cursor": "default"
+      },
+      "pseudo": {
+        "::before": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        },
+        "::after": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        }
+      }
+    },
+    {
+      "index": 30,
+      "tag": "OPTION",
+      "cls": "",
+      "text": "50",
+      "attrs": [
+        [
+          "value",
+          "50"
+        ]
+      ],
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "visible": false,
+      "styles": {
+        "display": "block",
+        "position": "static",
+        "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(29, 29, 31)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(29, 29, 31)",
+        "borderWidth": "0px",
+        "borderRadius": "0px",
+        "padding": "0px 2px 1px",
+        "margin": "0px",
+        "gap": "6.5px",
+        "gridTemplateColumns": "none",
+        "flexDirection": "row",
+        "alignItems": "center",
+        "opacity": "1",
+        "cursor": "default"
+      },
+      "pseudo": {
+        "::before": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        },
+        "::after": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        }
+      }
+    },
+    {
+      "index": 31,
+      "tag": "OPTION",
+      "cls": "",
+      "text": "100",
+      "attrs": [
+        [
+          "value",
+          "100"
+        ]
+      ],
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "visible": false,
+      "styles": {
+        "display": "block",
+        "position": "static",
+        "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(29, 29, 31)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(29, 29, 31)",
+        "borderWidth": "0px",
+        "borderRadius": "0px",
+        "padding": "0px 2px 1px",
+        "margin": "0px",
+        "gap": "6.5px",
+        "gridTemplateColumns": "none",
+        "flexDirection": "row",
+        "alignItems": "center",
+        "opacity": "1",
+        "cursor": "default"
+      },
+      "pseudo": {
+        "::before": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        },
+        "::after": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        }
+      }
+    },
+    {
+      "index": 32,
+      "tag": "OPTION",
+      "cls": "",
+      "text": "150",
+      "attrs": [
+        [
+          "value",
+          "150"
+        ]
+      ],
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "visible": false,
+      "styles": {
+        "display": "block",
+        "position": "static",
+        "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(29, 29, 31)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(29, 29, 31)",
+        "borderWidth": "0px",
+        "borderRadius": "0px",
+        "padding": "0px 2px 1px",
+        "margin": "0px",
+        "gap": "6.5px",
+        "gridTemplateColumns": "none",
+        "flexDirection": "row",
+        "alignItems": "center",
+        "opacity": "1",
+        "cursor": "default"
+      },
+      "pseudo": {
+        "::before": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        },
+        "::after": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        }
+      }
+    },
+    {
+      "index": 33,
+      "tag": "OPTION",
+      "cls": "",
+      "text": "200",
+      "attrs": [
+        [
+          "value",
+          "200"
+        ],
+        [
+          "selected",
+          ""
+        ]
+      ],
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "visible": false,
+      "styles": {
+        "display": "block",
+        "position": "static",
+        "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(29, 29, 31)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(29, 29, 31)",
+        "borderWidth": "0px",
+        "borderRadius": "0px",
+        "padding": "0px 2px 1px",
+        "margin": "0px",
+        "gap": "6.5px",
+        "gridTemplateColumns": "none",
+        "flexDirection": "row",
+        "alignItems": "center",
+        "opacity": "1",
+        "cursor": "default"
+      },
+      "pseudo": {
+        "::before": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        },
+        "::after": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        }
+      }
+    },
+    {
+      "index": 34,
+      "tag": "OPTION",
+      "cls": "",
+      "text": "250",
+      "attrs": [
+        [
+          "value",
+          "250"
+        ]
+      ],
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "visible": false,
+      "styles": {
+        "display": "block",
+        "position": "static",
+        "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(29, 29, 31)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(29, 29, 31)",
+        "borderWidth": "0px",
+        "borderRadius": "0px",
+        "padding": "0px 2px 1px",
+        "margin": "0px",
+        "gap": "6.5px",
+        "gridTemplateColumns": "none",
+        "flexDirection": "row",
+        "alignItems": "center",
+        "opacity": "1",
+        "cursor": "default"
+      },
+      "pseudo": {
+        "::before": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        },
+        "::after": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        }
+      }
+    },
+    {
+      "index": 35,
+      "tag": "OPTION",
+      "cls": "",
+      "text": "300",
+      "attrs": [
+        [
+          "value",
+          "300"
+        ]
+      ],
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "visible": false,
+      "styles": {
+        "display": "block",
+        "position": "static",
+        "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(29, 29, 31)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(29, 29, 31)",
+        "borderWidth": "0px",
+        "borderRadius": "0px",
+        "padding": "0px 2px 1px",
+        "margin": "0px",
+        "gap": "6.5px",
+        "gridTemplateColumns": "none",
+        "flexDirection": "row",
+        "alignItems": "center",
+        "opacity": "1",
+        "cursor": "default"
+      },
+      "pseudo": {
+        "::before": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        },
+        "::after": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        }
+      }
+    },
+    {
+      "index": 36,
+      "tag": "OPTION",
+      "cls": "",
+      "text": "400",
+      "attrs": [
+        [
+          "value",
+          "400"
+        ]
+      ],
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "visible": false,
+      "styles": {
+        "display": "block",
+        "position": "static",
+        "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(29, 29, 31)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(29, 29, 31)",
+        "borderWidth": "0px",
+        "borderRadius": "0px",
+        "padding": "0px 2px 1px",
+        "margin": "0px",
+        "gap": "6.5px",
+        "gridTemplateColumns": "none",
+        "flexDirection": "row",
+        "alignItems": "center",
+        "opacity": "1",
+        "cursor": "default"
+      },
+      "pseudo": {
+        "::before": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        },
+        "::after": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        }
+      }
+    },
+    {
+      "index": 37,
+      "tag": "OPTION",
+      "cls": "",
+      "text": "500",
+      "attrs": [
+        [
+          "value",
+          "500"
+        ]
+      ],
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "visible": false,
+      "styles": {
+        "display": "block",
+        "position": "static",
+        "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(29, 29, 31)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(29, 29, 31)",
+        "borderWidth": "0px",
+        "borderRadius": "0px",
+        "padding": "0px 2px 1px",
+        "margin": "0px",
+        "gap": "6.5px",
+        "gridTemplateColumns": "none",
+        "flexDirection": "row",
+        "alignItems": "center",
+        "opacity": "1",
+        "cursor": "default"
+      },
+      "pseudo": {
+        "::before": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        },
+        "::after": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        }
+      }
+    },
+    {
+      "index": 38,
+      "tag": "LABEL",
+      "cls": "",
+      "text": "",
+      "attrs": [],
+      "rect": {
+        "x": 45,
+        "y": 379.640625,
+        "width": 229,
+        "height": 28
+      },
+      "visible": true,
+      "styles": {
+        "display": "flex",
+        "position": "static",
+        "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(29, 29, 31)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(29, 29, 31)",
+        "borderWidth": "0px",
+        "borderRadius": "0px",
+        "padding": "0px",
+        "margin": "0px",
+        "gap": "6px",
+        "gridTemplateColumns": "none",
+        "flexDirection": "row",
+        "alignItems": "center",
+        "opacity": "1",
+        "cursor": "default"
+      },
+      "pseudo": {
+        "::before": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "block"
+        },
+        "::after": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "block"
+        }
+      }
+    },
+    {
+      "index": 39,
+      "tag": "SPAN",
+      "cls": "",
+      "text": "手動操作後の待機時間（分）",
+      "attrs": [],
+      "rect": {
+        "x": 45,
+        "y": 383.140625,
+        "width": 169,
+        "height": 21
+      },
+      "visible": true,
+      "styles": {
+        "display": "block",
+        "position": "static",
+        "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(29, 29, 31)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(29, 29, 31)",
+        "borderWidth": "0px",
+        "borderRadius": "0px",
+        "padding": "0px",
+        "margin": "0px",
+        "gap": "normal",
+        "gridTemplateColumns": "none",
+        "flexDirection": "row",
+        "alignItems": "normal",
+        "opacity": "1",
+        "cursor": "default"
+      },
+      "pseudo": {
+        "::before": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        },
+        "::after": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        }
+      }
+    },
+    {
+      "index": 40,
+      "tag": "SELECT",
+      "cls": "",
+      "text": "",
+      "attrs": [],
+      "rect": {
+        "x": 220,
+        "y": 379.640625,
+        "width": 54,
+        "height": 28
+      },
+      "visible": true,
+      "styles": {
+        "display": "block",
+        "position": "static",
+        "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(29, 29, 31)",
+        "backgroundColor": "rgb(255, 255, 255)",
+        "borderColor": "rgb(229, 229, 234)",
+        "borderWidth": "1px",
+        "borderRadius": "8px",
+        "padding": "3px 6px",
+        "margin": "0px",
+        "gap": "normal",
+        "gridTemplateColumns": "none",
+        "flexDirection": "row",
+        "alignItems": "center",
+        "opacity": "0.7",
+        "cursor": "default"
+      },
+      "pseudo": {
+        "::before": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        },
+        "::after": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        }
+      }
+    },
+    {
+      "index": 41,
+      "tag": "OPTION",
+      "cls": "",
+      "text": "1",
+      "attrs": [
+        [
+          "value",
+          "1"
+        ]
+      ],
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "visible": false,
+      "styles": {
+        "display": "block",
+        "position": "static",
+        "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(29, 29, 31)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(29, 29, 31)",
+        "borderWidth": "0px",
+        "borderRadius": "0px",
+        "padding": "0px 2px 1px",
+        "margin": "0px",
+        "gap": "6.5px",
+        "gridTemplateColumns": "none",
+        "flexDirection": "row",
+        "alignItems": "center",
+        "opacity": "1",
+        "cursor": "default"
+      },
+      "pseudo": {
+        "::before": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        },
+        "::after": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        }
+      }
+    },
+    {
+      "index": 42,
+      "tag": "OPTION",
+      "cls": "",
+      "text": "2",
+      "attrs": [
+        [
+          "value",
+          "2"
+        ],
+        [
+          "selected",
+          ""
+        ]
+      ],
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "visible": false,
+      "styles": {
+        "display": "block",
+        "position": "static",
+        "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(29, 29, 31)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(29, 29, 31)",
+        "borderWidth": "0px",
+        "borderRadius": "0px",
+        "padding": "0px 2px 1px",
+        "margin": "0px",
+        "gap": "6.5px",
+        "gridTemplateColumns": "none",
+        "flexDirection": "row",
+        "alignItems": "center",
+        "opacity": "1",
+        "cursor": "default"
+      },
+      "pseudo": {
+        "::before": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        },
+        "::after": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        }
+      }
+    },
+    {
+      "index": 43,
+      "tag": "OPTION",
+      "cls": "",
+      "text": "3",
+      "attrs": [
+        [
+          "value",
+          "3"
+        ]
+      ],
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "visible": false,
+      "styles": {
+        "display": "block",
+        "position": "static",
+        "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(29, 29, 31)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(29, 29, 31)",
+        "borderWidth": "0px",
+        "borderRadius": "0px",
+        "padding": "0px 2px 1px",
+        "margin": "0px",
+        "gap": "6.5px",
+        "gridTemplateColumns": "none",
+        "flexDirection": "row",
+        "alignItems": "center",
+        "opacity": "1",
+        "cursor": "default"
+      },
+      "pseudo": {
+        "::before": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        },
+        "::after": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        }
+      }
+    },
+    {
+      "index": 44,
+      "tag": "OPTION",
+      "cls": "",
+      "text": "4",
+      "attrs": [
+        [
+          "value",
+          "4"
+        ]
+      ],
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "visible": false,
+      "styles": {
+        "display": "block",
+        "position": "static",
+        "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(29, 29, 31)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(29, 29, 31)",
+        "borderWidth": "0px",
+        "borderRadius": "0px",
+        "padding": "0px 2px 1px",
+        "margin": "0px",
+        "gap": "6.5px",
+        "gridTemplateColumns": "none",
+        "flexDirection": "row",
+        "alignItems": "center",
+        "opacity": "1",
+        "cursor": "default"
+      },
+      "pseudo": {
+        "::before": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        },
+        "::after": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        }
+      }
+    },
+    {
+      "index": 45,
+      "tag": "OPTION",
+      "cls": "",
+      "text": "5",
+      "attrs": [
+        [
+          "value",
+          "5"
+        ]
+      ],
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "visible": false,
+      "styles": {
+        "display": "block",
+        "position": "static",
+        "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(29, 29, 31)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(29, 29, 31)",
+        "borderWidth": "0px",
+        "borderRadius": "0px",
+        "padding": "0px 2px 1px",
+        "margin": "0px",
+        "gap": "6.5px",
+        "gridTemplateColumns": "none",
+        "flexDirection": "row",
+        "alignItems": "center",
+        "opacity": "1",
+        "cursor": "default"
+      },
+      "pseudo": {
+        "::before": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        },
+        "::after": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        }
+      }
+    },
+    {
+      "index": 46,
+      "tag": "OPTION",
+      "cls": "",
+      "text": "6",
+      "attrs": [
+        [
+          "value",
+          "6"
+        ]
+      ],
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "visible": false,
+      "styles": {
+        "display": "block",
+        "position": "static",
+        "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(29, 29, 31)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(29, 29, 31)",
+        "borderWidth": "0px",
+        "borderRadius": "0px",
+        "padding": "0px 2px 1px",
+        "margin": "0px",
+        "gap": "6.5px",
+        "gridTemplateColumns": "none",
+        "flexDirection": "row",
+        "alignItems": "center",
+        "opacity": "1",
+        "cursor": "default"
+      },
+      "pseudo": {
+        "::before": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        },
+        "::after": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        }
+      }
+    },
+    {
+      "index": 47,
+      "tag": "OPTION",
+      "cls": "",
+      "text": "7",
+      "attrs": [
+        [
+          "value",
+          "7"
+        ]
+      ],
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "visible": false,
+      "styles": {
+        "display": "block",
+        "position": "static",
+        "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(29, 29, 31)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(29, 29, 31)",
+        "borderWidth": "0px",
+        "borderRadius": "0px",
+        "padding": "0px 2px 1px",
+        "margin": "0px",
+        "gap": "6.5px",
+        "gridTemplateColumns": "none",
+        "flexDirection": "row",
+        "alignItems": "center",
+        "opacity": "1",
+        "cursor": "default"
+      },
+      "pseudo": {
+        "::before": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        },
+        "::after": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        }
+      }
+    },
+    {
+      "index": 48,
+      "tag": "OPTION",
+      "cls": "",
+      "text": "8",
+      "attrs": [
+        [
+          "value",
+          "8"
+        ]
+      ],
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "visible": false,
+      "styles": {
+        "display": "block",
+        "position": "static",
+        "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(29, 29, 31)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(29, 29, 31)",
+        "borderWidth": "0px",
+        "borderRadius": "0px",
+        "padding": "0px 2px 1px",
+        "margin": "0px",
+        "gap": "6.5px",
+        "gridTemplateColumns": "none",
+        "flexDirection": "row",
+        "alignItems": "center",
+        "opacity": "1",
+        "cursor": "default"
+      },
+      "pseudo": {
+        "::before": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        },
+        "::after": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        }
+      }
+    },
+    {
+      "index": 49,
+      "tag": "OPTION",
+      "cls": "",
+      "text": "9",
+      "attrs": [
+        [
+          "value",
+          "9"
+        ]
+      ],
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "visible": false,
+      "styles": {
+        "display": "block",
+        "position": "static",
+        "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(29, 29, 31)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(29, 29, 31)",
+        "borderWidth": "0px",
+        "borderRadius": "0px",
+        "padding": "0px 2px 1px",
+        "margin": "0px",
+        "gap": "6.5px",
+        "gridTemplateColumns": "none",
+        "flexDirection": "row",
+        "alignItems": "center",
+        "opacity": "1",
+        "cursor": "default"
+      },
+      "pseudo": {
+        "::before": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        },
+        "::after": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        }
+      }
+    },
+    {
+      "index": 50,
+      "tag": "OPTION",
+      "cls": "",
+      "text": "10",
+      "attrs": [
+        [
+          "value",
+          "10"
+        ]
+      ],
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "visible": false,
+      "styles": {
+        "display": "block",
+        "position": "static",
+        "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(29, 29, 31)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(29, 29, 31)",
+        "borderWidth": "0px",
+        "borderRadius": "0px",
+        "padding": "0px 2px 1px",
+        "margin": "0px",
+        "gap": "6.5px",
+        "gridTemplateColumns": "none",
+        "flexDirection": "row",
+        "alignItems": "center",
+        "opacity": "1",
+        "cursor": "default"
+      },
+      "pseudo": {
+        "::before": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        },
+        "::after": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        }
+      }
+    },
+    {
+      "index": 51,
+      "tag": "OPTION",
+      "cls": "",
+      "text": "11",
+      "attrs": [
+        [
+          "value",
+          "11"
+        ]
+      ],
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "visible": false,
+      "styles": {
+        "display": "block",
+        "position": "static",
+        "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(29, 29, 31)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(29, 29, 31)",
+        "borderWidth": "0px",
+        "borderRadius": "0px",
+        "padding": "0px 2px 1px",
+        "margin": "0px",
+        "gap": "6.5px",
+        "gridTemplateColumns": "none",
+        "flexDirection": "row",
+        "alignItems": "center",
+        "opacity": "1",
+        "cursor": "default"
+      },
+      "pseudo": {
+        "::before": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        },
+        "::after": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        }
+      }
+    },
+    {
+      "index": 52,
+      "tag": "OPTION",
+      "cls": "",
+      "text": "12",
+      "attrs": [
+        [
+          "value",
+          "12"
+        ]
+      ],
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "visible": false,
+      "styles": {
+        "display": "block",
+        "position": "static",
+        "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(29, 29, 31)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(29, 29, 31)",
+        "borderWidth": "0px",
+        "borderRadius": "0px",
+        "padding": "0px 2px 1px",
+        "margin": "0px",
+        "gap": "6.5px",
+        "gridTemplateColumns": "none",
+        "flexDirection": "row",
+        "alignItems": "center",
+        "opacity": "1",
+        "cursor": "default"
+      },
+      "pseudo": {
+        "::before": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        },
+        "::after": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        }
+      }
+    },
+    {
+      "index": 53,
+      "tag": "OPTION",
+      "cls": "",
+      "text": "13",
+      "attrs": [
+        [
+          "value",
+          "13"
+        ]
+      ],
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "visible": false,
+      "styles": {
+        "display": "block",
+        "position": "static",
+        "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(29, 29, 31)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(29, 29, 31)",
+        "borderWidth": "0px",
+        "borderRadius": "0px",
+        "padding": "0px 2px 1px",
+        "margin": "0px",
+        "gap": "6.5px",
+        "gridTemplateColumns": "none",
+        "flexDirection": "row",
+        "alignItems": "center",
+        "opacity": "1",
+        "cursor": "default"
+      },
+      "pseudo": {
+        "::before": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        },
+        "::after": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        }
+      }
+    },
+    {
+      "index": 54,
+      "tag": "OPTION",
+      "cls": "",
+      "text": "14",
+      "attrs": [
+        [
+          "value",
+          "14"
+        ]
+      ],
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "visible": false,
+      "styles": {
+        "display": "block",
+        "position": "static",
+        "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(29, 29, 31)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(29, 29, 31)",
+        "borderWidth": "0px",
+        "borderRadius": "0px",
+        "padding": "0px 2px 1px",
+        "margin": "0px",
+        "gap": "6.5px",
+        "gridTemplateColumns": "none",
+        "flexDirection": "row",
+        "alignItems": "center",
+        "opacity": "1",
+        "cursor": "default"
+      },
+      "pseudo": {
+        "::before": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        },
+        "::after": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        }
+      }
+    },
+    {
+      "index": 55,
+      "tag": "OPTION",
+      "cls": "",
+      "text": "15",
+      "attrs": [
+        [
+          "value",
+          "15"
+        ]
+      ],
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "visible": false,
+      "styles": {
+        "display": "block",
+        "position": "static",
+        "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(29, 29, 31)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(29, 29, 31)",
+        "borderWidth": "0px",
+        "borderRadius": "0px",
+        "padding": "0px 2px 1px",
+        "margin": "0px",
+        "gap": "6.5px",
+        "gridTemplateColumns": "none",
+        "flexDirection": "row",
+        "alignItems": "center",
+        "opacity": "1",
+        "cursor": "default"
+      },
+      "pseudo": {
+        "::before": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        },
+        "::after": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        }
+      }
+    },
+    {
+      "index": 56,
+      "tag": "OPTION",
+      "cls": "",
+      "text": "16",
+      "attrs": [
+        [
+          "value",
+          "16"
+        ]
+      ],
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "visible": false,
+      "styles": {
+        "display": "block",
+        "position": "static",
+        "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(29, 29, 31)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(29, 29, 31)",
+        "borderWidth": "0px",
+        "borderRadius": "0px",
+        "padding": "0px 2px 1px",
+        "margin": "0px",
+        "gap": "6.5px",
+        "gridTemplateColumns": "none",
+        "flexDirection": "row",
+        "alignItems": "center",
+        "opacity": "1",
+        "cursor": "default"
+      },
+      "pseudo": {
+        "::before": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        },
+        "::after": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        }
+      }
+    },
+    {
+      "index": 57,
+      "tag": "OPTION",
+      "cls": "",
+      "text": "17",
+      "attrs": [
+        [
+          "value",
+          "17"
+        ]
+      ],
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "visible": false,
+      "styles": {
+        "display": "block",
+        "position": "static",
+        "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(29, 29, 31)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(29, 29, 31)",
+        "borderWidth": "0px",
+        "borderRadius": "0px",
+        "padding": "0px 2px 1px",
+        "margin": "0px",
+        "gap": "6.5px",
+        "gridTemplateColumns": "none",
+        "flexDirection": "row",
+        "alignItems": "center",
+        "opacity": "1",
+        "cursor": "default"
+      },
+      "pseudo": {
+        "::before": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        },
+        "::after": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        }
+      }
+    },
+    {
+      "index": 58,
+      "tag": "OPTION",
+      "cls": "",
+      "text": "18",
+      "attrs": [
+        [
+          "value",
+          "18"
+        ]
+      ],
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "visible": false,
+      "styles": {
+        "display": "block",
+        "position": "static",
+        "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(29, 29, 31)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(29, 29, 31)",
+        "borderWidth": "0px",
+        "borderRadius": "0px",
+        "padding": "0px 2px 1px",
+        "margin": "0px",
+        "gap": "6.5px",
+        "gridTemplateColumns": "none",
+        "flexDirection": "row",
+        "alignItems": "center",
+        "opacity": "1",
+        "cursor": "default"
+      },
+      "pseudo": {
+        "::before": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        },
+        "::after": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        }
+      }
+    },
+    {
+      "index": 59,
+      "tag": "OPTION",
+      "cls": "",
+      "text": "19",
+      "attrs": [
+        [
+          "value",
+          "19"
+        ]
+      ],
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "visible": false,
+      "styles": {
+        "display": "block",
+        "position": "static",
+        "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(29, 29, 31)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(29, 29, 31)",
+        "borderWidth": "0px",
+        "borderRadius": "0px",
+        "padding": "0px 2px 1px",
+        "margin": "0px",
+        "gap": "6.5px",
+        "gridTemplateColumns": "none",
+        "flexDirection": "row",
+        "alignItems": "center",
+        "opacity": "1",
+        "cursor": "default"
+      },
+      "pseudo": {
+        "::before": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        },
+        "::after": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        }
+      }
+    },
+    {
+      "index": 60,
+      "tag": "OPTION",
+      "cls": "",
+      "text": "20",
+      "attrs": [
+        [
+          "value",
+          "20"
+        ]
+      ],
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "visible": false,
+      "styles": {
+        "display": "block",
+        "position": "static",
+        "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(29, 29, 31)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(29, 29, 31)",
+        "borderWidth": "0px",
+        "borderRadius": "0px",
+        "padding": "0px 2px 1px",
+        "margin": "0px",
+        "gap": "6.5px",
+        "gridTemplateColumns": "none",
+        "flexDirection": "row",
+        "alignItems": "center",
+        "opacity": "1",
+        "cursor": "default"
+      },
+      "pseudo": {
+        "::before": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        },
+        "::after": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        }
+      }
+    },
+    {
+      "index": 61,
+      "tag": "OPTION",
+      "cls": "",
+      "text": "21",
+      "attrs": [
+        [
+          "value",
+          "21"
+        ]
+      ],
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "visible": false,
+      "styles": {
+        "display": "block",
+        "position": "static",
+        "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(29, 29, 31)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(29, 29, 31)",
+        "borderWidth": "0px",
+        "borderRadius": "0px",
+        "padding": "0px 2px 1px",
+        "margin": "0px",
+        "gap": "6.5px",
+        "gridTemplateColumns": "none",
+        "flexDirection": "row",
+        "alignItems": "center",
+        "opacity": "1",
+        "cursor": "default"
+      },
+      "pseudo": {
+        "::before": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        },
+        "::after": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        }
+      }
+    },
+    {
+      "index": 62,
+      "tag": "OPTION",
+      "cls": "",
+      "text": "22",
+      "attrs": [
+        [
+          "value",
+          "22"
+        ]
+      ],
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "visible": false,
+      "styles": {
+        "display": "block",
+        "position": "static",
+        "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(29, 29, 31)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(29, 29, 31)",
+        "borderWidth": "0px",
+        "borderRadius": "0px",
+        "padding": "0px 2px 1px",
+        "margin": "0px",
+        "gap": "6.5px",
+        "gridTemplateColumns": "none",
+        "flexDirection": "row",
+        "alignItems": "center",
+        "opacity": "1",
+        "cursor": "default"
+      },
+      "pseudo": {
+        "::before": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        },
+        "::after": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        }
+      }
+    },
+    {
+      "index": 63,
+      "tag": "OPTION",
+      "cls": "",
+      "text": "23",
+      "attrs": [
+        [
+          "value",
+          "23"
+        ]
+      ],
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "visible": false,
+      "styles": {
+        "display": "block",
+        "position": "static",
+        "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(29, 29, 31)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(29, 29, 31)",
+        "borderWidth": "0px",
+        "borderRadius": "0px",
+        "padding": "0px 2px 1px",
+        "margin": "0px",
+        "gap": "6.5px",
+        "gridTemplateColumns": "none",
+        "flexDirection": "row",
+        "alignItems": "center",
+        "opacity": "1",
+        "cursor": "default"
+      },
+      "pseudo": {
+        "::before": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        },
+        "::after": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        }
+      }
+    },
+    {
+      "index": 64,
+      "tag": "OPTION",
+      "cls": "",
+      "text": "24",
+      "attrs": [
+        [
+          "value",
+          "24"
+        ]
+      ],
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "visible": false,
+      "styles": {
+        "display": "block",
+        "position": "static",
+        "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(29, 29, 31)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(29, 29, 31)",
+        "borderWidth": "0px",
+        "borderRadius": "0px",
+        "padding": "0px 2px 1px",
+        "margin": "0px",
+        "gap": "6.5px",
+        "gridTemplateColumns": "none",
+        "flexDirection": "row",
+        "alignItems": "center",
+        "opacity": "1",
+        "cursor": "default"
+      },
+      "pseudo": {
+        "::before": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        },
+        "::after": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        }
+      }
+    },
+    {
+      "index": 65,
+      "tag": "OPTION",
+      "cls": "",
+      "text": "25",
+      "attrs": [
+        [
+          "value",
+          "25"
+        ]
+      ],
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "visible": false,
+      "styles": {
+        "display": "block",
+        "position": "static",
+        "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(29, 29, 31)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(29, 29, 31)",
+        "borderWidth": "0px",
+        "borderRadius": "0px",
+        "padding": "0px 2px 1px",
+        "margin": "0px",
+        "gap": "6.5px",
+        "gridTemplateColumns": "none",
+        "flexDirection": "row",
+        "alignItems": "center",
+        "opacity": "1",
+        "cursor": "default"
+      },
+      "pseudo": {
+        "::before": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        },
+        "::after": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        }
+      }
+    },
+    {
+      "index": 66,
+      "tag": "OPTION",
+      "cls": "",
+      "text": "26",
+      "attrs": [
+        [
+          "value",
+          "26"
+        ]
+      ],
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "visible": false,
+      "styles": {
+        "display": "block",
+        "position": "static",
+        "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(29, 29, 31)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(29, 29, 31)",
+        "borderWidth": "0px",
+        "borderRadius": "0px",
+        "padding": "0px 2px 1px",
+        "margin": "0px",
+        "gap": "6.5px",
+        "gridTemplateColumns": "none",
+        "flexDirection": "row",
+        "alignItems": "center",
+        "opacity": "1",
+        "cursor": "default"
+      },
+      "pseudo": {
+        "::before": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        },
+        "::after": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        }
+      }
+    },
+    {
+      "index": 67,
+      "tag": "OPTION",
+      "cls": "",
+      "text": "27",
+      "attrs": [
+        [
+          "value",
+          "27"
+        ]
+      ],
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "visible": false,
+      "styles": {
+        "display": "block",
+        "position": "static",
+        "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(29, 29, 31)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(29, 29, 31)",
+        "borderWidth": "0px",
+        "borderRadius": "0px",
+        "padding": "0px 2px 1px",
+        "margin": "0px",
+        "gap": "6.5px",
+        "gridTemplateColumns": "none",
+        "flexDirection": "row",
+        "alignItems": "center",
+        "opacity": "1",
+        "cursor": "default"
+      },
+      "pseudo": {
+        "::before": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        },
+        "::after": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        }
+      }
+    },
+    {
+      "index": 68,
+      "tag": "OPTION",
+      "cls": "",
+      "text": "28",
+      "attrs": [
+        [
+          "value",
+          "28"
+        ]
+      ],
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "visible": false,
+      "styles": {
+        "display": "block",
+        "position": "static",
+        "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(29, 29, 31)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(29, 29, 31)",
+        "borderWidth": "0px",
+        "borderRadius": "0px",
+        "padding": "0px 2px 1px",
+        "margin": "0px",
+        "gap": "6.5px",
+        "gridTemplateColumns": "none",
+        "flexDirection": "row",
+        "alignItems": "center",
+        "opacity": "1",
+        "cursor": "default"
+      },
+      "pseudo": {
+        "::before": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        },
+        "::after": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        }
+      }
+    },
+    {
+      "index": 69,
+      "tag": "OPTION",
+      "cls": "",
+      "text": "29",
+      "attrs": [
+        [
+          "value",
+          "29"
+        ]
+      ],
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "visible": false,
+      "styles": {
+        "display": "block",
+        "position": "static",
+        "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(29, 29, 31)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(29, 29, 31)",
+        "borderWidth": "0px",
+        "borderRadius": "0px",
+        "padding": "0px 2px 1px",
+        "margin": "0px",
+        "gap": "6.5px",
+        "gridTemplateColumns": "none",
+        "flexDirection": "row",
+        "alignItems": "center",
+        "opacity": "1",
+        "cursor": "default"
+      },
+      "pseudo": {
+        "::before": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        },
+        "::after": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        }
+      }
+    },
+    {
+      "index": 70,
+      "tag": "OPTION",
+      "cls": "",
+      "text": "30",
+      "attrs": [
+        [
+          "value",
+          "30"
+        ]
+      ],
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "visible": false,
+      "styles": {
+        "display": "block",
+        "position": "static",
+        "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(29, 29, 31)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(29, 29, 31)",
+        "borderWidth": "0px",
+        "borderRadius": "0px",
+        "padding": "0px 2px 1px",
+        "margin": "0px",
+        "gap": "6.5px",
+        "gridTemplateColumns": "none",
+        "flexDirection": "row",
+        "alignItems": "center",
+        "opacity": "1",
+        "cursor": "default"
+      },
+      "pseudo": {
+        "::before": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        },
+        "::after": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        }
+      }
+    },
+    {
+      "index": 71,
+      "tag": "LABEL",
+      "cls": "automation-resource-gather-recall",
+      "text": "",
+      "attrs": [
+        [
+          "class",
+          "automation-resource-gather-recall"
+        ]
+      ],
+      "rect": {
+        "x": 45,
+        "y": 415.640625,
+        "width": 223,
+        "height": 21
+      },
+      "visible": true,
+      "styles": {
+        "display": "flex",
+        "position": "static",
+        "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(29, 29, 31)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(29, 29, 31)",
+        "borderWidth": "0px",
+        "borderRadius": "0px",
+        "padding": "0px",
+        "margin": "0px",
+        "gap": "6px",
+        "gridTemplateColumns": "none",
+        "flexDirection": "row",
+        "alignItems": "center",
+        "opacity": "1",
+        "cursor": "not-allowed"
+      },
+      "pseudo": {
+        "::before": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "block"
+        },
+        "::after": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "block"
+        }
+      }
+    },
+    {
+      "index": 72,
+      "tag": "INPUT",
+      "cls": "",
+      "text": "",
+      "attrs": [
+        [
+          "type",
+          "checkbox"
+        ],
+        [
+          "disabled",
+          ""
+        ]
+      ],
+      "rect": {
+        "x": 49,
+        "y": 418.640625,
+        "width": 15,
+        "height": 15
+      },
+      "visible": true,
+      "styles": {
+        "display": "block",
+        "position": "static",
+        "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(29, 29, 31)",
+        "backgroundColor": "rgb(255, 255, 255)",
+        "borderColor": "rgb(29, 29, 31)",
+        "borderWidth": "0px",
+        "borderRadius": "0px",
+        "padding": "0px",
+        "margin": "3px 3px 3px 4px",
+        "gap": "normal",
+        "gridTemplateColumns": "none",
+        "flexDirection": "row",
+        "alignItems": "normal",
+        "opacity": "1",
+        "cursor": "pointer"
+      },
+      "pseudo": {
+        "::before": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        },
+        "::after": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        }
+      }
+    },
+    {
+      "index": 73,
+      "tag": "SPAN",
+      "cls": "",
+      "text": "採集を無効にしたとき部隊を帰還",
+      "attrs": [],
+      "rect": {
+        "x": 73,
+        "y": 415.640625,
+        "width": 195,
+        "height": 21
+      },
+      "visible": true,
+      "styles": {
+        "display": "block",
+        "position": "static",
+        "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(29, 29, 31)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(29, 29, 31)",
+        "borderWidth": "0px",
+        "borderRadius": "0px",
+        "padding": "0px",
+        "margin": "0px",
+        "gap": "normal",
+        "gridTemplateColumns": "none",
+        "flexDirection": "row",
+        "alignItems": "normal",
+        "opacity": "1",
+        "cursor": "not-allowed"
+      },
+      "pseudo": {
+        "::before": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        },
+        "::after": {
+          "content": "none",
+          "color": "rgb(29, 29, 31)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        }
+      }
+    },
+    {
+      "index": 74,
+      "tag": "SMALL",
+      "cls": "automation-resource-gather-radius-hint muted",
+      "text": "50～500マスから選択できます。ワールドマップは 1000×1000 マスです。基地を中心とする直線半径で、範囲が広いほどスキャンに時間がかかります。",
+      "attrs": [
+        [
+          "class",
+          "automation-resource-gather-radius-hint muted"
+        ]
+      ],
+      "rect": {
+        "x": 45,
+        "y": 444.640625,
+        "width": 285,
+        "height": 60
+      },
+      "visible": true,
+      "styles": {
+        "display": "block",
+        "position": "static",
+        "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+        "fontSize": "12px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(95, 95, 99)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(95, 95, 99)",
+        "borderWidth": "0px",
+        "borderRadius": "0px",
+        "padding": "0px",
+        "margin": "0px",
+        "gap": "normal",
+        "gridTemplateColumns": "none",
+        "flexDirection": "row",
+        "alignItems": "normal",
+        "opacity": "1",
+        "cursor": "auto"
+      },
+      "pseudo": {
+        "::before": {
+          "content": "none",
+          "color": "rgb(95, 95, 99)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        },
+        "::after": {
+          "content": "none",
+          "color": "rgb(95, 95, 99)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        }
+      }
+    },
+    {
+      "index": 75,
+      "tag": "P",
+      "cls": "muted",
+      "text": "部隊設定を読み込み中",
+      "attrs": [
+        [
+          "class",
+          "muted"
+        ]
+      ],
+      "rect": {
+        "x": 45,
+        "y": 526.640625,
+        "width": 285,
+        "height": 21
+      },
+      "visible": true,
+      "styles": {
+        "display": "block",
+        "position": "static",
+        "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(95, 95, 99)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(95, 95, 99)",
+        "borderWidth": "0px",
+        "borderRadius": "0px",
+        "padding": "0px",
+        "margin": "13px 0px",
+        "gap": "normal",
+        "gridTemplateColumns": "none",
+        "flexDirection": "row",
+        "alignItems": "normal",
+        "opacity": "1",
+        "cursor": "auto"
+      },
+      "pseudo": {
+        "::before": {
+          "content": "none",
+          "color": "rgb(95, 95, 99)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        },
+        "::after": {
+          "content": "none",
+          "color": "rgb(95, 95, 99)",
+          "width": "auto",
+          "height": "auto",
+          "display": "inline"
+        }
+      }
+    }
+  ],
+  "textRuns": [
+    {
+      "text": "自動化",
+      "rect": {
+        "x": 32,
+        "y": 33,
+        "width": 48,
+        "height": 21
+      },
+      "color": "rgb(29, 29, 31)",
+      "fontSize": "16px",
+      "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+      "fontWeight": "650"
+    },
+    {
+      "text": "ゲーム未接続",
+      "rect": {
+        "x": 32,
+        "y": 63,
+        "width": 77.359375,
+        "height": 17
+      },
+      "color": "rgb(95, 95, 99)",
+      "fontSize": "13px",
+      "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+      "fontWeight": "400"
+    },
+    {
+      "text": "デイリー任務",
+      "rect": {
+        "x": 50,
+        "y": 106.5,
+        "width": 77.484375,
+        "height": 17
+      },
+      "color": "rgb(95, 95, 99)",
+      "fontSize": "13px",
+      "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+      "fontWeight": "500"
+    },
+    {
+      "text": "同盟",
+      "rect": {
+        "x": 158.484375,
+        "y": 106.5,
+        "width": 26,
+        "height": 17
+      },
+      "color": "rgb(95, 95, 99)",
+      "fontSize": "13px",
+      "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+      "fontWeight": "500"
+    },
+    {
+      "text": "資源採集",
+      "rect": {
+        "x": 215.484375,
+        "y": 106.5,
+        "width": 52,
+        "height": 17
+      },
+      "color": "rgb(31, 29, 29)",
+      "fontSize": "13px",
+      "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+      "fontWeight": "600"
+    },
+    {
+      "text": "資源受取",
+      "rect": {
+        "x": 298.484375,
+        "y": 106.5,
+        "width": 52,
+        "height": 17
+      },
+      "color": "rgb(95, 95, 99)",
+      "fontSize": "13px",
+      "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+      "fontWeight": "500"
+    },
+    {
+      "text": "チャット",
+      "rect": {
+        "x": 381.484375,
+        "y": 106.5,
+        "width": 52,
+        "height": 17
+      },
+      "color": "rgb(95, 95, 99)",
+      "fontSize": "13px",
+      "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+      "fontWeight": "500"
+    },
+    {
+      "text": "交易所",
+      "rect": {
+        "x": 464.484375,
+        "y": 106.5,
+        "width": 39,
+        "height": 17
+      },
+      "color": "rgb(95, 95, 99)",
+      "fontSize": "13px",
+      "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+      "fontWeight": "500"
+    },
+    {
+      "text": "保護とシステム",
+      "rect": {
+        "x": 534.484375,
+        "y": 106.5,
+        "width": 90.359375,
+        "height": 17
+      },
+      "color": "rgb(95, 95, 99)",
+      "fontSize": "13px",
+      "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+      "fontWeight": "500"
+    },
+    {
+      "text": "資源採集",
+      "rect": {
+        "x": 45,
+        "y": 169,
+        "width": 52,
+        "height": 17
+      },
+      "color": "rgb(29, 29, 31)",
+      "fontSize": "13px",
+      "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+      "fontWeight": "650"
+    },
+    {
+      "text": "通常資源を継続採集します。自動戦闘とイベント任務を優先し、シールド中は停止します。手動操作後は設定時間を待って再開します。",
+      "rect": {
+        "x": 45,
+        "y": 188.890625,
+        "width": 203.40625,
+        "height": 64.5625
+      },
+      "color": "rgb(95, 95, 99)",
+      "fontSize": "12px",
+      "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+      "fontWeight": "400"
+    },
+    {
+      "text": "未接続",
+      "rect": {
+        "x": 54,
+        "y": 264.640625,
+        "width": 33,
+        "height": 15
+      },
+      "color": "rgb(95, 95, 99)",
+      "fontSize": "11px",
+      "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+      "fontWeight": "600"
+    },
+    {
+      "text": "設定",
+      "rect": {
+        "x": 54,
+        "y": 308.640625,
+        "width": 24,
+        "height": 16
+      },
+      "color": "rgb(0, 113, 227)",
+      "fontSize": "12px",
+      "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+      "fontWeight": "600"
+    },
+    {
+      "text": "スキャン半径（マス）",
+      "rect": {
+        "x": 45,
+        "y": 348.140625,
+        "width": 130,
+        "height": 17
+      },
+      "color": "rgb(29, 29, 31)",
+      "fontSize": "13px",
+      "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+      "fontWeight": "400"
+    },
+    {
+      "text": "手動操作後の待機時間（分）",
+      "rect": {
+        "x": 45,
+        "y": 384.140625,
+        "width": 169,
+        "height": 17
+      },
+      "color": "rgb(29, 29, 31)",
+      "fontSize": "13px",
+      "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+      "fontWeight": "400"
+    },
+    {
+      "text": "採集を無効にしたとき部隊を帰還",
+      "rect": {
+        "x": 73,
+        "y": 416.640625,
+        "width": 195,
+        "height": 17
+      },
+      "color": "rgb(29, 29, 31)",
+      "fontSize": "13px",
+      "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+      "fontWeight": "400"
+    },
+    {
+      "text": "50～500マスから選択できます。ワールドマップは 1000×1000 マスです。基地を中心とする直線半径で、範囲が広いほどスキャンに時間がかかります。",
+      "rect": {
+        "x": 45,
+        "y": 445.640625,
+        "width": 274.5625,
+        "height": 56
+      },
+      "color": "rgb(95, 95, 99)",
+      "fontSize": "12px",
+      "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+      "fontWeight": "400"
+    },
+    {
+      "text": "部隊設定を読み込み中",
+      "rect": {
+        "x": 45,
+        "y": 527.640625,
+        "width": 130,
+        "height": 17
+      },
+      "color": "rgb(95, 95, 99)",
+      "fontSize": "13px",
+      "fontFamily": "\"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+      "fontWeight": "400"
+    }
+  ],
+  "cards": [
+    {
+      "index": 0,
+      "title": "資源採集",
+      "rect": {
+        "x": 32,
+        "y": 159,
+        "width": 311,
+        "height": 412.640625
+      },
+      "triggerCount": 1,
+      "triggerGlyphs": 0,
+      "bodyVisible": true,
+      "controls": [
+        {
+          "tag": "BUTTON",
+          "text": "",
+          "value": "",
+          "disabled": true,
+          "rect": {
+            "x": 262,
+            "y": 193.8125,
+            "width": 68,
+            "height": 36
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "text": "設定",
+          "value": "",
+          "disabled": false,
+          "rect": {
+            "x": 45,
+            "y": 301.640625,
+            "width": 42,
+            "height": 32
+          }
+        },
+        {
+          "tag": "SELECT",
+          "text": "50100150200250300400500",
+          "value": "200",
+          "disabled": false,
+          "rect": {
+            "x": 181,
+            "y": 343.640625,
+            "width": 54,
+            "height": 28
+          }
+        },
+        {
+          "tag": "SELECT",
+          "text": "123456789101112131415161718192021222324252627282930",
+          "value": "2",
+          "disabled": false,
+          "rect": {
+            "x": 220,
+            "y": 379.640625,
+            "width": 54,
+            "height": 28
+          }
+        },
+        {
+          "tag": "INPUT",
+          "text": "",
+          "value": "on",
+          "checked": false,
+          "disabled": true,
+          "rect": {
+            "x": 49,
+            "y": 418.640625,
+            "width": 15,
+            "height": 15
+          }
+        }
+      ]
+    }
+  ]
+}

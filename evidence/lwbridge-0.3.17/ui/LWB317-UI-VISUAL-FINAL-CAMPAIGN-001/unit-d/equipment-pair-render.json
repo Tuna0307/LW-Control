@@ -1,0 +1,208 @@
+{
+  "marker": "LWB317_UNIT_D_EQUIPMENT_PAIRS_BUILT",
+  "cases": [
+    {
+      "id": "en-squads-equipment",
+      "language": "en",
+      "state": "squads-equipment",
+      "originalMarkupSha256": "4df251ef466cb9f2157ee16cc687a63b8b8d840b53ec0e6292a8156e4bfcac6e",
+      "currentMarkupSha256": "949f5a06254abb3e836a1f1ef33faa109fca4e80bb33daac55d40f3dce87cda1",
+      "rawEqual": false
+    },
+    {
+      "id": "en-squads-equipment-empty",
+      "language": "en",
+      "state": "squads-equipment-empty",
+      "originalMarkupSha256": "4df251ef466cb9f2157ee16cc687a63b8b8d840b53ec0e6292a8156e4bfcac6e",
+      "currentMarkupSha256": "2ac361245a1cb34a5eb23016f6886609719cbdf21c193db23dda9228130c097a",
+      "rawEqual": false
+    },
+    {
+      "id": "en-squads-equipment-offline",
+      "language": "en",
+      "state": "squads-equipment-offline",
+      "originalMarkupSha256": "3b83088686c4c00c5f689b73bc466013142c80015217eca65a6f01dbe7d02879",
+      "currentMarkupSha256": "d14f66868d98df48e605c0e51896c0b503364641e66a0cdd9b9028ba1cbcd6a2",
+      "rawEqual": false
+    },
+    {
+      "id": "en-squads-equipment-progress",
+      "language": "en",
+      "state": "squads-equipment-progress",
+      "originalMarkupSha256": "870d78044e506ef2704e1dc3824a8c445ae3c8e3ecf5fa4a262b7801389d1a5f",
+      "currentMarkupSha256": "98fb1dd5e7f12aa04f7b3c51ff27ea379e3bc5ce5a5d963ffeda74b8587ff083",
+      "rawEqual": false
+    },
+    {
+      "id": "en-squads-equipment-result",
+      "language": "en",
+      "state": "squads-equipment-result",
+      "originalMarkupSha256": "c9a6c1d977bda62453389c8d4e491c908bad3c28b2ffa4466986d44e026f3ebe",
+      "currentMarkupSha256": "76d0288e6714243c70e2f4deef2ddd33f350e271e72c071002edabc84407bbd8",
+      "rawEqual": false
+    },
+    {
+      "id": "en-squads-equipment-error",
+      "language": "en",
+      "state": "squads-equipment-error",
+      "originalMarkupSha256": "22faf0cdb0bad1c92313e31a080c0513d713bb405c402f136341a1cedffc3d18",
+      "currentMarkupSha256": "f4eb44d47c084fc55b225e842ad738e6be61407c8786c14458b9337b16d6e29f",
+      "rawEqual": false
+    },
+    {
+      "id": "en-squads-equipment-rename",
+      "language": "en",
+      "state": "squads-equipment-rename",
+      "originalMarkupSha256": "65c170c2497a87671be95e402bc1d8fd8aa5cfe9989f532e522d2f27b66ed93a",
+      "currentMarkupSha256": "3aff28085e7b869013b3ccdf080c14af2466c257be7ffee7321b5d0a5544a6d3",
+      "rawEqual": false
+    },
+    {
+      "id": "en-squads-equipment-rename-busy",
+      "language": "en",
+      "state": "squads-equipment-rename-busy",
+      "originalMarkupSha256": "3ec0410727bb46f55e0dce0d850e7ca7c61e6e8472e52f19142069b2c3d0d029",
+      "currentMarkupSha256": "44ef4e3ed67a6d62e65ad29a0683cdc14499b5105ea4b42d6d08a05fb5ecd61b",
+      "rawEqual": false
+    },
+    {
+      "id": "ja-squads-equipment",
+      "language": "ja",
+      "state": "squads-equipment",
+      "originalMarkupSha256": "35f8bcebe5c1cb0a8d206ed6783e929635dbd0cdc29b89507421a1da6c66bcb7",
+      "currentMarkupSha256": "bc90b37481d8d35abaf88dd5a7601e29c3e361384e3c6ec31e2c1200f7239b3e",
+      "rawEqual": false
+    },
+    {
+      "id": "ja-squads-equipment-empty",
+      "language": "ja",
+      "state": "squads-equipment-empty",
+      "originalMarkupSha256": "35f8bcebe5c1cb0a8d206ed6783e929635dbd0cdc29b89507421a1da6c66bcb7",
+      "currentMarkupSha256": "55842385de266919700a75b7830fac11a929922535d936fc6a0706c6177cd9af",
+      "rawEqual": false
+    },
+    {
+      "id": "ja-squads-equipment-offline",
+      "language": "ja",
+      "state": "squads-equipment-offline",
+      "originalMarkupSha256": "21ad2cdff26e791017472e1925d1cb6c43ea979760be0b1fa4a97cde0f0f5651",
+      "currentMarkupSha256": "9a4c0cbb9ada59db10c136e437ff4f20da8136969340c0ea0a016fbf9cafb7b3",
+      "rawEqual": false
+    },
+    {
+      "id": "ja-squads-equipment-progress",
+      "language": "ja",
+      "state": "squads-equipment-progress",
+      "originalMarkupSha256": "743c717c9022872948a2ecccb6ab5f768453b4b99e92c17589075f76afe65d66",
+      "currentMarkupSha256": "6ef0155228d5881ba702d3ccdcd57dfb448d4018dee5dae675d4ebdc4b55033a",
+      "rawEqual": false
+    },
+    {
+      "id": "ja-squads-equipment-result",
+      "language": "ja",
+      "state": "squads-equipment-result",
+      "originalMarkupSha256": "110d8f36efd277dd73be54870aa4659c8b9db5786de573c4d32a2863748162cf",
+      "currentMarkupSha256": "77c0cb3ac0e657dc96db5c37928c350f53a51e5fbac41dce761dd704c69d6d76",
+      "rawEqual": false
+    },
+    {
+      "id": "ja-squads-equipment-error",
+      "language": "ja",
+      "state": "squads-equipment-error",
+      "originalMarkupSha256": "4fe294aa3540b345e9903b2f9680a445717c419971e57697b40e4d5f2a423c8d",
+      "currentMarkupSha256": "789aa8d17a1bfb25bb28423abb16c437dcb91836f1bdbffa1f8dac9b2771693d",
+      "rawEqual": false
+    },
+    {
+      "id": "ja-squads-equipment-rename",
+      "language": "ja",
+      "state": "squads-equipment-rename",
+      "originalMarkupSha256": "13a5d85df31534b856425aa94354436a05a7ec965abc9ce0bc728c909f23f839",
+      "currentMarkupSha256": "bf1942e99a08c0ddcdfc2aacf56a27bf19fe6f5282a308da307175791b501320",
+      "rawEqual": false
+    },
+    {
+      "id": "ja-squads-equipment-rename-busy",
+      "language": "ja",
+      "state": "squads-equipment-rename-busy",
+      "originalMarkupSha256": "afc84e15dc8dbb7e8de4a336b4a629b3b44893428ba8a3ad09f8c231b8a07be2",
+      "currentMarkupSha256": "370e88f8bab74c1e96fa7bb7df98feabcedc376c4b4c39ad2da3e91f9e84cf8f",
+      "rawEqual": false
+    }
+  ],
+  "sources": [
+    {
+      "asset": "GameAssetImage-Diy9VTIr.js",
+      "name": "b",
+      "offset": 1165,
+      "length": 142,
+      "sha256": "bed64690ee41db49095ec74badddd5b0d2c25d8147d440ce39f00cab0ab8ef2f"
+    },
+    {
+      "asset": "GameAssetImage-Diy9VTIr.js",
+      "name": "x",
+      "offset": 1307,
+      "length": 1025,
+      "sha256": "a97d2750595cb4337bf9a3e6f460fc2f391196d0c3acd6fda874b948217b6351"
+    },
+    {
+      "asset": "SquadPanel-HC3-DJei.js",
+      "name": "ad",
+      "offset": 175776,
+      "length": 41,
+      "sha256": "f5656619e68da0870332d60fbb89ccf036272cd1b61003c8463a747196c5a919"
+    },
+    {
+      "asset": "SquadPanel-HC3-DJei.js",
+      "name": "od",
+      "offset": 175817,
+      "length": 340,
+      "sha256": "8407022cd1f2f16ef48ffc6cbc7af914101dac05590502e12928ab2643c01c3d"
+    },
+    {
+      "asset": "SquadPanel-HC3-DJei.js",
+      "name": "sd",
+      "offset": 176157,
+      "length": 52,
+      "sha256": "4cd8d2ce807b52738c70a2f1df8e0ee52210144618b92ae4db11e64589dad7f4"
+    },
+    {
+      "asset": "SquadPanel-HC3-DJei.js",
+      "name": "cd",
+      "offset": 176209,
+      "length": 226,
+      "sha256": "9c791e699d0f7969f4eec5a3d6057cd78270b6058b5dd5d98aaecc41b20f5bd0"
+    },
+    {
+      "asset": "SquadPanel-HC3-DJei.js",
+      "name": "dd",
+      "offset": 176630,
+      "length": 307,
+      "sha256": "e6ebbbce11ca19d7beead1dfb563ebb6e2dacb06e5da541ce3b060879b5e4c6e"
+    },
+    {
+      "asset": "SquadPanel-HC3-DJei.js",
+      "name": "ld",
+      "offset": 176435,
+      "length": 97,
+      "sha256": "dc352560b6c3ae2cfe1781105146ac002602222b729c77ec9b6738c784ee0d02"
+    },
+    {
+      "asset": "SquadPanel-HC3-DJei.js",
+      "name": "ud",
+      "offset": 176532,
+      "length": 98,
+      "sha256": "f66e7abb282d926d5bd4b2bfde16474c974a8badd0985948c17bdf435cfbe954"
+    },
+    {
+      "asset": "SquadPanel-HC3-DJei.js",
+      "name": "fd",
+      "offset": 176937,
+      "length": 14376,
+      "sha256": "64968d742c5aae80aac5a87c90eef4e2fccd75115f6844c35372660b0d4912b0"
+    }
+  ],
+  "originalCssSha256": "3d87e9f65b39eace6a1a254bfc90a38acb72613d1fff7236c7cee7ab9bfaf545",
+  "currentCssSha256": "3d87e9f65b39eace6a1a254bfc90a38acb72613d1fff7236c7cee7ab9bfaf545",
+  "scope": "Actual complete fd and canonical EquipmentContent SSR, original/canonical independent catalogs, equal disclosed inert state, reduced motion snapshot, original image cache empty. Config-error components inert/null on both sides; native actions never invoked. This is source-rendered comparison, not protected runtime, native assets, or physical drag."
+}

@@ -1,0 +1,367 @@
+{
+  "result": "CHANGES_REQUIRED",
+  "pairs": 28,
+  "results": [
+    {
+      "unit": "unit-a",
+      "pair": "treasure-en-light-desktop",
+      "changedPixels": 8250,
+      "outsideNativeControlPixels": 0,
+      "nativeMasks": [
+        {
+          "anchor": "searchChild5",
+          "label": "Claim Boxes",
+          "box": [
+            919,
+            85,
+            1007,
+            120
+          ],
+          "reason": "unavailable native action"
+        },
+        {
+          "anchor": "searchChild6",
+          "label": "Claim Season Treasures",
+          "box": [
+            1014,
+            85,
+            1167,
+            120
+          ],
+          "reason": "unavailable native action"
+        }
+      ],
+      "outsideBBox": null
+    },
+    {
+      "unit": "unit-a",
+      "pair": "treasure-en-dark-desktop",
+      "changedPixels": 8250,
+      "outsideNativeControlPixels": 0,
+      "nativeMasks": [
+        {
+          "anchor": "searchChild5",
+          "label": "Claim Boxes",
+          "box": [
+            919,
+            85,
+            1007,
+            120
+          ],
+          "reason": "unavailable native action"
+        },
+        {
+          "anchor": "searchChild6",
+          "label": "Claim Season Treasures",
+          "box": [
+            1014,
+            85,
+            1167,
+            120
+          ],
+          "reason": "unavailable native action"
+        }
+      ],
+      "outsideBBox": null
+    },
+    {
+      "unit": "unit-a",
+      "pair": "treasure-ja-light-375",
+      "changedPixels": 22462,
+      "outsideNativeControlPixels": 0,
+      "nativeMasks": [
+        {
+          "anchor": "searchChild5",
+          "label": "\u5b9d\u7bb1\u3092\u4e00\u62ec\u53d7\u53d6",
+          "box": [
+            43,
+            421,
+            332,
+            460
+          ],
+          "reason": "unavailable native action"
+        },
+        {
+          "anchor": "searchChild6",
+          "label": "\u30b7\u30fc\u30ba\u30f3\u5b9d\u7269\u3092\u4e00\u62ec\u53d7\u53d6",
+          "box": [
+            43,
+            468,
+            332,
+            507
+          ],
+          "reason": "unavailable native action"
+        }
+      ],
+      "outsideBBox": null
+    },
+    {
+      "unit": "unit-a",
+      "pair": "treasure-ja-dark-desktop",
+      "changedPixels": 10450,
+      "outsideNativeControlPixels": 0,
+      "nativeMasks": [
+        {
+          "anchor": "searchChild5",
+          "label": "\u5b9d\u7bb1\u3092\u4e00\u62ec\u53d7\u53d6",
+          "box": [
+            910,
+            86,
+            1020,
+            125
+          ],
+          "reason": "unavailable native action"
+        },
+        {
+          "anchor": "searchChild6",
+          "label": "\u30b7\u30fc\u30ba\u30f3\u5b9d\u7269\u3092\u4e00\u62ec\u53d7\u53d6",
+          "box": [
+            1027,
+            86,
+            1188,
+            125
+          ],
+          "reason": "unavailable native action"
+        }
+      ],
+      "outsideBBox": null
+    },
+    {
+      "unit": "unit-a",
+      "pair": "dispatch-empty-en-light",
+      "changedPixels": 0,
+      "outsideNativeControlPixels": 0,
+      "nativeMasks": [],
+      "outsideBBox": null
+    },
+    {
+      "unit": "unit-a",
+      "pair": "dispatch-populated-en-light",
+      "changedPixels": 0,
+      "outsideNativeControlPixels": 0,
+      "nativeMasks": [],
+      "outsideBBox": null
+    },
+    {
+      "unit": "unit-a",
+      "pair": "ghost-empty-en-light",
+      "changedPixels": 0,
+      "outsideNativeControlPixels": 0,
+      "nativeMasks": [],
+      "outsideBBox": null
+    },
+    {
+      "unit": "unit-a",
+      "pair": "ghost-populated-en-light",
+      "changedPixels": 0,
+      "outsideNativeControlPixels": 0,
+      "nativeMasks": [],
+      "outsideBBox": null
+    },
+    {
+      "unit": "unit-a",
+      "pair": "dispatch-empty-ja-dark",
+      "changedPixels": 0,
+      "outsideNativeControlPixels": 0,
+      "nativeMasks": [],
+      "outsideBBox": null
+    },
+    {
+      "unit": "unit-a",
+      "pair": "dispatch-populated-ja-dark",
+      "changedPixels": 0,
+      "outsideNativeControlPixels": 0,
+      "nativeMasks": [],
+      "outsideBBox": null
+    },
+    {
+      "unit": "unit-a",
+      "pair": "ghost-empty-ja-dark",
+      "changedPixels": 0,
+      "outsideNativeControlPixels": 0,
+      "nativeMasks": [],
+      "outsideBBox": null
+    },
+    {
+      "unit": "unit-a",
+      "pair": "ghost-populated-ja-dark",
+      "changedPixels": 0,
+      "outsideNativeControlPixels": 0,
+      "nativeMasks": [],
+      "outsideBBox": null
+    },
+    {
+      "unit": "unit-b",
+      "pair": "city-populated-en-light",
+      "changedPixels": 0,
+      "outsideNativeControlPixels": 0,
+      "nativeMasks": [],
+      "outsideBBox": null
+    },
+    {
+      "unit": "unit-b",
+      "pair": "resource-populated-ja-dark",
+      "changedPixels": 0,
+      "outsideNativeControlPixels": 0,
+      "nativeMasks": [],
+      "outsideBBox": null
+    },
+    {
+      "unit": "unit-b",
+      "pair": "monster-populated-en-dark",
+      "changedPixels": 0,
+      "outsideNativeControlPixels": 0,
+      "nativeMasks": [],
+      "outsideBBox": null
+    },
+    {
+      "unit": "unit-b",
+      "pair": "truck-populated-ja-light-375",
+      "changedPixels": 0,
+      "outsideNativeControlPixels": 0,
+      "nativeMasks": [],
+      "outsideBBox": null
+    },
+    {
+      "unit": "unit-b",
+      "pair": "railway-populated-en-light",
+      "changedPixels": 0,
+      "outsideNativeControlPixels": 0,
+      "nativeMasks": [],
+      "outsideBBox": null
+    },
+    {
+      "unit": "unit-b",
+      "pair": "dispatch-populated-ja-dark",
+      "changedPixels": 0,
+      "outsideNativeControlPixels": 0,
+      "nativeMasks": [],
+      "outsideBBox": null
+    },
+    {
+      "unit": "unit-b",
+      "pair": "ghost-populated-en-dark",
+      "changedPixels": 0,
+      "outsideNativeControlPixels": 0,
+      "nativeMasks": [],
+      "outsideBBox": null
+    },
+    {
+      "unit": "unit-b",
+      "pair": "treasure-populated-ja-light-375",
+      "changedPixels": 0,
+      "outsideNativeControlPixels": 0,
+      "nativeMasks": [],
+      "outsideBBox": null
+    },
+    {
+      "unit": "unit-b",
+      "pair": "city-empty-en-light",
+      "changedPixels": 0,
+      "outsideNativeControlPixels": 0,
+      "nativeMasks": [],
+      "outsideBBox": null
+    },
+    {
+      "unit": "unit-b",
+      "pair": "city-loading-ja-dark",
+      "changedPixels": 0,
+      "outsideNativeControlPixels": 0,
+      "nativeMasks": [],
+      "outsideBBox": null
+    },
+    {
+      "unit": "unit-b",
+      "pair": "city-error-en-dark",
+      "changedPixels": 99918,
+      "outsideNativeControlPixels": 99918,
+      "nativeMasks": [],
+      "outsideBBox": [
+        175,
+        365,
+        1268,
+        503
+      ]
+    },
+    {
+      "unit": "unit-b",
+      "pair": "scheduled-empty-en-light",
+      "changedPixels": 2644,
+      "outsideNativeControlPixels": 0,
+      "nativeMasks": [
+        {
+          "anchor": "startScan",
+          "label": "Start Scan",
+          "box": [
+            991,
+            95,
+            1069,
+            130
+          ],
+          "reason": "unavailable native action"
+        }
+      ],
+      "outsideBBox": null
+    },
+    {
+      "unit": "unit-b",
+      "pair": "scheduled-populated-ja-dark",
+      "changedPixels": 0,
+      "outsideNativeControlPixels": 0,
+      "nativeMasks": [],
+      "outsideBBox": null
+    },
+    {
+      "unit": "unit-b",
+      "pair": "scheduled-conditional-en-dark",
+      "changedPixels": 2655,
+      "outsideNativeControlPixels": 0,
+      "nativeMasks": [
+        {
+          "anchor": "startScan",
+          "label": "Start Scan",
+          "box": [
+            991,
+            95,
+            1069,
+            130
+          ],
+          "reason": "unavailable native action"
+        }
+      ],
+      "outsideBBox": null
+    },
+    {
+      "unit": "unit-b",
+      "pair": "auto-configured-en-dark",
+      "changedPixels": 0,
+      "outsideNativeControlPixels": 0,
+      "nativeMasks": [],
+      "outsideBBox": null
+    },
+    {
+      "unit": "unit-b",
+      "pair": "auto-configured-ja-light-375",
+      "changedPixels": 0,
+      "outsideNativeControlPixels": 0,
+      "nativeMasks": [],
+      "outsideBBox": null
+    }
+  ],
+  "blocked": [
+    {
+      "unit": "unit-b",
+      "pair": "city-error-en-dark",
+      "changedPixels": 99918,
+      "outsideNativeControlPixels": 99918,
+      "nativeMasks": [],
+      "outsideBBox": [
+        175,
+        365,
+        1268,
+        503
+      ]
+    }
+  ],
+  "scope": "Recomputed decoded submitted PNG pixels; no query-error banner, table, asset or panel masks."
+}

@@ -1,0 +1,11 @@
+{
+  "detected": true,
+  "changedPixels": 16927,
+  "sizeChanged": false,
+  "mutation": {
+    "mutationCSS": ".city-layout-grid-icon,.city-layout-selected-icon{display:none!important}",
+    "base": "city-layout-en-light-1280-current.png",
+    "changed": "mutation.png",
+    "source": "Actual rendered canonical descendants modified by disclosed task-only CSS, no production edit"
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "base": "0144586",
+  "status": "PARTIAL",
+  "canonicalCheck": "PASS",
+  "productionBuild": "PASS",
+  "packageCheck": "PASS",
+  "buildFingerprint": "4f1db5ef1c15d2bf7da98a2d307759e6259ad1da08ec82c059c867da109f9dfd",
+  "packageFingerprint": "6b335f6e9e0c795a78d7e755095420a530f237fa145757e98e4e4c4b06be1abf",
+  "sourceFiles": [
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/AutomationPage.jsx",
+      "sha256": "c8c1295a7d3781c0becc671b3efce20fced5fd2dc7e3d67d27e7cfbe9ae25563"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+      "sha256": "0619c0589fed7a6da37c7018d021d890a2a2396ac77d21a64e6d77ce348a5bd5"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/CityLayoutPage.jsx",
+      "sha256": "c2c3e9445f607c82954a4319e19c6a8a1be64368038293d7b1fadc8be9372061"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/SquadsPage.jsx",
+      "sha256": "2fb3a72b4ce79655608739f3de87d4af9186444dd76aef83a15194f42e7cde83"
+    }
+  ],
+  "scope": "Record of executed gates; read-only renderer/decoded-pixel validation is the acceptance evidence, not this saved marker."
+}

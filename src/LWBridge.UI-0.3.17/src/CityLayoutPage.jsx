@@ -1,6 +1,7 @@
 import { CITY_BASE_CELL_SIZE, cityGridRow, cityLayoutIssues, cityMovedOccupiedPoints, cityPlacementMap, cityPlacementSignature, cityRegionForPoint, citySetPlacement, previewCityLayoutFixture } from "./previewRemainingPagesContracts.js";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useI18n } from "./i18n.jsx";
+import { GameAssetImage } from "./GameAssetImage.jsx";
 
 const CITY_LAYOUT_PREVIEW_STATES = new Set([
   "city-layout-populated",
@@ -405,7 +406,7 @@ export function CityLayoutPage({ previewState = "", online = false }) {
                   event.stopPropagation();
                   finishPointer();
                 }}
-              >{(maxX - minX + 1) * zoom >= 64 && (maxY - minY + 1) * zoom >= 48 ? <strong className="city-layout-building-name">{displayName(building)}</strong> : null}<small className="city-layout-building-level">{t("cityLayout.level", { level: building.level })}</small></button>;
+              ><GameAssetImage assetPath={building.iconPath} alt="" className="city-layout-grid-icon" />{(maxX - minX + 1) * zoom >= 64 && (maxY - minY + 1) * zoom >= 48 ? <strong className="city-layout-building-name">{displayName(building)}</strong> : null}<small className="city-layout-building-level">{t("cityLayout.level", { level: building.level })}</small></button>;
               })}
             </div>
           </div>
@@ -413,7 +414,7 @@ export function CityLayoutPage({ previewState = "", online = false }) {
         </div>
         <aside className="city-layout-inspector">
           <strong>{t("cityLayout.properties")}</strong>
-          {selected ? <><div className="city-layout-selected"><span><strong>{displayName(selected)}</strong><small>{t("cityLayout.level", { level: selected.level })}</small></span></div><dl><div><dt>{t("cityLayout.footprint")}</dt><dd>{selected.tileX}×{selected.tileY}</dd></div><div><dt>{t("cityLayout.movable")}</dt><dd>{t(selected.movable ? "common.yes" : "common.no")}</dd></div><div><dt>{t("cityLayout.rule")}</dt><dd>{t(selected.isFlag ? "cityLayout.rule.flag" : "cityLayout.rule.normal")}</dd></div></dl></> : null}
+          {selected ? <><div className="city-layout-selected"><GameAssetImage assetPath={selected.iconPath} alt={displayName(selected)} className="city-layout-selected-icon" /><span><strong>{displayName(selected)}</strong><small>{t("cityLayout.level", { level: selected.level })}</small></span></div><dl><div><dt>{t("cityLayout.footprint")}</dt><dd>{selected.tileX}×{selected.tileY}</dd></div><div><dt>{t("cityLayout.movable")}</dt><dd>{t(selected.movable ? "common.yes" : "common.no")}</dd></div><div><dt>{t("cityLayout.rule")}</dt><dd>{t(selected.isFlag ? "cityLayout.rule.flag" : "cityLayout.rule.normal")}</dd></div></dl></> : null}
           <div className={`city-layout-validation ${issues.length === 0 ? "valid" : "invalid"}`}>{issues.length === 0 ? t("cityLayout.validation.valid") : t(`cityLayout.issue.${issues[0].code}`)}</div>
           {serverValidation?.valid ? <div className="city-layout-validation valid">{t("cityLayout.validation.server", { moves: serverValidation.totalMoves, temporary: serverValidation.temporaryMoves })}</div> : null}
           <strong>{t("cityLayout.changes", { count: placements.length })}</strong>

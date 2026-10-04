@@ -1,0 +1,81 @@
+{
+  "normalizedDifferencesOnly": [
+    "preview/id data attributes",
+    "explicit type=button",
+    "Settings redundant muted subtitle class; descendant styles/pixels separately checked"
+  ],
+  "cases": [
+    {
+      "id": "hotkeys-disconnected-en",
+      "equal": true
+    },
+    {
+      "id": "hotkeys-connected-en",
+      "equal": true
+    },
+    {
+      "id": "hotkeys-loading-en",
+      "equal": true
+    },
+    {
+      "id": "hotkeys-load-error-en",
+      "equal": true
+    },
+    {
+      "id": "hotkeys-saving-en",
+      "equal": true
+    },
+    {
+      "id": "hotkeys-save-error-en",
+      "equal": true
+    },
+    {
+      "id": "hotkeys-disconnected-ja",
+      "equal": true
+    },
+    {
+      "id": "hotkeys-connected-ja",
+      "equal": true
+    },
+    {
+      "id": "hotkeys-loading-ja",
+      "equal": true
+    },
+    {
+      "id": "hotkeys-load-error-ja",
+      "equal": true
+    },
+    {
+      "id": "hotkeys-saving-ja",
+      "equal": true
+    },
+    {
+      "id": "hotkeys-save-error-ja",
+      "equal": true
+    },
+    {
+      "id": "hotkeys-disconnected-ru",
+      "equal": true
+    },
+    {
+      "id": "hotkeys-connected-ru",
+      "equal": true
+    },
+    {
+      "id": "hotkeys-loading-ru",
+      "equal": true
+    },
+    {
+      "id": "hotkeys-load-error-ru",
+      "equal": true
+    },
+    {
+      "id": "hotkeys-saving-ru",
+      "equal": true
+    },
+    {
+      "id": "hotkeys-save-error-ru",
+      "equal": true
+    }
+  ]
+}

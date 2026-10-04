@@ -1,0 +1,91 @@
+{
+  "files": [
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/AutomationPanel-BJ0gIqFh.js",
+      "sha256": "6db2328191af33e5631d507271c36d7008b287daa7c8cd1a957b23ef6f871725"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/previewAutomationContracts.js",
+      "sha256": "a1255d8c21447cc4058b871fd8fe40208cd2e15f7bc11f5582fbccc2c8768114"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/previewAutomationFixtures.js",
+      "sha256": "993f0708daa88a3c8ca80fbc39555bf84db021a3639c46f466e06c8f44f3fdf1"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/tradePurchaseHistory.js",
+      "sha256": "5fe401b6b57d5e2707bce7a5a38842e876dbefe69608efe434dd28b7abddd88b"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-BVfnK1wp.js",
+      "sha256": "44c4e4043825b7db296b64171951b27176f8850ff8d7d337cc991df4765524c6"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/en-BisSXcTB.js",
+      "sha256": "0bf43d180eb93692a93b830b5d984e9d01ddeea524340f2334fc63cba527a731"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/locales/en.js",
+      "sha256": "357682d9179ae712ee563950467b7a93b5aea89322afc993e079fedee28432c1"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/ja-UrbzJu-m.js",
+      "sha256": "35969183ab623b6701bc850fdf28bcf268c93127ff6c9693f77e588ee7bdbe38"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/locales/ja.js",
+      "sha256": "e1fed1e9aaf052963e3d8f5a5f8b9ae96b002a05a9dd7bb06a460a66187755eb"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/GameAssetImage.jsx",
+      "sha256": "2bfca11136f2495780ea6a2037bd5007f1d7653284849452e430d2a4fa05d379"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/GameAssetImage-Diy9VTIr.js",
+      "sha256": "2f92a87c3268497df6425b1175db6140e10aabcbdfae02615f065d00e16458e0"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/sharedPageUI.jsx",
+      "sha256": "95ed15f5a4ab46c7cae4dd55656e85718f66fa5ac45278b615d1795ebd8e82f2"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/AutomationCard-LCx_jIi7.js",
+      "sha256": "24ed773623c237f8219eff5443fac3ba7b55b6e99e168e52ff066faf2abe7a61"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/AutomationMeta.jsx",
+      "sha256": "47f84ded5d76e037bcbabc2f81d8c294d63ecd6409137320b46078985bf95678"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/DispatchAssistManual.jsx",
+      "sha256": "1ce38103690c72df87146b3f52791999374a2e841c2ddadcc84c9c417e69771b"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/previewConfigHook.jsx",
+      "sha256": "643875718c4da1b443215f8e6b9417c840f372882aa81ba286080977d1ed827e"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/AutomationPage.jsx",
+      "sha256": "c8c1295a7d3781c0becc671b3efce20fced5fd2dc7e3d67d27e7cfbe9ae25563"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/reference.css",
+      "sha256": "3d87e9f65b39eace6a1a254bfc90a38acb72613d1fff7236c7cee7ab9bfaf545"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/styles.css",
+      "sha256": "b50910d37a4dd02d7bb49b506735ea42615ef0f9e85714e880049481aece2ccc"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-rIL9Fpht.css",
+      "sha256": "3d87e9f65b39eace6a1a254bfc90a38acb72613d1fff7236c7cee7ab9bfaf545"
+    }
+  ],
+  "tools": {
+    "node": "v24.18.0",
+    "react": "19.3.0",
+    "esbuild": "0.28.2",
+    "parser": "7.29.9"
+  },
+  "scriptSha256": "6b80c174c5f004743f35dacdb9dd4cb224294f6ad43655786b1472b8426c5080"
+}

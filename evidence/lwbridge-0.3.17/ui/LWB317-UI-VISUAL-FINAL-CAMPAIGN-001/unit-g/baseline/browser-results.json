@@ -1,0 +1,251 @@
+{
+  "tool": "playwright 1.63.0",
+  "browser": "154.0.8037.95",
+  "result": "RECORDED_UNCLASSIFIED",
+  "results": [
+    {
+      "id": "mini-games-en-light-1280",
+      "state": "mini-games-active",
+      "lang": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900,
+      "originalElements": 33,
+      "currentElements": 33,
+      "differences": [
+        {
+          "i": 0,
+          "kind": "attrs",
+          "tag": "SECTION",
+          "text": "",
+          "original": [
+            [
+              "class",
+              "panel hotkey-panel"
+            ]
+          ],
+          "current": [
+            [
+              "class",
+              "panel hotkey-panel"
+            ],
+            [
+              "data-preview-fixture",
+              "mini-games-active"
+            ],
+            [
+              "data-hotkey-category",
+              "miniGames"
+            ]
+          ]
+        },
+        {
+          "i": 6,
+          "kind": "attrs",
+          "tag": "ARTICLE",
+          "text": "",
+          "original": [
+            [
+              "class",
+              "hotkey-card"
+            ]
+          ],
+          "current": [
+            [
+              "class",
+              "hotkey-card"
+            ],
+            [
+              "data-preview-fixture",
+              "hotkeys-config"
+            ]
+          ]
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "mini-games-ja-dark-1280",
+      "state": "mini-games-active",
+      "lang": "ja",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900,
+      "originalElements": 33,
+      "currentElements": 33,
+      "differences": [
+        {
+          "i": 0,
+          "kind": "attrs",
+          "tag": "SECTION",
+          "text": "",
+          "original": [
+            [
+              "class",
+              "panel hotkey-panel"
+            ]
+          ],
+          "current": [
+            [
+              "class",
+              "panel hotkey-panel"
+            ],
+            [
+              "data-preview-fixture",
+              "mini-games-active"
+            ],
+            [
+              "data-hotkey-category",
+              "miniGames"
+            ]
+          ]
+        },
+        {
+          "i": 6,
+          "kind": "attrs",
+          "tag": "ARTICLE",
+          "text": "",
+          "original": [
+            [
+              "class",
+              "hotkey-card"
+            ]
+          ],
+          "current": [
+            [
+              "class",
+              "hotkey-card"
+            ],
+            [
+              "data-preview-fixture",
+              "hotkeys-config"
+            ]
+          ]
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "mini-games-en-dark-375",
+      "state": "mini-games-active",
+      "lang": "en",
+      "theme": "dark",
+      "width": 375,
+      "height": 1000,
+      "originalElements": 33,
+      "currentElements": 33,
+      "differences": [
+        {
+          "i": 0,
+          "kind": "attrs",
+          "tag": "SECTION",
+          "text": "",
+          "original": [
+            [
+              "class",
+              "panel hotkey-panel"
+            ]
+          ],
+          "current": [
+            [
+              "class",
+              "panel hotkey-panel"
+            ],
+            [
+              "data-preview-fixture",
+              "mini-games-active"
+            ],
+            [
+              "data-hotkey-category",
+              "miniGames"
+            ]
+          ]
+        },
+        {
+          "i": 6,
+          "kind": "attrs",
+          "tag": "ARTICLE",
+          "text": "",
+          "original": [
+            [
+              "class",
+              "hotkey-card"
+            ]
+          ],
+          "current": [
+            [
+              "class",
+              "hotkey-card"
+            ],
+            [
+              "data-preview-fixture",
+              "hotkeys-config"
+            ]
+          ]
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "mini-games-ja-light-375",
+      "state": "mini-games-active",
+      "lang": "ja",
+      "theme": "light",
+      "width": 375,
+      "height": 1000,
+      "originalElements": 33,
+      "currentElements": 33,
+      "differences": [
+        {
+          "i": 0,
+          "kind": "attrs",
+          "tag": "SECTION",
+          "text": "",
+          "original": [
+            [
+              "class",
+              "panel hotkey-panel"
+            ]
+          ],
+          "current": [
+            [
+              "class",
+              "panel hotkey-panel"
+            ],
+            [
+              "data-preview-fixture",
+              "mini-games-active"
+            ],
+            [
+              "data-hotkey-category",
+              "miniGames"
+            ]
+          ]
+        },
+        {
+          "i": 6,
+          "kind": "attrs",
+          "tag": "ARTICLE",
+          "text": "",
+          "original": [
+            [
+              "class",
+              "hotkey-card"
+            ]
+          ],
+          "current": [
+            [
+              "class",
+              "hotkey-card"
+            ],
+            [
+              "data-preview-fixture",
+              "hotkeys-config"
+            ]
+          ]
+        }
+      ],
+      "console": []
+    }
+  ]
+}

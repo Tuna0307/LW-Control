@@ -1,0 +1,11 @@
+{
+  "detected": true,
+  "changedPixels": 3390,
+  "sizeChanged": false,
+  "mutation": {
+    "mutationCSS": ".hotkey-panel h3{color:#ff00ff!important}",
+    "base": "mini-games-en-light-1280-current.png",
+    "changed": "mutation.png",
+    "source": "Actual rendered canonical descendants modified by disclosed task-only CSS, no production edit"
+  }
+}

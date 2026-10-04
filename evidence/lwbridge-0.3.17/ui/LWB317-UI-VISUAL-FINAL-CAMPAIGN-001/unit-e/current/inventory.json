@@ -1,0 +1,392 @@
+{
+  "page": "city-layout",
+  "states": [
+    "",
+    "city-layout-loading",
+    "city-layout-error",
+    "city-layout-populated",
+    "city-layout-populated-moved",
+    "city-layout-populated-conflict",
+    "city-layout-stale",
+    "city-layout-outside-city",
+    "city-layout-server-valid",
+    "city-layout-applying"
+  ],
+  "proof": "EXACT_CONTRACT; synthetic hook states supplied to actual source functions, effects intentionally inert",
+  "functions": [
+    {
+      "name": "ue",
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/CityLayoutPanel-DoNWkywK.js",
+      "utf8Offset": 1752,
+      "bytes": 17540,
+      "sha256": "5a778c995b935084b0c42f9236085f650996eecb3aced7923733f3a271709bf6"
+    },
+    {
+      "name": "te",
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/CityLayoutPanel-DoNWkywK.js",
+      "utf8Offset": 194,
+      "bytes": 66,
+      "sha256": "d6b4a91eadb250c5d8e645410d236507b302ff98cd1445a997c5639fc9566fc5"
+    },
+    {
+      "name": "ne",
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/CityLayoutPanel-DoNWkywK.js",
+      "utf8Offset": 260,
+      "bytes": 158,
+      "sha256": "cedc8cc403827d69be99b0ca5772daecb122d31f71aefaed84adae35043dca8c"
+    },
+    {
+      "name": "m",
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/CityLayoutPanel-DoNWkywK.js",
+      "utf8Offset": 418,
+      "bytes": 224,
+      "sha256": "fd24529350f4bed305c449f5d5d796c01325ecdbf1854f24bb111402eb04986b"
+    },
+    {
+      "name": "re",
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/CityLayoutPanel-DoNWkywK.js",
+      "utf8Offset": 642,
+      "bytes": 741,
+      "sha256": "e172576298763e32a18b42db6d47c7cc5151b6ebb399b352511adcd755bc7e5b"
+    },
+    {
+      "name": "ie",
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/CityLayoutPanel-DoNWkywK.js",
+      "utf8Offset": 1383,
+      "bytes": 87,
+      "sha256": "5f68e10ccfa4f93e20825e161362f67dd10f4abb20dfe479fb6a3fbb836ae3ba"
+    },
+    {
+      "name": "ae",
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/CityLayoutPanel-DoNWkywK.js",
+      "utf8Offset": 1470,
+      "bytes": 80,
+      "sha256": "34a5cd6e1d11336b581579076b3a8ed1a1f6a2180020e48129ecdfc907c419f5"
+    },
+    {
+      "name": "oe",
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/CityLayoutPanel-DoNWkywK.js",
+      "utf8Offset": 1550,
+      "bytes": 35,
+      "sha256": "8c7756ae94c23018a66560a5b19d33ff11a58bf99158775a0ee69cb920a2ab05"
+    },
+    {
+      "name": "le",
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/CityLayoutPanel-DoNWkywK.js",
+      "utf8Offset": 1635,
+      "bytes": 45,
+      "sha256": "1512a222553e1cf6073c476dfcdfb86b111d2cdddce56d7b28fcc7cee8fc226a"
+    },
+    {
+      "name": "g",
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/CityLayoutPanel-DoNWkywK.js",
+      "utf8Offset": 1680,
+      "bytes": 72,
+      "sha256": "099a84a6a1ced42b1a3625d102e373213109d5b46ef2b650751ee2ac6e752d67"
+    }
+  ],
+  "native": "No commands, OS hotkeys, providers, diagnostics, updater or gameplay invoked",
+  "clock": 1770026400000,
+  "timezone": "Asia/Singapore",
+  "currentSource": {
+    "path": "src/LWBridge.UI-0.3.17/src/CityLayoutPage.jsx",
+    "sha256": "c2c3e9445f607c82954a4319e19c6a8a1be64368038293d7b1fadc8be9372061"
+  },
+  "originalCSS": {
+    "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-rIL9Fpht.css",
+    "sha256": "3d87e9f65b39eace6a1a254bfc90a38acb72613d1fff7236c7cee7ab9bfaf545"
+  },
+  "dependencyPaths": [
+    "unit-e/page-harness.mjs",
+    "unit-e/recover-pages.mjs"
+  ],
+  "substitutions": [
+    "State/ref seeds disclosed in page-harness.mjs",
+    "useMemo/useCallback executed synchronously; effects not executed in static source proof",
+    "Actual recovered/current GameAssetImage both rendered unresolved-source placeholder, no invented image"
+  ],
+  "statesRendered": [
+    {
+      "state": "",
+      "lang": "en",
+      "id": "offline-en",
+      "rawEqual": true,
+      "currentSha256": "3bb48ea1b9bc29df380c898aee62478bc596277f471f9af1a1d253ca00322b85",
+      "originalSha256": "3bb48ea1b9bc29df380c898aee62478bc596277f471f9af1a1d253ca00322b85"
+    },
+    {
+      "state": "city-layout-loading",
+      "lang": "en",
+      "id": "city-layout-loading-en",
+      "rawEqual": true,
+      "currentSha256": "6dc956a573e7cc2c96aff724804fb0bbbc4a782fc0caac08edcce8d11f66e696",
+      "originalSha256": "6dc956a573e7cc2c96aff724804fb0bbbc4a782fc0caac08edcce8d11f66e696"
+    },
+    {
+      "state": "city-layout-error",
+      "lang": "en",
+      "id": "city-layout-error-en",
+      "rawEqual": true,
+      "currentSha256": "1102d397bec4d1a14a5f756e44cbd881c99ff5801b75808f9e400b467ae6e5d1",
+      "originalSha256": "1102d397bec4d1a14a5f756e44cbd881c99ff5801b75808f9e400b467ae6e5d1"
+    },
+    {
+      "state": "city-layout-populated",
+      "lang": "en",
+      "id": "city-layout-populated-en",
+      "rawEqual": false,
+      "currentSha256": "23c5a8c571734e8c430a2a81107abb825efad5440a6594dcca2ab77d7914c0de",
+      "originalSha256": "34976d752c87b9855ea3fbc7498d1b589c085156dd02cdd65a54e013ec43d019"
+    },
+    {
+      "state": "city-layout-populated-moved",
+      "lang": "en",
+      "id": "city-layout-populated-moved-en",
+      "rawEqual": false,
+      "currentSha256": "c70b9d241af246b74435c88a71cab5e7462077a666114988880c70efbe0324bf",
+      "originalSha256": "dee762df499edff04e6b3af01dfaa3aa06eb1a5441b108cccc9679ff7b26a01a"
+    },
+    {
+      "state": "city-layout-populated-conflict",
+      "lang": "en",
+      "id": "city-layout-populated-conflict-en",
+      "rawEqual": false,
+      "currentSha256": "79f5d7d758992aef3930687ea452347164bf65c815a4ad65095749e9a490076e",
+      "originalSha256": "d3a96f659421c364e00d85ab8aaf413dd572388b8bc2640387ccc05be75eff68"
+    },
+    {
+      "state": "city-layout-stale",
+      "lang": "en",
+      "id": "city-layout-stale-en",
+      "rawEqual": false,
+      "currentSha256": "1832175818c52f4cea6017152f059286172df790ce5be989c9bc37dc11728a2f",
+      "originalSha256": "3414be75367fafd07ba9b5614d16ae0a071565fca42ce13278dd0e6584ee5980"
+    },
+    {
+      "state": "city-layout-outside-city",
+      "lang": "en",
+      "id": "city-layout-outside-city-en",
+      "rawEqual": false,
+      "currentSha256": "f165976ac62b3e38f554ac0c3427a0621f46e949d146aa34bfe8e99d77ffa3a9",
+      "originalSha256": "4e86771d291686057a481db6e9c4136c4e9be5f3e01daa0dec8674ed71eeecd8"
+    },
+    {
+      "state": "city-layout-server-valid",
+      "lang": "en",
+      "id": "city-layout-server-valid-en",
+      "rawEqual": false,
+      "currentSha256": "db238a97507f039ac5546c41d1fab2aba53876920329167dc0468926a136459d",
+      "originalSha256": "48b89bb5c0308c7b02d17736e1327af55b2f549c2e17ff601a7d0d50b4c85890"
+    },
+    {
+      "state": "city-layout-applying",
+      "lang": "en",
+      "id": "city-layout-applying-en",
+      "rawEqual": false,
+      "currentSha256": "84c7941cea54b14776246a3581ff01f658abb7d8da4f8a6a748291ae3c10b5be",
+      "originalSha256": "3c1097feef9bcf5ec7c680c5192dfbb53a6c80fdabb0318e7f7bb09662527475"
+    },
+    {
+      "state": "",
+      "lang": "ja",
+      "id": "offline-ja",
+      "rawEqual": true,
+      "currentSha256": "68e1e227badf8c168ec8005c7b1a3a42ca82ac739c3a1b70ce52b8fd55091303",
+      "originalSha256": "68e1e227badf8c168ec8005c7b1a3a42ca82ac739c3a1b70ce52b8fd55091303"
+    },
+    {
+      "state": "city-layout-loading",
+      "lang": "ja",
+      "id": "city-layout-loading-ja",
+      "rawEqual": true,
+      "currentSha256": "0efe50ab85b845779264bae8b392186eaa305a772f4c535d129924da91a57696",
+      "originalSha256": "0efe50ab85b845779264bae8b392186eaa305a772f4c535d129924da91a57696"
+    },
+    {
+      "state": "city-layout-error",
+      "lang": "ja",
+      "id": "city-layout-error-ja",
+      "rawEqual": true,
+      "currentSha256": "a25a8b6bec8840279770d73be8b00a20efd274c3bedb96534a4e2830af4ac82d",
+      "originalSha256": "a25a8b6bec8840279770d73be8b00a20efd274c3bedb96534a4e2830af4ac82d"
+    },
+    {
+      "state": "city-layout-populated",
+      "lang": "ja",
+      "id": "city-layout-populated-ja",
+      "rawEqual": false,
+      "currentSha256": "4fd14ce3cb07c162a72ea93cb6e29a168bccd121baef703d3adecb32526adf81",
+      "originalSha256": "363f706829dfa9c2edb583c95d25dba8489062ffa85d6dd4efbf4262ca9cd9c4"
+    },
+    {
+      "state": "city-layout-populated-moved",
+      "lang": "ja",
+      "id": "city-layout-populated-moved-ja",
+      "rawEqual": false,
+      "currentSha256": "c4dd44c40520463c9c35806c6f4780ee826a78e2cd6a48399a9f7b28f0d7ea4d",
+      "originalSha256": "a3481a05f5f246654fd22b83a8fe05a0e9526a76a9779bc7eefac78f35a66cd2"
+    },
+    {
+      "state": "city-layout-populated-conflict",
+      "lang": "ja",
+      "id": "city-layout-populated-conflict-ja",
+      "rawEqual": false,
+      "currentSha256": "9e2872362ac051632eea19c5387712d5f34a8f12d33d7bf3ba809050fe9d044e",
+      "originalSha256": "e33bc3514bbb1daf5f20328d6a914b9f472161fdf7f49dc24be4377c663287d4"
+    },
+    {
+      "state": "city-layout-stale",
+      "lang": "ja",
+      "id": "city-layout-stale-ja",
+      "rawEqual": false,
+      "currentSha256": "4771c28d8c52e6e31520f6aefe62593cde2af10c9ec97e9d84a1c7c7e69e40fb",
+      "originalSha256": "7c3bb3396d4c8a257af35371f1ec86c897d58643e850fc586b972fb24de96741"
+    },
+    {
+      "state": "city-layout-outside-city",
+      "lang": "ja",
+      "id": "city-layout-outside-city-ja",
+      "rawEqual": false,
+      "currentSha256": "4991c73811a1a6ffaa5d6362fde2836101d76eca6d10506aad820fc14f42e3d2",
+      "originalSha256": "2bcdeb3aea09317814bc96d6b7c1e17bdc7e5698fe33dd7677b400d1a661679d"
+    },
+    {
+      "state": "city-layout-server-valid",
+      "lang": "ja",
+      "id": "city-layout-server-valid-ja",
+      "rawEqual": false,
+      "currentSha256": "7193db3d0ae046415515398959858099d14b0b7ae73017f2ef4e821b2da244cf",
+      "originalSha256": "2483013b7417e257428bd64fb5435e50b74d84b060863509d1b3874abcc47f17"
+    },
+    {
+      "state": "city-layout-applying",
+      "lang": "ja",
+      "id": "city-layout-applying-ja",
+      "rawEqual": false,
+      "currentSha256": "3173d8d4a658cba134ad9da06d725e219b6b878a1894dfe402be5ec3d51272b5",
+      "originalSha256": "1099164a0f0e8dbbf1d75c74bca1bb3f3109ca59990f64664bb839d59988b43e"
+    },
+    {
+      "state": "",
+      "lang": "ru",
+      "id": "offline-ru",
+      "rawEqual": true,
+      "currentSha256": "44672ab63568a44c41647904faa7558ab8d6ac99e015a1e4c792fccc6254bcc6",
+      "originalSha256": "44672ab63568a44c41647904faa7558ab8d6ac99e015a1e4c792fccc6254bcc6"
+    },
+    {
+      "state": "city-layout-loading",
+      "lang": "ru",
+      "id": "city-layout-loading-ru",
+      "rawEqual": true,
+      "currentSha256": "7363b0a2b384dd4bf01e11b78ed47072c396141a3d67e5096c34b226eb099358",
+      "originalSha256": "7363b0a2b384dd4bf01e11b78ed47072c396141a3d67e5096c34b226eb099358"
+    },
+    {
+      "state": "city-layout-error",
+      "lang": "ru",
+      "id": "city-layout-error-ru",
+      "rawEqual": true,
+      "currentSha256": "a5b49b122f85225c4cf296b10e1832b4a22489f7d435896da7f3276c89c762e5",
+      "originalSha256": "a5b49b122f85225c4cf296b10e1832b4a22489f7d435896da7f3276c89c762e5"
+    },
+    {
+      "state": "city-layout-populated",
+      "lang": "ru",
+      "id": "city-layout-populated-ru",
+      "rawEqual": false,
+      "currentSha256": "ad67a132565d80dcbf70a41912819c325c81b9fe787f95129f35198e0d1107a4",
+      "originalSha256": "d4355ba9b0495803caadbdf097d9224a70d7c996c9fb8714e64acb0c00014935"
+    },
+    {
+      "state": "city-layout-populated-moved",
+      "lang": "ru",
+      "id": "city-layout-populated-moved-ru",
+      "rawEqual": false,
+      "currentSha256": "d40e1edfe71f86f8f53fcbfe47cca45dffa6534655a7f6c47b454d30946305f3",
+      "originalSha256": "99c591e00920e1e6cc967b3822f43bc03d61e8b2b4971731a62d204972912fb0"
+    },
+    {
+      "state": "city-layout-populated-conflict",
+      "lang": "ru",
+      "id": "city-layout-populated-conflict-ru",
+      "rawEqual": false,
+      "currentSha256": "fa182ecb602a0064c6afa02be2483f243dab5112cef867be8704741f561e58c0",
+      "originalSha256": "93e9638d9780724992d48d1c9641ef49ecb11ddd66f47b8ad804ac5a8858c3c0"
+    },
+    {
+      "state": "city-layout-stale",
+      "lang": "ru",
+      "id": "city-layout-stale-ru",
+      "rawEqual": false,
+      "currentSha256": "42285b889222a8fed51edd970cf13deb58a61d4f9792aa0a829455c313c5fa43",
+      "originalSha256": "e606319a907830275d9ef55e3a42c02d1a7ca9dc7af08981b593ef4d7470bdc6"
+    },
+    {
+      "state": "city-layout-outside-city",
+      "lang": "ru",
+      "id": "city-layout-outside-city-ru",
+      "rawEqual": false,
+      "currentSha256": "cb154896d27f2fd3f3550add1d69f53e7f2117c19b922403314955011e17b7f1",
+      "originalSha256": "8b5ab840264c2c44671353a83e00200499f370b374b92c01ed7d3b49403ab3a2"
+    },
+    {
+      "state": "city-layout-server-valid",
+      "lang": "ru",
+      "id": "city-layout-server-valid-ru",
+      "rawEqual": false,
+      "currentSha256": "7147617fab4ac5277032f9465efe7f0f0a7d6bfacb63c58a4f52c2fd7d4698d8",
+      "originalSha256": "0286c5d5ee40d6a708a3e5573a93d1b7bf3d287723b50a3a63ae64592f33aa20"
+    },
+    {
+      "state": "city-layout-applying",
+      "lang": "ru",
+      "id": "city-layout-applying-ru",
+      "rawEqual": false,
+      "currentSha256": "25f6338380f4a178bbf4e0047fa57733f6668d0d1c9af7dbb0cece95e9637bba",
+      "originalSha256": "46c6cfbada7460f9ff857e8f10b64fec0fda454eef79efe068371b9c9430c688"
+    }
+  ],
+  "pairs": [
+    {
+      "id": "city-layout-en-light-1280",
+      "state": "city-layout-populated-moved",
+      "lang": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "id": "city-layout-ja-dark-1280",
+      "state": "city-layout-populated-moved",
+      "lang": "ja",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "id": "city-layout-en-dark-375",
+      "state": "city-layout-populated-moved",
+      "lang": "en",
+      "theme": "dark",
+      "width": 375,
+      "height": 1000
+    },
+    {
+      "id": "city-layout-ja-light-375",
+      "state": "city-layout-populated-moved",
+      "lang": "ja",
+      "theme": "light",
+      "width": 375,
+      "height": 1000
+    },
+    {
+      "id": "city-layout-ru-dark-375",
+      "state": "city-layout-populated-moved",
+      "lang": "ru",
+      "theme": "dark",
+      "width": 375,
+      "height": 1000
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "detected": true,
+  "changedPixels": 2719,
+  "sizeChanged": false,
+  "mutation": {
+    "mutationCSS": ".settings-panel strong{color:#ff00ff!important}",
+    "base": "settings-en-light-1280-current.png",
+    "changed": "mutation.png",
+    "source": "Actual rendered canonical descendants modified by disclosed task-only CSS, no production edit"
+  }
+}

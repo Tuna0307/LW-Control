@@ -1,5 +1,16 @@
 # LWBridge 0.3.17 parity matrix
 
+Lead takeover checkpoint, 2026-10-05: VISUAL-FINAL-CAMPAIGN-001 remains PARTIAL.
+Independent audit corrected the unmasked City Map search-error drift; fresh3 pairs
+pass. Default Automation seven-category expanded/collapsed56 pairs, Equipment20,
+compact AFK16, and City/Hotkeys/Mini Games/Settings20 paired samples match decoded
+pixels without masks.189 E–H source states and mounted regressions are validated.
+Open: broader Automation conditionals, full AFK/Garrison/Profile, whole shared-shell/
+Home compositions and final integration acceptance. Native/assets/protected-runtime
+proof remains separate. See reviews/2026-10-05-LWB317-VISUAL-CAMPAIGN-LEAD-TAKEOVER-001.md
+and the campaign progress/continuation; older blanket worker completion is historical.
+
+
 Worker campaign progress, 2026-10-04: VISUAL-FINAL-CAMPAIGN-001 Unit A is
 worker-complete and the campaign continues to Unit B. The reviewed Treasure label
 defect is corrected with direct text; fresh EN/JA light/dark descendant-style proof

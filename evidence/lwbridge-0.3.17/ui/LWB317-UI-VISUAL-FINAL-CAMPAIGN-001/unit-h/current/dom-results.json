@@ -1,0 +1,261 @@
+{
+  "normalizedDifferencesOnly": [
+    "preview/id data attributes",
+    "explicit type=button",
+    "Settings redundant muted subtitle class; descendant styles/pixels separately checked"
+  ],
+  "cases": [
+    {
+      "id": "settings-complete-en",
+      "equal": true
+    },
+    {
+      "id": "settings-multiprofile-en",
+      "equal": true
+    },
+    {
+      "id": "settings-visual-loading-en",
+      "equal": true
+    },
+    {
+      "id": "settings-visual-error-en",
+      "equal": true
+    },
+    {
+      "id": "settings-visual-saving-en",
+      "equal": true
+    },
+    {
+      "id": "settings-visual-save-error-en",
+      "equal": true
+    },
+    {
+      "id": "settings-feedback-preparing-en",
+      "equal": true
+    },
+    {
+      "id": "settings-feedback-exporting-en",
+      "equal": true
+    },
+    {
+      "id": "settings-feedback-finalizing-en",
+      "equal": true
+    },
+    {
+      "id": "settings-feedback-success-en",
+      "equal": true
+    },
+    {
+      "id": "settings-feedback-error-en",
+      "equal": true
+    },
+    {
+      "id": "settings-feedback-canceled-en",
+      "equal": true
+    },
+    {
+      "id": "settings-update-idle-en",
+      "equal": true
+    },
+    {
+      "id": "settings-update-checking-en",
+      "equal": true
+    },
+    {
+      "id": "settings-update-available-en",
+      "equal": true
+    },
+    {
+      "id": "settings-update-downloading-en",
+      "equal": true
+    },
+    {
+      "id": "settings-update-opening-en",
+      "equal": true
+    },
+    {
+      "id": "settings-update-error-en",
+      "equal": true
+    },
+    {
+      "id": "settings-update-check-error-en",
+      "equal": true
+    },
+    {
+      "id": "settings-update-download-error-en",
+      "equal": true
+    },
+    {
+      "id": "settings-update-cooldown-en",
+      "equal": true
+    },
+    {
+      "id": "settings-complete-ja",
+      "equal": true
+    },
+    {
+      "id": "settings-multiprofile-ja",
+      "equal": true
+    },
+    {
+      "id": "settings-visual-loading-ja",
+      "equal": true
+    },
+    {
+      "id": "settings-visual-error-ja",
+      "equal": true
+    },
+    {
+      "id": "settings-visual-saving-ja",
+      "equal": true
+    },
+    {
+      "id": "settings-visual-save-error-ja",
+      "equal": true
+    },
+    {
+      "id": "settings-feedback-preparing-ja",
+      "equal": true
+    },
+    {
+      "id": "settings-feedback-exporting-ja",
+      "equal": true
+    },
+    {
+      "id": "settings-feedback-finalizing-ja",
+      "equal": true
+    },
+    {
+      "id": "settings-feedback-success-ja",
+      "equal": true
+    },
+    {
+      "id": "settings-feedback-error-ja",
+      "equal": true
+    },
+    {
+      "id": "settings-feedback-canceled-ja",
+      "equal": true
+    },
+    {
+      "id": "settings-update-idle-ja",
+      "equal": true
+    },
+    {
+      "id": "settings-update-checking-ja",
+      "equal": true
+    },
+    {
+      "id": "settings-update-available-ja",
+      "equal": true
+    },
+    {
+      "id": "settings-update-downloading-ja",
+      "equal": true
+    },
+    {
+      "id": "settings-update-opening-ja",
+      "equal": true
+    },
+    {
+      "id": "settings-update-error-ja",
+      "equal": true
+    },
+    {
+      "id": "settings-update-check-error-ja",
+      "equal": true
+    },
+    {
+      "id": "settings-update-download-error-ja",
+      "equal": true
+    },
+    {
+      "id": "settings-update-cooldown-ja",
+      "equal": true
+    },
+    {
+      "id": "settings-complete-ru",
+      "equal": true
+    },
+    {
+      "id": "settings-multiprofile-ru",
+      "equal": true
+    },
+    {
+      "id": "settings-visual-loading-ru",
+      "equal": true
+    },
+    {
+      "id": "settings-visual-error-ru",
+      "equal": true
+    },
+    {
+      "id": "settings-visual-saving-ru",
+      "equal": true
+    },
+    {
+      "id": "settings-visual-save-error-ru",
+      "equal": true
+    },
+    {
+      "id": "settings-feedback-preparing-ru",
+      "equal": true
+    },
+    {
+      "id": "settings-feedback-exporting-ru",
+      "equal": true
+    },
+    {
+      "id": "settings-feedback-finalizing-ru",
+      "equal": true
+    },
+    {
+      "id": "settings-feedback-success-ru",
+      "equal": true
+    },
+    {
+      "id": "settings-feedback-error-ru",
+      "equal": true
+    },
+    {
+      "id": "settings-feedback-canceled-ru",
+      "equal": true
+    },
+    {
+      "id": "settings-update-idle-ru",
+      "equal": true
+    },
+    {
+      "id": "settings-update-checking-ru",
+      "equal": true
+    },
+    {
+      "id": "settings-update-available-ru",
+      "equal": true
+    },
+    {
+      "id": "settings-update-downloading-ru",
+      "equal": true
+    },
+    {
+      "id": "settings-update-opening-ru",
+      "equal": true
+    },
+    {
+      "id": "settings-update-error-ru",
+      "equal": true
+    },
+    {
+      "id": "settings-update-check-error-ru",
+      "equal": true
+    },
+    {
+      "id": "settings-update-download-error-ru",
+      "equal": true
+    },
+    {
+      "id": "settings-update-cooldown-ru",
+      "equal": true
+    }
+  ]
+}

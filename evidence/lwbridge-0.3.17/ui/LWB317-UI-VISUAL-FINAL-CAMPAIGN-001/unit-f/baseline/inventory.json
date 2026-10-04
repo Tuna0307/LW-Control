@@ -1,0 +1,173 @@
+{
+  "page": "hotkeys",
+  "states": [
+    "hotkeys-disconnected",
+    "hotkeys-connected",
+    "hotkeys-loading",
+    "hotkeys-load-error",
+    "hotkeys-saving",
+    "hotkeys-save-error"
+  ],
+  "proof": "EXACT_CONTRACT; synthetic hook states supplied to actual source functions, effects intentionally inert",
+  "functions": [
+    {
+      "name": "_",
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/HotkeyPanel-XA8idRHB.js",
+      "utf8Offset": 2227,
+      "bytes": 5505,
+      "sha256": "ff42b27be3d36e89de55586ff11016d4a2605e242f719d529906308386430589"
+    }
+  ],
+  "native": "No commands, OS hotkeys, providers, diagnostics, updater or gameplay invoked",
+  "clock": 1770026400000,
+  "timezone": "Asia/Singapore",
+  "currentSource": {
+    "path": "src/LWBridge.UI-0.3.17/src/HotkeyPages.jsx",
+    "sha256": "5dae6e4ffe8875bcebc366109ad4c1e3fff690ea17273ebb50226e9107551634"
+  },
+  "originalCSS": {
+    "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-rIL9Fpht.css",
+    "sha256": "3d87e9f65b39eace6a1a254bfc90a38acb72613d1fff7236c7cee7ab9bfaf545"
+  },
+  "dependencyPaths": [
+    "unit-e/page-harness.mjs",
+    "unit-e/recover-pages.mjs"
+  ],
+  "substitutions": [
+    "State/ref seeds disclosed in page-harness.mjs",
+    "useMemo/useCallback executed synchronously; effects not executed in static source proof",
+    "Actual recovered/current GameAssetImage both rendered unresolved-source placeholder, no invented image"
+  ],
+  "statesRendered": [
+    {
+      "state": "hotkeys-disconnected",
+      "lang": "en",
+      "id": "hotkeys-disconnected-en",
+      "rawEqual": false,
+      "currentSha256": "3875f4c89d2eb365abd35feffe37ea209628e54e0e820b0e47ce7422665ee4c4",
+      "originalSha256": "3c1e297f35fe4f3c2183c34808ecf34e52f08c15ee6d95b29cb1162c00452230"
+    },
+    {
+      "state": "hotkeys-connected",
+      "lang": "en",
+      "id": "hotkeys-connected-en",
+      "rawEqual": false,
+      "currentSha256": "f9cef1f18f87c18745de266faf4f1b814f87bf6b776ca32e606d84e3d7efe31d",
+      "originalSha256": "edd33ee597b9484658b6bc60424ae90bd0c818c0db10ddc0bbebbca0bcea87e1"
+    },
+    {
+      "state": "hotkeys-loading",
+      "lang": "en",
+      "id": "hotkeys-loading-en",
+      "rawEqual": false,
+      "currentSha256": "5e0e63f7a18785701a1f91dd1c57f01d01ba7a5e01650686f531adb04a4777f2",
+      "originalSha256": "dff386d3e8ff03793fc693fe3f838bbf91291884d192e829b8503b50f770d85a"
+    },
+    {
+      "state": "hotkeys-load-error",
+      "lang": "en",
+      "id": "hotkeys-load-error-en",
+      "rawEqual": false,
+      "currentSha256": "1098c89d501d522fcd9382e022a3c5b6db13a54328d9cacb79aeba22e865a1e9",
+      "originalSha256": "7a30a55b1aebaf711d9a704b0022c09f1aee4a940a36c6643470508383f83c48"
+    },
+    {
+      "state": "hotkeys-saving",
+      "lang": "en",
+      "id": "hotkeys-saving-en",
+      "rawEqual": false,
+      "currentSha256": "3114af5362d1d72d54af3295be6c666729b9bf7f5f93763414f7db16672de9be",
+      "originalSha256": "a546d0f5010f86600340bd732b57a06d3ba2a161578bf4bae675ef8536852599"
+    },
+    {
+      "state": "hotkeys-save-error",
+      "lang": "en",
+      "id": "hotkeys-save-error-en",
+      "rawEqual": false,
+      "currentSha256": "521c324b08e12b4e49c56f76cfef8b92ca16db284291d29449d21e47e1e3ed68",
+      "originalSha256": "403a68c065af8f91cffd51450c1cdd2b3f001abb6e26de717c3637fbe2d47b1b"
+    },
+    {
+      "state": "hotkeys-disconnected",
+      "lang": "ja",
+      "id": "hotkeys-disconnected-ja",
+      "rawEqual": false,
+      "currentSha256": "b1790cb6a157fa3c08ca032ac645bd2787b4ffdfd312a9beb66ad4f379d3d742",
+      "originalSha256": "55e9a60c1631c328758a0999553b43ec9cb04e7d21e8de67b8961e6a8c9482ae"
+    },
+    {
+      "state": "hotkeys-connected",
+      "lang": "ja",
+      "id": "hotkeys-connected-ja",
+      "rawEqual": false,
+      "currentSha256": "60201e8f34f0c03be9bbd9008d9b85f3c0b7390f80932c120d0c7225c5412e6c",
+      "originalSha256": "6b2e7492a9ab1443a010a28b0e56ae2794a27cf21e3daaf8440104c3d7b70cd1"
+    },
+    {
+      "state": "hotkeys-loading",
+      "lang": "ja",
+      "id": "hotkeys-loading-ja",
+      "rawEqual": false,
+      "currentSha256": "21186a6d660a0bffa64a02a440b3de4b05349a3fcbd4f591b1158770dd35f344",
+      "originalSha256": "8520530cdac6df4116228a2652bb431f60f2253a1fb5f2cb98582f0bc278a945"
+    },
+    {
+      "state": "hotkeys-load-error",
+      "lang": "ja",
+      "id": "hotkeys-load-error-ja",
+      "rawEqual": false,
+      "currentSha256": "93fda9006a27f7b208dc00a0089f83ad2002007d570f29d7c8fdaa876f45f5d9",
+      "originalSha256": "f6f7450412394681e155c60421b668d886a4ef4db30a60f402b39bc6903ffbb6"
+    },
+    {
+      "state": "hotkeys-saving",
+      "lang": "ja",
+      "id": "hotkeys-saving-ja",
+      "rawEqual": false,
+      "currentSha256": "dced464789c0e5c575fe9c93428cf034748d1697bc55e04922cee8a7ee82cb6a",
+      "originalSha256": "3cd530186e072dca0ccf8c85a676bbe2da55575426ba6b7239fa556948872536"
+    },
+    {
+      "state": "hotkeys-save-error",
+      "lang": "ja",
+      "id": "hotkeys-save-error-ja",
+      "rawEqual": false,
+      "currentSha256": "92e60de9095e2419c4333ef32147ebb2e71d01fd8e1e4df45d6ffb7a064695ce",
+      "originalSha256": "6e98ded83634322fac93d3da4b2593a25736539cf6265704f58e9c9de67d6b66"
+    }
+  ],
+  "pairs": [
+    {
+      "id": "hotkeys-en-light-1280",
+      "state": "hotkeys-disconnected",
+      "lang": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "id": "hotkeys-ja-dark-1280",
+      "state": "hotkeys-disconnected",
+      "lang": "ja",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "id": "hotkeys-en-dark-375",
+      "state": "hotkeys-disconnected",
+      "lang": "en",
+      "theme": "dark",
+      "width": 375,
+      "height": 1000
+    },
+    {
+      "id": "hotkeys-ja-light-375",
+      "state": "hotkeys-disconnected",
+      "lang": "ja",
+      "theme": "light",
+      "width": 375,
+      "height": 1000
+    }
+  ]
+}

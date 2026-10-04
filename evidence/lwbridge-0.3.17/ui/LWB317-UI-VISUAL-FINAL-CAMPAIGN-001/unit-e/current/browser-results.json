@@ -1,0 +1,1867 @@
+{
+  "tool": "playwright 1.63.0",
+  "browser": "154.0.8037.95",
+  "result": "RECORDED_UNCLASSIFIED",
+  "results": [
+    {
+      "id": "city-layout-en-light-1280",
+      "state": "city-layout-populated-moved",
+      "lang": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900,
+      "originalElements": 142,
+      "currentElements": 142,
+      "differences": [
+        {
+          "i": 0,
+          "kind": "attrs",
+          "tag": "SECTION",
+          "text": "",
+          "original": [
+            [
+              "class",
+              "city-layout-panel"
+            ]
+          ],
+          "current": [
+            [
+              "class",
+              "city-layout-panel"
+            ],
+            [
+              "data-preview-fixture",
+              "city-layout-populated-moved"
+            ]
+          ]
+        },
+        {
+          "i": 6,
+          "kind": "attrs",
+          "tag": "BUTTON",
+          "text": "Refresh",
+          "original": [],
+          "current": [
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "i": 7,
+          "kind": "attrs",
+          "tag": "BUTTON",
+          "text": "Undo",
+          "original": [
+            [
+              "disabled",
+              ""
+            ]
+          ],
+          "current": [
+            [
+              "type",
+              "button"
+            ],
+            [
+              "disabled",
+              ""
+            ]
+          ]
+        },
+        {
+          "i": 8,
+          "kind": "attrs",
+          "tag": "BUTTON",
+          "text": "Redo",
+          "original": [
+            [
+              "disabled",
+              ""
+            ]
+          ],
+          "current": [
+            [
+              "type",
+              "button"
+            ],
+            [
+              "disabled",
+              ""
+            ]
+          ]
+        },
+        {
+          "i": 9,
+          "kind": "attrs",
+          "tag": "BUTTON",
+          "text": "Restore initial layout",
+          "original": [],
+          "current": [
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "i": 10,
+          "kind": "attrs",
+          "tag": "BUTTON",
+          "text": "Save draft",
+          "original": [],
+          "current": [
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "i": 11,
+          "kind": "attrs",
+          "tag": "BUTTON",
+          "text": "Apply to game",
+          "original": [
+            [
+              "class",
+              "primary"
+            ]
+          ],
+          "current": [
+            [
+              "type",
+              "button"
+            ],
+            [
+              "class",
+              "primary"
+            ]
+          ]
+        },
+        {
+          "i": 95,
+          "kind": "attrs",
+          "tag": "BUTTON",
+          "text": "",
+          "original": [
+            [
+              "title",
+              "HQ · Level 30"
+            ],
+            [
+              "class",
+              "city-layout-building selected"
+            ],
+            [
+              "style",
+              "grid-column:2 / span 2;grid-row:2 / span 2"
+            ],
+            [
+              "aria-label",
+              "HQ · Level 30"
+            ],
+            [
+              "aria-pressed",
+              "true"
+            ]
+          ],
+          "current": [
+            [
+              "data-city-building-id",
+              "preview-hq"
+            ],
+            [
+              "type",
+              "button"
+            ],
+            [
+              "title",
+              "HQ · Level 30"
+            ],
+            [
+              "class",
+              "city-layout-building selected"
+            ],
+            [
+              "style",
+              "grid-column:2 / span 2;grid-row:2 / span 2"
+            ],
+            [
+              "aria-label",
+              "HQ · Level 30"
+            ],
+            [
+              "aria-pressed",
+              "true"
+            ]
+          ]
+        },
+        {
+          "i": 98,
+          "kind": "attrs",
+          "tag": "BUTTON",
+          "text": "",
+          "original": [
+            [
+              "title",
+              "Barracks · Level 28"
+            ],
+            [
+              "class",
+              "city-layout-building"
+            ],
+            [
+              "style",
+              "grid-column:5 / span 2;grid-row:2 / span 2"
+            ],
+            [
+              "aria-label",
+              "Barracks · Level 28"
+            ],
+            [
+              "aria-pressed",
+              "false"
+            ]
+          ],
+          "current": [
+            [
+              "data-city-building-id",
+              "preview-barracks"
+            ],
+            [
+              "type",
+              "button"
+            ],
+            [
+              "title",
+              "Barracks · Level 28"
+            ],
+            [
+              "class",
+              "city-layout-building"
+            ],
+            [
+              "style",
+              "grid-column:5 / span 2;grid-row:2 / span 2"
+            ],
+            [
+              "aria-label",
+              "Barracks · Level 28"
+            ],
+            [
+              "aria-pressed",
+              "false"
+            ]
+          ]
+        },
+        {
+          "i": 101,
+          "kind": "attrs",
+          "tag": "BUTTON",
+          "text": "",
+          "original": [
+            [
+              "title",
+              "Hospital · Level 27"
+            ],
+            [
+              "class",
+              "city-layout-building changed"
+            ],
+            [
+              "style",
+              "grid-column:5 / span 2;grid-row:5 / span 1"
+            ],
+            [
+              "aria-label",
+              "Hospital · Level 27"
+            ],
+            [
+              "aria-pressed",
+              "false"
+            ]
+          ],
+          "current": [
+            [
+              "data-city-building-id",
+              "preview-hospital"
+            ],
+            [
+              "type",
+              "button"
+            ],
+            [
+              "title",
+              "Hospital · Level 27"
+            ],
+            [
+              "class",
+              "city-layout-building changed"
+            ],
+            [
+              "style",
+              "grid-column:5 / span 2;grid-row:5 / span 1"
+            ],
+            [
+              "aria-label",
+              "Hospital · Level 27"
+            ],
+            [
+              "aria-pressed",
+              "false"
+            ]
+          ]
+        },
+        {
+          "i": 104,
+          "kind": "attrs",
+          "tag": "BUTTON",
+          "text": "",
+          "original": [
+            [
+              "title",
+              "Alliance Flag · Level 1"
+            ],
+            [
+              "class",
+              "city-layout-building"
+            ],
+            [
+              "style",
+              "grid-column:7 / span 1;grid-row:5 / span 1"
+            ],
+            [
+              "aria-label",
+              "Alliance Flag · Level 1"
+            ],
+            [
+              "aria-pressed",
+              "false"
+            ]
+          ],
+          "current": [
+            [
+              "data-city-building-id",
+              "preview-flag"
+            ],
+            [
+              "type",
+              "button"
+            ],
+            [
+              "title",
+              "Alliance Flag · Level 1"
+            ],
+            [
+              "class",
+              "city-layout-building"
+            ],
+            [
+              "style",
+              "grid-column:7 / span 1;grid-row:5 / span 1"
+            ],
+            [
+              "aria-label",
+              "Alliance Flag · Level 1"
+            ],
+            [
+              "aria-pressed",
+              "false"
+            ]
+          ]
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "city-layout-ja-dark-1280",
+      "state": "city-layout-populated-moved",
+      "lang": "ja",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900,
+      "originalElements": 142,
+      "currentElements": 142,
+      "differences": [
+        {
+          "i": 0,
+          "kind": "attrs",
+          "tag": "SECTION",
+          "text": "",
+          "original": [
+            [
+              "class",
+              "city-layout-panel"
+            ]
+          ],
+          "current": [
+            [
+              "class",
+              "city-layout-panel"
+            ],
+            [
+              "data-preview-fixture",
+              "city-layout-populated-moved"
+            ]
+          ]
+        },
+        {
+          "i": 6,
+          "kind": "attrs",
+          "tag": "BUTTON",
+          "text": "更新",
+          "original": [],
+          "current": [
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "i": 7,
+          "kind": "attrs",
+          "tag": "BUTTON",
+          "text": "元に戻す",
+          "original": [
+            [
+              "disabled",
+              ""
+            ]
+          ],
+          "current": [
+            [
+              "type",
+              "button"
+            ],
+            [
+              "disabled",
+              ""
+            ]
+          ]
+        },
+        {
+          "i": 8,
+          "kind": "attrs",
+          "tag": "BUTTON",
+          "text": "やり直す",
+          "original": [
+            [
+              "disabled",
+              ""
+            ]
+          ],
+          "current": [
+            [
+              "type",
+              "button"
+            ],
+            [
+              "disabled",
+              ""
+            ]
+          ]
+        },
+        {
+          "i": 9,
+          "kind": "attrs",
+          "tag": "BUTTON",
+          "text": "初期配置に戻す",
+          "original": [],
+          "current": [
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "i": 10,
+          "kind": "attrs",
+          "tag": "BUTTON",
+          "text": "下書きを保存",
+          "original": [],
+          "current": [
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "i": 11,
+          "kind": "attrs",
+          "tag": "BUTTON",
+          "text": "ゲームに適用",
+          "original": [
+            [
+              "class",
+              "primary"
+            ]
+          ],
+          "current": [
+            [
+              "type",
+              "button"
+            ],
+            [
+              "class",
+              "primary"
+            ]
+          ]
+        },
+        {
+          "i": 95,
+          "kind": "attrs",
+          "tag": "BUTTON",
+          "text": "",
+          "original": [
+            [
+              "title",
+              "HQ · レベル 30"
+            ],
+            [
+              "class",
+              "city-layout-building selected"
+            ],
+            [
+              "style",
+              "grid-column:2 / span 2;grid-row:2 / span 2"
+            ],
+            [
+              "aria-label",
+              "HQ · レベル 30"
+            ],
+            [
+              "aria-pressed",
+              "true"
+            ]
+          ],
+          "current": [
+            [
+              "data-city-building-id",
+              "preview-hq"
+            ],
+            [
+              "type",
+              "button"
+            ],
+            [
+              "title",
+              "HQ · レベル 30"
+            ],
+            [
+              "class",
+              "city-layout-building selected"
+            ],
+            [
+              "style",
+              "grid-column:2 / span 2;grid-row:2 / span 2"
+            ],
+            [
+              "aria-label",
+              "HQ · レベル 30"
+            ],
+            [
+              "aria-pressed",
+              "true"
+            ]
+          ]
+        },
+        {
+          "i": 98,
+          "kind": "attrs",
+          "tag": "BUTTON",
+          "text": "",
+          "original": [
+            [
+              "title",
+              "Barracks · レベル 28"
+            ],
+            [
+              "class",
+              "city-layout-building"
+            ],
+            [
+              "style",
+              "grid-column:5 / span 2;grid-row:2 / span 2"
+            ],
+            [
+              "aria-label",
+              "Barracks · レベル 28"
+            ],
+            [
+              "aria-pressed",
+              "false"
+            ]
+          ],
+          "current": [
+            [
+              "data-city-building-id",
+              "preview-barracks"
+            ],
+            [
+              "type",
+              "button"
+            ],
+            [
+              "title",
+              "Barracks · レベル 28"
+            ],
+            [
+              "class",
+              "city-layout-building"
+            ],
+            [
+              "style",
+              "grid-column:5 / span 2;grid-row:2 / span 2"
+            ],
+            [
+              "aria-label",
+              "Barracks · レベル 28"
+            ],
+            [
+              "aria-pressed",
+              "false"
+            ]
+          ]
+        },
+        {
+          "i": 101,
+          "kind": "attrs",
+          "tag": "BUTTON",
+          "text": "",
+          "original": [
+            [
+              "title",
+              "Hospital · レベル 27"
+            ],
+            [
+              "class",
+              "city-layout-building changed"
+            ],
+            [
+              "style",
+              "grid-column:5 / span 2;grid-row:5 / span 1"
+            ],
+            [
+              "aria-label",
+              "Hospital · レベル 27"
+            ],
+            [
+              "aria-pressed",
+              "false"
+            ]
+          ],
+          "current": [
+            [
+              "data-city-building-id",
+              "preview-hospital"
+            ],
+            [
+              "type",
+              "button"
+            ],
+            [
+              "title",
+              "Hospital · レベル 27"
+            ],
+            [
+              "class",
+              "city-layout-building changed"
+            ],
+            [
+              "style",
+              "grid-column:5 / span 2;grid-row:5 / span 1"
+            ],
+            [
+              "aria-label",
+              "Hospital · レベル 27"
+            ],
+            [
+              "aria-pressed",
+              "false"
+            ]
+          ]
+        },
+        {
+          "i": 104,
+          "kind": "attrs",
+          "tag": "BUTTON",
+          "text": "",
+          "original": [
+            [
+              "title",
+              "Alliance Flag · レベル 1"
+            ],
+            [
+              "class",
+              "city-layout-building"
+            ],
+            [
+              "style",
+              "grid-column:7 / span 1;grid-row:5 / span 1"
+            ],
+            [
+              "aria-label",
+              "Alliance Flag · レベル 1"
+            ],
+            [
+              "aria-pressed",
+              "false"
+            ]
+          ],
+          "current": [
+            [
+              "data-city-building-id",
+              "preview-flag"
+            ],
+            [
+              "type",
+              "button"
+            ],
+            [
+              "title",
+              "Alliance Flag · レベル 1"
+            ],
+            [
+              "class",
+              "city-layout-building"
+            ],
+            [
+              "style",
+              "grid-column:7 / span 1;grid-row:5 / span 1"
+            ],
+            [
+              "aria-label",
+              "Alliance Flag · レベル 1"
+            ],
+            [
+              "aria-pressed",
+              "false"
+            ]
+          ]
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "city-layout-en-dark-375",
+      "state": "city-layout-populated-moved",
+      "lang": "en",
+      "theme": "dark",
+      "width": 375,
+      "height": 1000,
+      "originalElements": 142,
+      "currentElements": 142,
+      "differences": [
+        {
+          "i": 0,
+          "kind": "attrs",
+          "tag": "SECTION",
+          "text": "",
+          "original": [
+            [
+              "class",
+              "city-layout-panel"
+            ]
+          ],
+          "current": [
+            [
+              "class",
+              "city-layout-panel"
+            ],
+            [
+              "data-preview-fixture",
+              "city-layout-populated-moved"
+            ]
+          ]
+        },
+        {
+          "i": 6,
+          "kind": "attrs",
+          "tag": "BUTTON",
+          "text": "Refresh",
+          "original": [],
+          "current": [
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "i": 7,
+          "kind": "attrs",
+          "tag": "BUTTON",
+          "text": "Undo",
+          "original": [
+            [
+              "disabled",
+              ""
+            ]
+          ],
+          "current": [
+            [
+              "type",
+              "button"
+            ],
+            [
+              "disabled",
+              ""
+            ]
+          ]
+        },
+        {
+          "i": 8,
+          "kind": "attrs",
+          "tag": "BUTTON",
+          "text": "Redo",
+          "original": [
+            [
+              "disabled",
+              ""
+            ]
+          ],
+          "current": [
+            [
+              "type",
+              "button"
+            ],
+            [
+              "disabled",
+              ""
+            ]
+          ]
+        },
+        {
+          "i": 9,
+          "kind": "attrs",
+          "tag": "BUTTON",
+          "text": "Restore initial layout",
+          "original": [],
+          "current": [
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "i": 10,
+          "kind": "attrs",
+          "tag": "BUTTON",
+          "text": "Save draft",
+          "original": [],
+          "current": [
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "i": 11,
+          "kind": "attrs",
+          "tag": "BUTTON",
+          "text": "Apply to game",
+          "original": [
+            [
+              "class",
+              "primary"
+            ]
+          ],
+          "current": [
+            [
+              "type",
+              "button"
+            ],
+            [
+              "class",
+              "primary"
+            ]
+          ]
+        },
+        {
+          "i": 95,
+          "kind": "attrs",
+          "tag": "BUTTON",
+          "text": "",
+          "original": [
+            [
+              "title",
+              "HQ · Level 30"
+            ],
+            [
+              "class",
+              "city-layout-building selected"
+            ],
+            [
+              "style",
+              "grid-column:2 / span 2;grid-row:2 / span 2"
+            ],
+            [
+              "aria-label",
+              "HQ · Level 30"
+            ],
+            [
+              "aria-pressed",
+              "true"
+            ]
+          ],
+          "current": [
+            [
+              "data-city-building-id",
+              "preview-hq"
+            ],
+            [
+              "type",
+              "button"
+            ],
+            [
+              "title",
+              "HQ · Level 30"
+            ],
+            [
+              "class",
+              "city-layout-building selected"
+            ],
+            [
+              "style",
+              "grid-column:2 / span 2;grid-row:2 / span 2"
+            ],
+            [
+              "aria-label",
+              "HQ · Level 30"
+            ],
+            [
+              "aria-pressed",
+              "true"
+            ]
+          ]
+        },
+        {
+          "i": 98,
+          "kind": "attrs",
+          "tag": "BUTTON",
+          "text": "",
+          "original": [
+            [
+              "title",
+              "Barracks · Level 28"
+            ],
+            [
+              "class",
+              "city-layout-building"
+            ],
+            [
+              "style",
+              "grid-column:5 / span 2;grid-row:2 / span 2"
+            ],
+            [
+              "aria-label",
+              "Barracks · Level 28"
+            ],
+            [
+              "aria-pressed",
+              "false"
+            ]
+          ],
+          "current": [
+            [
+              "data-city-building-id",
+              "preview-barracks"
+            ],
+            [
+              "type",
+              "button"
+            ],
+            [
+              "title",
+              "Barracks · Level 28"
+            ],
+            [
+              "class",
+              "city-layout-building"
+            ],
+            [
+              "style",
+              "grid-column:5 / span 2;grid-row:2 / span 2"
+            ],
+            [
+              "aria-label",
+              "Barracks · Level 28"
+            ],
+            [
+              "aria-pressed",
+              "false"
+            ]
+          ]
+        },
+        {
+          "i": 101,
+          "kind": "attrs",
+          "tag": "BUTTON",
+          "text": "",
+          "original": [
+            [
+              "title",
+              "Hospital · Level 27"
+            ],
+            [
+              "class",
+              "city-layout-building changed"
+            ],
+            [
+              "style",
+              "grid-column:5 / span 2;grid-row:5 / span 1"
+            ],
+            [
+              "aria-label",
+              "Hospital · Level 27"
+            ],
+            [
+              "aria-pressed",
+              "false"
+            ]
+          ],
+          "current": [
+            [
+              "data-city-building-id",
+              "preview-hospital"
+            ],
+            [
+              "type",
+              "button"
+            ],
+            [
+              "title",
+              "Hospital · Level 27"
+            ],
+            [
+              "class",
+              "city-layout-building changed"
+            ],
+            [
+              "style",
+              "grid-column:5 / span 2;grid-row:5 / span 1"
+            ],
+            [
+              "aria-label",
+              "Hospital · Level 27"
+            ],
+            [
+              "aria-pressed",
+              "false"
+            ]
+          ]
+        },
+        {
+          "i": 104,
+          "kind": "attrs",
+          "tag": "BUTTON",
+          "text": "",
+          "original": [
+            [
+              "title",
+              "Alliance Flag · Level 1"
+            ],
+            [
+              "class",
+              "city-layout-building"
+            ],
+            [
+              "style",
+              "grid-column:7 / span 1;grid-row:5 / span 1"
+            ],
+            [
+              "aria-label",
+              "Alliance Flag · Level 1"
+            ],
+            [
+              "aria-pressed",
+              "false"
+            ]
+          ],
+          "current": [
+            [
+              "data-city-building-id",
+              "preview-flag"
+            ],
+            [
+              "type",
+              "button"
+            ],
+            [
+              "title",
+              "Alliance Flag · Level 1"
+            ],
+            [
+              "class",
+              "city-layout-building"
+            ],
+            [
+              "style",
+              "grid-column:7 / span 1;grid-row:5 / span 1"
+            ],
+            [
+              "aria-label",
+              "Alliance Flag · Level 1"
+            ],
+            [
+              "aria-pressed",
+              "false"
+            ]
+          ]
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "city-layout-ja-light-375",
+      "state": "city-layout-populated-moved",
+      "lang": "ja",
+      "theme": "light",
+      "width": 375,
+      "height": 1000,
+      "originalElements": 142,
+      "currentElements": 142,
+      "differences": [
+        {
+          "i": 0,
+          "kind": "attrs",
+          "tag": "SECTION",
+          "text": "",
+          "original": [
+            [
+              "class",
+              "city-layout-panel"
+            ]
+          ],
+          "current": [
+            [
+              "class",
+              "city-layout-panel"
+            ],
+            [
+              "data-preview-fixture",
+              "city-layout-populated-moved"
+            ]
+          ]
+        },
+        {
+          "i": 6,
+          "kind": "attrs",
+          "tag": "BUTTON",
+          "text": "更新",
+          "original": [],
+          "current": [
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "i": 7,
+          "kind": "attrs",
+          "tag": "BUTTON",
+          "text": "元に戻す",
+          "original": [
+            [
+              "disabled",
+              ""
+            ]
+          ],
+          "current": [
+            [
+              "type",
+              "button"
+            ],
+            [
+              "disabled",
+              ""
+            ]
+          ]
+        },
+        {
+          "i": 8,
+          "kind": "attrs",
+          "tag": "BUTTON",
+          "text": "やり直す",
+          "original": [
+            [
+              "disabled",
+              ""
+            ]
+          ],
+          "current": [
+            [
+              "type",
+              "button"
+            ],
+            [
+              "disabled",
+              ""
+            ]
+          ]
+        },
+        {
+          "i": 9,
+          "kind": "attrs",
+          "tag": "BUTTON",
+          "text": "初期配置に戻す",
+          "original": [],
+          "current": [
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "i": 10,
+          "kind": "attrs",
+          "tag": "BUTTON",
+          "text": "下書きを保存",
+          "original": [],
+          "current": [
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "i": 11,
+          "kind": "attrs",
+          "tag": "BUTTON",
+          "text": "ゲームに適用",
+          "original": [
+            [
+              "class",
+              "primary"
+            ]
+          ],
+          "current": [
+            [
+              "type",
+              "button"
+            ],
+            [
+              "class",
+              "primary"
+            ]
+          ]
+        },
+        {
+          "i": 95,
+          "kind": "attrs",
+          "tag": "BUTTON",
+          "text": "",
+          "original": [
+            [
+              "title",
+              "HQ · レベル 30"
+            ],
+            [
+              "class",
+              "city-layout-building selected"
+            ],
+            [
+              "style",
+              "grid-column:2 / span 2;grid-row:2 / span 2"
+            ],
+            [
+              "aria-label",
+              "HQ · レベル 30"
+            ],
+            [
+              "aria-pressed",
+              "true"
+            ]
+          ],
+          "current": [
+            [
+              "data-city-building-id",
+              "preview-hq"
+            ],
+            [
+              "type",
+              "button"
+            ],
+            [
+              "title",
+              "HQ · レベル 30"
+            ],
+            [
+              "class",
+              "city-layout-building selected"
+            ],
+            [
+              "style",
+              "grid-column:2 / span 2;grid-row:2 / span 2"
+            ],
+            [
+              "aria-label",
+              "HQ · レベル 30"
+            ],
+            [
+              "aria-pressed",
+              "true"
+            ]
+          ]
+        },
+        {
+          "i": 98,
+          "kind": "attrs",
+          "tag": "BUTTON",
+          "text": "",
+          "original": [
+            [
+              "title",
+              "Barracks · レベル 28"
+            ],
+            [
+              "class",
+              "city-layout-building"
+            ],
+            [
+              "style",
+              "grid-column:5 / span 2;grid-row:2 / span 2"
+            ],
+            [
+              "aria-label",
+              "Barracks · レベル 28"
+            ],
+            [
+              "aria-pressed",
+              "false"
+            ]
+          ],
+          "current": [
+            [
+              "data-city-building-id",
+              "preview-barracks"
+            ],
+            [
+              "type",
+              "button"
+            ],
+            [
+              "title",
+              "Barracks · レベル 28"
+            ],
+            [
+              "class",
+              "city-layout-building"
+            ],
+            [
+              "style",
+              "grid-column:5 / span 2;grid-row:2 / span 2"
+            ],
+            [
+              "aria-label",
+              "Barracks · レベル 28"
+            ],
+            [
+              "aria-pressed",
+              "false"
+            ]
+          ]
+        },
+        {
+          "i": 101,
+          "kind": "attrs",
+          "tag": "BUTTON",
+          "text": "",
+          "original": [
+            [
+              "title",
+              "Hospital · レベル 27"
+            ],
+            [
+              "class",
+              "city-layout-building changed"
+            ],
+            [
+              "style",
+              "grid-column:5 / span 2;grid-row:5 / span 1"
+            ],
+            [
+              "aria-label",
+              "Hospital · レベル 27"
+            ],
+            [
+              "aria-pressed",
+              "false"
+            ]
+          ],
+          "current": [
+            [
+              "data-city-building-id",
+              "preview-hospital"
+            ],
+            [
+              "type",
+              "button"
+            ],
+            [
+              "title",
+              "Hospital · レベル 27"
+            ],
+            [
+              "class",
+              "city-layout-building changed"
+            ],
+            [
+              "style",
+              "grid-column:5 / span 2;grid-row:5 / span 1"
+            ],
+            [
+              "aria-label",
+              "Hospital · レベル 27"
+            ],
+            [
+              "aria-pressed",
+              "false"
+            ]
+          ]
+        },
+        {
+          "i": 104,
+          "kind": "attrs",
+          "tag": "BUTTON",
+          "text": "",
+          "original": [
+            [
+              "title",
+              "Alliance Flag · レベル 1"
+            ],
+            [
+              "class",
+              "city-layout-building"
+            ],
+            [
+              "style",
+              "grid-column:7 / span 1;grid-row:5 / span 1"
+            ],
+            [
+              "aria-label",
+              "Alliance Flag · レベル 1"
+            ],
+            [
+              "aria-pressed",
+              "false"
+            ]
+          ],
+          "current": [
+            [
+              "data-city-building-id",
+              "preview-flag"
+            ],
+            [
+              "type",
+              "button"
+            ],
+            [
+              "title",
+              "Alliance Flag · レベル 1"
+            ],
+            [
+              "class",
+              "city-layout-building"
+            ],
+            [
+              "style",
+              "grid-column:7 / span 1;grid-row:5 / span 1"
+            ],
+            [
+              "aria-label",
+              "Alliance Flag · レベル 1"
+            ],
+            [
+              "aria-pressed",
+              "false"
+            ]
+          ]
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "city-layout-ru-dark-375",
+      "state": "city-layout-populated-moved",
+      "lang": "ru",
+      "theme": "dark",
+      "width": 375,
+      "height": 1000,
+      "originalElements": 142,
+      "currentElements": 142,
+      "differences": [
+        {
+          "i": 0,
+          "kind": "attrs",
+          "tag": "SECTION",
+          "text": "",
+          "original": [
+            [
+              "class",
+              "city-layout-panel"
+            ]
+          ],
+          "current": [
+            [
+              "class",
+              "city-layout-panel"
+            ],
+            [
+              "data-preview-fixture",
+              "city-layout-populated-moved"
+            ]
+          ]
+        },
+        {
+          "i": 6,
+          "kind": "attrs",
+          "tag": "BUTTON",
+          "text": "Обновить",
+          "original": [],
+          "current": [
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "i": 7,
+          "kind": "attrs",
+          "tag": "BUTTON",
+          "text": "Отменить",
+          "original": [
+            [
+              "disabled",
+              ""
+            ]
+          ],
+          "current": [
+            [
+              "type",
+              "button"
+            ],
+            [
+              "disabled",
+              ""
+            ]
+          ]
+        },
+        {
+          "i": 8,
+          "kind": "attrs",
+          "tag": "BUTTON",
+          "text": "Повторить",
+          "original": [
+            [
+              "disabled",
+              ""
+            ]
+          ],
+          "current": [
+            [
+              "type",
+              "button"
+            ],
+            [
+              "disabled",
+              ""
+            ]
+          ]
+        },
+        {
+          "i": 9,
+          "kind": "attrs",
+          "tag": "BUTTON",
+          "text": "Восстановить исходную планировку",
+          "original": [],
+          "current": [
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "i": 10,
+          "kind": "attrs",
+          "tag": "BUTTON",
+          "text": "Сохранить черновик",
+          "original": [],
+          "current": [
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "i": 11,
+          "kind": "attrs",
+          "tag": "BUTTON",
+          "text": "Применить в игре",
+          "original": [
+            [
+              "class",
+              "primary"
+            ]
+          ],
+          "current": [
+            [
+              "type",
+              "button"
+            ],
+            [
+              "class",
+              "primary"
+            ]
+          ]
+        },
+        {
+          "i": 95,
+          "kind": "attrs",
+          "tag": "BUTTON",
+          "text": "",
+          "original": [
+            [
+              "title",
+              "HQ · Уровень 30"
+            ],
+            [
+              "class",
+              "city-layout-building selected"
+            ],
+            [
+              "style",
+              "grid-column:2 / span 2;grid-row:2 / span 2"
+            ],
+            [
+              "aria-label",
+              "HQ · Уровень 30"
+            ],
+            [
+              "aria-pressed",
+              "true"
+            ]
+          ],
+          "current": [
+            [
+              "data-city-building-id",
+              "preview-hq"
+            ],
+            [
+              "type",
+              "button"
+            ],
+            [
+              "title",
+              "HQ · Уровень 30"
+            ],
+            [
+              "class",
+              "city-layout-building selected"
+            ],
+            [
+              "style",
+              "grid-column:2 / span 2;grid-row:2 / span 2"
+            ],
+            [
+              "aria-label",
+              "HQ · Уровень 30"
+            ],
+            [
+              "aria-pressed",
+              "true"
+            ]
+          ]
+        },
+        {
+          "i": 98,
+          "kind": "attrs",
+          "tag": "BUTTON",
+          "text": "",
+          "original": [
+            [
+              "title",
+              "Barracks · Уровень 28"
+            ],
+            [
+              "class",
+              "city-layout-building"
+            ],
+            [
+              "style",
+              "grid-column:5 / span 2;grid-row:2 / span 2"
+            ],
+            [
+              "aria-label",
+              "Barracks · Уровень 28"
+            ],
+            [
+              "aria-pressed",
+              "false"
+            ]
+          ],
+          "current": [
+            [
+              "data-city-building-id",
+              "preview-barracks"
+            ],
+            [
+              "type",
+              "button"
+            ],
+            [
+              "title",
+              "Barracks · Уровень 28"
+            ],
+            [
+              "class",
+              "city-layout-building"
+            ],
+            [
+              "style",
+              "grid-column:5 / span 2;grid-row:2 / span 2"
+            ],
+            [
+              "aria-label",
+              "Barracks · Уровень 28"
+            ],
+            [
+              "aria-pressed",
+              "false"
+            ]
+          ]
+        },
+        {
+          "i": 101,
+          "kind": "attrs",
+          "tag": "BUTTON",
+          "text": "",
+          "original": [
+            [
+              "title",
+              "Hospital · Уровень 27"
+            ],
+            [
+              "class",
+              "city-layout-building changed"
+            ],
+            [
+              "style",
+              "grid-column:5 / span 2;grid-row:5 / span 1"
+            ],
+            [
+              "aria-label",
+              "Hospital · Уровень 27"
+            ],
+            [
+              "aria-pressed",
+              "false"
+            ]
+          ],
+          "current": [
+            [
+              "data-city-building-id",
+              "preview-hospital"
+            ],
+            [
+              "type",
+              "button"
+            ],
+            [
+              "title",
+              "Hospital · Уровень 27"
+            ],
+            [
+              "class",
+              "city-layout-building changed"
+            ],
+            [
+              "style",
+              "grid-column:5 / span 2;grid-row:5 / span 1"
+            ],
+            [
+              "aria-label",
+              "Hospital · Уровень 27"
+            ],
+            [
+              "aria-pressed",
+              "false"
+            ]
+          ]
+        },
+        {
+          "i": 104,
+          "kind": "attrs",
+          "tag": "BUTTON",
+          "text": "",
+          "original": [
+            [
+              "title",
+              "Alliance Flag · Уровень 1"
+            ],
+            [
+              "class",
+              "city-layout-building"
+            ],
+            [
+              "style",
+              "grid-column:7 / span 1;grid-row:5 / span 1"
+            ],
+            [
+              "aria-label",
+              "Alliance Flag · Уровень 1"
+            ],
+            [
+              "aria-pressed",
+              "false"
+            ]
+          ],
+          "current": [
+            [
+              "data-city-building-id",
+              "preview-flag"
+            ],
+            [
+              "type",
+              "button"
+            ],
+            [
+              "title",
+              "Alliance Flag · Уровень 1"
+            ],
+            [
+              "class",
+              "city-layout-building"
+            ],
+            [
+              "style",
+              "grid-column:7 / span 1;grid-row:5 / span 1"
+            ],
+            [
+              "aria-label",
+              "Alliance Flag · Уровень 1"
+            ],
+            [
+              "aria-pressed",
+              "false"
+            ]
+          ]
+        }
+      ],
+      "console": []
+    }
+  ]
+}

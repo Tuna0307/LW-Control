@@ -1,0 +1,289 @@
+{
+  "records": [
+    {
+      "id": "city-layout-en-light-1280",
+      "cases": [
+        {
+          "name": "Four recovered grid image placeholders mounted",
+          "result": "PASS"
+        },
+        {
+          "name": "Selected inspector placeholder mounted",
+          "result": "PASS"
+        },
+        {
+          "name": "Zoom local edit",
+          "result": "PASS"
+        },
+        {
+          "name": "Restore removes moved marker",
+          "result": "PASS"
+        },
+        {
+          "name": "Undo restores moved marker",
+          "result": "PASS"
+        },
+        {
+          "name": "Ctrl+Y redo restores initial",
+          "result": "PASS"
+        },
+        {
+          "name": "Ctrl+Z undo restores moved state",
+          "result": "PASS"
+        },
+        {
+          "name": "Escape clears selected inspector",
+          "result": "PASS"
+        },
+        {
+          "name": "Keyboard selection renders hospital inspector",
+          "result": "PASS"
+        },
+        {
+          "name": "Inert preparation opens modal",
+          "result": "PASS"
+        },
+        {
+          "name": "Cancel closes modal without native apply",
+          "result": "PASS"
+        },
+        {
+          "name": "Actual viewport matches assigned width",
+          "result": "PASS"
+        },
+        {
+          "name": "Fonts ready",
+          "result": "PASS"
+        },
+        {
+          "name": "No console warnings/errors",
+          "result": "PASS"
+        }
+      ],
+      "metrics": {
+        "innerWidth": 1280,
+        "innerHeight": 900,
+        "documentWidth": 1280,
+        "fonts": "loaded",
+        "theme": "light",
+        "language": "en"
+      },
+      "console": [],
+      "source": "Actual canonical React app mounted through isolated task-owned Vite4348"
+    },
+    {
+      "id": "city-layout-ja-dark-1280",
+      "cases": [
+        {
+          "name": "Four recovered grid image placeholders mounted",
+          "result": "PASS"
+        },
+        {
+          "name": "Selected inspector placeholder mounted",
+          "result": "PASS"
+        },
+        {
+          "name": "Zoom local edit",
+          "result": "PASS"
+        },
+        {
+          "name": "Restore removes moved marker",
+          "result": "PASS"
+        },
+        {
+          "name": "Undo restores moved marker",
+          "result": "PASS"
+        },
+        {
+          "name": "Ctrl+Y redo restores initial",
+          "result": "PASS"
+        },
+        {
+          "name": "Ctrl+Z undo restores moved state",
+          "result": "PASS"
+        },
+        {
+          "name": "Escape clears selected inspector",
+          "result": "PASS"
+        },
+        {
+          "name": "Keyboard selection renders hospital inspector",
+          "result": "PASS"
+        },
+        {
+          "name": "Inert preparation opens modal",
+          "result": "PASS"
+        },
+        {
+          "name": "Cancel closes modal without native apply",
+          "result": "PASS"
+        },
+        {
+          "name": "Actual viewport matches assigned width",
+          "result": "PASS"
+        },
+        {
+          "name": "Fonts ready",
+          "result": "PASS"
+        },
+        {
+          "name": "No console warnings/errors",
+          "result": "PASS"
+        }
+      ],
+      "metrics": {
+        "innerWidth": 1280,
+        "innerHeight": 900,
+        "documentWidth": 1280,
+        "fonts": "loaded",
+        "theme": "dark",
+        "language": "ja"
+      },
+      "console": [],
+      "source": "Actual canonical React app mounted through isolated task-owned Vite4348"
+    },
+    {
+      "id": "city-layout-en-dark-375",
+      "cases": [
+        {
+          "name": "Four recovered grid image placeholders mounted",
+          "result": "PASS"
+        },
+        {
+          "name": "Selected inspector placeholder mounted",
+          "result": "PASS"
+        },
+        {
+          "name": "Zoom local edit",
+          "result": "PASS"
+        },
+        {
+          "name": "Restore removes moved marker",
+          "result": "PASS"
+        },
+        {
+          "name": "Undo restores moved marker",
+          "result": "PASS"
+        },
+        {
+          "name": "Ctrl+Y redo restores initial",
+          "result": "PASS"
+        },
+        {
+          "name": "Ctrl+Z undo restores moved state",
+          "result": "PASS"
+        },
+        {
+          "name": "Escape clears selected inspector",
+          "result": "PASS"
+        },
+        {
+          "name": "Keyboard selection renders hospital inspector",
+          "result": "PASS"
+        },
+        {
+          "name": "Inert preparation opens modal",
+          "result": "PASS"
+        },
+        {
+          "name": "Cancel closes modal without native apply",
+          "result": "PASS"
+        },
+        {
+          "name": "Actual viewport matches assigned width",
+          "result": "PASS"
+        },
+        {
+          "name": "Fonts ready",
+          "result": "PASS"
+        },
+        {
+          "name": "No console warnings/errors",
+          "result": "PASS"
+        }
+      ],
+      "metrics": {
+        "innerWidth": 375,
+        "innerHeight": 1000,
+        "documentWidth": 375,
+        "fonts": "loaded",
+        "theme": "dark",
+        "language": "en"
+      },
+      "console": [],
+      "source": "Actual canonical React app mounted through isolated task-owned Vite4348"
+    },
+    {
+      "id": "city-layout-ja-light-375",
+      "cases": [
+        {
+          "name": "Four recovered grid image placeholders mounted",
+          "result": "PASS"
+        },
+        {
+          "name": "Selected inspector placeholder mounted",
+          "result": "PASS"
+        },
+        {
+          "name": "Zoom local edit",
+          "result": "PASS"
+        },
+        {
+          "name": "Restore removes moved marker",
+          "result": "PASS"
+        },
+        {
+          "name": "Undo restores moved marker",
+          "result": "PASS"
+        },
+        {
+          "name": "Ctrl+Y redo restores initial",
+          "result": "PASS"
+        },
+        {
+          "name": "Ctrl+Z undo restores moved state",
+          "result": "PASS"
+        },
+        {
+          "name": "Escape clears selected inspector",
+          "result": "PASS"
+        },
+        {
+          "name": "Keyboard selection renders hospital inspector",
+          "result": "PASS"
+        },
+        {
+          "name": "Inert preparation opens modal",
+          "result": "PASS"
+        },
+        {
+          "name": "Cancel closes modal without native apply",
+          "result": "PASS"
+        },
+        {
+          "name": "Actual viewport matches assigned width",
+          "result": "PASS"
+        },
+        {
+          "name": "Fonts ready",
+          "result": "PASS"
+        },
+        {
+          "name": "No console warnings/errors",
+          "result": "PASS"
+        }
+      ],
+      "metrics": {
+        "innerWidth": 375,
+        "innerHeight": 1000,
+        "documentWidth": 375,
+        "fonts": "loaded",
+        "theme": "light",
+        "language": "ja"
+      },
+      "console": [],
+      "source": "Actual canonical React app mounted through isolated task-owned Vite4348"
+    }
+  ],
+  "native": "Only local preferences, grid, keyboard and inert preview preparation used; no native providers, OS/global hotkeys, Last War, diagnostics or updater invoked"
+}

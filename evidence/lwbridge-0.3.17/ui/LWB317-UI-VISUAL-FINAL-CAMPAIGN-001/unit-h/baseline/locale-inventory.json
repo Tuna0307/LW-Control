@@ -1,0 +1,270 @@
+{
+  "keys": [
+    "feedback.title",
+    "feedback.description",
+    "feedback.privacyNotice",
+    "feedback.success",
+    "feedback.failed",
+    "feedback.progress.label",
+    "feedback.exporting",
+    "feedback.export",
+    "settings.visualMetrics.loadFailed",
+    "settings.visualMetrics.saveFailed",
+    "settings.title",
+    "settings.description",
+    "settings.visualMetrics.title",
+    "settings.visualMetrics.description",
+    "common.processing",
+    "settings.visualMetrics.showFps",
+    "settings.visualMetrics.showPing",
+    "settings.accountInteraction.title",
+    "settings.accountInteraction.description",
+    "settings.accountInteraction.focusGameOnProfileSelect"
+  ],
+  "values": {
+    "en": [
+      {
+        "key": "feedback.title",
+        "original": "Issue feedback",
+        "current": "Issue feedback",
+        "equal": true
+      },
+      {
+        "key": "feedback.description",
+        "original": "Export recent local diagnostic logs to help investigate issues.",
+        "current": "Export recent local diagnostic logs to help investigate issues.",
+        "equal": true
+      },
+      {
+        "key": "feedback.privacyNotice",
+        "original": "The archive automatically masks player names, UIDs, authorization data, and local paths. It is saved only to the location you choose and is never uploaded automatically.",
+        "current": "The archive automatically masks player names, UIDs, authorization data, and local paths. It is saved only to the location you choose and is never uploaded automatically.",
+        "equal": true
+      },
+      {
+        "key": "feedback.success",
+        "original": "Exported diagnostic archive ({size}) to: {path}",
+        "current": "Exported diagnostic archive ({size}) to: {path}",
+        "equal": true
+      },
+      {
+        "key": "feedback.failed",
+        "original": "Export failed. Check the save location and try again.",
+        "current": "Export failed. Check the save location and try again.",
+        "equal": true
+      },
+      {
+        "key": "feedback.progress.label",
+        "original": "Diagnostic archive export progress",
+        "current": "Diagnostic archive export progress",
+        "equal": true
+      },
+      {
+        "key": "feedback.exporting",
+        "original": "Collecting and compressing logs…",
+        "current": "Collecting and compressing logs…",
+        "equal": true
+      },
+      {
+        "key": "feedback.export",
+        "original": "Export diagnostic archive",
+        "current": "Export diagnostic archive",
+        "equal": true
+      },
+      {
+        "key": "settings.visualMetrics.loadFailed",
+        "original": "Failed to load in-game display settings.",
+        "current": "Failed to load in-game display settings.",
+        "equal": true
+      },
+      {
+        "key": "settings.visualMetrics.saveFailed",
+        "original": "Failed to save in-game display settings.",
+        "current": "Failed to save in-game display settings.",
+        "equal": true
+      },
+      {
+        "key": "settings.title",
+        "original": "Settings",
+        "current": "Settings",
+        "equal": true
+      },
+      {
+        "key": "settings.description",
+        "original": "In-game display, application information, and client updates.",
+        "current": "In-game display, application information, and client updates.",
+        "equal": true
+      },
+      {
+        "key": "settings.visualMetrics.title",
+        "original": "In-game performance",
+        "current": "In-game performance",
+        "equal": true
+      },
+      {
+        "key": "settings.visualMetrics.description",
+        "original": "Show real-time performance and network latency in the top-left corner of the game.",
+        "current": "Show real-time performance and network latency in the top-left corner of the game.",
+        "equal": true
+      },
+      {
+        "key": "common.processing",
+        "original": "Processing",
+        "current": "Processing",
+        "equal": true
+      },
+      {
+        "key": "settings.visualMetrics.showFps",
+        "original": "Show FPS",
+        "current": "Show FPS",
+        "equal": true
+      },
+      {
+        "key": "settings.visualMetrics.showPing",
+        "original": "Show Ping",
+        "current": "Show Ping",
+        "equal": true
+      },
+      {
+        "key": "settings.accountInteraction.title",
+        "original": "Account interaction",
+        "current": "Account interaction",
+        "equal": true
+      },
+      {
+        "key": "settings.accountInteraction.description",
+        "original": "Control how the account list interacts with running game windows.",
+        "current": "Control how the account list interacts with running game windows.",
+        "equal": true
+      },
+      {
+        "key": "settings.accountInteraction.focusGameOnProfileSelect",
+        "original": "Focus the corresponding game when selecting an account",
+        "current": "Focus the corresponding game when selecting an account",
+        "equal": true
+      }
+    ],
+    "ja": [
+      {
+        "key": "feedback.title",
+        "original": "問題のフィードバック",
+        "current": "問題のフィードバック",
+        "equal": true
+      },
+      {
+        "key": "feedback.description",
+        "original": "問題調査用の最近のローカル診断ログを書き出します。",
+        "current": "問題調査用の最近のローカル診断ログを書き出します。",
+        "equal": true
+      },
+      {
+        "key": "feedback.privacyNotice",
+        "original": "アーカイブではプレイヤー名、UID、認証情報、ローカルパスが自動的に伏せられます。選択した場所にのみ保存され、自動アップロードはされません。",
+        "current": "アーカイブではプレイヤー名、UID、認証情報、ローカルパスが自動的に伏せられます。選択した場所にのみ保存され、自動アップロードはされません。",
+        "equal": true
+      },
+      {
+        "key": "feedback.success",
+        "original": "診断アーカイブ（{size}）を書き出しました：{path}",
+        "current": "診断アーカイブ（{size}）を書き出しました：{path}",
+        "equal": true
+      },
+      {
+        "key": "feedback.failed",
+        "original": "書き出しに失敗しました。保存先を確認して再試行してください。",
+        "current": "書き出しに失敗しました。保存先を確認して再試行してください。",
+        "equal": true
+      },
+      {
+        "key": "feedback.progress.label",
+        "original": "診断アーカイブのエクスポート進捗",
+        "current": "診断アーカイブのエクスポート進捗",
+        "equal": true
+      },
+      {
+        "key": "feedback.exporting",
+        "original": "ログを収集して圧縮しています…",
+        "current": "ログを収集して圧縮しています…",
+        "equal": true
+      },
+      {
+        "key": "feedback.export",
+        "original": "診断アーカイブを書き出す",
+        "current": "診断アーカイブを書き出す",
+        "equal": true
+      },
+      {
+        "key": "settings.visualMetrics.loadFailed",
+        "original": "ゲーム内表示設定を読み込めませんでした。",
+        "current": "ゲーム内表示設定を読み込めませんでした。",
+        "equal": true
+      },
+      {
+        "key": "settings.visualMetrics.saveFailed",
+        "original": "ゲーム内表示設定を保存できませんでした。",
+        "current": "ゲーム内表示設定を保存できませんでした。",
+        "equal": true
+      },
+      {
+        "key": "settings.title",
+        "original": "設定",
+        "current": "設定",
+        "equal": true
+      },
+      {
+        "key": "settings.description",
+        "original": "ゲーム内表示、アプリ情報、クライアント更新の設定。",
+        "current": "ゲーム内表示、アプリ情報、クライアント更新の設定。",
+        "equal": true
+      },
+      {
+        "key": "settings.visualMetrics.title",
+        "original": "ゲーム内パフォーマンス表示",
+        "current": "ゲーム内パフォーマンス表示",
+        "equal": true
+      },
+      {
+        "key": "settings.visualMetrics.description",
+        "original": "ゲーム画面の左上にリアルタイムのフレームレートとネットワーク遅延を表示します。",
+        "current": "ゲーム画面の左上にリアルタイムのフレームレートとネットワーク遅延を表示します。",
+        "equal": true
+      },
+      {
+        "key": "common.processing",
+        "original": "処理中",
+        "current": "処理中",
+        "equal": true
+      },
+      {
+        "key": "settings.visualMetrics.showFps",
+        "original": "FPSを表示",
+        "current": "FPSを表示",
+        "equal": true
+      },
+      {
+        "key": "settings.visualMetrics.showPing",
+        "original": "Pingを表示",
+        "current": "Pingを表示",
+        "equal": true
+      },
+      {
+        "key": "settings.accountInteraction.title",
+        "original": "アカウント操作",
+        "current": "アカウント操作",
+        "equal": true
+      },
+      {
+        "key": "settings.accountInteraction.description",
+        "original": "アカウント一覧と実行中のゲームウィンドウの連動を設定します。",
+        "current": "アカウント一覧と実行中のゲームウィンドウの連動を設定します。",
+        "equal": true
+      },
+      {
+        "key": "settings.accountInteraction.focusGameOnProfileSelect",
+        "original": "アカウント選択時に対応するゲームを前面表示",
+        "current": "アカウント選択時に対応するゲームを前面表示",
+        "equal": true
+      }
+    ]
+  }
+}

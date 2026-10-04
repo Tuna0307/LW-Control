@@ -1,3 +1,13 @@
+Lead takeover checkpoint, 2026-10-05: VISUAL-FINAL-CAMPAIGN-001 remains PARTIAL.
+Independent audit corrected the unmasked City Map search-error drift; fresh3 pairs
+pass. Default Automation seven-category expanded/collapsed56 pairs, Equipment20,
+compact AFK16, and City/Hotkeys/Mini Games/Settings20 paired samples match decoded
+pixels without masks.189 E–H source states and mounted regressions are validated.
+Open: broader Automation conditionals, full AFK/Garrison/Profile, whole shared-shell/
+Home compositions and final integration acceptance. Native/assets/protected-runtime
+proof remains separate. See reviews/2026-10-05-LWB317-VISUAL-CAMPAIGN-LEAD-TAKEOVER-001.md
+and the campaign progress/continuation; older blanket worker completion is historical.
+
 # Current project directive
 
 Latest lead acceptance, 2026-10-04: MAP-MANUAL-TYPES-001 closes the focused

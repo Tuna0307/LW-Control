@@ -1,0 +1,62 @@
+{
+  "workItem": "LWB317-UI-REMAINING-PAGES-001-R1",
+  "milestone": "C",
+  "result": "PASS",
+  "results": [
+    {
+      "name": "recovered producers translate before storing retained feedback",
+      "cases": [
+        "Hotkey load/save",
+        "Land success/failure",
+        "Sheep failure",
+        "Settings visual load/save"
+      ],
+      "result": "PASS"
+    },
+    {
+      "name": "Hotkeys event-time save failure lifetime",
+      "cases": [
+        "EN failure",
+        "JA rerender retains EN",
+        "new JA failure stores JA"
+      ],
+      "result": "PASS"
+    },
+    {
+      "name": "Settings event-time save failure lifetime",
+      "cases": [
+        "EN failure",
+        "JA rerender retains EN",
+        "new JA failure stores JA"
+      ],
+      "result": "PASS"
+    },
+    {
+      "name": "retained load/action failure fields do not retroactively retranslate",
+      "cases": [
+        "Hotkey load",
+        "Mini config load",
+        "Land failure",
+        "Sheep failure",
+        "Settings visual load"
+      ],
+      "result": "PASS"
+    },
+    {
+      "name": "Mini Land success result lifetime",
+      "cases": [
+        "EN success",
+        "JA rerender retains EN",
+        "new JA success stores JA"
+      ],
+      "result": "PASS"
+    }
+  ],
+  "renderTranslatedStructuralState": [
+    "Sheep status/progress",
+    "diagnostic export phase/result formatting",
+    "updater message codes"
+  ],
+  "submittedBaseline": "Lead packet at afd65b6 records Hotkeys and Settings EN failure becoming JA on locale rerender; historical packet remains immutable.",
+  "limits": "All callbacks are inert preview/rejected-save transitions. No native preference write, archive, updater, OS hotkey, gameplay, network, or service action is invoked."
+}

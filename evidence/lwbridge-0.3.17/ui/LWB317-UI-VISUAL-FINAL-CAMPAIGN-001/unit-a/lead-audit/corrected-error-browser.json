@@ -1,0 +1,206 @@
+{
+  "result": "CORRECTED_SEARCH_REJECTION_EXACT",
+  "pairs": [
+    {
+      "id": "city-error-en-dark-1280",
+      "spec": {
+        "language": "en",
+        "theme": "dark",
+        "width": 1280,
+        "height": 900
+      },
+      "screenshots": {
+        "original": {
+          "file": "city-error-en-dark-1280-original.png",
+          "sha256": "68a0e85facde77275716909cdc1e92859c30662e1d1a7c0a71abbd719df6bbf7"
+        },
+        "current": {
+          "file": "city-error-en-dark-1280-current.png",
+          "sha256": "68a0e85facde77275716909cdc1e92859c30662e1d1a7c0a71abbd719df6bbf7"
+        }
+      },
+      "measurements": {
+        "original": {
+          "fonts": "loaded",
+          "panel": {
+            "x": 201,
+            "y": 25,
+            "width": 1052,
+            "height": 437.5
+          },
+          "search": {
+            "x": 218,
+            "y": 258,
+            "width": 1018,
+            "height": 187.5
+          },
+          "table": {
+            "x": 218,
+            "y": 365,
+            "width": 1018,
+            "height": 80.5
+          },
+          "alerts": []
+        },
+        "current": {
+          "fonts": "loaded",
+          "panel": {
+            "x": 201,
+            "y": 25,
+            "width": 1052,
+            "height": 437.5
+          },
+          "search": {
+            "x": 218,
+            "y": 258,
+            "width": 1018,
+            "height": 187.5
+          },
+          "table": {
+            "x": 218,
+            "y": 365,
+            "width": 1018,
+            "height": 80.5
+          },
+          "alerts": []
+        }
+      },
+      "unmaskedExact": true
+    },
+    {
+      "id": "city-error-ja-dark-1280",
+      "spec": {
+        "language": "ja",
+        "theme": "dark",
+        "width": 1280,
+        "height": 900
+      },
+      "screenshots": {
+        "original": {
+          "file": "city-error-ja-dark-1280-original.png",
+          "sha256": "0a38a66d5fe35ed411315f90db18c75006ea3a129d70200174563cf9f33af0d9"
+        },
+        "current": {
+          "file": "city-error-ja-dark-1280-current.png",
+          "sha256": "0a38a66d5fe35ed411315f90db18c75006ea3a129d70200174563cf9f33af0d9"
+        }
+      },
+      "measurements": {
+        "original": {
+          "fonts": "loaded",
+          "panel": {
+            "x": 201,
+            "y": 25,
+            "width": 1052,
+            "height": 467
+          },
+          "search": {
+            "x": 218,
+            "y": 278,
+            "width": 1018,
+            "height": 197
+          },
+          "table": {
+            "x": 218,
+            "y": 388,
+            "width": 1018,
+            "height": 87
+          },
+          "alerts": []
+        },
+        "current": {
+          "fonts": "loaded",
+          "panel": {
+            "x": 201,
+            "y": 25,
+            "width": 1052,
+            "height": 467
+          },
+          "search": {
+            "x": 218,
+            "y": 278,
+            "width": 1018,
+            "height": 197
+          },
+          "table": {
+            "x": 218,
+            "y": 388,
+            "width": 1018,
+            "height": 87
+          },
+          "alerts": []
+        }
+      },
+      "unmaskedExact": true
+    },
+    {
+      "id": "city-error-ja-light-375",
+      "spec": {
+        "language": "ja",
+        "theme": "light",
+        "width": 375,
+        "height": 1100
+      },
+      "screenshots": {
+        "original": {
+          "file": "city-error-ja-light-375-original.png",
+          "sha256": "7e2c9911ff6f5b5132b7e637f230689bc6b2173d578844e22c788a75a7478335"
+        },
+        "current": {
+          "file": "city-error-ja-light-375-current.png",
+          "sha256": "7e2c9911ff6f5b5132b7e637f230689bc6b2173d578844e22c788a75a7478335"
+        }
+      },
+      "measurements": {
+        "original": {
+          "fonts": "loaded",
+          "panel": {
+            "x": 25,
+            "y": 35,
+            "width": 325,
+            "height": 1321
+          },
+          "search": {
+            "x": 42,
+            "y": 804,
+            "width": 291,
+            "height": 535
+          },
+          "table": {
+            "x": 42,
+            "y": 1252,
+            "width": 1004,
+            "height": 87
+          },
+          "alerts": []
+        },
+        "current": {
+          "fonts": "loaded",
+          "panel": {
+            "x": 25,
+            "y": 35,
+            "width": 325,
+            "height": 1321
+          },
+          "search": {
+            "x": 42,
+            "y": 804,
+            "width": 291,
+            "height": 535
+          },
+          "table": {
+            "x": 42,
+            "y": 1252,
+            "width": 1004,
+            "height": 87
+          },
+          "alerts": []
+        }
+      },
+      "unmaskedExact": true
+    }
+  ],
+  "issues": [],
+  "browser": "154.0.8037.95",
+  "proof": "Actual original/current production callback execution from75case renderer; original CSS vs production CSS; zero masks."
+}

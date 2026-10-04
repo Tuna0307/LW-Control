@@ -1,0 +1,751 @@
+{
+  "keys": [
+    "hotkeys.attack.title",
+    "hotkeys.attack.description",
+    "hotkeys.recall.title",
+    "hotkeys.recall.description",
+    "hotkeys.shield.title",
+    "hotkeys.shield.description",
+    "hotkeys.shieldUse.title",
+    "hotkeys.shieldUse.description",
+    "hotkeys.shieldUse.warning",
+    "hotkeys.equipment.title",
+    "hotkeys.equipment.description",
+    "hotkeys.randomRelocate.title",
+    "hotkeys.randomRelocate.description",
+    "hotkeys.relocationWarning",
+    "hotkeys.allianceRelocate.title",
+    "hotkeys.allianceRelocate.description",
+    "hotkeys.frontlineReinforce.title",
+    "hotkeys.frontlineReinforce.description",
+    "miniGames.sheep.solving",
+    "miniGames.sheep.executing",
+    "common.completed",
+    "miniGames.sheep.dailyLimit",
+    "miniGames.sheep.allCompleted",
+    "miniGames.sheep.activityEnded",
+    "miniGames.sheep.uiOpen",
+    "miniGames.sheep.conflict",
+    "miniGames.sheep.solveFailed",
+    "miniGames.sheep.unsupported",
+    "common.processing",
+    "common.failed",
+    "common.stopped",
+    "hotkeys.loadFailed",
+    "hotkeys.saveFailed",
+    "miniGames.landCellSent",
+    "miniGames.landCellFailed",
+    "miniGames.sheep.failed",
+    "miniGames.sheep.progress",
+    "status.gameConnected",
+    "hotkeys.offlineHint",
+    "common.enabled",
+    "common.disabled",
+    "hotkeys.attackSpeedupItem",
+    "hotkeys.attackSpeedupDiamond",
+    "hotkeys.attackSpeedupWarning",
+    "miniGames.treasureChest.title",
+    "miniGames.treasureChest.description",
+    "miniGames.treasureChest.enabled",
+    "miniGames.landCell.title",
+    "miniGames.landCell.description",
+    "miniGames.landCellOpening",
+    "miniGames.landCellAction",
+    "miniGames.sheep.title",
+    "miniGames.sheep.description",
+    "miniGames.sheep.level",
+    "miniGames.sheep.elapsed",
+    "common.stop",
+    "common.start"
+  ],
+  "values": {
+    "en": [
+      {
+        "key": "hotkeys.attack.title",
+        "original": "Attack target",
+        "current": "Attack target",
+        "equal": true
+      },
+      {
+        "key": "hotkeys.attack.description",
+        "original": "Q/W/E/R each send one march at whatever is under the cursor: enemy city, ally city reinforcement, monster, resource node, or city ruin. World bosses and rally monsters are skipped. A/S/D/F recalls.",
+        "current": "Q/W/E/R each send one march at whatever is under the cursor: enemy city, ally city reinforcement, monster, resource node, or city ruin. World bosses and rally monsters are skipped. A/S/D/F recalls.",
+        "equal": true
+      },
+      {
+        "key": "hotkeys.recall.title",
+        "original": "Recall squad",
+        "current": "Recall squad",
+        "equal": true
+      },
+      {
+        "key": "hotkeys.recall.description",
+        "original": "Recall squads 1–4 to the Headquarters.",
+        "current": "Recall squads 1–4 to the Headquarters.",
+        "equal": true
+      },
+      {
+        "key": "hotkeys.shield.title",
+        "original": "Shield countdown",
+        "current": "Shield countdown",
+        "equal": true
+      },
+      {
+        "key": "hotkeys.shield.description",
+        "original": "Hold Space to display remaining Shield time above protected cities.",
+        "current": "Hold Space to display remaining Shield time above protected cities.",
+        "equal": true
+      },
+      {
+        "key": "hotkeys.shieldUse.title",
+        "original": "Use Shield",
+        "current": "Use Shield",
+        "equal": true
+      },
+      {
+        "key": "hotkeys.shieldUse.description",
+        "original": "F6 uses an 8-hour Shield, F7 a 12-hour Shield, and F8 a 24-hour Shield.",
+        "current": "F6 uses an 8-hour Shield, F7 a 12-hour Shield, and F8 a 24-hour Shield.",
+        "equal": true
+      },
+      {
+        "key": "hotkeys.shieldUse.warning",
+        "original": "This shortcut consumes the matching Shield item immediately.",
+        "current": "This shortcut consumes the matching Shield item immediately.",
+        "equal": true
+      },
+      {
+        "key": "hotkeys.equipment.title",
+        "original": "Equipment preset",
+        "current": "Equipment preset",
+        "equal": true
+      },
+      {
+        "key": "hotkeys.equipment.description",
+        "original": "Apply equipment presets 1–4 to all configured squads.",
+        "current": "Apply equipment presets 1–4 to all configured squads.",
+        "equal": true
+      },
+      {
+        "key": "hotkeys.randomRelocate.title",
+        "original": "Random relocation",
+        "current": "Random relocation",
+        "equal": true
+      },
+      {
+        "key": "hotkeys.randomRelocate.description",
+        "original": "Press F9 to use a Random Relocator.",
+        "current": "Press F9 to use a Random Relocator.",
+        "equal": true
+      },
+      {
+        "key": "hotkeys.relocationWarning",
+        "original": "Relocation may consume an item. This shortcut is disabled by default.",
+        "current": "Relocation may consume an item. This shortcut is disabled by default.",
+        "equal": true
+      },
+      {
+        "key": "hotkeys.allianceRelocate.title",
+        "original": "Alliance relocation",
+        "current": "Alliance relocation",
+        "equal": true
+      },
+      {
+        "key": "hotkeys.allianceRelocate.description",
+        "original": "Press F10 to relocate to the Alliance rally point.",
+        "current": "Press F10 to relocate to the Alliance rally point.",
+        "equal": true
+      },
+      {
+        "key": "hotkeys.frontlineReinforce.title",
+        "original": "Frontline reinforcement",
+        "current": "Frontline reinforcement",
+        "equal": true
+      },
+      {
+        "key": "hotkeys.frontlineReinforce.description",
+        "original": "Press G after a Frontline Breakthrough battle starts to add 5 soldiers each time.",
+        "current": "Press G after a Frontline Breakthrough battle starts to add 5 soldiers each time.",
+        "equal": true
+      },
+      {
+        "key": "miniGames.sheep.solving",
+        "original": "Calculating a safe solution...",
+        "current": "Calculating a safe solution...",
+        "equal": true
+      },
+      {
+        "key": "miniGames.sheep.executing",
+        "original": "Completing the current level...",
+        "current": "Completing the current level...",
+        "equal": true
+      },
+      {
+        "key": "common.completed",
+        "original": "Completed",
+        "current": "Completed",
+        "equal": true
+      },
+      {
+        "key": "miniGames.sheep.dailyLimit",
+        "original": "Today's available levels are complete.",
+        "current": "Today's available levels are complete.",
+        "equal": true
+      },
+      {
+        "key": "miniGames.sheep.allCompleted",
+        "original": "All Food House levels are complete.",
+        "current": "All Food House levels are complete.",
+        "equal": true
+      },
+      {
+        "key": "miniGames.sheep.activityEnded",
+        "original": "The Food House activity has ended.",
+        "current": "The Food House activity has ended.",
+        "equal": true
+      },
+      {
+        "key": "miniGames.sheep.uiOpen",
+        "original": "Close the Food House game screen before starting.",
+        "current": "Close the Food House game screen before starting.",
+        "equal": true
+      },
+      {
+        "key": "miniGames.sheep.conflict",
+        "original": "Stopped because the board was changed manually.",
+        "current": "Stopped because the board was changed manually.",
+        "equal": true
+      },
+      {
+        "key": "miniGames.sheep.solveFailed",
+        "original": "No safe item-free solution was found.",
+        "current": "No safe item-free solution was found.",
+        "equal": true
+      },
+      {
+        "key": "miniGames.sheep.unsupported",
+        "original": "Food House is unavailable in the current season or client.",
+        "current": "Food House is unavailable in the current season or client.",
+        "equal": true
+      },
+      {
+        "key": "common.processing",
+        "original": "Processing",
+        "current": "Processing",
+        "equal": true
+      },
+      {
+        "key": "common.failed",
+        "original": "Failed",
+        "current": "Failed",
+        "equal": true
+      },
+      {
+        "key": "common.stopped",
+        "original": "Stopped",
+        "current": "Stopped",
+        "equal": true
+      },
+      {
+        "key": "hotkeys.loadFailed",
+        "original": "Failed to load hotkey settings.",
+        "current": "Failed to load hotkey settings.",
+        "equal": true
+      },
+      {
+        "key": "hotkeys.saveFailed",
+        "original": "Failed to save hotkey settings.",
+        "current": "Failed to save hotkey settings.",
+        "equal": true
+      },
+      {
+        "key": "miniGames.landCellSent",
+        "original": "Unlock request sent for cell #{id}",
+        "current": "Unlock request sent for cell #{id}",
+        "equal": true
+      },
+      {
+        "key": "miniGames.landCellFailed",
+        "original": "Failed to unlock the land cell.",
+        "current": "Failed to unlock the land cell.",
+        "equal": true
+      },
+      {
+        "key": "miniGames.sheep.failed",
+        "original": "Failed to start Food House auto clear.",
+        "current": "Failed to start Food House auto clear.",
+        "equal": true
+      },
+      {
+        "key": "miniGames.sheep.progress",
+        "original": "Confirmed {confirmed}/{total} moves",
+        "current": "Confirmed {confirmed}/{total} moves",
+        "equal": true
+      },
+      {
+        "key": "status.gameConnected",
+        "original": "Game connected",
+        "current": "Game connected",
+        "equal": true
+      },
+      {
+        "key": "hotkeys.offlineHint",
+        "original": "Game disconnected. Settings are saved and will apply after connection.",
+        "current": "Game disconnected. Settings are saved and will apply after connection.",
+        "equal": true
+      },
+      {
+        "key": "common.enabled",
+        "original": "Enabled",
+        "current": "Enabled",
+        "equal": true
+      },
+      {
+        "key": "common.disabled",
+        "original": "Disabled",
+        "current": "Disabled",
+        "equal": true
+      },
+      {
+        "key": "hotkeys.attackSpeedupItem",
+        "original": "Use speedup items from the inventory",
+        "current": "Use speedup items from the inventory",
+        "equal": true
+      },
+      {
+        "key": "hotkeys.attackSpeedupDiamond",
+        "original": "Buy speedups with diamonds when items run out",
+        "current": "Buy speedups with diamonds when items run out",
+        "equal": true
+      },
+      {
+        "key": "hotkeys.attackSpeedupWarning",
+        "original": "Items are spent first, cheapest tier first. Diamond purchases pick the lowest-priced tier and spend real diamonds.",
+        "current": "Items are spent first, cheapest tier first. Diamond purchases pick the lowest-priced tier and spend real diamonds.",
+        "equal": true
+      },
+      {
+        "key": "miniGames.treasureChest.title",
+        "original": "Black Market Chests",
+        "current": "Black Market Chests",
+        "equal": true
+      },
+      {
+        "key": "miniGames.treasureChest.description",
+        "original": "Mark the grand prize chest in the game after the shuffle ends.",
+        "current": "Mark the grand prize chest in the game after the shuffle ends.",
+        "equal": true
+      },
+      {
+        "key": "miniGames.treasureChest.enabled",
+        "original": "Mark grand prize chest",
+        "current": "Mark grand prize chest",
+        "equal": true
+      },
+      {
+        "key": "miniGames.landCell.title",
+        "original": "Unlock Land Cell",
+        "current": "Unlock Land Cell",
+        "equal": true
+      },
+      {
+        "key": "miniGames.landCell.description",
+        "original": "Unlock the next unopened city land cell. Each click processes one cell.",
+        "current": "Unlock the next unopened city land cell. Each click processes one cell.",
+        "equal": true
+      },
+      {
+        "key": "miniGames.landCellOpening",
+        "original": "Unlocking...",
+        "current": "Unlocking...",
+        "equal": true
+      },
+      {
+        "key": "miniGames.landCellAction",
+        "original": "Unlock One Cell",
+        "current": "Unlock One Cell",
+        "equal": true
+      },
+      {
+        "key": "miniGames.sheep.title",
+        "original": "Food House Auto Clear",
+        "current": "Food House Auto Clear",
+        "equal": true
+      },
+      {
+        "key": "miniGames.sheep.description",
+        "original": "Open the in-game board and visibly clear the current S4 Food House level without items or entering the next level.",
+        "current": "Open the in-game board and visibly clear the current S4 Food House level without items or entering the next level.",
+        "equal": true
+      },
+      {
+        "key": "miniGames.sheep.level",
+        "original": "Current level: {level}",
+        "current": "Current level: {level}",
+        "equal": true
+      },
+      {
+        "key": "miniGames.sheep.elapsed",
+        "original": "Elapsed: {time}",
+        "current": "Elapsed: {time}",
+        "equal": true
+      },
+      {
+        "key": "common.stop",
+        "original": "Stop",
+        "current": "Stop",
+        "equal": true
+      },
+      {
+        "key": "common.start",
+        "original": "Start",
+        "current": "Start",
+        "equal": true
+      }
+    ],
+    "ja": [
+      {
+        "key": "hotkeys.attack.title",
+        "original": "目標を攻撃",
+        "current": "目標を攻撃",
+        "equal": true
+      },
+      {
+        "key": "hotkeys.attack.description",
+        "original": "Q/W/E/Rを1回押すごとにカーソル下の対象へ1回出兵します。敵都市への攻撃、味方都市への増援、通常モンスター、資源採集、都市遺跡に対応。ワールドボスと集結モンスターは除外します。A/S/D/Fで帰還。",
+        "current": "Q/W/E/Rを1回押すごとにカーソル下の対象へ1回出兵します。敵都市への攻撃、味方都市への増援、通常モンスター、資源採集、都市遺跡に対応。ワールドボスと集結モンスターは除外します。A/S/D/Fで帰還。",
+        "equal": true
+      },
+      {
+        "key": "hotkeys.recall.title",
+        "original": "部隊を帰還",
+        "current": "部隊を帰還",
+        "equal": true
+      },
+      {
+        "key": "hotkeys.recall.description",
+        "original": "第1～4部隊を基地へ帰還させます。",
+        "current": "第1～4部隊を基地へ帰還させます。",
+        "equal": true
+      },
+      {
+        "key": "hotkeys.shield.title",
+        "original": "シールドの残り時間",
+        "current": "シールドの残り時間",
+        "equal": true
+      },
+      {
+        "key": "hotkeys.shield.description",
+        "original": "スペースキーを押している間、保護された都市の上にシールドの残り時間を表示します。",
+        "current": "スペースキーを押している間、保護された都市の上にシールドの残り時間を表示します。",
+        "equal": true
+      },
+      {
+        "key": "hotkeys.shieldUse.title",
+        "original": "シールドを使用",
+        "current": "シールドを使用",
+        "equal": true
+      },
+      {
+        "key": "hotkeys.shieldUse.description",
+        "original": "F6で8時間、F7で12時間、F8で24時間のシールドを使用します。",
+        "current": "F6で8時間、F7で12時間、F8で24時間のシールドを使用します。",
+        "equal": true
+      },
+      {
+        "key": "hotkeys.shieldUse.warning",
+        "original": "キーを押すと対応する時間のシールドアイテムを即座に消費します。",
+        "current": "キーを押すと対応する時間のシールドアイテムを即座に消費します。",
+        "equal": true
+      },
+      {
+        "key": "hotkeys.equipment.title",
+        "original": "装備プリセット",
+        "current": "装備プリセット",
+        "equal": true
+      },
+      {
+        "key": "hotkeys.equipment.description",
+        "original": "設定済みの部隊に装備プリセット1～4を適用します。",
+        "current": "設定済みの部隊に装備プリセット1～4を適用します。",
+        "equal": true
+      },
+      {
+        "key": "hotkeys.randomRelocate.title",
+        "original": "ランダム移転",
+        "current": "ランダム移転",
+        "equal": true
+      },
+      {
+        "key": "hotkeys.randomRelocate.description",
+        "original": "F9でランダム移転アイテムを使用します。",
+        "current": "F9でランダム移転アイテムを使用します。",
+        "equal": true
+      },
+      {
+        "key": "hotkeys.relocationWarning",
+        "original": "移転はアイテムを消費する場合があります。このショートカットは初期状態では無効です。",
+        "current": "移転はアイテムを消費する場合があります。このショートカットは初期状態では無効です。",
+        "equal": true
+      },
+      {
+        "key": "hotkeys.allianceRelocate.title",
+        "original": "同盟移転",
+        "current": "同盟移転",
+        "equal": true
+      },
+      {
+        "key": "hotkeys.allianceRelocate.description",
+        "original": "F10で同盟の集合地点へ移転します。",
+        "current": "F10で同盟の集合地点へ移転します。",
+        "equal": true
+      },
+      {
+        "key": "hotkeys.frontlineReinforce.title",
+        "original": "前線突破の増援",
+        "current": "前線突破の増援",
+        "equal": true
+      },
+      {
+        "key": "hotkeys.frontlineReinforce.description",
+        "original": "前線突破の戦闘開始後、Gを押すたびに兵士を5人追加します。",
+        "current": "前線突破の戦闘開始後、Gを押すたびに兵士を5人追加します。",
+        "equal": true
+      },
+      {
+        "key": "miniGames.sheep.solving",
+        "original": "安全な手順を計算中...",
+        "current": "安全な手順を計算中...",
+        "equal": true
+      },
+      {
+        "key": "miniGames.sheep.executing",
+        "original": "現在のステージを攻略中...",
+        "current": "現在のステージを攻略中...",
+        "equal": true
+      },
+      {
+        "key": "common.completed",
+        "original": "完了",
+        "current": "完了",
+        "equal": true
+      },
+      {
+        "key": "miniGames.sheep.dailyLimit",
+        "original": "本日解放されたステージはすべて完了しました。",
+        "current": "本日解放されたステージはすべて完了しました。",
+        "equal": true
+      },
+      {
+        "key": "miniGames.sheep.allCompleted",
+        "original": "グルメハウスの全ステージを完了しました。",
+        "current": "グルメハウスの全ステージを完了しました。",
+        "equal": true
+      },
+      {
+        "key": "miniGames.sheep.activityEnded",
+        "original": "グルメハウスイベントは終了しました。",
+        "current": "グルメハウスイベントは終了しました。",
+        "equal": true
+      },
+      {
+        "key": "miniGames.sheep.uiOpen",
+        "original": "先にゲーム内のグルメハウス画面を閉じてください。",
+        "current": "先にゲーム内のグルメハウス画面を閉じてください。",
+        "equal": true
+      },
+      {
+        "key": "miniGames.sheep.conflict",
+        "original": "手動操作を検出したため停止しました。",
+        "current": "手動操作を検出したため停止しました。",
+        "equal": true
+      },
+      {
+        "key": "miniGames.sheep.solveFailed",
+        "original": "アイテム不要の安全な解法が見つかりませんでした。",
+        "current": "アイテム不要の安全な解法が見つかりませんでした。",
+        "equal": true
+      },
+      {
+        "key": "miniGames.sheep.unsupported",
+        "original": "現在のシーズンまたはクライアントではグルメハウスを利用できません。",
+        "current": "現在のシーズンまたはクライアントではグルメハウスを利用できません。",
+        "equal": true
+      },
+      {
+        "key": "common.processing",
+        "original": "処理中",
+        "current": "処理中",
+        "equal": true
+      },
+      {
+        "key": "common.failed",
+        "original": "失敗",
+        "current": "失敗",
+        "equal": true
+      },
+      {
+        "key": "common.stopped",
+        "original": "停止中",
+        "current": "停止中",
+        "equal": true
+      },
+      {
+        "key": "hotkeys.loadFailed",
+        "original": "ショートカット設定を読み込めませんでした。",
+        "current": "ショートカット設定を読み込めませんでした。",
+        "equal": true
+      },
+      {
+        "key": "hotkeys.saveFailed",
+        "original": "ショートカット設定を保存できませんでした。",
+        "current": "ショートカット設定を保存できませんでした。",
+        "equal": true
+      },
+      {
+        "key": "miniGames.landCellSent",
+        "original": "マス #{id} の解放リクエストを送信しました",
+        "current": "マス #{id} の解放リクエストを送信しました",
+        "equal": true
+      },
+      {
+        "key": "miniGames.landCellFailed",
+        "original": "土地マスの解放に失敗しました。",
+        "current": "土地マスの解放に失敗しました。",
+        "equal": true
+      },
+      {
+        "key": "miniGames.sheep.failed",
+        "original": "グルメハウス自動クリアを開始できませんでした。",
+        "current": "グルメハウス自動クリアを開始できませんでした。",
+        "equal": true
+      },
+      {
+        "key": "miniGames.sheep.progress",
+        "original": "確認済み {confirmed}/{total} 手",
+        "current": "確認済み {confirmed}/{total} 手",
+        "equal": true
+      },
+      {
+        "key": "status.gameConnected",
+        "original": "ゲーム接続済み",
+        "current": "ゲーム接続済み",
+        "equal": true
+      },
+      {
+        "key": "hotkeys.offlineHint",
+        "original": "ゲーム未接続です。設定は保存され、接続後に適用されます。",
+        "current": "ゲーム未接続です。設定は保存され、接続後に適用されます。",
+        "equal": true
+      },
+      {
+        "key": "common.enabled",
+        "original": "有効",
+        "current": "有効",
+        "equal": true
+      },
+      {
+        "key": "common.disabled",
+        "original": "無効",
+        "current": "無効",
+        "equal": true
+      },
+      {
+        "key": "hotkeys.attackSpeedupItem",
+        "original": "所持している加速アイテムを使用",
+        "current": "所持している加速アイテムを使用",
+        "equal": true
+      },
+      {
+        "key": "hotkeys.attackSpeedupDiamond",
+        "original": "アイテム不足時にダイヤで加速を購入",
+        "current": "アイテム不足時にダイヤで加速を購入",
+        "equal": true
+      },
+      {
+        "key": "hotkeys.attackSpeedupWarning",
+        "original": "所持アイテムを低い段階から優先使用します。ダイヤ購入は最安の段階を選び、実際にダイヤを消費します。",
+        "current": "所持アイテムを低い段階から優先使用します。ダイヤ購入は最安の段階を選び、実際にダイヤを消費します。",
+        "equal": true
+      },
+      {
+        "key": "miniGames.treasureChest.title",
+        "original": "闇市場の宝箱",
+        "current": "闇市場の宝箱",
+        "equal": true
+      },
+      {
+        "key": "miniGames.treasureChest.description",
+        "original": "シャッフル終了後、ゲーム内で大当たりの宝箱に印を付けます。",
+        "current": "シャッフル終了後、ゲーム内で大当たりの宝箱に印を付けます。",
+        "equal": true
+      },
+      {
+        "key": "miniGames.treasureChest.enabled",
+        "original": "大当たりの宝箱を表示",
+        "current": "大当たりの宝箱を表示",
+        "equal": true
+      },
+      {
+        "key": "miniGames.landCell.title",
+        "original": "土地マスをワンクリックで解放",
+        "current": "土地マスをワンクリックで解放",
+        "equal": true
+      },
+      {
+        "key": "miniGames.landCell.description",
+        "original": "都市の次の未解放の土地マスを解放します。1回のクリックにつき1マス処理します。",
+        "current": "都市の次の未解放の土地マスを解放します。1回のクリックにつき1マス処理します。",
+        "equal": true
+      },
+      {
+        "key": "miniGames.landCellOpening",
+        "original": "解放中…",
+        "current": "解放中…",
+        "equal": true
+      },
+      {
+        "key": "miniGames.landCellAction",
+        "original": "1マス解放",
+        "current": "1マス解放",
+        "equal": true
+      },
+      {
+        "key": "miniGames.sheep.title",
+        "original": "グルメハウス自動クリア",
+        "current": "グルメハウス自動クリア",
+        "equal": true
+      },
+      {
+        "key": "miniGames.sheep.description",
+        "original": "ゲーム内ボードを開き、アイテムを使わず次へ進まずに S4 グルメハウスの現在のステージを自動消去します。",
+        "current": "ゲーム内ボードを開き、アイテムを使わず次へ進まずに S4 グルメハウスの現在のステージを自動消去します。",
+        "equal": true
+      },
+      {
+        "key": "miniGames.sheep.level",
+        "original": "現在のステージ：{level}",
+        "current": "現在のステージ：{level}",
+        "equal": true
+      },
+      {
+        "key": "miniGames.sheep.elapsed",
+        "original": "経過時間：{time}",
+        "current": "経過時間：{time}",
+        "equal": true
+      },
+      {
+        "key": "common.stop",
+        "original": "停止",
+        "current": "停止",
+        "equal": true
+      },
+      {
+        "key": "common.start",
+        "original": "開始",
+        "current": "開始",
+        "equal": true
+      }
+    ]
+  }
+}

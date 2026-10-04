@@ -1,0 +1,1462 @@
+{
+  "result": "LWB317_VISUAL_FINAL_UNIT_D_BROWSER_CURRENT_OK",
+  "cases": [
+    {
+      "name": "en-light-desktop document language",
+      "actual": "en",
+      "expected": "en",
+      "pass": true
+    },
+    {
+      "name": "en-light-desktop squad tabs",
+      "actual": 2,
+      "expected": 2,
+      "pass": true
+    },
+    {
+      "name": "en-light-desktop AFK tab selected",
+      "actual": "true",
+      "expected": "true",
+      "pass": true
+    },
+    {
+      "name": "en-light-desktop AFK compact cards",
+      "actual": 5,
+      "expected": 5,
+      "pass": true
+    },
+    {
+      "name": "en-light-desktop AFK profiles populated",
+      "actual": 1,
+      "expected": "predicate",
+      "pass": true
+    },
+    {
+      "name": "en-light-desktop AFK editor visible",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "en-light-desktop Equipment tab selected",
+      "actual": "true",
+      "expected": "true",
+      "pass": true
+    },
+    {
+      "name": "en-light-desktop equipment preset buttons",
+      "actual": 4,
+      "expected": 4,
+      "pass": true
+    },
+    {
+      "name": "en-light-desktop equipment squad groups",
+      "actual": 4,
+      "expected": 4,
+      "pass": true
+    },
+    {
+      "name": "en-light-desktop equipment position cards",
+      "actual": 8,
+      "expected": 8,
+      "pass": true
+    },
+    {
+      "name": "en-light-desktop equipment slots",
+      "actual": 32,
+      "expected": 32,
+      "pass": true
+    },
+    {
+      "name": "ja-dark-desktop document language",
+      "actual": "ja",
+      "expected": "ja",
+      "pass": true
+    },
+    {
+      "name": "ja-dark-desktop squad tabs",
+      "actual": 2,
+      "expected": 2,
+      "pass": true
+    },
+    {
+      "name": "ja-dark-desktop AFK tab selected",
+      "actual": "true",
+      "expected": "true",
+      "pass": true
+    },
+    {
+      "name": "ja-dark-desktop AFK compact cards",
+      "actual": 5,
+      "expected": 5,
+      "pass": true
+    },
+    {
+      "name": "ja-dark-desktop AFK profiles populated",
+      "actual": 1,
+      "expected": "predicate",
+      "pass": true
+    },
+    {
+      "name": "ja-dark-desktop AFK editor visible",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "ja-dark-desktop Equipment tab selected",
+      "actual": "true",
+      "expected": "true",
+      "pass": true
+    },
+    {
+      "name": "ja-dark-desktop equipment preset buttons",
+      "actual": 4,
+      "expected": 4,
+      "pass": true
+    },
+    {
+      "name": "ja-dark-desktop equipment squad groups",
+      "actual": 4,
+      "expected": 4,
+      "pass": true
+    },
+    {
+      "name": "ja-dark-desktop equipment position cards",
+      "actual": 8,
+      "expected": 8,
+      "pass": true
+    },
+    {
+      "name": "ja-dark-desktop equipment slots",
+      "actual": 32,
+      "expected": 32,
+      "pass": true
+    },
+    {
+      "name": "en-dark-desktop document language",
+      "actual": "en",
+      "expected": "en",
+      "pass": true
+    },
+    {
+      "name": "en-dark-desktop squad tabs",
+      "actual": 2,
+      "expected": 2,
+      "pass": true
+    },
+    {
+      "name": "en-dark-desktop AFK tab selected",
+      "actual": "true",
+      "expected": "true",
+      "pass": true
+    },
+    {
+      "name": "en-dark-desktop AFK compact cards",
+      "actual": 5,
+      "expected": 5,
+      "pass": true
+    },
+    {
+      "name": "en-dark-desktop AFK profiles populated",
+      "actual": 1,
+      "expected": "predicate",
+      "pass": true
+    },
+    {
+      "name": "en-dark-desktop AFK editor visible",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "en-dark-desktop Equipment tab selected",
+      "actual": "true",
+      "expected": "true",
+      "pass": true
+    },
+    {
+      "name": "en-dark-desktop equipment preset buttons",
+      "actual": 4,
+      "expected": 4,
+      "pass": true
+    },
+    {
+      "name": "en-dark-desktop equipment squad groups",
+      "actual": 4,
+      "expected": 4,
+      "pass": true
+    },
+    {
+      "name": "en-dark-desktop equipment position cards",
+      "actual": 8,
+      "expected": 8,
+      "pass": true
+    },
+    {
+      "name": "en-dark-desktop equipment slots",
+      "actual": 32,
+      "expected": 32,
+      "pass": true
+    },
+    {
+      "name": "ja-light-narrow document language",
+      "actual": "ja",
+      "expected": "ja",
+      "pass": true
+    },
+    {
+      "name": "ja-light-narrow squad tabs",
+      "actual": 2,
+      "expected": 2,
+      "pass": true
+    },
+    {
+      "name": "ja-light-narrow AFK tab selected",
+      "actual": "true",
+      "expected": "true",
+      "pass": true
+    },
+    {
+      "name": "ja-light-narrow AFK compact cards",
+      "actual": 5,
+      "expected": 5,
+      "pass": true
+    },
+    {
+      "name": "ja-light-narrow AFK profiles populated",
+      "actual": 1,
+      "expected": "predicate",
+      "pass": true
+    },
+    {
+      "name": "ja-light-narrow AFK editor visible",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "JA narrow AFK no document overflow",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "ja-light-narrow Equipment tab selected",
+      "actual": "true",
+      "expected": "true",
+      "pass": true
+    },
+    {
+      "name": "ja-light-narrow equipment preset buttons",
+      "actual": 4,
+      "expected": 4,
+      "pass": true
+    },
+    {
+      "name": "ja-light-narrow equipment squad groups",
+      "actual": 4,
+      "expected": 4,
+      "pass": true
+    },
+    {
+      "name": "ja-light-narrow equipment position cards",
+      "actual": 8,
+      "expected": 8,
+      "pass": true
+    },
+    {
+      "name": "ja-light-narrow equipment slots",
+      "actual": 32,
+      "expected": 32,
+      "pass": true
+    },
+    {
+      "name": "JA narrow Equipment no document overflow",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "AFK toolbar has five compact cards",
+      "actual": 5,
+      "expected": 5,
+      "pass": true
+    },
+    {
+      "name": "Potion settings panel opens",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Alliance Drill nested form opens",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Potion local draft retained across nested panel switch",
+      "actual": "42",
+      "expected": "42",
+      "pass": true
+    },
+    {
+      "name": "default AFK fixture profiles",
+      "actual": 2,
+      "expected": 2,
+      "pass": true
+    },
+    {
+      "name": "AFK keyboard reorder changes profile order",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "AFK add menu has farm/join choices",
+      "actual": 2,
+      "expected": 2,
+      "pass": true
+    },
+    {
+      "name": "AFK Add Join creates local draft profile",
+      "actual": 3,
+      "expected": 3,
+      "pass": true
+    },
+    {
+      "name": "Equipment visible after AFK Activity hide",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "AFK editor draft retained through Activity",
+      "actual": "Retained browser draft",
+      "expected": "Retained browser draft",
+      "pass": true
+    },
+    {
+      "name": "Garrison settings visible",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Garrison running assignment row",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Garrison Run now remains native-fenced",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "Garrison ally picker opens",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Garrison ally search filters locally",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Garrison Escape listener closes visible picker",
+      "actual": 0,
+      "expected": 0,
+      "pass": true
+    },
+    {
+      "name": "squads-profile-garrison-unavailable panel visible",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Garrison unavailable building controls disabled",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "squads-profile-garrison-error panel visible",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Garrison runtime error surfaced",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "squads-profile-garrison-no-squads panel visible",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Garrison no-squads validation copy visible",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "squads-profile-garrison-no-targets panel visible",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Garrison no-target target-required copy visible",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "squads-profile-zombie-running settings panel visible",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Zombie running assignments table",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "squads-profile-zombie-error settings panel visible",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Zombie error alert",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "squads-profile-target-loading AFK surface visible",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "target loading status",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "squads-profile-target-failed AFK surface visible",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "target failed status",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "squads-profile-target-undiscovered AFK surface visible",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "undiscovered target uses recovered English label",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "squads-profile-range-warning AFK surface visible",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "range warning class",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "squads-profile-potion-invalid AFK surface visible",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "invalid potion number exposed",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "squads-profile-members-empty AFK surface visible",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "squads-profile-members-empty join editor rendered",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "squads-profile-members-left AFK surface visible",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "squads-profile-members-left join editor rendered",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "squads-profile-members-self AFK surface visible",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "squads-profile-members-self join editor rendered",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "squads-profile-members-offline AFK surface visible",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "squads-profile-members-offline join editor rendered",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "AFK toolbar failed save exposes Retry/Discard",
+      "actual": 2,
+      "expected": 2,
+      "pass": true
+    },
+    {
+      "name": "AFK toolbar Retry clears error",
+      "actual": 0,
+      "expected": 0,
+      "pass": true
+    },
+    {
+      "name": "Equipment preset 2 selected",
+      "actual": "active",
+      "expected": "active",
+      "pass": true
+    },
+    {
+      "name": "Equipment rename dialog opens",
+      "actual": "",
+      "expected": "",
+      "pass": true
+    },
+    {
+      "name": "Equipment rename acknowledged and closes",
+      "actual": "Browser retained preset",
+      "expected": "Browser retained preset",
+      "pass": true
+    },
+    {
+      "name": "Equipment Alt+3 local shortcut",
+      "actual": "apply-all:equipment-preset-fixed-3",
+      "expected": "apply-all:equipment-preset-fixed-3",
+      "pass": true
+    },
+    {
+      "name": "Equipment DOM-dispatched drag changes source slot",
+      "actual": "Fixture Item 1-3-1",
+      "expected": "Fixture Item 1-3-1",
+      "pass": true
+    },
+    {
+      "name": "Equipment DOM-dispatched drag changes target slot",
+      "actual": "Fixture Item 1-1-1",
+      "expected": "Fixture Item 1-1-1",
+      "pass": true
+    },
+    {
+      "name": "Equipment hidden while AFK visible",
+      "actual": 0,
+      "expected": 0,
+      "pass": true
+    },
+    {
+      "name": "Equipment renamed moved dirty draft retained after Activity return",
+      "actual": "Browser retained preset *",
+      "expected": "Browser retained preset *",
+      "pass": true
+    },
+    {
+      "name": "squads-equipment-progress equipment layout visible",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Equipment progress visible",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Equipment progress native-looking primary disabled",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "squads-equipment-result equipment layout visible",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Equipment result visible",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "squads-equipment-error equipment layout visible",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Equipment error result visible",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "squads-equipment-offline equipment layout visible",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Equipment offline Refresh disabled",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "Equipment offline native-looking actions disabled",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "squads-equipment-rename-pending equipment layout visible",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Equipment pending rename dialog remains open",
+      "actual": "",
+      "expected": "",
+      "pass": true
+    },
+    {
+      "name": "Equipment pending rename aria-busy",
+      "actual": "true",
+      "expected": "true",
+      "pass": true
+    },
+    {
+      "name": "Equipment pending rename input disabled",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "squads-equipment-rename-error equipment layout visible",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Equipment rename error Retry/Discard",
+      "actual": 2,
+      "expected": 2,
+      "pass": true
+    },
+    {
+      "name": "Equipment rename Discard clears save error",
+      "actual": 0,
+      "expected": 0,
+      "pass": true
+    }
+  ],
+  "screenshots": [
+    {
+      "id": "en-light-desktop-afk",
+      "mode": "en-light-desktop",
+      "surface": "afk",
+      "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-d/browser-current/en-light-desktop-afk.png",
+      "sha256": "94e9e6dff1fdec5444b0cf4464fbc03f10c28d37b0eb5b6248a87ad12600a8ca",
+      "viewport": {
+        "width": 1440,
+        "height": 1000,
+        "dpr": 1
+      },
+      "fonts": "loaded"
+    },
+    {
+      "id": "en-light-desktop-equipment",
+      "mode": "en-light-desktop",
+      "surface": "equipment",
+      "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-d/browser-current/en-light-desktop-equipment.png",
+      "sha256": "4ea96855a17f60febd0da7fc0e160af9ad422cbd534d27bc369cc77f748c5188",
+      "viewport": {
+        "width": 1440,
+        "height": 1000,
+        "dpr": 1
+      },
+      "fonts": "loaded"
+    },
+    {
+      "id": "ja-dark-desktop-afk",
+      "mode": "ja-dark-desktop",
+      "surface": "afk",
+      "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-d/browser-current/ja-dark-desktop-afk.png",
+      "sha256": "4049b7afab81eebd599eebf1894ee87fef51644ea807a043e61ea23195f74ae0",
+      "viewport": {
+        "width": 1440,
+        "height": 1000,
+        "dpr": 1
+      },
+      "fonts": "loaded"
+    },
+    {
+      "id": "ja-dark-desktop-equipment",
+      "mode": "ja-dark-desktop",
+      "surface": "equipment",
+      "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-d/browser-current/ja-dark-desktop-equipment.png",
+      "sha256": "5ade7529885e19aa95b34f177b499181265723a90f183ee9fdc214321e8fd09a",
+      "viewport": {
+        "width": 1440,
+        "height": 1000,
+        "dpr": 1
+      },
+      "fonts": "loaded"
+    },
+    {
+      "id": "en-dark-desktop-afk",
+      "mode": "en-dark-desktop",
+      "surface": "afk",
+      "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-d/browser-current/en-dark-desktop-afk.png",
+      "sha256": "70d50ec68bf14703ba41c9707c4f45c085dfa0c6c21adeda7b07b7f6a902fd4f",
+      "viewport": {
+        "width": 1280,
+        "height": 900,
+        "dpr": 1
+      },
+      "fonts": "loaded"
+    },
+    {
+      "id": "en-dark-desktop-equipment",
+      "mode": "en-dark-desktop",
+      "surface": "equipment",
+      "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-d/browser-current/en-dark-desktop-equipment.png",
+      "sha256": "6697f74a3d470fc213a9e91fc6183cf63c06e7328b1f8faa33c8b82f5e721d19",
+      "viewport": {
+        "width": 1280,
+        "height": 900,
+        "dpr": 1
+      },
+      "fonts": "loaded"
+    },
+    {
+      "id": "ja-light-narrow-afk",
+      "mode": "ja-light-narrow",
+      "surface": "afk",
+      "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-d/browser-current/ja-light-narrow-afk.png",
+      "sha256": "79b21101a382071c12935cb54450b3b9456841732bc493d940113e5d6afda8ab",
+      "viewport": {
+        "width": 720,
+        "height": 1000,
+        "dpr": 1
+      },
+      "fonts": "loaded"
+    },
+    {
+      "id": "ja-light-narrow-equipment",
+      "mode": "ja-light-narrow",
+      "surface": "equipment",
+      "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-d/browser-current/ja-light-narrow-equipment.png",
+      "sha256": "262203a0de3a46b0cef4a3d126195e7a4d0df488e6e878c803dfb6000584aaaa",
+      "viewport": {
+        "width": 720,
+        "height": 1000,
+        "dpr": 1
+      },
+      "fonts": "loaded"
+    },
+    {
+      "id": "en-light-afk-interactions",
+      "mode": "en-light-desktop",
+      "surface": "afk-interactions",
+      "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-d/browser-current/en-light-afk-interactions.png",
+      "sha256": "a9ec633c6b128cd926c4e9e0d86c0014f88b068f905db81817ac35309e501fa0",
+      "viewport": {
+        "width": 1440,
+        "height": 1000,
+        "dpr": 1
+      },
+      "fonts": "loaded"
+    },
+    {
+      "id": "en-light-garrison-running",
+      "mode": "en-light-desktop",
+      "surface": "garrison",
+      "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-d/browser-current/en-light-garrison-running.png",
+      "sha256": "0c2966bde5820152037b53a5be0d10af2eb414bcb53a736da55fb7096fd41f95",
+      "viewport": {
+        "width": 1440,
+        "height": 1000,
+        "dpr": 1
+      },
+      "fonts": "loaded"
+    },
+    {
+      "id": "en-light-equipment-interactions",
+      "mode": "en-light-desktop",
+      "surface": "equipment-interactions",
+      "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-d/browser-current/en-light-equipment-interactions.png",
+      "sha256": "fd3acc982b504520753e97c9e9a0a9177b1fc390940322573ba7a9dabfabc11b",
+      "viewport": {
+        "width": 1440,
+        "height": 1000,
+        "dpr": 1
+      },
+      "fonts": "loaded"
+    }
+  ],
+  "console": [
+    {
+      "state": "squads-profile-members-positive",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "state": "squads-profile-members-positive",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "state": "squads-profile-members-positive",
+      "mode": "en-light-desktop",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "state": "squads-equipment",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "state": "squads-equipment",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "state": "squads-equipment",
+      "mode": "en-light-desktop",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "state": "squads-profile-members-positive",
+      "mode": "ja-dark-desktop",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "state": "squads-profile-members-positive",
+      "mode": "ja-dark-desktop",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "state": "squads-profile-members-positive",
+      "mode": "ja-dark-desktop",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "state": "squads-equipment",
+      "mode": "ja-dark-desktop",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "state": "squads-equipment",
+      "mode": "ja-dark-desktop",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "state": "squads-equipment",
+      "mode": "ja-dark-desktop",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "state": "squads-profile-members-positive",
+      "mode": "en-dark-desktop",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "state": "squads-profile-members-positive",
+      "mode": "en-dark-desktop",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "state": "squads-profile-members-positive",
+      "mode": "en-dark-desktop",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "state": "squads-equipment",
+      "mode": "en-dark-desktop",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "state": "squads-equipment",
+      "mode": "en-dark-desktop",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "state": "squads-equipment",
+      "mode": "en-dark-desktop",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "state": "squads-profile-members-positive",
+      "mode": "ja-light-narrow",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "state": "squads-profile-members-positive",
+      "mode": "ja-light-narrow",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "state": "squads-profile-members-positive",
+      "mode": "ja-light-narrow",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "state": "squads-equipment",
+      "mode": "ja-light-narrow",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "state": "squads-equipment",
+      "mode": "ja-light-narrow",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "state": "squads-equipment",
+      "mode": "ja-light-narrow",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "state": "squads-profile",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "state": "squads-profile",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "state": "squads-profile",
+      "mode": "en-light-desktop",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "state": "squads-profile-garrison-running",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "state": "squads-profile-garrison-running",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "state": "squads-profile-garrison-running",
+      "mode": "en-light-desktop",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "state": "squads-profile-garrison-unavailable",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "state": "squads-profile-garrison-unavailable",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "state": "squads-profile-garrison-unavailable",
+      "mode": "en-light-desktop",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "state": "squads-profile-garrison-error",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "state": "squads-profile-garrison-error",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "state": "squads-profile-garrison-error",
+      "mode": "en-light-desktop",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "state": "squads-profile-garrison-no-squads",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "state": "squads-profile-garrison-no-squads",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "state": "squads-profile-garrison-no-squads",
+      "mode": "en-light-desktop",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "state": "squads-profile-garrison-no-targets",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "state": "squads-profile-garrison-no-targets",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "state": "squads-profile-garrison-no-targets",
+      "mode": "en-light-desktop",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "state": "squads-profile-zombie-running",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "state": "squads-profile-zombie-running",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "state": "squads-profile-zombie-running",
+      "mode": "en-light-desktop",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "state": "squads-profile-zombie-error",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "state": "squads-profile-zombie-error",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "state": "squads-profile-zombie-error",
+      "mode": "en-light-desktop",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "state": "squads-profile-target-loading",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "state": "squads-profile-target-loading",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "state": "squads-profile-target-loading",
+      "mode": "en-light-desktop",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "state": "squads-profile-target-failed",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "state": "squads-profile-target-failed",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "state": "squads-profile-target-failed",
+      "mode": "en-light-desktop",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "state": "squads-profile-target-undiscovered",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "state": "squads-profile-target-undiscovered",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "state": "squads-profile-target-undiscovered",
+      "mode": "en-light-desktop",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "state": "squads-profile-range-warning",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "state": "squads-profile-range-warning",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "state": "squads-profile-range-warning",
+      "mode": "en-light-desktop",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "state": "squads-profile-potion-invalid",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "state": "squads-profile-potion-invalid",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "state": "squads-profile-potion-invalid",
+      "mode": "en-light-desktop",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "state": "squads-profile-members-empty",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "state": "squads-profile-members-empty",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "state": "squads-profile-members-empty",
+      "mode": "en-light-desktop",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "state": "squads-profile-members-left",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "state": "squads-profile-members-left",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "state": "squads-profile-members-left",
+      "mode": "en-light-desktop",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "state": "squads-profile-members-self",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "state": "squads-profile-members-self",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "state": "squads-profile-members-self",
+      "mode": "en-light-desktop",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "state": "squads-profile-members-offline",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "state": "squads-profile-members-offline",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "state": "squads-profile-members-offline",
+      "mode": "en-light-desktop",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "state": "squads-profile-toolbar-save-error",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "state": "squads-profile-toolbar-save-error",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "state": "squads-profile-toolbar-save-error",
+      "mode": "en-light-desktop",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "state": "squads-equipment",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "state": "squads-equipment",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "state": "squads-equipment",
+      "mode": "en-light-desktop",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "state": "squads-equipment-progress",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "state": "squads-equipment-progress",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "state": "squads-equipment-progress",
+      "mode": "en-light-desktop",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "state": "squads-equipment-result",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "state": "squads-equipment-result",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "state": "squads-equipment-result",
+      "mode": "en-light-desktop",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "state": "squads-equipment-error",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "state": "squads-equipment-error",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "state": "squads-equipment-error",
+      "mode": "en-light-desktop",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "state": "squads-equipment-offline",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "state": "squads-equipment-offline",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "state": "squads-equipment-offline",
+      "mode": "en-light-desktop",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "state": "squads-equipment-rename-pending",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "state": "squads-equipment-rename-pending",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "state": "squads-equipment-rename-pending",
+      "mode": "en-light-desktop",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "state": "squads-equipment-rename-error",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "state": "squads-equipment-rename-error",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "state": "squads-equipment-rename-error",
+      "mode": "en-light-desktop",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    }
+  ],
+  "dragProof": "DOM_DISPATCH_ONLY_NOT_PHYSICAL_HTML5_DRAG",
+  "browser": "154.0.8037.95"
+}

@@ -535,7 +535,7 @@ export function MapDataPage({
       if (generation === searchGeneration.current) {
         setRows([]);
         setTotal(0);
-        setQueryError(errorText(error));
+        // Recovered rr logs search rejection without adding a visible query-error banner.
       }
     }).finally(() => {
       if (generation === searchGeneration.current) setLoading(false);

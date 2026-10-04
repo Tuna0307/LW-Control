@@ -1,0 +1,27 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import path from 'node:path';
+import crypto from 'node:crypto';
+import {execFileSync,spawnSync} from 'node:child_process';
+import {fileURLToPath} from 'node:url';
+const here=path.dirname(fileURLToPath(import.meta.url));
+const repo=path.resolve(here,'../../../../../..');
+const manifest=JSON.parse(fs.readFileSync(path.join(here,'frozen-inputs.json'),'utf8'));
+assert.equal(process.version,manifest.node);
+assert.equal(execFileSync('python',['-c','import sys,PIL;print(sys.version.split()[0]+" / "+PIL.__version__)'],{encoding:'utf8'}).trim(),manifest.pythonPillow);
+for(const entry of manifest.files){const file=path.isAbsolute(entry.path)?entry.path:path.join(repo,entry.path);assert.equal(fs.statSync(file).size,entry.bytes,entry.path+' length');assert.equal(crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex'),entry.sha256,entry.path+' pinned bytes');}
+const pixels=spawnSync('python',[path.join(here,'check-pixels.py')],{encoding:'utf8'});
+assert.ok([0,1].includes(pixels.status),pixels.stderr);
+const pixel=JSON.parse(pixels.stdout);
+const descendant=JSON.parse(execFileSync(process.execPath,[path.join(here,'measure-descendants.mjs')],{encoding:'utf8',maxBuffer:64*1024*1024}));
+assert.equal(descendant.issues.length,0,'fresh browser errors/warnings');
+assert.equal(pixel.pairs,28);assert.equal(descendant.pairs,28);
+for(const entry of descendant.results.filter(r=>r.unit==='unit-a'))assert.ok(entry.differences.every(d=>d.tag==='BUTTON'&&['disabled','style','before','after'].includes(d.key)),entry.pairId+' only native button descendants differ');
+assert.equal(pixel.blocked.length,1,'immutable baseline catches sole unmasked defect');
+assert.equal(pixel.blocked[0].pair,'city-error-en-dark');
+assert.equal(pixel.blocked[0].outsideNativeControlPixels,99918);
+const corrected=JSON.parse(execFileSync(process.execPath,[path.join(here,'capture-corrected-error.mjs'),'--read-only'],{encoding:'utf8'}));
+assert.equal(corrected.pairs,3);assert.equal(corrected.issues.length,0);
+const catalogs=JSON.parse(execFileSync(process.execPath,[path.join(here,'check-original-catalogs.mjs')],{encoding:'utf8'}));
+assert.equal(catalogs.count,12447);assert.equal(catalogs.differences.length,0);
+console.log(JSON.stringify({result:'LEAD_A_B_EVIDENCE_REPLAY_PASS',inputFiles:manifest.files.length,decodedSubmittedPairs:pixel.pairs,immutableBaselineFailures:pixel.blocked,correctedUnmaskedExactPairs:corrected.pairs,freshDescendantPairs:descendant.pairs,independentOriginalCatalogValues:catalogs.count,descendantDifferences:descendant.results.map(r=>({unit:r.unit,pair:r.pairId,count:r.differences.length})),limits:['Submitted City error remains an immutable failing baseline; three corrected source-rendered pairs now pass without any mask.','Raw descendant comparisons retain structural/accessibility/native-disabled differences rather than claiming all descendants identical.','This read-only validator proves current pinned submitted/corrected HTML evidence, not global source/local or native runtime completeness.']},null,2));

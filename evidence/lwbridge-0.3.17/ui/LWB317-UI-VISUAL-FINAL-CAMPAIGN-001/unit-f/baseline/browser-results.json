@@ -1,0 +1,779 @@
+{
+  "tool": "playwright 1.63.0",
+  "browser": "154.0.8037.95",
+  "result": "RECORDED_UNCLASSIFIED",
+  "results": [
+    {
+      "id": "hotkeys-en-light-1280",
+      "state": "hotkeys-disconnected",
+      "lang": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900,
+      "originalElements": 73,
+      "currentElements": 73,
+      "differences": [
+        {
+          "i": 0,
+          "kind": "attrs",
+          "tag": "SECTION",
+          "text": "",
+          "original": [
+            [
+              "class",
+              "panel hotkey-panel"
+            ]
+          ],
+          "current": [
+            [
+              "class",
+              "panel hotkey-panel"
+            ],
+            [
+              "data-preview-fixture",
+              "hotkeys-disconnected"
+            ],
+            [
+              "data-hotkey-category",
+              "hotkeys"
+            ]
+          ]
+        },
+        {
+          "i": 6,
+          "kind": "attrs",
+          "tag": "ARTICLE",
+          "text": "",
+          "original": [
+            [
+              "class",
+              "hotkey-card"
+            ]
+          ],
+          "current": [
+            [
+              "class",
+              "hotkey-card"
+            ],
+            [
+              "data-preview-fixture",
+              "hotkeys-config"
+            ]
+          ]
+        },
+        {
+          "i": 22,
+          "kind": "attrs",
+          "tag": "ARTICLE",
+          "text": "",
+          "original": [
+            [
+              "class",
+              "hotkey-card"
+            ]
+          ],
+          "current": [
+            [
+              "class",
+              "hotkey-card"
+            ],
+            [
+              "data-preview-fixture",
+              "hotkeys-config"
+            ]
+          ]
+        },
+        {
+          "i": 30,
+          "kind": "attrs",
+          "tag": "ARTICLE",
+          "text": "",
+          "original": [
+            [
+              "class",
+              "hotkey-card"
+            ]
+          ],
+          "current": [
+            [
+              "class",
+              "hotkey-card"
+            ],
+            [
+              "data-preview-fixture",
+              "hotkeys-config"
+            ]
+          ]
+        },
+        {
+          "i": 38,
+          "kind": "attrs",
+          "tag": "ARTICLE",
+          "text": "",
+          "original": [
+            [
+              "class",
+              "hotkey-card hotkey-card-danger"
+            ]
+          ],
+          "current": [
+            [
+              "class",
+              "hotkey-card hotkey-card-danger"
+            ],
+            [
+              "data-preview-fixture",
+              "hotkeys-config"
+            ]
+          ]
+        },
+        {
+          "i": 47,
+          "kind": "attrs",
+          "tag": "ARTICLE",
+          "text": "",
+          "original": [
+            [
+              "class",
+              "hotkey-card"
+            ]
+          ],
+          "current": [
+            [
+              "class",
+              "hotkey-card"
+            ],
+            [
+              "data-preview-fixture",
+              "hotkeys-config"
+            ]
+          ]
+        },
+        {
+          "i": 55,
+          "kind": "attrs",
+          "tag": "ARTICLE",
+          "text": "",
+          "original": [
+            [
+              "class",
+              "hotkey-card hotkey-card-danger"
+            ]
+          ],
+          "current": [
+            [
+              "class",
+              "hotkey-card hotkey-card-danger"
+            ],
+            [
+              "data-preview-fixture",
+              "hotkeys-config"
+            ]
+          ]
+        },
+        {
+          "i": 64,
+          "kind": "attrs",
+          "tag": "ARTICLE",
+          "text": "",
+          "original": [
+            [
+              "class",
+              "hotkey-card hotkey-card-danger"
+            ]
+          ],
+          "current": [
+            [
+              "class",
+              "hotkey-card hotkey-card-danger"
+            ],
+            [
+              "data-preview-fixture",
+              "hotkeys-config"
+            ]
+          ]
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "hotkeys-ja-dark-1280",
+      "state": "hotkeys-disconnected",
+      "lang": "ja",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900,
+      "originalElements": 73,
+      "currentElements": 73,
+      "differences": [
+        {
+          "i": 0,
+          "kind": "attrs",
+          "tag": "SECTION",
+          "text": "",
+          "original": [
+            [
+              "class",
+              "panel hotkey-panel"
+            ]
+          ],
+          "current": [
+            [
+              "class",
+              "panel hotkey-panel"
+            ],
+            [
+              "data-preview-fixture",
+              "hotkeys-disconnected"
+            ],
+            [
+              "data-hotkey-category",
+              "hotkeys"
+            ]
+          ]
+        },
+        {
+          "i": 6,
+          "kind": "attrs",
+          "tag": "ARTICLE",
+          "text": "",
+          "original": [
+            [
+              "class",
+              "hotkey-card"
+            ]
+          ],
+          "current": [
+            [
+              "class",
+              "hotkey-card"
+            ],
+            [
+              "data-preview-fixture",
+              "hotkeys-config"
+            ]
+          ]
+        },
+        {
+          "i": 22,
+          "kind": "attrs",
+          "tag": "ARTICLE",
+          "text": "",
+          "original": [
+            [
+              "class",
+              "hotkey-card"
+            ]
+          ],
+          "current": [
+            [
+              "class",
+              "hotkey-card"
+            ],
+            [
+              "data-preview-fixture",
+              "hotkeys-config"
+            ]
+          ]
+        },
+        {
+          "i": 30,
+          "kind": "attrs",
+          "tag": "ARTICLE",
+          "text": "",
+          "original": [
+            [
+              "class",
+              "hotkey-card"
+            ]
+          ],
+          "current": [
+            [
+              "class",
+              "hotkey-card"
+            ],
+            [
+              "data-preview-fixture",
+              "hotkeys-config"
+            ]
+          ]
+        },
+        {
+          "i": 38,
+          "kind": "attrs",
+          "tag": "ARTICLE",
+          "text": "",
+          "original": [
+            [
+              "class",
+              "hotkey-card hotkey-card-danger"
+            ]
+          ],
+          "current": [
+            [
+              "class",
+              "hotkey-card hotkey-card-danger"
+            ],
+            [
+              "data-preview-fixture",
+              "hotkeys-config"
+            ]
+          ]
+        },
+        {
+          "i": 47,
+          "kind": "attrs",
+          "tag": "ARTICLE",
+          "text": "",
+          "original": [
+            [
+              "class",
+              "hotkey-card"
+            ]
+          ],
+          "current": [
+            [
+              "class",
+              "hotkey-card"
+            ],
+            [
+              "data-preview-fixture",
+              "hotkeys-config"
+            ]
+          ]
+        },
+        {
+          "i": 55,
+          "kind": "attrs",
+          "tag": "ARTICLE",
+          "text": "",
+          "original": [
+            [
+              "class",
+              "hotkey-card hotkey-card-danger"
+            ]
+          ],
+          "current": [
+            [
+              "class",
+              "hotkey-card hotkey-card-danger"
+            ],
+            [
+              "data-preview-fixture",
+              "hotkeys-config"
+            ]
+          ]
+        },
+        {
+          "i": 64,
+          "kind": "attrs",
+          "tag": "ARTICLE",
+          "text": "",
+          "original": [
+            [
+              "class",
+              "hotkey-card hotkey-card-danger"
+            ]
+          ],
+          "current": [
+            [
+              "class",
+              "hotkey-card hotkey-card-danger"
+            ],
+            [
+              "data-preview-fixture",
+              "hotkeys-config"
+            ]
+          ]
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "hotkeys-en-dark-375",
+      "state": "hotkeys-disconnected",
+      "lang": "en",
+      "theme": "dark",
+      "width": 375,
+      "height": 1000,
+      "originalElements": 73,
+      "currentElements": 73,
+      "differences": [
+        {
+          "i": 0,
+          "kind": "attrs",
+          "tag": "SECTION",
+          "text": "",
+          "original": [
+            [
+              "class",
+              "panel hotkey-panel"
+            ]
+          ],
+          "current": [
+            [
+              "class",
+              "panel hotkey-panel"
+            ],
+            [
+              "data-preview-fixture",
+              "hotkeys-disconnected"
+            ],
+            [
+              "data-hotkey-category",
+              "hotkeys"
+            ]
+          ]
+        },
+        {
+          "i": 6,
+          "kind": "attrs",
+          "tag": "ARTICLE",
+          "text": "",
+          "original": [
+            [
+              "class",
+              "hotkey-card"
+            ]
+          ],
+          "current": [
+            [
+              "class",
+              "hotkey-card"
+            ],
+            [
+              "data-preview-fixture",
+              "hotkeys-config"
+            ]
+          ]
+        },
+        {
+          "i": 22,
+          "kind": "attrs",
+          "tag": "ARTICLE",
+          "text": "",
+          "original": [
+            [
+              "class",
+              "hotkey-card"
+            ]
+          ],
+          "current": [
+            [
+              "class",
+              "hotkey-card"
+            ],
+            [
+              "data-preview-fixture",
+              "hotkeys-config"
+            ]
+          ]
+        },
+        {
+          "i": 30,
+          "kind": "attrs",
+          "tag": "ARTICLE",
+          "text": "",
+          "original": [
+            [
+              "class",
+              "hotkey-card"
+            ]
+          ],
+          "current": [
+            [
+              "class",
+              "hotkey-card"
+            ],
+            [
+              "data-preview-fixture",
+              "hotkeys-config"
+            ]
+          ]
+        },
+        {
+          "i": 38,
+          "kind": "attrs",
+          "tag": "ARTICLE",
+          "text": "",
+          "original": [
+            [
+              "class",
+              "hotkey-card hotkey-card-danger"
+            ]
+          ],
+          "current": [
+            [
+              "class",
+              "hotkey-card hotkey-card-danger"
+            ],
+            [
+              "data-preview-fixture",
+              "hotkeys-config"
+            ]
+          ]
+        },
+        {
+          "i": 47,
+          "kind": "attrs",
+          "tag": "ARTICLE",
+          "text": "",
+          "original": [
+            [
+              "class",
+              "hotkey-card"
+            ]
+          ],
+          "current": [
+            [
+              "class",
+              "hotkey-card"
+            ],
+            [
+              "data-preview-fixture",
+              "hotkeys-config"
+            ]
+          ]
+        },
+        {
+          "i": 55,
+          "kind": "attrs",
+          "tag": "ARTICLE",
+          "text": "",
+          "original": [
+            [
+              "class",
+              "hotkey-card hotkey-card-danger"
+            ]
+          ],
+          "current": [
+            [
+              "class",
+              "hotkey-card hotkey-card-danger"
+            ],
+            [
+              "data-preview-fixture",
+              "hotkeys-config"
+            ]
+          ]
+        },
+        {
+          "i": 64,
+          "kind": "attrs",
+          "tag": "ARTICLE",
+          "text": "",
+          "original": [
+            [
+              "class",
+              "hotkey-card hotkey-card-danger"
+            ]
+          ],
+          "current": [
+            [
+              "class",
+              "hotkey-card hotkey-card-danger"
+            ],
+            [
+              "data-preview-fixture",
+              "hotkeys-config"
+            ]
+          ]
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "hotkeys-ja-light-375",
+      "state": "hotkeys-disconnected",
+      "lang": "ja",
+      "theme": "light",
+      "width": 375,
+      "height": 1000,
+      "originalElements": 73,
+      "currentElements": 73,
+      "differences": [
+        {
+          "i": 0,
+          "kind": "attrs",
+          "tag": "SECTION",
+          "text": "",
+          "original": [
+            [
+              "class",
+              "panel hotkey-panel"
+            ]
+          ],
+          "current": [
+            [
+              "class",
+              "panel hotkey-panel"
+            ],
+            [
+              "data-preview-fixture",
+              "hotkeys-disconnected"
+            ],
+            [
+              "data-hotkey-category",
+              "hotkeys"
+            ]
+          ]
+        },
+        {
+          "i": 6,
+          "kind": "attrs",
+          "tag": "ARTICLE",
+          "text": "",
+          "original": [
+            [
+              "class",
+              "hotkey-card"
+            ]
+          ],
+          "current": [
+            [
+              "class",
+              "hotkey-card"
+            ],
+            [
+              "data-preview-fixture",
+              "hotkeys-config"
+            ]
+          ]
+        },
+        {
+          "i": 22,
+          "kind": "attrs",
+          "tag": "ARTICLE",
+          "text": "",
+          "original": [
+            [
+              "class",
+              "hotkey-card"
+            ]
+          ],
+          "current": [
+            [
+              "class",
+              "hotkey-card"
+            ],
+            [
+              "data-preview-fixture",
+              "hotkeys-config"
+            ]
+          ]
+        },
+        {
+          "i": 30,
+          "kind": "attrs",
+          "tag": "ARTICLE",
+          "text": "",
+          "original": [
+            [
+              "class",
+              "hotkey-card"
+            ]
+          ],
+          "current": [
+            [
+              "class",
+              "hotkey-card"
+            ],
+            [
+              "data-preview-fixture",
+              "hotkeys-config"
+            ]
+          ]
+        },
+        {
+          "i": 38,
+          "kind": "attrs",
+          "tag": "ARTICLE",
+          "text": "",
+          "original": [
+            [
+              "class",
+              "hotkey-card hotkey-card-danger"
+            ]
+          ],
+          "current": [
+            [
+              "class",
+              "hotkey-card hotkey-card-danger"
+            ],
+            [
+              "data-preview-fixture",
+              "hotkeys-config"
+            ]
+          ]
+        },
+        {
+          "i": 47,
+          "kind": "attrs",
+          "tag": "ARTICLE",
+          "text": "",
+          "original": [
+            [
+              "class",
+              "hotkey-card"
+            ]
+          ],
+          "current": [
+            [
+              "class",
+              "hotkey-card"
+            ],
+            [
+              "data-preview-fixture",
+              "hotkeys-config"
+            ]
+          ]
+        },
+        {
+          "i": 55,
+          "kind": "attrs",
+          "tag": "ARTICLE",
+          "text": "",
+          "original": [
+            [
+              "class",
+              "hotkey-card hotkey-card-danger"
+            ]
+          ],
+          "current": [
+            [
+              "class",
+              "hotkey-card hotkey-card-danger"
+            ],
+            [
+              "data-preview-fixture",
+              "hotkeys-config"
+            ]
+          ]
+        },
+        {
+          "i": 64,
+          "kind": "attrs",
+          "tag": "ARTICLE",
+          "text": "",
+          "original": [
+            [
+              "class",
+              "hotkey-card hotkey-card-danger"
+            ]
+          ],
+          "current": [
+            [
+              "class",
+              "hotkey-card hotkey-card-danger"
+            ],
+            [
+              "data-preview-fixture",
+              "hotkeys-config"
+            ]
+          ]
+        }
+      ],
+      "console": []
+    }
+  ]
+}

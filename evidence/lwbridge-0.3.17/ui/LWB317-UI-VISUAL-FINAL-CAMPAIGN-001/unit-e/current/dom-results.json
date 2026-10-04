@@ -1,0 +1,129 @@
+{
+  "normalizedDifferencesOnly": [
+    "preview/id data attributes",
+    "explicit type=button",
+    "Settings redundant muted subtitle class; descendant styles/pixels separately checked"
+  ],
+  "cases": [
+    {
+      "id": "offline-en",
+      "equal": true
+    },
+    {
+      "id": "city-layout-loading-en",
+      "equal": true
+    },
+    {
+      "id": "city-layout-error-en",
+      "equal": true
+    },
+    {
+      "id": "city-layout-populated-en",
+      "equal": true
+    },
+    {
+      "id": "city-layout-populated-moved-en",
+      "equal": true
+    },
+    {
+      "id": "city-layout-populated-conflict-en",
+      "equal": true
+    },
+    {
+      "id": "city-layout-stale-en",
+      "equal": true
+    },
+    {
+      "id": "city-layout-outside-city-en",
+      "equal": true
+    },
+    {
+      "id": "city-layout-server-valid-en",
+      "equal": true
+    },
+    {
+      "id": "city-layout-applying-en",
+      "equal": true
+    },
+    {
+      "id": "offline-ja",
+      "equal": true
+    },
+    {
+      "id": "city-layout-loading-ja",
+      "equal": true
+    },
+    {
+      "id": "city-layout-error-ja",
+      "equal": true
+    },
+    {
+      "id": "city-layout-populated-ja",
+      "equal": true
+    },
+    {
+      "id": "city-layout-populated-moved-ja",
+      "equal": true
+    },
+    {
+      "id": "city-layout-populated-conflict-ja",
+      "equal": true
+    },
+    {
+      "id": "city-layout-stale-ja",
+      "equal": true
+    },
+    {
+      "id": "city-layout-outside-city-ja",
+      "equal": true
+    },
+    {
+      "id": "city-layout-server-valid-ja",
+      "equal": true
+    },
+    {
+      "id": "city-layout-applying-ja",
+      "equal": true
+    },
+    {
+      "id": "offline-ru",
+      "equal": true
+    },
+    {
+      "id": "city-layout-loading-ru",
+      "equal": true
+    },
+    {
+      "id": "city-layout-error-ru",
+      "equal": true
+    },
+    {
+      "id": "city-layout-populated-ru",
+      "equal": true
+    },
+    {
+      "id": "city-layout-populated-moved-ru",
+      "equal": true
+    },
+    {
+      "id": "city-layout-populated-conflict-ru",
+      "equal": true
+    },
+    {
+      "id": "city-layout-stale-ru",
+      "equal": true
+    },
+    {
+      "id": "city-layout-outside-city-ru",
+      "equal": true
+    },
+    {
+      "id": "city-layout-server-valid-ru",
+      "equal": true
+    },
+    {
+      "id": "city-layout-applying-ru",
+      "equal": true
+    }
+  ]
+}

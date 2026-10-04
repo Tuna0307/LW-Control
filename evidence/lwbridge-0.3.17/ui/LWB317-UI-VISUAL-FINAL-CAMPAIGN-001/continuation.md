@@ -1,17 +1,30 @@
-# Continuation
+# Exact continuation — lead takeover 2026-10-05
 
-Campaign: `LWB317-UI-VISUAL-FINAL-CAMPAIGN-001`
+Start with this progress.md and lead-checkpoint/README.md, not the worker Unit-D-only
+continuation. Branch research/offline-controller; historical submissions untouched.
+Four source files were corrected; source/local page evidence is now reviewable.
 
-Branch: `research/offline-controller`
+1. Rerun lead-checkpoint/validate-read-only.mjs. Explicit manifest writer is separate.
+   A/B independent replay: unit-a/lead-audit/validate-read-only.mjs. Historical City
+   error is expected to fail99,918 unmasked pixels; corrected3 pairs must pass.
+2. Continue C's positive/conditional inventory. Current default56 pairs are exact.
+   Dynamic Construction maxBuilders bound is source totalBuilders/fallback20 and
+   needs a focused correction; don't mistakenly clamp all states to4. Post-effect
+   H/Ut seeding and actual Vr are disclosed; old C baseline without them is not an oracle.
+3. Continue D full AFK/Garrison/Profile. afk-visual/I.pretty.js holds exact pretty
+   original; recover actual component/state pairing before changing hypothesized
+   editor labels/headings/worker rows/profile glyphs. Equipment/compact gates pass.
+4. I: whole shared-shell/Home compositions and conditional menus/focus/hover states.
+5. J: eight-route/profile/modal/retention/hidden effect integration, reconcile checklist
+   and rerecord affected executable proofs/build/package; do not blanket-accept from counts.
 
-Starting lead checkpoint: `223ca757b4e70c422af1bf79509aa10313982124`
+Reuse source/callback proofs; historical extractors stay unchanged. Evidence files,
+actual tools and source bytes are frozen. Any deliberate new checkpoint must preserve
+old manifest before explicit re-pin; validators must not mutate manifests/results.
+Owner listeners4319/4335/4336 remain owned elsewhere. Task listeners4348/4350 can be
+stopped after identifying their process command lines. Never touch Last War/native controls.
 
-Campaign-start repository HEAD: `8bfd58efdc0502e6c732ba9f7c7ba35b8e521f4d`
-
-Current completed unit: C.
-
-Unit C result: fresh recovered/current Automation replay passes 186 executable comparisons; campaign Weekly/Trade replays all pass; mounted browser QA passes 121 assertions with 20 screenshots across the four required EN/JA + light/dark + desktop/narrow modes and zero console/page errors. A source-proven enabled-card visual defect was found in generic Automation, Resource Gathering, and Trade Station: current cards omitted the recovered shared `is-enabled` class and therefore the recovered enabled border/shadow. `AutomationPage.jsx` now restores that class in all three scopes. Immutable pre-fix evidence plus corrected mutation controls detect 1,484 / 2,044 / 3,336 decoded changed pixels when the recovered class is removed. All nine locale modules were inventoried across 363 Automation-relevant keys with no partial locale gaps; `common.loading` is explicitly recorded as the all-nine i18n fallback-to-key case. Production CSS remains byte-identical to recovered CSS. Package/build/archive/diff gates pass. No native/gameplay action was executed and owner port 4335 was not used.
-
-Next required work: Unit D. Close Squads / AFK / Garrison / Profile / Equipment with fresh campaign-owned recovered/current comparisons and real mounted local interactions, adapting moved current modules without editing historical evidence. Continue directly through E–J after D.
-
-Do not treat Units A–C as campaign completion. Do not execute native/gameplay actions.
+Current Unit J smoke passes all8 routes/64 forward-return transitions in four real
+locale/theme/viewport modes, console0. It is current-only integration, not global
+reference parity or profile/modal acceptance. Task Vite4348/4350 is stopped at
+checkpoint; start a fresh owned listener for subsequent mounted checks.

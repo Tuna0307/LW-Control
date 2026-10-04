@@ -1,0 +1,41 @@
+{
+  "result": "LWB317_EQUIPMENT_ACTUAL_SOURCE_OK",
+  "results": [
+    {
+      "name": "actual original/current snapshot counts and current-equipment predicate",
+      "count": 26,
+      "result": "PASS"
+    },
+    {
+      "name": "selected identity current matching mixed/unmatched and derived dirty state",
+      "count": 9,
+      "result": "PASS"
+    },
+    {
+      "name": "actual original/current item loadout squad transformations wrong-slot self-drop and 450ms success",
+      "count": 22,
+      "result": "PASS"
+    },
+    {
+      "name": "actual original/current Equipment dialog cancel busy and default no-backdrop-dismiss behavior",
+      "count": 8,
+      "result": "PASS"
+    },
+    {
+      "name": "actual production preset selection current-match and rename callbacks in English/Japanese",
+      "count": 14,
+      "result": "PASS"
+    },
+    {
+      "name": "production supplied-state partial/error/progress and action-enabled presentation",
+      "count": 24,
+      "result": "PASS"
+    },
+    {
+      "name": "source-located 1800ms toast cleanup and Alt+1..4 negative predicate",
+      "count": 2,
+      "result": "PASS"
+    }
+  ],
+  "limits": "Exact original helper execution plus nested original/current transformation and production callback proof. Browser record separately distinguishes physical HTML5 drag from DOM/handler proof. No live game or native Equipment provider is exercised."
+}

@@ -1,0 +1,304 @@
+{
+  "page": "city-layout",
+  "states": [
+    "",
+    "city-layout-loading",
+    "city-layout-error",
+    "city-layout-populated",
+    "city-layout-populated-moved",
+    "city-layout-populated-conflict",
+    "city-layout-stale",
+    "city-layout-outside-city",
+    "city-layout-server-valid",
+    "city-layout-applying"
+  ],
+  "proof": "EXACT_CONTRACT; synthetic hook states supplied to actual source functions, effects intentionally inert",
+  "functions": [
+    {
+      "name": "ue",
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/CityLayoutPanel-DoNWkywK.js",
+      "utf8Offset": 1752,
+      "bytes": 17540,
+      "sha256": "5a778c995b935084b0c42f9236085f650996eecb3aced7923733f3a271709bf6"
+    },
+    {
+      "name": "te",
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/CityLayoutPanel-DoNWkywK.js",
+      "utf8Offset": 194,
+      "bytes": 66,
+      "sha256": "d6b4a91eadb250c5d8e645410d236507b302ff98cd1445a997c5639fc9566fc5"
+    },
+    {
+      "name": "ne",
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/CityLayoutPanel-DoNWkywK.js",
+      "utf8Offset": 260,
+      "bytes": 158,
+      "sha256": "cedc8cc403827d69be99b0ca5772daecb122d31f71aefaed84adae35043dca8c"
+    },
+    {
+      "name": "m",
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/CityLayoutPanel-DoNWkywK.js",
+      "utf8Offset": 418,
+      "bytes": 224,
+      "sha256": "fd24529350f4bed305c449f5d5d796c01325ecdbf1854f24bb111402eb04986b"
+    },
+    {
+      "name": "re",
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/CityLayoutPanel-DoNWkywK.js",
+      "utf8Offset": 642,
+      "bytes": 741,
+      "sha256": "e172576298763e32a18b42db6d47c7cc5151b6ebb399b352511adcd755bc7e5b"
+    },
+    {
+      "name": "ie",
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/CityLayoutPanel-DoNWkywK.js",
+      "utf8Offset": 1383,
+      "bytes": 87,
+      "sha256": "5f68e10ccfa4f93e20825e161362f67dd10f4abb20dfe479fb6a3fbb836ae3ba"
+    },
+    {
+      "name": "ae",
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/CityLayoutPanel-DoNWkywK.js",
+      "utf8Offset": 1470,
+      "bytes": 80,
+      "sha256": "34a5cd6e1d11336b581579076b3a8ed1a1f6a2180020e48129ecdfc907c419f5"
+    },
+    {
+      "name": "oe",
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/CityLayoutPanel-DoNWkywK.js",
+      "utf8Offset": 1550,
+      "bytes": 35,
+      "sha256": "8c7756ae94c23018a66560a5b19d33ff11a58bf99158775a0ee69cb920a2ab05"
+    },
+    {
+      "name": "le",
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/CityLayoutPanel-DoNWkywK.js",
+      "utf8Offset": 1635,
+      "bytes": 45,
+      "sha256": "1512a222553e1cf6073c476dfcdfb86b111d2cdddce56d7b28fcc7cee8fc226a"
+    },
+    {
+      "name": "g",
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/CityLayoutPanel-DoNWkywK.js",
+      "utf8Offset": 1680,
+      "bytes": 72,
+      "sha256": "099a84a6a1ced42b1a3625d102e373213109d5b46ef2b650751ee2ac6e752d67"
+    }
+  ],
+  "native": "No commands, OS hotkeys, providers, diagnostics, updater or gameplay invoked",
+  "clock": 1770026400000,
+  "timezone": "Asia/Singapore",
+  "currentSource": {
+    "path": "src/LWBridge.UI-0.3.17/src/CityLayoutPage.jsx",
+    "sha256": "4530c6711ce1cb08758780e3aedec1bfcac2ffcb4056bf7721a2c6633e19482f"
+  },
+  "originalCSS": {
+    "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-rIL9Fpht.css",
+    "sha256": "3d87e9f65b39eace6a1a254bfc90a38acb72613d1fff7236c7cee7ab9bfaf545"
+  },
+  "dependencyPaths": [
+    "unit-e/page-harness.mjs",
+    "unit-e/recover-pages.mjs"
+  ],
+  "substitutions": [
+    "State/ref seeds disclosed in page-harness.mjs",
+    "useMemo/useCallback executed synchronously; effects not executed in static source proof",
+    "Actual recovered/current GameAssetImage both rendered unresolved-source placeholder, no invented image"
+  ],
+  "statesRendered": [
+    {
+      "state": "",
+      "lang": "en",
+      "id": "offline-en",
+      "rawEqual": true,
+      "currentSha256": "3bb48ea1b9bc29df380c898aee62478bc596277f471f9af1a1d253ca00322b85",
+      "originalSha256": "3bb48ea1b9bc29df380c898aee62478bc596277f471f9af1a1d253ca00322b85"
+    },
+    {
+      "state": "city-layout-loading",
+      "lang": "en",
+      "id": "city-layout-loading-en",
+      "rawEqual": true,
+      "currentSha256": "6dc956a573e7cc2c96aff724804fb0bbbc4a782fc0caac08edcce8d11f66e696",
+      "originalSha256": "6dc956a573e7cc2c96aff724804fb0bbbc4a782fc0caac08edcce8d11f66e696"
+    },
+    {
+      "state": "city-layout-error",
+      "lang": "en",
+      "id": "city-layout-error-en",
+      "rawEqual": true,
+      "currentSha256": "1102d397bec4d1a14a5f756e44cbd881c99ff5801b75808f9e400b467ae6e5d1",
+      "originalSha256": "1102d397bec4d1a14a5f756e44cbd881c99ff5801b75808f9e400b467ae6e5d1"
+    },
+    {
+      "state": "city-layout-populated",
+      "lang": "en",
+      "id": "city-layout-populated-en",
+      "rawEqual": false,
+      "currentSha256": "0ac16cc91c2e9a240762228347c8294fd27213e706c44ffa811ce4942c0991fe",
+      "originalSha256": "34976d752c87b9855ea3fbc7498d1b589c085156dd02cdd65a54e013ec43d019"
+    },
+    {
+      "state": "city-layout-populated-moved",
+      "lang": "en",
+      "id": "city-layout-populated-moved-en",
+      "rawEqual": false,
+      "currentSha256": "92665f74b8f86740d51d85d3aeb3a1278f35698c452259b373a95e9ef519c718",
+      "originalSha256": "dee762df499edff04e6b3af01dfaa3aa06eb1a5441b108cccc9679ff7b26a01a"
+    },
+    {
+      "state": "city-layout-populated-conflict",
+      "lang": "en",
+      "id": "city-layout-populated-conflict-en",
+      "rawEqual": false,
+      "currentSha256": "d41139d00ba9f3018f91978f1533d62e665a363fdf3e13870bd9119fbd5d3c1b",
+      "originalSha256": "d3a96f659421c364e00d85ab8aaf413dd572388b8bc2640387ccc05be75eff68"
+    },
+    {
+      "state": "city-layout-stale",
+      "lang": "en",
+      "id": "city-layout-stale-en",
+      "rawEqual": false,
+      "currentSha256": "556c0734c77e6a6668dd6c623f0dd2b786e06c53f165416f9c8f4c7f0ec58680",
+      "originalSha256": "3414be75367fafd07ba9b5614d16ae0a071565fca42ce13278dd0e6584ee5980"
+    },
+    {
+      "state": "city-layout-outside-city",
+      "lang": "en",
+      "id": "city-layout-outside-city-en",
+      "rawEqual": false,
+      "currentSha256": "4d4217bee712cdeeffcdd8aa54ebd845079de6ebaefa1cab7e685374659eeda8",
+      "originalSha256": "4e86771d291686057a481db6e9c4136c4e9be5f3e01daa0dec8674ed71eeecd8"
+    },
+    {
+      "state": "city-layout-server-valid",
+      "lang": "en",
+      "id": "city-layout-server-valid-en",
+      "rawEqual": false,
+      "currentSha256": "097b01502e0106c7ad02178b35604c4c2995d3c673d71cd4e77c04eaf3653209",
+      "originalSha256": "48b89bb5c0308c7b02d17736e1327af55b2f549c2e17ff601a7d0d50b4c85890"
+    },
+    {
+      "state": "city-layout-applying",
+      "lang": "en",
+      "id": "city-layout-applying-en",
+      "rawEqual": false,
+      "currentSha256": "8c8e8b9a6522e46b88fc75c1573e2f38899a1c5e10dffbcceb003188f4b743b3",
+      "originalSha256": "3c1097feef9bcf5ec7c680c5192dfbb53a6c80fdabb0318e7f7bb09662527475"
+    },
+    {
+      "state": "",
+      "lang": "ja",
+      "id": "offline-ja",
+      "rawEqual": true,
+      "currentSha256": "68e1e227badf8c168ec8005c7b1a3a42ca82ac739c3a1b70ce52b8fd55091303",
+      "originalSha256": "68e1e227badf8c168ec8005c7b1a3a42ca82ac739c3a1b70ce52b8fd55091303"
+    },
+    {
+      "state": "city-layout-loading",
+      "lang": "ja",
+      "id": "city-layout-loading-ja",
+      "rawEqual": true,
+      "currentSha256": "0efe50ab85b845779264bae8b392186eaa305a772f4c535d129924da91a57696",
+      "originalSha256": "0efe50ab85b845779264bae8b392186eaa305a772f4c535d129924da91a57696"
+    },
+    {
+      "state": "city-layout-error",
+      "lang": "ja",
+      "id": "city-layout-error-ja",
+      "rawEqual": true,
+      "currentSha256": "a25a8b6bec8840279770d73be8b00a20efd274c3bedb96534a4e2830af4ac82d",
+      "originalSha256": "a25a8b6bec8840279770d73be8b00a20efd274c3bedb96534a4e2830af4ac82d"
+    },
+    {
+      "state": "city-layout-populated",
+      "lang": "ja",
+      "id": "city-layout-populated-ja",
+      "rawEqual": false,
+      "currentSha256": "3ecbba4b0e0e12c2bd06937a989dcaba14f9a850702d1c75b9d9409d76b9eafa",
+      "originalSha256": "363f706829dfa9c2edb583c95d25dba8489062ffa85d6dd4efbf4262ca9cd9c4"
+    },
+    {
+      "state": "city-layout-populated-moved",
+      "lang": "ja",
+      "id": "city-layout-populated-moved-ja",
+      "rawEqual": false,
+      "currentSha256": "bf06b6245963b830f0355d0bc9d8c2e1b9ea7cf39a33350168626af8196f4c5f",
+      "originalSha256": "a3481a05f5f246654fd22b83a8fe05a0e9526a76a9779bc7eefac78f35a66cd2"
+    },
+    {
+      "state": "city-layout-populated-conflict",
+      "lang": "ja",
+      "id": "city-layout-populated-conflict-ja",
+      "rawEqual": false,
+      "currentSha256": "a102b10070b756d86ccc75199d9b6bb0e87a89e6a63911c04e2ad07443027abb",
+      "originalSha256": "e33bc3514bbb1daf5f20328d6a914b9f472161fdf7f49dc24be4377c663287d4"
+    },
+    {
+      "state": "city-layout-stale",
+      "lang": "ja",
+      "id": "city-layout-stale-ja",
+      "rawEqual": false,
+      "currentSha256": "a4ac93b5863c2ef343541e67d65226fdf990ca9d09dd05e634cb82a045beaf44",
+      "originalSha256": "7c3bb3396d4c8a257af35371f1ec86c897d58643e850fc586b972fb24de96741"
+    },
+    {
+      "state": "city-layout-outside-city",
+      "lang": "ja",
+      "id": "city-layout-outside-city-ja",
+      "rawEqual": false,
+      "currentSha256": "8eb183fc8643590e63457564ff821c7ec1fee40eb3c91c70cdec5cc9f760f2ce",
+      "originalSha256": "2bcdeb3aea09317814bc96d6b7c1e17bdc7e5698fe33dd7677b400d1a661679d"
+    },
+    {
+      "state": "city-layout-server-valid",
+      "lang": "ja",
+      "id": "city-layout-server-valid-ja",
+      "rawEqual": false,
+      "currentSha256": "9eea6ef63cb641a0226bb8bfc2acd85073251607c643d7723ac597bd3b77ca8a",
+      "originalSha256": "2483013b7417e257428bd64fb5435e50b74d84b060863509d1b3874abcc47f17"
+    },
+    {
+      "state": "city-layout-applying",
+      "lang": "ja",
+      "id": "city-layout-applying-ja",
+      "rawEqual": false,
+      "currentSha256": "54621f1511bb3f8751e92169de62c38abd7605048428feab1a866f5a37fc1b98",
+      "originalSha256": "1099164a0f0e8dbbf1d75c74bca1bb3f3109ca59990f64664bb839d59988b43e"
+    }
+  ],
+  "pairs": [
+    {
+      "id": "city-layout-en-light-1280",
+      "state": "city-layout-populated-moved",
+      "lang": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "id": "city-layout-ja-dark-1280",
+      "state": "city-layout-populated-moved",
+      "lang": "ja",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "id": "city-layout-en-dark-375",
+      "state": "city-layout-populated-moved",
+      "lang": "en",
+      "theme": "dark",
+      "width": 375,
+      "height": 1000
+    },
+    {
+      "id": "city-layout-ja-light-375",
+      "state": "city-layout-populated-moved",
+      "lang": "ja",
+      "theme": "light",
+      "width": 375,
+      "height": 1000
+    }
+  ]
+}

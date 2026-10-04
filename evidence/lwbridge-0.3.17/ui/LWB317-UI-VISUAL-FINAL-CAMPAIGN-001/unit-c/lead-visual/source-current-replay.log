@@ -1,0 +1,74 @@
+{
+  "result": "LWB317_VISUAL_FINAL_UNIT_C_ACCEPTED_SOURCE_REPLAY_OK",
+  "results": [
+    {
+      "name": "actual original/current Automation meta and future-time renderer",
+      "count": 52,
+      "result": "PASS"
+    },
+    {
+      "name": "named Automation runtime branches through the original shared card",
+      "count": 48,
+      "result": "PASS"
+    },
+    {
+      "name": "actual original/current manual Assist rows queue states and controls",
+      "count": 32,
+      "result": "PASS"
+    },
+    {
+      "name": "actual original/current Gather callbacks and runtime precedence",
+      "count": 54,
+      "result": "PASS"
+    }
+  ],
+  "locators": {
+    "Automation.me": {
+      "asset": "AutomationPanel-BJ0gIqFh.js",
+      "utf8ByteOffset": 10331,
+      "utf8ByteLength": 4288,
+      "sha256": "65AF81300489FD6682CD8309DD3089426E14170691768AFA8C4750D059C0509D"
+    },
+    "Automation.O": {
+      "asset": "AutomationPanel-BJ0gIqFh.js",
+      "utf8ByteOffset": 20214,
+      "utf8ByteLength": 232,
+      "sha256": "15E2290599F6543D22E7728991FDFEC07476BF8803440D81C7BD3C20D07842DD"
+    },
+    "Automation.E": {
+      "asset": "AutomationPanel-BJ0gIqFh.js",
+      "utf8ByteOffset": 19426,
+      "utf8ByteLength": 603,
+      "sha256": "BD308340C092C52A1E08DADCAA6C0476BBA2BD39D559FB99BF4E2EC7F0C88B8A"
+    },
+    "Automation.T": {
+      "asset": "AutomationPanel-BJ0gIqFh.js",
+      "utf8ByteOffset": 19367,
+      "utf8ByteLength": 59,
+      "sha256": "1830F3BF4E2E31692E67AD2B3348AD496385D87763CC5A828D966699E8C7BE37"
+    },
+    "Automation.Ce": {
+      "asset": "AutomationPanel-BJ0gIqFh.js",
+      "utf8ByteOffset": 20446,
+      "utf8ByteLength": 79,
+      "sha256": "F726F00C0F721D605E76AA763A5970C5B853226415355D17663292E79BB7E1D4"
+    },
+    "Automation.manualAssist": {
+      "asset": "AutomationPanel-BJ0gIqFh.js",
+      "utf8ByteOffset": 71741,
+      "utf8ByteLength": 1950,
+      "sha256": "DDB29B1B93577E19987150618DEB56C89873510B78AA2AEF57BD118C56DAE107"
+    }
+  },
+  "assets": [
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/AutomationPanel-BJ0gIqFh.js",
+      "sha256": "6DB2328191AF33E5631D507271C36D7008B287DAA7C8CD1A957B23EF6F871725"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/AutomationCard-LCx_jIi7.js",
+      "sha256": "24ED773623C237F8219EFF5443FAC3BA7B55B6E99E168E52FF066FAF2ABE7A61"
+    }
+  ],
+  "limits": "Fresh campaign-owned execution of the accepted recovered-source Automation overlap only. Squads/AFK continuation is deferred to Unit D; no native/gameplay action or protected original runtime is executed."
+}

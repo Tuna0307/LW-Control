@@ -1,0 +1,61 @@
+{
+  "result": "LWB317_EQUIPMENT_R1_ACTUAL_OK",
+  "results": [
+    {
+      "name": "current parent uses React Activity visible/hidden retention boundary",
+      "count": 3,
+      "result": "PASS"
+    },
+    {
+      "name": "actual Equipment Alt effect cleanup and single re-install",
+      "count": 8,
+      "result": "PASS"
+    },
+    {
+      "name": "Alt repeat/input/busy negative predicates remain inert",
+      "count": 6,
+      "result": "PASS"
+    },
+    {
+      "name": "recovered rename acknowledgement success/null oracle",
+      "count": 4,
+      "result": "PASS"
+    },
+    {
+      "name": "current rename pending acknowledgement retains busy dialog",
+      "count": 4,
+      "result": "PASS"
+    },
+    {
+      "name": "current rename rejection clears busy, retains dialog, and Retry acknowledges draft",
+      "count": 9,
+      "result": "PASS"
+    },
+    {
+      "name": "rename failure Discard restores confirmed draft and retains dialog",
+      "count": 3,
+      "result": "PASS"
+    },
+    {
+      "name": "already-dirty moved draft plus rename acknowledges full draft in English/Japanese",
+      "count": 12,
+      "result": "PASS"
+    },
+    {
+      "name": "rename blank unchanged Enter and pending-close guards",
+      "count": 7,
+      "result": "PASS"
+    },
+    {
+      "name": "save-only consumer shares failure and Retry acknowledgement without native provider",
+      "count": 5,
+      "result": "PASS"
+    }
+  ],
+  "source": {
+    "activityUtf8Byte": 191313,
+    "altEffectUtf8Byte": 179906,
+    "renameUtf8Byte": 180434
+  },
+  "limits": "Actual current callbacks/effects plus recovered original rename callback. React Activity suspension/state retention is additionally exercised in the real browser mount; no native Equipment provider, gameplay, or original post-auth pixel comparison is used."
+}

@@ -1,0 +1,113 @@
+{
+  "referenceExecutableSha256": "4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783",
+  "locators": {
+    "Squad.ad": {
+      "asset": "SquadPanel-HC3-DJei.js",
+      "utf8ByteOffset": 175776,
+      "utf8ByteLength": 41,
+      "sha256": "F5656619E68DA0870332D60FBB89CCF036272CD1B61003C8463A747196C5A919"
+    },
+    "Squad.od": {
+      "asset": "SquadPanel-HC3-DJei.js",
+      "utf8ByteOffset": 175817,
+      "utf8ByteLength": 340,
+      "sha256": "8407022CD1F2F16EF48FFC6CBC7AF914101DAC05590502E12928AB2643C01C3D"
+    },
+    "Squad.sd": {
+      "asset": "SquadPanel-HC3-DJei.js",
+      "utf8ByteOffset": 176157,
+      "utf8ByteLength": 52,
+      "sha256": "4CD8D2CE807B52738C70A2F1DF8E0EE52210144618B92AE4DB11E64589DAD7F4"
+    },
+    "Squad.cd": {
+      "asset": "SquadPanel-HC3-DJei.js",
+      "utf8ByteOffset": 176209,
+      "utf8ByteLength": 226,
+      "sha256": "9C791E699D0F7969F4EEC5A3D6057CD78270B6058B5DD5D98AAECC41B20F5BD0"
+    },
+    "Squad.ld": {
+      "asset": "SquadPanel-HC3-DJei.js",
+      "utf8ByteOffset": 176435,
+      "utf8ByteLength": 97,
+      "sha256": "DC352560B6C3AE2CFE1781105146AC002602222B729C77EC9B6738C784EE0D02"
+    },
+    "Squad.ud": {
+      "asset": "SquadPanel-HC3-DJei.js",
+      "utf8ByteOffset": 176532,
+      "utf8ByteLength": 98,
+      "sha256": "F66E7ABB282D926D5BD4B2BFDE16474C974A8BADD0985948C17BDF435CFBE954"
+    },
+    "Squad.dd": {
+      "asset": "SquadPanel-HC3-DJei.js",
+      "utf8ByteOffset": 176630,
+      "utf8ByteLength": 307,
+      "sha256": "E6EBBBCE11CA19D7BEEAD1DFB563EBB6E2DACB06E5DA541CE3B060879B5E4C6E"
+    },
+    "Squad.fd": {
+      "asset": "SquadPanel-HC3-DJei.js",
+      "utf8ByteOffset": 176937,
+      "utf8ByteLength": 14376,
+      "sha256": "64968D742C5AAE80AAC5A87C90EEF4E2FCCD75115F6844C35372660B0D4912B0"
+    },
+    "Squad.pd": {
+      "asset": "SquadPanel-HC3-DJei.js",
+      "utf8ByteOffset": 191313,
+      "utf8ByteLength": 1517,
+      "sha256": "F4644E68B880678194C13EAC0FF9F7D395061EF7EB63FC505A85DD3E2C1419E8"
+    },
+    "Index.In": {
+      "asset": "index-BVfnK1wp.js",
+      "utf8ByteOffset": 209017,
+      "utf8ByteLength": 1209,
+      "sha256": "E42C17AAC67AFE7A73D525902C9E757644E40838422730CEB32EC47830C4F8A2"
+    },
+    "Squad.fd.squadSwap": {
+      "asset": "SquadPanel-HC3-DJei.js",
+      "utf8ByteOffset": 181427,
+      "utf8ByteLength": 572,
+      "sha256": "573B30FB00A7094A22080A4DDA1AE203D9626A82AB3E44F4E067BF28DA68638C"
+    },
+    "Squad.fd.targetSwap": {
+      "asset": "SquadPanel-HC3-DJei.js",
+      "utf8ByteOffset": 181999,
+      "utf8ByteLength": 867,
+      "sha256": "357E2F598B8296FF727F5C3DBC03A1E187AD0ABA42F491C1C76E00A336D99CD4"
+    },
+    "Squad.fd.rename": {
+      "asset": "SquadPanel-HC3-DJei.js",
+      "utf8ByteOffset": 180434,
+      "utf8ByteLength": 234,
+      "sha256": "CA912650CA34356BF94AB56FC6CCFDF6024C65EA7A715DB294BB8DD3E4E6D879"
+    }
+  },
+  "assets": [
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/SquadPanel-HC3-DJei.js",
+      "sha256": "ED466E353AA896D8C3FC783FF1802930156FB9E9EB54327AEF73F2FF86FA06C7"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-BVfnK1wp.js",
+      "sha256": "44C4E4043825B7DB296B64171951B27176F8850FF8D7D337CC991DF4765524C6"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/GameAssetImage-Diy9VTIr.js",
+      "sha256": "2F92A87C3268497DF6425B1175DB6140E10AABCBDFAE02615F065D00E16458E0"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-rIL9Fpht.css",
+      "sha256": "3D87E9F65B39EACE6A1A254BFC90A38ACB72613D1FFF7236C7CEE7AB9BFAF545"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/en-BisSXcTB.js",
+      "sha256": "0BF43D180EB93692A93B830B5D984E9D01DDEEA524340F2334FC63CBA527A731"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/ja-UrbzJu-m.js",
+      "sha256": "35969183AB623B6701BC850FDF28BCF268C93127FF6C9693F77E588EE7BDBE38"
+    }
+  ],
+  "current": {
+    "src/LWBridge.UI-0.3.17/src/Pages.jsx": "0BD3AC149618E63645954D97D4304FB3D64A8EA84559B9DE55E77D46938DDC0B",
+    "src/LWBridge.UI-0.3.17/src/previewEquipmentContracts.js": "2E57B79B1211582A9FF5E9A96A2158F8918C2D690694A6DDDDC338AF95BA44B0"
+  }
+}

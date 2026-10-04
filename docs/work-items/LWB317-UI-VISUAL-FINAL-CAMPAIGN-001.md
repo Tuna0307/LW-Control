@@ -1,6 +1,18 @@
 # LWB317-UI-VISUAL-FINAL-CAMPAIGN-001
 
-Status: ASSIGNED through owner relay, 2026-10-04.
+Status: PARTIAL — lead takeover checkpoint, 2026-10-05.
+
+Lead takeover checkpoint, 2026-10-05: VISUAL-FINAL-CAMPAIGN-001 remains PARTIAL.
+Independent audit corrected the unmasked City Map search-error drift; fresh3 pairs
+pass. Default Automation seven-category expanded/collapsed56 pairs, Equipment20,
+compact AFK16, and City/Hotkeys/Mini Games/Settings20 paired samples match decoded
+pixels without masks.189 E–H source states and mounted regressions are validated.
+Open: broader Automation conditionals, full AFK/Garrison/Profile, whole shared-shell/
+Home compositions and final integration acceptance. Native/assets/protected-runtime
+proof remains separate. See reviews/2026-10-05-LWB317-VISUAL-CAMPAIGN-LEAD-TAKEOVER-001.md
+and the campaign progress/continuation; older blanket worker completion is historical.
+
+
 Size: large, one worker executing units A–J sequentially.
 Reviewed product baseline: `24ea7b910e4909404c012857ea52158e46a8cf5a`.
 Start from the current branch, including the newer lead audit/assignment commit.

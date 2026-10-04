@@ -1,0 +1,46 @@
+{
+  "comparison": "Decoded RGBA, zero tolerance, no masks",
+  "pairs": [
+    {
+      "id": "city-layout-en-light-1280",
+      "size": [
+        1280,
+        900
+      ],
+      "changedPixels": 16927,
+      "pixelIdentical": false
+    },
+    {
+      "id": "city-layout-ja-dark-1280",
+      "size": [
+        1280,
+        900
+      ],
+      "changedPixels": 7535,
+      "pixelIdentical": false
+    },
+    {
+      "id": "city-layout-en-dark-375",
+      "originalSize": [
+        375,
+        1371
+      ],
+      "currentSize": [
+        375,
+        1368
+      ],
+      "pixelIdentical": false,
+      "changedPixels": null,
+      "reason": "size differs"
+    },
+    {
+      "id": "city-layout-ja-light-375",
+      "size": [
+        375,
+        1402
+      ],
+      "changedPixels": 7533,
+      "pixelIdentical": false
+    }
+  ]
+}

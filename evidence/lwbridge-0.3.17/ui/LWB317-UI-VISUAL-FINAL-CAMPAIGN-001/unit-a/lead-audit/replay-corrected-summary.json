@@ -1,0 +1,458 @@
+{
+  "marker": "LWB317_VISUAL_FINAL_UNIT_B_INTEGRATED_MAP_EXECUTED",
+  "requiredCases": 70,
+  "supplementalCases": 5,
+  "exact": 0,
+  "differing": [
+    {
+      "id": "city-empty",
+      "language": "en",
+      "tab": "city",
+      "differenceCount": 431
+    },
+    {
+      "id": "city-loading",
+      "language": "en",
+      "tab": "city",
+      "differenceCount": 431
+    },
+    {
+      "id": "city-populated",
+      "language": "en",
+      "tab": "city",
+      "differenceCount": 497
+    },
+    {
+      "id": "city-error",
+      "language": "en",
+      "tab": "city",
+      "differenceCount": 431
+    },
+    {
+      "id": "resource-empty",
+      "language": "en",
+      "tab": "resource",
+      "differenceCount": 343
+    },
+    {
+      "id": "resource-loading",
+      "language": "en",
+      "tab": "resource",
+      "differenceCount": 343
+    },
+    {
+      "id": "resource-populated",
+      "language": "en",
+      "tab": "resource",
+      "differenceCount": 378
+    },
+    {
+      "id": "resource-error",
+      "language": "en",
+      "tab": "resource",
+      "differenceCount": 343
+    },
+    {
+      "id": "monster-empty",
+      "language": "en",
+      "tab": "monster",
+      "differenceCount": 370
+    },
+    {
+      "id": "monster-loading",
+      "language": "en",
+      "tab": "monster",
+      "differenceCount": 370
+    },
+    {
+      "id": "monster-populated",
+      "language": "en",
+      "tab": "monster",
+      "differenceCount": 405
+    },
+    {
+      "id": "monster-error",
+      "language": "en",
+      "tab": "monster",
+      "differenceCount": 370
+    },
+    {
+      "id": "truck-empty",
+      "language": "en",
+      "tab": "truck",
+      "differenceCount": 500
+    },
+    {
+      "id": "truck-loading",
+      "language": "en",
+      "tab": "truck",
+      "differenceCount": 500
+    },
+    {
+      "id": "truck-populated",
+      "language": "en",
+      "tab": "truck",
+      "differenceCount": 606
+    },
+    {
+      "id": "truck-error",
+      "language": "en",
+      "tab": "truck",
+      "differenceCount": 500
+    },
+    {
+      "id": "railway-empty",
+      "language": "en",
+      "tab": "railway",
+      "differenceCount": 458
+    },
+    {
+      "id": "railway-loading",
+      "language": "en",
+      "tab": "railway",
+      "differenceCount": 458
+    },
+    {
+      "id": "railway-populated",
+      "language": "en",
+      "tab": "railway",
+      "differenceCount": 538
+    },
+    {
+      "id": "railway-error",
+      "language": "en",
+      "tab": "railway",
+      "differenceCount": 458
+    },
+    {
+      "id": "dispatch-empty",
+      "language": "en",
+      "tab": "dispatch",
+      "differenceCount": 496
+    },
+    {
+      "id": "dispatch-loading",
+      "language": "en",
+      "tab": "dispatch",
+      "differenceCount": 496
+    },
+    {
+      "id": "dispatch-populated",
+      "language": "en",
+      "tab": "dispatch",
+      "differenceCount": 568
+    },
+    {
+      "id": "dispatch-error",
+      "language": "en",
+      "tab": "dispatch",
+      "differenceCount": 496
+    },
+    {
+      "id": "ghost-empty",
+      "language": "en",
+      "tab": "ghost",
+      "differenceCount": 462
+    },
+    {
+      "id": "ghost-loading",
+      "language": "en",
+      "tab": "ghost",
+      "differenceCount": 462
+    },
+    {
+      "id": "ghost-populated",
+      "language": "en",
+      "tab": "ghost",
+      "differenceCount": 534
+    },
+    {
+      "id": "ghost-error",
+      "language": "en",
+      "tab": "ghost",
+      "differenceCount": 462
+    },
+    {
+      "id": "treasure-empty",
+      "language": "en",
+      "tab": "treasure",
+      "differenceCount": 391
+    },
+    {
+      "id": "treasure-loading",
+      "language": "en",
+      "tab": "treasure",
+      "differenceCount": 391
+    },
+    {
+      "id": "treasure-populated",
+      "language": "en",
+      "tab": "treasure",
+      "differenceCount": 449
+    },
+    {
+      "id": "treasure-error",
+      "language": "en",
+      "tab": "treasure",
+      "differenceCount": 391
+    },
+    {
+      "id": "map-scheduled",
+      "language": "en",
+      "tab": "scheduledPlunder",
+      "differenceCount": 420
+    },
+    {
+      "id": "map-scheduled-populated",
+      "language": "en",
+      "tab": "scheduledPlunder",
+      "differenceCount": 1266
+    },
+    {
+      "id": "map-scheduled-conditional",
+      "language": "en",
+      "tab": "scheduledPlunder",
+      "differenceCount": 1477
+    },
+    {
+      "id": "city-empty",
+      "language": "ja",
+      "tab": "city",
+      "differenceCount": 431
+    },
+    {
+      "id": "city-loading",
+      "language": "ja",
+      "tab": "city",
+      "differenceCount": 431
+    },
+    {
+      "id": "city-populated",
+      "language": "ja",
+      "tab": "city",
+      "differenceCount": 497
+    },
+    {
+      "id": "city-error",
+      "language": "ja",
+      "tab": "city",
+      "differenceCount": 431
+    },
+    {
+      "id": "resource-empty",
+      "language": "ja",
+      "tab": "resource",
+      "differenceCount": 343
+    },
+    {
+      "id": "resource-loading",
+      "language": "ja",
+      "tab": "resource",
+      "differenceCount": 343
+    },
+    {
+      "id": "resource-populated",
+      "language": "ja",
+      "tab": "resource",
+      "differenceCount": 378
+    },
+    {
+      "id": "resource-error",
+      "language": "ja",
+      "tab": "resource",
+      "differenceCount": 343
+    },
+    {
+      "id": "monster-empty",
+      "language": "ja",
+      "tab": "monster",
+      "differenceCount": 370
+    },
+    {
+      "id": "monster-loading",
+      "language": "ja",
+      "tab": "monster",
+      "differenceCount": 370
+    },
+    {
+      "id": "monster-populated",
+      "language": "ja",
+      "tab": "monster",
+      "differenceCount": 405
+    },
+    {
+      "id": "monster-error",
+      "language": "ja",
+      "tab": "monster",
+      "differenceCount": 370
+    },
+    {
+      "id": "truck-empty",
+      "language": "ja",
+      "tab": "truck",
+      "differenceCount": 500
+    },
+    {
+      "id": "truck-loading",
+      "language": "ja",
+      "tab": "truck",
+      "differenceCount": 500
+    },
+    {
+      "id": "truck-populated",
+      "language": "ja",
+      "tab": "truck",
+      "differenceCount": 606
+    },
+    {
+      "id": "truck-error",
+      "language": "ja",
+      "tab": "truck",
+      "differenceCount": 500
+    },
+    {
+      "id": "railway-empty",
+      "language": "ja",
+      "tab": "railway",
+      "differenceCount": 458
+    },
+    {
+      "id": "railway-loading",
+      "language": "ja",
+      "tab": "railway",
+      "differenceCount": 458
+    },
+    {
+      "id": "railway-populated",
+      "language": "ja",
+      "tab": "railway",
+      "differenceCount": 538
+    },
+    {
+      "id": "railway-error",
+      "language": "ja",
+      "tab": "railway",
+      "differenceCount": 458
+    },
+    {
+      "id": "dispatch-empty",
+      "language": "ja",
+      "tab": "dispatch",
+      "differenceCount": 496
+    },
+    {
+      "id": "dispatch-loading",
+      "language": "ja",
+      "tab": "dispatch",
+      "differenceCount": 496
+    },
+    {
+      "id": "dispatch-populated",
+      "language": "ja",
+      "tab": "dispatch",
+      "differenceCount": 568
+    },
+    {
+      "id": "dispatch-error",
+      "language": "ja",
+      "tab": "dispatch",
+      "differenceCount": 496
+    },
+    {
+      "id": "ghost-empty",
+      "language": "ja",
+      "tab": "ghost",
+      "differenceCount": 462
+    },
+    {
+      "id": "ghost-loading",
+      "language": "ja",
+      "tab": "ghost",
+      "differenceCount": 462
+    },
+    {
+      "id": "ghost-populated",
+      "language": "ja",
+      "tab": "ghost",
+      "differenceCount": 534
+    },
+    {
+      "id": "ghost-error",
+      "language": "ja",
+      "tab": "ghost",
+      "differenceCount": 462
+    },
+    {
+      "id": "treasure-empty",
+      "language": "ja",
+      "tab": "treasure",
+      "differenceCount": 391
+    },
+    {
+      "id": "treasure-loading",
+      "language": "ja",
+      "tab": "treasure",
+      "differenceCount": 391
+    },
+    {
+      "id": "treasure-populated",
+      "language": "ja",
+      "tab": "treasure",
+      "differenceCount": 449
+    },
+    {
+      "id": "treasure-error",
+      "language": "ja",
+      "tab": "treasure",
+      "differenceCount": 391
+    },
+    {
+      "id": "map-scheduled",
+      "language": "ja",
+      "tab": "scheduledPlunder",
+      "differenceCount": 420
+    },
+    {
+      "id": "map-scheduled-populated",
+      "language": "ja",
+      "tab": "scheduledPlunder",
+      "differenceCount": 1266
+    },
+    {
+      "id": "map-scheduled-conditional",
+      "language": "ja",
+      "tab": "scheduledPlunder",
+      "differenceCount": 1477
+    },
+    {
+      "id": "auto-configured",
+      "language": "en",
+      "tab": "city",
+      "differenceCount": 36
+    },
+    {
+      "id": "auto-configured",
+      "language": "ja",
+      "tab": "treasure",
+      "differenceCount": 38
+    },
+    {
+      "id": "missing-server",
+      "language": "en",
+      "tab": "city",
+      "differenceCount": 423
+    },
+    {
+      "id": "backend-unavailable",
+      "language": "ja",
+      "tab": "city",
+      "differenceCount": 413
+    },
+    {
+      "id": "scheduled-provider-fenced",
+      "language": "en",
+      "tab": "scheduledPlunder",
+      "differenceCount": 1266
+    }
+  ]
+}

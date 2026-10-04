@@ -1,0 +1,442 @@
+{
+  "page": "settings",
+  "states": [
+    "settings-complete",
+    "settings-multiprofile",
+    "settings-visual-loading",
+    "settings-visual-error",
+    "settings-visual-saving",
+    "settings-visual-save-error",
+    "settings-feedback-preparing",
+    "settings-feedback-exporting",
+    "settings-feedback-finalizing",
+    "settings-feedback-success",
+    "settings-feedback-error",
+    "settings-feedback-canceled",
+    "settings-update-idle",
+    "settings-update-checking",
+    "settings-update-available",
+    "settings-update-downloading",
+    "settings-update-opening",
+    "settings-update-error",
+    "settings-update-check-error",
+    "settings-update-download-error",
+    "settings-update-cooldown"
+  ],
+  "proof": "EXACT_CONTRACT; synthetic hook states supplied to actual source functions, effects intentionally inert",
+  "functions": [
+    {
+      "name": "m",
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/SettingsPanel-DqxIWv_E.js",
+      "utf8Offset": 1798,
+      "bytes": 1848,
+      "sha256": "9de561fdce4159a6985e0f648c3ce3353c0159c0344f067bf1a825b7710ee0a5"
+    },
+    {
+      "name": "p",
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/SettingsPanel-DqxIWv_E.js",
+      "utf8Offset": 241,
+      "bytes": 1557,
+      "sha256": "6db6e3f905f852d0e4547f043f2adbf79ebc5eaeab4db4ab97ca69b80410a917"
+    },
+    {
+      "name": "f",
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/SettingsPanel-DqxIWv_E.js",
+      "utf8Offset": 127,
+      "bytes": 114,
+      "sha256": "f815961410f9a5bb7f184e9fe5b935253b76b8ca9b238fde24f16cfc3d2a307a"
+    }
+  ],
+  "native": "No commands, OS hotkeys, providers, diagnostics, updater or gameplay invoked",
+  "clock": 1770026400000,
+  "timezone": "Asia/Singapore",
+  "currentSource": {
+    "path": "src/LWBridge.UI-0.3.17/src/SettingsPage.jsx",
+    "sha256": "8622be39e06fe82fcf31bd2e092358987f3f304d447ada061685727436737771"
+  },
+  "originalCSS": {
+    "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-rIL9Fpht.css",
+    "sha256": "3d87e9f65b39eace6a1a254bfc90a38acb72613d1fff7236c7cee7ab9bfaf545"
+  },
+  "dependencyPaths": [
+    "unit-e/page-harness.mjs",
+    "unit-e/recover-pages.mjs"
+  ],
+  "substitutions": [
+    "State/ref seeds disclosed in page-harness.mjs",
+    "useMemo/useCallback executed synchronously; effects not executed in static source proof",
+    "Actual recovered/current GameAssetImage both rendered unresolved-source placeholder, no invented image"
+  ],
+  "statesRendered": [
+    {
+      "state": "settings-complete",
+      "lang": "en",
+      "id": "settings-complete-en",
+      "rawEqual": false,
+      "currentSha256": "e5884136fc49bf68eacbad90f68ca1e4ec7a3d56daa3aa42d9ff2913cf3b1ddd",
+      "originalSha256": "c40320abc4e8cd6aefc3e8a52d7031ea1ef50d78580a2700d4571712fd08c41b"
+    },
+    {
+      "state": "settings-multiprofile",
+      "lang": "en",
+      "id": "settings-multiprofile-en",
+      "rawEqual": false,
+      "currentSha256": "7050c156484dd3d84165efe25a096c0f3298c7fdf2094f5a095321609958d951",
+      "originalSha256": "c40320abc4e8cd6aefc3e8a52d7031ea1ef50d78580a2700d4571712fd08c41b"
+    },
+    {
+      "state": "settings-visual-loading",
+      "lang": "en",
+      "id": "settings-visual-loading-en",
+      "rawEqual": false,
+      "currentSha256": "11e5393da17e35b078202d53db6b31349cee901c4d73b9a2bb1f50938e246ce5",
+      "originalSha256": "466850c09b01c25de39c24f0d615ffdd1d784ffb1bcacccb0f946e59715317ff"
+    },
+    {
+      "state": "settings-visual-error",
+      "lang": "en",
+      "id": "settings-visual-error-en",
+      "rawEqual": false,
+      "currentSha256": "5e7f1578ef513d0640d1d8fcc018d0049b5ea3a66ec5e8dbad9bd8517f1af1ce",
+      "originalSha256": "7cbb20ad35ccaeaeee570f6dfa569e61f241cc4fd749f9f6bdc91cdaadc84bf2"
+    },
+    {
+      "state": "settings-visual-saving",
+      "lang": "en",
+      "id": "settings-visual-saving-en",
+      "rawEqual": false,
+      "currentSha256": "b7cd5025bafb85eea0717077da4d704105758d84383ac346a2e707f18d21cefe",
+      "originalSha256": "5587fe883485cbfe91f327b166726d25ae20c4e1b69e24060f1e75dde814fe7b"
+    },
+    {
+      "state": "settings-visual-save-error",
+      "lang": "en",
+      "id": "settings-visual-save-error-en",
+      "rawEqual": false,
+      "currentSha256": "d7fd93cfd3b560cc9ca5506b8051108151505a76ee3b20a1d07e3b106286f826",
+      "originalSha256": "03bdf12a52f13ed912adaae43267d50860192f931380cfdc374ef931f7cd956d"
+    },
+    {
+      "state": "settings-feedback-preparing",
+      "lang": "en",
+      "id": "settings-feedback-preparing-en",
+      "rawEqual": false,
+      "currentSha256": "302a1172995b40c31915656b1bf33318351449de03a09401d4e1dcbabb95d7d1",
+      "originalSha256": "70423f8e4dcd793b0dcf749051a568db321422846e78fbbbbf6cc74173dac50b"
+    },
+    {
+      "state": "settings-feedback-exporting",
+      "lang": "en",
+      "id": "settings-feedback-exporting-en",
+      "rawEqual": false,
+      "currentSha256": "76b8bd2632b374adc041dcaf1f21fea4d050aecac15f0eb1a72a598c1dc0b51c",
+      "originalSha256": "681d27165141c2fcc1a2998457b9dedae9820e63b7197b69b059128bc5694439"
+    },
+    {
+      "state": "settings-feedback-finalizing",
+      "lang": "en",
+      "id": "settings-feedback-finalizing-en",
+      "rawEqual": false,
+      "currentSha256": "060c80030f750344e223e960abc9c30a30365b43c2a8c7c0242e11fc96963ca3",
+      "originalSha256": "c079e5305fc21b1f65c174ffd8ad040d52d7edc8e2aa5e6c4a959de5ad6a00fe"
+    },
+    {
+      "state": "settings-feedback-success",
+      "lang": "en",
+      "id": "settings-feedback-success-en",
+      "rawEqual": false,
+      "currentSha256": "23bd211c863270c30a63f4c37095a91546faacdbab09bd6438a357aabb05d3b1",
+      "originalSha256": "d4c11b7372e18e393abce4287aa7d9345130332982f0c1e5166bef15805ce307"
+    },
+    {
+      "state": "settings-feedback-error",
+      "lang": "en",
+      "id": "settings-feedback-error-en",
+      "rawEqual": false,
+      "currentSha256": "e244a969d5263bd8292873769b3f4523b3e967ab6f5abb070508364ba66da6cb",
+      "originalSha256": "4b48565edbade67168cb8bc7a57a62103fc168101de20ae92168819b6f96f642"
+    },
+    {
+      "state": "settings-feedback-canceled",
+      "lang": "en",
+      "id": "settings-feedback-canceled-en",
+      "rawEqual": false,
+      "currentSha256": "82a4f94705ce54a125fd7adfd0fb37c37f4d985b87544a2eee68842e5fa3589c",
+      "originalSha256": "c4a1bb0e37700ed5692403a4083d987b5cee531a9a9dd286a18f0fd8576cfb08"
+    },
+    {
+      "state": "settings-update-idle",
+      "lang": "en",
+      "id": "settings-update-idle-en",
+      "rawEqual": false,
+      "currentSha256": "1de79dbe53d7ea4bbc5fb6996bb6bedc1412db19f0847bc98b1e94270b6993f3",
+      "originalSha256": "42b98619ac819ae32390a0094050dbfe8f7938da02d43d3059e21b094cbd567b"
+    },
+    {
+      "state": "settings-update-checking",
+      "lang": "en",
+      "id": "settings-update-checking-en",
+      "rawEqual": false,
+      "currentSha256": "4209045778402b9e8d2fc046d8d6fe60b1399b35af117e44b2bb1574f7e64c32",
+      "originalSha256": "d501f926e94bf5c9fc55055c20cb0de7a0de4d8543fe7697947c1b52925077f6"
+    },
+    {
+      "state": "settings-update-available",
+      "lang": "en",
+      "id": "settings-update-available-en",
+      "rawEqual": false,
+      "currentSha256": "3d233815eb6a4a9beffa23cdae12d37bb2c3a07a451777cb0d223979a3df7719",
+      "originalSha256": "0e6a72e78bcdec518456efb14b131c00604c64bb066032500c24404bf8754c80"
+    },
+    {
+      "state": "settings-update-downloading",
+      "lang": "en",
+      "id": "settings-update-downloading-en",
+      "rawEqual": false,
+      "currentSha256": "401334717523ece14e4221492bfbdc8cf31aed585403b4d3feacc3da9214d290",
+      "originalSha256": "bb91c5bb7f6f19a3651ccbfa15ab8b6f9b0394c0143d4f5346262b8f7ece4dd7"
+    },
+    {
+      "state": "settings-update-opening",
+      "lang": "en",
+      "id": "settings-update-opening-en",
+      "rawEqual": false,
+      "currentSha256": "66638f9189b4fb18c9a69e4f9e1d8a719531947f74f15c3a0053736c782d60dc",
+      "originalSha256": "eade408e6891ef13bac7a591b4d87eb213863ffc45341cbdb28ad12fce046065"
+    },
+    {
+      "state": "settings-update-error",
+      "lang": "en",
+      "id": "settings-update-error-en",
+      "rawEqual": false,
+      "currentSha256": "88f26acef7bf311864b89c1cf4bb77894b5d7a6179f6ca04ea796ab4270a778c",
+      "originalSha256": "d973c89408ce91215b58aa66d20f131888a7a58d38a21d8ca134a04854853b54"
+    },
+    {
+      "state": "settings-update-check-error",
+      "lang": "en",
+      "id": "settings-update-check-error-en",
+      "rawEqual": false,
+      "currentSha256": "0fff3a62875fad0e206617b1000d85b10a42a3e7d53de85913bbab6215630eb2",
+      "originalSha256": "fb4135f1d8541ea38a246d497be107b85bd16d4a4b06d0924cb6e69c14e2ab2c"
+    },
+    {
+      "state": "settings-update-download-error",
+      "lang": "en",
+      "id": "settings-update-download-error-en",
+      "rawEqual": false,
+      "currentSha256": "11f8aeac0aabb0223c1dbf7eb45664fa0e806b8ed9c065aae77c65233001c923",
+      "originalSha256": "b78206f46ae3fdd795b2b0f4c237f0ec2b23f1ac247378b0b58f6c9a504213c9"
+    },
+    {
+      "state": "settings-update-cooldown",
+      "lang": "en",
+      "id": "settings-update-cooldown-en",
+      "rawEqual": false,
+      "currentSha256": "4ee14ca243915125ad20d77ad059bb11dfbee5d89e53524d3a07a28dfe867d7f",
+      "originalSha256": "ad83e8bf4687626a1d851764187550151bd4679247c665d36e511b6d18164e70"
+    },
+    {
+      "state": "settings-complete",
+      "lang": "ja",
+      "id": "settings-complete-ja",
+      "rawEqual": false,
+      "currentSha256": "886bbabed24642967a83d932438c38affc98bba7d51637b1692534db1d52ad58",
+      "originalSha256": "8c2886c9963ca4b3ae4386f4194b877c8d509be4e68c70b4a5bd0279bd9b9e00"
+    },
+    {
+      "state": "settings-multiprofile",
+      "lang": "ja",
+      "id": "settings-multiprofile-ja",
+      "rawEqual": false,
+      "currentSha256": "4e4868e314cc95b93d355904e48e8f1adc02c8c053dbeba3c7e5bdb08f623f05",
+      "originalSha256": "8c2886c9963ca4b3ae4386f4194b877c8d509be4e68c70b4a5bd0279bd9b9e00"
+    },
+    {
+      "state": "settings-visual-loading",
+      "lang": "ja",
+      "id": "settings-visual-loading-ja",
+      "rawEqual": false,
+      "currentSha256": "b938332c0747ed8708a4b87bb0ea69dcc6ac2425fc4d7f3712be24fde2629a9b",
+      "originalSha256": "20acbb62f0fc2c94f29ead0f1584a089395d5be86b999eeb31c7e6df17a98483"
+    },
+    {
+      "state": "settings-visual-error",
+      "lang": "ja",
+      "id": "settings-visual-error-ja",
+      "rawEqual": false,
+      "currentSha256": "c6b4422fa6f45202b795579e535ce2fd54c37550f43d2a2fa7c8911bfc7e61cc",
+      "originalSha256": "e74037eddb9757f19b1990220e80372ce618364f56f94bbbd6049b1574b6f67a"
+    },
+    {
+      "state": "settings-visual-saving",
+      "lang": "ja",
+      "id": "settings-visual-saving-ja",
+      "rawEqual": false,
+      "currentSha256": "a8ff817ec8cb76b0bd0266d1915beeb09b8feeb971d8fd75e8cbf09d3016cee6",
+      "originalSha256": "3ee144708209effa9fadba5c6a0299cc4776415a9b8e2b877c67d2ca74ef6f6d"
+    },
+    {
+      "state": "settings-visual-save-error",
+      "lang": "ja",
+      "id": "settings-visual-save-error-ja",
+      "rawEqual": false,
+      "currentSha256": "92023e1d85b97eca3a26693ecc7bb90f86f4c99b0826d1084307abdd6ad2c9d0",
+      "originalSha256": "218d87d7f1d717bdb677093811ab9d18a98f478e39b30d74908bfb14094b56e7"
+    },
+    {
+      "state": "settings-feedback-preparing",
+      "lang": "ja",
+      "id": "settings-feedback-preparing-ja",
+      "rawEqual": false,
+      "currentSha256": "620bbc5d4e44caad7bcadfe335e9f3ee7fe2eb9e00b373b7a82418c0a110fbed",
+      "originalSha256": "3e4a3196fd6a9b3f8ca1914000c69705be339769d320246d6f5b97c5897fdcb4"
+    },
+    {
+      "state": "settings-feedback-exporting",
+      "lang": "ja",
+      "id": "settings-feedback-exporting-ja",
+      "rawEqual": false,
+      "currentSha256": "75bf1d99c44d273f9dcb26da1a1e77dfed2d7626a25ff148df69ecf22130956b",
+      "originalSha256": "ada4a28eb74435f4f1e813644158aea7dafbc7a41ed3920c378ad8fb527d6ef8"
+    },
+    {
+      "state": "settings-feedback-finalizing",
+      "lang": "ja",
+      "id": "settings-feedback-finalizing-ja",
+      "rawEqual": false,
+      "currentSha256": "d7342a1c7ad3254820a88105b376c5a0cc2a547dfc24a1918644c94a1bf7ad1f",
+      "originalSha256": "6e040e607702b209360bccd62ce8837ab93d49e9c3a11c1d8583e8f384e4575a"
+    },
+    {
+      "state": "settings-feedback-success",
+      "lang": "ja",
+      "id": "settings-feedback-success-ja",
+      "rawEqual": false,
+      "currentSha256": "1d3dab6e4e84e68f6297577dd25b5f36ad5ecf481746c16c1285adb2bae1caf6",
+      "originalSha256": "6f076f91e0c374fa7a1be61c98c66ce1d8782199adaeb53c40a006c1fbcb9790"
+    },
+    {
+      "state": "settings-feedback-error",
+      "lang": "ja",
+      "id": "settings-feedback-error-ja",
+      "rawEqual": false,
+      "currentSha256": "7e3646559307eb72c6532cbd4c282e2cc3c6b4e6859a20f62d7125e28275caa5",
+      "originalSha256": "48e75585fbc207379c39acb9aac8dc17e2200316e36073604dcdf3dae1370828"
+    },
+    {
+      "state": "settings-feedback-canceled",
+      "lang": "ja",
+      "id": "settings-feedback-canceled-ja",
+      "rawEqual": false,
+      "currentSha256": "db95bbdcfbe4905cab056777c22561ee87e6794f5ad2007f64675aa9d947f763",
+      "originalSha256": "3ab910fc0c624965cbd1abdd10770c7e0d454c925315fb5e388cc3e2ee0f0461"
+    },
+    {
+      "state": "settings-update-idle",
+      "lang": "ja",
+      "id": "settings-update-idle-ja",
+      "rawEqual": false,
+      "currentSha256": "3d4f66fcbe6d0fd86bf5916208c7e1320e851d9707c106a8fad1612ec4453f01",
+      "originalSha256": "ea82cde18af781181fd85c220d812ae5976aa9b3983318b03d43aec8cf6a0b48"
+    },
+    {
+      "state": "settings-update-checking",
+      "lang": "ja",
+      "id": "settings-update-checking-ja",
+      "rawEqual": false,
+      "currentSha256": "396c0acbb9f3e6e162bc8bdc1a8e2d0bb14a22ac03d419eed090ccd8e2dd704b",
+      "originalSha256": "2c82a814ac7e89f3ccd042507ca1e5792444cbb29b6c6db6acecca62c9be7e47"
+    },
+    {
+      "state": "settings-update-available",
+      "lang": "ja",
+      "id": "settings-update-available-ja",
+      "rawEqual": false,
+      "currentSha256": "10567d4172856de73b38ba84cd2e4bb264fc33ec65db7696f200f91acd3f6518",
+      "originalSha256": "dee8963f65372fd67860746b1d67d2eb1dffcd49751d6cb61726eabf4562c2a2"
+    },
+    {
+      "state": "settings-update-downloading",
+      "lang": "ja",
+      "id": "settings-update-downloading-ja",
+      "rawEqual": false,
+      "currentSha256": "1567f0d13c8da20ea22d633df3bea2259305a730e0245a17016ccac47c26dbe8",
+      "originalSha256": "f7ca4748e39de19e0cec22cbef0e6dc46911994fa9c3880585c533a6042d2bb3"
+    },
+    {
+      "state": "settings-update-opening",
+      "lang": "ja",
+      "id": "settings-update-opening-ja",
+      "rawEqual": false,
+      "currentSha256": "b82d4b910db3d48463aea0560fdb0a25ff836a6333f715623fec8fee04c0481f",
+      "originalSha256": "890a8e43a29d90cdb9a0b74c5efba789a04b947b223db67cc99880f9071f880b"
+    },
+    {
+      "state": "settings-update-error",
+      "lang": "ja",
+      "id": "settings-update-error-ja",
+      "rawEqual": false,
+      "currentSha256": "7bf285970d7a76ee1903794e45ef0546b28d8f7f7325f1151a1c9ade63a5a1f7",
+      "originalSha256": "a0b8a0c1adf8caf3277e723e8c07d8e2876642e8de3d91dbe09432cfcb29f65c"
+    },
+    {
+      "state": "settings-update-check-error",
+      "lang": "ja",
+      "id": "settings-update-check-error-ja",
+      "rawEqual": false,
+      "currentSha256": "f7fe9a3c25b4d52d7576fa855e7881ea31e469dfc4cc1781774736a83a2dbe87",
+      "originalSha256": "dff6468d916ca1404ea8281b5fc896ffb0185cb6c3f625801ce0d949172a9b28"
+    },
+    {
+      "state": "settings-update-download-error",
+      "lang": "ja",
+      "id": "settings-update-download-error-ja",
+      "rawEqual": false,
+      "currentSha256": "d8e298b4d0a96910e4e08ad29428d6cf4765380eb4abaca426dcd27e5d81c0e7",
+      "originalSha256": "fb6023445846bd011e13b339bf94a2caf3def5a46d7b8c879fc395ec3d46bd76"
+    },
+    {
+      "state": "settings-update-cooldown",
+      "lang": "ja",
+      "id": "settings-update-cooldown-ja",
+      "rawEqual": false,
+      "currentSha256": "086392e39db9dae75f0d2f1ecf47b2d6f71da39abe62ded205212e19d2bf6640",
+      "originalSha256": "c7bed51426bcb00b5d3f8e9c304b5f8afdd6164955b62912efa20752a3df7772"
+    }
+  ],
+  "pairs": [
+    {
+      "id": "settings-en-light-1280",
+      "state": "settings-complete",
+      "lang": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "id": "settings-ja-dark-1280",
+      "state": "settings-complete",
+      "lang": "ja",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "id": "settings-en-dark-375",
+      "state": "settings-complete",
+      "lang": "en",
+      "theme": "dark",
+      "width": 375,
+      "height": 1000
+    },
+    {
+      "id": "settings-ja-light-375",
+      "state": "settings-complete",
+      "lang": "ja",
+      "theme": "light",
+      "width": 375,
+      "height": 1000
+    }
+  ]
+}
