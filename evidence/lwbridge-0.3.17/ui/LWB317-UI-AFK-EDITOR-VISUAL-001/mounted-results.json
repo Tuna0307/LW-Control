@@ -1,0 +1,166 @@
+{
+  "cases": [
+    {
+      "id": "section headings en",
+      "actual": 3,
+      "expected": 3
+    },
+    {
+      "id": "name edit en",
+      "actual": "Lead editor checkpoint",
+      "expected": "Lead editor checkpoint"
+    },
+    {
+      "id": "range warning en",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "id": "progressive hides max en",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "id": "valid progressive range en",
+      "actual": 0,
+      "expected": 0
+    },
+    {
+      "id": "squad 3 en",
+      "actual": "true",
+      "expected": "true"
+    },
+    {
+      "id": "empty custom validation en",
+      "actual": "true",
+      "expected": "true"
+    },
+    {
+      "id": "valid custom name en",
+      "actual": "false",
+      "expected": "false"
+    },
+    {
+      "id": "target restored en",
+      "actual": "steel",
+      "expected": "steel"
+    },
+    {
+      "id": "hidden editor en",
+      "actual": 0,
+      "expected": 0
+    },
+    {
+      "id": "retained name en",
+      "actual": "Lead editor checkpoint",
+      "expected": "Lead editor checkpoint"
+    },
+    {
+      "id": "retained distance en",
+      "actual": "77",
+      "expected": "77"
+    },
+    {
+      "id": "retained squad en",
+      "actual": "true",
+      "expected": "true"
+    },
+    {
+      "id": "retained progressive en",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "id": "section headings ja",
+      "actual": 3,
+      "expected": 3
+    },
+    {
+      "id": "name edit ja",
+      "actual": "Lead editor checkpoint",
+      "expected": "Lead editor checkpoint"
+    },
+    {
+      "id": "range warning ja",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "id": "progressive hides max ja",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "id": "valid progressive range ja",
+      "actual": 0,
+      "expected": 0
+    },
+    {
+      "id": "squad 3 ja",
+      "actual": "true",
+      "expected": "true"
+    },
+    {
+      "id": "empty custom validation ja",
+      "actual": "true",
+      "expected": "true"
+    },
+    {
+      "id": "valid custom name ja",
+      "actual": "false",
+      "expected": "false"
+    },
+    {
+      "id": "target restored ja",
+      "actual": "steel",
+      "expected": "steel"
+    },
+    {
+      "id": "hidden editor ja",
+      "actual": 0,
+      "expected": 0
+    },
+    {
+      "id": "retained name ja",
+      "actual": "Lead editor checkpoint",
+      "expected": "Lead editor checkpoint"
+    },
+    {
+      "id": "retained distance ja",
+      "actual": "77",
+      "expected": "77"
+    },
+    {
+      "id": "retained squad ja",
+      "actual": "true",
+      "expected": "true"
+    },
+    {
+      "id": "retained progressive ja",
+      "actual": true,
+      "expected": true
+    }
+  ],
+  "consoleIssues": [],
+  "screenshots": [
+    {
+      "screenshot": "mounted-en-1280.png",
+      "sha256": "84fe9b7a4b5cf49f6b613c4d47e90f1eb15663b26a131e3592b89ffc373ad613",
+      "viewport": [
+        1280,
+        900
+      ],
+      "documentWidth": 1280
+    },
+    {
+      "screenshot": "mounted-ja-375.png",
+      "sha256": "409e242760657cbc7a7f3d8032dc35a66fcea2f0a9b5802bbc4df4228d575229",
+      "viewport": [
+        375,
+        1000
+      ],
+      "documentWidth": 375
+    }
+  ],
+  "scope": "Mounted canonical offline preview controls only. No native/gameplay actions."
+}

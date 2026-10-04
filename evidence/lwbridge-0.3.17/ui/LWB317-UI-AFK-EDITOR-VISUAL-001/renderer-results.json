@@ -1,0 +1,183 @@
+{
+  "baseline": false,
+  "sourceLocator": {
+    "asset": "SquadPanel-HC3-DJei.js",
+    "assetSha256": "ed466e353aa896d8c3fc783ff1802930156fb9e9eb54327aef73f2ff86fa06c7",
+    "editorUtf8Start": 44257,
+    "editorUtf8End": 50535,
+    "editorSha256": "0574d30268196555e512fffba78724009a62055e4aac90546e8c6bd8af9862bf",
+    "joinUtf8Start": 20099
+  },
+  "currentSha256": "9a6fec76b71513f975f1669de82b7dfcb1be65e9c483c37e7d4aca54f0e5919e",
+  "cases": [
+    {
+      "id": "default",
+      "language": "en",
+      "equal": true,
+      "originalSha256": "168fae2cf93d65e4fe73d7d31d92c0185cdf7b66ca8589cb03a9c23ab85ca708",
+      "currentSha256": "168fae2cf93d65e4fe73d7d31d92c0185cdf7b66ca8589cb03a9c23ab85ca708"
+    },
+    {
+      "id": "new",
+      "language": "en",
+      "equal": true,
+      "originalSha256": "3228d06de72efdd02e509bd6114279a5aed5e3d0f27bee00a7356f37d7861fec",
+      "currentSha256": "3228d06de72efdd02e509bd6114279a5aed5e3d0f27bee00a7356f37d7861fec"
+    },
+    {
+      "id": "filters",
+      "language": "en",
+      "equal": true,
+      "originalSha256": "dd4cd6db5522964049028ac9e042e71e1cdc43b7880940e18ade4443146ad688",
+      "currentSha256": "dd4cd6db5522964049028ac9e042e71e1cdc43b7880940e18ade4443146ad688"
+    },
+    {
+      "id": "progressive",
+      "language": "en",
+      "equal": true,
+      "originalSha256": "0268073fe8cd96e53d0a4d1df0c427804f342e41cfa7b1f6b7dec78db299bc8d",
+      "currentSha256": "0268073fe8cd96e53d0a4d1df0c427804f342e41cfa7b1f6b7dec78db299bc8d"
+    },
+    {
+      "id": "warning",
+      "language": "en",
+      "equal": true,
+      "originalSha256": "a80557b74f343fb625ca0b7f4529c009d0bc3fd829c8ffffe1fb2fdca66827aa",
+      "currentSha256": "a80557b74f343fb625ca0b7f4529c009d0bc3fd829c8ffffe1fb2fdca66827aa"
+    },
+    {
+      "id": "custom-empty",
+      "language": "en",
+      "equal": true,
+      "originalSha256": "ce6aacf6f9cfaf0cf604b99146544658708142958308c99d211500a0cfc37bf9",
+      "currentSha256": "ce6aacf6f9cfaf0cf604b99146544658708142958308c99d211500a0cfc37bf9"
+    },
+    {
+      "id": "custom-name",
+      "language": "en",
+      "equal": true,
+      "originalSha256": "b2c7d692fc868260da6614084fa165c01b2326e4969c3d5a0f47da3c8f8424eb",
+      "currentSha256": "b2c7d692fc868260da6614084fa165c01b2326e4969c3d5a0f47da3c8f8424eb"
+    },
+    {
+      "id": "rally",
+      "language": "en",
+      "equal": true,
+      "originalSha256": "4b9626c066ac845be5c815fdd56785fa07fab747e34dbf07a27944d13521e515",
+      "currentSha256": "4b9626c066ac845be5c815fdd56785fa07fab747e34dbf07a27944d13521e515"
+    },
+    {
+      "id": "join-disabled",
+      "language": "en",
+      "equal": true,
+      "originalSha256": "6d6e2f0b8c68ac91ba8af0f8acc6b5d4cdfe0e76dbc977e22d73be1b26d03913",
+      "currentSha256": "6d6e2f0b8c68ac91ba8af0f8acc6b5d4cdfe0e76dbc977e22d73be1b26d03913"
+    },
+    {
+      "id": "join-delay",
+      "language": "en",
+      "equal": true,
+      "originalSha256": "6d03638b3f0b7bee365303a3dabb77a34b20b33b51fad3a85ed8d9ab679ff15b",
+      "currentSha256": "6d03638b3f0b7bee365303a3dabb77a34b20b33b51fad3a85ed8d9ab679ff15b"
+    },
+    {
+      "id": "join-slot",
+      "language": "en",
+      "equal": true,
+      "originalSha256": "a2a486daf18e4db8c1552c1239082e7235fa93f7df476ce4d7990650d1540a79",
+      "currentSha256": "a2a486daf18e4db8c1552c1239082e7235fa93f7df476ce4d7990650d1540a79"
+    },
+    {
+      "id": "nan",
+      "language": "en",
+      "equal": true,
+      "originalSha256": "bc3b5f511bb40ebfe88683038d1466f55bf90279ebc5e17a8dc658729e18a6a8",
+      "currentSha256": "bc3b5f511bb40ebfe88683038d1466f55bf90279ebc5e17a8dc658729e18a6a8"
+    },
+    {
+      "id": "default",
+      "language": "ja",
+      "equal": true,
+      "originalSha256": "2dda463ff1bf25438043616563f3990d2dde8196fad29c2ed5cafb46cccb09eb",
+      "currentSha256": "2dda463ff1bf25438043616563f3990d2dde8196fad29c2ed5cafb46cccb09eb"
+    },
+    {
+      "id": "new",
+      "language": "ja",
+      "equal": true,
+      "originalSha256": "403fced7cb9e4194b36b255dd782261452661958bdb7e5773cb7b397e7358143",
+      "currentSha256": "403fced7cb9e4194b36b255dd782261452661958bdb7e5773cb7b397e7358143"
+    },
+    {
+      "id": "filters",
+      "language": "ja",
+      "equal": true,
+      "originalSha256": "a856a75712d9ed69cb701e62c248edbc1c8e6187f7cfe8b05c37ce64695ebd9d",
+      "currentSha256": "a856a75712d9ed69cb701e62c248edbc1c8e6187f7cfe8b05c37ce64695ebd9d"
+    },
+    {
+      "id": "progressive",
+      "language": "ja",
+      "equal": true,
+      "originalSha256": "44c01eef789ef96fa4cf19caf846c6ce33f5b75babea62086fd7b27dfef929d0",
+      "currentSha256": "44c01eef789ef96fa4cf19caf846c6ce33f5b75babea62086fd7b27dfef929d0"
+    },
+    {
+      "id": "warning",
+      "language": "ja",
+      "equal": true,
+      "originalSha256": "261572c7c3ed8dee47812678317026a4126000c0ea0302a19e5e6555669bdc7a",
+      "currentSha256": "261572c7c3ed8dee47812678317026a4126000c0ea0302a19e5e6555669bdc7a"
+    },
+    {
+      "id": "custom-empty",
+      "language": "ja",
+      "equal": true,
+      "originalSha256": "e2f19d8fe0bbe27c1f77adfbb49bc4440e58bb49659c6498e4acc0d0a548d355",
+      "currentSha256": "e2f19d8fe0bbe27c1f77adfbb49bc4440e58bb49659c6498e4acc0d0a548d355"
+    },
+    {
+      "id": "custom-name",
+      "language": "ja",
+      "equal": true,
+      "originalSha256": "b44383d09ba95274867d85578e6033a2209bf59b9b7b4f0e9f7214f7226b2e01",
+      "currentSha256": "b44383d09ba95274867d85578e6033a2209bf59b9b7b4f0e9f7214f7226b2e01"
+    },
+    {
+      "id": "rally",
+      "language": "ja",
+      "equal": true,
+      "originalSha256": "4bb6e74ed6100740e22d87e92274063347c1bbb100dfd6a1e66e4aeb3655a877",
+      "currentSha256": "4bb6e74ed6100740e22d87e92274063347c1bbb100dfd6a1e66e4aeb3655a877"
+    },
+    {
+      "id": "join-disabled",
+      "language": "ja",
+      "equal": true,
+      "originalSha256": "31946f7497ca018c166163e990764b526aff99a77038f0e75fa2b99192749140",
+      "currentSha256": "31946f7497ca018c166163e990764b526aff99a77038f0e75fa2b99192749140"
+    },
+    {
+      "id": "join-delay",
+      "language": "ja",
+      "equal": true,
+      "originalSha256": "089a14d4c4c751143778b8d0475228ed83517a4b0fbe398053758fcc16ac8739",
+      "currentSha256": "089a14d4c4c751143778b8d0475228ed83517a4b0fbe398053758fcc16ac8739"
+    },
+    {
+      "id": "join-slot",
+      "language": "ja",
+      "equal": true,
+      "originalSha256": "5f40f4f4879b4adcdfd8f533275b21f25b5ad0604825d17c7c54351d3ce27127",
+      "currentSha256": "5f40f4f4879b4adcdfd8f533275b21f25b5ad0604825d17c7c54351d3ce27127"
+    },
+    {
+      "id": "nan",
+      "language": "ja",
+      "equal": true,
+      "originalSha256": "488a5e9e5cece44d6eacd77f7196d4e3a9a14e0263c5bfc0456046fa76e338db",
+      "currentSha256": "488a5e9e5cece44d6eacd77f7196d4e3a9a14e0263c5bfc0456046fa76e338db"
+    }
+  ],
+  "mismatches": 0
+}

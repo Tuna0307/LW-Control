@@ -1,0 +1,66 @@
+{
+  "result": "LWB317_VISUAL_FINAL_UNIT_D_AFK_SOURCE_OK",
+  "results": [
+    {
+      "name": "Garrison actual priority handlers availability runtime and source snapshot normalization",
+      "count": 10,
+      "result": "PASS"
+    },
+    {
+      "name": "actual original/current Zombie table empty gold normal unknown and supplied names",
+      "count": 4,
+      "result": "PASS"
+    },
+    {
+      "name": "explicit AFK/Assist fixture mode fencing",
+      "count": 30,
+      "result": "PASS"
+    },
+    {
+      "name": "two profile IDs and real draft error Retry/Discard",
+      "count": 5,
+      "result": "PASS"
+    },
+    {
+      "name": "actual original/current profile Delete confirmation cancel and accept",
+      "count": 2,
+      "result": "PASS"
+    },
+    {
+      "name": "actual Potion form Drill source wait-detail priority and drag predicates",
+      "count": 52,
+      "result": "PASS"
+    }
+  ],
+  "locators": {
+    "Squad.I.lt": {
+      "asset": "SquadPanel-HC3-DJei.js",
+      "utf8ByteOffset": 34009,
+      "utf8ByteLength": 246,
+      "sha256": "824A6F9CA0138BBF6C7FEF1FC4DFDF215C1B59C87D0B8F9554E0B0BFE0C76B84"
+    },
+    "Squad.I.potion": {
+      "asset": "SquadPanel-HC3-DJei.js",
+      "utf8ByteOffset": 37041,
+      "utf8ByteLength": 789,
+      "sha256": "650037C19911156E548374EF1A9DB4AEDEAFB797F605F98F036CD37745AD4DBF"
+    },
+    "Squad.I.drill": {
+      "asset": "SquadPanel-HC3-DJei.js",
+      "utf8ByteOffset": 37831,
+      "utf8ByteLength": 1925,
+      "sha256": "205A191857C8FFB73EE7EAF5B01B670936E7A0152556842B22CBC9B9AB49EAA7"
+    }
+  },
+  "assets": [
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/SquadPanel-HC3-DJei.js",
+      "sha256": "ED466E353AA896D8C3FC783FF1802930156FB9E9EB54327AEF73F2FF86FA06C7"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/SquadsPage.jsx",
+      "sha256": "9A6FEC76B71513F975F1669DE82B7DFCB1BE65E9C483C37E7D4ACA54F0E5919E"
+    }
+  ],
+  "limits": "Campaign-owned recovered/current AFK/Garrison source replay. Handler drag proof is not physical browser drag. No native/gameplay action or protected original runtime is executed."
+}

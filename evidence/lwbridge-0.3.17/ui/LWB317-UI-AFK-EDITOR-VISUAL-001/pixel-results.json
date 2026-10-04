@@ -1,0 +1,367 @@
+{
+  "pairs": [
+    {
+      "phase": "baseline",
+      "id": "en-filters-light-1280",
+      "originalShape": [
+        900,
+        1280,
+        4
+      ],
+      "currentShape": [
+        900,
+        1280,
+        4
+      ],
+      "differentPixels": 163824
+    },
+    {
+      "phase": "baseline",
+      "id": "en-custom-empty-light-1280",
+      "originalShape": [
+        900,
+        1280,
+        4
+      ],
+      "currentShape": [
+        900,
+        1280,
+        4
+      ],
+      "differentPixels": 62795
+    },
+    {
+      "phase": "baseline",
+      "id": "en-warning-light-1280",
+      "originalShape": [
+        900,
+        1280,
+        4
+      ],
+      "currentShape": [
+        900,
+        1280,
+        4
+      ],
+      "differentPixels": 145574
+    },
+    {
+      "phase": "baseline",
+      "id": "en-join-delay-light-1280",
+      "originalShape": [
+        988,
+        1280,
+        4
+      ],
+      "currentShape": [
+        968,
+        1280,
+        4
+      ],
+      "differentPixels": null
+    },
+    {
+      "phase": "baseline",
+      "id": "ja-filters-dark-1280",
+      "originalShape": [
+        900,
+        1280,
+        4
+      ],
+      "currentShape": [
+        900,
+        1280,
+        4
+      ],
+      "differentPixels": 168183
+    },
+    {
+      "phase": "baseline",
+      "id": "ja-custom-empty-dark-1280",
+      "originalShape": [
+        900,
+        1280,
+        4
+      ],
+      "currentShape": [
+        900,
+        1280,
+        4
+      ],
+      "differentPixels": 58661
+    },
+    {
+      "phase": "baseline",
+      "id": "ja-warning-dark-1280",
+      "originalShape": [
+        900,
+        1280,
+        4
+      ],
+      "currentShape": [
+        900,
+        1280,
+        4
+      ],
+      "differentPixels": 150672
+    },
+    {
+      "phase": "baseline",
+      "id": "ja-join-delay-dark-1280",
+      "originalShape": [
+        1032,
+        1280,
+        4
+      ],
+      "currentShape": [
+        1012,
+        1280,
+        4
+      ],
+      "differentPixels": null
+    },
+    {
+      "phase": "baseline",
+      "id": "en-filters-dark-375",
+      "originalShape": [
+        1000,
+        375,
+        4
+      ],
+      "currentShape": [
+        1000,
+        375,
+        4
+      ],
+      "differentPixels": 49499
+    },
+    {
+      "phase": "baseline",
+      "id": "en-custom-empty-dark-375",
+      "originalShape": [
+        1000,
+        375,
+        4
+      ],
+      "currentShape": [
+        1000,
+        375,
+        4
+      ],
+      "differentPixels": 19925
+    },
+    {
+      "phase": "baseline",
+      "id": "ja-filters-light-375",
+      "originalShape": [
+        1000,
+        375,
+        4
+      ],
+      "currentShape": [
+        1000,
+        375,
+        4
+      ],
+      "differentPixels": 49225
+    },
+    {
+      "phase": "baseline",
+      "id": "ja-custom-empty-light-375",
+      "originalShape": [
+        1000,
+        375,
+        4
+      ],
+      "currentShape": [
+        1000,
+        375,
+        4
+      ],
+      "differentPixels": 18620
+    },
+    {
+      "phase": "current",
+      "id": "en-filters-light-1280",
+      "originalShape": [
+        900,
+        1280,
+        4
+      ],
+      "currentShape": [
+        900,
+        1280,
+        4
+      ],
+      "differentPixels": 0
+    },
+    {
+      "phase": "current",
+      "id": "en-custom-empty-light-1280",
+      "originalShape": [
+        900,
+        1280,
+        4
+      ],
+      "currentShape": [
+        900,
+        1280,
+        4
+      ],
+      "differentPixels": 0
+    },
+    {
+      "phase": "current",
+      "id": "en-warning-light-1280",
+      "originalShape": [
+        900,
+        1280,
+        4
+      ],
+      "currentShape": [
+        900,
+        1280,
+        4
+      ],
+      "differentPixels": 0
+    },
+    {
+      "phase": "current",
+      "id": "en-join-delay-light-1280",
+      "originalShape": [
+        988,
+        1280,
+        4
+      ],
+      "currentShape": [
+        988,
+        1280,
+        4
+      ],
+      "differentPixels": 0
+    },
+    {
+      "phase": "current",
+      "id": "ja-filters-dark-1280",
+      "originalShape": [
+        900,
+        1280,
+        4
+      ],
+      "currentShape": [
+        900,
+        1280,
+        4
+      ],
+      "differentPixels": 0
+    },
+    {
+      "phase": "current",
+      "id": "ja-custom-empty-dark-1280",
+      "originalShape": [
+        900,
+        1280,
+        4
+      ],
+      "currentShape": [
+        900,
+        1280,
+        4
+      ],
+      "differentPixels": 0
+    },
+    {
+      "phase": "current",
+      "id": "ja-warning-dark-1280",
+      "originalShape": [
+        900,
+        1280,
+        4
+      ],
+      "currentShape": [
+        900,
+        1280,
+        4
+      ],
+      "differentPixels": 0
+    },
+    {
+      "phase": "current",
+      "id": "ja-join-delay-dark-1280",
+      "originalShape": [
+        1032,
+        1280,
+        4
+      ],
+      "currentShape": [
+        1032,
+        1280,
+        4
+      ],
+      "differentPixels": 0
+    },
+    {
+      "phase": "current",
+      "id": "en-filters-dark-375",
+      "originalShape": [
+        1000,
+        375,
+        4
+      ],
+      "currentShape": [
+        1000,
+        375,
+        4
+      ],
+      "differentPixels": 0
+    },
+    {
+      "phase": "current",
+      "id": "en-custom-empty-dark-375",
+      "originalShape": [
+        1000,
+        375,
+        4
+      ],
+      "currentShape": [
+        1000,
+        375,
+        4
+      ],
+      "differentPixels": 0
+    },
+    {
+      "phase": "current",
+      "id": "ja-filters-light-375",
+      "originalShape": [
+        1000,
+        375,
+        4
+      ],
+      "currentShape": [
+        1000,
+        375,
+        4
+      ],
+      "differentPixels": 0
+    },
+    {
+      "phase": "current",
+      "id": "ja-custom-empty-light-375",
+      "originalShape": [
+        1000,
+        375,
+        4
+      ],
+      "currentShape": [
+        1000,
+        375,
+        4
+      ],
+      "differentPixels": 0
+    }
+  ],
+  "pillow": "12.3.0",
+  "numpy": "2.2.6",
+  "masks": []
+}

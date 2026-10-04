@@ -1,0 +1,259 @@
+{
+  "pairs": [
+    {
+      "id": "en-filters-light-1280",
+      "language": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900,
+      "original": {
+        "screenshot": "en-filters-light-1280-original.png",
+        "measurement": "en-filters-light-1280-original.json",
+        "sha256": "41fce21315b62b051618a5dd86a0050dfdd61d8c0872dc4d7fd435a2547705eb"
+      },
+      "current": {
+        "screenshot": "en-filters-light-1280-current.png",
+        "measurement": "en-filters-light-1280-current.json",
+        "sha256": "d57815b0729b5785c9b94569729c44b3e73e7872bc316125cdd09453d8a8de49"
+      },
+      "geometryAndStylesEqual": false,
+      "browserDomEqual": false,
+      "encodedPngEqual": false,
+      "masks": []
+    },
+    {
+      "id": "en-custom-empty-light-1280",
+      "language": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900,
+      "original": {
+        "screenshot": "en-custom-empty-light-1280-original.png",
+        "measurement": "en-custom-empty-light-1280-original.json",
+        "sha256": "51ce2b0fb1afd2479469e336059715915281a5a0a02befee3da2e21ad4de1e78"
+      },
+      "current": {
+        "screenshot": "en-custom-empty-light-1280-current.png",
+        "measurement": "en-custom-empty-light-1280-current.json",
+        "sha256": "baaea5e4714b4c4b2f252cd6a27a4975806800277f6f2f9c0da963f4528d7e07"
+      },
+      "geometryAndStylesEqual": false,
+      "browserDomEqual": false,
+      "encodedPngEqual": false,
+      "masks": []
+    },
+    {
+      "id": "en-warning-light-1280",
+      "language": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900,
+      "original": {
+        "screenshot": "en-warning-light-1280-original.png",
+        "measurement": "en-warning-light-1280-original.json",
+        "sha256": "e9a93a92912012e4bf1138af9172e3b041483d60e3f608d138b88e3ec9754544"
+      },
+      "current": {
+        "screenshot": "en-warning-light-1280-current.png",
+        "measurement": "en-warning-light-1280-current.json",
+        "sha256": "c3fb6290ce4bae9229e56bae86d0d35c144080993f3c6c80719c922d572ed128"
+      },
+      "geometryAndStylesEqual": false,
+      "browserDomEqual": false,
+      "encodedPngEqual": false,
+      "masks": []
+    },
+    {
+      "id": "en-join-delay-light-1280",
+      "language": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900,
+      "original": {
+        "screenshot": "en-join-delay-light-1280-original.png",
+        "measurement": "en-join-delay-light-1280-original.json",
+        "sha256": "58d8c2a2f6252efcd606d56e3de84c4c74701b6bf88935da69f382e9a164486c"
+      },
+      "current": {
+        "screenshot": "en-join-delay-light-1280-current.png",
+        "measurement": "en-join-delay-light-1280-current.json",
+        "sha256": "9ff5e26da5b3e102c2a0ec3c5a43afe7cecf92c4bec9bb2351e8cb500b85eb77"
+      },
+      "geometryAndStylesEqual": false,
+      "browserDomEqual": false,
+      "encodedPngEqual": false,
+      "masks": []
+    },
+    {
+      "id": "ja-filters-dark-1280",
+      "language": "ja",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900,
+      "original": {
+        "screenshot": "ja-filters-dark-1280-original.png",
+        "measurement": "ja-filters-dark-1280-original.json",
+        "sha256": "a49980e572cb5cbf2253fe3d55f79c9a8580aa334be5a2bf211e4793b1815300"
+      },
+      "current": {
+        "screenshot": "ja-filters-dark-1280-current.png",
+        "measurement": "ja-filters-dark-1280-current.json",
+        "sha256": "9c7ecf545836e945aad5636cdd9769e92bb5f1c1730ecc6a97a1dca18d803567"
+      },
+      "geometryAndStylesEqual": false,
+      "browserDomEqual": false,
+      "encodedPngEqual": false,
+      "masks": []
+    },
+    {
+      "id": "ja-custom-empty-dark-1280",
+      "language": "ja",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900,
+      "original": {
+        "screenshot": "ja-custom-empty-dark-1280-original.png",
+        "measurement": "ja-custom-empty-dark-1280-original.json",
+        "sha256": "831e5f2ea9ebc7c8ff7bed4f84fcd65ff39d901ef6084b08ffe764dda9480529"
+      },
+      "current": {
+        "screenshot": "ja-custom-empty-dark-1280-current.png",
+        "measurement": "ja-custom-empty-dark-1280-current.json",
+        "sha256": "cd002b9bb4dafa7e86b67f56fdb6b3b0e4c69b4bd781f20450850a3609b3c871"
+      },
+      "geometryAndStylesEqual": false,
+      "browserDomEqual": false,
+      "encodedPngEqual": false,
+      "masks": []
+    },
+    {
+      "id": "ja-warning-dark-1280",
+      "language": "ja",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900,
+      "original": {
+        "screenshot": "ja-warning-dark-1280-original.png",
+        "measurement": "ja-warning-dark-1280-original.json",
+        "sha256": "66d7d9fbfd95b378b0e7cf6e37f831205b99737e9f1b34c4ec22329177154d6d"
+      },
+      "current": {
+        "screenshot": "ja-warning-dark-1280-current.png",
+        "measurement": "ja-warning-dark-1280-current.json",
+        "sha256": "2c48f7b285da47cc763eaed8a798b5ca7d6517a529d0fe8e2faccbca602cd911"
+      },
+      "geometryAndStylesEqual": false,
+      "browserDomEqual": false,
+      "encodedPngEqual": false,
+      "masks": []
+    },
+    {
+      "id": "ja-join-delay-dark-1280",
+      "language": "ja",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900,
+      "original": {
+        "screenshot": "ja-join-delay-dark-1280-original.png",
+        "measurement": "ja-join-delay-dark-1280-original.json",
+        "sha256": "1f8e2bba3c52e323d7e8043890b90ca6c69b30d941768345861e68c5f7abff96"
+      },
+      "current": {
+        "screenshot": "ja-join-delay-dark-1280-current.png",
+        "measurement": "ja-join-delay-dark-1280-current.json",
+        "sha256": "e9787776917a7d037c29077c67307077c72e816a4ab3a986d7a68ea02b5235a3"
+      },
+      "geometryAndStylesEqual": false,
+      "browserDomEqual": false,
+      "encodedPngEqual": false,
+      "masks": []
+    },
+    {
+      "id": "en-filters-dark-375",
+      "language": "en",
+      "theme": "dark",
+      "width": 375,
+      "height": 1000,
+      "original": {
+        "screenshot": "en-filters-dark-375-original.png",
+        "measurement": "en-filters-dark-375-original.json",
+        "sha256": "3257f780d01d7aae81e58c4b0a2a44c71065e680bd7d390401200ead281c0d18"
+      },
+      "current": {
+        "screenshot": "en-filters-dark-375-current.png",
+        "measurement": "en-filters-dark-375-current.json",
+        "sha256": "e9643b98bf53d52e839b53ed0cce0d09f4c4eceddf2fff20ec79686228d2a999"
+      },
+      "geometryAndStylesEqual": false,
+      "browserDomEqual": false,
+      "encodedPngEqual": false,
+      "masks": []
+    },
+    {
+      "id": "en-custom-empty-dark-375",
+      "language": "en",
+      "theme": "dark",
+      "width": 375,
+      "height": 1000,
+      "original": {
+        "screenshot": "en-custom-empty-dark-375-original.png",
+        "measurement": "en-custom-empty-dark-375-original.json",
+        "sha256": "43142b62565367d526c7a030a359534703a83c212356de44250d7d324cada098"
+      },
+      "current": {
+        "screenshot": "en-custom-empty-dark-375-current.png",
+        "measurement": "en-custom-empty-dark-375-current.json",
+        "sha256": "c4a38a804652f65a049dcfd621162ea8a15eaf273f076b65cbeada19466a9b27"
+      },
+      "geometryAndStylesEqual": false,
+      "browserDomEqual": false,
+      "encodedPngEqual": false,
+      "masks": []
+    },
+    {
+      "id": "ja-filters-light-375",
+      "language": "ja",
+      "theme": "light",
+      "width": 375,
+      "height": 1000,
+      "original": {
+        "screenshot": "ja-filters-light-375-original.png",
+        "measurement": "ja-filters-light-375-original.json",
+        "sha256": "3517ac11236c268ad756fe0b43bb35d9a2bfb9e41acde7d80dd98bad65dc2537"
+      },
+      "current": {
+        "screenshot": "ja-filters-light-375-current.png",
+        "measurement": "ja-filters-light-375-current.json",
+        "sha256": "b760fb2e9918ccfe7e2b60d2a4595cabc364f1704a380e8b8e018d5a796f9e66"
+      },
+      "geometryAndStylesEqual": false,
+      "browserDomEqual": false,
+      "encodedPngEqual": false,
+      "masks": []
+    },
+    {
+      "id": "ja-custom-empty-light-375",
+      "language": "ja",
+      "theme": "light",
+      "width": 375,
+      "height": 1000,
+      "original": {
+        "screenshot": "ja-custom-empty-light-375-original.png",
+        "measurement": "ja-custom-empty-light-375-original.json",
+        "sha256": "5364dc7ec78990046bdce6b9d4111038501ca361812ed373c935279870fe04d5"
+      },
+      "current": {
+        "screenshot": "ja-custom-empty-light-375-current.png",
+        "measurement": "ja-custom-empty-light-375-current.json",
+        "sha256": "e64993939cbbf0d4edbaf9d495b3266c70c8c83bd924c06e516d64b4fecfe260"
+      },
+      "geometryAndStylesEqual": false,
+      "browserDomEqual": false,
+      "encodedPngEqual": false,
+      "masks": []
+    }
+  ],
+  "issues": [],
+  "playwright": "1.63.0",
+  "scope": "Exact original subtree and canonical editor, independently recovered catalogs/CSS, identical declared host, synthetic targets, no protected runtime access, no pixel masks."
+}

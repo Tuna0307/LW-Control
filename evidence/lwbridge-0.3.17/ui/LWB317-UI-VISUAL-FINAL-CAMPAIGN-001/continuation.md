@@ -4,16 +4,18 @@ Start with this progress.md and lead-checkpoint/README.md, not the worker Unit-D
 continuation. Branch research/offline-controller; historical submissions untouched.
 Four source files were corrected; source/local page evidence is now reviewable.
 
-1. Rerun lead-checkpoint/validate-read-only.mjs. Explicit manifest writer is separate.
+1. Current deliberate editor change: run ../LWB317-UI-AFK-EDITOR-VISUAL-001/validate-read-only.mjs.
+   Prior lead-checkpoint snapshot is preserved and pins the previous Squads hash.
    A/B independent replay: unit-a/lead-audit/validate-read-only.mjs. Historical City
    error is expected to fail99,918 unmasked pixels; corrected3 pairs must pass.
 2. Continue C's positive/conditional inventory. Current default56 pairs are exact.
    Construction dynamic totalBuilders/fallback20 bound is now validated in
    lead-construction (100 cases); continue the other conditional forms. Post-effect
    H/Ut seeding and actual Vr are disclosed; old C baseline without them is not an oracle.
-3. Continue D full AFK/Garrison/Profile. afk-visual/I.pretty.js holds exact pretty
+3. Continue D full AFK cards/Garrison/runtime compositions. Editor presentation
+   is now source/local accepted (24 renders,12 pixel pairs,267 behavior,28 mounted). afk-visual/I.pretty.js holds exact pretty
    original; recover actual component/state pairing before changing hypothesized
-   editor labels/headings/worker rows/profile glyphs. Equipment/compact gates pass.
+   worker rows/profile glyphs/Garrison composition. Equipment/compact gates pass.
 4. I: whole shared-shell/Home compositions and conditional menus/focus/hover states.
 5. J: eight-route/profile/modal/retention/hidden effect integration, reconcile checklist
    and rerecord affected executable proofs/build/package; do not blanket-accept from counts.

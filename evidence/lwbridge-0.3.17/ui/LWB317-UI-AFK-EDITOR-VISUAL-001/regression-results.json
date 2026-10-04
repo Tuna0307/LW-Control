@@ -1,0 +1,91 @@
+{
+  "results": [
+    {
+      "id": "afk-source",
+      "command": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\evidence\\lwbridge-0.3.17\\ui\\LWB317-UI-AFK-EDITOR-VISUAL-001\\replay-afk-current.mjs"
+      ],
+      "status": 0,
+      "stdout": "{\n  \"result\": \"LWB317_VISUAL_FINAL_UNIT_D_AFK_SOURCE_OK\",\n  \"results\": [\n    {\n      \"name\": \"Garrison actual priority handlers availability runtime and source snapshot normalization\",\n      \"count\": 10,\n      \"result\": \"PASS\"\n    },\n    {\n      \"name\": \"actual original/current Zombie table empty gold normal unknown and supplied names\",\n      \"count\": 4,\n      \"result\": \"PASS\"\n    },\n    {\n      \"name\": \"explicit AFK/Assist fixture mode fencing\",\n      \"count\": 30,\n      \"result\": \"PASS\"\n    },\n    {\n      \"name\": \"two profile IDs and real draft error Retry/Discard\",\n      \"count\": 5,\n      \"result\": \"PASS\"\n    },\n    {\n      \"name\": \"actual original/current profile Delete confirmation cancel and accept\",\n      \"count\": 2,\n      \"result\": \"PASS\"\n    },\n    {\n      \"name\": \"actual Potion form Drill source wait-detail priority and drag predicates\",\n      \"count\": 52,\n      \"result\": \"PASS\"\n    }\n  ]\n}\n",
+      "stderr": ""
+    },
+    {
+      "id": "equipment",
+      "command": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-d/replay-equipment-closeout.mjs"
+      ],
+      "status": 0,
+      "stdout": "{\n  \"result\": \"LWB317_EQUIPMENT_ACTUAL_SOURCE_OK\",\n  \"results\": [\n    {\n      \"name\": \"actual original/current snapshot counts and current-equipment predicate\",\n      \"count\": 26,\n      \"result\": \"PASS\"\n    },\n    {\n      \"name\": \"selected identity current matching mixed/unmatched and derived dirty state\",\n      \"count\": 9,\n      \"result\": \"PASS\"\n    },\n    {\n      \"name\": \"actual original/current item loadout squad transformations wrong-slot self-drop and 450ms success\",\n      \"count\": 22,\n      \"result\": \"PASS\"\n    },\n    {\n      \"name\": \"actual original/current Equipment dialog cancel busy and default no-backdrop-dismiss behavior\",\n      \"count\": 8,\n      \"result\": \"PASS\"\n    },\n    {\n      \"name\": \"actual production preset selection current-match and rename callbacks in English/Japanese\",\n      \"count\": 14,\n      \"result\": \"PASS\"\n    },\n    {\n      \"name\": \"production supplied-state partial/error/progress and action-enabled presentation\",\n      \"count\": 24,\n      \"result\": \"PASS\"\n    },\n    {\n      \"name\": \"source-located 1800ms toast cleanup and Alt+1..4 negative predicate\",\n      \"count\": 2,\n      \"result\": \"PASS\"\n    }\n  ],\n  \"limits\": \"Exact original helper execution plus nested original/current transformation and production callback proof. Browser record separately distinguishes physical HTML5 drag from DOM/handler proof. No live game or native Equipment provider is exercised.\"\n}\n",
+      "stderr": ""
+    },
+    {
+      "id": "equipment-r1",
+      "command": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-d/replay-equipment-r1.mjs"
+      ],
+      "status": 0,
+      "stdout": "{\n  \"result\": \"LWB317_EQUIPMENT_R1_ACTUAL_OK\",\n  \"results\": [\n    {\n      \"name\": \"current parent uses React Activity visible/hidden retention boundary\",\n      \"count\": 3,\n      \"result\": \"PASS\"\n    },\n    {\n      \"name\": \"actual Equipment Alt effect cleanup and single re-install\",\n      \"count\": 8,\n      \"result\": \"PASS\"\n    },\n    {\n      \"name\": \"Alt repeat/input/busy negative predicates remain inert\",\n      \"count\": 6,\n      \"result\": \"PASS\"\n    },\n    {\n      \"name\": \"recovered rename acknowledgement success/null oracle\",\n      \"count\": 4,\n      \"result\": \"PASS\"\n    },\n    {\n      \"name\": \"current rename pending acknowledgement retains busy dialog\",\n      \"count\": 4,\n      \"result\": \"PASS\"\n    },\n    {\n      \"name\": \"current rename rejection clears busy, retains dialog, and Retry acknowledges draft\",\n      \"count\": 9,\n      \"result\": \"PASS\"\n    },\n    {\n      \"name\": \"rename failure Discard restores confirmed draft and retains dialog\",\n      \"count\": 3,\n      \"result\": \"PASS\"\n    },\n    {\n      \"name\": \"already-dirty moved draft plus rename acknowledges full draft in English/Japanese\",\n      \"count\": 12,\n      \"result\": \"PASS\"\n    },\n    {\n      \"name\": \"rename blank unchanged Enter and pending-close guards\",\n      \"count\": 7,\n      \"result\": \"PASS\"\n    },\n    {\n      \"name\": \"save-only consumer shares failure and Retry acknowledgement without native provider\",\n      \"count\": 5,\n      \"result\": \"PASS\"\n    }\n  ],\n  \"source\": {\n    \"activityUtf8Byte\": 191313,\n    \"altEffectUtf8Byte\": 179906,\n    \"renameUtf8Byte\": 180434\n  },\n  \"limits\": \"Actual current callbacks/effects plus recovered original rename callback. React Activity suspension/state retention is additionally exercised in the real browser mount; no native Equipment provider, gameplay, or original post-auth pixel comparison is used.\"\n}\n",
+      "stderr": ""
+    },
+    {
+      "id": "archive",
+      "command": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "evidence/lwbridge-0.3.17/ui/LWB317-PENDING-WIP-CLOSEOUT-001/check-archive.mjs"
+      ],
+      "status": 0,
+      "stdout": "LWB317_LEGACY_WIP_ARCHIVE_OK exactFiles=10\n",
+      "stderr": ""
+    },
+    {
+      "id": "check",
+      "command": "cmd.exe",
+      "args": [
+        "/d",
+        "/c",
+        "npm.cmd --prefix src/LWBridge.UI-0.3.17 run check"
+      ],
+      "status": 0,
+      "stdout": "\n> lwbridge-ui-0.3.17@0.3.17-ui-preview check\n> node scripts/check-static.mjs && node scripts/check-home-integration.mjs && node scripts/check-map-integration.mjs && node scripts/check-ui-complete.mjs && node scripts/check-ui-drafts.mjs\n\nLWBridge 0.3.17 static UI scaffold checks passed.\nLWB317_HOME_UI_INTEGRATION_CHECKS_OK\nLWB317_MAP_UI_INTEGRATION_CHECKS_OK\nLWB317_UI_COMPLETE_CHECKS_OK 473 referenced keys {\"en\":1383,\"zh-CN\":1383,\"zh-TW\":1383,\"ja\":1383,\"ko\":1383,\"vi\":1383,\"id\":1383,\"ru\":1383,\"pt\":1383}\nLWB317_UI_DRAFT_CHECKS_OK: concurrent edits, ack, error/retry/discard, no invalid dispatch, join defaults/precision, profile independence and card validation\n",
+      "stderr": ""
+    },
+    {
+      "id": "build",
+      "command": "cmd.exe",
+      "args": [
+        "/d",
+        "/c",
+        "npm.cmd --prefix src/LWBridge.UI-0.3.17 run build"
+      ],
+      "status": 0,
+      "stdout": "\n> lwbridge-ui-0.3.17@0.3.17-ui-preview build\n> node scripts/build-production.mjs\n\nvite v7.3.6 building client environment for production...\ntransforming...\n✓ 94 modules transformed.\nrendering chunks...\ncomputing gzip size...\ndist/index.html                              0.52 kB │ gzip:   0.32 kB\ndist/.vite/manifest.json                     3.85 kB │ gzip:   0.77 kB\ndist/assets/dot-offline-CDBA2902.png         5.89 kB\ndist/assets/dot-online-gjSbTzBh.png          6.11 kB\ndist/assets/icon-warning-D9WXqS3t.png       41.05 kB\ndist/assets/index-B5AeiHlM.css             126.21 kB │ gzip:  20.89 kB\ndist/assets/previewConfigHook-BHkY3BFk.js    1.20 kB │ gzip:   0.64 kB\ndist/assets/HotkeyPages-DP0m4omC.js          7.08 kB │ gzip:   2.20 kB\ndist/assets/SettingsPage-KfD3ja43.js         8.12 kB │ gzip:   2.21 kB\ndist/assets/CityLayoutPage-BPNALvxe.js      15.71 kB │ gzip:   4.96 kB\ndist/assets/zh-CN-itVnuDKE.js               76.68 kB │ gzip:  24.56 kB\ndist/assets/zh-TW-DVthOXyu.js               76.83 kB │ gzip:  24.63 kB\ndist/assets/AutomationPage-Bcx6AoeY.js      78.35 kB │ gzip:  18.92 kB\ndist/assets/MapRoutePage-VYw-hZPG.js        78.81 kB │ gzip:  21.99 kB\ndist/assets/id-BtyGe98E.js                  83.18 kB │ gzip:  23.59 kB\ndist/assets/pt-Cul_YYVr.js                  88.30 kB │ gzip:  25.02 kB\ndist/assets/ko-DE-iQMo2.js                  89.11 kB │ gzip:  25.28 kB\ndist/assets/ja-jFyUdeaw.js                  92.76 kB │ gzip:  26.17 kB\ndist/assets/vi-fYT0cU8d.js                  95.47 kB │ gzip:  25.18 kB\ndist/assets/ru-DLfZC5wd.js                 119.26 kB │ gzip:  29.33 kB\ndist/assets/SquadsPage-BZayjxy5.js         194.55 kB │ gzip:  60.04 kB\ndist/assets/index-BsR6WsLA.js              375.58 kB │ gzip: 114.83 kB\n✓ built in 1.54s\nLWB317_PRODUCTION_UI_BUILD_OK 5516c9f01d88d940107624d056292fc4ac7217631ad553c0d3eb350ee2838c4a e319f7cf976c5882651e615ededd61e16d0c35ebe48e1a732b8f37c9063cbc9e\n",
+      "stderr": ""
+    },
+    {
+      "id": "package",
+      "command": "cmd.exe",
+      "args": [
+        "/d",
+        "/c",
+        "npm.cmd --prefix src/LWBridge.UI-0.3.17 run check:production-build"
+      ],
+      "status": 0,
+      "stdout": "\n> lwbridge-ui-0.3.17@0.3.17-ui-preview check:production-build\n> node scripts/check-production-build.mjs\n\nLWB317_PRODUCTION_UI_PACKAGE_OK 5516c9f01d88d940107624d056292fc4ac7217631ad553c0d3eb350ee2838c4a e319f7cf976c5882651e615ededd61e16d0c35ebe48e1a732b8f37c9063cbc9e\n",
+      "stderr": ""
+    },
+    {
+      "id": "diff",
+      "command": "git",
+      "args": [
+        "diff",
+        "--check"
+      ],
+      "status": 0,
+      "stdout": "",
+      "stderr": "warning: in the working copy of 'src/LWBridge.UI-0.3.17/src/SquadsPage.jsx', LF will be replaced by CRLF the next time Git touches it\n"
+    }
+  ]
+}

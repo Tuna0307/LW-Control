@@ -1,0 +1,1597 @@
+{
+  "viewport": [
+    1280,
+    900
+  ],
+  "documentWidth": 1280,
+  "html": "<section class=\"monster-afk-editor is-editing\"><div class=\"monster-afk-editor-heading\"><strong>放置設定を編集</strong><span class=\"monster-afk-mode-badge join\">同盟集結に参加</span></div><div class=\"monster-afk-config-section\"><strong>基本設定</strong><div class=\"monster-afk-basic-grid\"><label><span>設定名</span><input value=\"Fixture profile\"></label><label><span>放置ターゲット</span><select><optgroup label=\"リーダー\"><option value=\"boss\" selected=\"\">Fixture Rally Leader · リアルタイムマップ · 同盟集結に参加</option></optgroup></select></label></div><div class=\"monster-afk-custom-target\"><label class=\"monster-afk-check-row\"><input type=\"checkbox\">カスタム対象</label></div></div><section class=\"rally-join-settings\"><button type=\"button\" class=\"toggle-row\" role=\"switch\" aria-checked=\"true\" aria-label=\"集結参加条件: 有効\"><span>集結参加条件</span><span class=\"ui-switch is-on\" aria-hidden=\"true\"></span></button><fieldset><div class=\"monster-afk-basic-grid\"><label class=\"monster-afk-field-wide\">参加タイミング<select aria-label=\"参加タイミング\"><option value=\"slot\">ランダムな参加位置</option><option value=\"delay\" selected=\"\">ランダムな遅延</option></select></label><div class=\"rally-join-range\"><label>最小遅延（秒）<input type=\"number\" min=\"0\" max=\"6000\" step=\"0.01\" value=\"1\"></label><label>最大遅延（秒）<input type=\"number\" min=\"0\" max=\"6000\" step=\"0.01\" value=\"3\"></label></div><label>出発までの最大待ち時間（分、0＝無制限）<input type=\"number\" min=\"0\" step=\"1\" value=\"5\"></label><label>主催者リスト<select aria-label=\"主催者リスト\"><option value=\"off\" selected=\"\">制限なし</option><option value=\"blacklist\">ブロックリスト</option><option value=\"whitelist\">許可リスト</option></select></label></div><p class=\"muted\">ランダムモードは集結ごとに値を1つ選びます。上下限が同じなら固定値です。自分の集結には参加しません。</p><p class=\"muted\">集結の初回検出から計時し、選ばれた時間が経過すると空きがあれば参加します。参加位置は確認しません。</p><button type=\"button\" class=\"toggle-row\" role=\"switch\" aria-checked=\"false\" aria-label=\"英雄1人の主催者を除外: 無効\"><span>英雄1人の主催者を除外</span><span class=\"ui-switch\" aria-hidden=\"true\"></span></button><button type=\"button\" class=\"toggle-row\" role=\"switch\" aria-checked=\"true\" aria-label=\"追放された集結に再参加しない: 有効\"><span>追放された集結に再参加しない</span><span class=\"ui-switch is-on\" aria-hidden=\"true\"></span></button></fieldset></section><div class=\"monster-afk-config-section\"><strong>実行設定</strong><div class=\"monster-afk-basic-grid monster-afk-execution-grid\"><div class=\"monster-afk-squad-field\"><span>部隊タスク割り当て</span><div class=\"monster-afk-squads\" role=\"group\" aria-label=\"部隊タスク割り当て\"><button class=\"monster-afk-squad-toggle\" type=\"button\" aria-label=\"第1部隊\" aria-pressed=\"true\">1</button><button class=\"monster-afk-squad-toggle\" type=\"button\" aria-label=\"第2部隊\" aria-pressed=\"false\">2</button><button class=\"monster-afk-squad-toggle\" type=\"button\" aria-label=\"第3部隊\" aria-pressed=\"false\">3</button><button class=\"monster-afk-squad-toggle\" type=\"button\" aria-label=\"第4部隊\" aria-pressed=\"false\">4</button></div></div><label title=\"部隊ごとに個別集計し、攻撃または集結参加を完了して帰還すると1回加算します。0は無限ループです\"><span>実行回数（0 は無制限）</span><input type=\"number\" min=\"0\" step=\"1\" value=\"0\"></label></div><label class=\"monster-afk-check-row\"><input type=\"checkbox\" checked=\"\">帰還中に次の集結へ参加</label></div><div class=\"monster-afk-config-section monster-afk-filter\"><strong>対象フィルター</strong><label class=\"monster-afk-check-row\"><input type=\"checkbox\">レベルを制限</label><label class=\"monster-afk-check-row\"><input type=\"checkbox\">距離を制限</label></div></section>",
+  "elements": [
+    {
+      "tag": "SECTION",
+      "class": "monster-afk-editor is-editing",
+      "rect": [
+        32,
+        32,
+        1216,
+        948
+      ],
+      "styles": {
+        "display": "grid",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(245, 245, 247)",
+        "backgroundColor": "rgb(40, 40, 40)",
+        "padding": "12px",
+        "margin": "0px",
+        "gap": "0px",
+        "border": "1px solid rgb(58, 58, 60)",
+        "gridTemplateColumns": "1190px"
+      }
+    },
+    {
+      "tag": "DIV",
+      "class": "monster-afk-editor-heading",
+      "rect": [
+        45,
+        45,
+        1190,
+        40
+      ],
+      "styles": {
+        "display": "flex",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(245, 245, 247)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "padding": "0px 0px 12px",
+        "margin": "0px",
+        "gap": "7px",
+        "border": "0px none rgb(245, 245, 247)",
+        "gridTemplateColumns": "none"
+      }
+    },
+    {
+      "tag": "STRONG",
+      "class": null,
+      "rect": [
+        45,
+        48.5,
+        91,
+        21
+      ],
+      "styles": {
+        "display": "block",
+        "fontSize": "13px",
+        "fontWeight": "700",
+        "lineHeight": "normal",
+        "color": "rgb(245, 245, 247)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "padding": "0px",
+        "margin": "0px",
+        "gap": "normal",
+        "border": "0px none rgb(245, 245, 247)",
+        "gridTemplateColumns": "none"
+      }
+    },
+    {
+      "tag": "SPAN",
+      "class": "monster-afk-mode-badge join",
+      "rect": [
+        1133,
+        45,
+        102,
+        28
+      ],
+      "styles": {
+        "display": "block",
+        "fontSize": "12px",
+        "fontWeight": "600",
+        "lineHeight": "normal",
+        "color": "rgb(174, 174, 178)",
+        "backgroundColor": "rgb(61, 61, 61)",
+        "padding": "3px 8px",
+        "margin": "0px",
+        "gap": "normal",
+        "border": "1px solid rgb(58, 58, 60)",
+        "gridTemplateColumns": "none"
+      }
+    },
+    {
+      "tag": "DIV",
+      "class": "monster-afk-config-section",
+      "rect": [
+        45,
+        85,
+        1190,
+        161
+      ],
+      "styles": {
+        "display": "grid",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(245, 245, 247)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "padding": "12px 0px",
+        "margin": "0px",
+        "gap": "10px",
+        "border": "",
+        "gridTemplateColumns": "1190px"
+      }
+    },
+    {
+      "tag": "STRONG",
+      "class": null,
+      "rect": [
+        45,
+        98,
+        1190,
+        21
+      ],
+      "styles": {
+        "display": "block",
+        "fontSize": "13px",
+        "fontWeight": "700",
+        "lineHeight": "normal",
+        "color": "rgb(245, 245, 247)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "padding": "0px",
+        "margin": "0px",
+        "gap": "normal",
+        "border": "0px none rgb(245, 245, 247)",
+        "gridTemplateColumns": "none"
+      }
+    },
+    {
+      "tag": "DIV",
+      "class": "monster-afk-basic-grid",
+      "rect": [
+        45,
+        129,
+        1190,
+        63
+      ],
+      "styles": {
+        "display": "grid",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(245, 245, 247)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "padding": "0px",
+        "margin": "0px",
+        "gap": "8px",
+        "border": "0px none rgb(245, 245, 247)",
+        "gridTemplateColumns": "591px 591px"
+      }
+    },
+    {
+      "tag": "LABEL",
+      "class": null,
+      "rect": [
+        45,
+        129,
+        591,
+        63
+      ],
+      "styles": {
+        "display": "grid",
+        "fontSize": "13px",
+        "fontWeight": "600",
+        "lineHeight": "normal",
+        "color": "rgb(168, 168, 173)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "padding": "0px",
+        "margin": "0px",
+        "gap": "4px",
+        "border": "0px none rgb(168, 168, 173)",
+        "gridTemplateColumns": "591px"
+      }
+    },
+    {
+      "tag": "SPAN",
+      "class": null,
+      "rect": [
+        45,
+        129,
+        591,
+        21
+      ],
+      "styles": {
+        "display": "block",
+        "fontSize": "13px",
+        "fontWeight": "600",
+        "lineHeight": "normal",
+        "color": "rgb(168, 168, 173)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "padding": "0px",
+        "margin": "0px",
+        "gap": "normal",
+        "border": "0px none rgb(168, 168, 173)",
+        "gridTemplateColumns": "none"
+      }
+    },
+    {
+      "tag": "INPUT",
+      "class": null,
+      "rect": [
+        45,
+        154,
+        591,
+        38
+      ],
+      "styles": {
+        "display": "block",
+        "fontSize": "13px",
+        "fontWeight": "600",
+        "lineHeight": "normal",
+        "color": "rgb(245, 245, 247)",
+        "backgroundColor": "rgb(40, 40, 40)",
+        "padding": "8px",
+        "margin": "0px",
+        "gap": "normal",
+        "border": "1px solid rgb(58, 58, 60)",
+        "gridTemplateColumns": "none"
+      }
+    },
+    {
+      "tag": "LABEL",
+      "class": null,
+      "rect": [
+        644,
+        129,
+        591,
+        63
+      ],
+      "styles": {
+        "display": "grid",
+        "fontSize": "13px",
+        "fontWeight": "600",
+        "lineHeight": "normal",
+        "color": "rgb(168, 168, 173)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "padding": "0px",
+        "margin": "0px",
+        "gap": "4px",
+        "border": "0px none rgb(168, 168, 173)",
+        "gridTemplateColumns": "591px"
+      }
+    },
+    {
+      "tag": "SPAN",
+      "class": null,
+      "rect": [
+        644,
+        129,
+        591,
+        21
+      ],
+      "styles": {
+        "display": "block",
+        "fontSize": "13px",
+        "fontWeight": "600",
+        "lineHeight": "normal",
+        "color": "rgb(168, 168, 173)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "padding": "0px",
+        "margin": "0px",
+        "gap": "normal",
+        "border": "0px none rgb(168, 168, 173)",
+        "gridTemplateColumns": "none"
+      }
+    },
+    {
+      "tag": "SELECT",
+      "class": null,
+      "rect": [
+        644,
+        154,
+        591,
+        38
+      ],
+      "styles": {
+        "display": "block",
+        "fontSize": "13px",
+        "fontWeight": "600",
+        "lineHeight": "normal",
+        "color": "rgb(245, 245, 247)",
+        "backgroundColor": "rgb(40, 40, 40)",
+        "padding": "8px",
+        "margin": "0px",
+        "gap": "normal",
+        "border": "1px solid rgb(58, 58, 60)",
+        "gridTemplateColumns": "none"
+      }
+    },
+    {
+      "tag": "OPTGROUP",
+      "class": null,
+      "rect": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "styles": {
+        "display": "block",
+        "fontSize": "13px",
+        "fontWeight": "900",
+        "lineHeight": "normal",
+        "color": "rgb(245, 245, 247)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "padding": "0px",
+        "margin": "0px",
+        "gap": "normal",
+        "border": "0px none rgb(245, 245, 247)",
+        "gridTemplateColumns": "none"
+      }
+    },
+    {
+      "tag": "OPTION",
+      "class": null,
+      "rect": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "styles": {
+        "display": "block",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(245, 245, 247)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "padding": "0px 2px 1px",
+        "margin": "0px",
+        "gap": "6.5px",
+        "border": "0px none rgb(245, 245, 247)",
+        "gridTemplateColumns": "none"
+      }
+    },
+    {
+      "tag": "DIV",
+      "class": "monster-afk-custom-target",
+      "rect": [
+        45,
+        202,
+        1190,
+        32
+      ],
+      "styles": {
+        "display": "block",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(245, 245, 247)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "padding": "0px",
+        "margin": "0px",
+        "gap": "normal",
+        "border": "0px none rgb(245, 245, 247)",
+        "gridTemplateColumns": "none"
+      }
+    },
+    {
+      "tag": "LABEL",
+      "class": "monster-afk-check-row",
+      "rect": [
+        45,
+        202,
+        1190,
+        32
+      ],
+      "styles": {
+        "display": "flex",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(245, 245, 247)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "padding": "0px",
+        "margin": "0px",
+        "gap": "8px",
+        "border": "0px none rgb(245, 245, 247)",
+        "gridTemplateColumns": "none"
+      }
+    },
+    {
+      "tag": "INPUT",
+      "class": null,
+      "rect": [
+        45,
+        210.5,
+        15,
+        15
+      ],
+      "styles": {
+        "display": "block",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(245, 245, 247)",
+        "backgroundColor": "rgb(40, 40, 40)",
+        "padding": "0px",
+        "margin": "0px",
+        "gap": "normal",
+        "border": "0px none rgb(245, 245, 247)",
+        "gridTemplateColumns": "none"
+      }
+    },
+    {
+      "tag": "SECTION",
+      "class": "rally-join-settings",
+      "rect": [
+        45,
+        254,
+        1190,
+        426
+      ],
+      "styles": {
+        "display": "block",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(245, 245, 247)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "padding": "0px",
+        "margin": "8px 0px",
+        "gap": "normal",
+        "border": "0px none rgb(245, 245, 247)",
+        "gridTemplateColumns": "none"
+      }
+    },
+    {
+      "tag": "BUTTON",
+      "class": "toggle-row",
+      "rect": [
+        45,
+        254,
+        136,
+        32
+      ],
+      "styles": {
+        "display": "flex",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(245, 245, 247)",
+        "backgroundColor": "rgb(50, 50, 50)",
+        "padding": "4px 8px",
+        "margin": "0px",
+        "gap": "8px",
+        "border": "1px solid rgb(58, 58, 60)",
+        "gridTemplateColumns": "none"
+      }
+    },
+    {
+      "tag": "SPAN",
+      "class": null,
+      "rect": [
+        54,
+        259.5,
+        78,
+        21
+      ],
+      "styles": {
+        "display": "block",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(245, 245, 247)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "padding": "0px",
+        "margin": "0px",
+        "gap": "normal",
+        "border": "0px none rgb(245, 245, 247)",
+        "gridTemplateColumns": "none"
+      }
+    },
+    {
+      "tag": "SPAN",
+      "class": "ui-switch is-on",
+      "rect": [
+        140,
+        261,
+        32,
+        18
+      ],
+      "styles": {
+        "display": "block",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(245, 245, 247)",
+        "backgroundColor": "rgb(48, 209, 88)",
+        "padding": "0px",
+        "margin": "0px",
+        "gap": "normal",
+        "border": "1px solid rgb(40, 184, 77)",
+        "gridTemplateColumns": "none"
+      }
+    },
+    {
+      "tag": "FIELDSET",
+      "class": null,
+      "rect": [
+        45,
+        286,
+        1190,
+        394
+      ],
+      "styles": {
+        "display": "block",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(245, 245, 247)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "padding": "8px 0px 0px",
+        "margin": "0px",
+        "gap": "normal",
+        "border": "0px none rgb(245, 245, 247)",
+        "gridTemplateColumns": "none"
+      }
+    },
+    {
+      "tag": "DIV",
+      "class": "monster-afk-basic-grid",
+      "rect": [
+        45,
+        294,
+        1190,
+        205
+      ],
+      "styles": {
+        "display": "grid",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(245, 245, 247)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "padding": "0px",
+        "margin": "0px",
+        "gap": "8px",
+        "border": "0px none rgb(245, 245, 247)",
+        "gridTemplateColumns": "591px 591px"
+      }
+    },
+    {
+      "tag": "LABEL",
+      "class": "monster-afk-field-wide",
+      "rect": [
+        45,
+        294,
+        1190,
+        63
+      ],
+      "styles": {
+        "display": "grid",
+        "fontSize": "13px",
+        "fontWeight": "600",
+        "lineHeight": "normal",
+        "color": "rgb(168, 168, 173)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "padding": "0px",
+        "margin": "0px",
+        "gap": "4px",
+        "border": "0px none rgb(168, 168, 173)",
+        "gridTemplateColumns": "1190px"
+      }
+    },
+    {
+      "tag": "SELECT",
+      "class": null,
+      "rect": [
+        45,
+        319,
+        1190,
+        38
+      ],
+      "styles": {
+        "display": "block",
+        "fontSize": "13px",
+        "fontWeight": "600",
+        "lineHeight": "normal",
+        "color": "rgb(245, 245, 247)",
+        "backgroundColor": "rgb(40, 40, 40)",
+        "padding": "8px",
+        "margin": "0px",
+        "gap": "normal",
+        "border": "1px solid rgb(58, 58, 60)",
+        "gridTemplateColumns": "none"
+      }
+    },
+    {
+      "tag": "OPTION",
+      "class": null,
+      "rect": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "styles": {
+        "display": "block",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(245, 245, 247)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "padding": "0px 2px 1px",
+        "margin": "0px",
+        "gap": "6.5px",
+        "border": "0px none rgb(245, 245, 247)",
+        "gridTemplateColumns": "none"
+      }
+    },
+    {
+      "tag": "OPTION",
+      "class": null,
+      "rect": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "styles": {
+        "display": "block",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(245, 245, 247)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "padding": "0px 2px 1px",
+        "margin": "0px",
+        "gap": "6.5px",
+        "border": "0px none rgb(245, 245, 247)",
+        "gridTemplateColumns": "none"
+      }
+    },
+    {
+      "tag": "DIV",
+      "class": "rally-join-range",
+      "rect": [
+        45,
+        365,
+        591,
+        63
+      ],
+      "styles": {
+        "display": "flex",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(245, 245, 247)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "padding": "0px",
+        "margin": "0px",
+        "gap": "8px",
+        "border": "0px none rgb(245, 245, 247)",
+        "gridTemplateColumns": "none"
+      }
+    },
+    {
+      "tag": "LABEL",
+      "class": null,
+      "rect": [
+        45,
+        365,
+        291.5,
+        63
+      ],
+      "styles": {
+        "display": "grid",
+        "fontSize": "13px",
+        "fontWeight": "600",
+        "lineHeight": "normal",
+        "color": "rgb(168, 168, 173)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "padding": "0px",
+        "margin": "0px",
+        "gap": "4px",
+        "border": "0px none rgb(168, 168, 173)",
+        "gridTemplateColumns": "291.5px"
+      }
+    },
+    {
+      "tag": "INPUT",
+      "class": null,
+      "rect": [
+        45,
+        390,
+        291.5,
+        38
+      ],
+      "styles": {
+        "display": "block",
+        "fontSize": "13px",
+        "fontWeight": "600",
+        "lineHeight": "normal",
+        "color": "rgb(245, 245, 247)",
+        "backgroundColor": "rgb(40, 40, 40)",
+        "padding": "8px",
+        "margin": "0px",
+        "gap": "normal",
+        "border": "1px solid rgb(58, 58, 60)",
+        "gridTemplateColumns": "none"
+      }
+    },
+    {
+      "tag": "LABEL",
+      "class": null,
+      "rect": [
+        344.5,
+        365,
+        291.5,
+        63
+      ],
+      "styles": {
+        "display": "grid",
+        "fontSize": "13px",
+        "fontWeight": "600",
+        "lineHeight": "normal",
+        "color": "rgb(168, 168, 173)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "padding": "0px",
+        "margin": "0px",
+        "gap": "4px",
+        "border": "0px none rgb(168, 168, 173)",
+        "gridTemplateColumns": "291.5px"
+      }
+    },
+    {
+      "tag": "INPUT",
+      "class": null,
+      "rect": [
+        344.5,
+        390,
+        291.5,
+        38
+      ],
+      "styles": {
+        "display": "block",
+        "fontSize": "13px",
+        "fontWeight": "600",
+        "lineHeight": "normal",
+        "color": "rgb(245, 245, 247)",
+        "backgroundColor": "rgb(40, 40, 40)",
+        "padding": "8px",
+        "margin": "0px",
+        "gap": "normal",
+        "border": "1px solid rgb(58, 58, 60)",
+        "gridTemplateColumns": "none"
+      }
+    },
+    {
+      "tag": "LABEL",
+      "class": null,
+      "rect": [
+        644,
+        365,
+        591,
+        63
+      ],
+      "styles": {
+        "display": "grid",
+        "fontSize": "13px",
+        "fontWeight": "600",
+        "lineHeight": "normal",
+        "color": "rgb(168, 168, 173)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "padding": "0px",
+        "margin": "0px",
+        "gap": "4px",
+        "border": "0px none rgb(168, 168, 173)",
+        "gridTemplateColumns": "591px"
+      }
+    },
+    {
+      "tag": "INPUT",
+      "class": null,
+      "rect": [
+        644,
+        390,
+        591,
+        38
+      ],
+      "styles": {
+        "display": "block",
+        "fontSize": "13px",
+        "fontWeight": "600",
+        "lineHeight": "normal",
+        "color": "rgb(245, 245, 247)",
+        "backgroundColor": "rgb(40, 40, 40)",
+        "padding": "8px",
+        "margin": "0px",
+        "gap": "normal",
+        "border": "1px solid rgb(58, 58, 60)",
+        "gridTemplateColumns": "none"
+      }
+    },
+    {
+      "tag": "LABEL",
+      "class": null,
+      "rect": [
+        45,
+        436,
+        591,
+        63
+      ],
+      "styles": {
+        "display": "grid",
+        "fontSize": "13px",
+        "fontWeight": "600",
+        "lineHeight": "normal",
+        "color": "rgb(168, 168, 173)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "padding": "0px",
+        "margin": "0px",
+        "gap": "4px",
+        "border": "0px none rgb(168, 168, 173)",
+        "gridTemplateColumns": "591px"
+      }
+    },
+    {
+      "tag": "SELECT",
+      "class": null,
+      "rect": [
+        45,
+        461,
+        591,
+        38
+      ],
+      "styles": {
+        "display": "block",
+        "fontSize": "13px",
+        "fontWeight": "600",
+        "lineHeight": "normal",
+        "color": "rgb(245, 245, 247)",
+        "backgroundColor": "rgb(40, 40, 40)",
+        "padding": "8px",
+        "margin": "0px",
+        "gap": "normal",
+        "border": "1px solid rgb(58, 58, 60)",
+        "gridTemplateColumns": "none"
+      }
+    },
+    {
+      "tag": "OPTION",
+      "class": null,
+      "rect": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "styles": {
+        "display": "block",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(245, 245, 247)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "padding": "0px 2px 1px",
+        "margin": "0px",
+        "gap": "6.5px",
+        "border": "0px none rgb(245, 245, 247)",
+        "gridTemplateColumns": "none"
+      }
+    },
+    {
+      "tag": "OPTION",
+      "class": null,
+      "rect": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "styles": {
+        "display": "block",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(245, 245, 247)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "padding": "0px 2px 1px",
+        "margin": "0px",
+        "gap": "6.5px",
+        "border": "0px none rgb(245, 245, 247)",
+        "gridTemplateColumns": "none"
+      }
+    },
+    {
+      "tag": "OPTION",
+      "class": null,
+      "rect": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "styles": {
+        "display": "block",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(245, 245, 247)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "padding": "0px 2px 1px",
+        "margin": "0px",
+        "gap": "6.5px",
+        "border": "0px none rgb(245, 245, 247)",
+        "gridTemplateColumns": "none"
+      }
+    },
+    {
+      "tag": "P",
+      "class": "muted",
+      "rect": [
+        45,
+        512,
+        1190,
+        21
+      ],
+      "styles": {
+        "display": "block",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(168, 168, 173)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "padding": "0px",
+        "margin": "13px 0px",
+        "gap": "normal",
+        "border": "0px none rgb(168, 168, 173)",
+        "gridTemplateColumns": "none"
+      }
+    },
+    {
+      "tag": "P",
+      "class": "muted",
+      "rect": [
+        45,
+        546,
+        1190,
+        21
+      ],
+      "styles": {
+        "display": "block",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(168, 168, 173)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "padding": "0px",
+        "margin": "13px 0px",
+        "gap": "normal",
+        "border": "0px none rgb(168, 168, 173)",
+        "gridTemplateColumns": "none"
+      }
+    },
+    {
+      "tag": "BUTTON",
+      "class": "toggle-row",
+      "rect": [
+        45,
+        580,
+        227.015625,
+        50
+      ],
+      "styles": {
+        "display": "flex",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(245, 245, 247)",
+        "backgroundColor": "rgb(50, 50, 50)",
+        "padding": "8px",
+        "margin": "0px",
+        "gap": "8px",
+        "border": "1px solid rgb(58, 58, 60)",
+        "gridTemplateColumns": "none"
+      }
+    },
+    {
+      "tag": "SPAN",
+      "class": null,
+      "rect": [
+        54,
+        594.5,
+        137.015625,
+        21
+      ],
+      "styles": {
+        "display": "block",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(245, 245, 247)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "padding": "0px",
+        "margin": "0px",
+        "gap": "normal",
+        "border": "0px none rgb(245, 245, 247)",
+        "gridTemplateColumns": "none"
+      }
+    },
+    {
+      "tag": "SPAN",
+      "class": "ui-switch",
+      "rect": [
+        199.015625,
+        589,
+        64,
+        32
+      ],
+      "styles": {
+        "display": "block",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(245, 245, 247)",
+        "backgroundColor": "rgb(61, 61, 61)",
+        "padding": "0px",
+        "margin": "0px",
+        "gap": "normal",
+        "border": "1px solid rgb(72, 72, 74)",
+        "gridTemplateColumns": "none"
+      }
+    },
+    {
+      "tag": "BUTTON",
+      "class": "toggle-row",
+      "rect": [
+        45,
+        630,
+        272,
+        50
+      ],
+      "styles": {
+        "display": "flex",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(245, 245, 247)",
+        "backgroundColor": "rgb(50, 50, 50)",
+        "padding": "8px",
+        "margin": "0px",
+        "gap": "8px",
+        "border": "1px solid rgb(58, 58, 60)",
+        "gridTemplateColumns": "none"
+      }
+    },
+    {
+      "tag": "SPAN",
+      "class": null,
+      "rect": [
+        54,
+        644.5,
+        182,
+        21
+      ],
+      "styles": {
+        "display": "block",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(245, 245, 247)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "padding": "0px",
+        "margin": "0px",
+        "gap": "normal",
+        "border": "0px none rgb(245, 245, 247)",
+        "gridTemplateColumns": "none"
+      }
+    },
+    {
+      "tag": "SPAN",
+      "class": "ui-switch is-on",
+      "rect": [
+        244,
+        639,
+        64,
+        32
+      ],
+      "styles": {
+        "display": "block",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(245, 245, 247)",
+        "backgroundColor": "rgb(48, 209, 88)",
+        "padding": "0px",
+        "margin": "0px",
+        "gap": "normal",
+        "border": "1px solid rgb(40, 184, 77)",
+        "gridTemplateColumns": "none"
+      }
+    },
+    {
+      "tag": "DIV",
+      "class": "monster-afk-config-section",
+      "rect": [
+        45,
+        688,
+        1190,
+        161
+      ],
+      "styles": {
+        "display": "grid",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(245, 245, 247)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "padding": "12px 0px",
+        "margin": "0px",
+        "gap": "10px",
+        "border": "",
+        "gridTemplateColumns": "1190px"
+      }
+    },
+    {
+      "tag": "STRONG",
+      "class": null,
+      "rect": [
+        45,
+        701,
+        1190,
+        21
+      ],
+      "styles": {
+        "display": "block",
+        "fontSize": "13px",
+        "fontWeight": "700",
+        "lineHeight": "normal",
+        "color": "rgb(245, 245, 247)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "padding": "0px",
+        "margin": "0px",
+        "gap": "normal",
+        "border": "0px none rgb(245, 245, 247)",
+        "gridTemplateColumns": "none"
+      }
+    },
+    {
+      "tag": "DIV",
+      "class": "monster-afk-basic-grid monster-afk-execution-grid",
+      "rect": [
+        45,
+        732,
+        1190,
+        63
+      ],
+      "styles": {
+        "display": "grid",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(245, 245, 247)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "padding": "0px",
+        "margin": "0px",
+        "gap": "8px",
+        "border": "0px none rgb(245, 245, 247)",
+        "gridTemplateColumns": "591px 591px"
+      }
+    },
+    {
+      "tag": "DIV",
+      "class": "monster-afk-squad-field",
+      "rect": [
+        45,
+        734,
+        591,
+        61
+      ],
+      "styles": {
+        "display": "grid",
+        "fontSize": "13px",
+        "fontWeight": "600",
+        "lineHeight": "normal",
+        "color": "rgb(168, 168, 173)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "padding": "0px",
+        "margin": "0px",
+        "gap": "4px",
+        "border": "0px none rgb(168, 168, 173)",
+        "gridTemplateColumns": "591px"
+      }
+    },
+    {
+      "tag": "SPAN",
+      "class": null,
+      "rect": [
+        45,
+        734,
+        591,
+        21
+      ],
+      "styles": {
+        "display": "block",
+        "fontSize": "13px",
+        "fontWeight": "600",
+        "lineHeight": "normal",
+        "color": "rgb(168, 168, 173)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "padding": "0px",
+        "margin": "0px",
+        "gap": "normal",
+        "border": "0px none rgb(168, 168, 173)",
+        "gridTemplateColumns": "none"
+      }
+    },
+    {
+      "tag": "DIV",
+      "class": "monster-afk-squads",
+      "rect": [
+        45,
+        759,
+        591,
+        36
+      ],
+      "styles": {
+        "display": "flex",
+        "fontSize": "13px",
+        "fontWeight": "600",
+        "lineHeight": "normal",
+        "color": "rgb(168, 168, 173)",
+        "backgroundColor": "rgb(50, 50, 50)",
+        "padding": "3px",
+        "margin": "0px",
+        "gap": "2px",
+        "border": "1px solid rgb(58, 58, 60)",
+        "gridTemplateColumns": "none"
+      }
+    },
+    {
+      "tag": "BUTTON",
+      "class": "monster-afk-squad-toggle",
+      "rect": [
+        49,
+        763,
+        144.25,
+        28
+      ],
+      "styles": {
+        "display": "flex",
+        "fontSize": "13px",
+        "fontWeight": "700",
+        "lineHeight": "normal",
+        "color": "rgb(255, 255, 255)",
+        "backgroundColor": "rgb(0, 113, 227)",
+        "padding": "4px 6px",
+        "margin": "0px",
+        "gap": "4px",
+        "border": "0px none rgb(255, 255, 255)",
+        "gridTemplateColumns": "none"
+      }
+    },
+    {
+      "tag": "BUTTON",
+      "class": "monster-afk-squad-toggle",
+      "rect": [
+        195.25,
+        763,
+        144.25,
+        28
+      ],
+      "styles": {
+        "display": "flex",
+        "fontSize": "13px",
+        "fontWeight": "500",
+        "lineHeight": "normal",
+        "color": "rgb(168, 168, 173)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "padding": "4px 6px",
+        "margin": "0px",
+        "gap": "4px",
+        "border": "0px none rgb(168, 168, 173)",
+        "gridTemplateColumns": "none"
+      }
+    },
+    {
+      "tag": "BUTTON",
+      "class": "monster-afk-squad-toggle",
+      "rect": [
+        341.5,
+        763,
+        144.25,
+        28
+      ],
+      "styles": {
+        "display": "flex",
+        "fontSize": "13px",
+        "fontWeight": "500",
+        "lineHeight": "normal",
+        "color": "rgb(168, 168, 173)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "padding": "4px 6px",
+        "margin": "0px",
+        "gap": "4px",
+        "border": "0px none rgb(168, 168, 173)",
+        "gridTemplateColumns": "none"
+      }
+    },
+    {
+      "tag": "BUTTON",
+      "class": "monster-afk-squad-toggle",
+      "rect": [
+        487.75,
+        763,
+        144.25,
+        28
+      ],
+      "styles": {
+        "display": "flex",
+        "fontSize": "13px",
+        "fontWeight": "500",
+        "lineHeight": "normal",
+        "color": "rgb(168, 168, 173)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "padding": "4px 6px",
+        "margin": "0px",
+        "gap": "4px",
+        "border": "0px none rgb(168, 168, 173)",
+        "gridTemplateColumns": "none"
+      }
+    },
+    {
+      "tag": "LABEL",
+      "class": null,
+      "rect": [
+        644,
+        732,
+        591,
+        63
+      ],
+      "styles": {
+        "display": "grid",
+        "fontSize": "13px",
+        "fontWeight": "600",
+        "lineHeight": "normal",
+        "color": "rgb(168, 168, 173)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "padding": "0px",
+        "margin": "0px",
+        "gap": "4px",
+        "border": "0px none rgb(168, 168, 173)",
+        "gridTemplateColumns": "591px"
+      }
+    },
+    {
+      "tag": "SPAN",
+      "class": null,
+      "rect": [
+        644,
+        732,
+        591,
+        21
+      ],
+      "styles": {
+        "display": "block",
+        "fontSize": "13px",
+        "fontWeight": "600",
+        "lineHeight": "normal",
+        "color": "rgb(168, 168, 173)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "padding": "0px",
+        "margin": "0px",
+        "gap": "normal",
+        "border": "0px none rgb(168, 168, 173)",
+        "gridTemplateColumns": "none"
+      }
+    },
+    {
+      "tag": "INPUT",
+      "class": null,
+      "rect": [
+        644,
+        757,
+        591,
+        38
+      ],
+      "styles": {
+        "display": "block",
+        "fontSize": "13px",
+        "fontWeight": "600",
+        "lineHeight": "normal",
+        "color": "rgb(245, 245, 247)",
+        "backgroundColor": "rgb(40, 40, 40)",
+        "padding": "8px",
+        "margin": "0px",
+        "gap": "normal",
+        "border": "1px solid rgb(58, 58, 60)",
+        "gridTemplateColumns": "none"
+      }
+    },
+    {
+      "tag": "LABEL",
+      "class": "monster-afk-check-row",
+      "rect": [
+        45,
+        805,
+        1190,
+        32
+      ],
+      "styles": {
+        "display": "flex",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(245, 245, 247)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "padding": "0px",
+        "margin": "0px",
+        "gap": "8px",
+        "border": "0px none rgb(245, 245, 247)",
+        "gridTemplateColumns": "none"
+      }
+    },
+    {
+      "tag": "INPUT",
+      "class": null,
+      "rect": [
+        45,
+        813.5,
+        15,
+        15
+      ],
+      "styles": {
+        "display": "block",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(245, 245, 247)",
+        "backgroundColor": "rgb(40, 40, 40)",
+        "padding": "0px",
+        "margin": "0px",
+        "gap": "normal",
+        "border": "0px none rgb(245, 245, 247)",
+        "gridTemplateColumns": "none"
+      }
+    },
+    {
+      "tag": "DIV",
+      "class": "monster-afk-config-section monster-afk-filter",
+      "rect": [
+        45,
+        849,
+        1190,
+        118
+      ],
+      "styles": {
+        "display": "grid",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(245, 245, 247)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "padding": "12px 0px 0px",
+        "margin": "0px",
+        "gap": "10px",
+        "border": "",
+        "gridTemplateColumns": "1190px"
+      }
+    },
+    {
+      "tag": "STRONG",
+      "class": null,
+      "rect": [
+        45,
+        862,
+        1190,
+        21
+      ],
+      "styles": {
+        "display": "block",
+        "fontSize": "13px",
+        "fontWeight": "700",
+        "lineHeight": "normal",
+        "color": "rgb(245, 245, 247)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "padding": "0px",
+        "margin": "0px",
+        "gap": "normal",
+        "border": "0px none rgb(245, 245, 247)",
+        "gridTemplateColumns": "none"
+      }
+    },
+    {
+      "tag": "LABEL",
+      "class": "monster-afk-check-row",
+      "rect": [
+        45,
+        893,
+        1190,
+        32
+      ],
+      "styles": {
+        "display": "flex",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(245, 245, 247)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "padding": "0px",
+        "margin": "0px",
+        "gap": "8px",
+        "border": "0px none rgb(245, 245, 247)",
+        "gridTemplateColumns": "none"
+      }
+    },
+    {
+      "tag": "INPUT",
+      "class": null,
+      "rect": [
+        45,
+        901.5,
+        15,
+        15
+      ],
+      "styles": {
+        "display": "block",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(245, 245, 247)",
+        "backgroundColor": "rgb(40, 40, 40)",
+        "padding": "0px",
+        "margin": "0px",
+        "gap": "normal",
+        "border": "0px none rgb(245, 245, 247)",
+        "gridTemplateColumns": "none"
+      }
+    },
+    {
+      "tag": "LABEL",
+      "class": "monster-afk-check-row",
+      "rect": [
+        45,
+        935,
+        1190,
+        32
+      ],
+      "styles": {
+        "display": "flex",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(245, 245, 247)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "padding": "0px",
+        "margin": "0px",
+        "gap": "8px",
+        "border": "0px none rgb(245, 245, 247)",
+        "gridTemplateColumns": "none"
+      }
+    },
+    {
+      "tag": "INPUT",
+      "class": null,
+      "rect": [
+        45,
+        943.5,
+        15,
+        15
+      ],
+      "styles": {
+        "display": "block",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(245, 245, 247)",
+        "backgroundColor": "rgb(40, 40, 40)",
+        "padding": "0px",
+        "margin": "0px",
+        "gap": "normal",
+        "border": "0px none rgb(245, 245, 247)",
+        "gridTemplateColumns": "none"
+      }
+    }
+  ]
+}

@@ -7,7 +7,7 @@ Campaign: PARTIAL. Earlier worker progress is preserved in progress.worker-throu
 | A | Source/local bounded correction ACCEPTED | No global parity inference |
 | B | Submitted search-error defect corrected; focused source/local evidence validated | Whole-Map branch inventory and availability differences remain scoped |
 | C | Default seven categories collapsed/expanded56 unmasked pairs validated | Positive/conditional forms and error/history full compositions |
-| D | Equipment20 and compact AFK16 unmasked pairs validated | Full AFK/Garrison/Profile compositions |
+| D | Equipment20, compact AFK16 and editor12 unmasked pairs validated | Full AFK cards/Garrison/runtime compositions |
 | E | City finite source/local inventory validated | Loaded native assets/original runtime separate |
 | F | Hotkeys finite source/local inventory validated | OS/game execution separate |
 | G | Mini Games finite source/local inventory validated | Native solver/game producer separate |
@@ -31,3 +31,9 @@ Follow-up: Construction dynamic totalBuilders/default20 bound is now corrected a
 validated in unit-c/lead-construction (100 cases, baseline23 failures, actual EN/JA
 fields, no native actions). Earlier references to that bound as open are superseded.
 Other positive/conditional forms and AFK/shared-shell/final acceptance remain open.
+
+AFK editor follow-up: 24 exact EN/JA states, 12 exact unmasked browser pairs,
+267 behavior checks, 16 preserved callbacks, 28 mounted assertions. Accepted
+bounded editor presentation in ../LWB317-UI-AFK-EDITOR-VISUAL-001. Prior frozen
+snapshot remains historical on its exact Squads source hash; new packet validator
+verifies the inherited dependency closure and this deliberate source/status delta.

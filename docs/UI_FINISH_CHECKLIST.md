@@ -1,5 +1,15 @@
 # UI completion checklist — 2026-10-03
 
+Lead medium task, 2026-10-05: AFK profile-editor presentation is ACCEPTED for
+source/local scope: 24 exact renderer states, 12 unmasked pixel-identical pairs,
+267 behavior checks and 28 mounted assertions. Section headings, labels, Join
+ancestry, filters and range warning now match recovered source. Full AFK cards/
+Garrison/runtime, wider Automation and shell/Home/global acceptance remain open.
+See reviews/2026-10-05-LWB317-UI-AFK-EDITOR-VISUAL-001.md. Global UI remains PARTIAL.
+The prior exact frozen snapshot is preserved; use the new editor packet validator
+for this deliberate Squads source change.
+
+
 Lead focused continuation,2026-10-05: Construction dynamic builder bound is now
 source/local validated (100 cases, immutable baseline23 failures, actual EN/JA edits).
 Automation56 paired samples remain exact. Other Automation conditionals, full AFK/
