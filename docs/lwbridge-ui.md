@@ -1,5 +1,10 @@
 # LWBridge 0.3.17 UI parity plan
 
+Current worker dispatch, 2026-10-04: small MAP-MANUAL-TYPES-001 corrects only
+MMV-BEHAVIOR-001 Manual last-type deselection and subsequent empty-selection
+editing, preserving Auto and native fences. See its work item. Overall UI remains
+PARTIAL; previous comparison acceptance remains evidence-only.
+
 Latest lead checkpoint, 2026-10-04: MAP-MANUAL-VISUAL-001 is COMPLETE / ACCEPTED
 as an offline comparison packet after takeover. Twelve core/three provider cases
 retain raw differences; four inspected browser pairs have equal rectangles and

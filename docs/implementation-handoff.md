@@ -1,5 +1,11 @@
 # Current implementation/research handoff
 
+Current worker dispatch, 2026-10-04: owner relays small
+LWB317-UI-MAP-MANUAL-TYPES-001. Fix only Manual last-type/empty-selection editing;
+preserve Auto rules, request normalization, native fences and starting WIP.
+Read its work item; return for lead review after focused/browser/package proof.
+Broader visual inventory remains separate. Earlier continuation notes are historical.
+
 Latest lead continuation, 2026-10-04: MAP-MANUAL-VISUAL-001 is COMPLETE / ACCEPTED
 as a comparison packet. The interrupted worker's render/browser work was verified
 and integrity/documentation finished; no production edits. Reproduce through its
