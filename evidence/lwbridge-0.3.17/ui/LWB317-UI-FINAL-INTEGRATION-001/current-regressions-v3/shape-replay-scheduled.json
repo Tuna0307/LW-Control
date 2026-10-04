@@ -1,0 +1,13 @@
+{
+  "mode": "scheduled",
+  "source": "LWB317-UI-MAP-INTERACTIONS-001/scheduled/check-scheduled-plunder.mjs",
+  "sha256": "03dd0a42b3048fe8bb9aaf256249a94cd3fa30409ab60349fdac0c0a2d4653c0",
+  "adaptedHarnessSha256": "fe07603dfdd8d1da206cd2e52fc86f87a9fb8aa434f004c42a734a7f3ce6abd8",
+  "details": [
+    "Expose newly imported image component as the exact same historical placeholder used by original oracle, preserving structural table/controls/status proof and every 10482 render/51 mutation assertion. This legacy render replay normalizes image aria attributes; actual image/caller source parity is separately verified in the images packet."
+  ],
+  "output": [
+    "{\n  \"result\": \"LWB317_SCHEDULED_PLUNDER_SOURCE_LOCAL_OK\",\n  \"fixtureRenders\": 594,\n  \"renders\": 10482,\n  \"timeSweepRenders\": 212,\n  \"timeBoundaries\": 106,\n  \"shiftedRenders\": 18,\n  \"busyKeyRenders\": 158,\n  \"secretMatrixRenders\": 4508,\n  \"secretRewardRenders\": 1620,\n  \"truckMatrixRenders\": 3008,\n  \"truckRewardRenders\": 216,\n  \"dedupeRenders\": 144,\n  \"filterRenders\": 4,\n  \"countChecks\": 8,\n  \"dispatchErrorCases\": 432,\n  \"truckErrorCases\": 324,\n  \"interactionButtons\": 225,\n  \"interactionCases\": 12,\n  \"realGameAssetImageCases\": 18,\n  \"placeholderNormalisations\": 171,\n  \"mutationsTotal\": 51,\n  \"mutationsDetected\": 51,\n  \"usedLocaleKeys\": 62,\n  \"reactWarnings\": 0,\n  \"mutationSurvivors\": 0,\n  \"baselineFailsParity\": 3,\n  \"fixtureBranchesCovered\": 61,\n  \"seconds\": 251.1\n}"
+  ],
+  "status": "PASS"
+}

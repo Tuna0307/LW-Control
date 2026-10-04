@@ -9,12 +9,13 @@ import { GameAssetImage } from "./GameAssetImage.jsx";
 import { ToggleRow } from "./sharedPageUI.jsx";
 import { motion, AnimatePresence, useReducedMotion, equipmentMotionProps } from "./EquipmentMotion.jsx";
 
-export function SquadsPage({ previewState = "" }) {
+export function SquadsPage({ previewState = "", activeTab, onActiveTabChange }) {
   const { t } = useI18n();
   const equipmentPreview = previewState.startsWith("squads-equipment");
   const previewEnabled = previewState.startsWith("squads-profile") || equipmentPreview;
-  const [tab, setTab] = useState(equipmentPreview ? "equipment" : "afk");
-  const [visitedTabs, setVisitedTabs] = useState(() => new Set([equipmentPreview ? "equipment" : "afk"]));
+  const [localTab, setLocalTab] = useState(equipmentPreview ? "equipment" : "afk");
+  const tab = activeTab ?? localTab;
+  const [visitedTabs, setVisitedTabs] = useState(() => new Set([tab]));
   const [equipmentRefreshCount, setEquipmentRefreshCount] = useState(0);
   const equipmentOnline = equipmentPreview && previewState !== "squads-equipment-offline";
   const selectTab = (nextTab) => {
@@ -24,7 +25,8 @@ export function SquadsPage({ previewState = "" }) {
       next.add(nextTab);
       return next;
     });
-    setTab(nextTab);
+    if (onActiveTabChange) onActiveTabChange(nextTab);
+    else setLocalTab(nextTab);
   };
   return (
     <section className="panel squad-panel" data-preview-fixture={previewEnabled ? previewState : undefined} data-equipment-refresh-count={equipmentRefreshCount}>

@@ -1,0 +1,13 @@
+{
+  "mode": "navigation",
+  "source": "LWB317-UI-MAP-NAVIGATION-001/check-navigation.mjs",
+  "sha256": "f196097b5140ce24ba75e8ea92d1c1090dc9ab255602e801b358cd1f1b3135fc",
+  "adaptedHarnessSha256": "6e15a364661641b6daab44589cc7c4d4e95fd125832aa5e2f5d01bfa51639e53",
+  "details": [
+    "Resolve old harness getState(tab) to renamed uncontrolled localTab only when original tab state binding is absent; actual production selector and callback stay unchanged. All 17 requests and baseline six failures retained."
+  ],
+  "output": [
+    "LWB317_MAP_NAVIGATION_OK baseline=6 current=0 requests=17"
+  ],
+  "status": "PASS"
+}

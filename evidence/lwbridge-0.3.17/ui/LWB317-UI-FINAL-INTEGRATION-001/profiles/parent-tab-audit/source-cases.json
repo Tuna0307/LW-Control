@@ -1,0 +1,207 @@
+{
+  "marker": "LWB317_PARENT_TAB_SOURCE_CASES_OK",
+  "cases": 26,
+  "pass": true,
+  "distinguishingBaselineMismatches": 3,
+  "results": [
+    {
+      "kind": "automation",
+      "case": "single-exact-callback-ownership-order",
+      "pass": true,
+      "events": [
+        "visited",
+        "local"
+      ]
+    },
+    {
+      "kind": "automation",
+      "case": "single-profile-key-remount",
+      "pass": true,
+      "expected": "daily",
+      "currentBaseline": "daily",
+      "baselineMismatch": false
+    },
+    {
+      "kind": "automation",
+      "case": "multi-exact-callback-ownership-order",
+      "pass": true,
+      "events": [
+        "visited",
+        "parent"
+      ]
+    },
+    {
+      "kind": "automation",
+      "case": "multi-profile-key-remount",
+      "pass": true,
+      "expected": "trade",
+      "currentBaseline": "daily",
+      "baselineMismatch": true
+    },
+    {
+      "kind": "automation",
+      "case": "exact-nullish-precedence-trade",
+      "pass": true,
+      "actual": "trade"
+    },
+    {
+      "kind": "automation",
+      "case": "exact-nullish-precedence-unknown",
+      "pass": true,
+      "actual": "unknown"
+    },
+    {
+      "kind": "automation",
+      "case": "exact-nullish-precedence-null",
+      "pass": true,
+      "actual": "daily"
+    },
+    {
+      "kind": "automation",
+      "case": "exact-nullish-precedence-undefined",
+      "pass": true,
+      "actual": "daily"
+    },
+    {
+      "kind": "automation",
+      "case": "controlled-remount-visited-set",
+      "pass": true,
+      "initialVisited": [
+        "trade"
+      ]
+    },
+    {
+      "kind": "squads",
+      "case": "single-exact-callback-ownership-order",
+      "pass": true,
+      "events": [
+        "visited",
+        "local"
+      ]
+    },
+    {
+      "kind": "squads",
+      "case": "single-profile-key-remount",
+      "pass": true,
+      "expected": "afk",
+      "currentBaseline": "afk",
+      "baselineMismatch": false
+    },
+    {
+      "kind": "squads",
+      "case": "multi-exact-callback-ownership-order",
+      "pass": true,
+      "events": [
+        "visited",
+        "parent"
+      ]
+    },
+    {
+      "kind": "squads",
+      "case": "multi-profile-key-remount",
+      "pass": true,
+      "expected": "equipment",
+      "currentBaseline": "afk",
+      "baselineMismatch": true
+    },
+    {
+      "kind": "squads",
+      "case": "exact-nullish-precedence-equipment",
+      "pass": true,
+      "actual": "equipment"
+    },
+    {
+      "kind": "squads",
+      "case": "exact-nullish-precedence-unknown",
+      "pass": true,
+      "actual": "unknown"
+    },
+    {
+      "kind": "squads",
+      "case": "exact-nullish-precedence-null",
+      "pass": true,
+      "actual": "afk"
+    },
+    {
+      "kind": "squads",
+      "case": "exact-nullish-precedence-undefined",
+      "pass": true,
+      "actual": "afk"
+    },
+    {
+      "kind": "squads",
+      "case": "controlled-remount-visited-set",
+      "pass": true,
+      "initialVisited": [
+        "equipment"
+      ]
+    },
+    {
+      "kind": "map",
+      "case": "single-exact-callback-ownership-order",
+      "pass": true,
+      "events": [
+        "local",
+        "page",
+        "rows",
+        "total",
+        "loading",
+        "message"
+      ]
+    },
+    {
+      "kind": "map",
+      "case": "single-profile-key-remount",
+      "pass": true,
+      "expected": "city",
+      "currentBaseline": "city",
+      "baselineMismatch": false
+    },
+    {
+      "kind": "map",
+      "case": "multi-exact-callback-ownership-order",
+      "pass": true,
+      "events": [
+        "parent",
+        "page",
+        "rows",
+        "total",
+        "loading",
+        "message"
+      ]
+    },
+    {
+      "kind": "map",
+      "case": "multi-profile-key-remount",
+      "pass": true,
+      "expected": "train",
+      "currentBaseline": "city",
+      "baselineMismatch": true
+    },
+    {
+      "kind": "map",
+      "case": "exact-nullish-precedence-train",
+      "pass": true,
+      "actual": "train"
+    },
+    {
+      "kind": "map",
+      "case": "exact-nullish-precedence-unknown",
+      "pass": true,
+      "actual": "unknown"
+    },
+    {
+      "kind": "map",
+      "case": "exact-nullish-precedence-null",
+      "pass": true,
+      "actual": "city"
+    },
+    {
+      "kind": "map",
+      "case": "exact-nullish-precedence-undefined",
+      "pass": true,
+      "actual": "city"
+    }
+  ],
+  "limits": "Exact source expressions/callbacks and actual current initializers/props; not mounted React or native runtime proof"
+}

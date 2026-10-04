@@ -1,5 +1,7 @@
 # LWB317-UI-FINAL-INTEGRATION-001 — Lead UI finish campaign
 
+Lead checkpoint, 2026-10-04: PROFILE-TABS-001 is COMPLETE / ACCEPTED for source/local parent-owned Automation/Map/Squads selections and eight visited Automation Activity groups. Independent review, distinguishing actual mounted baseline3/current0, ten affected Map suites, Equipment/AFK/lazy regressions, real offline EN/light and JA/dark controls, package and protected-WIP checks pass. See reviews/2026-10-04-LWB317-UI-PROFILE-TABS-001.md. Overall UI remains PARTIAL. Next lead work: current finite inventory and offline source-rendered visual differential, starting with Home/Map. Native and protected-original pixels remain separate. Earlier continuation notes below are historical.
+
 Lead checkpoint, 2026-10-04: LOADING-MOTION-001 is COMPLETE / ACCEPTED for source/local lazy/preload/Suspense and exact Equipment motion. Actual mounted tests, six split chunks, 47 unchanged declarations plus reviewed motion delta, affected replays, offline browser and package checks pass. See reviews/2026-10-04-LWB317-UI-LOADING-MOTION-001.md. Overall UI remains PARTIAL; next active lead task is PROFILE-TABS-001 (three parent-owned selections and visited Automation category Activity lifetime). Native/pixel/global acceptance remains separate. Earlier entries below are historical checkpoints.
 
 

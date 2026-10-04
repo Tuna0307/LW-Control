@@ -1,0 +1,111 @@
+{
+  "marker": "LWB317_PROFILE_TABS_CONTRACT_OK",
+  "cases": 22,
+  "results": [
+    {
+      "case": "automation-nullish-undefined",
+      "pass": true
+    },
+    {
+      "case": "automation-nullish-null",
+      "pass": true
+    },
+    {
+      "case": "automation-nullish-trade",
+      "pass": true
+    },
+    {
+      "case": "automation-nullish-unknown",
+      "pass": true
+    },
+    {
+      "case": "automation-nullish-",
+      "pass": true
+    },
+    {
+      "case": "automation-local-notification-order",
+      "pass": true
+    },
+    {
+      "case": "automation-parent-notification-order",
+      "pass": true
+    },
+    {
+      "case": "squads-nullish-undefined",
+      "pass": true
+    },
+    {
+      "case": "squads-nullish-null",
+      "pass": true
+    },
+    {
+      "case": "squads-nullish-equipment",
+      "pass": true
+    },
+    {
+      "case": "squads-nullish-unknown",
+      "pass": true
+    },
+    {
+      "case": "squads-nullish-",
+      "pass": true
+    },
+    {
+      "case": "squads-local-notification-order",
+      "pass": true
+    },
+    {
+      "case": "squads-parent-notification-order",
+      "pass": true
+    },
+    {
+      "case": "map-nullish-undefined",
+      "pass": true
+    },
+    {
+      "case": "map-nullish-null",
+      "pass": true
+    },
+    {
+      "case": "map-nullish-train",
+      "pass": true
+    },
+    {
+      "case": "map-nullish-unknown",
+      "pass": true
+    },
+    {
+      "case": "map-nullish-",
+      "pass": true
+    },
+    {
+      "case": "map-local-notification-order",
+      "pass": true
+    },
+    {
+      "case": "map-parent-notification-order",
+      "pass": true
+    },
+    {
+      "case": "exact-eight-Activity-order-seven-categories-Daily-split-and-parent-route-bindings",
+      "pass": true
+    }
+  ],
+  "activityGroups": [
+    "resourceGather",
+    "trade",
+    "system",
+    "chat",
+    "resources",
+    "daily",
+    "alliance",
+    "daily"
+  ],
+  "sourceHashes": {
+    "App.jsx": "b245218e347ecdb3ebc318133b27bdf8f5cdaf8aa5f6ed7bb2ba98e643789398",
+    "AutomationPage.jsx": "3bcc104d86327bf07560850f9eef29da63275a324f9db11dbaf1fba8acb52a4d",
+    "SquadsPage.jsx": "0bd3ac149618e63645954d97d4304fb3d64a8ea84559b9de55e77d46938ddc0b",
+    "MapDataPage.jsx": "a1caaccb7c3f3a6658c65a819735c639f52494b6c708a33c0de13b281fd0e974"
+  },
+  "limits": "Actual production selectors/callbacks, JSX boundary contracts and unchanged leaf bodies against exact original contract and immutable pre-migration bodies; actual mounted profile and subscription proof is separate."
+}

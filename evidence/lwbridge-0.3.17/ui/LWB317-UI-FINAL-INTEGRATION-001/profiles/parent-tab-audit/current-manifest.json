@@ -1,0 +1,234 @@
+{
+  "scope": "Bounded parent-tab/Automation Activity correction only",
+  "hashPolicy": "LF-normalized UTF-8 text; exact JPEG bytes",
+  "reference": {
+    "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW/lwbridge-0.3.17.exe",
+    "sha256": "4e9c3113dedfd7e1a752404c6936aab304e67d7ffdb0952a5003c2ec948d6783"
+  },
+  "files": [
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/current-regressions-v3/README.md",
+      "sha256": "728ce9a1039521179bf9a6467dedb4c10b335c569487fb690a0f514516ac035b"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/current-regressions-v3/affected-results.json",
+      "sha256": "b44385e5171064b0f5bf7bb7f6d880dba30b51379f205c56041b06135c391fb5"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/current-regressions-v3/app-ownership-harness.mjs",
+      "sha256": "406f447ca533bbd32acbfd7c57984ae9793379a2def9db37545d52425aebb0da"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/current-regressions-v3/check-production-route-graph.mjs",
+      "sha256": "6cea3f4e5f76ec7d816417d3111706452f3146f913d211b6073490125c841bb4"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/current-regressions-v3/crossserver-focused-results.json",
+      "sha256": "dfce62ee6ab1bf66af62bc37daf56556da96f8589f7389907f7028f43b641dd0"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/current-regressions-v3/crossserver-regression-results.json",
+      "sha256": "5e266d1959af01b6cc0d518b1718d4f54e180e03c521f2c26ef047190ec01e0e"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/current-regressions-v3/current-route-bindings.mjs",
+      "sha256": "e13c16403ee45fd049c2d79df660cd5b61e9b15bdc1d19422dc7747b57a56b75"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/current-regressions-v3/equipment-afk-results.json",
+      "sha256": "83dfcc4d2105d57ab550516acb0a4c440bacfe4bb0999c263b01a82e7be7ac69"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/current-regressions-v3/historical-inputs.json",
+      "sha256": "1df8fd6ed341a1f2a738842ee69cbc20e1527264828bd566788d37c6c56f4e9a"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/current-regressions-v3/map-entry-app-harness.mjs",
+      "sha256": "33eefe48014218fc19fef466b3d380e455ec673e300e48f6ff222c17643226c3"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/current-regressions-v3/map-entry-focused-results.json",
+      "sha256": "773f62d8ad89b028dbb900dbadda1b013c9cfe50528e8e363e429c3f56e92b40"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/current-regressions-v3/map-ownership-results.json",
+      "sha256": "99b2025f7b95593688bc180b4f678ead739b83b6d0b22beeca42234e13cbb560"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/current-regressions-v3/map-regression-results.json",
+      "sha256": "cd6a8dc5c3b6eddadb8f6624f482495fd89f9379f3af0bda9ad1f68e047d1254"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/current-regressions-v3/map-regression-stale-harness-results.json",
+      "sha256": "0945f3cd6e87944e1fff507b107f78795e4a199b348280bf3de2f0dabb237d1a"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/current-regressions-v3/mounted-deferred-results.json",
+      "sha256": "997dfd7df47c95396cf67cbab7520996cf71af9f9dedc46e3320c91292050509"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/current-regressions-v3/production-route-graph.json",
+      "sha256": "0d411e2ce95f56986d880c65b887b085bed934f59161184bd0715d7c78201d92"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/current-regressions-v3/regression-filter-lifecycle-r1.json",
+      "sha256": "be85fa941d61e7d762fb724edeaca28b0879f335aab79a33c37ca4220c13277d"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/current-regressions-v3/replay-map-ownership.mjs",
+      "sha256": "6ca31d1e20e522b1b1f1b05432b5c7e62d969e34b70fe1d04aaf7a2c154f9d03"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/current-regressions-v3/replay-r1-redirect.mjs",
+      "sha256": "7662e337cf5b18f213411803611c81662dda37dd547a4208ba8e127e023efbe8"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/current-regressions-v3/replay-shape-adapters.mjs",
+      "sha256": "5a972487685e5cd121c49573c00b82aa03dfa53d376d10ef509c97b6c2d5c73e"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/current-regressions-v3/run-crossserver-focused.mjs",
+      "sha256": "a247a647c5c1577d8bcd5c813ad4707e30de2dffe8778d18fab30bb504e44fbe"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/current-regressions-v3/run-crossserver-regressions.mjs",
+      "sha256": "7442bcfa215c8a3011e615ea16d66ad8b497bf07ea27de7312180bec4a8de536"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/current-regressions-v3/run-equipment-afk.mjs",
+      "sha256": "cc033ac9b8c399b9ce0da3472f5cfe3d6d6a120d4124bec755efabe60fad8f0d"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/current-regressions-v3/run-map-entry-affected.mjs",
+      "sha256": "69cd611b2482c648bdf97c902e2577f38996553a853aedd954109be54c4f4989"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/current-regressions-v3/run-map-entry-focused.mjs",
+      "sha256": "ba6fc7c0b7ec4c59f7bb5a910fb0763e58887dfa97f76a583fb2d48acc3ef0cd"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/current-regressions-v3/run-map-regressions.mjs",
+      "sha256": "fb06403620b4c364194de25c3081718ea3c7e488b8703e2ddcb9efd914166ffe"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/current-regressions-v3/run-mounted-loading.mjs",
+      "sha256": "0103c71f7025c1f50d001b0a69798de1aa42399ca1f3a4a5d723141050f86f48"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/current-regressions-v3/shape-replay-goods.json",
+      "sha256": "63af855a32420643df1bdaf21f7970c86f4355dbbd71b06ac9ee1b85bc778eb4"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/current-regressions-v3/shape-replay-navigation.json",
+      "sha256": "ea420aaf046f2b004b055b18eaa3c033a4205fdb611ae5159eb2c06f9dfaafbf"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/current-regressions-v3/shape-replay-scheduled.json",
+      "sha256": "a85d2f006f1121d163206e21c8f98ffed600ca999ba75ae5295399fa8f8dc55c"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/current-regressions-v3/validate-preservation.mjs",
+      "sha256": "e542ebfa083f3877a3426db06b90e02a760bbda222d9a99e7f4a411b1966c0ef"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/profiles/parent-tab-audit/CURRENT.md",
+      "sha256": "ea1ec4dd6cdfd60e51cf493230fde1fb73b63de3c4dc5811ce6c8acc5ab7f22a"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/profiles/parent-tab-audit/README.md",
+      "sha256": "34d088932ef528ca70a23524e50fb35dd08f60d944793051f610cc316d317005"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/profiles/parent-tab-audit/audit-baseline.json",
+      "sha256": "21ea13f31b41b122770379ad03543d45d6f8a3cf6b127093e88e67c88684b7c3"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/profiles/parent-tab-audit/browser/automation-retained-settings-en.jpg",
+      "sha256": "bfdb69300e906ac39773bc743aa7688327e29955afa4e0b922c0a63971d34e34"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/profiles/parent-tab-audit/browser/category-return.json",
+      "sha256": "2ffc02708acb7162b01e9d0a8b512e3a155c3b8c1f35735a4a5fbbce73abbba1"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/profiles/parent-tab-audit/browser/english.json",
+      "sha256": "64cb50c9a12290108237fc91def47ff09415da818cbb7c5fd4fc70bbce949e1b"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/profiles/parent-tab-audit/browser/equipment-profile-ja-dark-740.jpg",
+      "sha256": "052fc4ce970f8a18c4a67ffed03d046740760f14c20e6d2e53b464ee0bb9a07e"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/profiles/parent-tab-audit/browser/japanese.json",
+      "sha256": "08976a9ad7610132affe73e95d65e40f8017da6f416b5f592d4c382b08499c71"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/profiles/parent-tab-audit/browser/narrow-capture.json",
+      "sha256": "bbf4262de6d2a1d7bc107ca30471d4af945b06d185e1d845dc3cc97298224744"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/profiles/parent-tab-audit/browser/trade-profile-return-en.jpg",
+      "sha256": "6ab1b5c95bfb0bbd727bd1a46ee8f9e8e8959ce4ae9ed3a547e2c0d09d34e0a2"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/profiles/parent-tab-audit/category-lifetime/recover.mjs",
+      "sha256": "3205d762e64c2170236112d8ec514379b2d7eedbe0cc86e40b3e0ea034613516"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/profiles/parent-tab-audit/category-lifetime/source-contract.json",
+      "sha256": "29c8bb8156f344a43b1a01b54faa68f4a2cd2d30bb7387a6a0b04ccf0251a9a2"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/profiles/parent-tab-audit/check-current-contract.mjs",
+      "sha256": "e24f09481cdda3b5392697a33517f2c491e51adf49072a8dbd1c50f73cf464f2"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/profiles/parent-tab-audit/check-source-cases.mjs",
+      "sha256": "fd76dcbc2f2e0924d6e99f3b5be1ef7ea687b598d0fbdd83fe4c80350cb3c5ff"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/profiles/parent-tab-audit/current-contract-results.json",
+      "sha256": "7a7e72182441df292a972ee35eb2222e4f678d15776081ae394a7260047f3582"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/profiles/parent-tab-audit/independent-review.md",
+      "sha256": "cdc3c773f67d4d542a04b621e54afc39b7b68a30820590aa3e3f8b73be4aadc9"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/profiles/parent-tab-audit/mounted-current-results.json",
+      "sha256": "2dda5b608be6cb050292e22f795764092856140ece09cb387c29c8ee5321177d"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/profiles/parent-tab-audit/recover.mjs",
+      "sha256": "d091f781f0609ed674b9acece9a77db26bfd68152b7432a9bdcae6ed3b95dd50"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/profiles/parent-tab-audit/run-mounted-current.mjs",
+      "sha256": "3c32bf0f0fb7d59a1f09256609cc2616d6ca3b3239a654ae828e6515c7630583"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/profiles/parent-tab-audit/source-cases.json",
+      "sha256": "84484b7087054768a23c73e4a69e0f488d874e23895ec07ca78f66e7e8d51edb"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/profiles/parent-tab-audit/source-contract.json",
+      "sha256": "8031c6d36d82c3719ebd71d1533978ad90ef62bd71feed35baa92bee27828729"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/App.jsx",
+      "sha256": "ef1f29730b908c7129cb0be67b823207c3e099582db65beba02dddacfe729ff4"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/AutomationPage.jsx",
+      "sha256": "3bcc104d86327bf07560850f9eef29da63275a324f9db11dbaf1fba8acb52a4d"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+      "sha256": "4a5e04d37ec4a450ee9bb5578ad3feb7dcbbcf1fbf35ff5d16d2308312bacef1"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/SquadsPage.jsx",
+      "sha256": "0bd3ac149618e63645954d97d4304fb3d64a8ea84559b9de55e77d46938ddc0b"
+    }
+  ]
+}

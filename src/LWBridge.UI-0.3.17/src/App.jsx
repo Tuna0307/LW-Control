@@ -75,12 +75,12 @@ function initialAutoScanConfig(profileId, previewState) {
   return loadAutoScanConfig(profileId, window.localStorage);
 }
 
-function RetainedPages({ activeRoute, visitedRoutes, selectedProfileId, pageProps }) {
+function RetainedPages({ activeRoute, visitedRoutes, selectedProfileId, pageProps, pagePropsByRoute }) {
   return (
     <Fragment key={selectedProfileId}>
       {routes.map((route) => visitedRoutes.has(route.key) ? (
         <Activity key={route.key} mode={route.key === activeRoute ? "visible" : "hidden"}>
-          <PageForRoute routeKey={route.key} {...pageProps} />
+          <PageForRoute routeKey={route.key} {...pageProps} {...pagePropsByRoute?.[route.key]} />
         </Activity>
       ) : null)}
     </Fragment>
@@ -116,6 +116,9 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
   } : {};
   const [activeRoute, setActiveRoute] = useState(initialRoute);
   const [visitedRoutes, setVisitedRoutes] = useState(() => new Set([initialRoute()]));
+  const [automationCategory, setAutomationCategory] = useState("daily");
+  const [mapTab, setMapTab] = useState("city");
+  const [squadTab, setSquadTab] = useState("afk");
   const [, startRouteTransition] = useTransition();
   const [theme, setTheme] = useState(initialTheme);
   const [shellUpdateStatus, setShellUpdateStatus] = useState(() => initialShellUpdateStatus(backendBridge.mode, previewState));
@@ -496,6 +499,11 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
     onAutoReconnectChange: updateAutoReconnect,
     onGameRootSelect: selectGameRoot,
   };
+  const pagePropsByRoute = showProfiles ? {
+    automation: { activeCategory: automationCategory, onActiveCategoryChange: setAutomationCategory },
+    "map-data": { activeTab: mapTab, onActiveTabChange: setMapTab },
+    march: { activeTab: squadTab, onActiveTabChange: setSquadTab },
+  } : undefined;
 
   return (
     <GameAssetImageProvider readImage={nativeAssetReader}><main className="app-shell" data-reference-version="0.3.17" data-ui-project="LWBridge.UI-0.3.17">
@@ -645,6 +653,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
                 visitedRoutes={visitedRoutes}
                 selectedProfileId={selectedProfileId}
                 pageProps={pageProps}
+                pagePropsByRoute={pagePropsByRoute}
               />}
             </div>
           </Suspense>

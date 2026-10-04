@@ -1,0 +1,127 @@
+{
+  "marker": "LWB317_PROFILE_TABS_MOUNTED_OK",
+  "baselineRevision": "307b13ca97840077ebf649eceb1caefc670fb052",
+  "sourceHashes": {
+    "App.jsx": "b245218e347ecdb3ebc318133b27bdf8f5cdaf8aa5f6ed7bb2ba98e643789398",
+    "AutomationPage.jsx": "3bcc104d86327bf07560850f9eef29da63275a324f9db11dbaf1fba8acb52a4d",
+    "SquadsPage.jsx": "0bd3ac149618e63645954d97d4304fb3d64a8ea84559b9de55e77d46938ddc0b",
+    "MapDataPage.jsx": "a1caaccb7c3f3a6658c65a819735c639f52494b6c708a33c0de13b281fd0e974"
+  },
+  "cases": [
+    {
+      "case": "immutable-baseline-profile-A-to-B",
+      "pass": true,
+      "actual": [
+        "Daily Tasks",
+        "City",
+        "AFK Tasks"
+      ],
+      "expected": [
+        "Trade Station",
+        "Train",
+        "Equipment Schemes"
+      ],
+      "distinguishingFailures": 3,
+      "childProfileKeyRemount": true,
+      "childQueryReset": true
+    },
+    {
+      "case": "current-A-to-B-to-A-and-independent-selections",
+      "pass": true,
+      "actual": [
+        "Trade Station",
+        "Train",
+        "Equipment Schemes"
+      ],
+      "expected": [
+        "Trade Station",
+        "Train",
+        "Equipment Schemes"
+      ],
+      "distinguishingFailures": 0,
+      "childProfileKeyRemount": true,
+      "childQueryReset": true
+    },
+    {
+      "case": "single-profile-uncontrolled-retention-preview-start-nullish-and-controlled-precedence",
+      "pass": true
+    },
+    {
+      "case": "baseline-all-categories-mount-and-hidden-subscriptions",
+      "pass": true,
+      "createdBefore": 24,
+      "activeBefore": [
+        "automation:automation-trade-positive:Auto Training",
+        "automation:automation-trade-positive:Automatic Construction",
+        "automation:automation-trade-positive:Free Stamina",
+        "automation:automation-trade-positive:Automatic Treatment",
+        "automation:automation-trade-positive:Trucks",
+        "automation:automation-trade-positive:Secret Task",
+        "automation:automation-trade-positive:Ghost Ops",
+        "automation:automation-trade-positive:Alliance Tech Donations",
+        "automation:automation-trade-positive:Automatic Official Application",
+        "automation:automation-trade-positive:Automatic Alliance Train Boarding",
+        "automation:automation-trade-positive:Alliance Help",
+        "automation:automation-trade-positive:Alliance Gifts",
+        "automation:automation-trade-positive:Excavation Stronghold Resources",
+        "automation:automation-trade-positive:Alliance Center Resources",
+        "automation:automation-trade-positive:Alliance Gathering Dispatch",
+        "automation:gather:automation-trade-positive",
+        "automation:automation-trade-positive:Building Resource Collection",
+        "automation:automation-trade-positive:Armed Truck",
+        "automation:automation-trade-positive:Red Packet",
+        "automation:automation-trade-positive:Fireworks / Egg",
+        "automation:automation-trade-positive:Treasure",
+        "automation:trade:automation-trade-positive",
+        "automation:automation-trade-positive:Weekend Shield",
+        "automation:automation-trade-positive:Attack Shield"
+      ],
+      "during": [
+        "automation:automation-trade-positive:Auto Training",
+        "automation:automation-trade-positive:Automatic Construction",
+        "automation:automation-trade-positive:Free Stamina",
+        "automation:automation-trade-positive:Automatic Treatment",
+        "automation:automation-trade-positive:Trucks",
+        "automation:automation-trade-positive:Secret Task",
+        "automation:automation-trade-positive:Ghost Ops",
+        "automation:automation-trade-positive:Alliance Tech Donations",
+        "automation:automation-trade-positive:Automatic Official Application",
+        "automation:automation-trade-positive:Automatic Alliance Train Boarding",
+        "automation:automation-trade-positive:Alliance Help",
+        "automation:automation-trade-positive:Alliance Gifts",
+        "automation:automation-trade-positive:Excavation Stronghold Resources",
+        "automation:automation-trade-positive:Alliance Center Resources",
+        "automation:automation-trade-positive:Alliance Gathering Dispatch",
+        "automation:gather:automation-trade-positive",
+        "automation:automation-trade-positive:Building Resource Collection",
+        "automation:automation-trade-positive:Armed Truck",
+        "automation:automation-trade-positive:Red Packet",
+        "automation:automation-trade-positive:Fireworks / Egg",
+        "automation:automation-trade-positive:Treasure",
+        "automation:trade:automation-trade-positive",
+        "automation:automation-trade-positive:Weekend Shield",
+        "automation:automation-trade-positive:Attack Shield"
+      ]
+    },
+    {
+      "case": "current-visited-only-hidden-suspend-state-retain-and-unmount",
+      "pass": true,
+      "createdBefore": 7,
+      "activeBefore": [
+        "automation:automation-trade-positive:Auto Training",
+        "automation:automation-trade-positive:Automatic Construction",
+        "automation:automation-trade-positive:Automatic Treatment",
+        "automation:automation-trade-positive:Free Stamina",
+        "automation:automation-trade-positive:Ghost Ops",
+        "automation:automation-trade-positive:Secret Task",
+        "automation:automation-trade-positive:Trucks"
+      ],
+      "during": [
+        "automation:trade:automation-trade-positive"
+      ]
+    }
+  ],
+  "react": "19.3.0",
+  "jsdom": "27.0.0",
+  "limits": "Actual canonical App/panels/React lazy/Activity mounted in jsdom, actual local profile controls, inert absent bridge. Subscription-only observer retains actual config stores and leaf callbacks. No native/game/service action, original protected runtime or pixel proof."
+}

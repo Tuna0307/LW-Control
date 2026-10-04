@@ -1,0 +1,309 @@
+{
+  "original": {
+    "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-BVfnK1wp.js",
+    "sha256": "44C4E4043825B7DB296B64171951B27176F8850FF8D7D337CC991DF4765524C6",
+    "defaultConstants": [
+      {
+        "utf8ByteOffset": 358459,
+        "utf8ByteLength": 22,
+        "sha256": "0955D40BBD0B5EFE1C1AF57A277FF15DF6D3F6ED49632525EF2E58FBA7412E5D",
+        "text": "mi=[`afk`,`equipment`]"
+      },
+      {
+        "utf8ByteOffset": 358482,
+        "utf8ByteLength": 8,
+        "sha256": "9F89970F3159AD485FD88F7E291939F7DB906C5C3952207CC734F74036F573A6",
+        "text": "hi=mi[0]"
+      }
+    ],
+    "parentStates": [
+      {
+        "utf8ByteOffset": 363161,
+        "utf8ByteLength": 30,
+        "sha256": "3396F141BD11A2ACA562C6EB5D8EEFC51B27BC1E07B51D606C769D9AFF8BC47D",
+        "text": "[Ge,P]=(0,b.useState)(`daily`)"
+      },
+      {
+        "utf8ByteOffset": 363192,
+        "utf8ByteLength": 30,
+        "sha256": "3E616E49FE9AE96362B8966B48572EF868CF4757E762B8CA48DDF34854D4EC1F",
+        "text": "[Ke,qe]=(0,b.useState)(`city`)"
+      },
+      {
+        "utf8ByteOffset": 363223,
+        "utf8ByteLength": 26,
+        "sha256": "1B332E5919284D292C4DC1B82F519325E7000E25604B2D30B6977D1D60E9B92D",
+        "text": "[Je,Ye]=(0,b.useState)(hi)"
+      }
+    ],
+    "parentReferences": {
+      "Ge": [
+        {
+          "utf8ByteOffset": 373839,
+          "utf8ByteLength": 2,
+          "sha256": "954EDBBC5F5C2074629BD1C9F2D76EBFFD42111688E6782D8EBE3A1E28D08652",
+          "text": "Ge"
+        }
+      ],
+      "P": [
+        {
+          "utf8ByteOffset": 373875,
+          "utf8ByteLength": 1,
+          "sha256": "5C62E091B8C0565F1BAFAD0DAD5934276143AE2CCEF7A5381E8ADA5B1A8D26D2",
+          "text": "P"
+        }
+      ],
+      "Ke": [
+        {
+          "utf8ByteOffset": 374482,
+          "utf8ByteLength": 2,
+          "sha256": "BF28A0F6E727216572F71B0F4A91426AEF27834E7A6499775940B2A0D8003CA7",
+          "text": "Ke"
+        }
+      ],
+      "qe": [
+        {
+          "utf8ByteOffset": 374513,
+          "utf8ByteLength": 2,
+          "sha256": "B9D5D8EAF27E55734042AE02207CB3683EA4E63297E443545DF80FA767E6F0E4",
+          "text": "qe"
+        }
+      ],
+      "Je": [
+        {
+          "utf8ByteOffset": 374759,
+          "utf8ByteLength": 2,
+          "sha256": "3D3AF356DBEF167672A2A8D2AB5D04EE26063A00E518FF5D9A7DADE2D6D77A9C",
+          "text": "Je"
+        }
+      ],
+      "Ye": [
+        {
+          "utf8ByteOffset": 374790,
+          "utf8ByteLength": 2,
+          "sha256": "C58B234192744AD5349D08FD34CF88BBDB2F208D436CEC5E479524A2C22DA47B",
+          "text": "Ye"
+        }
+      ]
+    },
+    "multiProfile": {
+      "utf8ByteOffset": 363306,
+      "utf8ByteLength": 20,
+      "sha256": "A99FBDF420EEC5A87C9562F0B8AB19C64DDCFFEC6179AC0819FD318095ED3961",
+      "text": "rt=se(r.entitlement)"
+    },
+    "bindings": [
+      {
+        "utf8ByteOffset": 373777,
+        "utf8ByteLength": 586,
+        "sha256": "C8A944F07E388F8C6B87698032C94FDBA2639832B40B6A0F34600B309A0837AB",
+        "text": "(0,M.jsx)(Li,{profileId:r.selectedProfileId,activeCategory:rt?Ge:void 0,onActiveCategoryChange:rt?P:void 0,autoWeekendShield:k,autoAttackShield:le,online:at,busy:Ne,resourceBusy:Pe,chatBusy:Ie,config:l?.config?.tasks,redPacketConfig:l?.config?.chat_automation?.red_packet,treasureConfig:l?.config?.chat_automation?.treasure,fireworksConfig:l?.config?.chat_automation?.fireworks,tradeStationConfig:l?.config?.trade_station,status:Ee,resourceStatus:je,onToggle:It,onBackgroundToggle:Bt,onBackgroundRun:qt,onConstructionClaimAll:Yt,onInspect:Qt,onRunTask:tn,onResourceRun:$t,onChatRun:en})"
+      },
+      {
+        "utf8ByteOffset": 374455,
+        "utf8ByteLength": 191,
+        "sha256": "CFDF183D45D23F0B81D33BE0AC6432BEDBE0CE88F801BC842B427C44776FF906",
+        "text": "(0,M.jsx)(Bi,{activeTab:rt?Ke:void 0,onActiveTabChange:rt?qe:void 0,scanState:pe,summary:ge,online:at,onState:pt,onCounts:bt,onLog:F,autoScanConfig:ve,autoScanRunning:be,onAutoScanConfig:Ct})"
+      },
+      {
+        "utf8ByteOffset": 374732,
+        "utf8ByteLength": 296,
+        "sha256": "D72575560975A8200FA83730E8CAA539537AFEE965F3AC253D43CE250CD9BCF9",
+        "text": "(0,M.jsx)(Hi,{activeTab:rt?Je:void 0,onActiveTabChange:rt?Ye:void 0,online:at,serverId:pe?.serverId||0,config:l?.config?.tasks?.monsterSweep,staminaPotionConfig:l?.config?.tasks?.staminaPotion,garrisonConfig:l?.config?.tasks?.allianceGarrison,zombieBusConfig:l?.config?.tasks?.zombieBus,onLog:F})"
+      }
+    ],
+    "contextKey": [
+      {
+        "utf8ByteOffset": 372764,
+        "utf8ByteLength": 2952,
+        "sha256": "3B91B97A255AADC44DC9C17DA917AF1DE60B2D60AD37065CD0B7B930172FA0CA",
+        "text": "(0,M.jsxs)(`div`,{className:`profile-view-context`,children:[[O,ce,ue,j].map((e,n)=>(0,M.jsx)(Oe,{state:e.state,label:t([`automation.weekendShield.title`,`automation.attackShield.title`,`automation.autoReconnect.title`,`automation.autoClosePopup.title`][n])},n)),Xe?(0,M.jsx)(`div`,{className:`panel profile-switch-loading`,children:(0,M.jsx)(`span`,{className:`muted`,children:t(`common.processing`)})}):(0,M.jsxs)(M.Fragment,{children:[o.has(`overview`)&&(0,M.jsx)(b.Activity,{mode:i===`overview`?`visible`:`hidden`,children:(0,M.jsx)(qr,{proxyStatus:d,online:at,gameRecoveryStatus:w,proxyBusy:p,gameLaunchBusy:n.gameLaunchBusy,gameRootStatus:h,gameRootBusy:_,gameRootError:y,gameActionError:S,autoLaunchGame:n.autoLaunchGame,autoReconnect:de,onAutoLaunchGameChange:n.setAutoLaunchGame,onAutoReconnectChange:e=>{It(`autoForceUpdateReload`,e)},onGameRootSelect:Xt,onStartGame:Nt,onStopGame:Pt,onUpdateAndRestart:Ft})}),o.has(`automation`)&&(0,M.jsx)(b.Activity,{mode:i===`automation`?`visible`:`hidden`,children:(0,M.jsx)(Li,{profileId:r.selectedProfileId,activeCategory:rt?Ge:void 0,onActiveCategoryChange:rt?P:void 0,autoWeekendShield:k,autoAttackShield:le,online:at,busy:Ne,resourceBusy:Pe,chatBusy:Ie,config:l?.config?.tasks,redPacketConfig:l?.config?.chat_automation?.red_packet,treasureConfig:l?.config?.chat_automation?.treasure,fireworksConfig:l?.config?.chat_automation?.fireworks,tradeStationConfig:l?.config?.trade_station,status:Ee,resourceStatus:je,onToggle:It,onBackgroundToggle:Bt,onBackgroundRun:qt,onConstructionClaimAll:Yt,onInspect:Qt,onRunTask:tn,onResourceRun:$t,onChatRun:en})}),o.has(`map-data`)&&(0,M.jsx)(b.Activity,{mode:i===`map-data`?`visible`:`hidden`,children:(0,M.jsx)(Bi,{activeTab:rt?Ke:void 0,onActiveTabChange:rt?qe:void 0,scanState:pe,summary:ge,online:at,onState:pt,onCounts:bt,onLog:F,autoScanConfig:ve,autoScanRunning:be,onAutoScanConfig:Ct})}),o.has(`march`)&&(0,M.jsx)(b.Activity,{mode:i===`march`?`visible`:`hidden`,children:(0,M.jsx)(Hi,{activeTab:rt?Je:void 0,onActiveTabChange:rt?Ye:void 0,online:at,serverId:pe?.serverId||0,config:l?.config?.tasks?.monsterSweep,staminaPotionConfig:l?.config?.tasks?.staminaPotion,garrisonConfig:l?.config?.tasks?.allianceGarrison,zombieBusConfig:l?.config?.tasks?.zombieBus,onLog:F})}),o.has(`hotkeys`)&&(0,M.jsx)(b.Activity,{mode:i===`hotkeys`?`visible`:`hidden`,children:(0,M.jsx)(zi,{online:at,onLog:F})}),o.has(`mini-games`)&&(0,M.jsx)(b.Activity,{mode:i===`mini-games`?`visible`:`hidden`,children:(0,M.jsx)(zi,{category:`miniGames`,online:at,onLog:F,sheepStatus:Ee?.tasks?.sheepGame})}),o.has(`city-layout`)&&(0,M.jsx)(b.Activity,{mode:i===`city-layout`?`visible`:`hidden`,children:(0,M.jsx)(Ri,{profileId:r.selectedProfileId,online:at,onLog:F})}),L,o.has(`settings`)&&(0,M.jsx)(b.Activity,{mode:i===`settings`?`visible`:`hidden`,children:(0,M.jsx)(Vi,{showProfileFocus:rt,focusGameOnProfileSelect:Ve,onFocusGameOnProfileSelectChange:dt})})]})]},r.selectedProfileId)"
+      }
+    ],
+    "components": {
+      "automation": {
+        "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/AutomationPanel-BJ0gIqFh.js",
+        "sha256": "6DB2328191AF33E5631D507271C36D7008B287DAA7C8CD1A957B23EF6F871725",
+        "entry": "Ae",
+        "params": {
+          "utf8ByteOffset": 21829,
+          "utf8ByteLength": 386,
+          "sha256": "27C55DF20F6CDDBA3B92C5CB7EC6F1650D1071279D31613E283C7C2AEED98A08",
+          "text": "{activeCategory:t,onActiveCategoryChange:n,profileId:i,autoWeekendShield:o,autoAttackShield:c,online:l,busy:_,resourceBusy:ce,chatBusy:le,config:C,redPacketConfig:ue,treasureConfig:de,fireworksConfig:fe,tradeStationConfig:Ae,status:k,resourceStatus:je,onToggle:Me,onBackgroundToggle:A,onBackgroundRun:Ne,onConstructionClaimAll:Pe,onInspect:Fe,onRunTask:Ie,onResourceRun:Le,onChatRun:Re}"
+        },
+        "controlledNames": [
+          "t",
+          "n"
+        ],
+        "declarations": [
+          {
+            "utf8ByteOffset": 25370,
+            "utf8ByteLength": 31,
+            "sha256": "73F5643B413E3AD770E60B0A3CBF9CBCF697A110E4BE1E9A25B238A6ABF62401",
+            "text": "[at,ot]=(0,x.useState)(`daily`)"
+          },
+          {
+            "utf8ByteOffset": 25402,
+            "utf8ByteLength": 7,
+            "sha256": "904412D888F05AC7B77CE46198D9E419969F9722DBC46FFEC4EBAE33593C4FC0",
+            "text": "B=t??at"
+          },
+          {
+            "utf8ByteOffset": 25549,
+            "utf8ByteLength": 39,
+            "sha256": "244CFFB38AD66AE0A781C3110EE9FA93EDE18AC353EA1B79BF7ED7F9DE04DBC2",
+            "text": "[V,st]=(0,x.useState)(()=>new Set([B]))"
+          }
+        ],
+        "selectionCallback": {
+          "utf8ByteOffset": 42780,
+          "utf8ByteLength": 83,
+          "sha256": "D600F9B72078AC8C68F1A255363D271D731948691D992C73133CB9CAE93FD906",
+          "text": "()=>{st(t=>{if(t.has(e))return t;let n=new Set(t);return n.add(e),n}),n?n(e):ot(e)}"
+        },
+        "controlledReferences": [
+          {
+            "utf8ByteOffset": 25404,
+            "utf8ByteLength": 1,
+            "sha256": "E3B98A4DA31A127D4BDE6E43033F66BA274CAB0EB7EB1C70EC41402BF6273DD8",
+            "text": "t"
+          },
+          {
+            "utf8ByteOffset": 42850,
+            "utf8ByteLength": 1,
+            "sha256": "1B16B1DF538BA12DC3F97EDBB85CAA7050D46C148134290FEBA80F8236C83DB9",
+            "text": "n"
+          },
+          {
+            "utf8ByteOffset": 42852,
+            "utf8ByteLength": 1,
+            "sha256": "1B16B1DF538BA12DC3F97EDBB85CAA7050D46C148134290FEBA80F8236C83DB9",
+            "text": "n"
+          }
+        ]
+      },
+      "squads": {
+        "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/SquadPanel-HC3-DJei.js",
+        "sha256": "ED466E353AA896D8C3FC783FF1802930156FB9E9EB54327AEF73F2FF86FA06C7",
+        "entry": "pd",
+        "params": {
+          "utf8ByteOffset": 191325,
+          "utf8ByteLength": 127,
+          "sha256": "D313D4F28C8A44B8C67EDEFA5D5D5269D838E775D8C1B7C11C050B2C6207B2F4",
+          "text": "{activeTab:e,onActiveTabChange:t,online:n,serverId:r,config:i,staminaPotionConfig:a,garrisonConfig:o,zombieBusConfig:s,onLog:c}"
+        },
+        "controlledNames": [
+          "e",
+          "t"
+        ],
+        "declarations": [
+          {
+            "utf8ByteOffset": 191517,
+            "utf8ByteLength": 23,
+            "sha256": "3354963F071688ABFF71EFBFBBBB2BCF820B8E2D324E599E149094FA9C3A68E2",
+            "text": "[_,v]=(0,O.useState)(x)"
+          },
+          {
+            "utf8ByteOffset": 191541,
+            "utf8ByteLength": 41,
+            "sha256": "406BB7D5C815DD6B51424B34E55EBE22EEE439B0680847E3B8C47642DD8EF9B9",
+            "text": "[y,b]=(0,O.useState)(()=>new Set([e??x]))"
+          },
+          {
+            "utf8ByteOffset": 191602,
+            "utf8ByteLength": 6,
+            "sha256": "CD0F7C0B6B7614816B4707158B8E101AF708F83307E8586A29396090E3819EBA",
+            "text": "C=e??_"
+          }
+        ],
+        "selectionCallback": {
+          "utf8ByteOffset": 192276,
+          "utf8ByteLength": 81,
+          "sha256": "8DFDA10532F0A16423BBF14E5CAADAB59A67EAD6083F934560171B9DA55D3CDF",
+          "text": "()=>{b(t=>{if(t.has(e))return t;let n=new Set(t);return n.add(e),n}),t?t(e):v(e)}"
+        },
+        "controlledReferences": [
+          {
+            "utf8ByteOffset": 191575,
+            "utf8ByteLength": 1,
+            "sha256": "3F79BB7B435B05321651DAEFD374CDC681DC06FAA65E374E38337B88CA046DEA",
+            "text": "e"
+          },
+          {
+            "utf8ByteOffset": 191604,
+            "utf8ByteLength": 1,
+            "sha256": "3F79BB7B435B05321651DAEFD374CDC681DC06FAA65E374E38337B88CA046DEA",
+            "text": "e"
+          },
+          {
+            "utf8ByteOffset": 192345,
+            "utf8ByteLength": 1,
+            "sha256": "E3B98A4DA31A127D4BDE6E43033F66BA274CAB0EB7EB1C70EC41402BF6273DD8",
+            "text": "t"
+          },
+          {
+            "utf8ByteOffset": 192347,
+            "utf8ByteLength": 1,
+            "sha256": "E3B98A4DA31A127D4BDE6E43033F66BA274CAB0EB7EB1C70EC41402BF6273DD8",
+            "text": "t"
+          }
+        ]
+      },
+      "map": {
+        "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js",
+        "sha256": "CE74345518BE72E417A510B982C591729E5683F69751E190805598C4C05D3089",
+        "entry": "R",
+        "params": {
+          "utf8ByteOffset": 29837,
+          "utf8ByteLength": 149,
+          "sha256": "26A6A4663B3D7685889EA3FEADFA6314F75CA221F40EBB02D529F7AFF7770EC2",
+          "text": "{activeTab:r,onActiveTabChange:i,scanState:a,summary:o,online:l,onState:_,onCounts:v,onLog:b,autoScanConfig:x,autoScanRunning:Ce,onAutoScanConfig:we}"
+        },
+        "controlledNames": [
+          "r",
+          "i"
+        ],
+        "declarations": [
+          {
+            "utf8ByteOffset": 30396,
+            "utf8ByteLength": 29,
+            "sha256": "60D50F2157B1670DA61D90816DA02D1DB15DA13A6F1D9C635877449C88DA9017",
+            "text": "[$e,I]=(0,y.useState)(`city`)"
+          },
+          {
+            "utf8ByteOffset": 30426,
+            "utf8ByteLength": 7,
+            "sha256": "AFDF1E53810AE06B90C8E0656EEB6EBDAAC1A3B142B43BF9F34AB3C386ED9560",
+            "text": "L=r??$e"
+          }
+        ],
+        "selectionCallback": {
+          "utf8ByteOffset": 39238,
+          "utf8ByteLength": 258,
+          "sha256": "3B3AD8C4B45B1389832C08C29938A573A27BB9340D15397FA328F77140CA4B0C",
+          "text": "function ir(e){if(e===L)return;T.current+=1,Le.current+=1;let t=L===`scheduledPlunder`?null:L,n=e===`scheduledPlunder`?null:e,r=n?D.current.has(n):!0,a=ye(D.current,t,{page:B,rows:H,total:en},n);i?i(e):I(e),V(a.page),U(a.rows),W(a.total),Zt(!!(n&&!r)),q(``)}"
+        },
+        "controlledReferences": [
+          {
+            "utf8ByteOffset": 30428,
+            "utf8ByteLength": 1,
+            "sha256": "454349E422F05297191EAD13E21D3DB520E5ABEF52055E4964B82FB213F593A1",
+            "text": "r"
+          },
+          {
+            "utf8ByteOffset": 39433,
+            "utf8ByteLength": 1,
+            "sha256": "DE7D1B721A1E0632B7CF04EDF5032C8ECFFA9F9A08492152B926F1A5A7E765D7",
+            "text": "i"
+          },
+          {
+            "utf8ByteOffset": 39435,
+            "utf8ByteLength": 1,
+            "sha256": "DE7D1B721A1E0632B7CF04EDF5032C8ECFFA9F9A08492152B926F1A5A7E765D7",
+            "text": "i"
+          }
+        ]
+      }
+    }
+  }
+}

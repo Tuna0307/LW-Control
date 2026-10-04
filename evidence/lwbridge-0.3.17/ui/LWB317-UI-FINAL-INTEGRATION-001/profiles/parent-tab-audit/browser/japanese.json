@@ -1,0 +1,32 @@
+{
+  "observations": [
+    {
+      "client": 730,
+      "height": 600,
+      "page": "Automation",
+      "profile": "Local 2 · サーバー322 · オフライン",
+      "scroll": 730,
+      "selected": "交易所",
+      "width": 740
+    },
+    {
+      "client": 730,
+      "height": 600,
+      "page": "Squads-return-A",
+      "profile": "Local 1 · サーバー321 · オフライン",
+      "scroll": 730,
+      "selected": "装備プラン",
+      "width": 740
+    },
+    {
+      "page": "Map-return-A",
+      "selected": "列車—"
+    },
+    {
+      "page": "Automation-return-A",
+      "selected": "交易所"
+    }
+  ],
+  "console": [],
+  "limits": "Actual offline profile controls, measured CSS viewport. No native or original protected-runtime proof."
+}

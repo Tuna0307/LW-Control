@@ -1,0 +1,92 @@
+{
+  "status": "PASS",
+  "cases": 7,
+  "reactVersion": "19.3.0",
+  "jsdomVersion": "27.0.0",
+  "sourceHashes": {
+    "App.jsx": "b245218e347ecdb3ebc318133b27bdf8f5cdaf8aa5f6ed7bb2ba98e643789398",
+    "Pages.jsx": "c5df951e95561a08a4614445ed61586aa6df4e4b7ae3f11a6a546a52eba19191",
+    "HotkeyPages.jsx": "5dae6e4ffe8875bcebc366109ad4c1e3fff690ea17273ebb50226e9107551634",
+    "MapRoutePage.jsx": "5c01a4c857c8916a830e8973b8a02232ce760484985bad6f78d1cd058dff116c",
+    "shellTheme.js": "58eaef0483bb6922ce63391bb1746741386605da6ed566764db7b461db10266b"
+  },
+  "observations": [
+    {
+      "id": "initial-suspend",
+      "status": "PASS",
+      "events": [
+        {
+          "type": "load",
+          "module": "./HotkeyPages.jsx",
+          "active": null
+        }
+      ]
+    },
+    {
+      "id": "map-before-preload-without-await-and-pending-retention",
+      "status": "PASS",
+      "events": [
+        {
+          "type": "summary",
+          "active": "Home"
+        },
+        {
+          "type": "load",
+          "module": "./MapRoutePage.jsx",
+          "active": "Home"
+        },
+        {
+          "type": "load",
+          "module": "./MapRoutePage.jsx",
+          "active": "Home"
+        }
+      ],
+      "summaryRequests": 2
+    },
+    {
+      "id": "actual-hover-focus-preload-rejection-is-best-effort",
+      "status": "PASS",
+      "unhandled": [],
+      "events": [
+        {
+          "type": "load",
+          "module": "./CityLayoutPage.jsx",
+          "active": "Home"
+        },
+        {
+          "type": "load",
+          "module": "./CityLayoutPage.jsx",
+          "active": "Home"
+        }
+      ]
+    },
+    {
+      "id": "actual-mini-games-activity-state-effect-retention-and-profile-key-reset",
+      "status": "PASS",
+      "initial": "false",
+      "edited": "true",
+      "visibleHiddenReturnedIntervals": [
+        1,
+        0,
+        1
+      ],
+      "profileReset": true
+    },
+    {
+      "id": "theme-reduced",
+      "status": "PASS",
+      "transitionCalls": 0
+    },
+    {
+      "id": "theme-fallback",
+      "status": "PASS",
+      "transitionCalls": 0
+    },
+    {
+      "id": "theme-view-transition",
+      "status": "PASS",
+      "transitionCalls": 1
+    }
+  ],
+  "limits": "Actual canonical App/Pages/components/React Activity and Suspense mounted in jsdom. Only dynamic module promises are gated; resolved modules are actual bundled production components. Bridge responses are controlled inert inputs. No native/service/gameplay/updater/image/exit operation or original-runtime pixel proof."
+}

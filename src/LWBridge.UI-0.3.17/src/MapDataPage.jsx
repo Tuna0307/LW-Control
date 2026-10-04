@@ -236,6 +236,8 @@ export function MapDataPage({
   bridgeMode,
   backendAvailable,
   online,
+  activeTab,
+  onActiveTabChange,
   currentServerId = 0,
   scanState: suppliedScanState = null,
   summary: suppliedSummary = null,
@@ -270,7 +272,8 @@ export function MapDataPage({
   const [summaryReady, setSummaryReady] = useState(false);
   const [options, setOptions] = useState(null);
   const [browseServerId, setBrowseServerId] = useState(() => suppliedScanState?.serverId > 0 ? suppliedScanState.serverId : 0);
-  const [tab, setTab] = useState(PREVIEW_TAB_BY_STATE[previewState] || "city");
+  const [localTab, setLocalTab] = useState(PREVIEW_TAB_BY_STATE[previewState] || "city");
+  const tab = activeTab ?? localTab;
   const [keyword, setKeyword] = useState("");
   const [resourceNameKey, setResourceNameKey] = useState("");
   const [monsterNameKey, setMonsterNameKey] = useState("");
@@ -725,7 +728,8 @@ export function MapDataPage({
     const currentView = { page, rows, total };
     if (outgoingTab) tabViewCache.current.set(outgoingTab, currentView);
     const restoredView = incomingTab ? tabViewCache.current.get(incomingTab) || { page: 1, rows: [], total: 0 } : currentView;
-    setTab(nextTab);
+    if (onActiveTabChange) onActiveTabChange(nextTab);
+    else setLocalTab(nextTab);
     setPage(restoredView.page);
     setRows(restoredView.rows);
     setTotal(restoredView.total);

@@ -1,0 +1,11 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import path from 'node:path';
+import {spawnSync} from 'node:child_process';
+import {fileURLToPath} from 'node:url';
+const here=path.dirname(fileURLToPath(import.meta.url)),repo=path.resolve(here,'../../../../..'),base='evidence/lwbridge-0.3.17/ui/';
+const scripts=['LWB317-UI-MAP-AUTO-CONFIG-001/replay-navigation-current.mjs','LWB317-UI-MAP-SCAN-HEADER-001/check-header.mjs','LWB317-UI-MAP-GOODS-PICKER-001/check-picker.mjs','LWB317-UI-MAP-TREASURE-PICKER-001/check-picker.mjs','LWB317-UI-MAP-REFRESH-FEEDBACK-001/check-feedback.mjs','LWB317-UI-MAP-INTERACTIONS-001/check-interactions.mjs','LWB317-UI-MAP-INTERACTIONS-001/check-request-lifetime.mjs','LWB317-UI-MAP-INTERACTIONS-001/scheduled/check-scheduled-plunder.mjs'].map(n=>base+n).concat([path.relative(repo,path.join(here,'replay-r1-redirect.mjs')),path.relative(repo,path.join(here,'replay-map-ownership.mjs'))]);
+const results=scripts.map(script=>{let args=[script];if(script.endsWith('replay-navigation-current.mjs'))args=[path.join(here,'replay-shape-adapters.mjs'),'navigation'];if(script.endsWith('LWB317-UI-MAP-GOODS-PICKER-001/check-picker.mjs'))args=[path.join(here,'replay-shape-adapters.mjs'),'goods'];if(script.endsWith('scheduled/check-scheduled-plunder.mjs'))args=[path.join(here,'replay-shape-adapters.mjs'),'scheduled'];const r=spawnSync(process.execPath,args,{cwd:repo,encoding:'utf8'});return{script:script.replaceAll('\\','/'),exitCode:r.status,stdout:r.stdout.trim(),stderr:r.stderr.trim()};});
+fs.writeFileSync(path.join(here,'map-regression-results.json'),JSON.stringify({scope:'Current actual Map regressions; preserved historical scripts, no record mode or new-packet redirected outputs. No native execution.',results},null,2)+'\n');
+for(const r of results)assert.equal(r.exitCode,0,r.script+'\n'+r.stdout+'\n'+r.stderr);
+console.log(`LWB317_PROFILE_TABS_MAP_REGRESSIONS_OK count=${results.length}`);

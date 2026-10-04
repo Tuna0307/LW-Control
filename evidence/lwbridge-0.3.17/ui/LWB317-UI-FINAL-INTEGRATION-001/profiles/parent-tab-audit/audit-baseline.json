@@ -1,0 +1,86 @@
+{
+  "proof": "Exact source expressions/callbacks and actual current initializers/props; not mounted React or native runtime proof",
+  "current": {
+    "automation": {
+      "path": "src/LWBridge.UI-0.3.17/src/AutomationPage.jsx",
+      "sha256": "23B82167E5D490DB3E5277E197D0DAFAF826FE040BC809A40D28C1F510168F1E",
+      "entryProps": [
+        "previewState"
+      ],
+      "stateDeclaration": "[category, setCategory] = useState(\"daily\")",
+      "originalState": "daily",
+      "selectedBeforeSwitch": "trade",
+      "afterProfileKeyRemount": "daily"
+    },
+    "squads": {
+      "path": "src/LWBridge.UI-0.3.17/src/SquadsPage.jsx",
+      "sha256": "578332B56C54BAF75BCDB1325EC23A42F209FFA676661268582F4FF5D548C450",
+      "entryProps": [
+        "previewState"
+      ],
+      "stateDeclaration": "[tab, setTab] = useState(equipmentPreview ? \"equipment\" : \"afk\")",
+      "originalState": "afk",
+      "selectedBeforeSwitch": "equipment",
+      "afterProfileKeyRemount": "afk"
+    },
+    "map": {
+      "path": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+      "sha256": "6BDB6A2468B24952457F580864C4457DCC532BCE7DC3514E3254EDDD910C65A9",
+      "entryProps": [
+        "mapApi",
+        "bridgeMode",
+        "backendAvailable",
+        "online",
+        "currentServerId",
+        "scanState",
+        "summary",
+        "onState",
+        "onCounts",
+        "autoScanConfig",
+        "autoScanRunning",
+        "onAutoScanConfig",
+        "onAutoScanRunningChange",
+        "previewState",
+        "gameTexts",
+        "previewJumpingKeys",
+        "previewTreasureStatesRefreshing",
+        "previewBusyKey",
+        "previewSharing",
+        "previewActionMessage",
+        "previewPlunderOnline"
+      ],
+      "stateDeclaration": "[tab, setTab] = useState(PREVIEW_TAB_BY_STATE[previewState] || \"city\")",
+      "originalState": "city",
+      "selectedBeforeSwitch": "train",
+      "afterProfileKeyRemount": "city"
+    },
+    "app": {
+      "path": "src/LWBridge.UI-0.3.17/src/App.jsx",
+      "sha256": "F80B7FB6A9991685FDB30EC7A89573417C2CD1B041D5819DFC2149E075B58AD8",
+      "pageProps": [
+        "mapApi",
+        "bridgeMode",
+        "backendAvailable",
+        "online",
+        "currentServerId",
+        "scanState",
+        "summary",
+        "onState",
+        "onCounts",
+        "autoScanConfig",
+        "autoScanRunning",
+        "onAutoScanConfig",
+        "onAutoScanRunningChange",
+        "previewState",
+        "showProfileFocus",
+        "focusGameOnProfileSelect",
+        "onFocusGameOnProfileSelectChange",
+        "homeState",
+        "onAutoLaunchGameChange",
+        "onAutoReconnectChange",
+        "onGameRootSelect"
+      ],
+      "keyedPages": "function RetainedPages({ activeRoute, visitedRoutes, selectedProfileId, pageProps }) {\n  return (\n    <Fragment key={selectedProfileId}>\n      {routes.map((route) => visitedRoutes.has(route.key) ? (\n        <Activity key={route.key} mode={route.key === activeRoute ? \"visible\" : \"hidden\"}>\n          <PageForRoute routeKey={route.key} {...pageProps} />\n        </Activity>\n      ) : null)}\n    </Fragment>\n  );\n}"
+    }
+  }
+}

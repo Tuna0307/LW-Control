@@ -1,0 +1,140 @@
+{
+  "result": "LWB317_MAP_ENTRY_FOCUSED_OK",
+  "source": {
+    "path": "src/LWBridge.UI-0.3.17/src/App.jsx",
+    "sha256": "B245218E347ECDB3EBC318133B27BDF8F5CDAF8AA5F6ED7BB2BA98E643789398",
+    "bytes": 29701
+  },
+  "cases": [
+    {
+      "name": "different-route Map entry starts summary before transition and navigation is already active while request is pending",
+      "status": "PASS",
+      "events": [
+        {
+          "event": "click",
+          "routeKey": "map-data",
+          "activeRoute": "overview"
+        },
+        {
+          "event": "summary:start",
+          "id": 2,
+          "activeRoute": "overview",
+          "profileId": "profile-a"
+        },
+        {
+          "event": "transition:start",
+          "activeRoute": "overview"
+        }
+      ]
+    },
+    {
+      "name": "already-active Map selection is inert",
+      "status": "PASS",
+      "requestCount": 2,
+      "events": [
+        {
+          "event": "click",
+          "routeKey": "map-data",
+          "activeRoute": "map-data"
+        }
+      ]
+    },
+    {
+      "name": "non-Map navigation does not start summary",
+      "status": "PASS",
+      "events": [
+        {
+          "event": "click",
+          "routeKey": "automation",
+          "activeRoute": "overview"
+        },
+        {
+          "event": "transition:start",
+          "activeRoute": "overview"
+        }
+      ]
+    },
+    {
+      "name": "deferred Map-entry summary settles after navigation and updates current Map state",
+      "status": "PASS",
+      "request": {
+        "id": 2,
+        "activeRoute": "overview"
+      },
+      "serverId": 322
+    },
+    {
+      "name": "Map-entry summary rejection does not block or roll back navigation",
+      "status": "PASS",
+      "events": [
+        {
+          "event": "click",
+          "routeKey": "map-data",
+          "activeRoute": "overview"
+        },
+        {
+          "event": "summary:start",
+          "id": 2,
+          "activeRoute": "overview",
+          "profileId": "profile-a"
+        },
+        {
+          "event": "transition:start",
+          "activeRoute": "overview"
+        }
+      ]
+    },
+    {
+      "name": "leave/return while first entry is pending keeps existing generation fencing without canceling navigation",
+      "status": "PASS",
+      "firstRequest": 2,
+      "secondRequest": 3,
+      "finalServerId": 402
+    },
+    {
+      "name": "obsolete-profile entry reply is ignored and new profile bootstrap remains authoritative",
+      "status": "PASS",
+      "oldRequest": 2,
+      "newRequest": 3
+    },
+    {
+      "name": "unavailable native bridge fences summary transport but does not fence local navigation",
+      "status": "PASS",
+      "events": [
+        {
+          "event": "click",
+          "routeKey": "map-data",
+          "activeRoute": "overview"
+        },
+        {
+          "event": "transition:start",
+          "activeRoute": "overview"
+        }
+      ]
+    },
+    {
+      "name": "direct initial Map route does not synthesize a navigation-entry request",
+      "status": "PASS",
+      "requestCount": 1,
+      "events": [
+        {
+          "event": "summary:start",
+          "id": 1,
+          "activeRoute": "map-data",
+          "profileId": "profile-a"
+        }
+      ]
+    },
+    {
+      "name": "profile bootstrap, Map-entry request and independent connected polling remain separately attributable",
+      "status": "PASS",
+      "requestIds": {
+        "bootstrap": 1,
+        "initialPoll": 2,
+        "entry": 3,
+        "nextPoll": 4
+      }
+    }
+  ],
+  "limits": "Actual current App source is parsed and executed with its production callbacks/effects. Page/icon children and bridge/map transport are controlled inert bindings; no network, native provider, Last War, server jump, scan start, update, or gameplay action is invoked. The harness uses disconnected mode except the explicit polling-attribution case, so bootstrap, entry and poll requests can be distinguished."
+}

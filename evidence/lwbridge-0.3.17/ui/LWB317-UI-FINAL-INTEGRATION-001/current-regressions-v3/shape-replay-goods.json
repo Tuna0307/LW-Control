@@ -1,0 +1,13 @@
+{
+  "mode": "goods",
+  "source": "LWB317-UI-MAP-GOODS-PICKER-001/check-picker.mjs",
+  "sha256": "01d1de6a37358b3fb6de4c8f3d1e7fcdd26b8d693e9361f7a0faadc86633c005",
+  "adaptedHarnessSha256": "b63412c0b1c3f8c6d21c3ebcca32118c695ce86003194e0b7dcf3f7dbd6c319f",
+  "details": [
+    "Resolve obsolete removed placeholder export through the actual GameAssetImage component/normalizer with absent reader and inert effects; retain nine-locale original/current picker and parent assertions."
+  ],
+  "output": [
+    "LWB317_MAP_GOODS_PICKER_OK comparisons=144 parent=PASS placeholders=6 baselineMismatch=YES"
+  ],
+  "status": "PASS"
+}

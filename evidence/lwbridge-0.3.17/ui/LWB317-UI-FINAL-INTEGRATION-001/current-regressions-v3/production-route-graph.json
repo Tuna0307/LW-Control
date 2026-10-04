@@ -1,0 +1,51 @@
+{
+  "marker": "LWB317_PRODUCTION_ROUTE_GRAPH_OK",
+  "staticImports": [
+    "react",
+    "./HomePage.jsx"
+  ],
+  "startupStaticKeys": [
+    "index.html"
+  ],
+  "manifestSha256": "20200BCA06DDC14C9061E912418A703FB1633B4C33DAE617AFFCDE2018EF3F79",
+  "PagesSha256": "C5DF951E95561A08A4614445ED61586AA6DF4E4B7AE3F11A6A546A52EBA19191",
+  "dynamicRouteChunks": [
+    {
+      "module": "src/AutomationPage.jsx",
+      "file": "assets/AutomationPage-DYMl9c1v.js",
+      "bytes": 76652,
+      "sha256": "4749B7738A606B9B92DF24D3482092FCD54D4717A67D041EF3425AE71AA025B1"
+    },
+    {
+      "module": "src/SquadsPage.jsx",
+      "file": "assets/SquadsPage-BVn7PtYI.js",
+      "bytes": 195250,
+      "sha256": "CB6D1D2EDEC4289CCAD5301D4B8BF5A5C6BA1A4AFD85F2E13E02C1BCB154677F"
+    },
+    {
+      "module": "src/CityLayoutPage.jsx",
+      "file": "assets/CityLayoutPage-BZ0QRqgS.js",
+      "bytes": 15548,
+      "sha256": "ED6A20745A732B5CD97534BD84B446A0F29094A154F197843CC7B0C26F1065A2"
+    },
+    {
+      "module": "src/HotkeyPages.jsx",
+      "file": "assets/HotkeyPages-BSB5sZ-q.js",
+      "bytes": 7081,
+      "sha256": "DE9DC5AAD521FF9F5111AACC44B1639890F4AD9728466AD4BF253DA296BBC9D8"
+    },
+    {
+      "module": "src/MapRoutePage.jsx",
+      "file": "assets/MapRoutePage-2PcRUpyv.js",
+      "bytes": 78801,
+      "sha256": "3B46C615D61CCD2691F7C3E07C624EE987C4497B91696BE4D103D8EA1465007F"
+    },
+    {
+      "module": "src/SettingsPage.jsx",
+      "file": "assets/SettingsPage-DK4CrYNG.js",
+      "bytes": 8119,
+      "sha256": "03A1ADA529DB03E68F9CC27548BA140C7031BEF910DCF9C9E93196D62683F4BF"
+    }
+  ],
+  "limits": "Actual canonical router AST and built Vite manifest/bytes prove code splitting and startup graph; does not establish network timing, Suspense fallback or retained effects. Build/package gates are separate."
+}

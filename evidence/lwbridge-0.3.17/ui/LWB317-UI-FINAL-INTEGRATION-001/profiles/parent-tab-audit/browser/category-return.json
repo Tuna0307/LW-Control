@@ -1,0 +1,23 @@
+{
+  "observation": {
+    "consoleProof": "Logs captured separately",
+    "grids": 1,
+    "selected": "Daily Tasks",
+    "trainingExpanded": "true",
+    "viewport": {
+      "height": 720,
+      "width": 1280
+    },
+    "visibleCardTitles": [
+      "Auto Training",
+      "Automatic Construction",
+      "Free Stamina",
+      "Automatic Treatment",
+      "Trucks",
+      "Secret Task",
+      "Ghost Ops"
+    ]
+  },
+  "console": [],
+  "limits": "Browser local fixture; native providers remain offline, subscriptions separately observed in mounted production proof."
+}

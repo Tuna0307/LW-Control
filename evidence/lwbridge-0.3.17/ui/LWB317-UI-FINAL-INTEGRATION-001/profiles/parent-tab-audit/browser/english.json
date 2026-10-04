@@ -1,0 +1,30 @@
+{
+  "observations": [
+    {
+      "nativeReadDisabled": true,
+      "page": "Squads",
+      "profile": "Local 2 · Server 322 · Offline",
+      "selected": "Equipment Schemes"
+    },
+    {
+      "keyword": "",
+      "page": "Map",
+      "selected": "Train—"
+    },
+    {
+      "page": "Automation",
+      "selected": "Trade Station"
+    },
+    {
+      "page": "Automation-return-A",
+      "profile": "Local 1 · Server 321 · Offline",
+      "selected": "Trade Station",
+      "viewport": {
+        "height": 720,
+        "width": 1280
+      }
+    }
+  ],
+  "console": [],
+  "limits": "Actual offline shell-profiles controls; no native actions or original post-auth pixels"
+}

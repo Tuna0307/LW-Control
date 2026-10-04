@@ -5,7 +5,7 @@ import { AutomationMeta, previewFutureTime } from "./AutomationMeta.jsx";
 import { DispatchAssistManual } from "./DispatchAssistManual.jsx";
 import { GameAssetImage } from "./GameAssetImage.jsx";
 import { dispatchWeeklyQualities, previewAssistFixture, previewAutomationRuntime, previewResourceGatherConfig, previewResourceGatherRuntime, previewTradeFixture, railwayWeeklyQualities, validPreviewResourceGatherConfig } from "./previewAutomationFixtures.js";
-import { useEffect, useState } from "react";
+import { Activity, useEffect, useState } from "react";
 import { buildTradePurchaseDays, resolveTradeName, tradePurchaseRowKey } from "./tradePurchaseHistory.js";
 import { Switch, ToggleRow, PanelTitle } from "./sharedPageUI.jsx";
 
@@ -511,13 +511,26 @@ function TradeStationCard({ previewEnabled, previewState = "" }) {
   );
 }
 
-export function AutomationPage({ previewState = "" }) {
+export function AutomationPage({ previewState = "", activeCategory, onActiveCategoryChange }) {
   const { t } = useI18n();
-  const [category, setCategory] = useState("daily");
+  const [localCategory, setLocalCategory] = useState("daily");
+  const category = activeCategory ?? localCategory;
+  const [visitedCategories, setVisitedCategories] = useState(() => new Set([category]));
+  const selectCategory = (nextCategory) => {
+    setVisitedCategories((current) => {
+      if (current.has(nextCategory)) return current;
+      const next = new Set(current);
+      next.add(nextCategory);
+      return next;
+    });
+    if (onActiveCategoryChange) onActiveCategoryChange(nextCategory);
+    else setLocalCategory(nextCategory);
+  };
   const [configStates, setConfigStates] = useState({});
   const onConfigStatus = (title, state) => setConfigStates((current) => current[title] === state ? current : { ...current, [title]: state });
   const aggregateState = Object.values(configStates).includes("error") ? "error" : Object.values(configStates).includes("saving") ? "saving" : "";
   const previewEnabled = previewState.startsWith("automation-");
+  const renderCards = (cards) => cards.map(([title, description]) => <AutomationCard key={title} title={title} description={description} previewEnabled={previewEnabled} previewState={previewState} onConfigStatus={onConfigStatus} />);
   const pageStatus = aggregateState === "error" ? "automation.configSave.error" : aggregateState === "saving" ? "automation.configSave.saving" : previewState === "automation-saving"
     ? "automation.configSave.saving"
     : previewState === "automation-save-error"
@@ -536,17 +549,22 @@ export function AutomationPage({ previewState = "" }) {
             role="tab"
             className={category === key ? "active" : ""}
             aria-selected={category === key}
-            onClick={() => setCategory(key)}
+            onClick={() => selectCategory(key)}
           >
             {t(automationCategoryKeys[key]) || label}
           </button>
         ))}
       </div>
-      <>{automationCategories.map(([key]) => <div className="automation-grid" key={key} style={category === key ? undefined : { display: "none" }}>
-        {key === "resourceGather" ? <ResourceGatherCard previewEnabled={previewEnabled} previewState={previewState} /> : null}
-        {key === "trade" ? <TradeStationCard previewEnabled={previewEnabled} previewState={previewState} /> : null}
-        {(automationCards[key] ?? []).map(([title, description]) => <AutomationCard key={title} title={title} description={description} previewEnabled={previewEnabled} previewState={previewState} onConfigStatus={onConfigStatus} />)}
-      </div>)}</>
+      <div className="automation-grid">
+        {visitedCategories.has("resourceGather") ? <Activity mode={category === "resourceGather" ? "visible" : "hidden"}><ResourceGatherCard previewEnabled={previewEnabled} previewState={previewState} /></Activity> : null}
+        {visitedCategories.has("trade") ? <Activity mode={category === "trade" ? "visible" : "hidden"}><TradeStationCard previewEnabled={previewEnabled} previewState={previewState} /></Activity> : null}
+        {visitedCategories.has("system") ? <Activity mode={category === "system" ? "visible" : "hidden"}>{renderCards(automationCards.system)}</Activity> : null}
+        {visitedCategories.has("chat") ? <Activity mode={category === "chat" ? "visible" : "hidden"}>{renderCards(automationCards.chat)}</Activity> : null}
+        {visitedCategories.has("resources") ? <Activity mode={category === "resources" ? "visible" : "hidden"}>{renderCards(automationCards.resources)}</Activity> : null}
+        {visitedCategories.has("daily") ? <Activity mode={category === "daily" ? "visible" : "hidden"}>{renderCards(automationCards.daily.slice(0, 4))}</Activity> : null}
+        {visitedCategories.has("alliance") ? <Activity mode={category === "alliance" ? "visible" : "hidden"}>{renderCards(automationCards.alliance)}</Activity> : null}
+        {visitedCategories.has("daily") ? <Activity mode={category === "daily" ? "visible" : "hidden"}>{renderCards(automationCards.daily.slice(4))}</Activity> : null}
+      </div>
     </section>
   );
 }

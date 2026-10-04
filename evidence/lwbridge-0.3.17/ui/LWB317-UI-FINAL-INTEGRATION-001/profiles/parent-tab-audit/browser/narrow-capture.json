@@ -1,0 +1,12 @@
+{
+  "measured": {
+    "client": 730,
+    "equipmentSelected": "装備プラン",
+    "height": 600,
+    "profile": "Local 2 · サーバー322 · オフライン",
+    "scroll": 730,
+    "scrollY": 467,
+    "width": 740
+  },
+  "capture": "Viewport capture after clicking the selected Equipment tab to scroll the panel into view. Earlier full-page attempt omitted below-fold panel and was replaced."
+}

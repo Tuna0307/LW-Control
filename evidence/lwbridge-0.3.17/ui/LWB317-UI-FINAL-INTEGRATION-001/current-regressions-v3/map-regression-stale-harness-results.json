@@ -1,0 +1,65 @@
+{
+  "scope": "Current actual Map regressions; preserved historical scripts, no record mode or new-packet redirected outputs. No native execution.",
+  "results": [
+    {
+      "script": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-AUTO-CONFIG-001/replay-navigation-current.mjs",
+      "exitCode": 1,
+      "stdout": "",
+      "stderr": "node:internal/modules/run_main:107\r\n    triggerUncaughtException(\r\n    ^\r\n\r\nAssertionError [ERR_ASSERTION]: current: state tab\r\n    at Object.getState (file:///C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-NAVIGATION-001/check-navigation.mjs?auto-config-current-navigation=1:282:12)\r\n    at file:///C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-NAVIGATION-001/check-navigation.mjs?auto-config-current-navigation=1:556:20\r\n    at check (file:///C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-NAVIGATION-001/check-navigation.mjs?auto-config-current-navigation=1:354:7)\r\n    at campaign (file:///C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-NAVIGATION-001/check-navigation.mjs?auto-config-current-navigation=1:555:3)\r\n    at async file:///C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-NAVIGATION-001/check-navigation.mjs?auto-config-current-navigation=1:588:23 {\r\n  generatedMessage: false,\r\n  code: 'ERR_ASSERTION',\r\n  actual: false,\r\n  expected: true,\r\n  operator: '==',\r\n  diff: 'simple'\r\n}\r\n\r\nNode.js v24.18.0"
+    },
+    {
+      "script": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-SCAN-HEADER-001/check-header.mjs",
+      "exitCode": 0,
+      "stdout": "LWB317_MAP_SCAN_HEADER_OK comparisons=270 baselineMismatches=29 clock=6 unmount=PASS",
+      "stderr": ""
+    },
+    {
+      "script": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-GOODS-PICKER-001/check-picker.mjs",
+      "exitCode": 1,
+      "stdout": "",
+      "stderr": "<anonymous_script>:13\r\nreturn { MapRetainedGoodsFilter, MapFilterAssetPlaceholder };\r\n                                 ^\r\n\r\nReferenceError: MapFilterAssetPlaceholder is not defined\r\n    at eval (eval at <anonymous> (file:///C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-GOODS-PICKER-001/check-picker.mjs:17:18), <anonymous>:13:34)\r\n    at file:///C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-GOODS-PICKER-001/check-picker.mjs:17:119\r\n    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)\r\n    at async node:internal/modules/esm/loader:643:26\r\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)\r\n\r\nNode.js v24.18.0"
+    },
+    {
+      "script": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-TREASURE-PICKER-001/check-picker.mjs",
+      "exitCode": 0,
+      "stdout": "LWB317_MAP_TREASURE_PICKER_OK comparisons=28 parent=PASS baselineMismatch=YES",
+      "stderr": ""
+    },
+    {
+      "script": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-REFRESH-FEEDBACK-001/check-feedback.mjs",
+      "exitCode": 0,
+      "stdout": "LWB317_MAP_REFRESH_FEEDBACK_OK export=45 scan=19 refresh=11 baselineDefects=15",
+      "stderr": ""
+    },
+    {
+      "script": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-INTERACTIONS-001/check-interactions.mjs",
+      "exitCode": 0,
+      "stdout": "PARITY (baseline same) keyword.typing-does-not-search\nPARITY (baseline same) keyword.search-click-on-page-1-searches-once-with-typed-text\nPARITY (baseline same) keyword.search-click-on-page-2-goes-to-page-1-and-searches-once\nPARITY (baseline differs) keyword.typed-but-unsubmitted-text-is-used-by-a-filter-change\nPARITY (baseline differs) keyword.tab-change-keeps-input-and-queries-with-it\nPARITY (baseline differs) keyword.page-change-queries-with-typed-text\nPARITY (baseline same) keyword.no-timer-or-debounce-after-time-passes\nPARITY (baseline differs) search.button-is-not-disabled-by-loading\nPARITY (baseline differs) search.click-while-loading-issues-a-newer-request-and-retires-the-older\nPARITY (baseline differs) search.connection-change-refreshes\nPARITY (baseline same) search.failure-clears-rows-and-total\nPARITY (baseline differs) name.select-clears-keyword-resets-page-and-searches-once\nPARITY (baseline differs) name.typing-after-selecting-drops-the-name-and-searches-with-the-text\nPARITY (baseline same) name.typing-without-a-selected-name-does-not-search\nPARITY (baseline same) name.resource-and-monster-selections-are-independent\nPARITY (baseline differs) name.option-text-uses-game-text-then-key\nPARITY (baseline differs) selection.dispatch-toggle-membership-and-count\nPARITY (baseline differs) selection.dispatch-survives-page-filter-sort-search-and-server-change\nPARITY (baseline differs) selection.dispatch-resets-on-any-tab-change-including-dispatch-ghost\nPARITY (baseline differs) selection.truck-is-independent-and-persists-across-tabs-pages-and-servers\nPARITY (baseline differs) selection.payload-keys-and-identifier-edge-cases\nPARITY (baseline differs) delay.input-default-and-controlled-value\nPARITY (baseline differs) delay.schedule-button-predicate-per-delay-text\nPARITY (baseline differs) actions.schedule-and-share-predicates-with-and-without-selection-online-busy\nPARITY (baseline differs) actions.truck-schedule-predicate\nPARITY (baseline differs) flow.schedule-dispatch-success-busy-then-clear-reload-and-navigate\nPARITY (baseline differs) flow.schedule-dispatch-failure-keeps-selection-and-tab\nPARITY (baseline differs) flow.schedule-with-invalid-delay-never-calls-the-provider\nPARITY (baseline differs) flow.schedule-truck-success-clears-only-truck-selection\nPARITY (baseline differs) flow.share-label-selection-pruning-and-partial-message\nPARITY (baseline differs) flow.share-full-success-message-and-selection\nPARITY (baseline differs) flow.scheduled-tab-lists-counts-and-reloads-on-entry-and-change-events\nPARITY (baseline differs) flow.scheduled-cancel-identities-busy-keys-and-reload\nPARITY (baseline differs) flow.scheduled-plunder-again-and-clear-history\nPARITY (baseline differs) flow.action-message-is-cleared-by-a-tab-change\nPARITY (baseline differs) flow.share-failure-message-uses-the-original-error-translator\nPARITY (baseline differs) flow.clear-failure-message-uses-the-original-error-translator\nPARITY (baseline differs) navigation.server-change-on-page-3-first-request-uses-page-1\nLWB317_INTERACTIONS PASS scenarios=38 currentMismatches=0 baselineMismatches=31 originalErrors=0",
+      "stderr": ""
+    },
+    {
+      "script": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-INTERACTIONS-001/check-request-lifetime.mjs",
+      "exitCode": 0,
+      "stdout": "LWB317_REQUEST_LIFETIME_OK baselineFailures=0 deliveryFailures=4 currentFailures=0 scenarios=38",
+      "stderr": ""
+    },
+    {
+      "script": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-INTERACTIONS-001/scheduled/check-scheduled-plunder.mjs",
+      "exitCode": 1,
+      "stdout": "",
+      "stderr": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\src\\LWBridge.UI-0.3.17\\node_modules\\esbuild\\lib\\main.js:1752\r\n  let error = new Error(text);\r\n              ^\r\n\r\nError: Build failed with 1 error:\r\nsrc/LWBridge.UI-0.3.17/node_modules/esbuild/lib/main.js:1552:27: ERROR: [plugin: virtual-src] unexpected import GameAssetImage.jsx\r\n    at failureErrorWithLog (C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\src\\LWBridge.UI-0.3.17\\node_modules\\esbuild\\lib\\main.js:1752:15)\r\n    at C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\src\\LWBridge.UI-0.3.17\\node_modules\\esbuild\\lib\\main.js:1211:25\r\n    at runOnEndCallbacks (C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\src\\LWBridge.UI-0.3.17\\node_modules\\esbuild\\lib\\main.js:1592:45)\r\n    at buildResponseToResult (C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\src\\LWBridge.UI-0.3.17\\node_modules\\esbuild\\lib\\main.js:1209:7)\r\n    at C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\src\\LWBridge.UI-0.3.17\\node_modules\\esbuild\\lib\\main.js:1236:16\r\n    at responseCallbacks.<computed> (C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\src\\LWBridge.UI-0.3.17\\node_modules\\esbuild\\lib\\main.js:886:9)\r\n    at handleIncomingPacket (C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\src\\LWBridge.UI-0.3.17\\node_modules\\esbuild\\lib\\main.js:941:12)\r\n    at Socket.readFromStdout (C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\src\\LWBridge.UI-0.3.17\\node_modules\\esbuild\\lib\\main.js:864:7)\r\n    at Socket.emit (node:events:509:28)\r\n    at addChunk (node:internal/streams/readable:563:12) {\r\n  errors: [Getter/Setter],\r\n  warnings: [Getter/Setter]\r\n}\r\n\r\nNode.js v24.18.0"
+    },
+    {
+      "script": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/current-regressions-v3/replay-r1-redirect.mjs",
+      "exitCode": 0,
+      "stdout": "LWB317_UI_MAP_FILTER_LIFECYCLE_R1 cases=5 failures=0\nLWB317_AUTO_CONFIG_R1_REDIRECT_OK",
+      "stderr": ""
+    },
+    {
+      "script": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/current-regressions-v3/replay-map-ownership.mjs",
+      "exitCode": 0,
+      "stdout": "LWB317_MAP_CLOSEOUT_REFRESH_OWNERSHIP_OK parent=2 childSummary=0 childListeners=0 options=321,321",
+      "stderr": ""
+    }
+  ]
+}
