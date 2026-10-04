@@ -18,6 +18,10 @@ Keep their edits separate from an active worker's owned scope.
 
 ## Roles
 
+Owner direction, 2026-10-04: prefer one small-to-medium bounded assignment per
+worker dispatch. Larger remaining campaigns are split into separately reviewed
+units; preserve quality and durable checkpoints rather than expanding a unit.
+
 ### Project lead
 
 Owns:

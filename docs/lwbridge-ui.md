@@ -1,5 +1,12 @@
 # LWBridge 0.3.17 UI parity plan
 
+Current worker dispatch, 2026-10-04: MAP-MANUAL-VISUAL-001 is ASSIGNED through the
+owner. This medium evidence-only unit compares exact-source/current Manual scan
+header, timing, progress, error and scan-type presentation using actual CSS and
+four browser pairs. No production/native work or global acceptance is assigned.
+Home preference parent remains COMPLETE / ACCEPTED; overall UI remains PARTIAL.
+See work-items/LWB317-UI-MAP-MANUAL-VISUAL-001.md. Earlier notes are historical.
+
 Latest lead checkpoint, 2026-10-04: HOME-PREFERENCE-LIFETIME-001B Automatic Reconnection is COMPLETE / ACCEPTED after lead takeover. Immediate profile-draft edits, concurrent saves, source Retry/Discard and shared error binding are corrected; incoming poll/event acknowledgement and obsolete profile/unmount fencing are validated. Current mounted13/13, Auto Launch7/7, preservation, source differential, fresh EN/JA browser, package and WIP10/10 pass. Parent HOME-PREFERENCE-LIFETIME-001 is complete for both preferences. Overall UI remains PARTIAL; next is full Map/remaining-page offline visual comparison. Native per-profile persistence and protected-original pixels remain separate. See reviews/2026-10-04-LWB317-UI-HOME-PREFERENCE-LIFETIME-001B.md. Earlier dispatch/status notes below are historical.
 
 Latest lead checkpoint, 2026-10-04: HOME-PREFERENCE-LIFETIME-001A Auto Launch is COMPLETE / ACCEPTED at c0d9082ee8f8b4b8985e8025657967a6898a4097 for the recovered source/local preference and controlled existing-adapter scope. Lead mounted 7/7, preservation, original-byte, package, evidence and WIP checks pass. Native failure rollback remains a documented clone adapter policy, not original native parity. Parent remains PARTIAL; Automatic Reconnection alone is assigned as medium unit 001B through the owner. See reviews/2026-10-04-LWB317-REVIEW-HOME-PREFERENCE-LIFETIME-001A.md and work-items/LWB317-UI-HOME-PREFERENCE-LIFETIME-001B.md. Broader offline visual, native and protected-original pixel gates remain separate. Earlier dispatch/status notes below are historical.
