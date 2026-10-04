@@ -1,0 +1,235 @@
+{
+  "marker": "LWB317_CURRENT_EQUIPMENT_AFK_REPLAY_OK",
+  "modules": [
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/sharedPageUI.jsx",
+      "sha256": "95ED15F5A4AB46C7CAE4DD55656E85718F66FA5AC45278B615D1795EBD8E82F2"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/HomePage.jsx",
+      "sha256": "F140264E693E89F37CBB357470F58FE5DCA46F3DFDA29A8A5D2C7918CE2393FF"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/AutomationPage.jsx",
+      "sha256": "3BCC104D86327BF07560850F9EEF29DA63275A324F9DB11DBAF1FBA8ACB52A4D"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/SquadsPage.jsx",
+      "sha256": "0BD3AC149618E63645954D97D4304FB3D64A8EA84559B9DE55E77D46938DDC0B"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/CityLayoutPage.jsx",
+      "sha256": "4530C6711CE1CB08758780E3AEDEC1BFCAC2FFCB4056BF7721A2C6633E19482F"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/HotkeyPages.jsx",
+      "sha256": "5DAE6E4FFE8875BCEBC366109AD4C1E3FFF690EA17273EBB50226E9107551634"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/SettingsPage.jsx",
+      "sha256": "8622BE39E06FE82FCF31BD2E092358987F3F304D447ADA061685727436737771"
+    }
+  ],
+  "flattenedSha256": "5A6C672CAB4BE7677472C82C624C57F9E6C293437D8CDFCDED5A6A5D32ACBADD",
+  "historical": [
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-EQUIPMENT-CLOSEOUT-001/check-closeout.mjs",
+      "sha256": "6E03800DA2BF57C313EA7A9FB9EA7D32915F7620BCBFEA685330B93E4405A0B7"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-EQUIPMENT-CLOSEOUT-001-R1/check-r1.mjs",
+      "sha256": "2F4E4C88E118437DEE2649F0C5C35E6D724A5ACB6251D04E5D038C028E021ED7"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-AUTOMATION-AFK-CLOSEOUT-001/check-closeout.mjs",
+      "sha256": "A4A2163661A0FF31BA3A5E171AAF036ACBB82817E0E3099B46CA5EC3784817A9"
+    }
+  ],
+  "reports": [
+    {
+      "script": "LWB317-UI-EQUIPMENT-CLOSEOUT-001/check-closeout.mjs",
+      "marker": "LWB317_EQUIPMENT_ACTUAL_SOURCE_OK",
+      "assertions": 105,
+      "results": [
+        {
+          "name": "actual original/current snapshot counts and current-equipment predicate",
+          "count": 26,
+          "result": "PASS"
+        },
+        {
+          "name": "selected identity current matching mixed/unmatched and derived dirty state",
+          "count": 9,
+          "result": "PASS"
+        },
+        {
+          "name": "actual original/current item loadout squad transformations wrong-slot self-drop and 450ms success",
+          "count": 22,
+          "result": "PASS"
+        },
+        {
+          "name": "actual original/current Equipment dialog cancel busy and default no-backdrop-dismiss behavior",
+          "count": 8,
+          "result": "PASS"
+        },
+        {
+          "name": "actual production preset selection current-match and rename callbacks in English/Japanese",
+          "count": 14,
+          "result": "PASS"
+        },
+        {
+          "name": "production supplied-state partial/error/progress and action-enabled presentation",
+          "count": 24,
+          "result": "PASS"
+        },
+        {
+          "name": "source-located 1800ms toast cleanup and Alt+1..4 negative predicate",
+          "count": 2,
+          "result": "PASS"
+        }
+      ]
+    },
+    {
+      "script": "LWB317-UI-EQUIPMENT-CLOSEOUT-001-R1/check-r1.mjs",
+      "marker": "LWB317_EQUIPMENT_R1_ACTUAL_OK",
+      "assertions": 61,
+      "results": [
+        {
+          "name": "current parent uses React Activity visible/hidden retention boundary",
+          "count": 3,
+          "result": "PASS"
+        },
+        {
+          "name": "actual Equipment Alt effect cleanup and single re-install",
+          "count": 8,
+          "result": "PASS"
+        },
+        {
+          "name": "Alt repeat/input/busy negative predicates remain inert",
+          "count": 6,
+          "result": "PASS"
+        },
+        {
+          "name": "recovered rename acknowledgement success/null oracle",
+          "count": 4,
+          "result": "PASS"
+        },
+        {
+          "name": "current rename pending acknowledgement retains busy dialog",
+          "count": 4,
+          "result": "PASS"
+        },
+        {
+          "name": "current rename rejection clears busy, retains dialog, and Retry acknowledges draft",
+          "count": 9,
+          "result": "PASS"
+        },
+        {
+          "name": "rename failure Discard restores confirmed draft and retains dialog",
+          "count": 3,
+          "result": "PASS"
+        },
+        {
+          "name": "already-dirty moved draft plus rename acknowledges full draft in English/Japanese",
+          "count": 12,
+          "result": "PASS"
+        },
+        {
+          "name": "rename blank unchanged Enter and pending-close guards",
+          "count": 7,
+          "result": "PASS"
+        },
+        {
+          "name": "save-only consumer shares failure and Retry acknowledgement without native provider",
+          "count": 5,
+          "result": "PASS"
+        }
+      ]
+    },
+    {
+      "script": "LWB317-UI-AUTOMATION-AFK-CLOSEOUT-001/check-closeout.mjs",
+      "marker": "LWB317_AUTOMATION_AFK_ACTUAL_SOURCE_OK",
+      "assertions": 729,
+      "results": [
+        {
+          "name": "actual original/current AFK helpers and new profile defaults",
+          "count": 320,
+          "result": "PASS"
+        },
+        {
+          "name": "whole original/current join renderer in English and Japanese",
+          "count": 112,
+          "result": "PASS"
+        },
+        {
+          "name": "actual member modal confirmation preserves self/departed and source order",
+          "count": 3,
+          "result": "PASS"
+        },
+        {
+          "name": "actual original/current Automation meta and future-time renderer",
+          "count": 52,
+          "result": "PASS"
+        },
+        {
+          "name": "named Automation runtime branches through the original shared card",
+          "count": 48,
+          "result": "PASS"
+        },
+        {
+          "name": "actual original/current manual Assist rows queue states and controls",
+          "count": 32,
+          "result": "PASS"
+        },
+        {
+          "name": "actual original/current Gather callbacks and runtime precedence",
+          "count": 54,
+          "result": "PASS"
+        },
+        {
+          "name": "Garrison actual priority handlers availability runtime and source snapshot normalization",
+          "count": 10,
+          "result": "PASS"
+        },
+        {
+          "name": "actual original/current Zombie table empty gold normal unknown and supplied names",
+          "count": 4,
+          "result": "PASS"
+        },
+        {
+          "name": "explicit AFK/Assist fixture mode fencing",
+          "count": 30,
+          "result": "PASS"
+        },
+        {
+          "name": "two profile IDs and real draft error Retry/Discard",
+          "count": 5,
+          "result": "PASS"
+        },
+        {
+          "name": "actual original/current profile Delete confirmation cancel and accept",
+          "count": 2,
+          "result": "PASS"
+        },
+        {
+          "name": "actual Potion form Drill source wait-detail priority and drag predicates",
+          "count": 52,
+          "result": "PASS"
+        },
+        {
+          "name": "immutable baseline distinguishes five corrected render omissions",
+          "count": 5,
+          "result": "PASS"
+        }
+      ]
+    }
+  ],
+  "adapter": [
+    "Redirect only canonical Pages read to declarations from the actual split modules plus sharedPageUI",
+    "Retain historical baseline reads unchanged",
+    "Inject binding-only inert Motion/reduced/image adapters into the existing standalone function compiler",
+    "Resolve removed Assist local b through its actual GameAssetImage import and compile actual component/normalizer with an absent reader; image lifecycle and original caller parity have separate proof",
+    "Preserve every historical behavioral assertion and original-source oracle",
+    "Disable historical --record writes; write this separate replay record only"
+  ],
+  "limits": "Callback/render/effect regression replay uses inert Motion element identities and false reduced snapshot. Real original/current motion and true-reduced lifetimes are tested separately by check-motion; actual callsite/handler/content invariants by check-integration. No historical fixed file-hash validation is relabeled current."
+}

@@ -37,12 +37,16 @@ Last War launch/control, native provider implementation, live gameplay, updater
 execution or unrelated protocol/service campaign. Do not modify host/.NET code or
 retire its separately assigned legacy switch in this UI campaign.
 
-Starting WIP is protected, including previewAfkFixtures.js, historical Map results,
-.scratch-lwb317, CORRECT-003 screenshots and untracked Equipment vendor notices.
-Record starting HEAD/status and preserve every starting dirty/untracked file byte
-for byte. Use the ten-file HOME-PREFERENCE-LIFETIME-001B guard without --record;
-do not treat that finite guard as permission to discard other WIP. Never git add .,
-force-push, reset or stash away owner work. Owner port4335/session is untouched.
+Lead pending-work closeout, 2026-10-04: the old ten-file WIP is now preserved in
+LWB317-PENDING-WIP-CLOSEOUT-001/archive with exact hashes. Superseded AFK base
+edits and generated R1 hash metadata were restored; vendor attribution committed;
+original scratch cache and empty placeholder remain locally ignored. Read the
+dated closeout review. The previous live-path ten-file guard is HISTORICAL, not
+a current prerequisite; never rewrite it to hide these intentional dispositions.
+Use `node evidence/lwbridge-0.3.17/ui/LWB317-PENDING-WIP-CLOSEOUT-001/check-archive.mjs`
+and capture a NEW campaign-specific starting-WIP manifest for any dirty files
+actually present. Preserve those files byte for byte. Never git add ., force-push,
+reset or stash away owner work. Owner port4335/session is untouched.
 
 Allowed production scope: canonical frontend UI renderers/components, source-backed
 UI formatting/predicates, local UI state/effect lifetimes and CSS/icon/locale
@@ -56,7 +60,8 @@ Preview data must remain explicit, browser-preview-only and online:false. Tests
 may mount actual components with disclosed inert callbacks/deferred responses to
 observe online/busy/error presentations; these are synthetic component proof, not
 native success or proof of reachable original runtime. Prefer task-owned test
-adapters; do not modify protected previewAfkFixtures.js. Existing unavailable assets
+adapters; keep the reviewed base/accepted AFK adapter separation unless exact new
+source evidence justifies an assigned UI fix. Existing unavailable assets
 are explicit limits; never draw invented icons/images to claim exactness.
 
 ## Units — execute in this order

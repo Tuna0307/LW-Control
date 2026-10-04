@@ -19,3 +19,7 @@ analysis/
 tmp*/
 tmp_*
 tmp-*
+
+# Preserved in PENDING-WIP-CLOSEOUT-001; these original local files are cache/empty placeholder.
+/.scratch-lwb317/
+/evidence/lwbridge-0.3.17/ui/LWB317-UI-CORRECT-003/screenshots/weekly-save-error-light-en.png

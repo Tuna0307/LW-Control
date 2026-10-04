@@ -1,5 +1,13 @@
 # Current implementation/research handoff
 
+Lead pending-work closeout, 2026-10-04: long-standing local WIP reviewed and all
+ten bodies archived exactly in LWB317-PENDING-WIP-CLOSEOUT-001. Redundant AFK
+base flags and generated stale R1 hash restored; vendor notices retained/committed;
+original scratch cache and0-byte PNG placeholder remain locally ignored. Use the
+new check-archive.mjs and a fresh campaign starting-WIP inventory, not the old
+historical live-path ten-file guard. See dated closeout and updated large work item.
+No native/global UI acceptance changes; toolbar R1 remains first in the campaign.
+
 Current lead decision/owner relay, 2026-10-04: MAP-TOOLBAR-VISUAL-001 at24ea7b9
 is CHANGES_REQUIRED. Lead/source replays pass, but independent decoded pixels prove
 wrong Treasure label color outside action fences. Actual mounted34-case QA,
