@@ -3,6 +3,11 @@
 Status: NEXT lead UI correction; not yet implemented. The new visual packet
 contains exact counter-evidence against the earlier saving-disabled assumption.
 
+Dispatch2026-10-04:001A is assigned as a medium worker unit covering only
+Open games at startup / Auto Launch. Automatic Reconnection remains subsequent;
+the parent is PARTIAL. The lead must not concurrently edit the assigned
+App.jsx/HomePage.jsx preference scope while that worker is active.
+
 Goal: reproduce Home preference editability and visible value lifetime from
 LWBridge0.3.17, including edits while previous work is unfinished. Recover the
 producer/consumer chain before changing callbacks. This is phase2 local UI,
