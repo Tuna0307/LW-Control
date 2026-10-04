@@ -1,0 +1,621 @@
+{
+  "marker": "LWB317_MAP_AUTO_REMOVE_B_CONTROLS_REPLAYED",
+  "generatedAt": "2026-10-04",
+  "source": {
+    "knownKinds": {
+      "asset": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-BVfnK1wp.js",
+      "sha256": "44c4e4043825b7db296b64171951b27176f8850ff8d7d337cc991df4765524c6",
+      "byteStart": 358818,
+      "byteEnd": 358904,
+      "source": "new Set([`city`,`resource`,`monster`,`truck`,`railway`,`dispatch`,`ghost`,`treasure`])",
+      "note": "known Auto Scan config kind set"
+    },
+    "append": {
+      "asset": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-BVfnK1wp.js",
+      "sha256": "44c4e4043825b7db296b64171951b27176f8850ff8d7d337cc991df4765524c6",
+      "byteStart": 359234,
+      "byteEnd": 359284,
+      "source": "function wi(e,t){return Ci(`${e.join(`,`)},${t}`)}",
+      "note": "append parsed server IDs"
+    },
+    "remove": {
+      "asset": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-BVfnK1wp.js",
+      "sha256": "44c4e4043825b7db296b64171951b27176f8850ff8d7d337cc991df4765524c6",
+      "byteStart": 359284,
+      "byteEnd": 359327,
+      "source": "function Ti(e,t){return e.filter(e=>e!==t)}",
+      "note": "remove server ID"
+    },
+    "panelAdd": {
+      "asset": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js",
+      "sha256": "ce74345518be72e417a510b982c591729e5683f69751e190805598c4c05d3089",
+      "byteStart": 40544,
+      "byteEnd": 40620,
+      "source": "function lr(){oe(zn).length!==0&&($({serverIds:ue(x.serverIds,zn)}),Bn(``))}",
+      "note": "Add/Enter callback parses, appends and clears only when at least one valid ID parses"
+    },
+    "autoCard": {
+      "asset": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js",
+      "sha256": "ce74345518be72e417a510b982c591729e5683f69751e190805598c4c05d3089",
+      "byteStart": 46001,
+      "byteEnd": 48950,
+      "source": "(0,E.jsxs)(`div`,{className:`map-auto-scan-card`,children:[(0,E.jsxs)(`label`,{className:`map-auto-scan-master`,children:[(0,E.jsx)(`input`,{type:`checkbox`,checked:x.enabled,onChange:e=>$({enabled:e.target.checked})}),(0,E.jsx)(`strong`,{children:S(`map.enableAutoScan`)}),(0,E.jsx)(`span`,{children:Ce?S(`map.autoScanRunning`):x.enabled?S(`map.autoScanWaiting`):S(`map.autoScanDisabled`)})]}),(0,E.jsxs)(`div`,{className:`map-auto-scan-grid`,children:[(0,E.jsxs)(`div`,{className:`map-auto-scan-server-field`,children:[(0,E.jsx)(`span`,{children:S(`map.targetServers`)}),(0,E.jsxs)(`span`,{className:`map-auto-scan-server-input`,children:[(0,E.jsx)(`input`,{value:zn,inputMode:`numeric`,placeholder:C.serverId>0?String(C.serverId):`8, 15, 120`,onChange:e=>Bn(e.target.value),onKeyDown:e=>{e.key===`Enter`&&(e.preventDefault(),lr())}}),(0,E.jsx)(`button`,{type:`button`,disabled:oe(zn).length===0,onClick:lr,children:S(`common.add`)})]}),(0,E.jsx)(`small`,{children:S(`map.targetServersHint`)}),(0,E.jsx)(`span`,{className:`map-auto-scan-server-chips`,children:x.serverIds.map(e=>(0,E.jsxs)(`span`,{children:[e,(0,E.jsx)(`button`,{type:`button`,\"aria-label\":`${S(`common.remove`)} ${e}`,onClick:()=>$({serverIds:le(x.serverIds,e)}),children:(0,E.jsx)(se,{name:`remove`})})]},e))})]}),(0,E.jsxs)(`label`,{children:[(0,E.jsx)(`span`,{children:S(`map.scanIntervalMinutes`)}),(0,E.jsx)(`input`,{type:`number`,min:20,max:`1440`,value:x.intervalMinutes,onChange:e=>$({intervalMinutes:Number(e.target.value)})})]}),(0,E.jsxs)(`label`,{children:[(0,E.jsx)(`span`,{children:S(`map.speed`)}),(0,E.jsxs)(`select`,{value:x.scanMode,onChange:e=>$({scanMode:e.target.value===`fast`?`fast`:`normal`}),children:[(0,E.jsx)(`option`,{value:`normal`,children:S(`map.normalSpeed`)}),(0,E.jsx)(`option`,{value:`fast`,children:S(`map.fastSpeed`)})]})]})]}),(0,E.jsxs)(`div`,{className:`map-controls`,children:[(0,E.jsx)(`span`,{className:`map-controls-label`,children:S(`map.scanTypes`)}),(0,E.jsx)(`div`,{className:`map-types map-types--compact`,children:Ie.map(e=>(0,E.jsxs)(`label`,{children:[(0,E.jsx)(`input`,{type:`checkbox`,checked:x.selectedTypes.includes(e.key),disabled:x.selectedTypes.length===1&&x.selectedTypes[0]===e.key,onChange:t=>$({selectedTypes:t.target.checked?[...x.selectedTypes,e.key]:x.selectedTypes.filter(t=>t!==e.key)})}),S(e.label)]},e.key))})]}),(0,E.jsxs)(`div`,{className:`map-auto-scan-options`,children:[(0,E.jsxs)(`label`,{children:[(0,E.jsx)(`input`,{type:`checkbox`,checked:x.returnToOriginalServer,onChange:e=>$({returnToOriginalServer:e.target.checked})}),S(`map.returnAfterAutoScan`)]}),(0,E.jsx)(`button`,{type:`button`,className:`primary`,disabled:!l||!x.enabled||Ce||C.isReading,onClick:()=>$({nextRunAt:Date.now()}),children:S(`map.runAutoScanNow`)})]}),(0,E.jsx)(`small`,{children:S(`map.autoScanNavigationNotice`)}),(0,E.jsxs)(`small`,{children:[S(`map.nextAutoScan`),`: `,x.enabled&&x.nextRunAt>0?N(x.nextRunAt,Te):`-`]})]})",
+      "note": "complete Auto Scan card JSX contract"
+    }
+  },
+  "records": [
+    {
+      "side": "original",
+      "language": "en",
+      "labels": {
+        "add": "Add",
+        "remove8": "Remove 8"
+      },
+      "typeOrder": [
+        {
+          "key": "city",
+          "text": "Player City",
+          "checked": true,
+          "disabled": false
+        },
+        {
+          "key": "resource",
+          "text": "Resource Point",
+          "checked": false,
+          "disabled": false
+        },
+        {
+          "key": "monster",
+          "text": "Monster",
+          "checked": false,
+          "disabled": false
+        },
+        {
+          "key": "truck",
+          "text": "Truck",
+          "checked": true,
+          "disabled": false
+        },
+        {
+          "key": "railway",
+          "text": "Train",
+          "checked": false,
+          "disabled": false
+        },
+        {
+          "key": "dispatch",
+          "text": "Secret Task",
+          "checked": false,
+          "disabled": false
+        },
+        {
+          "key": "ghost",
+          "text": "Ghost Ops",
+          "checked": false,
+          "disabled": false
+        },
+        {
+          "key": "treasure",
+          "text": "Treasure",
+          "checked": true,
+          "disabled": false
+        }
+      ],
+      "initialServerIds": [
+        8
+      ],
+      "add": {
+        "draft": "8, 15, 15, 120; 0 100000 abc",
+        "disabledBefore": false,
+        "serverIds": [
+          8,
+          15,
+          120
+        ],
+        "inputAfter": "",
+        "chips": [
+          {
+            "ariaLabel": "Remove 8"
+          },
+          {
+            "ariaLabel": "Remove 15"
+          },
+          {
+            "ariaLabel": "Remove 120"
+          }
+        ]
+      },
+      "enter": {
+        "preventDefaultCount": 1,
+        "serverIds": [
+          8,
+          15,
+          120,
+          7,
+          9
+        ],
+        "inputAfter": "",
+        "chips": [
+          {
+            "ariaLabel": "Remove 8"
+          },
+          {
+            "ariaLabel": "Remove 15"
+          },
+          {
+            "ariaLabel": "Remove 120"
+          },
+          {
+            "ariaLabel": "Remove 7"
+          },
+          {
+            "ariaLabel": "Remove 9"
+          }
+        ]
+      },
+      "remove": {
+        "serverIds": [
+          8,
+          120,
+          7,
+          9
+        ],
+        "chips": [
+          {
+            "ariaLabel": "Remove 8"
+          },
+          {
+            "ariaLabel": "Remove 120"
+          },
+          {
+            "ariaLabel": "Remove 7"
+          },
+          {
+            "ariaLabel": "Remove 9"
+          }
+        ]
+      },
+      "nativeMutatorCalls": [],
+      "runNowInvoked": false
+    },
+    {
+      "side": "current",
+      "language": "en",
+      "labels": {
+        "add": "Add",
+        "remove8": "Remove 8"
+      },
+      "typeOrder": [
+        {
+          "key": "city",
+          "text": "Player City",
+          "checked": true,
+          "disabled": false
+        },
+        {
+          "key": "resource",
+          "text": "Resource Point",
+          "checked": false,
+          "disabled": false
+        },
+        {
+          "key": "monster",
+          "text": "Monster",
+          "checked": false,
+          "disabled": false
+        },
+        {
+          "key": "truck",
+          "text": "Truck",
+          "checked": true,
+          "disabled": false
+        },
+        {
+          "key": "railway",
+          "text": "Train",
+          "checked": false,
+          "disabled": false
+        },
+        {
+          "key": "dispatch",
+          "text": "Secret Task",
+          "checked": false,
+          "disabled": false
+        },
+        {
+          "key": "ghost",
+          "text": "Ghost Ops",
+          "checked": false,
+          "disabled": false
+        },
+        {
+          "key": "treasure",
+          "text": "Treasure",
+          "checked": true,
+          "disabled": false
+        }
+      ],
+      "initialServerIds": [
+        8
+      ],
+      "add": {
+        "draft": "8, 15, 15, 120; 0 100000 abc",
+        "disabledBefore": false,
+        "serverIds": [
+          8,
+          15,
+          120
+        ],
+        "inputAfter": "",
+        "chips": [
+          {
+            "ariaLabel": "Remove 8"
+          },
+          {
+            "ariaLabel": "Remove 15"
+          },
+          {
+            "ariaLabel": "Remove 120"
+          }
+        ]
+      },
+      "enter": {
+        "preventDefaultCount": 1,
+        "serverIds": [
+          8,
+          15,
+          120,
+          7,
+          9
+        ],
+        "inputAfter": "",
+        "chips": [
+          {
+            "ariaLabel": "Remove 8"
+          },
+          {
+            "ariaLabel": "Remove 15"
+          },
+          {
+            "ariaLabel": "Remove 120"
+          },
+          {
+            "ariaLabel": "Remove 7"
+          },
+          {
+            "ariaLabel": "Remove 9"
+          }
+        ]
+      },
+      "remove": {
+        "serverIds": [
+          8,
+          120,
+          7,
+          9
+        ],
+        "chips": [
+          {
+            "ariaLabel": "Remove 8"
+          },
+          {
+            "ariaLabel": "Remove 120"
+          },
+          {
+            "ariaLabel": "Remove 7"
+          },
+          {
+            "ariaLabel": "Remove 9"
+          }
+        ]
+      },
+      "nativeMutatorCalls": [],
+      "runNowInvoked": false
+    },
+    {
+      "side": "original",
+      "language": "ja",
+      "labels": {
+        "add": "追加",
+        "remove8": "削除 8"
+      },
+      "typeOrder": [
+        {
+          "key": "city",
+          "text": "プレイヤー都市",
+          "checked": true,
+          "disabled": false
+        },
+        {
+          "key": "resource",
+          "text": "資源地",
+          "checked": false,
+          "disabled": false
+        },
+        {
+          "key": "monster",
+          "text": "モンスター",
+          "checked": false,
+          "disabled": false
+        },
+        {
+          "key": "truck",
+          "text": "輸送車",
+          "checked": true,
+          "disabled": false
+        },
+        {
+          "key": "railway",
+          "text": "列車",
+          "checked": false,
+          "disabled": false
+        },
+        {
+          "key": "dispatch",
+          "text": "極秘任務",
+          "checked": false,
+          "disabled": false
+        },
+        {
+          "key": "ghost",
+          "text": "幽霊作戦",
+          "checked": false,
+          "disabled": false
+        },
+        {
+          "key": "treasure",
+          "text": "宝物",
+          "checked": true,
+          "disabled": false
+        }
+      ],
+      "initialServerIds": [
+        8
+      ],
+      "add": {
+        "draft": "8, 15, 15, 120; 0 100000 abc",
+        "disabledBefore": false,
+        "serverIds": [
+          8,
+          15,
+          120
+        ],
+        "inputAfter": "",
+        "chips": [
+          {
+            "ariaLabel": "削除 8"
+          },
+          {
+            "ariaLabel": "削除 15"
+          },
+          {
+            "ariaLabel": "削除 120"
+          }
+        ]
+      },
+      "enter": {
+        "preventDefaultCount": 1,
+        "serverIds": [
+          8,
+          15,
+          120,
+          7,
+          9
+        ],
+        "inputAfter": "",
+        "chips": [
+          {
+            "ariaLabel": "削除 8"
+          },
+          {
+            "ariaLabel": "削除 15"
+          },
+          {
+            "ariaLabel": "削除 120"
+          },
+          {
+            "ariaLabel": "削除 7"
+          },
+          {
+            "ariaLabel": "削除 9"
+          }
+        ]
+      },
+      "remove": {
+        "serverIds": [
+          8,
+          120,
+          7,
+          9
+        ],
+        "chips": [
+          {
+            "ariaLabel": "削除 8"
+          },
+          {
+            "ariaLabel": "削除 120"
+          },
+          {
+            "ariaLabel": "削除 7"
+          },
+          {
+            "ariaLabel": "削除 9"
+          }
+        ]
+      },
+      "nativeMutatorCalls": [],
+      "runNowInvoked": false
+    },
+    {
+      "side": "current",
+      "language": "ja",
+      "labels": {
+        "add": "追加",
+        "remove8": "削除 8"
+      },
+      "typeOrder": [
+        {
+          "key": "city",
+          "text": "プレイヤー都市",
+          "checked": true,
+          "disabled": false
+        },
+        {
+          "key": "resource",
+          "text": "資源地",
+          "checked": false,
+          "disabled": false
+        },
+        {
+          "key": "monster",
+          "text": "モンスター",
+          "checked": false,
+          "disabled": false
+        },
+        {
+          "key": "truck",
+          "text": "輸送車",
+          "checked": true,
+          "disabled": false
+        },
+        {
+          "key": "railway",
+          "text": "列車",
+          "checked": false,
+          "disabled": false
+        },
+        {
+          "key": "dispatch",
+          "text": "極秘任務",
+          "checked": false,
+          "disabled": false
+        },
+        {
+          "key": "ghost",
+          "text": "幽霊作戦",
+          "checked": false,
+          "disabled": false
+        },
+        {
+          "key": "treasure",
+          "text": "宝物",
+          "checked": true,
+          "disabled": false
+        }
+      ],
+      "initialServerIds": [
+        8
+      ],
+      "add": {
+        "draft": "8, 15, 15, 120; 0 100000 abc",
+        "disabledBefore": false,
+        "serverIds": [
+          8,
+          15,
+          120
+        ],
+        "inputAfter": "",
+        "chips": [
+          {
+            "ariaLabel": "削除 8"
+          },
+          {
+            "ariaLabel": "削除 15"
+          },
+          {
+            "ariaLabel": "削除 120"
+          }
+        ]
+      },
+      "enter": {
+        "preventDefaultCount": 1,
+        "serverIds": [
+          8,
+          15,
+          120,
+          7,
+          9
+        ],
+        "inputAfter": "",
+        "chips": [
+          {
+            "ariaLabel": "削除 8"
+          },
+          {
+            "ariaLabel": "削除 15"
+          },
+          {
+            "ariaLabel": "削除 120"
+          },
+          {
+            "ariaLabel": "削除 7"
+          },
+          {
+            "ariaLabel": "削除 9"
+          }
+        ]
+      },
+      "remove": {
+        "serverIds": [
+          8,
+          120,
+          7,
+          9
+        ],
+        "chips": [
+          {
+            "ariaLabel": "削除 8"
+          },
+          {
+            "ariaLabel": "削除 120"
+          },
+          {
+            "ariaLabel": "削除 7"
+          },
+          {
+            "ariaLabel": "削除 9"
+          }
+        ]
+      },
+      "nativeMutatorCalls": [],
+      "runNowInvoked": false
+    }
+  ],
+  "conclusions": {
+    "languages": [
+      "en",
+      "ja"
+    ],
+    "sourceOrder": [
+      "city",
+      "resource",
+      "monster",
+      "truck",
+      "railway",
+      "dispatch",
+      "ghost",
+      "treasure"
+    ],
+    "addExpected": [
+      8,
+      15,
+      120
+    ],
+    "enterExpected": [
+      8,
+      15,
+      120,
+      7,
+      9
+    ],
+    "removeExpected": [
+      8,
+      120,
+      7,
+      9
+    ],
+    "lastTypeProtection": "Rendered disabled checkbox verified in compare-states.mjs; disabled handler is not artificially invoked.",
+    "runNow": "Predicate states verified in compare-states.mjs; Run now callback is never invoked.",
+    "nativeFence": "No native/gameplay mutator call was produced by Add, Enter, deduplication or removal replay."
+  }
+}

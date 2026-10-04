@@ -1,0 +1,3912 @@
+{
+  "marker": "LWB317_MAP_AUTO_REMOVE_B_STATES_COMPARED",
+  "generatedAt": "2026-10-04",
+  "pairs": [
+    {
+      "id": "default",
+      "pairId": "en-default",
+      "language": "en",
+      "theme": "light",
+      "viewport": {
+        "width": 1280,
+        "height": 720,
+        "deviceScaleFactor": 1
+      },
+      "input": {
+        "now": 1791105300000,
+        "online": true,
+        "serverId": 321,
+        "autoScanRunning": false,
+        "scanState": {
+          "serverId": 321,
+          "serverIdSource": "fixture",
+          "scanRunId": "",
+          "isReading": false,
+          "phase": "idle",
+          "selectedTypes": [
+            "city",
+            "resource",
+            "monster",
+            "truck",
+            "railway",
+            "dispatch",
+            "ghost",
+            "treasure"
+          ],
+          "totalBlocks": 0,
+          "completedBlocks": 0,
+          "readBlocks": 0,
+          "failedBlocks": 0,
+          "unreadBlocks": 0,
+          "inflightBlocks": 0,
+          "scanMode": "normal",
+          "concurrency": 8,
+          "scanRate": 0,
+          "progressPercent": 0,
+          "lastError": null,
+          "startedAt": 0,
+          "updatedAt": 0
+        },
+        "config": {
+          "enabled": false,
+          "intervalMinutes": 60,
+          "serverIds": [],
+          "selectedTypes": [
+            "truck",
+            "railway",
+            "dispatch",
+            "ghost",
+            "treasure"
+          ],
+          "scanMode": "fast",
+          "returnToOriginalServer": true,
+          "nextRunAt": 0
+        }
+      },
+      "enteredAutoViaActualTabCallback": true,
+      "originalView": {
+        "master": {
+          "checked": false,
+          "strong": "Enable automatic scanning",
+          "status": "Disabled"
+        },
+        "server": {
+          "label": "Target servers",
+          "input": {
+            "value": "",
+            "inputMode": "numeric",
+            "placeholder": "321"
+          },
+          "add": {
+            "text": "Add",
+            "type": "button",
+            "disabled": true
+          },
+          "hint": "Enter server IDs and click Add. Commas add several at once; × removes one. No entries scans the current server.",
+          "chips": []
+        },
+        "interval": {
+          "value": 60,
+          "min": 20,
+          "max": "1440"
+        },
+        "speed": {
+          "value": "fast",
+          "options": [
+            {
+              "value": "normal",
+              "text": "Normal"
+            },
+            {
+              "value": "fast",
+              "text": "Fast"
+            }
+          ]
+        },
+        "types": [
+          {
+            "text": "Player City",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "Resource Point",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "Monster",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "Truck",
+            "checked": true,
+            "disabled": false
+          },
+          {
+            "text": "Train",
+            "checked": true,
+            "disabled": false
+          },
+          {
+            "text": "Secret Task",
+            "checked": true,
+            "disabled": false
+          },
+          {
+            "text": "Ghost Ops",
+            "checked": true,
+            "disabled": false
+          },
+          {
+            "text": "Treasure",
+            "checked": true,
+            "disabled": false
+          }
+        ],
+        "options": {
+          "returnToOriginal": {
+            "text": "Return to the original server after scanning",
+            "checked": true
+          },
+          "runNow": {
+            "text": "Run now",
+            "type": "button",
+            "className": "primary",
+            "disabled": true
+          }
+        },
+        "notice": "Each target server is entered before scanning; a server ID alone cannot scan another server.",
+        "nextScan": "Next scan: -",
+        "nativeTagCount": 46
+      },
+      "currentView": {
+        "master": {
+          "checked": false,
+          "strong": "Enable automatic scanning",
+          "status": "Disabled"
+        },
+        "server": {
+          "label": "Target servers",
+          "input": {
+            "value": "",
+            "inputMode": "numeric",
+            "placeholder": "321"
+          },
+          "add": {
+            "text": "Add",
+            "type": "button",
+            "disabled": true
+          },
+          "hint": "Enter server IDs and click Add. Commas add several at once; × removes one. No entries scans the current server.",
+          "chips": []
+        },
+        "interval": {
+          "value": 60,
+          "min": 20,
+          "max": "1440"
+        },
+        "speed": {
+          "value": "fast",
+          "options": [
+            {
+              "value": "normal",
+              "text": "Normal"
+            },
+            {
+              "value": "fast",
+              "text": "Fast"
+            }
+          ]
+        },
+        "types": [
+          {
+            "text": "Player City",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "Resource Point",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "Monster",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "Truck",
+            "checked": true,
+            "disabled": false
+          },
+          {
+            "text": "Train",
+            "checked": true,
+            "disabled": false
+          },
+          {
+            "text": "Secret Task",
+            "checked": true,
+            "disabled": false
+          },
+          {
+            "text": "Ghost Ops",
+            "checked": true,
+            "disabled": false
+          },
+          {
+            "text": "Treasure",
+            "checked": true,
+            "disabled": false
+          }
+        ],
+        "options": {
+          "returnToOriginal": {
+            "text": "Return to the original server after scanning",
+            "checked": true
+          },
+          "runNow": {
+            "text": "Run now",
+            "type": "button",
+            "className": "primary",
+            "disabled": true
+          }
+        },
+        "notice": "Each target server is entered before scanning; a server ID alone cannot scan another server.",
+        "nextScan": "Next scan: -",
+        "nativeTagCount": 46
+      },
+      "differences": [],
+      "exactViewMatch": true,
+      "originalMarkupSha256": "7c8e36f3c60d9882f34d9178268179212908967b058a92ecb3e7bcb5c090878e",
+      "currentMarkupSha256": "7c8e36f3c60d9882f34d9178268179212908967b058a92ecb3e7bcb5c090878e",
+      "exactMarkupMatch": true,
+      "rawFiles": {
+        "original": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-AUTO-REMOVE-001/milestone-b/raw/en-default-original.html",
+        "current": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-AUTO-REMOVE-001/milestone-b/raw/en-default-current.html"
+      }
+    },
+    {
+      "id": "configured-waiting",
+      "pairId": "en-configured-waiting",
+      "language": "en",
+      "theme": "light",
+      "viewport": {
+        "width": 1280,
+        "height": 720,
+        "deviceScaleFactor": 1
+      },
+      "input": {
+        "now": 1791105300000,
+        "online": true,
+        "serverId": 321,
+        "autoScanRunning": false,
+        "scanState": {
+          "serverId": 321,
+          "serverIdSource": "fixture",
+          "scanRunId": "",
+          "isReading": false,
+          "phase": "idle",
+          "selectedTypes": [
+            "city",
+            "resource",
+            "monster",
+            "truck",
+            "railway",
+            "dispatch",
+            "ghost",
+            "treasure"
+          ],
+          "totalBlocks": 0,
+          "completedBlocks": 0,
+          "readBlocks": 0,
+          "failedBlocks": 0,
+          "unreadBlocks": 0,
+          "inflightBlocks": 0,
+          "scanMode": "normal",
+          "concurrency": 8,
+          "scanRate": 0,
+          "progressPercent": 0,
+          "lastError": null,
+          "startedAt": 0,
+          "updatedAt": 0
+        },
+        "config": {
+          "enabled": true,
+          "intervalMinutes": 90,
+          "serverIds": [
+            8,
+            15,
+            120
+          ],
+          "selectedTypes": [
+            "city",
+            "truck",
+            "treasure"
+          ],
+          "scanMode": "normal",
+          "returnToOriginalServer": false,
+          "nextRunAt": 1791110700000
+        }
+      },
+      "enteredAutoViaActualTabCallback": true,
+      "originalView": {
+        "master": {
+          "checked": true,
+          "strong": "Enable automatic scanning",
+          "status": "Waiting for schedule"
+        },
+        "server": {
+          "label": "Target servers",
+          "input": {
+            "value": "",
+            "inputMode": "numeric",
+            "placeholder": "321"
+          },
+          "add": {
+            "text": "Add",
+            "type": "button",
+            "disabled": true
+          },
+          "hint": "Enter server IDs and click Add. Commas add several at once; × removes one. No entries scans the current server.",
+          "chips": [
+            {
+              "idText": "8",
+              "removeAriaLabel": "Remove 8",
+              "removeChildTag": "svg",
+              "removeChildClassName": "ui-icon",
+              "removeViewBox": "0 0 16 16",
+              "removeAriaHidden": "true",
+              "removeFocusable": "false",
+              "removeChildText": "",
+              "removePathD": "m4 4 8 8M12 4l-8 8"
+            },
+            {
+              "idText": "15",
+              "removeAriaLabel": "Remove 15",
+              "removeChildTag": "svg",
+              "removeChildClassName": "ui-icon",
+              "removeViewBox": "0 0 16 16",
+              "removeAriaHidden": "true",
+              "removeFocusable": "false",
+              "removeChildText": "",
+              "removePathD": "m4 4 8 8M12 4l-8 8"
+            },
+            {
+              "idText": "120",
+              "removeAriaLabel": "Remove 120",
+              "removeChildTag": "svg",
+              "removeChildClassName": "ui-icon",
+              "removeViewBox": "0 0 16 16",
+              "removeAriaHidden": "true",
+              "removeFocusable": "false",
+              "removeChildText": "",
+              "removePathD": "m4 4 8 8M12 4l-8 8"
+            }
+          ]
+        },
+        "interval": {
+          "value": 90,
+          "min": 20,
+          "max": "1440"
+        },
+        "speed": {
+          "value": "normal",
+          "options": [
+            {
+              "value": "normal",
+              "text": "Normal"
+            },
+            {
+              "value": "fast",
+              "text": "Fast"
+            }
+          ]
+        },
+        "types": [
+          {
+            "text": "Player City",
+            "checked": true,
+            "disabled": false
+          },
+          {
+            "text": "Resource Point",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "Monster",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "Truck",
+            "checked": true,
+            "disabled": false
+          },
+          {
+            "text": "Train",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "Secret Task",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "Ghost Ops",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "Treasure",
+            "checked": true,
+            "disabled": false
+          }
+        ],
+        "options": {
+          "returnToOriginal": {
+            "text": "Return to the original server after scanning",
+            "checked": false
+          },
+          "runNow": {
+            "text": "Run now",
+            "type": "button",
+            "className": "primary",
+            "disabled": false
+          }
+        },
+        "notice": "Each target server is entered before scanning; a server ID alone cannot scan another server.",
+        "nextScan": "Next scan: 10/4/2026, 6:45:00 PM",
+        "nativeTagCount": 58
+      },
+      "currentView": {
+        "master": {
+          "checked": true,
+          "strong": "Enable automatic scanning",
+          "status": "Waiting for schedule"
+        },
+        "server": {
+          "label": "Target servers",
+          "input": {
+            "value": "",
+            "inputMode": "numeric",
+            "placeholder": "321"
+          },
+          "add": {
+            "text": "Add",
+            "type": "button",
+            "disabled": true
+          },
+          "hint": "Enter server IDs and click Add. Commas add several at once; × removes one. No entries scans the current server.",
+          "chips": [
+            {
+              "idText": "8",
+              "removeAriaLabel": "Remove 8",
+              "removeChildTag": "svg",
+              "removeChildClassName": "ui-icon",
+              "removeViewBox": "0 0 16 16",
+              "removeAriaHidden": "true",
+              "removeFocusable": "false",
+              "removeChildText": "",
+              "removePathD": "m4 4 8 8M12 4l-8 8"
+            },
+            {
+              "idText": "15",
+              "removeAriaLabel": "Remove 15",
+              "removeChildTag": "svg",
+              "removeChildClassName": "ui-icon",
+              "removeViewBox": "0 0 16 16",
+              "removeAriaHidden": "true",
+              "removeFocusable": "false",
+              "removeChildText": "",
+              "removePathD": "m4 4 8 8M12 4l-8 8"
+            },
+            {
+              "idText": "120",
+              "removeAriaLabel": "Remove 120",
+              "removeChildTag": "svg",
+              "removeChildClassName": "ui-icon",
+              "removeViewBox": "0 0 16 16",
+              "removeAriaHidden": "true",
+              "removeFocusable": "false",
+              "removeChildText": "",
+              "removePathD": "m4 4 8 8M12 4l-8 8"
+            }
+          ]
+        },
+        "interval": {
+          "value": 90,
+          "min": 20,
+          "max": "1440"
+        },
+        "speed": {
+          "value": "normal",
+          "options": [
+            {
+              "value": "normal",
+              "text": "Normal"
+            },
+            {
+              "value": "fast",
+              "text": "Fast"
+            }
+          ]
+        },
+        "types": [
+          {
+            "text": "Player City",
+            "checked": true,
+            "disabled": false
+          },
+          {
+            "text": "Resource Point",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "Monster",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "Truck",
+            "checked": true,
+            "disabled": false
+          },
+          {
+            "text": "Train",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "Secret Task",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "Ghost Ops",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "Treasure",
+            "checked": true,
+            "disabled": false
+          }
+        ],
+        "options": {
+          "returnToOriginal": {
+            "text": "Return to the original server after scanning",
+            "checked": false
+          },
+          "runNow": {
+            "text": "Run now",
+            "type": "button",
+            "className": "primary",
+            "disabled": false
+          }
+        },
+        "notice": "Each target server is entered before scanning; a server ID alone cannot scan another server.",
+        "nextScan": "Next scan: 10/4/2026, 6:45:00 PM",
+        "nativeTagCount": 58
+      },
+      "differences": [],
+      "exactViewMatch": true,
+      "originalMarkupSha256": "d9baee691d974404a999695b814a1db14db075632575db2ecfea8438f93fdfab",
+      "currentMarkupSha256": "d9baee691d974404a999695b814a1db14db075632575db2ecfea8438f93fdfab",
+      "exactMarkupMatch": true,
+      "rawFiles": {
+        "original": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-AUTO-REMOVE-001/milestone-b/raw/en-configured-waiting-original.html",
+        "current": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-AUTO-REMOVE-001/milestone-b/raw/en-configured-waiting-current.html"
+      }
+    },
+    {
+      "id": "auto-running",
+      "pairId": "en-auto-running",
+      "language": "en",
+      "theme": "light",
+      "viewport": {
+        "width": 1280,
+        "height": 720,
+        "deviceScaleFactor": 1
+      },
+      "input": {
+        "now": 1791105300000,
+        "online": true,
+        "serverId": 321,
+        "autoScanRunning": true,
+        "scanState": {
+          "serverId": 321,
+          "serverIdSource": "fixture",
+          "scanRunId": "",
+          "isReading": false,
+          "phase": "idle",
+          "selectedTypes": [
+            "city",
+            "resource",
+            "monster",
+            "truck",
+            "railway",
+            "dispatch",
+            "ghost",
+            "treasure"
+          ],
+          "totalBlocks": 0,
+          "completedBlocks": 0,
+          "readBlocks": 0,
+          "failedBlocks": 0,
+          "unreadBlocks": 0,
+          "inflightBlocks": 0,
+          "scanMode": "normal",
+          "concurrency": 8,
+          "scanRate": 0,
+          "progressPercent": 0,
+          "lastError": null,
+          "startedAt": 0,
+          "updatedAt": 0
+        },
+        "config": {
+          "enabled": true,
+          "intervalMinutes": 90,
+          "serverIds": [
+            8,
+            15,
+            120
+          ],
+          "selectedTypes": [
+            "city",
+            "truck",
+            "treasure"
+          ],
+          "scanMode": "normal",
+          "returnToOriginalServer": false,
+          "nextRunAt": 1791110700000
+        }
+      },
+      "enteredAutoViaActualTabCallback": true,
+      "originalView": {
+        "master": {
+          "checked": true,
+          "strong": "Enable automatic scanning",
+          "status": "Running"
+        },
+        "server": {
+          "label": "Target servers",
+          "input": {
+            "value": "",
+            "inputMode": "numeric",
+            "placeholder": "321"
+          },
+          "add": {
+            "text": "Add",
+            "type": "button",
+            "disabled": true
+          },
+          "hint": "Enter server IDs and click Add. Commas add several at once; × removes one. No entries scans the current server.",
+          "chips": [
+            {
+              "idText": "8",
+              "removeAriaLabel": "Remove 8",
+              "removeChildTag": "svg",
+              "removeChildClassName": "ui-icon",
+              "removeViewBox": "0 0 16 16",
+              "removeAriaHidden": "true",
+              "removeFocusable": "false",
+              "removeChildText": "",
+              "removePathD": "m4 4 8 8M12 4l-8 8"
+            },
+            {
+              "idText": "15",
+              "removeAriaLabel": "Remove 15",
+              "removeChildTag": "svg",
+              "removeChildClassName": "ui-icon",
+              "removeViewBox": "0 0 16 16",
+              "removeAriaHidden": "true",
+              "removeFocusable": "false",
+              "removeChildText": "",
+              "removePathD": "m4 4 8 8M12 4l-8 8"
+            },
+            {
+              "idText": "120",
+              "removeAriaLabel": "Remove 120",
+              "removeChildTag": "svg",
+              "removeChildClassName": "ui-icon",
+              "removeViewBox": "0 0 16 16",
+              "removeAriaHidden": "true",
+              "removeFocusable": "false",
+              "removeChildText": "",
+              "removePathD": "m4 4 8 8M12 4l-8 8"
+            }
+          ]
+        },
+        "interval": {
+          "value": 90,
+          "min": 20,
+          "max": "1440"
+        },
+        "speed": {
+          "value": "normal",
+          "options": [
+            {
+              "value": "normal",
+              "text": "Normal"
+            },
+            {
+              "value": "fast",
+              "text": "Fast"
+            }
+          ]
+        },
+        "types": [
+          {
+            "text": "Player City",
+            "checked": true,
+            "disabled": false
+          },
+          {
+            "text": "Resource Point",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "Monster",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "Truck",
+            "checked": true,
+            "disabled": false
+          },
+          {
+            "text": "Train",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "Secret Task",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "Ghost Ops",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "Treasure",
+            "checked": true,
+            "disabled": false
+          }
+        ],
+        "options": {
+          "returnToOriginal": {
+            "text": "Return to the original server after scanning",
+            "checked": false
+          },
+          "runNow": {
+            "text": "Run now",
+            "type": "button",
+            "className": "primary",
+            "disabled": true
+          }
+        },
+        "notice": "Each target server is entered before scanning; a server ID alone cannot scan another server.",
+        "nextScan": "Next scan: 10/4/2026, 6:45:00 PM",
+        "nativeTagCount": 58
+      },
+      "currentView": {
+        "master": {
+          "checked": true,
+          "strong": "Enable automatic scanning",
+          "status": "Running"
+        },
+        "server": {
+          "label": "Target servers",
+          "input": {
+            "value": "",
+            "inputMode": "numeric",
+            "placeholder": "321"
+          },
+          "add": {
+            "text": "Add",
+            "type": "button",
+            "disabled": true
+          },
+          "hint": "Enter server IDs and click Add. Commas add several at once; × removes one. No entries scans the current server.",
+          "chips": [
+            {
+              "idText": "8",
+              "removeAriaLabel": "Remove 8",
+              "removeChildTag": "svg",
+              "removeChildClassName": "ui-icon",
+              "removeViewBox": "0 0 16 16",
+              "removeAriaHidden": "true",
+              "removeFocusable": "false",
+              "removeChildText": "",
+              "removePathD": "m4 4 8 8M12 4l-8 8"
+            },
+            {
+              "idText": "15",
+              "removeAriaLabel": "Remove 15",
+              "removeChildTag": "svg",
+              "removeChildClassName": "ui-icon",
+              "removeViewBox": "0 0 16 16",
+              "removeAriaHidden": "true",
+              "removeFocusable": "false",
+              "removeChildText": "",
+              "removePathD": "m4 4 8 8M12 4l-8 8"
+            },
+            {
+              "idText": "120",
+              "removeAriaLabel": "Remove 120",
+              "removeChildTag": "svg",
+              "removeChildClassName": "ui-icon",
+              "removeViewBox": "0 0 16 16",
+              "removeAriaHidden": "true",
+              "removeFocusable": "false",
+              "removeChildText": "",
+              "removePathD": "m4 4 8 8M12 4l-8 8"
+            }
+          ]
+        },
+        "interval": {
+          "value": 90,
+          "min": 20,
+          "max": "1440"
+        },
+        "speed": {
+          "value": "normal",
+          "options": [
+            {
+              "value": "normal",
+              "text": "Normal"
+            },
+            {
+              "value": "fast",
+              "text": "Fast"
+            }
+          ]
+        },
+        "types": [
+          {
+            "text": "Player City",
+            "checked": true,
+            "disabled": false
+          },
+          {
+            "text": "Resource Point",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "Monster",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "Truck",
+            "checked": true,
+            "disabled": false
+          },
+          {
+            "text": "Train",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "Secret Task",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "Ghost Ops",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "Treasure",
+            "checked": true,
+            "disabled": false
+          }
+        ],
+        "options": {
+          "returnToOriginal": {
+            "text": "Return to the original server after scanning",
+            "checked": false
+          },
+          "runNow": {
+            "text": "Run now",
+            "type": "button",
+            "className": "primary",
+            "disabled": true
+          }
+        },
+        "notice": "Each target server is entered before scanning; a server ID alone cannot scan another server.",
+        "nextScan": "Next scan: 10/4/2026, 6:45:00 PM",
+        "nativeTagCount": 58
+      },
+      "differences": [],
+      "exactViewMatch": true,
+      "originalMarkupSha256": "d36c4a2a5e6a1eec9e330fff50b5f949ab6d63e7e896dfb3aa7f460ef3263ac1",
+      "currentMarkupSha256": "d36c4a2a5e6a1eec9e330fff50b5f949ab6d63e7e896dfb3aa7f460ef3263ac1",
+      "exactMarkupMatch": true,
+      "rawFiles": {
+        "original": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-AUTO-REMOVE-001/milestone-b/raw/en-auto-running-original.html",
+        "current": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-AUTO-REMOVE-001/milestone-b/raw/en-auto-running-current.html"
+      }
+    },
+    {
+      "id": "manual-reading",
+      "pairId": "en-manual-reading",
+      "language": "en",
+      "theme": "light",
+      "viewport": {
+        "width": 1280,
+        "height": 720,
+        "deviceScaleFactor": 1
+      },
+      "input": {
+        "now": 1791105300000,
+        "online": true,
+        "serverId": 321,
+        "autoScanRunning": false,
+        "scanState": {
+          "serverId": 321,
+          "serverIdSource": "fixture",
+          "scanRunId": "manual-fixture",
+          "isReading": true,
+          "phase": "reading",
+          "selectedTypes": [
+            "city",
+            "resource",
+            "monster",
+            "truck",
+            "railway",
+            "dispatch",
+            "ghost",
+            "treasure"
+          ],
+          "totalBlocks": 0,
+          "completedBlocks": 0,
+          "readBlocks": 0,
+          "failedBlocks": 0,
+          "unreadBlocks": 0,
+          "inflightBlocks": 0,
+          "scanMode": "normal",
+          "concurrency": 8,
+          "scanRate": 0,
+          "progressPercent": 0,
+          "lastError": null,
+          "startedAt": 0,
+          "updatedAt": 0
+        },
+        "config": {
+          "enabled": true,
+          "intervalMinutes": 90,
+          "serverIds": [
+            8,
+            15,
+            120
+          ],
+          "selectedTypes": [
+            "city",
+            "truck",
+            "treasure"
+          ],
+          "scanMode": "normal",
+          "returnToOriginalServer": false,
+          "nextRunAt": 1791110700000
+        }
+      },
+      "enteredAutoViaActualTabCallback": true,
+      "originalView": {
+        "master": {
+          "checked": true,
+          "strong": "Enable automatic scanning",
+          "status": "Waiting for schedule"
+        },
+        "server": {
+          "label": "Target servers",
+          "input": {
+            "value": "",
+            "inputMode": "numeric",
+            "placeholder": "321"
+          },
+          "add": {
+            "text": "Add",
+            "type": "button",
+            "disabled": true
+          },
+          "hint": "Enter server IDs and click Add. Commas add several at once; × removes one. No entries scans the current server.",
+          "chips": [
+            {
+              "idText": "8",
+              "removeAriaLabel": "Remove 8",
+              "removeChildTag": "svg",
+              "removeChildClassName": "ui-icon",
+              "removeViewBox": "0 0 16 16",
+              "removeAriaHidden": "true",
+              "removeFocusable": "false",
+              "removeChildText": "",
+              "removePathD": "m4 4 8 8M12 4l-8 8"
+            },
+            {
+              "idText": "15",
+              "removeAriaLabel": "Remove 15",
+              "removeChildTag": "svg",
+              "removeChildClassName": "ui-icon",
+              "removeViewBox": "0 0 16 16",
+              "removeAriaHidden": "true",
+              "removeFocusable": "false",
+              "removeChildText": "",
+              "removePathD": "m4 4 8 8M12 4l-8 8"
+            },
+            {
+              "idText": "120",
+              "removeAriaLabel": "Remove 120",
+              "removeChildTag": "svg",
+              "removeChildClassName": "ui-icon",
+              "removeViewBox": "0 0 16 16",
+              "removeAriaHidden": "true",
+              "removeFocusable": "false",
+              "removeChildText": "",
+              "removePathD": "m4 4 8 8M12 4l-8 8"
+            }
+          ]
+        },
+        "interval": {
+          "value": 90,
+          "min": 20,
+          "max": "1440"
+        },
+        "speed": {
+          "value": "normal",
+          "options": [
+            {
+              "value": "normal",
+              "text": "Normal"
+            },
+            {
+              "value": "fast",
+              "text": "Fast"
+            }
+          ]
+        },
+        "types": [
+          {
+            "text": "Player City",
+            "checked": true,
+            "disabled": false
+          },
+          {
+            "text": "Resource Point",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "Monster",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "Truck",
+            "checked": true,
+            "disabled": false
+          },
+          {
+            "text": "Train",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "Secret Task",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "Ghost Ops",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "Treasure",
+            "checked": true,
+            "disabled": false
+          }
+        ],
+        "options": {
+          "returnToOriginal": {
+            "text": "Return to the original server after scanning",
+            "checked": false
+          },
+          "runNow": {
+            "text": "Run now",
+            "type": "button",
+            "className": "primary",
+            "disabled": true
+          }
+        },
+        "notice": "Each target server is entered before scanning; a server ID alone cannot scan another server.",
+        "nextScan": "Next scan: 10/4/2026, 6:45:00 PM",
+        "nativeTagCount": 58
+      },
+      "currentView": {
+        "master": {
+          "checked": true,
+          "strong": "Enable automatic scanning",
+          "status": "Waiting for schedule"
+        },
+        "server": {
+          "label": "Target servers",
+          "input": {
+            "value": "",
+            "inputMode": "numeric",
+            "placeholder": "321"
+          },
+          "add": {
+            "text": "Add",
+            "type": "button",
+            "disabled": true
+          },
+          "hint": "Enter server IDs and click Add. Commas add several at once; × removes one. No entries scans the current server.",
+          "chips": [
+            {
+              "idText": "8",
+              "removeAriaLabel": "Remove 8",
+              "removeChildTag": "svg",
+              "removeChildClassName": "ui-icon",
+              "removeViewBox": "0 0 16 16",
+              "removeAriaHidden": "true",
+              "removeFocusable": "false",
+              "removeChildText": "",
+              "removePathD": "m4 4 8 8M12 4l-8 8"
+            },
+            {
+              "idText": "15",
+              "removeAriaLabel": "Remove 15",
+              "removeChildTag": "svg",
+              "removeChildClassName": "ui-icon",
+              "removeViewBox": "0 0 16 16",
+              "removeAriaHidden": "true",
+              "removeFocusable": "false",
+              "removeChildText": "",
+              "removePathD": "m4 4 8 8M12 4l-8 8"
+            },
+            {
+              "idText": "120",
+              "removeAriaLabel": "Remove 120",
+              "removeChildTag": "svg",
+              "removeChildClassName": "ui-icon",
+              "removeViewBox": "0 0 16 16",
+              "removeAriaHidden": "true",
+              "removeFocusable": "false",
+              "removeChildText": "",
+              "removePathD": "m4 4 8 8M12 4l-8 8"
+            }
+          ]
+        },
+        "interval": {
+          "value": 90,
+          "min": 20,
+          "max": "1440"
+        },
+        "speed": {
+          "value": "normal",
+          "options": [
+            {
+              "value": "normal",
+              "text": "Normal"
+            },
+            {
+              "value": "fast",
+              "text": "Fast"
+            }
+          ]
+        },
+        "types": [
+          {
+            "text": "Player City",
+            "checked": true,
+            "disabled": false
+          },
+          {
+            "text": "Resource Point",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "Monster",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "Truck",
+            "checked": true,
+            "disabled": false
+          },
+          {
+            "text": "Train",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "Secret Task",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "Ghost Ops",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "Treasure",
+            "checked": true,
+            "disabled": false
+          }
+        ],
+        "options": {
+          "returnToOriginal": {
+            "text": "Return to the original server after scanning",
+            "checked": false
+          },
+          "runNow": {
+            "text": "Run now",
+            "type": "button",
+            "className": "primary",
+            "disabled": true
+          }
+        },
+        "notice": "Each target server is entered before scanning; a server ID alone cannot scan another server.",
+        "nextScan": "Next scan: 10/4/2026, 6:45:00 PM",
+        "nativeTagCount": 58
+      },
+      "differences": [],
+      "exactViewMatch": true,
+      "originalMarkupSha256": "ce38f8622f60fe59a78e20ebdd7bc12475ec4ce41f8a067c66d0e8b216972b4c",
+      "currentMarkupSha256": "ce38f8622f60fe59a78e20ebdd7bc12475ec4ce41f8a067c66d0e8b216972b4c",
+      "exactMarkupMatch": true,
+      "rawFiles": {
+        "original": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-AUTO-REMOVE-001/milestone-b/raw/en-manual-reading-original.html",
+        "current": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-AUTO-REMOVE-001/milestone-b/raw/en-manual-reading-current.html"
+      }
+    },
+    {
+      "id": "offline",
+      "pairId": "en-offline",
+      "language": "en",
+      "theme": "light",
+      "viewport": {
+        "width": 1280,
+        "height": 720,
+        "deviceScaleFactor": 1
+      },
+      "input": {
+        "now": 1791105300000,
+        "online": false,
+        "serverId": 321,
+        "autoScanRunning": false,
+        "scanState": {
+          "serverId": 321,
+          "serverIdSource": "fixture",
+          "scanRunId": "",
+          "isReading": false,
+          "phase": "idle",
+          "selectedTypes": [
+            "city",
+            "resource",
+            "monster",
+            "truck",
+            "railway",
+            "dispatch",
+            "ghost",
+            "treasure"
+          ],
+          "totalBlocks": 0,
+          "completedBlocks": 0,
+          "readBlocks": 0,
+          "failedBlocks": 0,
+          "unreadBlocks": 0,
+          "inflightBlocks": 0,
+          "scanMode": "normal",
+          "concurrency": 8,
+          "scanRate": 0,
+          "progressPercent": 0,
+          "lastError": null,
+          "startedAt": 0,
+          "updatedAt": 0
+        },
+        "config": {
+          "enabled": true,
+          "intervalMinutes": 90,
+          "serverIds": [
+            8,
+            15,
+            120
+          ],
+          "selectedTypes": [
+            "city",
+            "truck",
+            "treasure"
+          ],
+          "scanMode": "normal",
+          "returnToOriginalServer": false,
+          "nextRunAt": 1791110700000
+        }
+      },
+      "enteredAutoViaActualTabCallback": true,
+      "originalView": {
+        "master": {
+          "checked": true,
+          "strong": "Enable automatic scanning",
+          "status": "Waiting for schedule"
+        },
+        "server": {
+          "label": "Target servers",
+          "input": {
+            "value": "",
+            "inputMode": "numeric",
+            "placeholder": "321"
+          },
+          "add": {
+            "text": "Add",
+            "type": "button",
+            "disabled": true
+          },
+          "hint": "Enter server IDs and click Add. Commas add several at once; × removes one. No entries scans the current server.",
+          "chips": [
+            {
+              "idText": "8",
+              "removeAriaLabel": "Remove 8",
+              "removeChildTag": "svg",
+              "removeChildClassName": "ui-icon",
+              "removeViewBox": "0 0 16 16",
+              "removeAriaHidden": "true",
+              "removeFocusable": "false",
+              "removeChildText": "",
+              "removePathD": "m4 4 8 8M12 4l-8 8"
+            },
+            {
+              "idText": "15",
+              "removeAriaLabel": "Remove 15",
+              "removeChildTag": "svg",
+              "removeChildClassName": "ui-icon",
+              "removeViewBox": "0 0 16 16",
+              "removeAriaHidden": "true",
+              "removeFocusable": "false",
+              "removeChildText": "",
+              "removePathD": "m4 4 8 8M12 4l-8 8"
+            },
+            {
+              "idText": "120",
+              "removeAriaLabel": "Remove 120",
+              "removeChildTag": "svg",
+              "removeChildClassName": "ui-icon",
+              "removeViewBox": "0 0 16 16",
+              "removeAriaHidden": "true",
+              "removeFocusable": "false",
+              "removeChildText": "",
+              "removePathD": "m4 4 8 8M12 4l-8 8"
+            }
+          ]
+        },
+        "interval": {
+          "value": 90,
+          "min": 20,
+          "max": "1440"
+        },
+        "speed": {
+          "value": "normal",
+          "options": [
+            {
+              "value": "normal",
+              "text": "Normal"
+            },
+            {
+              "value": "fast",
+              "text": "Fast"
+            }
+          ]
+        },
+        "types": [
+          {
+            "text": "Player City",
+            "checked": true,
+            "disabled": false
+          },
+          {
+            "text": "Resource Point",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "Monster",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "Truck",
+            "checked": true,
+            "disabled": false
+          },
+          {
+            "text": "Train",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "Secret Task",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "Ghost Ops",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "Treasure",
+            "checked": true,
+            "disabled": false
+          }
+        ],
+        "options": {
+          "returnToOriginal": {
+            "text": "Return to the original server after scanning",
+            "checked": false
+          },
+          "runNow": {
+            "text": "Run now",
+            "type": "button",
+            "className": "primary",
+            "disabled": true
+          }
+        },
+        "notice": "Each target server is entered before scanning; a server ID alone cannot scan another server.",
+        "nextScan": "Next scan: 10/4/2026, 6:45:00 PM",
+        "nativeTagCount": 58
+      },
+      "currentView": {
+        "master": {
+          "checked": true,
+          "strong": "Enable automatic scanning",
+          "status": "Waiting for schedule"
+        },
+        "server": {
+          "label": "Target servers",
+          "input": {
+            "value": "",
+            "inputMode": "numeric",
+            "placeholder": "321"
+          },
+          "add": {
+            "text": "Add",
+            "type": "button",
+            "disabled": true
+          },
+          "hint": "Enter server IDs and click Add. Commas add several at once; × removes one. No entries scans the current server.",
+          "chips": [
+            {
+              "idText": "8",
+              "removeAriaLabel": "Remove 8",
+              "removeChildTag": "svg",
+              "removeChildClassName": "ui-icon",
+              "removeViewBox": "0 0 16 16",
+              "removeAriaHidden": "true",
+              "removeFocusable": "false",
+              "removeChildText": "",
+              "removePathD": "m4 4 8 8M12 4l-8 8"
+            },
+            {
+              "idText": "15",
+              "removeAriaLabel": "Remove 15",
+              "removeChildTag": "svg",
+              "removeChildClassName": "ui-icon",
+              "removeViewBox": "0 0 16 16",
+              "removeAriaHidden": "true",
+              "removeFocusable": "false",
+              "removeChildText": "",
+              "removePathD": "m4 4 8 8M12 4l-8 8"
+            },
+            {
+              "idText": "120",
+              "removeAriaLabel": "Remove 120",
+              "removeChildTag": "svg",
+              "removeChildClassName": "ui-icon",
+              "removeViewBox": "0 0 16 16",
+              "removeAriaHidden": "true",
+              "removeFocusable": "false",
+              "removeChildText": "",
+              "removePathD": "m4 4 8 8M12 4l-8 8"
+            }
+          ]
+        },
+        "interval": {
+          "value": 90,
+          "min": 20,
+          "max": "1440"
+        },
+        "speed": {
+          "value": "normal",
+          "options": [
+            {
+              "value": "normal",
+              "text": "Normal"
+            },
+            {
+              "value": "fast",
+              "text": "Fast"
+            }
+          ]
+        },
+        "types": [
+          {
+            "text": "Player City",
+            "checked": true,
+            "disabled": false
+          },
+          {
+            "text": "Resource Point",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "Monster",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "Truck",
+            "checked": true,
+            "disabled": false
+          },
+          {
+            "text": "Train",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "Secret Task",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "Ghost Ops",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "Treasure",
+            "checked": true,
+            "disabled": false
+          }
+        ],
+        "options": {
+          "returnToOriginal": {
+            "text": "Return to the original server after scanning",
+            "checked": false
+          },
+          "runNow": {
+            "text": "Run now",
+            "type": "button",
+            "className": "primary",
+            "disabled": true
+          }
+        },
+        "notice": "Each target server is entered before scanning; a server ID alone cannot scan another server.",
+        "nextScan": "Next scan: 10/4/2026, 6:45:00 PM",
+        "nativeTagCount": 58
+      },
+      "differences": [],
+      "exactViewMatch": true,
+      "originalMarkupSha256": "ce38f8622f60fe59a78e20ebdd7bc12475ec4ce41f8a067c66d0e8b216972b4c",
+      "currentMarkupSha256": "ce38f8622f60fe59a78e20ebdd7bc12475ec4ce41f8a067c66d0e8b216972b4c",
+      "exactMarkupMatch": true,
+      "rawFiles": {
+        "original": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-AUTO-REMOVE-001/milestone-b/raw/en-offline-original.html",
+        "current": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-AUTO-REMOVE-001/milestone-b/raw/en-offline-current.html"
+      }
+    },
+    {
+      "id": "one-remaining-type",
+      "pairId": "en-one-remaining-type",
+      "language": "en",
+      "theme": "light",
+      "viewport": {
+        "width": 1280,
+        "height": 720,
+        "deviceScaleFactor": 1
+      },
+      "input": {
+        "now": 1791105300000,
+        "online": true,
+        "serverId": 321,
+        "autoScanRunning": false,
+        "scanState": {
+          "serverId": 321,
+          "serverIdSource": "fixture",
+          "scanRunId": "",
+          "isReading": false,
+          "phase": "idle",
+          "selectedTypes": [
+            "city",
+            "resource",
+            "monster",
+            "truck",
+            "railway",
+            "dispatch",
+            "ghost",
+            "treasure"
+          ],
+          "totalBlocks": 0,
+          "completedBlocks": 0,
+          "readBlocks": 0,
+          "failedBlocks": 0,
+          "unreadBlocks": 0,
+          "inflightBlocks": 0,
+          "scanMode": "normal",
+          "concurrency": 8,
+          "scanRate": 0,
+          "progressPercent": 0,
+          "lastError": null,
+          "startedAt": 0,
+          "updatedAt": 0
+        },
+        "config": {
+          "enabled": true,
+          "intervalMinutes": 90,
+          "serverIds": [
+            8,
+            15,
+            120
+          ],
+          "selectedTypes": [
+            "treasure"
+          ],
+          "scanMode": "normal",
+          "returnToOriginalServer": false,
+          "nextRunAt": 1791110700000
+        }
+      },
+      "enteredAutoViaActualTabCallback": true,
+      "originalView": {
+        "master": {
+          "checked": true,
+          "strong": "Enable automatic scanning",
+          "status": "Waiting for schedule"
+        },
+        "server": {
+          "label": "Target servers",
+          "input": {
+            "value": "",
+            "inputMode": "numeric",
+            "placeholder": "321"
+          },
+          "add": {
+            "text": "Add",
+            "type": "button",
+            "disabled": true
+          },
+          "hint": "Enter server IDs and click Add. Commas add several at once; × removes one. No entries scans the current server.",
+          "chips": [
+            {
+              "idText": "8",
+              "removeAriaLabel": "Remove 8",
+              "removeChildTag": "svg",
+              "removeChildClassName": "ui-icon",
+              "removeViewBox": "0 0 16 16",
+              "removeAriaHidden": "true",
+              "removeFocusable": "false",
+              "removeChildText": "",
+              "removePathD": "m4 4 8 8M12 4l-8 8"
+            },
+            {
+              "idText": "15",
+              "removeAriaLabel": "Remove 15",
+              "removeChildTag": "svg",
+              "removeChildClassName": "ui-icon",
+              "removeViewBox": "0 0 16 16",
+              "removeAriaHidden": "true",
+              "removeFocusable": "false",
+              "removeChildText": "",
+              "removePathD": "m4 4 8 8M12 4l-8 8"
+            },
+            {
+              "idText": "120",
+              "removeAriaLabel": "Remove 120",
+              "removeChildTag": "svg",
+              "removeChildClassName": "ui-icon",
+              "removeViewBox": "0 0 16 16",
+              "removeAriaHidden": "true",
+              "removeFocusable": "false",
+              "removeChildText": "",
+              "removePathD": "m4 4 8 8M12 4l-8 8"
+            }
+          ]
+        },
+        "interval": {
+          "value": 90,
+          "min": 20,
+          "max": "1440"
+        },
+        "speed": {
+          "value": "normal",
+          "options": [
+            {
+              "value": "normal",
+              "text": "Normal"
+            },
+            {
+              "value": "fast",
+              "text": "Fast"
+            }
+          ]
+        },
+        "types": [
+          {
+            "text": "Player City",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "Resource Point",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "Monster",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "Truck",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "Train",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "Secret Task",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "Ghost Ops",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "Treasure",
+            "checked": true,
+            "disabled": true
+          }
+        ],
+        "options": {
+          "returnToOriginal": {
+            "text": "Return to the original server after scanning",
+            "checked": false
+          },
+          "runNow": {
+            "text": "Run now",
+            "type": "button",
+            "className": "primary",
+            "disabled": false
+          }
+        },
+        "notice": "Each target server is entered before scanning; a server ID alone cannot scan another server.",
+        "nextScan": "Next scan: 10/4/2026, 6:45:00 PM",
+        "nativeTagCount": 58
+      },
+      "currentView": {
+        "master": {
+          "checked": true,
+          "strong": "Enable automatic scanning",
+          "status": "Waiting for schedule"
+        },
+        "server": {
+          "label": "Target servers",
+          "input": {
+            "value": "",
+            "inputMode": "numeric",
+            "placeholder": "321"
+          },
+          "add": {
+            "text": "Add",
+            "type": "button",
+            "disabled": true
+          },
+          "hint": "Enter server IDs and click Add. Commas add several at once; × removes one. No entries scans the current server.",
+          "chips": [
+            {
+              "idText": "8",
+              "removeAriaLabel": "Remove 8",
+              "removeChildTag": "svg",
+              "removeChildClassName": "ui-icon",
+              "removeViewBox": "0 0 16 16",
+              "removeAriaHidden": "true",
+              "removeFocusable": "false",
+              "removeChildText": "",
+              "removePathD": "m4 4 8 8M12 4l-8 8"
+            },
+            {
+              "idText": "15",
+              "removeAriaLabel": "Remove 15",
+              "removeChildTag": "svg",
+              "removeChildClassName": "ui-icon",
+              "removeViewBox": "0 0 16 16",
+              "removeAriaHidden": "true",
+              "removeFocusable": "false",
+              "removeChildText": "",
+              "removePathD": "m4 4 8 8M12 4l-8 8"
+            },
+            {
+              "idText": "120",
+              "removeAriaLabel": "Remove 120",
+              "removeChildTag": "svg",
+              "removeChildClassName": "ui-icon",
+              "removeViewBox": "0 0 16 16",
+              "removeAriaHidden": "true",
+              "removeFocusable": "false",
+              "removeChildText": "",
+              "removePathD": "m4 4 8 8M12 4l-8 8"
+            }
+          ]
+        },
+        "interval": {
+          "value": 90,
+          "min": 20,
+          "max": "1440"
+        },
+        "speed": {
+          "value": "normal",
+          "options": [
+            {
+              "value": "normal",
+              "text": "Normal"
+            },
+            {
+              "value": "fast",
+              "text": "Fast"
+            }
+          ]
+        },
+        "types": [
+          {
+            "text": "Player City",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "Resource Point",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "Monster",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "Truck",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "Train",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "Secret Task",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "Ghost Ops",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "Treasure",
+            "checked": true,
+            "disabled": true
+          }
+        ],
+        "options": {
+          "returnToOriginal": {
+            "text": "Return to the original server after scanning",
+            "checked": false
+          },
+          "runNow": {
+            "text": "Run now",
+            "type": "button",
+            "className": "primary",
+            "disabled": false
+          }
+        },
+        "notice": "Each target server is entered before scanning; a server ID alone cannot scan another server.",
+        "nextScan": "Next scan: 10/4/2026, 6:45:00 PM",
+        "nativeTagCount": 58
+      },
+      "differences": [],
+      "exactViewMatch": true,
+      "originalMarkupSha256": "507c0e8bb0f5185e54f65f870d73d77a541fc5ee661fabc554b8fc4eb8dce08a",
+      "currentMarkupSha256": "507c0e8bb0f5185e54f65f870d73d77a541fc5ee661fabc554b8fc4eb8dce08a",
+      "exactMarkupMatch": true,
+      "rawFiles": {
+        "original": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-AUTO-REMOVE-001/milestone-b/raw/en-one-remaining-type-original.html",
+        "current": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-AUTO-REMOVE-001/milestone-b/raw/en-one-remaining-type-current.html"
+      }
+    },
+    {
+      "id": "default",
+      "pairId": "ja-default",
+      "language": "ja",
+      "theme": "dark",
+      "viewport": {
+        "width": 375,
+        "height": 1000,
+        "deviceScaleFactor": 1
+      },
+      "input": {
+        "now": 1791105300000,
+        "online": true,
+        "serverId": 321,
+        "autoScanRunning": false,
+        "scanState": {
+          "serverId": 321,
+          "serverIdSource": "fixture",
+          "scanRunId": "",
+          "isReading": false,
+          "phase": "idle",
+          "selectedTypes": [
+            "city",
+            "resource",
+            "monster",
+            "truck",
+            "railway",
+            "dispatch",
+            "ghost",
+            "treasure"
+          ],
+          "totalBlocks": 0,
+          "completedBlocks": 0,
+          "readBlocks": 0,
+          "failedBlocks": 0,
+          "unreadBlocks": 0,
+          "inflightBlocks": 0,
+          "scanMode": "normal",
+          "concurrency": 8,
+          "scanRate": 0,
+          "progressPercent": 0,
+          "lastError": null,
+          "startedAt": 0,
+          "updatedAt": 0
+        },
+        "config": {
+          "enabled": false,
+          "intervalMinutes": 60,
+          "serverIds": [],
+          "selectedTypes": [
+            "truck",
+            "railway",
+            "dispatch",
+            "ghost",
+            "treasure"
+          ],
+          "scanMode": "fast",
+          "returnToOriginalServer": true,
+          "nextRunAt": 0
+        }
+      },
+      "enteredAutoViaActualTabCallback": true,
+      "originalView": {
+        "master": {
+          "checked": false,
+          "strong": "自動スキャンを有効化",
+          "status": "無効"
+        },
+        "server": {
+          "label": "対象サーバー",
+          "input": {
+            "value": "",
+            "inputMode": "numeric",
+            "placeholder": "321"
+          },
+          "add": {
+            "text": "追加",
+            "type": "button",
+            "disabled": true
+          },
+          "hint": "サーバー番号を入力して追加します。カンマで複数追加でき、×で個別削除できます。未追加の場合は現在のサーバーをスキャンします。",
+          "chips": []
+        },
+        "interval": {
+          "value": 60,
+          "min": 20,
+          "max": "1440"
+        },
+        "speed": {
+          "value": "fast",
+          "options": [
+            {
+              "value": "normal",
+              "text": "標準"
+            },
+            {
+              "value": "fast",
+              "text": "高速"
+            }
+          ]
+        },
+        "types": [
+          {
+            "text": "プレイヤー都市",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "資源地",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "モンスター",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "輸送車",
+            "checked": true,
+            "disabled": false
+          },
+          {
+            "text": "列車",
+            "checked": true,
+            "disabled": false
+          },
+          {
+            "text": "極秘任務",
+            "checked": true,
+            "disabled": false
+          },
+          {
+            "text": "幽霊作戦",
+            "checked": true,
+            "disabled": false
+          },
+          {
+            "text": "宝物",
+            "checked": true,
+            "disabled": false
+          }
+        ],
+        "options": {
+          "returnToOriginal": {
+            "text": "スキャン後に元のサーバーへ戻る",
+            "checked": true
+          },
+          "runNow": {
+            "text": "今すぐ実行",
+            "type": "button",
+            "className": "primary",
+            "disabled": true
+          }
+        },
+        "notice": "スキャン前に対象サーバーへ移動します。サーバー番号だけでは別サーバーをスキャンできません。",
+        "nextScan": "次回スキャン: -",
+        "nativeTagCount": 46
+      },
+      "currentView": {
+        "master": {
+          "checked": false,
+          "strong": "自動スキャンを有効化",
+          "status": "無効"
+        },
+        "server": {
+          "label": "対象サーバー",
+          "input": {
+            "value": "",
+            "inputMode": "numeric",
+            "placeholder": "321"
+          },
+          "add": {
+            "text": "追加",
+            "type": "button",
+            "disabled": true
+          },
+          "hint": "サーバー番号を入力して追加します。カンマで複数追加でき、×で個別削除できます。未追加の場合は現在のサーバーをスキャンします。",
+          "chips": []
+        },
+        "interval": {
+          "value": 60,
+          "min": 20,
+          "max": "1440"
+        },
+        "speed": {
+          "value": "fast",
+          "options": [
+            {
+              "value": "normal",
+              "text": "標準"
+            },
+            {
+              "value": "fast",
+              "text": "高速"
+            }
+          ]
+        },
+        "types": [
+          {
+            "text": "プレイヤー都市",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "資源地",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "モンスター",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "輸送車",
+            "checked": true,
+            "disabled": false
+          },
+          {
+            "text": "列車",
+            "checked": true,
+            "disabled": false
+          },
+          {
+            "text": "極秘任務",
+            "checked": true,
+            "disabled": false
+          },
+          {
+            "text": "幽霊作戦",
+            "checked": true,
+            "disabled": false
+          },
+          {
+            "text": "宝物",
+            "checked": true,
+            "disabled": false
+          }
+        ],
+        "options": {
+          "returnToOriginal": {
+            "text": "スキャン後に元のサーバーへ戻る",
+            "checked": true
+          },
+          "runNow": {
+            "text": "今すぐ実行",
+            "type": "button",
+            "className": "primary",
+            "disabled": true
+          }
+        },
+        "notice": "スキャン前に対象サーバーへ移動します。サーバー番号だけでは別サーバーをスキャンできません。",
+        "nextScan": "次回スキャン: -",
+        "nativeTagCount": 46
+      },
+      "differences": [],
+      "exactViewMatch": true,
+      "originalMarkupSha256": "6b705b4890cdc80f3355889143afa52dd56c88c3dc0bae7c880463f78c157826",
+      "currentMarkupSha256": "6b705b4890cdc80f3355889143afa52dd56c88c3dc0bae7c880463f78c157826",
+      "exactMarkupMatch": true,
+      "rawFiles": {
+        "original": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-AUTO-REMOVE-001/milestone-b/raw/ja-default-original.html",
+        "current": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-AUTO-REMOVE-001/milestone-b/raw/ja-default-current.html"
+      }
+    },
+    {
+      "id": "configured-waiting",
+      "pairId": "ja-configured-waiting",
+      "language": "ja",
+      "theme": "dark",
+      "viewport": {
+        "width": 375,
+        "height": 1000,
+        "deviceScaleFactor": 1
+      },
+      "input": {
+        "now": 1791105300000,
+        "online": true,
+        "serverId": 321,
+        "autoScanRunning": false,
+        "scanState": {
+          "serverId": 321,
+          "serverIdSource": "fixture",
+          "scanRunId": "",
+          "isReading": false,
+          "phase": "idle",
+          "selectedTypes": [
+            "city",
+            "resource",
+            "monster",
+            "truck",
+            "railway",
+            "dispatch",
+            "ghost",
+            "treasure"
+          ],
+          "totalBlocks": 0,
+          "completedBlocks": 0,
+          "readBlocks": 0,
+          "failedBlocks": 0,
+          "unreadBlocks": 0,
+          "inflightBlocks": 0,
+          "scanMode": "normal",
+          "concurrency": 8,
+          "scanRate": 0,
+          "progressPercent": 0,
+          "lastError": null,
+          "startedAt": 0,
+          "updatedAt": 0
+        },
+        "config": {
+          "enabled": true,
+          "intervalMinutes": 90,
+          "serverIds": [
+            8,
+            15,
+            120
+          ],
+          "selectedTypes": [
+            "city",
+            "truck",
+            "treasure"
+          ],
+          "scanMode": "normal",
+          "returnToOriginalServer": false,
+          "nextRunAt": 1791110700000
+        }
+      },
+      "enteredAutoViaActualTabCallback": true,
+      "originalView": {
+        "master": {
+          "checked": true,
+          "strong": "自動スキャンを有効化",
+          "status": "スケジュール待機中"
+        },
+        "server": {
+          "label": "対象サーバー",
+          "input": {
+            "value": "",
+            "inputMode": "numeric",
+            "placeholder": "321"
+          },
+          "add": {
+            "text": "追加",
+            "type": "button",
+            "disabled": true
+          },
+          "hint": "サーバー番号を入力して追加します。カンマで複数追加でき、×で個別削除できます。未追加の場合は現在のサーバーをスキャンします。",
+          "chips": [
+            {
+              "idText": "8",
+              "removeAriaLabel": "削除 8",
+              "removeChildTag": "svg",
+              "removeChildClassName": "ui-icon",
+              "removeViewBox": "0 0 16 16",
+              "removeAriaHidden": "true",
+              "removeFocusable": "false",
+              "removeChildText": "",
+              "removePathD": "m4 4 8 8M12 4l-8 8"
+            },
+            {
+              "idText": "15",
+              "removeAriaLabel": "削除 15",
+              "removeChildTag": "svg",
+              "removeChildClassName": "ui-icon",
+              "removeViewBox": "0 0 16 16",
+              "removeAriaHidden": "true",
+              "removeFocusable": "false",
+              "removeChildText": "",
+              "removePathD": "m4 4 8 8M12 4l-8 8"
+            },
+            {
+              "idText": "120",
+              "removeAriaLabel": "削除 120",
+              "removeChildTag": "svg",
+              "removeChildClassName": "ui-icon",
+              "removeViewBox": "0 0 16 16",
+              "removeAriaHidden": "true",
+              "removeFocusable": "false",
+              "removeChildText": "",
+              "removePathD": "m4 4 8 8M12 4l-8 8"
+            }
+          ]
+        },
+        "interval": {
+          "value": 90,
+          "min": 20,
+          "max": "1440"
+        },
+        "speed": {
+          "value": "normal",
+          "options": [
+            {
+              "value": "normal",
+              "text": "標準"
+            },
+            {
+              "value": "fast",
+              "text": "高速"
+            }
+          ]
+        },
+        "types": [
+          {
+            "text": "プレイヤー都市",
+            "checked": true,
+            "disabled": false
+          },
+          {
+            "text": "資源地",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "モンスター",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "輸送車",
+            "checked": true,
+            "disabled": false
+          },
+          {
+            "text": "列車",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "極秘任務",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "幽霊作戦",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "宝物",
+            "checked": true,
+            "disabled": false
+          }
+        ],
+        "options": {
+          "returnToOriginal": {
+            "text": "スキャン後に元のサーバーへ戻る",
+            "checked": false
+          },
+          "runNow": {
+            "text": "今すぐ実行",
+            "type": "button",
+            "className": "primary",
+            "disabled": false
+          }
+        },
+        "notice": "スキャン前に対象サーバーへ移動します。サーバー番号だけでは別サーバーをスキャンできません。",
+        "nextScan": "次回スキャン: 2026/10/4 18:45:00",
+        "nativeTagCount": 58
+      },
+      "currentView": {
+        "master": {
+          "checked": true,
+          "strong": "自動スキャンを有効化",
+          "status": "スケジュール待機中"
+        },
+        "server": {
+          "label": "対象サーバー",
+          "input": {
+            "value": "",
+            "inputMode": "numeric",
+            "placeholder": "321"
+          },
+          "add": {
+            "text": "追加",
+            "type": "button",
+            "disabled": true
+          },
+          "hint": "サーバー番号を入力して追加します。カンマで複数追加でき、×で個別削除できます。未追加の場合は現在のサーバーをスキャンします。",
+          "chips": [
+            {
+              "idText": "8",
+              "removeAriaLabel": "削除 8",
+              "removeChildTag": "svg",
+              "removeChildClassName": "ui-icon",
+              "removeViewBox": "0 0 16 16",
+              "removeAriaHidden": "true",
+              "removeFocusable": "false",
+              "removeChildText": "",
+              "removePathD": "m4 4 8 8M12 4l-8 8"
+            },
+            {
+              "idText": "15",
+              "removeAriaLabel": "削除 15",
+              "removeChildTag": "svg",
+              "removeChildClassName": "ui-icon",
+              "removeViewBox": "0 0 16 16",
+              "removeAriaHidden": "true",
+              "removeFocusable": "false",
+              "removeChildText": "",
+              "removePathD": "m4 4 8 8M12 4l-8 8"
+            },
+            {
+              "idText": "120",
+              "removeAriaLabel": "削除 120",
+              "removeChildTag": "svg",
+              "removeChildClassName": "ui-icon",
+              "removeViewBox": "0 0 16 16",
+              "removeAriaHidden": "true",
+              "removeFocusable": "false",
+              "removeChildText": "",
+              "removePathD": "m4 4 8 8M12 4l-8 8"
+            }
+          ]
+        },
+        "interval": {
+          "value": 90,
+          "min": 20,
+          "max": "1440"
+        },
+        "speed": {
+          "value": "normal",
+          "options": [
+            {
+              "value": "normal",
+              "text": "標準"
+            },
+            {
+              "value": "fast",
+              "text": "高速"
+            }
+          ]
+        },
+        "types": [
+          {
+            "text": "プレイヤー都市",
+            "checked": true,
+            "disabled": false
+          },
+          {
+            "text": "資源地",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "モンスター",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "輸送車",
+            "checked": true,
+            "disabled": false
+          },
+          {
+            "text": "列車",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "極秘任務",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "幽霊作戦",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "宝物",
+            "checked": true,
+            "disabled": false
+          }
+        ],
+        "options": {
+          "returnToOriginal": {
+            "text": "スキャン後に元のサーバーへ戻る",
+            "checked": false
+          },
+          "runNow": {
+            "text": "今すぐ実行",
+            "type": "button",
+            "className": "primary",
+            "disabled": false
+          }
+        },
+        "notice": "スキャン前に対象サーバーへ移動します。サーバー番号だけでは別サーバーをスキャンできません。",
+        "nextScan": "次回スキャン: 2026/10/4 18:45:00",
+        "nativeTagCount": 58
+      },
+      "differences": [],
+      "exactViewMatch": true,
+      "originalMarkupSha256": "18bd2d2828042a7e1c47a0406b9467a89d0e6393284b5b37060969f42ff1e6d9",
+      "currentMarkupSha256": "18bd2d2828042a7e1c47a0406b9467a89d0e6393284b5b37060969f42ff1e6d9",
+      "exactMarkupMatch": true,
+      "rawFiles": {
+        "original": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-AUTO-REMOVE-001/milestone-b/raw/ja-configured-waiting-original.html",
+        "current": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-AUTO-REMOVE-001/milestone-b/raw/ja-configured-waiting-current.html"
+      }
+    },
+    {
+      "id": "auto-running",
+      "pairId": "ja-auto-running",
+      "language": "ja",
+      "theme": "dark",
+      "viewport": {
+        "width": 375,
+        "height": 1000,
+        "deviceScaleFactor": 1
+      },
+      "input": {
+        "now": 1791105300000,
+        "online": true,
+        "serverId": 321,
+        "autoScanRunning": true,
+        "scanState": {
+          "serverId": 321,
+          "serverIdSource": "fixture",
+          "scanRunId": "",
+          "isReading": false,
+          "phase": "idle",
+          "selectedTypes": [
+            "city",
+            "resource",
+            "monster",
+            "truck",
+            "railway",
+            "dispatch",
+            "ghost",
+            "treasure"
+          ],
+          "totalBlocks": 0,
+          "completedBlocks": 0,
+          "readBlocks": 0,
+          "failedBlocks": 0,
+          "unreadBlocks": 0,
+          "inflightBlocks": 0,
+          "scanMode": "normal",
+          "concurrency": 8,
+          "scanRate": 0,
+          "progressPercent": 0,
+          "lastError": null,
+          "startedAt": 0,
+          "updatedAt": 0
+        },
+        "config": {
+          "enabled": true,
+          "intervalMinutes": 90,
+          "serverIds": [
+            8,
+            15,
+            120
+          ],
+          "selectedTypes": [
+            "city",
+            "truck",
+            "treasure"
+          ],
+          "scanMode": "normal",
+          "returnToOriginalServer": false,
+          "nextRunAt": 1791110700000
+        }
+      },
+      "enteredAutoViaActualTabCallback": true,
+      "originalView": {
+        "master": {
+          "checked": true,
+          "strong": "自動スキャンを有効化",
+          "status": "実行中"
+        },
+        "server": {
+          "label": "対象サーバー",
+          "input": {
+            "value": "",
+            "inputMode": "numeric",
+            "placeholder": "321"
+          },
+          "add": {
+            "text": "追加",
+            "type": "button",
+            "disabled": true
+          },
+          "hint": "サーバー番号を入力して追加します。カンマで複数追加でき、×で個別削除できます。未追加の場合は現在のサーバーをスキャンします。",
+          "chips": [
+            {
+              "idText": "8",
+              "removeAriaLabel": "削除 8",
+              "removeChildTag": "svg",
+              "removeChildClassName": "ui-icon",
+              "removeViewBox": "0 0 16 16",
+              "removeAriaHidden": "true",
+              "removeFocusable": "false",
+              "removeChildText": "",
+              "removePathD": "m4 4 8 8M12 4l-8 8"
+            },
+            {
+              "idText": "15",
+              "removeAriaLabel": "削除 15",
+              "removeChildTag": "svg",
+              "removeChildClassName": "ui-icon",
+              "removeViewBox": "0 0 16 16",
+              "removeAriaHidden": "true",
+              "removeFocusable": "false",
+              "removeChildText": "",
+              "removePathD": "m4 4 8 8M12 4l-8 8"
+            },
+            {
+              "idText": "120",
+              "removeAriaLabel": "削除 120",
+              "removeChildTag": "svg",
+              "removeChildClassName": "ui-icon",
+              "removeViewBox": "0 0 16 16",
+              "removeAriaHidden": "true",
+              "removeFocusable": "false",
+              "removeChildText": "",
+              "removePathD": "m4 4 8 8M12 4l-8 8"
+            }
+          ]
+        },
+        "interval": {
+          "value": 90,
+          "min": 20,
+          "max": "1440"
+        },
+        "speed": {
+          "value": "normal",
+          "options": [
+            {
+              "value": "normal",
+              "text": "標準"
+            },
+            {
+              "value": "fast",
+              "text": "高速"
+            }
+          ]
+        },
+        "types": [
+          {
+            "text": "プレイヤー都市",
+            "checked": true,
+            "disabled": false
+          },
+          {
+            "text": "資源地",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "モンスター",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "輸送車",
+            "checked": true,
+            "disabled": false
+          },
+          {
+            "text": "列車",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "極秘任務",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "幽霊作戦",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "宝物",
+            "checked": true,
+            "disabled": false
+          }
+        ],
+        "options": {
+          "returnToOriginal": {
+            "text": "スキャン後に元のサーバーへ戻る",
+            "checked": false
+          },
+          "runNow": {
+            "text": "今すぐ実行",
+            "type": "button",
+            "className": "primary",
+            "disabled": true
+          }
+        },
+        "notice": "スキャン前に対象サーバーへ移動します。サーバー番号だけでは別サーバーをスキャンできません。",
+        "nextScan": "次回スキャン: 2026/10/4 18:45:00",
+        "nativeTagCount": 58
+      },
+      "currentView": {
+        "master": {
+          "checked": true,
+          "strong": "自動スキャンを有効化",
+          "status": "実行中"
+        },
+        "server": {
+          "label": "対象サーバー",
+          "input": {
+            "value": "",
+            "inputMode": "numeric",
+            "placeholder": "321"
+          },
+          "add": {
+            "text": "追加",
+            "type": "button",
+            "disabled": true
+          },
+          "hint": "サーバー番号を入力して追加します。カンマで複数追加でき、×で個別削除できます。未追加の場合は現在のサーバーをスキャンします。",
+          "chips": [
+            {
+              "idText": "8",
+              "removeAriaLabel": "削除 8",
+              "removeChildTag": "svg",
+              "removeChildClassName": "ui-icon",
+              "removeViewBox": "0 0 16 16",
+              "removeAriaHidden": "true",
+              "removeFocusable": "false",
+              "removeChildText": "",
+              "removePathD": "m4 4 8 8M12 4l-8 8"
+            },
+            {
+              "idText": "15",
+              "removeAriaLabel": "削除 15",
+              "removeChildTag": "svg",
+              "removeChildClassName": "ui-icon",
+              "removeViewBox": "0 0 16 16",
+              "removeAriaHidden": "true",
+              "removeFocusable": "false",
+              "removeChildText": "",
+              "removePathD": "m4 4 8 8M12 4l-8 8"
+            },
+            {
+              "idText": "120",
+              "removeAriaLabel": "削除 120",
+              "removeChildTag": "svg",
+              "removeChildClassName": "ui-icon",
+              "removeViewBox": "0 0 16 16",
+              "removeAriaHidden": "true",
+              "removeFocusable": "false",
+              "removeChildText": "",
+              "removePathD": "m4 4 8 8M12 4l-8 8"
+            }
+          ]
+        },
+        "interval": {
+          "value": 90,
+          "min": 20,
+          "max": "1440"
+        },
+        "speed": {
+          "value": "normal",
+          "options": [
+            {
+              "value": "normal",
+              "text": "標準"
+            },
+            {
+              "value": "fast",
+              "text": "高速"
+            }
+          ]
+        },
+        "types": [
+          {
+            "text": "プレイヤー都市",
+            "checked": true,
+            "disabled": false
+          },
+          {
+            "text": "資源地",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "モンスター",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "輸送車",
+            "checked": true,
+            "disabled": false
+          },
+          {
+            "text": "列車",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "極秘任務",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "幽霊作戦",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "宝物",
+            "checked": true,
+            "disabled": false
+          }
+        ],
+        "options": {
+          "returnToOriginal": {
+            "text": "スキャン後に元のサーバーへ戻る",
+            "checked": false
+          },
+          "runNow": {
+            "text": "今すぐ実行",
+            "type": "button",
+            "className": "primary",
+            "disabled": true
+          }
+        },
+        "notice": "スキャン前に対象サーバーへ移動します。サーバー番号だけでは別サーバーをスキャンできません。",
+        "nextScan": "次回スキャン: 2026/10/4 18:45:00",
+        "nativeTagCount": 58
+      },
+      "differences": [],
+      "exactViewMatch": true,
+      "originalMarkupSha256": "7fafced2ff9c7fc9068c8eaebb6366bf13b7b34560d76be084a0f6f54227eb03",
+      "currentMarkupSha256": "7fafced2ff9c7fc9068c8eaebb6366bf13b7b34560d76be084a0f6f54227eb03",
+      "exactMarkupMatch": true,
+      "rawFiles": {
+        "original": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-AUTO-REMOVE-001/milestone-b/raw/ja-auto-running-original.html",
+        "current": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-AUTO-REMOVE-001/milestone-b/raw/ja-auto-running-current.html"
+      }
+    },
+    {
+      "id": "manual-reading",
+      "pairId": "ja-manual-reading",
+      "language": "ja",
+      "theme": "dark",
+      "viewport": {
+        "width": 375,
+        "height": 1000,
+        "deviceScaleFactor": 1
+      },
+      "input": {
+        "now": 1791105300000,
+        "online": true,
+        "serverId": 321,
+        "autoScanRunning": false,
+        "scanState": {
+          "serverId": 321,
+          "serverIdSource": "fixture",
+          "scanRunId": "manual-fixture",
+          "isReading": true,
+          "phase": "reading",
+          "selectedTypes": [
+            "city",
+            "resource",
+            "monster",
+            "truck",
+            "railway",
+            "dispatch",
+            "ghost",
+            "treasure"
+          ],
+          "totalBlocks": 0,
+          "completedBlocks": 0,
+          "readBlocks": 0,
+          "failedBlocks": 0,
+          "unreadBlocks": 0,
+          "inflightBlocks": 0,
+          "scanMode": "normal",
+          "concurrency": 8,
+          "scanRate": 0,
+          "progressPercent": 0,
+          "lastError": null,
+          "startedAt": 0,
+          "updatedAt": 0
+        },
+        "config": {
+          "enabled": true,
+          "intervalMinutes": 90,
+          "serverIds": [
+            8,
+            15,
+            120
+          ],
+          "selectedTypes": [
+            "city",
+            "truck",
+            "treasure"
+          ],
+          "scanMode": "normal",
+          "returnToOriginalServer": false,
+          "nextRunAt": 1791110700000
+        }
+      },
+      "enteredAutoViaActualTabCallback": true,
+      "originalView": {
+        "master": {
+          "checked": true,
+          "strong": "自動スキャンを有効化",
+          "status": "スケジュール待機中"
+        },
+        "server": {
+          "label": "対象サーバー",
+          "input": {
+            "value": "",
+            "inputMode": "numeric",
+            "placeholder": "321"
+          },
+          "add": {
+            "text": "追加",
+            "type": "button",
+            "disabled": true
+          },
+          "hint": "サーバー番号を入力して追加します。カンマで複数追加でき、×で個別削除できます。未追加の場合は現在のサーバーをスキャンします。",
+          "chips": [
+            {
+              "idText": "8",
+              "removeAriaLabel": "削除 8",
+              "removeChildTag": "svg",
+              "removeChildClassName": "ui-icon",
+              "removeViewBox": "0 0 16 16",
+              "removeAriaHidden": "true",
+              "removeFocusable": "false",
+              "removeChildText": "",
+              "removePathD": "m4 4 8 8M12 4l-8 8"
+            },
+            {
+              "idText": "15",
+              "removeAriaLabel": "削除 15",
+              "removeChildTag": "svg",
+              "removeChildClassName": "ui-icon",
+              "removeViewBox": "0 0 16 16",
+              "removeAriaHidden": "true",
+              "removeFocusable": "false",
+              "removeChildText": "",
+              "removePathD": "m4 4 8 8M12 4l-8 8"
+            },
+            {
+              "idText": "120",
+              "removeAriaLabel": "削除 120",
+              "removeChildTag": "svg",
+              "removeChildClassName": "ui-icon",
+              "removeViewBox": "0 0 16 16",
+              "removeAriaHidden": "true",
+              "removeFocusable": "false",
+              "removeChildText": "",
+              "removePathD": "m4 4 8 8M12 4l-8 8"
+            }
+          ]
+        },
+        "interval": {
+          "value": 90,
+          "min": 20,
+          "max": "1440"
+        },
+        "speed": {
+          "value": "normal",
+          "options": [
+            {
+              "value": "normal",
+              "text": "標準"
+            },
+            {
+              "value": "fast",
+              "text": "高速"
+            }
+          ]
+        },
+        "types": [
+          {
+            "text": "プレイヤー都市",
+            "checked": true,
+            "disabled": false
+          },
+          {
+            "text": "資源地",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "モンスター",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "輸送車",
+            "checked": true,
+            "disabled": false
+          },
+          {
+            "text": "列車",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "極秘任務",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "幽霊作戦",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "宝物",
+            "checked": true,
+            "disabled": false
+          }
+        ],
+        "options": {
+          "returnToOriginal": {
+            "text": "スキャン後に元のサーバーへ戻る",
+            "checked": false
+          },
+          "runNow": {
+            "text": "今すぐ実行",
+            "type": "button",
+            "className": "primary",
+            "disabled": true
+          }
+        },
+        "notice": "スキャン前に対象サーバーへ移動します。サーバー番号だけでは別サーバーをスキャンできません。",
+        "nextScan": "次回スキャン: 2026/10/4 18:45:00",
+        "nativeTagCount": 58
+      },
+      "currentView": {
+        "master": {
+          "checked": true,
+          "strong": "自動スキャンを有効化",
+          "status": "スケジュール待機中"
+        },
+        "server": {
+          "label": "対象サーバー",
+          "input": {
+            "value": "",
+            "inputMode": "numeric",
+            "placeholder": "321"
+          },
+          "add": {
+            "text": "追加",
+            "type": "button",
+            "disabled": true
+          },
+          "hint": "サーバー番号を入力して追加します。カンマで複数追加でき、×で個別削除できます。未追加の場合は現在のサーバーをスキャンします。",
+          "chips": [
+            {
+              "idText": "8",
+              "removeAriaLabel": "削除 8",
+              "removeChildTag": "svg",
+              "removeChildClassName": "ui-icon",
+              "removeViewBox": "0 0 16 16",
+              "removeAriaHidden": "true",
+              "removeFocusable": "false",
+              "removeChildText": "",
+              "removePathD": "m4 4 8 8M12 4l-8 8"
+            },
+            {
+              "idText": "15",
+              "removeAriaLabel": "削除 15",
+              "removeChildTag": "svg",
+              "removeChildClassName": "ui-icon",
+              "removeViewBox": "0 0 16 16",
+              "removeAriaHidden": "true",
+              "removeFocusable": "false",
+              "removeChildText": "",
+              "removePathD": "m4 4 8 8M12 4l-8 8"
+            },
+            {
+              "idText": "120",
+              "removeAriaLabel": "削除 120",
+              "removeChildTag": "svg",
+              "removeChildClassName": "ui-icon",
+              "removeViewBox": "0 0 16 16",
+              "removeAriaHidden": "true",
+              "removeFocusable": "false",
+              "removeChildText": "",
+              "removePathD": "m4 4 8 8M12 4l-8 8"
+            }
+          ]
+        },
+        "interval": {
+          "value": 90,
+          "min": 20,
+          "max": "1440"
+        },
+        "speed": {
+          "value": "normal",
+          "options": [
+            {
+              "value": "normal",
+              "text": "標準"
+            },
+            {
+              "value": "fast",
+              "text": "高速"
+            }
+          ]
+        },
+        "types": [
+          {
+            "text": "プレイヤー都市",
+            "checked": true,
+            "disabled": false
+          },
+          {
+            "text": "資源地",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "モンスター",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "輸送車",
+            "checked": true,
+            "disabled": false
+          },
+          {
+            "text": "列車",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "極秘任務",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "幽霊作戦",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "宝物",
+            "checked": true,
+            "disabled": false
+          }
+        ],
+        "options": {
+          "returnToOriginal": {
+            "text": "スキャン後に元のサーバーへ戻る",
+            "checked": false
+          },
+          "runNow": {
+            "text": "今すぐ実行",
+            "type": "button",
+            "className": "primary",
+            "disabled": true
+          }
+        },
+        "notice": "スキャン前に対象サーバーへ移動します。サーバー番号だけでは別サーバーをスキャンできません。",
+        "nextScan": "次回スキャン: 2026/10/4 18:45:00",
+        "nativeTagCount": 58
+      },
+      "differences": [],
+      "exactViewMatch": true,
+      "originalMarkupSha256": "2c73813caa3087cefdba7a169fa4bf02dcb7400cb38174aae13714a9297f3b5c",
+      "currentMarkupSha256": "2c73813caa3087cefdba7a169fa4bf02dcb7400cb38174aae13714a9297f3b5c",
+      "exactMarkupMatch": true,
+      "rawFiles": {
+        "original": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-AUTO-REMOVE-001/milestone-b/raw/ja-manual-reading-original.html",
+        "current": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-AUTO-REMOVE-001/milestone-b/raw/ja-manual-reading-current.html"
+      }
+    },
+    {
+      "id": "offline",
+      "pairId": "ja-offline",
+      "language": "ja",
+      "theme": "dark",
+      "viewport": {
+        "width": 375,
+        "height": 1000,
+        "deviceScaleFactor": 1
+      },
+      "input": {
+        "now": 1791105300000,
+        "online": false,
+        "serverId": 321,
+        "autoScanRunning": false,
+        "scanState": {
+          "serverId": 321,
+          "serverIdSource": "fixture",
+          "scanRunId": "",
+          "isReading": false,
+          "phase": "idle",
+          "selectedTypes": [
+            "city",
+            "resource",
+            "monster",
+            "truck",
+            "railway",
+            "dispatch",
+            "ghost",
+            "treasure"
+          ],
+          "totalBlocks": 0,
+          "completedBlocks": 0,
+          "readBlocks": 0,
+          "failedBlocks": 0,
+          "unreadBlocks": 0,
+          "inflightBlocks": 0,
+          "scanMode": "normal",
+          "concurrency": 8,
+          "scanRate": 0,
+          "progressPercent": 0,
+          "lastError": null,
+          "startedAt": 0,
+          "updatedAt": 0
+        },
+        "config": {
+          "enabled": true,
+          "intervalMinutes": 90,
+          "serverIds": [
+            8,
+            15,
+            120
+          ],
+          "selectedTypes": [
+            "city",
+            "truck",
+            "treasure"
+          ],
+          "scanMode": "normal",
+          "returnToOriginalServer": false,
+          "nextRunAt": 1791110700000
+        }
+      },
+      "enteredAutoViaActualTabCallback": true,
+      "originalView": {
+        "master": {
+          "checked": true,
+          "strong": "自動スキャンを有効化",
+          "status": "スケジュール待機中"
+        },
+        "server": {
+          "label": "対象サーバー",
+          "input": {
+            "value": "",
+            "inputMode": "numeric",
+            "placeholder": "321"
+          },
+          "add": {
+            "text": "追加",
+            "type": "button",
+            "disabled": true
+          },
+          "hint": "サーバー番号を入力して追加します。カンマで複数追加でき、×で個別削除できます。未追加の場合は現在のサーバーをスキャンします。",
+          "chips": [
+            {
+              "idText": "8",
+              "removeAriaLabel": "削除 8",
+              "removeChildTag": "svg",
+              "removeChildClassName": "ui-icon",
+              "removeViewBox": "0 0 16 16",
+              "removeAriaHidden": "true",
+              "removeFocusable": "false",
+              "removeChildText": "",
+              "removePathD": "m4 4 8 8M12 4l-8 8"
+            },
+            {
+              "idText": "15",
+              "removeAriaLabel": "削除 15",
+              "removeChildTag": "svg",
+              "removeChildClassName": "ui-icon",
+              "removeViewBox": "0 0 16 16",
+              "removeAriaHidden": "true",
+              "removeFocusable": "false",
+              "removeChildText": "",
+              "removePathD": "m4 4 8 8M12 4l-8 8"
+            },
+            {
+              "idText": "120",
+              "removeAriaLabel": "削除 120",
+              "removeChildTag": "svg",
+              "removeChildClassName": "ui-icon",
+              "removeViewBox": "0 0 16 16",
+              "removeAriaHidden": "true",
+              "removeFocusable": "false",
+              "removeChildText": "",
+              "removePathD": "m4 4 8 8M12 4l-8 8"
+            }
+          ]
+        },
+        "interval": {
+          "value": 90,
+          "min": 20,
+          "max": "1440"
+        },
+        "speed": {
+          "value": "normal",
+          "options": [
+            {
+              "value": "normal",
+              "text": "標準"
+            },
+            {
+              "value": "fast",
+              "text": "高速"
+            }
+          ]
+        },
+        "types": [
+          {
+            "text": "プレイヤー都市",
+            "checked": true,
+            "disabled": false
+          },
+          {
+            "text": "資源地",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "モンスター",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "輸送車",
+            "checked": true,
+            "disabled": false
+          },
+          {
+            "text": "列車",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "極秘任務",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "幽霊作戦",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "宝物",
+            "checked": true,
+            "disabled": false
+          }
+        ],
+        "options": {
+          "returnToOriginal": {
+            "text": "スキャン後に元のサーバーへ戻る",
+            "checked": false
+          },
+          "runNow": {
+            "text": "今すぐ実行",
+            "type": "button",
+            "className": "primary",
+            "disabled": true
+          }
+        },
+        "notice": "スキャン前に対象サーバーへ移動します。サーバー番号だけでは別サーバーをスキャンできません。",
+        "nextScan": "次回スキャン: 2026/10/4 18:45:00",
+        "nativeTagCount": 58
+      },
+      "currentView": {
+        "master": {
+          "checked": true,
+          "strong": "自動スキャンを有効化",
+          "status": "スケジュール待機中"
+        },
+        "server": {
+          "label": "対象サーバー",
+          "input": {
+            "value": "",
+            "inputMode": "numeric",
+            "placeholder": "321"
+          },
+          "add": {
+            "text": "追加",
+            "type": "button",
+            "disabled": true
+          },
+          "hint": "サーバー番号を入力して追加します。カンマで複数追加でき、×で個別削除できます。未追加の場合は現在のサーバーをスキャンします。",
+          "chips": [
+            {
+              "idText": "8",
+              "removeAriaLabel": "削除 8",
+              "removeChildTag": "svg",
+              "removeChildClassName": "ui-icon",
+              "removeViewBox": "0 0 16 16",
+              "removeAriaHidden": "true",
+              "removeFocusable": "false",
+              "removeChildText": "",
+              "removePathD": "m4 4 8 8M12 4l-8 8"
+            },
+            {
+              "idText": "15",
+              "removeAriaLabel": "削除 15",
+              "removeChildTag": "svg",
+              "removeChildClassName": "ui-icon",
+              "removeViewBox": "0 0 16 16",
+              "removeAriaHidden": "true",
+              "removeFocusable": "false",
+              "removeChildText": "",
+              "removePathD": "m4 4 8 8M12 4l-8 8"
+            },
+            {
+              "idText": "120",
+              "removeAriaLabel": "削除 120",
+              "removeChildTag": "svg",
+              "removeChildClassName": "ui-icon",
+              "removeViewBox": "0 0 16 16",
+              "removeAriaHidden": "true",
+              "removeFocusable": "false",
+              "removeChildText": "",
+              "removePathD": "m4 4 8 8M12 4l-8 8"
+            }
+          ]
+        },
+        "interval": {
+          "value": 90,
+          "min": 20,
+          "max": "1440"
+        },
+        "speed": {
+          "value": "normal",
+          "options": [
+            {
+              "value": "normal",
+              "text": "標準"
+            },
+            {
+              "value": "fast",
+              "text": "高速"
+            }
+          ]
+        },
+        "types": [
+          {
+            "text": "プレイヤー都市",
+            "checked": true,
+            "disabled": false
+          },
+          {
+            "text": "資源地",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "モンスター",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "輸送車",
+            "checked": true,
+            "disabled": false
+          },
+          {
+            "text": "列車",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "極秘任務",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "幽霊作戦",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "宝物",
+            "checked": true,
+            "disabled": false
+          }
+        ],
+        "options": {
+          "returnToOriginal": {
+            "text": "スキャン後に元のサーバーへ戻る",
+            "checked": false
+          },
+          "runNow": {
+            "text": "今すぐ実行",
+            "type": "button",
+            "className": "primary",
+            "disabled": true
+          }
+        },
+        "notice": "スキャン前に対象サーバーへ移動します。サーバー番号だけでは別サーバーをスキャンできません。",
+        "nextScan": "次回スキャン: 2026/10/4 18:45:00",
+        "nativeTagCount": 58
+      },
+      "differences": [],
+      "exactViewMatch": true,
+      "originalMarkupSha256": "2c73813caa3087cefdba7a169fa4bf02dcb7400cb38174aae13714a9297f3b5c",
+      "currentMarkupSha256": "2c73813caa3087cefdba7a169fa4bf02dcb7400cb38174aae13714a9297f3b5c",
+      "exactMarkupMatch": true,
+      "rawFiles": {
+        "original": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-AUTO-REMOVE-001/milestone-b/raw/ja-offline-original.html",
+        "current": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-AUTO-REMOVE-001/milestone-b/raw/ja-offline-current.html"
+      }
+    },
+    {
+      "id": "one-remaining-type",
+      "pairId": "ja-one-remaining-type",
+      "language": "ja",
+      "theme": "dark",
+      "viewport": {
+        "width": 375,
+        "height": 1000,
+        "deviceScaleFactor": 1
+      },
+      "input": {
+        "now": 1791105300000,
+        "online": true,
+        "serverId": 321,
+        "autoScanRunning": false,
+        "scanState": {
+          "serverId": 321,
+          "serverIdSource": "fixture",
+          "scanRunId": "",
+          "isReading": false,
+          "phase": "idle",
+          "selectedTypes": [
+            "city",
+            "resource",
+            "monster",
+            "truck",
+            "railway",
+            "dispatch",
+            "ghost",
+            "treasure"
+          ],
+          "totalBlocks": 0,
+          "completedBlocks": 0,
+          "readBlocks": 0,
+          "failedBlocks": 0,
+          "unreadBlocks": 0,
+          "inflightBlocks": 0,
+          "scanMode": "normal",
+          "concurrency": 8,
+          "scanRate": 0,
+          "progressPercent": 0,
+          "lastError": null,
+          "startedAt": 0,
+          "updatedAt": 0
+        },
+        "config": {
+          "enabled": true,
+          "intervalMinutes": 90,
+          "serverIds": [
+            8,
+            15,
+            120
+          ],
+          "selectedTypes": [
+            "treasure"
+          ],
+          "scanMode": "normal",
+          "returnToOriginalServer": false,
+          "nextRunAt": 1791110700000
+        }
+      },
+      "enteredAutoViaActualTabCallback": true,
+      "originalView": {
+        "master": {
+          "checked": true,
+          "strong": "自動スキャンを有効化",
+          "status": "スケジュール待機中"
+        },
+        "server": {
+          "label": "対象サーバー",
+          "input": {
+            "value": "",
+            "inputMode": "numeric",
+            "placeholder": "321"
+          },
+          "add": {
+            "text": "追加",
+            "type": "button",
+            "disabled": true
+          },
+          "hint": "サーバー番号を入力して追加します。カンマで複数追加でき、×で個別削除できます。未追加の場合は現在のサーバーをスキャンします。",
+          "chips": [
+            {
+              "idText": "8",
+              "removeAriaLabel": "削除 8",
+              "removeChildTag": "svg",
+              "removeChildClassName": "ui-icon",
+              "removeViewBox": "0 0 16 16",
+              "removeAriaHidden": "true",
+              "removeFocusable": "false",
+              "removeChildText": "",
+              "removePathD": "m4 4 8 8M12 4l-8 8"
+            },
+            {
+              "idText": "15",
+              "removeAriaLabel": "削除 15",
+              "removeChildTag": "svg",
+              "removeChildClassName": "ui-icon",
+              "removeViewBox": "0 0 16 16",
+              "removeAriaHidden": "true",
+              "removeFocusable": "false",
+              "removeChildText": "",
+              "removePathD": "m4 4 8 8M12 4l-8 8"
+            },
+            {
+              "idText": "120",
+              "removeAriaLabel": "削除 120",
+              "removeChildTag": "svg",
+              "removeChildClassName": "ui-icon",
+              "removeViewBox": "0 0 16 16",
+              "removeAriaHidden": "true",
+              "removeFocusable": "false",
+              "removeChildText": "",
+              "removePathD": "m4 4 8 8M12 4l-8 8"
+            }
+          ]
+        },
+        "interval": {
+          "value": 90,
+          "min": 20,
+          "max": "1440"
+        },
+        "speed": {
+          "value": "normal",
+          "options": [
+            {
+              "value": "normal",
+              "text": "標準"
+            },
+            {
+              "value": "fast",
+              "text": "高速"
+            }
+          ]
+        },
+        "types": [
+          {
+            "text": "プレイヤー都市",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "資源地",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "モンスター",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "輸送車",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "列車",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "極秘任務",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "幽霊作戦",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "宝物",
+            "checked": true,
+            "disabled": true
+          }
+        ],
+        "options": {
+          "returnToOriginal": {
+            "text": "スキャン後に元のサーバーへ戻る",
+            "checked": false
+          },
+          "runNow": {
+            "text": "今すぐ実行",
+            "type": "button",
+            "className": "primary",
+            "disabled": false
+          }
+        },
+        "notice": "スキャン前に対象サーバーへ移動します。サーバー番号だけでは別サーバーをスキャンできません。",
+        "nextScan": "次回スキャン: 2026/10/4 18:45:00",
+        "nativeTagCount": 58
+      },
+      "currentView": {
+        "master": {
+          "checked": true,
+          "strong": "自動スキャンを有効化",
+          "status": "スケジュール待機中"
+        },
+        "server": {
+          "label": "対象サーバー",
+          "input": {
+            "value": "",
+            "inputMode": "numeric",
+            "placeholder": "321"
+          },
+          "add": {
+            "text": "追加",
+            "type": "button",
+            "disabled": true
+          },
+          "hint": "サーバー番号を入力して追加します。カンマで複数追加でき、×で個別削除できます。未追加の場合は現在のサーバーをスキャンします。",
+          "chips": [
+            {
+              "idText": "8",
+              "removeAriaLabel": "削除 8",
+              "removeChildTag": "svg",
+              "removeChildClassName": "ui-icon",
+              "removeViewBox": "0 0 16 16",
+              "removeAriaHidden": "true",
+              "removeFocusable": "false",
+              "removeChildText": "",
+              "removePathD": "m4 4 8 8M12 4l-8 8"
+            },
+            {
+              "idText": "15",
+              "removeAriaLabel": "削除 15",
+              "removeChildTag": "svg",
+              "removeChildClassName": "ui-icon",
+              "removeViewBox": "0 0 16 16",
+              "removeAriaHidden": "true",
+              "removeFocusable": "false",
+              "removeChildText": "",
+              "removePathD": "m4 4 8 8M12 4l-8 8"
+            },
+            {
+              "idText": "120",
+              "removeAriaLabel": "削除 120",
+              "removeChildTag": "svg",
+              "removeChildClassName": "ui-icon",
+              "removeViewBox": "0 0 16 16",
+              "removeAriaHidden": "true",
+              "removeFocusable": "false",
+              "removeChildText": "",
+              "removePathD": "m4 4 8 8M12 4l-8 8"
+            }
+          ]
+        },
+        "interval": {
+          "value": 90,
+          "min": 20,
+          "max": "1440"
+        },
+        "speed": {
+          "value": "normal",
+          "options": [
+            {
+              "value": "normal",
+              "text": "標準"
+            },
+            {
+              "value": "fast",
+              "text": "高速"
+            }
+          ]
+        },
+        "types": [
+          {
+            "text": "プレイヤー都市",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "資源地",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "モンスター",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "輸送車",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "列車",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "極秘任務",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "幽霊作戦",
+            "checked": false,
+            "disabled": false
+          },
+          {
+            "text": "宝物",
+            "checked": true,
+            "disabled": true
+          }
+        ],
+        "options": {
+          "returnToOriginal": {
+            "text": "スキャン後に元のサーバーへ戻る",
+            "checked": false
+          },
+          "runNow": {
+            "text": "今すぐ実行",
+            "type": "button",
+            "className": "primary",
+            "disabled": false
+          }
+        },
+        "notice": "スキャン前に対象サーバーへ移動します。サーバー番号だけでは別サーバーをスキャンできません。",
+        "nextScan": "次回スキャン: 2026/10/4 18:45:00",
+        "nativeTagCount": 58
+      },
+      "differences": [],
+      "exactViewMatch": true,
+      "originalMarkupSha256": "62cb85422ec0e8218660769bcacc4386c62ce9ac6fa518be3f5e131d3baaab9a",
+      "currentMarkupSha256": "62cb85422ec0e8218660769bcacc4386c62ce9ac6fa518be3f5e131d3baaab9a",
+      "exactMarkupMatch": true,
+      "rawFiles": {
+        "original": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-AUTO-REMOVE-001/milestone-b/raw/ja-one-remaining-type-original.html",
+        "current": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-AUTO-REMOVE-001/milestone-b/raw/ja-one-remaining-type-current.html"
+      }
+    }
+  ],
+  "states": [
+    "default",
+    "configured-waiting",
+    "auto-running",
+    "manual-reading",
+    "offline",
+    "one-remaining-type"
+  ],
+  "languages": [
+    "en",
+    "ja"
+  ],
+  "totals": {
+    "pairs": 12,
+    "exactViews": 12,
+    "exactMarkup": 12,
+    "viewDifferences": 0
+  }
+}
