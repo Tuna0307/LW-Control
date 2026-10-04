@@ -1,0 +1,167 @@
+{
+  "marker": "LWB317_MAP_AUTO_VISUAL_BROWSER_COMPARED",
+  "pairs": [
+    {
+      "pairId": "en-light-default",
+      "caseId": "default",
+      "language": "en",
+      "theme": "light",
+      "viewport": {
+        "width": 1280,
+        "height": 720,
+        "deviceScaleFactor": 1
+      },
+      "originalScreenshotSha256": "34e3f61e8bcba907cab550c64febbdc83f542b651e1616451a5088db454c47d7",
+      "currentScreenshotSha256": "34e3f61e8bcba907cab550c64febbdc83f542b651e1616451a5088db454c47d7",
+      "exactScreenshotBytes": true,
+      "domMatch": true,
+      "geometryDifferences": [],
+      "styleDifferences": []
+    },
+    {
+      "pairId": "ja-dark-configured",
+      "caseId": "configured",
+      "language": "ja",
+      "theme": "dark",
+      "viewport": {
+        "width": 375,
+        "height": 1000,
+        "deviceScaleFactor": 1
+      },
+      "originalScreenshotSha256": "b9fa3c3e1eb8cf52e96c51354154323a94f386fc8764dca920ed717e7f8f1acd",
+      "currentScreenshotSha256": "709c6ecc0bfa2f975d255865b6cafb4385f2070dd3e0ddd25df93fd06aec5f2e",
+      "exactScreenshotBytes": false,
+      "domMatch": false,
+      "geometryDifferences": [
+        {
+          "anchor": "serverChipChild0",
+          "property": "x",
+          "original": 55.015625,
+          "current": 58.21875
+        },
+        {
+          "anchor": "serverChipChild0",
+          "property": "y",
+          "original": 196,
+          "current": 196.5
+        },
+        {
+          "anchor": "serverChipChild0",
+          "property": "width",
+          "original": 14,
+          "current": 7.59375
+        },
+        {
+          "anchor": "serverChipChild0",
+          "property": "height",
+          "original": 14,
+          "current": 13
+        },
+        {
+          "anchor": "serverChipChild1",
+          "property": "x",
+          "original": 119.03125,
+          "current": 122.234375
+        },
+        {
+          "anchor": "serverChipChild1",
+          "property": "y",
+          "original": 196,
+          "current": 196.5
+        },
+        {
+          "anchor": "serverChipChild1",
+          "property": "width",
+          "original": 14,
+          "current": 7.59375
+        },
+        {
+          "anchor": "serverChipChild1",
+          "property": "height",
+          "original": 14,
+          "current": 13
+        },
+        {
+          "anchor": "serverChipChild2",
+          "property": "x",
+          "original": 190.0625,
+          "current": 193.265625
+        },
+        {
+          "anchor": "serverChipChild2",
+          "property": "y",
+          "original": 196,
+          "current": 196.5
+        },
+        {
+          "anchor": "serverChipChild2",
+          "property": "width",
+          "original": 14,
+          "current": 7.59375
+        },
+        {
+          "anchor": "serverChipChild2",
+          "property": "height",
+          "original": 14,
+          "current": 13
+        }
+      ],
+      "styleDifferences": [
+        {
+          "anchor": "serverChipChild0",
+          "property": "width",
+          "original": "14px",
+          "current": "7.59375px"
+        },
+        {
+          "anchor": "serverChipChild0",
+          "property": "height",
+          "original": "14px",
+          "current": "13px"
+        },
+        {
+          "anchor": "serverChipChild0",
+          "property": "overflow",
+          "original": "hidden",
+          "current": "visible"
+        },
+        {
+          "anchor": "serverChipChild1",
+          "property": "width",
+          "original": "14px",
+          "current": "7.59375px"
+        },
+        {
+          "anchor": "serverChipChild1",
+          "property": "height",
+          "original": "14px",
+          "current": "13px"
+        },
+        {
+          "anchor": "serverChipChild1",
+          "property": "overflow",
+          "original": "hidden",
+          "current": "visible"
+        },
+        {
+          "anchor": "serverChipChild2",
+          "property": "width",
+          "original": "14px",
+          "current": "7.59375px"
+        },
+        {
+          "anchor": "serverChipChild2",
+          "property": "height",
+          "original": "14px",
+          "current": "13px"
+        },
+        {
+          "anchor": "serverChipChild2",
+          "property": "overflow",
+          "original": "hidden",
+          "current": "visible"
+        }
+      ]
+    }
+  ]
+}

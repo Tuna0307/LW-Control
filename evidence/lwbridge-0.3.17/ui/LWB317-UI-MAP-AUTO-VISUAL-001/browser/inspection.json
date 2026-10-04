@@ -1,0 +1,31 @@
+{
+  "marker": "LWB317_MAP_AUTO_VISUAL_SCREENSHOTS_INSPECTED",
+  "inspectedAt": "2026-10-04",
+  "screenshots": [
+    {
+      "file": "browser/en-light-default-original.png",
+      "sha256": "34e3f61e8bcba907cab550c64febbdc83f542b651e1616451a5088db454c47d7",
+      "status": "INSPECTED",
+      "observation": "Default English/light card is fully visible at desktop width; labels, controls and type choices are not clipped."
+    },
+    {
+      "file": "browser/en-light-default-current.png",
+      "sha256": "34e3f61e8bcba907cab550c64febbdc83f542b651e1616451a5088db454c47d7",
+      "status": "INSPECTED",
+      "observation": "Current default capture is visually and byte-identical to the recovered original capture."
+    },
+    {
+      "file": "browser/ja-dark-configured-original.png",
+      "sha256": "b9fa3c3e1eb8cf52e96c51354154323a94f386fc8764dca920ed717e7f8f1acd",
+      "status": "INSPECTED",
+      "observation": "Configured Japanese/dark narrow card is fully visible; three server chips render recovered SVG remove icons and the eight type choices wrap without clipping."
+    },
+    {
+      "file": "browser/ja-dark-configured-current.png",
+      "sha256": "709c6ecc0bfa2f975d255865b6cafb4385f2070dd3e0ddd25df93fd06aec5f2e",
+      "status": "INSPECTED",
+      "observation": "Configured current card keeps the same card/chip/button layout, but each server-chip remove glyph is a text multiplication sign instead of the recovered SVG cross."
+    }
+  ],
+  "scope": "Only the isolated source-rendered .map-auto-scan-card inside the documented panel container was inspected."
+}

@@ -1,6 +1,6 @@
 # LWB317-UI-MAP-AUTO-VISUAL-001
 
-Status: ASSIGNED through owner relay, 2026-10-04. Size: small.
+Status: AWAITING_REVIEW through owner relay, 2026-10-04. Size: small.
 Baseline: 5dfedb0edba0a0c1db9f9f5446f9e8d67f33a65e.
 
 ## Goal and scope
@@ -60,3 +60,21 @@ Update this item's delivery, commit only owned evidence/review/work-item paths,
 push and verify exact full remote SHA. Return AWAITING_REVIEW to the lead through
 the owner, including matches/differences/limits/checks/SHA. Stop after these two
 pairs; do not expand to another Map surface or page. No fixed elapsed-time stop.
+
+## Delivery
+
+Exactly two executed-source browser pairs are recorded under
+`evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-AUTO-VISUAL-001`. Default EN/light at
+1280x720 is structural/markup/pixel exact. Source-valid configured JA/dark at
+375x1000 matches all labels, controls and containing geometry, with one localized
+server-chip mismatch: recovered original renders its remove child through the
+14x14 `Vr(remove)` SVG while current `MapDataPage.jsx` line 1041 renders a text
+`×` span (~7.59x13). All 12 measured geometry and 9 style differences belong to
+those three child glyphs; parent chip/button/card/type/option anchors match.
+
+No production code changed and no Run now/scan/native handler was invoked. See
+the packet README/pins/browser records and
+`docs/reviews/2026-10-04-LWB317-UI-MAP-AUTO-VISUAL-001.md`. Required focused,
+canonical/package, protected-WIP and Git checks pass; package integrity reports
+`865208f6…` / `7f3bbbf9…`, and the protected guard checked all 10 paths. The
+final commit/remote SHA is reported in the owner handoff.
