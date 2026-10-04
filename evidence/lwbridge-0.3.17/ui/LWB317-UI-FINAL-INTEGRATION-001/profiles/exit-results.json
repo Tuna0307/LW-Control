@@ -1,0 +1,170 @@
+{
+  "marker": "LWB317_FINAL_EXIT_OK",
+  "cases": 33,
+  "originalComparisons": 32,
+  "details": [
+    {
+      "name": "en-count-null-idle",
+      "pass": true
+    },
+    {
+      "name": "en-count-null-busy",
+      "pass": true
+    },
+    {
+      "name": "en-count-0-idle",
+      "pass": true
+    },
+    {
+      "name": "en-count-0-busy",
+      "pass": true
+    },
+    {
+      "name": "en-count-1-idle",
+      "pass": true
+    },
+    {
+      "name": "en-count-1-busy",
+      "pass": true
+    },
+    {
+      "name": "en-count-4-idle",
+      "pass": true
+    },
+    {
+      "name": "en-count-4-busy",
+      "pass": true
+    },
+    {
+      "name": "en-count-99-idle",
+      "pass": true
+    },
+    {
+      "name": "en-count-99-busy",
+      "pass": true
+    },
+    {
+      "name": "ja-count-null-idle",
+      "pass": true
+    },
+    {
+      "name": "ja-count-null-busy",
+      "pass": true
+    },
+    {
+      "name": "ja-count-0-idle",
+      "pass": true
+    },
+    {
+      "name": "ja-count-0-busy",
+      "pass": true
+    },
+    {
+      "name": "ja-count-1-idle",
+      "pass": true
+    },
+    {
+      "name": "ja-count-1-busy",
+      "pass": true
+    },
+    {
+      "name": "ja-count-4-idle",
+      "pass": true
+    },
+    {
+      "name": "ja-count-4-busy",
+      "pass": true
+    },
+    {
+      "name": "ja-count-99-idle",
+      "pass": true
+    },
+    {
+      "name": "ja-count-99-busy",
+      "pass": true
+    },
+    {
+      "name": "renderer-button-actions-idle",
+      "pass": true
+    },
+    {
+      "name": "renderer-button-actions-busy",
+      "pass": true
+    },
+    {
+      "name": "renderer-Escape-idle",
+      "pass": true
+    },
+    {
+      "name": "renderer-Escape-busy",
+      "pass": true
+    },
+    {
+      "name": "renderer-backdrop-does-not-close",
+      "pass": true
+    },
+    {
+      "name": "renderer-Tab-idle",
+      "pass": true
+    },
+    {
+      "name": "renderer-Tab-busy",
+      "pass": true
+    },
+    {
+      "name": "producer-null-before-event",
+      "pass": true
+    },
+    {
+      "name": "producer-open-Cancel-close",
+      "pass": true
+    },
+    {
+      "name": "producer-deferred-confirm-resolve",
+      "pass": true
+    },
+    {
+      "name": "producer-deferred-confirm-reject",
+      "pass": true
+    },
+    {
+      "name": "producer-new-close-request-resets-busy-and-count",
+      "pass": true
+    },
+    {
+      "name": "absent-providers-fenced-no-native-close",
+      "pass": true
+    }
+  ],
+  "sourceSha256": "44C4E4043825B7DB296B64171951B27176F8850FF8D7D337CC991DF4765524C6",
+  "productionSha256": "AFA79399788E4F8C58FA81C11FF86CB7128CBF5DD02A84BD511E88A928A6549D",
+  "warningSha256": "DA1A18E0007068C11D371A9D130C598F9B9A38F39F87D758FCC7FB9CC467853F",
+  "locators": {
+    "modal": {
+      "utf8ByteOffset": 209017,
+      "utf8ByteLength": 1209,
+      "sha256": "E42C17AAC67AFE7A73D525902C9E757644E40838422730CEB32EC47830C4F8A2"
+    },
+    "renderer": {
+      "utf8ByteOffset": 376111,
+      "utf8ByteLength": 881,
+      "sha256": "72F95F7202BC43FD3F9E449DC77133A08C57DE1C8D6F48AB929DCC1D34F48C21"
+    },
+    "producer": {
+      "utf8ByteOffset": 375835,
+      "utf8ByteLength": 276,
+      "sha256": "AC443C8DE815C5BAC3C44280433E01151935A0BE7BF9B47C820686228AE7DE86"
+    },
+    "exitCommand": {
+      "utf8ByteOffset": 205293,
+      "utf8ByteLength": 43,
+      "sha256": "EF00A64606BFCD66300A4CDE185BBAC55042EAE0B4BEB0B5446E5BEE7A8AEB24"
+    }
+  },
+  "limits": [
+    "Actual original/current React rendering and callbacks with jsdom modal/client-rect shims",
+    "No native close command or live session control",
+    "No physical browser modal or original pixels observed",
+    "Successful source confirm retains busy; any preview dismissal is external fixture-owned behavior"
+  ]
+}

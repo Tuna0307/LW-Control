@@ -1,8 +1,15 @@
 # LWBridge 0.3.17 project status
 
-**Date:** 2026-10-02
+Authoritative current state,2026-10-04: lead continues phase2 UI work under
+LOADING-MOTION-001. Map-entry is COMPLETE/ACCEPTED; shared shell/profile/image
+corrections pass source/local/browser/package review. FINAL-INTEGRATION remains
+PARTIAL while lazy-loading and Equipment motion are corrected. No native/function
+phase or original-pixel/global one-for-one acceptance is declared. Older dated
+status entries below are historical. See the2026-10-04 integration checkpoint.
+
+**Date:** 2026-10-04
 **Branch:** `research/offline-controller`
-**Phase:** 2 — function recovery / Map Goal awaiting review
+**Phase:** 2 — one-for-one post-auth UI recovery and local verification
 
 ## Current state
 

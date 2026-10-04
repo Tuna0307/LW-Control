@@ -1,0 +1,671 @@
+{
+  "result": "LWB317_CROSSSERVER_FOCUSED_OK",
+  "source": {
+    "path": "src/LWBridge.UI-0.3.17/src/App.jsx",
+    "sha256": "62C18AC0D9B5BB832EE030C393ACA4BDAAE1A43B8C3573CD1BE7167C2B46BC8A",
+    "bytes": 28722
+  },
+  "sourceLocators": {
+    "legacyServerHistory": {
+      "utf8ByteOffset": 1712,
+      "utf8ByteLength": 379,
+      "sha256": "BA49DC4DCA1100BF40E1BA3CC82D86AEAA82F5F88E851D25D549406ACCB59FC2"
+    },
+    "historyImportEffect": {
+      "utf8ByteOffset": 14431,
+      "utf8ByteLength": 622,
+      "sha256": "70838D0F7D3359C95DADDD1CBC3385E6B0322BC4489843B2CDCED219AF28A4EE"
+    },
+    "outsidePointerEffect": {
+      "utf8ByteOffset": 15058,
+      "utf8ByteLength": 348,
+      "sha256": "B6AF0201F0854B7DDDD72D9D6AD8A14EDA0C0C2553798A8A601A5063F390284A"
+    },
+    "requestServerJump": {
+      "utf8ByteOffset": 17784,
+      "utf8ByteLength": 311,
+      "sha256": "624C86061088212CD8A3F98FB49D4DADF5A7357862C310477338B2F04A13957F"
+    },
+    "jumpServer": {
+      "utf8ByteOffset": 18106,
+      "utf8ByteLength": 1069,
+      "sha256": "1863AE866C53816D91092A044E62E513C7ED111C73684B9A2B7FD2CADF0B533F"
+    },
+    "serverJumpRender": {
+      "utf8ByteOffset": 23220,
+      "utf8ByteLength": 3498,
+      "sha256": "BA504C24131CE18574C8C2F75AA7809B0D095915FACDC272DFD00F3C0C7C053F"
+    }
+  },
+  "originalLocators": {
+    "popover": {
+      "utf8ByteOffset": 350656,
+      "utf8ByteLength": 3155,
+      "sha256": "04B9D1EE3469A345EB2F41368FE06EDFFD43645CDE880B9541E75B84B101FD05"
+    },
+    "popoverWithLegacyHistoryHelper": {
+      "utf8ByteOffset": 350405,
+      "utf8ByteLength": 3406,
+      "sha256": "3561F63EF6D6E35A6AB18B631165D41B6A79F2ADDF78CADAA059D8498BCFD8B5"
+    },
+    "parentJump": {
+      "utf8ByteOffset": 365565,
+      "utf8ByteLength": 229,
+      "sha256": "653AEDF4F9BD17B78EAA3D6F8F37031D49C1DBBC52EC6C0A71B3CD035B8C6284"
+    },
+    "serverJumpApiMarker": {
+      "utf8ByteOffset": 205541
+    },
+    "api": {
+      "serverJump": {
+        "utf8ByteOffset": 205541,
+        "utf8ByteLength": 52,
+        "sha256": "05E61BE11CCD6168A8C68818AF5B4E003FDDB1048479085E982658702FAAC90C"
+      },
+      "historySet": {
+        "utf8ByteOffset": 206712,
+        "utf8ByteLength": 73,
+        "sha256": "04F6DD312F0CCBEBD8F64E70D1E9FDB53ABDAD40F09BAFDD3D2D8FD9750F2E1D"
+      },
+      "historyImport": {
+        "utf8ByteOffset": 206785,
+        "utf8ByteLength": 76,
+        "sha256": "36BEFAA05424A7248DC5E80D04ECACCB448EFB81CDB48C5A4181D2DD29489250"
+      },
+      "mapSummary": {
+        "utf8ByteOffset": 207057,
+        "utf8ByteLength": 44,
+        "sha256": "09394C78B18B547060B6D1DAE0C515A95B9AD595168229C3641ADD6FD627B752"
+      }
+    },
+    "headerOnJumpBinding": {
+      "utf8ByteOffset": 372334
+    }
+  },
+  "reactVersion": "19.3.0",
+  "jsdomVersion": "27.0.0",
+  "cases": [
+    {
+      "name": "legacy normalization and current/home/season/plunderable/recent rendering",
+      "status": "PASS",
+      "observed": {
+        "open": true,
+        "inputValue": "",
+        "inputDisabled": false,
+        "triggerDisabled": false,
+        "errors": [],
+        "submit": {
+          "text": "en:server.switchAction",
+          "disabled": false
+        },
+        "home": "en:server.home:{\"server\":320}en:server.returnHome",
+        "sections": [
+          {
+            "label": "en:server.seasonServers",
+            "buttons": [
+              {
+                "text": "321",
+                "disabled": true
+              },
+              {
+                "text": "322",
+                "disabled": false
+              }
+            ]
+          },
+          {
+            "label": "en:server.plunderableServers",
+            "buttons": [
+              {
+                "text": "323",
+                "disabled": false
+              },
+              {
+                "text": "321",
+                "disabled": true
+              }
+            ]
+          },
+          {
+            "label": "en:server.recent",
+            "buttons": [
+              {
+                "text": "330",
+                "disabled": false
+              },
+              {
+                "text": "321",
+                "disabled": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "trigger toggle, no Escape close, outside pointerdown close",
+      "status": "PASS"
+    },
+    {
+      "name": "validation uses event-time localization and stored error retains that locale",
+      "status": "PASS",
+      "observed": {
+        "open": true,
+        "inputValue": "0",
+        "inputDisabled": false,
+        "triggerDisabled": false,
+        "errors": [
+          "en:server.invalidId"
+        ],
+        "submit": {
+          "text": "ja:server.switchAction",
+          "disabled": false
+        },
+        "home": "ja:server.home:{\"server\":320}ja:server.returnHome",
+        "sections": [
+          {
+            "label": "ja:server.seasonServers",
+            "buttons": [
+              {
+                "text": "321",
+                "disabled": true
+              },
+              {
+                "text": "322",
+                "disabled": false
+              }
+            ]
+          },
+          {
+            "label": "ja:server.plunderableServers",
+            "buttons": [
+              {
+                "text": "323",
+                "disabled": false
+              },
+              {
+                "text": "321",
+                "disabled": true
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "offline presentation blocks Enter without duplicate stored error",
+      "status": "PASS",
+      "observed": {
+        "open": true,
+        "inputValue": "322",
+        "inputDisabled": false,
+        "triggerDisabled": false,
+        "errors": [
+          "en:status.gameDisconnected"
+        ],
+        "submit": {
+          "text": "en:server.switchAction",
+          "disabled": true
+        },
+        "home": "en:server.home:{\"server\":320}en:server.returnHome",
+        "sections": [
+          {
+            "label": "en:server.seasonServers",
+            "buttons": [
+              {
+                "text": "321",
+                "disabled": true
+              },
+              {
+                "text": "322",
+                "disabled": true
+              }
+            ]
+          },
+          {
+            "label": "en:server.plunderableServers",
+            "buttons": [
+              {
+                "text": "323",
+                "disabled": true
+              },
+              {
+                "text": "321",
+                "disabled": true
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "active scan presentation blocks Enter",
+      "status": "PASS",
+      "observed": {
+        "open": true,
+        "inputValue": "322",
+        "inputDisabled": false,
+        "triggerDisabled": false,
+        "errors": [
+          "en:server.stopScanFirst"
+        ],
+        "submit": {
+          "text": "en:server.switchAction",
+          "disabled": true
+        },
+        "home": "en:server.home:{\"server\":320}en:server.returnHome",
+        "sections": [
+          {
+            "label": "en:server.seasonServers",
+            "buttons": [
+              {
+                "text": "321",
+                "disabled": true
+              },
+              {
+                "text": "322",
+                "disabled": true
+              }
+            ]
+          },
+          {
+            "label": "en:server.plunderableServers",
+            "buttons": [
+              {
+                "text": "323",
+                "disabled": true
+              },
+              {
+                "text": "321",
+                "disabled": true
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "profile identity resets error/history and reimports legacy history",
+      "status": "PASS",
+      "actionLog": [
+        "bridge:game_root_status",
+        "readStatus",
+        "readProxyStatus",
+        "bridge:game_recovery_status",
+        "bridge:local_config_get",
+        "summary",
+        "import:profile-b:401,402",
+        "summary"
+      ],
+      "observed": {
+        "open": true,
+        "inputValue": "0",
+        "inputDisabled": false,
+        "triggerDisabled": false,
+        "errors": [],
+        "submit": {
+          "text": "en:server.switchAction",
+          "disabled": false
+        },
+        "home": "en:server.home:{\"server\":320}en:server.returnHome",
+        "sections": [
+          {
+            "label": "en:server.seasonServers",
+            "buttons": [
+              {
+                "text": "321",
+                "disabled": true
+              },
+              {
+                "text": "322",
+                "disabled": false
+              }
+            ]
+          },
+          {
+            "label": "en:server.plunderableServers",
+            "buttons": [
+              {
+                "text": "323",
+                "disabled": false
+              },
+              {
+                "text": "321",
+                "disabled": true
+              }
+            ]
+          },
+          {
+            "label": "en:server.recent",
+            "buttons": [
+              {
+                "text": "410",
+                "disabled": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "unchanged waits for summary before close",
+      "status": "PASS",
+      "pending": {
+        "open": true,
+        "inputValue": "321",
+        "inputDisabled": false,
+        "triggerDisabled": false,
+        "errors": [],
+        "submit": {
+          "text": "en:server.switching:{\"server\":321}",
+          "disabled": true
+        },
+        "home": "en:server.home:{\"server\":320}en:server.returnHome",
+        "sections": [
+          {
+            "label": "en:server.seasonServers",
+            "buttons": [
+              {
+                "text": "321",
+                "disabled": true
+              },
+              {
+                "text": "322",
+                "disabled": true
+              }
+            ]
+          },
+          {
+            "label": "en:server.plunderableServers",
+            "buttons": [
+              {
+                "text": "323",
+                "disabled": true
+              },
+              {
+                "text": "321",
+                "disabled": true
+              }
+            ]
+          }
+        ]
+      },
+      "final": {
+        "open": false,
+        "inputValue": null,
+        "inputDisabled": null,
+        "triggerDisabled": false,
+        "errors": [],
+        "submit": null,
+        "home": null,
+        "sections": []
+      },
+      "actionLog": [
+        "jump:321",
+        "summary"
+      ]
+    },
+    {
+      "name": "changed waits for summary before close/history",
+      "status": "PASS",
+      "pending": {
+        "open": true,
+        "inputValue": "322",
+        "inputDisabled": false,
+        "triggerDisabled": false,
+        "errors": [],
+        "submit": {
+          "text": "en:server.switching:{\"server\":322}",
+          "disabled": true
+        },
+        "home": "en:server.home:{\"server\":320}en:server.returnHome",
+        "sections": [
+          {
+            "label": "en:server.seasonServers",
+            "buttons": [
+              {
+                "text": "321",
+                "disabled": true
+              },
+              {
+                "text": "322",
+                "disabled": true
+              }
+            ]
+          },
+          {
+            "label": "en:server.plunderableServers",
+            "buttons": [
+              {
+                "text": "323",
+                "disabled": true
+              },
+              {
+                "text": "321",
+                "disabled": true
+              }
+            ]
+          }
+        ]
+      },
+      "final": {
+        "open": false,
+        "inputValue": null,
+        "inputDisabled": null,
+        "triggerDisabled": false,
+        "errors": [],
+        "submit": null,
+        "home": null,
+        "sections": []
+      },
+      "actionLog": [
+        "jump:322",
+        "summary",
+        "history:322"
+      ]
+    },
+    {
+      "name": "summary failure is swallowed before changed history acknowledgement",
+      "status": "PASS",
+      "actionLog": [
+        "jump:322",
+        "summary",
+        "history:322"
+      ],
+      "reopened": {
+        "open": true,
+        "inputValue": "",
+        "inputDisabled": false,
+        "triggerDisabled": false,
+        "errors": [],
+        "submit": {
+          "text": "en:server.switchAction",
+          "disabled": false
+        },
+        "home": "en:server.home:{\"server\":320}en:server.returnHome",
+        "sections": [
+          {
+            "label": "en:server.seasonServers",
+            "buttons": [
+              {
+                "text": "321",
+                "disabled": true
+              },
+              {
+                "text": "322",
+                "disabled": false
+              }
+            ]
+          },
+          {
+            "label": "en:server.plunderableServers",
+            "buttons": [
+              {
+                "text": "323",
+                "disabled": false
+              },
+              {
+                "text": "321",
+                "disabled": true
+              }
+            ]
+          },
+          {
+            "label": "en:server.recent",
+            "buttons": [
+              {
+                "text": "322",
+                "disabled": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "jump failure keeps input/popover and shows localized action failure",
+      "status": "PASS",
+      "observed": {
+        "open": true,
+        "inputValue": "322",
+        "inputDisabled": false,
+        "triggerDisabled": false,
+        "errors": [
+          "en:common.actionFailed"
+        ],
+        "submit": {
+          "text": "en:server.switchAction",
+          "disabled": false
+        },
+        "home": "en:server.home:{\"server\":320}en:server.returnHome",
+        "sections": [
+          {
+            "label": "en:server.seasonServers",
+            "buttons": [
+              {
+                "text": "321",
+                "disabled": true
+              },
+              {
+                "text": "322",
+                "disabled": false
+              }
+            ]
+          },
+          {
+            "label": "en:server.plunderableServers",
+            "buttons": [
+              {
+                "text": "323",
+                "disabled": false
+              },
+              {
+                "text": "321",
+                "disabled": true
+              }
+            ]
+          }
+        ]
+      },
+      "actionLog": [
+        "jump:322"
+      ]
+    },
+    {
+      "name": "history failure occurs after summary and keeps input/popover",
+      "status": "PASS",
+      "observed": {
+        "open": true,
+        "inputValue": "322",
+        "inputDisabled": false,
+        "triggerDisabled": false,
+        "errors": [
+          "en:common.actionFailed"
+        ],
+        "submit": {
+          "text": "en:server.switchAction",
+          "disabled": false
+        },
+        "home": "en:server.home:{\"server\":320}en:server.returnHome",
+        "sections": [
+          {
+            "label": "en:server.seasonServers",
+            "buttons": [
+              {
+                "text": "321",
+                "disabled": false
+              },
+              {
+                "text": "322",
+                "disabled": true
+              }
+            ]
+          },
+          {
+            "label": "en:server.plunderableServers",
+            "buttons": [
+              {
+                "text": "323",
+                "disabled": false
+              },
+              {
+                "text": "321",
+                "disabled": false
+              }
+            ]
+          }
+        ]
+      },
+      "actionLog": [
+        "jump:322",
+        "summary",
+        "history:322"
+      ]
+    },
+    {
+      "name": "busy presentation keeps input/trigger enabled and trigger can close",
+      "status": "PASS",
+      "pending": {
+        "open": true,
+        "inputValue": "321",
+        "inputDisabled": false,
+        "triggerDisabled": false,
+        "errors": [],
+        "submit": {
+          "text": "en:server.switching:{\"server\":321}",
+          "disabled": true
+        },
+        "home": "en:server.home:{\"server\":320}en:server.returnHome",
+        "sections": [
+          {
+            "label": "en:server.seasonServers",
+            "buttons": [
+              {
+                "text": "321",
+                "disabled": true
+              },
+              {
+                "text": "322",
+                "disabled": true
+              }
+            ]
+          },
+          {
+            "label": "en:server.plunderableServers",
+            "buttons": [
+              {
+                "text": "323",
+                "disabled": true
+              },
+              {
+                "text": "321",
+                "disabled": true
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "limits": "Actual current App body and React hooks mounted with controlled bridge/map API bindings and inert page/icon children. Input onChange/onKeyDown closures are invoked from the React props attached to rendered production inputs because jsdom 27 + React 19 input-event polyfill is unstable in this host; pointerdown and document Escape use DOM dispatch. No native provider, Last War, server jump, scan, network, update, or gameplay action is invoked."
+}

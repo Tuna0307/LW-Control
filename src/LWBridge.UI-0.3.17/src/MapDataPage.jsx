@@ -1,3 +1,4 @@
+import { GameAssetImage } from "./GameAssetImage.jsx";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   DEFAULT_SCAN_STATE,
@@ -178,7 +179,7 @@ function MapTable({ kind, rows, loading, sorts, onSort, onCoordinateJump, onPlay
                   ) : column.status ? (
                     <span className={`map-task-status ${mapTaskState(row, currentTime)}`}>{mapTaskLabel(mapTaskState(row, currentTime), t)}</span>
                   ) : column.rewards ? (
-                    !Array.isArray(row[column.rewards]) || row[column.rewards].length === 0 ? "-" : <span className="map-reward-list map-reward-list--retained">{[...row[column.rewards]].sort((left, right) => column.rewards === "currentGoods" && itemKey ? Number(right.key === itemKey) - Number(left.key === itemKey) : 0).map((item, rewardIndex) => { const name = mapRewardName(item, gameTexts); const description = `${name} ×${mapNumber(item.count, language)}`; return <span className="map-reward-item" key={`${item.key}:${rewardIndex}`} title={description} aria-label={description}><span className="map-reward-icon game-asset-placeholder" aria-hidden="true" /><strong>×{mapRewardCount(item.count)}</strong></span>; })}</span>
+                    !Array.isArray(row[column.rewards]) || row[column.rewards].length === 0 ? "-" : <span className="map-reward-list map-reward-list--retained">{[...row[column.rewards]].sort((left, right) => column.rewards === "currentGoods" && itemKey ? Number(right.key === itemKey) - Number(left.key === itemKey) : 0).map((item, rewardIndex) => { const name = mapRewardName(item, gameTexts); const description = `${name} ×${mapNumber(item.count, language)}`; return <span className="map-reward-item" key={`${item.key}:${rewardIndex}`} title={description} aria-label={description}><GameAssetImage assetPath={item.iconPath} alt={name} className="map-reward-icon" /><strong>×{mapRewardCount(item.count)}</strong></span>; })}</span>
                   ) : kind === "resource" && column.label === t("common.status") ? mapResourceStatus(row, t, gameTexts) : column.value?.(row)}
                 </td>
               ))}
@@ -1070,12 +1071,6 @@ export function MapDataPage({
 
       {scanError ? <div className="map-scan-error" role="alert">{translateActionError(t, scanError)}</div> : null}
       {!scanError && scanView.error ? <div className="map-scan-error" role="status">{translateActionError(t, scanView.error)}</div> : null}
-      {!scanError && !scanView.error && !backendAvailable ? (
-        <div className="map-scan-error" role="status">
-          {bridgeMode === "preview" ? "Browser preview mode. Native Map actions are unavailable." : "Native backend unavailable."}
-        </div>
-      ) : null}
-      {!scanError && !scanView.error && backendAvailable && !online ? <div className="map-scan-error" role="status">Game disconnected. Start Scan is disabled; saved Map data remains available.</div> : null}
 
       {scanTab === "manual" ? (
         <div className="map-controls">

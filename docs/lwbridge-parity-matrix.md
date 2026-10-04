@@ -1,5 +1,12 @@
 # LWBridge 0.3.17 parity matrix
 
+Lead checkpoint,2026-10-04: Map-entry and bounded shared presentation/image/local
+state corrections are ACCEPTED. Original facts remain EXACT_BYTES/EXACT_CONTRACT;
+local component/callback/browser proof does not upgrade native/global/pixel status.
+Loading/preload/Suspense and Equipment motion remain OPEN and are actively assigned
+to the lead under LOADING-MOTION-001. Refer to the dated integration checkpoint;
+older matrix announcements below are historical, not current dispatches.
+
 Lead acceptance, 2026-10-04: SHELL-CROSSSERVER-001 is COMPLETE / ACCEPTED for its
 assigned source/local popover/history/action acknowledgement scope at 52710d3.
 Original bytes/contracts remain EXACT_BYTES / EXACT_CONTRACT; 11 added original/

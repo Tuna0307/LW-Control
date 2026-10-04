@@ -1,0 +1,41 @@
+{
+  "marker": "LWB317_GAME_ASSET_READER_BOUNDARY_OK",
+  "cases": [
+    {
+      "mode": "preview",
+      "available": false,
+      "reader": "null",
+      "calls": [],
+      "pass": true
+    },
+    {
+      "mode": "native-unavailable",
+      "available": false,
+      "reader": "null",
+      "calls": [],
+      "pass": true
+    },
+    {
+      "mode": "native",
+      "available": true,
+      "reader": "function",
+      "calls": [
+        [
+          "game_asset_image",
+          {
+            "assetPath": "icons/a"
+          }
+        ]
+      ],
+      "pass": true
+    }
+  ],
+  "source": {
+    "AppSha256": "62C18AC0D9B5BB832EE030C393ACA4BDAAE1A43B8C3573CD1BE7167C2B46BC8A",
+    "expression": "backendBridge.available ? (request) => backendBridge.invoke(\"game_asset_image\", request) : null",
+    "utf8ByteOffset": 1613,
+    "utf8ByteLength": 95,
+    "sha256": "AB6A5EB72EB6BA69D303F663FD008359A774ED03018E6A93DB3D25C5AB55A337"
+  },
+  "limits": "Executes the actual module-level reader initializer with inert bridge objects. Checks canonical provider binding by source. No actual native reader, resolved game assets or live producer availability is proven."
+}

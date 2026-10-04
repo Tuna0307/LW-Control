@@ -1,8 +1,6 @@
 import * as S from "react/jsx-runtime";
 import { useI18n } from "./i18n.jsx";
-function b({ className, alt }) {
-  return S.jsx("span", { className: className + " game-asset-placeholder", role: alt ? "img" : void 0, "aria-label": alt || void 0 });
-}
+import { GameAssetImage as b } from "./GameAssetImage.jsx";
 function e(e2) {
   let t = Number(e2);
   if (!Number.isFinite(t)) return `-`;

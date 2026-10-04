@@ -1,5 +1,12 @@
 # UI completion checklist — 2026-10-03
 
+Current lead continuation,2026-10-04: Map-entry is COMPLETE/ACCEPTED; shared
+shell/profile/image/local-state gates are accepted at FINAL-INTEGRATION checkpoint.
+The campaign remains PARTIAL. Owner requests continued large lead work; active
+LOADING-MOTION-001 covers lazy/preload/Suspense and Equipment motion, then current
+eight-route/module/retention/browser/package verification. Dated dispatches below
+are superseded. Native/physical/pixel proof limits remain explicit.
+
 Owner priority: finish the in-scope UI/UX today if feasible. This is a delivery
 target, not permission to skip checks, invent parity or enter the native phase.
 One worker at a time per worker chat, sequential commits, no subagents. The

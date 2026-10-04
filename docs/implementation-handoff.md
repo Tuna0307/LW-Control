@@ -1,10 +1,12 @@
 # Current implementation/research handoff
 
-Current dispatch, 2026-10-04: SHELL-MAP-ENTRY-001 is READY. Read its work item for
-the next finite worker assignment. Exact Tt at byte 364377 dispatches Map summary
-before transition without awaiting it; current App uses a post-route effect.
-Recover and verify this bounded correction, preserving independent polling and
-accepted retention/Cross-server. Other shell surfaces/notices/inventory are separate.
+Current lead work,2026-10-04: LOADING-MOTION-001 is ACTIVE. The owner asks the lead
+to continue large UI work. SHELL-MAP-ENTRY-001 is COMPLETE/ACCEPTED at9a2f414;
+current App dispatches summary before transition without awaiting. Shared shell,
+local profiles/focus/error/exit and image rendering/caller corrections are accepted
+at the current integration checkpoint. Preserve current evidence/protected WIP.
+Next: migrate one canonical eager-Home/lazy-panel graph and source preload/Suspense,
+then recover exact Equipment motion. No native execution phase is assigned.
 
 Lead acceptance, 2026-10-04: SHELL-CROSSSERVER-001 is COMPLETE / ACCEPTED for assigned
 source/local UI scope at delivery 52710d3. Lead original/current 11/11, focused 12/12,

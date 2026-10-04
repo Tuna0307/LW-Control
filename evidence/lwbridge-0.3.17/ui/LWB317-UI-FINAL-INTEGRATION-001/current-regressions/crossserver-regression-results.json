@@ -1,0 +1,115 @@
+{
+  "result": "LWB317_CROSSSERVER_REGRESSIONS_OK",
+  "currentApp": {
+    "path": "src/LWBridge.UI-0.3.17/src/App.jsx",
+    "normalizedSha256": "7828bafa6b04c3e6d16f5dd399fc39f59cd0568b033dc025199038f71d222e85"
+  },
+  "dispatchApp": {
+    "commit": "7c0c0b8bcc3f5c036824607004293bb29d4e2dc8",
+    "normalizedSha256": "f201e28e4dd678e735ae91b5dfa52d86df32fcdacb0c0f10c03fe4c767046cdf"
+  },
+  "cases": [
+    {
+      "name": "accepted RetainedPages Activity/profile boundary unchanged from dispatch",
+      "status": "PASS",
+      "dispatchSha256": "3dc75a9f844c7824a61a9b9232ac1d346e167f97413fee869f3e46b80e10d1f4",
+      "currentSha256": "3dc75a9f844c7824a61a9b9232ac1d346e167f97413fee869f3e46b80e10d1f4"
+    },
+    {
+      "name": "current parent retains Map summary/status/scan ownership",
+      "status": "PASS",
+      "mountSummaryRequests": 2,
+      "fiveSecondCadence": true,
+      "offlineCadenceStopped": true,
+      "completionSummaryRefresh": true,
+      "listenerCountsBeforeUnmount": {
+        "statusSubscribes": 1,
+        "statusUnsubscribes": 0,
+        "scanSubscribes": 1,
+        "scanUnsubscribes": 0
+      },
+      "listenerCounts": {
+        "statusSubscribes": 1,
+        "statusUnsubscribes": 1,
+        "scanSubscribes": 1,
+        "scanUnsubscribes": 1
+      }
+    },
+    {
+      "name": "Home auto-reconnect acknowledgement owner remains intact",
+      "status": "PASS",
+      "outcomes": [
+        {
+          "outcome": "acknowledged",
+          "posted": 1,
+          "finalAutoReconnect": true,
+          "events": [
+            [
+              "busy",
+              "autoReconnect"
+            ],
+            [
+              "error",
+              ""
+            ],
+            [
+              "config",
+              true
+            ],
+            [
+              "busy",
+              ""
+            ]
+          ]
+        },
+        {
+          "outcome": "rejected",
+          "posted": 1,
+          "finalAutoReconnect": false,
+          "events": [
+            [
+              "busy",
+              "autoReconnect"
+            ],
+            [
+              "error",
+              ""
+            ],
+            [
+              "error",
+              "controlled rejection"
+            ],
+            [
+              "busy",
+              ""
+            ]
+          ]
+        },
+        {
+          "outcome": "missing-profile",
+          "posted": 0,
+          "finalAutoReconnect": false,
+          "events": [
+            [
+              "busy",
+              "autoReconnect"
+            ],
+            [
+              "error",
+              ""
+            ],
+            [
+              "error",
+              "Select a profile before changing profile-scoped automation settings."
+            ],
+            [
+              "busy",
+              ""
+            ]
+          ]
+        }
+      ]
+    }
+  ],
+  "limits": "Current App ownership is executed through the accepted shell-retention hook harness with presentation children inert. Home uses the real backendBridge against a controlled in-memory WebView transport. No historical result file is rewritten and no native/game/provider/network action occurs."
+}

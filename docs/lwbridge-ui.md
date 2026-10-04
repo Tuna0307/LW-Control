@@ -1,5 +1,13 @@
 # LWBridge 0.3.17 UI parity plan
 
+Authoritative lead checkpoint,2026-10-04: interrupted SHELL-MAP-ENTRY-001 is
+COMPLETE/ACCEPTED at9a2f414. FINAL-INTEGRATION-001 shared shell/profile/image/local
+state corrections are ACCEPTED for bounded source/local scope; campaign remains
+PARTIAL/ACTIVE. Current lead task is LOADING-MOTION-001: exact preload/lazy/Suspense
+and Equipment motion. Dated entries below are historical checkpoints, not current
+worker dispatches. Original pixels/native/global parity remain unaccepted. See
+reviews/2026-10-04-LWB317-UI-FINAL-INTEGRATION-001-checkpoint.md.
+
 Current lead decision, 2026-10-03: MAP-AUTO-CONFIG-001 at ec27577 is COMPLETE / ACCEPTED for focused source/local UI/configuration scope after lead replays, seven additional actual-App cases, saved-layout inspection and evidence/package checks. MAP-CLOSEOUT-002 is closed for its assigned A/B/C scope. Remaining UI follows docs/UI_FINISH_CHECKLIST.md: Automation/AFK residuals, other-page review, final eight-page integration. Active worker: LWB317-UI-AUTOMATION-AFK-CLOSEOUT-001, one AI, no subagents. Aim for source-recoverable UI completion today if feasible; original pixels/native/global parity remain unaccepted.
 
 This is the master UI workstream document.

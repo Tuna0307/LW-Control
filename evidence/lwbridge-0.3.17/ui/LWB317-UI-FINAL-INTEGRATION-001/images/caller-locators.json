@@ -1,0 +1,146 @@
+[
+  {
+    "name": "map-normal-reward",
+    "source": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js",
+    "sourceSha256": "CE74345518BE72E417A510B982C591729E5683F69751E190805598C4C05D3089",
+    "utf8ByteOffset": 16692,
+    "utf8ByteLength": 260,
+    "sliceSha256": "80A13E470294C14F11938705BC04A1CA1E8A973D6421169BBA0629F810E07D8E",
+    "exactExpressionSlice": "assetPath:e.iconPath,alt:n,className:`map-reward-icon`}),(0,E.jsxs)(`strong`,{children:[`×`,_(e.count)]})]},`${e.key}:${t}`)})})}function pe(e){let t=F(e,o),n=g(t===`expired`?`map.taskExpired`:t===`full`?`map.taskPlunderFull`:t===`protected`?`map.taskProtecte"
+  },
+  {
+    "name": "scheduled-dispatch-reward",
+    "source": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js",
+    "sourceSha256": "CE74345518BE72E417A510B982C591729E5683F69751E190805598C4C05D3089",
+    "utf8ByteOffset": 23747,
+    "utf8ByteLength": 260,
+    "sliceSha256": "3ED437A2B218E9D664070E350F88153E9CEAEA1C38E792A599AB7F375D18823A",
+    "exactExpressionSlice": "assetPath:e.iconPath,alt:n,className:`map-reward-icon`}),(0,E.jsxs)(`strong`,{children:[`×`,_(e.count)]})]},e.key)})}):`-`}),(0,E.jsx)(`td`,{children:N(e.completionTime,c)}),(0,E.jsx)(`td`,{children:N(e.plunderAt,c)}),(0,E.jsx)(`td`,{className:`map-plunder-re"
+  },
+  {
+    "name": "scheduled-truck-reward",
+    "source": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js",
+    "sourceSha256": "CE74345518BE72E417A510B982C591729E5683F69751E190805598C4C05D3089",
+    "utf8ByteOffset": 27715,
+    "utf8ByteLength": 260,
+    "sliceSha256": "01794EC936817F2511C4029A4FFD33DB567D3B01EDF5DDFEB64B37821A290F8C",
+    "exactExpressionSlice": "assetPath:e.iconPath,alt:n,className:`map-reward-icon`}),(0,E.jsxs)(`strong`,{children:[`×`,_(e.count)]})]},e.key)})}):`-`}),(0,E.jsxs)(`td`,{className:`map-plunder-actions`,children:[ie&&(0,E.jsx)(`button`,{disabled:a===u,onClick:()=>o(e),children:f(`common."
+  },
+  {
+    "name": "goods-picker-selected",
+    "source": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js",
+    "sourceSha256": "CE74345518BE72E417A510B982C591729E5683F69751E190805598C4C05D3089",
+    "utf8ByteOffset": 28531,
+    "utf8ByteLength": 260,
+    "sliceSha256": "BA4FE3F7A272A315CF9DD102F95CEEA28F9C60F8BC2015D105391384A7D6D7B4",
+    "exactExpressionSlice": "assetPath:o.iconPath,alt:o.name,className:`map-item-filter-icon`}),(0,E.jsx)(`span`,{children:o?.name||r})]}),(0,E.jsxs)(`div`,{className:`map-item-filter-menu`,children:[(0,E.jsx)(`button`,{type:`button`,className:t?``:`active`,onClick:()=>s(``),children:r}),"
+  },
+  {
+    "name": "goods-picker-option",
+    "source": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js",
+    "sourceSha256": "CE74345518BE72E417A510B982C591729E5683F69751E190805598C4C05D3089",
+    "utf8ByteOffset": 28911,
+    "utf8ByteLength": 260,
+    "sliceSha256": "91A8BCFBE8C6FE38CCA6B7B41ED7E8C1F5D1EC576500D976597BE7510A8CAF29",
+    "exactExpressionSlice": "assetPath:e.iconPath,alt:e.name,className:`map-item-filter-icon`}),(0,E.jsx)(`span`,{children:e.name})]},e.key))]})]})}function lt({items:e,value:t,gameTexts:n,onChange:r}){let{t:i}=u(),a=(0,y.useRef)(null),o=e.find(e=>e.key===t),s=e=>Ke(i,n,e.treasureType,e.s"
+  },
+  {
+    "name": "trade-goods-quality-frame",
+    "source": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/AutomationPanel-BJ0gIqFh.js",
+    "sourceSha256": "6DB2328191AF33E5631D507271C36D7008B287DAA7C8CD1A957B23EF6F871725",
+    "utf8ByteOffset": 1645,
+    "utf8ByteLength": 260,
+    "sliceSha256": "5B895AF833682276C2D744830753F9A9CDD1ED7B89255668D0146B29BD350640",
+    "exactExpressionSlice": "spriteName:`cfm_tongyong_daojukuang_${n.quality}`,alt:``,className:`trade-station-good-frame-image`,deferUntilVisible:!0}),(0,S.jsx)(b,{assetPath:n.iconPath,alt:l,className:`trade-station-good-icon`,deferUntilVisible:!0})]}),(0,S.jsxs)(`span`,{className:`trade"
+  },
+  {
+    "name": "trade-goods-icon",
+    "source": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/AutomationPanel-BJ0gIqFh.js",
+    "sourceSha256": "6DB2328191AF33E5631D507271C36D7008B287DAA7C8CD1A957B23EF6F871725",
+    "utf8ByteOffset": 1781,
+    "utf8ByteLength": 260,
+    "sliceSha256": "198BA67C926C80D2AAA6B0797B7C8A75562437E1EF4CBF0A75BA5590876957FF",
+    "exactExpressionSlice": "assetPath:n.iconPath,alt:l,className:`trade-station-good-icon`,deferUntilVisible:!0})]}),(0,S.jsxs)(`span`,{className:`trade-station-good-copy`,children:[(0,S.jsx)(`b`,{children:l}),(0,S.jsx)(`small`,{children:s(`automation.tradeStation.buyWheneverAvailable`)}"
+  },
+  {
+    "name": "trade-purchase-quality-frame",
+    "source": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/AutomationPanel-BJ0gIqFh.js",
+    "sourceSha256": "6DB2328191AF33E5631D507271C36D7008B287DAA7C8CD1A957B23EF6F871725",
+    "utf8ByteOffset": 4198,
+    "utf8ByteLength": 260,
+    "sliceSha256": "A6D59795E353B38C938913BF0F42C6BF1EAADABB6B85E3930D298E5B260F90C8",
+    "exactExpressionSlice": "spriteName:`cfm_tongyong_daojukuang_${n.quality}`,alt:``,className:`trade-station-good-frame-image`,deferUntilVisible:!0}),(0,S.jsx)(b,{assetPath:n.iconPath,alt:a,className:`trade-station-good-icon`,deferUntilVisible:!0})]}),(0,S.jsxs)(`span`,{className:`trade"
+  },
+  {
+    "name": "trade-purchase-icon",
+    "source": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/AutomationPanel-BJ0gIqFh.js",
+    "sourceSha256": "6DB2328191AF33E5631D507271C36D7008B287DAA7C8CD1A957B23EF6F871725",
+    "utf8ByteOffset": 4334,
+    "utf8ByteLength": 260,
+    "sliceSha256": "7E61EA73A986C8B9EAF61613EE4B334029544410E09D32F686DA00F60C0AF3EA",
+    "exactExpressionSlice": "assetPath:n.iconPath,alt:a,className:`trade-station-good-icon`,deferUntilVisible:!0})]}),(0,S.jsxs)(`span`,{className:`trade-station-purchase-copy`,children:[(0,S.jsx)(`b`,{children:a}),(0,S.jsx)(`small`,{children:r(`automation.tradeStation.quantity`,{count:n."
+  },
+  {
+    "name": "trade-purchase-currency",
+    "source": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/AutomationPanel-BJ0gIqFh.js",
+    "sourceSha256": "6DB2328191AF33E5631D507271C36D7008B287DAA7C8CD1A957B23EF6F871725",
+    "utf8ByteOffset": 4729,
+    "utf8ByteLength": 260,
+    "sliceSha256": "E7E17AA05B78B8E7AB7144DF5CCFE4CFBA90003BD7D84AC005AFC607F8D119CA",
+    "exactExpressionSlice": "assetPath:n.currencyIconPath,alt:``,className:`trade-station-currency-icon`,deferUntilVisible:!0}),r(`automation.tradeStation.price`,{price:n.price.toLocaleString(e),currency:o})]}),(0,S.jsx)(`small`,{children:r(`automation.tradeStation.purchasedAt`,{time:new "
+  },
+  {
+    "name": "trade-currency-option",
+    "source": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/AutomationPanel-BJ0gIqFh.js",
+    "sourceSha256": "6DB2328191AF33E5631D507271C36D7008B287DAA7C8CD1A957B23EF6F871725",
+    "utf8ByteOffset": 6231,
+    "utf8ByteLength": 260,
+    "sliceSha256": "D7402ED72DB2AE5775CE102D0547D7476E323D3B065A838BF27E6CDFA168F7EE",
+    "exactExpressionSlice": "assetPath:r.currencyIconPath,alt:``,className:`trade-station-currency-icon`}),(0,S.jsx)(`span`,{children:c})]},o)})})]})}function pe({profileId:e,online:r,config:i,status:a}){let{language:s,t:c}=te(),l=n(`tradeStation`,le(i),{read:async()=>le((await f(e)).conf"
+  },
+  {
+    "name": "assist-stars",
+    "source": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/AutomationPanel-BJ0gIqFh.js",
+    "sourceSha256": "6DB2328191AF33E5631D507271C36D7008B287DAA7C8CD1A957B23EF6F871725",
+    "utf8ByteOffset": 36327,
+    "utf8ByteLength": 260,
+    "sliceSha256": "C0D46D02F374697CB7592E7DD98BD80DC948BDBF182AA5BF1C358935D4DCD6B8",
+    "exactExpressionSlice": "assetPath:e,alt:``,className:`automation-assist-star`},`${e}:${t}`))}):null}function Xr(e){return(0,S.jsx)(`span`,{className:`automation-assist-rewards`,children:(e.items??[]).map((e,t)=>{let n=`${e.name||e.key} ×${D(e.count)}`;return(0,S.jsxs)(`span`,{classN"
+  },
+  {
+    "name": "assist-rewards",
+    "source": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/AutomationPanel-BJ0gIqFh.js",
+    "sourceSha256": "6DB2328191AF33E5631D507271C36D7008B287DAA7C8CD1A957B23EF6F871725",
+    "utf8ByteOffset": 36655,
+    "utf8ByteLength": 260,
+    "sliceSha256": "86E7B7F156C0807284279A6402F3AAE30A1C25D4E12958F0E42BCE3FFE902464",
+    "exactExpressionSlice": "assetPath:e.iconPath,alt:e.name||e.key,className:`map-reward-icon`}),(0,S.jsxs)(`strong`,{children:[`×`,se(e.count)]})]},`${e.key}:${t}`)})})}function Zr(e){let t=e===`redPacket`,n=e===`treasure`,r=t?k?.services?.redPacket:n?k?.services?.treasure:k?.services?"
+  },
+  {
+    "name": "train-rewards",
+    "source": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/AutomationPanel-BJ0gIqFh.js",
+    "sourceSha256": "6DB2328191AF33E5631D507271C36D7008B287DAA7C8CD1A957B23EF6F871725",
+    "utf8ByteOffset": 56749,
+    "utf8ByteLength": 260,
+    "sliceSha256": "B139F7316AF763274D25047DC38E4878080C44999C83B27C1BB3ADBB1F5D23D9",
+    "exactExpressionSlice": "assetPath:e.iconPath,alt:e.name||e.key,className:`automation-reward-icon`}),(0,S.jsx)(`span`,{children:e.name||e.key})]}),(0,S.jsx)(`strong`,{className:`automation-reward-count`,children:e.count===void 0?`—`:`×${se(e.count)}`}),n&&(0,S.jsxs)(`span`,{classNa"
+  },
+  {
+    "name": "equipment-item",
+    "source": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/SquadPanel-HC3-DJei.js",
+    "sourceSha256": "ED466E353AA896D8C3FC783FF1802930156FB9E9EB54327AEF73F2FF86FA06C7",
+    "utf8ByteOffset": 184358,
+    "utf8ByteLength": 260,
+    "sliceSha256": "5C9CEFD83FE51C9F02E6F5F4BD4880C7D71E7FE60355BC752D1EBF6C35DAE38C",
+    "exactExpressionSlice": "assetPath:i.iconPath,alt:i.name||String(i.equipUuid),className:`equipment-icon`}),(0,A.jsxs)(`span`,{children:[`Lv.`,i.level??`-`,i.promote?` +${i.promote}`:``]})]}):(0,A.jsxs)(A.Fragment,{children:[(0,A.jsx)(`span`,{className:`equipment-icon game-asset-placeh"
+  },
+  {
+    "name": "equipment-position-hero",
+    "source": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/SquadPanel-HC3-DJei.js",
+    "sourceSha256": "ED466E353AA896D8C3FC783FF1802930156FB9E9EB54327AEF73F2FF86FA06C7",
+    "utf8ByteOffset": 188842,
+    "utf8ByteLength": 260,
+    "sliceSha256": "15D1152865B5CEADED144102D256E20DBA949CE83047C1D34DD52D5E8CCFF2E1",
+    "exactExpressionSlice": "assetPath:t.iconPath,alt:t.name,className:`equipment-position-hero-icon`}),(0,A.jsxs)(`div`,{children:[(0,A.jsx)(`strong`,{children:t.name}),(0,A.jsxs)(`span`,{children:[`Lv.`,t.level]})]})]}),(0,A.jsx)(`div`,{className:`equipment-loadout-handle`,draggable:!_,"
+  }
+]

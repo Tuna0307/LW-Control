@@ -1,0 +1,1035 @@
+{
+  "status": "PASS",
+  "cases": 144,
+  "baselineFailures": 27,
+  "currentFailures": 0,
+  "productionSHA256": "bcdbc9f6e574fcc266410667a5f3e1ab498797a8002be532c9ad15c40455b764",
+  "originalRenderer": {
+    "originalPath": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js",
+    "originalSHA256": "ce74345518be72e417a510b982c591729e5683f69751e190805598c4c05d3089",
+    "byteOffset": 49591,
+    "byteLength": 166,
+    "sliceSHA256": "38f88fcac17ff97530cde88209b7b9d82ee30a4f246a66a8232a8cef56201b4d",
+    "followingBranch": "Y===`manual`",
+    "baselineProductionSHA256": "c773900413d23e0be06cd2fa4a8c02fe3036e764bcdbfe4f2e519de5c17a9d01",
+    "baselineBlockSHA256": "1962bb79df2e40583ec61b2f5309e3bf2a448f40366218e81e02915c9162500a",
+    "translationSource": {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-BVfnK1wp.js",
+      "sha256": "44c4e4043825b7db296b64171951b27176f8850ff8d7d337cc991df4765524c6",
+      "byteOffset": 328453,
+      "byteLength": 397,
+      "sliceSHA256": "9269200ea1d67d808f6f7a278e25b1e34ce7418fc2d2d67f875def90d36993e6"
+    }
+  },
+  "scope": "Actual exact original and compiled canonical JSX notice-region renders, not full-page/native/pixel proof",
+  "results": [
+    {
+      "language": "en",
+      "modeIndex": 0,
+      "errorIndex": 0,
+      "baselineMismatch": true,
+      "currentMatches": true
+    },
+    {
+      "language": "en",
+      "modeIndex": 0,
+      "errorIndex": 1,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "en",
+      "modeIndex": 0,
+      "errorIndex": 2,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "en",
+      "modeIndex": 0,
+      "errorIndex": 3,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "en",
+      "modeIndex": 1,
+      "errorIndex": 0,
+      "baselineMismatch": true,
+      "currentMatches": true
+    },
+    {
+      "language": "en",
+      "modeIndex": 1,
+      "errorIndex": 1,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "en",
+      "modeIndex": 1,
+      "errorIndex": 2,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "en",
+      "modeIndex": 1,
+      "errorIndex": 3,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "en",
+      "modeIndex": 2,
+      "errorIndex": 0,
+      "baselineMismatch": true,
+      "currentMatches": true
+    },
+    {
+      "language": "en",
+      "modeIndex": 2,
+      "errorIndex": 1,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "en",
+      "modeIndex": 2,
+      "errorIndex": 2,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "en",
+      "modeIndex": 2,
+      "errorIndex": 3,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "en",
+      "modeIndex": 3,
+      "errorIndex": 0,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "en",
+      "modeIndex": 3,
+      "errorIndex": 1,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "en",
+      "modeIndex": 3,
+      "errorIndex": 2,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "en",
+      "modeIndex": 3,
+      "errorIndex": 3,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "zh-CN",
+      "modeIndex": 0,
+      "errorIndex": 0,
+      "baselineMismatch": true,
+      "currentMatches": true
+    },
+    {
+      "language": "zh-CN",
+      "modeIndex": 0,
+      "errorIndex": 1,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "zh-CN",
+      "modeIndex": 0,
+      "errorIndex": 2,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "zh-CN",
+      "modeIndex": 0,
+      "errorIndex": 3,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "zh-CN",
+      "modeIndex": 1,
+      "errorIndex": 0,
+      "baselineMismatch": true,
+      "currentMatches": true
+    },
+    {
+      "language": "zh-CN",
+      "modeIndex": 1,
+      "errorIndex": 1,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "zh-CN",
+      "modeIndex": 1,
+      "errorIndex": 2,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "zh-CN",
+      "modeIndex": 1,
+      "errorIndex": 3,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "zh-CN",
+      "modeIndex": 2,
+      "errorIndex": 0,
+      "baselineMismatch": true,
+      "currentMatches": true
+    },
+    {
+      "language": "zh-CN",
+      "modeIndex": 2,
+      "errorIndex": 1,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "zh-CN",
+      "modeIndex": 2,
+      "errorIndex": 2,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "zh-CN",
+      "modeIndex": 2,
+      "errorIndex": 3,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "zh-CN",
+      "modeIndex": 3,
+      "errorIndex": 0,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "zh-CN",
+      "modeIndex": 3,
+      "errorIndex": 1,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "zh-CN",
+      "modeIndex": 3,
+      "errorIndex": 2,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "zh-CN",
+      "modeIndex": 3,
+      "errorIndex": 3,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "zh-TW",
+      "modeIndex": 0,
+      "errorIndex": 0,
+      "baselineMismatch": true,
+      "currentMatches": true
+    },
+    {
+      "language": "zh-TW",
+      "modeIndex": 0,
+      "errorIndex": 1,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "zh-TW",
+      "modeIndex": 0,
+      "errorIndex": 2,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "zh-TW",
+      "modeIndex": 0,
+      "errorIndex": 3,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "zh-TW",
+      "modeIndex": 1,
+      "errorIndex": 0,
+      "baselineMismatch": true,
+      "currentMatches": true
+    },
+    {
+      "language": "zh-TW",
+      "modeIndex": 1,
+      "errorIndex": 1,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "zh-TW",
+      "modeIndex": 1,
+      "errorIndex": 2,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "zh-TW",
+      "modeIndex": 1,
+      "errorIndex": 3,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "zh-TW",
+      "modeIndex": 2,
+      "errorIndex": 0,
+      "baselineMismatch": true,
+      "currentMatches": true
+    },
+    {
+      "language": "zh-TW",
+      "modeIndex": 2,
+      "errorIndex": 1,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "zh-TW",
+      "modeIndex": 2,
+      "errorIndex": 2,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "zh-TW",
+      "modeIndex": 2,
+      "errorIndex": 3,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "zh-TW",
+      "modeIndex": 3,
+      "errorIndex": 0,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "zh-TW",
+      "modeIndex": 3,
+      "errorIndex": 1,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "zh-TW",
+      "modeIndex": 3,
+      "errorIndex": 2,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "zh-TW",
+      "modeIndex": 3,
+      "errorIndex": 3,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "ja",
+      "modeIndex": 0,
+      "errorIndex": 0,
+      "baselineMismatch": true,
+      "currentMatches": true
+    },
+    {
+      "language": "ja",
+      "modeIndex": 0,
+      "errorIndex": 1,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "ja",
+      "modeIndex": 0,
+      "errorIndex": 2,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "ja",
+      "modeIndex": 0,
+      "errorIndex": 3,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "ja",
+      "modeIndex": 1,
+      "errorIndex": 0,
+      "baselineMismatch": true,
+      "currentMatches": true
+    },
+    {
+      "language": "ja",
+      "modeIndex": 1,
+      "errorIndex": 1,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "ja",
+      "modeIndex": 1,
+      "errorIndex": 2,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "ja",
+      "modeIndex": 1,
+      "errorIndex": 3,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "ja",
+      "modeIndex": 2,
+      "errorIndex": 0,
+      "baselineMismatch": true,
+      "currentMatches": true
+    },
+    {
+      "language": "ja",
+      "modeIndex": 2,
+      "errorIndex": 1,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "ja",
+      "modeIndex": 2,
+      "errorIndex": 2,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "ja",
+      "modeIndex": 2,
+      "errorIndex": 3,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "ja",
+      "modeIndex": 3,
+      "errorIndex": 0,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "ja",
+      "modeIndex": 3,
+      "errorIndex": 1,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "ja",
+      "modeIndex": 3,
+      "errorIndex": 2,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "ja",
+      "modeIndex": 3,
+      "errorIndex": 3,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "ko",
+      "modeIndex": 0,
+      "errorIndex": 0,
+      "baselineMismatch": true,
+      "currentMatches": true
+    },
+    {
+      "language": "ko",
+      "modeIndex": 0,
+      "errorIndex": 1,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "ko",
+      "modeIndex": 0,
+      "errorIndex": 2,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "ko",
+      "modeIndex": 0,
+      "errorIndex": 3,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "ko",
+      "modeIndex": 1,
+      "errorIndex": 0,
+      "baselineMismatch": true,
+      "currentMatches": true
+    },
+    {
+      "language": "ko",
+      "modeIndex": 1,
+      "errorIndex": 1,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "ko",
+      "modeIndex": 1,
+      "errorIndex": 2,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "ko",
+      "modeIndex": 1,
+      "errorIndex": 3,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "ko",
+      "modeIndex": 2,
+      "errorIndex": 0,
+      "baselineMismatch": true,
+      "currentMatches": true
+    },
+    {
+      "language": "ko",
+      "modeIndex": 2,
+      "errorIndex": 1,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "ko",
+      "modeIndex": 2,
+      "errorIndex": 2,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "ko",
+      "modeIndex": 2,
+      "errorIndex": 3,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "ko",
+      "modeIndex": 3,
+      "errorIndex": 0,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "ko",
+      "modeIndex": 3,
+      "errorIndex": 1,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "ko",
+      "modeIndex": 3,
+      "errorIndex": 2,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "ko",
+      "modeIndex": 3,
+      "errorIndex": 3,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "vi",
+      "modeIndex": 0,
+      "errorIndex": 0,
+      "baselineMismatch": true,
+      "currentMatches": true
+    },
+    {
+      "language": "vi",
+      "modeIndex": 0,
+      "errorIndex": 1,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "vi",
+      "modeIndex": 0,
+      "errorIndex": 2,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "vi",
+      "modeIndex": 0,
+      "errorIndex": 3,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "vi",
+      "modeIndex": 1,
+      "errorIndex": 0,
+      "baselineMismatch": true,
+      "currentMatches": true
+    },
+    {
+      "language": "vi",
+      "modeIndex": 1,
+      "errorIndex": 1,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "vi",
+      "modeIndex": 1,
+      "errorIndex": 2,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "vi",
+      "modeIndex": 1,
+      "errorIndex": 3,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "vi",
+      "modeIndex": 2,
+      "errorIndex": 0,
+      "baselineMismatch": true,
+      "currentMatches": true
+    },
+    {
+      "language": "vi",
+      "modeIndex": 2,
+      "errorIndex": 1,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "vi",
+      "modeIndex": 2,
+      "errorIndex": 2,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "vi",
+      "modeIndex": 2,
+      "errorIndex": 3,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "vi",
+      "modeIndex": 3,
+      "errorIndex": 0,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "vi",
+      "modeIndex": 3,
+      "errorIndex": 1,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "vi",
+      "modeIndex": 3,
+      "errorIndex": 2,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "vi",
+      "modeIndex": 3,
+      "errorIndex": 3,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "id",
+      "modeIndex": 0,
+      "errorIndex": 0,
+      "baselineMismatch": true,
+      "currentMatches": true
+    },
+    {
+      "language": "id",
+      "modeIndex": 0,
+      "errorIndex": 1,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "id",
+      "modeIndex": 0,
+      "errorIndex": 2,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "id",
+      "modeIndex": 0,
+      "errorIndex": 3,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "id",
+      "modeIndex": 1,
+      "errorIndex": 0,
+      "baselineMismatch": true,
+      "currentMatches": true
+    },
+    {
+      "language": "id",
+      "modeIndex": 1,
+      "errorIndex": 1,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "id",
+      "modeIndex": 1,
+      "errorIndex": 2,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "id",
+      "modeIndex": 1,
+      "errorIndex": 3,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "id",
+      "modeIndex": 2,
+      "errorIndex": 0,
+      "baselineMismatch": true,
+      "currentMatches": true
+    },
+    {
+      "language": "id",
+      "modeIndex": 2,
+      "errorIndex": 1,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "id",
+      "modeIndex": 2,
+      "errorIndex": 2,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "id",
+      "modeIndex": 2,
+      "errorIndex": 3,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "id",
+      "modeIndex": 3,
+      "errorIndex": 0,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "id",
+      "modeIndex": 3,
+      "errorIndex": 1,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "id",
+      "modeIndex": 3,
+      "errorIndex": 2,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "id",
+      "modeIndex": 3,
+      "errorIndex": 3,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "ru",
+      "modeIndex": 0,
+      "errorIndex": 0,
+      "baselineMismatch": true,
+      "currentMatches": true
+    },
+    {
+      "language": "ru",
+      "modeIndex": 0,
+      "errorIndex": 1,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "ru",
+      "modeIndex": 0,
+      "errorIndex": 2,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "ru",
+      "modeIndex": 0,
+      "errorIndex": 3,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "ru",
+      "modeIndex": 1,
+      "errorIndex": 0,
+      "baselineMismatch": true,
+      "currentMatches": true
+    },
+    {
+      "language": "ru",
+      "modeIndex": 1,
+      "errorIndex": 1,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "ru",
+      "modeIndex": 1,
+      "errorIndex": 2,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "ru",
+      "modeIndex": 1,
+      "errorIndex": 3,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "ru",
+      "modeIndex": 2,
+      "errorIndex": 0,
+      "baselineMismatch": true,
+      "currentMatches": true
+    },
+    {
+      "language": "ru",
+      "modeIndex": 2,
+      "errorIndex": 1,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "ru",
+      "modeIndex": 2,
+      "errorIndex": 2,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "ru",
+      "modeIndex": 2,
+      "errorIndex": 3,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "ru",
+      "modeIndex": 3,
+      "errorIndex": 0,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "ru",
+      "modeIndex": 3,
+      "errorIndex": 1,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "ru",
+      "modeIndex": 3,
+      "errorIndex": 2,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "ru",
+      "modeIndex": 3,
+      "errorIndex": 3,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "pt",
+      "modeIndex": 0,
+      "errorIndex": 0,
+      "baselineMismatch": true,
+      "currentMatches": true
+    },
+    {
+      "language": "pt",
+      "modeIndex": 0,
+      "errorIndex": 1,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "pt",
+      "modeIndex": 0,
+      "errorIndex": 2,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "pt",
+      "modeIndex": 0,
+      "errorIndex": 3,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "pt",
+      "modeIndex": 1,
+      "errorIndex": 0,
+      "baselineMismatch": true,
+      "currentMatches": true
+    },
+    {
+      "language": "pt",
+      "modeIndex": 1,
+      "errorIndex": 1,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "pt",
+      "modeIndex": 1,
+      "errorIndex": 2,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "pt",
+      "modeIndex": 1,
+      "errorIndex": 3,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "pt",
+      "modeIndex": 2,
+      "errorIndex": 0,
+      "baselineMismatch": true,
+      "currentMatches": true
+    },
+    {
+      "language": "pt",
+      "modeIndex": 2,
+      "errorIndex": 1,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "pt",
+      "modeIndex": 2,
+      "errorIndex": 2,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "pt",
+      "modeIndex": 2,
+      "errorIndex": 3,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "pt",
+      "modeIndex": 3,
+      "errorIndex": 0,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "pt",
+      "modeIndex": 3,
+      "errorIndex": 1,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "pt",
+      "modeIndex": 3,
+      "errorIndex": 2,
+      "baselineMismatch": false,
+      "currentMatches": true
+    },
+    {
+      "language": "pt",
+      "modeIndex": 3,
+      "errorIndex": 3,
+      "baselineMismatch": false,
+      "currentMatches": true
+    }
+  ]
+}

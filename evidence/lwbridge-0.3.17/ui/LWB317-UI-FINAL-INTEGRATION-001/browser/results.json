@@ -1,0 +1,30 @@
+{
+  "proof": "Lead-operated real offline browser UI; exact source/runtime tests recorded separately.",
+  "englishViewport": {
+    "width": 1505,
+    "height": 1188
+  },
+  "japaneseViewport": {
+    "width": 740,
+    "height": 600
+  },
+  "eightRouteJourneys": [
+    "settled-en-journey.json",
+    "settled-ja-740-journey.json"
+  ],
+  "profileNotes": "Opened actual dialog, edited/saved note, verified Tab wraps Save to input and state across navigation. Local Add reaches 3/3 disabled capacity; selected Local2; native start/stop disabled.",
+  "focusPreference": "Actual enabled->disabled, reload remains disabled, restored enabled. Browser read-only storage evaluation unavailable, so persistence proof is visible reload state.",
+  "theme": "Actual dark/light controls and settled dataset checked; premature first image replaced.",
+  "saveErrors": "Four correct ordered labels; Weekend Retry and Attack Discard clear only those banners, remaining two survive Map navigation.",
+  "updater": "Japanese header version0.3.17 / available0.3.18 and downloading42percent, action disabled.",
+  "exit": "Idle Cancel/Escape removes prompt; busy IAB Escape closes DOM visibility in BOTH exact original/current while state remainsmountedbusy. See exit-browser-comparison.json; busyEscape fencing notclaimed.",
+  "profileSwitch": "Explicit Japanese processing panel, no native profile bootstrapping claimed.",
+  "responsive": "740px settled eight-page journey no document overflow. 800px multi-profile Squads overflow to1025px observed; inherited exact CSS minmax columns and<=760 override retained, not redesigned or called a parity pass.",
+  "console": [],
+  "limits": [
+    "No protected original post-auth pixel comparison",
+    "No native/gameplay/updater/exit/scan action",
+    "No physical Equipment drag",
+    "Images positive reads in controlled module tests; no live game images"
+  ]
+}

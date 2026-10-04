@@ -1,0 +1,17 @@
+{
+  "originalAssetSha256": "44C4E4043825B7DB296B64171951B27176F8850FF8D7D337CC991DF4765524C6",
+  "originalModal": {
+    "byte": 209017,
+    "length": 1209,
+    "sha256": "E42C17AAC67AFE7A73D525902C9E757644E40838422730CEB32EC47830C4F8A2"
+  },
+  "originalRenderer": {
+    "byte": 376111,
+    "length": 881,
+    "sha256": "72F95F7202BC43FD3F9E449DC77133A08C57DE1C8D6F48AB929DCC1D34F48C21"
+  },
+  "canonicalAppExitDialogSha256": "AFA79399788E4F8C58FA81C11FF86CB7128CBF5DD02A84BD511E88A928A6549D",
+  "bundledJsSha256": "67276E767F5B684B7550E6471B8E8B7A2B51AC059B44E647081F3EFECBA6790D",
+  "htmlSha256": "F0FE4CDF723F8D62ADFE698AB43CF80139AEB639D4A36C89700C127690382F3F",
+  "limits": "No product edits, native invocation, game action, protected original runtime or invented Escape fix. Compare original/current with mode=original/current, busy=1/0 and lang=en/ja."
+}

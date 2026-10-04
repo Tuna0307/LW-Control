@@ -1,0 +1,11 @@
+{
+  "result": "LWB317_FINAL_PROFILE_FOCUS_OK",
+  "cases": 9,
+  "locator": {
+    "utf8ByteOffset": 357998,
+    "utf8ByteLength": 156,
+    "sha256": "3a7f4402f9d2c946ac85ff4f342dd940018cf0095e96d2698ff8a73fef0aee8d"
+  },
+  "appSha256": "62c18ac0d9b5bb832ee030c393aca4bdaae1a43b8c3573cd1be7167c2b46bc8a",
+  "proof": "Exact helpers, parent binding assertions and separate real browser toggle/reload. No game-window focus action."
+}

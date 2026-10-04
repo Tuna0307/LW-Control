@@ -1,0 +1,61 @@
+{
+  "status": "PASS",
+  "source": {
+    "originalPanelSha256": "78a0cc816d40b0036c171d708ba033a8954275f8321ff539d7aa5bb4dd4b6f94",
+    "originalIndexSha256": "44c4e4043825b7db296b64171951b27176f8850ff8d7d337cc991df4765524c6",
+    "currentPageSha256": "80dd6565d58a15f18d04d3be034dd9fb2f231aec0edbbcf7dd781eb1bfb68d55",
+    "currentAppSha256": "7828bafa6b04c3e6d16f5dd399fc39f59cd0568b033dc025199038f71d222e85",
+    "baselineCommit": "123459d"
+  },
+  "baselineCounterexample": {
+    "status": "EXPECTED_FAIL_OWNERSHIP",
+    "summaryCalls": 1,
+    "scanListenerCalls": 1,
+    "optionServers": [
+      321
+    ],
+    "nestedSummaryOptions": true
+  },
+  "parentLifecycle": {
+    "mountSummaryRequests": 2,
+    "pollOverlapSuppressed": true,
+    "sameProfileOfflineSettlement": true,
+    "completionSummaryRefresh": true,
+    "profileReplacementFenced": true,
+    "deferredRejectionPreservedState": true,
+    "deferredUnmountSuccessFenced": true,
+    "listenerCounts": {
+      "statusSubscribes": 2,
+      "statusUnsubscribes": 2,
+      "scanSubscribes": 2,
+      "scanUnsubscribes": 2
+    }
+  },
+  "controlledBoundary": {
+    "summaryCalls": 0,
+    "scanListenerCalls": 0,
+    "optionServers": [
+      321,
+      321
+    ],
+    "parentStateCallbacks": 0,
+    "parentCountCallbacks": 2,
+    "progressTimeoutRowsOnly": true,
+    "mountAlreadyReadingOptions": [
+      321,
+      321
+    ],
+    "completionOptionNameInvalidation": true,
+    "providerReplacementFenced": true,
+    "emptyCountsShape": {
+      "city": 0,
+      "resource": 0,
+      "monster": 0,
+      "truck": 0,
+      "railway": 0,
+      "dispatch": 0,
+      "ghost": 0,
+      "treasure": 0
+    }
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "result": "LWB317_FINAL_SHELL_OK",
+  "results": [
+    {
+      "name": "exact original/current header version and conditional updater",
+      "status": "PASS",
+      "cases": 1008
+    },
+    {
+      "name": "exact original/current shared-save error render and Retry/Discard",
+      "status": "PASS",
+      "cases": 144
+    },
+    {
+      "name": "exact original/current reduced-motion/view/fallback theme lifecycle",
+      "status": "PASS",
+      "cases": 8
+    },
+    {
+      "name": "current/obsolete locale load rejection retains prior catalog and log predicate",
+      "status": "PASS",
+      "cases": 2
+    },
+    {
+      "name": "connected CSS class source-backed correction",
+      "status": "PASS",
+      "cases": 1
+    }
+  ],
+  "original": {
+    "asset": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-BVfnK1wp.js",
+    "sha256": "44C4E4043825B7DB296B64171951B27176F8850FF8D7D337CC991DF4765524C6",
+    "locators": {
+      "theme": {
+        "byteOffset": 364550,
+        "byteLength": 404,
+        "sha256": "36FAEB6705D533583848424FD7CA6F5B4FB2A0BBA6A348DAB10C397E5155EE97"
+      },
+      "header": {
+        "byteOffset": 354710,
+        "byteLength": 3232,
+        "sha256": "32E9CFF50FC34FCD3B91B2A3256AEC4DC9C605E98713B4F8F0ED536A4B94B405"
+      },
+      "versionExpression": {
+        "byteOffset": 355697,
+        "byteLength": 655,
+        "sha256": "5B675CA28A78A2DA7F4775DA7735075FE823329BF7D63E84CEFE0F1414D16696"
+      },
+      "sharedError": {
+        "byteOffset": 199047,
+        "byteLength": 587,
+        "sha256": "0AD5697E94B54AD9826ABD4AA044A744B9E1E23FF804A0E5D845F12D8883A5E1"
+      },
+      "locale": {
+        "byteOffset": 198167,
+        "byteLength": 768,
+        "sha256": "C176A9868AFB5DE54B93AF52F4313DA272B9E64EAB3F6AE3B868433C2BB43C70"
+      }
+    }
+  },
+  "current": {
+    "appSha256": "62C18AC0D9B5BB832EE030C393ACA4BDAAE1A43B8C3573CD1BE7167C2B46BC8A",
+    "presentationSha256": "B1DD1278F274A1FD347AD4C27787B5AE8DC1DB32230D49B55F7A471DE34A904F",
+    "i18nSha256": "D4290741AB2C7ACB0546ED47156BEF434DDF210775CAD9B9A3A261D401CE4891"
+  },
+  "limits": "Actual source expressions/functions with inert providers/hooks; native updater actions fenced. Provider state producers and original runtime pixels are separate. Tests use existing dependency versions and do not call native/game/network operations."
+}

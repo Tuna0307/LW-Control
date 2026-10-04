@@ -1,0 +1,98 @@
+{
+  "marker": "LWB317_FINAL_IMAGES_OK",
+  "cases": 16,
+  "originalComparisons": 13,
+  "normalizationComparisons": 36,
+  "details": [
+    {
+      "name": "source-normalization-exactly-one-trimmed-input",
+      "pass": true
+    },
+    {
+      "name": "placeholder-to-image-attributes",
+      "pass": true
+    },
+    {
+      "name": "sprite-request-and-invalid-dual-source-placeholder",
+      "pass": true
+    },
+    {
+      "name": "visibility-observer-160px-and-intersection",
+      "pass": true
+    },
+    {
+      "name": "visibility-api-absent-loads-immediately",
+      "pass": true
+    },
+    {
+      "name": "source-change-fences-obsolete-listener",
+      "pass": true
+    },
+    {
+      "name": "queued-unmount-never-dispatches",
+      "pass": true
+    },
+    {
+      "name": "running-unmount-caches-without-state-write",
+      "pass": true
+    },
+    {
+      "name": "coalesced-duplicate-read",
+      "pass": true
+    },
+    {
+      "name": "two-concurrent-reads-and-queued-disposal",
+      "pass": true
+    },
+    {
+      "name": "failure-suppression-60s-no-automatic-retry",
+      "pass": true
+    },
+    {
+      "name": "cache-insertion-order-eviction-hits-do-not-promote",
+      "pass": true
+    },
+    {
+      "name": "oversize-image-delivered-not-cached",
+      "pass": true
+    },
+    {
+      "name": "absent-reader-fenced",
+      "pass": true
+    },
+    {
+      "name": "reader-identity-isolates-preview-native-cache-and-visible-source",
+      "pass": true
+    },
+    {
+      "name": "context-provider-inherits-reader-and-explicit-null-fences",
+      "pass": true
+    }
+  ],
+  "sourceSha256": "2F92A87C3268497DF6425B1175DB6140E10AABCBDFAE02615F065D00E16458E0",
+  "productionSha256": "2BFCA11136F2495780EA6A2037BD5007F1D7653284849452E430D2A4FA05D379",
+  "sourceBytes": 2347,
+  "locators": {
+    "function g(": {
+      "utf8ByteOffset": 156
+    },
+    "function v(": {
+      "utf8ByteOffset": 421
+    },
+    "function y(": {
+      "utf8ByteOffset": 812
+    },
+    "function b(": {
+      "utf8ByteOffset": 1165
+    },
+    "function x(": {
+      "utf8ByteOffset": 1307
+    }
+  },
+  "limits": [
+    "Controlled inert read promises and actual original/current React handlers",
+    "No real native image reader invoked or assets resolved",
+    "DOM images use inert strings; no physical browser geometry/pixel claim",
+    "Original cache reads do not update eviction order; retry expiry alone does not schedule a new read"
+  ]
+}

@@ -1,5 +1,13 @@
 # LWBridge 0.3.17 feature ledger
 
+Lead checkpoint,2026-10-04: Map-entry is COMPLETE/ACCEPTED. Connected styling,
+theme/locale failure, update-header presentation, shared save errors, conditional
+local profiles/note/focus/loading, exit presentation and GameAssetImage callers are
+accepted for bounded source/local scope. Three Trade name-resolver defects were
+corrected with distinguishing baseline/current proof. Lazy/preload/Suspense and
+Equipment motion remain OPEN/ACTIVE in LOADING-MOTION-001. Native producers/assets,
+physical drag and original pixels remain separate; no global parity upgrade.
+
 Lead acceptance, 2026-10-04: SHELL-CROSSSERVER-001 is COMPLETE / ACCEPTED for its
 assigned source/local popover/history/action acknowledgement scope at 52710d3.
 Outside close, profile import, event-time localization and summary/history ordering

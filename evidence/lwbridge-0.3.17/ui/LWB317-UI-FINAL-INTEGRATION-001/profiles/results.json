@@ -1,0 +1,453 @@
+{
+  "marker": "LWB317_FINAL_PROFILES_OK",
+  "cases": 98,
+  "helperComparisons": 32,
+  "sourceSha256": "44C4E4043825B7DB296B64171951B27176F8850FF8D7D337CC991DF4765524C6",
+  "productionSha256": "96E480F3BBA897AB18BE29891A346651E933C6C743A908DE36BAC67B0E86DA9D",
+  "originalComparisons": 97,
+  "details": [
+    {
+      "name": "exact-helper-comparisons",
+      "pass": true,
+      "comparisons": 32
+    },
+    {
+      "name": "en-offline-idle-compact",
+      "pass": true
+    },
+    {
+      "name": "en-offline-idle-expanded",
+      "pass": true
+    },
+    {
+      "name": "en-offline-busy-compact",
+      "pass": true
+    },
+    {
+      "name": "en-offline-busy-expanded",
+      "pass": true
+    },
+    {
+      "name": "en-starting-idle-compact",
+      "pass": true
+    },
+    {
+      "name": "en-starting-idle-expanded",
+      "pass": true
+    },
+    {
+      "name": "en-starting-busy-compact",
+      "pass": true
+    },
+    {
+      "name": "en-starting-busy-expanded",
+      "pass": true
+    },
+    {
+      "name": "en-recovering-idle-compact",
+      "pass": true
+    },
+    {
+      "name": "en-recovering-idle-expanded",
+      "pass": true
+    },
+    {
+      "name": "en-recovering-busy-compact",
+      "pass": true
+    },
+    {
+      "name": "en-recovering-busy-expanded",
+      "pass": true
+    },
+    {
+      "name": "en-awaitingLogin-idle-compact",
+      "pass": true
+    },
+    {
+      "name": "en-awaitingLogin-idle-expanded",
+      "pass": true
+    },
+    {
+      "name": "en-awaitingLogin-busy-compact",
+      "pass": true
+    },
+    {
+      "name": "en-awaitingLogin-busy-expanded",
+      "pass": true
+    },
+    {
+      "name": "en-connected-idle-compact",
+      "pass": true
+    },
+    {
+      "name": "en-connected-idle-expanded",
+      "pass": true
+    },
+    {
+      "name": "en-connected-busy-compact",
+      "pass": true
+    },
+    {
+      "name": "en-connected-busy-expanded",
+      "pass": true
+    },
+    {
+      "name": "en-reconnecting-idle-compact",
+      "pass": true
+    },
+    {
+      "name": "en-reconnecting-idle-expanded",
+      "pass": true
+    },
+    {
+      "name": "en-reconnecting-busy-compact",
+      "pass": true
+    },
+    {
+      "name": "en-reconnecting-busy-expanded",
+      "pass": true
+    },
+    {
+      "name": "en-grace-idle-compact",
+      "pass": true
+    },
+    {
+      "name": "en-grace-idle-expanded",
+      "pass": true
+    },
+    {
+      "name": "en-grace-busy-compact",
+      "pass": true
+    },
+    {
+      "name": "en-grace-busy-expanded",
+      "pass": true
+    },
+    {
+      "name": "en-locked-idle-compact",
+      "pass": true
+    },
+    {
+      "name": "en-locked-idle-expanded",
+      "pass": true
+    },
+    {
+      "name": "en-locked-busy-compact",
+      "pass": true
+    },
+    {
+      "name": "en-locked-busy-expanded",
+      "pass": true
+    },
+    {
+      "name": "en-error-idle-compact",
+      "pass": true
+    },
+    {
+      "name": "en-error-idle-expanded",
+      "pass": true
+    },
+    {
+      "name": "en-error-busy-compact",
+      "pass": true
+    },
+    {
+      "name": "en-error-busy-expanded",
+      "pass": true
+    },
+    {
+      "name": "ja-offline-idle-compact",
+      "pass": true
+    },
+    {
+      "name": "ja-offline-idle-expanded",
+      "pass": true
+    },
+    {
+      "name": "ja-offline-busy-compact",
+      "pass": true
+    },
+    {
+      "name": "ja-offline-busy-expanded",
+      "pass": true
+    },
+    {
+      "name": "ja-starting-idle-compact",
+      "pass": true
+    },
+    {
+      "name": "ja-starting-idle-expanded",
+      "pass": true
+    },
+    {
+      "name": "ja-starting-busy-compact",
+      "pass": true
+    },
+    {
+      "name": "ja-starting-busy-expanded",
+      "pass": true
+    },
+    {
+      "name": "ja-recovering-idle-compact",
+      "pass": true
+    },
+    {
+      "name": "ja-recovering-idle-expanded",
+      "pass": true
+    },
+    {
+      "name": "ja-recovering-busy-compact",
+      "pass": true
+    },
+    {
+      "name": "ja-recovering-busy-expanded",
+      "pass": true
+    },
+    {
+      "name": "ja-awaitingLogin-idle-compact",
+      "pass": true
+    },
+    {
+      "name": "ja-awaitingLogin-idle-expanded",
+      "pass": true
+    },
+    {
+      "name": "ja-awaitingLogin-busy-compact",
+      "pass": true
+    },
+    {
+      "name": "ja-awaitingLogin-busy-expanded",
+      "pass": true
+    },
+    {
+      "name": "ja-connected-idle-compact",
+      "pass": true
+    },
+    {
+      "name": "ja-connected-idle-expanded",
+      "pass": true
+    },
+    {
+      "name": "ja-connected-busy-compact",
+      "pass": true
+    },
+    {
+      "name": "ja-connected-busy-expanded",
+      "pass": true
+    },
+    {
+      "name": "ja-reconnecting-idle-compact",
+      "pass": true
+    },
+    {
+      "name": "ja-reconnecting-idle-expanded",
+      "pass": true
+    },
+    {
+      "name": "ja-reconnecting-busy-compact",
+      "pass": true
+    },
+    {
+      "name": "ja-reconnecting-busy-expanded",
+      "pass": true
+    },
+    {
+      "name": "ja-grace-idle-compact",
+      "pass": true
+    },
+    {
+      "name": "ja-grace-idle-expanded",
+      "pass": true
+    },
+    {
+      "name": "ja-grace-busy-compact",
+      "pass": true
+    },
+    {
+      "name": "ja-grace-busy-expanded",
+      "pass": true
+    },
+    {
+      "name": "ja-locked-idle-compact",
+      "pass": true
+    },
+    {
+      "name": "ja-locked-idle-expanded",
+      "pass": true
+    },
+    {
+      "name": "ja-locked-busy-compact",
+      "pass": true
+    },
+    {
+      "name": "ja-locked-busy-expanded",
+      "pass": true
+    },
+    {
+      "name": "ja-error-idle-compact",
+      "pass": true
+    },
+    {
+      "name": "ja-error-idle-expanded",
+      "pass": true
+    },
+    {
+      "name": "ja-error-busy-compact",
+      "pass": true
+    },
+    {
+      "name": "ja-error-busy-expanded",
+      "pass": true
+    },
+    {
+      "name": "compact-profile-selection-passes-focus-flag",
+      "pass": true
+    },
+    {
+      "name": "expanded-profile-selection",
+      "pass": true
+    },
+    {
+      "name": "locked-disabled-and-capacity",
+      "pass": true
+    },
+    {
+      "name": "external-error-forces-expanded",
+      "pass": true
+    },
+    {
+      "name": "launch-errors-force-expanded-in-source-order",
+      "pass": true
+    },
+    {
+      "name": "create-callback",
+      "pass": true
+    },
+    {
+      "name": "batch-start-sequential-enabled-only",
+      "pass": true
+    },
+    {
+      "name": "batch-stop-retains-disabled-instances",
+      "pass": true
+    },
+    {
+      "name": "single-start",
+      "pass": true
+    },
+    {
+      "name": "single-stop",
+      "pass": true
+    },
+    {
+      "name": "failed-instance-with-no-pid-is-startable",
+      "pass": true
+    },
+    {
+      "name": "drag-insert-before-target",
+      "pass": true
+    },
+    {
+      "name": "delete-confirm-false",
+      "pass": true
+    },
+    {
+      "name": "delete-confirm-true",
+      "pass": true
+    },
+    {
+      "name": "delete-synchronous-provider-failure-translates",
+      "pass": true
+    },
+    {
+      "name": "note-modal-shape-save-raw-value",
+      "pass": true
+    },
+    {
+      "name": "note-deferred-success-busy-and-cancel",
+      "pass": true
+    },
+    {
+      "name": "note-deferred-failure-busy-and-cancel",
+      "pass": true
+    },
+    {
+      "name": "note-escape-cancel-source-focus-lifetime",
+      "pass": true
+    },
+    {
+      "name": "native-start-restart-required-and-retry-presentation",
+      "pass": true
+    },
+    {
+      "name": "original-current-3000ms-poll-overlap-and-settlement",
+      "pass": true,
+      "comparisons": 2
+    },
+    {
+      "name": "original-current-obsolete-poll-after-unmount",
+      "pass": true,
+      "comparisons": 2
+    },
+    {
+      "name": "read-failure-clears-instance-like-original",
+      "pass": true
+    },
+    {
+      "name": "note-modal-Tab-loop",
+      "pass": true
+    },
+    {
+      "name": "provider-absence-fences-and-no-commercial-account-controls",
+      "pass": true
+    }
+  ],
+  "limits": [
+    "Controlled mounted React and jsdom dialog lifecycle; no physical HTML5 drag claim",
+    "No local profile producer/persistence integrated by this isolated unit",
+    "No original service entitlement or gameplay/native start/stop",
+    "Upgrade/account controls excluded intentionally; absent-provider controls disabled intentionally"
+  ],
+  "locators": {
+    "helpers": {
+      "utf8ByteOffset": 194447,
+      "utf8ByteLength": 507,
+      "sha256": "C4120E450DFB87A8E3ACF1DCAE88449730CC3FCDFBFF93B8B3BB9FC98B9C9ED9"
+    },
+    "errors": {
+      "utf8ByteOffset": 328453,
+      "utf8ByteLength": 397,
+      "sha256": "9269200EA1D67D808F6F7A278E25B1E34CE7418FC2D2D67F875DEF90D36993E6"
+    },
+    "icons": {
+      "utf8ByteOffset": 330489,
+      "utf8ByteLength": 1287,
+      "sha256": "7D4CE469F53CAC0F5B81864B48A4CF410194A0DBFDF14E5606BF93217FDF2919"
+    },
+    "connections": {
+      "utf8ByteOffset": 338919,
+      "utf8ByteLength": 366,
+      "sha256": "61B146C30AC1FCD3A0C444396916AD1285F903AA5EA2AB5801678FFCA4B59D7E"
+    },
+    "sidebar": {
+      "utf8ByteOffset": 339285,
+      "utf8ByteLength": 7154,
+      "sha256": "FE5D0408492E71E9DD74615C269699B8C75B55D346F823BC22B05992C330A490"
+    },
+    "dialog": {
+      "utf8ByteOffset": 209017,
+      "utf8ByteLength": 1209,
+      "sha256": "E42C17AAC67AFE7A73D525902C9E757644E40838422730CEB32EC47830C4F8A2"
+    },
+    "visibility": {
+      "utf8ByteOffset": 193993,
+      "utf8ByteLength": 43,
+      "sha256": "D6EB9889ACBA5AF201051C70725348F78B9C68465A48D631FDAF3A7C1A76C2F2"
+    },
+    "parent": {
+      "utf8ByteOffset": 363306,
+      "utf8ByteLength": 354,
+      "sha256": "795FA5502D84F38670BB9D78ABDCAF3FEE184AB86F23723B6C8657DD69710F69"
+    }
+  }
+}

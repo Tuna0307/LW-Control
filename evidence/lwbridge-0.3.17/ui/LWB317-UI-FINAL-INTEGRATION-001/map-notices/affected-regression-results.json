@@ -1,0 +1,11 @@
+{
+  "command": "node evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-SCAN-HEADER-001/check-header.mjs",
+  "exitCode": 0,
+  "output": "LWB317_MAP_SCAN_HEADER_OK comparisons=270 baselineMismatches=29 clock=6 unmount=PASS",
+  "historicalRecords": "Read-only run: --record omitted; prior header-results.json unchanged",
+  "diffCheck": {
+    "command": "git diff --check",
+    "exitCode": 0,
+    "nonFailingWarnings": "Existing LF/CRLF normalization advisories"
+  }
+}

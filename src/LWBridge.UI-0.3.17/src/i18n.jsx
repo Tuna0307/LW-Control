@@ -50,12 +50,8 @@ export function I18nProvider({ children }) {
     const loader = LOADERS[language] || LOADERS["zh-CN"];
     loader().then((messages) => {
       if (current === request.current) setCatalog({ language, messages });
-    }).catch(() => {
-      if (language !== "en") {
-        LOADERS.en().then((messages) => {
-          if (current === request.current) setCatalog({ language: "en", messages });
-        });
-      }
+    }).catch((error) => {
+      if (current === request.current) console.error("Failed to load language catalog", error);
     });
   }, []);
 

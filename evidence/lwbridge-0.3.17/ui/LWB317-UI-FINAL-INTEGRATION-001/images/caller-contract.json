@@ -1,0 +1,4381 @@
+{
+  "original": [
+    {
+      "file": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js",
+      "sha256": "CE74345518BE72E417A510B982C591729E5683F69751E190805598C4C05D3089",
+      "calls": [
+        {
+          "props": {
+            "assetPath": "e.iconPath",
+            "alt": "n",
+            "className": "`map-reward-icon`"
+          },
+          "condition": null,
+          "utf8ByteOffset": 16679,
+          "utf8ByteLength": 69,
+          "sha256": "C763368586ECBE5D266CD415CCC9426FEF2549727D8DA75FA0513305101A4381"
+        },
+        {
+          "props": {
+            "assetPath": "e.iconPath",
+            "alt": "n",
+            "className": "`map-reward-icon`"
+          },
+          "condition": null,
+          "utf8ByteOffset": 23734,
+          "utf8ByteLength": 69,
+          "sha256": "C763368586ECBE5D266CD415CCC9426FEF2549727D8DA75FA0513305101A4381"
+        },
+        {
+          "props": {
+            "assetPath": "e.iconPath",
+            "alt": "n",
+            "className": "`map-reward-icon`"
+          },
+          "condition": null,
+          "utf8ByteOffset": 27702,
+          "utf8ByteLength": 69,
+          "sha256": "C763368586ECBE5D266CD415CCC9426FEF2549727D8DA75FA0513305101A4381"
+        },
+        {
+          "props": {
+            "assetPath": "o.iconPath",
+            "alt": "o.name",
+            "className": "`map-item-filter-icon`"
+          },
+          "condition": "o",
+          "utf8ByteOffset": 28518,
+          "utf8ByteLength": 79,
+          "sha256": "FF2FCDBD62D9347837224FA26B6140F5432A6DA5D7EDAB68D331A7DD33EA9F11"
+        },
+        {
+          "props": {
+            "assetPath": "e.iconPath",
+            "alt": "e.name",
+            "className": "`map-item-filter-icon`"
+          },
+          "condition": null,
+          "utf8ByteOffset": 28898,
+          "utf8ByteLength": 79,
+          "sha256": "646610A0CB12515C0AC5FBC1A2802B3A2C0AB375AAC3CFB7AB11173F6C09351B"
+        }
+      ]
+    },
+    {
+      "file": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/AutomationPanel-BJ0gIqFh.js",
+      "sha256": "6DB2328191AF33E5631D507271C36D7008B287DAA7C8CD1A957B23EF6F871725",
+      "calls": [
+        {
+          "props": {
+            "spriteName": "`cfm_tongyong_daojukuang_${n.quality}`",
+            "alt": "``",
+            "className": "`trade-station-good-frame-image`",
+            "deferUntilVisible": "!0"
+          },
+          "condition": "n.quality>0",
+          "utf8ByteOffset": 1632,
+          "utf8ByteLength": 135,
+          "sha256": "9A41B2E4482D4E50CC4CE0F4DF3DF861CCC8FD5246248BFC6B7E05A23A2D6A7A"
+        },
+        {
+          "props": {
+            "assetPath": "n.iconPath",
+            "alt": "l",
+            "className": "`trade-station-good-icon`",
+            "deferUntilVisible": "!0"
+          },
+          "condition": null,
+          "utf8ByteOffset": 1768,
+          "utf8ByteLength": 98,
+          "sha256": "1D8B2AB617F510353A742925AD3A1A5A39FC9BCC9A7D0B474D8851E9277A1EF8"
+        },
+        {
+          "props": {
+            "spriteName": "`cfm_tongyong_daojukuang_${n.quality}`",
+            "alt": "``",
+            "className": "`trade-station-good-frame-image`",
+            "deferUntilVisible": "!0"
+          },
+          "condition": "n.quality>0",
+          "utf8ByteOffset": 4185,
+          "utf8ByteLength": 135,
+          "sha256": "9A41B2E4482D4E50CC4CE0F4DF3DF861CCC8FD5246248BFC6B7E05A23A2D6A7A"
+        },
+        {
+          "props": {
+            "assetPath": "n.iconPath",
+            "alt": "a",
+            "className": "`trade-station-good-icon`",
+            "deferUntilVisible": "!0"
+          },
+          "condition": null,
+          "utf8ByteOffset": 4321,
+          "utf8ByteLength": 98,
+          "sha256": "82A1BB08572E759F41DB3A16ADB39004DEAE764E607C308DD8442E825B6F28EF"
+        },
+        {
+          "props": {
+            "assetPath": "n.currencyIconPath",
+            "alt": "``",
+            "className": "`trade-station-currency-icon`",
+            "deferUntilVisible": "!0"
+          },
+          "condition": "n.currencyIconPath",
+          "utf8ByteOffset": 4716,
+          "utf8ByteLength": 111,
+          "sha256": "E04CC320E05661D302198A22E0B6BB19715EF4AE443185A2D92E224331720060"
+        },
+        {
+          "props": {
+            "assetPath": "r.currencyIconPath",
+            "alt": "``",
+            "className": "`trade-station-currency-icon`"
+          },
+          "condition": "r.currencyIconPath",
+          "utf8ByteOffset": 6218,
+          "utf8ByteLength": 90,
+          "sha256": "001420C329572DA704D071898561B821E9326DD09D8FF16EAB620D3FDBB75F58"
+        },
+        {
+          "props": {
+            "assetPath": "e",
+            "alt": "``",
+            "className": "`automation-assist-star`"
+          },
+          "condition": null,
+          "utf8ByteOffset": 36314,
+          "utf8ByteLength": 80,
+          "sha256": "C917D497AB82354D7A5DD2FB5F453A1A50CAB2BA0AE2386A639A29DE93C24B7A"
+        },
+        {
+          "props": {
+            "assetPath": "e.iconPath",
+            "alt": "e.name||e.key",
+            "className": "`map-reward-icon`"
+          },
+          "condition": null,
+          "utf8ByteOffset": 36642,
+          "utf8ByteLength": 81,
+          "sha256": "85C5A35569A1F3254180F53A7761818D4E699E2D6174BB58CF60B59E42CD1967"
+        },
+        {
+          "props": {
+            "assetPath": "e.iconPath",
+            "alt": "e.name||e.key",
+            "className": "`automation-reward-icon`"
+          },
+          "condition": null,
+          "utf8ByteOffset": 56736,
+          "utf8ByteLength": 88,
+          "sha256": "CFF70C6F889407A0932F2700D7D053C2420B993643AEC3DDC78FA7E8BEEFA1CF"
+        }
+      ]
+    },
+    {
+      "file": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/SquadPanel-HC3-DJei.js",
+      "sha256": "ED466E353AA896D8C3FC783FF1802930156FB9E9EB54327AEF73F2FF86FA06C7",
+      "calls": [
+        {
+          "props": {
+            "assetPath": "i.iconPath",
+            "alt": "i.name||String(i.equipUuid)",
+            "className": "`equipment-icon`"
+          },
+          "condition": null,
+          "utf8ByteOffset": 184344,
+          "utf8ByteLength": 95,
+          "sha256": "5BB5150ABE81A4B41CCB89909594B6C8232905198AED4E4A30BC824F455AF0F0"
+        },
+        {
+          "props": {
+            "assetPath": "t.iconPath",
+            "alt": "t.name",
+            "className": "`equipment-position-hero-icon`"
+          },
+          "condition": null,
+          "utf8ByteOffset": 188828,
+          "utf8ByteLength": 88,
+          "sha256": "91D2E4A3E337779C700C4916E1C03C4534CA4A6C8032852B75A69FA466C48E2B"
+        }
+      ]
+    }
+  ],
+  "current": [
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+      "sha256": "6BDB6A2468B24952457F580864C4457DCC532BCE7DC3514E3254EDDD910C65A9",
+      "calls": [
+        {
+          "props": {
+            "assetPath": "item.iconPath",
+            "alt": "name",
+            "className": "\"map-reward-icon\""
+          },
+          "condition": null,
+          "utf8ByteOffset": 10385,
+          "utf8ByteLength": 83,
+          "sha256": "E2A28947CAA91AAE9ED807A45AB669A4B614AF7EDADF0485E343629F19C74D25"
+        }
+      ]
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/MapRetainedGoodsFilter.jsx",
+      "sha256": "D890612C6208CE306BB57EEE759CFE79AD9CF86064B3B50526D65D0512657C51",
+      "calls": [
+        {
+          "props": {
+            "assetPath": "selected.iconPath",
+            "alt": "selected.name",
+            "className": "\"map-item-filter-icon\""
+          },
+          "condition": "selected",
+          "utf8ByteOffset": 511,
+          "utf8ByteLength": 101,
+          "sha256": "A121D613B132F949EB95F1DA3E40943334724A3AD5AED8516836C3A32BB5002A"
+        },
+        {
+          "props": {
+            "assetPath": "item.iconPath",
+            "alt": "item.name",
+            "className": "\"map-item-filter-icon\""
+          },
+          "condition": null,
+          "utf8ByteOffset": 1008,
+          "utf8ByteLength": 93,
+          "sha256": "DFCB2A092D0E6F05A17021E403BEFA3C9558E76A84B8CF395A00440F796907AD"
+        }
+      ]
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/ScheduledPlunder.jsx",
+      "sha256": "9D6814A70A62C9198720CE15FAA84403F43E1DE172A88E285179151D017B5534",
+      "calls": [
+        {
+          "props": {
+            "assetPath": "item.iconPath",
+            "alt": "name",
+            "className": "\"map-reward-icon\""
+          },
+          "condition": null,
+          "utf8ByteOffset": 2071,
+          "utf8ByteLength": 83,
+          "sha256": "E2A28947CAA91AAE9ED807A45AB669A4B614AF7EDADF0485E343629F19C74D25"
+        }
+      ]
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/DispatchAssistManual.jsx",
+      "sha256": "1CE38103690C72DF87146B3F52791999374A2E841C2DDADCC84C9C417E69771B",
+      "calls": [
+        {
+          "props": {
+            "assetPath": "e3",
+            "alt": "``",
+            "className": "`automation-assist-star`"
+          },
+          "condition": null,
+          "utf8ByteOffset": 1251,
+          "utf8ByteLength": 92,
+          "sha256": "4CEF5E0BCE80296B2AB0F986A079695CF6E000567941C3A3341CE6B4C484133A"
+        },
+        {
+          "props": {
+            "assetPath": "e3.iconPath",
+            "alt": "e3.name || e3.key",
+            "className": "`map-reward-icon`"
+          },
+          "condition": null,
+          "utf8ByteOffset": 1656,
+          "utf8ByteLength": 95,
+          "sha256": "1D4C21482FD7E5746102BD3E215FE65583CEE616AEAA26E8AD894AF2D848D383"
+        }
+      ]
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "sha256": "4EEA83ED48643BDCA326E22002FD7AF2160A616454C99366EFCC3405CF53A69F",
+      "calls": [
+        {
+          "props": {
+            "assetPath": "reward.iconPath",
+            "alt": "reward.name || reward.key",
+            "className": "\"automation-reward-icon\""
+          },
+          "condition": null,
+          "utf8ByteOffset": 50772,
+          "utf8ByteLength": 113,
+          "sha256": "94E84F7EE96A13856EC79E7F1D0FC63F2E9B1EA12F2A68079828B963E9C2BE11"
+        },
+        {
+          "props": {
+            "assetPath": "currency.currencyIconPath",
+            "alt": "\"\"",
+            "className": "\"trade-station-currency-icon\""
+          },
+          "condition": "currency.currencyIconPath",
+          "utf8ByteOffset": 74548,
+          "utf8ByteLength": 103,
+          "sha256": "BBF0B0463F5313BD2913B03E3B40F117C8281E36D15794AE29AF4DFB12DB2610"
+        },
+        {
+          "props": {
+            "spriteName": "`cfm_tongyong_daojukuang_${item.quality}`",
+            "alt": "\"\"",
+            "className": "\"trade-station-good-frame-image\"",
+            "deferUntilVisible": "true"
+          },
+          "condition": "item.quality > 0",
+          "utf8ByteOffset": 77510,
+          "utf8ByteLength": 141,
+          "sha256": "13CC1130C9089107B2D72F0F38D817FA7BB9DD85C56A2BE587D95635C691E154"
+        },
+        {
+          "props": {
+            "assetPath": "item.iconPath",
+            "alt": "itemName",
+            "className": "\"trade-station-good-icon\"",
+            "deferUntilVisible": "true"
+          },
+          "condition": null,
+          "utf8ByteOffset": 77659,
+          "utf8ByteLength": 113,
+          "sha256": "0E3436D375D32E76B21A47B94C35AE5FFAD7844686203F5610106D0120BA6461"
+        },
+        {
+          "props": {
+            "spriteName": "`cfm_tongyong_daojukuang_${purchase.quality}`",
+            "alt": "\"\"",
+            "className": "\"trade-station-good-frame-image\"",
+            "deferUntilVisible": "true"
+          },
+          "condition": "purchase.quality > 0",
+          "utf8ByteOffset": 79761,
+          "utf8ByteLength": 145,
+          "sha256": "662760097A2AEF7AC3D5F526BB360F010CF733BCD071737B75DD8BC756765D0D"
+        },
+        {
+          "props": {
+            "assetPath": "purchase.iconPath",
+            "alt": "itemName",
+            "className": "\"trade-station-good-icon\"",
+            "deferUntilVisible": "true"
+          },
+          "condition": null,
+          "utf8ByteOffset": 79914,
+          "utf8ByteLength": 117,
+          "sha256": "CA7045679969CB6BBA4C7E9D049746588609DDC1310836A7B6E9BAD47A46A0D9"
+        },
+        {
+          "props": {
+            "assetPath": "purchase.currencyIconPath",
+            "alt": "\"\"",
+            "className": "\"trade-station-currency-icon\"",
+            "deferUntilVisible": "true"
+          },
+          "condition": "purchase.currencyIconPath",
+          "utf8ByteOffset": 80287,
+          "utf8ByteLength": 121,
+          "sha256": "79DA9A79535AE7A6AC53F01521D727EFF161E9FD215126ECAF6BCCBCFC29B59F"
+        },
+        {
+          "props": {
+            "assetPath": "hero.iconPath",
+            "alt": "hero.name",
+            "className": "\"equipment-position-hero-icon\""
+          },
+          "condition": null,
+          "utf8ByteOffset": 147688,
+          "utf8ByteLength": 101,
+          "sha256": "2DC21B3E25177E5064E52A8CEC0880C300903FA4EBC05D6620E06D1834EFB4D7"
+        },
+        {
+          "props": {
+            "assetPath": "equip.iconPath",
+            "alt": "equip.name || String(equip.equipUuid)",
+            "className": "\"equipment-icon\""
+          },
+          "condition": null,
+          "utf8ByteOffset": 149562,
+          "utf8ByteLength": 116,
+          "sha256": "D5CE185AE48F771FC5ECA41E077BA9B16E5647EA824E11412E0FD43BFB768CFC"
+        }
+      ]
+    }
+  ],
+  "originalTradeResolver": {
+    "utf8ByteOffset": 658,
+    "utf8ByteLength": 127,
+    "sha256": "4C2230704206CED5949A27055E9B6ACAEB2055EE58C002826E6E7A11D38A2120"
+  },
+  "comparisons": [
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+      "className": "map-reward-icon",
+      "name": "Name",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 10385,
+      "originalByte": 16679,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+      "className": "map-reward-icon",
+      "name": "Name",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 10385,
+      "originalByte": 16679,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+      "className": "map-reward-icon",
+      "name": "Name",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 10385,
+      "originalByte": 16679,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+      "className": "map-reward-icon",
+      "name": "Name",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 10385,
+      "originalByte": 16679,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+      "className": "map-reward-icon",
+      "name": "Name",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 10385,
+      "originalByte": 16679,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+      "className": "map-reward-icon",
+      "name": "Name",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 10385,
+      "originalByte": 16679,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+      "className": "map-reward-icon",
+      "name": "Name",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 10385,
+      "originalByte": 16679,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+      "className": "map-reward-icon",
+      "name": "Name",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 10385,
+      "originalByte": 16679,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+      "className": "map-reward-icon",
+      "name": "",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 10385,
+      "originalByte": 16679,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+      "className": "map-reward-icon",
+      "name": "",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 10385,
+      "originalByte": 16679,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+      "className": "map-reward-icon",
+      "name": "",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 10385,
+      "originalByte": 16679,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+      "className": "map-reward-icon",
+      "name": "",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 10385,
+      "originalByte": 16679,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+      "className": "map-reward-icon",
+      "name": "",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 10385,
+      "originalByte": 16679,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+      "className": "map-reward-icon",
+      "name": "",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 10385,
+      "originalByte": 16679,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+      "className": "map-reward-icon",
+      "name": "",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 10385,
+      "originalByte": 16679,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+      "className": "map-reward-icon",
+      "name": "",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 10385,
+      "originalByte": 16679,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+      "className": "map-reward-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 10385,
+      "originalByte": 16679,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+      "className": "map-reward-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 10385,
+      "originalByte": 16679,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+      "className": "map-reward-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 10385,
+      "originalByte": 16679,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+      "className": "map-reward-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 10385,
+      "originalByte": 16679,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+      "className": "map-reward-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 10385,
+      "originalByte": 16679,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+      "className": "map-reward-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 10385,
+      "originalByte": 16679,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+      "className": "map-reward-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 10385,
+      "originalByte": 16679,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+      "className": "map-reward-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 10385,
+      "originalByte": 16679,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/MapRetainedGoodsFilter.jsx",
+      "className": "map-item-filter-icon",
+      "name": "Name",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 511,
+      "originalByte": 28518,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/MapRetainedGoodsFilter.jsx",
+      "className": "map-item-filter-icon",
+      "name": "Name",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 511,
+      "originalByte": 28518,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/MapRetainedGoodsFilter.jsx",
+      "className": "map-item-filter-icon",
+      "name": "Name",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 511,
+      "originalByte": 28518,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/MapRetainedGoodsFilter.jsx",
+      "className": "map-item-filter-icon",
+      "name": "Name",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 511,
+      "originalByte": 28518,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/MapRetainedGoodsFilter.jsx",
+      "className": "map-item-filter-icon",
+      "name": "Name",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 511,
+      "originalByte": 28518,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/MapRetainedGoodsFilter.jsx",
+      "className": "map-item-filter-icon",
+      "name": "Name",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 511,
+      "originalByte": 28518,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/MapRetainedGoodsFilter.jsx",
+      "className": "map-item-filter-icon",
+      "name": "Name",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 511,
+      "originalByte": 28518,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/MapRetainedGoodsFilter.jsx",
+      "className": "map-item-filter-icon",
+      "name": "Name",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 511,
+      "originalByte": 28518,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/MapRetainedGoodsFilter.jsx",
+      "className": "map-item-filter-icon",
+      "name": "",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 511,
+      "originalByte": 28518,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/MapRetainedGoodsFilter.jsx",
+      "className": "map-item-filter-icon",
+      "name": "",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 511,
+      "originalByte": 28518,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/MapRetainedGoodsFilter.jsx",
+      "className": "map-item-filter-icon",
+      "name": "",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 511,
+      "originalByte": 28518,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/MapRetainedGoodsFilter.jsx",
+      "className": "map-item-filter-icon",
+      "name": "",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 511,
+      "originalByte": 28518,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/MapRetainedGoodsFilter.jsx",
+      "className": "map-item-filter-icon",
+      "name": "",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 511,
+      "originalByte": 28518,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/MapRetainedGoodsFilter.jsx",
+      "className": "map-item-filter-icon",
+      "name": "",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 511,
+      "originalByte": 28518,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/MapRetainedGoodsFilter.jsx",
+      "className": "map-item-filter-icon",
+      "name": "",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 511,
+      "originalByte": 28518,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/MapRetainedGoodsFilter.jsx",
+      "className": "map-item-filter-icon",
+      "name": "",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 511,
+      "originalByte": 28518,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/MapRetainedGoodsFilter.jsx",
+      "className": "map-item-filter-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 511,
+      "originalByte": 28518,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/MapRetainedGoodsFilter.jsx",
+      "className": "map-item-filter-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 511,
+      "originalByte": 28518,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/MapRetainedGoodsFilter.jsx",
+      "className": "map-item-filter-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 511,
+      "originalByte": 28518,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/MapRetainedGoodsFilter.jsx",
+      "className": "map-item-filter-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 511,
+      "originalByte": 28518,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/MapRetainedGoodsFilter.jsx",
+      "className": "map-item-filter-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 511,
+      "originalByte": 28518,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/MapRetainedGoodsFilter.jsx",
+      "className": "map-item-filter-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 511,
+      "originalByte": 28518,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/MapRetainedGoodsFilter.jsx",
+      "className": "map-item-filter-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 511,
+      "originalByte": 28518,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/MapRetainedGoodsFilter.jsx",
+      "className": "map-item-filter-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 511,
+      "originalByte": 28518,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/MapRetainedGoodsFilter.jsx",
+      "className": "map-item-filter-icon",
+      "name": "Name",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 1008,
+      "originalByte": 28898,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/MapRetainedGoodsFilter.jsx",
+      "className": "map-item-filter-icon",
+      "name": "Name",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 1008,
+      "originalByte": 28898,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/MapRetainedGoodsFilter.jsx",
+      "className": "map-item-filter-icon",
+      "name": "Name",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 1008,
+      "originalByte": 28898,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/MapRetainedGoodsFilter.jsx",
+      "className": "map-item-filter-icon",
+      "name": "Name",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 1008,
+      "originalByte": 28898,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/MapRetainedGoodsFilter.jsx",
+      "className": "map-item-filter-icon",
+      "name": "Name",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 1008,
+      "originalByte": 28898,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/MapRetainedGoodsFilter.jsx",
+      "className": "map-item-filter-icon",
+      "name": "Name",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 1008,
+      "originalByte": 28898,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/MapRetainedGoodsFilter.jsx",
+      "className": "map-item-filter-icon",
+      "name": "Name",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 1008,
+      "originalByte": 28898,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/MapRetainedGoodsFilter.jsx",
+      "className": "map-item-filter-icon",
+      "name": "Name",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 1008,
+      "originalByte": 28898,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/MapRetainedGoodsFilter.jsx",
+      "className": "map-item-filter-icon",
+      "name": "",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 1008,
+      "originalByte": 28898,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/MapRetainedGoodsFilter.jsx",
+      "className": "map-item-filter-icon",
+      "name": "",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 1008,
+      "originalByte": 28898,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/MapRetainedGoodsFilter.jsx",
+      "className": "map-item-filter-icon",
+      "name": "",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 1008,
+      "originalByte": 28898,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/MapRetainedGoodsFilter.jsx",
+      "className": "map-item-filter-icon",
+      "name": "",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 1008,
+      "originalByte": 28898,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/MapRetainedGoodsFilter.jsx",
+      "className": "map-item-filter-icon",
+      "name": "",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 1008,
+      "originalByte": 28898,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/MapRetainedGoodsFilter.jsx",
+      "className": "map-item-filter-icon",
+      "name": "",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 1008,
+      "originalByte": 28898,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/MapRetainedGoodsFilter.jsx",
+      "className": "map-item-filter-icon",
+      "name": "",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 1008,
+      "originalByte": 28898,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/MapRetainedGoodsFilter.jsx",
+      "className": "map-item-filter-icon",
+      "name": "",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 1008,
+      "originalByte": 28898,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/MapRetainedGoodsFilter.jsx",
+      "className": "map-item-filter-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 1008,
+      "originalByte": 28898,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/MapRetainedGoodsFilter.jsx",
+      "className": "map-item-filter-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 1008,
+      "originalByte": 28898,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/MapRetainedGoodsFilter.jsx",
+      "className": "map-item-filter-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 1008,
+      "originalByte": 28898,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/MapRetainedGoodsFilter.jsx",
+      "className": "map-item-filter-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 1008,
+      "originalByte": 28898,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/MapRetainedGoodsFilter.jsx",
+      "className": "map-item-filter-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 1008,
+      "originalByte": 28898,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/MapRetainedGoodsFilter.jsx",
+      "className": "map-item-filter-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 1008,
+      "originalByte": 28898,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/MapRetainedGoodsFilter.jsx",
+      "className": "map-item-filter-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 1008,
+      "originalByte": 28898,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/MapRetainedGoodsFilter.jsx",
+      "className": "map-item-filter-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 1008,
+      "originalByte": 28898,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/ScheduledPlunder.jsx",
+      "className": "map-reward-icon",
+      "name": "Name",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 2071,
+      "originalByte": 16679,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/ScheduledPlunder.jsx",
+      "className": "map-reward-icon",
+      "name": "Name",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 2071,
+      "originalByte": 16679,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/ScheduledPlunder.jsx",
+      "className": "map-reward-icon",
+      "name": "Name",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 2071,
+      "originalByte": 16679,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/ScheduledPlunder.jsx",
+      "className": "map-reward-icon",
+      "name": "Name",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 2071,
+      "originalByte": 16679,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/ScheduledPlunder.jsx",
+      "className": "map-reward-icon",
+      "name": "Name",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 2071,
+      "originalByte": 16679,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/ScheduledPlunder.jsx",
+      "className": "map-reward-icon",
+      "name": "Name",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 2071,
+      "originalByte": 16679,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/ScheduledPlunder.jsx",
+      "className": "map-reward-icon",
+      "name": "Name",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 2071,
+      "originalByte": 16679,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/ScheduledPlunder.jsx",
+      "className": "map-reward-icon",
+      "name": "Name",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 2071,
+      "originalByte": 16679,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/ScheduledPlunder.jsx",
+      "className": "map-reward-icon",
+      "name": "",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 2071,
+      "originalByte": 16679,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/ScheduledPlunder.jsx",
+      "className": "map-reward-icon",
+      "name": "",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 2071,
+      "originalByte": 16679,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/ScheduledPlunder.jsx",
+      "className": "map-reward-icon",
+      "name": "",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 2071,
+      "originalByte": 16679,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/ScheduledPlunder.jsx",
+      "className": "map-reward-icon",
+      "name": "",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 2071,
+      "originalByte": 16679,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/ScheduledPlunder.jsx",
+      "className": "map-reward-icon",
+      "name": "",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 2071,
+      "originalByte": 16679,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/ScheduledPlunder.jsx",
+      "className": "map-reward-icon",
+      "name": "",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 2071,
+      "originalByte": 16679,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/ScheduledPlunder.jsx",
+      "className": "map-reward-icon",
+      "name": "",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 2071,
+      "originalByte": 16679,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/ScheduledPlunder.jsx",
+      "className": "map-reward-icon",
+      "name": "",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 2071,
+      "originalByte": 16679,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/ScheduledPlunder.jsx",
+      "className": "map-reward-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 2071,
+      "originalByte": 16679,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/ScheduledPlunder.jsx",
+      "className": "map-reward-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 2071,
+      "originalByte": 16679,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/ScheduledPlunder.jsx",
+      "className": "map-reward-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 2071,
+      "originalByte": 16679,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/ScheduledPlunder.jsx",
+      "className": "map-reward-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 2071,
+      "originalByte": 16679,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/ScheduledPlunder.jsx",
+      "className": "map-reward-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 2071,
+      "originalByte": 16679,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/ScheduledPlunder.jsx",
+      "className": "map-reward-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 2071,
+      "originalByte": 16679,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/ScheduledPlunder.jsx",
+      "className": "map-reward-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 2071,
+      "originalByte": 16679,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/ScheduledPlunder.jsx",
+      "className": "map-reward-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 2071,
+      "originalByte": 16679,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/DispatchAssistManual.jsx",
+      "className": "automation-assist-star",
+      "name": "Name",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 1251,
+      "originalByte": 36314,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/DispatchAssistManual.jsx",
+      "className": "automation-assist-star",
+      "name": "Name",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 1251,
+      "originalByte": 36314,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/DispatchAssistManual.jsx",
+      "className": "automation-assist-star",
+      "name": "Name",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 1251,
+      "originalByte": 36314,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/DispatchAssistManual.jsx",
+      "className": "automation-assist-star",
+      "name": "Name",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 1251,
+      "originalByte": 36314,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/DispatchAssistManual.jsx",
+      "className": "automation-assist-star",
+      "name": "Name",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 1251,
+      "originalByte": 36314,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/DispatchAssistManual.jsx",
+      "className": "automation-assist-star",
+      "name": "Name",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 1251,
+      "originalByte": 36314,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/DispatchAssistManual.jsx",
+      "className": "automation-assist-star",
+      "name": "Name",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 1251,
+      "originalByte": 36314,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/DispatchAssistManual.jsx",
+      "className": "automation-assist-star",
+      "name": "Name",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 1251,
+      "originalByte": 36314,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/DispatchAssistManual.jsx",
+      "className": "automation-assist-star",
+      "name": "",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 1251,
+      "originalByte": 36314,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/DispatchAssistManual.jsx",
+      "className": "automation-assist-star",
+      "name": "",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 1251,
+      "originalByte": 36314,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/DispatchAssistManual.jsx",
+      "className": "automation-assist-star",
+      "name": "",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 1251,
+      "originalByte": 36314,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/DispatchAssistManual.jsx",
+      "className": "automation-assist-star",
+      "name": "",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 1251,
+      "originalByte": 36314,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/DispatchAssistManual.jsx",
+      "className": "automation-assist-star",
+      "name": "",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 1251,
+      "originalByte": 36314,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/DispatchAssistManual.jsx",
+      "className": "automation-assist-star",
+      "name": "",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 1251,
+      "originalByte": 36314,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/DispatchAssistManual.jsx",
+      "className": "automation-assist-star",
+      "name": "",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 1251,
+      "originalByte": 36314,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/DispatchAssistManual.jsx",
+      "className": "automation-assist-star",
+      "name": "",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 1251,
+      "originalByte": 36314,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/DispatchAssistManual.jsx",
+      "className": "automation-assist-star",
+      "name": "<color=red>Name</color>",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 1251,
+      "originalByte": 36314,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/DispatchAssistManual.jsx",
+      "className": "automation-assist-star",
+      "name": "<color=red>Name</color>",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 1251,
+      "originalByte": 36314,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/DispatchAssistManual.jsx",
+      "className": "automation-assist-star",
+      "name": "<color=red>Name</color>",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 1251,
+      "originalByte": 36314,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/DispatchAssistManual.jsx",
+      "className": "automation-assist-star",
+      "name": "<color=red>Name</color>",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 1251,
+      "originalByte": 36314,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/DispatchAssistManual.jsx",
+      "className": "automation-assist-star",
+      "name": "<color=red>Name</color>",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 1251,
+      "originalByte": 36314,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/DispatchAssistManual.jsx",
+      "className": "automation-assist-star",
+      "name": "<color=red>Name</color>",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 1251,
+      "originalByte": 36314,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/DispatchAssistManual.jsx",
+      "className": "automation-assist-star",
+      "name": "<color=red>Name</color>",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 1251,
+      "originalByte": 36314,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/DispatchAssistManual.jsx",
+      "className": "automation-assist-star",
+      "name": "<color=red>Name</color>",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 1251,
+      "originalByte": 36314,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/DispatchAssistManual.jsx",
+      "className": "map-reward-icon",
+      "name": "Name",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 1656,
+      "originalByte": 36642,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/DispatchAssistManual.jsx",
+      "className": "map-reward-icon",
+      "name": "Name",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 1656,
+      "originalByte": 36642,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/DispatchAssistManual.jsx",
+      "className": "map-reward-icon",
+      "name": "Name",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 1656,
+      "originalByte": 36642,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/DispatchAssistManual.jsx",
+      "className": "map-reward-icon",
+      "name": "Name",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 1656,
+      "originalByte": 36642,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/DispatchAssistManual.jsx",
+      "className": "map-reward-icon",
+      "name": "Name",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 1656,
+      "originalByte": 36642,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/DispatchAssistManual.jsx",
+      "className": "map-reward-icon",
+      "name": "Name",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 1656,
+      "originalByte": 36642,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/DispatchAssistManual.jsx",
+      "className": "map-reward-icon",
+      "name": "Name",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 1656,
+      "originalByte": 36642,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/DispatchAssistManual.jsx",
+      "className": "map-reward-icon",
+      "name": "Name",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 1656,
+      "originalByte": 36642,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/DispatchAssistManual.jsx",
+      "className": "map-reward-icon",
+      "name": "",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 1656,
+      "originalByte": 36642,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/DispatchAssistManual.jsx",
+      "className": "map-reward-icon",
+      "name": "",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 1656,
+      "originalByte": 36642,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/DispatchAssistManual.jsx",
+      "className": "map-reward-icon",
+      "name": "",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 1656,
+      "originalByte": 36642,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/DispatchAssistManual.jsx",
+      "className": "map-reward-icon",
+      "name": "",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 1656,
+      "originalByte": 36642,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/DispatchAssistManual.jsx",
+      "className": "map-reward-icon",
+      "name": "",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 1656,
+      "originalByte": 36642,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/DispatchAssistManual.jsx",
+      "className": "map-reward-icon",
+      "name": "",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 1656,
+      "originalByte": 36642,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/DispatchAssistManual.jsx",
+      "className": "map-reward-icon",
+      "name": "",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 1656,
+      "originalByte": 36642,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/DispatchAssistManual.jsx",
+      "className": "map-reward-icon",
+      "name": "",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 1656,
+      "originalByte": 36642,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/DispatchAssistManual.jsx",
+      "className": "map-reward-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 1656,
+      "originalByte": 36642,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/DispatchAssistManual.jsx",
+      "className": "map-reward-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 1656,
+      "originalByte": 36642,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/DispatchAssistManual.jsx",
+      "className": "map-reward-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 1656,
+      "originalByte": 36642,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/DispatchAssistManual.jsx",
+      "className": "map-reward-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 1656,
+      "originalByte": 36642,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/DispatchAssistManual.jsx",
+      "className": "map-reward-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 1656,
+      "originalByte": 36642,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/DispatchAssistManual.jsx",
+      "className": "map-reward-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 1656,
+      "originalByte": 36642,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/DispatchAssistManual.jsx",
+      "className": "map-reward-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 1656,
+      "originalByte": 36642,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/DispatchAssistManual.jsx",
+      "className": "map-reward-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 1656,
+      "originalByte": 36642,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "automation-reward-icon",
+      "name": "Name",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 50772,
+      "originalByte": 56736,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "automation-reward-icon",
+      "name": "Name",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 50772,
+      "originalByte": 56736,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "automation-reward-icon",
+      "name": "Name",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 50772,
+      "originalByte": 56736,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "automation-reward-icon",
+      "name": "Name",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 50772,
+      "originalByte": 56736,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "automation-reward-icon",
+      "name": "Name",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 50772,
+      "originalByte": 56736,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "automation-reward-icon",
+      "name": "Name",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 50772,
+      "originalByte": 56736,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "automation-reward-icon",
+      "name": "Name",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 50772,
+      "originalByte": 56736,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "automation-reward-icon",
+      "name": "Name",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 50772,
+      "originalByte": 56736,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "automation-reward-icon",
+      "name": "",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 50772,
+      "originalByte": 56736,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "automation-reward-icon",
+      "name": "",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 50772,
+      "originalByte": 56736,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "automation-reward-icon",
+      "name": "",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 50772,
+      "originalByte": 56736,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "automation-reward-icon",
+      "name": "",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 50772,
+      "originalByte": 56736,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "automation-reward-icon",
+      "name": "",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 50772,
+      "originalByte": 56736,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "automation-reward-icon",
+      "name": "",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 50772,
+      "originalByte": 56736,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "automation-reward-icon",
+      "name": "",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 50772,
+      "originalByte": 56736,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "automation-reward-icon",
+      "name": "",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 50772,
+      "originalByte": 56736,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "automation-reward-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 50772,
+      "originalByte": 56736,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "automation-reward-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 50772,
+      "originalByte": 56736,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "automation-reward-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 50772,
+      "originalByte": 56736,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "automation-reward-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 50772,
+      "originalByte": 56736,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "automation-reward-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 50772,
+      "originalByte": 56736,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "automation-reward-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 50772,
+      "originalByte": 56736,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "automation-reward-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 50772,
+      "originalByte": 56736,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "automation-reward-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 50772,
+      "originalByte": 56736,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-currency-icon",
+      "name": "Name",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 74548,
+      "originalByte": 6218,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-currency-icon",
+      "name": "Name",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 74548,
+      "originalByte": 6218,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-currency-icon",
+      "name": "Name",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 74548,
+      "originalByte": 6218,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-currency-icon",
+      "name": "Name",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 74548,
+      "originalByte": 6218,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-currency-icon",
+      "name": "Name",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 74548,
+      "originalByte": 6218,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-currency-icon",
+      "name": "Name",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 74548,
+      "originalByte": 6218,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-currency-icon",
+      "name": "Name",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 74548,
+      "originalByte": 6218,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-currency-icon",
+      "name": "Name",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 74548,
+      "originalByte": 6218,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-currency-icon",
+      "name": "",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 74548,
+      "originalByte": 6218,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-currency-icon",
+      "name": "",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 74548,
+      "originalByte": 6218,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-currency-icon",
+      "name": "",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 74548,
+      "originalByte": 6218,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-currency-icon",
+      "name": "",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 74548,
+      "originalByte": 6218,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-currency-icon",
+      "name": "",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 74548,
+      "originalByte": 6218,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-currency-icon",
+      "name": "",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 74548,
+      "originalByte": 6218,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-currency-icon",
+      "name": "",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 74548,
+      "originalByte": 6218,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-currency-icon",
+      "name": "",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 74548,
+      "originalByte": 6218,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-currency-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 74548,
+      "originalByte": 6218,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-currency-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 74548,
+      "originalByte": 6218,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-currency-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 74548,
+      "originalByte": 6218,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-currency-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 74548,
+      "originalByte": 6218,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-currency-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 74548,
+      "originalByte": 6218,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-currency-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 74548,
+      "originalByte": 6218,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-currency-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 74548,
+      "originalByte": 6218,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-currency-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 74548,
+      "originalByte": 6218,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-frame-image",
+      "name": "Name",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 77510,
+      "originalByte": 1632,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-frame-image",
+      "name": "Name",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 77510,
+      "originalByte": 1632,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-frame-image",
+      "name": "Name",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 77510,
+      "originalByte": 1632,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-frame-image",
+      "name": "Name",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 77510,
+      "originalByte": 1632,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-frame-image",
+      "name": "Name",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 77510,
+      "originalByte": 1632,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-frame-image",
+      "name": "Name",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 77510,
+      "originalByte": 1632,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-frame-image",
+      "name": "Name",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 77510,
+      "originalByte": 1632,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-frame-image",
+      "name": "Name",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 77510,
+      "originalByte": 1632,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-frame-image",
+      "name": "",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 77510,
+      "originalByte": 1632,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-frame-image",
+      "name": "",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 77510,
+      "originalByte": 1632,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-frame-image",
+      "name": "",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 77510,
+      "originalByte": 1632,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-frame-image",
+      "name": "",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 77510,
+      "originalByte": 1632,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-frame-image",
+      "name": "",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 77510,
+      "originalByte": 1632,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-frame-image",
+      "name": "",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 77510,
+      "originalByte": 1632,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-frame-image",
+      "name": "",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 77510,
+      "originalByte": 1632,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-frame-image",
+      "name": "",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 77510,
+      "originalByte": 1632,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-frame-image",
+      "name": "<color=red>Name</color>",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 77510,
+      "originalByte": 1632,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-frame-image",
+      "name": "<color=red>Name</color>",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 77510,
+      "originalByte": 1632,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-frame-image",
+      "name": "<color=red>Name</color>",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 77510,
+      "originalByte": 1632,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-frame-image",
+      "name": "<color=red>Name</color>",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 77510,
+      "originalByte": 1632,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-frame-image",
+      "name": "<color=red>Name</color>",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 77510,
+      "originalByte": 1632,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-frame-image",
+      "name": "<color=red>Name</color>",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 77510,
+      "originalByte": 1632,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-frame-image",
+      "name": "<color=red>Name</color>",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 77510,
+      "originalByte": 1632,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-frame-image",
+      "name": "<color=red>Name</color>",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 77510,
+      "originalByte": 1632,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-icon",
+      "name": "Name",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 77659,
+      "originalByte": 1768,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-icon",
+      "name": "Name",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 77659,
+      "originalByte": 1768,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-icon",
+      "name": "Name",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 77659,
+      "originalByte": 1768,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-icon",
+      "name": "Name",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 77659,
+      "originalByte": 1768,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-icon",
+      "name": "Name",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 77659,
+      "originalByte": 1768,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-icon",
+      "name": "Name",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 77659,
+      "originalByte": 1768,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-icon",
+      "name": "Name",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 77659,
+      "originalByte": 1768,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-icon",
+      "name": "Name",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 77659,
+      "originalByte": 1768,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-icon",
+      "name": "",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 77659,
+      "originalByte": 1768,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-icon",
+      "name": "",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 77659,
+      "originalByte": 1768,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-icon",
+      "name": "",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 77659,
+      "originalByte": 1768,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-icon",
+      "name": "",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 77659,
+      "originalByte": 1768,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-icon",
+      "name": "",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 77659,
+      "originalByte": 1768,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-icon",
+      "name": "",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 77659,
+      "originalByte": 1768,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-icon",
+      "name": "",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 77659,
+      "originalByte": 1768,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-icon",
+      "name": "",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 77659,
+      "originalByte": 1768,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 77659,
+      "originalByte": 1768,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 77659,
+      "originalByte": 1768,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 77659,
+      "originalByte": 1768,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 77659,
+      "originalByte": 1768,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 77659,
+      "originalByte": 1768,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 77659,
+      "originalByte": 1768,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 77659,
+      "originalByte": 1768,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 77659,
+      "originalByte": 1768,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-frame-image",
+      "name": "Name",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 79761,
+      "originalByte": 1632,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-frame-image",
+      "name": "Name",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 79761,
+      "originalByte": 1632,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-frame-image",
+      "name": "Name",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 79761,
+      "originalByte": 1632,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-frame-image",
+      "name": "Name",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 79761,
+      "originalByte": 1632,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-frame-image",
+      "name": "Name",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 79761,
+      "originalByte": 1632,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-frame-image",
+      "name": "Name",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 79761,
+      "originalByte": 1632,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-frame-image",
+      "name": "Name",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 79761,
+      "originalByte": 1632,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-frame-image",
+      "name": "Name",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 79761,
+      "originalByte": 1632,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-frame-image",
+      "name": "",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 79761,
+      "originalByte": 1632,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-frame-image",
+      "name": "",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 79761,
+      "originalByte": 1632,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-frame-image",
+      "name": "",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 79761,
+      "originalByte": 1632,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-frame-image",
+      "name": "",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 79761,
+      "originalByte": 1632,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-frame-image",
+      "name": "",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 79761,
+      "originalByte": 1632,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-frame-image",
+      "name": "",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 79761,
+      "originalByte": 1632,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-frame-image",
+      "name": "",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 79761,
+      "originalByte": 1632,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-frame-image",
+      "name": "",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 79761,
+      "originalByte": 1632,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-frame-image",
+      "name": "<color=red>Name</color>",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 79761,
+      "originalByte": 1632,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-frame-image",
+      "name": "<color=red>Name</color>",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 79761,
+      "originalByte": 1632,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-frame-image",
+      "name": "<color=red>Name</color>",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 79761,
+      "originalByte": 1632,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-frame-image",
+      "name": "<color=red>Name</color>",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 79761,
+      "originalByte": 1632,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-frame-image",
+      "name": "<color=red>Name</color>",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 79761,
+      "originalByte": 1632,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-frame-image",
+      "name": "<color=red>Name</color>",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 79761,
+      "originalByte": 1632,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-frame-image",
+      "name": "<color=red>Name</color>",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 79761,
+      "originalByte": 1632,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-frame-image",
+      "name": "<color=red>Name</color>",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 79761,
+      "originalByte": 1632,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-icon",
+      "name": "Name",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 79914,
+      "originalByte": 1768,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-icon",
+      "name": "Name",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 79914,
+      "originalByte": 1768,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-icon",
+      "name": "Name",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 79914,
+      "originalByte": 1768,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-icon",
+      "name": "Name",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 79914,
+      "originalByte": 1768,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-icon",
+      "name": "Name",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 79914,
+      "originalByte": 1768,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-icon",
+      "name": "Name",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 79914,
+      "originalByte": 1768,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-icon",
+      "name": "Name",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 79914,
+      "originalByte": 1768,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-icon",
+      "name": "Name",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 79914,
+      "originalByte": 1768,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-icon",
+      "name": "",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 79914,
+      "originalByte": 1768,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-icon",
+      "name": "",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 79914,
+      "originalByte": 1768,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-icon",
+      "name": "",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 79914,
+      "originalByte": 1768,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-icon",
+      "name": "",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 79914,
+      "originalByte": 1768,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-icon",
+      "name": "",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 79914,
+      "originalByte": 1768,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-icon",
+      "name": "",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 79914,
+      "originalByte": 1768,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-icon",
+      "name": "",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 79914,
+      "originalByte": 1768,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-icon",
+      "name": "",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 79914,
+      "originalByte": 1768,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 79914,
+      "originalByte": 1768,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 79914,
+      "originalByte": 1768,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 79914,
+      "originalByte": 1768,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 79914,
+      "originalByte": 1768,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 79914,
+      "originalByte": 1768,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 79914,
+      "originalByte": 1768,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 79914,
+      "originalByte": 1768,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-good-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 79914,
+      "originalByte": 1768,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-currency-icon",
+      "name": "Name",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 80287,
+      "originalByte": 4716,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-currency-icon",
+      "name": "Name",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 80287,
+      "originalByte": 4716,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-currency-icon",
+      "name": "Name",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 80287,
+      "originalByte": 4716,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-currency-icon",
+      "name": "Name",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 80287,
+      "originalByte": 4716,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-currency-icon",
+      "name": "Name",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 80287,
+      "originalByte": 4716,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-currency-icon",
+      "name": "Name",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 80287,
+      "originalByte": 4716,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-currency-icon",
+      "name": "Name",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 80287,
+      "originalByte": 4716,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-currency-icon",
+      "name": "Name",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 80287,
+      "originalByte": 4716,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-currency-icon",
+      "name": "",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 80287,
+      "originalByte": 4716,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-currency-icon",
+      "name": "",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 80287,
+      "originalByte": 4716,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-currency-icon",
+      "name": "",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 80287,
+      "originalByte": 4716,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-currency-icon",
+      "name": "",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 80287,
+      "originalByte": 4716,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-currency-icon",
+      "name": "",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 80287,
+      "originalByte": 4716,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-currency-icon",
+      "name": "",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 80287,
+      "originalByte": 4716,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-currency-icon",
+      "name": "",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 80287,
+      "originalByte": 4716,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-currency-icon",
+      "name": "",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 80287,
+      "originalByte": 4716,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-currency-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 80287,
+      "originalByte": 4716,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-currency-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 80287,
+      "originalByte": 4716,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-currency-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 80287,
+      "originalByte": 4716,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-currency-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 80287,
+      "originalByte": 4716,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-currency-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 80287,
+      "originalByte": 4716,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-currency-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 80287,
+      "originalByte": 4716,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-currency-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 80287,
+      "originalByte": 4716,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "trade-station-currency-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 80287,
+      "originalByte": 4716,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "equipment-position-hero-icon",
+      "name": "Name",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 147688,
+      "originalByte": 188828,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "equipment-position-hero-icon",
+      "name": "Name",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 147688,
+      "originalByte": 188828,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "equipment-position-hero-icon",
+      "name": "Name",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 147688,
+      "originalByte": 188828,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "equipment-position-hero-icon",
+      "name": "Name",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 147688,
+      "originalByte": 188828,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "equipment-position-hero-icon",
+      "name": "Name",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 147688,
+      "originalByte": 188828,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "equipment-position-hero-icon",
+      "name": "Name",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 147688,
+      "originalByte": 188828,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "equipment-position-hero-icon",
+      "name": "Name",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 147688,
+      "originalByte": 188828,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "equipment-position-hero-icon",
+      "name": "Name",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 147688,
+      "originalByte": 188828,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "equipment-position-hero-icon",
+      "name": "",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 147688,
+      "originalByte": 188828,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "equipment-position-hero-icon",
+      "name": "",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 147688,
+      "originalByte": 188828,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "equipment-position-hero-icon",
+      "name": "",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 147688,
+      "originalByte": 188828,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "equipment-position-hero-icon",
+      "name": "",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 147688,
+      "originalByte": 188828,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "equipment-position-hero-icon",
+      "name": "",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 147688,
+      "originalByte": 188828,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "equipment-position-hero-icon",
+      "name": "",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 147688,
+      "originalByte": 188828,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "equipment-position-hero-icon",
+      "name": "",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 147688,
+      "originalByte": 188828,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "equipment-position-hero-icon",
+      "name": "",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 147688,
+      "originalByte": 188828,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "equipment-position-hero-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 147688,
+      "originalByte": 188828,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "equipment-position-hero-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 147688,
+      "originalByte": 188828,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "equipment-position-hero-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 147688,
+      "originalByte": 188828,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "equipment-position-hero-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 147688,
+      "originalByte": 188828,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "equipment-position-hero-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 147688,
+      "originalByte": 188828,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "equipment-position-hero-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 147688,
+      "originalByte": 188828,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "equipment-position-hero-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 147688,
+      "originalByte": 188828,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "equipment-position-hero-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 147688,
+      "originalByte": 188828,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "equipment-icon",
+      "name": "Name",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 149562,
+      "originalByte": 184344,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "equipment-icon",
+      "name": "Name",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 149562,
+      "originalByte": 184344,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "equipment-icon",
+      "name": "Name",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 149562,
+      "originalByte": 184344,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "equipment-icon",
+      "name": "Name",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 149562,
+      "originalByte": 184344,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "equipment-icon",
+      "name": "Name",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 149562,
+      "originalByte": 184344,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "equipment-icon",
+      "name": "Name",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 149562,
+      "originalByte": 184344,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "equipment-icon",
+      "name": "Name",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 149562,
+      "originalByte": 184344,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "equipment-icon",
+      "name": "Name",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 149562,
+      "originalByte": 184344,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "equipment-icon",
+      "name": "",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 149562,
+      "originalByte": 184344,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "equipment-icon",
+      "name": "",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 149562,
+      "originalByte": 184344,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "equipment-icon",
+      "name": "",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 149562,
+      "originalByte": 184344,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "equipment-icon",
+      "name": "",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 149562,
+      "originalByte": 184344,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "equipment-icon",
+      "name": "",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 149562,
+      "originalByte": 184344,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "equipment-icon",
+      "name": "",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 149562,
+      "originalByte": 184344,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "equipment-icon",
+      "name": "",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 149562,
+      "originalByte": 184344,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "equipment-icon",
+      "name": "",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 149562,
+      "originalByte": 184344,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "equipment-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 149562,
+      "originalByte": 184344,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "equipment-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 0,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 149562,
+      "originalByte": 184344,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "equipment-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 149562,
+      "originalByte": 184344,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "equipment-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 0,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 149562,
+      "originalByte": 184344,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "equipment-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": false,
+      "currentByte": 149562,
+      "originalByte": 184344,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "equipment-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 3,
+      "iconPath": "",
+      "textOverride": true,
+      "currentByte": 149562,
+      "originalByte": 184344,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "equipment-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": false,
+      "currentByte": 149562,
+      "originalByte": 184344,
+      "result": "PASS"
+    },
+    {
+      "file": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "className": "equipment-icon",
+      "name": "<color=red>Name</color>",
+      "quality": 3,
+      "iconPath": "icons/item.png",
+      "textOverride": true,
+      "currentByte": 149562,
+      "originalByte": 184344,
+      "result": "PASS"
+    }
+  ],
+  "issues": [],
+  "requiredConditions": [
+    "Trade Goods and Purchased frame use quality > 0 and cfm_tongyong_daojukuang_${quality}",
+    "Currency-selection and Purchased currency images require currencyIconPath",
+    "Trade Goods/Purchased frame+item icons and Purchased currency use deferUntilVisible:true",
+    "Train/Assist reward alt uses name || key",
+    "Equipment missing item remains a plain placeholder"
+  ],
+  "limits": "Exact source/canonical prop-expression execution with controlled field values; not whole renderer lifecycle, condition reachability, native asset availability, provider integration, original pixels, or gameplay proof. Only direct image caller guards are recorded. No native image operation is invoked."
+}

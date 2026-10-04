@@ -1,0 +1,16 @@
+{
+  "changes": [
+    {
+      "file": "MapDataPage.jsx",
+      "before": "bcdbc9f6e574fcc266410667a5f3e1ab498797a8002be532c9ad15c40455b764",
+      "after": "6bdb6a2468b24952457f580864c4457dcc532bce7dc3514e3254eddd910c65a9",
+      "replacements": 2
+    },
+    {
+      "file": "Pages.jsx",
+      "before": "7056d9684c242c17b06162aaef87f01498a270834ea205fea3e65ae277822f4d",
+      "after": "bc70417e452d1a2261fd622076f8bb1d6be60e2f541ab20fba6027653a43d38a",
+      "replacements": 8
+    }
+  ]
+}

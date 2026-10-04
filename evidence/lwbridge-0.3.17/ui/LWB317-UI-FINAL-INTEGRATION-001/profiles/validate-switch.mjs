@@ -1,0 +1,14 @@
+import assert from "node:assert/strict";
+import crypto from "node:crypto";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+const here = path.dirname(fileURLToPath(import.meta.url)); const repo = path.resolve(here, "../../../../..");
+const sha = (bytes) => crypto.createHash("sha256").update(bytes).digest("hex").toUpperCase();
+const result = JSON.parse(fs.readFileSync(path.join(here, "switch-results.json"), "utf8"));
+const asset = fs.readFileSync(path.join(repo, "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-BVfnK1wp.js"));
+assert.equal(sha(asset), "44C4E4043825B7DB296B64171951B27176F8850FF8D7D337CC991DF4765524C6");
+assert.equal(result.productionSha256, sha(fs.readFileSync(path.join(repo, "src/LWBridge.UI-0.3.17/src/ProfileSwitchState.jsx"))));
+assert.equal(sha(asset.subarray(result.locator.utf8ByteOffset, result.locator.utf8ByteOffset + result.locator.utf8ByteLength)), result.locator.sha256);
+assert.equal(result.cases, 12); assert.equal(result.details.length, 12); assert.ok(result.details.every((item) => item.pass));
+console.log("LWB317_FINAL_PROFILE_SWITCH_EVIDENCE_OK cases=12");

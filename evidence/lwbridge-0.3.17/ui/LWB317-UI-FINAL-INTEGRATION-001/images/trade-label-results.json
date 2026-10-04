@@ -1,0 +1,767 @@
+{
+  "marker": "LWB317_TRADE_IMAGE_LABELS_OK",
+  "cases": 16,
+  "baselineFailures": {
+    "goodsName": 7,
+    "possibleCurrencies": 7,
+    "currencyChoices": 8
+  },
+  "original": {
+    "assetSha256": "6DB2328191AF33E5631D507271C36D7008B287DAA7C8CD1A957B23EF6F871725",
+    "declarations": {
+      "C": {
+        "byte": 658,
+        "length": 127,
+        "sha256": "4C2230704206CED5949A27055E9B6ACAEB2055EE58C002826E6E7A11D38A2120"
+      },
+      "ue": {
+        "byte": 785,
+        "length": 1593,
+        "sha256": "46C284D811523B6C5278E0CFFE1AE9E6F52E5E7536B9CB44ADD34C0330259669"
+      },
+      "fe": {
+        "byte": 5492,
+        "length": 860,
+        "sha256": "6620E8494AAA79403F5F029F7F8AA4D10F47611A6FF7ECEB8A6783E4AA023723"
+      }
+    }
+  },
+  "current": {
+    "PagesSha256": "4EEA83ED48643BDCA326E22002FD7AF2160A616454C99366EFCC3405CF53A69F",
+    "expressions": {
+      "goods": {
+        "text": "<div className=\"trade-station-good-grid\">{visibleGoods.map((item) => { const selected = config.draft.selectedItemIds.includes(item.itemId); const itemName = resolveTradeName(fixture.gameTexts, item.nameKey, item.name, item.itemId); const exclusive = item.offers.every((offer) => offer.exclusive); const possibleCurrencies = [...item.offers.reduce((labels, offer) => labels.has(offer.currencyId) ? labels : labels.set(offer.currencyId, resolveTradeName(fixture.gameTexts, offer.currencyNameKey, offer.currencyName, offer.currencyId)), new Map()).values()]; return <label className={`trade-station-good${selected ? \" selected\" : \"\"}${exclusive ? \" disabled\" : \"\"}`} key={item.itemId}><input type=\"checkbox\" checked={selected} disabled={exclusive} onChange={(event) => toggleItem(item.itemId, event.target.checked)} /><span className={`trade-station-good-frame quality-${item.quality || 0}`}>{item.quality > 0 ? <GameAssetImage spriteName={`cfm_tongyong_daojukuang_${item.quality}`} alt=\"\" className=\"trade-station-good-frame-image\" deferUntilVisible /> : null}<GameAssetImage assetPath={item.iconPath} alt={itemName} className=\"trade-station-good-icon\" deferUntilVisible /></span><span className=\"trade-station-good-copy\"><b>{itemName}</b><small>{t(\"automation.tradeStation.buyWheneverAvailable\")}</small><small>{t(\"automation.tradeStation.possibleCurrencies\")} {possibleCurrencies.join(\" / \") || \"-\"}</small>{exclusive ? <small className=\"trade-station-good-exclusive\">{t(\"automation.tradeStation.exclusiveSkipped\")}</small> : null}</span>{selected ? <span className=\"trade-station-good-check\" aria-hidden=\"true\">✓</span> : null}</label>; })}</div>",
+        "byte": 76601,
+        "hash": "9EFD026DEFDBDED5CE18649F736B57C63F710C0BD172D46FD1438EBE16B1C216"
+      },
+      "currencies": {
+        "text": "<fieldset className=\"trade-station-currencies\">\n              <legend>{t(\"automation.tradeStation.currencies\")}</legend>\n              <div>{currencies.map((currency) => { const currencyName = resolveTradeName(fixture.gameTexts, currency.currencyNameKey, currency.currencyName, currency.currencyId); const selected = config.draft.selectedCurrencyIds.includes(currency.currencyId); return <label className={selected ? \"selected\" : \"\"} key={currency.currencyId}><input type=\"checkbox\" checked={selected} disabled={selected && config.draft.selectedCurrencyIds.length === 1} onChange={(event) => toggleCurrency(currency.currencyId, event.target.checked)} />{currency.currencyIconPath ? <GameAssetImage assetPath={currency.currencyIconPath} alt=\"\" className=\"trade-station-currency-icon\" /> : null}<span>{currencyName}</span></label>; })}</div>\n            </fieldset>",
+        "byte": 73866,
+        "hash": "3CCDB58544F94D4F42BF06FA77EC32D11842557AE4A95AA2A1629F942EAF159D"
+      }
+    }
+  },
+  "baseline": {
+    "commit": "147e5cf",
+    "PagesSha256": "7056D9684C242C17B06162AAEF87F01498A270834EA205FEA3E65AE277822F4D",
+    "expressions": {
+      "goods": {
+        "text": "<div className=\"trade-station-good-grid\">{visibleGoods.map((item) => { const selected = config.draft.selectedItemIds.includes(item.itemId); const exclusive = item.offers.every((offer) => offer.exclusive); const possibleCurrencies = [...item.offers.reduce((labels, offer) => labels.has(offer.currencyId) ? labels : labels.set(offer.currencyId, offer.currencyName), new Map()).values()]; return <label className={`trade-station-good${selected ? \" selected\" : \"\"}${exclusive ? \" disabled\" : \"\"}`} key={item.itemId}><input type=\"checkbox\" checked={selected} disabled={exclusive} onChange={(event) => toggleItem(item.itemId, event.target.checked)} /><span className={`trade-station-good-frame quality-${item.quality}`}><span className=\"trade-station-good-icon game-asset-placeholder\" aria-hidden=\"true\" /></span><span className=\"trade-station-good-copy\"><b>{item.name}</b><small>{t(\"automation.tradeStation.buyWheneverAvailable\")}</small><small>{t(\"automation.tradeStation.possibleCurrencies\")} {possibleCurrencies.join(\" / \") || \"-\"}</small>{exclusive ? <small className=\"trade-station-good-exclusive\">{t(\"automation.tradeStation.exclusiveSkipped\")}</small> : null}</span>{selected ? <span className=\"trade-station-good-check\" aria-hidden=\"true\">✓</span> : null}</label>; })}</div>",
+        "byte": 76335,
+        "hash": "CA3C65EBACE3635A0CADB1318C710B8262A2DE08C5876F13808A20C744640EB7"
+      },
+      "currencies": {
+        "text": "<fieldset className=\"trade-station-currencies\">\n              <legend>{t(\"automation.tradeStation.currencies\")}</legend>\n              <div>{currencies.map((currency) => { const selected = config.draft.selectedCurrencyIds.includes(currency.currencyId); return <label className={selected ? \"selected\" : \"\"} key={currency.currencyId}><input type=\"checkbox\" checked={selected} disabled={selected && config.draft.selectedCurrencyIds.length === 1} onChange={(event) => toggleCurrency(currency.currencyId, event.target.checked)} /><span className=\"trade-station-currency-icon game-asset-placeholder\" aria-hidden=\"true\" /><span>{currency.currencyName}</span></label>; })}</div>\n            </fieldset>",
+        "byte": 73769,
+        "hash": "91DBDA63610DDAF780CDF5E188903B33B5FC8A5C35A6C00ECDD61142C97EAD8D"
+      }
+    }
+  },
+  "results": [
+    {
+      "kind": "goods",
+      "name": "Raw",
+      "override": false,
+      "result": "PASS",
+      "original": {
+        "goodsName": "Raw",
+        "possibleCurrencies": "Raw / Other",
+        "imageProps": [
+          {
+            "spriteName": "cfm_tongyong_daojukuang_3",
+            "alt": "",
+            "className": "trade-station-good-frame-image",
+            "deferUntilVisible": true
+          },
+          {
+            "assetPath": "item.png",
+            "alt": "Raw",
+            "className": "trade-station-good-icon",
+            "deferUntilVisible": true
+          }
+        ]
+      },
+      "current": {
+        "goodsName": "Raw",
+        "possibleCurrencies": "Raw / Other",
+        "imageProps": [
+          {
+            "spriteName": "cfm_tongyong_daojukuang_3",
+            "alt": "",
+            "className": "trade-station-good-frame-image",
+            "deferUntilVisible": true
+          },
+          {
+            "assetPath": "item.png",
+            "alt": "Raw",
+            "className": "trade-station-good-icon",
+            "deferUntilVisible": true
+          }
+        ]
+      },
+      "baseline": {
+        "goodsName": "Raw",
+        "possibleCurrencies": "Raw / Other",
+        "imageProps": []
+      }
+    },
+    {
+      "kind": "currencies",
+      "name": "Raw",
+      "override": false,
+      "result": "PASS",
+      "original": {
+        "currencyChoices": [
+          "Other",
+          "Raw"
+        ],
+        "imageProps": [
+          {
+            "assetPath": "currency.png",
+            "alt": "",
+            "className": "trade-station-currency-icon"
+          }
+        ]
+      },
+      "current": {
+        "currencyChoices": [
+          "Other",
+          "Raw"
+        ],
+        "imageProps": [
+          {
+            "assetPath": "currency.png",
+            "alt": "",
+            "className": "trade-station-currency-icon"
+          }
+        ]
+      },
+      "baseline": {
+        "currencyChoices": [
+          "",
+          "Other",
+          "",
+          "Raw"
+        ],
+        "imageProps": []
+      }
+    },
+    {
+      "kind": "goods",
+      "name": "Raw",
+      "override": true,
+      "result": "PASS",
+      "original": {
+        "goodsName": "Localized item",
+        "possibleCurrencies": "Localized currency / Other",
+        "imageProps": [
+          {
+            "spriteName": "cfm_tongyong_daojukuang_3",
+            "alt": "",
+            "className": "trade-station-good-frame-image",
+            "deferUntilVisible": true
+          },
+          {
+            "assetPath": "item.png",
+            "alt": "Localized item",
+            "className": "trade-station-good-icon",
+            "deferUntilVisible": true
+          }
+        ]
+      },
+      "current": {
+        "goodsName": "Localized item",
+        "possibleCurrencies": "Localized currency / Other",
+        "imageProps": [
+          {
+            "spriteName": "cfm_tongyong_daojukuang_3",
+            "alt": "",
+            "className": "trade-station-good-frame-image",
+            "deferUntilVisible": true
+          },
+          {
+            "assetPath": "item.png",
+            "alt": "Localized item",
+            "className": "trade-station-good-icon",
+            "deferUntilVisible": true
+          }
+        ]
+      },
+      "baseline": {
+        "goodsName": "Raw",
+        "possibleCurrencies": "Raw / Other",
+        "imageProps": []
+      }
+    },
+    {
+      "kind": "currencies",
+      "name": "Raw",
+      "override": true,
+      "result": "PASS",
+      "original": {
+        "currencyChoices": [
+          "Other",
+          "Localized currency"
+        ],
+        "imageProps": [
+          {
+            "assetPath": "currency.png",
+            "alt": "",
+            "className": "trade-station-currency-icon"
+          }
+        ]
+      },
+      "current": {
+        "currencyChoices": [
+          "Other",
+          "Localized currency"
+        ],
+        "imageProps": [
+          {
+            "assetPath": "currency.png",
+            "alt": "",
+            "className": "trade-station-currency-icon"
+          }
+        ]
+      },
+      "baseline": {
+        "currencyChoices": [
+          "",
+          "Other",
+          "",
+          "Raw"
+        ],
+        "imageProps": []
+      }
+    },
+    {
+      "kind": "goods",
+      "name": "",
+      "override": false,
+      "result": "PASS",
+      "original": {
+        "goodsName": "#7",
+        "possibleCurrencies": "#15 / Other",
+        "imageProps": [
+          {
+            "spriteName": "cfm_tongyong_daojukuang_3",
+            "alt": "",
+            "className": "trade-station-good-frame-image",
+            "deferUntilVisible": true
+          },
+          {
+            "assetPath": "item.png",
+            "alt": "#7",
+            "className": "trade-station-good-icon",
+            "deferUntilVisible": true
+          }
+        ]
+      },
+      "current": {
+        "goodsName": "#7",
+        "possibleCurrencies": "#15 / Other",
+        "imageProps": [
+          {
+            "spriteName": "cfm_tongyong_daojukuang_3",
+            "alt": "",
+            "className": "trade-station-good-frame-image",
+            "deferUntilVisible": true
+          },
+          {
+            "assetPath": "item.png",
+            "alt": "#7",
+            "className": "trade-station-good-icon",
+            "deferUntilVisible": true
+          }
+        ]
+      },
+      "baseline": {
+        "goodsName": "",
+        "possibleCurrencies": "/ Other",
+        "imageProps": []
+      }
+    },
+    {
+      "kind": "currencies",
+      "name": "",
+      "override": false,
+      "result": "PASS",
+      "original": {
+        "currencyChoices": [
+          "Other",
+          "#15"
+        ],
+        "imageProps": [
+          {
+            "assetPath": "currency.png",
+            "alt": "",
+            "className": "trade-station-currency-icon"
+          }
+        ]
+      },
+      "current": {
+        "currencyChoices": [
+          "Other",
+          "#15"
+        ],
+        "imageProps": [
+          {
+            "assetPath": "currency.png",
+            "alt": "",
+            "className": "trade-station-currency-icon"
+          }
+        ]
+      },
+      "baseline": {
+        "currencyChoices": [
+          "",
+          "Other",
+          "",
+          ""
+        ],
+        "imageProps": []
+      }
+    },
+    {
+      "kind": "goods",
+      "name": "",
+      "override": true,
+      "result": "PASS",
+      "original": {
+        "goodsName": "Localized item",
+        "possibleCurrencies": "Localized currency / Other",
+        "imageProps": [
+          {
+            "spriteName": "cfm_tongyong_daojukuang_3",
+            "alt": "",
+            "className": "trade-station-good-frame-image",
+            "deferUntilVisible": true
+          },
+          {
+            "assetPath": "item.png",
+            "alt": "Localized item",
+            "className": "trade-station-good-icon",
+            "deferUntilVisible": true
+          }
+        ]
+      },
+      "current": {
+        "goodsName": "Localized item",
+        "possibleCurrencies": "Localized currency / Other",
+        "imageProps": [
+          {
+            "spriteName": "cfm_tongyong_daojukuang_3",
+            "alt": "",
+            "className": "trade-station-good-frame-image",
+            "deferUntilVisible": true
+          },
+          {
+            "assetPath": "item.png",
+            "alt": "Localized item",
+            "className": "trade-station-good-icon",
+            "deferUntilVisible": true
+          }
+        ]
+      },
+      "baseline": {
+        "goodsName": "",
+        "possibleCurrencies": "/ Other",
+        "imageProps": []
+      }
+    },
+    {
+      "kind": "currencies",
+      "name": "",
+      "override": true,
+      "result": "PASS",
+      "original": {
+        "currencyChoices": [
+          "Other",
+          "Localized currency"
+        ],
+        "imageProps": [
+          {
+            "assetPath": "currency.png",
+            "alt": "",
+            "className": "trade-station-currency-icon"
+          }
+        ]
+      },
+      "current": {
+        "currencyChoices": [
+          "Other",
+          "Localized currency"
+        ],
+        "imageProps": [
+          {
+            "assetPath": "currency.png",
+            "alt": "",
+            "className": "trade-station-currency-icon"
+          }
+        ]
+      },
+      "baseline": {
+        "currencyChoices": [
+          "",
+          "Other",
+          "",
+          ""
+        ],
+        "imageProps": []
+      }
+    },
+    {
+      "kind": "goods",
+      "name": "<color=red>Raw</color>",
+      "override": false,
+      "result": "PASS",
+      "original": {
+        "goodsName": "color=red>Raw</color",
+        "possibleCurrencies": "color=red>Raw</color / Other",
+        "imageProps": [
+          {
+            "spriteName": "cfm_tongyong_daojukuang_3",
+            "alt": "",
+            "className": "trade-station-good-frame-image",
+            "deferUntilVisible": true
+          },
+          {
+            "assetPath": "item.png",
+            "alt": "color=red>Raw</color",
+            "className": "trade-station-good-icon",
+            "deferUntilVisible": true
+          }
+        ]
+      },
+      "current": {
+        "goodsName": "color=red>Raw</color",
+        "possibleCurrencies": "color=red>Raw</color / Other",
+        "imageProps": [
+          {
+            "spriteName": "cfm_tongyong_daojukuang_3",
+            "alt": "",
+            "className": "trade-station-good-frame-image",
+            "deferUntilVisible": true
+          },
+          {
+            "assetPath": "item.png",
+            "alt": "color=red>Raw</color",
+            "className": "trade-station-good-icon",
+            "deferUntilVisible": true
+          }
+        ]
+      },
+      "baseline": {
+        "goodsName": "<color=red>Raw</color>",
+        "possibleCurrencies": "<color=red>Raw</color> / Other",
+        "imageProps": []
+      }
+    },
+    {
+      "kind": "currencies",
+      "name": "<color=red>Raw</color>",
+      "override": false,
+      "result": "PASS",
+      "original": {
+        "currencyChoices": [
+          "Other",
+          "color=red>Raw</color"
+        ],
+        "imageProps": [
+          {
+            "assetPath": "currency.png",
+            "alt": "",
+            "className": "trade-station-currency-icon"
+          }
+        ]
+      },
+      "current": {
+        "currencyChoices": [
+          "Other",
+          "color=red>Raw</color"
+        ],
+        "imageProps": [
+          {
+            "assetPath": "currency.png",
+            "alt": "",
+            "className": "trade-station-currency-icon"
+          }
+        ]
+      },
+      "baseline": {
+        "currencyChoices": [
+          "",
+          "Other",
+          "",
+          "<color=red>Raw</color>"
+        ],
+        "imageProps": []
+      }
+    },
+    {
+      "kind": "goods",
+      "name": "<color=red>Raw</color>",
+      "override": true,
+      "result": "PASS",
+      "original": {
+        "goodsName": "Localized item",
+        "possibleCurrencies": "Localized currency / Other",
+        "imageProps": [
+          {
+            "spriteName": "cfm_tongyong_daojukuang_3",
+            "alt": "",
+            "className": "trade-station-good-frame-image",
+            "deferUntilVisible": true
+          },
+          {
+            "assetPath": "item.png",
+            "alt": "Localized item",
+            "className": "trade-station-good-icon",
+            "deferUntilVisible": true
+          }
+        ]
+      },
+      "current": {
+        "goodsName": "Localized item",
+        "possibleCurrencies": "Localized currency / Other",
+        "imageProps": [
+          {
+            "spriteName": "cfm_tongyong_daojukuang_3",
+            "alt": "",
+            "className": "trade-station-good-frame-image",
+            "deferUntilVisible": true
+          },
+          {
+            "assetPath": "item.png",
+            "alt": "Localized item",
+            "className": "trade-station-good-icon",
+            "deferUntilVisible": true
+          }
+        ]
+      },
+      "baseline": {
+        "goodsName": "<color=red>Raw</color>",
+        "possibleCurrencies": "<color=red>Raw</color> / Other",
+        "imageProps": []
+      }
+    },
+    {
+      "kind": "currencies",
+      "name": "<color=red>Raw</color>",
+      "override": true,
+      "result": "PASS",
+      "original": {
+        "currencyChoices": [
+          "Other",
+          "Localized currency"
+        ],
+        "imageProps": [
+          {
+            "assetPath": "currency.png",
+            "alt": "",
+            "className": "trade-station-currency-icon"
+          }
+        ]
+      },
+      "current": {
+        "currencyChoices": [
+          "Other",
+          "Localized currency"
+        ],
+        "imageProps": [
+          {
+            "assetPath": "currency.png",
+            "alt": "",
+            "className": "trade-station-currency-icon"
+          }
+        ]
+      },
+      "baseline": {
+        "currencyChoices": [
+          "",
+          "Other",
+          "",
+          "<color=red>Raw</color>"
+        ],
+        "imageProps": []
+      }
+    },
+    {
+      "kind": "goods",
+      "name": "<Raw>",
+      "override": false,
+      "result": "PASS",
+      "original": {
+        "goodsName": "Raw",
+        "possibleCurrencies": "Raw / Other",
+        "imageProps": [
+          {
+            "spriteName": "cfm_tongyong_daojukuang_3",
+            "alt": "",
+            "className": "trade-station-good-frame-image",
+            "deferUntilVisible": true
+          },
+          {
+            "assetPath": "item.png",
+            "alt": "Raw",
+            "className": "trade-station-good-icon",
+            "deferUntilVisible": true
+          }
+        ]
+      },
+      "current": {
+        "goodsName": "Raw",
+        "possibleCurrencies": "Raw / Other",
+        "imageProps": [
+          {
+            "spriteName": "cfm_tongyong_daojukuang_3",
+            "alt": "",
+            "className": "trade-station-good-frame-image",
+            "deferUntilVisible": true
+          },
+          {
+            "assetPath": "item.png",
+            "alt": "Raw",
+            "className": "trade-station-good-icon",
+            "deferUntilVisible": true
+          }
+        ]
+      },
+      "baseline": {
+        "goodsName": "<Raw>",
+        "possibleCurrencies": "<Raw> / Other",
+        "imageProps": []
+      }
+    },
+    {
+      "kind": "currencies",
+      "name": "<Raw>",
+      "override": false,
+      "result": "PASS",
+      "original": {
+        "currencyChoices": [
+          "Other",
+          "Raw"
+        ],
+        "imageProps": [
+          {
+            "assetPath": "currency.png",
+            "alt": "",
+            "className": "trade-station-currency-icon"
+          }
+        ]
+      },
+      "current": {
+        "currencyChoices": [
+          "Other",
+          "Raw"
+        ],
+        "imageProps": [
+          {
+            "assetPath": "currency.png",
+            "alt": "",
+            "className": "trade-station-currency-icon"
+          }
+        ]
+      },
+      "baseline": {
+        "currencyChoices": [
+          "",
+          "Other",
+          "",
+          "<Raw>"
+        ],
+        "imageProps": []
+      }
+    },
+    {
+      "kind": "goods",
+      "name": "<Raw>",
+      "override": true,
+      "result": "PASS",
+      "original": {
+        "goodsName": "Localized item",
+        "possibleCurrencies": "Localized currency / Other",
+        "imageProps": [
+          {
+            "spriteName": "cfm_tongyong_daojukuang_3",
+            "alt": "",
+            "className": "trade-station-good-frame-image",
+            "deferUntilVisible": true
+          },
+          {
+            "assetPath": "item.png",
+            "alt": "Localized item",
+            "className": "trade-station-good-icon",
+            "deferUntilVisible": true
+          }
+        ]
+      },
+      "current": {
+        "goodsName": "Localized item",
+        "possibleCurrencies": "Localized currency / Other",
+        "imageProps": [
+          {
+            "spriteName": "cfm_tongyong_daojukuang_3",
+            "alt": "",
+            "className": "trade-station-good-frame-image",
+            "deferUntilVisible": true
+          },
+          {
+            "assetPath": "item.png",
+            "alt": "Localized item",
+            "className": "trade-station-good-icon",
+            "deferUntilVisible": true
+          }
+        ]
+      },
+      "baseline": {
+        "goodsName": "<Raw>",
+        "possibleCurrencies": "<Raw> / Other",
+        "imageProps": []
+      }
+    },
+    {
+      "kind": "currencies",
+      "name": "<Raw>",
+      "override": true,
+      "result": "PASS",
+      "original": {
+        "currencyChoices": [
+          "Other",
+          "Localized currency"
+        ],
+        "imageProps": [
+          {
+            "assetPath": "currency.png",
+            "alt": "",
+            "className": "trade-station-currency-icon"
+          }
+        ]
+      },
+      "current": {
+        "currencyChoices": [
+          "Other",
+          "Localized currency"
+        ],
+        "imageProps": [
+          {
+            "assetPath": "currency.png",
+            "alt": "",
+            "className": "trade-station-currency-icon"
+          }
+        ]
+      },
+      "baseline": {
+        "currencyChoices": [
+          "",
+          "Other",
+          "",
+          "<Raw>"
+        ],
+        "imageProps": []
+      }
+    }
+  ],
+  "limits": "Actual exact original Goods/currency renderers and actual extracted canonical JSX executed with source C, React and inert image/control bindings. No native asset/provider/game action, full page effects or original pixels. Controlled DOM parser only observes rendered labels and captured source-shaped image props."
+}

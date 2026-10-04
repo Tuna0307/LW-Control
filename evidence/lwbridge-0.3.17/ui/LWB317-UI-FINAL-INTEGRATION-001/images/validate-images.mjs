@@ -1,0 +1,30 @@
+import assert from "node:assert/strict";
+import crypto from "node:crypto";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+const here = path.dirname(fileURLToPath(import.meta.url));
+const repo = path.resolve(here, "../../../../..");
+const sha = (bytes) => crypto.createHash("sha256").update(bytes).digest("hex").toUpperCase();
+const result = JSON.parse(fs.readFileSync(path.join(here, "image-results.json"), "utf8"));
+const source = fs.readFileSync(path.join(repo, "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/GameAssetImage-Diy9VTIr.js"));
+const product = fs.readFileSync(path.join(repo, "src/LWBridge.UI-0.3.17/src/GameAssetImage.jsx"));
+assert.equal(sha(fs.readFileSync(path.resolve(repo, "../LW/lwbridge-0.3.17.exe"))), "4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783");
+assert.equal(sha(source), "2F92A87C3268497DF6425B1175DB6140E10AABCBDFAE02615F065D00E16458E0");
+assert.equal(result.sourceSha256, sha(source)); assert.equal(result.sourceBytes, source.length);
+assert.equal(result.productionSha256, sha(product));
+assert.equal(result.marker, "LWB317_FINAL_IMAGES_OK");
+assert.equal(result.cases, 16); assert.equal(result.originalComparisons, 13);
+assert.equal(result.normalizationComparisons, 36);
+assert.equal(result.details.length, 16); assert.ok(result.details.every((entry) => entry.pass));
+for (const [needle, locator] of Object.entries(result.locators)) assert.equal(source.indexOf(Buffer.from(needle)), locator.utf8ByteOffset);
+const callers = JSON.parse(fs.readFileSync(path.join(here, "caller-locators.json"), "utf8"));
+assert.equal(callers.length, 16);
+for (const caller of callers) {
+  const asset = fs.readFileSync(path.join(repo, caller.source));
+  assert.equal(sha(asset), caller.sourceSha256, caller.name);
+  const slice = asset.subarray(caller.utf8ByteOffset, caller.utf8ByteOffset + caller.utf8ByteLength);
+  assert.equal(sha(slice), caller.sliceSha256, caller.name);
+  assert.equal(slice.toString("utf8"), caller.exactExpressionSlice, caller.name);
+}
+console.log(`LWB317_FINAL_IMAGES_EVIDENCE_OK cases=${result.cases} callers=${callers.length} locators=${Object.keys(result.locators).length}`);

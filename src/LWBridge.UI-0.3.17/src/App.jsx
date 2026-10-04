@@ -1,4 +1,12 @@
 import { Activity, Fragment, useCallback, useEffect, useLayoutEffect, useRef, useState, useTransition } from "react";
+import { flushSync } from "react-dom";
+import { toggleShellTheme } from "./shellTheme.js";
+import { TopVersion, ShellConfigSaveErrors } from "./ShellPresentation.jsx";
+import { initialShellUpdateStatus, initialShellProfiles, previewShellFlagStores, initialProfileFocus, saveProfileFocus } from "./shellState.js";
+import { ProfileSidebar } from "./ProfileSidebar.jsx";
+import { AppExitDialog, AppExitPrompt } from "./AppExitDialog.jsx";
+import { ProfileSwitchState } from "./ProfileSwitchState.jsx";
+import { GameAssetImageProvider } from "./GameAssetImage.jsx";
 import offlineDot from "./assets/dot-offline.png";
 import onlineDot from "./assets/dot-online.png";
 import { backendBridge } from "./backendBridge.js";
@@ -18,6 +26,9 @@ import { initialRouteKey, routes } from "./routes.js";
 const THEME_KEY = "lwbridge.theme";
 const LEGACY_SERVER_HISTORY_KEY = "lastwar.serverJumpHistory";
 const mapApi = createMapApi(backendBridge);
+// Existing read-only local image contract; no new native producer is introduced.
+// Browser previews never invoke it or lend their synthetic images to this reader.
+const nativeAssetReader = backendBridge.available ? (request) => backendBridge.invoke("game_asset_image", request) : null;
 
 function legacyServerHistory() {
   try {
@@ -76,14 +87,38 @@ function RetainedPages({ activeRoute, visitedRoutes, selectedProfileId, pageProp
   );
 }
 
-export function App() {
+export function App({ shellFlagStates = null, subscribeCloseRequests = null, confirmExit = null, profileSwitchLoading = false } = {}) {
   const { language, setLanguage, t } = useI18n();
-  const selectedProfileId = backendBridge.profileId;
   const previewState = backendBridge.mode === "preview" ? new URLSearchParams(window.location.search).get("previewState") || "" : "";
+  const profilePreview = backendBridge.mode === "preview" && previewState.startsWith("shell-profiles");
+  const [shellProfiles, setShellProfiles] = useState(() => initialShellProfiles(backendBridge.mode, previewState, window.__LWBridgeBootstrap));
+  const selectedProfileId = profilePreview ? shellProfiles.selectedProfileId : backendBridge.profileId;
+  const [previewFlagStates] = useState(() => previewShellFlagStores(backendBridge.mode, previewState));
+  const showProfiles = shellProfiles.maxProfiles > 1;
+  const [focusGameOnProfileSelect, setFocusGameOnProfileSelect] = useState(() => initialProfileFocus(localStorage));
+  const updateProfileFocus = (value) => { saveProfileFocus(localStorage, value); setFocusGameOnProfileSelect(value); };
+  const switchLoading = profileSwitchLoading || (backendBridge.mode === "preview" && previewState === "shell-profiles-loading");
+  const nextPreviewProfileId = useRef(3);
+  const [previewExitCount, setPreviewExitCount] = useState(() => backendBridge.mode === "preview" && previewState.startsWith("shell-exit") ? 2 : null);
+  const profilePreviewCallbacks = profilePreview ? {
+    onSelect: async (id) => { setShellProfiles((current) => ({ ...current, selectedProfileId: id })); },
+    onCreate: async () => { const id = `preview-local-${nextPreviewProfileId.current++}`; setShellProfiles((current) => {
+      return { ...current, profiles: [...current.profiles, { id, displayName: `Local ${current.profiles.length + 1}`, note: "", serverId: 0, enabled: true }] };
+    }); },
+    onRemove: async (id) => { setShellProfiles((current) => {
+      const profiles = current.profiles.filter((profile) => profile.id !== id);
+      return { ...current, profiles, selectedProfileId: current.selectedProfileId === id ? profiles[0]?.id || "" : current.selectedProfileId };
+    }); },
+    onReorder: async (ids) => { setShellProfiles((current) => ({ ...current,
+      profiles: ids.map((id) => current.profiles.find((profile) => profile.id === id)) })); },
+    onUpdateNote: async (id, note) => { setShellProfiles((current) => ({ ...current,
+      profiles: current.profiles.map((profile) => profile.id === id ? { ...profile, note } : profile) })); },
+  } : {};
   const [activeRoute, setActiveRoute] = useState(initialRoute);
   const [visitedRoutes, setVisitedRoutes] = useState(() => new Set([initialRoute()]));
   const [, startRouteTransition] = useTransition();
   const [theme, setTheme] = useState(initialTheme);
+  const [shellUpdateStatus, setShellUpdateStatus] = useState(() => initialShellUpdateStatus(backendBridge.mode, previewState));
   const [serverJumpOpen, setServerJumpOpen] = useState(false);
   const [runtimeStatus, setRuntimeStatus] = useState(null);
   const [proxyStatus, setProxyStatus] = useState(null);
@@ -225,6 +260,18 @@ export function App() {
       // Static preview remains usable when storage is unavailable.
     }
   }, [theme]);
+
+  useEffect(() => {
+    if (!backendBridge.available) return undefined;
+    let closed = false;
+    const stop = backendBridge.listen("bridge://update-status", (status) => {
+      if (!closed && status) setShellUpdateStatus(status);
+    });
+    backendBridge.invoke("update_status", {}).then((status) => {
+      if (!closed) setShellUpdateStatus(status);
+    }).catch(() => {});
+    return () => { closed = true; stop(); };
+  }, []);
 
   useEffect(() => {
     if (!backendBridge.available) return undefined;
@@ -428,6 +475,9 @@ export function App() {
     onAutoScanConfig: updateAutoScanConfig,
     onAutoScanRunningChange: setAutoScanRunning,
     previewState,
+    showProfileFocus: showProfiles,
+    focusGameOnProfileSelect,
+    onFocusGameOnProfileSelectChange: updateProfileFocus,
     homeState: {
       rootResolved: gameRootStatus !== null,
       gameRootStatus,
@@ -447,7 +497,7 @@ export function App() {
   };
 
   return (
-    <main className="app-shell" data-reference-version="0.3.17" data-ui-project="LWBridge.UI-0.3.17">
+    <GameAssetImageProvider readImage={nativeAssetReader}><main className="app-shell" data-reference-version="0.3.17" data-ui-project="LWBridge.UI-0.3.17">
       <header className="top-bar">
         <div className="brand-lockup">
           <div className="brand-mark" aria-hidden="true">
@@ -455,14 +505,12 @@ export function App() {
           </div>
           <div className="brand-copy">
             <h1>lwbridge</h1>
-            <div className="top-version-row">
-              <span>v0.3.17</span>
-            </div>
+            <TopVersion status={shellUpdateStatus} />
           </div>
         </div>
 
         <section className="status-strip" aria-label="Status">
-          <div className="status-card status-online">
+          <div className={`status-card status-online${online ? " online" : ""}`}>
             <strong>
               <img src={online ? onlineDot : offlineDot} alt="" aria-hidden="true" />
               {stateText}
@@ -481,7 +529,7 @@ export function App() {
             title={t(theme === "dark" ? "theme.switchToLight" : "theme.switchToDark")}
             aria-label={t(theme === "dark" ? "theme.switchToLight" : "theme.switchToDark")}
             aria-pressed={theme === "dark"}
-            onClick={() => setTheme((value) => (value === "dark" ? "light" : "dark"))}
+            onClick={() => toggleShellTheme(theme, setTheme, document, window, localStorage, flushSync)}
           >
             {theme === "dark" ? (
               <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -560,7 +608,11 @@ export function App() {
         </div>
       </header>
 
-      <div className="app-layout single-profile">
+      <AppExitPrompt subscribeCloseRequests={subscribeCloseRequests} confirmExit={confirmExit} />
+      {previewExitCount !== null ? <AppExitDialog instanceCount={previewExitCount} busy={previewState === "shell-exit-busy"}
+        onCancel={() => setPreviewExitCount(null)} /> : null}
+      <div className={`app-layout${showProfiles ? "" : " single-profile"}`}>
+        {showProfiles ? <ProfileSidebar state={shellProfiles} focusGameOnProfileSelect={focusGameOnProfileSelect} {...profilePreviewCallbacks} /> : null}
         <nav className="side-nav" aria-label="Navigation">
           <div className="nav-heading">
             <strong>{t("nav.title")}</strong>
@@ -582,14 +634,15 @@ export function App() {
         </nav>
 
         <section className="main-view">
-          <RetainedPages
+          <ShellConfigSaveErrors states={shellFlagStates || previewFlagStates} />
+          {switchLoading ? <ProfileSwitchState loading /> : <RetainedPages
             activeRoute={activeRoute}
             visitedRoutes={visitedRoutes}
             selectedProfileId={selectedProfileId}
             pageProps={pageProps}
-          />
+          />}
         </section>
       </div>
-    </main>
+    </main></GameAssetImageProvider>
   );
 }

@@ -1,0 +1,67 @@
+{
+  "marker": "LWB317_FINAL_PROFILE_SWITCH_OK",
+  "cases": 12,
+  "details": [
+    {
+      "name": "en-settled-no-error",
+      "pass": true
+    },
+    {
+      "name": "en-settled-supplied-other-producer-error",
+      "pass": true
+    },
+    {
+      "name": "en-settled-supplied-other-producer-error",
+      "pass": true
+    },
+    {
+      "name": "en-pending-no-error",
+      "pass": true
+    },
+    {
+      "name": "en-pending-supplied-other-producer-error",
+      "pass": true
+    },
+    {
+      "name": "en-pending-supplied-other-producer-error",
+      "pass": true
+    },
+    {
+      "name": "ja-settled-no-error",
+      "pass": true
+    },
+    {
+      "name": "ja-settled-supplied-other-producer-error",
+      "pass": true
+    },
+    {
+      "name": "ja-settled-supplied-other-producer-error",
+      "pass": true
+    },
+    {
+      "name": "ja-pending-no-error",
+      "pass": true
+    },
+    {
+      "name": "ja-pending-supplied-other-producer-error",
+      "pass": true
+    },
+    {
+      "name": "ja-pending-supplied-other-producer-error",
+      "pass": true
+    }
+  ],
+  "sourceSha256": "44C4E4043825B7DB296B64171951B27176F8850FF8D7D337CC991DF4765524C6",
+  "productionSha256": "01FC87F704CC45BE3476BCAF461FA057F70DCE57A7453DDD00188B756F9E83F5",
+  "locator": {
+    "utf8ByteOffset": 373027,
+    "utf8ByteLength": 141,
+    "sha256": "5B0D873709A2A86C5A00C8CEFE12D09A96AF8F6461573D6A5D26F4594661F03E"
+  },
+  "limits": [
+    "Only exact loading renderer is proven",
+    "Source has no dedicated profile-switch error panel",
+    "Actual profile caching/native bootstrap producer remains separate",
+    "No original protected-runtime pixels or live native profile request"
+  ]
+}

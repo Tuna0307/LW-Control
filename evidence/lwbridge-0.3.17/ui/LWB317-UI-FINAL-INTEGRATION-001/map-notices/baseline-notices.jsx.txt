@@ -1,0 +1,9 @@
+      {scanError ? <div className="map-scan-error" role="alert">{translateActionError(t, scanError)}</div> : null}
+      {!scanError && scanView.error ? <div className="map-scan-error" role="status">{translateActionError(t, scanView.error)}</div> : null}
+      {!scanError && !scanView.error && !backendAvailable ? (
+        <div className="map-scan-error" role="status">
+          {bridgeMode === "preview" ? "Browser preview mode. Native Map actions are unavailable." : "Native backend unavailable."}
+        </div>
+      ) : null}
+      {!scanError && !scanView.error && backendAvailable && !online ? <div className="map-scan-error" role="status">Game disconnected. Start Scan is disabled; saved Map data remains available.</div> : null}
+

@@ -6,6 +6,7 @@
 // is true; otherwise every action button is additionally disabled and carries no handler.
 
 import { useI18n } from "./i18n.jsx";
+import { GameAssetImage } from "./GameAssetImage.jsx";
 import { mapDate, mapNumber, mapQuality, mapRewardCount, mapRewardName, truckMaxLootCount, truckState } from "./mapTablePresentation.js";
 import {
   dispatchGroupJobs,
@@ -30,8 +31,7 @@ const EMPTY_GAME_TEXTS = Object.freeze({});
 const SECRET_WIDTHS = [78, 150, 92, 280, 135, 135, 180, 74].map((width) => width + 8);
 const TRUCK_WIDTHS = [78, 150, 86, 110, 200, 280, 92].map((width) => width + 8);
 
-// Original reward list cell shared by both groups. The original icon is GameAssetImage; the canonical Map tables
-// use the same placeholder element (see MapDataPage.jsx MapTable).
+// Original reward list cell shared by both groups and canonical Map tables.
 function PlunderRewards({ rewards, gameTexts, language }) {
   return rewards?.length ? (
     <span className="map-reward-list map-reward-list--retained">
@@ -40,7 +40,7 @@ function PlunderRewards({ rewards, gameTexts, language }) {
         const description = `${name} ×${mapNumber(item.count, language)}`;
         return (
           <span className="map-reward-item" key={item.key} title={description} aria-label={description}>
-            <span className="map-reward-icon game-asset-placeholder" aria-hidden="true" />
+            <GameAssetImage assetPath={item.iconPath} alt={name} className="map-reward-icon" />
             <strong>×{mapRewardCount(item.count)}</strong>
           </span>
         );

@@ -4,6 +4,12 @@ Status: ACTIVE. Owner explicitly requests lead takeover, completion of the stuck
 worker unit, then a large campaign toward one-for-one UI/UX completion. This is
 phase 2 UI work; native/gameplay implementation remains separate.
 
+Checkpoint2026-10-04: A–D shared presentation/image/local-state scope is ACCEPTED
+by the lead after current/source/browser/package checks; campaign remainsPARTIAL.
+The owner asks to continue. Loading/preload/Suspense and Equipment motion are
+assigned to LWB317-UI-LOADING-MOTION-001. See dated checkpoint review and evidence
+README; no global UI/native/pixel acceptance is declared.
+
 ## Goal and milestones
 
 A. Finish and accept the interrupted Map-entry task; preserve worker checkpoints
