@@ -1,6 +1,6 @@
 # LWB317-UI-MAP-AUTO-REMOVE-001
 
-Status: ASSIGNED through owner relay, 2026-10-04. Size: medium.
+Status: AWAITING_REVIEW after worker delivery, 2026-10-04. Size: medium.
 Owner scope update: replaces the earlier tiny glyph-only prompt; one assignment.
 Baseline: cefa6c3ef3790e35ffaadf7b0a27f0630872dd7e.
 

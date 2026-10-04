@@ -1,5 +1,15 @@
 # Current implementation/research handoff
 
+Current worker delivery, 2026-10-04: LWB317-UI-MAP-AUTO-REMOVE-001 is
+AWAITING_REVIEW. Milestone A `8c28f5a` restores the exact recovered Auto
+server-chip remove SVG; milestone B `f9a63fa` proves all 12 assigned EN/JA
+state renders plus inert Add/Enter/dedup/removal callbacks; milestone C
+`30d409f` proves all four assigned browser pairs with eight inspected screenshots,
+zero raw/DOM/geometry/style differences and byte-identical PNGs per pair. No
+Run-now, scan, native-provider or gameplay action was invoked. This closes only
+the bounded source/local Auto-card visual gate; overall Map/UI status remains
+unchanged pending lead acceptance.
+
 Current owner relay, 2026-10-04: use the UPDATED medium MAP-AUTO-REMOVE-001,
 not its earlier tiny scope. Sequential glyph correction, six-state EN/JA card
 comparison and four paired browser captures only. Preserve backend/helpers,
