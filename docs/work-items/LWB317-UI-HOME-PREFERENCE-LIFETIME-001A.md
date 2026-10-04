@@ -1,6 +1,6 @@
 # LWB317-UI-HOME-PREFERENCE-LIFETIME-001A
 
-Status: ASSIGNED to the owner's manually relayed worker, 2026-10-04.
+Status: AWAITING_REVIEW after worker delivery, 2026-10-04.
 Parent HOME-PREFERENCE-LIFETIME-001 remains PARTIAL. This medium unit covers
 only Open games at startup / Auto Launch. Automatic Reconnection is a later unit.
 
@@ -59,3 +59,45 @@ or change earlier accepted scopes without exact counter-evidence. Review the ful
 diff, commit explicit owned paths, push research/offline-controller and verify SHA.
 Return AWAITING_REVIEW with actual files/checks/source locators/proof limits/full
 SHA and exact continuation. The project lead reviews; stop at this unit.
+
+## Delivery — 2026-10-04
+
+State: **AWAITING_REVIEW**. Implementation and worker verification complete; project
+lead review remains external to this unit.
+
+Recovered exact source contract is recorded under
+`evidence/lwbridge-0.3.17/ui/LWB317-UI-HOME-PREFERENCE-LIFETIME-001A/`:
+key `lwbridge.autoLaunchGame` at byte 246758; storage/get/set block 246750;
+`useState(xr)` 247632; synchronous storage-then-state setter 248381; Home binding
+338639; switch `Bn` 213332. Missing storage defaults true and only literal `"false"`
+reloads false.
+
+Production correction is bounded to `App.jsx`, `HomePage.jsx` and new focused
+`autoLaunchPreference.js`. Auto Launch now owns the recovered local storage/state
+value immediately and remains editable while the existing `local_config_set` mirror
+is pending. Native writes are serialized and revision-fenced; the latest failed write
+rolls storage/UI back to the last native-confirmed value and reports the error. Polling
+may update that rollback reference but cannot replace the visible local value.
+
+Current mounted proof passes seven cases, including off→on→off under a deferred first
+request, stale success/rejection, latest rejection, exact default/reload, five-second
+polling, late stale-poll fencing after a native acknowledgement, profile replacement
+and unrelated Auto Reconnect preservation. Real inert
+browser QA passes deferred success and rejection flows with zero clean-page console
+errors. Dispatch preservation comparison passes ten unrelated callbacks plus root,
+profile, retained-page, listener/timer and Auto Reconnect invariants.
+
+Canonical `check`, production `build`, and `check:production-build` pass. Build/package
+fingerprints: `7c31d29fbab27d5f785f97323e7a4f9824f74ad7400358b74a2372482019fedc` /
+`f1e58a73dc134eb4436e91187ef35d241a4a95e2cf041b9c04196fe3a9fdaa8d`.
+The task WIP guard passes all ten assignment-start dirty/untracked files, including
+all seven protected paths and both required vendor LICENSE/NOTICE files.
+
+Historical HOME-ERROR-001 and SWITCH-LOCALE execution checkers are preserved and
+topology-stale before this unit (old inline App preview shape / old Pages-owned
+ToggleRow); their saved validators pass. Current adapters exercise the actual current
+App/Home/shared switch rather than rewriting historical evidence.
+
+Continuation: project lead reviews this unit. After acceptance, return to parent
+`LWB317-UI-HOME-PREFERENCE-LIFETIME-001` for the separate Automatic Reconnection
+unit. Do not start it from this worker task.

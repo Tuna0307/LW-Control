@@ -1,0 +1,112 @@
+{
+  "task": "LWB317-UI-HOME-PREFERENCE-LIFETIME-001A",
+  "date": "2026-10-04",
+  "result": "PASS",
+  "browser": "existing user browser through Chat On Steroids Desktop",
+  "url": "http://127.0.0.1:4337/qa-home-preference.html",
+  "harness": "browser-harness.html copied temporarily into the Vite root for this run, then removed",
+  "transport": "controlled inert window.chrome.webview response harness using the production backendBridge and production App/Home code",
+  "deferredSuccessRun": {
+    "initial": {
+      "autoLaunchChecked": false,
+      "autoLaunchDisabled": false,
+      "stored": "false"
+    },
+    "afterFirstRealClick": {
+      "autoLaunchChecked": true,
+      "autoLaunchDisabled": false,
+      "stored": "true",
+      "nativeSaveRequests": 1
+    },
+    "afterSecondRealClickWhileFirstSaveDeferred": {
+      "autoLaunchChecked": false,
+      "autoLaunchDisabled": false,
+      "stored": "false",
+      "nativeSaveRequests": 1
+    },
+    "afterLateFirstAcknowledgementTrue": {
+      "autoLaunchChecked": false,
+      "autoLaunchDisabled": false,
+      "stored": "false",
+      "nativeSaveRequests": 2,
+      "observation": "the stale first acknowledgement did not replace the newer local edit; only after it settled did the serialized second native request dispatch"
+    },
+    "afterNativeConfigRefresh": {
+      "nativeConfig": {
+        "autoLaunchGame": true,
+        "autoReconnect": true
+      },
+      "autoLaunchChecked": false,
+      "autoReconnectChecked": true,
+      "stored": "false",
+      "observation": "native config polling refreshed Auto Reconnect without taking ownership of the visible Auto Launch local preference"
+    },
+    "afterSecondAcknowledgementFalse": {
+      "autoLaunchChecked": false,
+      "autoLaunchDisabled": false,
+      "autoReconnectChecked": true,
+      "stored": "false",
+      "errors": []
+    }
+  },
+  "rejectionRun": {
+    "initial": {
+      "autoLaunchChecked": false,
+      "autoLaunchDisabled": false,
+      "stored": "false"
+    },
+    "afterRealClickWithSaveDeferred": {
+      "autoLaunchChecked": true,
+      "autoLaunchDisabled": false,
+      "stored": "true",
+      "nativeSaveRequests": 1
+    },
+    "afterRejectedNativeSave": {
+      "autoLaunchChecked": false,
+      "autoLaunchDisabled": false,
+      "stored": "false",
+      "visibleLocalizedError": "操作未能完成。"
+    }
+  },
+  "postReviewFixRerun": {
+    "productionChangeUnderRerun": "config-poll generation plus native-commit epoch fencing for the native-confirmed rollback reference",
+    "initial": {
+      "autoLaunchChecked": false,
+      "autoLaunchDisabled": false,
+      "stored": "false"
+    },
+    "afterFirstRealClick": {
+      "autoLaunchChecked": true,
+      "autoLaunchDisabled": false,
+      "stored": "true",
+      "nativeSaveRequests": 1
+    },
+    "afterSecondRealClickWhileFirstSaveDeferred": {
+      "autoLaunchChecked": false,
+      "autoLaunchDisabled": false,
+      "stored": "false",
+      "nativeSaveRequests": 1
+    },
+    "afterLateFirstAcknowledgementTrue": {
+      "autoLaunchChecked": false,
+      "autoLaunchDisabled": false,
+      "stored": "false",
+      "nativeSaveRequests": 2
+    },
+    "afterSecondAcknowledgementFalse": {
+      "autoLaunchChecked": false,
+      "autoLaunchDisabled": false,
+      "stored": "false",
+      "errors": []
+    },
+    "consoleErrors": 0,
+    "observation": "The exact final production revision preserved immediate false-to-true-to-false editing and stale acknowledgement fencing after the poll-race correction."
+  },
+  "console": {
+    "cleanRunPageErrors": 0,
+    "postReviewFixRerunPageErrors": 0,
+    "note": "Two earlier captured errors belonged only to the first discarded harness page before its update_status fixture was corrected; clean verification pages, including the exact final production rerun after poll-race fencing, produced no console errors."
+  },
+  "locale": "zh-CN was already persisted in the browser and was intentionally left unchanged; localization was not under test.",
+  "safety": "The harness answered frontend bridge commands with inert data only. No Last War process, gameplay command, authentication bypass, external network, or native production persistence was exercised."
+}

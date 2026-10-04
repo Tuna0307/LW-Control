@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="data:," />
+    <title>LWBridge Home Preference QA</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script>
+      localStorage.setItem("lwbridge.autoLaunchGame", "false");
+      window.__LWBridgeBootstrap = {
+        mode: "live",
+        sessionId: "home-preference-qa",
+        profiles: { selectedProfileId: "qa-profile" },
+      };
+
+      const messageHandlers = new Set();
+      const pendingSaves = [];
+      const qa = window.__homePreferenceQa = {
+        config: { autoLaunchGame: false, autoReconnect: false },
+        requests: [],
+        pendingSaves,
+        respond(request, result, error = null) {
+          const data = {
+            kind: "response",
+            sessionId: request.sessionId,
+            id: request.id,
+            ok: !error,
+            ...(error ? { error } : { result }),
+          };
+          queueMicrotask(() => messageHandlers.forEach((handler) => handler({ data })));
+        },
+        resolveSave(index, autoLaunchGame) {
+          const request = pendingSaves[index];
+          if (!request) throw new Error(`missing pending save ${index}`);
+          qa.respond(request, { autoLaunchGame, autoReconnect: qa.config.autoReconnect });
+        },
+        rejectSave(index, message = "QA persistence rejected") {
+          const request = pendingSaves[index];
+          if (!request) throw new Error(`missing pending save ${index}`);
+          qa.respond(request, null, { code: "QA_PREFERENCE_SAVE_FAILED", message });
+        },
+        snapshot() {
+          const switches = [...document.querySelectorAll('.quick-actions-panel .toggle-row[role="switch"]')];
+          return {
+            autoLaunch: switches[0] ? { checked: switches[0].getAttribute("aria-checked"), disabled: switches[0].disabled, label: switches[0].getAttribute("aria-label") } : null,
+            autoReconnect: switches[1] ? { checked: switches[1].getAttribute("aria-checked"), disabled: switches[1].disabled, label: switches[1].getAttribute("aria-label") } : null,
+            stored: localStorage.getItem("lwbridge.autoLaunchGame"),
+            pendingSaveCount: pendingSaves.length,
+            errors: [...document.querySelectorAll(".game-root-error")].map((node) => node.textContent?.trim() || "").filter(Boolean),
+          };
+        },
+      };
+
+      const resultFor = (command, payload) => {
+        switch (command) {
+          case "get_status": return { xluaOnline: false, pending: 0 };
+          case "proxy_status": return { gameRunning: false, repairRequired: false };
+          case "game_recovery_status": return { state: "idle" };
+          case "local_config_get": return { ...qa.config };
+          case "game_root_status": return { valid: true, root: "C:/QA/LastWar" };
+          case "update_status": return { phase: "idle", currentVersion: "0.3.17", latestVersion: null, progress: 0 };
+          case "map_summary": return { serverId: 0, counts: {}, scanState: { serverId: 0, isReading: false, phase: "idle" } };
+          case "server_jump_history_import": return [];
+          default: throw new Error(`unexpected inert QA command: ${command} ${JSON.stringify(payload)}`);
+        }
+      };
+
+      window.chrome = {
+        webview: {
+          addEventListener(name, handler) { if (name === "message") messageHandlers.add(handler); },
+          removeEventListener(name, handler) { if (name === "message") messageHandlers.delete(handler); },
+          postMessage(request) {
+            qa.requests.push(request);
+            if (request.kind !== "invoke") return;
+            if (request.command === "local_config_set") {
+              pendingSaves.push(request);
+              return;
+            }
+            try { qa.respond(request, resultFor(request.command, request.payload)); }
+            catch (error) { qa.respond(request, null, { code: "QA_UNEXPECTED_COMMAND", message: error.message }); }
+          },
+        },
+      };
+    </script>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

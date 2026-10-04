@@ -1,0 +1,124 @@
+{
+  "task": "LWB317-UI-HOME-PREFERENCE-LIFETIME-001A",
+  "date": "2026-10-04",
+  "result": "LWB317_HOME_PREFERENCE_CURRENT_OK",
+  "production": {
+    "appPath": "src/LWBridge.UI-0.3.17/src/App.jsx",
+    "appSha256": "E40340E53AC461F22F77B908C9053ABC08D82196E8AF581A26A2813EBA8D88C1",
+    "homePath": "src/LWBridge.UI-0.3.17/src/HomePage.jsx",
+    "homeSha256": "1367374F44DE2EA6861F70FB58CBDC56DE5F469D73D9DCDB01D2C470E7D25767",
+    "helperPath": "src/LWBridge.UI-0.3.17/src/autoLaunchPreference.js",
+    "helperSha256": "C16FEB94563B445CAFDC3189C980025A6F8A9AE5DDD24085CE28887D0F828286",
+    "updateAutoLaunch": {
+      "utf8ByteOffset": 17654,
+      "byteLength": 1424,
+      "sha256": "30764F23CDB19A0C15878234D315998C184D671F7A557723E9AB6243BDF080D6",
+      "text": "(value) => {\n    if (!backendBridge.available) return undefined;\n    const enabled = value === true;\n    const revision = autoLaunchSaveRevisionRef.current + 1;\n    autoLaunchSaveRevisionRef.current = revision;\n    writeAutoLaunchGamePreference(localStorage, enabled);\n    setAutoLaunchGame(enabled);\n    setGameActionError(\"\");\n\n    const save = autoLaunchSaveChainRef.current\n      .catch(() => undefined)\n      .then(() => backendBridge.invoke(\"local_config_set\", { autoLaunchGame: enabled }))\n      .then((next) => {\n        if (typeof next?.autoLaunchGame !== \"boolean\") {\n          throw new Error(\"local_config_set returned an invalid autoLaunchGame value.\");\n        }\n        autoLaunchNativeCommitEpochRef.current += 1;\n        autoLaunchCommittedRef.current = next.autoLaunchGame;\n        if (autoLaunchSaveRevisionRef.current === revision) {\n          writeAutoLaunchGamePreference(localStorage, next.autoLaunchGame);\n          setAutoLaunchGame(next.autoLaunchGame);\n        }\n        return next;\n      })\n      .catch((error) => {\n        if (autoLaunchSaveRevisionRef.current === revision) {\n          writeAutoLaunchGamePreference(localStorage, autoLaunchCommittedRef.current);\n          setAutoLaunchGame(autoLaunchCommittedRef.current);\n          setGameActionError(error?.message || String(error));\n        }\n        return null;\n      });\n\n    autoLaunchSaveChainRef.current = save;\n    return save;\n  }"
+    },
+    "autoLaunchState": {
+      "utf8ByteOffset": 7236,
+      "byteLength": 96,
+      "sha256": "864A0B45438FDA87A62B94B9D859DFE3CF72AED1F7B68801CEF8E93E70797545",
+      "text": "[autoLaunchGame, setAutoLaunchGame] = useState(() => readAutoLaunchGamePreference(localStorage))"
+    },
+    "homeAutoLaunchToggle": {
+      "utf8ByteOffset": 7799,
+      "byteLength": 219,
+      "sha256": "9D5695DC0C7B8DAF85E0FAC1140BC523C9367D84F7CC06074B46BEBCEA764EE4",
+      "text": "<ToggleRow\n        label={t(\"auth.autoLaunchGame\")}\n        checked={state.autoLaunchGame === true}\n        disabled={state.autoLaunchGame == null || !state.production}\n        onChange={onAutoLaunchGameChange}\n      />"
+    }
+  },
+  "cases": [
+    {
+      "name": "exact local preference default, encoding and reload rule",
+      "status": "PASS",
+      "observed": {
+        "key": "lwbridge.autoLaunchGame",
+        "missing": true,
+        "literalFalse": false,
+        "literalTrue": true,
+        "other": true
+      }
+    },
+    {
+      "name": "mounted off-on-off survives deferred first save, poll, profile replacement and stale acknowledgement",
+      "status": "PASS",
+      "observed": {
+        "saves": [
+          {
+            "payload": {
+              "autoLaunchGame": true
+            },
+            "profileId": "profile-a"
+          },
+          {
+            "payload": {
+              "autoLaunchGame": false
+            },
+            "profileId": "profile-b"
+          }
+        ],
+        "finalAutoLaunch": false,
+        "finalAutoReconnect": true,
+        "stored": "false"
+      }
+    },
+    {
+      "name": "stale rejection is fenced and newer queued save succeeds",
+      "status": "PASS",
+      "observed": {
+        "final": false,
+        "visibleError": false
+      }
+    },
+    {
+      "name": "latest rejection rolls back to last confirmed value and reports failure",
+      "status": "PASS",
+      "observed": {
+        "finalAutoLaunch": true,
+        "finalAutoReconnect": true,
+        "stored": "true",
+        "errorText": "common.actionFailed"
+      }
+    },
+    {
+      "name": "poll establishes native rollback reference without owning the visible local value",
+      "status": "PASS",
+      "observed": {
+        "beforeEdit": false,
+        "rollbackNativeConfirmed": true,
+        "stored": "true"
+      }
+    },
+    {
+      "name": "late config poll cannot regress rollback reference after native save acknowledgement",
+      "status": "PASS",
+      "observed": {
+        "nativeConfirmedBeforeStalePoll": true,
+        "stalePollValue": false,
+        "rollbackAfterLaterFailure": true
+      }
+    },
+    {
+      "name": "mounted default and reload follow exact local storage rule",
+      "status": "PASS",
+      "observed": {
+        "missingMount": true,
+        "falseReloadMount": false
+      }
+    }
+  ],
+  "ordering": {
+    "localEdits": "immediate and independently editable",
+    "nativeMirror": "serialized through the existing local_config_set command; a later local revision fences a late/stale earlier acknowledgement or rejection",
+    "outOfOrderNativeAcknowledgements": "structurally prevented because request N+1 is not dispatched until request N settles",
+    "latestFailure": "reconciles local storage and visible state to the last native-confirmed value and reports the failure"
+  },
+  "preserved": {
+    "autoReconnect": "unchanged acknowledged/profile-scoped callback and Home disabled predicate",
+    "unrelatedConfig": "Auto Launch callback never calls setLocalConfig; polled Auto Reconnect survives Auto Launch acknowledgements and rollback",
+    "fiveSecondPoll": "still executes; it refreshes native config without replacing the source-local Auto Launch value",
+    "profileReplacement": "global local Auto Launch draft persists while selected profile effects refresh independently"
+  },
+  "limits": "Controlled inert frontend bridge and jsdom-mounted actual App/Home/shared switch. No Last War process, gameplay, protected original runtime, or new provider/command was exercised."
+}

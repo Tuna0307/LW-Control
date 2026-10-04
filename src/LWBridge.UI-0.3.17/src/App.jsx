@@ -22,6 +22,7 @@ import {
 import { NavIcon } from "./NavIcon.jsx";
 import { PageForRoute, preloadRoute } from "./Pages.jsx";
 import { initialRouteKey, routes } from "./routes.js";
+import { readAutoLaunchGamePreference, writeAutoLaunchGamePreference } from "./autoLaunchPreference.js";
 
 const THEME_KEY = "lwbridge.theme";
 const LEGACY_SERVER_HISTORY_KEY = "lastwar.serverJumpHistory";
@@ -128,6 +129,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
   const [gameRootStatus, setGameRootStatus] = useState(null);
   const [gameRecoveryStatus, setGameRecoveryStatus] = useState(null);
   const [localConfig, setLocalConfig] = useState(null);
+  const [autoLaunchGame, setAutoLaunchGame] = useState(() => readAutoLaunchGamePreference(localStorage));
   const [homeBusy, setHomeBusy] = useState("");
   const [gameRootError, setGameRootError] = useState("");
   const [gameActionError, setGameActionError] = useState("");
@@ -147,6 +149,11 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
   const autoScanConfigRef = useRef(autoScanConfig);
   const serverJumpRef = useRef(null);
   const serverHistoryRef = useRef([]);
+  const autoLaunchCommittedRef = useRef(autoLaunchGame);
+  const autoLaunchSaveRevisionRef = useRef(0);
+  const autoLaunchSaveChainRef = useRef(Promise.resolve());
+  const autoLaunchNativeCommitEpochRef = useRef(0);
+  const autoLaunchConfigPollGenerationRef = useRef(0);
 
   useLayoutEffect(() => {
     const next = initialAutoScanConfig(selectedProfileId, previewState);
@@ -223,6 +230,10 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
 
   const refreshStatus = useCallback(async () => {
     if (!backendBridge.available) return;
+    const autoLaunchRevision = autoLaunchSaveRevisionRef.current;
+    const autoLaunchNativeCommitEpoch = autoLaunchNativeCommitEpochRef.current;
+    const autoLaunchConfigPollGeneration = autoLaunchConfigPollGenerationRef.current + 1;
+    autoLaunchConfigPollGenerationRef.current = autoLaunchConfigPollGeneration;
     const [statusResult, proxyResult, recoveryResult, configResult] = await Promise.allSettled([
       mapApi.readStatus(),
       mapApi.readProxyStatus(),
@@ -232,7 +243,15 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
     if (statusResult.status === "fulfilled") setRuntimeStatus(statusResult.value);
     if (proxyResult.status === "fulfilled") setProxyStatus(proxyResult.value);
     if (recoveryResult.status === "fulfilled") setGameRecoveryStatus(recoveryResult.value);
-    if (configResult.status === "fulfilled") setLocalConfig(configResult.value);
+    if (configResult.status === "fulfilled") {
+      setLocalConfig(configResult.value);
+      if (autoLaunchConfigPollGenerationRef.current === autoLaunchConfigPollGeneration
+        && autoLaunchSaveRevisionRef.current === autoLaunchRevision
+        && autoLaunchNativeCommitEpochRef.current === autoLaunchNativeCommitEpoch
+        && typeof configResult.value?.autoLaunchGame === "boolean") {
+        autoLaunchCommittedRef.current = configResult.value.autoLaunchGame;
+      }
+    }
     if (statusResult.status === "rejected" || proxyResult.status === "rejected") {
       const failure = statusResult.status === "rejected" ? statusResult.reason : proxyResult.reason;
       setConnectionError(failure?.message || String(failure));
@@ -361,18 +380,41 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
     };
   }, [online, refreshMapSummary]);
 
-  const updateAutoLaunch = useCallback(async (value) => {
-    if (!backendBridge.available) return;
-    setHomeBusy("autoLaunchGame");
+  const updateAutoLaunch = useCallback((value) => {
+    if (!backendBridge.available) return undefined;
+    const enabled = value === true;
+    const revision = autoLaunchSaveRevisionRef.current + 1;
+    autoLaunchSaveRevisionRef.current = revision;
+    writeAutoLaunchGamePreference(localStorage, enabled);
+    setAutoLaunchGame(enabled);
     setGameActionError("");
-    try {
-      const next = await backendBridge.invoke("local_config_set", { autoLaunchGame: value });
-      setLocalConfig(next);
-    } catch (error) {
-      setGameActionError(error?.message || String(error));
-    } finally {
-      setHomeBusy("");
-    }
+
+    const save = autoLaunchSaveChainRef.current
+      .catch(() => undefined)
+      .then(() => backendBridge.invoke("local_config_set", { autoLaunchGame: enabled }))
+      .then((next) => {
+        if (typeof next?.autoLaunchGame !== "boolean") {
+          throw new Error("local_config_set returned an invalid autoLaunchGame value.");
+        }
+        autoLaunchNativeCommitEpochRef.current += 1;
+        autoLaunchCommittedRef.current = next.autoLaunchGame;
+        if (autoLaunchSaveRevisionRef.current === revision) {
+          writeAutoLaunchGamePreference(localStorage, next.autoLaunchGame);
+          setAutoLaunchGame(next.autoLaunchGame);
+        }
+        return next;
+      })
+      .catch((error) => {
+        if (autoLaunchSaveRevisionRef.current === revision) {
+          writeAutoLaunchGamePreference(localStorage, autoLaunchCommittedRef.current);
+          setAutoLaunchGame(autoLaunchCommittedRef.current);
+          setGameActionError(error?.message || String(error));
+        }
+        return null;
+      });
+
+    autoLaunchSaveChainRef.current = save;
+    return save;
   }, []);
 
   const updateAutoReconnect = useCallback(async (value) => {
@@ -488,7 +530,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
       proxyStatus,
       online,
       gameRecoveryStatus,
-      autoLaunchGame: localConfig?.autoLaunchGame,
+      autoLaunchGame,
       autoReconnect: localConfig?.autoReconnect,
       busy: homeBusy,
       gameRootError,

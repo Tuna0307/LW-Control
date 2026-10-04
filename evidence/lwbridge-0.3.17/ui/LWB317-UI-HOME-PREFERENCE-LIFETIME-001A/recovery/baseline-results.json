@@ -1,0 +1,61 @@
+{
+  "task": "LWB317-UI-HOME-PREFERENCE-LIFETIME-001A",
+  "capturedAt": "2026-10-04",
+  "immutableDispatch": "52dd38a6c5f003ef6f9caebf681d3fbd1ed824b5",
+  "source": {
+    "appPath": "src/LWBridge.UI-0.3.17/src/App.jsx",
+    "appSha256": "EF1F29730B908C7129CB0BE67B823207C3E099582DB65BEBA02DDDACFE729FF4",
+    "homePath": "src/LWBridge.UI-0.3.17/src/HomePage.jsx",
+    "homeSha256": "494D75C1C557D32810C76559ADA3140BC1D1F7398770B22C11F9FE458B8AE14F",
+    "updateAutoLaunch": "async (value) => {\n    if (!backendBridge.available) return;\n    setHomeBusy(\"autoLaunchGame\");\n    setGameActionError(\"\");\n    try {\n      const next = await backendBridge.invoke(\"local_config_set\", { autoLaunchGame: value });\n      setLocalConfig(next);\n    } catch (error) {\n      setGameActionError(error?.message || String(error));\n    } finally {\n      setHomeBusy(\"\");\n    }\n  }"
+  },
+  "observed": {
+    "beforeAcknowledgement": {
+      "visibleAutoLaunchGame": false,
+      "busy": "autoLaunchGame",
+      "mountedSwitchDisabled": true
+    },
+    "afterAcknowledgement": {
+      "visibleAutoLaunchGame": true,
+      "busy": ""
+    },
+    "trace": [
+      {
+        "kind": "state",
+        "key": "busy",
+        "value": "autoLaunchGame"
+      },
+      {
+        "kind": "state",
+        "key": "error",
+        "value": ""
+      },
+      {
+        "kind": "invoke",
+        "command": "local_config_set",
+        "payload": {
+          "autoLaunchGame": true
+        }
+      },
+      {
+        "kind": "state",
+        "key": "config",
+        "value": {
+          "autoLaunchGame": true,
+          "autoReconnect": true,
+          "unrelated": "KEEP"
+        }
+      },
+      {
+        "kind": "state",
+        "key": "busy",
+        "value": ""
+      }
+    ]
+  },
+  "parityFailures": [
+    "visible value waits for local_config_set acknowledgement instead of changing immediately",
+    "mounted Auto Launch switch is disabled while the save is pending, preventing a second user edit"
+  ],
+  "classification": "IMMUTABLE FAILING BASELINE"
+}

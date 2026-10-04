@@ -1,0 +1,61 @@
+{
+  "task": "LWB317-UI-HOME-PREFERENCE-LIFETIME-001A",
+  "date": "2026-10-04",
+  "classification": "EXACT_BYTES / EXACT_CONTRACT",
+  "source": {
+    "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-BVfnK1wp.js",
+    "sha256": "44C4E4043825B7DB296B64171951B27176F8850FF8D7D337CC991DF4765524C6",
+    "storageContract": {
+      "utf8ByteOffset": 246750,
+      "byteLength": 146,
+      "sha256": "2CC3B62C74F3B453001907E3CF4BBB0F2AA232B16114ACD89784B2C248B11C71",
+      "text": "var br=`lwbridge.autoLaunchGame`;function xr(e=localStorage){return e.getItem(br)!==`false`}function Sr(e=localStorage,t){e.setItem(br,String(t))}"
+    },
+    "key": {
+      "value": "lwbridge.autoLaunchGame",
+      "utf8ByteOffset": 246758
+    },
+    "stateInitializer": {
+      "utf8ByteOffset": 247632,
+      "byteLength": 24,
+      "sha256": "1394BB537940DE50B98D785E785A2EA036BA3C7CA671FF85EB5210F4F1505206",
+      "text": "[f,p]=(0,b.useState)(xr)"
+    },
+    "setter": {
+      "utf8ByteOffset": 248381,
+      "byteLength": 46,
+      "sha256": "2BF833633900F487B29D4B329886B79B868E9C161E434C5EADF648F85C48E9E3",
+      "text": "setAutoLaunchGame:e=>{Sr(localStorage,e),p(e)}"
+    },
+    "homeBinding": {
+      "utf8ByteOffset": 338639,
+      "byteLength": 64,
+      "sha256": "01485F0ED15137395B8BDD36E0ACFCAA26FB0F5021CFDA5F46447259910057AF",
+      "text": "(0,M.jsx)(Bn,{label:`auth.autoLaunchGame`,checked:l,onChange:d})"
+    },
+    "switchComponent": {
+      "utf8ByteOffset": 213332
+    }
+  },
+  "contract": {
+    "defaultWhenMissing": true,
+    "falseEncoding": "false",
+    "trueEncoding": "true",
+    "readRule": "storage.getItem('lwbridge.autoLaunchGame') !== 'false'",
+    "changeOrder": [
+      "localStorage.setItem",
+      "React state setter"
+    ],
+    "producer": "setAutoLaunchGame writes Sr(localStorage, value), then p(value) synchronously",
+    "consumer": "Home qr passes the current autoLaunchGame value directly to Bn.checked and the setter directly to Bn.onChange",
+    "disabledBySave": false
+  },
+  "execution": {
+    "missing": true,
+    "literalFalse": false,
+    "literalTrue": true,
+    "nonFalseString": true,
+    "finalStoredValue": "true"
+  },
+  "limit": "This recovers the original frontend-local preference contract only. It does not prove compatibility or failure semantics for the clone's separate local_config_set native persistence adapter."
+}

@@ -1,0 +1,67 @@
+{
+  "task": "LWB317-UI-HOME-PREFERENCE-LIFETIME-001A",
+  "date": "2026-10-04",
+  "result": "LWB317_HOME_PREFERENCE_PRESERVATION_OK",
+  "dispatch": "52dd38a6c5f003ef6f9caebf681d3fbd1ed824b5",
+  "exactCallbacks": [
+    {
+      "name": "updateAutoScanConfig",
+      "sha256": "0EE5D5F125CD1864F312C51C3111CC3806AF031AB3CAB8D3E9637F3FF89FE06E"
+    },
+    {
+      "name": "acknowledgeGameRootStatus",
+      "sha256": "9BD21C74457719E0BCB3BE53290173998F20616C60EE28798A83DC2B83180DED"
+    },
+    {
+      "name": "refreshMapSummary",
+      "sha256": "0FAF6971F58213CC62B33EF02D44162F16E83D8BB731E3B52F5390C1E4A7B120"
+    },
+    {
+      "name": "selectRoute",
+      "sha256": "385F8ECA56B7C227609AABE674485409BD5BE88DF6AED16161A6AF848876687A"
+    },
+    {
+      "name": "acknowledgeMapScan",
+      "sha256": "087F2003E8144D8D451794E57C5E87C3F901009EF760689F71273F19771F6E85"
+    },
+    {
+      "name": "acknowledgeMapCounts",
+      "sha256": "EBC2FFF88476D0BDDA17AE17F1F58FD64B6A3D8119DDCAA4F4C97CEB41147AA9"
+    },
+    {
+      "name": "updateAutoReconnect",
+      "sha256": "AECB77C2911240228950DF37EF050DD0BC214C4A5ED94BC1024384F1619DA78E"
+    },
+    {
+      "name": "selectGameRoot",
+      "sha256": "28440FCFA1DEB38CDE740732173A58E04145BBB4516E691894CD531C314F2923"
+    },
+    {
+      "name": "requestServerJump",
+      "sha256": "38FBAAAA847E3FEEFEF87FBC12E9E556CAE6ED510EA1F3F7B0293E88AC91692B"
+    },
+    {
+      "name": "jumpServer",
+      "sha256": "598FC27F6383D4BCE07C9B490C1BD01BBFD2C0EAC622344939515DCD52F876B5"
+    }
+  ],
+  "selectedProfileExpression": "profilePreview ? shellProfiles.selectedProfileId : backendBridge.profileId",
+  "rootAcknowledgementEffectSha256": "36AE32AD9C19CDC41CCA2EFC45997CDD31B13228A41B0466EBE107AE60AD8C82",
+  "retainedPagesSha256": "93EC0F54B77C4362B6BDAD4D8413AF8DF6A63920B216028F146D522C1E0DDA0F",
+  "autoReconnectToggleSha256": "700394ABDB8E5E5821A64389A6D5A6415033B2C43CC0A63B405C57F104BE645C",
+  "rootPickerSha256": "487325D0220646D7BA219EB1E8809C17491B8427E70CDAB0B28E1407703B8C9F",
+  "refreshStatusPreservedInventory": [
+    "readStatus",
+    "readProxyStatus",
+    "game_recovery_status",
+    "local_config_get",
+    "setLocalConfig"
+  ],
+  "listenersAndTimer": [
+    "bridge://game-recovery",
+    "mapApi.listenStatus",
+    "mapApi.listenScanStatus",
+    "refreshStatus@5000ms"
+  ],
+  "note": "refreshStatus itself intentionally differs only to update the native-confirmed Auto Launch rollback reference; mounted current tests prove that this does not give the poll ownership of the visible local Auto Launch value."
+}

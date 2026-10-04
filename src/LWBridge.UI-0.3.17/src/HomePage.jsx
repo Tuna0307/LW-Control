@@ -128,7 +128,7 @@ export function HomePage({
       <ToggleRow
         label={t("auth.autoLaunchGame")}
         checked={state.autoLaunchGame === true}
-        disabled={state.autoLaunchGame == null || state.busy === "autoLaunchGame" || !state.production}
+        disabled={state.autoLaunchGame == null || !state.production}
         onChange={onAutoLaunchGameChange}
       />
       <ToggleRow
