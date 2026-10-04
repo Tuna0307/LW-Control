@@ -1,5 +1,10 @@
 # UI completion checklist — 2026-10-03
 
+Latest lead acceptance, 2026-10-04: MAP-MANUAL-TYPES-001 is COMPLETE / ACCEPTED
+at6569fa1; Manual last-type/empty-edit defect MMV-BEHAVIOR-001 is closed.
+Continue remaining Map/page visual inventory. Overall UI remains PARTIAL;
+older dispatch/open-correction notes below are historical.
+
 Latest lead closeout, 2026-10-04: MAP-MANUAL-VISUAL-001 comparison packet accepted
 after takeover; four pairs inspected, three PNG matches, strict equal rectangles.
 The next open bounded correction is Manual last-type deselection

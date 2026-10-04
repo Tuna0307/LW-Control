@@ -1,5 +1,11 @@
 # LWBridge 0.3.17 parity matrix
 
+Latest lead acceptance, 2026-10-04: MMV-BEHAVIOR-001 is CLOSED through
+MAP-MANUAL-TYPES-001 delivery6569fa1 for recovered source/local Manual editing.
+Seven states, actual-original normalizer and affected checks verify; sampled
+browser proof is accepted. Full Map/page/native/pixel gates remain separate;
+overall UI is PARTIAL. Earlier open-defect notes below are historical.
+
 Lead checkpoint, 2026-10-04: MAP-MANUAL-VISUAL-001 comparison evidence is accepted.
 Manual header/timing/status/type-strip sampled geometry matches in four offline
 source-rendered pairs; three screenshots match exactly, unavailable Start differs

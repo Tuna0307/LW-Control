@@ -1,5 +1,11 @@
 # LWBridge 0.3.17 feature ledger
 
+Latest lead acceptance, 2026-10-04: MAP-MANUAL-TYPES-001 at6569fa1 closes
+MMV-BEHAVIOR-001. Manual editing permits [] then one type, preserving recovered
+ordering, Auto protection and request normalization. Lead focused checks and
+saved offline browser evidence pass. No global/native upgrade; older open-defect
+notes are historical. See its dated review.
+
 Lead checkpoint, 2026-10-04: MAP-MANUAL-VISUAL-001 completed as comparison evidence,
 with twelve core/three provider cases and four browser pairs. Exact original
 Manual checkbox callback at MapDataPanel byte50135 permits empty selection;

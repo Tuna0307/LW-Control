@@ -1,5 +1,10 @@
 # Current project directive
 
+Latest lead acceptance, 2026-10-04: MAP-MANUAL-TYPES-001 closes the focused
+MMV-BEHAVIOR-001 defect at6569fa1. No worker currently dispatched. Continue
+remaining Map/page offline visual inventory; global UI remains PARTIAL.
+Earlier open-correction/dispatch notes below are historical.
+
 Current lead continuation, 2026-10-04: MAP-MANUAL-VISUAL-001 is COMPLETE / ACCEPTED
 for its bounded offline comparison evidence after lead takeover. No production
 correction was included. Next open correction is MMV-BEHAVIOR-001 Manual last-type

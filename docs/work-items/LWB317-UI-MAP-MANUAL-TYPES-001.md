@@ -1,6 +1,6 @@
 # LWB317-UI-MAP-MANUAL-TYPES-001
 
-Status: AWAITING_REVIEW through owner relay, 2026-10-04. Size: small.
+Status: COMPLETE / ACCEPTED by project lead, 2026-10-04. Size: small.
 Baseline: cd3b0bbe880c94351621185e9c2e1d0151686b36.
 
 ## Goal and evidence
@@ -73,3 +73,12 @@ the ten-file protected-WIP guard pass. Dated worker delivery:
 `docs/reviews/2026-10-04-LWB317-UI-MAP-MANUAL-TYPES-001.md`.
 The exact pushed SHA is reported in the worker relay because this delivery file
 is part of that commit. Project-lead acceptance/master updates remain separate.
+
+## Lead acceptance
+
+Delivery 6569fa108ae3a14f681dd00c75d99c4f87d4a21b accepted for this focused
+source/local correction. Lead diff review, rerun seven-state callback checker,
+actual-original module-bound empty normalizer, seven source slices, immutable
+baseline-copy and screenshot hash/visual inspection, canonical check/package,
+diff and ten-file WIP checks pass. No further code change is required.
+MMV-BEHAVIOR-001 is closed; broader Map/page visual and native gates remain.

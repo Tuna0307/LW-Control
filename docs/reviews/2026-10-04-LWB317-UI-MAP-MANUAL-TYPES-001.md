@@ -1,6 +1,6 @@
 # LWB317-UI-MAP-MANUAL-TYPES-001 — worker delivery
 
-Status: **AWAITING_REVIEW**.
+Status: **COMPLETE / ACCEPTED** for focused source/local Manual editing scope.
 
 The focused Manual scan-type discrepancy is corrected. The Manual checkbox no
 longer disables the final selected type, and `updateSelectedTypes` now treats
@@ -51,3 +51,21 @@ Remaining limits: this establishes recovered source/local Manual editing parity
 and request normalization only. It does not run a native scan, launch Last War,
 or upgrade protected-original pixel/live-function status. Project-lead review
 owns acceptance and any master-status update.
+
+## Project-lead review — 2026-10-04
+
+Accepted delivery 6569fa108ae3a14f681dd00c75d99c4f87d4a21b; direct remote matches.
+Only the allowed Manual input predicate, editing helper and affected assertion
+changed in production. Auto's separate predicate, normalizeSelectedTypes and
+buildStartPayload are unchanged in the diff. Lead rerun confirms seven matching
+callback states and zero Auto-config edits. The lead additionally executed rt([])
+from the actual original module with its original bound constants, confirming
+the unchanged empty Start normalization; no Start action was invoked.
+
+Seven recorded source byte slices, preserved baseline copy and screenshot hash
+verify. The saved offline image was visually inspected: only Resource Point is
+selected. Canonical check, production-package check, diff check and ten-path WIP
+guard pass. No additional production fix or broadened test campaign is needed.
+The focused defect MMV-BEHAVIOR-001 is closed. Browser evidence is worker-run
+and lead-inspected; native and complete Map/original-runtime pixels remain outside
+acceptance. Historical pre-fix visual records retain their original pinned hashes.

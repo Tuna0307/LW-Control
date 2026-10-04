@@ -1,5 +1,11 @@
 # LWBridge 0.3.17 UI parity plan
 
+Latest lead acceptance, 2026-10-04: MAP-MANUAL-TYPES-001 at6569fa1 closes
+MMV-BEHAVIOR-001 for source/local Manual empty/single selection editing. Lead
+callback/source/normalizer/saved-browser/check/package/WIP review passes; Auto
+and native fences remain. Overall UI remains PARTIAL; next is remaining visual
+inventory. Earlier dispatch/open-defect notes below are historical.
+
 Current worker dispatch, 2026-10-04: small MAP-MANUAL-TYPES-001 corrects only
 MMV-BEHAVIOR-001 Manual last-type deselection and subsequent empty-selection
 editing, preserving Auto and native fences. See its work item. Overall UI remains

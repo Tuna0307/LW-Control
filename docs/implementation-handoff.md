@@ -1,5 +1,11 @@
 # Current implementation/research handoff
 
+Latest lead continuation, 2026-10-04: MAP-MANUAL-TYPES-001 delivery6569fa1 is
+COMPLETE / ACCEPTED; MMV-BEHAVIOR-001 closed after actual callback/source/pure
+normalizer, saved-browser and package/WIP review. No further correction in this
+unit. No worker currently dispatched; next is remaining Map/page visual inventory.
+Overall UI remains PARTIAL. Earlier dispatch/open-defect notes are historical.
+
 Current worker dispatch, 2026-10-04: owner relays small
 LWB317-UI-MAP-MANUAL-TYPES-001. Fix only Manual last-type/empty-selection editing;
 preserve Auto rules, request normalization, native fences and starting WIP.
