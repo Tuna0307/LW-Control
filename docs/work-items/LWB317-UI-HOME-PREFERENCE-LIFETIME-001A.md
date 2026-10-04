@@ -1,6 +1,8 @@
 # LWB317-UI-HOME-PREFERENCE-LIFETIME-001A
 
-Status: AWAITING_REVIEW after worker delivery, 2026-10-04.
+Status: COMPLETE / ACCEPTED by the project lead, 2026-10-04.
+Reviewed implementation: c0d9082ee8f8b4b8985e8025657967a6898a4097.
+Decision and proof limits: docs/reviews/2026-10-04-LWB317-REVIEW-HOME-PREFERENCE-LIFETIME-001A.md.
 Parent HOME-PREFERENCE-LIFETIME-001 remains PARTIAL. This medium unit covers
 only Open games at startup / Auto Launch. Automatic Reconnection is a later unit.
 
@@ -98,6 +100,7 @@ topology-stale before this unit (old inline App preview shape / old Pages-owned
 ToggleRow); their saved validators pass. Current adapters exercise the actual current
 App/Home/shared switch rather than rewriting historical evidence.
 
-Continuation: project lead reviews this unit. After acceptance, return to parent
-`LWB317-UI-HOME-PREFERENCE-LIFETIME-001` for the separate Automatic Reconnection
-unit. Do not start it from this worker task.
+Continuation: lead acceptance is complete. The separate Automatic Reconnection
+unit is assigned under `LWB317-UI-HOME-PREFERENCE-LIFETIME-001B` through the owner.
+The worker delivery above is historical; this acceptance does not establish live
+native persistence, original failure policy or protected-original pixel parity.

@@ -1,9 +1,13 @@
 # LWB317-UI-HOME-PREFERENCE-LIFETIME-001
 
-Status: NEXT lead UI correction; not yet implemented. The new visual packet
-contains exact counter-evidence against the earlier saving-disabled assumption.
+Status: PARTIAL, 2026-10-04. Unit A Auto Launch is COMPLETE / ACCEPTED at
+c0d9082ee8f8b4b8985e8025657967a6898a4097 after independent lead checks.
+Unit B Automatic Reconnection is now assigned as a separate medium worker task.
+See work-items/LWB317-UI-HOME-PREFERENCE-LIFETIME-001B.md and the dated A lead
+review. The new visual packet contains exact counter-evidence against the earlier
+saving-disabled assumption. Native and original pixel acceptance remain separate.
 
-Dispatch2026-10-04:001A is assigned as a medium worker unit covering only
+Historical dispatch2026-10-04:001A was assigned as a medium worker unit covering only
 Open games at startup / Auto Launch. Automatic Reconnection remains subsequent;
 the parent is PARTIAL. The lead must not concurrently edit the assigned
 App.jsx/HomePage.jsx preference scope while that worker is active.
