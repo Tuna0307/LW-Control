@@ -1,5 +1,14 @@
 # Current implementation/research handoff
 
+Current lead acceptance/owner relay, 2026-10-04: MAP-AUTO-REMOVE-001 delivery
+5a62c25118e66ec3203316bca7c82fbf43d9c705 is COMPLETE / ACCEPTED for source/local
+Auto-card presentation and named inert interactions. Lead replays, saved A/B/C
+validators, package/check, four saved pair inspections and ten-file WIP guard pass.
+Next worker assignment is docs/work-items/LWB317-UI-MAP-TOOLBAR-VISUAL-001.md:
+all Map data-tab/search/filter/action-count toolbars plus pagination, in three
+sequential milestones. No native work or full-Map acceptance. Overall UI PARTIAL;
+older Auto AWAITING_REVIEW/dispatch notes below are historical.
+
 Current worker delivery, 2026-10-04: LWB317-UI-MAP-AUTO-REMOVE-001 is
 AWAITING_REVIEW. Milestone A `8c28f5a` restores the exact recovered Auto
 server-chip remove SVG; milestone B `f9a63fa` proves all 12 assigned EN/JA

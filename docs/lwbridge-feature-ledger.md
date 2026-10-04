@@ -1,5 +1,11 @@
 # LWBridge 0.3.17 feature ledger
 
+Lead acceptance, 2026-10-04: Auto server-chip remove presentation now uses exact
+recovered svg.ui-icon/path, through MAP-AUTO-REMOVE-001 delivery5a62c25. Assigned
+source/local Auto-card state/control/browser gate COMPLETE / ACCEPTED; earlier
+text-glyph finding is CLOSED. Map toolbar/filter/pagination visual gate is now
+assigned separately as MAP-TOOLBAR-VISUAL-001. Native/global pixel status unchanged.
+
 Lead checkpoint, 2026-10-04: MAP-AUTO-VISUAL-001 evidence accepted. Auto chip
 remove child differs: recovered Vr SVG at index byte330489 versus current text
 span at MapDataPage byte48425/line1041. Tiny MAP-AUTO-REMOVE-001 is assigned;

@@ -1,6 +1,8 @@
 # LWB317-UI-MAP-AUTO-REMOVE-001
 
-Status: AWAITING_REVIEW after worker delivery, 2026-10-04. Size: medium.
+Status: COMPLETE / ACCEPTED after project-lead review, 2026-10-04. Size: medium.
+Accepted scope: isolated recovered-source/local Auto-card presentation and assigned
+inert interactions only. See the separate dated lead review. Global UI remains PARTIAL.
 Owner scope update: replaces the earlier tiny glyph-only prompt; one assignment.
 Baseline: cefa6c3ef3790e35ffaadf7b0a27f0630872dd7e.
 

@@ -1,5 +1,12 @@
 # LWBridge 0.3.17 UI parity plan
 
+Latest lead acceptance/relay, 2026-10-04: MAP-AUTO-REMOVE-001 at5a62c25 is
+COMPLETE / ACCEPTED for the isolated source/local Auto-card gate after lead
+executable/evidence/package/WIP review. Next worker: MAP-TOOLBAR-VISUAL-001,
+three bounded sequential milestones across Map tabs/search/filters/toolbars and
+pagination; no scan/table/native expansion. Global UI remains PARTIAL. See the
+dated lead review and current work item; older Auto dispatch notes are historical.
+
 Owner scope update, 2026-10-04: MAP-AUTO-REMOVE-001 is now a medium Auto-card
 closeout, superseding the tiny prompt. Known glyph fix plus six state families,
 focused inert card callbacks and four visual pairs; only proven card-renderer

@@ -1,5 +1,11 @@
 # LWBridge 0.3.17 parity matrix
 
+Lead acceptance, 2026-10-04: MAP-AUTO-REMOVE-001 at5a62c25 restores the recovered
+SVG remove glyph and closes its isolated source/local gate: 12 renderer pairs,
+inert EN/JA controls and four saved browser pairs accepted after lead checks.
+The earlier glyph defect is CLOSED; full Map/global/original-runtime pixel status
+is unchanged. Next bounded worker gate: MAP-TOOLBAR-VISUAL-001.
+
 Lead checkpoint, 2026-10-04: two Auto-card visual samples reviewed atcefa6c3.
 Default exact; configured parent layout exact, three remove-child glyphs differ
 (12 rectangle/9 style deltas). This remains an open source/local visual defect;

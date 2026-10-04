@@ -1,5 +1,11 @@
 # UI completion checklist — 2026-10-03
 
+Lead checkpoint, 2026-10-04: the assigned Auto-card visual gate is accepted at
+5a62c25. Remaining Map toolbar/filter/pagination visuals are assigned as
+MAP-TOOLBAR-VISUAL-001 (three sequential milestones). Scheduled job-body visuals,
+other-page/shared-shell visuals and final inventory/integration remain separate.
+Global UI remains PARTIAL; older Auto-card assignment notes below are historical.
+
 Current worker scope, 2026-10-04: owner requests medium MAP-AUTO-REMOVE-001
 Auto-card closeout with glyph correction and bounded state/visual verification.
 This supersedes the tiny assignment; no broader Map/native phase is assigned.
