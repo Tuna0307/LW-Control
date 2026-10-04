@@ -1,5 +1,9 @@
 # UI completion checklist — 2026-10-03
 
+Current worker scope, 2026-10-04: owner requests medium MAP-AUTO-REMOVE-001
+Auto-card closeout with glyph correction and bounded state/visual verification.
+This supersedes the tiny assignment; no broader Map/native phase is assigned.
+
 Latest lead checkpoint, 2026-10-04: Auto-card two-pair visual evidence accepted.
 Next tiny worker unit MAP-AUTO-REMOVE-001 fixes only the recorded remove glyph
 mismatch. Parent layout matches in both samples; broader visual inventory remains.

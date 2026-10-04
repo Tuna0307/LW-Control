@@ -1,5 +1,10 @@
 # LWBridge 0.3.17 UI parity plan
 
+Owner scope update, 2026-10-04: MAP-AUTO-REMOVE-001 is now a medium Auto-card
+closeout, superseding the tiny prompt. Known glyph fix plus six state families,
+focused inert card callbacks and four visual pairs; only proven card-renderer
+corrections allowed. Global UI remains PARTIAL; see the updated work item.
+
 Latest lead checkpoint, 2026-10-04: MAP-AUTO-VISUAL-001 deliverycefa6c3 is accepted
 as two-pair offline evidence. Default matches exactly; configured card differs
 only in three SVG/text remove glyphs. Tiny MAP-AUTO-REMOVE-001 is assigned to fix

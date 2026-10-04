@@ -1,5 +1,10 @@
 # Current implementation/research handoff
 
+Current owner relay, 2026-10-04: use the UPDATED medium MAP-AUTO-REMOVE-001,
+not its earlier tiny scope. Sequential glyph correction, six-state EN/JA card
+comparison and four paired browser captures only. Preserve backend/helpers,
+Manual/Auto contracts, native fences and WIP; return for lead acceptance.
+
 Current worker continuation, 2026-10-04: MAP-AUTO-VISUAL-001 atcefa6c3 accepted as
 comparison evidence. Tiny MAP-AUTO-REMOVE-001 is assigned via owner relay: replace
 only Auto server-chip text × with exact recovered SVG and recompare one configured
