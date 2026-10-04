@@ -1,0 +1,581 @@
+{
+  "task": "LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b",
+  "marker": "LWB317_VISUAL_FINAL_UNIT_B_INTEGRATED_BROWSER_PAIRS",
+  "generatedAt": "2026-10-04",
+  "scope": "Whole source-rendered Map panel including Manual/Auto header, summary, filters, actual MapTable or ScheduledPlunder bodies, result count and pagination. Original uses recovered CSS asset; current uses production reference.css then styles.css.",
+  "fixedEnvironment": {
+    "timezone": "Asia/Singapore",
+    "deviceScaleFactor": 1,
+    "originalCss": {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-rIL9Fpht.css",
+      "sha256": "3d87e9f65b39eace6a1a254bfc90a38acb72613d1fff7236c7cee7ab9bfaf545"
+    },
+    "currentCssOrder": [
+      "src/LWBridge.UI-0.3.17/src/reference.css",
+      "src/LWBridge.UI-0.3.17/src/styles.css"
+    ],
+    "currentCssSha256": "8d908848f130c72e22c87626821d3f89322571b3bf75606d776e0cb2506240f1"
+  },
+  "pairs": [
+    {
+      "id": "city-populated-en-light",
+      "source": "en-city-populated",
+      "language": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900,
+      "tab": "city",
+      "viewport": {
+        "width": 1280,
+        "height": 900,
+        "deviceScaleFactor": 1
+      },
+      "sourceFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/raw/en-city-populated-original.html",
+          "sha256": "9152595d447058c845728ddfaee803f1483ef9a8c4a09586e65358acae8617f2"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/raw/en-city-populated-current.html",
+          "sha256": "51a42b00462b0de05b2cbd6daac599439b6f0600767680c0b40c78101e0f7d09"
+        }
+      },
+      "generatedFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/browser-generated/city-populated-en-light-original.html",
+          "sha256": "11505ebc08195f6f565602dc69b160b45fe674e6ab832db0c9ab566aaad37a70"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/browser-generated/city-populated-en-light-current.html",
+          "sha256": "1a87c52402e4b9f7041f6a7e111389f0a7273a12bb645823aae03117910c53ef"
+        }
+      },
+      "rawExact": false
+    },
+    {
+      "id": "resource-populated-ja-dark",
+      "source": "ja-resource-populated",
+      "language": "ja",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900,
+      "tab": "resource",
+      "viewport": {
+        "width": 1280,
+        "height": 900,
+        "deviceScaleFactor": 1
+      },
+      "sourceFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/raw/ja-resource-populated-original.html",
+          "sha256": "701c69ea94fc1577d4b58387e936f770fd2738b236f1a729e1da72b95884dd4d"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/raw/ja-resource-populated-current.html",
+          "sha256": "07ebd70a9b70408b91898c972df80971d000556cb6ff3b00b51b7063f1413abc"
+        }
+      },
+      "generatedFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/browser-generated/resource-populated-ja-dark-original.html",
+          "sha256": "4ad328d1ccf4385cfee22d65393607139d7a6d096d81d5b5aaf61ee6cb4dfc8e"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/browser-generated/resource-populated-ja-dark-current.html",
+          "sha256": "2c1d08acde1bdef0fc1695c0702aabb79d9fc6fe206da6d010fa0307bcf732c1"
+        }
+      },
+      "rawExact": false
+    },
+    {
+      "id": "monster-populated-en-dark",
+      "source": "en-monster-populated",
+      "language": "en",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900,
+      "tab": "monster",
+      "viewport": {
+        "width": 1280,
+        "height": 900,
+        "deviceScaleFactor": 1
+      },
+      "sourceFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/raw/en-monster-populated-original.html",
+          "sha256": "b6a88d6da7064552bb103278c35d3cba5b52e98627fb6ac1acbce7be5fdc53ff"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/raw/en-monster-populated-current.html",
+          "sha256": "c3b98b67c1b6304b66f618ad98c0459becf6d8bb80766ae886d147d5434f74be"
+        }
+      },
+      "generatedFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/browser-generated/monster-populated-en-dark-original.html",
+          "sha256": "8bd222644fde93528b39f7c1ed4360e77bd1e1cd3cd04d3adea26cbe320d3b43"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/browser-generated/monster-populated-en-dark-current.html",
+          "sha256": "151e341c342c14c24e9bd8173dd7e825ec776eec946da77d0dbff89a8d92555a"
+        }
+      },
+      "rawExact": false
+    },
+    {
+      "id": "truck-populated-ja-light-375",
+      "source": "ja-truck-populated",
+      "language": "ja",
+      "theme": "light",
+      "width": 375,
+      "height": 1100,
+      "tab": "truck",
+      "viewport": {
+        "width": 375,
+        "height": 1100,
+        "deviceScaleFactor": 1
+      },
+      "sourceFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/raw/ja-truck-populated-original.html",
+          "sha256": "56b2217805cefe43a4fc9d1990296fa9d917b454b9d17f551061d6967e107988"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/raw/ja-truck-populated-current.html",
+          "sha256": "4810bcae9f5de2dac53a58a666ea45cea64376b8f13788d55beeedbbc1e54aa5"
+        }
+      },
+      "generatedFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/browser-generated/truck-populated-ja-light-375-original.html",
+          "sha256": "1d1f0d07667d86ed25c36e827aaca3ebbbc192bbe03bbcdf4f657772c2dfe42a"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/browser-generated/truck-populated-ja-light-375-current.html",
+          "sha256": "fbf8ff9ea1b57c7c3983f7aad016e9413640a0a06e245f09fb1784d233bc0228"
+        }
+      },
+      "rawExact": false
+    },
+    {
+      "id": "railway-populated-en-light",
+      "source": "en-railway-populated",
+      "language": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900,
+      "tab": "railway",
+      "viewport": {
+        "width": 1280,
+        "height": 900,
+        "deviceScaleFactor": 1
+      },
+      "sourceFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/raw/en-railway-populated-original.html",
+          "sha256": "fde4776f8d732f2a44d2b1800de05a691bc870ad14164f64e7d53a724b31532d"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/raw/en-railway-populated-current.html",
+          "sha256": "44907d0bf80a8dd387396991bd1b63b54d57510b1c3ce81e437e70fde3d0aac9"
+        }
+      },
+      "generatedFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/browser-generated/railway-populated-en-light-original.html",
+          "sha256": "57f446b15f86f760a1992df63d72d6158042183771f646d5ed8a322525b96a44"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/browser-generated/railway-populated-en-light-current.html",
+          "sha256": "a38702fc250b3b5b8cb8dbbc4d4c38c75c34e308349342004f1cac1036f760d8"
+        }
+      },
+      "rawExact": false
+    },
+    {
+      "id": "dispatch-populated-ja-dark",
+      "source": "ja-dispatch-populated",
+      "language": "ja",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900,
+      "tab": "dispatch",
+      "viewport": {
+        "width": 1280,
+        "height": 900,
+        "deviceScaleFactor": 1
+      },
+      "sourceFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/raw/ja-dispatch-populated-original.html",
+          "sha256": "d0b3cc58b275e509110c3f61a07568ca64b65dd781ed7174c613324a72180a76"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/raw/ja-dispatch-populated-current.html",
+          "sha256": "3fe9123684ee61f6b24120f00fe05d809e563d431e59de3b9b5bcbb85159e53a"
+        }
+      },
+      "generatedFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/browser-generated/dispatch-populated-ja-dark-original.html",
+          "sha256": "0bf8eb46020c156a104f9d28a8136f600adadad204d7b1a5a29aac5518838cc6"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/browser-generated/dispatch-populated-ja-dark-current.html",
+          "sha256": "cf765e5d9c678e183dea9aca3d89ecded66cb7c2059914c1cf98f02d8f688517"
+        }
+      },
+      "rawExact": false
+    },
+    {
+      "id": "ghost-populated-en-dark",
+      "source": "en-ghost-populated",
+      "language": "en",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900,
+      "tab": "ghost",
+      "viewport": {
+        "width": 1280,
+        "height": 900,
+        "deviceScaleFactor": 1
+      },
+      "sourceFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/raw/en-ghost-populated-original.html",
+          "sha256": "9eec402dafccb8a309fc633e72aa51551a09d48c43845bca00ac86fdc70a94a8"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/raw/en-ghost-populated-current.html",
+          "sha256": "5bca61ad547274f28952a0696dc444ea589dafb15fb60ffc6e15f38956403fa4"
+        }
+      },
+      "generatedFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/browser-generated/ghost-populated-en-dark-original.html",
+          "sha256": "606424f56c2dcf8efae0f3026a7a2f89842ce26a90669e17fec31896e4619be0"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/browser-generated/ghost-populated-en-dark-current.html",
+          "sha256": "ab3c3a1e9e66636f97b36247b1684c20f1af1e4fd1e562dab34ec088182c0ccc"
+        }
+      },
+      "rawExact": false
+    },
+    {
+      "id": "treasure-populated-ja-light-375",
+      "source": "ja-treasure-populated",
+      "language": "ja",
+      "theme": "light",
+      "width": 375,
+      "height": 1100,
+      "tab": "treasure",
+      "viewport": {
+        "width": 375,
+        "height": 1100,
+        "deviceScaleFactor": 1
+      },
+      "sourceFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/raw/ja-treasure-populated-original.html",
+          "sha256": "731fa6b02a2094c7187560edf50335f4ec7d8855eb5f2b49293ce7bd38ca5f5a"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/raw/ja-treasure-populated-current.html",
+          "sha256": "e1cffe969d5aa3314708f93d64c3a108b9a5380ad56fea5507d5a58e87e454c0"
+        }
+      },
+      "generatedFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/browser-generated/treasure-populated-ja-light-375-original.html",
+          "sha256": "41d38223e3da44912c420c2d6b484844db9ec61079bf80835e9f1da39b8e9bdf"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/browser-generated/treasure-populated-ja-light-375-current.html",
+          "sha256": "b7ad1a6e6d28c50f0f85feaaf57845028ca719bf18466c0db2b76de985eb4354"
+        }
+      },
+      "rawExact": false
+    },
+    {
+      "id": "city-empty-en-light",
+      "source": "en-city-empty",
+      "language": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900,
+      "tab": "city",
+      "viewport": {
+        "width": 1280,
+        "height": 900,
+        "deviceScaleFactor": 1
+      },
+      "sourceFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/raw/en-city-empty-original.html",
+          "sha256": "c1d8b27c13763e546548f6e4666344ff80576e967dd24ea76689c6471657216e"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/raw/en-city-empty-current.html",
+          "sha256": "b116b6865447772027ec4fb43233bd52289bf9aa69c53e74fde71f13a189f191"
+        }
+      },
+      "generatedFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/browser-generated/city-empty-en-light-original.html",
+          "sha256": "5bee115209cf073aab38a6d2ed328a870291d4ee14092ea9821d35e730444ef2"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/browser-generated/city-empty-en-light-current.html",
+          "sha256": "73c96e39dad3628661fbb01c12780b7bde617722b8a6ed72bc23c9bbc580143a"
+        }
+      },
+      "rawExact": false
+    },
+    {
+      "id": "city-loading-ja-dark",
+      "source": "ja-city-loading",
+      "language": "ja",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900,
+      "tab": "city",
+      "viewport": {
+        "width": 1280,
+        "height": 900,
+        "deviceScaleFactor": 1
+      },
+      "sourceFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/raw/ja-city-loading-original.html",
+          "sha256": "4d6cc6646935dfecac01d345f15bb2669871cbe9d535beefb80f683627cf5706"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/raw/ja-city-loading-current.html",
+          "sha256": "817b6d8fe9460f4eb0e0d43c34109794514273fa84645e0b51e50aba5e62688a"
+        }
+      },
+      "generatedFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/browser-generated/city-loading-ja-dark-original.html",
+          "sha256": "344005ec86eb691d6a6d922c65ca7a8ad65bd2b41c6b52f4973eb2c94b6d5f7e"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/browser-generated/city-loading-ja-dark-current.html",
+          "sha256": "6bd3af8b7f7a46e6d20549907c4f61a22677d8ad1c58c998d04a1069bc70d3c9"
+        }
+      },
+      "rawExact": false
+    },
+    {
+      "id": "city-error-en-dark",
+      "source": "en-city-error",
+      "language": "en",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900,
+      "tab": "city",
+      "viewport": {
+        "width": 1280,
+        "height": 900,
+        "deviceScaleFactor": 1
+      },
+      "sourceFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/raw/en-city-error-original.html",
+          "sha256": "c1d8b27c13763e546548f6e4666344ff80576e967dd24ea76689c6471657216e"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/raw/en-city-error-current.html",
+          "sha256": "0a5bd53ae3a917df4efb8d2b04557d58144f0d6b8e4d26134dff85db79c77d7b"
+        }
+      },
+      "generatedFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/browser-generated/city-error-en-dark-original.html",
+          "sha256": "5205b99e3f47c37ddfddff25f18faca3ee7f7cf921e23d231126b6d560cda588"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/browser-generated/city-error-en-dark-current.html",
+          "sha256": "30c0044a88c6fa25951dfe132c19e3d361ebf411bff77c936106e62bb23ba799"
+        }
+      },
+      "rawExact": false
+    },
+    {
+      "id": "scheduled-empty-en-light",
+      "source": "en-map-scheduled",
+      "language": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 1000,
+      "tab": "scheduledPlunder",
+      "viewport": {
+        "width": 1280,
+        "height": 1000,
+        "deviceScaleFactor": 1
+      },
+      "sourceFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/raw/en-map-scheduled-original.html",
+          "sha256": "3008d785dacfb2d50c4d0113d3d8b9c8b12fe78751e0e8c1e71c87d96298b2ec"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/raw/en-map-scheduled-current.html",
+          "sha256": "740d680f3add58241b51698e8fa3064dbdc4ef5d3e2c8a5ade441d015fefd805"
+        }
+      },
+      "generatedFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/browser-generated/scheduled-empty-en-light-original.html",
+          "sha256": "a9b408f29a7a9be90d75ba99065faab628fd8194ebc1140a5726912f6f59e58d"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/browser-generated/scheduled-empty-en-light-current.html",
+          "sha256": "185d1c494cf8865d2a6985c4d556e8fce51795a24dac0ebc948730332c6d8213"
+        }
+      },
+      "rawExact": false
+    },
+    {
+      "id": "scheduled-populated-ja-dark",
+      "source": "ja-map-scheduled-populated",
+      "language": "ja",
+      "theme": "dark",
+      "width": 1280,
+      "height": 1200,
+      "tab": "scheduledPlunder",
+      "viewport": {
+        "width": 1280,
+        "height": 1200,
+        "deviceScaleFactor": 1
+      },
+      "sourceFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/raw/ja-map-scheduled-populated-original.html",
+          "sha256": "783dc45d626a6565139b9cb158c042f7e81be7eb467c46e0efc52e2dfccbeda8"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/raw/ja-map-scheduled-populated-current.html",
+          "sha256": "b38391a7aba19cc78dc473c4d4ff65b5df12182556404b3dfc4e2e18d659a937"
+        }
+      },
+      "generatedFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/browser-generated/scheduled-populated-ja-dark-original.html",
+          "sha256": "2ae883e5eee610cfa410147d4498bb87fd603cd9ac6a94b1e7713976fe216b7d"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/browser-generated/scheduled-populated-ja-dark-current.html",
+          "sha256": "aef6547c71e67b71850f1f979e3ef8f1677d08d1cad522d57a195da61a763788"
+        }
+      },
+      "rawExact": false
+    },
+    {
+      "id": "scheduled-conditional-en-dark",
+      "source": "en-map-scheduled-conditional",
+      "language": "en",
+      "theme": "dark",
+      "width": 1280,
+      "height": 1200,
+      "tab": "scheduledPlunder",
+      "viewport": {
+        "width": 1280,
+        "height": 1200,
+        "deviceScaleFactor": 1
+      },
+      "sourceFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/raw/en-map-scheduled-conditional-original.html",
+          "sha256": "af6d109819e0300b6c3a73f6c107677717bc707f58933363eee40e116e40e3aa"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/raw/en-map-scheduled-conditional-current.html",
+          "sha256": "78606f7a97128666748568ceedee14f0d3ceadf9f1c51ba596b1c91f2883b22d"
+        }
+      },
+      "generatedFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/browser-generated/scheduled-conditional-en-dark-original.html",
+          "sha256": "455764704bcf3f7d1df0f4a43d889715fdaa650842517c5d3757a144798b51f0"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/browser-generated/scheduled-conditional-en-dark-current.html",
+          "sha256": "0a6aa59e9344bcb0db6e639b4633f46d2468af3392117d1d78a8715a7461c424"
+        }
+      },
+      "rawExact": false
+    },
+    {
+      "id": "auto-configured-en-dark",
+      "source": "en-auto-configured",
+      "language": "en",
+      "theme": "dark",
+      "width": 1280,
+      "height": 1100,
+      "tab": "city",
+      "viewport": {
+        "width": 1280,
+        "height": 1100,
+        "deviceScaleFactor": 1
+      },
+      "sourceFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/raw/en-auto-configured-original.html",
+          "sha256": "e61276a6d8c25bff14174b913fc4b82287cc5abb98c6aea0683819c8e61fcdaa"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/raw/en-auto-configured-current.html",
+          "sha256": "ba2c1eb5f39fbf9e39dba469bcab84f5a0bf0a9227b7cb8c990828e8c520f5f9"
+        }
+      },
+      "generatedFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/browser-generated/auto-configured-en-dark-original.html",
+          "sha256": "2ee7d24ef7ece121c47793c44697d0fac31b45f2e2800f4d9eb0611ebde3a3cb"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/browser-generated/auto-configured-en-dark-current.html",
+          "sha256": "f1f4620b8cc58357062d1d678f3c0344a7d46934723920c0a591128e3eeed008"
+        }
+      },
+      "rawExact": false
+    },
+    {
+      "id": "auto-configured-ja-light-375",
+      "source": "ja-auto-configured",
+      "language": "ja",
+      "theme": "light",
+      "width": 375,
+      "height": 1200,
+      "tab": "treasure",
+      "viewport": {
+        "width": 375,
+        "height": 1200,
+        "deviceScaleFactor": 1
+      },
+      "sourceFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/raw/ja-auto-configured-original.html",
+          "sha256": "a16a1e9ca6b61d9e35d184b3d31d348a780b2cc6a6e5ccad0bf9499f59fc1418"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/raw/ja-auto-configured-current.html",
+          "sha256": "368181144d2e06f341c3542617221cc2ff2ea3c757919863584e4824bb91e299"
+        }
+      },
+      "generatedFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/browser-generated/auto-configured-ja-light-375-original.html",
+          "sha256": "d0f5a45eaca528c944babefbd9714a523601c380383cda1bfe3d68570b115844"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/browser-generated/auto-configured-ja-light-375-current.html",
+          "sha256": "ec84bfb60e182388e161e64b41a1a827dfaa1c1ecd3ac6a12aec4a21f307759f"
+        }
+      },
+      "rawExact": false
+    }
+  ]
+}

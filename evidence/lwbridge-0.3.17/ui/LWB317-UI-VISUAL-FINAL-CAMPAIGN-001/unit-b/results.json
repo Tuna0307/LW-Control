@@ -1,0 +1,519 @@
+{
+  "task": "LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/scheduled",
+  "result": "LWB317_SCHEDULED_PLUNDER_SOURCE_LOCAL_OK",
+  "counts": {
+    "fixtureRenders": 594,
+    "renders": 10482,
+    "timeSweepRenders": 212,
+    "timeBoundaries": 106,
+    "shiftedRenders": 18,
+    "busyKeyRenders": 158,
+    "secretMatrixRenders": 4508,
+    "secretRewardRenders": 1620,
+    "truckMatrixRenders": 3008,
+    "truckRewardRenders": 216,
+    "dedupeRenders": 144,
+    "filterRenders": 4,
+    "countChecks": 8,
+    "dispatchErrorCases": 432,
+    "truckErrorCases": 324,
+    "interactionButtons": 225,
+    "interactionCases": 12,
+    "realGameAssetImageCases": 18,
+    "placeholderNormalisations": 171,
+    "mutationsTotal": 51,
+    "mutationsDetected": 51,
+    "usedLocaleKeys": 62,
+    "reactWarnings": 0
+  },
+  "source": {
+    "panel": {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js",
+      "sha256": "CE74345518BE72E417A510B982C591729E5683F69751E190805598C4C05D3089"
+    },
+    "main": {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-BVfnK1wp.js",
+      "sha256": "44C4E4043825B7DB296B64171951B27176F8850FF8D7D337CC991DF4765524C6"
+    },
+    "rewardDisplay": {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/rewardDisplay-eZWrd6iS.js",
+      "sha256": "7F65DD3F5B81C96117AF5E83E8310D6C6A3A48787B1F693D387020255C78E73E"
+    },
+    "gameAssetImage": {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/GameAssetImage-Diy9VTIr.js",
+      "sha256": "2F92A87C3268497DF6425B1175DB6140E10AABCBDFAE02615F065D00E16458E0"
+    },
+    "pretty": {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-INTERACTIONS-001/reference/MapDataPanel.pretty.js"
+    },
+    "panelLocators": {
+      "x": {
+        "utf8ByteOffset": 1925,
+        "length": 174
+      },
+      "Ce": {
+        "utf8ByteOffset": 2099,
+        "length": 93
+      },
+      "we": {
+        "utf8ByteOffset": 2192,
+        "length": 475
+      },
+      "S": {
+        "utf8ByteOffset": 3189,
+        "length": 174
+      },
+      "C": {
+        "utf8ByteOffset": 3363,
+        "length": 234
+      },
+      "k": {
+        "utf8ByteOffset": 7065,
+        "length": 28
+      },
+      "j": {
+        "utf8ByteOffset": 7467,
+        "length": 91
+      },
+      "M": {
+        "utf8ByteOffset": 7558,
+        "length": 52
+      },
+      "P": {
+        "utf8ByteOffset": 8666,
+        "length": 87
+      },
+      "F": {
+        "utf8ByteOffset": 8753,
+        "length": 246
+      },
+      "N": {
+        "utf8ByteOffset": 7885,
+        "length": 137
+      },
+      "I": {
+        "utf8ByteOffset": 9191,
+        "length": 82
+      },
+      "L": {
+        "utf8ByteOffset": 9273,
+        "length": 94
+      },
+      "Je": {
+        "utf8ByteOffset": 8022,
+        "length": 175
+      },
+      "ot": {
+        "utf8ByteOffset": 20712,
+        "length": 3679
+      },
+      "st": {
+        "utf8ByteOffset": 24391,
+        "length": 3841
+      },
+      "b": {
+        "utf8ByteOffset": 996,
+        "length": 928
+      },
+      "Te": {
+        "utf8ByteOffset": 2671,
+        "length": 517
+      }
+    },
+    "mainLocators": {
+      "Fe": {
+        "utf8ByteOffset": 201275,
+        "length": 124
+      },
+      "Ie": {
+        "utf8ByteOffset": 201399,
+        "length": 307
+      }
+    },
+    "rewardLocator": {
+      "utf8ByteOffset": 0,
+      "length": 219
+    },
+    "prettyLines": {
+      "b": 24,
+      "x": 25,
+      "Ce": 33,
+      "we": 37,
+      "Te": 47,
+      "S": 48,
+      "C": 56,
+      "ot": 263,
+      "st": 283,
+      "mainRender": 709,
+      "refreshHandlers": 363,
+      "ticker": 370,
+      "cancelHandlers": 634,
+      "clearHandler": 623
+    },
+    "mainComponentOffsets": {
+      "filters": 57146,
+      "tabCountAndItemCount": [
+        50824,
+        56491
+      ]
+    },
+    "canonicalFiles": {
+      "src/LWBridge.UI-0.3.17/src/ScheduledPlunder.jsx": "9D6814A70A62C9198720CE15FAA84403F43E1DE172A88E285179151D017B5534",
+      "src/LWBridge.UI-0.3.17/src/GameAssetImage.jsx": "2BFCA11136F2495780EA6A2037BD5007F1D7653284849452E430D2A4FA05D379",
+      "src/LWBridge.UI-0.3.17/src/mapPlunderPresentation.js": "6E4BF5315990966823C5E162CF4875C9D1DB3A897CD7BACC40752C9A7C2A62FD",
+      "src/LWBridge.UI-0.3.17/src/mapTablePresentation.js": "B6C0D9B369D3E78CCC74AA7296F2B88EABF6B6560C3669A199546FC299839427",
+      "src/LWBridge.UI-0.3.17/src/mapPlunderFixtures.js": "73B6BF73DB557088BDC8BC45286095F61B0AF7C829A55E6C1B5BC9E1ABB72B60"
+    },
+    "nativeCommandsNamedByOriginal": [
+      {
+        "command": "map_plunder_jobs_list",
+        "count": 1,
+        "utf8ByteOffset": 207822
+      },
+      {
+        "command": "map_dispatch_plunder_cancel",
+        "count": 1,
+        "utf8ByteOffset": 208232
+      },
+      {
+        "command": "map_dispatch_plunder_clear",
+        "count": 1,
+        "utf8ByteOffset": 208313
+      },
+      {
+        "command": "map_truck_plunder_cancel",
+        "count": 1,
+        "utf8ByteOffset": 208506
+      },
+      {
+        "command": "map_truck_plunder_clear",
+        "count": 1,
+        "utf8ByteOffset": 208583
+      },
+      {
+        "command": "map_truck_plunder_schedule",
+        "count": 1,
+        "utf8ByteOffset": 208406
+      },
+      {
+        "command": "map_dispatch_plunder_schedule",
+        "count": 1,
+        "utf8ByteOffset": 207875
+      }
+    ]
+  },
+  "mutation": {
+    "total": 51,
+    "detected": 51,
+    "survivors": [],
+    "detectedList": [
+      "ScheduledPlunder.jsx: swap kind label",
+      "ScheduledPlunder.jsx: wrong column order (completion/plunderAt)",
+      "ScheduledPlunder.jsx: wrong column order (truck result/rewards)",
+      "ScheduledPlunder.jsx: secret column width",
+      "ScheduledPlunder.jsx: truck column width",
+      "ScheduledPlunder.jsx: secret owner fallback order",
+      "ScheduledPlunder.jsx: isSpecial strictness",
+      "ScheduledPlunder.jsx: reward empty check",
+      "ScheduledPlunder.jsx: truck title",
+      "ScheduledPlunder.jsx: truck cancel busy key",
+      "ScheduledPlunder.jsx: fence: drop actionsEnabled from secret Clear",
+      "ScheduledPlunder.jsx: fence: handler live while fenced",
+      "ScheduledPlunder.jsx: fence: drop actionsEnabled from truck Plunder Again",
+      "ScheduledPlunder.jsx: handler argument (secret clear kind)",
+      "ScheduledPlunder.jsx: handler argument (clear kind)",
+      "ScheduledPlunder.jsx: handler argument (cancel row)",
+      "ScheduledPlunder.jsx: ghost group uses dispatch filter",
+      "ScheduledPlunder.jsx: group order",
+      "mapPlunderPresentation.js: swap dispatch/ghost filter",
+      "mapPlunderPresentation.js: ghost filter strictness",
+      "mapPlunderPresentation.js: drop duplicate in-flight check (ee2)",
+      "mapPlunderPresentation.js: in-flight status set",
+      "mapPlunderPresentation.js: terminal status set",
+      "mapPlunderPresentation.js: cancel visibility",
+      "mapPlunderPresentation.js: clear disabled ignores busyKey",
+      "mapPlunderPresentation.js: plunder again offline",
+      "mapPlunderPresentation.js: plunder again full state",
+      "mapPlunderPresentation.js: tab count",
+      "mapPlunderPresentation.js: secret waiting class",
+      "mapPlunderPresentation.js: secret E000000 game text bypass",
+      "mapPlunderPresentation.js: secret expired status label",
+      "mapPlunderPresentation.js: dispatch table mapping",
+      "mapPlunderPresentation.js: dispatch error compaction length",
+      "mapPlunderPresentation.js: dispatch empty detail falls back to code",
+      "mapPlunderPresentation.js: truck E000000",
+      "mapPlunderPresentation.js: truck table entry",
+      "mapPlunderPresentation.js: truck lowercase lookup",
+      "mapPlunderPresentation.js: truck won/lost",
+      "mapPlunderPresentation.js: truck succeeded without outcome",
+      "mapPlunderPresentation.js: truck expired uses error text",
+      "mapPlunderPresentation.js: truck protected countdown",
+      "mapPlunderPresentation.js: truck full label",
+      "mapTablePresentation.js: task expire boundary (< vs <=)",
+      "mapTablePresentation.js: task completion boundary",
+      "mapTablePresentation.js: task plunderAt boundary",
+      "mapTablePresentation.js: task full boundary",
+      "mapTablePresentation.js: truck arrival boundary",
+      "mapTablePresentation.js: truck protect boundary",
+      "mapTablePresentation.js: truck full boundary",
+      "mapTablePresentation.js: truck reindeer maximum",
+      "mapTablePresentation.js: timestamp seconds threshold"
+    ]
+  },
+  "baseline": {
+    "commit": "3e8617c",
+    "oldSurface": "<div className=\"map-table-scroll\"><table className=\"map-table map-table--scheduled-plunder\"><tbody><tr><td className=\"map-empty\">{t(\"map.scheduledPlunder\")} · {t(\"map.empty\")}</td></tr></tbody></table></div>",
+    "oldTabCount": "\"0\" (hardcoded)",
+    "result": "old surface fails the differential in all 3 fixture states (markup) and 2 populated states (count)",
+    "rows": [
+      {
+        "state": "map-scheduled",
+        "originalCount": 0,
+        "oldCount": 0,
+        "markupDiffers": true,
+        "countDiffers": false,
+        "oldTableRows": 1,
+        "oldHeaders": 0,
+        "originalSections": 3
+      },
+      {
+        "state": "map-scheduled-populated",
+        "originalCount": 30,
+        "oldCount": 0,
+        "markupDiffers": true,
+        "countDiffers": true,
+        "oldTableRows": 1,
+        "oldHeaders": 0,
+        "originalSections": 3
+      },
+      {
+        "state": "map-scheduled-conditional",
+        "originalCount": 50,
+        "oldCount": 0,
+        "markupDiffers": true,
+        "countDiffers": true,
+        "oldTableRows": 1,
+        "oldHeaders": 0,
+        "originalSections": 3
+      }
+    ]
+  },
+  "fence": {
+    "fencedButtonsDisabledWithoutHandler": 225,
+    "note": "Every fixture button: actionsEnabled=false => disabled===true and onClick===undefined; actionsEnabled=true => disabled flag, label, handler name and exact row object equal the original."
+  },
+  "keys": {
+    "locales": 9,
+    "usedKeys": 62,
+    "exercisedKeys": 67,
+    "hostileInputKeys": [
+      "error.DISPATCH_PLUNDER_FOO",
+      "error.DISPATCH_PLUNDER_SEND_FAILED",
+      "error.DISPATCH_PLUNDER_X",
+      "error.[object Object]",
+      "error.function Object() { [native code] }"
+    ],
+    "hostileKeysPresentInAllLocales": [
+      "error.DISPATCH_PLUNDER_SEND_FAILED"
+    ],
+    "missingInAnyLocale": [],
+    "keys": [
+      "common.cancel",
+      "common.itemCount",
+      "error.DISPATCH_PLUNDER_ALREADY_ARMED",
+      "error.DISPATCH_PLUNDER_CLIENT_RESTARTED",
+      "error.DISPATCH_PLUNDER_CROSS_SERVER_UNAVAILABLE",
+      "error.DISPATCH_PLUNDER_DAILY_LIMIT_REACHED",
+      "error.DISPATCH_PLUNDER_GAME_DISCONNECTED",
+      "error.DISPATCH_PLUNDER_INVALID_SCHEDULE",
+      "error.DISPATCH_PLUNDER_INVALID_TARGET",
+      "error.DISPATCH_PLUNDER_MANAGER_UNAVAILABLE",
+      "error.DISPATCH_PLUNDER_REQUEST_PENDING",
+      "error.DISPATCH_PLUNDER_RESPONSE_TIMEOUT",
+      "error.DISPATCH_PLUNDER_SERVER_REJECTED",
+      "error.DISPATCH_PLUNDER_TASK_COMPLETED",
+      "error.DISPATCH_PLUNDER_TASK_DISAPPEARED",
+      "error.DISPATCH_PLUNDER_TASK_EXPIRED",
+      "error.DISPATCH_PLUNDER_UNKNOWN",
+      "error.PLUNDER_POSSIBLE_DAILY_LIMIT_REACHED",
+      "error.TRUCK_PLUNDER_ALLIED_TARGET",
+      "error.TRUCK_PLUNDER_ATTACK_LIMIT_REACHED",
+      "error.TRUCK_PLUNDER_CLIENT_RESTARTED",
+      "error.TRUCK_PLUNDER_CROSS_ZONE_SEGMENT_MISMATCH",
+      "error.TRUCK_PLUNDER_DAILY_LIMIT_REACHED",
+      "error.TRUCK_PLUNDER_FULLY_LOOTED",
+      "error.TRUCK_PLUNDER_GAME_DISCONNECTED",
+      "error.TRUCK_PLUNDER_REINDEER_ALREADY_LOOTED",
+      "error.TRUCK_PLUNDER_RESPONSE_TIMEOUT",
+      "error.TRUCK_PLUNDER_SERVER_REJECTED",
+      "error.TRUCK_PLUNDER_TARGET_EXPIRED",
+      "map.actions",
+      "map.clearPlunderHistory",
+      "map.completionTime",
+      "map.empty",
+      "map.ghostScout",
+      "map.owner",
+      "map.playerAlliance",
+      "map.plunderAgain",
+      "map.plunderAt",
+      "map.plunderCancelled",
+      "map.plunderCount",
+      "map.plunderLost",
+      "map.plunderReasonUnavailable",
+      "map.plunderResult",
+      "map.plunderRewards",
+      "map.plunderRunning",
+      "map.plunderSucceeded",
+      "map.plunderWon",
+      "map.quality",
+      "map.reindeerQuality",
+      "map.rewards",
+      "map.secretTask",
+      "map.server",
+      "map.specialQuality",
+      "map.taskExpired",
+      "map.taskPending",
+      "map.taskProtected",
+      "map.taskReady",
+      "map.truck",
+      "map.truckPlunderFull",
+      "map.truckProtected",
+      "map.truckReady",
+      "map.waitingConnection"
+    ]
+  },
+  "fixtures": {
+    "states": {
+      "map-scheduled": {
+        "dispatchRows": 0,
+        "ghostRows": 0,
+        "truckRows": 0,
+        "online": false,
+        "busyKey": "",
+        "count": 0
+      },
+      "map-scheduled-populated": {
+        "dispatchRows": 11,
+        "ghostRows": 4,
+        "truckRows": 15,
+        "online": true,
+        "busyKey": "",
+        "count": 30
+      },
+      "map-scheduled-conditional": {
+        "dispatchRows": 23,
+        "ghostRows": 4,
+        "truckRows": 23,
+        "online": false,
+        "busyKey": "9001:900110014",
+        "count": 50
+      }
+    },
+    "coveredBranches": [
+      "battleWon:false",
+      "battleWon:true",
+      "battleWon:undefined",
+      "kind:dispatch",
+      "kind:ghost",
+      "secret:invalidTimestamp",
+      "secret:isSpecial",
+      "secret:noRewards",
+      "secret:ownerUid",
+      "secret:ownerUuid",
+      "secret:rewards",
+      "secret:secondsTimestamp",
+      "secretError:E000000",
+      "secretError:code",
+      "secretError:gameText",
+      "secretError:missing",
+      "secretError:numeric",
+      "secretError:table",
+      "secretError:unknown",
+      "secretTiming:expired",
+      "secretTiming:full",
+      "secretTiming:pending",
+      "secretTiming:protected",
+      "secretTiming:ready",
+      "status:cancelled",
+      "status:expired",
+      "status:failed",
+      "status:running",
+      "status:scheduled",
+      "status:succeeded",
+      "status:synthetic-unknown-status",
+      "status:waiting_connection",
+      "truck:againHiddenInflight",
+      "truck:againHiddenOffline",
+      "truck:againHiddenState",
+      "truck:againShown",
+      "truck:allianceName",
+      "truck:negativeRobTimes",
+      "truck:noRewards",
+      "truck:nonNumericRobTimes",
+      "truck:reindeer",
+      "truck:rewards",
+      "truck:uuidOwner",
+      "truckError:E000000",
+      "truckError:missing",
+      "truckError:numeric",
+      "truckError:table",
+      "truckError:unknown",
+      "truckState:expired",
+      "truckState:full",
+      "truckState:invalid",
+      "truckState:protected",
+      "truckState:ready",
+      "truckStatus:cancelled",
+      "truckStatus:expired",
+      "truckStatus:failed",
+      "truckStatus:running",
+      "truckStatus:scheduled",
+      "truckStatus:succeeded",
+      "truckStatus:synthetic-unknown-status",
+      "truckStatus:waiting_connection"
+    ],
+    "requiredBranches": 61
+  },
+  "limits": "Source-level differential (static markup, interaction props) with synthetic rows and stubbed useI18n/GameAssetImage; no browser pixels, no original-runtime job rows, no native/gameplay execution. Row shapes beyond the fields read by the original are UNKNOWN (job producer is a native command; its schema is not in the frontend assets).",
+  "css": {
+    "classTokens": 32,
+    "withSelector": [
+      "cancelled",
+      "expired",
+      "failed",
+      "game-asset-placeholder",
+      "map-head",
+      "map-plunder-actions",
+      "map-plunder-result",
+      "map-reward-cell",
+      "map-reward-icon",
+      "map-reward-item",
+      "map-reward-list",
+      "map-row",
+      "map-scheduled-group",
+      "map-scheduled-group-title",
+      "map-scheduled-kind",
+      "map-scheduled-kind--secret",
+      "map-scheduled-kind--truck",
+      "map-table",
+      "map-table--scheduled-plunder",
+      "map-table--scheduled-secret",
+      "map-table--scheduled-truck",
+      "map-table-scroll",
+      "map-task-status",
+      "protected",
+      "ready",
+      "running",
+      "succeeded",
+      "waiting"
+    ],
+    "withoutSelectorInBoth": [
+      "map-reward-list--retained",
+      "map-scheduled-group--secret",
+      "map-scheduled-group--truck",
+      "pending"
+    ],
+    "note": "Tokens without a selector exist in neither the original CSS asset nor canonical CSS (markup-only modifier classes); no CSS was added."
+  },
+  "realGameAssetImageNormalisation": "Differential runs use a placeholder stub for original `v` (GameAssetImage) identical to the canonical Map table placeholder; a second pass runs the REAL GameAssetImage extracted from its asset and shows the only difference is the original placeholder `aria-label={alt}` vs canonical `aria-hidden=\"true\"` (the parent .map-reward-item already carries the same aria-label)."
+}

@@ -1,0 +1,162 @@
+[
+  {
+    "pairId": "city-populated-en-light",
+    "side": "original",
+    "issues": []
+  },
+  {
+    "pairId": "city-populated-en-light",
+    "side": "current",
+    "issues": []
+  },
+  {
+    "pairId": "resource-populated-ja-dark",
+    "side": "original",
+    "issues": []
+  },
+  {
+    "pairId": "resource-populated-ja-dark",
+    "side": "current",
+    "issues": []
+  },
+  {
+    "pairId": "monster-populated-en-dark",
+    "side": "original",
+    "issues": []
+  },
+  {
+    "pairId": "monster-populated-en-dark",
+    "side": "current",
+    "issues": []
+  },
+  {
+    "pairId": "truck-populated-ja-light-375",
+    "side": "original",
+    "issues": []
+  },
+  {
+    "pairId": "truck-populated-ja-light-375",
+    "side": "current",
+    "issues": []
+  },
+  {
+    "pairId": "railway-populated-en-light",
+    "side": "original",
+    "issues": []
+  },
+  {
+    "pairId": "railway-populated-en-light",
+    "side": "current",
+    "issues": []
+  },
+  {
+    "pairId": "dispatch-populated-ja-dark",
+    "side": "original",
+    "issues": []
+  },
+  {
+    "pairId": "dispatch-populated-ja-dark",
+    "side": "current",
+    "issues": []
+  },
+  {
+    "pairId": "ghost-populated-en-dark",
+    "side": "original",
+    "issues": []
+  },
+  {
+    "pairId": "ghost-populated-en-dark",
+    "side": "current",
+    "issues": []
+  },
+  {
+    "pairId": "treasure-populated-ja-light-375",
+    "side": "original",
+    "issues": []
+  },
+  {
+    "pairId": "treasure-populated-ja-light-375",
+    "side": "current",
+    "issues": []
+  },
+  {
+    "pairId": "city-empty-en-light",
+    "side": "original",
+    "issues": []
+  },
+  {
+    "pairId": "city-empty-en-light",
+    "side": "current",
+    "issues": []
+  },
+  {
+    "pairId": "city-loading-ja-dark",
+    "side": "original",
+    "issues": []
+  },
+  {
+    "pairId": "city-loading-ja-dark",
+    "side": "current",
+    "issues": []
+  },
+  {
+    "pairId": "city-error-en-dark",
+    "side": "original",
+    "issues": []
+  },
+  {
+    "pairId": "city-error-en-dark",
+    "side": "current",
+    "issues": []
+  },
+  {
+    "pairId": "scheduled-empty-en-light",
+    "side": "original",
+    "issues": []
+  },
+  {
+    "pairId": "scheduled-empty-en-light",
+    "side": "current",
+    "issues": []
+  },
+  {
+    "pairId": "scheduled-populated-ja-dark",
+    "side": "original",
+    "issues": []
+  },
+  {
+    "pairId": "scheduled-populated-ja-dark",
+    "side": "current",
+    "issues": []
+  },
+  {
+    "pairId": "scheduled-conditional-en-dark",
+    "side": "original",
+    "issues": []
+  },
+  {
+    "pairId": "scheduled-conditional-en-dark",
+    "side": "current",
+    "issues": []
+  },
+  {
+    "pairId": "auto-configured-en-dark",
+    "side": "original",
+    "issues": []
+  },
+  {
+    "pairId": "auto-configured-en-dark",
+    "side": "current",
+    "issues": []
+  },
+  {
+    "pairId": "auto-configured-ja-light-375",
+    "side": "original",
+    "issues": []
+  },
+  {
+    "pairId": "auto-configured-ja-light-375",
+    "side": "current",
+    "issues": []
+  }
+]

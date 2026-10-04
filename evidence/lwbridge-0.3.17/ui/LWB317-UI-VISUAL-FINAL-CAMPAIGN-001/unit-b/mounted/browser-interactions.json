@@ -1,0 +1,224 @@
+{
+  "task": "LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b",
+  "marker": "LWB317_VISUAL_FINAL_UNIT_B_MOUNTED_INTERACTIONS_OK",
+  "browser": {
+    "version": "154.0.8037.95",
+    "executablePath": "C:/Program Files/Google/Chrome/Application/chrome.exe"
+  },
+  "cases": [
+    {
+      "name": "EN/light theme",
+      "actual": "light",
+      "expected": "light",
+      "pass": true
+    },
+    {
+      "name": "all nine Map data tabs mounted",
+      "actual": 9,
+      "expected": 9,
+      "pass": true
+    },
+    {
+      "name": "Scheduled tab initially active",
+      "actual": "active",
+      "expected": "active",
+      "pass": true
+    },
+    {
+      "name": "three Scheduled groups mounted",
+      "actual": 3,
+      "expected": 3,
+      "pass": true
+    },
+    {
+      "name": "three Scheduled group tables mounted",
+      "actual": 3,
+      "expected": 3,
+      "pass": true
+    },
+    {
+      "name": "conditional fixture has rows",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "offline fixture fences Start Scan",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "Map top tab 1 activates",
+      "actual": "true",
+      "expected": "true",
+      "pass": true
+    },
+    {
+      "name": "Map top tab 2 activates",
+      "actual": "true",
+      "expected": "true",
+      "pass": true
+    },
+    {
+      "name": "Map top tab 3 activates",
+      "actual": "true",
+      "expected": "true",
+      "pass": true
+    },
+    {
+      "name": "Map top tab 4 activates",
+      "actual": "true",
+      "expected": "true",
+      "pass": true
+    },
+    {
+      "name": "Map top tab 5 activates",
+      "actual": "true",
+      "expected": "true",
+      "pass": true
+    },
+    {
+      "name": "Map top tab 6 activates",
+      "actual": "true",
+      "expected": "true",
+      "pass": true
+    },
+    {
+      "name": "Map top tab 7 activates",
+      "actual": "true",
+      "expected": "true",
+      "pass": true
+    },
+    {
+      "name": "Map top tab 8 activates",
+      "actual": "true",
+      "expected": "true",
+      "pass": true
+    },
+    {
+      "name": "Map top tab 9 activates",
+      "actual": "true",
+      "expected": "true",
+      "pass": true
+    },
+    {
+      "name": "Auto Scan local tab opens card",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Manual Scan local tab restores actions",
+      "actual": 3,
+      "expected": 3,
+      "pass": true
+    },
+    {
+      "name": "JA/dark theme",
+      "actual": "dark",
+      "expected": "dark",
+      "pass": true
+    },
+    {
+      "name": "JA locale applied",
+      "actual": "ja",
+      "expected": "ja",
+      "pass": true
+    },
+    {
+      "name": "JA Scheduled tab active",
+      "actual": "true",
+      "expected": "true",
+      "pass": true
+    },
+    {
+      "name": "JA populated has all Scheduled groups",
+      "actual": 3,
+      "expected": 3,
+      "pass": true
+    },
+    {
+      "name": "JA populated fixture has rows",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "Scheduled result count is nonzero",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "browser console/page errors",
+      "actual": 0,
+      "expected": 0,
+      "pass": true
+    }
+  ],
+  "screenshots": [
+    {
+      "name": "vite-en-light-scheduled-conditional",
+      "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/mounted/screenshots/vite-en-light-scheduled-conditional.png",
+      "sha256": "68a0c61a54ccbcf124ef75d090c414df4c21cc5454609589776505f3a4c8453d",
+      "viewport": {
+        "width": 1440,
+        "height": 1200
+      }
+    },
+    {
+      "name": "vite-ja-dark-scheduled-populated",
+      "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/mounted/screenshots/vite-ja-dark-scheduled-populated.png",
+      "sha256": "b2f981b35853888b34cf39d22ac757b3cf179bda7666788c88aee878d5673373",
+      "viewport": {
+        "width": 1180,
+        "height": 1100
+      }
+    }
+  ],
+  "console": [
+    {
+      "language": "en",
+      "theme": "light",
+      "state": "map-scheduled-conditional",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "language": "en",
+      "theme": "light",
+      "state": "map-scheduled-conditional",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "language": "en",
+      "theme": "light",
+      "state": "map-scheduled-conditional",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "language": "ja",
+      "theme": "dark",
+      "state": "map-scheduled-populated",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "language": "ja",
+      "theme": "dark",
+      "state": "map-scheduled-populated",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "language": "ja",
+      "theme": "dark",
+      "state": "map-scheduled-populated",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    }
+  ]
+}

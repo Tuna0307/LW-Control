@@ -3,8 +3,8 @@
 | Unit | Scope | Worker status | Evidence |
 | --- | --- | --- | --- |
 | A | Treasure label defect + validation hardening | COMPLETE | `unit-a/` |
-| B | Remaining Map + Scheduled Plunder | IN PROGRESS NEXT | `unit-b/` |
-| C | Automation | PENDING | `unit-c/` |
+| B | Remaining Map + Scheduled Plunder | COMPLETE | `unit-b/` |
+| C | Automation | IN PROGRESS NEXT | `unit-c/` |
 | D | Squads / AFK / Garrison / Profile / Equipment | PENDING | `unit-d/` |
 | E | City Layout | PENDING | `unit-e/` |
 | F | Hotkeys | PENDING | `unit-f/` |

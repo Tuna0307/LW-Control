@@ -1,0 +1,174 @@
+{
+  "task": "LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b",
+  "marker": "LWB317_VISUAL_FINAL_UNIT_B_PIXELS_OK",
+  "pairs": 16,
+  "pixelExactPairs": 13,
+  "acceptedDifferencePairs": 3,
+  "outsideAcceptedPixels": 0,
+  "results": [
+    {
+      "pairId": "city-populated-en-light",
+      "changedPixels": 0,
+      "changedBBox": null,
+      "acceptedReason": null,
+      "allowedBoxes": [],
+      "outsideAcceptedPixels": 0
+    },
+    {
+      "pairId": "resource-populated-ja-dark",
+      "changedPixels": 0,
+      "changedBBox": null,
+      "acceptedReason": null,
+      "allowedBoxes": [],
+      "outsideAcceptedPixels": 0
+    },
+    {
+      "pairId": "monster-populated-en-dark",
+      "changedPixels": 0,
+      "changedBBox": null,
+      "acceptedReason": null,
+      "allowedBoxes": [],
+      "outsideAcceptedPixels": 0
+    },
+    {
+      "pairId": "truck-populated-ja-light-375",
+      "changedPixels": 0,
+      "changedBBox": null,
+      "acceptedReason": null,
+      "allowedBoxes": [],
+      "outsideAcceptedPixels": 0
+    },
+    {
+      "pairId": "railway-populated-en-light",
+      "changedPixels": 0,
+      "changedBBox": null,
+      "acceptedReason": null,
+      "allowedBoxes": [],
+      "outsideAcceptedPixels": 0
+    },
+    {
+      "pairId": "dispatch-populated-ja-dark",
+      "changedPixels": 0,
+      "changedBBox": null,
+      "acceptedReason": null,
+      "allowedBoxes": [],
+      "outsideAcceptedPixels": 0
+    },
+    {
+      "pairId": "ghost-populated-en-dark",
+      "changedPixels": 0,
+      "changedBBox": null,
+      "acceptedReason": null,
+      "allowedBoxes": [],
+      "outsideAcceptedPixels": 0
+    },
+    {
+      "pairId": "treasure-populated-ja-light-375",
+      "changedPixels": 0,
+      "changedBBox": null,
+      "acceptedReason": null,
+      "allowedBoxes": [],
+      "outsideAcceptedPixels": 0
+    },
+    {
+      "pairId": "city-empty-en-light",
+      "changedPixels": 0,
+      "changedBBox": null,
+      "acceptedReason": null,
+      "allowedBoxes": [],
+      "outsideAcceptedPixels": 0
+    },
+    {
+      "pairId": "city-loading-ja-dark",
+      "changedPixels": 0,
+      "changedBBox": null,
+      "acceptedReason": null,
+      "allowedBoxes": [],
+      "outsideAcceptedPixels": 0
+    },
+    {
+      "pairId": "city-error-en-dark",
+      "changedPixels": 99918,
+      "changedBBox": [
+        175,
+        365,
+        1268,
+        503
+      ],
+      "acceptedReason": "accepted documented canonical query-error banner",
+      "allowedBoxes": [
+        [
+          171,
+          365,
+          1280,
+          510
+        ]
+      ],
+      "outsideAcceptedPixels": 0
+    },
+    {
+      "pairId": "scheduled-empty-en-light",
+      "changedPixels": 2644,
+      "changedBBox": [
+        992,
+        95,
+        1069,
+        130
+      ],
+      "acceptedReason": "runtime native Start Scan provider fence",
+      "allowedBoxes": [
+        [
+          991,
+          95,
+          1069,
+          130
+        ]
+      ],
+      "outsideAcceptedPixels": 0
+    },
+    {
+      "pairId": "scheduled-populated-ja-dark",
+      "changedPixels": 0,
+      "changedBBox": null,
+      "acceptedReason": null,
+      "allowedBoxes": [],
+      "outsideAcceptedPixels": 0
+    },
+    {
+      "pairId": "scheduled-conditional-en-dark",
+      "changedPixels": 2655,
+      "changedBBox": [
+        992,
+        95,
+        1069,
+        130
+      ],
+      "acceptedReason": "runtime native Start Scan provider fence",
+      "allowedBoxes": [
+        [
+          991,
+          95,
+          1069,
+          130
+        ]
+      ],
+      "outsideAcceptedPixels": 0
+    },
+    {
+      "pairId": "auto-configured-en-dark",
+      "changedPixels": 0,
+      "changedBBox": null,
+      "acceptedReason": null,
+      "allowedBoxes": [],
+      "outsideAcceptedPixels": 0
+    },
+    {
+      "pairId": "auto-configured-ja-light-375",
+      "changedPixels": 0,
+      "changedBBox": null,
+      "acceptedReason": null,
+      "allowedBoxes": [],
+      "outsideAcceptedPixels": 0
+    }
+  ]
+}
