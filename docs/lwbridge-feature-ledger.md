@@ -1,5 +1,12 @@
 # LWBridge 0.3.17 feature ledger
 
+Worker delivery, 2026-10-04: MAP-TOOLBAR-VISUAL-001 is **AWAITING_REVIEW**.
+Recovered `.map-search` ancestry, direct normal result counts and the plunderable
+filter class are corrected locally; required renderer/browser/interaction evidence
+and affected regressions pass. Native/provider-disabled actions stay fenced and
+account for the only non-identical required screenshots. Global/native status is
+unchanged pending lead review.
+
 Lead acceptance, 2026-10-04: Auto server-chip remove presentation now uses exact
 recovered svg.ui-icon/path, through MAP-AUTO-REMOVE-001 delivery5a62c25. Assigned
 source/local Auto-card state/control/browser gate COMPLETE / ACCEPTED; earlier

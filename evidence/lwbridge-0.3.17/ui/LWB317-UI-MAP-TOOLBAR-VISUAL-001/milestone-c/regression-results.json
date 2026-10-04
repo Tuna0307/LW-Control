@@ -1,0 +1,71 @@
+{
+  "task": "LWB317-UI-MAP-TOOLBAR-VISUAL-001",
+  "marker": "LWB317_MAP_TOOLBAR_REGRESSIONS_REPLAYED",
+  "generatedAt": "2026-10-04",
+  "historicalWritePolicy": "Scripts that write unconditionally are executed through redirect-replay.mjs; all writes are captured under this task's milestone-c/replays directory.",
+  "results": [
+    {
+      "name": "navigation-current-shape",
+      "command": "node evidence\\lwbridge-0.3.17\\ui\\LWB317-UI-MAP-TOOLBAR-VISUAL-001\\milestone-c\\redirect-replay.mjs evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/current-regressions-v3/replay-shape-adapters.mjs navigation-current-shape navigation",
+      "exitCode": 0,
+      "stdout": "LWB317_CURRENT_SHAPE_REPLAY_NAVIGATION_PASS\nLWB317_MAP_NAVIGATION_OK baseline=6 current=0 requests=17",
+      "stderr": ""
+    },
+    {
+      "name": "request-lifetime",
+      "command": "node evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-INTERACTIONS-001/check-request-lifetime.mjs",
+      "exitCode": 0,
+      "stdout": "LWB317_REQUEST_LIFETIME_OK baselineFailures=0 deliveryFailures=4 currentFailures=0 scenarios=38",
+      "stderr": ""
+    },
+    {
+      "name": "interactions",
+      "command": "node evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-INTERACTIONS-001/check-interactions.mjs",
+      "exitCode": 0,
+      "stdout": "PARITY (baseline same) keyword.typing-does-not-search\nPARITY (baseline same) keyword.search-click-on-page-1-searches-once-with-typed-text\nPARITY (baseline same) keyword.search-click-on-page-2-goes-to-page-1-and-searches-once\nPARITY (baseline differs) keyword.typed-but-unsubmitted-text-is-used-by-a-filter-change\nPARITY (baseline differs) keyword.tab-change-keeps-input-and-queries-with-it\nPARITY (baseline differs) keyword.page-change-queries-with-typed-text\nPARITY (baseline same) keyword.no-timer-or-debounce-after-time-passes\nPARITY (baseline differs) search.button-is-not-disabled-by-loading\nPARITY (baseline differs) search.click-while-loading-issues-a-newer-request-and-retires-the-older\nPARITY (baseline differs) search.connection-change-refreshes\nPARITY (baseline same) search.failure-clears-rows-and-total\nPARITY (baseline differs) name.select-clears-keyword-resets-page-and-searches-once\nPARITY (baseline differs) name.typing-after-selecting-drops-the-name-and-searches-with-the-text\nPARITY (baseline same) name.typing-without-a-selected-name-does-not-search\nPARITY (baseline same) name.resource-and-monster-selections-are-independent\nPARITY (baseline differs) name.option-text-uses-game-text-then-key\nPARITY (baseline differs) selection.dispatch-toggle-membership-and-count\nPARITY (baseline differs) selection.dispatch-survives-page-filter-sort-search-and-server-change\nPARITY (baseline differs) selection.dispatch-resets-on-any-tab-change-including-dispatch-ghost\nPARITY (baseline differs) selection.truck-is-independent-and-persists-across-tabs-pages-and-servers\nPARITY (baseline differs) selection.payload-keys-and-identifier-edge-cases\nPARITY (baseline differs) delay.input-default-and-controlled-value\nPARITY (baseline differs) delay.schedule-button-predicate-per-delay-text\nPARITY (baseline differs) actions.schedule-and-share-predicates-with-and-without-selection-online-busy\nPARITY (baseline differs) actions.truck-schedule-predicate\nPARITY (baseline differs) flow.schedule-dispatch-success-busy-then-clear-reload-and-navigate\nPARITY (baseline differs) flow.schedule-dispatch-failure-keeps-selection-and-tab\nPARITY (baseline differs) flow.schedule-with-invalid-delay-never-calls-the-provider\nPARITY (baseline differs) flow.schedule-truck-success-clears-only-truck-selection\nPARITY (baseline differs) flow.share-label-selection-pruning-and-partial-message\nPARITY (baseline differs) flow.share-full-success-message-and-selection\nPARITY (baseline differs) flow.scheduled-tab-lists-counts-and-reloads-on-entry-and-change-events\nPARITY (baseline differs) flow.scheduled-cancel-identities-busy-keys-and-reload\nPARITY (baseline differs) flow.scheduled-plunder-again-and-clear-history\nPARITY (baseline differs) flow.action-message-is-cleared-by-a-tab-change\nPARITY (baseline differs) flow.share-failure-message-uses-the-original-error-translator\nPARITY (baseline differs) flow.clear-failure-message-uses-the-original-error-translator\nPARITY (baseline differs) navigation.server-change-on-page-3-first-request-uses-page-1\nLWB317_INTERACTIONS PASS scenarios=38 currentMismatches=0 baselineMismatches=31 originalErrors=0",
+      "stderr": ""
+    },
+    {
+      "name": "filter-lifecycle-r1",
+      "command": "node evidence\\lwbridge-0.3.17\\ui\\LWB317-UI-MAP-TOOLBAR-VISUAL-001\\milestone-c\\redirect-replay.mjs evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/current-regressions-v3/replay-r1-redirect.mjs filter-lifecycle-r1",
+      "exitCode": 0,
+      "stdout": "LWB317_UI_MAP_FILTER_LIFECYCLE_R1 cases=5 failures=0\nLWB317_AUTO_CONFIG_R1_REDIRECT_OK",
+      "stderr": ""
+    },
+    {
+      "name": "auto-controls",
+      "command": "node evidence\\lwbridge-0.3.17\\ui\\LWB317-UI-MAP-TOOLBAR-VISUAL-001\\milestone-c\\redirect-replay.mjs evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-AUTO-REMOVE-001/milestone-b/replay-controls.mjs auto-controls",
+      "exitCode": 0,
+      "stdout": "LWB317_MAP_AUTO_REMOVE_B_CONTROLS_OK languages=2 sides=2 add=8,15,120 enter=8,15,120,7,9 remove=8,120,7,9 nativeMutators=0 runNowClicks=0",
+      "stderr": ""
+    },
+    {
+      "name": "manual-empty-selection",
+      "command": "node evidence\\lwbridge-0.3.17\\ui\\LWB317-UI-MAP-TOOLBAR-VISUAL-001\\milestone-c\\redirect-replay.mjs evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-MANUAL-TYPES-001/check-manual-selection.mjs manual-empty-selection",
+      "exitCode": 0,
+      "stdout": "{\"marker\":\"LWB317_MAP_MANUAL_TYPES_CALLBACK_OK\",\"snapshots\":7,\"autoConfigEdits\":0}",
+      "stderr": ""
+    },
+    {
+      "name": "table-current-renderers",
+      "command": "node evidence\\lwbridge-0.3.17\\ui\\LWB317-UI-MAP-TOOLBAR-VISUAL-001\\milestone-c\\redirect-replay.mjs evidence/lwbridge-0.3.17/ui/LWB317-UI-OFFLINE-VISUAL-001/map/build-reference.mjs table-current",
+      "exitCode": 0,
+      "stdout": "{\"marker\":\"LWB317_MAP_TABLE_OFFLINE_REFERENCE_BUILT\",\"cases\":48,\"matched\":48,\"differences\":[]}",
+      "stderr": ""
+    },
+    {
+      "name": "treasure-table-state",
+      "command": "node evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-FILTERS-001/check-treasure-checking.mjs",
+      "exitCode": 0,
+      "stdout": "LWB317_TREASURE_CHECKING_OK 216 display comparisons; 384 input fences; 8 original producer cases",
+      "stderr": ""
+    },
+    {
+      "name": "row-actions",
+      "command": "node evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-INTERACTIONS-001/replay-historical.mjs --child LWB317-UI-MAP-ROWS-001/check-row-actions.mjs rows",
+      "exitCode": 0,
+      "stdout": "LWB317_MAP_ROW_ACTIONS_OK 160 comparisons; preview/native fences PASS",
+      "stderr": ""
+    }
+  ]
+}

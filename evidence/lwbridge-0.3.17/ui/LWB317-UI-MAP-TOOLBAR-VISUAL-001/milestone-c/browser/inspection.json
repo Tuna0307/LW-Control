@@ -1,0 +1,163 @@
+{
+  "task": "LWB317-UI-MAP-TOOLBAR-VISUAL-001",
+  "marker": "LWB317_MAP_TOOLBAR_SCREENSHOTS_INSPECTED",
+  "inspectedAt": "2026-10-04",
+  "records": [
+    {
+      "pairId": "city-en-light-desktop",
+      "side": "original",
+      "file": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-TOOLBAR-VISUAL-001/milestone-c/browser/city-en-light-desktop-original.png",
+      "sha256": "8590ce1879c4f5783ee405ac5e29305b17e9ec232763ab6949af5e7c53ff73ca",
+      "viewport": {
+        "width": 1280,
+        "height": 720,
+        "deviceScaleFactor": 1
+      },
+      "status": "INSPECTED",
+      "observation": "Original/current are visually identical. Toolbar controls, count and Page 1 of 31 pagination align exactly."
+    },
+    {
+      "pairId": "city-en-light-desktop",
+      "side": "current",
+      "file": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-TOOLBAR-VISUAL-001/milestone-c/browser/city-en-light-desktop-current.png",
+      "sha256": "8590ce1879c4f5783ee405ac5e29305b17e9ec232763ab6949af5e7c53ff73ca",
+      "viewport": {
+        "width": 1280,
+        "height": 720,
+        "deviceScaleFactor": 1
+      },
+      "status": "INSPECTED",
+      "observation": "Original/current are visually identical. Toolbar controls, count and Page 1 of 31 pagination align exactly."
+    },
+    {
+      "pairId": "city-ja-dark-375",
+      "side": "original",
+      "file": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-TOOLBAR-VISUAL-001/milestone-c/browser/city-ja-dark-375-original.png",
+      "sha256": "d5e042375ecc5a3c06bb366804ba9a9e61d64c01e980f7db94ce1bdb018965de",
+      "viewport": {
+        "width": 375,
+        "height": 1000,
+        "deviceScaleFactor": 1
+      },
+      "status": "INSPECTED",
+      "observation": "Original/current are visually identical at 375px. The narrow tab strip clips horizontally in the same place on both sides; stacked City controls and Page 1 of 31 pagination match."
+    },
+    {
+      "pairId": "city-ja-dark-375",
+      "side": "current",
+      "file": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-TOOLBAR-VISUAL-001/milestone-c/browser/city-ja-dark-375-current.png",
+      "sha256": "d5e042375ecc5a3c06bb366804ba9a9e61d64c01e980f7db94ce1bdb018965de",
+      "viewport": {
+        "width": 375,
+        "height": 1000,
+        "deviceScaleFactor": 1
+      },
+      "status": "INSPECTED",
+      "observation": "Original/current are visually identical at 375px. The narrow tab strip clips horizontally in the same place on both sides; stacked City controls and Page 1 of 31 pagination match."
+    },
+    {
+      "pairId": "truck-en-dark-desktop",
+      "side": "original",
+      "file": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-TOOLBAR-VISUAL-001/milestone-c/browser/truck-en-dark-desktop-original.png",
+      "sha256": "3bd451a8e1f2284ba61e646a2e1257139cc9890d044e8d4a24fac99fa5764a7b",
+      "viewport": {
+        "width": 1280,
+        "height": 720,
+        "deviceScaleFactor": 1
+      },
+      "status": "INSPECTED",
+      "observation": "Geometry is identical. Current intentionally renders Plunder selected trucks (1) disabled/fenced, so that one button loses the recovered blue enabled treatment; all other toolbar and pagination visuals match."
+    },
+    {
+      "pairId": "truck-en-dark-desktop",
+      "side": "current",
+      "file": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-TOOLBAR-VISUAL-001/milestone-c/browser/truck-en-dark-desktop-current.png",
+      "sha256": "6d3336d5f4abd54bac61f4ecd83886ed1db703636bb2a0873715a6131575e0df",
+      "viewport": {
+        "width": 1280,
+        "height": 720,
+        "deviceScaleFactor": 1
+      },
+      "status": "INSPECTED",
+      "observation": "Geometry is identical. Current intentionally renders Plunder selected trucks (1) disabled/fenced, so that one button loses the recovered blue enabled treatment; all other toolbar and pagination visuals match."
+    },
+    {
+      "pairId": "dispatch-ja-light-375",
+      "side": "original",
+      "file": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-TOOLBAR-VISUAL-001/milestone-c/browser/dispatch-ja-light-375-original.png",
+      "sha256": "9448b492bb777d30e4e824181d08decb8503a5335092777e748f9c979e8c83e2",
+      "viewport": {
+        "width": 375,
+        "height": 1000,
+        "deviceScaleFactor": 1
+      },
+      "status": "INSPECTED",
+      "observation": "Geometry is identical at 375px. Current intentionally disables/fences Schedule selected and Share to Alliance, producing the only two visible button-style differences; all filters, delay input, count and pagination align."
+    },
+    {
+      "pairId": "dispatch-ja-light-375",
+      "side": "current",
+      "file": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-TOOLBAR-VISUAL-001/milestone-c/browser/dispatch-ja-light-375-current.png",
+      "sha256": "c5d93f87bec40e68176b0184e536033a4ae808e3fba6715bfa825a4ad209043e",
+      "viewport": {
+        "width": 375,
+        "height": 1000,
+        "deviceScaleFactor": 1
+      },
+      "status": "INSPECTED",
+      "observation": "Geometry is identical at 375px. Current intentionally disables/fences Schedule selected and Share to Alliance, producing the only two visible button-style differences; all filters, delay input, count and pagination align."
+    },
+    {
+      "pairId": "treasure-en-light-desktop",
+      "side": "original",
+      "file": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-TOOLBAR-VISUAL-001/milestone-c/browser/treasure-en-light-desktop-original.png",
+      "sha256": "4bc701f663fb19588185e6074fd171fb16b37151fa64fbd9419c6431ed05a825",
+      "viewport": {
+        "width": 1280,
+        "height": 720,
+        "deviceScaleFactor": 1
+      },
+      "status": "INSPECTED",
+      "observation": "Geometry is identical. Current intentionally keeps Claim Boxes and Claim Season Treasures disabled, producing the only visible differences; Treasure filters, count and pagination align."
+    },
+    {
+      "pairId": "treasure-en-light-desktop",
+      "side": "current",
+      "file": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-TOOLBAR-VISUAL-001/milestone-c/browser/treasure-en-light-desktop-current.png",
+      "sha256": "70312cf7bc3e7f1fdb9a1b3518c856a5bea1f4395ed8bb5e86b34e1d62f930df",
+      "viewport": {
+        "width": 1280,
+        "height": 720,
+        "deviceScaleFactor": 1
+      },
+      "status": "INSPECTED",
+      "observation": "Geometry is identical. Current intentionally keeps Claim Boxes and Claim Season Treasures disabled, producing the only visible differences; Treasure filters, count and pagination align."
+    },
+    {
+      "pairId": "scheduled-ja-dark-375",
+      "side": "original",
+      "file": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-TOOLBAR-VISUAL-001/milestone-c/browser/scheduled-ja-dark-375-original.png",
+      "sha256": "315dcd62026f71da65d94be158bd6cd2dd8407bb627f36716a1c0abf83cdb3fb",
+      "viewport": {
+        "width": 375,
+        "height": 1000,
+        "deviceScaleFactor": 1
+      },
+      "status": "INSPECTED",
+      "observation": "Original/current are visually identical. Scheduled toolbar/count presentation matches; Scheduled Plunder job-table bodies are intentionally outside this proof scope."
+    },
+    {
+      "pairId": "scheduled-ja-dark-375",
+      "side": "current",
+      "file": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-TOOLBAR-VISUAL-001/milestone-c/browser/scheduled-ja-dark-375-current.png",
+      "sha256": "315dcd62026f71da65d94be158bd6cd2dd8407bb627f36716a1c0abf83cdb3fb",
+      "viewport": {
+        "width": 375,
+        "height": 1000,
+        "deviceScaleFactor": 1
+      },
+      "status": "INSPECTED",
+      "observation": "Original/current are visually identical. Scheduled toolbar/count presentation matches; Scheduled Plunder job-table bodies are intentionally outside this proof scope."
+    }
+  ]
+}

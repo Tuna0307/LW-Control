@@ -1,0 +1,121 @@
+{
+  "task": "LWB317-UI-MAP-TOOLBAR-VISUAL-001",
+  "marker": "LWB317_MAP_TOOLBAR_DIFFERENCES_CLASSIFIED",
+  "unresolvedInScopePresentationDefects": 0,
+  "sharedFacts": [
+    "Both sides use the same reference.css then styles.css bytes, timezone, language, theme, viewport and device scale.",
+    "All six pairs have zero geometry differences and all twelve captures have fonts loaded with zero browser console/page issues.",
+    "Current tablist/tab ARIA metadata and explicit button types remain visible in raw DOM evidence and do not change pixels in the exact pairs.",
+    "Provider/native action availability is intentionally preserved; screenshots do not enable unavailable scheduling/share/claim/truck operations."
+  ],
+  "pairs": [
+    {
+      "pairId": "city-en-light-desktop",
+      "tab": "city",
+      "language": "en",
+      "theme": "light",
+      "viewport": {
+        "width": 1280,
+        "height": 720,
+        "deviceScaleFactor": 1
+      },
+      "exactScreenshotBytes": true,
+      "domExact": false,
+      "geometryDifferenceCount": 0,
+      "styleDifferenceCount": 0,
+      "attributeDifferenceCount": 15,
+      "status": "PRESENTATION_MATCH",
+      "explanation": "Pixel, geometry and computed-style exact. Raw DOM differences are current accessibility/button-type attributes only."
+    },
+    {
+      "pairId": "city-ja-dark-375",
+      "tab": "city",
+      "language": "ja",
+      "theme": "dark",
+      "viewport": {
+        "width": 375,
+        "height": 1000,
+        "deviceScaleFactor": 1
+      },
+      "exactScreenshotBytes": true,
+      "domExact": false,
+      "geometryDifferenceCount": 0,
+      "styleDifferenceCount": 0,
+      "attributeDifferenceCount": 15,
+      "status": "PRESENTATION_MATCH",
+      "explanation": "Pixel, geometry and computed-style exact at 375px. Raw DOM differences are current accessibility/button-type attributes only."
+    },
+    {
+      "pairId": "truck-en-dark-desktop",
+      "tab": "truck",
+      "language": "en",
+      "theme": "dark",
+      "viewport": {
+        "width": 1280,
+        "height": 720,
+        "deviceScaleFactor": 1
+      },
+      "exactScreenshotBytes": false,
+      "domExact": false,
+      "geometryDifferenceCount": 0,
+      "styleDifferenceCount": 8,
+      "attributeDifferenceCount": 14,
+      "status": "INTENTIONAL_NATIVE_FENCE",
+      "explanation": "No geometry difference. Eight computed-style deltas are all the single unavailable Plunder selected trucks action (border/color/background/opacity/cursor) caused by the accepted disabled provider fence."
+    },
+    {
+      "pairId": "dispatch-ja-light-375",
+      "tab": "dispatch",
+      "language": "ja",
+      "theme": "light",
+      "viewport": {
+        "width": 375,
+        "height": 1000,
+        "deviceScaleFactor": 1
+      },
+      "exactScreenshotBytes": false,
+      "domExact": false,
+      "geometryDifferenceCount": 0,
+      "styleDifferenceCount": 16,
+      "attributeDifferenceCount": 15,
+      "status": "INTENTIONAL_NATIVE_FENCE",
+      "explanation": "No geometry difference. Sixteen computed-style deltas are exactly the two unavailable Schedule/Share actions (8 each) caused by accepted disabled provider fences."
+    },
+    {
+      "pairId": "treasure-en-light-desktop",
+      "tab": "treasure",
+      "language": "en",
+      "theme": "light",
+      "viewport": {
+        "width": 1280,
+        "height": 720,
+        "deviceScaleFactor": 1
+      },
+      "exactScreenshotBytes": false,
+      "domExact": false,
+      "geometryDifferenceCount": 0,
+      "styleDifferenceCount": 16,
+      "attributeDifferenceCount": 17,
+      "status": "INTENTIONAL_NATIVE_FENCE",
+      "explanation": "No geometry difference. Sixteen computed-style deltas are exactly the two disabled claim actions (8 each). Current label span wrappers are raw-DOM-only/presentation-equivalent."
+    },
+    {
+      "pairId": "scheduled-ja-dark-375",
+      "tab": "scheduledPlunder",
+      "language": "ja",
+      "theme": "dark",
+      "viewport": {
+        "width": 375,
+        "height": 1000,
+        "deviceScaleFactor": 1
+      },
+      "exactScreenshotBytes": true,
+      "domExact": false,
+      "geometryDifferenceCount": 0,
+      "styleDifferenceCount": 0,
+      "attributeDifferenceCount": 10,
+      "status": "PRESENTATION_MATCH",
+      "explanation": "Pixel, geometry and computed-style exact. Raw DOM differences are current accessibility/button-type attributes only; job-table bodies are out of scope."
+    }
+  ]
+}

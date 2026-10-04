@@ -1,5 +1,12 @@
 # LWBridge 0.3.17 parity matrix
 
+Worker delivery, 2026-10-04: MAP-TOOLBAR-VISUAL-001 is **AWAITING_REVIEW** for
+its bounded source/local toolbar/filter/count/pagination gate. The corrected current
+renderer has zero geometry differences across all six required browser pairs; City
+EN/light, City JA/dark 375px and Scheduled JA/dark 375px are pixel-identical.
+Truck/Secret Task/Treasure retain only intentional disabled-action pixels. This does
+not upgrade Scheduled job bodies, table rows, native behavior or global UI parity.
+
 Lead acceptance, 2026-10-04: MAP-AUTO-REMOVE-001 at5a62c25 restores the recovered
 SVG remove glyph and closes its isolated source/local gate: 12 renderer pairs,
 inert EN/JA controls and four saved browser pairs accepted after lead checks.

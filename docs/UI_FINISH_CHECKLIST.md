@@ -1,5 +1,12 @@
 # UI completion checklist — 2026-10-03
 
+Worker delivery, 2026-10-04: MAP-TOOLBAR-VISUAL-001 is **AWAITING_REVIEW**.
+The assigned 34-state renderer matrix, mounted local interactions, nine-catalog
+inventory and six browser pairs are complete. Three recovered presentation drifts
+were corrected; all paired geometry matches and remaining screenshot differences
+are intentional disabled native/provider actions. Lead acceptance, Scheduled job
+bodies, other pages/shared shell and global/native pixel gates remain separate.
+
 Lead checkpoint, 2026-10-04: the assigned Auto-card visual gate is accepted at
 5a62c25. Remaining Map toolbar/filter/pagination visuals are assigned as
 MAP-TOOLBAR-VISUAL-001 (three sequential milestones). Scheduled job-body visuals,

@@ -1,5 +1,14 @@
 # LWBridge 0.3.17 UI parity plan
 
+Worker delivery, 2026-10-04: MAP-TOOLBAR-VISUAL-001 is **AWAITING_REVIEW** after
+all three bounded milestones. Source/current comparison covered 34 required EN/JA
+states plus boundary/error/loading cases; three proven toolbar/pagination presentation
+drifts were corrected in `MapDataPage.jsx`. Six required browser pairs have zero
+geometry differences; three are pixel-identical and the other three differ only at
+preserved unavailable native/provider actions. Affected regressions and package
+checks are recorded in the task packet. Project-lead acceptance is pending; global
+UI remains PARTIAL and Scheduled job bodies/native/global pixels remain separate.
+
 Latest lead acceptance/relay, 2026-10-04: MAP-AUTO-REMOVE-001 at5a62c25 is
 COMPLETE / ACCEPTED for the isolated source/local Auto-card gate after lead
 executable/evidence/package/WIP review. Next worker: MAP-TOOLBAR-VISUAL-001,

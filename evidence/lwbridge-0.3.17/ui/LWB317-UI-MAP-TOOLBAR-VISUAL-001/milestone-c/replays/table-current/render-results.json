@@ -1,0 +1,905 @@
+{
+  "marker": "LWB317_MAP_TABLE_OFFLINE_REFERENCE_BUILT",
+  "reference": [
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js",
+      "sha256": "ce74345518be72e417a510b982c591729e5683f69751e190805598c4c05d3089"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-BVfnK1wp.js",
+      "sha256": "44c4e4043825b7db296b64171951b27176f8850ff8d7d337cc991df4765524c6"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/rewardDisplay-eZWrd6iS.js",
+      "sha256": "7f65dd3f5b81c96117af5e83e8310d6c6a3a48787b1f693d387020255c78e73e"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/GameAssetImage-Diy9VTIr.js",
+      "sha256": "2f92a87c3268497df6425b1175db6140e10aabcbdfae02615f065d00e16458e0"
+    }
+  ],
+  "slices": [
+    {
+      "asset": "MapDataPanel-B4GXEND2.js",
+      "name": "k",
+      "utf8ByteOffset": 7065,
+      "byteLength": 28,
+      "sha256": "cd73623ba7a6e86c5e74430670fe15cb733529655a65c8f8635aca48909b901f",
+      "text": "function k(e,t){return e[t]}"
+    },
+    {
+      "asset": "MapDataPanel-B4GXEND2.js",
+      "name": "A",
+      "utf8ByteOffset": 7320,
+      "byteLength": 30,
+      "sha256": "881ca8e1db3f87ffa591dfd0ee2bf9972e33b5ce06009ed3cc0737eadb6323bc",
+      "text": "function A(e){return O.has(e)}"
+    },
+    {
+      "asset": "MapDataPanel-B4GXEND2.js",
+      "name": "j",
+      "utf8ByteOffset": 7467,
+      "byteLength": 91,
+      "sha256": "64255cbfa48e3e859e9b27a7b693dc959b0b6cbab40c379e8b9917ea647550d4",
+      "text": "function j(e,t,n){let r=String(t||``).trim();if(!r)return n;let i=e[r];return i&&i!==r?i:n}"
+    },
+    {
+      "asset": "MapDataPanel-B4GXEND2.js",
+      "name": "M",
+      "utf8ByteOffset": 7558,
+      "byteLength": 52,
+      "sha256": "8578032982c08419e37096007378cb351e671ea5f2228e03ae5edcf52b2875b7",
+      "text": "function M(e,t){return j(t,e.nameKey,e.name||e.key)}"
+    },
+    {
+      "asset": "MapDataPanel-B4GXEND2.js",
+      "name": "De",
+      "utf8ByteOffset": 4196,
+      "byteLength": 96,
+      "sha256": "8674c78b884038e54bdf5b347433f800675bf13dde850535a59bf447592014b6",
+      "text": "function De(e){let t=Number(e);return Number.isFinite(t)&&Ee[t]?Ee[t]:`map.treasureTypeUnknown`}"
+    },
+    {
+      "asset": "MapDataPanel-B4GXEND2.js",
+      "name": "Oe",
+      "utf8ByteOffset": 4292,
+      "byteLength": 136,
+      "sha256": "3eb25793550d369c759053cd654a0aa5ff2f645f6f817d164072f36f524b6a62",
+      "text": "function Oe(e){let t=Number(e);return t===1?`season_s2_ice_supplies_11`:t===3?`season_s3_supplies_1`:t===4?`season4_supplies_name_2`:``}"
+    },
+    {
+      "asset": "MapDataPanel-B4GXEND2.js",
+      "name": "ke",
+      "utf8ByteOffset": 4428,
+      "byteLength": 169,
+      "sha256": "a6722ec82867a9f7ea488c76493f2a9f9ecd2d7128ba47495c62fdaf467e9070",
+      "text": "function ke(e){let t=Number(e);return t===1?`map.treasureTypeIceSupplies`:t===3?`map.treasureTypeDesert`:t===4?`map.treasureTypeLargeLuckyCat`:`map.treasureTypeUnknown`}"
+    },
+    {
+      "asset": "MapDataPanel-B4GXEND2.js",
+      "name": "w",
+      "utf8ByteOffset": 4705,
+      "byteLength": 252,
+      "sha256": "8cc2020c48f92e6860fbe55e17e8a2a57c954da822729a75794b141a9bab36e0",
+      "text": "function w(e){return{charging:`map.treasureStateCharging`,claimable:`map.treasureStateClaimable`,depleted:`map.treasureStateDepleted`,expired:`map.treasureStateExpired`,verifying:`map.treasureStateVerifying`}[String(e||``)]||`map.treasureStateUnknown`}"
+    },
+    {
+      "asset": "MapDataPanel-B4GXEND2.js",
+      "name": "T",
+      "utf8ByteOffset": 4957,
+      "byteLength": 556,
+      "sha256": "3f04df3865b6e60e26b52d97d6a8361a8795359dc95f4be3fd16ceefcbc3fafd",
+      "text": "function T(e,t){return e===`claimed`?`map.treasurePlayerClaimed`:t===`other_alliance`?`map.treasurePlayerOtherAlliance`:t===`no_scout`||t===`no_squad`||t===`squad_reserved`?`map.treasurePlayerNoScout`:{unclaimed:`map.treasurePlayerUnclaimed`,dispatching:`map.treasurePlayerDispatching`,scouting:`map.treasurePlayerScouting`,digging:`map.treasurePlayerDigging`,claiming:`map.treasurePlayerClaiming`,claimed:`map.treasurePlayerClaimed`,failed:`map.treasurePlayerUnclaimed`,verifying:`map.treasurePlayerVerifying`}[String(e||``)]||`map.treasurePlayerUnknown`}"
+    },
+    {
+      "asset": "MapDataPanel-B4GXEND2.js",
+      "name": "Ke",
+      "utf8ByteOffset": 7610,
+      "byteLength": 156,
+      "sha256": "f6e22a73b0124337699060bb7fac78b2a20c9298f97b6c17eb7e0521bed5a82f",
+      "text": "function Ke(e,t,n,r,i){let a=String(Oe(r)||i||``).trim(),o=e(a===`challenge_zombie_box_title`?`map.treasureTypeTrialGift`:ke(r));return a?j(t,a,o):e(De(n))}"
+    },
+    {
+      "asset": "MapDataPanel-B4GXEND2.js",
+      "name": "qe",
+      "utf8ByteOffset": 7766,
+      "byteLength": 119,
+      "sha256": "f86d63f6540564c0310b6afb97068b477f138c2225f7167f432a13fda3e6f7ac",
+      "text": "function qe(e){return[`gatherMarchUuid`,`gatherUid`].some(t=>{let n=String(k(e,t)||``).trim();return n!==``&&n!==`0`})}"
+    },
+    {
+      "asset": "MapDataPanel-B4GXEND2.js",
+      "name": "Je",
+      "utf8ByteOffset": 8022,
+      "byteLength": 175,
+      "sha256": "880678fb896af4a8e14462ec828a2fe2d641983228440d8c3a2be3e55a1964ff",
+      "text": "function Je(e){if(!Number.isFinite(e)||e<0)return`-`;let t=Math.floor(e/1e3);return[Math.floor(t/3600),Math.floor(t%3600/60),t%60].map(e=>String(e).padStart(2,`0`)).join(`:`)}"
+    },
+    {
+      "asset": "MapDataPanel-B4GXEND2.js",
+      "name": "N",
+      "utf8ByteOffset": 7885,
+      "byteLength": 137,
+      "sha256": "a1f787abed74d30468f5b97df50a883f4fc29c5549bfde957a40bb269256e7b3",
+      "text": "function N(e,t){let n=Number(e);if(!Number.isFinite(n)||n<=0)return`-`;let r=n<0xe8d4a51000?n*1e3:n;return new Date(r).toLocaleString(t)}"
+    },
+    {
+      "asset": "MapDataPanel-B4GXEND2.js",
+      "name": "P",
+      "utf8ByteOffset": 8666,
+      "byteLength": 87,
+      "sha256": "d8901a88b14683786246688df68172203e4cf712740f15b090225eef1b4d696e",
+      "text": "function P(e){let t=Number(e);return!Number.isFinite(t)||t<=0?0:t<0xe8d4a51000?t*1e3:t}"
+    },
+    {
+      "asset": "MapDataPanel-B4GXEND2.js",
+      "name": "F",
+      "utf8ByteOffset": 8753,
+      "byteLength": 246,
+      "sha256": "baa30c96bd8c7c8f80ceac6a053238df0bd1e948966e03f13da3e3d09d0728ed",
+      "text": "function F(e,t){let n=P(k(e,`taskExpireTime`)),r=P(k(e,`completionTime`)),i=P(k(e,`plunderAt`))||r,a=Number(k(e,`stolenCount`)),o=Number(k(e,`maxStealCount`));return n&&t>=n?`expired`:o>0&&a>=o?`full`:!r||t<r?`pending`:i&&t<i?`protected`:`ready`}"
+    },
+    {
+      "asset": "MapDataPanel-B4GXEND2.js",
+      "name": "Qe",
+      "utf8ByteOffset": 8999,
+      "byteLength": 37,
+      "sha256": "1672f13c8c84b1884881d5441855bbe7347a43cd94ad7c0de63d81ef957e38a6",
+      "text": "function Qe(e,t){return e?N(e,t):`-`}"
+    },
+    {
+      "asset": "MapDataPanel-B4GXEND2.js",
+      "name": "$e",
+      "utf8ByteOffset": 9036,
+      "byteLength": 155,
+      "sha256": "6ff74fd36e552684b574b0887df1c4f26281c3c7a77fa04f08085dc306329796",
+      "text": "function $e(e,t){let n=Number(e);if(!Number.isFinite(n)||n<=0)return`-`;let r=n<0xe8d4a51000?n*1e3:n;return r>Date.now()?new Date(r).toLocaleString(t):`-`}"
+    },
+    {
+      "asset": "MapDataPanel-B4GXEND2.js",
+      "name": "I",
+      "utf8ByteOffset": 9191,
+      "byteLength": 82,
+      "sha256": "70b276913b76a3fb759846107f67de3e6b8ff69a0b9e680bb01e368848fca319",
+      "text": "function I(e,t){let n=Number(e);return Number.isFinite(n)?n.toLocaleString(t):`-`}"
+    },
+    {
+      "asset": "MapDataPanel-B4GXEND2.js",
+      "name": "L",
+      "utf8ByteOffset": 9273,
+      "byteLength": 94,
+      "sha256": "3dafff4c7d6e0a083826d8f6d6ca943167235e31a16074be444820c43ff7e612",
+      "text": "function L(e){let t=Number(e);return t===1?`N`:t===2?`R`:t===3?`SR`:t===4?`SSR`:t>=5?`UR`:`-`}"
+    },
+    {
+      "asset": "MapDataPanel-B4GXEND2.js",
+      "name": "et",
+      "utf8ByteOffset": 9367,
+      "byteLength": 119,
+      "sha256": "3308c9b841d740a9b54b431d05d661268e46d4418c816935d543fbf3d44285a4",
+      "text": "function et(e){let t=Number(k(e,`x`)),n=Number(k(e,`y`));return Number.isFinite(t)&&Number.isFinite(n)?`${t},${n}`:`-`}"
+    },
+    {
+      "asset": "MapDataPanel-B4GXEND2.js",
+      "name": "nt",
+      "utf8ByteOffset": 9594,
+      "byteLength": 4790,
+      "sha256": "4d84a3deedc3280c21f0e4c79bfc8bbffdd38b80f33afbaeb86dfc6712eecc4c",
+      "text": "function nt(e,t,n,i,a,o){let s={label:A(e)?t(`map.liveTarget`):t(`map.coordinates`),width:`190px`,className:`map-column-coordinate`,value:et,coordinate:!0},c={label:t(`map.updatedAt`),width:`150px`,sortBy:`updatedAt`,value:e=>Qe(e.updatedAt,n)};return e===`city`?[{label:t(`map.marked`),width:`48px`,className:`map-column-mark`,mark:!0},s,{label:t(`map.player`),width:`minmax(130px, 1fr)`,value:e=>String(k(e,`ownerName`)||`-`)},{label:t(`map.alliance`),width:`minmax(110px, 1fr)`,value:e=>String(k(e,`allianceName`)||`-`)},{label:t(`map.level`),width:`70px`,sortBy:`level`,value:e=>I(k(e,`level`),n)},{label:`HP`,width:`90px`,sortBy:`health`,value:e=>I(k(e,`health`),n)},{label:t(`automation.shieldEnds`),width:`150px`,sortBy:`shield`,value:e=>$e(k(e,`protectEndTime`)||k(e,`shieldEndTime`),n)},c]:e===`resource`?[s,{label:t(`map.resource`),width:`minmax(150px, 1fr)`,value:e=>j(i,k(e,`resourceNameKey`),t(`map.unknownResource`))},{label:t(`map.level`),width:`70px`,sortBy:`level`,value:e=>I(k(e,`level`),n)},{label:t(`common.status`),width:`80px`,value:e=>{let n=qe(e);return j(i,n?`300039`:`372138`,t(n?`map.resourceGathering`:`map.resourceIdle`))}},c]:e===`monster`?[s,{label:t(`common.name`),width:`minmax(150px, 1fr)`,value:e=>j(i,k(e,`monsterNameKey`),t(`map.unknownMonster`))},{label:t(`map.level`),width:`70px`,sortBy:`level`,value:e=>I(k(e,`level`),n)},{label:t(`map.distance`),width:`90px`,sortBy:`distance`,value:e=>I(k(e,`distanceFromHome`),n)},c]:e===`truck`?[{label:t(`map.selectTask`),width:`56px`,className:`map-task-select`,select:!0},s,{label:t(`map.playerAlliance`),width:`minmax(170px, 1fr)`,value:e=>String(k(e,`ownerName`)||k(e,`allianceName`)||`-`)},{label:t(`map.quality`),width:`70px`,sortBy:`quality`,value:e=>k(e,`isSpecialURQuality`)===!0?t(`map.reindeerQuality`):L(k(e,`quality`))},{label:t(`map.escortPower`),width:`120px`,sortBy:`power`,value:e=>I(k(e,`power`),n)},{label:t(`map.retainedGoods`),width:`minmax(360px, 2fr)`,sortBy:a?`itemCount`:void 0,rewards:`currentGoods`},{label:t(`map.plunderStatus`),width:`190px`,sortBy:`remainingLootCount`,value:e=>{let n=e,i=l(n),a=Math.max(0,Number(n.robTimes)||0),o=r(n,Date.now());return o===`full`?`${t(`map.truckPlunderFull`)} ${a}/${i}`:o===`protected`?`${t(`map.truckProtected`)} ${Je(Number(n.protectTime)-Date.now())}｜${t(`map.truckRobbedCount`,{count:a,max:i})}`:`${t(`map.truckReady`)}｜${t(`map.truckRobbedCount`,{count:a,max:i})}`}},{label:t(`map.arrivalTime`),width:`150px`,sortBy:`arriveTime`,value:e=>N(k(e,`arriveTs`),n)},c]:e===`railway`?[s,{label:t(`map.alliance`),width:`minmax(160px, 1fr)`,value:e=>String(k(e,`allianceName`)||k(e,`allianceAbbr`)||`-`)},{label:t(`map.quality`),width:`70px`,sortBy:`quality`,value:e=>L(k(e,`quality`))},{label:t(`map.power`),width:`120px`,sortBy:`power`,value:e=>I(k(e,`power`),n)},{label:t(`map.retainedGoods`),width:`minmax(360px, 2fr)`,sortBy:a?`itemCount`:void 0,rewards:`currentGoods`},{label:t(`map.protectionTime`),width:`150px`,sortBy:`protectTime`,value:e=>N(k(e,`protectTime`),n)},c]:e===`treasure`?[s,{label:t(`map.treasureType`),width:`160px`,value:e=>Ke(t,i,k(e,`treasureType`),k(e,`suppliesType`),k(e,`treasureNameKey`))},{label:t(`map.remainingBoxes`),width:`90px`,value:e=>I(k(e,`remainingBoxes`),n)},{label:t(`map.treasureWorldState`),width:`110px`,value:e=>{let n=k(e,`worldClaimState`)||(o?`verifying`:`unknown`),r=Number(k(e,`chargePercent`));return n===`charging`&&Number.isFinite(r)?`${t(w(n))} ${Math.round(r*100)}%`:t(w(n))}},{label:t(`map.treasurePlayerState`),width:`110px`,value:e=>t(T(k(e,`playerClaimState`)||(o?`verifying`:`unknown`),k(e,`claimBlockReason`)))},{label:t(`map.claimedCount`),width:`90px`,value:e=>I(k(e,`rewardedCount`),n)},{label:t(`map.diggingCount`),width:`90px`,value:e=>I(k(e,`diggingCount`),n)},{label:t(`map.expireTime`),width:`150px`,value:e=>N(Number(k(e,`expireTime`)),n)},{label:t(`map.owner`),width:`minmax(140px, 1fr)`,value:e=>String(k(e,`ownerName`)||k(e,`ownerUid`)||`-`)},{label:t(`map.alliance`),width:`minmax(110px, 1fr)`,value:e=>String(k(e,`allianceAbbr`)||k(e,`allianceId`)||`-`)},{label:t(`map.actions`),width:`90px`,action:!0},c]:[...e===`dispatch`||e===`ghost`?[{label:t(`map.selectTask`),width:`56px`,className:`map-task-select`,select:!0}]:[],s,{label:t(`map.owner`),width:`minmax(150px, 1fr)`,value:e=>String(k(e,`ownerName`)||k(e,`ownerUid`)||`-`)},{label:t(`map.level`),width:`70px`,sortBy:`level`,value:e=>I(k(e,`level`),n)},{label:t(`map.quality`),width:`110px`,sortBy:`quality`,value:e=>k(e,`isSpecial`)===!0?t(`map.specialQuality`):L(k(e,`quality`))},{label:t(`map.taskStatus`),width:`90px`,status:!0},{label:t(`map.rewards`),width:`minmax(360px, 2fr)`,rewards:`rewards`},{label:t(`map.completionTime`),width:`150px`,sortBy:`completionTime`,value:e=>N(k(e,`completionTime`),n)},c]}"
+    },
+    {
+      "asset": "MapDataPanel-B4GXEND2.js",
+      "name": "O",
+      "utf8ByteOffset": 6149,
+      "byteLength": 30,
+      "sha256": "bd1f1a1905c4391172bff93eac83e7661b154677cf797a56bd799e38dda0732b",
+      "text": "O=new Set([`truck`,`railway`])"
+    },
+    {
+      "asset": "MapDataPanel-B4GXEND2.js",
+      "name": "Ee",
+      "utf8ByteOffset": 3601,
+      "byteLength": 594,
+      "sha256": "7a23b105b31f137da5aabdae4ef6edb42567b281c618cf3d7bde1bd071ce5795",
+      "text": "Ee={1:`map.treasureTypeRadar`,2:`map.treasureTypeSiege`,3:`map.treasureTypeActivityRadar`,5:`map.treasureTypeInvasion`,6:`map.treasureTypeZoneMobilization`,7:`map.treasureTypeSandworm`,8:`map.treasureTypeAllianceBossSandbox`,9:`map.treasureTypePlayerKillMonster`,10:`map.treasureTypeFlowerCar`,11:`map.treasureTypeOffSeason`,12:`map.treasureTypeBloodyQueen`,13:`map.treasureTypeGeneFragment`,15:`map.treasureTypeFlowerTrainUpgrade`,16:`map.treasureTypeFlowerTrainCheer`,17:`map.treasureTypeWolfShadow`,18:`map.treasureTypeSeasonBoss`,19:`map.treasureTypeWorldBoss`,20:`map.treasureTypeZwlGift`}"
+    },
+    {
+      "asset": "MapDataPanel-B4GXEND2.js",
+      "name": "Ie",
+      "utf8ByteOffset": 5647,
+      "byteLength": 396,
+      "sha256": "428d265d856d8c2b00e0596aa60085db4ed9297bc50cab6b440d5d621c40ffb1",
+      "text": "Ie=[{key:`city`,label:`map.playerCity`,enabled:!0},{key:`resource`,label:`map.resourcePoint`,enabled:!0},{key:`monster`,label:`map.monster`,enabled:!0},{key:`truck`,label:`map.truck`,enabled:!0},{key:`railway`,label:`map.allianceTrain`,enabled:!0},{key:`dispatch`,label:`map.secretTask`,enabled:!0},{key:`ghost`,label:`map.ghostScout`,enabled:!0},{key:`treasure`,label:`map.treasure`,enabled:!0}]"
+    },
+    {
+      "asset": "index-BVfnK1wp.js",
+      "name": "Fe",
+      "utf8ByteOffset": 201275,
+      "byteLength": 124,
+      "sha256": "7e8fa92bab50db7cf3c4d12ae47866ce6139264374448178dfd0a8ff4c794008",
+      "text": "function Fe(e){if(e.isSpecialURQuality)return 1;let t=Number(e.maxLootCount);return Number.isFinite(t)&&t>0?Math.floor(t):0}"
+    },
+    {
+      "asset": "index-BVfnK1wp.js",
+      "name": "Ie",
+      "utf8ByteOffset": 201399,
+      "byteLength": 307,
+      "sha256": "b1ec96c34c30b0f51eb9250effa122e83dd3a318b01b587ba17eebf6440e61e5",
+      "text": "function Ie(e,t){if(!String(e.uuid||``).trim()||!Number.isInteger(e.serverId)||Number(e.serverId)<=0)return`invalid`;let n=Number(e.arriveTs)||0;if(n>0&&n<=t)return`expired`;let r=Fe(e),i=Math.max(0,Math.floor(Number(e.robTimes)||0));return r>0&&i>=r?`full`:(Number(e.protectTime)||0)>t?`protected`:`ready`}"
+    },
+    {
+      "asset": "index-BVfnK1wp.js",
+      "name": "Vr",
+      "utf8ByteOffset": 330489,
+      "byteLength": 1287,
+      "sha256": "7d4ce469f53cac0f5b81864b48a4cf410194a0dbfdf14e5606bf93217fdf2919",
+      "text": "function Vr({name:e}){return(0,M.jsxs)(`svg`,{className:`ui-icon${e===`favorite-filled`?` is-filled`:``}`,viewBox:`0 0 16 16`,\"aria-hidden\":`true`,focusable:`false`,children:[e===`add`&&(0,M.jsx)(`path`,{d:`M8 3v10M3 8h10`}),e===`arrow-down`&&(0,M.jsx)(`path`,{d:`M8 2.5v11M3.5 9 8 13.5 12.5 9`}),e===`arrow-up`&&(0,M.jsx)(`path`,{d:`M8 13.5v-11M3.5 7 8 2.5 12.5 7`}),e===`chevron-left`&&(0,M.jsx)(`path`,{d:`m10 3-5 5 5 5`}),e===`chevron-right`&&(0,M.jsx)(`path`,{d:`m6 3 5 5-5 5`}),e===`drag`&&(0,M.jsx)(`path`,{d:`M5 4h.01M11 4h.01M5 8h.01M11 8h.01M5 12h.01M11 12h.01`}),e===`edit`&&(0,M.jsxs)(M.Fragment,{children:[(0,M.jsx)(`path`,{d:`m3 11-.5 2.5L5 13l7.5-7.5-2-2L3 11Z`}),(0,M.jsx)(`path`,{d:`m9.5 4.5 2 2`})]}),(e===`favorite`||e===`favorite-filled`)&&(0,M.jsx)(`path`,{d:`m8 2 1.8 3.65 4.03.59-2.92 2.84.69 4.02L8 11.2l-3.6 1.9.69-4.02-2.92-2.84 4.03-.59L8 2Z`}),e===`play`&&(0,M.jsx)(`path`,{d:`m5 3 8 5-8 5V3Z`}),e===`remove`&&(0,M.jsx)(`path`,{d:`m4 4 8 8M12 4l-8 8`}),e===`settings`&&(0,M.jsxs)(M.Fragment,{children:[(0,M.jsx)(`circle`,{cx:`8`,cy:`8`,r:`2.5`}),(0,M.jsx)(`path`,{d:`M8 1.5v1.8M8 12.7v1.8M1.5 8h1.8M12.7 8h1.8M3.4 3.4l1.3 1.3M11.3 11.3l1.3 1.3M3.4 12.6l1.3-1.3M11.3 4.7l1.3-1.3`})]}),e===`stop`&&(0,M.jsx)(`rect`,{x:`4`,y:`4`,width:`8`,height:`8`,rx:`1`})]})}"
+    },
+    {
+      "asset": "MapDataPanel-B4GXEND2.js",
+      "name": "at",
+      "utf8ByteOffset": 14837,
+      "byteLength": 5874,
+      "sha256": "c2e45d85ab0ca39748de2d9b0d06e219f66f99e1eb68c3fb404595b7ec638592",
+      "text": "at=(0,y.memo)(function({kind:e,rows:t,loading:n,gameTexts:i,itemKey:a,currentTime:o,sortState:s,selectedDispatchKeys:c,selectedTruckKeys:l,jumpingKey:d,jumpDisabled:f,treasureStatesRefreshing:p,treasureClaimBusy:ee,treasureClaimDisabled:te,onSort:m,onToggleDispatch:h,onToggleTruck:ne,onCoordinateJump:re,onPlayerMark:ie,onClaimTreasure:ae}){let{language:oe,t:g}=u(),ce=(0,y.useMemo)(()=>nt(e,g,oe,i,a,p),[i,a,e,oe,g,p]),le=ce.map(e=>Number(e.width.match(/\\d+/)[0])+8);function ue(t){let n=k(t,`uuid`)||k(t,`marchUuid`)||k(t,`recordKey`)||`${k(t,`pointIndex`)||``}:${k(t,`ownerUid`)||``}:${k(t,`updatedAt`)||``}`;return`${e}:${t.serverId}:${String(n)}`}function de(t){if(A(e)){let e=String(k(t,`marchUuid`)||``).trim();if(!e)return`-`;let n=`${t.serverId}:${e}`;return(0,E.jsxs)(`button`,{className:`map-coordinate-button`,disabled:f,onClick:()=>re(t),children:[(0,E.jsx)(`span`,{className:`map-coordinate-icon`,\"aria-hidden\":`true`}),(0,E.jsx)(`strong`,{children:g(d===n?`map.following`:`map.follow`)})]})}let n=Number(k(t,`x`)),r=Number(k(t,`y`));if(!Number.isInteger(n)||!Number.isInteger(r)||n<1||r<1)return`-`;let i=`${t.serverId}:${n}:${r}`;return(0,E.jsxs)(`button`,{className:`map-coordinate-button`,disabled:f,onClick:()=>re(t),children:[(0,E.jsx)(`span`,{className:`map-coordinate-icon`,\"aria-hidden\":`true`}),(0,E.jsx)(`span`,{children:et(t)}),(0,E.jsx)(`strong`,{children:g(d===i?`map.jumping`:`map.jump`)})]})}function fe(e,t){let n=k(e,t);if(!Array.isArray(n)||n.length===0)return`-`;let r=[...n];return t===`currentGoods`&&a&&r.sort((e,t)=>Number(t.key===a)-Number(e.key===a)),(0,E.jsx)(`span`,{className:`map-reward-list map-reward-list--${t===`lostGoods`?`lost`:`retained`}`,children:r.map((e,t)=>{let n=M(e,i),r=`${n} ×${I(e.count,oe)}`;return(0,E.jsxs)(`span`,{className:`map-reward-item`,title:r,\"aria-label\":r,children:[(0,E.jsx)(v,{assetPath:e.iconPath,alt:n,className:`map-reward-icon`}),(0,E.jsxs)(`strong`,{children:[`×`,_(e.count)]})]},`${e.key}:${t}`)})})}function pe(e){let t=F(e,o),n=g(t===`expired`?`map.taskExpired`:t===`full`?`map.taskPlunderFull`:t===`protected`?`map.taskProtected`:t===`ready`?`map.taskReady`:`map.taskPending`);return(0,E.jsx)(`span`,{className:`map-task-status ${t}`,children:n})}function me(t){if(e===`truck`){let e=t,n=String(e.uuid||``).trim(),i=`${e.serverId}:${n}`,a=r(e,o);return(0,E.jsx)(`input`,{type:`checkbox`,\"aria-label\":g(`map.selectNamedTask`,{name:String(k(t,`ownerName`)||k(t,`allianceName`)||k(t,`uuid`)),server:t.serverId}),checked:l.has(i),disabled:[`invalid`,`full`,`expired`].includes(a),onChange:()=>ne(e)})}let n=t,i=String(n.uuid||``).trim(),a=`${n.serverId}:${i}`,s=!/^\\d+$/.test(i)||!P(n.completionTime)||!P(n.plunderAt)||[`expired`,`full`].includes(F(n,o));return(0,E.jsx)(`input`,{type:`checkbox`,\"aria-label\":g(`map.selectNamedTask`,{name:String(k(t,`ownerName`)||k(t,`allianceName`)||k(t,`uuid`)),server:t.serverId}),checked:c.has(a),disabled:s,onChange:()=>h({...n,taskKind:e===`ghost`?`ghost`:`dispatch`})})}function he(e){let t=e,n=t.trackerState===`missing`?g(`map.positionMissing`):t.trackerState===`replaced`?g(`map.positionReplaced`):``,r=t.marked?g(`map.unmarkPlayer`):g(`map.markPlayer`);return(0,E.jsx)(`button`,{className:`map-mark-button${t.marked?` active`:``}`,disabled:!t.ownerUid,title:n?`${r} · ${n}`:r,\"aria-label\":r,onClick:()=>ie(t),children:(0,E.jsx)(se,{name:t.marked?`favorite-filled`:`favorite`})})}function ge(e){let t=e,n=String(t.uuid||``).trim(),r=Number(t.suppliesType),i=r===1||r===3||r===4,a=String(t.playerClaimState||``);return(0,E.jsx)(`button`,{className:`map-schedule-button`,disabled:te||!n||n===`0`||!i&&t.complete!==!0||[`dispatching`,`scouting`,`digging`,`claiming`,`claimed`].includes(a)||t.worldClaimState===`depleted`||t.worldClaimState===`expired`||t.claimBlockReason===`other_alliance`,onClick:()=>ae(t),children:g(ee?`map.claimingTreasure`:`map.claimTreasure`)})}return(0,E.jsx)(`div`,{className:`map-table-scroll`,children:(0,E.jsxs)(`table`,{className:`map-table map-table--${e}`,style:{minWidth:le.reduce((e,t)=>e+t,0)},\"aria-label\":g(Ie.find(t=>t.key===e).label),\"aria-busy\":n,children:[(0,E.jsx)(`colgroup`,{children:le.map((e,t)=>(0,E.jsx)(`col`,{style:{width:e}},t))}),(0,E.jsx)(`thead`,{children:(0,E.jsx)(`tr`,{className:`map-row map-head`,children:ce.map(e=>{let t=e.sortBy?s.findIndex(t=>t.sortBy===e.sortBy):-1,n=t>=0?s[t]:void 0;return(0,E.jsx)(`th`,{scope:`col`,className:e.className||``,\"aria-sort\":t===0?n?.sortOrder===`asc`?`ascending`:`descending`:void 0,children:e.sortBy?(0,E.jsxs)(`button`,{type:`button`,className:`map-sort-button${n?` active`:``}`,\"aria-label\":n?g(`map.sortDescription`,{column:e.label,direction:g(n.sortOrder===`asc`?`map.sortAscending`:`map.sortDescending`),priority:t+1}):e.label,onClick:()=>m(e.sortBy),children:[e.label,n&&(0,E.jsx)(`span`,{className:`map-sort-priority`,\"aria-hidden\":`true`,children:t+1}),(0,E.jsxs)(`span`,{className:`map-sort-arrows`,\"aria-hidden\":`true`,children:[(0,E.jsx)(`span`,{className:`map-sort-arrow${n?.sortOrder===`asc`?` active`:``}`,children:(0,E.jsx)(se,{name:`arrow-up`})}),(0,E.jsx)(`span`,{className:`map-sort-arrow${n?.sortOrder===`desc`?` active`:``}`,children:(0,E.jsx)(se,{name:`arrow-down`})})]})]}):e.label},e.label)})})}),(0,E.jsxs)(`tbody`,{children:[t.map(e=>(0,E.jsx)(`tr`,{className:`map-row${k(e,`marked`)===!0?` is-marked`:``}${k(e,`trackerState`)===`missing`?` is-missing`:``}${k(e,`trackerState`)===`replaced`?` is-replaced`:``}`,children:ce.map(t=>(0,E.jsx)(`td`,{className:[t.className,t.rewards?`map-reward-cell`:``].filter(Boolean).join(` `),children:t.mark?he(e):t.select?me(e):t.coordinate?de(e):t.rewards?fe(e,t.rewards):t.status?pe(e):t.action?ge(e):t.value?.(e)},t.label))},ue(e))),t.length===0&&(0,E.jsx)(`tr`,{children:(0,E.jsx)(`td`,{colSpan:ce.length,className:`map-empty`,children:g(n?`common.processing`:`map.empty`)})})]})]})})})"
+    },
+    {
+      "asset": "rewardDisplay-eZWrd6iS.js",
+      "name": "e",
+      "utf8ByteOffset": 0,
+      "byteLength": 219,
+      "sha256": "6af2bfb4322892d2349ee6c9fe794c6b63622ff2bc9e5be4a2f572aeab813e68",
+      "text": "function e(e){let t=Number(e);if(!Number.isFinite(t))return`-`;let n=Math.abs(t),r=t<0?`-`:``;return n>=1e9?`${r}${(n/1e9).toFixed(1)}G`:n>=1e6?`${r}${(n/1e6).toFixed(1)}M`:n>=1e3?`${r}${(n/1e3).toFixed(1)}K`:String(t)}"
+    },
+    {
+      "asset": "GameAssetImage-Diy9VTIr.js",
+      "name": "b",
+      "utf8ByteOffset": 1165,
+      "byteLength": 142,
+      "sha256": "bed64690ee41db49095ec74badddd5b0d2c25d8147d440ce39f00cab0ab8ef2f",
+      "text": "function b(e,t){let n=e?.trim(),r=t?.trim();return!!n==!!r?null:n?{sourceKey:`asset:${n}`,assetPath:n}:{sourceKey:`sprite:${r}`,spriteName:r}}"
+    },
+    {
+      "asset": "GameAssetImage-Diy9VTIr.js",
+      "name": "x",
+      "utf8ByteOffset": 1307,
+      "byteLength": 1025,
+      "sha256": "a97d2750595cb4337bf9a3e6f460fc2f391196d0c3acd6fda874b948217b6351",
+      "text": "function x({assetPath:e,spriteName:t,alt:n,className:r,deferUntilVisible:o=!1}){let s=b(e,t),c=s?.sourceKey||``,u=(0,i.useRef)(null),[d,f]=(0,i.useState)({sourceKey:c,src:``}),[p,m]=(0,i.useState)({sourceKey:c,ready:!o}),h=c&&l.get(c)||``,g=d.sourceKey===c?d.src:h,_=p.sourceKey===c&&p.ready;return(0,i.useEffect)(()=>{let e=c&&l.get(c)||``;f({sourceKey:c,src:e}),m({sourceKey:c,ready:!o||!!e})},[c,o]),(0,i.useEffect)(()=>{if(!c||!o||g||_)return;let e=u.current;if(!e||typeof IntersectionObserver>`u`){m({sourceKey:c,ready:!0});return}let t=new IntersectionObserver(e=>{e.some(e=>e.isIntersecting)&&(m({sourceKey:c,ready:!0}),t.disconnect())},{rootMargin:`160px 0px`});return t.observe(e),()=>t.disconnect()},[c,o,_,g]),(0,i.useEffect)(()=>{if(!(!c||!_||g))return y(c,s?.assetPath,s?.spriteName,{load:e=>f({sourceKey:c,src:e})})},[c,s?.assetPath,s?.spriteName,_,g]),g?(0,a.jsx)(`img`,{className:r,src:g,alt:n,loading:`lazy`,decoding:`async`}):(0,a.jsx)(`span`,{ref:u,className:`${r} game-asset-placeholder`,\"aria-label\":n})}"
+    }
+  ],
+  "current": {
+    "path": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+    "sha256": "f1acec3dff365ee7732974f42344def1ef6361b2a251363ce2cca972ec7d72f0"
+  },
+  "cssSha256": "3d87e9f65b39eace6a1a254bfc90a38acb72613d1fff7236c7cee7ab9bfaf545",
+  "cases": 48,
+  "matched": 48,
+  "records": [
+    {
+      "language": "en",
+      "kind": "city",
+      "state": "empty",
+      "sameStructureExceptButtonType": true,
+      "elementCount": [
+        57,
+        57
+      ],
+      "differences": [],
+      "expectedHtmlSha256": "9b7a4cadbb53c821d0d63894f257d5ca3180d8b4007ae793d55d3577742c23e9",
+      "actualHtmlSha256": "c147b83ebd66d6c1cb8613bd38ac84f7b26e2ffa3e759ba33056b4d64cbfcd63"
+    },
+    {
+      "language": "en",
+      "kind": "city",
+      "state": "loading",
+      "sameStructureExceptButtonType": true,
+      "elementCount": [
+        57,
+        57
+      ],
+      "differences": [],
+      "expectedHtmlSha256": "73dc24fb40b26c059904fa451788f2927ca9bae808a429ff920c7172468f1a24",
+      "actualHtmlSha256": "72332749189032cc0b54937519645efe3e1ebcec085aa16355d2e7d2178c8021"
+    },
+    {
+      "language": "en",
+      "kind": "city",
+      "state": "populated",
+      "sameStructureExceptButtonType": true,
+      "elementCount": [
+        71,
+        71
+      ],
+      "differences": [],
+      "expectedHtmlSha256": "96917bae9671640962535ded030e75f63d065433c628addfee817f1a9060f7a2",
+      "actualHtmlSha256": "6d46703a68926e967201cd7a45beceba6e494ae580528899e9ed13d63f669927"
+    },
+    {
+      "language": "en",
+      "kind": "resource",
+      "state": "empty",
+      "sameStructureExceptButtonType": true,
+      "elementCount": [
+        35,
+        35
+      ],
+      "differences": [],
+      "expectedHtmlSha256": "cc3ab521134d17cd9b9a9155f85fa6148fd9245c4c9cd472e65ffe1a0ad76c75",
+      "actualHtmlSha256": "e6cf21ad2bbd9c4a84013b4883928d9a12f21bfa74a4209b22df77786c5951f1"
+    },
+    {
+      "language": "en",
+      "kind": "resource",
+      "state": "loading",
+      "sameStructureExceptButtonType": true,
+      "elementCount": [
+        35,
+        35
+      ],
+      "differences": [],
+      "expectedHtmlSha256": "4215d3453b0ede78720b0bbc876c08c7d8d1857abada10ab824a3921074d183f",
+      "actualHtmlSha256": "52c8a81572fba58aaa3e5ef1de8b61b5bfe24b45d04384008f0e3e4f2259fbe8"
+    },
+    {
+      "language": "en",
+      "kind": "resource",
+      "state": "populated",
+      "sameStructureExceptButtonType": true,
+      "elementCount": [
+        43,
+        43
+      ],
+      "differences": [],
+      "expectedHtmlSha256": "d6c95964b1d0ffcd592b825bd9492322e7c917a968dd36deb23bc5d29f47261e",
+      "actualHtmlSha256": "d6b79abc3fa00b45bfe308af94e3aae0e6f933ac20303cf058189701ee2d1bd9"
+    },
+    {
+      "language": "en",
+      "kind": "monster",
+      "state": "empty",
+      "sameStructureExceptButtonType": true,
+      "elementCount": [
+        43,
+        43
+      ],
+      "differences": [],
+      "expectedHtmlSha256": "b0ecb886161a3c141e17fa97957431d4e1e12847eaa17b0b4b3fe4cc5082acf3",
+      "actualHtmlSha256": "d6cf6ca4d5009db51c2cff768b476b9dfc64f893300778ae5b9ed2ab76c492f7"
+    },
+    {
+      "language": "en",
+      "kind": "monster",
+      "state": "loading",
+      "sameStructureExceptButtonType": true,
+      "elementCount": [
+        43,
+        43
+      ],
+      "differences": [],
+      "expectedHtmlSha256": "d2a0178cebc922fea96ab579623b0a00098621088e58f7d93ac424bd8d975e5e",
+      "actualHtmlSha256": "21e456e3809e5415b4e123b34afb7f8c6fd011b245c1e27c6513a41bb36cebea"
+    },
+    {
+      "language": "en",
+      "kind": "monster",
+      "state": "populated",
+      "sameStructureExceptButtonType": true,
+      "elementCount": [
+        51,
+        51
+      ],
+      "differences": [],
+      "expectedHtmlSha256": "cbbb00f896089f054cfa830a6b6b0d82c898522c7e8e1017ed9a64c7501c8b15",
+      "actualHtmlSha256": "eef509a08021d091d469c4f621e3456eb6472b6d25e36d26ec1ac5b473412d7f"
+    },
+    {
+      "language": "en",
+      "kind": "truck",
+      "state": "empty",
+      "sameStructureExceptButtonType": true,
+      "elementCount": [
+        67,
+        67
+      ],
+      "differences": [],
+      "expectedHtmlSha256": "f2db63a7b9b15f917b1c1ed76492bcdf4d8c2cb39a87fde3d1350bc329884be4",
+      "actualHtmlSha256": "cb0e1800eca60e70738e8d0d590511af98e911e33824c2eda0b0be9fb1f68cfe"
+    },
+    {
+      "language": "en",
+      "kind": "truck",
+      "state": "loading",
+      "sameStructureExceptButtonType": true,
+      "elementCount": [
+        67,
+        67
+      ],
+      "differences": [],
+      "expectedHtmlSha256": "0bab0572282593c823e089d74f2fdd9f89556d647831e19330026f189a26859b",
+      "actualHtmlSha256": "ea066c9735ca78aad78f7b95c38a4d52cd25db4788549eced40529c76f88af65"
+    },
+    {
+      "language": "en",
+      "kind": "truck",
+      "state": "populated",
+      "sameStructureExceptButtonType": true,
+      "elementCount": [
+        80,
+        80
+      ],
+      "differences": [],
+      "expectedHtmlSha256": "0f592a1e6a1ea0a46647554ce530486bc541f341212055ba4e17079bfb25b38b",
+      "actualHtmlSha256": "0f592a1e6a1ea0a46647554ce530486bc541f341212055ba4e17079bfb25b38b"
+    },
+    {
+      "language": "en",
+      "kind": "railway",
+      "state": "empty",
+      "sameStructureExceptButtonType": true,
+      "elementCount": [
+        55,
+        55
+      ],
+      "differences": [],
+      "expectedHtmlSha256": "0921105d1ac0356e0df9d1234ea9fe9920bb8bbb79bddcf49e0f1a54c94c1a17",
+      "actualHtmlSha256": "ee2ca25d74244c24020185c9892f871e60381991ed2ebe3f03e1b151001c577f"
+    },
+    {
+      "language": "en",
+      "kind": "railway",
+      "state": "loading",
+      "sameStructureExceptButtonType": true,
+      "elementCount": [
+        55,
+        55
+      ],
+      "differences": [],
+      "expectedHtmlSha256": "df627dcadf9b79d5aff46527c9d6a7e67e720bf4fc10131d2bbd2d384a47c4e9",
+      "actualHtmlSha256": "21c7928f6af644d100fe3ab26fce3b0acef351be3ff8e920e6e9bafdf22b8089"
+    },
+    {
+      "language": "en",
+      "kind": "railway",
+      "state": "populated",
+      "sameStructureExceptButtonType": true,
+      "elementCount": [
+        65,
+        65
+      ],
+      "differences": [],
+      "expectedHtmlSha256": "79c6d3b639aa32baa619a37f3d77600bc1205f8910f2aab5603b3e8c5e86b699",
+      "actualHtmlSha256": "79c6d3b639aa32baa619a37f3d77600bc1205f8910f2aab5603b3e8c5e86b699"
+    },
+    {
+      "language": "en",
+      "kind": "dispatch",
+      "state": "empty",
+      "sameStructureExceptButtonType": true,
+      "elementCount": [
+        59,
+        59
+      ],
+      "differences": [],
+      "expectedHtmlSha256": "b426e9751604e0e31319aad4d58d6d992729d1b0583fce3172432e4449747793",
+      "actualHtmlSha256": "9c00b4a5be3809e937263420cbf53d5745bc6ede5e98df6438f8cef98d35fe95"
+    },
+    {
+      "language": "en",
+      "kind": "dispatch",
+      "state": "loading",
+      "sameStructureExceptButtonType": true,
+      "elementCount": [
+        59,
+        59
+      ],
+      "differences": [],
+      "expectedHtmlSha256": "9f0a3a4de7193dd4b4ed6855791182c7ab49e5410a61eb203728fd2b6b0b1cbc",
+      "actualHtmlSha256": "7551cce65f154ecc708007b87a4fa321c6235a33cc763e83b69aec10697c03c5"
+    },
+    {
+      "language": "en",
+      "kind": "dispatch",
+      "state": "populated",
+      "sameStructureExceptButtonType": true,
+      "elementCount": [
+        77,
+        77
+      ],
+      "differences": [],
+      "expectedHtmlSha256": "880d116e22240c77ec17b1443c8bb0dc3b2cabc8043b58584eed134013e75850",
+      "actualHtmlSha256": "79050f4bc70c7e5457ca057b022d5909e6eb1fb27701ceddc76b570cd3ef50b8"
+    },
+    {
+      "language": "en",
+      "kind": "ghost",
+      "state": "empty",
+      "sameStructureExceptButtonType": true,
+      "elementCount": [
+        59,
+        59
+      ],
+      "differences": [],
+      "expectedHtmlSha256": "4c2a5529362c85ee43ce7ac520438ac466e7dbe31b85ea54bff53353f6276969",
+      "actualHtmlSha256": "7582233472326c9e41501348062a42cc103eeda46bc6a49bfc49c896cff83172"
+    },
+    {
+      "language": "en",
+      "kind": "ghost",
+      "state": "loading",
+      "sameStructureExceptButtonType": true,
+      "elementCount": [
+        59,
+        59
+      ],
+      "differences": [],
+      "expectedHtmlSha256": "4a458c59b4377f06b16707252adad3b9908dc86b85bfa84e1ed111b830432f8b",
+      "actualHtmlSha256": "90453f9a19aff3ea01dee317c916e88e87f27bc332abfcd83b02c58f5666286d"
+    },
+    {
+      "language": "en",
+      "kind": "ghost",
+      "state": "populated",
+      "sameStructureExceptButtonType": true,
+      "elementCount": [
+        77,
+        77
+      ],
+      "differences": [],
+      "expectedHtmlSha256": "1a4ef8bef00d913c35fd0c70c848bf4f1555567d8fa8234da58b641d37edf63e",
+      "actualHtmlSha256": "292d2c6620e3e29b66cba17d69b816c373bdd8104743ee06548c4e7dc09a431e"
+    },
+    {
+      "language": "en",
+      "kind": "treasure",
+      "state": "empty",
+      "sameStructureExceptButtonType": true,
+      "elementCount": [
+        41,
+        41
+      ],
+      "differences": [],
+      "expectedHtmlSha256": "c148e2f0e59b4284d231f170414bfc398a1be31a4f1bfd1dc4a0ef249d07215a",
+      "actualHtmlSha256": "a2d681a29779225a714ab8b963814feda98dabe7575e3f535b77da92bd73e4c6"
+    },
+    {
+      "language": "en",
+      "kind": "treasure",
+      "state": "loading",
+      "sameStructureExceptButtonType": true,
+      "elementCount": [
+        41,
+        41
+      ],
+      "differences": [],
+      "expectedHtmlSha256": "d8886ff9d96563976f352c26397b8d869467a854cbf5db2e9413d4176e7c54b4",
+      "actualHtmlSha256": "3111946d08a8eb0b2ec4a22577e6df962f073f173c45cc379da7a47ba8e4ae3a"
+    },
+    {
+      "language": "en",
+      "kind": "treasure",
+      "state": "populated",
+      "sameStructureExceptButtonType": true,
+      "elementCount": [
+        57,
+        57
+      ],
+      "differences": [],
+      "expectedHtmlSha256": "4fa735d5fe22e0cc56eeddc914f4941792e0c0f3452ff26cfb2f848d95dc31a7",
+      "actualHtmlSha256": "333a485ecee2ae2cb831ca31f965493c2a16d1395083a0e2bacedc2d89b03e54"
+    },
+    {
+      "language": "ja",
+      "kind": "city",
+      "state": "empty",
+      "sameStructureExceptButtonType": true,
+      "elementCount": [
+        57,
+        57
+      ],
+      "differences": [],
+      "expectedHtmlSha256": "04aa77fd29a290b28f1118154b14c49688609cd06daefadf29eb539965655f52",
+      "actualHtmlSha256": "b7e356c6f2bb37b9a687288e851dbc5653213bda1d699043412f3a49678eaa41"
+    },
+    {
+      "language": "ja",
+      "kind": "city",
+      "state": "loading",
+      "sameStructureExceptButtonType": true,
+      "elementCount": [
+        57,
+        57
+      ],
+      "differences": [],
+      "expectedHtmlSha256": "27c2ccda0fe0444f3f21ed4c10dc1302ef24794d7ff1e84643f2c27a3c3f6dfb",
+      "actualHtmlSha256": "e89042e10a824a3c07c06dc2bf54cd33ff8cbf0f94ac0413b99436b050945b4b"
+    },
+    {
+      "language": "ja",
+      "kind": "city",
+      "state": "populated",
+      "sameStructureExceptButtonType": true,
+      "elementCount": [
+        71,
+        71
+      ],
+      "differences": [],
+      "expectedHtmlSha256": "61489d3e1777f2652eaf3f8fc2cfa392d6c97c34b368957cb6bba516117e991c",
+      "actualHtmlSha256": "9f6d2d5ed642271dd5cf949201b29fcb5907182f9174660d7c54f7038c01ae23"
+    },
+    {
+      "language": "ja",
+      "kind": "resource",
+      "state": "empty",
+      "sameStructureExceptButtonType": true,
+      "elementCount": [
+        35,
+        35
+      ],
+      "differences": [],
+      "expectedHtmlSha256": "e77a12c62fd219df18752bd024c36de290fbde5cffa3f12be1aa9fb684ff3527",
+      "actualHtmlSha256": "a1c2b9f21d9988b76444c2e93f84175dbc53e4cca77931e627aee22df8b1e474"
+    },
+    {
+      "language": "ja",
+      "kind": "resource",
+      "state": "loading",
+      "sameStructureExceptButtonType": true,
+      "elementCount": [
+        35,
+        35
+      ],
+      "differences": [],
+      "expectedHtmlSha256": "c722b2ef6618f6670c42b755883484a810267bedf1d7523d1fe20e70791ee172",
+      "actualHtmlSha256": "1ca818aa34cd9faf2c67c821f50051e7752ded221cef44768ceb82a2830f0def"
+    },
+    {
+      "language": "ja",
+      "kind": "resource",
+      "state": "populated",
+      "sameStructureExceptButtonType": true,
+      "elementCount": [
+        43,
+        43
+      ],
+      "differences": [],
+      "expectedHtmlSha256": "1f4b3bf8bc00f3783474815fc262ff80ac3037b468207e7c6f43c1510fb0c541",
+      "actualHtmlSha256": "ade4b2973013d415670fd0fe23b6e0d2ef220b169e325972160618aa1e46b54c"
+    },
+    {
+      "language": "ja",
+      "kind": "monster",
+      "state": "empty",
+      "sameStructureExceptButtonType": true,
+      "elementCount": [
+        43,
+        43
+      ],
+      "differences": [],
+      "expectedHtmlSha256": "18d69366535236cf0137bc3cd026ab3718715ca53b8694b361ecd5999574a772",
+      "actualHtmlSha256": "afefdb7fccac4d1f3f59997bba6869342c7727cd7e8ccfadfa9dcd4ac27c48e4"
+    },
+    {
+      "language": "ja",
+      "kind": "monster",
+      "state": "loading",
+      "sameStructureExceptButtonType": true,
+      "elementCount": [
+        43,
+        43
+      ],
+      "differences": [],
+      "expectedHtmlSha256": "f987389cf78c00e1764cd96e872227f7290ede0628f91a311c03924c969b9f97",
+      "actualHtmlSha256": "ce56ce6a2736789d039c67fdad69612d7d8d52ab5b868a46995858073e707656"
+    },
+    {
+      "language": "ja",
+      "kind": "monster",
+      "state": "populated",
+      "sameStructureExceptButtonType": true,
+      "elementCount": [
+        51,
+        51
+      ],
+      "differences": [],
+      "expectedHtmlSha256": "32efe2ab7069b6e41e8f02bff2c3835982b74aebdf2c05c83a8f85b0c9015620",
+      "actualHtmlSha256": "9b99dd5edde83600bc86e6c5bff53a0364c3a3211cec1bb3a4e6520c9534af56"
+    },
+    {
+      "language": "ja",
+      "kind": "truck",
+      "state": "empty",
+      "sameStructureExceptButtonType": true,
+      "elementCount": [
+        67,
+        67
+      ],
+      "differences": [],
+      "expectedHtmlSha256": "799aff2dea71ef01278a3bd8907aa3c046031b57f42b626796e2d85a2f8c4c5c",
+      "actualHtmlSha256": "be283e1de32aceee759e5598efda723d8e89adde9c756335e2597e309e6cb7c0"
+    },
+    {
+      "language": "ja",
+      "kind": "truck",
+      "state": "loading",
+      "sameStructureExceptButtonType": true,
+      "elementCount": [
+        67,
+        67
+      ],
+      "differences": [],
+      "expectedHtmlSha256": "a9556808e5006fb390775cc7b590b07c9177b875e9f72394bb4a78a6a28df0ad",
+      "actualHtmlSha256": "deeceedba8b5d94825d87e94870fb82eb1ffca2cb58b830a5e19811fb762adaa"
+    },
+    {
+      "language": "ja",
+      "kind": "truck",
+      "state": "populated",
+      "sameStructureExceptButtonType": true,
+      "elementCount": [
+        80,
+        80
+      ],
+      "differences": [],
+      "expectedHtmlSha256": "af236d46a38db754e15711ac9689e6962f49206545286c60e0c402f1b36a1ca6",
+      "actualHtmlSha256": "af236d46a38db754e15711ac9689e6962f49206545286c60e0c402f1b36a1ca6"
+    },
+    {
+      "language": "ja",
+      "kind": "railway",
+      "state": "empty",
+      "sameStructureExceptButtonType": true,
+      "elementCount": [
+        55,
+        55
+      ],
+      "differences": [],
+      "expectedHtmlSha256": "b79e25b01e029e7368317a01b9517605ccb92427967cccd0d30a3d9a2198e782",
+      "actualHtmlSha256": "0e6b88f8b746583d9d92386565c273a88681c78381a77b368c23a3b5ece1bdcc"
+    },
+    {
+      "language": "ja",
+      "kind": "railway",
+      "state": "loading",
+      "sameStructureExceptButtonType": true,
+      "elementCount": [
+        55,
+        55
+      ],
+      "differences": [],
+      "expectedHtmlSha256": "e512e4304d81d0571effc6a0e366f6a8a4fd202677b058e2aa4b7ef27c8a914a",
+      "actualHtmlSha256": "f316704c0415980c09ce4124e90b6ed24468272533a5ede50dae1207f460d11b"
+    },
+    {
+      "language": "ja",
+      "kind": "railway",
+      "state": "populated",
+      "sameStructureExceptButtonType": true,
+      "elementCount": [
+        65,
+        65
+      ],
+      "differences": [],
+      "expectedHtmlSha256": "57b589cf9fb0348fcce9436488a2c3ad1cf4303133013e63600f964373243b79",
+      "actualHtmlSha256": "57b589cf9fb0348fcce9436488a2c3ad1cf4303133013e63600f964373243b79"
+    },
+    {
+      "language": "ja",
+      "kind": "dispatch",
+      "state": "empty",
+      "sameStructureExceptButtonType": true,
+      "elementCount": [
+        59,
+        59
+      ],
+      "differences": [],
+      "expectedHtmlSha256": "44814d9cba2ed9a74014ce623c9b1aef68930fab52bddf7f164cf2da7c147481",
+      "actualHtmlSha256": "90a945cff563122dc22a5d058fe9ca64d0f118fed2c003bb14b5e1b79a81652a"
+    },
+    {
+      "language": "ja",
+      "kind": "dispatch",
+      "state": "loading",
+      "sameStructureExceptButtonType": true,
+      "elementCount": [
+        59,
+        59
+      ],
+      "differences": [],
+      "expectedHtmlSha256": "8025b39e12552a1fc1df86be5f6569d58ad3cd024a659787d9792a3b00f287cf",
+      "actualHtmlSha256": "e1a4d6531090cfabc38ad36cec9a310f4d4a5c422b68c19f199c24e18ee9c28e"
+    },
+    {
+      "language": "ja",
+      "kind": "dispatch",
+      "state": "populated",
+      "sameStructureExceptButtonType": true,
+      "elementCount": [
+        77,
+        77
+      ],
+      "differences": [],
+      "expectedHtmlSha256": "f41a79884ee738dc4f8ed8da8480755908ca61e6d21604cb22bac11d6325e7cc",
+      "actualHtmlSha256": "70a0d442f0ebbf2aa84851c47730db96f10a77e0856b6f2c5e7dafeef0a581c9"
+    },
+    {
+      "language": "ja",
+      "kind": "ghost",
+      "state": "empty",
+      "sameStructureExceptButtonType": true,
+      "elementCount": [
+        59,
+        59
+      ],
+      "differences": [],
+      "expectedHtmlSha256": "976f1edfb287bbe5039dcf94eeac5eb12d9c4b291a13ed8086f5e803a9a90869",
+      "actualHtmlSha256": "a4f546e0a7c4992dfcc915212280cb2e6e6a1ad0a1be4a8b30d38737a0529a26"
+    },
+    {
+      "language": "ja",
+      "kind": "ghost",
+      "state": "loading",
+      "sameStructureExceptButtonType": true,
+      "elementCount": [
+        59,
+        59
+      ],
+      "differences": [],
+      "expectedHtmlSha256": "892a2e6b706a61ac863eb84f75967a2d0e04c0d79a609a1c10b56a6a4de6ce8c",
+      "actualHtmlSha256": "2d4384666241cb08692a3e4c28e583bbaf663df3ac631044c10e28258746ef2a"
+    },
+    {
+      "language": "ja",
+      "kind": "ghost",
+      "state": "populated",
+      "sameStructureExceptButtonType": true,
+      "elementCount": [
+        77,
+        77
+      ],
+      "differences": [],
+      "expectedHtmlSha256": "45faacce80e6740b983fb2ce008ee40973fa4e20d5be039b4facaed95dd2b86f",
+      "actualHtmlSha256": "32b1ebcb6ebe0c17989e5395f8362fc5ecf1abf1b501e50e3a88893c098c4ff0"
+    },
+    {
+      "language": "ja",
+      "kind": "treasure",
+      "state": "empty",
+      "sameStructureExceptButtonType": true,
+      "elementCount": [
+        41,
+        41
+      ],
+      "differences": [],
+      "expectedHtmlSha256": "985c78d448a572a0e20571e87c5d27c5119e237a36354a34eccf678cfa00602d",
+      "actualHtmlSha256": "e8dddbab7f9c9248a53995dff8c313c4af925652d85340bab39303029f692890"
+    },
+    {
+      "language": "ja",
+      "kind": "treasure",
+      "state": "loading",
+      "sameStructureExceptButtonType": true,
+      "elementCount": [
+        41,
+        41
+      ],
+      "differences": [],
+      "expectedHtmlSha256": "79c74954c07865b1973fa3a4b9c538d590f07dae3c05a818cdb651d705aa0b72",
+      "actualHtmlSha256": "443b3e4aa4841803a82d2a82312b593447fb2c6a59cf0038fdc009e9044751ce"
+    },
+    {
+      "language": "ja",
+      "kind": "treasure",
+      "state": "populated",
+      "sameStructureExceptButtonType": true,
+      "elementCount": [
+        57,
+        57
+      ],
+      "differences": [],
+      "expectedHtmlSha256": "e75f149ef8a9fd0dc58cd4f6890cfc66e2b429d8245be2fadde6f489c08ffd0a",
+      "actualHtmlSha256": "8a2a4c24e1c756c1ab2bb61423932e64029cf183e0225c2d0556d91fa5f30e00"
+    }
+  ],
+  "limits": "Actual memoized original table and original pure helpers/icons/reward/image components; actual current table/helpers/image component. Fixed clock, inert callbacks, empty original image cache and no effects during SSR. Isolated panel container; no full Map header/panel shell, loaded images, mounted async/native or protected-runtime pixel proof."
+}

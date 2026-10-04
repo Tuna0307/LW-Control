@@ -1,5 +1,14 @@
 # Current implementation/research handoff
 
+Current worker delivery, 2026-10-04: MAP-TOOLBAR-VISUAL-001 is
+**AWAITING_REVIEW**. Milestone A `4574cc8` preserves the assignment-start renderer
+baseline; Milestone B `9668133` corrects `.map-search` table/pagination ancestry,
+normal result-count grouping and the recovered plunderable-filter class. Milestone C
+adds six inspected original/current browser pairs with zero geometry deltas plus
+affected navigation/lifecycle/Auto/Manual/table replays. Remaining Truck/Secret
+Task/Treasure pixel deltas are the required unavailable-action fences. Overall UI
+remains PARTIAL; project-lead acceptance and later visual/native gates are pending.
+
 Current lead acceptance/owner relay, 2026-10-04: MAP-AUTO-REMOVE-001 delivery
 5a62c25118e66ec3203316bca7c82fbf43d9c705 is COMPLETE / ACCEPTED for source/local
 Auto-card presentation and named inert interactions. Lead replays, saved A/B/C

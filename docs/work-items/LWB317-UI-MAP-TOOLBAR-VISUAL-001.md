@@ -1,6 +1,6 @@
 # LWB317-UI-MAP-TOOLBAR-VISUAL-001
 
-Status: ASSIGNED via owner relay, 2026-10-04. Size: upper-medium, three sequential milestones.
+Status: AWAITING_REVIEW, worker delivery complete 2026-10-04; project-lead acceptance pending. Size: upper-medium, three sequential milestones.
 Product delivery baseline: `5a62c25118e66ec3203316bca7c82fbf43d9c705`.
 
 ## Goal and startup

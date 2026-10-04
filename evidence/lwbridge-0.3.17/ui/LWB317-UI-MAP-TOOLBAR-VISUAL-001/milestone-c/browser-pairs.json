@@ -1,0 +1,316 @@
+{
+  "task": "LWB317-UI-MAP-TOOLBAR-VISUAL-001",
+  "milestone": "C",
+  "marker": "LWB317_MAP_TOOLBAR_BROWSER_PAIRS_PREPARED",
+  "generatedAt": "2026-10-04",
+  "scope": "Scoped .map-search renderer output inside real .main-view > .panel.map-panel ancestry. Table/job-table bodies remain omitted by assignment scope; normal pagination retains its actual direct .map-search ancestry.",
+  "fixedEnvironment": {
+    "timezone": "Asia/Singapore",
+    "deviceScaleFactor": 1,
+    "cssOrder": [
+      "src/LWBridge.UI-0.3.17/src/reference.css",
+      "src/LWBridge.UI-0.3.17/src/styles.css"
+    ],
+    "combinedCssSha256": "8d908848f130c72e22c87626821d3f89322571b3bf75606d776e0cb2506240f1"
+  },
+  "production": {
+    "mapDataPage": {
+      "path": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+      "sha256": "9f2dfed62ebfda7785afcd49a506c7bcb135dd20ba48867e8c063cdb126aec80"
+    },
+    "referenceCss": {
+      "path": "src/LWBridge.UI-0.3.17/src/reference.css",
+      "sha256": "3d87e9f65b39eace6a1a254bfc90a38acb72613d1fff7236c7cee7ab9bfaf545"
+    },
+    "stylesCss": {
+      "path": "src/LWBridge.UI-0.3.17/src/styles.css",
+      "sha256": "b50910d37a4dd02d7bb49b506735ea42615ef0f9e85714e880049481aece2ccc"
+    }
+  },
+  "parentEvidence": {
+    "currentResults": {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-TOOLBAR-VISUAL-001/milestone-b/current-results.json",
+      "sha256": "7601303e162822c01a128a2a43ed0ed2dbe7358a3a4d1cddddc255e5e7e8c915"
+    },
+    "currentManifest": {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-TOOLBAR-VISUAL-001/milestone-b/current-manifest.json",
+      "sha256": "eae52a6824c658a5af1af7aee7da8355a74d2da1319a4f232331437a8335c5fb"
+    },
+    "correctionResults": {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-TOOLBAR-VISUAL-001/milestone-b/correction-results.json",
+      "sha256": "3f7e7f96f27d4e965748b2eccfb30e922748e43f7e4f8b52a16100ac38dfb953"
+    }
+  },
+  "pairs": [
+    {
+      "id": "city-en-light-desktop",
+      "source": "en-configured-city",
+      "language": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 720,
+      "tab": "city",
+      "viewport": {
+        "width": 1280,
+        "height": 720,
+        "deviceScaleFactor": 1
+      },
+      "sourceFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-TOOLBAR-VISUAL-001/milestone-b/raw/en-configured-city-original.html",
+          "sha256": "a3917098fdd505a2dce565cbfcadb9938c9abc92eb8e1185f10abee077a70d57"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-TOOLBAR-VISUAL-001/milestone-b/raw/en-configured-city-current.html",
+          "sha256": "e8e33985332ebe65ab8a6a7a744aea9f5fc3bbe7aa495d9d8b260bb674b25c20"
+        }
+      },
+      "rawFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-TOOLBAR-VISUAL-001/milestone-c/raw/city-en-light-desktop-original.html",
+          "sha256": "6702e0fa58b8ab00ab7d9150127f003528eda772574ec303c4f2fb8f01ccec7f"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-TOOLBAR-VISUAL-001/milestone-c/raw/city-en-light-desktop-current.html",
+          "sha256": "70d007480619b0bed8d3d054c0ff24098b62af4e6ffdcc78b1ce857fdf5939d0"
+        }
+      },
+      "generatedFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-TOOLBAR-VISUAL-001/milestone-c/generated/city-en-light-desktop-original.html",
+          "sha256": "e576ea5fe472785d0fff155a64660038bb4071f73b5c7242cb43870b0e6e4992"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-TOOLBAR-VISUAL-001/milestone-c/generated/city-en-light-desktop-current.html",
+          "sha256": "0dc61263f85cfee6eaea977a98e1ea44f15c515dd0bc9eaa18b064fc04321cce"
+        }
+      },
+      "rawExact": false
+    },
+    {
+      "id": "city-ja-dark-375",
+      "source": "ja-configured-city",
+      "language": "ja",
+      "theme": "dark",
+      "width": 375,
+      "height": 1000,
+      "tab": "city",
+      "viewport": {
+        "width": 375,
+        "height": 1000,
+        "deviceScaleFactor": 1
+      },
+      "sourceFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-TOOLBAR-VISUAL-001/milestone-b/raw/ja-configured-city-original.html",
+          "sha256": "684a0532c45f13f65a49ba457a171ed31a118b58f68e86fb35364fb712284076"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-TOOLBAR-VISUAL-001/milestone-b/raw/ja-configured-city-current.html",
+          "sha256": "05b31b59092a171cb7b6ad57824c52434d5932f353e3cd80990cb5b32aed6017"
+        }
+      },
+      "rawFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-TOOLBAR-VISUAL-001/milestone-c/raw/city-ja-dark-375-original.html",
+          "sha256": "30f2b823a824feb85e5421091447bebb59f3f3192c663ee11b2a938bfa3c785c"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-TOOLBAR-VISUAL-001/milestone-c/raw/city-ja-dark-375-current.html",
+          "sha256": "969d70e2a721ea524960729f4a483732f7cb63ffa7d96876348256863959a44a"
+        }
+      },
+      "generatedFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-TOOLBAR-VISUAL-001/milestone-c/generated/city-ja-dark-375-original.html",
+          "sha256": "aa5af61670af91b760da420bb8e8ccd3809dbf385e35dcfc8ca9b02e7223a2d6"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-TOOLBAR-VISUAL-001/milestone-c/generated/city-ja-dark-375-current.html",
+          "sha256": "a09130d79f4ae3a1bee0350a3db4d7277a22605ec40605c8b04237936d5c1174"
+        }
+      },
+      "rawExact": false
+    },
+    {
+      "id": "truck-en-dark-desktop",
+      "source": "en-configured-truck",
+      "language": "en",
+      "theme": "dark",
+      "width": 1280,
+      "height": 720,
+      "tab": "truck",
+      "viewport": {
+        "width": 1280,
+        "height": 720,
+        "deviceScaleFactor": 1
+      },
+      "sourceFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-TOOLBAR-VISUAL-001/milestone-b/raw/en-configured-truck-original.html",
+          "sha256": "211aea95b133c6228551f43f97d280cede780c2c872ca404bf6faa14fc2ae8e6"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-TOOLBAR-VISUAL-001/milestone-b/raw/en-configured-truck-current.html",
+          "sha256": "e94fa6283c13f08d9f792002f41fb75b3cdf91f0fef9652b98e323b15377d94b"
+        }
+      },
+      "rawFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-TOOLBAR-VISUAL-001/milestone-c/raw/truck-en-dark-desktop-original.html",
+          "sha256": "c337023634b128b508cb2a84c2e8a9a4fc400ce5d2f0055fec35e284370987c0"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-TOOLBAR-VISUAL-001/milestone-c/raw/truck-en-dark-desktop-current.html",
+          "sha256": "8764b0c5dc6ee60621d6f0e31d2d807defaa7753874be2f4c92bb1207d0f3da1"
+        }
+      },
+      "generatedFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-TOOLBAR-VISUAL-001/milestone-c/generated/truck-en-dark-desktop-original.html",
+          "sha256": "43e129985a481b5ca0761c5af1b8a698dbe447acc3d37758a762c25a9ac591c3"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-TOOLBAR-VISUAL-001/milestone-c/generated/truck-en-dark-desktop-current.html",
+          "sha256": "620295db4ac5799a02fd59432ac8a1f2830c81d3df7166b3ef74eeacdc4ee3bc"
+        }
+      },
+      "rawExact": false
+    },
+    {
+      "id": "dispatch-ja-light-375",
+      "source": "ja-configured-dispatch",
+      "language": "ja",
+      "theme": "light",
+      "width": 375,
+      "height": 1000,
+      "tab": "dispatch",
+      "viewport": {
+        "width": 375,
+        "height": 1000,
+        "deviceScaleFactor": 1
+      },
+      "sourceFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-TOOLBAR-VISUAL-001/milestone-b/raw/ja-configured-dispatch-original.html",
+          "sha256": "e4cf1247e1529447ec13d36b47a910a9b815f0d96ac76f1716d4145158b3425d"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-TOOLBAR-VISUAL-001/milestone-b/raw/ja-configured-dispatch-current.html",
+          "sha256": "ea89a0a4a0df3197de387630bf9b7780e90c7e60049b6fffb9117ee15d386134"
+        }
+      },
+      "rawFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-TOOLBAR-VISUAL-001/milestone-c/raw/dispatch-ja-light-375-original.html",
+          "sha256": "700f2a64ab1473c9d5cbd4ff07eef14a644e135aca6b1a327caf9470eb4a5fc8"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-TOOLBAR-VISUAL-001/milestone-c/raw/dispatch-ja-light-375-current.html",
+          "sha256": "378bf3d749edff3ec6d123d67536e1255f1be36616e001b849b53d8d222764b4"
+        }
+      },
+      "generatedFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-TOOLBAR-VISUAL-001/milestone-c/generated/dispatch-ja-light-375-original.html",
+          "sha256": "cbcf5be9c15aa31927801bccc3f8dc256b9e84bc6f64a766e0a727f77bd2e655"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-TOOLBAR-VISUAL-001/milestone-c/generated/dispatch-ja-light-375-current.html",
+          "sha256": "3f2036832acd8dcdc4684850b294fcbe197ec31a9e304c30261cfa93d1ff28cc"
+        }
+      },
+      "rawExact": false
+    },
+    {
+      "id": "treasure-en-light-desktop",
+      "source": "en-configured-treasure",
+      "language": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 720,
+      "tab": "treasure",
+      "viewport": {
+        "width": 1280,
+        "height": 720,
+        "deviceScaleFactor": 1
+      },
+      "sourceFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-TOOLBAR-VISUAL-001/milestone-b/raw/en-configured-treasure-original.html",
+          "sha256": "caaac9fd3c7db53f7aee1f5a0b9adde63814916b54f8ff7ad876a7d728884962"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-TOOLBAR-VISUAL-001/milestone-b/raw/en-configured-treasure-current.html",
+          "sha256": "1f01d586fe3d664039a993546c689c54c2076d2c19ffaf2f4879b438e3f60d06"
+        }
+      },
+      "rawFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-TOOLBAR-VISUAL-001/milestone-c/raw/treasure-en-light-desktop-original.html",
+          "sha256": "06bdd8167494d34d0aa2e27080c87ab24897ff760ea4cabb8c0502dfafccbb50"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-TOOLBAR-VISUAL-001/milestone-c/raw/treasure-en-light-desktop-current.html",
+          "sha256": "b6e872e71e6729802a0c02d7302e604e533efdb7e61868671da2496923af4268"
+        }
+      },
+      "generatedFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-TOOLBAR-VISUAL-001/milestone-c/generated/treasure-en-light-desktop-original.html",
+          "sha256": "be2e2a18745beb7efbdc0c82f3bdd6fd7ff0261bbf0ab81dc733d4c47c152110"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-TOOLBAR-VISUAL-001/milestone-c/generated/treasure-en-light-desktop-current.html",
+          "sha256": "ba9f601ffd6fdc341008d8e2c409d6e74365a749381bca180213d25c3d623419"
+        }
+      },
+      "rawExact": false
+    },
+    {
+      "id": "scheduled-ja-dark-375",
+      "source": "ja-default-scheduledPlunder",
+      "language": "ja",
+      "theme": "dark",
+      "width": 375,
+      "height": 1000,
+      "tab": "scheduledPlunder",
+      "viewport": {
+        "width": 375,
+        "height": 1000,
+        "deviceScaleFactor": 1
+      },
+      "sourceFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-TOOLBAR-VISUAL-001/milestone-b/raw/ja-default-scheduledPlunder-original.html",
+          "sha256": "c74d26601259347fc01b73d01c4712a94479fc93819f22dadc7ed7d1cb4153e2"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-TOOLBAR-VISUAL-001/milestone-b/raw/ja-default-scheduledPlunder-current.html",
+          "sha256": "eebda5f24e0e9170d102a3c7aae8d64692bcd1396a384b1c523abd602966d927"
+        }
+      },
+      "rawFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-TOOLBAR-VISUAL-001/milestone-c/raw/scheduled-ja-dark-375-original.html",
+          "sha256": "c74d26601259347fc01b73d01c4712a94479fc93819f22dadc7ed7d1cb4153e2"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-TOOLBAR-VISUAL-001/milestone-c/raw/scheduled-ja-dark-375-current.html",
+          "sha256": "eebda5f24e0e9170d102a3c7aae8d64692bcd1396a384b1c523abd602966d927"
+        }
+      },
+      "generatedFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-TOOLBAR-VISUAL-001/milestone-c/generated/scheduled-ja-dark-375-original.html",
+          "sha256": "99dd0bf676d382540c1db4ab62a86661a3be499d2eba462a90064ed837e21b17"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-TOOLBAR-VISUAL-001/milestone-c/generated/scheduled-ja-dark-375-current.html",
+          "sha256": "53e9c6f34daf5dbfda43e6d33566b53942a39c3446587d67145e239bc5107118"
+        }
+      },
+      "rawExact": false
+    }
+  ]
+}

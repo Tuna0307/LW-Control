@@ -1,0 +1,62 @@
+[
+  {
+    "pairId": "city-en-light-desktop",
+    "side": "original",
+    "issues": []
+  },
+  {
+    "pairId": "city-en-light-desktop",
+    "side": "current",
+    "issues": []
+  },
+  {
+    "pairId": "city-ja-dark-375",
+    "side": "original",
+    "issues": []
+  },
+  {
+    "pairId": "city-ja-dark-375",
+    "side": "current",
+    "issues": []
+  },
+  {
+    "pairId": "truck-en-dark-desktop",
+    "side": "original",
+    "issues": []
+  },
+  {
+    "pairId": "truck-en-dark-desktop",
+    "side": "current",
+    "issues": []
+  },
+  {
+    "pairId": "dispatch-ja-light-375",
+    "side": "original",
+    "issues": []
+  },
+  {
+    "pairId": "dispatch-ja-light-375",
+    "side": "current",
+    "issues": []
+  },
+  {
+    "pairId": "treasure-en-light-desktop",
+    "side": "original",
+    "issues": []
+  },
+  {
+    "pairId": "treasure-en-light-desktop",
+    "side": "current",
+    "issues": []
+  },
+  {
+    "pairId": "scheduled-ja-dark-375",
+    "side": "original",
+    "issues": []
+  },
+  {
+    "pairId": "scheduled-ja-dark-375",
+    "side": "current",
+    "issues": []
+  }
+]

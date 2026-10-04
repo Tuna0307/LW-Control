@@ -1,0 +1,2419 @@
+{
+  "task": "LWB317-UI-MAP-TOOLBAR-VISUAL-001",
+  "marker": "LWB317_MAP_TOOLBAR_BROWSER_COMPARED",
+  "pairs": [
+    {
+      "pairId": "city-en-light-desktop",
+      "tab": "city",
+      "language": "en",
+      "theme": "light",
+      "viewport": {
+        "width": 1280,
+        "height": 720,
+        "deviceScaleFactor": 1
+      },
+      "originalScreenshotSha256": "8590ce1879c4f5783ee405ac5e29305b17e9ec232763ab6949af5e7c53ff73ca",
+      "currentScreenshotSha256": "8590ce1879c4f5783ee405ac5e29305b17e9ec232763ab6949af5e7c53ff73ca",
+      "exactScreenshotBytes": true,
+      "domExact": false,
+      "originalDomSha256": "bc56e05b7784e054f19dc4875d0e10c1668d08dd1e63477a1ddd57a56fba1bff",
+      "currentDomSha256": "061e61f54f313f4b63df30e78faecdd2302632722d4b1dce747c20efd4b40809",
+      "geometryDifferences": [],
+      "styleDifferences": [],
+      "attributeDifferences": [
+        {
+          "anchor": "tabs",
+          "property": "attrs",
+          "original": [
+            [
+              "class",
+              "map-tabs"
+            ]
+          ],
+          "current": [
+            [
+              "aria-label",
+              "World Map Data"
+            ],
+            [
+              "class",
+              "map-tabs"
+            ],
+            [
+              "role",
+              "tablist"
+            ]
+          ]
+        },
+        {
+          "anchor": "previous",
+          "property": "attrs",
+          "original": [
+            [
+              "disabled",
+              ""
+            ]
+          ],
+          "current": [
+            [
+              "disabled",
+              ""
+            ],
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "anchor": "next",
+          "property": "attrs",
+          "original": [],
+          "current": [
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "anchor": "tab0",
+          "property": "attrs",
+          "original": [
+            [
+              "class",
+              "active"
+            ]
+          ],
+          "current": [
+            [
+              "aria-selected",
+              "true"
+            ],
+            [
+              "class",
+              "active"
+            ],
+            [
+              "role",
+              "tab"
+            ],
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "anchor": "tab1",
+          "property": "attrs",
+          "original": [
+            [
+              "class",
+              ""
+            ]
+          ],
+          "current": [
+            [
+              "aria-selected",
+              "false"
+            ],
+            [
+              "class",
+              ""
+            ],
+            [
+              "role",
+              "tab"
+            ],
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "anchor": "tab2",
+          "property": "attrs",
+          "original": [
+            [
+              "class",
+              ""
+            ]
+          ],
+          "current": [
+            [
+              "aria-selected",
+              "false"
+            ],
+            [
+              "class",
+              ""
+            ],
+            [
+              "role",
+              "tab"
+            ],
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "anchor": "tab3",
+          "property": "attrs",
+          "original": [
+            [
+              "class",
+              ""
+            ]
+          ],
+          "current": [
+            [
+              "aria-selected",
+              "false"
+            ],
+            [
+              "class",
+              ""
+            ],
+            [
+              "role",
+              "tab"
+            ],
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "anchor": "tab4",
+          "property": "attrs",
+          "original": [
+            [
+              "class",
+              ""
+            ]
+          ],
+          "current": [
+            [
+              "aria-selected",
+              "false"
+            ],
+            [
+              "class",
+              ""
+            ],
+            [
+              "role",
+              "tab"
+            ],
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "anchor": "tab5",
+          "property": "attrs",
+          "original": [
+            [
+              "class",
+              ""
+            ]
+          ],
+          "current": [
+            [
+              "aria-selected",
+              "false"
+            ],
+            [
+              "class",
+              ""
+            ],
+            [
+              "role",
+              "tab"
+            ],
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "anchor": "tab6",
+          "property": "attrs",
+          "original": [
+            [
+              "class",
+              ""
+            ]
+          ],
+          "current": [
+            [
+              "aria-selected",
+              "false"
+            ],
+            [
+              "class",
+              ""
+            ],
+            [
+              "role",
+              "tab"
+            ],
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "anchor": "tab7",
+          "property": "attrs",
+          "original": [
+            [
+              "class",
+              ""
+            ]
+          ],
+          "current": [
+            [
+              "aria-selected",
+              "false"
+            ],
+            [
+              "class",
+              ""
+            ],
+            [
+              "role",
+              "tab"
+            ],
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "anchor": "tab8",
+          "property": "attrs",
+          "original": [
+            [
+              "class",
+              ""
+            ]
+          ],
+          "current": [
+            [
+              "aria-selected",
+              "false"
+            ],
+            [
+              "class",
+              ""
+            ],
+            [
+              "role",
+              "tab"
+            ],
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "anchor": "searchChild2",
+          "property": "directText",
+          "original": "",
+          "current": " "
+        },
+        {
+          "anchor": "searchChild3",
+          "property": "attrs",
+          "original": [],
+          "current": [
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "anchor": "searchChild4",
+          "property": "attrs",
+          "original": [],
+          "current": [
+            [
+              "type",
+              "button"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "pairId": "city-ja-dark-375",
+      "tab": "city",
+      "language": "ja",
+      "theme": "dark",
+      "viewport": {
+        "width": 375,
+        "height": 1000,
+        "deviceScaleFactor": 1
+      },
+      "originalScreenshotSha256": "d5e042375ecc5a3c06bb366804ba9a9e61d64c01e980f7db94ce1bdb018965de",
+      "currentScreenshotSha256": "d5e042375ecc5a3c06bb366804ba9a9e61d64c01e980f7db94ce1bdb018965de",
+      "exactScreenshotBytes": true,
+      "domExact": false,
+      "originalDomSha256": "5a4cb874590e8ae353ba52cffe00c4e7aa09836d3d6f6a1343ea1d3791c4aed8",
+      "currentDomSha256": "7d7d698cb24f142ab87de8ae3725f58bfd7947a131f20b4d72e8c7ad5daee4e9",
+      "geometryDifferences": [],
+      "styleDifferences": [],
+      "attributeDifferences": [
+        {
+          "anchor": "tabs",
+          "property": "attrs",
+          "original": [
+            [
+              "class",
+              "map-tabs"
+            ]
+          ],
+          "current": [
+            [
+              "aria-label",
+              "世界地図データ"
+            ],
+            [
+              "class",
+              "map-tabs"
+            ],
+            [
+              "role",
+              "tablist"
+            ]
+          ]
+        },
+        {
+          "anchor": "previous",
+          "property": "attrs",
+          "original": [
+            [
+              "disabled",
+              ""
+            ]
+          ],
+          "current": [
+            [
+              "disabled",
+              ""
+            ],
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "anchor": "next",
+          "property": "attrs",
+          "original": [],
+          "current": [
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "anchor": "tab0",
+          "property": "attrs",
+          "original": [
+            [
+              "class",
+              "active"
+            ]
+          ],
+          "current": [
+            [
+              "aria-selected",
+              "true"
+            ],
+            [
+              "class",
+              "active"
+            ],
+            [
+              "role",
+              "tab"
+            ],
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "anchor": "tab1",
+          "property": "attrs",
+          "original": [
+            [
+              "class",
+              ""
+            ]
+          ],
+          "current": [
+            [
+              "aria-selected",
+              "false"
+            ],
+            [
+              "class",
+              ""
+            ],
+            [
+              "role",
+              "tab"
+            ],
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "anchor": "tab2",
+          "property": "attrs",
+          "original": [
+            [
+              "class",
+              ""
+            ]
+          ],
+          "current": [
+            [
+              "aria-selected",
+              "false"
+            ],
+            [
+              "class",
+              ""
+            ],
+            [
+              "role",
+              "tab"
+            ],
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "anchor": "tab3",
+          "property": "attrs",
+          "original": [
+            [
+              "class",
+              ""
+            ]
+          ],
+          "current": [
+            [
+              "aria-selected",
+              "false"
+            ],
+            [
+              "class",
+              ""
+            ],
+            [
+              "role",
+              "tab"
+            ],
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "anchor": "tab4",
+          "property": "attrs",
+          "original": [
+            [
+              "class",
+              ""
+            ]
+          ],
+          "current": [
+            [
+              "aria-selected",
+              "false"
+            ],
+            [
+              "class",
+              ""
+            ],
+            [
+              "role",
+              "tab"
+            ],
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "anchor": "tab5",
+          "property": "attrs",
+          "original": [
+            [
+              "class",
+              ""
+            ]
+          ],
+          "current": [
+            [
+              "aria-selected",
+              "false"
+            ],
+            [
+              "class",
+              ""
+            ],
+            [
+              "role",
+              "tab"
+            ],
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "anchor": "tab6",
+          "property": "attrs",
+          "original": [
+            [
+              "class",
+              ""
+            ]
+          ],
+          "current": [
+            [
+              "aria-selected",
+              "false"
+            ],
+            [
+              "class",
+              ""
+            ],
+            [
+              "role",
+              "tab"
+            ],
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "anchor": "tab7",
+          "property": "attrs",
+          "original": [
+            [
+              "class",
+              ""
+            ]
+          ],
+          "current": [
+            [
+              "aria-selected",
+              "false"
+            ],
+            [
+              "class",
+              ""
+            ],
+            [
+              "role",
+              "tab"
+            ],
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "anchor": "tab8",
+          "property": "attrs",
+          "original": [
+            [
+              "class",
+              ""
+            ]
+          ],
+          "current": [
+            [
+              "aria-selected",
+              "false"
+            ],
+            [
+              "class",
+              ""
+            ],
+            [
+              "role",
+              "tab"
+            ],
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "anchor": "searchChild2",
+          "property": "directText",
+          "original": "",
+          "current": " "
+        },
+        {
+          "anchor": "searchChild3",
+          "property": "attrs",
+          "original": [],
+          "current": [
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "anchor": "searchChild4",
+          "property": "attrs",
+          "original": [],
+          "current": [
+            [
+              "type",
+              "button"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "pairId": "truck-en-dark-desktop",
+      "tab": "truck",
+      "language": "en",
+      "theme": "dark",
+      "viewport": {
+        "width": 1280,
+        "height": 720,
+        "deviceScaleFactor": 1
+      },
+      "originalScreenshotSha256": "3bd451a8e1f2284ba61e646a2e1257139cc9890d044e8d4a24fac99fa5764a7b",
+      "currentScreenshotSha256": "6d3336d5f4abd54bac61f4ecd83886ed1db703636bb2a0873715a6131575e0df",
+      "exactScreenshotBytes": false,
+      "domExact": false,
+      "originalDomSha256": "6ccebf64fc05e95fc8ef598366ae1b8977a6f316122d24b363458141317f3b28",
+      "currentDomSha256": "e8f37391504de33da71978664a9e82e73629fe6ac0a826b227fe0224d5bdf747",
+      "geometryDifferences": [],
+      "styleDifferences": [
+        {
+          "anchor": "searchChild5",
+          "property": "borderTopColor",
+          "original": "rgb(0, 91, 181)",
+          "current": "rgb(58, 58, 60)"
+        },
+        {
+          "anchor": "searchChild5",
+          "property": "borderRightColor",
+          "original": "rgb(0, 91, 181)",
+          "current": "rgb(58, 58, 60)"
+        },
+        {
+          "anchor": "searchChild5",
+          "property": "borderBottomColor",
+          "original": "rgb(0, 91, 181)",
+          "current": "rgb(58, 58, 60)"
+        },
+        {
+          "anchor": "searchChild5",
+          "property": "borderLeftColor",
+          "original": "rgb(0, 91, 181)",
+          "current": "rgb(58, 58, 60)"
+        },
+        {
+          "anchor": "searchChild5",
+          "property": "color",
+          "original": "rgb(255, 255, 255)",
+          "current": "rgb(245, 245, 247)"
+        },
+        {
+          "anchor": "searchChild5",
+          "property": "backgroundColor",
+          "original": "rgb(0, 113, 227)",
+          "current": "rgb(40, 40, 40)"
+        },
+        {
+          "anchor": "searchChild5",
+          "property": "opacity",
+          "original": "1",
+          "current": "0.45"
+        },
+        {
+          "anchor": "searchChild5",
+          "property": "cursor",
+          "original": "pointer",
+          "current": "not-allowed"
+        }
+      ],
+      "attributeDifferences": [
+        {
+          "anchor": "tabs",
+          "property": "attrs",
+          "original": [
+            [
+              "class",
+              "map-tabs"
+            ]
+          ],
+          "current": [
+            [
+              "aria-label",
+              "World Map Data"
+            ],
+            [
+              "class",
+              "map-tabs"
+            ],
+            [
+              "role",
+              "tablist"
+            ]
+          ]
+        },
+        {
+          "anchor": "previous",
+          "property": "attrs",
+          "original": [
+            [
+              "disabled",
+              ""
+            ]
+          ],
+          "current": [
+            [
+              "disabled",
+              ""
+            ],
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "anchor": "next",
+          "property": "attrs",
+          "original": [],
+          "current": [
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "anchor": "tab0",
+          "property": "attrs",
+          "original": [
+            [
+              "class",
+              ""
+            ]
+          ],
+          "current": [
+            [
+              "aria-selected",
+              "false"
+            ],
+            [
+              "class",
+              ""
+            ],
+            [
+              "role",
+              "tab"
+            ],
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "anchor": "tab1",
+          "property": "attrs",
+          "original": [
+            [
+              "class",
+              ""
+            ]
+          ],
+          "current": [
+            [
+              "aria-selected",
+              "false"
+            ],
+            [
+              "class",
+              ""
+            ],
+            [
+              "role",
+              "tab"
+            ],
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "anchor": "tab2",
+          "property": "attrs",
+          "original": [
+            [
+              "class",
+              ""
+            ]
+          ],
+          "current": [
+            [
+              "aria-selected",
+              "false"
+            ],
+            [
+              "class",
+              ""
+            ],
+            [
+              "role",
+              "tab"
+            ],
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "anchor": "tab3",
+          "property": "attrs",
+          "original": [
+            [
+              "class",
+              "active"
+            ]
+          ],
+          "current": [
+            [
+              "aria-selected",
+              "true"
+            ],
+            [
+              "class",
+              "active"
+            ],
+            [
+              "role",
+              "tab"
+            ],
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "anchor": "tab4",
+          "property": "attrs",
+          "original": [
+            [
+              "class",
+              ""
+            ]
+          ],
+          "current": [
+            [
+              "aria-selected",
+              "false"
+            ],
+            [
+              "class",
+              ""
+            ],
+            [
+              "role",
+              "tab"
+            ],
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "anchor": "tab5",
+          "property": "attrs",
+          "original": [
+            [
+              "class",
+              ""
+            ]
+          ],
+          "current": [
+            [
+              "aria-selected",
+              "false"
+            ],
+            [
+              "class",
+              ""
+            ],
+            [
+              "role",
+              "tab"
+            ],
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "anchor": "tab6",
+          "property": "attrs",
+          "original": [
+            [
+              "class",
+              ""
+            ]
+          ],
+          "current": [
+            [
+              "aria-selected",
+              "false"
+            ],
+            [
+              "class",
+              ""
+            ],
+            [
+              "role",
+              "tab"
+            ],
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "anchor": "tab7",
+          "property": "attrs",
+          "original": [
+            [
+              "class",
+              ""
+            ]
+          ],
+          "current": [
+            [
+              "aria-selected",
+              "false"
+            ],
+            [
+              "class",
+              ""
+            ],
+            [
+              "role",
+              "tab"
+            ],
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "anchor": "tab8",
+          "property": "attrs",
+          "original": [
+            [
+              "class",
+              ""
+            ]
+          ],
+          "current": [
+            [
+              "aria-selected",
+              "false"
+            ],
+            [
+              "class",
+              ""
+            ],
+            [
+              "role",
+              "tab"
+            ],
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "anchor": "searchChild4",
+          "property": "attrs",
+          "original": [],
+          "current": [
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "anchor": "searchChild5",
+          "property": "attrs",
+          "original": [
+            [
+              "class",
+              "map-schedule-button"
+            ]
+          ],
+          "current": [
+            [
+              "class",
+              "map-schedule-button"
+            ],
+            [
+              "data-runtime-fenced",
+              "true"
+            ],
+            [
+              "disabled",
+              ""
+            ],
+            [
+              "type",
+              "button"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "pairId": "dispatch-ja-light-375",
+      "tab": "dispatch",
+      "language": "ja",
+      "theme": "light",
+      "viewport": {
+        "width": 375,
+        "height": 1000,
+        "deviceScaleFactor": 1
+      },
+      "originalScreenshotSha256": "9448b492bb777d30e4e824181d08decb8503a5335092777e748f9c979e8c83e2",
+      "currentScreenshotSha256": "c5d93f87bec40e68176b0184e536033a4ae808e3fba6715bfa825a4ad209043e",
+      "exactScreenshotBytes": false,
+      "domExact": false,
+      "originalDomSha256": "56dbfb33de900af455fc9a57ed9e86f19547c3eb4c3265dd80a4b75062da66ef",
+      "currentDomSha256": "03f225c8acb41d76f8b18eed62b6ca9265e1bfc512d87a46bdfb7667b057522d",
+      "geometryDifferences": [],
+      "styleDifferences": [
+        {
+          "anchor": "searchChild7",
+          "property": "borderTopColor",
+          "original": "rgb(0, 102, 204)",
+          "current": "rgb(229, 229, 234)"
+        },
+        {
+          "anchor": "searchChild7",
+          "property": "borderRightColor",
+          "original": "rgb(0, 102, 204)",
+          "current": "rgb(229, 229, 234)"
+        },
+        {
+          "anchor": "searchChild7",
+          "property": "borderBottomColor",
+          "original": "rgb(0, 102, 204)",
+          "current": "rgb(229, 229, 234)"
+        },
+        {
+          "anchor": "searchChild7",
+          "property": "borderLeftColor",
+          "original": "rgb(0, 102, 204)",
+          "current": "rgb(229, 229, 234)"
+        },
+        {
+          "anchor": "searchChild7",
+          "property": "color",
+          "original": "rgb(255, 255, 255)",
+          "current": "rgb(29, 29, 31)"
+        },
+        {
+          "anchor": "searchChild7",
+          "property": "backgroundColor",
+          "original": "rgb(0, 113, 227)",
+          "current": "rgb(255, 255, 255)"
+        },
+        {
+          "anchor": "searchChild7",
+          "property": "opacity",
+          "original": "1",
+          "current": "0.45"
+        },
+        {
+          "anchor": "searchChild7",
+          "property": "cursor",
+          "original": "pointer",
+          "current": "not-allowed"
+        },
+        {
+          "anchor": "searchChild8",
+          "property": "borderTopColor",
+          "original": "rgb(0, 102, 204)",
+          "current": "rgb(229, 229, 234)"
+        },
+        {
+          "anchor": "searchChild8",
+          "property": "borderRightColor",
+          "original": "rgb(0, 102, 204)",
+          "current": "rgb(229, 229, 234)"
+        },
+        {
+          "anchor": "searchChild8",
+          "property": "borderBottomColor",
+          "original": "rgb(0, 102, 204)",
+          "current": "rgb(229, 229, 234)"
+        },
+        {
+          "anchor": "searchChild8",
+          "property": "borderLeftColor",
+          "original": "rgb(0, 102, 204)",
+          "current": "rgb(229, 229, 234)"
+        },
+        {
+          "anchor": "searchChild8",
+          "property": "color",
+          "original": "rgb(255, 255, 255)",
+          "current": "rgb(29, 29, 31)"
+        },
+        {
+          "anchor": "searchChild8",
+          "property": "backgroundColor",
+          "original": "rgb(0, 113, 227)",
+          "current": "rgb(255, 255, 255)"
+        },
+        {
+          "anchor": "searchChild8",
+          "property": "opacity",
+          "original": "1",
+          "current": "0.45"
+        },
+        {
+          "anchor": "searchChild8",
+          "property": "cursor",
+          "original": "pointer",
+          "current": "not-allowed"
+        }
+      ],
+      "attributeDifferences": [
+        {
+          "anchor": "tabs",
+          "property": "attrs",
+          "original": [
+            [
+              "class",
+              "map-tabs"
+            ]
+          ],
+          "current": [
+            [
+              "aria-label",
+              "世界地図データ"
+            ],
+            [
+              "class",
+              "map-tabs"
+            ],
+            [
+              "role",
+              "tablist"
+            ]
+          ]
+        },
+        {
+          "anchor": "previous",
+          "property": "attrs",
+          "original": [
+            [
+              "disabled",
+              ""
+            ]
+          ],
+          "current": [
+            [
+              "disabled",
+              ""
+            ],
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "anchor": "next",
+          "property": "attrs",
+          "original": [],
+          "current": [
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "anchor": "tab0",
+          "property": "attrs",
+          "original": [
+            [
+              "class",
+              ""
+            ]
+          ],
+          "current": [
+            [
+              "aria-selected",
+              "false"
+            ],
+            [
+              "class",
+              ""
+            ],
+            [
+              "role",
+              "tab"
+            ],
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "anchor": "tab1",
+          "property": "attrs",
+          "original": [
+            [
+              "class",
+              ""
+            ]
+          ],
+          "current": [
+            [
+              "aria-selected",
+              "false"
+            ],
+            [
+              "class",
+              ""
+            ],
+            [
+              "role",
+              "tab"
+            ],
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "anchor": "tab2",
+          "property": "attrs",
+          "original": [
+            [
+              "class",
+              ""
+            ]
+          ],
+          "current": [
+            [
+              "aria-selected",
+              "false"
+            ],
+            [
+              "class",
+              ""
+            ],
+            [
+              "role",
+              "tab"
+            ],
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "anchor": "tab3",
+          "property": "attrs",
+          "original": [
+            [
+              "class",
+              ""
+            ]
+          ],
+          "current": [
+            [
+              "aria-selected",
+              "false"
+            ],
+            [
+              "class",
+              ""
+            ],
+            [
+              "role",
+              "tab"
+            ],
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "anchor": "tab4",
+          "property": "attrs",
+          "original": [
+            [
+              "class",
+              ""
+            ]
+          ],
+          "current": [
+            [
+              "aria-selected",
+              "false"
+            ],
+            [
+              "class",
+              ""
+            ],
+            [
+              "role",
+              "tab"
+            ],
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "anchor": "tab5",
+          "property": "attrs",
+          "original": [
+            [
+              "class",
+              "active"
+            ]
+          ],
+          "current": [
+            [
+              "aria-selected",
+              "true"
+            ],
+            [
+              "class",
+              "active"
+            ],
+            [
+              "role",
+              "tab"
+            ],
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "anchor": "tab6",
+          "property": "attrs",
+          "original": [
+            [
+              "class",
+              ""
+            ]
+          ],
+          "current": [
+            [
+              "aria-selected",
+              "false"
+            ],
+            [
+              "class",
+              ""
+            ],
+            [
+              "role",
+              "tab"
+            ],
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "anchor": "tab7",
+          "property": "attrs",
+          "original": [
+            [
+              "class",
+              ""
+            ]
+          ],
+          "current": [
+            [
+              "aria-selected",
+              "false"
+            ],
+            [
+              "class",
+              ""
+            ],
+            [
+              "role",
+              "tab"
+            ],
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "anchor": "tab8",
+          "property": "attrs",
+          "original": [
+            [
+              "class",
+              ""
+            ]
+          ],
+          "current": [
+            [
+              "aria-selected",
+              "false"
+            ],
+            [
+              "class",
+              ""
+            ],
+            [
+              "role",
+              "tab"
+            ],
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "anchor": "searchChild5",
+          "property": "attrs",
+          "original": [],
+          "current": [
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "anchor": "searchChild7",
+          "property": "attrs",
+          "original": [
+            [
+              "class",
+              "map-schedule-button"
+            ]
+          ],
+          "current": [
+            [
+              "class",
+              "map-schedule-button"
+            ],
+            [
+              "data-runtime-fenced",
+              "true"
+            ],
+            [
+              "disabled",
+              ""
+            ],
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "anchor": "searchChild8",
+          "property": "attrs",
+          "original": [
+            [
+              "class",
+              "map-schedule-button"
+            ]
+          ],
+          "current": [
+            [
+              "class",
+              "map-schedule-button"
+            ],
+            [
+              "data-runtime-fenced",
+              "true"
+            ],
+            [
+              "disabled",
+              ""
+            ],
+            [
+              "type",
+              "button"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "pairId": "treasure-en-light-desktop",
+      "tab": "treasure",
+      "language": "en",
+      "theme": "light",
+      "viewport": {
+        "width": 1280,
+        "height": 720,
+        "deviceScaleFactor": 1
+      },
+      "originalScreenshotSha256": "4bc701f663fb19588185e6074fd171fb16b37151fa64fbd9419c6431ed05a825",
+      "currentScreenshotSha256": "70312cf7bc3e7f1fdb9a1b3518c856a5bea1f4395ed8bb5e86b34e1d62f930df",
+      "exactScreenshotBytes": false,
+      "domExact": false,
+      "originalDomSha256": "94af69ca9861bb5cb80dfbf794d1e1815925b795290556c93653a1f8604e2121",
+      "currentDomSha256": "666c7e5ce7549d64f71d70f2cb2b8b20ca35ba6a2c7047c70c3abb3c33119b60",
+      "geometryDifferences": [],
+      "styleDifferences": [
+        {
+          "anchor": "searchChild5",
+          "property": "borderTopColor",
+          "original": "rgb(0, 102, 204)",
+          "current": "rgb(229, 229, 234)"
+        },
+        {
+          "anchor": "searchChild5",
+          "property": "borderRightColor",
+          "original": "rgb(0, 102, 204)",
+          "current": "rgb(229, 229, 234)"
+        },
+        {
+          "anchor": "searchChild5",
+          "property": "borderBottomColor",
+          "original": "rgb(0, 102, 204)",
+          "current": "rgb(229, 229, 234)"
+        },
+        {
+          "anchor": "searchChild5",
+          "property": "borderLeftColor",
+          "original": "rgb(0, 102, 204)",
+          "current": "rgb(229, 229, 234)"
+        },
+        {
+          "anchor": "searchChild5",
+          "property": "color",
+          "original": "rgb(255, 255, 255)",
+          "current": "rgb(29, 29, 31)"
+        },
+        {
+          "anchor": "searchChild5",
+          "property": "backgroundColor",
+          "original": "rgb(0, 113, 227)",
+          "current": "rgb(255, 255, 255)"
+        },
+        {
+          "anchor": "searchChild5",
+          "property": "opacity",
+          "original": "1",
+          "current": "0.45"
+        },
+        {
+          "anchor": "searchChild5",
+          "property": "cursor",
+          "original": "pointer",
+          "current": "not-allowed"
+        },
+        {
+          "anchor": "searchChild6",
+          "property": "borderTopColor",
+          "original": "rgb(0, 102, 204)",
+          "current": "rgb(229, 229, 234)"
+        },
+        {
+          "anchor": "searchChild6",
+          "property": "borderRightColor",
+          "original": "rgb(0, 102, 204)",
+          "current": "rgb(229, 229, 234)"
+        },
+        {
+          "anchor": "searchChild6",
+          "property": "borderBottomColor",
+          "original": "rgb(0, 102, 204)",
+          "current": "rgb(229, 229, 234)"
+        },
+        {
+          "anchor": "searchChild6",
+          "property": "borderLeftColor",
+          "original": "rgb(0, 102, 204)",
+          "current": "rgb(229, 229, 234)"
+        },
+        {
+          "anchor": "searchChild6",
+          "property": "color",
+          "original": "rgb(255, 255, 255)",
+          "current": "rgb(29, 29, 31)"
+        },
+        {
+          "anchor": "searchChild6",
+          "property": "backgroundColor",
+          "original": "rgb(0, 113, 227)",
+          "current": "rgb(255, 255, 255)"
+        },
+        {
+          "anchor": "searchChild6",
+          "property": "opacity",
+          "original": "1",
+          "current": "0.45"
+        },
+        {
+          "anchor": "searchChild6",
+          "property": "cursor",
+          "original": "pointer",
+          "current": "not-allowed"
+        }
+      ],
+      "attributeDifferences": [
+        {
+          "anchor": "tabs",
+          "property": "attrs",
+          "original": [
+            [
+              "class",
+              "map-tabs"
+            ]
+          ],
+          "current": [
+            [
+              "aria-label",
+              "World Map Data"
+            ],
+            [
+              "class",
+              "map-tabs"
+            ],
+            [
+              "role",
+              "tablist"
+            ]
+          ]
+        },
+        {
+          "anchor": "previous",
+          "property": "attrs",
+          "original": [
+            [
+              "disabled",
+              ""
+            ]
+          ],
+          "current": [
+            [
+              "disabled",
+              ""
+            ],
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "anchor": "next",
+          "property": "attrs",
+          "original": [],
+          "current": [
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "anchor": "tab0",
+          "property": "attrs",
+          "original": [
+            [
+              "class",
+              ""
+            ]
+          ],
+          "current": [
+            [
+              "aria-selected",
+              "false"
+            ],
+            [
+              "class",
+              ""
+            ],
+            [
+              "role",
+              "tab"
+            ],
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "anchor": "tab1",
+          "property": "attrs",
+          "original": [
+            [
+              "class",
+              ""
+            ]
+          ],
+          "current": [
+            [
+              "aria-selected",
+              "false"
+            ],
+            [
+              "class",
+              ""
+            ],
+            [
+              "role",
+              "tab"
+            ],
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "anchor": "tab2",
+          "property": "attrs",
+          "original": [
+            [
+              "class",
+              ""
+            ]
+          ],
+          "current": [
+            [
+              "aria-selected",
+              "false"
+            ],
+            [
+              "class",
+              ""
+            ],
+            [
+              "role",
+              "tab"
+            ],
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "anchor": "tab3",
+          "property": "attrs",
+          "original": [
+            [
+              "class",
+              ""
+            ]
+          ],
+          "current": [
+            [
+              "aria-selected",
+              "false"
+            ],
+            [
+              "class",
+              ""
+            ],
+            [
+              "role",
+              "tab"
+            ],
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "anchor": "tab4",
+          "property": "attrs",
+          "original": [
+            [
+              "class",
+              ""
+            ]
+          ],
+          "current": [
+            [
+              "aria-selected",
+              "false"
+            ],
+            [
+              "class",
+              ""
+            ],
+            [
+              "role",
+              "tab"
+            ],
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "anchor": "tab5",
+          "property": "attrs",
+          "original": [
+            [
+              "class",
+              ""
+            ]
+          ],
+          "current": [
+            [
+              "aria-selected",
+              "false"
+            ],
+            [
+              "class",
+              ""
+            ],
+            [
+              "role",
+              "tab"
+            ],
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "anchor": "tab6",
+          "property": "attrs",
+          "original": [
+            [
+              "class",
+              ""
+            ]
+          ],
+          "current": [
+            [
+              "aria-selected",
+              "false"
+            ],
+            [
+              "class",
+              ""
+            ],
+            [
+              "role",
+              "tab"
+            ],
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "anchor": "tab7",
+          "property": "attrs",
+          "original": [
+            [
+              "class",
+              "active"
+            ]
+          ],
+          "current": [
+            [
+              "aria-selected",
+              "true"
+            ],
+            [
+              "class",
+              "active"
+            ],
+            [
+              "role",
+              "tab"
+            ],
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "anchor": "tab8",
+          "property": "attrs",
+          "original": [
+            [
+              "class",
+              ""
+            ]
+          ],
+          "current": [
+            [
+              "aria-selected",
+              "false"
+            ],
+            [
+              "class",
+              ""
+            ],
+            [
+              "role",
+              "tab"
+            ],
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "anchor": "searchChild2",
+          "property": "directText",
+          "original": "Show other-alliance Radar Treasures",
+          "current": ""
+        },
+        {
+          "anchor": "searchChild3",
+          "property": "directText",
+          "original": "Prioritize lucky positions",
+          "current": ""
+        },
+        {
+          "anchor": "searchChild4",
+          "property": "attrs",
+          "original": [],
+          "current": [
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "anchor": "searchChild5",
+          "property": "attrs",
+          "original": [
+            [
+              "class",
+              "map-schedule-button"
+            ]
+          ],
+          "current": [
+            [
+              "class",
+              "map-schedule-button"
+            ],
+            [
+              "disabled",
+              ""
+            ],
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "anchor": "searchChild6",
+          "property": "attrs",
+          "original": [
+            [
+              "class",
+              "map-schedule-button"
+            ]
+          ],
+          "current": [
+            [
+              "class",
+              "map-schedule-button"
+            ],
+            [
+              "disabled",
+              ""
+            ],
+            [
+              "type",
+              "button"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "pairId": "scheduled-ja-dark-375",
+      "tab": "scheduledPlunder",
+      "language": "ja",
+      "theme": "dark",
+      "viewport": {
+        "width": 375,
+        "height": 1000,
+        "deviceScaleFactor": 1
+      },
+      "originalScreenshotSha256": "315dcd62026f71da65d94be158bd6cd2dd8407bb627f36716a1c0abf83cdb3fb",
+      "currentScreenshotSha256": "315dcd62026f71da65d94be158bd6cd2dd8407bb627f36716a1c0abf83cdb3fb",
+      "exactScreenshotBytes": true,
+      "domExact": false,
+      "originalDomSha256": "51261f7f2ba44ef1cc7c962fd28b8951d2ac3eb8c4f67aca3c10e4cd91d3edfd",
+      "currentDomSha256": "9d0cf80d18709f0f25216a4db891b8e8d27c1d9a58b53ea9b7785108e1a55520",
+      "geometryDifferences": [],
+      "styleDifferences": [],
+      "attributeDifferences": [
+        {
+          "anchor": "tabs",
+          "property": "attrs",
+          "original": [
+            [
+              "class",
+              "map-tabs"
+            ]
+          ],
+          "current": [
+            [
+              "aria-label",
+              "世界地図データ"
+            ],
+            [
+              "class",
+              "map-tabs"
+            ],
+            [
+              "role",
+              "tablist"
+            ]
+          ]
+        },
+        {
+          "anchor": "tab0",
+          "property": "attrs",
+          "original": [
+            [
+              "class",
+              ""
+            ]
+          ],
+          "current": [
+            [
+              "aria-selected",
+              "false"
+            ],
+            [
+              "class",
+              ""
+            ],
+            [
+              "role",
+              "tab"
+            ],
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "anchor": "tab1",
+          "property": "attrs",
+          "original": [
+            [
+              "class",
+              ""
+            ]
+          ],
+          "current": [
+            [
+              "aria-selected",
+              "false"
+            ],
+            [
+              "class",
+              ""
+            ],
+            [
+              "role",
+              "tab"
+            ],
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "anchor": "tab2",
+          "property": "attrs",
+          "original": [
+            [
+              "class",
+              ""
+            ]
+          ],
+          "current": [
+            [
+              "aria-selected",
+              "false"
+            ],
+            [
+              "class",
+              ""
+            ],
+            [
+              "role",
+              "tab"
+            ],
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "anchor": "tab3",
+          "property": "attrs",
+          "original": [
+            [
+              "class",
+              ""
+            ]
+          ],
+          "current": [
+            [
+              "aria-selected",
+              "false"
+            ],
+            [
+              "class",
+              ""
+            ],
+            [
+              "role",
+              "tab"
+            ],
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "anchor": "tab4",
+          "property": "attrs",
+          "original": [
+            [
+              "class",
+              ""
+            ]
+          ],
+          "current": [
+            [
+              "aria-selected",
+              "false"
+            ],
+            [
+              "class",
+              ""
+            ],
+            [
+              "role",
+              "tab"
+            ],
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "anchor": "tab5",
+          "property": "attrs",
+          "original": [
+            [
+              "class",
+              ""
+            ]
+          ],
+          "current": [
+            [
+              "aria-selected",
+              "false"
+            ],
+            [
+              "class",
+              ""
+            ],
+            [
+              "role",
+              "tab"
+            ],
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "anchor": "tab6",
+          "property": "attrs",
+          "original": [
+            [
+              "class",
+              ""
+            ]
+          ],
+          "current": [
+            [
+              "aria-selected",
+              "false"
+            ],
+            [
+              "class",
+              ""
+            ],
+            [
+              "role",
+              "tab"
+            ],
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "anchor": "tab7",
+          "property": "attrs",
+          "original": [
+            [
+              "class",
+              ""
+            ]
+          ],
+          "current": [
+            [
+              "aria-selected",
+              "false"
+            ],
+            [
+              "class",
+              ""
+            ],
+            [
+              "role",
+              "tab"
+            ],
+            [
+              "type",
+              "button"
+            ]
+          ]
+        },
+        {
+          "anchor": "tab8",
+          "property": "attrs",
+          "original": [
+            [
+              "class",
+              "active"
+            ]
+          ],
+          "current": [
+            [
+              "aria-selected",
+              "true"
+            ],
+            [
+              "class",
+              "active"
+            ],
+            [
+              "role",
+              "tab"
+            ],
+            [
+              "type",
+              "button"
+            ]
+          ]
+        }
+      ]
+    }
+  ]
+}
