@@ -1,0 +1,2589 @@
+{
+  "task": "LWB317-UI-MAP-TOOLBAR-VISUAL-001",
+  "marker": "LWB317_MAP_TOOLBAR_LOCALE_INVENTORY_OK",
+  "production": [
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+      "sha256": "9f2dfed62ebfda7785afcd49a506c7bcb135dd20ba48867e8c063cdb126aec80"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/MapTreasureTypeFilter.jsx",
+      "sha256": "675e0bf8c2c7e6b6e7a5f90e368c6f8796b100581b24987eb6c7536bc4926ab7"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/MapRetainedGoodsFilter.jsx",
+      "sha256": "d890612c6208ce306bb57eee759cfe79ad9cf86064b3b50526d65d0512657c51"
+    }
+  ],
+  "assignedKeyCount": 45,
+  "keys": [
+    "common.completed",
+    "common.inProgress",
+    "common.itemCount",
+    "common.name",
+    "common.search",
+    "common.status",
+    "map.allAlliances",
+    "map.allNames",
+    "map.allQualities",
+    "map.allRetainedGoods",
+    "map.allTreasureTypes",
+    "map.allianceFilter",
+    "map.allianceTrain",
+    "map.city",
+    "map.claimSeasonTreasures",
+    "map.claimTreasureBoxes",
+    "map.exportExcel",
+    "map.exportingExcel",
+    "map.ghostScout",
+    "map.itemFilter",
+    "map.level",
+    "map.markedOnly",
+    "map.monster",
+    "map.nextPage",
+    "map.noAlliance",
+    "map.pageInfo",
+    "map.plunderableOnly",
+    "map.previousPage",
+    "map.prioritizeLuckyTreasures",
+    "map.quality",
+    "map.randomDelaySeconds",
+    "map.reindeerQuality",
+    "map.resource",
+    "map.scheduleSelected",
+    "map.scheduleSelectedTrucks",
+    "map.scheduledPlunder",
+    "map.searchLabel",
+    "map.secretTask",
+    "map.showForeignRadarTreasures",
+    "map.specialQuality",
+    "map.title",
+    "map.treasure",
+    "map.treasureType",
+    "map.truck",
+    "squad.afkAnyLevel"
+  ],
+  "locales": [
+    {
+      "language": "en",
+      "path": "src/LWBridge.UI-0.3.17/src/locales/en.js",
+      "sha256": "357682d9179ae712ee563950467b7a93b5aea89322afc993e079fedee28432c1",
+      "keyCount": 45,
+      "ownCount": 45,
+      "fallbackCount": 0,
+      "rows": [
+        {
+          "key": "common.completed",
+          "own": true,
+          "value": "Completed",
+          "fallback": false
+        },
+        {
+          "key": "common.inProgress",
+          "own": true,
+          "value": "In progress",
+          "fallback": false
+        },
+        {
+          "key": "common.itemCount",
+          "own": true,
+          "value": "{count} items",
+          "fallback": false
+        },
+        {
+          "key": "common.name",
+          "own": true,
+          "value": "Name",
+          "fallback": false
+        },
+        {
+          "key": "common.search",
+          "own": true,
+          "value": "Search",
+          "fallback": false
+        },
+        {
+          "key": "common.status",
+          "own": true,
+          "value": "Status",
+          "fallback": false
+        },
+        {
+          "key": "map.allAlliances",
+          "own": true,
+          "value": "All Alliances",
+          "fallback": false
+        },
+        {
+          "key": "map.allNames",
+          "own": true,
+          "value": "All Names",
+          "fallback": false
+        },
+        {
+          "key": "map.allQualities",
+          "own": true,
+          "value": "All qualities",
+          "fallback": false
+        },
+        {
+          "key": "map.allRetainedGoods",
+          "own": true,
+          "value": "All Items",
+          "fallback": false
+        },
+        {
+          "key": "map.allTreasureTypes",
+          "own": true,
+          "value": "All Treasure Types",
+          "fallback": false
+        },
+        {
+          "key": "map.allianceFilter",
+          "own": true,
+          "value": "Filter by Alliance",
+          "fallback": false
+        },
+        {
+          "key": "map.allianceTrain",
+          "own": true,
+          "value": "Train",
+          "fallback": false
+        },
+        {
+          "key": "map.city",
+          "own": true,
+          "value": "City",
+          "fallback": false
+        },
+        {
+          "key": "map.claimSeasonTreasures",
+          "own": true,
+          "value": "Claim Season Treasures",
+          "fallback": false
+        },
+        {
+          "key": "map.claimTreasureBoxes",
+          "own": true,
+          "value": "Claim Boxes",
+          "fallback": false
+        },
+        {
+          "key": "map.exportExcel",
+          "own": true,
+          "value": "Export Excel",
+          "fallback": false
+        },
+        {
+          "key": "map.exportingExcel",
+          "own": true,
+          "value": "Exporting…",
+          "fallback": false
+        },
+        {
+          "key": "map.ghostScout",
+          "own": true,
+          "value": "Ghost Ops",
+          "fallback": false
+        },
+        {
+          "key": "map.itemFilter",
+          "own": true,
+          "value": "Item",
+          "fallback": false
+        },
+        {
+          "key": "map.level",
+          "own": true,
+          "value": "Level",
+          "fallback": false
+        },
+        {
+          "key": "map.markedOnly",
+          "own": true,
+          "value": "Marked only",
+          "fallback": false
+        },
+        {
+          "key": "map.monster",
+          "own": true,
+          "value": "Monster",
+          "fallback": false
+        },
+        {
+          "key": "map.nextPage",
+          "own": true,
+          "value": "Next",
+          "fallback": false
+        },
+        {
+          "key": "map.noAlliance",
+          "own": true,
+          "value": "No Alliance",
+          "fallback": false
+        },
+        {
+          "key": "map.pageInfo",
+          "own": true,
+          "value": "Page {page} of {total}",
+          "fallback": false
+        },
+        {
+          "key": "map.plunderableOnly",
+          "own": true,
+          "value": "Only plunderable or pending",
+          "fallback": false
+        },
+        {
+          "key": "map.previousPage",
+          "own": true,
+          "value": "Previous",
+          "fallback": false
+        },
+        {
+          "key": "map.prioritizeLuckyTreasures",
+          "own": true,
+          "value": "Prioritize lucky positions",
+          "fallback": false
+        },
+        {
+          "key": "map.quality",
+          "own": true,
+          "value": "Quality",
+          "fallback": false
+        },
+        {
+          "key": "map.randomDelaySeconds",
+          "own": true,
+          "value": "Random delay max (seconds)",
+          "fallback": false
+        },
+        {
+          "key": "map.reindeerQuality",
+          "own": true,
+          "value": "Reindeer",
+          "fallback": false
+        },
+        {
+          "key": "map.resource",
+          "own": true,
+          "value": "Resource",
+          "fallback": false
+        },
+        {
+          "key": "map.scheduleSelected",
+          "own": true,
+          "value": "Add to schedule ({count})",
+          "fallback": false
+        },
+        {
+          "key": "map.scheduleSelectedTrucks",
+          "own": true,
+          "value": "Plunder selected trucks ({count})",
+          "fallback": false
+        },
+        {
+          "key": "map.scheduledPlunder",
+          "own": true,
+          "value": "Scheduled Plunder",
+          "fallback": false
+        },
+        {
+          "key": "map.searchLabel",
+          "own": true,
+          "value": "Search name, Alliance, or UUID",
+          "fallback": false
+        },
+        {
+          "key": "map.secretTask",
+          "own": true,
+          "value": "Secret Task",
+          "fallback": false
+        },
+        {
+          "key": "map.showForeignRadarTreasures",
+          "own": true,
+          "value": "Show other-alliance Radar Treasures",
+          "fallback": false
+        },
+        {
+          "key": "map.specialQuality",
+          "own": true,
+          "value": "Special (starred)",
+          "fallback": false
+        },
+        {
+          "key": "map.title",
+          "own": true,
+          "value": "World Map Data",
+          "fallback": false
+        },
+        {
+          "key": "map.treasure",
+          "own": true,
+          "value": "Treasure",
+          "fallback": false
+        },
+        {
+          "key": "map.treasureType",
+          "own": true,
+          "value": "Treasure Type",
+          "fallback": false
+        },
+        {
+          "key": "map.truck",
+          "own": true,
+          "value": "Truck",
+          "fallback": false
+        },
+        {
+          "key": "squad.afkAnyLevel",
+          "own": true,
+          "value": "Any level",
+          "fallback": false
+        }
+      ]
+    },
+    {
+      "language": "zh-CN",
+      "path": "src/LWBridge.UI-0.3.17/src/locales/zh-CN.js",
+      "sha256": "faf55a16171db0fb3f96f51fbae7fbc3c675176d52eed29a0a303a2f7a8304d3",
+      "keyCount": 45,
+      "ownCount": 45,
+      "fallbackCount": 0,
+      "rows": [
+        {
+          "key": "common.completed",
+          "own": true,
+          "value": "已完成",
+          "fallback": false
+        },
+        {
+          "key": "common.inProgress",
+          "own": true,
+          "value": "进行中",
+          "fallback": false
+        },
+        {
+          "key": "common.itemCount",
+          "own": true,
+          "value": "{count} 条",
+          "fallback": false
+        },
+        {
+          "key": "common.name",
+          "own": true,
+          "value": "名称",
+          "fallback": false
+        },
+        {
+          "key": "common.search",
+          "own": true,
+          "value": "搜索",
+          "fallback": false
+        },
+        {
+          "key": "common.status",
+          "own": true,
+          "value": "状态",
+          "fallback": false
+        },
+        {
+          "key": "map.allAlliances",
+          "own": true,
+          "value": "全部同盟",
+          "fallback": false
+        },
+        {
+          "key": "map.allNames",
+          "own": true,
+          "value": "全部名称",
+          "fallback": false
+        },
+        {
+          "key": "map.allQualities",
+          "own": true,
+          "value": "所有品质",
+          "fallback": false
+        },
+        {
+          "key": "map.allRetainedGoods",
+          "own": true,
+          "value": "全部物品",
+          "fallback": false
+        },
+        {
+          "key": "map.allTreasureTypes",
+          "own": true,
+          "value": "全部宝藏类型",
+          "fallback": false
+        },
+        {
+          "key": "map.allianceFilter",
+          "own": true,
+          "value": "筛选同盟",
+          "fallback": false
+        },
+        {
+          "key": "map.allianceTrain",
+          "own": true,
+          "value": "列车",
+          "fallback": false
+        },
+        {
+          "key": "map.city",
+          "own": true,
+          "value": "城市",
+          "fallback": false
+        },
+        {
+          "key": "map.claimSeasonTreasures",
+          "own": true,
+          "value": "一键领取赛季宝藏",
+          "fallback": false
+        },
+        {
+          "key": "map.claimTreasureBoxes",
+          "own": true,
+          "value": "一键领取宝箱",
+          "fallback": false
+        },
+        {
+          "key": "map.exportExcel",
+          "own": true,
+          "value": "导出 Excel",
+          "fallback": false
+        },
+        {
+          "key": "map.exportingExcel",
+          "own": true,
+          "value": "正在导出…",
+          "fallback": false
+        },
+        {
+          "key": "map.ghostScout",
+          "own": true,
+          "value": "幽灵行动",
+          "fallback": false
+        },
+        {
+          "key": "map.itemFilter",
+          "own": true,
+          "value": "物品",
+          "fallback": false
+        },
+        {
+          "key": "map.level",
+          "own": true,
+          "value": "等级",
+          "fallback": false
+        },
+        {
+          "key": "map.markedOnly",
+          "own": true,
+          "value": "仅看标记",
+          "fallback": false
+        },
+        {
+          "key": "map.monster",
+          "own": true,
+          "value": "怪物",
+          "fallback": false
+        },
+        {
+          "key": "map.nextPage",
+          "own": true,
+          "value": "下一页",
+          "fallback": false
+        },
+        {
+          "key": "map.noAlliance",
+          "own": true,
+          "value": "无同盟",
+          "fallback": false
+        },
+        {
+          "key": "map.pageInfo",
+          "own": true,
+          "value": "第 {page} / {total} 页",
+          "fallback": false
+        },
+        {
+          "key": "map.plunderableOnly",
+          "own": true,
+          "value": "只看可抢/待可抢",
+          "fallback": false
+        },
+        {
+          "key": "map.previousPage",
+          "own": true,
+          "value": "上一页",
+          "fallback": false
+        },
+        {
+          "key": "map.prioritizeLuckyTreasures",
+          "own": true,
+          "value": "幸运位置优先",
+          "fallback": false
+        },
+        {
+          "key": "map.quality",
+          "own": true,
+          "value": "品质",
+          "fallback": false
+        },
+        {
+          "key": "map.randomDelaySeconds",
+          "own": true,
+          "value": "随机延迟上限（秒）",
+          "fallback": false
+        },
+        {
+          "key": "map.reindeerQuality",
+          "own": true,
+          "value": "驯鹿",
+          "fallback": false
+        },
+        {
+          "key": "map.resource",
+          "own": true,
+          "value": "资源",
+          "fallback": false
+        },
+        {
+          "key": "map.scheduleSelected",
+          "own": true,
+          "value": "添加到定时抢夺（{count}）",
+          "fallback": false
+        },
+        {
+          "key": "map.scheduleSelectedTrucks",
+          "own": true,
+          "value": "抢夺选中卡车（{count}）",
+          "fallback": false
+        },
+        {
+          "key": "map.scheduledPlunder",
+          "own": true,
+          "value": "定时抢夺",
+          "fallback": false
+        },
+        {
+          "key": "map.searchLabel",
+          "own": true,
+          "value": "搜索名称、同盟或 UUID",
+          "fallback": false
+        },
+        {
+          "key": "map.secretTask",
+          "own": true,
+          "value": "隐秘任务",
+          "fallback": false
+        },
+        {
+          "key": "map.showForeignRadarTreasures",
+          "own": true,
+          "value": "显示非本同盟雷达宝藏",
+          "fallback": false
+        },
+        {
+          "key": "map.specialQuality",
+          "own": true,
+          "value": "特殊（带星）",
+          "fallback": false
+        },
+        {
+          "key": "map.title",
+          "own": true,
+          "value": "世界地图数据",
+          "fallback": false
+        },
+        {
+          "key": "map.treasure",
+          "own": true,
+          "value": "宝藏",
+          "fallback": false
+        },
+        {
+          "key": "map.treasureType",
+          "own": true,
+          "value": "宝藏类型",
+          "fallback": false
+        },
+        {
+          "key": "map.truck",
+          "own": true,
+          "value": "卡车",
+          "fallback": false
+        },
+        {
+          "key": "squad.afkAnyLevel",
+          "own": true,
+          "value": "任意等级",
+          "fallback": false
+        }
+      ]
+    },
+    {
+      "language": "zh-TW",
+      "path": "src/LWBridge.UI-0.3.17/src/locales/zh-TW.js",
+      "sha256": "5b2467e0d005e6d726e92bd21eda56e38321233d9d29bfdbaa8dbe3c0c4c2269",
+      "keyCount": 45,
+      "ownCount": 45,
+      "fallbackCount": 0,
+      "rows": [
+        {
+          "key": "common.completed",
+          "own": true,
+          "value": "已完成",
+          "fallback": false
+        },
+        {
+          "key": "common.inProgress",
+          "own": true,
+          "value": "進行中",
+          "fallback": false
+        },
+        {
+          "key": "common.itemCount",
+          "own": true,
+          "value": "{count} 條",
+          "fallback": false
+        },
+        {
+          "key": "common.name",
+          "own": true,
+          "value": "名稱",
+          "fallback": false
+        },
+        {
+          "key": "common.search",
+          "own": true,
+          "value": "搜尋",
+          "fallback": false
+        },
+        {
+          "key": "common.status",
+          "own": true,
+          "value": "狀態",
+          "fallback": false
+        },
+        {
+          "key": "map.allAlliances",
+          "own": true,
+          "value": "全部同盟",
+          "fallback": false
+        },
+        {
+          "key": "map.allNames",
+          "own": true,
+          "value": "全部名稱",
+          "fallback": false
+        },
+        {
+          "key": "map.allQualities",
+          "own": true,
+          "value": "所有品質",
+          "fallback": false
+        },
+        {
+          "key": "map.allRetainedGoods",
+          "own": true,
+          "value": "全部物品",
+          "fallback": false
+        },
+        {
+          "key": "map.allTreasureTypes",
+          "own": true,
+          "value": "全部寶藏類型",
+          "fallback": false
+        },
+        {
+          "key": "map.allianceFilter",
+          "own": true,
+          "value": "篩選同盟",
+          "fallback": false
+        },
+        {
+          "key": "map.allianceTrain",
+          "own": true,
+          "value": "列車",
+          "fallback": false
+        },
+        {
+          "key": "map.city",
+          "own": true,
+          "value": "城市",
+          "fallback": false
+        },
+        {
+          "key": "map.claimSeasonTreasures",
+          "own": true,
+          "value": "一鍵領取賽季寶藏",
+          "fallback": false
+        },
+        {
+          "key": "map.claimTreasureBoxes",
+          "own": true,
+          "value": "一鍵領取寶箱",
+          "fallback": false
+        },
+        {
+          "key": "map.exportExcel",
+          "own": true,
+          "value": "匯出 Excel",
+          "fallback": false
+        },
+        {
+          "key": "map.exportingExcel",
+          "own": true,
+          "value": "正在匯出…",
+          "fallback": false
+        },
+        {
+          "key": "map.ghostScout",
+          "own": true,
+          "value": "幽靈行動",
+          "fallback": false
+        },
+        {
+          "key": "map.itemFilter",
+          "own": true,
+          "value": "物品",
+          "fallback": false
+        },
+        {
+          "key": "map.level",
+          "own": true,
+          "value": "等級",
+          "fallback": false
+        },
+        {
+          "key": "map.markedOnly",
+          "own": true,
+          "value": "僅看標記",
+          "fallback": false
+        },
+        {
+          "key": "map.monster",
+          "own": true,
+          "value": "怪物",
+          "fallback": false
+        },
+        {
+          "key": "map.nextPage",
+          "own": true,
+          "value": "下一頁",
+          "fallback": false
+        },
+        {
+          "key": "map.noAlliance",
+          "own": true,
+          "value": "無同盟",
+          "fallback": false
+        },
+        {
+          "key": "map.pageInfo",
+          "own": true,
+          "value": "第 {page} / {total} 頁",
+          "fallback": false
+        },
+        {
+          "key": "map.plunderableOnly",
+          "own": true,
+          "value": "只看可搶/待可搶",
+          "fallback": false
+        },
+        {
+          "key": "map.previousPage",
+          "own": true,
+          "value": "上一頁",
+          "fallback": false
+        },
+        {
+          "key": "map.prioritizeLuckyTreasures",
+          "own": true,
+          "value": "幸運位置優先",
+          "fallback": false
+        },
+        {
+          "key": "map.quality",
+          "own": true,
+          "value": "品質",
+          "fallback": false
+        },
+        {
+          "key": "map.randomDelaySeconds",
+          "own": true,
+          "value": "隨機延遲上限（秒）",
+          "fallback": false
+        },
+        {
+          "key": "map.reindeerQuality",
+          "own": true,
+          "value": "馴鹿",
+          "fallback": false
+        },
+        {
+          "key": "map.resource",
+          "own": true,
+          "value": "資源",
+          "fallback": false
+        },
+        {
+          "key": "map.scheduleSelected",
+          "own": true,
+          "value": "加入定時搶奪（{count}）",
+          "fallback": false
+        },
+        {
+          "key": "map.scheduleSelectedTrucks",
+          "own": true,
+          "value": "搶奪選中卡車（{count}）",
+          "fallback": false
+        },
+        {
+          "key": "map.scheduledPlunder",
+          "own": true,
+          "value": "定時搶奪",
+          "fallback": false
+        },
+        {
+          "key": "map.searchLabel",
+          "own": true,
+          "value": "搜尋名稱、同盟或 UUID",
+          "fallback": false
+        },
+        {
+          "key": "map.secretTask",
+          "own": true,
+          "value": "隱密任務",
+          "fallback": false
+        },
+        {
+          "key": "map.showForeignRadarTreasures",
+          "own": true,
+          "value": "顯示非本同盟雷達寶藏",
+          "fallback": false
+        },
+        {
+          "key": "map.specialQuality",
+          "own": true,
+          "value": "特殊（帶星）",
+          "fallback": false
+        },
+        {
+          "key": "map.title",
+          "own": true,
+          "value": "世界地圖資料",
+          "fallback": false
+        },
+        {
+          "key": "map.treasure",
+          "own": true,
+          "value": "寶藏",
+          "fallback": false
+        },
+        {
+          "key": "map.treasureType",
+          "own": true,
+          "value": "寶藏類型",
+          "fallback": false
+        },
+        {
+          "key": "map.truck",
+          "own": true,
+          "value": "卡車",
+          "fallback": false
+        },
+        {
+          "key": "squad.afkAnyLevel",
+          "own": true,
+          "value": "任意等級",
+          "fallback": false
+        }
+      ]
+    },
+    {
+      "language": "ja",
+      "path": "src/LWBridge.UI-0.3.17/src/locales/ja.js",
+      "sha256": "e1fed1e9aaf052963e3d8f5a5f8b9ae96b002a05a9dd7bb06a460a66187755eb",
+      "keyCount": 45,
+      "ownCount": 45,
+      "fallbackCount": 0,
+      "rows": [
+        {
+          "key": "common.completed",
+          "own": true,
+          "value": "完了",
+          "fallback": false
+        },
+        {
+          "key": "common.inProgress",
+          "own": true,
+          "value": "進行中",
+          "fallback": false
+        },
+        {
+          "key": "common.itemCount",
+          "own": true,
+          "value": "{count}件",
+          "fallback": false
+        },
+        {
+          "key": "common.name",
+          "own": true,
+          "value": "名前",
+          "fallback": false
+        },
+        {
+          "key": "common.search",
+          "own": true,
+          "value": "検索",
+          "fallback": false
+        },
+        {
+          "key": "common.status",
+          "own": true,
+          "value": "ステータス",
+          "fallback": false
+        },
+        {
+          "key": "map.allAlliances",
+          "own": true,
+          "value": "すべての連盟",
+          "fallback": false
+        },
+        {
+          "key": "map.allNames",
+          "own": true,
+          "value": "すべての名前",
+          "fallback": false
+        },
+        {
+          "key": "map.allQualities",
+          "own": true,
+          "value": "すべての品質",
+          "fallback": false
+        },
+        {
+          "key": "map.allRetainedGoods",
+          "own": true,
+          "value": "すべてのアイテム",
+          "fallback": false
+        },
+        {
+          "key": "map.allTreasureTypes",
+          "own": true,
+          "value": "すべての宝物タイプ",
+          "fallback": false
+        },
+        {
+          "key": "map.allianceFilter",
+          "own": true,
+          "value": "連盟で絞り込み",
+          "fallback": false
+        },
+        {
+          "key": "map.allianceTrain",
+          "own": true,
+          "value": "列車",
+          "fallback": false
+        },
+        {
+          "key": "map.city",
+          "own": true,
+          "value": "都市",
+          "fallback": false
+        },
+        {
+          "key": "map.claimSeasonTreasures",
+          "own": true,
+          "value": "シーズン宝物を一括受取",
+          "fallback": false
+        },
+        {
+          "key": "map.claimTreasureBoxes",
+          "own": true,
+          "value": "宝箱を一括受取",
+          "fallback": false
+        },
+        {
+          "key": "map.exportExcel",
+          "own": true,
+          "value": "Excel にエクスポート",
+          "fallback": false
+        },
+        {
+          "key": "map.exportingExcel",
+          "own": true,
+          "value": "エクスポート中…",
+          "fallback": false
+        },
+        {
+          "key": "map.ghostScout",
+          "own": true,
+          "value": "幽霊作戦",
+          "fallback": false
+        },
+        {
+          "key": "map.itemFilter",
+          "own": true,
+          "value": "アイテム",
+          "fallback": false
+        },
+        {
+          "key": "map.level",
+          "own": true,
+          "value": "レベル",
+          "fallback": false
+        },
+        {
+          "key": "map.markedOnly",
+          "own": true,
+          "value": "マークのみ",
+          "fallback": false
+        },
+        {
+          "key": "map.monster",
+          "own": true,
+          "value": "モンスター",
+          "fallback": false
+        },
+        {
+          "key": "map.nextPage",
+          "own": true,
+          "value": "次へ",
+          "fallback": false
+        },
+        {
+          "key": "map.noAlliance",
+          "own": true,
+          "value": "連盟なし",
+          "fallback": false
+        },
+        {
+          "key": "map.pageInfo",
+          "own": true,
+          "value": "{page} / {total} ページ",
+          "fallback": false
+        },
+        {
+          "key": "map.plunderableOnly",
+          "own": true,
+          "value": "略奪可能/待機のみ",
+          "fallback": false
+        },
+        {
+          "key": "map.previousPage",
+          "own": true,
+          "value": "前へ",
+          "fallback": false
+        },
+        {
+          "key": "map.prioritizeLuckyTreasures",
+          "own": true,
+          "value": "幸運位置を優先",
+          "fallback": false
+        },
+        {
+          "key": "map.quality",
+          "own": true,
+          "value": "品質",
+          "fallback": false
+        },
+        {
+          "key": "map.randomDelaySeconds",
+          "own": true,
+          "value": "ランダム遅延上限（秒）",
+          "fallback": false
+        },
+        {
+          "key": "map.reindeerQuality",
+          "own": true,
+          "value": "トナカイ",
+          "fallback": false
+        },
+        {
+          "key": "map.resource",
+          "own": true,
+          "value": "資源",
+          "fallback": false
+        },
+        {
+          "key": "map.scheduleSelected",
+          "own": true,
+          "value": "予約に追加（{count}）",
+          "fallback": false
+        },
+        {
+          "key": "map.scheduleSelectedTrucks",
+          "own": true,
+          "value": "選択したトラックを略奪（{count}）",
+          "fallback": false
+        },
+        {
+          "key": "map.scheduledPlunder",
+          "own": true,
+          "value": "略奪予約",
+          "fallback": false
+        },
+        {
+          "key": "map.searchLabel",
+          "own": true,
+          "value": "名前、連盟、UUIDを検索",
+          "fallback": false
+        },
+        {
+          "key": "map.secretTask",
+          "own": true,
+          "value": "極秘任務",
+          "fallback": false
+        },
+        {
+          "key": "map.showForeignRadarTreasures",
+          "own": true,
+          "value": "他同盟のレーダー宝物を表示",
+          "fallback": false
+        },
+        {
+          "key": "map.specialQuality",
+          "own": true,
+          "value": "特殊（星付き）",
+          "fallback": false
+        },
+        {
+          "key": "map.title",
+          "own": true,
+          "value": "世界地図データ",
+          "fallback": false
+        },
+        {
+          "key": "map.treasure",
+          "own": true,
+          "value": "宝物",
+          "fallback": false
+        },
+        {
+          "key": "map.treasureType",
+          "own": true,
+          "value": "宝物タイプ",
+          "fallback": false
+        },
+        {
+          "key": "map.truck",
+          "own": true,
+          "value": "輸送車",
+          "fallback": false
+        },
+        {
+          "key": "squad.afkAnyLevel",
+          "own": true,
+          "value": "レベル不問",
+          "fallback": false
+        }
+      ]
+    },
+    {
+      "language": "ko",
+      "path": "src/LWBridge.UI-0.3.17/src/locales/ko.js",
+      "sha256": "7b4aef2d9000dc9bee00cf7bd13fe64fc35753aea728a66dc67f59f5a6a46c86",
+      "keyCount": 45,
+      "ownCount": 45,
+      "fallbackCount": 0,
+      "rows": [
+        {
+          "key": "common.completed",
+          "own": true,
+          "value": "완료됨",
+          "fallback": false
+        },
+        {
+          "key": "common.inProgress",
+          "own": true,
+          "value": "진행 중",
+          "fallback": false
+        },
+        {
+          "key": "common.itemCount",
+          "own": true,
+          "value": "{count}개",
+          "fallback": false
+        },
+        {
+          "key": "common.name",
+          "own": true,
+          "value": "이름",
+          "fallback": false
+        },
+        {
+          "key": "common.search",
+          "own": true,
+          "value": "검색",
+          "fallback": false
+        },
+        {
+          "key": "common.status",
+          "own": true,
+          "value": "상태",
+          "fallback": false
+        },
+        {
+          "key": "map.allAlliances",
+          "own": true,
+          "value": "모든 연맹",
+          "fallback": false
+        },
+        {
+          "key": "map.allNames",
+          "own": true,
+          "value": "모든 이름",
+          "fallback": false
+        },
+        {
+          "key": "map.allQualities",
+          "own": true,
+          "value": "모든 품질",
+          "fallback": false
+        },
+        {
+          "key": "map.allRetainedGoods",
+          "own": true,
+          "value": "모든 아이템",
+          "fallback": false
+        },
+        {
+          "key": "map.allTreasureTypes",
+          "own": true,
+          "value": "모든 보물 유형",
+          "fallback": false
+        },
+        {
+          "key": "map.allianceFilter",
+          "own": true,
+          "value": "연맹 필터",
+          "fallback": false
+        },
+        {
+          "key": "map.allianceTrain",
+          "own": true,
+          "value": "열차",
+          "fallback": false
+        },
+        {
+          "key": "map.city",
+          "own": true,
+          "value": "도시",
+          "fallback": false
+        },
+        {
+          "key": "map.claimSeasonTreasures",
+          "own": true,
+          "value": "시즌 보물 일괄 수령",
+          "fallback": false
+        },
+        {
+          "key": "map.claimTreasureBoxes",
+          "own": true,
+          "value": "보물 상자 일괄 수령",
+          "fallback": false
+        },
+        {
+          "key": "map.exportExcel",
+          "own": true,
+          "value": "Excel 내보내기",
+          "fallback": false
+        },
+        {
+          "key": "map.exportingExcel",
+          "own": true,
+          "value": "내보내는 중…",
+          "fallback": false
+        },
+        {
+          "key": "map.ghostScout",
+          "own": true,
+          "value": "유령 작전",
+          "fallback": false
+        },
+        {
+          "key": "map.itemFilter",
+          "own": true,
+          "value": "아이템",
+          "fallback": false
+        },
+        {
+          "key": "map.level",
+          "own": true,
+          "value": "레벨",
+          "fallback": false
+        },
+        {
+          "key": "map.markedOnly",
+          "own": true,
+          "value": "표시만",
+          "fallback": false
+        },
+        {
+          "key": "map.monster",
+          "own": true,
+          "value": "몬스터",
+          "fallback": false
+        },
+        {
+          "key": "map.nextPage",
+          "own": true,
+          "value": "다음",
+          "fallback": false
+        },
+        {
+          "key": "map.noAlliance",
+          "own": true,
+          "value": "연맹 없음",
+          "fallback": false
+        },
+        {
+          "key": "map.pageInfo",
+          "own": true,
+          "value": "{page} / {total} 페이지",
+          "fallback": false
+        },
+        {
+          "key": "map.plunderableOnly",
+          "own": true,
+          "value": "약탈 가능/대기만",
+          "fallback": false
+        },
+        {
+          "key": "map.previousPage",
+          "own": true,
+          "value": "이전",
+          "fallback": false
+        },
+        {
+          "key": "map.prioritizeLuckyTreasures",
+          "own": true,
+          "value": "행운 위치 우선",
+          "fallback": false
+        },
+        {
+          "key": "map.quality",
+          "own": true,
+          "value": "품질",
+          "fallback": false
+        },
+        {
+          "key": "map.randomDelaySeconds",
+          "own": true,
+          "value": "무작위 지연 상한(초)",
+          "fallback": false
+        },
+        {
+          "key": "map.reindeerQuality",
+          "own": true,
+          "value": "순록",
+          "fallback": false
+        },
+        {
+          "key": "map.resource",
+          "own": true,
+          "value": "자원",
+          "fallback": false
+        },
+        {
+          "key": "map.scheduleSelected",
+          "own": true,
+          "value": "예약에 추가 ({count})",
+          "fallback": false
+        },
+        {
+          "key": "map.scheduleSelectedTrucks",
+          "own": true,
+          "value": "선택 트럭 약탈 ({count})",
+          "fallback": false
+        },
+        {
+          "key": "map.scheduledPlunder",
+          "own": true,
+          "value": "예약 약탈",
+          "fallback": false
+        },
+        {
+          "key": "map.searchLabel",
+          "own": true,
+          "value": "이름, 연맹 또는 UUID 검색",
+          "fallback": false
+        },
+        {
+          "key": "map.secretTask",
+          "own": true,
+          "value": "은밀한 임무",
+          "fallback": false
+        },
+        {
+          "key": "map.showForeignRadarTreasures",
+          "own": true,
+          "value": "다른 연맹 레이더 보물 표시",
+          "fallback": false
+        },
+        {
+          "key": "map.specialQuality",
+          "own": true,
+          "value": "특별(별 표시)",
+          "fallback": false
+        },
+        {
+          "key": "map.title",
+          "own": true,
+          "value": "세계지도 데이터",
+          "fallback": false
+        },
+        {
+          "key": "map.treasure",
+          "own": true,
+          "value": "보물",
+          "fallback": false
+        },
+        {
+          "key": "map.treasureType",
+          "own": true,
+          "value": "보물 유형",
+          "fallback": false
+        },
+        {
+          "key": "map.truck",
+          "own": true,
+          "value": "트럭",
+          "fallback": false
+        },
+        {
+          "key": "squad.afkAnyLevel",
+          "own": true,
+          "value": "모든 레벨",
+          "fallback": false
+        }
+      ]
+    },
+    {
+      "language": "vi",
+      "path": "src/LWBridge.UI-0.3.17/src/locales/vi.js",
+      "sha256": "954be08aacae40a81d117e48e03bacdede39fa1439d0823c2bd6fd03efdc8b07",
+      "keyCount": 45,
+      "ownCount": 45,
+      "fallbackCount": 0,
+      "rows": [
+        {
+          "key": "common.completed",
+          "own": true,
+          "value": "Đã hoàn thành",
+          "fallback": false
+        },
+        {
+          "key": "common.inProgress",
+          "own": true,
+          "value": "Đang tiến hành",
+          "fallback": false
+        },
+        {
+          "key": "common.itemCount",
+          "own": true,
+          "value": "{count} mục",
+          "fallback": false
+        },
+        {
+          "key": "common.name",
+          "own": true,
+          "value": "Tên",
+          "fallback": false
+        },
+        {
+          "key": "common.search",
+          "own": true,
+          "value": "Tìm Kiếm",
+          "fallback": false
+        },
+        {
+          "key": "common.status",
+          "own": true,
+          "value": "Trạng thái",
+          "fallback": false
+        },
+        {
+          "key": "map.allAlliances",
+          "own": true,
+          "value": "Tất Cả Liên Minh",
+          "fallback": false
+        },
+        {
+          "key": "map.allNames",
+          "own": true,
+          "value": "Tất Cả Tên",
+          "fallback": false
+        },
+        {
+          "key": "map.allQualities",
+          "own": true,
+          "value": "Tất Cả Phẩm Chất",
+          "fallback": false
+        },
+        {
+          "key": "map.allRetainedGoods",
+          "own": true,
+          "value": "Tất cả vật phẩm",
+          "fallback": false
+        },
+        {
+          "key": "map.allTreasureTypes",
+          "own": true,
+          "value": "Tất cả Loại Kho Báu",
+          "fallback": false
+        },
+        {
+          "key": "map.allianceFilter",
+          "own": true,
+          "value": "Lọc theo Liên Minh",
+          "fallback": false
+        },
+        {
+          "key": "map.allianceTrain",
+          "own": true,
+          "value": "Tàu",
+          "fallback": false
+        },
+        {
+          "key": "map.city",
+          "own": true,
+          "value": "Thành Phố",
+          "fallback": false
+        },
+        {
+          "key": "map.claimSeasonTreasures",
+          "own": true,
+          "value": "Nhận Kho Báu Mùa",
+          "fallback": false
+        },
+        {
+          "key": "map.claimTreasureBoxes",
+          "own": true,
+          "value": "Nhận Rương",
+          "fallback": false
+        },
+        {
+          "key": "map.exportExcel",
+          "own": true,
+          "value": "Xuất Excel",
+          "fallback": false
+        },
+        {
+          "key": "map.exportingExcel",
+          "own": true,
+          "value": "Đang xuất…",
+          "fallback": false
+        },
+        {
+          "key": "map.ghostScout",
+          "own": true,
+          "value": "Chiến Dịch Linh Hồn",
+          "fallback": false
+        },
+        {
+          "key": "map.itemFilter",
+          "own": true,
+          "value": "Vật phẩm",
+          "fallback": false
+        },
+        {
+          "key": "map.level",
+          "own": true,
+          "value": "Cấp",
+          "fallback": false
+        },
+        {
+          "key": "map.markedOnly",
+          "own": true,
+          "value": "Chỉ đã đánh dấu",
+          "fallback": false
+        },
+        {
+          "key": "map.monster",
+          "own": true,
+          "value": "Quái Vật",
+          "fallback": false
+        },
+        {
+          "key": "map.nextPage",
+          "own": true,
+          "value": "Trang sau",
+          "fallback": false
+        },
+        {
+          "key": "map.noAlliance",
+          "own": true,
+          "value": "Không Có Liên Minh",
+          "fallback": false
+        },
+        {
+          "key": "map.pageInfo",
+          "own": true,
+          "value": "Trang {page} / {total}",
+          "fallback": false
+        },
+        {
+          "key": "map.plunderableOnly",
+          "own": true,
+          "value": "Chỉ có thể cướp/đang chờ",
+          "fallback": false
+        },
+        {
+          "key": "map.previousPage",
+          "own": true,
+          "value": "Trang trước",
+          "fallback": false
+        },
+        {
+          "key": "map.prioritizeLuckyTreasures",
+          "own": true,
+          "value": "Ưu tiên vị trí may mắn",
+          "fallback": false
+        },
+        {
+          "key": "map.quality",
+          "own": true,
+          "value": "Phẩm Chất",
+          "fallback": false
+        },
+        {
+          "key": "map.randomDelaySeconds",
+          "own": true,
+          "value": "Độ trễ ngẫu nhiên tối đa (giây)",
+          "fallback": false
+        },
+        {
+          "key": "map.reindeerQuality",
+          "own": true,
+          "value": "Tuần lộc",
+          "fallback": false
+        },
+        {
+          "key": "map.resource",
+          "own": true,
+          "value": "Tài Nguyên",
+          "fallback": false
+        },
+        {
+          "key": "map.scheduleSelected",
+          "own": true,
+          "value": "Thêm vào lịch ({count})",
+          "fallback": false
+        },
+        {
+          "key": "map.scheduleSelectedTrucks",
+          "own": true,
+          "value": "Cướp xe đã chọn ({count})",
+          "fallback": false
+        },
+        {
+          "key": "map.scheduledPlunder",
+          "own": true,
+          "value": "Cướp hẹn giờ",
+          "fallback": false
+        },
+        {
+          "key": "map.searchLabel",
+          "own": true,
+          "value": "Tìm tên, Liên Minh hoặc UUID",
+          "fallback": false
+        },
+        {
+          "key": "map.secretTask",
+          "own": true,
+          "value": "Nhiệm Vụ Bí Mật",
+          "fallback": false
+        },
+        {
+          "key": "map.showForeignRadarTreasures",
+          "own": true,
+          "value": "Hiện Kho báu Radar của liên minh khác",
+          "fallback": false
+        },
+        {
+          "key": "map.specialQuality",
+          "own": true,
+          "value": "Đặc biệt (có sao)",
+          "fallback": false
+        },
+        {
+          "key": "map.title",
+          "own": true,
+          "value": "Dữ liệu bản đồ thế giới",
+          "fallback": false
+        },
+        {
+          "key": "map.treasure",
+          "own": true,
+          "value": "Kho Báu",
+          "fallback": false
+        },
+        {
+          "key": "map.treasureType",
+          "own": true,
+          "value": "Loại Kho Báu",
+          "fallback": false
+        },
+        {
+          "key": "map.truck",
+          "own": true,
+          "value": "Xe Tải",
+          "fallback": false
+        },
+        {
+          "key": "squad.afkAnyLevel",
+          "own": true,
+          "value": "Mọi cấp",
+          "fallback": false
+        }
+      ]
+    },
+    {
+      "language": "id",
+      "path": "src/LWBridge.UI-0.3.17/src/locales/id.js",
+      "sha256": "52c0ae28f9c4428a481f6d911a1a4308eddd022af24ec48e518531803f7b375f",
+      "keyCount": 45,
+      "ownCount": 45,
+      "fallbackCount": 0,
+      "rows": [
+        {
+          "key": "common.completed",
+          "own": true,
+          "value": "Selesai",
+          "fallback": false
+        },
+        {
+          "key": "common.inProgress",
+          "own": true,
+          "value": "Sedang berlangsung",
+          "fallback": false
+        },
+        {
+          "key": "common.itemCount",
+          "own": true,
+          "value": "{count} item",
+          "fallback": false
+        },
+        {
+          "key": "common.name",
+          "own": true,
+          "value": "Nama",
+          "fallback": false
+        },
+        {
+          "key": "common.search",
+          "own": true,
+          "value": "Cari",
+          "fallback": false
+        },
+        {
+          "key": "common.status",
+          "own": true,
+          "value": "Status",
+          "fallback": false
+        },
+        {
+          "key": "map.allAlliances",
+          "own": true,
+          "value": "Semua Aliansi",
+          "fallback": false
+        },
+        {
+          "key": "map.allNames",
+          "own": true,
+          "value": "Semua Nama",
+          "fallback": false
+        },
+        {
+          "key": "map.allQualities",
+          "own": true,
+          "value": "Semua Kualitas",
+          "fallback": false
+        },
+        {
+          "key": "map.allRetainedGoods",
+          "own": true,
+          "value": "Semua Item",
+          "fallback": false
+        },
+        {
+          "key": "map.allTreasureTypes",
+          "own": true,
+          "value": "Semua Jenis Harta",
+          "fallback": false
+        },
+        {
+          "key": "map.allianceFilter",
+          "own": true,
+          "value": "Filter berdasarkan Aliansi",
+          "fallback": false
+        },
+        {
+          "key": "map.allianceTrain",
+          "own": true,
+          "value": "Kereta",
+          "fallback": false
+        },
+        {
+          "key": "map.city",
+          "own": true,
+          "value": "Kota",
+          "fallback": false
+        },
+        {
+          "key": "map.claimSeasonTreasures",
+          "own": true,
+          "value": "Klaim Harta Musim",
+          "fallback": false
+        },
+        {
+          "key": "map.claimTreasureBoxes",
+          "own": true,
+          "value": "Klaim Peti",
+          "fallback": false
+        },
+        {
+          "key": "map.exportExcel",
+          "own": true,
+          "value": "Ekspor Excel",
+          "fallback": false
+        },
+        {
+          "key": "map.exportingExcel",
+          "own": true,
+          "value": "Mengekspor…",
+          "fallback": false
+        },
+        {
+          "key": "map.ghostScout",
+          "own": true,
+          "value": "Operasi Hantu",
+          "fallback": false
+        },
+        {
+          "key": "map.itemFilter",
+          "own": true,
+          "value": "Item",
+          "fallback": false
+        },
+        {
+          "key": "map.level",
+          "own": true,
+          "value": "Level",
+          "fallback": false
+        },
+        {
+          "key": "map.markedOnly",
+          "own": true,
+          "value": "Hanya ditandai",
+          "fallback": false
+        },
+        {
+          "key": "map.monster",
+          "own": true,
+          "value": "Monster",
+          "fallback": false
+        },
+        {
+          "key": "map.nextPage",
+          "own": true,
+          "value": "Berikutnya",
+          "fallback": false
+        },
+        {
+          "key": "map.noAlliance",
+          "own": true,
+          "value": "Tanpa Aliansi",
+          "fallback": false
+        },
+        {
+          "key": "map.pageInfo",
+          "own": true,
+          "value": "Halaman {page} dari {total}",
+          "fallback": false
+        },
+        {
+          "key": "map.plunderableOnly",
+          "own": true,
+          "value": "Hanya bisa/menunggu dijarah",
+          "fallback": false
+        },
+        {
+          "key": "map.previousPage",
+          "own": true,
+          "value": "Sebelumnya",
+          "fallback": false
+        },
+        {
+          "key": "map.prioritizeLuckyTreasures",
+          "own": true,
+          "value": "Prioritaskan posisi keberuntungan",
+          "fallback": false
+        },
+        {
+          "key": "map.quality",
+          "own": true,
+          "value": "Kualitas",
+          "fallback": false
+        },
+        {
+          "key": "map.randomDelaySeconds",
+          "own": true,
+          "value": "Batas tunda acak (detik)",
+          "fallback": false
+        },
+        {
+          "key": "map.reindeerQuality",
+          "own": true,
+          "value": "Rusa kutub",
+          "fallback": false
+        },
+        {
+          "key": "map.resource",
+          "own": true,
+          "value": "Sumber Daya",
+          "fallback": false
+        },
+        {
+          "key": "map.scheduleSelected",
+          "own": true,
+          "value": "Tambahkan ke jadwal ({count})",
+          "fallback": false
+        },
+        {
+          "key": "map.scheduleSelectedTrucks",
+          "own": true,
+          "value": "Rampas trak dipilih ({count})",
+          "fallback": false
+        },
+        {
+          "key": "map.scheduledPlunder",
+          "own": true,
+          "value": "Penjarahan Terjadwal",
+          "fallback": false
+        },
+        {
+          "key": "map.searchLabel",
+          "own": true,
+          "value": "Cari nama, Aliansi, atau UUID",
+          "fallback": false
+        },
+        {
+          "key": "map.secretTask",
+          "own": true,
+          "value": "Tugas Rahasia",
+          "fallback": false
+        },
+        {
+          "key": "map.showForeignRadarTreasures",
+          "own": true,
+          "value": "Tampilkan Harta Radar aliansi lain",
+          "fallback": false
+        },
+        {
+          "key": "map.specialQuality",
+          "own": true,
+          "value": "Istimewa (berbintang)",
+          "fallback": false
+        },
+        {
+          "key": "map.title",
+          "own": true,
+          "value": "Data Peta Dunia",
+          "fallback": false
+        },
+        {
+          "key": "map.treasure",
+          "own": true,
+          "value": "Harta Karun",
+          "fallback": false
+        },
+        {
+          "key": "map.treasureType",
+          "own": true,
+          "value": "Jenis Harta",
+          "fallback": false
+        },
+        {
+          "key": "map.truck",
+          "own": true,
+          "value": "Truk",
+          "fallback": false
+        },
+        {
+          "key": "squad.afkAnyLevel",
+          "own": true,
+          "value": "Level apa pun",
+          "fallback": false
+        }
+      ]
+    },
+    {
+      "language": "ru",
+      "path": "src/LWBridge.UI-0.3.17/src/locales/ru.js",
+      "sha256": "07f39b5d3ac71148c9c5e5143bcb26cd079d55f16ff3a3ff1fc4c58e4111c44c",
+      "keyCount": 45,
+      "ownCount": 45,
+      "fallbackCount": 0,
+      "rows": [
+        {
+          "key": "common.completed",
+          "own": true,
+          "value": "Завершено",
+          "fallback": false
+        },
+        {
+          "key": "common.inProgress",
+          "own": true,
+          "value": "Выполняется",
+          "fallback": false
+        },
+        {
+          "key": "common.itemCount",
+          "own": true,
+          "value": "Предметов: {count}",
+          "fallback": false
+        },
+        {
+          "key": "common.name",
+          "own": true,
+          "value": "Название",
+          "fallback": false
+        },
+        {
+          "key": "common.search",
+          "own": true,
+          "value": "Поиск",
+          "fallback": false
+        },
+        {
+          "key": "common.status",
+          "own": true,
+          "value": "Статус",
+          "fallback": false
+        },
+        {
+          "key": "map.allAlliances",
+          "own": true,
+          "value": "Все альянсы",
+          "fallback": false
+        },
+        {
+          "key": "map.allNames",
+          "own": true,
+          "value": "Все названия",
+          "fallback": false
+        },
+        {
+          "key": "map.allQualities",
+          "own": true,
+          "value": "Все качества",
+          "fallback": false
+        },
+        {
+          "key": "map.allRetainedGoods",
+          "own": true,
+          "value": "Все предметы",
+          "fallback": false
+        },
+        {
+          "key": "map.allTreasureTypes",
+          "own": true,
+          "value": "Все типы сокровищ",
+          "fallback": false
+        },
+        {
+          "key": "map.allianceFilter",
+          "own": true,
+          "value": "Фильтр по альянсу",
+          "fallback": false
+        },
+        {
+          "key": "map.allianceTrain",
+          "own": true,
+          "value": "Поезд",
+          "fallback": false
+        },
+        {
+          "key": "map.city",
+          "own": true,
+          "value": "Город",
+          "fallback": false
+        },
+        {
+          "key": "map.claimSeasonTreasures",
+          "own": true,
+          "value": "Забрать сезонные сокровища",
+          "fallback": false
+        },
+        {
+          "key": "map.claimTreasureBoxes",
+          "own": true,
+          "value": "Забрать сундуки",
+          "fallback": false
+        },
+        {
+          "key": "map.exportExcel",
+          "own": true,
+          "value": "Экспорт в Excel",
+          "fallback": false
+        },
+        {
+          "key": "map.exportingExcel",
+          "own": true,
+          "value": "Экспорт…",
+          "fallback": false
+        },
+        {
+          "key": "map.ghostScout",
+          "own": true,
+          "value": "Призрачные операции",
+          "fallback": false
+        },
+        {
+          "key": "map.itemFilter",
+          "own": true,
+          "value": "Предмет",
+          "fallback": false
+        },
+        {
+          "key": "map.level",
+          "own": true,
+          "value": "Уровень",
+          "fallback": false
+        },
+        {
+          "key": "map.markedOnly",
+          "own": true,
+          "value": "Только отмеченные",
+          "fallback": false
+        },
+        {
+          "key": "map.monster",
+          "own": true,
+          "value": "Монстр",
+          "fallback": false
+        },
+        {
+          "key": "map.nextPage",
+          "own": true,
+          "value": "Далее",
+          "fallback": false
+        },
+        {
+          "key": "map.noAlliance",
+          "own": true,
+          "value": "Без альянса",
+          "fallback": false
+        },
+        {
+          "key": "map.pageInfo",
+          "own": true,
+          "value": "Страница {page} из {total}",
+          "fallback": false
+        },
+        {
+          "key": "map.plunderableOnly",
+          "own": true,
+          "value": "Только доступные/ожидающие",
+          "fallback": false
+        },
+        {
+          "key": "map.previousPage",
+          "own": true,
+          "value": "Назад",
+          "fallback": false
+        },
+        {
+          "key": "map.prioritizeLuckyTreasures",
+          "own": true,
+          "value": "Приоритет счастливых позиций",
+          "fallback": false
+        },
+        {
+          "key": "map.quality",
+          "own": true,
+          "value": "Качество",
+          "fallback": false
+        },
+        {
+          "key": "map.randomDelaySeconds",
+          "own": true,
+          "value": "Макс. случайная задержка, сек.",
+          "fallback": false
+        },
+        {
+          "key": "map.reindeerQuality",
+          "own": true,
+          "value": "Олень",
+          "fallback": false
+        },
+        {
+          "key": "map.resource",
+          "own": true,
+          "value": "Ресурс",
+          "fallback": false
+        },
+        {
+          "key": "map.scheduleSelected",
+          "own": true,
+          "value": "Добавить в расписание ({count})",
+          "fallback": false
+        },
+        {
+          "key": "map.scheduleSelectedTrucks",
+          "own": true,
+          "value": "Ограбить выбранные грузовики ({count})",
+          "fallback": false
+        },
+        {
+          "key": "map.scheduledPlunder",
+          "own": true,
+          "value": "Запланированное ограбление",
+          "fallback": false
+        },
+        {
+          "key": "map.searchLabel",
+          "own": true,
+          "value": "Поиск по имени, альянсу или UUID",
+          "fallback": false
+        },
+        {
+          "key": "map.secretTask",
+          "own": true,
+          "value": "Секретное задание",
+          "fallback": false
+        },
+        {
+          "key": "map.showForeignRadarTreasures",
+          "own": true,
+          "value": "Показывать радарные сокровища других альянсов",
+          "fallback": false
+        },
+        {
+          "key": "map.specialQuality",
+          "own": true,
+          "value": "Особое (со звездой)",
+          "fallback": false
+        },
+        {
+          "key": "map.title",
+          "own": true,
+          "value": "Данные карты мира",
+          "fallback": false
+        },
+        {
+          "key": "map.treasure",
+          "own": true,
+          "value": "Сокровище",
+          "fallback": false
+        },
+        {
+          "key": "map.treasureType",
+          "own": true,
+          "value": "Тип сокровища",
+          "fallback": false
+        },
+        {
+          "key": "map.truck",
+          "own": true,
+          "value": "Грузовик",
+          "fallback": false
+        },
+        {
+          "key": "squad.afkAnyLevel",
+          "own": true,
+          "value": "Любой уровень",
+          "fallback": false
+        }
+      ]
+    },
+    {
+      "language": "pt",
+      "path": "src/LWBridge.UI-0.3.17/src/locales/pt.js",
+      "sha256": "87aee8fa12e8ff6868380a316b6b1f447473b0edc1141c838cc0b2225f15036d",
+      "keyCount": 45,
+      "ownCount": 45,
+      "fallbackCount": 0,
+      "rows": [
+        {
+          "key": "common.completed",
+          "own": true,
+          "value": "Concluído",
+          "fallback": false
+        },
+        {
+          "key": "common.inProgress",
+          "own": true,
+          "value": "Em andamento",
+          "fallback": false
+        },
+        {
+          "key": "common.itemCount",
+          "own": true,
+          "value": "{count} itens",
+          "fallback": false
+        },
+        {
+          "key": "common.name",
+          "own": true,
+          "value": "Nome",
+          "fallback": false
+        },
+        {
+          "key": "common.search",
+          "own": true,
+          "value": "Pesquisar",
+          "fallback": false
+        },
+        {
+          "key": "common.status",
+          "own": true,
+          "value": "Status",
+          "fallback": false
+        },
+        {
+          "key": "map.allAlliances",
+          "own": true,
+          "value": "Todas as Alianças",
+          "fallback": false
+        },
+        {
+          "key": "map.allNames",
+          "own": true,
+          "value": "Todos os nomes",
+          "fallback": false
+        },
+        {
+          "key": "map.allQualities",
+          "own": true,
+          "value": "Todas as qualidades",
+          "fallback": false
+        },
+        {
+          "key": "map.allRetainedGoods",
+          "own": true,
+          "value": "Todos os itens",
+          "fallback": false
+        },
+        {
+          "key": "map.allTreasureTypes",
+          "own": true,
+          "value": "Todos os Tipos de Tesouro",
+          "fallback": false
+        },
+        {
+          "key": "map.allianceFilter",
+          "own": true,
+          "value": "Filtrar por Aliança",
+          "fallback": false
+        },
+        {
+          "key": "map.allianceTrain",
+          "own": true,
+          "value": "Trem",
+          "fallback": false
+        },
+        {
+          "key": "map.city",
+          "own": true,
+          "value": "Cidade",
+          "fallback": false
+        },
+        {
+          "key": "map.claimSeasonTreasures",
+          "own": true,
+          "value": "Resgatar Tesouros da Temporada",
+          "fallback": false
+        },
+        {
+          "key": "map.claimTreasureBoxes",
+          "own": true,
+          "value": "Resgatar Baús",
+          "fallback": false
+        },
+        {
+          "key": "map.exportExcel",
+          "own": true,
+          "value": "Exportar Excel",
+          "fallback": false
+        },
+        {
+          "key": "map.exportingExcel",
+          "own": true,
+          "value": "Exportando…",
+          "fallback": false
+        },
+        {
+          "key": "map.ghostScout",
+          "own": true,
+          "value": "Operações Fantasma",
+          "fallback": false
+        },
+        {
+          "key": "map.itemFilter",
+          "own": true,
+          "value": "Item",
+          "fallback": false
+        },
+        {
+          "key": "map.level",
+          "own": true,
+          "value": "Nível",
+          "fallback": false
+        },
+        {
+          "key": "map.markedOnly",
+          "own": true,
+          "value": "Apenas marcados",
+          "fallback": false
+        },
+        {
+          "key": "map.monster",
+          "own": true,
+          "value": "Monstro",
+          "fallback": false
+        },
+        {
+          "key": "map.nextPage",
+          "own": true,
+          "value": "Próxima",
+          "fallback": false
+        },
+        {
+          "key": "map.noAlliance",
+          "own": true,
+          "value": "Sem Aliança",
+          "fallback": false
+        },
+        {
+          "key": "map.pageInfo",
+          "own": true,
+          "value": "Página {page} de {total}",
+          "fallback": false
+        },
+        {
+          "key": "map.plunderableOnly",
+          "own": true,
+          "value": "Apenas saqueáveis/pendentes",
+          "fallback": false
+        },
+        {
+          "key": "map.previousPage",
+          "own": true,
+          "value": "Anterior",
+          "fallback": false
+        },
+        {
+          "key": "map.prioritizeLuckyTreasures",
+          "own": true,
+          "value": "Priorizar posições de sorte",
+          "fallback": false
+        },
+        {
+          "key": "map.quality",
+          "own": true,
+          "value": "Qualidade",
+          "fallback": false
+        },
+        {
+          "key": "map.randomDelaySeconds",
+          "own": true,
+          "value": "Atraso aleatório máximo (segundos)",
+          "fallback": false
+        },
+        {
+          "key": "map.reindeerQuality",
+          "own": true,
+          "value": "Rena",
+          "fallback": false
+        },
+        {
+          "key": "map.resource",
+          "own": true,
+          "value": "Recurso",
+          "fallback": false
+        },
+        {
+          "key": "map.scheduleSelected",
+          "own": true,
+          "value": "Adicionar ao agendamento ({count})",
+          "fallback": false
+        },
+        {
+          "key": "map.scheduleSelectedTrucks",
+          "own": true,
+          "value": "Saquear caminhões selecionados ({count})",
+          "fallback": false
+        },
+        {
+          "key": "map.scheduledPlunder",
+          "own": true,
+          "value": "Saque Agendado",
+          "fallback": false
+        },
+        {
+          "key": "map.searchLabel",
+          "own": true,
+          "value": "Pesquisar nome, Aliança ou UUID",
+          "fallback": false
+        },
+        {
+          "key": "map.secretTask",
+          "own": true,
+          "value": "Tarefa Secreta",
+          "fallback": false
+        },
+        {
+          "key": "map.showForeignRadarTreasures",
+          "own": true,
+          "value": "Mostrar Tesouros de Radar de outras alianças",
+          "fallback": false
+        },
+        {
+          "key": "map.specialQuality",
+          "own": true,
+          "value": "Especial (com estrela)",
+          "fallback": false
+        },
+        {
+          "key": "map.title",
+          "own": true,
+          "value": "Dados do mapa-múndi",
+          "fallback": false
+        },
+        {
+          "key": "map.treasure",
+          "own": true,
+          "value": "Tesouro",
+          "fallback": false
+        },
+        {
+          "key": "map.treasureType",
+          "own": true,
+          "value": "Tipo de Tesouro",
+          "fallback": false
+        },
+        {
+          "key": "map.truck",
+          "own": true,
+          "value": "Caminhão",
+          "fallback": false
+        },
+        {
+          "key": "squad.afkAnyLevel",
+          "own": true,
+          "value": "Qualquer nível",
+          "fallback": false
+        }
+      ]
+    }
+  ],
+  "note": "Inventory only. Locale catalogs are not edited; missing locale-owned entries use the existing English fallback contract."
+}

@@ -17,7 +17,9 @@ const repo = path.resolve(here, "../../../../..");
 const src = path.join(repo, "src/LWBridge.UI-0.3.17/src");
 const assets = path.join(repo, "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets");
 const baseline = path.join(here, "baseline");
-const rawDir = path.join(here, "raw");
+const liveCurrent = process.argv.includes("--live");
+const outputRoot = liveCurrent ? path.resolve(here, "../milestone-b") : here;
+const rawDir = path.join(outputRoot, "raw");
 fs.mkdirSync(rawDir, { recursive: true });
 
 const require = createRequire(path.join(repo, "src/LWBridge.UI-0.3.17/package.json"));
@@ -61,9 +63,14 @@ assert.equal(baselineHashes.page, "d4fa16a6b7a214c2b6c14b13fe9b2064bf755d8f032ff
 assert.equal(baselineHashes.treasure, "675e0bf8c2c7e6b6e7a5f90e368c6f8796b100581b24987eb6c7536bc4926ab7");
 assert.equal(baselineHashes.retained, "d890612c6208ce306bb57eee759cfe79ad9cf86064b3b50526d65d0512657c51");
 
-const pageSource = read(baselineFiles.page);
-const treasureSource = read(baselineFiles.treasure);
-const retainedSource = read(baselineFiles.retained);
+const currentFiles = liveCurrent ? {
+  page: path.join(src, "MapDataPage.jsx"),
+  treasure: path.join(src, "MapTreasureTypeFilter.jsx"),
+  retained: path.join(src, "MapRetainedGoodsFilter.jsx"),
+} : baselineFiles;
+const pageSource = read(currentFiles.page);
+const treasureSource = read(currentFiles.treasure);
+const retainedSource = read(currentFiles.retained);
 
 const catalogs = {};
 for (const language of ["en", "ja"]) {
@@ -135,33 +142,47 @@ const retainedAst = parse(retainedSource, { sourceType: "module", plugins: ["jsx
 const treasureNode = treasureAst.program.body.map((n) => n.declaration || n).find((n) => n.id?.name === "MapTreasureTypeFilter");
 const retainedNode = retainedAst.program.body.map((n) => n.declaration || n).find((n) => n.id?.name === "MapRetainedGoodsFilter");
 
-const manifest = {
+const referenceManifest = {
+  exe: { path: exe, sha256: fileHash(exe) },
+  panel: { path: rel(panelFile), sha256: fileHash(panelFile) },
+  index: { path: rel(indexFile), sha256: fileHash(indexFile) },
+  css: { path: rel(cssFile), sha256: fileHash(cssFile) },
+  image: { path: rel(imageFile), sha256: fileHash(imageFile) },
+  locators: ["R", "ct", "lt", "it"].map((name) => locator(panel.entry.source, panelFile, panel.topLevel[name], `original ${name}`)),
+};
+const harnessManifest = {
+  timezone: process.env.TZ,
+  languages: Object.fromEntries(Object.entries(catalogs).map(([language, entry]) => [language, { path: rel(entry.file), sha256: entry.hash }])),
+  note: "Both sides execute their actual page callbacks. Original ct/lt/it and current filters/Pagination are expanded from source; original/current GameAssetImage implementations are source-executed under empty SSR image caches. Table and Scheduled Plunder bodies are excluded by assignment scope.",
+};
+const sourceUnderTest = {
+  files: Object.entries(currentFiles).map(([name, file]) => ({ name, path: rel(file), sha256: fileHash(file), bytes: fs.statSync(file).size })),
+  locators: [
+    locator(pageSource, currentFiles.page, currentFunctions.MapDataPage, `${liveCurrent ? "current" : "baseline"} MapDataPage`),
+    locator(pageSource, currentFiles.page, currentFunctions.Pagination, `${liveCurrent ? "current" : "baseline"} Pagination`),
+    locator(treasureSource, currentFiles.treasure, treasureNode, `${liveCurrent ? "current" : "baseline"} MapTreasureTypeFilter`),
+    locator(retainedSource, currentFiles.retained, retainedNode, `${liveCurrent ? "current" : "baseline"} MapRetainedGoodsFilter`),
+  ],
+};
+const manifest = liveCurrent ? {
+  task: "LWB317-UI-MAP-TOOLBAR-VISUAL-001",
+  mode: "corrected-production",
+  checkpoint: "bea2a1870e9bf34117fbed2f7e434504e9d8361a",
+  reference: referenceManifest,
+  sourceUnderTest,
+  immutableBaseline: Object.entries(baselineFiles).map(([name, file]) => ({ name, path: rel(file), sha256: fileHash(file), bytes: fs.statSync(file).size })),
+  harness: harnessManifest,
+} : {
   task: "LWB317-UI-MAP-TOOLBAR-VISUAL-001",
   checkpoint: "bea2a1870e9bf34117fbed2f7e434504e9d8361a",
-  reference: {
-    exe: { path: exe, sha256: fileHash(exe) },
-    panel: { path: rel(panelFile), sha256: fileHash(panelFile) },
-    index: { path: rel(indexFile), sha256: fileHash(indexFile) },
-    css: { path: rel(cssFile), sha256: fileHash(cssFile) },
-    image: { path: rel(imageFile), sha256: fileHash(imageFile) },
-    locators: ["R", "ct", "lt", "it"].map((name) => locator(panel.entry.source, panelFile, panel.topLevel[name], `original ${name}`)),
-  },
+  reference: referenceManifest,
   baseline: {
-    files: Object.entries(baselineFiles).map(([name, file]) => ({ name, path: rel(file), sha256: fileHash(file), bytes: fs.statSync(file).size })),
-    locators: [
-      locator(pageSource, baselineFiles.page, currentFunctions.MapDataPage, "baseline MapDataPage"),
-      locator(pageSource, baselineFiles.page, currentFunctions.Pagination, "baseline Pagination"),
-      locator(treasureSource, baselineFiles.treasure, treasureNode, "baseline MapTreasureTypeFilter"),
-      locator(retainedSource, baselineFiles.retained, retainedNode, "baseline MapRetainedGoodsFilter"),
-    ],
+    files: sourceUnderTest.files,
+    locators: sourceUnderTest.locators,
   },
-  harness: {
-    timezone: process.env.TZ,
-    languages: Object.fromEntries(Object.entries(catalogs).map(([language, entry]) => [language, { path: rel(entry.file), sha256: entry.hash }])),
-    note: "Both sides execute their actual page callbacks. Original ct/lt/it and current filters/Pagination are expanded from source; original/current GameAssetImage implementations are source-executed under empty SSR image caches. Table and Scheduled Plunder bodies are excluded by assignment scope.",
-  },
+  harness: harnessManifest,
 };
-writeJson(path.join(here, "baseline-manifest.json"), manifest);
+writeJson(path.join(outputRoot, liveCurrent ? "current-manifest.json" : "baseline-manifest.json"), manifest);
 
 const configuredOptions = optionsReply({
   counts: { city: 1505, resource: 1404, monster: 1303, truck: 1202, railway: 1101, dispatch: 1606, ghost: 1707, treasure: 1808 },
@@ -555,7 +576,7 @@ const cases = [];
 for (const spec of [...requiredCases, ...supplementalCases]) cases.push(await executeCase(spec));
 
 const result = {
-  marker: "LWB317_MAP_TOOLBAR_VISUAL_BASELINE_EXECUTED",
+  marker: liveCurrent ? "LWB317_MAP_TOOLBAR_VISUAL_CURRENT_EXECUTED" : "LWB317_MAP_TOOLBAR_VISUAL_BASELINE_EXECUTED",
   requiredCaseCount: requiredCases.length,
   supplementalCaseCount: supplementalCases.length,
   caseCount: cases.length,
@@ -563,5 +584,5 @@ const result = {
   differingCases: cases.filter((item) => !item.exactViewMatch).map((item) => ({ id: item.id, language: item.language, tab: item.tab, differenceCount: item.differences.length })),
   cases,
 };
-writeJson(path.join(here, "baseline-results.json"), result);
+writeJson(path.join(outputRoot, liveCurrent ? "current-results.json" : "baseline-results.json"), result);
 console.log(JSON.stringify({ marker: result.marker, requiredCases: result.requiredCaseCount, supplementalCases: result.supplementalCaseCount, exact: result.exactViewMatches, differing: result.differingCases }, null, 2));

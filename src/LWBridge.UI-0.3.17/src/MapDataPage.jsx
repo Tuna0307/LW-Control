@@ -1148,7 +1148,7 @@ export function MapDataPage({
                 {(tab === "truck" || tab === "railway") ? (
                   <MapRetainedGoodsFilter label={t("map.itemFilter")} allLabel={t("map.allRetainedGoods")} items={options?.rewardItems?.[tab] || []} value={itemKey} onChange={changeItemFilter} />
                 ) : null}
-                {(tab === "truck" || tab === "railway" || tab === "dispatch") ? <label className="map-filter-field"><input type="checkbox" checked={plunderableOnly} onChange={(event) => { setPlunderableOnlyByKind((current) => ({ ...current, [tab]: event.target.checked || undefined })); setPage(1); }} /><span>{t("map.plunderableOnly")}</span></label> : null}
+                {(tab === "truck" || tab === "railway" || tab === "dispatch") ? <label className="map-filter-field map-plunderable-filter"><input type="checkbox" checked={plunderableOnly} onChange={(event) => { setPlunderableOnlyByKind((current) => ({ ...current, [tab]: event.target.checked || undefined })); setPage(1); }} /><span>{t("map.plunderableOnly")}</span></label> : null}
               </>
             ) : null}
             <button type="button" disabled={!backendAvailable || !dataServerId} onClick={submitSearch}>{t("common.search")}</button>
@@ -1159,7 +1159,7 @@ export function MapDataPage({
             {tab === "truck" ? <button className="map-schedule-button" type="button" data-runtime-fenced={!truckProvider} disabled={scheduleTrucksDisabled({ count: truckCount, busyKey }) || !truckProvider} onClick={scheduleSelectedTrucks}>{t("map.scheduleSelectedTrucks", { count: truckCount })}</button> : null}
             {tab === "treasure" ? <><button className="map-schedule-button" type="button" disabled>{t("map.claimTreasureBoxes")}</button><button className="map-schedule-button" type="button" disabled>{t("map.claimSeasonTreasures")}</button></> : null}
             {actionMessage ? <span className="map-claim-result" role="status">{actionMessage}</span> : null}
-            <span className="map-result-count">{t("common.itemCount", { count: total.toLocaleString() })}</span>
+            <span className="map-result-count">{t("common.itemCount", { count: total })}</span>
           </div>
         ) : (
           <div className="map-searchbar">
@@ -1167,29 +1167,28 @@ export function MapDataPage({
             <span className="map-result-count">{t("common.itemCount", { count: scheduledCount })}</span>
           </div>
         )}
+        {queryError ? <div className="map-scan-error" role="alert">{queryError}</div> : null}
+        {tab !== "scheduledPlunder" ? (
+          <>
+            <MapTable kind={tab} gameTexts={gameTexts} itemKey={itemKey} rows={rows} loading={loading} treasureStatesRefreshing={previewFixture && previewState === "map-treasure-checking" && tab === "treasure" && previewTreasureStatesRefreshing === true} sorts={activeSorts} onSort={changeSort} onCoordinateJump={coordinateJump} onPlayerMark={togglePlayerMark} actionBusy={Boolean(actionBusy)} actionDisabled={!online || scanState.isReading} jumpingKey={previewFixture && previewState === "map-row-actions" ? previewJumpingKeys?.[tab] || "" : actionBusy.startsWith("jump:") ? actionBusy.slice(5) : ""} selectedKeys={tab === "truck" ? truckKeys : dispatchKeys} onSelect={tab === "truck" ? toggleTruckRow : toggleDispatchRow} />
+            <Pagination page={page} total={total} onPage={setPage} />
+          </>
+        ) : (
+          <ScheduledPlunder
+            dispatchJobs={plunderJobs.dispatchJobs}
+            truckJobs={plunderJobs.truckJobs}
+            gameTexts={gameTexts}
+            currentTime={currentTime}
+            online={previewFixture && previewPlunderOnline !== null ? previewPlunderOnline : online}
+            busyKey={busyKey}
+            actionsEnabled={jobActionsEnabled}
+            onCancelDispatch={cancelDispatchJob}
+            onCancelTruck={cancelTruckJob}
+            onPlunderAgain={plunderTruckAgain}
+            onClear={clearPlunderHistory}
+          />
+        )}
       </div>
-
-      {queryError ? <div className="map-scan-error" role="alert">{queryError}</div> : null}
-      {tab !== "scheduledPlunder" ? (
-        <>
-          <MapTable kind={tab} gameTexts={gameTexts} itemKey={itemKey} rows={rows} loading={loading} treasureStatesRefreshing={previewFixture && previewState === "map-treasure-checking" && tab === "treasure" && previewTreasureStatesRefreshing === true} sorts={activeSorts} onSort={changeSort} onCoordinateJump={coordinateJump} onPlayerMark={togglePlayerMark} actionBusy={Boolean(actionBusy)} actionDisabled={!online || scanState.isReading} jumpingKey={previewFixture && previewState === "map-row-actions" ? previewJumpingKeys?.[tab] || "" : actionBusy.startsWith("jump:") ? actionBusy.slice(5) : ""} selectedKeys={tab === "truck" ? truckKeys : dispatchKeys} onSelect={tab === "truck" ? toggleTruckRow : toggleDispatchRow} />
-          <Pagination page={page} total={total} onPage={setPage} />
-        </>
-      ) : (
-        <ScheduledPlunder
-          dispatchJobs={plunderJobs.dispatchJobs}
-          truckJobs={plunderJobs.truckJobs}
-          gameTexts={gameTexts}
-          currentTime={currentTime}
-          online={previewFixture && previewPlunderOnline !== null ? previewPlunderOnline : online}
-          busyKey={busyKey}
-          actionsEnabled={jobActionsEnabled}
-          onCancelDispatch={cancelDispatchJob}
-          onCancelTruck={cancelTruckJob}
-          onPlunderAgain={plunderTruckAgain}
-          onClear={clearPlunderHistory}
-        />
-      )}
     </section>
   );
 }

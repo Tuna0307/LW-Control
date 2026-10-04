@@ -1,0 +1,277 @@
+{
+  "task": "LWB317-UI-MAP-TOOLBAR-VISUAL-001",
+  "marker": "LWB317_MAP_TOOLBAR_BROWSER_INTERACTIONS_OK",
+  "browser": {
+    "version": "154.0.8037.95",
+    "executablePath": "C:/Program Files/Google/Chrome/Application/chrome.exe"
+  },
+  "cases": [
+    {
+      "name": "EN/light theme",
+      "actual": "light",
+      "expected": "light",
+      "pass": true
+    },
+    {
+      "name": "recovered map-search owns table",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "recovered map-search owns pagination",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "initial city total",
+      "actual": "55 items",
+      "expected": "55 items",
+      "pass": true
+    },
+    {
+      "name": "encoded City alliance select value",
+      "actual": "name:A%2FB%20%E6%9D%B1%E4%BA%AC%20%26%20%25",
+      "expected": "name:A%2FB%20%E6%9D%B1%E4%BA%AC%20%26%20%25",
+      "pass": true
+    },
+    {
+      "name": "City marked checkbox true",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "City inert Search applies keyword/alliance",
+      "actual": "1 items",
+      "expected": "1 items",
+      "pass": true
+    },
+    {
+      "name": "Resource name select clears keyword",
+      "actual": "",
+      "expected": "",
+      "pass": true
+    },
+    {
+      "name": "Resource name selection retained",
+      "actual": "100281",
+      "expected": "100281",
+      "pass": true
+    },
+    {
+      "name": "Resource keyword clears name",
+      "actual": "",
+      "expected": "",
+      "pass": true
+    },
+    {
+      "name": "Truck retained-goods dropdown opens",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "Truck retained-goods selection closes dropdown",
+      "actual": false,
+      "expected": false,
+      "pass": true
+    },
+    {
+      "name": "Truck retained-goods selected label",
+      "actual": "Fixture Reward",
+      "pass": true
+    },
+    {
+      "name": "Treasure type dropdown opens",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "Treasure type selection closes dropdown",
+      "actual": false,
+      "expected": false,
+      "pass": true
+    },
+    {
+      "name": "Treasure selected option active",
+      "actual": "active",
+      "expected": "active",
+      "pass": true
+    },
+    {
+      "name": "Treasure foreign checkbox true",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "Treasure lucky checkbox false",
+      "actual": false,
+      "expected": false,
+      "pass": true
+    },
+    {
+      "name": "Dispatch status select",
+      "actual": "completed",
+      "expected": "completed",
+      "pass": true
+    },
+    {
+      "name": "Dispatch level select",
+      "actual": "5",
+      "expected": "5",
+      "pass": true
+    },
+    {
+      "name": "Dispatch quality select",
+      "actual": "sr",
+      "expected": "sr",
+      "pass": true
+    },
+    {
+      "name": "Dispatch plunderable checkbox",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "Dispatch random delay",
+      "actual": "17",
+      "expected": "17",
+      "pass": true
+    },
+    {
+      "name": "pagination first Previous disabled",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "pagination first Next enabled",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "pagination last Previous enabled",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "pagination last Next disabled",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "City page retained across tab cache",
+      "actual": "Page 2 of 2",
+      "expected": "Page 2 of 2",
+      "pass": true
+    },
+    {
+      "name": "Search resets non-first page",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "JA/dark theme",
+      "actual": "dark",
+      "expected": "dark",
+      "pass": true
+    },
+    {
+      "name": "JA locale applied",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "JA retained-goods dropdown opens",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "JA retained-goods dropdown closes after select",
+      "actual": false,
+      "expected": false,
+      "pass": true
+    },
+    {
+      "name": "browser console/page errors",
+      "actual": 0,
+      "expected": 0,
+      "pass": true
+    }
+  ],
+  "screenshots": [
+    {
+      "name": "vite-en-light-interactions",
+      "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-TOOLBAR-VISUAL-001/milestone-b/screenshots/vite-en-light-interactions.png",
+      "sha256": "7ac693ec500624a387f16ce4aac19e05482981914849ce3c646ecfefd4a3becb",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "name": "vite-ja-dark-interactions",
+      "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-TOOLBAR-VISUAL-001/milestone-b/screenshots/vite-ja-dark-interactions.png",
+      "sha256": "e9c028eff0a08d2cf925c5db743db9efb938954c6f5685cdff0a8f70998f1871",
+      "viewport": {
+        "width": 1100,
+        "height": 900
+      }
+    }
+  ],
+  "console": [
+    {
+      "language": "en",
+      "theme": "light",
+      "state": "map-filter-lifecycle",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "language": "en",
+      "theme": "light",
+      "state": "map-filter-lifecycle",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "language": "en",
+      "theme": "light",
+      "state": "map-filter-lifecycle",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "language": "ja",
+      "theme": "dark",
+      "state": "map-truck",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "language": "ja",
+      "theme": "dark",
+      "state": "map-truck",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "language": "ja",
+      "theme": "dark",
+      "state": "map-truck",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    }
+  ]
+}

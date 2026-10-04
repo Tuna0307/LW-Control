@@ -1,0 +1,151 @@
+{
+  "task": "LWB317-UI-MAP-TOOLBAR-VISUAL-001",
+  "mode": "corrected-production",
+  "checkpoint": "bea2a1870e9bf34117fbed2f7e434504e9d8361a",
+  "reference": {
+    "exe": {
+      "path": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW\\lwbridge-0.3.17.exe",
+      "sha256": "4e9c3113dedfd7e1a752404c6936aab304e67d7ffdb0952a5003c2ec948d6783"
+    },
+    "panel": {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js",
+      "sha256": "ce74345518be72e417a510b982c591729e5683f69751e190805598c4c05d3089"
+    },
+    "index": {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-BVfnK1wp.js",
+      "sha256": "44c4e4043825b7db296b64171951b27176f8850ff8d7d337cc991df4765524c6"
+    },
+    "css": {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-rIL9Fpht.css",
+      "sha256": "3d87e9f65b39eace6a1a254bfc90a38acb72613d1fff7236c7cee7ab9bfaf545"
+    },
+    "image": {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/GameAssetImage-Diy9VTIr.js",
+      "sha256": "2f92a87c3268497df6425b1175db6140e10aabcbdfae02615f065d00e16458e0"
+    },
+    "locators": [
+      {
+        "name": "original R",
+        "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js",
+        "utf8ByteOffset": 29826,
+        "byteLength": 27748,
+        "sha256": "8343c829ff601822396216101417541fae7a348636757b73812e2ec9880d3905",
+        "line": 1
+      },
+      {
+        "name": "original ct",
+        "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js",
+        "utf8ByteOffset": 28232,
+        "byteLength": 798,
+        "sha256": "833bcf69f768773629a5c4c9c2f521f1a767fda99f1d8a7c097d1c7f49c22152",
+        "line": 1
+      },
+      {
+        "name": "original lt",
+        "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js",
+        "utf8ByteOffset": 29030,
+        "byteLength": 796,
+        "sha256": "0df7f6bdb55dad31acc50d58d0cbaaafbcb70f3670fd7847b39c80ceb0ecfbc9",
+        "line": 1
+      },
+      {
+        "name": "original it",
+        "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js",
+        "utf8ByteOffset": 14469,
+        "byteLength": 364,
+        "sha256": "f11b14c62bfd5a254878ee68605d208d564bb6d881ee29a03efe8ce4f0813e8a",
+        "line": 1
+      }
+    ]
+  },
+  "sourceUnderTest": {
+    "files": [
+      {
+        "name": "page",
+        "path": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+        "sha256": "9f2dfed62ebfda7785afcd49a506c7bcb135dd20ba48867e8c063cdb126aec80",
+        "bytes": 61545
+      },
+      {
+        "name": "treasure",
+        "path": "src/LWBridge.UI-0.3.17/src/MapTreasureTypeFilter.jsx",
+        "sha256": "675e0bf8c2c7e6b6e7a5f90e368c6f8796b100581b24987eb6c7536bc4926ab7",
+        "bytes": 1242
+      },
+      {
+        "name": "retained",
+        "path": "src/LWBridge.UI-0.3.17/src/MapRetainedGoodsFilter.jsx",
+        "sha256": "d890612c6208ce306bb57eee759cfe79ad9cf86064b3b50526d65d0512657c51",
+        "bytes": 1206
+      }
+    ],
+    "locators": [
+      {
+        "name": "current MapDataPage",
+        "path": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+        "utf8ByteOffset": 12145,
+        "byteLength": 48597,
+        "sha256": "8b66558b716d00b5834687bcf0b1a7a3e39cd8ee8ac060e59d63e443f82c369a",
+        "line": 234
+      },
+      {
+        "name": "current Pagination",
+        "path": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+        "utf8ByteOffset": 10837,
+        "byteLength": 520,
+        "sha256": "be4cb420ac89ffa89160ba9dfc5b0a3209de83aa2468bde91bceb4eeb917f9db",
+        "line": 197
+      },
+      {
+        "name": "current MapTreasureTypeFilter",
+        "path": "src/LWBridge.UI-0.3.17/src/MapTreasureTypeFilter.jsx",
+        "utf8ByteOffset": 136,
+        "byteLength": 1105,
+        "sha256": "48cf35e3088f04edb62a916f246a7a6310c3ec2524cacb91152afd1c46a45c36",
+        "line": 5
+      },
+      {
+        "name": "current MapRetainedGoodsFilter",
+        "path": "src/LWBridge.UI-0.3.17/src/MapRetainedGoodsFilter.jsx",
+        "utf8ByteOffset": 95,
+        "byteLength": 1110,
+        "sha256": "14729c0e40dae256f855122f604b5ce97f1a39063dfd65d3ea838ec635cbacbd",
+        "line": 4
+      }
+    ]
+  },
+  "immutableBaseline": [
+    {
+      "name": "page",
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-TOOLBAR-VISUAL-001/milestone-a/baseline/MapDataPage.jsx",
+      "sha256": "d4fa16a6b7a214c2b6c14b13fe9b2064bf755d8f032ffb9101a9cf3346521ea6",
+      "bytes": 61524
+    },
+    {
+      "name": "treasure",
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-TOOLBAR-VISUAL-001/milestone-a/baseline/MapTreasureTypeFilter.jsx",
+      "sha256": "675e0bf8c2c7e6b6e7a5f90e368c6f8796b100581b24987eb6c7536bc4926ab7",
+      "bytes": 1242
+    },
+    {
+      "name": "retained",
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-TOOLBAR-VISUAL-001/milestone-a/baseline/MapRetainedGoodsFilter.jsx",
+      "sha256": "d890612c6208ce306bb57eee759cfe79ad9cf86064b3b50526d65d0512657c51",
+      "bytes": 1206
+    }
+  ],
+  "harness": {
+    "timezone": "Asia/Singapore",
+    "languages": {
+      "en": {
+        "path": "src/LWBridge.UI-0.3.17/src/locales/en.js",
+        "sha256": "357682d9179ae712ee563950467b7a93b5aea89322afc993e079fedee28432c1"
+      },
+      "ja": {
+        "path": "src/LWBridge.UI-0.3.17/src/locales/ja.js",
+        "sha256": "e1fed1e9aaf052963e3d8f5a5f8b9ae96b002a05a9dd7bb06a460a66187755eb"
+      }
+    },
+    "note": "Both sides execute their actual page callbacks. Original ct/lt/it and current filters/Pagination are expanded from source; original/current GameAssetImage implementations are source-executed under empty SSR image caches. Table and Scheduled Plunder bodies are excluded by assignment scope."
+  }
+}

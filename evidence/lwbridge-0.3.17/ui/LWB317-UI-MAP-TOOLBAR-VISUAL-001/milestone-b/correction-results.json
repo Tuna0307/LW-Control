@@ -1,0 +1,121 @@
+{
+  "task": "LWB317-UI-MAP-TOOLBAR-VISUAL-001",
+  "marker": "LWB317_MAP_TOOLBAR_CORRECTIONS_OK",
+  "cases": [
+    {
+      "name": "baseline retained recovered plunderable class mismatch",
+      "actual": false,
+      "expected": false,
+      "pass": true
+    },
+    {
+      "name": "corrected plunderable class restored",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "original plunderable class",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "baseline formatted result count mismatch",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "corrected direct integer result count",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "original direct integer result count",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "baseline pagination outside map-search",
+      "actual": 0,
+      "expected": 0,
+      "pass": true
+    },
+    {
+      "name": "corrected pagination inside map-search",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "original pagination inside map-search",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "corrected middle page text",
+      "actual": "Page 2 of 4",
+      "expected": "Page 2 of 4",
+      "pass": true
+    },
+    {
+      "name": "original middle page text",
+      "actual": "Page 2 of 4",
+      "expected": "Page 2 of 4",
+      "pass": true
+    },
+    {
+      "name": "accepted original query error has no visible banner",
+      "actual": 0,
+      "expected": 0,
+      "pass": true
+    },
+    {
+      "name": "accepted current query error remains visible",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "original missing-server Search enabled",
+      "actual": false,
+      "expected": false,
+      "pass": true
+    },
+    {
+      "name": "current missing-server Search fence preserved",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "original source action enabled",
+      "actual": false,
+      "expected": false,
+      "pass": true
+    },
+    {
+      "name": "current protected truck provider fence preserved",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "current provider fence attribute retained",
+      "actual": "true",
+      "expected": "true",
+      "pass": true
+    }
+  ],
+  "remainingDifferences": [
+    "Current accessibility attributes and explicit button types are retained.",
+    "Current query-error banner remains visible; recovered renderer logs the failure only.",
+    "Missing-server Search and unavailable native/provider actions remain disabled in current production.",
+    "Treasure claim buttons remain disabled and provider-fence attributes remain in raw DOM.",
+    "Treasure checkbox label text remains wrapped in spans; the recovered direct-text nodes have equivalent flex-item presentation in browser proof."
+  ]
+}
