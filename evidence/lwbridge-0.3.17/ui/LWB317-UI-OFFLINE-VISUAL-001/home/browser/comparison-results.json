@@ -1,0 +1,69 @@
+{
+  "marker": "LWB317_HOME_BROWSER_GEOMETRY_OK",
+  "pairs": [
+    {
+      "case": {
+        "language": "en",
+        "theme": "light",
+        "name": "proxy-busy-running",
+        "width": 1280,
+        "height": 720
+      },
+      "elements": 13,
+      "geometryAndComputedStyles": "EXACT_MATCH",
+      "jpegHashes": [
+        "bfa7d26e99c01cb009a26cd6ace3dcdf64d7c7a23342a68ba3c0ce910ef32035",
+        "bfa7d26e99c01cb009a26cd6ace3dcdf64d7c7a23342a68ba3c0ce910ef32035"
+      ],
+      "jpegBytesMatch": true
+    },
+    {
+      "case": {
+        "language": "en",
+        "theme": "dark",
+        "name": "missing-error-busy",
+        "width": 740,
+        "height": 600
+      },
+      "elements": 14,
+      "geometryAndComputedStyles": "EXACT_MATCH",
+      "jpegHashes": [
+        "7a6984c822d8c53be245e029e53fbf2c3006944d7203c88f3b8bf71f446112b1",
+        "7a6984c822d8c53be245e029e53fbf2c3006944d7203c88f3b8bf71f446112b1"
+      ],
+      "jpegBytesMatch": true
+    },
+    {
+      "case": {
+        "language": "ja",
+        "theme": "dark",
+        "name": "proxy-busy-repair",
+        "width": 740,
+        "height": 600
+      },
+      "elements": 13,
+      "geometryAndComputedStyles": "EXACT_MATCH",
+      "jpegHashes": [
+        "aa0c2c898550f67521be0b33f0e81bf705ce22015fafe5b122d248c364c701af",
+        "aa0c2c898550f67521be0b33f0e81bf705ce22015fafe5b122d248c364c701af"
+      ],
+      "jpegBytesMatch": true
+    },
+    {
+      "case": {
+        "language": "ja",
+        "theme": "light",
+        "name": "busy-overlap",
+        "width": 1280,
+        "height": 720
+      },
+      "elements": 13,
+      "geometryAndComputedStyles": "EXACT_MATCH",
+      "jpegHashes": [
+        "955e0721995bd33b4c7b21afcb14bcc74a2fb15d77d300664849629624c0d667",
+        "955e0721995bd33b4c7b21afcb14bcc74a2fb15d77d300664849629624c0d667"
+      ],
+      "jpegBytesMatch": true
+    }
+  ]
+}

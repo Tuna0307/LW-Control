@@ -1,0 +1,69 @@
+{
+  "marker": "LWB317_MAP_TABLE_BROWSER_GEOMETRY_OK",
+  "pairs": [
+    {
+      "case": {
+        "language": "en",
+        "theme": "light",
+        "name": "city-populated",
+        "width": 1280,
+        "height": 720
+      },
+      "elements": 71,
+      "geometryAndComputedStyles": "EXACT_MATCH",
+      "jpegHashes": [
+        "db502fa60c843347209c7086ff39f8c79bc4031cdb108828db81137be55b76e9",
+        "db502fa60c843347209c7086ff39f8c79bc4031cdb108828db81137be55b76e9"
+      ],
+      "jpegBytesMatch": true
+    },
+    {
+      "case": {
+        "language": "en",
+        "theme": "dark",
+        "name": "truck-loading",
+        "width": 740,
+        "height": 600
+      },
+      "elements": 67,
+      "geometryAndComputedStyles": "EXACT_MATCH",
+      "jpegHashes": [
+        "808ce1747c0a421217093ecdbca2256926f6e57867a09deba5b10dc362e41df3",
+        "808ce1747c0a421217093ecdbca2256926f6e57867a09deba5b10dc362e41df3"
+      ],
+      "jpegBytesMatch": true
+    },
+    {
+      "case": {
+        "language": "ja",
+        "theme": "dark",
+        "name": "treasure-populated",
+        "width": 740,
+        "height": 600
+      },
+      "elements": 57,
+      "geometryAndComputedStyles": "EXACT_MATCH",
+      "jpegHashes": [
+        "3a55690cfde255b17d9dd2829304c6f5c704ff3761917d178ba798e7f4e1d0cd",
+        "3a55690cfde255b17d9dd2829304c6f5c704ff3761917d178ba798e7f4e1d0cd"
+      ],
+      "jpegBytesMatch": true
+    },
+    {
+      "case": {
+        "language": "ja",
+        "theme": "light",
+        "name": "dispatch-populated",
+        "width": 1280,
+        "height": 720
+      },
+      "elements": 77,
+      "geometryAndComputedStyles": "EXACT_MATCH",
+      "jpegHashes": [
+        "c2394b292a7a507a00283ea01792e679b2471540e7dfbf3d1ac16f32fffeb411",
+        "c2394b292a7a507a00283ea01792e679b2471540e7dfbf3d1ac16f32fffeb411"
+      ],
+      "jpegBytesMatch": true
+    }
+  ]
+}

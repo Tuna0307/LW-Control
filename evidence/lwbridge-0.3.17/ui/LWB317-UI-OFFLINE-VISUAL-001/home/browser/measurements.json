@@ -1,0 +1,2808 @@
+[
+  {
+    "case": {
+      "language": "en",
+      "theme": "light",
+      "name": "proxy-busy-running",
+      "width": 1280,
+      "height": 720
+    },
+    "pair": [
+      {
+        "side": "original",
+        "document": [
+          1280,
+          1280
+        ],
+        "elements": [
+          {
+            "classes": "panel quick-actions-panel",
+            "rect": [
+              201,
+              25,
+              1052,
+              265
+            ],
+            "style": {
+              "background": "rgb(255, 255, 255)",
+              "border": "1px solid rgb(229, 229, 234)",
+              "borderRadius": "10px",
+              "color": "rgb(29, 29, 31)",
+              "display": "grid",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "18px",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "16px"
+            },
+            "tag": "SECTION",
+            "text": ""
+          },
+          {
+            "classes": "panel-title",
+            "rect": [
+              218,
+              42,
+              1018,
+              42
+            ],
+            "style": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px none rgb(29, 29, 31)",
+              "borderRadius": "0px",
+              "color": "rgb(29, 29, 31)",
+              "display": "grid",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "4px",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "0px"
+            },
+            "tag": "DIV",
+            "text": ""
+          },
+          {
+            "classes": "",
+            "rect": [
+              218,
+              42,
+              1018,
+              21
+            ],
+            "style": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px none rgb(29, 29, 31)",
+              "borderRadius": "0px",
+              "color": "rgb(29, 29, 31)",
+              "display": "block",
+              "font": "650 16px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "16px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "0px"
+            },
+            "tag": "H2",
+            "text": "Game Setup"
+          },
+          {
+            "classes": "muted",
+            "rect": [
+              218,
+              67,
+              1018,
+              17
+            ],
+            "style": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px none rgb(95, 95, 99)",
+              "borderRadius": "0px",
+              "color": "rgb(95, 95, 99)",
+              "display": "block",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "0px"
+            },
+            "tag": "SPAN",
+            "text": "Processing"
+          },
+          {
+            "classes": "game-controls",
+            "rect": [
+              218,
+              102,
+              1018,
+              35
+            ],
+            "style": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px none rgb(29, 29, 31)",
+              "borderRadius": "0px",
+              "color": "rgb(29, 29, 31)",
+              "display": "flex",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "10px",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "0px"
+            },
+            "tag": "DIV",
+            "text": ""
+          },
+          {
+            "classes": "primary",
+            "rect": [
+              218,
+              102,
+              120,
+              35
+            ],
+            "style": {
+              "background": "rgb(0, 113, 227)",
+              "border": "1px solid rgb(0, 113, 227)",
+              "borderRadius": "8px",
+              "color": "rgb(255, 255, 255)",
+              "display": "block",
+              "font": "600 13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "0.45",
+              "padding": "8px"
+            },
+            "tag": "BUTTON",
+            "text": "Processing"
+          },
+          {
+            "classes": "",
+            "rect": [
+              348,
+              102,
+              120,
+              35
+            ],
+            "style": {
+              "background": "rgb(255, 255, 255)",
+              "border": "1px solid rgb(229, 229, 234)",
+              "borderRadius": "8px",
+              "color": "rgb(29, 29, 31)",
+              "display": "block",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "0.45",
+              "padding": "8px"
+            },
+            "tag": "BUTTON",
+            "text": "Processing"
+          },
+          {
+            "classes": "toggle-row",
+            "rect": [
+              218,
+              155,
+              1018,
+              50
+            ],
+            "style": {
+              "background": "rgb(235, 235, 237)",
+              "border": "1px solid rgb(229, 229, 234)",
+              "borderRadius": "8px",
+              "color": "rgb(29, 29, 31)",
+              "display": "flex",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "8px"
+            },
+            "tag": "BUTTON",
+            "text": ""
+          },
+          {
+            "classes": "",
+            "rect": [
+              227,
+              171.5,
+              131.546875,
+              17
+            ],
+            "style": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px none rgb(29, 29, 31)",
+              "borderRadius": "0px",
+              "color": "rgb(29, 29, 31)",
+              "display": "block",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "0px"
+            },
+            "tag": "SPAN",
+            "text": "Open games at startup"
+          },
+          {
+            "classes": "ui-switch",
+            "rect": [
+              1163,
+              164,
+              64,
+              32
+            ],
+            "style": {
+              "background": "rgb(229, 229, 234)",
+              "border": "1px solid rgb(209, 209, 214)",
+              "borderRadius": "999px",
+              "color": "rgb(29, 29, 31)",
+              "display": "block",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "0px"
+            },
+            "tag": "SPAN",
+            "text": ""
+          },
+          {
+            "classes": "toggle-row",
+            "rect": [
+              218,
+              223,
+              1018,
+              50
+            ],
+            "style": {
+              "background": "rgb(235, 235, 237)",
+              "border": "1px solid rgb(229, 229, 234)",
+              "borderRadius": "8px",
+              "color": "rgb(29, 29, 31)",
+              "display": "flex",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "8px"
+            },
+            "tag": "BUTTON",
+            "text": ""
+          },
+          {
+            "classes": "",
+            "rect": [
+              227,
+              239.5,
+              140.5625,
+              17
+            ],
+            "style": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px none rgb(29, 29, 31)",
+              "borderRadius": "0px",
+              "color": "rgb(29, 29, 31)",
+              "display": "block",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "0px"
+            },
+            "tag": "SPAN",
+            "text": "Automatic Reconnection"
+          },
+          {
+            "classes": "ui-switch",
+            "rect": [
+              1163,
+              232,
+              64,
+              32
+            ],
+            "style": {
+              "background": "rgb(229, 229, 234)",
+              "border": "1px solid rgb(209, 209, 214)",
+              "borderRadius": "999px",
+              "color": "rgb(29, 29, 31)",
+              "display": "block",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "0px"
+            },
+            "tag": "SPAN",
+            "text": ""
+          }
+        ],
+        "viewport": [
+          1280,
+          720
+        ],
+        "screenshot": "en-light-proxy-busy-running-original.jpg"
+      },
+      {
+        "side": "current",
+        "document": [
+          1280,
+          1280
+        ],
+        "elements": [
+          {
+            "classes": "panel quick-actions-panel",
+            "rect": [
+              201,
+              25,
+              1052,
+              265
+            ],
+            "style": {
+              "background": "rgb(255, 255, 255)",
+              "border": "1px solid rgb(229, 229, 234)",
+              "borderRadius": "10px",
+              "color": "rgb(29, 29, 31)",
+              "display": "grid",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "18px",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "16px"
+            },
+            "tag": "SECTION",
+            "text": ""
+          },
+          {
+            "classes": "panel-title",
+            "rect": [
+              218,
+              42,
+              1018,
+              42
+            ],
+            "style": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px none rgb(29, 29, 31)",
+              "borderRadius": "0px",
+              "color": "rgb(29, 29, 31)",
+              "display": "grid",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "4px",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "0px"
+            },
+            "tag": "DIV",
+            "text": ""
+          },
+          {
+            "classes": "",
+            "rect": [
+              218,
+              42,
+              1018,
+              21
+            ],
+            "style": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px none rgb(29, 29, 31)",
+              "borderRadius": "0px",
+              "color": "rgb(29, 29, 31)",
+              "display": "block",
+              "font": "650 16px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "16px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "0px"
+            },
+            "tag": "H2",
+            "text": "Game Setup"
+          },
+          {
+            "classes": "muted",
+            "rect": [
+              218,
+              67,
+              1018,
+              17
+            ],
+            "style": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px none rgb(95, 95, 99)",
+              "borderRadius": "0px",
+              "color": "rgb(95, 95, 99)",
+              "display": "block",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "0px"
+            },
+            "tag": "SPAN",
+            "text": "Processing"
+          },
+          {
+            "classes": "game-controls",
+            "rect": [
+              218,
+              102,
+              1018,
+              35
+            ],
+            "style": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px none rgb(29, 29, 31)",
+              "borderRadius": "0px",
+              "color": "rgb(29, 29, 31)",
+              "display": "flex",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "10px",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "0px"
+            },
+            "tag": "DIV",
+            "text": ""
+          },
+          {
+            "classes": "primary",
+            "rect": [
+              218,
+              102,
+              120,
+              35
+            ],
+            "style": {
+              "background": "rgb(0, 113, 227)",
+              "border": "1px solid rgb(0, 113, 227)",
+              "borderRadius": "8px",
+              "color": "rgb(255, 255, 255)",
+              "display": "block",
+              "font": "600 13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "0.45",
+              "padding": "8px"
+            },
+            "tag": "BUTTON",
+            "text": "Processing"
+          },
+          {
+            "classes": "",
+            "rect": [
+              348,
+              102,
+              120,
+              35
+            ],
+            "style": {
+              "background": "rgb(255, 255, 255)",
+              "border": "1px solid rgb(229, 229, 234)",
+              "borderRadius": "8px",
+              "color": "rgb(29, 29, 31)",
+              "display": "block",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "0.45",
+              "padding": "8px"
+            },
+            "tag": "BUTTON",
+            "text": "Processing"
+          },
+          {
+            "classes": "toggle-row",
+            "rect": [
+              218,
+              155,
+              1018,
+              50
+            ],
+            "style": {
+              "background": "rgb(235, 235, 237)",
+              "border": "1px solid rgb(229, 229, 234)",
+              "borderRadius": "8px",
+              "color": "rgb(29, 29, 31)",
+              "display": "flex",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "8px"
+            },
+            "tag": "BUTTON",
+            "text": ""
+          },
+          {
+            "classes": "",
+            "rect": [
+              227,
+              171.5,
+              131.546875,
+              17
+            ],
+            "style": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px none rgb(29, 29, 31)",
+              "borderRadius": "0px",
+              "color": "rgb(29, 29, 31)",
+              "display": "block",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "0px"
+            },
+            "tag": "SPAN",
+            "text": "Open games at startup"
+          },
+          {
+            "classes": "ui-switch",
+            "rect": [
+              1163,
+              164,
+              64,
+              32
+            ],
+            "style": {
+              "background": "rgb(229, 229, 234)",
+              "border": "1px solid rgb(209, 209, 214)",
+              "borderRadius": "999px",
+              "color": "rgb(29, 29, 31)",
+              "display": "block",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "0px"
+            },
+            "tag": "SPAN",
+            "text": ""
+          },
+          {
+            "classes": "toggle-row",
+            "rect": [
+              218,
+              223,
+              1018,
+              50
+            ],
+            "style": {
+              "background": "rgb(235, 235, 237)",
+              "border": "1px solid rgb(229, 229, 234)",
+              "borderRadius": "8px",
+              "color": "rgb(29, 29, 31)",
+              "display": "flex",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "8px"
+            },
+            "tag": "BUTTON",
+            "text": ""
+          },
+          {
+            "classes": "",
+            "rect": [
+              227,
+              239.5,
+              140.5625,
+              17
+            ],
+            "style": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px none rgb(29, 29, 31)",
+              "borderRadius": "0px",
+              "color": "rgb(29, 29, 31)",
+              "display": "block",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "0px"
+            },
+            "tag": "SPAN",
+            "text": "Automatic Reconnection"
+          },
+          {
+            "classes": "ui-switch",
+            "rect": [
+              1163,
+              232,
+              64,
+              32
+            ],
+            "style": {
+              "background": "rgb(229, 229, 234)",
+              "border": "1px solid rgb(209, 209, 214)",
+              "borderRadius": "999px",
+              "color": "rgb(29, 29, 31)",
+              "display": "block",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "0px"
+            },
+            "tag": "SPAN",
+            "text": ""
+          }
+        ],
+        "viewport": [
+          1280,
+          720
+        ],
+        "screenshot": "en-light-proxy-busy-running-current.jpg"
+      }
+    ]
+  },
+  {
+    "case": {
+      "language": "en",
+      "theme": "dark",
+      "name": "missing-error-busy",
+      "width": 740,
+      "height": 600
+    },
+    "pair": [
+      {
+        "side": "original",
+        "document": [
+          740,
+          740
+        ],
+        "elements": [
+          {
+            "classes": "panel quick-actions-panel",
+            "rect": [
+              25,
+              35,
+              690,
+              325
+            ],
+            "style": {
+              "background": "rgb(40, 40, 40)",
+              "border": "1px solid rgb(58, 58, 60)",
+              "borderRadius": "10px",
+              "color": "rgb(245, 245, 247)",
+              "display": "grid",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "18px",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "16px"
+            },
+            "tag": "SECTION",
+            "text": ""
+          },
+          {
+            "classes": "panel-title",
+            "rect": [
+              42,
+              52,
+              656,
+              42
+            ],
+            "style": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px none rgb(245, 245, 247)",
+              "borderRadius": "0px",
+              "color": "rgb(245, 245, 247)",
+              "display": "grid",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "4px",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "0px"
+            },
+            "tag": "DIV",
+            "text": ""
+          },
+          {
+            "classes": "",
+            "rect": [
+              42,
+              52,
+              656,
+              21
+            ],
+            "style": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px none rgb(245, 245, 247)",
+              "borderRadius": "0px",
+              "color": "rgb(245, 245, 247)",
+              "display": "block",
+              "font": "650 16px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "16px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "0px"
+            },
+            "tag": "H2",
+            "text": "Game Setup"
+          },
+          {
+            "classes": "muted",
+            "rect": [
+              42,
+              77,
+              656,
+              17
+            ],
+            "style": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px none rgb(168, 168, 173)",
+              "borderRadius": "0px",
+              "color": "rgb(168, 168, 173)",
+              "display": "block",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "0px"
+            },
+            "tag": "SPAN",
+            "text": "Not detected"
+          },
+          {
+            "classes": "game-root-missing",
+            "rect": [
+              42,
+              112,
+              656,
+              61
+            ],
+            "style": {
+              "background": "rgb(50, 50, 50)",
+              "border": "1px solid rgb(58, 58, 60)",
+              "borderRadius": "9px",
+              "color": "rgb(245, 245, 247)",
+              "display": "flex",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "10px",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "12px"
+            },
+            "tag": "DIV",
+            "text": ""
+          },
+          {
+            "classes": "",
+            "rect": [
+              55,
+              134,
+              266.796875,
+              17
+            ],
+            "style": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px none rgb(245, 245, 247)",
+              "borderRadius": "0px",
+              "color": "rgb(245, 245, 247)",
+              "display": "block",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "0px"
+            },
+            "tag": "SPAN",
+            "text": "The selected game installation folder is invalid."
+          },
+          {
+            "classes": "primary",
+            "rect": [
+              603.890625,
+              125,
+              81.109375,
+              35
+            ],
+            "style": {
+              "background": "rgb(0, 113, 227)",
+              "border": "1px solid rgb(0, 113, 227)",
+              "borderRadius": "8px",
+              "color": "rgb(255, 255, 255)",
+              "display": "block",
+              "font": "600 13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "0.45",
+              "padding": "8px"
+            },
+            "tag": "BUTTON",
+            "text": "Processing"
+          },
+          {
+            "classes": "game-root-error",
+            "rect": [
+              42,
+              191,
+              656,
+              16
+            ],
+            "style": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px none rgb(255, 85, 76)",
+              "borderRadius": "0px",
+              "color": "rgb(255, 85, 76)",
+              "display": "block",
+              "font": "12px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "12px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "0px"
+            },
+            "tag": "SPAN",
+            "text": "The game xLua component is not supported. Close Bridge and repair the game with the official launcher."
+          },
+          {
+            "classes": "toggle-row",
+            "rect": [
+              42,
+              225,
+              656,
+              50
+            ],
+            "style": {
+              "background": "rgb(50, 50, 50)",
+              "border": "1px solid rgb(58, 58, 60)",
+              "borderRadius": "8px",
+              "color": "rgb(245, 245, 247)",
+              "display": "flex",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "8px"
+            },
+            "tag": "BUTTON",
+            "text": ""
+          },
+          {
+            "classes": "",
+            "rect": [
+              51,
+              241.5,
+              131.546875,
+              17
+            ],
+            "style": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px none rgb(245, 245, 247)",
+              "borderRadius": "0px",
+              "color": "rgb(245, 245, 247)",
+              "display": "block",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "0px"
+            },
+            "tag": "SPAN",
+            "text": "Open games at startup"
+          },
+          {
+            "classes": "ui-switch",
+            "rect": [
+              625,
+              234,
+              64,
+              32
+            ],
+            "style": {
+              "background": "rgb(61, 61, 61)",
+              "border": "1px solid rgb(72, 72, 74)",
+              "borderRadius": "999px",
+              "color": "rgb(245, 245, 247)",
+              "display": "block",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "0px"
+            },
+            "tag": "SPAN",
+            "text": ""
+          },
+          {
+            "classes": "toggle-row",
+            "rect": [
+              42,
+              293,
+              656,
+              50
+            ],
+            "style": {
+              "background": "rgb(50, 50, 50)",
+              "border": "1px solid rgb(58, 58, 60)",
+              "borderRadius": "8px",
+              "color": "rgb(245, 245, 247)",
+              "display": "flex",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "8px"
+            },
+            "tag": "BUTTON",
+            "text": ""
+          },
+          {
+            "classes": "",
+            "rect": [
+              51,
+              309.5,
+              140.5625,
+              17
+            ],
+            "style": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px none rgb(245, 245, 247)",
+              "borderRadius": "0px",
+              "color": "rgb(245, 245, 247)",
+              "display": "block",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "0px"
+            },
+            "tag": "SPAN",
+            "text": "Automatic Reconnection"
+          },
+          {
+            "classes": "ui-switch",
+            "rect": [
+              625,
+              302,
+              64,
+              32
+            ],
+            "style": {
+              "background": "rgb(61, 61, 61)",
+              "border": "1px solid rgb(72, 72, 74)",
+              "borderRadius": "999px",
+              "color": "rgb(245, 245, 247)",
+              "display": "block",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "0px"
+            },
+            "tag": "SPAN",
+            "text": ""
+          }
+        ],
+        "viewport": [
+          740,
+          600
+        ],
+        "screenshot": "en-dark-missing-error-busy-original.jpg"
+      },
+      {
+        "side": "current",
+        "document": [
+          740,
+          740
+        ],
+        "elements": [
+          {
+            "classes": "panel quick-actions-panel",
+            "rect": [
+              25,
+              35,
+              690,
+              325
+            ],
+            "style": {
+              "background": "rgb(40, 40, 40)",
+              "border": "1px solid rgb(58, 58, 60)",
+              "borderRadius": "10px",
+              "color": "rgb(245, 245, 247)",
+              "display": "grid",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "18px",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "16px"
+            },
+            "tag": "SECTION",
+            "text": ""
+          },
+          {
+            "classes": "panel-title",
+            "rect": [
+              42,
+              52,
+              656,
+              42
+            ],
+            "style": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px none rgb(245, 245, 247)",
+              "borderRadius": "0px",
+              "color": "rgb(245, 245, 247)",
+              "display": "grid",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "4px",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "0px"
+            },
+            "tag": "DIV",
+            "text": ""
+          },
+          {
+            "classes": "",
+            "rect": [
+              42,
+              52,
+              656,
+              21
+            ],
+            "style": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px none rgb(245, 245, 247)",
+              "borderRadius": "0px",
+              "color": "rgb(245, 245, 247)",
+              "display": "block",
+              "font": "650 16px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "16px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "0px"
+            },
+            "tag": "H2",
+            "text": "Game Setup"
+          },
+          {
+            "classes": "muted",
+            "rect": [
+              42,
+              77,
+              656,
+              17
+            ],
+            "style": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px none rgb(168, 168, 173)",
+              "borderRadius": "0px",
+              "color": "rgb(168, 168, 173)",
+              "display": "block",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "0px"
+            },
+            "tag": "SPAN",
+            "text": "Not detected"
+          },
+          {
+            "classes": "game-root-missing",
+            "rect": [
+              42,
+              112,
+              656,
+              61
+            ],
+            "style": {
+              "background": "rgb(50, 50, 50)",
+              "border": "1px solid rgb(58, 58, 60)",
+              "borderRadius": "9px",
+              "color": "rgb(245, 245, 247)",
+              "display": "flex",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "10px",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "12px"
+            },
+            "tag": "DIV",
+            "text": ""
+          },
+          {
+            "classes": "",
+            "rect": [
+              55,
+              134,
+              266.796875,
+              17
+            ],
+            "style": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px none rgb(245, 245, 247)",
+              "borderRadius": "0px",
+              "color": "rgb(245, 245, 247)",
+              "display": "block",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "0px"
+            },
+            "tag": "SPAN",
+            "text": "The selected game installation folder is invalid."
+          },
+          {
+            "classes": "primary",
+            "rect": [
+              603.890625,
+              125,
+              81.109375,
+              35
+            ],
+            "style": {
+              "background": "rgb(0, 113, 227)",
+              "border": "1px solid rgb(0, 113, 227)",
+              "borderRadius": "8px",
+              "color": "rgb(255, 255, 255)",
+              "display": "block",
+              "font": "600 13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "0.45",
+              "padding": "8px"
+            },
+            "tag": "BUTTON",
+            "text": "Processing"
+          },
+          {
+            "classes": "game-root-error",
+            "rect": [
+              42,
+              191,
+              656,
+              16
+            ],
+            "style": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px none rgb(255, 85, 76)",
+              "borderRadius": "0px",
+              "color": "rgb(255, 85, 76)",
+              "display": "block",
+              "font": "12px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "12px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "0px"
+            },
+            "tag": "SPAN",
+            "text": "The game xLua component is not supported. Close Bridge and repair the game with the official launcher."
+          },
+          {
+            "classes": "toggle-row",
+            "rect": [
+              42,
+              225,
+              656,
+              50
+            ],
+            "style": {
+              "background": "rgb(50, 50, 50)",
+              "border": "1px solid rgb(58, 58, 60)",
+              "borderRadius": "8px",
+              "color": "rgb(245, 245, 247)",
+              "display": "flex",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "8px"
+            },
+            "tag": "BUTTON",
+            "text": ""
+          },
+          {
+            "classes": "",
+            "rect": [
+              51,
+              241.5,
+              131.546875,
+              17
+            ],
+            "style": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px none rgb(245, 245, 247)",
+              "borderRadius": "0px",
+              "color": "rgb(245, 245, 247)",
+              "display": "block",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "0px"
+            },
+            "tag": "SPAN",
+            "text": "Open games at startup"
+          },
+          {
+            "classes": "ui-switch",
+            "rect": [
+              625,
+              234,
+              64,
+              32
+            ],
+            "style": {
+              "background": "rgb(61, 61, 61)",
+              "border": "1px solid rgb(72, 72, 74)",
+              "borderRadius": "999px",
+              "color": "rgb(245, 245, 247)",
+              "display": "block",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "0px"
+            },
+            "tag": "SPAN",
+            "text": ""
+          },
+          {
+            "classes": "toggle-row",
+            "rect": [
+              42,
+              293,
+              656,
+              50
+            ],
+            "style": {
+              "background": "rgb(50, 50, 50)",
+              "border": "1px solid rgb(58, 58, 60)",
+              "borderRadius": "8px",
+              "color": "rgb(245, 245, 247)",
+              "display": "flex",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "8px"
+            },
+            "tag": "BUTTON",
+            "text": ""
+          },
+          {
+            "classes": "",
+            "rect": [
+              51,
+              309.5,
+              140.5625,
+              17
+            ],
+            "style": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px none rgb(245, 245, 247)",
+              "borderRadius": "0px",
+              "color": "rgb(245, 245, 247)",
+              "display": "block",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "0px"
+            },
+            "tag": "SPAN",
+            "text": "Automatic Reconnection"
+          },
+          {
+            "classes": "ui-switch",
+            "rect": [
+              625,
+              302,
+              64,
+              32
+            ],
+            "style": {
+              "background": "rgb(61, 61, 61)",
+              "border": "1px solid rgb(72, 72, 74)",
+              "borderRadius": "999px",
+              "color": "rgb(245, 245, 247)",
+              "display": "block",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "0px"
+            },
+            "tag": "SPAN",
+            "text": ""
+          }
+        ],
+        "viewport": [
+          740,
+          600
+        ],
+        "screenshot": "en-dark-missing-error-busy-current.jpg"
+      }
+    ]
+  },
+  {
+    "case": {
+      "language": "ja",
+      "theme": "dark",
+      "name": "proxy-busy-repair",
+      "width": 740,
+      "height": 600
+    },
+    "pair": [
+      {
+        "side": "original",
+        "document": [
+          740,
+          740
+        ],
+        "elements": [
+          {
+            "classes": "panel quick-actions-panel",
+            "rect": [
+              25,
+              35,
+              690,
+              278
+            ],
+            "style": {
+              "background": "rgb(40, 40, 40)",
+              "border": "1px solid rgb(58, 58, 60)",
+              "borderRadius": "10px",
+              "color": "rgb(245, 245, 247)",
+              "display": "grid",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "18px",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "16px"
+            },
+            "tag": "SECTION",
+            "text": ""
+          },
+          {
+            "classes": "panel-title",
+            "rect": [
+              42,
+              52,
+              656,
+              51
+            ],
+            "style": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px none rgb(245, 245, 247)",
+              "borderRadius": "0px",
+              "color": "rgb(245, 245, 247)",
+              "display": "grid",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "4px",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "0px"
+            },
+            "tag": "DIV",
+            "text": ""
+          },
+          {
+            "classes": "",
+            "rect": [
+              42,
+              52,
+              656,
+              26
+            ],
+            "style": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px none rgb(245, 245, 247)",
+              "borderRadius": "0px",
+              "color": "rgb(245, 245, 247)",
+              "display": "block",
+              "font": "650 16px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "16px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "0px"
+            },
+            "tag": "H2",
+            "text": "ゲーム設定"
+          },
+          {
+            "classes": "muted",
+            "rect": [
+              42,
+              82,
+              656,
+              21
+            ],
+            "style": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px none rgb(168, 168, 173)",
+              "borderRadius": "0px",
+              "color": "rgb(168, 168, 173)",
+              "display": "block",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "0px"
+            },
+            "tag": "SPAN",
+            "text": "処理中"
+          },
+          {
+            "classes": "game-controls",
+            "rect": [
+              42,
+              121,
+              656,
+              39
+            ],
+            "style": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px none rgb(245, 245, 247)",
+              "borderRadius": "0px",
+              "color": "rgb(245, 245, 247)",
+              "display": "flex",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "10px",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "0px"
+            },
+            "tag": "DIV",
+            "text": ""
+          },
+          {
+            "classes": "",
+            "rect": [
+              42,
+              121,
+              120,
+              39
+            ],
+            "style": {
+              "background": "rgb(40, 40, 40)",
+              "border": "1px solid rgb(58, 58, 60)",
+              "borderRadius": "8px",
+              "color": "rgb(245, 245, 247)",
+              "display": "block",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "0.45",
+              "padding": "8px"
+            },
+            "tag": "BUTTON",
+            "text": "処理中"
+          },
+          {
+            "classes": "muted",
+            "rect": [
+              172,
+              130,
+              517.796875,
+              21
+            ],
+            "style": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px none rgb(168, 168, 173)",
+              "borderRadius": "0px",
+              "color": "rgb(168, 168, 173)",
+              "display": "block",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "0px"
+            },
+            "tag": "SPAN",
+            "text": "ゲームを自動で閉じ、コンポーネントを更新した後、公式ランチャーから再起動します。"
+          },
+          {
+            "classes": "toggle-row",
+            "rect": [
+              42,
+              178,
+              656,
+              50
+            ],
+            "style": {
+              "background": "rgb(50, 50, 50)",
+              "border": "1px solid rgb(58, 58, 60)",
+              "borderRadius": "8px",
+              "color": "rgb(245, 245, 247)",
+              "display": "flex",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "8px"
+            },
+            "tag": "BUTTON",
+            "text": ""
+          },
+          {
+            "classes": "",
+            "rect": [
+              51,
+              192.5,
+              129.359375,
+              21
+            ],
+            "style": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px none rgb(245, 245, 247)",
+              "borderRadius": "0px",
+              "color": "rgb(245, 245, 247)",
+              "display": "block",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "0px"
+            },
+            "tag": "SPAN",
+            "text": "起動時にゲームを開く"
+          },
+          {
+            "classes": "ui-switch",
+            "rect": [
+              625,
+              187,
+              64,
+              32
+            ],
+            "style": {
+              "background": "rgb(61, 61, 61)",
+              "border": "1px solid rgb(72, 72, 74)",
+              "borderRadius": "999px",
+              "color": "rgb(245, 245, 247)",
+              "display": "block",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "0px"
+            },
+            "tag": "SPAN",
+            "text": ""
+          },
+          {
+            "classes": "toggle-row",
+            "rect": [
+              42,
+              246,
+              656,
+              50
+            ],
+            "style": {
+              "background": "rgb(50, 50, 50)",
+              "border": "1px solid rgb(58, 58, 60)",
+              "borderRadius": "8px",
+              "color": "rgb(245, 245, 247)",
+              "display": "flex",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "8px"
+            },
+            "tag": "BUTTON",
+            "text": ""
+          },
+          {
+            "classes": "",
+            "rect": [
+              51,
+              260.5,
+              65,
+              21
+            ],
+            "style": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px none rgb(245, 245, 247)",
+              "borderRadius": "0px",
+              "color": "rgb(245, 245, 247)",
+              "display": "block",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "0px"
+            },
+            "tag": "SPAN",
+            "text": "自動再接続"
+          },
+          {
+            "classes": "ui-switch",
+            "rect": [
+              625,
+              255,
+              64,
+              32
+            ],
+            "style": {
+              "background": "rgb(61, 61, 61)",
+              "border": "1px solid rgb(72, 72, 74)",
+              "borderRadius": "999px",
+              "color": "rgb(245, 245, 247)",
+              "display": "block",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "0px"
+            },
+            "tag": "SPAN",
+            "text": ""
+          }
+        ],
+        "viewport": [
+          740,
+          600
+        ],
+        "screenshot": "ja-dark-proxy-busy-repair-original.jpg"
+      },
+      {
+        "side": "current",
+        "document": [
+          740,
+          740
+        ],
+        "elements": [
+          {
+            "classes": "panel quick-actions-panel",
+            "rect": [
+              25,
+              35,
+              690,
+              278
+            ],
+            "style": {
+              "background": "rgb(40, 40, 40)",
+              "border": "1px solid rgb(58, 58, 60)",
+              "borderRadius": "10px",
+              "color": "rgb(245, 245, 247)",
+              "display": "grid",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "18px",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "16px"
+            },
+            "tag": "SECTION",
+            "text": ""
+          },
+          {
+            "classes": "panel-title",
+            "rect": [
+              42,
+              52,
+              656,
+              51
+            ],
+            "style": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px none rgb(245, 245, 247)",
+              "borderRadius": "0px",
+              "color": "rgb(245, 245, 247)",
+              "display": "grid",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "4px",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "0px"
+            },
+            "tag": "DIV",
+            "text": ""
+          },
+          {
+            "classes": "",
+            "rect": [
+              42,
+              52,
+              656,
+              26
+            ],
+            "style": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px none rgb(245, 245, 247)",
+              "borderRadius": "0px",
+              "color": "rgb(245, 245, 247)",
+              "display": "block",
+              "font": "650 16px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "16px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "0px"
+            },
+            "tag": "H2",
+            "text": "ゲーム設定"
+          },
+          {
+            "classes": "muted",
+            "rect": [
+              42,
+              82,
+              656,
+              21
+            ],
+            "style": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px none rgb(168, 168, 173)",
+              "borderRadius": "0px",
+              "color": "rgb(168, 168, 173)",
+              "display": "block",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "0px"
+            },
+            "tag": "SPAN",
+            "text": "処理中"
+          },
+          {
+            "classes": "game-controls",
+            "rect": [
+              42,
+              121,
+              656,
+              39
+            ],
+            "style": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px none rgb(245, 245, 247)",
+              "borderRadius": "0px",
+              "color": "rgb(245, 245, 247)",
+              "display": "flex",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "10px",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "0px"
+            },
+            "tag": "DIV",
+            "text": ""
+          },
+          {
+            "classes": "",
+            "rect": [
+              42,
+              121,
+              120,
+              39
+            ],
+            "style": {
+              "background": "rgb(40, 40, 40)",
+              "border": "1px solid rgb(58, 58, 60)",
+              "borderRadius": "8px",
+              "color": "rgb(245, 245, 247)",
+              "display": "block",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "0.45",
+              "padding": "8px"
+            },
+            "tag": "BUTTON",
+            "text": "処理中"
+          },
+          {
+            "classes": "muted",
+            "rect": [
+              172,
+              130,
+              517.796875,
+              21
+            ],
+            "style": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px none rgb(168, 168, 173)",
+              "borderRadius": "0px",
+              "color": "rgb(168, 168, 173)",
+              "display": "block",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "0px"
+            },
+            "tag": "SPAN",
+            "text": "ゲームを自動で閉じ、コンポーネントを更新した後、公式ランチャーから再起動します。"
+          },
+          {
+            "classes": "toggle-row",
+            "rect": [
+              42,
+              178,
+              656,
+              50
+            ],
+            "style": {
+              "background": "rgb(50, 50, 50)",
+              "border": "1px solid rgb(58, 58, 60)",
+              "borderRadius": "8px",
+              "color": "rgb(245, 245, 247)",
+              "display": "flex",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "8px"
+            },
+            "tag": "BUTTON",
+            "text": ""
+          },
+          {
+            "classes": "",
+            "rect": [
+              51,
+              192.5,
+              129.359375,
+              21
+            ],
+            "style": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px none rgb(245, 245, 247)",
+              "borderRadius": "0px",
+              "color": "rgb(245, 245, 247)",
+              "display": "block",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "0px"
+            },
+            "tag": "SPAN",
+            "text": "起動時にゲームを開く"
+          },
+          {
+            "classes": "ui-switch",
+            "rect": [
+              625,
+              187,
+              64,
+              32
+            ],
+            "style": {
+              "background": "rgb(61, 61, 61)",
+              "border": "1px solid rgb(72, 72, 74)",
+              "borderRadius": "999px",
+              "color": "rgb(245, 245, 247)",
+              "display": "block",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "0px"
+            },
+            "tag": "SPAN",
+            "text": ""
+          },
+          {
+            "classes": "toggle-row",
+            "rect": [
+              42,
+              246,
+              656,
+              50
+            ],
+            "style": {
+              "background": "rgb(50, 50, 50)",
+              "border": "1px solid rgb(58, 58, 60)",
+              "borderRadius": "8px",
+              "color": "rgb(245, 245, 247)",
+              "display": "flex",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "8px"
+            },
+            "tag": "BUTTON",
+            "text": ""
+          },
+          {
+            "classes": "",
+            "rect": [
+              51,
+              260.5,
+              65,
+              21
+            ],
+            "style": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px none rgb(245, 245, 247)",
+              "borderRadius": "0px",
+              "color": "rgb(245, 245, 247)",
+              "display": "block",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "0px"
+            },
+            "tag": "SPAN",
+            "text": "自動再接続"
+          },
+          {
+            "classes": "ui-switch",
+            "rect": [
+              625,
+              255,
+              64,
+              32
+            ],
+            "style": {
+              "background": "rgb(61, 61, 61)",
+              "border": "1px solid rgb(72, 72, 74)",
+              "borderRadius": "999px",
+              "color": "rgb(245, 245, 247)",
+              "display": "block",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "0px"
+            },
+            "tag": "SPAN",
+            "text": ""
+          }
+        ],
+        "viewport": [
+          740,
+          600
+        ],
+        "screenshot": "ja-dark-proxy-busy-repair-current.jpg"
+      }
+    ]
+  },
+  {
+    "case": {
+      "language": "ja",
+      "theme": "light",
+      "name": "busy-overlap",
+      "width": 1280,
+      "height": 720
+    },
+    "pair": [
+      {
+        "side": "original",
+        "document": [
+          1280,
+          1280
+        ],
+        "elements": [
+          {
+            "classes": "panel quick-actions-panel",
+            "rect": [
+              201,
+              25,
+              1052,
+              278
+            ],
+            "style": {
+              "background": "rgb(255, 255, 255)",
+              "border": "1px solid rgb(229, 229, 234)",
+              "borderRadius": "10px",
+              "color": "rgb(29, 29, 31)",
+              "display": "grid",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "18px",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "16px"
+            },
+            "tag": "SECTION",
+            "text": ""
+          },
+          {
+            "classes": "panel-title",
+            "rect": [
+              218,
+              42,
+              1018,
+              51
+            ],
+            "style": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px none rgb(29, 29, 31)",
+              "borderRadius": "0px",
+              "color": "rgb(29, 29, 31)",
+              "display": "grid",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "4px",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "0px"
+            },
+            "tag": "DIV",
+            "text": ""
+          },
+          {
+            "classes": "",
+            "rect": [
+              218,
+              42,
+              1018,
+              26
+            ],
+            "style": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px none rgb(29, 29, 31)",
+              "borderRadius": "0px",
+              "color": "rgb(29, 29, 31)",
+              "display": "block",
+              "font": "650 16px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "16px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "0px"
+            },
+            "tag": "H2",
+            "text": "ゲーム設定"
+          },
+          {
+            "classes": "muted",
+            "rect": [
+              218,
+              72,
+              1018,
+              21
+            ],
+            "style": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px none rgb(95, 95, 99)",
+              "borderRadius": "0px",
+              "color": "rgb(95, 95, 99)",
+              "display": "block",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "0px"
+            },
+            "tag": "SPAN",
+            "text": "ゲームを起動中…"
+          },
+          {
+            "classes": "game-controls",
+            "rect": [
+              218,
+              111,
+              1018,
+              39
+            ],
+            "style": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px none rgb(29, 29, 31)",
+              "borderRadius": "0px",
+              "color": "rgb(29, 29, 31)",
+              "display": "flex",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "10px",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "0px"
+            },
+            "tag": "DIV",
+            "text": ""
+          },
+          {
+            "classes": "primary",
+            "rect": [
+              218,
+              111,
+              120,
+              39
+            ],
+            "style": {
+              "background": "rgb(0, 113, 227)",
+              "border": "1px solid rgb(0, 113, 227)",
+              "borderRadius": "8px",
+              "color": "rgb(255, 255, 255)",
+              "display": "block",
+              "font": "600 13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "0.45",
+              "padding": "8px"
+            },
+            "tag": "BUTTON",
+            "text": "ゲームを起動中…"
+          },
+          {
+            "classes": "",
+            "rect": [
+              348,
+              111,
+              120,
+              39
+            ],
+            "style": {
+              "background": "rgb(255, 255, 255)",
+              "border": "1px solid rgb(229, 229, 234)",
+              "borderRadius": "8px",
+              "color": "rgb(29, 29, 31)",
+              "display": "block",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "0.45",
+              "padding": "8px"
+            },
+            "tag": "BUTTON",
+            "text": "処理中"
+          },
+          {
+            "classes": "toggle-row",
+            "rect": [
+              218,
+              168,
+              1018,
+              50
+            ],
+            "style": {
+              "background": "rgb(235, 235, 237)",
+              "border": "1px solid rgb(229, 229, 234)",
+              "borderRadius": "8px",
+              "color": "rgb(29, 29, 31)",
+              "display": "flex",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "8px"
+            },
+            "tag": "BUTTON",
+            "text": ""
+          },
+          {
+            "classes": "",
+            "rect": [
+              227,
+              182.5,
+              129.359375,
+              21
+            ],
+            "style": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px none rgb(29, 29, 31)",
+              "borderRadius": "0px",
+              "color": "rgb(29, 29, 31)",
+              "display": "block",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "0px"
+            },
+            "tag": "SPAN",
+            "text": "起動時にゲームを開く"
+          },
+          {
+            "classes": "ui-switch is-on",
+            "rect": [
+              1163,
+              177,
+              64,
+              32
+            ],
+            "style": {
+              "background": "rgb(52, 199, 89)",
+              "border": "1px solid rgb(46, 193, 83)",
+              "borderRadius": "999px",
+              "color": "rgb(29, 29, 31)",
+              "display": "block",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "0px"
+            },
+            "tag": "SPAN",
+            "text": ""
+          },
+          {
+            "classes": "toggle-row",
+            "rect": [
+              218,
+              236,
+              1018,
+              50
+            ],
+            "style": {
+              "background": "rgb(235, 235, 237)",
+              "border": "1px solid rgb(229, 229, 234)",
+              "borderRadius": "8px",
+              "color": "rgb(29, 29, 31)",
+              "display": "flex",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "8px"
+            },
+            "tag": "BUTTON",
+            "text": ""
+          },
+          {
+            "classes": "",
+            "rect": [
+              227,
+              250.5,
+              65,
+              21
+            ],
+            "style": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px none rgb(29, 29, 31)",
+              "borderRadius": "0px",
+              "color": "rgb(29, 29, 31)",
+              "display": "block",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "0px"
+            },
+            "tag": "SPAN",
+            "text": "自動再接続"
+          },
+          {
+            "classes": "ui-switch is-on",
+            "rect": [
+              1163,
+              245,
+              64,
+              32
+            ],
+            "style": {
+              "background": "rgb(52, 199, 89)",
+              "border": "1px solid rgb(46, 193, 83)",
+              "borderRadius": "999px",
+              "color": "rgb(29, 29, 31)",
+              "display": "block",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "0px"
+            },
+            "tag": "SPAN",
+            "text": ""
+          }
+        ],
+        "viewport": [
+          1280,
+          720
+        ],
+        "screenshot": "ja-light-busy-overlap-original.jpg"
+      },
+      {
+        "side": "current",
+        "document": [
+          1280,
+          1280
+        ],
+        "elements": [
+          {
+            "classes": "panel quick-actions-panel",
+            "rect": [
+              201,
+              25,
+              1052,
+              278
+            ],
+            "style": {
+              "background": "rgb(255, 255, 255)",
+              "border": "1px solid rgb(229, 229, 234)",
+              "borderRadius": "10px",
+              "color": "rgb(29, 29, 31)",
+              "display": "grid",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "18px",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "16px"
+            },
+            "tag": "SECTION",
+            "text": ""
+          },
+          {
+            "classes": "panel-title",
+            "rect": [
+              218,
+              42,
+              1018,
+              51
+            ],
+            "style": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px none rgb(29, 29, 31)",
+              "borderRadius": "0px",
+              "color": "rgb(29, 29, 31)",
+              "display": "grid",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "4px",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "0px"
+            },
+            "tag": "DIV",
+            "text": ""
+          },
+          {
+            "classes": "",
+            "rect": [
+              218,
+              42,
+              1018,
+              26
+            ],
+            "style": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px none rgb(29, 29, 31)",
+              "borderRadius": "0px",
+              "color": "rgb(29, 29, 31)",
+              "display": "block",
+              "font": "650 16px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "16px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "0px"
+            },
+            "tag": "H2",
+            "text": "ゲーム設定"
+          },
+          {
+            "classes": "muted",
+            "rect": [
+              218,
+              72,
+              1018,
+              21
+            ],
+            "style": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px none rgb(95, 95, 99)",
+              "borderRadius": "0px",
+              "color": "rgb(95, 95, 99)",
+              "display": "block",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "0px"
+            },
+            "tag": "SPAN",
+            "text": "ゲームを起動中…"
+          },
+          {
+            "classes": "game-controls",
+            "rect": [
+              218,
+              111,
+              1018,
+              39
+            ],
+            "style": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px none rgb(29, 29, 31)",
+              "borderRadius": "0px",
+              "color": "rgb(29, 29, 31)",
+              "display": "flex",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "10px",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "0px"
+            },
+            "tag": "DIV",
+            "text": ""
+          },
+          {
+            "classes": "primary",
+            "rect": [
+              218,
+              111,
+              120,
+              39
+            ],
+            "style": {
+              "background": "rgb(0, 113, 227)",
+              "border": "1px solid rgb(0, 113, 227)",
+              "borderRadius": "8px",
+              "color": "rgb(255, 255, 255)",
+              "display": "block",
+              "font": "600 13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "0.45",
+              "padding": "8px"
+            },
+            "tag": "BUTTON",
+            "text": "ゲームを起動中…"
+          },
+          {
+            "classes": "",
+            "rect": [
+              348,
+              111,
+              120,
+              39
+            ],
+            "style": {
+              "background": "rgb(255, 255, 255)",
+              "border": "1px solid rgb(229, 229, 234)",
+              "borderRadius": "8px",
+              "color": "rgb(29, 29, 31)",
+              "display": "block",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "0.45",
+              "padding": "8px"
+            },
+            "tag": "BUTTON",
+            "text": "処理中"
+          },
+          {
+            "classes": "toggle-row",
+            "rect": [
+              218,
+              168,
+              1018,
+              50
+            ],
+            "style": {
+              "background": "rgb(235, 235, 237)",
+              "border": "1px solid rgb(229, 229, 234)",
+              "borderRadius": "8px",
+              "color": "rgb(29, 29, 31)",
+              "display": "flex",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "8px"
+            },
+            "tag": "BUTTON",
+            "text": ""
+          },
+          {
+            "classes": "",
+            "rect": [
+              227,
+              182.5,
+              129.359375,
+              21
+            ],
+            "style": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px none rgb(29, 29, 31)",
+              "borderRadius": "0px",
+              "color": "rgb(29, 29, 31)",
+              "display": "block",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "0px"
+            },
+            "tag": "SPAN",
+            "text": "起動時にゲームを開く"
+          },
+          {
+            "classes": "ui-switch is-on",
+            "rect": [
+              1163,
+              177,
+              64,
+              32
+            ],
+            "style": {
+              "background": "rgb(52, 199, 89)",
+              "border": "1px solid rgb(46, 193, 83)",
+              "borderRadius": "999px",
+              "color": "rgb(29, 29, 31)",
+              "display": "block",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "0px"
+            },
+            "tag": "SPAN",
+            "text": ""
+          },
+          {
+            "classes": "toggle-row",
+            "rect": [
+              218,
+              236,
+              1018,
+              50
+            ],
+            "style": {
+              "background": "rgb(235, 235, 237)",
+              "border": "1px solid rgb(229, 229, 234)",
+              "borderRadius": "8px",
+              "color": "rgb(29, 29, 31)",
+              "display": "flex",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "8px"
+            },
+            "tag": "BUTTON",
+            "text": ""
+          },
+          {
+            "classes": "",
+            "rect": [
+              227,
+              250.5,
+              65,
+              21
+            ],
+            "style": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px none rgb(29, 29, 31)",
+              "borderRadius": "0px",
+              "color": "rgb(29, 29, 31)",
+              "display": "block",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "0px"
+            },
+            "tag": "SPAN",
+            "text": "自動再接続"
+          },
+          {
+            "classes": "ui-switch is-on",
+            "rect": [
+              1163,
+              245,
+              64,
+              32
+            ],
+            "style": {
+              "background": "rgb(52, 199, 89)",
+              "border": "1px solid rgb(46, 193, 83)",
+              "borderRadius": "999px",
+              "color": "rgb(29, 29, 31)",
+              "display": "block",
+              "font": "13px \"Segoe UI\", -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+              "fontSize": "13px",
+              "gap": "normal",
+              "lineHeight": "normal",
+              "margin": "0px",
+              "opacity": "1",
+              "padding": "0px"
+            },
+            "tag": "SPAN",
+            "text": ""
+          }
+        ],
+        "viewport": [
+          1280,
+          720
+        ],
+        "screenshot": "ja-light-busy-overlap-current.jpg"
+      }
+    ]
+  }
+]

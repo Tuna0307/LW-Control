@@ -1,0 +1,25 @@
+{
+  "sourcePath": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-BVfnK1wp.js",
+  "sourceSha256": "44c4e4043825b7db296b64171951b27176f8850ff8d7d337cc991df4765524c6",
+  "slices": [
+    {
+      "utf8ByteOffset": 246842,
+      "byteLength": 54,
+      "sha256": "3a3990ad6cfed835608e45e6018f46314e28d5255507768b83c60983b6d42204",
+      "text": "function Sr(e=localStorage,t){e.setItem(br,String(t))}"
+    },
+    {
+      "utf8ByteOffset": 248381,
+      "byteLength": 46,
+      "sha256": "2bf833633900f487b29d4b329886b79b868e9c161e434c5eadf648f85c48e9e3",
+      "text": "setAutoLaunchGame:e=>{Sr(localStorage,e),p(e)}"
+    },
+    {
+      "utf8ByteOffset": 366485,
+      "byteLength": 188,
+      "sha256": "51ff3aa9b6f6a230a22a8134bc286c6ffade2e709ca3661ac2d2a61183dc8ce7",
+      "text": "async function It(e,t){let n=ae(r.selectedProfileId,`flag:${e}`);if(!n)throw Error(`Unknown automation flag: ${e}`);n.edit(t,!1),await n.flush().catch(e=>F(`automation error `+String(e)))}"
+    }
+  ],
+  "classification": "EXACT_BYTES / EXACT_CONTRACT. UI save-busy and optimistic interaction differences require follow-up; native transport compatibility not inferred."
+}

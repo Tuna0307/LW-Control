@@ -1,0 +1,170 @@
+{
+  "scope": "Named offline Home/Map TABLE visual checkpoint only; broader campaign PARTIAL",
+  "hashPolicy": "LF-normalized text, exact JPEG bytes",
+  "files": [
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-OFFLINE-VISUAL-001/README.md",
+      "sha256": "447c3db93bbc75650912a3671aadbe3033201285265ce5a485e804809b77ca35"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-OFFLINE-VISUAL-001/current-inventory.md",
+      "sha256": "7202d2c1351a02d00b4de902a270111a0e3db205ff69231fb28d2ba573c05459"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-OFFLINE-VISUAL-001/home/.gitignore",
+      "sha256": "61110d4d0f97c7a07e66699031047037d49f5d27bb5ded3230306b75dfa9bceb"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-OFFLINE-VISUAL-001/home/browser/comparison-results.json",
+      "sha256": "97c709b2eb74988935db65c91a9e3ca0863b66501ba10009aa1a3eb662fdce48"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-OFFLINE-VISUAL-001/home/browser/en-dark-missing-error-busy-current.jpg",
+      "sha256": "7a6984c822d8c53be245e029e53fbf2c3006944d7203c88f3b8bf71f446112b1"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-OFFLINE-VISUAL-001/home/browser/en-dark-missing-error-busy-original.jpg",
+      "sha256": "7a6984c822d8c53be245e029e53fbf2c3006944d7203c88f3b8bf71f446112b1"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-OFFLINE-VISUAL-001/home/browser/en-light-proxy-busy-running-current.jpg",
+      "sha256": "bfa7d26e99c01cb009a26cd6ace3dcdf64d7c7a23342a68ba3c0ce910ef32035"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-OFFLINE-VISUAL-001/home/browser/en-light-proxy-busy-running-original.jpg",
+      "sha256": "bfa7d26e99c01cb009a26cd6ace3dcdf64d7c7a23342a68ba3c0ce910ef32035"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-OFFLINE-VISUAL-001/home/browser/ja-dark-proxy-busy-repair-current.jpg",
+      "sha256": "aa0c2c898550f67521be0b33f0e81bf705ce22015fafe5b122d248c364c701af"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-OFFLINE-VISUAL-001/home/browser/ja-dark-proxy-busy-repair-original.jpg",
+      "sha256": "aa0c2c898550f67521be0b33f0e81bf705ce22015fafe5b122d248c364c701af"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-OFFLINE-VISUAL-001/home/browser/ja-light-busy-overlap-current.jpg",
+      "sha256": "955e0721995bd33b4c7b21afcb14bcc74a2fb15d77d300664849629624c0d667"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-OFFLINE-VISUAL-001/home/browser/ja-light-busy-overlap-original.jpg",
+      "sha256": "955e0721995bd33b4c7b21afcb14bcc74a2fb15d77d300664849629624c0d667"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-OFFLINE-VISUAL-001/home/browser/measurements.json",
+      "sha256": "e566c2ac15a611078f52b0f83df85c55ffc2515a14fa91a8bf80ab04996faaa5"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-OFFLINE-VISUAL-001/home/build-reference.mjs",
+      "sha256": "c305b86d6a4d5254012d95ae298859ab8da60ce98cdf51ca68d2096506df993d"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-OFFLINE-VISUAL-001/home/preference-counter-evidence.json",
+      "sha256": "e7a3d448750dec4dc3725c0e7c8f703e1a9c3a2a035a7020ca6fb10d6e9ef014"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-OFFLINE-VISUAL-001/home/render-results.json",
+      "sha256": "3f0a3bac408fd9970073336b91b5dfe3260960ee759447d5a74868a155f75ef2"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-OFFLINE-VISUAL-001/independent-review.md",
+      "sha256": "a7df3defcffc3bed8d904803a809b9dc4293f41564ccb6ab44cd0264fcd8729a"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-OFFLINE-VISUAL-001/map/.gitignore",
+      "sha256": "61110d4d0f97c7a07e66699031047037d49f5d27bb5ded3230306b75dfa9bceb"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-OFFLINE-VISUAL-001/map/browser/comparison-results.json",
+      "sha256": "e040cbc2521bec1b3a9bca6a56bb183176c1da0b7ab0c60d693493cf1e92a1de"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-OFFLINE-VISUAL-001/map/browser/console.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-OFFLINE-VISUAL-001/map/browser/en-dark-truck-loading-current.jpg",
+      "sha256": "808ce1747c0a421217093ecdbca2256926f6e57867a09deba5b10dc362e41df3"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-OFFLINE-VISUAL-001/map/browser/en-dark-truck-loading-original.jpg",
+      "sha256": "808ce1747c0a421217093ecdbca2256926f6e57867a09deba5b10dc362e41df3"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-OFFLINE-VISUAL-001/map/browser/en-light-city-populated-current.jpg",
+      "sha256": "db502fa60c843347209c7086ff39f8c79bc4031cdb108828db81137be55b76e9"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-OFFLINE-VISUAL-001/map/browser/en-light-city-populated-original.jpg",
+      "sha256": "db502fa60c843347209c7086ff39f8c79bc4031cdb108828db81137be55b76e9"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-OFFLINE-VISUAL-001/map/browser/ja-dark-treasure-populated-current.jpg",
+      "sha256": "3a55690cfde255b17d9dd2829304c6f5c704ff3761917d178ba798e7f4e1d0cd"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-OFFLINE-VISUAL-001/map/browser/ja-dark-treasure-populated-original.jpg",
+      "sha256": "3a55690cfde255b17d9dd2829304c6f5c704ff3761917d178ba798e7f4e1d0cd"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-OFFLINE-VISUAL-001/map/browser/ja-light-dispatch-populated-current.jpg",
+      "sha256": "c2394b292a7a507a00283ea01792e679b2471540e7dfbf3d1ac16f32fffeb411"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-OFFLINE-VISUAL-001/map/browser/ja-light-dispatch-populated-original.jpg",
+      "sha256": "c2394b292a7a507a00283ea01792e679b2471540e7dfbf3d1ac16f32fffeb411"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-OFFLINE-VISUAL-001/map/browser/measurements.json",
+      "sha256": "a82d3d14db03491002328d23f0a88b7ce03715ec3939f355c73e4244919c860c"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-OFFLINE-VISUAL-001/map/build-reference.mjs",
+      "sha256": "e613a6b7b291e1a4f7e2d9610dee6421594bf111f580792f0e6204f2063fd044"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-OFFLINE-VISUAL-001/map/render-results.json",
+      "sha256": "62f09faabeaf61b1d29e778bc59b554e18c69b0a01f60fc757208ad0afc71462"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-OFFLINE-VISUAL-001/serve-reference.mjs",
+      "sha256": "39dd221f8ce81130f8e33944b20ff12a100e9b131f2b71b290f1b40da85115fc"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/GameAssetImage.jsx",
+      "sha256": "2bfca11136f2495780ea6a2037bd5007f1d7653284849452e430d2a4fa05d379"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/HomePage.jsx",
+      "sha256": "494d75c1c557d32810c76559ada3140bc1d1f7398770b22c11f9fe458b8ae14f"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+      "sha256": "4a5e04d37ec4a450ee9bb5578ad3feb7dcbbcf1fbf35ff5d16d2308312bacef1"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/locales/en.js",
+      "sha256": "357682d9179ae712ee563950467b7a93b5aea89322afc993e079fedee28432c1"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/locales/ja.js",
+      "sha256": "e1fed1e9aaf052963e3d8f5a5f8b9ae96b002a05a9dd7bb06a460a66187755eb"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/mapInteractions.js",
+      "sha256": "fb3eaa59228c7a9034c13690926a90ec3762dc3689788cf96d9cdb8521b465eb"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/mapTablePresentation.js",
+      "sha256": "b6c0d9b369d3e78ccc74aa7296f2b88eabf6b6560c3669a199546fc299839427"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/reference.css",
+      "sha256": "3d87e9f65b39eace6a1a254bfc90a38acb72613d1fff7236c7cee7ab9bfaf545"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/sharedPageUI.jsx",
+      "sha256": "95ed15f5a4ab46c7cae4dd55656e85718f66fa5ac45278b615d1795ebd8e82f2"
+    }
+  ]
+}
