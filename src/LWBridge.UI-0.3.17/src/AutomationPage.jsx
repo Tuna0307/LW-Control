@@ -335,7 +335,7 @@ function AutomationCard({ title, description, previewEnabled, previewState = "",
   const actionLabel = (title === "Trucks" || title === "Secret Task") && runtime.running ? "common.stop" : automationActionLabels[title];
   const toggleLabel = title === "Ghost Ops" ? "automation.ghost.autoStartOwn" : "automation.autoExecute";
   return (
-    <article className="automation-card" data-preview-fixture={previewEnabled ? "automation-config" : "runtime-config-unobserved"}>
+    <article className={`automation-card${enabled ? " is-enabled" : ""}`} data-preview-fixture={previewEnabled ? "automation-config" : "runtime-config-unobserved"}>
       <div className="automation-card-header">
         <div className="automation-card-title-group">
           <h3>{english(title)}</h3>
@@ -397,7 +397,7 @@ function ResourceGatherCard({ previewEnabled, previewState }) {
   };
 
   return (
-    <article className="automation-card" data-preview-fixture={previewEnabled ? "automation-resource-gather" : "runtime-config-unobserved"} data-draft-dirty={config.dirty} data-draft-saving={config.saving}>
+    <article className={`automation-card${enabled ? " is-enabled" : ""}`} data-preview-fixture={previewEnabled ? "automation-resource-gather" : "runtime-config-unobserved"} data-draft-dirty={config.dirty} data-draft-saving={config.saving}>
       <div className="automation-card-header">
         <div className="automation-card-title-group">
           <h3>{t("automation.category.resourceGather")}</h3>
@@ -461,7 +461,7 @@ function TradeStationCard({ previewEnabled, previewState = "" }) {
   return (
     <div className="trade-station-panel" data-preview-fixture={previewEnabled ? `trade:${previewState}` : "runtime-config-unobserved"} data-draft-dirty={config.dirty} data-draft-saving={config.saving}>
       <PreviewConfigError config={config} t={t} />
-      <article className="automation-card">
+      <article className={`automation-card${enabled ? " is-enabled" : ""}`}>
         <div className="automation-card-header">
           <div className="automation-card-title-group">
             <h3>{t("automation.tradeStation.title")}</h3>

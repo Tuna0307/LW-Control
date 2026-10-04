@@ -1,0 +1,208 @@
+﻿[
+  {
+    "offset": 7899,
+    "props": {
+      "title": "`automation.tradeStation.title`",
+      "state": "u.enabled?`common.waiting`:`common.disabled`"
+    }
+  },
+  {
+    "offset": 11076,
+    "props": {
+      "title": "`automation.category.resourceGather`",
+      "state": "f?`common.waiting`:`common.disabled`"
+    }
+  },
+  {
+    "offset": 15385,
+    "props": {
+      "title": "`automation.soldierTraining.title`",
+      "state": "n?.state===`error`?`common.failed`:n?.state===`checking`?`automation.running`:`common.waiting`"
+    }
+  },
+  {
+    "offset": 17857,
+    "props": {
+      "title": "s(`automation.soldierTraining.openCamp`)"
+    }
+  },
+  {
+    "offset": 18220,
+    "props": {
+      "title": "t.lastError||void 0"
+    }
+  },
+  {
+    "offset": 19964,
+    "props": {
+      "title": "r.toLocaleString(t)"
+    }
+  },
+  {
+    "offset": 36580,
+    "props": {
+      "title": "n"
+    }
+  },
+  {
+    "offset": 37231,
+    "props": {
+      "title": "c",
+      "state": "O(r?.lastResult?.state,i.enabled)",
+      "summaryRows": "[[`automation.pendingClaims`,r?.pendingCount],n?[`automation.treasureDispatchPending`,r?.dispatchPendingCount]:[`automation.latestResult`,rt[e]||(r?.lastResult?.state===`success`?`common.success`:r?.lastResult?.state===`failed`?`common.failed`:null)]]"
+    }
+  },
+  {
+    "offset": 43514,
+    "props": {
+      "title": "`automation.weekendShield.title`",
+      "state": "o?`common.waiting`:`common.disabled`",
+      "statusRows": "[[`automation.currentShield`,Q?.shielded?`common.on`:`common.off`],[`automation.shieldEnds`,T(Q?.shieldEndAt,j)],[`automation.weekendWindow`,Q?.inWeekendWindow?`common.yes`:`common.no`],[`automation.weekendWindowLocal`,Q?.weekendStartAt&&Q?.weekendEndAt?`${T(Q.weekendStartAt,j)} – ${T(Q.weekendEndAt,j)}`:`-`]]"
+    }
+  },
+  {
+    "offset": 44056,
+    "props": {
+      "title": "`automation.attackShield.title`",
+      "state": "c?`common.waiting`:`common.disabled`",
+      "statusRows": "[[`automation.currentShield`,Q?.shielded?`common.on`:`common.off`],[`automation.pendingReason`,Q?.pendingReason||`-`]]"
+    }
+  },
+  {
+    "offset": 44773,
+    "props": {
+      "title": "e.title",
+      "state": "O(t?.state,n)",
+      "statusRows": "[[`automation.lastRun`,T(t?.lastRunAt,j)],[`automation.nextRun`,n?E(t?.nextRunAt,j):`-`]]"
+    }
+  },
+  {
+    "offset": 45894,
+    "props": {
+      "title": "`automation.construction.title`",
+      "state": "O(K?.state,An)",
+      "summaryRows": "[[`automation.automaticBuilders`,K?.automaticBuilders==null?null:`${K.automaticBuilders} / ${K.maxBuilders??Mn}`],[`automation.buildersTotal`,K?.occupiedBuilders==null||K.totalBuilders==null?null:`${K.occupiedBuilders} / ${K.totalBuilders}`]]",
+      "statusRows": "[[`automation.currentBuilding`,ln[cn.find(e=>e.itemId===K?.candidate?.itemId)?.nameKey??``]||K?.candidate?.name||K?.candidate?.uuid||`-`],[`automation.currentLevel`,D(K?.candidate?.level)],[`automation.automaticBuilders`,`${D(K?.automaticBuilders??0)} / ${D(K?.maxBuilders??Mn)}`],[`automation.buildersTotal`,`${D(K?.occupiedBuilders??0)} / ${D(K?.totalBuilders??0)}`],[`automation.processed`,D(K?.processed??0)],[`automation.nextCheck`,T(K?.nextRunAt,j)]]"
+    }
+  },
+  {
+    "offset": 49733,
+    "props": {
+      "title": "`automation.stamina.title`",
+      "state": "O(xn?.state,Fn)",
+      "statusRows": "[[`automation.claimedToday`,`${D(xn?.todayCount)} / ${D(xn?.dailyLimit)}`],[`automation.processed`,D(xn?.processed??0)],[`automation.nextClaim`,E(xn?.nextClaimAt??xn?.nextRunAt,j)]]"
+    }
+  },
+  {
+    "offset": 50110,
+    "props": {
+      "title": "`automation.treatment.title`",
+      "state": "O(J?.state,In)",
+      "summaryRows": "[[`automation.wounded`,J?.wounded],[`automation.treating`,J?.treating]]",
+      "statusRows": "[[`automation.wounded`,D(J?.wounded??0)],[`automation.treating`,D(J?.treating??0)],[`automation.treatmentBatches`,D(J?.batchesStarted??0)],[`automation.soldiersQueued`,D(J?.soldiersQueued??0)],[`automation.helpsRequested`,D(J?.helpsRequested??0)],[`automation.collected`,D(J?.collected??0)],[`automation.nextCheck`,T(J?.nextRunAt,j)]]"
+    }
+  },
+  {
+    "offset": 51360,
+    "props": {
+      "title": "`automation.allianceDonate.title`",
+      "state": "O(Sn?.state,zn)",
+      "summaryRows": "[[`automation.remaining`,Sn?.remaining],[`automation.donated`,Sn?.donated]]",
+      "statusRows": "[[`automation.currentTech`,D(Sn?.scienceId)],[`automation.remaining`,D(Sn?.remaining)],[`automation.donated`,D(Sn?.donated??0)],[`automation.nextCheck`,T(Sn?.nextRunAt,j)]]"
+    }
+  },
+  {
+    "offset": 52291,
+    "props": {
+      "title": "`automation.officialPosition.title`",
+      "state": "O(Cn?.state,Bn)",
+      "statusRows": "[[`automation.targetPosition`,D(Cn?.positionId||Vn)],[`automation.currentPosition`,D(Cn?.currentPositionId)],[`automation.applicationQueue`,D(Cn?.applyQueueLength??0)],[`automation.nextCheck`,T(Cn?.nextRunAt,j)]]"
+    }
+  },
+  {
+    "offset": 53292,
+    "props": {
+      "title": "`automation.allianceTrainRide.title`",
+      "state": "O(Y?.state,Un)",
+      "summaryRows": "[[`automation.currentCarriage`,Y?.currentCarriage],[`automation.queueCapacity`,Y?.queueLength==null||Y.maxPassenger==null?null:`${Y.queueLength} / ${Y.maxPassenger}`]]",
+      "statusRows": "[[`automation.currentCarriage`,D(Y?.currentCarriage)],[`automation.queueCapacity`,`${D(Y?.queueLength??0)} / ${D(Y?.maxPassenger)}`],[`automation.currentReward`,D(Y?.currentReward)],[`automation.trainVipStatus`,Y?.isVip?M(`common.yes`):M(`common.no`)],[`automation.trainVipCarriages`,Y?.vipCarriages?.join(`, `)||`—`],[`automation.nextCheck`,T(Y?.nextRunAt,j)]]"
+    }
+  },
+  {
+    "offset": 57067,
+    "props": {
+      "title": "M(`automation.moveUp`)"
+    }
+  },
+  {
+    "offset": 57248,
+    "props": {
+      "title": "M(`automation.moveDown`)"
+    }
+  },
+  {
+    "offset": 60395,
+    "props": {
+      "title": "`automation.allianceHelp.title`",
+      "state": "O(wn?.state,er)",
+      "statusRows": "[[`automation.available`,D(wn?.available??0)],[`automation.processed`,D(wn?.processed??0)],[`automation.lastRun`,T(wn?.lastRunAt,j)],[`automation.nextRun`,er?E(wn?.nextRunAt,j):`-`]]"
+    }
+  },
+  {
+    "offset": 60883,
+    "props": {
+      "title": "`automation.allianceGift.title`",
+      "state": "O(Tn?.state,tr)",
+      "statusRows": "[[`automation.normalClaimed`,D(Tn?.normalClaimed??0)],[`automation.advancedClaimed`,D(Tn?.advancedClaimed??0)],[`automation.lastRun`,T(Tn?.lastRunAt,j)],[`automation.nextRun`,tr?E(Tn?.nextRunAt,j):`-`]]"
+    }
+  },
+  {
+    "offset": 61901,
+    "props": {
+      "title": "`automation.strongholdResource.title`",
+      "state": "O(En?.state,nr)",
+      "statusRows": "[[`automation.available`,D(En?.available??0)],[`automation.claimed`,D(En?.claimed??0)],[`automation.lastRun`,T(En?.lastRunAt,j)],[`automation.nextRun`,nr?E(En?.nextRunAt,j):`-`]]"
+    }
+  },
+  {
+    "offset": 62955,
+    "props": {
+      "title": "`automation.allianceCenterResource.title`",
+      "state": "O(Dn?.state,rr)",
+      "statusRows": "[[`automation.available`,D(Dn?.available??0)],[`automation.claimed`,D(Dn?.claimed??0)],[`automation.lastRun`,T(Dn?.lastRunAt,j)],[`automation.nextRun`,rr?E(Dn?.nextRunAt,j):`-`]]"
+    }
+  },
+  {
+    "offset": 64050,
+    "props": {
+      "title": "`automation.allianceGather.title`",
+      "state": "O(On?.state,ir)"
+    }
+  },
+  {
+    "offset": 66545,
+    "props": {
+      "title": "`automation.railway.title`",
+      "state": "O(X?.state,cr)",
+      "summaryRows": "[[`automation.departed`,X?.departed],[`automation.pendingClaims`,X?.pendingClaims]]",
+      "statusRows": "[[`automation.nextRun`,cr?E(X?.nextScheduledAt,j):`-`],[`automation.qualifiedTotal`,`${D(X?.qualified??0)} / ${D(X?.total??0)}`],[`automation.refreshed`,D(X?.refreshed??0)],[`automation.departed`,D(X?.departed??0)],[`automation.claimed`,D(X?.claimed??0)],[`automation.pendingClaims`,D(X?.pendingClaims??0)],[`automation.nextClaim`,E(X?.nextContinuationAt,j)],[`automation.batchDeparture`,Ce(X?.capabilities?.batchDeparture,`common.degraded`)]]"
+    }
+  },
+  {
+    "offset": 68569,
+    "props": {
+      "title": "`automation.secretTask.title`",
+      "state": "O(Z?.state,fr)",
+      "summaryRows": "[[`automation.dispatched`,Z?.dispatched],[`automation.pendingClaims`,Z?.pendingClaims]]",
+      "statusRows": "[[`automation.nextRun`,fr?E(Z?.nextScheduledAt,j):`-`],[`automation.qualifiedTotal`,`${D(Z?.qualified??Fr?.qualified??0)} / ${D(Z?.available??Fr?.available??0)}`],[`automation.dispatched`,D(Z?.dispatched??0)],[`automation.refreshed`,D(Z?.refreshed??0)],[`automation.claimed`,D(Z?.claimed??0)],[`automation.pendingClaims`,D(Z?.pendingClaims??0)],[`automation.nextClaim`,E(Z?.nextContinuationAt,j)],[`automation.superRefresh`,Ce(Z?.capabilities?.superRefresh,`automation.normalRefresh`)]]"
+    }
+  },
+  {
+    "offset": 73771,
+    "props": {
+      "title": "`automation.ghost.title`",
+      "state": "O(kn?.state,_r)",
+      "statusRows": "[[`automation.nextClaim`,hr?E(kn?.nextClaimAt,j):`-`]]"
+    }
+  }
+]

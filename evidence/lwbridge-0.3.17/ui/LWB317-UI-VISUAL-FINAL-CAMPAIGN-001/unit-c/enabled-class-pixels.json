@@ -1,0 +1,49 @@
+{
+  "result": "LWB317_VISUAL_FINAL_UNIT_C_ENABLED_CLASS_PIXELS_OK",
+  "cases": [
+    {
+      "id": "generic-auto-training",
+      "size": [
+        386,
+        148
+      ],
+      "changedPixels": 1484,
+      "diffBox": [
+        0,
+        0,
+        386,
+        148
+      ]
+    },
+    {
+      "id": "resource-gather",
+      "size": [
+        386,
+        428
+      ],
+      "changedPixels": 2044,
+      "diffBox": [
+        0,
+        0,
+        386,
+        428
+      ]
+    },
+    {
+      "id": "trade-station",
+      "size": [
+        1178,
+        470
+      ],
+      "changedPixels": 3336,
+      "diffBox": [
+        0,
+        0,
+        1178,
+        470
+      ]
+    }
+  ],
+  "caseCount": 3,
+  "allMutationsDetected": true
+}

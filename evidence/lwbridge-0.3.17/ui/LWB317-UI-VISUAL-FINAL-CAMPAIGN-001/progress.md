@@ -4,8 +4,8 @@
 | --- | --- | --- | --- |
 | A | Treasure label defect + validation hardening | COMPLETE | `unit-a/` |
 | B | Remaining Map + Scheduled Plunder | COMPLETE | `unit-b/` |
-| C | Automation | IN PROGRESS NEXT | `unit-c/` |
-| D | Squads / AFK / Garrison / Profile / Equipment | PENDING | `unit-d/` |
+| C | Automation | COMPLETE | `unit-c/` |
+| D | Squads / AFK / Garrison / Profile / Equipment | IN PROGRESS NEXT | `unit-d/` |
 | E | City Layout | PENDING | `unit-e/` |
 | F | Hotkeys | PENDING | `unit-f/` |
 | G | Mini Games | PENDING | `unit-g/` |

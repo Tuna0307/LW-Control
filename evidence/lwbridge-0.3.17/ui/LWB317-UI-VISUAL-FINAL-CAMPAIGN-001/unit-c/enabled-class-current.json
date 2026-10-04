@@ -1,0 +1,124 @@
+{
+  "task": "LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-c",
+  "result": "LWB317_VISUAL_FINAL_UNIT_C_ENABLED_CLASS_FIXED",
+  "css": {
+    "recoveredSha256": "3d87e9f65b39eace6a1a254bfc90a38acb72613d1fff7236c7cee7ab9bfaf545",
+    "currentSha256": "3d87e9f65b39eace6a1a254bfc90a38acb72613d1fff7236c7cee7ab9bfaf545",
+    "rule": ".automation-card.is-enabled{border-color:var(--line-bright);box-shadow:var(--shadow-card), 0 0 0 1px var(--info-line)}"
+  },
+  "cases": [
+    {
+      "id": "generic-auto-training",
+      "style": {
+        "className": "automation-card is-enabled",
+        "borderColor": "rgb(209, 209, 214)",
+        "boxShadow": "rgba(0, 0, 0, 0.04) 0px 2px 8px 0px, rgba(0, 0, 0, 0.02) 0px 1px 2px 0px, rgb(196, 222, 249) 0px 0px 0px 1px"
+      },
+      "mutationStyle": {
+        "className": "automation-card",
+        "borderColor": "rgb(229, 229, 234)",
+        "boxShadow": "rgba(0, 0, 0, 0.04) 0px 2px 8px 0px, rgba(0, 0, 0, 0.02) 0px 1px 2px 0px"
+      },
+      "screenshot": {
+        "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-c/enabled-class-current/generic-auto-training.png",
+        "sha256": "815881c35eba1d7945e54965066ca8f18a773e517617345ad9f9bbfcc340fdb3"
+      },
+      "mutationScreenshot": {
+        "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-c/enabled-class-current/generic-auto-training-without-enabled-class.png",
+        "sha256": "0cf1503c8e6dab67def6003439b93aa440727dc3cba150cfa98ebf81efb31a60"
+      },
+      "immutableBaselineCurrentSha256": "a9232f80aa3501939cf02fe3e50b3124ae7ad80cbd77c252fc7d63f32a12377b"
+    },
+    {
+      "id": "resource-gather",
+      "style": {
+        "className": "automation-card is-enabled",
+        "borderColor": "rgb(209, 209, 214)",
+        "boxShadow": "rgba(0, 0, 0, 0.04) 0px 2px 8px 0px, rgba(0, 0, 0, 0.02) 0px 1px 2px 0px, rgb(196, 222, 249) 0px 0px 0px 1px"
+      },
+      "mutationStyle": {
+        "className": "automation-card",
+        "borderColor": "rgb(229, 229, 234)",
+        "boxShadow": "rgba(0, 0, 0, 0.04) 0px 2px 8px 0px, rgba(0, 0, 0, 0.02) 0px 1px 2px 0px"
+      },
+      "screenshot": {
+        "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-c/enabled-class-current/resource-gather.png",
+        "sha256": "ea53631a5a5c3fcb811fdf7af05a600d1e2c6c3781451ef6605b2191369306bb"
+      },
+      "mutationScreenshot": {
+        "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-c/enabled-class-current/resource-gather-without-enabled-class.png",
+        "sha256": "65a4656ed7dbb8fd030eead80deb190a9b0962736a12c00193f3e72f981468dc"
+      },
+      "immutableBaselineCurrentSha256": "65a4656ed7dbb8fd030eead80deb190a9b0962736a12c00193f3e72f981468dc"
+    },
+    {
+      "id": "trade-station",
+      "style": {
+        "className": "automation-card is-enabled",
+        "borderColor": "rgb(209, 209, 214)",
+        "boxShadow": "rgba(0, 0, 0, 0.04) 0px 2px 8px 0px, rgba(0, 0, 0, 0.02) 0px 1px 2px 0px, rgb(196, 222, 249) 0px 0px 0px 1px"
+      },
+      "mutationStyle": {
+        "className": "automation-card",
+        "borderColor": "rgb(229, 229, 234)",
+        "boxShadow": "rgba(0, 0, 0, 0.04) 0px 2px 8px 0px, rgba(0, 0, 0, 0.02) 0px 1px 2px 0px"
+      },
+      "screenshot": {
+        "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-c/enabled-class-current/trade-station.png",
+        "sha256": "edc361de8d53a128b1925843d293b8129a6cd02982d3e4aebedd0474387bf009"
+      },
+      "mutationScreenshot": {
+        "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-c/enabled-class-current/trade-station-without-enabled-class.png",
+        "sha256": "59178acf1fbe347a0aa952d07fed58e1cc0ff4287eff9d39c00fede49330b191"
+      },
+      "immutableBaselineCurrentSha256": "d989eb27029f35c63ff44d6ac49c70fe4815f878e05fc3af59206739d6ef16b3"
+    }
+  ],
+  "console": [
+    {
+      "state": "automation-config",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "state": "automation-config",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "state": "automation-config",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "state": "automation-gather-runtime_wait",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "state": "automation-gather-runtime_wait",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "state": "automation-gather-runtime_wait",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "state": "automation-trade-positive",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "state": "automation-trade-positive",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "state": "automation-trade-positive",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    }
+  ]
+}
