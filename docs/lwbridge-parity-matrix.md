@@ -1,5 +1,13 @@
 # LWBridge 0.3.17 parity matrix
 
+Worker campaign progress, 2026-10-04: VISUAL-FINAL-CAMPAIGN-001 Unit A is
+worker-complete and the campaign continues to Unit B. The reviewed Treasure label
+defect is corrected with direct text; fresh EN/JA light/dark descendant-style proof
+and the independent pixel mask report zero pixels outside accepted unavailable-action
+fences. The preserved submitted-defect control still detects exactly 1,734 pixels.
+Eight Dispatch/Ghost message-state browser pairs are pixel-identical and mounted
+Map interactions pass 34/34. Project-lead/global/native status is unchanged.
+
 Lead audit, 2026-10-04: MAP-TOOLBAR-VISUAL-001 CHANGES_REQUIRED. Source-backed
 ancestry/count/class fixes verified, but Treasure extra spans produce wrong text
 color/1,734 non-fence pixels. Current source/local gate unaccepted pending R1 and

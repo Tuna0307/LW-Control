@@ -1,5 +1,14 @@
 # Current implementation/research handoff
 
+Current campaign continuation, 2026-10-04: VISUAL-FINAL-CAMPAIGN-001 Unit A is
+worker-complete. The two reviewed Treasure label spans were removed with callbacks
+and page-reset semantics preserved. Fresh 46-state recovered/current renderer proof,
+four EN/JA light/dark Treasure browser pairs, independent zero-outside-fence pixels,
+the exact 1,734-pixel historical mutation control, eight exact Dispatch/Ghost
+message-state pairs, mounted34/34, production package, and preserved-WIP checks pass.
+Continue immediately with Unit B; owner port4335 remains untouched. Project-lead
+acceptance and native/gameplay/global pixel status remain separate.
+
 Lead pending-work closeout, 2026-10-04: long-standing local WIP reviewed and all
 ten bodies archived exactly in LWB317-PENDING-WIP-CLOSEOUT-001. Redundant AFK
 base flags and generated stale R1 hash restored; vendor notices retained/committed;

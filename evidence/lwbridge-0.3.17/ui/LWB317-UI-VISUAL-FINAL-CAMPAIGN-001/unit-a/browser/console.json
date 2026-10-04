@@ -1,0 +1,42 @@
+[
+  {
+    "pairId": "treasure-en-light-desktop",
+    "side": "original",
+    "issues": []
+  },
+  {
+    "pairId": "treasure-en-light-desktop",
+    "side": "current",
+    "issues": []
+  },
+  {
+    "pairId": "treasure-en-dark-desktop",
+    "side": "original",
+    "issues": []
+  },
+  {
+    "pairId": "treasure-en-dark-desktop",
+    "side": "current",
+    "issues": []
+  },
+  {
+    "pairId": "treasure-ja-light-375",
+    "side": "original",
+    "issues": []
+  },
+  {
+    "pairId": "treasure-ja-light-375",
+    "side": "current",
+    "issues": []
+  },
+  {
+    "pairId": "treasure-ja-dark-desktop",
+    "side": "original",
+    "issues": []
+  },
+  {
+    "pairId": "treasure-ja-dark-desktop",
+    "side": "current",
+    "issues": []
+  }
+]

@@ -1,0 +1,226 @@
+{
+  "task": "LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a",
+  "milestone": "C",
+  "marker": "LWB317_VISUAL_FINAL_UNIT_A_BROWSER_PAIRS_R1",
+  "generatedAt": "2026-10-04",
+  "scope": "Scoped .map-search renderer output inside real .main-view > .panel.map-panel ancestry. Table/job-table bodies remain omitted by assignment scope; normal pagination retains its actual direct .map-search ancestry.",
+  "fixedEnvironment": {
+    "timezone": "Asia/Singapore",
+    "deviceScaleFactor": 1,
+    "cssOrder": [
+      "src/LWBridge.UI-0.3.17/src/reference.css",
+      "src/LWBridge.UI-0.3.17/src/styles.css"
+    ],
+    "combinedCssSha256": "8d908848f130c72e22c87626821d3f89322571b3bf75606d776e0cb2506240f1"
+  },
+  "production": {
+    "mapDataPage": {
+      "path": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+      "sha256": "46c6defd2a5d7af7a50e9587486eaede68f9020573f2ed8efe9c38287eef66df"
+    },
+    "referenceCss": {
+      "path": "src/LWBridge.UI-0.3.17/src/reference.css",
+      "sha256": "3d87e9f65b39eace6a1a254bfc90a38acb72613d1fff7236c7cee7ab9bfaf545"
+    },
+    "stylesCss": {
+      "path": "src/LWBridge.UI-0.3.17/src/styles.css",
+      "sha256": "b50910d37a4dd02d7bb49b506735ea42615ef0f9e85714e880049481aece2ccc"
+    }
+  },
+  "parentEvidence": {
+    "currentResults": {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/current-results.json",
+      "sha256": "e225ba15160b693c4f3bfeac66654f2b90fc8d0b308bdb6c8027154344c2e271"
+    },
+    "currentManifest": {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/current-manifest.json",
+      "sha256": "d1fa5a5c6f5f0a6f4daa85793d40365f9475291034a1a1149b5cf2444ba827f9"
+    },
+    "correctionResults": {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/correction-results.json",
+      "sha256": "e63fb2f851fdbcf767ef4088213f22cabb41f436693c9faeebffb4a088999a48"
+    }
+  },
+  "pairs": [
+    {
+      "id": "treasure-en-light-desktop",
+      "source": "en-configured-treasure",
+      "language": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 720,
+      "tab": "treasure",
+      "viewport": {
+        "width": 1280,
+        "height": 720,
+        "deviceScaleFactor": 1
+      },
+      "sourceFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/raw/en-configured-treasure-original.html",
+          "sha256": "caaac9fd3c7db53f7aee1f5a0b9adde63814916b54f8ff7ad876a7d728884962"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/raw/en-configured-treasure-current.html",
+          "sha256": "ac061979b4ef1340c389b02f0976c0d83258ade6dda2364b29559e79556ec2d7"
+        }
+      },
+      "rawFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/raw/treasure-en-light-desktop-original.html",
+          "sha256": "06bdd8167494d34d0aa2e27080c87ab24897ff760ea4cabb8c0502dfafccbb50"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/raw/treasure-en-light-desktop-current.html",
+          "sha256": "d58c7f8d717c49d6bbfd8426a5e0b0afe9996b07956f8603392f2709749e11f1"
+        }
+      },
+      "generatedFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/generated/treasure-en-light-desktop-original.html",
+          "sha256": "be2e2a18745beb7efbdc0c82f3bdd6fd7ff0261bbf0ab81dc733d4c47c152110"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/generated/treasure-en-light-desktop-current.html",
+          "sha256": "ebd0bd0a13f6a8f3a7d2bc92fde082a68a8b04947ddf63695d20f7b96c5834c1"
+        }
+      },
+      "rawExact": false
+    },
+    {
+      "id": "treasure-en-dark-desktop",
+      "source": "en-configured-treasure",
+      "language": "en",
+      "theme": "dark",
+      "width": 1280,
+      "height": 720,
+      "tab": "treasure",
+      "viewport": {
+        "width": 1280,
+        "height": 720,
+        "deviceScaleFactor": 1
+      },
+      "sourceFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/raw/en-configured-treasure-original.html",
+          "sha256": "caaac9fd3c7db53f7aee1f5a0b9adde63814916b54f8ff7ad876a7d728884962"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/raw/en-configured-treasure-current.html",
+          "sha256": "ac061979b4ef1340c389b02f0976c0d83258ade6dda2364b29559e79556ec2d7"
+        }
+      },
+      "rawFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/raw/treasure-en-dark-desktop-original.html",
+          "sha256": "06bdd8167494d34d0aa2e27080c87ab24897ff760ea4cabb8c0502dfafccbb50"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/raw/treasure-en-dark-desktop-current.html",
+          "sha256": "d58c7f8d717c49d6bbfd8426a5e0b0afe9996b07956f8603392f2709749e11f1"
+        }
+      },
+      "generatedFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/generated/treasure-en-dark-desktop-original.html",
+          "sha256": "031e11bda63c0b443640f1b1a2924aceb64adb25ae18c5cc5074a57f3688eabd"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/generated/treasure-en-dark-desktop-current.html",
+          "sha256": "934cfbb6fcba9a5ef3c63900a4d9e24f82d7193efa0d2f02c5299efd62a16b08"
+        }
+      },
+      "rawExact": false
+    },
+    {
+      "id": "treasure-ja-light-375",
+      "source": "ja-configured-treasure",
+      "language": "ja",
+      "theme": "light",
+      "width": 375,
+      "height": 1000,
+      "tab": "treasure",
+      "viewport": {
+        "width": 375,
+        "height": 1000,
+        "deviceScaleFactor": 1
+      },
+      "sourceFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/raw/ja-configured-treasure-original.html",
+          "sha256": "7789a04c83482ce5f48f2cfad780eba61f5835518d507676f9ce71e9defcd5eb"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/raw/ja-configured-treasure-current.html",
+          "sha256": "a3e6089209b6d680a73bc9079d9215497e5a139698f81b98cd1af0b7e7432559"
+        }
+      },
+      "rawFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/raw/treasure-ja-light-375-original.html",
+          "sha256": "5e4d5fcdf18e8db0792dfdea8ed8fdae3b1f671f4f24aa8f081fda062723b946"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/raw/treasure-ja-light-375-current.html",
+          "sha256": "a2b6f8df4b25b154f92ca13e44c9c0a8229b3bbd46deda1b3bd01645af21dc5f"
+        }
+      },
+      "generatedFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/generated/treasure-ja-light-375-original.html",
+          "sha256": "73977391f4f5cf305a1b8ba7efca99297345c15e81d94156ad8e2196ff8eb563"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/generated/treasure-ja-light-375-current.html",
+          "sha256": "8e3a328e8ab711d3853a7b455914573ae268dae229b43a0db8b02e2bb99ffe7b"
+        }
+      },
+      "rawExact": false
+    },
+    {
+      "id": "treasure-ja-dark-desktop",
+      "source": "ja-configured-treasure",
+      "language": "ja",
+      "theme": "dark",
+      "width": 1280,
+      "height": 720,
+      "tab": "treasure",
+      "viewport": {
+        "width": 1280,
+        "height": 720,
+        "deviceScaleFactor": 1
+      },
+      "sourceFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/raw/ja-configured-treasure-original.html",
+          "sha256": "7789a04c83482ce5f48f2cfad780eba61f5835518d507676f9ce71e9defcd5eb"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/raw/ja-configured-treasure-current.html",
+          "sha256": "a3e6089209b6d680a73bc9079d9215497e5a139698f81b98cd1af0b7e7432559"
+        }
+      },
+      "rawFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/raw/treasure-ja-dark-desktop-original.html",
+          "sha256": "5e4d5fcdf18e8db0792dfdea8ed8fdae3b1f671f4f24aa8f081fda062723b946"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/raw/treasure-ja-dark-desktop-current.html",
+          "sha256": "a2b6f8df4b25b154f92ca13e44c9c0a8229b3bbd46deda1b3bd01645af21dc5f"
+        }
+      },
+      "generatedFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/generated/treasure-ja-dark-desktop-original.html",
+          "sha256": "35242df9fe628f34d6ffeadef44f74bbf065a8e32c098c0d8e346f7a03ca2563"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/generated/treasure-ja-dark-desktop-current.html",
+          "sha256": "6a6cb08622fe80f3bf9de3bb02711b32fa3da790e06908f0e10b0a76f3ba3b9c"
+        }
+      },
+      "rawExact": false
+    }
+  ]
+}

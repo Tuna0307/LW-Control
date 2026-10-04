@@ -1,0 +1,15 @@
+{
+  "task": "LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a",
+  "marker": "LWB317_VISUAL_FINAL_UNIT_A_VALIDATED",
+  "source": {
+    "path": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+    "sha256": "46c6defd2a5d7af7a50e9587486eaede68f9020573f2ed8efe9c38287eef66df"
+  },
+  "rendererCases": 46,
+  "treasureBrowserPairs": 4,
+  "outsideFencePixels": 0,
+  "mutationOutsideFencePixels": 1734,
+  "actionMessagePairs": 8,
+  "exactActionMessagePixelPairs": 8,
+  "mountedCases": 34
+}

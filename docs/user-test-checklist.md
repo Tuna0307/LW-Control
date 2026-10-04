@@ -1,5 +1,9 @@
 # Owner test checklist — strict parity phase
 
+**Campaign note, 2026-10-04:** VISUAL-FINAL-CAMPAIGN-001 Unit A is source/local
+worker-complete. No owner/native test is requested for this unit; the worker campaign
+continues with remaining visual units before final lead review.
+
 **Current through:** `LWB-R8-097`, 2026-09-27.
 
 There is no broad owner retest requested right now.

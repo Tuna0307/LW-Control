@@ -1,0 +1,90 @@
+{
+  "task": "LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a",
+  "marker": "LWB317_VISUAL_FINAL_UNIT_A_DEPENDENCIES",
+  "generatedAt": "2026-10-04",
+  "toolchain": {
+    "node": "v24.18.0",
+    "npm": "11.16.0",
+    "python": "3.12.10",
+    "pillow": "12.3.0",
+    "chrome": "154.0.8037.95",
+    "timezone": "Asia/Singapore",
+    "browserDeviceScaleFactor": 1
+  },
+  "referenceExecutable": {
+    "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW/lwbridge-0.3.17.exe",
+    "sha256": "4e9c3113dedfd7e1a752404c6936aab304e67d7ffdb0952a5003c2ec948d6783"
+  },
+  "files": [
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-REVIEW-MAP-TOOLBAR-VISUAL-001/check-pixel-fences.py",
+      "sha256": "1620f1ee395c74df96b0da108faee8f13724c8280cab89e8f5899e2a1f1c49e2",
+      "bytes": 3772
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-INTERACTIONS-001/harness.mjs",
+      "sha256": "527110b2d655fb5bc4c383d675e807af4559ba50339398cd068da4c112db91db",
+      "bytes": 16869
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-INTERACTIONS-001/original/common.mjs",
+      "sha256": "97038e05993ffc60190dcb3476cdd408205a7543896ea1bce5ecdbfa5aeef371",
+      "bytes": 3657
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-INTERACTIONS-001/original/lib.mjs",
+      "sha256": "23f65e2dfb5e5eab27980ee1be672f1997a994aa7b327a74d31216ae7062d216",
+      "bytes": 8122
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-INTERACTIONS-001/original/semantics.mjs",
+      "sha256": "239104975b9eba0b77a2082f3f0eb056e03a8dc14e71c1e34d7352b968378878",
+      "bytes": 8177
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js",
+      "sha256": "ce74345518be72e417a510b982c591729e5683f69751e190805598c4c05d3089",
+      "bytes": 57600
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-BVfnK1wp.js",
+      "sha256": "44c4e4043825b7db296b64171951b27176f8850ff8d7d337cc991df4765524c6",
+      "bytes": 377972
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/en-BisSXcTB.js",
+      "sha256": "0bf43d180eb93692a93b830b5d984e9d01ddeea524340f2334fc63cba527a731",
+      "bytes": 72319
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/ja-UrbzJu-m.js",
+      "sha256": "35969183ab623b6701bc850fdf28bcf268c93127ff6c9693f77e588ee7bdbe38",
+      "bytes": 77547
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+      "sha256": "46c6defd2a5d7af7a50e9587486eaede68f9020573f2ed8efe9c38287eef66df",
+      "bytes": 61517
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/reference.css",
+      "sha256": "3d87e9f65b39eace6a1a254bfc90a38acb72613d1fff7236c7cee7ab9bfaf545",
+      "bytes": 126217
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/styles.css",
+      "sha256": "b50910d37a4dd02d7bb49b506735ea42615ef0f9e85714e880049481aece2ccc",
+      "bytes": 149
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/locales/en.js",
+      "sha256": "357682d9179ae712ee563950467b7a93b5aea89322afc993e079fedee28432c1",
+      "bytes": 80868
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/locales/ja.js",
+      "sha256": "e1fed1e9aaf052963e3d8f5a5f8b9ae96b002a05a9dd7bb06a460a66187755eb",
+      "bytes": 92959
+    }
+  ]
+}

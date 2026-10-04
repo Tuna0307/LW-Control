@@ -1,5 +1,13 @@
 # LWBridge 0.3.17 feature ledger
 
+Worker campaign progress, 2026-10-04: VISUAL-FINAL-CAMPAIGN-001 Unit A corrected
+the reviewed Treasure label-color defect. Fresh source-rendered and browser evidence
+shows recovered/current Treasure descendant text color and geometry equal in EN/JA
+light/dark, with zero pixels outside the two accepted unavailable-action fences.
+The historical mutation control re-detects the exact 1,734-pixel defect; eight
+Dispatch/Ghost empty/populated message pairs are pixel-identical; mounted QA is
+34/34. Campaign proceeds to Unit B; lead/global/native acceptance is unchanged.
+
 Lead finding, 2026-10-04: toolbar source fixes are verified, but Treasure labels
 at MapDataPage1127/1128 wrap direct original text in spans, triggering muted color.
 Independent PNG proof1,734 pixels outside claim-button fences. Toolbar gate remains

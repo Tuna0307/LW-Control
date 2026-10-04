@@ -1,0 +1,82 @@
+[
+  {
+    "pairId": "dispatch-empty-en-light",
+    "side": "original",
+    "issues": []
+  },
+  {
+    "pairId": "dispatch-empty-en-light",
+    "side": "current",
+    "issues": []
+  },
+  {
+    "pairId": "dispatch-populated-en-light",
+    "side": "original",
+    "issues": []
+  },
+  {
+    "pairId": "dispatch-populated-en-light",
+    "side": "current",
+    "issues": []
+  },
+  {
+    "pairId": "ghost-empty-en-light",
+    "side": "original",
+    "issues": []
+  },
+  {
+    "pairId": "ghost-empty-en-light",
+    "side": "current",
+    "issues": []
+  },
+  {
+    "pairId": "ghost-populated-en-light",
+    "side": "original",
+    "issues": []
+  },
+  {
+    "pairId": "ghost-populated-en-light",
+    "side": "current",
+    "issues": []
+  },
+  {
+    "pairId": "dispatch-empty-ja-dark",
+    "side": "original",
+    "issues": []
+  },
+  {
+    "pairId": "dispatch-empty-ja-dark",
+    "side": "current",
+    "issues": []
+  },
+  {
+    "pairId": "dispatch-populated-ja-dark",
+    "side": "original",
+    "issues": []
+  },
+  {
+    "pairId": "dispatch-populated-ja-dark",
+    "side": "current",
+    "issues": []
+  },
+  {
+    "pairId": "ghost-empty-ja-dark",
+    "side": "original",
+    "issues": []
+  },
+  {
+    "pairId": "ghost-empty-ja-dark",
+    "side": "current",
+    "issues": []
+  },
+  {
+    "pairId": "ghost-populated-ja-dark",
+    "side": "original",
+    "issues": []
+  },
+  {
+    "pairId": "ghost-populated-ja-dark",
+    "side": "current",
+    "issues": []
+  }
+]

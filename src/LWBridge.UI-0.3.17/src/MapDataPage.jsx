@@ -1124,8 +1124,8 @@ export function MapDataPage({
             {tab === "treasure" ? (
               <>
                 <MapTreasureTypeFilter items={options?.treasureTypes || []} value={treasureType} gameTexts={gameTexts} onChange={(value) => { setTreasureType(value); setPage(1); }} />
-                <label className="map-filter-field"><input type="checkbox" checked={includeForeignRadarTreasures} onChange={(event) => { setIncludeForeignRadarTreasures(event.target.checked); setPage(1); }} /><span>{t("map.showForeignRadarTreasures")}</span></label>
-                <label className="map-filter-field"><input type="checkbox" checked={luckyFirst} onChange={(event) => { setLuckyFirst(event.target.checked); setPage(1); }} /><span>{t("map.prioritizeLuckyTreasures")}</span></label>
+                <label className="map-filter-field"><input type="checkbox" checked={includeForeignRadarTreasures} onChange={(event) => { setIncludeForeignRadarTreasures(event.target.checked); setPage(1); }} />{t("map.showForeignRadarTreasures")}</label>
+                <label className="map-filter-field"><input type="checkbox" checked={luckyFirst} onChange={(event) => { setLuckyFirst(event.target.checked); setPage(1); }} />{t("map.prioritizeLuckyTreasures")}</label>
               </>
             ) : null}
             {["truck", "railway", "dispatch", "ghost"].includes(tab) ? (

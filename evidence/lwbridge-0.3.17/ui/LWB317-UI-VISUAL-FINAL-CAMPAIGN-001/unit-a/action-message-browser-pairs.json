@@ -1,0 +1,402 @@
+{
+  "task": "LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a",
+  "milestone": "C",
+  "marker": "LWB317_VISUAL_FINAL_UNIT_A_ACTION_MESSAGE_BROWSER_PAIRS",
+  "generatedAt": "2026-10-04",
+  "scope": "Recovered/current Dispatch and Ghost .map-search render states with empty/populated action messages. Message state is injected only through disclosed harness state/preview initialization; no action handler executes.",
+  "fixedEnvironment": {
+    "timezone": "Asia/Singapore",
+    "deviceScaleFactor": 1,
+    "cssOrder": [
+      "src/LWBridge.UI-0.3.17/src/reference.css",
+      "src/LWBridge.UI-0.3.17/src/styles.css"
+    ],
+    "combinedCssSha256": "8d908848f130c72e22c87626821d3f89322571b3bf75606d776e0cb2506240f1"
+  },
+  "production": {
+    "mapDataPage": {
+      "path": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+      "sha256": "46c6defd2a5d7af7a50e9587486eaede68f9020573f2ed8efe9c38287eef66df"
+    },
+    "referenceCss": {
+      "path": "src/LWBridge.UI-0.3.17/src/reference.css",
+      "sha256": "3d87e9f65b39eace6a1a254bfc90a38acb72613d1fff7236c7cee7ab9bfaf545"
+    },
+    "stylesCss": {
+      "path": "src/LWBridge.UI-0.3.17/src/styles.css",
+      "sha256": "b50910d37a4dd02d7bb49b506735ea42615ef0f9e85714e880049481aece2ccc"
+    }
+  },
+  "parentEvidence": {
+    "currentResults": {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/action-messages/current-results.json",
+      "sha256": "357a5607e39712bd40360610252dad281de319aad6669e3b7e9eb1cb532a9233"
+    },
+    "currentManifest": {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/action-messages/current-manifest.json",
+      "sha256": "d1fa5a5c6f5f0a6f4daa85793d40365f9475291034a1a1149b5cf2444ba827f9"
+    }
+  },
+  "pairs": [
+    {
+      "id": "dispatch-empty-en-light",
+      "source": "en-dispatch-empty",
+      "language": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 720,
+      "tab": "dispatch",
+      "viewport": {
+        "width": 1280,
+        "height": 720,
+        "deviceScaleFactor": 1
+      },
+      "sourceFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/action-messages/raw/en-dispatch-empty-original.html",
+          "sha256": "d6f2f71da53f9c4f71a5150f184e3bfe97a5dc275bf426a8da6000432f9702f6"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/action-messages/raw/en-dispatch-empty-current.html",
+          "sha256": "448e2641bd0aea5ea34b4653f629bf2fa830139046d45e2c704ea71158a221e5"
+        }
+      },
+      "rawFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/action-message-browser/raw/dispatch-empty-en-light-original.html",
+          "sha256": "d6f2f71da53f9c4f71a5150f184e3bfe97a5dc275bf426a8da6000432f9702f6"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/action-message-browser/raw/dispatch-empty-en-light-current.html",
+          "sha256": "448e2641bd0aea5ea34b4653f629bf2fa830139046d45e2c704ea71158a221e5"
+        }
+      },
+      "generatedFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/action-message-browser/generated/dispatch-empty-en-light-original.html",
+          "sha256": "524d789552e43e1cfd158d21f83b191503336e055fa7ec65d86f9a6342bbc217"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/action-message-browser/generated/dispatch-empty-en-light-current.html",
+          "sha256": "fccb9d0d6529054c2fc81acb217f69998c7ad3aef78cad8d02473f6dbd7e4978"
+        }
+      },
+      "rawExact": false
+    },
+    {
+      "id": "dispatch-populated-en-light",
+      "source": "en-dispatch-populated",
+      "language": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 720,
+      "tab": "dispatch",
+      "viewport": {
+        "width": 1280,
+        "height": 720,
+        "deviceScaleFactor": 1
+      },
+      "sourceFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/action-messages/raw/en-dispatch-populated-original.html",
+          "sha256": "3e76ec534fb06395e7f8c311b6d2abf773f3dbb577edfe91a487c8215d37444a"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/action-messages/raw/en-dispatch-populated-current.html",
+          "sha256": "1031f087a1118c22e9b7aec7c5d01f2861c47d4d9c99d4c153507d0b6f7a1c5b"
+        }
+      },
+      "rawFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/action-message-browser/raw/dispatch-populated-en-light-original.html",
+          "sha256": "3e76ec534fb06395e7f8c311b6d2abf773f3dbb577edfe91a487c8215d37444a"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/action-message-browser/raw/dispatch-populated-en-light-current.html",
+          "sha256": "1031f087a1118c22e9b7aec7c5d01f2861c47d4d9c99d4c153507d0b6f7a1c5b"
+        }
+      },
+      "generatedFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/action-message-browser/generated/dispatch-populated-en-light-original.html",
+          "sha256": "a77e41b829a561c580c8d5d0ef73e0d6d352f499a1669f386d318a405ee7c805"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/action-message-browser/generated/dispatch-populated-en-light-current.html",
+          "sha256": "6dd5eaa83a3be71ad30d8e12aa3fbde75f7ffb48411170c0d2be7ae63a21c687"
+        }
+      },
+      "rawExact": false
+    },
+    {
+      "id": "ghost-empty-en-light",
+      "source": "en-ghost-empty",
+      "language": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 720,
+      "tab": "ghost",
+      "viewport": {
+        "width": 1280,
+        "height": 720,
+        "deviceScaleFactor": 1
+      },
+      "sourceFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/action-messages/raw/en-ghost-empty-original.html",
+          "sha256": "3dcebc19488dc267d6e9294ef2fb0a1e9add6cba9b0c77692449fd8715742feb"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/action-messages/raw/en-ghost-empty-current.html",
+          "sha256": "c64b1064a8198b6a85f9bdb6c43afb22bba65bbb2d63bcdb3682501a9e03dc7a"
+        }
+      },
+      "rawFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/action-message-browser/raw/ghost-empty-en-light-original.html",
+          "sha256": "3dcebc19488dc267d6e9294ef2fb0a1e9add6cba9b0c77692449fd8715742feb"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/action-message-browser/raw/ghost-empty-en-light-current.html",
+          "sha256": "c64b1064a8198b6a85f9bdb6c43afb22bba65bbb2d63bcdb3682501a9e03dc7a"
+        }
+      },
+      "generatedFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/action-message-browser/generated/ghost-empty-en-light-original.html",
+          "sha256": "da8e1c5e09643cf6deb10ecb52fcc1fb53bea483c982df2ed4f2f0ab4ff46325"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/action-message-browser/generated/ghost-empty-en-light-current.html",
+          "sha256": "30839a97e00808b7e1f347bbf9183d38e989e2de77ec183e5c88e7f27ddd1533"
+        }
+      },
+      "rawExact": false
+    },
+    {
+      "id": "ghost-populated-en-light",
+      "source": "en-ghost-populated",
+      "language": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 720,
+      "tab": "ghost",
+      "viewport": {
+        "width": 1280,
+        "height": 720,
+        "deviceScaleFactor": 1
+      },
+      "sourceFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/action-messages/raw/en-ghost-populated-original.html",
+          "sha256": "19bf704754343d9542af4c5747816a9bba0dfcc4cd4ccb0a8efcbe8f704aa13b"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/action-messages/raw/en-ghost-populated-current.html",
+          "sha256": "a7d66f3627936a3b1b758c0ba951bec5546c793177e297f540f7817ad4852888"
+        }
+      },
+      "rawFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/action-message-browser/raw/ghost-populated-en-light-original.html",
+          "sha256": "19bf704754343d9542af4c5747816a9bba0dfcc4cd4ccb0a8efcbe8f704aa13b"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/action-message-browser/raw/ghost-populated-en-light-current.html",
+          "sha256": "a7d66f3627936a3b1b758c0ba951bec5546c793177e297f540f7817ad4852888"
+        }
+      },
+      "generatedFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/action-message-browser/generated/ghost-populated-en-light-original.html",
+          "sha256": "8e442fd28b0ccd5228348c64e91914c13ad009841d9af20b415798f35aa2b0a3"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/action-message-browser/generated/ghost-populated-en-light-current.html",
+          "sha256": "13f132a9f168f7e9e31a24396de698775288652082178ed2e79df2928b0e1e22"
+        }
+      },
+      "rawExact": false
+    },
+    {
+      "id": "dispatch-empty-ja-dark",
+      "source": "ja-dispatch-empty",
+      "language": "ja",
+      "theme": "dark",
+      "width": 375,
+      "height": 1000,
+      "tab": "dispatch",
+      "viewport": {
+        "width": 375,
+        "height": 1000,
+        "deviceScaleFactor": 1
+      },
+      "sourceFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/action-messages/raw/ja-dispatch-empty-original.html",
+          "sha256": "5d92c53e522f859a2cc610e72070ffd133557582420a38cf009b176cba4009c3"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/action-messages/raw/ja-dispatch-empty-current.html",
+          "sha256": "cd4cad83b2ddff4f1771196874a6a76189f93a19dbe1c34f0d5fdb667a77d01b"
+        }
+      },
+      "rawFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/action-message-browser/raw/dispatch-empty-ja-dark-original.html",
+          "sha256": "5d92c53e522f859a2cc610e72070ffd133557582420a38cf009b176cba4009c3"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/action-message-browser/raw/dispatch-empty-ja-dark-current.html",
+          "sha256": "cd4cad83b2ddff4f1771196874a6a76189f93a19dbe1c34f0d5fdb667a77d01b"
+        }
+      },
+      "generatedFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/action-message-browser/generated/dispatch-empty-ja-dark-original.html",
+          "sha256": "0cd3be2c84b3c07dd27311f8fde98e27174c0ee66860ee0eb570b99bece35138"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/action-message-browser/generated/dispatch-empty-ja-dark-current.html",
+          "sha256": "cc48049748a9b6897203e9e8e11fa801f4cc96339aa400417e9986252dd5bb05"
+        }
+      },
+      "rawExact": false
+    },
+    {
+      "id": "dispatch-populated-ja-dark",
+      "source": "ja-dispatch-populated",
+      "language": "ja",
+      "theme": "dark",
+      "width": 375,
+      "height": 1000,
+      "tab": "dispatch",
+      "viewport": {
+        "width": 375,
+        "height": 1000,
+        "deviceScaleFactor": 1
+      },
+      "sourceFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/action-messages/raw/ja-dispatch-populated-original.html",
+          "sha256": "94ea0d57a9450873327e75276b5db89eec3a136db146b9b39f1911d4ddb7d431"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/action-messages/raw/ja-dispatch-populated-current.html",
+          "sha256": "d73a0bf4e8cb073535d1b135ccd0c1e2c00ba4f43690bda08040888059a5cce3"
+        }
+      },
+      "rawFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/action-message-browser/raw/dispatch-populated-ja-dark-original.html",
+          "sha256": "94ea0d57a9450873327e75276b5db89eec3a136db146b9b39f1911d4ddb7d431"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/action-message-browser/raw/dispatch-populated-ja-dark-current.html",
+          "sha256": "d73a0bf4e8cb073535d1b135ccd0c1e2c00ba4f43690bda08040888059a5cce3"
+        }
+      },
+      "generatedFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/action-message-browser/generated/dispatch-populated-ja-dark-original.html",
+          "sha256": "3ca3ec382d8ededd550580c18ab97b8551b3ed76392b606f5f2e5fbbfda17f7b"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/action-message-browser/generated/dispatch-populated-ja-dark-current.html",
+          "sha256": "7fa01b24d2d4d411f8e5d540f964de7382546672c246e5aa61b73a263b5bbf29"
+        }
+      },
+      "rawExact": false
+    },
+    {
+      "id": "ghost-empty-ja-dark",
+      "source": "ja-ghost-empty",
+      "language": "ja",
+      "theme": "dark",
+      "width": 375,
+      "height": 1000,
+      "tab": "ghost",
+      "viewport": {
+        "width": 375,
+        "height": 1000,
+        "deviceScaleFactor": 1
+      },
+      "sourceFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/action-messages/raw/ja-ghost-empty-original.html",
+          "sha256": "bd6cb097720af50056a385a44e30e1444d74017bf8c0649bc2bf38b9a3092bb4"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/action-messages/raw/ja-ghost-empty-current.html",
+          "sha256": "ea19cc2764486c4233075e727d95bc3b300dd6139a3585358df36702c8a5ead2"
+        }
+      },
+      "rawFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/action-message-browser/raw/ghost-empty-ja-dark-original.html",
+          "sha256": "bd6cb097720af50056a385a44e30e1444d74017bf8c0649bc2bf38b9a3092bb4"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/action-message-browser/raw/ghost-empty-ja-dark-current.html",
+          "sha256": "ea19cc2764486c4233075e727d95bc3b300dd6139a3585358df36702c8a5ead2"
+        }
+      },
+      "generatedFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/action-message-browser/generated/ghost-empty-ja-dark-original.html",
+          "sha256": "e10cf49779fc9f535351d6bb71024a9654a6340a3f6d04755ba927dcabbce1f7"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/action-message-browser/generated/ghost-empty-ja-dark-current.html",
+          "sha256": "f9704dc4a15ee386cbeb23f2129166126ec52980a36eda66f12fba21773d198a"
+        }
+      },
+      "rawExact": false
+    },
+    {
+      "id": "ghost-populated-ja-dark",
+      "source": "ja-ghost-populated",
+      "language": "ja",
+      "theme": "dark",
+      "width": 375,
+      "height": 1000,
+      "tab": "ghost",
+      "viewport": {
+        "width": 375,
+        "height": 1000,
+        "deviceScaleFactor": 1
+      },
+      "sourceFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/action-messages/raw/ja-ghost-populated-original.html",
+          "sha256": "785d4b0a27fd386edec4f523b35bd3a76c10404b93195a6957193f7c913b3d74"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/action-messages/raw/ja-ghost-populated-current.html",
+          "sha256": "9d81f578471e2a8718bf2b461d32fafd9e09d770da7e0d75f46f21708f02746a"
+        }
+      },
+      "rawFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/action-message-browser/raw/ghost-populated-ja-dark-original.html",
+          "sha256": "785d4b0a27fd386edec4f523b35bd3a76c10404b93195a6957193f7c913b3d74"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/action-message-browser/raw/ghost-populated-ja-dark-current.html",
+          "sha256": "9d81f578471e2a8718bf2b461d32fafd9e09d770da7e0d75f46f21708f02746a"
+        }
+      },
+      "generatedFiles": {
+        "original": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/action-message-browser/generated/ghost-populated-ja-dark-original.html",
+          "sha256": "71e7bc6d0af7fbbbf90703e591f1055fafe5b28c25f7ad6559798c6a21ccb7c8"
+        },
+        "current": {
+          "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/action-message-browser/generated/ghost-populated-ja-dark-current.html",
+          "sha256": "3061cfac06135b82bf13b2789ee4525e8a5864b5a3c920f70e65aed22659391b"
+        }
+      },
+      "rawExact": false
+    }
+  ]
+}

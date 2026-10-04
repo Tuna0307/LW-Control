@@ -1,0 +1,107 @@
+﻿{
+  "marker": "LWB317_INDEPENDENT_TOOLBAR_PIXEL_MASK",
+  "measurementsSha256": "c5c4409f9819db27ff416216bb1b59aacdb678fa290b70c73ac358c7ecfe364f",
+  "method": "Any RGB-channel difference; only newly disabled direct toolbar buttons masked, floor/ceil rectangle pixels, no tolerance or expansion.",
+  "pairs": [
+    {
+      "pairId": "city-en-light-desktop",
+      "changedPixels": 0,
+      "changedPixelsOutsideDisabledActionBoxes": 0,
+      "outsideBoundingBox": null,
+      "allowedFences": []
+    },
+    {
+      "pairId": "city-ja-dark-375",
+      "changedPixels": 0,
+      "changedPixelsOutsideDisabledActionBoxes": 0,
+      "outsideBoundingBox": null,
+      "allowedFences": []
+    },
+    {
+      "pairId": "truck-en-dark-desktop",
+      "changedPixels": 5875,
+      "changedPixelsOutsideDisabledActionBoxes": 0,
+      "outsideBoundingBox": null,
+      "allowedFences": [
+        {
+          "anchor": "searchChild5",
+          "text": "Plunder selected trucks (1)",
+          "box": [
+            997,
+            86,
+            1166,
+            120
+          ]
+        }
+      ]
+    },
+    {
+      "pairId": "dispatch-ja-light-375",
+      "changedPixels": 22462,
+      "changedPixelsOutsideDisabledActionBoxes": 0,
+      "outsideBoundingBox": null,
+      "allowedFences": [
+        {
+          "anchor": "searchChild7",
+          "text": "\u4e88\u7d04\u306b\u8ffd\u52a0\uff081\uff09",
+          "box": [
+            43,
+            528,
+            331,
+            566
+          ]
+        },
+        {
+          "anchor": "searchChild8",
+          "text": "\u540c\u76df\u306b\u5171\u6709",
+          "box": [
+            43,
+            575,
+            331,
+            613
+          ]
+        }
+      ]
+    },
+    {
+      "pairId": "treasure-en-light-desktop",
+      "changedPixels": 9984,
+      "changedPixelsOutsideDisabledActionBoxes": 1734,
+      "outsideBoundingBox": [
+        472,
+        98,
+        848,
+        111
+      ],
+      "allowedFences": [
+        {
+          "anchor": "searchChild5",
+          "text": "Claim Boxes",
+          "box": [
+            919,
+            85,
+            1006,
+            119
+          ]
+        },
+        {
+          "anchor": "searchChild6",
+          "text": "Claim Season Treasures",
+          "box": [
+            1014,
+            85,
+            1166,
+            119
+          ]
+        }
+      ]
+    },
+    {
+      "pairId": "scheduled-ja-dark-375",
+      "changedPixels": 0,
+      "changedPixelsOutsideDisabledActionBoxes": 0,
+      "outsideBoundingBox": null,
+      "allowedFences": []
+    }
+  ]
+}
