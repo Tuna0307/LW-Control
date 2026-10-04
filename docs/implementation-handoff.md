@@ -1,5 +1,11 @@
 # Current implementation/research handoff
 
+Current worker dispatch, 2026-10-04: owner relays small MAP-AUTO-VISUAL-001,
+two original/current Auto-card visual pairs only, with exact source/input pins
+and truthful differences. No code correction or broader Map scope assigned.
+Return for lead review; preserve starting WIP and owner port4335. Read its work
+item. Global UI remains PARTIAL; older no-worker/dispatch notes are historical.
+
 Latest lead continuation, 2026-10-04: MAP-MANUAL-TYPES-001 delivery6569fa1 is
 COMPLETE / ACCEPTED; MMV-BEHAVIOR-001 closed after actual callback/source/pure
 normalizer, saved-browser and package/WIP review. No further correction in this

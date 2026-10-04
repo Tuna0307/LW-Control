@@ -1,5 +1,10 @@
 # LWBridge 0.3.17 UI parity plan
 
+Current worker dispatch, 2026-10-04: small MAP-AUTO-VISUAL-001 compares only the
+Auto configuration card in two offline source-rendered browser pairs. Evidence
+only; no production/native work. See its work item. Manual type correction remains
+accepted, and global UI remains PARTIAL. Older dispatch notes are historical.
+
 Latest lead acceptance, 2026-10-04: MAP-MANUAL-TYPES-001 at6569fa1 closes
 MMV-BEHAVIOR-001 for source/local Manual empty/single selection editing. Lead
 callback/source/normalizer/saved-browser/check/package/WIP review passes; Auto
