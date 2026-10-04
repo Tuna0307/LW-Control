@@ -1,0 +1,147 @@
+{
+  "status": "REVIEW_PACKET_COMPLETE",
+  "task": "LWB317-UI-MAP-MANUAL-VISUAL-001",
+  "findings": [
+    {
+      "id": "MMV-FENCE-001",
+      "classification": "provider-fencing adaptation",
+      "summary": "Current Manual controls add availability and Auto-running disable fences that are absent from the recovered 0.3.17 Manual renderer.",
+      "originalLocators": [
+        "original-speed-toggle",
+        "original-start-button",
+        "original-stop-button",
+        "original-clear-button"
+      ],
+      "currentLocators": [
+        "current-speed-toggle",
+        "current-start-button",
+        "current-stop-button",
+        "current-clear-button"
+      ],
+      "reproducers": [
+        "en/idle-unavailable",
+        "provider-backend-unavailable-with-server",
+        "provider-auto-running-idle",
+        "provider-backend-unavailable-reading"
+      ],
+      "observed": [
+        "idle-unavailable: original Start Scan enabled; current disabled because online=false",
+        "backend-unavailable-with-server: original Clear Map Data enabled; current disabled because backendAvailable=false",
+        "auto-running-idle: original speed/Start/Clear enabled; current disables all three while autoRunning=true",
+        "backend-unavailable-reading: original Stop enabled; current disables Stop because backendAvailable=false"
+      ],
+      "visualImpact": "The required EN/light idle-unavailable browser pair has identical rectangles but current Start Scan computes opacity 0.45 and cursor not-allowed versus original opacity 1 and cursor pointer; this is the only sampled screenshot-byte difference.",
+      "proposedCorrectionScope": "Do not remove these fences in this evidence task. Project lead should decide whether provider/Auto safety adaptations intentionally override exact 0.3.17 Manual presentation before any bounded correction."
+    },
+    {
+      "id": "MMV-BEHAVIOR-001",
+      "classification": "scan-type interaction discrepancy",
+      "summary": "Current disables the sole selected Manual scan type; recovered 0.3.17 keeps all eight scan-type checkboxes enabled.",
+      "originalLocators": [
+        "Ie scan types",
+        "original-scan-type-label-class",
+        "original-scan-type-input"
+      ],
+      "currentLocators": [
+        "current-scan-type-input"
+      ],
+      "reproducers": [
+        "en/idle-server",
+        "ja/idle-server"
+      ],
+      "observed": "With selectedTypes=['city'], original Player City checked=true disabled=false; current checked=true disabled=true. The other seven inputs match.",
+      "visualImpact": "No rectangle difference was observed; the checkbox itself is visually hidden by the recovered compact-chip CSS. The disabled state changes interaction semantics.",
+      "proposedCorrectionScope": "A separate reviewed correction may restore the original enabled state for the last selected Manual type. Interaction/start semantics should be checked in that task before changing production.",
+      "followupEvidence": "selection-counter-evidence.json records actual inert callbacks: original [] versus current [city]. Both the Manual checkbox predicate and mapBackend.js updateSelectedTypes must be considered in a correction; preserve separate Auto last-type protection and start payload normalization until source-contract verification."
+    },
+    {
+      "id": "MMV-DOM-001",
+      "classification": "DOM-only action markup discrepancy",
+      "summary": "Current adds type='button' to Start, Stop and Clear; the recovered 0.3.17 buttons omit the type attribute.",
+      "originalLocators": [
+        "original-start-button",
+        "original-stop-button",
+        "original-clear-button"
+      ],
+      "currentLocators": [
+        "current-start-button",
+        "current-stop-button",
+        "current-clear-button"
+      ],
+      "reproducers": [
+        "all 12 core comparisons"
+      ],
+      "observed": "Original rendered button type is absent; current renders type='button' for all three Manual actions.",
+      "visualImpact": "No sampled geometry or computed-style difference is attributable to the type attribute; the three non-fence browser pairs remain byte-identical.",
+      "proposedCorrectionScope": "No visual correction is justified by this packet. Preserve unless a later strict-DOM parity task explicitly chooses to remove the explicit button type."
+    },
+    {
+      "id": "MMV-DOM-002",
+      "classification": "DOM-only scan-type markup discrepancy",
+      "summary": "Recovered 0.3.17 emits class='' on enabled scan-type labels and direct text after the input; current omits the empty class attribute and wraps label text in a span.",
+      "originalLocators": [
+        "original-scan-type-label-class",
+        "original-scan-type-input",
+        "MapDataPanel R final return"
+      ],
+      "currentLocators": [
+        "current-scan-type-input",
+        "current-scan-type-label-span",
+        "MapDataPage final return"
+      ],
+      "reproducers": [
+        "all 12 core comparisons"
+      ],
+      "observed": "Every original enabled chip has class='' and child element sequence [INPUT] plus a direct text node; current has no class attribute and child elements [INPUT, SPAN].",
+      "visualImpact": "No sampled geometry/style difference; the recovered CSS styles the label and input state rather than requiring the extra span.",
+      "proposedCorrectionScope": "If strict DOM parity is requested, remove the wrapper and reproduce the original label class expression in a separate bounded production task. No production edit is authorized here."
+    },
+    {
+      "id": "MMV-METADATA-001",
+      "classification": "current host metadata",
+      "summary": "Current map-panel adds data-bridge-mode='native'; the recovered 0.3.17 root has only class='panel map-panel'.",
+      "originalLocators": [
+        "original-map-panel-root"
+      ],
+      "currentLocators": [
+        "current-map-panel-bridge-mode"
+      ],
+      "reproducers": [
+        "all 12 core comparisons"
+      ],
+      "observed": "The attribute is current-only production host metadata.",
+      "visualImpact": "No scoped recovered CSS or current styles.css rule targets this attribute; no sampled geometry/style difference.",
+      "proposedCorrectionScope": "Keep as a current host adaptation; it is retained in raw comparisons and not normalized away."
+    }
+  ],
+  "matchedSurfaces": [
+    "Manual/Auto strip labels, selection and geometry",
+    "header title",
+    "timing labels, ISO/date/title values, duration and conditional presence",
+    "speed selected state and styling when provider/Auto fences are not the differing condition",
+    "status/server/progress labels, classes, values and low/active presentation",
+    "scan error role/text presentation",
+    "all eight scan-type labels/checked states apart from the last-selected disabled rule",
+    "recovered reference CSS: current reference.css is byte-identical to original index-rIL9Fpht.css"
+  ],
+  "browserSummary": {
+    "pairs": 4,
+    "exactScreenshotPairs": 3,
+    "geometryDifferences": 0,
+    "computedStyleDifferences": 2,
+    "consoleIssues": 0,
+    "onlyStyleDifferences": [
+      "en-light-idle-unavailable/start opacity: 1 -> 0.45",
+      "en-light-idle-unavailable/start cursor: pointer -> not-allowed"
+    ]
+  },
+  "proofLimits": [
+    "Offline source-rendered comparison; no protected original runtime pixel acceptance.",
+    "Original/current hook renderers run with a fixed clock and inert backend/native producers; no start/stop/clear handler is invoked.",
+    "Current exact-recovered EN/JA catalogs are injected into both renderers so translation inputs are identical.",
+    "Browser documents contain only the scoped map-panel under body; the wider app shell/navigation is excluded.",
+    "No Last War process, protected service or native scan action is exercised.",
+    "The error case exercises scanState.lastError rendered with role=status. Local action scanError with role=alert is not exercised in this packet; wider scan-error parity is not claimed."
+  ],
+  "leadDisposition": "Accept comparison evidence only. MMV-BEHAVIOR-001 remains an unresolved source/local UI defect. Preserve provider availability fences; Auto-running fence equivalence remains a separately recorded design/proof question. Other DOM/metadata differences have no measured visual effect in sampled cases."
+}

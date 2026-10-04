@@ -1,6 +1,6 @@
 # LWB317-UI-MAP-MANUAL-VISUAL-001
 
-Status: ASSIGNED through the owner's manual relay, 2026-10-04.
+Status: COMPLETE / ACCEPTED as a comparison packet after lead takeover, 2026-10-04.
 Size: medium; one worker, one bounded Map region.
 Dispatch baseline: f04f79565ca59d9f2404943879f4b7d89cd1da1d.
 
@@ -106,3 +106,15 @@ choose an available owned port and clean up only your own helpers/tabs/storage.
 Stop after this packet. Return AWAITING_REVIEW to the project lead via the owner,
 with results, mismatches, proof limits, commands, full commit/remote SHA and exact
 continuation. Work alone with no subagents or delegation. No fixed time limit.
+
+## Delivery
+
+The lead finished the interrupted packet. Twelve core/three provider comparisons
+retain all raw differences. Four inspected browser pairs have strict equal
+rectangles; three PNG pairs match, with two unavailable-Start style differences
+in the fourth. Inert actual selection callbacks prove the open last-type defect.
+No production code changed. Canonical check/package and ten-path WIP guard pass.
+Run exact commands in the packet README and validate-evidence.mjs. Review is
+docs/reviews/2026-10-04-LWB317-UI-MAP-MANUAL-VISUAL-001.md.
+Next: focused correction for MMV-BEHAVIOR-001, preserving separate Auto rules and
+native fences; no broad Map/global/native acceptance follows from this delivery.

@@ -1,5 +1,14 @@
 # LWBridge 0.3.17 UI parity plan
 
+Latest lead checkpoint, 2026-10-04: MAP-MANUAL-VISUAL-001 is COMPLETE / ACCEPTED
+as an offline comparison packet after takeover. Twelve core/three provider cases
+retain raw differences; four inspected browser pairs have equal rectangles and
+three identical PNG pairs. One open UI defect, MMV-BEHAVIOR-001: Manual last-type
+deselection is blocked by current JSX/helper but allowed by original. No production
+change; provider fences remain. Overall UI is PARTIAL. Next is a focused Manual
+type correction, then remaining visual inventory. See its dated review. Earlier
+dispatches below are historical.
+
 Current worker dispatch, 2026-10-04: MAP-MANUAL-VISUAL-001 is ASSIGNED through the
 owner. This medium evidence-only unit compares exact-source/current Manual scan
 header, timing, progress, error and scan-type presentation using actual CSS and

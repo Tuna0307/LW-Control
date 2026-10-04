@@ -1,0 +1,53 @@
+{
+  "marker": "LWB317_MANUAL_SELECTION_COUNTER_EVIDENCE_OK",
+  "initial": {
+    "originalDisabled": false,
+    "currentDisabled": true
+  },
+  "after": {
+    "original": [],
+    "current": [
+      "city"
+    ]
+  },
+  "sourceLocators": [
+    {
+      "name": "original Manual checkbox onChange",
+      "file": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js",
+      "utf8ByteOffset": 50135,
+      "byteLength": 77,
+      "sha256": "05d62ecc136a7723046dc9d754c73eeb93ac1d20f2d35fe87d19187831d87d21",
+      "text": "t=>{P.current=!0,qe(n=>t.target.checked?[...n,e.key]:n.filter(t=>t!==e.key))}"
+    },
+    {
+      "name": "normalizeSelectedTypes",
+      "file": "src/LWBridge.UI-0.3.17/src/mapBackend.js",
+      "utf8ByteOffset": 7136,
+      "byteLength": 198,
+      "sha256": "62dfc61e6d0413f2c75dba1f2abf460cf48d79fa44570ccea0a5d06568d42f07",
+      "text": "function normalizeSelectedTypes(types) {\r\n  const selected = [...new Set((types || []).filter((kind) => MAP_KIND_KEYS.includes(kind)))];\r\n  return selected.length ? selected : [...MAP_KIND_KEYS];\r\n}"
+    },
+    {
+      "name": "updateSelectedTypes",
+      "file": "src/LWBridge.UI-0.3.17/src/mapBackend.js",
+      "utf8ByteOffset": 7345,
+      "byteLength": 354,
+      "sha256": "f5efd9081ccb9478ba0b403dd0f0ff75bf23d30f7da20e37ba124155816f9cdd",
+      "text": "function updateSelectedTypes(types, kind, checked) {\r\n  const selected = normalizeSelectedTypes(types);\r\n  if (!MAP_KIND_KEYS.includes(kind)) return selected;\r\n  if (checked) return normalizeSelectedTypes([...selected, kind]);\r\n  if (selected.length === 1 && selected[0] === kind) return selected;\r\n  return selected.filter((entry) => entry !== kind);\r\n}"
+    },
+    {
+      "name": "buildStartPayload",
+      "file": "src/LWBridge.UI-0.3.17/src/mapBackend.js",
+      "utf8ByteOffset": 8200,
+      "byteLength": 189,
+      "sha256": "d81f34111cac9b010d2b97e8fc315d80393e36d1fa68cb3665b4742082036606",
+      "text": "function buildStartPayload(selectedTypes, scanMode) {\r\n  return {\r\n    selectedTypes: normalizeSelectedTypes(selectedTypes),\r\n    scanMode: scanMode === \"fast\" ? \"fast\" : \"normal\",\r\n  };\r\n}"
+    }
+  ],
+  "controlsInvoked": [
+    "original Manual city checkbox onChange",
+    "current Manual city checkbox onChange directly despite disabled predicate"
+  ],
+  "nativeActionHandlersInvoked": [],
+  "limitation": "Inert persistent-hook execution; no mounted browser interaction or native Start/Stop/Clear action. This proves the current mismatch, not a corrected implementation."
+}

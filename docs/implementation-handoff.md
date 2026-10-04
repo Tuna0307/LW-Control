@@ -1,5 +1,15 @@
 # Current implementation/research handoff
 
+Latest lead continuation, 2026-10-04: MAP-MANUAL-VISUAL-001 is COMPLETE / ACCEPTED
+as a comparison packet. The interrupted worker's render/browser work was verified
+and integrity/documentation finished; no production edits. Reproduce through its
+README/validator. One confirmed open defect: last Manual scan type deselection
+is blocked in JSX and updateSelectedTypes but allowed by original callback.
+Next bounded unit should correct MMV-BEHAVIOR-001 with source-backed empty/single
+selection semantics, preserving Auto type protection and native fences. Full
+Map/page visual inventory continues afterward. No worker currently dispatched;
+global UI remains PARTIAL. Earlier dispatch notes below are historical.
+
 Current worker continuation, 2026-10-04: owner relays medium task
 LWB317-UI-MAP-MANUAL-VISUAL-001. Compare only the Manual scan header/status/types
 region against executable original fragments with original/current CSS, then

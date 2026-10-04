@@ -1,0 +1,42 @@
+[
+  {
+    "pairId": "en-light-idle-unavailable",
+    "side": "original",
+    "issues": []
+  },
+  {
+    "pairId": "en-light-idle-unavailable",
+    "side": "current",
+    "issues": []
+  },
+  {
+    "pairId": "en-dark-reading-high",
+    "side": "original",
+    "issues": []
+  },
+  {
+    "pairId": "en-dark-reading-high",
+    "side": "current",
+    "issues": []
+  },
+  {
+    "pairId": "ja-light-completed-timing",
+    "side": "original",
+    "issues": []
+  },
+  {
+    "pairId": "ja-light-completed-timing",
+    "side": "current",
+    "issues": []
+  },
+  {
+    "pairId": "ja-dark-error",
+    "side": "original",
+    "issues": []
+  },
+  {
+    "pairId": "ja-dark-error",
+    "side": "current",
+    "issues": []
+  }
+]

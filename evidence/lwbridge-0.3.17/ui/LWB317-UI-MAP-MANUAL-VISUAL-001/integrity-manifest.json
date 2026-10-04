@@ -1,0 +1,460 @@
+{
+  "task": "LWB317-UI-MAP-MANUAL-VISUAL-001",
+  "tooling": {
+    "node": "v24.18.0",
+    "react": "19.3.0",
+    "reactDom": "19.3.0",
+    "esbuild": "0.28.2",
+    "babelParser": "7.29.9"
+  },
+  "dependencies": [
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-FILTER-LIFECYCLE-001/harness.mjs",
+      "bytes": 17089,
+      "sha256": "1ec2a1c1285769457e672a6e36e5176e9da2e3a67effa130b7adbd51ba0569aa"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-INTERACTIONS-001/harness.mjs",
+      "bytes": 16869,
+      "sha256": "527110b2d655fb5bc4c383d675e807af4559ba50339398cd068da4c112db91db"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-INTERACTIONS-001/original/common.mjs",
+      "bytes": 3657,
+      "sha256": "97038e05993ffc60190dcb3476cdd408205a7543896ea1bce5ecdbfa5aeef371"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-INTERACTIONS-001/original/lib.mjs",
+      "bytes": 8122,
+      "sha256": "23f65e2dfb5e5eab27980ee1be672f1997a994aa7b327a74d31216ae7062d216"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-INTERACTIONS-001/original/original-runtime.mjs",
+      "bytes": 30150,
+      "sha256": "e93f00149f44fc15a560ac496f9e3b505fd445625fe99d427b321557fb1167e3"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-INTERACTIONS-001/original/semantics.mjs",
+      "bytes": 8177,
+      "sha256": "239104975b9eba0b77a2082f3f0eb056e03a8dc14e71c1e34d7352b968378878"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-MANUAL-VISUAL-001/capture-browser.mjs",
+      "bytes": 17033,
+      "sha256": "5f1204c49380653a7bf971343f8210279989bf4169ea71078b9d7e519088cd75"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-MANUAL-VISUAL-001/check-selection-counter-evidence.mjs",
+      "bytes": 4337,
+      "sha256": "8ba052cbcfa778ce845e82a4625e03bfc62a3b5910bf62826024eec853a4cf85"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-MANUAL-VISUAL-001/compare-renderers.mjs",
+      "bytes": 29105,
+      "sha256": "ba1a4fa5d33984772bde3b9b3aa2b84b415d7facb0ed05204a4b1c2ebcdd6877"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-MANUAL-VISUAL-001/serve-reference.mjs",
+      "bytes": 1232,
+      "sha256": "41a7a8bfce3d6e27a7c523ae8f6ca150cd7fd7859f2cb80ff45068698cc33fb3"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/GameAssetImage-Diy9VTIr.js",
+      "bytes": 2347,
+      "sha256": "2f92a87c3268497df6425b1175db6140e10aabcbdfae02615f065d00e16458e0"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/en-BisSXcTB.js",
+      "bytes": 72319,
+      "sha256": "0bf43d180eb93692a93b830b5d984e9d01ddeea524340f2334fc63cba527a731"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-BVfnK1wp.js",
+      "bytes": 377972,
+      "sha256": "44c4e4043825b7db296b64171951b27176f8850ff8d7d337cc991df4765524c6"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/rewardDisplay-eZWrd6iS.js",
+      "bytes": 234,
+      "sha256": "7f65dd3f5b81c96117af5e83e8310d6c6a3a48787b1f693d387020255c78e73e"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/GameAssetImage.jsx",
+      "bytes": 6189,
+      "sha256": "2bfca11136f2495780ea6a2037bd5007f1d7653284849452e430d2a4fa05d379"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+      "bytes": 61458,
+      "sha256": "a1caaccb7c3f3a6658c65a819735c639f52494b6c708a33c0de13b281fd0e974"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/MapRetainedGoodsFilter.jsx",
+      "bytes": 1206,
+      "sha256": "d890612c6208ce306bb57eee759cfe79ad9cf86064b3b50526d65d0512657c51"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/MapTreasureTypeFilter.jsx",
+      "bytes": 1242,
+      "sha256": "675e0bf8c2c7e6b6e7a5f90e368c6f8796b100581b24987eb6c7536bc4926ab7"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/ScheduledPlunder.jsx",
+      "bytes": 10089,
+      "sha256": "9d6814a70a62c9198720ce15faa84403f43e1de172a88e285179151d017b5534"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/i18n.jsx",
+      "bytes": 3445,
+      "sha256": "d4290741ab2c7acb0546ed47156bef434ddf210775cad9b9a3a261d401ce4891"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/locales/en.js",
+      "bytes": 80868,
+      "sha256": "357682d9179ae712ee563950467b7a93b5aea89322afc993e079fedee28432c1"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/locales/ja.js",
+      "bytes": 92959,
+      "sha256": "e1fed1e9aaf052963e3d8f5a5f8b9ae96b002a05a9dd7bb06a460a66187755eb"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/main.jsx",
+      "bytes": 356,
+      "sha256": "7dd7727093e4234b893682a77f780966345f7478e35610d69476aea95b411755"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/mapAutoConfig.js",
+      "bytes": 3565,
+      "sha256": "c88faa13ebf8d15d2ec9ea54e800fddec5ecb38df70d9d97e8d67768ec42ef4e"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/mapBackend.js",
+      "bytes": 11746,
+      "sha256": "2951b824039d1a60bd305e3b4ec4e8b37992183e84294c7d7c21aa7ccc0c5c99"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/mapInteractions.js",
+      "bytes": 5331,
+      "sha256": "37b174098685e5c4da540e514c1ce467a5cbad61bc18569e8366b9f7085cf7dc"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/mapPlunderPresentation.js",
+      "bytes": 9613,
+      "sha256": "6e4bf5315990966823c5e162cf4875c9d1db3a897cd7bacc40752c9a7c2a62fd"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/mapScanHeaderFixtures.js",
+      "bytes": 1173,
+      "sha256": "437d5f4cbdaf2fb95e52a2496b02f57b5233d29bca51a4f7428b0bc9c5b98720"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/mapScanPresentation.js",
+      "bytes": 2711,
+      "sha256": "76c2ac646e79ea372965f9c2da61d90356daf7fa2f47e52dd9180d745e2dc5d0"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/mapTablePresentation.js",
+      "bytes": 14889,
+      "sha256": "b6c0d9b369d3e78ccc74aa7296f2b88eabf6b6560c3669a199546fc299839427"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/reference.css",
+      "bytes": 126217,
+      "sha256": "3d87e9f65b39eace6a1a254bfc90a38acb72613d1fff7236c7cee7ab9bfaf545"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/styles.css",
+      "bytes": 149,
+      "sha256": "b50910d37a4dd02d7bb49b506735ea42615ef0f9e85714e880049481aece2ccc"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-MANUAL-VISUAL-001/.gitattributes",
+      "bytes": 84,
+      "sha256": "cd829f2e588bfa4114d5a4cb3db88c750751c7ffb43391f60218953ab0981eda"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-MANUAL-VISUAL-001/.gitignore",
+      "bytes": 11,
+      "sha256": "f5c10da83055c0c3e72f3167971d1916e443dc90390e32b42844552cc37b81e0"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-MANUAL-VISUAL-001/README.md",
+      "bytes": 3862,
+      "sha256": "a6c82e567b4bb0eb0eab271f93cbcf5d38b9308b8252258eb38a8e5f0b2f8540"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-MANUAL-VISUAL-001/browser/comparison-results.json",
+      "bytes": 2634,
+      "sha256": "597eb72da5fc37bac98870ee469befd312ac5f53d241f355beabcf0efe0a53e1"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-MANUAL-VISUAL-001/browser/console.json",
+      "bytes": 709,
+      "sha256": "3456f724bde2492f978230cea7baf0f3ffe79309eb4d836a51be95fce0256694"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-MANUAL-VISUAL-001/browser/en-dark-reading-high-current.png",
+      "bytes": 35897,
+      "sha256": "dc0adefbc0bd743ce37d0732e74d97ec5e314825745da3ea3ae5548ee2b89302"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-MANUAL-VISUAL-001/browser/en-dark-reading-high-original.png",
+      "bytes": 35897,
+      "sha256": "dc0adefbc0bd743ce37d0732e74d97ec5e314825745da3ea3ae5548ee2b89302"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-MANUAL-VISUAL-001/browser/en-light-idle-unavailable-current.png",
+      "bytes": 25188,
+      "sha256": "c2ea3908f996186abc50e3d0fdb2b1d46a91bdcc9dd928c88fa5e049ab8c77ad"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-MANUAL-VISUAL-001/browser/en-light-idle-unavailable-original.png",
+      "bytes": 25164,
+      "sha256": "f0b8022bf39100d3ca1c19365b9598647789d559b502668d18ce6f457c55eb9f"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-MANUAL-VISUAL-001/browser/inspection.json",
+      "bytes": 1650,
+      "sha256": "6181f95733cdf2ea15ee2aef8d9b664306bb9f98ec43f6b4a69f240984f870d4"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-MANUAL-VISUAL-001/browser/ja-dark-error-current.png",
+      "bytes": 44664,
+      "sha256": "9ede7f37b24cb18e13164504a7b9e24b27f04c63e1598abbe2e34018add59520"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-MANUAL-VISUAL-001/browser/ja-dark-error-original.png",
+      "bytes": 44664,
+      "sha256": "9ede7f37b24cb18e13164504a7b9e24b27f04c63e1598abbe2e34018add59520"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-MANUAL-VISUAL-001/browser/ja-light-completed-timing-current.png",
+      "bytes": 35718,
+      "sha256": "e3587801228b2b62b34f99cd1707ce7b640af7cb40e55036579ac01959dc07d7"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-MANUAL-VISUAL-001/browser/ja-light-completed-timing-original.png",
+      "bytes": 35718,
+      "sha256": "e3587801228b2b62b34f99cd1707ce7b640af7cb40e55036579ac01959dc07d7"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-MANUAL-VISUAL-001/browser/measurements.json",
+      "bytes": 758096,
+      "sha256": "f879d7a224765440da47f6296dbc11a067ad76df33c39ef8d347f7f6b7d9330d"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-MANUAL-VISUAL-001/capture-browser.mjs",
+      "bytes": 17033,
+      "sha256": "5f1204c49380653a7bf971343f8210279989bf4169ea71078b9d7e519088cd75"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-MANUAL-VISUAL-001/check-selection-counter-evidence.mjs",
+      "bytes": 4337,
+      "sha256": "8ba052cbcfa778ce845e82a4625e03bfc62a3b5910bf62826024eec853a4cf85"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-MANUAL-VISUAL-001/compare-renderers.mjs",
+      "bytes": 29105,
+      "sha256": "ba1a4fa5d33984772bde3b9b3aa2b84b415d7facb0ed05204a4b1c2ebcdd6877"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-MANUAL-VISUAL-001/findings.json",
+      "bytes": 8374,
+      "sha256": "f639c97b6a40874e697e9f44921783bd35fcf9a48cc47753455b7573c9cda1ce"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-MANUAL-VISUAL-001/independent-review.md",
+      "bytes": 1805,
+      "sha256": "842a9fdd34ab4a941b8d01b826f0bea8aa2838dd30c3205881e647398f161f2c"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-MANUAL-VISUAL-001/pinned-inputs.json",
+      "bytes": 15141,
+      "sha256": "e292eaec9ee79fc4bf585e3ba43616144d835f685a40ce57ef1eb5beaa723458"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-MANUAL-VISUAL-001/raw/en-completed-timing-current.html",
+      "bytes": 2223,
+      "sha256": "7b2132ea6dcdf62beb979347717c0a871982037b8a08688afee761a36116dc84"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-MANUAL-VISUAL-001/raw/en-completed-timing-original.html",
+      "bytes": 2123,
+      "sha256": "fc93967120a4d09e0926ac9b0f464a679ebb89ea282935f578290a7b637c54d9"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-MANUAL-VISUAL-001/raw/en-error-current.html",
+      "bytes": 2309,
+      "sha256": "01b017a8c4312872a9910d853b144ed74d1c69280b528ac96132e231d6288fcf"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-MANUAL-VISUAL-001/raw/en-error-original.html",
+      "bytes": 2209,
+      "sha256": "c8ebd6df8cb233b31c22b21c76a0b40515806328b873b89a7a85e4bef9376225"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-MANUAL-VISUAL-001/raw/en-idle-server-current.html",
+      "bytes": 1754,
+      "sha256": "93bfd2ebe771082fff7fea664b6caa251a693cd6760dd9be14c3bc290d40bb5e"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-MANUAL-VISUAL-001/raw/en-idle-server-original.html",
+      "bytes": 1642,
+      "sha256": "ff35573824b1d475b41dff022bf0444fa2a6c45978f7f4ae017736437a334048"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-MANUAL-VISUAL-001/raw/en-idle-unavailable-current.html",
+      "bytes": 1827,
+      "sha256": "0610c1195d9cc05b735892054943554a047fc260fabf1da471e51b9df58565af"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-MANUAL-VISUAL-001/raw/en-idle-unavailable-original.html",
+      "bytes": 1715,
+      "sha256": "dfc9c6e7efe7d740dae15ed310531f3c37868a8c223c4a5f9433ad8a11c28449"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-MANUAL-VISUAL-001/raw/en-provider-auto-running-idle-current.html",
+      "bytes": 1850,
+      "sha256": "ada6d4dcf4f8141a127c48bb8f2cb572bd739328c8e42ae88188a58c82a8bc67"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-MANUAL-VISUAL-001/raw/en-provider-auto-running-idle-original.html",
+      "bytes": 1714,
+      "sha256": "0e9bac8893a06e0c2d88f56feef6e67a9af9fba058d83298863fcc59c97b37c9"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-MANUAL-VISUAL-001/raw/en-provider-backend-unavailable-reading-current.html",
+      "bytes": 2206,
+      "sha256": "2046a68bfa087cec87f568a19559800746883c8a85fdbe3aa4baa27335c11ef6"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-MANUAL-VISUAL-001/raw/en-provider-backend-unavailable-reading-original.html",
+      "bytes": 2094,
+      "sha256": "fe7ee556e378b65ee41ad7468f028ca0bc8ec420e9583a336f2ceda7fbb0cb0a"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-MANUAL-VISUAL-001/raw/en-provider-backend-unavailable-with-server-current.html",
+      "bytes": 1826,
+      "sha256": "a8bb344e67ade2d6bc7e88dbca5996f9ba49d885588d68e9dcc90f7e5b4389f5"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-MANUAL-VISUAL-001/raw/en-provider-backend-unavailable-with-server-original.html",
+      "bytes": 1714,
+      "sha256": "0e9bac8893a06e0c2d88f56feef6e67a9af9fba058d83298863fcc59c97b37c9"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-MANUAL-VISUAL-001/raw/en-reading-high-current.html",
+      "bytes": 2203,
+      "sha256": "6d681cef83d9a97d60a46386bbc13b49b5fce744aff3c141c954ebaf439149a0"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-MANUAL-VISUAL-001/raw/en-reading-high-original.html",
+      "bytes": 2103,
+      "sha256": "d7129e61c8eefef01e5b5637713c6a9291eca1e94468c8fd46aa48fa0643dd48"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-MANUAL-VISUAL-001/raw/en-reading-low-current.html",
+      "bytes": 2204,
+      "sha256": "3211ced32fdf2f9f4611dd351b4c6fa81c9b9f8ad7315bd5da69cde758c52ece"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-MANUAL-VISUAL-001/raw/en-reading-low-original.html",
+      "bytes": 2104,
+      "sha256": "803bc3fe532a3c60a351919e6483e1730b3ec4052191461aa1b952673d7022a3"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-MANUAL-VISUAL-001/raw/ja-completed-timing-current.html",
+      "bytes": 2320,
+      "sha256": "85dc7a83bf524e1fb2386ed75eeb25c47f0a9fae53509aeb4bbb68cc362f687d"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-MANUAL-VISUAL-001/raw/ja-completed-timing-original.html",
+      "bytes": 2220,
+      "sha256": "37a7121917868aa44a166e26bf151b8584006f0f2d77a1fabb230e198551d683"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-MANUAL-VISUAL-001/raw/ja-error-current.html",
+      "bytes": 2419,
+      "sha256": "b745154314c8033353e9401c3dc304c6831a3dc99d03f9eb974195aa11eb9a02"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-MANUAL-VISUAL-001/raw/ja-error-original.html",
+      "bytes": 2319,
+      "sha256": "1f465fe181a8bf6b836222cf5c746d229ad8ac29708de6b72605de686fd3a2bd"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-MANUAL-VISUAL-001/raw/ja-idle-server-current.html",
+      "bytes": 1858,
+      "sha256": "6364362e2a424b6b23ee248e37b0c0bb50be49584d4c01cd635dd60ceb02235b"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-MANUAL-VISUAL-001/raw/ja-idle-server-original.html",
+      "bytes": 1746,
+      "sha256": "6e5e2e2808b8a9afd740800cc4388a908a6b19dfc14c2d13d67d27669df3cc00"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-MANUAL-VISUAL-001/raw/ja-idle-unavailable-current.html",
+      "bytes": 1931,
+      "sha256": "ab3435438550223923f455bd64991b1d91f1a8dd5d946de00d02b4a4c866700f"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-MANUAL-VISUAL-001/raw/ja-idle-unavailable-original.html",
+      "bytes": 1819,
+      "sha256": "6aa6edaa52fcbaa653d0389bc00137bd6a67afd0c9407636c75d2a0badbad590"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-MANUAL-VISUAL-001/raw/ja-reading-high-current.html",
+      "bytes": 2313,
+      "sha256": "340a2572e76f2d8e069eac059826f94d0eca90b2114317f0ed377ea4e5e11567"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-MANUAL-VISUAL-001/raw/ja-reading-high-original.html",
+      "bytes": 2213,
+      "sha256": "a81da9fb4bc604f5a88991e2591ebe9c320a01dc2b1530ba1e2abd3ec08f8e85"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-MANUAL-VISUAL-001/raw/ja-reading-low-current.html",
+      "bytes": 2314,
+      "sha256": "0f58b125e45bebb2e5f37b49da6dace348d1265159c4a0e468b1c0333f72898f"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-MANUAL-VISUAL-001/raw/ja-reading-low-original.html",
+      "bytes": 2214,
+      "sha256": "763c8f75cc9a769fbbd1b8373f3230b61073020696e1b35d72332cfbc2d11860"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-MANUAL-VISUAL-001/record-integrity.mjs",
+      "bytes": 3096,
+      "sha256": "65adac1318831127b0e9c6c47140ae62bc03185a6c890550477b3f2f40157f11"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-MANUAL-VISUAL-001/render-results.json",
+      "bytes": 197458,
+      "sha256": "bb6e032e3ea34428e387ea42d3e2d3ccd1c9ad16453313e57868cfb8da2af876"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-MANUAL-VISUAL-001/selection-counter-evidence.json",
+      "bytes": 2579,
+      "sha256": "f65d692de1a31185c186fac499c54c4d0b74a00136645e394680a0f1324699d0"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-MANUAL-VISUAL-001/serve-reference.mjs",
+      "bytes": 1232,
+      "sha256": "41a7a8bfce3d6e27a7c523ae8f6ca150cd7fd7859f2cb80ff45068698cc33fb3"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-MANUAL-VISUAL-001/validate-evidence.mjs",
+      "bytes": 8196,
+      "sha256": "4b246b67a339ca730826447f2f897a45ae36ca0ddee12244c8c2c69a834ad49c"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-MANUAL-VISUAL-001/verification.json",
+      "bytes": 1706,
+      "sha256": "67f8f8b06312c26eeb683f3b40796bb9726d64af99cd2cb409e66104444abbd4"
+    }
+  ],
+  "generatedDocuments": "Excluded from Git/integrity; reproduce with compare-renderers.mjs. Raw scoped HTML and screenshot hashes are pinned."
+}

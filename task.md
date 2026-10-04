@@ -1,5 +1,13 @@
 # Current project directive
 
+Current lead continuation, 2026-10-04: MAP-MANUAL-VISUAL-001 is COMPLETE / ACCEPTED
+for its bounded offline comparison evidence after lead takeover. No production
+correction was included. Next open correction is MMV-BEHAVIOR-001 Manual last-type
+deselection (both JSX predicate and frontend helper), then remaining visual
+inventory. Native/original-runtime pixel gates remain separate; UI is PARTIAL.
+Read docs/reviews/2026-10-04-LWB317-UI-MAP-MANUAL-VISUAL-001.md. Older dispatches
+below are historical and do not authorize resuming already accepted assignments.
+
 Dispatch, 2026-10-04: `LWB317-UI-SHELL-MAP-ENTRY-001` is READY for one worker,
 without subagents. Restore source-backed Map-entry summary dispatch ordering
 without blocking navigation on acknowledgement. Read its work item and preserve

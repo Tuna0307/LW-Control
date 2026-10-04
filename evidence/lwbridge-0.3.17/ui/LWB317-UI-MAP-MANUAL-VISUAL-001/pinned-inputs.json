@@ -1,0 +1,376 @@
+{
+  "task": "LWB317-UI-MAP-MANUAL-VISUAL-001",
+  "generatedAt": "2026-10-04",
+  "reference": {
+    "exe": {
+      "path": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW\\lwbridge-0.3.17.exe",
+      "sha256": "4e9c3113dedfd7e1a752404c6936aab304e67d7ffdb0952a5003c2ec948d6783"
+    },
+    "panel": {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js",
+      "sha256": "ce74345518be72e417a510b982c591729e5683f69751e190805598c4c05d3089",
+      "bytes": 57600
+    },
+    "css": {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-rIL9Fpht.css",
+      "sha256": "3d87e9f65b39eace6a1a254bfc90a38acb72613d1fff7236c7cee7ab9bfaf545",
+      "bytes": 126217
+    },
+    "locators": [
+      {
+        "name": "MapDataPanel R",
+        "file": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js",
+        "utf8ByteOffset": 29826,
+        "byteLength": 27748,
+        "sha256": "8343c829ff601822396216101417541fae7a348636757b73812e2ec9880d3905"
+      },
+      {
+        "name": "MapDataPanel R final return",
+        "file": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js",
+        "utf8ByteOffset": 43827,
+        "byteLength": 13746,
+        "sha256": "208c9083f8b5631b0b4da0fe6525c42408f31648a567519c81b95cba9a7c5e43"
+      },
+      {
+        "name": "Ie scan types",
+        "file": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js",
+        "utf8ByteOffset": 5647,
+        "byteLength": 396,
+        "sha256": "428d265d856d8c2b00e0596aa60085db4ed9297bc50cab6b440d5d621c40ffb1"
+      },
+      {
+        "name": "N timing helper",
+        "file": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js",
+        "utf8ByteOffset": 7885,
+        "byteLength": 137,
+        "sha256": "a1f787abed74d30468f5b97df50a883f4fc29c5549bfde957a40bb269256e7b3"
+      },
+      {
+        "name": "Je timing helper",
+        "file": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js",
+        "utf8ByteOffset": 8022,
+        "byteLength": 175,
+        "sha256": "880678fb896af4a8e14462ec828a2fe2d641983228440d8c3a2be3e55a1964ff"
+      },
+      {
+        "name": "Ye timing helper",
+        "file": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js",
+        "utf8ByteOffset": 8197,
+        "byteLength": 218,
+        "sha256": "6c46f5ef1b14691b159621178d2c4831461be4185f73d2c73d93683e6c583992"
+      },
+      {
+        "name": "Xe timing helper",
+        "file": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js",
+        "utf8ByteOffset": 8415,
+        "byteLength": 183,
+        "sha256": "626b75ddf0bbf504f7648100bf9a388ab52a6829df53888e4bce28bb3115f012"
+      },
+      {
+        "name": "Ze timing helper",
+        "file": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js",
+        "utf8ByteOffset": 8598,
+        "byteLength": 68,
+        "sha256": "ccd3efafe155a7a316e5cc94b2844d694b7056725986aa9c180caa857406c18c"
+      },
+      {
+        "name": "P timing helper",
+        "file": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js",
+        "utf8ByteOffset": 8666,
+        "byteLength": 87,
+        "sha256": "d8901a88b14683786246688df68172203e4cf712740f15b090225eef1b4d696e"
+      },
+      {
+        "id": "original-map-panel-root",
+        "file": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js",
+        "utf8ByteOffset": 43855,
+        "byteLength": 27,
+        "sha256": "d8950e62181bb28e58c4098d7c63f864fff575d18822a9ef9ecbe15a82d52532",
+        "line": 1,
+        "text": "className:`panel map-panel`"
+      },
+      {
+        "id": "original-speed-toggle",
+        "file": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js",
+        "utf8ByteOffset": 45106,
+        "byteLength": 51,
+        "sha256": "457dc729d6b9bccbfc5f1f7575eb877db1a39cb115ac14eb93afe71eeb70c886",
+        "line": 1,
+        "text": "className:`map-speed-toggle${F===`fast`?` fast`:``}"
+      },
+      {
+        "id": "original-start-button",
+        "file": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js",
+        "utf8ByteOffset": 45657,
+        "byteLength": 119,
+        "sha256": "822996204e69b4416daa980e387a0d82d326779fb42e1297a7c31a264ea8f1e0",
+        "line": 1,
+        "text": "(0,E.jsx)(`button`,{className:C.isReading?``:`primary`,onClick:$n,disabled:C.isReading,children:S(`map.startReading`)})"
+      },
+      {
+        "id": "original-stop-button",
+        "file": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js",
+        "utf8ByteOffset": 45777,
+        "byteLength": 114,
+        "sha256": "a7cab0fd3a9f494bf153a284dd7df6357fc5476cf791b11158b8cc09c179aaf0",
+        "line": 1,
+        "text": "(0,E.jsx)(`button`,{className:C.isReading?`danger`:``,onClick:er,disabled:!C.isReading,children:S(`common.stop`)})"
+      },
+      {
+        "id": "original-clear-button",
+        "file": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js",
+        "utf8ByteOffset": 45892,
+        "byteLength": 87,
+        "sha256": "5f0ce619de511f80b845bd2eba8da8f540b9d6c9818efa3184c9de3cfdf12de4",
+        "line": 1,
+        "text": "(0,E.jsx)(`button`,{onClick:tr,disabled:!R||C.isReading,children:S(`map.clearServer`)})"
+      },
+      {
+        "id": "original-start-disabled",
+        "file": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js",
+        "utf8ByteOffset": 45723,
+        "byteLength": 51,
+        "sha256": "94d722a61776c79defc9d316fadf7f3f2cbf6a74b87a1609a0c581fb1ac51c16",
+        "line": 1,
+        "text": "disabled:C.isReading,children:S(`map.startReading`)"
+      },
+      {
+        "id": "original-stop-disabled",
+        "file": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js",
+        "utf8ByteOffset": 45842,
+        "byteLength": 47,
+        "sha256": "2e1705b991c4d04325d32a55078be7b349a55b82b983be646eb4d689d53fa907",
+        "line": 1,
+        "text": "disabled:!C.isReading,children:S(`common.stop`)"
+      },
+      {
+        "id": "original-clear-disabled",
+        "file": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js",
+        "utf8ByteOffset": 45923,
+        "byteLength": 54,
+        "sha256": "295fa67e36f84e4020f57e06474c0643766eb34074fd327cbc737015de802bef",
+        "line": 1,
+        "text": "disabled:!R||C.isReading,children:S(`map.clearServer`)"
+      },
+      {
+        "id": "original-scan-type-label-class",
+        "file": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js",
+        "utf8ByteOffset": 50000,
+        "byteLength": 33,
+        "sha256": "a8de4383d88272e9d2d5371523a45a327ac9009135b7a79e36b830399e25b4e4",
+        "line": 1,
+        "text": "className:e.enabled?``:`disabled`"
+      },
+      {
+        "id": "original-scan-type-input",
+        "file": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js",
+        "utf8ByteOffset": 50063,
+        "byteLength": 62,
+        "sha256": "fc674578fccf23c4c86b98f56eceaadb232529ef44bd944bddd93b0da0934a06",
+        "line": 1,
+        "text": "type:`checkbox`,disabled:!e.enabled,checked:Ke.includes(e.key)"
+      }
+    ]
+  },
+  "current": {
+    "files": [
+      {
+        "path": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+        "sha256": "a1caaccb7c3f3a6658c65a819735c639f52494b6c708a33c0de13b281fd0e974",
+        "bytes": 61458
+      },
+      {
+        "path": "src/LWBridge.UI-0.3.17/src/mapScanPresentation.js",
+        "sha256": "76c2ac646e79ea372965f9c2da61d90356daf7fa2f47e52dd9180d745e2dc5d0",
+        "bytes": 2711
+      },
+      {
+        "path": "src/LWBridge.UI-0.3.17/src/mapScanHeaderFixtures.js",
+        "sha256": "437d5f4cbdaf2fb95e52a2496b02f57b5233d29bca51a4f7428b0bc9c5b98720",
+        "bytes": 1173
+      },
+      {
+        "path": "src/LWBridge.UI-0.3.17/src/reference.css",
+        "sha256": "3d87e9f65b39eace6a1a254bfc90a38acb72613d1fff7236c7cee7ab9bfaf545",
+        "bytes": 126217
+      },
+      {
+        "path": "src/LWBridge.UI-0.3.17/src/styles.css",
+        "sha256": "b50910d37a4dd02d7bb49b506735ea42615ef0f9e85714e880049481aece2ccc",
+        "bytes": 149
+      },
+      {
+        "path": "src/LWBridge.UI-0.3.17/src/main.jsx",
+        "sha256": "7dd7727093e4234b893682a77f780966345f7478e35610d69476aea95b411755",
+        "bytes": 356
+      }
+    ],
+    "locales": {
+      "en": {
+        "path": "src/LWBridge.UI-0.3.17/src/locales/en.js",
+        "sha256": "357682d9179ae712ee563950467b7a93b5aea89322afc993e079fedee28432c1"
+      },
+      "ja": {
+        "path": "src/LWBridge.UI-0.3.17/src/locales/ja.js",
+        "sha256": "e1fed1e9aaf052963e3d8f5a5f8b9ae96b002a05a9dd7bb06a460a66187755eb"
+      }
+    },
+    "cssImportOrder": [
+      "./reference.css",
+      "./styles.css"
+    ],
+    "referenceCssExactlyMatchesOriginal": true,
+    "scopedStylesOverrides": [],
+    "locators": [
+      {
+        "name": "MapDataPage",
+        "file": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+        "utf8ByteOffset": 12340,
+        "byteLength": 49116,
+        "sha256": "5e3fb204ac1b91276b8e3dfb05ca2a9b0f11b9d720f5527d3a74213a4f6ad6e9",
+        "line": 234
+      },
+      {
+        "name": "MapDataPage final return",
+        "file": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+        "utf8ByteOffset": 43755,
+        "byteLength": 17698,
+        "sha256": "5ce083db2f284bafcc791d9934d7981d72195effad64276bd92121cb2cc5aa62",
+        "line": 977
+      },
+      {
+        "id": "current-map-panel-bridge-mode",
+        "file": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+        "utf8ByteOffset": 43806,
+        "byteLength": 29,
+        "sha256": "0133e32e6773d264c028df7efbc9202a6065fe0602d657fa14bca1c1a92a8647",
+        "line": 978,
+        "text": "data-bridge-mode={bridgeMode}"
+      },
+      {
+        "id": "current-speed-toggle",
+        "file": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+        "utf8ByteOffset": 45408,
+        "byteLength": 45,
+        "sha256": "8883ebaf4e82b1fe2b4e34b30c723e0a95700ac4f8c9d332134919d4c6740d7c",
+        "line": 997,
+        "text": "disabled={scanState.isReading || autoRunning}"
+      },
+      {
+        "id": "current-start-button",
+        "file": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+        "utf8ByteOffset": 45995,
+        "byteLength": 181,
+        "sha256": "59f7fbf5044a9f97de64168ae4b3abdb0e7f89c80a9a96720c86ebd692b905c1",
+        "line": 1002,
+        "text": "<button type=\"button\" className={!scanState.isReading ? \"primary\" : \"\"} disabled={!online || scanState.isReading || autoRunning} onClick={startScan}>{t(\"map.startReading\")}</button>"
+      },
+      {
+        "id": "current-stop-button",
+        "file": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+        "utf8ByteOffset": 46192,
+        "byteLength": 169,
+        "sha256": "a3c55b4e7bdb74ad913d28d62d3e13bd216fa86383889fed2640d1253e6bcca6",
+        "line": 1003,
+        "text": "<button type=\"button\" className={scanState.isReading ? \"danger\" : \"\"} disabled={!backendAvailable || !scanState.isReading} onClick={stopScan}>{t(\"common.stop\")}</button>"
+      },
+      {
+        "id": "current-clear-button",
+        "file": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+        "utf8ByteOffset": 46377,
+        "byteLength": 157,
+        "sha256": "05e718c115f406cc69c86dd539630d7520aadaa982d1c38422fdd8e1efa5025a",
+        "line": 1004,
+        "text": "<button type=\"button\" disabled={!backendAvailable || !dataServerId || scanState.isReading || autoRunning} onClick={clearData}>{t(\"map.clearServer\")}</button>"
+      },
+      {
+        "id": "current-start-disabled",
+        "file": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+        "utf8ByteOffset": 46067,
+        "byteLength": 56,
+        "sha256": "3981304ad8d40a5534ccb14aac06a2596d6e8dd845b895bf9ceb31840eeb4101",
+        "line": 1002,
+        "text": "disabled={!online || scanState.isReading || autoRunning}"
+      },
+      {
+        "id": "current-stop-disabled",
+        "file": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+        "utf8ByteOffset": 46262,
+        "byteLength": 52,
+        "sha256": "a4fe979643e206e3581837614a9e7440a2314e00b657834aef430bcf7368e8b2",
+        "line": 1003,
+        "text": "disabled={!backendAvailable || !scanState.isReading}"
+      },
+      {
+        "id": "current-clear-disabled",
+        "file": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+        "utf8ByteOffset": 46399,
+        "byteLength": 83,
+        "sha256": "6f8f4495f404fcbf9d64d9370a8ddf850ab8b09ef2acae8849bd8a6357d3e7b1",
+        "line": 1004,
+        "text": "disabled={!backendAvailable || !dataServerId || scanState.isReading || autoRunning}"
+      },
+      {
+        "id": "current-scan-type-input",
+        "file": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+        "utf8ByteOffset": 51702,
+        "byteLength": 65,
+        "sha256": "a4071b3050cfb3a95c2eb15fee04243f2e827ec84409320ebad1eed2c5dc1811",
+        "line": 1085,
+        "text": "disabled={selectedTypes.length === 1 && selectedTypes[0] === key}"
+      },
+      {
+        "id": "current-scan-type-label-span",
+        "file": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+        "utf8ByteOffset": 51848,
+        "byteLength": 43,
+        "sha256": "d02d7d4cd9b051a9f00956963f7f6a7409ff107c2d92c1fc28a9e68652703cc2",
+        "line": 1086,
+        "text": "<span>{t(SCAN_TYPE_LABEL_KEYS[key])}</span>"
+      }
+    ]
+  },
+  "harness": {
+    "timezone": "Asia/Singapore",
+    "now": 1791095400000,
+    "clockIso": "2026-10-04T06:30:00.000Z",
+    "translation": "Current exact-recovered en/ja catalogs are injected into both executed renderers so text inputs are identical.",
+    "hooks": "Existing persistent hook runtimes execute the unmodified original R body and actual current MapDataPage function.",
+    "surroundingContainer": "Browser artifacts render the executed scoped map-panel directly under body; the wider application shell/navigation is intentionally excluded.",
+    "unavailableProducers": "All backend/native-facing original imports and current mapApi calls are inert harness stubs; no action handler is invoked."
+  },
+  "browserPairs": [
+    {
+      "id": "en-light-idle-unavailable",
+      "language": "en",
+      "theme": "light",
+      "caseId": "idle-unavailable",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "id": "en-dark-reading-high",
+      "language": "en",
+      "theme": "dark",
+      "caseId": "reading-high",
+      "width": 375,
+      "height": 1000
+    },
+    {
+      "id": "ja-light-completed-timing",
+      "language": "ja",
+      "theme": "light",
+      "caseId": "completed-timing",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "id": "ja-dark-error",
+      "language": "ja",
+      "theme": "dark",
+      "caseId": "error",
+      "width": 375,
+      "height": 1000
+    }
+  ]
+}

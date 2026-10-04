@@ -1,0 +1,86 @@
+{
+  "marker": "LWB317_MAP_MANUAL_VISUAL_BROWSER_COMPARED",
+  "pairs": [
+    {
+      "pairId": "en-light-idle-unavailable",
+      "caseId": "idle-unavailable",
+      "language": "en",
+      "theme": "light",
+      "viewport": {
+        "width": 1280,
+        "height": 720,
+        "deviceScaleFactor": 1
+      },
+      "originalScreenshotSha256": "f0b8022bf39100d3ca1c19365b9598647789d559b502668d18ce6f457c55eb9f",
+      "currentScreenshotSha256": "c2ea3908f996186abc50e3d0fdb2b1d46a91bdcc9dd928c88fa5e049ab8c77ad",
+      "exactScreenshotBytes": false,
+      "domMatch": false,
+      "geometryDifferences": [],
+      "styleDifferences": [
+        {
+          "anchor": "start",
+          "property": "opacity",
+          "original": "1",
+          "current": "0.45"
+        },
+        {
+          "anchor": "start",
+          "property": "cursor",
+          "original": "pointer",
+          "current": "not-allowed"
+        }
+      ]
+    },
+    {
+      "pairId": "en-dark-reading-high",
+      "caseId": "reading-high",
+      "language": "en",
+      "theme": "dark",
+      "viewport": {
+        "width": 375,
+        "height": 1000,
+        "deviceScaleFactor": 1
+      },
+      "originalScreenshotSha256": "dc0adefbc0bd743ce37d0732e74d97ec5e314825745da3ea3ae5548ee2b89302",
+      "currentScreenshotSha256": "dc0adefbc0bd743ce37d0732e74d97ec5e314825745da3ea3ae5548ee2b89302",
+      "exactScreenshotBytes": true,
+      "domMatch": false,
+      "geometryDifferences": [],
+      "styleDifferences": []
+    },
+    {
+      "pairId": "ja-light-completed-timing",
+      "caseId": "completed-timing",
+      "language": "ja",
+      "theme": "light",
+      "viewport": {
+        "width": 1280,
+        "height": 720,
+        "deviceScaleFactor": 1
+      },
+      "originalScreenshotSha256": "e3587801228b2b62b34f99cd1707ce7b640af7cb40e55036579ac01959dc07d7",
+      "currentScreenshotSha256": "e3587801228b2b62b34f99cd1707ce7b640af7cb40e55036579ac01959dc07d7",
+      "exactScreenshotBytes": true,
+      "domMatch": false,
+      "geometryDifferences": [],
+      "styleDifferences": []
+    },
+    {
+      "pairId": "ja-dark-error",
+      "caseId": "error",
+      "language": "ja",
+      "theme": "dark",
+      "viewport": {
+        "width": 375,
+        "height": 1000,
+        "deviceScaleFactor": 1
+      },
+      "originalScreenshotSha256": "9ede7f37b24cb18e13164504a7b9e24b27f04c63e1598abbe2e34018add59520",
+      "currentScreenshotSha256": "9ede7f37b24cb18e13164504a7b9e24b27f04c63e1598abbe2e34018add59520",
+      "exactScreenshotBytes": true,
+      "domMatch": false,
+      "geometryDifferences": [],
+      "styleDifferences": []
+    }
+  ]
+}

@@ -1,5 +1,12 @@
 # UI completion checklist — 2026-10-03
 
+Latest lead closeout, 2026-10-04: MAP-MANUAL-VISUAL-001 comparison packet accepted
+after takeover; four pairs inspected, three PNG matches, strict equal rectangles.
+The next open bounded correction is Manual last-type deselection
+(MMV-BEHAVIOR-001), affecting JSX and selection helper. No production correction
+was included. Remaining Map/page visuals and original runtime pixels stay separate;
+global UI remains PARTIAL. See its dated review. Older dispatch notes are historical.
+
 Current worker dispatch, 2026-10-04: MAP-MANUAL-VISUAL-001 is the next medium unit:
 offline exact-source/current Manual scan header/timing/progress/error/type-strip
 DOM/CSS/geometry comparison. Evidence-only; return discrepancies for lead review.

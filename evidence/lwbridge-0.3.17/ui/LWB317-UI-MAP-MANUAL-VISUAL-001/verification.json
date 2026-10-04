@@ -1,0 +1,38 @@
+{
+  "task": "LWB317-UI-MAP-MANUAL-VISUAL-001",
+  "leadTakeover": true,
+  "productionCodeChanged": false,
+  "checks": [
+    {
+      "command": "node evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-MANUAL-VISUAL-001/compare-renderers.mjs",
+      "result": "PASS:12 core,3 provider comparisons;0 exact raw markup/view matches; differences retained"
+    },
+    {
+      "command": "node evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-MANUAL-VISUAL-001/capture-browser.mjs",
+      "result": "PASS:4 pairs,3 exact screenshot pairs,0 geometry differences,2 styles,0 console issues"
+    },
+    {
+      "command": "node evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-MANUAL-VISUAL-001/check-selection-counter-evidence.mjs --record",
+      "result": "PASS:original empty selection,current city retained"
+    },
+    {
+      "command": "npm.cmd --prefix src/LWBridge.UI-0.3.17 run check",
+      "result": "PASS"
+    },
+    {
+      "command": "npm.cmd --prefix src/LWBridge.UI-0.3.17 run check:production-build",
+      "result": "PASS",
+      "buildFingerprint": "e98a0dcc46750ea62c028073e8115093519a4e597af4476cffeca638d3b1a473",
+      "packageFingerprint": "7ecbdf9d909eb105a4039dd8c26b2304e7ca77ebf9e72f74ac24e3bd4ef4dcd6"
+    },
+    {
+      "command": "node evidence/lwbridge-0.3.17/ui/LWB317-UI-HOME-PREFERENCE-LIFETIME-001B/check-protected-wip.mjs",
+      "result": "PASS:10/10"
+    },
+    {
+      "command": "node evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-MANUAL-VISUAL-001/validate-evidence.mjs",
+      "result": "PASS:32 dependencies,57 evidence files,35 slices,12 core/3 provider cases,4 browser pairs"
+    }
+  ],
+  "remaining": "Comparison packet complete; MMV-BEHAVIOR-001 correction and broader visuals remain separate."
+}

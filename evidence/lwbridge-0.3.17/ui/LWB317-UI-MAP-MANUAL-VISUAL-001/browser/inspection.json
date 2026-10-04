@@ -1,0 +1,33 @@
+{
+  "status": "PASS",
+  "inspectedAt": "2026-10-04",
+  "pairs": [
+    {
+      "pairId": "en-light-idle-unavailable",
+      "status": "INSPECTED",
+      "observation": "Same layout and content. Current Start Scan is visibly faded while original Start Scan is enabled, matching the measured opacity/cursor fence difference."
+    },
+    {
+      "pairId": "en-dark-reading-high",
+      "status": "INSPECTED",
+      "observation": "Pair is visually identical at 375 CSS px. Timing, active Stop button, 72.5% progress and all scan-type chips align."
+    },
+    {
+      "pairId": "ja-light-completed-timing",
+      "status": "INSPECTED",
+      "observation": "Pair is visually identical. Japanese labels, completed status, server, 100% progress and completed timing align."
+    },
+    {
+      "pairId": "ja-dark-error",
+      "status": "INSPECTED",
+      "observation": "Pair is visually identical at 375 CSS px and the complete assigned region is visible. Error text/role presentation and all eight scan-type chips align."
+    }
+  ],
+  "sharedResponsiveObservation": "At 375 CSS px the recovered <=760px rules turn the summary into a column while .map-scan-summary .map-progress retains flex-basis 220px, producing a tall progress area. Original and current have identical recovered CSS and identical measured geometry, so this is shared source behavior rather than a clone discrepancy.",
+  "leadReview": {
+    "inspectedScreenshotFiles": 8,
+    "freshCaptureRerun": true,
+    "geometryComparison": "strict equality; no rectangle tolerance",
+    "caveat": "Isolated source-rendered fragments; full shell and original protected runtime are excluded."
+  }
+}
