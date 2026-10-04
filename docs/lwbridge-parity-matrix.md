@@ -1,5 +1,11 @@
 # LWBridge 0.3.17 parity matrix
 
+Lead audit, 2026-10-04: MAP-TOOLBAR-VISUAL-001 CHANGES_REQUIRED. Source-backed
+ancestry/count/class fixes verified, but Treasure extra spans produce wrong text
+color/1,734 non-fence pixels. Current source/local gate unaccepted pending R1 and
+stronger descendant/dependency/pixel evidence. VISUAL-FINAL-CAMPAIGN-001 assigned
+through owner relay; overall/native/original-runtime statuses unchanged.
+
 Worker delivery, 2026-10-04: MAP-TOOLBAR-VISUAL-001 is **AWAITING_REVIEW** for
 its bounded source/local toolbar/filter/count/pagination gate. The corrected current
 renderer has zero geometry differences across all six required browser pairs; City

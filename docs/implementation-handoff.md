@@ -1,5 +1,15 @@
 # Current implementation/research handoff
 
+Current lead decision/owner relay, 2026-10-04: MAP-TOOLBAR-VISUAL-001 at24ea7b9
+is CHANGES_REQUIRED. Lead/source replays pass, but independent decoded pixels prove
+wrong Treasure label color outside action fences. Actual mounted34-case QA,
+fresh build/package and WIP10 pass; no production edit by lead. Read the new dated
+REVIEW-MAP-TOOLBAR-VISUAL-001 and lead evidence packet for exact R1/R2.
+Next worker: docs/work-items/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001.md, one worker
+alone, sequential A–J, owner-authorized large exception. Start with toolbar R1,
+then remaining Map, six pages, shared interface and final complete-app audit.
+Owner4335 preserved. Global UI remains PARTIAL; older delivery claims historical.
+
 Current worker delivery, 2026-10-04: MAP-TOOLBAR-VISUAL-001 is
 **AWAITING_REVIEW**. Milestone A `4574cc8` preserves the assignment-start renderer
 baseline; Milestone B `9668133` corrects `.map-search` table/pagination ancestry,

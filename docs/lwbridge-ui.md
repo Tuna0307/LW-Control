@@ -1,5 +1,12 @@
 # LWBridge 0.3.17 UI parity plan
 
+Latest lead audit, 2026-10-04: toolbar delivery24ea7b9 is CHANGES_REQUIRED despite
+passing saved validator. Treasure checkbox spans change text color; independent
+pixel proof finds1,734 differences outside disabled actions. Source corrections
+otherwise match. See REVIEW-MAP-TOOLBAR-VISUAL-001. Owner requests the large
+VISUAL-FINAL-CAMPAIGN-001, units A–J, beginning with R1/evidence strengthening then
+Map/six tabs/shared shell/final corrections. Global UI PARTIAL; no native phase.
+
 Worker delivery, 2026-10-04: MAP-TOOLBAR-VISUAL-001 is **AWAITING_REVIEW** after
 all three bounded milestones. Source/current comparison covered 34 required EN/JA
 states plus boundary/error/loading cases; three proven toolbar/pagination presentation

@@ -22,6 +22,11 @@ Owner direction, 2026-10-04: prefer one small-to-medium bounded assignment per
 worker dispatch. Larger remaining campaigns are split into separately reviewed
 units; preserve quality and durable checkpoints rather than expanding a unit.
 
+Owner exception, 2026-10-04: explicitly assign VISUAL-FINAL-CAMPAIGN-001 as one
+large worker campaign covering all four remaining visual groups, through sequential
+units A–J and durable commits. This exception supersedes the size preference only
+for that campaign. Single-worker/evidence/lead-acceptance rules remain in force.
+
 ### Project lead
 
 Owns:

@@ -1,6 +1,11 @@
 # LWB317-UI-MAP-TOOLBAR-VISUAL-001 — worker delivery
 
-Status: **AWAITING_REVIEW**. Project-lead acceptance remains pending.
+Lead superseding decision, 2026-10-04: **CHANGES_REQUIRED**. The independent
+REVIEW-MAP-TOOLBAR-VISUAL-001 found1,734 Treasure label pixels outside native-action
+fences and incomplete descendant/dependency validation. The worker's zero-defect
+claim below is historical and not accepted. See the separate lead review.
+
+Historical worker delivery status: **AWAITING_REVIEW**.
 
 The recovered Map renderer exposed three bounded presentation differences in the
 normal data toolbar/pagination surface. Current production rendered table/error/

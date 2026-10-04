@@ -1,5 +1,12 @@
 # UI completion checklist — 2026-10-03
 
+Lead audit/owner relay, 2026-10-04: MAP-TOOLBAR-VISUAL-001 is CHANGES_REQUIRED:
+Treasure label spans cause1,734 changed pixels outside intentional action fences;
+dependency/descendant/pixel validation and action-message coverage need correction.
+Owner now requests one large VISUAL-FINAL-CAMPAIGN-001 through sequential units
+A–J: toolbar R1 first, remaining Map, six tabs, shared interface, final audit.
+Global UI PARTIAL; older worker zero-defect/size/dispatch notes below are historical.
+
 Worker delivery, 2026-10-04: MAP-TOOLBAR-VISUAL-001 is **AWAITING_REVIEW**.
 The assigned 34-state renderer matrix, mounted local interactions, nine-catalog
 inventory and six browser pairs are complete. Three recovered presentation drifts

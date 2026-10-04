@@ -1,5 +1,11 @@
 # LWBridge 0.3.17 feature ledger
 
+Lead finding, 2026-10-04: toolbar source fixes are verified, but Treasure labels
+at MapDataPage1127/1128 wrap direct original text in spans, triggering muted color.
+Independent PNG proof1,734 pixels outside claim-button fences. Toolbar gate remains
+CHANGES_REQUIRED; required R1 and evidence closure are unit A of the assigned large
+VISUAL-FINAL-CAMPAIGN-001. No native or global pixel acceptance is advanced.
+
 Worker delivery, 2026-10-04: MAP-TOOLBAR-VISUAL-001 is **AWAITING_REVIEW**.
 Recovered `.map-search` ancestry, direct normal result counts and the plunderable
 filter class are corrected locally; required renderer/browser/interaction evidence

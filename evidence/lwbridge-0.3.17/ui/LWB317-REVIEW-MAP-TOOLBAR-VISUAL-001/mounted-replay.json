@@ -1,0 +1,22 @@
+{
+  "marker": "LWB317_LEAD_TOOLBAR_MOUNTED_REPLAY",
+  "sourceSha256": "e94051742f0130b20980179e58e48ad1ed481469dd5e3df829b3847b4a2c6a48",
+  "adaptations": [
+    {
+      "before": "const screenshots = path.join(here, \"screenshots\");",
+      "after": "const screenshots = \"C:\\\\Users\\\\chimw\\\\OneDrive\\\\Desktop\\\\Github\\\\LW-Control\\\\evidence\\\\lwbridge-0.3.17\\\\ui\\\\LWB317-REVIEW-MAP-TOOLBAR-VISUAL-001\\\\mounted\";"
+    },
+    {
+      "before": "const baseUrl = \"http://127.0.0.1:4336/\";",
+      "after": "const baseUrl = \"http://127.0.0.1:4346/\";"
+    },
+    {
+      "before": "path.join(here, \"browser-interactions.json\")",
+      "after": "\"C:\\\\Users\\\\chimw\\\\OneDrive\\\\Desktop\\\\Github\\\\LW-Control\\\\evidence\\\\lwbridge-0.3.17\\\\ui\\\\LWB317-REVIEW-MAP-TOOLBAR-VISUAL-001\\\\mounted\\\\browser-interactions.json\""
+    }
+  ],
+  "port": 4346,
+  "exitCode": 0,
+  "stdout": "{\n  \"marker\": \"LWB317_MAP_TOOLBAR_BROWSER_INTERACTIONS_OK\",\n  \"cases\": 34,\n  \"screenshots\": 2,\n  \"consoleErrors\": 0,\n  \"browser\": \"154.0.8037.95\"\n}\n",
+  "stderr": ""
+}

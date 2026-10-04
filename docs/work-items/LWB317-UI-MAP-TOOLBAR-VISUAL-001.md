@@ -1,6 +1,12 @@
 # LWB317-UI-MAP-TOOLBAR-VISUAL-001
 
-Status: AWAITING_REVIEW, worker delivery complete 2026-10-04; project-lead acceptance pending. Size: upper-medium, three sequential milestones.
+Status: CHANGES_REQUIRED after independent project-lead review, 2026-10-04.
+R1: Treasure label spans cause 1,734 non-fence pixel differences. R2: strengthen
+dependency/pixel validation and explicit action-message presentation coverage.
+See docs/reviews/2026-10-04-LWB317-REVIEW-MAP-TOOLBAR-VISUAL-001.md.
+The three submitted production corrections are source-backed; historical worker
+delivery/evidence remains preserved. Correction is unit A of VISUAL-FINAL-CAMPAIGN-001.
+Size of original assignment: upper-medium, three sequential milestones.
 Product delivery baseline: `5a62c25118e66ec3203316bca7c82fbf43d9c705`.
 
 ## Goal and startup

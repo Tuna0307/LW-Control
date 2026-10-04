@@ -1,0 +1,65 @@
+{
+  "marker": "LWB317_LEAD_TREASURE_LABEL_COLOR_COUNTEREXAMPLE",
+  "manifestSha256": "db81fe371c2ed11b344912f46d779f5f8a3bffd771b01cde4ca5d5305e39a732",
+  "records": [
+    {
+      "side": "original",
+      "labels": [
+        {
+          "text": "Show other-alliance Radar Treasures",
+          "parentTag": "LABEL",
+          "color": "rgb(29, 29, 31)",
+          "fontSize": "13px",
+          "rect": {
+            "x": 472.609375,
+            "y": 94,
+            "width": 207.1875,
+            "height": 17
+          }
+        },
+        {
+          "text": "Prioritize lucky positions",
+          "parentTag": "LABEL",
+          "color": "rgb(29, 29, 31)",
+          "fontSize": "13px",
+          "rect": {
+            "x": 708.796875,
+            "y": 94,
+            "width": 138.828125,
+            "height": 17
+          }
+        }
+      ]
+    },
+    {
+      "side": "current",
+      "labels": [
+        {
+          "text": "Show other-alliance Radar Treasures",
+          "parentTag": "SPAN",
+          "color": "rgb(95, 95, 99)",
+          "fontSize": "13px",
+          "rect": {
+            "x": 472.609375,
+            "y": 94,
+            "width": 207.1875,
+            "height": 17
+          }
+        },
+        {
+          "text": "Prioritize lucky positions",
+          "parentTag": "SPAN",
+          "color": "rgb(95, 95, 99)",
+          "fontSize": "13px",
+          "rect": {
+            "x": 708.796875,
+            "y": 94,
+            "width": 138.828125,
+            "height": 17
+          }
+        }
+      ]
+    }
+  ],
+  "acceptance": "CHANGES_REQUIRED: equal text rectangles but unequal source/current text colors"
+}
