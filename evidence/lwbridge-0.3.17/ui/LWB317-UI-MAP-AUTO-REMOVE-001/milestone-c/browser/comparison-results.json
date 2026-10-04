@@ -1,0 +1,73 @@
+{
+  "marker": "LWB317_MAP_AUTO_REMOVE_C_BROWSER_COMPARED",
+  "pairs": [
+    {
+      "pairId": "en-light-default",
+      "caseId": "default",
+      "language": "en",
+      "theme": "light",
+      "viewport": {
+        "width": 1280,
+        "height": 720,
+        "deviceScaleFactor": 1
+      },
+      "originalScreenshotSha256": "34e3f61e8bcba907cab550c64febbdc83f542b651e1616451a5088db454c47d7",
+      "currentScreenshotSha256": "34e3f61e8bcba907cab550c64febbdc83f542b651e1616451a5088db454c47d7",
+      "exactScreenshotBytes": true,
+      "domMatch": true,
+      "geometryDifferences": [],
+      "styleDifferences": []
+    },
+    {
+      "pairId": "ja-dark-configured",
+      "caseId": "configured-waiting",
+      "language": "ja",
+      "theme": "dark",
+      "viewport": {
+        "width": 375,
+        "height": 1000,
+        "deviceScaleFactor": 1
+      },
+      "originalScreenshotSha256": "b9fa3c3e1eb8cf52e96c51354154323a94f386fc8764dca920ed717e7f8f1acd",
+      "currentScreenshotSha256": "b9fa3c3e1eb8cf52e96c51354154323a94f386fc8764dca920ed717e7f8f1acd",
+      "exactScreenshotBytes": true,
+      "domMatch": true,
+      "geometryDifferences": [],
+      "styleDifferences": []
+    },
+    {
+      "pairId": "ja-light-running",
+      "caseId": "auto-running",
+      "language": "ja",
+      "theme": "light",
+      "viewport": {
+        "width": 375,
+        "height": 1000,
+        "deviceScaleFactor": 1
+      },
+      "originalScreenshotSha256": "4e8d48fb3ff7255f68d25e5b1b7b03caf17ce30f3ccd2011b5890b04dfddbd6e",
+      "currentScreenshotSha256": "4e8d48fb3ff7255f68d25e5b1b7b03caf17ce30f3ccd2011b5890b04dfddbd6e",
+      "exactScreenshotBytes": true,
+      "domMatch": true,
+      "geometryDifferences": [],
+      "styleDifferences": []
+    },
+    {
+      "pairId": "en-dark-offline",
+      "caseId": "offline",
+      "language": "en",
+      "theme": "dark",
+      "viewport": {
+        "width": 1280,
+        "height": 720,
+        "deviceScaleFactor": 1
+      },
+      "originalScreenshotSha256": "3df6195450b1782786382079cf00325b9217ee340928cb39b741e5e1d8e3d622",
+      "currentScreenshotSha256": "3df6195450b1782786382079cf00325b9217ee340928cb39b741e5e1d8e3d622",
+      "exactScreenshotBytes": true,
+      "domMatch": true,
+      "geometryDifferences": [],
+      "styleDifferences": []
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+[
+  {
+    "pairId": "en-light-default",
+    "side": "original",
+    "issues": []
+  },
+  {
+    "pairId": "en-light-default",
+    "side": "current",
+    "issues": []
+  },
+  {
+    "pairId": "ja-dark-configured",
+    "side": "original",
+    "issues": []
+  },
+  {
+    "pairId": "ja-dark-configured",
+    "side": "current",
+    "issues": []
+  },
+  {
+    "pairId": "ja-light-running",
+    "side": "original",
+    "issues": []
+  },
+  {
+    "pairId": "ja-light-running",
+    "side": "current",
+    "issues": []
+  },
+  {
+    "pairId": "en-dark-offline",
+    "side": "original",
+    "issues": []
+  },
+  {
+    "pairId": "en-dark-offline",
+    "side": "current",
+    "issues": []
+  }
+]

@@ -1,0 +1,38 @@
+{
+  "marker": "LWB317_MAP_AUTO_REMOVE_C_BROWSER_PAIRS_PREPARED",
+  "generatedAt": "2026-10-04",
+  "pairs": [
+    {
+      "id": "en-light-default",
+      "caseId": "default",
+      "language": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "id": "ja-dark-configured",
+      "caseId": "configured-waiting",
+      "language": "ja",
+      "theme": "dark",
+      "width": 375,
+      "height": 1000
+    },
+    {
+      "id": "ja-light-running",
+      "caseId": "auto-running",
+      "language": "ja",
+      "theme": "light",
+      "width": 375,
+      "height": 1000
+    },
+    {
+      "id": "en-dark-offline",
+      "caseId": "offline",
+      "language": "en",
+      "theme": "dark",
+      "width": 1280,
+      "height": 720
+    }
+  ]
+}

@@ -1,0 +1,70 @@
+{
+  "marker": "LWB317_MAP_AUTO_REMOVE_C_SCREENSHOTS_INSPECTED",
+  "generatedAt": "2026-10-04",
+  "records": [
+    {
+      "pairId": "en-light-default",
+      "side": "original",
+      "file": "browser/en-light-default-original.png",
+      "sha256": "34e3f61e8bcba907cab550c64febbdc83f542b651e1616451a5088db454c47d7",
+      "status": "INSPECTED",
+      "observation": "Desktop English/light recovered default card is fully visible; disabled Auto state, default type selections and disabled Run now are visually coherent."
+    },
+    {
+      "pairId": "en-light-default",
+      "side": "current",
+      "file": "browser/en-light-default-current.png",
+      "sha256": "34e3f61e8bcba907cab550c64febbdc83f542b651e1616451a5088db454c47d7",
+      "status": "INSPECTED",
+      "observation": "Current desktop English/light default card visually matches the recovered original with no clipping, drift or unexpected styling."
+    },
+    {
+      "pairId": "ja-dark-configured",
+      "side": "original",
+      "file": "browser/ja-dark-configured-original.png",
+      "sha256": "b9fa3c3e1eb8cf52e96c51354154323a94f386fc8764dca920ed717e7f8f1acd",
+      "status": "INSPECTED",
+      "observation": "Narrow Japanese/dark configured card is fully visible; all three server chips show the recovered SVG remove cross without clipping."
+    },
+    {
+      "pairId": "ja-dark-configured",
+      "side": "current",
+      "file": "browser/ja-dark-configured-current.png",
+      "sha256": "b9fa3c3e1eb8cf52e96c51354154323a94f386fc8764dca920ed717e7f8f1acd",
+      "status": "INSPECTED",
+      "observation": "Current narrow Japanese/dark configured card visually matches the recovered original, including chip glyphs and wrapped helper text."
+    },
+    {
+      "pairId": "ja-light-running",
+      "side": "original",
+      "file": "browser/ja-light-running-original.png",
+      "sha256": "4e8d48fb3ff7255f68d25e5b1b7b03caf17ce30f3ccd2011b5890b04dfddbd6e",
+      "status": "INSPECTED",
+      "observation": "Narrow Japanese/light running card is fully visible; running status and disabled Run now styling are visually coherent and server-chip SVG crosses remain clear."
+    },
+    {
+      "pairId": "ja-light-running",
+      "side": "current",
+      "file": "browser/ja-light-running-current.png",
+      "sha256": "4e8d48fb3ff7255f68d25e5b1b7b03caf17ce30f3ccd2011b5890b04dfddbd6e",
+      "status": "INSPECTED",
+      "observation": "Current narrow Japanese/light running card visually matches the recovered original with no layout or state-style defect observed."
+    },
+    {
+      "pairId": "en-dark-offline",
+      "side": "original",
+      "file": "browser/en-dark-offline-original.png",
+      "sha256": "3df6195450b1782786382079cf00325b9217ee340928cb39b741e5e1d8e3d622",
+      "status": "INSPECTED",
+      "observation": "Desktop English/dark offline card is fully visible; waiting status remains displayed while Run now is disabled by the offline predicate."
+    },
+    {
+      "pairId": "en-dark-offline",
+      "side": "current",
+      "file": "browser/en-dark-offline-current.png",
+      "sha256": "3df6195450b1782786382079cf00325b9217ee340928cb39b741e5e1d8e3d622",
+      "status": "INSPECTED",
+      "observation": "Current desktop English/dark offline card visually matches the recovered original with no additional Auto-card presentation defect observed."
+    }
+  ]
+}

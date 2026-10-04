@@ -1,0 +1,554 @@
+{
+  "task": "LWB317-UI-MAP-AUTO-REMOVE-001",
+  "milestone": "C",
+  "generatedAt": "2026-10-04",
+  "evidenceState": "EXACT_BYTES / EXACT_CONTRACT + browser measurement",
+  "reference": {
+    "exe": {
+      "path": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW\\lwbridge-0.3.17.exe",
+      "sha256": "4e9c3113dedfd7e1a752404c6936aab304e67d7ffdb0952a5003c2ec948d6783"
+    },
+    "panel": {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js",
+      "sha256": "ce74345518be72e417a510b982c591729e5683f69751e190805598c4c05d3089",
+      "bytes": 57600
+    },
+    "index": {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-BVfnK1wp.js",
+      "sha256": "44c4e4043825b7db296b64171951b27176f8850ff8d7d337cc991df4765524c6",
+      "bytes": 377972
+    },
+    "css": {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-rIL9Fpht.css",
+      "sha256": "3d87e9f65b39eace6a1a254bfc90a38acb72613d1fff7236c7cee7ab9bfaf545",
+      "bytes": 126217
+    },
+    "autoCard": {
+      "asset": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js",
+      "sha256": "ce74345518be72e417a510b982c591729e5683f69751e190805598c4c05d3089",
+      "byteStart": 46001,
+      "byteEnd": 48950,
+      "source": "(0,E.jsxs)(`div`,{className:`map-auto-scan-card`,children:[(0,E.jsxs)(`label`,{className:`map-auto-scan-master`,children:[(0,E.jsx)(`input`,{type:`checkbox`,checked:x.enabled,onChange:e=>$({enabled:e.target.checked})}),(0,E.jsx)(`strong`,{children:S(`map.enableAutoScan`)}),(0,E.jsx)(`span`,{children:Ce?S(`map.autoScanRunning`):x.enabled?S(`map.autoScanWaiting`):S(`map.autoScanDisabled`)})]}),(0,E.jsxs)(`div`,{className:`map-auto-scan-grid`,children:[(0,E.jsxs)(`div`,{className:`map-auto-scan-server-field`,children:[(0,E.jsx)(`span`,{children:S(`map.targetServers`)}),(0,E.jsxs)(`span`,{className:`map-auto-scan-server-input`,children:[(0,E.jsx)(`input`,{value:zn,inputMode:`numeric`,placeholder:C.serverId>0?String(C.serverId):`8, 15, 120`,onChange:e=>Bn(e.target.value),onKeyDown:e=>{e.key===`Enter`&&(e.preventDefault(),lr())}}),(0,E.jsx)(`button`,{type:`button`,disabled:oe(zn).length===0,onClick:lr,children:S(`common.add`)})]}),(0,E.jsx)(`small`,{children:S(`map.targetServersHint`)}),(0,E.jsx)(`span`,{className:`map-auto-scan-server-chips`,children:x.serverIds.map(e=>(0,E.jsxs)(`span`,{children:[e,(0,E.jsx)(`button`,{type:`button`,\"aria-label\":`${S(`common.remove`)} ${e}`,onClick:()=>$({serverIds:le(x.serverIds,e)}),children:(0,E.jsx)(se,{name:`remove`})})]},e))})]}),(0,E.jsxs)(`label`,{children:[(0,E.jsx)(`span`,{children:S(`map.scanIntervalMinutes`)}),(0,E.jsx)(`input`,{type:`number`,min:20,max:`1440`,value:x.intervalMinutes,onChange:e=>$({intervalMinutes:Number(e.target.value)})})]}),(0,E.jsxs)(`label`,{children:[(0,E.jsx)(`span`,{children:S(`map.speed`)}),(0,E.jsxs)(`select`,{value:x.scanMode,onChange:e=>$({scanMode:e.target.value===`fast`?`fast`:`normal`}),children:[(0,E.jsx)(`option`,{value:`normal`,children:S(`map.normalSpeed`)}),(0,E.jsx)(`option`,{value:`fast`,children:S(`map.fastSpeed`)})]})]})]}),(0,E.jsxs)(`div`,{className:`map-controls`,children:[(0,E.jsx)(`span`,{className:`map-controls-label`,children:S(`map.scanTypes`)}),(0,E.jsx)(`div`,{className:`map-types map-types--compact`,children:Ie.map(e=>(0,E.jsxs)(`label`,{children:[(0,E.jsx)(`input`,{type:`checkbox`,checked:x.selectedTypes.includes(e.key),disabled:x.selectedTypes.length===1&&x.selectedTypes[0]===e.key,onChange:t=>$({selectedTypes:t.target.checked?[...x.selectedTypes,e.key]:x.selectedTypes.filter(t=>t!==e.key)})}),S(e.label)]},e.key))})]}),(0,E.jsxs)(`div`,{className:`map-auto-scan-options`,children:[(0,E.jsxs)(`label`,{children:[(0,E.jsx)(`input`,{type:`checkbox`,checked:x.returnToOriginalServer,onChange:e=>$({returnToOriginalServer:e.target.checked})}),S(`map.returnAfterAutoScan`)]}),(0,E.jsx)(`button`,{type:`button`,className:`primary`,disabled:!l||!x.enabled||Ce||C.isReading,onClick:()=>$({nextRunAt:Date.now()}),children:S(`map.runAutoScanNow`)})]}),(0,E.jsx)(`small`,{children:S(`map.autoScanNavigationNotice`)}),(0,E.jsxs)(`small`,{children:[S(`map.nextAutoScan`),`: `,x.enabled&&x.nextRunAt>0?N(x.nextRunAt,Te):`-`]})]})",
+      "note": "complete Auto Scan card JSX contract",
+      "sliceSha256": "95482098fd106baf0d23a66fad587926474f275d5cb4037a5e828e9a4f51db9b"
+    },
+    "removeIconUse": {
+      "id": "original-server-chip-remove-use",
+      "file": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js",
+      "utf8ByteOffset": 47234,
+      "byteLength": 38,
+      "sha256": "b2b007aaf5d649a3271593037d257ba1f52b3bd9e11d0f7428e02b7c0efddef3",
+      "line": 1,
+      "text": "children:(0,E.jsx)(se,{name:`remove`})"
+    },
+    "removeIconComponent": {
+      "id": "original-index-remove-icon-component",
+      "file": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-BVfnK1wp.js",
+      "utf8ByteOffset": 330489,
+      "byteLength": 1287,
+      "sha256": "7d4ce469f53cac0f5b81864b48a4cf410194a0dbfdf14e5606bf93217fdf2919",
+      "text": "function Vr({name:e}){return(0,M.jsxs)(`svg`,{className:`ui-icon${e===`favorite-filled`?` is-filled`:``}`,viewBox:`0 0 16 16`,\"aria-hidden\":`true`,focusable:`false`,children:[e===`add`&&(0,M.jsx)(`path`,{d:`M8 3v10M3 8h10`}),e===`arrow-down`&&(0,M.jsx)(`path`,{d:`M8 2.5v11M3.5 9 8 13.5 12.5 9`}),e===`arrow-up`&&(0,M.jsx)(`path`,{d:`M8 13.5v-11M3.5 7 8 2.5 12.5 7`}),e===`chevron-left`&&(0,M.jsx)(`path`,{d:`m10 3-5 5 5 5`}),e===`chevron-right`&&(0,M.jsx)(`path`,{d:`m6 3 5 5-5 5`}),e===`drag`&&(0,M.jsx)(`path`,{d:`M5 4h.01M11 4h.01M5 8h.01M11 8h.01M5 12h.01M11 12h.01`}),e===`edit`&&(0,M.jsxs)(M.Fragment,{children:[(0,M.jsx)(`path`,{d:`m3 11-.5 2.5L5 13l7.5-7.5-2-2L3 11Z`}),(0,M.jsx)(`path`,{d:`m9.5 4.5 2 2`})]}),(e===`favorite`||e===`favorite-filled`)&&(0,M.jsx)(`path`,{d:`m8 2 1.8 3.65 4.03.59-2.92 2.84.69 4.02L8 11.2l-3.6 1.9.69-4.02-2.92-2.84 4.03-.59L8 2Z`}),e===`play`&&(0,M.jsx)(`path`,{d:`m5 3 8 5-8 5V3Z`}),e===`remove`&&(0,M.jsx)(`path`,{d:`m4 4 8 8M12 4l-8 8`}),e===`settings`&&(0,M.jsxs)(M.Fragment,{children:[(0,M.jsx)(`circle`,{cx:`8`,cy:`8`,r:`2.5`}),(0,M.jsx)(`path`,{d:`M8 1.5v1.8M8 12.7v1.8M1.5 8h1.8M12.7 8h1.8M3.4 3.4l1.3 1.3M11.3 11.3l1.3 1.3M3.4 12.6l1.3-1.3M11.3 4.7l1.3-1.3`})]}),e===`stop`&&(0,M.jsx)(`rect`,{x:`4`,y:`4`,width:`8`,height:`8`,rx:`1`})]})}"
+    },
+    "typeList": {
+      "id": "original-auto-type-list",
+      "file": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js",
+      "utf8ByteOffset": 5647,
+      "byteLength": 396,
+      "sha256": "428d265d856d8c2b00e0596aa60085db4ed9297bc50cab6b440d5d621c40ffb1",
+      "line": 1,
+      "text": "Ie=[{key:`city`,label:`map.playerCity`,enabled:!0},{key:`resource`,label:`map.resourcePoint`,enabled:!0},{key:`monster`,label:`map.monster`,enabled:!0},{key:`truck`,label:`map.truck`,enabled:!0},{key:`railway`,label:`map.allianceTrain`,enabled:!0},{key:`dispatch`,label:`map.secretTask`,enabled:!0},{key:`ghost`,label:`map.ghostScout`,enabled:!0},{key:`treasure`,label:`map.treasure`,enabled:!0}]"
+    },
+    "lastTypePredicate": {
+      "id": "original-last-type-disabled-predicate",
+      "file": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js",
+      "utf8ByteOffset": 48151,
+      "byteLength": 63,
+      "sha256": "bf19785c2a5e70d4ce532566c858192c5cb3a1c09500d36d1f25961797729f42",
+      "line": 1,
+      "text": "disabled:x.selectedTypes.length===1&&x.selectedTypes[0]===e.key"
+    },
+    "runNowPredicate": {
+      "id": "original-run-now-disabled-predicate",
+      "file": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js",
+      "utf8ByteOffset": 48660,
+      "byteLength": 40,
+      "sha256": "24b9a4ce7b9483ff26d3ab43cb3bce3c7e218d6f788a9335c048ed4271726242",
+      "line": 1,
+      "text": "disabled:!l||!x.enabled||Ce||C.isReading"
+    },
+    "acceptedConfigLocators": {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-AUTO-CONFIG-001/original-source-locators.json",
+      "sha256": "e66871fb92b7124906e90e4d73ef45bdf8d41d2988257a3dffbaf7207385b980"
+    }
+  },
+  "current": {
+    "files": [
+      {
+        "path": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+        "sha256": "d4fa16a6b7a214c2b6c14b13fe9b2064bf755d8f032ffb9101a9cf3346521ea6",
+        "bytes": 61524
+      },
+      {
+        "path": "src/LWBridge.UI-0.3.17/src/mapAutoConfig.js",
+        "sha256": "c88faa13ebf8d15d2ec9ea54e800fddec5ecb38df70d9d97e8d67768ec42ef4e",
+        "bytes": 3565
+      },
+      {
+        "path": "src/LWBridge.UI-0.3.17/src/mapBackend.js",
+        "sha256": "7e82aa8e46ecbb37a8f16d11f933e784b1414fb75ceba27a7bdeb315054fe01a",
+        "bytes": 11729
+      },
+      {
+        "path": "src/LWBridge.UI-0.3.17/src/reference.css",
+        "sha256": "3d87e9f65b39eace6a1a254bfc90a38acb72613d1fff7236c7cee7ab9bfaf545",
+        "bytes": 126217
+      },
+      {
+        "path": "src/LWBridge.UI-0.3.17/src/styles.css",
+        "sha256": "b50910d37a4dd02d7bb49b506735ea42615ef0f9e85714e880049481aece2ccc",
+        "bytes": 149
+      },
+      {
+        "path": "src/LWBridge.UI-0.3.17/src/main.jsx",
+        "sha256": "7dd7727093e4234b893682a77f780966345f7478e35610d69476aea95b411755",
+        "bytes": 356
+      }
+    ],
+    "locales": {
+      "en": {
+        "path": "src/LWBridge.UI-0.3.17/src/locales/en.js",
+        "sha256": "357682d9179ae712ee563950467b7a93b5aea89322afc993e079fedee28432c1"
+      },
+      "ja": {
+        "path": "src/LWBridge.UI-0.3.17/src/locales/ja.js",
+        "sha256": "e1fed1e9aaf052963e3d8f5a5f8b9ae96b002a05a9dd7bb06a460a66187755eb"
+      }
+    },
+    "cssImportOrder": [
+      "./reference.css",
+      "./styles.css"
+    ],
+    "referenceCssExactlyMatchesOriginal": true,
+    "autoCard": {
+      "id": "current-auto-card",
+      "file": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+      "utf8ByteOffset": 46645,
+      "byteLength": 3944,
+      "sha256": "faefd6e2821aa0234606537d9eb09aa6bf5b533ed93701163303878b18f9ec68",
+      "line": 1011
+    },
+    "removeIconChild": {
+      "id": "current-server-chip-remove-child",
+      "file": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+      "utf8ByteOffset": 48425,
+      "byteLength": 167,
+      "sha256": "b039e296f00fe8b6b2d39055468d1d1dc0adaa6efd99cad4f41dd8d6bc1e27de",
+      "line": 1041,
+      "text": "<svg className=\"ui-icon\" viewBox=\"0 0 16 16\" aria-hidden=\"true\" focusable=\"false\">\n                        <path d=\"m4 4 8 8M12 4l-8 8\" />\n                      </svg>"
+    },
+    "emitAutoConfig": {
+      "id": "current-emit-auto-config",
+      "file": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+      "utf8ByteOffset": 18523,
+      "byteLength": 128,
+      "sha256": "da266d13dfcb46dd266a72a889233470e34d9dcf15a9cbc2cba190a44a08577f",
+      "line": 357,
+      "text": "emitAutoConfig = useCallback((patch) => {\n    onAutoScanConfig({ ...autoConfigRef.current, ...patch });\n  }, [onAutoScanConfig])"
+    },
+    "addAutoServers": {
+      "id": "current-add-auto-servers",
+      "file": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+      "utf8ByteOffset": 38905,
+      "byteLength": 220,
+      "sha256": "ddf718be22f823a481d8bedce1a4d273f42065e632704fe8031889f6c014e3cb",
+      "line": 848,
+      "text": "function addAutoServers() {\n    if (parseAutoServerIds(autoServerInput).length === 0) return;\n    emitAutoConfig({ serverIds: appendAutoServerIds(autoConfig.serverIds, autoServerInput) });\n    setAutoServerInput(\"\");\n  }"
+    },
+    "toggleAutoType": {
+      "id": "current-toggle-auto-type",
+      "file": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+      "utf8ByteOffset": 39129,
+      "byteLength": 218,
+      "sha256": "38b64c0d0f08070f988bee627a5faf53e5fc6a0014fe43cb7fc0e5629ba32a4a",
+      "line": 854,
+      "text": "function toggleAutoType(kind, checked) {\n    emitAutoConfig({\n      selectedTypes: checked\n        ? [...autoConfig.selectedTypes, kind]\n        : autoConfig.selectedTypes.filter((value) => value !== kind),\n    });\n  }"
+    },
+    "lastTypePredicate": {
+      "id": "current-last-type-disabled-predicate",
+      "file": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+      "utf8ByteOffset": 49601,
+      "byteLength": 87,
+      "sha256": "22c47fd6e850239937f2ac0d91934c6da205a71c05ac3f6fc3e125ffc6371354",
+      "line": 1056,
+      "text": "disabled={autoConfig.selectedTypes.length === 1 && autoConfig.selectedTypes[0] === key}"
+    },
+    "runNowPredicate": {
+      "id": "current-run-now-disabled-predicate",
+      "file": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+      "utf8ByteOffset": 50166,
+      "byteLength": 79,
+      "sha256": "648c68e265cb6a2830ca28480478fe557db08e1a5b9040aaf4b0f0ce40d8ea2d",
+      "line": 1062,
+      "text": "disabled={!online || !autoConfig.enabled || autoRunning || scanState.isReading}"
+    }
+  },
+  "dependencies": [
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-INTERACTIONS-001/original/original-runtime.mjs",
+      "sha256": "e93f00149f44fc15a560ac496f9e3b505fd445625fe99d427b321557fb1167e3",
+      "bytes": 30150
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-FILTER-LIFECYCLE-001/harness.mjs",
+      "sha256": "1ec2a1c1285769457e672a6e36e5176e9da2e3a67effa130b7adbd51ba0569aa",
+      "bytes": 17089
+    }
+  ],
+  "harness": {
+    "timezone": "Asia/Singapore",
+    "now": 1791105300000,
+    "clockIso": "2026-10-04T09:15:00.000Z",
+    "original": "Existing INTERACTIONS original runtime executes the recovered MapDataPanel body. This packet additionally executes recovered index function Vr for the remove SVG so server-chip geometry is not based on the harness's inert Icon stub.",
+    "current": "Existing FILTER-LIFECYCLE harness executes the unmodified current MapDataPage.jsx function and real relative .js imports.",
+    "translation": "Current exact-recovered EN/JA catalogs are injected into both executed renderers, matching the accepted MANUAL-VISUAL method.",
+    "container": "The executed .map-auto-scan-card is scoped under an identical <section class=\"panel map-panel\"> directly under body. No surrounding Map header/summary/search/table surface is included.",
+    "actionBoundary": "The actual Auto tab callback is invoked. Run now, scan, native/provider and gameplay handlers are never invoked."
+  },
+  "parentEvidence": {
+    "milestoneBRender": {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-AUTO-REMOVE-001/milestone-b/render-results.json",
+      "sha256": "c1105d9690165836ecb39f1900d6edc043ea409553b5b2981f18bfa398eb2faf"
+    },
+    "milestoneBPins": {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-AUTO-REMOVE-001/milestone-b/pinned-inputs.json",
+      "sha256": "25844463f33a5dc658506fe3a634d38afbcf6cc827afb874d41c9b716f0968d6"
+    },
+    "milestoneBControls": {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-AUTO-REMOVE-001/milestone-b/control-results.json",
+      "sha256": "165b67fd74fe19176c06211a16b935a4b71e1380207bbf73b276a582ee5c9f74"
+    }
+  },
+  "css": {
+    "original": {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-rIL9Fpht.css",
+      "sha256": "3d87e9f65b39eace6a1a254bfc90a38acb72613d1fff7236c7cee7ab9bfaf545"
+    },
+    "currentOrder": [
+      "src/LWBridge.UI-0.3.17/src/reference.css",
+      "src/LWBridge.UI-0.3.17/src/styles.css"
+    ],
+    "referenceCssExactlyMatchesOriginal": true
+  },
+  "pairs": [
+    {
+      "id": "en-light-default",
+      "caseId": "default",
+      "language": "en",
+      "theme": "light",
+      "viewport": {
+        "width": 1280,
+        "height": 720,
+        "deviceScaleFactor": 1
+      },
+      "input": {
+        "now": 1791105300000,
+        "online": true,
+        "serverId": 321,
+        "autoScanRunning": false,
+        "scanState": {
+          "serverId": 321,
+          "serverIdSource": "fixture",
+          "scanRunId": "",
+          "isReading": false,
+          "phase": "idle",
+          "selectedTypes": [
+            "city",
+            "resource",
+            "monster",
+            "truck",
+            "railway",
+            "dispatch",
+            "ghost",
+            "treasure"
+          ],
+          "totalBlocks": 0,
+          "completedBlocks": 0,
+          "readBlocks": 0,
+          "failedBlocks": 0,
+          "unreadBlocks": 0,
+          "inflightBlocks": 0,
+          "scanMode": "normal",
+          "concurrency": 8,
+          "scanRate": 0,
+          "progressPercent": 0,
+          "lastError": null,
+          "startedAt": 0,
+          "updatedAt": 0
+        },
+        "config": {
+          "enabled": false,
+          "intervalMinutes": 60,
+          "serverIds": [],
+          "selectedTypes": [
+            "truck",
+            "railway",
+            "dispatch",
+            "ghost",
+            "treasure"
+          ],
+          "scanMode": "fast",
+          "returnToOriginalServer": true,
+          "nextRunAt": 0
+        }
+      },
+      "raw": {
+        "originalSha256": "7c8e36f3c60d9882f34d9178268179212908967b058a92ecb3e7bcb5c090878e",
+        "currentSha256": "7c8e36f3c60d9882f34d9178268179212908967b058a92ecb3e7bcb5c090878e",
+        "exactBytes": true,
+        "differences": []
+      },
+      "rawFiles": {
+        "original": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-AUTO-REMOVE-001/milestone-c/raw/en-light-default-original.html",
+        "current": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-AUTO-REMOVE-001/milestone-c/raw/en-light-default-current.html"
+      },
+      "generatedFiles": {
+        "original": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-AUTO-REMOVE-001/milestone-c/generated/en-light-default-original.html",
+        "current": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-AUTO-REMOVE-001/milestone-c/generated/en-light-default-current.html"
+      }
+    },
+    {
+      "id": "ja-dark-configured",
+      "caseId": "configured-waiting",
+      "language": "ja",
+      "theme": "dark",
+      "viewport": {
+        "width": 375,
+        "height": 1000,
+        "deviceScaleFactor": 1
+      },
+      "input": {
+        "now": 1791105300000,
+        "online": true,
+        "serverId": 321,
+        "autoScanRunning": false,
+        "scanState": {
+          "serverId": 321,
+          "serverIdSource": "fixture",
+          "scanRunId": "",
+          "isReading": false,
+          "phase": "idle",
+          "selectedTypes": [
+            "city",
+            "resource",
+            "monster",
+            "truck",
+            "railway",
+            "dispatch",
+            "ghost",
+            "treasure"
+          ],
+          "totalBlocks": 0,
+          "completedBlocks": 0,
+          "readBlocks": 0,
+          "failedBlocks": 0,
+          "unreadBlocks": 0,
+          "inflightBlocks": 0,
+          "scanMode": "normal",
+          "concurrency": 8,
+          "scanRate": 0,
+          "progressPercent": 0,
+          "lastError": null,
+          "startedAt": 0,
+          "updatedAt": 0
+        },
+        "config": {
+          "enabled": true,
+          "intervalMinutes": 90,
+          "serverIds": [
+            8,
+            15,
+            120
+          ],
+          "selectedTypes": [
+            "city",
+            "truck",
+            "treasure"
+          ],
+          "scanMode": "normal",
+          "returnToOriginalServer": false,
+          "nextRunAt": 1791110700000
+        }
+      },
+      "raw": {
+        "originalSha256": "18bd2d2828042a7e1c47a0406b9467a89d0e6393284b5b37060969f42ff1e6d9",
+        "currentSha256": "18bd2d2828042a7e1c47a0406b9467a89d0e6393284b5b37060969f42ff1e6d9",
+        "exactBytes": true,
+        "differences": []
+      },
+      "rawFiles": {
+        "original": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-AUTO-REMOVE-001/milestone-c/raw/ja-dark-configured-original.html",
+        "current": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-AUTO-REMOVE-001/milestone-c/raw/ja-dark-configured-current.html"
+      },
+      "generatedFiles": {
+        "original": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-AUTO-REMOVE-001/milestone-c/generated/ja-dark-configured-original.html",
+        "current": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-AUTO-REMOVE-001/milestone-c/generated/ja-dark-configured-current.html"
+      }
+    },
+    {
+      "id": "ja-light-running",
+      "caseId": "auto-running",
+      "language": "ja",
+      "theme": "light",
+      "viewport": {
+        "width": 375,
+        "height": 1000,
+        "deviceScaleFactor": 1
+      },
+      "input": {
+        "now": 1791105300000,
+        "online": true,
+        "serverId": 321,
+        "autoScanRunning": true,
+        "scanState": {
+          "serverId": 321,
+          "serverIdSource": "fixture",
+          "scanRunId": "",
+          "isReading": false,
+          "phase": "idle",
+          "selectedTypes": [
+            "city",
+            "resource",
+            "monster",
+            "truck",
+            "railway",
+            "dispatch",
+            "ghost",
+            "treasure"
+          ],
+          "totalBlocks": 0,
+          "completedBlocks": 0,
+          "readBlocks": 0,
+          "failedBlocks": 0,
+          "unreadBlocks": 0,
+          "inflightBlocks": 0,
+          "scanMode": "normal",
+          "concurrency": 8,
+          "scanRate": 0,
+          "progressPercent": 0,
+          "lastError": null,
+          "startedAt": 0,
+          "updatedAt": 0
+        },
+        "config": {
+          "enabled": true,
+          "intervalMinutes": 90,
+          "serverIds": [
+            8,
+            15,
+            120
+          ],
+          "selectedTypes": [
+            "city",
+            "truck",
+            "treasure"
+          ],
+          "scanMode": "normal",
+          "returnToOriginalServer": false,
+          "nextRunAt": 1791110700000
+        }
+      },
+      "raw": {
+        "originalSha256": "7fafced2ff9c7fc9068c8eaebb6366bf13b7b34560d76be084a0f6f54227eb03",
+        "currentSha256": "7fafced2ff9c7fc9068c8eaebb6366bf13b7b34560d76be084a0f6f54227eb03",
+        "exactBytes": true,
+        "differences": []
+      },
+      "rawFiles": {
+        "original": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-AUTO-REMOVE-001/milestone-c/raw/ja-light-running-original.html",
+        "current": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-AUTO-REMOVE-001/milestone-c/raw/ja-light-running-current.html"
+      },
+      "generatedFiles": {
+        "original": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-AUTO-REMOVE-001/milestone-c/generated/ja-light-running-original.html",
+        "current": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-AUTO-REMOVE-001/milestone-c/generated/ja-light-running-current.html"
+      }
+    },
+    {
+      "id": "en-dark-offline",
+      "caseId": "offline",
+      "language": "en",
+      "theme": "dark",
+      "viewport": {
+        "width": 1280,
+        "height": 720,
+        "deviceScaleFactor": 1
+      },
+      "input": {
+        "now": 1791105300000,
+        "online": false,
+        "serverId": 321,
+        "autoScanRunning": false,
+        "scanState": {
+          "serverId": 321,
+          "serverIdSource": "fixture",
+          "scanRunId": "",
+          "isReading": false,
+          "phase": "idle",
+          "selectedTypes": [
+            "city",
+            "resource",
+            "monster",
+            "truck",
+            "railway",
+            "dispatch",
+            "ghost",
+            "treasure"
+          ],
+          "totalBlocks": 0,
+          "completedBlocks": 0,
+          "readBlocks": 0,
+          "failedBlocks": 0,
+          "unreadBlocks": 0,
+          "inflightBlocks": 0,
+          "scanMode": "normal",
+          "concurrency": 8,
+          "scanRate": 0,
+          "progressPercent": 0,
+          "lastError": null,
+          "startedAt": 0,
+          "updatedAt": 0
+        },
+        "config": {
+          "enabled": true,
+          "intervalMinutes": 90,
+          "serverIds": [
+            8,
+            15,
+            120
+          ],
+          "selectedTypes": [
+            "city",
+            "truck",
+            "treasure"
+          ],
+          "scanMode": "normal",
+          "returnToOriginalServer": false,
+          "nextRunAt": 1791110700000
+        }
+      },
+      "raw": {
+        "originalSha256": "ce38f8622f60fe59a78e20ebdd7bc12475ec4ce41f8a067c66d0e8b216972b4c",
+        "currentSha256": "ce38f8622f60fe59a78e20ebdd7bc12475ec4ce41f8a067c66d0e8b216972b4c",
+        "exactBytes": true,
+        "differences": []
+      },
+      "rawFiles": {
+        "original": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-AUTO-REMOVE-001/milestone-c/raw/en-dark-offline-original.html",
+        "current": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-AUTO-REMOVE-001/milestone-c/raw/en-dark-offline-current.html"
+      },
+      "generatedFiles": {
+        "original": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-AUTO-REMOVE-001/milestone-c/generated/en-dark-offline-original.html",
+        "current": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-AUTO-REMOVE-001/milestone-c/generated/en-dark-offline-current.html"
+      }
+    }
+  ]
+}
