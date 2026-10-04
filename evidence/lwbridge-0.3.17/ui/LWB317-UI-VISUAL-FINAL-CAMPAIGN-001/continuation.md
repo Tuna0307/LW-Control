@@ -8,8 +8,8 @@ Four source files were corrected; source/local page evidence is now reviewable.
    A/B independent replay: unit-a/lead-audit/validate-read-only.mjs. Historical City
    error is expected to fail99,918 unmasked pixels; corrected3 pairs must pass.
 2. Continue C's positive/conditional inventory. Current default56 pairs are exact.
-   Dynamic Construction maxBuilders bound is source totalBuilders/fallback20 and
-   needs a focused correction; don't mistakenly clamp all states to4. Post-effect
+   Construction dynamic totalBuilders/fallback20 bound is now validated in
+   lead-construction (100 cases); continue the other conditional forms. Post-effect
    H/Ut seeding and actual Vr are disclosed; old C baseline without them is not an oracle.
 3. Continue D full AFK/Garrison/Profile. afk-visual/I.pretty.js holds exact pretty
    original; recover actual component/state pairing before changing hypothesized
@@ -28,3 +28,8 @@ Current Unit J smoke passes all8 routes/64 forward-return transitions in four re
 locale/theme/viewport modes, console0. It is current-only integration, not global
 reference parity or profile/modal acceptance. Task Vite4348/4350 is stopped at
 checkpoint; start a fresh owned listener for subsequent mounted checks.
+
+Follow-up: Construction dynamic totalBuilders/default20 bound is now corrected and
+validated in unit-c/lead-construction (100 cases, baseline23 failures, actual EN/JA
+fields, no native actions). Earlier references to that bound as open are superseded.
+Other positive/conditional forms and AFK/shared-shell/final acceptance remain open.

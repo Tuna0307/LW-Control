@@ -1,0 +1,27 @@
+import fs from 'node:fs';import path from 'node:path';import assert from 'node:assert/strict';import crypto from 'node:crypto';import {fileURLToPath} from 'node:url';
+import {nodes,fn,raw,compile,read,h,Fragment,hooks,flatten,text,repo} from '../accepted-harness.mjs';
+import {automationDraftError} from '../../../../../../src/LWBridge.UI-0.3.17/src/previewAutomationContracts.js';
+import {createConfigDraft} from '../../../../../../src/LWBridge.UI-0.3.17/src/previewConfig.js';
+import {previewAssistFixture} from '../../../../../../src/LWBridge.UI-0.3.17/src/previewAutomationFixtures.js';
+const here=path.dirname(fileURLToPath(import.meta.url)),source=read('src/LWBridge.UI-0.3.17/src/AutomationPage.jsx'),original=read('evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/AutomationPanel-BJ0gIqFh.js');
+const hash=x=>crypto.createHash('sha256').update(x).digest('hex');const originalNodes=nodes(original);
+const declarations=Object.fromEntries(['Nn','Pn'].map(name=>[name,originalNodes.find(n=>n.type==='VariableDeclarator'&&n.id?.name===name)]));
+for(const [name,node]of Object.entries(declarations))assert.ok(node,name);
+const originalBound=new Function('K','return '+raw(original,declarations.Nn.init));
+const originalValid=new Function('Mn','Nn','return '+raw(original,declarations.Pn.init));
+const card=fn(source,'AutomationCard');const configNode=nodes(raw(source,card)).find(n=>n.type==='VariableDeclarator'&&n.id?.name==='config');
+const validatorCode=raw(raw(source,card),configNode.init.arguments[1]);
+const validator=maximumBuilders=>new Function('title','maximumBuilders','automationDraftError','return '+validatorCode)('Automatic Construction',maximumBuilders,automationDraftError);
+const baselineCode=fs.readFileSync(path.join(here,'baseline-previewAutomationContracts.js'),'utf8');const baselineContract=compile(baselineCode,'automationDraftError');
+const rows=[];let baselineMismatches=0;const limits=[undefined,null,0,1,4,20,-3,3.5,NaN,Infinity];const values=['','0','1','3','4','5','20','21','3.5','abc'];
+for(const totalBuilders of limits){const max=originalBound({totalBuilders});for(const value of values){const expected=originalValid(Number(value),max),draft={maxBuilders:value};const valid=validator(max)(draft);assert.equal(valid,expected,`limit=${totalBuilders} value=${value}`);const baseline=!baselineContract('Automatic Construction',draft);if(baseline!==expected)baselineMismatches++;
+ const hk=hooks();const Fields=compile(source,'AutomationFields',{h,Fragment,...hk,useI18n:()=>({t:k=>k,language:'en'}),previewAssistFixture,previewAutomationRuntime:()=>({totalBuilders}),previewConstructionBuildingTypes:[],previewSoldierCamps:[],previewTrainRewards:[]});
+ hk.begin();const tree=Fields({title:'Automatic Construction',enabled:true,previewState:'',config:{draft,store:{edit(){}}}});const label=flatten(tree).find(n=>n.type==='label'&&text(n).includes('automation.maxBuilders'));assert.ok(label);const input=flatten(label).find(n=>n.type==='input');assert.ok(Object.is(input.props.max,max),'Actual rendered input bound');assert.equal(input.props['aria-invalid']===true,!expected,'Actual rendered invalid predicate');
+ rows.push({totalBuilders:String(totalBuilders),value,sourceMaximum:String(max),valid});
+}}
+assert.ok(baselineMismatches>0,'Immutable fixed20 baseline must distinguish the defect');
+let writes=0;const store=createConfigDraft({maxBuilders:'1'},{read:async()=>({maxBuilders:'1'}),write:async value=>{writes++;return value;},valid:validator(4)});
+store.edit({maxBuilders:'5'},false);await assert.rejects(store.flush(),/CONFIG_DRAFT_INVALID/);assert.equal(writes,0);
+store.edit({maxBuilders:'4'},false);await store.flush();assert.equal(writes,1);assert.equal(store.getSnapshot().confirmed.maxBuilders,'4');store.dispose();
+const report={result:'CONSTRUCTION_DYNAMIC_BOUND_OK',cases:rows.length,baselineMismatches,actualFieldStates:rows.length,inertInvalidWrites:0,validAcknowledgedWrites:1,originalSlice:Object.fromEntries(Object.entries(declarations).map(([name,n])=>[name,{path:'AutomationPanel-BJ0gIqFh.js',offset:Buffer.byteLength(original.slice(0,n.start)),bytes:Buffer.byteLength(raw(original,n)),sha256:hash(raw(original,n)),source:raw(original,n)}])),rows,limits:'Exact recovered bound/predicate expressions and actual canonical field/validator; local draft engine with inert adapter. No native/gameplay execution.'};
+if(process.argv.includes('--record'))fs.writeFileSync(path.join(here,'results.json'),JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify({result:report.result,cases:rows.length,baselineMismatches,fieldStates:rows.length,writes}));

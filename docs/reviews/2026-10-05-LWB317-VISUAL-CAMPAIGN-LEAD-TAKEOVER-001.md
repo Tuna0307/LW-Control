@@ -75,3 +75,14 @@ The broad checkbox research patch was retired after independent source rejection
 its exact original text is preserved. Explicit frozen manifest covers all inputs;
 checkpoint validators do not rewrite results or manifests. Only task Vite4348/4350
 is stopped after confirming command ownership; owner4319/4335/4336 is preserved.
+
+Focused continuation after e4b05906: dynamic Construction bound corrected in renderer
+and draft validation using exact Nn/Pn expressions.100 original/current cases pass;
+immutable fixed20 baseline23 failures. Actual EN/JA fields reject5/acknowledge4 with
+local preview, retain on category return, console0.56 paired visual samples remain
+exact;186 source replays and64 navigation transitions pass. Canonical check/build/
+package pass. Latest fingerprints2b9322af4e8cad743a5a30eacffeaece705acde7ee9a556eba576fd221ad0641 /
+d9ab29244c5b078c9e9dd365b8e97e34496e5a34d70a32a76aae3de133758c6f.
+Original e4b05906 frozen manifests and checkpoint records are preserved. Current
+validators additionally execute the100-case focused source/field/draft proof.
+The broader campaign remains PARTIAL. Task Vite4360 is stopped after browser proof.

@@ -1704,11 +1704,6 @@
       "bytes": 2697
     },
     {
-      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/frozen-inputs.e4b05906.json",
-      "sha256": "403ffcd5257a100d6b4c2a4b3b22bfbee04c9a925c8677f1071431cfea40048e",
-      "bytes": 200742
-    },
-    {
       "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/frozen-inputs.pre-integration.json",
       "sha256": "1a53c402dfddbe52edfc3aa90685f7f5db14d2492cebbc4e470e23891d7c26d1",
       "bytes": 200489
@@ -3795,8 +3790,8 @@
     },
     {
       "path": "src/LWBridge.UI-0.3.17/src/AutomationPage.jsx",
-      "sha256": "e44f2f2f107c31f6b41b2ba52dc9b8d9bb1c90dffc0574fe5f09d977ee0b4243",
-      "bytes": 78012
+      "sha256": "c8c1295a7d3781c0becc671b3efce20fced5fd2dc7e3d67d27e7cfbe9ae25563",
+      "bytes": 77824
     },
     {
       "path": "src/LWBridge.UI-0.3.17/src/CityLayoutPage.jsx",
@@ -4035,8 +4030,8 @@
     },
     {
       "path": "src/LWBridge.UI-0.3.17/src/previewAutomationContracts.js",
-      "sha256": "ea8f3811a813fb0762533e058af6cdde6d704f291ea7ca4b21718ec07ec863d7",
-      "bytes": 6945
+      "sha256": "a1255d8c21447cc4058b871fd8fe40208cd2e15f7bc11f5582fbccc2c8768114",
+      "bytes": 6836
     },
     {
       "path": "src/LWBridge.UI-0.3.17/src/previewAutomationFixtures.js",

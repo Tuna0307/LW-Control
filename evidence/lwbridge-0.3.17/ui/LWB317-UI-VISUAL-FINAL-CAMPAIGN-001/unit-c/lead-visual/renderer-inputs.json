@@ -94,7 +94,7 @@
       "originalHtml": "raw/daily-collapsed-en-original.html",
       "currentHtml": "raw/daily-collapsed-en-current.html",
       "originalSha256": "a6c72cbb590a727925d5973f336bbfe27b5979b9e916e72a8fa8fd8fc3f2604d",
-      "currentSha256": "ec436d3cb54b0638cab339fbcf82427103a4ef1b44153fc09597640baf5d04c2",
+      "currentSha256": "718598238240ac782eb55feac6c5d52949d82dfc5153f5a2b4f3efbd66398fdd",
       "inputs": {
         "activeCategory": "daily",
         "profileId": "proof-profile",
@@ -499,7 +499,7 @@
       "originalHtml": "raw/daily-expanded-en-original.html",
       "currentHtml": "raw/daily-expanded-en-current.html",
       "originalSha256": "b941400ed756edae18066ecb8c37fb48791f7a371382700e4ee1342f043043b3",
-      "currentSha256": "a0d6d952b776cf2bd787b7a085ae5b54b89bdc3de1a3be10f970c8f5e8741e22",
+      "currentSha256": "1037912fdf7f3fc64bfedff7e6e7b8c848c0254bb91f37e7085899ade8b16649",
       "inputs": {
         "activeCategory": "daily",
         "profileId": "proof-profile",
@@ -5764,7 +5764,7 @@
       "originalHtml": "raw/daily-collapsed-ja-original.html",
       "currentHtml": "raw/daily-collapsed-ja-current.html",
       "originalSha256": "e30938257f42059174e3daa2dcf1862000b4b5496484faa90d359ed8a941837e",
-      "currentSha256": "6044fbdde3dec009fd328921f42e1857d28a945ef67c2bfe7eb19fb2d5491124",
+      "currentSha256": "093ef77a1d444e01b22fe5c10fab7d96d271a9bf268d0f9658a124a55fdee2c8",
       "inputs": {
         "activeCategory": "daily",
         "profileId": "proof-profile",
@@ -6169,7 +6169,7 @@
       "originalHtml": "raw/daily-expanded-ja-original.html",
       "currentHtml": "raw/daily-expanded-ja-current.html",
       "originalSha256": "c1f01cfbcfb15ef8872752bcb8b1325de82b4c8a4d2b42955c846f60a5bc4718",
-      "currentSha256": "b86c2efedb0500cb83bf6d30856833f9092fe877a744aa1864e8bb5cd60c4ca3",
+      "currentSha256": "db5725ac7e7d0b037483711926e0f4519ec71e80ad6bf4cf943dbf590b561704",
       "inputs": {
         "activeCategory": "daily",
         "profileId": "proof-profile",

@@ -6,7 +6,7 @@
     },
     {
       "path": "src/LWBridge.UI-0.3.17/src/previewAutomationContracts.js",
-      "sha256": "a1255d8c21447cc4058b871fd8fe40208cd2e15f7bc11f5582fbccc2c8768114"
+      "sha256": "ea8f3811a813fb0762533e058af6cdde6d704f291ea7ca4b21718ec07ec863d7"
     },
     {
       "path": "src/LWBridge.UI-0.3.17/src/previewAutomationFixtures.js",
@@ -66,7 +66,7 @@
     },
     {
       "path": "src/LWBridge.UI-0.3.17/src/AutomationPage.jsx",
-      "sha256": "c8c1295a7d3781c0becc671b3efce20fced5fd2dc7e3d67d27e7cfbe9ae25563"
+      "sha256": "e44f2f2f107c31f6b41b2ba52dc9b8d9bb1c90dffc0574fe5f09d977ee0b4243"
     },
     {
       "path": "src/LWBridge.UI-0.3.17/src/reference.css",

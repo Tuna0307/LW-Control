@@ -19,7 +19,7 @@
         "measurement": "daily-collapsed-en-light-1280-current.json",
         "screenshot": "daily-collapsed-en-light-1280-current.png",
         "sha256": "1f21e31a7c71a225f16a0eb31c008429ad55ffd743e21f3c892334652b1dac9d",
-        "rawSha256": "ec436d3cb54b0638cab339fbcf82427103a4ef1b44153fc09597640baf5d04c2",
+        "rawSha256": "718598238240ac782eb55feac6c5d52949d82dfc5153f5a2b4f3efbd66398fdd",
         "cardCount": 7
       },
       "masks": []
@@ -43,7 +43,7 @@
         "measurement": "daily-collapsed-en-dark-375-current.json",
         "screenshot": "daily-collapsed-en-dark-375-current.png",
         "sha256": "a645dc9298c0b7c50a6613a46a75f7333b9925434fa2e472277c896693a2354a",
-        "rawSha256": "ec436d3cb54b0638cab339fbcf82427103a4ef1b44153fc09597640baf5d04c2",
+        "rawSha256": "718598238240ac782eb55feac6c5d52949d82dfc5153f5a2b4f3efbd66398fdd",
         "cardCount": 7
       },
       "masks": []
@@ -67,7 +67,7 @@
         "measurement": "daily-expanded-en-light-1280-current.json",
         "screenshot": "daily-expanded-en-light-1280-current.png",
         "sha256": "c30f5ef0a16f29564cc198a38de25aecfd6978e928e25625c943ddb3b8e9db6f",
-        "rawSha256": "a0d6d952b776cf2bd787b7a085ae5b54b89bdc3de1a3be10f970c8f5e8741e22",
+        "rawSha256": "1037912fdf7f3fc64bfedff7e6e7b8c848c0254bb91f37e7085899ade8b16649",
         "cardCount": 7
       },
       "masks": []
@@ -91,7 +91,7 @@
         "measurement": "daily-expanded-en-dark-375-current.json",
         "screenshot": "daily-expanded-en-dark-375-current.png",
         "sha256": "dd622c7b0a8d5b71d1843ee4748fb14eddd9299fd15888bed482dfc03db4dfd5",
-        "rawSha256": "a0d6d952b776cf2bd787b7a085ae5b54b89bdc3de1a3be10f970c8f5e8741e22",
+        "rawSha256": "1037912fdf7f3fc64bfedff7e6e7b8c848c0254bb91f37e7085899ade8b16649",
         "cardCount": 7
       },
       "masks": []
@@ -691,7 +691,7 @@
         "measurement": "daily-collapsed-ja-dark-1280-current.json",
         "screenshot": "daily-collapsed-ja-dark-1280-current.png",
         "sha256": "bfe72f7315df8a90623630c4e250bc52990f7ef405e4f9cf0e483d4d70ebf11f",
-        "rawSha256": "6044fbdde3dec009fd328921f42e1857d28a945ef67c2bfe7eb19fb2d5491124",
+        "rawSha256": "093ef77a1d444e01b22fe5c10fab7d96d271a9bf268d0f9658a124a55fdee2c8",
         "cardCount": 7
       },
       "masks": []
@@ -715,7 +715,7 @@
         "measurement": "daily-collapsed-ja-light-375-current.json",
         "screenshot": "daily-collapsed-ja-light-375-current.png",
         "sha256": "beef414db438bba5a6ab1f9dff7847e96f5749d127bfee4be9fe77375be53382",
-        "rawSha256": "6044fbdde3dec009fd328921f42e1857d28a945ef67c2bfe7eb19fb2d5491124",
+        "rawSha256": "093ef77a1d444e01b22fe5c10fab7d96d271a9bf268d0f9658a124a55fdee2c8",
         "cardCount": 7
       },
       "masks": []
@@ -739,7 +739,7 @@
         "measurement": "daily-expanded-ja-dark-1280-current.json",
         "screenshot": "daily-expanded-ja-dark-1280-current.png",
         "sha256": "1f6d2d3b0f069020c98a04daf2da3b3b09cc1fc314e9cd58accb26bfc95e8551",
-        "rawSha256": "b86c2efedb0500cb83bf6d30856833f9092fe877a744aa1864e8bb5cd60c4ca3",
+        "rawSha256": "db5725ac7e7d0b037483711926e0f4519ec71e80ad6bf4cf943dbf590b561704",
         "cardCount": 7
       },
       "masks": []
@@ -763,7 +763,7 @@
         "measurement": "daily-expanded-ja-light-375-current.json",
         "screenshot": "daily-expanded-ja-light-375-current.png",
         "sha256": "fb7227b92cbcca1f050a99b3916976ef7b79eacdd7d27a97157a29513684018e",
-        "rawSha256": "b86c2efedb0500cb83bf6d30856833f9092fe877a744aa1864e8bb5cd60c4ca3",
+        "rawSha256": "db5725ac7e7d0b037483711926e0f4519ec71e80ad6bf4cf943dbf590b561704",
         "cardCount": 7
       },
       "masks": []

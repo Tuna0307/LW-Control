@@ -1825,8 +1825,8 @@
     },
     {
       "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/continuation.md",
-      "bytes": 2523,
-      "sha256": "37c03e9c9819a0f000b4e22625f423e8123601ee505b6f269d5b8d76878d7a7e"
+      "bytes": 2185,
+      "sha256": "e09d5d2e72191e2fb301f48b843d1555e7a086d25a99558d93fb64977fc1aa22"
     },
     {
       "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/lead-checkpoint/README.md",
@@ -1844,34 +1844,24 @@
       "sha256": "daeb3ba9eeaeef68c037a82129b65abf90e86c5c7980448b99f1db6758fb3384"
     },
     {
-      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/lead-checkpoint/frozen-inputs.e4b05906.json",
-      "bytes": 802005,
-      "sha256": "0bd36ef591f7c5cbde9a5809c5972838b0500e0199ef53f9e1f4161dacc60908"
-    },
-    {
       "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/lead-checkpoint/frozen-inputs.pre-routes.json",
       "bytes": 800604,
       "sha256": "ae173e5558f5653c38d2070c111854bf6a203ee920b55b6039e15029c39ce9ec"
     },
     {
       "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/lead-checkpoint/validate-read-only.mjs",
-      "bytes": 3154,
-      "sha256": "004c142ee985f69ae5c7459b576f1c693d0e3517371011977991f7cb9f8bc5ae"
+      "bytes": 3101,
+      "sha256": "fbdff5f8c856a48a3ce40430a49813b358ea62904a923d217a0ded1547e9f24d"
     },
     {
-      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/lead-checkpoint/verification.e4b05906.json",
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/lead-checkpoint/verification.json",
       "bytes": 1127,
       "sha256": "61ced56cdb7fb9f51fbc7a47fb1305f4adf3f83a7037be30a6de61e1cf3dc70d"
     },
     {
-      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/lead-checkpoint/verification.json",
-      "bytes": 1372,
-      "sha256": "52d6ce8493a595009b880c9a92833efc016fea472e5af50b9b80702fd496cfdf"
-    },
-    {
       "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/progress.md",
-      "bytes": 2449,
-      "sha256": "4c4c19623ac222cf0b4426d4f611cac0f40777351651570a34e1cc6f9812e66e"
+      "bytes": 2124,
+      "sha256": "3529bef2da230896a4ba686720f5793771af2e6982f85219f054b6aa61083ff4"
     },
     {
       "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/progress.worker-through-c.md",
@@ -3234,14 +3224,9 @@
       "sha256": "7fbcd6ba42cca97fa7f6bb8eba9b11cb8f9abbb8fee30deb04ad8b7cab4c79cb"
     },
     {
-      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/frozen-inputs.e4b05906.json",
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/frozen-inputs.json",
       "bytes": 200742,
       "sha256": "403ffcd5257a100d6b4c2a4b3b22bfbee04c9a925c8677f1071431cfea40048e"
-    },
-    {
-      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/frozen-inputs.json",
-      "bytes": 200988,
-      "sha256": "a11cbdf0e82096c5ba4ccf851b929f2b419ae5a104df4c2e66ebfe4f7317a871"
     },
     {
       "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/frozen-inputs.pre-integration.json",
@@ -5409,54 +5394,9 @@
       "sha256": "23fe84b90e4740f72ff0bd34cd14a4f54468306e55fe5cd3f74ab976ba4bc9d9"
     },
     {
-      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-c/lead-construction/README.md",
-      "bytes": 1483,
-      "sha256": "09e337c05dc919fad15831e23437567b29655053b9a32d280cc6306c2a78e8d6"
-    },
-    {
-      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-c/lead-construction/baseline-AutomationPage.jsx",
-      "bytes": 77824,
-      "sha256": "c8c1295a7d3781c0becc671b3efce20fced5fd2dc7e3d67d27e7cfbe9ae25563"
-    },
-    {
-      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-c/lead-construction/baseline-previewAutomationContracts.js",
-      "bytes": 6836,
-      "sha256": "a1255d8c21447cc4058b871fd8fe40208cd2e15f7bc11f5582fbccc2c8768114"
-    },
-    {
-      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-c/lead-construction/browser-results.json",
-      "bytes": 681,
-      "sha256": "9a00436191729b2a0eea05835309f4af2b3372dc7f5bcf791d43b58ce0e5f6a8"
-    },
-    {
-      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-c/lead-construction/check-browser.mjs",
-      "bytes": 2808,
-      "sha256": "4a27e1f713ffa1647decca9b1fa49fe30b1c58a254795bc5bffeb828a3013886"
-    },
-    {
-      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-c/lead-construction/check-current.mjs",
-      "bytes": 4644,
-      "sha256": "1697f7b164bd08af6330c302f9488d571888d192d1ef4b5ee3a754042e9a4117"
-    },
-    {
-      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-c/lead-construction/en-light.png",
-      "bytes": 20747,
-      "sha256": "50bfeb210b1f2a0034103ff52988775815440862cabaec69be7bff8e52f6c81d"
-    },
-    {
-      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-c/lead-construction/ja-dark.png",
-      "bytes": 30984,
-      "sha256": "391d00eb512d0a61c548f93b9683bf31a3d6439b841ce8b92f257a190cb2f0c9"
-    },
-    {
-      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-c/lead-construction/results.json",
-      "bytes": 12278,
-      "sha256": "d12b6fa3a1bae9a1399d48cbcc4b10457c58cd5e1c0e6e661bbba7fb83422eca"
-    },
-    {
       "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-c/lead-visual/README.md",
-      "bytes": 3113,
-      "sha256": "bd7e62219c647a008f58bbcac0bdcbe957d3f4a4a6cd2e1bdac1a8c7d00c1a87"
+      "bytes": 2771,
+      "sha256": "4519fddad06b8b239a70bda19e0d8a41a2e7de912c5c36f941d3b1f1d69e42f4"
     },
     {
       "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-c/lead-visual/baseline-AutomationPage.jsx",
@@ -7955,13 +7895,13 @@
     },
     {
       "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-c/lead-visual/current/daily-collapsed-en-dark-375-current.html",
-      "bytes": 17612,
-      "sha256": "718598238240ac782eb55feac6c5d52949d82dfc5153f5a2b4f3efbd66398fdd"
+      "bytes": 17613,
+      "sha256": "ec436d3cb54b0638cab339fbcf82427103a4ef1b44153fc09597640baf5d04c2"
     },
     {
       "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-c/lead-visual/current/daily-collapsed-en-dark-375-current.json",
-      "bytes": 497214,
-      "sha256": "22bed092793d9b42e1309063a6f6341d4ef6b761ff292151526180b2e1bd9336"
+      "bytes": 497216,
+      "sha256": "8cd086bfa143ef7705afd61a6f238cc400b4ecf02e333f42fc8dfa8b6069a6ff"
     },
     {
       "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-c/lead-visual/current/daily-collapsed-en-dark-375-current.png",
@@ -7985,13 +7925,13 @@
     },
     {
       "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-c/lead-visual/current/daily-collapsed-en-light-1280-current.html",
-      "bytes": 17612,
-      "sha256": "718598238240ac782eb55feac6c5d52949d82dfc5153f5a2b4f3efbd66398fdd"
+      "bytes": 17613,
+      "sha256": "ec436d3cb54b0638cab339fbcf82427103a4ef1b44153fc09597640baf5d04c2"
     },
     {
       "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-c/lead-visual/current/daily-collapsed-en-light-1280-current.json",
-      "bytes": 494962,
-      "sha256": "0e26dc7cf864b501e0343a976032fdf05fb23b5bf31f4fe45632c40ff30a569d"
+      "bytes": 494964,
+      "sha256": "0d07d3b208a8e8d3915f1fcd70877835cdd401aa9215a46c1c7e8aa2adef9ed9"
     },
     {
       "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-c/lead-visual/current/daily-collapsed-en-light-1280-current.png",
@@ -8015,13 +7955,13 @@
     },
     {
       "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-c/lead-visual/current/daily-collapsed-ja-dark-1280-current.html",
-      "bytes": 17944,
-      "sha256": "093ef77a1d444e01b22fe5c10fab7d96d271a9bf268d0f9658a124a55fdee2c8"
+      "bytes": 17945,
+      "sha256": "6044fbdde3dec009fd328921f42e1857d28a945ef67c2bfe7eb19fb2d5491124"
     },
     {
       "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-c/lead-visual/current/daily-collapsed-ja-dark-1280-current.json",
-      "bytes": 498810,
-      "sha256": "a78e74505eae2797945d6c28ed840cf17734e1d48a085b3cd8bd398385005c8a"
+      "bytes": 498812,
+      "sha256": "54e4a4391769da079a61df186df1374b339eb43b0a563306894373d149af93e6"
     },
     {
       "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-c/lead-visual/current/daily-collapsed-ja-dark-1280-current.png",
@@ -8045,13 +7985,13 @@
     },
     {
       "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-c/lead-visual/current/daily-collapsed-ja-light-375-current.html",
-      "bytes": 17944,
-      "sha256": "093ef77a1d444e01b22fe5c10fab7d96d271a9bf268d0f9658a124a55fdee2c8"
+      "bytes": 17945,
+      "sha256": "6044fbdde3dec009fd328921f42e1857d28a945ef67c2bfe7eb19fb2d5491124"
     },
     {
       "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-c/lead-visual/current/daily-collapsed-ja-light-375-current.json",
-      "bytes": 494296,
-      "sha256": "d83481da1842e0a24747b4bb57a394f37234422a592feb8fc71e53064d8a07ed"
+      "bytes": 494298,
+      "sha256": "8499cff09a0ee170776ee2e7afde51caf6f86cd7ff67a6f1f121a399beaf5756"
     },
     {
       "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-c/lead-visual/current/daily-collapsed-ja-light-375-current.png",
@@ -8075,13 +8015,13 @@
     },
     {
       "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-c/lead-visual/current/daily-expanded-en-dark-375-current.html",
-      "bytes": 17542,
-      "sha256": "1037912fdf7f3fc64bfedff7e6e7b8c848c0254bb91f37e7085899ade8b16649"
+      "bytes": 17543,
+      "sha256": "a0d6d952b776cf2bd787b7a085ae5b54b89bdc3de1a3be10f970c8f5e8741e22"
     },
     {
       "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-c/lead-visual/current/daily-expanded-en-dark-375-current.json",
-      "bytes": 515798,
-      "sha256": "2b4b83e854033317653d34dda24ffed3f59c70e4956557a70b3755ff71fa51fd"
+      "bytes": 515800,
+      "sha256": "0cc125a225612736b6a3767c54f6d5c0c61d64d72ebe12e6a7bd9d79bf7c8041"
     },
     {
       "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-c/lead-visual/current/daily-expanded-en-dark-375-current.png",
@@ -8105,13 +8045,13 @@
     },
     {
       "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-c/lead-visual/current/daily-expanded-en-light-1280-current.html",
-      "bytes": 17542,
-      "sha256": "1037912fdf7f3fc64bfedff7e6e7b8c848c0254bb91f37e7085899ade8b16649"
+      "bytes": 17543,
+      "sha256": "a0d6d952b776cf2bd787b7a085ae5b54b89bdc3de1a3be10f970c8f5e8741e22"
     },
     {
       "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-c/lead-visual/current/daily-expanded-en-light-1280-current.json",
-      "bytes": 515126,
-      "sha256": "8d55794ce66c80509202c2a3210cf8e146993d9e92ca71aba730c49ef127a8b8"
+      "bytes": 515128,
+      "sha256": "f1424593fe7a7b3fcc3a9df189c170d0a3288bec3c0c35f5247d0c50b7773d69"
     },
     {
       "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-c/lead-visual/current/daily-expanded-en-light-1280-current.png",
@@ -8135,13 +8075,13 @@
     },
     {
       "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-c/lead-visual/current/daily-expanded-ja-dark-1280-current.html",
-      "bytes": 17874,
-      "sha256": "db5725ac7e7d0b037483711926e0f4519ec71e80ad6bf4cf943dbf590b561704"
+      "bytes": 17875,
+      "sha256": "b86c2efedb0500cb83bf6d30856833f9092fe877a744aa1864e8bb5cd60c4ca3"
     },
     {
       "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-c/lead-visual/current/daily-expanded-ja-dark-1280-current.json",
-      "bytes": 518737,
-      "sha256": "775f694a9f2ded8ef26bca13ccbcff39f8ed53578a51e8bda0a44d421862c9ec"
+      "bytes": 518739,
+      "sha256": "4c7a08a8189ad37ddac9fbdd708c7d2f526a21a21af544312acda581ce4ad463"
     },
     {
       "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-c/lead-visual/current/daily-expanded-ja-dark-1280-current.png",
@@ -8165,13 +8105,13 @@
     },
     {
       "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-c/lead-visual/current/daily-expanded-ja-light-375-current.html",
-      "bytes": 17874,
-      "sha256": "db5725ac7e7d0b037483711926e0f4519ec71e80ad6bf4cf943dbf590b561704"
+      "bytes": 17875,
+      "sha256": "b86c2efedb0500cb83bf6d30856833f9092fe877a744aa1864e8bb5cd60c4ca3"
     },
     {
       "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-c/lead-visual/current/daily-expanded-ja-light-375-current.json",
-      "bytes": 512941,
-      "sha256": "31c58480bddb691ecafae2935bf6f5837aad533e61654fd232be5864d95d7f43"
+      "bytes": 512943,
+      "sha256": "09f20f65fd19258ea197f1fecf60556a495c350b338bfbdf6e779427593383ff"
     },
     {
       "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-c/lead-visual/current/daily-expanded-ja-light-375-current.png",
@@ -8201,7 +8141,7 @@
     {
       "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-c/lead-visual/current/pairs.json",
       "bytes": 53548,
-      "sha256": "6f2fdb9170b18d3864b62f5da7bda9bf2e2d489fc248bce8d42ac7ed01a5cdd4"
+      "sha256": "eb2301abd56cdaf9cd8a74eba08e7a19ec8e9f5aa598642d6d207421bbb12294"
     },
     {
       "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-c/lead-visual/current/resourceGather-collapsed-en-dark-375-current.html",
@@ -9166,7 +9106,7 @@
     {
       "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-c/lead-visual/dependencies.json",
       "bytes": 3628,
-      "sha256": "7584b75ec1e3240a44aa85bd180b52858ef0ecac441c88a31bfd6679b8a229f8"
+      "sha256": "0e0936ba49d7e77b97af1a36a63735fcbb79d342bafe1c4140ceac99801fd55d"
     },
     {
       "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-c/lead-visual/mounted-results.json",
@@ -9265,8 +9205,8 @@
     },
     {
       "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-c/lead-visual/raw/daily-collapsed-en-current.html",
-      "bytes": 17612,
-      "sha256": "718598238240ac782eb55feac6c5d52949d82dfc5153f5a2b4f3efbd66398fdd"
+      "bytes": 17613,
+      "sha256": "ec436d3cb54b0638cab339fbcf82427103a4ef1b44153fc09597640baf5d04c2"
     },
     {
       "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-c/lead-visual/raw/daily-collapsed-en-original.html",
@@ -9275,8 +9215,8 @@
     },
     {
       "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-c/lead-visual/raw/daily-collapsed-ja-current.html",
-      "bytes": 17944,
-      "sha256": "093ef77a1d444e01b22fe5c10fab7d96d271a9bf268d0f9658a124a55fdee2c8"
+      "bytes": 17945,
+      "sha256": "6044fbdde3dec009fd328921f42e1857d28a945ef67c2bfe7eb19fb2d5491124"
     },
     {
       "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-c/lead-visual/raw/daily-collapsed-ja-original.html",
@@ -9285,8 +9225,8 @@
     },
     {
       "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-c/lead-visual/raw/daily-expanded-en-current.html",
-      "bytes": 17542,
-      "sha256": "1037912fdf7f3fc64bfedff7e6e7b8c848c0254bb91f37e7085899ade8b16649"
+      "bytes": 17543,
+      "sha256": "a0d6d952b776cf2bd787b7a085ae5b54b89bdc3de1a3be10f970c8f5e8741e22"
     },
     {
       "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-c/lead-visual/raw/daily-expanded-en-original.html",
@@ -9295,8 +9235,8 @@
     },
     {
       "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-c/lead-visual/raw/daily-expanded-ja-current.html",
-      "bytes": 17874,
-      "sha256": "db5725ac7e7d0b037483711926e0f4519ec71e80ad6bf4cf943dbf590b561704"
+      "bytes": 17875,
+      "sha256": "b86c2efedb0500cb83bf6d30856833f9092fe877a744aa1864e8bb5cd60c4ca3"
     },
     {
       "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-c/lead-visual/raw/daily-expanded-ja-original.html",
@@ -9471,7 +9411,7 @@
     {
       "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-c/lead-visual/renderer-inputs.json",
       "bytes": 343623,
-      "sha256": "4510ee0e286264c46e47f81d7a197f04635760ac2723200f97110b981d0514f6"
+      "sha256": "7b1ccf0823c71482842db5b1359422c2f6e9a9a25d098dbe5c067b0bb60ab284"
     },
     {
       "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-c/lead-visual/replay-source-current.mjs",
@@ -15400,8 +15340,8 @@
     },
     {
       "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-j/check-current-routes.mjs",
-      "bytes": 2872,
-      "sha256": "5182fa3f1acc48749e1503dfd3418a4cf754bf66946f9056aeca9f96fb91fa7e"
+      "bytes": 2852,
+      "sha256": "14d4a4a0df53ad1828df0631c0ae25916fb9bb029a49ee6eca9195850f1d73ce"
     },
     {
       "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-j/current-routes.json",
@@ -15595,8 +15535,8 @@
     },
     {
       "path": "src/LWBridge.UI-0.3.17/src/AutomationPage.jsx",
-      "bytes": 78012,
-      "sha256": "e44f2f2f107c31f6b41b2ba52dc9b8d9bb1c90dffc0574fe5f09d977ee0b4243"
+      "bytes": 77824,
+      "sha256": "c8c1295a7d3781c0becc671b3efce20fced5fd2dc7e3d67d27e7cfbe9ae25563"
     },
     {
       "path": "src/LWBridge.UI-0.3.17/src/CityLayoutPage.jsx",
@@ -15835,8 +15775,8 @@
     },
     {
       "path": "src/LWBridge.UI-0.3.17/src/previewAutomationContracts.js",
-      "bytes": 6945,
-      "sha256": "ea8f3811a813fb0762533e058af6cdde6d704f291ea7ca4b21718ec07ec863d7"
+      "bytes": 6836,
+      "sha256": "a1255d8c21447cc4058b871fd8fe40208cd2e15f7bc11f5582fbccc2c8768114"
     },
     {
       "path": "src/LWBridge.UI-0.3.17/src/previewAutomationFixtures.js",

@@ -1,19 +1,15 @@
 {
-  "base": "e4b05906",
+  "base": "0144586",
   "status": "PARTIAL",
   "canonicalCheck": "PASS",
   "productionBuild": "PASS",
   "packageCheck": "PASS",
-  "buildFingerprint": "2b9322af4e8cad743a5a30eacffeaece705acde7ee9a556eba576fd221ad0641",
-  "packageFingerprint": "d9ab29244c5b078c9e9dd365b8e97e34496e5a34d70a32a76aae3de133758c6f",
+  "buildFingerprint": "4f1db5ef1c15d2bf7da98a2d307759e6259ad1da08ec82c059c867da109f9dfd",
+  "packageFingerprint": "6b335f6e9e0c795a78d7e755095420a530f237fa145757e98e4e4c4b06be1abf",
   "sourceFiles": [
     {
       "path": "src/LWBridge.UI-0.3.17/src/AutomationPage.jsx",
-      "sha256": "e44f2f2f107c31f6b41b2ba52dc9b8d9bb1c90dffc0574fe5f09d977ee0b4243"
-    },
-    {
-      "path": "src/LWBridge.UI-0.3.17/src/previewAutomationContracts.js",
-      "sha256": "ea8f3811a813fb0762533e058af6cdde6d704f291ea7ca4b21718ec07ec863d7"
+      "sha256": "c8c1295a7d3781c0becc671b3efce20fced5fd2dc7e3d67d27e7cfbe9ae25563"
     },
     {
       "path": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
@@ -28,7 +24,5 @@
       "sha256": "2fb3a72b4ce79655608739f3de87d4af9186444dd76aef83a15194f42e7cde83"
     }
   ],
-  "scope": "Record of executed gates; read-only renderer/decoded-pixel validation is the acceptance evidence, not this saved marker.",
-  "constructionCases": 100,
-  "constructionBaselineMismatches": 23
+  "scope": "Record of executed gates; read-only renderer/decoded-pixel validation is the acceptance evidence, not this saved marker."
 }

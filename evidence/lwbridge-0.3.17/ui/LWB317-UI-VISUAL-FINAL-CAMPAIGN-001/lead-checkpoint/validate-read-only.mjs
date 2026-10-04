@@ -9,6 +9,7 @@ function node(relative,args=[]){return execFileSync(process.execPath,[path.join(
 // frozen output; they do not rewrite the evidence to manufacture a pass.
 node('unit-c/lead-visual/render-pairs.mjs',['--verify']);
 node('unit-e/recover-pages.mjs',['--verify']);
+node('unit-c/lead-construction/check-current.mjs');
 const pixels=JSON.parse(execFileSync('python',[path.join(here,'check-decoded-pixels.py')],{encoding:'utf8',maxBuffer:64*1024*1024}));
 const {createRequire}=await import('node:module');const require=createRequire('C:/Users/chimw/AppData/Local/Temp/lwb317-shell-mount-deps/package.json');const {JSDOM}=require('jsdom');
 function normalized(html){const d=new JSDOM(html).window.document;for(const e of d.querySelectorAll('*')){for(const a of [...e.attributes])if(a.name.startsWith('data-preview')||['data-hotkey-category','data-city-building-id'].includes(a.name))e.removeAttribute(a.name);if(e.tagName==='BUTTON'&&e.getAttribute('type')==='button')e.removeAttribute('type');}const sub=d.querySelector('.settings-panel .panel-title > span');if(sub?.className==='muted')sub.removeAttribute('class');return d.body.innerHTML;}

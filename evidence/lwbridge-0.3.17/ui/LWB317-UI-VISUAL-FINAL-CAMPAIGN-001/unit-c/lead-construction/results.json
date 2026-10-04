@@ -1,0 +1,627 @@
+{
+  "result": "CONSTRUCTION_DYNAMIC_BOUND_OK",
+  "cases": 100,
+  "baselineMismatches": 23,
+  "actualFieldStates": 100,
+  "inertInvalidWrites": 0,
+  "validAcknowledgedWrites": 1,
+  "originalSlice": {
+    "Nn": {
+      "path": "AutomationPanel-BJ0gIqFh.js",
+      "offset": 30403,
+      "bytes": 35,
+      "sha256": "28153c36602dcdb147dc235f37093a018552dbf14e1cd94890b0d2323aa5088e",
+      "source": "Nn=Math.max(1,K?.totalBuilders??20)"
+    },
+    "Pn": {
+      "path": "AutomationPanel-BJ0gIqFh.js",
+      "offset": 30439,
+      "bytes": 38,
+      "sha256": "ce220dd0400f69e7ee355b195eab85c32893a47d73cbece8edb6be21f690d2eb",
+      "source": "Pn=Number.isInteger(Mn)&&Mn>=1&&Mn<=Nn"
+    }
+  },
+  "rows": [
+    {
+      "totalBuilders": "undefined",
+      "value": "",
+      "sourceMaximum": "20",
+      "valid": false
+    },
+    {
+      "totalBuilders": "undefined",
+      "value": "0",
+      "sourceMaximum": "20",
+      "valid": false
+    },
+    {
+      "totalBuilders": "undefined",
+      "value": "1",
+      "sourceMaximum": "20",
+      "valid": true
+    },
+    {
+      "totalBuilders": "undefined",
+      "value": "3",
+      "sourceMaximum": "20",
+      "valid": true
+    },
+    {
+      "totalBuilders": "undefined",
+      "value": "4",
+      "sourceMaximum": "20",
+      "valid": true
+    },
+    {
+      "totalBuilders": "undefined",
+      "value": "5",
+      "sourceMaximum": "20",
+      "valid": true
+    },
+    {
+      "totalBuilders": "undefined",
+      "value": "20",
+      "sourceMaximum": "20",
+      "valid": true
+    },
+    {
+      "totalBuilders": "undefined",
+      "value": "21",
+      "sourceMaximum": "20",
+      "valid": false
+    },
+    {
+      "totalBuilders": "undefined",
+      "value": "3.5",
+      "sourceMaximum": "20",
+      "valid": false
+    },
+    {
+      "totalBuilders": "undefined",
+      "value": "abc",
+      "sourceMaximum": "20",
+      "valid": false
+    },
+    {
+      "totalBuilders": "null",
+      "value": "",
+      "sourceMaximum": "20",
+      "valid": false
+    },
+    {
+      "totalBuilders": "null",
+      "value": "0",
+      "sourceMaximum": "20",
+      "valid": false
+    },
+    {
+      "totalBuilders": "null",
+      "value": "1",
+      "sourceMaximum": "20",
+      "valid": true
+    },
+    {
+      "totalBuilders": "null",
+      "value": "3",
+      "sourceMaximum": "20",
+      "valid": true
+    },
+    {
+      "totalBuilders": "null",
+      "value": "4",
+      "sourceMaximum": "20",
+      "valid": true
+    },
+    {
+      "totalBuilders": "null",
+      "value": "5",
+      "sourceMaximum": "20",
+      "valid": true
+    },
+    {
+      "totalBuilders": "null",
+      "value": "20",
+      "sourceMaximum": "20",
+      "valid": true
+    },
+    {
+      "totalBuilders": "null",
+      "value": "21",
+      "sourceMaximum": "20",
+      "valid": false
+    },
+    {
+      "totalBuilders": "null",
+      "value": "3.5",
+      "sourceMaximum": "20",
+      "valid": false
+    },
+    {
+      "totalBuilders": "null",
+      "value": "abc",
+      "sourceMaximum": "20",
+      "valid": false
+    },
+    {
+      "totalBuilders": "0",
+      "value": "",
+      "sourceMaximum": "1",
+      "valid": false
+    },
+    {
+      "totalBuilders": "0",
+      "value": "0",
+      "sourceMaximum": "1",
+      "valid": false
+    },
+    {
+      "totalBuilders": "0",
+      "value": "1",
+      "sourceMaximum": "1",
+      "valid": true
+    },
+    {
+      "totalBuilders": "0",
+      "value": "3",
+      "sourceMaximum": "1",
+      "valid": false
+    },
+    {
+      "totalBuilders": "0",
+      "value": "4",
+      "sourceMaximum": "1",
+      "valid": false
+    },
+    {
+      "totalBuilders": "0",
+      "value": "5",
+      "sourceMaximum": "1",
+      "valid": false
+    },
+    {
+      "totalBuilders": "0",
+      "value": "20",
+      "sourceMaximum": "1",
+      "valid": false
+    },
+    {
+      "totalBuilders": "0",
+      "value": "21",
+      "sourceMaximum": "1",
+      "valid": false
+    },
+    {
+      "totalBuilders": "0",
+      "value": "3.5",
+      "sourceMaximum": "1",
+      "valid": false
+    },
+    {
+      "totalBuilders": "0",
+      "value": "abc",
+      "sourceMaximum": "1",
+      "valid": false
+    },
+    {
+      "totalBuilders": "1",
+      "value": "",
+      "sourceMaximum": "1",
+      "valid": false
+    },
+    {
+      "totalBuilders": "1",
+      "value": "0",
+      "sourceMaximum": "1",
+      "valid": false
+    },
+    {
+      "totalBuilders": "1",
+      "value": "1",
+      "sourceMaximum": "1",
+      "valid": true
+    },
+    {
+      "totalBuilders": "1",
+      "value": "3",
+      "sourceMaximum": "1",
+      "valid": false
+    },
+    {
+      "totalBuilders": "1",
+      "value": "4",
+      "sourceMaximum": "1",
+      "valid": false
+    },
+    {
+      "totalBuilders": "1",
+      "value": "5",
+      "sourceMaximum": "1",
+      "valid": false
+    },
+    {
+      "totalBuilders": "1",
+      "value": "20",
+      "sourceMaximum": "1",
+      "valid": false
+    },
+    {
+      "totalBuilders": "1",
+      "value": "21",
+      "sourceMaximum": "1",
+      "valid": false
+    },
+    {
+      "totalBuilders": "1",
+      "value": "3.5",
+      "sourceMaximum": "1",
+      "valid": false
+    },
+    {
+      "totalBuilders": "1",
+      "value": "abc",
+      "sourceMaximum": "1",
+      "valid": false
+    },
+    {
+      "totalBuilders": "4",
+      "value": "",
+      "sourceMaximum": "4",
+      "valid": false
+    },
+    {
+      "totalBuilders": "4",
+      "value": "0",
+      "sourceMaximum": "4",
+      "valid": false
+    },
+    {
+      "totalBuilders": "4",
+      "value": "1",
+      "sourceMaximum": "4",
+      "valid": true
+    },
+    {
+      "totalBuilders": "4",
+      "value": "3",
+      "sourceMaximum": "4",
+      "valid": true
+    },
+    {
+      "totalBuilders": "4",
+      "value": "4",
+      "sourceMaximum": "4",
+      "valid": true
+    },
+    {
+      "totalBuilders": "4",
+      "value": "5",
+      "sourceMaximum": "4",
+      "valid": false
+    },
+    {
+      "totalBuilders": "4",
+      "value": "20",
+      "sourceMaximum": "4",
+      "valid": false
+    },
+    {
+      "totalBuilders": "4",
+      "value": "21",
+      "sourceMaximum": "4",
+      "valid": false
+    },
+    {
+      "totalBuilders": "4",
+      "value": "3.5",
+      "sourceMaximum": "4",
+      "valid": false
+    },
+    {
+      "totalBuilders": "4",
+      "value": "abc",
+      "sourceMaximum": "4",
+      "valid": false
+    },
+    {
+      "totalBuilders": "20",
+      "value": "",
+      "sourceMaximum": "20",
+      "valid": false
+    },
+    {
+      "totalBuilders": "20",
+      "value": "0",
+      "sourceMaximum": "20",
+      "valid": false
+    },
+    {
+      "totalBuilders": "20",
+      "value": "1",
+      "sourceMaximum": "20",
+      "valid": true
+    },
+    {
+      "totalBuilders": "20",
+      "value": "3",
+      "sourceMaximum": "20",
+      "valid": true
+    },
+    {
+      "totalBuilders": "20",
+      "value": "4",
+      "sourceMaximum": "20",
+      "valid": true
+    },
+    {
+      "totalBuilders": "20",
+      "value": "5",
+      "sourceMaximum": "20",
+      "valid": true
+    },
+    {
+      "totalBuilders": "20",
+      "value": "20",
+      "sourceMaximum": "20",
+      "valid": true
+    },
+    {
+      "totalBuilders": "20",
+      "value": "21",
+      "sourceMaximum": "20",
+      "valid": false
+    },
+    {
+      "totalBuilders": "20",
+      "value": "3.5",
+      "sourceMaximum": "20",
+      "valid": false
+    },
+    {
+      "totalBuilders": "20",
+      "value": "abc",
+      "sourceMaximum": "20",
+      "valid": false
+    },
+    {
+      "totalBuilders": "-3",
+      "value": "",
+      "sourceMaximum": "1",
+      "valid": false
+    },
+    {
+      "totalBuilders": "-3",
+      "value": "0",
+      "sourceMaximum": "1",
+      "valid": false
+    },
+    {
+      "totalBuilders": "-3",
+      "value": "1",
+      "sourceMaximum": "1",
+      "valid": true
+    },
+    {
+      "totalBuilders": "-3",
+      "value": "3",
+      "sourceMaximum": "1",
+      "valid": false
+    },
+    {
+      "totalBuilders": "-3",
+      "value": "4",
+      "sourceMaximum": "1",
+      "valid": false
+    },
+    {
+      "totalBuilders": "-3",
+      "value": "5",
+      "sourceMaximum": "1",
+      "valid": false
+    },
+    {
+      "totalBuilders": "-3",
+      "value": "20",
+      "sourceMaximum": "1",
+      "valid": false
+    },
+    {
+      "totalBuilders": "-3",
+      "value": "21",
+      "sourceMaximum": "1",
+      "valid": false
+    },
+    {
+      "totalBuilders": "-3",
+      "value": "3.5",
+      "sourceMaximum": "1",
+      "valid": false
+    },
+    {
+      "totalBuilders": "-3",
+      "value": "abc",
+      "sourceMaximum": "1",
+      "valid": false
+    },
+    {
+      "totalBuilders": "3.5",
+      "value": "",
+      "sourceMaximum": "3.5",
+      "valid": false
+    },
+    {
+      "totalBuilders": "3.5",
+      "value": "0",
+      "sourceMaximum": "3.5",
+      "valid": false
+    },
+    {
+      "totalBuilders": "3.5",
+      "value": "1",
+      "sourceMaximum": "3.5",
+      "valid": true
+    },
+    {
+      "totalBuilders": "3.5",
+      "value": "3",
+      "sourceMaximum": "3.5",
+      "valid": true
+    },
+    {
+      "totalBuilders": "3.5",
+      "value": "4",
+      "sourceMaximum": "3.5",
+      "valid": false
+    },
+    {
+      "totalBuilders": "3.5",
+      "value": "5",
+      "sourceMaximum": "3.5",
+      "valid": false
+    },
+    {
+      "totalBuilders": "3.5",
+      "value": "20",
+      "sourceMaximum": "3.5",
+      "valid": false
+    },
+    {
+      "totalBuilders": "3.5",
+      "value": "21",
+      "sourceMaximum": "3.5",
+      "valid": false
+    },
+    {
+      "totalBuilders": "3.5",
+      "value": "3.5",
+      "sourceMaximum": "3.5",
+      "valid": false
+    },
+    {
+      "totalBuilders": "3.5",
+      "value": "abc",
+      "sourceMaximum": "3.5",
+      "valid": false
+    },
+    {
+      "totalBuilders": "NaN",
+      "value": "",
+      "sourceMaximum": "NaN",
+      "valid": false
+    },
+    {
+      "totalBuilders": "NaN",
+      "value": "0",
+      "sourceMaximum": "NaN",
+      "valid": false
+    },
+    {
+      "totalBuilders": "NaN",
+      "value": "1",
+      "sourceMaximum": "NaN",
+      "valid": false
+    },
+    {
+      "totalBuilders": "NaN",
+      "value": "3",
+      "sourceMaximum": "NaN",
+      "valid": false
+    },
+    {
+      "totalBuilders": "NaN",
+      "value": "4",
+      "sourceMaximum": "NaN",
+      "valid": false
+    },
+    {
+      "totalBuilders": "NaN",
+      "value": "5",
+      "sourceMaximum": "NaN",
+      "valid": false
+    },
+    {
+      "totalBuilders": "NaN",
+      "value": "20",
+      "sourceMaximum": "NaN",
+      "valid": false
+    },
+    {
+      "totalBuilders": "NaN",
+      "value": "21",
+      "sourceMaximum": "NaN",
+      "valid": false
+    },
+    {
+      "totalBuilders": "NaN",
+      "value": "3.5",
+      "sourceMaximum": "NaN",
+      "valid": false
+    },
+    {
+      "totalBuilders": "NaN",
+      "value": "abc",
+      "sourceMaximum": "NaN",
+      "valid": false
+    },
+    {
+      "totalBuilders": "Infinity",
+      "value": "",
+      "sourceMaximum": "Infinity",
+      "valid": false
+    },
+    {
+      "totalBuilders": "Infinity",
+      "value": "0",
+      "sourceMaximum": "Infinity",
+      "valid": false
+    },
+    {
+      "totalBuilders": "Infinity",
+      "value": "1",
+      "sourceMaximum": "Infinity",
+      "valid": true
+    },
+    {
+      "totalBuilders": "Infinity",
+      "value": "3",
+      "sourceMaximum": "Infinity",
+      "valid": true
+    },
+    {
+      "totalBuilders": "Infinity",
+      "value": "4",
+      "sourceMaximum": "Infinity",
+      "valid": true
+    },
+    {
+      "totalBuilders": "Infinity",
+      "value": "5",
+      "sourceMaximum": "Infinity",
+      "valid": true
+    },
+    {
+      "totalBuilders": "Infinity",
+      "value": "20",
+      "sourceMaximum": "Infinity",
+      "valid": true
+    },
+    {
+      "totalBuilders": "Infinity",
+      "value": "21",
+      "sourceMaximum": "Infinity",
+      "valid": true
+    },
+    {
+      "totalBuilders": "Infinity",
+      "value": "3.5",
+      "sourceMaximum": "Infinity",
+      "valid": false
+    },
+    {
+      "totalBuilders": "Infinity",
+      "value": "abc",
+      "sourceMaximum": "Infinity",
+      "valid": false
+    }
+  ],
+  "limits": "Exact recovered bound/predicate expressions and actual canonical field/validator; local draft engine with inert adapter. No native/gameplay execution."
+}

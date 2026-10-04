@@ -1,5 +1,11 @@
 # LWBridge 0.3.17 parity matrix
 
+Lead focused continuation,2026-10-05: Construction dynamic builder bound is now
+source/local validated (100 cases, immutable baseline23 failures, actual EN/JA edits).
+Automation56 paired samples remain exact. Other Automation conditionals, full AFK/
+Garrison/Profile and whole shared-shell/Home/final acceptance remain open.
+
+
 Lead takeover checkpoint, 2026-10-05: VISUAL-FINAL-CAMPAIGN-001 remains PARTIAL.
 Independent audit corrected the unmasked City Map search-error drift; fresh3 pairs
 pass. Default Automation seven-category expanded/collapsed56 pairs, Equipment20,

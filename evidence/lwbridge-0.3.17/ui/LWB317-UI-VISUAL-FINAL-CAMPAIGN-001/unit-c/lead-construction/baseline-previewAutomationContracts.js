@@ -17,16 +17,16 @@ export function initialAutomationDraft(title, previewState = "") {
   return { enabled: false };
 }
 
-export function automationDraftError(title, draft, maximumBuilders = 20) {
+export function automationDraftError(title, draft) {
   const ranges = {
-    constructionTargetLevel: [1, 100], maxBuilders: [1, maximumBuilders], amountPerArmy: [1, 1000000],
+    constructionTargetLevel: [1, 100], maxBuilders: [1, 20], amountPerArmy: [1, 1000000],
     threshold: [1, 30], intervalMinutes: [1, 1440], delayMinutes: [0, 1440],
     ticketCount: [1, 9999], assistInterval: [5, 300], positionId: [0, 10007],
   };
   for (const [key, [min, max]] of Object.entries(ranges)) {
     if (!(key in draft)) continue;
     const value = Number(draft[key]);
-    if (String(draft[key]).trim() === "" || !Number.isInteger(value) || !(value >= min && value <= max)) {
+    if (String(draft[key]).trim() === "" || !Number.isInteger(value) || value < min || value > max) {
       return key === "maxBuilders" ? "automation.builderLimitError" : key === "amountPerArmy" ? "automation.treatmentAmountError" : key === "intervalMinutes" ? "automation.intervalError" : "configSave.failed";
     }
   }

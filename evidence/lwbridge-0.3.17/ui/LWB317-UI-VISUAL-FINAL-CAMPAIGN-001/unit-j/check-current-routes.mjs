@@ -7,7 +7,7 @@ const results=[];
 try{for(const [language,theme,width]of [['en','light',1280],['ja','dark',1280],['en','dark',375],['ja','light',375]]){
  const catalog=(await import(pathToFileURL(path.join(repo,`src/LWBridge.UI-0.3.17/src/locales/${language}.js`)))).default;
  const context=await browser.newContext({viewport:{width,height:1000},locale:language,timezoneId:'Asia/Singapore'});const page=await context.newPage(),issues=[];page.on('console',m=>{if(['warning','error'].includes(m.type()))issues.push({type:m.type(),text:m.text()});});page.on('pageerror',e=>issues.push({type:'pageerror',text:e.message}));
- await page.goto(`http://127.0.0.1:4350/?previewPage=overview&previewLanguage=${language}&previewTheme=${theme}`);await page.locator('.quick-actions-panel').waitFor();const steps=[];
+ await page.goto(`http://127.0.0.1:${process.argv[2]||4350}/?previewPage=overview&previewLanguage=${language}&previewTheme=${theme}`);await page.locator('.quick-actions-panel').waitFor();const steps=[];
  for(const [key,selector]of [...routes,...routes.slice().reverse()]){
   const label=catalog[key];assert.ok(label,key);await page.locator('.side-nav button').filter({hasText:label}).click();await page.locator(selector+':visible').waitFor();await page.evaluate(()=>document.fonts.ready);
   const metric=await page.evaluate(()=>({width:innerWidth,fonts:document.fonts.status,theme:document.documentElement.dataset.theme,language:document.documentElement.lang}));assert.equal(metric.width,width);assert.equal(metric.fonts,'loaded');assert.equal(metric.theme,theme);

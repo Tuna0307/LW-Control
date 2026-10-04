@@ -1,5 +1,11 @@
 # LWB317-UI-VISUAL-FINAL-CAMPAIGN-001
 
+Lead focused continuation,2026-10-05: Construction dynamic builder bound is now
+source/local validated (100 cases, immutable baseline23 failures, actual EN/JA edits).
+Automation56 paired samples remain exact. Other Automation conditionals, full AFK/
+Garrison/Profile and whole shared-shell/Home/final acceptance remain open.
+
+
 Status: PARTIAL — lead takeover checkpoint, 2026-10-05.
 
 Lead takeover checkpoint, 2026-10-05: VISUAL-FINAL-CAMPAIGN-001 remains PARTIAL.

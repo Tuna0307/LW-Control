@@ -37,3 +37,8 @@ Original service/runtime, native execution and asset-complete pixels remain unpr
 Regenerate explicitly: render-pairs.mjs, capture-pairs.mjs, compare-pixels.py.
 Read-only execution: render-pairs.mjs --verify and ../../lead-checkpoint validator.
 Historical worker Unit C completion does not supersede this narrower lead decision.
+
+Follow-up: Construction dynamic totalBuilders/default20 bound is now corrected and
+validated in unit-c/lead-construction (100 cases, baseline23 failures, actual EN/JA
+fields, no native actions). Earlier references to that bound as open are superseded.
+Other positive/conditional forms and AFK/shared-shell/final acceptance remain open.

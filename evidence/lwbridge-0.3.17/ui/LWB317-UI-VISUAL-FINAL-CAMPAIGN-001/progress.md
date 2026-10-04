@@ -6,7 +6,7 @@ Campaign: PARTIAL. Earlier worker progress is preserved in progress.worker-throu
 | --- | --- | --- |
 | A | Source/local bounded correction ACCEPTED | No global parity inference |
 | B | Submitted search-error defect corrected; focused source/local evidence validated | Whole-Map branch inventory and availability differences remain scoped |
-| C | Default seven categories collapsed/expanded56 unmasked pairs validated | Positive/conditional forms, data-driven bounds, error/history full compositions |
+| C | Default seven categories collapsed/expanded56 unmasked pairs validated | Positive/conditional forms and error/history full compositions |
 | D | Equipment20 and compact AFK16 unmasked pairs validated | Full AFK/Garrison/Profile compositions |
 | E | City finite source/local inventory validated | Loaded native assets/original runtime separate |
 | F | Hotkeys finite source/local inventory validated | OS/game execution separate |
@@ -26,3 +26,8 @@ Current Unit J smoke passes all8 routes/64 forward-return transitions in four re
 locale/theme/viewport modes, console0. It is current-only integration, not global
 reference parity or profile/modal acceptance. Task Vite4348/4350 is stopped at
 checkpoint; start a fresh owned listener for subsequent mounted checks.
+
+Follow-up: Construction dynamic totalBuilders/default20 bound is now corrected and
+validated in unit-c/lead-construction (100 cases, baseline23 failures, actual EN/JA
+fields, no native actions). Earlier references to that bound as open are superseded.
+Other positive/conditional forms and AFK/shared-shell/final acceptance remain open.

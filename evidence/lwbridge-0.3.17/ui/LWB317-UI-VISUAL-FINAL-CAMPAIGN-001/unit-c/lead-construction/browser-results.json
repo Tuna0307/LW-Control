@@ -1,0 +1,27 @@
+{
+  "records": [
+    {
+      "language": "en",
+      "theme": "light",
+      "maximum": 4,
+      "invalid5Rejected": true,
+      "valid4AcknowledgedLocally": true,
+      "categoryReturnRetained": true,
+      "nativeActionDisabled": true,
+      "console": [],
+      "image": "en-light.png"
+    },
+    {
+      "language": "ja",
+      "theme": "dark",
+      "maximum": 4,
+      "invalid5Rejected": true,
+      "valid4AcknowledgedLocally": true,
+      "categoryReturnRetained": true,
+      "nativeActionDisabled": true,
+      "console": [],
+      "image": "ja-dark.png"
+    }
+  ],
+  "proof": "Actual production field callbacks and local memory preview draft, no native/game action."
+}
