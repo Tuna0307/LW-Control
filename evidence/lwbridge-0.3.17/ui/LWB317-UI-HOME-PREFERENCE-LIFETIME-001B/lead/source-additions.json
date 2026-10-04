@@ -1,0 +1,29 @@
+{
+  "task": "LWB317-UI-HOME-PREFERENCE-LIFETIME-001B",
+  "assetSha256": "44C4E4043825B7DB296B64171951B27176F8850FF8D7D337CC991DF4765524C6",
+  "locators": {
+    "statusListener": {
+      "utf8ByteOffset": 369353,
+      "byteLength": 27,
+      "sha256": "A276B893A4076C3CD30E6CC038A1A8190AA05CCF7C9B2CB8302190A25686AA09",
+      "text": "Wt(`bridge://status`,n(Ot))"
+    },
+    "profilePollFence": {
+      "utf8ByteOffset": 370038,
+      "byteLength": 29,
+      "sha256": "2E50C8532FE58E7A42B601F012F42592ACC3E49EEF7DD0A7373B7C9CF0188748",
+      "text": "if(t||A()!==e)return;n&&Ot(n)"
+    }
+  },
+  "findings": [
+    "Interrupted status listener omitted Ot reconnect input. Added test failed false!=true before correction.",
+    "Mounted App profile replacement coverage added; fixture only replaces controlled bootstrap ownership.",
+    "New keyed store initial value now uses incoming state like recovered me(t)."
+  ],
+  "review": {
+    "initial": "CHANGES_REQUIRED: event path defect and actual App replacement proof gap",
+    "followUp": "ACCEPT: read-only independent reviewer found no remaining assigned-scope blocker",
+    "reviewer": "lead read-only reconnect_review collaborator",
+    "limits": "Reviewer inspected current code and tests but did not rerun browser or write tests."
+  }
+}

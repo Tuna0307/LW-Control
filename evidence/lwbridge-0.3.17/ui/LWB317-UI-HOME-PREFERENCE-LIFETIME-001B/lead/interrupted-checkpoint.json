@@ -1,0 +1,23 @@
+{
+  "task": "LWB317-UI-HOME-PREFERENCE-LIFETIME-001B",
+  "head": "1f117a4e61c35798f98c5d62a275eac163a12be6",
+  "files": [
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/App.jsx",
+      "sha256": "1E526E1C65C1DACA1032F06CD2D015E4C0F23A9768F4F838C2282E39E3CEBF72"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/HomePage.jsx",
+      "sha256": "F140264E693E89F37CBB357470F58FE5DCA46F3DFDA29A8A5D2C7918CE2393FF"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/profileConfigDraft.js",
+      "sha256": "F14E3AF578194AA42A6A9A0B3809805CA226B290A77CB23D3504EB1CAF41751C"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-HOME-PREFERENCE-LIFETIME-001B/milestone-b/current-results.json",
+      "sha256": "2952B4095B694F7A209A66BDF04D463F42F7E771995E6A3B951B283E7B656BE0"
+    }
+  ],
+  "observed": "Uncommitted worker implementation and eight mounted passing cases; final validation/docs/commit unfinished."
+}

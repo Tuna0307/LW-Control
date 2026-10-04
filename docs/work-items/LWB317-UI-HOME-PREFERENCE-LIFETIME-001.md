@@ -1,11 +1,11 @@
 # LWB317-UI-HOME-PREFERENCE-LIFETIME-001
 
-Status: PARTIAL, 2026-10-04. Unit A Auto Launch is COMPLETE / ACCEPTED at
-c0d9082ee8f8b4b8985e8025657967a6898a4097 after independent lead checks.
-Unit B Automatic Reconnection is now assigned as a separate medium worker task.
-See work-items/LWB317-UI-HOME-PREFERENCE-LIFETIME-001B.md and the dated A lead
-review. The new visual packet contains exact counter-evidence against the earlier
-saving-disabled assumption. Native and original pixel acceptance remain separate.
+Status: COMPLETE / ACCEPTED for both assigned source/local preference units,
+2026-10-04. A Auto Launch remains accepted at c0d9082. B Automatic Reconnection
+was finished by the lead after worker interruption, source-backed event correction,
+mounted profile proof and independent follow-up review. See the dated A/B reviews
+and unit B packet. Native persistence and protected-original pixels remain separate;
+global UI remains PARTIAL. Next: broader offline source-rendered visual comparison.
 
 Historical dispatch2026-10-04:001A was assigned as a medium worker unit covering only
 Open games at startup / Auto Launch. Automatic Reconnection remains subsequent;

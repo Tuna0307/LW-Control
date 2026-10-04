@@ -1,7 +1,8 @@
 # LWB317-UI-HOME-PREFERENCE-LIFETIME-001B
 
-Status: ASSIGNED through the owner's manual relay, 2026-10-04.
-Medium worker unit. Parent HOME-PREFERENCE-LIFETIME-001 remains PARTIAL.
+Status: COMPLETE / ACCEPTED after project-lead takeover, 2026-10-04.
+Medium worker unit. Parent HOME-PREFERENCE-LIFETIME-001 is complete for its two
+source/local preference units; overall UI remains PARTIAL.
 Unit A is COMPLETE / ACCEPTED at `c0d9082ee8f8b4b8985e8025657967a6898a4097`;
 see `docs/reviews/2026-10-04-LWB317-REVIEW-HOME-PREFERENCE-LIFETIME-001A.md`.
 
@@ -103,3 +104,21 @@ global/parent acceptance with the lead. Explicitly stage owned paths, never forc
 push or discard unrelated work. Return AWAITING_REVIEW with exact checks, source
 locators, limitations, full commit/remote SHA and continuation. Stop at B; do not
 start another preference, page, visual campaign or native implementation.
+
+## Lead takeover delivery — 2026-10-04
+
+The interrupted worker's saved implementation/source/baseline/browser records
+were preserved. Lead review found and reproduced an omitted reconnect status-event
+producer; the correction shares acknowledgement across polls/events and fences
+obsolete profile/unmount inputs. New keyed stores initialize from incoming state.
+Actual mounted App replacement/return coverage now includes obsolete success,
+rejection, read/poll and retired listeners. Reconnect 13/13, Auto Launch 7/7,
+preservation, original/current identity differential, browser EN/light + JA/dark,
+canonical check/build/package and protected-WIP 10/10 pass. Independent follow-up
+review found no remaining assigned-scope blocker.
+
+Detailed acceptance: docs/reviews/2026-10-04-LWB317-UI-HOME-PREFERENCE-LIFETIME-001B.md.
+Evidence/validator: evidence/lwbridge-0.3.17/ui/LWB317-UI-HOME-PREFERENCE-LIFETIME-001B/.
+No native persistence, per-profile native store, gameplay or original runtime/pixel
+parity is established. This task is finished; do not restart it. Next is the broader
+offline visual queue under a separate lead assignment.

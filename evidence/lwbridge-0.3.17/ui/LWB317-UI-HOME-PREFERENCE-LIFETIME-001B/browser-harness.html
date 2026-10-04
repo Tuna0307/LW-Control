@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="data:," />
+    <title>LWBridge Automatic Reconnection QA</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <section id="qa-controls" style="padding:12px;background:#eee;color:#111">
+      <strong>Inert QA controls (harness only)</strong>
+      <div id="qa-buttons"></div>
+      <pre id="qa-observation" style="white-space:pre-wrap;font-size:11px"></pre>
+    </section>
+    <script>
+      const params = new URLSearchParams(location.search);
+      localStorage.setItem("lwbridge.language", params.get("qaLanguage") || "en");
+      localStorage.setItem("lwbridge.theme", params.get("qaTheme") || "light");
+      localStorage.setItem("lwbridge.autoLaunchGame", "false");
+      window.__LWBridgeBootstrap = {
+        mode: "live",
+        sessionId: "home-reconnect-qa",
+        profiles: { selectedProfileId: "qa-profile" },
+      };
+
+      const messageHandlers = new Set();
+      const pendingAutomation = [];
+      const qa = window.__homeReconnectQa = {
+        nativeReconnect: false,
+        requests: [],
+        pendingAutomation,
+        respond(request, result, error = null) {
+          const data = {
+            kind: "response",
+            sessionId: request.sessionId,
+            id: request.id,
+            ok: !error,
+            ...(error ? { error } : { result }),
+          };
+          queueMicrotask(() => messageHandlers.forEach((handler) => handler({ data })));
+        },
+        resolveAutomation(index, enabled) {
+          const request = pendingAutomation[index];
+          if (!request) throw new Error(`missing pending automation ${index}`);
+          qa.nativeReconnect = enabled;
+          qa.respond(request, { enabled });
+        },
+        rejectAutomation(index, message = "QA reconnect persistence rejected") {
+          const request = pendingAutomation[index];
+          if (!request) throw new Error(`missing pending automation ${index}`);
+          qa.respond(request, null, { code: "QA_RECONNECT_SAVE_FAILED", message });
+        },
+        setNativeReconnect(value) { qa.nativeReconnect = value === true; },
+        emitStatus(value, profileId = "qa-profile") {
+          if (profileId === "qa-profile") qa.nativeReconnect = value === true;
+          const data = { kind: "event", sessionId: "home-reconnect-qa", event: "bridge://status",
+            payload: { profileId, payload: { xluaOnline: false, config: { auto_force_update_reload: value } } } };
+          queueMicrotask(() => messageHandlers.forEach((handler) => handler({ data })));
+        },
+        snapshot() {
+          const switches = [...document.querySelectorAll('.quick-actions-panel .toggle-row[role="switch"]')];
+          const reconnect = switches[1];
+          return {
+            language: document.documentElement.lang,
+            theme: document.documentElement.dataset.theme,
+            reconnect: reconnect ? {
+              checked: reconnect.getAttribute("aria-checked"),
+              disabled: reconnect.disabled,
+              label: reconnect.getAttribute("aria-label"),
+            } : null,
+            pendingAutomationCount: pendingAutomation.length,
+            automationErrors: [...document.querySelectorAll(".automation-error")].map((node) => ({
+              text: node.textContent?.trim() || "",
+              buttons: [...node.querySelectorAll("button")].map((button) => ({ text: button.textContent?.trim() || "", disabled: button.disabled })),
+            })),
+            profileRequests: qa.requests.filter((request) => request.kind === "invoke" && ["get_status", "set_automation"].includes(request.command)).map((request) => ({ command: request.command, payload: request.payload })),
+          };
+        },
+      };
+
+      const resultFor = (command, payload) => {
+        switch (command) {
+          case "get_status": return { xluaOnline: false, pending: 0, config: { auto_force_update_reload: qa.nativeReconnect } };
+          case "proxy_status": return { gameRunning: false, repairRequired: false };
+          case "game_recovery_status": return { state: "idle" };
+          case "local_config_get": return { autoLaunchGame: false, autoReconnect: qa.nativeReconnect };
+          case "game_root_status": return { valid: true, root: "C:/QA/LastWar" };
+          case "update_status": return { phase: "idle", currentVersion: "0.3.17", latestVersion: null, progress: 0 };
+          case "map_summary": return { serverId: 0, counts: {}, scanState: { serverId: 0, isReading: false, phase: "idle" } };
+          case "server_jump_history_import": return [];
+          case "set_window_theme": return null;
+          default: throw new Error(`unexpected inert QA command: ${command} ${JSON.stringify(payload)}`);
+        }
+      };
+
+      window.chrome = {
+        webview: {
+          addEventListener(name, handler) { if (name === "message") messageHandlers.add(handler); },
+          removeEventListener(name, handler) { if (name === "message") messageHandlers.delete(handler); },
+          postMessage(request) {
+            qa.requests.push(request);
+            if (request.kind !== "invoke") return;
+            if (request.command === "set_automation") {
+              pendingAutomation.push(request);
+              return;
+            }
+            try { qa.respond(request, resultFor(request.command, request.payload)); }
+            catch (error) { qa.respond(request, null, { code: "QA_UNEXPECTED_COMMAND", message: error.message }); }
+          },
+        },
+      };
+      const qaButtons = document.getElementById("qa-buttons");
+      function addQaButton(text, action) {
+        const button = document.createElement("button"); button.textContent = text;
+        button.onclick = action; qaButtons.append(button);
+      }
+      addQaButton("QA status true", () => qa.emitStatus(true));
+      addQaButton("QA status false", () => qa.emitStatus(false));
+      addQaButton("QA foreign status true", () => qa.emitStatus(true, "foreign-profile"));
+      let described = 0;
+      window.setInterval(() => {
+        while (described < pendingAutomation.length) {
+          const index = described++;
+          addQaButton(`QA resolve ${index} true`, () => qa.resolveAutomation(index, true));
+          addQaButton(`QA resolve ${index} false`, () => qa.resolveAutomation(index, false));
+          addQaButton(`QA reject ${index}`, () => qa.rejectAutomation(index));
+        }
+        document.getElementById("qa-observation").textContent = JSON.stringify(qa.snapshot(), null, 2);
+      }, 200);
+    </script>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

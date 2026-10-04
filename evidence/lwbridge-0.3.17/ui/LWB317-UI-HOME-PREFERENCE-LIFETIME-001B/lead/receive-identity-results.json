@@ -1,0 +1,31 @@
+{
+  "task": "LWB317-UI-HOME-PREFERENCE-LIFETIME-001B",
+  "result": "LWB317_RECONNECT_RECEIVE_IDENTITY_OK",
+  "original": {
+    "repeated": {
+      "reads": 0,
+      "draft": false
+    },
+    "changed": {
+      "reads": 1,
+      "draft": true
+    }
+  },
+  "current": {
+    "repeated": {
+      "reads": 0,
+      "draft": false
+    },
+    "changed": {
+      "reads": 1,
+      "draft": true
+    }
+  },
+  "source": {
+    "utf8ByteOffset": 191297,
+    "byteLength": 2330,
+    "sha256": "D697645DA61F11176EAE639FEADE2596FA79BF87E2D9B8FD37486CE1AC8D0F9F",
+    "text": "function T(e,t){let n={draft:e,confirmed:e,dirty:!1,saving:!1,error:null},r=0,i,a,o,s,c=!1,l=!1,u=!1,d=!1,f=w(e),p=new Set;function m(e){n={...n,...e},n.dirty=w(n.draft)!==w(n.confirmed);for(let e of p)e()}function h(){i!==void 0&&clearTimeout(i),i=void 0}function g(){return t.valid?.(n.draft)!==!1}function _(e,t=400){let a=typeof e==`function`?e(n.draft):e;r++,d=!1,h(),m({draft:a,error:null}),!u&&t!==!1&&g()&&n.dirty&&!c&&(i=setTimeout(()=>{i=void 0,v().catch(()=>void 0)},t))}function v(e=!0){if(h(),u)return Promise.reject(Error(`CONFIG_SAVE_DISPOSED`));if(a)return!e&&g()&&(o={value:structuredClone(n.draft),generation:r}),a;if(c)return Promise.reject(Error(`CONFIG_ACTION_PENDING`));if(!n.dirty)return Promise.resolve(n.confirmed);if(d||!g()){let e=Error(`CONFIG_DRAFT_INVALID`);return m({error:e}),Promise.reject(e)}return m({saving:!0,error:null}),a=(async()=>{try{for(;(n.dirty||o)&&!u&&!c&&!d&&g();){let i=o?.value??structuredClone(n.draft),a=o?.generation??r;o=void 0;let s=await t.write(i);if(u||(m({confirmed:s,...r===a?{draft:s}:{}}),!e&&!o))break}return n.confirmed}catch(e){throw u||m({error:e}),h(),o=void 0,e}finally{a=void 0,u||m({saving:!1})}})(),a}async function y(e=!1){if(u||n.saving||c||!e&&n.dirty)return;if(s&&!e)return s;let i=r,a=(async()=>{let e=await t.read();u||i!==r||n.saving||c||(r++,d=!1,m({draft:e,confirmed:e,error:null}))})();s=a;try{await a}finally{s===a&&(s=void 0)}}function b(e){let t=w(e);t!==f&&(f=t,!n.dirty&&!n.saving&&!c&&t!==w(n.confirmed)&&y().catch(()=>void 0))}async function x(e,s,f){if(u)throw Error(`CONFIG_SAVE_DISPOSED`);if(l)throw Error(`CONFIG_ACTION_PENDING`);l=!0;try{if(s)c=!0,o=void 0,_(s,!1),await a?.catch(()=>void 0);else{if(await v(),n.dirty)throw Error(`CONFIG_DRAFT_INVALID`);c=!0,f&&_(f,!1)}if(h(),u)throw Error(`CONFIG_SAVE_DISPOSED`);m({saving:!0});let i=r,l=await e();if(u)return l;let d=await t.read();if(u)return l;let p=s?s(n.draft):n.draft,g=r!==i;return r++,m({confirmed:d,draft:s||g?p:d,error:null}),l}catch(e){throw u||m({error:e}),e}finally{l=!1,c=!1,u||m({saving:!1}),!u&&n.dirty&&!n.error&&g()&&!d&&(i=setTimeout(()=>{i=void 0,v().catch(()=>void 0)},400))}}return{getSnapshot:()=>n,subscribe(e){return p.add(e),()=>{p.delete(e)}},edit:_,flush:v,refresh:y,receive:b,runAction:x,pause(){h(),d=!0},setAdapter(e){t=e},dispose(){u=!0,h(),p.clear()}}}"
+  },
+  "interpretation": "Repeated incoming identity remains ignored after a concurrent write; a changed identity enables source refresh. Preserve this recovered behavior rather than redesigning receive()."
+}

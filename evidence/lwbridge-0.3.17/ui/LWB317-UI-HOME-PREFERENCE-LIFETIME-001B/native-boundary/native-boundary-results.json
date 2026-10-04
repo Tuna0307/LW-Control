@@ -1,0 +1,26 @@
+{
+  "task": "LWB317-UI-HOME-PREFERENCE-LIFETIME-001B",
+  "date": "2026-10-04",
+  "result": "LWB317_HOME_RECONNECT_NATIVE_BOUNDARY_OK",
+  "files": {
+    "backendBridge": {
+      "path": "src/LWBridge.UI-0.3.17/src/backendBridge.js",
+      "sha256": "E50C904508A17A2AC682B7D195359B51C6348D73835888513095D1E789EC99C5"
+    },
+    "profileDraftAdapter": {
+      "path": "src/LWBridge.UI-0.3.17/src/profileConfigDraft.js",
+      "sha256": "F14E3AF578194AA42A6A9A0B3809805CA226B290A77CB23D3504EB1CAF41751C"
+    },
+    "nativeBackend": {
+      "path": "src/LWBridge.Desktop/LWBridgeBackend.cs",
+      "sha256": "98C378B853260762A8E991FBBFF57136602B8AE5D86C45BAFF51EAD9022F98BA"
+    }
+  },
+  "verified": [
+    "frontend bridge captures one bootstrap selected profile and rejects missing profile before profile-scoped dispatch",
+    "001B adapter rejects missing or mismatched selected/store ownership before calling the bridge",
+    "set_automation autoForceUpdateReload writes AutoReconnect through the existing native config update path",
+    "get_status reports config.auto_force_update_reload from the same clone AutoReconnect snapshot"
+  ],
+  "persistenceLimitation": "The current desktop clone stores AutoReconnect in its single local config snapshot. No recovered per-profile native reconnect store exists here. 001B reproduces the original profile-owned frontend draft/save lifetime and prevents wrong-profile attribution, but per-profile native persistence remains a separate native phase."
+}

@@ -1,0 +1,57 @@
+{
+  "task": "LWB317-UI-HOME-PREFERENCE-LIFETIME-001B",
+  "date": "2026-10-04",
+  "result": "LWB317_UNIT_A_PRESERVATION_OK",
+  "acceptedCommit": "c0d9082ee8f8b4b8985e8025657967a6898a4097",
+  "autoLaunch": {
+    "helperSha256": "C16FEB94563B445CAFDC3189C980025A6F8A9AE5DDD24085CE28887D0F828286",
+    "stateSha256": "864A0B45438FDA87A62B94B9D859DFE3CF72AED1F7B68801CEF8E93E70797545",
+    "callbackSha256": "30764F23CDB19A0C15878234D315998C184D671F7A557723E9AB6243BDF080D6",
+    "homeToggleSha256": "9D5695DC0C7B8DAF85E0FAC1140BC523C9367D84F7CC06074B46BEBCEA764EE4"
+  },
+  "unchangedCallbacks": [
+    {
+      "name": "updateAutoScanConfig",
+      "sha256": "0EE5D5F125CD1864F312C51C3111CC3806AF031AB3CAB8D3E9637F3FF89FE06E"
+    },
+    {
+      "name": "acknowledgeGameRootStatus",
+      "sha256": "9BD21C74457719E0BCB3BE53290173998F20616C60EE28798A83DC2B83180DED"
+    },
+    {
+      "name": "refreshMapSummary",
+      "sha256": "0FAF6971F58213CC62B33EF02D44162F16E83D8BB731E3B52F5390C1E4A7B120"
+    },
+    {
+      "name": "selectRoute",
+      "sha256": "385F8ECA56B7C227609AABE674485409BD5BE88DF6AED16161A6AF848876687A"
+    },
+    {
+      "name": "acknowledgeMapScan",
+      "sha256": "087F2003E8144D8D451794E57C5E87C3F901009EF760689F71273F19771F6E85"
+    },
+    {
+      "name": "acknowledgeMapCounts",
+      "sha256": "EBC2FFF88476D0BDDA17AE17F1F58FD64B6A3D8119DDCAA4F4C97CEB41147AA9"
+    },
+    {
+      "name": "selectGameRoot",
+      "sha256": "28440FCFA1DEB38CDE740732173A58E04145BBB4516E691894CD531C314F2923"
+    },
+    {
+      "name": "requestServerJump",
+      "sha256": "38FBAAAA847E3FEEFEF87FBC12E9E556CAE6ED510EA1F3F7B0293E88AC91692B"
+    },
+    {
+      "name": "jumpServer",
+      "sha256": "598FC27F6383D4BCE07C9B490C1BD01BBFD2C0EAC622344939515DCD52F876B5"
+    }
+  ],
+  "selectedProfileSha256": "1A8FAE96AB6A85314AEE50AA19FBBB5D4218F4207D503784775A0DFCDCFFD916",
+  "refreshStatusPreservedUnitAMarkers": [
+    "local_config_get",
+    "autoLaunchConfigPollGenerationRef",
+    "autoLaunchCommittedRef"
+  ],
+  "note": "001B intentionally changes Automatic Reconnection only. This adapter pins accepted 001A storage/state/callback/Home control exactly and rechecks surrounding ownership/listener behavior without rewriting any 001A evidence."
+}

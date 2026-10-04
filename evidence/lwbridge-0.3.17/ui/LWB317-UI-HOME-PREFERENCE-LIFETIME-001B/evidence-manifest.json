@@ -1,0 +1,181 @@
+{
+  "task": "LWB317-UI-HOME-PREFERENCE-LIFETIME-001B",
+  "date": "2026-10-04",
+  "normalization": "Text canonical LF; binary exact bytes. Historical baseline/source records preserved.",
+  "files": [
+    {
+      "path": "browser-harness.html",
+      "normalization": "LF",
+      "sha256": "CD03BADC48D8BB9137944EAD4CD7E9AA320F070AC4BE3CB0647D33D88E1750EC",
+      "length": 6720
+    },
+    {
+      "path": "browser-results.json",
+      "normalization": "LF",
+      "sha256": "8AD4E3DBD0258DD81C0C9C347DBCC22A1ADDE5F1C77728AC14158EC51915F7ED",
+      "length": 4347
+    },
+    {
+      "path": "check-protected-wip.mjs",
+      "normalization": "LF",
+      "sha256": "1598BDE75C216D3B37DE34831028DE23F93B28150E0645FA0CEFC96C4CB68965",
+      "length": 1417
+    },
+    {
+      "path": "lead/browser-results.json",
+      "normalization": "LF",
+      "sha256": "288175E8ED8E72C70774CEE4F37356D5206F6579BFCA45D8AC26BD9C16D77ADE",
+      "length": 10466
+    },
+    {
+      "path": "lead/check-receive-identity.mjs",
+      "normalization": "LF",
+      "sha256": "C4D88F838B72F852C010B4582C6DE71DBB83B74E771571F2906768497F0FE8A3",
+      "length": 2574
+    },
+    {
+      "path": "lead/interrupted-checkpoint.json",
+      "normalization": "LF",
+      "sha256": "3864E611186FE55EC5E17CE16CE467AD346B919FA87E5EE921C84A9F49D95472",
+      "length": 929
+    },
+    {
+      "path": "lead/receive-identity-results.json",
+      "normalization": "LF",
+      "sha256": "6DF2B1E4C8ED6D0271475A27011437848FE314212A2B73ECD99B3461200D63A1",
+      "length": 3102
+    },
+    {
+      "path": "lead/source-additions.json",
+      "normalization": "LF",
+      "sha256": "F790CD53A6AC0EE6B18D23732F0411B84CC130B94C0206FE6F44C7FE8EF8F190",
+      "length": 1293
+    },
+    {
+      "path": "lead/worker-current-results.json",
+      "normalization": "LF",
+      "sha256": "2952B4095B694F7A209A66BDF04D463F42F7E771995E6A3B951B283E7B656BE0",
+      "length": 5311
+    },
+    {
+      "path": "milestone-b/current-results.json",
+      "normalization": "LF",
+      "sha256": "1E6A62964E9F09B620BA2CFF86FFD1A9CAA27BCCEC5A4AA3CC7EB0EAABE9C0CC",
+      "length": 6471
+    },
+    {
+      "path": "milestone-b/run-current.mjs",
+      "normalization": "LF",
+      "sha256": "754A9BB75DAA6A2F85E77F4223ABC49C61E2251A1388DCAEB625BEA0687A9E96",
+      "length": 35304
+    },
+    {
+      "path": "native-boundary/check-native-boundary.mjs",
+      "normalization": "LF",
+      "sha256": "37C77ACB31BA20CD0CA0DD8ADA4175066929317F7A68EA07D01350A68F998BE0",
+      "length": 3610
+    },
+    {
+      "path": "native-boundary/native-boundary-results.json",
+      "normalization": "LF",
+      "sha256": "BEDB317E2EDD1835D72B6B112310F2BCCDFC0D00C3D225EE5E54DFACCFE9D821",
+      "length": 1493
+    },
+    {
+      "path": "protected-wip-final.json",
+      "normalization": "LF",
+      "sha256": "A19744C80A6C71AB66821402363CFDA5EA857C515409BC1CBF596F3F88C41523",
+      "length": 2461
+    },
+    {
+      "path": "protected-wip-start.json",
+      "normalization": "LF",
+      "sha256": "FFC20D99391995000D1E41A53D7F58870DEC59120FF25655C6CDFA0E3E1F2C56",
+      "length": 2214
+    },
+    {
+      "path": "README.md",
+      "normalization": "LF",
+      "sha256": "DEA147B0F456650E2F6B7410F0626FA1785B5D0F6C91EC6AC0280571B900888C",
+      "length": 4675
+    },
+    {
+      "path": "recovery/baseline-results.json",
+      "normalization": "LF",
+      "sha256": "8236EBC78B19C09F0E7F27ADF7717461A43222B6C668C813E79DCAB2D0A8CB08",
+      "length": 2233
+    },
+    {
+      "path": "recovery/recover-source.mjs",
+      "normalization": "LF",
+      "sha256": "B12AABAB21AAEC7BF5E65EBB09966B85AF602CB90470BD250798C59F48CEAB79",
+      "length": 8611
+    },
+    {
+      "path": "recovery/run-baseline.mjs",
+      "normalization": "LF",
+      "sha256": "0F64AB3BB0859704023F560922BDDB7A3F9346D64E9B68DB5C9ADB0E3B6D432C",
+      "length": 5470
+    },
+    {
+      "path": "recovery/source-recovery.json",
+      "normalization": "LF",
+      "sha256": "37326144D7FE96ECC781881F580E26F7E2CFC86BAB28A14AC0D6F7981F099BD0",
+      "length": 10971
+    },
+    {
+      "path": "regression/check-unit-a-preservation.mjs",
+      "normalization": "LF",
+      "sha256": "E73C3487028BC0AA63BBE68FF5B4E9221C38D4D282C1D2D61CB14F01CD036414",
+      "length": 7194
+    },
+    {
+      "path": "regression/current-results.json",
+      "normalization": "LF",
+      "sha256": "3C2029716523E3A7DD9AE56C9456A8B018528117888FF277883CABA4EC9A90BA",
+      "length": 6354
+    },
+    {
+      "path": "regression/preservation-results.json",
+      "normalization": "LF",
+      "sha256": "7C28E866087AD12D3E4936D4205D65209C068AD67799269C639D132062C35592",
+      "length": 2247
+    },
+    {
+      "path": "regression/run-unit-a-current.mjs",
+      "normalization": "LF",
+      "sha256": "71616C2D7F82EFEC32C9E2BF1DD5805F7246437F9C5ECC6BF3A12DB04D0E5A1E",
+      "length": 26702
+    },
+    {
+      "path": "screenshots/en-light-save-error.jpg",
+      "normalization": "raw",
+      "sha256": "A8E4C789C2963C206E735023D9858AC4AD12DF74F66E45080ED62E10E62C5345",
+      "length": 51794
+    },
+    {
+      "path": "screenshots/ja-dark-save-error.jpg",
+      "normalization": "raw",
+      "sha256": "FFBEE0C9DA67E5E32BC25C7E736E45E7EDA479ACA8432999E01BEC08EB6AC349",
+      "length": 45819
+    },
+    {
+      "path": "screenshots/lead-en-light-save-error.jpg",
+      "normalization": "raw",
+      "sha256": "01126DCFF3B5657D43AA127E1E04CC20EE416C7D04E1605F9424EB5AA5792950",
+      "length": 53144
+    },
+    {
+      "path": "screenshots/lead-ja-dark-save-error.jpg",
+      "normalization": "raw",
+      "sha256": "734C99DCC9690AC9D9A6539D8B40B9D8ABB71BC564BBA5080D6F0261B2940501",
+      "length": 48937
+    },
+    {
+      "path": "validate-evidence.mjs",
+      "normalization": "LF",
+      "sha256": "389421F22DA65E732C301D97CFD82302F40D885362128FC06E5ED7C0AF3AF1A8",
+      "length": 4556
+    }
+  ]
+}

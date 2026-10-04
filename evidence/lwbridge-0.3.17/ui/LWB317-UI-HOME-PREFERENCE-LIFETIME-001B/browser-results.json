@@ -1,0 +1,113 @@
+{
+  "task": "LWB317-UI-HOME-PREFERENCE-LIFETIME-001B",
+  "date": "2026-10-04",
+  "result": "PASS",
+  "browser": "existing user browser through Chat On Steroids Desktop",
+  "url": "http://127.0.0.1:4338/qa-home-reconnect.html",
+  "harness": "browser-harness.html copied temporarily into the Vite root for this run, then removed",
+  "transport": "controlled inert window.chrome.webview responses using production backendBridge plus production App/Home/shared switch/save-error components",
+  "enLight": {
+    "initial": {
+      "language": "en",
+      "theme": "light",
+      "checked": false,
+      "disabled": false,
+      "label": "Automatic Reconnection: Disabled"
+    },
+    "afterFirstRealClickWithSaveDeferred": {
+      "checked": true,
+      "disabled": false,
+      "pendingAutomationCount": 1,
+      "request": { "name": "autoForceUpdateReload", "enabled": true, "profileId": "qa-profile" }
+    },
+    "afterSecondRealClickWhileFirstSaveDeferred": {
+      "checked": false,
+      "disabled": false,
+      "pendingAutomationCount": 1,
+      "observation": "the second local draft edit is visible while the first native request is still pending"
+    },
+    "afterFirstAcknowledgementTrue": {
+      "checked": false,
+      "disabled": false,
+      "pendingAutomationCount": 2,
+      "secondRequest": { "name": "autoForceUpdateReload", "enabled": false, "profileId": "qa-profile" },
+      "observation": "the older true acknowledgement does not overwrite the newer false draft; the serialized false write starts next"
+    },
+    "afterSecondAcknowledgementFalse": {
+      "checked": false,
+      "disabled": false,
+      "automationErrors": []
+    },
+    "latestFailure": {
+      "checked": true,
+      "disabled": false,
+      "errorText": "Automatic Reconnection Changes have not been saved. Retry Discard unsaved changes",
+      "retryDisabled": false,
+      "discardDisabled": false
+    },
+    "afterRealRetryClick": {
+      "checked": true,
+      "disabled": false,
+      "pendingAutomationCount": 4,
+      "automationErrors": [],
+      "observation": "source flush clears the visible error while Retry is saving"
+    },
+    "afterRetryAcknowledgement": {
+      "checked": true,
+      "disabled": false,
+      "automationErrors": []
+    },
+    "consoleErrors": 0
+  },
+  "jaDark": {
+    "initial": {
+      "language": "ja",
+      "theme": "dark",
+      "checked": false,
+      "disabled": false,
+      "label": "自動再接続: 無効"
+    },
+    "afterFirstRealClickWithSaveDeferred": {
+      "checked": true,
+      "disabled": false,
+      "label": "自動再接続: 有効",
+      "pendingAutomationCount": 1
+    },
+    "afterSecondRealClickWhileFirstSaveDeferred": {
+      "checked": false,
+      "disabled": false,
+      "label": "自動再接続: 無効",
+      "pendingAutomationCount": 1
+    },
+    "afterOlderWriteRejection": {
+      "checked": false,
+      "disabled": false,
+      "errorText": "自動再接続 変更は保存されていません。 再試行 未保存の変更を破棄",
+      "retryText": "再試行",
+      "discardText": "未保存の変更を破棄"
+    },
+    "afterRealDiscardClick": {
+      "checked": false,
+      "disabled": false,
+      "automationErrors": [],
+      "observation": "Discard force-reads get_status for qa-profile and clears the retained source error"
+    },
+    "consoleErrors": 0
+  },
+  "profileOwnership": "Every observed get_status and set_automation request carried profileId=qa-profile; no request was attributed to another profile.",
+  "settledScreenshots": [
+    {
+      "path": "screenshots/en-light-save-error.jpg",
+      "sha256": "A8E4C789C2963C206E735023D9858AC4AD12DF74F66E45080ED62E10E62C5345",
+      "length": 51794,
+      "state": "EN/light Automatic Reconnection latest-write save error with translated Retry and Discard controls"
+    },
+    {
+      "path": "screenshots/ja-dark-save-error.jpg",
+      "sha256": "FFBEE0C9DA67E5E32BC25C7E736E45E7EDA479ACA8432999E01BEC08EB6AC349",
+      "length": 45819,
+      "state": "JA/dark Automatic Reconnection latest-write save error with translated Retry and Discard controls"
+    }
+  ],
+  "safety": "The browser harness answered commands with inert local data only. No Last War process, gameplay command, external network, native desktop persistence, authentication bypass, or protected original runtime was exercised."
+}

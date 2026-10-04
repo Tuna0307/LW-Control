@@ -1,4 +1,4 @@
-import { Activity, Fragment, Suspense, useCallback, useEffect, useLayoutEffect, useRef, useState, useTransition } from "react";
+import { Activity, Fragment, Suspense, useCallback, useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore, useTransition } from "react";
 import { flushSync } from "react-dom";
 import { toggleShellTheme } from "./shellTheme.js";
 import { TopVersion, ShellConfigSaveErrors } from "./ShellPresentation.jsx";
@@ -23,9 +23,11 @@ import { NavIcon } from "./NavIcon.jsx";
 import { PageForRoute, preloadRoute } from "./Pages.jsx";
 import { initialRouteKey, routes } from "./routes.js";
 import { readAutoLaunchGamePreference, writeAutoLaunchGamePreference } from "./autoLaunchPreference.js";
+import { createAutomationFlagAdapter, createProfileConfigDraftRegistry } from "./profileConfigDraft.js";
 
 const THEME_KEY = "lwbridge.theme";
 const LEGACY_SERVER_HISTORY_KEY = "lastwar.serverJumpHistory";
+const AUTO_RECONNECT_FLAG_KEY = "flag:autoForceUpdateReload";
 const mapApi = createMapApi(backendBridge);
 // Existing read-only local image contract; no new native producer is introduced.
 // Browser previews never invoke it or lend their synthetic images to this reader.
@@ -125,10 +127,10 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
   const [shellUpdateStatus, setShellUpdateStatus] = useState(() => initialShellUpdateStatus(backendBridge.mode, previewState));
   const [serverJumpOpen, setServerJumpOpen] = useState(false);
   const [runtimeStatus, setRuntimeStatus] = useState(null);
+  const [autoReconnectIncoming, setAutoReconnectIncoming] = useState(false);
   const [proxyStatus, setProxyStatus] = useState(null);
   const [gameRootStatus, setGameRootStatus] = useState(null);
   const [gameRecoveryStatus, setGameRecoveryStatus] = useState(null);
-  const [localConfig, setLocalConfig] = useState(null);
   const [autoLaunchGame, setAutoLaunchGame] = useState(() => readAutoLaunchGamePreference(localStorage));
   const [homeBusy, setHomeBusy] = useState("");
   const [gameRootError, setGameRootError] = useState("");
@@ -154,6 +156,41 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
   const autoLaunchSaveChainRef = useRef(Promise.resolve());
   const autoLaunchNativeCommitEpochRef = useRef(0);
   const autoLaunchConfigPollGenerationRef = useRef(0);
+  const reconnectStatusGeneration = useRef(0);
+  const [profileConfigDrafts] = useState(() => createProfileConfigDraftRegistry());
+  const autoReconnectStore = profileConfigDrafts.get(
+    selectedProfileId,
+    AUTO_RECONNECT_FLAG_KEY,
+    autoReconnectIncoming,
+    createAutomationFlagAdapter(
+      backendBridge,
+      selectedProfileId,
+      "autoForceUpdateReload",
+      "auto_force_update_reload",
+      false,
+    ),
+  );
+  const autoReconnectSnapshot = useSyncExternalStore(
+    autoReconnectStore.subscribe,
+    autoReconnectStore.getSnapshot,
+    autoReconnectStore.getSnapshot,
+  );
+
+  useEffect(() => {
+    autoReconnectStore.receive(autoReconnectIncoming);
+  }, [autoReconnectIncoming, autoReconnectStore]);
+
+  useLayoutEffect(() => {
+    reconnectStatusGeneration.current += 1;
+    return () => { reconnectStatusGeneration.current += 1; };
+  }, [selectedProfileId]);
+
+  const acknowledgeRuntimeStatus = useCallback((status, generation = reconnectStatusGeneration.current) => {
+    if (generation !== reconnectStatusGeneration.current || selectedProfileId !== backendBridge.profileId) return;
+    setRuntimeStatus(status);
+    const reconnect = status?.config?.auto_force_update_reload;
+    if (typeof reconnect === "boolean") setAutoReconnectIncoming(reconnect);
+  }, [selectedProfileId]);
 
   useLayoutEffect(() => {
     const next = initialAutoScanConfig(selectedProfileId, previewState);
@@ -230,6 +267,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
 
   const refreshStatus = useCallback(async () => {
     if (!backendBridge.available) return;
+    const reconnectGeneration = reconnectStatusGeneration.current;
     const autoLaunchRevision = autoLaunchSaveRevisionRef.current;
     const autoLaunchNativeCommitEpoch = autoLaunchNativeCommitEpochRef.current;
     const autoLaunchConfigPollGeneration = autoLaunchConfigPollGenerationRef.current + 1;
@@ -240,11 +278,12 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
       backendBridge.invoke("game_recovery_status", backendBridge.profileId ? { profileId: backendBridge.profileId } : {}),
       backendBridge.invoke("local_config_get", {}),
     ]);
-    if (statusResult.status === "fulfilled") setRuntimeStatus(statusResult.value);
+    if (statusResult.status === "fulfilled") {
+      acknowledgeRuntimeStatus(statusResult.value, reconnectGeneration);
+    }
     if (proxyResult.status === "fulfilled") setProxyStatus(proxyResult.value);
     if (recoveryResult.status === "fulfilled") setGameRecoveryStatus(recoveryResult.value);
     if (configResult.status === "fulfilled") {
-      setLocalConfig(configResult.value);
       if (autoLaunchConfigPollGenerationRef.current === autoLaunchConfigPollGeneration
         && autoLaunchSaveRevisionRef.current === autoLaunchRevision
         && autoLaunchNativeCommitEpochRef.current === autoLaunchNativeCommitEpoch
@@ -258,7 +297,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
     } else {
       setConnectionError("");
     }
-  }, []);
+  }, [acknowledgeRuntimeStatus]);
 
   useEffect(() => {
     if (!backendBridge.available) return undefined;
@@ -300,7 +339,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
     if (!backendBridge.available) return undefined;
     let closed = false;
     const unsubscribeStatus = mapApi.listenStatus((status) => {
-      if (!closed) setRuntimeStatus(status);
+      if (!closed) acknowledgeRuntimeStatus(status);
     });
     const unsubscribeScan = mapApi.listenScanStatus((scan) => {
       if (!closed) acknowledgeMapScan(scan);
@@ -313,7 +352,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
       unsubscribeStatus();
       unsubscribeScan();
     };
-  }, [acknowledgeMapScan, refreshStatus]);
+  }, [acknowledgeMapScan, acknowledgeRuntimeStatus, refreshStatus]);
 
   useEffect(() => {
     if (!backendBridge.available || !selectedProfileId) return undefined;
@@ -419,17 +458,9 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
 
   const updateAutoReconnect = useCallback(async (value) => {
     if (!backendBridge.available) return;
-    setHomeBusy("autoReconnect");
-    setGameActionError("");
-    try {
-      await backendBridge.invokeProfileScoped("set_automation", { name: "autoForceUpdateReload", enabled: value });
-      setLocalConfig((current) => ({ ...(current || {}), autoReconnect: value }));
-    } catch (error) {
-      setGameActionError(error?.message || String(error));
-    } finally {
-      setHomeBusy("");
-    }
-  }, []);
+    autoReconnectStore.edit(value, false);
+    await autoReconnectStore.flush().catch(() => {});
+  }, [autoReconnectStore]);
 
   const selectGameRoot = useCallback(async () => {
     if (!backendBridge.available) return;
@@ -531,7 +562,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
       online,
       gameRecoveryStatus,
       autoLaunchGame,
-      autoReconnect: localConfig?.autoReconnect,
+      autoReconnect: autoReconnectSnapshot.draft,
       busy: homeBusy,
       gameRootError,
       gameActionError,
@@ -689,7 +720,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
         <section className="main-view">
           <Suspense fallback={<div className="panel"><span className="muted">{t("common.processing")}</span></div>}>
             <div className="profile-view-context">
-              <ShellConfigSaveErrors states={shellFlagStates || previewFlagStates} />
+              <ShellConfigSaveErrors states={shellFlagStates || (previewFlagStates.length ? previewFlagStates : [null, null, autoReconnectStore, null])} />
               {switchLoading ? <ProfileSwitchState loading /> : <RetainedPages
                 activeRoute={activeRoute}
                 visitedRoutes={visitedRoutes}

@@ -1,0 +1,17 @@
+{
+  "capturedAt": "2026-10-04",
+  "dispatchHead": "1f117a4e61c35798f98c5d62a275eac163a12be6",
+  "note": "Every dirty/untracked path present at assignment start. All are outside 001B ownership and must remain byte-identical.",
+  "paths": [
+    { "path": "src/LWBridge.UI-0.3.17/src/previewAfkFixtures.js", "sha256": "A41E07A3487FC71B78376BA99609C030DDAD6B30E71DAAC5C428B42EAA6BC447", "length": 4239, "protected": true },
+    { "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-FILTER-LIFECYCLE-001/filter-lifecycle-results.json", "sha256": "D7B32B2FBCE9F8F4C3945F82C80506D9B22536604058B6228CADF921169AFD04", "length": 32981, "protected": true },
+    { "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-FILTER-LIFECYCLE-001-R1/independent-results.json", "sha256": "4E1F78A93E8D5A5E3995BA137C08089C48D900B7915F6C896E20FC555A94D2FC", "length": 5460, "protected": true },
+    { "path": ".scratch-lwb317/AutomationPanel.pretty.js", "sha256": "8E7173C71AFE650CF1839E7EAA78E67BFA066FF6289AC2141410441E49DA2D79", "length": 90848, "protected": true },
+    { "path": ".scratch-lwb317/baseline-check.mjs", "sha256": "9C308B07B2A79632B92EEC959E2D1108D61B5809C58F33F3FAB69E42403275C9", "length": 5482, "protected": true },
+    { "path": ".scratch-lwb317/SquadPanel.pretty.js", "sha256": "DC973A3ADAC1F9BC06230229C4A292E8659D0AAA82CDBB6812E97CBC4FC3D3D5", "length": 255421, "protected": true },
+    { "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-CORRECT-003/screenshots/weekly-save-error-light-en.png", "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855", "length": 0, "protected": true },
+    { "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-AUTO-CONFIG-001/regression-results.json", "sha256": "4118E07D74304963C8093EC9305D0D178A94A3F75C48D3C6A87059AE3F80D70C", "length": 6793, "protected": true },
+    { "path": "src/LWBridge.UI-0.3.17/src/vendor/equipmentMotion317.LICENSE.md", "sha256": "5FF46083B88563822B0560DD6221AB89D2F74BC97A52D4C97A75020FD62C6F32", "length": 1078, "protected": true },
+    { "path": "src/LWBridge.UI-0.3.17/src/vendor/equipmentMotion317.NOTICE.md", "sha256": "B4B598BC2CCC0F5FC12D3B503EAE96862B02FE863089641B91FD390EE342C5B6", "length": 1172, "protected": true }
+  ]
+}

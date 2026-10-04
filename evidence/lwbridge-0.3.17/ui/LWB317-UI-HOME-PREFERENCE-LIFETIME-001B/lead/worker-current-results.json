@@ -1,0 +1,138 @@
+{
+  "task": "LWB317-UI-HOME-PREFERENCE-LIFETIME-001B",
+  "date": "2026-10-04",
+  "result": "LWB317_HOME_RECONNECT_CURRENT_OK",
+  "production": {
+    "appPath": "src/LWBridge.UI-0.3.17/src/App.jsx",
+    "appSha256": "FBA735C248A6358330623F380404BEAFBA079885AB9746B50613363251BABF9C",
+    "homePath": "src/LWBridge.UI-0.3.17/src/HomePage.jsx",
+    "homeSha256": "F140264E693E89F37CBB357470F58FE5DCA46F3DFDA29A8A5D2C7918CE2393FF",
+    "shellPath": "src/LWBridge.UI-0.3.17/src/ShellPresentation.jsx",
+    "shellSha256": "B1DD1278F274A1FD347AD4C27787B5AE8DC1DB32230D49B55F7A471DE34A904F",
+    "helperPath": "src/LWBridge.UI-0.3.17/src/profileConfigDraft.js",
+    "helperSha256": "F14E3AF578194AA42A6A9A0B3809805CA226B290A77CB23D3504EB1CAF41751C",
+    "updateAutoReconnect": {
+      "utf8ByteOffset": 20129,
+      "byteLength": 161,
+      "sha256": "6AB8CEDE98833C6BECBEC6CC9C601678080B554BEFB5BBCB7077C5739FD5A30B",
+      "text": "async (value) => {\n    if (!backendBridge.available) return;\n    autoReconnectStore.edit(value, false);\n    await autoReconnectStore.flush().catch(() => {});\n  }"
+    },
+    "homeAutoReconnectToggle": {
+      "utf8ByteOffset": 8025,
+      "byteLength": 227,
+      "sha256": "B313D244F65D8BB47C5E1319C52CA4B53D9593A1070772A079716D5D14D2AC5D",
+      "text": "<ToggleRow\n        label={t(\"automation.autoReconnect.title\")}\n        checked={state.autoReconnect === true}\n        disabled={state.autoReconnect == null || !state.production}\n        onChange={onAutoReconnectChange}\n      />"
+    }
+  },
+  "cases": [
+    {
+      "name": "initial default and adapter provenance",
+      "status": "PASS",
+      "observed": {
+        "sourceDefault": false,
+        "settledVisible": true,
+        "adapterReads": [
+          {
+            "profileId": "profile-a",
+            "value": true
+          }
+        ]
+      }
+    },
+    {
+      "name": "mounted off-on-off uses immediate draft, serialized acknowledgements, and poll fencing",
+      "status": "PASS",
+      "observed": {
+        "writes": [
+          {
+            "payload": {
+              "name": "autoForceUpdateReload",
+              "enabled": true
+            },
+            "profileId": "profile-a"
+          },
+          {
+            "payload": {
+              "name": "autoForceUpdateReload",
+              "enabled": false
+            },
+            "profileId": "profile-a"
+          }
+        ],
+        "final": {
+          "draft": false,
+          "confirmed": false,
+          "dirty": false,
+          "saving": false,
+          "error": null
+        }
+      }
+    },
+    {
+      "name": "late status reply after save acknowledgement reconciles through a fresh profile read",
+      "status": "PASS",
+      "observed": {
+        "staleIncoming": false,
+        "nativeAfterAcknowledgement": true,
+        "finalVisible": true,
+        "profileReadAfterStaleReply": {
+          "profileId": "profile-a",
+          "value": true
+        }
+      }
+    },
+    {
+      "name": "latest failure presents source banner and actual Retry recovers dirty draft",
+      "status": "PASS",
+      "observed": {
+        "writes": 3,
+        "final": false
+      }
+    },
+    {
+      "name": "older rejection follows source clean-draft error semantics and actual Discard clears it",
+      "status": "PASS",
+      "observed": {
+        "writes": 1,
+        "reads": 1
+      }
+    },
+    {
+      "name": "profile ownership rejects missing/mismatch and keyed drafts survive replacement/return",
+      "status": "PASS",
+      "observed": {
+        "profileA": true,
+        "profileB": false,
+        "dispatches": 0
+      }
+    },
+    {
+      "name": "unavailable-provider fence",
+      "status": "PASS",
+      "observed": {
+        "disabled": true
+      }
+    },
+    {
+      "name": "pending save completion after unmount has no component-state callback",
+      "status": "PASS",
+      "observed": {
+        "consoleErrors": 0
+      }
+    }
+  ],
+  "ordering": {
+    "visibleEdit": "profile draft changes immediately before set_automation acknowledgement",
+    "concurrentEdit": "the same source-derived flush serializes the newer generation after an older successful acknowledgement",
+    "olderRejection": "a failed attempted write retains its error even if a newer boolean edit returned the draft to the confirmed value; clean Retry is a no-op and Discard clears via forced read",
+    "latestFailure": "last confirmed value and newer failed draft remain distinct; Retry resends the dirty draft",
+    "incomingPoll": "receive() fences incoming status while dirty/saving and does not issue its adapter read"
+  },
+  "ownership": {
+    "storeKey": "[profileId, flag:autoForceUpdateReload]",
+    "missingProfile": "PROFILE_REQUIRED before dispatch",
+    "mismatchedProfile": "PROFILE_SCOPE_MISMATCH before dispatch",
+    "nativeBoundary": "existing bridge profile is immutable bootstrap ownership; native SetAutomation persists AutoReconnect in the clone global local config, not a recovered per-profile native store"
+  },
+  "limits": "Controlled inert bridge and jsdom-mounted actual production App/Home/shared ToggleRow/ShellConfigSaveErrors plus the production source-derived draft engine. No Last War process, gameplay, protected original runtime, new command/provider, or per-profile native persistence was exercised."
+}

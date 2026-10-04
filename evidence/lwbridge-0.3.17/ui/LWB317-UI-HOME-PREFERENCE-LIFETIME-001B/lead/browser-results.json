@@ -1,0 +1,411 @@
+{
+  "task": "LWB317-UI-HOME-PREFERENCE-LIFETIME-001B",
+  "result": "PASS",
+  "proof": "Lead real browser controls on current production App with explicit inert QA bridge; no native/game action",
+  "url": "http://127.0.0.1:4339/qa-lead-reconnect.html",
+  "steps": [
+    {
+      "case": "EN deferred off/on/off, older acknowledgement and serialized follow-up",
+      "observed": {
+        "language": "en",
+        "theme": "light",
+        "reconnect": {
+          "checked": "false",
+          "disabled": false,
+          "label": "Automatic Reconnection: Disabled"
+        },
+        "pendingAutomationCount": 2,
+        "automationErrors": [],
+        "profileRequests": [
+          {
+            "command": "get_status",
+            "payload": {
+              "profileId": "qa-profile"
+            }
+          },
+          {
+            "command": "get_status",
+            "payload": {
+              "profileId": "qa-profile"
+            }
+          },
+          {
+            "command": "get_status",
+            "payload": {
+              "profileId": "qa-profile"
+            }
+          },
+          {
+            "command": "set_automation",
+            "payload": {
+              "name": "autoForceUpdateReload",
+              "enabled": true,
+              "profileId": "qa-profile"
+            }
+          },
+          {
+            "command": "get_status",
+            "payload": {
+              "profileId": "qa-profile"
+            }
+          },
+          {
+            "command": "get_status",
+            "payload": {
+              "profileId": "qa-profile"
+            }
+          },
+          {
+            "command": "get_status",
+            "payload": {
+              "profileId": "qa-profile"
+            }
+          },
+          {
+            "command": "get_status",
+            "payload": {
+              "profileId": "qa-profile"
+            }
+          },
+          {
+            "command": "set_automation",
+            "payload": {
+              "name": "autoForceUpdateReload",
+              "enabled": false,
+              "profileId": "qa-profile"
+            }
+          },
+          {
+            "command": "get_status",
+            "payload": {
+              "profileId": "qa-profile"
+            }
+          },
+          {
+            "command": "get_status",
+            "payload": {
+              "profileId": "qa-profile"
+            }
+          },
+          {
+            "command": "get_status",
+            "payload": {
+              "profileId": "qa-profile"
+            }
+          },
+          {
+            "command": "get_status",
+            "payload": {
+              "profileId": "qa-profile"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "EN clean changed-identity status event",
+      "checked": "true"
+    },
+    {
+      "case": "EN latest failure retains draft and shows Retry/Discard",
+      "observed": {
+        "language": "en",
+        "theme": "light",
+        "reconnect": {
+          "checked": "false",
+          "disabled": false,
+          "label": "Automatic Reconnection: Disabled"
+        },
+        "pendingAutomationCount": 3,
+        "automationErrors": [
+          {
+            "text": "Automatic Reconnection Changes have not been saved. Retry Discard unsaved changes",
+            "buttons": [
+              {
+                "text": "Retry",
+                "disabled": false
+              },
+              {
+                "text": "Discard unsaved changes",
+                "disabled": false
+              }
+            ]
+          }
+        ],
+        "profileRequests": [
+          {
+            "command": "get_status",
+            "payload": {
+              "profileId": "qa-profile"
+            }
+          },
+          {
+            "command": "get_status",
+            "payload": {
+              "profileId": "qa-profile"
+            }
+          },
+          {
+            "command": "get_status",
+            "payload": {
+              "profileId": "qa-profile"
+            }
+          },
+          {
+            "command": "set_automation",
+            "payload": {
+              "name": "autoForceUpdateReload",
+              "enabled": true,
+              "profileId": "qa-profile"
+            }
+          },
+          {
+            "command": "get_status",
+            "payload": {
+              "profileId": "qa-profile"
+            }
+          },
+          {
+            "command": "get_status",
+            "payload": {
+              "profileId": "qa-profile"
+            }
+          },
+          {
+            "command": "get_status",
+            "payload": {
+              "profileId": "qa-profile"
+            }
+          },
+          {
+            "command": "get_status",
+            "payload": {
+              "profileId": "qa-profile"
+            }
+          },
+          {
+            "command": "set_automation",
+            "payload": {
+              "name": "autoForceUpdateReload",
+              "enabled": false,
+              "profileId": "qa-profile"
+            }
+          },
+          {
+            "command": "get_status",
+            "payload": {
+              "profileId": "qa-profile"
+            }
+          },
+          {
+            "command": "get_status",
+            "payload": {
+              "profileId": "qa-profile"
+            }
+          },
+          {
+            "command": "get_status",
+            "payload": {
+              "profileId": "qa-profile"
+            }
+          },
+          {
+            "command": "get_status",
+            "payload": {
+              "profileId": "qa-profile"
+            }
+          },
+          {
+            "command": "get_status",
+            "payload": {
+              "profileId": "qa-profile"
+            }
+          },
+          {
+            "command": "get_status",
+            "payload": {
+              "profileId": "qa-profile"
+            }
+          },
+          {
+            "command": "get_status",
+            "payload": {
+              "profileId": "qa-profile"
+            }
+          },
+          {
+            "command": "get_status",
+            "payload": {
+              "profileId": "qa-profile"
+            }
+          },
+          {
+            "command": "get_status",
+            "payload": {
+              "profileId": "qa-profile"
+            }
+          },
+          {
+            "command": "get_status",
+            "payload": {
+              "profileId": "qa-profile"
+            }
+          },
+          {
+            "command": "get_status",
+            "payload": {
+              "profileId": "qa-profile"
+            }
+          },
+          {
+            "command": "get_status",
+            "payload": {
+              "profileId": "qa-profile"
+            }
+          },
+          {
+            "command": "get_status",
+            "payload": {
+              "profileId": "qa-profile"
+            }
+          },
+          {
+            "command": "get_status",
+            "payload": {
+              "profileId": "qa-profile"
+            }
+          },
+          {
+            "command": "get_status",
+            "payload": {
+              "profileId": "qa-profile"
+            }
+          },
+          {
+            "command": "get_status",
+            "payload": {
+              "profileId": "qa-profile"
+            }
+          },
+          {
+            "command": "get_status",
+            "payload": {
+              "profileId": "qa-profile"
+            }
+          },
+          {
+            "command": "get_status",
+            "payload": {
+              "profileId": "qa-profile"
+            }
+          },
+          {
+            "command": "get_status",
+            "payload": {
+              "profileId": "qa-profile"
+            }
+          },
+          {
+            "command": "get_status",
+            "payload": {
+              "profileId": "qa-profile"
+            }
+          },
+          {
+            "command": "get_status",
+            "payload": {
+              "profileId": "qa-profile"
+            }
+          },
+          {
+            "command": "get_status",
+            "payload": {
+              "profileId": "qa-profile"
+            }
+          },
+          {
+            "command": "set_automation",
+            "payload": {
+              "name": "autoForceUpdateReload",
+              "enabled": false,
+              "profileId": "qa-profile"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "EN real Retry and acknowledgement clear banner",
+      "checked": "false",
+      "errorCount": 0
+    },
+    {
+      "case": "JA concurrent edit and older rejection retain source clean-draft error",
+      "observed": {
+        "language": "ja",
+        "theme": "dark",
+        "reconnect": {
+          "checked": "false",
+          "disabled": false,
+          "label": "自動再接続: 無効"
+        },
+        "pendingAutomationCount": 1,
+        "automationErrors": [
+          {
+            "text": "自動再接続 変更は保存されていません。 再試行 未保存の変更を破棄",
+            "buttons": [
+              {
+                "text": "再試行",
+                "disabled": false
+              },
+              {
+                "text": "未保存の変更を破棄",
+                "disabled": false
+              }
+            ]
+          }
+        ],
+        "profileRequests": [
+          {
+            "command": "get_status",
+            "payload": {
+              "profileId": "qa-profile"
+            }
+          },
+          {
+            "command": "get_status",
+            "payload": {
+              "profileId": "qa-profile"
+            }
+          },
+          {
+            "command": "set_automation",
+            "payload": {
+              "name": "autoForceUpdateReload",
+              "enabled": true,
+              "profileId": "qa-profile"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "JA real Discard clears retained source error",
+      "checked": "false",
+      "errorCount": 0
+    },
+    {
+      "case": "JA foreign-profile status event is fenced",
+      "checked": "false"
+    }
+  ],
+  "console": {
+    "en": [],
+    "ja": []
+  },
+  "screenshots": [
+    "screenshots/lead-en-light-save-error.jpg",
+    "screenshots/lead-ja-dark-save-error.jpg"
+  ],
+  "note": "Repeated incoming identity after concurrent acknowledgement follows recovered receive semantics; a false then true event supplies a new identity. Profile replacement is separately mounted fixture proof, not native browser proof."
+}

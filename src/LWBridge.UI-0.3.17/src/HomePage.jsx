@@ -134,7 +134,7 @@ export function HomePage({
       <ToggleRow
         label={t("automation.autoReconnect.title")}
         checked={state.autoReconnect === true}
-        disabled={state.autoReconnect == null || state.busy === "autoReconnect" || !state.production}
+        disabled={state.autoReconnect == null || !state.production}
         onChange={onAutoReconnectChange}
       />
       {recoveryState === "failed" && state.gameRecoveryStatus?.error ? (

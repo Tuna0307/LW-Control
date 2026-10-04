@@ -1,0 +1,62 @@
+{
+  "task": "LWB317-UI-HOME-PREFERENCE-LIFETIME-001B",
+  "capturedAt": "2026-10-04",
+  "immutableDispatch": "1f117a4e61c35798f98c5d62a275eac163a12be6",
+  "source": {
+    "appPath": "src/LWBridge.UI-0.3.17/src/App.jsx",
+    "appSha256": "E40340E53AC461F22F77B908C9053ABC08D82196E8AF581A26A2813EBA8D88C1",
+    "homePath": "src/LWBridge.UI-0.3.17/src/HomePage.jsx",
+    "homeSha256": "1367374F44DE2EA6861F70FB58CBDC56DE5F469D73D9DCDB01D2C470E7D25767",
+    "updateAutoReconnect": "async (value) => {\n    if (!backendBridge.available) return;\n    setHomeBusy(\"autoReconnect\");\n    setGameActionError(\"\");\n    try {\n      await backendBridge.invokeProfileScoped(\"set_automation\", { name: \"autoForceUpdateReload\", enabled: value });\n      setLocalConfig((current) => ({ ...(current || {}), autoReconnect: value }));\n    } catch (error) {\n      setGameActionError(error?.message || String(error));\n    } finally {\n      setHomeBusy(\"\");\n    }\n  }"
+  },
+  "observed": {
+    "beforeAcknowledgement": {
+      "visibleAutoReconnect": false,
+      "busy": "autoReconnect",
+      "mountedSwitchDisabled": true
+    },
+    "afterAcknowledgement": {
+      "visibleAutoReconnect": true,
+      "busy": ""
+    },
+    "trace": [
+      {
+        "kind": "state",
+        "key": "busy",
+        "value": "autoReconnect"
+      },
+      {
+        "kind": "state",
+        "key": "error",
+        "value": ""
+      },
+      {
+        "kind": "invokeProfileScoped",
+        "command": "set_automation",
+        "payload": {
+          "name": "autoForceUpdateReload",
+          "enabled": true
+        }
+      },
+      {
+        "kind": "state",
+        "key": "config",
+        "value": {
+          "autoLaunchGame": true,
+          "autoReconnect": true,
+          "unrelated": "KEEP"
+        }
+      },
+      {
+        "kind": "state",
+        "key": "busy",
+        "value": ""
+      }
+    ]
+  },
+  "parityFailures": [
+    "visible Automatic Reconnection value waits for set_automation acknowledgement instead of changing the profile draft immediately",
+    "mounted Automatic Reconnection switch is disabled while saving, preventing the source-supported concurrent second edit"
+  ],
+  "classification": "IMMUTABLE FAILING BASELINE"
+}
