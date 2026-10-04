@@ -1,0 +1,164 @@
+{
+  "marker": "LWB317_MAP_MANUAL_TYPES_CALLBACK_OK",
+  "baseline": "baseline-selection-counter.json preserves the accepted pre-fix original [] versus current [city] discrepancy",
+  "startNormalization": {
+    "originalEmpty": [
+      "city",
+      "resource",
+      "monster",
+      "truck",
+      "railway",
+      "dispatch",
+      "ghost",
+      "treasure"
+    ],
+    "currentEmpty": [
+      "city",
+      "resource",
+      "monster",
+      "truck",
+      "railway",
+      "dispatch",
+      "ghost",
+      "treasure"
+    ],
+    "currentScanMode": "fast"
+  },
+  "snapshots": [
+    {
+      "label": "single-city",
+      "original": [
+        "city"
+      ],
+      "current": [
+        "city"
+      ]
+    },
+    {
+      "label": "single-to-empty",
+      "original": [],
+      "current": []
+    },
+    {
+      "label": "empty-to-resource",
+      "original": [
+        "resource"
+      ],
+      "current": [
+        "resource"
+      ]
+    },
+    {
+      "label": "append-city",
+      "original": [
+        "resource",
+        "city"
+      ],
+      "current": [
+        "resource",
+        "city"
+      ]
+    },
+    {
+      "label": "append-monster",
+      "original": [
+        "resource",
+        "city",
+        "monster"
+      ],
+      "current": [
+        "resource",
+        "city",
+        "monster"
+      ]
+    },
+    {
+      "label": "remove-middle-city",
+      "original": [
+        "resource",
+        "monster"
+      ],
+      "current": [
+        "resource",
+        "monster"
+      ]
+    },
+    {
+      "label": "reappend-city-at-end",
+      "original": [
+        "resource",
+        "monster",
+        "city"
+      ],
+      "current": [
+        "resource",
+        "monster",
+        "city"
+      ]
+    }
+  ],
+  "auto": {
+    "lastTypePredicatePreserved": true,
+    "manualEditCallbackCount": 0
+  },
+  "sourceLocators": [
+    {
+      "name": "original Manual checkbox onChange",
+      "file": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js",
+      "utf8ByteOffset": 50135,
+      "byteLength": 77,
+      "sha256": "05d62ecc136a7723046dc9d754c73eeb93ac1d20f2d35fe87d19187831d87d21",
+      "text": "t=>{P.current=!0,qe(n=>t.target.checked?[...n,e.key]:n.filter(t=>t!==e.key))}"
+    },
+    {
+      "name": "original rt selected-type normalizer",
+      "file": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js",
+      "utf8ByteOffset": 14384,
+      "byteLength": 85,
+      "sha256": "830bce31302c7eb1743cc09e5bcf5ea0e0abdbee176f69714e601b5b820acb9d",
+      "text": "function rt(e){let t=[...new Set(e.filter(e=>Le.has(e)))];return t.length>0?t:[...D]}"
+    },
+    {
+      "name": "current normalizeSelectedTypes",
+      "file": "src/LWBridge.UI-0.3.17/src/mapBackend.js",
+      "utf8ByteOffset": 7136,
+      "byteLength": 198,
+      "sha256": "62dfc61e6d0413f2c75dba1f2abf460cf48d79fa44570ccea0a5d06568d42f07",
+      "text": "function normalizeSelectedTypes(types) {\r\n  const selected = [...new Set((types || []).filter((kind) => MAP_KIND_KEYS.includes(kind)))];\r\n  return selected.length ? selected : [...MAP_KIND_KEYS];\r\n}"
+    },
+    {
+      "name": "current updateSelectedTypes",
+      "file": "src/LWBridge.UI-0.3.17/src/mapBackend.js",
+      "utf8ByteOffset": 7345,
+      "byteLength": 338,
+      "sha256": "0aa1c6a1fb3eaf74dc9a28bc56475efb562e951cf93007394032731f28696f59",
+      "text": "function updateSelectedTypes(types, kind, checked) {\n  const selected = [...new Set((types || []).filter((entry) => MAP_KIND_KEYS.includes(entry)))];\n  if (!MAP_KIND_KEYS.includes(kind)) return selected;\n  if (checked) return selected.includes(kind) ? selected : [...selected, kind];\n  return selected.filter((entry) => entry !== kind);\n}"
+    },
+    {
+      "name": "current buildStartPayload",
+      "file": "src/LWBridge.UI-0.3.17/src/mapBackend.js",
+      "utf8ByteOffset": 8183,
+      "byteLength": 189,
+      "sha256": "d81f34111cac9b010d2b97e8fc315d80393e36d1fa68cb3665b4742082036606",
+      "text": "function buildStartPayload(selectedTypes, scanMode) {\r\n  return {\r\n    selectedTypes: normalizeSelectedTypes(selectedTypes),\r\n    scanMode: scanMode === \"fast\" ? \"fast\" : \"normal\",\r\n  };\r\n}"
+    },
+    {
+      "name": "current Manual checkbox",
+      "file": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+      "utf8ByteOffset": 51641,
+      "byteLength": 123,
+      "sha256": "603cbe2077ca51df3b7cd72f4f67319b1ed6eaf03132dc44efe9f79b487a4ef3",
+      "text": "<input type=\"checkbox\" checked={selectedTypes.includes(key)} onChange={(event) => toggleType(key, event.target.checked)} />"
+    },
+    {
+      "name": "current Auto checkbox last-type protection",
+      "file": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+      "utf8ByteOffset": 49396,
+      "byteLength": 226,
+      "sha256": "a71bab06ed0b4c7cb16f8dba816c7dfa1051820a912ebe5b1489486ac2d112c1",
+      "text": "<input type=\"checkbox\" checked={autoConfig.selectedTypes.includes(key)} disabled={autoConfig.selectedTypes.length === 1 && autoConfig.selectedTypes[0] === key} onChange={(event) => toggleAutoType(key, event.target.checked)} />"
+    }
+  ],
+  "nativeActionHandlersInvoked": [],
+  "limitation": "Inert persistent-hook callback execution plus pure original/current start normalization; no scan or native action was invoked."
+}

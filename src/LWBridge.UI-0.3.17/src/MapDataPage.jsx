@@ -1082,7 +1082,7 @@ export function MapDataPage({
           <div className="map-types map-types--compact">
             {MAP_SCAN_TYPES.map(({ key }) => (
               <label key={key}>
-                <input type="checkbox" checked={selectedTypes.includes(key)} disabled={selectedTypes.length === 1 && selectedTypes[0] === key} onChange={(event) => toggleType(key, event.target.checked)} />
+                <input type="checkbox" checked={selectedTypes.includes(key)} onChange={(event) => toggleType(key, event.target.checked)} />
                 <span>{t(SCAN_TYPE_LABEL_KEYS[key])}</span>
               </label>
             ))}

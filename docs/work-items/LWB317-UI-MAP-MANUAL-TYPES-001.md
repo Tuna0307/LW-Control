@@ -1,6 +1,6 @@
 # LWB317-UI-MAP-MANUAL-TYPES-001
 
-Status: ASSIGNED through owner relay, 2026-10-04. Size: small.
+Status: AWAITING_REVIEW through owner relay, 2026-10-04. Size: small.
 Baseline: cd3b0bbe880c94351621185e9c2e1d0151686b36.
 
 ## Goal and evidence
@@ -56,3 +56,20 @@ commit, push and verify full remote SHA. Preserve owner port4335; clean up only
 owned helpers. Stop after this correction and return AWAITING_REVIEW with files,
 checks, remaining limits and exact SHA. The lead handles acceptance/master status.
 No additional visual campaign or fixed elapsed-time stop is assigned.
+
+## Worker delivery — 2026-10-04
+
+Manual final-type deselection and empty-selection editing are corrected in the
+allowed JSX/helper paths. Actual original/current callback evidence covers
+single-to-empty, empty-to-single, add/remove/re-add ordering, and proves Manual
+editing emits no Auto config update. The original pure Start normalizer and
+current request-boundary helper both map empty selection to all eight types;
+Auto's separate last-type predicate remains present.
+
+Focused offline Chrome cleared all eight Manual types and selected Resource
+Point alone with zero console issues; one inspected screenshot and results are
+saved in the new evidence packet. Canonical check/build/package, diff check and
+the ten-file protected-WIP guard pass. Dated worker delivery:
+`docs/reviews/2026-10-04-LWB317-UI-MAP-MANUAL-TYPES-001.md`.
+The exact pushed SHA is reported in the worker relay because this delivery file
+is part of that commit. Project-lead acceptance/master updates remain separate.

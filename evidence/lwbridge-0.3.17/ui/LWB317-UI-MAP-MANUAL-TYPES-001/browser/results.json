@@ -1,0 +1,243 @@
+{
+  "marker": "LWB317_MAP_MANUAL_TYPES_BROWSER_OK",
+  "browser": {
+    "protocolVersion": "1.3",
+    "product": "Chrome/154.0.8037.95",
+    "revision": "@05d469856e75794131cc2e5d9b2f6b6f10a70388",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36",
+    "jsVersion": "15.4.80.19"
+  },
+  "url": "http://127.0.0.1:4340/?view=map-data&previewState=map-idle&previewTheme=light&previewLanguage=en",
+  "viewport": {
+    "width": 1280,
+    "height": 900,
+    "deviceScaleFactor": 1
+  },
+  "initial": [
+    {
+      "index": 0,
+      "text": "Player City",
+      "checked": true,
+      "disabled": false
+    },
+    {
+      "index": 1,
+      "text": "Resource Point",
+      "checked": true,
+      "disabled": false
+    },
+    {
+      "index": 2,
+      "text": "Monster",
+      "checked": true,
+      "disabled": false
+    },
+    {
+      "index": 3,
+      "text": "Truck",
+      "checked": true,
+      "disabled": false
+    },
+    {
+      "index": 4,
+      "text": "Train",
+      "checked": true,
+      "disabled": false
+    },
+    {
+      "index": 5,
+      "text": "Secret Task",
+      "checked": true,
+      "disabled": false
+    },
+    {
+      "index": 6,
+      "text": "Ghost Ops",
+      "checked": true,
+      "disabled": false
+    },
+    {
+      "index": 7,
+      "text": "Treasure",
+      "checked": true,
+      "disabled": false
+    }
+  ],
+  "steps": [
+    {
+      "action": "deselect-0",
+      "checked": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ]
+    },
+    {
+      "action": "deselect-1",
+      "checked": [
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ]
+    },
+    {
+      "action": "deselect-2",
+      "checked": [
+        3,
+        4,
+        5,
+        6,
+        7
+      ]
+    },
+    {
+      "action": "deselect-3",
+      "checked": [
+        4,
+        5,
+        6,
+        7
+      ]
+    },
+    {
+      "action": "deselect-4",
+      "checked": [
+        5,
+        6,
+        7
+      ]
+    },
+    {
+      "action": "deselect-5",
+      "checked": [
+        6,
+        7
+      ]
+    },
+    {
+      "action": "deselect-6",
+      "checked": [
+        7
+      ]
+    },
+    {
+      "action": "deselect-7",
+      "checked": []
+    }
+  ],
+  "empty": [
+    {
+      "index": 0,
+      "text": "Player City",
+      "checked": false,
+      "disabled": false
+    },
+    {
+      "index": 1,
+      "text": "Resource Point",
+      "checked": false,
+      "disabled": false
+    },
+    {
+      "index": 2,
+      "text": "Monster",
+      "checked": false,
+      "disabled": false
+    },
+    {
+      "index": 3,
+      "text": "Truck",
+      "checked": false,
+      "disabled": false
+    },
+    {
+      "index": 4,
+      "text": "Train",
+      "checked": false,
+      "disabled": false
+    },
+    {
+      "index": 5,
+      "text": "Secret Task",
+      "checked": false,
+      "disabled": false
+    },
+    {
+      "index": 6,
+      "text": "Ghost Ops",
+      "checked": false,
+      "disabled": false
+    },
+    {
+      "index": 7,
+      "text": "Treasure",
+      "checked": false,
+      "disabled": false
+    }
+  ],
+  "final": [
+    {
+      "index": 0,
+      "text": "Player City",
+      "checked": false,
+      "disabled": false
+    },
+    {
+      "index": 1,
+      "text": "Resource Point",
+      "checked": true,
+      "disabled": false
+    },
+    {
+      "index": 2,
+      "text": "Monster",
+      "checked": false,
+      "disabled": false
+    },
+    {
+      "index": 3,
+      "text": "Truck",
+      "checked": false,
+      "disabled": false
+    },
+    {
+      "index": 4,
+      "text": "Train",
+      "checked": false,
+      "disabled": false
+    },
+    {
+      "index": 5,
+      "text": "Secret Task",
+      "checked": false,
+      "disabled": false
+    },
+    {
+      "index": 6,
+      "text": "Ghost Ops",
+      "checked": false,
+      "disabled": false
+    },
+    {
+      "index": 7,
+      "text": "Treasure",
+      "checked": false,
+      "disabled": false
+    }
+  ],
+  "clickedControls": [
+    "Manual scan-type checkboxes only"
+  ],
+  "nativeActionsInvoked": [],
+  "screenshot": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-MANUAL-TYPES-001/browser/manual-empty-to-resource.png",
+  "screenshotSha256": "b3372ae5d17cc907980da31c2609c733b026f2cedcde19c09359d01ab3a85c03",
+  "screenshotBytes": 112740,
+  "consoleIssueCount": 0
+}

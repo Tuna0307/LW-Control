@@ -184,10 +184,9 @@ export function normalizeSelectedTypes(types) {
 }
 
 export function updateSelectedTypes(types, kind, checked) {
-  const selected = normalizeSelectedTypes(types);
+  const selected = [...new Set((types || []).filter((entry) => MAP_KIND_KEYS.includes(entry)))];
   if (!MAP_KIND_KEYS.includes(kind)) return selected;
-  if (checked) return normalizeSelectedTypes([...selected, kind]);
-  if (selected.length === 1 && selected[0] === kind) return selected;
+  if (checked) return selected.includes(kind) ? selected : [...selected, kind];
   return selected.filter((entry) => entry !== kind);
 }
 

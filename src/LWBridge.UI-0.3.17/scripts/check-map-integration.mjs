@@ -62,7 +62,7 @@ assert.deepEqual(buildStartPayload(["resource", "resource", "bogus"], "fast"), {
   selectedTypes: ["resource"],
   scanMode: "fast",
 });
-assert.deepEqual(updateSelectedTypes(["resource"], "resource", false), ["resource"], "last scan type cannot be removed");
+assert.deepEqual(updateSelectedTypes(["resource"], "resource", false), [], "Manual editing must allow removing the last scan type");
 assert.deepEqual(updateSelectedTypes(["city"], "resource", true), ["city", "resource"]);
 
 assert.deepEqual(cycleSort([{ sortBy: "updatedAt", sortOrder: "desc" }], "level"), [
