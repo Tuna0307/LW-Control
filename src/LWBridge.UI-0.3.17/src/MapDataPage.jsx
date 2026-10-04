@@ -1038,7 +1038,9 @@ export function MapDataPage({
                   <span key={id}>
                     {id}
                     <button type="button" aria-label={`${t("common.remove")} ${id}`} onClick={() => emitAutoConfig({ serverIds: removeAutoServerId(autoConfig.serverIds, id) })}>
-                      <span aria-hidden="true">×</span>
+                      <svg className="ui-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+                        <path d="m4 4 8 8M12 4l-8 8" />
+                      </svg>
                     </button>
                   </span>
                 ))}

@@ -1,0 +1,22 @@
+{
+  "marker": "LWB317_MAP_AUTO_REMOVE_A_BROWSER_COMPARED",
+  "pairs": [
+    {
+      "pairId": "ja-dark-configured",
+      "caseId": "configured",
+      "language": "ja",
+      "theme": "dark",
+      "viewport": {
+        "width": 375,
+        "height": 1000,
+        "deviceScaleFactor": 1
+      },
+      "originalScreenshotSha256": "b9fa3c3e1eb8cf52e96c51354154323a94f386fc8764dca920ed717e7f8f1acd",
+      "currentScreenshotSha256": "b9fa3c3e1eb8cf52e96c51354154323a94f386fc8764dca920ed717e7f8f1acd",
+      "exactScreenshotBytes": true,
+      "domMatch": true,
+      "geometryDifferences": [],
+      "styleDifferences": []
+    }
+  ]
+}

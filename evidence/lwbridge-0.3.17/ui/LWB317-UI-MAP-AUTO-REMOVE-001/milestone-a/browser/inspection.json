@@ -1,0 +1,18 @@
+{
+  "marker": "LWB317_MAP_AUTO_REMOVE_A_SCREENSHOTS_INSPECTED",
+  "generatedAt": "2026-10-04",
+  "screenshots": [
+    {
+      "file": "browser/ja-dark-configured-original.png",
+      "sha256": "b9fa3c3e1eb8cf52e96c51354154323a94f386fc8764dca920ed717e7f8f1acd",
+      "status": "INSPECTED",
+      "observation": "Recovered original JA/dark 375px configured Auto card is fully visible; server chips 8, 15 and 120 each show the 14x14 SVG remove cross with no clipping."
+    },
+    {
+      "file": "browser/ja-dark-configured-current.png",
+      "sha256": "b9fa3c3e1eb8cf52e96c51354154323a94f386fc8764dca920ed717e7f8f1acd",
+      "status": "INSPECTED",
+      "observation": "Current JA/dark 375px configured Auto card is visually identical to the recovered original, including all three SVG remove crosses and surrounding chip/card geometry."
+    }
+  ]
+}
