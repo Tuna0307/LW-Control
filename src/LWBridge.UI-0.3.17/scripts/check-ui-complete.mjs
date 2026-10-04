@@ -4,7 +4,8 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(here, "..");
-const sourceFiles = ["src/App.jsx", "src/Pages.jsx", "src/MapDataPage.jsx", "src/mapTablePresentation.js", "src/previewConfigHook.jsx", "src/AutomationMeta.jsx", "src/RallyJoinSettings.jsx", "src/DispatchAssistManual.jsx", "src/previewEquipmentContracts.js"];
+const pageModules = ["Pages.jsx", "sharedPageUI.jsx", "HomePage.jsx", "AutomationPage.jsx", "SquadsPage.jsx", "CityLayoutPage.jsx", "HotkeyPages.jsx", "SettingsPage.jsx", "MapRoutePage.jsx"];
+const sourceFiles = ["src/App.jsx", ...pageModules.map((file) => `src/${file}`), "src/MapDataPage.jsx", "src/mapTablePresentation.js", "src/previewConfigHook.jsx", "src/AutomationMeta.jsx", "src/RallyJoinSettings.jsx", "src/DispatchAssistManual.jsx", "src/previewEquipmentContracts.js"];
 const localeCodes = ["en", "zh-CN", "zh-TW", "ja", "ko", "vi", "id", "ru", "pt"];
 
 const en = (await import(pathToFileURL(path.join(root, "src", "locales", "en.js")))).default;
@@ -51,7 +52,7 @@ if (!app.includes('backendBridge.mode === "preview" ? new URLSearchParams(window
   throw new Error("Preview state must remain fenced to browser preview mode.");
 }
 
-const pages = fs.readFileSync(path.join(root, "src", "Pages.jsx"), "utf8");
+const pages = pageModules.map((file) => fs.readFileSync(path.join(root, "src", file), "utf8")).join("\n");
 const mapPage = fs.readFileSync(path.join(root, "src", "MapDataPage.jsx"), "utf8");
 const mapPreview = fs.readFileSync(path.join(root, "src", "mapPreviewApi.js"), "utf8");
 const equipmentPreview = fs.readFileSync(path.join(root, "src", "previewEquipmentContracts.js"), "utf8");

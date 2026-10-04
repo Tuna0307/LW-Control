@@ -1,0 +1,1031 @@
+{
+  "original": {
+    "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-BVfnK1wp.js",
+    "sha256": "44C4E4043825B7DB296B64171951B27176F8850FF8D7D337CC991DF4765524C6",
+    "functions": {
+      "navigation": {
+        "utf8ByteOffset": 349778,
+        "utf8ByteLength": 627,
+        "sha256": "E2060ECCE6614467C247E129ECB5DD457DE3A1B8C46C02CE16E046705568CE16",
+        "text": "function Qr({active:e,showAdvanced:t,onSelect:n,onPreload:r}){let{t:i}=De(),a=t?[...Zr.slice(0,-1),{key:`advanced`,label:`nav.advanced`},Zr[Zr.length-1]]:Zr;return(0,M.jsxs)(`nav`,{className:`side-nav`,children:[(0,M.jsx)(`div`,{className:`nav-heading`,children:(0,M.jsx)(`strong`,{children:i(`nav.title`)})}),a.map(t=>(0,M.jsxs)(`button`,{className:t.key===e?`active`:``,onMouseEnter:()=>r?.(t.key),onFocus:()=>r?.(t.key),onClick:()=>n(t.key),children:[(0,M.jsx)(`span`,{className:`nav-icon`,\"aria-hidden\":`true`,children:(0,M.jsx)(Xr,{name:t.key})}),(0,M.jsx)(`span`,{className:`nav-label`,children:i(t.label)})]},t.key))]})}"
+      },
+      "preload": {
+        "utf8ByteOffset": 361263,
+        "utf8ByteLength": 43,
+        "sha256": "8F1AEADF4DD81566AF33FA51D21B15D38791BECE0377DB98AC66184AD4A7A439",
+        "text": "function Wi(e){Ui[e]?.().catch(()=>void 0)}"
+      },
+      "select": {
+        "utf8ByteOffset": 364377,
+        "utf8ByteLength": 173,
+        "sha256": "46F42FD3B323F00D1714F3981BE3C2F3BB4F16FEEA142AF46A493A42D1CF4C78",
+        "text": "function Tt(e){e!==i&&(e===`map-data`&&_t().catch(e=>F(`map summary error `+String(e))),Wi(e),c(()=>{s(t=>{if(t.has(e))return t;let n=new Set(t);return n.add(e),n}),a(e)}))}"
+      }
+    },
+    "loaders": {
+      "Mi": {
+        "utf8ByteOffset": 360263,
+        "utf8ByteLength": 97,
+        "sha256": "4BD0141B59AA23A0F56874943E023EB56D9B57B7300B824ED48BC40152FB3A7C",
+        "text": "Mi=()=>be(()=>import(`./AutomationPanel-BJ0gIqFh.js`),__vite__mapDeps([0,1,2,3]),import.meta.url)"
+      },
+      "Ni": {
+        "utf8ByteOffset": 360361,
+        "utf8ByteLength": 93,
+        "sha256": "9BBB635D89C9381463DEA10DB69D1839534B9859B00DF7F0C663486C6AFBA649",
+        "text": "Ni=()=>be(()=>import(`./CityLayoutPanel-DoNWkywK.js`),__vite__mapDeps([4,3]),import.meta.url)"
+      },
+      "Pi": {
+        "utf8ByteOffset": 360455,
+        "utf8ByteLength": 69,
+        "sha256": "2B39A0B5C67A7F82FB0AEBA2ED5D59E4C5562EFA6FBAD09750203F645B96E661",
+        "text": "Pi=()=>be(()=>import(`./HotkeyPanel-XA8idRHB.js`),[],import.meta.url)"
+      },
+      "Fi": {
+        "utf8ByteOffset": 360525,
+        "utf8ByteLength": 92,
+        "sha256": "EF14EC6CC91641569EB1288799F2EF0D7B58115C494F76ED681D4FC42A9C2523",
+        "text": "Fi=()=>be(()=>import(`./MapDataPanel-B4GXEND2.js`),__vite__mapDeps([5,1,3]),import.meta.url)"
+      },
+      "Ii": {
+        "utf8ByteOffset": 360618,
+        "utf8ByteLength": 71,
+        "sha256": "9E28B24C3441E2248C29CC0E91DE8DF1D0A43DF4F4F0D286CE8E48CB778DEBB9",
+        "text": "Ii=()=>be(()=>import(`./SettingsPanel-DqxIWv_E.js`),[],import.meta.url)"
+      },
+      "I": {
+        "utf8ByteOffset": 360690,
+        "utf8ByteLength": 89,
+        "sha256": "0F62FC84CB58D9BB020D110DF855C0F1721D0F473E1423F3BE16B09C71E3E761",
+        "text": "I=()=>be(()=>import(`./SquadPanel-HC3-DJei.js`),__vite__mapDeps([6,2,3]),import.meta.url)"
+      },
+      "Li": {
+        "utf8ByteOffset": 360787,
+        "utf8ByteLength": 62,
+        "sha256": "3FD152021E708B087F00B0E3E2E7CE877F076084BEF63A365048BFD5CEC24563",
+        "text": "Li=(0,b.lazy)(()=>Mi().then(e=>({default:e.AutomationPanel})))"
+      },
+      "Ri": {
+        "utf8ByteOffset": 360850,
+        "utf8ByteLength": 62,
+        "sha256": "31A6A4569768465740FAF49A3484C5A73ABBAFAD462C17F02BC301457796D8C0",
+        "text": "Ri=(0,b.lazy)(()=>Ni().then(e=>({default:e.CityLayoutPanel})))"
+      },
+      "zi": {
+        "utf8ByteOffset": 360913,
+        "utf8ByteLength": 58,
+        "sha256": "CC10CFCA0037425EC66FC02C803DAD01B6F2DE3337EF5B7C1EF057A2D82F06F8",
+        "text": "zi=(0,b.lazy)(()=>Pi().then(e=>({default:e.HotkeyPanel})))"
+      },
+      "Bi": {
+        "utf8ByteOffset": 360972,
+        "utf8ByteLength": 59,
+        "sha256": "ED11C10CAD701C8BF21C9BE9ABB1F18E1922E977822AAF0452F0EE32D86C3CC7",
+        "text": "Bi=(0,b.lazy)(()=>Fi().then(e=>({default:e.MapDataPanel})))"
+      },
+      "Vi": {
+        "utf8ByteOffset": 361032,
+        "utf8ByteLength": 60,
+        "sha256": "30AF81E3B837FF06A19CE8402B7F32FF1DD6EE7BA6AA2C75AE31DBCB99895AA4",
+        "text": "Vi=(0,b.lazy)(()=>Ii().then(e=>({default:e.SettingsPanel})))"
+      },
+      "Hi": {
+        "utf8ByteOffset": 361093,
+        "utf8ByteLength": 56,
+        "sha256": "30675E6BB00E5F91C4AF72A7B62D9715F1A3834792454FF1BAE168CCAABFB6F8",
+        "text": "Hi=(0,b.lazy)(()=>I().then(e=>({default:e.SquadPanel})))"
+      },
+      "Ui": {
+        "utf8ByteOffset": 361150,
+        "utf8ByteLength": 112,
+        "sha256": "82FB8184926A88F3E7128A2680E439384801FFB261CFAF31EB358F02C0923946",
+        "text": "Ui={advanced:void 0,automation:Mi,\"city-layout\":Ni,hotkeys:Pi,\"mini-games\":Pi,\"map-data\":Fi,settings:Ii,march:I}"
+      },
+      "Zr": {
+        "utf8ByteOffset": 349465,
+        "utf8ByteLength": 312,
+        "sha256": "67775F208FED0E7013C1A79C1EE394B0F31263BBBE3650B8E5A34E26BF59E789",
+        "text": "Zr=[{key:`overview`,label:`nav.overview`},{key:`automation`,label:`nav.automation`},{key:`map-data`,label:`nav.mapData`},{key:`march`,label:`nav.squads`},{key:`city-layout`,label:`nav.cityLayout`},{key:`hotkeys`,label:`nav.hotkeys`},{key:`mini-games`,label:`nav.miniGames`},{key:`settings`,label:`nav.settings`}]"
+      }
+    },
+    "suspense": {
+      "utf8ByteOffset": 372608,
+      "utf8ByteLength": 3110,
+      "sha256": "0DDE6996AADB39417CDC8C05ED4BA66D9337A26639EBCA6A0BDE88077070927C",
+      "text": "(0,M.jsx)(b.Suspense,{fallback:(0,M.jsx)(`div`,{className:`panel`,children:(0,M.jsx)(`span`,{className:`muted`,children:t(`common.processing`)})}),children:(0,M.jsxs)(`div`,{className:`profile-view-context`,children:[[O,ce,ue,j].map((e,n)=>(0,M.jsx)(Oe,{state:e.state,label:t([`automation.weekendShield.title`,`automation.attackShield.title`,`automation.autoReconnect.title`,`automation.autoClosePopup.title`][n])},n)),Xe?(0,M.jsx)(`div`,{className:`panel profile-switch-loading`,children:(0,M.jsx)(`span`,{className:`muted`,children:t(`common.processing`)})}):(0,M.jsxs)(M.Fragment,{children:[o.has(`overview`)&&(0,M.jsx)(b.Activity,{mode:i===`overview`?`visible`:`hidden`,children:(0,M.jsx)(qr,{proxyStatus:d,online:at,gameRecoveryStatus:w,proxyBusy:p,gameLaunchBusy:n.gameLaunchBusy,gameRootStatus:h,gameRootBusy:_,gameRootError:y,gameActionError:S,autoLaunchGame:n.autoLaunchGame,autoReconnect:de,onAutoLaunchGameChange:n.setAutoLaunchGame,onAutoReconnectChange:e=>{It(`autoForceUpdateReload`,e)},onGameRootSelect:Xt,onStartGame:Nt,onStopGame:Pt,onUpdateAndRestart:Ft})}),o.has(`automation`)&&(0,M.jsx)(b.Activity,{mode:i===`automation`?`visible`:`hidden`,children:(0,M.jsx)(Li,{profileId:r.selectedProfileId,activeCategory:rt?Ge:void 0,onActiveCategoryChange:rt?P:void 0,autoWeekendShield:k,autoAttackShield:le,online:at,busy:Ne,resourceBusy:Pe,chatBusy:Ie,config:l?.config?.tasks,redPacketConfig:l?.config?.chat_automation?.red_packet,treasureConfig:l?.config?.chat_automation?.treasure,fireworksConfig:l?.config?.chat_automation?.fireworks,tradeStationConfig:l?.config?.trade_station,status:Ee,resourceStatus:je,onToggle:It,onBackgroundToggle:Bt,onBackgroundRun:qt,onConstructionClaimAll:Yt,onInspect:Qt,onRunTask:tn,onResourceRun:$t,onChatRun:en})}),o.has(`map-data`)&&(0,M.jsx)(b.Activity,{mode:i===`map-data`?`visible`:`hidden`,children:(0,M.jsx)(Bi,{activeTab:rt?Ke:void 0,onActiveTabChange:rt?qe:void 0,scanState:pe,summary:ge,online:at,onState:pt,onCounts:bt,onLog:F,autoScanConfig:ve,autoScanRunning:be,onAutoScanConfig:Ct})}),o.has(`march`)&&(0,M.jsx)(b.Activity,{mode:i===`march`?`visible`:`hidden`,children:(0,M.jsx)(Hi,{activeTab:rt?Je:void 0,onActiveTabChange:rt?Ye:void 0,online:at,serverId:pe?.serverId||0,config:l?.config?.tasks?.monsterSweep,staminaPotionConfig:l?.config?.tasks?.staminaPotion,garrisonConfig:l?.config?.tasks?.allianceGarrison,zombieBusConfig:l?.config?.tasks?.zombieBus,onLog:F})}),o.has(`hotkeys`)&&(0,M.jsx)(b.Activity,{mode:i===`hotkeys`?`visible`:`hidden`,children:(0,M.jsx)(zi,{online:at,onLog:F})}),o.has(`mini-games`)&&(0,M.jsx)(b.Activity,{mode:i===`mini-games`?`visible`:`hidden`,children:(0,M.jsx)(zi,{category:`miniGames`,online:at,onLog:F,sheepStatus:Ee?.tasks?.sheepGame})}),o.has(`city-layout`)&&(0,M.jsx)(b.Activity,{mode:i===`city-layout`?`visible`:`hidden`,children:(0,M.jsx)(Ri,{profileId:r.selectedProfileId,online:at,onLog:F})}),L,o.has(`settings`)&&(0,M.jsx)(b.Activity,{mode:i===`settings`?`visible`:`hidden`,children:(0,M.jsx)(Vi,{showProfileFocus:rt,focusGameOnProfileSelect:Ve,onFocusGameOnProfileSelectChange:dt})})]})]},r.selectedProfileId)})"
+    }
+  },
+  "current": {
+    "path": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+    "sha256": "4EEA83ED48643BDCA326E22002FD7AF2160A616454C99366EFCC3405CF53A69F",
+    "imports": {
+      "GameAssetImage": {
+        "module": "./GameAssetImage.jsx",
+        "imported": "GameAssetImage"
+      },
+      "Activity": {
+        "module": "react",
+        "imported": "Activity"
+      },
+      "useEffect": {
+        "module": "react",
+        "imported": "useEffect"
+      },
+      "useMemo": {
+        "module": "react",
+        "imported": "useMemo"
+      },
+      "useRef": {
+        "module": "react",
+        "imported": "useRef"
+      },
+      "useState": {
+        "module": "react",
+        "imported": "useState"
+      },
+      "AutomationMeta": {
+        "module": "./AutomationMeta.jsx",
+        "imported": "AutomationMeta"
+      },
+      "previewFutureTime": {
+        "module": "./AutomationMeta.jsx",
+        "imported": "previewFutureTime"
+      },
+      "DispatchAssistManual": {
+        "module": "./DispatchAssistManual.jsx",
+        "imported": "DispatchAssistManual"
+      },
+      "RallyJoinSettings": {
+        "module": "./RallyJoinSettings.jsx",
+        "imported": "RallyJoinSettings"
+      },
+      "MapDataPage": {
+        "module": "./MapDataPage.jsx",
+        "imported": "MapDataPage"
+      },
+      "getMapPreviewProvider": {
+        "module": "./mapPreviewApi.js",
+        "imported": "getMapPreviewProvider"
+      },
+      "useI18n": {
+        "module": "./i18n.jsx",
+        "imported": "useI18n"
+      },
+      "usePreviewConfig": {
+        "module": "./previewConfigHook.jsx",
+        "imported": "usePreviewConfig"
+      },
+      "PreviewConfigError": {
+        "module": "./previewConfigHook.jsx",
+        "imported": "PreviewConfigError"
+      },
+      "normalizeJoinRestrictions": {
+        "module": "./previewAfkContracts.js",
+        "imported": "normalizeJoinRestrictions"
+      },
+      "validJoinRestrictions": {
+        "module": "./previewAfkContracts.js",
+        "imported": "validJoinRestrictions"
+      },
+      "previewAfkTargets": {
+        "module": "./previewAfkContracts.js",
+        "imported": "previewAfkTargets"
+      },
+      "makePreviewAfkProfile": {
+        "module": "./previewAfkContracts.js",
+        "imported": "makePreviewAfkProfile"
+      },
+      "previewAfkProfileValid": {
+        "module": "./previewAfkContracts.js",
+        "imported": "previewAfkProfileValid"
+      },
+      "applyAfkTarget": {
+        "module": "./previewAfkContracts.js",
+        "imported": "applyAfkTarget"
+      },
+      "previewAfkLevelOutOfRange": {
+        "module": "./previewAfkContracts.js",
+        "imported": "previewAfkLevelOutOfRange"
+      },
+      "resolvePreviewAfkTarget": {
+        "module": "./previewAfkContracts.js",
+        "imported": "resolvePreviewAfkTarget"
+      },
+      "refreshGarrisonTargets": {
+        "module": "./previewAfkContracts.js",
+        "imported": "refreshGarrisonTargets"
+      },
+      "initialAutomationDraft": {
+        "module": "./previewAutomationContracts.js",
+        "imported": "initialAutomationDraft"
+      },
+      "automationDraftError": {
+        "module": "./previewAutomationContracts.js",
+        "imported": "automationDraftError"
+      },
+      "previewTrainingOrder": {
+        "module": "./previewAutomationContracts.js",
+        "imported": "previewTrainingOrder"
+      },
+      "activateTraining": {
+        "module": "./previewAutomationContracts.js",
+        "imported": "activateTraining"
+      },
+      "dispatchWeeklyQualities": {
+        "module": "./previewAutomationFixtures.js",
+        "imported": "dispatchWeeklyQualities"
+      },
+      "previewAssistFixture": {
+        "module": "./previewAutomationFixtures.js",
+        "imported": "previewAssistFixture"
+      },
+      "previewAutomationRuntime": {
+        "module": "./previewAutomationFixtures.js",
+        "imported": "previewAutomationRuntime"
+      },
+      "previewResourceGatherConfig": {
+        "module": "./previewAutomationFixtures.js",
+        "imported": "previewResourceGatherConfig"
+      },
+      "previewResourceGatherRuntime": {
+        "module": "./previewAutomationFixtures.js",
+        "imported": "previewResourceGatherRuntime"
+      },
+      "previewTradeFixture": {
+        "module": "./previewAutomationFixtures.js",
+        "imported": "previewTradeFixture"
+      },
+      "railwayWeeklyQualities": {
+        "module": "./previewAutomationFixtures.js",
+        "imported": "railwayWeeklyQualities"
+      },
+      "validPreviewResourceGatherConfig": {
+        "module": "./previewAutomationFixtures.js",
+        "imported": "validPreviewResourceGatherConfig"
+      },
+      "initialAfkToolbarConfig": {
+        "module": "./previewAfkCloseoutFixtures.js",
+        "imported": "initialAfkToolbarConfig"
+      },
+      "previewDrillRuntime": {
+        "module": "./previewAfkCloseoutFixtures.js",
+        "imported": "previewDrillRuntime"
+      },
+      "previewGarrisonMemberFixture": {
+        "module": "./previewAfkCloseoutFixtures.js",
+        "imported": "previewGarrisonMemberFixture"
+      },
+      "previewGarrisonRuntime": {
+        "module": "./previewAfkCloseoutFixtures.js",
+        "imported": "previewGarrisonRuntime"
+      },
+      "previewMemberFixture": {
+        "module": "./previewAfkCloseoutFixtures.js",
+        "imported": "previewMemberFixture"
+      },
+      "previewZombieBusRuntime": {
+        "module": "./previewAfkCloseoutFixtures.js",
+        "imported": "previewZombieBusRuntime"
+      },
+      "EQUIPMENT_PRESET_LIMIT": {
+        "module": "./previewEquipmentContracts.js",
+        "imported": "EQUIPMENT_PRESET_LIMIT"
+      },
+      "EQUIPMENT_SLOTS": {
+        "module": "./previewEquipmentContracts.js",
+        "imported": "EQUIPMENT_SLOTS"
+      },
+      "cloneEquipmentValue": {
+        "module": "./previewEquipmentContracts.js",
+        "imported": "cloneEquipmentValue"
+      },
+      "currentEquipmentPresetLabel": {
+        "module": "./previewEquipmentContracts.js",
+        "imported": "currentEquipmentPresetLabel"
+      },
+      "currentEquipmentPresetMatches": {
+        "module": "./previewEquipmentContracts.js",
+        "imported": "currentEquipmentPresetMatches"
+      },
+      "equipmentCatalog": {
+        "module": "./previewEquipmentContracts.js",
+        "imported": "equipmentCatalog"
+      },
+      "equipmentDirtyPresetIds": {
+        "module": "./previewEquipmentContracts.js",
+        "imported": "equipmentDirtyPresetIds"
+      },
+      "equipmentItemCount": {
+        "module": "./previewEquipmentContracts.js",
+        "imported": "equipmentItemCount"
+      },
+      "equipmentPositionCount": {
+        "module": "./previewEquipmentContracts.js",
+        "imported": "equipmentPositionCount"
+      },
+      "findEquipmentSquad": {
+        "module": "./previewEquipmentContracts.js",
+        "imported": "findEquipmentSquad"
+      },
+      "previewEquipmentFixture": {
+        "module": "./previewEquipmentContracts.js",
+        "imported": "previewEquipmentFixture"
+      },
+      "swapEquipmentSquads": {
+        "module": "./previewEquipmentContracts.js",
+        "imported": "swapEquipmentSquads"
+      },
+      "swapEquipmentTarget": {
+        "module": "./previewEquipmentContracts.js",
+        "imported": "swapEquipmentTarget"
+      },
+      "buildTradePurchaseDays": {
+        "module": "./tradePurchaseHistory.js",
+        "imported": "buildTradePurchaseDays"
+      },
+      "resolveTradeName": {
+        "module": "./tradePurchaseHistory.js",
+        "imported": "resolveTradeName"
+      },
+      "tradePurchaseRowKey": {
+        "module": "./tradePurchaseHistory.js",
+        "imported": "tradePurchaseRowKey"
+      },
+      "CITY_BASE_CELL_SIZE": {
+        "module": "./previewRemainingPagesContracts.js",
+        "imported": "CITY_BASE_CELL_SIZE"
+      },
+      "HOTKEY_CARDS": {
+        "module": "./previewRemainingPagesContracts.js",
+        "imported": "HOTKEY_CARDS"
+      },
+      "MINI_GAME_HOTKEY_CARDS": {
+        "module": "./previewRemainingPagesContracts.js",
+        "imported": "MINI_GAME_HOTKEY_CARDS"
+      },
+      "cityGridRow": {
+        "module": "./previewRemainingPagesContracts.js",
+        "imported": "cityGridRow"
+      },
+      "cityLayoutIssues": {
+        "module": "./previewRemainingPagesContracts.js",
+        "imported": "cityLayoutIssues"
+      },
+      "cityMovedOccupiedPoints": {
+        "module": "./previewRemainingPagesContracts.js",
+        "imported": "cityMovedOccupiedPoints"
+      },
+      "cityPlacementMap": {
+        "module": "./previewRemainingPagesContracts.js",
+        "imported": "cityPlacementMap"
+      },
+      "cityPlacementSignature": {
+        "module": "./previewRemainingPagesContracts.js",
+        "imported": "cityPlacementSignature"
+      },
+      "cityRegionForPoint": {
+        "module": "./previewRemainingPagesContracts.js",
+        "imported": "cityRegionForPoint"
+      },
+      "citySetPlacement": {
+        "module": "./previewRemainingPagesContracts.js",
+        "imported": "citySetPlacement"
+      },
+      "formatDiagnosticBytes": {
+        "module": "./previewRemainingPagesContracts.js",
+        "imported": "formatDiagnosticBytes"
+      },
+      "formatSheepElapsed": {
+        "module": "./previewRemainingPagesContracts.js",
+        "imported": "formatSheepElapsed"
+      },
+      "mergeHotkeyField": {
+        "module": "./previewRemainingPagesContracts.js",
+        "imported": "mergeHotkeyField"
+      },
+      "previewCityLayoutFixture": {
+        "module": "./previewRemainingPagesContracts.js",
+        "imported": "previewCityLayoutFixture"
+      },
+      "previewHotkeyConfig": {
+        "module": "./previewRemainingPagesContracts.js",
+        "imported": "previewHotkeyConfig"
+      },
+      "previewSheepStatus": {
+        "module": "./previewRemainingPagesContracts.js",
+        "imported": "previewSheepStatus"
+      },
+      "previewUpdateStatus": {
+        "module": "./previewRemainingPagesContracts.js",
+        "imported": "previewUpdateStatus"
+      },
+      "sheepStatusKey": {
+        "module": "./previewRemainingPagesContracts.js",
+        "imported": "sheepStatusKey"
+      },
+      "updateDownloadVisible": {
+        "module": "./previewRemainingPagesContracts.js",
+        "imported": "updateDownloadVisible"
+      },
+      "updateManualCooldownSeconds": {
+        "module": "./previewRemainingPagesContracts.js",
+        "imported": "updateManualCooldownSeconds"
+      },
+      "updateStatusBusy": {
+        "module": "./previewRemainingPagesContracts.js",
+        "imported": "updateStatusBusy"
+      }
+    },
+    "topLevelGraph": [
+      {
+        "name": "Switch",
+        "utf8ByteOffset": 2387,
+        "utf8ByteLength": 189,
+        "sha256": "C1F13953E1F9FFB4A80E25052D118D74D8B9A81971DB41D796DBF2BBCC54F2D4",
+        "dependencies": []
+      },
+      {
+        "name": "ToggleRow",
+        "utf8ByteOffset": 2578,
+        "utf8ByteLength": 466,
+        "sha256": "BE4B7812EE47F9437CAB321B5E0EFB0D94013A9F02BDB494929D51B1991B7C83",
+        "dependencies": [
+          "Switch",
+          "useI18n"
+        ]
+      },
+      {
+        "name": "PanelTitle",
+        "utf8ByteOffset": 3046,
+        "utf8ByteLength": 196,
+        "sha256": "DC83C19D954E95027049C44986A3CAC7FB4C207B655EC9B89BFC9BD64CCA2A52",
+        "dependencies": []
+      },
+      {
+        "name": "RECOVERY_ACTIVE_STATES",
+        "utf8ByteOffset": 3250,
+        "utf8ByteLength": 111,
+        "sha256": "77F334A52D33185FCAEB1E2AFFE2A527A403888614E669774B317E50997879B2",
+        "dependencies": []
+      },
+      {
+        "name": "previewHomeState",
+        "utf8ByteOffset": 3364,
+        "utf8ByteLength": 3740,
+        "sha256": "DA70BB90CE1BDBE1764F22EE05FA37DCA0D0DDA3BD1AB25DFA1E40F255717CEC",
+        "dependencies": []
+      },
+      {
+        "name": "translatedError",
+        "utf8ByteOffset": 7106,
+        "utf8ByteLength": 616,
+        "sha256": "12E5CC9554FD85089C1E7CF7A804D82334737048939C0D2C91EEF87AB3B5759B",
+        "dependencies": []
+      },
+      {
+        "name": "HomePage",
+        "utf8ByteOffset": 7731,
+        "utf8ByteLength": 3999,
+        "sha256": "EE5B4BA6E5985719DCEBA4E57B9BEE53AE2E46D5281DF3ED118A5C4BA58EED90",
+        "dependencies": [
+          "RECOVERY_ACTIVE_STATES",
+          "ToggleRow",
+          "previewHomeState",
+          "translatedError",
+          "useI18n"
+        ]
+      },
+      {
+        "name": "automationCategories",
+        "utf8ByteOffset": 11738,
+        "utf8ByteLength": 249,
+        "sha256": "6399D3C3EC79608B470E18BC040CA3D927474A28065A1F12AEBD8A90A09BC81F",
+        "dependencies": []
+      },
+      {
+        "name": "automationCategoryKeys",
+        "utf8ByteOffset": 11996,
+        "utf8ByteLength": 326,
+        "sha256": "3C30BBE2BA1C050B506D93B18A17FC0898198FFA88B2A6DC9FEAA8A409868869",
+        "dependencies": []
+      },
+      {
+        "name": "automationCards",
+        "utf8ByteOffset": 12331,
+        "utf8ByteLength": 2308,
+        "sha256": "0E528E295ED19B2D6F0FDDE95B75DC9808063B3ACB9AD62642BA70FB2EB60F11",
+        "dependencies": []
+      },
+      {
+        "name": "nonCollapsibleAutomationSettings",
+        "utf8ByteOffset": 14648,
+        "utf8ByteLength": 276,
+        "sha256": "CE6854BD84BE8DB58CEFA87B5B7B9E7D9CCAE370DD81B79440BE97D2F745DFDA",
+        "dependencies": []
+      },
+      {
+        "name": "automationCardsWithoutSettings",
+        "utf8ByteOffset": 14933,
+        "utf8ByteLength": 121,
+        "sha256": "0EFC991F5DF149DDD270D5996B576791124752336C7A0353938534F2A4D547CE",
+        "dependencies": []
+      },
+      {
+        "name": "automationActionLabels",
+        "utf8ByteOffset": 15063,
+        "utf8ByteLength": 446,
+        "sha256": "4478939E3758BAAEEAF4778F6AE8B13E4C36F6E1EB465A86DFEB6505D4018BC6",
+        "dependencies": []
+      },
+      {
+        "name": "WeeklyQualityPreview",
+        "utf8ByteOffset": 15512,
+        "utf8ByteLength": 749,
+        "sha256": "D35936488ADB94A048455B96CCE0835CB4F882EE856B5D58FCAC1942960878BA",
+        "dependencies": [
+          "useI18n"
+        ]
+      },
+      {
+        "name": "previewConstructionBuildingTypes",
+        "utf8ByteOffset": 16269,
+        "utf8ByteLength": 446,
+        "sha256": "38C6E545F6E9A5E766153102A5B4D0A98C4B5DC2275B1D2631235D8950AE0CC4",
+        "dependencies": []
+      },
+      {
+        "name": "previewSoldierCamps",
+        "utf8ByteOffset": 16724,
+        "utf8ByteLength": 318,
+        "sha256": "A7DBA526C438384AB43F81A1423616B564729502F015459E82C600D7BC42F9F7",
+        "dependencies": []
+      },
+      {
+        "name": "previewTrainRewards",
+        "utf8ByteOffset": 17051,
+        "utf8ByteLength": 208,
+        "sha256": "9053C54E016261C000B0DADEF502951728E3C2A9B2F0072AA64FD3FE2E5A29B9",
+        "dependencies": []
+      },
+      {
+        "name": "AutomationConfigPreview",
+        "utf8ByteOffset": 17262,
+        "utf8ByteLength": 610,
+        "sha256": "7F0B64C7B681221BD83C2D20DEF9AAE6AF9AF66E4AC5FCB0B89466C053B14EB7",
+        "dependencies": [
+          "AutomationFields",
+          "PreviewConfigError",
+          "automationDraftError",
+          "useI18n"
+        ]
+      },
+      {
+        "name": "previewTime",
+        "utf8ByteOffset": 17874,
+        "utf8ByteLength": 106,
+        "sha256": "3CA0DF8B01AE89951F68C22954CE1B8CE4961F027DF734AEDA2C9DCEF74B3158",
+        "dependencies": []
+      },
+      {
+        "name": "sourceAutomationState",
+        "utf8ByteOffset": 17982,
+        "utf8ByteLength": 461,
+        "sha256": "BC7AF9B474A1199F8550F5058B3A54D614E945E709EDCAA3DB5F0FC77DDA479C",
+        "dependencies": []
+      },
+      {
+        "name": "automationRuntimePresentation",
+        "utf8ByteOffset": 18445,
+        "utf8ByteLength": 8012,
+        "sha256": "270AD85553532FB8DA5068CF9A0FA0A4552FA21D50033964522B08A3B76501F8",
+        "dependencies": [
+          "previewFutureTime",
+          "previewTime"
+        ]
+      },
+      {
+        "name": "AutomationFields",
+        "utf8ByteOffset": 26459,
+        "utf8ByteLength": 30472,
+        "sha256": "8C4D9263ED277602C4A20FCCF278F9B4FA3B9F6E91A3E72B31892DFBD0B3B344",
+        "dependencies": [
+          "DispatchAssistManual",
+          "GameAssetImage",
+          "WeeklyQualityPreview",
+          "dispatchWeeklyQualities",
+          "previewAssistFixture",
+          "previewConstructionBuildingTypes",
+          "previewSoldierCamps",
+          "previewTrainRewards",
+          "previewTrainingOrder",
+          "railwayWeeklyQualities",
+          "useI18n",
+          "useState"
+        ]
+      },
+      {
+        "name": "AutomationCard",
+        "utf8ByteOffset": 56933,
+        "utf8ByteLength": 5552,
+        "sha256": "69618AC8ABDB06B87FA8810D452A97451732BC2BA460719B86FCCC83B375BDC5",
+        "dependencies": [
+          "AutomationConfigPreview",
+          "AutomationMeta",
+          "Switch",
+          "activateTraining",
+          "automationActionLabels",
+          "automationCardsWithoutSettings",
+          "automationDraftError",
+          "automationRuntimePresentation",
+          "initialAutomationDraft",
+          "nonCollapsibleAutomationSettings",
+          "previewAutomationRuntime",
+          "previewTrainingOrder",
+          "sourceAutomationState",
+          "useEffect",
+          "useI18n",
+          "usePreviewConfig",
+          "useState"
+        ]
+      },
+      {
+        "name": "ResourceGatherCard",
+        "utf8ByteOffset": 62487,
+        "utf8ByteLength": 7358,
+        "sha256": "D2400D9D9CCBB58196E64C1A9FF1FF2779473846C9EBBB86666A22D97A13CD83",
+        "dependencies": [
+          "PreviewConfigError",
+          "Switch",
+          "previewResourceGatherConfig",
+          "previewResourceGatherRuntime",
+          "useI18n",
+          "usePreviewConfig",
+          "useState",
+          "validPreviewResourceGatherConfig"
+        ]
+      },
+      {
+        "name": "TradeStationCard",
+        "utf8ByteOffset": 69847,
+        "utf8ByteLength": 11414,
+        "sha256": "E5652742AA5E805A1033F7A6288FA96429A589998C25C81E874B79A52C397AD7",
+        "dependencies": [
+          "GameAssetImage",
+          "PreviewConfigError",
+          "Switch",
+          "ToggleRow",
+          "buildTradePurchaseDays",
+          "previewTradeFixture",
+          "resolveTradeName",
+          "tradePurchaseRowKey",
+          "useI18n",
+          "usePreviewConfig",
+          "useState"
+        ]
+      },
+      {
+        "name": "AutomationPage",
+        "utf8ByteOffset": 81270,
+        "utf8ByteLength": 2349,
+        "sha256": "36F016ADC4A6A70017480E27203A0CA06A60D3219202847A25EB4D9EEEC7575E",
+        "dependencies": [
+          "AutomationCard",
+          "PanelTitle",
+          "ResourceGatherCard",
+          "TradeStationCard",
+          "automationCards",
+          "automationCategories",
+          "automationCategoryKeys",
+          "useI18n",
+          "useState"
+        ]
+      },
+      {
+        "name": "SquadsPage",
+        "utf8ByteOffset": 83628,
+        "utf8ByteLength": 2222,
+        "sha256": "94E758BA67071B213595583A1AFDC93A74E9465EB3771897D4B6BA0C9DB839A6",
+        "dependencies": [
+          "Activity",
+          "AfkContent",
+          "EquipmentContent",
+          "useI18n",
+          "useState"
+        ]
+      },
+      {
+        "name": "AfkProfileEditor",
+        "utf8ByteOffset": 85852,
+        "utf8ByteLength": 10166,
+        "sha256": "725747BF3941F207BA21DB203438690CDC5A7F10E10218C6B42C087DB9FC8A16",
+        "dependencies": [
+          "RallyJoinSettings",
+          "ToggleRow",
+          "applyAfkTarget",
+          "normalizeJoinRestrictions",
+          "previewAfkLevelOutOfRange",
+          "previewAfkProfileValid",
+          "previewAfkTargets",
+          "resolvePreviewAfkTarget",
+          "useEffect",
+          "useI18n",
+          "useState"
+        ]
+      },
+      {
+        "name": "AllianceDrillPreviewSettings",
+        "utf8ByteOffset": 96020,
+        "utf8ByteLength": 3440,
+        "sha256": "4EF67CAF928AEFE44D50DAD65C02BB32184F0C5C8506D4020EB3357D1F3B625B",
+        "dependencies": [
+          "RallyJoinSettings",
+          "ToggleRow",
+          "normalizeJoinRestrictions",
+          "previewDrillRuntime",
+          "useI18n",
+          "useState"
+        ]
+      },
+      {
+        "name": "GarrisonPreviewSettings",
+        "utf8ByteOffset": 99462,
+        "utf8ByteLength": 11875,
+        "sha256": "D00344F113B04D5DE5D71B87FA0D74660F34282D86793D94AA50AD810DC6586A",
+        "dependencies": [
+          "ToggleRow",
+          "previewGarrisonMemberFixture",
+          "previewGarrisonRuntime",
+          "refreshGarrisonTargets",
+          "useEffect",
+          "useI18n",
+          "useState"
+        ]
+      },
+      {
+        "name": "ZombieBusPreviewSettings",
+        "utf8ByteOffset": 111339,
+        "utf8ByteLength": 1123,
+        "sha256": "858C6CABA9C9E2CACA0E43D71AFE837479F16A2E533B55EF6BE89C57550721E6",
+        "dependencies": [
+          "previewZombieBusRuntime",
+          "useI18n"
+        ]
+      },
+      {
+        "name": "validAfkToolbarConfig",
+        "utf8ByteOffset": 112464,
+        "utf8ByteLength": 463,
+        "sha256": "261DC84818F66457267315EFF14B125D116180EAF2D4B7E51764BA94A0C327FA",
+        "dependencies": [
+          "validJoinRestrictions"
+        ]
+      },
+      {
+        "name": "initialAfkProfiles",
+        "utf8ByteOffset": 112929,
+        "utf8ByteLength": 1374,
+        "sha256": "6C8779BE4D10DA16A8129F2326063A93AE68BF108C7C924554B76757E3B9A2BB",
+        "dependencies": [
+          "makePreviewAfkProfile"
+        ]
+      },
+      {
+        "name": "AfkContent",
+        "utf8ByteOffset": 114305,
+        "utf8ByteLength": 14761,
+        "sha256": "DD99E8BCF126C25556E2E3357CA7658C02B3FFA443E610A0CF9C1CFF10BE89A6",
+        "dependencies": [
+          "AfkProfileEditor",
+          "AllianceDrillPreviewSettings",
+          "CompactAfkCard",
+          "GarrisonPreviewSettings",
+          "PreviewConfigError",
+          "ZombieBusPreviewSettings",
+          "initialAfkProfiles",
+          "initialAfkToolbarConfig",
+          "makePreviewAfkProfile",
+          "previewAfkLevelOutOfRange",
+          "previewAfkProfileValid",
+          "previewAfkTargets",
+          "previewDrillRuntime",
+          "previewGarrisonMemberFixture",
+          "previewGarrisonRuntime",
+          "previewZombieBusRuntime",
+          "resolvePreviewAfkTarget",
+          "useI18n",
+          "usePreviewConfig",
+          "useRef",
+          "useState",
+          "validAfkToolbarConfig"
+        ]
+      },
+      {
+        "name": "SettingsGlyph",
+        "utf8ByteOffset": 129068,
+        "utf8ByteLength": 1017,
+        "sha256": "D1AAB2769C49026B8F9F96F17DF5FD3CDCF00EBBDAFC7F8D842BD720DE0AFA36",
+        "dependencies": []
+      },
+      {
+        "name": "CompactAfkCard",
+        "utf8ByteOffset": 130087,
+        "utf8ByteLength": 1458,
+        "sha256": "3D4404BF5FD83AA3E69AFE85747560E0C70753B73D73935D5DE6C3454A113B43",
+        "dependencies": [
+          "SettingsGlyph",
+          "useI18n"
+        ]
+      },
+      {
+        "name": "EquipmentDialog",
+        "utf8ByteOffset": 131547,
+        "utf8ByteLength": 1885,
+        "sha256": "8D528B18AD29BE0C15D10545A82EC69ACD0F7711763A6ACE4EB9D25C93E190ED",
+        "dependencies": [
+          "useEffect",
+          "useRef"
+        ]
+      },
+      {
+        "name": "EquipmentContent",
+        "utf8ByteOffset": 133434,
+        "utf8ByteLength": 18212,
+        "sha256": "E3B0BE0ACA8C1FFB2F2179A160E063740F3EF6BE29B82539E08A936038F06036",
+        "dependencies": [
+          "EQUIPMENT_PRESET_LIMIT",
+          "EQUIPMENT_SLOTS",
+          "EquipmentDialog",
+          "GameAssetImage",
+          "PreviewConfigError",
+          "cloneEquipmentValue",
+          "currentEquipmentPresetLabel",
+          "currentEquipmentPresetMatches",
+          "equipmentCatalog",
+          "equipmentDirtyPresetIds",
+          "equipmentItemCount",
+          "equipmentPositionCount",
+          "findEquipmentSquad",
+          "previewEquipmentFixture",
+          "swapEquipmentSquads",
+          "swapEquipmentTarget",
+          "useEffect",
+          "useI18n",
+          "useMemo",
+          "useRef",
+          "useState"
+        ]
+      },
+      {
+        "name": "CITY_LAYOUT_PREVIEW_STATES",
+        "utf8ByteOffset": 151654,
+        "utf8ByteLength": 294,
+        "sha256": "2CDECB803FBF8C7F2754836DCA78F9396F9FD4CE5AC0BE93BD2D86846D83D610",
+        "dependencies": []
+      },
+      {
+        "name": "CityLayoutPage",
+        "utf8ByteOffset": 151958,
+        "utf8ByteLength": 27656,
+        "sha256": "2FBD9760DAAEEB18BFE2701D8F65559267CB389A1211726B8189E03B0E001871",
+        "dependencies": [
+          "CITY_BASE_CELL_SIZE",
+          "CITY_LAYOUT_PREVIEW_STATES",
+          "cityGridRow",
+          "cityLayoutIssues",
+          "cityMovedOccupiedPoints",
+          "cityPlacementMap",
+          "cityPlacementSignature",
+          "cityRegionForPoint",
+          "citySetPlacement",
+          "previewCityLayoutFixture",
+          "useEffect",
+          "useI18n",
+          "useMemo",
+          "useRef",
+          "useState"
+        ]
+      },
+      {
+        "name": "HotkeyCard",
+        "utf8ByteOffset": 179616,
+        "utf8ByteLength": 2017,
+        "sha256": "38D691BBDBD81B133B55E587F61B112A798D4BB2F273033F77857639FC5EA39C",
+        "dependencies": [
+          "Switch",
+          "useI18n"
+        ]
+      },
+      {
+        "name": "MINI_GAMES_PREVIEW_STATES",
+        "utf8ByteOffset": 181641,
+        "utf8ByteLength": 747,
+        "sha256": "0D4C57A3A3E3F55DCB5E081D94852D3C492F61AD22CC72549026B034B42B22BB",
+        "dependencies": []
+      },
+      {
+        "name": "RecoveredHotkeyPanel",
+        "utf8ByteOffset": 182391,
+        "utf8ByteLength": 7623,
+        "sha256": "4C3B9176B83F7AC1BE05395B5E2FB736876A79D20BEE8FC1FFACCC7EB67CBB39",
+        "dependencies": [
+          "HOTKEY_CARDS",
+          "HotkeyCard",
+          "MINI_GAMES_PREVIEW_STATES",
+          "MINI_GAME_HOTKEY_CARDS",
+          "PanelTitle",
+          "ToggleRow",
+          "formatSheepElapsed",
+          "mergeHotkeyField",
+          "previewHotkeyConfig",
+          "previewSheepStatus",
+          "sheepStatusKey",
+          "useEffect",
+          "useI18n",
+          "useRef",
+          "useState"
+        ]
+      },
+      {
+        "name": "HotkeysPage",
+        "utf8ByteOffset": 190023,
+        "utf8ByteLength": 161,
+        "sha256": "530A64E27999CA83117B0601760EBBDF6F0499F013808C641192143B8336AE46",
+        "dependencies": [
+          "RecoveredHotkeyPanel"
+        ]
+      },
+      {
+        "name": "MiniGamesPage",
+        "utf8ByteOffset": 190193,
+        "utf8ByteLength": 165,
+        "sha256": "33593341C2A35CF21F354A080CF039F89590D3F3A7D4347E63ECF896E4B13C97",
+        "dependencies": [
+          "RecoveredHotkeyPanel"
+        ]
+      },
+      {
+        "name": "SETTINGS_PREVIEW_STATES",
+        "utf8ByteOffset": 190366,
+        "utf8ByteLength": 694,
+        "sha256": "89D026D1FBC79469D294D29A4B71877D709C35CBFD3AC6C4CE414AC4EBCF8DE8",
+        "dependencies": []
+      },
+      {
+        "name": "initialFeedbackState",
+        "utf8ByteOffset": 191063,
+        "utf8ByteLength": 1109,
+        "sha256": "633BD02BC1846850022A8F2DEBC05BFBC107133564991C5169E08A711F6A2BFF",
+        "dependencies": []
+      },
+      {
+        "name": "SettingsPage",
+        "utf8ByteOffset": 192181,
+        "utf8ByteLength": 10092,
+        "sha256": "830C803FA4B6B9BBED0D78019D1A59E70A2E1EC0F302BFB5E031F1C097715928",
+        "dependencies": [
+          "PanelTitle",
+          "SETTINGS_PREVIEW_STATES",
+          "ToggleRow",
+          "formatDiagnosticBytes",
+          "initialFeedbackState",
+          "previewUpdateStatus",
+          "updateDownloadVisible",
+          "updateManualCooldownSeconds",
+          "updateStatusBusy",
+          "useEffect",
+          "useI18n",
+          "useRef",
+          "useState"
+        ]
+      },
+      {
+        "name": "PageForRoute",
+        "utf8ByteOffset": 202282,
+        "utf8ByteLength": 758,
+        "sha256": "0202AF82849328CE4524BFD9DBBF35CB40E5C2DFB1AAF79D303AA364DCB8C900",
+        "dependencies": [
+          "AutomationPage",
+          "CityLayoutPage",
+          "HomePage",
+          "HotkeysPage",
+          "MapDataPage",
+          "MiniGamesPage",
+          "SettingsPage",
+          "SquadsPage",
+          "getMapPreviewProvider"
+        ]
+      }
+    ]
+  },
+  "recovered": [
+    "Qr preloads on both mouse-enter and focus, selects on click",
+    "Wi optionally calls route loader and ignores rejected preload",
+    "Tt same-route no-op; Map starts summary request without await, then preload, then transition",
+    "Transition retains prior visited Set when route already visited; copies/adds first visit then commits active route",
+    "Home is eager; six lazy panel modules; Hotkeys/Mini share Hotkey module and lazy component type",
+    "Single Suspense fallback wraps profile-view-context including save errors, switch state and visited Activity children",
+    "Fallback is panel > muted common.processing",
+    "Visited Activity modes and profile-key context remain the lifetime owners; imports must not move those boundaries"
+  ],
+  "limits": "Exact local source and dependency graph only. No original protected runtime observation or current lazy route implementation proven. Original Vite preload helper and browser module cache are not replaced by an invented retry/cache policy."
+}

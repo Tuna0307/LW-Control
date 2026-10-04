@@ -1,0 +1,383 @@
+{
+  "marker": "LWB317_PAGE_MODULE_MIGRATION_OK",
+  "declarations": 48,
+  "uniqueOwners": true,
+  "importCompilation": "PASS",
+  "actualRouterMigrated": true,
+  "modules": [
+    {
+      "file": "sharedPageUI.jsx",
+      "sha256": "95ED15F5A4AB46C7CAE4DD55656E85718F66FA5AC45278B615D1795EBD8E82F2"
+    },
+    {
+      "file": "HomePage.jsx",
+      "sha256": "494D75C1C557D32810C76559ADA3140BC1D1F7398770B22C11F9FE458B8AE14F"
+    },
+    {
+      "file": "AutomationPage.jsx",
+      "sha256": "23B82167E5D490DB3E5277E197D0DAFAF826FE040BC809A40D28C1F510168F1E"
+    },
+    {
+      "file": "SquadsPage.jsx",
+      "sha256": "5A81A549A7FF33FE559F0C9283CA03A03DAC2AF45BBF408ACFE266D8A87E8324"
+    },
+    {
+      "file": "CityLayoutPage.jsx",
+      "sha256": "4530C6711CE1CB08758780E3AEDEC1BFCAC2FFCB4056BF7721A2C6633E19482F"
+    },
+    {
+      "file": "HotkeyPages.jsx",
+      "sha256": "5DAE6E4FFE8875BCEBC366109AD4C1E3FFF690EA17273EBB50226E9107551634"
+    },
+    {
+      "file": "SettingsPage.jsx",
+      "sha256": "8622BE39E06FE82FCF31BD2E092358987F3F304D447ADA061685727436737771"
+    },
+    {
+      "file": "MapRoutePage.jsx",
+      "sha256": "5C01A4C857C8916A830E8973B8A02232CE760484985BAD6F78D1CD058DFF116C"
+    }
+  ],
+  "proof": [
+    {
+      "name": "Switch",
+      "file": "sharedPageUI.jsx",
+      "originalSha256": "C1F13953E1F9FFB4A80E25052D118D74D8B9A81971DB41D796DBF2BBCC54F2D4",
+      "currentSha256": "C1F13953E1F9FFB4A80E25052D118D74D8B9A81971DB41D796DBF2BBCC54F2D4",
+      "pass": true
+    },
+    {
+      "name": "ToggleRow",
+      "file": "sharedPageUI.jsx",
+      "originalSha256": "BE4B7812EE47F9437CAB321B5E0EFB0D94013A9F02BDB494929D51B1991B7C83",
+      "currentSha256": "BE4B7812EE47F9437CAB321B5E0EFB0D94013A9F02BDB494929D51B1991B7C83",
+      "pass": true
+    },
+    {
+      "name": "PanelTitle",
+      "file": "sharedPageUI.jsx",
+      "originalSha256": "DC83C19D954E95027049C44986A3CAC7FB4C207B655EC9B89BFC9BD64CCA2A52",
+      "currentSha256": "DC83C19D954E95027049C44986A3CAC7FB4C207B655EC9B89BFC9BD64CCA2A52",
+      "pass": true
+    },
+    {
+      "name": "RECOVERY_ACTIVE_STATES",
+      "file": "HomePage.jsx",
+      "originalSha256": "04A9F6110408711817F372962EB8E0237AECDCEE2A42CBB953C05D6D1BCF1BBE",
+      "currentSha256": "04A9F6110408711817F372962EB8E0237AECDCEE2A42CBB953C05D6D1BCF1BBE",
+      "pass": true
+    },
+    {
+      "name": "previewHomeState",
+      "file": "HomePage.jsx",
+      "originalSha256": "DA70BB90CE1BDBE1764F22EE05FA37DCA0D0DDA3BD1AB25DFA1E40F255717CEC",
+      "currentSha256": "DA70BB90CE1BDBE1764F22EE05FA37DCA0D0DDA3BD1AB25DFA1E40F255717CEC",
+      "pass": true
+    },
+    {
+      "name": "translatedError",
+      "file": "HomePage.jsx",
+      "originalSha256": "12E5CC9554FD85089C1E7CF7A804D82334737048939C0D2C91EEF87AB3B5759B",
+      "currentSha256": "12E5CC9554FD85089C1E7CF7A804D82334737048939C0D2C91EEF87AB3B5759B",
+      "pass": true
+    },
+    {
+      "name": "HomePage",
+      "file": "HomePage.jsx",
+      "originalSha256": "EE5B4BA6E5985719DCEBA4E57B9BEE53AE2E46D5281DF3ED118A5C4BA58EED90",
+      "currentSha256": "EE5B4BA6E5985719DCEBA4E57B9BEE53AE2E46D5281DF3ED118A5C4BA58EED90",
+      "pass": true
+    },
+    {
+      "name": "automationCategories",
+      "file": "AutomationPage.jsx",
+      "originalSha256": "092E5DB88CE82E45E16617FA4620AD1444837D46A54C4A73C5F38BECD85655EA",
+      "currentSha256": "092E5DB88CE82E45E16617FA4620AD1444837D46A54C4A73C5F38BECD85655EA",
+      "pass": true
+    },
+    {
+      "name": "automationCategoryKeys",
+      "file": "AutomationPage.jsx",
+      "originalSha256": "8AC68EB170C47478154EA60F8AC30A8196A9C3BB16C9C38BA4705ABDC5283009",
+      "currentSha256": "8AC68EB170C47478154EA60F8AC30A8196A9C3BB16C9C38BA4705ABDC5283009",
+      "pass": true
+    },
+    {
+      "name": "automationCards",
+      "file": "AutomationPage.jsx",
+      "originalSha256": "B08F1E84E60DC73288BAFD51F07E2B94775420273CED670D0F3750462F6413A0",
+      "currentSha256": "B08F1E84E60DC73288BAFD51F07E2B94775420273CED670D0F3750462F6413A0",
+      "pass": true
+    },
+    {
+      "name": "nonCollapsibleAutomationSettings",
+      "file": "AutomationPage.jsx",
+      "originalSha256": "4BD35A3AF1EC165CFDA2C9BB3032FDF4EE89690BD1012144E7BBD992E23DBA50",
+      "currentSha256": "4BD35A3AF1EC165CFDA2C9BB3032FDF4EE89690BD1012144E7BBD992E23DBA50",
+      "pass": true
+    },
+    {
+      "name": "automationCardsWithoutSettings",
+      "file": "AutomationPage.jsx",
+      "originalSha256": "473153538A464EC4DD5F3E51ECC5ABD788B98B3353B5E7B08CCA9967E414D74C",
+      "currentSha256": "473153538A464EC4DD5F3E51ECC5ABD788B98B3353B5E7B08CCA9967E414D74C",
+      "pass": true
+    },
+    {
+      "name": "automationActionLabels",
+      "file": "AutomationPage.jsx",
+      "originalSha256": "853C1C64EB7FDB704FCA77983AA27E0A7FBCBC25379B68F325368C2294736E16",
+      "currentSha256": "853C1C64EB7FDB704FCA77983AA27E0A7FBCBC25379B68F325368C2294736E16",
+      "pass": true
+    },
+    {
+      "name": "WeeklyQualityPreview",
+      "file": "AutomationPage.jsx",
+      "originalSha256": "D35936488ADB94A048455B96CCE0835CB4F882EE856B5D58FCAC1942960878BA",
+      "currentSha256": "D35936488ADB94A048455B96CCE0835CB4F882EE856B5D58FCAC1942960878BA",
+      "pass": true
+    },
+    {
+      "name": "previewConstructionBuildingTypes",
+      "file": "AutomationPage.jsx",
+      "originalSha256": "851CE5AE0F225D62DFECC06837898A102A8E3767472C614919B712719BC80518",
+      "currentSha256": "851CE5AE0F225D62DFECC06837898A102A8E3767472C614919B712719BC80518",
+      "pass": true
+    },
+    {
+      "name": "previewSoldierCamps",
+      "file": "AutomationPage.jsx",
+      "originalSha256": "BAE9B9DABB2433C0CCF9A5BD9F80EC490C805D6A7D6F14CCFBDB863612FF7726",
+      "currentSha256": "BAE9B9DABB2433C0CCF9A5BD9F80EC490C805D6A7D6F14CCFBDB863612FF7726",
+      "pass": true
+    },
+    {
+      "name": "previewTrainRewards",
+      "file": "AutomationPage.jsx",
+      "originalSha256": "A9B3FF8904C0FF47FEE719889D84B972683BB94550C12BA3B4478C626F4971BB",
+      "currentSha256": "A9B3FF8904C0FF47FEE719889D84B972683BB94550C12BA3B4478C626F4971BB",
+      "pass": true
+    },
+    {
+      "name": "AutomationConfigPreview",
+      "file": "AutomationPage.jsx",
+      "originalSha256": "7F0B64C7B681221BD83C2D20DEF9AAE6AF9AF66E4AC5FCB0B89466C053B14EB7",
+      "currentSha256": "7F0B64C7B681221BD83C2D20DEF9AAE6AF9AF66E4AC5FCB0B89466C053B14EB7",
+      "pass": true
+    },
+    {
+      "name": "previewTime",
+      "file": "AutomationPage.jsx",
+      "originalSha256": "3CA0DF8B01AE89951F68C22954CE1B8CE4961F027DF734AEDA2C9DCEF74B3158",
+      "currentSha256": "3CA0DF8B01AE89951F68C22954CE1B8CE4961F027DF734AEDA2C9DCEF74B3158",
+      "pass": true
+    },
+    {
+      "name": "sourceAutomationState",
+      "file": "AutomationPage.jsx",
+      "originalSha256": "BC7AF9B474A1199F8550F5058B3A54D614E945E709EDCAA3DB5F0FC77DDA479C",
+      "currentSha256": "BC7AF9B474A1199F8550F5058B3A54D614E945E709EDCAA3DB5F0FC77DDA479C",
+      "pass": true
+    },
+    {
+      "name": "automationRuntimePresentation",
+      "file": "AutomationPage.jsx",
+      "originalSha256": "270AD85553532FB8DA5068CF9A0FA0A4552FA21D50033964522B08A3B76501F8",
+      "currentSha256": "270AD85553532FB8DA5068CF9A0FA0A4552FA21D50033964522B08A3B76501F8",
+      "pass": true
+    },
+    {
+      "name": "AutomationFields",
+      "file": "AutomationPage.jsx",
+      "originalSha256": "8C4D9263ED277602C4A20FCCF278F9B4FA3B9F6E91A3E72B31892DFBD0B3B344",
+      "currentSha256": "8C4D9263ED277602C4A20FCCF278F9B4FA3B9F6E91A3E72B31892DFBD0B3B344",
+      "pass": true
+    },
+    {
+      "name": "AutomationCard",
+      "file": "AutomationPage.jsx",
+      "originalSha256": "69618AC8ABDB06B87FA8810D452A97451732BC2BA460719B86FCCC83B375BDC5",
+      "currentSha256": "69618AC8ABDB06B87FA8810D452A97451732BC2BA460719B86FCCC83B375BDC5",
+      "pass": true
+    },
+    {
+      "name": "ResourceGatherCard",
+      "file": "AutomationPage.jsx",
+      "originalSha256": "D2400D9D9CCBB58196E64C1A9FF1FF2779473846C9EBBB86666A22D97A13CD83",
+      "currentSha256": "D2400D9D9CCBB58196E64C1A9FF1FF2779473846C9EBBB86666A22D97A13CD83",
+      "pass": true
+    },
+    {
+      "name": "TradeStationCard",
+      "file": "AutomationPage.jsx",
+      "originalSha256": "E5652742AA5E805A1033F7A6288FA96429A589998C25C81E874B79A52C397AD7",
+      "currentSha256": "E5652742AA5E805A1033F7A6288FA96429A589998C25C81E874B79A52C397AD7",
+      "pass": true
+    },
+    {
+      "name": "AutomationPage",
+      "file": "AutomationPage.jsx",
+      "originalSha256": "36F016ADC4A6A70017480E27203A0CA06A60D3219202847A25EB4D9EEEC7575E",
+      "currentSha256": "36F016ADC4A6A70017480E27203A0CA06A60D3219202847A25EB4D9EEEC7575E",
+      "pass": true
+    },
+    {
+      "name": "SquadsPage",
+      "file": "SquadsPage.jsx",
+      "originalSha256": "94E758BA67071B213595583A1AFDC93A74E9465EB3771897D4B6BA0C9DB839A6",
+      "currentSha256": "94E758BA67071B213595583A1AFDC93A74E9465EB3771897D4B6BA0C9DB839A6",
+      "pass": true
+    },
+    {
+      "name": "AfkProfileEditor",
+      "file": "SquadsPage.jsx",
+      "originalSha256": "725747BF3941F207BA21DB203438690CDC5A7F10E10218C6B42C087DB9FC8A16",
+      "currentSha256": "725747BF3941F207BA21DB203438690CDC5A7F10E10218C6B42C087DB9FC8A16",
+      "pass": true
+    },
+    {
+      "name": "AllianceDrillPreviewSettings",
+      "file": "SquadsPage.jsx",
+      "originalSha256": "4EF67CAF928AEFE44D50DAD65C02BB32184F0C5C8506D4020EB3357D1F3B625B",
+      "currentSha256": "4EF67CAF928AEFE44D50DAD65C02BB32184F0C5C8506D4020EB3357D1F3B625B",
+      "pass": true
+    },
+    {
+      "name": "GarrisonPreviewSettings",
+      "file": "SquadsPage.jsx",
+      "originalSha256": "D00344F113B04D5DE5D71B87FA0D74660F34282D86793D94AA50AD810DC6586A",
+      "currentSha256": "D00344F113B04D5DE5D71B87FA0D74660F34282D86793D94AA50AD810DC6586A",
+      "pass": true
+    },
+    {
+      "name": "ZombieBusPreviewSettings",
+      "file": "SquadsPage.jsx",
+      "originalSha256": "858C6CABA9C9E2CACA0E43D71AFE837479F16A2E533B55EF6BE89C57550721E6",
+      "currentSha256": "858C6CABA9C9E2CACA0E43D71AFE837479F16A2E533B55EF6BE89C57550721E6",
+      "pass": true
+    },
+    {
+      "name": "validAfkToolbarConfig",
+      "file": "SquadsPage.jsx",
+      "originalSha256": "261DC84818F66457267315EFF14B125D116180EAF2D4B7E51764BA94A0C327FA",
+      "currentSha256": "261DC84818F66457267315EFF14B125D116180EAF2D4B7E51764BA94A0C327FA",
+      "pass": true
+    },
+    {
+      "name": "initialAfkProfiles",
+      "file": "SquadsPage.jsx",
+      "originalSha256": "6C8779BE4D10DA16A8129F2326063A93AE68BF108C7C924554B76757E3B9A2BB",
+      "currentSha256": "6C8779BE4D10DA16A8129F2326063A93AE68BF108C7C924554B76757E3B9A2BB",
+      "pass": true
+    },
+    {
+      "name": "AfkContent",
+      "file": "SquadsPage.jsx",
+      "originalSha256": "DD99E8BCF126C25556E2E3357CA7658C02B3FFA443E610A0CF9C1CFF10BE89A6",
+      "currentSha256": "DD99E8BCF126C25556E2E3357CA7658C02B3FFA443E610A0CF9C1CFF10BE89A6",
+      "pass": true
+    },
+    {
+      "name": "SettingsGlyph",
+      "file": "SquadsPage.jsx",
+      "originalSha256": "D1AAB2769C49026B8F9F96F17DF5FD3CDCF00EBBDAFC7F8D842BD720DE0AFA36",
+      "currentSha256": "D1AAB2769C49026B8F9F96F17DF5FD3CDCF00EBBDAFC7F8D842BD720DE0AFA36",
+      "pass": true
+    },
+    {
+      "name": "CompactAfkCard",
+      "file": "SquadsPage.jsx",
+      "originalSha256": "3D4404BF5FD83AA3E69AFE85747560E0C70753B73D73935D5DE6C3454A113B43",
+      "currentSha256": "3D4404BF5FD83AA3E69AFE85747560E0C70753B73D73935D5DE6C3454A113B43",
+      "pass": true
+    },
+    {
+      "name": "EquipmentDialog",
+      "file": "SquadsPage.jsx",
+      "originalSha256": "8D528B18AD29BE0C15D10545A82EC69ACD0F7711763A6ACE4EB9D25C93E190ED",
+      "currentSha256": "8D528B18AD29BE0C15D10545A82EC69ACD0F7711763A6ACE4EB9D25C93E190ED",
+      "pass": true
+    },
+    {
+      "name": "EquipmentContent",
+      "file": "SquadsPage.jsx",
+      "originalSha256": "E3B0BE0ACA8C1FFB2F2179A160E063740F3EF6BE29B82539E08A936038F06036",
+      "currentSha256": "E3B0BE0ACA8C1FFB2F2179A160E063740F3EF6BE29B82539E08A936038F06036",
+      "pass": true
+    },
+    {
+      "name": "CITY_LAYOUT_PREVIEW_STATES",
+      "file": "CityLayoutPage.jsx",
+      "originalSha256": "087BD64FDEBB209D6E718D9401931A4FE9AE9063BA191D7B012A2ACCBC377359",
+      "currentSha256": "087BD64FDEBB209D6E718D9401931A4FE9AE9063BA191D7B012A2ACCBC377359",
+      "pass": true
+    },
+    {
+      "name": "CityLayoutPage",
+      "file": "CityLayoutPage.jsx",
+      "originalSha256": "2FBD9760DAAEEB18BFE2701D8F65559267CB389A1211726B8189E03B0E001871",
+      "currentSha256": "2FBD9760DAAEEB18BFE2701D8F65559267CB389A1211726B8189E03B0E001871",
+      "pass": true
+    },
+    {
+      "name": "HotkeyCard",
+      "file": "HotkeyPages.jsx",
+      "originalSha256": "38D691BBDBD81B133B55E587F61B112A798D4BB2F273033F77857639FC5EA39C",
+      "currentSha256": "38D691BBDBD81B133B55E587F61B112A798D4BB2F273033F77857639FC5EA39C",
+      "pass": true
+    },
+    {
+      "name": "MINI_GAMES_PREVIEW_STATES",
+      "file": "HotkeyPages.jsx",
+      "originalSha256": "1B585EC9FFB686D3E1975A23DB5C94345491E74B4677D65CA4C8BEEC8C7F6230",
+      "currentSha256": "1B585EC9FFB686D3E1975A23DB5C94345491E74B4677D65CA4C8BEEC8C7F6230",
+      "pass": true
+    },
+    {
+      "name": "RecoveredHotkeyPanel",
+      "file": "HotkeyPages.jsx",
+      "originalSha256": "4C3B9176B83F7AC1BE05395B5E2FB736876A79D20BEE8FC1FFACCC7EB67CBB39",
+      "currentSha256": "4C3B9176B83F7AC1BE05395B5E2FB736876A79D20BEE8FC1FFACCC7EB67CBB39",
+      "pass": true
+    },
+    {
+      "name": "HotkeysPage",
+      "file": "HotkeyPages.jsx",
+      "originalSha256": "530A64E27999CA83117B0601760EBBDF6F0499F013808C641192143B8336AE46",
+      "currentSha256": "530A64E27999CA83117B0601760EBBDF6F0499F013808C641192143B8336AE46",
+      "pass": true
+    },
+    {
+      "name": "MiniGamesPage",
+      "file": "HotkeyPages.jsx",
+      "originalSha256": "33593341C2A35CF21F354A080CF039F89590D3F3A7D4347E63ECF896E4B13C97",
+      "currentSha256": "33593341C2A35CF21F354A080CF039F89590D3F3A7D4347E63ECF896E4B13C97",
+      "pass": true
+    },
+    {
+      "name": "SETTINGS_PREVIEW_STATES",
+      "file": "SettingsPage.jsx",
+      "originalSha256": "460DD6CB78A9F4B4602136FF19104DBB18D70C1993B8660C36734B29FDA5393A",
+      "currentSha256": "460DD6CB78A9F4B4602136FF19104DBB18D70C1993B8660C36734B29FDA5393A",
+      "pass": true
+    },
+    {
+      "name": "initialFeedbackState",
+      "file": "SettingsPage.jsx",
+      "originalSha256": "633BD02BC1846850022A8F2DEBC05BFBC107133564991C5169E08A711F6A2BFF",
+      "currentSha256": "633BD02BC1846850022A8F2DEBC05BFBC107133564991C5169E08A711F6A2BFF",
+      "pass": true
+    },
+    {
+      "name": "SettingsPage",
+      "file": "SettingsPage.jsx",
+      "originalSha256": "830C803FA4B6B9BBED0D78019D1A59E70A2E1EC0F302BFB5E031F1C097715928",
+      "currentSha256": "830C803FA4B6B9BBED0D78019D1A59E70A2E1EC0F302BFB5E031F1C097715928",
+      "pass": true
+    }
+  ],
+  "originalPagesSha256": "4EEA83ED48643BDCA326E22002FD7AF2160A616454C99366EFCC3405CF53A69F",
+  "currentPagesSha256": "C5DF951E95561A08A4614445ED61586AA6DF4E4B7AE3F11A6A546A52EBA19191",
+  "plannedRouterSha256": "C5DF951E95561A08A4614445ED61586AA6DF4E4B7AE3F11A6A546A52EBA19191",
+  "limits": "Actual 48 canonical declaration bodies unchanged and imports compiled; does not prove route suspense/Activity/browser lifecycle, old evidence adapters or native/game functions."
+}

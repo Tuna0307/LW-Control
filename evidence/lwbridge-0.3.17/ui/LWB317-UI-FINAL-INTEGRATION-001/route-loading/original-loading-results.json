@@ -1,0 +1,161 @@
+{
+  "marker": "LWB317_ORIGINAL_ROUTE_LOADING_OK",
+  "cases": 15,
+  "results": [
+    {
+      "name": "preload:overview",
+      "pass": true,
+      "trace": []
+    },
+    {
+      "name": "preload:automation",
+      "pass": true,
+      "trace": [
+        "load:automation"
+      ]
+    },
+    {
+      "name": "preload:city-layout",
+      "pass": true,
+      "trace": [
+        "load:city-layout"
+      ]
+    },
+    {
+      "name": "preload:hotkeys",
+      "pass": true,
+      "trace": [
+        "load:hotkeys+mini-games"
+      ]
+    },
+    {
+      "name": "preload:mini-games",
+      "pass": true,
+      "trace": [
+        "load:hotkeys+mini-games"
+      ]
+    },
+    {
+      "name": "preload:map-data",
+      "pass": true,
+      "trace": [
+        "load:map-data"
+      ]
+    },
+    {
+      "name": "preload:settings",
+      "pass": true,
+      "trace": [
+        "load:settings"
+      ]
+    },
+    {
+      "name": "preload:march",
+      "pass": true,
+      "trace": [
+        "load:march"
+      ]
+    },
+    {
+      "name": "preload:advanced",
+      "pass": true,
+      "trace": []
+    },
+    {
+      "name": "rejected preload is swallowed",
+      "pass": true,
+      "trace": [
+        "load:automation"
+      ]
+    },
+    {
+      "name": "same active route performs no preload/summary/transition",
+      "pass": true
+    },
+    {
+      "name": "map summary initiated then preload then transition; unresolved summary never delays route",
+      "pass": true,
+      "trace": [
+        "summary:start",
+        "load:map-data",
+        "transition",
+        "visited",
+        "active:map-data"
+      ]
+    },
+    {
+      "name": "map summary rejection logs independently of route commit",
+      "pass": true,
+      "trace": [
+        "summary:start",
+        "load:map-data",
+        "transition",
+        "visited",
+        "active:map-data",
+        "log:map summary error Error: inert failure"
+      ]
+    },
+    {
+      "name": "visited route retains Set identity",
+      "pass": true,
+      "trace": [
+        "load:settings",
+        "transition",
+        "visited",
+        "active:settings"
+      ]
+    },
+    {
+      "name": "all eight source nav buttons preload on hover and focus; click selects",
+      "pass": true,
+      "trace": [
+        "preload:overview",
+        "preload:overview",
+        "select:overview",
+        "preload:automation",
+        "preload:automation",
+        "select:automation",
+        "preload:map-data",
+        "preload:map-data",
+        "select:map-data",
+        "preload:march",
+        "preload:march",
+        "select:march",
+        "preload:city-layout",
+        "preload:city-layout",
+        "select:city-layout",
+        "preload:hotkeys",
+        "preload:hotkeys",
+        "select:hotkeys",
+        "preload:mini-games",
+        "preload:mini-games",
+        "select:mini-games",
+        "preload:settings",
+        "preload:settings",
+        "select:settings"
+      ]
+    }
+  ],
+  "sourceIdentity": "44C4E4043825B7DB296B64171951B27176F8850FF8D7D337CC991DF4765524C6",
+  "locators": {
+    "navigation": {
+      "utf8ByteOffset": 349778,
+      "utf8ByteLength": 627,
+      "sha256": "E2060ECCE6614467C247E129ECB5DD457DE3A1B8C46C02CE16E046705568CE16",
+      "text": "function Qr({active:e,showAdvanced:t,onSelect:n,onPreload:r}){let{t:i}=De(),a=t?[...Zr.slice(0,-1),{key:`advanced`,label:`nav.advanced`},Zr[Zr.length-1]]:Zr;return(0,M.jsxs)(`nav`,{className:`side-nav`,children:[(0,M.jsx)(`div`,{className:`nav-heading`,children:(0,M.jsx)(`strong`,{children:i(`nav.title`)})}),a.map(t=>(0,M.jsxs)(`button`,{className:t.key===e?`active`:``,onMouseEnter:()=>r?.(t.key),onFocus:()=>r?.(t.key),onClick:()=>n(t.key),children:[(0,M.jsx)(`span`,{className:`nav-icon`,\"aria-hidden\":`true`,children:(0,M.jsx)(Xr,{name:t.key})}),(0,M.jsx)(`span`,{className:`nav-label`,children:i(t.label)})]},t.key))]})}"
+    },
+    "preload": {
+      "utf8ByteOffset": 361263,
+      "utf8ByteLength": 43,
+      "sha256": "8F1AEADF4DD81566AF33FA51D21B15D38791BECE0377DB98AC66184AD4A7A439",
+      "text": "function Wi(e){Ui[e]?.().catch(()=>void 0)}"
+    },
+    "select": {
+      "utf8ByteOffset": 364377,
+      "utf8ByteLength": 173,
+      "sha256": "46F42FD3B323F00D1714F3981BE3C2F3BB4F16FEEA142AF46A493A42D1CF4C78",
+      "text": "function Tt(e){e!==i&&(e===`map-data`&&_t().catch(e=>F(`map summary error `+String(e))),Wi(e),c(()=>{s(t=>{if(t.has(e))return t;let n=new Set(t);return n.add(e),n}),a(e)}))}"
+    }
+  },
+  "limits": "Executes exact original navigation/preload/select source with inert loaders/summary and controlled state callbacks. Does not implement current lazy pages or establish React Suspense/Activity/browser download timing; those need mounted canonical and browser proof after migration."
+}

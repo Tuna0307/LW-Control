@@ -1,4 +1,4 @@
-import { Activity, Fragment, useCallback, useEffect, useLayoutEffect, useRef, useState, useTransition } from "react";
+import { Activity, Fragment, Suspense, useCallback, useEffect, useLayoutEffect, useRef, useState, useTransition } from "react";
 import { flushSync } from "react-dom";
 import { toggleShellTheme } from "./shellTheme.js";
 import { TopVersion, ShellConfigSaveErrors } from "./ShellPresentation.jsx";
@@ -20,7 +20,7 @@ import {
   saveAutoScanConfig,
 } from "./mapAutoConfig.js";
 import { NavIcon } from "./NavIcon.jsx";
-import { PageForRoute } from "./Pages.jsx";
+import { PageForRoute, preloadRoute } from "./Pages.jsx";
 import { initialRouteKey, routes } from "./routes.js";
 
 const THEME_KEY = "lwbridge.theme";
@@ -187,6 +187,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
   const selectRoute = useCallback((routeKey) => {
     if (routeKey === activeRoute) return;
     if (routeKey === "map-data") refreshMapSummary().catch(() => {});
+    preloadRoute(routeKey);
     startRouteTransition(() => {
       setVisitedRoutes((current) => {
         if (current.has(routeKey)) return current;
@@ -623,6 +624,8 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
               type="button"
               className={route.key === activeRoute ? "active" : ""}
               aria-current={route.key === activeRoute ? "page" : undefined}
+              onMouseEnter={() => preloadRoute(route.key)}
+              onFocus={() => preloadRoute(route.key)}
               onClick={() => selectRoute(route.key)}
             >
               <span className="nav-icon" aria-hidden="true">
@@ -634,13 +637,17 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
         </nav>
 
         <section className="main-view">
-          <ShellConfigSaveErrors states={shellFlagStates || previewFlagStates} />
-          {switchLoading ? <ProfileSwitchState loading /> : <RetainedPages
-            activeRoute={activeRoute}
-            visitedRoutes={visitedRoutes}
-            selectedProfileId={selectedProfileId}
-            pageProps={pageProps}
-          />}
+          <Suspense fallback={<div className="panel"><span className="muted">{t("common.processing")}</span></div>}>
+            <div className="profile-view-context">
+              <ShellConfigSaveErrors states={shellFlagStates || previewFlagStates} />
+              {switchLoading ? <ProfileSwitchState loading /> : <RetainedPages
+                activeRoute={activeRoute}
+                visitedRoutes={visitedRoutes}
+                selectedProfileId={selectedProfileId}
+                pageProps={pageProps}
+              />}
+            </div>
+          </Suspense>
         </section>
       </div>
     </main></GameAssetImageProvider>

@@ -1,0 +1,132 @@
+[
+  {
+    "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-MAP-ENTRY-001/milestone-b/app-harness.mjs",
+    "sha256": "cb9bbd36dec6f82e2d236ff0d8060aab00ac3ded014e587e359ea286b15563c8",
+    "ownedAdapter": "map-entry-app-harness.mjs"
+  },
+  {
+    "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-MAP-ENTRY-001/milestone-b/run-focused.mjs",
+    "sha256": "a09d9d16dc275a853af59305c748c39292fc1feae02ea826af045556af8478df",
+    "ownedAdapter": "run-map-entry-focused.mjs"
+  },
+  {
+    "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-RETENTION-001/milestone-c/app-ownership-harness.mjs",
+    "sha256": "b381803d6048ec26ea222ec5a1b8e47b8bd507a45db5324f5f9ad05722235c21",
+    "ownedAdapter": "app-ownership-harness.mjs"
+  },
+  {
+    "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-CROSSSERVER-001/milestone-b/run-focused.mjs",
+    "sha256": "4efef6c090f270fd07d082ec53631c8d6e4499bf864c8561c4ac73c50af0031c",
+    "ownedAdapter": "run-crossserver-focused.mjs"
+  },
+  {
+    "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-CROSSSERVER-001/milestone-c/run-regressions.mjs",
+    "sha256": "bcfd6455f23a3ea17bed5f4b731191726a743f7760a160fd40c342f640237471",
+    "ownedAdapter": "run-crossserver-regressions.mjs"
+  },
+  {
+    "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-RETENTION-001/milestone-c/replay-map-ownership.mjs",
+    "sha256": "6ca31d1e20e522b1b1f1b05432b5c7e62d969e34b70fe1d04aaf7a2c154f9d03",
+    "ownedAdapter": "replay-map-ownership.mjs"
+  },
+  {
+    "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-MAP-ENTRY-001/milestone-b/run-affected.mjs",
+    "sha256": "d7d0c40d305d7c09bc7a724bfa19f46a2855c69273e717602993de09da7b1e7c",
+    "ownedAdapter": "run-map-entry-affected.mjs"
+  },
+  {
+    "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-MAP-ENTRY-001/milestone-b/focused-results.json",
+    "sha256": "928613b667243a411c58eb2d08027ed73f34969a875003e6264ed41ff16b45d6",
+    "kind": "Historical result - preserved"
+  },
+  {
+    "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-CROSSSERVER-001/milestone-b/focused-results.json",
+    "sha256": "fff807cb4dc2c6126f1234174b7431ae3398fe97e912cf76dfb0f2f4a4426dec",
+    "kind": "Historical result - preserved"
+  },
+  {
+    "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-CROSSSERVER-001/milestone-c/regression-results.json",
+    "sha256": "8ee490078a49125f6db4f385429f1cedf43314f37a75117bfcae88a3f5fd4ee6",
+    "kind": "Historical result - preserved"
+  },
+  {
+    "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-SHELL-RETENTION-001/milestone-c/map-ownership-results.json",
+    "sha256": "6753117c4b7e44af645137b8ede6ba75e9cc9acfb3e1a4385f59767d56d2084d",
+    "kind": "Historical result - preserved"
+  },
+  {
+    "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/current-regressions/affected-results.json",
+    "sha256": "949b872f8c3356c6c4591bbc2e9b535159c7d887486330793662b08f19f2b764",
+    "kind": "Preserved previous final-integration checkpoint"
+  },
+  {
+    "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/current-regressions/app-ownership-harness.mjs",
+    "sha256": "d526f9697cc7802564ff12e2ba5f92e0ccaf70a05b2aa052eb13596537f08411",
+    "kind": "Preserved previous final-integration checkpoint"
+  },
+  {
+    "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/current-regressions/crossserver-focused-results.json",
+    "sha256": "ce7f2781f697ef8414e1c4767f60a9140825d58e1ed6c475a92d40fdc94dfd0b",
+    "kind": "Preserved previous final-integration checkpoint"
+  },
+  {
+    "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/current-regressions/crossserver-regression-results.json",
+    "sha256": "f8d3c9cf4aeb3418fbc1304cafcd60a18c3d2322bd80cafec8f1c15e74f6c326",
+    "kind": "Preserved previous final-integration checkpoint"
+  },
+  {
+    "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/current-regressions/historical-inputs.json",
+    "sha256": "4292db4c13c53be39e6d303c6a1b0bc3344786f0ec90a70930703d4cdd4cf203",
+    "kind": "Preserved previous final-integration checkpoint"
+  },
+  {
+    "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/current-regressions/map-entry-app-harness.mjs",
+    "sha256": "3a3fbe9c2482054dcdf6a6e9b604f431b7b79a398419d47b345a1cf0fcddaae9",
+    "kind": "Preserved previous final-integration checkpoint"
+  },
+  {
+    "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/current-regressions/map-entry-focused-results.json",
+    "sha256": "c50e210d61a708c008a59b20ec2c8430e438fc185555be3bd433291f3d20af15",
+    "kind": "Preserved previous final-integration checkpoint"
+  },
+  {
+    "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/current-regressions/map-ownership-results.json",
+    "sha256": "8fc0253c47d5a08f83e9a96ffed6dee21124e970c0f458a06abf0193814b95f6",
+    "kind": "Preserved previous final-integration checkpoint"
+  },
+  {
+    "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/current-regressions/README.md",
+    "sha256": "6cd9e4636d5e0f03633b2fdb9994a354985b8412a8244c26eb819b846142e9ee",
+    "kind": "Preserved previous final-integration checkpoint"
+  },
+  {
+    "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/current-regressions/replay-map-ownership.mjs",
+    "sha256": "3a01b5f70960c54f34106bc93ccf71f63196b1f5f9954efdaa5be714b7581bad",
+    "kind": "Preserved previous final-integration checkpoint"
+  },
+  {
+    "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/current-regressions/run-crossserver-focused.mjs",
+    "sha256": "b0ee239dc7da9afd26190e8e7d390b88b5b31d5d58d088058d11f4721753a743",
+    "kind": "Preserved previous final-integration checkpoint"
+  },
+  {
+    "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/current-regressions/run-crossserver-regressions.mjs",
+    "sha256": "43fd636a85bee9f13bc6d752f5371a67dc06eb9663d8873e1852a03e3548c751",
+    "kind": "Preserved previous final-integration checkpoint"
+  },
+  {
+    "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/current-regressions/run-map-entry-affected.mjs",
+    "sha256": "8ba4f6c4e375f960ba55f77b727bb9b454efeaf18b6e1a8b7b44e602ad721985",
+    "kind": "Preserved previous final-integration checkpoint"
+  },
+  {
+    "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/current-regressions/run-map-entry-focused.mjs",
+    "sha256": "7fce118a247cdede0d397fda5df6b9a7e7a47d4f69223e3597237412ca5ba6e3",
+    "kind": "Preserved previous final-integration checkpoint"
+  },
+  {
+    "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/current-regressions/validate-preservation.mjs",
+    "sha256": "e542ebfa083f3877a3426db06b90e02a760bbda222d9a99e7f4a411b1966c0ef",
+    "kind": "Preserved previous final-integration checkpoint"
+  }
+]

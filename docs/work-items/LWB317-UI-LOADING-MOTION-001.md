@@ -1,6 +1,6 @@
 # LWB317-UI-LOADING-MOTION-001
 
-Status: ACTIVE. Owner explicitly requests continued large lead work toward
+Status: COMPLETE / ACCEPTED for assigned source/local scope. Owner explicitly requests continued large lead work toward
 one-for-one UI. This is phase 2 source/local UI, not native execution.
 
 A. Recover exact original preload/lazy/Suspense and Equipment motion contracts.
@@ -21,3 +21,5 @@ have explicit file ownership and receive independent review. Preserve seven WIP
 hashes and all historical source/results; no broad staging/reset/cleanup. Do not
 declare global UI closure while recoverable differences or visual proof gaps
 remain. Evidence continues under FINAL-INTEGRATION-001/route-loading and /motion.
+
+Lead closeout: see docs/reviews/2026-10-04-LWB317-UI-LOADING-MOTION-001.md and route-loading/README.md. Current global UI remains PARTIAL; proceed with PROFILE-TABS-001.

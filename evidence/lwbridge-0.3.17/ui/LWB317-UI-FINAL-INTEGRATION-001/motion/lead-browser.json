@@ -1,0 +1,18 @@
+{
+  "proof": "Actual canonical offline Equipment page, real UI controls",
+  "firstObservedSwitch": {
+    "preset": "Fixture equipment preset 2",
+    "opacity": "0",
+    "transform": "translateY(7.55706px)",
+    "positions": "8 ARTICLE elements"
+  },
+  "rename": "Lead UI checkpoint saved through preview acknowledgement; dialog hidden after exit",
+  "retention": "AFK -> Equipment retains selected renamed preset2",
+  "nativeActions": "Read current / Save and apply / each Apply squad disabled",
+  "console": [],
+  "limits": [
+    "No physical HTML5 drag",
+    "No native persistence/gameplay",
+    "No original protected-runtime pixels"
+  ]
+}

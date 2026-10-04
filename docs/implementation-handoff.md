@@ -1,5 +1,8 @@
 # Current implementation/research handoff
 
+Lead checkpoint, 2026-10-04: LOADING-MOTION-001 is COMPLETE / ACCEPTED for source/local lazy/preload/Suspense and exact Equipment motion. Actual mounted tests, six split chunks, 47 unchanged declarations plus reviewed motion delta, affected replays, offline browser and package checks pass. See reviews/2026-10-04-LWB317-UI-LOADING-MOTION-001.md. Overall UI remains PARTIAL; next active lead task is PROFILE-TABS-001 (three parent-owned selections and visited Automation category Activity lifetime). Native/pixel/global acceptance remains separate. Earlier entries below are historical checkpoints.
+
+
 Current lead work,2026-10-04: LOADING-MOTION-001 is ACTIVE. The owner asks the lead
 to continue large UI work. SHELL-MAP-ENTRY-001 is COMPLETE/ACCEPTED at9a2f414;
 current App dispatches summary before transition without awaiting. Shared shell,

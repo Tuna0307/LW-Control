@@ -1,0 +1,101 @@
+{
+  "routes": [
+    {
+      "route": "ホーム",
+      "active": [
+        "ホーム"
+      ],
+      "clientWidth": 730,
+      "height": 600,
+      "lang": "ja",
+      "scrollWidth": 730,
+      "theme": "dark",
+      "width": 740
+    },
+    {
+      "route": "自動化",
+      "active": [
+        "自動化"
+      ],
+      "clientWidth": 730,
+      "height": 600,
+      "lang": "ja",
+      "scrollWidth": 730,
+      "theme": "dark",
+      "width": 740
+    },
+    {
+      "route": "地図データ",
+      "active": [
+        "地図データ"
+      ],
+      "clientWidth": 730,
+      "height": 600,
+      "lang": "ja",
+      "scrollWidth": 730,
+      "theme": "dark",
+      "width": 740
+    },
+    {
+      "route": "部隊 / 行軍",
+      "active": [
+        "部隊 / 行軍"
+      ],
+      "clientWidth": 730,
+      "height": 600,
+      "lang": "ja",
+      "scrollWidth": 730,
+      "theme": "dark",
+      "width": 740
+    },
+    {
+      "route": "都市レイアウト",
+      "active": [
+        "都市レイアウト"
+      ],
+      "clientWidth": 730,
+      "height": 600,
+      "lang": "ja",
+      "scrollWidth": 730,
+      "theme": "dark",
+      "width": 740
+    },
+    {
+      "route": "ショートカット",
+      "active": [
+        "ショートカット"
+      ],
+      "clientWidth": 730,
+      "height": 600,
+      "lang": "ja",
+      "scrollWidth": 730,
+      "theme": "dark",
+      "width": 740
+    },
+    {
+      "route": "ミニゲーム",
+      "active": [
+        "ミニゲーム"
+      ],
+      "clientWidth": 730,
+      "height": 600,
+      "lang": "ja",
+      "scrollWidth": 730,
+      "theme": "dark",
+      "width": 740
+    },
+    {
+      "route": "設定",
+      "active": [
+        "設定"
+      ],
+      "clientWidth": 730,
+      "height": 600,
+      "lang": "ja",
+      "scrollWidth": 730,
+      "theme": "dark",
+      "width": 740
+    }
+  ],
+  "console": []
+}

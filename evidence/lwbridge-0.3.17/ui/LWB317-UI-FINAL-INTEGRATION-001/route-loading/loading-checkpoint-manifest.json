@@ -1,0 +1,306 @@
+{
+  "scope": "Loading/motion checkpoint; no global/native/pixel parity",
+  "hashPolicy": "Exact images; LF-normalized UTF-8 text",
+  "referenceExe": {
+    "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW/lwbridge-0.3.17.exe",
+    "sha256": "4e9c3113dedfd7e1a752404c6936aab304e67d7ffdb0952a5003c2ec948d6783"
+  },
+  "files": [
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/current-regressions-v2/README.md",
+      "sha256": "77e4e70bb592998298b0d8acf26067b1805ad1d53590b813cd3d35d008922606"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/current-regressions-v2/affected-results.json",
+      "sha256": "cedd10a114d05a9de15a0019956f9a20fa37893fc5e80d720e97da614de4b6ac"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/current-regressions-v2/app-ownership-harness.mjs",
+      "sha256": "406f447ca533bbd32acbfd7c57984ae9793379a2def9db37545d52425aebb0da"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/current-regressions-v2/crossserver-focused-results.json",
+      "sha256": "452b245c8160410ce26d01023db1da75cf475efb9d88606c830bb0605a9772db"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/current-regressions-v2/crossserver-regression-results.json",
+      "sha256": "e171ea58850bff20577bda24b36b2e3311a301a86d833fad630bf633af73cbfb"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/current-regressions-v2/current-route-bindings.mjs",
+      "sha256": "e13c16403ee45fd049c2d79df660cd5b61e9b15bdc1d19422dc7747b57a56b75"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/current-regressions-v2/historical-inputs.json",
+      "sha256": "20711a92884b53bdd9fdcdfb1d8b4d14993e4f60f2db6977ba5faab71994978e"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/current-regressions-v2/map-entry-app-harness.mjs",
+      "sha256": "33eefe48014218fc19fef466b3d380e455ec673e300e48f6ff222c17643226c3"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/current-regressions-v2/map-entry-focused-results.json",
+      "sha256": "6230179e04ab2a618f0a4ba648e69d69a0f983a9848ec43752bd5d937087d777"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/current-regressions-v2/map-ownership-results.json",
+      "sha256": "aa0da766066b59f427ae2b4702755119d1f3dc05be8c7f392947a5e9192b0fa4"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/current-regressions-v2/replay-map-ownership.mjs",
+      "sha256": "6ca31d1e20e522b1b1f1b05432b5c7e62d969e34b70fe1d04aaf7a2c154f9d03"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/current-regressions-v2/run-crossserver-focused.mjs",
+      "sha256": "a247a647c5c1577d8bcd5c813ad4707e30de2dffe8778d18fab30bb504e44fbe"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/current-regressions-v2/run-crossserver-regressions.mjs",
+      "sha256": "7f8cf49dc5cffb334b943ade1c48b398518d408ffb6adcda92caa4f9d7e0c340"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/current-regressions-v2/run-map-entry-affected.mjs",
+      "sha256": "b875fbaa8add4ef2db8b55636a3352845f90c2fdc823dd81c512f2db5f4ad40a"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/current-regressions-v2/run-map-entry-focused.mjs",
+      "sha256": "ba6fc7c0b7ec4c59f7bb5a910fb0763e58887dfa97f76a583fb2d48acc3ef0cd"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/current-regressions-v2/validate-preservation.mjs",
+      "sha256": "e542ebfa083f3877a3426db06b90e02a760bbda222d9a99e7f4a411b1966c0ef"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/motion/browser-results.json",
+      "sha256": "88b7b06cc52a49aa8c06163d0ebf74aff9858cb4170af7993d5b45db7d7f854f"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/motion/check-integration.mjs",
+      "sha256": "b71a9ad51320c8f27f5e834375069a4edb50281d5c67a8219c73676438129706"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/motion/check-motion.mjs",
+      "sha256": "1208f38bae34bafeb6860e84413ae32f3267f0643251175825155f8ffa35e8df"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/motion/closure-manifest.json",
+      "sha256": "8f93232cdcc8a2a81d98ad8fb182bcc57b9a5480603e0ff20c1aa3c958e15f83"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/motion/independent-review.md",
+      "sha256": "868a6d085fc3ddacb3e13d7697d97e79965440bbbdb23b69667f92f72b84c2e1"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/motion/integration-results.json",
+      "sha256": "c0c167e31b2f78076b64db1c05c02be27cfae886aa15cebbda42a74fed6e31d0"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/motion/lead-browser.json",
+      "sha256": "a1098bbb9d60df68cb803a0c2e58f887765f0451bdb12e2045012ca76a81f7b4"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/motion/motion-results.json",
+      "sha256": "7fc1b64d780fb57293c727f3b7adc072213e2fca5defda2b278838a094d68ab3"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/motion/preview-server.mjs",
+      "sha256": "e0a080e0ac4a321a19da27f96d2d4ed5fce63537d45e2250f57342af7da875b1"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/motion/preview.html",
+      "sha256": "a2f797653c9da746f791dd43ac1cbc2b3b39a703ba56df9a85d581caa5486cb3"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/motion/preview.jsx",
+      "sha256": "3dc9d569aee2dc10e9c5a2f3708967c6f93226f959ae76426e6300a656908050"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/motion/recover-motion.mjs",
+      "sha256": "8edff420886fe0675efcf420c0a56569915cd9f8b91475423aec36b31d3d7609"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/motion/replay-current.mjs",
+      "sha256": "ee8a93695208f85d4d2228aa8313f40329e722d531cf70105616f4ede0c5f687"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/motion/replay-results.json",
+      "sha256": "0923ff35d0f95669a9c7b402585dd664b6cebe430b5c105273922a54c1bd9e83"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/motion/screenshots/equipment-motion-layout.jpg",
+      "sha256": "101d87a659f91fbe6fb4681d5d678e27e0a5effc4a240cd969fcc20da7873f9c"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/motion/screenshots/equipment-motion-transients.jpg",
+      "sha256": "7fc616a371f4202626c653dff62bc455ccfd6f14d9d84769725bb890d37c795e"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/motion/screenshots/lead-integrated-equipment-en.jpg",
+      "sha256": "6da07600d6a46932c7f168c647d6b3e7b24d9ead5310176c78f03d8bc38c24ba"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/motion/squads-before-motion.jsx",
+      "sha256": "5a81a549a7ff33fe559f0c9283ca03a03dac2af45bbf408acfe266d8a87e8324"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/route-loading/README-mounted.md",
+      "sha256": "7423bb8efeb8fb38787e3ce802dfec5f1f26e93e19696701642bbb2474771208"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/route-loading/README.md",
+      "sha256": "a88b5e45181b4278a9aacd627cff384dc7fa6dc814769d26d94aaafed48519b8"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/route-loading/baseline-Pages.jsx",
+      "sha256": "4eea83ed48643bdca326e22002fd7af2160a616454c99366efcc3405cf53a69f"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/route-loading/browser/english.json",
+      "sha256": "e0449f85179dba199bf26ad23f241da86294b1e964989281993b0d4ee025cc8b"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/route-loading/browser/home-en-light.jpg",
+      "sha256": "ca461c86f44454cd8c625c0a2b9929a107054c3cd46421a3ed2222941da59fba"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/route-loading/browser/japanese-740.json",
+      "sha256": "4a3223dcf45f1077cccc359101910f8ab145010ce7f98f0f01c75d24832b18dd"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/route-loading/browser/settings-ja-dark-740.jpg",
+      "sha256": "885bd93f8f52df79fcb50f4031d6cad6c49bd16cd1aaabf7e3612c9918a6ab09"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/route-loading/check-integration-review.mjs",
+      "sha256": "d7094614f5587a6281009e5604df06f85298ea1d3b8c5006829b4ddd7bdda27b"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/route-loading/check-module-migration.mjs",
+      "sha256": "797b06652d51cadc40a6a98257fda5fcd83b07ddd924cd91c1551f176bcdcadb"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/route-loading/check-original-loading.mjs",
+      "sha256": "3304bb71112f4a81c845052b44590622b9e86b83d9637e2d29198a838078a50e"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/route-loading/check-production-route-graph.mjs",
+      "sha256": "6cea3f4e5f76ec7d816417d3111706452f3146f913d211b6073490125c841bb4"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/route-loading/independent-integration-results.json",
+      "sha256": "d2a11ab8e21aaac74e33e1f855b31e5adb5286bf40ab9d7fc8736975ef7accb6"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/route-loading/independent-review.md",
+      "sha256": "1a55edfd11e17ee59fefb5cb8332201e2d573de801bf49f3b453c6635b2600c0"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/route-loading/migrate-pages.mjs",
+      "sha256": "28630d25abaede82ad733b59cc0faf65fe7ab30a949018f611c5ce2b1442aba2"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/route-loading/migration-plan.md",
+      "sha256": "80ff88d5c869c38210ae339a6c70ec541671a2bd9c529ba23393e1bb6e1414a2"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/route-loading/module-migration-checkpoint.md",
+      "sha256": "ef876ae16fd50b7eeec684eee2ae3440f9a0fdd8204a997709e77483f63aac78"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/route-loading/module-migration-results.json",
+      "sha256": "de79d9053441d771f0c1d573fe1542759e652aa72d4fe4606ba9d9f5b289ec4e"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/route-loading/module-preparation.json",
+      "sha256": "1cf39db058adacf2e25c348dca56082f7c9ea5308e89a81496f260f92c0b7280"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/route-loading/mounted-deferred-results.json",
+      "sha256": "08519e53a5deb7b394ec902c15ea775cfc29cfa0cb7e879c27eb78237764eee8"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/route-loading/original-loading-results.json",
+      "sha256": "e0a513031f523587815d37f6013553918a5906e212c741c4fbc3f6a3db06fdcd"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/route-loading/planned-Pages.jsx",
+      "sha256": "c5df951e95561a08a4614445ed61586aa6df4e4b7ae3f11a6a546a52eba19191"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/route-loading/production-route-graph.json",
+      "sha256": "0b16853c4fd155e6a1185c22fe6aaa266a64f7322964dbb9b447c08eb5693ecc"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/route-loading/recover-route-loading.mjs",
+      "sha256": "34977b9ebe097790a0fbac211fbe308bf9eae250619aca7d19b190f9c5ae6e82"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/route-loading/run-mounted-deferred.mjs",
+      "sha256": "0103c71f7025c1f50d001b0a69798de1aa42399ca1f3a4a5d723141050f86f48"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-FINAL-INTEGRATION-001/route-loading/source-contract.json",
+      "sha256": "9543ebd7c20b256901f19db7eeb902c9863d7e5ae068b39240d7c9646444a3af"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/scripts/check-home-integration.mjs",
+      "sha256": "d492cdcc623e538e73b7840aa7f57668a9b25b6f83afea8a96f12122e29772c2"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/scripts/check-static.mjs",
+      "sha256": "f5441fffc6303e1c5300e36f14bc6814978a71706bbe91258b155459601c9075"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/scripts/check-ui-complete.mjs",
+      "sha256": "52937b6f9fa24f6f31a4f57d2e353ce67cce2f9502ac6ae92aeaba6c71240b4f"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/App.jsx",
+      "sha256": "c778f14819e528a87f670ec38d2a9a8158eb8a333ae71148eb34fc4aa0e145bc"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/AutomationPage.jsx",
+      "sha256": "23b82167e5d490db3e5277e197d0dafaf826fe040bc809a40d28c1f510168f1e"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/CityLayoutPage.jsx",
+      "sha256": "4530c6711ce1cb08758780e3aedec1bfcac2ffcb4056bf7721a2c6633e19482f"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/EquipmentMotion.jsx",
+      "sha256": "27cb30a8addf84dc007fa2d686524f649afb470996cf386b23d8c7ba277fec68"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/HomePage.jsx",
+      "sha256": "494d75c1c557d32810c76559ada3140bc1d1f7398770b22c11f9fe458b8ae14f"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/HotkeyPages.jsx",
+      "sha256": "5dae6e4ffe8875bcebc366109ad4c1e3fff690ea17273ebb50226e9107551634"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/MapRoutePage.jsx",
+      "sha256": "5c01a4c857c8916a830e8973b8a02232ce760484985bad6f78d1cd058dff116c"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "sha256": "c5df951e95561a08a4614445ed61586aa6df4e4b7ae3f11a6a546a52eba19191"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/SettingsPage.jsx",
+      "sha256": "8622be39e06fe82fcf31bd2e092358987f3f304d447ada061685727436737771"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/SquadsPage.jsx",
+      "sha256": "578332b56c54baf75bcdb1325ec23a42f209ffa676661268582f4ff5d548c450"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/sharedPageUI.jsx",
+      "sha256": "95ed15f5a4ab46c7cae4dd55656e85718f66fa5ac45278b615d1795ebd8e82f2"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/vendor/equipmentMotion317.js",
+      "sha256": "e3793ce042ecf9ab24bc8849403e5f3b968d685eba38dab80949a2f883dcbbd0"
+    }
+  ]
+}

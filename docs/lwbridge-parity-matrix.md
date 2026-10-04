@@ -1,5 +1,8 @@
 # LWBridge 0.3.17 parity matrix
 
+Lead checkpoint, 2026-10-04: LOADING-MOTION-001 is COMPLETE / ACCEPTED for source/local lazy/preload/Suspense and exact Equipment motion. Actual mounted tests, six split chunks, 47 unchanged declarations plus reviewed motion delta, affected replays, offline browser and package checks pass. See reviews/2026-10-04-LWB317-UI-LOADING-MOTION-001.md. Overall UI remains PARTIAL; next active lead task is PROFILE-TABS-001 (three parent-owned selections and visited Automation category Activity lifetime). Native/pixel/global acceptance remains separate. Earlier entries below are historical checkpoints.
+
+
 Lead checkpoint,2026-10-04: Map-entry and bounded shared presentation/image/local
 state corrections are ACCEPTED. Original facts remain EXACT_BYTES/EXACT_CONTRACT;
 local component/callback/browser proof does not upgrade native/global/pixel status.

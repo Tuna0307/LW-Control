@@ -1,5 +1,8 @@
 # LWB317-UI-FINAL-INTEGRATION-001 — Lead UI finish campaign
 
+Lead checkpoint, 2026-10-04: LOADING-MOTION-001 is COMPLETE / ACCEPTED for source/local lazy/preload/Suspense and exact Equipment motion. Actual mounted tests, six split chunks, 47 unchanged declarations plus reviewed motion delta, affected replays, offline browser and package checks pass. See reviews/2026-10-04-LWB317-UI-LOADING-MOTION-001.md. Overall UI remains PARTIAL; next active lead task is PROFILE-TABS-001 (three parent-owned selections and visited Automation category Activity lifetime). Native/pixel/global acceptance remains separate. Earlier entries below are historical checkpoints.
+
+
 Status: ACTIVE. Owner explicitly requests lead takeover, completion of the stuck
 worker unit, then a large campaign toward one-for-one UI/UX completion. This is
 phase 2 UI work; native/gameplay implementation remains separate.

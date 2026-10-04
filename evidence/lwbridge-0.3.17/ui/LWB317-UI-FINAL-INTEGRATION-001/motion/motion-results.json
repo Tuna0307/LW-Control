@@ -1,0 +1,185 @@
+{
+  "marker": "LWB317_EQUIPMENT_MOTION_OK",
+  "propComparisons": 84,
+  "cases": 12,
+  "details": [
+    {
+      "name": "mounted-presets-entry",
+      "pass": true
+    },
+    {
+      "name": "mounted-squad-entry",
+      "pass": true
+    },
+    {
+      "name": "mounted-rename-entry",
+      "pass": true
+    },
+    {
+      "name": "mounted-toast-entry",
+      "pass": true
+    },
+    {
+      "name": "mounted-progress-entry",
+      "pass": true
+    },
+    {
+      "name": "presence-wait-retires-old-key-before-next-entry",
+      "pass": true
+    },
+    {
+      "name": "presence-rename-exit-and-effect-cleanup",
+      "pass": true
+    },
+    {
+      "name": "presence-toast-exit-and-effect-cleanup",
+      "pass": true
+    },
+    {
+      "name": "presence-progress-exit-and-effect-cleanup",
+      "pass": true
+    },
+    {
+      "name": "slot-hover-tap-and-listener-cleanup",
+      "pass": true
+    },
+    {
+      "name": "reduced-motion-source-snapshot-and-no-explicit-transforms",
+      "pass": true
+    },
+    {
+      "name": "unmount-during-entry-retires-rendered-tree",
+      "pass": true
+    }
+  ],
+  "locators": {
+    "slot": [
+      {
+        "key": "layout",
+        "utf8ByteOffset": 183667,
+        "expression": "layout:!0"
+      },
+      {
+        "key": "layoutId",
+        "utf8ByteOffset": 183677,
+        "expression": "layoutId:e?`preset-equip-${N?.id}-${e.equipUuid}`:void 0"
+      },
+      {
+        "key": "whileHover",
+        "utf8ByteOffset": 184188,
+        "expression": "whileHover:s?void 0:{y:-3,scale:1.06}"
+      },
+      {
+        "key": "whileTap",
+        "utf8ByteOffset": 184226,
+        "expression": "whileTap:s?void 0:{scale:.97}"
+      }
+    ],
+    "presets": [
+      {
+        "key": "initial",
+        "utf8ByteOffset": 186556,
+        "expression": "initial:s?!1:{opacity:0,y:8}"
+      },
+      {
+        "key": "animate",
+        "utf8ByteOffset": 186585,
+        "expression": "animate:{opacity:1,y:0}"
+      },
+      {
+        "key": "exit",
+        "utf8ByteOffset": 186609,
+        "expression": "exit:s?void 0:{opacity:0,y:-6}"
+      },
+      {
+        "key": "transition",
+        "utf8ByteOffset": 186640,
+        "expression": "transition:{duration:.18}"
+      }
+    ],
+    "squad": [
+      {
+        "key": "initial",
+        "utf8ByteOffset": 186843,
+        "expression": "initial:s?!1:{opacity:0,y:10}"
+      },
+      {
+        "key": "animate",
+        "utf8ByteOffset": 186873,
+        "expression": "animate:{opacity:1,y:0}"
+      },
+      {
+        "key": "transition",
+        "utf8ByteOffset": 186897,
+        "expression": "transition:{delay:r*.05,duration:.2}"
+      }
+    ],
+    "position": [
+      {
+        "key": "layout",
+        "utf8ByteOffset": 188335,
+        "expression": "layout:!0"
+      },
+      {
+        "key": "whileHover",
+        "utf8ByteOffset": 188345,
+        "expression": "whileHover:s?void 0:{y:-2}"
+      }
+    ],
+    "rename": [
+      {
+        "key": "initial",
+        "utf8ByteOffset": 190041,
+        "expression": "initial:s?!1:{opacity:0,y:8,scale:.98}"
+      },
+      {
+        "key": "animate",
+        "utf8ByteOffset": 190080,
+        "expression": "animate:{opacity:1,y:0,scale:1}"
+      },
+      {
+        "key": "exit",
+        "utf8ByteOffset": 190112,
+        "expression": "exit:s?void 0:{opacity:0,y:6,scale:.98}"
+      }
+    ],
+    "toast": [
+      {
+        "key": "initial",
+        "utf8ByteOffset": 190807,
+        "expression": "initial:s?!1:{opacity:0,y:10,scale:.96}"
+      },
+      {
+        "key": "animate",
+        "utf8ByteOffset": 190847,
+        "expression": "animate:{opacity:1,y:0,scale:1}"
+      },
+      {
+        "key": "exit",
+        "utf8ByteOffset": 190879,
+        "expression": "exit:s?void 0:{opacity:0,y:8,scale:.98}"
+      }
+    ],
+    "progress": [
+      {
+        "key": "initial",
+        "utf8ByteOffset": 190992,
+        "expression": "initial:s?!1:{opacity:0,y:10,scale:.97}"
+      },
+      {
+        "key": "animate",
+        "utf8ByteOffset": 191032,
+        "expression": "animate:{opacity:1,y:0,scale:1}"
+      },
+      {
+        "key": "exit",
+        "utf8ByteOffset": 191064,
+        "expression": "exit:s?void 0:{opacity:0,y:8,scale:.98}"
+      }
+    ]
+  },
+  "sourceSha256": "ED466E353AA896D8C3FC783FF1802930156FB9E9EB54327AEF73F2FF86FA06C7",
+  "vendorSha256": "E3793CE042ECF9AB24BC8849403E5F3B968D685EBA38DAB80949A2F883DCBBD0",
+  "wrapperSha256": "27CB30A8ADDF84DC007FA2D686524F649AFB470996CF386B23D8C7BA277FEC68",
+  "proof": "Actual source/current engines, exact recovered caller props, mounted React/jsdom with controlled frame clock; physical browser/layout evidence separate"
+}

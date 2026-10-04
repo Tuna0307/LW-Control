@@ -1,5 +1,8 @@
 # LWBridge 0.3.17 project status
 
+Lead checkpoint, 2026-10-04: LOADING-MOTION-001 is COMPLETE / ACCEPTED for source/local lazy/preload/Suspense and exact Equipment motion. Actual mounted tests, six split chunks, 47 unchanged declarations plus reviewed motion delta, affected replays, offline browser and package checks pass. See reviews/2026-10-04-LWB317-UI-LOADING-MOTION-001.md. Overall UI remains PARTIAL; next active lead task is PROFILE-TABS-001 (three parent-owned selections and visited Automation category Activity lifetime). Native/pixel/global acceptance remains separate. Earlier entries below are historical checkpoints.
+
+
 Authoritative current state,2026-10-04: lead continues phase2 UI work under
 LOADING-MOTION-001. Map-entry is COMPLETE/ACCEPTED; shared shell/profile/image
 corrections pass source/local/browser/package review. FINAL-INTEGRATION remains

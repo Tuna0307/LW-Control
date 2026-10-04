@@ -1,0 +1,57 @@
+{
+  "marker": "LWB317_EQUIPMENT_MOTION_INTEGRATION_OK",
+  "baselineSha256": "5A81A549A7FF33FE559F0C9283CA03A03DAC2AF45BBF408ACFE266D8A87E8324",
+  "productionSha256": "578332B56C54BAF75BCDB1325EC23A42F209FFA676661268582F4FF5D548C450",
+  "wrapperSha256": "27CB30A8ADDF84DC007FA2D686524F649AFB470996CF386B23D8C7BA277FEC68",
+  "propComparisons": 84,
+  "changes": [
+    {
+      "kind": "slot",
+      "sourceTag": "div",
+      "productionCall": "equipmentMotionProps(\"slot\", reducedMotion, { presetId: selectedPreset?.id, equipUuid: savedEquip?.equipUuid, hasSavedEquip: !!savedEquip })"
+    },
+    {
+      "kind": "position",
+      "sourceTag": "article",
+      "productionCall": "equipmentMotionProps(\"position\", reducedMotion)"
+    },
+    {
+      "kind": "squad",
+      "sourceTag": "section",
+      "productionCall": "equipmentMotionProps(\"squad\", reducedMotion, { index: squadArrayIndex })"
+    },
+    {
+      "kind": "presets",
+      "sourceTag": "div",
+      "productionCall": "equipmentMotionProps(\"presets\", reducedMotion)"
+    },
+    {
+      "kind": "rename",
+      "sourceTag": "div",
+      "productionCall": "equipmentMotionProps(\"rename\", reducedMotion)"
+    },
+    {
+      "kind": "toast",
+      "sourceTag": "div",
+      "productionCall": "equipmentMotionProps(\"toast\", reducedMotion)"
+    },
+    {
+      "kind": "progress",
+      "sourceTag": "div",
+      "productionCall": "equipmentMotionProps(\"progress\", reducedMotion)"
+    }
+  ],
+  "presence": [
+    [
+      [
+        "mode",
+        "wait"
+      ]
+    ],
+    []
+  ],
+  "hookAdditions": 1,
+  "normalizedModuleSha256": "3E70BF0E3E857E4247AFAABC74DB1F9EAEA89EA3D50B54D0A01F2E827E2AEBE0",
+  "mutationDetections": 8,
+  "preserved": "Full module AST equals immutable pre-motion module after removing only the seven exact motion spreads/tags, two source presence boundaries, selected-preset key, reduced hook/import and stagger index parameter. State, effects, handlers, dialog semantics, Activity and rendered content are otherwise identical."
+}

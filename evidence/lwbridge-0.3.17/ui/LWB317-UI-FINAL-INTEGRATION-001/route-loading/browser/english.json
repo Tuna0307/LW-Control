@@ -1,0 +1,48 @@
+{
+  "routes": [
+    {
+      "route": "Squads / AFK",
+      "active": [
+        "Squads / AFK"
+      ],
+      "clientWidth": 1280,
+      "headings": [
+        "Squads / AFK"
+      ],
+      "scrollWidth": 1280,
+      "width": 1280
+    },
+    {
+      "route": "City Layout",
+      "state": "source disconnected panel",
+      "active": [
+        "City Layout"
+      ],
+      "clientWidth": 1280,
+      "scrollWidth": 1280,
+      "width": 1280
+    },
+    {
+      "route": "Hotkeys",
+      "state": "Game Hotkeys / disconnected config loading"
+    },
+    {
+      "route": "Mini Games",
+      "state": "same lazy component with miniGames category"
+    },
+    {
+      "route": "Settings",
+      "state": "settings visible"
+    },
+    {
+      "route": "Home",
+      "state": "eager page visible"
+    }
+  ],
+  "additionalVerified": [
+    "Automation Chat retained across Home return",
+    "Map World Map Data table and offline disabled actions"
+  ],
+  "console": [],
+  "proof": "Settled real offline UI; delayed import lifetime proved separately"
+}
