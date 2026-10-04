@@ -1,5 +1,10 @@
 # LWBridge 0.3.17 feature ledger
 
+Lead checkpoint, 2026-10-04: MAP-AUTO-VISUAL-001 evidence accepted. Auto chip
+remove child differs: recovered Vr SVG at index byte330489 versus current text
+span at MapDataPage byte48425/line1041. Tiny MAP-AUTO-REMOVE-001 is assigned;
+no production correction or global parity claim is included in this review.
+
 Latest lead acceptance, 2026-10-04: MAP-MANUAL-TYPES-001 at6569fa1 closes
 MMV-BEHAVIOR-001. Manual editing permits [] then one type, preserving recovered
 ordering, Auto protection and request normalization. Lead focused checks and

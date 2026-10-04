@@ -1,6 +1,6 @@
 # LWB317-UI-MAP-AUTO-VISUAL-001 — evidence review
 
-AWAITING_REVIEW for the bounded Auto Scan configuration-card comparison. No
+COMPLETE / ACCEPTED for the bounded Auto Scan configuration-card comparison. No
 production code changed. Exactly two original/current browser pairs were made,
 and no Run now/native action was invoked.
 
@@ -58,3 +58,17 @@ Evidence is isolated source rendering with inert inputs, current recovered EN/JA
 catalogs and a fixed Asia/Singapore clock. It does not prove full-shell,
 protected-runtime or native pixel behavior. This task assigns no correction for
 the remove-glyph mismatch and makes no statement about another Map surface.
+
+## Project-lead acceptance — 2026-10-04
+
+Accepted cefa6c3ef3790e35ffaadf7b0a27f0630872dd7e as comparison evidence only.
+Lead source/extractor review confirms recovered original Vr is executed, with
+current card JSX unchanged. The validator, canonical check/package and ten-path
+WIP guard pass; direct remote equals delivery SHA. Lead independently recomputed
+the browser deltas from measured anchors: default0/0, configured12/9, all at
+server-chip child glyphs. Saved configured original/current and default current
+images inspected; default original PNG is byte-identical to current.
+
+No production correction is part of acceptance. The SVG/text mismatch is valid;
+the next tiny worker assignment MAP-AUTO-REMOVE-001 corrects that child alone.
+Overall UI remains PARTIAL, with wider Map/page/native/runtime pixels separate.

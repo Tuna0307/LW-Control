@@ -1,5 +1,10 @@
 # LWBridge 0.3.17 UI parity plan
 
+Latest lead checkpoint, 2026-10-04: MAP-AUTO-VISUAL-001 deliverycefa6c3 is accepted
+as two-pair offline evidence. Default matches exactly; configured card differs
+only in three SVG/text remove glyphs. Tiny MAP-AUTO-REMOVE-001 is assigned to fix
+only that child. Global UI remains PARTIAL; older dispatch notes are historical.
+
 Current worker dispatch, 2026-10-04: small MAP-AUTO-VISUAL-001 compares only the
 Auto configuration card in two offline source-rendered browser pairs. Evidence
 only; no production/native work. See its work item. Manual type correction remains

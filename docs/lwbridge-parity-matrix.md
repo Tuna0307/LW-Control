@@ -1,5 +1,10 @@
 # LWBridge 0.3.17 parity matrix
 
+Lead checkpoint, 2026-10-04: two Auto-card visual samples reviewed atcefa6c3.
+Default exact; configured parent layout exact, three remove-child glyphs differ
+(12 rectangle/9 style deltas). This remains an open source/local visual defect;
+MAP-AUTO-REMOVE-001 is assigned. No full Map/global/native pixel upgrade.
+
 Latest lead acceptance, 2026-10-04: MMV-BEHAVIOR-001 is CLOSED through
 MAP-MANUAL-TYPES-001 delivery6569fa1 for recovered source/local Manual editing.
 Seven states, actual-original normalizer and affected checks verify; sampled

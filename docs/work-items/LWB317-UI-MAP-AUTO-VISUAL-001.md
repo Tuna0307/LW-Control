@@ -1,6 +1,12 @@
 # LWB317-UI-MAP-AUTO-VISUAL-001
 
-Status: AWAITING_REVIEW through owner relay, 2026-10-04. Size: small.
+Status: COMPLETE / ACCEPTED as comparison evidence by lead, 2026-10-04. Size: small.
+
+Lead review: delivery cefa6c3 accepted for two-pair isolated evidence. Validator,
+canonical check/package and ten-path WIP guard pass. Saved images inspected and
+recorded rectangles/styles independently recomputed: default0/0, configured12/9,
+all configured differences confined to three remove children. The glyph defect
+remains open and is assigned separately as MAP-AUTO-REMOVE-001.
 Baseline: 5dfedb0edba0a0c1db9f9f5446f9e8d67f33a65e.
 
 ## Goal and scope

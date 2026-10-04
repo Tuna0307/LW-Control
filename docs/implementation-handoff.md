@@ -1,5 +1,11 @@
 # Current implementation/research handoff
 
+Current worker continuation, 2026-10-04: MAP-AUTO-VISUAL-001 atcefa6c3 accepted as
+comparison evidence. Tiny MAP-AUTO-REMOVE-001 is assigned via owner relay: replace
+only Auto server-chip text × with exact recovered SVG and recompare one configured
+pair. Preserve callbacks, config, native fences and all starting WIP. Global UI
+remains PARTIAL; older dispatch/no-worker notes are historical.
+
 Current worker dispatch, 2026-10-04: owner relays small MAP-AUTO-VISUAL-001,
 two original/current Auto-card visual pairs only, with exact source/input pins
 and truthful differences. No code correction or broader Map scope assigned.

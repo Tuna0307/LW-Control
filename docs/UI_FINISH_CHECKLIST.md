@@ -1,5 +1,10 @@
 # UI completion checklist — 2026-10-03
 
+Latest lead checkpoint, 2026-10-04: Auto-card two-pair visual evidence accepted.
+Next tiny worker unit MAP-AUTO-REMOVE-001 fixes only the recorded remove glyph
+mismatch. Parent layout matches in both samples; broader visual inventory remains.
+Global UI remains PARTIAL; earlier dispatch notes are historical.
+
 Latest lead acceptance, 2026-10-04: MAP-MANUAL-TYPES-001 is COMPLETE / ACCEPTED
 at6569fa1; Manual last-type/empty-edit defect MMV-BEHAVIOR-001 is closed.
 Continue remaining Map/page visual inventory. Overall UI remains PARTIAL;
