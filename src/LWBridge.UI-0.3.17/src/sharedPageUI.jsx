@@ -27,11 +27,11 @@ export function ToggleRow({ label, checked = false, disabled = false, onChange }
   );
 }
 
-export function PanelTitle({ title, subtitle }) {
+export function PanelTitle({ title, subtitle, subtitleClassName = "muted" }) {
   return (
     <div className="panel-title">
       <h2>{title}</h2>
-      {subtitle ? <span className="muted">{subtitle}</span> : null}
+      {subtitle ? <span className={subtitleClassName}>{subtitle}</span> : null}
     </div>
   );
 }

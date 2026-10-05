@@ -1,0 +1,931 @@
+{
+  "task": "LWB317-UI-VISUAL-FINAL-CLOSEOUT-003/milestone-c",
+  "marker": "LWB317_FINAL_CLOSEOUT_MILESTONE_C_CONDITIONAL_COMPOSITION_OK",
+  "caseCount": 24,
+  "categoryCoverage": {
+    "daily": {
+      "original": {
+        "categoryTabs": 7,
+        "cards": 7
+      },
+      "current": {
+        "categoryTabs": 7,
+        "cards": 7
+      }
+    },
+    "alliance": {
+      "original": {
+        "categoryTabs": 7,
+        "cards": 8
+      },
+      "current": {
+        "categoryTabs": 7,
+        "cards": 8
+      }
+    },
+    "resourceGather": {
+      "original": {
+        "categoryTabs": 7,
+        "cards": 1
+      },
+      "current": {
+        "categoryTabs": 7,
+        "cards": 1
+      }
+    },
+    "resources": {
+      "original": {
+        "categoryTabs": 7,
+        "cards": 2
+      },
+      "current": {
+        "categoryTabs": 7,
+        "cards": 2
+      }
+    },
+    "chat": {
+      "original": {
+        "categoryTabs": 7,
+        "cards": 3
+      },
+      "current": {
+        "categoryTabs": 7,
+        "cards": 3
+      }
+    },
+    "trade": {
+      "original": {
+        "categoryTabs": 7,
+        "cards": 1
+      },
+      "current": {
+        "categoryTabs": 7,
+        "cards": 1
+      }
+    },
+    "system": {
+      "original": {
+        "categoryTabs": 7,
+        "cards": 2
+      },
+      "current": {
+        "categoryTabs": 7,
+        "cards": 2
+      }
+    }
+  },
+  "cases": [
+    {
+      "id": "G1-error-over-saving",
+      "category": "daily",
+      "original": {
+        "subtitle": {
+          "className": "error-text",
+          "text": "Some changes have not been saved. Please retry."
+        },
+        "localErrorBeforeConfig": true
+      },
+      "current": {
+        "subtitle": {
+          "className": "error-text",
+          "text": "Some changes have not been saved. Please retry."
+        },
+        "localErrorBeforeConfig": true
+      },
+      "pass": true
+    },
+    {
+      "id": "G2-saving-only",
+      "category": "daily",
+      "original": {
+        "className": "muted",
+        "text": "Saving…"
+      },
+      "current": {
+        "className": "muted",
+        "text": "Saving…"
+      },
+      "pass": true
+    },
+    {
+      "id": "D1-daily-positive-manual-assist",
+      "category": "daily",
+      "original": {
+        "cards": 7,
+        "camps": 2,
+        "trainingProgress": 2,
+        "assistRows": 2,
+        "assistQueueRows": 3
+      },
+      "current": {
+        "cards": 7,
+        "camps": 2,
+        "trainingProgress": 2,
+        "assistRows": 2,
+        "assistQueueRows": 3
+      },
+      "pass": true
+    },
+    {
+      "id": "D2-training-edges",
+      "category": "daily",
+      "variants": [
+        {
+          "id": "no-camps",
+          "original": {
+            "camps": 0,
+            "noCamps": 1
+          },
+          "current": {
+            "camps": 0,
+            "noCamps": 1
+          }
+        },
+        {
+          "id": "data-unavailable",
+          "original": {
+            "dataStatus": 3
+          },
+          "current": {
+            "dataStatus": 3
+          }
+        },
+        {
+          "id": "open-failed",
+          "original": {
+            "alerts": 1
+          },
+          "current": {
+            "alerts": 1
+          }
+        },
+        {
+          "id": "unavailable-level",
+          "original": {
+            "disabledNine": 1
+          },
+          "current": {
+            "disabledNine": 1
+          }
+        },
+        {
+          "id": "runtime-error",
+          "original": {
+            "alerts": 1,
+            "state": "Disabled"
+          },
+          "current": {
+            "alerts": 1,
+            "state": "Disabled"
+          }
+        },
+        {
+          "id": "no-order",
+          "original": {
+            "progress": 0
+          },
+          "current": {
+            "progress": 0
+          }
+        },
+        {
+          "id": "invalid-quantity",
+          "original": {
+            "invalid": 1,
+            "alerts": 1
+          },
+          "current": {
+            "invalid": 1,
+            "alerts": 1
+          }
+        }
+      ],
+      "pass": true
+    },
+    {
+      "id": "D3-running-and-assist-busy",
+      "category": "daily",
+      "original": {
+        "railway": {
+          "state": "Running",
+          "action": "Stop",
+          "disabledWeekly": 7,
+          "disabledDeparture": true
+        },
+        "secret": {
+          "state": "Running",
+          "action": "Stop",
+          "disabledWeekly": 7
+        },
+        "ghost": {
+          "state": "Running",
+          "filterChecked": 1,
+          "inlineStatus": 1
+        },
+        "assistBusy": {
+          "rows": 2,
+          "disabled": 11
+        }
+      },
+      "current": {
+        "railway": {
+          "state": "Running",
+          "action": "Stop",
+          "disabledWeekly": 7,
+          "disabledDeparture": true
+        },
+        "secret": {
+          "state": "Running",
+          "action": "Stop",
+          "disabledWeekly": 7
+        },
+        "ghost": {
+          "state": "Running",
+          "filterChecked": 1,
+          "inlineStatus": 1
+        },
+        "assistBusy": {
+          "rows": 2,
+          "disabled": 5
+        }
+      },
+      "pass": true
+    },
+    {
+      "id": "D4-active-runtime-error",
+      "category": "daily",
+      "original": {
+        "railway": {
+          "state": "Failed",
+          "alerts": 0
+        },
+        "secret": {
+          "state": "Failed",
+          "alerts": 0
+        },
+        "ghost": {
+          "state": "Failed",
+          "alerts": 0
+        }
+      },
+      "current": {
+        "railway": {
+          "state": "Failed",
+          "alerts": 0
+        },
+        "secret": {
+          "state": "Failed",
+          "alerts": 0
+        },
+        "ghost": {
+          "state": "Failed",
+          "alerts": 0
+        }
+      },
+      "pass": true
+    },
+    {
+      "id": "D5-generic-resources-busy",
+      "category": "resources",
+      "original": {
+        "state": "Running",
+        "action": "Running…",
+        "switchDisabled": true,
+        "fieldsetDisabled": true
+      },
+      "current": {
+        "state": "Running",
+        "action": "Running…",
+        "switchDisabled": true,
+        "fieldsetDisabled": true
+      },
+      "pass": true,
+      "detail": {
+        "browser": [
+          {
+            "name": "generic busy card presents Running state",
+            "actual": "Running",
+            "expected": "Running"
+          },
+          {
+            "name": "generic busy card presents Running ellipsis action",
+            "actual": "Running…",
+            "expected": "Running…"
+          },
+          {
+            "name": "generic busy disables header switch",
+            "actual": true,
+            "expected": true
+          },
+          {
+            "name": "generic busy disables config fieldset",
+            "actual": "",
+            "expected": ""
+          }
+        ]
+      }
+    },
+    {
+      "id": "D6-assist-auto-valid",
+      "category": "daily",
+      "original": {
+        "choices": 1,
+        "numeric": 4,
+        "localErrors": 0
+      },
+      "current": {
+        "choices": 1,
+        "numeric": 4,
+        "localErrors": 0
+      },
+      "pass": true
+    },
+    {
+      "id": "D7-assist-invalid-independent-error",
+      "category": "daily",
+      "original": {
+        "localErrors": 1
+      },
+      "current": {
+        "localErrors": 1
+      },
+      "pass": true,
+      "detail": {
+        "browser": [
+          {
+            "name": "Assist save error has separate Dispatch Assist ownership",
+            "actual": 1,
+            "expected": 1
+          },
+          {
+            "name": "Assist save error exposes separate Retry and Discard",
+            "actual": 2,
+            "expected": 2
+          },
+          {
+            "name": "Assist failure uses exact Assist label",
+            "actual": "Automatically assist alliance Secret Tasks",
+            "expected": "Automatically assist alliance Secret Tasks"
+          },
+          {
+            "name": "Assist Discard clears only Assist store error",
+            "actual": 0,
+            "expected": 0
+          },
+          {
+            "name": "Secret Task draft survives independent Assist Discard",
+            "actual": "37",
+            "expected": "37"
+          }
+        ]
+      }
+    },
+    {
+      "id": "A1-train-reward-drag-and-gather",
+      "category": "alliance",
+      "original": {
+        "rewardDragTarget": 1,
+        "rewardDragSource": 1,
+        "ticketCountSelect": 1,
+        "gatherRows": 2,
+        "gatherDragTarget": 1,
+        "gatherDragSource": 1
+      },
+      "current": {
+        "rewardDragTarget": 1,
+        "rewardDragSource": 1,
+        "ticketCountSelect": 1,
+        "gatherRows": 2,
+        "gatherDragTarget": 1,
+        "gatherDragSource": 1
+      },
+      "pass": true,
+      "detail": {
+        "dragBinding": {
+          "resultSha256": "34BA3D06A41C05C8D517CDF49C3838111F37C2716D9D8ECF53A4AA40A0EC001C",
+          "afterDropPreferenceOrder": [
+            "fixture-parts",
+            "fixture-medal"
+          ]
+        }
+      }
+    },
+    {
+      "id": "A2-train-fixed-explicit",
+      "category": "alliance",
+      "original": [
+        {
+          "checked": 1,
+          "disabled": 1
+        },
+        {
+          "checked": 2,
+          "disabled": 3
+        }
+      ],
+      "current": [
+        {
+          "checked": 1,
+          "disabled": 1
+        },
+        {
+          "checked": 2,
+          "disabled": 3
+        }
+      ],
+      "pass": true
+    },
+    {
+      "id": "A3-train-missing-arrays-gather-required",
+      "category": "alliance",
+      "original": {
+        "groups": [
+          {
+            "checked": 0,
+            "disabled": 1
+          },
+          {
+            "checked": 0,
+            "disabled": 1
+          }
+        ],
+        "gatherError": 1
+      },
+      "current": {
+        "groups": [
+          {
+            "checked": 0,
+            "disabled": 1
+          },
+          {
+            "checked": 0,
+            "disabled": 1
+          }
+        ],
+        "gatherError": 1
+      },
+      "pass": true
+    },
+    {
+      "id": "A4-train-missing-modes-inferred-fixed",
+      "category": "alliance",
+      "original": [
+        {
+          "checked": 1,
+          "disabled": 1
+        },
+        {
+          "checked": 2,
+          "disabled": 3
+        }
+      ],
+      "current": [
+        {
+          "checked": 1,
+          "disabled": 1
+        },
+        {
+          "checked": 2,
+          "disabled": 3
+        }
+      ],
+      "pass": true
+    },
+    {
+      "id": "A5-train-vip-invalid-id-filter",
+      "category": "alliance",
+      "original": [
+        {
+          "checked": 1,
+          "disabled": 1
+        }
+      ],
+      "current": [
+        {
+          "checked": 1,
+          "disabled": 1
+        }
+      ],
+      "pass": true
+    },
+    {
+      "id": "RG1-resource-gather-runtime-family",
+      "category": "resourceGather",
+      "variants": [
+        {
+          "state": "automation-gather-runtime_wait",
+          "original": {
+            "rows": 2,
+            "stateSpans": 2,
+            "detailRows": 0
+          },
+          "current": {
+            "rows": 2,
+            "stateSpans": 2,
+            "detailRows": 0
+          }
+        },
+        {
+          "state": "automation-gather-manual_wait",
+          "original": {
+            "rows": 2,
+            "stateSpans": 2,
+            "detailRows": 1
+          },
+          "current": {
+            "rows": 2,
+            "stateSpans": 2,
+            "detailRows": 1
+          }
+        },
+        {
+          "state": "automation-gather-shield_paused",
+          "original": {
+            "rows": 2,
+            "stateSpans": 2,
+            "detailRows": 1
+          },
+          "current": {
+            "rows": 2,
+            "stateSpans": 2,
+            "detailRows": 1
+          }
+        },
+        {
+          "state": "automation-gather-recalling",
+          "original": {
+            "rows": 2,
+            "stateSpans": 2,
+            "detailRows": 0
+          },
+          "current": {
+            "rows": 2,
+            "stateSpans": 2,
+            "detailRows": 0
+          }
+        },
+        {
+          "state": "automation-gather-recall_failed",
+          "original": {
+            "rows": 2,
+            "stateSpans": 2,
+            "detailRows": 0
+          },
+          "current": {
+            "rows": 2,
+            "stateSpans": 2,
+            "detailRows": 0
+          }
+        },
+        {
+          "state": "automation-gather-state_unconfirmed",
+          "original": {
+            "rows": 2,
+            "stateSpans": 2,
+            "detailRows": 0
+          },
+          "current": {
+            "rows": 2,
+            "stateSpans": 2,
+            "detailRows": 0
+          }
+        }
+      ],
+      "pass": true
+    },
+    {
+      "id": "RG2-resource-gather-no-squads-required",
+      "category": "resourceGather",
+      "original": {
+        "rows": 0,
+        "loading": 1,
+        "errors": 1
+      },
+      "current": {
+        "rows": 0,
+        "loading": 1,
+        "errors": 1
+      },
+      "pass": true
+    },
+    {
+      "id": "R1-resource-claim-invalid-interval",
+      "category": "resources",
+      "original": {
+        "buildingErrors": 0,
+        "armedErrors": 1,
+        "armedBeforeConfig": true
+      },
+      "current": {
+        "buildingErrors": 0,
+        "armedErrors": 1,
+        "armedBeforeConfig": true
+      },
+      "pass": true
+    },
+    {
+      "id": "C1-chat-treasure-conditionals",
+      "category": "chat",
+      "original": {
+        "redSubsettings": 1,
+        "fireSubsettings": 0,
+        "treasureSubsettings": 2,
+        "treasureRows": 2,
+        "treasureDragTarget": 1,
+        "treasureDragSource": 1
+      },
+      "current": {
+        "redSubsettings": 1,
+        "fireSubsettings": 0,
+        "treasureSubsettings": 2,
+        "treasureRows": 2,
+        "treasureDragTarget": 1,
+        "treasureDragSource": 1
+      },
+      "pass": true
+    },
+    {
+      "id": "C2-chat-invalid-errors",
+      "category": "chat",
+      "original": {
+        "Red Packet": 1,
+        "Fireworks / Egg": 1,
+        "Treasure": 1
+      },
+      "current": {
+        "Red Packet": 1,
+        "Fireworks / Egg": 1,
+        "Treasure": 1
+      },
+      "pass": true
+    },
+    {
+      "id": "T1-trade-goods-populated",
+      "category": "trade",
+      "original": {
+        "goods": 1,
+        "tabs": 2,
+        "errors": 0,
+        "alertErrors": 0,
+        "purchaseDays": 0,
+        "purchases": 0
+      },
+      "current": {
+        "goods": 1,
+        "tabs": 2,
+        "errors": 0,
+        "alertErrors": 0,
+        "purchaseDays": 0,
+        "purchases": 0
+      },
+      "pass": true
+    },
+    {
+      "id": "T2-trade-purchased-history",
+      "category": "trade",
+      "original": {
+        "purchaseDays": 3,
+        "purchases": 6,
+        "confirmedTimeout": 2
+      },
+      "current": {
+        "purchaseDays": 3,
+        "purchases": 6,
+        "confirmedTimeout": 2
+      },
+      "pass": true
+    },
+    {
+      "id": "T3-trade-fetch-error-empty",
+      "category": "trade",
+      "original": {
+        "noGoods": true,
+        "errors": 1,
+        "alertErrors": 0,
+        "goods": 0
+      },
+      "current": {
+        "noGoods": true,
+        "errors": 1,
+        "alertErrors": 0,
+        "goods": 0
+      },
+      "pass": true
+    },
+    {
+      "id": "T4-trade-retained-loading-error",
+      "category": "trade",
+      "variants": [
+        {
+          "id": "loading",
+          "original": {
+            "selectedGoods": 1,
+            "loadingCopy": 1,
+            "errors": 0
+          },
+          "current": {
+            "selectedGoods": 1,
+            "loadingCopy": 1,
+            "errors": 0
+          }
+        },
+        {
+          "id": "error",
+          "original": {
+            "selectedGoods": 1,
+            "loadingCopy": 0,
+            "errors": 1
+          },
+          "current": {
+            "selectedGoods": 1,
+            "loadingCopy": 0,
+            "errors": 1
+          }
+        }
+      ],
+      "pass": true
+    },
+    {
+      "id": "S1-system-shield-states",
+      "category": "system",
+      "variants": [
+        {
+          "id": "pending",
+          "original": {
+            "weekendState": "Waiting",
+            "attackState": "Waiting",
+            "weekendSummary": 0,
+            "attackPending": false
+          },
+          "current": {
+            "weekendState": "Waiting",
+            "attackState": "Waiting",
+            "weekendSummary": 0,
+            "attackPending": false
+          }
+        },
+        {
+          "id": "unshielded",
+          "original": {
+            "weekendState": "Waiting",
+            "attackState": "Waiting",
+            "weekendSummary": 0,
+            "attackPending": true
+          },
+          "current": {
+            "weekendState": "Waiting",
+            "attackState": "Waiting",
+            "weekendSummary": 0,
+            "attackPending": true
+          }
+        }
+      ],
+      "pass": true
+    }
+  ],
+  "originalFunctions": {
+    "Ae": {
+      "name": "Ae",
+      "byteOffset": 21817,
+      "byteLength": 53453,
+      "sha256": "61F181D014CFA82BD35CF3BBAE1DB3096CBE502826DDCD4680AD4C46C11A4B68"
+    },
+    "pe": {
+      "name": "pe",
+      "byteOffset": 6352,
+      "byteLength": 3979,
+      "sha256": "D4344E3F28C69AAC5773BB83F17C12036DEDBD8118FD417BA2BA200CA533C8B5"
+    },
+    "me": {
+      "name": "me",
+      "byteOffset": 10331,
+      "byteLength": 4288,
+      "sha256": "65AF81300489FD6682CD8309DD3089426E14170691768AFA8C4750D059C0509D"
+    },
+    "he": {
+      "name": "he",
+      "byteOffset": 14619,
+      "byteLength": 3974,
+      "sha256": "97F6BE8824E427722E700FBBF919F5E09FE76F8500E2F61D15268AAFB7965343"
+    },
+    "card": {
+      "name": "c",
+      "byteOffset": 98,
+      "byteLength": 3773,
+      "sha256": "A3FA760F0D42AA4A927C8B6E810407723F2BA314360CD35AC05D3DF08F639657"
+    }
+  },
+  "adapterInputPins": {
+    "daily": "DD62296FBA425EAB2D9556D8A57484F6C25D815354BF4311374E2E0F262A3C0B",
+    "alliance": "A895EA997CE909E3066BCCFF45AEAAE2766801659FC3DB644A27211F06A4FA7F",
+    "resourceGather": "A0FBFB9A8CCEDE01C125E7DB0432309656D733F0C7FF4C6EE6E6817FD69B1B62",
+    "resources": "A2631B6FDDBD3169EB2EB7FCD5BC58AFD72467E050998DC5E70837E7122D2BAC",
+    "chat": "B57E0FEF13D2B36544551EF33D668E65A8511EFFA1AEC7895EDD83F1E954D0E3",
+    "trade": "FD848E3485F0CE48B942E240049EAE6F3A44AFF048EB992B9DB89DCB3492595F",
+    "system": "7888E7E648C31E5CEEA320532478E7962CC7F1AD3E5E129F63E2A1E5B483A2BE"
+  },
+  "dependencies": [
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/AutomationPage.jsx",
+      "sha256": "12D2D9A3F7C16C13C72C93DC0C3EEA6AE0BCD2E642085D898DB3D45FB8D13CE9"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/AutomationMeta.jsx",
+      "sha256": "47F84DED5D76E037BCBABC2F81D8C294D63ECD6409137320B46078985BF95678"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/DispatchAssistManual.jsx",
+      "sha256": "1CE38103690C72DF87146B3F52791999374A2E841C2DDADCC84C9C417E69771B"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/previewConfigHook.jsx",
+      "sha256": "643875718C4DA1B443215F8E6B9417C840F372882AA81BA286080977D1ED827E"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/previewAutomationContracts.js",
+      "sha256": "FD4BC9C29F23631718D19818D273745C8D042DF35B1DDA2BE1E1928E75BB2295"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/previewAutomationFixtures.js",
+      "sha256": "DF236FDBA38D02EB3FAA95C512A12F5FBA90CC6E43A48A892FC923DFE74AA56D"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/sharedPageUI.jsx",
+      "sha256": "C87499F69094180BB5FF6AF1B03DCEFA0FA9A36FA05251EB2A3463C17154162F"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/tradePurchaseHistory.js",
+      "sha256": "5FE401B6B57D5E2707BCE7A5A38842E876DBEFE69608EFE434DD28B7ABDDD88B"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/locales/en.js",
+      "sha256": "357682D9179AE712EE563950467B7A93B5AEA89322AFC993E079FEDEE28432C1"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/AutomationPanel-BJ0gIqFh.js",
+      "sha256": "6DB2328191AF33E5631D507271C36D7008B287DAA7C8CD1A957B23EF6F871725"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/AutomationCard-LCx_jIi7.js",
+      "sha256": "24ED773623C237F8219EFF5443FAC3BA7B55B6E99E168E52FF066FAF2ABE7A61"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-REMAINING-002/milestone-3/source-render/render-pairs.mjs",
+      "sha256": "3277540CC2ED974936EEC5D93E10F19D11B061D1711D8D779EFF3D71D151268E"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CLOSEOUT-003/milestone-c/run-browser-current.mjs",
+      "sha256": "C0706E8A1070236A3B843B5B0AD0CB8E2FDD3A48B2A46A52F34ADF772796B8A3"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CLOSEOUT-003/milestone-c/browser-current-results.json",
+      "sha256": "DDA594CFB5FFA0B88D0919A6DCD63B749DE274E4F0CDE32CF310979E022D3B86"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CLOSEOUT-003/milestone-c/config-store-ownership.mjs",
+      "sha256": "1A734074047BE9B1BF61EB02F6963C879870E44D114AEA54B67864FFF78B1AD3"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CLOSEOUT-003/milestone-c/config-store-ownership-results.json",
+      "sha256": "F7FDB67A156A3EC7755940DA32802C6622E7DB3EB4A155AA2ACAB4BDF5807114"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CLOSEOUT-003/milestone-a/automation-corrections.mjs",
+      "sha256": "2CF62CD80F5F81339EEE2754DEB647D24CAF1FC8D87F774286FFA94534D5C468"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CLOSEOUT-003/milestone-a/automation-corrections-results.json",
+      "sha256": "34BA3D06A41C05C8D517CDF49C3838111F37C2716D9D8ECF53A4AA40A0EC001C"
+    }
+  ],
+  "browserBinding": {
+    "marker": "LWB317_FINAL_CLOSEOUT_MILESTONE_C_BROWSER_CURRENT_OK",
+    "resultSha256": "DDA594CFB5FFA0B88D0919A6DCD63B749DE274E4F0CDE32CF310979E022D3B86",
+    "sourceFiles": {
+      "src/LWBridge.UI-0.3.17/src/AutomationPage.jsx": "12d2d9a3f7c16c13c72c93dc0c3eea6ae0bcd2e642085d898db3d45fb8d13ce9",
+      "src/LWBridge.UI-0.3.17/src/AutomationMeta.jsx": "47f84ded5d76e037bcbabc2f81d8c294d63ecd6409137320b46078985bf95678",
+      "src/LWBridge.UI-0.3.17/src/DispatchAssistManual.jsx": "1ce38103690c72df87146b3f52791999374a2e841c2ddadcc84c9c417e69771b",
+      "src/LWBridge.UI-0.3.17/src/previewConfigHook.jsx": "643875718c4da1b443215f8e6b9417c840f372882aa81ba286080977d1ed827e",
+      "src/LWBridge.UI-0.3.17/src/previewAutomationContracts.js": "fd4bc9c29f23631718d19818d273745c8d042df35b1dda2be1e1928e75bb2295",
+      "src/LWBridge.UI-0.3.17/src/previewAutomationFixtures.js": "df236fdba38d02eb3faa95c512a12f5fba90cc6e43a48a892fc923dfe74aa56d",
+      "src/LWBridge.UI-0.3.17/src/sharedPageUI.jsx": "c87499f69094180bb5ff6af1b03dcefa0fa9a36fa05251eb2a3463c17154162f",
+      "src/LWBridge.UI-0.3.17/src/tradePurchaseHistory.js": "5fe401b6b57d5e2707bce7a5a38842e876dbefe69608efe434dd28b7abddd88b"
+    },
+    "runnerSha256": "C0706E8A1070236A3B843B5B0AD0CB8E2FDD3A48B2A46A52F34ADF772796B8A3"
+  },
+  "configStoreOwnershipBinding": {
+    "marker": "LWB317_FINAL_CLOSEOUT_MILESTONE_C_CONFIG_STORE_OWNERSHIP_OK",
+    "resultSha256": "F7FDB67A156A3EC7755940DA32802C6622E7DB3EB4A155AA2ACAB4BDF5807114",
+    "producerSha256": "1A734074047BE9B1BF61EB02F6963C879870E44D114AEA54B67864FFF78B1AD3",
+    "recoveredFunctionSha256": "D697645DA61F11176EAE639FEADE2596FA79BF87E2D9B8FD37486CE1AC8D0F9F",
+    "currentSourceSha256": "8BEDEC11D07A8245EBB6FF9DF78E13E872C20F850C9B887919360BF209397B7A"
+  },
+  "limits": [
+    "Recovered AutomationPanel Ae and its materialized he/me/pe/shared-card children execute from the untouched recovered assets through the SHA-fenced historical renderer adapter.",
+    "Effects/native transports remain inert. Source-valid post-effect hook state is injected only for finite conditional presentation branches; no gameplay/native actions run.",
+    "Milestone A is referenced only for already-recorded Train drag reorder interaction semantics under explicit producer/result SHA fences; its stale current Automation dependency is not used as current-source proof.",
+    "Fresh Milestone C browser evidence is used only for independent Dispatch Assist save/Retry/Discard interaction ownership and as supplemental busy confirmation; every recorded browser source file plus the browser runner is bound to the live dependency closure.",
+    "Config-store ownership executes exact recovered function T and current createConfigDraft with two independently deferred stores plus a newer-draft/older-ack sequence; native persistence stays inert."
+  ],
+  "scriptSha256": "7C7897FA279BC306C5F70A20B2C90D59A40F1FB15203076BFC2B445EAD13CE6E"
+}

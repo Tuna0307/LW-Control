@@ -1,0 +1,2188 @@
+{
+  "task": "LWB317-UI-VISUAL-FINAL-CLOSEOUT-003/milestone-c",
+  "marker": "LWB317_FINAL_CLOSEOUT_MILESTONE_C_BROWSER_CURRENT_OK",
+  "browser": {
+    "version": "154.0.8037.95",
+    "executablePath": "C:/Program Files/Google/Chrome/Application/chrome.exe"
+  },
+  "cases": [
+    {
+      "name": "en-light-desktop: language",
+      "actual": "en",
+      "expected": "en",
+      "pass": true
+    },
+    {
+      "name": "en-light-desktop: theme",
+      "actual": "light",
+      "expected": "light",
+      "pass": true
+    },
+    {
+      "name": "en-light-desktop: seven category tabs",
+      "actual": 7,
+      "expected": 7,
+      "pass": true
+    },
+    {
+      "name": "en-light-desktop: daily visible cards",
+      "actual": 7,
+      "expected": 7,
+      "pass": true
+    },
+    {
+      "name": "en-light-desktop: alliance visible cards",
+      "actual": 8,
+      "expected": 8,
+      "pass": true
+    },
+    {
+      "name": "en-light-desktop: resourceGather visible cards",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "en-light-desktop: resources visible cards",
+      "actual": 2,
+      "expected": 2,
+      "pass": true
+    },
+    {
+      "name": "en-light-desktop: chat visible cards",
+      "actual": 3,
+      "expected": 3,
+      "pass": true
+    },
+    {
+      "name": "en-light-desktop: trade visible cards",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "en-light-desktop: system visible cards",
+      "actual": 2,
+      "expected": 2,
+      "pass": true
+    },
+    {
+      "name": "expanded daily settings triggers",
+      "actual": 5,
+      "expected": 5,
+      "pass": true
+    },
+    {
+      "name": "expanded alliance settings triggers",
+      "actual": 2,
+      "expected": 2,
+      "pass": true
+    },
+    {
+      "name": "expanded resourceGather settings triggers",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "expanded resources settings triggers",
+      "actual": 0,
+      "expected": 0,
+      "pass": true
+    },
+    {
+      "name": "expanded chat settings triggers",
+      "actual": 3,
+      "expected": 3,
+      "pass": true
+    },
+    {
+      "name": "expanded trade settings triggers",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "expanded system settings triggers",
+      "actual": 0,
+      "expected": 0,
+      "pass": true
+    },
+    {
+      "name": "Trucks draft becomes dirty before Activity hide",
+      "actual": "true",
+      "expected": "true",
+      "pass": true
+    },
+    {
+      "name": "Trucks edited value survives while Daily Activity is hidden",
+      "actual": "17",
+      "expected": "17",
+      "pass": true
+    },
+    {
+      "name": "Trucks collapse/expand state retained through category Activity",
+      "actual": "true",
+      "expected": "true",
+      "pass": true
+    },
+    {
+      "name": "Trucks edited value retained through category Activity",
+      "actual": "17",
+      "expected": "17",
+      "pass": true
+    },
+    {
+      "name": "ja-dark-desktop: language",
+      "actual": "ja",
+      "expected": "ja",
+      "pass": true
+    },
+    {
+      "name": "ja-dark-desktop: theme",
+      "actual": "dark",
+      "expected": "dark",
+      "pass": true
+    },
+    {
+      "name": "ja-dark-desktop: seven category tabs",
+      "actual": 7,
+      "expected": 7,
+      "pass": true
+    },
+    {
+      "name": "ja-dark-desktop: daily visible cards",
+      "actual": 7,
+      "expected": 7,
+      "pass": true
+    },
+    {
+      "name": "ja-dark-desktop: trade visible cards",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "en-dark-desktop: language",
+      "actual": "en",
+      "expected": "en",
+      "pass": true
+    },
+    {
+      "name": "en-dark-desktop: theme",
+      "actual": "dark",
+      "expected": "dark",
+      "pass": true
+    },
+    {
+      "name": "en-dark-desktop: seven category tabs",
+      "actual": 7,
+      "expected": 7,
+      "pass": true
+    },
+    {
+      "name": "en-dark-desktop: daily visible cards",
+      "actual": 7,
+      "expected": 7,
+      "pass": true
+    },
+    {
+      "name": "en-dark-desktop: trade visible cards",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "ja-light-narrow: language",
+      "actual": "ja",
+      "expected": "ja",
+      "pass": true
+    },
+    {
+      "name": "ja-light-narrow: theme",
+      "actual": "light",
+      "expected": "light",
+      "pass": true
+    },
+    {
+      "name": "ja-light-narrow: seven category tabs",
+      "actual": 7,
+      "expected": 7,
+      "pass": true
+    },
+    {
+      "name": "ja-light-narrow: daily visible cards",
+      "actual": 7,
+      "expected": 7,
+      "pass": true
+    },
+    {
+      "name": "ja-light-narrow: trade visible cards",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Hidden Daily save error remains page-owned",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Daily is hidden when Trucks save failure is reported",
+      "actual": "false",
+      "expected": "false",
+      "pass": true
+    },
+    {
+      "name": "Failed hidden Trucks draft retains edited value",
+      "actual": "29",
+      "expected": "29",
+      "pass": true
+    },
+    {
+      "name": "Failed Trucks draft survives Activity restore",
+      "actual": "29",
+      "expected": "29",
+      "pass": true
+    },
+    {
+      "name": "Assist save error has separate Dispatch Assist ownership",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Assist save error exposes separate Retry and Discard",
+      "actual": 2,
+      "expected": 2,
+      "pass": true
+    },
+    {
+      "name": "Assist failure uses exact Assist label",
+      "actual": "Automatically assist alliance Secret Tasks",
+      "expected": "Automatically assist alliance Secret Tasks",
+      "pass": true
+    },
+    {
+      "name": "Assist Discard clears only Assist store error",
+      "actual": 0,
+      "expected": 0,
+      "pass": true
+    },
+    {
+      "name": "Secret Task draft survives independent Assist Discard",
+      "actual": "37",
+      "expected": "37",
+      "pass": true
+    },
+    {
+      "name": "save-error panel subtitle uses recovered error-text class",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "save-error panel subtitle does not retain muted class",
+      "actual": 0,
+      "expected": 0,
+      "pass": true
+    },
+    {
+      "name": "save-error is owned above panel title",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "save-error exposes Retry and Discard",
+      "actual": 2,
+      "expected": 2,
+      "pass": true
+    },
+    {
+      "name": "Retry clears preview save error",
+      "actual": 0,
+      "expected": 0,
+      "pass": true
+    },
+    {
+      "name": "saving panel subtitle remains muted",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "saving panel subtitle is not error-text",
+      "actual": 0,
+      "expected": 0,
+      "pass": true
+    },
+    {
+      "name": "weekly edit retained after failed save",
+      "actual": "ur",
+      "expected": "ur",
+      "pass": true
+    },
+    {
+      "name": "Discard restores confirmed weekly value",
+      "actual": "ssr",
+      "expected": "ssr",
+      "pass": true
+    },
+    {
+      "name": "Trade history fixture has one Trade card",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Trade has Goods/Purchased tabs",
+      "actual": 2,
+      "expected": 2,
+      "pass": true
+    },
+    {
+      "name": "Trade purchase history groups render",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "Trade purchase rows render",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "Trade cross-server local switch toggles",
+      "actual": "true",
+      "expected": "true",
+      "pass": true
+    },
+    {
+      "name": "non-collapsible Treatment settings body visible",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "non-collapsible Treatment has no settings trigger",
+      "actual": 0,
+      "expected": 0,
+      "pass": true
+    },
+    {
+      "name": "Free Stamina has no settings body",
+      "actual": 0,
+      "expected": 0,
+      "pass": true
+    },
+    {
+      "name": "Free Stamina has no settings trigger",
+      "actual": 0,
+      "expected": 0,
+      "pass": true
+    },
+    {
+      "name": "Construction defaults expanded in preview",
+      "actual": "true",
+      "expected": "true",
+      "pass": true
+    },
+    {
+      "name": "Construction building type chooser exists",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Construction category tabs",
+      "actual": 6,
+      "expected": 6,
+      "pass": true
+    },
+    {
+      "name": "Construction ArrowRight moves category tab",
+      "actual": "true",
+      "expected": "true",
+      "pass": true
+    },
+    {
+      "name": "Auto Training fixture camps",
+      "actual": 2,
+      "expected": 2,
+      "pass": true
+    },
+    {
+      "name": "Auto Training progress surface present",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "Alliance Tech Donations non-collapsible body visible",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Alliance Tech Donations non-collapsible has no trigger",
+      "actual": 0,
+      "expected": 0,
+      "pass": true
+    },
+    {
+      "name": "Automatic Official Application non-collapsible body visible",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Automatic Official Application non-collapsible has no trigger",
+      "actual": 0,
+      "expected": 0,
+      "pass": true
+    },
+    {
+      "name": "Alliance Gifts non-collapsible body visible",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Alliance Gifts non-collapsible has no trigger",
+      "actual": 0,
+      "expected": 0,
+      "pass": true
+    },
+    {
+      "name": "Excavation Stronghold Resources non-collapsible body visible",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Excavation Stronghold Resources non-collapsible has no trigger",
+      "actual": 0,
+      "expected": 0,
+      "pass": true
+    },
+    {
+      "name": "Alliance Center Resources non-collapsible body visible",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Alliance Center Resources non-collapsible has no trigger",
+      "actual": 0,
+      "expected": 0,
+      "pass": true
+    },
+    {
+      "name": "Alliance Help has no settings body",
+      "actual": 0,
+      "expected": 0,
+      "pass": true
+    },
+    {
+      "name": "Building Resource Collection non-collapsible body visible",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Building Resource Collection has no settings trigger",
+      "actual": 0,
+      "expected": 0,
+      "pass": true
+    },
+    {
+      "name": "Armed Truck non-collapsible body visible",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Armed Truck has no settings trigger",
+      "actual": 0,
+      "expected": 0,
+      "pass": true
+    },
+    {
+      "name": "Weekend Shield has no settings body",
+      "actual": 0,
+      "expected": 0,
+      "pass": true
+    },
+    {
+      "name": "Weekend Shield has no settings trigger",
+      "actual": 0,
+      "expected": 0,
+      "pass": true
+    },
+    {
+      "name": "Attack Shield has no settings body",
+      "actual": 0,
+      "expected": 0,
+      "pass": true
+    },
+    {
+      "name": "Attack Shield has no settings trigger",
+      "actual": 0,
+      "expected": 0,
+      "pass": true
+    },
+    {
+      "name": "Gather no-squads fixture exposes zero squad rows",
+      "actual": 0,
+      "expected": 0,
+      "pass": true
+    },
+    {
+      "name": "Gather enable requires a configured squad",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Gather runtime automation-gather-manual_wait has state text",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "Gather manual wait exposes resume detail",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Gather runtime automation-gather-shield_paused has state text",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "Gather shield pause exposes shield detail",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Gather runtime automation-gather-recalling has state text",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "Gather runtime automation-gather-recall_failed has state text",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "Gather runtime automation-gather-state_unconfirmed has state text",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "Assist automation-assist-schedule settings rendered",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Assist automation-assist-schedule manual task rows rendered",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "Assist automation-assist-waiting settings rendered",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Assist automation-assist-waiting manual task rows rendered",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "Assist automation-assist-retry-wait settings rendered",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Assist automation-assist-retry-wait manual task rows rendered",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "Assist automation-assist-running settings rendered",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Assist automation-assist-running manual task rows rendered",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "Assist automation-assist-failed settings rendered",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Assist automation-assist-failed manual task rows rendered",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "Assist automation-assist-expired settings rendered",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Assist automation-assist-expired manual task rows rendered",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "Assist automation-assist-busy settings rendered",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Assist automation-assist-busy manual task rows rendered",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "Assist busy disables local task controls",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "Training automation-training-no-camps body visible",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Training no-camps has zero camp rows",
+      "actual": 0,
+      "expected": 0,
+      "pass": true
+    },
+    {
+      "name": "Training automation-training-data-unavailable body visible",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Training data unavailable has status message",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "Training automation-training-open-failed body visible",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Training automation-training-unavailable-level body visible",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Training automation-training-error body visible",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Training error has alert",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "Training automation-training-no-order body visible",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Training automation-validation-error body visible",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Training validation error is surfaced",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "Trade automation-trade-empty card visible",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Trade automation-trade-loading card visible",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Trade automation-trade-loading loading copy",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "Trade automation-trade-loading-retained card visible",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Trade automation-trade-loading-retained loading copy",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "Trade automation-trade-error card visible",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Trade automation-trade-error error visible",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Trade automation-trade-error fetch error has exact non-alert DOM",
+      "actual": 0,
+      "expected": 0,
+      "pass": true
+    },
+    {
+      "name": "Trade automation-trade-error-retained card visible",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Trade automation-trade-error-retained error visible",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Trade automation-trade-error-retained fetch error has exact non-alert DOM",
+      "actual": 0,
+      "expected": 0,
+      "pass": true
+    },
+    {
+      "name": "Trade automation-trade-history-empty card visible",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Trade empty history has no purchase day groups",
+      "actual": 0,
+      "expected": 0,
+      "pass": true
+    },
+    {
+      "name": "Trade automation-trade-status-absent card visible",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Trade absent status renders dash last result",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "Running Railway header reflects enabled config",
+      "actual": "true",
+      "expected": "true",
+      "pass": true
+    },
+    {
+      "name": "Running Railway disables all Weekly quality selects",
+      "actual": 0,
+      "expected": 0,
+      "pass": true
+    },
+    {
+      "name": "Running Railway disables depart-when-insufficient",
+      "actual": 0,
+      "expected": 0,
+      "pass": true
+    },
+    {
+      "name": "Running Railway uses recovered Stop action label",
+      "actual": "Stop",
+      "expected": "Stop",
+      "pass": true
+    },
+    {
+      "name": "generic runtime error fixture has no invented daily alert blocks",
+      "actual": 0,
+      "expected": 0,
+      "pass": true
+    },
+    {
+      "name": "inactive runtime-error fixture remains source-disabled",
+      "actual": 7,
+      "expected": 7,
+      "pass": true
+    },
+    {
+      "name": "Alliance Gather uses discovered non-contiguous squad set",
+      "actual": [
+        "Squad 3",
+        "Squad 4"
+      ],
+      "expected": [
+        "Squad 3",
+        "Squad 4"
+      ],
+      "pass": true
+    },
+    {
+      "name": "Alliance Gather selected squad has recovered drag handle",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Resource Gather receives discovered Squad 3",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "Resource Gather receives discovered Squad 4",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "Treasure uses discovered non-contiguous squad set",
+      "actual": [
+        "Squad 3",
+        "Squad 4"
+      ],
+      "expected": [
+        "Squad 3",
+        "Squad 4"
+      ],
+      "pass": true
+    },
+    {
+      "name": "Treasure selected squad row is draggable",
+      "actual": "true",
+      "expected": "true",
+      "pass": true
+    },
+    {
+      "name": "Treasure selected squad has recovered drag handle",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Treasure fixed Squad 1 is absent",
+      "actual": 0,
+      "expected": 0,
+      "pass": true
+    },
+    {
+      "name": "Treasure fixed Squad 2 is absent",
+      "actual": 0,
+      "expected": 0,
+      "pass": true
+    },
+    {
+      "name": "Empty rediscovery retains prior Alliance squad provider",
+      "actual": [
+        "Squad 3",
+        "Squad 4"
+      ],
+      "expected": [
+        "Squad 3",
+        "Squad 4"
+      ],
+      "pass": true
+    },
+    {
+      "name": "Empty rediscovery retains prior Treasure squad provider",
+      "actual": [
+        "Squad 3",
+        "Squad 4"
+      ],
+      "expected": [
+        "Squad 3",
+        "Squad 4"
+      ],
+      "pass": true
+    },
+    {
+      "name": "Construction validation error is card-owned",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Construction validation error is outside config body",
+      "actual": 0,
+      "expected": 0,
+      "pass": true
+    },
+    {
+      "name": "generic busy card presents Running state",
+      "actual": "Running",
+      "expected": "Running",
+      "pass": true
+    },
+    {
+      "name": "generic busy card presents Running ellipsis action",
+      "actual": "Running…",
+      "expected": "Running…",
+      "pass": true
+    },
+    {
+      "name": "generic busy disables header switch",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "generic busy disables config fieldset",
+      "actual": "",
+      "expected": "",
+      "pass": true
+    },
+    {
+      "name": "generic busy leaves no enabled config controls",
+      "actual": 0,
+      "expected": 0,
+      "pass": true
+    },
+    {
+      "name": "generic busy keeps provider-fenced action disabled",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "Red Packet reply subsettings start hidden",
+      "actual": 0,
+      "expected": 0,
+      "pass": true
+    },
+    {
+      "name": "Red Packet Auto Reply reveals conditional subsettings",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Treasure exposes reply/search/dispatch toggles",
+      "actual": 3,
+      "expected": 3,
+      "pass": true
+    },
+    {
+      "name": "Treasure dispatch fixture starts enabled",
+      "actual": "true",
+      "expected": "true",
+      "pass": true
+    },
+    {
+      "name": "Treasure Auto Reply plus dispatch render two conditional subsettings",
+      "actual": 2,
+      "expected": 2,
+      "pass": true
+    },
+    {
+      "name": "Treasure Auto Search local toggle changes state",
+      "actual": "true",
+      "expected": "true",
+      "pass": true
+    },
+    {
+      "name": "Treasure conditional dispatch preserves discovered squad priority",
+      "actual": [
+        "Squad 3",
+        "Squad 4"
+      ],
+      "expected": [
+        "Squad 3",
+        "Squad 4"
+      ],
+      "pass": true
+    },
+    {
+      "name": "Trade positive Goods renders populated item grid",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "Trade positive Goods retains source-selected item",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Trade positive Goods exposes two source currency filters",
+      "actual": 2,
+      "expected": 2,
+      "pass": true
+    },
+    {
+      "name": "Trade exclusive filter starts off",
+      "actual": false,
+      "expected": false,
+      "pass": true
+    },
+    {
+      "name": "Trade exclusive filter toggles locally",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "browser console/page errors",
+      "actual": 0,
+      "expected": 0,
+      "pass": true
+    }
+  ],
+  "screenshots": [
+    {
+      "id": "en-light-desktop-daily",
+      "mode": "en-light-desktop",
+      "category": "daily",
+      "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CLOSEOUT-003/milestone-c/browser-current/en-light-desktop-daily.png",
+      "sha256": "225d394c8b2253f2df20788214e101c4ea4e07a62c1056f184d619f022aa8509"
+    },
+    {
+      "id": "en-light-desktop-alliance",
+      "mode": "en-light-desktop",
+      "category": "alliance",
+      "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CLOSEOUT-003/milestone-c/browser-current/en-light-desktop-alliance.png",
+      "sha256": "077c86154278fb43382d0ce4c55e4e23a04cdf99b5f2eee3cff9e42ab569abae"
+    },
+    {
+      "id": "en-light-desktop-resourceGather",
+      "mode": "en-light-desktop",
+      "category": "resourceGather",
+      "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CLOSEOUT-003/milestone-c/browser-current/en-light-desktop-resourceGather.png",
+      "sha256": "4154c2e14bd83215daf0c2f8e8ab9d6480c7db7593898998262f1809e84810e6"
+    },
+    {
+      "id": "en-light-desktop-resources",
+      "mode": "en-light-desktop",
+      "category": "resources",
+      "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CLOSEOUT-003/milestone-c/browser-current/en-light-desktop-resources.png",
+      "sha256": "7b715e094a922e656bb6f980b7cf5912d0f5b96edf44995d1e2207b7393ef6ad"
+    },
+    {
+      "id": "en-light-desktop-chat",
+      "mode": "en-light-desktop",
+      "category": "chat",
+      "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CLOSEOUT-003/milestone-c/browser-current/en-light-desktop-chat.png",
+      "sha256": "20a73dee3ee34161ebca3817bfaefbd3e54aec0a760098eb0b26661a91b45c14"
+    },
+    {
+      "id": "en-light-desktop-trade",
+      "mode": "en-light-desktop",
+      "category": "trade",
+      "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CLOSEOUT-003/milestone-c/browser-current/en-light-desktop-trade.png",
+      "sha256": "93a825615d60edf93d911683d80eda2e88f9a244d76619e217067c7a329c038d"
+    },
+    {
+      "id": "en-light-desktop-system",
+      "mode": "en-light-desktop",
+      "category": "system",
+      "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CLOSEOUT-003/milestone-c/browser-current/en-light-desktop-system.png",
+      "sha256": "633b04d62e0847295a75dc25ac1f96be2a8b5b5953d1ee6adacd71efd785331a"
+    },
+    {
+      "id": "en-light-expanded-daily",
+      "mode": "en-light-desktop",
+      "category": "daily",
+      "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CLOSEOUT-003/milestone-c/browser-current/en-light-expanded-daily.png",
+      "sha256": "d2b2570033b3af2ac5c74c78ecf06c91534245074437142d79776111d24c399d"
+    },
+    {
+      "id": "en-light-expanded-alliance",
+      "mode": "en-light-desktop",
+      "category": "alliance",
+      "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CLOSEOUT-003/milestone-c/browser-current/en-light-expanded-alliance.png",
+      "sha256": "44dd31ff6286dfce443c6638190cf8cb3a28eff1faa906383ccdee3edc09ded5"
+    },
+    {
+      "id": "en-light-expanded-resourceGather",
+      "mode": "en-light-desktop",
+      "category": "resourceGather",
+      "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CLOSEOUT-003/milestone-c/browser-current/en-light-expanded-resourceGather.png",
+      "sha256": "c24a9a7948ad1a41f8ec1ffb8be83eac1823556b618c27a68736a5fa9b082087"
+    },
+    {
+      "id": "en-light-expanded-resources",
+      "mode": "en-light-desktop",
+      "category": "resources",
+      "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CLOSEOUT-003/milestone-c/browser-current/en-light-expanded-resources.png",
+      "sha256": "09929420be32a733284f159709c236992311b6a359a87cacf33ee5577b75d707"
+    },
+    {
+      "id": "en-light-expanded-chat",
+      "mode": "en-light-desktop",
+      "category": "chat",
+      "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CLOSEOUT-003/milestone-c/browser-current/en-light-expanded-chat.png",
+      "sha256": "61766e24df3ba2455bf618c42a56c972c7fefffd75ef979001c145f767bd10a8"
+    },
+    {
+      "id": "en-light-expanded-trade",
+      "mode": "en-light-desktop",
+      "category": "trade",
+      "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CLOSEOUT-003/milestone-c/browser-current/en-light-expanded-trade.png",
+      "sha256": "07564043802a86496ca51e390b345a95b6a900ce698f864fcea3db709a9ae38a"
+    },
+    {
+      "id": "en-light-expanded-system",
+      "mode": "en-light-desktop",
+      "category": "system",
+      "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CLOSEOUT-003/milestone-c/browser-current/en-light-expanded-system.png",
+      "sha256": "b40d3a4a068df62e6461b2be4fb7a8b61c51e1d6a4fe40f4f4ca4f8a7ae36590"
+    },
+    {
+      "id": "ja-dark-desktop-trade",
+      "mode": "ja-dark-desktop",
+      "category": "trade",
+      "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CLOSEOUT-003/milestone-c/browser-current/ja-dark-desktop-trade.png",
+      "sha256": "18b263906b4850540eab0bf1f9b7a191613e7500c97b384035fbd044321c8dcd"
+    },
+    {
+      "id": "en-dark-desktop-trade",
+      "mode": "en-dark-desktop",
+      "category": "trade",
+      "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CLOSEOUT-003/milestone-c/browser-current/en-dark-desktop-trade.png",
+      "sha256": "e625f508703e16623af228f1199841dcc639e6d9c442eca628666beb7f3f0173"
+    },
+    {
+      "id": "ja-light-narrow-trade",
+      "mode": "ja-light-narrow",
+      "category": "trade",
+      "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CLOSEOUT-003/milestone-c/browser-current/ja-light-narrow-trade.png",
+      "sha256": "b64a66cb5b809cc914f77c2a9bab144fd3fae2b8b6f9e33484e0fece1222c6a9"
+    },
+    {
+      "id": "en-light-assist-independent-store",
+      "mode": "en-light-desktop",
+      "category": "daily",
+      "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CLOSEOUT-003/milestone-c/browser-current/en-light-assist-independent-store.png",
+      "sha256": "ef4fe3a0aaf52d5119a02c9fc4e274a608074c17aae6609e791cd367b17596c5"
+    },
+    {
+      "id": "en-light-save-error-retried",
+      "mode": "en-light-desktop",
+      "category": "daily",
+      "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CLOSEOUT-003/milestone-c/browser-current/en-light-save-error-retried.png",
+      "sha256": "23297d9d6bea4518e495e49b38b4673aa8ddd7f4cd6a9bd5961bb4812ac199f6"
+    },
+    {
+      "id": "en-light-weekly-discarded",
+      "mode": "en-light-desktop",
+      "category": "daily",
+      "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CLOSEOUT-003/milestone-c/browser-current/en-light-weekly-discarded.png",
+      "sha256": "14fff1180b28724e1c28e7822e5d4c2d12ab0beebf488c6df1c88fa4fa9af3c1"
+    },
+    {
+      "id": "en-light-trade-history-purchases",
+      "mode": "en-light-desktop",
+      "category": "trade",
+      "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CLOSEOUT-003/milestone-c/browser-current/en-light-trade-history-purchases.png",
+      "sha256": "9b2ec43e85020750b2f360e6564ccdeb3442356a8f7d6fcdce75c7498adedb7c"
+    },
+    {
+      "id": "en-light-railway-running",
+      "mode": "en-light-desktop",
+      "category": "daily",
+      "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CLOSEOUT-003/milestone-c/browser-current/en-light-railway-running.png",
+      "sha256": "4c5386eace820131473b456f9edb4379496a19fec796ffc6e22c91f09cf5a511"
+    },
+    {
+      "id": "en-light-squads-34-treasure",
+      "mode": "en-light-desktop",
+      "category": "chat",
+      "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CLOSEOUT-003/milestone-c/browser-current/en-light-squads-34-treasure.png",
+      "sha256": "11fcdcf943ad8e1fd28a4465d94157ee23b36f687ecf435fe5ac1aadfea9330a"
+    },
+    {
+      "id": "en-light-generic-action-busy",
+      "mode": "en-light-desktop",
+      "category": "resources",
+      "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CLOSEOUT-003/milestone-c/browser-current/en-light-generic-action-busy.png",
+      "sha256": "e725890dbc7f708fe134d5dab8607234ce3fb4eed74349c0b2f86311fa6f8560"
+    },
+    {
+      "id": "en-light-chat-treasure-conditionals",
+      "mode": "en-light-desktop",
+      "category": "chat",
+      "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CLOSEOUT-003/milestone-c/browser-current/en-light-chat-treasure-conditionals.png",
+      "sha256": "fd3e4466604fb326245cd4ae630604ee555971a7031eb9747e9e2ad01eda14cf"
+    },
+    {
+      "id": "en-light-trade-positive-goods",
+      "mode": "en-light-desktop",
+      "category": "trade",
+      "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CLOSEOUT-003/milestone-c/browser-current/en-light-trade-positive-goods.png",
+      "sha256": "6b66aab0d03659cadd9c91589cb834c06e77f72bfd99748708f2700682efdf36"
+    }
+  ],
+  "styles": [
+    {
+      "mode": "en-light-desktop",
+      "category": "daily",
+      "panel": {
+        "selector": "section.panel",
+        "rect": {
+          "x": 201,
+          "y": 73,
+          "width": 1212,
+          "height": 940.984375
+        },
+        "display": "grid",
+        "color": "rgb(29, 29, 31)",
+        "backgroundColor": "rgb(255, 255, 255)",
+        "borderColor": "rgb(229, 229, 234)",
+        "borderRadius": "10px",
+        "padding": "16px",
+        "gap": "14px",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal"
+      },
+      "card": {
+        "selector": ".automation-card:visible",
+        "rect": {
+          "x": 218,
+          "y": 208,
+          "width": 386,
+          "height": 147.265625
+        },
+        "display": "grid",
+        "color": "rgb(29, 29, 31)",
+        "backgroundColor": "rgb(255, 255, 255)",
+        "borderColor": "rgb(229, 229, 234)",
+        "borderRadius": "8px",
+        "padding": "10px 12px",
+        "gap": "8px",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal"
+      },
+      "header": {
+        "selector": ".automation-card:visible .automation-card-header",
+        "rect": {
+          "x": 231,
+          "y": 219,
+          "width": 360,
+          "height": 51.265625
+        },
+        "display": "flex",
+        "color": "rgb(29, 29, 31)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(29, 29, 31)",
+        "borderRadius": "0px",
+        "padding": "0px",
+        "gap": "8px",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "normal"
+      },
+      "state": {
+        "selector": ".automation-card:visible .automation-state",
+        "rect": {
+          "x": 231,
+          "y": 278.265625,
+          "width": 61.234375,
+          "height": 21
+        },
+        "display": "block",
+        "color": "rgb(95, 95, 99)",
+        "backgroundColor": "rgb(229, 229, 234)",
+        "borderColor": "rgb(229, 229, 234)",
+        "borderRadius": "5px",
+        "padding": "2px 8px",
+        "gap": "normal",
+        "fontSize": "11px",
+        "fontWeight": "600",
+        "lineHeight": "normal"
+      }
+    }
+  ],
+  "console": [
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-config",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-config",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-config",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "mode": "ja-dark-desktop",
+      "state": "automation-config",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "mode": "ja-dark-desktop",
+      "state": "automation-config",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "mode": "ja-dark-desktop",
+      "state": "automation-config",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "mode": "en-dark-desktop",
+      "state": "automation-config",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "mode": "en-dark-desktop",
+      "state": "automation-config",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "mode": "en-dark-desktop",
+      "state": "automation-config",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "mode": "ja-light-narrow",
+      "state": "automation-config",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "mode": "ja-light-narrow",
+      "state": "automation-config",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "mode": "ja-light-narrow",
+      "state": "automation-config",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-save-error",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-save-error",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-save-error",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-assist-save-error",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-assist-save-error",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-assist-save-error",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-save-error",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-save-error",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-save-error",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-saving",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-saving",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-saving",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-weekly-save-error",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-weekly-save-error",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-weekly-save-error",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-trade-history",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-trade-history",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-trade-history",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-config",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-config",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-config",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-gather-no-squads",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-gather-no-squads",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-gather-no-squads",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-gather-manual_wait",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-gather-manual_wait",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-gather-manual_wait",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-gather-shield_paused",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-gather-shield_paused",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-gather-shield_paused",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-gather-recalling",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-gather-recalling",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-gather-recalling",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-gather-recall_failed",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-gather-recall_failed",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-gather-recall_failed",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-gather-state_unconfirmed",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-gather-state_unconfirmed",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-gather-state_unconfirmed",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-assist-schedule",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-assist-schedule",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-assist-schedule",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-assist-waiting",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-assist-waiting",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-assist-waiting",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-assist-retry-wait",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-assist-retry-wait",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-assist-retry-wait",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-assist-running",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-assist-running",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-assist-running",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-assist-failed",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-assist-failed",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-assist-failed",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-assist-expired",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-assist-expired",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-assist-expired",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-assist-busy",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-assist-busy",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-assist-busy",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-training-no-camps",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-training-no-camps",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-training-no-camps",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-training-data-unavailable",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-training-data-unavailable",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-training-data-unavailable",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-training-open-failed",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-training-open-failed",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-training-open-failed",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-training-unavailable-level",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-training-unavailable-level",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-training-unavailable-level",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-training-error",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-training-error",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-training-error",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-training-no-order",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-training-no-order",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-training-no-order",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-validation-error",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-validation-error",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-validation-error",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-trade-empty",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-trade-empty",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-trade-empty",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-trade-loading",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-trade-loading",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-trade-loading",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-trade-loading-retained",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-trade-loading-retained",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-trade-loading-retained",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-trade-error",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-trade-error",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-trade-error",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-trade-error-retained",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-trade-error-retained",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-trade-error-retained",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-trade-history-empty",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-trade-history-empty",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-trade-history-empty",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-trade-status-absent",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-trade-status-absent",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-trade-status-absent",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-runtime-running",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-runtime-running",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-runtime-running",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-runtime-error",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-runtime-error",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-runtime-error",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-squads-34",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-squads-34",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-squads-34",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-config",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-config",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-config",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-action-busy",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-action-busy",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-action-busy",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-squads-34",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-squads-34",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-squads-34",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-trade-positive",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-trade-positive",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "mode": "en-light-desktop",
+      "state": "automation-trade-positive",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    }
+  ],
+  "blockers": [
+    "Untouched recovered frontend bundle cannot boot in a plain browser because its protected desktop bridge is unavailable; actual recovered renderer/source functions remain the original-side oracle."
+  ],
+  "sourceFiles": {
+    "src/LWBridge.UI-0.3.17/src/AutomationPage.jsx": "12d2d9a3f7c16c13c72c93dc0c3eea6ae0bcd2e642085d898db3d45fb8d13ce9",
+    "src/LWBridge.UI-0.3.17/src/AutomationMeta.jsx": "47f84ded5d76e037bcbabc2f81d8c294d63ecd6409137320b46078985bf95678",
+    "src/LWBridge.UI-0.3.17/src/DispatchAssistManual.jsx": "1ce38103690c72df87146b3f52791999374a2e841c2ddadcc84c9c417e69771b",
+    "src/LWBridge.UI-0.3.17/src/previewConfigHook.jsx": "643875718c4da1b443215f8e6b9417c840f372882aa81ba286080977d1ed827e",
+    "src/LWBridge.UI-0.3.17/src/previewAutomationContracts.js": "fd4bc9c29f23631718d19818d273745c8d042df35b1dda2be1e1928e75bb2295",
+    "src/LWBridge.UI-0.3.17/src/previewAutomationFixtures.js": "df236fdba38d02eb3faa95c512a12f5fba90cc6e43a48a892fc923dfe74aa56d",
+    "src/LWBridge.UI-0.3.17/src/sharedPageUI.jsx": "c87499f69094180bb5ff6af1b03dcefa0fa9a36fa05251eb2a3463c17154162f",
+    "src/LWBridge.UI-0.3.17/src/tradePurchaseHistory.js": "5fe401b6b57d5e2707bce7a5a38842e876dbefe69608efe434dd28b7abddd88b"
+  },
+  "scriptSha256": "c0706e8a1070236a3b843b5b0ad0cb8e2fdd3a48b2a46a52f34adf772796b8a3"
+}

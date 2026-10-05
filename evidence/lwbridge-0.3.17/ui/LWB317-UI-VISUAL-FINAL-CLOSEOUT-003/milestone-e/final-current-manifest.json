@@ -1,0 +1,551 @@
+{
+  "schema": 1,
+  "task": "LWB317-UI-VISUAL-FINAL-CLOSEOUT-003/milestone-e",
+  "marker": "LWB317_FINAL_CLOSEOUT_MILESTONE_E_MANIFEST",
+  "createdAt": "2026-10-05T15:39:08.124Z",
+  "sourceFiles": {
+    "src/LWBridge.UI-0.3.17/index.html": "38E3B101E7939F19188F14D3051D42431A2DE698ADF24AAEC0D6C85192507F4F",
+    "src/LWBridge.UI-0.3.17/src/App.jsx": "81DB8E04E3FA57D7B064DC02B1E64EC828552F167BE435A107497C6D82D0F26D",
+    "src/LWBridge.UI-0.3.17/src/AppExitDialog.jsx": "AFA79399788E4F8C58FA81C11FF86CB7128CBF5DD02A84BD511E88A928A6549D",
+    "src/LWBridge.UI-0.3.17/src/AutomationMeta.jsx": "47F84DED5D76E037BCBABC2F81D8C294D63ECD6409137320B46078985BF95678",
+    "src/LWBridge.UI-0.3.17/src/AutomationPage.jsx": "12D2D9A3F7C16C13C72C93DC0C3EEA6AE0BCD2E642085D898DB3D45FB8D13CE9",
+    "src/LWBridge.UI-0.3.17/src/CityLayoutPage.jsx": "C2C3E9445F607C82954A4319E19C6A8A1BE64368038293D7B1FADC8BE9372061",
+    "src/LWBridge.UI-0.3.17/src/DispatchAssistManual.jsx": "1CE38103690C72DF87146B3F52791999374A2E841C2DDADCC84C9C417E69771B",
+    "src/LWBridge.UI-0.3.17/src/EquipmentMotion.jsx": "27CB30A8ADDF84DC007FA2D686524F649AFB470996CF386B23D8C7BA277FEC68",
+    "src/LWBridge.UI-0.3.17/src/GameAssetImage.jsx": "2BFCA11136F2495780EA6A2037BD5007F1D7653284849452E430D2A4FA05D379",
+    "src/LWBridge.UI-0.3.17/src/HomePage.jsx": "F140264E693E89F37CBB357470F58FE5DCA46F3DFDA29A8A5D2C7918CE2393FF",
+    "src/LWBridge.UI-0.3.17/src/HotkeyPages.jsx": "5DAE6E4FFE8875BCEBC366109AD4C1E3FFF690EA17273EBB50226E9107551634",
+    "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx": "0619C0589FED7A6DA37C7018D021D890A2A2396AC77D21A64E6D77CE348A5BD5",
+    "src/LWBridge.UI-0.3.17/src/MapRetainedGoodsFilter.jsx": "D890612C6208CE306BB57EEE759CFE79AD9CF86064B3B50526D65D0512657C51",
+    "src/LWBridge.UI-0.3.17/src/MapRoutePage.jsx": "5C01A4C857C8916A830E8973B8A02232CE760484985BAD6F78D1CD058DFF116C",
+    "src/LWBridge.UI-0.3.17/src/MapTreasureTypeFilter.jsx": "675E0BF8C2C7E6B6E7A5F90E368C6F8796B100581B24987EB6C7536BC4926AB7",
+    "src/LWBridge.UI-0.3.17/src/NavIcon.jsx": "BE74437FE9A0ACD86BA47F81983D0AFDDF51FD4C304C9C4932ADA3422936D911",
+    "src/LWBridge.UI-0.3.17/src/Pages.jsx": "C5DF951E95561A08A4614445ED61586AA6DF4E4B7AE3F11A6A546A52EBA19191",
+    "src/LWBridge.UI-0.3.17/src/ProfileSidebar.jsx": "96E480F3BBA897AB18BE29891A346651E933C6C743A908DE36BAC67B0E86DA9D",
+    "src/LWBridge.UI-0.3.17/src/ProfileSwitchState.jsx": "01FC87F704CC45BE3476BCAF461FA057F70DCE57A7453DDD00188B756F9E83F5",
+    "src/LWBridge.UI-0.3.17/src/RallyJoinSettings.jsx": "1579FA189EB6F5A34F62AF211662CC995FE314C6C13C8681C29A85B6A7A6F11A",
+    "src/LWBridge.UI-0.3.17/src/ScheduledPlunder.jsx": "9D6814A70A62C9198720CE15FAA84403F43E1DE172A88E285179151D017B5534",
+    "src/LWBridge.UI-0.3.17/src/SettingsPage.jsx": "8622BE39E06FE82FCF31BD2E092358987F3F304D447ADA061685727436737771",
+    "src/LWBridge.UI-0.3.17/src/ShellPresentation.jsx": "B1DD1278F274A1FD347AD4C27787B5AE8DC1DB32230D49B55F7A471DE34A904F",
+    "src/LWBridge.UI-0.3.17/src/SquadsPage.jsx": "A5A56CCDB896AED61C194230C2C7E32156650BFEB948F51A7597FF1092FC55C2",
+    "src/LWBridge.UI-0.3.17/src/assets/dot-offline.png": "F118D321CCD185313695DB337823E1CFD04CCA96EB9FA3447B65455E2673C31D",
+    "src/LWBridge.UI-0.3.17/src/assets/dot-online.png": "2875CC9945B55F113A7D1E194EE2A13050BF9DE6AAEC94D1DE1D664112A027D6",
+    "src/LWBridge.UI-0.3.17/src/assets/icon-warning.png": "DA1A18E0007068C11D371A9D130C598F9B9A38F39F87D758FCC7FB9CC467853F",
+    "src/LWBridge.UI-0.3.17/src/autoLaunchPreference.js": "C16FEB94563B445CAFDC3189C980025A6F8A9AE5DDD24085CE28887D0F828286",
+    "src/LWBridge.UI-0.3.17/src/backendBridge.js": "E50C904508A17A2AC682B7D195359B51C6348D73835888513095D1E789EC99C5",
+    "src/LWBridge.UI-0.3.17/src/i18n.jsx": "D4290741AB2C7ACB0546ED47156BEF434DDF210775CAD9B9A3A261D401CE4891",
+    "src/LWBridge.UI-0.3.17/src/locales/en.js": "357682D9179AE712EE563950467B7A93B5AEA89322AFC993E079FEDEE28432C1",
+    "src/LWBridge.UI-0.3.17/src/locales/id.js": "52C0AE28F9C4428A481F6D911A1A4308EDDD022AF24EC48E518531803F7B375F",
+    "src/LWBridge.UI-0.3.17/src/locales/ja.js": "E1FED1E9AAF052963E3D8F5A5F8B9AE96B002A05A9DD7BB06A460A66187755EB",
+    "src/LWBridge.UI-0.3.17/src/locales/ko.js": "7B4AEF2D9000DC9BEE00CF7BD13FE64FC35753AEA728A66DC67F59F5A6A46C86",
+    "src/LWBridge.UI-0.3.17/src/locales/pt.js": "87AEE8FA12E8FF6868380A316B6B1F447473B0EDC1141C838CC0B2225F15036D",
+    "src/LWBridge.UI-0.3.17/src/locales/ru.js": "07F39B5D3AC71148C9C5E5143BCB26CD079D55F16FF3A3FF1FC4C58E4111C44C",
+    "src/LWBridge.UI-0.3.17/src/locales/vi.js": "954BE08AACAE40A81D117E48E03BACDEDE39FA1439D0823C2BD6FD03EFDC8B07",
+    "src/LWBridge.UI-0.3.17/src/locales/zh-CN.js": "FAF55A16171DB0FB3F96F51FBAE7FBC3C675176D52EED29A0A303A2F7A8304D3",
+    "src/LWBridge.UI-0.3.17/src/locales/zh-TW.js": "5B2467E0D005E6D726E92BD21EDA56E38321233D9D29BFDBAA8DBE3C0C4C2269",
+    "src/LWBridge.UI-0.3.17/src/main.jsx": "7DD7727093E4234B893682A77F780966345F7478E35610D69476AEA95B411755",
+    "src/LWBridge.UI-0.3.17/src/mapAutoConfig.js": "C88FAA13EBF8D15D2EC9EA54E800FDDEC5ECB38DF70D9D97E8D67768EC42EF4E",
+    "src/LWBridge.UI-0.3.17/src/mapBackend.js": "7E82AA8E46ECBB37A8F16D11F933E784B1414FB75CEBA27A7BDEB315054FE01A",
+    "src/LWBridge.UI-0.3.17/src/mapInteractions.js": "37B174098685E5C4DA540E514C1CE467A5CBAD61BC18569E8366B9F7085CF7DC",
+    "src/LWBridge.UI-0.3.17/src/mapPlunderFixtures.js": "73B6BF73DB557088BDC8BC45286095F61B0AF7C829A55E6C1B5BC9E1ABB72B60",
+    "src/LWBridge.UI-0.3.17/src/mapPlunderPresentation.js": "6E4BF5315990966823C5E162CF4875C9D1DB3A897CD7BACC40752C9A7C2A62FD",
+    "src/LWBridge.UI-0.3.17/src/mapPreviewApi.js": "CE6B1C18606A99C191E39734280E31336213D99A471E621C816656A0F9236B05",
+    "src/LWBridge.UI-0.3.17/src/mapScanHeaderFixtures.js": "437D5F4CBDAF2FB95E52A2496B02F57B5233D29BCA51A4F7428B0BC9C5B98720",
+    "src/LWBridge.UI-0.3.17/src/mapScanPresentation.js": "76C2AC646E79EA372965F9C2DA61D90356DAF7FA2F47E52DD9180D745E2DC5D0",
+    "src/LWBridge.UI-0.3.17/src/mapTablePresentation.js": "B6C0D9B369D3E78CCC74AA7296F2B88EABF6B6560C3669A199546FC299839427",
+    "src/LWBridge.UI-0.3.17/src/previewAfkCloseoutFixtures.js": "11B5AE1D449B61296E5150DEA355A82AFE8BF0C23497583D840057AAEC8CF3DD",
+    "src/LWBridge.UI-0.3.17/src/previewAfkContracts.js": "F75B4D22ECCD19F69D4AD139ABC2FFBC150B0007662BA47127CFB600CBF61EE3",
+    "src/LWBridge.UI-0.3.17/src/previewAfkFixtures.js": "0D9FD7517190F0C27A70478E974353D62071824EDF694F7C613FA8D153715AAF",
+    "src/LWBridge.UI-0.3.17/src/previewAutomationContracts.js": "FD4BC9C29F23631718D19818D273745C8D042DF35B1DDA2BE1E1928E75BB2295",
+    "src/LWBridge.UI-0.3.17/src/previewAutomationFixtures.js": "DF236FDBA38D02EB3FAA95C512A12F5FBA90CC6E43A48A892FC923DFE74AA56D",
+    "src/LWBridge.UI-0.3.17/src/previewConfig.js": "8BEDEC11D07A8245EBB6FF9DF78E13E872C20F850C9B887919360BF209397B7A",
+    "src/LWBridge.UI-0.3.17/src/previewConfigHook.jsx": "643875718C4DA1B443215F8E6B9417C840F372882AA81BA286080977D1ED827E",
+    "src/LWBridge.UI-0.3.17/src/previewEquipmentContracts.js": "2E57B79B1211582A9FF5E9A96A2158F8918C2D690694A6DDDDC338AF95BA44B0",
+    "src/LWBridge.UI-0.3.17/src/previewRemainingPagesContracts.js": "2F0C9EF1E28734ED3131A41E734A8D4A2B09CFFF56C3D23A5A359DF979769810",
+    "src/LWBridge.UI-0.3.17/src/profileConfigDraft.js": "31E255735FA77CE3D780D7DF563833C2D3AFBA26D16C0091F70DB486EBCD3E7A",
+    "src/LWBridge.UI-0.3.17/src/reference.css": "3D87E9F65B39EACE6A1A254BFC90A38ACB72613D1FFF7236C7CEE7AB9BFAF545",
+    "src/LWBridge.UI-0.3.17/src/routes.js": "2DA41EBFE3F4D898AE9E447F7A368C4EC9B270A0BAB46F2F3F049A8C0AADCF03",
+    "src/LWBridge.UI-0.3.17/src/sharedPageUI.jsx": "C87499F69094180BB5FF6AF1B03DCEFA0FA9A36FA05251EB2A3463C17154162F",
+    "src/LWBridge.UI-0.3.17/src/shellState.js": "29DF81AF8A791CA4D14535E9EEC0052F91A2FF45E18B7B272042DBAEC7C28195",
+    "src/LWBridge.UI-0.3.17/src/shellTheme.js": "58EAEF0483BB6922CE63391BB1746741386605DA6ED566764DB7B461DB10266B",
+    "src/LWBridge.UI-0.3.17/src/styles.css": "B50910D37A4DD02D7BB49B506735EA42615EF0F9E85714E880049481AECE2CCC",
+    "src/LWBridge.UI-0.3.17/src/tradePurchaseHistory.js": "5FE401B6B57D5E2707BCE7A5A38842E876DBEFE69608EFE434DD28B7ABDDD88B",
+    "src/LWBridge.UI-0.3.17/src/vendor/equipmentMotion317.js": "E3793CE042ECF9AB24BC8849403E5F3B968D685EBA38DAB80949A2F883DCBBD0"
+  },
+  "sourceClosureSha256": "B8B0EC42359BDEEF023F3E40896C96E94AAB7AF64EEF2178B1EFFD72F11E5202",
+  "tools": {
+    "node": "v24.18.0",
+    "browserVersion": "154.0.8037.95",
+    "files": [
+      {
+        "path": "C:/Program Files/Google/Chrome/Application/chrome.exe",
+        "bytes": 4512408,
+        "sha256": "9F404D549975473934ABF80E596147312F01F1D68DE6AFC73A24331A2E35AE25"
+      },
+      {
+        "path": "C:/Users/chimw/AppData/Local/Temp/lwbridge-playwright/node_modules/playwright/package.json",
+        "bytes": 1359,
+        "sha256": "8BC2DDEBE8D9B051B9ECB87D62C6C63877E59D08617F32C3215681CA8BB70998"
+      },
+      {
+        "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/src/LWBridge.UI-0.3.17/package.json",
+        "bytes": 668,
+        "sha256": "4F55749289B6A84EA9B7AD9CB38AB0AF4A1B73E2D815A673333AFA943D3314DD"
+      },
+      {
+        "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/src/LWBridge.UI-0.3.17/package-lock.json",
+        "bytes": 62038,
+        "sha256": "10B9D85B56EAE68743FECBB2FE4CF93D15F229A8B4D287B3C92F9C4C9FC70701"
+      },
+      {
+        "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/src/LWBridge.UI-0.3.17/vite.config.js",
+        "bytes": 263,
+        "sha256": "7ABF2B75BAFD7443ACF24DF9A89598FCE0787191B2600E201FB0BB27D918160F"
+      },
+      {
+        "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/src/LWBridge.UI-0.3.17/node_modules/react/package.json",
+        "bytes": 1242,
+        "sha256": "6E003E4E9ED25AFA7FDD55613F8AA877CEFA9B359D9C13F81EE704030248E24E"
+      },
+      {
+        "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/src/LWBridge.UI-0.3.17/node_modules/react-dom/package.json",
+        "bytes": 3054,
+        "sha256": "136D4AF63DE473392EA79D6A21932B0ED9EB37FE518CE70F4621250F3D79E9BB"
+      },
+      {
+        "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/src/LWBridge.UI-0.3.17/node_modules/vite/package.json",
+        "bytes": 5158,
+        "sha256": "E5ED0F85215F871FE22A48987DCD77FCFBE14064A53C0C9F7F48186A6B7E2CF0"
+      },
+      {
+        "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/src/LWBridge.UI-0.3.17/node_modules/@vitejs/plugin-react/package.json",
+        "bytes": 1980,
+        "sha256": "162DAE2EB246170739D7899D2CE1715A3E17F775FCD75A674DA6BE6F681225D6"
+      },
+      {
+        "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/src/LWBridge.UI-0.3.17/node_modules/@babel/parser/package.json",
+        "bytes": 1382,
+        "sha256": "FA70CCA00587BDB335E8249FA40E9356ED7B7C9A4FC92B1E74245AB1B852CDA1"
+      },
+      {
+        "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/src/LWBridge.UI-0.3.17/node_modules/esbuild/package.json",
+        "bytes": 3980,
+        "sha256": "9D0BC453F4E791553C4CC2298BA023B409241FD9801E494741666EB0F6051490"
+      },
+      {
+        "path": "C:/Users/chimw/AppData/Local/Temp/lwbridge-playwright/node_modules/playwright/index.js",
+        "bytes": 648,
+        "sha256": "4E98F65F0A9D9BCAB8CFFC0C5CFDD87FD3F5B0BE74FC494FF166A466B204CD44"
+      },
+      {
+        "path": "C:/Users/chimw/AppData/Local/Temp/lwbridge-playwright/node_modules/playwright-core/index.js",
+        "bytes": 697,
+        "sha256": "A58FB2CEC4293E7DCF73C58A179898A4F3986666451A19DA4E731FA3AF63265B"
+      },
+      {
+        "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/src/LWBridge.UI-0.3.17/node_modules/@babel/parser/lib/index.js",
+        "bytes": 513377,
+        "sha256": "82D72E197E27BF909AE10FFC8D1A969AEB94FE96EC96C4E9CB685A0A8229E40C"
+      },
+      {
+        "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/src/LWBridge.UI-0.3.17/node_modules/esbuild/lib/main.js",
+        "bytes": 97463,
+        "sha256": "61EC0BA144FF93F4BF0E96AD6FAB6F430EDE0AA13E27ACE8063ED63BA416B3CD"
+      },
+      {
+        "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/src/LWBridge.UI-0.3.17/node_modules/vite/dist/node/index.js",
+        "bytes": 3630,
+        "sha256": "8B142BD1231A46BF2CAD4C05B3F76DE5B183064EE771B9934FBAFFB70B914652"
+      },
+      {
+        "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/src/LWBridge.UI-0.3.17/node_modules/react/index.js",
+        "bytes": 186,
+        "sha256": "60CAFFDECBDC5DB3BC4EC4E83DF9488345CCB271D07533B9210BF5750918D97E"
+      },
+      {
+        "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/src/LWBridge.UI-0.3.17/node_modules/react-dom/index.js",
+        "bytes": 1359,
+        "sha256": "BA1A3E33489F868371561777607E3EE5091DF0F7EA3F1A10F789D6B86E4C1505"
+      },
+      {
+        "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/src/LWBridge.UI-0.3.17/node_modules/@esbuild/win32-x64/esbuild.exe",
+        "bytes": 11694592,
+        "sha256": "C7BEE37877D0AA6A046E52783FA0A2CF1A9CE5579D68BB3083BDA99D4BFF18EF"
+      }
+    ],
+    "trees": [
+      {
+        "path": "C:/Users/chimw/AppData/Local/Temp/lwbridge-playwright/node_modules/playwright",
+        "fileCount": 62,
+        "bytes": 5094512,
+        "sha256": "DBE779219F519595BD0B8FBBEE65684194E1597E0B115DB18B68D3F7FDB25A8C"
+      },
+      {
+        "path": "C:/Users/chimw/AppData/Local/Temp/lwbridge-playwright/node_modules/playwright-core",
+        "fileCount": 114,
+        "bytes": 13453369,
+        "sha256": "42252C5E77AD0917AB4A0DB12C5BAD3EACB5B2041E44824BBDC6A2CE4D4538FC"
+      },
+      {
+        "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/src/LWBridge.UI-0.3.17/node_modules/@babel/parser",
+        "fileCount": 8,
+        "bytes": 2000784,
+        "sha256": "4D7258EADA0A6CA4462D5041B88F095925ACF95B6649ED61AB9625DB5629215A"
+      },
+      {
+        "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/src/LWBridge.UI-0.3.17/node_modules/esbuild",
+        "fileCount": 7,
+        "bytes": 147361,
+        "sha256": "B66C42A3A4DD825C018DC775AC7A02C7CB46546EE6C125E318C469A96B4AAC79"
+      },
+      {
+        "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/src/LWBridge.UI-0.3.17/node_modules/vite",
+        "fileCount": 39,
+        "bytes": 2238331,
+        "sha256": "8B3CA5806F67BB22AFB9F935F7FA2022BAC2268EC1945825E890636CFD7A507E"
+      },
+      {
+        "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/src/LWBridge.UI-0.3.17/node_modules/@vitejs/plugin-react",
+        "fileCount": 7,
+        "bytes": 46248,
+        "sha256": "CE33A00DB3AE72E93424526C3B21512BF7C23D0469276BB0D5873B62CAF41561"
+      },
+      {
+        "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/src/LWBridge.UI-0.3.17/node_modules/react",
+        "fileCount": 27,
+        "bytes": 178663,
+        "sha256": "71A0A487054B6F9CBBA9BB5E5570A6B0AAB1ED91AF4C36DD9507FF02673DDC6B"
+      },
+      {
+        "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/src/LWBridge.UI-0.3.17/node_modules/react-dom",
+        "fileCount": 43,
+        "bytes": 8063782,
+        "sha256": "1399C1645944878E3868185068E36981ED5403E0AE6E95B6982C64E091E8A01F"
+      }
+    ]
+  },
+  "evidenceFiles": [
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CLOSEOUT-003/milestone-e/run-final-current.mjs",
+      "bytes": 55884,
+      "sha256": "1AF577B681974E8FC251DC29303A9E38CFC977F18B75B3F832166C72D73A03CA"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CLOSEOUT-003/milestone-e/validate-final-current.mjs",
+      "bytes": 17353,
+      "sha256": "FAD4942CBA05383DD13BCC907780EC70CC4A339349CD102071B104D7BA29BC1E"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CLOSEOUT-003/milestone-e/mutation-check.mjs",
+      "bytes": 12918,
+      "sha256": "C4B091AF92C79B34E3155B9A99D9BFAFF44FEA5372C326DE325816DA4DDAB46C"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CLOSEOUT-003/milestone-e/README.md",
+      "bytes": 5972,
+      "sha256": "30F98C52AC6BAFAB1E0BB51200E59F44C3ACB3445C53640F07B09A0AD9B07950"
+    }
+  ],
+  "supportFiles": [
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-REMAINING-002/milestone-5/map-entry-current-harness.mjs",
+      "bytes": 11209,
+      "sha256": "25C099527D2AE472189E467E6CA0DFE0924E6EFDAF02F06939C9A93161D6DC8C"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-REFRESH-FEEDBACK-001/harness.mjs",
+      "bytes": 17470,
+      "sha256": "92DCE381243E16124E1E8D2BC54CE90ADCFDB208CA4AC49079B73DF76D62CE1E"
+    }
+  ],
+  "acceptanceFiles": [
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CLOSEOUT-003/milestone-d/host-reconciliation-manifest.json",
+      "bytes": 17558,
+      "sha256": "EA554F35159F741AC7AE232B07C524BDD39184B448EE440808DDF232A0962F24"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CLOSEOUT-003/milestone-d/host-reconciliation-results.json",
+      "bytes": 48432,
+      "sha256": "3B76048CE5B3D3A594EC0C0E1397DA94E6C7949D384BD2BA575B6FE1303D2166"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CLOSEOUT-003/milestone-c/conditional-composition-results.json",
+      "bytes": 25009,
+      "sha256": "3E11EEAB65F4A435D6E1473C00BC856DA14B09FC9F3DF8A01C6A069F45E83988"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CLOSEOUT-003/milestone-c/config-store-ownership-results.json",
+      "bytes": 5122,
+      "sha256": "F7FDB67A156A3EC7755940DA32802C6622E7DB3EB4A155AA2ACAB4BDF5807114"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-c/locale-inventory.json",
+      "bytes": 184844,
+      "sha256": "F195D560E59C0007577918D0C78C617C82B2E5A9A6F7D7E2B9D6A7DDECED2FA3"
+    }
+  ],
+  "acceptanceChain": {
+    "milestoneD": {
+      "marker": "LWB317_FINAL_CLOSEOUT_MILESTONE_D_HOST_RECONCILIATION_OK",
+      "manifestMarker": "LWB317_FINAL_CLOSEOUT_MILESTONE_D_MANIFEST",
+      "sourceClosureSha256": "B8B0EC42359BDEEF023F3E40896C96E94AAB7AF64EEF2178B1EFFD72F11E5202",
+      "resultSha256": "3B76048CE5B3D3A594EC0C0E1397DA94E6C7949D384BD2BA575B6FE1303D2166"
+    },
+    "milestoneC": {
+      "conditionalMarker": "LWB317_FINAL_CLOSEOUT_MILESTONE_C_CONDITIONAL_COMPOSITION_OK",
+      "conditionalSha256": "3E11EEAB65F4A435D6E1473C00BC856DA14B09FC9F3DF8A01C6A069F45E83988",
+      "configStoreMarker": "LWB317_FINAL_CLOSEOUT_MILESTONE_C_CONFIG_STORE_OWNERSHIP_OK",
+      "configStoreSha256": "F7FDB67A156A3EC7755940DA32802C6622E7DB3EB4A155AA2ACAB4BDF5807114"
+    },
+    "inheritedLocaleFallback": {
+      "marker": "LWB317_VISUAL_FINAL_UNIT_C_LOCALES_OK",
+      "sha256": "F195D560E59C0007577918D0C78C617C82B2E5A9A6F7D7E2B9D6A7DDECED2FA3",
+      "keys": [
+        "common.loading"
+      ]
+    }
+  },
+  "endpointProvenance": {
+    "baseUrl": "http://127.0.0.1:4427/",
+    "port": 4427,
+    "matchedFiles": 67,
+    "sourceClosureSha256": "B8B0EC42359BDEEF023F3E40896C96E94AAB7AF64EEF2178B1EFFD72F11E5202",
+    "sourceFiles": {
+      "src/LWBridge.UI-0.3.17/index.html": "38E3B101E7939F19188F14D3051D42431A2DE698ADF24AAEC0D6C85192507F4F",
+      "src/LWBridge.UI-0.3.17/src/App.jsx": "81DB8E04E3FA57D7B064DC02B1E64EC828552F167BE435A107497C6D82D0F26D",
+      "src/LWBridge.UI-0.3.17/src/AppExitDialog.jsx": "AFA79399788E4F8C58FA81C11FF86CB7128CBF5DD02A84BD511E88A928A6549D",
+      "src/LWBridge.UI-0.3.17/src/AutomationMeta.jsx": "47F84DED5D76E037BCBABC2F81D8C294D63ECD6409137320B46078985BF95678",
+      "src/LWBridge.UI-0.3.17/src/AutomationPage.jsx": "12D2D9A3F7C16C13C72C93DC0C3EEA6AE0BCD2E642085D898DB3D45FB8D13CE9",
+      "src/LWBridge.UI-0.3.17/src/CityLayoutPage.jsx": "C2C3E9445F607C82954A4319E19C6A8A1BE64368038293D7B1FADC8BE9372061",
+      "src/LWBridge.UI-0.3.17/src/DispatchAssistManual.jsx": "1CE38103690C72DF87146B3F52791999374A2E841C2DDADCC84C9C417E69771B",
+      "src/LWBridge.UI-0.3.17/src/EquipmentMotion.jsx": "27CB30A8ADDF84DC007FA2D686524F649AFB470996CF386B23D8C7BA277FEC68",
+      "src/LWBridge.UI-0.3.17/src/GameAssetImage.jsx": "2BFCA11136F2495780EA6A2037BD5007F1D7653284849452E430D2A4FA05D379",
+      "src/LWBridge.UI-0.3.17/src/HomePage.jsx": "F140264E693E89F37CBB357470F58FE5DCA46F3DFDA29A8A5D2C7918CE2393FF",
+      "src/LWBridge.UI-0.3.17/src/HotkeyPages.jsx": "5DAE6E4FFE8875BCEBC366109AD4C1E3FFF690EA17273EBB50226E9107551634",
+      "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx": "0619C0589FED7A6DA37C7018D021D890A2A2396AC77D21A64E6D77CE348A5BD5",
+      "src/LWBridge.UI-0.3.17/src/MapRetainedGoodsFilter.jsx": "D890612C6208CE306BB57EEE759CFE79AD9CF86064B3B50526D65D0512657C51",
+      "src/LWBridge.UI-0.3.17/src/MapRoutePage.jsx": "5C01A4C857C8916A830E8973B8A02232CE760484985BAD6F78D1CD058DFF116C",
+      "src/LWBridge.UI-0.3.17/src/MapTreasureTypeFilter.jsx": "675E0BF8C2C7E6B6E7A5F90E368C6F8796B100581B24987EB6C7536BC4926AB7",
+      "src/LWBridge.UI-0.3.17/src/NavIcon.jsx": "BE74437FE9A0ACD86BA47F81983D0AFDDF51FD4C304C9C4932ADA3422936D911",
+      "src/LWBridge.UI-0.3.17/src/Pages.jsx": "C5DF951E95561A08A4614445ED61586AA6DF4E4B7AE3F11A6A546A52EBA19191",
+      "src/LWBridge.UI-0.3.17/src/ProfileSidebar.jsx": "96E480F3BBA897AB18BE29891A346651E933C6C743A908DE36BAC67B0E86DA9D",
+      "src/LWBridge.UI-0.3.17/src/ProfileSwitchState.jsx": "01FC87F704CC45BE3476BCAF461FA057F70DCE57A7453DDD00188B756F9E83F5",
+      "src/LWBridge.UI-0.3.17/src/RallyJoinSettings.jsx": "1579FA189EB6F5A34F62AF211662CC995FE314C6C13C8681C29A85B6A7A6F11A",
+      "src/LWBridge.UI-0.3.17/src/ScheduledPlunder.jsx": "9D6814A70A62C9198720CE15FAA84403F43E1DE172A88E285179151D017B5534",
+      "src/LWBridge.UI-0.3.17/src/SettingsPage.jsx": "8622BE39E06FE82FCF31BD2E092358987F3F304D447ADA061685727436737771",
+      "src/LWBridge.UI-0.3.17/src/ShellPresentation.jsx": "B1DD1278F274A1FD347AD4C27787B5AE8DC1DB32230D49B55F7A471DE34A904F",
+      "src/LWBridge.UI-0.3.17/src/SquadsPage.jsx": "A5A56CCDB896AED61C194230C2C7E32156650BFEB948F51A7597FF1092FC55C2",
+      "src/LWBridge.UI-0.3.17/src/assets/dot-offline.png": "F118D321CCD185313695DB337823E1CFD04CCA96EB9FA3447B65455E2673C31D",
+      "src/LWBridge.UI-0.3.17/src/assets/dot-online.png": "2875CC9945B55F113A7D1E194EE2A13050BF9DE6AAEC94D1DE1D664112A027D6",
+      "src/LWBridge.UI-0.3.17/src/assets/icon-warning.png": "DA1A18E0007068C11D371A9D130C598F9B9A38F39F87D758FCC7FB9CC467853F",
+      "src/LWBridge.UI-0.3.17/src/autoLaunchPreference.js": "C16FEB94563B445CAFDC3189C980025A6F8A9AE5DDD24085CE28887D0F828286",
+      "src/LWBridge.UI-0.3.17/src/backendBridge.js": "E50C904508A17A2AC682B7D195359B51C6348D73835888513095D1E789EC99C5",
+      "src/LWBridge.UI-0.3.17/src/i18n.jsx": "D4290741AB2C7ACB0546ED47156BEF434DDF210775CAD9B9A3A261D401CE4891",
+      "src/LWBridge.UI-0.3.17/src/locales/en.js": "357682D9179AE712EE563950467B7A93B5AEA89322AFC993E079FEDEE28432C1",
+      "src/LWBridge.UI-0.3.17/src/locales/id.js": "52C0AE28F9C4428A481F6D911A1A4308EDDD022AF24EC48E518531803F7B375F",
+      "src/LWBridge.UI-0.3.17/src/locales/ja.js": "E1FED1E9AAF052963E3D8F5A5F8B9AE96B002A05A9DD7BB06A460A66187755EB",
+      "src/LWBridge.UI-0.3.17/src/locales/ko.js": "7B4AEF2D9000DC9BEE00CF7BD13FE64FC35753AEA728A66DC67F59F5A6A46C86",
+      "src/LWBridge.UI-0.3.17/src/locales/pt.js": "87AEE8FA12E8FF6868380A316B6B1F447473B0EDC1141C838CC0B2225F15036D",
+      "src/LWBridge.UI-0.3.17/src/locales/ru.js": "07F39B5D3AC71148C9C5E5143BCB26CD079D55F16FF3A3FF1FC4C58E4111C44C",
+      "src/LWBridge.UI-0.3.17/src/locales/vi.js": "954BE08AACAE40A81D117E48E03BACDEDE39FA1439D0823C2BD6FD03EFDC8B07",
+      "src/LWBridge.UI-0.3.17/src/locales/zh-CN.js": "FAF55A16171DB0FB3F96F51FBAE7FBC3C675176D52EED29A0A303A2F7A8304D3",
+      "src/LWBridge.UI-0.3.17/src/locales/zh-TW.js": "5B2467E0D005E6D726E92BD21EDA56E38321233D9D29BFDBAA8DBE3C0C4C2269",
+      "src/LWBridge.UI-0.3.17/src/main.jsx": "7DD7727093E4234B893682A77F780966345F7478E35610D69476AEA95B411755",
+      "src/LWBridge.UI-0.3.17/src/mapAutoConfig.js": "C88FAA13EBF8D15D2EC9EA54E800FDDEC5ECB38DF70D9D97E8D67768EC42EF4E",
+      "src/LWBridge.UI-0.3.17/src/mapBackend.js": "7E82AA8E46ECBB37A8F16D11F933E784B1414FB75CEBA27A7BDEB315054FE01A",
+      "src/LWBridge.UI-0.3.17/src/mapInteractions.js": "37B174098685E5C4DA540E514C1CE467A5CBAD61BC18569E8366B9F7085CF7DC",
+      "src/LWBridge.UI-0.3.17/src/mapPlunderFixtures.js": "73B6BF73DB557088BDC8BC45286095F61B0AF7C829A55E6C1B5BC9E1ABB72B60",
+      "src/LWBridge.UI-0.3.17/src/mapPlunderPresentation.js": "6E4BF5315990966823C5E162CF4875C9D1DB3A897CD7BACC40752C9A7C2A62FD",
+      "src/LWBridge.UI-0.3.17/src/mapPreviewApi.js": "CE6B1C18606A99C191E39734280E31336213D99A471E621C816656A0F9236B05",
+      "src/LWBridge.UI-0.3.17/src/mapScanHeaderFixtures.js": "437D5F4CBDAF2FB95E52A2496B02F57B5233D29BCA51A4F7428B0BC9C5B98720",
+      "src/LWBridge.UI-0.3.17/src/mapScanPresentation.js": "76C2AC646E79EA372965F9C2DA61D90356DAF7FA2F47E52DD9180D745E2DC5D0",
+      "src/LWBridge.UI-0.3.17/src/mapTablePresentation.js": "B6C0D9B369D3E78CCC74AA7296F2B88EABF6B6560C3669A199546FC299839427",
+      "src/LWBridge.UI-0.3.17/src/previewAfkCloseoutFixtures.js": "11B5AE1D449B61296E5150DEA355A82AFE8BF0C23497583D840057AAEC8CF3DD",
+      "src/LWBridge.UI-0.3.17/src/previewAfkContracts.js": "F75B4D22ECCD19F69D4AD139ABC2FFBC150B0007662BA47127CFB600CBF61EE3",
+      "src/LWBridge.UI-0.3.17/src/previewAfkFixtures.js": "0D9FD7517190F0C27A70478E974353D62071824EDF694F7C613FA8D153715AAF",
+      "src/LWBridge.UI-0.3.17/src/previewAutomationContracts.js": "FD4BC9C29F23631718D19818D273745C8D042DF35B1DDA2BE1E1928E75BB2295",
+      "src/LWBridge.UI-0.3.17/src/previewAutomationFixtures.js": "DF236FDBA38D02EB3FAA95C512A12F5FBA90CC6E43A48A892FC923DFE74AA56D",
+      "src/LWBridge.UI-0.3.17/src/previewConfig.js": "8BEDEC11D07A8245EBB6FF9DF78E13E872C20F850C9B887919360BF209397B7A",
+      "src/LWBridge.UI-0.3.17/src/previewConfigHook.jsx": "643875718C4DA1B443215F8E6B9417C840F372882AA81BA286080977D1ED827E",
+      "src/LWBridge.UI-0.3.17/src/previewEquipmentContracts.js": "2E57B79B1211582A9FF5E9A96A2158F8918C2D690694A6DDDDC338AF95BA44B0",
+      "src/LWBridge.UI-0.3.17/src/previewRemainingPagesContracts.js": "2F0C9EF1E28734ED3131A41E734A8D4A2B09CFFF56C3D23A5A359DF979769810",
+      "src/LWBridge.UI-0.3.17/src/profileConfigDraft.js": "31E255735FA77CE3D780D7DF563833C2D3AFBA26D16C0091F70DB486EBCD3E7A",
+      "src/LWBridge.UI-0.3.17/src/reference.css": "3D87E9F65B39EACE6A1A254BFC90A38ACB72613D1FFF7236C7CEE7AB9BFAF545",
+      "src/LWBridge.UI-0.3.17/src/routes.js": "2DA41EBFE3F4D898AE9E447F7A368C4EC9B270A0BAB46F2F3F049A8C0AADCF03",
+      "src/LWBridge.UI-0.3.17/src/sharedPageUI.jsx": "C87499F69094180BB5FF6AF1B03DCEFA0FA9A36FA05251EB2A3463C17154162F",
+      "src/LWBridge.UI-0.3.17/src/shellState.js": "29DF81AF8A791CA4D14535E9EEC0052F91A2FF45E18B7B272042DBAEC7C28195",
+      "src/LWBridge.UI-0.3.17/src/shellTheme.js": "58EAEF0483BB6922CE63391BB1746741386605DA6ED566764DB7B461DB10266B",
+      "src/LWBridge.UI-0.3.17/src/styles.css": "B50910D37A4DD02D7BB49B506735EA42615EF0F9E85714E880049481AECE2CCC",
+      "src/LWBridge.UI-0.3.17/src/tradePurchaseHistory.js": "5FE401B6B57D5E2707BCE7A5A38842E876DBEFE69608EFE434DD28B7ABDDD88B",
+      "src/LWBridge.UI-0.3.17/src/vendor/equipmentMotion317.js": "E3793CE042ECF9AB24BC8849403E5F3B968D685EBA38DAB80949A2F883DCBBD0"
+    }
+  },
+  "result": {
+    "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CLOSEOUT-003/milestone-e/final-current-results.json",
+    "bytes": 206329,
+    "sha256": "674EEA8EB59871F2F4BFD766ACA8A9AFE483C0FD1676EC9DEE1A33EA128C5D57"
+  },
+  "screenshots": [
+    {
+      "file": "en-light-desktop-eight-route-return.png",
+      "bytes": 39430,
+      "sha256": "4719EF90503E5ED4B9F33BDA72868A8B39D6EB351AB6081325E82F7DD5A6E267",
+      "width": 1280,
+      "height": 900,
+      "channels": 3,
+      "pixelSha256": "FE5154C786BE05143FC5137D002F0F142D4D5267A2A24E2C7AF8733179187A94",
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CLOSEOUT-003/milestone-e/browser-current/en-light-desktop-eight-route-return.png"
+    },
+    {
+      "file": "ja-dark-desktop-eight-route-return.png",
+      "bytes": 42406,
+      "sha256": "20D1D8AE0B89BB877D21DF3E811AE461F59B7B2194EBC3C46FE720B4C572F330",
+      "width": 1280,
+      "height": 900,
+      "channels": 3,
+      "pixelSha256": "F828EAD005E1FEC481DD142F6460A6C260625DA6AC81CA6B3AEF98F48305DED7",
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CLOSEOUT-003/milestone-e/browser-current/ja-dark-desktop-eight-route-return.png"
+    },
+    {
+      "file": "en-light-narrow-eight-route-return.png",
+      "bytes": 35961,
+      "sha256": "9FAFA53144E4EFFF8A602EC19C6556526FC37A53DC8E9DCDE7E46D1B4D5A7067",
+      "width": 375,
+      "height": 1000,
+      "channels": 3,
+      "pixelSha256": "59072C2591D4E0F92EAE0A19D12DC9F52BA0392E9608F6EA7904BAA7F79125B1",
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CLOSEOUT-003/milestone-e/browser-current/en-light-narrow-eight-route-return.png"
+    },
+    {
+      "file": "ja-dark-narrow-eight-route-return.png",
+      "bytes": 38824,
+      "sha256": "A82A61A6D062FECAED011C9486A09335B91FC2FAD4BC0FC86150D91ACA6B8528",
+      "width": 375,
+      "height": 1000,
+      "channels": 3,
+      "pixelSha256": "6E6FEF7E2475676AF1FC01488A37C9FB34E9AD569A110508D380CDCD89ED7311",
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CLOSEOUT-003/milestone-e/browser-current/ja-dark-narrow-eight-route-return.png"
+    },
+    {
+      "file": "en-dark-desktop-eight-route-return.png",
+      "bytes": 38974,
+      "sha256": "C27091CC387A0B6DE757077DC2A966497462632A5EEDE73D0EC78478A2563C9F",
+      "width": 1280,
+      "height": 900,
+      "channels": 3,
+      "pixelSha256": "F7CE4314EFF8A61C5F65540B1AA3C243B3874A1B2B4650E9EDDD10D9DE713D53",
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CLOSEOUT-003/milestone-e/browser-current/en-dark-desktop-eight-route-return.png"
+    },
+    {
+      "file": "ja-light-narrow-eight-route-return.png",
+      "bytes": 39975,
+      "sha256": "6D2685C32BBB69546CA3E623A92EEFC362D51DDCC8C1C8D3929259BC561E8D7E",
+      "width": 375,
+      "height": 1000,
+      "channels": 3,
+      "pixelSha256": "CC092469F8FF142A5A0A557FE57D0093E22940D5D4D88AFA518384404957C2EC",
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CLOSEOUT-003/milestone-e/browser-current/ja-light-narrow-eight-route-return.png"
+    },
+    {
+      "file": "en-light-profile-subtabs-reset.png",
+      "bytes": 69963,
+      "sha256": "528CE0E8F756DD2BE28F013D60C209730BE28309C8EC4B2A21A2A7434C868E1C",
+      "width": 1280,
+      "height": 900,
+      "channels": 3,
+      "pixelSha256": "D6E1BE4751FFAD91D6A1368B63743682CD7C2D481E681582187A871714B36EA0",
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CLOSEOUT-003/milestone-e/browser-current/en-light-profile-subtabs-reset.png"
+    },
+    {
+      "file": "en-light-map-page2-return.png",
+      "bytes": 81641,
+      "sha256": "A05543C9272700F915E58788783218A5BE86DACC201E2F9764019CF29E026702",
+      "width": 1280,
+      "height": 900,
+      "channels": 3,
+      "pixelSha256": "14C60C991B00A2BA5C5ADBA79BF4E79749F6EA08E9140B91C85E73FE217E2D5A",
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CLOSEOUT-003/milestone-e/browser-current/en-light-map-page2-return.png"
+    },
+    {
+      "file": "en-light-automation-conditional-return.png",
+      "bytes": 82660,
+      "sha256": "848511592F26BDBD1CADBA1A5AF9DC6990D43EB14B29A85305B33C994A87D0C9",
+      "width": 1280,
+      "height": 900,
+      "channels": 3,
+      "pixelSha256": "5BA2BB394315069AFD00CAE4D28E4D7E0A24095E4864648C64C4C9BCD8A639CE",
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CLOSEOUT-003/milestone-e/browser-current/en-light-automation-conditional-return.png"
+    },
+    {
+      "file": "en-light-afk-join-dialog.png",
+      "bytes": 126041,
+      "sha256": "0AE003A653C3F8A9F7399D5759B97988FD7370BD8D38C887BF52444F608E2C1F",
+      "width": 1280,
+      "height": 900,
+      "channels": 3,
+      "pixelSha256": "C040CD7B93C12CF94503E2ED5D860F50306539E88B095C956E26082B5437F34F",
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CLOSEOUT-003/milestone-e/browser-current/en-light-afk-join-dialog.png"
+    },
+    {
+      "file": "en-light-squads-dialog-retention.png",
+      "bytes": 99967,
+      "sha256": "38AD1615D09C038D6C8330825580FF574E389021F899A1BA1E786EC41321C5E4",
+      "width": 1280,
+      "height": 900,
+      "channels": 3,
+      "pixelSha256": "735C660C38D178E4C333B3EEA715701CC2B21630C25B429B36E92AA20BC5734C",
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CLOSEOUT-003/milestone-e/browser-current/en-light-squads-dialog-retention.png"
+    },
+    {
+      "file": "en-light-cross-server-popover.png",
+      "bytes": 52640,
+      "sha256": "8B73C0F5F6D9CE68626B9D210B3C877DDF0E2DE25DB8BA7AFE07B42645B447BA",
+      "width": 1280,
+      "height": 900,
+      "channels": 3,
+      "pixelSha256": "36D5D186BAE21C5485346A81150AE73A6E6BC7B16F5A0A106A07BCCA1E612F77",
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CLOSEOUT-003/milestone-e/browser-current/en-light-cross-server-popover.png"
+    },
+    {
+      "file": "en-light-profile-note-dialog.png",
+      "bytes": 60731,
+      "sha256": "C3CAEED77AE655E50AB50FE19D28EAB76F1D3C2A3E24494076DAAFEF038CA9F5",
+      "width": 1280,
+      "height": 900,
+      "channels": 3,
+      "pixelSha256": "9FE39A981FB04CE9AEE2AC62F85443BB55A14EEBD9BA97FC2984BD54CCCBE7BC",
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CLOSEOUT-003/milestone-e/browser-current/en-light-profile-note-dialog.png"
+    },
+    {
+      "file": "ja-dark-live-locale-theme-map.png",
+      "bytes": 83025,
+      "sha256": "8B8A8BE6D273AE9A3EFB9F7A5233F95524D74D9E680E0592898E3D9DBF7A4400",
+      "width": 1280,
+      "height": 900,
+      "channels": 3,
+      "pixelSha256": "1F4D9C61AC545399040966F8C21854D31A9B73E89EFB3B54C4C2A5726DF96D60",
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CLOSEOUT-003/milestone-e/browser-current/ja-dark-live-locale-theme-map.png"
+    },
+    {
+      "file": "en-light-shell-exit-dialog.png",
+      "bytes": 70705,
+      "sha256": "2E795A46CA12D6DB1D0C81D3438AC5B969966F94A98F1568D7457DF83EC06771",
+      "width": 1280,
+      "height": 900,
+      "channels": 3,
+      "pixelSha256": "E8F8F5BF5AA03EE6EB6DC59448B16A161C9098955827AE43E2EDE392CB24D1C2",
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CLOSEOUT-003/milestone-e/browser-current/en-light-shell-exit-dialog.png"
+    },
+    {
+      "file": "ja-dark-shell-exit-busy-dialog.png",
+      "bytes": 63448,
+      "sha256": "6FE0C7DD97148C5C5A465AE36F24FC2BF7BF9CCE268F96267CBE72D5E3835F6F",
+      "width": 740,
+      "height": 742,
+      "channels": 3,
+      "pixelSha256": "87FFA8761ADDD90F905C89122467BFAA7C7874604F064D1B5CD67D44012A2462",
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CLOSEOUT-003/milestone-e/browser-current/ja-dark-shell-exit-busy-dialog.png"
+    }
+  ]
+}

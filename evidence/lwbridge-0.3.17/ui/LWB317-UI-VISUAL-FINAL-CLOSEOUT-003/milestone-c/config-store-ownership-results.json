@@ -1,0 +1,260 @@
+{
+  "marker": "LWB317_FINAL_CLOSEOUT_MILESTONE_C_CONFIG_STORE_OWNERSHIP_OK",
+  "original": {
+    "concurrentStart": {
+      "main": {
+        "draft": {
+          "value": 11
+        },
+        "confirmed": {
+          "value": 0
+        },
+        "dirty": true,
+        "saving": true,
+        "error": null
+      },
+      "assist": {
+        "draft": {
+          "value": 22
+        },
+        "confirmed": {
+          "value": 0
+        },
+        "dirty": true,
+        "saving": true,
+        "error": null
+      }
+    },
+    "assistFirst": {
+      "main": {
+        "draft": {
+          "value": 11
+        },
+        "confirmed": {
+          "value": 0
+        },
+        "dirty": true,
+        "saving": true,
+        "error": null
+      },
+      "assist": {
+        "draft": {
+          "value": 22
+        },
+        "confirmed": {
+          "value": 22
+        },
+        "dirty": false,
+        "saving": false,
+        "error": null
+      },
+      "events": [
+        "assist:ack:22"
+      ]
+    },
+    "independentDone": {
+      "main": {
+        "draft": {
+          "value": 11
+        },
+        "confirmed": {
+          "value": 11
+        },
+        "dirty": false,
+        "saving": false,
+        "error": null
+      },
+      "assist": {
+        "draft": {
+          "value": 22
+        },
+        "confirmed": {
+          "value": 22
+        },
+        "dirty": false,
+        "saving": false,
+        "error": null
+      },
+      "events": [
+        "assist:ack:22",
+        "main:ack:11"
+      ]
+    },
+    "afterOlderAck": {
+      "draft": {
+        "value": 32
+      },
+      "confirmed": {
+        "value": 31
+      },
+      "dirty": true,
+      "saving": true,
+      "error": null
+    },
+    "queuedDone": {
+      "draft": {
+        "value": 32
+      },
+      "confirmed": {
+        "value": 32
+      },
+      "dirty": false,
+      "saving": false,
+      "error": null
+    },
+    "receiveWhileDirty": {
+      "draft": {
+        "value": 44
+      },
+      "confirmed": {
+        "value": 22
+      },
+      "dirty": true,
+      "saving": false,
+      "error": null
+    },
+    "events": [
+      "assist:ack:22",
+      "main:ack:11",
+      "main:ack:31",
+      "main:ack:32"
+    ]
+  },
+  "current": {
+    "concurrentStart": {
+      "main": {
+        "draft": {
+          "value": 11
+        },
+        "confirmed": {
+          "value": 0
+        },
+        "dirty": true,
+        "saving": true,
+        "error": null
+      },
+      "assist": {
+        "draft": {
+          "value": 22
+        },
+        "confirmed": {
+          "value": 0
+        },
+        "dirty": true,
+        "saving": true,
+        "error": null
+      }
+    },
+    "assistFirst": {
+      "main": {
+        "draft": {
+          "value": 11
+        },
+        "confirmed": {
+          "value": 0
+        },
+        "dirty": true,
+        "saving": true,
+        "error": null
+      },
+      "assist": {
+        "draft": {
+          "value": 22
+        },
+        "confirmed": {
+          "value": 22
+        },
+        "dirty": false,
+        "saving": false,
+        "error": null
+      },
+      "events": [
+        "assist:ack:22"
+      ]
+    },
+    "independentDone": {
+      "main": {
+        "draft": {
+          "value": 11
+        },
+        "confirmed": {
+          "value": 11
+        },
+        "dirty": false,
+        "saving": false,
+        "error": null
+      },
+      "assist": {
+        "draft": {
+          "value": 22
+        },
+        "confirmed": {
+          "value": 22
+        },
+        "dirty": false,
+        "saving": false,
+        "error": null
+      },
+      "events": [
+        "assist:ack:22",
+        "main:ack:11"
+      ]
+    },
+    "afterOlderAck": {
+      "draft": {
+        "value": 32
+      },
+      "confirmed": {
+        "value": 31
+      },
+      "dirty": true,
+      "saving": true,
+      "error": null
+    },
+    "queuedDone": {
+      "draft": {
+        "value": 32
+      },
+      "confirmed": {
+        "value": 32
+      },
+      "dirty": false,
+      "saving": false,
+      "error": null
+    },
+    "receiveWhileDirty": {
+      "draft": {
+        "value": 44
+      },
+      "confirmed": {
+        "value": 22
+      },
+      "dirty": true,
+      "saving": false,
+      "error": null
+    },
+    "events": [
+      "assist:ack:22",
+      "main:ack:11",
+      "main:ack:31",
+      "main:ack:32"
+    ]
+  },
+  "source": {
+    "recoveredIndex": {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-BVfnK1wp.js",
+      "sha256": "44C4E4043825B7DB296B64171951B27176F8850FF8D7D337CC991DF4765524C6"
+    },
+    "recoveredFunction": {
+      "name": "T",
+      "byteOffset": 191297,
+      "byteLength": 2330,
+      "sha256": "D697645DA61F11176EAE639FEADE2596FA79BF87E2D9B8FD37486CE1AC8D0F9F"
+    },
+    "current": {
+      "path": "src/LWBridge.UI-0.3.17/src/previewConfig.js",
+      "sha256": "8BEDEC11D07A8245EBB6FF9DF78E13E872C20F850C9B887919360BF209397B7A"
+    }
+  },
+  "limits": "Exact recovered source/local config-store function T versus current createConfigDraft with inert deferred adapters only; no native config persistence or provider action is invoked."
+}

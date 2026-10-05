@@ -1,6 +1,6 @@
 # LWB317-UI-VISUAL-FINAL-CLOSEOUT-003 continuation
 
-Current stage: Milestones A-B complete; Milestone C conditional Automation comparison in progress.
+Current stage: Milestones A-E complete and final current-App evidence recorded/verified; Milestone F independent review/documentation/Git delivery is in progress.
 
 Verified startup: clean `research/offline-controller`, HEAD and direct tracked origin both `da15258dbd3fa440a27f08f55e9d1cc54e8f17ae`. Governing rules and the complete assignment were read. The lead review keeps Map/E-H inheritance accepted and requires six local corrections plus fresh whole-AFK and conditional-Automation original/current composition proof.
 
@@ -8,4 +8,10 @@ Completed corrections: all six lead findings have fresh executable inverse proof
 
 Milestone B now executes exact recovered whole `I` against live current composition across 30 source-valid states plus exact helper/validator contracts, 14 strict paired Chrome captures, and 25 mounted current interaction assertions. It corrected discovered-squad editor ownership, invented target-discovery copy, first-load versus failed-refresh target-list/Add ownership, the extra Drill store validator, and the native Join dialog lifetime. Every non-fenced paired screenshot is byte-identical; Garrison becomes exact when only the intentional unavailable-provider `Run Now` disabled state is normalized. Historical pre-fix current harness remains preserved and is not used as current proof.
 
-Next: build Milestone C from the accepted exact recovered `Ae` renderer, but use online/source-valid inputs and live current `AutomationPage.jsx`. Cover every category and material conditional branch, including Train fixed/reward/drag and invalid states, Chat/Treasure conditionals, populated Trade/history, and running/saving/busy/error ownership. Then continue into all-page reconciliation.
+Milestone C now closes the finite recovered `Ae` matrix, including the final positive no-camps fallback assertion and independent config-store ownership. The integrated audit additionally found and fixed Automation child config scopes that lacked profile identity; `App.jsx` now passes `selectedProfileId`, and Milestone E proves profile A/B draft isolation while the parent category persists.
+
+Milestone D is recorded/verified against the final 67-file source closure. Milestone E is recorded/validated on owned listener 4427 with 267 assertions, 16 settled decoded captures, zero console/page issues, all nine 1,383-key locale catalogs plus the source-proven `common.loading` fallback, served-endpoint/workspace provenance, frozen C/D/Unit-C acceptance hashes, corrected race semantics and 9 detected A/B/C semantic mutations. Canonical frontend check, fresh production build/package integrity, reference hash and legacy WIP archive preservation pass. Historical Milestone A source-hash results remain immutable and intentionally describe their earlier checkpoint rather than being repinned after later audited source changes.
+
+Fresh independent E/integration and C-local final reviews both returned READY with no blockers. The C reviewer initially repeated its stale pre-fix no-camps finding, reopened the live files, verified recovered/current `camps=0,noCamps=1`, and withdrew it. Current master/checklist/matrix/ledger/handoff/status documents and the dated worker review are updated conservatively.
+
+Next: stage only the explicit closeout allowlist, review the cached diff/hygiene, commit/push, fetch, and require local `HEAD`, `origin/research/offline-controller` and direct `ls-remote` SHA equality before returning `AWAITING_REVIEW`.

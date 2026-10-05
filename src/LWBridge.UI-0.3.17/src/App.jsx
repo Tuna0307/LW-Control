@@ -671,7 +671,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
     onGameRootSelect: selectGameRoot,
   };
   const pagePropsByRoute = showProfiles ? {
-    automation: { activeCategory: automationCategory, onActiveCategoryChange: setAutomationCategory },
+    automation: { profileId: selectedProfileId, activeCategory: automationCategory, onActiveCategoryChange: setAutomationCategory },
     "map-data": { activeTab: mapTab, onActiveTabChange: setMapTab },
     march: { activeTab: squadTab, onActiveTabChange: setSquadTab },
   } : undefined;
