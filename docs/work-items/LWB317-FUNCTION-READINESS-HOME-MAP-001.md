@@ -1,6 +1,11 @@
 # LWB317-FUNCTION-READINESS-HOME-MAP-001
 
-Lead assignment, 2026-10-06. Status: **ASSIGNED**.
+Lead Home/Map feature campaign dispatch, 2026-10-06: **LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001 is ASSIGNED.** Owner requested sustained feature implementation while unavailable, prioritizing Home and Map. The earlier standalone read-only readiness assignment is folded into A; do not return after its inventory. Active scope now authorizes source recovery/current-client local contract mapping, canonical native Home/Map feature implementation and offline/inert desktop integration through milestones A–L. It does not authorize unattended live game launch/stop/scans/movement/combat, updates, original-service access or owner-installation changes. UI source/local acceptance stays intact. Read `docs/work-items/LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001.md` completely; advance ready queue entries automatically, preserve coherent checkpoints and continue independent branches when one is concretely blocked. Progress/queue/coordination/continuation are under `evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001/`.
+
+
+Historical standalone assignment, 2026-10-06. Status: **SUPERSEDED**.
+Its audit requirements are now Milestone A of FUNCTION-HOME-MAP-CAMPAIGN-001;
+its old standalone read-only scope/stop boundary below does not govern the active campaign.
 Prerequisite: recovered-source/local UIUX accepted by R2 lead review.
 Phase: function recovery preparation. Scope: read-only code/artifact audit and
 durable documentation. No native implementation or live test is assigned here.

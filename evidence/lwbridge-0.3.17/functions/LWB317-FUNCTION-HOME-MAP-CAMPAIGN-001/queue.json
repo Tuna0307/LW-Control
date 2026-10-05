@@ -1,0 +1,185 @@
+{
+  "campaign": "LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001",
+  "status": "ASSIGNED",
+  "assignedAt": "2026-10-06",
+  "authority": "docs/work-items/LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001.md",
+  "policy": "Continue ready milestones automatically; checkpoint a blocked branch and advance independent work. No live game actions assigned.",
+  "milestones": [
+    {
+      "id": "A",
+      "goal": "Source/readiness baseline and dependency queue",
+      "dependsOn": [],
+      "status": "PENDING",
+      "owner": null,
+      "acceptance": "Authoritative work item, Milestone A",
+      "commit": null,
+      "proof": [],
+      "blocker": null,
+      "continuation": null
+    },
+    {
+      "id": "B",
+      "goal": "Home profile, installation, preferences",
+      "dependsOn": [
+        "A"
+      ],
+      "status": "PENDING",
+      "owner": null,
+      "acceptance": "Authoritative work item, Milestone B",
+      "commit": null,
+      "proof": [],
+      "blocker": null,
+      "continuation": null
+    },
+    {
+      "id": "C",
+      "goal": "Home launch/stop callbacks and provider composition",
+      "dependsOn": [
+        "B"
+      ],
+      "status": "PENDING",
+      "owner": null,
+      "acceptance": "Authoritative work item, Milestone C",
+      "commit": null,
+      "proof": [],
+      "blocker": null,
+      "continuation": null
+    },
+    {
+      "id": "D",
+      "goal": "Home recovery/status/startup integration",
+      "dependsOn": [
+        "C"
+      ],
+      "status": "PENDING",
+      "owner": null,
+      "acceptance": "Authoritative work item, Milestone D",
+      "commit": null,
+      "proof": [],
+      "blocker": null,
+      "continuation": null
+    },
+    {
+      "id": "E",
+      "goal": "Map native data/store/API integration",
+      "dependsOn": [
+        "A"
+      ],
+      "status": "PENDING",
+      "owner": null,
+      "acceptance": "Authoritative work item, Milestone E",
+      "commit": null,
+      "proof": [],
+      "blocker": null,
+      "continuation": null
+    },
+    {
+      "id": "F",
+      "goal": "Manual scan lifecycle and durable acquired data",
+      "dependsOn": [
+        "E"
+      ],
+      "status": "PENDING",
+      "owner": null,
+      "acceptance": "Authoritative work item, Milestone F",
+      "commit": null,
+      "proof": [],
+      "blocker": null,
+      "continuation": null
+    },
+    {
+      "id": "G",
+      "goal": "Map query/export/marks/navigation contracts",
+      "dependsOn": [
+        "E"
+      ],
+      "status": "PENDING",
+      "owner": null,
+      "acceptance": "Authoritative work item, Milestone G",
+      "commit": null,
+      "proof": [],
+      "blocker": null,
+      "continuation": null
+    },
+    {
+      "id": "H",
+      "goal": "Auto Scan config and controlled production cycles",
+      "dependsOn": [
+        "B",
+        "E",
+        "F"
+      ],
+      "status": "PENDING",
+      "owner": null,
+      "acceptance": "Authoritative work item, Milestone H",
+      "commit": null,
+      "proof": [],
+      "blocker": null,
+      "continuation": null
+    },
+    {
+      "id": "I",
+      "goal": "Treasure and local scheduled-job/action contracts",
+      "dependsOn": [
+        "E"
+      ],
+      "status": "PENDING",
+      "owner": null,
+      "acceptance": "Authoritative work item, Milestone I",
+      "commit": null,
+      "proof": [],
+      "blocker": null,
+      "continuation": null
+    },
+    {
+      "id": "J",
+      "goal": "Current-client local compatibility/completeness audit",
+      "dependsOn": [
+        "A"
+      ],
+      "status": "PENDING",
+      "owner": null,
+      "acceptance": "Authoritative work item, Milestone J",
+      "commit": null,
+      "proof": [],
+      "blocker": null,
+      "continuation": null
+    },
+    {
+      "id": "K",
+      "goal": "Real isolated native desktop integration and full diff review",
+      "dependsOn": [
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "G",
+        "H",
+        "I",
+        "J"
+      ],
+      "status": "PENDING",
+      "owner": null,
+      "acceptance": "Authoritative work item, Milestone K",
+      "commit": null,
+      "proof": [],
+      "blocker": null,
+      "continuation": null
+    },
+    {
+      "id": "L",
+      "goal": "Final integrity, documentation and delivery",
+      "dependsOn": [
+        "K"
+      ],
+      "status": "PENDING",
+      "owner": null,
+      "acceptance": "Authoritative work item, Milestone L",
+      "commit": null,
+      "proof": [],
+      "blocker": null,
+      "continuation": null
+    }
+  ]
+}
