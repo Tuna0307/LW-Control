@@ -8,11 +8,16 @@ fresh worker chat, then verifies the returned files, evidence and checks before
 acceptance. Chat On Steroids collaboration requirements are retired; no connector
 setup or repair is required to continue. Existing scope and review rules apply.
 
-Owner direction, 2026-10-03: each worker works alone. Do not spawn subagents or
+Owner direction, 2026-10-05: workers may use subagents within their assigned
+scope. This supersedes the earlier no-subagent rule, including conflicting old
+work-item text. One coordinating worker remains responsible for integration,
+verification and owner-relayed delivery. See the coordination rules below.
+
+Historical owner direction, 2026-10-03 (superseded above): each worker works alone. Do not spawn subagents or
 delegate to another agent, including when an older assignment allowed it.
 Use sequential milestones and durable checkpoints for larger assignments.
 
-Owner clarification, 2026-10-03: that restriction applies to worker chats only.
+Historical owner clarification, 2026-10-03 (superseded above): that restriction applies to worker chats only.
 The project lead may use subagents, review their evidence and integrate results.
 Keep their edits separate from an active worker's owned scope.
 
@@ -25,7 +30,7 @@ units; preserve quality and durable checkpoints rather than expanding a unit.
 Owner exception, 2026-10-04: explicitly assign VISUAL-FINAL-CAMPAIGN-001 as one
 large worker campaign covering all four remaining visual groups, through sequential
 units A–J and durable commits. This exception supersedes the size preference only
-for that campaign. Single-worker/evidence/lead-acceptance rules remain in force.
+for that campaign. Coordinating-worker/evidence/lead-acceptance rules remain in force.
 
 ### Project lead
 
@@ -114,9 +119,32 @@ Commit:
 Recommended next task:
 ```
 
-## Single-worker rule
+## Coordinating worker and subagents
 
-Work sequentially within the assigned scope. Do not start subagents or another
-worker chat. The owner relays assignments; the project lead integrates results
-and makes acceptance decisions. Preserve historical evidence created by earlier
-subagents; its directory names do not authorize new delegation.
+Keep one coordinating worker for each owner-relayed assignment. Subagents may
+perform bounded research, implementation or review within that assignment;
+they do not create new project work or broaden its scope. Independent worker
+chats and the project lead continue to communicate through the owner's relay.
+
+Before dispatching a subagent, provide the goal, exact scope, relevant sources,
+intentional design decisions, behaviors to preserve, evidence requirements,
+acceptance checks, and allowed file paths. Record responsibilities in the task's
+coordination/continuation files so interrupted work remains recoverable.
+
+Each editable file has one owner at a time. Reserve shared components, master
+documents and integration-sensitive files for the coordinator unless ownership
+is explicitly transferred. Give subagents separate evidence output directories
+and owned browser contexts/listeners where needed. Do not concurrently control
+the same tab/process or share mutable browser storage without coordination.
+
+The coordinator reviews each proposed diff and finding, checks its source proof,
+independently runs applicable verification, and resolves conflicts before
+integration. A subagent's PASS or completion message is not acceptance evidence.
+Only the coordinator commits/pushes integrated milestones and verifies the
+remote revision; subagents must not manipulate the shared Git index/history.
+
+Prefer a small initial group and add agents only for independent work the
+coordinator can review. Finish coherent medium milestones and persist progress
+frequently. If a child stalls, inspect its saved work, recover the useful
+checkpoint, and complete or reassign that bounded scope without losing progress.
+Project-lead final acceptance and all existing scope/evidence rules remain intact.

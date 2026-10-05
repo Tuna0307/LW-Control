@@ -8,12 +8,26 @@ reviews returned work. The Chat On Steroids collaboration policy is retired;
 its mandatory delegation, model-selection and two-checkpoint requirements no
 longer apply. Follow the existing project evidence and review rules below.
 
-Owner direction, 2026-10-03: use one AI per assigned worker chat. Do not spawn
+Owner direction, 2026-10-05: assigned worker AIs may now use subagents within
+their project-lead-assigned scope. This supersedes the earlier worker subagent
+ban and conflicting instructions in older work items. Keep one coordinating
+worker responsible for task ownership, integration, validation and delivery.
+Give each subagent a concrete bounded task, necessary context, acceptance checks
+and exclusive ownership of any files it may edit. Do not allow concurrent edits
+to the same file or concurrent control of the same browser tab/process. The
+coordinating worker must inspect and verify subagent output before accepting it;
+only that worker commits/pushes the integrated milestone. Use medium-sized
+milestones and durable checkpoints. Manual owner relay between independent
+worker and project-lead chats remains in force. Subagent permission does not
+expand product scope, authorize native/gameplay work, or delegate final project
+acceptance away from the lead.
+
+Historical owner direction, 2026-10-03 (superseded above): use one AI per assigned worker chat. Do not spawn
 subagents or delegate to other agents. This supersedes earlier work-item
 permission to use subagents. Complete larger assignments through sequential,
 coherent milestones; the owner continues to relay between worker and lead chats.
 
-Owner clarification, 2026-10-03: the no-subagent rule applies to assigned worker
+Historical owner clarification, 2026-10-03 (superseded above): the no-subagent rule applies to assigned worker
 chats (the other AI). The project lead may use subagents as needed and remains
 responsible for reviewing their work. This does not expand worker scopes or
 authorize concurrent edits to a worker's assigned files.

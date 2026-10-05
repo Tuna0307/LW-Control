@@ -10,7 +10,8 @@ Reproduce the original, including layout ancestry, conditional presentation, loc
 interaction, state retention and effect lifetime. Quality takes precedence over
 speed. A matching isolated widget does not establish matching page composition.
 
-This is one assignment executed alone through medium-sized sequential milestones.
+This is one assignment owned by a coordinating worker, who may use subagents
+within its scope. Execute medium-sized sequential integration milestones.
 Complete each milestone, verify it, write its continuation, commit/push, then move
 to the next milestone automatically. Do not stop at AWAITING_REVIEW after the first
 milestone. No fixed time block. If interrupted, resume from durable files. At final
@@ -44,8 +45,31 @@ Read these before editing:
 
 This new dispatch supersedes old worker stop-after-one-unit instructions only
 within the remaining parent UI campaign. All evidence/product/safety rules apply.
-Work alone: no subagents, no delegation, no Chat On Steroids setup. The owner relays
-between worker and lead. Keep the leader's existing accepted gates intact.
+Owner update, 2026-10-05: subagents are now allowed. This supersedes the former
+worker ban in earlier prompts/documents; follow the current AGENTS.md and
+docs/AI_WORK_PROTOCOL.md coordination rules. No Chat On Steroids setup is needed.
+The owner relays between the coordinating worker and lead. Keep the leader's
+existing accepted gates intact.
+
+Use subagents for genuinely independent recovery, comparisons, implementation
+or review. Prefer starting with one or two bounded subagents; add more only when
+their work is independent and review capacity/tool resources permit it. Give
+each a self-contained task with exact sources, intentional design decisions,
+behaviors to preserve, acceptance checks, exclusive editable files and a unique
+evidence directory. Record ownership/status in coordination.md and continuation.md.
+
+For example, one subagent may recover/test a bounded AFK composition while
+another inventories Automation source branches. Read-only source research may
+overlap; editable files may not. Keep shared App/components/master-doc integration
+with the coordinator unless explicitly transferring exclusive ownership. Isolate
+owned browser contexts/listeners and avoid conflicting storage or tab control.
+
+The coordinator must inspect each child's actual source evidence/diff and run
+verification before integrating it. Children do not commit/push or alter the
+shared Git index/history. Only the coordinator commits the reviewed milestone,
+pushes and verifies its remote SHA. If a child stalls, inspect durable work and
+finish/reassign its bounded scope; do not leave the campaign waiting indefinitely.
+Child completion messages do not replace worker verification or lead acceptance.
 
 Inspect Git status; preserve any actual starting dirty files byte for byte and
 record their hashes. The checkout was clean at assignment preparation. Old pending

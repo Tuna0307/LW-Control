@@ -41,7 +41,9 @@ No test count, screenshot count or time target authorizes a blanket parity claim
 ## Startup, reference and boundaries
 
 Repo: `C:\Users\chimw\OneDrive\Desktop\Github\LW-Control`.
-Branch: `research/offline-controller`. Work alone; NO subagents/delegation.
+Branch: `research/offline-controller`. Owner update, 2026-10-05: subagents are
+allowed under AGENTS.md/docs/AI_WORK_PROTOCOL.md. One coordinating worker owns
+integration and delivery; use exclusive file ownership and review child results.
 Read AGENTS.md, root task.md, docs/AI_WORK_PROTOCOL.md, current UI master/checklist/
 matrix/ledger/handoff and the new independent toolbar review. Older checkpoint
 notes are historical when superseded by newer explicit lead decisions.
