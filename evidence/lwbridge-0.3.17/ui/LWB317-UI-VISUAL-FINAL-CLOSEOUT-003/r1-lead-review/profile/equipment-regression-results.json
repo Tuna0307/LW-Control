@@ -1,0 +1,123 @@
+{
+  "marker": "LWB317_FINAL_CLOSEOUT_R1_EQUIPMENT_REGRESSION_OK",
+  "browser": "154.0.8037.95",
+  "assertions": [
+    {
+      "name": "Equipment retains four recovered preset slots",
+      "actual": 4,
+      "expected": 4
+    },
+    {
+      "name": "Equipment first preset starts selected",
+      "actual": "active",
+      "expected": "active"
+    },
+    {
+      "name": "Equipment rename opens native dialog",
+      "actual": "",
+      "expected": ""
+    },
+    {
+      "name": "Equipment successful rename commits profile config",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "Equipment successful rename clears derived dirty marker",
+      "actual": false,
+      "expected": false
+    },
+    {
+      "name": "Equipment config survives same-profile AFK hide-return",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "Equipment original name was distinct",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "Equipment failed save keeps renamed draft dirty",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "Equipment failed save exposes Retry",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "Equipment failed save exposes Discard",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "Equipment Retry confirms only the retained draft",
+      "actual": false,
+      "expected": false
+    },
+    {
+      "name": "Equipment Retry path retains renamed confirmed value",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "Equipment Discard restores owning confirmed preset",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "Equipment Discard removes owning dirty marker",
+      "actual": false,
+      "expected": false
+    },
+    {
+      "name": "Equipment deferred save marks dialog busy",
+      "actual": "true",
+      "expected": "true"
+    },
+    {
+      "name": "Equipment deferred save disables rename input",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "Equipment deferred save keeps draft visible",
+      "actual": true,
+      "expected": true
+    }
+  ],
+  "screenshots": [
+    {
+      "id": "equipment-confirmed-hide-return",
+      "file": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CLOSEOUT-003/r1-lead-review/profile/equipment-regression/equipment-confirmed-hide-return.png",
+      "bytes": 77000,
+      "sha256": "4490848E5215991058F24082FCE51EA5C04941F0654BA787BE66C1300F7A6A33"
+    }
+  ],
+  "issues": [],
+  "sources": [
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/SquadsPage.jsx",
+      "bytes": 82867,
+      "sha256": "920892FCC3069D4F98B0662E4502910DDF5901EE707C8A663B751BBB3A2E4623"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/previewConfigHook.jsx",
+      "bytes": 3167,
+      "sha256": "B43A17F2BBD966878BD2A0A5114446CDBDCA4785FB8309EE4DF8DBAD0500EF44"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/previewEquipmentContracts.js",
+      "bytes": 11473,
+      "sha256": "2E57B79B1211582A9FF5E9A96A2158F8918C2D690694A6DDDDC338AF95BA44B0"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/SquadPanel-HC3-DJei.js",
+      "bytes": 192855,
+      "sha256": "ED466E353AA896D8C3FC783FF1802930156FB9E9EB54327AEF73F2FF86FA06C7"
+    }
+  ],
+  "limits": "Source/local Equipment configuration, error/retry/discard, deferred busy and same-profile Activity retention only. Native Equipment read/apply/save providers and physical HTML5 drag remain fenced."
+}

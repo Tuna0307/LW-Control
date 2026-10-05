@@ -1,5 +1,8 @@
 # LWB317-UI-VISUAL-FINAL-CLOSEOUT-003-R1
 
+Project-lead R1 review, 2026-10-06: **CLOSEOUT-003-R1 is CHANGES_REQUIRED solely for LR-EQUIPMENT-FLUSH-001.** The AFK/Equipment profile-owner correction is accepted for recovered source/local scope. Fresh lead execution passes 275 complete-App assertions, 257 host assertions, 16 decoded captures, canonical check/build/package and zero browser issues. A further distinguishing actual-mounted/exact-original case proves Equipment default flush(true) saves a later move without a second Save after a pending-save profile return; recovered P at byte 180274 uses flush(false) and leaves that move dirty. Complete `docs/work-items/LWB317-UI-VISUAL-FINAL-CLOSEOUT-003-R2.md`; all prior bounded visual/profile findings stay closed. Global recoverable UIUX remains PARTIAL pending this sole correction and final lead acceptance. See `docs/reviews/2026-10-06-LWB317-UI-VISUAL-FINAL-CLOSEOUT-003-R1-LEAD.md`. Historical statuses below are superseded; native/provider/runtime-pixel limits are unchanged.
+
+
 Project-lead assignment, 2026-10-06. Worker status: **AWAITING_REVIEW**.
 Parent CLOSEOUT-003 lead status remains CHANGES_REQUIRED until project-lead R1 acceptance. Global UIUX remains PARTIAL pending that review.
 

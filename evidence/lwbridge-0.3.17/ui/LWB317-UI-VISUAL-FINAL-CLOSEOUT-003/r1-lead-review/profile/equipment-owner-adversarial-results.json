@@ -1,0 +1,4093 @@
+{
+  "pending": {
+    "draft": [
+      {
+        "id": "equipment-preset-fixed-1",
+        "name": "Pending A owned",
+        "squads": [
+          {
+            "squadIndex": 1,
+            "positions": [
+              {
+                "position": 1,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-1-1-1",
+                    "name": "Fixture Item 1-1-1",
+                    "level": 39,
+                    "quality": 5,
+                    "iconPath": "",
+                    "promote": 1,
+                    "heroType": 1
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-1-1-2",
+                    "name": "Fixture Item 1-1-2",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 1
+                  }
+                ]
+              },
+              {
+                "position": 2,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-1-2-1",
+                    "name": "Fixture Item 1-2-1",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 1
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-1-2-2",
+                    "name": "Fixture Item 1-2-2",
+                    "level": 37,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 1
+                  }
+                ]
+              },
+              {
+                "position": 3,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-1-3-1",
+                    "name": "Fixture Item 1-3-1",
+                    "level": 37,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 1
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "squadIndex": 2,
+            "positions": [
+              {
+                "position": 1,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-2-1-1",
+                    "name": "Fixture Item 2-1-1",
+                    "level": 39,
+                    "quality": 5,
+                    "iconPath": "",
+                    "promote": 1,
+                    "heroType": 2
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-2-1-2",
+                    "name": "Fixture Item 2-1-2",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 2
+                  }
+                ]
+              },
+              {
+                "position": 2,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-2-2-1",
+                    "name": "Fixture Item 2-2-1",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 2
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-2-2-2",
+                    "name": "Fixture Item 2-2-2",
+                    "level": 37,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 2
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "squadIndex": 3,
+            "positions": [
+              {
+                "position": 1,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-3-1-1",
+                    "name": "Fixture Item 3-1-1",
+                    "level": 39,
+                    "quality": 5,
+                    "iconPath": "",
+                    "promote": 1,
+                    "heroType": 3
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-3-1-2",
+                    "name": "Fixture Item 3-1-2",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 3
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "squadIndex": 4,
+            "positions": [
+              {
+                "position": 1,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-4-1-1",
+                    "name": "Fixture Item 4-1-1",
+                    "level": 39,
+                    "quality": 5,
+                    "iconPath": "",
+                    "promote": 1,
+                    "heroType": 4
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-4-1-2",
+                    "name": "Fixture Item 4-1-2",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 4
+                  }
+                ]
+              },
+              {
+                "position": 2,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-4-2-1",
+                    "name": "Fixture Item 4-2-1",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 4
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "equipment-preset-fixed-2",
+        "name": "Fixture equipment preset 2",
+        "squads": [
+          {
+            "squadIndex": 1,
+            "positions": [
+              {
+                "position": 1,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-1-1-1-alt",
+                    "name": "Fixture Item 1-1-1",
+                    "level": 39,
+                    "quality": 5,
+                    "iconPath": "",
+                    "promote": 1,
+                    "heroType": 1
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-1-1-2-alt",
+                    "name": "Fixture Item 1-1-2",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 1
+                  }
+                ]
+              },
+              {
+                "position": 2,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-1-2-1-alt",
+                    "name": "Fixture Item 1-2-1",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 1
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-1-2-2-alt",
+                    "name": "Fixture Item 1-2-2",
+                    "level": 37,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 1
+                  }
+                ]
+              },
+              {
+                "position": 3,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-1-3-1-alt",
+                    "name": "Fixture Item 1-3-1",
+                    "level": 37,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 1
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "squadIndex": 2,
+            "positions": [
+              {
+                "position": 1,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-2-1-1-alt",
+                    "name": "Fixture Item 2-1-1",
+                    "level": 39,
+                    "quality": 5,
+                    "iconPath": "",
+                    "promote": 1,
+                    "heroType": 2
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-2-1-2-alt",
+                    "name": "Fixture Item 2-1-2",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 2
+                  }
+                ]
+              },
+              {
+                "position": 2,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-2-2-1-alt",
+                    "name": "Fixture Item 2-2-1",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 2
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-2-2-2-alt",
+                    "name": "Fixture Item 2-2-2",
+                    "level": 37,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 2
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "squadIndex": 3,
+            "positions": [
+              {
+                "position": 1,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-3-1-1-alt",
+                    "name": "Fixture Item 3-1-1",
+                    "level": 39,
+                    "quality": 5,
+                    "iconPath": "",
+                    "promote": 1,
+                    "heroType": 3
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-3-1-2-alt",
+                    "name": "Fixture Item 3-1-2",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 3
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "squadIndex": 4,
+            "positions": [
+              {
+                "position": 1,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-4-1-1-alt",
+                    "name": "Fixture Item 4-1-1",
+                    "level": 39,
+                    "quality": 5,
+                    "iconPath": "",
+                    "promote": 1,
+                    "heroType": 4
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-4-1-2-alt",
+                    "name": "Fixture Item 4-1-2",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 4
+                  }
+                ]
+              },
+              {
+                "position": 2,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-4-2-1-alt",
+                    "name": "Fixture Item 4-2-1",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 4
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "equipment-preset-fixed-3",
+        "name": "Fixture equipment preset 3",
+        "squads": [
+          {
+            "squadIndex": 1,
+            "positions": [
+              {
+                "position": 1,
+                "equips": []
+              },
+              {
+                "position": 2,
+                "equips": []
+              },
+              {
+                "position": 3,
+                "equips": []
+              }
+            ]
+          },
+          {
+            "squadIndex": 2,
+            "positions": [
+              {
+                "position": 1,
+                "equips": []
+              },
+              {
+                "position": 2,
+                "equips": []
+              }
+            ]
+          },
+          {
+            "squadIndex": 3,
+            "positions": [
+              {
+                "position": 1,
+                "equips": []
+              }
+            ]
+          },
+          {
+            "squadIndex": 4,
+            "positions": [
+              {
+                "position": 1,
+                "equips": []
+              },
+              {
+                "position": 2,
+                "equips": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "equipment-preset-fixed-4",
+        "name": "Fixture equipment preset 4",
+        "squads": [
+          {
+            "squadIndex": 1,
+            "positions": [
+              {
+                "position": 1,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-1-2-1",
+                    "name": "Fixture Item 1-2-1",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 1
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-1-2-2",
+                    "name": "Fixture Item 1-2-2",
+                    "level": 37,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 1
+                  }
+                ]
+              },
+              {
+                "position": 2,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-1-3-1",
+                    "name": "Fixture Item 1-3-1",
+                    "level": 37,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 1
+                  }
+                ]
+              },
+              {
+                "position": 3,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-1-1-1",
+                    "name": "Fixture Item 1-1-1",
+                    "level": 39,
+                    "quality": 5,
+                    "iconPath": "",
+                    "promote": 1,
+                    "heroType": 1
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-1-1-2",
+                    "name": "Fixture Item 1-1-2",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 1
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "squadIndex": 2,
+            "positions": [
+              {
+                "position": 1,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-2-2-1",
+                    "name": "Fixture Item 2-2-1",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 2
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-2-2-2",
+                    "name": "Fixture Item 2-2-2",
+                    "level": 37,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 2
+                  }
+                ]
+              },
+              {
+                "position": 2,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-2-1-1",
+                    "name": "Fixture Item 2-1-1",
+                    "level": 39,
+                    "quality": 5,
+                    "iconPath": "",
+                    "promote": 1,
+                    "heroType": 2
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-2-1-2",
+                    "name": "Fixture Item 2-1-2",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 2
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "squadIndex": 3,
+            "positions": [
+              {
+                "position": 1,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-3-1-1",
+                    "name": "Fixture Item 3-1-1",
+                    "level": 39,
+                    "quality": 5,
+                    "iconPath": "",
+                    "promote": 1,
+                    "heroType": 3
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-3-1-2",
+                    "name": "Fixture Item 3-1-2",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 3
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "squadIndex": 4,
+            "positions": [
+              {
+                "position": 1,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-4-2-1",
+                    "name": "Fixture Item 4-2-1",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 4
+                  }
+                ]
+              },
+              {
+                "position": 2,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-4-1-1",
+                    "name": "Fixture Item 4-1-1",
+                    "level": 39,
+                    "quality": 5,
+                    "iconPath": "",
+                    "promote": 1,
+                    "heroType": 4
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-4-1-2",
+                    "name": "Fixture Item 4-1-2",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 4
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "confirmed": [
+      {
+        "id": "equipment-preset-fixed-1",
+        "name": "Fixture equipment preset 1",
+        "squads": [
+          {
+            "squadIndex": 1,
+            "positions": [
+              {
+                "position": 1,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-1-1-1",
+                    "name": "Fixture Item 1-1-1",
+                    "level": 39,
+                    "quality": 5,
+                    "iconPath": "",
+                    "promote": 1,
+                    "heroType": 1
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-1-1-2",
+                    "name": "Fixture Item 1-1-2",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 1
+                  }
+                ]
+              },
+              {
+                "position": 2,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-1-2-1",
+                    "name": "Fixture Item 1-2-1",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 1
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-1-2-2",
+                    "name": "Fixture Item 1-2-2",
+                    "level": 37,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 1
+                  }
+                ]
+              },
+              {
+                "position": 3,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-1-3-1",
+                    "name": "Fixture Item 1-3-1",
+                    "level": 37,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 1
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "squadIndex": 2,
+            "positions": [
+              {
+                "position": 1,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-2-1-1",
+                    "name": "Fixture Item 2-1-1",
+                    "level": 39,
+                    "quality": 5,
+                    "iconPath": "",
+                    "promote": 1,
+                    "heroType": 2
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-2-1-2",
+                    "name": "Fixture Item 2-1-2",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 2
+                  }
+                ]
+              },
+              {
+                "position": 2,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-2-2-1",
+                    "name": "Fixture Item 2-2-1",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 2
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-2-2-2",
+                    "name": "Fixture Item 2-2-2",
+                    "level": 37,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 2
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "squadIndex": 3,
+            "positions": [
+              {
+                "position": 1,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-3-1-1",
+                    "name": "Fixture Item 3-1-1",
+                    "level": 39,
+                    "quality": 5,
+                    "iconPath": "",
+                    "promote": 1,
+                    "heroType": 3
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-3-1-2",
+                    "name": "Fixture Item 3-1-2",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 3
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "squadIndex": 4,
+            "positions": [
+              {
+                "position": 1,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-4-1-1",
+                    "name": "Fixture Item 4-1-1",
+                    "level": 39,
+                    "quality": 5,
+                    "iconPath": "",
+                    "promote": 1,
+                    "heroType": 4
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-4-1-2",
+                    "name": "Fixture Item 4-1-2",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 4
+                  }
+                ]
+              },
+              {
+                "position": 2,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-4-2-1",
+                    "name": "Fixture Item 4-2-1",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 4
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "equipment-preset-fixed-2",
+        "name": "Fixture equipment preset 2",
+        "squads": [
+          {
+            "squadIndex": 1,
+            "positions": [
+              {
+                "position": 1,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-1-1-1-alt",
+                    "name": "Fixture Item 1-1-1",
+                    "level": 39,
+                    "quality": 5,
+                    "iconPath": "",
+                    "promote": 1,
+                    "heroType": 1
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-1-1-2-alt",
+                    "name": "Fixture Item 1-1-2",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 1
+                  }
+                ]
+              },
+              {
+                "position": 2,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-1-2-1-alt",
+                    "name": "Fixture Item 1-2-1",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 1
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-1-2-2-alt",
+                    "name": "Fixture Item 1-2-2",
+                    "level": 37,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 1
+                  }
+                ]
+              },
+              {
+                "position": 3,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-1-3-1-alt",
+                    "name": "Fixture Item 1-3-1",
+                    "level": 37,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 1
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "squadIndex": 2,
+            "positions": [
+              {
+                "position": 1,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-2-1-1-alt",
+                    "name": "Fixture Item 2-1-1",
+                    "level": 39,
+                    "quality": 5,
+                    "iconPath": "",
+                    "promote": 1,
+                    "heroType": 2
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-2-1-2-alt",
+                    "name": "Fixture Item 2-1-2",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 2
+                  }
+                ]
+              },
+              {
+                "position": 2,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-2-2-1-alt",
+                    "name": "Fixture Item 2-2-1",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 2
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-2-2-2-alt",
+                    "name": "Fixture Item 2-2-2",
+                    "level": 37,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 2
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "squadIndex": 3,
+            "positions": [
+              {
+                "position": 1,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-3-1-1-alt",
+                    "name": "Fixture Item 3-1-1",
+                    "level": 39,
+                    "quality": 5,
+                    "iconPath": "",
+                    "promote": 1,
+                    "heroType": 3
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-3-1-2-alt",
+                    "name": "Fixture Item 3-1-2",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 3
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "squadIndex": 4,
+            "positions": [
+              {
+                "position": 1,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-4-1-1-alt",
+                    "name": "Fixture Item 4-1-1",
+                    "level": 39,
+                    "quality": 5,
+                    "iconPath": "",
+                    "promote": 1,
+                    "heroType": 4
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-4-1-2-alt",
+                    "name": "Fixture Item 4-1-2",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 4
+                  }
+                ]
+              },
+              {
+                "position": 2,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-4-2-1-alt",
+                    "name": "Fixture Item 4-2-1",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 4
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "equipment-preset-fixed-3",
+        "name": "Fixture equipment preset 3",
+        "squads": [
+          {
+            "squadIndex": 1,
+            "positions": [
+              {
+                "position": 1,
+                "equips": []
+              },
+              {
+                "position": 2,
+                "equips": []
+              },
+              {
+                "position": 3,
+                "equips": []
+              }
+            ]
+          },
+          {
+            "squadIndex": 2,
+            "positions": [
+              {
+                "position": 1,
+                "equips": []
+              },
+              {
+                "position": 2,
+                "equips": []
+              }
+            ]
+          },
+          {
+            "squadIndex": 3,
+            "positions": [
+              {
+                "position": 1,
+                "equips": []
+              }
+            ]
+          },
+          {
+            "squadIndex": 4,
+            "positions": [
+              {
+                "position": 1,
+                "equips": []
+              },
+              {
+                "position": 2,
+                "equips": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "equipment-preset-fixed-4",
+        "name": "Fixture equipment preset 4",
+        "squads": [
+          {
+            "squadIndex": 1,
+            "positions": [
+              {
+                "position": 1,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-1-2-1",
+                    "name": "Fixture Item 1-2-1",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 1
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-1-2-2",
+                    "name": "Fixture Item 1-2-2",
+                    "level": 37,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 1
+                  }
+                ]
+              },
+              {
+                "position": 2,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-1-3-1",
+                    "name": "Fixture Item 1-3-1",
+                    "level": 37,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 1
+                  }
+                ]
+              },
+              {
+                "position": 3,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-1-1-1",
+                    "name": "Fixture Item 1-1-1",
+                    "level": 39,
+                    "quality": 5,
+                    "iconPath": "",
+                    "promote": 1,
+                    "heroType": 1
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-1-1-2",
+                    "name": "Fixture Item 1-1-2",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 1
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "squadIndex": 2,
+            "positions": [
+              {
+                "position": 1,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-2-2-1",
+                    "name": "Fixture Item 2-2-1",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 2
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-2-2-2",
+                    "name": "Fixture Item 2-2-2",
+                    "level": 37,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 2
+                  }
+                ]
+              },
+              {
+                "position": 2,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-2-1-1",
+                    "name": "Fixture Item 2-1-1",
+                    "level": 39,
+                    "quality": 5,
+                    "iconPath": "",
+                    "promote": 1,
+                    "heroType": 2
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-2-1-2",
+                    "name": "Fixture Item 2-1-2",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 2
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "squadIndex": 3,
+            "positions": [
+              {
+                "position": 1,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-3-1-1",
+                    "name": "Fixture Item 3-1-1",
+                    "level": 39,
+                    "quality": 5,
+                    "iconPath": "",
+                    "promote": 1,
+                    "heroType": 3
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-3-1-2",
+                    "name": "Fixture Item 3-1-2",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 3
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "squadIndex": 4,
+            "positions": [
+              {
+                "position": 1,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-4-2-1",
+                    "name": "Fixture Item 4-2-1",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 4
+                  }
+                ]
+              },
+              {
+                "position": 2,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-4-1-1",
+                    "name": "Fixture Item 4-1-1",
+                    "level": 39,
+                    "quality": 5,
+                    "iconPath": "",
+                    "promote": 1,
+                    "heroType": 4
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-4-1-2",
+                    "name": "Fixture Item 4-1-2",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 4
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "dirty": true,
+    "saving": true,
+    "error": null
+  },
+  "edited": {
+    "draft": [
+      {
+        "id": "equipment-preset-fixed-1",
+        "name": "Pending A owned",
+        "squads": [
+          {
+            "squadIndex": 1,
+            "positions": [
+              {
+                "position": 1,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-1-2-1",
+                    "name": "Fixture Item 1-2-1",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 1
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-1-2-2",
+                    "name": "Fixture Item 1-2-2",
+                    "level": 37,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 1
+                  }
+                ]
+              },
+              {
+                "position": 2,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-1-1-1",
+                    "name": "Fixture Item 1-1-1",
+                    "level": 39,
+                    "quality": 5,
+                    "iconPath": "",
+                    "promote": 1,
+                    "heroType": 1
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-1-1-2",
+                    "name": "Fixture Item 1-1-2",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 1
+                  }
+                ]
+              },
+              {
+                "position": 3,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-1-3-1",
+                    "name": "Fixture Item 1-3-1",
+                    "level": 37,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 1
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "squadIndex": 2,
+            "positions": [
+              {
+                "position": 1,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-2-1-1",
+                    "name": "Fixture Item 2-1-1",
+                    "level": 39,
+                    "quality": 5,
+                    "iconPath": "",
+                    "promote": 1,
+                    "heroType": 2
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-2-1-2",
+                    "name": "Fixture Item 2-1-2",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 2
+                  }
+                ]
+              },
+              {
+                "position": 2,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-2-2-1",
+                    "name": "Fixture Item 2-2-1",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 2
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-2-2-2",
+                    "name": "Fixture Item 2-2-2",
+                    "level": 37,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 2
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "squadIndex": 3,
+            "positions": [
+              {
+                "position": 1,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-3-1-1",
+                    "name": "Fixture Item 3-1-1",
+                    "level": 39,
+                    "quality": 5,
+                    "iconPath": "",
+                    "promote": 1,
+                    "heroType": 3
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-3-1-2",
+                    "name": "Fixture Item 3-1-2",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 3
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "squadIndex": 4,
+            "positions": [
+              {
+                "position": 1,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-4-1-1",
+                    "name": "Fixture Item 4-1-1",
+                    "level": 39,
+                    "quality": 5,
+                    "iconPath": "",
+                    "promote": 1,
+                    "heroType": 4
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-4-1-2",
+                    "name": "Fixture Item 4-1-2",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 4
+                  }
+                ]
+              },
+              {
+                "position": 2,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-4-2-1",
+                    "name": "Fixture Item 4-2-1",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 4
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "equipment-preset-fixed-2",
+        "name": "Fixture equipment preset 2",
+        "squads": [
+          {
+            "squadIndex": 1,
+            "positions": [
+              {
+                "position": 1,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-1-1-1-alt",
+                    "name": "Fixture Item 1-1-1",
+                    "level": 39,
+                    "quality": 5,
+                    "iconPath": "",
+                    "promote": 1,
+                    "heroType": 1
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-1-1-2-alt",
+                    "name": "Fixture Item 1-1-2",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 1
+                  }
+                ]
+              },
+              {
+                "position": 2,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-1-2-1-alt",
+                    "name": "Fixture Item 1-2-1",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 1
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-1-2-2-alt",
+                    "name": "Fixture Item 1-2-2",
+                    "level": 37,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 1
+                  }
+                ]
+              },
+              {
+                "position": 3,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-1-3-1-alt",
+                    "name": "Fixture Item 1-3-1",
+                    "level": 37,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 1
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "squadIndex": 2,
+            "positions": [
+              {
+                "position": 1,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-2-1-1-alt",
+                    "name": "Fixture Item 2-1-1",
+                    "level": 39,
+                    "quality": 5,
+                    "iconPath": "",
+                    "promote": 1,
+                    "heroType": 2
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-2-1-2-alt",
+                    "name": "Fixture Item 2-1-2",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 2
+                  }
+                ]
+              },
+              {
+                "position": 2,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-2-2-1-alt",
+                    "name": "Fixture Item 2-2-1",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 2
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-2-2-2-alt",
+                    "name": "Fixture Item 2-2-2",
+                    "level": 37,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 2
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "squadIndex": 3,
+            "positions": [
+              {
+                "position": 1,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-3-1-1-alt",
+                    "name": "Fixture Item 3-1-1",
+                    "level": 39,
+                    "quality": 5,
+                    "iconPath": "",
+                    "promote": 1,
+                    "heroType": 3
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-3-1-2-alt",
+                    "name": "Fixture Item 3-1-2",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 3
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "squadIndex": 4,
+            "positions": [
+              {
+                "position": 1,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-4-1-1-alt",
+                    "name": "Fixture Item 4-1-1",
+                    "level": 39,
+                    "quality": 5,
+                    "iconPath": "",
+                    "promote": 1,
+                    "heroType": 4
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-4-1-2-alt",
+                    "name": "Fixture Item 4-1-2",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 4
+                  }
+                ]
+              },
+              {
+                "position": 2,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-4-2-1-alt",
+                    "name": "Fixture Item 4-2-1",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 4
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "equipment-preset-fixed-3",
+        "name": "Fixture equipment preset 3",
+        "squads": [
+          {
+            "squadIndex": 1,
+            "positions": [
+              {
+                "position": 1,
+                "equips": []
+              },
+              {
+                "position": 2,
+                "equips": []
+              },
+              {
+                "position": 3,
+                "equips": []
+              }
+            ]
+          },
+          {
+            "squadIndex": 2,
+            "positions": [
+              {
+                "position": 1,
+                "equips": []
+              },
+              {
+                "position": 2,
+                "equips": []
+              }
+            ]
+          },
+          {
+            "squadIndex": 3,
+            "positions": [
+              {
+                "position": 1,
+                "equips": []
+              }
+            ]
+          },
+          {
+            "squadIndex": 4,
+            "positions": [
+              {
+                "position": 1,
+                "equips": []
+              },
+              {
+                "position": 2,
+                "equips": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "equipment-preset-fixed-4",
+        "name": "Fixture equipment preset 4",
+        "squads": [
+          {
+            "squadIndex": 1,
+            "positions": [
+              {
+                "position": 1,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-1-2-1",
+                    "name": "Fixture Item 1-2-1",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 1
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-1-2-2",
+                    "name": "Fixture Item 1-2-2",
+                    "level": 37,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 1
+                  }
+                ]
+              },
+              {
+                "position": 2,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-1-3-1",
+                    "name": "Fixture Item 1-3-1",
+                    "level": 37,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 1
+                  }
+                ]
+              },
+              {
+                "position": 3,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-1-1-1",
+                    "name": "Fixture Item 1-1-1",
+                    "level": 39,
+                    "quality": 5,
+                    "iconPath": "",
+                    "promote": 1,
+                    "heroType": 1
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-1-1-2",
+                    "name": "Fixture Item 1-1-2",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 1
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "squadIndex": 2,
+            "positions": [
+              {
+                "position": 1,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-2-2-1",
+                    "name": "Fixture Item 2-2-1",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 2
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-2-2-2",
+                    "name": "Fixture Item 2-2-2",
+                    "level": 37,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 2
+                  }
+                ]
+              },
+              {
+                "position": 2,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-2-1-1",
+                    "name": "Fixture Item 2-1-1",
+                    "level": 39,
+                    "quality": 5,
+                    "iconPath": "",
+                    "promote": 1,
+                    "heroType": 2
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-2-1-2",
+                    "name": "Fixture Item 2-1-2",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 2
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "squadIndex": 3,
+            "positions": [
+              {
+                "position": 1,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-3-1-1",
+                    "name": "Fixture Item 3-1-1",
+                    "level": 39,
+                    "quality": 5,
+                    "iconPath": "",
+                    "promote": 1,
+                    "heroType": 3
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-3-1-2",
+                    "name": "Fixture Item 3-1-2",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 3
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "squadIndex": 4,
+            "positions": [
+              {
+                "position": 1,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-4-2-1",
+                    "name": "Fixture Item 4-2-1",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 4
+                  }
+                ]
+              },
+              {
+                "position": 2,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-4-1-1",
+                    "name": "Fixture Item 4-1-1",
+                    "level": 39,
+                    "quality": 5,
+                    "iconPath": "",
+                    "promote": 1,
+                    "heroType": 4
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-4-1-2",
+                    "name": "Fixture Item 4-1-2",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 4
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "confirmed": [
+      {
+        "id": "equipment-preset-fixed-1",
+        "name": "Fixture equipment preset 1",
+        "squads": [
+          {
+            "squadIndex": 1,
+            "positions": [
+              {
+                "position": 1,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-1-1-1",
+                    "name": "Fixture Item 1-1-1",
+                    "level": 39,
+                    "quality": 5,
+                    "iconPath": "",
+                    "promote": 1,
+                    "heroType": 1
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-1-1-2",
+                    "name": "Fixture Item 1-1-2",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 1
+                  }
+                ]
+              },
+              {
+                "position": 2,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-1-2-1",
+                    "name": "Fixture Item 1-2-1",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 1
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-1-2-2",
+                    "name": "Fixture Item 1-2-2",
+                    "level": 37,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 1
+                  }
+                ]
+              },
+              {
+                "position": 3,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-1-3-1",
+                    "name": "Fixture Item 1-3-1",
+                    "level": 37,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 1
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "squadIndex": 2,
+            "positions": [
+              {
+                "position": 1,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-2-1-1",
+                    "name": "Fixture Item 2-1-1",
+                    "level": 39,
+                    "quality": 5,
+                    "iconPath": "",
+                    "promote": 1,
+                    "heroType": 2
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-2-1-2",
+                    "name": "Fixture Item 2-1-2",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 2
+                  }
+                ]
+              },
+              {
+                "position": 2,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-2-2-1",
+                    "name": "Fixture Item 2-2-1",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 2
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-2-2-2",
+                    "name": "Fixture Item 2-2-2",
+                    "level": 37,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 2
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "squadIndex": 3,
+            "positions": [
+              {
+                "position": 1,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-3-1-1",
+                    "name": "Fixture Item 3-1-1",
+                    "level": 39,
+                    "quality": 5,
+                    "iconPath": "",
+                    "promote": 1,
+                    "heroType": 3
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-3-1-2",
+                    "name": "Fixture Item 3-1-2",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 3
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "squadIndex": 4,
+            "positions": [
+              {
+                "position": 1,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-4-1-1",
+                    "name": "Fixture Item 4-1-1",
+                    "level": 39,
+                    "quality": 5,
+                    "iconPath": "",
+                    "promote": 1,
+                    "heroType": 4
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-4-1-2",
+                    "name": "Fixture Item 4-1-2",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 4
+                  }
+                ]
+              },
+              {
+                "position": 2,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-4-2-1",
+                    "name": "Fixture Item 4-2-1",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 4
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "equipment-preset-fixed-2",
+        "name": "Fixture equipment preset 2",
+        "squads": [
+          {
+            "squadIndex": 1,
+            "positions": [
+              {
+                "position": 1,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-1-1-1-alt",
+                    "name": "Fixture Item 1-1-1",
+                    "level": 39,
+                    "quality": 5,
+                    "iconPath": "",
+                    "promote": 1,
+                    "heroType": 1
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-1-1-2-alt",
+                    "name": "Fixture Item 1-1-2",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 1
+                  }
+                ]
+              },
+              {
+                "position": 2,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-1-2-1-alt",
+                    "name": "Fixture Item 1-2-1",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 1
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-1-2-2-alt",
+                    "name": "Fixture Item 1-2-2",
+                    "level": 37,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 1
+                  }
+                ]
+              },
+              {
+                "position": 3,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-1-3-1-alt",
+                    "name": "Fixture Item 1-3-1",
+                    "level": 37,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 1
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "squadIndex": 2,
+            "positions": [
+              {
+                "position": 1,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-2-1-1-alt",
+                    "name": "Fixture Item 2-1-1",
+                    "level": 39,
+                    "quality": 5,
+                    "iconPath": "",
+                    "promote": 1,
+                    "heroType": 2
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-2-1-2-alt",
+                    "name": "Fixture Item 2-1-2",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 2
+                  }
+                ]
+              },
+              {
+                "position": 2,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-2-2-1-alt",
+                    "name": "Fixture Item 2-2-1",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 2
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-2-2-2-alt",
+                    "name": "Fixture Item 2-2-2",
+                    "level": 37,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 2
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "squadIndex": 3,
+            "positions": [
+              {
+                "position": 1,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-3-1-1-alt",
+                    "name": "Fixture Item 3-1-1",
+                    "level": 39,
+                    "quality": 5,
+                    "iconPath": "",
+                    "promote": 1,
+                    "heroType": 3
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-3-1-2-alt",
+                    "name": "Fixture Item 3-1-2",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 3
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "squadIndex": 4,
+            "positions": [
+              {
+                "position": 1,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-4-1-1-alt",
+                    "name": "Fixture Item 4-1-1",
+                    "level": 39,
+                    "quality": 5,
+                    "iconPath": "",
+                    "promote": 1,
+                    "heroType": 4
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-4-1-2-alt",
+                    "name": "Fixture Item 4-1-2",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 4
+                  }
+                ]
+              },
+              {
+                "position": 2,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-4-2-1-alt",
+                    "name": "Fixture Item 4-2-1",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 4
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "equipment-preset-fixed-3",
+        "name": "Fixture equipment preset 3",
+        "squads": [
+          {
+            "squadIndex": 1,
+            "positions": [
+              {
+                "position": 1,
+                "equips": []
+              },
+              {
+                "position": 2,
+                "equips": []
+              },
+              {
+                "position": 3,
+                "equips": []
+              }
+            ]
+          },
+          {
+            "squadIndex": 2,
+            "positions": [
+              {
+                "position": 1,
+                "equips": []
+              },
+              {
+                "position": 2,
+                "equips": []
+              }
+            ]
+          },
+          {
+            "squadIndex": 3,
+            "positions": [
+              {
+                "position": 1,
+                "equips": []
+              }
+            ]
+          },
+          {
+            "squadIndex": 4,
+            "positions": [
+              {
+                "position": 1,
+                "equips": []
+              },
+              {
+                "position": 2,
+                "equips": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "equipment-preset-fixed-4",
+        "name": "Fixture equipment preset 4",
+        "squads": [
+          {
+            "squadIndex": 1,
+            "positions": [
+              {
+                "position": 1,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-1-2-1",
+                    "name": "Fixture Item 1-2-1",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 1
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-1-2-2",
+                    "name": "Fixture Item 1-2-2",
+                    "level": 37,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 1
+                  }
+                ]
+              },
+              {
+                "position": 2,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-1-3-1",
+                    "name": "Fixture Item 1-3-1",
+                    "level": 37,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 1
+                  }
+                ]
+              },
+              {
+                "position": 3,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-1-1-1",
+                    "name": "Fixture Item 1-1-1",
+                    "level": 39,
+                    "quality": 5,
+                    "iconPath": "",
+                    "promote": 1,
+                    "heroType": 1
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-1-1-2",
+                    "name": "Fixture Item 1-1-2",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 1
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "squadIndex": 2,
+            "positions": [
+              {
+                "position": 1,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-2-2-1",
+                    "name": "Fixture Item 2-2-1",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 2
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-2-2-2",
+                    "name": "Fixture Item 2-2-2",
+                    "level": 37,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 2
+                  }
+                ]
+              },
+              {
+                "position": 2,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-2-1-1",
+                    "name": "Fixture Item 2-1-1",
+                    "level": 39,
+                    "quality": 5,
+                    "iconPath": "",
+                    "promote": 1,
+                    "heroType": 2
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-2-1-2",
+                    "name": "Fixture Item 2-1-2",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 2
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "squadIndex": 3,
+            "positions": [
+              {
+                "position": 1,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-3-1-1",
+                    "name": "Fixture Item 3-1-1",
+                    "level": 39,
+                    "quality": 5,
+                    "iconPath": "",
+                    "promote": 1,
+                    "heroType": 3
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-3-1-2",
+                    "name": "Fixture Item 3-1-2",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 3
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "squadIndex": 4,
+            "positions": [
+              {
+                "position": 1,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-4-2-1",
+                    "name": "Fixture Item 4-2-1",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 4
+                  }
+                ]
+              },
+              {
+                "position": 2,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-4-1-1",
+                    "name": "Fixture Item 4-1-1",
+                    "level": 39,
+                    "quality": 5,
+                    "iconPath": "",
+                    "promote": 1,
+                    "heroType": 4
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-4-1-2",
+                    "name": "Fixture Item 4-1-2",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 4
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "dirty": true,
+    "saving": true,
+    "error": null
+  },
+  "settled": {
+    "draft": [
+      {
+        "id": "equipment-preset-fixed-1",
+        "name": "Pending A owned",
+        "squads": [
+          {
+            "squadIndex": 1,
+            "positions": [
+              {
+                "position": 1,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-1-2-1",
+                    "name": "Fixture Item 1-2-1",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 1
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-1-2-2",
+                    "name": "Fixture Item 1-2-2",
+                    "level": 37,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 1
+                  }
+                ]
+              },
+              {
+                "position": 2,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-1-1-1",
+                    "name": "Fixture Item 1-1-1",
+                    "level": 39,
+                    "quality": 5,
+                    "iconPath": "",
+                    "promote": 1,
+                    "heroType": 1
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-1-1-2",
+                    "name": "Fixture Item 1-1-2",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 1
+                  }
+                ]
+              },
+              {
+                "position": 3,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-1-3-1",
+                    "name": "Fixture Item 1-3-1",
+                    "level": 37,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 1
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "squadIndex": 2,
+            "positions": [
+              {
+                "position": 1,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-2-1-1",
+                    "name": "Fixture Item 2-1-1",
+                    "level": 39,
+                    "quality": 5,
+                    "iconPath": "",
+                    "promote": 1,
+                    "heroType": 2
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-2-1-2",
+                    "name": "Fixture Item 2-1-2",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 2
+                  }
+                ]
+              },
+              {
+                "position": 2,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-2-2-1",
+                    "name": "Fixture Item 2-2-1",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 2
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-2-2-2",
+                    "name": "Fixture Item 2-2-2",
+                    "level": 37,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 2
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "squadIndex": 3,
+            "positions": [
+              {
+                "position": 1,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-3-1-1",
+                    "name": "Fixture Item 3-1-1",
+                    "level": 39,
+                    "quality": 5,
+                    "iconPath": "",
+                    "promote": 1,
+                    "heroType": 3
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-3-1-2",
+                    "name": "Fixture Item 3-1-2",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 3
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "squadIndex": 4,
+            "positions": [
+              {
+                "position": 1,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-4-1-1",
+                    "name": "Fixture Item 4-1-1",
+                    "level": 39,
+                    "quality": 5,
+                    "iconPath": "",
+                    "promote": 1,
+                    "heroType": 4
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-4-1-2",
+                    "name": "Fixture Item 4-1-2",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 4
+                  }
+                ]
+              },
+              {
+                "position": 2,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-4-2-1",
+                    "name": "Fixture Item 4-2-1",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 4
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "equipment-preset-fixed-2",
+        "name": "Fixture equipment preset 2",
+        "squads": [
+          {
+            "squadIndex": 1,
+            "positions": [
+              {
+                "position": 1,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-1-1-1-alt",
+                    "name": "Fixture Item 1-1-1",
+                    "level": 39,
+                    "quality": 5,
+                    "iconPath": "",
+                    "promote": 1,
+                    "heroType": 1
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-1-1-2-alt",
+                    "name": "Fixture Item 1-1-2",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 1
+                  }
+                ]
+              },
+              {
+                "position": 2,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-1-2-1-alt",
+                    "name": "Fixture Item 1-2-1",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 1
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-1-2-2-alt",
+                    "name": "Fixture Item 1-2-2",
+                    "level": 37,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 1
+                  }
+                ]
+              },
+              {
+                "position": 3,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-1-3-1-alt",
+                    "name": "Fixture Item 1-3-1",
+                    "level": 37,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 1
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "squadIndex": 2,
+            "positions": [
+              {
+                "position": 1,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-2-1-1-alt",
+                    "name": "Fixture Item 2-1-1",
+                    "level": 39,
+                    "quality": 5,
+                    "iconPath": "",
+                    "promote": 1,
+                    "heroType": 2
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-2-1-2-alt",
+                    "name": "Fixture Item 2-1-2",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 2
+                  }
+                ]
+              },
+              {
+                "position": 2,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-2-2-1-alt",
+                    "name": "Fixture Item 2-2-1",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 2
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-2-2-2-alt",
+                    "name": "Fixture Item 2-2-2",
+                    "level": 37,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 2
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "squadIndex": 3,
+            "positions": [
+              {
+                "position": 1,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-3-1-1-alt",
+                    "name": "Fixture Item 3-1-1",
+                    "level": 39,
+                    "quality": 5,
+                    "iconPath": "",
+                    "promote": 1,
+                    "heroType": 3
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-3-1-2-alt",
+                    "name": "Fixture Item 3-1-2",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 3
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "squadIndex": 4,
+            "positions": [
+              {
+                "position": 1,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-4-1-1-alt",
+                    "name": "Fixture Item 4-1-1",
+                    "level": 39,
+                    "quality": 5,
+                    "iconPath": "",
+                    "promote": 1,
+                    "heroType": 4
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-4-1-2-alt",
+                    "name": "Fixture Item 4-1-2",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 4
+                  }
+                ]
+              },
+              {
+                "position": 2,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-4-2-1-alt",
+                    "name": "Fixture Item 4-2-1",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 4
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "equipment-preset-fixed-3",
+        "name": "Fixture equipment preset 3",
+        "squads": [
+          {
+            "squadIndex": 1,
+            "positions": [
+              {
+                "position": 1,
+                "equips": []
+              },
+              {
+                "position": 2,
+                "equips": []
+              },
+              {
+                "position": 3,
+                "equips": []
+              }
+            ]
+          },
+          {
+            "squadIndex": 2,
+            "positions": [
+              {
+                "position": 1,
+                "equips": []
+              },
+              {
+                "position": 2,
+                "equips": []
+              }
+            ]
+          },
+          {
+            "squadIndex": 3,
+            "positions": [
+              {
+                "position": 1,
+                "equips": []
+              }
+            ]
+          },
+          {
+            "squadIndex": 4,
+            "positions": [
+              {
+                "position": 1,
+                "equips": []
+              },
+              {
+                "position": 2,
+                "equips": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "equipment-preset-fixed-4",
+        "name": "Fixture equipment preset 4",
+        "squads": [
+          {
+            "squadIndex": 1,
+            "positions": [
+              {
+                "position": 1,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-1-2-1",
+                    "name": "Fixture Item 1-2-1",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 1
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-1-2-2",
+                    "name": "Fixture Item 1-2-2",
+                    "level": 37,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 1
+                  }
+                ]
+              },
+              {
+                "position": 2,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-1-3-1",
+                    "name": "Fixture Item 1-3-1",
+                    "level": 37,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 1
+                  }
+                ]
+              },
+              {
+                "position": 3,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-1-1-1",
+                    "name": "Fixture Item 1-1-1",
+                    "level": 39,
+                    "quality": 5,
+                    "iconPath": "",
+                    "promote": 1,
+                    "heroType": 1
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-1-1-2",
+                    "name": "Fixture Item 1-1-2",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 1
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "squadIndex": 2,
+            "positions": [
+              {
+                "position": 1,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-2-2-1",
+                    "name": "Fixture Item 2-2-1",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 2
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-2-2-2",
+                    "name": "Fixture Item 2-2-2",
+                    "level": 37,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 2
+                  }
+                ]
+              },
+              {
+                "position": 2,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-2-1-1",
+                    "name": "Fixture Item 2-1-1",
+                    "level": 39,
+                    "quality": 5,
+                    "iconPath": "",
+                    "promote": 1,
+                    "heroType": 2
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-2-1-2",
+                    "name": "Fixture Item 2-1-2",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 2
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "squadIndex": 3,
+            "positions": [
+              {
+                "position": 1,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-3-1-1",
+                    "name": "Fixture Item 3-1-1",
+                    "level": 39,
+                    "quality": 5,
+                    "iconPath": "",
+                    "promote": 1,
+                    "heroType": 3
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-3-1-2",
+                    "name": "Fixture Item 3-1-2",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 3
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "squadIndex": 4,
+            "positions": [
+              {
+                "position": 1,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-4-2-1",
+                    "name": "Fixture Item 4-2-1",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 4
+                  }
+                ]
+              },
+              {
+                "position": 2,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-4-1-1",
+                    "name": "Fixture Item 4-1-1",
+                    "level": 39,
+                    "quality": 5,
+                    "iconPath": "",
+                    "promote": 1,
+                    "heroType": 4
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-4-1-2",
+                    "name": "Fixture Item 4-1-2",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 4
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "confirmed": [
+      {
+        "id": "equipment-preset-fixed-1",
+        "name": "Pending A owned",
+        "squads": [
+          {
+            "squadIndex": 1,
+            "positions": [
+              {
+                "position": 1,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-1-2-1",
+                    "name": "Fixture Item 1-2-1",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 1
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-1-2-2",
+                    "name": "Fixture Item 1-2-2",
+                    "level": 37,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 1
+                  }
+                ]
+              },
+              {
+                "position": 2,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-1-1-1",
+                    "name": "Fixture Item 1-1-1",
+                    "level": 39,
+                    "quality": 5,
+                    "iconPath": "",
+                    "promote": 1,
+                    "heroType": 1
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-1-1-2",
+                    "name": "Fixture Item 1-1-2",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 1
+                  }
+                ]
+              },
+              {
+                "position": 3,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-1-3-1",
+                    "name": "Fixture Item 1-3-1",
+                    "level": 37,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 1
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "squadIndex": 2,
+            "positions": [
+              {
+                "position": 1,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-2-1-1",
+                    "name": "Fixture Item 2-1-1",
+                    "level": 39,
+                    "quality": 5,
+                    "iconPath": "",
+                    "promote": 1,
+                    "heroType": 2
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-2-1-2",
+                    "name": "Fixture Item 2-1-2",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 2
+                  }
+                ]
+              },
+              {
+                "position": 2,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-2-2-1",
+                    "name": "Fixture Item 2-2-1",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 2
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-2-2-2",
+                    "name": "Fixture Item 2-2-2",
+                    "level": 37,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 2
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "squadIndex": 3,
+            "positions": [
+              {
+                "position": 1,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-3-1-1",
+                    "name": "Fixture Item 3-1-1",
+                    "level": 39,
+                    "quality": 5,
+                    "iconPath": "",
+                    "promote": 1,
+                    "heroType": 3
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-3-1-2",
+                    "name": "Fixture Item 3-1-2",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 3
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "squadIndex": 4,
+            "positions": [
+              {
+                "position": 1,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-4-1-1",
+                    "name": "Fixture Item 4-1-1",
+                    "level": 39,
+                    "quality": 5,
+                    "iconPath": "",
+                    "promote": 1,
+                    "heroType": 4
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-4-1-2",
+                    "name": "Fixture Item 4-1-2",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 4
+                  }
+                ]
+              },
+              {
+                "position": 2,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-4-2-1",
+                    "name": "Fixture Item 4-2-1",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 4
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "equipment-preset-fixed-2",
+        "name": "Fixture equipment preset 2",
+        "squads": [
+          {
+            "squadIndex": 1,
+            "positions": [
+              {
+                "position": 1,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-1-1-1-alt",
+                    "name": "Fixture Item 1-1-1",
+                    "level": 39,
+                    "quality": 5,
+                    "iconPath": "",
+                    "promote": 1,
+                    "heroType": 1
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-1-1-2-alt",
+                    "name": "Fixture Item 1-1-2",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 1
+                  }
+                ]
+              },
+              {
+                "position": 2,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-1-2-1-alt",
+                    "name": "Fixture Item 1-2-1",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 1
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-1-2-2-alt",
+                    "name": "Fixture Item 1-2-2",
+                    "level": 37,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 1
+                  }
+                ]
+              },
+              {
+                "position": 3,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-1-3-1-alt",
+                    "name": "Fixture Item 1-3-1",
+                    "level": 37,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 1
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "squadIndex": 2,
+            "positions": [
+              {
+                "position": 1,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-2-1-1-alt",
+                    "name": "Fixture Item 2-1-1",
+                    "level": 39,
+                    "quality": 5,
+                    "iconPath": "",
+                    "promote": 1,
+                    "heroType": 2
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-2-1-2-alt",
+                    "name": "Fixture Item 2-1-2",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 2
+                  }
+                ]
+              },
+              {
+                "position": 2,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-2-2-1-alt",
+                    "name": "Fixture Item 2-2-1",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 2
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-2-2-2-alt",
+                    "name": "Fixture Item 2-2-2",
+                    "level": 37,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 2
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "squadIndex": 3,
+            "positions": [
+              {
+                "position": 1,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-3-1-1-alt",
+                    "name": "Fixture Item 3-1-1",
+                    "level": 39,
+                    "quality": 5,
+                    "iconPath": "",
+                    "promote": 1,
+                    "heroType": 3
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-3-1-2-alt",
+                    "name": "Fixture Item 3-1-2",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 3
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "squadIndex": 4,
+            "positions": [
+              {
+                "position": 1,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-4-1-1-alt",
+                    "name": "Fixture Item 4-1-1",
+                    "level": 39,
+                    "quality": 5,
+                    "iconPath": "",
+                    "promote": 1,
+                    "heroType": 4
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-4-1-2-alt",
+                    "name": "Fixture Item 4-1-2",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 4
+                  }
+                ]
+              },
+              {
+                "position": 2,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-4-2-1-alt",
+                    "name": "Fixture Item 4-2-1",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 4
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "equipment-preset-fixed-3",
+        "name": "Fixture equipment preset 3",
+        "squads": [
+          {
+            "squadIndex": 1,
+            "positions": [
+              {
+                "position": 1,
+                "equips": []
+              },
+              {
+                "position": 2,
+                "equips": []
+              },
+              {
+                "position": 3,
+                "equips": []
+              }
+            ]
+          },
+          {
+            "squadIndex": 2,
+            "positions": [
+              {
+                "position": 1,
+                "equips": []
+              },
+              {
+                "position": 2,
+                "equips": []
+              }
+            ]
+          },
+          {
+            "squadIndex": 3,
+            "positions": [
+              {
+                "position": 1,
+                "equips": []
+              }
+            ]
+          },
+          {
+            "squadIndex": 4,
+            "positions": [
+              {
+                "position": 1,
+                "equips": []
+              },
+              {
+                "position": 2,
+                "equips": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "equipment-preset-fixed-4",
+        "name": "Fixture equipment preset 4",
+        "squads": [
+          {
+            "squadIndex": 1,
+            "positions": [
+              {
+                "position": 1,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-1-2-1",
+                    "name": "Fixture Item 1-2-1",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 1
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-1-2-2",
+                    "name": "Fixture Item 1-2-2",
+                    "level": 37,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 1
+                  }
+                ]
+              },
+              {
+                "position": 2,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-1-3-1",
+                    "name": "Fixture Item 1-3-1",
+                    "level": 37,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 1
+                  }
+                ]
+              },
+              {
+                "position": 3,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-1-1-1",
+                    "name": "Fixture Item 1-1-1",
+                    "level": 39,
+                    "quality": 5,
+                    "iconPath": "",
+                    "promote": 1,
+                    "heroType": 1
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-1-1-2",
+                    "name": "Fixture Item 1-1-2",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 1
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "squadIndex": 2,
+            "positions": [
+              {
+                "position": 1,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-2-2-1",
+                    "name": "Fixture Item 2-2-1",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 2
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-2-2-2",
+                    "name": "Fixture Item 2-2-2",
+                    "level": 37,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 2
+                  }
+                ]
+              },
+              {
+                "position": 2,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-2-1-1",
+                    "name": "Fixture Item 2-1-1",
+                    "level": 39,
+                    "quality": 5,
+                    "iconPath": "",
+                    "promote": 1,
+                    "heroType": 2
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-2-1-2",
+                    "name": "Fixture Item 2-1-2",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 2
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "squadIndex": 3,
+            "positions": [
+              {
+                "position": 1,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-3-1-1",
+                    "name": "Fixture Item 3-1-1",
+                    "level": 39,
+                    "quality": 5,
+                    "iconPath": "",
+                    "promote": 1,
+                    "heroType": 3
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-3-1-2",
+                    "name": "Fixture Item 3-1-2",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 3
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "squadIndex": 4,
+            "positions": [
+              {
+                "position": 1,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-4-2-1",
+                    "name": "Fixture Item 4-2-1",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 4
+                  }
+                ]
+              },
+              {
+                "position": 2,
+                "equips": [
+                  {
+                    "slot": 1,
+                    "equipUuid": "fixture-equip-4-1-1",
+                    "name": "Fixture Item 4-1-1",
+                    "level": 39,
+                    "quality": 5,
+                    "iconPath": "",
+                    "promote": 1,
+                    "heroType": 4
+                  },
+                  {
+                    "slot": 2,
+                    "equipUuid": "fixture-equip-4-1-2",
+                    "name": "Fixture Item 4-1-2",
+                    "level": 38,
+                    "quality": 4,
+                    "iconPath": "",
+                    "promote": 0,
+                    "heroType": 4
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "dirty": false,
+    "saving": false,
+    "error": null
+  },
+  "original": {
+    "PByte": 180274,
+    "PSource": "async function P(e){u.state.edit(e,!1);try{return await u.state.flush(!1)}catch{return null}}",
+    "dirty": true,
+    "confirmedMatchesFirstDraft": true
+  },
+  "issues": [],
+  "limits": "Isolated mounted actual SquadsPage and actual rendered rename/drop callbacks. Local controlled deferred store adapter; no native/gameplay or physical HTML5 drag claim."
+}
