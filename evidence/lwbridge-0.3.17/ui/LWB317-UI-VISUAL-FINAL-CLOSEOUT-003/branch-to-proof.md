@@ -10,6 +10,6 @@ Date: 2026-10-05
 | Recovery event ownership | `index-BVfnK1wp.js` `Pe` | `App.jsx` selected-profile recovery effect + `mapBackend.unwrapProfileEvent` | Fresh callback inverse proof complete in Milestone A. |
 | Recurring Home status ownership | recovered `Gi` periodic callback | `App.jsx` periodic status effect / `readStatusSnapshot` | Fresh deferred overlap/replacement/cleanup proof complete in Milestone A. |
 | Preview profile loading ownership | recovered `Gi` selected-profile bundle/cache semantics | `App.jsx` `profilePreviewCallbacks.onSelect` | Fresh B→C/cached-return proof complete in Milestone A. |
-| Whole AFK/Squads | `SquadPanel-HC3-DJei.js` function `I` plus recovered siblings | live `SquadsPage.jsx` composition and accepted editor/Equipment boundaries | Open until Milestone B fresh matched composition proof. |
+| Whole AFK/Squads | `SquadPanel-HC3-DJei.js` exact `I` + recovered compact/error/`In`/`ye`/`pe`/`he`/`me` | live `SquadsPage.jsx`, `RallyJoinSettings.jsx` and material children | Fresh 30-case whole composition + 14 paired browser cases + Join dialog contract + mounted interactions complete in Milestone B. |
 | Conditional Automation | recovered `AutomationPanel-BJ0gIqFh.js` `Ae` plus shared card | live `AutomationPage.jsx` and current forms/meta | Open until Milestone C finite matched branch proof. |
 | Map / other pages / shell | recovered package assets and accepted campaign packets | live canonical pages/App | Inherited proof must be dependency-checked and affected/stale boundaries rerun in Milestones D/E. |

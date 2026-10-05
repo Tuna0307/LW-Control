@@ -1,0 +1,31 @@
+{
+  "marker": "LWB317_FINAL_CLOSEOUT_JOIN_MODAL_CONTRACT_OK",
+  "original": {
+    "byteOffset": 209017,
+    "byteLength": 1209,
+    "sha256": "E42C17AAC67AFE7A73D525902C9E757644E40838422730CEB32EC47830C4F8A2"
+  },
+  "current": {
+    "byteOffset": 284,
+    "byteLength": 1743,
+    "sha256": "1FA1C84E8DF920FDC0ED04E6E9F121D4C0B589B4EAE06D1C2D65A466385BED2F"
+  },
+  "recoveredDefaults": {
+    "busy": false,
+    "dismissOnBackdrop": false
+  },
+  "checks": [
+    "native dialog",
+    "app-dialog class",
+    "modal aria",
+    "busy aria",
+    "showModal",
+    "close on cleanup",
+    "focus restore",
+    "cancel prevention",
+    "Tab focus trap query",
+    "stop propagation",
+    "pointer backdrop origin"
+  ],
+  "scriptSha256": "1BBA895B4E206904C160A961C4E0A07733AFDA3B04BDFFA33A4BCB57BBEAA25E"
+}

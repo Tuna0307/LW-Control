@@ -1,19 +1,55 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import * as A from "react/jsx-runtime";
 import { useI18n } from "./i18n.jsx";
 import { validJoinRestrictions as se } from "./previewAfkContracts.js";
 import { previewMemberFixture } from "./previewAfkCloseoutFixtures.js";
 function JoinModal({ className, label, onClose, children }) {
+  const ref = useRef(null);
+  const pointerStartedOnBackdrop = useRef(false);
   useEffect(() => {
-    const close = (event) => {
-      if (event.key === "Escape") onClose();
+    const dialog = ref.current;
+    const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    dialog.showModal();
+    return () => {
+      dialog.close();
+      if (previous?.isConnected) previous.focus({ preventScroll: true });
     };
-    window.addEventListener("keydown", close);
-    return () => window.removeEventListener("keydown", close);
-  }, [onClose]);
-  return A.jsx("div", { className, role: "presentation", onMouseDown: (event) => {
-    if (event.target === event.currentTarget) onClose();
-  }, children: A.jsx("div", { role: "dialog", "aria-modal": true, "aria-label": label, children }) });
+  }, []);
+  return A.jsx("dialog", {
+    ref,
+    className: `app-dialog ${className}`,
+    role: "dialog",
+    "aria-modal": true,
+    "aria-label": label,
+    "aria-busy": false,
+    onCancel: (event) => {
+      event.preventDefault();
+      onClose();
+    },
+    onKeyDown: (event) => {
+      event.stopPropagation();
+      if (event.key !== "Tab") return;
+      const controls = [...event.currentTarget.querySelectorAll("button, [href], input, select, textarea, [tabindex]")]
+        .filter((element) => element.tabIndex >= 0 && !element.matches(":disabled") && element.getClientRects().length > 0);
+      const first = controls[0];
+      const last = controls[controls.length - 1];
+      if (!first) event.preventDefault();
+      else if (event.shiftKey && (document.activeElement === first || !controls.includes(document.activeElement))) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && (document.activeElement === last || !controls.includes(document.activeElement))) {
+        event.preventDefault();
+        first.focus();
+      }
+    },
+    onPointerDown: (event) => {
+      pointerStartedOnBackdrop.current = event.target === event.currentTarget;
+    },
+    onClick: () => {
+      pointerStartedOnBackdrop.current = false;
+    },
+    children,
+  });
 }
 function RallyJoinSettings({
   value: e,

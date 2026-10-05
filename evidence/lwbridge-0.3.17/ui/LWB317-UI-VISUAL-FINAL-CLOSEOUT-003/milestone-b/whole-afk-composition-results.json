@@ -1,0 +1,1909 @@
+{
+  "marker": "LWB317_FINAL_CLOSEOUT_WHOLE_AFK_COMPOSITION_OK",
+  "originalI": {
+    "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/SquadPanel-HC3-DJei.js",
+    "utf8ByteOffset": 28070,
+    "utf8ByteLength": 22554,
+    "sha256": "0A4895C21AD443AA7A1C05B54CFF2E8DD89F9038BED10DBFFFB9001A4128EE2E"
+  },
+  "scope": "Exact recovered whole function I is executed with exact recovered compact/config-error/Garrison/Zombie/Join children. Live canonical AfkContent is executed with live editor/Drill/Garrison/Zombie children. Inputs are matched from the current task-owned source-valid fixture adapters. Native actions remain inert/fenced.",
+  "cases": [
+    {
+      "id": "selected-existing",
+      "previewState": "squads-profile-positive",
+      "inputs": {
+        "availableSquads": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "profileIds": [
+          "steel"
+        ],
+        "confirmedProfileIds": [
+          "steel"
+        ],
+        "profileSquads": [
+          [
+            1
+          ]
+        ],
+        "toolbarPanel": null,
+        "compositionError": "",
+        "runtimeRows": 0
+      },
+      "originalStats": {
+        "profileCards": 1,
+        "editors": 2,
+        "assignmentButtons": 4,
+        "toolbarSettings": 0,
+        "compositionErrors": 0,
+        "configErrors": 0,
+        "runtimeStatus": 0,
+        "garrisonSettings": 0,
+        "zombieTables": 0
+      },
+      "currentStats": {
+        "profileCards": 1,
+        "editors": 2,
+        "assignmentButtons": 4,
+        "toolbarSettings": 0,
+        "compositionErrors": 0,
+        "configErrors": 0,
+        "runtimeStatus": 0,
+        "garrisonSettings": 0,
+        "zombieTables": 0
+      },
+      "originalHtmlSha256": "A912E5E1FD4C1B8B68C48679E8BC76AE9FF36D65FA6E15DCEE9F576AADF71EE5",
+      "currentHtmlSha256": "C364CC012510F1495B9F9E51A3D2AC52AA4F12660845F979EFCA4FA1A2505BE0"
+    },
+    {
+      "id": "selected-new",
+      "previewState": "squads-profile-positive",
+      "inputs": {
+        "availableSquads": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "profileIds": [
+          "source-new"
+        ],
+        "confirmedProfileIds": [],
+        "profileSquads": [
+          [
+            1
+          ]
+        ],
+        "toolbarPanel": null,
+        "compositionError": "",
+        "runtimeRows": 0
+      },
+      "originalStats": {
+        "profileCards": 1,
+        "editors": 2,
+        "assignmentButtons": 4,
+        "toolbarSettings": 0,
+        "compositionErrors": 0,
+        "configErrors": 0,
+        "runtimeStatus": 0,
+        "garrisonSettings": 0,
+        "zombieTables": 0
+      },
+      "currentStats": {
+        "profileCards": 1,
+        "editors": 2,
+        "assignmentButtons": 4,
+        "toolbarSettings": 0,
+        "compositionErrors": 0,
+        "configErrors": 0,
+        "runtimeStatus": 0,
+        "garrisonSettings": 0,
+        "zombieTables": 0
+      },
+      "originalHtmlSha256": "21DC3E136329DC0A4A120DD581E4353E74F94D06B52D081BBB1D645FCC4582EE",
+      "currentHtmlSha256": "B1D2264B9B99D116A9DA34A93244648B4B3F915DE968B5AFACF9F68BE51CCE03"
+    },
+    {
+      "id": "profile-disabled",
+      "previewState": "squads-profile-positive",
+      "inputs": {
+        "availableSquads": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "profileIds": [
+          "steel"
+        ],
+        "confirmedProfileIds": [
+          "steel"
+        ],
+        "profileSquads": [
+          [
+            1
+          ]
+        ],
+        "toolbarPanel": null,
+        "compositionError": "",
+        "runtimeRows": 0
+      },
+      "originalStats": {
+        "profileCards": 1,
+        "editors": 2,
+        "assignmentButtons": 4,
+        "toolbarSettings": 0,
+        "compositionErrors": 0,
+        "configErrors": 0,
+        "runtimeStatus": 0,
+        "garrisonSettings": 0,
+        "zombieTables": 0
+      },
+      "currentStats": {
+        "profileCards": 1,
+        "editors": 2,
+        "assignmentButtons": 4,
+        "toolbarSettings": 0,
+        "compositionErrors": 0,
+        "configErrors": 0,
+        "runtimeStatus": 0,
+        "garrisonSettings": 0,
+        "zombieTables": 0
+      },
+      "originalHtmlSha256": "A63B68CB08117AC4056F82AE14BCEB5F390281B828915E16FDCC0ACA1826D03F",
+      "currentHtmlSha256": "D929E5F7ACF8A1D72A03C5D9A08F57E040B4A59B4F6D6F3D0B23986A20FB2CC9"
+    },
+    {
+      "id": "discovered-squads-34",
+      "previewState": "squads-profile-squads-34",
+      "inputs": {
+        "availableSquads": [
+          3,
+          4
+        ],
+        "profileIds": [
+          "steel"
+        ],
+        "confirmedProfileIds": [
+          "steel"
+        ],
+        "profileSquads": [
+          [
+            3
+          ]
+        ],
+        "toolbarPanel": null,
+        "compositionError": "",
+        "runtimeRows": 0
+      },
+      "originalStats": {
+        "profileCards": 1,
+        "editors": 2,
+        "assignmentButtons": 2,
+        "toolbarSettings": 0,
+        "compositionErrors": 0,
+        "configErrors": 0,
+        "runtimeStatus": 0,
+        "garrisonSettings": 0,
+        "zombieTables": 0
+      },
+      "currentStats": {
+        "profileCards": 1,
+        "editors": 2,
+        "assignmentButtons": 2,
+        "toolbarSettings": 0,
+        "compositionErrors": 0,
+        "configErrors": 0,
+        "runtimeStatus": 0,
+        "garrisonSettings": 0,
+        "zombieTables": 0
+      },
+      "originalHtmlSha256": "1CB42B67F8DEAA87D12BDC832BA10ED6B43DB0EBA4D8105164BA9452ABDAFBFB",
+      "currentHtmlSha256": "125F339A5D949A4298E753F4D14213D112FACA09D65D851C6885A7E41787A874"
+    },
+    {
+      "id": "discovered-squads-empty",
+      "previewState": "squads-profile-squads-empty",
+      "inputs": {
+        "availableSquads": [],
+        "profileIds": [
+          "steel"
+        ],
+        "confirmedProfileIds": [
+          "steel"
+        ],
+        "profileSquads": [
+          []
+        ],
+        "toolbarPanel": null,
+        "compositionError": "",
+        "runtimeRows": 0
+      },
+      "originalStats": {
+        "profileCards": 1,
+        "editors": 2,
+        "assignmentButtons": 0,
+        "toolbarSettings": 0,
+        "compositionErrors": 0,
+        "configErrors": 0,
+        "runtimeStatus": 0,
+        "garrisonSettings": 0,
+        "zombieTables": 0
+      },
+      "currentStats": {
+        "profileCards": 1,
+        "editors": 2,
+        "assignmentButtons": 0,
+        "toolbarSettings": 0,
+        "compositionErrors": 0,
+        "configErrors": 0,
+        "runtimeStatus": 0,
+        "garrisonSettings": 0,
+        "zombieTables": 0
+      },
+      "originalHtmlSha256": "E86B635C376C8A06A6CC8CBFF3DFCB674C3915C75978F7C19083004C6D1903FA",
+      "currentHtmlSha256": "5FC7BA51E8008E70ADF80754C0D6C15E3B0F14256405A20FC7DBCF5B12DDA70C"
+    },
+    {
+      "id": "runtime-translated",
+      "previewState": "squads-profile-runtime-translated",
+      "inputs": {
+        "availableSquads": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "profileIds": [
+          "steel",
+          "gold"
+        ],
+        "confirmedProfileIds": [
+          "steel",
+          "gold"
+        ],
+        "profileSquads": [
+          [
+            1
+          ],
+          [
+            2
+          ]
+        ],
+        "toolbarPanel": null,
+        "compositionError": "",
+        "runtimeRows": 2
+      },
+      "originalStats": {
+        "profileCards": 2,
+        "editors": 2,
+        "assignmentButtons": 4,
+        "toolbarSettings": 0,
+        "compositionErrors": 0,
+        "configErrors": 0,
+        "runtimeStatus": 1,
+        "garrisonSettings": 0,
+        "zombieTables": 0
+      },
+      "currentStats": {
+        "profileCards": 2,
+        "editors": 2,
+        "assignmentButtons": 4,
+        "toolbarSettings": 0,
+        "compositionErrors": 0,
+        "configErrors": 0,
+        "runtimeStatus": 1,
+        "garrisonSettings": 0,
+        "zombieTables": 0
+      },
+      "originalHtmlSha256": "B8068E58E97CF7E8278F2DEBD7126A2C0ADE428B8D06D815702B46E51A303A90",
+      "currentHtmlSha256": "33B51A96EC7584A73CDA04EEDB4F33999118F0932841A06593751E504DA6B700"
+    },
+    {
+      "id": "runtime-error",
+      "previewState": "squads-profile-runtime-error",
+      "inputs": {
+        "availableSquads": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "profileIds": [
+          "steel",
+          "gold"
+        ],
+        "confirmedProfileIds": [
+          "steel",
+          "gold"
+        ],
+        "profileSquads": [
+          [
+            1
+          ],
+          [
+            2
+          ]
+        ],
+        "toolbarPanel": null,
+        "compositionError": "",
+        "runtimeRows": 2
+      },
+      "originalStats": {
+        "profileCards": 2,
+        "editors": 2,
+        "assignmentButtons": 4,
+        "toolbarSettings": 0,
+        "compositionErrors": 0,
+        "configErrors": 0,
+        "runtimeStatus": 1,
+        "garrisonSettings": 0,
+        "zombieTables": 0
+      },
+      "currentStats": {
+        "profileCards": 2,
+        "editors": 2,
+        "assignmentButtons": 4,
+        "toolbarSettings": 0,
+        "compositionErrors": 0,
+        "configErrors": 0,
+        "runtimeStatus": 1,
+        "garrisonSettings": 0,
+        "zombieTables": 0
+      },
+      "originalHtmlSha256": "EA02771A964C30986B0D41F30716D91545659EFEBD790F09CBF17F98BB28D4EE",
+      "currentHtmlSha256": "56CFA76DDCDF960CF4269BAC457F84920C0DC5AFFE14AE668745EDD647F8B17B"
+    },
+    {
+      "id": "master-stop-busy",
+      "previewState": "squads-profile-master-stop-busy",
+      "inputs": {
+        "availableSquads": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "profileIds": [
+          "steel"
+        ],
+        "confirmedProfileIds": [
+          "steel"
+        ],
+        "profileSquads": [
+          [
+            1
+          ]
+        ],
+        "toolbarPanel": null,
+        "compositionError": "",
+        "runtimeRows": 0
+      },
+      "originalStats": {
+        "profileCards": 1,
+        "editors": 2,
+        "assignmentButtons": 4,
+        "toolbarSettings": 0,
+        "compositionErrors": 0,
+        "configErrors": 0,
+        "runtimeStatus": 0,
+        "garrisonSettings": 0,
+        "zombieTables": 0
+      },
+      "currentStats": {
+        "profileCards": 1,
+        "editors": 2,
+        "assignmentButtons": 4,
+        "toolbarSettings": 0,
+        "compositionErrors": 0,
+        "configErrors": 0,
+        "runtimeStatus": 0,
+        "garrisonSettings": 0,
+        "zombieTables": 0
+      },
+      "originalHtmlSha256": "4C0ECE117A907DB249B29A4A2C7BC1299801152B3B50A09819A8BAB4694845BA",
+      "currentHtmlSha256": "D9C983F131D5647EDCAAE2C3DB44AE7A8D45BB7D97CC8A1D73B0F46639E69C93"
+    },
+    {
+      "id": "join-members-loading",
+      "previewState": "squads-profile-members-loading",
+      "inputs": {
+        "availableSquads": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "profileIds": [
+          "join-boss"
+        ],
+        "confirmedProfileIds": [
+          "join-boss"
+        ],
+        "profileSquads": [
+          [
+            1
+          ]
+        ],
+        "toolbarPanel": null,
+        "compositionError": "",
+        "runtimeRows": 0
+      },
+      "originalStats": {
+        "profileCards": 1,
+        "editors": 2,
+        "assignmentButtons": 4,
+        "toolbarSettings": 0,
+        "compositionErrors": 0,
+        "configErrors": 0,
+        "runtimeStatus": 0,
+        "garrisonSettings": 0,
+        "zombieTables": 0
+      },
+      "currentStats": {
+        "profileCards": 1,
+        "editors": 2,
+        "assignmentButtons": 4,
+        "toolbarSettings": 0,
+        "compositionErrors": 0,
+        "configErrors": 0,
+        "runtimeStatus": 0,
+        "garrisonSettings": 0,
+        "zombieTables": 0
+      },
+      "originalHtmlSha256": "AFD28CFB3378201492689B9C1F411C42C1F787461F691432EF8763879757AC35",
+      "currentHtmlSha256": "EA18D7DFFB9BDF7111E3019F54801B93F5B25F3D64358B610B13F0FECC9F25F2"
+    },
+    {
+      "id": "join-members-failed",
+      "previewState": "squads-profile-members-failed",
+      "inputs": {
+        "availableSquads": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "profileIds": [
+          "join-boss"
+        ],
+        "confirmedProfileIds": [
+          "join-boss"
+        ],
+        "profileSquads": [
+          [
+            1
+          ]
+        ],
+        "toolbarPanel": null,
+        "compositionError": "",
+        "runtimeRows": 0
+      },
+      "originalStats": {
+        "profileCards": 1,
+        "editors": 2,
+        "assignmentButtons": 4,
+        "toolbarSettings": 0,
+        "compositionErrors": 0,
+        "configErrors": 0,
+        "runtimeStatus": 0,
+        "garrisonSettings": 0,
+        "zombieTables": 0
+      },
+      "currentStats": {
+        "profileCards": 1,
+        "editors": 2,
+        "assignmentButtons": 4,
+        "toolbarSettings": 0,
+        "compositionErrors": 0,
+        "configErrors": 0,
+        "runtimeStatus": 0,
+        "garrisonSettings": 0,
+        "zombieTables": 0
+      },
+      "originalHtmlSha256": "768CA706B030E9A365AFEC917BBA967379AD1E96D9AFC27F95F83A3E7ED6D860",
+      "currentHtmlSha256": "DFAD3053E656A93380AA2E2A0D11FE4D693EAE45283CD25CBB2E223AE45ACC15"
+    },
+    {
+      "id": "join-members-positive",
+      "previewState": "squads-profile-members-positive",
+      "inputs": {
+        "availableSquads": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "profileIds": [
+          "join-boss"
+        ],
+        "confirmedProfileIds": [
+          "join-boss"
+        ],
+        "profileSquads": [
+          [
+            1
+          ]
+        ],
+        "toolbarPanel": null,
+        "compositionError": "",
+        "runtimeRows": 0
+      },
+      "originalStats": {
+        "profileCards": 1,
+        "editors": 2,
+        "assignmentButtons": 4,
+        "toolbarSettings": 0,
+        "compositionErrors": 0,
+        "configErrors": 0,
+        "runtimeStatus": 0,
+        "garrisonSettings": 0,
+        "zombieTables": 0
+      },
+      "currentStats": {
+        "profileCards": 1,
+        "editors": 2,
+        "assignmentButtons": 4,
+        "toolbarSettings": 0,
+        "compositionErrors": 0,
+        "configErrors": 0,
+        "runtimeStatus": 0,
+        "garrisonSettings": 0,
+        "zombieTables": 0
+      },
+      "originalHtmlSha256": "E112240ACCDF56268249D20FCE5C8B713FA96484933B166D4778AFD985F37873",
+      "currentHtmlSha256": "4FE0ED39FD8B37FFF4D8B890BA3F406F096725C0EF277B1A80CE9299330784FF"
+    },
+    {
+      "id": "potion-open",
+      "previewState": "squads-profile-potion-open",
+      "inputs": {
+        "availableSquads": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "profileIds": [
+          "steel"
+        ],
+        "confirmedProfileIds": [
+          "steel"
+        ],
+        "profileSquads": [
+          [
+            1
+          ]
+        ],
+        "toolbarPanel": "potion",
+        "compositionError": "",
+        "runtimeRows": 0
+      },
+      "originalStats": {
+        "profileCards": 1,
+        "editors": 2,
+        "assignmentButtons": 4,
+        "toolbarSettings": 2,
+        "compositionErrors": 0,
+        "configErrors": 0,
+        "runtimeStatus": 0,
+        "garrisonSettings": 0,
+        "zombieTables": 0
+      },
+      "currentStats": {
+        "profileCards": 1,
+        "editors": 2,
+        "assignmentButtons": 4,
+        "toolbarSettings": 2,
+        "compositionErrors": 0,
+        "configErrors": 0,
+        "runtimeStatus": 0,
+        "garrisonSettings": 0,
+        "zombieTables": 0
+      },
+      "originalHtmlSha256": "A7AA792B84E55803799078B07E466B5436A4B89278982D31908A1E75EE34E5DD",
+      "currentHtmlSha256": "6896F156FFEBEA55AA5AAA68DAD5D4026AD8258EE89AE55EC42D1322097F6CC9"
+    },
+    {
+      "id": "potion-invalid",
+      "previewState": "squads-profile-potion-invalid",
+      "inputs": {
+        "availableSquads": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "profileIds": [
+          "steel"
+        ],
+        "confirmedProfileIds": [
+          "steel"
+        ],
+        "profileSquads": [
+          [
+            1
+          ]
+        ],
+        "toolbarPanel": "potion",
+        "compositionError": "",
+        "runtimeRows": 0
+      },
+      "originalStats": {
+        "profileCards": 1,
+        "editors": 2,
+        "assignmentButtons": 4,
+        "toolbarSettings": 2,
+        "compositionErrors": 0,
+        "configErrors": 0,
+        "runtimeStatus": 0,
+        "garrisonSettings": 0,
+        "zombieTables": 0
+      },
+      "currentStats": {
+        "profileCards": 1,
+        "editors": 2,
+        "assignmentButtons": 4,
+        "toolbarSettings": 2,
+        "compositionErrors": 0,
+        "configErrors": 0,
+        "runtimeStatus": 0,
+        "garrisonSettings": 0,
+        "zombieTables": 0
+      },
+      "originalHtmlSha256": "B1B9FEE4CA8B640C322A0624EBD9091EB234C1AB46E9869AAB39BD2F98E4EB72",
+      "currentHtmlSha256": "CFB7E0957732AD475DD3CAE29E5FBD00ADC742907925253809740EED8E6254D6"
+    },
+    {
+      "id": "drill-waiting",
+      "previewState": "squads-profile-drill-waiting-translated",
+      "inputs": {
+        "availableSquads": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "profileIds": [
+          "steel"
+        ],
+        "confirmedProfileIds": [
+          "steel"
+        ],
+        "profileSquads": [
+          [
+            1
+          ]
+        ],
+        "toolbarPanel": "drill",
+        "compositionError": "",
+        "runtimeRows": 1
+      },
+      "originalStats": {
+        "profileCards": 0,
+        "editors": 0,
+        "assignmentButtons": 0,
+        "toolbarSettings": 2,
+        "compositionErrors": 0,
+        "configErrors": 0,
+        "runtimeStatus": 0,
+        "garrisonSettings": 0,
+        "zombieTables": 0
+      },
+      "currentStats": {
+        "profileCards": 0,
+        "editors": 0,
+        "assignmentButtons": 0,
+        "toolbarSettings": 2,
+        "compositionErrors": 0,
+        "configErrors": 0,
+        "runtimeStatus": 0,
+        "garrisonSettings": 0,
+        "zombieTables": 0
+      },
+      "originalHtmlSha256": "D145E1B4DEDFD26B8D8B85E5ECF6EF4375DE0CDF557E62A858DD4AA8D6634DB5",
+      "currentHtmlSha256": "C0822D7C7217B166D3E015EBC759D0CED6572B91673EDBB7DD3EC6E887FCC54F"
+    },
+    {
+      "id": "drill-empty",
+      "previewState": "squads-profile-drill-empty",
+      "inputs": {
+        "availableSquads": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "profileIds": [
+          "steel"
+        ],
+        "confirmedProfileIds": [
+          "steel"
+        ],
+        "profileSquads": [
+          [
+            1
+          ]
+        ],
+        "toolbarPanel": "drill",
+        "compositionError": "",
+        "runtimeRows": 0
+      },
+      "originalStats": {
+        "profileCards": 0,
+        "editors": 0,
+        "assignmentButtons": 0,
+        "toolbarSettings": 2,
+        "compositionErrors": 0,
+        "configErrors": 0,
+        "runtimeStatus": 0,
+        "garrisonSettings": 0,
+        "zombieTables": 0
+      },
+      "currentStats": {
+        "profileCards": 0,
+        "editors": 0,
+        "assignmentButtons": 0,
+        "toolbarSettings": 2,
+        "compositionErrors": 0,
+        "configErrors": 0,
+        "runtimeStatus": 0,
+        "garrisonSettings": 0,
+        "zombieTables": 0
+      },
+      "originalHtmlSha256": "825E8430BC848F33D5E0EFD8B93B9E79555FBD26F95284E98E5390CF9CAE2F28",
+      "currentHtmlSha256": "D97DF84D20CFC3AE14D630B16288CBE90FF364B4BDAD949215EDDBBCE78BC8FA"
+    },
+    {
+      "id": "drill-empty-error",
+      "previewState": "squads-profile-drill-empty",
+      "inputs": {
+        "availableSquads": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "profileIds": [
+          "steel"
+        ],
+        "confirmedProfileIds": [
+          "steel"
+        ],
+        "profileSquads": [
+          [
+            1
+          ]
+        ],
+        "toolbarPanel": "drill",
+        "compositionError": "squad.afkAllianceDrillSquadRequired",
+        "runtimeRows": 0
+      },
+      "originalStats": {
+        "profileCards": 0,
+        "editors": 0,
+        "assignmentButtons": 0,
+        "toolbarSettings": 2,
+        "compositionErrors": 1,
+        "configErrors": 0,
+        "runtimeStatus": 0,
+        "garrisonSettings": 0,
+        "zombieTables": 0
+      },
+      "currentStats": {
+        "profileCards": 0,
+        "editors": 0,
+        "assignmentButtons": 0,
+        "toolbarSettings": 2,
+        "compositionErrors": 1,
+        "configErrors": 0,
+        "runtimeStatus": 0,
+        "garrisonSettings": 0,
+        "zombieTables": 0
+      },
+      "originalHtmlSha256": "CB990B67E9EDC2009A14A38E24AF42CB8AF28D96F493A69890AA58A6497E6FD9",
+      "currentHtmlSha256": "3FD45B437B0904B16A28E08739862DAA93AEBD70A8998FE59DDE0021B653FB3C"
+    },
+    {
+      "id": "profile-save-error",
+      "previewState": "squads-profile-positive",
+      "inputs": {
+        "availableSquads": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "profileIds": [
+          "steel"
+        ],
+        "confirmedProfileIds": [
+          "steel"
+        ],
+        "profileSquads": [
+          [
+            1
+          ]
+        ],
+        "toolbarPanel": null,
+        "compositionError": "",
+        "runtimeRows": 0
+      },
+      "originalStats": {
+        "profileCards": 1,
+        "editors": 2,
+        "assignmentButtons": 4,
+        "toolbarSettings": 0,
+        "compositionErrors": 0,
+        "configErrors": 1,
+        "runtimeStatus": 0,
+        "garrisonSettings": 0,
+        "zombieTables": 0
+      },
+      "currentStats": {
+        "profileCards": 1,
+        "editors": 2,
+        "assignmentButtons": 4,
+        "toolbarSettings": 0,
+        "compositionErrors": 0,
+        "configErrors": 1,
+        "runtimeStatus": 0,
+        "garrisonSettings": 0,
+        "zombieTables": 0
+      },
+      "originalHtmlSha256": "6FC11B1435A55800E19E5D093ACF3E8D2C289548E6C0EA38A923974D788D6587",
+      "currentHtmlSha256": "F89FD11C43A98F4C7DB0A82E6AEA00062BEA21C1718E1628FADE6C0265DFC3C9"
+    },
+    {
+      "id": "potion-save-error",
+      "previewState": "squads-profile-potion-open",
+      "inputs": {
+        "availableSquads": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "profileIds": [
+          "steel"
+        ],
+        "confirmedProfileIds": [
+          "steel"
+        ],
+        "profileSquads": [
+          [
+            1
+          ]
+        ],
+        "toolbarPanel": "potion",
+        "compositionError": "",
+        "runtimeRows": 0
+      },
+      "originalStats": {
+        "profileCards": 1,
+        "editors": 2,
+        "assignmentButtons": 4,
+        "toolbarSettings": 2,
+        "compositionErrors": 0,
+        "configErrors": 1,
+        "runtimeStatus": 0,
+        "garrisonSettings": 0,
+        "zombieTables": 0
+      },
+      "currentStats": {
+        "profileCards": 1,
+        "editors": 2,
+        "assignmentButtons": 4,
+        "toolbarSettings": 2,
+        "compositionErrors": 0,
+        "configErrors": 1,
+        "runtimeStatus": 0,
+        "garrisonSettings": 0,
+        "zombieTables": 0
+      },
+      "originalHtmlSha256": "688E41939CD4A26FC5735B5E25C8EFB42EBC58F21B815906FFE3BE7453701658",
+      "currentHtmlSha256": "F53D32E34111648C2542C485907DF5925A58022A5A4C6DBC40445CF50785827A"
+    },
+    {
+      "id": "target-discovery-loading",
+      "previewState": "squads-profile-target-loading",
+      "inputs": {
+        "availableSquads": [],
+        "profileIds": [
+          "steel"
+        ],
+        "confirmedProfileIds": [
+          "steel"
+        ],
+        "profileSquads": [
+          []
+        ],
+        "toolbarPanel": null,
+        "compositionError": "",
+        "runtimeRows": 0
+      },
+      "originalStats": {
+        "profileCards": 1,
+        "editors": 2,
+        "assignmentButtons": 0,
+        "toolbarSettings": 0,
+        "compositionErrors": 0,
+        "configErrors": 0,
+        "runtimeStatus": 0,
+        "garrisonSettings": 0,
+        "zombieTables": 0
+      },
+      "currentStats": {
+        "profileCards": 1,
+        "editors": 2,
+        "assignmentButtons": 0,
+        "toolbarSettings": 0,
+        "compositionErrors": 0,
+        "configErrors": 0,
+        "runtimeStatus": 0,
+        "garrisonSettings": 0,
+        "zombieTables": 0
+      },
+      "originalHtmlSha256": "41FE32FD5544EA22819099D16C873BA428F1F6141B4981122973F9C357FA808D",
+      "currentHtmlSha256": "A4BDD894436E3EFB313565F2F72456B39E655212EDB29D961F0113D89F5A63EA"
+    },
+    {
+      "id": "target-discovery-failed",
+      "previewState": "squads-profile-target-failed",
+      "inputs": {
+        "availableSquads": [],
+        "profileIds": [
+          "steel"
+        ],
+        "confirmedProfileIds": [
+          "steel"
+        ],
+        "profileSquads": [
+          []
+        ],
+        "toolbarPanel": null,
+        "compositionError": "common.actionFailed",
+        "runtimeRows": 0
+      },
+      "originalStats": {
+        "profileCards": 1,
+        "editors": 2,
+        "assignmentButtons": 0,
+        "toolbarSettings": 0,
+        "compositionErrors": 1,
+        "configErrors": 0,
+        "runtimeStatus": 0,
+        "garrisonSettings": 0,
+        "zombieTables": 0
+      },
+      "currentStats": {
+        "profileCards": 1,
+        "editors": 2,
+        "assignmentButtons": 0,
+        "toolbarSettings": 0,
+        "compositionErrors": 1,
+        "configErrors": 0,
+        "runtimeStatus": 0,
+        "garrisonSettings": 0,
+        "zombieTables": 0
+      },
+      "originalHtmlSha256": "B75BD02A008815960D2A446394786E60FE3A458A127E515CFB887F5F8A69B743",
+      "currentHtmlSha256": "EECE8529F03168B35099EDFE154B11DEFC58EF3040B97143CFBF8FE6862D7FFA"
+    },
+    {
+      "id": "empty-profiles",
+      "previewState": "squads-profile-positive",
+      "inputs": {
+        "availableSquads": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "profileIds": [],
+        "confirmedProfileIds": [],
+        "profileSquads": [],
+        "toolbarPanel": null,
+        "compositionError": "",
+        "runtimeRows": 0
+      },
+      "originalStats": {
+        "profileCards": 0,
+        "editors": 0,
+        "assignmentButtons": 0,
+        "toolbarSettings": 0,
+        "compositionErrors": 0,
+        "configErrors": 0,
+        "runtimeStatus": 0,
+        "garrisonSettings": 0,
+        "zombieTables": 0
+      },
+      "currentStats": {
+        "profileCards": 0,
+        "editors": 0,
+        "assignmentButtons": 0,
+        "toolbarSettings": 0,
+        "compositionErrors": 0,
+        "configErrors": 0,
+        "runtimeStatus": 0,
+        "garrisonSettings": 0,
+        "zombieTables": 0
+      },
+      "originalHtmlSha256": "361330B7E792F9048022F1C6C2D4A32D0AFCE38AB2049774456B45226C7DA6A9",
+      "currentHtmlSha256": "E534D3B6503D3B4CF4065DE5935669C1C79303A59C6EC988658D67BBF89CE257"
+    },
+    {
+      "id": "garrison-pending",
+      "previewState": "squads-profile-garrison-discovery-pending",
+      "inputs": {
+        "availableSquads": [],
+        "profileIds": [
+          "steel"
+        ],
+        "confirmedProfileIds": [
+          "steel"
+        ],
+        "profileSquads": [
+          []
+        ],
+        "toolbarPanel": "garrison",
+        "compositionError": "",
+        "runtimeRows": 0
+      },
+      "originalStats": {
+        "profileCards": 0,
+        "editors": 0,
+        "assignmentButtons": 0,
+        "toolbarSettings": 2,
+        "compositionErrors": 0,
+        "configErrors": 0,
+        "runtimeStatus": 0,
+        "garrisonSettings": 2,
+        "zombieTables": 0
+      },
+      "currentStats": {
+        "profileCards": 0,
+        "editors": 0,
+        "assignmentButtons": 0,
+        "toolbarSettings": 2,
+        "compositionErrors": 0,
+        "configErrors": 0,
+        "runtimeStatus": 0,
+        "garrisonSettings": 2,
+        "zombieTables": 0
+      },
+      "originalHtmlSha256": "4CFBD8CA62B39F10C9C3309C7A84B7CFCAC427899FD9CD7567924CB3842AE0CB",
+      "currentHtmlSha256": "D0CCEF3201F2F8557245EFC1AE06A8ABF8BFD581B878F1D838CA71F8B392FEA6"
+    },
+    {
+      "id": "garrison-failed",
+      "previewState": "squads-profile-garrison-discovery-failed",
+      "inputs": {
+        "availableSquads": [],
+        "profileIds": [
+          "steel"
+        ],
+        "confirmedProfileIds": [
+          "steel"
+        ],
+        "profileSquads": [
+          []
+        ],
+        "toolbarPanel": "garrison",
+        "compositionError": "",
+        "runtimeRows": 0
+      },
+      "originalStats": {
+        "profileCards": 0,
+        "editors": 0,
+        "assignmentButtons": 0,
+        "toolbarSettings": 2,
+        "compositionErrors": 0,
+        "configErrors": 0,
+        "runtimeStatus": 0,
+        "garrisonSettings": 2,
+        "zombieTables": 0
+      },
+      "currentStats": {
+        "profileCards": 0,
+        "editors": 0,
+        "assignmentButtons": 0,
+        "toolbarSettings": 2,
+        "compositionErrors": 0,
+        "configErrors": 0,
+        "runtimeStatus": 0,
+        "garrisonSettings": 2,
+        "zombieTables": 0
+      },
+      "originalHtmlSha256": "A5613FDC663AF6DE4BBAB4654CD78379F3AB1BAB7CD376BE4D1479655741E82D",
+      "currentHtmlSha256": "A894E5D62E012DBF3AE7C9A1FE547779B312F436F9013296206E5252A744F549"
+    },
+    {
+      "id": "garrison-localized",
+      "previewState": "squads-profile-garrison-localized",
+      "inputs": {
+        "availableSquads": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "profileIds": [
+          "steel"
+        ],
+        "confirmedProfileIds": [
+          "steel"
+        ],
+        "profileSquads": [
+          [
+            1
+          ]
+        ],
+        "toolbarPanel": "garrison",
+        "compositionError": "",
+        "runtimeRows": 0
+      },
+      "originalStats": {
+        "profileCards": 0,
+        "editors": 0,
+        "assignmentButtons": 0,
+        "toolbarSettings": 2,
+        "compositionErrors": 0,
+        "configErrors": 0,
+        "runtimeStatus": 0,
+        "garrisonSettings": 2,
+        "zombieTables": 0
+      },
+      "currentStats": {
+        "profileCards": 0,
+        "editors": 0,
+        "assignmentButtons": 0,
+        "toolbarSettings": 2,
+        "compositionErrors": 0,
+        "configErrors": 0,
+        "runtimeStatus": 0,
+        "garrisonSettings": 2,
+        "zombieTables": 0
+      },
+      "originalHtmlSha256": "1C3AE317DFE1A2EED07B7BA277E6C37570FC57B1ADE277D45E56A02B7DB46CFA",
+      "currentHtmlSha256": "A055C2D693678A3C4AC4A4E383DC71F6657D1454CF3FBC95D26E879814B2A14B"
+    },
+    {
+      "id": "garrison-no-targets",
+      "previewState": "squads-profile-garrison-no-targets",
+      "inputs": {
+        "availableSquads": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "profileIds": [
+          "steel"
+        ],
+        "confirmedProfileIds": [
+          "steel"
+        ],
+        "profileSquads": [
+          [
+            1
+          ]
+        ],
+        "toolbarPanel": "garrison",
+        "compositionError": "",
+        "runtimeRows": 0
+      },
+      "originalStats": {
+        "profileCards": 0,
+        "editors": 0,
+        "assignmentButtons": 0,
+        "toolbarSettings": 2,
+        "compositionErrors": 0,
+        "configErrors": 0,
+        "runtimeStatus": 0,
+        "garrisonSettings": 2,
+        "zombieTables": 0
+      },
+      "currentStats": {
+        "profileCards": 0,
+        "editors": 0,
+        "assignmentButtons": 0,
+        "toolbarSettings": 2,
+        "compositionErrors": 0,
+        "configErrors": 0,
+        "runtimeStatus": 0,
+        "garrisonSettings": 2,
+        "zombieTables": 0
+      },
+      "originalHtmlSha256": "1F15C2ADDB81747EE2DB612C41A0945919085E8A23B30D003039D6ABF0024BFE",
+      "currentHtmlSha256": "151A8106D80F7BE5F2E72B31666CCE7E2248F9F2910A9FB08139DD3439F7F76B"
+    },
+    {
+      "id": "garrison-no-squads",
+      "previewState": "squads-profile-garrison-no-squads",
+      "inputs": {
+        "availableSquads": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "profileIds": [
+          "steel"
+        ],
+        "confirmedProfileIds": [
+          "steel"
+        ],
+        "profileSquads": [
+          [
+            1
+          ]
+        ],
+        "toolbarPanel": "garrison",
+        "compositionError": "",
+        "runtimeRows": 0
+      },
+      "originalStats": {
+        "profileCards": 0,
+        "editors": 0,
+        "assignmentButtons": 0,
+        "toolbarSettings": 2,
+        "compositionErrors": 0,
+        "configErrors": 0,
+        "runtimeStatus": 0,
+        "garrisonSettings": 2,
+        "zombieTables": 0
+      },
+      "currentStats": {
+        "profileCards": 0,
+        "editors": 0,
+        "assignmentButtons": 0,
+        "toolbarSettings": 2,
+        "compositionErrors": 0,
+        "configErrors": 0,
+        "runtimeStatus": 0,
+        "garrisonSettings": 2,
+        "zombieTables": 0
+      },
+      "originalHtmlSha256": "AE8D3486B620D5951D116E121C194ACA510DBCA18B64E94C85159EE54DE5858C",
+      "currentHtmlSha256": "2BDFCA94BB9B2D670F00B9B52E86691A8B12D7E060B0F8EFC58D01AA43A64F69"
+    },
+    {
+      "id": "garrison-running",
+      "previewState": "squads-profile-garrison-running",
+      "inputs": {
+        "availableSquads": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "profileIds": [
+          "steel"
+        ],
+        "confirmedProfileIds": [
+          "steel"
+        ],
+        "profileSquads": [
+          [
+            1
+          ]
+        ],
+        "toolbarPanel": "garrison",
+        "compositionError": "",
+        "runtimeRows": 0
+      },
+      "originalStats": {
+        "profileCards": 0,
+        "editors": 0,
+        "assignmentButtons": 0,
+        "toolbarSettings": 2,
+        "compositionErrors": 0,
+        "configErrors": 0,
+        "runtimeStatus": 0,
+        "garrisonSettings": 2,
+        "zombieTables": 0
+      },
+      "currentStats": {
+        "profileCards": 0,
+        "editors": 0,
+        "assignmentButtons": 0,
+        "toolbarSettings": 2,
+        "compositionErrors": 0,
+        "configErrors": 0,
+        "runtimeStatus": 0,
+        "garrisonSettings": 2,
+        "zombieTables": 0
+      },
+      "originalHtmlSha256": "3998B1DD3BC6CA9F3D07EBDBF10A2C3F0E92C767D92D87DCCA316B97241B1025",
+      "currentHtmlSha256": "5CBDCC1DEE16FA46F0BE74F48FC3433A7784A0CDED42CE7B05473798A97F8DDF"
+    },
+    {
+      "id": "zombie-waiting",
+      "previewState": "squads-profile-zombie-waiting",
+      "inputs": {
+        "availableSquads": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "profileIds": [
+          "steel"
+        ],
+        "confirmedProfileIds": [
+          "steel"
+        ],
+        "profileSquads": [
+          [
+            1
+          ]
+        ],
+        "toolbarPanel": "zombieBus",
+        "compositionError": "",
+        "runtimeRows": 0
+      },
+      "originalStats": {
+        "profileCards": 0,
+        "editors": 0,
+        "assignmentButtons": 0,
+        "toolbarSettings": 2,
+        "compositionErrors": 0,
+        "configErrors": 0,
+        "runtimeStatus": 0,
+        "garrisonSettings": 0,
+        "zombieTables": 0
+      },
+      "currentStats": {
+        "profileCards": 0,
+        "editors": 0,
+        "assignmentButtons": 0,
+        "toolbarSettings": 2,
+        "compositionErrors": 0,
+        "configErrors": 0,
+        "runtimeStatus": 0,
+        "garrisonSettings": 0,
+        "zombieTables": 0
+      },
+      "originalHtmlSha256": "6A2EB2B5B198B99BA80F3F35F4D1B24463ABB3841BD8DA2D28A8FAB604FD6BFE",
+      "currentHtmlSha256": "4218D97072CD1A338CCCCEE1F2421454A5466C82125954270378171BD9A53F61"
+    },
+    {
+      "id": "zombie-error",
+      "previewState": "squads-profile-zombie-error",
+      "inputs": {
+        "availableSquads": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "profileIds": [
+          "steel"
+        ],
+        "confirmedProfileIds": [
+          "steel"
+        ],
+        "profileSquads": [
+          [
+            1
+          ]
+        ],
+        "toolbarPanel": "zombieBus",
+        "compositionError": "",
+        "runtimeRows": 0
+      },
+      "originalStats": {
+        "profileCards": 0,
+        "editors": 0,
+        "assignmentButtons": 0,
+        "toolbarSettings": 3,
+        "compositionErrors": 0,
+        "configErrors": 1,
+        "runtimeStatus": 0,
+        "garrisonSettings": 0,
+        "zombieTables": 0
+      },
+      "currentStats": {
+        "profileCards": 0,
+        "editors": 0,
+        "assignmentButtons": 0,
+        "toolbarSettings": 3,
+        "compositionErrors": 0,
+        "configErrors": 1,
+        "runtimeStatus": 0,
+        "garrisonSettings": 0,
+        "zombieTables": 0
+      },
+      "originalHtmlSha256": "FF8310D5DDD40D74B5C735C1BE56A3965992E6068ED2E9101E623E435E3CCF82",
+      "currentHtmlSha256": "31B4408FEEC5AE39E853C705755CA6BF1E5A40F81499E7977915F2FA0EC91DC4"
+    },
+    {
+      "id": "zombie-running",
+      "previewState": "squads-profile-zombie-running",
+      "inputs": {
+        "availableSquads": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "profileIds": [
+          "steel"
+        ],
+        "confirmedProfileIds": [
+          "steel"
+        ],
+        "profileSquads": [
+          [
+            1
+          ]
+        ],
+        "toolbarPanel": "zombieBus",
+        "compositionError": "",
+        "runtimeRows": 0
+      },
+      "originalStats": {
+        "profileCards": 0,
+        "editors": 0,
+        "assignmentButtons": 0,
+        "toolbarSettings": 2,
+        "compositionErrors": 0,
+        "configErrors": 0,
+        "runtimeStatus": 0,
+        "garrisonSettings": 0,
+        "zombieTables": 1
+      },
+      "currentStats": {
+        "profileCards": 0,
+        "editors": 0,
+        "assignmentButtons": 0,
+        "toolbarSettings": 2,
+        "compositionErrors": 0,
+        "configErrors": 0,
+        "runtimeStatus": 0,
+        "garrisonSettings": 0,
+        "zombieTables": 1
+      },
+      "originalHtmlSha256": "7A9D041B075AA5AF6149B2CE6F60C115037AF7A9FB6134E056B987821760827B",
+      "currentHtmlSha256": "DABB6249315325786A724BFC2D21DF1C282FF64816831F39508E11A9A81B3F98"
+    }
+  ],
+  "validation": [
+    {
+      "id": "selected-existing",
+      "monster": true,
+      "potion": true,
+      "garrison": true,
+      "profiles": [
+        {
+          "id": "steel",
+          "valid": true
+        }
+      ]
+    },
+    {
+      "id": "selected-new",
+      "monster": true,
+      "potion": true,
+      "garrison": true,
+      "profiles": [
+        {
+          "id": "source-new",
+          "valid": true
+        }
+      ]
+    },
+    {
+      "id": "profile-disabled",
+      "monster": true,
+      "potion": true,
+      "garrison": true,
+      "profiles": [
+        {
+          "id": "steel",
+          "valid": true
+        }
+      ]
+    },
+    {
+      "id": "discovered-squads-34",
+      "monster": true,
+      "potion": true,
+      "garrison": true,
+      "profiles": [
+        {
+          "id": "steel",
+          "valid": true
+        }
+      ]
+    },
+    {
+      "id": "discovered-squads-empty",
+      "monster": false,
+      "potion": true,
+      "garrison": true,
+      "profiles": [
+        {
+          "id": "steel",
+          "valid": false
+        }
+      ]
+    },
+    {
+      "id": "runtime-translated",
+      "monster": true,
+      "potion": true,
+      "garrison": true,
+      "profiles": [
+        {
+          "id": "steel",
+          "valid": true
+        },
+        {
+          "id": "gold",
+          "valid": true
+        }
+      ]
+    },
+    {
+      "id": "runtime-error",
+      "monster": true,
+      "potion": true,
+      "garrison": true,
+      "profiles": [
+        {
+          "id": "steel",
+          "valid": true
+        },
+        {
+          "id": "gold",
+          "valid": true
+        }
+      ]
+    },
+    {
+      "id": "master-stop-busy",
+      "monster": true,
+      "potion": true,
+      "garrison": true,
+      "profiles": [
+        {
+          "id": "steel",
+          "valid": true
+        }
+      ]
+    },
+    {
+      "id": "join-members-loading",
+      "monster": true,
+      "potion": true,
+      "garrison": true,
+      "profiles": [
+        {
+          "id": "join-boss",
+          "valid": true
+        }
+      ]
+    },
+    {
+      "id": "join-members-failed",
+      "monster": true,
+      "potion": true,
+      "garrison": true,
+      "profiles": [
+        {
+          "id": "join-boss",
+          "valid": true
+        }
+      ]
+    },
+    {
+      "id": "join-members-positive",
+      "monster": true,
+      "potion": true,
+      "garrison": true,
+      "profiles": [
+        {
+          "id": "join-boss",
+          "valid": true
+        }
+      ]
+    },
+    {
+      "id": "potion-open",
+      "monster": true,
+      "potion": true,
+      "garrison": true,
+      "profiles": [
+        {
+          "id": "steel",
+          "valid": true
+        }
+      ]
+    },
+    {
+      "id": "potion-invalid",
+      "monster": true,
+      "potion": false,
+      "garrison": true,
+      "profiles": [
+        {
+          "id": "steel",
+          "valid": true
+        }
+      ]
+    },
+    {
+      "id": "drill-waiting",
+      "monster": true,
+      "potion": true,
+      "garrison": true,
+      "profiles": [
+        {
+          "id": "steel",
+          "valid": true
+        }
+      ]
+    },
+    {
+      "id": "drill-empty",
+      "monster": true,
+      "potion": true,
+      "garrison": true,
+      "profiles": [
+        {
+          "id": "steel",
+          "valid": true
+        }
+      ]
+    },
+    {
+      "id": "drill-empty-error",
+      "monster": true,
+      "potion": true,
+      "garrison": true,
+      "profiles": [
+        {
+          "id": "steel",
+          "valid": true
+        }
+      ]
+    },
+    {
+      "id": "profile-save-error",
+      "monster": true,
+      "potion": true,
+      "garrison": true,
+      "profiles": [
+        {
+          "id": "steel",
+          "valid": true
+        }
+      ]
+    },
+    {
+      "id": "potion-save-error",
+      "monster": true,
+      "potion": true,
+      "garrison": true,
+      "profiles": [
+        {
+          "id": "steel",
+          "valid": true
+        }
+      ]
+    },
+    {
+      "id": "target-discovery-loading",
+      "monster": false,
+      "potion": true,
+      "garrison": true,
+      "profiles": [
+        {
+          "id": "steel",
+          "valid": false
+        }
+      ]
+    },
+    {
+      "id": "target-discovery-failed",
+      "monster": false,
+      "potion": true,
+      "garrison": true,
+      "profiles": [
+        {
+          "id": "steel",
+          "valid": false
+        }
+      ]
+    },
+    {
+      "id": "empty-profiles",
+      "monster": true,
+      "potion": true,
+      "garrison": true,
+      "profiles": []
+    },
+    {
+      "id": "garrison-pending",
+      "monster": false,
+      "potion": true,
+      "garrison": true,
+      "profiles": [
+        {
+          "id": "steel",
+          "valid": false
+        }
+      ]
+    },
+    {
+      "id": "garrison-failed",
+      "monster": false,
+      "potion": true,
+      "garrison": true,
+      "profiles": [
+        {
+          "id": "steel",
+          "valid": false
+        }
+      ]
+    },
+    {
+      "id": "garrison-localized",
+      "monster": true,
+      "potion": true,
+      "garrison": true,
+      "profiles": [
+        {
+          "id": "steel",
+          "valid": true
+        }
+      ]
+    },
+    {
+      "id": "garrison-no-targets",
+      "monster": true,
+      "potion": true,
+      "garrison": true,
+      "profiles": [
+        {
+          "id": "steel",
+          "valid": true
+        }
+      ]
+    },
+    {
+      "id": "garrison-no-squads",
+      "monster": true,
+      "potion": true,
+      "garrison": true,
+      "profiles": [
+        {
+          "id": "steel",
+          "valid": true
+        }
+      ]
+    },
+    {
+      "id": "garrison-running",
+      "monster": true,
+      "potion": true,
+      "garrison": true,
+      "profiles": [
+        {
+          "id": "steel",
+          "valid": true
+        }
+      ]
+    },
+    {
+      "id": "zombie-waiting",
+      "monster": true,
+      "potion": true,
+      "garrison": true,
+      "profiles": [
+        {
+          "id": "steel",
+          "valid": true
+        }
+      ]
+    },
+    {
+      "id": "zombie-error",
+      "monster": true,
+      "potion": true,
+      "garrison": true,
+      "profiles": [
+        {
+          "id": "steel",
+          "valid": true
+        }
+      ]
+    },
+    {
+      "id": "zombie-running",
+      "monster": true,
+      "potion": true,
+      "garrison": true,
+      "profiles": [
+        {
+          "id": "steel",
+          "valid": true
+        }
+      ]
+    }
+  ],
+  "validationNegatives": [
+    {
+      "id": "garrison-enabled-no-targets",
+      "source": false,
+      "current": false
+    },
+    {
+      "id": "garrison-enabled-no-squads",
+      "source": false,
+      "current": false
+    },
+    {
+      "id": "monster-invalid-join",
+      "source": false,
+      "current": false
+    },
+    {
+      "id": "drill-enabled-empty-store",
+      "source": true,
+      "current": true
+    }
+  ],
+  "dependencies": [
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/SquadPanel-HC3-DJei.js",
+      "sha256": "ED466E353AA896D8C3FC783FF1802930156FB9E9EB54327AEF73F2FF86FA06C7"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-BVfnK1wp.js",
+      "sha256": "44C4E4043825B7DB296B64171951B27176F8850FF8D7D337CC991DF4765524C6"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/AutomationCard-LCx_jIi7.js",
+      "sha256": "24ED773623C237F8219EFF5443FAC3BA7B55B6E99E168E52FF066FAF2ABE7A61"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-rIL9Fpht.css",
+      "sha256": "3D87E9F65B39EACE6A1A254BFC90A38ACB72613D1FFF7236C7CEE7AB9BFAF545"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/SquadsPage.jsx",
+      "sha256": "A5A56CCDB896AED61C194230C2C7E32156650BFEB948F51A7597FF1092FC55C2"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/RallyJoinSettings.jsx",
+      "sha256": "1579FA189EB6F5A34F62AF211662CC995FE314C6C13C8681C29A85B6A7A6F11A"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/previewAfkContracts.js",
+      "sha256": "F75B4D22ECCD19F69D4AD139ABC2FFBC150B0007662BA47127CFB600CBF61EE3"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/previewAfkCloseoutFixtures.js",
+      "sha256": "11B5AE1D449B61296E5150DEA355A82AFE8BF0C23497583D840057AAEC8CF3DD"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/previewConfigHook.jsx",
+      "sha256": "643875718C4DA1B443215F8E6B9417C840F372882AA81BA286080977D1ED827E"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/reference.css",
+      "sha256": "3D87E9F65B39EACE6A1A254BFC90A38ACB72613D1FFF7236C7CEE7AB9BFAF545"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/styles.css",
+      "sha256": "B50910D37A4DD02D7BB49B506735EA42615EF0F9E85714E880049481AECE2CCC"
+    }
+  ],
+  "scriptSha256": "04E5E4977C9A59F73A64A23732BCFD69723C3F483186639CE5CF5C1462670B0E"
+}
