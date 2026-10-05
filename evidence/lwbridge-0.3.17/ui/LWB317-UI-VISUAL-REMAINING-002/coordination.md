@@ -3,10 +3,11 @@
 Coordinating worker owns integration, all production/shared files, master documents,
 Git index/history, milestone commits and remote verification.
 
-Current integrated baseline: `52dd0e353a9525abbf9e04f022cf5ffbf3371eed` on
-`research/offline-controller`, verified equal to `origin/research/offline-controller`.
-Milestone 1 is `a83f4f49`; Milestone 2 is `b687593b`; Milestone 3 is `52dd0e35`.
-Milestone 4 is independently **READY** and is the next checkpoint to commit/push.
+Current pushed baseline: `1a7d863b536f8da67c2abc1b7dfbec483ec36d81` on
+`research/offline-controller`, verified equal to `origin/research/offline-controller`
+before the final M5 delivery commit. Milestone 1 is `a83f4f49`; Milestone 2 is
+`b687593b`; Milestone 3 is `52dd0e35`; Milestone 4 is `1a7d863b`.
+Milestone 5 is coordinator-complete and **READY FOR PROJECT-LEAD REVIEW**.
 Reference executable SHA-256 is
 `4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783`.
 The archive validator passes. The AFK editor read-only packet now fails only because
@@ -17,7 +18,25 @@ owner-owned; ports 4335, 4336 and 4370 are not currently listening. No worker ma
 control or stop the owner listener.
 An additional pre-existing Vite listener was found on 127.0.0.1:4347 under PID 41876;
 its ownership is not established by this continuation, so it is also left untouched.
-Milestone-3 fresh browser replay uses coordinator-owned port 4387 only.
+Milestone-3 fresh browser replay used coordinator-owned port 4387. Final M5 browser
+replay uses coordinator-owned port 4395; it is stopped at task closeout.
+
+## Final Milestone-5 coordination state
+
+- Final current-App result: 213 assertions / 11 screenshots / 0 console issues /
+  64 route-transition assertions.
+- Final manifest: 67 served-App production dependencies, 207 evidence inputs,
+  11 screenshots and exact resolved render/tool versions.
+- Final read-only validator: `LWB317_REMAINING_M5_VALIDATION_OK`.
+- Final mutation gate: all 3/3 distinguishing mutations detected.
+- Map final authority: 13 exact inherited pairs + two bounded Start Scan fences,
+  corrected City rejection 3/3 exact, current-App Map-entry/profile-owner replay green.
+- Initial M5 independent NOT READY reviews are preserved; their evidence blockers are
+  corrected. `review/fresh-map-audit.md` has an independent READY post-fix follow-up.
+- The fresh full-App audit worker failed to start and produced no file/change. The
+  coordinator independently ran the complete full-App validation instead of waiting.
+- Production source did not change after pushed Milestone 4; M5 is evidence,
+  integration verification and closeout documentation only.
 
 ## Current bounded review state
 

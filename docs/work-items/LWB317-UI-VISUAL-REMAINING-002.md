@@ -1,6 +1,6 @@
 # LWB317-UI-VISUAL-REMAINING-002
 
-Project-lead assignment, 2026-10-05. Status: ASSIGNED.
+Project-lead assignment, 2026-10-05. Status: **AWAITING_REVIEW** after coordinating-worker delivery.
 Parent: LWB317-UI-VISUAL-FINAL-CAMPAIGN-001, currently PARTIAL.
 
 ## Goal and delivery boundary

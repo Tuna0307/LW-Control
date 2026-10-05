@@ -1,5 +1,7 @@
 # Current implementation/research handoff
 
+Coordinating worker delivery, 2026-10-05: **LWB317-UI-VISUAL-REMAINING-002 is AWAITING_REVIEW for the complete recoverable source/local UIUX scope.** Milestones 1–4 are committed/pushed; final Milestone 5 is green with a generated 67-file served-App dependency closure, 213 current-browser assertions, 11 decoded screenshots, 64 eight-route transition assertions, zero console/page errors, corrected City query-error 3/3 unmasked exact replay, Map historical replay reduced to 13 exact + the two bounded Start Scan provider fences, and current-App Map-entry/profile-owner runtime proof. AFK/Squads/Garrison, Automation conditionals, shared shell/sidebar/dialogs/Home, Map and complete-App composition now have no demonstrated source-local recovery gap. Native/gameplay/updater/provider-positive execution, loaded native game assets and protected post-auth original-runtime pixels remain separate dependencies. Project-lead acceptance is still pending. See `docs/reviews/2026-10-05-LWB317-UI-VISUAL-REMAINING-002-WORKER.md` and the Milestone-5 closeout packet.
+
 Lead medium task, 2026-10-05: AFK profile-editor presentation is ACCEPTED for
 source/local scope: 24 exact renderer states, 12 unmasked pixel-identical pairs,
 267 behavior checks and 28 mounted assertions. Section headings, labels, Join
@@ -165,7 +167,7 @@ Lead takeover/acceptance, 2026-10-03: REMAINING-PAGES parent/R1 are **COMPLETE /
 
 **Target:** LWBridge 0.3.17  
 **Branch:** `research/offline-controller`  
-**Active scope:** UI parity / focused Cross-server and retention accepted; remaining shell/inventory gates open
+**Active scope:** `LWB317-UI-VISUAL-REMAINING-002` worker delivery is **AWAITING_REVIEW**; recoverable source/local UIUX gates are closed in M1–M5, while native/provider-positive/protected-runtime gates retain their separate recorded statuses
 
 ## Current continuation — Cross-server popover accepted
 

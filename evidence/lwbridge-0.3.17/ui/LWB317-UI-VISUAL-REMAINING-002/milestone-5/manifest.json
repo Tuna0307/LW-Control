@@ -1,0 +1,1264 @@
+{
+  "schema": 1,
+  "task": "LWB317-UI-VISUAL-REMAINING-002",
+  "milestone": 5,
+  "createdAt": "2026-10-05T08:22:22.145Z",
+  "productionBaseline": "1a7d863b536f8da67c2abc1b7dfbec483ec36d81",
+  "branch": "research/offline-controller",
+  "expected": {
+    "marker": "LWB317_REMAINING_M5_FULL_APP_CURRENT_OK",
+    "assertions": 213,
+    "screenshots": 11,
+    "consoleIssues": 0,
+    "routes": [
+      "overview",
+      "automation",
+      "map-data",
+      "march",
+      "city-layout",
+      "hotkeys",
+      "mini-games",
+      "settings"
+    ],
+    "routeTransitionAssertionsPerMode": 16,
+    "modes": [
+      "en-light-desktop",
+      "ja-dark-desktop",
+      "en-dark-narrow",
+      "ja-light-narrow"
+    ]
+  },
+  "referenceFiles": [
+    {
+      "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW/lwbridge-0.3.17.exe",
+      "bytes": 15866880,
+      "sha256": "4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-BVfnK1wp.js",
+      "bytes": 377972,
+      "sha256": "44C4E4043825B7DB296B64171951B27176F8850FF8D7D337CC991DF4765524C6"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-rIL9Fpht.css",
+      "bytes": 126217,
+      "sha256": "3D87E9F65B39EACE6A1A254BFC90A38ACB72613D1FFF7236C7CEE7AB9BFAF545"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js",
+      "bytes": 57600,
+      "sha256": "CE74345518BE72E417A510B982C591729E5683F69751E190805598C4C05D3089"
+    }
+  ],
+  "productionSources": {
+    "src/LWBridge.UI-0.3.17/index.html": "38E3B101E7939F19188F14D3051D42431A2DE698ADF24AAEC0D6C85192507F4F",
+    "src/LWBridge.UI-0.3.17/src/App.jsx": "E4039BEE1A7F66712C797ABBEFC3DAAE4C7FB59C82939B90F4D0041F40B7A93C",
+    "src/LWBridge.UI-0.3.17/src/AppExitDialog.jsx": "AFA79399788E4F8C58FA81C11FF86CB7128CBF5DD02A84BD511E88A928A6549D",
+    "src/LWBridge.UI-0.3.17/src/AutomationMeta.jsx": "47F84DED5D76E037BCBABC2F81D8C294D63ECD6409137320B46078985BF95678",
+    "src/LWBridge.UI-0.3.17/src/AutomationPage.jsx": "B05E6B3873DC86118379F8C7E1FC224DF3D4B0E8005AD7E48B5D659C6EDF98A5",
+    "src/LWBridge.UI-0.3.17/src/CityLayoutPage.jsx": "C2C3E9445F607C82954A4319E19C6A8A1BE64368038293D7B1FADC8BE9372061",
+    "src/LWBridge.UI-0.3.17/src/DispatchAssistManual.jsx": "1CE38103690C72DF87146B3F52791999374A2E841C2DDADCC84C9C417E69771B",
+    "src/LWBridge.UI-0.3.17/src/EquipmentMotion.jsx": "27CB30A8ADDF84DC007FA2D686524F649AFB470996CF386B23D8C7BA277FEC68",
+    "src/LWBridge.UI-0.3.17/src/GameAssetImage.jsx": "2BFCA11136F2495780EA6A2037BD5007F1D7653284849452E430D2A4FA05D379",
+    "src/LWBridge.UI-0.3.17/src/HomePage.jsx": "F140264E693E89F37CBB357470F58FE5DCA46F3DFDA29A8A5D2C7918CE2393FF",
+    "src/LWBridge.UI-0.3.17/src/HotkeyPages.jsx": "5DAE6E4FFE8875BCEBC366109AD4C1E3FFF690EA17273EBB50226E9107551634",
+    "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx": "0619C0589FED7A6DA37C7018D021D890A2A2396AC77D21A64E6D77CE348A5BD5",
+    "src/LWBridge.UI-0.3.17/src/MapRetainedGoodsFilter.jsx": "D890612C6208CE306BB57EEE759CFE79AD9CF86064B3B50526D65D0512657C51",
+    "src/LWBridge.UI-0.3.17/src/MapRoutePage.jsx": "5C01A4C857C8916A830E8973B8A02232CE760484985BAD6F78D1CD058DFF116C",
+    "src/LWBridge.UI-0.3.17/src/MapTreasureTypeFilter.jsx": "675E0BF8C2C7E6B6E7A5F90E368C6F8796B100581B24987EB6C7536BC4926AB7",
+    "src/LWBridge.UI-0.3.17/src/NavIcon.jsx": "BE74437FE9A0ACD86BA47F81983D0AFDDF51FD4C304C9C4932ADA3422936D911",
+    "src/LWBridge.UI-0.3.17/src/Pages.jsx": "C5DF951E95561A08A4614445ED61586AA6DF4E4B7AE3F11A6A546A52EBA19191",
+    "src/LWBridge.UI-0.3.17/src/ProfileSidebar.jsx": "96E480F3BBA897AB18BE29891A346651E933C6C743A908DE36BAC67B0E86DA9D",
+    "src/LWBridge.UI-0.3.17/src/ProfileSwitchState.jsx": "01FC87F704CC45BE3476BCAF461FA057F70DCE57A7453DDD00188B756F9E83F5",
+    "src/LWBridge.UI-0.3.17/src/RallyJoinSettings.jsx": "B7FA092427701B2D7E83980E0F8D949EC78117C7B7A8616857CB0EE695A091FC",
+    "src/LWBridge.UI-0.3.17/src/ScheduledPlunder.jsx": "9D6814A70A62C9198720CE15FAA84403F43E1DE172A88E285179151D017B5534",
+    "src/LWBridge.UI-0.3.17/src/SettingsPage.jsx": "8622BE39E06FE82FCF31BD2E092358987F3F304D447ADA061685727436737771",
+    "src/LWBridge.UI-0.3.17/src/ShellPresentation.jsx": "B1DD1278F274A1FD347AD4C27787B5AE8DC1DB32230D49B55F7A471DE34A904F",
+    "src/LWBridge.UI-0.3.17/src/SquadsPage.jsx": "16370281810045DF67CA9FF8E324BEE60E3C99DA1E7C493005D2B92E7769A4F4",
+    "src/LWBridge.UI-0.3.17/src/assets/dot-offline.png": "F118D321CCD185313695DB337823E1CFD04CCA96EB9FA3447B65455E2673C31D",
+    "src/LWBridge.UI-0.3.17/src/assets/dot-online.png": "2875CC9945B55F113A7D1E194EE2A13050BF9DE6AAEC94D1DE1D664112A027D6",
+    "src/LWBridge.UI-0.3.17/src/assets/icon-warning.png": "DA1A18E0007068C11D371A9D130C598F9B9A38F39F87D758FCC7FB9CC467853F",
+    "src/LWBridge.UI-0.3.17/src/autoLaunchPreference.js": "C16FEB94563B445CAFDC3189C980025A6F8A9AE5DDD24085CE28887D0F828286",
+    "src/LWBridge.UI-0.3.17/src/backendBridge.js": "E50C904508A17A2AC682B7D195359B51C6348D73835888513095D1E789EC99C5",
+    "src/LWBridge.UI-0.3.17/src/i18n.jsx": "D4290741AB2C7ACB0546ED47156BEF434DDF210775CAD9B9A3A261D401CE4891",
+    "src/LWBridge.UI-0.3.17/src/locales/en.js": "357682D9179AE712EE563950467B7A93B5AEA89322AFC993E079FEDEE28432C1",
+    "src/LWBridge.UI-0.3.17/src/locales/id.js": "52C0AE28F9C4428A481F6D911A1A4308EDDD022AF24EC48E518531803F7B375F",
+    "src/LWBridge.UI-0.3.17/src/locales/ja.js": "E1FED1E9AAF052963E3D8F5A5F8B9AE96B002A05A9DD7BB06A460A66187755EB",
+    "src/LWBridge.UI-0.3.17/src/locales/ko.js": "7B4AEF2D9000DC9BEE00CF7BD13FE64FC35753AEA728A66DC67F59F5A6A46C86",
+    "src/LWBridge.UI-0.3.17/src/locales/pt.js": "87AEE8FA12E8FF6868380A316B6B1F447473B0EDC1141C838CC0B2225F15036D",
+    "src/LWBridge.UI-0.3.17/src/locales/ru.js": "07F39B5D3AC71148C9C5E5143BCB26CD079D55F16FF3A3FF1FC4C58E4111C44C",
+    "src/LWBridge.UI-0.3.17/src/locales/vi.js": "954BE08AACAE40A81D117E48E03BACDEDE39FA1439D0823C2BD6FD03EFDC8B07",
+    "src/LWBridge.UI-0.3.17/src/locales/zh-CN.js": "FAF55A16171DB0FB3F96F51FBAE7FBC3C675176D52EED29A0A303A2F7A8304D3",
+    "src/LWBridge.UI-0.3.17/src/locales/zh-TW.js": "5B2467E0D005E6D726E92BD21EDA56E38321233D9D29BFDBAA8DBE3C0C4C2269",
+    "src/LWBridge.UI-0.3.17/src/main.jsx": "7DD7727093E4234B893682A77F780966345F7478E35610D69476AEA95B411755",
+    "src/LWBridge.UI-0.3.17/src/mapAutoConfig.js": "C88FAA13EBF8D15D2EC9EA54E800FDDEC5ECB38DF70D9D97E8D67768EC42EF4E",
+    "src/LWBridge.UI-0.3.17/src/mapBackend.js": "7E82AA8E46ECBB37A8F16D11F933E784B1414FB75CEBA27A7BDEB315054FE01A",
+    "src/LWBridge.UI-0.3.17/src/mapInteractions.js": "37B174098685E5C4DA540E514C1CE467A5CBAD61BC18569E8366B9F7085CF7DC",
+    "src/LWBridge.UI-0.3.17/src/mapPlunderFixtures.js": "73B6BF73DB557088BDC8BC45286095F61B0AF7C829A55E6C1B5BC9E1ABB72B60",
+    "src/LWBridge.UI-0.3.17/src/mapPlunderPresentation.js": "6E4BF5315990966823C5E162CF4875C9D1DB3A897CD7BACC40752C9A7C2A62FD",
+    "src/LWBridge.UI-0.3.17/src/mapPreviewApi.js": "CE6B1C18606A99C191E39734280E31336213D99A471E621C816656A0F9236B05",
+    "src/LWBridge.UI-0.3.17/src/mapScanHeaderFixtures.js": "437D5F4CBDAF2FB95E52A2496B02F57B5233D29BCA51A4F7428B0BC9C5B98720",
+    "src/LWBridge.UI-0.3.17/src/mapScanPresentation.js": "76C2AC646E79EA372965F9C2DA61D90356DAF7FA2F47E52DD9180D745E2DC5D0",
+    "src/LWBridge.UI-0.3.17/src/mapTablePresentation.js": "B6C0D9B369D3E78CCC74AA7296F2B88EABF6B6560C3669A199546FC299839427",
+    "src/LWBridge.UI-0.3.17/src/previewAfkCloseoutFixtures.js": "11B5AE1D449B61296E5150DEA355A82AFE8BF0C23497583D840057AAEC8CF3DD",
+    "src/LWBridge.UI-0.3.17/src/previewAfkContracts.js": "F75B4D22ECCD19F69D4AD139ABC2FFBC150B0007662BA47127CFB600CBF61EE3",
+    "src/LWBridge.UI-0.3.17/src/previewAfkFixtures.js": "0D9FD7517190F0C27A70478E974353D62071824EDF694F7C613FA8D153715AAF",
+    "src/LWBridge.UI-0.3.17/src/previewAutomationContracts.js": "FD4BC9C29F23631718D19818D273745C8D042DF35B1DDA2BE1E1928E75BB2295",
+    "src/LWBridge.UI-0.3.17/src/previewAutomationFixtures.js": "DF236FDBA38D02EB3FAA95C512A12F5FBA90CC6E43A48A892FC923DFE74AA56D",
+    "src/LWBridge.UI-0.3.17/src/previewConfig.js": "8BEDEC11D07A8245EBB6FF9DF78E13E872C20F850C9B887919360BF209397B7A",
+    "src/LWBridge.UI-0.3.17/src/previewConfigHook.jsx": "643875718C4DA1B443215F8E6B9417C840F372882AA81BA286080977D1ED827E",
+    "src/LWBridge.UI-0.3.17/src/previewEquipmentContracts.js": "2E57B79B1211582A9FF5E9A96A2158F8918C2D690694A6DDDDC338AF95BA44B0",
+    "src/LWBridge.UI-0.3.17/src/previewRemainingPagesContracts.js": "2F0C9EF1E28734ED3131A41E734A8D4A2B09CFFF56C3D23A5A359DF979769810",
+    "src/LWBridge.UI-0.3.17/src/profileConfigDraft.js": "31E255735FA77CE3D780D7DF563833C2D3AFBA26D16C0091F70DB486EBCD3E7A",
+    "src/LWBridge.UI-0.3.17/src/reference.css": "3D87E9F65B39EACE6A1A254BFC90A38ACB72613D1FFF7236C7CEE7AB9BFAF545",
+    "src/LWBridge.UI-0.3.17/src/routes.js": "2DA41EBFE3F4D898AE9E447F7A368C4EC9B270A0BAB46F2F3F049A8C0AADCF03",
+    "src/LWBridge.UI-0.3.17/src/sharedPageUI.jsx": "95ED15F5A4AB46C7CAE4DD55656E85718F66FA5AC45278B615D1795EBD8E82F2",
+    "src/LWBridge.UI-0.3.17/src/shellState.js": "29DF81AF8A791CA4D14535E9EEC0052F91A2FF45E18B7B272042DBAEC7C28195",
+    "src/LWBridge.UI-0.3.17/src/shellTheme.js": "58EAEF0483BB6922CE63391BB1746741386605DA6ED566764DB7B461DB10266B",
+    "src/LWBridge.UI-0.3.17/src/styles.css": "B50910D37A4DD02D7BB49B506735EA42615EF0F9E85714E880049481AECE2CCC",
+    "src/LWBridge.UI-0.3.17/src/tradePurchaseHistory.js": "5FE401B6B57D5E2707BCE7A5A38842E876DBEFE69608EFE434DD28B7ABDDD88B",
+    "src/LWBridge.UI-0.3.17/src/vendor/equipmentMotion317.js": "E3793CE042ECF9AB24BC8849403E5F3B968D685EBA38DAB80949A2F883DCBBD0"
+  },
+  "packageFiles": [
+    {
+      "path": "src/LWBridge.UI-0.3.17/package.json",
+      "bytes": 668,
+      "sha256": "4F55749289B6A84EA9B7AD9CB38AB0AF4A1B73E2D815A673333AFA943D3314DD"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/package-lock.json",
+      "bytes": 62038,
+      "sha256": "10B9D85B56EAE68743FECBB2FE4CF93D15F229A8B4D287B3C92F9C4C9FC70701"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/vite.config.js",
+      "bytes": 263,
+      "sha256": "7ABF2B75BAFD7443ACF24DF9A89598FCE0787191B2600E201FB0BB27D918160F"
+    }
+  ],
+  "evidenceFiles": [
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-REMAINING-002/milestone-5/run-full-app-current.mjs",
+      "bytes": 25335,
+      "sha256": "7FAC037984F4AEDC9091E7F9985D21C6CA8457CDE98B553DEF7A875FB4ED2628"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-REMAINING-002/milestone-5/full-app-current-results.json",
+      "bytes": 37793,
+      "sha256": "AB3C5FAA00276A4D238A7E33CFE837AF0AA7C1E452FF4D6A8440FCCED31133BC"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-REMAINING-002/milestone-5/full-app-inventory.md",
+      "bytes": 28439,
+      "sha256": "0803F14C9489903EB0A8C23D5E46B19BEB660C7866BB4B25F8BD87F828645CFE"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-REMAINING-002/milestone-5/map-replay-inventory.md",
+      "bytes": 19084,
+      "sha256": "3667C5BC841E4E3A783D8835967A6F612D7209FAC3916D0171E6AAE642069328"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-REMAINING-002/milestone-5/collect-app-dependency-closure.mjs",
+      "bytes": 2657,
+      "sha256": "4B0E91D5C4A81D39DB3778842567A13000C63FA6EFC4551B014FB18F00A5936F"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-REMAINING-002/milestone-5/replay-map-pixels-read-only.py",
+      "bytes": 3585,
+      "sha256": "999D51D2C3D88BEC419EB0F10866D880EE52A1735F7226F3B97DBF418EF65ED2"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-REMAINING-002/milestone-5/map-entry-current-harness.mjs",
+      "bytes": 11209,
+      "sha256": "25C099527D2AE472189E467E6CA0DFE0924E6EFDAF02F06939C9A93161D6DC8C"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-REMAINING-002/milestone-5/replay-map-entry-current.mjs",
+      "bytes": 3948,
+      "sha256": "EB6B42B9E2C556B0116D997EE4FD8FA18718BD51DD21569E50236AE3C83FD266"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-REMAINING-002/milestone-5/create-manifest.mjs",
+      "bytes": 9101,
+      "sha256": "9D8222D24FC06540ACBEFF72E4F0EF0535013B290761206CAC7A353E269824B1"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-REMAINING-002/milestone-5/validate-milestone-5.mjs",
+      "bytes": 13052,
+      "sha256": "9F7C1C5285F64D86AF3B37C123E6D32F1CCB0576FDEF1E943541FCD8CC39DDCC"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-REMAINING-002/milestone-5/mutation-check.mjs",
+      "bytes": 2580,
+      "sha256": "AEE21FC83604E74684301DDB1490F4F2ED827FDBE41B51EAE1CB28FF17E61802"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-REMAINING-002/milestone-4/closeout.md",
+      "bytes": 6311,
+      "sha256": "7442201DEE5846AE119156E523D0EA557BCC46238D70E390DC4985C4FD72D0FA"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-REMAINING-002/milestone-4/shell-source-render/validate-read-only.mjs",
+      "bytes": 8158,
+      "sha256": "94E4162DC0C4DA8F4BB55F7AE2695E0B805AA903B57F800D4128D6DACD2D6AA1"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/validate-unit-b.mjs",
+      "bytes": 3003,
+      "sha256": "1D7C66FBA48FD85E675B8EA18C9CB864B65FBA786BCBD1A3302AD7EF6EACE590"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/results.json",
+      "bytes": 16947,
+      "sha256": "82B915C2448B8AC95A5A9EECDD8D190EF55E7866DEAEA2BF21EF5F0FD648D716"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/current-results.json",
+      "bytes": 4546245,
+      "sha256": "5091662AF2351D5ACA7B6560CDE72366920BC79144CDDF0EF5A9CB06FE585AFB"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/pixel-results.json",
+      "bytes": 4162,
+      "sha256": "47D7915755C44444A4BDF882A5EFFA608C1A8AA225C8099E0B176BCD29005EBB"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/mounted/browser-interactions.json",
+      "bytes": 5398,
+      "sha256": "8FAE02311A7C132B5DDDB370D032DEB7E4A637686EDF865CD0BABDD49BE1CA7D"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/capture-corrected-error.mjs",
+      "bytes": 4026,
+      "sha256": "F9DD0073869D581DC2C51246C6B31880A5678C3986ED8B991ABDE1E16FF9F969"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-error-browser.json",
+      "bytes": 4967,
+      "sha256": "EDB26FC23D0933228604E7156A7DF3225E9969B27B0720DAFD9747E0DDF8D001"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-REFRESH-FEEDBACK-001/harness.mjs",
+      "bytes": 17470,
+      "sha256": "92DCE381243E16124E1E8D2BC54CE90ADCFDB208CA4AC49079B73DF76D62CE1E"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-e/recover-pages.mjs",
+      "bytes": 7323,
+      "sha256": "1772713C1908C2AB2067843E65BA485F079F2DA2A8043503BE64A4F08C17D332"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-PENDING-WIP-CLOSEOUT-001/check-archive.mjs",
+      "bytes": 1181,
+      "sha256": "FCB29A8B0ED5D4755E7F0607574768D605393B88947E157CBAF2EDB1B94B4682"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/browser/auto-configured-en-dark-current.png",
+      "bytes": 71929,
+      "sha256": "990D7F0D8DF37D97FD1739A94E6D57F276258682BF93001A4D02C9534578FC95"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/browser/auto-configured-en-dark-original.png",
+      "bytes": 71929,
+      "sha256": "990D7F0D8DF37D97FD1739A94E6D57F276258682BF93001A4D02C9534578FC95"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/browser/auto-configured-ja-light-375-current.png",
+      "bytes": 66956,
+      "sha256": "30D12555E413D4C8F767E22A4282979603BF63138D3EDCFDCCA6E61747A93AAC"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/browser/auto-configured-ja-light-375-original.png",
+      "bytes": 66956,
+      "sha256": "30D12555E413D4C8F767E22A4282979603BF63138D3EDCFDCCA6E61747A93AAC"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/browser/city-empty-en-light-current.png",
+      "bytes": 46496,
+      "sha256": "39CF04F3D190EF3F21AF1428859170E145A053E8BAC4AA9D24BA93866FFA714D"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/browser/city-empty-en-light-original.png",
+      "bytes": 46496,
+      "sha256": "39CF04F3D190EF3F21AF1428859170E145A053E8BAC4AA9D24BA93866FFA714D"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/browser/city-error-en-dark-current.png",
+      "bytes": 48306,
+      "sha256": "11B3C46D33349ECA72F3CE8DE4E304509905F3A2F5B1526DCEEC2E94C7B1FCD2"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/browser/city-error-en-dark-original.png",
+      "bytes": 47015,
+      "sha256": "68A0E85FACDE77275716909CDC1E92859C30662E1D1A7C0A71ABBD719DF6BBF7"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/browser/city-loading-ja-dark-current.png",
+      "bytes": 58200,
+      "sha256": "C72B2B8425FECCBA1E90FA580148ABDBFDFBED5421297B0C639385CE86278371"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/browser/city-loading-ja-dark-original.png",
+      "bytes": 58200,
+      "sha256": "C72B2B8425FECCBA1E90FA580148ABDBFDFBED5421297B0C639385CE86278371"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/browser/city-populated-en-light-current.png",
+      "bytes": 52853,
+      "sha256": "19B231003879775E4CF28AE9859D96D774E997A013AA765F9B52AF5B924A8FB8"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/browser/city-populated-en-light-original.png",
+      "bytes": 52853,
+      "sha256": "19B231003879775E4CF28AE9859D96D774E997A013AA765F9B52AF5B924A8FB8"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/browser/comparison-results.json",
+      "bytes": 171142,
+      "sha256": "240DA8B3540BE6E7A15C25DC88A9294C4337C2E667AA979B78472E94DE3EEFB1"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/browser/dispatch-populated-ja-dark-current.png",
+      "bytes": 71245,
+      "sha256": "71662A3AD3CC0162955CCE61124B5D2A72093A46CF4DAFA50103CF1395C721A2"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/browser/dispatch-populated-ja-dark-original.png",
+      "bytes": 71245,
+      "sha256": "71662A3AD3CC0162955CCE61124B5D2A72093A46CF4DAFA50103CF1395C721A2"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/browser/ghost-populated-en-dark-current.png",
+      "bytes": 55570,
+      "sha256": "33D224627CF9F6318B3B2FCA9695953D69B292127B09780485CF575A3B0E2486"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/browser/ghost-populated-en-dark-original.png",
+      "bytes": 55570,
+      "sha256": "33D224627CF9F6318B3B2FCA9695953D69B292127B09780485CF575A3B0E2486"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/browser/measurements.json",
+      "bytes": 5657159,
+      "sha256": "6000517FC44C49A1471D91A02367F67054382BB7511E0F0CCE276144E4F13D26"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/browser/monster-populated-en-dark-current.png",
+      "bytes": 52157,
+      "sha256": "0D96301F57F11B7370C397D4439AE9CEC006327E62C1E9FB1F50FA5C8CC78A09"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/browser/monster-populated-en-dark-original.png",
+      "bytes": 52157,
+      "sha256": "0D96301F57F11B7370C397D4439AE9CEC006327E62C1E9FB1F50FA5C8CC78A09"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/browser/railway-populated-en-light-current.png",
+      "bytes": 51168,
+      "sha256": "3D5A6159EA8594E8B3D52DF003B9588BA19814E341200E4C38F175DAC5005874"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/browser/railway-populated-en-light-original.png",
+      "bytes": 51168,
+      "sha256": "3D5A6159EA8594E8B3D52DF003B9588BA19814E341200E4C38F175DAC5005874"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/browser/resource-populated-ja-dark-current.png",
+      "bytes": 61229,
+      "sha256": "EEB0B87881096E8F11A5C8AA916928C9C2C99AE6CD2986775B1EB1A6E8B95588"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/browser/resource-populated-ja-dark-original.png",
+      "bytes": 61229,
+      "sha256": "EEB0B87881096E8F11A5C8AA916928C9C2C99AE6CD2986775B1EB1A6E8B95588"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/browser/scheduled-conditional-en-dark-current.png",
+      "bytes": 108226,
+      "sha256": "471C0F34FF9EB430131EC67CEC028B0CF312D5B924CC997E3A949D444208A632"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/browser/scheduled-conditional-en-dark-original.png",
+      "bytes": 108242,
+      "sha256": "EAE378356147BF081FF0D2F41B65BF1F26218169B96C59392D5B3A07B449CF49"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/browser/scheduled-empty-en-light-current.png",
+      "bytes": 60649,
+      "sha256": "D1D281FF01F6C8C2C30313D9900E1D43B02E91DF0E5B5AD60CB08135799105BB"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/browser/scheduled-empty-en-light-original.png",
+      "bytes": 60618,
+      "sha256": "BCF8C6364F6DB34B832CBC3553F6066BC128462A0A3BB7A7FC755C9960316FE2"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/browser/scheduled-populated-ja-dark-current.png",
+      "bytes": 115311,
+      "sha256": "FA3AC34191F52C82BDCDF6F89D0ABB30CE2BC1B5E7298B2C99A88665622FAAAD"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/browser/scheduled-populated-ja-dark-original.png",
+      "bytes": 115311,
+      "sha256": "FA3AC34191F52C82BDCDF6F89D0ABB30CE2BC1B5E7298B2C99A88665622FAAAD"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/browser/treasure-populated-ja-light-375-current.png",
+      "bytes": 45094,
+      "sha256": "B54A55582CE89E32051082C68FCE0898537FD806FC992B5E74BED7FB06E31D30"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/browser/treasure-populated-ja-light-375-original.png",
+      "bytes": 45094,
+      "sha256": "B54A55582CE89E32051082C68FCE0898537FD806FC992B5E74BED7FB06E31D30"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/browser/truck-populated-ja-light-375-current.png",
+      "bytes": 42498,
+      "sha256": "A46AE4F72FA71D78C9256D5BC4EF355B7E228FED4D5E58578A032F92C209044F"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-b/browser/truck-populated-ja-light-375-original.png",
+      "bytes": 42498,
+      "sha256": "A46AE4F72FA71D78C9256D5BC4EF355B7E228FED4D5E58578A032F92C209044F"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/en-auto-configured-current.html",
+      "bytes": 8721,
+      "sha256": "BA2C1EB5F39FBF9E39DBA469BCAB84F5A0BF0A9227B7CB8C990828E8C520F5F9"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/en-auto-configured-original.html",
+      "bytes": 8145,
+      "sha256": "E61276A6D8C25BFF14174B913FC4B82287CC5ABB98C6AEA0683819C8E61FCDAA"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/en-city-empty-current.html",
+      "bytes": 6684,
+      "sha256": "B116B6865447772027EC4FB43233BD52289BF9AA69C53E74FDE71F13A189F191"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/en-city-empty-original.html",
+      "bytes": 6090,
+      "sha256": "C1D8B27C13763E546548F6E4666344FF80576E967DD24EA76689C6471657216E"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/en-city-error-current.html",
+      "bytes": 6684,
+      "sha256": "B116B6865447772027EC4FB43233BD52289BF9AA69C53E74FDE71F13A189F191"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/en-city-error-original.html",
+      "bytes": 6090,
+      "sha256": "C1D8B27C13763E546548F6E4666344FF80576E967DD24EA76689C6471657216E"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/en-city-loading-current.html",
+      "bytes": 6665,
+      "sha256": "1DEF3880FC1180A739634895BC58E308A77F05EB7C5CA92590FB4D6FB8E3EB11"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/en-city-loading-original.html",
+      "bytes": 6071,
+      "sha256": "4BAD1B4E6A94ADFA5821B2925067226C0353D07EA94056ECD1D45B386A6A93A5"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/en-city-populated-current.html",
+      "bytes": 7564,
+      "sha256": "51A42B00462B0DE05B2CBD6DAAC599439B6F0600767680C0B40C78101E0F7D09"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/en-city-populated-original.html",
+      "bytes": 6914,
+      "sha256": "9152595D447058C845728DDFAEE803F1483EF9A8C4A09586E65358ACAE8617F2"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/en-dispatch-empty-current.html",
+      "bytes": 7593,
+      "sha256": "1F0BC80B0673641B00681C4C355BDC2612E2ABF6124DB5B8D1AF1BE2DBE0C856"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/en-dispatch-empty-original.html",
+      "bytes": 6930,
+      "sha256": "C5BF43BE887EE95A8B80E6FAD9A493309F0AE7DC7EF94A07CC96008DCE529A73"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/en-dispatch-error-current.html",
+      "bytes": 7593,
+      "sha256": "1F0BC80B0673641B00681C4C355BDC2612E2ABF6124DB5B8D1AF1BE2DBE0C856"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/en-dispatch-error-original.html",
+      "bytes": 6930,
+      "sha256": "C5BF43BE887EE95A8B80E6FAD9A493309F0AE7DC7EF94A07CC96008DCE529A73"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/en-dispatch-loading-current.html",
+      "bytes": 7574,
+      "sha256": "80A35DDDC1EFBEC03EF9595D90BC47DB50FED3AB83CEDF0ED8D2395DFBB6D5A1"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/en-dispatch-loading-original.html",
+      "bytes": 6911,
+      "sha256": "821A804A15AE116635111693DF8099660EBB9A49BED601A744A1E1BFAA63FC04"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/en-dispatch-populated-current.html",
+      "bytes": 8538,
+      "sha256": "5281094D8F12E2E00AC2B3A29B9D9B9C0F8E11C81FE7610125F1FBC2F7F0FDF6"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/en-dispatch-populated-original.html",
+      "bytes": 7833,
+      "sha256": "AE9AB71A991CFA5582E67EFA997CF9713574397AD5BD8F7FEE39024FDA9D1B89"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/en-ghost-empty-current.html",
+      "bytes": 7178,
+      "sha256": "9566B05D8B60813447D33A58021B843849A13167D5D342AC96F7D48615362195"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/en-ghost-empty-original.html",
+      "bytes": 6557,
+      "sha256": "062520E3FCFFC951CA4C486DCB65E9F24BF00714F3F0896F1B7C206DA62C3E49"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/en-ghost-error-current.html",
+      "bytes": 7178,
+      "sha256": "9566B05D8B60813447D33A58021B843849A13167D5D342AC96F7D48615362195"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/en-ghost-error-original.html",
+      "bytes": 6557,
+      "sha256": "062520E3FCFFC951CA4C486DCB65E9F24BF00714F3F0896F1B7C206DA62C3E49"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/en-ghost-loading-current.html",
+      "bytes": 7159,
+      "sha256": "529380980686A274BC510C406154D0FF2E81D07F1CE817C8D0105EF88E9DE6C2"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/en-ghost-loading-original.html",
+      "bytes": 6538,
+      "sha256": "3536E60F86263990FD31CC173DF533509F2B6BE15878297896B417BDC71F573F"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/en-ghost-populated-current.html",
+      "bytes": 8114,
+      "sha256": "5BCA61AD547274F28952A0696DC444EA589DAFB15FB60FFC6E15F38956403FA4"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/en-ghost-populated-original.html",
+      "bytes": 7451,
+      "sha256": "9EEC402DAFCCB8A309FC633E72AA51551A09D48C43845BCA00AC86FDC70A94A8"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/en-map-scheduled-conditional-current.html",
+      "bytes": 23629,
+      "sha256": "78606F7A97128666748568CEEDEE14F0D3CEADF9F1C51BA596B1C91F2883B22D"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/en-map-scheduled-conditional-original.html",
+      "bytes": 23052,
+      "sha256": "AF6D109819E0300B6C3A73F6C107677717BC707F58933363EEE40E116E40E3AA"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/en-map-scheduled-current.html",
+      "bytes": 6458,
+      "sha256": "740D680F3ADD58241B51698E8FA3064DBDC4EF5D3E2C8A5ADE441D015FEFD805"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/en-map-scheduled-original.html",
+      "bytes": 5881,
+      "sha256": "3008D785DACFB2D50C4D0113D3D8B9C8B12FE78751E0E8C1E71C87D96298B2EC"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/en-map-scheduled-populated-current.html",
+      "bytes": 18859,
+      "sha256": "28642ECAF37C874567612F78DE24AEF7DCE78E5FA05BADF66C876B485E35DCC2"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/en-map-scheduled-populated-original.html",
+      "bytes": 18294,
+      "sha256": "6AD9A903691D0FAEDBDC57C207DE301A48DDA257BBD289DF2F6184B616559741"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/en-missing-server-current.html",
+      "bytes": 6650,
+      "sha256": "4114C6E4A986638B8643284309D461F299CC2ADFDCFA304834BF47D9B9070E87"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/en-missing-server-original.html",
+      "bytes": 6032,
+      "sha256": "F1A8AE733D1152B179E2D1471B38889A6EBA8B7D94572443117582F901B24FD5"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/en-monster-empty-current.html",
+      "bytes": 5833,
+      "sha256": "C01D1EB3426DB1D33A36B8982A9A5F6E93D24C7FBC3B3BEF262DD92ED4E0B9E8"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/en-monster-empty-original.html",
+      "bytes": 5254,
+      "sha256": "67C3B039237C5253A017AFFC5347AD542CA148B03BEB6691FA41B318A977D5ED"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/en-monster-error-current.html",
+      "bytes": 5833,
+      "sha256": "C01D1EB3426DB1D33A36B8982A9A5F6E93D24C7FBC3B3BEF262DD92ED4E0B9E8"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/en-monster-error-original.html",
+      "bytes": 5254,
+      "sha256": "67C3B039237C5253A017AFFC5347AD542CA148B03BEB6691FA41B318A977D5ED"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/en-monster-loading-current.html",
+      "bytes": 5814,
+      "sha256": "C7E929A3205047A59660658D11D86788410FF55EFE7A338102B893F34ADC95E2"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/en-monster-loading-original.html",
+      "bytes": 5235,
+      "sha256": "9B5F755FF2D74A641CEC2634C6BECD5E0124F4DF0AADE77D1E011CAC74702BE7"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/en-monster-populated-current.html",
+      "bytes": 6339,
+      "sha256": "C3B98B67C1B6304B66F618AD98C0459BECF6D8BB80766AE886D147D5434F74BE"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/en-monster-populated-original.html",
+      "bytes": 5718,
+      "sha256": "B6A88D6DA7064552BB103278C35D3CBA5B52E98627FB6AC1ACBCE7BE5FDC53FF"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/en-railway-empty-current.html",
+      "bytes": 6866,
+      "sha256": "A62B18FD82441DCA73D17A1C639D8FB5FB3908F704476653D5BEC67C2B4FF66E"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/en-railway-empty-original.html",
+      "bytes": 6287,
+      "sha256": "99CB32EAAC7E1C3CFEA3FD1B4690CBEBC19BB9558E8515C8FDD9E59573796BE6"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/en-railway-error-current.html",
+      "bytes": 6866,
+      "sha256": "A62B18FD82441DCA73D17A1C639D8FB5FB3908F704476653D5BEC67C2B4FF66E"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/en-railway-error-original.html",
+      "bytes": 6287,
+      "sha256": "99CB32EAAC7E1C3CFEA3FD1B4690CBEBC19BB9558E8515C8FDD9E59573796BE6"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/en-railway-loading-current.html",
+      "bytes": 6847,
+      "sha256": "D3FA9F97D4A387E2517569F127D1340723AEF78E7D96AB006E7855BEED460CC8"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/en-railway-loading-original.html",
+      "bytes": 6268,
+      "sha256": "A32302B2BCB0E7EA69336F719EAF389B1E049291D127FD5FE037B870C3C4C753"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/en-railway-populated-current.html",
+      "bytes": 8145,
+      "sha256": "44907D0BF80A8DD387396991BD1B63B54D57510B1C3CE81E437E70FDE3D0AAC9"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/en-railway-populated-original.html",
+      "bytes": 7538,
+      "sha256": "FDE4776F8D732F2A44D2B1800DE05A691BC870AD14164F64E7D53A724B31532D"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/en-resource-empty-current.html",
+      "bytes": 5375,
+      "sha256": "F81D0CF49019D4B5182363DF94E4F0809C16A6B0C7E7A983FC62985965912120"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/en-resource-empty-original.html",
+      "bytes": 4796,
+      "sha256": "C2E78257D57C31A58D19EDC61C9682F00A47BB1C3CE5B98B4DA27879509D5D69"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/en-resource-error-current.html",
+      "bytes": 5375,
+      "sha256": "F81D0CF49019D4B5182363DF94E4F0809C16A6B0C7E7A983FC62985965912120"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/en-resource-error-original.html",
+      "bytes": 4796,
+      "sha256": "C2E78257D57C31A58D19EDC61C9682F00A47BB1C3CE5B98B4DA27879509D5D69"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/en-resource-loading-current.html",
+      "bytes": 5356,
+      "sha256": "8201C001E803C8444C95AF562C7932217BDB7714D4F61A344BFF1B8622091631"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/en-resource-loading-original.html",
+      "bytes": 4777,
+      "sha256": "928B9D76113F6C34C5FCFEAE55AC3743438598D6898A7FCC2C1094C165D5C6DD"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/en-resource-populated-current.html",
+      "bytes": 5884,
+      "sha256": "7699ACEA237D82FE6731E2A3C457DD965CA0BA83A6DAE64831AD25769D6975C2"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/en-resource-populated-original.html",
+      "bytes": 5263,
+      "sha256": "F85E66164C13D764DB100D508AB41BBB4B42A2EC6C49E0DD360B8356800B045F"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/en-scheduled-provider-fenced-current.html",
+      "bytes": 19075,
+      "sha256": "95674196694BCDC7AC0CA842F27500DD48E00C79C8F81D53D2CBEBF2F7370F4D"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/en-scheduled-provider-fenced-original.html",
+      "bytes": 18294,
+      "sha256": "6AD9A903691D0FAEDBDC57C207DE301A48DDA257BBD289DF2F6184B616559741"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/en-treasure-empty-current.html",
+      "bytes": 5845,
+      "sha256": "2995B7AB11A39F9ED9C0073F9B1E8D8CAD1245E0A777FCBFBEC7A8C4FD8D970F"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/en-treasure-empty-original.html",
+      "bytes": 5195,
+      "sha256": "2C78095B2C8B874FCEB917C060114AF7F46A4395009B5BCE722FF92C029ECCB7"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/en-treasure-error-current.html",
+      "bytes": 5845,
+      "sha256": "2995B7AB11A39F9ED9C0073F9B1E8D8CAD1245E0A777FCBFBEC7A8C4FD8D970F"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/en-treasure-error-original.html",
+      "bytes": 5214,
+      "sha256": "E3370643B2542696DBBF6330016AA70971DC8293AB94BE01DDFA8333D0961ACD"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/en-treasure-loading-current.html",
+      "bytes": 5826,
+      "sha256": "8A7D6BF39CBA9DADEA7E08E3D650FFCB43CC4FF6C37AD552C483DB2DEC027D30"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/en-treasure-loading-original.html",
+      "bytes": 5195,
+      "sha256": "2C78095B2C8B874FCEB917C060114AF7F46A4395009B5BCE722FF92C029ECCB7"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/en-treasure-populated-current.html",
+      "bytes": 6696,
+      "sha256": "7E7558064E952C9E313A23FCF8507BCD75FA87F2DBECCB1CEBF983CCF2CFD720"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/en-treasure-populated-original.html",
+      "bytes": 6009,
+      "sha256": "0AF2C359ADB8C93E16C2C58D996A793841034D63357CA31FF0E8570568AC60BC"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/en-truck-empty-current.html",
+      "bytes": 7669,
+      "sha256": "D7088ED19E42AF633D41B8174B67C757B94721DA6FC8D239933128E12435E4E9"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/en-truck-empty-original.html",
+      "bytes": 7048,
+      "sha256": "113A482F2F0F0FEB82EE9D0412929E9458D37F2DD0AAC7D133CB5A022508A270"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/en-truck-error-current.html",
+      "bytes": 7669,
+      "sha256": "D7088ED19E42AF633D41B8174B67C757B94721DA6FC8D239933128E12435E4E9"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/en-truck-error-original.html",
+      "bytes": 7048,
+      "sha256": "113A482F2F0F0FEB82EE9D0412929E9458D37F2DD0AAC7D133CB5A022508A270"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/en-truck-loading-current.html",
+      "bytes": 7650,
+      "sha256": "FD7932645C48B5A218DE1391DA9254472DA0C08BF5D4D13D36011DF4B4097356"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/en-truck-loading-original.html",
+      "bytes": 7029,
+      "sha256": "B7740829286D94434987852553476437DDA6990DF52265DAA90396F833F3D905"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/en-truck-populated-current.html",
+      "bytes": 9255,
+      "sha256": "1B6685CFA11CA11D26A83AFC6B0DABE07B7BF92ED973B4644F8738D50BE92EF0"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/en-truck-populated-original.html",
+      "bytes": 8606,
+      "sha256": "26B859BBBF4FF312962D300B2102DEEAD4D56B185008C1B8510990F6304482B2"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/ja-auto-configured-current.html",
+      "bytes": 8158,
+      "sha256": "368181144D2E06F341C3542617221CC2FF2EA3C757919863584E4824BB91E299"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/ja-auto-configured-original.html",
+      "bytes": 7538,
+      "sha256": "A16A1E9CA6B61D9E35D184B3D31D348A780B2CC6A6E5CCAD0BF9499F59FC1418"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/ja-backend-unavailable-current.html",
+      "bytes": 6861,
+      "sha256": "293781E61F48EA530109DE841FA028DE58FE5704FEA9BF10A8F5F40ADD27C3AA"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/ja-backend-unavailable-original.html",
+      "bytes": 6309,
+      "sha256": "E02067A2E285A37F56373DB4ADF779F64C63D00DF8DCD52A20F8727F76A02447"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/ja-city-empty-current.html",
+      "bytes": 6910,
+      "sha256": "0E3BD0591F55EFD2AFA7FE57DFEBB155902BEBBD0BAFAF5DFD8FB00691B852EE"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/ja-city-empty-original.html",
+      "bytes": 6309,
+      "sha256": "E02067A2E285A37F56373DB4ADF779F64C63D00DF8DCD52A20F8727F76A02447"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/ja-city-error-current.html",
+      "bytes": 6910,
+      "sha256": "0E3BD0591F55EFD2AFA7FE57DFEBB155902BEBBD0BAFAF5DFD8FB00691B852EE"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/ja-city-error-original.html",
+      "bytes": 6309,
+      "sha256": "E02067A2E285A37F56373DB4ADF779F64C63D00DF8DCD52A20F8727F76A02447"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/ja-city-loading-current.html",
+      "bytes": 6867,
+      "sha256": "817B6D8FE9460F4EB0E0D43C34109794514273FA84645E0B51E50ABA5E62688A"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/ja-city-loading-original.html",
+      "bytes": 6266,
+      "sha256": "4D6CC6646935DFECAC01D345F15BB2669871CBE9D535BEEFB80F683627CF5706"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/ja-city-populated-current.html",
+      "bytes": 7802,
+      "sha256": "0433E7CD0F812C828005EF429ECE231DCDA6D92325C28EFF8BB4722E99FC19FA"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/ja-city-populated-original.html",
+      "bytes": 7145,
+      "sha256": "2DEFAE177D988B261E4A6827DCECDF09E5E711A08F4398583F8DD7D488B09E48"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/ja-dispatch-empty-current.html",
+      "bytes": 7797,
+      "sha256": "F77441105AC1DA84099C15DB18DE376FA29A0D3A899022DF54F657C21A59F78D"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/ja-dispatch-empty-original.html",
+      "bytes": 7127,
+      "sha256": "007CD20784A63BAFED3DAD468B9A05458C8928629CC28CB8DE6545A6FDA9A3BE"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/ja-dispatch-error-current.html",
+      "bytes": 7797,
+      "sha256": "F77441105AC1DA84099C15DB18DE376FA29A0D3A899022DF54F657C21A59F78D"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/ja-dispatch-error-original.html",
+      "bytes": 7127,
+      "sha256": "007CD20784A63BAFED3DAD468B9A05458C8928629CC28CB8DE6545A6FDA9A3BE"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/ja-dispatch-loading-current.html",
+      "bytes": 7754,
+      "sha256": "50C0893A69E032210F4FFA35A583999B863A8C23AF1ABA866FAF57D3485EE4A7"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/ja-dispatch-loading-original.html",
+      "bytes": 7084,
+      "sha256": "6B6420D186858354FB88A3EBF9805FFBDC8F4BA0CE7223D037AF90D9DF81F695"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/ja-dispatch-populated-current.html",
+      "bytes": 8734,
+      "sha256": "3FE9123684EE61F6B24120F00FE05D809E563D431E59DE3B9B5BCBB85159E53A"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/ja-dispatch-populated-original.html",
+      "bytes": 8022,
+      "sha256": "D0B3CC58B275E509110C3F61A07568CA64B65DD781ED7174C613324A72180A76"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/ja-ghost-empty-current.html",
+      "bytes": 7378,
+      "sha256": "5394F0DDAB2AB89D8F02EA55FAC59747F45E8722D1276DDB5FADDA5D328A6BB4"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/ja-ghost-empty-original.html",
+      "bytes": 6750,
+      "sha256": "1495F3EB0800A7678793FEDC536B17151A77321166D062B2A4C9988C8C54998C"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/ja-ghost-error-current.html",
+      "bytes": 7378,
+      "sha256": "5394F0DDAB2AB89D8F02EA55FAC59747F45E8722D1276DDB5FADDA5D328A6BB4"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/ja-ghost-error-original.html",
+      "bytes": 6750,
+      "sha256": "1495F3EB0800A7678793FEDC536B17151A77321166D062B2A4C9988C8C54998C"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/ja-ghost-loading-current.html",
+      "bytes": 7335,
+      "sha256": "701FBD1ABF57664C122D863F1A317145C7C9897CE2E144E21CA9E0049A368F75"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/ja-ghost-loading-original.html",
+      "bytes": 6707,
+      "sha256": "D56CC0C06BE3D5F74B7C89FB51D0E4EC996EBBA402BA96790E568AFE692F7D69"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/ja-ghost-populated-current.html",
+      "bytes": 8306,
+      "sha256": "91D61FC6C437E0B611421630D5E7D4391485F60926798DAA553DA3194B100593"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/ja-ghost-populated-original.html",
+      "bytes": 7636,
+      "sha256": "7708A29705DAC7C29D3739A80B29B9433E4DACEC68ADC4034F3BF0CA674B6A1A"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/ja-map-scheduled-conditional-current.html",
+      "bytes": 24041,
+      "sha256": "77A528906C76903763B843EE941E76A338500581016BE3C78F718C4A01325537"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/ja-map-scheduled-conditional-original.html",
+      "bytes": 23457,
+      "sha256": "B2EB401BDAC734ED349A12724BAD7E432AA9218CF3DB28A6CDDD08EF97289377"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/ja-map-scheduled-current.html",
+      "bytes": 6712,
+      "sha256": "CB0E1ABF5E52B6D4D25EF39A9654B554C43E2D3F2CF3A82974F7905816D51BA2"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/ja-map-scheduled-original.html",
+      "bytes": 6128,
+      "sha256": "4C56DDA32C44F3599364D53713B27E8262D8D8B1959F2791C9598843615ABEAB"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/ja-map-scheduled-populated-current.html",
+      "bytes": 19195,
+      "sha256": "B38391A7ABA19CC78DC473C4D4FF65B5DF12182556404B3DFC4E2E18D659A937"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/ja-map-scheduled-populated-original.html",
+      "bytes": 18623,
+      "sha256": "783DC45D626A6565139B9CB158C042F7E81BE7EB467C46E0EFC52E2DFCCBEDA8"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/ja-monster-empty-current.html",
+      "bytes": 6002,
+      "sha256": "B8C1CF30E6FC428BB14D92167C6B7E642247567459A38251552F372283A7EFE9"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/ja-monster-empty-original.html",
+      "bytes": 5416,
+      "sha256": "E1EDEA9F7CC765D009568B62BC84C8333CAD1A07C4519596890A04E0857B6935"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/ja-monster-error-current.html",
+      "bytes": 6002,
+      "sha256": "B8C1CF30E6FC428BB14D92167C6B7E642247567459A38251552F372283A7EFE9"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/ja-monster-error-original.html",
+      "bytes": 5416,
+      "sha256": "E1EDEA9F7CC765D009568B62BC84C8333CAD1A07C4519596890A04E0857B6935"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/ja-monster-loading-current.html",
+      "bytes": 5959,
+      "sha256": "816201BBEAAFA5205E939227C345CA039FAF7668A307234C5AB0B5035B81B169"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/ja-monster-loading-original.html",
+      "bytes": 5373,
+      "sha256": "CBFECDAEB8E8A1E387BDC933D73950C1786FB3204EAD9F8CF5CA5391253DBFDD"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/ja-monster-populated-current.html",
+      "bytes": 6497,
+      "sha256": "62EC12477EE51DAFAE57D7A45A339285A5F694AF8369DD82EFE648B667ACE572"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/ja-monster-populated-original.html",
+      "bytes": 5869,
+      "sha256": "D95F59086426F7B290AE6CACAFDA68BCD7AC38E61E94823CE8A9C50737EE8689"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/ja-railway-empty-current.html",
+      "bytes": 7076,
+      "sha256": "FE82A29AD9D3410F9D86F3EF6354A89AB5CB97A24F44F8C140718F1DD97EE2FF"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/ja-railway-empty-original.html",
+      "bytes": 6490,
+      "sha256": "23571C7DA458375AB25E3579E54E298A20A88C7DF5C67DE04118DD1B963608A1"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/ja-railway-error-current.html",
+      "bytes": 7076,
+      "sha256": "FE82A29AD9D3410F9D86F3EF6354A89AB5CB97A24F44F8C140718F1DD97EE2FF"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/ja-railway-error-original.html",
+      "bytes": 6490,
+      "sha256": "23571C7DA458375AB25E3579E54E298A20A88C7DF5C67DE04118DD1B963608A1"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/ja-railway-loading-current.html",
+      "bytes": 7033,
+      "sha256": "332AEC116CEE07DD3530069792E8E8069314D2D9FCA76D90EC58AA7AEA2B83CF"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/ja-railway-loading-original.html",
+      "bytes": 6447,
+      "sha256": "50476D327FA9FF47030DB32B97835B2BFDDCF488E825A5ABD4D106050A079759"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/ja-railway-populated-current.html",
+      "bytes": 8325,
+      "sha256": "BB925F56ADA60BB977E13ACB1D535A7A1DBE356E00CB8787304A528A6164266E"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/ja-railway-populated-original.html",
+      "bytes": 7711,
+      "sha256": "73ACCD5D21E1D8A88150CE935E0515F73721B4388E18628579270D7B53550F47"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/ja-resource-empty-current.html",
+      "bytes": 5540,
+      "sha256": "50202A6FC16D4AAC32E9B4329D5E2592043B8A743BBCD5F4826A892DB3E69877"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/ja-resource-empty-original.html",
+      "bytes": 4954,
+      "sha256": "38CB3AEDB23EBEBB5EC700F0B6E871C97476317C27F8AA8B806727F6D38EF1D9"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/ja-resource-error-current.html",
+      "bytes": 5540,
+      "sha256": "50202A6FC16D4AAC32E9B4329D5E2592043B8A743BBCD5F4826A892DB3E69877"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/ja-resource-error-original.html",
+      "bytes": 4954,
+      "sha256": "38CB3AEDB23EBEBB5EC700F0B6E871C97476317C27F8AA8B806727F6D38EF1D9"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/ja-resource-loading-current.html",
+      "bytes": 5497,
+      "sha256": "6113D078F0A915D0780A4E58FBF2232ABE097C95C3BC98E71102F0147D8C4BDA"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/ja-resource-loading-original.html",
+      "bytes": 4911,
+      "sha256": "2EA59716A7AF5270F6C2FB933B3088DED45EFC1A19E80879B29915662F745145"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/ja-resource-populated-current.html",
+      "bytes": 6033,
+      "sha256": "07EBD70A9B70408B91898C972DF80971D000556CB6FF3B00B51B7063F1413ABC"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/ja-resource-populated-original.html",
+      "bytes": 5405,
+      "sha256": "701C69EA94FC1577D4B58387E936F770FD2738B236F1A729E1DA72B95884DD4D"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/ja-treasure-empty-current.html",
+      "bytes": 6052,
+      "sha256": "86D5AD150D0DA503B96F18413C6DC20FD5AFB4076E4444294A2481CBF1B46BCB"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/ja-treasure-empty-original.html",
+      "bytes": 5371,
+      "sha256": "5887F9A6A0CBD769434601621BCC35535F0801E5A6DD33FEC93F7218ED815673"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/ja-treasure-error-current.html",
+      "bytes": 6052,
+      "sha256": "86D5AD150D0DA503B96F18413C6DC20FD5AFB4076E4444294A2481CBF1B46BCB"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/ja-treasure-error-original.html",
+      "bytes": 5414,
+      "sha256": "DB2F0E89C84C334A9F17C64E059E4DCFC5BF851C6CEA9D83280DF81B8C077F8C"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/ja-treasure-loading-current.html",
+      "bytes": 6009,
+      "sha256": "13DA1EB28F5143671D17F53D56BADB6ED5F2B35DC2A2276753DF053C61B96613"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/ja-treasure-loading-original.html",
+      "bytes": 5371,
+      "sha256": "5887F9A6A0CBD769434601621BCC35535F0801E5A6DD33FEC93F7218ED815673"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/ja-treasure-populated-current.html",
+      "bytes": 6877,
+      "sha256": "E1CFFE969D5AA3314708F93D64C3A108B9A5380AD56FEA5507D5A58E87E454C0"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/ja-treasure-populated-original.html",
+      "bytes": 6183,
+      "sha256": "731FA6B02A2094C7187560EDF50335F4EC7D8855EB5F2B49293CE7BD38CA5F5A"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/ja-truck-empty-current.html",
+      "bytes": 7908,
+      "sha256": "50417A0A2816D741552F6E2C9972212B6556C72350FF676A16CB291C525DB232"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/ja-truck-empty-original.html",
+      "bytes": 7280,
+      "sha256": "9818EEC25928F2260254AA2B5EA82AD87083486AEA160FA64D34641C92D318E1"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/ja-truck-error-current.html",
+      "bytes": 7908,
+      "sha256": "50417A0A2816D741552F6E2C9972212B6556C72350FF676A16CB291C525DB232"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/ja-truck-error-original.html",
+      "bytes": 7280,
+      "sha256": "9818EEC25928F2260254AA2B5EA82AD87083486AEA160FA64D34641C92D318E1"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/ja-truck-loading-current.html",
+      "bytes": 7865,
+      "sha256": "D15A9E65FA051D16C78A31925D59CDB40092F927560637C5160BCF5047AA583B"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/ja-truck-loading-original.html",
+      "bytes": 7237,
+      "sha256": "D8A78C51D342281F9B23724CC7B223D06E350F7ACF9153FE92103B930199068E"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/ja-truck-populated-current.html",
+      "bytes": 9477,
+      "sha256": "4810BCAE9F5DE2DAC53A58A666EA45CEA64376B8F13788D55BEEEDBBC1E54AA5"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CAMPAIGN-001/unit-a/lead-audit/corrected-renderer/raw/ja-truck-populated-original.html",
+      "bytes": 8821,
+      "sha256": "56B2217805CEFE43A4FC9D1990296FA9D917B454B9D17F551061D6967E107988"
+    }
+  ],
+  "screenshots": [
+    {
+      "file": "en-light-desktop-eight-route-return.png",
+      "sha256": "7BE52B9700DAF973912C6DC55C7078E432E9FFC26F7D00E00B30B556426A258C",
+      "bytes": 40763
+    },
+    {
+      "file": "ja-dark-desktop-eight-route-return.png",
+      "sha256": "47585EC2C3C5C69EC8626B3F8E7D6E5C8F6B81EDBE63414BC4F59CA2C4A55E73",
+      "bytes": 43768
+    },
+    {
+      "file": "en-dark-narrow-eight-route-return.png",
+      "sha256": "7EF84866272B9A8B51F0A1EC7AE1F3F4D77FAF71868A0FEFA0D2F63BBFBBFCB3",
+      "bytes": 36352
+    },
+    {
+      "file": "ja-light-narrow-eight-route-return.png",
+      "sha256": "DF5C210422D895FF48C3AF32FC355EC0E4AD1B7AE11B52BD316A743C399C27EB",
+      "bytes": 41218
+    },
+    {
+      "file": "en-light-profile-boundary-parent-tabs.png",
+      "sha256": "7B76E97108C4BBD25EED4B04DBDF4EB7798EC00A1D06B5193E43566A1C118A5A",
+      "bytes": 72719
+    },
+    {
+      "file": "ja-dark-map-retention-auto-local.png",
+      "sha256": "4EAB8BFFCB910F7BF7B960A2CC7217416789CC59EB68C8C05AE11290F0FFFF0B",
+      "bytes": 112012
+    },
+    {
+      "file": "en-light-map-pagination-return.png",
+      "sha256": "4EED8038D686F0C58A7C190642155844774BC58285CFE0EBAD348140B5264D53",
+      "bytes": 84164
+    },
+    {
+      "file": "en-light-city-local-retention-owner-return.png",
+      "sha256": "FEB4D6422A46A7EDEFDEF27C96F2208536A02F7DFFDC1954283699F152FF79D2",
+      "bytes": 73456
+    },
+    {
+      "file": "en-light-automation-draft-return.png",
+      "sha256": "52DB686A6A18D79AA8F660E7B6AF6F4E2632D5E69DD891EF475068EF4909FE5C",
+      "bytes": 95063
+    },
+    {
+      "file": "en-light-squads-afk-draft-return.png",
+      "sha256": "A4177B57124C1CFEDDE0C6F86445CBF17EA18610F15CEC9858E969231DB18686",
+      "bytes": 104772
+    },
+    {
+      "file": "ja-dark-live-theme-locale-retained-map.png",
+      "sha256": "A3E6AB559141716C5B847C52E6E60E454E4F2D0DE40311007A166AD94D9867D3",
+      "bytes": 97958
+    }
+  ],
+  "inheritedReplayExpectations": {
+    "mapUnitB": "LWB317_VISUAL_FINAL_UNIT_B_VALIDATED",
+    "mapPixels": "LWB317_REMAINING_M5_MAP_PIXELS_READ_ONLY_OK",
+    "correctedCityError": "CORRECTED_SEARCH_REJECTION_EXACT",
+    "mapEntryCurrent": "LWB317_REMAINING_M5_MAP_ENTRY_CURRENT_OK",
+    "unitsEtoH": [
+      "city-layout 30 actual paired render states",
+      "hotkeys 18 actual paired render states",
+      "mini-games 78 actual paired render states",
+      "settings 63 actual paired render states"
+    ],
+    "shellM4": "SHELL_SOURCE_RENDER_VALIDATE_OK",
+    "archive": "LWB317_LEGACY_WIP_ARCHIVE_OK exactFiles=10"
+  },
+  "tools": {
+    "node": "v24.18.0",
+    "viteRequested": "^7.1.7",
+    "vite": "7.3.6",
+    "react": "19.3.0",
+    "reactDom": "19.3.0",
+    "viteReactPlugin": "5.2.0",
+    "playwright": "1.63.0",
+    "chrome": "154.0.8037.95",
+    "python": "Python 3.12.10",
+    "pillow": "12.3.0",
+    "git": "git version 2.55.0.windows.3"
+  },
+  "limits": [
+    "Current-App integration/retention proof only; exact original page-local visual authority remains the accepted inherited source-render packets.",
+    "No native/gameplay/updater/server-jump/scan/plunder/OS-hotkey action is invoked. Unavailable provider actions stay disabled/fenced."
+  ]
+}
