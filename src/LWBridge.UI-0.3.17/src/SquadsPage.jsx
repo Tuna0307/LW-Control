@@ -3,13 +3,13 @@ import { useI18n } from "./i18n.jsx";
 import { RallyJoinSettings } from "./RallyJoinSettings.jsx";
 import { applyAfkTarget, makePreviewAfkProfile, normalizeJoinRestrictions, previewAfkLevelOutOfRange, previewAfkProfileValid, previewAfkTargets, refreshGarrisonTargets, resolvePreviewAfkTarget, validJoinRestrictions } from "./previewAfkContracts.js";
 import { initialAfkToolbarConfig, previewAfkAvailableSquads, previewAfkMasterStopAck, previewAfkProfileRuntime, previewAfkRuntimeNames, previewDrillRuntime, previewGarrisonMemberFixture, previewGarrisonRuntime, previewZombieBusRuntime } from "./previewAfkCloseoutFixtures.js";
-import { PreviewConfigError, usePreviewConfig } from "./previewConfigHook.jsx";
+import { PreviewConfigError, usePreviewConfig, usePreviewConfigAdapter } from "./previewConfigHook.jsx";
 import { cloneEquipmentValue, currentEquipmentPresetLabel, currentEquipmentPresetMatches, EQUIPMENT_PRESET_LIMIT, EQUIPMENT_SLOTS, equipmentCatalog, equipmentDirtyPresetIds, equipmentItemCount, equipmentPositionCount, findEquipmentSquad, previewEquipmentFixture, swapEquipmentSquads, swapEquipmentTarget } from "./previewEquipmentContracts.js";
 import { GameAssetImage } from "./GameAssetImage.jsx";
 import { ToggleRow } from "./sharedPageUI.jsx";
 import { motion, AnimatePresence, useReducedMotion, equipmentMotionProps } from "./EquipmentMotion.jsx";
 
-export function SquadsPage({ previewState = "", activeTab, onActiveTabChange }) {
+export function SquadsPage({ previewState = "", profileId = "", activeTab, onActiveTabChange }) {
   const { t } = useI18n();
   const equipmentPreview = previewState.startsWith("squads-equipment");
   const previewEnabled = previewState.startsWith("squads-profile") || equipmentPreview;
@@ -39,8 +39,8 @@ export function SquadsPage({ previewState = "", activeTab, onActiveTabChange }) 
         <button type="button" role="tab" className={tab === "afk" ? "active" : ""} aria-selected={tab === "afk"} onClick={() => selectTab("afk")}>{t("squad.tabAfk")}</button>
         <button type="button" role="tab" className={tab === "equipment" ? "active" : ""} aria-selected={tab === "equipment"} onClick={() => selectTab("equipment")}>{t("squad.tabEquipment")}</button>
       </div>
-      {visitedTabs.has("afk") ? <Activity mode={tab === "afk" ? "visible" : "hidden"}><AfkContent previewEnabled={previewEnabled} previewState={previewState} availableSquads={availableSquads} /></Activity> : null}
-      {visitedTabs.has("equipment") ? <Activity mode={tab === "equipment" ? "visible" : "hidden"}><EquipmentContent previewEnabled={previewEnabled} previewState={previewState} /></Activity> : null}
+      {visitedTabs.has("afk") ? <Activity mode={tab === "afk" ? "visible" : "hidden"}><AfkContent previewEnabled={previewEnabled} previewState={previewState} profileId={profileId} availableSquads={availableSquads} /></Activity> : null}
+      {visitedTabs.has("equipment") ? <Activity mode={tab === "equipment" ? "visible" : "hidden"}><EquipmentContent previewEnabled={previewEnabled} previewState={previewState} profileId={profileId} /></Activity> : null}
     </section>
   );
 }
@@ -329,14 +329,16 @@ const AFK_RUNTIME_STEP_KEYS = {
   returning: "squad.afkStep.returning",
 };
 
-function AfkContent({ previewEnabled, previewState, availableSquads = [1, 2, 3, 4] }) {
+function AfkContent({ previewEnabled, previewState, profileId = "", availableSquads = [1, 2, 3, 4] }) {
   const { t } = useI18n();
   const DragGlyph = () => <svg className="ui-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M5 4h.01M11 4h.01M5 8h.01M11 8h.01M5 12h.01M11 12h.01" /></svg>;
   const [showEditor, setShowEditor] = useState(previewEnabled);
-  const afkConfig = usePreviewConfig(() => previewEnabled ? initialMonsterAfkConfig(previewState) : { enabled: false, strategies: [], allianceDrill: initialAfkToolbarConfig("").allianceDrill }, validMonsterAfkConfig, previewState === "squads-profile-save-error", `afk:${previewState}`);
-  const potionConfig = usePreviewConfig(() => initialPotionConfig(previewState), validPotionConfig, previewState === "squads-profile-toolbar-save-error" || previewState === "squads-profile-potion-save-error", `afk-potion:${previewState}`);
-  const garrisonConfig = usePreviewConfig(() => initialGarrisonConfig(previewState), validGarrisonConfig, previewState === "squads-profile-garrison-save-error", `afk-garrison:${previewState}`);
-  const zombieConfig = usePreviewConfig(() => initialZombieConfig(previewState), (value) => typeof value.enabled === "boolean", previewState === "squads-profile-zombie-save-error", `afk-zombie:${previewState}`);
+  const profileScope = profileId || "default";
+  const storeScope = (scope) => JSON.stringify([profileScope, `${scope}:${previewState}`]);
+  const afkConfig = usePreviewConfig(() => previewEnabled ? initialMonsterAfkConfig(previewState) : { enabled: false, strategies: [], allianceDrill: initialAfkToolbarConfig("").allianceDrill }, validMonsterAfkConfig, previewState === "squads-profile-save-error", storeScope("task:monsterSweep"));
+  const potionConfig = usePreviewConfig(() => initialPotionConfig(previewState), validPotionConfig, previewState === "squads-profile-toolbar-save-error" || previewState === "squads-profile-potion-save-error", storeScope("task:staminaPotion"));
+  const garrisonConfig = usePreviewConfig(() => initialGarrisonConfig(previewState), validGarrisonConfig, previewState === "squads-profile-garrison-save-error", storeScope("task:allianceGarrison"));
+  const zombieConfig = usePreviewConfig(() => initialZombieConfig(previewState), (value) => typeof value.enabled === "boolean", previewState === "squads-profile-zombie-save-error", storeScope("task:zombieBus"));
   const profiles = afkConfig.draft.strategies;
   const setProfiles = (value, delay = 400) => afkConfig.store.edit((draft) => ({ ...draft, strategies: typeof value === "function" ? value(draft.strategies) : value }), delay);
   const [editingId, setEditingId] = useState(() => previewEnabled ? initialAfkProfiles(previewState)[0]?.id || "" : "");
@@ -601,12 +603,43 @@ function EquipmentDialog({ busy, onClose, children }) {
   );
 }
 
-function EquipmentContent({ previewEnabled, previewState = "" }) {
+const equipmentPreviewAcknowledgements = new Map();
+
+function EquipmentContent({ previewEnabled, previewState = "", profileId = "" }) {
   const { t } = useI18n();
   const reducedMotion = useReducedMotion();
   const fixture = useMemo(() => previewEquipmentFixture(previewState, t), [previewState, t]);
-  const [presets, setPresets] = useState(() => cloneEquipmentValue(fixture.presets));
-  const [confirmedPresets, setConfirmedPresets] = useState(() => cloneEquipmentValue(fixture.confirmedPresets));
+  const equipmentScope = JSON.stringify([profileId || "default", `equipment:${previewState}`]);
+  const [acknowledgementState] = useState(() => {
+    const cached = equipmentPreviewAcknowledgements.get(equipmentScope);
+    if (cached) return cached;
+    const created = { rejectionConsumed: false, pendingPromise: null };
+    equipmentPreviewAcknowledgements.set(equipmentScope, created);
+    return created;
+  });
+  const equipmentStoreRef = useRef(null);
+  const equipmentConfig = usePreviewConfigAdapter(
+    () => cloneEquipmentValue(fixture.presets),
+    {
+      valid: (value) => Array.isArray(value),
+      read: async () => cloneEquipmentValue(equipmentStoreRef.current?.getSnapshot().confirmed ?? fixture.confirmedPresets),
+      write: async (value) => {
+        if (previewState === "squads-equipment-rename-pending") {
+          acknowledgementState.pendingPromise ||= new Promise(() => {});
+          await acknowledgementState.pendingPromise;
+        }
+        if (previewState === "squads-equipment-rename-error" && !acknowledgementState.rejectionConsumed) {
+          acknowledgementState.rejectionConsumed = true;
+          throw new Error("PREVIEW_EQUIPMENT_SAVE_FAILED");
+        }
+        return cloneEquipmentValue(value);
+      },
+    },
+    equipmentScope,
+  );
+  equipmentStoreRef.current = equipmentConfig.store;
+  const presets = equipmentConfig.draft;
+  const confirmedPresets = equipmentConfig.confirmed;
   const [selectedPresetId, setSelectedPresetId] = useState(() => presets[0]?.id || "");
   const [renameOpen, setRenameOpen] = useState(fixture.renameOpen);
   const [renameValue, setRenameValue] = useState(() => presets[0]?.name || "");
@@ -616,12 +649,6 @@ function EquipmentContent({ previewEnabled, previewState = "" }) {
   const [toast, setToast] = useState("");
   const [lastPreviewAction, setLastPreviewAction] = useState("");
   const [actionBusyKey, setActionBusyKey] = useState("");
-  const [configSaving, setConfigSaving] = useState(false);
-  const [configError, setConfigError] = useState(null);
-  const acknowledgementState = useRef({ previewState, rejectionConsumed: false, pendingPromise: null });
-  if (acknowledgementState.current.previewState !== previewState) {
-    acknowledgementState.current = { previewState, rejectionConsumed: false, pendingPromise: null };
-  }
   const busyKey = fixture.busyKey || actionBusyKey;
   const busy = Boolean(busyKey);
   const online = fixture.online;
@@ -635,50 +662,21 @@ function EquipmentContent({ previewEnabled, previewState = "" }) {
   const equipmentCount = selectedPreset ? equipmentItemCount(selectedPreset) : 0;
 
   const editPresets = (next) => {
-    setPresets(next);
-    setConfigError(null);
-  };
-
-  const acknowledgePreviewConfig = () => {
-    if (previewState === "squads-equipment-rename-pending") {
-      acknowledgementState.current.pendingPromise ||= new Promise(() => {});
-      return acknowledgementState.current.pendingPromise;
-    }
-    if (previewState === "squads-equipment-rename-error" && !acknowledgementState.current.rejectionConsumed) {
-      acknowledgementState.current.rejectionConsumed = true;
-      return Promise.reject(new Error("PREVIEW_EQUIPMENT_SAVE_FAILED"));
-    }
-    return true;
+    equipmentConfig.store.edit(next, false);
   };
 
   const flushPreviewConfig = (nextPresets = presets) => {
-    setConfigError(null);
-    const acknowledgement = acknowledgePreviewConfig();
-    const confirm = () => {
-      const confirmed = cloneEquipmentValue(nextPresets);
-      setConfirmedPresets(confirmed);
-      return confirmed;
-    };
-    if (!acknowledgement || typeof acknowledgement.then !== "function") return acknowledgement ? confirm() : null;
-    setConfigSaving(true);
-    return acknowledgement
-      .then((value) => value ? confirm() : null)
-      .catch((error) => {
-        setConfigError(error instanceof Error ? error : new Error(String(error)));
-        return null;
-      })
-      .finally(() => setConfigSaving(false));
+    if (nextPresets !== equipmentConfig.store.getSnapshot().draft) equipmentConfig.store.edit(nextPresets, false);
+    return equipmentConfig.store.flush().catch(() => null);
   };
 
   const discardPreviewConfig = () => {
-    setPresets(cloneEquipmentValue(confirmedPresets));
-    setConfigError(null);
-    return cloneEquipmentValue(confirmedPresets);
+    return equipmentConfig.store.refresh(true);
   };
 
   const configFeedback = {
-    error: configError,
-    saving: configSaving,
+    error: equipmentConfig.error,
+    saving: equipmentConfig.saving,
     store: {
       flush: () => flushPreviewConfig(presets),
       refresh: () => discardPreviewConfig(),

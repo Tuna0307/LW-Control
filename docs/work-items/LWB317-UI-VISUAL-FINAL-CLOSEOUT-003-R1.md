@@ -1,7 +1,7 @@
 # LWB317-UI-VISUAL-FINAL-CLOSEOUT-003-R1
 
-Project-lead assignment, 2026-10-06. Status: **ASSIGNED**.
-Parent CLOSEOUT-003: CHANGES_REQUIRED. Global UIUX: PARTIAL.
+Project-lead assignment, 2026-10-06. Worker status: **AWAITING_REVIEW**.
+Parent CLOSEOUT-003 lead status remains CHANGES_REQUIRED until project-lead R1 acceptance. Global UIUX remains PARTIAL pending that review.
 
 ## Goal and startup
 
@@ -92,3 +92,45 @@ Return AWAITING_REVIEW only after correction plus final checks. Report exact SHA
 proof counts/limits, commands, screenshots and continuation. Final UIUX acceptance
 belongs to the lead; do not declare native functionality or full protected-runtime
 pixel equality complete.
+
+## Worker R1 delivery — 2026-10-06
+
+The lead-reproduced profile leak is corrected in the canonical frontend. `App.jsx`
+passes `selectedProfileId` through the March/Squads route. The four exact
+source-owned AFK stores use profile/scoped retained identities for
+`task:monsterSweep`, `task:staminaPotion`, `task:allianceGarrison` and
+`task:zombieBus`. A separate exact recovered-source audit found that Equipment
+`fd` also calls the same registry as `e("equipment", ..., selectedProfile)`;
+therefore the Equipment config draft/confirmed/saving/error lifecycle is now
+profile-owned as well. Equipment selection, rename input/dialog state, drag target,
+toast, apply/action state and timers remain transient component state.
+
+Fresh R1 evidence is under
+`evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CLOSEOUT-003/r1/`.
+`profile-ownership.mjs` binds the immutable lead counterexample, executes the exact
+original `T/re/me` registry, verifies the original asset hashes/function locators,
+and proves actual-App A-edit → B-clean → A-retained → B-clean. Its controlled
+current draft-engine cases cover deferred success/rejection, Retry and Discard
+isolation for every recovered AFK scope plus Equipment without native providers.
+
+Affected R1 replay is green: 30 whole-AFK compositions, 14 recovered/current
+browser pairs, 11 Join-dialog checks, 25 mounted AFK interactions and 17 focused
+Equipment assertions. Fresh host reconciliation records 257 assertions against a
+67-file source closure digest
+`281D3C06ADB0ED89F6D0BA8C66A99AECD09E6152F45FF100B706C33811D1580E`.
+The final complete-App record verifies 275 assertions, 16 decoded settled
+screenshots, all nine 1,383-key locale catalogs, 11 semantic mutation detections
+including removal of AFK/Equipment profile identity, and zero console/page issues.
+
+Canonical frontend checks pass. The fresh production build fingerprint is
+`3687f1b12facf940af3419c6a70cd7f9630eb831c754d543e4350755e0f3e12c`;
+the production package fingerprint is
+`0f74ce69349b51d9a8f5747f28fd209b92554916669518e382576413a8b73400`.
+The legacy WIP archive remains exact at 10 files and the reference executable
+re-hashes to
+`4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783`.
+
+Remaining limits are unchanged: browser evidence is source/local preview or inert
+consumer behavior; no gameplay/native provider, updater/OS action, original
+service/auth path or protected post-auth original-runtime complete-App pixel oracle
+was invoked. Final acceptance belongs to the project lead.

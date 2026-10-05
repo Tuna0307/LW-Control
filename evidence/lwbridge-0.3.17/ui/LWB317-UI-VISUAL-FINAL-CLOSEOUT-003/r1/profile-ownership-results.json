@@ -1,0 +1,180 @@
+{
+  "status": "PASS",
+  "baseUrl": "http://127.0.0.1:4451",
+  "sourceIdentity": {
+    "referenceExe": "4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783",
+    "squadAsset": "ED466E353AA896D8C3FC783FF1802930156FB9E9EB54327AEF73F2FF86FA06C7",
+    "mainAsset": "44C4E4043825B7DB296B64171951B27176F8850FF8D7D337CC991DF4765524C6",
+    "appSource": "93F43575C21CD8436997F4816E86E42A9F7E1FF20C3935045CD4CBA9D347E810",
+    "squadsSource": "920892FCC3069D4F98B0662E4502910DDF5901EE707C8A663B751BBB3A2E4623",
+    "originalLocators": {
+      "T": 191297,
+      "re": 193714,
+      "me": 195132,
+      "I": 28070
+    }
+  },
+  "immutableFailureBaseline": {
+    "scriptSha256": "9888096D9791E9473480A3E878122A112B45B53F3A81AB11E5B35203C35B709A",
+    "resultSha256": "20518972EB36022078BE91BF12676AB1B2E6577F5F35FA844A98881016897AE3",
+    "counterexample": true,
+    "currentAtLead": {
+      "profileA": {
+        "value": "10000",
+        "dirty": "true"
+      },
+      "profileB": {
+        "value": "10000",
+        "dirty": "true"
+      }
+    },
+    "originalAtLead": {
+      "profileA": 10000,
+      "profileB": 50,
+      "distinctStores": true,
+      "locators": {
+        "me": 195132,
+        "re": 193714,
+        "T": 191297,
+        "I": 28070
+      }
+    }
+  },
+  "originalOwnership": {
+    "task:monsterSweep": {
+      "distinctStores": true,
+      "aEdited": 1,
+      "bClean": 0
+    },
+    "task:staminaPotion": {
+      "distinctStores": true,
+      "aEdited": 1,
+      "bClean": 0
+    },
+    "task:allianceGarrison": {
+      "distinctStores": true,
+      "aEdited": 1,
+      "bClean": 0
+    },
+    "task:zombieBus": {
+      "distinctStores": true,
+      "aEdited": 1,
+      "bClean": 0
+    }
+  },
+  "currentScopes": [
+    "task:monsterSweep",
+    "task:staminaPotion",
+    "task:allianceGarrison",
+    "task:zombieBus"
+  ],
+  "deferred": {
+    "task:monsterSweep": {
+      "keyA": "[\"A\",\"task:monsterSweep:shell-profiles\"]",
+      "keyB": "[\"B\",\"task:monsterSweep:shell-profiles\"]",
+      "successConfirmedA": 1,
+      "rejectionStayedOnA": true,
+      "retryConfirmedA": 3,
+      "discardReturnedA": 3,
+      "bStayedClean": 0
+    },
+    "task:staminaPotion": {
+      "keyA": "[\"A\",\"task:staminaPotion:shell-profiles\"]",
+      "keyB": "[\"B\",\"task:staminaPotion:shell-profiles\"]",
+      "successConfirmedA": 1,
+      "rejectionStayedOnA": true,
+      "retryConfirmedA": 3,
+      "discardReturnedA": 3,
+      "bStayedClean": 0
+    },
+    "task:allianceGarrison": {
+      "keyA": "[\"A\",\"task:allianceGarrison:shell-profiles\"]",
+      "keyB": "[\"B\",\"task:allianceGarrison:shell-profiles\"]",
+      "successConfirmedA": 1,
+      "rejectionStayedOnA": true,
+      "retryConfirmedA": 3,
+      "discardReturnedA": 3,
+      "bStayedClean": 0
+    },
+    "task:zombieBus": {
+      "keyA": "[\"A\",\"task:zombieBus:shell-profiles\"]",
+      "keyB": "[\"B\",\"task:zombieBus:shell-profiles\"]",
+      "successConfirmedA": 1,
+      "rejectionStayedOnA": true,
+      "retryConfirmedA": 3,
+      "discardReturnedA": 3,
+      "bStayedClean": 0
+    },
+    "equipment": {
+      "keyA": "[\"A\",\"equipment:shell-profiles\"]",
+      "keyB": "[\"B\",\"equipment:shell-profiles\"]",
+      "successConfirmedA": 1,
+      "rejectionStayedOnA": true,
+      "retryConfirmedA": 3,
+      "discardReturnedA": 3,
+      "bStayedClean": 0
+    }
+  },
+  "browser": {
+    "initialA": {
+      "master": false,
+      "potion": "50",
+      "garrison": false,
+      "potionError": "",
+      "zombie": false,
+      "dirty": "false",
+      "saving": "false"
+    },
+    "aEdited": {
+      "master": false,
+      "potion": "10000",
+      "garrison": false,
+      "potionError": "",
+      "zombie": false,
+      "dirty": "true",
+      "saving": "false"
+    },
+    "aAfterHideReturn": {
+      "master": false,
+      "potion": "10000",
+      "garrison": false,
+      "potionError": "",
+      "zombie": false,
+      "dirty": "true",
+      "saving": "false"
+    },
+    "bClean": {
+      "master": false,
+      "potion": "50",
+      "garrison": false,
+      "potionError": "",
+      "zombie": false,
+      "dirty": "false",
+      "saving": "false"
+    },
+    "aRetained": {
+      "master": false,
+      "potion": "10000",
+      "garrison": false,
+      "potionError": "",
+      "zombie": false,
+      "dirty": "true",
+      "saving": "false"
+    },
+    "bStillClean": {
+      "master": false,
+      "potion": "50",
+      "garrison": false,
+      "potionError": "",
+      "zombie": false,
+      "dirty": "false",
+      "saving": "false"
+    }
+  },
+  "issues": [],
+  "limits": [
+    "Browser edits are inert local consumer events against preview-disabled controls; they do not claim native/gameplay edit availability.",
+    "Deferred success/rejection uses the recovered createConfigDraft implementation with the current profile/scope key contract and controlled local adapters; no native provider runs.",
+    "Protected original-runtime pixels and native/provider-positive execution remain outside this R1 proof."
+  ]
+}

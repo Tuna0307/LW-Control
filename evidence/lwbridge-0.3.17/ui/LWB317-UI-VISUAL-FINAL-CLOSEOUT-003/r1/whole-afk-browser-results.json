@@ -1,0 +1,1361 @@
+{
+  "marker": "LWB317_FINAL_CLOSEOUT_WHOLE_AFK_BROWSER_OK",
+  "browser": "154.0.8037.95",
+  "cases": [
+    {
+      "id": "selected-existing",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "theme": "light",
+      "sides": {
+        "original": {
+          "metrics": {
+            "rect": [
+              17,
+              17,
+              1246,
+              678
+            ],
+            "directChildren": [
+              "DIV:monster-afk-toolbar",
+              "SECTION:monster-afk-profiles",
+              "DIV:monster-afk-editor "
+            ],
+            "toolbarChildClasses": [
+              "automation-card monster-afk-compact-card is-selectable is-selected",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable"
+            ],
+            "editorDirect": true,
+            "toolbarSettingsCount": 0,
+            "toolbarSettingsOwned": true,
+            "profileCards": 1,
+            "assignmentButtons": 4,
+            "runtimeOkRows": 0,
+            "compositionErrors": 0,
+            "garrisonSettings": 0,
+            "zombieTables": 0,
+            "garrisonRunNowDisabled": null,
+            "addDisabled": false,
+            "horizontalOverflow": false
+          },
+          "screenshot": {
+            "path": "paired-screenshots/selected-existing-light-1280-original.png",
+            "sha256": "96844CFDE5D48646333035630CF8261EB6E3365424D1055152E2BB8E8333FA20",
+            "bytes": 60338
+          },
+          "providerFenceNormalizedSha256": null
+        },
+        "current": {
+          "metrics": {
+            "rect": [
+              17,
+              17,
+              1246,
+              678
+            ],
+            "directChildren": [
+              "DIV:monster-afk-toolbar",
+              "SECTION:monster-afk-profiles",
+              "DIV:monster-afk-editor "
+            ],
+            "toolbarChildClasses": [
+              "automation-card monster-afk-compact-card is-selectable is-selected",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable"
+            ],
+            "editorDirect": true,
+            "toolbarSettingsCount": 0,
+            "toolbarSettingsOwned": true,
+            "profileCards": 1,
+            "assignmentButtons": 4,
+            "runtimeOkRows": 0,
+            "compositionErrors": 0,
+            "garrisonSettings": 0,
+            "zombieTables": 0,
+            "garrisonRunNowDisabled": null,
+            "addDisabled": false,
+            "horizontalOverflow": false
+          },
+          "screenshot": {
+            "path": "paired-screenshots/selected-existing-light-1280-current.png",
+            "sha256": "96844CFDE5D48646333035630CF8261EB6E3365424D1055152E2BB8E8333FA20",
+            "bytes": 60338
+          },
+          "providerFenceNormalizedSha256": null
+        }
+      },
+      "measurementDifference": {
+        "directChildrenEqual": true,
+        "toolbarChildClassesEqual": true,
+        "rectEqual": true,
+        "pngBytesEqual": true
+      },
+      "declaredDifference": null
+    },
+    {
+      "id": "selected-new",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "theme": "dark",
+      "sides": {
+        "original": {
+          "metrics": {
+            "rect": [
+              17,
+              17,
+              1246,
+              678
+            ],
+            "directChildren": [
+              "DIV:monster-afk-toolbar",
+              "SECTION:monster-afk-profiles",
+              "DIV:monster-afk-editor is-new"
+            ],
+            "toolbarChildClasses": [
+              "automation-card monster-afk-compact-card is-selectable is-selected",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable"
+            ],
+            "editorDirect": true,
+            "toolbarSettingsCount": 0,
+            "toolbarSettingsOwned": true,
+            "profileCards": 1,
+            "assignmentButtons": 4,
+            "runtimeOkRows": 0,
+            "compositionErrors": 0,
+            "garrisonSettings": 0,
+            "zombieTables": 0,
+            "garrisonRunNowDisabled": null,
+            "addDisabled": false,
+            "horizontalOverflow": false
+          },
+          "screenshot": {
+            "path": "paired-screenshots/selected-new-dark-1280-original.png",
+            "sha256": "679B254475D8BB1AD43696830226140EB934B7DD6FE472E70C17002FDCA1C4A5",
+            "bytes": 61202
+          },
+          "providerFenceNormalizedSha256": null
+        },
+        "current": {
+          "metrics": {
+            "rect": [
+              17,
+              17,
+              1246,
+              678
+            ],
+            "directChildren": [
+              "DIV:monster-afk-toolbar",
+              "SECTION:monster-afk-profiles",
+              "DIV:monster-afk-editor is-new"
+            ],
+            "toolbarChildClasses": [
+              "automation-card monster-afk-compact-card is-selectable is-selected",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable"
+            ],
+            "editorDirect": true,
+            "toolbarSettingsCount": 0,
+            "toolbarSettingsOwned": true,
+            "profileCards": 1,
+            "assignmentButtons": 4,
+            "runtimeOkRows": 0,
+            "compositionErrors": 0,
+            "garrisonSettings": 0,
+            "zombieTables": 0,
+            "garrisonRunNowDisabled": null,
+            "addDisabled": false,
+            "horizontalOverflow": false
+          },
+          "screenshot": {
+            "path": "paired-screenshots/selected-new-dark-1280-current.png",
+            "sha256": "679B254475D8BB1AD43696830226140EB934B7DD6FE472E70C17002FDCA1C4A5",
+            "bytes": 61202
+          },
+          "providerFenceNormalizedSha256": null
+        }
+      },
+      "measurementDifference": {
+        "directChildrenEqual": true,
+        "toolbarChildClassesEqual": true,
+        "rectEqual": true,
+        "pngBytesEqual": true
+      },
+      "declaredDifference": null
+    },
+    {
+      "id": "discovered-squads-34",
+      "viewport": {
+        "width": 375,
+        "height": 900
+      },
+      "theme": "dark",
+      "sides": {
+        "original": {
+          "metrics": {
+            "rect": [
+              17,
+              17,
+              341,
+              1242
+            ],
+            "directChildren": [
+              "DIV:monster-afk-toolbar",
+              "SECTION:monster-afk-profiles",
+              "DIV:monster-afk-editor "
+            ],
+            "toolbarChildClasses": [
+              "automation-card monster-afk-compact-card is-selectable is-selected",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable"
+            ],
+            "editorDirect": true,
+            "toolbarSettingsCount": 0,
+            "toolbarSettingsOwned": true,
+            "profileCards": 1,
+            "assignmentButtons": 2,
+            "runtimeOkRows": 0,
+            "compositionErrors": 0,
+            "garrisonSettings": 0,
+            "zombieTables": 0,
+            "garrisonRunNowDisabled": null,
+            "addDisabled": false,
+            "horizontalOverflow": false
+          },
+          "screenshot": {
+            "path": "paired-screenshots/discovered-squads-34-dark-375-original.png",
+            "sha256": "CC92417B1E9AD8DEF7AD2B1A6827E8753D56ACC8AFFEE4D58C1772672FBDFE5E",
+            "bytes": 61049
+          },
+          "providerFenceNormalizedSha256": null
+        },
+        "current": {
+          "metrics": {
+            "rect": [
+              17,
+              17,
+              341,
+              1242
+            ],
+            "directChildren": [
+              "DIV:monster-afk-toolbar",
+              "SECTION:monster-afk-profiles",
+              "DIV:monster-afk-editor "
+            ],
+            "toolbarChildClasses": [
+              "automation-card monster-afk-compact-card is-selectable is-selected",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable"
+            ],
+            "editorDirect": true,
+            "toolbarSettingsCount": 0,
+            "toolbarSettingsOwned": true,
+            "profileCards": 1,
+            "assignmentButtons": 2,
+            "runtimeOkRows": 0,
+            "compositionErrors": 0,
+            "garrisonSettings": 0,
+            "zombieTables": 0,
+            "garrisonRunNowDisabled": null,
+            "addDisabled": false,
+            "horizontalOverflow": false
+          },
+          "screenshot": {
+            "path": "paired-screenshots/discovered-squads-34-dark-375-current.png",
+            "sha256": "CC92417B1E9AD8DEF7AD2B1A6827E8753D56ACC8AFFEE4D58C1772672FBDFE5E",
+            "bytes": 61049
+          },
+          "providerFenceNormalizedSha256": null
+        }
+      },
+      "measurementDifference": {
+        "directChildrenEqual": true,
+        "toolbarChildClassesEqual": true,
+        "rectEqual": true,
+        "pngBytesEqual": true
+      },
+      "declaredDifference": null
+    },
+    {
+      "id": "runtime-translated",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "theme": "light",
+      "sides": {
+        "original": {
+          "metrics": {
+            "rect": [
+              17,
+              17,
+              1246,
+              678
+            ],
+            "directChildren": [
+              "DIV:monster-afk-toolbar",
+              "SECTION:monster-afk-profiles",
+              "DIV:monster-afk-editor "
+            ],
+            "toolbarChildClasses": [
+              "automation-card monster-afk-compact-card is-selectable is-selected",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable"
+            ],
+            "editorDirect": true,
+            "toolbarSettingsCount": 0,
+            "toolbarSettingsOwned": true,
+            "profileCards": 2,
+            "assignmentButtons": 4,
+            "runtimeOkRows": 1,
+            "compositionErrors": 0,
+            "garrisonSettings": 0,
+            "zombieTables": 0,
+            "garrisonRunNowDisabled": null,
+            "addDisabled": false,
+            "horizontalOverflow": false
+          },
+          "screenshot": {
+            "path": "paired-screenshots/runtime-translated-light-1280-original.png",
+            "sha256": "88302930E0A90D3A2A70054BE770EBB97320E4FEA14A66A81BA79F84D927A774",
+            "bytes": 73279
+          },
+          "providerFenceNormalizedSha256": null
+        },
+        "current": {
+          "metrics": {
+            "rect": [
+              17,
+              17,
+              1246,
+              678
+            ],
+            "directChildren": [
+              "DIV:monster-afk-toolbar",
+              "SECTION:monster-afk-profiles",
+              "DIV:monster-afk-editor "
+            ],
+            "toolbarChildClasses": [
+              "automation-card monster-afk-compact-card is-selectable is-selected",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable"
+            ],
+            "editorDirect": true,
+            "toolbarSettingsCount": 0,
+            "toolbarSettingsOwned": true,
+            "profileCards": 2,
+            "assignmentButtons": 4,
+            "runtimeOkRows": 1,
+            "compositionErrors": 0,
+            "garrisonSettings": 0,
+            "zombieTables": 0,
+            "garrisonRunNowDisabled": null,
+            "addDisabled": false,
+            "horizontalOverflow": false
+          },
+          "screenshot": {
+            "path": "paired-screenshots/runtime-translated-light-1280-current.png",
+            "sha256": "88302930E0A90D3A2A70054BE770EBB97320E4FEA14A66A81BA79F84D927A774",
+            "bytes": 73279
+          },
+          "providerFenceNormalizedSha256": null
+        }
+      },
+      "measurementDifference": {
+        "directChildrenEqual": true,
+        "toolbarChildClassesEqual": true,
+        "rectEqual": true,
+        "pngBytesEqual": true
+      },
+      "declaredDifference": null
+    },
+    {
+      "id": "runtime-error",
+      "viewport": {
+        "width": 375,
+        "height": 900
+      },
+      "theme": "light",
+      "sides": {
+        "original": {
+          "metrics": {
+            "rect": [
+              17,
+              17,
+              341,
+              1451
+            ],
+            "directChildren": [
+              "DIV:monster-afk-toolbar",
+              "SECTION:monster-afk-profiles",
+              "DIV:monster-afk-editor "
+            ],
+            "toolbarChildClasses": [
+              "automation-card monster-afk-compact-card is-selectable is-selected",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable"
+            ],
+            "editorDirect": true,
+            "toolbarSettingsCount": 0,
+            "toolbarSettingsOwned": true,
+            "profileCards": 2,
+            "assignmentButtons": 4,
+            "runtimeOkRows": 1,
+            "compositionErrors": 0,
+            "garrisonSettings": 0,
+            "zombieTables": 0,
+            "garrisonRunNowDisabled": null,
+            "addDisabled": false,
+            "horizontalOverflow": false
+          },
+          "screenshot": {
+            "path": "paired-screenshots/runtime-error-light-375-original.png",
+            "sha256": "3C6370E0D27D149F322C444981295639FC5A250CE9FE8E3C2C3F7183CD0A5950",
+            "bytes": 73454
+          },
+          "providerFenceNormalizedSha256": null
+        },
+        "current": {
+          "metrics": {
+            "rect": [
+              17,
+              17,
+              341,
+              1451
+            ],
+            "directChildren": [
+              "DIV:monster-afk-toolbar",
+              "SECTION:monster-afk-profiles",
+              "DIV:monster-afk-editor "
+            ],
+            "toolbarChildClasses": [
+              "automation-card monster-afk-compact-card is-selectable is-selected",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable"
+            ],
+            "editorDirect": true,
+            "toolbarSettingsCount": 0,
+            "toolbarSettingsOwned": true,
+            "profileCards": 2,
+            "assignmentButtons": 4,
+            "runtimeOkRows": 1,
+            "compositionErrors": 0,
+            "garrisonSettings": 0,
+            "zombieTables": 0,
+            "garrisonRunNowDisabled": null,
+            "addDisabled": false,
+            "horizontalOverflow": false
+          },
+          "screenshot": {
+            "path": "paired-screenshots/runtime-error-light-375-current.png",
+            "sha256": "3C6370E0D27D149F322C444981295639FC5A250CE9FE8E3C2C3F7183CD0A5950",
+            "bytes": 73454
+          },
+          "providerFenceNormalizedSha256": null
+        }
+      },
+      "measurementDifference": {
+        "directChildrenEqual": true,
+        "toolbarChildClassesEqual": true,
+        "rectEqual": true,
+        "pngBytesEqual": true
+      },
+      "declaredDifference": null
+    },
+    {
+      "id": "join-members-positive",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "theme": "light",
+      "sides": {
+        "original": {
+          "metrics": {
+            "rect": [
+              17,
+              17,
+              1246,
+              1128
+            ],
+            "directChildren": [
+              "DIV:monster-afk-toolbar",
+              "SECTION:monster-afk-profiles",
+              "DIV:monster-afk-editor "
+            ],
+            "toolbarChildClasses": [
+              "automation-card monster-afk-compact-card is-selectable is-selected",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable"
+            ],
+            "editorDirect": true,
+            "toolbarSettingsCount": 0,
+            "toolbarSettingsOwned": true,
+            "profileCards": 1,
+            "assignmentButtons": 4,
+            "runtimeOkRows": 0,
+            "compositionErrors": 0,
+            "garrisonSettings": 0,
+            "zombieTables": 0,
+            "garrisonRunNowDisabled": null,
+            "addDisabled": false,
+            "horizontalOverflow": false
+          },
+          "screenshot": {
+            "path": "paired-screenshots/join-members-positive-light-1280-original.png",
+            "sha256": "4857FA3B74371925E8F24BBEC0B4302F84C9F97DA2949E3E9053B5D44E13A7C1",
+            "bytes": 90398
+          },
+          "providerFenceNormalizedSha256": null
+        },
+        "current": {
+          "metrics": {
+            "rect": [
+              17,
+              17,
+              1246,
+              1128
+            ],
+            "directChildren": [
+              "DIV:monster-afk-toolbar",
+              "SECTION:monster-afk-profiles",
+              "DIV:monster-afk-editor "
+            ],
+            "toolbarChildClasses": [
+              "automation-card monster-afk-compact-card is-selectable is-selected",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable"
+            ],
+            "editorDirect": true,
+            "toolbarSettingsCount": 0,
+            "toolbarSettingsOwned": true,
+            "profileCards": 1,
+            "assignmentButtons": 4,
+            "runtimeOkRows": 0,
+            "compositionErrors": 0,
+            "garrisonSettings": 0,
+            "zombieTables": 0,
+            "garrisonRunNowDisabled": null,
+            "addDisabled": false,
+            "horizontalOverflow": false
+          },
+          "screenshot": {
+            "path": "paired-screenshots/join-members-positive-light-1280-current.png",
+            "sha256": "4857FA3B74371925E8F24BBEC0B4302F84C9F97DA2949E3E9053B5D44E13A7C1",
+            "bytes": 90398
+          },
+          "providerFenceNormalizedSha256": null
+        }
+      },
+      "measurementDifference": {
+        "directChildrenEqual": true,
+        "toolbarChildClassesEqual": true,
+        "rectEqual": true,
+        "pngBytesEqual": true
+      },
+      "declaredDifference": null
+    },
+    {
+      "id": "potion-open",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "theme": "dark",
+      "sides": {
+        "original": {
+          "metrics": {
+            "rect": [
+              17,
+              17,
+              1246,
+              802
+            ],
+            "directChildren": [
+              "DIV:monster-afk-toolbar",
+              "SECTION:monster-afk-profiles",
+              "DIV:monster-afk-editor "
+            ],
+            "toolbarChildClasses": [
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable is-selected",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-toolbar-settings"
+            ],
+            "editorDirect": true,
+            "toolbarSettingsCount": 1,
+            "toolbarSettingsOwned": true,
+            "profileCards": 1,
+            "assignmentButtons": 4,
+            "runtimeOkRows": 0,
+            "compositionErrors": 0,
+            "garrisonSettings": 0,
+            "zombieTables": 0,
+            "garrisonRunNowDisabled": null,
+            "addDisabled": false,
+            "horizontalOverflow": false
+          },
+          "screenshot": {
+            "path": "paired-screenshots/potion-open-dark-1280-original.png",
+            "sha256": "2BE1470BB38D18B8F77DD8417516CD00CF16A019D07CAE7112255BC5D5DBCA72",
+            "bytes": 69674
+          },
+          "providerFenceNormalizedSha256": null
+        },
+        "current": {
+          "metrics": {
+            "rect": [
+              17,
+              17,
+              1246,
+              802
+            ],
+            "directChildren": [
+              "DIV:monster-afk-toolbar",
+              "SECTION:monster-afk-profiles",
+              "DIV:monster-afk-editor "
+            ],
+            "toolbarChildClasses": [
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable is-selected",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-toolbar-settings"
+            ],
+            "editorDirect": true,
+            "toolbarSettingsCount": 1,
+            "toolbarSettingsOwned": true,
+            "profileCards": 1,
+            "assignmentButtons": 4,
+            "runtimeOkRows": 0,
+            "compositionErrors": 0,
+            "garrisonSettings": 0,
+            "zombieTables": 0,
+            "garrisonRunNowDisabled": null,
+            "addDisabled": false,
+            "horizontalOverflow": false
+          },
+          "screenshot": {
+            "path": "paired-screenshots/potion-open-dark-1280-current.png",
+            "sha256": "2BE1470BB38D18B8F77DD8417516CD00CF16A019D07CAE7112255BC5D5DBCA72",
+            "bytes": 69674
+          },
+          "providerFenceNormalizedSha256": null
+        }
+      },
+      "measurementDifference": {
+        "directChildrenEqual": true,
+        "toolbarChildClassesEqual": true,
+        "rectEqual": true,
+        "pngBytesEqual": true
+      },
+      "declaredDifference": null
+    },
+    {
+      "id": "drill-waiting",
+      "viewport": {
+        "width": 375,
+        "height": 900
+      },
+      "theme": "dark",
+      "sides": {
+        "original": {
+          "metrics": {
+            "rect": [
+              17,
+              17,
+              341,
+              660
+            ],
+            "directChildren": [
+              "DIV:monster-afk-toolbar"
+            ],
+            "toolbarChildClasses": [
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable is-selected",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-toolbar-settings"
+            ],
+            "editorDirect": false,
+            "toolbarSettingsCount": 1,
+            "toolbarSettingsOwned": true,
+            "profileCards": 0,
+            "assignmentButtons": 0,
+            "runtimeOkRows": 0,
+            "compositionErrors": 0,
+            "garrisonSettings": 0,
+            "zombieTables": 0,
+            "garrisonRunNowDisabled": null,
+            "addDisabled": null,
+            "horizontalOverflow": false
+          },
+          "screenshot": {
+            "path": "paired-screenshots/drill-waiting-dark-375-original.png",
+            "sha256": "5A1D57C8AA842241488DC3EFEFEA36797FA5FB33EC49009CCB279542A64A9C73",
+            "bytes": 34434
+          },
+          "providerFenceNormalizedSha256": null
+        },
+        "current": {
+          "metrics": {
+            "rect": [
+              17,
+              17,
+              341,
+              660
+            ],
+            "directChildren": [
+              "DIV:monster-afk-toolbar"
+            ],
+            "toolbarChildClasses": [
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable is-selected",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-toolbar-settings"
+            ],
+            "editorDirect": false,
+            "toolbarSettingsCount": 1,
+            "toolbarSettingsOwned": true,
+            "profileCards": 0,
+            "assignmentButtons": 0,
+            "runtimeOkRows": 0,
+            "compositionErrors": 0,
+            "garrisonSettings": 0,
+            "zombieTables": 0,
+            "garrisonRunNowDisabled": null,
+            "addDisabled": null,
+            "horizontalOverflow": false
+          },
+          "screenshot": {
+            "path": "paired-screenshots/drill-waiting-dark-375-current.png",
+            "sha256": "5A1D57C8AA842241488DC3EFEFEA36797FA5FB33EC49009CCB279542A64A9C73",
+            "bytes": 34434
+          },
+          "providerFenceNormalizedSha256": null
+        }
+      },
+      "measurementDifference": {
+        "directChildrenEqual": true,
+        "toolbarChildClassesEqual": true,
+        "rectEqual": true,
+        "pngBytesEqual": true
+      },
+      "declaredDifference": null
+    },
+    {
+      "id": "garrison-localized",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "theme": "light",
+      "sides": {
+        "original": {
+          "metrics": {
+            "rect": [
+              17,
+              17,
+              1246,
+              556
+            ],
+            "directChildren": [
+              "DIV:monster-afk-toolbar"
+            ],
+            "toolbarChildClasses": [
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable is-selected",
+              "automation-card monster-afk-toolbar-settings garrison-settings",
+              "automation-card monster-afk-compact-card is-selectable"
+            ],
+            "editorDirect": false,
+            "toolbarSettingsCount": 1,
+            "toolbarSettingsOwned": true,
+            "profileCards": 0,
+            "assignmentButtons": 0,
+            "runtimeOkRows": 0,
+            "compositionErrors": 0,
+            "garrisonSettings": 1,
+            "zombieTables": 0,
+            "garrisonRunNowDisabled": false,
+            "addDisabled": null,
+            "horizontalOverflow": false
+          },
+          "screenshot": {
+            "path": "paired-screenshots/garrison-localized-light-1280-original.png",
+            "sha256": "259FC9A6C4E88E488FC924A780E8D8A70B7E63626EC01DA184DFD9C9582E932A",
+            "bytes": 49913
+          },
+          "providerFenceNormalizedSha256": "259FC9A6C4E88E488FC924A780E8D8A70B7E63626EC01DA184DFD9C9582E932A"
+        },
+        "current": {
+          "metrics": {
+            "rect": [
+              17,
+              17,
+              1246,
+              556
+            ],
+            "directChildren": [
+              "DIV:monster-afk-toolbar"
+            ],
+            "toolbarChildClasses": [
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable is-selected",
+              "automation-card monster-afk-toolbar-settings garrison-settings",
+              "automation-card monster-afk-compact-card is-selectable"
+            ],
+            "editorDirect": false,
+            "toolbarSettingsCount": 1,
+            "toolbarSettingsOwned": true,
+            "profileCards": 0,
+            "assignmentButtons": 0,
+            "runtimeOkRows": 0,
+            "compositionErrors": 0,
+            "garrisonSettings": 1,
+            "zombieTables": 0,
+            "garrisonRunNowDisabled": true,
+            "addDisabled": null,
+            "horizontalOverflow": false
+          },
+          "screenshot": {
+            "path": "paired-screenshots/garrison-localized-light-1280-current.png",
+            "sha256": "BBF67266C81F8C7A53BC65C41BF40AEFCD7C470CFD4492C250D4C726CF7997ED",
+            "bytes": 49953
+          },
+          "providerFenceNormalizedSha256": "259FC9A6C4E88E488FC924A780E8D8A70B7E63626EC01DA184DFD9C9582E932A"
+        }
+      },
+      "measurementDifference": {
+        "directChildrenEqual": true,
+        "toolbarChildClassesEqual": true,
+        "rectEqual": true,
+        "pngBytesEqual": false
+      },
+      "declaredDifference": "current-only unavailable-provider fence: Garrison Run Now remains disabled; normalizing only that disabled state makes the full screenshot exact"
+    },
+    {
+      "id": "garrison-running",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "theme": "dark",
+      "sides": {
+        "original": {
+          "metrics": {
+            "rect": [
+              17,
+              17,
+              1246,
+              556
+            ],
+            "directChildren": [
+              "DIV:monster-afk-toolbar"
+            ],
+            "toolbarChildClasses": [
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable is-selected",
+              "automation-card monster-afk-toolbar-settings garrison-settings",
+              "automation-card monster-afk-compact-card is-selectable"
+            ],
+            "editorDirect": false,
+            "toolbarSettingsCount": 1,
+            "toolbarSettingsOwned": true,
+            "profileCards": 0,
+            "assignmentButtons": 0,
+            "runtimeOkRows": 0,
+            "compositionErrors": 0,
+            "garrisonSettings": 1,
+            "zombieTables": 0,
+            "garrisonRunNowDisabled": false,
+            "addDisabled": null,
+            "horizontalOverflow": false
+          },
+          "screenshot": {
+            "path": "paired-screenshots/garrison-running-dark-1280-original.png",
+            "sha256": "D9AEE7927491E36DE8A80ED3413D98DDD98C7E4D7B8982B0A83A6B99DE42BAC4",
+            "bytes": 53484
+          },
+          "providerFenceNormalizedSha256": "D9AEE7927491E36DE8A80ED3413D98DDD98C7E4D7B8982B0A83A6B99DE42BAC4"
+        },
+        "current": {
+          "metrics": {
+            "rect": [
+              17,
+              17,
+              1246,
+              556
+            ],
+            "directChildren": [
+              "DIV:monster-afk-toolbar"
+            ],
+            "toolbarChildClasses": [
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable is-selected",
+              "automation-card monster-afk-toolbar-settings garrison-settings",
+              "automation-card monster-afk-compact-card is-selectable"
+            ],
+            "editorDirect": false,
+            "toolbarSettingsCount": 1,
+            "toolbarSettingsOwned": true,
+            "profileCards": 0,
+            "assignmentButtons": 0,
+            "runtimeOkRows": 0,
+            "compositionErrors": 0,
+            "garrisonSettings": 1,
+            "zombieTables": 0,
+            "garrisonRunNowDisabled": true,
+            "addDisabled": null,
+            "horizontalOverflow": false
+          },
+          "screenshot": {
+            "path": "paired-screenshots/garrison-running-dark-1280-current.png",
+            "sha256": "37E9A4B7456BC52577916D23931AB425BD8B75C5C5D891F7872856E8DE1F3DAB",
+            "bytes": 53430
+          },
+          "providerFenceNormalizedSha256": "D9AEE7927491E36DE8A80ED3413D98DDD98C7E4D7B8982B0A83A6B99DE42BAC4"
+        }
+      },
+      "measurementDifference": {
+        "directChildrenEqual": true,
+        "toolbarChildClassesEqual": true,
+        "rectEqual": true,
+        "pngBytesEqual": false
+      },
+      "declaredDifference": "current-only unavailable-provider fence: Garrison Run Now remains disabled; normalizing only that disabled state makes the full screenshot exact"
+    },
+    {
+      "id": "zombie-error",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "theme": "dark",
+      "sides": {
+        "original": {
+          "metrics": {
+            "rect": [
+              17,
+              17,
+              1246,
+              300
+            ],
+            "directChildren": [
+              "DIV:monster-afk-toolbar"
+            ],
+            "toolbarChildClasses": [
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable is-selected",
+              "automation-card monster-afk-toolbar-settings",
+              "monster-afk-toolbar-settings"
+            ],
+            "editorDirect": false,
+            "toolbarSettingsCount": 2,
+            "toolbarSettingsOwned": true,
+            "profileCards": 0,
+            "assignmentButtons": 0,
+            "runtimeOkRows": 0,
+            "compositionErrors": 0,
+            "garrisonSettings": 0,
+            "zombieTables": 0,
+            "garrisonRunNowDisabled": null,
+            "addDisabled": null,
+            "horizontalOverflow": false
+          },
+          "screenshot": {
+            "path": "paired-screenshots/zombie-error-dark-1280-original.png",
+            "sha256": "A8E54CEB9F9B2C66391798DC6A043FCED9D5907F438161B8B76660ABE9DDBEEF",
+            "bytes": 22780
+          },
+          "providerFenceNormalizedSha256": null
+        },
+        "current": {
+          "metrics": {
+            "rect": [
+              17,
+              17,
+              1246,
+              300
+            ],
+            "directChildren": [
+              "DIV:monster-afk-toolbar"
+            ],
+            "toolbarChildClasses": [
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable is-selected",
+              "automation-card monster-afk-toolbar-settings",
+              "monster-afk-toolbar-settings"
+            ],
+            "editorDirect": false,
+            "toolbarSettingsCount": 2,
+            "toolbarSettingsOwned": true,
+            "profileCards": 0,
+            "assignmentButtons": 0,
+            "runtimeOkRows": 0,
+            "compositionErrors": 0,
+            "garrisonSettings": 0,
+            "zombieTables": 0,
+            "garrisonRunNowDisabled": null,
+            "addDisabled": null,
+            "horizontalOverflow": false
+          },
+          "screenshot": {
+            "path": "paired-screenshots/zombie-error-dark-1280-current.png",
+            "sha256": "A8E54CEB9F9B2C66391798DC6A043FCED9D5907F438161B8B76660ABE9DDBEEF",
+            "bytes": 22780
+          },
+          "providerFenceNormalizedSha256": null
+        }
+      },
+      "measurementDifference": {
+        "directChildrenEqual": true,
+        "toolbarChildClassesEqual": true,
+        "rectEqual": true,
+        "pngBytesEqual": true
+      },
+      "declaredDifference": null
+    },
+    {
+      "id": "zombie-running",
+      "viewport": {
+        "width": 375,
+        "height": 900
+      },
+      "theme": "dark",
+      "sides": {
+        "original": {
+          "metrics": {
+            "rect": [
+              17,
+              17,
+              341,
+              557
+            ],
+            "directChildren": [
+              "DIV:monster-afk-toolbar"
+            ],
+            "toolbarChildClasses": [
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable is-selected",
+              "automation-card monster-afk-toolbar-settings"
+            ],
+            "editorDirect": false,
+            "toolbarSettingsCount": 1,
+            "toolbarSettingsOwned": true,
+            "profileCards": 0,
+            "assignmentButtons": 0,
+            "runtimeOkRows": 0,
+            "compositionErrors": 0,
+            "garrisonSettings": 0,
+            "zombieTables": 1,
+            "garrisonRunNowDisabled": null,
+            "addDisabled": null,
+            "horizontalOverflow": false
+          },
+          "screenshot": {
+            "path": "paired-screenshots/zombie-running-dark-375-original.png",
+            "sha256": "F3D8D70D1D2D786FBED561F611C93B205B1BA9B016C2BA1302CF6C4C56D508EE",
+            "bytes": 31174
+          },
+          "providerFenceNormalizedSha256": null
+        },
+        "current": {
+          "metrics": {
+            "rect": [
+              17,
+              17,
+              341,
+              557
+            ],
+            "directChildren": [
+              "DIV:monster-afk-toolbar"
+            ],
+            "toolbarChildClasses": [
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable is-selected",
+              "automation-card monster-afk-toolbar-settings"
+            ],
+            "editorDirect": false,
+            "toolbarSettingsCount": 1,
+            "toolbarSettingsOwned": true,
+            "profileCards": 0,
+            "assignmentButtons": 0,
+            "runtimeOkRows": 0,
+            "compositionErrors": 0,
+            "garrisonSettings": 0,
+            "zombieTables": 1,
+            "garrisonRunNowDisabled": null,
+            "addDisabled": null,
+            "horizontalOverflow": false
+          },
+          "screenshot": {
+            "path": "paired-screenshots/zombie-running-dark-375-current.png",
+            "sha256": "F3D8D70D1D2D786FBED561F611C93B205B1BA9B016C2BA1302CF6C4C56D508EE",
+            "bytes": 31174
+          },
+          "providerFenceNormalizedSha256": null
+        }
+      },
+      "measurementDifference": {
+        "directChildrenEqual": true,
+        "toolbarChildClassesEqual": true,
+        "rectEqual": true,
+        "pngBytesEqual": true
+      },
+      "declaredDifference": null
+    },
+    {
+      "id": "target-discovery-loading",
+      "viewport": {
+        "width": 375,
+        "height": 900
+      },
+      "theme": "light",
+      "sides": {
+        "original": {
+          "metrics": {
+            "rect": [
+              17,
+              17,
+              341,
+              1214
+            ],
+            "directChildren": [
+              "DIV:monster-afk-toolbar",
+              "SECTION:monster-afk-profiles",
+              "DIV:monster-afk-editor "
+            ],
+            "toolbarChildClasses": [
+              "automation-card monster-afk-compact-card is-selectable is-selected",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable"
+            ],
+            "editorDirect": true,
+            "toolbarSettingsCount": 0,
+            "toolbarSettingsOwned": true,
+            "profileCards": 1,
+            "assignmentButtons": 0,
+            "runtimeOkRows": 0,
+            "compositionErrors": 0,
+            "garrisonSettings": 0,
+            "zombieTables": 0,
+            "garrisonRunNowDisabled": null,
+            "addDisabled": true,
+            "horizontalOverflow": false
+          },
+          "screenshot": {
+            "path": "paired-screenshots/target-discovery-loading-light-375-original.png",
+            "sha256": "3DBFF9CAA21B5D67715D4717121B66941C3BE0DBB9A53E7799A7D6AD713CA608",
+            "bytes": 56543
+          },
+          "providerFenceNormalizedSha256": null
+        },
+        "current": {
+          "metrics": {
+            "rect": [
+              17,
+              17,
+              341,
+              1214
+            ],
+            "directChildren": [
+              "DIV:monster-afk-toolbar",
+              "SECTION:monster-afk-profiles",
+              "DIV:monster-afk-editor "
+            ],
+            "toolbarChildClasses": [
+              "automation-card monster-afk-compact-card is-selectable is-selected",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable"
+            ],
+            "editorDirect": true,
+            "toolbarSettingsCount": 0,
+            "toolbarSettingsOwned": true,
+            "profileCards": 1,
+            "assignmentButtons": 0,
+            "runtimeOkRows": 0,
+            "compositionErrors": 0,
+            "garrisonSettings": 0,
+            "zombieTables": 0,
+            "garrisonRunNowDisabled": null,
+            "addDisabled": true,
+            "horizontalOverflow": false
+          },
+          "screenshot": {
+            "path": "paired-screenshots/target-discovery-loading-light-375-current.png",
+            "sha256": "3DBFF9CAA21B5D67715D4717121B66941C3BE0DBB9A53E7799A7D6AD713CA608",
+            "bytes": 56543
+          },
+          "providerFenceNormalizedSha256": null
+        }
+      },
+      "measurementDifference": {
+        "directChildrenEqual": true,
+        "toolbarChildClassesEqual": true,
+        "rectEqual": true,
+        "pngBytesEqual": true
+      },
+      "declaredDifference": null
+    },
+    {
+      "id": "target-discovery-failed",
+      "viewport": {
+        "width": 375,
+        "height": 900
+      },
+      "theme": "light",
+      "sides": {
+        "original": {
+          "metrics": {
+            "rect": [
+              17,
+              17,
+              341,
+              1242
+            ],
+            "directChildren": [
+              "DIV:monster-afk-toolbar",
+              "SECTION:monster-afk-profiles",
+              "DIV:monster-afk-editor ",
+              "DIV:automation-error monster-afk-error"
+            ],
+            "toolbarChildClasses": [
+              "automation-card monster-afk-compact-card is-selectable is-selected",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable"
+            ],
+            "editorDirect": true,
+            "toolbarSettingsCount": 0,
+            "toolbarSettingsOwned": true,
+            "profileCards": 1,
+            "assignmentButtons": 0,
+            "runtimeOkRows": 0,
+            "compositionErrors": 1,
+            "garrisonSettings": 0,
+            "zombieTables": 0,
+            "garrisonRunNowDisabled": null,
+            "addDisabled": false,
+            "horizontalOverflow": false
+          },
+          "screenshot": {
+            "path": "paired-screenshots/target-discovery-failed-light-375-original.png",
+            "sha256": "5B184A0E5E6D01BD64597F4E9CCB5E617B001918AC2CB35573985F6FBCD45EB1",
+            "bytes": 60045
+          },
+          "providerFenceNormalizedSha256": null
+        },
+        "current": {
+          "metrics": {
+            "rect": [
+              17,
+              17,
+              341,
+              1242
+            ],
+            "directChildren": [
+              "DIV:monster-afk-toolbar",
+              "SECTION:monster-afk-profiles",
+              "DIV:monster-afk-editor ",
+              "DIV:automation-error monster-afk-error"
+            ],
+            "toolbarChildClasses": [
+              "automation-card monster-afk-compact-card is-selectable is-selected",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable",
+              "automation-card monster-afk-compact-card is-selectable"
+            ],
+            "editorDirect": true,
+            "toolbarSettingsCount": 0,
+            "toolbarSettingsOwned": true,
+            "profileCards": 1,
+            "assignmentButtons": 0,
+            "runtimeOkRows": 0,
+            "compositionErrors": 1,
+            "garrisonSettings": 0,
+            "zombieTables": 0,
+            "garrisonRunNowDisabled": null,
+            "addDisabled": false,
+            "horizontalOverflow": false
+          },
+          "screenshot": {
+            "path": "paired-screenshots/target-discovery-failed-light-375-current.png",
+            "sha256": "5B184A0E5E6D01BD64597F4E9CCB5E617B001918AC2CB35573985F6FBCD45EB1",
+            "bytes": 60045
+          },
+          "providerFenceNormalizedSha256": null
+        }
+      },
+      "measurementDifference": {
+        "directChildrenEqual": true,
+        "toolbarChildClassesEqual": true,
+        "rectEqual": true,
+        "pngBytesEqual": true
+      },
+      "declaredDifference": null
+    }
+  ],
+  "console": []
+}

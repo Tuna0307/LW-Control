@@ -670,11 +670,16 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
     onAutoReconnectChange: updateAutoReconnect,
     onGameRootSelect: selectGameRoot,
   };
-  const pagePropsByRoute = showProfiles ? {
-    automation: { profileId: selectedProfileId, activeCategory: automationCategory, onActiveCategoryChange: setAutomationCategory },
-    "map-data": { activeTab: mapTab, onActiveTabChange: setMapTab },
-    march: { activeTab: squadTab, onActiveTabChange: setSquadTab },
-  } : undefined;
+  const pagePropsByRoute = {
+    ...(showProfiles ? {
+      automation: { profileId: selectedProfileId, activeCategory: automationCategory, onActiveCategoryChange: setAutomationCategory },
+      "map-data": { activeTab: mapTab, onActiveTabChange: setMapTab },
+    } : {}),
+    march: {
+      profileId: selectedProfileId,
+      ...(showProfiles ? { activeTab: squadTab, onActiveTabChange: setSquadTab } : {}),
+    },
+  };
 
   return (
     <GameAssetImageProvider readImage={nativeAssetReader}><>

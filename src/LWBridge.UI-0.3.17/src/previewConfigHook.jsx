@@ -4,6 +4,32 @@ import { createConfigDraft } from "./previewConfig.js";
 // Recovered config stores survive view changes. This registry is page-memory
 // only; it has no transport, disk persistence or native provider fallback.
 const previewStores = new Map();
+export function usePreviewConfigAdapter(initial, adapter, scope = "") {
+  const adapterRef = useRef(adapter);
+  adapterRef.current = adapter;
+  const stableAdapterRef = useRef(null);
+  if (!stableAdapterRef.current) {
+    stableAdapterRef.current = {
+      valid: (draft) => adapterRef.current.valid?.(draft),
+      read: () => adapterRef.current.read(),
+      write: (draft) => adapterRef.current.write(draft),
+    };
+  }
+  const [store] = useState(() => {
+    if (scope && previewStores.has(scope)) {
+      const cached = previewStores.get(scope);
+      cached.store.setAdapter(stableAdapterRef.current);
+      return cached.store;
+    }
+    const confirmed = structuredClone(typeof initial === "function" ? initial() : initial);
+    const draftStore = createConfigDraft(confirmed, stableAdapterRef.current);
+    if (scope) previewStores.set(scope, { store: draftStore });
+    return draftStore;
+  });
+  const state = useSyncExternalStore(store.subscribe, store.getSnapshot, store.getSnapshot);
+  return { ...state, store };
+}
+
 export function usePreviewConfig(initial, valid, failFirstSave = false, scope = "") {
   const validRef = useRef(valid);
   validRef.current = valid;
