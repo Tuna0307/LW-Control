@@ -1,0 +1,120 @@
+{
+  "marker": "LWB317_FINAL_CLOSEOUT_AUTOMATION_CORRECTIONS_OK",
+  "fixedCarriages": [
+    {
+      "id": "missing",
+      "originalCounts": [
+        0,
+        0
+      ],
+      "currentCounts": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "explicit-empty",
+      "originalCounts": [
+        0,
+        0
+      ],
+      "currentCounts": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "explicit-populated",
+      "originalCounts": [
+        1,
+        2
+      ],
+      "currentCounts": [
+        1,
+        2
+      ]
+    },
+    {
+      "id": "missing-modes-populated-arrays",
+      "originalCarriageGroups": 2,
+      "currentCarriageGroups": 2
+    }
+  ],
+  "trainDrag": {
+    "originalHasTarget": true,
+    "currentTargetClass": "automation-preference-item selected drag-over",
+    "afterDropClasses": [
+      "automation-preference-item selected",
+      "automation-preference-item selected",
+      "automation-preference-item"
+    ],
+    "afterDropPreferenceOrder": [
+      "fixture-parts",
+      "fixture-medal"
+    ],
+    "afterDragEndClasses": [
+      "automation-preference-item selected",
+      "automation-preference-item selected",
+      "automation-preference-item"
+    ]
+  },
+  "genericErrorGeometry": {
+    "original": {
+      "tag": "DIV",
+      "margin": "0px",
+      "y": 219,
+      "height": 16,
+      "nextY": 247
+    },
+    "current": {
+      "tag": "DIV",
+      "margin": "0px",
+      "y": 219,
+      "height": 16,
+      "nextY": 247
+    }
+  },
+  "dependencies": [
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/AutomationPanel-BJ0gIqFh.js",
+      "sha256": "6DB2328191AF33E5631D507271C36D7008B287DAA7C8CD1A957B23EF6F871725"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/AutomationCard-LCx_jIi7.js",
+      "sha256": "24ED773623C237F8219EFF5443FAC3BA7B55B6E99E168E52FF066FAF2ABE7A61"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-rIL9Fpht.css",
+      "sha256": "3D87E9F65B39EACE6A1A254BFC90A38ACB72613D1FFF7236C7CEE7AB9BFAF545"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-REMAINING-002/milestone-3/source-render/render-pairs.mjs",
+      "sha256": "3277540CC2ED974936EEC5D93E10F19D11B061D1711D8D779EFF3D71D151268E"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/AutomationPage.jsx",
+      "sha256": "D7D7B39D8CDCAA70D39D5C634E4E9D57F30DC747B6412E1F517E9860454FFE35"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/previewAutomationContracts.js",
+      "sha256": "FD4BC9C29F23631718D19818D273745C8D042DF35B1DDA2BE1E1928E75BB2295"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/previewAutomationFixtures.js",
+      "sha256": "DF236FDBA38D02EB3FAA95C512A12F5FBA90CC6E43A48A892FC923DFE74AA56D"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/reference.css",
+      "sha256": "3D87E9F65B39EACE6A1A254BFC90A38ACB72613D1FFF7236C7CEE7AB9BFAF545"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/styles.css",
+      "sha256": "B50910D37A4DD02D7BB49B506735EA42615EF0F9E85714E880049481AECE2CCC"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/locales/en.js",
+      "sha256": "357682D9179AE712EE563950467B7A93B5AEA89322AFC993E079FEDEE28432C1"
+    }
+  ],
+  "scriptSha256": "2CF62CD80F5F81339EEE2754DEB647D24CAF1FC8D87F774286FFA94534D5C468"
+}
