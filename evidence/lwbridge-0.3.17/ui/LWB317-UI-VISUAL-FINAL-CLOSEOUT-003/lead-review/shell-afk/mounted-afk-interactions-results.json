@@ -1,0 +1,204 @@
+{
+  "marker": "LWB317_FINAL_CLOSEOUT_MOUNTED_AFK_INTERACTIONS_OK",
+  "browser": "154.0.8037.95",
+  "assertions": [
+    {
+      "name": "Join picker opens as native modal dialog",
+      "actual": "",
+      "expected": "",
+      "pass": true
+    },
+    {
+      "name": "Join picker reports aria-busy false",
+      "actual": "false",
+      "expected": "false",
+      "pass": true
+    },
+    {
+      "name": "Join picker keeps focus inside native modal",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "Join picker UID search finds Casey",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Join picker UID result is Casey",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "Join confirm closes modal",
+      "actual": false,
+      "expected": false,
+      "pass": true
+    },
+    {
+      "name": "Join confirm commits selected member",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "Join modal backdrop click is inert by recovered default",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "Join modal Tab wraps to first focusable control",
+      "actual": "Cancel",
+      "expected": "Cancel",
+      "pass": true
+    },
+    {
+      "name": "Join Escape closes modal through native cancel",
+      "actual": false,
+      "expected": false,
+      "pass": true
+    },
+    {
+      "name": "Join modal cleanup restores trigger focus",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "Garrison picker opens as native modal dialog",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Garrison picker name search finds Casey",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Garrison confirm closes picker",
+      "actual": 0,
+      "expected": 0,
+      "pass": true
+    },
+    {
+      "name": "Garrison confirm commits selected ally",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "retry fixture exposes failed store acknowledgement",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "retry keeps optimistic Master draft",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "Retry clears error after successful second acknowledgement",
+      "actual": 0,
+      "expected": 0,
+      "pass": true
+    },
+    {
+      "name": "Retry preserves acknowledged Master draft",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "discard fixture exposes failed store acknowledgement",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "discard keeps optimistic Master draft",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "Discard clears error",
+      "actual": 0,
+      "expected": 0,
+      "pass": true
+    },
+    {
+      "name": "Discard restores confirmed Master value",
+      "actual": false,
+      "expected": false,
+      "pass": true
+    },
+    {
+      "name": "Equipment mounts while AFK Activity hides",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "AFK draft survives Equipment round trip",
+      "actual": "Closeout retained AFK draft",
+      "expected": "Closeout retained AFK draft",
+      "pass": true
+    }
+  ],
+  "screenshots": [
+    {
+      "id": "join-picker-confirmed",
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CLOSEOUT-003/lead-review/shell-afk/mounted-interactions/join-picker-confirmed.png",
+      "sha256": "9526D189C52544D10E51CF47F92213917EC6014C8FAB4195E885CE40EA7CA31D",
+      "bytes": 77322
+    },
+    {
+      "id": "garrison-picker-confirmed",
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CLOSEOUT-003/lead-review/shell-afk/mounted-interactions/garrison-picker-confirmed.png",
+      "sha256": "2BFE522118E9FEF9DFDB56F5ACA2138A2DB659F5868A8C251142BA1D47179C27",
+      "bytes": 63564
+    },
+    {
+      "id": "afk-equipment-retained-draft",
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CLOSEOUT-003/lead-review/shell-afk/mounted-interactions/afk-equipment-retained-draft.png",
+      "sha256": "C395078E8FE55AC064C01645AB2C3967C88E56AB2E55E3AFB93831A5E63ECAC4",
+      "bytes": 78247
+    }
+  ],
+  "console": [],
+  "dependencies": [
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/SquadsPage.jsx",
+      "sha256": "A5A56CCDB896AED61C194230C2C7E32156650BFEB948F51A7597FF1092FC55C2"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/RallyJoinSettings.jsx",
+      "sha256": "1579FA189EB6F5A34F62AF211662CC995FE314C6C13C8681C29A85B6A7A6F11A"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/previewConfigHook.jsx",
+      "sha256": "643875718C4DA1B443215F8E6B9417C840F372882AA81BA286080977D1ED827E"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/previewConfig.js",
+      "sha256": "8BEDEC11D07A8245EBB6FF9DF78E13E872C20F850C9B887919360BF209397B7A"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/previewAfkContracts.js",
+      "sha256": "F75B4D22ECCD19F69D4AD139ABC2FFBC150B0007662BA47127CFB600CBF61EE3"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/previewAfkCloseoutFixtures.js",
+      "sha256": "11B5AE1D449B61296E5150DEA355A82AFE8BF0C23497583D840057AAEC8CF3DD"
+    }
+  ],
+  "scriptSha256": "D4A590A39039575753124C410C1675A2A5AFD64978C21181E5E03C910811DCEB"
+}

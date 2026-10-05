@@ -1,0 +1,30 @@
+{
+  "originalValue": "50",
+  "offlineDisabled": true,
+  "profileA": {
+    "value": "10000",
+    "dirty": "true"
+  },
+  "profileB": {
+    "value": "10000",
+    "dirty": "true"
+  },
+  "identities": [
+    "Local 1Server 321Offline· None",
+    "Local 2Server 322Offline· None"
+  ],
+  "issues": [],
+  "recovered": {
+    "profileA": 10000,
+    "profileB": 50,
+    "distinctStores": true,
+    "locators": {
+      "me": 195132,
+      "re": 193714,
+      "T": 191297,
+      "I": 28070
+    }
+  },
+  "proof": "Actual served App, same previewState; programmatic inert consumer input on disabled field, not a physical editable-user claim. Exact original me/re/T registry executes distinct profile owners with same initial Potion draft.",
+  "counterexample": true
+}

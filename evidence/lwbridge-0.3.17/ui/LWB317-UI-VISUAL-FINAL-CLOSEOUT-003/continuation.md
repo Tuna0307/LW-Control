@@ -1,5 +1,8 @@
 # LWB317-UI-VISUAL-FINAL-CLOSEOUT-003 continuation
 
+Project-lead independent review, 2026-10-06: **LWB317-UI-VISUAL-FINAL-CLOSEOUT-003 is CHANGES_REQUIRED; global recoverable UIUX remains PARTIAL.** All six earlier findings and both assigned composition gaps pass their bounded source/local reviews. Fresh current-App integration passes 267 assertions, 16 decoded captures and zero console/page issues; canonical check/build/package pass. One additional exact-original/current counterexample remains: Squads/AFK child stores omit account-profile ownership, so Local 2 inherits Local 1's dirty Potion value and save error. The sole active correction is `docs/work-items/LWB317-UI-VISUAL-FINAL-CLOSEOUT-003-R1.md`, including final integrated revalidation. See `docs/reviews/2026-10-06-LWB317-UI-VISUAL-FINAL-CLOSEOUT-003-LEAD.md`. Earlier worker delivery claims below are historical; no native/provider/runtime-pixel status is upgraded.
+
+
 Current stage: Milestones A-E complete and final current-App evidence recorded/verified; Milestone F independent review/documentation/Git delivery is in progress.
 
 Verified startup: clean `research/offline-controller`, HEAD and direct tracked origin both `da15258dbd3fa440a27f08f55e9d1cc54e8f17ae`. Governing rules and the complete assignment were read. The lead review keeps Map/E-H inheritance accepted and requires six local corrections plus fresh whole-AFK and conditional-Automation original/current composition proof.

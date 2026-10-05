@@ -1,0 +1,826 @@
+{"marker":"LWB317_FINAL_CLOSEOUT_MILESTONE_C_CONDITIONAL_COMPOSITION_OK","cases":24,"categories":7,"verified":true}
+{
+  "marker": "LWB317_LEAD_AUTOMATION_TRAIN_INVERSE_OK",
+  "cases": 30,
+  "actualRecoveredCurrent": true,
+  "results": [
+    {
+      "normal": [],
+      "vip": [],
+      "explicit": true,
+      "carriages": [
+        {
+          "checked": 0,
+          "disabled": 1
+        },
+        {
+          "checked": 0,
+          "disabled": 1
+        }
+      ],
+      "modeRadios": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ],
+      "pass": true
+    },
+    {
+      "normal": [],
+      "vip": [],
+      "explicit": false,
+      "carriages": [],
+      "modeRadios": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ],
+      "pass": true
+    },
+    {
+      "normal": [],
+      "vip": [
+        3,
+        4
+      ],
+      "explicit": true,
+      "carriages": [
+        {
+          "checked": 0,
+          "disabled": 1
+        },
+        {
+          "checked": 2,
+          "disabled": 3
+        }
+      ],
+      "modeRadios": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ],
+      "pass": true
+    },
+    {
+      "normal": [],
+      "vip": [
+        3,
+        4
+      ],
+      "explicit": false,
+      "carriages": [
+        {
+          "checked": 2,
+          "disabled": 3
+        }
+      ],
+      "modeRadios": [
+        [
+          true,
+          false
+        ],
+        [
+          false,
+          true
+        ]
+      ],
+      "pass": true
+    },
+    {
+      "normal": [],
+      "vip": [
+        4,
+        99
+      ],
+      "explicit": true,
+      "carriages": [
+        {
+          "checked": 0,
+          "disabled": 1
+        },
+        {
+          "checked": 1,
+          "disabled": 1
+        }
+      ],
+      "modeRadios": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ],
+      "pass": true
+    },
+    {
+      "normal": [],
+      "vip": [
+        4,
+        99
+      ],
+      "explicit": false,
+      "carriages": [],
+      "modeRadios": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ],
+      "pass": true
+    },
+    {
+      "normal": [
+        4
+      ],
+      "vip": [],
+      "explicit": true,
+      "carriages": [
+        {
+          "checked": 1,
+          "disabled": 1
+        },
+        {
+          "checked": 0,
+          "disabled": 1
+        }
+      ],
+      "modeRadios": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ],
+      "pass": true
+    },
+    {
+      "normal": [
+        4
+      ],
+      "vip": [],
+      "explicit": false,
+      "carriages": [
+        {
+          "checked": 1,
+          "disabled": 1
+        }
+      ],
+      "modeRadios": [
+        [
+          false,
+          true
+        ],
+        [
+          true,
+          false
+        ]
+      ],
+      "pass": true
+    },
+    {
+      "normal": [
+        4
+      ],
+      "vip": [
+        3,
+        4
+      ],
+      "explicit": true,
+      "carriages": [
+        {
+          "checked": 1,
+          "disabled": 1
+        },
+        {
+          "checked": 2,
+          "disabled": 3
+        }
+      ],
+      "modeRadios": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ],
+      "pass": true
+    },
+    {
+      "normal": [
+        4
+      ],
+      "vip": [
+        3,
+        4
+      ],
+      "explicit": false,
+      "carriages": [
+        {
+          "checked": 1,
+          "disabled": 1
+        },
+        {
+          "checked": 2,
+          "disabled": 3
+        }
+      ],
+      "modeRadios": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ],
+      "pass": true
+    },
+    {
+      "normal": [
+        4
+      ],
+      "vip": [
+        4,
+        99
+      ],
+      "explicit": true,
+      "carriages": [
+        {
+          "checked": 1,
+          "disabled": 1
+        },
+        {
+          "checked": 1,
+          "disabled": 1
+        }
+      ],
+      "modeRadios": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ],
+      "pass": true
+    },
+    {
+      "normal": [
+        4
+      ],
+      "vip": [
+        4,
+        99
+      ],
+      "explicit": false,
+      "carriages": [
+        {
+          "checked": 1,
+          "disabled": 1
+        }
+      ],
+      "modeRadios": [
+        [
+          false,
+          true
+        ],
+        [
+          true,
+          false
+        ]
+      ],
+      "pass": true
+    },
+    {
+      "normal": [
+        1,
+        2
+      ],
+      "vip": [],
+      "explicit": true,
+      "carriages": [
+        {
+          "checked": 2,
+          "disabled": 1
+        },
+        {
+          "checked": 0,
+          "disabled": 1
+        }
+      ],
+      "modeRadios": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ],
+      "pass": true
+    },
+    {
+      "normal": [
+        1,
+        2
+      ],
+      "vip": [],
+      "explicit": false,
+      "carriages": [],
+      "modeRadios": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ],
+      "pass": true
+    },
+    {
+      "normal": [
+        1,
+        2
+      ],
+      "vip": [
+        3,
+        4
+      ],
+      "explicit": true,
+      "carriages": [
+        {
+          "checked": 2,
+          "disabled": 1
+        },
+        {
+          "checked": 2,
+          "disabled": 3
+        }
+      ],
+      "modeRadios": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ],
+      "pass": true
+    },
+    {
+      "normal": [
+        1,
+        2
+      ],
+      "vip": [
+        3,
+        4
+      ],
+      "explicit": false,
+      "carriages": [
+        {
+          "checked": 2,
+          "disabled": 3
+        }
+      ],
+      "modeRadios": [
+        [
+          true,
+          false
+        ],
+        [
+          false,
+          true
+        ]
+      ],
+      "pass": true
+    },
+    {
+      "normal": [
+        1,
+        2
+      ],
+      "vip": [
+        4,
+        99
+      ],
+      "explicit": true,
+      "carriages": [
+        {
+          "checked": 2,
+          "disabled": 1
+        },
+        {
+          "checked": 1,
+          "disabled": 1
+        }
+      ],
+      "modeRadios": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ],
+      "pass": true
+    },
+    {
+      "normal": [
+        1,
+        2
+      ],
+      "vip": [
+        4,
+        99
+      ],
+      "explicit": false,
+      "carriages": [],
+      "modeRadios": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ],
+      "pass": true
+    },
+    {
+      "normal": [
+        99
+      ],
+      "vip": [],
+      "explicit": true,
+      "carriages": [
+        {
+          "checked": 0,
+          "disabled": 1
+        },
+        {
+          "checked": 0,
+          "disabled": 1
+        }
+      ],
+      "modeRadios": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ],
+      "pass": true
+    },
+    {
+      "normal": [
+        99
+      ],
+      "vip": [],
+      "explicit": false,
+      "carriages": [],
+      "modeRadios": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ],
+      "pass": true
+    },
+    {
+      "normal": [
+        99
+      ],
+      "vip": [
+        3,
+        4
+      ],
+      "explicit": true,
+      "carriages": [
+        {
+          "checked": 0,
+          "disabled": 1
+        },
+        {
+          "checked": 2,
+          "disabled": 3
+        }
+      ],
+      "modeRadios": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ],
+      "pass": true
+    },
+    {
+      "normal": [
+        99
+      ],
+      "vip": [
+        3,
+        4
+      ],
+      "explicit": false,
+      "carriages": [
+        {
+          "checked": 2,
+          "disabled": 3
+        }
+      ],
+      "modeRadios": [
+        [
+          true,
+          false
+        ],
+        [
+          false,
+          true
+        ]
+      ],
+      "pass": true
+    },
+    {
+      "normal": [
+        99
+      ],
+      "vip": [
+        4,
+        99
+      ],
+      "explicit": true,
+      "carriages": [
+        {
+          "checked": 0,
+          "disabled": 1
+        },
+        {
+          "checked": 1,
+          "disabled": 1
+        }
+      ],
+      "modeRadios": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ],
+      "pass": true
+    },
+    {
+      "normal": [
+        99
+      ],
+      "vip": [
+        4,
+        99
+      ],
+      "explicit": false,
+      "carriages": [],
+      "modeRadios": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ],
+      "pass": true
+    },
+    {
+      "normal": [
+        4,
+        99
+      ],
+      "vip": [],
+      "explicit": true,
+      "carriages": [
+        {
+          "checked": 1,
+          "disabled": 1
+        },
+        {
+          "checked": 0,
+          "disabled": 1
+        }
+      ],
+      "modeRadios": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ],
+      "pass": true
+    },
+    {
+      "normal": [
+        4,
+        99
+      ],
+      "vip": [],
+      "explicit": false,
+      "carriages": [
+        {
+          "checked": 1,
+          "disabled": 1
+        }
+      ],
+      "modeRadios": [
+        [
+          false,
+          true
+        ],
+        [
+          true,
+          false
+        ]
+      ],
+      "pass": true
+    },
+    {
+      "normal": [
+        4,
+        99
+      ],
+      "vip": [
+        3,
+        4
+      ],
+      "explicit": true,
+      "carriages": [
+        {
+          "checked": 1,
+          "disabled": 1
+        },
+        {
+          "checked": 2,
+          "disabled": 3
+        }
+      ],
+      "modeRadios": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ],
+      "pass": true
+    },
+    {
+      "normal": [
+        4,
+        99
+      ],
+      "vip": [
+        3,
+        4
+      ],
+      "explicit": false,
+      "carriages": [
+        {
+          "checked": 1,
+          "disabled": 1
+        },
+        {
+          "checked": 2,
+          "disabled": 3
+        }
+      ],
+      "modeRadios": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ],
+      "pass": true
+    },
+    {
+      "normal": [
+        4,
+        99
+      ],
+      "vip": [
+        4,
+        99
+      ],
+      "explicit": true,
+      "carriages": [
+        {
+          "checked": 1,
+          "disabled": 1
+        },
+        {
+          "checked": 1,
+          "disabled": 1
+        }
+      ],
+      "modeRadios": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ],
+      "pass": true
+    },
+    {
+      "normal": [
+        4,
+        99
+      ],
+      "vip": [
+        4,
+        99
+      ],
+      "explicit": false,
+      "carriages": [
+        {
+          "checked": 1,
+          "disabled": 1
+        }
+      ],
+      "modeRadios": [
+        [
+          false,
+          true
+        ],
+        [
+          true,
+          false
+        ]
+      ],
+      "pass": true
+    }
+  ]
+}

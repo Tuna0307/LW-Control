@@ -1,0 +1,112 @@
+{
+  "verdict": "ACCEPT",
+  "marker": "LEAD_SHELL_AFK_INDEPENDENT_SEMANTICS_OK",
+  "assertions": [
+    {
+      "id": "initial and overlapping timer produce one request",
+      "actual": 1
+    },
+    {
+      "id": "current failure is visible",
+      "actual": [
+        "error",
+        "CURRENT_ERROR"
+      ]
+    },
+    {
+      "id": "finally releases failed poll",
+      "actual": 2
+    },
+    {
+      "id": "later success clears current error",
+      "actual": [
+        "error",
+        ""
+      ]
+    },
+    {
+      "id": "cleanup clears one timer and both listeners",
+      "actual": [
+        1,
+        2
+      ]
+    },
+    {
+      "id": "replaced profile rejects failure writes",
+      "actual": []
+    },
+    {
+      "id": "unmounted success rejects every write",
+      "actual": []
+    },
+    {
+      "id": "original/current same recovery event",
+      "actual": [
+        {
+          "state": "ready",
+          "mode": "same"
+        }
+      ]
+    },
+    {
+      "id": "same old initial status retired",
+      "actual": [
+        {
+          "state": "ready",
+          "mode": "same"
+        }
+      ]
+    },
+    {
+      "id": "original/current other recovery event",
+      "actual": []
+    },
+    {
+      "id": "other old initial status retired",
+      "actual": []
+    },
+    {
+      "id": "original/current raw recovery event",
+      "actual": [
+        {
+          "state": "ready",
+          "mode": "raw"
+        }
+      ]
+    },
+    {
+      "id": "raw old initial status retired",
+      "actual": [
+        {
+          "state": "ready",
+          "mode": "raw"
+        }
+      ]
+    }
+  ],
+  "inputs": {
+    "appSha256": "81db8e04e3fa57d7b064dc02b1e64ec828552f167be435a107497c6d82d0f26d",
+    "originalSha256": "44c4e4043825b7db296b64171951b27176f8850ff8d7d337cc991df4765524c6"
+  },
+  "locators": {
+    "readStatusSnapshot": {
+      "line": 349,
+      "utf8Byte": 16737,
+      "length": 1653
+    },
+    "periodicEffect": {
+      "line": 426,
+      "utf8Byte": 20200,
+      "length": 897
+    },
+    "recoveryEffect": {
+      "line": 384,
+      "utf8Byte": 18522,
+      "length": 661
+    },
+    "originalPe": {
+      "utf8Byte": 201013,
+      "length": 262
+    }
+  }
+}
