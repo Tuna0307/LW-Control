@@ -1,5 +1,11 @@
 # Continuation — LWB317-UI-VISUAL-REMAINING-002
 
+Current dispatch, 2026-10-05: continue through the single complete assignment
+`docs/work-items/LWB317-UI-VISUAL-FINAL-CLOSEOUT-003.md`. It supersedes separate
+Automation-only dispatch and includes every correction/proof group below plus
+all-page/shared reconciliation and final acceptance preparation. Preserve this
+historical reviewed packet; write new closeout evidence under its own task root.
+
 Status: **CHANGES_REQUIRED after independent project-lead review, 2026-10-05.**
 Reviewed worker delivery: `967a92c3553e4bc81272741f333803ee54ae5e44`.
 Continue with LR-A1–A3 (Train drag target, missing fixed defaults, generic error

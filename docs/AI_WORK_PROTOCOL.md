@@ -23,6 +23,12 @@ Keep their edits separate from an active worker's owned scope.
 
 ## Roles
 
+Owner direction, 2026-10-05: assign all remaining recoverable UIUX work as one
+owner-relayed LWB317-UI-VISUAL-FINAL-CLOSEOUT-003 campaign. This supersedes separate
+small-unit dispatch for that assignment. Continue automatically through sequential
+medium milestones and return once at the final review boundary; retain subagent
+ownership, evidence standards, phase limits and independent lead acceptance.
+
 Owner direction, 2026-10-04: prefer one small-to-medium bounded assignment per
 worker dispatch. Larger remaining campaigns are split into separately reviewed
 units; preserve quality and durable checkpoints rather than expanding a unit.

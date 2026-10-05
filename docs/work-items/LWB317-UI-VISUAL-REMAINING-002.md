@@ -3,6 +3,12 @@
 Project-lead assignment, 2026-10-05. Status: **CHANGES_REQUIRED** after independent lead review of `967a92c3553e4bc81272741f333803ee54ae5e44`.
 Parent: LWB317-UI-VISUAL-FINAL-CAMPAIGN-001, currently PARTIAL.
 
+Current owner-relayed continuation: `LWB317-UI-VISUAL-FINAL-CLOSEOUT-003.md` covers
+all six corrections, both composition gaps, all-page/shared reconciliation and
+final verification as one sequential assignment. The proposed Automation-only
+prompt is superseded. This correction parent remains CHANGES_REQUIRED until lead
+acceptance of the final packet.
+
 Lead review: `docs/reviews/2026-10-05-LWB317-UI-VISUAL-REMAINING-002-LEAD.md`.
 Six finite local differences remain (LR-A1–A3 Automation Train/error composition;
 LR-S1–S3 recovery envelope, recurring poll ownership and preview loading lifetime).
