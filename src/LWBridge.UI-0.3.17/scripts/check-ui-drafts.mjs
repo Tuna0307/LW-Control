@@ -84,6 +84,6 @@ assert.equal(activateTraining({ trainingTotalCount: 0 }, true, null).enabled, un
 assert.equal(automationDraftError("Treasure", { claimMin: 5, claimMax: 1 }), "automation.treasureDelayError");
 assert.equal(automationDraftError("Red Packet", { replyEnabled: true, replies: " " }), "automation.replyRequired");
 assert.equal(automationDraftError("Treasure", { treasureDispatchEnabled: true, dispatchSquads: [] }), "automation.treasureDispatchSquadRequired");
-assert.equal(automationDraftError("Secret Task", { dispatchAssistEnabled: true, assistQualities: [] }), "automation.dispatchAssistConfigError");
-assert.equal(automationDraftError("Secret Task", { assistMin: 7, assistMax: 3 }), "automation.dispatchAssistConfigError");
+assert.equal(automationDraftError("Dispatch Assist", { autoHelp: true, qualities: [], delaySeconds: [0, 0], intervalSeconds: 30 }), "automation.dispatchAssistConfigError");
+assert.equal(automationDraftError("Dispatch Assist", { autoHelp: false, qualities: ["ssr"], delaySeconds: [7, 3], intervalSeconds: 30 }), "automation.dispatchAssistConfigError");
 console.log("LWB317_UI_DRAFT_CHECKS_OK: concurrent edits, ack, error/retry/discard, no invalid dispatch, join defaults/precision, profile independence and card validation");

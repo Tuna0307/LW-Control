@@ -8,12 +8,13 @@ export function initialAutomationDraft(title, previewState = "") {
   if (title === "Alliance Tech Donations") return { enabled: false, threshold: "15" };
   if (title === "Alliance Gifts") return { enabled: false, intervalMinutes: "120" };
   if (["Excavation Stronghold Resources", "Alliance Center Resources", "Building Resource Collection", "Armed Truck"].includes(title)) return { enabled: false, intervalMinutes: "60" };
-  if (title === "Alliance Gathering Dispatch") return { enabled: false, allianceGatherSquads: [1, 2] };
+  if (title === "Alliance Gathering Dispatch") return { enabled: false, allianceGatherSquads: previewState === "automation-squads-34" ? [3] : previewState === "automation-squads-empty" ? [] : [1, 2] };
   if (title === "Automatic Alliance Train Boarding") return { enabled: false, trainMode: "reward", vipTrainMode: "reward", normalFixedCarriageIds: [1], vipFixedCarriageIds: [1, 2], preferredRewardKeys: ["fixture-medal"], preferRewardQuantity: false, autoAcceptVip: false, thanksMode: "like", ticketCount: "1" };
-  if (title === "Trucks") return { enabled: false, delayMinutes: "2", weeklyQualities: ["ssr", "ur", "ssr", "ssr", "ssr", "ur", "ssr"], departWhenTicketsInsufficient: false };
-  if (title === "Secret Task") return { enabled: false, collectRewards: false, delayMinutes: "3", weeklyQualities: ["none", "ur", "none", "none", "none", "ur", "none"], dispatchAssistEnabled: previewState === "automation-assist-auto", assistQualities: ["ssr", "ur"], assistMin: "0", assistMax: "0", assistInterval: "30" };
+  if (title === "Trucks") return { enabled: previewState === "automation-runtime-running", delayMinutes: "2", weeklyQualities: ["ssr", "ur", "ssr", "ssr", "ssr", "ur", "ssr"], departWhenTicketsInsufficient: false };
+  if (title === "Secret Task") return { enabled: previewState === "automation-runtime-running", collectRewards: false, delayMinutes: "3", weeklyQualities: ["none", "ur", "none", "none", "none", "ur", "none"] };
+  if (title === "Dispatch Assist") return { autoHelp: previewState === "automation-assist-auto", qualities: ["ssr", "ur"], delaySeconds: ["0", "0"], intervalSeconds: "30" };
   if (title === "Ghost Ops") return { enabled: false, ghostJoinEnabled: false, ghostFilter: "special", ghostClaimRewards: false };
-  if (["Red Packet", "Fireworks / Egg", "Treasure"].includes(title)) return { enabled: false, claimMin: "0", claimMax: "0", replyEnabled: false, replyMin: "2", replyMax: "5", replies: "", ...(title === "Treasure" ? { treasureSearchEnabled: false, treasureDispatchEnabled: false, dispatchMin: "2", dispatchMax: "5", dispatchRetry: "30", dispatchSquads: [1] } : {}) };
+  if (["Red Packet", "Fireworks / Egg", "Treasure"].includes(title)) return { enabled: false, claimMin: "0", claimMax: "0", replyEnabled: false, replyMin: "2", replyMax: "5", replies: "", ...(title === "Treasure" ? { treasureSearchEnabled: false, treasureDispatchEnabled: previewState === "automation-squads-34", dispatchMin: "2", dispatchMax: "5", dispatchRetry: "30", dispatchSquads: previewState === "automation-squads-34" ? [3] : previewState === "automation-squads-empty" ? [] : [1] } : {}) };
   return { enabled: false };
 }
 
@@ -27,9 +28,10 @@ export function automationDraftError(title, draft, maximumBuilders = 20) {
     if (!(key in draft)) continue;
     const value = Number(draft[key]);
     if (String(draft[key]).trim() === "" || !Number.isInteger(value) || !(value >= min && value <= max)) {
-      return key === "maxBuilders" ? "automation.builderLimitError" : key === "amountPerArmy" ? "automation.treatmentAmountError" : key === "intervalMinutes" ? "automation.intervalError" : "configSave.failed";
+      return key === "maxBuilders" ? "automation.builderLimitError" : key === "amountPerArmy" ? "automation.treatmentAmountError" : key === "intervalMinutes" ? "automation.intervalError" : key === "delayMinutes" ? "automation.dailyDelayError" : "configSave.failed";
     }
   }
+  if (title === "Automatic Official Application" && ![0, 10002, 10003, 10004, 10005, 10006, 10007].includes(Number(draft.positionId ?? 0))) return "automation.positionError";
   if ("trainingTotalCount" in draft && (!Number.isInteger(Number(draft.trainingTotalCount)) || Number(draft.trainingTotalCount) < 0 || Number(draft.trainingTotalCount) > 1000000 || (draft.trainEnabled && Number(draft.trainingTotalCount) === 0))) return "automation.soldierTraining.quantityError";
   if (["Red Packet", "Fireworks / Egg", "Treasure"].includes(title)) {
     const pairValid = (minKey, maxKey, defaults, limitMin, limitMax) => {
@@ -43,9 +45,9 @@ export function automationDraftError(title, draft, maximumBuilders = 20) {
     const retry = Number(draft.dispatchRetry ?? 30);
     if (title === "Treasure" && (!Number.isInteger(retry) || retry < 1 || retry > 300)) return "automation.treasureDispatchRetryError";
   }
-  if (title === "Secret Task") {
-    const min = Number(draft.assistMin ?? 0), max = Number(draft.assistMax ?? 0), interval = Number(draft.assistInterval ?? 30);
-    if (!Number.isInteger(min) || !Number.isInteger(max) || min < 0 || max > 86400 || min > max || !Number.isInteger(interval) || interval < 5 || interval > 300 || (draft.dispatchAssistEnabled && !(draft.assistQualities ?? []).length)) return "automation.dispatchAssistConfigError";
+  if (title === "Dispatch Assist") {
+    const min = Number(draft.delaySeconds?.[0] ?? 0), max = Number(draft.delaySeconds?.[1] ?? 0), interval = Number(draft.intervalSeconds ?? 30);
+    if (!Number.isInteger(min) || !Number.isInteger(max) || min < 0 || max > 86400 || min > max || !Number.isInteger(interval) || interval < 5 || interval > 300 || (draft.autoHelp && !(draft.qualities ?? []).length)) return "automation.dispatchAssistConfigError";
   }
   if (["Trucks", "Secret Task"].includes(title)) {
     const weekly = draft.weeklyQualities;

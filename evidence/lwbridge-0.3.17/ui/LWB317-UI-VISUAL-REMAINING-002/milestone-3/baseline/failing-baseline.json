@@ -1,0 +1,75 @@
+{
+  "marker": "LWB317_REMAINING_M3_FAILING_BASELINE_CAPTURED",
+  "recoveredAe": {
+    "asset": "AutomationPanel-BJ0gIqFh.js",
+    "utf8ByteOffset": 21817,
+    "utf8ByteLength": 53453,
+    "sha256": "61F181D014CFA82BD35CF3BBAE1DB3096CBE502826DDCD4680AD4C46C11A4B68"
+  },
+  "immutableSnapshots": {
+    "AutomationPage": {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-REMAINING-002/milestone-3/baseline/pre-fix-AutomationPage.jsx",
+      "sha256": "E44F2F2F107C31F6B41B2BA52DC9B8D9BB1C90DFFC0574FE5F09D977EE0B4243"
+    },
+    "previewAutomationContracts": {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-REMAINING-002/milestone-3/baseline/pre-fix-previewAutomationContracts.js",
+      "sha256": "EA8F3811A813FB0762533E058AF6CDDE6D704F291EA7CA4B21718EC07EC863D7"
+    },
+    "previewAutomationFixtures": {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-REMAINING-002/milestone-3/baseline/pre-fix-previewAutomationFixtures.js",
+      "sha256": "993F0708DAA88A3C8CA80FBC39555BF84DB021A3639C46F466E06C8F44F3FDF1"
+    }
+  },
+  "mismatches": [
+    {
+      "id": "source-treasure-uses-discovered-squads",
+      "sourceEvidence": "d=[...u,...Ut.filter(e=>!ee.has(e))]",
+      "observed": true
+    },
+    {
+      "id": "baseline-treasure-hardcodes-four-squads",
+      "currentEvidence": "[1,2,3,4].map(...dispatchSquads...)",
+      "observed": true
+    },
+    {
+      "id": "source-treasure-priority-is-draggable",
+      "sourceEvidence": "automation-squad-priority-item + draggable + drag handle",
+      "observed": true
+    },
+    {
+      "id": "baseline-treasure-lacks-priority-row",
+      "currentEvidence": "Treasure branch uses automation-squad-choices labels rather than priority rows",
+      "observed": true
+    },
+    {
+      "id": "source-alliance-gather-uses-discovered-squads",
+      "sourceEvidence": "sr=[...ar,...Ut.filter(e=>!or.has(e))]",
+      "observed": true
+    },
+    {
+      "id": "baseline-alliance-gather-hardcodes-four-squads",
+      "currentEvidence": "ordered=[...selected,...[1,2,3,4].filter(...)]",
+      "observed": true
+    },
+    {
+      "id": "source-resource-gather-error-owned-by-card",
+      "sourceEvidence": "me returns AutomationCard with error:l||void 0",
+      "observed": true
+    },
+    {
+      "id": "baseline-resource-gather-error-inside-fieldset",
+      "currentEvidence": "ResourceGatherCard renders error after squad rows inside automation-config-body",
+      "observed": true
+    },
+    {
+      "id": "source-config-save-errors-precede-panel-title",
+      "sourceEvidence": "Ae maps P/I/L through recovered Oe before panel-title",
+      "observed": true
+    },
+    {
+      "id": "baseline-generic-config-save-errors-live-inside-card-body",
+      "currentEvidence": "AutomationConfigPreview renders PreviewConfigError inside AutomationCard fieldset",
+      "observed": true
+    }
+  ]
+}

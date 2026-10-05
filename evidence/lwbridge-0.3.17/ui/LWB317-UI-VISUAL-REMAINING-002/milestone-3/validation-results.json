@@ -1,0 +1,37 @@
+{
+  "marker": "LWB317_REMAINING_M3_VALIDATION_OK",
+  "recoveredAe": {
+    "utf8ByteOffset": 21817,
+    "utf8ByteLength": 53453,
+    "sha256": "61F181D014CFA82BD35CF3BBAE1DB3096CBE502826DDCD4680AD4C46C11A4B68"
+  },
+  "recoveredAutomationCard": {
+    "sha256": "24ED773623C237F8219EFF5443FAC3BA7B55B6E99E168E52FF066FAF2ABE7A61",
+    "functionSha256": "A3FA760F0D42AA4A927C8B6E810407723F2BA314360CD35AC05D3DF08F639657"
+  },
+  "immutableBaseline": {
+    "pre-fix-AutomationPage.jsx": "E44F2F2F107C31F6B41B2BA52DC9B8D9BB1C90DFFC0574FE5F09D977EE0B4243",
+    "pre-fix-previewAutomationContracts.js": "EA8F3811A813FB0762533E058AF6CDDE6D704F291EA7CA4B21718EC07EC863D7",
+    "pre-fix-previewAutomationFixtures.js": "993F0708DAA88A3C8CA80FBC39555BF84DB021A3639C46F466E06C8F44F3FDF1"
+  },
+  "current": {
+    "src/LWBridge.UI-0.3.17/src/AutomationPage.jsx": "B05E6B3873DC86118379F8C7E1FC224DF3D4B0E8005AD7E48B5D659C6EDF98A5",
+    "src/LWBridge.UI-0.3.17/src/previewAutomationContracts.js": "FD4BC9C29F23631718D19818D273745C8D042DF35B1DDA2BE1E1928E75BB2295",
+    "src/LWBridge.UI-0.3.17/src/previewAutomationFixtures.js": "DF236FDBA38D02EB3FAA95C512A12F5FBA90CC6E43A48A892FC923DFE74AA56D"
+  },
+  "sourceContracts": 14,
+  "currentContracts": 21,
+  "browser": {
+    "assertions": 154,
+    "screenshots": 23,
+    "consoleErrors": 0,
+    "version": "154.0.8037.95"
+  },
+  "sourceRenderer": {
+    "pairs": 56,
+    "exactPixels": 56,
+    "changedPixels": 0,
+    "consoleIssues": 0
+  },
+  "inheritedAcceptedUnitC": "Lower-helper exact original-side replays remain preserved; this task-local gate supersedes only current-only whole-composition expectations proved incorrect by exact Ae."
+}
