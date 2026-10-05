@@ -1,5 +1,8 @@
 # LWB317-UI-VISUAL-FINAL-CLOSEOUT-003-R2
 
+Project-lead acceptance, 2026-10-06: **RECOVERED-SOURCE/LOCAL UIUX ACCEPTED.** Delivery `75b7b215679a8ea7986af72bdbdd7039c5278b70` closes CLOSEOUT-003/R1/R2 and the REMAINING-002/FINAL-CAMPAIGN-001 parents for the assigned UIUX scope. All earlier six defects, composition gaps, profile ownership and Equipment save-mode findings are closed. Independent lead execution passes 38 focused Equipment assertions, 17 Equipment regressions, fresh 282 complete-App assertions, 67 served sources, 16 decoded captures, nine 1,383-key catalogs, 12 semantic mutations, zero browser issues, fresh check/build/package and archive integrity. Home, Map, Automation, Squads/Equipment, City Layout, Hotkeys, Mini Games, Settings and shared shell/dialogs are accepted through their bounded recovered/local proof. Native/provider-positive functionality, live current-game compatibility, loaded native assets, updater/OS behavior and protected-original complete-App pixels remain unverified separate dependencies. See `docs/reviews/2026-10-06-LWB317-UI-VISUAL-FINAL-CLOSEOUT-003-R2-LEAD.md`. Historical PARTIAL/CHANGES_REQUIRED/AWAITING_REVIEW entries below are superseded only for this accepted scope. Next assigned task: `docs/work-items/LWB317-FUNCTION-READINESS-HOME-MAP-001.md`, read-only function readiness audit; no native implementation or live test is authorized by that task.
+
+
 Lead assignment, 2026-10-06. Worker delivery status: **AWAITING_REVIEW**.
 R1: CHANGES_REQUIRED solely Equipment save-mode semantics; R2 worker correction complete.
 Global recoverable UIUX: PARTIAL pending independent R2 lead acceptance.
