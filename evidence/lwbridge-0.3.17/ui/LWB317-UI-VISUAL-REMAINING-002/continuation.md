@@ -1,6 +1,19 @@
 # Continuation — LWB317-UI-VISUAL-REMAINING-002
 
-Status: **AWAITING PROJECT-LEAD REVIEW.** Milestones 1 through 4 are integrated and
+Status: **CHANGES_REQUIRED after independent project-lead review, 2026-10-05.**
+Reviewed worker delivery: `967a92c3553e4bc81272741f333803ee54ae5e44`.
+Continue with LR-A1–A3 (Train drag target, missing fixed defaults, generic error
+composition), then LR-S1–S3 (recovery envelope, periodic poll ownership, preview
+loading lifetime). Exact evidence and executable baseline counterexamples are
+in `lead-review/`; lead decision is
+`docs/reviews/2026-10-05-LWB317-UI-VISUAL-REMAINING-002-LEAD.md`.
+Also complete the assigned current whole-AFK and conditional Automation paired
+composition evidence, as bounded in that review; these are proof gaps, not new
+demonstrated production defects.
+Retain accepted Map/E–H and current-App integration evidence. Correct and recheck
+the finite groups, then return for lead acceptance. No native/gameplay work.
+
+Historical worker delivery: milestones 1 through 4 are integrated and
 pushed. Milestone 5 Map/full-App integration, final documentation and worker review
 packet are complete and ready for the final assignment checkpoint.
 

@@ -1,0 +1,1205 @@
+{
+  "marker": "LWB317_REMAINING_M5_FULL_APP_CURRENT_OK",
+  "assertions": [
+    {
+      "name": "en-light-desktop has exact eight source-order navigation buttons",
+      "actual": 8,
+      "expected": 8
+    },
+    {
+      "name": "en-light-desktop/overview selected nav owns aria-current",
+      "actual": "page",
+      "expected": "page"
+    },
+    {
+      "name": "en-light-desktop/overview language stays settled",
+      "actual": "en",
+      "expected": "en"
+    },
+    {
+      "name": "en-light-desktop/overview theme stays settled",
+      "actual": "light",
+      "expected": "light"
+    },
+    {
+      "name": "en-light-desktop/automation selected nav owns aria-current",
+      "actual": "page",
+      "expected": "page"
+    },
+    {
+      "name": "en-light-desktop/automation language stays settled",
+      "actual": "en",
+      "expected": "en"
+    },
+    {
+      "name": "en-light-desktop/automation theme stays settled",
+      "actual": "light",
+      "expected": "light"
+    },
+    {
+      "name": "en-light-desktop/map-data selected nav owns aria-current",
+      "actual": "page",
+      "expected": "page"
+    },
+    {
+      "name": "en-light-desktop/map-data language stays settled",
+      "actual": "en",
+      "expected": "en"
+    },
+    {
+      "name": "en-light-desktop/map-data theme stays settled",
+      "actual": "light",
+      "expected": "light"
+    },
+    {
+      "name": "en-light-desktop/march selected nav owns aria-current",
+      "actual": "page",
+      "expected": "page"
+    },
+    {
+      "name": "en-light-desktop/march language stays settled",
+      "actual": "en",
+      "expected": "en"
+    },
+    {
+      "name": "en-light-desktop/march theme stays settled",
+      "actual": "light",
+      "expected": "light"
+    },
+    {
+      "name": "en-light-desktop/city-layout selected nav owns aria-current",
+      "actual": "page",
+      "expected": "page"
+    },
+    {
+      "name": "en-light-desktop/city-layout language stays settled",
+      "actual": "en",
+      "expected": "en"
+    },
+    {
+      "name": "en-light-desktop/city-layout theme stays settled",
+      "actual": "light",
+      "expected": "light"
+    },
+    {
+      "name": "en-light-desktop/hotkeys selected nav owns aria-current",
+      "actual": "page",
+      "expected": "page"
+    },
+    {
+      "name": "en-light-desktop/hotkeys language stays settled",
+      "actual": "en",
+      "expected": "en"
+    },
+    {
+      "name": "en-light-desktop/hotkeys theme stays settled",
+      "actual": "light",
+      "expected": "light"
+    },
+    {
+      "name": "en-light-desktop/mini-games selected nav owns aria-current",
+      "actual": "page",
+      "expected": "page"
+    },
+    {
+      "name": "en-light-desktop/mini-games language stays settled",
+      "actual": "en",
+      "expected": "en"
+    },
+    {
+      "name": "en-light-desktop/mini-games theme stays settled",
+      "actual": "light",
+      "expected": "light"
+    },
+    {
+      "name": "en-light-desktop/settings selected nav owns aria-current",
+      "actual": "page",
+      "expected": "page"
+    },
+    {
+      "name": "en-light-desktop/settings language stays settled",
+      "actual": "en",
+      "expected": "en"
+    },
+    {
+      "name": "en-light-desktop/settings theme stays settled",
+      "actual": "light",
+      "expected": "light"
+    },
+    {
+      "name": "en-light-desktop/settings return preserves retained DOM identity",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "en-light-desktop/mini-games return preserves retained DOM identity",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "en-light-desktop/hotkeys return preserves retained DOM identity",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "en-light-desktop/city-layout return preserves retained DOM identity",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "en-light-desktop/march return preserves retained DOM identity",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "en-light-desktop/map-data return preserves retained DOM identity",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "en-light-desktop/automation return preserves retained DOM identity",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "en-light-desktop/overview return preserves retained DOM identity",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "en-light-desktop owns one retained Map page",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "en-light-desktop owns one retained Automation category strip",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "en-light-desktop owns one retained Squads page",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "en-light-desktop owns one retained Settings page",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "en-light-desktop owns one retained Hotkeys page",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "en-light-desktop owns one retained Mini Games page",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "ja-dark-desktop has exact eight source-order navigation buttons",
+      "actual": 8,
+      "expected": 8
+    },
+    {
+      "name": "ja-dark-desktop/overview selected nav owns aria-current",
+      "actual": "page",
+      "expected": "page"
+    },
+    {
+      "name": "ja-dark-desktop/overview language stays settled",
+      "actual": "ja",
+      "expected": "ja"
+    },
+    {
+      "name": "ja-dark-desktop/overview theme stays settled",
+      "actual": "dark",
+      "expected": "dark"
+    },
+    {
+      "name": "ja-dark-desktop/automation selected nav owns aria-current",
+      "actual": "page",
+      "expected": "page"
+    },
+    {
+      "name": "ja-dark-desktop/automation language stays settled",
+      "actual": "ja",
+      "expected": "ja"
+    },
+    {
+      "name": "ja-dark-desktop/automation theme stays settled",
+      "actual": "dark",
+      "expected": "dark"
+    },
+    {
+      "name": "ja-dark-desktop/map-data selected nav owns aria-current",
+      "actual": "page",
+      "expected": "page"
+    },
+    {
+      "name": "ja-dark-desktop/map-data language stays settled",
+      "actual": "ja",
+      "expected": "ja"
+    },
+    {
+      "name": "ja-dark-desktop/map-data theme stays settled",
+      "actual": "dark",
+      "expected": "dark"
+    },
+    {
+      "name": "ja-dark-desktop/march selected nav owns aria-current",
+      "actual": "page",
+      "expected": "page"
+    },
+    {
+      "name": "ja-dark-desktop/march language stays settled",
+      "actual": "ja",
+      "expected": "ja"
+    },
+    {
+      "name": "ja-dark-desktop/march theme stays settled",
+      "actual": "dark",
+      "expected": "dark"
+    },
+    {
+      "name": "ja-dark-desktop/city-layout selected nav owns aria-current",
+      "actual": "page",
+      "expected": "page"
+    },
+    {
+      "name": "ja-dark-desktop/city-layout language stays settled",
+      "actual": "ja",
+      "expected": "ja"
+    },
+    {
+      "name": "ja-dark-desktop/city-layout theme stays settled",
+      "actual": "dark",
+      "expected": "dark"
+    },
+    {
+      "name": "ja-dark-desktop/hotkeys selected nav owns aria-current",
+      "actual": "page",
+      "expected": "page"
+    },
+    {
+      "name": "ja-dark-desktop/hotkeys language stays settled",
+      "actual": "ja",
+      "expected": "ja"
+    },
+    {
+      "name": "ja-dark-desktop/hotkeys theme stays settled",
+      "actual": "dark",
+      "expected": "dark"
+    },
+    {
+      "name": "ja-dark-desktop/mini-games selected nav owns aria-current",
+      "actual": "page",
+      "expected": "page"
+    },
+    {
+      "name": "ja-dark-desktop/mini-games language stays settled",
+      "actual": "ja",
+      "expected": "ja"
+    },
+    {
+      "name": "ja-dark-desktop/mini-games theme stays settled",
+      "actual": "dark",
+      "expected": "dark"
+    },
+    {
+      "name": "ja-dark-desktop/settings selected nav owns aria-current",
+      "actual": "page",
+      "expected": "page"
+    },
+    {
+      "name": "ja-dark-desktop/settings language stays settled",
+      "actual": "ja",
+      "expected": "ja"
+    },
+    {
+      "name": "ja-dark-desktop/settings theme stays settled",
+      "actual": "dark",
+      "expected": "dark"
+    },
+    {
+      "name": "ja-dark-desktop/settings return preserves retained DOM identity",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "ja-dark-desktop/mini-games return preserves retained DOM identity",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "ja-dark-desktop/hotkeys return preserves retained DOM identity",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "ja-dark-desktop/city-layout return preserves retained DOM identity",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "ja-dark-desktop/march return preserves retained DOM identity",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "ja-dark-desktop/map-data return preserves retained DOM identity",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "ja-dark-desktop/automation return preserves retained DOM identity",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "ja-dark-desktop/overview return preserves retained DOM identity",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "ja-dark-desktop owns one retained Map page",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "ja-dark-desktop owns one retained Automation category strip",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "ja-dark-desktop owns one retained Squads page",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "ja-dark-desktop owns one retained Settings page",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "ja-dark-desktop owns one retained Hotkeys page",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "ja-dark-desktop owns one retained Mini Games page",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "en-dark-narrow has exact eight source-order navigation buttons",
+      "actual": 8,
+      "expected": 8
+    },
+    {
+      "name": "en-dark-narrow/overview selected nav owns aria-current",
+      "actual": "page",
+      "expected": "page"
+    },
+    {
+      "name": "en-dark-narrow/overview language stays settled",
+      "actual": "en",
+      "expected": "en"
+    },
+    {
+      "name": "en-dark-narrow/overview theme stays settled",
+      "actual": "dark",
+      "expected": "dark"
+    },
+    {
+      "name": "en-dark-narrow/automation selected nav owns aria-current",
+      "actual": "page",
+      "expected": "page"
+    },
+    {
+      "name": "en-dark-narrow/automation language stays settled",
+      "actual": "en",
+      "expected": "en"
+    },
+    {
+      "name": "en-dark-narrow/automation theme stays settled",
+      "actual": "dark",
+      "expected": "dark"
+    },
+    {
+      "name": "en-dark-narrow/map-data selected nav owns aria-current",
+      "actual": "page",
+      "expected": "page"
+    },
+    {
+      "name": "en-dark-narrow/map-data language stays settled",
+      "actual": "en",
+      "expected": "en"
+    },
+    {
+      "name": "en-dark-narrow/map-data theme stays settled",
+      "actual": "dark",
+      "expected": "dark"
+    },
+    {
+      "name": "en-dark-narrow/march selected nav owns aria-current",
+      "actual": "page",
+      "expected": "page"
+    },
+    {
+      "name": "en-dark-narrow/march language stays settled",
+      "actual": "en",
+      "expected": "en"
+    },
+    {
+      "name": "en-dark-narrow/march theme stays settled",
+      "actual": "dark",
+      "expected": "dark"
+    },
+    {
+      "name": "en-dark-narrow/city-layout selected nav owns aria-current",
+      "actual": "page",
+      "expected": "page"
+    },
+    {
+      "name": "en-dark-narrow/city-layout language stays settled",
+      "actual": "en",
+      "expected": "en"
+    },
+    {
+      "name": "en-dark-narrow/city-layout theme stays settled",
+      "actual": "dark",
+      "expected": "dark"
+    },
+    {
+      "name": "en-dark-narrow/hotkeys selected nav owns aria-current",
+      "actual": "page",
+      "expected": "page"
+    },
+    {
+      "name": "en-dark-narrow/hotkeys language stays settled",
+      "actual": "en",
+      "expected": "en"
+    },
+    {
+      "name": "en-dark-narrow/hotkeys theme stays settled",
+      "actual": "dark",
+      "expected": "dark"
+    },
+    {
+      "name": "en-dark-narrow/mini-games selected nav owns aria-current",
+      "actual": "page",
+      "expected": "page"
+    },
+    {
+      "name": "en-dark-narrow/mini-games language stays settled",
+      "actual": "en",
+      "expected": "en"
+    },
+    {
+      "name": "en-dark-narrow/mini-games theme stays settled",
+      "actual": "dark",
+      "expected": "dark"
+    },
+    {
+      "name": "en-dark-narrow/settings selected nav owns aria-current",
+      "actual": "page",
+      "expected": "page"
+    },
+    {
+      "name": "en-dark-narrow/settings language stays settled",
+      "actual": "en",
+      "expected": "en"
+    },
+    {
+      "name": "en-dark-narrow/settings theme stays settled",
+      "actual": "dark",
+      "expected": "dark"
+    },
+    {
+      "name": "en-dark-narrow/settings return preserves retained DOM identity",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "en-dark-narrow/mini-games return preserves retained DOM identity",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "en-dark-narrow/hotkeys return preserves retained DOM identity",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "en-dark-narrow/city-layout return preserves retained DOM identity",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "en-dark-narrow/march return preserves retained DOM identity",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "en-dark-narrow/map-data return preserves retained DOM identity",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "en-dark-narrow/automation return preserves retained DOM identity",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "en-dark-narrow/overview return preserves retained DOM identity",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "en-dark-narrow owns one retained Map page",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "en-dark-narrow owns one retained Automation category strip",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "en-dark-narrow owns one retained Squads page",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "en-dark-narrow owns one retained Settings page",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "en-dark-narrow owns one retained Hotkeys page",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "en-dark-narrow owns one retained Mini Games page",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "en-dark-narrow has no document horizontal overflow",
+      "actual": false,
+      "expected": false
+    },
+    {
+      "name": "ja-light-narrow has exact eight source-order navigation buttons",
+      "actual": 8,
+      "expected": 8
+    },
+    {
+      "name": "ja-light-narrow/overview selected nav owns aria-current",
+      "actual": "page",
+      "expected": "page"
+    },
+    {
+      "name": "ja-light-narrow/overview language stays settled",
+      "actual": "ja",
+      "expected": "ja"
+    },
+    {
+      "name": "ja-light-narrow/overview theme stays settled",
+      "actual": "light",
+      "expected": "light"
+    },
+    {
+      "name": "ja-light-narrow/automation selected nav owns aria-current",
+      "actual": "page",
+      "expected": "page"
+    },
+    {
+      "name": "ja-light-narrow/automation language stays settled",
+      "actual": "ja",
+      "expected": "ja"
+    },
+    {
+      "name": "ja-light-narrow/automation theme stays settled",
+      "actual": "light",
+      "expected": "light"
+    },
+    {
+      "name": "ja-light-narrow/map-data selected nav owns aria-current",
+      "actual": "page",
+      "expected": "page"
+    },
+    {
+      "name": "ja-light-narrow/map-data language stays settled",
+      "actual": "ja",
+      "expected": "ja"
+    },
+    {
+      "name": "ja-light-narrow/map-data theme stays settled",
+      "actual": "light",
+      "expected": "light"
+    },
+    {
+      "name": "ja-light-narrow/march selected nav owns aria-current",
+      "actual": "page",
+      "expected": "page"
+    },
+    {
+      "name": "ja-light-narrow/march language stays settled",
+      "actual": "ja",
+      "expected": "ja"
+    },
+    {
+      "name": "ja-light-narrow/march theme stays settled",
+      "actual": "light",
+      "expected": "light"
+    },
+    {
+      "name": "ja-light-narrow/city-layout selected nav owns aria-current",
+      "actual": "page",
+      "expected": "page"
+    },
+    {
+      "name": "ja-light-narrow/city-layout language stays settled",
+      "actual": "ja",
+      "expected": "ja"
+    },
+    {
+      "name": "ja-light-narrow/city-layout theme stays settled",
+      "actual": "light",
+      "expected": "light"
+    },
+    {
+      "name": "ja-light-narrow/hotkeys selected nav owns aria-current",
+      "actual": "page",
+      "expected": "page"
+    },
+    {
+      "name": "ja-light-narrow/hotkeys language stays settled",
+      "actual": "ja",
+      "expected": "ja"
+    },
+    {
+      "name": "ja-light-narrow/hotkeys theme stays settled",
+      "actual": "light",
+      "expected": "light"
+    },
+    {
+      "name": "ja-light-narrow/mini-games selected nav owns aria-current",
+      "actual": "page",
+      "expected": "page"
+    },
+    {
+      "name": "ja-light-narrow/mini-games language stays settled",
+      "actual": "ja",
+      "expected": "ja"
+    },
+    {
+      "name": "ja-light-narrow/mini-games theme stays settled",
+      "actual": "light",
+      "expected": "light"
+    },
+    {
+      "name": "ja-light-narrow/settings selected nav owns aria-current",
+      "actual": "page",
+      "expected": "page"
+    },
+    {
+      "name": "ja-light-narrow/settings language stays settled",
+      "actual": "ja",
+      "expected": "ja"
+    },
+    {
+      "name": "ja-light-narrow/settings theme stays settled",
+      "actual": "light",
+      "expected": "light"
+    },
+    {
+      "name": "ja-light-narrow/settings return preserves retained DOM identity",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "ja-light-narrow/mini-games return preserves retained DOM identity",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "ja-light-narrow/hotkeys return preserves retained DOM identity",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "ja-light-narrow/city-layout return preserves retained DOM identity",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "ja-light-narrow/march return preserves retained DOM identity",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "ja-light-narrow/map-data return preserves retained DOM identity",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "ja-light-narrow/automation return preserves retained DOM identity",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "ja-light-narrow/overview return preserves retained DOM identity",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "ja-light-narrow owns one retained Map page",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "ja-light-narrow owns one retained Automation category strip",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "ja-light-narrow owns one retained Squads page",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "ja-light-narrow owns one retained Settings page",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "ja-light-narrow owns one retained Hotkeys page",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "ja-light-narrow owns one retained Mini Games page",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "ja-light-narrow has no document horizontal overflow",
+      "actual": false,
+      "expected": false
+    },
+    {
+      "name": "Automation parent category changes locally",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "Map parent tab changes to fourth data tab",
+      "actual": 3,
+      "expected": 3
+    },
+    {
+      "name": "Map profile-boundary precondition owns Auto local mode",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "Map profile-boundary precondition owns non-default quality filter",
+      "actual": "ssr",
+      "expected": "ssr"
+    },
+    {
+      "name": "Map profile-boundary precondition owns plunderable filter",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "Map profile-boundary precondition owns profile-scoped Auto interval",
+      "actual": "75",
+      "expected": "75"
+    },
+    {
+      "name": "Squads parent subtab changes to Equipment",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "Equipment native refresh remains fenced without provider",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "Automation category survives route round trip",
+      "actual": "Alliance",
+      "expected": "Alliance"
+    },
+    {
+      "name": "Map tab survives route round trip",
+      "actual": 3,
+      "expected": 3
+    },
+    {
+      "name": "Map keyword survives route round trip",
+      "actual": "retained-map-keyword",
+      "expected": "retained-map-keyword"
+    },
+    {
+      "name": "Squads subtab survives route round trip",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "uncached profile replacement crossed loading boundary",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "App-owned Map tab persists across profile replacement",
+      "actual": 3,
+      "expected": 3
+    },
+    {
+      "name": "page-local Map keyword resets across profile replacement",
+      "actual": "",
+      "expected": ""
+    },
+    {
+      "name": "page-local Map scan mode resets across profile replacement",
+      "actual": 0,
+      "expected": 0
+    },
+    {
+      "name": "page-local Map quality filter resets across profile replacement",
+      "actual": "",
+      "expected": ""
+    },
+    {
+      "name": "page-local Map plunderable filter resets across profile replacement",
+      "actual": false,
+      "expected": false
+    },
+    {
+      "name": "profile-scoped Map Auto interval resets for replacement profile",
+      "actual": "60",
+      "expected": "60"
+    },
+    {
+      "name": "App-owned Automation category persists across profile replacement",
+      "actual": "Alliance",
+      "expected": "Alliance"
+    },
+    {
+      "name": "App-owned Squads subtab persists across profile replacement",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "cached Local 1 return bypasses loading",
+      "actual": false,
+      "expected": false
+    },
+    {
+      "name": "cached Local 2 return bypasses loading",
+      "actual": false,
+      "expected": false
+    },
+    {
+      "name": "cached profile returns preserve current Squads route",
+      "actual": "page",
+      "expected": "page"
+    },
+    {
+      "name": "Map Auto interval local edit applies",
+      "actual": "75",
+      "expected": "75"
+    },
+    {
+      "name": "Map selected data tab survives route return",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "Map keyword survives route return",
+      "actual": "Fixture",
+      "expected": "Fixture"
+    },
+    {
+      "name": "Map Manual/Auto tab survives route return",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "Map Auto interval survives route return",
+      "actual": "75",
+      "expected": "75"
+    },
+    {
+      "name": "Map Run-now remains fenced while offline",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "Map City result count exposes all fixture rows",
+      "actual": "52 items",
+      "expected": "52 items"
+    },
+    {
+      "name": "Map City first page renders 50 rows",
+      "actual": 50,
+      "expected": 50
+    },
+    {
+      "name": "Map pagination advances to second page",
+      "actual": "Page 2 of 2",
+      "expected": "Page 2 of 2"
+    },
+    {
+      "name": "Map City second page renders remainder",
+      "actual": 2,
+      "expected": 2
+    },
+    {
+      "name": "Map pagination survives ordinary route hiding",
+      "actual": "Page 2 of 2",
+      "expected": "Page 2 of 2"
+    },
+    {
+      "name": "Map result count survives ordinary route hiding",
+      "actual": "52 items",
+      "expected": "52 items"
+    },
+    {
+      "name": "City hidden Activity cleans exactly one window keydown owner",
+      "actual": 0,
+      "expected": 0
+    },
+    {
+      "name": "City return restores exactly one window keydown owner",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "City local zoom edit survives route hiding",
+      "actual": "Zoom out\n117%\nZoom in\nFit canvas",
+      "expected": "Zoom out\n117%\nZoom in\nFit canvas"
+    },
+    {
+      "name": "Automation local draft edit applies",
+      "actual": "17",
+      "expected": "17"
+    },
+    {
+      "name": "Automation local draft survives ordinary route hiding",
+      "actual": "17",
+      "expected": "17"
+    },
+    {
+      "name": "Squads AFK local editor draft applies",
+      "actual": "13",
+      "expected": "13"
+    },
+    {
+      "name": "Squads AFK local editor draft survives ordinary route hiding",
+      "actual": "13",
+      "expected": "13"
+    },
+    {
+      "name": "Cross-server popover mounts once",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "Cross-server unavailable path is source-blocked",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "profile note dialog is outside routed page content",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "retained Map survives live locale change",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "retained Map survives live theme change",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "live locale is Japanese",
+      "actual": "ja",
+      "expected": "ja"
+    },
+    {
+      "name": "live theme is dark",
+      "actual": "dark",
+      "expected": "dark"
+    },
+    {
+      "name": "shell-exit exit dialog is sibling after shell",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "shell-exit exit action fence",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "shell-exit-busy exit dialog is sibling after shell",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "shell-exit-busy exit action fence",
+      "actual": 2,
+      "expected": 2
+    },
+    {
+      "name": "busy exit remains mounted after Escape",
+      "actual": 1,
+      "expected": 1
+    }
+  ],
+  "screenshots": [
+    {
+      "file": "en-light-desktop-eight-route-return.png",
+      "sha256": "810F4F0B63C8B30B1D702A3F060D28117E70375F7447F155BBD479C330A38504",
+      "bytes": 40195
+    },
+    {
+      "file": "ja-dark-desktop-eight-route-return.png",
+      "sha256": "ACCD9153629FC8AE13CEB4E7C689CFB29AFC6FBF552195E1E6ED83EDC47B5FBD",
+      "bytes": 43089
+    },
+    {
+      "file": "en-dark-narrow-eight-route-return.png",
+      "sha256": "82011B309BB727DACB6098C31F9D6E5654EC05D74CDE9FD263AD59110EF73CAC",
+      "bytes": 35230
+    },
+    {
+      "file": "ja-light-narrow-eight-route-return.png",
+      "sha256": "C7C02D687C47BC38C386A297F4F9BF1F9BE2FACCCE542B525106FAD6E7F09D8D",
+      "bytes": 40225
+    },
+    {
+      "file": "en-light-profile-boundary-parent-tabs.png",
+      "sha256": "F1708AB1C25E65F6301D98AA462AFE2FC83C4351DF2640180AE66D5DCEDBBBB8",
+      "bytes": 71183
+    },
+    {
+      "file": "ja-dark-map-retention-auto-local.png",
+      "sha256": "AC5AB2D1A499C22D7C419C2D5BABEFD5065498EA82F7914DD683C12179D12847",
+      "bytes": 110914
+    },
+    {
+      "file": "en-light-map-pagination-return.png",
+      "sha256": "6360BBA890CCD88A8D2AF3CEFD4FAF14B39E9CBA04276B9E1F02D0A618B09562",
+      "bytes": 83091
+    },
+    {
+      "file": "en-light-city-local-retention-owner-return.png",
+      "sha256": "9E3858DF9DBA54AD5FA840A3080AE8202EDDB262B07ECA4BFAFE4BE94CC9E869",
+      "bytes": 72385
+    },
+    {
+      "file": "en-light-automation-draft-return.png",
+      "sha256": "6B3C6D33D273819F5CD6E28BE168663A1223783C49E2B9D4EFF87E837B88E615",
+      "bytes": 94180
+    },
+    {
+      "file": "en-light-squads-afk-draft-return.png",
+      "sha256": "E7722DD3E3DB22F71DCC84C8C4F86AC37127517B3FCBDEAE195270E016F1F8DA",
+      "bytes": 103431
+    },
+    {
+      "file": "ja-dark-live-theme-locale-retained-map.png",
+      "sha256": "76CC0D830CC6D2D4C81DF66D73AF27FC6C7448DADD09112A15EF283030D9A792",
+      "bytes": 97211
+    }
+  ],
+  "consoleIssues": [],
+  "sourceFiles": {
+    "src/LWBridge.UI-0.3.17/index.html": "38E3B101E7939F19188F14D3051D42431A2DE698ADF24AAEC0D6C85192507F4F",
+    "src/LWBridge.UI-0.3.17/src/App.jsx": "E4039BEE1A7F66712C797ABBEFC3DAAE4C7FB59C82939B90F4D0041F40B7A93C",
+    "src/LWBridge.UI-0.3.17/src/AppExitDialog.jsx": "AFA79399788E4F8C58FA81C11FF86CB7128CBF5DD02A84BD511E88A928A6549D",
+    "src/LWBridge.UI-0.3.17/src/AutomationMeta.jsx": "47F84DED5D76E037BCBABC2F81D8C294D63ECD6409137320B46078985BF95678",
+    "src/LWBridge.UI-0.3.17/src/AutomationPage.jsx": "B05E6B3873DC86118379F8C7E1FC224DF3D4B0E8005AD7E48B5D659C6EDF98A5",
+    "src/LWBridge.UI-0.3.17/src/CityLayoutPage.jsx": "C2C3E9445F607C82954A4319E19C6A8A1BE64368038293D7B1FADC8BE9372061",
+    "src/LWBridge.UI-0.3.17/src/DispatchAssistManual.jsx": "1CE38103690C72DF87146B3F52791999374A2E841C2DDADCC84C9C417E69771B",
+    "src/LWBridge.UI-0.3.17/src/EquipmentMotion.jsx": "27CB30A8ADDF84DC007FA2D686524F649AFB470996CF386B23D8C7BA277FEC68",
+    "src/LWBridge.UI-0.3.17/src/GameAssetImage.jsx": "2BFCA11136F2495780EA6A2037BD5007F1D7653284849452E430D2A4FA05D379",
+    "src/LWBridge.UI-0.3.17/src/HomePage.jsx": "F140264E693E89F37CBB357470F58FE5DCA46F3DFDA29A8A5D2C7918CE2393FF",
+    "src/LWBridge.UI-0.3.17/src/HotkeyPages.jsx": "5DAE6E4FFE8875BCEBC366109AD4C1E3FFF690EA17273EBB50226E9107551634",
+    "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx": "0619C0589FED7A6DA37C7018D021D890A2A2396AC77D21A64E6D77CE348A5BD5",
+    "src/LWBridge.UI-0.3.17/src/MapRetainedGoodsFilter.jsx": "D890612C6208CE306BB57EEE759CFE79AD9CF86064B3B50526D65D0512657C51",
+    "src/LWBridge.UI-0.3.17/src/MapRoutePage.jsx": "5C01A4C857C8916A830E8973B8A02232CE760484985BAD6F78D1CD058DFF116C",
+    "src/LWBridge.UI-0.3.17/src/MapTreasureTypeFilter.jsx": "675E0BF8C2C7E6B6E7A5F90E368C6F8796B100581B24987EB6C7536BC4926AB7",
+    "src/LWBridge.UI-0.3.17/src/NavIcon.jsx": "BE74437FE9A0ACD86BA47F81983D0AFDDF51FD4C304C9C4932ADA3422936D911",
+    "src/LWBridge.UI-0.3.17/src/Pages.jsx": "C5DF951E95561A08A4614445ED61586AA6DF4E4B7AE3F11A6A546A52EBA19191",
+    "src/LWBridge.UI-0.3.17/src/ProfileSidebar.jsx": "96E480F3BBA897AB18BE29891A346651E933C6C743A908DE36BAC67B0E86DA9D",
+    "src/LWBridge.UI-0.3.17/src/ProfileSwitchState.jsx": "01FC87F704CC45BE3476BCAF461FA057F70DCE57A7453DDD00188B756F9E83F5",
+    "src/LWBridge.UI-0.3.17/src/RallyJoinSettings.jsx": "B7FA092427701B2D7E83980E0F8D949EC78117C7B7A8616857CB0EE695A091FC",
+    "src/LWBridge.UI-0.3.17/src/ScheduledPlunder.jsx": "9D6814A70A62C9198720CE15FAA84403F43E1DE172A88E285179151D017B5534",
+    "src/LWBridge.UI-0.3.17/src/SettingsPage.jsx": "8622BE39E06FE82FCF31BD2E092358987F3F304D447ADA061685727436737771",
+    "src/LWBridge.UI-0.3.17/src/ShellPresentation.jsx": "B1DD1278F274A1FD347AD4C27787B5AE8DC1DB32230D49B55F7A471DE34A904F",
+    "src/LWBridge.UI-0.3.17/src/SquadsPage.jsx": "16370281810045DF67CA9FF8E324BEE60E3C99DA1E7C493005D2B92E7769A4F4",
+    "src/LWBridge.UI-0.3.17/src/assets/dot-offline.png": "F118D321CCD185313695DB337823E1CFD04CCA96EB9FA3447B65455E2673C31D",
+    "src/LWBridge.UI-0.3.17/src/assets/dot-online.png": "2875CC9945B55F113A7D1E194EE2A13050BF9DE6AAEC94D1DE1D664112A027D6",
+    "src/LWBridge.UI-0.3.17/src/assets/icon-warning.png": "DA1A18E0007068C11D371A9D130C598F9B9A38F39F87D758FCC7FB9CC467853F",
+    "src/LWBridge.UI-0.3.17/src/autoLaunchPreference.js": "C16FEB94563B445CAFDC3189C980025A6F8A9AE5DDD24085CE28887D0F828286",
+    "src/LWBridge.UI-0.3.17/src/backendBridge.js": "E50C904508A17A2AC682B7D195359B51C6348D73835888513095D1E789EC99C5",
+    "src/LWBridge.UI-0.3.17/src/i18n.jsx": "D4290741AB2C7ACB0546ED47156BEF434DDF210775CAD9B9A3A261D401CE4891",
+    "src/LWBridge.UI-0.3.17/src/locales/en.js": "357682D9179AE712EE563950467B7A93B5AEA89322AFC993E079FEDEE28432C1",
+    "src/LWBridge.UI-0.3.17/src/locales/id.js": "52C0AE28F9C4428A481F6D911A1A4308EDDD022AF24EC48E518531803F7B375F",
+    "src/LWBridge.UI-0.3.17/src/locales/ja.js": "E1FED1E9AAF052963E3D8F5A5F8B9AE96B002A05A9DD7BB06A460A66187755EB",
+    "src/LWBridge.UI-0.3.17/src/locales/ko.js": "7B4AEF2D9000DC9BEE00CF7BD13FE64FC35753AEA728A66DC67F59F5A6A46C86",
+    "src/LWBridge.UI-0.3.17/src/locales/pt.js": "87AEE8FA12E8FF6868380A316B6B1F447473B0EDC1141C838CC0B2225F15036D",
+    "src/LWBridge.UI-0.3.17/src/locales/ru.js": "07F39B5D3AC71148C9C5E5143BCB26CD079D55F16FF3A3FF1FC4C58E4111C44C",
+    "src/LWBridge.UI-0.3.17/src/locales/vi.js": "954BE08AACAE40A81D117E48E03BACDEDE39FA1439D0823C2BD6FD03EFDC8B07",
+    "src/LWBridge.UI-0.3.17/src/locales/zh-CN.js": "FAF55A16171DB0FB3F96F51FBAE7FBC3C675176D52EED29A0A303A2F7A8304D3",
+    "src/LWBridge.UI-0.3.17/src/locales/zh-TW.js": "5B2467E0D005E6D726E92BD21EDA56E38321233D9D29BFDBAA8DBE3C0C4C2269",
+    "src/LWBridge.UI-0.3.17/src/main.jsx": "7DD7727093E4234B893682A77F780966345F7478E35610D69476AEA95B411755",
+    "src/LWBridge.UI-0.3.17/src/mapAutoConfig.js": "C88FAA13EBF8D15D2EC9EA54E800FDDEC5ECB38DF70D9D97E8D67768EC42EF4E",
+    "src/LWBridge.UI-0.3.17/src/mapBackend.js": "7E82AA8E46ECBB37A8F16D11F933E784B1414FB75CEBA27A7BDEB315054FE01A",
+    "src/LWBridge.UI-0.3.17/src/mapInteractions.js": "37B174098685E5C4DA540E514C1CE467A5CBAD61BC18569E8366B9F7085CF7DC",
+    "src/LWBridge.UI-0.3.17/src/mapPlunderFixtures.js": "73B6BF73DB557088BDC8BC45286095F61B0AF7C829A55E6C1B5BC9E1ABB72B60",
+    "src/LWBridge.UI-0.3.17/src/mapPlunderPresentation.js": "6E4BF5315990966823C5E162CF4875C9D1DB3A897CD7BACC40752C9A7C2A62FD",
+    "src/LWBridge.UI-0.3.17/src/mapPreviewApi.js": "CE6B1C18606A99C191E39734280E31336213D99A471E621C816656A0F9236B05",
+    "src/LWBridge.UI-0.3.17/src/mapScanHeaderFixtures.js": "437D5F4CBDAF2FB95E52A2496B02F57B5233D29BCA51A4F7428B0BC9C5B98720",
+    "src/LWBridge.UI-0.3.17/src/mapScanPresentation.js": "76C2AC646E79EA372965F9C2DA61D90356DAF7FA2F47E52DD9180D745E2DC5D0",
+    "src/LWBridge.UI-0.3.17/src/mapTablePresentation.js": "B6C0D9B369D3E78CCC74AA7296F2B88EABF6B6560C3669A199546FC299839427",
+    "src/LWBridge.UI-0.3.17/src/previewAfkCloseoutFixtures.js": "11B5AE1D449B61296E5150DEA355A82AFE8BF0C23497583D840057AAEC8CF3DD",
+    "src/LWBridge.UI-0.3.17/src/previewAfkContracts.js": "F75B4D22ECCD19F69D4AD139ABC2FFBC150B0007662BA47127CFB600CBF61EE3",
+    "src/LWBridge.UI-0.3.17/src/previewAfkFixtures.js": "0D9FD7517190F0C27A70478E974353D62071824EDF694F7C613FA8D153715AAF",
+    "src/LWBridge.UI-0.3.17/src/previewAutomationContracts.js": "FD4BC9C29F23631718D19818D273745C8D042DF35B1DDA2BE1E1928E75BB2295",
+    "src/LWBridge.UI-0.3.17/src/previewAutomationFixtures.js": "DF236FDBA38D02EB3FAA95C512A12F5FBA90CC6E43A48A892FC923DFE74AA56D",
+    "src/LWBridge.UI-0.3.17/src/previewConfig.js": "8BEDEC11D07A8245EBB6FF9DF78E13E872C20F850C9B887919360BF209397B7A",
+    "src/LWBridge.UI-0.3.17/src/previewConfigHook.jsx": "643875718C4DA1B443215F8E6B9417C840F372882AA81BA286080977D1ED827E",
+    "src/LWBridge.UI-0.3.17/src/previewEquipmentContracts.js": "2E57B79B1211582A9FF5E9A96A2158F8918C2D690694A6DDDDC338AF95BA44B0",
+    "src/LWBridge.UI-0.3.17/src/previewRemainingPagesContracts.js": "2F0C9EF1E28734ED3131A41E734A8D4A2B09CFFF56C3D23A5A359DF979769810",
+    "src/LWBridge.UI-0.3.17/src/profileConfigDraft.js": "31E255735FA77CE3D780D7DF563833C2D3AFBA26D16C0091F70DB486EBCD3E7A",
+    "src/LWBridge.UI-0.3.17/src/reference.css": "3D87E9F65B39EACE6A1A254BFC90A38ACB72613D1FFF7236C7CEE7AB9BFAF545",
+    "src/LWBridge.UI-0.3.17/src/routes.js": "2DA41EBFE3F4D898AE9E447F7A368C4EC9B270A0BAB46F2F3F049A8C0AADCF03",
+    "src/LWBridge.UI-0.3.17/src/sharedPageUI.jsx": "95ED15F5A4AB46C7CAE4DD55656E85718F66FA5AC45278B615D1795EBD8E82F2",
+    "src/LWBridge.UI-0.3.17/src/shellState.js": "29DF81AF8A791CA4D14535E9EEC0052F91A2FF45E18B7B272042DBAEC7C28195",
+    "src/LWBridge.UI-0.3.17/src/shellTheme.js": "58EAEF0483BB6922CE63391BB1746741386605DA6ED566764DB7B461DB10266B",
+    "src/LWBridge.UI-0.3.17/src/styles.css": "B50910D37A4DD02D7BB49B506735EA42615EF0F9E85714E880049481AECE2CCC",
+    "src/LWBridge.UI-0.3.17/src/tradePurchaseHistory.js": "5FE401B6B57D5E2707BCE7A5A38842E876DBEFE69608EFE434DD28B7ABDDD88B",
+    "src/LWBridge.UI-0.3.17/src/vendor/equipmentMotion317.js": "E3793CE042ECF9AB24BC8849403E5F3B968D685EBA38DAB80949A2F883DCBBD0"
+  },
+  "inheritedReplays": {
+    "mapUnitB": "10,482 Scheduled renders; 51/51 mutations; 75 integrated cases; 15 historical browser pairs replayed as 13 exact + 2 Start Scan bounded; superseded City query-error replaced by 3 exact corrected pairs; 25 mounted assertions",
+    "unitsEtoH": "City 30; Hotkeys 18; Mini Games 78; Settings 63 paired states via unit-e/recover-pages.mjs --verify"
+  },
+  "limits": [
+    "Current-App integration/retention proof only; exact original page-local visual authority remains the accepted inherited source-render packets.",
+    "No native/gameplay/updater/server-jump/scan/plunder/OS-hotkey action is invoked. Unavailable provider actions stay disabled/fenced."
+  ]
+}

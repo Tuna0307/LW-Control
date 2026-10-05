@@ -1,0 +1,5 @@
+{"case":"current_recovery_cross_profile","accepted":[{"state":"failed","error":"B_ERROR"}]}
+{"case":"original_recovery_cross_profile","rejected":true}
+{"case":"current_periodic_overlap","requests":2,"proxyWrites":[{"gameRunning":false},{"gameRunning":true}]}
+{"case":"original_periodic_overlap","requests":1,"skipped":true}
+{"case":"current_loading_overlap","selected":"C","loading":false,"cache":["A","B"],"pendingFrames":1}

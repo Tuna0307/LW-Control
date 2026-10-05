@@ -1,0 +1,21 @@
+{
+  "status": "COUNTEREXAMPLE_REPRODUCED",
+  "proof": "Actual mounted production local drag handlers with DOM DragEvents; physical HTML5 drag is not claimed",
+  "classes": [
+    "automation-preference-item selected dragging",
+    "automation-preference-item selected"
+  ],
+  "actualDragOver": 0,
+  "expectedRecoveredDragOver": 1,
+  "fixedSelections": [
+    [
+      1
+    ],
+    [
+      1,
+      2
+    ]
+  ],
+  "seedNote": "Observed fixture values only; differing input alone is not classified as a defect",
+  "consoleIssues": []
+}

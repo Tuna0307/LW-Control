@@ -1,5 +1,7 @@
 # LWB317-UI-VISUAL-FINAL-CAMPAIGN-001
 
+Project-lead independent review, 2026-10-05: **LWB317-UI-VISUAL-REMAINING-002 is CHANGES_REQUIRED; global UIUX remains PARTIAL.** Fresh build/package, submitted M5 validation and an independent 213-assertion current-App browser rerun pass. Bounded Map/E–H inheritance remains accepted. Six exact local counterexamples remain: Train drag-target feedback, missing fixed-carriage defaults, generic Automation error geometry, recovery profile-envelope ownership, recurring Home poll overlap/stale acknowledgement, and abandoned preview profile-loading completion. These are UI/state corrections, not native-provider work. See `docs/reviews/2026-10-05-LWB317-UI-VISUAL-REMAINING-002-LEAD.md`. Correct the Automation and shell/Home groups in bounded milestones, then return for independent acceptance. The worker's earlier no-gap delivery claim below is superseded by this review.
+
 Lead focused continuation,2026-10-05: Construction dynamic builder bound is now
 source/local validated (100 cases, immutable baseline23 failures, actual EN/JA edits).
 Automation56 paired samples remain exact. Other Automation conditionals, full AFK/

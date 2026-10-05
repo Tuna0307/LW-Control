@@ -1,7 +1,18 @@
 # LWB317-UI-VISUAL-REMAINING-002
 
-Project-lead assignment, 2026-10-05. Status: **AWAITING_REVIEW** after coordinating-worker delivery.
+Project-lead assignment, 2026-10-05. Status: **CHANGES_REQUIRED** after independent lead review of `967a92c3553e4bc81272741f333803ee54ae5e44`.
 Parent: LWB317-UI-VISUAL-FINAL-CAMPAIGN-001, currently PARTIAL.
+
+Lead review: `docs/reviews/2026-10-05-LWB317-UI-VISUAL-REMAINING-002-LEAD.md`.
+Six finite local differences remain (LR-A1–A3 Automation Train/error composition;
+LR-S1–S3 recovery envelope, recurring poll ownership and preview loading lifetime).
+The passing build and fresh current-App integration checks remain useful evidence.
+Bounded Map/E–H inheritance is accepted; worker blanket source/local completion is
+superseded. Correct the two groups in bounded milestones and return the complete
+correction packet for independent review. No native/gameplay phase is assigned.
+The assignment's current whole-`I` AFK pairs and positive/conditional Automation
+whole-page pairs also remain incomplete; close those finite proof gaps using
+matched original/current input, retaining accepted lower-level slices.
 
 ## Goal and delivery boundary
 
