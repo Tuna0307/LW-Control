@@ -1,0 +1,828 @@
+{
+  "marker": "LWB317_REMAINING_M2_BROWSER_CURRENT_OK",
+  "cases": [
+    {
+      "name": "en-light-desktop html lang",
+      "actual": "en",
+      "expected": "en",
+      "pass": true
+    },
+    {
+      "name": "en-light-desktop five compact cards",
+      "actual": 5,
+      "expected": 5,
+      "pass": true
+    },
+    {
+      "name": "en-light-desktop two profile cards",
+      "actual": 2,
+      "expected": 2,
+      "pass": true
+    },
+    {
+      "name": "en-light-desktop runtime rows",
+      "actual": 2,
+      "expected": 2,
+      "pass": true
+    },
+    {
+      "name": "en-light-desktop drag SVG count",
+      "actual": 2,
+      "expected": 2,
+      "pass": true
+    },
+    {
+      "name": "en-light-desktop editor sibling ancestry",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "ja-dark-desktop html lang",
+      "actual": "ja",
+      "expected": "ja",
+      "pass": true
+    },
+    {
+      "name": "ja-dark-desktop five compact cards",
+      "actual": 5,
+      "expected": 5,
+      "pass": true
+    },
+    {
+      "name": "ja-dark-desktop two profile cards",
+      "actual": 2,
+      "expected": 2,
+      "pass": true
+    },
+    {
+      "name": "ja-dark-desktop runtime rows",
+      "actual": 2,
+      "expected": 2,
+      "pass": true
+    },
+    {
+      "name": "ja-dark-desktop drag SVG count",
+      "actual": 2,
+      "expected": 2,
+      "pass": true
+    },
+    {
+      "name": "ja-dark-desktop editor sibling ancestry",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "en-dark-narrow html lang",
+      "actual": "en",
+      "expected": "en",
+      "pass": true
+    },
+    {
+      "name": "en-dark-narrow five compact cards",
+      "actual": 5,
+      "expected": 5,
+      "pass": true
+    },
+    {
+      "name": "en-dark-narrow two profile cards",
+      "actual": 2,
+      "expected": 2,
+      "pass": true
+    },
+    {
+      "name": "en-dark-narrow runtime rows",
+      "actual": 2,
+      "expected": 2,
+      "pass": true
+    },
+    {
+      "name": "en-dark-narrow drag SVG count",
+      "actual": 2,
+      "expected": 2,
+      "pass": true
+    },
+    {
+      "name": "en-dark-narrow editor sibling ancestry",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "en-dark-narrow no document overflow",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "ja-light-narrow html lang",
+      "actual": "ja",
+      "expected": "ja",
+      "pass": true
+    },
+    {
+      "name": "ja-light-narrow five compact cards",
+      "actual": 5,
+      "expected": 5,
+      "pass": true
+    },
+    {
+      "name": "ja-light-narrow two profile cards",
+      "actual": 2,
+      "expected": 2,
+      "pass": true
+    },
+    {
+      "name": "ja-light-narrow runtime rows",
+      "actual": 2,
+      "expected": 2,
+      "pass": true
+    },
+    {
+      "name": "ja-light-narrow drag SVG count",
+      "actual": 2,
+      "expected": 2,
+      "pass": true
+    },
+    {
+      "name": "ja-light-narrow editor sibling ancestry",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "ja-light-narrow no document overflow",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "Translated runtime target name preferred over fallback",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "Runtime error uses recovered error translator",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "Potion settings inside toolbar",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "Potion keeps profiles visible",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Potion keeps sibling editor visible",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Potion debounced draft retained across panel switch",
+      "actual": "42",
+      "expected": "42",
+      "pass": true
+    },
+    {
+      "name": "Drill empty has no premature inline validation",
+      "actual": 0,
+      "expected": 0,
+      "pass": true
+    },
+    {
+      "name": "Drill empty has no pre-action composition error",
+      "actual": 0,
+      "expected": 0,
+      "pass": true
+    },
+    {
+      "name": "Drill invalid enable creates final composition error",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Drill settings remain selected after invalid enable",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Garrison target-required nested inside priority list",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Garrison empty selected allies uses span",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Garrison always shows squad hint",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Garrison recovered drag SVG present",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "Garrison settings precede Zombie compact in toolbar",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "Garrison settings closed",
+      "actual": 0,
+      "expected": 0,
+      "pass": true
+    },
+    {
+      "name": "Invalid Garrison enable does not auto-open settings",
+      "actual": 0,
+      "expected": 0,
+      "pass": true
+    },
+    {
+      "name": "Garrison picker uses native dialog",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Garrison picker is modal-open",
+      "actual": "",
+      "expected": "",
+      "pass": true
+    },
+    {
+      "name": "Garrison ally UID-only search returns no source row",
+      "actual": 0,
+      "expected": 0,
+      "pass": true
+    },
+    {
+      "name": "Garrison modal availability uses em column",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "Garrison Escape closes picker",
+      "actual": 0,
+      "expected": 0,
+      "pass": true
+    },
+    {
+      "name": "squads-profile-garrison-discovery-pending saved-target summary fallback",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "Garrison discovery pending has no invented loading row",
+      "actual": 0,
+      "expected": 0,
+      "pass": true
+    },
+    {
+      "name": "squads-profile-garrison-discovery-failed saved-target summary fallback",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "Garrison discovery failure uses local inline error",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Garrison building uses translated name plus alliance abbreviation",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "Garrison status lastError is not invented into settings",
+      "actual": 0,
+      "expected": 0,
+      "pass": true
+    },
+    {
+      "name": "New AFK profile binds first discovered squad",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "Drill choices use selected plus discovered squad indexes",
+      "actual": 3,
+      "expected": 3,
+      "pass": true
+    },
+    {
+      "name": "Drill discovered choices exclude squad 2",
+      "actual": false,
+      "expected": false,
+      "pass": true
+    },
+    {
+      "name": "Master busy fixture starts enabled",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "Master stop busy disables first three compact toggles",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "Master stop busy disables Add",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "Master stop busy disables profile delete",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "Master stop busy disables profile drag",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "Zombie open settings section",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Zombie open error is separate sibling",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Zombie open error absent inside settings section",
+      "actual": 0,
+      "expected": 0,
+      "pass": true
+    },
+    {
+      "name": "Profile keyboard reorder changes first profile",
+      "actual": "Fixture Gold Hunt",
+      "expected": "predicate",
+      "pass": true
+    },
+    {
+      "name": "Add menu opens",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Pointer outside Add control closes menu",
+      "actual": 0,
+      "expected": 0,
+      "pass": true
+    },
+    {
+      "name": "Equipment visible after AFK hidden",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "AFK editor draft retained through Activity",
+      "actual": "Milestone 2 retained draft",
+      "expected": "Milestone 2 retained draft",
+      "pass": true
+    }
+  ],
+  "screenshots": [
+    {
+      "id": "en-light-desktop-runtime",
+      "mode": "en-light-desktop",
+      "surface": "runtime-profile-composition",
+      "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-REMAINING-002/milestone-2/browser-current/en-light-desktop-runtime.png",
+      "sha256": "b0f68fc6d795bfc29c639e1a47ab21250cb268651975aea33ce912db31b002ee"
+    },
+    {
+      "id": "ja-dark-desktop-runtime",
+      "mode": "ja-dark-desktop",
+      "surface": "runtime-profile-composition",
+      "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-REMAINING-002/milestone-2/browser-current/ja-dark-desktop-runtime.png",
+      "sha256": "6767303656f5c5cf4a9866a7439dd65158cf95725beacf01e75dae3d068d9b58"
+    },
+    {
+      "id": "en-dark-narrow-runtime",
+      "mode": "en-dark-narrow",
+      "surface": "runtime-profile-composition",
+      "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-REMAINING-002/milestone-2/browser-current/en-dark-narrow-runtime.png",
+      "sha256": "abab582fb263d89e3fa2916a3b5d5c837335468ad453b259666841356045265c"
+    },
+    {
+      "id": "ja-light-narrow-runtime",
+      "mode": "ja-light-narrow",
+      "surface": "runtime-profile-composition",
+      "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-REMAINING-002/milestone-2/browser-current/ja-light-narrow-runtime.png",
+      "sha256": "97cddf1f82ae2bab6723d79c0dfe8a1fb939d8f465fc2893ab70ad7fa2087724"
+    },
+    {
+      "id": "en-light-potion",
+      "mode": "en-light-desktop",
+      "surface": "potion",
+      "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-REMAINING-002/milestone-2/browser-current/en-light-potion.png",
+      "sha256": "952f9d4ac41228d2819c09441266f08735fdc5ad17f657a06f542556d95ce1b0"
+    },
+    {
+      "id": "en-light-drill-empty-error",
+      "mode": "en-light-desktop",
+      "surface": "drill-empty-error",
+      "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-REMAINING-002/milestone-2/browser-current/en-light-drill-empty-error.png",
+      "sha256": "c370390c27fb6e0ba50226ac9a0f6ed00cd07040a5bd88f5197ccc5c6f2da1ce"
+    },
+    {
+      "id": "en-light-garrison-no-targets",
+      "mode": "en-light-desktop",
+      "surface": "garrison-no-targets",
+      "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-REMAINING-002/milestone-2/browser-current/en-light-garrison-no-targets.png",
+      "sha256": "b2d130b1877f35a0cfe31c4f25b6d0de2dae1e93fb31daee037d2a3d56fc80c5"
+    },
+    {
+      "id": "en-light-zombie-error",
+      "mode": "en-light-desktop",
+      "surface": "zombie-open-error",
+      "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-REMAINING-002/milestone-2/browser-current/en-light-zombie-error.png",
+      "sha256": "cd24c4efb56b04fcc37d3c70a11ad72cb4d3eb02b31e7d942fde2f39999b89a5"
+    },
+    {
+      "id": "en-light-interactions",
+      "mode": "en-light-desktop",
+      "surface": "afk-activity-interactions",
+      "path": "C:/Users/chimw/OneDrive/Desktop/Github/LW-Control/evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-REMAINING-002/milestone-2/browser-current/en-light-interactions.png",
+      "sha256": "5206eed505a97ba8a86e66efad06f796a8babf705803dd412dafd850f420e5dc"
+    }
+  ],
+  "console": [
+    {
+      "state": "squads-profile-runtime",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "state": "squads-profile-runtime",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "state": "squads-profile-runtime",
+      "mode": "en-light-desktop",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "state": "squads-profile-runtime",
+      "mode": "ja-dark-desktop",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "state": "squads-profile-runtime",
+      "mode": "ja-dark-desktop",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "state": "squads-profile-runtime",
+      "mode": "ja-dark-desktop",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "state": "squads-profile-runtime",
+      "mode": "en-dark-narrow",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "state": "squads-profile-runtime",
+      "mode": "en-dark-narrow",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "state": "squads-profile-runtime",
+      "mode": "en-dark-narrow",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "state": "squads-profile-runtime",
+      "mode": "ja-light-narrow",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "state": "squads-profile-runtime",
+      "mode": "ja-light-narrow",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "state": "squads-profile-runtime",
+      "mode": "ja-light-narrow",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "state": "squads-profile-runtime-translated",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "state": "squads-profile-runtime-translated",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "state": "squads-profile-runtime-translated",
+      "mode": "en-light-desktop",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "state": "squads-profile-runtime-error",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "state": "squads-profile-runtime-error",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "state": "squads-profile-runtime-error",
+      "mode": "en-light-desktop",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "state": "squads-profile-potion-positive",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "state": "squads-profile-potion-positive",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "state": "squads-profile-potion-positive",
+      "mode": "en-light-desktop",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "state": "squads-profile-drill-empty",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "state": "squads-profile-drill-empty",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "state": "squads-profile-drill-empty",
+      "mode": "en-light-desktop",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "state": "squads-profile-garrison-no-targets",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "state": "squads-profile-garrison-no-targets",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "state": "squads-profile-garrison-no-targets",
+      "mode": "en-light-desktop",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "state": "squads-profile-garrison-running",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "state": "squads-profile-garrison-running",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "state": "squads-profile-garrison-running",
+      "mode": "en-light-desktop",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "state": "squads-profile-garrison-discovery-pending",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "state": "squads-profile-garrison-discovery-pending",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "state": "squads-profile-garrison-discovery-pending",
+      "mode": "en-light-desktop",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "state": "squads-profile-garrison-discovery-failed",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "state": "squads-profile-garrison-discovery-failed",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "state": "squads-profile-garrison-discovery-failed",
+      "mode": "en-light-desktop",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "state": "squads-profile-garrison-localized",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "state": "squads-profile-garrison-localized",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "state": "squads-profile-garrison-localized",
+      "mode": "en-light-desktop",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "state": "squads-profile-garrison-error",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "state": "squads-profile-garrison-error",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "state": "squads-profile-garrison-error",
+      "mode": "en-light-desktop",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "state": "squads-profile-squads-34",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "state": "squads-profile-squads-34",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "state": "squads-profile-squads-34",
+      "mode": "en-light-desktop",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "state": "squads-profile-master-stop-busy",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "state": "squads-profile-master-stop-busy",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "state": "squads-profile-master-stop-busy",
+      "mode": "en-light-desktop",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "state": "squads-profile-zombie-error",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "state": "squads-profile-zombie-error",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "state": "squads-profile-zombie-error",
+      "mode": "en-light-desktop",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "state": "squads-profile-runtime",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "state": "squads-profile-runtime",
+      "mode": "en-light-desktop",
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "state": "squads-profile-runtime",
+      "mode": "en-light-desktop",
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    }
+  ],
+  "browser": "154.0.8037.95",
+  "dragProof": "DOM_OR_KEYBOARD_HANDLER_ONLY_NOT_PHYSICAL_HTML5_POINTER_DRAG",
+  "current": {
+    "squadsPage": {
+      "path": "src/LWBridge.UI-0.3.17/src/SquadsPage.jsx",
+      "sha256": "16370281810045df67ca9ff8e324bee60e3c99da1e7c493005d2b92e7769a4f4"
+    },
+    "fixtures": {
+      "path": "src/LWBridge.UI-0.3.17/src/previewAfkCloseoutFixtures.js",
+      "sha256": "11b5ae1d449b61296e5150dea355a82afe8bf0c23497583d840057aaec8cf3dd"
+    }
+  }
+}

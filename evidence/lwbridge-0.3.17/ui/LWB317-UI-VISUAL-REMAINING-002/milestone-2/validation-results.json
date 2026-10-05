@@ -1,0 +1,59 @@
+{
+  "marker": "LWB317_REMAINING_M2_VALIDATION_OK",
+  "sourceFunctions": {
+    "I": {
+      "offset": 28070,
+      "length": 22554,
+      "sha256": "0A4895C21AD443AA7A1C05B54CFF2E8DD89F9038BED10DBFFFB9001A4128EE2E"
+    },
+    "pe": {
+      "offset": 4586,
+      "length": 11256,
+      "sha256": "4DD8A8770C7726AA3CCE0657BC88C6B0FB2146FA161BCF2C3017A231D0953C85"
+    },
+    "me": {
+      "offset": 15842,
+      "length": 687,
+      "sha256": "7232700BC71C76F9E5B0DA56A2DCC43D369191701C45CE28A87D5A966058DAB8"
+    },
+    "he": {
+      "offset": 16529,
+      "length": 1957,
+      "sha256": "37F600C70C0F2F1A2F5722DC33C6E62075A7976C86ECA48001E97F1FA39BC32B"
+    }
+  },
+  "immutableBaselines": {
+    "profile-failing-baseline.json": "52CE90805182ECC94B711EB375286D399A9F78CE133D891DCD6852959725F280",
+    "garrison-zombie-failing-baseline.json": "542A589A15A3E7D6AE9762D248C8AC0E04713F395604ABA7A06D487456B9911E"
+  },
+  "preservedSlices": [
+    "AfkProfileEditor",
+    "EquipmentContent",
+    "CompactAfkCard"
+  ],
+  "sourceContracts": [
+    "four source-owned config stores",
+    "Master/profiles/Drill shared store",
+    "Potion independent store",
+    "Garrison independent store",
+    "Zombie independent store",
+    "Master stop busy",
+    "reorder busy before edit",
+    "source-valid available squads",
+    "runtime game-text preference",
+    "runtime error translation",
+    "native Garrison dialog",
+    "Garrison name localization",
+    "Garrison pending summary fallback",
+    "Garrison native action fence",
+    "final composition error surface"
+  ],
+  "browserAssertions": 70,
+  "screenshots": 9,
+  "consoleErrors": 0,
+  "current": {
+    "squadsPageSha256": "16370281810045DF67CA9FF8E324BEE60E3C99DA1E7C493005D2B92E7769A4F4",
+    "fixturesSha256": "11B5AE1D449B61296E5150DEA355A82AFE8BF0C23497583D840057AAEC8CF3DD"
+  },
+  "legacyNote": "The historical AFK-editor validator pins the pre-milestone whole SquadsPage file size and Unit-D check-afk-source-replay freezes the pre-milestone two-store/article harness. They are preserved unchanged; this validator proves their accepted editor/Equipment/compact slices remain byte-identical while the authorized surrounding full composition changed."
+}

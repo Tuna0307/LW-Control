@@ -1,0 +1,34 @@
+{
+  "marker": "LWB317_REMAINING_M2_COMPOSITION_PAIR_RENDER",
+  "cases": [
+    {
+      "id": "garrison-pending",
+      "allowedDifference": "Current Run Now remains disabled/presentation-only because the native action provider is intentionally fenced.",
+      "originalHtmlSha256": "0fd774e13b45be0cd8ae0fbcde92f56aa27bf79ba090db97dd984d895fbf98ca",
+      "currentHtmlSha256": "165075bdd720569f89ee953132efb41c99b4c23c9e760f90b1b1584284847019",
+      "rawEqual": false
+    },
+    {
+      "id": "zombie-waiting",
+      "allowedDifference": "None expected for this source-local waiting composition.",
+      "originalHtmlSha256": "9d346db266eafbd234a742aeed70f3d452b3f5e848646f6c2539df75ebf0ff4d",
+      "currentHtmlSha256": "9d346db266eafbd234a742aeed70f3d452b3f5e848646f6c2539df75ebf0ff4d",
+      "rawEqual": true
+    }
+  ],
+  "sourceSlices": [
+    {
+      "name": "pe",
+      "utf8ByteOffset": 4586,
+      "utf8ByteLength": 11256,
+      "sha256": "4dd8a8770c7726aa3cce0657bc88c6b0fb2146fa161bcf2c3017a231d0953c85"
+    },
+    {
+      "name": "he",
+      "utf8ByteOffset": 16529,
+      "utf8ByteLength": 1957,
+      "sha256": "37f600c70c0f2f1a2f5722dc33c6e62075a7976c86eca48001e97f1fa39bc32b"
+    }
+  ],
+  "scope": "Executed exact recovered pe/he with React SSR under inert initial source-valid inputs and actual canonical current CompactAfkCard/GarrisonPreviewSettings/ZombieBusPreviewSettings. Source/current CSS and locale catalogs are independent."
+}

@@ -1,0 +1,4383 @@
+{
+  "marker": "LWB317_REMAINING_M2_COMPOSITION_PAIRED_BROWSER",
+  "browser": "154.0.8037.95",
+  "pairs": [
+    {
+      "id": "garrison-pending",
+      "allowedDifference": "Current Run Now remains disabled/presentation-only because the native action provider is intentionally fenced.",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "sides": {
+        "original": {
+          "measured": [
+            {
+              "tag": "DIV",
+              "className": "monster-afk-toolbar",
+              "rect": [
+                17,
+                17,
+                1246,
+                486
+              ],
+              "text": "",
+              "style": {
+                "display": "grid",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "8px",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "ARTICLE",
+              "className": "automation-card monster-afk-compact-card is-selectable is-selected",
+              "rect": [
+                17,
+                17,
+                305.5,
+                58
+              ],
+              "text": "",
+              "style": {
+                "display": "grid",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 113, 227, 0.1)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "6px 10px",
+                "margin": "0px",
+                "border": "1px solid rgb(0, 113, 227)",
+                "gap": "0px",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "DIV",
+              "className": "automation-card-header",
+              "rect": [
+                28,
+                24,
+                283.5,
+                44
+              ],
+              "text": "",
+              "style": {
+                "display": "flex",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "8px",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "DIV",
+              "className": "",
+              "rect": [
+                28,
+                28.453125,
+                82.171875,
+                35.078125
+              ],
+              "text": "",
+              "style": {
+                "display": "grid",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "2px",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "H3",
+              "className": "",
+              "rect": [
+                28,
+                28.453125,
+                82.171875,
+                16.890625
+              ],
+              "text": "Auto Garrison",
+              "style": {
+                "display": "block",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "600",
+                "lineHeight": "16.9px",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "P",
+              "className": "",
+              "rect": [
+                28,
+                47.34375,
+                82.171875,
+                16.1875
+              ],
+              "text": "Garrisoning 0/1",
+              "style": {
+                "display": "block",
+                "color": "rgb(95, 95, 99)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "12px",
+                "fontWeight": "400",
+                "lineHeight": "16.2px",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(95, 95, 99)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "DIV",
+              "className": "monster-afk-compact-actions",
+              "rect": [
+                279.5,
+                24,
+                32,
+                44
+              ],
+              "text": "",
+              "style": {
+                "display": "grid",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "2px",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "className": "active",
+              "rect": [
+                279.5,
+                24,
+                24,
+                24
+              ],
+              "text": "",
+              "style": {
+                "display": "flex",
+                "color": "rgb(0, 113, 227)",
+                "backgroundColor": "rgba(0, 113, 227, 0.1)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(0, 113, 227)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "svg",
+              "className": "ui-icon",
+              "rect": [
+                284.5,
+                29,
+                14,
+                14
+              ],
+              "text": "",
+              "style": {
+                "display": "block",
+                "color": "rgb(0, 113, 227)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(0, 113, 227)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "circle",
+              "className": "",
+              "rect": [
+                289.3125,
+                33.8125,
+                4.375,
+                4.375
+              ],
+              "text": "",
+              "style": {
+                "display": "inline",
+                "color": "rgb(0, 113, 227)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(0, 113, 227)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "path",
+              "className": "",
+              "rect": [
+                285.8125,
+                30.3125,
+                11.375,
+                11.375
+              ],
+              "text": "",
+              "style": {
+                "display": "inline",
+                "color": "rgb(0, 113, 227)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(0, 113, 227)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "LABEL",
+              "className": "monster-afk-compact-toggle is-enabled",
+              "rect": [
+                279.5,
+                50,
+                32,
+                18
+              ],
+              "text": "",
+              "style": {
+                "display": "flex",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "INPUT",
+              "className": "",
+              "rect": [
+                283.5,
+                58.5,
+                1,
+                1
+              ],
+              "text": "",
+              "style": {
+                "display": "block",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgb(255, 255, 255)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "3px 3px 3px 4px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "normal",
+                "opacity": "0"
+              }
+            },
+            {
+              "tag": "SPAN",
+              "className": "monster-afk-master-track",
+              "rect": [
+                279.5,
+                50,
+                32,
+                18
+              ],
+              "text": "",
+              "style": {
+                "display": "block",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgb(52, 199, 89)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "1px solid rgb(46, 193, 83)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "SECTION",
+              "className": "automation-card monster-afk-toolbar-settings garrison-settings",
+              "rect": [
+                17,
+                83,
+                1246,
+                420
+              ],
+              "text": "",
+              "style": {
+                "display": "grid",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgb(255, 255, 255)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "12px",
+                "margin": "0px",
+                "border": "1px solid rgb(229, 229, 234)",
+                "gap": "12px",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "DIV",
+              "className": "monster-afk-toolbar-settings-heading",
+              "rect": [
+                30,
+                96,
+                1220,
+                35
+              ],
+              "text": "",
+              "style": {
+                "display": "flex",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "12px",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "DIV",
+              "className": "",
+              "rect": [
+                30,
+                96,
+                333.015625,
+                35
+              ],
+              "text": "",
+              "style": {
+                "display": "grid",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "3px",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "STRONG",
+              "className": "",
+              "rect": [
+                30,
+                96,
+                333.015625,
+                17
+              ],
+              "text": "Auto Garrison Settings",
+              "style": {
+                "display": "block",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "700",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "SPAN",
+              "className": "",
+              "rect": [
+                30,
+                116,
+                333.015625,
+                15
+              ],
+              "text": "Starts immediately when enabled and only uses selected idle squads.",
+              "style": {
+                "display": "block",
+                "color": "rgb(95, 95, 99)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "11px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(95, 95, 99)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "SPAN",
+              "className": "garrison-count",
+              "rect": [
+                1136.765625,
+                101.5,
+                113.234375,
+                24
+              ],
+              "text": "1 targets selected",
+              "style": {
+                "display": "block",
+                "color": "rgb(95, 95, 99)",
+                "backgroundColor": "rgba(24, 160, 122, 0.09)",
+                "fontSize": "12px",
+                "fontWeight": "700",
+                "lineHeight": "normal",
+                "padding": "4px 7px",
+                "margin": "0px",
+                "border": "0px none rgb(95, 95, 99)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "DIV",
+              "className": "garrison-settings-grid",
+              "rect": [
+                30,
+                143,
+                1220,
+                289
+              ],
+              "text": "",
+              "style": {
+                "display": "grid",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "10px",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "DIV",
+              "className": "garrison-target-panel",
+              "rect": [
+                30,
+                143,
+                756.25,
+                289
+              ],
+              "text": "",
+              "style": {
+                "display": "grid",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgb(235, 235, 237)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "10px",
+                "margin": "0px",
+                "border": "1px solid rgb(229, 229, 234)",
+                "gap": "9px",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "DIV",
+              "className": "garrison-section-heading",
+              "rect": [
+                41,
+                154,
+                734.25,
+                28
+              ],
+              "text": "",
+              "style": {
+                "display": "flex",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "9px",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "STRONG",
+              "className": "",
+              "rect": [
+                41,
+                160,
+                100.28125,
+                16
+              ],
+              "text": "Alliance buildings",
+              "style": {
+                "display": "block",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "12px",
+                "fontWeight": "700",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "SPAN",
+              "className": "",
+              "rect": [
+                759.09375,
+                160.5,
+                16.15625,
+                15
+              ],
+              "text": "0/0",
+              "style": {
+                "display": "block",
+                "color": "rgb(95, 95, 99)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "11px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(95, 95, 99)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "DIV",
+              "className": "garrison-building-grid",
+              "rect": [
+                41,
+                191,
+                734.25,
+                60
+              ],
+              "text": "",
+              "style": {
+                "display": "grid",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "6px",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "P",
+              "className": "muted",
+              "rect": [
+                41,
+                204,
+                142.046875,
+                34
+              ],
+              "text": "No available alliance buildings were found.",
+              "style": {
+                "display": "block",
+                "color": "rgb(95, 95, 99)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "13px 0px",
+                "border": "0px none rgb(95, 95, 99)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "DIV",
+              "className": "garrison-section-heading",
+              "rect": [
+                41,
+                260,
+                734.25,
+                28
+              ],
+              "text": "",
+              "style": {
+                "display": "flex",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "9px",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "STRONG",
+              "className": "",
+              "rect": [
+                41,
+                266,
+                79.203125,
+                16
+              ],
+              "text": "Selected allies",
+              "style": {
+                "display": "block",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "12px",
+                "fontWeight": "700",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "className": "",
+              "rect": [
+                693.875,
+                260,
+                81.375,
+                28
+              ],
+              "text": "Choose allies",
+              "style": {
+                "display": "block",
+                "color": "rgb(0, 113, 227)",
+                "backgroundColor": "rgb(255, 255, 255)",
+                "fontSize": "11px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "4px 8px",
+                "margin": "0px",
+                "border": "1px solid rgb(229, 229, 234)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "DIV",
+              "className": "garrison-selected-allies",
+              "rect": [
+                41,
+                297,
+                734.25,
+                40
+              ],
+              "text": "",
+              "style": {
+                "display": "flex",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgb(255, 255, 255)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "7px",
+                "margin": "0px",
+                "border": "1px dashed rgb(209, 209, 214)",
+                "gap": "6px",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "SPAN",
+              "className": "muted",
+              "rect": [
+                49,
+                308.5,
+                99.96875,
+                17
+              ],
+              "text": "No allies selected",
+              "style": {
+                "display": "block",
+                "color": "rgb(95, 95, 99)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(95, 95, 99)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "DIV",
+              "className": "garrison-section-heading",
+              "rect": [
+                41,
+                346,
+                734.25,
+                28
+              ],
+              "text": "",
+              "style": {
+                "display": "flex",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "9px",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "STRONG",
+              "className": "",
+              "rect": [
+                41,
+                352,
+                81.46875,
+                16
+              ],
+              "text": "Target priority",
+              "style": {
+                "display": "block",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "12px",
+                "fontWeight": "700",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "SPAN",
+              "className": "",
+              "rect": [
+                699.53125,
+                352.5,
+                75.71875,
+                15
+              ],
+              "text": "Drag to reorder",
+              "style": {
+                "display": "block",
+                "color": "rgb(95, 95, 99)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "11px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(95, 95, 99)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "DIV",
+              "className": "garrison-priority-list",
+              "rect": [
+                41,
+                383,
+                734.25,
+                38
+              ],
+              "text": "",
+              "style": {
+                "display": "grid",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "6px",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "DIV",
+              "className": "garrison-priority-item",
+              "rect": [
+                41,
+                383,
+                734.25,
+                38
+              ],
+              "text": "",
+              "style": {
+                "display": "grid",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgb(255, 255, 255)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "7px 8px",
+                "margin": "0px",
+                "border": "1px solid rgb(229, 229, 234)",
+                "gap": "7px",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "SPAN",
+              "className": "",
+              "rect": [
+                50,
+                391,
+                22,
+                22
+              ],
+              "text": "1",
+              "style": {
+                "display": "grid",
+                "color": "rgb(255, 255, 255)",
+                "backgroundColor": "rgb(0, 113, 227)",
+                "fontSize": "11px",
+                "fontWeight": "700",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(255, 255, 255)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "STRONG",
+              "className": "",
+              "rect": [
+                81,
+                394.5,
+                664.25,
+                15
+              ],
+              "text": "Fixture Alliance Center",
+              "style": {
+                "display": "block",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "11px",
+                "fontWeight": "700",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "I",
+              "className": "",
+              "rect": [
+                752.25,
+                395,
+                14,
+                14
+              ],
+              "text": "",
+              "style": {
+                "display": "block",
+                "color": "rgb(95, 95, 99)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "11px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(95, 95, 99)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "svg",
+              "className": "ui-icon",
+              "rect": [
+                752.25,
+                395,
+                14,
+                14
+              ],
+              "text": "",
+              "style": {
+                "display": "block",
+                "color": "rgb(95, 95, 99)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "11px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(95, 95, 99)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "path",
+              "className": "",
+              "rect": [
+                756.625,
+                398.5,
+                5.25872802734375,
+                7
+              ],
+              "text": "",
+              "style": {
+                "display": "inline",
+                "color": "rgb(95, 95, 99)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "11px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(95, 95, 99)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "DIV",
+              "className": "garrison-runtime-panel",
+              "rect": [
+                796.25,
+                143,
+                453.75,
+                289
+              ],
+              "text": "",
+              "style": {
+                "display": "grid",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgb(235, 235, 237)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "10px",
+                "margin": "0px",
+                "border": "1px solid rgb(229, 229, 234)",
+                "gap": "9px",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "DIV",
+              "className": "garrison-section-heading",
+              "rect": [
+                807.25,
+                154,
+                431.75,
+                28
+              ],
+              "text": "",
+              "style": {
+                "display": "flex",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "9px",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "STRONG",
+              "className": "",
+              "rect": [
+                807.25,
+                160,
+                119.109375,
+                16
+              ],
+              "text": "Garrison squad order",
+              "style": {
+                "display": "block",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "12px",
+                "fontWeight": "700",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "SPAN",
+              "className": "",
+              "rect": [
+                1211.609375,
+                160.5,
+                27.390625,
+                15
+              ],
+              "text": "1 → 2",
+              "style": {
+                "display": "block",
+                "color": "rgb(95, 95, 99)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "11px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(95, 95, 99)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "DIV",
+              "className": "automation-compact-choice-group automation-squad-priority",
+              "rect": [
+                807.25,
+                191,
+                431.75,
+                38
+              ],
+              "text": "",
+              "style": {
+                "display": "flex",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgb(235, 235, 237)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "2px",
+                "margin": "0px",
+                "border": "1px solid rgb(229, 229, 234)",
+                "gap": "4px",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "DIV",
+              "className": "automation-squad-priority-item selected",
+              "rect": [
+                810.25,
+                194,
+                210.875,
+                32
+              ],
+              "text": "",
+              "style": {
+                "display": "grid",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgb(237, 245, 253)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "5px 8px",
+                "margin": "0px",
+                "border": "0px none rgb(196, 222, 249)",
+                "gap": "5px",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "LABEL",
+              "className": "",
+              "rect": [
+                818.25,
+                199.5,
+                177.875,
+                21
+              ],
+              "text": "",
+              "style": {
+                "display": "flex",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "7px",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "INPUT",
+              "className": "",
+              "rect": [
+                822.25,
+                202.5,
+                15,
+                15
+              ],
+              "text": "",
+              "style": {
+                "display": "block",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgb(255, 255, 255)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "3px 3px 3px 4px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "SPAN",
+              "className": "",
+              "rect": [
+                847.25,
+                201.5,
+                46.765625,
+                17
+              ],
+              "text": "Squad 1",
+              "style": {
+                "display": "block",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "SPAN",
+              "className": "automation-squad-drag-handle",
+              "rect": [
+                1001.125,
+                204,
+                12,
+                12
+              ],
+              "text": "",
+              "style": {
+                "display": "block",
+                "color": "rgb(95, 95, 99)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "16px",
+                "fontWeight": "400",
+                "lineHeight": "16px",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(95, 95, 99)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "svg",
+              "className": "ui-icon",
+              "rect": [
+                1001.125,
+                204,
+                12,
+                12
+              ],
+              "text": "",
+              "style": {
+                "display": "block",
+                "color": "rgb(95, 95, 99)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "16px",
+                "fontWeight": "400",
+                "lineHeight": "16px",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(95, 95, 99)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "path",
+              "className": "",
+              "rect": [
+                1004.875,
+                207,
+                4.50750732421875,
+                6
+              ],
+              "text": "",
+              "style": {
+                "display": "inline",
+                "color": "rgb(95, 95, 99)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "16px",
+                "fontWeight": "400",
+                "lineHeight": "16px",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(95, 95, 99)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "DIV",
+              "className": "automation-squad-priority-item selected",
+              "rect": [
+                1025.125,
+                194,
+                210.875,
+                32
+              ],
+              "text": "",
+              "style": {
+                "display": "grid",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgb(237, 245, 253)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "5px 8px",
+                "margin": "0px",
+                "border": "0px none rgb(196, 222, 249)",
+                "gap": "5px",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "LABEL",
+              "className": "",
+              "rect": [
+                1033.125,
+                199.5,
+                177.875,
+                21
+              ],
+              "text": "",
+              "style": {
+                "display": "flex",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "7px",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "INPUT",
+              "className": "",
+              "rect": [
+                1037.125,
+                202.5,
+                15,
+                15
+              ],
+              "text": "",
+              "style": {
+                "display": "block",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgb(255, 255, 255)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "3px 3px 3px 4px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "SPAN",
+              "className": "",
+              "rect": [
+                1062.125,
+                201.5,
+                46.765625,
+                17
+              ],
+              "text": "Squad 2",
+              "style": {
+                "display": "block",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "SPAN",
+              "className": "automation-squad-drag-handle",
+              "rect": [
+                1216,
+                204,
+                12,
+                12
+              ],
+              "text": "",
+              "style": {
+                "display": "block",
+                "color": "rgb(95, 95, 99)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "16px",
+                "fontWeight": "400",
+                "lineHeight": "16px",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(95, 95, 99)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "svg",
+              "className": "ui-icon",
+              "rect": [
+                1216,
+                204,
+                12,
+                12
+              ],
+              "text": "",
+              "style": {
+                "display": "block",
+                "color": "rgb(95, 95, 99)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "16px",
+                "fontWeight": "400",
+                "lineHeight": "16px",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(95, 95, 99)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "path",
+              "className": "",
+              "rect": [
+                1219.75,
+                207,
+                4.5074462890625,
+                6
+              ],
+              "text": "",
+              "style": {
+                "display": "inline",
+                "color": "rgb(95, 95, 99)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "16px",
+                "fontWeight": "400",
+                "lineHeight": "16px",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(95, 95, 99)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "P",
+              "className": "muted",
+              "rect": [
+                807.25,
+                236,
+                431.75,
+                15
+              ],
+              "text": "Garrison squads are not used by other AFK tasks while managed.",
+              "style": {
+                "display": "block",
+                "color": "rgb(95, 95, 99)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "11px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "-2px 0px 2px",
+                "border": "0px none rgb(95, 95, 99)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "DIV",
+              "className": "garrison-section-heading",
+              "rect": [
+                807.25,
+                262,
+                431.75,
+                28
+              ],
+              "text": "",
+              "style": {
+                "display": "flex",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "9px",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "STRONG",
+              "className": "",
+              "rect": [
+                807.25,
+                268,
+                98.046875,
+                16
+              ],
+              "text": "Current garrisons",
+              "style": {
+                "display": "block",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "12px",
+                "fontWeight": "700",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "SPAN",
+              "className": "",
+              "rect": [
+                1222.84375,
+                268.5,
+                16.15625,
+                15
+              ],
+              "text": "0/1",
+              "style": {
+                "display": "block",
+                "color": "rgb(95, 95, 99)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "11px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(95, 95, 99)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "DIV",
+              "className": "garrison-assignment-list",
+              "rect": [
+                807.25,
+                299,
+                431.75,
+                43
+              ],
+              "text": "",
+              "style": {
+                "display": "grid",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "6px",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "P",
+              "className": "muted",
+              "rect": [
+                807.25,
+                312,
+                431.75,
+                17
+              ],
+              "text": "No active garrison assignment",
+              "style": {
+                "display": "block",
+                "color": "rgb(95, 95, 99)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "13px 0px",
+                "border": "0px none rgb(95, 95, 99)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "DIV",
+              "className": "garrison-actions",
+              "rect": [
+                30,
+                444,
+                1220,
+                46
+              ],
+              "text": "",
+              "style": {
+                "display": "flex",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "10px",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "className": "toggle-row",
+              "rect": [
+                30,
+                444,
+                280,
+                46
+              ],
+              "text": "",
+              "style": {
+                "display": "flex",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgb(235, 235, 237)",
+                "fontSize": "11px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "6px 10px",
+                "margin": "0px",
+                "border": "1px solid rgb(229, 229, 234)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "SPAN",
+              "className": "",
+              "rect": [
+                41,
+                459.5,
+                144.984375,
+                15
+              ],
+              "text": "Stop and recall when disabled",
+              "style": {
+                "display": "block",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "11px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "SPAN",
+              "className": "ui-switch is-on",
+              "rect": [
+                235,
+                451,
+                64,
+                32
+              ],
+              "text": "",
+              "style": {
+                "display": "block",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgb(52, 199, 89)",
+                "fontSize": "11px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "1px solid rgb(46, 193, 83)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "className": "primary-action",
+              "rect": [
+                1180.921875,
+                451.5,
+                69.078125,
+                31
+              ],
+              "text": "Refill now",
+              "style": {
+                "display": "block",
+                "color": "rgb(255, 255, 255)",
+                "backgroundColor": "rgb(0, 113, 227)",
+                "fontSize": "11px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "6px 10px",
+                "margin": "0px",
+                "border": "1px solid rgba(0, 0, 0, 0)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            }
+          ],
+          "screenshot": {
+            "path": "composition-pair-screenshots/garrison-pending-original.png",
+            "sha256": "e9bce0e03304691460987e9eda9675a0f5541ad1255532f2145e97c003db6061"
+          }
+        },
+        "current": {
+          "measured": [
+            {
+              "tag": "DIV",
+              "className": "monster-afk-toolbar",
+              "rect": [
+                17,
+                17,
+                1246,
+                486
+              ],
+              "text": "",
+              "style": {
+                "display": "grid",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "8px",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "ARTICLE",
+              "className": "automation-card monster-afk-compact-card is-selectable is-selected",
+              "rect": [
+                17,
+                17,
+                305.5,
+                58
+              ],
+              "text": "",
+              "style": {
+                "display": "grid",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 113, 227, 0.1)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "6px 10px",
+                "margin": "0px",
+                "border": "1px solid rgb(0, 113, 227)",
+                "gap": "0px",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "DIV",
+              "className": "automation-card-header",
+              "rect": [
+                28,
+                24,
+                283.5,
+                44
+              ],
+              "text": "",
+              "style": {
+                "display": "flex",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "8px",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "DIV",
+              "className": "",
+              "rect": [
+                28,
+                28.453125,
+                82.171875,
+                35.078125
+              ],
+              "text": "",
+              "style": {
+                "display": "grid",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "2px",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "H3",
+              "className": "",
+              "rect": [
+                28,
+                28.453125,
+                82.171875,
+                16.890625
+              ],
+              "text": "Auto Garrison",
+              "style": {
+                "display": "block",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "600",
+                "lineHeight": "16.9px",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "P",
+              "className": "",
+              "rect": [
+                28,
+                47.34375,
+                82.171875,
+                16.1875
+              ],
+              "text": "Garrisoning 0/1",
+              "style": {
+                "display": "block",
+                "color": "rgb(95, 95, 99)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "12px",
+                "fontWeight": "400",
+                "lineHeight": "16.2px",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(95, 95, 99)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "DIV",
+              "className": "monster-afk-compact-actions",
+              "rect": [
+                279.5,
+                24,
+                32,
+                44
+              ],
+              "text": "",
+              "style": {
+                "display": "grid",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "2px",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "className": "active",
+              "rect": [
+                279.5,
+                24,
+                24,
+                24
+              ],
+              "text": "",
+              "style": {
+                "display": "flex",
+                "color": "rgb(0, 113, 227)",
+                "backgroundColor": "rgba(0, 113, 227, 0.1)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(0, 113, 227)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "svg",
+              "className": "ui-icon",
+              "rect": [
+                284.5,
+                29,
+                14,
+                14
+              ],
+              "text": "",
+              "style": {
+                "display": "block",
+                "color": "rgb(0, 113, 227)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(0, 113, 227)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "circle",
+              "className": "",
+              "rect": [
+                289.3125,
+                33.8125,
+                4.375,
+                4.375
+              ],
+              "text": "",
+              "style": {
+                "display": "inline",
+                "color": "rgb(0, 113, 227)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(0, 113, 227)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "path",
+              "className": "",
+              "rect": [
+                285.8125,
+                30.3125,
+                11.375,
+                11.375
+              ],
+              "text": "",
+              "style": {
+                "display": "inline",
+                "color": "rgb(0, 113, 227)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(0, 113, 227)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "LABEL",
+              "className": "monster-afk-compact-toggle is-enabled",
+              "rect": [
+                279.5,
+                50,
+                32,
+                18
+              ],
+              "text": "",
+              "style": {
+                "display": "flex",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "INPUT",
+              "className": "",
+              "rect": [
+                283.5,
+                58.5,
+                1,
+                1
+              ],
+              "text": "",
+              "style": {
+                "display": "block",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgb(255, 255, 255)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "3px 3px 3px 4px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "normal",
+                "opacity": "0"
+              }
+            },
+            {
+              "tag": "SPAN",
+              "className": "monster-afk-master-track",
+              "rect": [
+                279.5,
+                50,
+                32,
+                18
+              ],
+              "text": "",
+              "style": {
+                "display": "block",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgb(52, 199, 89)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "1px solid rgb(46, 193, 83)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "SECTION",
+              "className": "automation-card monster-afk-toolbar-settings garrison-settings",
+              "rect": [
+                17,
+                83,
+                1246,
+                420
+              ],
+              "text": "",
+              "style": {
+                "display": "grid",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgb(255, 255, 255)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "12px",
+                "margin": "0px",
+                "border": "1px solid rgb(229, 229, 234)",
+                "gap": "12px",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "DIV",
+              "className": "monster-afk-toolbar-settings-heading",
+              "rect": [
+                30,
+                96,
+                1220,
+                35
+              ],
+              "text": "",
+              "style": {
+                "display": "flex",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "12px",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "DIV",
+              "className": "",
+              "rect": [
+                30,
+                96,
+                333.015625,
+                35
+              ],
+              "text": "",
+              "style": {
+                "display": "grid",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "3px",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "STRONG",
+              "className": "",
+              "rect": [
+                30,
+                96,
+                333.015625,
+                17
+              ],
+              "text": "Auto Garrison Settings",
+              "style": {
+                "display": "block",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "700",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "SPAN",
+              "className": "",
+              "rect": [
+                30,
+                116,
+                333.015625,
+                15
+              ],
+              "text": "Starts immediately when enabled and only uses selected idle squads.",
+              "style": {
+                "display": "block",
+                "color": "rgb(95, 95, 99)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "11px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(95, 95, 99)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "SPAN",
+              "className": "garrison-count",
+              "rect": [
+                1136.765625,
+                101.5,
+                113.234375,
+                24
+              ],
+              "text": "1 targets selected",
+              "style": {
+                "display": "block",
+                "color": "rgb(95, 95, 99)",
+                "backgroundColor": "rgba(24, 160, 122, 0.09)",
+                "fontSize": "12px",
+                "fontWeight": "700",
+                "lineHeight": "normal",
+                "padding": "4px 7px",
+                "margin": "0px",
+                "border": "0px none rgb(95, 95, 99)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "DIV",
+              "className": "garrison-settings-grid",
+              "rect": [
+                30,
+                143,
+                1220,
+                289
+              ],
+              "text": "",
+              "style": {
+                "display": "grid",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "10px",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "DIV",
+              "className": "garrison-target-panel",
+              "rect": [
+                30,
+                143,
+                756.25,
+                289
+              ],
+              "text": "",
+              "style": {
+                "display": "grid",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgb(235, 235, 237)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "10px",
+                "margin": "0px",
+                "border": "1px solid rgb(229, 229, 234)",
+                "gap": "9px",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "DIV",
+              "className": "garrison-section-heading",
+              "rect": [
+                41,
+                154,
+                734.25,
+                28
+              ],
+              "text": "",
+              "style": {
+                "display": "flex",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "9px",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "STRONG",
+              "className": "",
+              "rect": [
+                41,
+                160,
+                100.28125,
+                16
+              ],
+              "text": "Alliance buildings",
+              "style": {
+                "display": "block",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "12px",
+                "fontWeight": "700",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "SPAN",
+              "className": "",
+              "rect": [
+                759.09375,
+                160.5,
+                16.15625,
+                15
+              ],
+              "text": "0/0",
+              "style": {
+                "display": "block",
+                "color": "rgb(95, 95, 99)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "11px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(95, 95, 99)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "DIV",
+              "className": "garrison-building-grid",
+              "rect": [
+                41,
+                191,
+                734.25,
+                60
+              ],
+              "text": "",
+              "style": {
+                "display": "grid",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "6px",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "P",
+              "className": "muted",
+              "rect": [
+                41,
+                204,
+                142.046875,
+                34
+              ],
+              "text": "No available alliance buildings were found.",
+              "style": {
+                "display": "block",
+                "color": "rgb(95, 95, 99)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "13px 0px",
+                "border": "0px none rgb(95, 95, 99)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "DIV",
+              "className": "garrison-section-heading",
+              "rect": [
+                41,
+                260,
+                734.25,
+                28
+              ],
+              "text": "",
+              "style": {
+                "display": "flex",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "9px",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "STRONG",
+              "className": "",
+              "rect": [
+                41,
+                266,
+                79.203125,
+                16
+              ],
+              "text": "Selected allies",
+              "style": {
+                "display": "block",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "12px",
+                "fontWeight": "700",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "className": "",
+              "rect": [
+                693.875,
+                260,
+                81.375,
+                28
+              ],
+              "text": "Choose allies",
+              "style": {
+                "display": "block",
+                "color": "rgb(0, 113, 227)",
+                "backgroundColor": "rgb(255, 255, 255)",
+                "fontSize": "11px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "4px 8px",
+                "margin": "0px",
+                "border": "1px solid rgb(229, 229, 234)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "DIV",
+              "className": "garrison-selected-allies",
+              "rect": [
+                41,
+                297,
+                734.25,
+                40
+              ],
+              "text": "",
+              "style": {
+                "display": "flex",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgb(255, 255, 255)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "7px",
+                "margin": "0px",
+                "border": "1px dashed rgb(209, 209, 214)",
+                "gap": "6px",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "SPAN",
+              "className": "muted",
+              "rect": [
+                49,
+                308.5,
+                99.96875,
+                17
+              ],
+              "text": "No allies selected",
+              "style": {
+                "display": "block",
+                "color": "rgb(95, 95, 99)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(95, 95, 99)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "DIV",
+              "className": "garrison-section-heading",
+              "rect": [
+                41,
+                346,
+                734.25,
+                28
+              ],
+              "text": "",
+              "style": {
+                "display": "flex",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "9px",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "STRONG",
+              "className": "",
+              "rect": [
+                41,
+                352,
+                81.46875,
+                16
+              ],
+              "text": "Target priority",
+              "style": {
+                "display": "block",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "12px",
+                "fontWeight": "700",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "SPAN",
+              "className": "",
+              "rect": [
+                699.53125,
+                352.5,
+                75.71875,
+                15
+              ],
+              "text": "Drag to reorder",
+              "style": {
+                "display": "block",
+                "color": "rgb(95, 95, 99)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "11px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(95, 95, 99)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "DIV",
+              "className": "garrison-priority-list",
+              "rect": [
+                41,
+                383,
+                734.25,
+                38
+              ],
+              "text": "",
+              "style": {
+                "display": "grid",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "6px",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "DIV",
+              "className": "garrison-priority-item",
+              "rect": [
+                41,
+                383,
+                734.25,
+                38
+              ],
+              "text": "",
+              "style": {
+                "display": "grid",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgb(255, 255, 255)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "7px 8px",
+                "margin": "0px",
+                "border": "1px solid rgb(229, 229, 234)",
+                "gap": "7px",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "SPAN",
+              "className": "",
+              "rect": [
+                50,
+                391,
+                22,
+                22
+              ],
+              "text": "1",
+              "style": {
+                "display": "grid",
+                "color": "rgb(255, 255, 255)",
+                "backgroundColor": "rgb(0, 113, 227)",
+                "fontSize": "11px",
+                "fontWeight": "700",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(255, 255, 255)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "STRONG",
+              "className": "",
+              "rect": [
+                81,
+                394.5,
+                664.25,
+                15
+              ],
+              "text": "Fixture Alliance Center",
+              "style": {
+                "display": "block",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "11px",
+                "fontWeight": "700",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "I",
+              "className": "",
+              "rect": [
+                752.25,
+                395,
+                14,
+                14
+              ],
+              "text": "",
+              "style": {
+                "display": "block",
+                "color": "rgb(95, 95, 99)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "11px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(95, 95, 99)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "svg",
+              "className": "ui-icon",
+              "rect": [
+                752.25,
+                395,
+                14,
+                14
+              ],
+              "text": "",
+              "style": {
+                "display": "block",
+                "color": "rgb(95, 95, 99)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "11px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(95, 95, 99)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "path",
+              "className": "",
+              "rect": [
+                756.625,
+                398.5,
+                5.25872802734375,
+                7
+              ],
+              "text": "",
+              "style": {
+                "display": "inline",
+                "color": "rgb(95, 95, 99)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "11px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(95, 95, 99)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "DIV",
+              "className": "garrison-runtime-panel",
+              "rect": [
+                796.25,
+                143,
+                453.75,
+                289
+              ],
+              "text": "",
+              "style": {
+                "display": "grid",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgb(235, 235, 237)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "10px",
+                "margin": "0px",
+                "border": "1px solid rgb(229, 229, 234)",
+                "gap": "9px",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "DIV",
+              "className": "garrison-section-heading",
+              "rect": [
+                807.25,
+                154,
+                431.75,
+                28
+              ],
+              "text": "",
+              "style": {
+                "display": "flex",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "9px",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "STRONG",
+              "className": "",
+              "rect": [
+                807.25,
+                160,
+                119.109375,
+                16
+              ],
+              "text": "Garrison squad order",
+              "style": {
+                "display": "block",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "12px",
+                "fontWeight": "700",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "SPAN",
+              "className": "",
+              "rect": [
+                1211.609375,
+                160.5,
+                27.390625,
+                15
+              ],
+              "text": "1 → 2",
+              "style": {
+                "display": "block",
+                "color": "rgb(95, 95, 99)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "11px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(95, 95, 99)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "DIV",
+              "className": "automation-compact-choice-group automation-squad-priority",
+              "rect": [
+                807.25,
+                191,
+                431.75,
+                38
+              ],
+              "text": "",
+              "style": {
+                "display": "flex",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgb(235, 235, 237)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "2px",
+                "margin": "0px",
+                "border": "1px solid rgb(229, 229, 234)",
+                "gap": "4px",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "DIV",
+              "className": "automation-squad-priority-item selected",
+              "rect": [
+                810.25,
+                194,
+                210.875,
+                32
+              ],
+              "text": "",
+              "style": {
+                "display": "grid",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgb(237, 245, 253)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "5px 8px",
+                "margin": "0px",
+                "border": "0px none rgb(196, 222, 249)",
+                "gap": "5px",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "LABEL",
+              "className": "",
+              "rect": [
+                818.25,
+                199.5,
+                177.875,
+                21
+              ],
+              "text": "",
+              "style": {
+                "display": "flex",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "7px",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "INPUT",
+              "className": "",
+              "rect": [
+                822.25,
+                202.5,
+                15,
+                15
+              ],
+              "text": "",
+              "style": {
+                "display": "block",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgb(255, 255, 255)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "3px 3px 3px 4px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "SPAN",
+              "className": "",
+              "rect": [
+                847.25,
+                201.5,
+                46.765625,
+                17
+              ],
+              "text": "Squad 1",
+              "style": {
+                "display": "block",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "SPAN",
+              "className": "automation-squad-drag-handle",
+              "rect": [
+                1001.125,
+                204,
+                12,
+                12
+              ],
+              "text": "",
+              "style": {
+                "display": "block",
+                "color": "rgb(95, 95, 99)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "16px",
+                "fontWeight": "400",
+                "lineHeight": "16px",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(95, 95, 99)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "svg",
+              "className": "ui-icon",
+              "rect": [
+                1001.125,
+                204,
+                12,
+                12
+              ],
+              "text": "",
+              "style": {
+                "display": "block",
+                "color": "rgb(95, 95, 99)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "16px",
+                "fontWeight": "400",
+                "lineHeight": "16px",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(95, 95, 99)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "path",
+              "className": "",
+              "rect": [
+                1004.875,
+                207,
+                4.50750732421875,
+                6
+              ],
+              "text": "",
+              "style": {
+                "display": "inline",
+                "color": "rgb(95, 95, 99)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "16px",
+                "fontWeight": "400",
+                "lineHeight": "16px",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(95, 95, 99)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "DIV",
+              "className": "automation-squad-priority-item selected",
+              "rect": [
+                1025.125,
+                194,
+                210.875,
+                32
+              ],
+              "text": "",
+              "style": {
+                "display": "grid",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgb(237, 245, 253)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "5px 8px",
+                "margin": "0px",
+                "border": "0px none rgb(196, 222, 249)",
+                "gap": "5px",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "LABEL",
+              "className": "",
+              "rect": [
+                1033.125,
+                199.5,
+                177.875,
+                21
+              ],
+              "text": "",
+              "style": {
+                "display": "flex",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "7px",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "INPUT",
+              "className": "",
+              "rect": [
+                1037.125,
+                202.5,
+                15,
+                15
+              ],
+              "text": "",
+              "style": {
+                "display": "block",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgb(255, 255, 255)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "3px 3px 3px 4px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "SPAN",
+              "className": "",
+              "rect": [
+                1062.125,
+                201.5,
+                46.765625,
+                17
+              ],
+              "text": "Squad 2",
+              "style": {
+                "display": "block",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "SPAN",
+              "className": "automation-squad-drag-handle",
+              "rect": [
+                1216,
+                204,
+                12,
+                12
+              ],
+              "text": "",
+              "style": {
+                "display": "block",
+                "color": "rgb(95, 95, 99)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "16px",
+                "fontWeight": "400",
+                "lineHeight": "16px",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(95, 95, 99)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "svg",
+              "className": "ui-icon",
+              "rect": [
+                1216,
+                204,
+                12,
+                12
+              ],
+              "text": "",
+              "style": {
+                "display": "block",
+                "color": "rgb(95, 95, 99)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "16px",
+                "fontWeight": "400",
+                "lineHeight": "16px",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(95, 95, 99)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "path",
+              "className": "",
+              "rect": [
+                1219.75,
+                207,
+                4.5074462890625,
+                6
+              ],
+              "text": "",
+              "style": {
+                "display": "inline",
+                "color": "rgb(95, 95, 99)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "16px",
+                "fontWeight": "400",
+                "lineHeight": "16px",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(95, 95, 99)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "P",
+              "className": "muted",
+              "rect": [
+                807.25,
+                236,
+                431.75,
+                15
+              ],
+              "text": "Garrison squads are not used by other AFK tasks while managed.",
+              "style": {
+                "display": "block",
+                "color": "rgb(95, 95, 99)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "11px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "-2px 0px 2px",
+                "border": "0px none rgb(95, 95, 99)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "DIV",
+              "className": "garrison-section-heading",
+              "rect": [
+                807.25,
+                262,
+                431.75,
+                28
+              ],
+              "text": "",
+              "style": {
+                "display": "flex",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "9px",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "STRONG",
+              "className": "",
+              "rect": [
+                807.25,
+                268,
+                98.046875,
+                16
+              ],
+              "text": "Current garrisons",
+              "style": {
+                "display": "block",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "12px",
+                "fontWeight": "700",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "SPAN",
+              "className": "",
+              "rect": [
+                1222.84375,
+                268.5,
+                16.15625,
+                15
+              ],
+              "text": "0/1",
+              "style": {
+                "display": "block",
+                "color": "rgb(95, 95, 99)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "11px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(95, 95, 99)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "DIV",
+              "className": "garrison-assignment-list",
+              "rect": [
+                807.25,
+                299,
+                431.75,
+                43
+              ],
+              "text": "",
+              "style": {
+                "display": "grid",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "6px",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "P",
+              "className": "muted",
+              "rect": [
+                807.25,
+                312,
+                431.75,
+                17
+              ],
+              "text": "No active garrison assignment",
+              "style": {
+                "display": "block",
+                "color": "rgb(95, 95, 99)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "13px 0px",
+                "border": "0px none rgb(95, 95, 99)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "DIV",
+              "className": "garrison-actions",
+              "rect": [
+                30,
+                444,
+                1220,
+                46
+              ],
+              "text": "",
+              "style": {
+                "display": "flex",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "10px",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "className": "toggle-row",
+              "rect": [
+                30,
+                444,
+                280,
+                46
+              ],
+              "text": "",
+              "style": {
+                "display": "flex",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgb(235, 235, 237)",
+                "fontSize": "11px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "6px 10px",
+                "margin": "0px",
+                "border": "1px solid rgb(229, 229, 234)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "SPAN",
+              "className": "",
+              "rect": [
+                41,
+                459.5,
+                144.984375,
+                15
+              ],
+              "text": "Stop and recall when disabled",
+              "style": {
+                "display": "block",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "11px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "SPAN",
+              "className": "ui-switch is-on",
+              "rect": [
+                235,
+                451,
+                64,
+                32
+              ],
+              "text": "",
+              "style": {
+                "display": "block",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgb(52, 199, 89)",
+                "fontSize": "11px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "1px solid rgb(46, 193, 83)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "className": "primary-action",
+              "rect": [
+                1180.921875,
+                451.5,
+                69.078125,
+                31
+              ],
+              "text": "Refill now",
+              "style": {
+                "display": "block",
+                "color": "rgb(255, 255, 255)",
+                "backgroundColor": "rgb(0, 113, 227)",
+                "fontSize": "11px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "6px 10px",
+                "margin": "0px",
+                "border": "1px solid rgba(0, 0, 0, 0)",
+                "gap": "normal",
+                "opacity": "0.45"
+              }
+            }
+          ],
+          "screenshot": {
+            "path": "composition-pair-screenshots/garrison-pending-current.png",
+            "sha256": "25cd1c5769e20671ff0033fa927ded069a0b9658aefdc5afb86014ffbc964535"
+          }
+        }
+      },
+      "measurementDifferenceCount": 1,
+      "pngBytesEqual": false
+    },
+    {
+      "id": "zombie-waiting",
+      "allowedDifference": "None expected for this source-local waiting composition.",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "sides": {
+        "original": {
+          "measured": [
+            {
+              "tag": "DIV",
+              "className": "monster-afk-toolbar",
+              "rect": [
+                17,
+                17,
+                1246,
+                162
+              ],
+              "text": "",
+              "style": {
+                "display": "grid",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "8px",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "ARTICLE",
+              "className": "automation-card monster-afk-compact-card is-selectable is-selected",
+              "rect": [
+                17,
+                17,
+                305.5,
+                58
+              ],
+              "text": "",
+              "style": {
+                "display": "grid",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 113, 227, 0.1)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "6px 10px",
+                "margin": "0px",
+                "border": "1px solid rgb(0, 113, 227)",
+                "gap": "0px",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "DIV",
+              "className": "automation-card-header",
+              "rect": [
+                28,
+                24,
+                283.5,
+                44
+              ],
+              "text": "",
+              "style": {
+                "display": "flex",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "8px",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "DIV",
+              "className": "",
+              "rect": [
+                28,
+                28.453125,
+                123.0625,
+                35.078125
+              ],
+              "text": "",
+              "style": {
+                "display": "grid",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "2px",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "H3",
+              "className": "",
+              "rect": [
+                28,
+                28.453125,
+                123.0625,
+                16.890625
+              ],
+              "text": "Zombie Bus Garrison",
+              "style": {
+                "display": "block",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "600",
+                "lineHeight": "16.9px",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "P",
+              "className": "",
+              "rect": [
+                28,
+                47.34375,
+                123.0625,
+                16.1875
+              ],
+              "text": "Waiting for an attack",
+              "style": {
+                "display": "block",
+                "color": "rgb(95, 95, 99)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "12px",
+                "fontWeight": "400",
+                "lineHeight": "16.2px",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(95, 95, 99)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "DIV",
+              "className": "monster-afk-compact-actions",
+              "rect": [
+                279.5,
+                24,
+                32,
+                44
+              ],
+              "text": "",
+              "style": {
+                "display": "grid",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "2px",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "className": "active",
+              "rect": [
+                279.5,
+                24,
+                24,
+                24
+              ],
+              "text": "",
+              "style": {
+                "display": "flex",
+                "color": "rgb(0, 113, 227)",
+                "backgroundColor": "rgba(0, 113, 227, 0.1)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(0, 113, 227)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "svg",
+              "className": "ui-icon",
+              "rect": [
+                284.5,
+                29,
+                14,
+                14
+              ],
+              "text": "",
+              "style": {
+                "display": "block",
+                "color": "rgb(0, 113, 227)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(0, 113, 227)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "circle",
+              "className": "",
+              "rect": [
+                289.3125,
+                33.8125,
+                4.375,
+                4.375
+              ],
+              "text": "",
+              "style": {
+                "display": "inline",
+                "color": "rgb(0, 113, 227)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(0, 113, 227)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "path",
+              "className": "",
+              "rect": [
+                285.8125,
+                30.3125,
+                11.375,
+                11.375
+              ],
+              "text": "",
+              "style": {
+                "display": "inline",
+                "color": "rgb(0, 113, 227)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(0, 113, 227)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "LABEL",
+              "className": "monster-afk-compact-toggle is-enabled",
+              "rect": [
+                279.5,
+                50,
+                32,
+                18
+              ],
+              "text": "",
+              "style": {
+                "display": "flex",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "INPUT",
+              "className": "",
+              "rect": [
+                283.5,
+                58.5,
+                1,
+                1
+              ],
+              "text": "",
+              "style": {
+                "display": "block",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgb(255, 255, 255)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "3px 3px 3px 4px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "normal",
+                "opacity": "0"
+              }
+            },
+            {
+              "tag": "SPAN",
+              "className": "monster-afk-master-track",
+              "rect": [
+                279.5,
+                50,
+                32,
+                18
+              ],
+              "text": "",
+              "style": {
+                "display": "block",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgb(52, 199, 89)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "1px solid rgb(46, 193, 83)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "SECTION",
+              "className": "automation-card monster-afk-toolbar-settings",
+              "rect": [
+                17,
+                83,
+                1246,
+                96
+              ],
+              "text": "",
+              "style": {
+                "display": "grid",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgb(255, 255, 255)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "12px",
+                "margin": "0px",
+                "border": "1px solid rgb(229, 229, 234)",
+                "gap": "10px",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "DIV",
+              "className": "monster-afk-toolbar-settings-heading",
+              "rect": [
+                30,
+                96,
+                1220,
+                17
+              ],
+              "text": "",
+              "style": {
+                "display": "flex",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "12px",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "STRONG",
+              "className": "",
+              "rect": [
+                30,
+                96,
+                127.5,
+                17
+              ],
+              "text": "Zombie Bus Garrison",
+              "style": {
+                "display": "block",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "700",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "P",
+              "className": "muted",
+              "rect": [
+                30,
+                136,
+                1220,
+                17
+              ],
+              "text": "Keep the strongest squad home; prioritize gold buses. Recall after confirmed battle completion, or after 90 seconds.",
+              "style": {
+                "display": "block",
+                "color": "rgb(95, 95, 99)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "13px 0px",
+                "border": "0px none rgb(95, 95, 99)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            }
+          ],
+          "screenshot": {
+            "path": "composition-pair-screenshots/zombie-waiting-original.png",
+            "sha256": "9bd0e332687d2bbe628bcb5feed9e73f234b84892a57031da11b174dff3bce74"
+          }
+        },
+        "current": {
+          "measured": [
+            {
+              "tag": "DIV",
+              "className": "monster-afk-toolbar",
+              "rect": [
+                17,
+                17,
+                1246,
+                162
+              ],
+              "text": "",
+              "style": {
+                "display": "grid",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "8px",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "ARTICLE",
+              "className": "automation-card monster-afk-compact-card is-selectable is-selected",
+              "rect": [
+                17,
+                17,
+                305.5,
+                58
+              ],
+              "text": "",
+              "style": {
+                "display": "grid",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 113, 227, 0.1)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "6px 10px",
+                "margin": "0px",
+                "border": "1px solid rgb(0, 113, 227)",
+                "gap": "0px",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "DIV",
+              "className": "automation-card-header",
+              "rect": [
+                28,
+                24,
+                283.5,
+                44
+              ],
+              "text": "",
+              "style": {
+                "display": "flex",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "8px",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "DIV",
+              "className": "",
+              "rect": [
+                28,
+                28.453125,
+                123.0625,
+                35.078125
+              ],
+              "text": "",
+              "style": {
+                "display": "grid",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "2px",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "H3",
+              "className": "",
+              "rect": [
+                28,
+                28.453125,
+                123.0625,
+                16.890625
+              ],
+              "text": "Zombie Bus Garrison",
+              "style": {
+                "display": "block",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "600",
+                "lineHeight": "16.9px",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "P",
+              "className": "",
+              "rect": [
+                28,
+                47.34375,
+                123.0625,
+                16.1875
+              ],
+              "text": "Waiting for an attack",
+              "style": {
+                "display": "block",
+                "color": "rgb(95, 95, 99)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "12px",
+                "fontWeight": "400",
+                "lineHeight": "16.2px",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(95, 95, 99)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "DIV",
+              "className": "monster-afk-compact-actions",
+              "rect": [
+                279.5,
+                24,
+                32,
+                44
+              ],
+              "text": "",
+              "style": {
+                "display": "grid",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "2px",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "className": "active",
+              "rect": [
+                279.5,
+                24,
+                24,
+                24
+              ],
+              "text": "",
+              "style": {
+                "display": "flex",
+                "color": "rgb(0, 113, 227)",
+                "backgroundColor": "rgba(0, 113, 227, 0.1)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(0, 113, 227)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "svg",
+              "className": "ui-icon",
+              "rect": [
+                284.5,
+                29,
+                14,
+                14
+              ],
+              "text": "",
+              "style": {
+                "display": "block",
+                "color": "rgb(0, 113, 227)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(0, 113, 227)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "circle",
+              "className": "",
+              "rect": [
+                289.3125,
+                33.8125,
+                4.375,
+                4.375
+              ],
+              "text": "",
+              "style": {
+                "display": "inline",
+                "color": "rgb(0, 113, 227)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(0, 113, 227)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "path",
+              "className": "",
+              "rect": [
+                285.8125,
+                30.3125,
+                11.375,
+                11.375
+              ],
+              "text": "",
+              "style": {
+                "display": "inline",
+                "color": "rgb(0, 113, 227)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(0, 113, 227)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "LABEL",
+              "className": "monster-afk-compact-toggle is-enabled",
+              "rect": [
+                279.5,
+                50,
+                32,
+                18
+              ],
+              "text": "",
+              "style": {
+                "display": "flex",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "INPUT",
+              "className": "",
+              "rect": [
+                283.5,
+                58.5,
+                1,
+                1
+              ],
+              "text": "",
+              "style": {
+                "display": "block",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgb(255, 255, 255)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "3px 3px 3px 4px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "normal",
+                "opacity": "0"
+              }
+            },
+            {
+              "tag": "SPAN",
+              "className": "monster-afk-master-track",
+              "rect": [
+                279.5,
+                50,
+                32,
+                18
+              ],
+              "text": "",
+              "style": {
+                "display": "block",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgb(52, 199, 89)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "1px solid rgb(46, 193, 83)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "SECTION",
+              "className": "automation-card monster-afk-toolbar-settings",
+              "rect": [
+                17,
+                83,
+                1246,
+                96
+              ],
+              "text": "",
+              "style": {
+                "display": "grid",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgb(255, 255, 255)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "12px",
+                "margin": "0px",
+                "border": "1px solid rgb(229, 229, 234)",
+                "gap": "10px",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "DIV",
+              "className": "monster-afk-toolbar-settings-heading",
+              "rect": [
+                30,
+                96,
+                1220,
+                17
+              ],
+              "text": "",
+              "style": {
+                "display": "flex",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "12px",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "STRONG",
+              "className": "",
+              "rect": [
+                30,
+                96,
+                127.5,
+                17
+              ],
+              "text": "Zombie Bus Garrison",
+              "style": {
+                "display": "block",
+                "color": "rgb(29, 29, 31)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "700",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "0px",
+                "border": "0px none rgb(29, 29, 31)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            },
+            {
+              "tag": "P",
+              "className": "muted",
+              "rect": [
+                30,
+                136,
+                1220,
+                17
+              ],
+              "text": "Keep the strongest squad home; prioritize gold buses. Recall after confirmed battle completion, or after 90 seconds.",
+              "style": {
+                "display": "block",
+                "color": "rgb(95, 95, 99)",
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "fontSize": "13px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "padding": "0px",
+                "margin": "13px 0px",
+                "border": "0px none rgb(95, 95, 99)",
+                "gap": "normal",
+                "opacity": "1"
+              }
+            }
+          ],
+          "screenshot": {
+            "path": "composition-pair-screenshots/zombie-waiting-current.png",
+            "sha256": "9bd0e332687d2bbe628bcb5feed9e73f234b84892a57031da11b174dff3bce74"
+          }
+        }
+      },
+      "measurementDifferenceCount": 0,
+      "pngBytesEqual": true
+    }
+  ],
+  "console": []
+}

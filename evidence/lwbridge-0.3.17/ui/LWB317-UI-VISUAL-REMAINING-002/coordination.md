@@ -18,5 +18,13 @@ currently listening. No worker may control or stop the owner listener.
   before creating its assigned file. The directory was verified empty; ownership is
   returned to the coordinating worker. No child production/Git/browser changes exist.
 
+Milestone-2 follow-up used two independent read-only reviewers. Their original review
+files are intentionally preserved as pre-fix findings; coordinator corrections after
+those reports close the listed blockers and are covered by the fresh task-local
+validator/browser/composition-pair packets. Attempts to wake the sleeping reviewers
+for a post-fix pass were temporarily rejected by the worker runtime during the chat
+handoff transition, so those historical reports must not be mistaken for the current
+production verdict.
+
 The coordinator independently verified all worker-reported facts against parent Unit C
 and the exact recovered Automation source before taking over the empty evidence path.

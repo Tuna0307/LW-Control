@@ -1,0 +1,1391 @@
+{
+  "marker": "LWB317_REMAINING_M2_PROFILE_FAILING_BASELINE",
+  "immutableBaseline": true,
+  "source": {
+    "asset": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/SquadPanel-HC3-DJei.js",
+    "sha256": "ED466E353AA896D8C3FC783FF1802930156FB9E9EB54327AEF73F2FF86FA06C7",
+    "function": "I",
+    "utf8ByteOffset": 28070,
+    "byteLength": 22554
+  },
+  "current": {
+    "path": "src/LWBridge.UI-0.3.17/src/SquadsPage.jsx",
+    "sha256": "9A6FEC76B71513F975F1669DE82B7DFCB1BE65E9C483C37E7D4ACA54F0E5919E"
+  },
+  "cases": [
+    {
+      "id": "en-runtime",
+      "original": {
+        "tag": "div",
+        "className": "monster-afk-profile-card active  ",
+        "text": "EnabledRuntime ProfileJoin Alliance ralliesAny level · Any distanceLive map · Join Alliance rallies · Bound squads: 1, 2Squad 1: Waiting to join · Fixture Leader · Join in 4s · 2/3 · The action could not be completed.Squad 2: Completed · 3/3Delete",
+        "statusRows": [
+          {
+            "className": "status-ok",
+            "text": "Squad 1: Waiting to join · Fixture Leader · Join in 4s · 2/3 · The action could not be completed."
+          },
+          {
+            "className": "muted",
+            "text": "Squad 2: Completed · 3/3"
+          }
+        ],
+        "buttons": [
+          {
+            "className": "monster-afk-profile-select",
+            "disabled": false,
+            "text": "Runtime ProfileJoin Alliance ralliesAny level · Any distanceLive map · Join Alliance rallies · Bound squads: 1, 2Squad 1: Waiting to join · Fixture Leader · Join in 4s · 2/3 · The action could not be completed.Squad 2: Completed · 3/3"
+          },
+          {
+            "className": "danger",
+            "disabled": false,
+            "text": "Delete"
+          },
+          {
+            "className": "monster-afk-profile-drag",
+            "disabled": false,
+            "text": "",
+            "draggable": true
+          }
+        ],
+        "inputs": [
+          {
+            "type": "checkbox",
+            "checked": true,
+            "disabled": false
+          }
+        ],
+        "stable": {
+          "type": "div",
+          "props": {
+            "className": "monster-afk-profile-card active  "
+          },
+          "children": [
+            {
+              "type": "label",
+              "props": {
+                "className": "monster-afk-enabled is-enabled "
+              },
+              "children": [
+                {
+                  "type": "input",
+                  "props": {
+                    "type": "checkbox",
+                    "checked": true,
+                    "disabled": false
+                  },
+                  "children": []
+                },
+                {
+                  "type": "span",
+                  "props": {
+                    "className": "monster-afk-enabled-track",
+                    "aria-hidden": "true"
+                  },
+                  "children": []
+                },
+                {
+                  "type": "span",
+                  "props": {},
+                  "children": [
+                    "Enabled"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "button",
+              "props": {
+                "type": "button",
+                "className": "monster-afk-profile-select",
+                "aria-pressed": true
+              },
+              "children": [
+                {
+                  "type": "span",
+                  "props": {
+                    "className": "monster-afk-profile-heading"
+                  },
+                  "children": [
+                    {
+                      "type": "strong",
+                      "props": {},
+                      "children": [
+                        "Runtime Profile"
+                      ]
+                    },
+                    {
+                      "type": "span",
+                      "props": {
+                        "className": "monster-afk-mode-badge join"
+                      },
+                      "children": [
+                        "Join Alliance rallies"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "span",
+                  "props": {},
+                  "children": [
+                    "Any level",
+                    " · ",
+                    "Any distance"
+                  ]
+                },
+                {
+                  "type": "span",
+                  "props": {},
+                  "children": [
+                    "Live map",
+                    " · ",
+                    "Join Alliance rallies",
+                    " · ",
+                    "Bound squads: 1, 2"
+                  ]
+                },
+                {
+                  "type": "span",
+                  "props": {
+                    "className": "status-ok"
+                  },
+                  "children": [
+                    "Squad 1",
+                    ": ",
+                    "Waiting to join",
+                    " · Fixture Leader · Join in 4s",
+                    " · 2/3",
+                    " · The action could not be completed."
+                  ]
+                },
+                {
+                  "type": "span",
+                  "props": {
+                    "className": "muted"
+                  },
+                  "children": [
+                    "Squad 2",
+                    ": ",
+                    "Completed",
+                    " · 3/3",
+                    ""
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "button",
+              "props": {
+                "className": "danger",
+                "disabled": false
+              },
+              "children": [
+                "Delete"
+              ]
+            },
+            {
+              "type": "button",
+              "props": {
+                "type": "button",
+                "className": "monster-afk-profile-drag",
+                "disabled": false,
+                "draggable": true,
+                "aria-label": "Reorder Runtime Profile (drag or press Up/Down)",
+                "title": "Reorder Runtime Profile (drag or press Up/Down)"
+              },
+              "children": [
+                {
+                  "type": "SourceIcon",
+                  "props": {
+                    "name": "drag"
+                  },
+                  "children": []
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "current": {
+        "tag": "article",
+        "className": "monster-afk-profile-card active ",
+        "text": "EnabledRuntime ProfileJoin Alliance ralliesAny level · Any distanceLive map · Join Alliance rallies · Bound squads: 1, 2Delete↕",
+        "statusRows": [],
+        "buttons": [
+          {
+            "className": "monster-afk-profile-select",
+            "disabled": false,
+            "text": "Runtime ProfileJoin Alliance ralliesAny level · Any distanceLive map · Join Alliance rallies · Bound squads: 1, 2"
+          },
+          {
+            "className": "danger",
+            "disabled": false,
+            "text": "Delete"
+          },
+          {
+            "className": "monster-afk-profile-drag",
+            "disabled": false,
+            "text": "↕",
+            "draggable": true
+          }
+        ],
+        "inputs": [
+          {
+            "type": "checkbox",
+            "checked": true,
+            "disabled": false
+          }
+        ],
+        "stable": {
+          "type": "article",
+          "props": {
+            "className": "monster-afk-profile-card active "
+          },
+          "children": [
+            {
+              "type": "label",
+              "props": {
+                "className": "monster-afk-enabled is-enabled "
+              },
+              "children": [
+                {
+                  "type": "input",
+                  "props": {
+                    "type": "checkbox",
+                    "checked": true,
+                    "disabled": false
+                  },
+                  "children": []
+                },
+                {
+                  "type": "span",
+                  "props": {
+                    "className": "monster-afk-enabled-track",
+                    "aria-hidden": "true"
+                  },
+                  "children": []
+                },
+                {
+                  "type": "span",
+                  "props": {},
+                  "children": [
+                    "Enabled"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "button",
+              "props": {
+                "type": "button",
+                "className": "monster-afk-profile-select",
+                "aria-pressed": true
+              },
+              "children": [
+                {
+                  "type": "span",
+                  "props": {
+                    "className": "monster-afk-profile-heading"
+                  },
+                  "children": [
+                    {
+                      "type": "strong",
+                      "props": {},
+                      "children": [
+                        "Runtime Profile"
+                      ]
+                    },
+                    {
+                      "type": "span",
+                      "props": {
+                        "className": "monster-afk-mode-badge join"
+                      },
+                      "children": [
+                        "Join Alliance rallies"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "span",
+                  "props": {},
+                  "children": [
+                    "Any level",
+                    " · ",
+                    "Any distance"
+                  ]
+                },
+                {
+                  "type": "span",
+                  "props": {},
+                  "children": [
+                    "Live map · Join Alliance rallies · Bound squads: 1, 2"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "button",
+              "props": {
+                "type": "button",
+                "className": "danger"
+              },
+              "children": [
+                "Delete"
+              ]
+            },
+            {
+              "type": "button",
+              "props": {
+                "type": "button",
+                "className": "monster-afk-profile-drag",
+                "draggable": true,
+                "aria-label": "Reorder Runtime Profile (drag or press Up/Down)",
+                "title": "Reorder Runtime Profile (drag or press Up/Down)"
+              },
+              "children": [
+                "↕"
+              ]
+            }
+          ]
+        }
+      },
+      "mismatch": {
+        "runtimeRows": true,
+        "dragGlyph": true
+      }
+    },
+    {
+      "id": "en-busy",
+      "original": {
+        "tag": "div",
+        "className": "monster-afk-profile-card active  ",
+        "text": "EnabledRuntime ProfileJoin Alliance ralliesAny level · Any distanceLive map · Join Alliance rallies · Bound squads: 1, 2Squad 1: Waiting to join · Fixture Leader · Join in 4s · 2/3 · The action could not be completed.Squad 2: Completed · 3/3Delete",
+        "statusRows": [
+          {
+            "className": "status-ok",
+            "text": "Squad 1: Waiting to join · Fixture Leader · Join in 4s · 2/3 · The action could not be completed."
+          },
+          {
+            "className": "muted",
+            "text": "Squad 2: Completed · 3/3"
+          }
+        ],
+        "buttons": [
+          {
+            "className": "monster-afk-profile-select",
+            "disabled": false,
+            "text": "Runtime ProfileJoin Alliance ralliesAny level · Any distanceLive map · Join Alliance rallies · Bound squads: 1, 2Squad 1: Waiting to join · Fixture Leader · Join in 4s · 2/3 · The action could not be completed.Squad 2: Completed · 3/3"
+          },
+          {
+            "className": "danger",
+            "disabled": true,
+            "text": "Delete"
+          },
+          {
+            "className": "monster-afk-profile-drag",
+            "disabled": true,
+            "text": "",
+            "draggable": false
+          }
+        ],
+        "inputs": [
+          {
+            "type": "checkbox",
+            "checked": true,
+            "disabled": true
+          }
+        ],
+        "stable": {
+          "type": "div",
+          "props": {
+            "className": "monster-afk-profile-card active  "
+          },
+          "children": [
+            {
+              "type": "label",
+              "props": {
+                "className": "monster-afk-enabled is-enabled is-disabled"
+              },
+              "children": [
+                {
+                  "type": "input",
+                  "props": {
+                    "type": "checkbox",
+                    "checked": true,
+                    "disabled": true
+                  },
+                  "children": []
+                },
+                {
+                  "type": "span",
+                  "props": {
+                    "className": "monster-afk-enabled-track",
+                    "aria-hidden": "true"
+                  },
+                  "children": []
+                },
+                {
+                  "type": "span",
+                  "props": {},
+                  "children": [
+                    "Enabled"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "button",
+              "props": {
+                "type": "button",
+                "className": "monster-afk-profile-select",
+                "aria-pressed": true
+              },
+              "children": [
+                {
+                  "type": "span",
+                  "props": {
+                    "className": "monster-afk-profile-heading"
+                  },
+                  "children": [
+                    {
+                      "type": "strong",
+                      "props": {},
+                      "children": [
+                        "Runtime Profile"
+                      ]
+                    },
+                    {
+                      "type": "span",
+                      "props": {
+                        "className": "monster-afk-mode-badge join"
+                      },
+                      "children": [
+                        "Join Alliance rallies"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "span",
+                  "props": {},
+                  "children": [
+                    "Any level",
+                    " · ",
+                    "Any distance"
+                  ]
+                },
+                {
+                  "type": "span",
+                  "props": {},
+                  "children": [
+                    "Live map",
+                    " · ",
+                    "Join Alliance rallies",
+                    " · ",
+                    "Bound squads: 1, 2"
+                  ]
+                },
+                {
+                  "type": "span",
+                  "props": {
+                    "className": "status-ok"
+                  },
+                  "children": [
+                    "Squad 1",
+                    ": ",
+                    "Waiting to join",
+                    " · Fixture Leader · Join in 4s",
+                    " · 2/3",
+                    " · The action could not be completed."
+                  ]
+                },
+                {
+                  "type": "span",
+                  "props": {
+                    "className": "muted"
+                  },
+                  "children": [
+                    "Squad 2",
+                    ": ",
+                    "Completed",
+                    " · 3/3",
+                    ""
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "button",
+              "props": {
+                "className": "danger",
+                "disabled": true
+              },
+              "children": [
+                "Delete"
+              ]
+            },
+            {
+              "type": "button",
+              "props": {
+                "type": "button",
+                "className": "monster-afk-profile-drag",
+                "disabled": true,
+                "draggable": false,
+                "aria-label": "Reorder Runtime Profile (drag or press Up/Down)",
+                "title": "Reorder Runtime Profile (drag or press Up/Down)"
+              },
+              "children": [
+                {
+                  "type": "SourceIcon",
+                  "props": {
+                    "name": "drag"
+                  },
+                  "children": []
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "current": {
+        "tag": "article",
+        "className": "monster-afk-profile-card active ",
+        "text": "EnabledRuntime ProfileJoin Alliance ralliesAny level · Any distanceLive map · Join Alliance rallies · Bound squads: 1, 2Delete↕",
+        "statusRows": [],
+        "buttons": [
+          {
+            "className": "monster-afk-profile-select",
+            "disabled": false,
+            "text": "Runtime ProfileJoin Alliance ralliesAny level · Any distanceLive map · Join Alliance rallies · Bound squads: 1, 2"
+          },
+          {
+            "className": "danger",
+            "disabled": false,
+            "text": "Delete"
+          },
+          {
+            "className": "monster-afk-profile-drag",
+            "disabled": false,
+            "text": "↕",
+            "draggable": true
+          }
+        ],
+        "inputs": [
+          {
+            "type": "checkbox",
+            "checked": true,
+            "disabled": false
+          }
+        ],
+        "stable": {
+          "type": "article",
+          "props": {
+            "className": "monster-afk-profile-card active "
+          },
+          "children": [
+            {
+              "type": "label",
+              "props": {
+                "className": "monster-afk-enabled is-enabled "
+              },
+              "children": [
+                {
+                  "type": "input",
+                  "props": {
+                    "type": "checkbox",
+                    "checked": true,
+                    "disabled": false
+                  },
+                  "children": []
+                },
+                {
+                  "type": "span",
+                  "props": {
+                    "className": "monster-afk-enabled-track",
+                    "aria-hidden": "true"
+                  },
+                  "children": []
+                },
+                {
+                  "type": "span",
+                  "props": {},
+                  "children": [
+                    "Enabled"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "button",
+              "props": {
+                "type": "button",
+                "className": "monster-afk-profile-select",
+                "aria-pressed": true
+              },
+              "children": [
+                {
+                  "type": "span",
+                  "props": {
+                    "className": "monster-afk-profile-heading"
+                  },
+                  "children": [
+                    {
+                      "type": "strong",
+                      "props": {},
+                      "children": [
+                        "Runtime Profile"
+                      ]
+                    },
+                    {
+                      "type": "span",
+                      "props": {
+                        "className": "monster-afk-mode-badge join"
+                      },
+                      "children": [
+                        "Join Alliance rallies"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "span",
+                  "props": {},
+                  "children": [
+                    "Any level",
+                    " · ",
+                    "Any distance"
+                  ]
+                },
+                {
+                  "type": "span",
+                  "props": {},
+                  "children": [
+                    "Live map · Join Alliance rallies · Bound squads: 1, 2"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "button",
+              "props": {
+                "type": "button",
+                "className": "danger"
+              },
+              "children": [
+                "Delete"
+              ]
+            },
+            {
+              "type": "button",
+              "props": {
+                "type": "button",
+                "className": "monster-afk-profile-drag",
+                "draggable": true,
+                "aria-label": "Reorder Runtime Profile (drag or press Up/Down)",
+                "title": "Reorder Runtime Profile (drag or press Up/Down)"
+              },
+              "children": [
+                "↕"
+              ]
+            }
+          ]
+        }
+      },
+      "mismatch": {
+        "buttonDisabled": true,
+        "inputDisabled": true
+      }
+    },
+    {
+      "id": "ja-runtime",
+      "original": {
+        "tag": "div",
+        "className": "monster-afk-profile-card active  ",
+        "text": "有効Runtime Profile同盟集結に参加レベル不問 · 距離不問リアルタイムマップ · 同盟集結に参加 · 割り当て済み部隊：1, 2第1部隊: 参加待ち · Fixture Leader · 4秒後に参加 · 2/3 · 操作を完了できませんでした。第2部隊: 完了 · 3/3削除",
+        "statusRows": [
+          {
+            "className": "status-ok",
+            "text": "第1部隊: 参加待ち · Fixture Leader · 4秒後に参加 · 2/3 · 操作を完了できませんでした。"
+          },
+          {
+            "className": "muted",
+            "text": "第2部隊: 完了 · 3/3"
+          }
+        ],
+        "buttons": [
+          {
+            "className": "monster-afk-profile-select",
+            "disabled": false,
+            "text": "Runtime Profile同盟集結に参加レベル不問 · 距離不問リアルタイムマップ · 同盟集結に参加 · 割り当て済み部隊：1, 2第1部隊: 参加待ち · Fixture Leader · 4秒後に参加 · 2/3 · 操作を完了できませんでした。第2部隊: 完了 · 3/3"
+          },
+          {
+            "className": "danger",
+            "disabled": false,
+            "text": "削除"
+          },
+          {
+            "className": "monster-afk-profile-drag",
+            "disabled": false,
+            "text": "",
+            "draggable": true
+          }
+        ],
+        "inputs": [
+          {
+            "type": "checkbox",
+            "checked": true,
+            "disabled": false
+          }
+        ],
+        "stable": {
+          "type": "div",
+          "props": {
+            "className": "monster-afk-profile-card active  "
+          },
+          "children": [
+            {
+              "type": "label",
+              "props": {
+                "className": "monster-afk-enabled is-enabled "
+              },
+              "children": [
+                {
+                  "type": "input",
+                  "props": {
+                    "type": "checkbox",
+                    "checked": true,
+                    "disabled": false
+                  },
+                  "children": []
+                },
+                {
+                  "type": "span",
+                  "props": {
+                    "className": "monster-afk-enabled-track",
+                    "aria-hidden": "true"
+                  },
+                  "children": []
+                },
+                {
+                  "type": "span",
+                  "props": {},
+                  "children": [
+                    "有効"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "button",
+              "props": {
+                "type": "button",
+                "className": "monster-afk-profile-select",
+                "aria-pressed": true
+              },
+              "children": [
+                {
+                  "type": "span",
+                  "props": {
+                    "className": "monster-afk-profile-heading"
+                  },
+                  "children": [
+                    {
+                      "type": "strong",
+                      "props": {},
+                      "children": [
+                        "Runtime Profile"
+                      ]
+                    },
+                    {
+                      "type": "span",
+                      "props": {
+                        "className": "monster-afk-mode-badge join"
+                      },
+                      "children": [
+                        "同盟集結に参加"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "span",
+                  "props": {},
+                  "children": [
+                    "レベル不問",
+                    " · ",
+                    "距離不問"
+                  ]
+                },
+                {
+                  "type": "span",
+                  "props": {},
+                  "children": [
+                    "リアルタイムマップ",
+                    " · ",
+                    "同盟集結に参加",
+                    " · ",
+                    "割り当て済み部隊：1, 2"
+                  ]
+                },
+                {
+                  "type": "span",
+                  "props": {
+                    "className": "status-ok"
+                  },
+                  "children": [
+                    "第1部隊",
+                    ": ",
+                    "参加待ち",
+                    " · Fixture Leader · 4秒後に参加",
+                    " · 2/3",
+                    " · 操作を完了できませんでした。"
+                  ]
+                },
+                {
+                  "type": "span",
+                  "props": {
+                    "className": "muted"
+                  },
+                  "children": [
+                    "第2部隊",
+                    ": ",
+                    "完了",
+                    " · 3/3",
+                    ""
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "button",
+              "props": {
+                "className": "danger",
+                "disabled": false
+              },
+              "children": [
+                "削除"
+              ]
+            },
+            {
+              "type": "button",
+              "props": {
+                "type": "button",
+                "className": "monster-afk-profile-drag",
+                "disabled": false,
+                "draggable": true,
+                "aria-label": "Runtime Profile の順序を変更（ドラッグまたは上下キー）",
+                "title": "Runtime Profile の順序を変更（ドラッグまたは上下キー）"
+              },
+              "children": [
+                {
+                  "type": "SourceIcon",
+                  "props": {
+                    "name": "drag"
+                  },
+                  "children": []
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "current": {
+        "tag": "article",
+        "className": "monster-afk-profile-card active ",
+        "text": "有効Runtime Profile同盟集結に参加レベル不問 · 距離不問リアルタイムマップ · 同盟集結に参加 · 割り当て済み部隊：1, 2削除↕",
+        "statusRows": [],
+        "buttons": [
+          {
+            "className": "monster-afk-profile-select",
+            "disabled": false,
+            "text": "Runtime Profile同盟集結に参加レベル不問 · 距離不問リアルタイムマップ · 同盟集結に参加 · 割り当て済み部隊：1, 2"
+          },
+          {
+            "className": "danger",
+            "disabled": false,
+            "text": "削除"
+          },
+          {
+            "className": "monster-afk-profile-drag",
+            "disabled": false,
+            "text": "↕",
+            "draggable": true
+          }
+        ],
+        "inputs": [
+          {
+            "type": "checkbox",
+            "checked": true,
+            "disabled": false
+          }
+        ],
+        "stable": {
+          "type": "article",
+          "props": {
+            "className": "monster-afk-profile-card active "
+          },
+          "children": [
+            {
+              "type": "label",
+              "props": {
+                "className": "monster-afk-enabled is-enabled "
+              },
+              "children": [
+                {
+                  "type": "input",
+                  "props": {
+                    "type": "checkbox",
+                    "checked": true,
+                    "disabled": false
+                  },
+                  "children": []
+                },
+                {
+                  "type": "span",
+                  "props": {
+                    "className": "monster-afk-enabled-track",
+                    "aria-hidden": "true"
+                  },
+                  "children": []
+                },
+                {
+                  "type": "span",
+                  "props": {},
+                  "children": [
+                    "有効"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "button",
+              "props": {
+                "type": "button",
+                "className": "monster-afk-profile-select",
+                "aria-pressed": true
+              },
+              "children": [
+                {
+                  "type": "span",
+                  "props": {
+                    "className": "monster-afk-profile-heading"
+                  },
+                  "children": [
+                    {
+                      "type": "strong",
+                      "props": {},
+                      "children": [
+                        "Runtime Profile"
+                      ]
+                    },
+                    {
+                      "type": "span",
+                      "props": {
+                        "className": "monster-afk-mode-badge join"
+                      },
+                      "children": [
+                        "同盟集結に参加"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "span",
+                  "props": {},
+                  "children": [
+                    "レベル不問",
+                    " · ",
+                    "距離不問"
+                  ]
+                },
+                {
+                  "type": "span",
+                  "props": {},
+                  "children": [
+                    "リアルタイムマップ · 同盟集結に参加 · 割り当て済み部隊：1, 2"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "button",
+              "props": {
+                "type": "button",
+                "className": "danger"
+              },
+              "children": [
+                "削除"
+              ]
+            },
+            {
+              "type": "button",
+              "props": {
+                "type": "button",
+                "className": "monster-afk-profile-drag",
+                "draggable": true,
+                "aria-label": "Runtime Profile の順序を変更（ドラッグまたは上下キー）",
+                "title": "Runtime Profile の順序を変更（ドラッグまたは上下キー）"
+              },
+              "children": [
+                "↕"
+              ]
+            }
+          ]
+        }
+      },
+      "mismatch": {
+        "runtimeRows": true,
+        "dragGlyph": true
+      }
+    },
+    {
+      "id": "ja-busy",
+      "original": {
+        "tag": "div",
+        "className": "monster-afk-profile-card active  ",
+        "text": "有効Runtime Profile同盟集結に参加レベル不問 · 距離不問リアルタイムマップ · 同盟集結に参加 · 割り当て済み部隊：1, 2第1部隊: 参加待ち · Fixture Leader · 4秒後に参加 · 2/3 · 操作を完了できませんでした。第2部隊: 完了 · 3/3削除",
+        "statusRows": [
+          {
+            "className": "status-ok",
+            "text": "第1部隊: 参加待ち · Fixture Leader · 4秒後に参加 · 2/3 · 操作を完了できませんでした。"
+          },
+          {
+            "className": "muted",
+            "text": "第2部隊: 完了 · 3/3"
+          }
+        ],
+        "buttons": [
+          {
+            "className": "monster-afk-profile-select",
+            "disabled": false,
+            "text": "Runtime Profile同盟集結に参加レベル不問 · 距離不問リアルタイムマップ · 同盟集結に参加 · 割り当て済み部隊：1, 2第1部隊: 参加待ち · Fixture Leader · 4秒後に参加 · 2/3 · 操作を完了できませんでした。第2部隊: 完了 · 3/3"
+          },
+          {
+            "className": "danger",
+            "disabled": true,
+            "text": "削除"
+          },
+          {
+            "className": "monster-afk-profile-drag",
+            "disabled": true,
+            "text": "",
+            "draggable": false
+          }
+        ],
+        "inputs": [
+          {
+            "type": "checkbox",
+            "checked": true,
+            "disabled": true
+          }
+        ],
+        "stable": {
+          "type": "div",
+          "props": {
+            "className": "monster-afk-profile-card active  "
+          },
+          "children": [
+            {
+              "type": "label",
+              "props": {
+                "className": "monster-afk-enabled is-enabled is-disabled"
+              },
+              "children": [
+                {
+                  "type": "input",
+                  "props": {
+                    "type": "checkbox",
+                    "checked": true,
+                    "disabled": true
+                  },
+                  "children": []
+                },
+                {
+                  "type": "span",
+                  "props": {
+                    "className": "monster-afk-enabled-track",
+                    "aria-hidden": "true"
+                  },
+                  "children": []
+                },
+                {
+                  "type": "span",
+                  "props": {},
+                  "children": [
+                    "有効"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "button",
+              "props": {
+                "type": "button",
+                "className": "monster-afk-profile-select",
+                "aria-pressed": true
+              },
+              "children": [
+                {
+                  "type": "span",
+                  "props": {
+                    "className": "monster-afk-profile-heading"
+                  },
+                  "children": [
+                    {
+                      "type": "strong",
+                      "props": {},
+                      "children": [
+                        "Runtime Profile"
+                      ]
+                    },
+                    {
+                      "type": "span",
+                      "props": {
+                        "className": "monster-afk-mode-badge join"
+                      },
+                      "children": [
+                        "同盟集結に参加"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "span",
+                  "props": {},
+                  "children": [
+                    "レベル不問",
+                    " · ",
+                    "距離不問"
+                  ]
+                },
+                {
+                  "type": "span",
+                  "props": {},
+                  "children": [
+                    "リアルタイムマップ",
+                    " · ",
+                    "同盟集結に参加",
+                    " · ",
+                    "割り当て済み部隊：1, 2"
+                  ]
+                },
+                {
+                  "type": "span",
+                  "props": {
+                    "className": "status-ok"
+                  },
+                  "children": [
+                    "第1部隊",
+                    ": ",
+                    "参加待ち",
+                    " · Fixture Leader · 4秒後に参加",
+                    " · 2/3",
+                    " · 操作を完了できませんでした。"
+                  ]
+                },
+                {
+                  "type": "span",
+                  "props": {
+                    "className": "muted"
+                  },
+                  "children": [
+                    "第2部隊",
+                    ": ",
+                    "完了",
+                    " · 3/3",
+                    ""
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "button",
+              "props": {
+                "className": "danger",
+                "disabled": true
+              },
+              "children": [
+                "削除"
+              ]
+            },
+            {
+              "type": "button",
+              "props": {
+                "type": "button",
+                "className": "monster-afk-profile-drag",
+                "disabled": true,
+                "draggable": false,
+                "aria-label": "Runtime Profile の順序を変更（ドラッグまたは上下キー）",
+                "title": "Runtime Profile の順序を変更（ドラッグまたは上下キー）"
+              },
+              "children": [
+                {
+                  "type": "SourceIcon",
+                  "props": {
+                    "name": "drag"
+                  },
+                  "children": []
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "current": {
+        "tag": "article",
+        "className": "monster-afk-profile-card active ",
+        "text": "有効Runtime Profile同盟集結に参加レベル不問 · 距離不問リアルタイムマップ · 同盟集結に参加 · 割り当て済み部隊：1, 2削除↕",
+        "statusRows": [],
+        "buttons": [
+          {
+            "className": "monster-afk-profile-select",
+            "disabled": false,
+            "text": "Runtime Profile同盟集結に参加レベル不問 · 距離不問リアルタイムマップ · 同盟集結に参加 · 割り当て済み部隊：1, 2"
+          },
+          {
+            "className": "danger",
+            "disabled": false,
+            "text": "削除"
+          },
+          {
+            "className": "monster-afk-profile-drag",
+            "disabled": false,
+            "text": "↕",
+            "draggable": true
+          }
+        ],
+        "inputs": [
+          {
+            "type": "checkbox",
+            "checked": true,
+            "disabled": false
+          }
+        ],
+        "stable": {
+          "type": "article",
+          "props": {
+            "className": "monster-afk-profile-card active "
+          },
+          "children": [
+            {
+              "type": "label",
+              "props": {
+                "className": "monster-afk-enabled is-enabled "
+              },
+              "children": [
+                {
+                  "type": "input",
+                  "props": {
+                    "type": "checkbox",
+                    "checked": true,
+                    "disabled": false
+                  },
+                  "children": []
+                },
+                {
+                  "type": "span",
+                  "props": {
+                    "className": "monster-afk-enabled-track",
+                    "aria-hidden": "true"
+                  },
+                  "children": []
+                },
+                {
+                  "type": "span",
+                  "props": {},
+                  "children": [
+                    "有効"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "button",
+              "props": {
+                "type": "button",
+                "className": "monster-afk-profile-select",
+                "aria-pressed": true
+              },
+              "children": [
+                {
+                  "type": "span",
+                  "props": {
+                    "className": "monster-afk-profile-heading"
+                  },
+                  "children": [
+                    {
+                      "type": "strong",
+                      "props": {},
+                      "children": [
+                        "Runtime Profile"
+                      ]
+                    },
+                    {
+                      "type": "span",
+                      "props": {
+                        "className": "monster-afk-mode-badge join"
+                      },
+                      "children": [
+                        "同盟集結に参加"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "span",
+                  "props": {},
+                  "children": [
+                    "レベル不問",
+                    " · ",
+                    "距離不問"
+                  ]
+                },
+                {
+                  "type": "span",
+                  "props": {},
+                  "children": [
+                    "リアルタイムマップ · 同盟集結に参加 · 割り当て済み部隊：1, 2"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "button",
+              "props": {
+                "type": "button",
+                "className": "danger"
+              },
+              "children": [
+                "削除"
+              ]
+            },
+            {
+              "type": "button",
+              "props": {
+                "type": "button",
+                "className": "monster-afk-profile-drag",
+                "draggable": true,
+                "aria-label": "Runtime Profile の順序を変更（ドラッグまたは上下キー）",
+                "title": "Runtime Profile の順序を変更（ドラッグまたは上下キー）"
+              },
+              "children": [
+                "↕"
+              ]
+            }
+          ]
+        }
+      },
+      "mismatch": {
+        "buttonDisabled": true,
+        "inputDisabled": true
+      }
+    }
+  ],
+  "expectedFailures": {
+    "runtimeRows": 2,
+    "busyControls": 2
+  },
+  "limits": "Actual recovered full I and current AfkContent are executed with inert source-valid config/runtime inputs. Accepted compact/editor/Garrison/Zombie children are replaced only outside the profile card under comparison. No native/gameplay action is executed.",
+  "busyModel": "The original case executes the explicit recovered reorder action busy branch. Current has no explicit delete/reorder action-busy owner, so the corresponding current card remains in its ordinary interactive state."
+}

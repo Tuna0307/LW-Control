@@ -1,0 +1,1366 @@
+{
+  "marker": "LWB317_REMAINING_M2_GARRISON_ZOMBIE_FAILING_BASELINE",
+  "immutableBaseline": true,
+  "source": {
+    "asset": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/SquadPanel-HC3-DJei.js",
+    "sha256": "ED466E353AA896D8C3FC783FF1802930156FB9E9EB54327AEF73F2FF86FA06C7",
+    "pe": {
+      "utf8ByteOffset": 4586,
+      "byteLength": 11256
+    },
+    "he": {
+      "utf8ByteOffset": 16529,
+      "byteLength": 1957
+    }
+  },
+  "current": {
+    "path": "src/LWBridge.UI-0.3.17/src/SquadsPage.jsx",
+    "sha256": "9A6FEC76B71513F975F1669DE82B7DFCB1BE65E9C483C37E7D4ACA54F0E5919E"
+  },
+  "expectedFailures": {
+    "emptyAncestry": 2,
+    "dragIcons": 2,
+    "uidSearch": 2,
+    "inventedStatusError": 2,
+    "zombieErrorAncestry": 2
+  },
+  "cases": [
+    {
+      "id": "en-empty",
+      "source": {
+        "settingsBlocks": [
+          {
+            "type": "section",
+            "className": "automation-card monster-afk-toolbar-settings garrison-settings",
+            "text": "Auto Garrison SettingsStarts immediately when enabled and only uses selected idle squads.0 targets selectedAlliance buildings0/2Fixture Alliance CenterAlliance CenterFixture Adjacent BuildingAdjacent buildingSelected alliesChoose alliesNo allies selectedTarget priorityDrag to reorderSelect at least one garrison target.Garrison squad order-Squad 1Squad 2Squad 3Squad 4Garrison squads are not used by other AFK tasks while managed.Current garrisons0/0No active garrison assignmentRefill now"
+          }
+        ],
+        "muted": [
+          {
+            "type": "span",
+            "text": "No allies selected"
+          },
+          {
+            "type": "p",
+            "text": "Select at least one garrison target."
+          },
+          {
+            "type": "p",
+            "text": "Garrison squads are not used by other AFK tasks while managed."
+          },
+          {
+            "type": "p",
+            "text": "No active garrison assignment"
+          }
+        ],
+        "priorityLists": [
+          {
+            "type": "div",
+            "props": {
+              "className": "garrison-priority-list"
+            },
+            "children": [
+              {
+                "type": "p",
+                "props": {
+                  "className": "muted"
+                },
+                "children": [
+                  "Select at least one garrison target."
+                ]
+              }
+            ]
+          }
+        ],
+        "selectedAllies": [
+          {
+            "type": "div",
+            "props": {
+              "className": "garrison-selected-allies"
+            },
+            "children": [
+              {
+                "type": "span",
+                "props": {
+                  "className": "muted"
+                },
+                "children": [
+                  "No allies selected"
+                ]
+              }
+            ]
+          }
+        ],
+        "dragPaths": [],
+        "arrowTextCount": 0,
+        "alerts": [],
+        "allyRows": []
+      },
+      "current": {
+        "settingsBlocks": [
+          {
+            "type": "section",
+            "className": "automation-card monster-afk-toolbar-settings garrison-settings",
+            "text": "Auto Garrison SettingsStarts immediately when enabled and only uses selected idle squads.0 targets selectedAlliance buildings0/2Fixture Alliance CenterAlliance CenterFixture Adjacent BuildingAdjacent buildingSelected alliesChoose alliesNo allies selectedTarget priorityDrag to reorderSelect at least one garrison target.Garrison squad order-Squad 1Squad 2Squad 3Squad 4Select at least one garrison squad.Current garrisons0/0No active garrison assignmentRefill now"
+          }
+        ],
+        "muted": [
+          {
+            "type": "p",
+            "text": "No allies selected"
+          },
+          {
+            "type": "p",
+            "text": "Select at least one garrison target."
+          },
+          {
+            "type": "p",
+            "text": "Select at least one garrison squad."
+          },
+          {
+            "type": "p",
+            "text": "No active garrison assignment"
+          }
+        ],
+        "priorityLists": [
+          {
+            "type": "div",
+            "props": {
+              "className": "garrison-priority-list"
+            },
+            "children": []
+          }
+        ],
+        "selectedAllies": [
+          {
+            "type": "div",
+            "props": {
+              "className": "garrison-selected-allies"
+            },
+            "children": [
+              {
+                "type": "p",
+                "props": {
+                  "className": "muted"
+                },
+                "children": [
+                  "No allies selected"
+                ]
+              }
+            ]
+          }
+        ],
+        "dragPaths": [],
+        "arrowTextCount": 0,
+        "alerts": [],
+        "allyRows": []
+      }
+    },
+    {
+      "id": "en-positive",
+      "source": {
+        "settingsBlocks": [
+          {
+            "type": "section",
+            "className": "automation-card monster-afk-toolbar-settings garrison-settings",
+            "text": "Auto Garrison SettingsStarts immediately when enabled and only uses selected idle squads.1 targets selectedAlliance buildings1/1Fixture Alliance CenterAlliance CenterSelected alliesChoose alliesNo allies selectedTarget priorityDrag to reorder1Fixture Alliance CenterGarrison squad order1 → 2Squad 1Squad 2Squad 3Squad 4Garrison squads are not used by other AFK tasks while managed.Current garrisons0/1No active garrison assignmentRefill now"
+          }
+        ],
+        "muted": [
+          {
+            "type": "span",
+            "text": "No allies selected"
+          },
+          {
+            "type": "p",
+            "text": "Garrison squads are not used by other AFK tasks while managed."
+          },
+          {
+            "type": "p",
+            "text": "No active garrison assignment"
+          }
+        ],
+        "priorityLists": [
+          {
+            "type": "div",
+            "props": {
+              "className": "garrison-priority-list"
+            },
+            "children": [
+              {
+                "type": "div",
+                "props": {
+                  "className": "garrison-priority-item",
+                  "draggable": true
+                },
+                "children": [
+                  {
+                    "type": "span",
+                    "props": {},
+                    "children": [
+                      "1"
+                    ]
+                  },
+                  {
+                    "type": "strong",
+                    "props": {},
+                    "children": [
+                      "Fixture Alliance Center"
+                    ]
+                  },
+                  {
+                    "type": "i",
+                    "props": {},
+                    "children": [
+                      {
+                        "type": "svg",
+                        "props": {
+                          "className": "ui-icon",
+                          "viewBox": "0 0 16 16",
+                          "aria-hidden": "true"
+                        },
+                        "children": [
+                          {
+                            "type": "path",
+                            "props": {
+                              "d": "M5 4h.01M11 4h.01M5 8h.01M11 8h.01M5 12h.01M11 12h.01"
+                            },
+                            "children": []
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "selectedAllies": [
+          {
+            "type": "div",
+            "props": {
+              "className": "garrison-selected-allies"
+            },
+            "children": [
+              {
+                "type": "span",
+                "props": {
+                  "className": "muted"
+                },
+                "children": [
+                  "No allies selected"
+                ]
+              }
+            ]
+          }
+        ],
+        "dragPaths": [],
+        "arrowTextCount": 0,
+        "alerts": [],
+        "allyRows": []
+      },
+      "current": {
+        "settingsBlocks": [
+          {
+            "type": "section",
+            "className": "automation-card monster-afk-toolbar-settings garrison-settings",
+            "text": "Auto Garrison SettingsStarts immediately when enabled and only uses selected idle squads.1 targets selectedAlliance buildings1/2Fixture Alliance CenterAlliance CenterFixture Adjacent BuildingAdjacent buildingSelected alliesChoose alliesNo allies selectedTarget priorityDrag to reorder1Fixture Alliance Center↕Garrison squad order1 → 2Squad 1↕Squad 2↕Squad 3Squad 4Garrison squads are not used by other AFK tasks while managed.Current garrisons0/1No active garrison assignmentRefill now"
+          }
+        ],
+        "muted": [
+          {
+            "type": "p",
+            "text": "No allies selected"
+          },
+          {
+            "type": "p",
+            "text": "Garrison squads are not used by other AFK tasks while managed."
+          },
+          {
+            "type": "p",
+            "text": "No active garrison assignment"
+          }
+        ],
+        "priorityLists": [
+          {
+            "type": "div",
+            "props": {
+              "className": "garrison-priority-list"
+            },
+            "children": [
+              {
+                "type": "div",
+                "props": {
+                  "className": "garrison-priority-item",
+                  "draggable": true
+                },
+                "children": [
+                  {
+                    "type": "span",
+                    "props": {},
+                    "children": [
+                      "1"
+                    ]
+                  },
+                  {
+                    "type": "strong",
+                    "props": {},
+                    "children": [
+                      "Fixture Alliance Center"
+                    ]
+                  },
+                  {
+                    "type": "i",
+                    "props": {
+                      "aria-hidden": "true"
+                    },
+                    "children": [
+                      "↕"
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "selectedAllies": [
+          {
+            "type": "div",
+            "props": {
+              "className": "garrison-selected-allies"
+            },
+            "children": [
+              {
+                "type": "p",
+                "props": {
+                  "className": "muted"
+                },
+                "children": [
+                  "No allies selected"
+                ]
+              }
+            ]
+          }
+        ],
+        "dragPaths": [],
+        "arrowTextCount": 3,
+        "alerts": [],
+        "allyRows": []
+      }
+    },
+    {
+      "id": "en-modalUid",
+      "source": {
+        "settingsBlocks": [
+          {
+            "type": "section",
+            "className": "automation-card monster-afk-toolbar-settings garrison-settings",
+            "text": "Auto Garrison SettingsStarts immediately when enabled and only uses selected idle squads.0 targets selectedAlliance buildings0/0No available alliance buildings were found.Selected alliesChoose alliesNo allies selectedTarget priorityDrag to reorderSelect at least one garrison target.Garrison squad order1Squad 1Squad 2Garrison squads are not used by other AFK tasks while managed.Current garrisons0/0No active garrison assignmentRefill now"
+          }
+        ],
+        "muted": [
+          {
+            "type": "p",
+            "text": "No available alliance buildings were found."
+          },
+          {
+            "type": "span",
+            "text": "No allies selected"
+          },
+          {
+            "type": "p",
+            "text": "Select at least one garrison target."
+          },
+          {
+            "type": "p",
+            "text": "Garrison squads are not used by other AFK tasks while managed."
+          },
+          {
+            "type": "p",
+            "text": "No active garrison assignment"
+          }
+        ],
+        "priorityLists": [
+          {
+            "type": "div",
+            "props": {
+              "className": "garrison-priority-list"
+            },
+            "children": [
+              {
+                "type": "p",
+                "props": {
+                  "className": "muted"
+                },
+                "children": [
+                  "Select at least one garrison target."
+                ]
+              }
+            ]
+          }
+        ],
+        "selectedAllies": [
+          {
+            "type": "div",
+            "props": {
+              "className": "garrison-selected-allies"
+            },
+            "children": [
+              {
+                "type": "span",
+                "props": {
+                  "className": "muted"
+                },
+                "children": [
+                  "No allies selected"
+                ]
+              }
+            ]
+          }
+        ],
+        "dragPaths": [],
+        "arrowTextCount": 0,
+        "alerts": [],
+        "allyRows": []
+      },
+      "current": {
+        "settingsBlocks": [
+          {
+            "type": "section",
+            "className": "automation-card monster-afk-toolbar-settings garrison-settings",
+            "text": "Auto Garrison SettingsStarts immediately when enabled and only uses selected idle squads.0 targets selectedAlliance buildings0/2Fixture Alliance CenterAlliance CenterFixture Adjacent BuildingAdjacent buildingSelected alliesChoose alliesNo allies selectedTarget priorityDrag to reorderSelect at least one garrison target.Garrison squad order1Squad 1↕Squad 2Squad 3Squad 4Garrison squads are not used by other AFK tasks while managed.Current garrisons0/0No active garrison assignmentRefill nowChoose alliesCancelFixture CaseyLv. 28 · Power 2K · OnlineCompleted"
+          }
+        ],
+        "muted": [
+          {
+            "type": "p",
+            "text": "No allies selected"
+          },
+          {
+            "type": "p",
+            "text": "Select at least one garrison target."
+          },
+          {
+            "type": "p",
+            "text": "Garrison squads are not used by other AFK tasks while managed."
+          },
+          {
+            "type": "p",
+            "text": "No active garrison assignment"
+          }
+        ],
+        "priorityLists": [
+          {
+            "type": "div",
+            "props": {
+              "className": "garrison-priority-list"
+            },
+            "children": []
+          }
+        ],
+        "selectedAllies": [
+          {
+            "type": "div",
+            "props": {
+              "className": "garrison-selected-allies"
+            },
+            "children": [
+              {
+                "type": "p",
+                "props": {
+                  "className": "muted"
+                },
+                "children": [
+                  "No allies selected"
+                ]
+              }
+            ]
+          }
+        ],
+        "dragPaths": [],
+        "arrowTextCount": 1,
+        "alerts": [],
+        "allyRows": [
+          {
+            "className": "",
+            "text": "Fixture CaseyLv. 28 · Power 2K · Online",
+            "em": []
+          }
+        ]
+      }
+    },
+    {
+      "id": "en-statusError",
+      "source": {
+        "settingsBlocks": [
+          {
+            "type": "section",
+            "className": "automation-card monster-afk-toolbar-settings garrison-settings",
+            "text": "Auto Garrison SettingsStarts immediately when enabled and only uses selected idle squads.0 targets selectedAlliance buildings0/0No available alliance buildings were found.Selected alliesChoose alliesNo allies selectedTarget priorityDrag to reorderSelect at least one garrison target.Garrison squad order1Squad 1Garrison squads are not used by other AFK tasks while managed.Current garrisons0/0No active garrison assignmentRefill now"
+          }
+        ],
+        "muted": [
+          {
+            "type": "p",
+            "text": "No available alliance buildings were found."
+          },
+          {
+            "type": "span",
+            "text": "No allies selected"
+          },
+          {
+            "type": "p",
+            "text": "Select at least one garrison target."
+          },
+          {
+            "type": "p",
+            "text": "Garrison squads are not used by other AFK tasks while managed."
+          },
+          {
+            "type": "p",
+            "text": "No active garrison assignment"
+          }
+        ],
+        "priorityLists": [
+          {
+            "type": "div",
+            "props": {
+              "className": "garrison-priority-list"
+            },
+            "children": [
+              {
+                "type": "p",
+                "props": {
+                  "className": "muted"
+                },
+                "children": [
+                  "Select at least one garrison target."
+                ]
+              }
+            ]
+          }
+        ],
+        "selectedAllies": [
+          {
+            "type": "div",
+            "props": {
+              "className": "garrison-selected-allies"
+            },
+            "children": [
+              {
+                "type": "span",
+                "props": {
+                  "className": "muted"
+                },
+                "children": [
+                  "No allies selected"
+                ]
+              }
+            ]
+          }
+        ],
+        "dragPaths": [],
+        "arrowTextCount": 0,
+        "alerts": [],
+        "allyRows": []
+      },
+      "current": {
+        "settingsBlocks": [
+          {
+            "type": "section",
+            "className": "automation-card monster-afk-toolbar-settings garrison-settings",
+            "text": "Auto Garrison SettingsStarts immediately when enabled and only uses selected idle squads.0 targets selectedAlliance buildings0/2Fixture Alliance CenterAlliance CenterFixture Adjacent BuildingAdjacent buildingSelected alliesChoose alliesNo allies selectedTarget priorityDrag to reorderSelect at least one garrison target.Garrison squad order1Squad 1↕Squad 2Squad 3Squad 4Garrison squads are not used by other AFK tasks while managed.Current garrisons0/0No active garrison assignmentThe action could not be completed.Refill now"
+          }
+        ],
+        "muted": [
+          {
+            "type": "p",
+            "text": "No allies selected"
+          },
+          {
+            "type": "p",
+            "text": "Select at least one garrison target."
+          },
+          {
+            "type": "p",
+            "text": "Garrison squads are not used by other AFK tasks while managed."
+          },
+          {
+            "type": "p",
+            "text": "No active garrison assignment"
+          }
+        ],
+        "priorityLists": [
+          {
+            "type": "div",
+            "props": {
+              "className": "garrison-priority-list"
+            },
+            "children": []
+          }
+        ],
+        "selectedAllies": [
+          {
+            "type": "div",
+            "props": {
+              "className": "garrison-selected-allies"
+            },
+            "children": [
+              {
+                "type": "p",
+                "props": {
+                  "className": "muted"
+                },
+                "children": [
+                  "No allies selected"
+                ]
+              }
+            ]
+          }
+        ],
+        "dragPaths": [],
+        "arrowTextCount": 1,
+        "alerts": [
+          {
+            "type": "p",
+            "className": "automation-error",
+            "text": "The action could not be completed."
+          }
+        ],
+        "allyRows": []
+      }
+    },
+    {
+      "id": "en-zombieOpenError",
+      "source": {
+        "settingsBlocks": [
+          {
+            "type": "section",
+            "className": "automation-card monster-afk-toolbar-settings",
+            "text": "Zombie Bus GarrisonKeep the strongest squad home; prioritize gold buses. Recall after confirmed battle completion, or after 90 seconds."
+          },
+          {
+            "type": "div",
+            "className": "monster-afk-toolbar-settings",
+            "text": "The action could not be completed."
+          }
+        ],
+        "muted": [
+          {
+            "type": "p",
+            "text": "Keep the strongest squad home; prioritize gold buses. Recall after confirmed battle completion, or after 90 seconds."
+          }
+        ],
+        "priorityLists": [],
+        "selectedAllies": [],
+        "dragPaths": [],
+        "arrowTextCount": 0,
+        "alerts": [
+          {
+            "type": "p",
+            "className": "automation-error",
+            "text": "The action could not be completed."
+          }
+        ],
+        "allyRows": []
+      },
+      "current": {
+        "settingsBlocks": [
+          {
+            "type": "section",
+            "className": "automation-card monster-afk-toolbar-settings",
+            "text": "Zombie Bus GarrisonKeep the strongest squad home; prioritize gold buses. Recall after confirmed battle completion, or after 90 seconds.The action could not be completed."
+          }
+        ],
+        "muted": [
+          {
+            "type": "p",
+            "text": "Keep the strongest squad home; prioritize gold buses. Recall after confirmed battle completion, or after 90 seconds."
+          }
+        ],
+        "priorityLists": [],
+        "selectedAllies": [],
+        "dragPaths": [],
+        "arrowTextCount": 0,
+        "alerts": [
+          {
+            "type": "p",
+            "className": "automation-error",
+            "text": "The action could not be completed."
+          }
+        ],
+        "allyRows": []
+      }
+    },
+    {
+      "id": "ja-empty",
+      "source": {
+        "settingsBlocks": [
+          {
+            "type": "section",
+            "className": "automation-card monster-afk-toolbar-settings garrison-settings",
+            "text": "自動駐屯設定有効にすると直ちに補充し、選択した待機中の部隊だけを使用します。0 件の目標を選択同盟施設0/2Fixture Alliance Center同盟センターFixture Adjacent Building付属施設指定同盟員同盟員を選択同盟員未選択目標の優先順位ドラッグして並べ替え駐屯目標を1件以上選択してください。駐屯部隊の順序-第1部隊第2部隊第3部隊第4部隊管理中の駐屯部隊は他の放置任務に使用されません。現在の駐屯0/0駐屯割り当てはありません今すぐ補充"
+          }
+        ],
+        "muted": [
+          {
+            "type": "span",
+            "text": "同盟員未選択"
+          },
+          {
+            "type": "p",
+            "text": "駐屯目標を1件以上選択してください。"
+          },
+          {
+            "type": "p",
+            "text": "管理中の駐屯部隊は他の放置任務に使用されません。"
+          },
+          {
+            "type": "p",
+            "text": "駐屯割り当てはありません"
+          }
+        ],
+        "priorityLists": [
+          {
+            "type": "div",
+            "props": {
+              "className": "garrison-priority-list"
+            },
+            "children": [
+              {
+                "type": "p",
+                "props": {
+                  "className": "muted"
+                },
+                "children": [
+                  "駐屯目標を1件以上選択してください。"
+                ]
+              }
+            ]
+          }
+        ],
+        "selectedAllies": [
+          {
+            "type": "div",
+            "props": {
+              "className": "garrison-selected-allies"
+            },
+            "children": [
+              {
+                "type": "span",
+                "props": {
+                  "className": "muted"
+                },
+                "children": [
+                  "同盟員未選択"
+                ]
+              }
+            ]
+          }
+        ],
+        "dragPaths": [],
+        "arrowTextCount": 0,
+        "alerts": [],
+        "allyRows": []
+      },
+      "current": {
+        "settingsBlocks": [
+          {
+            "type": "section",
+            "className": "automation-card monster-afk-toolbar-settings garrison-settings",
+            "text": "自動駐屯設定有効にすると直ちに補充し、選択した待機中の部隊だけを使用します。0 件の目標を選択同盟施設0/2Fixture Alliance Center同盟センターFixture Adjacent Building付属施設指定同盟員同盟員を選択同盟員未選択目標の優先順位ドラッグして並べ替え駐屯目標を1件以上選択してください。駐屯部隊の順序-第1部隊第2部隊第3部隊第4部隊駐屯部隊を1つ以上選択してください。現在の駐屯0/0駐屯割り当てはありません今すぐ補充"
+          }
+        ],
+        "muted": [
+          {
+            "type": "p",
+            "text": "同盟員未選択"
+          },
+          {
+            "type": "p",
+            "text": "駐屯目標を1件以上選択してください。"
+          },
+          {
+            "type": "p",
+            "text": "駐屯部隊を1つ以上選択してください。"
+          },
+          {
+            "type": "p",
+            "text": "駐屯割り当てはありません"
+          }
+        ],
+        "priorityLists": [
+          {
+            "type": "div",
+            "props": {
+              "className": "garrison-priority-list"
+            },
+            "children": []
+          }
+        ],
+        "selectedAllies": [
+          {
+            "type": "div",
+            "props": {
+              "className": "garrison-selected-allies"
+            },
+            "children": [
+              {
+                "type": "p",
+                "props": {
+                  "className": "muted"
+                },
+                "children": [
+                  "同盟員未選択"
+                ]
+              }
+            ]
+          }
+        ],
+        "dragPaths": [],
+        "arrowTextCount": 0,
+        "alerts": [],
+        "allyRows": []
+      }
+    },
+    {
+      "id": "ja-positive",
+      "source": {
+        "settingsBlocks": [
+          {
+            "type": "section",
+            "className": "automation-card monster-afk-toolbar-settings garrison-settings",
+            "text": "自動駐屯設定有効にすると直ちに補充し、選択した待機中の部隊だけを使用します。1 件の目標を選択同盟施設1/1Fixture Alliance Center同盟センター指定同盟員同盟員を選択同盟員未選択目標の優先順位ドラッグして並べ替え1Fixture Alliance Center駐屯部隊の順序1 → 2第1部隊第2部隊第3部隊第4部隊管理中の駐屯部隊は他の放置任務に使用されません。現在の駐屯0/1駐屯割り当てはありません今すぐ補充"
+          }
+        ],
+        "muted": [
+          {
+            "type": "span",
+            "text": "同盟員未選択"
+          },
+          {
+            "type": "p",
+            "text": "管理中の駐屯部隊は他の放置任務に使用されません。"
+          },
+          {
+            "type": "p",
+            "text": "駐屯割り当てはありません"
+          }
+        ],
+        "priorityLists": [
+          {
+            "type": "div",
+            "props": {
+              "className": "garrison-priority-list"
+            },
+            "children": [
+              {
+                "type": "div",
+                "props": {
+                  "className": "garrison-priority-item",
+                  "draggable": true
+                },
+                "children": [
+                  {
+                    "type": "span",
+                    "props": {},
+                    "children": [
+                      "1"
+                    ]
+                  },
+                  {
+                    "type": "strong",
+                    "props": {},
+                    "children": [
+                      "Fixture Alliance Center"
+                    ]
+                  },
+                  {
+                    "type": "i",
+                    "props": {},
+                    "children": [
+                      {
+                        "type": "svg",
+                        "props": {
+                          "className": "ui-icon",
+                          "viewBox": "0 0 16 16",
+                          "aria-hidden": "true"
+                        },
+                        "children": [
+                          {
+                            "type": "path",
+                            "props": {
+                              "d": "M5 4h.01M11 4h.01M5 8h.01M11 8h.01M5 12h.01M11 12h.01"
+                            },
+                            "children": []
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "selectedAllies": [
+          {
+            "type": "div",
+            "props": {
+              "className": "garrison-selected-allies"
+            },
+            "children": [
+              {
+                "type": "span",
+                "props": {
+                  "className": "muted"
+                },
+                "children": [
+                  "同盟員未選択"
+                ]
+              }
+            ]
+          }
+        ],
+        "dragPaths": [],
+        "arrowTextCount": 0,
+        "alerts": [],
+        "allyRows": []
+      },
+      "current": {
+        "settingsBlocks": [
+          {
+            "type": "section",
+            "className": "automation-card monster-afk-toolbar-settings garrison-settings",
+            "text": "自動駐屯設定有効にすると直ちに補充し、選択した待機中の部隊だけを使用します。1 件の目標を選択同盟施設1/2Fixture Alliance Center同盟センターFixture Adjacent Building付属施設指定同盟員同盟員を選択同盟員未選択目標の優先順位ドラッグして並べ替え1Fixture Alliance Center↕駐屯部隊の順序1 → 2第1部隊↕第2部隊↕第3部隊第4部隊管理中の駐屯部隊は他の放置任務に使用されません。現在の駐屯0/1駐屯割り当てはありません今すぐ補充"
+          }
+        ],
+        "muted": [
+          {
+            "type": "p",
+            "text": "同盟員未選択"
+          },
+          {
+            "type": "p",
+            "text": "管理中の駐屯部隊は他の放置任務に使用されません。"
+          },
+          {
+            "type": "p",
+            "text": "駐屯割り当てはありません"
+          }
+        ],
+        "priorityLists": [
+          {
+            "type": "div",
+            "props": {
+              "className": "garrison-priority-list"
+            },
+            "children": [
+              {
+                "type": "div",
+                "props": {
+                  "className": "garrison-priority-item",
+                  "draggable": true
+                },
+                "children": [
+                  {
+                    "type": "span",
+                    "props": {},
+                    "children": [
+                      "1"
+                    ]
+                  },
+                  {
+                    "type": "strong",
+                    "props": {},
+                    "children": [
+                      "Fixture Alliance Center"
+                    ]
+                  },
+                  {
+                    "type": "i",
+                    "props": {
+                      "aria-hidden": "true"
+                    },
+                    "children": [
+                      "↕"
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "selectedAllies": [
+          {
+            "type": "div",
+            "props": {
+              "className": "garrison-selected-allies"
+            },
+            "children": [
+              {
+                "type": "p",
+                "props": {
+                  "className": "muted"
+                },
+                "children": [
+                  "同盟員未選択"
+                ]
+              }
+            ]
+          }
+        ],
+        "dragPaths": [],
+        "arrowTextCount": 3,
+        "alerts": [],
+        "allyRows": []
+      }
+    },
+    {
+      "id": "ja-modalUid",
+      "source": {
+        "settingsBlocks": [
+          {
+            "type": "section",
+            "className": "automation-card monster-afk-toolbar-settings garrison-settings",
+            "text": "自動駐屯設定有効にすると直ちに補充し、選択した待機中の部隊だけを使用します。0 件の目標を選択同盟施設0/0利用可能な同盟施設がありません。指定同盟員同盟員を選択同盟員未選択目標の優先順位ドラッグして並べ替え駐屯目標を1件以上選択してください。駐屯部隊の順序1第1部隊第2部隊管理中の駐屯部隊は他の放置任務に使用されません。現在の駐屯0/0駐屯割り当てはありません今すぐ補充"
+          }
+        ],
+        "muted": [
+          {
+            "type": "p",
+            "text": "利用可能な同盟施設がありません。"
+          },
+          {
+            "type": "span",
+            "text": "同盟員未選択"
+          },
+          {
+            "type": "p",
+            "text": "駐屯目標を1件以上選択してください。"
+          },
+          {
+            "type": "p",
+            "text": "管理中の駐屯部隊は他の放置任務に使用されません。"
+          },
+          {
+            "type": "p",
+            "text": "駐屯割り当てはありません"
+          }
+        ],
+        "priorityLists": [
+          {
+            "type": "div",
+            "props": {
+              "className": "garrison-priority-list"
+            },
+            "children": [
+              {
+                "type": "p",
+                "props": {
+                  "className": "muted"
+                },
+                "children": [
+                  "駐屯目標を1件以上選択してください。"
+                ]
+              }
+            ]
+          }
+        ],
+        "selectedAllies": [
+          {
+            "type": "div",
+            "props": {
+              "className": "garrison-selected-allies"
+            },
+            "children": [
+              {
+                "type": "span",
+                "props": {
+                  "className": "muted"
+                },
+                "children": [
+                  "同盟員未選択"
+                ]
+              }
+            ]
+          }
+        ],
+        "dragPaths": [],
+        "arrowTextCount": 0,
+        "alerts": [],
+        "allyRows": []
+      },
+      "current": {
+        "settingsBlocks": [
+          {
+            "type": "section",
+            "className": "automation-card monster-afk-toolbar-settings garrison-settings",
+            "text": "自動駐屯設定有効にすると直ちに補充し、選択した待機中の部隊だけを使用します。0 件の目標を選択同盟施設0/2Fixture Alliance Center同盟センターFixture Adjacent Building付属施設指定同盟員同盟員を選択同盟員未選択目標の優先順位ドラッグして並べ替え駐屯目標を1件以上選択してください。駐屯部隊の順序1第1部隊↕第2部隊第3部隊第4部隊管理中の駐屯部隊は他の放置任務に使用されません。現在の駐屯0/0駐屯割り当てはありません今すぐ補充同盟員を選択キャンセルFixture CaseyLv.28・戦力 2万 · オンライン完了"
+          }
+        ],
+        "muted": [
+          {
+            "type": "p",
+            "text": "同盟員未選択"
+          },
+          {
+            "type": "p",
+            "text": "駐屯目標を1件以上選択してください。"
+          },
+          {
+            "type": "p",
+            "text": "管理中の駐屯部隊は他の放置任務に使用されません。"
+          },
+          {
+            "type": "p",
+            "text": "駐屯割り当てはありません"
+          }
+        ],
+        "priorityLists": [
+          {
+            "type": "div",
+            "props": {
+              "className": "garrison-priority-list"
+            },
+            "children": []
+          }
+        ],
+        "selectedAllies": [
+          {
+            "type": "div",
+            "props": {
+              "className": "garrison-selected-allies"
+            },
+            "children": [
+              {
+                "type": "p",
+                "props": {
+                  "className": "muted"
+                },
+                "children": [
+                  "同盟員未選択"
+                ]
+              }
+            ]
+          }
+        ],
+        "dragPaths": [],
+        "arrowTextCount": 1,
+        "alerts": [],
+        "allyRows": [
+          {
+            "className": "",
+            "text": "Fixture CaseyLv.28・戦力 2万 · オンライン",
+            "em": []
+          }
+        ]
+      }
+    },
+    {
+      "id": "ja-statusError",
+      "source": {
+        "settingsBlocks": [
+          {
+            "type": "section",
+            "className": "automation-card monster-afk-toolbar-settings garrison-settings",
+            "text": "自動駐屯設定有効にすると直ちに補充し、選択した待機中の部隊だけを使用します。0 件の目標を選択同盟施設0/0利用可能な同盟施設がありません。指定同盟員同盟員を選択同盟員未選択目標の優先順位ドラッグして並べ替え駐屯目標を1件以上選択してください。駐屯部隊の順序1第1部隊管理中の駐屯部隊は他の放置任務に使用されません。現在の駐屯0/0駐屯割り当てはありません今すぐ補充"
+          }
+        ],
+        "muted": [
+          {
+            "type": "p",
+            "text": "利用可能な同盟施設がありません。"
+          },
+          {
+            "type": "span",
+            "text": "同盟員未選択"
+          },
+          {
+            "type": "p",
+            "text": "駐屯目標を1件以上選択してください。"
+          },
+          {
+            "type": "p",
+            "text": "管理中の駐屯部隊は他の放置任務に使用されません。"
+          },
+          {
+            "type": "p",
+            "text": "駐屯割り当てはありません"
+          }
+        ],
+        "priorityLists": [
+          {
+            "type": "div",
+            "props": {
+              "className": "garrison-priority-list"
+            },
+            "children": [
+              {
+                "type": "p",
+                "props": {
+                  "className": "muted"
+                },
+                "children": [
+                  "駐屯目標を1件以上選択してください。"
+                ]
+              }
+            ]
+          }
+        ],
+        "selectedAllies": [
+          {
+            "type": "div",
+            "props": {
+              "className": "garrison-selected-allies"
+            },
+            "children": [
+              {
+                "type": "span",
+                "props": {
+                  "className": "muted"
+                },
+                "children": [
+                  "同盟員未選択"
+                ]
+              }
+            ]
+          }
+        ],
+        "dragPaths": [],
+        "arrowTextCount": 0,
+        "alerts": [],
+        "allyRows": []
+      },
+      "current": {
+        "settingsBlocks": [
+          {
+            "type": "section",
+            "className": "automation-card monster-afk-toolbar-settings garrison-settings",
+            "text": "自動駐屯設定有効にすると直ちに補充し、選択した待機中の部隊だけを使用します。0 件の目標を選択同盟施設0/2Fixture Alliance Center同盟センターFixture Adjacent Building付属施設指定同盟員同盟員を選択同盟員未選択目標の優先順位ドラッグして並べ替え駐屯目標を1件以上選択してください。駐屯部隊の順序1第1部隊↕第2部隊第3部隊第4部隊管理中の駐屯部隊は他の放置任務に使用されません。現在の駐屯0/0駐屯割り当てはありません操作を完了できませんでした。今すぐ補充"
+          }
+        ],
+        "muted": [
+          {
+            "type": "p",
+            "text": "同盟員未選択"
+          },
+          {
+            "type": "p",
+            "text": "駐屯目標を1件以上選択してください。"
+          },
+          {
+            "type": "p",
+            "text": "管理中の駐屯部隊は他の放置任務に使用されません。"
+          },
+          {
+            "type": "p",
+            "text": "駐屯割り当てはありません"
+          }
+        ],
+        "priorityLists": [
+          {
+            "type": "div",
+            "props": {
+              "className": "garrison-priority-list"
+            },
+            "children": []
+          }
+        ],
+        "selectedAllies": [
+          {
+            "type": "div",
+            "props": {
+              "className": "garrison-selected-allies"
+            },
+            "children": [
+              {
+                "type": "p",
+                "props": {
+                  "className": "muted"
+                },
+                "children": [
+                  "同盟員未選択"
+                ]
+              }
+            ]
+          }
+        ],
+        "dragPaths": [],
+        "arrowTextCount": 1,
+        "alerts": [
+          {
+            "type": "p",
+            "className": "automation-error",
+            "text": "操作を完了できませんでした。"
+          }
+        ],
+        "allyRows": []
+      }
+    },
+    {
+      "id": "ja-zombieOpenError",
+      "source": {
+        "settingsBlocks": [
+          {
+            "type": "section",
+            "className": "automation-card monster-afk-toolbar-settings",
+            "text": "ゾンビバス駐留支援最強部隊を残し、金色バスの標的を優先して支援します。戦報で戦闘終了を確認後、または派遣から90秒後に撤退します。"
+          },
+          {
+            "type": "div",
+            "className": "monster-afk-toolbar-settings",
+            "text": "操作を完了できませんでした。"
+          }
+        ],
+        "muted": [
+          {
+            "type": "p",
+            "text": "最強部隊を残し、金色バスの標的を優先して支援します。戦報で戦闘終了を確認後、または派遣から90秒後に撤退します。"
+          }
+        ],
+        "priorityLists": [],
+        "selectedAllies": [],
+        "dragPaths": [],
+        "arrowTextCount": 0,
+        "alerts": [
+          {
+            "type": "p",
+            "className": "automation-error",
+            "text": "操作を完了できませんでした。"
+          }
+        ],
+        "allyRows": []
+      },
+      "current": {
+        "settingsBlocks": [
+          {
+            "type": "section",
+            "className": "automation-card monster-afk-toolbar-settings",
+            "text": "ゾンビバス駐留支援最強部隊を残し、金色バスの標的を優先して支援します。戦報で戦闘終了を確認後、または派遣から90秒後に撤退します。操作を完了できませんでした。"
+          }
+        ],
+        "muted": [
+          {
+            "type": "p",
+            "text": "最強部隊を残し、金色バスの標的を優先して支援します。戦報で戦闘終了を確認後、または派遣から90秒後に撤退します。"
+          }
+        ],
+        "priorityLists": [],
+        "selectedAllies": [],
+        "dragPaths": [],
+        "arrowTextCount": 0,
+        "alerts": [
+          {
+            "type": "p",
+            "className": "automation-error",
+            "text": "操作を完了できませんでした。"
+          }
+        ],
+        "allyRows": []
+      }
+    }
+  ],
+  "limits": "Actual recovered pe/he and actual current GarrisonPreviewSettings/ZombieBusPreviewSettings execute under disclosed inert source-valid states. Native actions/effects are not run. Compact-card and already accepted Zombie table details are outside these structural assertions."
+}
