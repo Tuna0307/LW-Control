@@ -1,7 +1,7 @@
 # Map lane readiness audit — Milestones A / E / F / G / H / I
 
-Campaign: `LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001`  
-Baseline supplied by the campaign: `4dc1a67645dea2ff7419ecd03bc61f8b0b1a76f9` on `research/offline-controller`  
+Campaign: `LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001`
+Baseline supplied by the campaign: `4dc1a67645dea2ff7419ecd03bc61f8b0b1a76f9` on `research/offline-controller`
 Audit mode: source/evidence recovery only. No live Last War, browser/process control, update/install action, or Git operation was performed.
 
 ## Result

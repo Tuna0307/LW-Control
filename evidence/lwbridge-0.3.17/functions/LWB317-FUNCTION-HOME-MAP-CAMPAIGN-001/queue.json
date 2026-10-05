@@ -1,6 +1,6 @@
 {
   "campaign": "LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001",
-  "status": "ASSIGNED",
+  "status": "IN_PROGRESS",
   "assignedAt": "2026-10-06",
   "authority": "docs/work-items/LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001.md",
   "policy": "Continue ready milestones automatically; checkpoint a blocked branch and advance independent work. No live game actions assigned.",
@@ -9,11 +9,16 @@
       "id": "A",
       "goal": "Source/readiness baseline and dependency queue",
       "dependsOn": [],
-      "status": "PENDING",
-      "owner": null,
+      "status": "COMPLETE",
+      "owner": "coordinator",
       "acceptance": "Authoritative work item, Milestone A",
-      "commit": null,
-      "proof": [],
+      "commit": "c4509dac4d0b7fb1aa09b343c39fb9a1e00615bc",
+      "proof": [
+        "home-lane/findings.md",
+        "map-lane/findings.md",
+        "Desktop checks build -p:SkipCanonicalProductionUiBuild=true",
+        "canonical frontend npm run check"
+      ],
       "blocker": null,
       "continuation": null
     },
@@ -23,13 +28,15 @@
       "dependsOn": [
         "A"
       ],
-      "status": "PENDING",
-      "owner": null,
+      "status": "IN_PROGRESS",
+      "owner": "coordinator",
       "acceptance": "Authoritative work item, Milestone B",
-      "commit": null,
-      "proof": [],
+      "commit": "c4509dac4d0b7fb1aa09b343c39fb9a1e00615bc",
+      "proof": [
+        "--game-root-select-check"
+      ],
       "blocker": null,
-      "continuation": null
+      "continuation": "Finish preference restart/deferred-ack cases and record immutable normal-host profile-replacement boundary."
     },
     {
       "id": "C",
@@ -37,13 +44,17 @@
       "dependsOn": [
         "B"
       ],
-      "status": "PENDING",
-      "owner": null,
+      "status": "IN_PROGRESS",
+      "owner": "coordinator",
       "acceptance": "Authoritative work item, Milestone C",
-      "commit": null,
-      "proof": [],
+      "commit": "c4509dac4d0b7fb1aa09b343c39fb9a1e00615bc",
+      "proof": [
+        "--overview-bridge-host-transport-check",
+        "--overview-bridge-normal-composition-check",
+        "--game-root-select-check"
+      ],
       "blocker": null,
-      "continuation": null
+      "continuation": "Run focused pending/cancel/stale/non-owner lifecycle checks and prove current canonical callback admission/retirement."
     },
     {
       "id": "D",
@@ -51,13 +62,16 @@
       "dependsOn": [
         "C"
       ],
-      "status": "PENDING",
-      "owner": null,
+      "status": "IN_PROGRESS",
+      "owner": "coordinator",
       "acceptance": "Authoritative work item, Milestone D",
-      "commit": null,
-      "proof": [],
+      "commit": "c4509dac4d0b7fb1aa09b343c39fb9a1e00615bc",
+      "proof": [
+        "canonical Home startup profile_instances_reconcile wiring",
+        "canonical frontend npm run check"
+      ],
       "blocker": null,
-      "continuation": null
+      "continuation": "Complete reconnect/status/recovery/hidden-page/shutdown acceptance and updater dependency record."
     },
     {
       "id": "E",
@@ -65,13 +79,16 @@
       "dependsOn": [
         "A"
       ],
-      "status": "PENDING",
-      "owner": null,
+      "status": "IN_PROGRESS",
+      "owner": "coordinator",
       "acceptance": "Authoritative work item, Milestone E",
-      "commit": null,
-      "proof": [],
+      "commit": "c4509dac4d0b7fb1aa09b343c39fb9a1e00615bc",
+      "proof": [
+        "map-lane/findings.md",
+        "canonical frontend Map integration check"
+      ],
       "blocker": null,
-      "continuation": null
+      "continuation": "Run canonical Map317 store/query/eight-kind deterministic matrix and restore mark/job event convergence."
     },
     {
       "id": "F",
@@ -114,8 +131,8 @@
       "acceptance": "Authoritative work item, Milestone H",
       "commit": null,
       "proof": [],
-      "blocker": null,
-      "continuation": null
+      "blocker": "No native profile-owned Auto Scan persistence/admission/scheduler exists yet; recovered implementation is browser/localStorage owned.",
+      "continuation": "Implement source-backed native controller using recovered defaults/timing and controlled providers/clocks."
     },
     {
       "id": "I",
@@ -123,13 +140,16 @@
       "dependsOn": [
         "E"
       ],
-      "status": "PENDING",
-      "owner": null,
+      "status": "IN_PROGRESS",
+      "owner": "coordinator",
       "acceptance": "Authoritative work item, Milestone I",
-      "commit": null,
-      "proof": [],
-      "blocker": null,
-      "continuation": null
+      "commit": "c4509dac4d0b7fb1aa09b343c39fb9a1e00615bc",
+      "proof": [
+        "map-lane/findings.md",
+        "canonical Map integration scheduling-adapter assertions"
+      ],
+      "blocker": "Current-client Treasure claim/status and Ghost plunder preparation providers explicitly fail closed.",
+      "continuation": "Complete state refresh/share/job UI convergence and inert-provider storage/restart/duplicate/error proof; keep blocked execution fenced."
     },
     {
       "id": "J",
@@ -137,13 +157,16 @@
       "dependsOn": [
         "A"
       ],
-      "status": "PENDING",
-      "owner": null,
+      "status": "IN_PROGRESS",
+      "owner": "coordinator",
       "acceptance": "Authoritative work item, Milestone J",
       "commit": null,
-      "proof": [],
-      "blocker": null,
-      "continuation": null
+      "proof": [
+        "home-lane/findings.md",
+        "map-lane/findings.md"
+      ],
+      "blocker": "Positive current runtime producer validation for Railway/Ghost/Treasure is outside unattended live boundary; source compatibility audit continues offline.",
+      "continuation": "Hash/version/locator installed/supplied local artifacts and fix source-supported discrepancies without live game actions."
     },
     {
       "id": "K",
