@@ -27,7 +27,10 @@ import { createAutomationFlagAdapter, createProfileConfigDraftRegistry } from ".
 
 const THEME_KEY = "lwbridge.theme";
 const LEGACY_SERVER_HISTORY_KEY = "lastwar.serverJumpHistory";
+const AUTO_WEEKEND_SHIELD_FLAG_KEY = "flag:autoWeekendShield";
+const AUTO_ATTACK_SHIELD_FLAG_KEY = "flag:autoAttackShield";
 const AUTO_RECONNECT_FLAG_KEY = "flag:autoForceUpdateReload";
+const AUTO_CLOSE_POPUP_FLAG_KEY = "flag:autoClosePopup";
 const mapApi = createMapApi(backendBridge);
 // Existing read-only local image contract; no new native producer is introduced.
 // Browser previews never invoke it or lend their synthetic images to this reader.
@@ -100,11 +103,23 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
   const showProfiles = shellProfiles.maxProfiles > 1;
   const [focusGameOnProfileSelect, setFocusGameOnProfileSelect] = useState(() => initialProfileFocus(localStorage));
   const updateProfileFocus = (value) => { saveProfileFocus(localStorage, value); setFocusGameOnProfileSelect(value); };
-  const switchLoading = profileSwitchLoading || (backendBridge.mode === "preview" && previewState === "shell-profiles-loading");
+  const previewProfileCache = useRef(new Set(profilePreview && shellProfiles.selectedProfileId ? [shellProfiles.selectedProfileId] : []));
+  const [previewProfileLoading, setPreviewProfileLoading] = useState(false);
+  const switchLoading = profileSwitchLoading || previewProfileLoading || (backendBridge.mode === "preview" && previewState === "shell-profiles-loading");
   const nextPreviewProfileId = useRef(3);
   const [previewExitCount, setPreviewExitCount] = useState(() => backendBridge.mode === "preview" && previewState.startsWith("shell-exit") ? 2 : null);
   const profilePreviewCallbacks = profilePreview ? {
-    onSelect: async (id) => { setShellProfiles((current) => ({ ...current, selectedProfileId: id })); },
+    onSelect: async (id) => {
+      if (!id || id === shellProfiles.selectedProfileId) return;
+      const cached = previewProfileCache.current.has(id);
+      setPreviewProfileLoading(!cached);
+      setShellProfiles((current) => ({ ...current, selectedProfileId: id }));
+      if (!cached) {
+        await new Promise((resolve) => window.requestAnimationFrame(() => window.requestAnimationFrame(resolve)));
+        previewProfileCache.current.add(id);
+        setPreviewProfileLoading(false);
+      }
+    },
     onCreate: async () => { const id = `preview-local-${nextPreviewProfileId.current++}`; setShellProfiles((current) => {
       return { ...current, profiles: [...current.profiles, { id, displayName: `Local ${current.profiles.length + 1}`, note: "", serverId: 0, enabled: true }] };
     }); },
@@ -127,7 +142,10 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
   const [shellUpdateStatus, setShellUpdateStatus] = useState(() => initialShellUpdateStatus(backendBridge.mode, previewState));
   const [serverJumpOpen, setServerJumpOpen] = useState(false);
   const [runtimeStatus, setRuntimeStatus] = useState(null);
+  const [autoWeekendShieldIncoming, setAutoWeekendShieldIncoming] = useState(true);
+  const [autoAttackShieldIncoming, setAutoAttackShieldIncoming] = useState(true);
   const [autoReconnectIncoming, setAutoReconnectIncoming] = useState(false);
+  const [autoClosePopupIncoming, setAutoClosePopupIncoming] = useState(false);
   const [proxyStatus, setProxyStatus] = useState(null);
   const [gameRootStatus, setGameRootStatus] = useState(null);
   const [gameRecoveryStatus, setGameRecoveryStatus] = useState(null);
@@ -158,6 +176,32 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
   const autoLaunchConfigPollGenerationRef = useRef(0);
   const reconnectStatusGeneration = useRef(0);
   const [profileConfigDrafts] = useState(() => createProfileConfigDraftRegistry());
+  const autoWeekendShieldStore = profileConfigDrafts.get(
+    selectedProfileId,
+    AUTO_WEEKEND_SHIELD_FLAG_KEY,
+    autoWeekendShieldIncoming,
+    createAutomationFlagAdapter(
+      backendBridge,
+      selectedProfileId,
+      "autoWeekendShield",
+      "auto_weekend_shield",
+      true,
+      "auto_shield",
+    ),
+  );
+  const autoAttackShieldStore = profileConfigDrafts.get(
+    selectedProfileId,
+    AUTO_ATTACK_SHIELD_FLAG_KEY,
+    autoAttackShieldIncoming,
+    createAutomationFlagAdapter(
+      backendBridge,
+      selectedProfileId,
+      "autoAttackShield",
+      "auto_attack_shield",
+      true,
+      "auto_shield",
+    ),
+  );
   const autoReconnectStore = profileConfigDrafts.get(
     selectedProfileId,
     AUTO_RECONNECT_FLAG_KEY,
@@ -170,6 +214,18 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
       false,
     ),
   );
+  const autoClosePopupStore = profileConfigDrafts.get(
+    selectedProfileId,
+    AUTO_CLOSE_POPUP_FLAG_KEY,
+    autoClosePopupIncoming,
+    createAutomationFlagAdapter(
+      backendBridge,
+      selectedProfileId,
+      "autoClosePopup",
+      "auto_close_popup",
+      false,
+    ),
+  );
   const autoReconnectSnapshot = useSyncExternalStore(
     autoReconnectStore.subscribe,
     autoReconnectStore.getSnapshot,
@@ -177,8 +233,20 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
   );
 
   useEffect(() => {
+    autoWeekendShieldStore.receive(autoWeekendShieldIncoming);
+  }, [autoWeekendShieldIncoming, autoWeekendShieldStore]);
+
+  useEffect(() => {
+    autoAttackShieldStore.receive(autoAttackShieldIncoming);
+  }, [autoAttackShieldIncoming, autoAttackShieldStore]);
+
+  useEffect(() => {
     autoReconnectStore.receive(autoReconnectIncoming);
   }, [autoReconnectIncoming, autoReconnectStore]);
+
+  useEffect(() => {
+    autoClosePopupStore.receive(autoClosePopupIncoming);
+  }, [autoClosePopupIncoming, autoClosePopupStore]);
 
   useLayoutEffect(() => {
     reconnectStatusGeneration.current += 1;
@@ -188,8 +256,16 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
   const acknowledgeRuntimeStatus = useCallback((status, generation = reconnectStatusGeneration.current) => {
     if (generation !== reconnectStatusGeneration.current || selectedProfileId !== backendBridge.profileId) return;
     setRuntimeStatus(status);
-    const reconnect = status?.config?.auto_force_update_reload;
+    const config = status?.config;
+    const legacyShield = config?.auto_shield;
+    const weekend = typeof config?.auto_weekend_shield === "boolean" ? config.auto_weekend_shield : legacyShield;
+    const attack = typeof config?.auto_attack_shield === "boolean" ? config.auto_attack_shield : legacyShield;
+    const reconnect = config?.auto_force_update_reload;
+    const closePopup = config?.auto_close_popup;
+    if (typeof weekend === "boolean") setAutoWeekendShieldIncoming(weekend);
+    if (typeof attack === "boolean") setAutoAttackShieldIncoming(attack);
     if (typeof reconnect === "boolean") setAutoReconnectIncoming(reconnect);
+    if (typeof closePopup === "boolean") setAutoClosePopupIncoming(closePopup);
   }, [selectedProfileId]);
 
   useLayoutEffect(() => {
@@ -272,17 +348,15 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
     const autoLaunchNativeCommitEpoch = autoLaunchNativeCommitEpochRef.current;
     const autoLaunchConfigPollGeneration = autoLaunchConfigPollGenerationRef.current + 1;
     autoLaunchConfigPollGenerationRef.current = autoLaunchConfigPollGeneration;
-    const [statusResult, proxyResult, recoveryResult, configResult] = await Promise.allSettled([
+    const [statusResult, proxyResult, configResult] = await Promise.allSettled([
       mapApi.readStatus(),
       mapApi.readProxyStatus(),
-      backendBridge.invoke("game_recovery_status", backendBridge.profileId ? { profileId: backendBridge.profileId } : {}),
       backendBridge.invoke("local_config_get", {}),
     ]);
     if (statusResult.status === "fulfilled") {
       acknowledgeRuntimeStatus(statusResult.value, reconnectGeneration);
     }
     if (proxyResult.status === "fulfilled") setProxyStatus(proxyResult.value);
-    if (recoveryResult.status === "fulfilled") setGameRecoveryStatus(recoveryResult.value);
     if (configResult.status === "fulfilled") {
       if (autoLaunchConfigPollGenerationRef.current === autoLaunchConfigPollGeneration
         && autoLaunchSaveRevisionRef.current === autoLaunchRevision
@@ -300,12 +374,18 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
   }, [acknowledgeRuntimeStatus]);
 
   useEffect(() => {
-    if (!backendBridge.available) return undefined;
-    return backendBridge.listen("bridge://game-recovery", (event) => {
+    if (!backendBridge.available || !selectedProfileId) return undefined;
+    let closed = false;
+    const profileId = selectedProfileId;
+    const stop = backendBridge.listen("bridge://game-recovery", (event) => {
       const payload = event && typeof event === "object" && "payload" in event ? event.payload : event;
-      if (payload) setGameRecoveryStatus(payload);
+      if (!closed && profileId === selectedProfileId && payload) setGameRecoveryStatus(payload);
     });
-  }, []);
+    backendBridge.invoke("game_recovery_status", { profileId }).then((status) => {
+      if (!closed && profileId === selectedProfileId && status) setGameRecoveryStatus(status);
+    }).catch(() => {});
+    return () => { closed = true; stop(); };
+  }, [selectedProfileId]);
 
   useEffect(() => {
     if (!backendBridge.available || !selectedProfileId) return;
@@ -426,7 +506,6 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
     autoLaunchSaveRevisionRef.current = revision;
     writeAutoLaunchGamePreference(localStorage, enabled);
     setAutoLaunchGame(enabled);
-    setGameActionError("");
 
     const save = autoLaunchSaveChainRef.current
       .catch(() => undefined)
@@ -579,7 +658,8 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
   } : undefined;
 
   return (
-    <GameAssetImageProvider readImage={nativeAssetReader}><main className="app-shell" data-reference-version="0.3.17" data-ui-project="LWBridge.UI-0.3.17">
+    <GameAssetImageProvider readImage={nativeAssetReader}><>
+      <main className="app-shell" data-reference-version="0.3.17" data-ui-project="LWBridge.UI-0.3.17">
       <header className="top-bar">
         <div className="brand-lockup">
           <div className="brand-mark" aria-hidden="true">
@@ -690,11 +770,8 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
         </div>
       </header>
 
-      <AppExitPrompt subscribeCloseRequests={subscribeCloseRequests} confirmExit={confirmExit} />
-      {previewExitCount !== null ? <AppExitDialog instanceCount={previewExitCount} busy={previewState === "shell-exit-busy"}
-        onCancel={() => setPreviewExitCount(null)} /> : null}
       <div className={`app-layout${showProfiles ? "" : " single-profile"}`}>
-        {showProfiles ? <ProfileSidebar state={shellProfiles} focusGameOnProfileSelect={focusGameOnProfileSelect} {...profilePreviewCallbacks} /> : null}
+        {showProfiles ? <aside className="profile-sidebar"><ProfileSidebar state={shellProfiles} focusGameOnProfileSelect={focusGameOnProfileSelect} {...profilePreviewCallbacks} /></aside> : null}
         <nav className="side-nav" aria-label="Navigation">
           <div className="nav-heading">
             <strong>{t("nav.title")}</strong>
@@ -720,7 +797,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
         <section className="main-view">
           <Suspense fallback={<div className="panel"><span className="muted">{t("common.processing")}</span></div>}>
             <div className="profile-view-context">
-              <ShellConfigSaveErrors states={shellFlagStates || (previewFlagStates.length ? previewFlagStates : [null, null, autoReconnectStore, null])} />
+              <ShellConfigSaveErrors states={shellFlagStates || (previewFlagStates.length ? previewFlagStates : [autoWeekendShieldStore, autoAttackShieldStore, autoReconnectStore, autoClosePopupStore])} />
               {switchLoading ? <ProfileSwitchState loading /> : <RetainedPages
                 activeRoute={activeRoute}
                 visitedRoutes={visitedRoutes}
@@ -732,6 +809,10 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
           </Suspense>
         </section>
       </div>
-    </main></GameAssetImageProvider>
+    </main>
+    <AppExitPrompt subscribeCloseRequests={subscribeCloseRequests} confirmExit={confirmExit} />
+    {previewExitCount !== null ? <AppExitDialog instanceCount={previewExitCount} busy={previewState === "shell-exit-busy"}
+      onCancel={() => setPreviewExitCount(null)} /> : null}
+    </></GameAssetImageProvider>
   );
 }

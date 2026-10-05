@@ -1,0 +1,419 @@
+{
+  "cases": [
+    {
+      "id": "base-single-en-light",
+      "language": "en",
+      "theme": "light",
+      "width": 1280,
+      "showProfiles": false,
+      "originalHtml": "raw/base-single-en-light-original.html",
+      "currentHtml": "raw/base-single-en-light-current.html",
+      "originalSha256": "33AE2B5DAA821F066552E8AAAFB6026306682AB6C1C779A0D9CFBD1A85B099E5",
+      "currentSha256": "8E1F76F74558407F4D9FA70448E03CE442DD249F1895D1E6C080CC89E373E15A",
+      "structuralChecks": {
+        "profileSidebarWrapper": null,
+        "exitDialogSiblingAfterShell": null,
+        "originalSaveErrorCount": 0,
+        "currentSaveErrorCount": 0,
+        "originalProfileLoading": false,
+        "currentProfileLoading": false,
+        "originalCrossServerOpen": false,
+        "currentCrossServerOpen": false
+      }
+    },
+    {
+      "id": "update-connected-en-light",
+      "language": "en",
+      "theme": "light",
+      "width": 1280,
+      "showProfiles": false,
+      "online": true,
+      "pending": 3,
+      "update": {
+        "phase": "available",
+        "currentVersion": "0.3.17",
+        "latestVersion": "0.3.18",
+        "progress": null
+      },
+      "originalHtml": "raw/update-connected-en-light-original.html",
+      "currentHtml": "raw/update-connected-en-light-current.html",
+      "originalSha256": "CE1683E16A7F32E0C77C3353745932F6FC2D029E1A15590CCB2C01372193CABE",
+      "currentSha256": "AAE9EC0568A205E075645EB31EA871BEF4D0C147F8B406280121F377326EE44C",
+      "structuralChecks": {
+        "profileSidebarWrapper": null,
+        "exitDialogSiblingAfterShell": null,
+        "originalSaveErrorCount": 0,
+        "currentSaveErrorCount": 0,
+        "originalProfileLoading": false,
+        "currentProfileLoading": false,
+        "originalCrossServerOpen": false,
+        "currentCrossServerOpen": false
+      }
+    },
+    {
+      "id": "profiles-compact-en-light",
+      "language": "en",
+      "theme": "light",
+      "width": 1280,
+      "showProfiles": true,
+      "originalHtml": "raw/profiles-compact-en-light-original.html",
+      "currentHtml": "raw/profiles-compact-en-light-current.html",
+      "originalSha256": "A565F9907B12633F05A0315A309AE0E6EEE2287573AD0464DF15D34318457559",
+      "currentSha256": "8BC378901A3519234249DF5DB12F939D698427CDF4A06987EE03E8EC0C56A1EC",
+      "structuralChecks": {
+        "profileSidebarWrapper": {
+          "original": true,
+          "current": true
+        },
+        "exitDialogSiblingAfterShell": null,
+        "originalSaveErrorCount": 0,
+        "currentSaveErrorCount": 0,
+        "originalProfileLoading": false,
+        "currentProfileLoading": false,
+        "originalCrossServerOpen": false,
+        "currentCrossServerOpen": false
+      }
+    },
+    {
+      "id": "profile-cached-return-en-light",
+      "language": "en",
+      "theme": "light",
+      "width": 1280,
+      "showProfiles": true,
+      "cachedReturn": true,
+      "browserHover": ".profile-compact-item.active",
+      "browserFocus": ".profile-collapse",
+      "originalHtml": "raw/profile-cached-return-en-light-original.html",
+      "currentHtml": "raw/profile-cached-return-en-light-current.html",
+      "originalSha256": "A565F9907B12633F05A0315A309AE0E6EEE2287573AD0464DF15D34318457559",
+      "currentSha256": "8BC378901A3519234249DF5DB12F939D698427CDF4A06987EE03E8EC0C56A1EC",
+      "structuralChecks": {
+        "profileSidebarWrapper": {
+          "original": true,
+          "current": true
+        },
+        "exitDialogSiblingAfterShell": null,
+        "originalSaveErrorCount": 0,
+        "currentSaveErrorCount": 0,
+        "originalProfileLoading": false,
+        "currentProfileLoading": false,
+        "originalCrossServerOpen": false,
+        "currentCrossServerOpen": false
+      }
+    },
+    {
+      "id": "profiles-expanded-en-light",
+      "language": "en",
+      "theme": "light",
+      "width": 1280,
+      "showProfiles": true,
+      "expanded": true,
+      "originalHtml": "raw/profiles-expanded-en-light-original.html",
+      "currentHtml": "raw/profiles-expanded-en-light-current.html",
+      "originalSha256": "CB0440271FBAED7D14F0EFB73CF34632EB04914F92B65511EFE08C9FABF0512A",
+      "currentSha256": "ED15EBFB16F3722D4F40962C90FD9420E21F06B7ED4219CF1FC23BD100182B29",
+      "structuralChecks": {
+        "profileSidebarWrapper": {
+          "original": true,
+          "current": true
+        },
+        "exitDialogSiblingAfterShell": null,
+        "originalSaveErrorCount": 0,
+        "currentSaveErrorCount": 0,
+        "originalProfileLoading": false,
+        "currentProfileLoading": false,
+        "originalCrossServerOpen": false,
+        "currentCrossServerOpen": false
+      }
+    },
+    {
+      "id": "profiles-error-forced-open-en-light",
+      "language": "en",
+      "theme": "light",
+      "width": 1280,
+      "showProfiles": true,
+      "profileError": "CONTROLLED_PROFILE_ERROR",
+      "originalHtml": "raw/profiles-error-forced-open-en-light-original.html",
+      "currentHtml": "raw/profiles-error-forced-open-en-light-current.html",
+      "originalSha256": "1D1A8E36B68D135692C48E73C35441FCA34C590966D687C8196AEB9966AD114F",
+      "currentSha256": "8F32500DF68A8B3F9FD9A93B962876F9D0FCDB4DE3916F1007BE317A21F8D7CC",
+      "structuralChecks": {
+        "profileSidebarWrapper": {
+          "original": true,
+          "current": true
+        },
+        "exitDialogSiblingAfterShell": null,
+        "originalSaveErrorCount": 0,
+        "currentSaveErrorCount": 0,
+        "originalProfileLoading": false,
+        "currentProfileLoading": false,
+        "originalCrossServerOpen": false,
+        "currentCrossServerOpen": false
+      }
+    },
+    {
+      "id": "profile-note-modal-en-light",
+      "language": "en",
+      "theme": "light",
+      "width": 1280,
+      "showProfiles": true,
+      "expanded": true,
+      "noteModal": true,
+      "originalHtml": "raw/profile-note-modal-en-light-original.html",
+      "currentHtml": "raw/profile-note-modal-en-light-current.html",
+      "originalSha256": "EF59AC25F5A1FAF33409371110167D3AF9BC549C0C7626A4D2D3468BD166E6B5",
+      "currentSha256": "AF0B7DA446E09395D5A3FD4F59A30C8E55826FD1E312EA4790E0A9E827BD5384",
+      "structuralChecks": {
+        "profileSidebarWrapper": {
+          "original": true,
+          "current": true
+        },
+        "exitDialogSiblingAfterShell": null,
+        "originalSaveErrorCount": 0,
+        "currentSaveErrorCount": 0,
+        "originalProfileLoading": false,
+        "currentProfileLoading": false,
+        "originalCrossServerOpen": false,
+        "currentCrossServerOpen": false
+      }
+    },
+    {
+      "id": "profile-reorder-dragover-en-light",
+      "language": "en",
+      "theme": "light",
+      "width": 1280,
+      "showProfiles": true,
+      "expanded": true,
+      "drag": true,
+      "originalHtml": "raw/profile-reorder-dragover-en-light-original.html",
+      "currentHtml": "raw/profile-reorder-dragover-en-light-current.html",
+      "originalSha256": "50991751BC66C6F8B54428EA47653166B5E357F75458C8CF832A123B9FC1E51B",
+      "currentSha256": "17013AE66AE0D9DB39B96603F4C4BEC351DD5F259201F30DB295BA3E9CD5D934",
+      "structuralChecks": {
+        "profileSidebarWrapper": {
+          "original": true,
+          "current": true
+        },
+        "exitDialogSiblingAfterShell": null,
+        "originalSaveErrorCount": 0,
+        "currentSaveErrorCount": 0,
+        "originalProfileLoading": false,
+        "currentProfileLoading": false,
+        "originalCrossServerOpen": false,
+        "currentCrossServerOpen": false
+      }
+    },
+    {
+      "id": "profile-loading-en-light",
+      "language": "en",
+      "theme": "light",
+      "width": 1280,
+      "showProfiles": true,
+      "switchLoading": true,
+      "originalHtml": "raw/profile-loading-en-light-original.html",
+      "currentHtml": "raw/profile-loading-en-light-current.html",
+      "originalSha256": "D61371A833A756E633DB8E04B5BE9F25F98DB7C4CD1027AD13C606828A325176",
+      "currentSha256": "71660A846ABB102462CBEA79F7BB54FD8539B25FD4CBD830A7EA18C9637B007E",
+      "structuralChecks": {
+        "profileSidebarWrapper": {
+          "original": true,
+          "current": true
+        },
+        "exitDialogSiblingAfterShell": null,
+        "originalSaveErrorCount": 0,
+        "currentSaveErrorCount": 0,
+        "originalProfileLoading": true,
+        "currentProfileLoading": true,
+        "originalCrossServerOpen": false,
+        "currentCrossServerOpen": false
+      }
+    },
+    {
+      "id": "four-save-errors-en-light",
+      "language": "en",
+      "theme": "light",
+      "width": 1280,
+      "showProfiles": true,
+      "saveErrors": true,
+      "originalHtml": "raw/four-save-errors-en-light-original.html",
+      "currentHtml": "raw/four-save-errors-en-light-current.html",
+      "originalSha256": "3C0DF07B342EF8BFCF32D25E050254F34473710F19E522D1B6E6CFE0B5128E51",
+      "currentSha256": "0C7694FFF98E3A42CB1F98A64B4848354D54D98EB36E295B4527D3465D45A970",
+      "structuralChecks": {
+        "profileSidebarWrapper": {
+          "original": true,
+          "current": true
+        },
+        "exitDialogSiblingAfterShell": null,
+        "originalSaveErrorCount": 4,
+        "currentSaveErrorCount": 4,
+        "originalProfileLoading": false,
+        "currentProfileLoading": false,
+        "originalCrossServerOpen": false,
+        "currentCrossServerOpen": false
+      }
+    },
+    {
+      "id": "cross-server-closed-en-light",
+      "language": "en",
+      "theme": "light",
+      "width": 1280,
+      "showProfiles": true,
+      "online": true,
+      "originalHtml": "raw/cross-server-closed-en-light-original.html",
+      "currentHtml": "raw/cross-server-closed-en-light-current.html",
+      "originalSha256": "DD7F02D68B56084F1C4EB040946EB9C0665DD2CEE8779E49FC074904E9871626",
+      "currentSha256": "20FEFCADE7E0D6A92F23341D24656B55BAEBFCB5CB2845DA9C8A9BF5B8018EFF",
+      "structuralChecks": {
+        "profileSidebarWrapper": {
+          "original": true,
+          "current": true
+        },
+        "exitDialogSiblingAfterShell": null,
+        "originalSaveErrorCount": 0,
+        "currentSaveErrorCount": 0,
+        "originalProfileLoading": false,
+        "currentProfileLoading": false,
+        "originalCrossServerOpen": false,
+        "currentCrossServerOpen": false
+      }
+    },
+    {
+      "id": "cross-server-open-en-light",
+      "language": "en",
+      "theme": "light",
+      "width": 1280,
+      "showProfiles": true,
+      "online": true,
+      "crossServerOpen": true,
+      "originalHtml": "raw/cross-server-open-en-light-original.html",
+      "currentHtml": "raw/cross-server-open-en-light-current.html",
+      "originalSha256": "651E991D41E629551EC3140E5D79ECE8EB892467A0733FFE2C5DC8260E80655F",
+      "currentSha256": "172C554A02FA7B76AA6F360A1EBD0D0E508269004FA7DCBDE11ECB9877914416",
+      "structuralChecks": {
+        "profileSidebarWrapper": {
+          "original": true,
+          "current": true
+        },
+        "exitDialogSiblingAfterShell": null,
+        "originalSaveErrorCount": 0,
+        "currentSaveErrorCount": 0,
+        "originalProfileLoading": false,
+        "currentProfileLoading": false,
+        "originalCrossServerOpen": true,
+        "currentCrossServerOpen": true
+      }
+    },
+    {
+      "id": "exit-idle-en-light",
+      "language": "en",
+      "theme": "light",
+      "width": 1280,
+      "showProfiles": false,
+      "exitCount": 2,
+      "exitBusy": false,
+      "originalHtml": "raw/exit-idle-en-light-original.html",
+      "currentHtml": "raw/exit-idle-en-light-current.html",
+      "originalSha256": "890371FF7DC43121416F53F0CF35D50C7B3D9E9AA2DD22DCFB8C5420FF5368DC",
+      "currentSha256": "7D5AE200B113F039B01BC760E1D902FAE1067B5A8F2309A3E09C16C835386F79",
+      "structuralChecks": {
+        "profileSidebarWrapper": null,
+        "exitDialogSiblingAfterShell": {
+          "original": true,
+          "current": true
+        },
+        "originalSaveErrorCount": 0,
+        "currentSaveErrorCount": 0,
+        "originalProfileLoading": false,
+        "currentProfileLoading": false,
+        "originalCrossServerOpen": false,
+        "currentCrossServerOpen": false
+      }
+    },
+    {
+      "id": "exit-busy-en-light",
+      "language": "en",
+      "theme": "light",
+      "width": 1280,
+      "showProfiles": false,
+      "exitCount": 2,
+      "exitBusy": true,
+      "originalHtml": "raw/exit-busy-en-light-original.html",
+      "currentHtml": "raw/exit-busy-en-light-current.html",
+      "originalSha256": "DBC01D4BAD9300E4D41B4AD2FF98AA0C09CE575AEA4E5BC527B9A592E2CD0EDF",
+      "currentSha256": "6E357DA8F868795411746FDBCB5629CF8116571FCC7AB4C33DDFFF87FC622BAB",
+      "structuralChecks": {
+        "profileSidebarWrapper": null,
+        "exitDialogSiblingAfterShell": {
+          "original": true,
+          "current": true
+        },
+        "originalSaveErrorCount": 0,
+        "currentSaveErrorCount": 0,
+        "originalProfileLoading": false,
+        "currentProfileLoading": false,
+        "originalCrossServerOpen": false,
+        "currentCrossServerOpen": false
+      }
+    },
+    {
+      "id": "narrow-profiles-ja-dark",
+      "language": "ja",
+      "theme": "dark",
+      "width": 720,
+      "showProfiles": true,
+      "expanded": true,
+      "online": true,
+      "crossServerOpen": true,
+      "originalHtml": "raw/narrow-profiles-ja-dark-original.html",
+      "currentHtml": "raw/narrow-profiles-ja-dark-current.html",
+      "originalSha256": "996B4523DD04E42D0259EF1558040E621AF09DB8183526753A7F2F177997BD20",
+      "currentSha256": "E2B4E17A9E8453BD4D3E8E1DB7FC72AC0C630461983F0475F2FF51E2612B219A",
+      "structuralChecks": {
+        "profileSidebarWrapper": {
+          "original": true,
+          "current": true
+        },
+        "exitDialogSiblingAfterShell": null,
+        "originalSaveErrorCount": 0,
+        "currentSaveErrorCount": 0,
+        "originalProfileLoading": false,
+        "currentProfileLoading": false,
+        "originalCrossServerOpen": true,
+        "currentCrossServerOpen": true
+      }
+    },
+    {
+      "id": "base-single-ja-dark",
+      "language": "ja",
+      "theme": "dark",
+      "width": 1280,
+      "showProfiles": false,
+      "online": true,
+      "pending": 1,
+      "originalHtml": "raw/base-single-ja-dark-original.html",
+      "currentHtml": "raw/base-single-ja-dark-current.html",
+      "originalSha256": "44AA85B167ADE43E8334076E1A4BF719D6278C9CE1649A86EBC30DDC0EEB9B37",
+      "currentSha256": "D2380D13B2C899449C2805FD9F4C04767CA3092B27EDB1A48C8B3DF29BA43DAA",
+      "structuralChecks": {
+        "profileSidebarWrapper": null,
+        "exitDialogSiblingAfterShell": null,
+        "originalSaveErrorCount": 0,
+        "currentSaveErrorCount": 0,
+        "originalProfileLoading": false,
+        "currentProfileLoading": false,
+        "originalCrossServerOpen": false,
+        "currentCrossServerOpen": false
+      }
+    }
+  ],
+  "substitutions": [
+    "Original and current route pages execute through their shell route wrappers but render the same inert panel sentinel; page-body parity is outside this shell packet.",
+    "Original service/auth/profile providers are disclosed local fixtures. Current profile callbacks are inert preview-style callbacks; no native/gameplay/network/updater action is invoked.",
+    "Image URL imports are replaced by the same inert data URL on both sides so this packet measures shell composition rather than packaged asset URL rewriting.",
+    "React effects/layout effects are not executed during source rendering. Browser capture explicitly opens rendered dialogs to reproduce recovered showModal presentation.",
+    "The current forced-error fixture injects the controlled `error` prop through a one-line wrapper around the real production ProfileSidebar because App has no live external profile-error provider in this offline packet; ProfileSidebar itself renders the compared DOM.",
+    "The cached-return fixture represents the source post-cache composition after the uncached loading interval: showProfiles remains true and switchLoading is false. No synthetic loading DOM is introduced.",
+    "Account/grace/upgrade UI remains present on the recovered side and absent on current by product scope. Current updater/Refresh Status/profile run controls retain provider-availability disabled fences."
+  ]
+}

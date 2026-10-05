@@ -146,7 +146,25 @@ const flushIndex = appSource.indexOf("autoReconnectStore.flush().catch(() => {})
 assert.ok(editIndex >= 0 && flushIndex > editIndex, "Home reconnect must edit its profile draft before flushing it");
 assert.doesNotMatch(appSource, /setHomeBusy\("autoReconnect"\)/, "reconnect save must not create a saving-only Home disabled state");
 assert.match(appSource, /autoReconnect: autoReconnectSnapshot\.draft/);
-assert.match(appSource, /\[null, null, autoReconnectStore, null\]/, "reconnect store must occupy the source third save-error slot");
+assert.match(
+  appSource,
+  /\[autoWeekendShieldStore, autoAttackShieldStore, autoReconnectStore, autoClosePopupStore\]/,
+  "shell save-error stores must preserve the recovered Weekend/Attack/Reconnect/Close order",
+);
+assert.match(appSource, /"auto_weekend_shield",\s*true,\s*"auto_shield"/, "Weekend Shield must preserve the recovered legacy auto_shield fallback");
+assert.match(appSource, /"auto_attack_shield",\s*true,\s*"auto_shield"/, "Attack Shield must preserve the recovered legacy auto_shield fallback");
+const autoLaunchBody = appSource.slice(appSource.indexOf("const updateAutoLaunch"), appSource.indexOf("const updateAutoReconnect"));
+assert.doesNotMatch(autoLaunchBody, /setGameActionError\(""\)/, "Auto Launch preference edits must not clear the shared lifecycle action error");
+const refreshBody = appSource.slice(appSource.indexOf("const refreshStatus"), appSource.indexOf("const selectRoute"));
+assert.doesNotMatch(refreshBody, /game_recovery_status/, "recurring status refresh must not overwrite recovery ownership");
+assert.match(appSource, /backendBridge\.invoke\("game_recovery_status", \{ profileId \}\)/, "recovery status must have its own selected-profile initial read");
+const recoveryInvokeIndex = appSource.indexOf('backendBridge.invoke("game_recovery_status"');
+const recoveryEffectStart = appSource.lastIndexOf("useEffect(() => {", recoveryInvokeIndex);
+const recoveryEffectEnd = appSource.indexOf("useEffect(() => {", recoveryInvokeIndex + 1);
+const recoveryEffect = appSource.slice(recoveryEffectStart, recoveryEffectEnd);
+assert.match(recoveryEffect, /backendBridge\.listen\("bridge:\/\/game-recovery"/, "recovery event ownership must share the selected-profile effect");
+assert.match(recoveryEffect, /if \(!closed && profileId === selectedProfileId && payload\) setGameRecoveryStatus\(payload\)/, "recovery events must preserve selected-profile/closed lifetime guards");
+assert.match(recoveryEffect, /return \(\) => \{ closed = true; stop\(\); \}/, "selected-profile recovery effect must unsubscribe and close together");
 
 const pagesSource = fs.readFileSync(new URL("../src/HomePage.jsx", import.meta.url), "utf8");
 assert.match(

@@ -1,13 +1,14 @@
 # Continuation — LWB317-UI-VISUAL-REMAINING-002
 
-Status: Milestones 1 and 2 are integrated and pushed. Milestone 3 Automation is
-complete locally with an independent READY verdict and is being checkpointed next.
+Status: Milestones 1 through 3 are integrated and pushed. Milestone 4 shared shell and
+Home composition is independently **READY** for its checkpoint. Milestone 5 final
+Map/full-App integration evidence is being prepared separately and must not be mixed
+into the Milestone-4 commit.
 
-Current integrated baseline is Milestone-2 checkpoint
-`b687593bef09774b6ae77845644e507f347593e8`, verified on the remote. Preserve all
+Current integrated baseline is Milestone-3 checkpoint
+`52dd0e353a9525abbf9e04f022cf5ffbf3371eed`, verified on the remote. Preserve all
 accepted parent evidence, especially the current AFK editor packet and inherited Unit
-A–H checkpoints. Milestone-3 production/evidence files are intentionally dirty until
-their bounded commit.
+A–H checkpoints.
 
 Completed work:
 
@@ -31,19 +32,26 @@ Completed work:
    `git diff --check` all pass after the final fixture change.
 7. Milestone 2 was committed and pushed as `b687593b`; direct `git ls-remote` matches
    the full local SHA.
+8. Milestone 3 Automation is committed/pushed as `52dd0e35`; direct `git ls-remote`
+   matches the full local SHA. Its independent follow-up verdict is READY.
 
-Current Milestone 3 state: immutable pre-fix Automation sources and the ten-mismatch
-failing baseline remain preserved under `milestone-3/baseline/`. The coordinator has
-closed the exact-source gaps for shared squad discovery/retention, Alliance/Treasure
-priority, Dispatch Assist store ownership, immediate-save control families, Railway
-running disables, error ancestry, Activity retention and Trade fetch-error DOM.
-`validate-milestone-3.mjs` is green with 14 source / 21 current contracts, 154 mounted
-browser assertions, 23 screenshots and zero console errors. The task-local exact
-renderer proves 56/56 source-valid original/current pairs pixel-identical with zero
-browser issues. Canonical check/build/package, archive preservation, Unit-C 003A–003E
-and `git diff --check` are green. The independent reviewer follow-up is READY with no
-remaining fixes. Commit/push/verify Milestone 3 before starting shell/Home production
-integration.
+Milestone 4 closes the demonstrated complete-shell/Home gaps: exact
+`aside.profile-sidebar` ancestry, root-sibling exit composition, all four ordered
+shell flag stores/fallbacks, preview-only uncached/cached profile loading, Auto Launch
+error lifetime, and selected-profile recovery ownership. Fresh Home proof has 42 source
+cases and 24/24 exact-required pixel pairs. The mounted current App has 124 assertions,
+18 screenshots and zero console/page issues.
+
+The final missing gate is also closed: `milestone-4/shell-source-render/` executes
+the recovered whole `Gi` and current App for 16 whole-shell cases, independently
+styles/captures both sides, detects both motivating ancestry mutations and validates
+read-only with zero console issues. Raw pixel differences remain unmasked and are
+bounded to the declared auth/account scope and unavailable-provider states. Both
+independent follow-up reviews are **READY**. See `milestone-4/closeout.md`.
+
+The historical AFK-editor/startup manifests remain immutable checkpoint boundaries;
+later authorized milestone changes intentionally make their old frozen input hashes
+stale. Do not repin those records.
 
 Owner-owned listener: 127.0.0.1:4319. It was reused read-only for the Milestone-2
 browser gate and must not be stopped or replaced. Start any later task listener on a

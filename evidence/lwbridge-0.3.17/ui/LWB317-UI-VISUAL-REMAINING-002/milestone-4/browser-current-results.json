@@ -1,0 +1,737 @@
+{
+  "marker": "LWB317_REMAINING_M4_BROWSER_CURRENT_OK",
+  "cases": [
+    {
+      "name": "en-light-desktop/home-checking has top bar",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "en-light-desktop/home-checking has eight nav entries",
+      "actual": 8,
+      "expected": 8
+    },
+    {
+      "name": "en-light-desktop/home-checking Home is under profile-view-context",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "en-light-desktop/home-checking Home fixture identity",
+      "actual": "home-checking",
+      "expected": "home-checking"
+    },
+    {
+      "name": "en-light-desktop/home-checking language settled",
+      "actual": "en",
+      "expected": "en"
+    },
+    {
+      "name": "en-light-desktop/home-checking theme settled",
+      "actual": "light",
+      "expected": "light"
+    },
+    {
+      "name": "en-light-desktop/home-errors-both has top bar",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "en-light-desktop/home-errors-both has eight nav entries",
+      "actual": 8,
+      "expected": 8
+    },
+    {
+      "name": "en-light-desktop/home-errors-both Home is under profile-view-context",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "en-light-desktop/home-errors-both Home fixture identity",
+      "actual": "home-errors-both",
+      "expected": "home-errors-both"
+    },
+    {
+      "name": "en-light-desktop/home-errors-both language settled",
+      "actual": "en",
+      "expected": "en"
+    },
+    {
+      "name": "en-light-desktop/home-errors-both theme settled",
+      "actual": "light",
+      "expected": "light"
+    },
+    {
+      "name": "en-light-desktop/home-errors-both keeps independent action error",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "en-light-desktop/home-busy-overlap has top bar",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "en-light-desktop/home-busy-overlap has eight nav entries",
+      "actual": 8,
+      "expected": 8
+    },
+    {
+      "name": "en-light-desktop/home-busy-overlap Home is under profile-view-context",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "en-light-desktop/home-busy-overlap Home fixture identity",
+      "actual": "home-busy-overlap",
+      "expected": "home-busy-overlap"
+    },
+    {
+      "name": "en-light-desktop/home-busy-overlap language settled",
+      "actual": "en",
+      "expected": "en"
+    },
+    {
+      "name": "en-light-desktop/home-busy-overlap theme settled",
+      "actual": "light",
+      "expected": "light"
+    },
+    {
+      "name": "en-light-desktop/home-recovery-failed has top bar",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "en-light-desktop/home-recovery-failed has eight nav entries",
+      "actual": 8,
+      "expected": 8
+    },
+    {
+      "name": "en-light-desktop/home-recovery-failed Home is under profile-view-context",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "en-light-desktop/home-recovery-failed Home fixture identity",
+      "actual": "home-recovery-failed",
+      "expected": "home-recovery-failed"
+    },
+    {
+      "name": "en-light-desktop/home-recovery-failed language settled",
+      "actual": "en",
+      "expected": "en"
+    },
+    {
+      "name": "en-light-desktop/home-recovery-failed theme settled",
+      "actual": "light",
+      "expected": "light"
+    },
+    {
+      "name": "en-light-desktop/home-recovery-failed recovery detail visible",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "en-light-desktop/home-connected has top bar",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "en-light-desktop/home-connected has eight nav entries",
+      "actual": 8,
+      "expected": 8
+    },
+    {
+      "name": "en-light-desktop/home-connected Home is under profile-view-context",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "en-light-desktop/home-connected Home fixture identity",
+      "actual": "home-connected",
+      "expected": "home-connected"
+    },
+    {
+      "name": "en-light-desktop/home-connected language settled",
+      "actual": "en",
+      "expected": "en"
+    },
+    {
+      "name": "en-light-desktop/home-connected theme settled",
+      "actual": "light",
+      "expected": "light"
+    },
+    {
+      "name": "en-light-desktop/home-running-disconnected has top bar",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "en-light-desktop/home-running-disconnected has eight nav entries",
+      "actual": 8,
+      "expected": 8
+    },
+    {
+      "name": "en-light-desktop/home-running-disconnected Home is under profile-view-context",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "en-light-desktop/home-running-disconnected Home fixture identity",
+      "actual": "home-running-disconnected",
+      "expected": "home-running-disconnected"
+    },
+    {
+      "name": "en-light-desktop/home-running-disconnected language settled",
+      "actual": "en",
+      "expected": "en"
+    },
+    {
+      "name": "en-light-desktop/home-running-disconnected theme settled",
+      "actual": "light",
+      "expected": "light"
+    },
+    {
+      "name": "ja-dark-narrow/home-checking has top bar",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "ja-dark-narrow/home-checking has eight nav entries",
+      "actual": 8,
+      "expected": 8
+    },
+    {
+      "name": "ja-dark-narrow/home-checking Home is under profile-view-context",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "ja-dark-narrow/home-checking Home fixture identity",
+      "actual": "home-checking",
+      "expected": "home-checking"
+    },
+    {
+      "name": "ja-dark-narrow/home-checking language settled",
+      "actual": "ja",
+      "expected": "ja"
+    },
+    {
+      "name": "ja-dark-narrow/home-checking theme settled",
+      "actual": "dark",
+      "expected": "dark"
+    },
+    {
+      "name": "ja-dark-narrow/home-checking has no document horizontal overflow",
+      "actual": false,
+      "expected": false
+    },
+    {
+      "name": "ja-dark-narrow/home-errors-both has top bar",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "ja-dark-narrow/home-errors-both has eight nav entries",
+      "actual": 8,
+      "expected": 8
+    },
+    {
+      "name": "ja-dark-narrow/home-errors-both Home is under profile-view-context",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "ja-dark-narrow/home-errors-both Home fixture identity",
+      "actual": "home-errors-both",
+      "expected": "home-errors-both"
+    },
+    {
+      "name": "ja-dark-narrow/home-errors-both language settled",
+      "actual": "ja",
+      "expected": "ja"
+    },
+    {
+      "name": "ja-dark-narrow/home-errors-both theme settled",
+      "actual": "dark",
+      "expected": "dark"
+    },
+    {
+      "name": "ja-dark-narrow/home-errors-both has no document horizontal overflow",
+      "actual": false,
+      "expected": false
+    },
+    {
+      "name": "ja-dark-narrow/home-errors-both keeps independent action error",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "ja-dark-narrow/home-busy-overlap has top bar",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "ja-dark-narrow/home-busy-overlap has eight nav entries",
+      "actual": 8,
+      "expected": 8
+    },
+    {
+      "name": "ja-dark-narrow/home-busy-overlap Home is under profile-view-context",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "ja-dark-narrow/home-busy-overlap Home fixture identity",
+      "actual": "home-busy-overlap",
+      "expected": "home-busy-overlap"
+    },
+    {
+      "name": "ja-dark-narrow/home-busy-overlap language settled",
+      "actual": "ja",
+      "expected": "ja"
+    },
+    {
+      "name": "ja-dark-narrow/home-busy-overlap theme settled",
+      "actual": "dark",
+      "expected": "dark"
+    },
+    {
+      "name": "ja-dark-narrow/home-busy-overlap has no document horizontal overflow",
+      "actual": false,
+      "expected": false
+    },
+    {
+      "name": "ja-dark-narrow/home-recovery-failed has top bar",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "ja-dark-narrow/home-recovery-failed has eight nav entries",
+      "actual": 8,
+      "expected": 8
+    },
+    {
+      "name": "ja-dark-narrow/home-recovery-failed Home is under profile-view-context",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "ja-dark-narrow/home-recovery-failed Home fixture identity",
+      "actual": "home-recovery-failed",
+      "expected": "home-recovery-failed"
+    },
+    {
+      "name": "ja-dark-narrow/home-recovery-failed language settled",
+      "actual": "ja",
+      "expected": "ja"
+    },
+    {
+      "name": "ja-dark-narrow/home-recovery-failed theme settled",
+      "actual": "dark",
+      "expected": "dark"
+    },
+    {
+      "name": "ja-dark-narrow/home-recovery-failed has no document horizontal overflow",
+      "actual": false,
+      "expected": false
+    },
+    {
+      "name": "ja-dark-narrow/home-recovery-failed recovery detail visible",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "ja-dark-narrow/home-connected has top bar",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "ja-dark-narrow/home-connected has eight nav entries",
+      "actual": 8,
+      "expected": 8
+    },
+    {
+      "name": "ja-dark-narrow/home-connected Home is under profile-view-context",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "ja-dark-narrow/home-connected Home fixture identity",
+      "actual": "home-connected",
+      "expected": "home-connected"
+    },
+    {
+      "name": "ja-dark-narrow/home-connected language settled",
+      "actual": "ja",
+      "expected": "ja"
+    },
+    {
+      "name": "ja-dark-narrow/home-connected theme settled",
+      "actual": "dark",
+      "expected": "dark"
+    },
+    {
+      "name": "ja-dark-narrow/home-connected has no document horizontal overflow",
+      "actual": false,
+      "expected": false
+    },
+    {
+      "name": "ja-dark-narrow/home-running-disconnected has top bar",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "ja-dark-narrow/home-running-disconnected has eight nav entries",
+      "actual": 8,
+      "expected": 8
+    },
+    {
+      "name": "ja-dark-narrow/home-running-disconnected Home is under profile-view-context",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "ja-dark-narrow/home-running-disconnected Home fixture identity",
+      "actual": "home-running-disconnected",
+      "expected": "home-running-disconnected"
+    },
+    {
+      "name": "ja-dark-narrow/home-running-disconnected language settled",
+      "actual": "ja",
+      "expected": "ja"
+    },
+    {
+      "name": "ja-dark-narrow/home-running-disconnected theme settled",
+      "actual": "dark",
+      "expected": "dark"
+    },
+    {
+      "name": "ja-dark-narrow/home-running-disconnected has no document horizontal overflow",
+      "actual": false,
+      "expected": false
+    },
+    {
+      "name": "shell flag save errors render four ordered banners",
+      "actual": 4,
+      "expected": 4
+    },
+    {
+      "name": "shell flag errors precede Home in ancestry",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "each shell save error exposes Retry/Discard",
+      "actual": 8,
+      "expected": 8
+    },
+    {
+      "name": "discard reconciles one shell flag store independently",
+      "actual": 3,
+      "expected": 3
+    },
+    {
+      "name": "profile list has recovered aside rail ancestor",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "profile shell starts compact",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "profile compact list has two rows",
+      "actual": 2,
+      "expected": 2
+    },
+    {
+      "name": "profile shell expands locally",
+      "actual": false,
+      "expected": false
+    },
+    {
+      "name": "expanded profile list has two rows",
+      "actual": 2,
+      "expected": 2
+    },
+    {
+      "name": "profile native start controls remain fenced",
+      "actual": 0,
+      "expected": 0
+    },
+    {
+      "name": "profile note dialog is mounted/open",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "profile note input owns autofocus",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "profile note Escape closes when idle",
+      "actual": 0,
+      "expected": 0
+    },
+    {
+      "name": "uncached local profile selection enters recovered loading branch",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "uncached local profile load restores retained page after completion",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "local profile selection changes active row",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "cached Local 1 return bypasses loading",
+      "actual": 0,
+      "expected": 0
+    },
+    {
+      "name": "cached Local 2 return bypasses loading",
+      "actual": 0,
+      "expected": 0
+    },
+    {
+      "name": "profile selection keeps Home route",
+      "actual": "active",
+      "expected": "active"
+    },
+    {
+      "name": "profile loading keeps sidebar",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "profile loading replaces routed page",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "profile loading hides Home composition",
+      "actual": 0,
+      "expected": 0
+    },
+    {
+      "name": "profile loading narrow has no document overflow",
+      "actual": false,
+      "expected": false
+    },
+    {
+      "name": "exit dialog idle opens in shell",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "exit dialog is recovered sibling of app-shell",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "exit dialog has two actions",
+      "actual": 2,
+      "expected": 2
+    },
+    {
+      "name": "idle exit Escape dismisses producer fixture",
+      "actual": 0,
+      "expected": 0
+    },
+    {
+      "name": "busy exit dialog is recovered sibling of app-shell",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "busy exit disables both actions",
+      "actual": 0,
+      "expected": 0
+    },
+    {
+      "name": "busy exit remains mounted after physical Escape",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "busy exit source cancel predicate keeps dialog open in headless Chrome",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "Cross-server opens in Home shell",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "offline Cross-server shows one source-owned block message",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "Cross-server Escape is inert",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "Cross-server outside pointer-down dismisses",
+      "actual": 0,
+      "expected": 0
+    },
+    {
+      "name": "locale changes live to Japanese",
+      "actual": "ja",
+      "expected": "ja"
+    },
+    {
+      "name": "Home fixture survives locale change",
+      "actual": "home-checking",
+      "expected": "home-checking"
+    },
+    {
+      "name": "theme changes live to dark",
+      "actual": "dark",
+      "expected": "dark"
+    },
+    {
+      "name": "theme transition class settles",
+      "actual": "",
+      "expected": ""
+    },
+    {
+      "name": "downloading update control visible in whole shell",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "downloading update progress is 42 percent",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "unavailable updater action remains fenced",
+      "actual": true,
+      "expected": true
+    }
+  ],
+  "screenshots": [
+    {
+      "file": "en-light-desktop-home-checking.png",
+      "sha256": "B1C7432D302DF90AA7D86B091B902C5089444F377F7DE0D17B545B6E4E61D9E4",
+      "length": 40634
+    },
+    {
+      "file": "en-light-desktop-home-errors-both.png",
+      "sha256": "B5AF665DE82906E6F0B4A7FFFAB6A508666FB48E29CD9DAE0F7AE7FB350F0BCA",
+      "length": 46107
+    },
+    {
+      "file": "en-light-desktop-home-busy-overlap.png",
+      "sha256": "A904CF85E46899723EEFDF7A490EA138B9A0FAA549393CA2D333D77593A472FF",
+      "length": 42742
+    },
+    {
+      "file": "en-light-desktop-home-recovery-failed.png",
+      "sha256": "2217D60709C0F9FD4504AD9D6599C7A9D8D85B27B4481F02DD4DA2B2D21AD1AB",
+      "length": 43982
+    },
+    {
+      "file": "en-light-desktop-home-connected.png",
+      "sha256": "8201D92E51868C3B86C4D6ECD2AC7FFCE44BDAA4FE49BDF928C09588EF420FAF",
+      "length": 42568
+    },
+    {
+      "file": "en-light-desktop-home-running-disconnected.png",
+      "sha256": "CFBFC07BF65303D70C68A6FD75F4BED6871C76DE0FE1B62E35002D5D7F820A3A",
+      "length": 43021
+    },
+    {
+      "file": "ja-dark-narrow-home-checking.png",
+      "sha256": "FAB27A0883D9FB6941D9BA0F58E6FBC7CFC3E7A422A018A12DFBBE298C7724EC",
+      "length": 40173
+    },
+    {
+      "file": "ja-dark-narrow-home-errors-both.png",
+      "sha256": "E7BDE67D182D6A9710C6A99D8A16ECAC7843D210730BE3E3450355BF68138AFE",
+      "length": 52480
+    },
+    {
+      "file": "ja-dark-narrow-home-busy-overlap.png",
+      "sha256": "A87DBE3B5446600063316CAF93DCD38B9449F1E9E3C668AB3D1BE902F6FB8617",
+      "length": 42862
+    },
+    {
+      "file": "ja-dark-narrow-home-recovery-failed.png",
+      "sha256": "5A509D5552B193F207C1DF019BA1B609AC90345BA452A49E4C90C775B4348BBB",
+      "length": 45812
+    },
+    {
+      "file": "ja-dark-narrow-home-connected.png",
+      "sha256": "EDD1F91D446D9E4F5D388FF469979F6B787D4851E988FDC61F33B17F26E71B0D",
+      "length": 43613
+    },
+    {
+      "file": "ja-dark-narrow-home-running-disconnected.png",
+      "sha256": "FF506D3F5D41209A84230637D39816F3258D8BAE5FA89A587D8251559F9D5D86",
+      "length": 43854
+    },
+    {
+      "file": "en-light-shell-save-errors-after-discard.png",
+      "sha256": "0286453A2F3FE6AD32816F1EE8B9A36DBEED6FADBD50D53C6334E5CF412F6500",
+      "length": 52460
+    },
+    {
+      "file": "en-light-profiles-expanded-selected.png",
+      "sha256": "AA07A624BD0C1B7A80734E1E1FE7AB2215972AE1DDD7230B7827A672B6695CC9",
+      "length": 55883
+    },
+    {
+      "file": "ja-dark-narrow-profile-switch-loading.png",
+      "sha256": "F07471B70C58A91A628917054C93FD45E2480217958AFA9DE065FF6495D94A21",
+      "length": 37080
+    },
+    {
+      "file": "ja-dark-narrow-exit-busy-after-escape.png",
+      "sha256": "AE616E159951BB8B79876299295F276BD1D59BEB55967F158F8FB2A2B098B7A7",
+      "length": 63725
+    },
+    {
+      "file": "ja-dark-live-locale-theme-home.png",
+      "sha256": "B0FEF77FF474BAC9F6FFF92D802620CC65A0D8EE5AB1F1107E076DC5206F5F69",
+      "length": 42864
+    },
+    {
+      "file": "en-light-update-downloading-home.png",
+      "sha256": "DFCC91E5C5F2220D93065BB815443877B1CA0A95A647D0549826D0F891D24A39",
+      "length": 42577
+    }
+  ],
+  "consoleIssues": [],
+  "sourceFiles": {
+    "src/LWBridge.UI-0.3.17/src/App.jsx": "E4039BEE1A7F66712C797ABBEFC3DAAE4C7FB59C82939B90F4D0041F40B7A93C",
+    "src/LWBridge.UI-0.3.17/src/HomePage.jsx": "F140264E693E89F37CBB357470F58FE5DCA46F3DFDA29A8A5D2C7918CE2393FF",
+    "src/LWBridge.UI-0.3.17/src/ShellPresentation.jsx": "B1DD1278F274A1FD347AD4C27787B5AE8DC1DB32230D49B55F7A471DE34A904F",
+    "src/LWBridge.UI-0.3.17/src/ProfileSidebar.jsx": "96E480F3BBA897AB18BE29891A346651E933C6C743A908DE36BAC67B0E86DA9D",
+    "src/LWBridge.UI-0.3.17/src/ProfileSwitchState.jsx": "01FC87F704CC45BE3476BCAF461FA057F70DCE57A7453DDD00188B756F9E83F5",
+    "src/LWBridge.UI-0.3.17/src/AppExitDialog.jsx": "AFA79399788E4F8C58FA81C11FF86CB7128CBF5DD02A84BD511E88A928A6549D",
+    "src/LWBridge.UI-0.3.17/src/sharedPageUI.jsx": "95ED15F5A4AB46C7CAE4DD55656E85718F66FA5AC45278B615D1795EBD8E82F2",
+    "src/LWBridge.UI-0.3.17/src/NavIcon.jsx": "BE74437FE9A0ACD86BA47F81983D0AFDDF51FD4C304C9C4932ADA3422936D911",
+    "src/LWBridge.UI-0.3.17/src/shellState.js": "29DF81AF8A791CA4D14535E9EEC0052F91A2FF45E18B7B272042DBAEC7C28195",
+    "src/LWBridge.UI-0.3.17/src/profileConfigDraft.js": "31E255735FA77CE3D780D7DF563833C2D3AFBA26D16C0091F70DB486EBCD3E7A"
+  },
+  "browser": {
+    "version": "1.63.0"
+  },
+  "limits": [
+    "Browser preview uses inert offline state and never invokes native/gameplay providers.",
+    "Busy native dialog Escape remains open in headless Chrome under the recovered preventDefault predicate; the older IAB exact-original/current packet separately records that environment's shared DOM-close quirk."
+  ]
+}

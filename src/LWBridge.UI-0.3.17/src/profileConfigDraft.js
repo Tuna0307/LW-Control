@@ -17,13 +17,15 @@ export function assertBridgeProfileOwner(bridge, profileId) {
   if (bridge.profileId !== profileId) throw profileScopeMismatchError();
 }
 
-export function createAutomationFlagAdapter(bridge, profileId, name, statusKey, defaultValue = false) {
+export function createAutomationFlagAdapter(bridge, profileId, name, statusKey, defaultValue = false, fallbackStatusKey = "") {
   return {
     read: async () => {
       assertBridgeProfileOwner(bridge, profileId);
       const status = await bridge.invokeProfileScoped("get_status", {});
       const value = status?.config?.[statusKey];
-      return typeof value === "boolean" ? value : defaultValue;
+      if (typeof value === "boolean") return value;
+      const fallback = fallbackStatusKey ? status?.config?.[fallbackStatusKey] : undefined;
+      return typeof fallback === "boolean" ? fallback : defaultValue;
     },
     write: async (enabled) => {
       assertBridgeProfileOwner(bridge, profileId);

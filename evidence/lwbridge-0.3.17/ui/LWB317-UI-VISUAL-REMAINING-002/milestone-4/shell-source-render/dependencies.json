@@ -1,0 +1,82 @@
+{
+  "files": [
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-BVfnK1wp.js",
+      "sha256": "44C4E4043825B7DB296B64171951B27176F8850FF8D7D337CC991DF4765524C6"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-rIL9Fpht.css",
+      "sha256": "3D87E9F65B39EACE6A1A254BFC90A38ACB72613D1FFF7236C7CEE7AB9BFAF545"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/App.jsx",
+      "sha256": "E4039BEE1A7F66712C797ABBEFC3DAAE4C7FB59C82939B90F4D0041F40B7A93C"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/ShellPresentation.jsx",
+      "sha256": "B1DD1278F274A1FD347AD4C27787B5AE8DC1DB32230D49B55F7A471DE34A904F"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/ProfileSidebar.jsx",
+      "sha256": "96E480F3BBA897AB18BE29891A346651E933C6C743A908DE36BAC67B0E86DA9D"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/ProfileSwitchState.jsx",
+      "sha256": "01FC87F704CC45BE3476BCAF461FA057F70DCE57A7453DDD00188B756F9E83F5"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/AppExitDialog.jsx",
+      "sha256": "AFA79399788E4F8C58FA81C11FF86CB7128CBF5DD02A84BD511E88A928A6549D"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/NavIcon.jsx",
+      "sha256": "BE74437FE9A0ACD86BA47F81983D0AFDDF51FD4C304C9C4932ADA3422936D911"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/routes.js",
+      "sha256": "2DA41EBFE3F4D898AE9E447F7A368C4EC9B270A0BAB46F2F3F049A8C0AADCF03"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/i18n.jsx",
+      "sha256": "D4290741AB2C7ACB0546ED47156BEF434DDF210775CAD9B9A3A261D401CE4891"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/locales/en.js",
+      "sha256": "357682D9179AE712EE563950467B7A93B5AEA89322AFC993E079FEDEE28432C1"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/locales/ja.js",
+      "sha256": "E1FED1E9AAF052963E3D8F5A5F8B9AE96B002A05A9DD7BB06A460A66187755EB"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/reference.css",
+      "sha256": "3D87E9F65B39EACE6A1A254BFC90A38ACB72613D1FFF7236C7CEE7AB9BFAF545"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/styles.css",
+      "sha256": "B50910D37A4DD02D7BB49B506735EA42615EF0F9E85714E880049481AECE2CCC"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/en-BisSXcTB.js",
+      "sha256": "0BF43D180EB93692A93B830B5D984E9D01DDEEA524340F2334FC63CBA527A731"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/ja-UrbzJu-m.js",
+      "sha256": "35969183AB623B6701BC850FDF28BCF268C93127FF6C9693F77E588EE7BDBE38"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-REMAINING-002/milestone-4/shell-source-render/render-shell-pairs.mjs",
+      "sha256": "BD2E331DE87D811DFF7FEB37664B08667CD06524BD264F97E72DCCE6D1C49F5C"
+    }
+  ],
+  "tools": {
+    "node": "v24.18.0",
+    "react": "19.3.0",
+    "esbuild": "0.28.2",
+    "babelParser": "7.29.9"
+  },
+  "currentAppReturn": {
+    "byteLength": 8525,
+    "sha256": "B28E3437E4D3374EC2E574ED09595991F60A42470D65B41C64CD7801A415DB8B"
+  }
+}

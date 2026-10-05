@@ -1,0 +1,5352 @@
+{
+  "pairs": [
+    {
+      "id": "en-light-1280-checking",
+      "scenario": "checking",
+      "language": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900,
+      "original": {
+        "screenshot": "en-light-1280-checking-original.png",
+        "sha256": "2ee077905b64c4f0e51c6e19c0d6df6b67ccab4be8be09dd163cbf57bad2c632",
+        "measurement": {
+          "root": {
+            "x": 201,
+            "y": 25,
+            "width": 1052,
+            "height": 212
+          },
+          "scrollWidth": 1280,
+          "clientWidth": 1280,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "Open games at startup",
+              "rect": {
+                "x": 218,
+                "y": 102,
+                "width": 1018,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "Automatic Reconnection",
+              "rect": {
+                "x": 218,
+                "y": 170,
+                "width": 1018,
+                "height": 50
+              }
+            }
+          ]
+        }
+      },
+      "current": {
+        "screenshot": "en-light-1280-checking-current.png",
+        "sha256": "2ee077905b64c4f0e51c6e19c0d6df6b67ccab4be8be09dd163cbf57bad2c632",
+        "measurement": {
+          "root": {
+            "x": 201,
+            "y": 25,
+            "width": 1052,
+            "height": 212
+          },
+          "scrollWidth": 1280,
+          "clientWidth": 1280,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "Open games at startup",
+              "rect": {
+                "x": 218,
+                "y": 102,
+                "width": 1018,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "Automatic Reconnection",
+              "rect": {
+                "x": 218,
+                "y": 170,
+                "width": 1018,
+                "height": 50
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "en-light-1280-missing-error-busy",
+      "scenario": "missing-error-busy",
+      "language": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900,
+      "original": {
+        "screenshot": "en-light-1280-missing-error-busy-original.png",
+        "sha256": "2c5db52cc6e052611c707d465fbccb82c89ec076db9dc60a5e7596f518e189fe",
+        "measurement": {
+          "root": {
+            "x": 201,
+            "y": 25,
+            "width": 1052,
+            "height": 325
+          },
+          "scrollWidth": 1280,
+          "clientWidth": 1280,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "primary",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "Processing",
+              "rect": {
+                "x": 1141.890625,
+                "y": 115,
+                "width": 81.109375,
+                "height": 35
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "Open games at startup",
+              "rect": {
+                "x": 218,
+                "y": 215,
+                "width": 1018,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "Automatic Reconnection",
+              "rect": {
+                "x": 218,
+                "y": 283,
+                "width": 1018,
+                "height": 50
+              }
+            }
+          ]
+        }
+      },
+      "current": {
+        "screenshot": "en-light-1280-missing-error-busy-current.png",
+        "sha256": "2c5db52cc6e052611c707d465fbccb82c89ec076db9dc60a5e7596f518e189fe",
+        "measurement": {
+          "root": {
+            "x": 201,
+            "y": 25,
+            "width": 1052,
+            "height": 325
+          },
+          "scrollWidth": 1280,
+          "clientWidth": 1280,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "primary",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "Processing",
+              "rect": {
+                "x": 1141.890625,
+                "y": 115,
+                "width": 81.109375,
+                "height": 35
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "Open games at startup",
+              "rect": {
+                "x": 218,
+                "y": 215,
+                "width": 1018,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "Automatic Reconnection",
+              "rect": {
+                "x": 218,
+                "y": 283,
+                "width": 1018,
+                "height": 50
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "en-light-1280-busy-overlap",
+      "scenario": "busy-overlap",
+      "language": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900,
+      "original": {
+        "screenshot": "en-light-1280-busy-overlap-original.png",
+        "sha256": "6f957a292fda2cbfc9810ba736a4e6dcd8fb46e3808b22ca17027f37ced7ecc6",
+        "measurement": {
+          "root": {
+            "x": 201,
+            "y": 25,
+            "width": 1052,
+            "height": 265
+          },
+          "scrollWidth": 1280,
+          "clientWidth": 1280,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "primary",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "Launching game…",
+              "rect": {
+                "x": 218,
+                "y": 102,
+                "width": 126,
+                "height": 35
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "Processing",
+              "rect": {
+                "x": 354,
+                "y": 102,
+                "width": 120,
+                "height": 35
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "true",
+              "text": "Open games at startup",
+              "rect": {
+                "x": 218,
+                "y": 155,
+                "width": 1018,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "true",
+              "text": "Automatic Reconnection",
+              "rect": {
+                "x": 218,
+                "y": 223,
+                "width": 1018,
+                "height": 50
+              }
+            }
+          ]
+        }
+      },
+      "current": {
+        "screenshot": "en-light-1280-busy-overlap-current.png",
+        "sha256": "6f957a292fda2cbfc9810ba736a4e6dcd8fb46e3808b22ca17027f37ced7ecc6",
+        "measurement": {
+          "root": {
+            "x": 201,
+            "y": 25,
+            "width": 1052,
+            "height": 265
+          },
+          "scrollWidth": 1280,
+          "clientWidth": 1280,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "primary",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "Launching game…",
+              "rect": {
+                "x": 218,
+                "y": 102,
+                "width": 126,
+                "height": 35
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "Processing",
+              "rect": {
+                "x": 354,
+                "y": 102,
+                "width": 120,
+                "height": 35
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "true",
+              "text": "Open games at startup",
+              "rect": {
+                "x": 218,
+                "y": 155,
+                "width": 1018,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "true",
+              "text": "Automatic Reconnection",
+              "rect": {
+                "x": 218,
+                "y": 223,
+                "width": 1018,
+                "height": 50
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "en-light-1280-recovery-failed-busy",
+      "scenario": "recovery-failed-busy",
+      "language": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900,
+      "original": {
+        "screenshot": "en-light-1280-recovery-failed-busy-original.png",
+        "sha256": "d5111b8dc23b1710b93f93d541ddd608011490ccd495cb238f04bf431b416f5a",
+        "measurement": {
+          "root": {
+            "x": 201,
+            "y": 25,
+            "width": 1052,
+            "height": 299
+          },
+          "scrollWidth": 1280,
+          "clientWidth": 1280,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "primary",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "Processing",
+              "rect": {
+                "x": 218,
+                "y": 102,
+                "width": 120,
+                "height": 35
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "Close game",
+              "rect": {
+                "x": 348,
+                "y": 102,
+                "width": 120,
+                "height": 35
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "Open games at startup",
+              "rect": {
+                "x": 218,
+                "y": 155,
+                "width": 1018,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "Automatic Reconnection",
+              "rect": {
+                "x": 218,
+                "y": 223,
+                "width": 1018,
+                "height": 50
+              }
+            }
+          ]
+        }
+      },
+      "current": {
+        "screenshot": "en-light-1280-recovery-failed-busy-current.png",
+        "sha256": "d5111b8dc23b1710b93f93d541ddd608011490ccd495cb238f04bf431b416f5a",
+        "measurement": {
+          "root": {
+            "x": 201,
+            "y": 25,
+            "width": 1052,
+            "height": 299
+          },
+          "scrollWidth": 1280,
+          "clientWidth": 1280,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "primary",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "Processing",
+              "rect": {
+                "x": 218,
+                "y": 102,
+                "width": 120,
+                "height": 35
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "Close game",
+              "rect": {
+                "x": 348,
+                "y": 102,
+                "width": 120,
+                "height": 35
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "Open games at startup",
+              "rect": {
+                "x": 218,
+                "y": 155,
+                "width": 1018,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "Automatic Reconnection",
+              "rect": {
+                "x": 218,
+                "y": 223,
+                "width": 1018,
+                "height": 50
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "en-light-1280-preference-launch-saving",
+      "scenario": "preference-launch-saving",
+      "language": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900,
+      "original": {
+        "screenshot": "en-light-1280-preference-launch-saving-original.png",
+        "sha256": "77b6a480f987e8f66053e37d8a8d571ba319af1fc9b1626cff54187e0488b473",
+        "measurement": {
+          "root": {
+            "x": 201,
+            "y": 25,
+            "width": 1052,
+            "height": 265
+          },
+          "scrollWidth": 1280,
+          "clientWidth": 1280,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "primary",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "Processing",
+              "rect": {
+                "x": 218,
+                "y": 102,
+                "width": 120,
+                "height": 35
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "Close game",
+              "rect": {
+                "x": 348,
+                "y": 102,
+                "width": 120,
+                "height": 35
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "Open games at startup",
+              "rect": {
+                "x": 218,
+                "y": 155,
+                "width": 1018,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "Automatic Reconnection",
+              "rect": {
+                "x": 218,
+                "y": 223,
+                "width": 1018,
+                "height": 50
+              }
+            }
+          ]
+        }
+      },
+      "current": {
+        "screenshot": "en-light-1280-preference-launch-saving-current.png",
+        "sha256": "77b6a480f987e8f66053e37d8a8d571ba319af1fc9b1626cff54187e0488b473",
+        "measurement": {
+          "root": {
+            "x": 201,
+            "y": 25,
+            "width": 1052,
+            "height": 265
+          },
+          "scrollWidth": 1280,
+          "clientWidth": 1280,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "primary",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "Processing",
+              "rect": {
+                "x": 218,
+                "y": 102,
+                "width": 120,
+                "height": 35
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "Close game",
+              "rect": {
+                "x": 348,
+                "y": 102,
+                "width": 120,
+                "height": 35
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "Open games at startup",
+              "rect": {
+                "x": 218,
+                "y": 155,
+                "width": 1018,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "Automatic Reconnection",
+              "rect": {
+                "x": 218,
+                "y": 223,
+                "width": 1018,
+                "height": 50
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "en-light-1280-preference-reconnect-saving",
+      "scenario": "preference-reconnect-saving",
+      "language": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900,
+      "original": {
+        "screenshot": "en-light-1280-preference-reconnect-saving-original.png",
+        "sha256": "77b6a480f987e8f66053e37d8a8d571ba319af1fc9b1626cff54187e0488b473",
+        "measurement": {
+          "root": {
+            "x": 201,
+            "y": 25,
+            "width": 1052,
+            "height": 265
+          },
+          "scrollWidth": 1280,
+          "clientWidth": 1280,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "primary",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "Processing",
+              "rect": {
+                "x": 218,
+                "y": 102,
+                "width": 120,
+                "height": 35
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "Close game",
+              "rect": {
+                "x": 348,
+                "y": 102,
+                "width": 120,
+                "height": 35
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "Open games at startup",
+              "rect": {
+                "x": 218,
+                "y": 155,
+                "width": 1018,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "Automatic Reconnection",
+              "rect": {
+                "x": 218,
+                "y": 223,
+                "width": 1018,
+                "height": 50
+              }
+            }
+          ]
+        }
+      },
+      "current": {
+        "screenshot": "en-light-1280-preference-reconnect-saving-current.png",
+        "sha256": "77b6a480f987e8f66053e37d8a8d571ba319af1fc9b1626cff54187e0488b473",
+        "measurement": {
+          "root": {
+            "x": 201,
+            "y": 25,
+            "width": 1052,
+            "height": 265
+          },
+          "scrollWidth": 1280,
+          "clientWidth": 1280,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "primary",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "Processing",
+              "rect": {
+                "x": 218,
+                "y": 102,
+                "width": 120,
+                "height": 35
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "Close game",
+              "rect": {
+                "x": 348,
+                "y": 102,
+                "width": 120,
+                "height": 35
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "Open games at startup",
+              "rect": {
+                "x": 218,
+                "y": 155,
+                "width": 1018,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "Automatic Reconnection",
+              "rect": {
+                "x": 218,
+                "y": 223,
+                "width": 1018,
+                "height": 50
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "en-light-1280-stopped",
+      "scenario": "stopped",
+      "language": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900,
+      "original": {
+        "screenshot": "en-light-1280-stopped-original.png",
+        "sha256": "4abed2c6334ac55f8dfd174c40fd3a249f86ea1cb59f1a94aa948a858c7c1e4a",
+        "measurement": {
+          "root": {
+            "x": 201,
+            "y": 25,
+            "width": 1052,
+            "height": 265
+          },
+          "scrollWidth": 1280,
+          "clientWidth": 1280,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "primary",
+              "disabled": false,
+              "ariaChecked": null,
+              "text": "Launch Game",
+              "rect": {
+                "x": 218,
+                "y": 102,
+                "width": 120,
+                "height": 35
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "Close game",
+              "rect": {
+                "x": 348,
+                "y": 102,
+                "width": 120,
+                "height": 35
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "Open games at startup",
+              "rect": {
+                "x": 218,
+                "y": 155,
+                "width": 1018,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "Automatic Reconnection",
+              "rect": {
+                "x": 218,
+                "y": 223,
+                "width": 1018,
+                "height": 50
+              }
+            }
+          ]
+        }
+      },
+      "current": {
+        "screenshot": "en-light-1280-stopped-current.png",
+        "sha256": "a03dfe86da99a712d22f9932441259b68f90754b8f74f89d097f7e15cb8b71f2",
+        "measurement": {
+          "root": {
+            "x": 201,
+            "y": 25,
+            "width": 1052,
+            "height": 265
+          },
+          "scrollWidth": 1280,
+          "clientWidth": 1280,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "primary",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "Launch Game",
+              "rect": {
+                "x": 218,
+                "y": 102,
+                "width": 120,
+                "height": 35
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "Close game",
+              "rect": {
+                "x": 348,
+                "y": 102,
+                "width": 120,
+                "height": 35
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "Open games at startup",
+              "rect": {
+                "x": 218,
+                "y": 155,
+                "width": 1018,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "Automatic Reconnection",
+              "rect": {
+                "x": 218,
+                "y": 223,
+                "width": 1018,
+                "height": 50
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "en-light-1280-running-connected",
+      "scenario": "running-connected",
+      "language": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900,
+      "original": {
+        "screenshot": "en-light-1280-running-connected-original.png",
+        "sha256": "71d84ad909deb41a48bf3054b69a5f36064404efaef22be364352088483b0928",
+        "measurement": {
+          "root": {
+            "x": 201,
+            "y": 25,
+            "width": 1052,
+            "height": 265
+          },
+          "scrollWidth": 1280,
+          "clientWidth": 1280,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "primary",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "Launch Game",
+              "rect": {
+                "x": 218,
+                "y": 102,
+                "width": 120,
+                "height": 35
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "",
+              "disabled": false,
+              "ariaChecked": null,
+              "text": "Close game",
+              "rect": {
+                "x": 348,
+                "y": 102,
+                "width": 120,
+                "height": 35
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "true",
+              "text": "Open games at startup",
+              "rect": {
+                "x": 218,
+                "y": 155,
+                "width": 1018,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "true",
+              "text": "Automatic Reconnection",
+              "rect": {
+                "x": 218,
+                "y": 223,
+                "width": 1018,
+                "height": 50
+              }
+            }
+          ]
+        }
+      },
+      "current": {
+        "screenshot": "en-light-1280-running-connected-current.png",
+        "sha256": "cf42a7fe99067c17e335edc209ff8d7dbff55ef543f562aedb16d03bf28450ff",
+        "measurement": {
+          "root": {
+            "x": 201,
+            "y": 25,
+            "width": 1052,
+            "height": 265
+          },
+          "scrollWidth": 1280,
+          "clientWidth": 1280,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "primary",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "Launch Game",
+              "rect": {
+                "x": 218,
+                "y": 102,
+                "width": 120,
+                "height": 35
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "Close game",
+              "rect": {
+                "x": 348,
+                "y": 102,
+                "width": 120,
+                "height": 35
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "true",
+              "text": "Open games at startup",
+              "rect": {
+                "x": 218,
+                "y": 155,
+                "width": 1018,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "true",
+              "text": "Automatic Reconnection",
+              "rect": {
+                "x": 218,
+                "y": 223,
+                "width": 1018,
+                "height": 50
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "en-light-1280-repair",
+      "scenario": "repair",
+      "language": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900,
+      "original": {
+        "screenshot": "en-light-1280-repair-original.png",
+        "sha256": "2a5f977be6b416c5e73ec3c3b53c035845e4166bf1ed4cfc05a4bf05c0cd8147",
+        "measurement": {
+          "root": {
+            "x": 201,
+            "y": 25,
+            "width": 1052,
+            "height": 265
+          },
+          "scrollWidth": 1280,
+          "clientWidth": 1280,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "",
+              "disabled": false,
+              "ariaChecked": null,
+              "text": "Update and restart game",
+              "rect": {
+                "x": 218,
+                "y": 102,
+                "width": 161.40625,
+                "height": 35
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "Open games at startup",
+              "rect": {
+                "x": 218,
+                "y": 155,
+                "width": 1018,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "Automatic Reconnection",
+              "rect": {
+                "x": 218,
+                "y": 223,
+                "width": 1018,
+                "height": 50
+              }
+            }
+          ]
+        }
+      },
+      "current": {
+        "screenshot": "en-light-1280-repair-current.png",
+        "sha256": "4d49f2fb11c8b5bc00ebdeba8730a22c9c16077f8e06552a0f6d4ebb905abc83",
+        "measurement": {
+          "root": {
+            "x": 201,
+            "y": 25,
+            "width": 1052,
+            "height": 265
+          },
+          "scrollWidth": 1280,
+          "clientWidth": 1280,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "Update and restart game",
+              "rect": {
+                "x": 218,
+                "y": 102,
+                "width": 161.40625,
+                "height": 35
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "Open games at startup",
+              "rect": {
+                "x": 218,
+                "y": 155,
+                "width": 1018,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "Automatic Reconnection",
+              "rect": {
+                "x": 218,
+                "y": 223,
+                "width": 1018,
+                "height": 50
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "en-light-1280-unavailable",
+      "scenario": "unavailable",
+      "language": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900,
+      "original": {
+        "screenshot": "en-light-1280-unavailable-original.png",
+        "sha256": "77b6a480f987e8f66053e37d8a8d571ba319af1fc9b1626cff54187e0488b473",
+        "measurement": {
+          "root": {
+            "x": 201,
+            "y": 25,
+            "width": 1052,
+            "height": 265
+          },
+          "scrollWidth": 1280,
+          "clientWidth": 1280,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "primary",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "Processing",
+              "rect": {
+                "x": 218,
+                "y": 102,
+                "width": 120,
+                "height": 35
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "Close game",
+              "rect": {
+                "x": 348,
+                "y": 102,
+                "width": 120,
+                "height": 35
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "Open games at startup",
+              "rect": {
+                "x": 218,
+                "y": 155,
+                "width": 1018,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "Automatic Reconnection",
+              "rect": {
+                "x": 218,
+                "y": 223,
+                "width": 1018,
+                "height": 50
+              }
+            }
+          ]
+        }
+      },
+      "current": {
+        "screenshot": "en-light-1280-unavailable-current.png",
+        "sha256": "cb6658dac163c71aee67bf49b81afaf970e360c07379f8b3747e0943e9efb8b2",
+        "measurement": {
+          "root": {
+            "x": 201,
+            "y": 25,
+            "width": 1052,
+            "height": 265
+          },
+          "scrollWidth": 1280,
+          "clientWidth": 1280,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "primary",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "Processing",
+              "rect": {
+                "x": 218,
+                "y": 102,
+                "width": 120,
+                "height": 35
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "Close game",
+              "rect": {
+                "x": 348,
+                "y": 102,
+                "width": 120,
+                "height": 35
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": true,
+              "ariaChecked": "false",
+              "text": "Open games at startup",
+              "rect": {
+                "x": 218,
+                "y": 155,
+                "width": 1018,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": true,
+              "ariaChecked": "false",
+              "text": "Automatic Reconnection",
+              "rect": {
+                "x": 218,
+                "y": 223,
+                "width": 1018,
+                "height": 50
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "en-light-740-checking",
+      "scenario": "checking",
+      "language": "en",
+      "theme": "light",
+      "width": 740,
+      "height": 600,
+      "original": {
+        "screenshot": "en-light-740-checking-original.png",
+        "sha256": "4ce92956098a56c042173d8612098592c5568caecebabc103e701e9d2f8ae4ec",
+        "measurement": {
+          "root": {
+            "x": 25,
+            "y": 35,
+            "width": 690,
+            "height": 212
+          },
+          "scrollWidth": 740,
+          "clientWidth": 740,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "Open games at startup",
+              "rect": {
+                "x": 42,
+                "y": 112,
+                "width": 656,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "Automatic Reconnection",
+              "rect": {
+                "x": 42,
+                "y": 180,
+                "width": 656,
+                "height": 50
+              }
+            }
+          ]
+        }
+      },
+      "current": {
+        "screenshot": "en-light-740-checking-current.png",
+        "sha256": "4ce92956098a56c042173d8612098592c5568caecebabc103e701e9d2f8ae4ec",
+        "measurement": {
+          "root": {
+            "x": 25,
+            "y": 35,
+            "width": 690,
+            "height": 212
+          },
+          "scrollWidth": 740,
+          "clientWidth": 740,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "Open games at startup",
+              "rect": {
+                "x": 42,
+                "y": 112,
+                "width": 656,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "Automatic Reconnection",
+              "rect": {
+                "x": 42,
+                "y": 180,
+                "width": 656,
+                "height": 50
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "en-light-740-missing-error-busy",
+      "scenario": "missing-error-busy",
+      "language": "en",
+      "theme": "light",
+      "width": 740,
+      "height": 600,
+      "original": {
+        "screenshot": "en-light-740-missing-error-busy-original.png",
+        "sha256": "88643ffcb88a00ab34d9e243ae39b109c734fbb8e867f4a7e3c20f056f6cd9e8",
+        "measurement": {
+          "root": {
+            "x": 25,
+            "y": 35,
+            "width": 690,
+            "height": 325
+          },
+          "scrollWidth": 740,
+          "clientWidth": 740,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "primary",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "Processing",
+              "rect": {
+                "x": 603.890625,
+                "y": 125,
+                "width": 81.109375,
+                "height": 35
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "Open games at startup",
+              "rect": {
+                "x": 42,
+                "y": 225,
+                "width": 656,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "Automatic Reconnection",
+              "rect": {
+                "x": 42,
+                "y": 293,
+                "width": 656,
+                "height": 50
+              }
+            }
+          ]
+        }
+      },
+      "current": {
+        "screenshot": "en-light-740-missing-error-busy-current.png",
+        "sha256": "88643ffcb88a00ab34d9e243ae39b109c734fbb8e867f4a7e3c20f056f6cd9e8",
+        "measurement": {
+          "root": {
+            "x": 25,
+            "y": 35,
+            "width": 690,
+            "height": 325
+          },
+          "scrollWidth": 740,
+          "clientWidth": 740,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "primary",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "Processing",
+              "rect": {
+                "x": 603.890625,
+                "y": 125,
+                "width": 81.109375,
+                "height": 35
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "Open games at startup",
+              "rect": {
+                "x": 42,
+                "y": 225,
+                "width": 656,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "Automatic Reconnection",
+              "rect": {
+                "x": 42,
+                "y": 293,
+                "width": 656,
+                "height": 50
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "en-light-740-busy-overlap",
+      "scenario": "busy-overlap",
+      "language": "en",
+      "theme": "light",
+      "width": 740,
+      "height": 600,
+      "original": {
+        "screenshot": "en-light-740-busy-overlap-original.png",
+        "sha256": "83ca549be79bda9bb0a23e61b00251e1afb6285df933769e4d25ca0955243f61",
+        "measurement": {
+          "root": {
+            "x": 25,
+            "y": 35,
+            "width": 690,
+            "height": 265
+          },
+          "scrollWidth": 740,
+          "clientWidth": 740,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "primary",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "Launching game…",
+              "rect": {
+                "x": 42,
+                "y": 112,
+                "width": 126,
+                "height": 35
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "Processing",
+              "rect": {
+                "x": 178,
+                "y": 112,
+                "width": 120,
+                "height": 35
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "true",
+              "text": "Open games at startup",
+              "rect": {
+                "x": 42,
+                "y": 165,
+                "width": 656,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "true",
+              "text": "Automatic Reconnection",
+              "rect": {
+                "x": 42,
+                "y": 233,
+                "width": 656,
+                "height": 50
+              }
+            }
+          ]
+        }
+      },
+      "current": {
+        "screenshot": "en-light-740-busy-overlap-current.png",
+        "sha256": "83ca549be79bda9bb0a23e61b00251e1afb6285df933769e4d25ca0955243f61",
+        "measurement": {
+          "root": {
+            "x": 25,
+            "y": 35,
+            "width": 690,
+            "height": 265
+          },
+          "scrollWidth": 740,
+          "clientWidth": 740,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "primary",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "Launching game…",
+              "rect": {
+                "x": 42,
+                "y": 112,
+                "width": 126,
+                "height": 35
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "Processing",
+              "rect": {
+                "x": 178,
+                "y": 112,
+                "width": 120,
+                "height": 35
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "true",
+              "text": "Open games at startup",
+              "rect": {
+                "x": 42,
+                "y": 165,
+                "width": 656,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "true",
+              "text": "Automatic Reconnection",
+              "rect": {
+                "x": 42,
+                "y": 233,
+                "width": 656,
+                "height": 50
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "en-light-740-recovery-failed-busy",
+      "scenario": "recovery-failed-busy",
+      "language": "en",
+      "theme": "light",
+      "width": 740,
+      "height": 600,
+      "original": {
+        "screenshot": "en-light-740-recovery-failed-busy-original.png",
+        "sha256": "78078020b1fcfce111193e01829915e0622ec3266c0986b57be36a9a75cf3e0b",
+        "measurement": {
+          "root": {
+            "x": 25,
+            "y": 35,
+            "width": 690,
+            "height": 299
+          },
+          "scrollWidth": 740,
+          "clientWidth": 740,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "primary",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "Processing",
+              "rect": {
+                "x": 42,
+                "y": 112,
+                "width": 120,
+                "height": 35
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "Close game",
+              "rect": {
+                "x": 172,
+                "y": 112,
+                "width": 120,
+                "height": 35
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "Open games at startup",
+              "rect": {
+                "x": 42,
+                "y": 165,
+                "width": 656,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "Automatic Reconnection",
+              "rect": {
+                "x": 42,
+                "y": 233,
+                "width": 656,
+                "height": 50
+              }
+            }
+          ]
+        }
+      },
+      "current": {
+        "screenshot": "en-light-740-recovery-failed-busy-current.png",
+        "sha256": "78078020b1fcfce111193e01829915e0622ec3266c0986b57be36a9a75cf3e0b",
+        "measurement": {
+          "root": {
+            "x": 25,
+            "y": 35,
+            "width": 690,
+            "height": 299
+          },
+          "scrollWidth": 740,
+          "clientWidth": 740,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "primary",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "Processing",
+              "rect": {
+                "x": 42,
+                "y": 112,
+                "width": 120,
+                "height": 35
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "Close game",
+              "rect": {
+                "x": 172,
+                "y": 112,
+                "width": 120,
+                "height": 35
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "Open games at startup",
+              "rect": {
+                "x": 42,
+                "y": 165,
+                "width": 656,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "Automatic Reconnection",
+              "rect": {
+                "x": 42,
+                "y": 233,
+                "width": 656,
+                "height": 50
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "en-light-740-preference-launch-saving",
+      "scenario": "preference-launch-saving",
+      "language": "en",
+      "theme": "light",
+      "width": 740,
+      "height": 600,
+      "original": {
+        "screenshot": "en-light-740-preference-launch-saving-original.png",
+        "sha256": "fb4829d95622212c8f86145a8a8050b0197349e028e3576e8b568a16d821cca3",
+        "measurement": {
+          "root": {
+            "x": 25,
+            "y": 35,
+            "width": 690,
+            "height": 265
+          },
+          "scrollWidth": 740,
+          "clientWidth": 740,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "primary",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "Processing",
+              "rect": {
+                "x": 42,
+                "y": 112,
+                "width": 120,
+                "height": 35
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "Close game",
+              "rect": {
+                "x": 172,
+                "y": 112,
+                "width": 120,
+                "height": 35
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "Open games at startup",
+              "rect": {
+                "x": 42,
+                "y": 165,
+                "width": 656,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "Automatic Reconnection",
+              "rect": {
+                "x": 42,
+                "y": 233,
+                "width": 656,
+                "height": 50
+              }
+            }
+          ]
+        }
+      },
+      "current": {
+        "screenshot": "en-light-740-preference-launch-saving-current.png",
+        "sha256": "fb4829d95622212c8f86145a8a8050b0197349e028e3576e8b568a16d821cca3",
+        "measurement": {
+          "root": {
+            "x": 25,
+            "y": 35,
+            "width": 690,
+            "height": 265
+          },
+          "scrollWidth": 740,
+          "clientWidth": 740,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "primary",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "Processing",
+              "rect": {
+                "x": 42,
+                "y": 112,
+                "width": 120,
+                "height": 35
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "Close game",
+              "rect": {
+                "x": 172,
+                "y": 112,
+                "width": 120,
+                "height": 35
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "Open games at startup",
+              "rect": {
+                "x": 42,
+                "y": 165,
+                "width": 656,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "Automatic Reconnection",
+              "rect": {
+                "x": 42,
+                "y": 233,
+                "width": 656,
+                "height": 50
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "en-light-740-preference-reconnect-saving",
+      "scenario": "preference-reconnect-saving",
+      "language": "en",
+      "theme": "light",
+      "width": 740,
+      "height": 600,
+      "original": {
+        "screenshot": "en-light-740-preference-reconnect-saving-original.png",
+        "sha256": "fb4829d95622212c8f86145a8a8050b0197349e028e3576e8b568a16d821cca3",
+        "measurement": {
+          "root": {
+            "x": 25,
+            "y": 35,
+            "width": 690,
+            "height": 265
+          },
+          "scrollWidth": 740,
+          "clientWidth": 740,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "primary",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "Processing",
+              "rect": {
+                "x": 42,
+                "y": 112,
+                "width": 120,
+                "height": 35
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "Close game",
+              "rect": {
+                "x": 172,
+                "y": 112,
+                "width": 120,
+                "height": 35
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "Open games at startup",
+              "rect": {
+                "x": 42,
+                "y": 165,
+                "width": 656,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "Automatic Reconnection",
+              "rect": {
+                "x": 42,
+                "y": 233,
+                "width": 656,
+                "height": 50
+              }
+            }
+          ]
+        }
+      },
+      "current": {
+        "screenshot": "en-light-740-preference-reconnect-saving-current.png",
+        "sha256": "fb4829d95622212c8f86145a8a8050b0197349e028e3576e8b568a16d821cca3",
+        "measurement": {
+          "root": {
+            "x": 25,
+            "y": 35,
+            "width": 690,
+            "height": 265
+          },
+          "scrollWidth": 740,
+          "clientWidth": 740,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "primary",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "Processing",
+              "rect": {
+                "x": 42,
+                "y": 112,
+                "width": 120,
+                "height": 35
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "Close game",
+              "rect": {
+                "x": 172,
+                "y": 112,
+                "width": 120,
+                "height": 35
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "Open games at startup",
+              "rect": {
+                "x": 42,
+                "y": 165,
+                "width": 656,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "Automatic Reconnection",
+              "rect": {
+                "x": 42,
+                "y": 233,
+                "width": 656,
+                "height": 50
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "en-light-740-stopped",
+      "scenario": "stopped",
+      "language": "en",
+      "theme": "light",
+      "width": 740,
+      "height": 600,
+      "original": {
+        "screenshot": "en-light-740-stopped-original.png",
+        "sha256": "8c7a1332b5b14d4714d70818133f4dec91fef2f99453208f8d512acbee4870d2",
+        "measurement": {
+          "root": {
+            "x": 25,
+            "y": 35,
+            "width": 690,
+            "height": 265
+          },
+          "scrollWidth": 740,
+          "clientWidth": 740,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "primary",
+              "disabled": false,
+              "ariaChecked": null,
+              "text": "Launch Game",
+              "rect": {
+                "x": 42,
+                "y": 112,
+                "width": 120,
+                "height": 35
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "Close game",
+              "rect": {
+                "x": 172,
+                "y": 112,
+                "width": 120,
+                "height": 35
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "Open games at startup",
+              "rect": {
+                "x": 42,
+                "y": 165,
+                "width": 656,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "Automatic Reconnection",
+              "rect": {
+                "x": 42,
+                "y": 233,
+                "width": 656,
+                "height": 50
+              }
+            }
+          ]
+        }
+      },
+      "current": {
+        "screenshot": "en-light-740-stopped-current.png",
+        "sha256": "d59230793f023cbdad17ccb85661cfc15cd4e8e9417d18302741938ff870045c",
+        "measurement": {
+          "root": {
+            "x": 25,
+            "y": 35,
+            "width": 690,
+            "height": 265
+          },
+          "scrollWidth": 740,
+          "clientWidth": 740,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "primary",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "Launch Game",
+              "rect": {
+                "x": 42,
+                "y": 112,
+                "width": 120,
+                "height": 35
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "Close game",
+              "rect": {
+                "x": 172,
+                "y": 112,
+                "width": 120,
+                "height": 35
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "Open games at startup",
+              "rect": {
+                "x": 42,
+                "y": 165,
+                "width": 656,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "Automatic Reconnection",
+              "rect": {
+                "x": 42,
+                "y": 233,
+                "width": 656,
+                "height": 50
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "en-light-740-running-connected",
+      "scenario": "running-connected",
+      "language": "en",
+      "theme": "light",
+      "width": 740,
+      "height": 600,
+      "original": {
+        "screenshot": "en-light-740-running-connected-original.png",
+        "sha256": "e820a2d07ad718e69b02eb9e7ff76b3ba49e0c1572f4f2e0ae27a96e5295e995",
+        "measurement": {
+          "root": {
+            "x": 25,
+            "y": 35,
+            "width": 690,
+            "height": 265
+          },
+          "scrollWidth": 740,
+          "clientWidth": 740,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "primary",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "Launch Game",
+              "rect": {
+                "x": 42,
+                "y": 112,
+                "width": 120,
+                "height": 35
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "",
+              "disabled": false,
+              "ariaChecked": null,
+              "text": "Close game",
+              "rect": {
+                "x": 172,
+                "y": 112,
+                "width": 120,
+                "height": 35
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "true",
+              "text": "Open games at startup",
+              "rect": {
+                "x": 42,
+                "y": 165,
+                "width": 656,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "true",
+              "text": "Automatic Reconnection",
+              "rect": {
+                "x": 42,
+                "y": 233,
+                "width": 656,
+                "height": 50
+              }
+            }
+          ]
+        }
+      },
+      "current": {
+        "screenshot": "en-light-740-running-connected-current.png",
+        "sha256": "cb67c45c7fd0c1658388120485499a928c98e34d3b6214b3864a43bc9bf28a96",
+        "measurement": {
+          "root": {
+            "x": 25,
+            "y": 35,
+            "width": 690,
+            "height": 265
+          },
+          "scrollWidth": 740,
+          "clientWidth": 740,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "primary",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "Launch Game",
+              "rect": {
+                "x": 42,
+                "y": 112,
+                "width": 120,
+                "height": 35
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "Close game",
+              "rect": {
+                "x": 172,
+                "y": 112,
+                "width": 120,
+                "height": 35
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "true",
+              "text": "Open games at startup",
+              "rect": {
+                "x": 42,
+                "y": 165,
+                "width": 656,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "true",
+              "text": "Automatic Reconnection",
+              "rect": {
+                "x": 42,
+                "y": 233,
+                "width": 656,
+                "height": 50
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "en-light-740-repair",
+      "scenario": "repair",
+      "language": "en",
+      "theme": "light",
+      "width": 740,
+      "height": 600,
+      "original": {
+        "screenshot": "en-light-740-repair-original.png",
+        "sha256": "424184912e11171b69098d7aa1c4fa4ae6668689fb2e3ff726c4aa371ea397a0",
+        "measurement": {
+          "root": {
+            "x": 25,
+            "y": 35,
+            "width": 690,
+            "height": 282
+          },
+          "scrollWidth": 740,
+          "clientWidth": 740,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "",
+              "disabled": false,
+              "ariaChecked": null,
+              "text": "Update and restart game",
+              "rect": {
+                "x": 42,
+                "y": 112,
+                "width": 144.640625,
+                "height": 52
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "Open games at startup",
+              "rect": {
+                "x": 42,
+                "y": 182,
+                "width": 656,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "Automatic Reconnection",
+              "rect": {
+                "x": 42,
+                "y": 250,
+                "width": 656,
+                "height": 50
+              }
+            }
+          ]
+        }
+      },
+      "current": {
+        "screenshot": "en-light-740-repair-current.png",
+        "sha256": "e0bfd10d3bca1e2c38a9e3eaba33d942a3a0d094f3eff902f4e6111fbf554be7",
+        "measurement": {
+          "root": {
+            "x": 25,
+            "y": 35,
+            "width": 690,
+            "height": 282
+          },
+          "scrollWidth": 740,
+          "clientWidth": 740,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "Update and restart game",
+              "rect": {
+                "x": 42,
+                "y": 112,
+                "width": 144.640625,
+                "height": 52
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "Open games at startup",
+              "rect": {
+                "x": 42,
+                "y": 182,
+                "width": 656,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "Automatic Reconnection",
+              "rect": {
+                "x": 42,
+                "y": 250,
+                "width": 656,
+                "height": 50
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "en-light-740-unavailable",
+      "scenario": "unavailable",
+      "language": "en",
+      "theme": "light",
+      "width": 740,
+      "height": 600,
+      "original": {
+        "screenshot": "en-light-740-unavailable-original.png",
+        "sha256": "fb4829d95622212c8f86145a8a8050b0197349e028e3576e8b568a16d821cca3",
+        "measurement": {
+          "root": {
+            "x": 25,
+            "y": 35,
+            "width": 690,
+            "height": 265
+          },
+          "scrollWidth": 740,
+          "clientWidth": 740,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "primary",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "Processing",
+              "rect": {
+                "x": 42,
+                "y": 112,
+                "width": 120,
+                "height": 35
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "Close game",
+              "rect": {
+                "x": 172,
+                "y": 112,
+                "width": 120,
+                "height": 35
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "Open games at startup",
+              "rect": {
+                "x": 42,
+                "y": 165,
+                "width": 656,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "Automatic Reconnection",
+              "rect": {
+                "x": 42,
+                "y": 233,
+                "width": 656,
+                "height": 50
+              }
+            }
+          ]
+        }
+      },
+      "current": {
+        "screenshot": "en-light-740-unavailable-current.png",
+        "sha256": "1bb3fb641bfee1ea01ddec8e06c62cb4864de2ed40f82c2c084528c19dbd629e",
+        "measurement": {
+          "root": {
+            "x": 25,
+            "y": 35,
+            "width": 690,
+            "height": 265
+          },
+          "scrollWidth": 740,
+          "clientWidth": 740,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "primary",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "Processing",
+              "rect": {
+                "x": 42,
+                "y": 112,
+                "width": 120,
+                "height": 35
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "Close game",
+              "rect": {
+                "x": 172,
+                "y": 112,
+                "width": 120,
+                "height": 35
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": true,
+              "ariaChecked": "false",
+              "text": "Open games at startup",
+              "rect": {
+                "x": 42,
+                "y": 165,
+                "width": 656,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": true,
+              "ariaChecked": "false",
+              "text": "Automatic Reconnection",
+              "rect": {
+                "x": 42,
+                "y": 233,
+                "width": 656,
+                "height": 50
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "ja-dark-1280-checking",
+      "scenario": "checking",
+      "language": "ja",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900,
+      "original": {
+        "screenshot": "ja-dark-1280-checking-original.png",
+        "sha256": "adc83b76638e6f6244b468b7a51c354b356e5b44d361a095cf2146cccd3f86bd",
+        "measurement": {
+          "root": {
+            "x": 201,
+            "y": 25,
+            "width": 1052,
+            "height": 221
+          },
+          "scrollWidth": 1280,
+          "clientWidth": 1280,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "起動時にゲームを開く",
+              "rect": {
+                "x": 218,
+                "y": 111,
+                "width": 1018,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "自動再接続",
+              "rect": {
+                "x": 218,
+                "y": 179,
+                "width": 1018,
+                "height": 50
+              }
+            }
+          ]
+        }
+      },
+      "current": {
+        "screenshot": "ja-dark-1280-checking-current.png",
+        "sha256": "adc83b76638e6f6244b468b7a51c354b356e5b44d361a095cf2146cccd3f86bd",
+        "measurement": {
+          "root": {
+            "x": 201,
+            "y": 25,
+            "width": 1052,
+            "height": 221
+          },
+          "scrollWidth": 1280,
+          "clientWidth": 1280,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "起動時にゲームを開く",
+              "rect": {
+                "x": 218,
+                "y": 111,
+                "width": 1018,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "自動再接続",
+              "rect": {
+                "x": 218,
+                "y": 179,
+                "width": 1018,
+                "height": 50
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "ja-dark-1280-missing-error-busy",
+      "scenario": "missing-error-busy",
+      "language": "ja",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900,
+      "original": {
+        "screenshot": "ja-dark-1280-missing-error-busy-original.png",
+        "sha256": "7d8f584015d06905aa88b83b97fb0aea1a90b3b5b7db1697d4127b57da421406",
+        "measurement": {
+          "root": {
+            "x": 201,
+            "y": 25,
+            "width": 1052,
+            "height": 342
+          },
+          "scrollWidth": 1280,
+          "clientWidth": 1280,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "primary",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "処理中",
+              "rect": {
+                "x": 1166,
+                "y": 124,
+                "width": 57,
+                "height": 39
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "起動時にゲームを開く",
+              "rect": {
+                "x": 218,
+                "y": 232,
+                "width": 1018,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "自動再接続",
+              "rect": {
+                "x": 218,
+                "y": 300,
+                "width": 1018,
+                "height": 50
+              }
+            }
+          ]
+        }
+      },
+      "current": {
+        "screenshot": "ja-dark-1280-missing-error-busy-current.png",
+        "sha256": "7d8f584015d06905aa88b83b97fb0aea1a90b3b5b7db1697d4127b57da421406",
+        "measurement": {
+          "root": {
+            "x": 201,
+            "y": 25,
+            "width": 1052,
+            "height": 342
+          },
+          "scrollWidth": 1280,
+          "clientWidth": 1280,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "primary",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "処理中",
+              "rect": {
+                "x": 1166,
+                "y": 124,
+                "width": 57,
+                "height": 39
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "起動時にゲームを開く",
+              "rect": {
+                "x": 218,
+                "y": 232,
+                "width": 1018,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "自動再接続",
+              "rect": {
+                "x": 218,
+                "y": 300,
+                "width": 1018,
+                "height": 50
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "ja-dark-1280-busy-overlap",
+      "scenario": "busy-overlap",
+      "language": "ja",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900,
+      "original": {
+        "screenshot": "ja-dark-1280-busy-overlap-original.png",
+        "sha256": "c91391cd69c5c7b2de5b38ce58113afd1d82a9764beb994ee30f2d4aa75f629d",
+        "measurement": {
+          "root": {
+            "x": 201,
+            "y": 25,
+            "width": 1052,
+            "height": 278
+          },
+          "scrollWidth": 1280,
+          "clientWidth": 1280,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "primary",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "ゲームを起動中…",
+              "rect": {
+                "x": 218,
+                "y": 111,
+                "width": 120,
+                "height": 39
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "処理中",
+              "rect": {
+                "x": 348,
+                "y": 111,
+                "width": 120,
+                "height": 39
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "true",
+              "text": "起動時にゲームを開く",
+              "rect": {
+                "x": 218,
+                "y": 168,
+                "width": 1018,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "true",
+              "text": "自動再接続",
+              "rect": {
+                "x": 218,
+                "y": 236,
+                "width": 1018,
+                "height": 50
+              }
+            }
+          ]
+        }
+      },
+      "current": {
+        "screenshot": "ja-dark-1280-busy-overlap-current.png",
+        "sha256": "c91391cd69c5c7b2de5b38ce58113afd1d82a9764beb994ee30f2d4aa75f629d",
+        "measurement": {
+          "root": {
+            "x": 201,
+            "y": 25,
+            "width": 1052,
+            "height": 278
+          },
+          "scrollWidth": 1280,
+          "clientWidth": 1280,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "primary",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "ゲームを起動中…",
+              "rect": {
+                "x": 218,
+                "y": 111,
+                "width": 120,
+                "height": 39
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "処理中",
+              "rect": {
+                "x": 348,
+                "y": 111,
+                "width": 120,
+                "height": 39
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "true",
+              "text": "起動時にゲームを開く",
+              "rect": {
+                "x": 218,
+                "y": 168,
+                "width": 1018,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "true",
+              "text": "自動再接続",
+              "rect": {
+                "x": 218,
+                "y": 236,
+                "width": 1018,
+                "height": 50
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "ja-dark-1280-recovery-failed-busy",
+      "scenario": "recovery-failed-busy",
+      "language": "ja",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900,
+      "original": {
+        "screenshot": "ja-dark-1280-recovery-failed-busy-original.png",
+        "sha256": "e64913114741a27e170b25bc40079b56823f27469b49b8405b22f67673c63ac7",
+        "measurement": {
+          "root": {
+            "x": 201,
+            "y": 25,
+            "width": 1052,
+            "height": 316
+          },
+          "scrollWidth": 1280,
+          "clientWidth": 1280,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "primary",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "処理中",
+              "rect": {
+                "x": 218,
+                "y": 111,
+                "width": 120,
+                "height": 39
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "ゲームを閉じる",
+              "rect": {
+                "x": 348,
+                "y": 111,
+                "width": 120,
+                "height": 39
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "起動時にゲームを開く",
+              "rect": {
+                "x": 218,
+                "y": 168,
+                "width": 1018,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "自動再接続",
+              "rect": {
+                "x": 218,
+                "y": 236,
+                "width": 1018,
+                "height": 50
+              }
+            }
+          ]
+        }
+      },
+      "current": {
+        "screenshot": "ja-dark-1280-recovery-failed-busy-current.png",
+        "sha256": "e64913114741a27e170b25bc40079b56823f27469b49b8405b22f67673c63ac7",
+        "measurement": {
+          "root": {
+            "x": 201,
+            "y": 25,
+            "width": 1052,
+            "height": 316
+          },
+          "scrollWidth": 1280,
+          "clientWidth": 1280,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "primary",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "処理中",
+              "rect": {
+                "x": 218,
+                "y": 111,
+                "width": 120,
+                "height": 39
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "ゲームを閉じる",
+              "rect": {
+                "x": 348,
+                "y": 111,
+                "width": 120,
+                "height": 39
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "起動時にゲームを開く",
+              "rect": {
+                "x": 218,
+                "y": 168,
+                "width": 1018,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "自動再接続",
+              "rect": {
+                "x": 218,
+                "y": 236,
+                "width": 1018,
+                "height": 50
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "ja-dark-1280-preference-launch-saving",
+      "scenario": "preference-launch-saving",
+      "language": "ja",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900,
+      "original": {
+        "screenshot": "ja-dark-1280-preference-launch-saving-original.png",
+        "sha256": "94607b09056d5dbd0db789b496890090c929150e99e26f33984a1cfbb87c2e66",
+        "measurement": {
+          "root": {
+            "x": 201,
+            "y": 25,
+            "width": 1052,
+            "height": 278
+          },
+          "scrollWidth": 1280,
+          "clientWidth": 1280,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "primary",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "処理中",
+              "rect": {
+                "x": 218,
+                "y": 111,
+                "width": 120,
+                "height": 39
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "ゲームを閉じる",
+              "rect": {
+                "x": 348,
+                "y": 111,
+                "width": 120,
+                "height": 39
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "起動時にゲームを開く",
+              "rect": {
+                "x": 218,
+                "y": 168,
+                "width": 1018,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "自動再接続",
+              "rect": {
+                "x": 218,
+                "y": 236,
+                "width": 1018,
+                "height": 50
+              }
+            }
+          ]
+        }
+      },
+      "current": {
+        "screenshot": "ja-dark-1280-preference-launch-saving-current.png",
+        "sha256": "94607b09056d5dbd0db789b496890090c929150e99e26f33984a1cfbb87c2e66",
+        "measurement": {
+          "root": {
+            "x": 201,
+            "y": 25,
+            "width": 1052,
+            "height": 278
+          },
+          "scrollWidth": 1280,
+          "clientWidth": 1280,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "primary",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "処理中",
+              "rect": {
+                "x": 218,
+                "y": 111,
+                "width": 120,
+                "height": 39
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "ゲームを閉じる",
+              "rect": {
+                "x": 348,
+                "y": 111,
+                "width": 120,
+                "height": 39
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "起動時にゲームを開く",
+              "rect": {
+                "x": 218,
+                "y": 168,
+                "width": 1018,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "自動再接続",
+              "rect": {
+                "x": 218,
+                "y": 236,
+                "width": 1018,
+                "height": 50
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "ja-dark-1280-preference-reconnect-saving",
+      "scenario": "preference-reconnect-saving",
+      "language": "ja",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900,
+      "original": {
+        "screenshot": "ja-dark-1280-preference-reconnect-saving-original.png",
+        "sha256": "94607b09056d5dbd0db789b496890090c929150e99e26f33984a1cfbb87c2e66",
+        "measurement": {
+          "root": {
+            "x": 201,
+            "y": 25,
+            "width": 1052,
+            "height": 278
+          },
+          "scrollWidth": 1280,
+          "clientWidth": 1280,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "primary",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "処理中",
+              "rect": {
+                "x": 218,
+                "y": 111,
+                "width": 120,
+                "height": 39
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "ゲームを閉じる",
+              "rect": {
+                "x": 348,
+                "y": 111,
+                "width": 120,
+                "height": 39
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "起動時にゲームを開く",
+              "rect": {
+                "x": 218,
+                "y": 168,
+                "width": 1018,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "自動再接続",
+              "rect": {
+                "x": 218,
+                "y": 236,
+                "width": 1018,
+                "height": 50
+              }
+            }
+          ]
+        }
+      },
+      "current": {
+        "screenshot": "ja-dark-1280-preference-reconnect-saving-current.png",
+        "sha256": "94607b09056d5dbd0db789b496890090c929150e99e26f33984a1cfbb87c2e66",
+        "measurement": {
+          "root": {
+            "x": 201,
+            "y": 25,
+            "width": 1052,
+            "height": 278
+          },
+          "scrollWidth": 1280,
+          "clientWidth": 1280,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "primary",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "処理中",
+              "rect": {
+                "x": 218,
+                "y": 111,
+                "width": 120,
+                "height": 39
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "ゲームを閉じる",
+              "rect": {
+                "x": 348,
+                "y": 111,
+                "width": 120,
+                "height": 39
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "起動時にゲームを開く",
+              "rect": {
+                "x": 218,
+                "y": 168,
+                "width": 1018,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "自動再接続",
+              "rect": {
+                "x": 218,
+                "y": 236,
+                "width": 1018,
+                "height": 50
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "ja-dark-1280-stopped",
+      "scenario": "stopped",
+      "language": "ja",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900,
+      "original": {
+        "screenshot": "ja-dark-1280-stopped-original.png",
+        "sha256": "5562291dbdef5986077b05a5b7a71e84c2d35260309feac13b46e8ce0cf238e6",
+        "measurement": {
+          "root": {
+            "x": 201,
+            "y": 25,
+            "width": 1052,
+            "height": 278
+          },
+          "scrollWidth": 1280,
+          "clientWidth": 1280,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "primary",
+              "disabled": false,
+              "ariaChecked": null,
+              "text": "ゲームを起動",
+              "rect": {
+                "x": 218,
+                "y": 111,
+                "width": 120,
+                "height": 39
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "ゲームを閉じる",
+              "rect": {
+                "x": 348,
+                "y": 111,
+                "width": 120,
+                "height": 39
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "起動時にゲームを開く",
+              "rect": {
+                "x": 218,
+                "y": 168,
+                "width": 1018,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "自動再接続",
+              "rect": {
+                "x": 218,
+                "y": 236,
+                "width": 1018,
+                "height": 50
+              }
+            }
+          ]
+        }
+      },
+      "current": {
+        "screenshot": "ja-dark-1280-stopped-current.png",
+        "sha256": "9d8c8e96ccfa9183e4079f885de69547eed09b64bf3fc30801bd2c472f3eafe1",
+        "measurement": {
+          "root": {
+            "x": 201,
+            "y": 25,
+            "width": 1052,
+            "height": 278
+          },
+          "scrollWidth": 1280,
+          "clientWidth": 1280,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "primary",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "ゲームを起動",
+              "rect": {
+                "x": 218,
+                "y": 111,
+                "width": 120,
+                "height": 39
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "ゲームを閉じる",
+              "rect": {
+                "x": 348,
+                "y": 111,
+                "width": 120,
+                "height": 39
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "起動時にゲームを開く",
+              "rect": {
+                "x": 218,
+                "y": 168,
+                "width": 1018,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "自動再接続",
+              "rect": {
+                "x": 218,
+                "y": 236,
+                "width": 1018,
+                "height": 50
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "ja-dark-1280-running-connected",
+      "scenario": "running-connected",
+      "language": "ja",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900,
+      "original": {
+        "screenshot": "ja-dark-1280-running-connected-original.png",
+        "sha256": "7010ee5ccc999627139ac9885f44cfaad7d5563e1f190c94d45bdb009b59cf8f",
+        "measurement": {
+          "root": {
+            "x": 201,
+            "y": 25,
+            "width": 1052,
+            "height": 278
+          },
+          "scrollWidth": 1280,
+          "clientWidth": 1280,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "primary",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "ゲームを起動",
+              "rect": {
+                "x": 218,
+                "y": 111,
+                "width": 120,
+                "height": 39
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "",
+              "disabled": false,
+              "ariaChecked": null,
+              "text": "ゲームを閉じる",
+              "rect": {
+                "x": 348,
+                "y": 111,
+                "width": 120,
+                "height": 39
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "true",
+              "text": "起動時にゲームを開く",
+              "rect": {
+                "x": 218,
+                "y": 168,
+                "width": 1018,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "true",
+              "text": "自動再接続",
+              "rect": {
+                "x": 218,
+                "y": 236,
+                "width": 1018,
+                "height": 50
+              }
+            }
+          ]
+        }
+      },
+      "current": {
+        "screenshot": "ja-dark-1280-running-connected-current.png",
+        "sha256": "842595bee33c28a2854c3307d2354231b0440585578bed36cb890cc15ea486cd",
+        "measurement": {
+          "root": {
+            "x": 201,
+            "y": 25,
+            "width": 1052,
+            "height": 278
+          },
+          "scrollWidth": 1280,
+          "clientWidth": 1280,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "primary",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "ゲームを起動",
+              "rect": {
+                "x": 218,
+                "y": 111,
+                "width": 120,
+                "height": 39
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "ゲームを閉じる",
+              "rect": {
+                "x": 348,
+                "y": 111,
+                "width": 120,
+                "height": 39
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "true",
+              "text": "起動時にゲームを開く",
+              "rect": {
+                "x": 218,
+                "y": 168,
+                "width": 1018,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "true",
+              "text": "自動再接続",
+              "rect": {
+                "x": 218,
+                "y": 236,
+                "width": 1018,
+                "height": 50
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "ja-dark-1280-repair",
+      "scenario": "repair",
+      "language": "ja",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900,
+      "original": {
+        "screenshot": "ja-dark-1280-repair-original.png",
+        "sha256": "f6b00cbc33f53592787d776c83983c98ded67830e45c7cdde014a5b757b21fb1",
+        "measurement": {
+          "root": {
+            "x": 201,
+            "y": 25,
+            "width": 1052,
+            "height": 278
+          },
+          "scrollWidth": 1280,
+          "clientWidth": 1280,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "",
+              "disabled": false,
+              "ariaChecked": null,
+              "text": "更新してゲームを再起動",
+              "rect": {
+                "x": 218,
+                "y": 111,
+                "width": 158.796875,
+                "height": 39
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "起動時にゲームを開く",
+              "rect": {
+                "x": 218,
+                "y": 168,
+                "width": 1018,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "自動再接続",
+              "rect": {
+                "x": 218,
+                "y": 236,
+                "width": 1018,
+                "height": 50
+              }
+            }
+          ]
+        }
+      },
+      "current": {
+        "screenshot": "ja-dark-1280-repair-current.png",
+        "sha256": "f1bbefcfee3b08973838fd411199f2ddb7a385206dbf0e155d827eb84e96a4a8",
+        "measurement": {
+          "root": {
+            "x": 201,
+            "y": 25,
+            "width": 1052,
+            "height": 278
+          },
+          "scrollWidth": 1280,
+          "clientWidth": 1280,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "更新してゲームを再起動",
+              "rect": {
+                "x": 218,
+                "y": 111,
+                "width": 158.796875,
+                "height": 39
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "起動時にゲームを開く",
+              "rect": {
+                "x": 218,
+                "y": 168,
+                "width": 1018,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "自動再接続",
+              "rect": {
+                "x": 218,
+                "y": 236,
+                "width": 1018,
+                "height": 50
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "ja-dark-1280-unavailable",
+      "scenario": "unavailable",
+      "language": "ja",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900,
+      "original": {
+        "screenshot": "ja-dark-1280-unavailable-original.png",
+        "sha256": "94607b09056d5dbd0db789b496890090c929150e99e26f33984a1cfbb87c2e66",
+        "measurement": {
+          "root": {
+            "x": 201,
+            "y": 25,
+            "width": 1052,
+            "height": 278
+          },
+          "scrollWidth": 1280,
+          "clientWidth": 1280,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "primary",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "処理中",
+              "rect": {
+                "x": 218,
+                "y": 111,
+                "width": 120,
+                "height": 39
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "ゲームを閉じる",
+              "rect": {
+                "x": 348,
+                "y": 111,
+                "width": 120,
+                "height": 39
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "起動時にゲームを開く",
+              "rect": {
+                "x": 218,
+                "y": 168,
+                "width": 1018,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "自動再接続",
+              "rect": {
+                "x": 218,
+                "y": 236,
+                "width": 1018,
+                "height": 50
+              }
+            }
+          ]
+        }
+      },
+      "current": {
+        "screenshot": "ja-dark-1280-unavailable-current.png",
+        "sha256": "902af06ac030691662aaeb3896f5a2c03178356887fb617db4741d081b78544a",
+        "measurement": {
+          "root": {
+            "x": 201,
+            "y": 25,
+            "width": 1052,
+            "height": 278
+          },
+          "scrollWidth": 1280,
+          "clientWidth": 1280,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "primary",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "処理中",
+              "rect": {
+                "x": 218,
+                "y": 111,
+                "width": 120,
+                "height": 39
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "ゲームを閉じる",
+              "rect": {
+                "x": 348,
+                "y": 111,
+                "width": 120,
+                "height": 39
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": true,
+              "ariaChecked": "false",
+              "text": "起動時にゲームを開く",
+              "rect": {
+                "x": 218,
+                "y": 168,
+                "width": 1018,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": true,
+              "ariaChecked": "false",
+              "text": "自動再接続",
+              "rect": {
+                "x": 218,
+                "y": 236,
+                "width": 1018,
+                "height": 50
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "ja-dark-740-checking",
+      "scenario": "checking",
+      "language": "ja",
+      "theme": "dark",
+      "width": 740,
+      "height": 600,
+      "original": {
+        "screenshot": "ja-dark-740-checking-original.png",
+        "sha256": "44f5da8aebf25e91fcc1fd216c11a2939a022fe70edfd3e67de8beb93236622c",
+        "measurement": {
+          "root": {
+            "x": 25,
+            "y": 35,
+            "width": 690,
+            "height": 221
+          },
+          "scrollWidth": 740,
+          "clientWidth": 740,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "起動時にゲームを開く",
+              "rect": {
+                "x": 42,
+                "y": 121,
+                "width": 656,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "自動再接続",
+              "rect": {
+                "x": 42,
+                "y": 189,
+                "width": 656,
+                "height": 50
+              }
+            }
+          ]
+        }
+      },
+      "current": {
+        "screenshot": "ja-dark-740-checking-current.png",
+        "sha256": "44f5da8aebf25e91fcc1fd216c11a2939a022fe70edfd3e67de8beb93236622c",
+        "measurement": {
+          "root": {
+            "x": 25,
+            "y": 35,
+            "width": 690,
+            "height": 221
+          },
+          "scrollWidth": 740,
+          "clientWidth": 740,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "起動時にゲームを開く",
+              "rect": {
+                "x": 42,
+                "y": 121,
+                "width": 656,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "自動再接続",
+              "rect": {
+                "x": 42,
+                "y": 189,
+                "width": 656,
+                "height": 50
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "ja-dark-740-missing-error-busy",
+      "scenario": "missing-error-busy",
+      "language": "ja",
+      "theme": "dark",
+      "width": 740,
+      "height": 600,
+      "original": {
+        "screenshot": "ja-dark-740-missing-error-busy-original.png",
+        "sha256": "439ae5b81a641b8d8e21f3d17ef1676f7c8b5b98d2a6e2352bf0b0a347b7c30f",
+        "measurement": {
+          "root": {
+            "x": 25,
+            "y": 35,
+            "width": 690,
+            "height": 342
+          },
+          "scrollWidth": 740,
+          "clientWidth": 740,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "primary",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "処理中",
+              "rect": {
+                "x": 628,
+                "y": 134,
+                "width": 57,
+                "height": 39
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "起動時にゲームを開く",
+              "rect": {
+                "x": 42,
+                "y": 242,
+                "width": 656,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "自動再接続",
+              "rect": {
+                "x": 42,
+                "y": 310,
+                "width": 656,
+                "height": 50
+              }
+            }
+          ]
+        }
+      },
+      "current": {
+        "screenshot": "ja-dark-740-missing-error-busy-current.png",
+        "sha256": "439ae5b81a641b8d8e21f3d17ef1676f7c8b5b98d2a6e2352bf0b0a347b7c30f",
+        "measurement": {
+          "root": {
+            "x": 25,
+            "y": 35,
+            "width": 690,
+            "height": 342
+          },
+          "scrollWidth": 740,
+          "clientWidth": 740,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "primary",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "処理中",
+              "rect": {
+                "x": 628,
+                "y": 134,
+                "width": 57,
+                "height": 39
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "起動時にゲームを開く",
+              "rect": {
+                "x": 42,
+                "y": 242,
+                "width": 656,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "自動再接続",
+              "rect": {
+                "x": 42,
+                "y": 310,
+                "width": 656,
+                "height": 50
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "ja-dark-740-busy-overlap",
+      "scenario": "busy-overlap",
+      "language": "ja",
+      "theme": "dark",
+      "width": 740,
+      "height": 600,
+      "original": {
+        "screenshot": "ja-dark-740-busy-overlap-original.png",
+        "sha256": "15e2ad650120c6e517446e035e7e618fb5d16c276ad1627aa302e0a1bee9fc3b",
+        "measurement": {
+          "root": {
+            "x": 25,
+            "y": 35,
+            "width": 690,
+            "height": 278
+          },
+          "scrollWidth": 740,
+          "clientWidth": 740,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "primary",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "ゲームを起動中…",
+              "rect": {
+                "x": 42,
+                "y": 121,
+                "width": 120,
+                "height": 39
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "処理中",
+              "rect": {
+                "x": 172,
+                "y": 121,
+                "width": 120,
+                "height": 39
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "true",
+              "text": "起動時にゲームを開く",
+              "rect": {
+                "x": 42,
+                "y": 178,
+                "width": 656,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "true",
+              "text": "自動再接続",
+              "rect": {
+                "x": 42,
+                "y": 246,
+                "width": 656,
+                "height": 50
+              }
+            }
+          ]
+        }
+      },
+      "current": {
+        "screenshot": "ja-dark-740-busy-overlap-current.png",
+        "sha256": "15e2ad650120c6e517446e035e7e618fb5d16c276ad1627aa302e0a1bee9fc3b",
+        "measurement": {
+          "root": {
+            "x": 25,
+            "y": 35,
+            "width": 690,
+            "height": 278
+          },
+          "scrollWidth": 740,
+          "clientWidth": 740,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "primary",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "ゲームを起動中…",
+              "rect": {
+                "x": 42,
+                "y": 121,
+                "width": 120,
+                "height": 39
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "処理中",
+              "rect": {
+                "x": 172,
+                "y": 121,
+                "width": 120,
+                "height": 39
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "true",
+              "text": "起動時にゲームを開く",
+              "rect": {
+                "x": 42,
+                "y": 178,
+                "width": 656,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "true",
+              "text": "自動再接続",
+              "rect": {
+                "x": 42,
+                "y": 246,
+                "width": 656,
+                "height": 50
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "ja-dark-740-recovery-failed-busy",
+      "scenario": "recovery-failed-busy",
+      "language": "ja",
+      "theme": "dark",
+      "width": 740,
+      "height": 600,
+      "original": {
+        "screenshot": "ja-dark-740-recovery-failed-busy-original.png",
+        "sha256": "7240e6f59b6d5cc797e3a4d151a9b22340c7b2537a23218b882b00e6397fd4df",
+        "measurement": {
+          "root": {
+            "x": 25,
+            "y": 35,
+            "width": 690,
+            "height": 316
+          },
+          "scrollWidth": 740,
+          "clientWidth": 740,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "primary",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "処理中",
+              "rect": {
+                "x": 42,
+                "y": 121,
+                "width": 120,
+                "height": 39
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "ゲームを閉じる",
+              "rect": {
+                "x": 172,
+                "y": 121,
+                "width": 120,
+                "height": 39
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "起動時にゲームを開く",
+              "rect": {
+                "x": 42,
+                "y": 178,
+                "width": 656,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "自動再接続",
+              "rect": {
+                "x": 42,
+                "y": 246,
+                "width": 656,
+                "height": 50
+              }
+            }
+          ]
+        }
+      },
+      "current": {
+        "screenshot": "ja-dark-740-recovery-failed-busy-current.png",
+        "sha256": "7240e6f59b6d5cc797e3a4d151a9b22340c7b2537a23218b882b00e6397fd4df",
+        "measurement": {
+          "root": {
+            "x": 25,
+            "y": 35,
+            "width": 690,
+            "height": 316
+          },
+          "scrollWidth": 740,
+          "clientWidth": 740,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "primary",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "処理中",
+              "rect": {
+                "x": 42,
+                "y": 121,
+                "width": 120,
+                "height": 39
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "ゲームを閉じる",
+              "rect": {
+                "x": 172,
+                "y": 121,
+                "width": 120,
+                "height": 39
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "起動時にゲームを開く",
+              "rect": {
+                "x": 42,
+                "y": 178,
+                "width": 656,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "自動再接続",
+              "rect": {
+                "x": 42,
+                "y": 246,
+                "width": 656,
+                "height": 50
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "ja-dark-740-preference-launch-saving",
+      "scenario": "preference-launch-saving",
+      "language": "ja",
+      "theme": "dark",
+      "width": 740,
+      "height": 600,
+      "original": {
+        "screenshot": "ja-dark-740-preference-launch-saving-original.png",
+        "sha256": "5e05d7c2d5049da55dd4b576ea15d90e2c090c843a55eb12ecf0853eabca7fb2",
+        "measurement": {
+          "root": {
+            "x": 25,
+            "y": 35,
+            "width": 690,
+            "height": 278
+          },
+          "scrollWidth": 740,
+          "clientWidth": 740,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "primary",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "処理中",
+              "rect": {
+                "x": 42,
+                "y": 121,
+                "width": 120,
+                "height": 39
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "ゲームを閉じる",
+              "rect": {
+                "x": 172,
+                "y": 121,
+                "width": 120,
+                "height": 39
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "起動時にゲームを開く",
+              "rect": {
+                "x": 42,
+                "y": 178,
+                "width": 656,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "自動再接続",
+              "rect": {
+                "x": 42,
+                "y": 246,
+                "width": 656,
+                "height": 50
+              }
+            }
+          ]
+        }
+      },
+      "current": {
+        "screenshot": "ja-dark-740-preference-launch-saving-current.png",
+        "sha256": "5e05d7c2d5049da55dd4b576ea15d90e2c090c843a55eb12ecf0853eabca7fb2",
+        "measurement": {
+          "root": {
+            "x": 25,
+            "y": 35,
+            "width": 690,
+            "height": 278
+          },
+          "scrollWidth": 740,
+          "clientWidth": 740,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "primary",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "処理中",
+              "rect": {
+                "x": 42,
+                "y": 121,
+                "width": 120,
+                "height": 39
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "ゲームを閉じる",
+              "rect": {
+                "x": 172,
+                "y": 121,
+                "width": 120,
+                "height": 39
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "起動時にゲームを開く",
+              "rect": {
+                "x": 42,
+                "y": 178,
+                "width": 656,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "自動再接続",
+              "rect": {
+                "x": 42,
+                "y": 246,
+                "width": 656,
+                "height": 50
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "ja-dark-740-preference-reconnect-saving",
+      "scenario": "preference-reconnect-saving",
+      "language": "ja",
+      "theme": "dark",
+      "width": 740,
+      "height": 600,
+      "original": {
+        "screenshot": "ja-dark-740-preference-reconnect-saving-original.png",
+        "sha256": "5e05d7c2d5049da55dd4b576ea15d90e2c090c843a55eb12ecf0853eabca7fb2",
+        "measurement": {
+          "root": {
+            "x": 25,
+            "y": 35,
+            "width": 690,
+            "height": 278
+          },
+          "scrollWidth": 740,
+          "clientWidth": 740,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "primary",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "処理中",
+              "rect": {
+                "x": 42,
+                "y": 121,
+                "width": 120,
+                "height": 39
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "ゲームを閉じる",
+              "rect": {
+                "x": 172,
+                "y": 121,
+                "width": 120,
+                "height": 39
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "起動時にゲームを開く",
+              "rect": {
+                "x": 42,
+                "y": 178,
+                "width": 656,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "自動再接続",
+              "rect": {
+                "x": 42,
+                "y": 246,
+                "width": 656,
+                "height": 50
+              }
+            }
+          ]
+        }
+      },
+      "current": {
+        "screenshot": "ja-dark-740-preference-reconnect-saving-current.png",
+        "sha256": "5e05d7c2d5049da55dd4b576ea15d90e2c090c843a55eb12ecf0853eabca7fb2",
+        "measurement": {
+          "root": {
+            "x": 25,
+            "y": 35,
+            "width": 690,
+            "height": 278
+          },
+          "scrollWidth": 740,
+          "clientWidth": 740,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "primary",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "処理中",
+              "rect": {
+                "x": 42,
+                "y": 121,
+                "width": 120,
+                "height": 39
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "ゲームを閉じる",
+              "rect": {
+                "x": 172,
+                "y": 121,
+                "width": 120,
+                "height": 39
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "起動時にゲームを開く",
+              "rect": {
+                "x": 42,
+                "y": 178,
+                "width": 656,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "自動再接続",
+              "rect": {
+                "x": 42,
+                "y": 246,
+                "width": 656,
+                "height": 50
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "ja-dark-740-stopped",
+      "scenario": "stopped",
+      "language": "ja",
+      "theme": "dark",
+      "width": 740,
+      "height": 600,
+      "original": {
+        "screenshot": "ja-dark-740-stopped-original.png",
+        "sha256": "607ca8f4c648d1fd3ac628968690842eab93faa48421788f54e90fa620be818f",
+        "measurement": {
+          "root": {
+            "x": 25,
+            "y": 35,
+            "width": 690,
+            "height": 278
+          },
+          "scrollWidth": 740,
+          "clientWidth": 740,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "primary",
+              "disabled": false,
+              "ariaChecked": null,
+              "text": "ゲームを起動",
+              "rect": {
+                "x": 42,
+                "y": 121,
+                "width": 120,
+                "height": 39
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "ゲームを閉じる",
+              "rect": {
+                "x": 172,
+                "y": 121,
+                "width": 120,
+                "height": 39
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "起動時にゲームを開く",
+              "rect": {
+                "x": 42,
+                "y": 178,
+                "width": 656,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "自動再接続",
+              "rect": {
+                "x": 42,
+                "y": 246,
+                "width": 656,
+                "height": 50
+              }
+            }
+          ]
+        }
+      },
+      "current": {
+        "screenshot": "ja-dark-740-stopped-current.png",
+        "sha256": "87f1e36c0974aa63c235849b4d14cac275426e2a6fad224ea1e31f3390bc7e27",
+        "measurement": {
+          "root": {
+            "x": 25,
+            "y": 35,
+            "width": 690,
+            "height": 278
+          },
+          "scrollWidth": 740,
+          "clientWidth": 740,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "primary",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "ゲームを起動",
+              "rect": {
+                "x": 42,
+                "y": 121,
+                "width": 120,
+                "height": 39
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "ゲームを閉じる",
+              "rect": {
+                "x": 172,
+                "y": 121,
+                "width": 120,
+                "height": 39
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "起動時にゲームを開く",
+              "rect": {
+                "x": 42,
+                "y": 178,
+                "width": 656,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "自動再接続",
+              "rect": {
+                "x": 42,
+                "y": 246,
+                "width": 656,
+                "height": 50
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "ja-dark-740-running-connected",
+      "scenario": "running-connected",
+      "language": "ja",
+      "theme": "dark",
+      "width": 740,
+      "height": 600,
+      "original": {
+        "screenshot": "ja-dark-740-running-connected-original.png",
+        "sha256": "e259264e18bee7bda828dd2070d1ddfde5384345608452cee10e65be170ba8b5",
+        "measurement": {
+          "root": {
+            "x": 25,
+            "y": 35,
+            "width": 690,
+            "height": 278
+          },
+          "scrollWidth": 740,
+          "clientWidth": 740,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "primary",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "ゲームを起動",
+              "rect": {
+                "x": 42,
+                "y": 121,
+                "width": 120,
+                "height": 39
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "",
+              "disabled": false,
+              "ariaChecked": null,
+              "text": "ゲームを閉じる",
+              "rect": {
+                "x": 172,
+                "y": 121,
+                "width": 120,
+                "height": 39
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "true",
+              "text": "起動時にゲームを開く",
+              "rect": {
+                "x": 42,
+                "y": 178,
+                "width": 656,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "true",
+              "text": "自動再接続",
+              "rect": {
+                "x": 42,
+                "y": 246,
+                "width": 656,
+                "height": 50
+              }
+            }
+          ]
+        }
+      },
+      "current": {
+        "screenshot": "ja-dark-740-running-connected-current.png",
+        "sha256": "4d111901573962aae08642cd76da7e09b2cd6894be221c8f99dffd31a66351f5",
+        "measurement": {
+          "root": {
+            "x": 25,
+            "y": 35,
+            "width": 690,
+            "height": 278
+          },
+          "scrollWidth": 740,
+          "clientWidth": 740,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "primary",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "ゲームを起動",
+              "rect": {
+                "x": 42,
+                "y": 121,
+                "width": 120,
+                "height": 39
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "ゲームを閉じる",
+              "rect": {
+                "x": 172,
+                "y": 121,
+                "width": 120,
+                "height": 39
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "true",
+              "text": "起動時にゲームを開く",
+              "rect": {
+                "x": 42,
+                "y": 178,
+                "width": 656,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "true",
+              "text": "自動再接続",
+              "rect": {
+                "x": 42,
+                "y": 246,
+                "width": 656,
+                "height": 50
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "ja-dark-740-repair",
+      "scenario": "repair",
+      "language": "ja",
+      "theme": "dark",
+      "width": 740,
+      "height": 600,
+      "original": {
+        "screenshot": "ja-dark-740-repair-original.png",
+        "sha256": "536997cf13a0d3f65980672cbb4f83f9664c62c223a96bc9e8b2b8c9db5ea53c",
+        "measurement": {
+          "root": {
+            "x": 25,
+            "y": 35,
+            "width": 690,
+            "height": 299
+          },
+          "scrollWidth": 740,
+          "clientWidth": 740,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "",
+              "disabled": false,
+              "ariaChecked": null,
+              "text": "更新してゲームを再起動",
+              "rect": {
+                "x": 42,
+                "y": 121,
+                "width": 152.25,
+                "height": 60
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "起動時にゲームを開く",
+              "rect": {
+                "x": 42,
+                "y": 199,
+                "width": 656,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "自動再接続",
+              "rect": {
+                "x": 42,
+                "y": 267,
+                "width": 656,
+                "height": 50
+              }
+            }
+          ]
+        }
+      },
+      "current": {
+        "screenshot": "ja-dark-740-repair-current.png",
+        "sha256": "f415018bb6ae290f49df38ed3a137d41774ca247c93c140a97ac5791ae8673cf",
+        "measurement": {
+          "root": {
+            "x": 25,
+            "y": 35,
+            "width": 690,
+            "height": 299
+          },
+          "scrollWidth": 740,
+          "clientWidth": 740,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "更新してゲームを再起動",
+              "rect": {
+                "x": 42,
+                "y": 121,
+                "width": 152.25,
+                "height": 60
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "起動時にゲームを開く",
+              "rect": {
+                "x": 42,
+                "y": 199,
+                "width": 656,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "自動再接続",
+              "rect": {
+                "x": 42,
+                "y": 267,
+                "width": 656,
+                "height": 50
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "ja-dark-740-unavailable",
+      "scenario": "unavailable",
+      "language": "ja",
+      "theme": "dark",
+      "width": 740,
+      "height": 600,
+      "original": {
+        "screenshot": "ja-dark-740-unavailable-original.png",
+        "sha256": "5e05d7c2d5049da55dd4b576ea15d90e2c090c843a55eb12ecf0853eabca7fb2",
+        "measurement": {
+          "root": {
+            "x": 25,
+            "y": 35,
+            "width": 690,
+            "height": 278
+          },
+          "scrollWidth": 740,
+          "clientWidth": 740,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "primary",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "処理中",
+              "rect": {
+                "x": 42,
+                "y": 121,
+                "width": 120,
+                "height": 39
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "ゲームを閉じる",
+              "rect": {
+                "x": 172,
+                "y": 121,
+                "width": 120,
+                "height": 39
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "起動時にゲームを開く",
+              "rect": {
+                "x": 42,
+                "y": 178,
+                "width": 656,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": false,
+              "ariaChecked": "false",
+              "text": "自動再接続",
+              "rect": {
+                "x": 42,
+                "y": 246,
+                "width": 656,
+                "height": 50
+              }
+            }
+          ]
+        }
+      },
+      "current": {
+        "screenshot": "ja-dark-740-unavailable-current.png",
+        "sha256": "73cae50f455312c165ef7a2eabe9dec99d9a27e12b28bbab4bf95cadd83ed3a6",
+        "measurement": {
+          "root": {
+            "x": 25,
+            "y": 35,
+            "width": 690,
+            "height": 278
+          },
+          "scrollWidth": 740,
+          "clientWidth": 740,
+          "controls": [
+            {
+              "tag": "BUTTON",
+              "cls": "primary",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "処理中",
+              "rect": {
+                "x": 42,
+                "y": 121,
+                "width": 120,
+                "height": 39
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "",
+              "disabled": true,
+              "ariaChecked": null,
+              "text": "ゲームを閉じる",
+              "rect": {
+                "x": 172,
+                "y": 121,
+                "width": 120,
+                "height": 39
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": true,
+              "ariaChecked": "false",
+              "text": "起動時にゲームを開く",
+              "rect": {
+                "x": 42,
+                "y": 178,
+                "width": 656,
+                "height": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "toggle-row",
+              "disabled": true,
+              "ariaChecked": "false",
+              "text": "自動再接続",
+              "rect": {
+                "x": 42,
+                "y": 246,
+                "width": 656,
+                "height": 50
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "errors": [],
+  "tool": {
+    "playwright": "1.63.0"
+  }
+}

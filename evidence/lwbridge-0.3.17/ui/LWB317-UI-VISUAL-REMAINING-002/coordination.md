@@ -3,9 +3,11 @@
 Coordinating worker owns integration, all production/shared files, master documents,
 Git index/history, milestone commits and remote verification.
 
-Current integrated baseline: `b687593bef09774b6ae77845644e507f347593e8` on
+Current integrated baseline: `52dd0e353a9525abbf9e04f022cf5ffbf3371eed` on
 `research/offline-controller`, verified equal to `origin/research/offline-controller`.
-Milestone 1 is `a83f4f49`; Milestone 2 is `b687593b`. Reference executable SHA-256 is
+Milestone 1 is `a83f4f49`; Milestone 2 is `b687593b`; Milestone 3 is `52dd0e35`.
+Milestone 4 is independently **READY** and is the next checkpoint to commit/push.
+Reference executable SHA-256 is
 `4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783`.
 The archive validator passes. The AFK editor read-only packet now fails only because
 the active Milestone-3 Automation work deliberately changes `AutomationPage.jsx`;
@@ -17,7 +19,38 @@ An additional pre-existing Vite listener was found on 127.0.0.1:4347 under PID 4
 its ownership is not established by this continuation, so it is also left untouched.
 Milestone-3 fresh browser replay uses coordinator-owned port 4387 only.
 
-## Active bounded workers
+## Current bounded review state
+
+The original Milestone-4 reviewer family from the pre-compaction conversation
+could not be recovered by the resumed chat; the runtime explicitly rejected it
+as belonging to no current worker family. Only after that recovery attempt
+failed, a fresh bounded review family was used.
+
+- Fresh shell follow-up: final **READY** in
+  `milestone-4/review/shell-source-audit.md`. The reviewer independently
+  replayed the new 16-case recovered-`Gi` / current-App packet, its two
+  ancestry mutations, and its read-only validator.
+- Fresh Home follow-up: final **READY** in
+  `milestone-4/review/home-source-audit.md`. All first-pass Home ownership /
+  lifetime gaps are closed.
+- The whole-`Gi` evidence-only worker created only
+  `milestone-4/shell-source-render/`; no production/Git/process ownership.
+
+Milestone 4 now has no remaining source-local review blocker. The raw
+whole-shell pixel packet intentionally preserves the visible Account/Upgrade
+scope differences and unavailable-provider disabled states instead of masking
+or fabricating them.
+
+## Historical worker record
+
+- Run `1f573934-6da1-4abf-87f0-0ae0a9d828b1`, `worker-3`
+  (`Shell-composition-audit`): exact shell/header/profile/dialog source/current audit.
+  Its only editable path is `milestone-4/review/shell-source-audit.md`; no production,
+  Git, browser or process ownership.
+- Run `1f573934-6da1-4abf-87f0-0ae0a9d828b1`, `worker-4`
+  (`Home-composition-audit`): exact Home source/current composition audit. Its only
+  editable path is `milestone-4/review/home-source-audit.md`; no production, Git,
+  browser or process ownership.
 
 - `worker-1` (`Automation-review`) completed both independent Milestone-3 passes.
   Its first pass identified separate Dispatch Assist ownership, immediate-save,

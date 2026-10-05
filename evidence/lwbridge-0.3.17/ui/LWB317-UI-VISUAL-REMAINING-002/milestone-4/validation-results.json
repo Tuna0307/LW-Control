@@ -1,0 +1,79 @@
+{
+  "marker": "LWB317_REMAINING_M4_VALIDATION_OK",
+  "source": {
+    "layout": {
+      "utf8ByteOffset": 208687,
+      "utf8ByteLength": 330,
+      "sha256": "590CD67C68F8A77B53F82185E6417DE75BA06DE81DC7281D67FF394A47E4941B"
+    },
+    "dialog": {
+      "utf8ByteOffset": 209017,
+      "utf8ByteLength": 1209,
+      "sha256": "E42C17AAC67AFE7A73D525902C9E757644E40838422730CEB32EC47830C4F8A2"
+    },
+    "home": {
+      "utf8ByteOffset": 336694,
+      "utf8ByteLength": 2225,
+      "sha256": "6547A9E79620B4F02E14397FC59359D2FF8616C0F45AB394A1756D042F5FF385"
+    },
+    "profiles": {
+      "utf8ByteOffset": 339285,
+      "utf8ByteLength": 7154,
+      "sha256": "FE5D0408492E71E9DD74615C269699B8C75B55D346F823BC22B05992C330A490"
+    },
+    "nav": {
+      "utf8ByteOffset": 349778,
+      "utf8ByteLength": 627,
+      "sha256": "E2060ECCE6614467C247E129ECB5DD457DE3A1B8C46C02CE16E046705568CE16"
+    },
+    "header": {
+      "utf8ByteOffset": 354710,
+      "utf8ByteLength": 3232,
+      "sha256": "32E9CFF50FC34FCD3B91B2A3256AEC4DC9C605E98713B4F8F0ED536A4B94B405"
+    },
+    "shell": {
+      "utf8ByteOffset": 361306,
+      "utf8ByteLength": 14461,
+      "sha256": "AD5ECE3C33F5FB057E250B67ABF8D32B4F482FD4A2414ABF55A79A3B3333BFD5"
+    },
+    "exit": {
+      "utf8ByteOffset": 376111,
+      "utf8ByteLength": 881,
+      "sha256": "72F95F7202BC43FD3F9E449DC77133A08C57DE1C8D6F48AB929DCC1D34F48C21"
+    }
+  },
+  "current": {
+    "src/LWBridge.UI-0.3.17/src/App.jsx": "E4039BEE1A7F66712C797ABBEFC3DAAE4C7FB59C82939B90F4D0041F40B7A93C",
+    "src/LWBridge.UI-0.3.17/src/HomePage.jsx": "F140264E693E89F37CBB357470F58FE5DCA46F3DFDA29A8A5D2C7918CE2393FF",
+    "src/LWBridge.UI-0.3.17/src/ShellPresentation.jsx": "B1DD1278F274A1FD347AD4C27787B5AE8DC1DB32230D49B55F7A471DE34A904F",
+    "src/LWBridge.UI-0.3.17/src/ProfileSidebar.jsx": "96E480F3BBA897AB18BE29891A346651E933C6C743A908DE36BAC67B0E86DA9D",
+    "src/LWBridge.UI-0.3.17/src/ProfileSwitchState.jsx": "01FC87F704CC45BE3476BCAF461FA057F70DCE57A7453DDD00188B756F9E83F5",
+    "src/LWBridge.UI-0.3.17/src/AppExitDialog.jsx": "AFA79399788E4F8C58FA81C11FF86CB7128CBF5DD02A84BD511E88A928A6549D",
+    "src/LWBridge.UI-0.3.17/src/sharedPageUI.jsx": "95ED15F5A4AB46C7CAE4DD55656E85718F66FA5AC45278B615D1795EBD8E82F2",
+    "src/LWBridge.UI-0.3.17/src/NavIcon.jsx": "BE74437FE9A0ACD86BA47F81983D0AFDDF51FD4C304C9C4932ADA3422936D911",
+    "src/LWBridge.UI-0.3.17/src/shellState.js": "29DF81AF8A791CA4D14535E9EEC0052F91A2FF45E18B7B272042DBAEC7C28195",
+    "src/LWBridge.UI-0.3.17/src/profileConfigDraft.js": "31E255735FA77CE3D780D7DF563833C2D3AFBA26D16C0091F70DB486EBCD3E7A"
+  },
+  "home": {
+    "sourceCases": 42,
+    "exactStructure": 34,
+    "availabilityFenceCases": 8,
+    "pixelPairs": 40,
+    "exactRequiredPixels": "24/24",
+    "fencePixelPairs": 16
+  },
+  "exactIsolated": {
+    "profiles": 98,
+    "exit": 33,
+    "profileSwitch": 12
+  },
+  "browser": {
+    "assertions": 124,
+    "screenshots": 18,
+    "consoleIssues": 0
+  },
+  "limits": [
+    "Home Start/Stop/Repair and production-unavailable preference controls remain explicitly disabled because no verified native lifecycle/provider is connected; exact original geometry/text is otherwise retained and the difference is bounded to disabled attributes.",
+    "Historical Home packets pin earlier App/component hashes and remain immutable; this task-local exact renderer/browser packet is the current source/local evidence."
+  ]
+}

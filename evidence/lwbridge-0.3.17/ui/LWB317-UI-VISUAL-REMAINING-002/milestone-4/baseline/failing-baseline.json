@@ -1,0 +1,18 @@
+{
+  "marker": "LWB317_REMAINING_M4_FAILING_BASELINE",
+  "baselineRevision": "52dd0e353a9525abbf9e04f022cf5ffbf3371eed",
+  "mainAssetSha256": "44C4E4043825B7DB296B64171951B27176F8850FF8D7D337CC991DF4765524C6",
+  "preFixAppSha256": "6CA27370A90A3B5B0556F7DEA43A131E2C2C0DC3EC57D9F12770BA47A94A74D5",
+  "demonstratedMismatches": [
+    "Fn requires aside.profile-sidebar around the profile list",
+    "root renders exit prompt/dialog as sibling of Gi/app-shell",
+    "Gi owns four ordered profile-scoped flag draft/error stores",
+    "local multi-profile selection lacked the recovered uncached-to-loading and cached-return transition",
+    "Auto Launch preference edit incorrectly cleared shared gameActionError",
+    "recurring 5-second status refresh incorrectly overwrote recovery state"
+  ],
+  "sourceReview": [
+    "milestone-4/review/shell-source-audit.md",
+    "milestone-4/review/home-source-audit.md"
+  ]
+}

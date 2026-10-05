@@ -1,0 +1,1690 @@
+{
+  "marker": "LWB317_REMAINING_M4_HOME_SOURCE_RENDER_BUILT",
+  "reference": {
+    "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-BVfnK1wp.js",
+    "sha256": "44c4e4043825b7db296b64171951b27176f8850ff8d7d337cc991df4765524c6",
+    "slices": [
+      {
+        "name": "Ir",
+        "utf8ByteOffset": 328453,
+        "byteLength": 231,
+        "sha256": "ca958551bc82e4f26d90ded7eb366df299ef9ecbc76a5eeb077dbd25170dde96",
+        "text": "function Ir(e){let t=[];e&&typeof e==`object`&&`code`in e&&typeof e.code==`string`&&t.push(e.code);let n=e instanceof Error?e.message:String(e??``);return t.push(...n.match(/\\b[A-Z][A-Z0-9_]{2,}\\b/g)||[]),[...new Set(t)].reverse()}"
+      },
+      {
+        "name": "Lr",
+        "utf8ByteOffset": 328684,
+        "byteLength": 166,
+        "sha256": "5c1443bdc8967a96d3c741ea696a86a6841fa61d6474b08117865c7973907a26",
+        "text": "function Lr(e,t,n=`common.actionFailed`){for(let n of Ir(t))for(let t of[`error`,`auth.error`,`update.error`]){let r=`${t}.${n}`,i=e(r);if(i!==r)return i}return e(n)}"
+      },
+      {
+        "name": "Kr",
+        "utf8ByteOffset": 336469,
+        "byteLength": 225,
+        "sha256": "555c90231db83c2118f1df96ea03b3b7bd5073bea1ce38d6e5c3c7ffc13aa3bb",
+        "text": "function Kr({rootResolved:e,rootValid:t,gameRunning:n,needsRepair:r=!1,recovering:i,busy:a,launching:o=!1}){return{showRootPicker:e&&!t,canStart:e&&t&&!n&&!i&&!a&&!o,canStop:e&&t&&(n||i)&&!a&&!o,repairOnClose:e&&t&&n&&r&&!i}}"
+      },
+      {
+        "name": "zn",
+        "utf8ByteOffset": 213222,
+        "byteLength": 110,
+        "sha256": "75de267730ea462af3d4913d7d45e41b1e09987bff7d0822f5ccd0d572688aac",
+        "text": "function zn({checked:e}){return(0,M.jsx)(`span`,{className:`ui-switch${e?` is-on`:``}`,\"aria-hidden\":`true`})}"
+      },
+      {
+        "name": "Bn",
+        "utf8ByteOffset": 213332,
+        "byteLength": 564,
+        "sha256": "5954bed803d64d2f20278c6f74585429eb121281a6f40c9a9bd6cd6a17f858f7",
+        "text": "function Bn({label:e,checked:t,disabled:n=!1,variant:r=`switch`,onChange:i}){let{t:a}=De();return r===`checkbox`?(0,M.jsxs)(`label`,{className:`automation-checkbox-row`,children:[(0,M.jsx)(`input`,{type:`checkbox`,checked:t,disabled:n,onChange:e=>i(e.target.checked)}),(0,M.jsx)(`span`,{children:a(e)})]}):(0,M.jsxs)(`button`,{type:`button`,className:`toggle-row`,role:`switch`,\"aria-checked\":t,\"aria-label\":`${a(e)}: ${a(t?`common.enabled`:`common.disabled`)}`,disabled:n,onClick:()=>i(!t),children:[(0,M.jsx)(`span`,{children:a(e)}),(0,M.jsx)(zn,{checked:t})]})}"
+      },
+      {
+        "name": "qr",
+        "utf8ByteOffset": 336694,
+        "byteLength": 2225,
+        "sha256": "6547a9e79620b4f02e14397fc59359d2ff8616c0f45ab394a1756d042f5ff385",
+        "text": "function qr({proxyStatus:e,online:t,gameRecoveryStatus:n,proxyBusy:r,gameLaunchBusy:i,gameRootStatus:a,gameRootBusy:o,gameRootError:s,gameActionError:c,autoLaunchGame:l,autoReconnect:u,onAutoLaunchGameChange:d,onAutoReconnectChange:f,onGameRootSelect:p,onStartGame:m,onStopGame:h,onUpdateAndRestart:g}){let{t:_}=De(),v=a!=null,y=n!=null&&[`waiting`,`updating`,`repairing`,`launching`,`verifying`,`maintenance`].includes(n.state),b=e?.repairRequired===!0,x=Kr({rootResolved:v,rootValid:a?.valid===!0,gameRunning:e?.gameRunning===!0,needsRepair:b,recovering:y,busy:r,launching:i}),S=v?x.showRootPicker?_(`setup.gameRootMissing`):i?_(`setup.launchingGame`):r?_(`common.processing`):y?_(`recovery.state.${n.state}`):b?_(`setup.repairRequired`):e?.gameRunning?_(t?`status.gameRunning`:`setup.bridgeDisconnected`):_(`setup.gameStopped`):_(`setup.checking`);return(0,M.jsxs)(`section`,{className:`panel quick-actions-panel`,children:[(0,M.jsxs)(`div`,{className:`panel-title`,children:[(0,M.jsx)(`h2`,{children:_(`setup.title`)}),(0,M.jsx)(`span`,{className:e?.gameRunning&&t?`status-ok`:`muted`,children:S})]}),v?x.showRootPicker?(0,M.jsxs)(`div`,{className:`game-root-missing`,children:[(0,M.jsx)(`span`,{children:s?Lr(_,s):_(`setup.gameRootMissing`)}),(0,M.jsx)(`button`,{className:`primary`,disabled:o,onClick:p,children:_(o?`common.processing`:`setup.gameRootSelect`)})]}):(0,M.jsxs)(`div`,{className:`game-controls`,children:[!x.repairOnClose&&(0,M.jsx)(`button`,{className:`primary`,disabled:!x.canStart,onClick:m,children:_(i?`setup.launchingGame`:r?`common.processing`:`top.launchGame`)}),(0,M.jsx)(`button`,{disabled:!x.canStop,onClick:x.repairOnClose?g:h,children:r&&e?.gameRunning?_(`common.processing`):_(x.repairOnClose?`setup.updateAndLaunch`:`setup.closeGameAction`)}),x.repairOnClose&&(0,M.jsx)(`span`,{className:`muted`,children:_(`setup.updateCloseGame`)})]}):null,c&&(0,M.jsx)(`span`,{className:`game-root-error`,children:Lr(_,c)}),(0,M.jsx)(Bn,{label:`auth.autoLaunchGame`,checked:l,onChange:d}),(0,M.jsx)(Bn,{label:`automation.autoReconnect.title`,checked:u,onChange:f}),n?.state===`failed`&&n.error&&(0,M.jsx)(`span`,{className:`game-root-error`,children:_(`recovery.failedDetail`,{error:Lr(_,n.error)})})]})}"
+      }
+    ]
+  },
+  "current": [
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/HomePage.jsx",
+      "sha256": "f140264e693e89f37cbb357470f58fe5dca46f3dfda29a8a5d2c7918ce2393ff"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/sharedPageUI.jsx",
+      "sha256": "95ed15f5a4ab46c7cae4dd55656e85718f66fa5ac45278b615d1795ebd8e82f2"
+    }
+  ],
+  "css": {
+    "original": {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-rIL9Fpht.css",
+      "sha256": "3d87e9f65b39eace6a1a254bfc90a38acb72613d1fff7236c7cee7ab9bfaf545"
+    },
+    "current": [
+      {
+        "path": "src/LWBridge.UI-0.3.17/src/reference.css",
+        "sha256": "3d87e9f65b39eace6a1a254bfc90a38acb72613d1fff7236c7cee7ab9bfaf545"
+      },
+      {
+        "path": "src/LWBridge.UI-0.3.17/src/styles.css",
+        "sha256": "b50910d37a4dd02d7bb49b506735ea42615ef0f9e85714e880049481aece2ccc"
+      }
+    ]
+  },
+  "cases": 42,
+  "matched": 34,
+  "records": [
+    {
+      "language": "en",
+      "name": "checking",
+      "input": {
+        "rootResolved": false,
+        "gameRootStatus": null,
+        "proxyStatus": null,
+        "online": false,
+        "gameRecoveryStatus": {
+          "state": "idle"
+        },
+        "autoLaunchGame": false,
+        "autoReconnect": false,
+        "busy": "",
+        "proxyBusy": false,
+        "gameLaunchBusy": false,
+        "gameRootError": "",
+        "gameActionError": "",
+        "production": true
+      },
+      "sameStructureExceptButtonType": true,
+      "differences": [],
+      "expectedHtmlSha256": "8fa6b802ebe5e48fc8604a0b5360070dbfd21705fb894477ef347ded8990ec76",
+      "actualHtmlSha256": "8fa6b802ebe5e48fc8604a0b5360070dbfd21705fb894477ef347ded8990ec76"
+    },
+    {
+      "language": "en",
+      "name": "missing-busy",
+      "input": {
+        "rootResolved": true,
+        "gameRootStatus": {
+          "valid": false
+        },
+        "proxyStatus": {
+          "gameRunning": false,
+          "repairRequired": false
+        },
+        "online": false,
+        "gameRecoveryStatus": {
+          "state": "idle"
+        },
+        "autoLaunchGame": false,
+        "autoReconnect": false,
+        "busy": "gameRoot",
+        "proxyBusy": false,
+        "gameLaunchBusy": false,
+        "gameRootError": "",
+        "gameActionError": "",
+        "production": true
+      },
+      "sameStructureExceptButtonType": true,
+      "differences": [],
+      "expectedHtmlSha256": "d6fc3ad01fda81524617e2ffe912ebeec8134319872e294da265faa8d8f7aa0c",
+      "actualHtmlSha256": "40c70945682122501220850f8d6979a124505bf96e9184c58b11a63ece417f59"
+    },
+    {
+      "language": "en",
+      "name": "missing-error-busy",
+      "input": {
+        "rootResolved": true,
+        "gameRootStatus": {
+          "valid": false
+        },
+        "proxyStatus": {
+          "gameRunning": false,
+          "repairRequired": false
+        },
+        "online": false,
+        "gameRecoveryStatus": {
+          "state": "idle"
+        },
+        "autoLaunchGame": false,
+        "autoReconnect": false,
+        "busy": "gameRoot",
+        "proxyBusy": false,
+        "gameLaunchBusy": false,
+        "gameRootError": "INVALID_GAME_ROOT",
+        "gameActionError": "GAME_XLUA_ABI_UNSUPPORTED",
+        "production": true
+      },
+      "sameStructureExceptButtonType": true,
+      "differences": [],
+      "expectedHtmlSha256": "caa8dfad0d210e31b674e96bef093bff6d059fee0ca755fac107f63dec9a8f8c",
+      "actualHtmlSha256": "dbdb5307375d810d78938f3b4d2d2e0ba080d793841a33b3ce5b329b813f4f64"
+    },
+    {
+      "language": "en",
+      "name": "launching",
+      "input": {
+        "rootResolved": true,
+        "gameRootStatus": {
+          "valid": true,
+          "root": "C:\\Games\\Last War-Survival Game"
+        },
+        "proxyStatus": {
+          "gameRunning": false,
+          "repairRequired": false
+        },
+        "online": false,
+        "gameRecoveryStatus": {
+          "state": "idle"
+        },
+        "autoLaunchGame": false,
+        "autoReconnect": false,
+        "busy": "",
+        "proxyBusy": false,
+        "gameLaunchBusy": true,
+        "gameRootError": "",
+        "gameActionError": "",
+        "production": true
+      },
+      "sameStructureExceptButtonType": true,
+      "differences": [],
+      "expectedHtmlSha256": "63185feca4a649ec38ad14f200d248a8d027c7a83a8a8e240d8159ad888fa8a2",
+      "actualHtmlSha256": "7d67725784224cadab6842d0651764d4485b108e31bb5d151dacffd8bdc5ef98"
+    },
+    {
+      "language": "en",
+      "name": "proxy-busy-stopped",
+      "input": {
+        "rootResolved": true,
+        "gameRootStatus": {
+          "valid": true,
+          "root": "C:\\Games\\Last War-Survival Game"
+        },
+        "proxyStatus": {
+          "gameRunning": false,
+          "repairRequired": false
+        },
+        "online": false,
+        "gameRecoveryStatus": {
+          "state": "idle"
+        },
+        "autoLaunchGame": false,
+        "autoReconnect": false,
+        "busy": "",
+        "proxyBusy": true,
+        "gameLaunchBusy": false,
+        "gameRootError": "",
+        "gameActionError": "",
+        "production": true
+      },
+      "sameStructureExceptButtonType": true,
+      "differences": [],
+      "expectedHtmlSha256": "c2809a1282ee51cc793c97a2ad80ac0e8e7ba7196e0dc0f3f88427c53538cbf6",
+      "actualHtmlSha256": "5a3f78a40700582d037a87227973350ae593541205e10d2a189d6618520a7fc2"
+    },
+    {
+      "language": "en",
+      "name": "proxy-busy-running",
+      "input": {
+        "rootResolved": true,
+        "gameRootStatus": {
+          "valid": true,
+          "root": "C:\\Games\\Last War-Survival Game"
+        },
+        "proxyStatus": {
+          "gameRunning": true
+        },
+        "online": false,
+        "gameRecoveryStatus": {
+          "state": "idle"
+        },
+        "autoLaunchGame": false,
+        "autoReconnect": false,
+        "busy": "",
+        "proxyBusy": true,
+        "gameLaunchBusy": false,
+        "gameRootError": "",
+        "gameActionError": "",
+        "production": true
+      },
+      "sameStructureExceptButtonType": true,
+      "differences": [],
+      "expectedHtmlSha256": "aa2a9fb45a5be539e4e448c775bb402e6a5b313f066393320b66d0d21c19c194",
+      "actualHtmlSha256": "fc7f48dde6adf32ec968f4b582f47033652517fdec0a63a8ac0ed4affafb09d7"
+    },
+    {
+      "language": "en",
+      "name": "proxy-busy-repair",
+      "input": {
+        "rootResolved": true,
+        "gameRootStatus": {
+          "valid": true,
+          "root": "C:\\Games\\Last War-Survival Game"
+        },
+        "proxyStatus": {
+          "gameRunning": true,
+          "repairRequired": true
+        },
+        "online": false,
+        "gameRecoveryStatus": {
+          "state": "idle"
+        },
+        "autoLaunchGame": false,
+        "autoReconnect": false,
+        "busy": "",
+        "proxyBusy": true,
+        "gameLaunchBusy": false,
+        "gameRootError": "",
+        "gameActionError": "",
+        "production": true
+      },
+      "sameStructureExceptButtonType": true,
+      "differences": [],
+      "expectedHtmlSha256": "99e8df09f4a3df08bd650b601c084983cd56b50ad7faa0fc9903cf771c1de061",
+      "actualHtmlSha256": "27841ed60236210180ceefdbc73e6a3834d1d7adbc29140c440c74806f883ccc"
+    },
+    {
+      "language": "en",
+      "name": "busy-overlap",
+      "input": {
+        "rootResolved": true,
+        "gameRootStatus": {
+          "valid": true,
+          "root": "C:\\Games\\Last War-Survival Game"
+        },
+        "proxyStatus": {
+          "gameRunning": true
+        },
+        "online": false,
+        "gameRecoveryStatus": {
+          "state": "idle"
+        },
+        "autoLaunchGame": true,
+        "autoReconnect": true,
+        "busy": "",
+        "proxyBusy": true,
+        "gameLaunchBusy": true,
+        "gameRootError": "",
+        "gameActionError": "",
+        "production": true
+      },
+      "sameStructureExceptButtonType": true,
+      "differences": [],
+      "expectedHtmlSha256": "9d8d21589b220d17fcf8fd909640d65b306785095ac6c0674ad18c70e25e9483",
+      "actualHtmlSha256": "eae43c80e182856a246ce22ef5df82108787017923ad5526fcce70accbd856e5"
+    },
+    {
+      "language": "en",
+      "name": "recovery-failed-busy",
+      "input": {
+        "rootResolved": true,
+        "gameRootStatus": {
+          "valid": true,
+          "root": "C:\\Games\\Last War-Survival Game"
+        },
+        "proxyStatus": {
+          "gameRunning": false,
+          "repairRequired": false
+        },
+        "online": false,
+        "gameRecoveryStatus": {
+          "state": "failed",
+          "error": "QA_UNKNOWN"
+        },
+        "autoLaunchGame": false,
+        "autoReconnect": false,
+        "busy": "",
+        "proxyBusy": true,
+        "gameLaunchBusy": false,
+        "gameRootError": "",
+        "gameActionError": "",
+        "production": true
+      },
+      "sameStructureExceptButtonType": true,
+      "differences": [],
+      "expectedHtmlSha256": "2ad680efecad65cde9780669cb6b30ed9e15eb6fa7fbe9888454034bce51abcc",
+      "actualHtmlSha256": "b050a82bb6a85ef284c7a46d73be822244b8ba83e0b9886214277ebada6469ec"
+    },
+    {
+      "language": "en",
+      "name": "recovery-waiting-busy",
+      "input": {
+        "rootResolved": true,
+        "gameRootStatus": {
+          "valid": true,
+          "root": "C:\\Games\\Last War-Survival Game"
+        },
+        "proxyStatus": {
+          "gameRunning": true
+        },
+        "online": false,
+        "gameRecoveryStatus": {
+          "state": "waiting"
+        },
+        "autoLaunchGame": false,
+        "autoReconnect": false,
+        "busy": "",
+        "proxyBusy": true,
+        "gameLaunchBusy": false,
+        "gameRootError": "",
+        "gameActionError": "",
+        "production": true
+      },
+      "sameStructureExceptButtonType": true,
+      "differences": [],
+      "expectedHtmlSha256": "aa2a9fb45a5be539e4e448c775bb402e6a5b313f066393320b66d0d21c19c194",
+      "actualHtmlSha256": "fc7f48dde6adf32ec968f4b582f47033652517fdec0a63a8ac0ed4affafb09d7"
+    },
+    {
+      "language": "en",
+      "name": "recovery-updating-busy",
+      "input": {
+        "rootResolved": true,
+        "gameRootStatus": {
+          "valid": true,
+          "root": "C:\\Games\\Last War-Survival Game"
+        },
+        "proxyStatus": {
+          "gameRunning": true
+        },
+        "online": false,
+        "gameRecoveryStatus": {
+          "state": "updating"
+        },
+        "autoLaunchGame": false,
+        "autoReconnect": false,
+        "busy": "",
+        "proxyBusy": true,
+        "gameLaunchBusy": false,
+        "gameRootError": "",
+        "gameActionError": "",
+        "production": true
+      },
+      "sameStructureExceptButtonType": true,
+      "differences": [],
+      "expectedHtmlSha256": "aa2a9fb45a5be539e4e448c775bb402e6a5b313f066393320b66d0d21c19c194",
+      "actualHtmlSha256": "fc7f48dde6adf32ec968f4b582f47033652517fdec0a63a8ac0ed4affafb09d7"
+    },
+    {
+      "language": "en",
+      "name": "recovery-repairing-busy",
+      "input": {
+        "rootResolved": true,
+        "gameRootStatus": {
+          "valid": true,
+          "root": "C:\\Games\\Last War-Survival Game"
+        },
+        "proxyStatus": {
+          "gameRunning": true
+        },
+        "online": false,
+        "gameRecoveryStatus": {
+          "state": "repairing"
+        },
+        "autoLaunchGame": false,
+        "autoReconnect": false,
+        "busy": "",
+        "proxyBusy": true,
+        "gameLaunchBusy": false,
+        "gameRootError": "",
+        "gameActionError": "",
+        "production": true
+      },
+      "sameStructureExceptButtonType": true,
+      "differences": [],
+      "expectedHtmlSha256": "aa2a9fb45a5be539e4e448c775bb402e6a5b313f066393320b66d0d21c19c194",
+      "actualHtmlSha256": "fc7f48dde6adf32ec968f4b582f47033652517fdec0a63a8ac0ed4affafb09d7"
+    },
+    {
+      "language": "en",
+      "name": "recovery-launching-busy",
+      "input": {
+        "rootResolved": true,
+        "gameRootStatus": {
+          "valid": true,
+          "root": "C:\\Games\\Last War-Survival Game"
+        },
+        "proxyStatus": {
+          "gameRunning": true
+        },
+        "online": false,
+        "gameRecoveryStatus": {
+          "state": "launching"
+        },
+        "autoLaunchGame": false,
+        "autoReconnect": false,
+        "busy": "",
+        "proxyBusy": true,
+        "gameLaunchBusy": false,
+        "gameRootError": "",
+        "gameActionError": "",
+        "production": true
+      },
+      "sameStructureExceptButtonType": true,
+      "differences": [],
+      "expectedHtmlSha256": "aa2a9fb45a5be539e4e448c775bb402e6a5b313f066393320b66d0d21c19c194",
+      "actualHtmlSha256": "fc7f48dde6adf32ec968f4b582f47033652517fdec0a63a8ac0ed4affafb09d7"
+    },
+    {
+      "language": "en",
+      "name": "recovery-verifying-busy",
+      "input": {
+        "rootResolved": true,
+        "gameRootStatus": {
+          "valid": true,
+          "root": "C:\\Games\\Last War-Survival Game"
+        },
+        "proxyStatus": {
+          "gameRunning": true
+        },
+        "online": false,
+        "gameRecoveryStatus": {
+          "state": "verifying"
+        },
+        "autoLaunchGame": false,
+        "autoReconnect": false,
+        "busy": "",
+        "proxyBusy": true,
+        "gameLaunchBusy": false,
+        "gameRootError": "",
+        "gameActionError": "",
+        "production": true
+      },
+      "sameStructureExceptButtonType": true,
+      "differences": [],
+      "expectedHtmlSha256": "aa2a9fb45a5be539e4e448c775bb402e6a5b313f066393320b66d0d21c19c194",
+      "actualHtmlSha256": "fc7f48dde6adf32ec968f4b582f47033652517fdec0a63a8ac0ed4affafb09d7"
+    },
+    {
+      "language": "en",
+      "name": "recovery-maintenance-busy",
+      "input": {
+        "rootResolved": true,
+        "gameRootStatus": {
+          "valid": true,
+          "root": "C:\\Games\\Last War-Survival Game"
+        },
+        "proxyStatus": {
+          "gameRunning": true
+        },
+        "online": false,
+        "gameRecoveryStatus": {
+          "state": "maintenance"
+        },
+        "autoLaunchGame": false,
+        "autoReconnect": false,
+        "busy": "",
+        "proxyBusy": true,
+        "gameLaunchBusy": false,
+        "gameRootError": "",
+        "gameActionError": "",
+        "production": true
+      },
+      "sameStructureExceptButtonType": true,
+      "differences": [],
+      "expectedHtmlSha256": "aa2a9fb45a5be539e4e448c775bb402e6a5b313f066393320b66d0d21c19c194",
+      "actualHtmlSha256": "fc7f48dde6adf32ec968f4b582f47033652517fdec0a63a8ac0ed4affafb09d7"
+    },
+    {
+      "language": "en",
+      "name": "stopped",
+      "input": {
+        "rootResolved": true,
+        "gameRootStatus": {
+          "valid": true,
+          "root": "C:\\Games\\Last War-Survival Game"
+        },
+        "proxyStatus": {
+          "gameRunning": false,
+          "repairRequired": false
+        },
+        "online": false,
+        "gameRecoveryStatus": {
+          "state": "idle"
+        },
+        "autoLaunchGame": false,
+        "autoReconnect": false,
+        "busy": "",
+        "proxyBusy": false,
+        "gameLaunchBusy": false,
+        "gameRootError": "",
+        "gameActionError": "",
+        "production": true
+      },
+      "sameStructureExceptButtonType": false,
+      "differences": [
+        {
+          "element": 5,
+          "expected": {
+            "tag": "BUTTON",
+            "attrs": [
+              [
+                "class",
+                "primary"
+              ]
+            ],
+            "text": "Launch Game"
+          },
+          "actual": {
+            "tag": "BUTTON",
+            "attrs": [
+              [
+                "class",
+                "primary"
+              ],
+              [
+                "disabled",
+                ""
+              ]
+            ],
+            "text": "Launch Game"
+          }
+        }
+      ],
+      "expectedHtmlSha256": "3da040959868d5a7e5c779125d9d5ca568a1509915c5c3c173a2fb6ae7ffe42c",
+      "actualHtmlSha256": "3f1f366d0c44ded1859c950240f6d0a959e9a8f3efec49ff7564cb01bbc8815a"
+    },
+    {
+      "language": "en",
+      "name": "running-connected",
+      "input": {
+        "rootResolved": true,
+        "gameRootStatus": {
+          "valid": true,
+          "root": "C:\\Games\\Last War-Survival Game"
+        },
+        "proxyStatus": {
+          "gameRunning": true
+        },
+        "online": true,
+        "gameRecoveryStatus": {
+          "state": "idle"
+        },
+        "autoLaunchGame": true,
+        "autoReconnect": true,
+        "busy": "",
+        "proxyBusy": false,
+        "gameLaunchBusy": false,
+        "gameRootError": "",
+        "gameActionError": "",
+        "production": true
+      },
+      "sameStructureExceptButtonType": false,
+      "differences": [
+        {
+          "element": 6,
+          "expected": {
+            "tag": "BUTTON",
+            "attrs": [],
+            "text": "Close game"
+          },
+          "actual": {
+            "tag": "BUTTON",
+            "attrs": [
+              [
+                "disabled",
+                ""
+              ]
+            ],
+            "text": "Close game"
+          }
+        }
+      ],
+      "expectedHtmlSha256": "d586e83b50bd076da1bda50aeaf26fc5e53b83e39ce69a2fee17a0a43565f262",
+      "actualHtmlSha256": "8509aca3f8d34ae8610ae0e5e0ae5062854434ac8c779de49d8868c6e0181f87"
+    },
+    {
+      "language": "en",
+      "name": "repair",
+      "input": {
+        "rootResolved": true,
+        "gameRootStatus": {
+          "valid": true,
+          "root": "C:\\Games\\Last War-Survival Game"
+        },
+        "proxyStatus": {
+          "gameRunning": true,
+          "repairRequired": true
+        },
+        "online": false,
+        "gameRecoveryStatus": {
+          "state": "idle"
+        },
+        "autoLaunchGame": false,
+        "autoReconnect": false,
+        "busy": "",
+        "proxyBusy": false,
+        "gameLaunchBusy": false,
+        "gameRootError": "",
+        "gameActionError": "",
+        "production": true
+      },
+      "sameStructureExceptButtonType": false,
+      "differences": [
+        {
+          "element": 5,
+          "expected": {
+            "tag": "BUTTON",
+            "attrs": [],
+            "text": "Update and restart game"
+          },
+          "actual": {
+            "tag": "BUTTON",
+            "attrs": [
+              [
+                "disabled",
+                ""
+              ]
+            ],
+            "text": "Update and restart game"
+          }
+        }
+      ],
+      "expectedHtmlSha256": "848d9662dab1d74186b181dedd62fb919dec1381cdb43c4ef861502b97c82580",
+      "actualHtmlSha256": "2bf1ac646ff0e4f00a07a9c47664536e290d796b4369e8c8ab61a18c78a0a720"
+    },
+    {
+      "language": "en",
+      "name": "preference-launch-saving",
+      "input": {
+        "rootResolved": true,
+        "gameRootStatus": {
+          "valid": true,
+          "root": "C:\\Games\\Last War-Survival Game"
+        },
+        "proxyStatus": {
+          "gameRunning": false,
+          "repairRequired": false
+        },
+        "online": false,
+        "gameRecoveryStatus": {
+          "state": "idle"
+        },
+        "autoLaunchGame": false,
+        "autoReconnect": false,
+        "busy": "autoLaunchGame",
+        "proxyBusy": true,
+        "gameLaunchBusy": false,
+        "gameRootError": "",
+        "gameActionError": "",
+        "production": true
+      },
+      "sameStructureExceptButtonType": true,
+      "differences": [],
+      "expectedHtmlSha256": "c2809a1282ee51cc793c97a2ad80ac0e8e7ba7196e0dc0f3f88427c53538cbf6",
+      "actualHtmlSha256": "5a3f78a40700582d037a87227973350ae593541205e10d2a189d6618520a7fc2"
+    },
+    {
+      "language": "en",
+      "name": "preference-reconnect-saving",
+      "input": {
+        "rootResolved": true,
+        "gameRootStatus": {
+          "valid": true,
+          "root": "C:\\Games\\Last War-Survival Game"
+        },
+        "proxyStatus": {
+          "gameRunning": false,
+          "repairRequired": false
+        },
+        "online": false,
+        "gameRecoveryStatus": {
+          "state": "idle"
+        },
+        "autoLaunchGame": false,
+        "autoReconnect": false,
+        "busy": "autoReconnect",
+        "proxyBusy": true,
+        "gameLaunchBusy": false,
+        "gameRootError": "",
+        "gameActionError": "",
+        "production": true
+      },
+      "sameStructureExceptButtonType": true,
+      "differences": [],
+      "expectedHtmlSha256": "c2809a1282ee51cc793c97a2ad80ac0e8e7ba7196e0dc0f3f88427c53538cbf6",
+      "actualHtmlSha256": "5a3f78a40700582d037a87227973350ae593541205e10d2a189d6618520a7fc2"
+    },
+    {
+      "language": "en",
+      "name": "unavailable",
+      "input": {
+        "rootResolved": true,
+        "gameRootStatus": {
+          "valid": true,
+          "root": "C:\\Games\\Last War-Survival Game"
+        },
+        "proxyStatus": {
+          "gameRunning": false,
+          "repairRequired": false
+        },
+        "online": false,
+        "gameRecoveryStatus": {
+          "state": "idle"
+        },
+        "autoLaunchGame": false,
+        "autoReconnect": false,
+        "busy": "",
+        "proxyBusy": true,
+        "gameLaunchBusy": false,
+        "gameRootError": "",
+        "gameActionError": "",
+        "production": false
+      },
+      "sameStructureExceptButtonType": false,
+      "differences": [
+        {
+          "element": 7,
+          "expected": {
+            "tag": "BUTTON",
+            "attrs": [
+              [
+                "aria-checked",
+                "false"
+              ],
+              [
+                "aria-label",
+                "Open games at startup: Disabled"
+              ],
+              [
+                "class",
+                "toggle-row"
+              ],
+              [
+                "role",
+                "switch"
+              ]
+            ],
+            "text": ""
+          },
+          "actual": {
+            "tag": "BUTTON",
+            "attrs": [
+              [
+                "aria-checked",
+                "false"
+              ],
+              [
+                "aria-label",
+                "Open games at startup: Disabled"
+              ],
+              [
+                "class",
+                "toggle-row"
+              ],
+              [
+                "disabled",
+                ""
+              ],
+              [
+                "role",
+                "switch"
+              ]
+            ],
+            "text": ""
+          }
+        },
+        {
+          "element": 10,
+          "expected": {
+            "tag": "BUTTON",
+            "attrs": [
+              [
+                "aria-checked",
+                "false"
+              ],
+              [
+                "aria-label",
+                "Automatic Reconnection: Disabled"
+              ],
+              [
+                "class",
+                "toggle-row"
+              ],
+              [
+                "role",
+                "switch"
+              ]
+            ],
+            "text": ""
+          },
+          "actual": {
+            "tag": "BUTTON",
+            "attrs": [
+              [
+                "aria-checked",
+                "false"
+              ],
+              [
+                "aria-label",
+                "Automatic Reconnection: Disabled"
+              ],
+              [
+                "class",
+                "toggle-row"
+              ],
+              [
+                "disabled",
+                ""
+              ],
+              [
+                "role",
+                "switch"
+              ]
+            ],
+            "text": ""
+          }
+        }
+      ],
+      "expectedHtmlSha256": "c2809a1282ee51cc793c97a2ad80ac0e8e7ba7196e0dc0f3f88427c53538cbf6",
+      "actualHtmlSha256": "ef08587fcae0160fe24e41748bd1bfe3420328b8a5a68047f6ee34d1608ff632"
+    },
+    {
+      "language": "ja",
+      "name": "checking",
+      "input": {
+        "rootResolved": false,
+        "gameRootStatus": null,
+        "proxyStatus": null,
+        "online": false,
+        "gameRecoveryStatus": {
+          "state": "idle"
+        },
+        "autoLaunchGame": false,
+        "autoReconnect": false,
+        "busy": "",
+        "proxyBusy": false,
+        "gameLaunchBusy": false,
+        "gameRootError": "",
+        "gameActionError": "",
+        "production": true
+      },
+      "sameStructureExceptButtonType": true,
+      "differences": [],
+      "expectedHtmlSha256": "a3cc2a562a9dc1914b81c6e4d7394fe0202e7e4d802d5f50fc5899423a76a5ef",
+      "actualHtmlSha256": "a3cc2a562a9dc1914b81c6e4d7394fe0202e7e4d802d5f50fc5899423a76a5ef"
+    },
+    {
+      "language": "ja",
+      "name": "missing-busy",
+      "input": {
+        "rootResolved": true,
+        "gameRootStatus": {
+          "valid": false
+        },
+        "proxyStatus": {
+          "gameRunning": false,
+          "repairRequired": false
+        },
+        "online": false,
+        "gameRecoveryStatus": {
+          "state": "idle"
+        },
+        "autoLaunchGame": false,
+        "autoReconnect": false,
+        "busy": "gameRoot",
+        "proxyBusy": false,
+        "gameLaunchBusy": false,
+        "gameRootError": "",
+        "gameActionError": "",
+        "production": true
+      },
+      "sameStructureExceptButtonType": true,
+      "differences": [],
+      "expectedHtmlSha256": "356dc4f73ba3430176507deb3b066a31677bc0674aac09a02648d5a72478a679",
+      "actualHtmlSha256": "ee8504529ae24835b2d5475b97589d161a9559acd44614d63e78a84e036d58d7"
+    },
+    {
+      "language": "ja",
+      "name": "missing-error-busy",
+      "input": {
+        "rootResolved": true,
+        "gameRootStatus": {
+          "valid": false
+        },
+        "proxyStatus": {
+          "gameRunning": false,
+          "repairRequired": false
+        },
+        "online": false,
+        "gameRecoveryStatus": {
+          "state": "idle"
+        },
+        "autoLaunchGame": false,
+        "autoReconnect": false,
+        "busy": "gameRoot",
+        "proxyBusy": false,
+        "gameLaunchBusy": false,
+        "gameRootError": "INVALID_GAME_ROOT",
+        "gameActionError": "GAME_XLUA_ABI_UNSUPPORTED",
+        "production": true
+      },
+      "sameStructureExceptButtonType": true,
+      "differences": [],
+      "expectedHtmlSha256": "26464a4b69d21ba4426c66502113bc620716329c1c56b37fb518b7930efec575",
+      "actualHtmlSha256": "feb4dbcb8b03f048b25656e71272278e0b8b4a628bc117712620ab70c5ee8acd"
+    },
+    {
+      "language": "ja",
+      "name": "launching",
+      "input": {
+        "rootResolved": true,
+        "gameRootStatus": {
+          "valid": true,
+          "root": "C:\\Games\\Last War-Survival Game"
+        },
+        "proxyStatus": {
+          "gameRunning": false,
+          "repairRequired": false
+        },
+        "online": false,
+        "gameRecoveryStatus": {
+          "state": "idle"
+        },
+        "autoLaunchGame": false,
+        "autoReconnect": false,
+        "busy": "",
+        "proxyBusy": false,
+        "gameLaunchBusy": true,
+        "gameRootError": "",
+        "gameActionError": "",
+        "production": true
+      },
+      "sameStructureExceptButtonType": true,
+      "differences": [],
+      "expectedHtmlSha256": "86d18412c996280d737646342c00ebbc341d60d4186b7e7ba8b09a4931747c01",
+      "actualHtmlSha256": "b933bfb36bcbb1e9d6563d8b5cdcf2f352b0d82af2a1ee1acdd69bd841fc3c3a"
+    },
+    {
+      "language": "ja",
+      "name": "proxy-busy-stopped",
+      "input": {
+        "rootResolved": true,
+        "gameRootStatus": {
+          "valid": true,
+          "root": "C:\\Games\\Last War-Survival Game"
+        },
+        "proxyStatus": {
+          "gameRunning": false,
+          "repairRequired": false
+        },
+        "online": false,
+        "gameRecoveryStatus": {
+          "state": "idle"
+        },
+        "autoLaunchGame": false,
+        "autoReconnect": false,
+        "busy": "",
+        "proxyBusy": true,
+        "gameLaunchBusy": false,
+        "gameRootError": "",
+        "gameActionError": "",
+        "production": true
+      },
+      "sameStructureExceptButtonType": true,
+      "differences": [],
+      "expectedHtmlSha256": "123d06592ce9135169a1bbcf2055303821bc3022d6bae3c1611c722bf17841fb",
+      "actualHtmlSha256": "1416b396089adfd7d1d5f5f359bc7012c0632b475eeb41511edd6cb9a1bd2fed"
+    },
+    {
+      "language": "ja",
+      "name": "proxy-busy-running",
+      "input": {
+        "rootResolved": true,
+        "gameRootStatus": {
+          "valid": true,
+          "root": "C:\\Games\\Last War-Survival Game"
+        },
+        "proxyStatus": {
+          "gameRunning": true
+        },
+        "online": false,
+        "gameRecoveryStatus": {
+          "state": "idle"
+        },
+        "autoLaunchGame": false,
+        "autoReconnect": false,
+        "busy": "",
+        "proxyBusy": true,
+        "gameLaunchBusy": false,
+        "gameRootError": "",
+        "gameActionError": "",
+        "production": true
+      },
+      "sameStructureExceptButtonType": true,
+      "differences": [],
+      "expectedHtmlSha256": "9edf9b3069f4c1fdd5923263fd78c50f625c4aedd284fb468115bd9e19b7377b",
+      "actualHtmlSha256": "cce9cc7c7a6dad2f527b5d770a923aad8886e402bbe53fe7d398998569da7f76"
+    },
+    {
+      "language": "ja",
+      "name": "proxy-busy-repair",
+      "input": {
+        "rootResolved": true,
+        "gameRootStatus": {
+          "valid": true,
+          "root": "C:\\Games\\Last War-Survival Game"
+        },
+        "proxyStatus": {
+          "gameRunning": true,
+          "repairRequired": true
+        },
+        "online": false,
+        "gameRecoveryStatus": {
+          "state": "idle"
+        },
+        "autoLaunchGame": false,
+        "autoReconnect": false,
+        "busy": "",
+        "proxyBusy": true,
+        "gameLaunchBusy": false,
+        "gameRootError": "",
+        "gameActionError": "",
+        "production": true
+      },
+      "sameStructureExceptButtonType": true,
+      "differences": [],
+      "expectedHtmlSha256": "0e58d9c6bcf3d34a5c948e0c00b521948ce42940fdec5d75cfece7ca409b95a7",
+      "actualHtmlSha256": "2d8d72fa8042dbd7f93d53b2460bb90c2de148693b159394081a777266f90776"
+    },
+    {
+      "language": "ja",
+      "name": "busy-overlap",
+      "input": {
+        "rootResolved": true,
+        "gameRootStatus": {
+          "valid": true,
+          "root": "C:\\Games\\Last War-Survival Game"
+        },
+        "proxyStatus": {
+          "gameRunning": true
+        },
+        "online": false,
+        "gameRecoveryStatus": {
+          "state": "idle"
+        },
+        "autoLaunchGame": true,
+        "autoReconnect": true,
+        "busy": "",
+        "proxyBusy": true,
+        "gameLaunchBusy": true,
+        "gameRootError": "",
+        "gameActionError": "",
+        "production": true
+      },
+      "sameStructureExceptButtonType": true,
+      "differences": [],
+      "expectedHtmlSha256": "9fa5463fbeb3c051cca5811bc91eeacaf2545b0b6bacfed48bca5ca605b21749",
+      "actualHtmlSha256": "fedb4f85303a333f58e41cbc0a95bb8d09a64d425d15e5581f00692e002604b4"
+    },
+    {
+      "language": "ja",
+      "name": "recovery-failed-busy",
+      "input": {
+        "rootResolved": true,
+        "gameRootStatus": {
+          "valid": true,
+          "root": "C:\\Games\\Last War-Survival Game"
+        },
+        "proxyStatus": {
+          "gameRunning": false,
+          "repairRequired": false
+        },
+        "online": false,
+        "gameRecoveryStatus": {
+          "state": "failed",
+          "error": "QA_UNKNOWN"
+        },
+        "autoLaunchGame": false,
+        "autoReconnect": false,
+        "busy": "",
+        "proxyBusy": true,
+        "gameLaunchBusy": false,
+        "gameRootError": "",
+        "gameActionError": "",
+        "production": true
+      },
+      "sameStructureExceptButtonType": true,
+      "differences": [],
+      "expectedHtmlSha256": "63ed0ac190c05acd3f07fb7ce623c303b893beebcb8e6bcf8cec7f001634c0f5",
+      "actualHtmlSha256": "7a573c59ea10a086dea0f0483c59d155b6d4171ed3f3b3d7bb3cbd867a70322e"
+    },
+    {
+      "language": "ja",
+      "name": "recovery-waiting-busy",
+      "input": {
+        "rootResolved": true,
+        "gameRootStatus": {
+          "valid": true,
+          "root": "C:\\Games\\Last War-Survival Game"
+        },
+        "proxyStatus": {
+          "gameRunning": true
+        },
+        "online": false,
+        "gameRecoveryStatus": {
+          "state": "waiting"
+        },
+        "autoLaunchGame": false,
+        "autoReconnect": false,
+        "busy": "",
+        "proxyBusy": true,
+        "gameLaunchBusy": false,
+        "gameRootError": "",
+        "gameActionError": "",
+        "production": true
+      },
+      "sameStructureExceptButtonType": true,
+      "differences": [],
+      "expectedHtmlSha256": "9edf9b3069f4c1fdd5923263fd78c50f625c4aedd284fb468115bd9e19b7377b",
+      "actualHtmlSha256": "cce9cc7c7a6dad2f527b5d770a923aad8886e402bbe53fe7d398998569da7f76"
+    },
+    {
+      "language": "ja",
+      "name": "recovery-updating-busy",
+      "input": {
+        "rootResolved": true,
+        "gameRootStatus": {
+          "valid": true,
+          "root": "C:\\Games\\Last War-Survival Game"
+        },
+        "proxyStatus": {
+          "gameRunning": true
+        },
+        "online": false,
+        "gameRecoveryStatus": {
+          "state": "updating"
+        },
+        "autoLaunchGame": false,
+        "autoReconnect": false,
+        "busy": "",
+        "proxyBusy": true,
+        "gameLaunchBusy": false,
+        "gameRootError": "",
+        "gameActionError": "",
+        "production": true
+      },
+      "sameStructureExceptButtonType": true,
+      "differences": [],
+      "expectedHtmlSha256": "9edf9b3069f4c1fdd5923263fd78c50f625c4aedd284fb468115bd9e19b7377b",
+      "actualHtmlSha256": "cce9cc7c7a6dad2f527b5d770a923aad8886e402bbe53fe7d398998569da7f76"
+    },
+    {
+      "language": "ja",
+      "name": "recovery-repairing-busy",
+      "input": {
+        "rootResolved": true,
+        "gameRootStatus": {
+          "valid": true,
+          "root": "C:\\Games\\Last War-Survival Game"
+        },
+        "proxyStatus": {
+          "gameRunning": true
+        },
+        "online": false,
+        "gameRecoveryStatus": {
+          "state": "repairing"
+        },
+        "autoLaunchGame": false,
+        "autoReconnect": false,
+        "busy": "",
+        "proxyBusy": true,
+        "gameLaunchBusy": false,
+        "gameRootError": "",
+        "gameActionError": "",
+        "production": true
+      },
+      "sameStructureExceptButtonType": true,
+      "differences": [],
+      "expectedHtmlSha256": "9edf9b3069f4c1fdd5923263fd78c50f625c4aedd284fb468115bd9e19b7377b",
+      "actualHtmlSha256": "cce9cc7c7a6dad2f527b5d770a923aad8886e402bbe53fe7d398998569da7f76"
+    },
+    {
+      "language": "ja",
+      "name": "recovery-launching-busy",
+      "input": {
+        "rootResolved": true,
+        "gameRootStatus": {
+          "valid": true,
+          "root": "C:\\Games\\Last War-Survival Game"
+        },
+        "proxyStatus": {
+          "gameRunning": true
+        },
+        "online": false,
+        "gameRecoveryStatus": {
+          "state": "launching"
+        },
+        "autoLaunchGame": false,
+        "autoReconnect": false,
+        "busy": "",
+        "proxyBusy": true,
+        "gameLaunchBusy": false,
+        "gameRootError": "",
+        "gameActionError": "",
+        "production": true
+      },
+      "sameStructureExceptButtonType": true,
+      "differences": [],
+      "expectedHtmlSha256": "9edf9b3069f4c1fdd5923263fd78c50f625c4aedd284fb468115bd9e19b7377b",
+      "actualHtmlSha256": "cce9cc7c7a6dad2f527b5d770a923aad8886e402bbe53fe7d398998569da7f76"
+    },
+    {
+      "language": "ja",
+      "name": "recovery-verifying-busy",
+      "input": {
+        "rootResolved": true,
+        "gameRootStatus": {
+          "valid": true,
+          "root": "C:\\Games\\Last War-Survival Game"
+        },
+        "proxyStatus": {
+          "gameRunning": true
+        },
+        "online": false,
+        "gameRecoveryStatus": {
+          "state": "verifying"
+        },
+        "autoLaunchGame": false,
+        "autoReconnect": false,
+        "busy": "",
+        "proxyBusy": true,
+        "gameLaunchBusy": false,
+        "gameRootError": "",
+        "gameActionError": "",
+        "production": true
+      },
+      "sameStructureExceptButtonType": true,
+      "differences": [],
+      "expectedHtmlSha256": "9edf9b3069f4c1fdd5923263fd78c50f625c4aedd284fb468115bd9e19b7377b",
+      "actualHtmlSha256": "cce9cc7c7a6dad2f527b5d770a923aad8886e402bbe53fe7d398998569da7f76"
+    },
+    {
+      "language": "ja",
+      "name": "recovery-maintenance-busy",
+      "input": {
+        "rootResolved": true,
+        "gameRootStatus": {
+          "valid": true,
+          "root": "C:\\Games\\Last War-Survival Game"
+        },
+        "proxyStatus": {
+          "gameRunning": true
+        },
+        "online": false,
+        "gameRecoveryStatus": {
+          "state": "maintenance"
+        },
+        "autoLaunchGame": false,
+        "autoReconnect": false,
+        "busy": "",
+        "proxyBusy": true,
+        "gameLaunchBusy": false,
+        "gameRootError": "",
+        "gameActionError": "",
+        "production": true
+      },
+      "sameStructureExceptButtonType": true,
+      "differences": [],
+      "expectedHtmlSha256": "9edf9b3069f4c1fdd5923263fd78c50f625c4aedd284fb468115bd9e19b7377b",
+      "actualHtmlSha256": "cce9cc7c7a6dad2f527b5d770a923aad8886e402bbe53fe7d398998569da7f76"
+    },
+    {
+      "language": "ja",
+      "name": "stopped",
+      "input": {
+        "rootResolved": true,
+        "gameRootStatus": {
+          "valid": true,
+          "root": "C:\\Games\\Last War-Survival Game"
+        },
+        "proxyStatus": {
+          "gameRunning": false,
+          "repairRequired": false
+        },
+        "online": false,
+        "gameRecoveryStatus": {
+          "state": "idle"
+        },
+        "autoLaunchGame": false,
+        "autoReconnect": false,
+        "busy": "",
+        "proxyBusy": false,
+        "gameLaunchBusy": false,
+        "gameRootError": "",
+        "gameActionError": "",
+        "production": true
+      },
+      "sameStructureExceptButtonType": false,
+      "differences": [
+        {
+          "element": 5,
+          "expected": {
+            "tag": "BUTTON",
+            "attrs": [
+              [
+                "class",
+                "primary"
+              ]
+            ],
+            "text": "ゲームを起動"
+          },
+          "actual": {
+            "tag": "BUTTON",
+            "attrs": [
+              [
+                "class",
+                "primary"
+              ],
+              [
+                "disabled",
+                ""
+              ]
+            ],
+            "text": "ゲームを起動"
+          }
+        }
+      ],
+      "expectedHtmlSha256": "5cb334c8afcb25e48110b01de6e5983d2b41929adcd6134480781217c26c2dfd",
+      "actualHtmlSha256": "8889941fb376154f750de222ec6d78c2ab8ac572f94c2063ee72248372058da8"
+    },
+    {
+      "language": "ja",
+      "name": "running-connected",
+      "input": {
+        "rootResolved": true,
+        "gameRootStatus": {
+          "valid": true,
+          "root": "C:\\Games\\Last War-Survival Game"
+        },
+        "proxyStatus": {
+          "gameRunning": true
+        },
+        "online": true,
+        "gameRecoveryStatus": {
+          "state": "idle"
+        },
+        "autoLaunchGame": true,
+        "autoReconnect": true,
+        "busy": "",
+        "proxyBusy": false,
+        "gameLaunchBusy": false,
+        "gameRootError": "",
+        "gameActionError": "",
+        "production": true
+      },
+      "sameStructureExceptButtonType": false,
+      "differences": [
+        {
+          "element": 6,
+          "expected": {
+            "tag": "BUTTON",
+            "attrs": [],
+            "text": "ゲームを閉じる"
+          },
+          "actual": {
+            "tag": "BUTTON",
+            "attrs": [
+              [
+                "disabled",
+                ""
+              ]
+            ],
+            "text": "ゲームを閉じる"
+          }
+        }
+      ],
+      "expectedHtmlSha256": "20d88df211250fa0cad665e4b1ed4f2c70617d3d793f850254b4c6ed33fb0ae5",
+      "actualHtmlSha256": "41fff44a7ed910aac93f79fb041f944bf8a61b2de9e86b0fd95146310e3998f5"
+    },
+    {
+      "language": "ja",
+      "name": "repair",
+      "input": {
+        "rootResolved": true,
+        "gameRootStatus": {
+          "valid": true,
+          "root": "C:\\Games\\Last War-Survival Game"
+        },
+        "proxyStatus": {
+          "gameRunning": true,
+          "repairRequired": true
+        },
+        "online": false,
+        "gameRecoveryStatus": {
+          "state": "idle"
+        },
+        "autoLaunchGame": false,
+        "autoReconnect": false,
+        "busy": "",
+        "proxyBusy": false,
+        "gameLaunchBusy": false,
+        "gameRootError": "",
+        "gameActionError": "",
+        "production": true
+      },
+      "sameStructureExceptButtonType": false,
+      "differences": [
+        {
+          "element": 5,
+          "expected": {
+            "tag": "BUTTON",
+            "attrs": [],
+            "text": "更新してゲームを再起動"
+          },
+          "actual": {
+            "tag": "BUTTON",
+            "attrs": [
+              [
+                "disabled",
+                ""
+              ]
+            ],
+            "text": "更新してゲームを再起動"
+          }
+        }
+      ],
+      "expectedHtmlSha256": "f8bf03f95df9ea31d231df8aa9b9288f3101e51d663064ed2615513f83a24b4e",
+      "actualHtmlSha256": "f4b8514e86603aadd65537c686c9bae11696613d540c9c15c3130cdb6468efc9"
+    },
+    {
+      "language": "ja",
+      "name": "preference-launch-saving",
+      "input": {
+        "rootResolved": true,
+        "gameRootStatus": {
+          "valid": true,
+          "root": "C:\\Games\\Last War-Survival Game"
+        },
+        "proxyStatus": {
+          "gameRunning": false,
+          "repairRequired": false
+        },
+        "online": false,
+        "gameRecoveryStatus": {
+          "state": "idle"
+        },
+        "autoLaunchGame": false,
+        "autoReconnect": false,
+        "busy": "autoLaunchGame",
+        "proxyBusy": true,
+        "gameLaunchBusy": false,
+        "gameRootError": "",
+        "gameActionError": "",
+        "production": true
+      },
+      "sameStructureExceptButtonType": true,
+      "differences": [],
+      "expectedHtmlSha256": "123d06592ce9135169a1bbcf2055303821bc3022d6bae3c1611c722bf17841fb",
+      "actualHtmlSha256": "1416b396089adfd7d1d5f5f359bc7012c0632b475eeb41511edd6cb9a1bd2fed"
+    },
+    {
+      "language": "ja",
+      "name": "preference-reconnect-saving",
+      "input": {
+        "rootResolved": true,
+        "gameRootStatus": {
+          "valid": true,
+          "root": "C:\\Games\\Last War-Survival Game"
+        },
+        "proxyStatus": {
+          "gameRunning": false,
+          "repairRequired": false
+        },
+        "online": false,
+        "gameRecoveryStatus": {
+          "state": "idle"
+        },
+        "autoLaunchGame": false,
+        "autoReconnect": false,
+        "busy": "autoReconnect",
+        "proxyBusy": true,
+        "gameLaunchBusy": false,
+        "gameRootError": "",
+        "gameActionError": "",
+        "production": true
+      },
+      "sameStructureExceptButtonType": true,
+      "differences": [],
+      "expectedHtmlSha256": "123d06592ce9135169a1bbcf2055303821bc3022d6bae3c1611c722bf17841fb",
+      "actualHtmlSha256": "1416b396089adfd7d1d5f5f359bc7012c0632b475eeb41511edd6cb9a1bd2fed"
+    },
+    {
+      "language": "ja",
+      "name": "unavailable",
+      "input": {
+        "rootResolved": true,
+        "gameRootStatus": {
+          "valid": true,
+          "root": "C:\\Games\\Last War-Survival Game"
+        },
+        "proxyStatus": {
+          "gameRunning": false,
+          "repairRequired": false
+        },
+        "online": false,
+        "gameRecoveryStatus": {
+          "state": "idle"
+        },
+        "autoLaunchGame": false,
+        "autoReconnect": false,
+        "busy": "",
+        "proxyBusy": true,
+        "gameLaunchBusy": false,
+        "gameRootError": "",
+        "gameActionError": "",
+        "production": false
+      },
+      "sameStructureExceptButtonType": false,
+      "differences": [
+        {
+          "element": 7,
+          "expected": {
+            "tag": "BUTTON",
+            "attrs": [
+              [
+                "aria-checked",
+                "false"
+              ],
+              [
+                "aria-label",
+                "起動時にゲームを開く: 無効"
+              ],
+              [
+                "class",
+                "toggle-row"
+              ],
+              [
+                "role",
+                "switch"
+              ]
+            ],
+            "text": ""
+          },
+          "actual": {
+            "tag": "BUTTON",
+            "attrs": [
+              [
+                "aria-checked",
+                "false"
+              ],
+              [
+                "aria-label",
+                "起動時にゲームを開く: 無効"
+              ],
+              [
+                "class",
+                "toggle-row"
+              ],
+              [
+                "disabled",
+                ""
+              ],
+              [
+                "role",
+                "switch"
+              ]
+            ],
+            "text": ""
+          }
+        },
+        {
+          "element": 10,
+          "expected": {
+            "tag": "BUTTON",
+            "attrs": [
+              [
+                "aria-checked",
+                "false"
+              ],
+              [
+                "aria-label",
+                "自動再接続: 無効"
+              ],
+              [
+                "class",
+                "toggle-row"
+              ],
+              [
+                "role",
+                "switch"
+              ]
+            ],
+            "text": ""
+          },
+          "actual": {
+            "tag": "BUTTON",
+            "attrs": [
+              [
+                "aria-checked",
+                "false"
+              ],
+              [
+                "aria-label",
+                "自動再接続: 無効"
+              ],
+              [
+                "class",
+                "toggle-row"
+              ],
+              [
+                "disabled",
+                ""
+              ],
+              [
+                "role",
+                "switch"
+              ]
+            ],
+            "text": ""
+          }
+        }
+      ],
+      "expectedHtmlSha256": "123d06592ce9135169a1bbcf2055303821bc3022d6bae3c1611c722bf17841fb",
+      "actualHtmlSha256": "1528e128c014e47c92c791f6c3d2aafbcd20ea3b6689470f169d9d179c4c3573"
+    }
+  ],
+  "limits": "Static actual original/current Home renderer with inert callbacks and canonical catalogs. Original/current browser HTML uses independent original recovered CSS versus canonical reference.css + styles.css. Button type is the only structural normalization. Any remaining disabled-control delta must be classified against an explicit unavailable native provider fence; no native/game action or protected-original runtime is invoked."
+}

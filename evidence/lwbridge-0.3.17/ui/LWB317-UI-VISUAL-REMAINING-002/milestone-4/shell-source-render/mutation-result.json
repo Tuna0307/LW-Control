@@ -1,0 +1,18 @@
+{
+  "result": "SHELL_MUTATION_DETECTED",
+  "baseline": {
+    "recoveredWrapper": true,
+    "currentWrapper": true,
+    "currentExitSibling": true
+  },
+  "mutations": [
+    {
+      "defect": "remove aside.profile-sidebar wrapper",
+      "detected": true
+    },
+    {
+      "defect": "move exit dialog inside main.app-shell",
+      "detected": true
+    }
+  ]
+}

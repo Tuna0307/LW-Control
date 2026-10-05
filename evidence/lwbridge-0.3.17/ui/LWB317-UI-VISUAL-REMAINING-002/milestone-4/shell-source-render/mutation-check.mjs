@@ -1,0 +1,25 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const here = path.dirname(fileURLToPath(import.meta.url));
+const verifyOnly = process.argv.includes('--verify');
+const compact = fs.readFileSync(path.join(here, 'raw/profiles-compact-en-light-current.html'), 'utf8');
+const original = fs.readFileSync(path.join(here, 'raw/profiles-compact-en-light-original.html'), 'utf8');
+const exit = fs.readFileSync(path.join(here, 'raw/exit-idle-en-light-current.html'), 'utf8');
+const hasWrapper = (html) => /<div class="app-layout"><aside class="profile-sidebar"><section class="profile-list/.test(html);
+const exitSibling = (html) => html.indexOf('</main>') >= 0 && html.indexOf('app-exit-backdrop') > html.indexOf('</main>');
+assert.ok(hasWrapper(original), 'recovered Fn wrapper');
+assert.ok(hasWrapper(compact), 'current wrapper');
+assert.ok(exitSibling(exit), 'current exit sibling');
+const wrapperMutation = compact.replace('<aside class="profile-sidebar">', '').replace('</aside><nav class="side-nav"', '<nav class="side-nav"');
+const exitDialogStart = exit.indexOf('<dialog class="app-dialog app-exit-backdrop"');
+const mutatedExit = exitDialogStart < 0 ? exit : `${exit.slice(0, exit.indexOf('</main>'))}${exit.slice(exitDialogStart)}${exit.slice(exit.indexOf('</main>'), exitDialogStart)}`;
+assert.equal(hasWrapper(wrapperMutation), false, 'wrapper mutation must fail');
+assert.equal(exitSibling(mutatedExit), false, 'exit ancestry mutation must fail');
+const result = { result: 'SHELL_MUTATION_DETECTED', baseline: { recoveredWrapper: true, currentWrapper: true, currentExitSibling: true }, mutations: [{ defect: 'remove aside.profile-sidebar wrapper', detected: !hasWrapper(wrapperMutation) }, { defect: 'move exit dialog inside main.app-shell', detected: !exitSibling(mutatedExit) }] };
+const encoded = `${JSON.stringify(result, null, 2)}\n`;
+const file = path.join(here, 'mutation-result.json');
+if (verifyOnly) assert.equal(fs.readFileSync(file, 'utf8'), encoded, 'mutation result changed'); else fs.writeFileSync(file, encoded);
+console.log(JSON.stringify(result));

@@ -1,0 +1,101 @@
+{
+  "asset": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-BVfnK1wp.js",
+  "assetSha256": "44C4E4043825B7DB296B64171951B27176F8850FF8D7D337CC991DF4765524C6",
+  "functions": {
+    "Oe": {
+      "byteOffset": 199047,
+      "byteLength": 587,
+      "sha256": "0AD5697E94B54AD9826ABD4AA044A744B9E1E23FF804A0E5D845F12D8883A5E1"
+    },
+    "Fn": {
+      "byteOffset": 208687,
+      "byteLength": 330,
+      "sha256": "590CD67C68F8A77B53F82185E6417DE75BA06DE81DC7281D67FF394A47E4941B"
+    },
+    "In": {
+      "byteOffset": 209017,
+      "byteLength": 1209,
+      "sha256": "E42C17AAC67AFE7A73D525902C9E757644E40838422730CEB32EC47830C4F8A2"
+    },
+    "Yr": {
+      "byteOffset": 339285,
+      "byteLength": 7154,
+      "sha256": "FE5D0408492E71E9DD74615C269699B8C75B55D346F823BC22B05992C330A490"
+    },
+    "Qr": {
+      "byteOffset": 349778,
+      "byteLength": 627,
+      "sha256": "E2060ECCE6614467C247E129ECB5DD457DE3A1B8C46C02CE16E046705568CE16"
+    },
+    "ti": {
+      "byteOffset": 350656,
+      "byteLength": 3155,
+      "sha256": "04B9D1EE3469A345EB2F41368FE06EDFFD43645CDE880B9541E75B84B101FD05"
+    },
+    "ai": {
+      "byteOffset": 354064,
+      "byteLength": 483,
+      "sha256": "DBFBE127D2EC314BE0C117A36250B899A0D4AFEA49A2C45917BD875DE503F959"
+    },
+    "si": {
+      "byteOffset": 354710,
+      "byteLength": 3232,
+      "sha256": "32E9CFF50FC34FCD3B91B2A3256AEC4DC9C605E98713B4F8F0ED536A4B94B405"
+    },
+    "Gi": {
+      "byteOffset": 361306,
+      "byteLength": 14461,
+      "sha256": "AD5ECE3C33F5FB057E250B67ABF8D32B4F482FD4A2414ABF55A79A3B3333BFD5"
+    },
+    "qi": {
+      "byteOffset": 375835,
+      "byteLength": 276,
+      "sha256": "AC443C8DE815C5BAC3C44280433E01151935A0BE7BF9B47C820686228AE7DE86"
+    },
+    "Ji": {
+      "byteOffset": 376111,
+      "byteLength": 881,
+      "sha256": "72F95F7202BC43FD3F9E449DC77133A08C57DE1C8D6F48AB929DCC1D34F48C21"
+    },
+    "ce": {
+      "byteOffset": 194447,
+      "byteLength": 174,
+      "sha256": "CDB05345DC1A7BCA9A27DDD65A57AE542D5352EC0518BFA1882933F2DB9FA732"
+    },
+    "le": {
+      "byteOffset": 194621,
+      "byteLength": 130,
+      "sha256": "2012EFF035763F58D6C2708037C74331209E0A6BBF6946935C4C827E775B1F08"
+    },
+    "ue": {
+      "byteOffset": 194751,
+      "byteLength": 145,
+      "sha256": "790806FDAD76676FB68AF55295EBF8F2BBBE6C83F0A45D85230A3E0BEEB444E9"
+    },
+    "Vr": {
+      "byteOffset": 330489,
+      "byteLength": 1287,
+      "sha256": "7D4CE469F53CAC0F5B81864B48A4CF410194A0DBFDF14E5606BF93217FDF2919"
+    },
+    "Xr": {
+      "byteOffset": 346439,
+      "byteLength": 3022,
+      "sha256": "4203980643D3E45606441F7C3433D3891336C5B98DCE616B4790D9936EE7F801"
+    },
+    "Lr": {
+      "byteOffset": 328684,
+      "byteLength": 166,
+      "sha256": "5C1443BDC8967A96D3C741EA696A86A6841FA61D6474B08117865C7973907A26"
+    },
+    "Ir": {
+      "byteOffset": 328453,
+      "byteLength": 231,
+      "sha256": "CA958551BC82E4F26D90DED7EB366DF299EF9ECBC76A5EEB077DBD25170DDE96"
+    }
+  },
+  "rootMount": {
+    "byteOffset": 377193,
+    "observation": "Recovered root renders Gi and qi as siblings inside the provider tree.",
+    "excerptSha256": "CDD008CFE4C8216BAF71A8D7ED7AFA1FF5AE16C10D46C9887E3A56577F009942"
+  }
+}
