@@ -11,7 +11,7 @@ import offlineDot from "./assets/dot-offline.png";
 import onlineDot from "./assets/dot-online.png";
 import { backendBridge } from "./backendBridge.js";
 import { LANGUAGES, useI18n } from "./i18n.jsx";
-import { DEFAULT_SCAN_STATE, connectionState, createMapApi } from "./mapBackend.js";
+import { DEFAULT_SCAN_STATE, connectionState, createMapApi, unwrapProfileEvent } from "./mapBackend.js";
 import {
   AUTO_SCAN_DEFAULT_TYPES,
   applyAutoScanConfigEdit,
@@ -104,6 +104,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
   const [focusGameOnProfileSelect, setFocusGameOnProfileSelect] = useState(() => initialProfileFocus(localStorage));
   const updateProfileFocus = (value) => { saveProfileFocus(localStorage, value); setFocusGameOnProfileSelect(value); };
   const previewProfileCache = useRef(new Set(profilePreview && shellProfiles.selectedProfileId ? [shellProfiles.selectedProfileId] : []));
+  const previewProfileLoadGeneration = useRef(0);
   const [previewProfileLoading, setPreviewProfileLoading] = useState(false);
   const switchLoading = profileSwitchLoading || previewProfileLoading || (backendBridge.mode === "preview" && previewState === "shell-profiles-loading");
   const nextPreviewProfileId = useRef(3);
@@ -111,13 +112,15 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
   const profilePreviewCallbacks = profilePreview ? {
     onSelect: async (id) => {
       if (!id || id === shellProfiles.selectedProfileId) return;
+      const loadGeneration = previewProfileLoadGeneration.current + 1;
+      previewProfileLoadGeneration.current = loadGeneration;
       const cached = previewProfileCache.current.has(id);
       setPreviewProfileLoading(!cached);
       setShellProfiles((current) => ({ ...current, selectedProfileId: id }));
       if (!cached) {
         await new Promise((resolve) => window.requestAnimationFrame(() => window.requestAnimationFrame(resolve)));
         previewProfileCache.current.add(id);
-        setPreviewProfileLoading(false);
+        if (previewProfileLoadGeneration.current === loadGeneration) setPreviewProfileLoading(false);
       }
     },
     onCreate: async () => { const id = `preview-local-${nextPreviewProfileId.current++}`; setShellProfiles((current) => {
@@ -175,6 +178,8 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
   const autoLaunchNativeCommitEpochRef = useRef(0);
   const autoLaunchConfigPollGenerationRef = useRef(0);
   const reconnectStatusGeneration = useRef(0);
+  const selectedProfileIdRef = useRef(selectedProfileId);
+  selectedProfileIdRef.current = selectedProfileId;
   const [profileConfigDrafts] = useState(() => createProfileConfigDraftRegistry());
   const autoWeekendShieldStore = profileConfigDrafts.get(
     selectedProfileId,
@@ -341,7 +346,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
     });
   }, []);
 
-  const refreshStatus = useCallback(async () => {
+  const readStatusSnapshot = useCallback(async (canAcknowledge = () => true) => {
     if (!backendBridge.available) return;
     const reconnectGeneration = reconnectStatusGeneration.current;
     const autoLaunchRevision = autoLaunchSaveRevisionRef.current;
@@ -353,6 +358,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
       mapApi.readProxyStatus(),
       backendBridge.invoke("local_config_get", {}),
     ]);
+    if (!canAcknowledge()) return;
     if (statusResult.status === "fulfilled") {
       acknowledgeRuntimeStatus(statusResult.value, reconnectGeneration);
     }
@@ -373,16 +379,18 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
     }
   }, [acknowledgeRuntimeStatus]);
 
+  const refreshStatus = useCallback(() => readStatusSnapshot(), [readStatusSnapshot]);
+
   useEffect(() => {
     if (!backendBridge.available || !selectedProfileId) return undefined;
     let closed = false;
     const profileId = selectedProfileId;
     const stop = backendBridge.listen("bridge://game-recovery", (event) => {
-      const payload = event && typeof event === "object" && "payload" in event ? event.payload : event;
-      if (!closed && profileId === selectedProfileId && payload) setGameRecoveryStatus(payload);
+      const payload = unwrapProfileEvent(event, profileId);
+      if (!closed && selectedProfileIdRef.current === profileId && payload) setGameRecoveryStatus(payload);
     });
     backendBridge.invoke("game_recovery_status", { profileId }).then((status) => {
-      if (!closed && profileId === selectedProfileId && status) setGameRecoveryStatus(status);
+      if (!closed && selectedProfileIdRef.current === profileId && status) setGameRecoveryStatus(status);
     }).catch(() => {});
     return () => { closed = true; stop(); };
   }, [selectedProfileId]);
@@ -416,23 +424,34 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
   }, []);
 
   useEffect(() => {
-    if (!backendBridge.available) return undefined;
+    if (!backendBridge.available || !selectedProfileId) return undefined;
     let closed = false;
+    let inFlight = false;
+    const profileId = selectedProfileId;
     const unsubscribeStatus = mapApi.listenStatus((status) => {
       if (!closed) acknowledgeRuntimeStatus(status);
     });
     const unsubscribeScan = mapApi.listenScanStatus((scan) => {
       if (!closed) acknowledgeMapScan(scan);
     });
-    refreshStatus();
-    const timer = window.setInterval(refreshStatus, 5000);
+    const pollStatus = async () => {
+      if (inFlight) return;
+      inFlight = true;
+      try {
+        await readStatusSnapshot(() => !closed && selectedProfileIdRef.current === profileId);
+      } finally {
+        inFlight = false;
+      }
+    };
+    pollStatus();
+    const timer = window.setInterval(() => { pollStatus(); }, 5000);
     return () => {
       closed = true;
       window.clearInterval(timer);
       unsubscribeStatus();
       unsubscribeScan();
     };
-  }, [acknowledgeMapScan, acknowledgeRuntimeStatus, refreshStatus]);
+  }, [acknowledgeMapScan, acknowledgeRuntimeStatus, readStatusSnapshot, selectedProfileId]);
 
   useEffect(() => {
     if (!backendBridge.available || !selectedProfileId) return undefined;

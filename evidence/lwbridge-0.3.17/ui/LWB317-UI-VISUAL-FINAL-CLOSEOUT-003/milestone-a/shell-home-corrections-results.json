@@ -1,0 +1,73 @@
+{
+  "marker": "LWB317_FINAL_CLOSEOUT_SHELL_HOME_CORRECTIONS_OK",
+  "recovery": {
+    "currentAccepted": [
+      {
+        "state": "ready",
+        "owner": "A"
+      },
+      {
+        "state": "raw",
+        "owner": "A"
+      }
+    ],
+    "otherProfileRejected": true,
+    "replacementRejected": true,
+    "cleanupRejected": true,
+    "unsubscribed": 1,
+    "originalOtherProfileRejected": true
+  },
+  "recurringStatus": {
+    "currentRequestsDuringOverlap": 1,
+    "staleWrites": {
+      "runtime": 0,
+      "proxy": 0,
+      "connection": 0
+    },
+    "closedWrites": {
+      "runtime": 0,
+      "proxy": 0,
+      "connection": 0
+    },
+    "manualReads": 2,
+    "originalRequestsDuringOverlap": 1
+  },
+  "previewLoading": {
+    "selected": "C",
+    "loading": false,
+    "cache": [
+      "A",
+      "B",
+      "C"
+    ],
+    "loadingWrites": [
+      true,
+      true,
+      false
+    ],
+    "cachedReturn": {
+      "selected": "A",
+      "loading": false,
+      "pendingFrames": 0
+    }
+  },
+  "dependencies": [
+    {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-BVfnK1wp.js",
+      "sha256": "44C4E4043825B7DB296B64171951B27176F8850FF8D7D337CC991DF4765524C6"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/App.jsx",
+      "sha256": "1775F021461640AA64BE8D490D3BBD4BC3A462572B4FCC5A7A040F15E7A4BB18"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/mapBackend.js",
+      "sha256": "7E82AA8E46ECBB37A8F16D11F933E784B1414FB75CEBA27A7BDEB315054FE01A"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/scripts/check-home-integration.mjs",
+      "sha256": "958078C311D6A5263A4174AB6E4236F373A34097341A90313FEF33B4B75A7E0E"
+    }
+  ],
+  "scriptSha256": "E258BB4B8DD7798D65A8DED99BA172EA0F69F2566ACBE15274961448AC1E54E7"
+}

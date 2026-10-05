@@ -163,8 +163,16 @@ const recoveryEffectStart = appSource.lastIndexOf("useEffect(() => {", recoveryI
 const recoveryEffectEnd = appSource.indexOf("useEffect(() => {", recoveryInvokeIndex + 1);
 const recoveryEffect = appSource.slice(recoveryEffectStart, recoveryEffectEnd);
 assert.match(recoveryEffect, /backendBridge\.listen\("bridge:\/\/game-recovery"/, "recovery event ownership must share the selected-profile effect");
-assert.match(recoveryEffect, /if \(!closed && profileId === selectedProfileId && payload\) setGameRecoveryStatus\(payload\)/, "recovery events must preserve selected-profile/closed lifetime guards");
+assert.match(recoveryEffect, /const payload = unwrapProfileEvent\(event, profileId\)/, "recovery events must apply the shared profile-envelope ownership contract");
+assert.match(recoveryEffect, /if \(!closed && selectedProfileIdRef\.current === profileId && payload\) setGameRecoveryStatus\(payload\)/, "recovery events must preserve current-profile/closed lifetime guards");
 assert.match(recoveryEffect, /return \(\) => \{ closed = true; stop\(\); \}/, "selected-profile recovery effect must unsubscribe and close together");
+const periodicStatusIndex = appSource.indexOf("const pollStatus = async () =>");
+assert.ok(periodicStatusIndex >= 0, "recurring status refresh must use its own guarded poll callback");
+const periodicStatusBody = appSource.slice(appSource.lastIndexOf("useEffect(() => {", periodicStatusIndex), appSource.indexOf("useEffect(() => {", periodicStatusIndex + 1));
+assert.match(periodicStatusBody, /let inFlight = false/, "recurring status refresh must own an in-flight fence");
+assert.match(periodicStatusBody, /if \(inFlight\) return/, "overlapping periodic status reads must be suppressed");
+assert.match(periodicStatusBody, /readStatusSnapshot\(\(\) => !closed && selectedProfileIdRef\.current === profileId\)/, "periodic acknowledgements must remain owned by the live selected profile");
+assert.match(periodicStatusBody, /window\.clearInterval\(timer\)/, "recurring status refresh must clear its timer with the effect");
 
 const pagesSource = fs.readFileSync(new URL("../src/HomePage.jsx", import.meta.url), "utf8");
 assert.match(
