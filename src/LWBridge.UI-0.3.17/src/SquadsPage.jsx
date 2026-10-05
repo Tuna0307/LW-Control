@@ -667,7 +667,7 @@ function EquipmentContent({ previewEnabled, previewState = "", profileId = "" })
 
   const flushPreviewConfig = (nextPresets = presets) => {
     if (nextPresets !== equipmentConfig.store.getSnapshot().draft) equipmentConfig.store.edit(nextPresets, false);
-    return equipmentConfig.store.flush().catch(() => null);
+    return equipmentConfig.store.flush(false).catch(() => null);
   };
 
   const discardPreviewConfig = () => {

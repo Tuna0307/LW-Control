@@ -1,6 +1,6 @@
 # Branch-to-proof matrix
 
-Date: 2026-10-05
+Date: 2026-10-06
 
 | Boundary | Original authority | Current authority | Proof state |
 | --- | --- | --- | --- |
@@ -13,5 +13,7 @@ Date: 2026-10-05
 | Whole AFK/Squads | `SquadPanel-HC3-DJei.js` exact `I` + recovered compact/error/`In`/`ye`/`pe`/`he`/`me` | live `SquadsPage.jsx`, `RallyJoinSettings.jsx` and material children | Fresh 30-case whole composition + 14 paired browser cases + Join dialog contract + mounted interactions complete in Milestone B. |
 | Conditional Automation | recovered `AutomationPanel-BJ0gIqFh.js` `Ae` plus shared card | live `AutomationPage.jsx` and current forms/meta | Milestone C complete: 24 matched conditional cases, targeted correction proof, 176 current-browser cases / 26 screenshots, exact config-store ownership, and positive no-camps fallback proof. |
 | Automation profile child ownership | recovered `Ae` profile-keyed stores | `App.jsx` profile handoff + profile-scoped `AutomationPage.jsx` stores | Source-proven post-C defect corrected; Milestone E proves profile A dirty child draft / profile B clean isolation / profile A restoration while App-owned parent category persists. |
+| Equipment explicit-save mode | recovered `SquadPanel-HC3-DJei.js` helper `P` at UTF-8 byte 180274: `edit(e,false)` then `flush(false)` | `SquadsPage.jsx` profile-owned Equipment store + shared `flushPreviewConfig` | R2 complete: exact original/current mounted pending Save → B → A → later move leaves the move dirty after first acknowledgement; later explicit Save confirms it; explicitly queued second Save, rejection, Retry/Discard and A/B isolation also pass. 38 focused assertions / 2 Equipment captures plus 17 affected regressions. |
 | Map / other pages / shell | recovered package assets and accepted campaign packets | live canonical pages/App | Milestone D complete: accepted page-local authority is hash-fenced and the current 67-file host closure is reconciled across routes, Activity ownership, profiles, dialogs/popovers, locale/theme and narrow layouts. |
 | Complete current App | accepted recovered/page-local packets plus final current source closure | served canonical App on owned `4427` | Milestone E recorded/validated: served endpoint bytes match the 67-file workspace closure, 267 assertions, 16 settled decoded screenshots, 1,383 assigned locale keys across all nine catalogs, corrected race/profile ownership, and 9 semantic A/B/C mutations detected. |
+| R2 complete current App | frozen R1 host/profile/composition authority + exact recovered Equipment `T/P` | served corrected canonical App on the R2-owned listener | Fresh R2 record/validator requires the sole SquadsPage source delta and passes 282 complete-App assertions, 16 decoded captures, all nine 1,383-key catalogs, 12 semantic mutations including default-true Equipment flush, and zero console/page issues. |

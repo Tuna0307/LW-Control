@@ -1,0 +1,392 @@
+{
+  "marker": "LWB317_FINAL_CLOSEOUT_R2_EQUIPMENT_SAVE_CONTRACT_OK",
+  "recovered": {
+    "PByte": 180274,
+    "PSource": "async function P(e){u.state.edit(e,!1);try{return await u.state.flush(!1)}catch{return null}}",
+    "main": {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-BVfnK1wp.js",
+      "bytes": 377972,
+      "sha256": "44C4E4043825B7DB296B64171951B27176F8850FF8D7D337CC991DF4765524C6"
+    },
+    "squad": {
+      "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/SquadPanel-HC3-DJei.js",
+      "bytes": 192855,
+      "sha256": "ED466E353AA896D8C3FC783FF1802930156FB9E9EB54327AEF73F2FF86FA06C7"
+    }
+  },
+  "current": {
+    "squads": {
+      "path": "src/LWBridge.UI-0.3.17/src/SquadsPage.jsx",
+      "bytes": 82872,
+      "sha256": "5D0AE58CBE199441A046E326D699808CA31AEB96D6CC7DAA0E7EC0A8C3B231D7"
+    },
+    "draftEngine": {
+      "path": "src/LWBridge.UI-0.3.17/src/previewConfig.js",
+      "bytes": 3931,
+      "sha256": "8BEDEC11D07A8245EBB6FF9DF78E13E872C20F850C9B887919360BF209397B7A"
+    },
+    "hook": {
+      "path": "src/LWBridge.UI-0.3.17/src/previewConfigHook.jsx",
+      "bytes": 3167,
+      "sha256": "B43A17F2BBD966878BD2A0A5114446CDBDCA4785FB8309EE4DF8DBAD0500EF44"
+    }
+  },
+  "assertions": [
+    {
+      "name": "R2 no-second first Save is pending",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "R2 no-second profile B stays on its initial Equipment preset",
+      "actual": false,
+      "expected": false
+    },
+    {
+      "name": "R2 no-second profile B initial name remains unchanged",
+      "actual": "Fixture equipment preset 1",
+      "expected": "Fixture equipment preset 1"
+    },
+    {
+      "name": "R2 no-second profile A retains pending rename after return",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "R2 no-second rendered move changes draft during first pending Save",
+      "actual": false,
+      "expected": false
+    },
+    {
+      "name": "R2 no-second rendered move is dirty before acknowledgement",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "R2 no-second first acknowledgement leaves later move dirty",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "R2 no-second first acknowledgement confirms only requested rename",
+      "actual": "BA635F55E91E3F47508D3BE51CDEAE56C22455878167DA52AEA363EEBB74E525",
+      "expected": "BA635F55E91E3F47508D3BE51CDEAE56C22455878167DA52AEA363EEBB74E525"
+    },
+    {
+      "name": "R2 no-second later moved draft remains present",
+      "actual": "69EB5FD9EE4ABBAE2D23AE0D66E8658A20E717EE5EE309C01869645F9CA7A362",
+      "expected": "69EB5FD9EE4ABBAE2D23AE0D66E8658A20E717EE5EE309C01869645F9CA7A362"
+    },
+    {
+      "name": "R2 no-second exact original and current agree on dirty after first ack",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "R2 no-second exact original and current agree on first confirmed draft",
+      "actual": "BA635F55E91E3F47508D3BE51CDEAE56C22455878167DA52AEA363EEBB74E525",
+      "expected": "BA635F55E91E3F47508D3BE51CDEAE56C22455878167DA52AEA363EEBB74E525"
+    },
+    {
+      "name": "R2 later explicit Save confirms the previously dirty move",
+      "actual": "69EB5FD9EE4ABBAE2D23AE0D66E8658A20E717EE5EE309C01869645F9CA7A362",
+      "expected": "69EB5FD9EE4ABBAE2D23AE0D66E8658A20E717EE5EE309C01869645F9CA7A362"
+    },
+    {
+      "name": "R2 later explicit Save clears dirty state",
+      "actual": false,
+      "expected": false
+    },
+    {
+      "name": "R2 later explicit Save matches exact original confirmed draft",
+      "actual": "69EB5FD9EE4ABBAE2D23AE0D66E8658A20E717EE5EE309C01869645F9CA7A362",
+      "expected": "69EB5FD9EE4ABBAE2D23AE0D66E8658A20E717EE5EE309C01869645F9CA7A362"
+    },
+    {
+      "name": "R2 no-second profile B remains isolated after A acknowledgement and explicit Save",
+      "actual": "Fixture equipment preset 1",
+      "expected": "Fixture equipment preset 1"
+    },
+    {
+      "name": "R2 queued profile B does not inherit A rename",
+      "actual": false,
+      "expected": false
+    },
+    {
+      "name": "R2 queued rendered move changes draft",
+      "actual": false,
+      "expected": false
+    },
+    {
+      "name": "R2 queued explicit second Save remains in same in-flight store",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "R2 queued explicit second Save clears dirty state",
+      "actual": false,
+      "expected": false
+    },
+    {
+      "name": "R2 queued explicit second Save confirms moved draft",
+      "actual": "EEB6F297D14ADC3DF2E64E56776C7E7ABF600707D74142B4925468C5EDDA05FA",
+      "expected": "EEB6F297D14ADC3DF2E64E56776C7E7ABF600707D74142B4925468C5EDDA05FA"
+    },
+    {
+      "name": "R2 queued current and exact original agree on final confirmed draft",
+      "actual": "EEB6F297D14ADC3DF2E64E56776C7E7ABF600707D74142B4925468C5EDDA05FA",
+      "expected": "EEB6F297D14ADC3DF2E64E56776C7E7ABF600707D74142B4925468C5EDDA05FA"
+    },
+    {
+      "name": "R2 queued profile B remains isolated after A queued Save drains",
+      "actual": false,
+      "expected": false
+    },
+    {
+      "name": "R2 rejection retains dirty Equipment draft",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "R2 rejection exposes save error",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "R2 rejection does not leak A draft to profile B",
+      "actual": false,
+      "expected": false
+    },
+    {
+      "name": "R2 rejected profile A restores retained dirty marker",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "R2 Retry confirms only profile A retained draft",
+      "actual": false,
+      "expected": false
+    },
+    {
+      "name": "R2 Retry retains A rename",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "R2 Retry leaves profile B unchanged",
+      "actual": false,
+      "expected": false
+    },
+    {
+      "name": "R2 Retry exact original also retains dirty error before Retry",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "R2 Retry exact original also clears dirty after explicit Retry",
+      "actual": false,
+      "expected": false
+    },
+    {
+      "name": "R2 Discard rejection does not leak A draft to profile B",
+      "actual": false,
+      "expected": false
+    },
+    {
+      "name": "R2 Discard restores profile A confirmed preset name",
+      "actual": "Fixture equipment preset 1",
+      "expected": "Fixture equipment preset 1"
+    },
+    {
+      "name": "R2 Discard clears profile A dirty state",
+      "actual": false,
+      "expected": false
+    },
+    {
+      "name": "R2 Discard restores profile A confirmed bytes",
+      "actual": "CB76165D0608EA59661EFC0514AB177410F33AFAE5C6171D4F5085A189FD6BAB",
+      "expected": "CB76165D0608EA59661EFC0514AB177410F33AFAE5C6171D4F5085A189FD6BAB"
+    },
+    {
+      "name": "R2 Discard leaves profile B unchanged",
+      "actual": false,
+      "expected": false
+    },
+    {
+      "name": "R2 Discard exact original forced refresh also clears dirty",
+      "actual": false,
+      "expected": false
+    },
+    {
+      "name": "R2 Discard exact original forced refresh keeps initial confirmed bytes",
+      "actual": "CB76165D0608EA59661EFC0514AB177410F33AFAE5C6171D4F5085A189FD6BAB",
+      "expected": "CB76165D0608EA59661EFC0514AB177410F33AFAE5C6171D4F5085A189FD6BAB"
+    }
+  ],
+  "cases": {
+    "noSecondSave": {
+      "pending": {
+        "dirty": true,
+        "saving": true,
+        "error": null,
+        "draftSha256": "BA635F55E91E3F47508D3BE51CDEAE56C22455878167DA52AEA363EEBB74E525",
+        "confirmedSha256": "CB76165D0608EA59661EFC0514AB177410F33AFAE5C6171D4F5085A189FD6BAB"
+      },
+      "edited": {
+        "dirty": true,
+        "saving": true,
+        "error": null,
+        "draftSha256": "69EB5FD9EE4ABBAE2D23AE0D66E8658A20E717EE5EE309C01869645F9CA7A362",
+        "confirmedSha256": "CB76165D0608EA59661EFC0514AB177410F33AFAE5C6171D4F5085A189FD6BAB"
+      },
+      "afterFirstAck": {
+        "dirty": true,
+        "saving": false,
+        "error": null,
+        "draftSha256": "69EB5FD9EE4ABBAE2D23AE0D66E8658A20E717EE5EE309C01869645F9CA7A362",
+        "confirmedSha256": "BA635F55E91E3F47508D3BE51CDEAE56C22455878167DA52AEA363EEBB74E525"
+      },
+      "afterExplicitSave": {
+        "dirty": false,
+        "saving": false,
+        "error": null,
+        "draftSha256": "69EB5FD9EE4ABBAE2D23AE0D66E8658A20E717EE5EE309C01869645F9CA7A362",
+        "confirmedSha256": "69EB5FD9EE4ABBAE2D23AE0D66E8658A20E717EE5EE309C01869645F9CA7A362"
+      },
+      "original": {
+        "afterFirst": {
+          "dirty": true,
+          "saving": false,
+          "error": null,
+          "draftSha256": "69EB5FD9EE4ABBAE2D23AE0D66E8658A20E717EE5EE309C01869645F9CA7A362",
+          "confirmedSha256": "BA635F55E91E3F47508D3BE51CDEAE56C22455878167DA52AEA363EEBB74E525"
+        },
+        "afterExplicit": {
+          "dirty": false,
+          "saving": false,
+          "error": null,
+          "draftSha256": "69EB5FD9EE4ABBAE2D23AE0D66E8658A20E717EE5EE309C01869645F9CA7A362",
+          "confirmedSha256": "69EB5FD9EE4ABBAE2D23AE0D66E8658A20E717EE5EE309C01869645F9CA7A362"
+        }
+      }
+    },
+    "queuedSave": {
+      "pending": {
+        "dirty": true,
+        "saving": true,
+        "error": null,
+        "draftSha256": "2F1D4B483913F22E2D34FF2FB5B1BA8193369565A82DF97E8C9CAD58F8E368E7",
+        "confirmedSha256": "CB76165D0608EA59661EFC0514AB177410F33AFAE5C6171D4F5085A189FD6BAB"
+      },
+      "edited": {
+        "dirty": true,
+        "saving": true,
+        "error": null,
+        "draftSha256": "EEB6F297D14ADC3DF2E64E56776C7E7ABF600707D74142B4925468C5EDDA05FA",
+        "confirmedSha256": "CB76165D0608EA59661EFC0514AB177410F33AFAE5C6171D4F5085A189FD6BAB"
+      },
+      "settled": {
+        "dirty": false,
+        "saving": false,
+        "error": null,
+        "draftSha256": "EEB6F297D14ADC3DF2E64E56776C7E7ABF600707D74142B4925468C5EDDA05FA",
+        "confirmedSha256": "EEB6F297D14ADC3DF2E64E56776C7E7ABF600707D74142B4925468C5EDDA05FA"
+      },
+      "original": {
+        "dirty": false,
+        "saving": false,
+        "error": null,
+        "draftSha256": "EEB6F297D14ADC3DF2E64E56776C7E7ABF600707D74142B4925468C5EDDA05FA",
+        "confirmedSha256": "EEB6F297D14ADC3DF2E64E56776C7E7ABF600707D74142B4925468C5EDDA05FA"
+      }
+    },
+    "retry": {
+      "initial": {
+        "dirty": false,
+        "saving": false,
+        "error": null,
+        "draftSha256": "CB76165D0608EA59661EFC0514AB177410F33AFAE5C6171D4F5085A189FD6BAB",
+        "confirmedSha256": "CB76165D0608EA59661EFC0514AB177410F33AFAE5C6171D4F5085A189FD6BAB"
+      },
+      "rejected": {
+        "dirty": true,
+        "saving": false,
+        "error": "PREVIEW_EQUIPMENT_SAVE_FAILED",
+        "draftSha256": "109DFE3D93CCF995156F7C25534776CD3278BD18D7AD162E8270526F17F7DC4F",
+        "confirmedSha256": "CB76165D0608EA59661EFC0514AB177410F33AFAE5C6171D4F5085A189FD6BAB"
+      },
+      "retried": {
+        "dirty": false,
+        "saving": false,
+        "error": null,
+        "draftSha256": "109DFE3D93CCF995156F7C25534776CD3278BD18D7AD162E8270526F17F7DC4F",
+        "confirmedSha256": "109DFE3D93CCF995156F7C25534776CD3278BD18D7AD162E8270526F17F7DC4F"
+      },
+      "original": {
+        "rejected": {
+          "dirty": true,
+          "saving": false,
+          "error": "R2_CONTROLLED_SAVE_FAILED",
+          "draftSha256": "109DFE3D93CCF995156F7C25534776CD3278BD18D7AD162E8270526F17F7DC4F",
+          "confirmedSha256": "CB76165D0608EA59661EFC0514AB177410F33AFAE5C6171D4F5085A189FD6BAB"
+        },
+        "retried": {
+          "dirty": false,
+          "saving": false,
+          "error": null,
+          "draftSha256": "109DFE3D93CCF995156F7C25534776CD3278BD18D7AD162E8270526F17F7DC4F",
+          "confirmedSha256": "109DFE3D93CCF995156F7C25534776CD3278BD18D7AD162E8270526F17F7DC4F"
+        }
+      }
+    },
+    "discard": {
+      "initial": {
+        "dirty": false,
+        "saving": false,
+        "error": null,
+        "draftSha256": "CB76165D0608EA59661EFC0514AB177410F33AFAE5C6171D4F5085A189FD6BAB",
+        "confirmedSha256": "CB76165D0608EA59661EFC0514AB177410F33AFAE5C6171D4F5085A189FD6BAB"
+      },
+      "rejected": {
+        "dirty": true,
+        "saving": false,
+        "error": "PREVIEW_EQUIPMENT_SAVE_FAILED",
+        "draftSha256": "2BB50D2802C2083D7E2E410498BDBFE503474C0BD20F26575F81CDFD46464149",
+        "confirmedSha256": "CB76165D0608EA59661EFC0514AB177410F33AFAE5C6171D4F5085A189FD6BAB"
+      },
+      "discarded": {
+        "dirty": false,
+        "saving": false,
+        "error": null,
+        "draftSha256": "CB76165D0608EA59661EFC0514AB177410F33AFAE5C6171D4F5085A189FD6BAB",
+        "confirmedSha256": "CB76165D0608EA59661EFC0514AB177410F33AFAE5C6171D4F5085A189FD6BAB"
+      },
+      "original": {
+        "discarded": {
+          "dirty": false,
+          "saving": false,
+          "error": null,
+          "draftSha256": "CB76165D0608EA59661EFC0514AB177410F33AFAE5C6171D4F5085A189FD6BAB",
+          "confirmedSha256": "CB76165D0608EA59661EFC0514AB177410F33AFAE5C6171D4F5085A189FD6BAB"
+        }
+      }
+    }
+  },
+  "screenshots": [
+    {
+      "id": "en-light-first-ack-leaves-move-dirty",
+      "file": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CLOSEOUT-003/r2/equipment-save-contract/en-light-first-ack-leaves-move-dirty.png",
+      "bytes": 106313,
+      "sha256": "A89EA3CFFB551EDEFDBD8B324A7347D2A4588FB3A0EEA2E46FBE7E483176996D"
+    },
+    {
+      "id": "ja-dark-explicit-queued-save-confirmed",
+      "file": "evidence/lwbridge-0.3.17/ui/LWB317-UI-VISUAL-FINAL-CLOSEOUT-003/r2/equipment-save-contract/ja-dark-explicit-queued-save-confirmed.png",
+      "bytes": 145597,
+      "sha256": "4172C8B89F82A496B4FB83434A457998FCD185F2023DB733CA165B93F44849AB"
+    }
+  ],
+  "issues": [],
+  "limits": "Actual mounted current SquadsPage with rendered Rename/Save/Retry/Discard and rendered React HTML5 drop handlers, plus exact recovered T/P execution. Controlled local adapters only; no native/gameplay provider or physical HTML5 drag claim.",
+  "browserVersion": "154.0.8037.95"
+}
