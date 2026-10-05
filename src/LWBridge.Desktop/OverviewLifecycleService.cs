@@ -168,15 +168,28 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
     {
         if (string.IsNullOrWhiteSpace(selectedRoot))
             throw new ArgumentException("A validated game root is required.", nameof(selectedRoot));
+        RebindGameRootSelection(selectedRoot, selectionChanged: false, persistSelection);
+    }
+
+    internal void RebindGameRootSelection(
+        string? selectedRoot,
+        bool selectionChanged,
+        Action persistSelection)
+    {
         ArgumentNullException.ThrowIfNull(persistSelection);
-        string normalized = Path.TrimEndingDirectorySeparator(Path.GetFullPath(selectedRoot));
+        string? normalized = string.IsNullOrWhiteSpace(selectedRoot)
+            ? null
+            : Path.TrimEndingDirectorySeparator(Path.GetFullPath(selectedRoot));
         bool startRecoveryMonitor = false;
 
         lock (stateGate)
         {
             if (closed)
                 throw new BridgeCommandException("GAME_OPERATION_CANCELLED", "LWBridge is closing.");
-            if (gameRoot is not null && PathEquals(gameRoot, normalized))
+            bool sameBoundRoot =
+                gameRoot is null && normalized is null ||
+                gameRoot is not null && normalized is not null && PathEquals(gameRoot, normalized);
+            if (sameBoundRoot && !selectionChanged)
             {
                 persistSelection();
                 return;
@@ -609,7 +622,7 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
         bool startTransactionSucceeded = false;
         try
         {
-            EnsureControlPipeHostStarted(selectedRoot);
+            await EnsureControlPipeHostStartedAsync(selectedRoot).ConfigureAwait(false);
             OverviewHelperInvocation startInvocation;
             long? startDeadline = null;
             if (testHooks is null)
@@ -879,7 +892,7 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
         try { SetDesiredRunning(false); } catch { }
     }
 
-    private void EnsureControlPipeHostStarted(string selectedRoot)
+    private async Task EnsureControlPipeHostStartedAsync(string selectedRoot)
     {
         if (!bridgeControlPipeLaunchBindingEnabled || testHooks is not null)
             return;
@@ -895,9 +908,9 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
                 .BuildExpectedGameExecutablePath(selectedRoot);
         try
         {
-            _ = bridgeHostState.StartRpcTransport(
+            await bridgeHostState.EnsureRpcTransportAsync(
                 BridgeVersion,
-                expectedClientPath);
+                expectedClientPath).ConfigureAwait(false);
         }
         catch (BridgeCommandException)
         {

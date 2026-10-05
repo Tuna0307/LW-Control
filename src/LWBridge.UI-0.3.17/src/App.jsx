@@ -31,6 +31,7 @@ const AUTO_WEEKEND_SHIELD_FLAG_KEY = "flag:autoWeekendShield";
 const AUTO_ATTACK_SHIELD_FLAG_KEY = "flag:autoAttackShield";
 const AUTO_RECONNECT_FLAG_KEY = "flag:autoForceUpdateReload";
 const AUTO_CLOSE_POPUP_FLAG_KEY = "flag:autoClosePopup";
+const HOME_LIFECYCLE_TIMEOUT_MS = 360_000;
 const mapApi = createMapApi(backendBridge);
 // Existing read-only local image contract; no new native producer is introduced.
 // Browser previews never invoke it or lend their synthetic images to this reader.
@@ -154,6 +155,8 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
   const [gameRecoveryStatus, setGameRecoveryStatus] = useState(null);
   const [autoLaunchGame, setAutoLaunchGame] = useState(() => readAutoLaunchGamePreference(localStorage));
   const [homeBusy, setHomeBusy] = useState("");
+  const [proxyBusy, setProxyBusy] = useState(false);
+  const [gameLaunchBusy, setGameLaunchBusy] = useState(false);
   const [gameRootError, setGameRootError] = useState("");
   const [gameActionError, setGameActionError] = useState("");
   const [currentServerId, setCurrentServerId] = useState(0);
@@ -179,6 +182,8 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
   const autoLaunchConfigPollGenerationRef = useRef(0);
   const reconnectStatusGeneration = useRef(0);
   const selectedProfileIdRef = useRef(selectedProfileId);
+  const lifecycleInFlightProfilesRef = useRef(new Set());
+  const startupReconcileStartedRef = useRef(false);
   selectedProfileIdRef.current = selectedProfileId;
   const [profileConfigDrafts] = useState(() => createProfileConfigDraftRegistry());
   const autoWeekendShieldStore = profileConfigDrafts.get(
@@ -255,6 +260,8 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
 
   useLayoutEffect(() => {
     reconnectStatusGeneration.current += 1;
+    setProxyBusy(false);
+    setGameLaunchBusy(false);
     return () => { reconnectStatusGeneration.current += 1; };
   }, [selectedProfileId]);
 
@@ -380,6 +387,40 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
   }, [acknowledgeRuntimeStatus]);
 
   const refreshStatus = useCallback(() => readStatusSnapshot(), [readStatusSnapshot]);
+
+  useEffect(() => {
+    if (!backendBridge.available || !selectedProfileId || startupReconcileStartedRef.current) return;
+    startupReconcileStartedRef.current = true;
+    let closed = false;
+    const profileId = selectedProfileId;
+    lifecycleInFlightProfilesRef.current.add(profileId);
+    setGameLaunchBusy(true);
+    setGameActionError("");
+    backendBridge.invoke(
+      "profile_instances_reconcile",
+      { autoLaunchAll: autoLaunchGame },
+      HOME_LIFECYCLE_TIMEOUT_MS,
+    ).then(async (result) => {
+      if (closed || selectedProfileIdRef.current !== profileId) return;
+      const profileError = Array.isArray(result?.errors)
+        ? result.errors.find((entry) => !entry?.profileId || entry.profileId === profileId)
+        : null;
+      if (profileError?.error || profileError?.message) {
+        setGameActionError(profileError.error || profileError.message);
+      }
+      await readStatusSnapshot(() => !closed && selectedProfileIdRef.current === profileId);
+    }).catch((error) => {
+      if (!closed && selectedProfileIdRef.current === profileId) {
+        setGameActionError(error?.code || error?.message || String(error));
+      }
+    }).finally(() => {
+      lifecycleInFlightProfilesRef.current.delete(profileId);
+      if (!closed && selectedProfileIdRef.current === profileId) {
+        setGameLaunchBusy(false);
+      }
+    });
+    return () => { closed = true; };
+  }, [autoLaunchGame, readStatusSnapshot, selectedProfileId]);
 
   useEffect(() => {
     if (!backendBridge.available || !selectedProfileId) return undefined;
@@ -579,6 +620,87 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
     }
   }, [acknowledgeGameRootStatus]);
 
+  const refreshHomeProxyStatus = useCallback(async (profileId) => {
+    const next = await backendBridge.invoke("proxy_status", { profileId });
+    if (selectedProfileIdRef.current === profileId) setProxyStatus(next);
+    return next;
+  }, []);
+
+  const startGame = useCallback(async () => {
+    if (!backendBridge.available || !selectedProfileId || lifecycleInFlightProfilesRef.current.has(selectedProfileId)) return;
+    const profileId = selectedProfileId;
+    lifecycleInFlightProfilesRef.current.add(profileId);
+    setProxyBusy(true);
+    setGameActionError("");
+    try {
+      await backendBridge.invoke(
+        "profile_instance_start",
+        { profileId, closeUnmanaged: true },
+        HOME_LIFECYCLE_TIMEOUT_MS,
+      );
+      await refreshHomeProxyStatus(profileId);
+    } catch (error) {
+      if (selectedProfileIdRef.current === profileId) {
+        setGameActionError(error?.code || error?.message || String(error));
+      }
+    } finally {
+      lifecycleInFlightProfilesRef.current.delete(profileId);
+      if (selectedProfileIdRef.current === profileId) setProxyBusy(false);
+    }
+  }, [refreshHomeProxyStatus, selectedProfileId]);
+
+  const stopGame = useCallback(async () => {
+    if (!backendBridge.available || !selectedProfileId || lifecycleInFlightProfilesRef.current.has(selectedProfileId)) return;
+    const profileId = selectedProfileId;
+    lifecycleInFlightProfilesRef.current.add(profileId);
+    setProxyBusy(true);
+    setGameActionError("");
+    try {
+      const instance = await backendBridge.invoke("profile_instance_status", { profileId });
+      if (instance?.instanceId) {
+        await backendBridge.invoke(
+          "profile_instance_stop",
+          { profileId, instanceId: instance.instanceId },
+          HOME_LIFECYCLE_TIMEOUT_MS,
+        );
+      }
+      await refreshHomeProxyStatus(profileId);
+    } catch (error) {
+      if (selectedProfileIdRef.current === profileId) {
+        setGameActionError(error?.code || error?.message || String(error));
+      }
+    } finally {
+      lifecycleInFlightProfilesRef.current.delete(profileId);
+      if (selectedProfileIdRef.current === profileId) setProxyBusy(false);
+    }
+  }, [refreshHomeProxyStatus, selectedProfileId]);
+
+  const updateAndRestartGame = useCallback(async () => {
+    if (!backendBridge.available || !selectedProfileId || lifecycleInFlightProfilesRef.current.has(selectedProfileId)) return;
+    const profileId = selectedProfileId;
+    lifecycleInFlightProfilesRef.current.add(profileId);
+    setProxyBusy(true);
+    setGameActionError("");
+    try {
+      const result = await backendBridge.invoke(
+        "profile_instances_update_and_restart",
+        {},
+        HOME_LIFECYCLE_TIMEOUT_MS,
+      );
+      await refreshHomeProxyStatus(profileId);
+      if (Array.isArray(result?.errors) && result.errors.length > 0 && selectedProfileIdRef.current === profileId) {
+        setGameActionError(result.errors[0]?.error || "GAME_CONNECTION_UPDATE_FAILED");
+      }
+    } catch (error) {
+      if (selectedProfileIdRef.current === profileId) {
+        setGameActionError(error?.code || error?.message || String(error));
+      }
+    } finally {
+      lifecycleInFlightProfilesRef.current.delete(profileId);
+      if (selectedProfileIdRef.current === profileId) setProxyBusy(false);
+    }
+  }, [refreshHomeProxyStatus, selectedProfileId]);
+
   const requestServerJump = useCallback(async (serverId) => {
     const result = await mapApi.jumpServer(serverId);
     try {
@@ -662,6 +784,8 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
       autoLaunchGame,
       autoReconnect: autoReconnectSnapshot.draft,
       busy: homeBusy,
+      proxyBusy,
+      gameLaunchBusy,
       gameRootError,
       gameActionError,
       production: backendBridge.available,
@@ -669,6 +793,9 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
     onAutoLaunchGameChange: updateAutoLaunch,
     onAutoReconnectChange: updateAutoReconnect,
     onGameRootSelect: selectGameRoot,
+    onStartGame: startGame,
+    onStopGame: stopGame,
+    onUpdateAndRestart: updateAndRestartGame,
   };
   const pagePropsByRoute = {
     ...(showProfiles ? {

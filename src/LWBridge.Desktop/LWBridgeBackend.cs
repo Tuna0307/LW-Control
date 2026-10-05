@@ -127,11 +127,46 @@ internal sealed class LWBridgeBackend
     {
         try
         {
-            return installation.SaveNativeSelection(path);
+            NativeGameRootSelectionResult prepared = installation.PrepareNativeSelection(path);
+            if (!prepared.Valid || overviewLifecycle is null)
+                return prepared.Valid ? installation.SaveNativeSelection(prepared.Path!) : prepared;
+
+            string selectedPath = prepared.Path!;
+            GameRootStatus launchStatus = installation.ResolveConfiguredStatus(selectedPath);
+            string? launchRoot = launchStatus.Valid ? launchStatus.Path : null;
+            string? previousSelection = config.Snapshot.GameRoot;
+            bool selectionChanged = !PathsEqual(previousSelection, selectedPath);
+            NativeGameRootSelectionResult? saved = null;
+            overviewLifecycle.RebindGameRootSelection(launchRoot, selectionChanged, () =>
+            {
+                saved = installation.SaveNativeSelection(selectedPath);
+                if (!saved.Valid)
+                    throw new BridgeCommandException(
+                        "INVALID_GAME_ROOT",
+                        "select the folder containing Game\\LastWar.exe");
+            });
+            return saved ?? throw new InvalidOperationException("Game Root selection was not persisted.");
         }
         catch (LocalConfigStoreException ex)
         {
             throw new BridgeCommandException(ex.Code, ex.Message);
+        }
+    }
+
+    private static bool PathsEqual(string? left, string? right)
+    {
+        if (string.IsNullOrWhiteSpace(left) || string.IsNullOrWhiteSpace(right))
+            return string.IsNullOrWhiteSpace(left) && string.IsNullOrWhiteSpace(right);
+        try
+        {
+            return string.Equals(
+                Path.TrimEndingDirectorySeparator(Path.GetFullPath(left)),
+                Path.TrimEndingDirectorySeparator(Path.GetFullPath(right)),
+                StringComparison.OrdinalIgnoreCase);
+        }
+        catch
+        {
+            return false;
         }
     }
 

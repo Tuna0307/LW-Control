@@ -14,6 +14,18 @@ export const MAP_COMMANDS = Object.freeze({
   coordinateJump: "map_coordinate_jump",
   playerMarkSet: "map_player_mark_set",
   cityExport: "map_city_export",
+  treasureStateRefresh: "map_treasure_state_refresh",
+  treasureStateRefreshAll: "map_treasure_state_refresh_all",
+  treasureClaimStatus: "map_treasure_claim_status",
+  treasureClaim: "map_treasure_claim",
+  dispatchShareAlliance: "map_dispatch_share_alliance",
+  plunderJobsList: "map_plunder_jobs_list",
+  dispatchPlunderSchedule: "map_dispatch_plunder_schedule",
+  dispatchPlunderCancel: "map_dispatch_plunder_cancel",
+  dispatchPlunderClear: "map_dispatch_plunder_clear",
+  truckPlunderSchedule: "map_truck_plunder_schedule",
+  truckPlunderCancel: "map_truck_plunder_cancel",
+  truckPlunderClear: "map_truck_plunder_clear",
 });
 
 export const MAP_SCAN_TYPES = Object.freeze([
@@ -231,6 +243,46 @@ export function buildSearchPayload(kind, query = {}) {
   return { kind, query: normalized };
 }
 
+export function buildDispatchShareRows(rows) {
+  return (rows || []).map((row) => ({
+    uuid: String(row?.uuid || ""),
+    serverId: row?.serverId,
+    x: row?.x,
+    y: row?.y,
+    cfgId: row?.cfgId,
+    ownerName: row?.ownerName,
+    allianceAbbr: row?.allianceAbbr,
+  }));
+}
+
+export function buildDispatchPlunderRows(rows, maxRandomDelaySeconds = 0, random = Math.random) {
+  return (rows || []).map((row) => {
+    const base = Number(row?.plunderAt) || 0;
+    const expiry = Number(row?.taskExpireTime) || 0;
+    const expiryCap = expiry > 0
+      ? Math.max(0, Math.floor((expiry - base - 1) / 1000))
+      : maxRandomDelaySeconds;
+    const safeIntegerCap = Math.max(0, Math.floor((2 ** 53 - 1 - base) / 1000));
+    const effectiveCap = Math.min(maxRandomDelaySeconds, expiryCap, safeIntegerCap);
+    const randomDelaySeconds = effectiveCap > 0
+      ? Math.floor(random() * (effectiveCap + 1))
+      : 0;
+    return {
+      ...row,
+      plunderAt: base + randomDelaySeconds * 1000,
+      maxRandomDelaySeconds,
+      randomDelaySeconds,
+    };
+  });
+}
+
+export function buildTruckPlunderRows(rows, now = Date.now()) {
+  return (rows || []).map((row) => ({
+    ...row,
+    executeAt: Math.max(now, Number(row?.protectTime) || 0),
+  }));
+}
+
 export function createMapApi(bridge) {
   const profileId = bridge?.profileId || "";
   const scoped = (payload = {}) => profileId ? { ...payload, profileId } : payload;
@@ -258,6 +310,62 @@ export function createMapApi(bridge) {
     coordinateJump: (row) => bridge.invoke(MAP_COMMANDS.coordinateJump, scoped({ serverId: row.serverId, x: row.x, y: row.y })),
     setPlayerMark: (row, marked) => bridge.invoke(MAP_COMMANDS.playerMarkSet, scoped({ row, marked })),
     exportCities: (query, options) => bridge.invoke(MAP_COMMANDS.cityExport, scoped({ query, ...options })),
+    refreshTreasureStates: (serverId, records) => bridge.invoke(
+      MAP_COMMANDS.treasureStateRefresh,
+      scoped({ serverId, records }),
+    ),
+    refreshAllTreasureStates: (serverId) => bridge.invoke(
+      MAP_COMMANDS.treasureStateRefreshAll,
+      scoped({ serverId }),
+    ),
+    treasureClaimStatus: () => bridge.invoke(MAP_COMMANDS.treasureClaimStatus, scoped()),
+    claimTreasure: (serverId, claimScope, prioritizeLuckySlots, targetUuid = "") => bridge.invoke(
+      MAP_COMMANDS.treasureClaim,
+      scoped({ serverId, claimScope, prioritizeLuckySlots, targetUuid }),
+    ),
+    shareDispatchToAlliance: (rows) => bridge.invoke(
+      MAP_COMMANDS.dispatchShareAlliance,
+      scoped({ rows: buildDispatchShareRows(rows) }),
+    ),
+    listPlunderJobs: () => bridge.invoke(MAP_COMMANDS.plunderJobsList, scoped()),
+    scheduleDispatchPlunder: (rows, maxRandomDelaySeconds = 0) => bridge.invoke(
+      MAP_COMMANDS.dispatchPlunderSchedule,
+      scoped({ rows: buildDispatchPlunderRows(rows, maxRandomDelaySeconds) }),
+    ),
+    cancelDispatchPlunder: (serverId, taskUuid) => bridge.invoke(
+      MAP_COMMANDS.dispatchPlunderCancel,
+      scoped({ serverId, taskUuid }),
+    ),
+    clearDispatchPlunderHistory: (before, taskKind) => bridge.invoke(
+      MAP_COMMANDS.dispatchPlunderClear,
+      scoped({ before, taskKind }),
+    ),
+    scheduleTruckPlunder: (rows) => bridge.invoke(
+      MAP_COMMANDS.truckPlunderSchedule,
+      scoped({ rows: buildTruckPlunderRows(rows) }),
+    ),
+    cancelTruckPlunder: (serverId, trainUuid) => bridge.invoke(
+      MAP_COMMANDS.truckPlunderCancel,
+      scoped({ serverId, trainUuid }),
+    ),
+    clearTruckPlunderHistory: (before) => bridge.invoke(
+      MAP_COMMANDS.truckPlunderClear,
+      scoped({ before }),
+    ),
+    listenPlunderJobsChanged: (callback) => {
+      const offDispatch = bridge.listen("bridge://dispatch-plunder-changed", (event) => {
+        const payload = unwrapProfileEvent(event, profileId);
+        if (payload !== null) callback(payload);
+      });
+      const offTruck = bridge.listen("bridge://truck-plunder-changed", (event) => {
+        const payload = unwrapProfileEvent(event, profileId);
+        if (payload !== null) callback(payload);
+      });
+      return () => {
+        offDispatch();
+        offTruck();
+      };
+    },
     listenScanStatus: (callback) => bridge.listen("bridge://map-scan-status", (event) => {
       const payload = unwrapProfileEvent(event, profileId);
       if (payload) callback(normalizeScanState(payload));

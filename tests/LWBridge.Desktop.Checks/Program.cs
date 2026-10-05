@@ -454,6 +454,13 @@ if (args.Contains("--overview-status-transport-check", StringComparer.OrdinalIgn
     return 0;
 }
 
+if (args.Contains("--game-root-select-check", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.GameRootSelectChecks.RunAsync();
+    Console.WriteLine("{\"ok\":true,\"check\":\"game-root-select\"}");
+    return 0;
+}
+
 var failures = new List<string>();
 await LWBridge.Desktop.Checks.CurrentClientMapBlockSourceChecks.ConcurrentWorldStateRequestsAreSerialized();
 LWBridge.Desktop.Checks.ResourceCompletenessDiagnosticsChecks.Run();

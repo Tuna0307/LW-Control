@@ -64,7 +64,12 @@ internal sealed class GameInstallationService
 
     public GameRootStatus GetStatus()
     {
-        string? configured = Normalize(config.Snapshot.GameRoot);
+        return ResolveConfiguredStatus(config.Snapshot.GameRoot);
+    }
+
+    internal GameRootStatus ResolveConfiguredStatus(string? configuredRoot)
+    {
+        string? configured = Normalize(configuredRoot);
         if (configured is not null)
         {
             var saved = Validate(configured, "configured");
@@ -149,7 +154,7 @@ internal sealed class GameInstallationService
     public NativeGameRootSelectionResult CreateNativeCanceledSelection() =>
         new(true, null, false);
 
-    public NativeGameRootSelectionResult SaveNativeSelection(string path)
+    internal NativeGameRootSelectionResult PrepareNativeSelection(string path)
     {
         string? normalized = NormalizeNativeCandidate(path);
         if (normalized is null)
@@ -170,8 +175,18 @@ internal sealed class GameInstallationService
                 "path state is unavailable");
         }
 
-        config.Update(c => c with { GameRoot = normalized });
         return new NativeGameRootSelectionResult(false, normalized, true);
+    }
+
+    public NativeGameRootSelectionResult SaveNativeSelection(string path)
+    {
+        NativeGameRootSelectionResult selection = PrepareNativeSelection(path);
+        if (!selection.Valid)
+            return selection;
+
+        string normalized = selection.Path!;
+        config.Update(c => c with { GameRoot = normalized });
+        return selection;
     }
 
     public NativeGameRootStatus GetNativeStatus()

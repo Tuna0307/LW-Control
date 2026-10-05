@@ -165,7 +165,7 @@ internal static class GameRootSelectChecks
                     selected),
                 "backend valid selection persists selected root");
 
-            await Task.CompletedTask;
+            await VerifyLifecycleRebindAsync(root);
         }
         finally
         {
@@ -188,6 +188,236 @@ internal static class GameRootSelectChecks
             Path.Combine(root, "Game", "LastWar.exe"),
             "native-select-fixture");
         return Path.GetFullPath(root);
+    }
+
+    private static string CreateStrictRoot(string root)
+    {
+        string systemCmd = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.Windows),
+            "System32",
+            "cmd.exe");
+        string systemKernel = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.Windows),
+            "System32",
+            "kernel32.dll");
+        Directory.CreateDirectory(
+            Path.Combine(root, "Game", "LastWar_Data", "Plugins", "x86_64"));
+        File.Copy(systemCmd, Path.Combine(root, "LastWarLauncher.exe"), overwrite: true);
+        File.Copy(systemCmd, Path.Combine(root, "Game", "LastWar.exe"), overwrite: true);
+        File.Copy(
+            systemKernel,
+            Path.Combine(root, "Game", "LastWar_Data", "Plugins", "x86_64", "xlua.dll"),
+            overwrite: true);
+        return Path.GetFullPath(root);
+    }
+
+    private static async Task VerifyLifecycleRebindAsync(string root)
+    {
+        string rootA = CreateStrictRoot(Path.Combine(root, "strict-a"));
+        string rootB = CreateStrictRoot(Path.Combine(root, "strict-b"));
+        var config = new LocalConfigStore(Path.Combine(root, "lifecycle-config"));
+        config.Update(current => current with { GameRoot = rootA });
+        string profileId = config.Snapshot.ProfileId;
+        const int gamePid = 48121;
+        const int launcherPid = 48122;
+        const string startedAt = "2026-10-05T18:30:00.0000000Z";
+        bool processAlive = false;
+        string? session = null;
+        string? challenge = null;
+        int startCalls = 0;
+        int stopCalls = 0;
+
+        var hooks = new OverviewLifecycleTestHooks
+        {
+            RunOfficialRecoverAsync = (_, _) => Task.CompletedTask,
+            RunOfficialSettleAsync = (_, _) => Task.CompletedTask,
+            RunHelperAsync = (invocation, _) =>
+            {
+                if (invocation.Operation == "start")
+                {
+                    startCalls++;
+                    session = invocation.SessionId;
+                    challenge = invocation.Challenge;
+                    processAlive = true;
+                    return Task.FromResult(StartResult(
+                        invocation,
+                        rootB,
+                        gamePid,
+                        launcherPid,
+                        startedAt));
+                }
+
+                stopCalls++;
+                processAlive = false;
+                return Task.FromResult(StopResult(
+                    invocation,
+                    rootB,
+                    gamePid,
+                    startedAt));
+            },
+            ProcessMatches = (pid, path, created) =>
+                processAlive &&
+                pid == gamePid &&
+                created == startedAt &&
+                SamePath(path, Path.Combine(rootB, "Game", "LastWar.exe")),
+            ReadAllBytes = path =>
+            {
+                if (path.EndsWith("recovery.json", StringComparison.OrdinalIgnoreCase))
+                    throw new FileNotFoundException(path);
+                return Heartbeat(profileId, session!, challenge!, gamePid);
+            },
+            WriteLease = (_, _, _) => { },
+            DeleteFile = _ => { },
+        };
+
+        using var lifecycle = new OverviewLifecycleService(
+            profileId,
+            rootA,
+            helperPath: Path.Combine(root, "fake-overview-helper.py"),
+            requireCurrentClientEvidence: false,
+            config: config,
+            testHooks: hooks,
+            startRecoveryMonitor: false);
+        var backend = new LWBridgeBackend(
+            config,
+            lifecycle,
+            overviewLifecycle: lifecycle);
+
+        NativeGameRootSelectionResult selected =
+            backend.SaveNativeGameRootSelection(rootB);
+        Require(
+            selected.Valid &&
+            SamePath(selected.Path!, rootB) &&
+            SamePath(config.Snapshot.GameRoot!, rootB),
+            "native picker selection updates persisted root through lifecycle guard");
+
+        JsonElement profilePayload =
+            JsonSerializer.SerializeToElement(new { profileId });
+        JsonElement started = JsonSerializer.SerializeToElement(
+            await lifecycle.InvokeAsync(
+                "profile_instance_start",
+                profilePayload,
+                CancellationToken.None),
+            JsonOptions.Default);
+        Require(
+            startCalls == 1 &&
+            started.GetProperty("phase").GetString() == "running",
+            "existing lifecycle launches from picker-selected strict root without host restart");
+
+        bool activeRetargetRejected = false;
+        try
+        {
+            backend.SaveNativeGameRootSelection(rootA);
+        }
+        catch (BridgeCommandException error)
+        {
+            activeRetargetRejected =
+                error.Code == "GAME_OPERATION_IN_PROGRESS";
+        }
+        Require(
+            activeRetargetRejected &&
+            SamePath(config.Snapshot.GameRoot!, rootB),
+            "active owned lifecycle rejects picker retarget and preserves persisted root");
+
+        string instanceId =
+            started.GetProperty("instanceId").GetString() ??
+            throw new InvalidDataException("started instance ID missing");
+        JsonElement stopPayload =
+            JsonSerializer.SerializeToElement(new { profileId, instanceId });
+        await lifecycle.InvokeAsync(
+            "profile_instance_stop",
+            stopPayload,
+            CancellationToken.None);
+        Require(
+            stopCalls == 1 && !processAlive,
+            "isolated picker/rebind proof stops only its synthetic owned process");
+    }
+
+    private static JsonElement StartResult(
+        OverviewHelperInvocation invocation,
+        string root,
+        int gamePid,
+        int launcherPid,
+        string startedAt)
+    {
+        string challengeHash = Convert.ToHexString(
+            System.Security.Cryptography.SHA256.HashData(
+                System.Text.Encoding.UTF8.GetBytes(invocation.Challenge!)))
+            .ToLowerInvariant();
+        long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        return JsonSerializer.SerializeToElement(new
+        {
+            ok = true,
+            mode = "overview_install_launch_ready_deferred_restore",
+            bridgeVersion = OverviewLifecycleService.BridgeVersion,
+            profileId = invocation.ProfileId,
+            sessionId = invocation.SessionId,
+            challengeSha256 = challengeHash,
+            gamePid,
+            launcherPid,
+            gamePath = Path.Combine(root, "Game", "LastWar.exe"),
+            gameStartedAtUtc = startedAt,
+            gameRunning = true,
+            installedFilesChanged = true,
+            restore = new { restored = false, deferred = true, stage = "active_ready_deferred_restore" },
+            ready = new
+            {
+                schemaVersion = 1,
+                bridgeVersion = OverviewLifecycleService.BridgeVersion,
+                profileId = invocation.ProfileId,
+                sessionId = invocation.SessionId,
+                challenge = invocation.Challenge,
+                gamePid,
+                ready = true,
+                messageVisible = true,
+                messageText = OverviewLifecycleService.ReadyMessage,
+                readyAt = now,
+                updatedAt = now,
+            },
+        });
+    }
+
+    private static JsonElement StopResult(
+        OverviewHelperInvocation invocation,
+        string root,
+        int gamePid,
+        string startedAt) =>
+        JsonSerializer.SerializeToElement(new
+        {
+            ok = true,
+            mode = "overview_exact_pid_close_restore",
+            bridgeVersion = OverviewLifecycleService.BridgeVersion,
+            profileId = invocation.ProfileId,
+            sessionId = invocation.SessionId,
+            gamePid,
+            gamePath = Path.Combine(root, "Game", "LastWar.exe"),
+            gameStartedAtUtc = startedAt,
+            close = new { method = "synthetic", accepted = true, processExited = true, alreadyExited = false },
+            restore = new { restored = true },
+            gameRunning = false,
+            installedFilesChanged = false,
+        });
+
+    private static byte[] Heartbeat(
+        string profileId,
+        string session,
+        string challenge,
+        int gamePid)
+    {
+        long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        return JsonSerializer.SerializeToUtf8Bytes(new
+        {
+            schemaVersion = 1,
+            bridgeVersion = OverviewLifecycleService.BridgeVersion,
+            profileId,
+            sessionId = session,
+            challenge,
+            gamePid,
+            updatedAt = now,
+            ready = true,
+            messageVisible = true,
+            messageText = OverviewLifecycleService.ReadyMessage,
+        });
     }
 
     private static bool SamePath(string left, string right) =>

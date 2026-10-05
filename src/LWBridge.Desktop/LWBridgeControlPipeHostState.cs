@@ -192,6 +192,61 @@ internal sealed class LWBridgeControlPipeHostState : IDisposable
         }
     }
 
+    internal async Task EnsureRpcTransportAsync(
+        string expectedBuildId,
+        string expectedClientPath,
+        string? currentUserSid = null,
+        Func<long>? clockMilliseconds = null)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(expectedBuildId);
+        ArgumentException.ThrowIfNullOrWhiteSpace(expectedClientPath);
+
+        string canonicalClientPath =
+            LWBridgeControlPipeIsolatedHandshake
+                .CanonicalizeExpectedClientPath(expectedClientPath);
+        bool restart;
+        lock (gate)
+        {
+            ThrowIfStopped();
+            if (acceptLoop is null)
+            {
+                restart = false;
+            }
+            else if (string.Equals(
+                         rpcExpectedBuildId,
+                         expectedBuildId,
+                         StringComparison.Ordinal) &&
+                     string.Equals(
+                         rpcExpectedCanonicalClientPath,
+                         canonicalClientPath,
+                         StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+            else
+            {
+                if (registry.PendingCount != 0 ||
+                    registry.ConnectedCount != 0 ||
+                    (callRegistry?.PendingCount ?? 0) != 0)
+                {
+                    throw new BridgeCommandException(
+                        "BRIDGE_HOST_BUSY",
+                        "The shared bridge host cannot change client image while a route, launch, or RPC call is active.");
+                }
+                restart = true;
+            }
+        }
+
+        if (restart)
+            await StopRpcTransportAsync().ConfigureAwait(false);
+
+        _ = StartRpcTransport(
+            expectedBuildId,
+            expectedClientPath,
+            currentUserSid,
+            clockMilliseconds);
+    }
+
     internal async Task<JsonElement?> CallLuaAsync(
         string route,
         string functionName,

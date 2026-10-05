@@ -72,6 +72,22 @@ internal static class OverviewBridgeHostTransportChecks
             differentIdentityRejected,
             "already-started host rejects a different build/client identity");
 
+        await host.EnsureRpcTransportAsync(
+            Build + "-rebound",
+            processPath,
+            currentUserSid: sid,
+            clockMilliseconds: () => Now);
+        Check(
+            host.IsRpcTransportStarted &&
+            host.PendingRegistrationCount == 0 &&
+            host.ConnectedRouteCount == 0,
+            "idle shared host can atomically rebind its recovered build/client identity");
+        await host.EnsureRpcTransportAsync(
+            Build,
+            processPath,
+            currentUserSid: sid,
+            clockMilliseconds: () => Now);
+
         Check(
             host.IsRpcTransportStarted &&
             host.PendingCallCount == 0,

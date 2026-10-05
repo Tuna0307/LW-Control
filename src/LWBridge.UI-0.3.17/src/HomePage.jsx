@@ -70,6 +70,9 @@ export function HomePage({
   onAutoLaunchGameChange,
   onAutoReconnectChange,
   onGameRootSelect,
+  onStartGame,
+  onStopGame,
+  onUpdateAndRestart,
 }) {
   const { t } = useI18n();
   const preview = previewHomeState(previewState);
@@ -85,7 +88,10 @@ export function HomePage({
   const rootBusy = state.busy === "gameRoot";
   const showRootPicker = rootResolved && !rootValid;
   const repairOnClose = rootResolved && rootValid && gameRunning && repairRequired && !recovering;
-  const lifecycleProviderAvailable = false;
+  const lifecycleProviderAvailable = state.production === true
+    && typeof onStartGame === "function"
+    && typeof onStopGame === "function"
+    && typeof onUpdateAndRestart === "function";
   const canStart = lifecycleProviderAvailable && rootResolved && rootValid && !gameRunning && !recovering && !proxyBusy && !launching;
   const canStop = lifecycleProviderAvailable && rootResolved && rootValid && (gameRunning || recovering) && !proxyBusy && !launching;
 
@@ -116,9 +122,9 @@ export function HomePage({
       ) : (
         <div className="game-controls">
           {!repairOnClose ? (
-            <button className="primary" type="button" disabled={!canStart}>{t(launching ? "setup.launchingGame" : proxyBusy ? "common.processing" : "top.launchGame")}</button>
+            <button className="primary" type="button" disabled={!canStart} onClick={onStartGame}>{t(launching ? "setup.launchingGame" : proxyBusy ? "common.processing" : "top.launchGame")}</button>
           ) : null}
-          <button type="button" disabled={!canStop}>
+          <button type="button" disabled={!canStop} onClick={repairOnClose ? onUpdateAndRestart : onStopGame}>
             {t(proxyBusy && gameRunning ? "common.processing" : repairOnClose ? "setup.updateAndLaunch" : "setup.closeGameAction")}
           </button>
           {repairOnClose ? <span className="muted">{t("setup.updateCloseGame")}</span> : null}

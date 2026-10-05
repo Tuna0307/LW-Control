@@ -7,8 +7,11 @@ import {
   MAP_KIND_KEYS,
   MAP_PAGE_SIZE,
   MAP_SCAN_TYPES,
+  buildDispatchPlunderRows,
+  buildDispatchShareRows,
   buildSearchPayload,
   buildStartPayload,
+  buildTruckPlunderRows,
   connectionState,
   createMapApi,
   cycleSort,
@@ -64,6 +67,29 @@ assert.deepEqual(buildStartPayload(["resource", "resource", "bogus"], "fast"), {
 });
 assert.deepEqual(updateSelectedTypes(["resource"], "resource", false), [], "Manual editing must allow removing the last scan type");
 assert.deepEqual(updateSelectedTypes(["city"], "resource", true), ["city", "resource"]);
+assert.deepEqual(buildDispatchShareRows([{
+  uuid: 123, serverId: 7, x: 11, y: 12, cfgId: 4,
+  ownerName: "owner", allianceAbbr: "QA", ignored: "not-forwarded",
+}]), [{
+  uuid: "123", serverId: 7, x: 11, y: 12, cfgId: 4,
+  ownerName: "owner", allianceAbbr: "QA",
+}], "Dispatch share adapter must preserve the recovered public row projection");
+assert.deepEqual(buildDispatchPlunderRows([{
+  uuid: "task-1", plunderAt: 1_000, taskExpireTime: 8_001,
+}], 10, () => 0.999), [{
+  uuid: "task-1",
+  plunderAt: 8_000,
+  taskExpireTime: 8_001,
+  maxRandomDelaySeconds: 10,
+  randomDelaySeconds: 7,
+}], "Dispatch random delay must be capped below task expiry before native scheduling");
+assert.deepEqual(buildTruckPlunderRows([
+  { uuid: "protected", protectTime: 5_000 },
+  { uuid: "ready", protectTime: 3_000 },
+], 4_000), [
+  { uuid: "protected", protectTime: 5_000, executeAt: 5_000 },
+  { uuid: "ready", protectTime: 3_000, executeAt: 4_000 },
+], "Truck schedule adapter must execute no earlier than now/protection expiry");
 
 assert.deepEqual(cycleSort([{ sortBy: "updatedAt", sortOrder: "desc" }], "level"), [
   { sortBy: "level", sortOrder: "desc" },
@@ -150,10 +176,26 @@ await api.setServerJumpHistory([9, 8, 7]);
 await api.coordinateJump({ serverId: 7, x: 12, y: 34 });
 await api.setPlayerMark({ serverId: 7, ownerUid: "u1" }, true);
 await api.exportCities({ serverId: 7, page: 1, pageSize: 200, sorts: [] }, { headers: ["Server"], sheetName: "City", yesLabel: "Yes", noLabel: "No" });
+await api.refreshTreasureStates(7, [{ uuid: "treasure-1" }]);
+await api.refreshAllTreasureStates(7);
+await api.treasureClaimStatus();
+await api.claimTreasure(7, "single", true, "treasure-1");
+await api.shareDispatchToAlliance([{ uuid: "task-1", serverId: 7, x: 1, y: 2 }]);
+await api.listPlunderJobs();
+await api.scheduleDispatchPlunder([{ uuid: "task-1", plunderAt: 1_000, taskExpireTime: 9_000 }], 0);
+await api.cancelDispatchPlunder(7, "task-1");
+await api.clearDispatchPlunderHistory(1234, "dispatch");
+await api.scheduleTruckPlunder([{ uuid: "truck-1", protectTime: 2_000 }]);
+await api.cancelTruckPlunder(7, "truck-1");
+await api.clearTruckPlunderHistory(1234);
 assert.deepEqual(calls.map(({ command }) => command), [
   "map_scan_start", "map_scan_stop", "map_scan_clear", "map_scan_status", "map_summary", "map_data_options", "map_search",
   "server_jump", "server_jump_history_import", "server_jump_history_set",
   "map_coordinate_jump", "map_player_mark_set", "map_city_export",
+  "map_treasure_state_refresh", "map_treasure_state_refresh_all", "map_treasure_claim_status", "map_treasure_claim",
+  "map_dispatch_share_alliance", "map_plunder_jobs_list",
+  "map_dispatch_plunder_schedule", "map_dispatch_plunder_cancel", "map_dispatch_plunder_clear",
+  "map_truck_plunder_schedule", "map_truck_plunder_cancel", "map_truck_plunder_clear",
 ]);
 assert.deepEqual(calls[0].payload, { selectedTypes: ["resource"], scanMode: "fast", profileId: "profile-test" });
 assert.deepEqual(calls[1].payload, { profileId: "profile-test" });
@@ -169,6 +211,16 @@ assert.deepEqual(calls[9].payload, { history: [9, 8, 7], profileId: "profile-tes
 assert.deepEqual(calls[10].payload, { serverId: 7, x: 12, y: 34, profileId: "profile-test" });
 assert.equal(calls[11].payload.marked, true);
 assert.equal(calls[12].payload.query.serverId, 7);
+assert.deepEqual(calls[13].payload, { serverId: 7, records: [{ uuid: "treasure-1" }], profileId: "profile-test" });
+assert.deepEqual(calls[16].payload, {
+  serverId: 7,
+  claimScope: "single",
+  prioritizeLuckySlots: true,
+  targetUuid: "treasure-1",
+  profileId: "profile-test",
+});
+assert.equal(calls[19].payload.rows[0].randomDelaySeconds, 0);
+assert.equal(calls[22].payload.rows[0].executeAt >= 2_000, true);
 
 const expectedFailure = Object.assign(new Error("query failed"), { code: "MAP_QUERY_FAILED", details: { field: "resourceNameKey" } });
 const failingApi = createMapApi({

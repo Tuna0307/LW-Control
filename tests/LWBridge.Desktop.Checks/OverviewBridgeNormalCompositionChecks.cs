@@ -69,7 +69,7 @@ internal static class OverviewBridgeNormalCompositionChecks
 
         int ensureMethod = RequireIndex(
             lifecycleSource,
-            "private void EnsureControlPipeHostStarted(string selectedRoot)");
+            "private async Task EnsureControlPipeHostStartedAsync(string selectedRoot)");
         int skipTestHooks = RequireIndexAfter(
             lifecycleSource,
             "if (!bridgeControlPipeLaunchBindingEnabled || testHooks is not null)",
@@ -80,11 +80,11 @@ internal static class OverviewBridgeNormalCompositionChecks
             ensureMethod);
         int lifecycleStart = RequireIndexAfter(
             lifecycleSource,
-            "bridgeHostState.StartRpcTransport(",
+            "bridgeHostState.EnsureRpcTransportAsync(",
             ensureMethod);
         int startTransactionEnsure = RequireIndex(
             lifecycleSource,
-            "EnsureControlPipeHostStarted(selectedRoot);");
+            "await EnsureControlPipeHostStartedAsync(selectedRoot).ConfigureAwait(false);");
         int registration = RequireIndexAfter(
             lifecycleSource,
             "controlPipeLaunchBinding = PrepareControlPipeLaunchBinding(",
@@ -122,8 +122,11 @@ internal static class OverviewBridgeNormalCompositionChecks
                 StringComparison.Ordinal) &&
             hostSource.Contains(
                 "already bound to a different build or client image",
+                StringComparison.Ordinal) &&
+            hostSource.Contains(
+                "BRIDGE_HOST_BUSY",
                 StringComparison.Ordinal),
-            "shared host is idempotent only for one recovered build/client identity");
+            "shared host rejects an unsafe retarget and exposes an explicit idle rebind path");
 
         Check(
             windowSource.Contains(
