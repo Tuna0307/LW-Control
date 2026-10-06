@@ -86,9 +86,6 @@ function initialTheme() {
 }
 
 function initialAutoLaunchGame() {
-  if (backendBridge.mode === "native" && typeof window.__LWBridgeBootstrap?.autoLaunchGame === "boolean") {
-    return window.__LWBridgeBootstrap.autoLaunchGame;
-  }
   return readAutoLaunchGamePreference(localStorage);
 }
 
@@ -199,7 +196,8 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
   const [nativeProfileError, setNativeProfileError] = useState("");
   const [autoScanConfig, setAutoScanConfig] = useState(() => initialAutoScanConfig(selectedProfileId, previewState));
   const [autoScanRunning, setAutoScanRunning] = useState(() => previewState === "map-auto-running");
-  const [autoScanError, setAutoScanError] = useState("");
+  const [autoScanRuntimeError, setAutoScanRuntimeError] = useState("");
+  const [autoScanActionError, setAutoScanActionError] = useState("");
   const [autoScanSaveError, setAutoScanSaveError] = useState("");
   const mapReadingRef = useRef(false);
   const mapRuntimeRef = useRef({ ...DEFAULT_SCAN_STATE });
@@ -208,11 +206,12 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
   const autoScanCoordinatorRef = useRef(null);
   const serverJumpRef = useRef(null);
   const serverHistoryRef = useRef([]);
-  const autoLaunchCommittedRef = useRef(autoLaunchGame);
+  const autoLaunchNativeCommittedByOwnerRef = useRef(new Map());
   const autoLaunchSaveRevisionRef = useRef(0);
   const autoLaunchSaveChainRef = useRef(Promise.resolve());
   const autoLaunchNativeCommitEpochRef = useRef(0);
   const autoLaunchConfigPollGenerationRef = useRef(0);
+  const statusReadRevisionRef = useRef(0);
   const reconnectStatusGeneration = useRef(0);
   const selectedProfileIdRef = useRef(selectedProfileId);
   const shellProfilesRef = useRef(shellProfiles);
@@ -444,7 +443,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
 
   const applyAutoScanRuntimeSnapshot = useCallback((snapshot) => {
     setAutoScanRunning(snapshot?.running === true);
-    setAutoScanError(typeof snapshot?.lastError === "string" ? snapshot.lastError : "");
+    setAutoScanRuntimeError(typeof snapshot?.lastError === "string" ? snapshot.lastError : "");
   }, []);
 
   useLayoutEffect(() => {
@@ -453,7 +452,8 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
     autoScanConfigRef.current = next;
     setAutoScanConfig(next);
     setAutoScanRunning(previewState === "map-auto-running");
-    setAutoScanError("");
+    setAutoScanRuntimeError("");
+    setAutoScanActionError("");
     setAutoScanSaveError("");
 
     if (!backendBridge.available || backendBridge.mode === "preview" || !selectedProfileId) {
@@ -465,10 +465,15 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
       saveConfig: (config) => mapApi.updateAutoScanConfig(config),
       readStatus: () => mapApi.autoScanStatus(),
       runNow: () => mapApi.runAutoScanNow(),
+      mergeConfig: (base, edit) => applyAutoScanConfigEdit(
+        base,
+        { ...base, ...edit.patch },
+        edit.editedAt,
+      ),
       onConfigSnapshot: applyAutoScanConfigSnapshot,
       onRuntimeSnapshot: applyAutoScanRuntimeSnapshot,
       onWriteError: setAutoScanSaveError,
-      onActionError: setAutoScanError,
+      onActionError: setAutoScanActionError,
     });
     autoScanCoordinatorRef.current = coordinator;
     return () => {
@@ -477,15 +482,20 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
     };
   }, [applyAutoScanConfigSnapshot, applyAutoScanRuntimeSnapshot, selectedProfileId]);
 
-  const updateAutoScanConfig = useCallback((candidate) => {
-    const next = applyAutoScanConfigEdit(autoScanConfigRef.current, candidate, Date.now());
+  const updateAutoScanConfig = useCallback((patch) => {
+    const editedAt = Date.now();
+    const next = applyAutoScanConfigEdit(
+      autoScanConfigRef.current,
+      { ...autoScanConfigRef.current, ...patch },
+      editedAt,
+    );
     autoScanConfigRef.current = next;
     setAutoScanConfig(next);
     if (backendBridge.mode === "preview") {
       saveAutoScanConfig(selectedProfileId, next, window.localStorage);
       return;
     }
-    autoScanCoordinatorRef.current?.save(next);
+    autoScanCoordinatorRef.current?.save(next, { patch, editedAt });
   }, [selectedProfileId]);
 
   const runAutoScanNow = useCallback(() => {
@@ -558,6 +568,8 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
 
   const readStatusSnapshot = useCallback(async (canAcknowledge = () => true) => {
     if (!backendBridge.available) return;
+    const statusReadRevision = statusReadRevisionRef.current + 1;
+    statusReadRevisionRef.current = statusReadRevision;
     const owner = { ...selectedProfileOwnerRef.current };
     if (!isCurrentProfileOwner(owner)) return;
     setStatusPairReady(false);
@@ -572,7 +584,9 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
       mapApi.readProxyStatus(),
       backendBridge.invoke("local_config_get", { profileId: owner.profileId }),
     ]);
-    if (!canAcknowledge() || !isCurrentProfileOwner(owner)) return;
+    if (!canAcknowledge()
+      || !isCurrentProfileOwner(owner)
+      || statusReadRevisionRef.current !== statusReadRevision) return;
     if (statusResult.status === "fulfilled") {
       acknowledgeRuntimeStatus(statusResult.value, reconnectGeneration, owner);
     }
@@ -582,9 +596,10 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
         && autoLaunchSaveRevisionRef.current === autoLaunchRevision
         && autoLaunchNativeCommitEpochRef.current === autoLaunchNativeCommitEpoch
         && typeof configResult.value?.autoLaunchGame === "boolean") {
-        autoLaunchCommittedRef.current = configResult.value.autoLaunchGame;
-        writeAutoLaunchGamePreference(localStorage, configResult.value.autoLaunchGame);
-        setAutoLaunchGame(configResult.value.autoLaunchGame);
+        autoLaunchNativeCommittedByOwnerRef.current.set(
+          profileOwnerKey(owner),
+          configResult.value.autoLaunchGame,
+        );
       }
     }
     if (statusResult.status === "rejected" || proxyResult.status === "rejected") {
@@ -727,7 +742,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
     };
     const unsubscribe = mapApi.listenAutoScanChanged(acknowledge);
     mapApi.autoScanStatus().then(acknowledge).catch((error) => {
-      if (!closed && isCurrentProfileOwner(owner)) setAutoScanError(error?.message || String(error));
+      if (!closed && isCurrentProfileOwner(owner)) setAutoScanRuntimeError(error?.message || String(error));
     });
     return () => {
       closed = true;
@@ -807,7 +822,9 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
   const updateAutoLaunch = useCallback((value) => {
     if (!backendBridge.available) return undefined;
     const owner = { ...selectedProfileOwnerRef.current };
+    const ownerKey = profileOwnerKey(owner);
     const enabled = value === true;
+    const previousGlobal = autoLaunchGame;
     const revision = autoLaunchSaveRevisionRef.current + 1;
     autoLaunchSaveRevisionRef.current = revision;
     writeAutoLaunchGamePreference(localStorage, enabled);
@@ -825,7 +842,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
           throw new Error("local_config_set returned an invalid autoLaunchGame value.");
         }
         autoLaunchNativeCommitEpochRef.current += 1;
-        autoLaunchCommittedRef.current = next.autoLaunchGame;
+        autoLaunchNativeCommittedByOwnerRef.current.set(ownerKey, next.autoLaunchGame);
         if (autoLaunchSaveRevisionRef.current === revision) {
           writeAutoLaunchGamePreference(localStorage, next.autoLaunchGame);
           setAutoLaunchGame(next.autoLaunchGame);
@@ -834,8 +851,10 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
       })
       .catch((error) => {
         if (isCurrentProfileOwner(owner) && autoLaunchSaveRevisionRef.current === revision) {
-          writeAutoLaunchGamePreference(localStorage, autoLaunchCommittedRef.current);
-          setAutoLaunchGame(autoLaunchCommittedRef.current);
+          const nativeCommitted = autoLaunchNativeCommittedByOwnerRef.current.get(ownerKey);
+          const rollback = typeof nativeCommitted === "boolean" ? nativeCommitted : previousGlobal;
+          writeAutoLaunchGamePreference(localStorage, rollback);
+          setAutoLaunchGame(rollback);
           setGameActionError(error?.message || String(error));
         }
         return null;
@@ -843,7 +862,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
 
     autoLaunchSaveChainRef.current = save;
     return save;
-  }, [isCurrentProfileOwner]);
+  }, [autoLaunchGame, isCurrentProfileOwner]);
 
   const updateAutoReconnect = useCallback(async (value) => {
     if (!backendBridge.available) return;
@@ -1038,7 +1057,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
     onCounts: acknowledgeMapCounts,
     autoScanConfig,
     autoScanRunning,
-    autoScanError: autoScanSaveError || autoScanError,
+    autoScanError: autoScanSaveError || autoScanActionError || autoScanRuntimeError,
     onAutoScanConfig: updateAutoScanConfig,
     onAutoScanRunNow: runAutoScanNow,
     previewState,

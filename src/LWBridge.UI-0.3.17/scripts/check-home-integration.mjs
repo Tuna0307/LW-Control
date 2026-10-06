@@ -1,6 +1,11 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import { createBackendBridge } from "../src/backendBridge.js";
+import {
+  AUTO_LAUNCH_GAME_STORAGE_KEY,
+  readAutoLaunchGamePreference,
+  writeAutoLaunchGamePreference,
+} from "../src/autoLaunchPreference.js";
 import { connectionState, createMapApi } from "../src/mapBackend.js";
 import { createAutomationFlagAdapter, createProfileConfigDraftRegistry } from "../src/profileConfigDraft.js";
 
@@ -206,6 +211,33 @@ function deliver(fixture, message) {
 }
 
 const appSource = fs.readFileSync(new URL("../src/App.jsx", import.meta.url), "utf8");
+const initialAutoLaunchSource = appSource.slice(
+  appSource.indexOf("function initialAutoLaunchGame()"),
+  appSource.indexOf("function initialAutoScanConfig("),
+);
+assert.match(initialAutoLaunchSource, /return readAutoLaunchGamePreference\(localStorage\)/,
+  "native startup must read the recovered one-key Auto Launch preference");
+assert.doesNotMatch(initialAutoLaunchSource, /__LWBridgeBootstrap|profileId/,
+  "profile/bootstrap state must not replace the recovered global Auto Launch preference");
+
+{
+  const values = new Map();
+  const storage = {
+    getItem: (key) => values.has(key) ? values.get(key) : null,
+    setItem: (key, value) => values.set(key, String(value)),
+  };
+  assert.equal(readAutoLaunchGamePreference(storage), true,
+    "missing Auto Launch key must preserve recovered default true");
+  values.set(AUTO_LAUNCH_GAME_STORAGE_KEY, "false");
+  assert.equal(readAutoLaunchGamePreference(storage), false,
+    "only literal persisted false must disable Auto Launch");
+  values.set(AUTO_LAUNCH_GAME_STORAGE_KEY, "other");
+  assert.equal(readAutoLaunchGamePreference(storage), true,
+    "non-false legacy/corrupt values must preserve recovered default true");
+  writeAutoLaunchGamePreference(storage, false);
+  assert.deepEqual([...values.entries()], [[AUTO_LAUNCH_GAME_STORAGE_KEY, "false"]],
+    "Auto Launch must remain one application-global storage key across profile changes");
+}
 const editIndex = appSource.indexOf("autoReconnectStore.edit(value, false)");
 const flushIndex = appSource.indexOf("autoReconnectStore.flush().catch(() => {})", editIndex);
 assert.ok(editIndex >= 0 && flushIndex > editIndex, "Home reconnect must edit its profile draft before flushing it");
@@ -250,9 +282,81 @@ assert.doesNotMatch(periodicStatusBody, /activeRoute/, "status polling must rema
 const statusReadBody = appSource.slice(appSource.indexOf("const readStatusSnapshot"), appSource.indexOf("const refreshStatus"));
 assert.match(statusReadBody, /setStatusPairReady\(false\)/, "status read start must invalidate stale paired availability");
 assert.match(statusReadBody, /!isCurrentProfileOwner\(owner\)/, "status read acknowledgement must reject retired profile generations");
+assert.match(statusReadBody, /statusReadRevisionRef\.current !== statusReadRevision/,
+  "paired status acknowledgement must accept only the newest request for the current profile owner");
 assert.match(statusReadBody, /statusResult\.status === "fulfilled"[\s\S]*proxyResult\.status === "fulfilled"|statusResult\.status === "rejected" \|\| proxyResult\.status === "rejected"/, "status pair must inspect both current status owners");
 assert.match(statusReadBody, /setStatusPairReady\(true\)/, "only a fresh paired read may restore availability");
+assert.doesNotMatch(statusReadBody, /writeAutoLaunchGamePreference|setAutoLaunchGame/,
+  "profile-scoped native config polling must never take ownership of the global Auto Launch preference");
+assert.match(statusReadBody, /autoLaunchNativeCommittedByOwnerRef\.current\.set\([\s\S]*profileOwnerKey\(owner\)/,
+  "native Auto Launch acknowledgement must remain cached under the exact profile generation owner");
 assert.match(appSource, /connectionState\([\s\S]*runtimeStatus,[\s\S]*proxyStatus,[\s\S]*backendBridge\.mode,[\s\S]*statusPairReady,[\s\S]*connectionError,[\s\S]*\)/, "connected availability must consume paired-status freshness and rejection state");
+
+{
+  const deferred = () => {
+    let resolve;
+    let reject;
+    const promise = new Promise((yes, no) => { resolve = yes; reject = no; });
+    return { promise, resolve, reject };
+  };
+  const calls = [0, 1].map(() => ({ status: deferred(), proxy: deferred() }));
+  let statusIndex = 0;
+  let proxyIndex = 0;
+  const state = { runtime: null, proxy: null, ready: false, error: "" };
+  const ref = (value = 0) => ({ current: value });
+  const makeStatusReader = new Function(
+    "useCallback",
+    "backendBridge",
+    "statusReadRevisionRef",
+    "selectedProfileOwnerRef",
+    "isCurrentProfileOwner",
+    "setStatusPairReady",
+    "setConnectionError",
+    "reconnectStatusGeneration",
+    "autoLaunchSaveRevisionRef",
+    "autoLaunchNativeCommitEpochRef",
+    "autoLaunchConfigPollGenerationRef",
+    "mapApi",
+    "acknowledgeRuntimeStatus",
+    "setProxyStatus",
+    "autoLaunchNativeCommittedByOwnerRef",
+    "profileOwnerKey",
+    `${statusReadBody}\nreturn readStatusSnapshot;`,
+  );
+  const readStatus = makeStatusReader(
+    (callback) => callback,
+    { available: true, invoke: async () => ({ autoLaunchGame: false }) },
+    ref(),
+    { current: { profileId: "A", generation: 1 } },
+    () => true,
+    (value) => { state.ready = value; },
+    (value) => { state.error = value; },
+    ref(),
+    ref(),
+    ref(),
+    ref(),
+    {
+      readStatus: () => calls[statusIndex++].status.promise,
+      readProxyStatus: () => calls[proxyIndex++].proxy.promise,
+    },
+    (value) => { state.runtime = value; },
+    (value) => { state.proxy = value; },
+    { current: new Map() },
+    (owner) => `${owner?.generation ?? -1}:${owner?.profileId || ""}`,
+  );
+  const older = readStatus();
+  const newer = readStatus();
+  calls[1].status.reject(new Error("newer native failure"));
+  calls[1].proxy.resolve({ gameRunning: false });
+  await newer;
+  assert.equal(connectionState(state.runtime, state.proxy, "native", state.ready, state.error), "unavailable",
+    "newest failed status pair must make connected availability unavailable");
+  calls[0].status.resolve({ xluaOnline: true });
+  calls[0].proxy.resolve({ gameRunning: true });
+  await older;
+  assert.equal(connectionState(state.runtime, state.proxy, "native", state.ready, state.error), "unavailable",
+    "an older connected pair must not revive availability after a newer request failed");
+}
 
 assert.match(appSource, /backendBridge\.invoke\("profile_list", \{\}\)/, "normal App must load the native profile registry");
 assert.match(appSource, /backendBridge\.invoke\("profile_select", \{ profileId, focusGame: focusGame === true \}\)/, "normal sidebar selection must dispatch native profile_select");

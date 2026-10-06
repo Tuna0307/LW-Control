@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import { createBackendBridge } from "../src/backendBridge.js";
 import { createAutoScanNativeCoordinator } from "../src/autoScanNativeCoordinator.js";
+import { applyAutoScanConfigEdit, normalizeAutoScanConfig } from "../src/mapAutoConfig.js";
 import { getMapPreviewProvider } from "../src/mapPreviewApi.js";
 import {
   MAP_COMMANDS,
@@ -57,10 +58,14 @@ assert.doesNotMatch(autoConfigSource, /mapAutoScan[^\n]*\|\|\s*["']default["']/,
   "canonical Auto Scan must not invent a default profile suffix");
 assert.match(appSource, /useLayoutEffect\(\(\) => \{[\s\S]*initialAutoScanConfig\(selectedProfileId, previewState\)[\s\S]*autoScanConfigRef\.current = next[\s\S]*setAutoScanConfig\(next\)[\s\S]*\}, \[selectedProfileId\]\)/,
   "canonical App must synchronously load the selected profile before later effects can persist anything");
-assert.match(appSource, /backendBridge\.mode === "preview"[\s\S]*saveAutoScanConfig\(selectedProfileId, next, window\.localStorage\)[\s\S]*autoScanCoordinatorRef\.current\?\.save\(next\)/,
+assert.match(appSource, /backendBridge\.mode === "preview"[\s\S]*saveAutoScanConfig\(selectedProfileId, next, window\.localStorage\)[\s\S]*autoScanCoordinatorRef\.current\?\.save\(next, \{ patch, editedAt \}\)/,
   "production Auto Scan persistence must be serialized through the native coordinator while browser localStorage stays preview-only");
 assert.match(appSource, /createAutoScanNativeCoordinator\([\s\S]*saveConfig:\s*\(config\)\s*=>\s*mapApi\.updateAutoScanConfig\(config\)/,
   "native Auto Scan coordinator must own production config writes");
+assert.match(appSource, /mergeConfig:\s*\(base, edit\)\s*=>\s*applyAutoScanConfigEdit\([\s\S]*\{ \.\.\.base, \.\.\.edit\.patch \}[\s\S]*edit\.editedAt/,
+  "pre-hydration Auto Scan edits must merge exact field intent against the native base");
+assert.match(mapPageSource, /const emitAutoConfig = useCallback\(\(patch\) => \{\s*onAutoScanConfig\(patch\)/,
+  "Map Auto Scan controls must submit field-level edit intent rather than a default-derived full object");
 assert.match(appSource, /mapApi\.listenAutoScanChanged\(acknowledge\)[\s\S]*mapApi\.autoScanStatus\(\)/,
   "canonical App must hydrate and converge native Auto Scan state through the profile-scoped bridge");
 assert.match(mapPageSource, /onClick=\{onAutoScanRunNow\}/,
@@ -173,6 +178,147 @@ function deferred() {
   let reject;
   const promise = new Promise((res, rej) => { resolve = res; reject = rej; });
   return { promise, resolve, reject };
+}
+
+{
+  const hydration = deferred();
+  const saves = [];
+  let revision = 5;
+  const persisted = normalizeAutoScanConfig({
+    enabled: true,
+    intervalMinutes: 60,
+    serverIds: [321, 322],
+    selectedTypes: ["city"],
+    scanMode: "fast",
+    returnToOriginalServer: false,
+    nextRunAt: 1_900_000_000_000,
+  });
+  const coordinator = createAutoScanNativeCoordinator({
+    saveConfig: async (config) => {
+      saves.push(config);
+      return { revision: ++revision, config, running: false, lastError: null };
+    },
+    readStatus: () => hydration.promise,
+    runNow: async () => null,
+    mergeConfig: (base, edit) => applyAutoScanConfigEdit(
+      base,
+      { ...base, ...edit.patch },
+      edit.editedAt,
+    ),
+    onConfigSnapshot: () => {},
+    onRuntimeSnapshot: () => {},
+    onWriteError: () => {},
+    onActionError: () => {},
+  });
+  const visibleDefaults = normalizeAutoScanConfig(null);
+  const first = coordinator.save(
+    applyAutoScanConfigEdit(visibleDefaults, { ...visibleDefaults, intervalMinutes: 45 }, 1_800_000_000_000),
+    { patch: { intervalMinutes: 45 }, editedAt: 1_800_000_000_000 },
+  );
+  const second = coordinator.save(
+    { ...visibleDefaults, intervalMinutes: 45, scanMode: "normal" },
+    { patch: { scanMode: "normal" }, editedAt: 1_800_000_000_100 },
+  );
+  await Promise.resolve();
+  await Promise.resolve();
+  assert.equal(saves.length, 0,
+    "native Auto Scan must not persist default-derived fields before first hydration resolves");
+  hydration.resolve({ revision: 5, config: persisted, running: false, lastError: null });
+  await first;
+  await second;
+  assert.deepEqual(
+    {
+      enabled: saves[0].enabled,
+      intervalMinutes: saves[0].intervalMinutes,
+      serverIds: saves[0].serverIds,
+      selectedTypes: saves[0].selectedTypes,
+      scanMode: saves[0].scanMode,
+      returnToOriginalServer: saves[0].returnToOriginalServer,
+    },
+    {
+      enabled: true,
+      intervalMinutes: 45,
+      serverIds: [321, 322],
+      selectedTypes: ["city"],
+      scanMode: "fast",
+      returnToOriginalServer: false,
+    },
+    "an interval edit before hydration must preserve every unrelated persisted field",
+  );
+  assert.equal(saves[1].intervalMinutes, 45,
+    "a second pre-hydration edit must preserve the first edit after serialized acknowledgement");
+  assert.equal(saves[1].scanMode, "normal",
+    "a second pre-hydration edit must apply its own field intent");
+  assert.deepEqual(saves[1].serverIds, [321, 322],
+    "two edits before hydration must still preserve persisted server targets");
+  coordinator.retire();
+}
+
+{
+  let reads = 0;
+  const writes = [];
+  const errors = [];
+  const persisted = normalizeAutoScanConfig({ enabled: true, serverIds: [777], selectedTypes: ["truck"] });
+  const coordinator = createAutoScanNativeCoordinator({
+    saveConfig: async (config) => {
+      writes.push(config);
+      return { revision: 11, config, running: false, lastError: null };
+    },
+    readStatus: async () => {
+      reads += 1;
+      if (reads === 1) throw new Error("hydrate failed");
+      return { revision: 10, config: persisted, running: false, lastError: null };
+    },
+    runNow: async () => null,
+    mergeConfig: (base, edit) => applyAutoScanConfigEdit(base, { ...base, ...edit.patch }, edit.editedAt),
+    onConfigSnapshot: () => {},
+    onRuntimeSnapshot: () => {},
+    onWriteError: (error) => errors.push(error),
+    onActionError: () => {},
+  });
+  await coordinator.save(normalizeAutoScanConfig({ intervalMinutes: 35 }),
+    { patch: { intervalMinutes: 35 }, editedAt: 1000 });
+  assert.equal(errors.at(-1), "hydrate failed",
+    "hydration failure must remain visible on the persistence-error channel");
+  await coordinator.save(normalizeAutoScanConfig({ intervalMinutes: 35, scanMode: "normal" }),
+    { patch: { scanMode: "normal" }, editedAt: 1100 });
+  assert.equal(reads, 2, "a later edit must retry failed native hydration");
+  assert.equal(writes[0].intervalMinutes, 35,
+    "retry hydration must retain the earlier unsaved edit intent");
+  assert.equal(writes[0].scanMode, "normal",
+    "retry hydration must merge the later edit intent in order");
+  assert.deepEqual(writes[0].serverIds, [777],
+    "retry hydration must preserve unrelated persisted fields");
+  assert.equal(errors.at(-1), "", "successful retry must clear only the persistence error");
+  coordinator.retire();
+}
+
+{
+  let actionError = "";
+  let runtimeError = "";
+  let rejectRun = true;
+  const coordinator = createAutoScanNativeCoordinator({
+    saveConfig: async () => null,
+    readStatus: async () => null,
+    runNow: async () => {
+      if (rejectRun) throw new Error("Run now rejected");
+      return { revision: 12, config: { enabled: true }, running: true, lastError: null };
+    },
+    onConfigSnapshot: () => {},
+    onRuntimeSnapshot: (snapshot) => { runtimeError = snapshot?.lastError || ""; },
+    onWriteError: () => {},
+    onActionError: (error) => { actionError = error; },
+  });
+  await coordinator.run();
+  assert.equal(actionError, "Run now rejected", "Run Now rejection must own the action-error channel");
+  coordinator.receive({ revision: 11, running: false, lastError: null });
+  assert.equal(runtimeError, "", "clean runtime snapshot must clear only runtime error state");
+  assert.equal(actionError, "Run now rejected",
+    "clean runtime snapshots must not clear an independent Run Now rejection");
+  rejectRun = false;
+  await coordinator.run();
+  assert.equal(actionError, "", "a later successful Run Now must clear its own action error");
+  coordinator.retire();
 }
 
 {

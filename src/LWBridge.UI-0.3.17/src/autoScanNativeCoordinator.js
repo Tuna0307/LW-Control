@@ -11,6 +11,7 @@ export function createAutoScanNativeCoordinator({
   saveConfig,
   readStatus,
   runNow,
+  mergeConfig = (_, edit) => edit?.config,
   onConfigSnapshot,
   onRuntimeSnapshot,
   onWriteError,
@@ -20,6 +21,8 @@ export function createAutoScanNativeCoordinator({
   let editRevision = 0;
   let committedEditRevision = 0;
   let nativeRevision = -1;
+  let hydratedConfig = null;
+  let pendingEdits = [];
   let chain = Promise.resolve();
 
   const acceptSnapshot = (snapshot, allowConfig) => {
@@ -27,6 +30,7 @@ export function createAutoScanNativeCoordinator({
     const revision = snapshotRevision(snapshot);
     if (revision !== null && revision < nativeRevision) return false;
     if (revision !== null) nativeRevision = Math.max(nativeRevision, revision);
+    if (snapshot?.config && typeof snapshot.config === "object") hydratedConfig = snapshot.config;
     onRuntimeSnapshot(snapshot);
     if (allowConfig && editRevision === committedEditRevision) onConfigSnapshot(snapshot);
     return true;
@@ -37,12 +41,28 @@ export function createAutoScanNativeCoordinator({
     editRevision === committedEditRevision,
   );
 
-  const save = (config) => {
+  const save = (config, edit = null) => {
     if (!active) return Promise.resolve(null);
     const revision = ++editRevision;
+    if (edit) pendingEdits.push({ revision, edit });
     const task = chain
       .catch(() => undefined)
-      .then(() => (active ? saveConfig(config) : null))
+      .then(async () => {
+        if (!active) return null;
+        if (!edit) return saveConfig(config);
+        if (hydratedConfig === null) {
+          const current = await readStatus();
+          if (!active) return null;
+          acceptSnapshot(current, false);
+        }
+        if (hydratedConfig === null) throw new Error("Auto Scan native configuration is unavailable.");
+        let submitted = hydratedConfig;
+        for (const pending of pendingEdits) {
+          if (pending.revision > revision) break;
+          submitted = mergeConfig(submitted, pending.edit);
+        }
+        return saveConfig(submitted);
+      })
       .then(async (snapshot) => {
         if (!active || snapshot === null) return snapshot;
         if (editRevision !== revision) {
@@ -51,6 +71,7 @@ export function createAutoScanNativeCoordinator({
         }
 
         committedEditRevision = revision;
+        pendingEdits = pendingEdits.filter((pending) => pending.revision > revision);
         onWriteError("");
         if (!acceptSnapshot(snapshot, true)) {
           try {
@@ -79,6 +100,7 @@ export function createAutoScanNativeCoordinator({
       .then(() => (active ? runNow() : null))
       .then((snapshot) => {
         if (!active || snapshot === null) return snapshot;
+        onActionError("");
         acceptSnapshot(
           snapshot,
           editRevision === actionEditRevision && committedEditRevision === editRevision,

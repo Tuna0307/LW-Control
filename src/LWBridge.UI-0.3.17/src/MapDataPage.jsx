@@ -365,7 +365,7 @@ export function MapDataPage({
   }, [luckyFirst]);
 
   const emitAutoConfig = useCallback((patch) => {
-    onAutoScanConfig({ ...autoConfigRef.current, ...patch });
+    onAutoScanConfig(patch);
   }, [onAutoScanConfig]);
 
   useEffect(() => {
