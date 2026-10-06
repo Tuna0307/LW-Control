@@ -3334,6 +3334,12 @@ internal sealed class LWBridgeWindow : Form
         JsonElement rejectedStatusDom = await ReadDomAsync("""
             (() => ({ text: document.querySelector('.status-card.status-online strong')?.textContent?.trim() || '', online: document.querySelector('.status-card.status-online')?.classList.contains('online') === true }))()
             """);
+        string deferredStatusTextJson = JsonSerializer.Serialize(
+            deferredStatusDom.GetProperty("text").GetString() ?? string.Empty,
+            JsonOptions.Default);
+        string rejectedStatusTextJson = JsonSerializer.Serialize(
+            rejectedStatusDom.GetProperty("text").GetString() ?? string.Empty,
+            JsonOptions.Default);
         homeMapCampaignConnected = false;
         await RequireUiActionAsync("""
             (() => {
@@ -3343,8 +3349,16 @@ internal sealed class LWBridgeWindow : Form
               return true;
             })()
             """, "Refresh status control for disconnected state");
+        await WaitForRequestsToDrainAsync("disconnected status refresh");
+        string disconnectedStatusPredicate =
+            "(() => { const card = document.querySelector('.status-card.status-online'); " +
+            "const text = card?.querySelector('strong')?.textContent?.trim() || ''; " +
+            "return text.length > 0" +
+            $" && text !== {deferredStatusTextJson}" +
+            $" && text !== {rejectedStatusTextJson}" +
+            " && !card?.classList.contains('online'); })()";
         await WaitForDomAsync(
-            "document.querySelector('.status-card.status-online strong')?.textContent?.trim() !== 'Unavailable' && !document.querySelector('.status-card.status-online')?.classList.contains('online')",
+            disconnectedStatusPredicate,
             "fresh paired status disconnected/stopped state");
         JsonElement disconnectedStatusDom = await ReadDomAsync("""
             (() => ({ text: document.querySelector('.status-card.status-online strong')?.textContent?.trim() || '', online: document.querySelector('.status-card.status-online')?.classList.contains('online') === true }))()
