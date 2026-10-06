@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "proofType": "exact-current-callback-execution-with-controlled-promises",
+  "sourceSha256": "eb7705e647025d100538c8730de2a8768072554a5b1caa3c8a866042f9210c0c",
+  "extractedCallbacksSha256": "16325df6e3b165f931851c06d807176926bcb4ec754f12134a2eaff4464be2d7",
+  "externalActions": 0,
+  "results": [
+    {
+      "case": "older-save-reply-overwrites-newer-edit",
+      "expectedServers": [
+        321
+      ],
+      "actualServers": [],
+      "defectReproduced": true
+    },
+    {
+      "case": "old-status-or-event-loses-new-edit-on-next-save",
+      "expectedInterval": 45,
+      "actualSubmittedInterval": 60,
+      "defectReproduced": true
+    },
+    {
+      "case": "A-failed-save-status-applied-after-selecting-B",
+      "expectedProfileBInterval": 90,
+      "actualInterval": 20,
+      "defectReproduced": true
+    }
+  ]
+}

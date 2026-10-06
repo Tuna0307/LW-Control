@@ -1,0 +1,11 @@
+{
+  "proofType": "actual-auto-service-core-with-inert-execution-boundary",
+  "externalActions": 0,
+  "scenario": "Auto completion, Manual replacement before poll, Auto disable",
+  "stoppedRuns": [
+    "manual-M"
+  ],
+  "expectedManualStopped": false,
+  "defectReproduced": true,
+  "scopeLimit": "Native Map317 completion/lease interleaving confirmed separately by source review"
+}

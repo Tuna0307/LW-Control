@@ -1,5 +1,8 @@
 # Map Data — strict parity status
 
+Current 0.3.17 lead checkpoint, 2026-10-06: recovered-source/local Map UI is accepted; native E-I integration remains **PARTIAL / CHANGES_REQUIRED**. Frozen WIP now has context rehydration, atomic Auto jump/start lease, controlled scheduler loop and expanded canonical workbook tests. Focused checks pass, but Auto cancellation can stop a replacement Manual run; frontend snapshot ordering/native deadline, service/profile/server/DTO and genuine desktop proof remain. Preserve historical browse semantics and unavailable execution fences. Continue FUNCTION-HOME-MAP-CAMPAIGN-001-RECOVERY-001; see the dated lead review. Earlier client/native status entries below are historical, not fresh live campaign validation.
+
+
 **Current through:** `LWB-R8-097`, 2026-09-27.
 
 This page supersedes the former performance-oriented Map status. Map Data is now judged only against the original LWBridge 0.3.1 behavior.

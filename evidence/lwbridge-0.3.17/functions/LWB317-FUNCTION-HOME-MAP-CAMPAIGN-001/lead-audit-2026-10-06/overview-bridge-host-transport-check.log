@@ -1,0 +1,31 @@
+{
+  "ok": true,
+  "finding": "LWB-R7-121",
+  "windowsProof": {
+    "hostListenerStarted": true,
+    "launchRegistrationPreparedAfterListenerStart": true,
+    "authenticated": true,
+    "instanceRouteCall": true,
+    "defaultRouteCall": true,
+    "commandIds": [
+      "cmd_1",
+      "cmd_2",
+      "cmd_3"
+    ],
+    "pendingObserved": 1,
+    "shutdownDrainedPendingWith": "APP_SHUTTING_DOWN",
+    "routeRemovedOnStop": true,
+    "listenerTaskCompleted": true
+  },
+  "recoveredProductionInputs": {
+    "expectedClientPathSource": "\u003CgameRoot\u003E\\Game\\LastWar.exe",
+    "initialCommandCounterSeed": 0,
+    "firstCommandId": "cmd_1"
+  },
+  "boundary": {
+    "lwBridgeWindowStartsTransport": true,
+    "normalOverviewLaunchBindingEnabled": true,
+    "productionPendingExposed": false,
+    "productionCallLuaEnabled": false
+  }
+}

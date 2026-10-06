@@ -1,0 +1,152 @@
+{
+  "capturedAt": "2026-10-06T13:56:23.5958870+08:00",
+  "head": "540bc53d73053bb1eb70d6a09fea851a9e96d625",
+  "remote": "540bc53d73053bb1eb70d6a09fea851a9e96d625\trefs/heads/research/offline-controller",
+  "files": [
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001/compatibility.md",
+      "bytes": 6004,
+      "sha256": "8B197F82A7E3EF69D1957F7CA7F2E109A32A5C9A06897C1AB135CC5B39C2CBA3"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001/coordination.md",
+      "bytes": 4411,
+      "sha256": "38F4553E0781F9654DE935D76E697D44E557F01A23D25D9817F68947AB02261D"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001/home-lane/acceptance.md",
+      "bytes": 8140,
+      "sha256": "1FDC7453E8C0E9500EA574A2FC48DB3368D16673EBF9944BC5F7CFFD7D71FD90"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001/home-lane/recovery-audit.md",
+      "bytes": 11599,
+      "sha256": "45238146A78CE09AE4B1EB44806F1571EE4D955CD650FFF2523B689D08CDFEE6"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001/integration/isolated-desktop-en-light.json",
+      "bytes": 10156,
+      "sha256": "0DFD33967A060A78230F6BA69921B79CBC50E0436D3BC8EC7FE7A76B12D1A0C9"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001/integration/isolated-desktop-en-light.json.error.txt",
+      "bytes": 469,
+      "sha256": "929A31C6EF390BC09BDDD3CB7199E972C7FF06988475BFED6519DD45682ED9E2"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001/integration/isolated-desktop-en-light.png",
+      "bytes": 87144,
+      "sha256": "EB3228F78A8E4531F21B7E62F2AF56BC2566B0FB35EA69575591EC242C5ECC2A"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001/integration/isolated-desktop-ja-dark-narrow.json",
+      "bytes": 10154,
+      "sha256": "6412F87100D7FCC817C05D46F95D73A6C7693648FA57508C03B282D6DD53D31D"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001/integration/isolated-desktop-ja-dark-narrow.png",
+      "bytes": 83605,
+      "sha256": "16FDC05A614C0EE80BFF0CDCE42A7A599FF3AFCB077E2E492EF69BC4BA5B02AB"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001/map-lane/acceptance.md",
+      "bytes": 7154,
+      "sha256": "F3FFC02D8D9DD9758FA9C1E681A95D58BCB7CB2F93619B927B61A1B4A2C37AB3"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001/map-lane/auto-scan.md",
+      "bytes": 10134,
+      "sha256": "33B6C7413B82BE726878E7B1173229E0F79AAF3D0E082173FF47F23BEA480596"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001/map-lane/recovery-audit.md",
+      "bytes": 12407,
+      "sha256": "98B96DE557EA6700FC59D0CC287FD38D0E3F2913E8415515AFBD441320D70512"
+    },
+    {
+      "path": "src/LWBridge.Desktop/LWBridgeBackend.cs",
+      "bytes": 51347,
+      "sha256": "DB7E86B7D7105A1EA0DBF1669FEF12A22D8F67F9351192A51F4AD92CC4B2ECD7"
+    },
+    {
+      "path": "src/LWBridge.Desktop/LWBridgeWindow.cs",
+      "bytes": 179160,
+      "sha256": "9A88ED527FA7C3BC24F00F84518A407471E624D9F239D26FF02C824728F2AE3F"
+    },
+    {
+      "path": "src/LWBridge.Desktop/Map317CommandService.cs",
+      "bytes": 30850,
+      "sha256": "A7437D440C0E0E4CD3C58717531935712C527DDD86512E5301F55C75ACBD5169"
+    },
+    {
+      "path": "src/LWBridge.Desktop/MapAutoScanCommandService.cs",
+      "bytes": 30941,
+      "sha256": "9C41208D927C5F3E2DBEA90D5AA0AA0671F259543EF4852AD1674B768C911B62"
+    },
+    {
+      "path": "src/LWBridge.Desktop/Program.cs",
+      "bytes": 8204,
+      "sha256": "7528D35320703D78C4956242204235E33DBD11F1E2F284E43A9FA9F1375A089C"
+    },
+    {
+      "path": "src/LWBridge.Map-0.3.17/MapControlPlane.cs",
+      "bytes": 7966,
+      "sha256": "9FE7F25FEE7C5F28B0015DE3D0FAE5ACF1E305ED40532BB783EA41E1C1226A7B"
+    },
+    {
+      "path": "src/LWBridge.Map-0.3.17/MapScanStateMachine.cs",
+      "bytes": 21319,
+      "sha256": "3699CF0F6C4F075B872D15AC84EE37218C27CA5D3213BE430CA641D1BAD46D90"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/scripts/check-map-integration.mjs",
+      "bytes": 24260,
+      "sha256": "F29089BD0E5F72DAD410B40FDC2CAB035A34C6F3434576D5290E99E81DCD8E6D"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/scripts/production-build-identity.mjs",
+      "bytes": 2208,
+      "sha256": "D7B11035A6358A5F1336F74091E688424D69C4DC2E55480C807391ED6228DA0D"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/App.jsx",
+      "bytes": 46093,
+      "sha256": "EB7705E647025D100538C8730DE2A8768072554A5B1CAA3C8A866042F9210C0C"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/mapBackend.js",
+      "bytes": 16955,
+      "sha256": "A6888FDF4A515A06278BB4C2212764CCAB91CA6ACBEC401F2806E42719626476"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+      "bytes": 61594,
+      "sha256": "4078443088D6F7D01EA2F94EF2213A9D0785C0A2195EAF8C99FC89EFD264A9BD"
+    },
+    {
+      "path": "tests/LWBridge.Desktop.Checks/GameRootSelectChecks.cs",
+      "bytes": 19998,
+      "sha256": "203B4CBC54E0B1A9DED56DAF05F0E3315232FE2D66CC39C1BFEBBACC32717F2C"
+    },
+    {
+      "path": "tests/LWBridge.Desktop.Checks/HomeCampaignLifecycleChecks.cs",
+      "bytes": 38251,
+      "sha256": "43204FBD7314B65D78376D97FC8A7EE7C6FB5657819526E26C1767EB2FA6B2BB"
+    },
+    {
+      "path": "tests/LWBridge.Desktop.Checks/MapAutoScanCommandServiceChecks.cs",
+      "bytes": 36445,
+      "sha256": "0B60BCD96DE0847D0D54DB7072AEB62316D7D928F15044E2DF2380B40ADA1794"
+    },
+    {
+      "path": "tests/LWBridge.Desktop.Checks/MapCampaignCanonicalChecks.cs",
+      "bytes": 50607,
+      "sha256": "9901CBA026651ABE8AE47014E3EA99EE395E9EDB7D07B3F7BF7ECB85BE850C55"
+    },
+    {
+      "path": "tests/LWBridge.Desktop.Checks/Program.cs",
+      "bytes": 430828,
+      "sha256": "C6644B91C163EB108A78B78740A105536E8CAAF43253EF1D7D7DFD034AD8747A"
+    }
+  ]
+}

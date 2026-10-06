@@ -1,5 +1,8 @@
 # LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001
 
+Current lead disposition, 2026-10-06: **PARTIAL / CHANGES_REQUIRED** after interrupted-worker audit at `540bc53d` plus 29 preserved WIP files. The assignment scope below remains authoritative; its original ASSIGNED state is historical. Continue the ordered corrections and remaining gates in `LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001-RECOVERY-001.md`, with the dated campaign LEAD review and frozen lead-audit packet. Do not restart old defects corrected in WIP or treat passing focused checks as complete campaign acceptance. No live execution boundary is expanded.
+
+
 Project-lead assignment, 2026-10-06. Status: **ASSIGNED**.
 Owner requested one substantial feature implementation campaign while unavailable,
 prioritizing Home and Map, with automatic continuation between useful milestones.

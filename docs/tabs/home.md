@@ -1,5 +1,8 @@
 # Home / Overview — strict parity status
 
+Current 0.3.17 lead checkpoint, 2026-10-06: recovered-source/local Home UI is accepted; native Home B/C/D feature integration is **PARTIAL / CHANGES_REQUIRED**. Lifecycle connections and same-host picker/pipe fixes pass focused offline checks. Fresh-host exact-root selection, real profile-owner replacement, status failure availability and mounted native preference/lifetime/restart proof remain. Continue FUNCTION-HOME-MAP-CAMPAIGN-001-RECOVERY-001 and read its dated lead review. Older v21/0.3.1/native-status entries below are historical, not current 0.3.17 proof. No live launch/update was performed in the audit.
+
+
 **Current through:** `LWB-R8-097`, 2026-09-27.
 
 R8-065 proved that the equivalent reconstructed Home lifecycle can operate against the installed current-v21 game. Under the R8-097 owner rule, Home is nevertheless **NOT WORKING** because the recovered original LWBridge lifecycle is not yet the production path. The old live proof remains evidence only.

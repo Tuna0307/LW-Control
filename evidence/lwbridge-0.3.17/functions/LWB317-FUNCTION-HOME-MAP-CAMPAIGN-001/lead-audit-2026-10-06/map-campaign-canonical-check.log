@@ -1,0 +1,48 @@
+{
+  "ok": true,
+  "check": "map-campaign-canonical",
+  "mapData": {
+    "profileIsolation": true,
+    "stagedEightKindPublish": true,
+    "persistedReopen": true,
+    "queryFilterSortPage": true,
+    "options": true,
+    "playerMarks": true,
+    "freshProcessServerRehydration": true,
+    "freshProcessClear": true
+  },
+  "cityExport": {
+    "actualXlsxPath": true,
+    "zipPartsVerified": true,
+    "representativeValuesVerified": true,
+    "multiPage205Rows": true,
+    "unicodeAndLargeUid": true,
+    "missingFields": true,
+    "secondServerIsolation": true,
+    "emptyExport": true,
+    "writeFailure": true,
+    "dialogCancellationExecuted": false,
+    "dialogCancellationGap": "native save-dialog cancellation is owned above Map317 MapExporter"
+  },
+  "plunder": {
+    "scheduledDuplicateAdmission": true,
+    "runningDuplicateRejected": true,
+    "durableRestart": true,
+    "restartReconciled": true,
+    "retry": true,
+    "cancel": true,
+    "clear": true,
+    "providerMode": "inert-local",
+    "externalProviderCalls": 0
+  },
+  "treasure": {
+    "cachedStateOverlay": true,
+    "seasonSupplyList": true,
+    "claimOrStatusExecuted": false
+  },
+  "blockers": {
+    "treasureClaimStatus": "requires the protected/current-client action provider and is not executed here",
+    "ghostExecution": "Ghost plunder preparation requires IMapActionProvider.PrepareGhostPlunderTasksAsync and is not executed here",
+    "nativeDialogCancel": "save-dialog cancellation belongs to the Desktop window host above Map317 exporter"
+  }
+}
