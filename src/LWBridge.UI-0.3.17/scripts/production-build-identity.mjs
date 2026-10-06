@@ -15,18 +15,22 @@ const sourceInputs = [
   "src",
 ];
 
+function ordinalCompare(left, right) {
+  return left < right ? -1 : left > right ? 1 : 0;
+}
+
 function listFiles(root, inputs) {
   const files = [];
   function visit(fullPath) {
     const stat = fs.statSync(fullPath);
     if (stat.isDirectory()) {
-      for (const entry of fs.readdirSync(fullPath).sort()) visit(path.join(fullPath, entry));
+      for (const entry of fs.readdirSync(fullPath).sort(ordinalCompare)) visit(path.join(fullPath, entry));
       return;
     }
     files.push(fullPath);
   }
   for (const input of inputs) visit(path.join(root, input));
-  return files.sort((left, right) => left.localeCompare(right));
+  return files.sort(ordinalCompare);
 }
 
 function fingerprint(root, files) {

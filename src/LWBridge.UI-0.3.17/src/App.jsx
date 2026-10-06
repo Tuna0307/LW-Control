@@ -24,6 +24,7 @@ import { PageForRoute, preloadRoute } from "./Pages.jsx";
 import { initialRouteKey, routes } from "./routes.js";
 import { readAutoLaunchGamePreference, writeAutoLaunchGamePreference } from "./autoLaunchPreference.js";
 import { createAutomationFlagAdapter, createProfileConfigDraftRegistry } from "./profileConfigDraft.js";
+import { createAutoScanNativeCoordinator } from "./autoScanNativeCoordinator.js";
 
 const THEME_KEY = "lwbridge.theme";
 const LEGACY_SERVER_HISTORY_KEY = "lastwar.serverJumpHistory";
@@ -79,7 +80,8 @@ function initialAutoScanConfig(profileId, previewState) {
       nextRunAt: 1_893_456_000_000,
     });
   }
-  return loadAutoScanConfig(profileId, window.localStorage);
+  if (backendBridge.mode === "preview") return loadAutoScanConfig(profileId, window.localStorage);
+  return normalizeAutoScanConfig(null);
 }
 
 function RetainedPages({ activeRoute, visitedRoutes, selectedProfileId, pageProps, pagePropsByRoute }) {
@@ -170,10 +172,13 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
   const [connectionError, setConnectionError] = useState("");
   const [autoScanConfig, setAutoScanConfig] = useState(() => initialAutoScanConfig(selectedProfileId, previewState));
   const [autoScanRunning, setAutoScanRunning] = useState(() => previewState === "map-auto-running");
+  const [autoScanError, setAutoScanError] = useState("");
+  const [autoScanSaveError, setAutoScanSaveError] = useState("");
   const mapReadingRef = useRef(false);
   const mapRuntimeRef = useRef({ ...DEFAULT_SCAN_STATE });
   const mapSummaryGeneration = useRef(0);
   const autoScanConfigRef = useRef(autoScanConfig);
+  const autoScanCoordinatorRef = useRef(null);
   const serverJumpRef = useRef(null);
   const serverHistoryRef = useRef([]);
   const autoLaunchCommittedRef = useRef(autoLaunchGame);
@@ -282,18 +287,65 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
     if (typeof closePopup === "boolean") setAutoClosePopupIncoming(closePopup);
   }, [selectedProfileId]);
 
+  const applyAutoScanConfigSnapshot = useCallback((snapshot) => {
+    const next = normalizeAutoScanConfig(snapshot?.config);
+    autoScanConfigRef.current = next;
+    setAutoScanConfig(next);
+  }, []);
+
+  const applyAutoScanRuntimeSnapshot = useCallback((snapshot) => {
+    setAutoScanRunning(snapshot?.running === true);
+    setAutoScanError(typeof snapshot?.lastError === "string" ? snapshot.lastError : "");
+  }, []);
+
   useLayoutEffect(() => {
+    autoScanCoordinatorRef.current?.retire();
     const next = initialAutoScanConfig(selectedProfileId, previewState);
     autoScanConfigRef.current = next;
     setAutoScanConfig(next);
-  }, [selectedProfileId]);
+    setAutoScanRunning(previewState === "map-auto-running");
+    setAutoScanError("");
+    setAutoScanSaveError("");
+
+    if (!backendBridge.available || backendBridge.mode === "preview" || !selectedProfileId) {
+      autoScanCoordinatorRef.current = null;
+      return undefined;
+    }
+
+    const coordinator = createAutoScanNativeCoordinator({
+      saveConfig: (config) => mapApi.updateAutoScanConfig(config),
+      readStatus: () => mapApi.autoScanStatus(),
+      runNow: () => mapApi.runAutoScanNow(),
+      onConfigSnapshot: applyAutoScanConfigSnapshot,
+      onRuntimeSnapshot: applyAutoScanRuntimeSnapshot,
+      onWriteError: setAutoScanSaveError,
+      onActionError: setAutoScanError,
+    });
+    autoScanCoordinatorRef.current = coordinator;
+    return () => {
+      coordinator.retire();
+      if (autoScanCoordinatorRef.current === coordinator) autoScanCoordinatorRef.current = null;
+    };
+  }, [applyAutoScanConfigSnapshot, applyAutoScanRuntimeSnapshot, selectedProfileId]);
 
   const updateAutoScanConfig = useCallback((candidate) => {
     const next = applyAutoScanConfigEdit(autoScanConfigRef.current, candidate, Date.now());
     autoScanConfigRef.current = next;
     setAutoScanConfig(next);
-    saveAutoScanConfig(selectedProfileId, next, window.localStorage);
+    if (backendBridge.mode === "preview") {
+      saveAutoScanConfig(selectedProfileId, next, window.localStorage);
+      return;
+    }
+    autoScanCoordinatorRef.current?.save(next);
   }, [selectedProfileId]);
+
+  const runAutoScanNow = useCallback(() => {
+    if (backendBridge.mode === "preview") {
+      updateAutoScanConfig({ ...autoScanConfigRef.current, nextRunAt: Date.now() });
+      return;
+    }
+    autoScanCoordinatorRef.current?.run();
+  }, [selectedProfileId, updateAutoScanConfig]);
 
   useEffect(() => {
     if (backendBridge.mode !== "preview") return;
@@ -504,6 +556,23 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
       unsubscribeScan();
     };
   }, [acknowledgeMapScan, acknowledgeRuntimeStatus, readStatusSnapshot, selectedProfileId]);
+
+  useEffect(() => {
+    if (!backendBridge.available || backendBridge.mode === "preview" || !selectedProfileId) return undefined;
+    let closed = false;
+    const profileId = selectedProfileId;
+    const acknowledge = (snapshot) => {
+      if (!closed && selectedProfileIdRef.current === profileId) autoScanCoordinatorRef.current?.receive(snapshot);
+    };
+    const unsubscribe = mapApi.listenAutoScanChanged(acknowledge);
+    mapApi.autoScanStatus().then(acknowledge).catch((error) => {
+      if (!closed && selectedProfileIdRef.current === profileId) setAutoScanError(error?.message || String(error));
+    });
+    return () => {
+      closed = true;
+      unsubscribe();
+    };
+  }, [selectedProfileId]);
 
   useEffect(() => {
     if (!backendBridge.available || !selectedProfileId) return undefined;
@@ -782,8 +851,9 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
     onCounts: acknowledgeMapCounts,
     autoScanConfig,
     autoScanRunning,
+    autoScanError: autoScanSaveError || autoScanError,
     onAutoScanConfig: updateAutoScanConfig,
-    onAutoScanRunningChange: setAutoScanRunning,
+    onAutoScanRunNow: runAutoScanNow,
     previewState,
     showProfileFocus: showProfiles,
     focusGameOnProfileSelect,

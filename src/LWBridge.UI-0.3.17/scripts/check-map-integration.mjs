@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import { createBackendBridge } from "../src/backendBridge.js";
+import { createAutoScanNativeCoordinator } from "../src/autoScanNativeCoordinator.js";
 import { getMapPreviewProvider } from "../src/mapPreviewApi.js";
 import {
   MAP_COMMANDS,
@@ -31,6 +32,7 @@ assert.deepEqual(
 const mapPageSource = fs.readFileSync(new URL("../src/MapDataPage.jsx", import.meta.url), "utf8");
 const appSource = fs.readFileSync(new URL("../src/App.jsx", import.meta.url), "utf8");
 const autoConfigSource = fs.readFileSync(new URL("../src/mapAutoConfig.js", import.meta.url), "utf8");
+const autoServiceSource = fs.readFileSync(new URL("../../LWBridge.Desktop/MapAutoScanCommandService.cs", import.meta.url), "utf8");
 assert.match(mapPageSource, /mapApi\.listenPlayerMarkChanged\(\(\) => setSearchRevision\(\(value\) => value \+ 1\)\)/,
   "canonical Map page must converge external profile-scoped player-mark changes into the active query");
 assert.match(mapPageSource, /const scheduleProvider = tab === "dispatch" && providerSupports\(mapApi, SCHEDULING_PROVIDER_METHODS\.dispatch\)/,
@@ -50,21 +52,31 @@ for (const unsupportedKey of ["selectedTypes", "browseServer", "resultTab", "sca
     `canonical Map UI must not invent recovered persistence for ${unsupportedKey}`);
 }
 assert.match(autoConfigSource, /`lwbridge\.mapAutoScan\.\$\{profileId\}`/,
-  "canonical Auto Scan must use the exact recovered selected-profile local-storage key");
+  "preview/recovery Auto Scan helper must retain the exact recovered selected-profile local-storage key");
 assert.doesNotMatch(autoConfigSource, /mapAutoScan[^\n]*\|\|\s*["']default["']/,
   "canonical Auto Scan must not invent a default profile suffix");
 assert.match(appSource, /useLayoutEffect\(\(\) => \{[\s\S]*initialAutoScanConfig\(selectedProfileId, previewState\)[\s\S]*autoScanConfigRef\.current = next[\s\S]*setAutoScanConfig\(next\)[\s\S]*\}, \[selectedProfileId\]\)/,
   "canonical App must synchronously load the selected profile before later effects can persist anything");
-assert.match(appSource, /applyAutoScanConfigEdit\(autoScanConfigRef\.current, candidate, Date\.now\(\)\)[\s\S]*saveAutoScanConfig\(selectedProfileId, next, window\.localStorage\)/,
-  "canonical App must normalize and save user edits at one profile-aware boundary");
+assert.match(appSource, /backendBridge\.mode === "preview"[\s\S]*saveAutoScanConfig\(selectedProfileId, next, window\.localStorage\)[\s\S]*autoScanCoordinatorRef\.current\?\.save\(next\)/,
+  "production Auto Scan persistence must be serialized through the native coordinator while browser localStorage stays preview-only");
+assert.match(appSource, /createAutoScanNativeCoordinator\([\s\S]*saveConfig:\s*\(config\)\s*=>\s*mapApi\.updateAutoScanConfig\(config\)/,
+  "native Auto Scan coordinator must own production config writes");
+assert.match(appSource, /mapApi\.listenAutoScanChanged\(acknowledge\)[\s\S]*mapApi\.autoScanStatus\(\)/,
+  "canonical App must hydrate and converge native Auto Scan state through the profile-scoped bridge");
+assert.match(mapPageSource, /onClick=\{onAutoScanRunNow\}/,
+  "Run Auto Scan Now must dispatch to the native scheduler rather than editing a browser deadline");
+assert.doesNotMatch(mapPageSource, /runAutoCycle|window\.setInterval\(tick, 5000\)|2_700_000/,
+  "canonical Map page must not retain a second browser Auto Scan scheduler after native ownership moves host-side");
 assert.match(autoConfigSource, /"truck",\s*\n\s*"railway",\s*\n\s*"dispatch",\s*\n\s*"ghost",\s*\n\s*"treasure"/,
   "canonical Auto Scan must preserve recovered default selected types");
 assert.match(autoConfigSource, /Math\.min\([\s\S]*1440[\s\S]*Math\.max\(20, Math\.trunc\(Number\(/,
   "canonical Auto Scan must preserve the recovered truncating 20..1440 interval clamp");
-assert.match(mapPageSource, /window\.setInterval\(tick, 5000\)/,
-  "canonical Auto Scan scheduler must preserve the recovered five-second due check");
-assert.match(mapPageSource, /2_700_000/,
-  "canonical Auto Scan must preserve the recovered 45-minute scan timeout");
+assert.match(autoServiceSource, /DueTickMilliseconds = 5_000/,
+  "native Auto Scan scheduler must preserve the recovered five-second due check");
+assert.match(autoServiceSource, /ScanPollMilliseconds = 2_000/,
+  "native Auto Scan scheduler must preserve the recovered two-second scan polling interval");
+assert.match(autoServiceSource, /ScanTimeoutMilliseconds = 2_700_000/,
+  "native Auto Scan scheduler must preserve the recovered 45-minute scan timeout");
 assert.deepEqual(
   MAP_SCAN_TYPES.map(({ label }) => label),
   ["Player City", "Resource Point", "Monster", "Truck", "Train", "Secret Task", "Ghost Ops", "Treasure"],
@@ -156,6 +168,161 @@ assert.equal(connectionState({}, { gameRunning: true }, "native"), "checking");
 assert.equal(connectionState({ xluaOnline: false }, { gameRunning: true }, "native"), "disconnected");
 assert.equal(connectionState({ xluaOnline: true }, { gameRunning: true }, "native"), "connected");
 
+function deferred() {
+  let resolve;
+  let reject;
+  const promise = new Promise((res, rej) => { resolve = res; reject = rej; });
+  return { promise, resolve, reject };
+}
+
+{
+  const first = deferred();
+  const second = deferred();
+  const third = deferred();
+  const fourth = deferred();
+  const saveDeferred = [first, second, third, fourth];
+  const saveCalls = [];
+  const configSnapshots = [];
+  const runtimeSnapshots = [];
+  const writeErrors = [];
+  let statusSnapshot = { revision: 0, config: { enabled: false }, running: false, lastError: null };
+  const coordinator = createAutoScanNativeCoordinator({
+    saveConfig: (config) => {
+      saveCalls.push(config);
+      return saveDeferred[saveCalls.length - 1].promise;
+    },
+    readStatus: async () => statusSnapshot,
+    runNow: async () => ({ revision: 99, config: { enabled: true }, running: true, lastError: null }),
+    onConfigSnapshot: (snapshot) => configSnapshots.push(snapshot),
+    onRuntimeSnapshot: (snapshot) => runtimeSnapshots.push(snapshot),
+    onWriteError: (error) => writeErrors.push(error),
+    onActionError: () => {},
+  });
+
+  const saveOne = coordinator.save({ marker: "C1", enabled: true });
+  const saveTwo = coordinator.save({ marker: "C2", enabled: false });
+  await Promise.resolve();
+  await Promise.resolve();
+  assert.deepEqual(saveCalls.map(({ marker }) => marker), ["C1"],
+    "Auto config saves must be FIFO even when the host could otherwise resolve Task.Run calls out of order");
+
+  coordinator.receive({ revision: 0, config: { marker: "hydrate-old" }, running: false, lastError: null });
+  assert.equal(configSnapshots.length, 0,
+    "hydration/event snapshots must not replace an immediate editable config while a native write is pending");
+  first.resolve({ revision: 1, config: { marker: "C1" }, running: false, lastError: null });
+  await saveOne;
+  await Promise.resolve();
+  assert.deepEqual(saveCalls.map(({ marker }) => marker), ["C1", "C2"],
+    "second Auto save must start only after the first native save settles");
+  assert.equal(configSnapshots.length, 0,
+    "C1 acknowledgement must not replace newer C2 intent");
+
+  second.resolve({ revision: 2, config: { marker: "C2" }, running: false, lastError: null });
+  await saveTwo;
+  assert.equal(configSnapshots.at(-1)?.config?.marker, "C2",
+    "latest Auto acknowledgement must converge editable config after its own write commits");
+  assert.equal(writeErrors.at(-1), "", "successful latest Auto save clears only the write-error channel");
+  assert.equal(coordinator.receive({ revision: 1, config: { marker: "late-C1" }, running: true, lastError: "old" }), false,
+    "older native revision must be ignored after a newer Auto snapshot is observed");
+  assert.equal(configSnapshots.at(-1)?.config?.marker, "C2",
+    "late older native event must not overwrite committed newer Auto config");
+
+  const saveThree = coordinator.save({ marker: "C3", enabled: true });
+  await Promise.resolve();
+  await Promise.resolve();
+  coordinator.receive({ revision: 3, config: { marker: "native-before-C3" }, running: false, lastError: null });
+  assert.equal(configSnapshots.at(-1)?.config?.marker, "C2",
+    "runtime/status convergence must preserve newer unsaved C3 intent");
+  third.reject(new Error("disk full"));
+  await saveThree;
+  assert.equal(writeErrors.at(-1), "disk full",
+    "native persistence failure must remain independently visible");
+  assert.equal(configSnapshots.at(-1)?.config?.marker, "C2",
+    "failed write must not cause a later status snapshot to erase the user's newer intent");
+
+  statusSnapshot = { revision: 4, config: { marker: "C4" }, running: false, lastError: null };
+  const saveFour = coordinator.save({ marker: "C4", enabled: true });
+  await Promise.resolve();
+  await Promise.resolve();
+  fourth.resolve(statusSnapshot);
+  await saveFour;
+  assert.equal(configSnapshots.at(-1)?.config?.marker, "C4",
+    "a later successful full save must recover from a persistence failure using the newer intent");
+  assert.equal(writeErrors.at(-1), "", "later successful save clears the prior write failure");
+  assert.ok(runtimeSnapshots.length >= 4, "runtime snapshots must continue converging independently from config-write state");
+  coordinator.retire();
+}
+
+{
+  const initialSave = deferred();
+  const run = deferred();
+  const laterSave = deferred();
+  const calls = [];
+  const configSnapshots = [];
+  const coordinator = createAutoScanNativeCoordinator({
+    saveConfig: (config) => {
+      calls.push(`save:${config.marker}`);
+      return calls.filter((entry) => entry.startsWith("save:")).length === 1
+        ? initialSave.promise
+        : laterSave.promise;
+    },
+    readStatus: async () => ({ revision: 9, config: { marker: "status" }, running: false, lastError: null }),
+    runNow: () => { calls.push("run"); return run.promise; },
+    onConfigSnapshot: (snapshot) => configSnapshots.push(snapshot),
+    onRuntimeSnapshot: () => {},
+    onWriteError: () => {},
+    onActionError: () => {},
+  });
+  const firstSave = coordinator.save({ marker: "before-run" });
+  await Promise.resolve();
+  initialSave.resolve({ revision: 1, config: { marker: "before-run" }, running: false, lastError: null });
+  await firstSave;
+  const runPromise = coordinator.run();
+  const newerSave = coordinator.save({ marker: "after-run" });
+  await Promise.resolve();
+  await Promise.resolve();
+  assert.deepEqual(calls, ["save:before-run", "run"],
+    "Run Now must share the ordered native Auto command chain");
+  run.resolve({ revision: 2, config: { marker: "run-snapshot" }, running: true, lastError: null });
+  await runPromise;
+  await Promise.resolve();
+  assert.deepEqual(calls, ["save:before-run", "run", "save:after-run"],
+    "newer config edit must run after an already-requested Run Now while remaining immediately editable in UI");
+  assert.notEqual(configSnapshots.at(-1)?.config?.marker, "run-snapshot",
+    "Run Now response must not overwrite config edited after the action was requested");
+  laterSave.resolve({ revision: 3, config: { marker: "after-run" }, running: false, lastError: null });
+  await newerSave;
+  assert.equal(configSnapshots.at(-1)?.config?.marker, "after-run",
+    "newer config acknowledgement must win after pending Run Now");
+  coordinator.retire();
+}
+
+{
+  const first = deferred();
+  const second = deferred();
+  let calls = 0;
+  let callbacks = 0;
+  const coordinator = createAutoScanNativeCoordinator({
+    saveConfig: () => (++calls === 1 ? first.promise : second.promise),
+    readStatus: async () => null,
+    runNow: async () => null,
+    onConfigSnapshot: () => { callbacks += 1; },
+    onRuntimeSnapshot: () => { callbacks += 1; },
+    onWriteError: () => { callbacks += 1; },
+    onActionError: () => { callbacks += 1; },
+  });
+  const firstSave = coordinator.save({ marker: "owner-A1" });
+  const queuedSave = coordinator.save({ marker: "owner-A2" });
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  assert.equal(calls, 1, "retirement proof must begin with one already in-flight owner-A native save");
+  coordinator.retire();
+  first.resolve({ revision: 1, config: { marker: "owner-A1" }, running: false, lastError: null });
+  await firstSave;
+  await queuedSave;
+  assert.equal(calls, 1, "retired Auto owner must reject queued stale side effects before native invocation");
+  assert.equal(callbacks, 0, "retired Auto owner must ignore late replies/events from its document/profile lifetime");
+}
+
 const calls = [];
 const listeners = new Map();
 const fakeBridge = {
@@ -186,6 +353,14 @@ listeners.get("bridge://player-mark-changed")({ profileId: "profile-test", paylo
 assert.deepEqual(markEvent, { marked: true }, "selected-profile mark event must be unwrapped");
 offMark();
 assert.equal(listeners.has("bridge://player-mark-changed"), false);
+let autoEvent = null;
+const offAuto = api.listenAutoScanChanged((event) => { autoEvent = event; });
+assert.equal(typeof listeners.get("bridge://local-map-auto-scan-changed"), "function");
+listeners.get("bridge://local-map-auto-scan-changed")({ profileId: "profile-other", payload: { running: true } });
+assert.equal(autoEvent, null, "foreign-profile Auto Scan event must be ignored");
+listeners.get("bridge://local-map-auto-scan-changed")({ profileId: "profile-test", payload: { running: true } });
+assert.deepEqual(autoEvent, { running: true }, "selected-profile Auto Scan event must be unwrapped");
+offAuto();
 await api.start(["resource"], "fast");
 await api.stop();
 await api.clear(7);
@@ -211,6 +386,10 @@ await api.clearDispatchPlunderHistory(1234, "dispatch");
 await api.scheduleTruckPlunder([{ uuid: "truck-1", protectTime: 2_000 }]);
 await api.cancelTruckPlunder(7, "truck-1");
 await api.clearTruckPlunderHistory(1234);
+await api.autoScanStatus();
+await api.updateAutoScanConfig({ enabled: true, intervalMinutes: 60, serverIds: [7], selectedTypes: ["truck"], scanMode: "fast", returnToOriginalServer: true, nextRunAt: 1 });
+await api.runAutoScanNow();
+await api.cancelAutoScan();
 assert.deepEqual(calls.map(({ command }) => command), [
   "map_scan_start", "map_scan_stop", "map_scan_clear", "map_scan_status", "map_summary", "map_data_options", "map_search",
   "server_jump", "server_jump_history_import", "server_jump_history_set",
@@ -219,6 +398,7 @@ assert.deepEqual(calls.map(({ command }) => command), [
   "map_dispatch_share_alliance", "map_plunder_jobs_list",
   "map_dispatch_plunder_schedule", "map_dispatch_plunder_cancel", "map_dispatch_plunder_clear",
   "map_truck_plunder_schedule", "map_truck_plunder_cancel", "map_truck_plunder_clear",
+  "local_map_auto_scan_status", "local_map_auto_scan_config_set", "local_map_auto_scan_run_now", "local_map_auto_scan_cancel",
 ]);
 assert.deepEqual(calls[0].payload, { selectedTypes: ["resource"], scanMode: "fast", profileId: "profile-test" });
 assert.deepEqual(calls[1].payload, { profileId: "profile-test" });
@@ -244,6 +424,11 @@ assert.deepEqual(calls[16].payload, {
 });
 assert.equal(calls[19].payload.rows[0].randomDelaySeconds, 0);
 assert.equal(calls[22].payload.rows[0].executeAt >= 2_000, true);
+assert.deepEqual(calls[25].payload, { profileId: "profile-test" });
+assert.equal(calls[26].payload.profileId, "profile-test");
+assert.equal(calls[26].payload.config.enabled, true);
+assert.deepEqual(calls[27].payload, { profileId: "profile-test" });
+assert.deepEqual(calls[28].payload, { profileId: "profile-test" });
 
 const expectedFailure = Object.assign(new Error("query failed"), { code: "MAP_QUERY_FAILED", details: { field: "resourceNameKey" } });
 const failingApi = createMapApi({

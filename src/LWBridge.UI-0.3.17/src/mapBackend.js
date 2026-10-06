@@ -26,6 +26,10 @@ export const MAP_COMMANDS = Object.freeze({
   truckPlunderSchedule: "map_truck_plunder_schedule",
   truckPlunderCancel: "map_truck_plunder_cancel",
   truckPlunderClear: "map_truck_plunder_clear",
+  localAutoScanStatus: "local_map_auto_scan_status",
+  localAutoScanConfigSet: "local_map_auto_scan_config_set",
+  localAutoScanRunNow: "local_map_auto_scan_run_now",
+  localAutoScanCancel: "local_map_auto_scan_cancel",
 });
 
 export const MAP_SCAN_TYPES = Object.freeze([
@@ -356,6 +360,17 @@ export function createMapApi(bridge) {
       MAP_COMMANDS.truckPlunderClear,
       scoped({ before }),
     ),
+    autoScanStatus: () => bridge.invoke(MAP_COMMANDS.localAutoScanStatus, scoped()),
+    updateAutoScanConfig: (config) => bridge.invoke(
+      MAP_COMMANDS.localAutoScanConfigSet,
+      scoped({ config }),
+    ),
+    runAutoScanNow: () => bridge.invoke(MAP_COMMANDS.localAutoScanRunNow, scoped()),
+    cancelAutoScan: () => bridge.invoke(MAP_COMMANDS.localAutoScanCancel, scoped()),
+    listenAutoScanChanged: (callback) => bridge.listen("bridge://local-map-auto-scan-changed", (event) => {
+      const payload = unwrapProfileEvent(event, profileId);
+      if (payload !== null) callback(payload);
+    }),
     listenPlunderJobsChanged: (callback) => {
       const offDispatch = bridge.listen("bridge://dispatch-plunder-changed", (event) => {
         const payload = unwrapProfileEvent(event, profileId);

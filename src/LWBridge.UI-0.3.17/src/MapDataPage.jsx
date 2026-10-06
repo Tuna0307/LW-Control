@@ -14,10 +14,7 @@ import {
 } from "./mapBackend.js";
 import {
   DEFAULT_AUTO_SCAN_CONFIG,
-  advanceAutoScanDeadline,
   appendAutoServerIds,
-  autoScanShouldRun,
-  autoScanTargetServers,
   formatAutoScanDate,
   parseAutoServerIds,
   removeAutoServerId,
@@ -255,8 +252,9 @@ export function MapDataPage({
   onCounts = null,
   autoScanConfig = DEFAULT_AUTO_SCAN_CONFIG,
   autoScanRunning = false,
+  autoScanError = "",
   onAutoScanConfig = () => {},
-  onAutoScanRunningChange = () => {},
+  onAutoScanRunNow = () => {},
   previewState = "",
   gameTexts = EMPTY_GAME_TEXTS,
   previewJumpingKeys = null,
@@ -840,56 +838,6 @@ export function MapDataPage({
     finally { setExporting(false); }
   }
 
-  async function runAutoCycle() {
-    if (autoRunning || scanState.isReading || !online) return;
-    onAutoScanRunningChange(true);
-    setScanError("");
-    let originalServerId = 0;
-    try {
-      const admissionState = await mapApi.scanStatus();
-      originalServerId = admissionState.serverId;
-      if (!originalServerId) throw new Error("Current server is unavailable");
-      const targets = autoScanTargetServers(autoConfig.serverIds, originalServerId);
-      for (const serverId of targets) {
-        await mapApi.jumpServer(serverId);
-        await mapApi.start(autoConfig.selectedTypes, autoConfig.scanMode);
-        const deadline = Date.now() + 2_700_000;
-        for (;;) {
-          await new Promise((resolve) => window.setTimeout(resolve, 2000));
-          if (Date.now() >= deadline) {
-            await mapApi.stop();
-            throw new Error("Auto scan timed out after 45 minutes");
-          }
-          const state = await mapApi.scanStatus();
-          setScanState(state);
-          setScanStateAvailable(true);
-          if (!state.isReading) {
-            if (state.lastError) setScanError(state.lastError);
-            break;
-          }
-        }
-        if (!autoConfigRef.current.enabled) break;
-      }
-    } catch (error) {
-      setScanError(errorText(error));
-    } finally {
-      if (autoConfig.returnToOriginalServer && originalServerId > 0) {
-        try { await mapApi.jumpServer(originalServerId); } catch {}
-      }
-      onAutoScanConfig(advanceAutoScanDeadline(autoConfigRef.current, Date.now()));
-      onAutoScanRunningChange(false);
-      await refreshSummary();
-    }
-  }
-
-  useEffect(() => {
-    if (!autoConfig.enabled || !online || scanState.isReading || autoRunning) return undefined;
-    const tick = () => { if (autoScanShouldRun(autoConfigRef.current, Date.now(), online, autoRunning, scanState.isReading)) runAutoCycle(); };
-    tick();
-    const timer = window.setInterval(tick, 5000);
-    return () => window.clearInterval(timer);
-  }, [autoConfig.enabled, autoConfig.nextRunAt, autoRunning, currentServerId, online, scanState.isReading]);
-
   function addAutoServers() {
     if (parseAutoServerIds(autoServerInput).length === 0) return;
     emitAutoConfig({ serverIds: appendAutoServerIds(autoConfig.serverIds, autoServerInput) });
@@ -1105,7 +1053,7 @@ export function MapDataPage({
           </div>
           <div className="map-auto-scan-options">
             <label><input type="checkbox" checked={autoConfig.returnToOriginalServer} onChange={(event) => emitAutoConfig({ returnToOriginalServer: event.target.checked })} />{t("map.returnAfterAutoScan")}</label>
-            <button type="button" className="primary" disabled={!online || !autoConfig.enabled || autoRunning || scanState.isReading} onClick={() => emitAutoConfig({ nextRunAt: Date.now() })}>{t("map.runAutoScanNow")}</button>
+            <button type="button" className="primary" disabled={!online || !autoConfig.enabled || autoRunning || scanState.isReading} onClick={onAutoScanRunNow}>{t("map.runAutoScanNow")}</button>
           </div>
           <small>{t("map.autoScanNavigationNotice")}</small>
           <small>{t("map.nextAutoScan")}: {autoConfig.enabled && autoConfig.nextRunAt > 0 ? formatAutoScanDate(autoConfig.nextRunAt, language) : "-"}</small>
@@ -1121,8 +1069,8 @@ export function MapDataPage({
         </div>
       </div>
 
-      {scanError ? <div className="map-scan-error" role="alert">{translateActionError(t, scanError)}</div> : null}
-      {!scanError && scanView.error ? <div className="map-scan-error" role="status">{translateActionError(t, scanView.error)}</div> : null}
+      {(scanTab === "auto" ? autoScanError : scanError) ? <div className="map-scan-error" role="alert">{translateActionError(t, scanTab === "auto" ? autoScanError : scanError)}</div> : null}
+      {!(scanTab === "auto" ? autoScanError : scanError) && scanView.error ? <div className="map-scan-error" role="status">{translateActionError(t, scanView.error)}</div> : null}
 
       {scanTab === "manual" ? (
         <div className="map-controls">
