@@ -518,52 +518,77 @@ internal sealed class LWBridgeWindow : Form
                 return;
             }
 
-            using ProfileRuntimeOwner next = BuildProfileRuntimeReplacement(profileId);
-            cancellationToken.ThrowIfCancellationRequested();
-            if (Volatile.Read(ref profileRuntimeClosed) != 0 || sessionClosed)
-                throw new BridgeCommandException("APP_SHUTTING_DOWN", "APP_SHUTTING_DOWN");
+            if (bridgeHostState is not null &&
+                (bridgeHostState.PendingRegistrationCount != 0 ||
+                 bridgeHostState.ConnectedRouteCount != 0 ||
+                 (bridgeHostState.PendingCallCount ?? 0) != 0))
+            {
+                throw new BridgeCommandException(
+                    "BRIDGE_HOST_BUSY",
+                    "The selected profile cannot change while the shared bridge host owns a route, launch, or RPC call.");
+            }
 
-            LWBridgeControlPipeHostState? oldBridgeHost = bridgeHostState;
-            OverviewLifecycleService? oldLifecycle = overviewLifecycleService;
-            Map317CommandService? oldMap = map317CommandService;
-            MapAutoScanCommandService? oldAuto = mapAutoScanService;
-            CityLayoutDraftCommandService? oldDrafts = cityLayoutDraftService;
-            ProfileSettingsCommandService? oldSettings = profileSettingsService;
+            OverviewLifecycleService? quiescedLifecycle = overviewLifecycleService;
+            bool replacementPending = false;
+            quiescedLifecycle?.BeginProfileReplacement();
+            replacementPending = quiescedLifecycle is not null;
+            try
+            {
+                using ProfileRuntimeOwner next = BuildProfileRuntimeReplacement(profileId);
+                cancellationToken.ThrowIfCancellationRequested();
+                if (Volatile.Read(ref profileRuntimeClosed) != 0 || sessionClosed)
+                    throw new BridgeCommandException("APP_SHUTTING_DOWN", "APP_SHUTTING_DOWN");
 
-            DetachProfileRuntimeEvents();
-            Interlocked.Increment(ref profileRuntimeGeneration);
+                LWBridgeControlPipeHostState? oldBridgeHost = bridgeHostState;
+                OverviewLifecycleService? oldLifecycle = overviewLifecycleService;
+                Map317CommandService? oldMap = map317CommandService;
+                MapAutoScanCommandService? oldAuto = mapAutoScanService;
+                CityLayoutDraftCommandService? oldDrafts = cityLayoutDraftService;
+                ProfileSettingsCommandService? oldSettings = profileSettingsService;
 
-            activeProfileConfig = next.Config;
-            backend = next.Backend;
-            bridgeHostState = next.BridgeHostState;
-            overviewLifecycleService = next.OverviewLifecycle;
-            map317CommandService = next.Map317;
-            mapAutoScanService = next.MapAutoScan;
-            cityLayoutDraftService = next.CityLayoutDraft;
-            profileSettingsService = next.ProfileSettings;
-            profileRuntimeConfigStore = next.RuntimeConfigStore;
-            profileRuntimeConfigPath = next.RuntimeConfigPath;
-            hotkeyConfigService = next.HotkeyConfig;
-            visualMetricsConfigService = next.VisualMetricsConfig;
-            equipmentConfigService = next.EquipmentConfig;
-            monsterAfkConfigService = next.MonsterAfkConfig;
-            allianceGarrisonConfigService = next.AllianceGarrisonConfig;
-            resourceAutomationConfigService = next.ResourceAutomationConfig;
-            automationStatusService = next.AutomationStatus;
-            claimDelayConfigService = next.ClaimDelayConfig;
-            next.TransferOwnership();
-            AttachProfileRuntimeEvents();
+                quiescedLifecycle?.CommitProfileReplacement();
+                replacementPending = false;
+                DetachProfileRuntimeEvents();
+                Interlocked.Increment(ref profileRuntimeGeneration);
 
-            DisposeRetiredProfileRuntime(
-                oldAuto,
-                oldMap,
-                oldDrafts,
-                oldSettings,
-                oldLifecycle,
-                oldBridgeHost);
+                activeProfileConfig = next.Config;
+                backend = next.Backend;
+                bridgeHostState = next.BridgeHostState;
+                overviewLifecycleService = next.OverviewLifecycle;
+                map317CommandService = next.Map317;
+                mapAutoScanService = next.MapAutoScan;
+                cityLayoutDraftService = next.CityLayoutDraft;
+                profileSettingsService = next.ProfileSettings;
+                profileRuntimeConfigStore = next.RuntimeConfigStore;
+                profileRuntimeConfigPath = next.RuntimeConfigPath;
+                hotkeyConfigService = next.HotkeyConfig;
+                visualMetricsConfigService = next.VisualMetricsConfig;
+                equipmentConfigService = next.EquipmentConfig;
+                monsterAfkConfigService = next.MonsterAfkConfig;
+                allianceGarrisonConfigService = next.AllianceGarrisonConfig;
+                resourceAutomationConfigService = next.ResourceAutomationConfig;
+                automationStatusService = next.AutomationStatus;
+                claimDelayConfigService = next.ClaimDelayConfig;
+                next.TransferOwnership();
+                AttachProfileRuntimeEvents();
 
-            if (focusGame)
-                next.Focus.TryFocus(profileId);
+                DisposeRetiredProfileRuntime(
+                    oldAuto,
+                    oldMap,
+                    oldDrafts,
+                    oldSettings,
+                    oldLifecycle,
+                    ReferenceEquals(oldBridgeHost, next.BridgeHostState) ? null : oldBridgeHost);
+
+                if (focusGame)
+                    next.Focus.TryFocus(profileId);
+            }
+            catch
+            {
+                if (replacementPending)
+                    quiescedLifecycle?.CancelProfileReplacement();
+                throw;
+            }
         }
         finally
         {
@@ -604,18 +629,20 @@ internal sealed class LWBridgeWindow : Form
         LocalConfigStore config = CreateProfileConfigStore(profileId);
         string profileRoot = Path.Combine(productionApplicationRoot, "profiles", profileId);
         if (homeMapCampaignProofPath is not null)
-            return CreateHomeMapCampaignRuntimeOwner(profileId, config, profileRoot);
+            return CreateHomeMapCampaignRuntimeOwner(profileId, config, profileRoot, bridgeHostState);
         return ProfileRuntimeOwner.Create(
             profileId,
             config,
             profileRoot,
-            profileRegistryService);
+            profileRegistryService,
+            sharedBridgeHostState: bridgeHostState);
     }
 
     private ProfileRuntimeOwner CreateHomeMapCampaignRuntimeOwner(
         string profileId,
         LocalConfigStore config,
-        string profileRoot)
+        string profileRoot,
+        LWBridgeControlPipeHostState? sharedBridgeHostState = null)
     {
         if (profileRegistryService is null || isolatedConfigRoot is null)
             throw new InvalidOperationException("Isolated Home/Map campaign runtime is unavailable.");
@@ -691,7 +718,10 @@ internal sealed class LWBridgeWindow : Form
                 FileExists = _ => false,
             },
             bridgeReadyProvider: () => homeMapCampaignConnected,
-            mapAutoOnlineProvider: () => homeMapCampaignConnected);
+            mapAutoOnlineProvider: () => homeMapCampaignConnected,
+            overviewRuntimeRoot: Path.Combine(isolatedConfigRoot, "overview-runtime", profileId),
+            overviewEvidenceRoot: Path.Combine(isolatedConfigRoot, "overview-evidence", profileId),
+            sharedBridgeHostState: sharedBridgeHostState);
     }
 
     private void AttachProfileRuntimeEvents()
@@ -3959,7 +3989,7 @@ internal sealed class LWBridgeWindow : Form
                 long requestProfileGeneration = Volatile.Read(ref profileRuntimeGeneration);
                 NativeRequestExecution execution = await session.Requests.ExecuteAsync(id, cancellationToken =>
                     command == "game_root_select"
-                        ? SelectGameRootAsync(cancellationToken)
+                        ? SelectGameRootAsync(requestBackend, requestProfileGeneration, cancellationToken)
                         : command == "set_window_theme"
                             ? Task.FromResult(
                                 windowThemeService.Apply(Handle, payload))
@@ -3996,6 +4026,22 @@ internal sealed class LWBridgeWindow : Form
                     return;
                 }
                 if (sessionClosed) return;
+                if (command == "game_root_select")
+                {
+                    await profileSwapGate.WaitAsync(CancellationToken.None).ConfigureAwait(false);
+                    try
+                    {
+                        ThrowIfProfileRequestRetired(requestBackend, requestProfileGeneration);
+                        if (!IsCurrentDocument(session) || sessionClosed) return;
+                        SendResult(session, id, execution.Result);
+                        await EmitOverviewStateAsync(session).ConfigureAwait(false);
+                    }
+                    finally
+                    {
+                        profileSwapGate.Release();
+                    }
+                    return;
+                }
                 if (command == "map_search" && (normalUiLiveResourceProofPath is not null || normalUiLiveMapProofPath is not null || mapUiIntegrationProofPath is not null))
                     RecordNormalUiProofSearch(id, payload, execution.Result);
                 if (command == "map_search" && ownerEvidence is not null && OwnerEvidenceResourceContract.IsResourceSearch(payload))
@@ -4027,27 +4073,35 @@ internal sealed class LWBridgeWindow : Form
         }
     }
 
-    private async Task<object?> SelectGameRootAsync(CancellationToken cancellationToken)
+    private async Task<object?> SelectGameRootAsync(
+        LWBridgeBackend requestBackend,
+        long requestProfileGeneration,
+        CancellationToken cancellationToken)
     {
-        GameRootStatus current = await Task.Run(backend.GetGameRootStatus, cancellationToken);
+        ThrowIfProfileRequestRetired(requestBackend, requestProfileGeneration);
+        GameRootStatus current = await Task.Run(requestBackend.GetGameRootStatus, cancellationToken);
         cancellationToken.ThrowIfCancellationRequested();
+        ThrowIfProfileRequestRetired(requestBackend, requestProfileGeneration);
 
         if (hostProbeService?.TryTakePicker(out HostProbePickerOutcome probeOutcome) == true)
         {
             hostProbeService.RecordPickerStarted();
             await Task.Delay(180, cancellationToken);
+            ThrowIfProfileRequestRetired(requestBackend, requestProfileGeneration);
             if (probeOutcome == HostProbePickerOutcome.Cancel)
             {
                 hostProbeService.RecordPickerCancelled();
-                return backend.CreateGameRootSelectionCanceled();
+                return requestBackend.CreateGameRootSelectionCanceled();
             }
 
             if (isolatedConfigRoot is null)
                 throw new InvalidOperationException("Host probe picker requires isolated storage.");
             string invalidRoot = Path.Combine(isolatedConfigRoot, "invalid-game-root");
             Directory.CreateDirectory(invalidRoot);
-            NativeGameRootSelectionResult invalid = await Task.Run(
-                () => backend.SaveNativeGameRootSelection(invalidRoot),
+            NativeGameRootSelectionResult invalid = await SaveGameRootSelectionIfCurrentAsync(
+                requestBackend,
+                requestProfileGeneration,
+                invalidRoot,
                 cancellationToken);
             hostProbeService.RecordPickerInvalid();
             return invalid;
@@ -4062,13 +4116,51 @@ internal sealed class LWBridgeWindow : Form
         if (!string.IsNullOrWhiteSpace(current.Path) && Directory.Exists(current.Path))
             dialog.InitialDirectory = current.Path;
         if (dialog.ShowDialog(this) != DialogResult.OK)
-            return backend.CreateGameRootSelectionCanceled();
+        {
+            ThrowIfProfileRequestRetired(requestBackend, requestProfileGeneration);
+            return requestBackend.CreateGameRootSelectionCanceled();
+        }
 
         string selectedPath = dialog.SelectedPath;
-        NativeGameRootSelectionResult selected = await Task.Run(
-            () => backend.SaveNativeGameRootSelection(selectedPath),
+        NativeGameRootSelectionResult selected = await SaveGameRootSelectionIfCurrentAsync(
+            requestBackend,
+            requestProfileGeneration,
+            selectedPath,
             cancellationToken);
         return selected;
+    }
+
+    private void ThrowIfProfileRequestRetired(
+        LWBridgeBackend requestBackend,
+        long requestProfileGeneration)
+    {
+        if (requestProfileGeneration == Volatile.Read(ref profileRuntimeGeneration) &&
+            ReferenceEquals(requestBackend, backend))
+            return;
+        throw new BridgeCommandException(
+            "PROFILE_GENERATION_RETIRED",
+            "The selected profile changed before the command completed.");
+    }
+
+    private async Task<NativeGameRootSelectionResult> SaveGameRootSelectionIfCurrentAsync(
+        LWBridgeBackend requestBackend,
+        long requestProfileGeneration,
+        string selectedPath,
+        CancellationToken cancellationToken)
+    {
+        await profileSwapGate.WaitAsync(cancellationToken).ConfigureAwait(false);
+        try
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfProfileRequestRetired(requestBackend, requestProfileGeneration);
+            return await Task.Run(
+                () => requestBackend.SaveNativeGameRootSelection(selectedPath),
+                cancellationToken).ConfigureAwait(false);
+        }
+        finally
+        {
+            profileSwapGate.Release();
+        }
     }
 
     private async Task<object?> ExportMap317CityAsync(

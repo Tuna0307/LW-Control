@@ -66,6 +66,7 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
     private long leaseGeneration;
     private Process? activeHelperProcess;
     private bool closed;
+    private bool profileReplacementPending;
     private string phase = "stopped";
     private string connectionState = "offline";
     private string? instanceId;
@@ -90,7 +91,9 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
         OverviewLifecycleTestHooks? testHooks = null,
         bool startRecoveryMonitor = true,
         LWBridgeControlPipeHostState? bridgeHostState = null,
-        bool enableBridgeControlPipeLaunchBinding = false)
+        bool enableBridgeControlPipeLaunchBinding = false,
+        string? runtimeRoot = null,
+        string? evidenceRoot = null)
     {
         if (string.IsNullOrWhiteSpace(profileId)) throw new ArgumentException("profileId is required", nameof(profileId));
         this.profileId = profileId;
@@ -105,8 +108,8 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
             enableBridgeControlPipeLaunchBinding;
         recoveryMonitorEnabled = startRecoveryMonitor;
         string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-        runtimeRoot = Path.Combine(localAppData, "LWBridgeRebuild", "overview-bridge");
-        evidenceRoot = Path.Combine(localAppData, "LWBridgeRebuild", "overview-evidence");
+        this.runtimeRoot = Path.GetFullPath(runtimeRoot ?? Path.Combine(localAppData, "LWBridgeRebuild", "overview-bridge"));
+        this.evidenceRoot = Path.GetFullPath(evidenceRoot ?? Path.Combine(localAppData, "LWBridgeRebuild", "overview-evidence"));
         if (startRecoveryMonitor) StartRecoveryMonitor();
     }
 
@@ -186,6 +189,9 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
         {
             if (closed)
                 throw new BridgeCommandException("GAME_OPERATION_CANCELLED", "LWBridge is closing.");
+            if (profileReplacementPending)
+                throw new BridgeCommandException("GAME_OPERATION_IN_PROGRESS",
+                    "The selected profile is changing; wait for the current profile owner to finish retiring.");
             bool sameBoundRoot =
                 gameRoot is null && normalized is null ||
                 gameRoot is not null && normalized is not null && PathEquals(gameRoot, normalized);
@@ -404,9 +410,13 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
     {
         string? cancellingSession = null;
         string? cancellingChallenge = null;
+        string? cleanupSession = null;
+        string? cleanupChallenge = null;
         lock (stateGate)
         {
             closed = true;
+            cleanupSession = instanceId;
+            cleanupChallenge = challenge;
             if (phase == "starting" && instanceId is not null && challenge is not null)
             {
                 cancellingSession = instanceId;
@@ -416,7 +426,7 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
         if (cancellingSession is not null && cancellingChallenge is not null)
             TryWriteStartCancellationMarker(cancellingSession, cancellingChallenge);
         StopRecoveryMonitor();
-        StopLeaseTimer(deleteLease: true);
+        StopLeaseTimer(deleteLease: true, cleanupSession, cleanupChallenge);
     }
 
     public void Dispose() => Close();
@@ -480,8 +490,7 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
                 cancellationToken).ConfigureAwait(false);
             ValidateStopResult(result, profileId, repair.SessionId, repair.GamePid, repair.GamePath, repair.GameStartedAtUtc, requireCurrentClientEvidence);
             if (testHooks is null) WriteHostStopEvidence(repair.SessionId, result);
-            StopLeaseTimer(deleteLease: true);
-            ClearRuntimeSessionFiles();
+            StopLeaseTimer(deleteLease: false);
             lock (stateGate)
             {
                 phase = "stopped";
@@ -600,6 +609,9 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
         lock (stateGate)
         {
             if (closed) throw new BridgeCommandException("GAME_OPERATION_CANCELLED", "LWBridge is closing.");
+            if (profileReplacementPending)
+                throw new BridgeCommandException("GAME_OPERATION_IN_PROGRESS",
+                    "The selected profile is changing; wait for the current profile owner to finish retiring.");
             if (gameRoot is null)
                 throw new BridgeCommandException("GAME_ROOT_NOT_FOUND", "No validated Last War installation is selected.");
             if (phase is "starting" or "stopping")
@@ -873,8 +885,15 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
 
     private void ResetCancelledStartState()
     {
-        StopLeaseTimer(deleteLease: true);
-        ClearRuntimeSessionFiles();
+        string? ownedSession;
+        string? ownedChallenge;
+        lock (stateGate)
+        {
+            ownedSession = instanceId;
+            ownedChallenge = challenge;
+        }
+        StopLeaseTimer(deleteLease: true, ownedSession, ownedChallenge);
+        ClearRuntimeSessionFiles(ownedSession, ownedChallenge);
         lock (stateGate)
         {
             phase = "stopped";
@@ -1014,8 +1033,8 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
             if (testHooks is null) WriteHostStopEvidence(snapshot.InstanceId, result);
             if (bridgeControlPipeLaunchBindingEnabled)
                 bridgeHostState?.CancelLaunchBinding(snapshot.InstanceId);
-            StopLeaseTimer(deleteLease: true);
-            ClearRuntimeSessionFiles();
+            StopLeaseTimer(deleteLease: true, snapshot.InstanceId, snapshot.Challenge);
+            ClearRuntimeSessionFiles(snapshot.InstanceId, snapshot.Challenge);
             lock (stateGate)
             {
                 phase = "stopped";
@@ -1070,7 +1089,7 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
         {
             startCancellationRegistration.Dispose();
             if (isStart)
-                ClearStartCancellationMarker();
+                ClearStartCancellationMarker(invocation.SessionId!, invocation.Challenge!);
         }
     }
 
@@ -1125,6 +1144,7 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
         {
             start.ArgumentList.Add("--profile-id"); start.ArgumentList.Add(invocation.ProfileId);
             start.ArgumentList.Add("--session-id"); start.ArgumentList.Add(invocation.SessionId!);
+            start.ArgumentList.Add("--challenge"); start.ArgumentList.Add(invocation.Challenge!);
             start.ArgumentList.Add("--game-pid"); start.ArgumentList.Add(invocation.GamePid!.Value.ToString(CultureInfo.InvariantCulture));
             start.ArgumentList.Add("--game-path"); start.ArgumentList.Add(invocation.GamePath!);
             if (!string.IsNullOrWhiteSpace(invocation.GameStartedAtUtc))
@@ -1430,20 +1450,27 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
         }, null, TimeSpan.Zero, TimeSpan.FromSeconds(1));
     }
 
-    private void StopLeaseTimer(bool deleteLease)
+    private void StopLeaseTimer(
+        bool deleteLease,
+        string? expectedSession = null,
+        string? expectedChallenge = null)
     {
         Interlocked.Increment(ref leaseGeneration);
         System.Threading.Timer? timer = Interlocked.Exchange(ref leaseTimer, null);
         timer?.Dispose();
-        if (!deleteLease) return;
+        if (!deleteLease || expectedSession is null || expectedChallenge is null) return;
         lock (leaseWriteGate)
         {
-            try { DeleteFile(Path.Combine(runtimeRoot, "lease.txt")); } catch { }
+            TryDeleteOwnedRuntimeFile(
+                Path.Combine(runtimeRoot, "lease.txt"),
+                expectedSession,
+                expectedChallenge,
+                json: false);
             try
             {
                 if (Directory.Exists(runtimeRoot))
                     foreach (string temp in Directory.EnumerateFiles(runtimeRoot, "lease.txt.tmp-*"))
-                        try { DeleteFile(temp); } catch { }
+                        TryDeleteOwnedRuntimeFile(temp, expectedSession, expectedChallenge, json: false);
             }
             catch { }
         }
@@ -1473,7 +1500,7 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
                 if (generation != Volatile.Read(ref leaseGeneration)) return;
                 File.Move(temp, path, overwrite: true);
                 if (generation != Volatile.Read(ref leaseGeneration))
-                    try { DeleteFile(path); } catch { }
+                    TryDeleteOwnedRuntimeFile(path, session, nonce, json: false);
             }
             finally
             {
@@ -1515,16 +1542,20 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
         }
     }
 
-    private void ClearStartCancellationMarker()
+    private void ClearStartCancellationMarker(string expectedSession, string expectedChallenge)
     {
         lock (leaseWriteGate)
         {
-            try { DeleteFile(Path.Combine(runtimeRoot, StartCancellationFileName)); } catch { }
+            TryDeleteOwnedRuntimeFile(
+                Path.Combine(runtimeRoot, StartCancellationFileName),
+                expectedSession,
+                expectedChallenge,
+                json: false);
             try
             {
                 if (Directory.Exists(runtimeRoot))
                     foreach (string temp in Directory.EnumerateFiles(runtimeRoot, StartCancellationFileName + ".tmp-*"))
-                        try { DeleteFile(temp); } catch { }
+                        TryDeleteOwnedRuntimeFile(temp, expectedSession, expectedChallenge, json: false);
             }
             catch { }
         }
@@ -1583,14 +1614,141 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
         return new { path = info.FullName, size = info.Length, sha256 };
     }
 
-    private void ClearRuntimeSessionFiles()
+    private void ClearRuntimeSessionFiles(string? expectedSession, string? expectedChallenge)
     {
-        foreach (string name in new[] { "lease.txt", "control.txt", "ready.json", "heartbeat.json" })
+        if (expectedSession is null || expectedChallenge is null) return;
+        TryDeleteOwnedRuntimeFile(Path.Combine(runtimeRoot, "lease.txt"), expectedSession, expectedChallenge, json: false);
+        TryDeleteOwnedRuntimeFile(Path.Combine(runtimeRoot, "control.txt"), expectedSession, expectedChallenge, json: false);
+        TryDeleteOwnedRuntimeFile(Path.Combine(runtimeRoot, "ready.json"), expectedSession, expectedChallenge, json: true);
+        TryDeleteOwnedRuntimeFile(Path.Combine(runtimeRoot, "heartbeat.json"), expectedSession, expectedChallenge, json: true);
+        ClearStartCancellationMarker(expectedSession, expectedChallenge);
+    }
+
+    private void TryDeleteOwnedRuntimeFile(
+        string path,
+        string expectedSession,
+        string expectedChallenge,
+        bool json)
+    {
+        try
         {
-            try { DeleteFile(Path.Combine(runtimeRoot, name)); }
-            catch { }
+            if (!File.Exists(path)) return;
+            byte[] bytes = File.ReadAllBytes(path);
+            bool owned = json
+                ? JsonRuntimeFileMatches(bytes, expectedSession, expectedChallenge)
+                : KeyValueRuntimeFileMatches(bytes, expectedSession, expectedChallenge);
+            if (owned) DeleteFile(path);
         }
-        ClearStartCancellationMarker();
+        catch { }
+    }
+
+    private static bool JsonRuntimeFileMatches(
+        byte[] bytes,
+        string expectedSession,
+        string expectedChallenge)
+    {
+        try
+        {
+            using JsonDocument document = JsonDocument.Parse(bytes);
+            JsonElement root = document.RootElement;
+            return MatchesString(root, "sessionId", expectedSession) &&
+                   MatchesString(root, "challenge", expectedChallenge);
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    internal void BeginProfileReplacement()
+    {
+        lock (stateGate)
+        {
+            if (closed)
+                throw new BridgeCommandException("APP_SHUTTING_DOWN", "LWBridge is closing.");
+            if (profileReplacementPending)
+                throw new BridgeCommandException("GAME_OPERATION_IN_PROGRESS",
+                    "A profile replacement is already in progress.");
+            bool hasOwnedOrInFlightLifecycle =
+                phase is "starting" or "running" or "stopping" ||
+                gamePid is not null ||
+                activeHelperProcess is not null ||
+                activeRecoveryCancellation is not null;
+            if (hasOwnedOrInFlightLifecycle)
+            {
+                throw new BridgeCommandException(
+                    "GAME_OPERATION_IN_PROGRESS",
+                    "The selected profile cannot change while an owned game lifecycle operation is active.");
+            }
+            if (ClassifyRecoveryJournal() is RecoveryJournalState.Pending or RecoveryJournalState.Unknown)
+            {
+                throw new BridgeCommandException(
+                    "GAME_REPAIR_REQUIRED",
+                    "Finish restoring or resolve the existing LWBridge recovery journal before changing profiles.");
+            }
+
+            if (instanceId is not null)
+            {
+                if (phase != "error" || gameRoot is null || FindSelectedGameProcess(gameRoot) is not null)
+                {
+                    throw new BridgeCommandException(
+                        "GAME_OPERATION_IN_PROGRESS",
+                        "The selected profile cannot change while an owned or uncertain launch attempt remains active.");
+                }
+                ClearAbandonedLaunchIdentityLocked();
+            }
+            profileReplacementPending = true;
+        }
+    }
+
+    internal void CancelProfileReplacement()
+    {
+        lock (stateGate)
+        {
+            if (!closed)
+                profileReplacementPending = false;
+        }
+    }
+
+    internal void CommitProfileReplacement()
+    {
+        lock (stateGate)
+        {
+            if (!profileReplacementPending)
+                throw new InvalidOperationException("Profile replacement was not admitted by this lifecycle owner.");
+            profileReplacementPending = false;
+            closed = true;
+        }
+        StopRecoveryMonitor();
+        StopLeaseTimer(deleteLease: false);
+    }
+
+    private static bool KeyValueRuntimeFileMatches(
+        byte[] bytes,
+        string expectedSession,
+        string expectedChallenge)
+    {
+        try
+        {
+            string? session = null;
+            string? challengeValue = null;
+            string text = System.Text.Encoding.UTF8.GetString(bytes);
+            foreach (string line in text.Split(new[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries))
+            {
+                int separator = line.IndexOf('=');
+                if (separator <= 0) return false;
+                string key = line[..separator];
+                string value = line[(separator + 1)..];
+                if (key == "sessionId") session = value;
+                else if (key == "challenge") challengeValue = value;
+            }
+            return string.Equals(session, expectedSession, StringComparison.Ordinal) &&
+                   string.Equals(challengeValue, expectedChallenge, StringComparison.Ordinal);
+        }
+        catch
+        {
+            return false;
+        }
     }
 
     private void DeleteFile(string path)

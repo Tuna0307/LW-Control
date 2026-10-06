@@ -10,6 +10,7 @@ namespace LWBridge.Desktop;
 internal sealed class ProfileRuntimeOwner : IDisposable
 {
     private bool transferred;
+    private readonly bool ownsBridgeHostState;
 
     private ProfileRuntimeOwner(
         LocalConfigStore config,
@@ -30,7 +31,8 @@ internal sealed class ProfileRuntimeOwner : IDisposable
         ResourceAutomationConfigCommandService resourceAutomationConfig,
         AutomationStatusCommandService automationStatus,
         ClaimDelayConfigCommandService claimDelayConfig,
-        ProfileWindowFocusService focus)
+        ProfileWindowFocusService focus,
+        bool ownsBridgeHostState)
     {
         Config = config;
         Backend = backend;
@@ -51,6 +53,7 @@ internal sealed class ProfileRuntimeOwner : IDisposable
         AutomationStatus = automationStatus;
         ClaimDelayConfig = claimDelayConfig;
         Focus = focus;
+        this.ownsBridgeHostState = ownsBridgeHostState;
     }
 
     internal LocalConfigStore Config { get; }
@@ -88,7 +91,10 @@ internal sealed class ProfileRuntimeOwner : IDisposable
         GameInstallationTestHooks? installationTestHooks = null,
         ProxyStatusTestHooks? proxyStatusTestHooks = null,
         Func<bool>? bridgeReadyProvider = null,
-        Func<bool>? mapAutoOnlineProvider = null)
+        Func<bool>? mapAutoOnlineProvider = null,
+        string? overviewRuntimeRoot = null,
+        string? overviewEvidenceRoot = null,
+        LWBridgeControlPipeHostState? sharedBridgeHostState = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(profileId);
         ArgumentNullException.ThrowIfNull(config);
@@ -117,7 +123,8 @@ internal sealed class ProfileRuntimeOwner : IDisposable
             runtimeConfigStore,
             automationStatusPath);
         var claimDelay = new ClaimDelayConfigCommandService(runtimeConfigStore);
-        var bridgeHost = new LWBridgeControlPipeHostState();
+        bool ownsBridgeHostState = sharedBridgeHostState is null;
+        var bridgeHost = sharedBridgeHostState ?? new LWBridgeControlPipeHostState();
         OverviewLifecycleService? lifecycle = null;
         Map317CommandService? map = null;
         MapAutoScanCommandService? auto = null;
@@ -126,7 +133,7 @@ internal sealed class ProfileRuntimeOwner : IDisposable
             GameRootStatus liveGameRoot =
                 new GameInstallationService(config, installationTestHooks)
                     .GetLaunchAdmissionStatus();
-            if (startBridgeTransport && liveGameRoot.Valid)
+            if (startBridgeTransport && ownsBridgeHostState && liveGameRoot.Valid)
             {
                 string expectedClientPath =
                     LWBridgeControlPipeClientPathContract
@@ -144,7 +151,9 @@ internal sealed class ProfileRuntimeOwner : IDisposable
                 testHooks: lifecycleTestHooks,
                 startRecoveryMonitor: startRecoveryMonitor,
                 bridgeHostState: bridgeHost,
-                enableBridgeControlPipeLaunchBinding: startBridgeTransport);
+                enableBridgeControlPipeLaunchBinding: startBridgeTransport,
+                runtimeRoot: overviewRuntimeRoot,
+                evidenceRoot: overviewEvidenceRoot);
             map = mapProvider is null
                 ? new Map317CommandService(
                     Path.Combine(fullProfileRoot, "map-data", "map-data.db"),
@@ -220,7 +229,8 @@ internal sealed class ProfileRuntimeOwner : IDisposable
                 resourceAutomation,
                 automationStatus,
                 claimDelay,
-                focus);
+                focus,
+                ownsBridgeHostState);
         }
         catch
         {
@@ -229,7 +239,8 @@ internal sealed class ProfileRuntimeOwner : IDisposable
             try { drafts.Dispose(); } catch { }
             try { settings.Dispose(); } catch { }
             try { lifecycle?.Close(); } catch { }
-            try { bridgeHost.Close(); } catch { }
+            if (ownsBridgeHostState)
+                try { bridgeHost.Close(); } catch { }
             throw;
         }
     }
@@ -244,6 +255,7 @@ internal sealed class ProfileRuntimeOwner : IDisposable
         try { CityLayoutDraft.Dispose(); } catch { }
         try { ProfileSettings.Dispose(); } catch { }
         try { OverviewLifecycle.Close(); } catch { }
-        try { BridgeHostState.Close(); } catch { }
+        if (ownsBridgeHostState)
+            try { BridgeHostState.Close(); } catch { }
     }
 }

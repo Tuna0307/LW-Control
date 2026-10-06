@@ -271,48 +271,86 @@ def write_lease(p: dict[str, Path], session_id: str, challenge: str) -> None:
     })
 
 
+def runtime_file_matches(
+    path: Path,
+    session_id: str,
+    challenge: str,
+    *,
+    json_file: bool = False,
+) -> bool:
+    if json_file:
+        value = lr.read_json(path)
+        return bool(
+            isinstance(value, dict)
+            and value.get("sessionId") == session_id
+            and value.get("challenge") == challenge
+        )
+    value = read_kv(path)
+    return bool(
+        value is not None
+        and value.get("sessionId") == session_id
+        and value.get("challenge") == challenge
+    )
+
+
+def require_no_fresh_foreign_lease(
+    p: dict[str, Path], session_id: str, challenge: str,
+) -> None:
+    lease = read_kv(p["runtime"] / "lease.txt")
+    if lease is None:
+        return
+    if lease.get("sessionId") == session_id and lease.get("challenge") == challenge:
+        return
+    try:
+        updated_at = int(lease.get("updatedAt", ""))
+    except (TypeError, ValueError):
+        return
+    now = int(time.time())
+    if updated_at <= now + 5 and now - updated_at <= 5:
+        raise OverviewBridgeError(
+            "another Overview session owns the fresh shared bridge lease"
+        )
+
+
 def clear_stale_runtime(
     p: dict[str, Path],
+    session_id: str,
+    challenge: str,
     preserve_start_cancel: tuple[str, str] | None = None,
 ) -> None:
     p["runtime"].mkdir(parents=True, exist_ok=True)
-    for name in (
-        "control.txt",
-        "lease.txt",
-        "ready.json",
-        "heartbeat.json",
-        "pipe-adapter-state.txt",
-        "pipe-transport.json",
+    for name, json_file in (
+        ("control.txt", False),
+        ("lease.txt", False),
+        ("ready.json", True),
+        ("heartbeat.json", True),
     ):
-        try:
-            (p["runtime"] / name).unlink()
-        except FileNotFoundError:
-            pass
+        path = p["runtime"] / name
+        if runtime_file_matches(path, session_id, challenge, json_file=json_file):
+            try:
+                path.unlink()
+            except FileNotFoundError:
+                pass
     cancel_path = p["runtime"] / "cancel-start.txt"
     preserve_cancel = (
         preserve_start_cancel is not None
         and start_cancel_matches(p, preserve_start_cancel[0], preserve_start_cancel[1])
     )
-    if not preserve_cancel:
+    if not preserve_cancel and runtime_file_matches(cancel_path, session_id, challenge):
         try:
             cancel_path.unlink()
         except FileNotFoundError:
             pass
     for stale_cancel in p["runtime"].glob("cancel-start.txt.tmp-*"):
-        try:
-            stale_cancel.unlink()
-        except FileNotFoundError:
-            pass
-
-    for pattern in (
-        "pipe-inbound-*.json",
-        "pipe-inbound-*.json.tmp",
-        "pipe-outbound-*.json",
-        "pipe-outbound-*.json.tmp",
-    ):
-        for path in p["runtime"].glob(pattern):
+        if runtime_file_matches(stale_cancel, session_id, challenge):
             try:
-                path.unlink()
+                stale_cancel.unlink()
+            except FileNotFoundError:
+                pass
+    for stale_lease in p["runtime"].glob("lease.txt.tmp-*"):
+        if runtime_file_matches(stale_lease, session_id, challenge):
+            try:
+                stale_lease.unlink()
             except FileNotFoundError:
                 pass
 
@@ -687,6 +725,7 @@ def run_start(
     p["runtime"].mkdir(parents=True, exist_ok=True)
     with lr.OperationLease(p["runtime"], owner):
         throw_if_start_cancelled(p, session_id, challenge)
+        require_no_fresh_foreign_lease(p, session_id, challenge)
         # Never attempt to overwrite a journaled candidate while the selected game
         # still owns the script files. Recovery is safe only after no selected game exists.
         lr.require_no_selected_game_process(p)
@@ -710,7 +749,12 @@ def run_start(
                 lambda index, key: lr.update_recovery_stage(p, recovery_state, f"installed_{index}_{key}"),
             )
             throw_if_start_cancelled(p, session_id, challenge)
-            clear_stale_runtime(p, preserve_start_cancel=(session_id, challenge))
+            clear_stale_runtime(
+                p,
+                session_id,
+                challenge,
+                preserve_start_cancel=(session_id, challenge),
+            )
             throw_if_start_cancelled(p, session_id, challenge)
             launch_log_offset = launcher_log_offset(p)
             player_log_start_cursor = file_cursor(player_log_path())
@@ -849,7 +893,7 @@ def run_start(
                 if first_restore_error is None and close_error is None:
                     lr.clear_recovery(p, recovery_state)
                     recovery_armed = False
-                    clear_stale_runtime(p)
+                    clear_stale_runtime(p, session_id, challenge)
                 else:
                     details = []
                     if first_restore_error is not None:
@@ -893,6 +937,7 @@ def run_stop(
     game_path: str,
     game_root: str | Path | None,
     game_started_at_utc: str | None = None,
+    challenge: str | None = None,
 ) -> dict[str, object]:
     p = overview_paths(game_root)
     expected = os.path.abspath(os.fspath(p["game"]))
@@ -964,11 +1009,8 @@ def run_stop(
         lr.update_recovery_stage(p, state, "restoring_after_owned_game_exit")
         restored = lr.restore_backup(p, Path(backup_path))
         lr.clear_recovery(p, state)
-        for name in ("lease.txt", "control.txt", "ready.json", "heartbeat.json"):
-            try:
-                (p["runtime"] / name).unlink()
-            except FileNotFoundError:
-                pass
+        if challenge is not None:
+            clear_stale_runtime(p, session_id, require_token(challenge, "challenge"))
         result = {
             "ok": True,
             "mode": "overview_exact_pid_close_restore",
@@ -1036,6 +1078,7 @@ def main() -> int:
     stop = sub.add_parser("stop")
     stop.add_argument("--profile-id", required=True)
     stop.add_argument("--session-id", required=True)
+    stop.add_argument("--challenge", required=True)
     stop.add_argument("--game-pid", type=int, required=True)
     stop.add_argument("--game-path", required=True)
     stop.add_argument("--game-started-at-utc")
@@ -1058,7 +1101,15 @@ def main() -> int:
         else:
             if args.game_pid <= 0:
                 raise OverviewBridgeError("gamePid must be positive")
-            result = run_stop(args.profile_id, args.session_id, args.game_pid, args.game_path, args.game_root, args.game_started_at_utc)
+            result = run_stop(
+                args.profile_id,
+                args.session_id,
+                args.game_pid,
+                args.game_path,
+                args.game_root,
+                args.game_started_at_utc,
+                args.challenge,
+            )
     except Exception as exc:
         print(json.dumps({"ok": False, "error": str(exc), "errorType": type(exc).__name__}, separators=(",", ":")))
         return 2

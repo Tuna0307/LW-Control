@@ -15,6 +15,9 @@ internal static class ProfileRuntimeOwnerChecks
         Directory.CreateDirectory(root);
         try
         {
+            VerifyInactiveLifecycleCleanupIsolation(root);
+            await VerifyProfileReplacementRetirementAsync(root).ConfigureAwait(false);
+
             string controllerPath = Path.Combine(root, "controller.db");
             using var registryStore = new ProfileRegistryStore(controllerPath);
             registryStore.EnsureLocalProfile("profile-A", "Profile A", 1_800_000_000_000);
@@ -162,7 +165,247 @@ internal static class ProfileRuntimeOwnerChecks
             startAutoScheduler: false,
             startRecoveryMonitor: false,
             startBridgeTransport: false,
-            installationTestHooks: installationHooks);
+            installationTestHooks: installationHooks,
+            overviewRuntimeRoot: Path.Combine(profileRoot, "isolated-overview-runtime"),
+            overviewEvidenceRoot: Path.Combine(profileRoot, "isolated-overview-evidence"));
+    }
+
+    private static void VerifyInactiveLifecycleCleanupIsolation(string root)
+    {
+        string runtimeRoot = Path.Combine(root, "foreign-overview-runtime");
+        string evidenceRoot = Path.Combine(root, "foreign-overview-evidence");
+        Directory.CreateDirectory(runtimeRoot);
+        Directory.CreateDirectory(Path.Combine(evidenceRoot, "foreign-session"));
+
+        const string foreignSession = "foreign-session";
+        const string foreignChallenge = "foreign-challenge";
+        var sentinels = new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            [Path.Combine(runtimeRoot, "lease.txt")] =
+                $"schema=1\nbridgeVersion={OverviewLifecycleService.BridgeVersion}\nsessionId={foreignSession}\nchallenge={foreignChallenge}\nupdatedAt=1\n",
+            [Path.Combine(runtimeRoot, "lease.txt.tmp-foreign")] =
+                $"schema=1\nsessionId={foreignSession}\nchallenge={foreignChallenge}\n",
+            [Path.Combine(runtimeRoot, "cancel-start.txt")] =
+                $"schema=1\nsessionId={foreignSession}\nchallenge={foreignChallenge}\n",
+            [Path.Combine(runtimeRoot, "cancel-start.txt.tmp-foreign")] =
+                $"schema=1\nsessionId={foreignSession}\nchallenge={foreignChallenge}\n",
+            [Path.Combine(runtimeRoot, "control.txt")] =
+                $"schema=1\nsessionId={foreignSession}\nchallenge={foreignChallenge}\n",
+            [Path.Combine(runtimeRoot, "ready.json")] =
+                JsonSerializer.Serialize(new { sessionId = foreignSession, challenge = foreignChallenge, ready = true }),
+            [Path.Combine(runtimeRoot, "heartbeat.json")] =
+                JsonSerializer.Serialize(new { sessionId = foreignSession, challenge = foreignChallenge, ready = true }),
+            [Path.Combine(runtimeRoot, "unrelated.txt")] = "leave-me-alone",
+            [Path.Combine(evidenceRoot, foreignSession, "host-start.json")] = "foreign-evidence",
+        };
+        foreach ((string path, string contents) in sentinels)
+            File.WriteAllText(path, contents);
+
+        using (var lifecycle = new OverviewLifecycleService(
+            "inactive-owner",
+            gameRoot: null,
+            startRecoveryMonitor: false,
+            runtimeRoot: runtimeRoot,
+            evidenceRoot: evidenceRoot))
+        {
+            lifecycle.Close();
+        }
+
+        foreach ((string path, string contents) in sentinels)
+        {
+            Require(File.Exists(path), $"inactive lifecycle Close must preserve foreign sentinel {Path.GetFileName(path)}");
+            Require(File.ReadAllText(path) == contents,
+                $"inactive lifecycle Close must not rewrite foreign sentinel {Path.GetFileName(path)}");
+        }
+    }
+
+    private static async Task VerifyProfileReplacementRetirementAsync(string root)
+    {
+        string lifecycleRoot = Path.Combine(root, "profile-retirement");
+        string gameDirectory = Path.Combine(lifecycleRoot, "Game");
+        Directory.CreateDirectory(gameDirectory);
+        const string profileId = "retirement-A";
+        const int gamePid = 59101;
+        const string startedAtUtc = "2026-10-06T04:30:00.0000000Z";
+        string gamePath = Path.Combine(gameDirectory, "LastWar.exe");
+        string? session = null;
+        string? challenge = null;
+        bool processAlive = false;
+        var helperEntered = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var helperRelease = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var hooks = new OverviewLifecycleTestHooks
+        {
+            RunOfficialRecoverAsync = (_, _) => Task.CompletedTask,
+            RunOfficialSettleAsync = (_, _) => Task.CompletedTask,
+            RunHelperAsync = async (invocation, cancellationToken) =>
+            {
+                if (invocation.Operation == "start")
+                {
+                    session = invocation.SessionId;
+                    challenge = invocation.Challenge;
+                    helperEntered.TrySetResult();
+                    await helperRelease.Task.WaitAsync(cancellationToken).ConfigureAwait(false);
+                    processAlive = true;
+                    return JsonSerializer.SerializeToElement(new
+                    {
+                        ok = true,
+                        mode = "overview_install_launch_ready_deferred_restore",
+                        bridgeVersion = OverviewLifecycleService.BridgeVersion,
+                        profileId,
+                        sessionId = invocation.SessionId,
+                        challengeSha256 = Convert.ToHexString(
+                            System.Security.Cryptography.SHA256.HashData(
+                                System.Text.Encoding.UTF8.GetBytes(invocation.Challenge!))).ToLowerInvariant(),
+                        gamePid,
+                        launcherPid = gamePid + 10_000,
+                        gamePath,
+                        gameStartedAtUtc = startedAtUtc,
+                        gameRunning = true,
+                        installedFilesChanged = true,
+                        restore = new
+                        {
+                            restored = false,
+                            deferred = true,
+                            stage = "active_ready_deferred_restore",
+                        },
+                        ready = new
+                        {
+                            schemaVersion = 1,
+                            bridgeVersion = OverviewLifecycleService.BridgeVersion,
+                            profileId,
+                            sessionId = invocation.SessionId,
+                            challenge = invocation.Challenge,
+                            gamePid,
+                            ready = true,
+                            messageVisible = true,
+                            messageText = OverviewLifecycleService.ReadyMessage,
+                            readyAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+                            updatedAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+                        },
+                    }, JsonOptions.Default);
+                }
+
+                bool wasAlive = processAlive;
+                processAlive = false;
+                return JsonSerializer.SerializeToElement(new
+                {
+                    ok = true,
+                    mode = "overview_exact_pid_close_restore",
+                    bridgeVersion = OverviewLifecycleService.BridgeVersion,
+                    profileId,
+                    sessionId = invocation.SessionId,
+                    gamePid,
+                    gamePath,
+                    gameStartedAtUtc = startedAtUtc,
+                    close = wasAlive
+                        ? new
+                        {
+                            method = "synthetic",
+                            accepted = true,
+                            processExited = true,
+                            alreadyExited = false,
+                        }
+                        : new
+                        {
+                            method = "already_exited",
+                            accepted = false,
+                            processExited = true,
+                            alreadyExited = true,
+                        },
+                    restore = new { restored = true },
+                    gameRunning = false,
+                    installedFilesChanged = false,
+                }, JsonOptions.Default);
+            },
+            ProcessMatches = (pid, path, startedAt) =>
+                processAlive && pid == gamePid &&
+                string.Equals(Path.GetFullPath(path), Path.GetFullPath(gamePath), StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(startedAt, startedAtUtc, StringComparison.Ordinal),
+            ReadAllBytes = path => path.EndsWith("recovery.json", StringComparison.OrdinalIgnoreCase)
+                ? throw new FileNotFoundException(path)
+                : JsonSerializer.SerializeToUtf8Bytes(new
+                {
+                    schemaVersion = 1,
+                    bridgeVersion = OverviewLifecycleService.BridgeVersion,
+                    profileId,
+                    sessionId = session,
+                    challenge,
+                    gamePid,
+                    ready = true,
+                    messageVisible = true,
+                    messageText = OverviewLifecycleService.ReadyMessage,
+                    updatedAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+                }, JsonOptions.Default),
+            WriteLease = (_, _, _) => { },
+            DeleteFile = _ => { },
+        };
+
+        using var lifecycle = new OverviewLifecycleService(
+            profileId,
+            lifecycleRoot,
+            helperPath: Path.Combine(lifecycleRoot, "fake-overview-helper.py"),
+            requireCurrentClientEvidence: false,
+            testHooks: hooks,
+            startRecoveryMonitor: false,
+            runtimeRoot: Path.Combine(lifecycleRoot, "overview-runtime"),
+            evidenceRoot: Path.Combine(lifecycleRoot, "overview-evidence"));
+        JsonElement payload = JsonSerializer.SerializeToElement(new { profileId }, JsonOptions.Default);
+        Task<object?> starting = lifecycle.InvokeAsync("profile_instance_start", payload, CancellationToken.None);
+        await helperEntered.Task.WaitAsync(TimeSpan.FromSeconds(5)).ConfigureAwait(false);
+        Require(CaptureReplacementAdmissionError(lifecycle) == "GAME_OPERATION_IN_PROGRESS",
+            "profile replacement must fail closed while Start owns the lifecycle admission");
+
+        helperRelease.TrySetResult();
+        JsonElement running = JsonSerializer.SerializeToElement(
+            await starting.WaitAsync(TimeSpan.FromSeconds(5)).ConfigureAwait(false),
+            JsonOptions.Default);
+        Require(CaptureReplacementAdmissionError(lifecycle) == "GAME_OPERATION_IN_PROGRESS",
+            "profile replacement must fail closed while the owned game is running");
+
+        string instanceId = running.GetProperty("instanceId").GetString()!;
+        _ = await lifecycle.InvokeAsync(
+            "profile_instance_stop",
+            JsonSerializer.SerializeToElement(new { profileId, instanceId }, JsonOptions.Default),
+            CancellationToken.None).ConfigureAwait(false);
+        lifecycle.BeginProfileReplacement();
+        string pendingStart = string.Empty;
+        try
+        {
+            _ = await lifecycle.InvokeAsync("profile_instance_start", payload, CancellationToken.None).ConfigureAwait(false);
+        }
+        catch (BridgeCommandException error)
+        {
+            pendingStart = error.Code;
+        }
+        Require(pendingStart == "GAME_OPERATION_IN_PROGRESS",
+            "profile replacement admission must quiesce late Start before replacement construction begins");
+        lifecycle.CancelProfileReplacement();
+        lifecycle.BeginProfileReplacement();
+        lifecycle.CommitProfileReplacement();
+        string retiredStart = string.Empty;
+        try
+        {
+            _ = await lifecycle.InvokeAsync("profile_instance_start", payload, CancellationToken.None).ConfigureAwait(false);
+        }
+        catch (BridgeCommandException error)
+        {
+            retiredStart = error.Code;
+        }
+        Require(retiredStart == "GAME_OPERATION_CANCELLED",
+            "atomic profile retirement must prevent any late Start from entering the retired lifecycle");
+    }
+
+    private static string CaptureReplacementAdmissionError(OverviewLifecycleService lifecycle)
+    {
+        try
+        {
+            lifecycle.BeginProfileReplacement();
+            return string.Empty;
+        }
+        catch (BridgeCommandException error)
+        {
+            return error.Code;
+        }
     }
 
     private static async Task VerifyNativeMapServiceBoundaryAsync(

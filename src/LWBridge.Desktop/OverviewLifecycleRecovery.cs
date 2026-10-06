@@ -315,7 +315,7 @@ internal sealed partial class OverviewLifecycleService
 
     private void MarkUnexpectedExit(OwnedSnapshot snapshot)
     {
-        StopLeaseTimer(deleteLease: true);
+        StopLeaseTimer(deleteLease: true, snapshot.InstanceId, snapshot.Challenge);
         lock (stateGate)
         {
             if (gamePid != snapshot.GamePid || instanceId != snapshot.InstanceId) return;
@@ -455,8 +455,8 @@ internal sealed partial class OverviewLifecycleService
         ValidateStopResult(result, profileId, snapshot.InstanceId,
             snapshot.GamePid, snapshot.GamePath, snapshot.GameStartedAtUtc, requireCurrentClientEvidence);
         if (testHooks is null) WriteHostStopEvidence(snapshot.InstanceId, result);
-        StopLeaseTimer(deleteLease: true);
-        ClearRuntimeSessionFiles();
+        StopLeaseTimer(deleteLease: true, snapshot.InstanceId, snapshot.Challenge);
+        ClearRuntimeSessionFiles(snapshot.InstanceId, snapshot.Challenge);
         lock (stateGate)
         {
             if (instanceId != snapshot.InstanceId || gamePid != snapshot.GamePid) return;
