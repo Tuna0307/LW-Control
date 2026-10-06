@@ -219,10 +219,10 @@
       "dependsOn": [
         "K"
       ],
-      "status": "IN_PROGRESS",
+      "status": "COMPLETE",
       "owner": "coordinator",
       "acceptance": "Authoritative work item, Milestone L",
-      "commit": null,
+      "commit": "4330d1baaf62ccf281f59082d606bc23c68cef24",
       "proof": [
         "progress.md",
         "continuation.md",
@@ -230,7 +230,7 @@
         "git diff --check and final validation recorded at delivery"
       ],
       "blocker": null,
-      "continuation": "Commit and push the final evidence/master reconciliation, verify the direct remote SHA, then mark L complete with that commit."
+      "continuation": null
     }
   ]
 }

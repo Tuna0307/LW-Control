@@ -5,6 +5,8 @@ Home/Map implementation campaign has been recovered through source-supported nat
 UI and isolated packaged-desktop acceptance. Latest pushed implementation checkpoint:
 `eaa73ce571d0c419a0e2880e212c46151ee7fd1f`. Final project-lead acceptance is
 still pending; no live/protected-provider status is promoted.
+Evidence/master reconciliation commit `4330d1baaf62ccf281f59082d606bc23c68cef24`
+is pushed and directly verified equal to `origin/research/offline-controller`.
 
 Historical lead dispatch: ASSIGNED. No feature implementation was claimed by that
 dispatch. Accepted source/local UI delivery remains `75b7b215`.

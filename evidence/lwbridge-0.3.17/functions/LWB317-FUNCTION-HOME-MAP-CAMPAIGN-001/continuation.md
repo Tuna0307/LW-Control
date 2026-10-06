@@ -2,6 +2,8 @@
 
 Status: **AWAITING_REVIEW** after pushed implementation checkpoint
 `eaa73ce571d0c419a0e2880e212c46151ee7fd1f`.
+Evidence/master reconciliation is pushed and remote-verified at
+`4330d1baaf62ccf281f59082d606bc23c68cef24`.
 
 All authorized source-supported recovery checkpoints have been implemented and
 executed: fresh selected-root ownership; Auto run/config/deadline ownership; native
@@ -33,7 +35,7 @@ Remaining external blockers are intentionally unchanged:
 Exact continuation is project-lead review, not more worker implementation: inspect
 the scoped commit chain and the accepted package packets/screenshots; rerun the
 focused native/UI commands recorded in `progress.md` and
-`integration/recovery-closeout.md`; confirm the final documentation/evidence commit
+`integration/recovery-closeout.md`; confirm the recorded documentation/evidence commit
 and remote SHA. If future work needs the blocked protected/live cases, assign a new
 explicitly authorized task rather than treating this offline recovery as permission.
 
