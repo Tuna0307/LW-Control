@@ -31,6 +31,16 @@ assert.deepEqual(
 const mapPageSource = fs.readFileSync(new URL("../src/MapDataPage.jsx", import.meta.url), "utf8");
 const appSource = fs.readFileSync(new URL("../src/App.jsx", import.meta.url), "utf8");
 const autoConfigSource = fs.readFileSync(new URL("../src/mapAutoConfig.js", import.meta.url), "utf8");
+assert.match(mapPageSource, /mapApi\.listenPlayerMarkChanged\(\(\) => setSearchRevision\(\(value\) => value \+ 1\)\)/,
+  "canonical Map page must converge external profile-scoped player-mark changes into the active query");
+assert.match(mapPageSource, /const scheduleProvider = tab === "dispatch" && providerSupports\(mapApi, SCHEDULING_PROVIDER_METHODS\.dispatch\)/,
+  "Ghost schedule must stay fenced while current-client ghost preparation is unavailable");
+assert.match(mapPageSource, /tab === "treasure" && online && !scanState\.isReading &&[\s\S]*scanState\.serverId === dataServerId && result\.rows\.length > 0[\s\S]*mapApi\.refreshTreasureStates\(dataServerId, result\.rows\)/,
+  "native Treasure rows must use the recovered same-server idle read-only refresh producer");
+assert.match(mapPageSource, /!message\.includes\("SCAN_RUNNING"\) && !message\.includes\("stop the map scan first"\)/,
+  "Treasure state refresh must preserve the recovered scan-running error suppression");
+assert.match(mapPageSource, /previewFixture \? previewState === "map-treasure-checking"[\s\S]*: treasureStatesRefreshing/,
+  "Treasure Checking must be driven by the native refresh lifetime outside explicit preview fixtures");
 assert.match(mapPageSource, /localStorage\.getItem\("lwbridge\.mapScanMode"\)/,
   "canonical Map UI must restore the exact recovered persisted Manual scan-mode key");
 assert.match(mapPageSource, /localStorage\.setItem\("lwbridge\.mapScanMode", speed\)/,
@@ -147,6 +157,7 @@ assert.equal(connectionState({ xluaOnline: false }, { gameRunning: true }, "nati
 assert.equal(connectionState({ xluaOnline: true }, { gameRunning: true }, "native"), "connected");
 
 const calls = [];
+const listeners = new Map();
 const fakeBridge = {
   profileId: "profile-test",
   invoke: async (command, payload) => {
@@ -160,9 +171,21 @@ const fakeBridge = {
     if (command === MAP_COMMANDS.search) return { rows: [{ recordKey: "r1" }], total: 1 };
     return {};
   },
-  listen: () => () => {},
+  listen: (eventName, callback) => {
+    listeners.set(eventName, callback);
+    return () => listeners.delete(eventName);
+  },
 };
 const api = createMapApi(fakeBridge);
+let markEvent = null;
+const offMark = api.listenPlayerMarkChanged((event) => { markEvent = event; });
+assert.equal(typeof listeners.get("bridge://player-mark-changed"), "function");
+listeners.get("bridge://player-mark-changed")({ profileId: "profile-other", payload: { marked: true } });
+assert.equal(markEvent, null, "foreign-profile mark event must be ignored");
+listeners.get("bridge://player-mark-changed")({ profileId: "profile-test", payload: { marked: true } });
+assert.deepEqual(markEvent, { marked: true }, "selected-profile mark event must be unwrapped");
+offMark();
+assert.equal(listeners.has("bridge://player-mark-changed"), false);
 await api.start(["resource"], "fast");
 await api.stop();
 await api.clear(7);

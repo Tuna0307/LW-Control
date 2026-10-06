@@ -29,6 +29,11 @@ internal sealed class LWBridgeBackend
         "red_packet_delay_configure",
         "treasure_delay_configure",
         "game_root_status",
+        // Clone-internal launch-admission surface. The recovered public
+        // game_root_status contract intentionally uses the weaker native picker
+        // predicate, so canonical Home needs a separate strict lifecycle signal
+        // rather than changing that recovered schema.
+        "local_game_launch_status",
         "game_root_select",
         "update_status",
         "update_check",
@@ -303,6 +308,8 @@ internal sealed class LWBridgeBackend
                 return proxyStatus.Invoke(payload);
             case "game_root_status":
                 return installation.GetNativeStatus();
+            case "local_game_launch_status":
+                return installation.GetLaunchAdmissionStatus();
             case "game_recovery_status":
                 return gameRecoveryStatus.Invoke(payload);
             case "server_jump_history_get":

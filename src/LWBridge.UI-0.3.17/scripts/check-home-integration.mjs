@@ -155,6 +155,13 @@ assert.match(appSource, /"auto_weekend_shield",\s*true,\s*"auto_shield"/, "Weeke
 assert.match(appSource, /"auto_attack_shield",\s*true,\s*"auto_shield"/, "Attack Shield must preserve the recovered legacy auto_shield fallback");
 const autoLaunchBody = appSource.slice(appSource.indexOf("const updateAutoLaunch"), appSource.indexOf("const updateAutoReconnect"));
 assert.doesNotMatch(autoLaunchBody, /setGameActionError\(""\)/, "Auto Launch preference edits must not clear the shared lifecycle action error");
+const startupReconcileIndex = appSource.indexOf('"profile_instances_reconcile"');
+const startupReconcileEffectStart = appSource.lastIndexOf("useEffect(() => {", startupReconcileIndex);
+const startupReconcileEffectEnd = appSource.indexOf("useEffect(() => {", startupReconcileIndex + 1);
+const startupReconcileEffect = appSource.slice(startupReconcileEffectStart, startupReconcileEffectEnd);
+assert.match(startupReconcileEffect, /autoLaunchAll: startupAutoLaunchGameRef\.current/, "startup reconcile must use the immutable startup Auto Launch snapshot");
+assert.doesNotMatch(startupReconcileEffect, /\[autoLaunchGame,/, "changing Auto Launch while startup reconcile is pending must not dispose the one-shot reconcile owner");
+assert.match(appSource, /backendBridge\.invoke\("local_game_launch_status", \{\}\)/, "Home must query clone-internal strict launch admission separately from recovered game_root_status");
 const refreshBody = appSource.slice(appSource.indexOf("const refreshStatus"), appSource.indexOf("const selectRoute"));
 assert.doesNotMatch(refreshBody, /game_recovery_status/, "recurring status refresh must not overwrite recovery ownership");
 assert.match(appSource, /backendBridge\.invoke\("game_recovery_status", \{ profileId \}\)/, "recovery status must have its own selected-profile initial read");
@@ -175,6 +182,8 @@ assert.match(periodicStatusBody, /readStatusSnapshot\(\(\) => !closed && selecte
 assert.match(periodicStatusBody, /window\.clearInterval\(timer\)/, "recurring status refresh must clear its timer with the effect");
 
 const pagesSource = fs.readFileSync(new URL("../src/HomePage.jsx", import.meta.url), "utf8");
+assert.match(pagesSource, /const launchAdmitted = state\.gameLaunchStatus\?\.valid === true/);
+assert.match(pagesSource, /const canStart = lifecycleProviderAvailable && launchAdmitted && rootResolved && rootValid/, "Home Start must require strict launch admission without changing the public root predicate");
 assert.match(
   pagesSource,
   /disabled=\{state\.autoReconnect == null \|\| !state\.production\}/,

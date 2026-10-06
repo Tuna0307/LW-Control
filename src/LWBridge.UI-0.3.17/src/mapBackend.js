@@ -309,6 +309,10 @@ export function createMapApi(bridge) {
     setServerJumpHistory: (history) => bridge.invoke(MAP_COMMANDS.serverJumpHistorySet, scoped({ history })),
     coordinateJump: (row) => bridge.invoke(MAP_COMMANDS.coordinateJump, scoped({ serverId: row.serverId, x: row.x, y: row.y })),
     setPlayerMark: (row, marked) => bridge.invoke(MAP_COMMANDS.playerMarkSet, scoped({ row, marked })),
+    listenPlayerMarkChanged: (callback) => bridge.listen("bridge://player-mark-changed", (event) => {
+      const payload = unwrapProfileEvent(event, profileId);
+      if (payload !== null) callback(payload);
+    }),
     exportCities: (query, options) => bridge.invoke(MAP_COMMANDS.cityExport, scoped({ query, ...options })),
     refreshTreasureStates: (serverId, records) => bridge.invoke(
       MAP_COMMANDS.treasureStateRefresh,

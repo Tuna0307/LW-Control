@@ -165,6 +165,18 @@ internal static class GameRootSelectChecks
                     selected),
                 "backend valid selection persists selected root");
 
+            using JsonDocument emptyPayload = JsonDocument.Parse("{}");
+            JsonElement weakLaunchStatus = JsonSerializer.SerializeToElement(
+                await backend.InvokeAsync(
+                    "local_game_launch_status",
+                    emptyPayload.RootElement.Clone(),
+                    CancellationToken.None),
+                JsonOptions.Default);
+            Require(
+                !weakLaunchStatus.GetProperty("valid").GetBoolean() &&
+                weakLaunchStatus.GetProperty("error").GetString() == "GAME_ROOT_REQUIRED_FILES_MISSING",
+                "clone-internal launch admission rejects a public-valid native-minimal root without changing game_root_status");
+
             await VerifyLifecycleRebindAsync(root);
         }
         finally

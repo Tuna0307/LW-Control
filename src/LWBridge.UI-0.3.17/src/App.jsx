@@ -152,6 +152,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
   const [autoClosePopupIncoming, setAutoClosePopupIncoming] = useState(false);
   const [proxyStatus, setProxyStatus] = useState(null);
   const [gameRootStatus, setGameRootStatus] = useState(null);
+  const [gameLaunchStatus, setGameLaunchStatus] = useState(null);
   const [gameRecoveryStatus, setGameRecoveryStatus] = useState(null);
   const [autoLaunchGame, setAutoLaunchGame] = useState(() => readAutoLaunchGamePreference(localStorage));
   const [homeBusy, setHomeBusy] = useState("");
@@ -184,6 +185,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
   const selectedProfileIdRef = useRef(selectedProfileId);
   const lifecycleInFlightProfilesRef = useRef(new Set());
   const startupReconcileStartedRef = useRef(false);
+  const startupAutoLaunchGameRef = useRef(autoLaunchGame);
   selectedProfileIdRef.current = selectedProfileId;
   const [profileConfigDrafts] = useState(() => createProfileConfigDraftRegistry());
   const autoWeekendShieldStore = profileConfigDrafts.get(
@@ -398,7 +400,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
     setGameActionError("");
     backendBridge.invoke(
       "profile_instances_reconcile",
-      { autoLaunchAll: autoLaunchGame },
+      { autoLaunchAll: startupAutoLaunchGameRef.current },
       HOME_LIFECYCLE_TIMEOUT_MS,
     ).then(async (result) => {
       if (closed || selectedProfileIdRef.current !== profileId) return;
@@ -420,7 +422,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
       }
     });
     return () => { closed = true; };
-  }, [autoLaunchGame, readStatusSnapshot, selectedProfileId]);
+  }, [readStatusSnapshot, selectedProfileId]);
 
   useEffect(() => {
     if (!backendBridge.available || !selectedProfileId) return undefined;
@@ -438,9 +440,18 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
 
   useEffect(() => {
     if (!backendBridge.available || !selectedProfileId) return;
-    backendBridge.invoke("game_root_status", {})
-      .then(acknowledgeGameRootStatus)
-      .catch((error) => setGameRootError(error?.message || String(error)));
+    let closed = false;
+    Promise.allSettled([
+      backendBridge.invoke("game_root_status", {}),
+      backendBridge.invoke("local_game_launch_status", {}),
+    ]).then(([rootResult, launchResult]) => {
+      if (closed || selectedProfileIdRef.current !== selectedProfileId) return;
+      if (rootResult.status === "fulfilled") acknowledgeGameRootStatus(rootResult.value);
+      else setGameRootError(rootResult.reason?.message || String(rootResult.reason));
+      if (launchResult.status === "fulfilled") setGameLaunchStatus(launchResult.value);
+      else setGameLaunchStatus({ valid: false, error: launchResult.reason?.code || launchResult.reason?.message || String(launchResult.reason) });
+    });
+    return () => { closed = true; };
   }, [acknowledgeGameRootStatus, selectedProfileId]);
 
   useEffect(() => {
@@ -613,6 +624,8 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
       }
       const next = await backendBridge.invoke("game_root_status", {});
       acknowledgeGameRootStatus(next);
+      const launchStatus = await backendBridge.invoke("local_game_launch_status", {});
+      setGameLaunchStatus(launchStatus);
     } catch (error) {
       setGameRootError(error?.message || String(error));
     } finally {
@@ -778,6 +791,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
     homeState: {
       rootResolved: gameRootStatus !== null,
       gameRootStatus,
+      gameLaunchStatus,
       proxyStatus,
       online,
       gameRecoveryStatus,

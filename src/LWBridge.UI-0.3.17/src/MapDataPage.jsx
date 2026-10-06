@@ -231,6 +231,16 @@ const PREVIEW_TAB_BY_STATE = Object.freeze({
   "map-actions-message-partial": "dispatch",
 });
 
+function mergeTreasureStates(rows, states) {
+  const values = Array.isArray(states) ? states : Object.values(states || {});
+  const byUuid = new Map(values.map((state) => [String(state?.uuid || ""), state]));
+  if (byUuid.size === 0) return rows;
+  return rows.map((row) => {
+    const state = byUuid.get(String(row?.uuid || ""));
+    return state ? { ...row, ...state } : row;
+  });
+}
+
 export function MapDataPage({
   mapApi,
   bridgeMode,
@@ -307,6 +317,7 @@ export function MapDataPage({
   const [rows, setRows] = useState([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [treasureStatesRefreshing, setTreasureStatesRefreshing] = useState(false);
   const [scanError, setScanError] = useState("");
   const [queryError, setQueryError] = useState("");
   const [actionBusy, setActionBusy] = useState("");
@@ -325,6 +336,7 @@ export function MapDataPage({
   const summaryGeneration = useRef(0);
   const optionsGeneration = useRef(0);
   const searchGeneration = useRef(0);
+  const treasureRefreshGeneration = useRef(0);
   const tabViewCache = useRef(new Map());
   const dataServerIdRef = useRef(currentServerId);
 
@@ -465,6 +477,8 @@ export function MapDataPage({
     dataServerIdRef.current = dataServerId;
     if (dataServerId > 0) optionsGeneration.current += 1;
     searchGeneration.current += 1;
+    treasureRefreshGeneration.current += 1;
+    setTreasureStatesRefreshing(false);
     tabViewCache.current.clear();
     setPage(1);
     setRows([]);
@@ -531,8 +545,32 @@ export function MapDataPage({
       }
       setRows(result.rows);
       setTotal(result.total);
+      if (
+        tab === "treasure" && online && !scanState.isReading &&
+        scanState.serverId === dataServerId && result.rows.length > 0 &&
+        typeof mapApi.refreshTreasureStates === "function"
+      ) {
+        const refreshGeneration = treasureRefreshGeneration.current + 1;
+        treasureRefreshGeneration.current = refreshGeneration;
+        setTreasureStatesRefreshing(true);
+        mapApi.refreshTreasureStates(dataServerId, result.rows).then((refreshed) => {
+          if (refreshGeneration === treasureRefreshGeneration.current) {
+            setRows((current) => mergeTreasureStates(current, refreshed?.states));
+          }
+        }).catch((error) => {
+          const message = String(error);
+          if (!message.includes("SCAN_RUNNING") && !message.includes("stop the map scan first")) {
+            // Recovered source logs this failure only; the canonical page has no log surface.
+          }
+        }).finally(() => {
+          if (refreshGeneration === treasureRefreshGeneration.current) setTreasureStatesRefreshing(false);
+        });
+      } else if (tab === "treasure") {
+        setTreasureStatesRefreshing(false);
+      }
     }).catch((error) => {
       if (generation === searchGeneration.current) {
+        if (tab === "treasure") setTreasureStatesRefreshing(false);
         setRows([]);
         setTotal(0);
         // Recovered rr logs search rejection without adding a visible query-error banner.
@@ -610,6 +648,11 @@ export function MapDataPage({
     const unsubscribe = typeof mapApi.listenPlunderJobsChanged === "function" ? mapApi.listenPlunderJobsChanged(loadPlunderJobs) : undefined;
     return () => { if (typeof unsubscribe === "function") unsubscribe(); };
   // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mapApi]);
+
+  useEffect(() => {
+    if (typeof mapApi.listenPlayerMarkChanged !== "function") return undefined;
+    return mapApi.listenPlayerMarkChanged(() => setSearchRevision((value) => value + 1));
   }, [mapApi]);
 
   async function loadPlunderJobs() {
@@ -722,6 +765,8 @@ export function MapDataPage({
   function changeTab(nextTab) {
     if (nextTab === tab) return;
     searchGeneration.current += 1;
+    treasureRefreshGeneration.current += 1;
+    setTreasureStatesRefreshing(false);
     const outgoingTab = tab === "scheduledPlunder" ? null : tab;
     const incomingTab = nextTab === "scheduledPlunder" ? null : nextTab;
     const incomingCached = incomingTab ? tabViewCache.current.has(incomingTab) : true;
@@ -859,14 +904,15 @@ export function MapDataPage({
     });
   }
 
-  // Recovered action callbacks. They exist only to define selection retention and busy/message ownership; the
-  // provider methods they call are absent from the production map API, so the buttons stay fenced (disabled).
+  // Recovered action callbacks. Dispatch/Truck providers are source-backed in
+  // canonical production. Ghost preparation remains unavailable in the current
+  // client provider, so Ghost stays fenced before dispatch.
   const dispatchCount = selectionCount(dispatchSelection);
   const truckCount = selectionCount(truckSelection);
   const dispatchKeys = useMemo(() => selectionKeySet(dispatchSelection), [dispatchSelection]);
   const truckKeys = useMemo(() => selectionKeySet(truckSelection), [truckSelection]);
   const delay = parseRandomDelay(randomDelay);
-  const scheduleProvider = providerSupports(mapApi, SCHEDULING_PROVIDER_METHODS.dispatch);
+  const scheduleProvider = tab === "dispatch" && providerSupports(mapApi, SCHEDULING_PROVIDER_METHODS.dispatch);
   const truckProvider = providerSupports(mapApi, SCHEDULING_PROVIDER_METHODS.truck);
   const shareProvider = providerSupports(mapApi, SCHEDULING_PROVIDER_METHODS.share);
   const jobActionsEnabled = providerSupports(mapApi, SCHEDULING_PROVIDER_METHODS.jobActions);
@@ -1170,7 +1216,7 @@ export function MapDataPage({
         {queryError ? <div className="map-scan-error" role="alert">{queryError}</div> : null}
         {tab !== "scheduledPlunder" ? (
           <>
-            <MapTable kind={tab} gameTexts={gameTexts} itemKey={itemKey} rows={rows} loading={loading} treasureStatesRefreshing={previewFixture && previewState === "map-treasure-checking" && tab === "treasure" && previewTreasureStatesRefreshing === true} sorts={activeSorts} onSort={changeSort} onCoordinateJump={coordinateJump} onPlayerMark={togglePlayerMark} actionBusy={Boolean(actionBusy)} actionDisabled={!online || scanState.isReading} jumpingKey={previewFixture && previewState === "map-row-actions" ? previewJumpingKeys?.[tab] || "" : actionBusy.startsWith("jump:") ? actionBusy.slice(5) : ""} selectedKeys={tab === "truck" ? truckKeys : dispatchKeys} onSelect={tab === "truck" ? toggleTruckRow : toggleDispatchRow} />
+            <MapTable kind={tab} gameTexts={gameTexts} itemKey={itemKey} rows={rows} loading={loading} treasureStatesRefreshing={previewFixture ? previewState === "map-treasure-checking" && tab === "treasure" && previewTreasureStatesRefreshing === true : treasureStatesRefreshing} sorts={activeSorts} onSort={changeSort} onCoordinateJump={coordinateJump} onPlayerMark={togglePlayerMark} actionBusy={Boolean(actionBusy)} actionDisabled={!online || scanState.isReading} jumpingKey={previewFixture && previewState === "map-row-actions" ? previewJumpingKeys?.[tab] || "" : actionBusy.startsWith("jump:") ? actionBusy.slice(5) : ""} selectedKeys={tab === "truck" ? truckKeys : dispatchKeys} onSelect={tab === "truck" ? toggleTruckRow : toggleDispatchRow} />
             <Pagination page={page} total={total} onPage={setPage} />
           </>
         ) : (

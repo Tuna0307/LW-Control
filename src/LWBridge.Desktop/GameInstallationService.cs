@@ -275,6 +275,28 @@ internal sealed class GameInstallationService
             candidates);
     }
 
+    // Clone-internal launch admission for the exact public/native-selected root.
+    // Do not use GetStatus() here: its strict resolver may deliberately fall back
+    // to a different detected installation when the configured root is invalid,
+    // which is useful for legacy startup recovery but would make Home claim the
+    // currently selected public root is launchable when the lifecycle is actually
+    // bound elsewhere (or not bound at all).
+    internal GameRootStatus GetLaunchAdmissionStatus()
+    {
+        NativeGameRootStatus selected = GetNativeStatus();
+        if (!selected.Valid || string.IsNullOrWhiteSpace(selected.Root))
+            return new GameRootStatus(
+                false,
+                string.Empty,
+                selected.Source,
+                "GAME_ROOT_NOT_FOUND",
+                null,
+                null,
+                null,
+                null);
+        return Validate(selected.Root, selected.Source);
+    }
+
     private static void AddNativeCandidate(
         List<GameRootCandidate> candidates,
         HashSet<string> seen,
