@@ -1,5 +1,6 @@
 using System.Text.Json;
 using LWBridge.Desktop;
+using Map317 = LWBridge.Map317;
 
 namespace LWBridge.Desktop.Checks;
 
@@ -17,6 +18,7 @@ internal static class MapAutoScanCommandServiceChecks
         await TimeoutStopsOnlyTheOwnedAutoScanAsync();
         await DisableStopsOwnedAutoScanButNeverManualScanAsync();
         await StaleAutoOwnerCannotStopReplacementManualScanAsync();
+        await RealMap317StaleAutoOwnerCannotStopReplacementManualScanAsync();
         await ManualOwnershipAfterAdmissionCannotBeMovedAsync();
         await AdmissionIsSerializedAsync();
         await ExplicitCancelStopsOwnedScanAndSchedulesNextCycleAsync();
@@ -487,6 +489,101 @@ internal static class MapAutoScanCommandServiceChecks
         finally { DeleteRoot(root); }
     }
 
+    private static async Task RealMap317StaleAutoOwnerCannotStopReplacementManualScanAsync()
+    {
+        string root = TempRoot("real-map317-stale-owner-manual");
+        try
+        {
+            var clock = new FakeClock(92_000);
+            var providers = new ControlledMap317Providers(initialServerId: 31);
+            using var map = new Map317CommandService(
+                Path.Combine(root, "map-data.db"),
+                providers.MapProvider,
+                providers.ActionProvider,
+                startPlunderWorkers: false);
+            var pollEntered = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+            async Task BlockingPoll(TimeSpan delay, CancellationToken token)
+            {
+                Check(delay == TimeSpan.FromMilliseconds(MapAutoScanCommandService.ScanPollMilliseconds),
+                    "real Map317 replacement race must pause on the first Auto completion poll");
+                pollEntered.TrySetResult();
+                await Task.Delay(Timeout.InfiniteTimeSpan, token).ConfigureAwait(false);
+            }
+
+            await using var auto = new MapAutoScanCommandService(
+                Path.Combine(root, "auto-state.json"),
+                new MapAutoScanExecutionBoundary
+                {
+                    IsOnline = () => true,
+                    IsMapScanActive = () => map.IsScanActive,
+                    ReadStatusAsync = map.ReadAutoScanStatusAsync,
+                    StartTargetScanAsync = map.StartAutoScanTargetAsync,
+                    ReturnServerAsync = map.ReturnAutoScanToServerAsync,
+                    StopScanIfOwnedAsync = map.StopAutoScanIfOwnedAsync,
+                },
+                new MapAutoScanSchedulerHooks
+                {
+                    UtcNowMilliseconds = () => clock.Now,
+                    DelayAsync = BlockingPoll,
+                },
+                startScheduler: false);
+
+            await auto.UpdateConfigAsync(MapAutoScanConfig.Default with
+            {
+                Enabled = true,
+                ServerIds = new[] { 31 },
+                SelectedTypes = new[] { "city" },
+                ScanMode = "fast",
+                ReturnToOriginalServer = false,
+            });
+            await pollEntered.Task.WaitAsync(TimeSpan.FromSeconds(2));
+
+            Check(providers.StartRequests.Count == 1 && map.IsScanActive,
+                "real Map317 Auto A must own the accepted native scan before replacement");
+            string autoRunId = providers.StartRequests.Single().ScanRunId;
+
+            CompleteInjectedMapScanAndReleaseLease(map, autoRunId);
+            Check(!map.IsScanActive,
+                "controlled provider completion must retire Auto A native scan ownership before Manual M starts");
+
+            object? rawManual = await map.InvokeAsync(
+                "map_scan_start",
+                JsonSerializer.SerializeToElement(new
+                {
+                    selectedTypes = new[] { "city" },
+                    scanMode = "fast",
+                    resume = false,
+                }, JsonOptions.Default),
+                CancellationToken.None);
+            JsonElement manual = JsonSerializer.SerializeToElement(rawManual, JsonOptions.Default);
+            string manualRunId = manual.GetProperty("scanRunId").GetString() ??
+                throw new InvalidOperationException("real Map317 Manual M did not expose a scan owner token");
+            Check(manualRunId != autoRunId && map.IsScanActive,
+                "Manual M must replace completed Auto A with a distinct active native run");
+
+            MapAutoScanSnapshot beforeDisable = await auto.GetSnapshotAsync();
+            Check(beforeDisable.OwnsActiveScan,
+                "Auto scheduler must still retain stale A ownership until its blocked completion poll resumes");
+            await auto.UpdateConfigAsync(beforeDisable.Config with { Enabled = false });
+            await auto.WaitForIdleAsync(new CancellationTokenSource(TimeSpan.FromSeconds(2)).Token);
+
+            MapAutoScanRuntimeStatus manualStatus =
+                await map.ReadAutoScanStatusAsync(null, CancellationToken.None);
+            Check(manualStatus.IsReading && manualStatus.ScanRunId == manualRunId && map.IsScanActive,
+                "disabling stale Auto A must leave replacement Manual M current and reading in the real Map317 service");
+            Check(providers.StopCalls == 0,
+                "stale Auto A stop-if-owned must reject Manual M before invoking the provider stop boundary");
+            Check(!(await auto.GetSnapshotAsync()).OwnsActiveScan,
+                "real Map317 stale Auto A token must retire after stop-if-owned rejects Manual M");
+
+            _ = await map.InvokeAsync(
+                "map_scan_stop",
+                JsonSerializer.SerializeToElement(new { }, JsonOptions.Default),
+                CancellationToken.None);
+        }
+        finally { DeleteRoot(root); }
+    }
+
     private static async Task ManualOwnershipAfterAdmissionCannotBeMovedAsync()
     {
         string root = TempRoot("manual-after-admission");
@@ -750,6 +847,27 @@ internal static class MapAutoScanCommandServiceChecks
             },
             startScheduler: startScheduler);
 
+    private static void CompleteInjectedMapScanAndReleaseLease(
+        Map317CommandService service,
+        string expectedRunId)
+    {
+        const System.Reflection.BindingFlags flags =
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        var controlField = typeof(Map317CommandService).GetField("control", flags) ??
+            throw new MissingFieldException(typeof(Map317CommandService).FullName, "control");
+        var control = controlField.GetValue(service) as Map317.MapControlPlane ??
+            throw new InvalidOperationException("real Map317 test could not access the injected control plane");
+        Check(control.ScanState.IsReading && control.ScanState.ScanRunId == expectedRunId,
+            "controlled completion must target the exact accepted Auto A run");
+        Map317.MapScanState completed = control.CompleteScan();
+        Check(!completed.IsReading && completed.ScanRunId == expectedRunId,
+            "controlled provider completion must publish Auto A before releasing native admission");
+
+        var releaseScanLease = typeof(Map317CommandService).GetMethod("ReleaseScanLease", flags) ??
+            throw new MissingMethodException(typeof(Map317CommandService).FullName, "ReleaseScanLease");
+        releaseScanLease.Invoke(service, null);
+    }
+
     private static async Task ExpectAsync<T>(Func<Task> action, string message) where T : Exception
     {
         try { await action(); }
@@ -778,6 +896,70 @@ internal static class MapAutoScanCommandServiceChecks
     {
         internal long Now { get; set; } = now;
         internal void Advance(long milliseconds) => Now = checked(Now + milliseconds);
+    }
+
+    private sealed class ControlledMap317Providers
+    {
+        internal ControlledMap317Providers(int initialServerId)
+        {
+            CurrentServerId = initialServerId;
+            MapProvider = new Map317.MapProviderAdapter(
+                _ => ValueTask.FromResult(Context()),
+                _ => ValueTask.FromResult(Context()),
+                (request, _) =>
+                {
+                    StartRequests.Add(request);
+                    return ValueTask.FromResult(new Map317.MapProviderStartResult(
+                        Accepted: true,
+                        TotalBlocks: 1,
+                        NativeCaptureReady: true));
+                },
+                _ =>
+                {
+                    StopCalls++;
+                    return ValueTask.CompletedTask;
+                });
+            ActionProvider = new Map317.MapActionProviderAdapter
+            {
+                GotoWorldCoordinate = (_, _, _, _) => ValueTask.CompletedTask,
+                GotoWorldMarch = (_, _, _) => ValueTask.CompletedTask,
+                GetCurrentServerId = _ => ValueTask.FromResult(CurrentServerId),
+                GotoServer = (serverId, _) =>
+                {
+                    CurrentServerId = serverId;
+                    return ValueTask.CompletedTask;
+                },
+                InspectTreasureStates = (_, _, _) => ValueTask.FromResult(
+                    new Map317.TreasureInspectionResult(string.Empty, string.Empty, Array.Empty<JsonElement>())),
+                GetTreasureClaimStatus = _ => ValueTask.FromResult(JsonSerializer.SerializeToElement(new { })),
+                ClaimTreasures = (_, _) => ValueTask.FromResult(JsonSerializer.SerializeToElement(new { })),
+                ShareDispatchTaskToAlliance = (_, _) => ValueTask.FromResult(new Map317.DispatchShareProviderResult(false)),
+                PrepareGhostPlunderTasks = (_, _) => ValueTask.FromResult<IReadOnlyList<JsonElement>>(Array.Empty<JsonElement>()),
+                GetMapPlunderServerDayStart = _ => ValueTask.FromResult<Map317.MapPlunderServerDayProviderResult?>(null),
+                ArmDispatchPlunder = (_, _) => ValueTask.FromResult<IReadOnlyList<Map317.DispatchPlunderArmResult>>(Array.Empty<Map317.DispatchPlunderArmResult>()),
+                ArmTruckPlunder = (_, _) => ValueTask.FromResult(new Map317.TruckPlunderArmResult(false)),
+                DrainDispatchPlunderResults = _ => ValueTask.FromResult<IReadOnlyList<Map317.DispatchPlunderResultEvent>>(Array.Empty<Map317.DispatchPlunderResultEvent>()),
+                DrainTruckPlunderResults = _ => ValueTask.FromResult<IReadOnlyList<Map317.TruckPlunderResultEvent>>(Array.Empty<Map317.TruckPlunderResultEvent>()),
+                ClearTruckPlunderPending = (_, _, _, _) => ValueTask.CompletedTask,
+            };
+        }
+
+        internal int CurrentServerId { get; private set; }
+        internal int StopCalls { get; private set; }
+        internal List<Map317.MapProviderStartRequest> StartRequests { get; } = [];
+        internal Map317.MapProviderAdapter MapProvider { get; }
+        internal Map317.MapActionProviderAdapter ActionProvider { get; }
+
+        private Map317.MapProviderContext Context() =>
+            new(
+                IsAvailable: true,
+                IsInWorld: true,
+                ServerId: CurrentServerId,
+                ServerIdSource: "live",
+                WorldId: 1,
+                TileWidth: 100,
+                TileHeight: 100,
+                ExpectedTotalBlocks: 1);
     }
 
     private sealed class FakeExecution

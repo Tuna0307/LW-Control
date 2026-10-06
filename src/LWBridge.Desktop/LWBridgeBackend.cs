@@ -60,6 +60,7 @@ internal sealed class LWBridgeBackend
     private readonly int? firstLiveResultServerId;
     private readonly Func<object>? mapScanStatusProvider;
     private readonly Func<object?>? runtimeTasksProvider;
+    private readonly Func<bool>? bridgeReadyProvider;
 
     public LWBridgeBackend(
         LocalConfigStore? config = null,
@@ -73,7 +74,8 @@ internal sealed class LWBridgeBackend
         Func<object?>? runtimeTasksProvider = null,
         string? profileRuntimeDirectory = null,
         GameInstallationTestHooks? installationTestHooks = null,
-        ProxyStatusTestHooks? proxyStatusTestHooks = null)
+        ProxyStatusTestHooks? proxyStatusTestHooks = null,
+        Func<bool>? bridgeReadyProvider = null)
     {
         this.config = config ?? new LocalConfigStore();
         this.asyncCommands = asyncCommands;
@@ -90,6 +92,7 @@ internal sealed class LWBridgeBackend
         this.firstLiveResultServerId = firstLiveResultServerId;
         this.mapScanStatusProvider = mapScanStatusProvider;
         this.runtimeTasksProvider = runtimeTasksProvider;
+        this.bridgeReadyProvider = bridgeReadyProvider;
         installation = new(this.config, installationTestHooks);
         proxyStatus = new ProxyStatusCommandService(
             this.config.Snapshot.ProfileId,
@@ -460,12 +463,14 @@ internal sealed class LWBridgeBackend
             case "lastwar_localize":
                 return lastWarLocales.Localize(payload);
             case "local_config_get":
+                RequireOptionalProfile(payload);
                 return new
                 {
                     autoLaunchGame = config.Snapshot.AutoLaunchGame,
                     autoReconnect = config.Snapshot.AutoReconnect,
                 };
             case "local_config_set":
+                RequireOptionalProfile(payload);
                 return SetLocalConfig(payload);
             default:
                 throw new BridgeCommandException(
@@ -727,7 +732,7 @@ internal sealed class LWBridgeBackend
         {
             // OVL-02: only the current owned Overview session's fresh, exact
             // game-side heartbeat is authoritative bridge readiness.
-            xluaOnline = overviewLifecycle?.IsReady ?? false,
+            xluaOnline = bridgeReadyProvider?.Invoke() ?? overviewLifecycle?.IsReady ?? false,
             pending = bridgeHostState?.PendingCallCount,
             config = new
             {

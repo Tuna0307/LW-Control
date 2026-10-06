@@ -90,6 +90,7 @@ internal sealed class LWBridgeWindow : Form
     private DocumentSession documentSession = new(1, EventAllowlist);
     private bool documentReady;
     private bool sessionClosed;
+    private int profileRuntimeClosed;
     private int rejectedNavigationCount;
     private int lastClosedSubscriptionCount;
     private int lastClosedRequestCount;
@@ -105,6 +106,11 @@ internal sealed class LWBridgeWindow : Form
     private string? homeMapCampaignRejectedCommand;
     private string homeMapCampaignExportMode = "cancel";
     private readonly List<string> homeMapCampaignShutdownFailures = [];
+    private readonly object homeMapCampaignEventGate = new();
+    private readonly List<HomeMapCampaignEventObservation> homeMapCampaignEvents = [];
+    private bool homeMapCampaignConnected = true;
+    private int homeMapCampaignScanStartCount;
+    private int homeMapCampaignScanStopCount;
     private readonly WebView2 webView = new()
     {
         Dock = DockStyle.Fill,
@@ -481,6 +487,8 @@ internal sealed class LWBridgeWindow : Form
         bool focusGame,
         CancellationToken cancellationToken)
     {
+        if (Volatile.Read(ref profileRuntimeClosed) != 0 || sessionClosed)
+            throw new BridgeCommandException("APP_SHUTTING_DOWN", "APP_SHUTTING_DOWN");
         if (productionApplicationRoot is null ||
             primaryProfileId is null ||
             primaryProfileSeed is null ||
@@ -496,6 +504,8 @@ internal sealed class LWBridgeWindow : Form
         try
         {
             cancellationToken.ThrowIfCancellationRequested();
+            if (Volatile.Read(ref profileRuntimeClosed) != 0 || sessionClosed)
+                throw new BridgeCommandException("APP_SHUTTING_DOWN", "APP_SHUTTING_DOWN");
             if (string.Equals(backend.ProfileId, profileId, StringComparison.Ordinal))
             {
                 if (focusGame)
@@ -510,6 +520,8 @@ internal sealed class LWBridgeWindow : Form
 
             using ProfileRuntimeOwner next = BuildProfileRuntimeReplacement(profileId);
             cancellationToken.ThrowIfCancellationRequested();
+            if (Volatile.Read(ref profileRuntimeClosed) != 0 || sessionClosed)
+                throw new BridgeCommandException("APP_SHUTTING_DOWN", "APP_SHUTTING_DOWN");
 
             LWBridgeControlPipeHostState? oldBridgeHost = bridgeHostState;
             OverviewLifecycleService? oldLifecycle = overviewLifecycleService;
@@ -609,14 +621,48 @@ internal sealed class LWBridgeWindow : Form
             throw new InvalidOperationException("Isolated Home/Map campaign runtime is unavailable.");
 
         int serverId = string.Equals(profileId, "campaign-B", StringComparison.Ordinal) ? 318 : 317;
+        int currentServerId = serverId;
         var provider = new LWBridge.Map317.MapProviderAdapter(
             _ => ValueTask.FromResult(new LWBridge.Map317.MapProviderContext(
-                true, true, serverId, "live", 1, 100, 100, 1)),
+                true, true, Volatile.Read(ref currentServerId), "live", 1, 100, 100, 1)),
             _ => ValueTask.FromResult(new LWBridge.Map317.MapProviderContext(
-                true, true, serverId, "live", 1, 100, 100, 1)),
-            (_, _) => ValueTask.FromResult(new LWBridge.Map317.MapProviderStartResult(
-                false, 1, false, 0, 0, "isolated campaign provider rejects scan execution")),
-            _ => ValueTask.CompletedTask);
+                true, true, Volatile.Read(ref currentServerId), "live", 1, 100, 100, 1)),
+            (_, _) =>
+            {
+                Interlocked.Increment(ref homeMapCampaignScanStartCount);
+                return ValueTask.FromResult(new LWBridge.Map317.MapProviderStartResult(
+                    true, 1, true, 0, 0));
+            },
+            _ =>
+            {
+                Interlocked.Increment(ref homeMapCampaignScanStopCount);
+                return ValueTask.CompletedTask;
+            });
+        static LWBridge.Map317.BridgeCommandException ProtectedUnavailable() =>
+            new("GAME_CONNECTION_UNAVAILABLE", "game connection unavailable");
+        var actionProvider = new LWBridge.Map317.MapActionProviderAdapter
+        {
+            GotoWorldCoordinate = (_, _, _, _) => ValueTask.CompletedTask,
+            GotoWorldMarch = (_, _, _) => ValueTask.CompletedTask,
+            GetCurrentServerId = _ => ValueTask.FromResult(Volatile.Read(ref currentServerId)),
+            GotoServer = (targetServerId, _) =>
+            {
+                Volatile.Write(ref currentServerId, targetServerId);
+                return ValueTask.CompletedTask;
+            },
+            InspectTreasureStates = (_, _, _) => ValueTask.FromException<LWBridge.Map317.TreasureInspectionResult>(ProtectedUnavailable()),
+            GetTreasureClaimStatus = _ => ValueTask.FromException<JsonElement>(ProtectedUnavailable()),
+            ClaimTreasures = (_, _) => ValueTask.FromException<JsonElement>(ProtectedUnavailable()),
+            ShareDispatchTaskToAlliance = (_, _) => ValueTask.FromResult(new LWBridge.Map317.DispatchShareProviderResult(false)),
+            PrepareGhostPlunderTasks = (_, _) => ValueTask.FromException<IReadOnlyList<JsonElement>>(ProtectedUnavailable()),
+            GetMapPlunderServerDayStart = _ => ValueTask.FromResult<LWBridge.Map317.MapPlunderServerDayProviderResult?>(null),
+            ArmDispatchPlunder = (jobs, _) => ValueTask.FromResult<IReadOnlyList<LWBridge.Map317.DispatchPlunderArmResult>>(
+                jobs.Select(job => new LWBridge.Map317.DispatchPlunderArmResult(job.Kind, job.ServerId, job.TaskUuid, true)).ToArray()),
+            ArmTruckPlunder = (_, _) => ValueTask.FromResult(new LWBridge.Map317.TruckPlunderArmResult(true)),
+            DrainDispatchPlunderResults = _ => ValueTask.FromResult<IReadOnlyList<LWBridge.Map317.DispatchPlunderResultEvent>>(Array.Empty<LWBridge.Map317.DispatchPlunderResultEvent>()),
+            DrainTruckPlunderResults = _ => ValueTask.FromResult<IReadOnlyList<LWBridge.Map317.TruckPlunderResultEvent>>(Array.Empty<LWBridge.Map317.TruckPlunderResultEvent>()),
+            ClearTruckPlunderPending = (_, _, _, _) => ValueTask.CompletedTask,
+        };
         var installationHooks = new GameInstallationTestHooks
         {
             DefaultRoot = Path.Combine(isolatedConfigRoot, "missing-default"),
@@ -631,12 +677,21 @@ internal sealed class LWBridgeWindow : Form
             profileRoot,
             profileRegistryService,
             mapProvider: provider,
-            mapActionProvider: LWBridge.Map317.UnavailableMapActionProvider.Instance,
-            startPlunderWorkers: false,
-            startAutoScheduler: false,
+            mapActionProvider: actionProvider,
+            startPlunderWorkers: true,
+            startAutoScheduler: true,
             startRecoveryMonitor: false,
             startBridgeTransport: false,
-            installationTestHooks: installationHooks);
+            installationTestHooks: installationHooks,
+            proxyStatusTestHooks: new ProxyStatusTestHooks
+            {
+                GameRunning = () => homeMapCampaignConnected,
+                RuntimeManaged = () => homeMapCampaignConnected,
+                ResourceDirectory = Path.Combine(isolatedConfigRoot, "missing-proxy-resources"),
+                FileExists = _ => false,
+            },
+            bridgeReadyProvider: () => homeMapCampaignConnected,
+            mapAutoOnlineProvider: () => homeMapCampaignConnected);
     }
 
     private void AttachProfileRuntimeEvents()
@@ -2976,6 +3031,28 @@ internal sealed class LWBridgeWindow : Form
                 """, label);
         }
 
+        async Task<JsonElement> VisitRouteAsync(int index, string key, string readyExpression)
+        {
+            await RequireUiActionAsync($$"""
+                (() => {
+                  const button = document.querySelectorAll('.side-nav button')[{{index}}];
+                  if (!button || button.disabled) return false;
+                  button.click();
+                  return true;
+                })()
+                """, "route " + key);
+            await WaitForDomAsync(
+                $"document.querySelectorAll('.side-nav button')[{index}]?.getAttribute('aria-current') === 'page' && Boolean({readyExpression})",
+                "route " + key + " rendered");
+            return await ReadDomAsync($$"""
+                (() => ({
+                  key: '{{key}}',
+                  label: document.querySelectorAll('.side-nav .nav-label')[{{index}}]?.textContent?.trim() || '',
+                  active: document.querySelectorAll('.side-nav button')[{{index}}]?.getAttribute('aria-current') === 'page'
+                }))()
+                """);
+        }
+
         string expectedLanguage = string.IsNullOrWhiteSpace(language)
             ? homeMapCampaignNarrow ? "ja" : "en"
             : language;
@@ -3052,9 +3129,20 @@ internal sealed class LWBridgeWindow : Form
             (expectedLanguage == "ja" && (string.IsNullOrWhiteSpace(mapNavText) || mapNavText == "Map Data")))
             throw new InvalidDataException("Campaign proof locale selector did not change rendered navigation text.");
 
-        long initialProfileGeneration = Volatile.Read(ref profileRuntimeGeneration);
+        long firstAProfileGeneration = Volatile.Read(ref profileRuntimeGeneration);
         if (backend.ProfileId != "campaign-A")
             throw new InvalidDataException("Campaign proof did not start with profile A as the native owner.");
+
+        var routeProof = new List<JsonElement>();
+        routeProof.Add(await VisitRouteAsync(0, "overview", "document.querySelector('.quick-actions-panel')"));
+        routeProof.Add(await VisitRouteAsync(1, "automation", "document.querySelector('.automation-categories')"));
+        routeProof.Add(await VisitRouteAsync(2, "map-data", "document.querySelector('.panel.map-panel')"));
+        routeProof.Add(await VisitRouteAsync(3, "march", "document.querySelector('.squad-panel')"));
+        routeProof.Add(await VisitRouteAsync(4, "city-layout", "document.querySelector('.city-layout-panel, .city-layout-empty')"));
+        routeProof.Add(await VisitRouteAsync(5, "hotkeys", "document.querySelector('.hotkey-panel[data-hotkey-category=\"hotkeys\"]')"));
+        routeProof.Add(await VisitRouteAsync(6, "mini-games", "document.querySelector('.hotkey-panel[data-hotkey-category=\"miniGames\"]')"));
+        routeProof.Add(await VisitRouteAsync(7, "settings", "document.querySelector('.settings-panel')"));
+        routeProof.Add(await VisitRouteAsync(2, "map-data-return", "document.querySelector('.panel.map-panel')"));
 
         string[] mapKinds = ["city", "resource", "monster", "truck", "railway", "dispatch", "ghost", "treasure"];
         var tabProof = new List<object>();
@@ -3088,6 +3176,7 @@ internal sealed class LWBridgeWindow : Form
         await WaitForDomAsync(
             "document.querySelectorAll('.quick-actions-panel .toggle-row')[0]?.getAttribute('aria-checked') === 'true'",
             "profile A Auto Launch initial state");
+        Task<HomeMapCampaignDelayedRequest> delayedAutoLaunchEntered = ArmHomeMapCampaignCommandDelay("local_config_set");
         await RequireUiActionAsync("""
             (() => {
               const toggle = document.querySelectorAll('.quick-actions-panel .toggle-row')[0];
@@ -3096,13 +3185,63 @@ internal sealed class LWBridgeWindow : Form
               return true;
             })()
             """, "Home Auto Launch toggle");
-        for (int attempt = 0; attempt < 200 && activeProfileConfig.Snapshot.AutoLaunchGame; attempt++)
-            await Task.Delay(25);
-        if (activeProfileConfig.Snapshot.AutoLaunchGame)
-            throw new TimeoutException("Profile A Auto Launch change did not persist through the real UI control.");
+        HomeMapCampaignDelayedRequest delayedAutoLaunch =
+            await delayedAutoLaunchEntered.WaitAsync(TimeSpan.FromSeconds(5));
+        if (delayedAutoLaunch.ProfileGeneration != firstAProfileGeneration || delayedAutoLaunch.ProfileId != "campaign-A")
+            throw new InvalidDataException("Profile A Auto Launch save was not captured against the first-A owner generation.");
         await WaitForDomAsync(
             "document.querySelectorAll('.quick-actions-panel .toggle-row')[0]?.getAttribute('aria-checked') === 'false'",
-            "profile A Auto Launch rendered false");
+            "profile A optimistic Auto Launch false");
+
+        await SelectProfileAsync("Campaign B", "campaign-B", "Auto Launch A to B while A save is deferred");
+        await WaitForDomAsync(
+            "document.querySelectorAll('.quick-actions-panel .toggle-row')[0]?.getAttribute('aria-checked') === 'true'",
+            "profile B Auto Launch remains true while A save is deferred");
+        if (activeProfileConfig.Snapshot.AutoLaunchGame != true)
+            throw new InvalidDataException("Profile B native Auto Launch preference was corrupted before old A acknowledgement.");
+        ReleaseHomeMapCampaignCommandDelay();
+        await WaitForRequestsToDrainAsync("old profile A Auto Launch acknowledgement");
+        await Task.Delay(100);
+        JsonElement profileBAfterOldAutoLaunch = await ReadDomAsync("""
+            (() => ({
+              checked: document.querySelectorAll('.quick-actions-panel .toggle-row')[0]?.getAttribute('aria-checked') || '',
+              activeProfile: [...document.querySelectorAll('.profile-compact-item')].find(button => button.classList.contains('active'))?.querySelector('strong')?.textContent?.trim() || ''
+            }))()
+            """);
+        if (profileBAfterOldAutoLaunch.GetProperty("checked").GetString() != "true" ||
+            activeProfileConfig.Snapshot.AutoLaunchGame != true)
+            throw new InvalidDataException("Late profile A Auto Launch acknowledgement overwrote profile B intent.");
+
+        await SelectProfileAsync("Campaign A", "campaign-A", "Auto Launch B to A persistence check");
+        long initialProfileGeneration = Volatile.Read(ref profileRuntimeGeneration);
+        if (initialProfileGeneration <= firstAProfileGeneration)
+            throw new InvalidDataException("Profile A Auto Launch persistence check did not replace the native owner generation.");
+        await WaitForDomAsync(
+            "document.querySelectorAll('.quick-actions-panel .toggle-row')[0]?.getAttribute('aria-checked') === 'false'",
+            "returned profile A persisted Auto Launch false");
+        if (activeProfileConfig.Snapshot.AutoLaunchGame)
+            throw new InvalidDataException("Profile A deferred Auto Launch save did not persist to its own native config.");
+
+        RejectNextHomeMapCampaignCommand("local_config_set");
+        await RequireUiActionAsync("""
+            (() => {
+              const toggle = document.querySelectorAll('.quick-actions-panel .toggle-row')[0];
+              if (!toggle || toggle.disabled) return false;
+              toggle.click();
+              return true;
+            })()
+            """, "Home Auto Launch rejected save control");
+        await WaitForDomAsync(
+            "document.querySelectorAll('.quick-actions-panel .toggle-row')[0]?.getAttribute('aria-checked') === 'false' && !!document.querySelector('.game-root-error')",
+            "profile A rejected Auto Launch rolls back to committed false");
+        if (activeProfileConfig.Snapshot.AutoLaunchGame)
+            throw new InvalidDataException("Rejected profile A Auto Launch save mutated the native committed preference.");
+        JsonElement rejectedAutoLaunchDom = await ReadDomAsync("""
+            (() => ({
+              checked: document.querySelectorAll('.quick-actions-panel .toggle-row')[0]?.getAttribute('aria-checked') || '',
+              error: document.querySelector('.game-root-error')?.textContent?.trim() || ''
+            }))()
+            """);
 
         await RequireUiActionAsync("""
             (() => {
@@ -3114,6 +3253,50 @@ internal sealed class LWBridgeWindow : Form
             """, "Map navigation control");
         await WaitForDomAsync("!!document.querySelector('.panel.map-panel')", "Map return after Home edit");
         await SetAutoIntervalAsync(45, 317, "profile A");
+        int scanStartsBeforeAuto = Volatile.Read(ref homeMapCampaignScanStartCount);
+        int scanStopsBeforeAuto = Volatile.Read(ref homeMapCampaignScanStopCount);
+        await RequireUiActionAsync("""
+            (() => {
+              const input = document.querySelector('.map-auto-scan-master input[type="checkbox"]');
+              if (!input || input.disabled || input.checked) return false;
+              input.click();
+              return true;
+            })()
+            """, "profile A enable Auto Scan control");
+        bool autoStarted = false;
+        for (int attempt = 0; attempt < 200; attempt++)
+        {
+            MapAutoScanSnapshot snapshot = await mapAutoScanService.GetSnapshotAsync().ConfigureAwait(true);
+            if (snapshot.Running && snapshot.OwnsActiveScan && map317CommandService.IsScanActive &&
+                Volatile.Read(ref homeMapCampaignScanStartCount) > scanStartsBeforeAuto)
+            {
+                autoStarted = true;
+                break;
+            }
+            await Task.Delay(25);
+        }
+        if (!autoStarted)
+            throw new TimeoutException("Real packaged Auto Scan control did not start the inert native provider.");
+        await RequireUiActionAsync("""
+            (() => {
+              const input = document.querySelector('.map-auto-scan-master input[type="checkbox"]');
+              if (!input || input.disabled || !input.checked) return false;
+              input.click();
+              return true;
+            })()
+            """, "profile A disable running Auto Scan control");
+        await mapAutoScanService.WaitForIdleAsync(new CancellationTokenSource(TimeSpan.FromSeconds(5)).Token)
+            .ConfigureAwait(true);
+        MapAutoScanSnapshot canceledAutoSnapshot = await mapAutoScanService.GetSnapshotAsync().ConfigureAwait(true);
+        if (canceledAutoSnapshot.Config.Enabled || canceledAutoSnapshot.Running || map317CommandService.IsScanActive ||
+            Volatile.Read(ref homeMapCampaignScanStopCount) <= scanStopsBeforeAuto)
+            throw new InvalidDataException("Packaged Auto Scan cancellation did not retire the exact inert provider run.");
+        await WaitForDomAsync(
+            "document.querySelector('.status-card.status-online')?.classList.contains('online') === true",
+            "fresh paired status connected before deferred result");
+        JsonElement connectedStatusDom = await ReadDomAsync("""
+            (() => ({ text: document.querySelector('.status-card.status-online strong')?.textContent?.trim() || '', online: document.querySelector('.status-card.status-online')?.classList.contains('online') === true }))()
+            """);
         int messagesBeforeStatusProof = postedWebMessageCount;
 
         Task<HomeMapCampaignDelayedRequest> pendingStatus = ArmHomeMapCampaignCommandDelay("get_status");
@@ -3151,8 +3334,7 @@ internal sealed class LWBridgeWindow : Form
         JsonElement rejectedStatusDom = await ReadDomAsync("""
             (() => ({ text: document.querySelector('.status-card.status-online strong')?.textContent?.trim() || '', online: document.querySelector('.status-card.status-online')?.classList.contains('online') === true }))()
             """);
-        string deferredStatusText = deferredStatusDom.GetProperty("text").GetString() ?? string.Empty;
-        string deferredStatusTextJson = JsonSerializer.Serialize(deferredStatusText, JsonOptions.Default);
+        homeMapCampaignConnected = false;
         await RequireUiActionAsync("""
             (() => {
               const refresh = [...document.querySelectorAll('.top-actions button.top-action.secondary')].at(-1);
@@ -3160,10 +3342,26 @@ internal sealed class LWBridgeWindow : Form
               refresh.click();
               return true;
             })()
-            """, "Refresh status control for recovery");
+            """, "Refresh status control for disconnected state");
         await WaitForDomAsync(
-            $"document.querySelector('.status-card.status-online strong')?.textContent?.trim() !== 'Unavailable' && document.querySelector('.status-card.status-online strong')?.textContent?.trim() !== {deferredStatusTextJson} && !document.querySelector('.status-card.status-online')?.classList.contains('online')",
-            "fresh paired status recovers to a disconnected/stopped state");
+            "document.querySelector('.status-card.status-online strong')?.textContent?.trim() !== 'Unavailable' && !document.querySelector('.status-card.status-online')?.classList.contains('online')",
+            "fresh paired status disconnected/stopped state");
+        JsonElement disconnectedStatusDom = await ReadDomAsync("""
+            (() => ({ text: document.querySelector('.status-card.status-online strong')?.textContent?.trim() || '', online: document.querySelector('.status-card.status-online')?.classList.contains('online') === true }))()
+            """);
+
+        homeMapCampaignConnected = true;
+        await RequireUiActionAsync("""
+            (() => {
+              const refresh = [...document.querySelectorAll('.top-actions button.top-action.secondary')].at(-1);
+              if (!refresh || refresh.disabled) return false;
+              refresh.click();
+              return true;
+            })()
+            """, "Refresh status control for connected recovery");
+        await WaitForDomAsync(
+            "document.querySelector('.status-card.status-online')?.classList.contains('online') === true",
+            "fresh paired status recovers connected");
         JsonElement recoveredStatusDom = await ReadDomAsync("""
             (() => ({ text: document.querySelector('.status-card.status-online strong')?.textContent?.trim() || '', online: document.querySelector('.status-card.status-online')?.classList.contains('online') === true }))()
             """);
@@ -3382,9 +3580,13 @@ internal sealed class LWBridgeWindow : Form
             throw new InvalidDataException("Campaign proof narrow layout overflowed its measured desktop viewport.");
 
         string executablePath = Path.GetFullPath(Application.ExecutablePath);
+        string managedAssemblyPath = Path.ChangeExtension(executablePath, ".dll");
         string indexPath = Path.Combine(uiRootPath, "index.html");
         string executableSha256 = Convert.ToHexString(
             System.Security.Cryptography.SHA256.HashData(await File.ReadAllBytesAsync(executablePath)))
+            .ToLowerInvariant();
+        string managedAssemblySha256 = Convert.ToHexString(
+            System.Security.Cryptography.SHA256.HashData(await File.ReadAllBytesAsync(managedAssemblyPath)))
             .ToLowerInvariant();
         string uiIndexSha256 = Convert.ToHexString(
             System.Security.Cryptography.SHA256.HashData(await File.ReadAllBytesAsync(indexPath)))
@@ -3392,9 +3594,15 @@ internal sealed class LWBridgeWindow : Form
         ProductionUiBuildIdentity packageIdentity = DesktopUiContentRoot.ReadCanonicalIdentity(uiRootPath);
         string fullPath = Path.GetFullPath(outputPath);
         Directory.CreateDirectory(Path.GetDirectoryName(fullPath)!);
+        HomeMapCampaignEventObservation[] eventProof;
+        lock (homeMapCampaignEventGate)
+            eventProof = homeMapCampaignEvents.ToArray();
+        if (!eventProof.Any(item => item.EventName == "bridge://local-map-auto-scan-changed") ||
+            !eventProof.Any(item => item.EventName == "bridge://map-scan-status"))
+            throw new InvalidDataException("Campaign packaged proof did not observe named Auto/Map native events.");
         var proof = new
         {
-            schemaVersion = 2,
+            schemaVersion = 3,
             checkpoint = "LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001-RECOVERY-001-K",
             state = "proven",
             mode = "isolated-package-pinned-real-ui-controls",
@@ -3403,6 +3611,8 @@ internal sealed class LWBridgeWindow : Form
             {
                 executablePath,
                 executableSha256,
+                managedAssemblyPath,
+                managedAssemblySha256,
                 uiRootPath = Path.GetFullPath(uiRootPath),
                 uiIndexSha256,
                 buildIdentity = packageIdentity,
@@ -3418,6 +3628,7 @@ internal sealed class LWBridgeWindow : Form
                 afterRestart = restartSnapshot,
                 final = finalDom,
             },
+            routes = routeProof,
             map = new
             {
                 allEightTabs = tabProof,
@@ -3429,9 +3640,14 @@ internal sealed class LWBridgeWindow : Form
             home = new
             {
                 profileAAutoLaunchPersisted = activeProfileConfig.Snapshot.AutoLaunchGame == false,
+                delayedAutoLaunchRequest = delayedAutoLaunch,
+                profileBAfterOldAutoLaunch,
+                rejectedAutoLaunch = rejectedAutoLaunchDom,
+                statusConnected = connectedStatusDom,
                 statusDeferred = deferredStatusDom,
                 deferredRequest = deferredStatus,
                 statusRejected = rejectedStatusDom,
+                statusDisconnected = disconnectedStatusDom,
                 statusRecovered = recoveredStatusDom,
             },
             autoScan = new
@@ -3440,7 +3656,18 @@ internal sealed class LWBridgeWindow : Form
                 profileAServerIds = returnedAAuto.Config.ServerIds,
                 profileBInterval = 55,
                 profileBServerId = 318,
+                inertProviderStarts = Volatile.Read(ref homeMapCampaignScanStartCount),
+                inertProviderStops = Volatile.Read(ref homeMapCampaignScanStopCount),
+                cancelSnapshot = canceledAutoSnapshot,
                 nativeMessagesDuringStatusAndLater = postedWebMessageCount - messagesBeforeStatusProof,
+            },
+            runtimeComposition = new
+            {
+                autoSchedulerEnabled = true,
+                plunderWorkersEnabled = true,
+                recoveryMonitorEnabled = false,
+                bridgeTransportEnabled = false,
+                namedEvents = eventProof,
             },
             export = new
             {
@@ -4103,6 +4330,15 @@ internal sealed class LWBridgeWindow : Form
 
     private void SendEvent(DocumentSession session, string eventName, object? payload)
     {
+        if (homeMapCampaignProofPath is not null)
+        {
+            lock (homeMapCampaignEventGate)
+                homeMapCampaignEvents.Add(new HomeMapCampaignEventObservation(
+                    eventName,
+                    backend.ProfileId,
+                    Volatile.Read(ref profileRuntimeGeneration),
+                    DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()));
+        }
         object eventPayload = ProfileScopedEvents.Contains(eventName)
             ? new { profileId = backend.ProfileId, payload }
             : payload ?? new { };
@@ -4128,66 +4364,76 @@ internal sealed class LWBridgeWindow : Form
 
     private void OnFormClosed(object? sender, FormClosedEventArgs e)
     {
+        Interlocked.Exchange(ref profileRuntimeClosed, 1);
         sessionClosed = true;
         documentSession.Close();
-        DetachProfileRuntimeEvents();
-        if (homeMapCampaignProofPath is not null)
+        // Serialize shutdown with profile replacement. A selector that already owns
+        // the gate finishes transferring before cleanup; a queued selector observes
+        // the closed request/runtime state and cannot install a post-close owner.
+        profileSwapGate.Wait();
+        try
         {
-            void Cleanup(string name, Action action)
+            DetachProfileRuntimeEvents();
+            if (homeMapCampaignProofPath is not null)
             {
-                try { action(); }
-                catch (Exception error)
+                void Cleanup(string name, Action action)
                 {
-                    homeMapCampaignShutdownFailures.Add($"{name}:{error.GetType().Name}:{error.Message}");
+                    try { action(); }
+                    catch (Exception error)
+                    {
+                        homeMapCampaignShutdownFailures.Add($"{name}:{error.GetType().Name}:{error.Message}");
+                    }
                 }
-            }
 
-            // The proof records each current-owner shutdown boundary independently.
-            // Drain Map-owned workers before closing the lifecycle they depend on.
-            Cleanup("auto-scan", () => mapAutoScanService?.Dispose());
-            Cleanup("map317", () => map317CommandService?.Dispose());
-            Cleanup("city-layout-drafts", () => cityLayoutDraftService?.Dispose());
-            Cleanup("profile-settings", () => profileSettingsService?.Dispose());
-            Cleanup("overview-lifecycle", () => overviewLifecycleService?.Close());
-            Cleanup("bridge-host", () => bridgeHostState?.Close());
-            Cleanup("live-resource", () => liveResourceService?.Close());
-            Cleanup("profile-registry", () => profileRegistryService?.Dispose());
-            Cleanup("profile-swap-gate", profileSwapGate.Dispose);
+                // The proof records each current-owner shutdown boundary independently.
+                // Drain Map-owned workers before closing the lifecycle they depend on.
+                Cleanup("auto-scan", () => mapAutoScanService?.Dispose());
+                Cleanup("map317", () => map317CommandService?.Dispose());
+                Cleanup("city-layout-drafts", () => cityLayoutDraftService?.Dispose());
+                Cleanup("profile-settings", () => profileSettingsService?.Dispose());
+                Cleanup("overview-lifecycle", () => overviewLifecycleService?.Close());
+                Cleanup("bridge-host", () => bridgeHostState?.Close());
+                Cleanup("live-resource", () => liveResourceService?.Close());
+                Cleanup("profile-registry", () => profileRegistryService?.Dispose());
+            }
+            else
+            {
+                // Drain Map-owned workers before closing the game lifecycle they depend on.
+                try { mapAutoScanService?.Dispose(); } catch { }
+                try { map317CommandService?.Dispose(); } catch { }
+                try { cityLayoutDraftService?.Dispose(); } catch { }
+                try { profileSettingsService?.Dispose(); } catch { }
+                try { overviewLifecycleService?.Close(); } catch { }
+                // The application window remains the final owner of the currently active
+                // shared control-pipe host; profile replacement closes retired hosts earlier.
+                bridgeHostState?.Close();
+                liveResourceService?.Close();
+                profileRegistryService?.Dispose();
+            }
+            ownerEvidenceRenderCapture?.Cancel();
+            ownerEvidenceRenderCapture?.Dispose();
+            ownerEvidence?.Record("session-end", new { processId = Environment.ProcessId });
+            ownerEvidence?.Dispose();
+            if (sessionScopedMapData)
+            {
+                try { mapData?.ClearAllScanData(); }
+                catch { }
+            }
+            mapData?.Dispose();
+            if (isolatedConfigRoot is not null && homeMapCampaignProofPath is null)
+            {
+                try { Directory.Delete(isolatedConfigRoot, recursive: true); }
+                catch { }
+            }
+            if (webView.CoreWebView2 is not null)
+            {
+                webView.CoreWebView2.NavigationStarting -= OnNavigationStarting;
+                webView.CoreWebView2.WebMessageReceived -= OnWebMessageReceived;
+            }
         }
-        else
+        finally
         {
-            // Drain Map-owned workers before closing the game lifecycle they depend on.
-            try { mapAutoScanService?.Dispose(); } catch { }
-            try { map317CommandService?.Dispose(); } catch { }
-            try { cityLayoutDraftService?.Dispose(); } catch { }
-            try { profileSettingsService?.Dispose(); } catch { }
-            try { overviewLifecycleService?.Close(); } catch { }
-            // The application window remains the final owner of the currently active
-            // shared control-pipe host; profile replacement closes retired hosts earlier.
-            bridgeHostState?.Close();
-            liveResourceService?.Close();
-            profileRegistryService?.Dispose();
-            profileSwapGate.Dispose();
-        }
-        ownerEvidenceRenderCapture?.Cancel();
-        ownerEvidenceRenderCapture?.Dispose();
-        ownerEvidence?.Record("session-end", new { processId = Environment.ProcessId });
-        ownerEvidence?.Dispose();
-        if (sessionScopedMapData)
-        {
-            try { mapData?.ClearAllScanData(); }
-            catch { }
-        }
-        mapData?.Dispose();
-        if (isolatedConfigRoot is not null && homeMapCampaignProofPath is null)
-        {
-            try { Directory.Delete(isolatedConfigRoot, recursive: true); }
-            catch { }
-        }
-        if (webView.CoreWebView2 is not null)
-        {
-            webView.CoreWebView2.NavigationStarting -= OnNavigationStarting;
-            webView.CoreWebView2.WebMessageReceived -= OnWebMessageReceived;
+            profileSwapGate.Release();
         }
     }
 
@@ -4298,4 +4544,10 @@ internal sealed class LWBridgeWindow : Form
         string ProfileId,
         long ProfileGeneration,
         bool Cancelled);
+
+    private sealed record HomeMapCampaignEventObservation(
+        string EventName,
+        string ProfileId,
+        long ProfileGeneration,
+        long TimestampMilliseconds);
 }

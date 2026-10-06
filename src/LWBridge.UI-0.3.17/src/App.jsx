@@ -85,6 +85,13 @@ function initialTheme() {
   }
 }
 
+function initialAutoLaunchGame() {
+  if (backendBridge.mode === "native" && typeof window.__LWBridgeBootstrap?.autoLaunchGame === "boolean") {
+    return window.__LWBridgeBootstrap.autoLaunchGame;
+  }
+  return readAutoLaunchGamePreference(localStorage);
+}
+
 function initialAutoScanConfig(profileId, previewState) {
   if (previewState === "map-auto-scheduled" || previewState === "map-auto-running") {
     return normalizeAutoScanConfig({
@@ -173,7 +180,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
   const [gameRootStatus, setGameRootStatus] = useState(null);
   const [gameLaunchStatus, setGameLaunchStatus] = useState(null);
   const [gameRecoveryStatus, setGameRecoveryStatus] = useState(null);
-  const [autoLaunchGame, setAutoLaunchGame] = useState(() => readAutoLaunchGamePreference(localStorage));
+  const [autoLaunchGame, setAutoLaunchGame] = useState(initialAutoLaunchGame);
   const [homeBusy, setHomeBusy] = useState("");
   const [proxyBusy, setProxyBusy] = useState(false);
   const [gameLaunchBusy, setGameLaunchBusy] = useState(false);
@@ -563,7 +570,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
     const [statusResult, proxyResult, configResult] = await Promise.allSettled([
       mapApi.readStatus(),
       mapApi.readProxyStatus(),
-      backendBridge.invoke("local_config_get", {}),
+      backendBridge.invoke("local_config_get", { profileId: owner.profileId }),
     ]);
     if (!canAcknowledge() || !isCurrentProfileOwner(owner)) return;
     if (statusResult.status === "fulfilled") {
@@ -576,6 +583,8 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
         && autoLaunchNativeCommitEpochRef.current === autoLaunchNativeCommitEpoch
         && typeof configResult.value?.autoLaunchGame === "boolean") {
         autoLaunchCommittedRef.current = configResult.value.autoLaunchGame;
+        writeAutoLaunchGamePreference(localStorage, configResult.value.autoLaunchGame);
+        setAutoLaunchGame(configResult.value.autoLaunchGame);
       }
     }
     if (statusResult.status === "rejected" || proxyResult.status === "rejected") {
@@ -797,6 +806,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
 
   const updateAutoLaunch = useCallback((value) => {
     if (!backendBridge.available) return undefined;
+    const owner = { ...selectedProfileOwnerRef.current };
     const enabled = value === true;
     const revision = autoLaunchSaveRevisionRef.current + 1;
     autoLaunchSaveRevisionRef.current = revision;
@@ -805,8 +815,12 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
 
     const save = autoLaunchSaveChainRef.current
       .catch(() => undefined)
-      .then(() => backendBridge.invoke("local_config_set", { autoLaunchGame: enabled }))
+      .then(() => {
+        if (!isCurrentProfileOwner(owner)) return null;
+        return backendBridge.invoke("local_config_set", { profileId: owner.profileId, autoLaunchGame: enabled });
+      })
       .then((next) => {
+        if (next === null || !isCurrentProfileOwner(owner)) return next;
         if (typeof next?.autoLaunchGame !== "boolean") {
           throw new Error("local_config_set returned an invalid autoLaunchGame value.");
         }
@@ -819,7 +833,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
         return next;
       })
       .catch((error) => {
-        if (autoLaunchSaveRevisionRef.current === revision) {
+        if (isCurrentProfileOwner(owner) && autoLaunchSaveRevisionRef.current === revision) {
           writeAutoLaunchGamePreference(localStorage, autoLaunchCommittedRef.current);
           setAutoLaunchGame(autoLaunchCommittedRef.current);
           setGameActionError(error?.message || String(error));
@@ -829,7 +843,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
 
     autoLaunchSaveChainRef.current = save;
     return save;
-  }, []);
+  }, [isCurrentProfileOwner]);
 
   const updateAutoReconnect = useCallback(async (value) => {
     if (!backendBridge.available) return;

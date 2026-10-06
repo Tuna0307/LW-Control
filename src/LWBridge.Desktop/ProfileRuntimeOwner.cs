@@ -85,7 +85,10 @@ internal sealed class ProfileRuntimeOwner : IDisposable
         bool startRecoveryMonitor = true,
         bool startBridgeTransport = true,
         OverviewLifecycleTestHooks? lifecycleTestHooks = null,
-        GameInstallationTestHooks? installationTestHooks = null)
+        GameInstallationTestHooks? installationTestHooks = null,
+        ProxyStatusTestHooks? proxyStatusTestHooks = null,
+        Func<bool>? bridgeReadyProvider = null,
+        Func<bool>? mapAutoOnlineProvider = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(profileId);
         ArgumentNullException.ThrowIfNull(config);
@@ -155,10 +158,10 @@ internal sealed class ProfileRuntimeOwner : IDisposable
                 Path.Combine(fullProfileRoot, "runtime", "map-auto-scan.json"),
                 new MapAutoScanExecutionBoundary
                 {
-                    IsOnline = () => string.Equals(
+                    IsOnline = mapAutoOnlineProvider ?? (() => string.Equals(
                         lifecycle.CurrentConnectionState,
                         "connected",
-                        StringComparison.Ordinal),
+                        StringComparison.Ordinal)),
                     IsMapScanActive = () => map.IsScanActive,
                     ReadStatusAsync = map.ReadAutoScanStatusAsync,
                     StartTargetScanAsync = map.StartAutoScanTargetAsync,
@@ -192,7 +195,9 @@ internal sealed class ProfileRuntimeOwner : IDisposable
                 bridgeHostState: bridgeHost,
                 runtimeTasksProvider: runtimeConfigStore.ReadTasksSnapshot,
                 profileRuntimeDirectory: Path.GetDirectoryName(runtimeConfigPath),
-                installationTestHooks: installationTestHooks);
+                installationTestHooks: installationTestHooks,
+                proxyStatusTestHooks: proxyStatusTestHooks,
+                bridgeReadyProvider: bridgeReadyProvider);
             var focus = new ProfileWindowFocusService(
                 profileId,
                 new GameInstallationService(config, installationTestHooks));

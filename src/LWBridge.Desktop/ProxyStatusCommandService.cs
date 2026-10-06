@@ -108,6 +108,7 @@ internal sealed class ProxyStatusCommandService
         bool resourceAvailable,
         bool runtimeManaged)
     {
+        bool gameRunning = testHooks?.GameRunning?.Invoke() ?? false;
         var result = new Dictionary<string, object?>(StringComparer.Ordinal)
         {
             ["state"] = "targetMissing",
@@ -115,7 +116,7 @@ internal sealed class ProxyStatusCommandService
             ["resourceAvailable"] = resourceAvailable,
             ["targetExists"] = false,
             ["originalExists"] = false,
-            ["gameRunning"] = false,
+            ["gameRunning"] = gameRunning,
             ["targetPath"] = string.Empty,
             ["runtimeManaged"] = runtimeManaged,
             ["repairRequired"] = false,
