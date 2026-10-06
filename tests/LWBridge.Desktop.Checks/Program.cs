@@ -307,6 +307,27 @@ if (args.Contains("--overview-close-timing-check", StringComparer.OrdinalIgnoreC
     return 0;
 }
 
+if (args.Contains("--home-campaign-lifecycle-check", StringComparer.OrdinalIgnoreCase))
+{
+    JsonElement result = await LWBridge.Desktop.Checks.HomeCampaignLifecycleChecks.RunAsync();
+    Console.WriteLine(JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true }));
+    return 0;
+}
+
+if (args.Contains("--map-auto-scan-campaign-check", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.MapAutoScanCommandServiceChecks.RunAsync();
+    Console.WriteLine("{\"ok\":true,\"check\":\"map-auto-scan-campaign\"}");
+    return 0;
+}
+
+if (args.Contains("--map-campaign-canonical-check", StringComparer.OrdinalIgnoreCase))
+{
+    JsonElement result = await LWBridge.Desktop.Checks.MapCampaignCanonicalChecks.RunAsync();
+    Console.WriteLine(JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true }));
+    return 0;
+}
+
 if (args.Contains("--overview-status-contract-check", StringComparer.OrdinalIgnoreCase))
 {
     JsonElement result = await LWBridge.Desktop.Checks.OverviewStatusContractChecks.RunAsync();

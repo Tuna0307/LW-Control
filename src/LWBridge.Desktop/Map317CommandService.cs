@@ -27,8 +27,8 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
     };
 
     private readonly Map317.MapStore store;
-    private readonly CurrentClientMapBlockSource currentSource;
-    private readonly CurrentClientMap317ScanProvider scanProvider;
+    private readonly CurrentClientMapBlockSource? currentSource;
+    private readonly CurrentClientMap317ScanProvider? scanProvider;
     private readonly Map317.MapControlPlane control;
     private readonly Map317.MapActionControlPlane actions;
     private readonly Map317.MapPlunderWorker plunderWorker;
@@ -36,6 +36,7 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
     private readonly Task dispatchWorkerTask;
     private readonly Task truckWorkerTask;
     private readonly object scanLeaseGate = new();
+    private readonly SemaphoreSlim scanTransitionGate = new(1, 1);
     private Map317ScanProcessLease? activeScanLease;
     private int disposed;
 
@@ -75,17 +76,165 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
             plunderWorker.RunTruckOnceAsync, workerCancellation.Token));
     }
 
+    /// <summary>
+    /// Explicit isolated composition used by deterministic desktop integration proof.
+    /// It keeps the real Map317 command/control/store code while substituting only the
+    /// external game provider boundaries. No product path calls this constructor.
+    /// </summary>
+    internal Map317CommandService(
+        string databasePath,
+        Map317.IMapProvider mapProvider,
+        Map317.IMapActionProvider actionProvider,
+        bool startPlunderWorkers)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(databasePath);
+        ArgumentNullException.ThrowIfNull(mapProvider);
+        ArgumentNullException.ThrowIfNull(actionProvider);
+        store = new Map317.MapStore(databasePath);
+        currentSource = null;
+        scanProvider = null;
+        control = new Map317.MapControlPlane(store, mapProvider);
+        using (Map317ScanProcessLease? startupLease = Map317ScanProcessLease.TryAcquire(store.DatabasePath))
+        {
+            if (startupLease is not null)
+                store.ReconcileInterruptedScans(
+                    Map317ScanProcessLease.InterruptedError,
+                    DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
+        }
+        actions = new Map317.MapActionControlPlane(store, actionProvider);
+        plunderWorker = new Map317.MapPlunderWorker(store, actionProvider);
+
+        control.ScanStateChanged += (_, args) => ScanStatusChanged?.Invoke(args.State);
+        control.PlayerMarkChanged += (_, _) => PlayerMarkChanged?.Invoke();
+        actions.DispatchPlunderChanged += (_, _) => DispatchPlunderChanged?.Invoke();
+        actions.TruckPlunderChanged += (_, _) => TruckPlunderChanged?.Invoke();
+        plunderWorker.DispatchPlunderChanged += (_, _) => DispatchPlunderChanged?.Invoke();
+        plunderWorker.TruckPlunderChanged += (_, _) => TruckPlunderChanged?.Invoke();
+
+        plunderWorker.RecoverAfterRestart();
+        dispatchWorkerTask = startPlunderWorkers
+            ? Task.Run(() => RunPlunderWorkerAsync(plunderWorker.RunDispatchOnceAsync, workerCancellation.Token))
+            : Task.CompletedTask;
+        truckWorkerTask = startPlunderWorkers
+            ? Task.Run(() => RunPlunderWorkerAsync(plunderWorker.RunTruckOnceAsync, workerCancellation.Token))
+            : Task.CompletedTask;
+    }
+
     public event Action<object>? ScanStatusChanged;
     public event Action? PlayerMarkChanged;
     public event Action? DispatchPlunderChanged;
     public event Action? TruckPlunderChanged;
 
     internal ResourceCompletenessReport? LastResourceCompletenessReport =>
-        currentSource.LastResourceCompletenessReport;
+        currentSource?.LastResourceCompletenessReport;
 
     public bool CanHandle(string command) => Commands.Contains(command);
 
     internal object CreateStatus() => control.ScanState;
+
+    internal bool IsScanActive => control.ScanState.IsReading;
+
+    internal async Task<MapAutoScanRuntimeStatus> ReadAutoScanStatusAsync(
+        string? scanRunId,
+        CancellationToken cancellationToken)
+    {
+        Map317.MapScanState state = await ReadScanStatusAsync(cancellationToken).ConfigureAwait(false);
+        if (string.IsNullOrWhiteSpace(scanRunId) ||
+            string.Equals(state.ScanRunId, scanRunId, StringComparison.Ordinal))
+        {
+            return new MapAutoScanRuntimeStatus(
+                state.ServerId,
+                state.IsReading,
+                state.Error,
+                string.IsNullOrWhiteSpace(state.ScanRunId) ? null : state.ScanRunId);
+        }
+
+        Map317.MapScanRun? ownedRun = store.ReadScanRun(scanRunId);
+        if (ownedRun is null)
+            return new MapAutoScanRuntimeStatus(0, false, "Auto scan owner run is unavailable", scanRunId);
+        return new MapAutoScanRuntimeStatus(
+            ownedRun.ServerId,
+            string.Equals(ownedRun.Status, "running", StringComparison.Ordinal),
+            ownedRun.Error,
+            ownedRun.Id);
+    }
+
+    internal async Task<string> StartAutoScanTargetAsync(
+        int serverId,
+        IReadOnlyList<string> selectedTypes,
+        string scanMode,
+        CancellationToken cancellationToken)
+    {
+        await scanTransitionGate.WaitAsync(cancellationToken).ConfigureAwait(false);
+        try
+        {
+            AcquireScanLease();
+            try
+            {
+                _ = await actions.ServerJumpAsync(serverId, cancellationToken).ConfigureAwait(false);
+                JsonElement payload = JsonSerializer.SerializeToElement(new
+                {
+                    selectedTypes,
+                    scanMode,
+                    resume = false,
+                }, JsonOptions.Default);
+                Map317.MapScanState started =
+                    await StartScanWithRegisteredLeaseAsync(payload, cancellationToken).ConfigureAwait(false);
+                return started.ScanRunId;
+            }
+            catch
+            {
+                ReleaseScanLease();
+                throw;
+            }
+        }
+        finally
+        {
+            scanTransitionGate.Release();
+        }
+    }
+
+    internal async Task ReturnAutoScanToServerAsync(int serverId, CancellationToken cancellationToken)
+    {
+        await scanTransitionGate.WaitAsync(cancellationToken).ConfigureAwait(false);
+        try
+        {
+            using Map317ScanProcessLease? lease = Map317ScanProcessLease.TryAcquire(store.DatabasePath);
+            if (lease is null || control.ScanState.IsReading)
+                throw new BridgeCommandException("SCAN_RUNNING", "map scan already running");
+            lock (scanLeaseGate)
+            {
+                if (activeScanLease is not null)
+                    throw new BridgeCommandException("SCAN_RUNNING", "map scan already running");
+            }
+            _ = await actions.ServerJumpAsync(serverId, cancellationToken).ConfigureAwait(false);
+        }
+        finally
+        {
+            scanTransitionGate.Release();
+        }
+    }
+
+    internal async Task<bool> StopAutoScanIfOwnedAsync(
+        string scanRunId,
+        CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(scanRunId)) return false;
+        await scanTransitionGate.WaitAsync(cancellationToken).ConfigureAwait(false);
+        try
+        {
+            Map317.MapScanState current = control.ScanState;
+            if (!current.IsReading ||
+                !string.Equals(current.ScanRunId, scanRunId, StringComparison.Ordinal))
+                return false;
+            _ = await control.StopScanAsync(cancellationToken).ConfigureAwait(false);
+            return true;
+        }
+        finally
+        {
+            scanTransitionGate.Release();
+        }
+    }
 
     public async Task<object?> InvokeAsync(
         string command,
@@ -107,10 +256,11 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
                 case "map_scan_stop":
                     return await control.StopScanAsync(cancellationToken).ConfigureAwait(false);
                 case "map_scan_clear":
-                    return await control.ClearScanAsync(RequiredInt(payload, "serverId"), cancellationToken)
-                        .ConfigureAwait(false);
+                    return await ClearScanAsync(
+                        RequiredInt(payload, "serverId"), cancellationToken).ConfigureAwait(false);
                 case "map_summary":
                     {
+                        _ = await ReadScanStatusAsync(cancellationToken).ConfigureAwait(false);
                         var summary = control.ReadSummary();
                         return new { serverId = summary.ServerId, counts = summary.Counts, scanState = summary.ScanState };
                     }
@@ -210,6 +360,8 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
 
     private async Task<object> ReadAssetImageAsync(JsonElement payload, CancellationToken cancellationToken)
     {
+        if (currentSource is null)
+            throw new BridgeCommandException("GAME_CONNECTION_UNAVAILABLE", "game connection unavailable");
         string? assetPath = OptionalString(payload, "assetPath")?.Trim();
         string? spriteName = OptionalString(payload, "spriteName")?.Trim();
         bool hasAssetPath = !string.IsNullOrEmpty(assetPath);
@@ -226,6 +378,8 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
 
     private async Task<object> ReadTrainListCoverageAsync(CancellationToken cancellationToken)
     {
+        if (currentSource is null)
+            throw new BridgeCommandException("GAME_CONNECTION_UNAVAILABLE", "game connection unavailable");
         if (control.ScanState.IsReading)
             throw new BridgeCommandException("SCAN_RUNNING", "stop the map scan first");
         CurrentClientTrainListCoverageResult result =
@@ -282,13 +436,28 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
         workerCancellation.Cancel();
         try { Task.WhenAll(dispatchWorkerTask, truckWorkerTask).GetAwaiter().GetResult(); }
         catch (OperationCanceledException) { }
-        scanProvider.Dispose();
+        scanProvider?.Dispose();
         ReleaseScanLease();
         control.Dispose();
         workerCancellation.Dispose();
+        scanTransitionGate.Dispose();
     }
 
     private async Task<object> StartScanAsync(JsonElement payload, CancellationToken cancellationToken)
+    {
+        await scanTransitionGate.WaitAsync(cancellationToken).ConfigureAwait(false);
+        try
+        {
+            AcquireScanLease();
+            return await StartScanWithRegisteredLeaseAsync(payload, cancellationToken).ConfigureAwait(false);
+        }
+        finally
+        {
+            scanTransitionGate.Release();
+        }
+    }
+
+    private void AcquireScanLease()
     {
         Map317ScanProcessLease? lease = Map317ScanProcessLease.TryAcquire(store.DatabasePath);
         if (lease is null)
@@ -302,6 +471,12 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
             }
             activeScanLease = lease;
         }
+    }
+
+    private async Task<Map317.MapScanState> StartScanWithRegisteredLeaseAsync(
+        JsonElement payload,
+        CancellationToken cancellationToken)
+    {
         try
         {
             store.ReconcileInterruptedScans(
@@ -316,7 +491,7 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
             Map317.MapScanState state =
                 await control.StartScanAsync(new Map317.MapScanStartRequest(types, mode, resume), cancellationToken)
                     .ConfigureAwait(false);
-            scanProvider.ActivateAcceptedRun(control);
+            scanProvider?.ActivateAcceptedRun(control);
             return state;
         }
         catch (Exception error)
@@ -331,6 +506,19 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
     private async Task<Map317.MapScanState> ReadScanStatusAsync(CancellationToken cancellationToken)
     {
         Map317.MapScanState state = control.ScanState;
+        if (!state.IsReading)
+        {
+            try
+            {
+                state = await control.RefreshContextAsync(cancellationToken).ConfigureAwait(false);
+            }
+            catch (Map317.BridgeCommandException)
+            {
+                state = control.ScanState;
+            }
+        }
+        if (currentSource is null)
+            return state;
         try
         {
             CurrentClientMapStatusContext context =
@@ -348,6 +536,52 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
         catch (BridgeCommandException)
         {
             return state;
+        }
+    }
+
+    private async Task<Map317.MapScanState> ClearScanAsync(
+        int requestedServerId,
+        CancellationToken cancellationToken)
+    {
+        await scanTransitionGate.WaitAsync(cancellationToken).ConfigureAwait(false);
+        try
+        {
+            Map317.MapScanState current = control.ScanState;
+            if (current.IsReading)
+                throw new BridgeCommandException(
+                    MapScanClearOwnership.ActiveScanErrorCode,
+                    MapScanClearOwnership.ActiveScanErrorMessage);
+
+            Map317.MapScanState fresh;
+            try
+            {
+                // Clear is destructive. It must authorize against a fresh provider
+                // observation at invocation time; retained browse/status context is
+                // never sufficient to delete durable rows.
+                fresh = await control.RefreshContextAsync(cancellationToken).ConfigureAwait(false);
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch
+            {
+                throw new BridgeCommandException(
+                    MapScanClearOwnership.ServerUnavailableErrorCode,
+                    MapScanClearOwnership.ServerUnavailableErrorMessage);
+            }
+
+            MapScanClearOwnership.Validate(
+                requestedServerId,
+                fresh.IsReading,
+                fresh.ServerId,
+                fresh.ServerIdSource);
+            return await control.ClearScanAsync(requestedServerId, cancellationToken)
+                .ConfigureAwait(false);
+        }
+        finally
+        {
+            scanTransitionGate.Release();
         }
     }
 
