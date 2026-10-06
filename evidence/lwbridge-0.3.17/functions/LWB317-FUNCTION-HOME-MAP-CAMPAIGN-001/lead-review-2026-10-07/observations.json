@@ -1,0 +1,115 @@
+{
+  "date": "2026-10-07",
+  "reviewedHead": "59d3cde5192f03d39ae01580e05d1a6249158b20",
+  "decision": "CHANGES_REQUIRED",
+  "externalGameActions": 0,
+  "actualNativeCapture": false,
+  "desktopSessionIndependentlyRerun": false,
+  "processInventory": "No LastWar/LWBridge process found before isolated execution",
+  "checks": [
+    "frontend check PASS",
+    "frontend build PASS",
+    "production-package check PASS",
+    "focused Release compile PASS zero compiler warnings/errors",
+    "full Release Desktop compile/package PASS zero compiler warnings/errors",
+    "canonical Map check PASS",
+    "nine focused isolated flags PASS",
+    "two frontend witnesses reproduce",
+    "three controlled native/I-O witnesses reproduce",
+    "reference EXE matches AGENTS",
+    "historical previous lead packet unchanged"
+  ],
+  "uiSourceFingerprint": "cd86aec04987bf5683d38e27d05af5a4c26a773e3be65ea3dc5133463be2d150",
+  "uiArtifactFingerprint": "1ae836263c78106f014fcc44d23f9df5b6f2b22453f0462c9e968094419390c5",
+  "rebuiltAssemblyRevision": "59d3cde5192f03d39ae01580e05d1a6249158b20",
+  "captureImplementationRevision": "b2e6089f4f0a99be53087482f04a240ac59d22a4",
+  "binaryDifferenceAdjudication": "Rebuilt revision metadata differs; no worker source/package mismatch established",
+  "workerPackets": [
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001/recovery-002-2026-10-06/package-en-light.json",
+      "screenshot": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001/recovery-002-2026-10-06/package-en-light.png",
+      "language": "en",
+      "theme": "light",
+      "width": 1120,
+      "height": 720
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001/recovery-002-2026-10-06/package-ja-dark-narrow.json",
+      "screenshot": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001/recovery-002-2026-10-06/package-ja-dark-narrow.png",
+      "language": "ja",
+      "theme": "dark",
+      "width": 900,
+      "height": 720
+    }
+  ],
+  "pins": [
+    {
+      "path": "src/LWBridge.Desktop/OverviewLifecycleService.cs",
+      "sha256": "e867b6b4f0733c1bd71460a909982027561f0ccbc06fc81c07ee7aee52c0cb78"
+    },
+    {
+      "path": "src/LWBridge.Desktop/OverviewLifecycleRecovery.cs",
+      "sha256": "259bcf7bcc5e5017932b4a3f8b154c8707180d4dc55be4735dc5b1f00329cdb9"
+    },
+    {
+      "path": "src/LWBridge.Desktop/CurrentClientMap317ScanProvider.cs",
+      "sha256": "7942351a09eb254e1d7e5c49240eeb5fd9eb67de8de55f5cce2ca13cd355b3c2"
+    },
+    {
+      "path": "src/LWBridge.Desktop/Map317CommandService.cs",
+      "sha256": "6c84cb1c0d9eb31e15d097180a35cd6f6e3c1e7263e9590731fdcdbf908b84d3"
+    },
+    {
+      "path": "src/LWBridge.Map-0.3.17/MapScanStateMachine.cs",
+      "sha256": "3699cf0f6c4f075b872d15ac84ee37218c27ca5d3213be430ca641d1bad46d90"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/App.jsx",
+      "sha256": "031a789ca879219c7d4cec2680b02a2678e8f54d49b3e5558170ebed9ae4b69d"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+      "sha256": "a60083a2d3f33ebe107c9afae9eacae3866cab452447349a11db454736321e31"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/autoScanNativeCoordinator.js",
+      "sha256": "dd0d65f50a39573f671ac023c660989d3c05f5009d9286343508d780994be9da"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001/lead-review-2026-10-07/check-counterexamples.mjs",
+      "sha256": "201774cdd8545e0797ab9698f99d65aab4c6699d5c54af8292f264ca1a231e1e"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001/lead-review-2026-10-07/counterexamples.json",
+      "sha256": "35555ad2e673be97781c39773695a9999e600d934e13c7dd8fd26381e1b13d57"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001/lead-review-2026-10-07/native-counterexamples/Program.cs",
+      "sha256": "82a19290612858b87562a60f75d06311820de22ee0ecf0b1a4d77e7d8d1bae89"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001/lead-review-2026-10-07/native-counterexamples/results.json",
+      "sha256": "cdcd19cec61ec84e56462e20e62a150f11ca6a697994a4bea201f9865c2960bd"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001/lead-review-2026-10-07/runner-results.json",
+      "sha256": "0b60151774508aa33bf51954a3a435fcebdf870e0ee8acefb018c4eabaf1a7a6"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001/recovery-002-2026-10-06/package-en-light.json",
+      "sha256": "93dac3f0e41b01e91b2a667019936315baff0eb501049706a3e886f240858871"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001/recovery-002-2026-10-06/package-ja-dark-narrow.json",
+      "sha256": "cc52a557302a503bdb6eb01aa7a93bf725d898558fc901979b82a489ba8c3cc1"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001/recovery-002-2026-10-06/package-en-light.png",
+      "sha256": "8d79c892d78294ef1624bac1ed4ac37b0bb7d9f55c3db1bd1a880651911016a0"
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001/recovery-002-2026-10-06/package-ja-dark-narrow.png",
+      "sha256": "561b199dbaaacfba81313eaa3953afd9136cb410e3784f9dad8a3326a59e1346"
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "reviewedHead": "59d3cde5192f03d39ae01580e05d1a6249158b20",
+  "proofType": "exact-current-App/panel-callbacks-and-coordinator; controlled native promises; no mounted browser",
+  "externalActions": 0,
+  "nativeCommands": 0,
+  "sources": [
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/App.jsx",
+      "sha256": "031a789ca879219c7d4cec2680b02a2678e8f54d49b3e5558170ebed9ae4b69d"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+      "sha256": "a60083a2d3f33ebe107c9afae9eacae3866cab452447349a11db454736321e31"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/mapAutoConfig.js",
+      "sha256": "c88faa13ebf8d15d2ec9ea54e800fddec5ecb38df70d9d97e8d67768ec42ef4e"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/autoScanNativeCoordinator.js",
+      "sha256": "dd0d65f50a39573f671ac023c660989d3c05f5009d9286343508d780994be9da"
+    }
+  ],
+  "results": [
+    {
+      "case": "global-false-native-B-true-rejected-enable",
+      "expectedGlobal": false,
+      "actualGlobal": true,
+      "actualStored": true,
+      "actionError": "native persistence rejected",
+      "defectReproduced": true
+    },
+    {
+      "case": "real-add-handler-before-hydration-drops-saved-server",
+      "expectedServers": [
+        317,
+        9
+      ],
+      "actualServers": [
+        9
+      ],
+      "defectReproduced": true
+    }
+  ]
+}

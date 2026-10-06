@@ -1,0 +1,43 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import crypto from 'node:crypto';
+import assert from 'node:assert/strict';
+import {fileURLToPath} from 'node:url';
+const here=path.dirname(fileURLToPath(import.meta.url));
+const root=path.resolve(here,'../../../../..');
+const read=p=>JSON.parse(fs.readFileSync(p,'utf8').replace(/^\uFEFF/,''));
+const sha=p=>crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex');
+const observations=read(path.join(here,'observations.json'));
+for(const pin of observations.pins) assert.equal(sha(path.join(root,pin.path)),pin.sha256,pin.path);
+const js=read(path.join(here,'counterexamples.json'));
+for(const pin of js.sources) assert.equal(sha(path.join(root,pin.path)),pin.sha256,pin.path);
+assert.equal(js.results.length,2);
+assert.ok(js.results.every(r=>r.defectReproduced));
+const native=read(path.join(here,'native-counterexamples/results.json'));
+assert.equal(native.results.length,3);
+assert.ok(native.results.every(r=>r.defectReproduced));
+assert.equal(native.externalActions,0);
+assert.equal(native.temporaryRootRemoved,true);
+const runners=read(path.join(here,'runner-results.json'));
+assert.equal(runners.length,9);
+for(const r of runners){assert.equal(r.exitCode,0);assert.ok(fs.statSync(path.join(here,r.flag.slice(2)+'.txt')).size>0);}
+for(const packetRef of observations.workerPackets){
+  const packet=read(path.join(root,packetRef.path));
+  assert.equal(packet.schemaVersion,4);
+  assert.equal(packet.externalGameActions,0);
+  assert.equal(packet.appearance.final.language,packetRef.language);
+  assert.equal(packet.appearance.final.theme,packetRef.theme);
+  assert.equal(packet.browserIssues.unexpectedCount,0);
+  assert.equal(packet.browserIssues.preReloadSentinelRetained,true);
+  assert.equal(packet.browserIssues.queuedPriorDocumentIssueRetained,true);
+  assert.equal(packet.shutdown.activeRequests,0);
+  assert.equal(packet.shutdown.activeSubscriptions,0);
+  assert.equal(packet.shutdown.isolatedRootRemoved,true);
+  assert.deepEqual(packet.shutdown.cleanupFailures,[]);
+  const png=fs.readFileSync(path.join(root,packetRef.screenshot));
+  assert.equal(png.subarray(0,8).toString('hex'),'89504e470d0a1a0a');
+  assert.equal(png.readUInt32BE(16),packetRef.width);
+  assert.equal(png.readUInt32BE(20),packetRef.height);
+}
+assert.equal(observations.decision,'CHANGES_REQUIRED');
+console.log('LWB317_RECOVERY002_LEAD_REVIEW_EVIDENCE_OK nativeFlags=9 counterexamples=5 workerPackets=2 decision=CHANGES_REQUIRED');

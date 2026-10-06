@@ -1,6 +1,6 @@
 # LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001-RECOVERY-002
 
-Status: **AWAITING_REVIEW** (worker delivery 2026-10-07). Parent campaign remains pending project-lead acceptance; the RECOVERY-001 **CHANGES_REQUIRED** disposition below is preserved as historical review state.
+Status: **CHANGES_REQUIRED** (independent lead review 2026-10-07 at `59d3cde5`). Prior fixes and stronger offline proof are credited; five controlled edge cases remain. Continue RECOVERY-003 and the dated RECOVERY-002-LEAD review. The worker AWAITING_REVIEW closeout below remains historical delivery evidence; no live scope expansion.
 Lead assignment 2026-10-06; finish the newly verified Home/Map ownership and proof
 corrections, preserving completed recovery work. Use sequential medium checkpoints
 and continue ready assigned work automatically. No unrelated feature campaign.

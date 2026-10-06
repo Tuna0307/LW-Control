@@ -1,0 +1,28 @@
+{
+  "proofType": "actual lifecycle Close/current-client Stop/MapScanStateMachine; controlled private identities and inert adapter; no real capture",
+  "externalActions": 0,
+  "temporaryRootRemoved": true,
+  "results": [
+    {
+      "name": "active-close-overwrites-foreign-start-cancellation",
+      "expected": "schema=1\nsessionId=foreign-session\nchallenge=foreign-challenge\n",
+      "actual": "schema=1\nsessionId=controlled-session\nchallenge=controlled-challenge\n",
+      "defectReproduced": true
+    },
+    {
+      "name": "foreign-replacement-between-validation-and-path-deletion",
+      "expectedForeignPreserved": true,
+      "actualForeignPreserved": false,
+      "proofBoundary": "controlled DeleteFile hook models the exact permitted I/O interleaving",
+      "defectReproduced": true
+    },
+    {
+      "name": "stop-cancelled-after-local-commit-before-provider-entry",
+      "expectedCaptureCancellation": true,
+      "actualCaptureCancellation": false,
+      "reportedPhase": "idle",
+      "providerStopCallsAfterSecondStop": 1,
+      "defectReproduced": true
+    }
+  ]
+}

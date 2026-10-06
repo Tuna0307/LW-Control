@@ -1,0 +1,38 @@
+[
+  {
+    "flag": "--profile-runtime-owner-check",
+    "exitCode": 0
+  },
+  {
+    "flag": "--home-campaign-lifecycle-check",
+    "exitCode": 0
+  },
+  {
+    "flag": "--map-auto-scan-campaign-check",
+    "exitCode": 0
+  },
+  {
+    "flag": "--map317-native-boundary-check",
+    "exitCode": 0
+  },
+  {
+    "flag": "--map317-plunder-worker-boundary-check",
+    "exitCode": 0
+  },
+  {
+    "flag": "--map317-dto-matrix-check",
+    "exitCode": 0
+  },
+  {
+    "flag": "--map-campaign-canonical-check",
+    "exitCode": 0
+  },
+  {
+    "flag": "--map317-restart-check",
+    "exitCode": 0
+  },
+  {
+    "flag": "--game-root-select-check",
+    "exitCode": 0
+  }
+]
