@@ -1,5 +1,10 @@
 # Exact continuation
 
+**Current worker continuation, 2026-10-07: RECOVERY-002 AWAITING_REVIEW.** All assigned offline/inert corrections are committed through b2e6089f4f0a99be53087482f04a240ac59d22a4, after 7586c425e514143bc0852ed540064f7afacc85ef and 5d3ba44835b5cf283ec4c64f7b45802bc18d4c34. The shared-runtime safety gate is closed for isolated execution, the new native boundary suites pass, and fresh schema-v4 EN/light plus JA/dark/900x720 package proofs are recorded under recovery-002-2026-10-06/.
+
+Exact continuation is project-lead review: inspect the checkpoint chain, recovery-002-2026-10-06/operation-matrix.md, both package JSON/PNG/XLSX sets and the preserved negative attempts/counterexamples; rerun the focused isolated commands from checks.md if desired. Do not continue worker implementation unless review returns a concrete finding. Treasure claim/status, Ghost preparation and positive live population/current-game proof remain separate external dependencies and require separate authorization. No live permission or final parity acceptance is inferred.
+
+
 **Current lead continuation, 2026-10-06: RECOVERY-001 CHANGES_REQUIRED.** Clean
 worker delivery `99d8f7b5` was independently reviewed; useful prior corrections
 stay credited, but new current ownership/counterexample/proof findings remain.

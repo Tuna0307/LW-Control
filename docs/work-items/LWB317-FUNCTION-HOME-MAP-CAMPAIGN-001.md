@@ -283,3 +283,7 @@ affected checks, commit/push and verify remote; then immediately continue the ne
 ready entry. On interruption/context/tool limits, leave exact file/commit/task/test
 continuation so a fresh worker can resume. Do not claim all functions work merely
 because a UI button is enabled, an isolated adapter replied, or a build passed.
+
+## RECOVERY-002 worker delivery — 2026-10-07
+
+The assigned RECOVERY-002 correction is worker-complete and **AWAITING_REVIEW** at b2e6089f4f0a99be53087482f04a240ac59d22a4, after 7586c425 and 5d3ba448. The current queue, progress, continuation and operation matrix record the exact offline/inert completed and external boundaries. This note does not mark the parent campaign accepted and does not create a LIVE_PROVEN result; final acceptance remains with the project lead.

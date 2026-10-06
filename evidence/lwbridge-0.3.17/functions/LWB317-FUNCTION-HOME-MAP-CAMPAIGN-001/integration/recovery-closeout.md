@@ -153,3 +153,11 @@ unavailable at the production provider boundary. Positive current Railway/Ghost/
 Treasure population remains live-state/population gated. Those are external/bounded
 limits recorded by the recovery work item, not reasons to fabricate success or run an
 owner session.
+
+## RECOVERY-002 superseding worker packet — 2026-10-07
+
+The prior v3 packet above remains historical RECOVERY-001 worker evidence. RECOVERY-002 does not overwrite it. The current worker packet is the sibling directory ../recovery-002-2026-10-06/ and is pinned to implementation b2e6089f4f0a99be53087482f04a240ac59d22a4.
+
+Its current successful artifacts are package-en-light.json/.png and package-ja-dark-narrow.json/.png with matching isolated XLSX exports. The latter is genuine Japanese/dark at a measured 900x720 viewport. Both schema-v4 packets retain host-owned browser issue records from the pre-reload document and a queued old-document message, report zero unexpected issues, and finish with zero active request/subscription owners and removed isolated roots. Attempts 1-10 are preserved as negative evidence showing the proof defects encountered before the final green packets.
+
+Current package UI identity is source cd86aec04987bf5683d38e27d05af5a4c26a773e3be65ea3dc5133463be2d150 and artifact 1ae836263c78106f014fcc44d23f9df5b6f2b22453f0462c9e968094419390c5. See the sibling checks.md and operation-matrix.md for exact executed commands and completed/blocked boundaries. Final project-lead acceptance remains pending.

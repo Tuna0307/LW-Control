@@ -94,3 +94,9 @@ native B counts are zero, and returns to A with A's rows intact.
 
 Treasure claim/status and Ghost preparation remain correctly blocked at the protected
 current-client provider. They are not promoted by this recovery.
+
+## RECOVERY-002 resolution — 2026-10-07
+
+RECOVERY-002 adds the previously missing executable boundaries. The real controlled Map317CommandService now proves provider completion/partial failure, fresh-service read/export/clear, interrupted startup, exact-run Stop/disposal and independent database ownership. Auto tests cover positive multiserver completion, disable, timeout/cancel/retirement, between-target/manual-owner barriers and return-to-origin. Actual due/in-flight plunder workers preserve durable restart/profile state without forbidden protected calls. The all-eight DTO fixture is hash/source-located and tests missing/null/default/order/grouping plus server/profile isolation.
+
+The fresh packaged proof also covers edit-before-hydration, independent Auto action/runtime errors, real isolated export and full-session issue history. Treasure claim/status and Ghost preparation remain protected-provider blockers and were not executed.

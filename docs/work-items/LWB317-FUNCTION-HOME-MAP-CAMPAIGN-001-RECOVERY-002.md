@@ -1,6 +1,6 @@
 # LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001-RECOVERY-002
 
-Status: **ASSIGNED**. Parent feature campaign and RECOVERY-001: **CHANGES_REQUIRED**.
+Status: **AWAITING_REVIEW** (worker delivery 2026-10-07). Parent campaign remains pending project-lead acceptance; the RECOVERY-001 **CHANGES_REQUIRED** disposition below is preserved as historical review state.
 Lead assignment 2026-10-06; finish the newly verified Home/Map ownership and proof
 corrections, preserving completed recovery work. Use sequential medium checkpoints
 and continue ready assigned work automatically. No unrelated feature campaign.
@@ -155,3 +155,15 @@ Continue ready assigned checkpoints; on interruption preserve exact files/status
 next command, and on a concrete blocked external branch advance independent work.
 Return **AWAITING_REVIEW** with commits, executed evidence, remaining limits and
 exact continuation. Lead accepts final scope; no whole-clone/live parity declaration.
+
+## Worker closeout — 2026-10-07
+
+RECOVERY-002 is worker-complete and **AWAITING_REVIEW** for the assigned offline/inert scope. Sequential checkpoints are 7586c425e514143bc0852ed540064f7afacc85ef for safe lifecycle/runtime ownership, 5d3ba44835b5cf283ec4c64f7b45802bc18d4c34 for frontend request ownership, and b2e6089f4f0a99be53087482f04a240ac59d22a4 for native run lifetime, missing native boundary cases and fresh packaged proof.
+
+The safety gate is closed for isolated execution: lifecycle runtime/evidence/backup roots are injected, cleanup verifies exact session ownership, and focused checks prove unowned artifacts are preserved. Native/package execution was then performed only with temporary roots and inert providers. No Last War or LWBridge owner process was present in the read-only pre-run inventory.
+
+Fresh schema-v4 package proofs are under evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001/recovery-002-2026-10-06/. EN/light and JA/dark/measured-900x720 packets use the current Release package, drive real packaged controls, preserve pre-reload and queued-old-document issue records, and finish with zero unexpected browser issues, zero active request/subscription owners, isolated-root removal and zero cleanup failures. Attempts 1-10 remain immutable negative evidence; the lead-closeout counterexample records remain unchanged.
+
+The operation-matrix.md in that directory records completed/blocked boundaries; checks.md records commands actually executed. The original reference EXE remains pinned at SHA-256 4e9c3113dedfd7e1a752404c6936aab304e67d7ffdb0952a5003c2ec948d6783. Protected Treasure claim/status, Ghost preparation and positive live Railway/Ghost/Treasure populations remain external/unexecuted. No LIVE_PROVEN, whole-clone or live-parity promotion is claimed.
+
+Exact continuation: project lead independently reviews the three RECOVERY-002 checkpoints and fresh evidence, optionally reruns the recorded isolated checks, and either accepts or returns a concrete finding. Further protected/live execution requires a separately authorized task.

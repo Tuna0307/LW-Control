@@ -1,11 +1,11 @@
 {
   "campaign": "LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001",
-  "status": "CHANGES_REQUIRED",
+  "status": "AWAITING_REVIEW",
   "leadReviewedHead": "99d8f7b513ae56a0aa3b4d92a202f81586a32924",
   "leadReview": "docs/reviews/2026-10-06-LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001-RECOVERY-001-LEAD.md",
   "activeCorrection": "docs/work-items/LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001-RECOVERY-002.md",
-  "nativeExecutionGate": "BLOCKED until isolated lifecycle runtime and exact cleanup ownership are proved",
-  "milestoneStateNote": "Entries below preserve worker milestone claims; full lead acceptance is withheld for the new ownership and native-proof findings.",
+  "nativeExecutionGate": "CLOSED for isolated/offline execution only: injected runtime/evidence/backup roots and exact-owned cleanup are proved; this does not authorize live game execution",
+  "milestoneStateNote": "RECOVERY-002 worker corrections are complete and awaiting project-lead review. Earlier milestone claims and lead findings remain preserved history; protected/live provider status is not promoted.",
   "assignedAt": "2026-10-06",
   "authority": "docs/work-items/LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001.md",
   "policy": "Continue ready milestones automatically; checkpoint a blocked branch and advance independent work. No live game actions assigned.",
@@ -237,5 +237,31 @@
       "blocker": null,
       "continuation": null
     }
-  ]
+  ],
+  "currentWorkerDelivery": "b2e6089f4f0a99be53087482f04a240ac59d22a4",
+  "recovery002": {
+    "state": "AWAITING_REVIEW",
+    "date": "2026-10-07",
+    "checkpoints": [
+      "7586c425e514143bc0852ed540064f7afacc85ef",
+      "5d3ba44835b5cf283ec4c64f7b45802bc18d4c34",
+      "b2e6089f4f0a99be53087482f04a240ac59d22a4"
+    ],
+    "proofRoot": "recovery-002-2026-10-06",
+    "operationMatrix": "recovery-002-2026-10-06/operation-matrix.md",
+    "checks": "recovery-002-2026-10-06/checks.md",
+    "packageProofs": [
+      "recovery-002-2026-10-06/package-en-light.json",
+      "recovery-002-2026-10-06/package-ja-dark-narrow.json"
+    ],
+    "historicalNegativeEvidencePreserved": true,
+    "liveProvenUpgrade": false,
+    "externalLimits": [
+      "Treasure claim/status protected/current-client provider action not executed",
+      "Ghost plunder preparation protected/current-client provider action not executed",
+      "Positive current Railway/Ghost/Treasure population remains live-state gated",
+      "No live Last War lifecycle, scan, movement, combat, updater, owner-installation or protected-service action was executed"
+    ],
+    "continuation": "Project-lead review of the RECOVERY-002 checkpoint chain and fresh isolated proof; no additional worker implementation unless review returns a concrete finding."
+  }
 }

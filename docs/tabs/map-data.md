@@ -1,5 +1,8 @@
 # Map Data — strict parity status
 
+RECOVERY-002 worker delivery, 2026-10-07: **native Map/Auto offline/inert corrections are AWAITING_REVIEW**. Auto edit-before-hydration now merges field intent over the persisted native base and retries after hydration failure; Run Now/action and runtime errors have independent ownership. Normal and injected Map providers share an explicit run-scoped terminal/stop/dispose contract, scan-lease initialization is exception safe, and focused checks cover provider publication/failure/restart/disposal, positive multiserver Auto ownership barriers, actual due plunder workers and the all-eight missing/null/default/isolation DTO matrix. Fresh package proof drives every Map tab, real isolated XLSX export and whole-session reload issue accumulation. Treasure claim/status, Ghost preparation and positive live populations remain external; no live scan/movement is claimed.
+
+
 Latest lead review, 2026-10-06: **native Map/Auto closeout CHANGES_REQUIRED** at `99d8f7b5`. Run-token stop, atomic movement, deadline/FIFO and fresh Clear fixes stay credited. Initial Auto hydration can erase persisted fields; action errors are cleared by clean runtime events. Injected scan terminal/capture lifetime is incomplete (tests privately release leases), and native acquisition/due-worker/all-eight DTO/session-error proofs remain. Correct current scoped defects via RECOVERY-002 after safe isolation; do not restart fixed old issues or claim complete live feature parity.
 
 

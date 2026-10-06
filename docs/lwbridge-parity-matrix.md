@@ -1,5 +1,8 @@
 # LWBridge 0.3.17 parity matrix
 
+RECOVERY-002 worker delivery, 2026-10-07: **AWAITING_REVIEW / parent still pending lead acceptance**. All newly assigned offline ownership/proof defects from the RECOVERY-001 lead review have distinguishing corrected proof at 7586c425, 5d3ba448 and b2e6089f. Fresh current Release package evidence is EN/light plus genuine JA/dark measured 900x720; whole-session host issue history survives reload and reports zero unexpected issues. This delivery does not change any protected/current-client or live population row to LIVE_PROVEN, does not claim original acquisition algorithms, and does not supersede the lead's authority to accept final scope. See recovery-002-2026-10-06/operation-matrix.md.
+
+
 Lead recovery review, 2026-10-06: **RECOVERY-001 CHANGES_REQUIRED / parent PARTIAL**. Clean worker `99d8f7b5` passes basic check/compile and matches its Release package identity; both v3 captures now show intended locales/themes. Three new current callback/coordinator counterexamples and source-located cleanup/runtime/native-proof gaps block acceptance. Accepted global Auto Launch UI behavior must be restored after feature integration; earlier historical UI scope is not a waiver. Seven native programs returned PASS before unisolated lease teardown was found, so isolated-owner proof is not accepted. Continue RECOVERY-002; no new LIVE_PROVEN status.
 
 

@@ -129,3 +129,7 @@ this file was first delivered.
 
 No live scan, movement, protected-service call or owner-session action is claimed by
 this closeout.
+
+## RECOVERY-002 follow-up — 2026-10-07
+
+The lead's remaining Auto findings are closed for isolated/offline scope. The mounted App queues/merges edits made before initial native hydration over the persisted base, retries after a failed hydration on the next edit, and keeps Run Now command errors independent from runtime status errors. The expanded real-Map317 Auto suite covers positive multiserver completion, exact owned stop/disable, timeout/cancel, retirement, between-target/manual ownership and return-to-origin. Fresh package proof executes these UI ownership cases with an inert run-scoped Map provider. No live server movement or scan is claimed.

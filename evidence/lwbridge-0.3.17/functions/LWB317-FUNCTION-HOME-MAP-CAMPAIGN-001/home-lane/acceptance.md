@@ -96,3 +96,7 @@ Launch acknowledgement, rolls back a rejected returned-A save, and records zero
 outstanding request/listener owners at shutdown. HA-03 now executes connected ->
 deferred -> rejected -> disconnected -> connected through those real packaged
 controls in addition to the deterministic UI checks.
+
+## RECOVERY-002 resolution — 2026-10-07
+
+The later lead findings are now covered by isolated distinguishing proof. Runtime, evidence and backup roots are injectable; Close removes only exact-owned artifacts. --profile-runtime-owner-check plus the schema-v4 package prove active lifecycle replacement refusal, A/B/A generation retirement and stale/fresh picker ownership. The mounted package drives actual inert lifecycle Launch, Close, Update-and-Launch and recovery. Latest status fencing and the recovered global Auto Launch visible preference are also exercised in the current package. These are offline/inert results pending lead review, not a live Last War/updater acceptance.

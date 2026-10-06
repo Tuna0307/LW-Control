@@ -1,5 +1,10 @@
 # Home/Map feature campaign progress
 
+RECOVERY-002 worker delivery, 2026-10-07: **AWAITING_REVIEW**. The lead's RECOVERY-001 findings have been corrected through three sequential checkpoints: 7586c425 closes unsafe shared-runtime cleanup and active owner/picker isolation; 5d3ba448 closes latest-status/global Auto Launch and Auto hydration/error ownership; b2e6089f closes run-scoped Map capture/lease lifetime, missing native Auto/plunder/DTO cases and fresh whole-session packaged evidence. The isolated native execution gate is now closed; it is not a live-game permission.
+
+Fresh current Release proofs are recovery-002-2026-10-06/package-en-light.json/.png and package-ja-dark-narrow.json/.png, plus their real isolated XLSX exports. Both report externalGameActions 0, zero unexpected browser issues across reload generations and complete isolated shutdown cleanup. The JA proof measures 900x720 and is actually Japanese/dark. Attempts 1-10 and all prior lead counterexamples remain preserved as negative history. See recovery-002-2026-10-06/README.md, checks.md and operation-matrix.md. Project-lead acceptance remains pending; no LIVE_PROVEN status or whole-clone/live parity claim is made.
+
+
 Recovery worker delivery, 2026-10-06: **AWAITING_REVIEW**. The interrupted
 Home/Map implementation campaign has been recovered through source-supported native,
 UI and isolated packaged-desktop acceptance. Latest pushed implementation checkpoint:

@@ -1,5 +1,8 @@
 # LWBridge 0.3.17 feature ledger
 
+RECOVERY-002 worker delivery, 2026-10-07: **AWAITING_REVIEW; no LIVE_PROVEN upgrade**. The current offline/inert implementation closes the RECOVERY-001 lead findings through 7586c425, 5d3ba448 and b2e6089f: exact-owned lifecycle cleanup and active profile/picker refusal/retirement; latest status and recovered global Auto Launch authority; edit-before-hydration and independent Auto action/runtime errors; explicit run-scoped Map capture/terminal/stop/dispose and exception-safe lease initialization; real controlled native acquisition/Auto/due-plunder/all-eight-DTO cases; and host-owned issue history across reloads. Fresh Release EN/light and JA/dark/900x720 package proofs are green with no external game actions. Protected Treasure/Ghost and positive live populations remain separate blocked/external dependencies. Final acceptance remains with the lead.
+
+
 Lead native recovery decision, 2026-10-06: **CHANGES_REQUIRED at `99d8f7b5`**. Prior root/run-token/deadline/config FIFO/Clear/locale corrections stay credited. Current Auto pre-hydration edits lose stored fields, overlapping status replies revive stale online state, and clean runtime events clear independent action errors (3/3 exact JS witnesses). Shared lifecycle cleanup, active profile/picker owners, global Auto Launch parity and native acquisition/due-worker/DTO/full-session issue evidence need correction. Do not promote passing unisolated native checks to accepted ownership. Continue RECOVERY-002; dated RECOVERY-001-LEAD review controls current status. Protected/live dependencies remain separate.
 
 

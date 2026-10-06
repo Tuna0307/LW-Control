@@ -1,5 +1,8 @@
 # Home / Overview — strict parity status
 
+RECOVERY-002 worker delivery, 2026-10-07: **native Home offline/inert corrections are AWAITING_REVIEW**. The unsafe shared-runtime cleanup gate is closed with injected runtime/evidence/backup roots and exact-owned deletion; active lifecycle/host profile replacement fails closed; deferred picker work is generation/backend fenced; overlapping status reads use latest-request ownership; and the accepted global visible Auto Launch preference is restored independently of per-profile native gates. Fresh packaged proof drives mounted inert Launch/Close/Update-and-Launch/recovery, stale/fresh picker, A/B/A, global preference/reload and status races through actual controls with zero unexpected browser issues and complete isolated cleanup. No live Last War/updater/provider acceptance is claimed; project-lead review remains pending.
+
+
 Latest lead review, 2026-10-06: **native Home CHANGES_REQUIRED** at `99d8f7b5`. Fresh exact-root and sequential status fixes are present, but shared lifecycle cleanup is unisolated, active profile/picker ownership is incomplete, overlapping status reads revive old connected state, and native/profile preference takeover conflicts with accepted global Auto Launch. Do not execute further native proofs until RECOVERY-002's isolation gate is closed. Prior missing-root/profile-store packet is not positive owned lifecycle replacement proof. See the dated RECOVERY-001-LEAD review; no live acceptance.
 
 
