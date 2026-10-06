@@ -1,0 +1,202 @@
+{
+  "schema": 1,
+  "description": "Synthetic DTO edge cases derived from recovered LWBridge 0.3.17 storage/query contracts; these are not claimed original runtime rows.",
+  "authority": {
+    "referenceExecutableSha256": "4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783",
+    "storageEvidence": {
+      "path": "evidence/lwbridge-0.3.17/map/storage-static-contract.json",
+      "findingId": "LWB317-RE-MAP-001-STORAGE-STATIC",
+      "evidenceState": "EXACT_BYTES_STATIC_CONTRACT",
+      "schemaRaw": "0xD56547",
+      "schemaRva": "0xD57747"
+    },
+    "storageReview": {
+      "path": "docs/reviews/2026-09-30-LWB317-RE-MAP-003-storage-query-export.md",
+      "searchService": "0x3E10E7-0x3E6952",
+      "contractState": "EXACT_CONTRACT"
+    },
+    "frontendEvidence": {
+      "path": "evidence/lwbridge-0.3.17/map/frontend-host-contract.json",
+      "mapPanelPath": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js",
+      "mapPanelSha256": "CE74345518BE72E417A510B982C591729E5683F69751E190805598C4C05D3089",
+      "staticInventoryPath": "evidence/lwbridge-0.3.17/ui/pages/map-data/static-inventory.json",
+      "scanTypesByte": "0x160F"
+    }
+  },
+  "kindRules": {
+    "city": {
+      "probeField": "allianceName",
+      "missingKey": "city-missing",
+      "nullKey": "city-null",
+      "defaultRule": "withoutAlliance matches SQL NULL or empty alliance_name",
+      "sourceLocator": {
+        "path": "evidence/lwbridge-0.3.17/map/frontend-host-contract.json",
+        "anchor": "legacyRevalidation.query.withoutAlliance",
+        "function": "0x3E10E7-0x3E6952",
+        "reviewPath": "docs/reviews/2026-09-30-LWB317-RE-MAP-003-storage-query-export.md",
+        "reviewLines": "120,141-144",
+        "claim": "without-alliance SQL NULL/empty predicate and stable record-key tie ordering"
+      }
+    },
+    "resource": {
+      "probeField": "resourceNameKey",
+      "missingKey": "resource-missing",
+      "nullKey": "resource-null",
+      "defaultRule": "resourceNameKey options/filter ignore JSON missing/null values",
+      "sourceLocator": {
+        "path": "evidence/lwbridge-0.3.17/map/frontend-host-contract.json",
+        "anchor": "legacyRevalidation.query.resourceNameKey",
+        "function": "0x3E10E7-0x3E6952",
+        "reviewPath": "docs/reviews/2026-09-30-LWB317-RE-MAP-003-storage-query-export.md",
+        "reviewLines": "122,174-186",
+        "claim": "resourceNameKey JSON predicate and resource-name option ownership"
+      }
+    },
+    "monster": {
+      "probeField": "monsterNameKey",
+      "missingKey": "monster-missing",
+      "nullKey": "monster-null",
+      "defaultRule": "monsterNameKey options/filter ignore JSON missing/null values",
+      "sourceLocator": {
+        "path": "evidence/lwbridge-0.3.17/map/frontend-host-contract.json",
+        "anchor": "legacyRevalidation.query.monsterNameKey",
+        "function": "0x3E10E7-0x3E6952",
+        "reviewPath": "docs/reviews/2026-09-30-LWB317-RE-MAP-003-storage-query-export.md",
+        "reviewLines": "123,153-154,174-186",
+        "claim": "monsterNameKey JSON predicate, option ownership, and forced-ascending distance sort"
+      }
+    },
+    "truck": {
+      "probeField": "remainingLootCount",
+      "missingKey": "truck-missing",
+      "nullKey": "truck-null",
+      "defaultRule": "plunderable remainingLootCount falls back to max(maxLootCount-robTimes,0); missing/null special-UR is ordinary",
+      "sourceLocator": {
+        "path": "evidence/lwbridge-0.3.17/map/frontend-host-contract.json",
+        "anchor": "legacyRevalidation.query.itemKeyExists",
+        "function": "0x3E10E7-0x3E6952",
+        "reviewPath": "docs/reviews/2026-09-30-LWB317-RE-MAP-003-storage-query-export.md",
+        "reviewLines": "125,127-134,155-157",
+        "claim": "currentGoods predicate, truck plunderability/special-UR filter family, remainingLootCount and quality sorting"
+      }
+    },
+    "railway": {
+      "probeField": "currentGoods",
+      "missingKey": "railway-missing",
+      "nullKey": "railway-null",
+      "defaultRule": "missing/null arriveTs remains visible and missing/null currentGoods contributes no reward option",
+      "sourceLocator": {
+        "path": "evidence/lwbridge-0.3.17/map/frontend-host-contract.json",
+        "anchor": "legacyRevalidation.query.itemKeyExists",
+        "function": "0x3E10E7-0x3E6952",
+        "reviewPath": "docs/reviews/2026-09-30-LWB317-RE-MAP-003-storage-query-export.md",
+        "reviewLines": "125,127,155-159,174-186",
+        "claim": "currentGoods predicate/options, railway plunderability, arriveTime and plain-quality sorting"
+      }
+    },
+    "dispatch": {
+      "probeField": "completionTime",
+      "missingKey": "dispatch-missing",
+      "nullKey": "dispatch-null",
+      "defaultRule": "missing/null completionTime is pending; plunderAt can fall back to completionTime and missing limits default fail-open only where recovered COALESCE says so",
+      "sourceLocator": {
+        "path": "evidence/lwbridge-0.3.17/map/frontend-host-contract.json",
+        "anchor": "commands.map_search.request.query",
+        "function": "0x3E10E7-0x3E6952",
+        "reviewPath": "docs/reviews/2026-09-30-LWB317-RE-MAP-003-storage-query-export.md",
+        "reviewLines": "126-129,156,158,174-186",
+        "claim": "completionStatus/plunderability/level query ownership and completionTime/quality recovered sort families"
+      }
+    },
+    "ghost": {
+      "probeField": "completionTime",
+      "missingKey": "ghost-missing",
+      "nullKey": "ghost-null",
+      "defaultRule": "missing/null completionTime is pending",
+      "sourceLocator": {
+        "path": "evidence/lwbridge-0.3.17/map/frontend-host-contract.json",
+        "anchor": "commands.map_search.request.query",
+        "function": "0x3E10E7-0x3E6952",
+        "reviewPath": "docs/reviews/2026-09-30-LWB317-RE-MAP-003-storage-query-export.md",
+        "reviewLines": "126,156,158",
+        "claim": "completionStatus query ownership and completionTime/quality recovered sort families"
+      }
+    },
+    "treasure": {
+      "probeField": "suppliesType",
+      "missingKey": "treasure-missing",
+      "nullKey": "treasure-null",
+      "defaultRule": "missing/null suppliesType and treasureType coalesce to zero for type/radar option predicates",
+      "sourceLocator": {
+        "path": "evidence/lwbridge-0.3.17/map/frontend-host-contract.json",
+        "anchor": "commands.map_search.request.query",
+        "function": "0x3E10E7-0x3E6952",
+        "reviewPath": "docs/reviews/2026-09-30-LWB317-RE-MAP-003-storage-query-export.md",
+        "reviewLines": "124,174-186",
+        "claim": "treasureType/suppliesType/radar/viewer query ownership and treasure-type option grouping"
+      }
+    }
+  },
+  "rows": [
+    { "profile": "A", "serverId": 317, "kind": "city", "recordKey": "city-missing", "pointIndex": 1, "uuid": "city-missing", "updatedAt": 1800000400300, "data": { "recordKey": "city-missing", "uuid": "city-missing", "ownerUid": "1001" } },
+    { "profile": "A", "serverId": 317, "kind": "city", "recordKey": "city-null", "pointIndex": 2, "uuid": "city-null", "allianceName": null, "updatedAt": 1800000400300, "data": { "recordKey": "city-null", "uuid": "city-null", "ownerUid": "1002", "allianceName": null } },
+    { "profile": "A", "serverId": 317, "kind": "city", "recordKey": "city-value", "pointIndex": 3, "uuid": "city-value", "allianceName": "QA", "updatedAt": 1800000400298, "data": { "recordKey": "city-value", "uuid": "city-value", "ownerUid": "1003", "allianceName": "QA" } },
+
+    { "profile": "A", "serverId": 317, "kind": "resource", "recordKey": "resource-missing", "pointIndex": 4, "uuid": "resource-missing", "level": 1, "updatedAt": 1800000400280, "data": { "recordKey": "resource-missing", "uuid": "resource-missing", "level": 1 } },
+    { "profile": "A", "serverId": 317, "kind": "resource", "recordKey": "resource-null", "pointIndex": 5, "uuid": "resource-null", "level": 2, "updatedAt": 1800000400279, "data": { "recordKey": "resource-null", "uuid": "resource-null", "resourceNameKey": null, "level": 2 } },
+    { "profile": "A", "serverId": 317, "kind": "resource", "recordKey": "resource-value", "pointIndex": 6, "uuid": "resource-value", "level": 3, "updatedAt": 1800000400278, "data": { "recordKey": "resource-value", "uuid": "resource-value", "resourceNameKey": "resource.iron", "level": 3 } },
+
+    { "profile": "A", "serverId": 317, "kind": "monster", "recordKey": "monster-missing", "pointIndex": 7, "uuid": "monster-missing", "level": 10, "distance": 8.0, "updatedAt": 1800000400260, "data": { "recordKey": "monster-missing", "uuid": "monster-missing", "level": 10 } },
+    { "profile": "A", "serverId": 317, "kind": "monster", "recordKey": "monster-null", "pointIndex": 8, "uuid": "monster-null", "level": 11, "distance": 5.0, "updatedAt": 1800000400259, "data": { "recordKey": "monster-null", "uuid": "monster-null", "monsterNameKey": null, "level": 11 } },
+    { "profile": "A", "serverId": 317, "kind": "monster", "recordKey": "monster-value", "pointIndex": 9, "uuid": "monster-value", "level": 12, "distance": 2.0, "updatedAt": 1800000400258, "data": { "recordKey": "monster-value", "uuid": "monster-value", "monsterNameKey": "monster.doom", "level": 12 } },
+
+    { "profile": "A", "serverId": 317, "kind": "truck", "recordKey": "truck-missing", "pointIndex": 10, "uuid": "truck-missing", "quality": 5, "updatedAt": 1800000400240, "data": { "recordKey": "truck-missing", "uuid": "truck-missing", "quality": 5, "arriveTs": 1800000460000, "maxLootCount": 2, "robTimes": 1, "currentGoods": [{ "key": "item:iron", "name": "Iron", "iconPath": "icons/iron.png", "count": 3 }] } },
+    { "profile": "A", "serverId": 317, "kind": "truck", "recordKey": "truck-null", "pointIndex": 11, "uuid": "truck-null", "quality": 5, "updatedAt": 1800000400239, "data": { "recordKey": "truck-null", "uuid": "truck-null", "quality": 5, "arriveTs": 1800000460000, "remainingLootCount": null, "isSpecialURQuality": null, "maxLootCount": 2, "robTimes": 1, "currentGoods": [{ "key": "item:iron", "name": "Iron", "iconPath": "icons/iron.png", "count": 4 }] } },
+    { "profile": "A", "serverId": 317, "kind": "truck", "recordKey": "truck-special", "pointIndex": 12, "uuid": "truck-special", "quality": 5, "updatedAt": 1800000400238, "data": { "recordKey": "truck-special", "uuid": "truck-special", "quality": 5, "isSpecialURQuality": true, "arriveTs": 1800000460000, "remainingLootCount": 1, "maxLootCount": 2, "robTimes": 0, "currentGoods": [{ "key": "item:iron", "name": "Iron", "iconPath": "icons/iron.png", "count": 5 }] } },
+
+    { "profile": "A", "serverId": 317, "kind": "railway", "recordKey": "railway-missing", "pointIndex": 13, "uuid": "railway-missing", "quality": 4, "updatedAt": 1800000400220, "data": { "recordKey": "railway-missing", "uuid": "railway-missing", "quality": 4 } },
+    { "profile": "A", "serverId": 317, "kind": "railway", "recordKey": "railway-null", "pointIndex": 14, "uuid": "railway-null", "quality": 4, "updatedAt": 1800000400219, "data": { "recordKey": "railway-null", "uuid": "railway-null", "quality": 4, "arriveTs": null, "currentGoods": null } },
+    { "profile": "A", "serverId": 317, "kind": "railway", "recordKey": "railway-value", "pointIndex": 15, "uuid": "railway-value", "quality": 4, "updatedAt": 1800000400218, "data": { "recordKey": "railway-value", "uuid": "railway-value", "quality": 4, "arriveTs": 1800000460000, "currentGoods": [{ "key": "item:stone", "name": "Stone", "iconPath": "icons/stone.png", "count": 2 }] } },
+
+    { "profile": "A", "serverId": 317, "kind": "dispatch", "recordKey": "dispatch-missing", "pointIndex": 16, "uuid": "dispatch-missing", "level": 5, "quality": 4, "updatedAt": 1800000400200, "data": { "recordKey": "dispatch-missing", "uuid": "dispatch-missing", "level": 5, "quality": 4 } },
+    { "profile": "A", "serverId": 317, "kind": "dispatch", "recordKey": "dispatch-null", "pointIndex": 17, "uuid": "dispatch-null", "level": 6, "quality": 4, "updatedAt": 1800000400199, "data": { "recordKey": "dispatch-null", "uuid": "dispatch-null", "level": 6, "quality": 4, "completionTime": null } },
+    { "profile": "A", "serverId": 317, "kind": "dispatch", "recordKey": "dispatch-default", "pointIndex": 18, "uuid": "dispatch-default", "level": 7, "quality": 4, "updatedAt": 1800000400198, "data": { "recordKey": "dispatch-default", "uuid": "dispatch-default", "level": 7, "quality": 4, "completionTime": 1800000399000 } },
+
+    { "profile": "A", "serverId": 317, "kind": "ghost", "recordKey": "ghost-missing", "pointIndex": 19, "uuid": "ghost-missing", "level": 6, "quality": 3, "updatedAt": 1800000400180, "data": { "recordKey": "ghost-missing", "uuid": "ghost-missing", "level": 6, "quality": 3 } },
+    { "profile": "A", "serverId": 317, "kind": "ghost", "recordKey": "ghost-null", "pointIndex": 20, "uuid": "ghost-null", "level": 7, "quality": 3, "updatedAt": 1800000400179, "data": { "recordKey": "ghost-null", "uuid": "ghost-null", "level": 7, "quality": 3, "completionTime": null } },
+    { "profile": "A", "serverId": 317, "kind": "ghost", "recordKey": "ghost-completed", "pointIndex": 21, "uuid": "ghost-completed", "level": 8, "quality": 3, "updatedAt": 1800000400178, "data": { "recordKey": "ghost-completed", "uuid": "ghost-completed", "level": 8, "quality": 3, "completionTime": 1800000399000 } },
+
+    { "profile": "A", "serverId": 317, "kind": "treasure", "recordKey": "treasure-missing", "pointIndex": 22, "uuid": "treasure-missing", "updatedAt": 1800000400160, "data": { "recordKey": "treasure-missing", "uuid": "treasure-missing", "allianceId": "OTHER", "viewerAllianceId": "QA" } },
+    { "profile": "A", "serverId": 317, "kind": "treasure", "recordKey": "treasure-null", "pointIndex": 23, "uuid": "treasure-null", "updatedAt": 1800000400159, "data": { "recordKey": "treasure-null", "uuid": "treasure-null", "treasureType": null, "suppliesType": null, "allianceId": "OTHER", "viewerAllianceId": "QA" } },
+    { "profile": "A", "serverId": 317, "kind": "treasure", "recordKey": "treasure-local", "pointIndex": 24, "uuid": "treasure-local", "updatedAt": 1800000400158, "data": { "recordKey": "treasure-local", "uuid": "treasure-local", "treasureType": 1, "suppliesType": 0, "allianceId": "QA", "viewerAllianceId": "QA", "treasureNameKey": "treasure.radar" } },
+    { "profile": "A", "serverId": 317, "kind": "treasure", "recordKey": "treasure-foreign", "pointIndex": 25, "uuid": "treasure-foreign", "updatedAt": 1800000400157, "data": { "recordKey": "treasure-foreign", "uuid": "treasure-foreign", "treasureType": 1, "suppliesType": 0, "allianceId": "OTHER", "viewerAllianceId": "QA", "treasureNameKey": "treasure.radar" } },
+    { "profile": "A", "serverId": 317, "kind": "treasure", "recordKey": "treasure-supplies", "pointIndex": 26, "uuid": "treasure-supplies", "updatedAt": 1800000400156, "data": { "recordKey": "treasure-supplies", "uuid": "treasure-supplies", "treasureType": 99, "suppliesType": 2, "allianceId": "OTHER", "viewerAllianceId": "QA", "treasureNameKey": "treasure.supplies" } },
+
+    { "profile": "A", "serverId": 317, "kind": "city", "recordKey": "isolation-city", "pointIndex": 101, "uuid": "isolation-city", "updatedAt": 1800000400100, "data": { "recordKey": "isolation-city", "uuid": "isolation-city", "scopeTag": "A317" } },
+    { "profile": "A", "serverId": 317, "kind": "resource", "recordKey": "isolation-resource", "pointIndex": 102, "uuid": "isolation-resource", "updatedAt": 1800000400100, "data": { "recordKey": "isolation-resource", "uuid": "isolation-resource", "scopeTag": "A317" } },
+    { "profile": "A", "serverId": 317, "kind": "monster", "recordKey": "isolation-monster", "pointIndex": 103, "uuid": "isolation-monster", "updatedAt": 1800000400100, "data": { "recordKey": "isolation-monster", "uuid": "isolation-monster", "scopeTag": "A317" } },
+    { "profile": "A", "serverId": 317, "kind": "truck", "recordKey": "isolation-truck", "pointIndex": 104, "uuid": "isolation-truck", "updatedAt": 1800000400100, "data": { "recordKey": "isolation-truck", "uuid": "isolation-truck", "scopeTag": "A317", "arriveTs": null } },
+    { "profile": "A", "serverId": 317, "kind": "railway", "recordKey": "isolation-railway", "pointIndex": 105, "uuid": "isolation-railway", "updatedAt": 1800000400100, "data": { "recordKey": "isolation-railway", "uuid": "isolation-railway", "scopeTag": "A317", "arriveTs": null } },
+    { "profile": "A", "serverId": 317, "kind": "dispatch", "recordKey": "isolation-dispatch", "pointIndex": 106, "uuid": "isolation-dispatch", "updatedAt": 1800000400100, "data": { "recordKey": "isolation-dispatch", "uuid": "isolation-dispatch", "scopeTag": "A317" } },
+    { "profile": "A", "serverId": 317, "kind": "ghost", "recordKey": "isolation-ghost", "pointIndex": 107, "uuid": "isolation-ghost", "updatedAt": 1800000400100, "data": { "recordKey": "isolation-ghost", "uuid": "isolation-ghost", "scopeTag": "A317" } },
+    { "profile": "A", "serverId": 317, "kind": "treasure", "recordKey": "isolation-treasure", "pointIndex": 108, "uuid": "isolation-treasure", "updatedAt": 1800000400100, "data": { "recordKey": "isolation-treasure", "uuid": "isolation-treasure", "scopeTag": "A317" } },
+
+    { "profile": "A", "serverId": 318, "kind": "city", "recordKey": "isolation-city", "pointIndex": 201, "uuid": "isolation-city", "updatedAt": 1800000400100, "data": { "recordKey": "isolation-city", "uuid": "isolation-city", "scopeTag": "A318" } },
+    { "profile": "A", "serverId": 318, "kind": "resource", "recordKey": "isolation-resource", "pointIndex": 202, "uuid": "isolation-resource", "updatedAt": 1800000400100, "data": { "recordKey": "isolation-resource", "uuid": "isolation-resource", "scopeTag": "A318" } },
+    { "profile": "A", "serverId": 318, "kind": "monster", "recordKey": "isolation-monster", "pointIndex": 203, "uuid": "isolation-monster", "updatedAt": 1800000400100, "data": { "recordKey": "isolation-monster", "uuid": "isolation-monster", "scopeTag": "A318" } },
+    { "profile": "A", "serverId": 318, "kind": "truck", "recordKey": "isolation-truck", "pointIndex": 204, "uuid": "isolation-truck", "updatedAt": 1800000400100, "data": { "recordKey": "isolation-truck", "uuid": "isolation-truck", "scopeTag": "A318", "arriveTs": null } },
+    { "profile": "A", "serverId": 318, "kind": "railway", "recordKey": "isolation-railway", "pointIndex": 205, "uuid": "isolation-railway", "updatedAt": 1800000400100, "data": { "recordKey": "isolation-railway", "uuid": "isolation-railway", "scopeTag": "A318", "arriveTs": null } },
+    { "profile": "A", "serverId": 318, "kind": "dispatch", "recordKey": "isolation-dispatch", "pointIndex": 206, "uuid": "isolation-dispatch", "updatedAt": 1800000400100, "data": { "recordKey": "isolation-dispatch", "uuid": "isolation-dispatch", "scopeTag": "A318" } },
+    { "profile": "A", "serverId": 318, "kind": "ghost", "recordKey": "isolation-ghost", "pointIndex": 207, "uuid": "isolation-ghost", "updatedAt": 1800000400100, "data": { "recordKey": "isolation-ghost", "uuid": "isolation-ghost", "scopeTag": "A318" } },
+    { "profile": "A", "serverId": 318, "kind": "treasure", "recordKey": "isolation-treasure", "pointIndex": 208, "uuid": "isolation-treasure", "updatedAt": 1800000400100, "data": { "recordKey": "isolation-treasure", "uuid": "isolation-treasure", "scopeTag": "A318" } },
+
+    { "profile": "B", "serverId": 317, "kind": "city", "recordKey": "isolation-city", "pointIndex": 301, "uuid": "isolation-city", "updatedAt": 1800000400100, "data": { "recordKey": "isolation-city", "uuid": "isolation-city", "scopeTag": "B317" } },
+    { "profile": "B", "serverId": 317, "kind": "resource", "recordKey": "isolation-resource", "pointIndex": 302, "uuid": "isolation-resource", "updatedAt": 1800000400100, "data": { "recordKey": "isolation-resource", "uuid": "isolation-resource", "scopeTag": "B317" } },
+    { "profile": "B", "serverId": 317, "kind": "monster", "recordKey": "isolation-monster", "pointIndex": 303, "uuid": "isolation-monster", "updatedAt": 1800000400100, "data": { "recordKey": "isolation-monster", "uuid": "isolation-monster", "scopeTag": "B317" } },
+    { "profile": "B", "serverId": 317, "kind": "truck", "recordKey": "isolation-truck", "pointIndex": 304, "uuid": "isolation-truck", "updatedAt": 1800000400100, "data": { "recordKey": "isolation-truck", "uuid": "isolation-truck", "scopeTag": "B317", "arriveTs": null } },
+    { "profile": "B", "serverId": 317, "kind": "railway", "recordKey": "isolation-railway", "pointIndex": 305, "uuid": "isolation-railway", "updatedAt": 1800000400100, "data": { "recordKey": "isolation-railway", "uuid": "isolation-railway", "scopeTag": "B317", "arriveTs": null } },
+    { "profile": "B", "serverId": 317, "kind": "dispatch", "recordKey": "isolation-dispatch", "pointIndex": 306, "uuid": "isolation-dispatch", "updatedAt": 1800000400100, "data": { "recordKey": "isolation-dispatch", "uuid": "isolation-dispatch", "scopeTag": "B317" } },
+    { "profile": "B", "serverId": 317, "kind": "ghost", "recordKey": "isolation-ghost", "pointIndex": 307, "uuid": "isolation-ghost", "updatedAt": 1800000400100, "data": { "recordKey": "isolation-ghost", "uuid": "isolation-ghost", "scopeTag": "B317" } },
+    { "profile": "B", "serverId": 317, "kind": "treasure", "recordKey": "isolation-treasure", "pointIndex": 308, "uuid": "isolation-treasure", "updatedAt": 1800000400100, "data": { "recordKey": "isolation-treasure", "uuid": "isolation-treasure", "scopeTag": "B317" } }
+  ]
+}

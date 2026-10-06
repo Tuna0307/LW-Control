@@ -291,7 +291,10 @@ internal static class GameRootSelectChecks
             requireCurrentClientEvidence: false,
             config: config,
             testHooks: hooks,
-            startRecoveryMonitor: false);
+            startRecoveryMonitor: false,
+            runtimeRoot: Path.Combine(root, "picker-overview-runtime"),
+            evidenceRoot: Path.Combine(root, "picker-overview-evidence"),
+            backupRoot: Path.Combine(root, "picker-overview-backups"));
         var backend = new LWBridgeBackend(
             config,
             lifecycle,
@@ -428,7 +431,10 @@ internal static class GameRootSelectChecks
                     throw new InvalidOperationException("fresh weak selection must not invoke launch helper");
                 },
             },
-            startRecoveryMonitor: false))
+            startRecoveryMonitor: false,
+            runtimeRoot: Path.Combine(root, "fresh-overview-runtime"),
+            evidenceRoot: Path.Combine(root, "fresh-overview-evidence"),
+            backupRoot: Path.Combine(root, "fresh-overview-backups")))
         {
             string errorCode = string.Empty;
             try

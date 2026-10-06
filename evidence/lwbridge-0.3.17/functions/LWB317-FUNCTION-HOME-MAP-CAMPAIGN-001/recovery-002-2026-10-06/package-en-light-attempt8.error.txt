@@ -1,0 +1,5 @@
+System.TimeoutException: Campaign UI did not reach: returned A editable Auto defaults before native hydration
+   at LWBridge.Desktop.LWBridgeWindow.<>c__DisplayClass137_0.<<RunHomeMapCampaignProofAsync>g__WaitForDomAsync|0>d.MoveNext() in C:\Users\chimw\OneDrive\Desktop\Github\LW-Control\src\LWBridge.Desktop\LWBridgeWindow.cs:line 3073
+--- End of stack trace from previous location ---
+   at LWBridge.Desktop.LWBridgeWindow.RunHomeMapCampaignProofAsync(CoreWebView2 core, String outputPath) in C:\Users\chimw\OneDrive\Desktop\Github\LW-Control\src\LWBridge.Desktop\LWBridgeWindow.cs:line 4162
+   at LWBridge.Desktop.LWBridgeWindow.OnShown(Object sender, EventArgs e) in C:\Users\chimw\OneDrive\Desktop\Github\LW-Control\src\LWBridge.Desktop\LWBridgeWindow.cs:line 1022

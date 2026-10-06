@@ -94,6 +94,7 @@ internal sealed class ProfileRuntimeOwner : IDisposable
         Func<bool>? mapAutoOnlineProvider = null,
         string? overviewRuntimeRoot = null,
         string? overviewEvidenceRoot = null,
+        string? overviewBackupRoot = null,
         LWBridgeControlPipeHostState? sharedBridgeHostState = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(profileId);
@@ -153,7 +154,8 @@ internal sealed class ProfileRuntimeOwner : IDisposable
                 bridgeHostState: bridgeHost,
                 enableBridgeControlPipeLaunchBinding: startBridgeTransport,
                 runtimeRoot: overviewRuntimeRoot,
-                evidenceRoot: overviewEvidenceRoot);
+                evidenceRoot: overviewEvidenceRoot,
+                backupRoot: overviewBackupRoot);
             map = mapProvider is null
                 ? new Map317CommandService(
                     Path.Combine(fullProfileRoot, "map-data", "map-data.db"),

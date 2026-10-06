@@ -709,7 +709,10 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
     let inFlight = false;
     const owner = { ...selectedProfileOwnerRef.current };
     const unsubscribeStatus = mapApi.listenStatus((status) => {
-      if (!closed && isCurrentProfileOwner(owner)) acknowledgeRuntimeStatus(status, reconnectStatusGeneration.current, owner);
+      if (!closed && isCurrentProfileOwner(owner)) {
+        statusReadRevisionRef.current += 1;
+        acknowledgeRuntimeStatus(status, reconnectStatusGeneration.current, owner);
+      }
     });
     const unsubscribeScan = mapApi.listenScanStatus((scan) => {
       if (!closed && isCurrentProfileOwner(owner)) acknowledgeMapScan(scan);

@@ -276,6 +276,8 @@ const periodicStatusBody = appSource.slice(appSource.lastIndexOf("useEffect(() =
 assert.match(periodicStatusBody, /let inFlight = false/, "recurring status refresh must own an in-flight fence");
 assert.match(periodicStatusBody, /if \(inFlight\) return/, "overlapping periodic status reads must be suppressed");
 assert.match(periodicStatusBody, /readStatusSnapshot\(\(\) => !closed && isCurrentProfileOwner\(owner\)\)/, "periodic acknowledgements must remain owned by the live profile generation");
+assert.match(periodicStatusBody, /statusReadRevisionRef\.current \+= 1;[\s\S]*acknowledgeRuntimeStatus\(status/,
+  "a newer bridge status event must retire any older in-flight paired status read before applying runtime state");
 assert.match(periodicStatusBody, /window\.clearInterval\(timer\)/, "recurring status refresh must clear its timer with the effect");
 assert.doesNotMatch(periodicStatusBody, /activeRoute/, "status polling must remain active while Home is retained but hidden on another route");
 

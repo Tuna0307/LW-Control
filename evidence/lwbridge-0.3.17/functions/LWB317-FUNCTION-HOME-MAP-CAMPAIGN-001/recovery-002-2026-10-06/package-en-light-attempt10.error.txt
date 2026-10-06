@@ -1,0 +1,3 @@
+System.IO.InvalidDataException: Campaign packaged UI recorded unexpected console/page issues: [{"documentGeneration":1,"sessionId":"5cd07e2fcb1c4293a69fe14d69b36e05","kind":"unhandledrejection","message":"Transition was skipped. New ViewTransition started","timestampMilliseconds":1791304748446}]
+   at LWBridge.Desktop.LWBridgeWindow.RunHomeMapCampaignProofAsync(CoreWebView2 core, String outputPath) in C:\Users\chimw\OneDrive\Desktop\Github\LW-Control\src\LWBridge.Desktop\LWBridgeWindow.cs:line 4375
+   at LWBridge.Desktop.LWBridgeWindow.OnShown(Object sender, EventArgs e) in C:\Users\chimw\OneDrive\Desktop\Github\LW-Control\src\LWBridge.Desktop\LWBridgeWindow.cs:line 1022

@@ -10,6 +10,7 @@ internal sealed class ProxyStatusTestHooks
     public Func<string, string?>? ComputeSha256 { get; init; }
     public Func<bool>? GameRunning { get; init; }
     public Func<bool>? RuntimeManaged { get; init; }
+    public Func<bool>? RepairRequired { get; init; }
 }
 
 internal sealed class ProxyStatusCommandService
@@ -84,10 +85,10 @@ internal sealed class ProxyStatusCommandService
         bool gameRunning =
             testHooks?.GameRunning?.Invoke() ??
             installation.GetProcessStatus().GameRunning;
-        bool repairRequired =
-            !runtimeManaged &&
-            gameRunning &&
-            string.Equals(state, "needsRepair", StringComparison.Ordinal);
+        bool repairRequired = testHooks?.RepairRequired?.Invoke() ??
+            (!runtimeManaged &&
+             gameRunning &&
+             string.Equals(state, "needsRepair", StringComparison.Ordinal));
 
         var result = new Dictionary<string, object?>(StringComparer.Ordinal)
         {

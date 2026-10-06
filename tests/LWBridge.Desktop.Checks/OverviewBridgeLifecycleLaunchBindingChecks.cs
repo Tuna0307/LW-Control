@@ -136,7 +136,10 @@ internal static class OverviewBridgeLifecycleLaunchBindingChecks
             testHooks: hooks,
             startRecoveryMonitor: false,
             bridgeHostState: host,
-            enableBridgeControlPipeLaunchBinding: true);
+            enableBridgeControlPipeLaunchBinding: true,
+            runtimeRoot: Path.Combine(root, "overview-runtime"),
+            evidenceRoot: Path.Combine(root, "overview-evidence"),
+            backupRoot: Path.Combine(root, "overview-backups"));
 
         JsonElement empty = JsonSerializer.SerializeToElement(new { });
         JsonElement started = JsonSerializer.SerializeToElement(
@@ -207,7 +210,7 @@ internal static class OverviewBridgeLifecycleLaunchBindingChecks
         int stopLeaseCleanup = successfulStopUnregister < 0
             ? -1
             : lifecycleSource.IndexOf(
-                "StopLeaseTimer(deleteLease: true);",
+                "StopLeaseTimer(deleteLease: true, snapshot.InstanceId, snapshot.Challenge);",
                 successfulStopUnregister,
                 StringComparison.Ordinal);
         Check(
@@ -293,7 +296,10 @@ internal static class OverviewBridgeLifecycleLaunchBindingChecks
             testHooks: hooks,
             startRecoveryMonitor: false,
             bridgeHostState: host,
-            enableBridgeControlPipeLaunchBinding: true);
+            enableBridgeControlPipeLaunchBinding: true,
+            runtimeRoot: Path.Combine(root, "failure-overview-runtime"),
+            evidenceRoot: Path.Combine(root, "failure-overview-evidence"),
+            backupRoot: Path.Combine(root, "failure-overview-backups"));
 
         string code;
         try

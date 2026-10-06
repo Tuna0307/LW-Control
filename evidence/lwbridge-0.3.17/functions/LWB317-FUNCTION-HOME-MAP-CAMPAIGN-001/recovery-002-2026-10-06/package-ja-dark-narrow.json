@@ -1,0 +1,1089 @@
+{
+  "schemaVersion": 4,
+  "checkpoint": "LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001-RECOVERY-002",
+  "state": "proven",
+  "mode": "isolated-package-pinned-real-ui-controls",
+  "externalGameActions": 0,
+  "package": {
+    "executablePath": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\src\\LWBridge.Desktop\\bin\\Release\\net10.0-windows10.0.17763.0\\LWBridge.Desktop.exe",
+    "executableSha256": "7bbdb937d836df56c105930e6e30bd04546f376cebacb974bf58515adcf6330b",
+    "managedAssemblyPath": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\src\\LWBridge.Desktop\\bin\\Release\\net10.0-windows10.0.17763.0\\LWBridge.Desktop.dll",
+    "managedAssemblySha256": "ecd99e62c0edfe6fa8594bce350cea824b433844e4176b1ebcc7182dbcf9c545",
+    "uiRootPath": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\src\\LWBridge.Desktop\\bin\\Release\\net10.0-windows10.0.17763.0\\ProductionUi",
+    "uiIndexSha256": "1addba61cd6960c757ffa3b985c759ce171e9fccd139e827a0fc7210ca5c9c1c",
+    "buildIdentity": {
+      "schemaVersion": 1,
+      "project": "LWBridge.UI-0.3.17",
+      "canonicalSource": "src/LWBridge.UI-0.3.17",
+      "sourceFingerprint": "cd86aec04987bf5683d38e27d05af5a4c26a773e3be65ea3dc5133463be2d150",
+      "artifactFingerprint": "1ae836263c78106f014fcc44d23f9df5b6f2b22453f0462c9e968094419390c5",
+      "entrypoint": "index.html"
+    },
+    "uiProject": "LWBridge.UI-0.3.17",
+    "bridgeMode": "native"
+  },
+  "appearance": {
+    "expectedLanguage": "ja",
+    "expectedTheme": "dark",
+    "themeControlClicks": 1,
+    "initial": {
+      "bridgeMode": "native",
+      "language": "ja",
+      "languageControl": "ja",
+      "navigation": [
+        "\u30DB\u30FC\u30E0",
+        "\u81EA\u52D5\u5316",
+        "\u5730\u56F3\u30C7\u30FC\u30BF",
+        "\u90E8\u968A / \u884C\u8ECD",
+        "\u90FD\u5E02\u30EC\u30A4\u30A2\u30A6\u30C8",
+        "\u30B7\u30E7\u30FC\u30C8\u30AB\u30C3\u30C8",
+        "\u30DF\u30CB\u30B2\u30FC\u30E0",
+        "\u8A2D\u5B9A"
+      ],
+      "theme": "dark",
+      "themePressed": "true",
+      "uiProject": "LWBridge.UI-0.3.17",
+      "viewport": {
+        "height": 720,
+        "scrollWidth": 900,
+        "width": 900
+      }
+    },
+    "afterRestart": {
+      "activeProfile": "Campaign B",
+      "autoLaunchPreference": "false",
+      "language": "ja",
+      "sessionId": "90c5fe5e256246c2aea19dbad8aa45cc",
+      "theme": "dark"
+    },
+    "final": {
+      "activeProfile": "Campaign A",
+      "cityRow": "\t\n101,202\n\u79FB\u52D5\n\tCampaign City A\tISO\t30\t999,999\t-\t2026/10/7 1:09:12",
+      "language": "ja",
+      "theme": "dark",
+      "viewport": {
+        "height": 720,
+        "scrollWidth": 900,
+        "width": 900
+      }
+    }
+  },
+  "routes": [
+    {
+      "active": true,
+      "key": "overview",
+      "label": "\u30DB\u30FC\u30E0"
+    },
+    {
+      "active": true,
+      "key": "automation",
+      "label": "\u81EA\u52D5\u5316"
+    },
+    {
+      "active": true,
+      "key": "map-data",
+      "label": "\u5730\u56F3\u30C7\u30FC\u30BF"
+    },
+    {
+      "active": true,
+      "key": "march",
+      "label": "\u90E8\u968A / \u884C\u8ECD"
+    },
+    {
+      "active": true,
+      "key": "city-layout",
+      "label": "\u90FD\u5E02\u30EC\u30A4\u30A2\u30A6\u30C8"
+    },
+    {
+      "active": true,
+      "key": "hotkeys",
+      "label": "\u30B7\u30E7\u30FC\u30C8\u30AB\u30C3\u30C8"
+    },
+    {
+      "active": true,
+      "key": "mini-games",
+      "label": "\u30DF\u30CB\u30B2\u30FC\u30E0"
+    },
+    {
+      "active": true,
+      "key": "settings",
+      "label": "\u8A2D\u5B9A"
+    },
+    {
+      "active": true,
+      "key": "map-data-return",
+      "label": "\u5730\u56F3\u30C7\u30FC\u30BF"
+    }
+  ],
+  "map": {
+    "allEightTabs": [
+      {
+        "count": "1",
+        "firstRow": "\t\n101,202\n\u79FB\u52D5\n\tCampaign City A\tISO\t30\t999,999\t-\t2026/10/7 1:09:12",
+        "kind": "city",
+        "label": "\u90FD\u5E02"
+      },
+      {
+        "count": "1",
+        "firstRow": "-\t\u4E0D\u660E\u306A\u8CC7\u6E90\t10\t\u5F85\u6A5F\u4E2D\t2026/10/7 1:09:12",
+        "kind": "resource",
+        "label": "\u8CC7\u6E90"
+      },
+      {
+        "count": "1",
+        "firstRow": "-\t\u4E0D\u660E\u306A\u30E2\u30F3\u30B9\u30BF\u30FC\t20\t-\t2026/10/7 1:09:12",
+        "kind": "monster",
+        "label": "\u30E2\u30F3\u30B9\u30BF\u30FC"
+      },
+      {
+        "count": "1",
+        "firstRow": "\t-\t-\tSSR\t-\t-\t\u7565\u596A\u53EF\u80FD\uFF5C\u7565\u596A 0/2\t-\t2026/10/7 1:09:12",
+        "kind": "truck",
+        "label": "\u8F38\u9001\u8ECA"
+      },
+      {
+        "count": "1",
+        "firstRow": "-\t-\tSSR\t-\t-\t-\t2026/10/7 1:09:12",
+        "kind": "railway",
+        "label": "\u5217\u8ECA"
+      },
+      {
+        "count": "1",
+        "firstRow": "\t-\t-\t5\tSSR\t\u7565\u596A\u53EF\u80FD\t-\t2026/10/7 1:09:11\t2026/10/7 1:09:12",
+        "kind": "dispatch",
+        "label": "\u6975\u79D8\u4EFB\u52D9"
+      },
+      {
+        "count": "1",
+        "firstRow": "\t-\t-\t6\tSSR\t\u672A\u5B8C\u4E86\t-\t2026/10/7 1:09:22\t2026/10/7 1:09:12",
+        "kind": "ghost",
+        "label": "\u5E7D\u970A\u4F5C\u6226"
+      },
+      {
+        "count": "1",
+        "firstRow": "-\t\u4E0D\u660E\u306A\u5B9D\u7269\t-\t-\t-\t-\t-\t-\t-\t-\t\u53D7\u53D6\t2026/10/7 1:09:12",
+        "kind": "treasure",
+        "label": "\u5B9D\u7269"
+      }
+    ],
+    "profileBWasClearedThroughUi": true,
+    "profileBClearDom": {
+      "cityRow": "\u51E6\u7406\u4E2D",
+      "counts": [
+        "\u2014",
+        "\u2014",
+        "\u2014",
+        "\u2014",
+        "\u2014",
+        "\u2014",
+        "\u2014",
+        "\u2014"
+      ],
+      "error": ""
+    },
+    "profileBClearNativeSummary": {
+      "serverId": 318,
+      "counts": {
+        "city": 0,
+        "resource": 0,
+        "monster": 0,
+        "truck": 0,
+        "railway": 0,
+        "dispatch": 0,
+        "ghost": 0,
+        "treasure": 0
+      },
+      "scanState": {
+        "serverId": 318,
+        "serverIdSource": "live",
+        "scanRunId": "",
+        "isReading": false,
+        "phase": "idle",
+        "selectedTypes": [
+          "city",
+          "resource",
+          "monster",
+          "truck",
+          "railway",
+          "dispatch",
+          "ghost",
+          "treasure"
+        ],
+        "totalBlocks": 0,
+        "completedBlocks": 0,
+        "readBlocks": 0,
+        "failedBlocks": 0,
+        "unreadBlocks": 0,
+        "inflightBlocks": 0,
+        "scanMode": "normal",
+        "concurrency": 8,
+        "scanRate": 0,
+        "progressPercent": 0,
+        "nativeCaptureReady": false,
+        "nativePendingRecords": 0,
+        "nativeDroppedRecords": 0,
+        "resumeAvailable": false,
+        "lastError": null,
+        "startedAt": 0,
+        "isInWorld": true,
+        "homeServerId": 0,
+        "seasonServerIds": null,
+        "truckMatchServerIds": null
+      }
+    },
+    "returnedAStillHasSeededCity": true
+  },
+  "home": {
+    "initialLifecycleWasRunning": true,
+    "initialLifecycleQuiescedThroughUi": true,
+    "profileAAutoLaunchPersisted": true,
+    "globalAutoLaunchPreferenceAfterReload": "false",
+    "mountedLifecycleBeforeRecovery": {
+      "startCalls": 2,
+      "stopCalls": 2,
+      "connectionState": "connected",
+      "processAlive": true,
+      "repairRestarted": true,
+      "autoReconnect": true
+    },
+    "mountedLifecycleAfterRecovery": {
+      "startCalls": 3,
+      "stopCalls": 4,
+      "recoveryState": "idle",
+      "recoveryRestarted": false,
+      "finalConnectionState": "offline",
+      "processAlive": false
+    },
+    "concurrentAutoLaunchRequest": {
+      "command": "local_config_set",
+      "profileId": "campaign-A",
+      "profileGeneration": 7,
+      "cancelled": false
+    },
+    "delayedAutoLaunchRequest": {
+      "command": "local_config_set",
+      "profileId": "campaign-A",
+      "profileGeneration": 7,
+      "cancelled": false
+    },
+    "profileBAfterOldAutoLaunch": {
+      "activeProfile": "Campaign B",
+      "checked": "false"
+    },
+    "rejectedAutoLaunch": {
+      "checked": "false",
+      "error": "\u64CD\u4F5C\u3092\u5B8C\u4E86\u3067\u304D\u307E\u305B\u3093\u3067\u3057\u305F\u3002"
+    },
+    "stalePicker": {
+      "profileId": "campaign-A",
+      "profileGeneration": 3,
+      "initialPath": "C:\\Users\\chimw\\AppData\\Local\\Temp\\lwb317-home-map-campaign-056a21c89bb54e9ba868422588440b1d\\inert-game-root",
+      "selectedPath": "C:\\Users\\chimw\\AppData\\Local\\Temp\\lwb317-home-map-campaign-056a21c89bb54e9ba868422588440b1d\\picker-stale-selection-A"
+    },
+    "freshPicker": {
+      "profileId": "campaign-A",
+      "profileGeneration": 7,
+      "initialPath": "C:\\Users\\chimw\\AppData\\Local\\Temp\\lwb317-home-map-campaign-056a21c89bb54e9ba868422588440b1d\\inert-game-root",
+      "selectedPath": "C:\\Users\\chimw\\AppData\\Local\\Temp\\lwb317-home-map-campaign-056a21c89bb54e9ba868422588440b1d\\inert-game-root"
+    },
+    "statusConnected": {
+      "online": true,
+      "text": "\u63A5\u7D9A\u6E08\u307F"
+    },
+    "statusDeferred": {
+      "online": false,
+      "text": "\u78BA\u8A8D\u4E2D"
+    },
+    "deferredRequest": {
+      "command": "get_status",
+      "profileId": "campaign-A",
+      "profileGeneration": 9,
+      "cancelled": false
+    },
+    "statusRejected": {
+      "online": false,
+      "text": "Unavailable"
+    },
+    "statusDisconnected": {
+      "online": false,
+      "text": "\u672A\u63A5\u7D9A"
+    },
+    "statusRecovered": {
+      "online": true,
+      "text": "\u63A5\u7D9A\u6E08\u307F"
+    }
+  },
+  "autoScan": {
+    "profileAInterval": 45,
+    "profileAServerIds": [
+      317
+    ],
+    "profileBInterval": 55,
+    "profileBServerId": 318,
+    "inertProviderStarts": 2,
+    "inertProviderStops": 1,
+    "completedSnapshot": {
+      "config": {
+        "enabled": true,
+        "intervalMinutes": 45,
+        "serverIds": [
+          317
+        ],
+        "selectedTypes": [
+          "truck",
+          "railway",
+          "dispatch",
+          "ghost",
+          "treasure"
+        ],
+        "scanMode": "fast",
+        "returnToOriginalServer": true,
+        "nextRunAt": 1791309259686
+      },
+      "running": false,
+      "ownsActiveScan": false,
+      "lastError": null,
+      "lastCycle": {
+        "outcome": "completed",
+        "startedAt": 1791306557645,
+        "completedAt": 1791306559686,
+        "originalServerId": 317,
+        "targetServerIds": [
+          317
+        ],
+        "completedServerIds": [
+          317
+        ],
+        "lastError": null
+      },
+      "recoveredInterruptedCycle": false,
+      "revision": 7
+    },
+    "runNowActionError": "\u64CD\u4F5C\u3092\u5B8C\u4E86\u3067\u304D\u307E\u305B\u3093\u3067\u3057\u305F\u3002",
+    "actionErrorAfterCleanRuntimeEvent": {
+      "text": "\u64CD\u4F5C\u3092\u5B8C\u4E86\u3067\u304D\u307E\u305B\u3093\u3067\u3057\u305F\u3002"
+    },
+    "cancelSnapshot": {
+      "config": {
+        "enabled": false,
+        "intervalMinutes": 45,
+        "serverIds": [
+          317
+        ],
+        "selectedTypes": [
+          "truck",
+          "railway",
+          "dispatch",
+          "ghost",
+          "treasure"
+        ],
+        "scanMode": "fast",
+        "returnToOriginalServer": true,
+        "nextRunAt": 0
+      },
+      "running": false,
+      "ownsActiveScan": false,
+      "lastError": null,
+      "lastCycle": {
+        "outcome": "disabled",
+        "startedAt": 1791306559872,
+        "completedAt": 1791306560003,
+        "originalServerId": 317,
+        "targetServerIds": [
+          317
+        ],
+        "completedServerIds": [],
+        "lastError": null
+      },
+      "recoveredInterruptedCycle": false,
+      "revision": 12
+    },
+    "hydrationBase": {
+      "config": {
+        "enabled": false,
+        "intervalMinutes": 45,
+        "serverIds": [
+          317
+        ],
+        "selectedTypes": [
+          "city",
+          "treasure"
+        ],
+        "scanMode": "fast",
+        "returnToOriginalServer": false,
+        "nextRunAt": 0
+      },
+      "running": false,
+      "ownsActiveScan": false,
+      "lastError": null,
+      "lastCycle": {
+        "outcome": "disabled",
+        "startedAt": 1791306559872,
+        "completedAt": 1791306560003,
+        "originalServerId": 317,
+        "targetServerIds": [
+          317
+        ],
+        "completedServerIds": [],
+        "lastError": null
+      },
+      "recoveredInterruptedCycle": false,
+      "revision": 13
+    },
+    "beforeHydrationRelease": {
+      "config": {
+        "enabled": false,
+        "intervalMinutes": 45,
+        "serverIds": [
+          317
+        ],
+        "selectedTypes": [
+          "city",
+          "treasure"
+        ],
+        "scanMode": "fast",
+        "returnToOriginalServer": false,
+        "nextRunAt": 0
+      },
+      "running": false,
+      "ownsActiveScan": false,
+      "lastError": null,
+      "lastCycle": {
+        "outcome": "disabled",
+        "startedAt": 1791306559872,
+        "completedAt": 1791306560003,
+        "originalServerId": 317,
+        "targetServerIds": [
+          317
+        ],
+        "completedServerIds": [],
+        "lastError": null
+      },
+      "recoveredInterruptedCycle": false,
+      "revision": 13
+    },
+    "mergedHydrationSnapshot": {
+      "config": {
+        "enabled": false,
+        "intervalMinutes": 35,
+        "serverIds": [
+          317
+        ],
+        "selectedTypes": [
+          "city",
+          "treasure"
+        ],
+        "scanMode": "normal",
+        "returnToOriginalServer": false,
+        "nextRunAt": 0
+      },
+      "running": false,
+      "ownsActiveScan": false,
+      "lastError": null,
+      "lastCycle": {
+        "outcome": "disabled",
+        "startedAt": 1791306559872,
+        "completedAt": 1791306560003,
+        "originalServerId": 317,
+        "targetServerIds": [
+          317
+        ],
+        "completedServerIds": [],
+        "lastError": null
+      },
+      "recoveredInterruptedCycle": false,
+      "revision": 15
+    },
+    "hydrationRetrySnapshot": {
+      "config": {
+        "enabled": false,
+        "intervalMinutes": 40,
+        "serverIds": [
+          317
+        ],
+        "selectedTypes": [
+          "city",
+          "treasure"
+        ],
+        "scanMode": "normal",
+        "returnToOriginalServer": false,
+        "nextRunAt": 0
+      },
+      "running": false,
+      "ownsActiveScan": false,
+      "lastError": null,
+      "lastCycle": {
+        "outcome": "disabled",
+        "startedAt": 1791306559872,
+        "completedAt": 1791306560003,
+        "originalServerId": 317,
+        "targetServerIds": [
+          317
+        ],
+        "completedServerIds": [],
+        "lastError": null
+      },
+      "recoveredInterruptedCycle": false,
+      "revision": 16
+    },
+    "nativeMessagesDuringStatusAndLater": 188
+  },
+  "runtimeComposition": {
+    "autoSchedulerEnabled": true,
+    "plunderWorkersEnabled": true,
+    "recoveryMonitorEnabled": false,
+    "bridgeTransportEnabled": false,
+    "namedEvents": [
+      {
+        "eventName": "bridge://map-scan-status",
+        "profileId": "campaign-A",
+        "profileGeneration": 1,
+        "timestampMilliseconds": 1791306554970
+      },
+      {
+        "eventName": "bridge://map-scan-status",
+        "profileId": "campaign-A",
+        "profileGeneration": 1,
+        "timestampMilliseconds": 1791306555019
+      },
+      {
+        "eventName": "bridge://status",
+        "profileId": "campaign-A",
+        "profileGeneration": 1,
+        "timestampMilliseconds": 1791306555375
+      },
+      {
+        "eventName": "bridge://game-recovery",
+        "profileId": "campaign-A",
+        "profileGeneration": 1,
+        "timestampMilliseconds": 1791306555375
+      },
+      {
+        "eventName": "bridge://map-scan-status",
+        "profileId": "campaign-B",
+        "profileGeneration": 2,
+        "timestampMilliseconds": 1791306555476
+      },
+      {
+        "eventName": "bridge://map-scan-status",
+        "profileId": "campaign-A",
+        "profileGeneration": 3,
+        "timestampMilliseconds": 1791306555583
+      },
+      {
+        "eventName": "bridge://map-scan-status",
+        "profileId": "campaign-B",
+        "profileGeneration": 4,
+        "timestampMilliseconds": 1791306555678
+      },
+      {
+        "eventName": "bridge://map-scan-status",
+        "profileId": "campaign-A",
+        "profileGeneration": 5,
+        "timestampMilliseconds": 1791306555746
+      },
+      {
+        "eventName": "bridge://map-scan-status",
+        "profileId": "campaign-B",
+        "profileGeneration": 6,
+        "timestampMilliseconds": 1791306555991
+      },
+      {
+        "eventName": "bridge://map-scan-status",
+        "profileId": "campaign-A",
+        "profileGeneration": 7,
+        "timestampMilliseconds": 1791306556033
+      },
+      {
+        "eventName": "bridge://status",
+        "profileId": "campaign-A",
+        "profileGeneration": 7,
+        "timestampMilliseconds": 1791306556256
+      },
+      {
+        "eventName": "bridge://game-recovery",
+        "profileId": "campaign-A",
+        "profileGeneration": 7,
+        "timestampMilliseconds": 1791306556257
+      },
+      {
+        "eventName": "bridge://map-scan-status",
+        "profileId": "campaign-A",
+        "profileGeneration": 7,
+        "timestampMilliseconds": 1791306556329
+      },
+      {
+        "eventName": "bridge://map-scan-status",
+        "profileId": "campaign-A",
+        "profileGeneration": 7,
+        "timestampMilliseconds": 1791306556645
+      },
+      {
+        "eventName": "bridge://status",
+        "profileId": "campaign-A",
+        "profileGeneration": 7,
+        "timestampMilliseconds": 1791306556836
+      },
+      {
+        "eventName": "bridge://game-recovery",
+        "profileId": "campaign-A",
+        "profileGeneration": 7,
+        "timestampMilliseconds": 1791306556836
+      },
+      {
+        "eventName": "bridge://status",
+        "profileId": "campaign-A",
+        "profileGeneration": 7,
+        "timestampMilliseconds": 1791306556842
+      },
+      {
+        "eventName": "bridge://game-recovery",
+        "profileId": "campaign-A",
+        "profileGeneration": 7,
+        "timestampMilliseconds": 1791306556842
+      },
+      {
+        "eventName": "bridge://map-scan-status",
+        "profileId": "campaign-B",
+        "profileGeneration": 8,
+        "timestampMilliseconds": 1791306556955
+      },
+      {
+        "eventName": "bridge://status",
+        "profileId": "campaign-B",
+        "profileGeneration": 8,
+        "timestampMilliseconds": 1791306556966
+      },
+      {
+        "eventName": "bridge://game-recovery",
+        "profileId": "campaign-B",
+        "profileGeneration": 8,
+        "timestampMilliseconds": 1791306556966
+      },
+      {
+        "eventName": "bridge://map-scan-status",
+        "profileId": "campaign-A",
+        "profileGeneration": 9,
+        "timestampMilliseconds": 1791306557189
+      },
+      {
+        "eventName": "bridge://status",
+        "profileId": "campaign-A",
+        "profileGeneration": 9,
+        "timestampMilliseconds": 1791306557318
+      },
+      {
+        "eventName": "bridge://game-recovery",
+        "profileId": "campaign-A",
+        "profileGeneration": 9,
+        "timestampMilliseconds": 1791306557318
+      },
+      {
+        "eventName": "bridge://map-scan-status",
+        "profileId": "campaign-A",
+        "profileGeneration": 9,
+        "timestampMilliseconds": 1791306557321
+      },
+      {
+        "eventName": "bridge://status",
+        "profileId": "campaign-A",
+        "profileGeneration": 9,
+        "timestampMilliseconds": 1791306557382
+      },
+      {
+        "eventName": "bridge://game-recovery",
+        "profileId": "campaign-A",
+        "profileGeneration": 9,
+        "timestampMilliseconds": 1791306557382
+      },
+      {
+        "eventName": "bridge://map-scan-status",
+        "profileId": "campaign-A",
+        "profileGeneration": 9,
+        "timestampMilliseconds": 1791306557406
+      },
+      {
+        "eventName": "bridge://status",
+        "profileId": "campaign-A",
+        "profileGeneration": 9,
+        "timestampMilliseconds": 1791306557544
+      },
+      {
+        "eventName": "bridge://game-recovery",
+        "profileId": "campaign-A",
+        "profileGeneration": 9,
+        "timestampMilliseconds": 1791306557545
+      },
+      {
+        "eventName": "bridge://map-scan-status",
+        "profileId": "campaign-A",
+        "profileGeneration": 9,
+        "timestampMilliseconds": 1791306557550
+      },
+      {
+        "eventName": "bridge://local-map-auto-scan-changed",
+        "profileId": "campaign-A",
+        "profileGeneration": 9,
+        "timestampMilliseconds": 1791306557598
+      },
+      {
+        "eventName": "bridge://local-map-auto-scan-changed",
+        "profileId": "campaign-A",
+        "profileGeneration": 9,
+        "timestampMilliseconds": 1791306557603
+      },
+      {
+        "eventName": "bridge://local-map-auto-scan-changed",
+        "profileId": "campaign-A",
+        "profileGeneration": 9,
+        "timestampMilliseconds": 1791306557642
+      },
+      {
+        "eventName": "bridge://local-map-auto-scan-changed",
+        "profileId": "campaign-A",
+        "profileGeneration": 9,
+        "timestampMilliseconds": 1791306557648
+      },
+      {
+        "eventName": "bridge://map-scan-status",
+        "profileId": "campaign-A",
+        "profileGeneration": 9,
+        "timestampMilliseconds": 1791306557649
+      },
+      {
+        "eventName": "bridge://map-scan-status",
+        "profileId": "campaign-A",
+        "profileGeneration": 9,
+        "timestampMilliseconds": 1791306557661
+      },
+      {
+        "eventName": "bridge://map-scan-status",
+        "profileId": "campaign-A",
+        "profileGeneration": 9,
+        "timestampMilliseconds": 1791306557671
+      },
+      {
+        "eventName": "bridge://map-scan-status",
+        "profileId": "campaign-A",
+        "profileGeneration": 9,
+        "timestampMilliseconds": 1791306557673
+      },
+      {
+        "eventName": "bridge://map-scan-status",
+        "profileId": "campaign-A",
+        "profileGeneration": 9,
+        "timestampMilliseconds": 1791306559677
+      },
+      {
+        "eventName": "bridge://local-map-auto-scan-changed",
+        "profileId": "campaign-A",
+        "profileGeneration": 9,
+        "timestampMilliseconds": 1791306559690
+      },
+      {
+        "eventName": "bridge://local-map-auto-scan-changed",
+        "profileId": "campaign-A",
+        "profileGeneration": 9,
+        "timestampMilliseconds": 1791306559756
+      },
+      {
+        "eventName": "bridge://local-map-auto-scan-changed",
+        "profileId": "campaign-A",
+        "profileGeneration": 9,
+        "timestampMilliseconds": 1791306559872
+      },
+      {
+        "eventName": "bridge://local-map-auto-scan-changed",
+        "profileId": "campaign-A",
+        "profileGeneration": 9,
+        "timestampMilliseconds": 1791306559879
+      },
+      {
+        "eventName": "bridge://map-scan-status",
+        "profileId": "campaign-A",
+        "profileGeneration": 9,
+        "timestampMilliseconds": 1791306559879
+      },
+      {
+        "eventName": "bridge://map-scan-status",
+        "profileId": "campaign-A",
+        "profileGeneration": 9,
+        "timestampMilliseconds": 1791306559885
+      },
+      {
+        "eventName": "bridge://local-map-auto-scan-changed",
+        "profileId": "campaign-A",
+        "profileGeneration": 9,
+        "timestampMilliseconds": 1791306559928
+      },
+      {
+        "eventName": "bridge://local-map-auto-scan-changed",
+        "profileId": "campaign-A",
+        "profileGeneration": 9,
+        "timestampMilliseconds": 1791306559931
+      },
+      {
+        "eventName": "bridge://local-map-auto-scan-changed",
+        "profileId": "campaign-A",
+        "profileGeneration": 9,
+        "timestampMilliseconds": 1791306560002
+      },
+      {
+        "eventName": "bridge://local-map-auto-scan-changed",
+        "profileId": "campaign-A",
+        "profileGeneration": 9,
+        "timestampMilliseconds": 1791306560006
+      },
+      {
+        "eventName": "bridge://map-scan-status",
+        "profileId": "campaign-A",
+        "profileGeneration": 9,
+        "timestampMilliseconds": 1791306560007
+      },
+      {
+        "eventName": "bridge://map-scan-status",
+        "profileId": "campaign-A",
+        "profileGeneration": 9,
+        "timestampMilliseconds": 1791306560008
+      },
+      {
+        "eventName": "bridge://local-map-auto-scan-changed",
+        "profileId": "campaign-A",
+        "profileGeneration": 9,
+        "timestampMilliseconds": 1791306560039
+      },
+      {
+        "eventName": "bridge://map-scan-status",
+        "profileId": "campaign-A",
+        "profileGeneration": 9,
+        "timestampMilliseconds": 1791306560337
+      },
+      {
+        "eventName": "bridge://game-recovery",
+        "profileId": "campaign-A",
+        "profileGeneration": 9,
+        "timestampMilliseconds": 1791306560398
+      },
+      {
+        "eventName": "bridge://game-recovery",
+        "profileId": "campaign-A",
+        "profileGeneration": 9,
+        "timestampMilliseconds": 1791306560398
+      },
+      {
+        "eventName": "bridge://game-recovery",
+        "profileId": "campaign-A",
+        "profileGeneration": 9,
+        "timestampMilliseconds": 1791306560401
+      },
+      {
+        "eventName": "bridge://game-recovery",
+        "profileId": "campaign-A",
+        "profileGeneration": 9,
+        "timestampMilliseconds": 1791306560421
+      },
+      {
+        "eventName": "bridge://game-recovery",
+        "profileId": "campaign-A",
+        "profileGeneration": 9,
+        "timestampMilliseconds": 1791306560422
+      },
+      {
+        "eventName": "bridge://game-recovery",
+        "profileId": "campaign-A",
+        "profileGeneration": 9,
+        "timestampMilliseconds": 1791306560455
+      },
+      {
+        "eventName": "bridge://status",
+        "profileId": "campaign-A",
+        "profileGeneration": 9,
+        "timestampMilliseconds": 1791306560462
+      },
+      {
+        "eventName": "bridge://game-recovery",
+        "profileId": "campaign-A",
+        "profileGeneration": 9,
+        "timestampMilliseconds": 1791306560462
+      },
+      {
+        "eventName": "bridge://map-scan-status",
+        "profileId": "campaign-A",
+        "profileGeneration": 9,
+        "timestampMilliseconds": 1791306560470
+      },
+      {
+        "eventName": "bridge://map-scan-status",
+        "profileId": "campaign-B",
+        "profileGeneration": 10,
+        "timestampMilliseconds": 1791306560576
+      },
+      {
+        "eventName": "bridge://local-map-auto-scan-changed",
+        "profileId": "campaign-B",
+        "profileGeneration": 10,
+        "timestampMilliseconds": 1791306560748
+      },
+      {
+        "eventName": "bridge://local-map-auto-scan-changed",
+        "profileId": "campaign-B",
+        "profileGeneration": 10,
+        "timestampMilliseconds": 1791306560750
+      },
+      {
+        "eventName": "bridge://map-scan-status",
+        "profileId": "campaign-B",
+        "profileGeneration": 10,
+        "timestampMilliseconds": 1791306560974
+      },
+      {
+        "eventName": "bridge://map-scan-status",
+        "profileId": "campaign-B",
+        "profileGeneration": 10,
+        "timestampMilliseconds": 1791306560975
+      },
+      {
+        "eventName": "bridge://map-scan-status",
+        "profileId": "campaign-B",
+        "profileGeneration": 10,
+        "timestampMilliseconds": 1791306560977
+      },
+      {
+        "eventName": "bridge://map-scan-status",
+        "profileId": "campaign-B",
+        "profileGeneration": 10,
+        "timestampMilliseconds": 1791306561008
+      },
+      {
+        "eventName": "bridge://map-scan-status",
+        "profileId": "campaign-A",
+        "profileGeneration": 11,
+        "timestampMilliseconds": 1791306561078
+      },
+      {
+        "eventName": "bridge://local-map-auto-scan-changed",
+        "profileId": "campaign-A",
+        "profileGeneration": 11,
+        "timestampMilliseconds": 1791306561122
+      },
+      {
+        "eventName": "bridge://local-map-auto-scan-changed",
+        "profileId": "campaign-A",
+        "profileGeneration": 11,
+        "timestampMilliseconds": 1791306561123
+      },
+      {
+        "eventName": "bridge://map-scan-status",
+        "profileId": "campaign-B",
+        "profileGeneration": 12,
+        "timestampMilliseconds": 1791306561259
+      },
+      {
+        "eventName": "bridge://map-scan-status",
+        "profileId": "campaign-A",
+        "profileGeneration": 13,
+        "timestampMilliseconds": 1791306561432
+      },
+      {
+        "eventName": "bridge://local-map-auto-scan-changed",
+        "profileId": "campaign-A",
+        "profileGeneration": 13,
+        "timestampMilliseconds": 1791306561452
+      },
+      {
+        "eventName": "bridge://map-scan-status",
+        "profileId": "campaign-B",
+        "profileGeneration": 14,
+        "timestampMilliseconds": 1791306561589
+      },
+      {
+        "eventName": "bridge://map-scan-status",
+        "profileId": "campaign-B",
+        "profileGeneration": 14,
+        "timestampMilliseconds": 1791306563686
+      },
+      {
+        "eventName": "bridge://map-scan-status",
+        "profileId": "campaign-A",
+        "profileGeneration": 15,
+        "timestampMilliseconds": 1791306563847
+      }
+    ]
+  },
+  "export": {
+    "cancelMessage": "",
+    "failureMessage": "\u64CD\u4F5C\u3092\u5B8C\u4E86\u3067\u304D\u307E\u305B\u3093\u3067\u3057\u305F\u3002",
+    "successMessage": "1 \u4EF6\u306E\u90FD\u5E02\u30C7\u30FC\u30BF\u3092 C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\evidence\\lwbridge-0.3.17\\functions\\LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001\\recovery-002-2026-10-06\\package-ja-dark-narrow-ui-export.xlsx \u306B\u30A8\u30AF\u30B9\u30DD\u30FC\u30C8\u3057\u307E\u3057\u305F",
+    "successPath": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\evidence\\lwbridge-0.3.17\\functions\\LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001\\recovery-002-2026-10-06\\package-ja-dark-narrow-ui-export.xlsx",
+    "successBytes": 2776
+  },
+  "profileOwnership": {
+    "initialProfileGeneration": 9,
+    "profileBGeneration": 10,
+    "returnedAGeneration": 13,
+    "preReloadBGeneration": 14,
+    "finalAGeneration": 15,
+    "delayedFirstARequest": {
+      "command": "map_search",
+      "profileId": "campaign-A",
+      "profileGeneration": 9,
+      "cancelled": false
+    },
+    "bAfterFirstARelease": {
+      "activeProfile": "Campaign B",
+      "cityRow": "\t\n101,202\n\u79FB\u52D5\n\tCampaign City B\tISO\t30\t999,999\t-\t2026/10/7 1:09:12"
+    },
+    "cancellationRequest": {
+      "command": "map_search",
+      "profileId": "campaign-B",
+      "profileGeneration": 14,
+      "cancelled": false
+    },
+    "cancellationObservation": {
+      "command": "map_search",
+      "profileId": "campaign-B",
+      "profileGeneration": 14,
+      "cancelled": true
+    },
+    "persistedSelectedProfileAfterRestart": "campaign-B"
+  },
+  "documentLifetime": {
+    "generation": 2,
+    "lastClosedRequestCount": 1,
+    "lastClosedSubscriptionCount": 8,
+    "currentActiveRequests": 0,
+    "currentSubscriptions": 8,
+    "postedWebMessageCount": 401
+  },
+  "browserIssues": {
+    "allDocuments": [
+      {
+        "documentGeneration": 1,
+        "sessionId": "6fa44ddda78a4f099d513f741b5f4edf",
+        "kind": "console.warn",
+        "message": "__LWB317_EXPECTED_PRE_RELOAD_SENTINEL__",
+        "timestampMilliseconds": 1791306561611
+      },
+      {
+        "documentGeneration": 1,
+        "sessionId": "6fa44ddda78a4f099d513f741b5f4edf",
+        "kind": "console.warn",
+        "message": "__LWB317_EXPECTED_LATE_PRE_RELOAD_SENTINEL__",
+        "timestampMilliseconds": 1791306563667
+      }
+    ],
+    "currentDocument": [],
+    "preReloadSentinelRetained": true,
+    "queuedPriorDocumentIssueRetained": true,
+    "unexpectedCount": 0
+  },
+  "shutdown": {
+    "sessionClosed": true,
+    "requestRegistryClosed": true,
+    "activeRequests": 0,
+    "activeSubscriptions": 0,
+    "profileRuntimeEventsDetached": true,
+    "isolatedRootRemoved": true,
+    "cleanupFailures": []
+  }
+}

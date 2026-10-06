@@ -104,7 +104,10 @@ internal static class HomeCampaignLifecycleChecks
             helperPath: Path.Combine(root, "fake-overview-helper.py"),
             requireCurrentClientEvidence: false,
             testHooks: hooks,
-            startRecoveryMonitor: false);
+            startRecoveryMonitor: false,
+            runtimeRoot: Path.Combine(root, "overview-runtime"),
+            evidenceRoot: Path.Combine(root, "overview-evidence"),
+            backupRoot: Path.Combine(root, "overview-backups"));
         JsonElement payload = JsonSerializer.SerializeToElement(new { profileId });
 
         Task<object?> primary = lifecycle.InvokeAsync(
@@ -218,7 +221,10 @@ internal static class HomeCampaignLifecycleChecks
             helperPath: Path.Combine(root, "fake-overview-helper.py"),
             requireCurrentClientEvidence: false,
             testHooks: hooks,
-            startRecoveryMonitor: false);
+            startRecoveryMonitor: false,
+            runtimeRoot: Path.Combine(root, "overview-runtime"),
+            evidenceRoot: Path.Combine(root, "overview-evidence"),
+            backupRoot: Path.Combine(root, "overview-backups"));
 
         Task<object?> start = lifecycle.InvokeAsync(
             "profile_instance_start",
@@ -321,7 +327,10 @@ internal static class HomeCampaignLifecycleChecks
             requireCurrentClientEvidence: false,
             config: config,
             testHooks: hooks,
-            startRecoveryMonitor: false);
+            startRecoveryMonitor: false,
+            runtimeRoot: Path.Combine(root, "overview-runtime"),
+            evidenceRoot: Path.Combine(root, "overview-evidence"),
+            backupRoot: Path.Combine(root, "overview-backups"));
         JsonElement profilePayload = JsonSerializer.SerializeToElement(new { profileId });
         JsonElement running = Status(await lifecycle.InvokeAsync(
             "profile_instance_start", profilePayload, CancellationToken.None));
@@ -432,7 +441,10 @@ internal static class HomeCampaignLifecycleChecks
             helperPath: Path.Combine(root, "fake-overview-helper.py"),
             requireCurrentClientEvidence: false,
             testHooks: hooks,
-            startRecoveryMonitor: false);
+            startRecoveryMonitor: false,
+            runtimeRoot: Path.Combine(root, "overview-runtime"),
+            evidenceRoot: Path.Combine(root, "overview-evidence"),
+            backupRoot: Path.Combine(root, "overview-backups"));
         JsonElement payload = JsonSerializer.SerializeToElement(new { profileId });
 
         string rejection = await CaptureBridgeErrorAsync(async () =>
@@ -503,7 +515,10 @@ internal static class HomeCampaignLifecycleChecks
             requireCurrentClientEvidence: false,
             config: config,
             testHooks: hooks,
-            startRecoveryMonitor: false);
+            startRecoveryMonitor: false,
+            runtimeRoot: Path.Combine(root, "overview-runtime"),
+            evidenceRoot: Path.Combine(root, "overview-evidence"),
+            backupRoot: Path.Combine(root, "overview-backups"));
         var backend = new LWBridgeBackend(
             config,
             asyncCommands: lifecycle,
@@ -638,7 +653,10 @@ internal static class HomeCampaignLifecycleChecks
             requireCurrentClientEvidence: false,
             config: config,
             testHooks: hooks,
-            startRecoveryMonitor: false);
+            startRecoveryMonitor: false,
+            runtimeRoot: Path.Combine(root, "overview-runtime"),
+            evidenceRoot: Path.Combine(root, "overview-evidence"),
+            backupRoot: Path.Combine(root, "overview-backups"));
         JsonElement payload = JsonSerializer.SerializeToElement(new { profileId });
 
         JsonElement first = Status(await lifecycle.InvokeAsync(
@@ -688,7 +706,10 @@ internal static class HomeCampaignLifecycleChecks
             requireCurrentClientEvidence: false,
             config: reopenedConfig,
             testHooks: hooks,
-            startRecoveryMonitor: false);
+            startRecoveryMonitor: false,
+            runtimeRoot: Path.Combine(root, "overview-runtime"),
+            evidenceRoot: Path.Combine(root, "overview-evidence"),
+            backupRoot: Path.Combine(root, "overview-backups"));
         JsonElement reconcile = Status(await freshLifecycle.InvokeAsync(
             "profile_instances_reconcile",
             JsonSerializer.SerializeToElement(new { autoLaunchAll = true }),

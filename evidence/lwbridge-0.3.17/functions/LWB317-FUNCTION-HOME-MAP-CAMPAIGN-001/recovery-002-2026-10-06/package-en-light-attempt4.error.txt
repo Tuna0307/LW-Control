@@ -1,0 +1,3 @@
+System.IO.InvalidDataException: Mounted Home Update-and-Launch did not consume the isolated repair journal through the actual lifecycle.
+   at LWBridge.Desktop.LWBridgeWindow.RunHomeMapCampaignProofAsync(CoreWebView2 core, String outputPath) in C:\Users\chimw\OneDrive\Desktop\Github\LW-Control\src\LWBridge.Desktop\LWBridgeWindow.cs:line 3657
+   at LWBridge.Desktop.LWBridgeWindow.OnShown(Object sender, EventArgs e) in C:\Users\chimw\OneDrive\Desktop\Github\LW-Control\src\LWBridge.Desktop\LWBridgeWindow.cs:line 1022

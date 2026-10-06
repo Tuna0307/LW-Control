@@ -1,0 +1,7 @@
+System.InvalidOperationException: Campaign UI control was unavailable: A to B profile control
+   at LWBridge.Desktop.LWBridgeWindow.<>c__DisplayClass137_0.<<RunHomeMapCampaignProofAsync>g__RequireUiActionAsync|2>d.MoveNext() in C:\Users\chimw\OneDrive\Desktop\Github\LW-Control\src\LWBridge.Desktop\LWBridgeWindow.cs:line 3086
+--- End of stack trace from previous location ---
+   at LWBridge.Desktop.LWBridgeWindow.<>c__DisplayClass137_0.<<RunHomeMapCampaignProofAsync>g__SelectProfileAsync|5>d.MoveNext() in C:\Users\chimw\OneDrive\Desktop\Github\LW-Control\src\LWBridge.Desktop\LWBridgeWindow.cs:line 3119
+--- End of stack trace from previous location ---
+   at LWBridge.Desktop.LWBridgeWindow.RunHomeMapCampaignProofAsync(CoreWebView2 core, String outputPath) in C:\Users\chimw\OneDrive\Desktop\Github\LW-Control\src\LWBridge.Desktop\LWBridgeWindow.cs:line 4007
+   at LWBridge.Desktop.LWBridgeWindow.OnShown(Object sender, EventArgs e) in C:\Users\chimw\OneDrive\Desktop\Github\LW-Control\src\LWBridge.Desktop\LWBridgeWindow.cs:line 1022

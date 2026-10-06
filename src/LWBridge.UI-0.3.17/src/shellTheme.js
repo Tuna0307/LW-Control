@@ -10,7 +10,8 @@ export function toggleShellTheme(theme, commit, document, window, storage, flush
   };
   const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   if (!reduced && document.startViewTransition) {
-    document.startViewTransition(update);
+    const transition = document.startViewTransition(update);
+    transition?.finished?.catch(() => {});
     return;
   }
   if (!reduced) root.classList.add("theme-transitioning");

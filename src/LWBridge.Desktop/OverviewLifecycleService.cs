@@ -55,6 +55,7 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
     private readonly string profileId;
     private readonly string runtimeRoot;
     private readonly string evidenceRoot;
+    private readonly string backupRoot;
     private readonly TimeSpan helperSupervisionTimeout;
     private readonly LocalConfigStore? config;
     private readonly OverviewLifecycleTestHooks? testHooks;
@@ -93,7 +94,8 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
         LWBridgeControlPipeHostState? bridgeHostState = null,
         bool enableBridgeControlPipeLaunchBinding = false,
         string? runtimeRoot = null,
-        string? evidenceRoot = null)
+        string? evidenceRoot = null,
+        string? backupRoot = null)
     {
         if (string.IsNullOrWhiteSpace(profileId)) throw new ArgumentException("profileId is required", nameof(profileId));
         this.profileId = profileId;
@@ -110,6 +112,7 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
         string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
         this.runtimeRoot = Path.GetFullPath(runtimeRoot ?? Path.Combine(localAppData, "LWBridgeRebuild", "overview-bridge"));
         this.evidenceRoot = Path.GetFullPath(evidenceRoot ?? Path.Combine(localAppData, "LWBridgeRebuild", "overview-evidence"));
+        this.backupRoot = Path.GetFullPath(backupRoot ?? Path.Combine(localAppData, "LWBridgeRebuild", "overview-bridge-backups"));
         if (startRecoveryMonitor) StartRecoveryMonitor();
     }
 
@@ -574,8 +577,6 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
             string expectedPath = Path.GetFullPath(Path.Combine(gameRoot, "Game", "LastWar.exe"));
             if (!PathEquals(recordedPath, expectedPath)) return false;
             string backupPath = RequiredString(root, "backupPath");
-            string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-            string backupRoot = Path.Combine(localAppData, "LWBridgeRebuild", "overview-bridge-backups");
             if (!PathIsWithin(backupPath, backupRoot)) return false;
             if (!root.TryGetProperty("originalFiles", out JsonElement originals) || originals.ValueKind != JsonValueKind.Object)
                 return false;

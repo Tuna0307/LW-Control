@@ -328,6 +328,34 @@ if (args.Contains("--map-campaign-canonical-check", StringComparer.OrdinalIgnore
     return 0;
 }
 
+if (args.Contains("--map317-restart-check", StringComparer.OrdinalIgnoreCase))
+{
+    LWBridge.Desktop.Checks.Map317RestartChecks.Run();
+    Console.WriteLine("{\"ok\":true,\"check\":\"map317-restart\"}");
+    return 0;
+}
+
+if (args.Contains("--map317-native-boundary-check", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.Map317NativeBoundaryChecks.RunAsync();
+    Console.WriteLine("{\"ok\":true,\"check\":\"map317-native-boundary\"}");
+    return 0;
+}
+
+if (args.Contains("--map317-plunder-worker-boundary-check", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.Map317PlunderWorkerBoundaryChecks.RunAsync();
+    Console.WriteLine("{\"ok\":true,\"check\":\"map317-plunder-worker-boundary\"}");
+    return 0;
+}
+
+if (args.Contains("--map317-dto-matrix-check", StringComparer.OrdinalIgnoreCase))
+{
+    LWBridge.Desktop.Checks.Map317DtoMatrixChecks.Run();
+    Console.WriteLine("{\"ok\":true,\"check\":\"map317-dto-matrix\"}");
+    return 0;
+}
+
 if (args.Contains("--profile-runtime-owner-check", StringComparer.OrdinalIgnoreCase))
 {
     await LWBridge.Desktop.Checks.ProfileRegistryChecks.RunAsync();

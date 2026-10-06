@@ -1,0 +1,7 @@
+System.TimeoutException: Campaign native owner did not switch to campaign-B during picker precondition A to B.
+   at LWBridge.Desktop.LWBridgeWindow.<>c__DisplayClass137_0.<<RunHomeMapCampaignProofAsync>g__WaitForProfileAsync|4>d.MoveNext() in C:\Users\chimw\OneDrive\Desktop\Github\LW-Control\src\LWBridge.Desktop\LWBridgeWindow.cs:line 3106
+--- End of stack trace from previous location ---
+   at LWBridge.Desktop.LWBridgeWindow.<>c__DisplayClass137_0.<<RunHomeMapCampaignProofAsync>g__SelectProfileAsync|5>d.MoveNext() in C:\Users\chimw\OneDrive\Desktop\Github\LW-Control\src\LWBridge.Desktop\LWBridgeWindow.cs:line 3127
+--- End of stack trace from previous location ---
+   at LWBridge.Desktop.LWBridgeWindow.RunHomeMapCampaignProofAsync(CoreWebView2 core, String outputPath) in C:\Users\chimw\OneDrive\Desktop\Github\LW-Control\src\LWBridge.Desktop\LWBridgeWindow.cs:line 3318
+   at LWBridge.Desktop.LWBridgeWindow.OnShown(Object sender, EventArgs e) in C:\Users\chimw\OneDrive\Desktop\Github\LW-Control\src\LWBridge.Desktop\LWBridgeWindow.cs:line 1021

@@ -167,7 +167,8 @@ internal static class ProfileRuntimeOwnerChecks
             startBridgeTransport: false,
             installationTestHooks: installationHooks,
             overviewRuntimeRoot: Path.Combine(profileRoot, "isolated-overview-runtime"),
-            overviewEvidenceRoot: Path.Combine(profileRoot, "isolated-overview-evidence"));
+            overviewEvidenceRoot: Path.Combine(profileRoot, "isolated-overview-evidence"),
+            overviewBackupRoot: Path.Combine(profileRoot, "isolated-overview-backups"));
     }
 
     private static void VerifyInactiveLifecycleCleanupIsolation(string root)
@@ -198,25 +199,60 @@ internal static class ProfileRuntimeOwnerChecks
             [Path.Combine(runtimeRoot, "unrelated.txt")] = "leave-me-alone",
             [Path.Combine(evidenceRoot, foreignSession, "host-start.json")] = "foreign-evidence",
         };
-        foreach ((string path, string contents) in sentinels)
-            File.WriteAllText(path, contents);
+        void SeedSentinels()
+        {
+            foreach ((string path, string contents) in sentinels)
+                File.WriteAllText(path, contents);
+        }
+
+        void RequireSentinels(string phase)
+        {
+            foreach ((string path, string contents) in sentinels)
+            {
+                Require(File.Exists(path), $"{phase} must preserve foreign sentinel {Path.GetFileName(path)}");
+                Require(File.ReadAllText(path) == contents,
+                    $"{phase} must not rewrite foreign sentinel {Path.GetFileName(path)}");
+            }
+        }
+
+        SeedSentinels();
 
         using (var lifecycle = new OverviewLifecycleService(
             "inactive-owner",
             gameRoot: null,
             startRecoveryMonitor: false,
             runtimeRoot: runtimeRoot,
-            evidenceRoot: evidenceRoot))
+            evidenceRoot: evidenceRoot,
+            backupRoot: Path.Combine(root, "foreign-overview-backups")))
         {
             lifecycle.Close();
         }
+        RequireSentinels("inactive lifecycle Close");
 
-        foreach ((string path, string contents) in sentinels)
+        using (var lifecycle = new OverviewLifecycleService(
+            "profile-swap-owner",
+            gameRoot: null,
+            startRecoveryMonitor: false,
+            runtimeRoot: runtimeRoot,
+            evidenceRoot: evidenceRoot,
+            backupRoot: Path.Combine(root, "foreign-overview-backups")))
         {
-            Require(File.Exists(path), $"inactive lifecycle Close must preserve foreign sentinel {Path.GetFileName(path)}");
-            Require(File.ReadAllText(path) == contents,
-                $"inactive lifecycle Close must not rewrite foreign sentinel {Path.GetFileName(path)}");
+            lifecycle.BeginProfileReplacement();
+            lifecycle.CommitProfileReplacement();
         }
+        RequireSentinels("profile replacement retirement");
+
+        using (var lifecycle = new OverviewLifecycleService(
+            "shutdown-owner",
+            gameRoot: null,
+            startRecoveryMonitor: false,
+            runtimeRoot: runtimeRoot,
+            evidenceRoot: evidenceRoot,
+            backupRoot: Path.Combine(root, "foreign-overview-backups")))
+        {
+            // Dispose/Close is the application-shutdown cleanup path for an inactive owner.
+        }
+        RequireSentinels("profile owner shutdown");
     }
 
     private static async Task VerifyProfileReplacementRetirementAsync(string root)
@@ -233,6 +269,8 @@ internal static class ProfileRuntimeOwnerChecks
         bool processAlive = false;
         var helperEntered = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         var helperRelease = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var stopEntered = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var stopRelease = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         var hooks = new OverviewLifecycleTestHooks
         {
             RunOfficialRecoverAsync = (_, _) => Task.CompletedTask,
@@ -285,6 +323,8 @@ internal static class ProfileRuntimeOwnerChecks
                     }, JsonOptions.Default);
                 }
 
+                stopEntered.TrySetResult();
+                await stopRelease.Task.WaitAsync(cancellationToken).ConfigureAwait(false);
                 bool wasAlive = processAlive;
                 processAlive = false;
                 return JsonSerializer.SerializeToElement(new
@@ -348,7 +388,8 @@ internal static class ProfileRuntimeOwnerChecks
             testHooks: hooks,
             startRecoveryMonitor: false,
             runtimeRoot: Path.Combine(lifecycleRoot, "overview-runtime"),
-            evidenceRoot: Path.Combine(lifecycleRoot, "overview-evidence"));
+            evidenceRoot: Path.Combine(lifecycleRoot, "overview-evidence"),
+            backupRoot: Path.Combine(lifecycleRoot, "overview-backups"));
         JsonElement payload = JsonSerializer.SerializeToElement(new { profileId }, JsonOptions.Default);
         Task<object?> starting = lifecycle.InvokeAsync("profile_instance_start", payload, CancellationToken.None);
         await helperEntered.Task.WaitAsync(TimeSpan.FromSeconds(5)).ConfigureAwait(false);
@@ -363,10 +404,15 @@ internal static class ProfileRuntimeOwnerChecks
             "profile replacement must fail closed while the owned game is running");
 
         string instanceId = running.GetProperty("instanceId").GetString()!;
-        _ = await lifecycle.InvokeAsync(
+        Task<object?> stopping = lifecycle.InvokeAsync(
             "profile_instance_stop",
             JsonSerializer.SerializeToElement(new { profileId, instanceId }, JsonOptions.Default),
-            CancellationToken.None).ConfigureAwait(false);
+            CancellationToken.None);
+        await stopEntered.Task.WaitAsync(TimeSpan.FromSeconds(5)).ConfigureAwait(false);
+        Require(CaptureReplacementAdmissionError(lifecycle) == "GAME_OPERATION_IN_PROGRESS",
+            "profile replacement must fail closed while Stop owns exact lifecycle/process cleanup");
+        stopRelease.TrySetResult();
+        _ = await stopping.WaitAsync(TimeSpan.FromSeconds(5)).ConfigureAwait(false);
         lifecycle.BeginProfileReplacement();
         string pendingStart = string.Empty;
         try
@@ -393,6 +439,37 @@ internal static class ProfileRuntimeOwnerChecks
         }
         Require(retiredStart == "GAME_OPERATION_CANCELLED",
             "atomic profile retirement must prevent any late Start from entering the retired lifecycle");
+
+        var registry = new LWBridgeControlPipeRegistry();
+        using var host = new LWBridgeControlPipeHostState(
+            @"\\.\pipe\lwb317-profile-replacement-connected-test",
+            registry);
+        const string connectedInstance = "connected-retirement-A";
+        const string connectedToken = "connected-profile-retirement-token";
+        registry.Register(profileId, connectedInstance, connectedToken, 1_900_000_000_000);
+        Require(registry.TryAdmit(
+                profileId,
+                connectedInstance,
+                connectedToken,
+                1_800_000_000_000,
+                new object(),
+                out ulong connectedGeneration),
+            "connected transport proof must admit an inert route through the real bridge registry");
+        string connectedError = string.Empty;
+        try
+        {
+            LWBridgeWindow.EnsureProfileRuntimeBridgeHostIdle(host);
+        }
+        catch (BridgeCommandException error)
+        {
+            connectedError = error.Code;
+        }
+        Require(connectedError == "BRIDGE_HOST_BUSY",
+            "profile replacement must fail closed while the shared bridge host owns a connected route");
+        Require(registry.RemoveConnected(connectedInstance, connectedGeneration),
+            "connected transport proof must retire only its own inert route generation");
+        registry.Unregister(connectedInstance);
+        LWBridgeWindow.EnsureProfileRuntimeBridgeHostIdle(host);
     }
 
     private static string CaptureReplacementAdmissionError(OverviewLifecycleService lifecycle)

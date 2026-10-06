@@ -7,7 +7,7 @@ namespace LWBridge.Desktop;
 /// recovered host semantics remain in Map317; traversal/capture are explicitly
 /// current-client provider implementation details.
 /// </summary>
-internal sealed class CurrentClientMap317ScanProvider : Map317.IMapProvider, IDisposable
+internal sealed class CurrentClientMap317ScanProvider : IMap317RunScopedProvider
 {
     private readonly object gate = new();
     private readonly CurrentClientMapBlockSource source;
@@ -16,7 +16,7 @@ internal sealed class CurrentClientMap317ScanProvider : Map317.IMapProvider, IDi
     private CancellationTokenSource? activeCancellation;
     private Task? activeTask;
 
-    internal event Action? RunTerminated;
+    public event Action<string>? RunTerminated;
 
     internal CurrentClientMap317ScanProvider(CurrentClientMapBlockSource source)
     {
@@ -106,7 +106,7 @@ internal sealed class CurrentClientMap317ScanProvider : Map317.IMapProvider, IDi
             NativeCaptureReady: true);
     }
 
-    internal void ActivateAcceptedRun(Map317.MapControlPlane control)
+    public void ActivateAcceptedRun(Map317.MapControlPlane control, string scanRunId)
     {
         Map317.MapProviderStartRequest request;
         CurrentClientMapContext liveContext;
@@ -115,7 +115,8 @@ internal sealed class CurrentClientMap317ScanProvider : Map317.IMapProvider, IDi
         {
             request = pending ?? throw new InvalidOperationException("No accepted Map317 scan is pending activation.");
             liveContext = pendingContext ?? throw new InvalidOperationException("No accepted current-client scan context is pending activation.");
-            if (!string.Equals(control.ScanState.ScanRunId, request.ScanRunId, StringComparison.Ordinal))
+            if (!string.Equals(scanRunId, request.ScanRunId, StringComparison.Ordinal) ||
+                !string.Equals(control.ScanState.ScanRunId, request.ScanRunId, StringComparison.Ordinal))
                 throw new InvalidOperationException("Map317 scan activation does not match the durable scan run.");
             pending = null;
             pendingContext = null;
@@ -172,6 +173,7 @@ internal sealed class CurrentClientMap317ScanProvider : Map317.IMapProvider, IDi
 
     public async ValueTask StopMapScanAsync(CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         Task? task;
         CancellationTokenSource? cancellation;
         lock (gate)
@@ -184,7 +186,10 @@ internal sealed class CurrentClientMap317ScanProvider : Map317.IMapProvider, IDi
         cancellation?.Cancel();
         if (task is not null)
         {
-            try { await task.WaitAsync(cancellationToken).ConfigureAwait(false); }
+            // Once cancellation has been issued this method owns terminalization of
+            // the accepted run. Do not let caller cancellation return early and
+            // release the process lease while native capture is still unwinding.
+            try { await task.ConfigureAwait(false); }
             catch (OperationCanceledException) when (cancellation?.IsCancellationRequested == true) { }
         }
     }
@@ -247,7 +252,7 @@ internal sealed class CurrentClientMap317ScanProvider : Map317.IMapProvider, IDi
                     activeTask = null;
                 }
             }
-            RunTerminated?.Invoke();
+            RunTerminated?.Invoke(request.RunId);
         }
     }
 

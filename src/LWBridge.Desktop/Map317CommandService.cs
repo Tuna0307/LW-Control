@@ -28,7 +28,7 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
 
     private readonly Map317.MapStore store;
     private readonly CurrentClientMapBlockSource? currentSource;
-    private readonly CurrentClientMap317ScanProvider? scanProvider;
+    private readonly IMap317RunScopedProvider? scanRunProvider;
     private readonly Map317.MapControlPlane control;
     private readonly Map317.MapActionControlPlane actions;
     private readonly Map317.MapPlunderWorker plunderWorker;
@@ -38,6 +38,7 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
     private readonly object scanLeaseGate = new();
     private readonly SemaphoreSlim scanTransitionGate = new(1, 1);
     private Map317ScanProcessLease? activeScanLease;
+    private string? activeScanRunId;
     private int disposed;
 
     internal Map317CommandService(
@@ -48,8 +49,8 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
         ArgumentNullException.ThrowIfNull(lifecycle);
         store = new Map317.MapStore(databasePath);
         currentSource = new CurrentClientMapBlockSource(lifecycle);
-        scanProvider = new CurrentClientMap317ScanProvider(currentSource);
-        control = new Map317.MapControlPlane(store, scanProvider);
+        scanRunProvider = new CurrentClientMap317ScanProvider(currentSource);
+        control = new Map317.MapControlPlane(store, scanRunProvider);
         using (Map317ScanProcessLease? startupLease = Map317ScanProcessLease.TryAcquire(store.DatabasePath))
         {
             if (startupLease is not null)
@@ -57,7 +58,7 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
                     Map317ScanProcessLease.InterruptedError,
                     DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
         }
-        scanProvider.RunTerminated += ReleaseScanLease;
+        scanRunProvider.RunTerminated += ReleaseScanLease;
         var actionProvider = new CurrentClientMap317ActionProvider(currentSource);
         actions = new Map317.MapActionControlPlane(store, actionProvider);
         plunderWorker = new Map317.MapPlunderWorker(store, actionProvider);
@@ -92,7 +93,7 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
         ArgumentNullException.ThrowIfNull(actionProvider);
         store = new Map317.MapStore(databasePath);
         currentSource = null;
-        scanProvider = null;
+        scanRunProvider = mapProvider as IMap317RunScopedProvider;
         control = new Map317.MapControlPlane(store, mapProvider);
         using (Map317ScanProcessLease? startupLease = Map317ScanProcessLease.TryAcquire(store.DatabasePath))
         {
@@ -103,6 +104,8 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
         }
         actions = new Map317.MapActionControlPlane(store, actionProvider);
         plunderWorker = new Map317.MapPlunderWorker(store, actionProvider);
+        if (scanRunProvider is not null)
+            scanRunProvider.RunTerminated += ReleaseScanLease;
 
         control.ScanStateChanged += (_, args) => ScanStatusChanged?.Invoke(args.State);
         control.PlayerMarkChanged += (_, _) => PlayerMarkChanged?.Invoke();
@@ -227,7 +230,9 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
             if (!current.IsReading ||
                 !string.Equals(current.ScanRunId, scanRunId, StringComparison.Ordinal))
                 return false;
-            _ = await control.StopScanAsync(cancellationToken).ConfigureAwait(false);
+            Map317.MapScanState stopped = await control.StopScanAsync(cancellationToken).ConfigureAwait(false);
+            if (scanRunProvider is null && !stopped.IsReading)
+                ReleaseScanLease(scanRunId);
             return true;
         }
         finally
@@ -254,7 +259,7 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
                 case "map_scan_status":
                     return await ReadScanStatusAsync(cancellationToken).ConfigureAwait(false);
                 case "map_scan_stop":
-                    return await control.StopScanAsync(cancellationToken).ConfigureAwait(false);
+                    return await StopScanAsync(cancellationToken).ConfigureAwait(false);
                 case "map_scan_clear":
                     return await ClearScanAsync(
                         RequiredInt(payload, "serverId"), cancellationToken).ConfigureAwait(false);
@@ -436,7 +441,11 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
         workerCancellation.Cancel();
         try { Task.WhenAll(dispatchWorkerTask, truckWorkerTask).GetAwaiter().GetResult(); }
         catch (OperationCanceledException) { }
-        scanProvider?.Dispose();
+        if (scanRunProvider is not null)
+        {
+            scanRunProvider.Dispose();
+            scanRunProvider.RunTerminated -= ReleaseScanLease;
+        }
         ReleaseScanLease();
         control.Dispose();
         workerCancellation.Dispose();
@@ -491,7 +500,11 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
             Map317.MapScanState state =
                 await control.StartScanAsync(new Map317.MapScanStartRequest(types, mode, resume), cancellationToken)
                     .ConfigureAwait(false);
-            scanProvider?.ActivateAcceptedRun(control);
+            if (scanRunProvider is null)
+                throw new InvalidOperationException(
+                    "An accepting Map provider must implement the run-scoped terminal lifetime contract.");
+            RegisterActiveScanRun(state.ScanRunId);
+            scanRunProvider.ActivateAcceptedRun(control, state.ScanRunId);
             return state;
         }
         catch (Exception error)
@@ -500,6 +513,19 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
                 control.FailScan(error.Message);
             ReleaseScanLease();
             throw;
+        }
+    }
+
+    private async Task<Map317.MapScanState> StopScanAsync(CancellationToken cancellationToken)
+    {
+        await scanTransitionGate.WaitAsync(cancellationToken).ConfigureAwait(false);
+        try
+        {
+            return await control.StopScanAsync(cancellationToken).ConfigureAwait(false);
+        }
+        finally
+        {
+            scanTransitionGate.Release();
         }
     }
 
@@ -585,13 +611,29 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
         }
     }
 
-    private void ReleaseScanLease()
+    private void RegisterActiveScanRun(string scanRunId)
+    {
+        if (string.IsNullOrWhiteSpace(scanRunId))
+            throw new InvalidOperationException("Map317 accepted scan did not return a run id.");
+        lock (scanLeaseGate)
+        {
+            if (activeScanLease is null)
+                throw new InvalidOperationException("Map317 accepted scan has no owned process lease.");
+            activeScanRunId = scanRunId;
+        }
+    }
+
+    private void ReleaseScanLease(string? expectedRunId = null)
     {
         Map317ScanProcessLease? lease;
         lock (scanLeaseGate)
         {
+            if (expectedRunId is not null &&
+                !string.Equals(activeScanRunId, expectedRunId, StringComparison.Ordinal))
+                return;
             lease = activeScanLease;
             activeScanLease = null;
+            activeScanRunId = null;
         }
         lease?.Dispose();
     }
