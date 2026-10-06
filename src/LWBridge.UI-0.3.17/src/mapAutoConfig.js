@@ -86,6 +86,27 @@ export function applyAutoScanConfigEdit(previous, candidate, now = Date.now()) {
   return next;
 }
 
+// Native configuration loads asynchronously, unlike the recovered synchronous
+// local-profile load. Replay array operations against that acknowledged base;
+// never turn an append/remove/toggle into replacement by a default-derived list.
+export function applyAutoScanConfigIntent(previous, edit) {
+  const candidate = { ...previous, ...edit.patch };
+  const operation = edit.operation;
+  if (operation?.kind === "appendServers") {
+    candidate.serverIds = appendAutoServerIds(previous.serverIds, operation.serverIds.join(","));
+  } else if (operation?.kind === "removeServer") {
+    candidate.serverIds = removeAutoServerId(previous.serverIds, operation.id);
+  } else if (operation?.kind === "setType") {
+    const selected = operation.checked
+      ? [...previous.selectedTypes, operation.type]
+      : previous.selectedTypes.filter((type) => type !== operation.type);
+    // The source disallows deselecting the last Auto type. Evaluate that predicate
+    // on the real base as well as on the optimistic visible draft.
+    candidate.selectedTypes = selected.length > 0 ? selected : previous.selectedTypes;
+  }
+  return applyAutoScanConfigEdit(previous, candidate, edit.editedAt);
+}
+
 export function autoScanTargetServers(serverIds, currentServerId) {
   return serverIds.length > 0
     ? serverIds

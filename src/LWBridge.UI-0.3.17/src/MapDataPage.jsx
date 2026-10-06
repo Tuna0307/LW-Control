@@ -364,8 +364,8 @@ export function MapDataPage({
     window.localStorage.setItem(LUCKY_TREASURE_STORAGE_KEY, String(luckyFirst));
   }, [luckyFirst]);
 
-  const emitAutoConfig = useCallback((patch) => {
-    onAutoScanConfig(patch);
+  const emitAutoConfig = useCallback((patch, operation = null) => {
+    onAutoScanConfig(patch, operation);
   }, [onAutoScanConfig]);
 
   useEffect(() => {
@@ -840,7 +840,10 @@ export function MapDataPage({
 
   function addAutoServers() {
     if (parseAutoServerIds(autoServerInput).length === 0) return;
-    emitAutoConfig({ serverIds: appendAutoServerIds(autoConfig.serverIds, autoServerInput) });
+    emitAutoConfig(
+      { serverIds: appendAutoServerIds(autoConfig.serverIds, autoServerInput) },
+      { kind: "appendServers", serverIds: parseAutoServerIds(autoServerInput) },
+    );
     setAutoServerInput("");
   }
 
@@ -849,7 +852,7 @@ export function MapDataPage({
       selectedTypes: checked
         ? [...autoConfig.selectedTypes, kind]
         : autoConfig.selectedTypes.filter((value) => value !== kind),
-    });
+    }, { kind: "setType", type: kind, checked });
   }
 
   // Recovered action callbacks. Dispatch/Truck providers are source-backed in
@@ -1031,7 +1034,7 @@ export function MapDataPage({
                 {autoConfig.serverIds.map((id) => (
                   <span key={id}>
                     {id}
-                    <button type="button" aria-label={`${t("common.remove")} ${id}`} onClick={() => emitAutoConfig({ serverIds: removeAutoServerId(autoConfig.serverIds, id) })}>
+                    <button type="button" aria-label={`${t("common.remove")} ${id}`} onClick={() => emitAutoConfig({ serverIds: removeAutoServerId(autoConfig.serverIds, id) }, { kind: "removeServer", id })}>
                       <svg className="ui-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
                         <path d="m4 4 8 8M12 4l-8 8" />
                       </svg>

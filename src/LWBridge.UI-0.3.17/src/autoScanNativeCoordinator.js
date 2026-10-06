@@ -65,13 +65,16 @@ export function createAutoScanNativeCoordinator({
       })
       .then(async (snapshot) => {
         if (!active || snapshot === null) return snapshot;
+        // A successful older write already applied these operations to the native
+        // base. Replaying them after later acknowledgements can resurrect a capped
+        // Add/remove or change order. Retain only unacknowledged intent.
+        committedEditRevision = revision;
+        pendingEdits = pendingEdits.filter((pending) => pending.revision > revision);
         if (editRevision !== revision) {
           acceptSnapshot(snapshot, false);
           return snapshot;
         }
 
-        committedEditRevision = revision;
-        pendingEdits = pendingEdits.filter((pending) => pending.revision > revision);
         onWriteError("");
         if (!acceptSnapshot(snapshot, true)) {
           try {

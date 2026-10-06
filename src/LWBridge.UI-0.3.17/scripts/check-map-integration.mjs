@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import { createBackendBridge } from "../src/backendBridge.js";
 import { createAutoScanNativeCoordinator } from "../src/autoScanNativeCoordinator.js";
-import { applyAutoScanConfigEdit, normalizeAutoScanConfig } from "../src/mapAutoConfig.js";
+import { applyAutoScanConfigEdit, applyAutoScanConfigIntent, normalizeAutoScanConfig } from "../src/mapAutoConfig.js";
 import { getMapPreviewProvider } from "../src/mapPreviewApi.js";
 import {
   MAP_COMMANDS,
@@ -58,13 +58,13 @@ assert.doesNotMatch(autoConfigSource, /mapAutoScan[^\n]*\|\|\s*["']default["']/,
   "canonical Auto Scan must not invent a default profile suffix");
 assert.match(appSource, /useLayoutEffect\(\(\) => \{[\s\S]*initialAutoScanConfig\(selectedProfileId, previewState\)[\s\S]*autoScanConfigRef\.current = next[\s\S]*setAutoScanConfig\(next\)[\s\S]*\}, \[selectedProfileId\]\)/,
   "canonical App must synchronously load the selected profile before later effects can persist anything");
-assert.match(appSource, /backendBridge\.mode === "preview"[\s\S]*saveAutoScanConfig\(selectedProfileId, next, window\.localStorage\)[\s\S]*autoScanCoordinatorRef\.current\?\.save\(next, \{ patch, editedAt \}\)/,
+assert.match(appSource, /backendBridge\.mode === "preview"[\s\S]*saveAutoScanConfig\(selectedProfileId, next, window\.localStorage\)[\s\S]*autoScanCoordinatorRef\.current\?\.save\(next, edit\)/,
   "production Auto Scan persistence must be serialized through the native coordinator while browser localStorage stays preview-only");
 assert.match(appSource, /createAutoScanNativeCoordinator\([\s\S]*saveConfig:\s*\(config\)\s*=>\s*mapApi\.updateAutoScanConfig\(config\)/,
   "native Auto Scan coordinator must own production config writes");
-assert.match(appSource, /mergeConfig:\s*\(base, edit\)\s*=>\s*applyAutoScanConfigEdit\([\s\S]*\{ \.\.\.base, \.\.\.edit\.patch \}[\s\S]*edit\.editedAt/,
+assert.match(appSource, /mergeConfig:\s*applyAutoScanConfigIntent/,
   "pre-hydration Auto Scan edits must merge exact field intent against the native base");
-assert.match(mapPageSource, /const emitAutoConfig = useCallback\(\(patch\) => \{\s*onAutoScanConfig\(patch\)/,
+assert.match(mapPageSource, /const emitAutoConfig = useCallback\(\(patch, operation = null\) => \{\s*onAutoScanConfig\(patch, operation\)/,
   "Map Auto Scan controls must submit field-level edit intent rather than a default-derived full object");
 assert.match(appSource, /mapApi\.listenAutoScanChanged\(acknowledge\)[\s\S]*mapApi\.autoScanStatus\(\)/,
   "canonical App must hydrate and converge native Auto Scan state through the profile-scoped bridge");

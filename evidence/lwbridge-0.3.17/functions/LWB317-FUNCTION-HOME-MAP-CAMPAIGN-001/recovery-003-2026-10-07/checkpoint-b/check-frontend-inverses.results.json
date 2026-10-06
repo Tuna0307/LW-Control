@@ -1,0 +1,378 @@
+{
+  "schemaVersion": 1,
+  "status": "PASS",
+  "baselineCommit": "138ea26469b7a35c0758198c98f8c44f352037b0",
+  "nodeVersion": "v24.18.0",
+  "scriptSha256": "4ff21ad39c7d0eab031c4e330808680bced859c5ba79d9e70bf05ee962e3f3de",
+  "sources": {
+    "src/LWBridge.UI-0.3.17/src/App.jsx": {
+      "currentSha256": "f3ee11f67df6046756977d0f53b83f97b04c6a4d59ea47d6b7addafcf831bbf4",
+      "baselineGitBlobSha256": "7800ca0e8965f7c28741b9a579b275dfae74d72e7067a91409860402c9351ecf"
+    },
+    "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx": {
+      "currentSha256": "bb672102c30f23fd9e223e7e5235b4f796021dd13321d014b7c3c770b0485afa",
+      "baselineGitBlobSha256": "3c8e2ede9faeb9bd26ff2b9f1b957c89c96ca3b635f060e96373a7792a9715ed"
+    },
+    "src/LWBridge.UI-0.3.17/src/mapAutoConfig.js": {
+      "currentSha256": "329bf1871c12184bc71b7dec5d50c65138dd5f8886fa7fee7a2527db71784a16",
+      "baselineGitBlobSha256": "c88faa13ebf8d15d2ec9ea54e800fddec5ecb38df70d9d97e8d67768ec42ef4e"
+    },
+    "src/LWBridge.UI-0.3.17/src/autoScanNativeCoordinator.js": {
+      "currentSha256": "0f5d4319c0f25f5379e9d9a266ad34245298b4e60eb791bb1bbb55ec8c2859d7",
+      "baselineGitBlobSha256": "dd0d65f50a39573f671ac023c660989d3c05f5009d9286343508d780994be9da"
+    },
+    "src/LWBridge.UI-0.3.17/src/autoLaunchPreference.js": {
+      "currentSha256": "c16feb94563b445cafdc3189c980025a6f8a9ae5ddd24085ce28887d0f828286",
+      "baselineGitBlobSha256": "c16feb94563b445cafdc3189c980025a6f8a9ae5ddd24085ce28887d0f828286"
+    },
+    "src/LWBridge.UI-0.3.17/src/mapBackend.js": {
+      "currentSha256": "ff2091ca890dbb4bdcf8f5079fdb8460ed9b3c4fb929e72c5498f6c75cbd145c",
+      "baselineGitBlobSha256": "da8aced604f6c53abd1acfcdc9c4977bed77fe7a060c3ccbc041f3f05a7b4969"
+    }
+  },
+  "extractedCallbacks": {
+    "current": {
+      "updateAutoLaunch": {
+        "line": 821,
+        "byteStart": 37124,
+        "byteEnd": 39372,
+        "bodySha256": "8d8f69f2e5a2f97175c1dac6f7d71d6a960bf8b483a428d87d779148890d06c8"
+      },
+      "updateAutoScanConfig": {
+        "line": 484,
+        "byteStart": 23377,
+        "byteEnd": 23827,
+        "bodySha256": "09af84f8085ae16fdab2fed5659f79955de0e7874d0988222bb02d8cf336012d"
+      },
+      "emitAutoConfig": {
+        "line": 367,
+        "byteStart": 19005,
+        "byteEnd": 19079,
+        "bodySha256": "082d6061e709dcec7848227908c5f6730575a9e02f22fc5cc9fd9938ba95da98"
+      },
+      "addAutoServers": {
+        "line": 841,
+        "byteStart": 38853,
+        "byteEnd": 39167,
+        "bodySha256": "c22681d0b3c02dfb6537174e3104d24be4ed41355e4760f12ab16c00b399c08e"
+      },
+      "toggleAutoType": {
+        "line": 850,
+        "byteStart": 39171,
+        "byteEnd": 39431,
+        "bodySha256": "fa8e6a217ca465136acff8ccb7dbbb2c1030e2278c11a11cc324fa28d6286216"
+      }
+    },
+    "baseline": {
+      "updateAutoLaunch": {
+        "line": 825,
+        "byteStart": 37051,
+        "byteEnd": 38983,
+        "bodySha256": "fd72529d5f80aa605b0ff6bf4091428ea85430947ba2326cc2b06e58894f13ba"
+      },
+      "updateAutoScanConfig": {
+        "line": 485,
+        "byteStart": 23301,
+        "byteEnd": 23770,
+        "bodySha256": "dd0a2af591b29f07adb7d3f7026b92f2640f930776d3a53a3225dda1c4e8acba"
+      },
+      "emitAutoConfig": {
+        "line": 367,
+        "byteStart": 18766,
+        "byteEnd": 18811,
+        "bodySha256": "ba5451fdae337e134d6657ef8f096317358b7e8bb6ebec2d64f1dd4abf688a80"
+      },
+      "addAutoServers": {
+        "line": 841,
+        "byteStart": 38330,
+        "byteEnd": 38550,
+        "bodySha256": "ddf718be22f823a481d8bedce1a4d273f42065e632704fe8031889f6c014e3cb"
+      },
+      "toggleAutoType": {
+        "line": 847,
+        "byteStart": 38554,
+        "byteEnd": 38772,
+        "bodySha256": "38b64c0d0f08070f988bee627a5faf53e5fc6a0014fe43cb7fc0e5629ba32a4a"
+      }
+    }
+  },
+  "scenarios": [
+    {
+      "name": "global divergent false / native true",
+      "status": "PASS",
+      "assertions": 7,
+      "observations": {
+        "currentGlobal": false,
+        "baselineGlobal": true,
+        "native": true
+      }
+    },
+    {
+      "name": "global divergent true / native false",
+      "status": "PASS",
+      "assertions": 7,
+      "observations": {
+        "currentGlobal": true,
+        "baselineGlobal": false,
+        "native": false
+      }
+    },
+    {
+      "name": "global earlier success / later rejection preserves confirmation",
+      "status": "PASS",
+      "assertions": 4,
+      "observations": {
+        "global": true,
+        "native": true,
+        "writes": 2
+      }
+    },
+    {
+      "name": "global stale A/B/A acknowledgement and queued retirement",
+      "status": "PASS",
+      "assertions": 4,
+      "observations": {
+        "global": true,
+        "native": false,
+        "writes": 2
+      }
+    },
+    {
+      "name": "global preserved retired optimistic false becomes new-owner baseline",
+      "status": "PASS",
+      "assertions": 2,
+      "observations": {
+        "global": false,
+        "confirmed": false
+      }
+    },
+    {
+      "name": "actual Add/type callbacks rebase ordered semantic edits before hydration",
+      "status": "PASS",
+      "assertions": 9,
+      "observations": {
+        "config": {
+          "enabled": true,
+          "intervalMinutes": 35,
+          "serverIds": [
+            317,
+            8,
+            10,
+            11,
+            9
+          ],
+          "selectedTypes": [
+            "city",
+            "resource"
+          ],
+          "scanMode": "fast",
+          "returnToOriginalServer": true,
+          "nextRunAt": 123456
+        },
+        "saves": 8
+      }
+    },
+    {
+      "name": "immutable baseline reproduces pre-hydration array replacement",
+      "status": "PASS",
+      "assertions": 2,
+      "observations": {
+        "baseline": [
+          9
+        ],
+        "current": [
+          317,
+          8,
+          9
+        ]
+      }
+    },
+    {
+      "name": "hydration rejection retains operations through later retry",
+      "status": "PASS",
+      "assertions": 6,
+      "observations": {
+        "config": {
+          "enabled": true,
+          "intervalMinutes": 60,
+          "serverIds": [
+            317,
+            8,
+            9,
+            10
+          ],
+          "selectedTypes": [
+            "city",
+            "treasure",
+            "resource"
+          ],
+          "scanMode": "fast",
+          "returnToOriginalServer": true,
+          "nextRunAt": 123456
+        },
+        "reads": 2
+      }
+    },
+    {
+      "name": "save rejection retains operations through later retry",
+      "status": "PASS",
+      "assertions": 4,
+      "observations": {
+        "config": {
+          "enabled": true,
+          "intervalMinutes": 60,
+          "serverIds": [
+            317,
+            8,
+            10
+          ],
+          "selectedTypes": [
+            "city",
+            "treasure"
+          ],
+          "scanMode": "fast",
+          "returnToOriginalServer": true,
+          "nextRunAt": 123456
+        },
+        "saves": 3
+      }
+    },
+    {
+      "name": "pending save retains latest draft then rebases exact next operation",
+      "status": "PASS",
+      "assertions": 4,
+      "observations": {
+        "config": {
+          "enabled": true,
+          "intervalMinutes": 60,
+          "serverIds": [
+            8,
+            9,
+            10
+          ],
+          "selectedTypes": [
+            "city",
+            "treasure"
+          ],
+          "scanMode": "fast",
+          "returnToOriginalServer": true,
+          "nextRunAt": 123456
+        },
+        "saves": 3
+      }
+    },
+    {
+      "name": "repaired capped successful no-op is not resurrected after removal",
+      "status": "PASS",
+      "assertions": 3,
+      "observations": {
+        "config": {
+          "enabled": true,
+          "intervalMinutes": 60,
+          "serverIds": [
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            22
+          ],
+          "selectedTypes": [
+            "city",
+            "treasure"
+          ],
+          "scanMode": "fast",
+          "returnToOriginalServer": true,
+          "nextRunAt": 123456
+        },
+        "saves": 3
+      }
+    },
+    {
+      "name": "last-type no-op remains retired after later type additions",
+      "status": "PASS",
+      "assertions": 2,
+      "observations": {
+        "config": {
+          "enabled": true,
+          "intervalMinutes": 60,
+          "serverIds": [
+            317,
+            8
+          ],
+          "selectedTypes": [
+            "truck",
+            "city",
+            "resource"
+          ],
+          "scanMode": "fast",
+          "returnToOriginalServer": true,
+          "nextRunAt": 123456
+        },
+        "saves": 3
+      }
+    },
+    {
+      "name": "profile retirement rejects callbacks and undispatched queued operations",
+      "status": "PASS",
+      "assertions": 4,
+      "observations": {
+        "retiredWrites": 1,
+        "replacement": [
+          77,
+          11
+        ]
+      }
+    },
+    {
+      "name": "preview uses actual same callbacks and exact profile local persistence",
+      "status": "PASS",
+      "assertions": 4,
+      "observations": {
+        "saved": {
+          "enabled": false,
+          "intervalMinutes": 60,
+          "serverIds": [
+            10,
+            11,
+            9
+          ],
+          "selectedTypes": [
+            "truck",
+            "railway",
+            "dispatch",
+            "ghost",
+            "treasure",
+            "city"
+          ],
+          "scanMode": "fast",
+          "returnToOriginalServer": true,
+          "nextRunAt": 0
+        }
+      }
+    }
+  ],
+  "scenarioCount": 14,
+  "assertionCount": 62,
+  "proofLimits": [
+    "Node-only inert closures execute exact extracted App/Map handlers plus actual helpers/coordinator; no React DOM mount, Enter event dispatch or checkbox disabled-state proof.",
+    "Injected native/status/storage dependencies deterministically model acknowledgements and failures; no native service, build/package/browser/game/process action occurs.",
+    "Current owner fencing is actual callback logic; owner selection/generation changes are inert harness inputs, not mounted profile controls.",
+    "Immutable starting baseline R3-04 divergent rollback and R3-05 Add replacement negatives are reproduced without modifying historical evidence.",
+    "Mounted Window proofs and broader native/session ownership are coordinator-owned and remain separate."
+  ]
+}

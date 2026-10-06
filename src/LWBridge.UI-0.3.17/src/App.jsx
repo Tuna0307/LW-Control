@@ -15,6 +15,7 @@ import { DEFAULT_SCAN_STATE, connectionState, createMapApi, unwrapProfileEvent }
 import {
   AUTO_SCAN_DEFAULT_TYPES,
   applyAutoScanConfigEdit,
+  applyAutoScanConfigIntent,
   loadAutoScanConfig,
   normalizeAutoScanConfig,
   saveAutoScanConfig,
@@ -207,6 +208,8 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
   const serverJumpRef = useRef(null);
   const serverHistoryRef = useRef([]);
   const autoLaunchNativeCommittedByOwnerRef = useRef(new Map());
+  const autoLaunchGlobalCommittedRef = useRef(autoLaunchGame);
+  const autoLaunchGlobalOwnerRef = useRef(null);
   const autoLaunchSaveRevisionRef = useRef(0);
   const autoLaunchSaveChainRef = useRef(Promise.resolve());
   const autoLaunchNativeCommitEpochRef = useRef(0);
@@ -465,11 +468,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
       saveConfig: (config) => mapApi.updateAutoScanConfig(config),
       readStatus: () => mapApi.autoScanStatus(),
       runNow: () => mapApi.runAutoScanNow(),
-      mergeConfig: (base, edit) => applyAutoScanConfigEdit(
-        base,
-        { ...base, ...edit.patch },
-        edit.editedAt,
-      ),
+      mergeConfig: applyAutoScanConfigIntent,
       onConfigSnapshot: applyAutoScanConfigSnapshot,
       onRuntimeSnapshot: applyAutoScanRuntimeSnapshot,
       onWriteError: setAutoScanSaveError,
@@ -482,20 +481,17 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
     };
   }, [applyAutoScanConfigSnapshot, applyAutoScanRuntimeSnapshot, selectedProfileId]);
 
-  const updateAutoScanConfig = useCallback((patch) => {
+  const updateAutoScanConfig = useCallback((patch, operation = null) => {
     const editedAt = Date.now();
-    const next = applyAutoScanConfigEdit(
-      autoScanConfigRef.current,
-      { ...autoScanConfigRef.current, ...patch },
-      editedAt,
-    );
+    const edit = { patch, operation, editedAt };
+    const next = applyAutoScanConfigIntent(autoScanConfigRef.current, edit);
     autoScanConfigRef.current = next;
     setAutoScanConfig(next);
     if (backendBridge.mode === "preview") {
       saveAutoScanConfig(selectedProfileId, next, window.localStorage);
       return;
     }
-    autoScanCoordinatorRef.current?.save(next, { patch, editedAt });
+    autoScanCoordinatorRef.current?.save(next, edit);
   }, [selectedProfileId]);
 
   const runAutoScanNow = useCallback(() => {
@@ -827,7 +823,13 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
     const owner = { ...selectedProfileOwnerRef.current };
     const ownerKey = profileOwnerKey(owner);
     const enabled = value === true;
-    const previousGlobal = autoLaunchGame;
+    // A new native owner inherits the already-visible global/local intent. Its
+    // native gate is not authority for that rollback baseline. Same-owner edits
+    // retain the baseline so earlier success / later failure converges correctly.
+    if (autoLaunchGlobalOwnerRef.current !== ownerKey) {
+      autoLaunchGlobalOwnerRef.current = ownerKey;
+      autoLaunchGlobalCommittedRef.current = autoLaunchGame;
+    }
     const revision = autoLaunchSaveRevisionRef.current + 1;
     autoLaunchSaveRevisionRef.current = revision;
     writeAutoLaunchGamePreference(localStorage, enabled);
@@ -846,6 +848,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
         }
         autoLaunchNativeCommitEpochRef.current += 1;
         autoLaunchNativeCommittedByOwnerRef.current.set(ownerKey, next.autoLaunchGame);
+        autoLaunchGlobalCommittedRef.current = next.autoLaunchGame;
         if (autoLaunchSaveRevisionRef.current === revision) {
           writeAutoLaunchGamePreference(localStorage, next.autoLaunchGame);
           setAutoLaunchGame(next.autoLaunchGame);
@@ -854,8 +857,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
       })
       .catch((error) => {
         if (isCurrentProfileOwner(owner) && autoLaunchSaveRevisionRef.current === revision) {
-          const nativeCommitted = autoLaunchNativeCommittedByOwnerRef.current.get(ownerKey);
-          const rollback = typeof nativeCommitted === "boolean" ? nativeCommitted : previousGlobal;
+          const rollback = autoLaunchGlobalCommittedRef.current;
           writeAutoLaunchGamePreference(localStorage, rollback);
           setAutoLaunchGame(rollback);
           setGameActionError(error?.message || String(error));
