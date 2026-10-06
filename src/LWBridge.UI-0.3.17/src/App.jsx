@@ -1,4 +1,4 @@
-import { Activity, Fragment, Suspense, useCallback, useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore, useTransition } from "react";
+import { Activity, Fragment, Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore, useTransition } from "react";
 import { flushSync } from "react-dom";
 import { toggleShellTheme } from "./shellTheme.js";
 import { TopVersion, ShellConfigSaveErrors } from "./ShellPresentation.jsx";
@@ -37,6 +37,23 @@ const mapApi = createMapApi(backendBridge);
 // Existing read-only local image contract; no new native producer is introduced.
 // Browser previews never invoke it or lend their synthetic images to this reader.
 const nativeAssetReader = backendBridge.available ? (request) => backendBridge.invoke("game_asset_image", request) : null;
+
+export function normalizeProfileSnapshot(snapshot, fallback = { selectedProfileId: "", profiles: [], maxProfiles: 1 }) {
+  const profiles = Array.isArray(snapshot?.profiles) ? snapshot.profiles : fallback.profiles || [];
+  const selectedProfileId = typeof snapshot?.selectedProfileId === "string"
+    ? snapshot.selectedProfileId
+    : fallback.selectedProfileId || "";
+  const suppliedCapacity = Number(snapshot?.maxProfiles);
+  const fallbackCapacity = Number(fallback?.maxProfiles);
+  const maxProfiles = Number.isInteger(suppliedCapacity) && suppliedCapacity > 0
+    ? Math.max(suppliedCapacity, profiles.length)
+    : Math.max(Number.isInteger(fallbackCapacity) && fallbackCapacity > 0 ? fallbackCapacity : 1, profiles.length);
+  return { selectedProfileId, profiles, maxProfiles };
+}
+
+export function profileOwnerKey(owner) {
+  return `${owner?.generation ?? -1}:${owner?.profileId || ""}`;
+}
 
 function legacyServerHistory() {
   try {
@@ -101,9 +118,9 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
   const previewState = backendBridge.mode === "preview" ? new URLSearchParams(window.location.search).get("previewState") || "" : "";
   const profilePreview = backendBridge.mode === "preview" && previewState.startsWith("shell-profiles");
   const [shellProfiles, setShellProfiles] = useState(() => initialShellProfiles(backendBridge.mode, previewState, window.__LWBridgeBootstrap));
-  const selectedProfileId = profilePreview ? shellProfiles.selectedProfileId : backendBridge.profileId;
+  const selectedProfileId = shellProfiles.selectedProfileId || backendBridge.profileId;
   const [previewFlagStates] = useState(() => previewShellFlagStores(backendBridge.mode, previewState));
-  const showProfiles = shellProfiles.maxProfiles > 1;
+  const showProfiles = shellProfiles.maxProfiles > 1 || shellProfiles.profiles.length > 1;
   const [focusGameOnProfileSelect, setFocusGameOnProfileSelect] = useState(() => initialProfileFocus(localStorage));
   const updateProfileFocus = (value) => { saveProfileFocus(localStorage, value); setFocusGameOnProfileSelect(value); };
   const previewProfileCache = useRef(new Set(profilePreview && shellProfiles.selectedProfileId ? [shellProfiles.selectedProfileId] : []));
@@ -170,6 +187,9 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
   const [serverJumpError, setServerJumpError] = useState("");
   const [serverHistory, setServerHistory] = useState([]);
   const [connectionError, setConnectionError] = useState("");
+  const [statusPairReady, setStatusPairReady] = useState(backendBridge.mode === "preview");
+  const [nativeProfileBusy, setNativeProfileBusy] = useState(false);
+  const [nativeProfileError, setNativeProfileError] = useState("");
   const [autoScanConfig, setAutoScanConfig] = useState(() => initialAutoScanConfig(selectedProfileId, previewState));
   const [autoScanRunning, setAutoScanRunning] = useState(() => previewState === "map-auto-running");
   const [autoScanError, setAutoScanError] = useState("");
@@ -188,11 +208,39 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
   const autoLaunchConfigPollGenerationRef = useRef(0);
   const reconnectStatusGeneration = useRef(0);
   const selectedProfileIdRef = useRef(selectedProfileId);
+  const shellProfilesRef = useRef(shellProfiles);
+  shellProfilesRef.current = shellProfiles;
+  const selectedProfileGenerationRef = useRef(0);
+  const selectedProfileOwnerRef = useRef({ profileId: selectedProfileId, generation: 0 });
+  if (selectedProfileIdRef.current !== selectedProfileId) {
+    selectedProfileGenerationRef.current += 1;
+    selectedProfileIdRef.current = selectedProfileId;
+  }
+  const selectedProfileGeneration = selectedProfileGenerationRef.current;
+  selectedProfileOwnerRef.current = {
+    profileId: selectedProfileId,
+    generation: selectedProfileGeneration,
+  };
   const lifecycleInFlightProfilesRef = useRef(new Set());
   const startupReconcileStartedRef = useRef(false);
   const startupAutoLaunchGameRef = useRef(autoLaunchGame);
-  selectedProfileIdRef.current = selectedProfileId;
-  const [profileConfigDrafts] = useState(() => createProfileConfigDraftRegistry());
+  const nativeProfileRequestRef = useRef(0);
+  const isCurrentProfileOwner = useCallback((owner) => (
+    owner?.profileId === selectedProfileOwnerRef.current.profileId
+    && owner?.generation === selectedProfileOwnerRef.current.generation
+  ), []);
+  const advanceProfileOwner = useCallback((profileId) => {
+    if (selectedProfileIdRef.current !== profileId) {
+      selectedProfileGenerationRef.current += 1;
+      selectedProfileIdRef.current = profileId;
+    }
+    const owner = { profileId, generation: selectedProfileGenerationRef.current };
+    selectedProfileOwnerRef.current = owner;
+    return owner;
+  }, []);
+  const profileDraftGeneration = backendBridge.mode === "native" ? selectedProfileGeneration : 0;
+  const profileConfigDrafts = useMemo(() => createProfileConfigDraftRegistry(), [profileDraftGeneration]);
+  useEffect(() => () => profileConfigDrafts.dispose(), [profileConfigDrafts]);
   const autoWeekendShieldStore = profileConfigDrafts.get(
     selectedProfileId,
     AUTO_WEEKEND_SHIELD_FLAG_KEY,
@@ -249,6 +297,84 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
     autoReconnectStore.getSnapshot,
   );
 
+  const adoptNativeProfileSnapshot = useCallback((snapshot, expectedSelectedProfileId = "") => {
+    const next = normalizeProfileSnapshot(snapshot, shellProfilesRef.current);
+    if (expectedSelectedProfileId && next.selectedProfileId !== expectedSelectedProfileId) {
+      const error = new Error("Native profile selection acknowledgement did not match the requested profile.");
+      error.code = "PROFILE_SELECTION_MISMATCH";
+      throw error;
+    }
+    if (next.selectedProfileId && next.selectedProfileId !== backendBridge.profileId) {
+      backendBridge.setSelectedProfile(next.selectedProfileId);
+      advanceProfileOwner(next.selectedProfileId);
+      setStatusPairReady(false);
+      setConnectionError("");
+    }
+    setShellProfiles(next);
+    return next;
+  }, [advanceProfileOwner]);
+
+  const selectNativeProfile = useCallback(async (profileId, focusGame = true) => {
+    if (!backendBridge.available || backendBridge.mode !== "native" || !profileId) return undefined;
+    if (profileId === selectedProfileIdRef.current) return shellProfilesRef.current;
+    const request = nativeProfileRequestRef.current + 1;
+    nativeProfileRequestRef.current = request;
+    setNativeProfileBusy(true);
+    setNativeProfileError("");
+    try {
+      const snapshot = await backendBridge.invoke("profile_select", { profileId, focusGame: focusGame === true });
+      if (nativeProfileRequestRef.current !== request) return snapshot;
+      return adoptNativeProfileSnapshot(snapshot, profileId);
+    } catch (error) {
+      if (nativeProfileRequestRef.current === request) setNativeProfileError(error?.code || error?.message || String(error));
+      return undefined;
+    } finally {
+      if (nativeProfileRequestRef.current === request) setNativeProfileBusy(false);
+    }
+  }, [adoptNativeProfileSnapshot]);
+
+  const reorderNativeProfiles = useCallback(async (profileIds) => {
+    if (!backendBridge.available || backendBridge.mode !== "native") return undefined;
+    const request = nativeProfileRequestRef.current + 1;
+    nativeProfileRequestRef.current = request;
+    setNativeProfileError("");
+    try {
+      const snapshot = await backendBridge.invoke("profile_reorder", { profileIds });
+      if (nativeProfileRequestRef.current !== request) return snapshot;
+      return adoptNativeProfileSnapshot(snapshot);
+    } catch (error) {
+      if (nativeProfileRequestRef.current === request) setNativeProfileError(error?.code || error?.message || String(error));
+      return undefined;
+    }
+  }, [adoptNativeProfileSnapshot]);
+
+  const updateNativeProfileNote = useCallback(async (profileId, note) => {
+    if (!backendBridge.available || backendBridge.mode !== "native") return undefined;
+    const request = nativeProfileRequestRef.current + 1;
+    nativeProfileRequestRef.current = request;
+    setNativeProfileError("");
+    try {
+      const snapshot = await backendBridge.invoke("profile_note_set", { profileId, note });
+      if (nativeProfileRequestRef.current !== request) return snapshot;
+      return adoptNativeProfileSnapshot(snapshot);
+    } catch (error) {
+      if (nativeProfileRequestRef.current === request) setNativeProfileError(error?.code || error?.message || String(error));
+      throw error;
+    }
+  }, [adoptNativeProfileSnapshot]);
+
+  useEffect(() => {
+    if (!backendBridge.available || backendBridge.mode !== "native") return undefined;
+    let closed = false;
+    const request = nativeProfileRequestRef.current;
+    backendBridge.invoke("profile_list", {}).then((snapshot) => {
+      if (!closed && nativeProfileRequestRef.current === request) adoptNativeProfileSnapshot(snapshot);
+    }).catch((error) => {
+      if (!closed && nativeProfileRequestRef.current === request) setNativeProfileError(error?.code || error?.message || String(error));
+    });
+    return () => { closed = true; };
+  }, [adoptNativeProfileSnapshot]);
+
   useEffect(() => {
     autoWeekendShieldStore.receive(autoWeekendShieldIncoming);
   }, [autoWeekendShieldIncoming, autoWeekendShieldStore]);
@@ -267,13 +393,29 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
 
   useLayoutEffect(() => {
     reconnectStatusGeneration.current += 1;
+    setStatusPairReady(backendBridge.mode === "preview");
+    setConnectionError("");
+    if (backendBridge.mode === "native") {
+      setRuntimeStatus(null);
+      setProxyStatus(null);
+      setGameRootStatus(null);
+      setGameLaunchStatus(null);
+      setGameRecoveryStatus(null);
+      setGameRootError("");
+      setGameActionError("");
+      setHomeBusy("");
+    }
     setProxyBusy(false);
     setGameLaunchBusy(false);
     return () => { reconnectStatusGeneration.current += 1; };
   }, [selectedProfileId]);
 
-  const acknowledgeRuntimeStatus = useCallback((status, generation = reconnectStatusGeneration.current) => {
-    if (generation !== reconnectStatusGeneration.current || selectedProfileId !== backendBridge.profileId) return;
+  const acknowledgeRuntimeStatus = useCallback((
+    status,
+    generation = reconnectStatusGeneration.current,
+    owner = selectedProfileOwnerRef.current,
+  ) => {
+    if (generation !== reconnectStatusGeneration.current || !isCurrentProfileOwner(owner)) return;
     setRuntimeStatus(status);
     const config = status?.config;
     const legacyShield = config?.auto_shield;
@@ -285,7 +427,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
     if (typeof attack === "boolean") setAutoAttackShieldIncoming(attack);
     if (typeof reconnect === "boolean") setAutoReconnectIncoming(reconnect);
     if (typeof closePopup === "boolean") setAutoClosePopupIncoming(closePopup);
-  }, [selectedProfileId]);
+  }, [isCurrentProfileOwner]);
 
   const applyAutoScanConfigSnapshot = useCallback((snapshot) => {
     const next = normalizeAutoScanConfig(snapshot?.config);
@@ -362,16 +504,16 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
     if (!backendBridge.available) return null;
     const generation = mapSummaryGeneration.current + 1;
     mapSummaryGeneration.current = generation;
-    const profileId = selectedProfileId;
+    const owner = { ...selectedProfileOwnerRef.current };
     const summary = await mapApi.summary();
-    if (generation !== mapSummaryGeneration.current || profileId !== backendBridge.profileId) return summary;
+    if (generation !== mapSummaryGeneration.current || !isCurrentProfileOwner(owner)) return summary;
     setMapSummary(summary);
     mapReadingRef.current = summary.scanState?.isReading === true;
     mapRuntimeRef.current = summary.scanState;
     setMapRuntime(summary.scanState);
     setCurrentServerId(summary.scanState?.serverId > 0 ? summary.scanState.serverId : 0);
     return summary;
-  }, [selectedProfileId]);
+  }, [isCurrentProfileOwner, selectedProfileId]);
 
   const selectRoute = useCallback((routeKey) => {
     if (routeKey === activeRoute) return;
@@ -409,6 +551,10 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
 
   const readStatusSnapshot = useCallback(async (canAcknowledge = () => true) => {
     if (!backendBridge.available) return;
+    const owner = { ...selectedProfileOwnerRef.current };
+    if (!isCurrentProfileOwner(owner)) return;
+    setStatusPairReady(false);
+    setConnectionError("");
     const reconnectGeneration = reconnectStatusGeneration.current;
     const autoLaunchRevision = autoLaunchSaveRevisionRef.current;
     const autoLaunchNativeCommitEpoch = autoLaunchNativeCommitEpochRef.current;
@@ -419,9 +565,9 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
       mapApi.readProxyStatus(),
       backendBridge.invoke("local_config_get", {}),
     ]);
-    if (!canAcknowledge()) return;
+    if (!canAcknowledge() || !isCurrentProfileOwner(owner)) return;
     if (statusResult.status === "fulfilled") {
-      acknowledgeRuntimeStatus(statusResult.value, reconnectGeneration);
+      acknowledgeRuntimeStatus(statusResult.value, reconnectGeneration, owner);
     }
     if (proxyResult.status === "fulfilled") setProxyStatus(proxyResult.value);
     if (configResult.status === "fulfilled") {
@@ -434,11 +580,13 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
     }
     if (statusResult.status === "rejected" || proxyResult.status === "rejected") {
       const failure = statusResult.status === "rejected" ? statusResult.reason : proxyResult.reason;
+      setStatusPairReady(false);
       setConnectionError(failure?.message || String(failure));
     } else {
+      setStatusPairReady(true);
       setConnectionError("");
     }
-  }, [acknowledgeRuntimeStatus]);
+  }, [acknowledgeRuntimeStatus, isCurrentProfileOwner]);
 
   const refreshStatus = useCallback(() => readStatusSnapshot(), [readStatusSnapshot]);
 
@@ -446,8 +594,10 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
     if (!backendBridge.available || !selectedProfileId || startupReconcileStartedRef.current) return;
     startupReconcileStartedRef.current = true;
     let closed = false;
-    const profileId = selectedProfileId;
-    lifecycleInFlightProfilesRef.current.add(profileId);
+    const owner = { ...selectedProfileOwnerRef.current };
+    const profileId = owner.profileId;
+    const ownerKey = profileOwnerKey(owner);
+    lifecycleInFlightProfilesRef.current.add(ownerKey);
     setGameLaunchBusy(true);
     setGameActionError("");
     backendBridge.invoke(
@@ -455,56 +605,58 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
       { autoLaunchAll: startupAutoLaunchGameRef.current },
       HOME_LIFECYCLE_TIMEOUT_MS,
     ).then(async (result) => {
-      if (closed || selectedProfileIdRef.current !== profileId) return;
+      if (closed || !isCurrentProfileOwner(owner)) return;
       const profileError = Array.isArray(result?.errors)
         ? result.errors.find((entry) => !entry?.profileId || entry.profileId === profileId)
         : null;
       if (profileError?.error || profileError?.message) {
         setGameActionError(profileError.error || profileError.message);
       }
-      await readStatusSnapshot(() => !closed && selectedProfileIdRef.current === profileId);
+      await readStatusSnapshot(() => !closed && isCurrentProfileOwner(owner));
     }).catch((error) => {
-      if (!closed && selectedProfileIdRef.current === profileId) {
+      if (!closed && isCurrentProfileOwner(owner)) {
         setGameActionError(error?.code || error?.message || String(error));
       }
     }).finally(() => {
-      lifecycleInFlightProfilesRef.current.delete(profileId);
-      if (!closed && selectedProfileIdRef.current === profileId) {
+      lifecycleInFlightProfilesRef.current.delete(ownerKey);
+      if (!closed && isCurrentProfileOwner(owner)) {
         setGameLaunchBusy(false);
       }
     });
     return () => { closed = true; };
-  }, [readStatusSnapshot, selectedProfileId]);
+  }, [isCurrentProfileOwner, readStatusSnapshot, selectedProfileId]);
 
   useEffect(() => {
     if (!backendBridge.available || !selectedProfileId) return undefined;
     let closed = false;
-    const profileId = selectedProfileId;
+    const owner = { ...selectedProfileOwnerRef.current };
+    const profileId = owner.profileId;
     const stop = backendBridge.listen("bridge://game-recovery", (event) => {
       const payload = unwrapProfileEvent(event, profileId);
-      if (!closed && selectedProfileIdRef.current === profileId && payload) setGameRecoveryStatus(payload);
+      if (!closed && isCurrentProfileOwner(owner) && payload) setGameRecoveryStatus(payload);
     });
-    backendBridge.invoke("game_recovery_status", { profileId }).then((status) => {
-      if (!closed && selectedProfileIdRef.current === profileId && status) setGameRecoveryStatus(status);
+    backendBridge.invokeProfileScoped("game_recovery_status", {}).then((status) => {
+      if (!closed && isCurrentProfileOwner(owner) && status) setGameRecoveryStatus(status);
     }).catch(() => {});
     return () => { closed = true; stop(); };
-  }, [selectedProfileId]);
+  }, [isCurrentProfileOwner, selectedProfileId]);
 
   useEffect(() => {
     if (!backendBridge.available || !selectedProfileId) return;
     let closed = false;
+    const owner = { ...selectedProfileOwnerRef.current };
     Promise.allSettled([
       backendBridge.invoke("game_root_status", {}),
       backendBridge.invoke("local_game_launch_status", {}),
     ]).then(([rootResult, launchResult]) => {
-      if (closed || selectedProfileIdRef.current !== selectedProfileId) return;
+      if (closed || !isCurrentProfileOwner(owner)) return;
       if (rootResult.status === "fulfilled") acknowledgeGameRootStatus(rootResult.value);
       else setGameRootError(rootResult.reason?.message || String(rootResult.reason));
       if (launchResult.status === "fulfilled") setGameLaunchStatus(launchResult.value);
       else setGameLaunchStatus({ valid: false, error: launchResult.reason?.code || launchResult.reason?.message || String(launchResult.reason) });
     });
     return () => { closed = true; };
-  }, [acknowledgeGameRootStatus, selectedProfileId]);
+  }, [acknowledgeGameRootStatus, isCurrentProfileOwner, selectedProfileId]);
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
@@ -531,18 +683,18 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
     if (!backendBridge.available || !selectedProfileId) return undefined;
     let closed = false;
     let inFlight = false;
-    const profileId = selectedProfileId;
+    const owner = { ...selectedProfileOwnerRef.current };
     const unsubscribeStatus = mapApi.listenStatus((status) => {
-      if (!closed) acknowledgeRuntimeStatus(status);
+      if (!closed && isCurrentProfileOwner(owner)) acknowledgeRuntimeStatus(status, reconnectStatusGeneration.current, owner);
     });
     const unsubscribeScan = mapApi.listenScanStatus((scan) => {
-      if (!closed) acknowledgeMapScan(scan);
+      if (!closed && isCurrentProfileOwner(owner)) acknowledgeMapScan(scan);
     });
     const pollStatus = async () => {
       if (inFlight) return;
       inFlight = true;
       try {
-        await readStatusSnapshot(() => !closed && selectedProfileIdRef.current === profileId);
+        await readStatusSnapshot(() => !closed && isCurrentProfileOwner(owner));
       } finally {
         inFlight = false;
       }
@@ -555,24 +707,24 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
       unsubscribeStatus();
       unsubscribeScan();
     };
-  }, [acknowledgeMapScan, acknowledgeRuntimeStatus, readStatusSnapshot, selectedProfileId]);
+  }, [acknowledgeMapScan, acknowledgeRuntimeStatus, isCurrentProfileOwner, readStatusSnapshot, selectedProfileId]);
 
   useEffect(() => {
     if (!backendBridge.available || backendBridge.mode === "preview" || !selectedProfileId) return undefined;
     let closed = false;
-    const profileId = selectedProfileId;
+    const owner = { ...selectedProfileOwnerRef.current };
     const acknowledge = (snapshot) => {
-      if (!closed && selectedProfileIdRef.current === profileId) autoScanCoordinatorRef.current?.receive(snapshot);
+      if (!closed && isCurrentProfileOwner(owner)) autoScanCoordinatorRef.current?.receive(snapshot);
     };
     const unsubscribe = mapApi.listenAutoScanChanged(acknowledge);
     mapApi.autoScanStatus().then(acknowledge).catch((error) => {
-      if (!closed && selectedProfileIdRef.current === profileId) setAutoScanError(error?.message || String(error));
+      if (!closed && isCurrentProfileOwner(owner)) setAutoScanError(error?.message || String(error));
     });
     return () => {
       closed = true;
       unsubscribe();
     };
-  }, [selectedProfileId]);
+  }, [isCurrentProfileOwner, selectedProfileId]);
 
   useEffect(() => {
     if (!backendBridge.available || !selectedProfileId) return undefined;
@@ -611,9 +763,13 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
     return () => document.removeEventListener("pointerdown", closeOutside);
   }, [serverJumpOpen]);
 
-  const bridgeState = connectionError
-    ? "unavailable"
-    : connectionState(runtimeStatus, proxyStatus, backendBridge.mode);
+  const bridgeState = connectionState(
+    runtimeStatus,
+    proxyStatus,
+    backendBridge.mode,
+    statusPairReady,
+    connectionError,
+  );
   const online = bridgeState === "connected";
 
   useEffect(() => {
@@ -683,84 +839,94 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
 
   const selectGameRoot = useCallback(async () => {
     if (!backendBridge.available) return;
+    const owner = { ...selectedProfileOwnerRef.current };
     setHomeBusy("gameRoot");
     try {
       const selection = await backendBridge.invoke("game_root_select", {});
+      if (!isCurrentProfileOwner(owner)) return;
       if (selection.canceled) return;
       if (!selection.valid) {
         setGameRootError("INVALID_GAME_ROOT");
         return;
       }
       const next = await backendBridge.invoke("game_root_status", {});
+      if (!isCurrentProfileOwner(owner)) return;
       acknowledgeGameRootStatus(next);
       const launchStatus = await backendBridge.invoke("local_game_launch_status", {});
-      setGameLaunchStatus(launchStatus);
+      if (isCurrentProfileOwner(owner)) setGameLaunchStatus(launchStatus);
     } catch (error) {
-      setGameRootError(error?.message || String(error));
+      if (isCurrentProfileOwner(owner)) setGameRootError(error?.message || String(error));
     } finally {
-      setHomeBusy("");
+      if (isCurrentProfileOwner(owner)) setHomeBusy("");
     }
-  }, [acknowledgeGameRootStatus]);
+  }, [acknowledgeGameRootStatus, isCurrentProfileOwner]);
 
-  const refreshHomeProxyStatus = useCallback(async (profileId) => {
-    const next = await backendBridge.invoke("proxy_status", { profileId });
-    if (selectedProfileIdRef.current === profileId) setProxyStatus(next);
+  const refreshHomeProxyStatus = useCallback(async (owner) => {
+    if (!isCurrentProfileOwner(owner)) return null;
+    const next = await backendBridge.invokeProfileScoped("proxy_status", {});
+    if (isCurrentProfileOwner(owner)) setProxyStatus(next);
     return next;
-  }, []);
+  }, [isCurrentProfileOwner]);
 
   const startGame = useCallback(async () => {
-    if (!backendBridge.available || !selectedProfileId || lifecycleInFlightProfilesRef.current.has(selectedProfileId)) return;
-    const profileId = selectedProfileId;
-    lifecycleInFlightProfilesRef.current.add(profileId);
+    if (!backendBridge.available || !selectedProfileId) return;
+    const owner = { ...selectedProfileOwnerRef.current };
+    const ownerKey = profileOwnerKey(owner);
+    if (lifecycleInFlightProfilesRef.current.has(ownerKey)) return;
+    lifecycleInFlightProfilesRef.current.add(ownerKey);
     setProxyBusy(true);
     setGameActionError("");
     try {
-      await backendBridge.invoke(
+      await backendBridge.invokeProfileScoped(
         "profile_instance_start",
-        { profileId, closeUnmanaged: true },
+        { closeUnmanaged: true },
         HOME_LIFECYCLE_TIMEOUT_MS,
       );
-      await refreshHomeProxyStatus(profileId);
+      await refreshHomeProxyStatus(owner);
     } catch (error) {
-      if (selectedProfileIdRef.current === profileId) {
+      if (isCurrentProfileOwner(owner)) {
         setGameActionError(error?.code || error?.message || String(error));
       }
     } finally {
-      lifecycleInFlightProfilesRef.current.delete(profileId);
-      if (selectedProfileIdRef.current === profileId) setProxyBusy(false);
+      lifecycleInFlightProfilesRef.current.delete(ownerKey);
+      if (isCurrentProfileOwner(owner)) setProxyBusy(false);
     }
-  }, [refreshHomeProxyStatus, selectedProfileId]);
+  }, [isCurrentProfileOwner, refreshHomeProxyStatus, selectedProfileId]);
 
   const stopGame = useCallback(async () => {
-    if (!backendBridge.available || !selectedProfileId || lifecycleInFlightProfilesRef.current.has(selectedProfileId)) return;
-    const profileId = selectedProfileId;
-    lifecycleInFlightProfilesRef.current.add(profileId);
+    if (!backendBridge.available || !selectedProfileId) return;
+    const owner = { ...selectedProfileOwnerRef.current };
+    const ownerKey = profileOwnerKey(owner);
+    if (lifecycleInFlightProfilesRef.current.has(ownerKey)) return;
+    lifecycleInFlightProfilesRef.current.add(ownerKey);
     setProxyBusy(true);
     setGameActionError("");
     try {
-      const instance = await backendBridge.invoke("profile_instance_status", { profileId });
+      const instance = await backendBridge.invokeProfileScoped("profile_instance_status", {});
       if (instance?.instanceId) {
-        await backendBridge.invoke(
+        await backendBridge.invokeProfileScoped(
           "profile_instance_stop",
-          { profileId, instanceId: instance.instanceId },
+          { instanceId: instance.instanceId },
           HOME_LIFECYCLE_TIMEOUT_MS,
         );
       }
-      await refreshHomeProxyStatus(profileId);
+      await refreshHomeProxyStatus(owner);
     } catch (error) {
-      if (selectedProfileIdRef.current === profileId) {
+      if (isCurrentProfileOwner(owner)) {
         setGameActionError(error?.code || error?.message || String(error));
       }
     } finally {
-      lifecycleInFlightProfilesRef.current.delete(profileId);
-      if (selectedProfileIdRef.current === profileId) setProxyBusy(false);
+      lifecycleInFlightProfilesRef.current.delete(ownerKey);
+      if (isCurrentProfileOwner(owner)) setProxyBusy(false);
     }
-  }, [refreshHomeProxyStatus, selectedProfileId]);
+  }, [isCurrentProfileOwner, refreshHomeProxyStatus, selectedProfileId]);
 
   const updateAndRestartGame = useCallback(async () => {
-    if (!backendBridge.available || !selectedProfileId || lifecycleInFlightProfilesRef.current.has(selectedProfileId)) return;
-    const profileId = selectedProfileId;
-    lifecycleInFlightProfilesRef.current.add(profileId);
+    if (!backendBridge.available || !selectedProfileId) return;
+    const owner = { ...selectedProfileOwnerRef.current };
+    const ownerKey = profileOwnerKey(owner);
+    if (lifecycleInFlightProfilesRef.current.has(ownerKey)) return;
+    lifecycleInFlightProfilesRef.current.add(ownerKey);
     setProxyBusy(true);
     setGameActionError("");
     try {
@@ -769,19 +935,19 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
         {},
         HOME_LIFECYCLE_TIMEOUT_MS,
       );
-      await refreshHomeProxyStatus(profileId);
-      if (Array.isArray(result?.errors) && result.errors.length > 0 && selectedProfileIdRef.current === profileId) {
+      await refreshHomeProxyStatus(owner);
+      if (Array.isArray(result?.errors) && result.errors.length > 0 && isCurrentProfileOwner(owner)) {
         setGameActionError(result.errors[0]?.error || "GAME_CONNECTION_UPDATE_FAILED");
       }
     } catch (error) {
-      if (selectedProfileIdRef.current === profileId) {
+      if (isCurrentProfileOwner(owner)) {
         setGameActionError(error?.code || error?.message || String(error));
       }
     } finally {
-      lifecycleInFlightProfilesRef.current.delete(profileId);
-      if (selectedProfileIdRef.current === profileId) setProxyBusy(false);
+      lifecycleInFlightProfilesRef.current.delete(ownerKey);
+      if (isCurrentProfileOwner(owner)) setProxyBusy(false);
     }
-  }, [refreshHomeProxyStatus, selectedProfileId]);
+  }, [isCurrentProfileOwner, refreshHomeProxyStatus, selectedProfileId]);
 
   const requestServerJump = useCallback(async (serverId) => {
     const result = await mapApi.jumpServer(serverId);
@@ -829,6 +995,13 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
     ? mapRuntime.isReading ? t("server.stopScanFirst") : ""
     : t("status.gameDisconnected");
   const serverJumpBusyActive = serverJumpBusy > 0;
+  const nativeProfileCallbacks = backendBridge.mode === "native" ? {
+    onSelect: selectNativeProfile,
+    onReorder: reorderNativeProfiles,
+    onUpdateNote: updateNativeProfileNote,
+  } : {};
+  const profileCallbacks = profilePreview ? profilePreviewCallbacks : nativeProfileCallbacks;
+  const effectiveProfileSwitchLoading = switchLoading || nativeProfileBusy;
 
   const stateText = {
     connected: t("status.connected"),
@@ -1006,7 +1179,13 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
       </header>
 
       <div className={`app-layout${showProfiles ? "" : " single-profile"}`}>
-        {showProfiles ? <aside className="profile-sidebar"><ProfileSidebar state={shellProfiles} focusGameOnProfileSelect={focusGameOnProfileSelect} {...profilePreviewCallbacks} /></aside> : null}
+        {showProfiles ? <aside className="profile-sidebar"><ProfileSidebar
+          state={shellProfiles}
+          busy={nativeProfileBusy}
+          error={nativeProfileError}
+          focusGameOnProfileSelect={focusGameOnProfileSelect}
+          {...profileCallbacks}
+        /></aside> : null}
         <nav className="side-nav" aria-label="Navigation">
           <div className="nav-heading">
             <strong>{t("nav.title")}</strong>
@@ -1033,7 +1212,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
           <Suspense fallback={<div className="panel"><span className="muted">{t("common.processing")}</span></div>}>
             <div className="profile-view-context">
               <ShellConfigSaveErrors states={shellFlagStates || (previewFlagStates.length ? previewFlagStates : [autoWeekendShieldStore, autoAttackShieldStore, autoReconnectStore, autoClosePopupStore])} />
-              {switchLoading ? <ProfileSwitchState loading /> : <RetainedPages
+              {effectiveProfileSwitchLoading ? <ProfileSwitchState loading /> : <RetainedPages
                 activeRoute={activeRoute}
                 visitedRoutes={visitedRoutes}
                 selectedProfileId={selectedProfileId}

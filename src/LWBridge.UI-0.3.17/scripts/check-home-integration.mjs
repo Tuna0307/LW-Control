@@ -1,10 +1,12 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import { createBackendBridge } from "../src/backendBridge.js";
+import { connectionState, createMapApi } from "../src/mapBackend.js";
 import { createAutomationFlagAdapter, createProfileConfigDraftRegistry } from "../src/profileConfigDraft.js";
 
 function nativeHost(profileId = "") {
   let messageHandler;
+  let requestSequence = 0;
   const posted = [];
   const host = {
     __LWBridgeBootstrap: {
@@ -23,9 +25,13 @@ function nativeHost(profileId = "") {
     },
     setTimeout,
     clearTimeout,
-    crypto: { randomUUID: () => "home-request-1" },
+    crypto: { randomUUID: () => `home-request-${++requestSequence}` },
   };
   return { host, posted, getMessageHandler: () => messageHandler };
+}
+
+function deliver(fixture, message) {
+  fixture.getMessageHandler()({ data: { sessionId: "home-session", ...message } });
 }
 
 {
@@ -66,6 +72,65 @@ function nativeHost(profileId = "") {
   });
   assert.deepEqual(await request, { enabled: true });
   bridge.dispose();
+}
+
+{
+  const fixture = nativeHost("profile-a");
+  const bridge = createBackendBridge(fixture.host);
+  const mapApi = createMapApi(bridge);
+  assert.deepEqual(bridge.currentProfileOwner(), { profileId: "profile-a", generation: 0 });
+
+  const staleA = mapApi.readStatus();
+  const staleARequest = fixture.posted.find((message) => message.kind === "invoke");
+  assert.equal(staleARequest.payload.profileId, "profile-a", "first A status read must scope at call time");
+
+  bridge.setSelectedProfile("profile-b");
+  assert.deepEqual(bridge.currentProfileOwner(), { profileId: "profile-b", generation: 1 });
+  deliver(fixture, { kind: "response", id: staleARequest.id, ok: true, result: { xluaOnline: true, marker: "stale-a" } });
+  await assert.rejects(() => staleA, (error) => error.code === "PROFILE_GENERATION_RETIRED");
+
+  const bStatus = mapApi.readStatus();
+  const bRequest = fixture.posted.filter((message) => message.kind === "invoke").at(-1);
+  assert.equal(bRequest.payload.profileId, "profile-b", "B status read must use current profile at call time");
+  deliver(fixture, { kind: "response", id: bRequest.id, ok: true, result: { xluaOnline: false, marker: "b" } });
+  assert.equal((await bStatus).marker, "b");
+
+  const seen = [];
+  const offB = mapApi.listenStatus((status) => seen.push(status.marker));
+  deliver(fixture, { kind: "event", event: "bridge://status", payload: { profileId: "profile-a", payload: { marker: "wrong-a" } } });
+  deliver(fixture, { kind: "event", event: "bridge://status", payload: { profileId: "profile-b", payload: { marker: "live-b" } } });
+  assert.deepEqual(seen, ["live-b"], "B listener must filter foreign A events");
+
+  bridge.setSelectedProfile("profile-a");
+  assert.deepEqual(bridge.currentProfileOwner(), { profileId: "profile-a", generation: 2 });
+  deliver(fixture, { kind: "event", event: "bridge://status", payload: { profileId: "profile-b", payload: { marker: "late-b" } } });
+  deliver(fixture, { kind: "event", event: "bridge://status", payload: { profileId: "profile-a", payload: { marker: "old-listener-a" } } });
+  assert.deepEqual(seen, ["live-b"], "retired B listener must stay retired after A/B/A");
+  offB();
+
+  const seenA2 = [];
+  const offA2 = mapApi.listenStatus((status) => seenA2.push(status.marker));
+  deliver(fixture, { kind: "event", event: "bridge://status", payload: { profileId: "profile-a", payload: { marker: "fresh-a" } } });
+  assert.deepEqual(seenA2, ["fresh-a"], "fresh A generation must accept only its own events");
+
+  const a2Status = mapApi.readStatus();
+  const a2Request = fixture.posted.filter((message) => message.kind === "invoke").at(-1);
+  assert.equal(a2Request.payload.profileId, "profile-a", "returned A read must use the new A generation");
+  deliver(fixture, { kind: "response", id: a2Request.id, ok: true, result: { xluaOnline: true, marker: "fresh-a" } });
+  assert.equal((await a2Status).marker, "fresh-a");
+  offA2();
+  bridge.dispose();
+}
+
+{
+  const connectedStatus = { xluaOnline: true };
+  const disconnectedStatus = { xluaOnline: false };
+  const runningProxy = { gameRunning: true };
+  assert.equal(connectionState(connectedStatus, runningProxy, "native", true), "connected");
+  assert.equal(connectionState(connectedStatus, runningProxy, "native", false), "checking", "read start/deferred pair must invalidate stale connected availability");
+  assert.equal(connectionState(connectedStatus, runningProxy, "native", false, "STATUS_READ_FAILED"), "unavailable", "rejected paired read must remain unavailable even with stale connected values");
+  assert.equal(connectionState(disconnectedStatus, runningProxy, "native", true), "disconnected");
+  assert.equal(connectionState(connectedStatus, runningProxy, "native", true), "connected", "fresh paired status must restore connected availability");
 }
 
 {
@@ -164,22 +229,38 @@ assert.doesNotMatch(startupReconcileEffect, /\[autoLaunchGame,/, "changing Auto 
 assert.match(appSource, /backendBridge\.invoke\("local_game_launch_status", \{\}\)/, "Home must query clone-internal strict launch admission separately from recovered game_root_status");
 const refreshBody = appSource.slice(appSource.indexOf("const refreshStatus"), appSource.indexOf("const selectRoute"));
 assert.doesNotMatch(refreshBody, /game_recovery_status/, "recurring status refresh must not overwrite recovery ownership");
-assert.match(appSource, /backendBridge\.invoke\("game_recovery_status", \{ profileId \}\)/, "recovery status must have its own selected-profile initial read");
-const recoveryInvokeIndex = appSource.indexOf('backendBridge.invoke("game_recovery_status"');
+assert.match(appSource, /backendBridge\.invokeProfileScoped\("game_recovery_status", \{\}\)/, "recovery status must use the current profile generation");
+const recoveryInvokeIndex = appSource.indexOf('backendBridge.invokeProfileScoped("game_recovery_status"');
 const recoveryEffectStart = appSource.lastIndexOf("useEffect(() => {", recoveryInvokeIndex);
 const recoveryEffectEnd = appSource.indexOf("useEffect(() => {", recoveryInvokeIndex + 1);
 const recoveryEffect = appSource.slice(recoveryEffectStart, recoveryEffectEnd);
 assert.match(recoveryEffect, /backendBridge\.listen\("bridge:\/\/game-recovery"/, "recovery event ownership must share the selected-profile effect");
 assert.match(recoveryEffect, /const payload = unwrapProfileEvent\(event, profileId\)/, "recovery events must apply the shared profile-envelope ownership contract");
-assert.match(recoveryEffect, /if \(!closed && selectedProfileIdRef\.current === profileId && payload\) setGameRecoveryStatus\(payload\)/, "recovery events must preserve current-profile/closed lifetime guards");
+assert.match(recoveryEffect, /if \(!closed && isCurrentProfileOwner\(owner\) && payload\) setGameRecoveryStatus\(payload\)/, "recovery events must preserve current-generation/closed lifetime guards");
 assert.match(recoveryEffect, /return \(\) => \{ closed = true; stop\(\); \}/, "selected-profile recovery effect must unsubscribe and close together");
 const periodicStatusIndex = appSource.indexOf("const pollStatus = async () =>");
 assert.ok(periodicStatusIndex >= 0, "recurring status refresh must use its own guarded poll callback");
 const periodicStatusBody = appSource.slice(appSource.lastIndexOf("useEffect(() => {", periodicStatusIndex), appSource.indexOf("useEffect(() => {", periodicStatusIndex + 1));
 assert.match(periodicStatusBody, /let inFlight = false/, "recurring status refresh must own an in-flight fence");
 assert.match(periodicStatusBody, /if \(inFlight\) return/, "overlapping periodic status reads must be suppressed");
-assert.match(periodicStatusBody, /readStatusSnapshot\(\(\) => !closed && selectedProfileIdRef\.current === profileId\)/, "periodic acknowledgements must remain owned by the live selected profile");
+assert.match(periodicStatusBody, /readStatusSnapshot\(\(\) => !closed && isCurrentProfileOwner\(owner\)\)/, "periodic acknowledgements must remain owned by the live profile generation");
 assert.match(periodicStatusBody, /window\.clearInterval\(timer\)/, "recurring status refresh must clear its timer with the effect");
+assert.doesNotMatch(periodicStatusBody, /activeRoute/, "status polling must remain active while Home is retained but hidden on another route");
+
+const statusReadBody = appSource.slice(appSource.indexOf("const readStatusSnapshot"), appSource.indexOf("const refreshStatus"));
+assert.match(statusReadBody, /setStatusPairReady\(false\)/, "status read start must invalidate stale paired availability");
+assert.match(statusReadBody, /!isCurrentProfileOwner\(owner\)/, "status read acknowledgement must reject retired profile generations");
+assert.match(statusReadBody, /statusResult\.status === "fulfilled"[\s\S]*proxyResult\.status === "fulfilled"|statusResult\.status === "rejected" \|\| proxyResult\.status === "rejected"/, "status pair must inspect both current status owners");
+assert.match(statusReadBody, /setStatusPairReady\(true\)/, "only a fresh paired read may restore availability");
+assert.match(appSource, /connectionState\([\s\S]*runtimeStatus,[\s\S]*proxyStatus,[\s\S]*backendBridge\.mode,[\s\S]*statusPairReady,[\s\S]*connectionError,[\s\S]*\)/, "connected availability must consume paired-status freshness and rejection state");
+
+assert.match(appSource, /backendBridge\.invoke\("profile_list", \{\}\)/, "normal App must load the native profile registry");
+assert.match(appSource, /backendBridge\.invoke\("profile_select", \{ profileId, focusGame: focusGame === true \}\)/, "normal sidebar selection must dispatch native profile_select");
+assert.match(appSource, /adoptNativeProfileSnapshot\(snapshot, profileId\)/, "profile ownership must change only after matching native acknowledgement");
+assert.match(appSource, /backendBridge\.setSelectedProfile\(next\.selectedProfileId\)/, "acknowledged native selection must advance bridge profile generation");
+assert.match(appSource, /nativeProfileRequestRef\.current === request\) adoptNativeProfileSnapshot\(snapshot\)/, "stale profile_list acknowledgement must not overwrite a newer registry mutation");
+assert.match(appSource, /profileDraftGeneration = backendBridge\.mode === "native" \? selectedProfileGeneration : 0/, "native profile drafts must retire by selected profile generation without changing preview draft retention");
+assert.match(appSource, /<Activity key=\{route\.key\} mode=\{route\.key === activeRoute \? "visible" : "hidden"\}>/, "Home/Map route transitions must preserve retained Activity ownership");
 
 const pagesSource = fs.readFileSync(new URL("../src/HomePage.jsx", import.meta.url), "utf8");
 assert.match(pagesSource, /const launchAdmitted = state\.gameLaunchStatus\?\.valid === true/);

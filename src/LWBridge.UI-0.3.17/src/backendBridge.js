@@ -16,6 +16,12 @@ function profileRequiredError() {
   return error;
 }
 
+function profileRetiredError(profileId) {
+  const error = new Error(`Profile owner retired before the command completed: ${profileId || "<none>"}.`);
+  error.code = "PROFILE_GENERATION_RETIRED";
+  return error;
+}
+
 export function createBackendBridge(host = {}) {
   const bootstrap = host.__LWBridgeBootstrap || {};
   const nativeWebView = host.chrome?.webview;
@@ -23,7 +29,8 @@ export function createBackendBridge(host = {}) {
   const sessionId = typeof bootstrap.sessionId === "string" ? bootstrap.sessionId : "";
   const available = liveRequested && !!nativeWebView && sessionId.length > 0;
   const mode = available ? "native" : liveRequested ? "native-unavailable" : "preview";
-  const profileId = bootstrap.profiles?.selectedProfileId || "";
+  let profileId = bootstrap.profiles?.selectedProfileId || "";
+  let profileGeneration = 0;
   const pending = new Map();
   const listeners = new Map();
   let disposed = false;
@@ -84,7 +91,35 @@ export function createBackendBridge(host = {}) {
 
   function invokeProfileScoped(command, payload = {}, timeoutMs = DEFAULT_TIMEOUT_MS) {
     if (!profileId) return Promise.reject(profileRequiredError());
-    return invoke(command, { ...payload, profileId }, timeoutMs);
+    const owner = currentProfileOwner();
+    return invoke(command, { ...payload, profileId: owner.profileId }, timeoutMs).then(
+      (result) => {
+        if (!isCurrentProfileOwner(owner)) throw profileRetiredError(owner.profileId);
+        return result;
+      },
+      (error) => {
+        if (!isCurrentProfileOwner(owner)) throw profileRetiredError(owner.profileId);
+        throw error;
+      },
+    );
+  }
+
+  function currentProfileOwner() {
+    return { profileId, generation: profileGeneration };
+  }
+
+  function isCurrentProfileOwner(owner) {
+    return !!owner
+      && owner.profileId === profileId
+      && owner.generation === profileGeneration;
+  }
+
+  function setSelectedProfile(nextProfileId) {
+    const next = typeof nextProfileId === "string" ? nextProfileId : "";
+    if (next === profileId) return currentProfileOwner();
+    profileId = next;
+    profileGeneration += 1;
+    return currentProfileOwner();
   }
 
   function listen(eventName, callback) {
@@ -123,7 +158,20 @@ export function createBackendBridge(host = {}) {
     }
   }
 
-  return { mode, available, profileId, sessionId, invoke, invokeProfileScoped, listen, dispose };
+  return {
+    mode,
+    available,
+    sessionId,
+    get profileId() { return profileId; },
+    get profileGeneration() { return profileGeneration; },
+    currentProfileOwner,
+    isCurrentProfileOwner,
+    setSelectedProfile,
+    invoke,
+    invokeProfileScoped,
+    listen,
+    dispose,
+  };
 }
 
 export const backendBridge = createBackendBridge(typeof window === "undefined" ? {} : window);

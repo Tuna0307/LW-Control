@@ -179,9 +179,11 @@ export function normalizeSearchResult(value) {
   };
 }
 
-export function connectionState(status, proxyStatus, bridgeMode = "native") {
+export function connectionState(status, proxyStatus, bridgeMode = "native", freshPair = true, error = "") {
   if (bridgeMode === "preview") return "preview";
   if (bridgeMode !== "native") return "unavailable";
+  if (error) return "unavailable";
+  if (!freshPair) return "checking";
   if (proxyStatus?.gameRunning == null) return "checking";
   if (proxyStatus.gameRunning !== true) return "stopped";
   if (status?.xluaOnline == null) return "checking";
@@ -288,110 +290,109 @@ export function buildTruckPlunderRows(rows, now = Date.now()) {
 }
 
 export function createMapApi(bridge) {
-  const profileId = bridge?.profileId || "";
-  const scoped = (payload = {}) => profileId ? { ...payload, profileId } : payload;
+  const currentOwner = () => bridge?.currentProfileOwner?.() || {
+    profileId: bridge?.profileId || "",
+    generation: 0,
+  };
+  const scoped = (payload = {}) => {
+    const profileId = bridge?.profileId || "";
+    return profileId ? { ...payload, profileId } : payload;
+  };
+  const invokeScoped = (command, payload = {}) => bridge?.invokeProfileScoped
+    ? bridge.invokeProfileScoped(command, payload)
+    : bridge.invoke(command, scoped(payload));
+  const listenScoped = (eventName, callback, normalize = (value) => value) => {
+    const owner = currentOwner();
+    return bridge.listen(eventName, (event) => {
+      if (bridge?.isCurrentProfileOwner && !bridge.isCurrentProfileOwner(owner)) return;
+      const payload = unwrapProfileEvent(event, bridge?.profileId || "");
+      if (payload !== null) callback(normalize(payload));
+    });
+  };
   return {
     bridge,
-    profileId,
-    readStatus: () => bridge.invoke(MAP_COMMANDS.status, scoped()),
-    readProxyStatus: () => bridge.invoke(MAP_COMMANDS.proxyStatus, scoped()),
-    scanStatus: () => bridge.invoke(MAP_COMMANDS.scanStatus, scoped()).then(normalizeScanState),
-    summary: () => bridge.invoke(MAP_COMMANDS.summary, scoped()).then(normalizeSummary),
-    dataOptions: (serverId) => bridge.invoke(MAP_COMMANDS.dataOptions, scoped({ serverId })).then(normalizeOptions),
-    start: (selectedTypes, scanMode) => bridge.invoke(
+    get profileId() { return bridge?.profileId || ""; },
+    readStatus: () => invokeScoped(MAP_COMMANDS.status),
+    readProxyStatus: () => invokeScoped(MAP_COMMANDS.proxyStatus),
+    scanStatus: () => invokeScoped(MAP_COMMANDS.scanStatus).then(normalizeScanState),
+    summary: () => invokeScoped(MAP_COMMANDS.summary).then(normalizeSummary),
+    dataOptions: (serverId) => invokeScoped(MAP_COMMANDS.dataOptions, { serverId }).then(normalizeOptions),
+    start: (selectedTypes, scanMode) => invokeScoped(
       MAP_COMMANDS.scanStart,
-      scoped(buildStartPayload(selectedTypes, scanMode)),
+      buildStartPayload(selectedTypes, scanMode),
     ).then(normalizeScanState),
-    stop: () => bridge.invoke(MAP_COMMANDS.scanStop, scoped()).then(normalizeScanState),
-    clear: (serverId) => bridge.invoke(MAP_COMMANDS.scanClear, scoped({ serverId })).then(normalizeScanState),
-    search: (kind, query) => bridge.invoke(
+    stop: () => invokeScoped(MAP_COMMANDS.scanStop).then(normalizeScanState),
+    clear: (serverId) => invokeScoped(MAP_COMMANDS.scanClear, { serverId }).then(normalizeScanState),
+    search: (kind, query) => invokeScoped(
       MAP_COMMANDS.search,
-      scoped(buildSearchPayload(kind, query)),
+      buildSearchPayload(kind, query),
     ).then(normalizeSearchResult),
-    jumpServer: (serverId) => bridge.invoke(MAP_COMMANDS.serverJump, scoped({ serverId })),
-    importServerJumpHistory: (history) => bridge.invoke(MAP_COMMANDS.serverJumpHistoryImport, scoped({ history })),
-    setServerJumpHistory: (history) => bridge.invoke(MAP_COMMANDS.serverJumpHistorySet, scoped({ history })),
-    coordinateJump: (row) => bridge.invoke(MAP_COMMANDS.coordinateJump, scoped({ serverId: row.serverId, x: row.x, y: row.y })),
-    setPlayerMark: (row, marked) => bridge.invoke(MAP_COMMANDS.playerMarkSet, scoped({ row, marked })),
-    listenPlayerMarkChanged: (callback) => bridge.listen("bridge://player-mark-changed", (event) => {
-      const payload = unwrapProfileEvent(event, profileId);
-      if (payload !== null) callback(payload);
-    }),
-    exportCities: (query, options) => bridge.invoke(MAP_COMMANDS.cityExport, scoped({ query, ...options })),
-    refreshTreasureStates: (serverId, records) => bridge.invoke(
+    jumpServer: (serverId) => invokeScoped(MAP_COMMANDS.serverJump, { serverId }),
+    importServerJumpHistory: (history) => invokeScoped(MAP_COMMANDS.serverJumpHistoryImport, { history }),
+    setServerJumpHistory: (history) => invokeScoped(MAP_COMMANDS.serverJumpHistorySet, { history }),
+    coordinateJump: (row) => invokeScoped(MAP_COMMANDS.coordinateJump, { serverId: row.serverId, x: row.x, y: row.y }),
+    setPlayerMark: (row, marked) => invokeScoped(MAP_COMMANDS.playerMarkSet, { row, marked }),
+    listenPlayerMarkChanged: (callback) => listenScoped("bridge://player-mark-changed", callback),
+    exportCities: (query, options) => invokeScoped(MAP_COMMANDS.cityExport, { query, ...options }),
+    refreshTreasureStates: (serverId, records) => invokeScoped(
       MAP_COMMANDS.treasureStateRefresh,
-      scoped({ serverId, records }),
+      { serverId, records },
     ),
-    refreshAllTreasureStates: (serverId) => bridge.invoke(
+    refreshAllTreasureStates: (serverId) => invokeScoped(
       MAP_COMMANDS.treasureStateRefreshAll,
-      scoped({ serverId }),
+      { serverId },
     ),
-    treasureClaimStatus: () => bridge.invoke(MAP_COMMANDS.treasureClaimStatus, scoped()),
-    claimTreasure: (serverId, claimScope, prioritizeLuckySlots, targetUuid = "") => bridge.invoke(
+    treasureClaimStatus: () => invokeScoped(MAP_COMMANDS.treasureClaimStatus),
+    claimTreasure: (serverId, claimScope, prioritizeLuckySlots, targetUuid = "") => invokeScoped(
       MAP_COMMANDS.treasureClaim,
-      scoped({ serverId, claimScope, prioritizeLuckySlots, targetUuid }),
+      { serverId, claimScope, prioritizeLuckySlots, targetUuid },
     ),
-    shareDispatchToAlliance: (rows) => bridge.invoke(
+    shareDispatchToAlliance: (rows) => invokeScoped(
       MAP_COMMANDS.dispatchShareAlliance,
-      scoped({ rows: buildDispatchShareRows(rows) }),
+      { rows: buildDispatchShareRows(rows) },
     ),
-    listPlunderJobs: () => bridge.invoke(MAP_COMMANDS.plunderJobsList, scoped()),
-    scheduleDispatchPlunder: (rows, maxRandomDelaySeconds = 0) => bridge.invoke(
+    listPlunderJobs: () => invokeScoped(MAP_COMMANDS.plunderJobsList),
+    scheduleDispatchPlunder: (rows, maxRandomDelaySeconds = 0) => invokeScoped(
       MAP_COMMANDS.dispatchPlunderSchedule,
-      scoped({ rows: buildDispatchPlunderRows(rows, maxRandomDelaySeconds) }),
+      { rows: buildDispatchPlunderRows(rows, maxRandomDelaySeconds) },
     ),
-    cancelDispatchPlunder: (serverId, taskUuid) => bridge.invoke(
+    cancelDispatchPlunder: (serverId, taskUuid) => invokeScoped(
       MAP_COMMANDS.dispatchPlunderCancel,
-      scoped({ serverId, taskUuid }),
+      { serverId, taskUuid },
     ),
-    clearDispatchPlunderHistory: (before, taskKind) => bridge.invoke(
+    clearDispatchPlunderHistory: (before, taskKind) => invokeScoped(
       MAP_COMMANDS.dispatchPlunderClear,
-      scoped({ before, taskKind }),
+      { before, taskKind },
     ),
-    scheduleTruckPlunder: (rows) => bridge.invoke(
+    scheduleTruckPlunder: (rows) => invokeScoped(
       MAP_COMMANDS.truckPlunderSchedule,
-      scoped({ rows: buildTruckPlunderRows(rows) }),
+      { rows: buildTruckPlunderRows(rows) },
     ),
-    cancelTruckPlunder: (serverId, trainUuid) => bridge.invoke(
+    cancelTruckPlunder: (serverId, trainUuid) => invokeScoped(
       MAP_COMMANDS.truckPlunderCancel,
-      scoped({ serverId, trainUuid }),
+      { serverId, trainUuid },
     ),
-    clearTruckPlunderHistory: (before) => bridge.invoke(
+    clearTruckPlunderHistory: (before) => invokeScoped(
       MAP_COMMANDS.truckPlunderClear,
-      scoped({ before }),
+      { before },
     ),
-    autoScanStatus: () => bridge.invoke(MAP_COMMANDS.localAutoScanStatus, scoped()),
-    updateAutoScanConfig: (config) => bridge.invoke(
+    autoScanStatus: () => invokeScoped(MAP_COMMANDS.localAutoScanStatus),
+    updateAutoScanConfig: (config) => invokeScoped(
       MAP_COMMANDS.localAutoScanConfigSet,
-      scoped({ config }),
+      { config },
     ),
-    runAutoScanNow: () => bridge.invoke(MAP_COMMANDS.localAutoScanRunNow, scoped()),
-    cancelAutoScan: () => bridge.invoke(MAP_COMMANDS.localAutoScanCancel, scoped()),
-    listenAutoScanChanged: (callback) => bridge.listen("bridge://local-map-auto-scan-changed", (event) => {
-      const payload = unwrapProfileEvent(event, profileId);
-      if (payload !== null) callback(payload);
-    }),
+    runAutoScanNow: () => invokeScoped(MAP_COMMANDS.localAutoScanRunNow),
+    cancelAutoScan: () => invokeScoped(MAP_COMMANDS.localAutoScanCancel),
+    listenAutoScanChanged: (callback) => listenScoped("bridge://local-map-auto-scan-changed", callback),
     listenPlunderJobsChanged: (callback) => {
-      const offDispatch = bridge.listen("bridge://dispatch-plunder-changed", (event) => {
-        const payload = unwrapProfileEvent(event, profileId);
-        if (payload !== null) callback(payload);
-      });
-      const offTruck = bridge.listen("bridge://truck-plunder-changed", (event) => {
-        const payload = unwrapProfileEvent(event, profileId);
-        if (payload !== null) callback(payload);
-      });
+      const offDispatch = listenScoped("bridge://dispatch-plunder-changed", callback);
+      const offTruck = listenScoped("bridge://truck-plunder-changed", callback);
       return () => {
         offDispatch();
         offTruck();
       };
     },
-    listenScanStatus: (callback) => bridge.listen("bridge://map-scan-status", (event) => {
-      const payload = unwrapProfileEvent(event, profileId);
-      if (payload) callback(normalizeScanState(payload));
-    }),
-    listenStatus: (callback) => bridge.listen("bridge://status", (event) => {
-      const payload = unwrapProfileEvent(event, profileId);
-      if (payload) callback(payload);
-    }),
+    listenScanStatus: (callback) => listenScoped("bridge://map-scan-status", callback, normalizeScanState),
+    listenStatus: (callback) => listenScoped("bridge://status", callback),
   };
 }

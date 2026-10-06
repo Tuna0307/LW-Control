@@ -130,6 +130,41 @@ internal sealed class ProfileRegistryStore : IDisposable
         }
     }
 
+    internal void EnsureSecondaryProfile(
+        string profileId,
+        string displayName,
+        int displayOrder,
+        long nowUnixMilliseconds)
+    {
+        if (string.IsNullOrWhiteSpace(profileId))
+            throw new ArgumentException("Profile identity is required.", nameof(profileId));
+        if (string.IsNullOrWhiteSpace(displayName))
+            throw new ArgumentException("Profile display name is required.", nameof(displayName));
+        if (displayOrder < 0)
+            throw new ArgumentOutOfRangeException(nameof(displayOrder));
+
+        lock (gate)
+        {
+            ThrowIfDisposed();
+            using SqliteCommand insert = connection.CreateCommand();
+            insert.CommandText = """
+                INSERT OR IGNORE INTO profiles(
+                    id, display_name, role_name, server_id, game_uid,
+                    note, display_order, enabled, locked_reason,
+                    is_primary, created_at, updated_at, last_launched_at)
+                VALUES (
+                    $id, $displayName, NULL, NULL, NULL,
+                    '', $displayOrder, 1, NULL,
+                    0, $now, $now, NULL)
+                """;
+            insert.Parameters.AddWithValue("$id", profileId);
+            insert.Parameters.AddWithValue("$displayName", displayName);
+            insert.Parameters.AddWithValue("$displayOrder", displayOrder);
+            insert.Parameters.AddWithValue("$now", nowUnixMilliseconds);
+            insert.ExecuteNonQuery();
+        }
+    }
+
     internal ProfileRegistrySnapshot Read(int maxProfiles = 1)
     {
         if (maxProfiles < 1)
