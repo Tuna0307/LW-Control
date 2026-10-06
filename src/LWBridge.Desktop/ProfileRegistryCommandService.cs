@@ -10,17 +10,20 @@ internal sealed class ProfileRegistryCommandService :
     private readonly ProfileRegistryStore store;
     private readonly int maxProfiles;
     private readonly Action<string>? focusProfile;
+    private readonly Func<string, bool, CancellationToken, Task>? selectProfileOwner;
 
     internal ProfileRegistryCommandService(
         string currentProfileId,
         string databasePath,
         string displayName,
         int maxProfiles = 1,
-        Action<string>? focusProfile = null)
+        Action<string>? focusProfile = null,
+        Func<string, bool, CancellationToken, Task>? selectProfileOwner = null)
     {
         store = new ProfileRegistryStore(databasePath);
         this.maxProfiles = maxProfiles;
         this.focusProfile = focusProfile;
+        this.selectProfileOwner = selectProfileOwner;
         store.EnsureLocalProfile(
             currentProfileId,
             displayName,
@@ -29,7 +32,8 @@ internal sealed class ProfileRegistryCommandService :
     internal ProfileRegistryCommandService(
         ProfileRegistryStore store,
         int maxProfiles = 1,
-        Action<string>? focusProfile = null)
+        Action<string>? focusProfile = null,
+        Func<string, bool, CancellationToken, Task>? selectProfileOwner = null)
     {
         this.store = store ??
             throw new ArgumentNullException(nameof(store));
@@ -37,7 +41,10 @@ internal sealed class ProfileRegistryCommandService :
             throw new ArgumentOutOfRangeException(nameof(maxProfiles));
         this.maxProfiles = maxProfiles;
         this.focusProfile = focusProfile;
+        this.selectProfileOwner = selectProfileOwner;
     }
+
+    internal ProfileRegistrySnapshot Snapshot => store.Read(maxProfiles);
 
     public bool CanHandle(string command) =>
         command is "profile_list" or
@@ -46,7 +53,7 @@ internal sealed class ProfileRegistryCommandService :
             "profile_reorder" or
             "profile_primary_set";
 
-    public Task<object?> InvokeAsync(
+    public async Task<object?> InvokeAsync(
         string command,
         JsonElement payload,
         CancellationToken cancellationToken)
@@ -61,12 +68,27 @@ internal sealed class ProfileRegistryCommandService :
         {
             string profileId = RequiredString(payload, "profileId");
             ValidateProfileId(profileId);
+            bool focusGame = ReadFocusGame(payload);
+            string previousProfileId = store.Read(maxProfiles).SelectedProfileId;
             store.SelectProfile(profileId);
-
-            if (ReadFocusGame(payload))
+            try
             {
-                try { focusProfile?.Invoke(profileId); }
-                catch { }
+                if (selectProfileOwner is not null)
+                    await selectProfileOwner(profileId, focusGame, cancellationToken).ConfigureAwait(false);
+                else if (focusGame)
+                {
+                    try { focusProfile?.Invoke(profileId); }
+                    catch { }
+                }
+            }
+            catch
+            {
+                if (!string.Equals(previousProfileId, profileId, StringComparison.Ordinal))
+                {
+                    try { store.SelectProfile(previousProfileId); }
+                    catch { }
+                }
+                throw;
             }
         }
         else if (command == "profile_note_set")
@@ -96,8 +118,7 @@ internal sealed class ProfileRegistryCommandService :
             store.AssertPrimary(profileId);
         }
 
-        object result = store.Read(maxProfiles);
-        return Task.FromResult<object?>(result);
+        return store.Read(maxProfiles);
     }
 
     private static string RequiredString(

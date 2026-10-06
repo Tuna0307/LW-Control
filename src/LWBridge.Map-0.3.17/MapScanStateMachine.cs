@@ -108,6 +108,46 @@ public sealed class MapScanStateMachine
             Error: null,
             StartedAt: 0);
 
+    /// <summary>
+    /// Refresh the idle server identity from the real provider without starting a
+    /// scan. This lets a fresh host reopen durable Map data for the currently owned
+    /// live server before another scan has established in-memory state.
+    /// </summary>
+    public async ValueTask<MapScanState> RefreshContextAsync(
+        CancellationToken cancellationToken = default)
+    {
+        await operationGate.WaitAsync(cancellationToken).ConfigureAwait(false);
+        try
+        {
+            MapScanState before = State;
+            if (before.IsReading)
+                return before;
+
+            MapProviderContext context = await GetContextAsync(cancellationToken).ConfigureAwait(false);
+            RequireGameAvailable(context);
+            RequireOwnedServer(context);
+
+            MapScanState next = before.ServerId == context.ServerId
+                ? before with
+                {
+                    ServerId = context.ServerId,
+                    ServerIdSource = context.ServerIdSource,
+                    IsInWorld = context.IsInWorld,
+                }
+                : CreateDefaultIdleState() with
+                {
+                    ServerId = context.ServerId,
+                    ServerIdSource = context.ServerIdSource,
+                    IsInWorld = context.IsInWorld,
+                };
+            return SetState(next);
+        }
+        finally
+        {
+            operationGate.Release();
+        }
+    }
+
     public async ValueTask<MapScanState> StartAsync(
         MapScanStartRequest? request = null,
         CancellationToken cancellationToken = default)

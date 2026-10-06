@@ -35,6 +35,9 @@ public sealed class MapControlPlane : IDisposable
 
     public MapScanState ScanState => scan.State;
 
+    public ValueTask<MapScanState> RefreshContextAsync(CancellationToken cancellationToken = default) =>
+        scan.RefreshContextAsync(cancellationToken);
+
     public async ValueTask<MapScanState> StartScanAsync(
         MapScanStartRequest? request = null,
         CancellationToken cancellationToken = default)

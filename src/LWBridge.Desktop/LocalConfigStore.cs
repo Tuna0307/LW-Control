@@ -46,15 +46,21 @@ internal sealed class LocalConfigStore
     private readonly string? lockPath;
     private readonly object? storageGate;
     private readonly object gate = new();
+    private readonly LWBridgeLocalConfig? initialValue;
     private LWBridgeLocalConfig current;
 
-    public LocalConfigStore(string? root = null, bool persistent = true)
+    public LocalConfigStore(
+        string? root = null,
+        bool persistent = true,
+        LWBridgeLocalConfig? initialValue = null)
     {
         if (!persistent)
         {
-            current = LWBridgeLocalConfig.CreateDefault();
+            current = Validate(initialValue ?? LWBridgeLocalConfig.CreateDefault());
             return;
         }
+
+        this.initialValue = initialValue is null ? null : Validate(initialValue);
 
         root ??= Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
@@ -189,7 +195,7 @@ internal sealed class LocalConfigStore
                 }
             }
 
-            LWBridgeLocalConfig created = LWBridgeLocalConfig.CreateDefault();
+            LWBridgeLocalConfig created = initialValue ?? LWBridgeLocalConfig.CreateDefault();
             Save(created);
             return created;
         }

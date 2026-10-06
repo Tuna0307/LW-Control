@@ -43,10 +43,10 @@ public sealed class MapExporter
 
         if (rows.Count > MapStore.MaxCityExportRows)
             throw new BridgeCommandException("MAP_EXPORT_FAILED", "city export exceeded the row limit");
-        string? directory = Path.GetDirectoryName(Path.GetFullPath(path));
-        if (!string.IsNullOrEmpty(directory)) Directory.CreateDirectory(directory);
         try
         {
+            string? directory = Path.GetDirectoryName(Path.GetFullPath(path));
+            if (!string.IsNullOrEmpty(directory)) Directory.CreateDirectory(directory);
             using FileStream stream = File.Create(path);
             CityExportWorkbookWriter.Write(stream, rows,
                 new CityExportWorkbookOptions(options.Headers,

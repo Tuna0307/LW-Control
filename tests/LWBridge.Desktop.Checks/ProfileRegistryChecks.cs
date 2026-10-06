@@ -16,6 +16,7 @@ internal static class ProfileRegistryChecks
 
         try
         {
+            await VerifyOwnerSelectionAcknowledgementAsync(root).ConfigureAwait(false);
             Directory.CreateDirectory(root);
             using var store = new ProfileRegistryStore(databasePath);
             store.EnsureLocalProfile(
@@ -591,6 +592,93 @@ internal static class ProfileRegistryChecks
             try { Directory.Delete(root, recursive: true); }
             catch { }
         }
+    }
+
+    private static async Task VerifyOwnerSelectionAcknowledgementAsync(string root)
+    {
+        string databasePath = Path.Combine(root, "owner-selection", "controller.db");
+        Directory.CreateDirectory(Path.GetDirectoryName(databasePath)!);
+        using var store = new ProfileRegistryStore(databasePath);
+        store.EnsureLocalProfile("owner-A", "Owner A", 1_700_000_000_000);
+        InsertProfile(
+            databasePath,
+            "owner-B",
+            "Owner B",
+            1,
+            1_700_000_000_100);
+
+        var entered = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var release = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        bool rejectB = false;
+        var replacements = new List<string>();
+        using var service = new ProfileRegistryCommandService(
+            store,
+            maxProfiles: 3,
+            selectProfileOwner: async (profileId, _, cancellationToken) =>
+            {
+                replacements.Add(profileId);
+                entered.TrySetResult();
+                await release.Task.WaitAsync(cancellationToken).ConfigureAwait(false);
+                if (rejectB && profileId == "owner-B")
+                    throw new BridgeCommandException("PROFILE_RUNTIME_REPLACE_FAILED", "synthetic replacement failure");
+            });
+
+        Task<object?> pending = service.InvokeAsync(
+            "profile_select",
+            JsonSerializer.SerializeToElement(
+                new { profileId = "owner-B", focusGame = false },
+                JsonOptions.Default),
+            CancellationToken.None);
+        Task enteredOrCompleted = await Task.WhenAny(
+            entered.Task,
+            pending,
+            Task.Delay(TimeSpan.FromSeconds(2))).ConfigureAwait(false);
+        if (ReferenceEquals(enteredOrCompleted, pending))
+            _ = await pending.ConfigureAwait(false);
+        Require(ReferenceEquals(enteredOrCompleted, entered.Task),
+            "profile owner replacement callback did not begin within the bounded test window");
+        Require(!pending.IsCompleted,
+            "profile_select acknowledgement must wait for native owner replacement");
+        Require(service.Snapshot.SelectedProfileId == "owner-B",
+            "registry selection may be staged while replacement is pending");
+        release.TrySetResult();
+        JsonElement selected = JsonSerializer.SerializeToElement(
+            await pending.ConfigureAwait(false),
+            JsonOptions.Default);
+        Require(selected.GetProperty("selectedProfileId").GetString() == "owner-B" &&
+                replacements.SequenceEqual(["owner-B"]),
+            "profile_select acknowledges only after the owner replacement callback completes");
+
+        entered = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        release = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        rejectB = false;
+        Task<object?> backToA = service.InvokeAsync(
+            "profile_select",
+            JsonSerializer.SerializeToElement(
+                new { profileId = "owner-A", focusGame = false },
+                JsonOptions.Default),
+            CancellationToken.None);
+        await entered.Task.WaitAsync(TimeSpan.FromSeconds(2)).ConfigureAwait(false);
+        release.TrySetResult();
+        _ = await backToA.ConfigureAwait(false);
+
+        entered = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        release = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        rejectB = true;
+        Task<object?> rejected = service.InvokeAsync(
+            "profile_select",
+            JsonSerializer.SerializeToElement(
+                new { profileId = "owner-B", focusGame = false },
+                JsonOptions.Default),
+            CancellationToken.None);
+        await entered.Task.WaitAsync(TimeSpan.FromSeconds(2)).ConfigureAwait(false);
+        release.TrySetResult();
+        string code = string.Empty;
+        try { _ = await rejected.ConfigureAwait(false); }
+        catch (BridgeCommandException error) { code = error.Code; }
+        Require(code == "PROFILE_RUNTIME_REPLACE_FAILED" &&
+                service.Snapshot.SelectedProfileId == "owner-A",
+            "failed native owner replacement must reject selection and restore the prior registry owner");
     }
 
     private static async Task<JsonElement> InvokeNote(

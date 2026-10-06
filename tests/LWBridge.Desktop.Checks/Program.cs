@@ -328,6 +328,14 @@ if (args.Contains("--map-campaign-canonical-check", StringComparer.OrdinalIgnore
     return 0;
 }
 
+if (args.Contains("--profile-runtime-owner-check", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.ProfileRegistryChecks.RunAsync();
+    await LWBridge.Desktop.Checks.ProfileRuntimeOwnerChecks.RunAsync();
+    Console.WriteLine("{\"ok\":true,\"check\":\"profile-runtime-owner\"}");
+    return 0;
+}
+
 if (args.Contains("--overview-status-contract-check", StringComparer.OrdinalIgnoreCase))
 {
     JsonElement result = await LWBridge.Desktop.Checks.OverviewStatusContractChecks.RunAsync();
