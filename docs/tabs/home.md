@@ -1,5 +1,8 @@
 # Home / Overview — strict parity status
 
+Latest lead review, 2026-10-06: **native Home CHANGES_REQUIRED** at `99d8f7b5`. Fresh exact-root and sequential status fixes are present, but shared lifecycle cleanup is unisolated, active profile/picker ownership is incomplete, overlapping status reads revive old connected state, and native/profile preference takeover conflicts with accepted global Auto Launch. Do not execute further native proofs until RECOVERY-002's isolation gate is closed. Prior missing-root/profile-store packet is not positive owned lifecycle replacement proof. See the dated RECOVERY-001-LEAD review; no live acceptance.
+
+
 Current 0.3.17 lead checkpoint, 2026-10-06: recovered-source/local Home UI is accepted; native Home B/C/D feature integration is **PARTIAL / CHANGES_REQUIRED**. Lifecycle connections and same-host picker/pipe fixes pass focused offline checks. Fresh-host exact-root selection, real profile-owner replacement, status failure availability and mounted native preference/lifetime/restart proof remain. Continue FUNCTION-HOME-MAP-CAMPAIGN-001-RECOVERY-001 and read its dated lead review. Older v21/0.3.1/native-status entries below are historical, not current 0.3.17 proof. No live launch/update was performed in the audit.
 
 

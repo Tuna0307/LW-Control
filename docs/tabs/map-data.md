@@ -1,5 +1,8 @@
 # Map Data — strict parity status
 
+Latest lead review, 2026-10-06: **native Map/Auto closeout CHANGES_REQUIRED** at `99d8f7b5`. Run-token stop, atomic movement, deadline/FIFO and fresh Clear fixes stay credited. Initial Auto hydration can erase persisted fields; action errors are cleared by clean runtime events. Injected scan terminal/capture lifetime is incomplete (tests privately release leases), and native acquisition/due-worker/all-eight DTO/session-error proofs remain. Correct current scoped defects via RECOVERY-002 after safe isolation; do not restart fixed old issues or claim complete live feature parity.
+
+
 Current 0.3.17 lead checkpoint, 2026-10-06: recovered-source/local Map UI is accepted; native E-I integration remains **PARTIAL / CHANGES_REQUIRED**. Frozen WIP now has context rehydration, atomic Auto jump/start lease, controlled scheduler loop and expanded canonical workbook tests. Focused checks pass, but Auto cancellation can stop a replacement Manual run; frontend snapshot ordering/native deadline, service/profile/server/DTO and genuine desktop proof remain. Preserve historical browse semantics and unavailable execution fences. Continue FUNCTION-HOME-MAP-CAMPAIGN-001-RECOVERY-001; see the dated lead review. Earlier client/native status entries below are historical, not fresh live campaign validation.
 
 

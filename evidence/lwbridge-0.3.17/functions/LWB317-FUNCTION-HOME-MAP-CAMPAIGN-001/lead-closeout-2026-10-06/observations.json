@@ -1,0 +1,19 @@
+{
+  "head": "99d8f7b513ae56a0aa3b4d92a202f81586a32924",
+  "initialWorkingTreeClean": true,
+  "frontendCheck": "PASS",
+  "desktopSourceBuild": { "result": "PASS", "warnings": 0, "errors": 0, "skipCanonicalProductionUiBuild": true },
+  "nativeFocusedPrograms": { "passed": 7, "ownerIsolationAccepted": false, "furtherExecutionsStopped": true },
+  "postRunLeaseObservation": { "path": "C:/Users/chimw/AppData/Local/LWBridgeRebuild/overview-bridge/lease.txt", "exists": false, "preRunBaseline": "UNKNOWN", "actualOwnerDeletion": "UNKNOWN", "ownerFilesUnchanged": "UNKNOWN" },
+  "releasePackageIdentity": {
+    "executableSha256": "a349e1698b47dd9f14b5f52d172a48ccf2643226792521461521e0197c932c69",
+    "managedAssemblySha256": "4368114d17656362003cbf1eb5ef6fbf14adcd14ada09b39d87ab22e5cb90f9d",
+    "sourceFingerprint": "4686126fe21d843506b4938371a5532cdf9a12b4c67d32f87b2e67f35833783c",
+    "artifactFingerprint": "d3f32d1de7108642278f841a274d9bd4dcf3f8ea3a65dec6b758eb45c1d10108",
+    "canonicalPackageCheck": "PASS",
+    "independentDesktopExecution": false
+  },
+  "referenceExeSha256": "4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783",
+  "counterexamples": { "executed": 3, "defectsReproduced": 3, "nativeCommands": 0 },
+  "decision": "CHANGES_REQUIRED"
+}

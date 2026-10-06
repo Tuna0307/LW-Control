@@ -1,6 +1,6 @@
 # LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001-RECOVERY-001
 
-Status: **AWAITING_REVIEW (worker delivery)**. Parent lead disposition remains **PARTIAL / CHANGES_REQUIRED** until independent review.
+Status: **CHANGES_REQUIRED (independent lead review at `99d8f7b5`, 2026-10-06)**. Continue `LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001-RECOVERY-002.md`; safety isolation gate precedes any native rerun. Prior worker delivery/proof below remains historical. See the dated RECOVERY-001-LEAD review.
 Worker implementation/package-proof checkpoint: `eaa73ce571d0c419a0e2880e212c46151ee7fd1f`.
 Worker evidence/master checkpoint: `4330d1baaf62ccf281f59082d606bc23c68cef24`.
 The authorized offline/inert recovery checkpoints have been implemented and rerun;

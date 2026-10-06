@@ -1,0 +1,65 @@
+{
+  "head": "99d8f7b513ae56a0aa3b4d92a202f81586a32924",
+  "proofType": "exact-current-initializer/callbacks/coordinator-with-controlled-promises",
+  "externalActions": 0,
+  "nativeCommands": 0,
+  "sources": [
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/App.jsx",
+      "sha256": "3a6a5608735e59ee83dbc5f3c617c5ff3cef9a65c8ef58ab871d2194abe8ceeb"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/autoScanNativeCoordinator.js",
+      "sha256": "eb5633b7a111f8e94ea772ac25dde9d5924afaa8b0876ca9a2303f368981ee28"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/mapAutoConfig.js",
+      "sha256": "c88faa13ebf8d15d2ec9ea54e800fddec5ecb38df70d9d97e8d67768ec42ef4e"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/mapBackend.js",
+      "sha256": "ff2091ca890dbb4bdcf8f5079fdb8460ed9b3c4fb929e72c5498f6c75cbd145c"
+    }
+  ],
+  "results": [
+    {
+      "case": "unrelated-edit-before-first-native-hydration-loses-persisted-fields",
+      "expected": {
+        "enabled": true,
+        "serverIds": [
+          321,
+          322
+        ],
+        "selectedTypes": [
+          "city"
+        ],
+        "intervalMinutes": 45
+      },
+      "actual": {
+        "enabled": false,
+        "serverIds": [],
+        "selectedTypes": [
+          "truck",
+          "railway",
+          "dispatch",
+          "ghost",
+          "treasure"
+        ],
+        "intervalMinutes": 45
+      },
+      "defectReproduced": true
+    },
+    {
+      "case": "older-connected-pair-revives-after-newer-failure",
+      "afterNewer": "unavailable",
+      "afterOlder": "connected",
+      "defectReproduced": true
+    },
+    {
+      "case": "clean-runtime-event-clears-independent-run-now-error",
+      "afterRejection": "Run now rejected",
+      "afterCleanRuntime": "",
+      "defectReproduced": true
+    }
+  ]
+}

@@ -1,5 +1,15 @@
 # Exact continuation
 
+**Current lead continuation, 2026-10-06: RECOVERY-001 CHANGES_REQUIRED.** Clean
+worker delivery `99d8f7b5` was independently reviewed; useful prior corrections
+stay credited, but new current ownership/counterexample/proof findings remain.
+Read the dated RECOVERY-001-LEAD review and execute
+`docs/work-items/LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001-RECOVERY-002.md`.
+Do not run further native/desktop proofs before its shared-runtime isolation gate.
+The worker AWAITING_REVIEW/claimed-complete continuation below is preserved history,
+not project-lead acceptance. The closeout audit packet is `lead-closeout-2026-10-06/`.
+
+
 Status: **AWAITING_REVIEW** after pushed implementation checkpoint
 `eaa73ce571d0c419a0e2880e212c46151ee7fd1f`.
 Evidence/master reconciliation is pushed and remote-verified at

@@ -1,6 +1,11 @@
 {
   "campaign": "LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001",
-  "status": "AWAITING_REVIEW",
+  "status": "CHANGES_REQUIRED",
+  "leadReviewedHead": "99d8f7b513ae56a0aa3b4d92a202f81586a32924",
+  "leadReview": "docs/reviews/2026-10-06-LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001-RECOVERY-001-LEAD.md",
+  "activeCorrection": "docs/work-items/LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001-RECOVERY-002.md",
+  "nativeExecutionGate": "BLOCKED until isolated lifecycle runtime and exact cleanup ownership are proved",
+  "milestoneStateNote": "Entries below preserve worker milestone claims; full lead acceptance is withheld for the new ownership and native-proof findings.",
   "assignedAt": "2026-10-06",
   "authority": "docs/work-items/LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001.md",
   "policy": "Continue ready milestones automatically; checkpoint a blocked branch and advance independent work. No live game actions assigned.",

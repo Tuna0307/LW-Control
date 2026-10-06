@@ -1,0 +1,44 @@
+[
+  {
+    "flag": "--profile-runtime-owner-check",
+    "exitCode": 0,
+    "seconds": 15.49,
+    "log": "evidence\\lwbridge-0.3.17\\functions\\LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001\\lead-closeout-2026-10-06\\profile-runtime-owner-check.txt"
+  },
+  {
+    "flag": "--home-campaign-lifecycle-check",
+    "exitCode": 0,
+    "seconds": 14.48,
+    "log": "evidence\\lwbridge-0.3.17\\functions\\LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001\\lead-closeout-2026-10-06\\home-campaign-lifecycle-check.txt"
+  },
+  {
+    "flag": "--map-auto-scan-campaign-check",
+    "exitCode": 0,
+    "seconds": 14.83,
+    "log": "evidence\\lwbridge-0.3.17\\functions\\LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001\\lead-closeout-2026-10-06\\map-auto-scan-campaign-check.txt"
+  },
+  {
+    "flag": "--map-campaign-canonical-check",
+    "exitCode": 0,
+    "seconds": 15.15,
+    "log": "evidence\\lwbridge-0.3.17\\functions\\LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001\\lead-closeout-2026-10-06\\map-campaign-canonical-check.txt"
+  },
+  {
+    "flag": "--game-root-select-check",
+    "exitCode": 0,
+    "seconds": 15.56,
+    "log": "evidence\\lwbridge-0.3.17\\functions\\LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001\\lead-closeout-2026-10-06\\game-root-select-check.txt"
+  },
+  {
+    "flag": "--overview-bridge-host-transport-check",
+    "exitCode": 0,
+    "seconds": 14.6,
+    "log": "evidence\\lwbridge-0.3.17\\functions\\LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001\\lead-closeout-2026-10-06\\overview-bridge-host-transport-check.txt"
+  },
+  {
+    "flag": "--overview-bridge-normal-composition-check",
+    "exitCode": 0,
+    "seconds": 15.33,
+    "log": "evidence\\lwbridge-0.3.17\\functions\\LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001\\lead-closeout-2026-10-06\\overview-bridge-normal-composition-check.txt"
+  }
+]
