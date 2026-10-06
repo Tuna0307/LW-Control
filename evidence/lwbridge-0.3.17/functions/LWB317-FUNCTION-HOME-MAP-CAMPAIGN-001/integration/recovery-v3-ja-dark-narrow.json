@@ -1,0 +1,621 @@
+{
+  "schemaVersion": 3,
+  "checkpoint": "LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001-RECOVERY-001-K",
+  "state": "proven",
+  "mode": "isolated-package-pinned-real-ui-controls",
+  "externalGameActions": 0,
+  "package": {
+    "executablePath": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\src\\LWBridge.Desktop\\bin\\Release\\net10.0-windows10.0.17763.0\\LWBridge.Desktop.exe",
+    "executableSha256": "a349e1698b47dd9f14b5f52d172a48ccf2643226792521461521e0197c932c69",
+    "managedAssemblyPath": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\src\\LWBridge.Desktop\\bin\\Release\\net10.0-windows10.0.17763.0\\LWBridge.Desktop.dll",
+    "managedAssemblySha256": "4368114d17656362003cbf1eb5ef6fbf14adcd14ada09b39d87ab22e5cb90f9d",
+    "uiRootPath": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\src\\LWBridge.Desktop\\bin\\Release\\net10.0-windows10.0.17763.0\\ProductionUi",
+    "uiIndexSha256": "8a9940972b7c7fdad040317feb35e08a31ffb4983f541c9680a9c30b32b90e71",
+    "buildIdentity": {
+      "schemaVersion": 1,
+      "project": "LWBridge.UI-0.3.17",
+      "canonicalSource": "src/LWBridge.UI-0.3.17",
+      "sourceFingerprint": "4686126fe21d843506b4938371a5532cdf9a12b4c67d32f87b2e67f35833783c",
+      "artifactFingerprint": "d3f32d1de7108642278f841a274d9bd4dcf3f8ea3a65dec6b758eb45c1d10108",
+      "entrypoint": "index.html"
+    },
+    "uiProject": "LWBridge.UI-0.3.17",
+    "bridgeMode": "native"
+  },
+  "appearance": {
+    "expectedLanguage": "ja",
+    "expectedTheme": "dark",
+    "themeControlClicks": 1,
+    "initial": {
+      "bridgeMode": "native",
+      "language": "ja",
+      "languageControl": "ja",
+      "navigation": [
+        "\u30DB\u30FC\u30E0",
+        "\u81EA\u52D5\u5316",
+        "\u5730\u56F3\u30C7\u30FC\u30BF",
+        "\u90E8\u968A / \u884C\u8ECD",
+        "\u90FD\u5E02\u30EC\u30A4\u30A2\u30A6\u30C8",
+        "\u30B7\u30E7\u30FC\u30C8\u30AB\u30C3\u30C8",
+        "\u30DF\u30CB\u30B2\u30FC\u30E0",
+        "\u8A2D\u5B9A"
+      ],
+      "theme": "dark",
+      "themePressed": "true",
+      "uiProject": "LWBridge.UI-0.3.17",
+      "viewport": {
+        "height": 720,
+        "scrollWidth": 900,
+        "width": 900
+      }
+    },
+    "afterRestart": {
+      "activeProfile": "Campaign B",
+      "language": "ja",
+      "sessionId": "baf29960a75c47e5bfaa8fc407e67fba",
+      "theme": "dark"
+    },
+    "final": {
+      "activeProfile": "Campaign A",
+      "cityRow": "\t\n101,202\n\u79FB\u52D5\n\tCampaign City A\tISO\t30\t999,999\t-\t2026/10/6 18:16:03",
+      "language": "ja",
+      "theme": "dark",
+      "viewport": {
+        "height": 720,
+        "scrollWidth": 900,
+        "width": 900
+      }
+    }
+  },
+  "routes": [
+    {
+      "active": true,
+      "key": "overview",
+      "label": "\u30DB\u30FC\u30E0"
+    },
+    {
+      "active": true,
+      "key": "automation",
+      "label": "\u81EA\u52D5\u5316"
+    },
+    {
+      "active": true,
+      "key": "map-data",
+      "label": "\u5730\u56F3\u30C7\u30FC\u30BF"
+    },
+    {
+      "active": true,
+      "key": "march",
+      "label": "\u90E8\u968A / \u884C\u8ECD"
+    },
+    {
+      "active": true,
+      "key": "city-layout",
+      "label": "\u90FD\u5E02\u30EC\u30A4\u30A2\u30A6\u30C8"
+    },
+    {
+      "active": true,
+      "key": "hotkeys",
+      "label": "\u30B7\u30E7\u30FC\u30C8\u30AB\u30C3\u30C8"
+    },
+    {
+      "active": true,
+      "key": "mini-games",
+      "label": "\u30DF\u30CB\u30B2\u30FC\u30E0"
+    },
+    {
+      "active": true,
+      "key": "settings",
+      "label": "\u8A2D\u5B9A"
+    },
+    {
+      "active": true,
+      "key": "map-data-return",
+      "label": "\u5730\u56F3\u30C7\u30FC\u30BF"
+    }
+  ],
+  "map": {
+    "allEightTabs": [
+      {
+        "count": "1",
+        "firstRow": "\t\n101,202\n\u79FB\u52D5\n\tCampaign City A\tISO\t30\t999,999\t-\t2026/10/6 18:16:03",
+        "kind": "city",
+        "label": "\u90FD\u5E02"
+      },
+      {
+        "count": "1",
+        "firstRow": "-\t\u4E0D\u660E\u306A\u8CC7\u6E90\t10\t\u5F85\u6A5F\u4E2D\t2026/10/6 18:16:03",
+        "kind": "resource",
+        "label": "\u8CC7\u6E90"
+      },
+      {
+        "count": "1",
+        "firstRow": "-\t\u4E0D\u660E\u306A\u30E2\u30F3\u30B9\u30BF\u30FC\t20\t-\t2026/10/6 18:16:03",
+        "kind": "monster",
+        "label": "\u30E2\u30F3\u30B9\u30BF\u30FC"
+      },
+      {
+        "count": "1",
+        "firstRow": "\t-\t-\tSSR\t-\t-\t\u7565\u596A\u53EF\u80FD\uFF5C\u7565\u596A 0/2\t-\t2026/10/6 18:16:03",
+        "kind": "truck",
+        "label": "\u8F38\u9001\u8ECA"
+      },
+      {
+        "count": "1",
+        "firstRow": "-\t-\tSSR\t-\t-\t-\t2026/10/6 18:16:03",
+        "kind": "railway",
+        "label": "\u5217\u8ECA"
+      },
+      {
+        "count": "1",
+        "firstRow": "\t-\t-\t5\tSSR\t\u7565\u596A\u53EF\u80FD\t-\t2026/10/6 18:16:02\t2026/10/6 18:16:03",
+        "kind": "dispatch",
+        "label": "\u6975\u79D8\u4EFB\u52D9"
+      },
+      {
+        "count": "1",
+        "firstRow": "\t-\t-\t6\tSSR\t\u672A\u5B8C\u4E86\t-\t2026/10/6 18:16:13\t2026/10/6 18:16:03",
+        "kind": "ghost",
+        "label": "\u5E7D\u970A\u4F5C\u6226"
+      },
+      {
+        "count": "1",
+        "firstRow": "-\t\u4E0D\u660E\u306A\u5B9D\u7269\t-\t\u78BA\u8A8D\u4E2D\t\u78BA\u8A8D\u4E2D\t-\t-\t-\t-\t-\t\u53D7\u53D6\t2026/10/6 18:16:03",
+        "kind": "treasure",
+        "label": "\u5B9D\u7269"
+      }
+    ],
+    "profileBWasClearedThroughUi": true,
+    "profileBClearDom": {
+      "cityRow": "\u3053\u306E\u7A2E\u985E\u306E\u4FDD\u5B58\u30C7\u30FC\u30BF\u306F\u3042\u308A\u307E\u305B\u3093\u3002",
+      "counts": [
+        "\u2014",
+        "\u2014",
+        "\u2014",
+        "\u2014",
+        "\u2014",
+        "\u2014",
+        "\u2014",
+        "\u2014"
+      ],
+      "error": ""
+    },
+    "profileBClearNativeSummary": {
+      "serverId": 318,
+      "counts": {
+        "city": 0,
+        "resource": 0,
+        "monster": 0,
+        "truck": 0,
+        "railway": 0,
+        "dispatch": 0,
+        "ghost": 0,
+        "treasure": 0
+      },
+      "scanState": {
+        "serverId": 318,
+        "serverIdSource": "live",
+        "scanRunId": "",
+        "isReading": false,
+        "phase": "idle",
+        "selectedTypes": [
+          "city",
+          "resource",
+          "monster",
+          "truck",
+          "railway",
+          "dispatch",
+          "ghost",
+          "treasure"
+        ],
+        "totalBlocks": 0,
+        "completedBlocks": 0,
+        "readBlocks": 0,
+        "failedBlocks": 0,
+        "unreadBlocks": 0,
+        "inflightBlocks": 0,
+        "scanMode": "normal",
+        "concurrency": 8,
+        "scanRate": 0,
+        "progressPercent": 0,
+        "nativeCaptureReady": false,
+        "nativePendingRecords": 0,
+        "nativeDroppedRecords": 0,
+        "resumeAvailable": false,
+        "lastError": null,
+        "startedAt": 0,
+        "isInWorld": true,
+        "homeServerId": 0,
+        "seasonServerIds": null,
+        "truckMatchServerIds": null
+      }
+    },
+    "returnedAStillHasSeededCity": true
+  },
+  "home": {
+    "profileAAutoLaunchPersisted": true,
+    "delayedAutoLaunchRequest": {
+      "command": "local_config_set",
+      "profileId": "campaign-A",
+      "profileGeneration": 1,
+      "cancelled": false
+    },
+    "profileBAfterOldAutoLaunch": {
+      "activeProfile": "Campaign B",
+      "checked": "true"
+    },
+    "rejectedAutoLaunch": {
+      "checked": "false",
+      "error": "\u64CD\u4F5C\u3092\u5B8C\u4E86\u3067\u304D\u307E\u305B\u3093\u3067\u3057\u305F\u3002"
+    },
+    "statusConnected": {
+      "online": true,
+      "text": "\u63A5\u7D9A\u6E08\u307F"
+    },
+    "statusDeferred": {
+      "online": false,
+      "text": "\u78BA\u8A8D\u4E2D"
+    },
+    "deferredRequest": {
+      "command": "get_status",
+      "profileId": "campaign-A",
+      "profileGeneration": 3,
+      "cancelled": false
+    },
+    "statusRejected": {
+      "online": false,
+      "text": "Unavailable"
+    },
+    "statusDisconnected": {
+      "online": false,
+      "text": "\u30B2\u30FC\u30E0\u505C\u6B62\u4E2D"
+    },
+    "statusRecovered": {
+      "online": true,
+      "text": "\u63A5\u7D9A\u6E08\u307F"
+    }
+  },
+  "autoScan": {
+    "profileAInterval": 45,
+    "profileAServerIds": [
+      317
+    ],
+    "profileBInterval": 55,
+    "profileBServerId": 318,
+    "inertProviderStarts": 1,
+    "inertProviderStops": 1,
+    "cancelSnapshot": {
+      "config": {
+        "enabled": false,
+        "intervalMinutes": 45,
+        "serverIds": [
+          317
+        ],
+        "selectedTypes": [
+          "truck",
+          "railway",
+          "dispatch",
+          "ghost",
+          "treasure"
+        ],
+        "scanMode": "fast",
+        "returnToOriginalServer": true,
+        "nextRunAt": 0
+      },
+      "running": false,
+      "ownsActiveScan": false,
+      "lastError": null,
+      "lastCycle": {
+        "outcome": "disabled",
+        "startedAt": 1791281767622,
+        "completedAt": 1791281767653,
+        "originalServerId": 317,
+        "targetServerIds": [
+          317
+        ],
+        "completedServerIds": [],
+        "lastError": null
+      },
+      "recoveredInterruptedCycle": false,
+      "revision": 7
+    },
+    "nativeMessagesDuringStatusAndLater": 144
+  },
+  "runtimeComposition": {
+    "autoSchedulerEnabled": true,
+    "plunderWorkersEnabled": true,
+    "recoveryMonitorEnabled": false,
+    "bridgeTransportEnabled": false,
+    "namedEvents": [
+      {
+        "eventName": "bridge://map-scan-status",
+        "profileId": "campaign-A",
+        "profileGeneration": 1,
+        "timestampMilliseconds": 1791281766308
+      },
+      {
+        "eventName": "bridge://map-scan-status",
+        "profileId": "campaign-A",
+        "profileGeneration": 1,
+        "timestampMilliseconds": 1791281766363
+      },
+      {
+        "eventName": "bridge://map-scan-status",
+        "profileId": "campaign-A",
+        "profileGeneration": 1,
+        "timestampMilliseconds": 1791281766760
+      },
+      {
+        "eventName": "bridge://map-scan-status",
+        "profileId": "campaign-A",
+        "profileGeneration": 1,
+        "timestampMilliseconds": 1791281767078
+      },
+      {
+        "eventName": "bridge://map-scan-status",
+        "profileId": "campaign-B",
+        "profileGeneration": 2,
+        "timestampMilliseconds": 1791281767261
+      },
+      {
+        "eventName": "bridge://map-scan-status",
+        "profileId": "campaign-B",
+        "profileGeneration": 2,
+        "timestampMilliseconds": 1791281767269
+      },
+      {
+        "eventName": "bridge://status",
+        "profileId": "campaign-B",
+        "profileGeneration": 2,
+        "timestampMilliseconds": 1791281767286
+      },
+      {
+        "eventName": "bridge://game-recovery",
+        "profileId": "campaign-B",
+        "profileGeneration": 2,
+        "timestampMilliseconds": 1791281767286
+      },
+      {
+        "eventName": "bridge://map-scan-status",
+        "profileId": "campaign-A",
+        "profileGeneration": 3,
+        "timestampMilliseconds": 1791281767422
+      },
+      {
+        "eventName": "bridge://map-scan-status",
+        "profileId": "campaign-A",
+        "profileGeneration": 3,
+        "timestampMilliseconds": 1791281767433
+      },
+      {
+        "eventName": "bridge://map-scan-status",
+        "profileId": "campaign-A",
+        "profileGeneration": 3,
+        "timestampMilliseconds": 1791281767521
+      },
+      {
+        "eventName": "bridge://local-map-auto-scan-changed",
+        "profileId": "campaign-A",
+        "profileGeneration": 3,
+        "timestampMilliseconds": 1791281767576
+      },
+      {
+        "eventName": "bridge://local-map-auto-scan-changed",
+        "profileId": "campaign-A",
+        "profileGeneration": 3,
+        "timestampMilliseconds": 1791281767583
+      },
+      {
+        "eventName": "bridge://local-map-auto-scan-changed",
+        "profileId": "campaign-A",
+        "profileGeneration": 3,
+        "timestampMilliseconds": 1791281767619
+      },
+      {
+        "eventName": "bridge://local-map-auto-scan-changed",
+        "profileId": "campaign-A",
+        "profileGeneration": 3,
+        "timestampMilliseconds": 1791281767625
+      },
+      {
+        "eventName": "bridge://map-scan-status",
+        "profileId": "campaign-A",
+        "profileGeneration": 3,
+        "timestampMilliseconds": 1791281767626
+      },
+      {
+        "eventName": "bridge://map-scan-status",
+        "profileId": "campaign-A",
+        "profileGeneration": 3,
+        "timestampMilliseconds": 1791281767643
+      },
+      {
+        "eventName": "bridge://local-map-auto-scan-changed",
+        "profileId": "campaign-A",
+        "profileGeneration": 3,
+        "timestampMilliseconds": 1791281767649
+      },
+      {
+        "eventName": "bridge://map-scan-status",
+        "profileId": "campaign-A",
+        "profileGeneration": 3,
+        "timestampMilliseconds": 1791281767651
+      },
+      {
+        "eventName": "bridge://local-map-auto-scan-changed",
+        "profileId": "campaign-A",
+        "profileGeneration": 3,
+        "timestampMilliseconds": 1791281767655
+      },
+      {
+        "eventName": "bridge://map-scan-status",
+        "profileId": "campaign-A",
+        "profileGeneration": 3,
+        "timestampMilliseconds": 1791281767662
+      },
+      {
+        "eventName": "bridge://map-scan-status",
+        "profileId": "campaign-A",
+        "profileGeneration": 3,
+        "timestampMilliseconds": 1791281767669
+      },
+      {
+        "eventName": "bridge://map-scan-status",
+        "profileId": "campaign-A",
+        "profileGeneration": 3,
+        "timestampMilliseconds": 1791281767789
+      },
+      {
+        "eventName": "bridge://map-scan-status",
+        "profileId": "campaign-B",
+        "profileGeneration": 4,
+        "timestampMilliseconds": 1791281767904
+      },
+      {
+        "eventName": "bridge://map-scan-status",
+        "profileId": "campaign-B",
+        "profileGeneration": 4,
+        "timestampMilliseconds": 1791281767924
+      },
+      {
+        "eventName": "bridge://local-map-auto-scan-changed",
+        "profileId": "campaign-B",
+        "profileGeneration": 4,
+        "timestampMilliseconds": 1791281768120
+      },
+      {
+        "eventName": "bridge://local-map-auto-scan-changed",
+        "profileId": "campaign-B",
+        "profileGeneration": 4,
+        "timestampMilliseconds": 1791281768136
+      },
+      {
+        "eventName": "bridge://map-scan-status",
+        "profileId": "campaign-B",
+        "profileGeneration": 4,
+        "timestampMilliseconds": 1791281768304
+      },
+      {
+        "eventName": "bridge://map-scan-status",
+        "profileId": "campaign-B",
+        "profileGeneration": 4,
+        "timestampMilliseconds": 1791281768306
+      },
+      {
+        "eventName": "bridge://map-scan-status",
+        "profileId": "campaign-B",
+        "profileGeneration": 4,
+        "timestampMilliseconds": 1791281768309
+      },
+      {
+        "eventName": "bridge://map-scan-status",
+        "profileId": "campaign-B",
+        "profileGeneration": 4,
+        "timestampMilliseconds": 1791281768341
+      },
+      {
+        "eventName": "bridge://map-scan-status",
+        "profileId": "campaign-A",
+        "profileGeneration": 5,
+        "timestampMilliseconds": 1791281768371
+      },
+      {
+        "eventName": "bridge://map-scan-status",
+        "profileId": "campaign-A",
+        "profileGeneration": 5,
+        "timestampMilliseconds": 1791281768391
+      },
+      {
+        "eventName": "bridge://map-scan-status",
+        "profileId": "campaign-B",
+        "profileGeneration": 6,
+        "timestampMilliseconds": 1791281768506
+      },
+      {
+        "eventName": "bridge://map-scan-status",
+        "profileId": "campaign-B",
+        "profileGeneration": 6,
+        "timestampMilliseconds": 1791281768523
+      },
+      {
+        "eventName": "bridge://map-scan-status",
+        "profileId": "campaign-B",
+        "profileGeneration": 6,
+        "timestampMilliseconds": 1791281770640
+      },
+      {
+        "eventName": "bridge://map-scan-status",
+        "profileId": "campaign-B",
+        "profileGeneration": 6,
+        "timestampMilliseconds": 1791281770665
+      },
+      {
+        "eventName": "bridge://map-scan-status",
+        "profileId": "campaign-A",
+        "profileGeneration": 7,
+        "timestampMilliseconds": 1791281770698
+      },
+      {
+        "eventName": "bridge://map-scan-status",
+        "profileId": "campaign-A",
+        "profileGeneration": 7,
+        "timestampMilliseconds": 1791281770717
+      }
+    ]
+  },
+  "export": {
+    "cancelMessage": "",
+    "failureMessage": "\u64CD\u4F5C\u3092\u5B8C\u4E86\u3067\u304D\u307E\u305B\u3093\u3067\u3057\u305F\u3002",
+    "successMessage": "1 \u4EF6\u306E\u90FD\u5E02\u30C7\u30FC\u30BF\u3092 C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\evidence\\lwbridge-0.3.17\\functions\\LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001\\integration\\recovery-v3-ja-dark-narrow-ui-export.xlsx \u306B\u30A8\u30AF\u30B9\u30DD\u30FC\u30C8\u3057\u307E\u3057\u305F",
+    "successPath": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\evidence\\lwbridge-0.3.17\\functions\\LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001\\integration\\recovery-v3-ja-dark-narrow-ui-export.xlsx",
+    "successBytes": 2776
+  },
+  "profileOwnership": {
+    "initialProfileGeneration": 3,
+    "profileBGeneration": 4,
+    "returnedAGeneration": 5,
+    "preReloadBGeneration": 6,
+    "finalAGeneration": 7,
+    "delayedFirstARequest": {
+      "command": "map_search",
+      "profileId": "campaign-A",
+      "profileGeneration": 3,
+      "cancelled": false
+    },
+    "bAfterFirstARelease": {
+      "activeProfile": "Campaign B",
+      "cityRow": "\t\n101,202\n\u79FB\u52D5\n\tCampaign City B\tISO\t30\t999,999\t-\t2026/10/6 18:16:03"
+    },
+    "cancellationRequest": {
+      "command": "map_search",
+      "profileId": "campaign-B",
+      "profileGeneration": 6,
+      "cancelled": false
+    },
+    "cancellationObservation": {
+      "command": "map_search",
+      "profileId": "campaign-B",
+      "profileGeneration": 6,
+      "cancelled": true
+    },
+    "persistedSelectedProfileAfterRestart": "campaign-B"
+  },
+  "documentLifetime": {
+    "generation": 2,
+    "lastClosedRequestCount": 1,
+    "lastClosedSubscriptionCount": 8,
+    "currentActiveRequests": 0,
+    "currentSubscriptions": 8,
+    "postedWebMessageCount": 236
+  },
+  "browserIssues": [],
+  "shutdown": {
+    "sessionClosed": true,
+    "requestRegistryClosed": true,
+    "activeRequests": 0,
+    "activeSubscriptions": 0,
+    "profileRuntimeEventsDetached": true,
+    "isolatedRootRemoved": true,
+    "cleanupFailures": []
+  }
+}

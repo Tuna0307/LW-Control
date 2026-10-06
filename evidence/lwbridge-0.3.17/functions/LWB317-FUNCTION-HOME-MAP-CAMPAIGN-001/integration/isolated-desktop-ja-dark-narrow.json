@@ -1,0 +1,413 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001-K",
+  "state": "proven",
+  "mode": "isolated-packaged-webview-native-map317",
+  "externalGameActions": 0,
+  "proof": {
+    "pending": false,
+    "ok": true,
+    "profileId": "local-f1d8d93ef7534ced87da11fde8c1ccf6",
+    "uiProject": "LWBridge.UI-0.3.17",
+    "bridgeMode": "native",
+    "viewport": {
+      "width": 900,
+      "height": 720,
+      "scrollWidth": 900
+    },
+    "localBefore": {
+      "autoLaunchGame": true,
+      "autoReconnect": false
+    },
+    "localSaved": {
+      "autoLaunchGame": false,
+      "autoReconnect": false
+    },
+    "localAfter": {
+      "autoLaunchGame": false,
+      "autoReconnect": false
+    },
+    "summary": {
+      "counts": {
+        "city": 1,
+        "dispatch": 1,
+        "ghost": 1,
+        "monster": 1,
+        "railway": 1,
+        "resource": 1,
+        "treasure": 1,
+        "truck": 1
+      },
+      "scanState": {
+        "completedBlocks": 0,
+        "concurrency": 8,
+        "failedBlocks": 0,
+        "homeServerId": 0,
+        "inflightBlocks": 0,
+        "isInWorld": true,
+        "isReading": false,
+        "lastError": null,
+        "nativeCaptureReady": false,
+        "nativeDroppedRecords": 0,
+        "nativePendingRecords": 0,
+        "phase": "idle",
+        "progressPercent": 0,
+        "readBlocks": 0,
+        "resumeAvailable": false,
+        "scanMode": "normal",
+        "scanRate": 0,
+        "scanRunId": "",
+        "seasonServerIds": null,
+        "selectedTypes": [
+          "city",
+          "resource",
+          "monster",
+          "truck",
+          "railway",
+          "dispatch",
+          "ghost",
+          "treasure"
+        ],
+        "serverId": 317,
+        "serverIdSource": "live",
+        "startedAt": 0,
+        "totalBlocks": 0,
+        "truckMatchServerIds": null,
+        "unreadBlocks": 0
+      },
+      "serverId": 317
+    },
+    "options": {
+      "alliances": [],
+      "counts": {
+        "city": 1,
+        "dispatch": 1,
+        "ghost": 1,
+        "monster": 1,
+        "railway": 1,
+        "resource": 1,
+        "treasure": 1,
+        "truck": 1
+      },
+      "dispatchLevels": [
+        10
+      ],
+      "names": {
+        "monster": [
+          {
+            "count": 1,
+            "key": "monster.doom"
+          }
+        ],
+        "resource": [
+          {
+            "count": 1,
+            "key": "resource.iron"
+          }
+        ]
+      },
+      "noAllianceCount": 1,
+      "rewardItems": {
+        "railway": [],
+        "truck": []
+      },
+      "scanProgress": {
+        "completedBlocks": 1,
+        "createdAt": 1791264206931,
+        "error": null,
+        "failedBlocks": 0,
+        "id": "isolated-home-map-campaign",
+        "selectedTypes": [
+          "city",
+          "resource",
+          "monster",
+          "truck",
+          "railway",
+          "dispatch",
+          "ghost",
+          "treasure"
+        ],
+        "serverId": 317,
+        "status": "completed",
+        "totalBlocks": 1,
+        "updatedAt": 1791264206952
+      },
+      "serverId": 317,
+      "treasureTypes": [
+        {
+          "count": 1,
+          "key": "treasure:5",
+          "suppliesType": 0,
+          "treasureNameKey": "treasure.five",
+          "treasureType": 5
+        }
+      ]
+    },
+    "city": {
+      "rows": [
+        {
+          "allianceName": "ISO",
+          "health": 999999,
+          "level": 30,
+          "marked": false,
+          "ownerName": "Campaign City",
+          "ownerUid": "campaign-owner",
+          "recordKey": "campaign-city",
+          "serverId": 317,
+          "updatedAt": 1791264206932,
+          "uuid": "city-1",
+          "x": 101,
+          "y": 202
+        }
+      ],
+      "total": 1
+    },
+    "resource": {
+      "rows": [
+        {
+          "level": 10,
+          "recordKey": "campaign-resource",
+          "resourceNameKey": "resource.iron",
+          "serverId": 317,
+          "updatedAt": 1791264206933,
+          "uuid": "resource-1"
+        }
+      ],
+      "total": 1
+    },
+    "mark": {
+      "checkedAt": null,
+      "marked": true,
+      "markedAt": 1791264209751,
+      "ownerUid": "campaign-owner",
+      "serverId": 317,
+      "state": "active"
+    },
+    "marked": {
+      "rows": [
+        {
+          "allianceName": "ISO",
+          "health": 999999,
+          "level": 30,
+          "marked": true,
+          "ownerName": "Campaign City",
+          "ownerUid": "campaign-owner",
+          "recordKey": "campaign-city",
+          "serverId": 317,
+          "updatedAt": 1791264206932,
+          "uuid": "city-1",
+          "x": 101,
+          "y": 202
+        }
+      ],
+      "total": 1
+    },
+    "configured": {
+      "config": {
+        "enabled": false,
+        "intervalMinutes": 45,
+        "nextRunAt": 0,
+        "returnToOriginalServer": false,
+        "scanMode": "normal",
+        "selectedTypes": [
+          "city",
+          "treasure"
+        ],
+        "serverIds": [
+          317
+        ]
+      },
+      "lastCycle": null,
+      "lastError": null,
+      "ownsActiveScan": false,
+      "recoveredInterruptedCycle": false,
+      "running": false
+    },
+    "autoStatus": {
+      "config": {
+        "enabled": false,
+        "intervalMinutes": 45,
+        "nextRunAt": 0,
+        "returnToOriginalServer": false,
+        "scanMode": "normal",
+        "selectedTypes": [
+          "city",
+          "treasure"
+        ],
+        "serverIds": [
+          317
+        ]
+      },
+      "lastCycle": null,
+      "lastError": null,
+      "ownsActiveScan": false,
+      "recoveredInterruptedCycle": false,
+      "running": false
+    },
+    "events": [
+      {
+        "payload": {},
+        "profileId": "local-f1d8d93ef7534ced87da11fde8c1ccf6"
+      }
+    ],
+    "scanRejection": {
+      "code": "MAP_SCAN_START_FAILED",
+      "message": "isolated campaign provider rejects scan execution"
+    },
+    "foreignProfileRejection": {
+      "code": "PROFILE_SCOPE_MISMATCH",
+      "message": "The command targets a different local profile."
+    },
+    "requests": [
+      {
+        "id": "campaign-1",
+        "command": "local_config_get",
+        "payload": {}
+      },
+      {
+        "id": "campaign-2",
+        "command": "local_config_set",
+        "payload": {
+          "autoLaunchGame": false
+        }
+      },
+      {
+        "id": "campaign-3",
+        "command": "local_config_get",
+        "payload": {}
+      },
+      {
+        "id": "campaign-4",
+        "command": "map_summary",
+        "payload": {
+          "profileId": "local-f1d8d93ef7534ced87da11fde8c1ccf6"
+        }
+      },
+      {
+        "id": "campaign-5",
+        "command": "map_data_options",
+        "payload": {
+          "profileId": "local-f1d8d93ef7534ced87da11fde8c1ccf6",
+          "serverId": 317
+        }
+      },
+      {
+        "id": "campaign-6",
+        "command": "map_search",
+        "payload": {
+          "profileId": "local-f1d8d93ef7534ced87da11fde8c1ccf6",
+          "kind": "city",
+          "query": {
+            "serverId": 317,
+            "page": 1,
+            "pageSize": 50,
+            "sorts": [
+              {
+                "sortBy": "updatedAt",
+                "sortOrder": "desc"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "campaign-7",
+        "command": "map_search",
+        "payload": {
+          "profileId": "local-f1d8d93ef7534ced87da11fde8c1ccf6",
+          "kind": "resource",
+          "query": {
+            "serverId": 317,
+            "page": 1,
+            "pageSize": 50,
+            "sorts": [
+              {
+                "sortBy": "updatedAt",
+                "sortOrder": "desc"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "campaign-8",
+        "command": "map_player_mark_set",
+        "payload": {
+          "profileId": "local-f1d8d93ef7534ced87da11fde8c1ccf6",
+          "row": {
+            "serverId": 317,
+            "ownerUid": "campaign-owner",
+            "ownerName": "Campaign City"
+          },
+          "marked": true
+        }
+      },
+      {
+        "id": "campaign-9",
+        "command": "map_search",
+        "payload": {
+          "profileId": "local-f1d8d93ef7534ced87da11fde8c1ccf6",
+          "kind": "city",
+          "query": {
+            "serverId": 317,
+            "page": 1,
+            "pageSize": 50,
+            "sorts": [
+              {
+                "sortBy": "updatedAt",
+                "sortOrder": "desc"
+              }
+            ],
+            "markedOnly": true
+          }
+        }
+      },
+      {
+        "id": "campaign-10",
+        "command": "local_map_auto_scan_config_set",
+        "payload": {
+          "profileId": "local-f1d8d93ef7534ced87da11fde8c1ccf6",
+          "config": {
+            "enabled": false,
+            "intervalMinutes": 45,
+            "serverIds": [
+              317
+            ],
+            "selectedTypes": [
+              "city",
+              "treasure"
+            ],
+            "scanMode": "normal",
+            "returnToOriginalServer": false,
+            "nextRunAt": 0
+          }
+        }
+      },
+      {
+        "id": "campaign-11",
+        "command": "local_map_auto_scan_status",
+        "payload": {
+          "profileId": "local-f1d8d93ef7534ced87da11fde8c1ccf6"
+        }
+      },
+      {
+        "id": "campaign-12",
+        "command": "map_scan_start",
+        "payload": {
+          "profileId": "local-f1d8d93ef7534ced87da11fde8c1ccf6",
+          "selectedTypes": [
+            "city"
+          ],
+          "scanMode": "normal"
+        }
+      },
+      {
+        "id": "campaign-13",
+        "command": "map_summary",
+        "payload": {
+          "profileId": "foreign-campaign-profile"
+        }
+      }
+    ]
+  }
+}

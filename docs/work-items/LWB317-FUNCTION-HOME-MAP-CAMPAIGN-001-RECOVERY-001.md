@@ -1,6 +1,9 @@
 # LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001-RECOVERY-001
 
-Status: **ASSIGNED**. Parent: **PARTIAL / CHANGES_REQUIRED**.
+Status: **AWAITING_REVIEW (worker delivery)**. Parent lead disposition remains **PARTIAL / CHANGES_REQUIRED** until independent review.
+Worker implementation/package-proof checkpoint: `eaa73ce571d0c419a0e2880e212c46151ee7fd1f`.
+The authorized offline/inert recovery checkpoints have been implemented and rerun;
+final project-lead acceptance and any future live/provider proof remain separate.
 Project-lead assignment, 2026-10-06. Recover the interrupted worker's saved work,
 correct verified findings and finish the remaining authorized Home/Map offline
 feature campaign. Use medium coherent checkpoints; continue ready checkpoints

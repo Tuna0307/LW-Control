@@ -1,0 +1,271 @@
+{
+  "schemaVersion": 2,
+  "checkpoint": "LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001-RECOVERY-001-K",
+  "state": "proven",
+  "mode": "isolated-package-pinned-real-ui-controls",
+  "externalGameActions": 0,
+  "package": {
+    "executablePath": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\src\\LWBridge.Desktop\\bin\\Release\\net10.0-windows10.0.17763.0\\LWBridge.Desktop.exe",
+    "executableSha256": "1a5d2df956fa3be2172c9ea492e8ce3e6aae4bab9cdd4f880a3e46a3d1aada82",
+    "uiRootPath": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\src\\LWBridge.Desktop\\bin\\Release\\net10.0-windows10.0.17763.0\\ProductionUi",
+    "uiIndexSha256": "3f3ba1461db24ec1f6d8c33d4a1ce7493585d37e59f207290410521284b44234",
+    "buildIdentity": {
+      "schemaVersion": 1,
+      "project": "LWBridge.UI-0.3.17",
+      "canonicalSource": "src/LWBridge.UI-0.3.17",
+      "sourceFingerprint": "622284ee73be536941677ea2103c9e3298df97eaec35394bfae076a877811d97",
+      "artifactFingerprint": "f107545be3827c86d7b7ced3c408cc71a6a58c01e9defc78a7c88e8aa27ef8b4",
+      "entrypoint": "index.html"
+    },
+    "uiProject": "LWBridge.UI-0.3.17",
+    "bridgeMode": "native"
+  },
+  "appearance": {
+    "expectedLanguage": "en",
+    "expectedTheme": "light",
+    "themeControlClicks": 2,
+    "initial": {
+      "bridgeMode": "native",
+      "language": "en",
+      "languageControl": "en",
+      "navigation": [
+        "Home",
+        "Automation",
+        "Map Data",
+        "Squads / AFK",
+        "City Layout",
+        "Hotkeys",
+        "Mini Games",
+        "Settings"
+      ],
+      "theme": "light",
+      "themePressed": "false",
+      "uiProject": "LWBridge.UI-0.3.17",
+      "viewport": {
+        "height": 720,
+        "scrollWidth": 1120,
+        "width": 1120
+      }
+    },
+    "afterRestart": {
+      "activeProfile": "Campaign B",
+      "language": "en",
+      "sessionId": "e8447b298d54405b8386ae16e9645ca5",
+      "theme": "light"
+    },
+    "final": {
+      "activeProfile": "Campaign A",
+      "cityRow": "\t\n101,202\nJump\n\tCampaign City A\tISO\t30\t999,999\t-\t10/6/2026, 4:40:55 PM",
+      "language": "en",
+      "theme": "light",
+      "viewport": {
+        "height": 720,
+        "scrollWidth": 1120,
+        "width": 1120
+      }
+    }
+  },
+  "map": {
+    "allEightTabs": [
+      {
+        "count": "1",
+        "firstRow": "\t\n101,202\nJump\n\tCampaign City A\tISO\t30\t999,999\t-\t10/6/2026, 4:40:55 PM",
+        "kind": "city",
+        "label": "City"
+      },
+      {
+        "count": "1",
+        "firstRow": "-\tUnknown resource\t10\tIdle\t10/6/2026, 4:40:55 PM",
+        "kind": "resource",
+        "label": "Resource"
+      },
+      {
+        "count": "1",
+        "firstRow": "Processing",
+        "kind": "monster",
+        "label": "Monster"
+      },
+      {
+        "count": "1",
+        "firstRow": "\t-\t-\tSSR\t-\t-\tReady\uFF5CPlundered 0/2\t-\t10/6/2026, 4:40:55 PM",
+        "kind": "truck",
+        "label": "Truck"
+      },
+      {
+        "count": "1",
+        "firstRow": "Processing",
+        "kind": "railway",
+        "label": "Train"
+      },
+      {
+        "count": "1",
+        "firstRow": "\t-\t-\t5\tSSR\tAvailable\t-\t10/6/2026, 4:40:54 PM\t10/6/2026, 4:40:55 PM",
+        "kind": "dispatch",
+        "label": "Secret Task"
+      },
+      {
+        "count": "1",
+        "firstRow": "Processing",
+        "kind": "ghost",
+        "label": "Ghost Ops"
+      },
+      {
+        "count": "1",
+        "firstRow": "Processing",
+        "kind": "treasure",
+        "label": "Treasure"
+      }
+    ],
+    "profileBWasClearedThroughUi": true,
+    "profileBClearDom": {
+      "cityRow": "Processing",
+      "counts": [
+        "\u2014",
+        "\u2014",
+        "\u2014",
+        "\u2014",
+        "\u2014",
+        "\u2014",
+        "\u2014",
+        "\u2014"
+      ],
+      "error": ""
+    },
+    "profileBClearNativeSummary": {
+      "serverId": 318,
+      "counts": {
+        "city": 0,
+        "resource": 0,
+        "monster": 0,
+        "truck": 0,
+        "railway": 0,
+        "dispatch": 0,
+        "ghost": 0,
+        "treasure": 0
+      },
+      "scanState": {
+        "serverId": 318,
+        "serverIdSource": "live",
+        "scanRunId": "",
+        "isReading": false,
+        "phase": "idle",
+        "selectedTypes": [
+          "city",
+          "resource",
+          "monster",
+          "truck",
+          "railway",
+          "dispatch",
+          "ghost",
+          "treasure"
+        ],
+        "totalBlocks": 0,
+        "completedBlocks": 0,
+        "readBlocks": 0,
+        "failedBlocks": 0,
+        "unreadBlocks": 0,
+        "inflightBlocks": 0,
+        "scanMode": "normal",
+        "concurrency": 8,
+        "scanRate": 0,
+        "progressPercent": 0,
+        "nativeCaptureReady": false,
+        "nativePendingRecords": 0,
+        "nativeDroppedRecords": 0,
+        "resumeAvailable": false,
+        "lastError": null,
+        "startedAt": 0,
+        "isInWorld": true,
+        "homeServerId": 0,
+        "seasonServerIds": null,
+        "truckMatchServerIds": null
+      }
+    },
+    "returnedAStillHasSeededCity": true
+  },
+  "home": {
+    "profileAAutoLaunchPersisted": true,
+    "statusDeferred": {
+      "online": false,
+      "text": "Checking"
+    },
+    "deferredRequest": {
+      "command": "get_status",
+      "profileId": "campaign-A",
+      "profileGeneration": 1,
+      "cancelled": false
+    },
+    "statusRejected": {
+      "online": false,
+      "text": "Unavailable"
+    },
+    "statusRecovered": {
+      "online": false,
+      "text": "Game stopped"
+    }
+  },
+  "autoScan": {
+    "profileAInterval": 45,
+    "profileAServerIds": [
+      317
+    ],
+    "profileBInterval": 55,
+    "profileBServerId": 318,
+    "nativeMessagesDuringStatusAndLater": 119
+  },
+  "export": {
+    "cancelMessage": "",
+    "failureMessage": "The action could not be completed.",
+    "successMessage": "Exported 1 cities to C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\evidence\\lwbridge-0.3.17\\functions\\LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001\\integration\\recovery-accepted-v2-en-light-ui-export.xlsx",
+    "successPath": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\evidence\\lwbridge-0.3.17\\functions\\LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001\\integration\\recovery-accepted-v2-en-light-ui-export.xlsx",
+    "successBytes": 2690
+  },
+  "profileOwnership": {
+    "initialProfileGeneration": 1,
+    "profileBGeneration": 2,
+    "returnedAGeneration": 3,
+    "preReloadBGeneration": 4,
+    "finalAGeneration": 5,
+    "delayedFirstARequest": {
+      "command": "map_search",
+      "profileId": "campaign-A",
+      "profileGeneration": 1,
+      "cancelled": false
+    },
+    "bAfterFirstARelease": {
+      "activeProfile": "Campaign B",
+      "cityRow": "\t\n101,202\nJump\n\tCampaign City B\tISO\t30\t999,999\t-\t10/6/2026, 4:40:55 PM"
+    },
+    "cancellationRequest": {
+      "command": "map_search",
+      "profileId": "campaign-B",
+      "profileGeneration": 4,
+      "cancelled": false
+    },
+    "cancellationObservation": {
+      "command": "map_search",
+      "profileId": "campaign-B",
+      "profileGeneration": 4,
+      "cancelled": true
+    },
+    "persistedSelectedProfileAfterRestart": "campaign-B"
+  },
+  "documentLifetime": {
+    "generation": 2,
+    "lastClosedRequestCount": 1,
+    "lastClosedSubscriptionCount": 8,
+    "currentActiveRequests": 0,
+    "currentSubscriptions": 8,
+    "postedWebMessageCount": 159
+  },
+  "browserIssues": [],
+  "shutdown": {
+    "sessionClosed": true,
+    "requestRegistryClosed": true,
+    "activeRequests": 0,
+    "activeSubscriptions": 0,
+    "profileRuntimeEventsDetached": true,
+    "isolatedRootRemoved": true,
+    "cleanupFailures": []
+  }
+}

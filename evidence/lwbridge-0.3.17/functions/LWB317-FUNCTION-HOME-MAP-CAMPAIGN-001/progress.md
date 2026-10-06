@@ -1,8 +1,13 @@
 # Home/Map feature campaign progress
 
-Lead dispatch, 2026-10-06: ASSIGNED. No feature implementation is claimed by this
-dispatch. Current UI accepted source delivery is75b7b215; lead acceptance21bb5b3b.
-Inspect actual current HEAD/status; later campaign assignment commits are expected.
+Recovery worker delivery, 2026-10-06: **AWAITING_REVIEW**. The interrupted
+Home/Map implementation campaign has been recovered through source-supported native,
+UI and isolated packaged-desktop acceptance. Latest pushed implementation checkpoint:
+`eaa73ce571d0c419a0e2880e212c46151ee7fd1f`. Final project-lead acceptance is
+still pending; no live/protected-provider status is promoted.
+
+Historical lead dispatch: ASSIGNED. No feature implementation was claimed by that
+dispatch. Accepted source/local UI delivery remains `75b7b215`.
 
 Authoritative scope and all acceptance checks:
 `docs/work-items/LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001.md`.
@@ -65,3 +70,71 @@ its build target runs `npm ci` and Windows reported the existing
 `node_modules/@esbuild/win32-x64/esbuild.exe` as locked. The owner/tool process was
 not killed. The canonical UI check/build itself remained usable, and native
 compilation was validated with the documented skip property.
+
+## 2026-10-06 Recovery closeout
+
+The recovery was checkpointed rather than accumulated into one unreviewed batch:
+
+- `44487b10` — exact fresh-host selected-root ownership; lifecycle no longer falls
+  back from a weak saved selection to another detected installation.
+- `602a6f99` — run-token Auto ownership, atomic Manual/Auto transition admission,
+  native deadline/persistence authority and fresh destructive Clear authorization.
+- `103c091b` — ordered frontend Auto configuration/Run Now coordination and
+  owner-retirement fencing.
+- `1dad611f` — reusable profile-owned native runtime composition plus direct
+  A/B/A/service/store acceptance.
+- `a33b02d7` — normal Window/UI generation ownership, HA-03 paired status
+  invalidation, actual native profile selection and genuine package-pinned
+  real-control desktop integration.
+- `3ada9f4c` — closes final independent-review gaps: profile-scoped Home Auto Launch
+  acknowledgement/rollback, profile-swap/shutdown serialization, a real Map317
+  Auto-A -> Manual-M ownership regression, and v3 packaged proof with enabled inert
+  Auto/plunder workers, all eight top-level routes, named events and current managed
+  package identity.
+- `eaa73ce5` — strengthens the final packaged HA-03 assertion so the disconnected
+  capture cannot accept the transient localized Checking state. The regenerated EN
+  and JA packets both now prove a settled stopped/disconnected state before recovery.
+
+Executed recovery verification on the final implementation checkpoint:
+
+- Desktop checks build with `SkipCanonicalProductionUiBuild=true`: PASS, 0 warnings,
+  0 errors.
+- `--profile-runtime-owner-check`: PASS.
+- `--home-campaign-lifecycle-check`: PASS.
+- `--map-auto-scan-campaign-check`: PASS.
+- `--map-campaign-canonical-check`: PASS.
+- `--game-root-select-check`: PASS.
+- `--overview-bridge-host-transport-check`: PASS.
+- `--overview-bridge-normal-composition-check`: PASS.
+- canonical `LWBridge.Map-0.3.17.Checks`: PASS.
+- `npm.cmd --prefix src/LWBridge.UI-0.3.17 run check`: PASS.
+- `npm.cmd --prefix src/LWBridge.UI-0.3.17 run build`: PASS.
+- `npm.cmd --prefix src/LWBridge.UI-0.3.17 run check:production-build`: PASS.
+- canonical Release Desktop build/package: PASS after releasing only repo-local
+  Vite/esbuild helper locks; no owner game/browser process was touched.
+- legacy WIP archive integrity: PASS (`exactFiles=10`).
+- reference executable SHA-256: PASS,
+  `4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783`.
+- `python tools/check_current_client_compat.py`: PASS for pinned current-client v22.
+
+The final isolated desktop runs are
+`integration/recovery-v3-en-light.json/.png` and
+`integration/recovery-v3-ja-dark-narrow.json/.png`, with their real exported XLSX
+files. They are pinned to source `eaa73ce5`, packaged apphost SHA-256
+`a349e1698b47dd9f14b5f52d172a48ccf2643226792521461521e0197c932c69`, managed
+DLL SHA-256 `4368114d17656362003cbf1eb5ef6fbf14adcd14ada09b39d87ab22e5cb90f9d`, UI source
+fingerprint `4686126fe21d843506b4938371a5532cdf9a12b4c67d32f87b2e67f35833783c`
+and artifact fingerprint `d3f32d1de7108642278f841a274d9bd4dcf3f8ea3a65dec6b758eb45c1d10108`.
+Each drives all eight top-level routes plus a Map return, every Map child tab, real
+inert Auto start/cancel, delayed and rejected Home Auto Launch ownership, native A/B/A,
+HA-03 connected -> deferred -> rejected -> disconnected -> connected, export
+cancel/failure/success, B-only Clear, named generation-scoped events and final cleanup.
+Both record zero browser issues, zero active requests/subscriptions and zero shutdown
+cleanup failures. The predecessor Chinese/light captures, v2 packets and every
+intermediate recovery timeout/diagnostic remain preserved as historical evidence and
+are not counted as current acceptance; see `integration/recovery-closeout.md`.
+
+Remaining limits are external/bounded, not invented successes: Treasure claim/status
+and Ghost plunder preparation remain unavailable protected-provider actions; positive
+current Railway/Ghost/Treasure population remains live-state gated; no fresh live
+game/updater/protected-service action was authorized or executed.

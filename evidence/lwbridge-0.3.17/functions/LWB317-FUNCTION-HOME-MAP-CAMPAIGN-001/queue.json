@@ -1,6 +1,6 @@
 {
   "campaign": "LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001",
-  "status": "IN_PROGRESS",
+  "status": "AWAITING_REVIEW",
   "assignedAt": "2026-10-06",
   "authority": "docs/work-items/LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001.md",
   "policy": "Continue ready milestones automatically; checkpoint a blocked branch and advance independent work. No live game actions assigned.",
@@ -28,15 +28,17 @@
       "dependsOn": [
         "A"
       ],
-      "status": "IN_PROGRESS",
+      "status": "COMPLETE",
       "owner": "coordinator",
       "acceptance": "Authoritative work item, Milestone B",
-      "commit": "c4509dac4d0b7fb1aa09b343c39fb9a1e00615bc",
+      "commit": "eaa73ce571d0c419a0e2880e212c46151ee7fd1f",
       "proof": [
-        "--game-root-select-check"
+        "44487b10 exact fresh selected-root admission",
+        "--profile-runtime-owner-check",
+        "integration/recovery-v3-en-light.json"
       ],
       "blocker": null,
-      "continuation": "Finish preference restart/deferred-ack cases and record immutable normal-host profile-replacement boundary."
+      "continuation": null
     },
     {
       "id": "C",
@@ -44,17 +46,17 @@
       "dependsOn": [
         "B"
       ],
-      "status": "IN_PROGRESS",
+      "status": "COMPLETE",
       "owner": "coordinator",
       "acceptance": "Authoritative work item, Milestone C",
-      "commit": "c4509dac4d0b7fb1aa09b343c39fb9a1e00615bc",
+      "commit": "eaa73ce571d0c419a0e2880e212c46151ee7fd1f",
       "proof": [
-        "--overview-bridge-host-transport-check",
-        "--overview-bridge-normal-composition-check",
-        "--game-root-select-check"
+        "--home-campaign-lifecycle-check",
+        "--profile-runtime-owner-check",
+        "integration/recovery-v3-en-light.json"
       ],
       "blocker": null,
-      "continuation": "Run focused pending/cancel/stale/non-owner lifecycle checks and prove current canonical callback admission/retirement."
+      "continuation": null
     },
     {
       "id": "D",
@@ -62,16 +64,17 @@
       "dependsOn": [
         "C"
       ],
-      "status": "IN_PROGRESS",
+      "status": "COMPLETE",
       "owner": "coordinator",
       "acceptance": "Authoritative work item, Milestone D",
-      "commit": "c4509dac4d0b7fb1aa09b343c39fb9a1e00615bc",
+      "commit": "eaa73ce571d0c419a0e2880e212c46151ee7fd1f",
       "proof": [
-        "canonical Home startup profile_instances_reconcile wiring",
-        "canonical frontend npm run check"
+        "--home-campaign-lifecycle-check",
+        "node src/LWBridge.UI-0.3.17/scripts/check-home-integration.mjs",
+        "integration/recovery-v3-en-light.json"
       ],
       "blocker": null,
-      "continuation": "Complete reconnect/status/recovery/hidden-page/shutdown acceptance and updater dependency record."
+      "continuation": null
     },
     {
       "id": "E",
@@ -79,16 +82,17 @@
       "dependsOn": [
         "A"
       ],
-      "status": "IN_PROGRESS",
+      "status": "COMPLETE",
       "owner": "coordinator",
       "acceptance": "Authoritative work item, Milestone E",
-      "commit": "c4509dac4d0b7fb1aa09b343c39fb9a1e00615bc",
+      "commit": "eaa73ce571d0c419a0e2880e212c46151ee7fd1f",
       "proof": [
-        "map-lane/findings.md",
-        "canonical frontend Map integration check"
+        "--profile-runtime-owner-check",
+        "--map-campaign-canonical-check",
+        "integration/recovery-v3-en-light.json"
       ],
       "blocker": null,
-      "continuation": "Run canonical Map317 store/query/eight-kind deterministic matrix and restore mark/job event convergence."
+      "continuation": null
     },
     {
       "id": "F",
@@ -96,11 +100,15 @@
       "dependsOn": [
         "E"
       ],
-      "status": "PENDING",
-      "owner": null,
+      "status": "COMPLETE",
+      "owner": "coordinator",
       "acceptance": "Authoritative work item, Milestone F",
-      "commit": null,
-      "proof": [],
+      "commit": "eaa73ce571d0c419a0e2880e212c46151ee7fd1f",
+      "proof": [
+        "--map-campaign-canonical-check",
+        "--map-auto-scan-campaign-check",
+        "602a6f99 atomic Map transition/run ownership"
+      ],
       "blocker": null,
       "continuation": null
     },
@@ -110,11 +118,15 @@
       "dependsOn": [
         "E"
       ],
-      "status": "PENDING",
-      "owner": null,
+      "status": "COMPLETE",
+      "owner": "coordinator",
       "acceptance": "Authoritative work item, Milestone G",
-      "commit": null,
-      "proof": [],
+      "commit": "eaa73ce571d0c419a0e2880e212c46151ee7fd1f",
+      "proof": [
+        "--map-campaign-canonical-check",
+        "integration/recovery-v3-en-light.json",
+        "integration/recovery-v3-en-light-ui-export.xlsx"
+      ],
       "blocker": null,
       "continuation": null
     },
@@ -126,13 +138,17 @@
         "E",
         "F"
       ],
-      "status": "PENDING",
-      "owner": null,
+      "status": "COMPLETE",
+      "owner": "coordinator",
       "acceptance": "Authoritative work item, Milestone H",
-      "commit": null,
-      "proof": [],
-      "blocker": "No native profile-owned Auto Scan persistence/admission/scheduler exists yet; recovered implementation is browser/localStorage owned.",
-      "continuation": "Implement source-backed native controller using recovered defaults/timing and controlled providers/clocks."
+      "commit": "eaa73ce571d0c419a0e2880e212c46151ee7fd1f",
+      "proof": [
+        "--map-auto-scan-campaign-check",
+        "103c091b ordered UI Auto config coordinator",
+        "integration/recovery-v3-en-light.json"
+      ],
+      "blocker": null,
+      "continuation": null
     },
     {
       "id": "I",
@@ -140,16 +156,17 @@
       "dependsOn": [
         "E"
       ],
-      "status": "IN_PROGRESS",
+      "status": "COMPLETE",
       "owner": "coordinator",
       "acceptance": "Authoritative work item, Milestone I",
-      "commit": "c4509dac4d0b7fb1aa09b343c39fb9a1e00615bc",
+      "commit": "eaa73ce571d0c419a0e2880e212c46151ee7fd1f",
       "proof": [
-        "map-lane/findings.md",
-        "canonical Map integration scheduling-adapter assertions"
+        "--profile-runtime-owner-check",
+        "--map-campaign-canonical-check",
+        "map-lane/acceptance.md"
       ],
-      "blocker": "Current-client Treasure claim/status and Ghost plunder preparation providers explicitly fail closed.",
-      "continuation": "Complete state refresh/share/job UI convergence and inert-provider storage/restart/duplicate/error proof; keep blocked execution fenced."
+      "blocker": "Treasure claim/status and Ghost plunder preparation remain protected/current-client unavailable; no live action was authorized.",
+      "continuation": null
     },
     {
       "id": "J",
@@ -157,16 +174,17 @@
       "dependsOn": [
         "A"
       ],
-      "status": "IN_PROGRESS",
+      "status": "COMPLETE",
       "owner": "coordinator",
       "acceptance": "Authoritative work item, Milestone J",
-      "commit": null,
+      "commit": "eaa73ce571d0c419a0e2880e212c46151ee7fd1f",
       "proof": [
-        "home-lane/findings.md",
-        "map-lane/findings.md"
+        "compatibility.md",
+        "python tools/check_current_client_compat.py policy result",
+        "--profile-runtime-owner-check"
       ],
-      "blocker": "Positive current runtime producer validation for Railway/Ghost/Treasure is outside unattended live boundary; source compatibility audit continues offline.",
-      "continuation": "Hash/version/locator installed/supplied local artifacts and fix source-supported discrepancies without live game actions."
+      "blocker": "Positive current Railway/Ghost/Treasure populations remain live-state/population gated; protected state-changing actions remain outside authorization.",
+      "continuation": null
     },
     {
       "id": "K",
@@ -182,11 +200,16 @@
         "I",
         "J"
       ],
-      "status": "PENDING",
-      "owner": null,
+      "status": "COMPLETE",
+      "owner": "coordinator",
       "acceptance": "Authoritative work item, Milestone K",
-      "commit": null,
-      "proof": [],
+      "commit": "eaa73ce571d0c419a0e2880e212c46151ee7fd1f",
+      "proof": [
+        "integration/recovery-closeout.md",
+        "integration/recovery-v3-en-light.json",
+        "integration/recovery-v3-ja-dark-narrow.json",
+        "canonical Release Desktop build/package"
+      ],
       "blocker": null,
       "continuation": null
     },
@@ -196,13 +219,18 @@
       "dependsOn": [
         "K"
       ],
-      "status": "PENDING",
-      "owner": null,
+      "status": "IN_PROGRESS",
+      "owner": "coordinator",
       "acceptance": "Authoritative work item, Milestone L",
       "commit": null,
-      "proof": [],
+      "proof": [
+        "progress.md",
+        "continuation.md",
+        "integration/recovery-closeout.md",
+        "git diff --check and final validation recorded at delivery"
+      ],
       "blocker": null,
-      "continuation": null
+      "continuation": "Commit and push the final evidence/master reconciliation, verify the direct remote SHA, then mark L complete with that commit."
     }
   ]
 }
