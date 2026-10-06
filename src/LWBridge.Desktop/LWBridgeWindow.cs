@@ -105,6 +105,7 @@ internal sealed class LWBridgeWindow : Form
     private HomeMapCampaignDelayedRequest? homeMapCampaignDelayedObservation;
     private bool homeMapCampaignDelayAllMatching;
     private string? homeMapCampaignRejectedCommand;
+    private int homeMapCampaignRejectionSkip;
     private bool homeMapCampaignPickerArmed;
     private string? homeMapCampaignPickerSelectedPath;
     private TaskCompletionSource<HomeMapCampaignPickerObservation>? homeMapCampaignPickerEntered;
@@ -2955,10 +2956,13 @@ internal sealed class LWBridgeWindow : Form
         }
     }
 
-    private void RejectNextHomeMapCampaignCommand(string command)
+    private void RejectNextHomeMapCampaignCommand(string command, int successfulCallsBeforeRejection = 0)
     {
         lock (homeMapCampaignCommandGate)
+        {
             homeMapCampaignRejectedCommand = command;
+            homeMapCampaignRejectionSkip = successfulCallsBeforeRejection;
+        }
     }
 
     private void ThrowIfHomeMapCampaignCommandRejected(string command)
@@ -2967,6 +2971,11 @@ internal sealed class LWBridgeWindow : Form
         {
             if (!string.Equals(homeMapCampaignRejectedCommand, command, StringComparison.Ordinal))
                 return;
+            if (homeMapCampaignRejectionSkip > 0)
+            {
+                homeMapCampaignRejectionSkip--;
+                return;
+            }
             homeMapCampaignRejectedCommand = null;
         }
         throw new BridgeCommandException(
@@ -3080,6 +3089,15 @@ internal sealed class LWBridgeWindow : Form
             return document.RootElement.Clone();
         }
 
+        async Task CaptureCorrectedControlAsync(string suffix)
+        {
+            string path = Path.Combine(Path.GetDirectoryName(Path.GetFullPath(outputPath))!,
+                Path.GetFileNameWithoutExtension(outputPath) + "-" + suffix + ".png");
+            Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+            await using var capture = File.Create(path);
+            await core.CapturePreviewAsync(CoreWebView2CapturePreviewImageFormat.Png, capture);
+        }
+
         async Task RequireUiActionAsync(string script, string label)
         {
             if (await core.ExecuteScriptAsync(script) != "true")
@@ -3088,9 +3106,11 @@ internal sealed class LWBridgeWindow : Form
 
         async Task WaitForRequestsToDrainAsync(string label)
         {
+            int settled = 0;
             for (int attempt = 0; attempt < 200; attempt++)
             {
-                if (documentSession.Requests.ActiveCount == 0) return;
+                settled = documentSession.Requests.ActiveCount == 0 ? settled + 1 : 0;
+                if (settled >= 2) return;
                 await Task.Delay(25);
             }
             throw new TimeoutException("Campaign native requests did not drain after " + label + ".");
@@ -3550,6 +3570,28 @@ internal sealed class LWBridgeWindow : Form
             activeProfileConfig.Snapshot.AutoLaunchGame != true)
             throw new InvalidDataException("Late profile A Auto Launch acknowledgement overwrote the global visible preference or profile B native gate.");
 
+        RejectNextHomeMapCampaignCommand("local_config_set");
+        await RequireUiActionAsync("""
+            (() => {
+              const toggle = document.querySelectorAll('.quick-actions-panel .toggle-row')[0];
+              if (!toggle || toggle.disabled) return false;
+              toggle.click();
+              return true;
+            })()
+            """, "profile B divergent native/global rejected enable");
+        await WaitForDomAsync(
+            "document.querySelectorAll('.quick-actions-panel .toggle-row')[0]?.getAttribute('aria-checked') === 'false' && !!document.querySelector('.game-root-error') && localStorage.getItem('lwbridge.autoLaunchGame') === 'false'",
+            "rejected profile B edit restores global false rather than native true");
+        if (!activeProfileConfig.Snapshot.AutoLaunchGame)
+            throw new InvalidDataException("Rejected divergent B preference edit changed its native gate.");
+        JsonElement divergentAutoLaunchRollback = await ReadDomAsync("""
+            (() => ({
+              checked: document.querySelectorAll('.quick-actions-panel .toggle-row')[0]?.getAttribute('aria-checked'),
+              globalStorage: localStorage.getItem('lwbridge.autoLaunchGame'),
+              error: document.querySelector('.game-root-error')?.textContent?.trim() || ''
+            }))()
+            """);
+
         await SelectProfileAsync("Campaign A", "campaign-A", "Auto Launch B to A persistence check");
         long initialProfileGeneration = Volatile.Read(ref profileRuntimeGeneration);
         if (initialProfileGeneration <= firstAProfileGeneration)
@@ -3580,6 +3622,48 @@ internal sealed class LWBridgeWindow : Form
               error: document.querySelector('.game-root-error')?.textContent?.trim() || ''
             }))()
             """);
+
+        async Task ClickAutoLaunchAsync(string label)
+        {
+            await RequireUiActionAsync("(() => { const toggle=document.querySelectorAll('.quick-actions-panel .toggle-row')[0]; if(!toggle || toggle.disabled)return false; toggle.click();return true;})()", label);
+        }
+        // Create inverse global/native divergence through only real controls and
+        // profile acknowledgements. No local-storage injection supplies the state.
+        await SelectProfileAsync("Campaign B", "campaign-B", "inverse rollback setup B");
+        await ClickAutoLaunchAsync("confirm global true on B");
+        await WaitForRequestsToDrainAsync("B confirmed true");
+        await ClickAutoLaunchAsync("confirm native B false");
+        await WaitForRequestsToDrainAsync("B confirmed false");
+        await SelectProfileAsync("Campaign A", "campaign-A", "inverse rollback setup A");
+        await ClickAutoLaunchAsync("confirm global true on A");
+        await WaitForRequestsToDrainAsync("A confirmed true");
+        await SelectProfileAsync("Campaign B", "campaign-B", "inverse global true/native B false");
+        if (activeProfileConfig.Snapshot.AutoLaunchGame)
+            throw new InvalidDataException("Inverse rollback setup did not preserve native B false.");
+        RejectNextHomeMapCampaignCommand("local_config_set");
+        await ClickAutoLaunchAsync("inverse divergent rejected disable");
+        await WaitForRequestsToDrainAsync("inverse rejected disable");
+        await WaitForDomAsync("document.querySelectorAll('.quick-actions-panel .toggle-row')[0]?.getAttribute('aria-checked') === 'true' && localStorage.getItem('lwbridge.autoLaunchGame') === 'true'", "inverse failure restores confirmed global true");
+        if (activeProfileConfig.Snapshot.AutoLaunchGame)
+            throw new InvalidDataException("Inverse rejected save changed native B false.");
+        JsonElement inverseAutoLaunchRollback = await ReadDomAsync("({ checked:document.querySelectorAll('.quick-actions-panel .toggle-row')[0]?.getAttribute('aria-checked'),globalStorage:localStorage.getItem('lwbridge.autoLaunchGame') })");
+        Task<HomeMapCampaignDelayedRequest> firstSuccessEntered = ArmHomeMapCampaignCommandDelay("local_config_set");
+        RejectNextHomeMapCampaignCommand("local_config_set", successfulCallsBeforeRejection:1);
+        await ClickAutoLaunchAsync("pending first save false");
+        _ = await firstSuccessEntered.WaitAsync(TimeSpan.FromSeconds(5));
+        await ClickAutoLaunchAsync("queued second save true remains editable");
+        ReleaseHomeMapCampaignCommandDelay();
+        await WaitForRequestsToDrainAsync("first success then second rejection");
+        await WaitForDomAsync("document.querySelectorAll('.quick-actions-panel .toggle-row')[0]?.getAttribute('aria-checked') === 'false' && localStorage.getItem('lwbridge.autoLaunchGame') === 'false'", "second rejection restores first confirmed global acknowledgement");
+        if (activeProfileConfig.Snapshot.AutoLaunchGame)
+            throw new InvalidDataException("First successful acknowledgement was not preserved after the second rejection.");
+        JsonElement concurrentAutoLaunchRollback = await ReadDomAsync("({ checked:document.querySelectorAll('.quick-actions-panel .toggle-row')[0]?.getAttribute('aria-checked'),globalStorage:localStorage.getItem('lwbridge.autoLaunchGame') })");
+        await CaptureCorrectedControlAsync("home-rollback");
+        await SelectProfileAsync("Campaign A", "campaign-A", "restore A before lifecycle proof");
+        await ClickAutoLaunchAsync("restore A confirmed true");
+        await WaitForRequestsToDrainAsync("A restore true");
+        await ClickAutoLaunchAsync("restore A confirmed false");
+        await WaitForRequestsToDrainAsync("A restore false");
 
         HomeMapCampaignLifecycleProbe lifecycleProbe = homeMapCampaignLifecycleProbe ??
             throw new InvalidDataException("Campaign proof did not mount the inert Overview lifecycle probe.");
@@ -4184,6 +4268,52 @@ internal sealed class LWBridgeWindow : Form
         await WaitForDomAsync(
             "document.querySelector('.map-auto-scan-grid input[type=\"number\"]')?.value === '35' && document.querySelector('.map-auto-scan-grid select')?.value === 'normal'",
             "returned A immediate edits remain visible before hydration");
+
+        async Task AddAutoServersThroughControlAsync(string draft, bool enter)
+        {
+            await RequireUiActionAsync($$"""
+                (() => {
+                  const input = document.querySelector('.map-auto-scan-server-input input');
+                  if (!input) return false;
+                  Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set?.call(input, {{JsonSerializer.Serialize(draft)}});
+                  input.dispatchEvent(new Event('input', { bubbles: true }));
+                  return true;
+                })()
+                """, "semantic Auto server draft");
+            await WaitForDomAsync("document.querySelector('.map-auto-scan-server-input button')?.disabled === false", "semantic Add admission");
+            await RequireUiActionAsync(enter
+                ? "(() => { const input=document.querySelector('.map-auto-scan-server-input input'); if(!input)return false; input.dispatchEvent(new KeyboardEvent('keydown',{key:'Enter',bubbles:true})); return true; })()"
+                : "(() => { const button=document.querySelector('.map-auto-scan-server-input button'); if(!button || button.disabled)return false; button.click(); return true; })()",
+                "semantic Auto Add/Enter control");
+        }
+        async Task RemoveAutoServerThroughControlAsync(int id)
+        {
+            await RequireUiActionAsync($$"""
+                (() => {
+                  const button = [...document.querySelectorAll('.map-auto-scan-server-chips button')].find(node => node.getAttribute('aria-label')?.endsWith(' {{id}}'));
+                  if (!button) return false;
+                  button.click(); return true;
+                })()
+                """, "semantic Auto remove control");
+        }
+        async Task SetAutoTypeThroughControlAsync(int index, bool value)
+        {
+            await RequireUiActionAsync($$"""
+                (() => {
+                  const input = document.querySelectorAll('.map-auto-scan-card .map-types input')[{{index}}];
+                  if (!input || input.disabled) return false;
+                  if(input.checked !== {{(value ? "true" : "false")}}) input.click();
+                  return true;
+                })()
+                """, "semantic Auto type control");
+        }
+        await AddAutoServersThroughControlAsync("9,10,9", enter:true);
+        await AddAutoServersThroughControlAsync("10,11", enter:false);
+        await RemoveAutoServerThroughControlAsync(9);
+        await AddAutoServersThroughControlAsync("9", enter:true);
+        await SetAutoTypeThroughControlAsync(1, true);
+        await SetAutoTypeThroughControlAsync(7, false);
+        await SetAutoTypeThroughControlAsync(3, false);
         MapAutoScanSnapshot beforeHydrationRelease = await mapAutoScanService.GetSnapshotAsync().ConfigureAwait(true);
         if (beforeHydrationRelease.Config.IntervalMinutes != 45 ||
             beforeHydrationRelease.Config.ServerIds?.SequenceEqual(new[] { 317 }) != true ||
@@ -4197,8 +4327,8 @@ internal sealed class LWBridgeWindow : Form
         {
             MapAutoScanSnapshot snapshot = await mapAutoScanService.GetSnapshotAsync().ConfigureAwait(true);
             if (snapshot.Config.IntervalMinutes == 35 &&
-                snapshot.Config.ServerIds?.SequenceEqual(new[] { 317 }) == true &&
-                snapshot.Config.SelectedTypes?.SequenceEqual(new[] { "city", "treasure" }) == true &&
+                snapshot.Config.ServerIds?.SequenceEqual(new[] { 317, 10, 11, 9 }) == true &&
+                snapshot.Config.SelectedTypes?.SequenceEqual(new[] { "city", "resource" }) == true &&
                 snapshot.Config.ScanMode == "normal" &&
                 !snapshot.Config.ReturnToOriginalServer)
             {
@@ -4210,6 +4340,45 @@ internal sealed class LWBridgeWindow : Form
         if (!mergedHydrationEdits)
             throw new TimeoutException("Mounted edit-before-hydration did not merge both edits over the recovered native base.");
         MapAutoScanSnapshot mergedHydrationSnapshot = await mapAutoScanService.GetSnapshotAsync().ConfigureAwait(true);
+
+        await WaitForRequestsToDrainAsync("semantic Auto acknowledgement convergence");
+        await WaitForDomAsync(
+            "document.querySelectorAll('.map-auto-scan-server-chips button').length === 4 && document.querySelectorAll('.map-auto-scan-card .map-types input')[0]?.checked && document.querySelectorAll('.map-auto-scan-card .map-types input')[1]?.checked && !document.querySelectorAll('.map-auto-scan-card .map-types input')[7]?.checked",
+            "native semantic intent restored in actual mounted controls");
+        // Restore only via real controls so the existing retry/profile evidence
+        // can continue from its original persisted arrays.
+        foreach (int id in new[] { 10, 11, 9 })
+        {
+            await RemoveAutoServerThroughControlAsync(id);
+            await WaitForRequestsToDrainAsync("semantic server restoration");
+        }
+        await SetAutoTypeThroughControlAsync(1, false);
+        await WaitForRequestsToDrainAsync("semantic Resource removal");
+        await SetAutoTypeThroughControlAsync(7, true);
+        await WaitForRequestsToDrainAsync("semantic Treasure restoration");
+        MapAutoScanSnapshot restoredSemanticSnapshot = await mapAutoScanService.GetSnapshotAsync().ConfigureAwait(true);
+        if (restoredSemanticSnapshot.Config.ServerIds?.SequenceEqual(new[] { 317 }) != true ||
+            restoredSemanticSnapshot.Config.SelectedTypes?.SequenceEqual(new[] { "city", "treasure" }) != true)
+            throw new InvalidDataException("Real-control semantic restoration did not retain the native persisted base.");
+
+        Task<HomeMapCampaignDelayedRequest> arraySaveEntered = ArmHomeMapCampaignCommandDelay("local_map_auto_scan_config_set");
+        await AddAutoServersThroughControlAsync("12", enter:true);
+        HomeMapCampaignDelayedRequest arraySaveRequest = await arraySaveEntered.WaitAsync(TimeSpan.FromSeconds(5));
+        await AddAutoServersThroughControlAsync("12,13", enter:false);
+        await RemoveAutoServerThroughControlAsync(12);
+        await SetAutoTypeThroughControlAsync(1, true);
+        ReleaseHomeMapCampaignCommandDelay();
+        await WaitForRequestsToDrainAsync("semantic edits queued during first native save");
+        MapAutoScanSnapshot pendingArraySnapshot = await mapAutoScanService.GetSnapshotAsync().ConfigureAwait(true);
+        if (pendingArraySnapshot.Config.ServerIds?.SequenceEqual(new[] { 317, 13 }) != true ||
+            pendingArraySnapshot.Config.SelectedTypes?.SequenceEqual(new[] { "city", "treasure", "resource" }) != true)
+            throw new InvalidDataException("Mounted semantic edits during pending save lost saved entries, order, or acknowledged operations.");
+        await WaitForDomAsync("document.querySelectorAll('.map-auto-scan-server-chips button').length === 2 && document.querySelectorAll('.map-auto-scan-card .map-types input')[1]?.checked", "settled pending-array corrected controls");
+        await CaptureCorrectedControlAsync("auto-rebase");
+        await RemoveAutoServerThroughControlAsync(13);
+        await WaitForRequestsToDrainAsync("pending server restoration");
+        await SetAutoTypeThroughControlAsync(1, false);
+        await WaitForRequestsToDrainAsync("pending type restoration");
 
         await SelectProfileAsync("Campaign B", "campaign-B", "Auto hydration retry A to B");
         RejectNextHomeMapCampaignCommand("local_map_auto_scan_status");
@@ -4224,6 +4393,8 @@ internal sealed class LWBridgeWindow : Form
             })()
             """, "Auto hydration retry Auto tab");
         await WaitForDomAsync("!!document.querySelector('.map-scan-error[role=\"alert\"]')", "Auto hydration failure surfaced on replacement A");
+        await AddAutoServersThroughControlAsync("14,14", enter:true);
+        await WaitForRequestsToDrainAsync("array Add retries failed initial hydration");
         await RequireUiActionAsync("""
             (() => {
               const interval = document.querySelector('.map-auto-scan-grid input[type="number"]');
@@ -4239,7 +4410,7 @@ internal sealed class LWBridgeWindow : Form
         {
             MapAutoScanSnapshot snapshot = await mapAutoScanService.GetSnapshotAsync().ConfigureAwait(true);
             if (snapshot.Config.IntervalMinutes == 40 &&
-                snapshot.Config.ServerIds?.SequenceEqual(new[] { 317 }) == true &&
+                snapshot.Config.ServerIds?.SequenceEqual(new[] { 317, 14 }) == true &&
                 snapshot.Config.SelectedTypes?.SequenceEqual(new[] { "city", "treasure" }) == true &&
                 snapshot.Config.ScanMode == "normal" &&
                 !snapshot.Config.ReturnToOriginalServer)
@@ -4253,6 +4424,8 @@ internal sealed class LWBridgeWindow : Form
             throw new TimeoutException("Mounted Auto hydration failure did not retry from the persisted native base on the next edit.");
         MapAutoScanSnapshot hydrationRetrySnapshot = await mapAutoScanService.GetSnapshotAsync().ConfigureAwait(true);
         await WaitForDomAsync("!document.querySelector('.map-scan-error[role=\"alert\"]')", "Auto hydration retry clears the write/runtime failure");
+        await RemoveAutoServerThroughControlAsync(14);
+        await WaitForRequestsToDrainAsync("hydration retry server restoration");
         await SelectMapTabAsync(0, "city");
         await WaitForDomAsync(
             "document.querySelectorAll('.map-tabs .map-tab-count')[0]?.textContent?.trim() === '1' && document.querySelector('.map-table--city tbody tr')?.innerText?.includes('Campaign City A')",
@@ -4412,8 +4585,8 @@ internal sealed class LWBridgeWindow : Form
             throw new InvalidDataException("Campaign packaged proof did not observe named Auto/Map native events.");
         var proof = new
         {
-            schemaVersion = 4,
-            checkpoint = "LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001-RECOVERY-002",
+            schemaVersion = 5,
+            checkpoint = "LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001-RECOVERY-003",
             state = "proven",
             mode = "isolated-package-pinned-real-ui-controls",
             externalGameActions = 0,
@@ -4458,6 +4631,9 @@ internal sealed class LWBridgeWindow : Form
                 concurrentAutoLaunchRequest = concurrentAutoLaunch,
                 delayedAutoLaunchRequest = delayedAutoLaunch,
                 profileBAfterOldAutoLaunch,
+                divergentAutoLaunchRollback,
+                inverseAutoLaunchRollback,
+                concurrentAutoLaunchRollback,
                 rejectedAutoLaunch = rejectedAutoLaunchDom,
                 stalePicker,
                 freshPicker,
@@ -4483,6 +4659,9 @@ internal sealed class LWBridgeWindow : Form
                 hydrationBase = autoHydrationBase,
                 beforeHydrationRelease,
                 mergedHydrationSnapshot,
+                restoredSemanticSnapshot,
+                arraySaveRequest,
+                pendingArraySnapshot,
                 hydrationRetrySnapshot,
                 nativeMessagesDuringStatusAndLater = postedWebMessageCount - messagesBeforeStatusProof,
             },
