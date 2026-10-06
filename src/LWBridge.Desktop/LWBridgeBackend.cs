@@ -137,7 +137,12 @@ internal sealed class LWBridgeBackend
                 return prepared.Valid ? installation.SaveNativeSelection(prepared.Path!) : prepared;
 
             string selectedPath = prepared.Path!;
-            GameRootStatus launchStatus = installation.ResolveConfiguredStatus(selectedPath);
+            // Bind the lifecycle only to the selected root itself. ResolveConfiguredStatus
+            // intentionally falls back to a detected default for legacy startup recovery;
+            // using it here can persist selection B while silently binding the lifecycle
+            // to fallback A when B satisfies the public picker predicate but not strict
+            // launch admission.
+            GameRootStatus launchStatus = installation.Validate(selectedPath, "selected");
             string? launchRoot = launchStatus.Valid ? launchStatus.Path : null;
             string? previousSelection = config.Snapshot.GameRoot;
             bool selectionChanged = !PathsEqual(previousSelection, selectedPath);

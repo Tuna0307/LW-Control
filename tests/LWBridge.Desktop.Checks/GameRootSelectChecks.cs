@@ -178,6 +178,7 @@ internal static class GameRootSelectChecks
                 "clone-internal launch admission rejects a public-valid native-minimal root without changing game_root_status");
 
             await VerifyLifecycleRebindAsync(root);
+            await VerifyFreshHostSelectionOwnershipAsync(root);
         }
         finally
         {
@@ -227,6 +228,7 @@ internal static class GameRootSelectChecks
     {
         string rootA = CreateStrictRoot(Path.Combine(root, "strict-a"));
         string rootB = CreateStrictRoot(Path.Combine(root, "strict-b"));
+        string weakRoot = CreateNativeRoot(Path.Combine(root, "native-valid-strict-invalid"));
         var config = new LocalConfigStore(Path.Combine(root, "lifecycle-config"));
         config.Update(current => current with { GameRoot = rootA });
         string profileId = config.Snapshot.ProfileId;
@@ -293,7 +295,36 @@ internal static class GameRootSelectChecks
         var backend = new LWBridgeBackend(
             config,
             lifecycle,
-            overviewLifecycle: lifecycle);
+            overviewLifecycle: lifecycle,
+            installationTestHooks: new GameInstallationTestHooks
+            {
+                DefaultRoot = rootA,
+                GetEnvironmentVariable = _ => null,
+                NearbyRoot = Path.Combine(root, "missing-nearby"),
+                LocalAppData = Path.Combine(root, "missing-local"),
+                DiscoveredCandidates = Array.Empty<GameRootCandidate>(),
+            });
+
+        NativeGameRootSelectionResult weakSelected =
+            backend.SaveNativeGameRootSelection(weakRoot);
+        Require(
+            weakSelected.Valid && SamePath(config.Snapshot.GameRoot!, weakRoot),
+            "public-valid native-minimal picker selection still persists through lifecycle guard");
+        string weakLaunchError = string.Empty;
+        try
+        {
+            _ = await lifecycle.InvokeAsync(
+                "profile_instance_start",
+                JsonSerializer.SerializeToElement(new { profileId }),
+                CancellationToken.None);
+        }
+        catch (BridgeCommandException error)
+        {
+            weakLaunchError = error.Code;
+        }
+        Require(
+            weakLaunchError == "GAME_ROOT_NOT_FOUND" && startCalls == 0,
+            "strict-invalid picker selection must unbind launch instead of falling back to another detected root");
 
         NativeGameRootSelectionResult selected =
             backend.SaveNativeGameRootSelection(rootB);
@@ -343,6 +374,86 @@ internal static class GameRootSelectChecks
         Require(
             stopCalls == 1 && !processAlive,
             "isolated picker/rebind proof stops only its synthetic owned process");
+    }
+
+    private static async Task VerifyFreshHostSelectionOwnershipAsync(string root)
+    {
+        string detectedA = CreateStrictRoot(Path.Combine(root, "fresh-detected-a"));
+        string selectedWeakB = CreateNativeRoot(Path.Combine(root, "fresh-selected-weak-b"));
+        string selectedStrictB = CreateStrictRoot(Path.Combine(root, "fresh-selected-strict-b"));
+        string configRoot = Path.Combine(root, "fresh-host-config");
+
+        var saved = new LocalConfigStore(configRoot);
+        saved.Update(current => current with { GameRoot = selectedWeakB });
+        string profileId = saved.Snapshot.ProfileId;
+        var hooks = new GameInstallationTestHooks
+        {
+            DefaultRoot = detectedA,
+            GetEnvironmentVariable = _ => null,
+            NearbyRoot = Path.Combine(root, "fresh-missing-nearby"),
+            LocalAppData = Path.Combine(root, "fresh-missing-local"),
+            DiscoveredCandidates = Array.Empty<GameRootCandidate>(),
+        };
+
+        // Re-open the persisted config to model a fresh Desktop process. The legacy
+        // strict resolver still demonstrates the dangerous fallback to A, while the
+        // lifecycle admission resolver must remain owned by saved selection B.
+        var restarted = new LocalConfigStore(configRoot);
+        var installation = new GameInstallationService(restarted, hooks);
+        GameRootStatus fallback = installation.GetStatus();
+        NativeGameRootStatus publicSelection = installation.GetNativeStatus();
+        GameRootStatus launchAdmission = installation.GetLaunchAdmissionStatus();
+        Require(
+            fallback.Valid && SamePath(fallback.Path, detectedA),
+            "fresh-host counterexample must retain legacy strict fallback detection for diagnostics");
+        Require(
+            publicSelection.Valid && SamePath(publicSelection.Root, selectedWeakB),
+            "fresh host must retain the persisted public picker selection before lifecycle composition");
+        Require(
+            !launchAdmission.Valid && SamePath(launchAdmission.Path, selectedWeakB),
+            "fresh lifecycle admission must reject weak-valid selected B instead of falling back to detected A");
+
+        int weakStartCalls = 0;
+        using (var weakLifecycle = new OverviewLifecycleService(
+            profileId,
+            launchAdmission.Valid ? launchAdmission.Path : null,
+            helperPath: Path.Combine(root, "fresh-fake-overview-helper.py"),
+            requireCurrentClientEvidence: false,
+            config: restarted,
+            testHooks: new OverviewLifecycleTestHooks
+            {
+                RunHelperAsync = (_, _) =>
+                {
+                    weakStartCalls++;
+                    throw new InvalidOperationException("fresh weak selection must not invoke launch helper");
+                },
+            },
+            startRecoveryMonitor: false))
+        {
+            string errorCode = string.Empty;
+            try
+            {
+                _ = await weakLifecycle.InvokeAsync(
+                    "profile_instance_start",
+                    JsonSerializer.SerializeToElement(new { profileId }),
+                    CancellationToken.None);
+            }
+            catch (BridgeCommandException error)
+            {
+                errorCode = error.Code;
+            }
+            Require(
+                errorCode == "GAME_ROOT_NOT_FOUND" && weakStartCalls == 0,
+                "fresh host with weak-valid B must fail closed without launching detected A");
+        }
+
+        installation.SaveNativeSelection(selectedStrictB);
+        var restartedStrict = new LocalConfigStore(configRoot);
+        GameRootStatus strictAdmission =
+            new GameInstallationService(restartedStrict, hooks).GetLaunchAdmissionStatus();
+        Require(
+            strictAdmission.Valid && SamePath(strictAdmission.Path, selectedStrictB),
+            "later strict-valid saved B must become the exact fresh-host lifecycle admission root");
     }
 
     private static JsonElement StartResult(

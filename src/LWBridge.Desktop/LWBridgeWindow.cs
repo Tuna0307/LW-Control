@@ -237,7 +237,12 @@ internal sealed class LWBridgeWindow : Form
                 profileRuntimeConfigStore);
         if (!isolated)
         {
-            GameRootStatus liveGameRoot = new GameInstallationService(config).GetStatus();
+            // Fresh host ownership must stay bound to the exact public/native-selected
+            // installation. GetStatus() may deliberately fall back to another strict
+            // detected installation when the saved picker root is only weak-valid.
+            // That fallback is useful for legacy diagnostics, but it must never choose
+            // which installation receives the lifecycle/control-pipe ownership.
+            GameRootStatus liveGameRoot = new GameInstallationService(config).GetLaunchAdmissionStatus();
             bridgeHostState = new LWBridgeControlPipeHostState();
             if (liveGameRoot.Valid)
             {
