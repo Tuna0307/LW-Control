@@ -9,6 +9,8 @@ unrecovered original LWBridge launch-proof or named-pipe grammar.
 from __future__ import annotations
 
 import argparse
+import ctypes
+from ctypes import wintypes
 import hashlib
 import importlib.util
 import json
@@ -17,7 +19,6 @@ from pathlib import Path
 import shutil
 import tempfile
 import time
-import uuid
 
 HERE = Path(__file__).resolve().parent
 _RESOURCE_HELPER = HERE / "run_live_resource_probe.py"
@@ -168,31 +169,119 @@ def write_session_evidence(p: dict[str, Path], session_id: str, name: str, paylo
     lr.write_json_atomic(path, sanitize_evidence(payload))
     return str(path)
 
-def write_kv_atomic(path: Path, values: dict[str, object]) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    temp = path.with_name(path.name + ".tmp-" + uuid.uuid4().hex)
-    temp.write_text("".join(f"{key}={value}\n" for key, value in values.items()), encoding="utf-8")
-    deadline = time.monotonic() + 1.0
+def _runtime_api():
+    # Shared runtime mutation is Windows-only. No pathname-based fallback may
+    # silently weaken the identity transaction on a different platform.
+    if os.name != "nt":
+        raise OverviewBridgeError("shared runtime ownership requires Windows file handles")
+    api = ctypes.WinDLL("kernel32", use_last_error=True)
+    api.CreateFileW.argtypes = [wintypes.LPCWSTR, wintypes.DWORD, wintypes.DWORD,
+                              wintypes.LPVOID, wintypes.DWORD, wintypes.DWORD, wintypes.HANDLE]
+    api.CreateFileW.restype = wintypes.HANDLE
+    api.CloseHandle.argtypes = [wintypes.HANDLE]
+    api.CloseHandle.restype = wintypes.BOOL
+    api.SetFileInformationByHandle.argtypes = [wintypes.HANDLE, ctypes.c_int,
+                                              wintypes.LPVOID, wintypes.DWORD]
+    api.SetFileInformationByHandle.restype = wintypes.BOOL
+    return api
+
+
+def _open_runtime_identity(path: Path, *, write: bool = False, delete: bool = False):
+    api = _runtime_api()
+    import msvcrt
+    access = 0x80000000 | (0x40000000 if write else 0) | (0x10000 if delete else 0)
+    handle = api.CreateFileW(str(path), access, 0, None, 3, 0x80, None)
+    created = False
+    if handle == wintypes.HANDLE(-1).value:
+        error = ctypes.get_last_error()
+        if write and error == 2:
+            handle = api.CreateFileW(str(path), access, 0, None, 1, 0x80, None)
+            created = True
+        if handle == wintypes.HANDLE(-1).value:
+            raise ctypes.WinError(ctypes.get_last_error())
     try:
-        while True:
-            try:
-                os.replace(temp, path)
-                return
-            except PermissionError:
-                if time.monotonic() >= deadline:
-                    raise
-                time.sleep(0.02)
-    finally:
+        descriptor = msvcrt.open_osfhandle(handle, os.O_BINARY | (os.O_RDWR if write else os.O_RDONLY))
+    except BaseException:
+        api.CloseHandle(handle)
+        raise
+    return api, handle, os.fdopen(descriptor, "r+b" if write else "rb"), created
+
+
+def _runtime_bytes_match(data: bytes, session_id: str, challenge: str, *, json_file=False) -> bool:
+    try:
+        if json_file:
+            def unique_object(pairs):
+                value = {}
+                for key, item in pairs:
+                    if key in value:
+                        raise ValueError("duplicate runtime metadata key")
+                    value[key] = item
+                return value
+            value = json.loads(data.decode("utf-8"), object_pairs_hook=unique_object)
+        else:
+            value = {}
+            for line in data.decode("utf-8").splitlines():
+                key, separator, item = line.partition("=")
+                if not separator or not key or key in value:
+                    return False
+                value[key] = item
+        return (isinstance(value, dict) and value.get("sessionId") == session_id
+                and value.get("challenge") == challenge)
+    except (UnicodeError, ValueError):
+        return False
+
+
+def write_kv_atomic(path: Path, values: dict[str, object], *, before_mutation=None) -> None:
+    # Retained call name/schema; publication now uses an exclusive opened identity
+    # rather than an atomic rename. Contended readers retry before validating bytes.
+    session_id = require_token(str(values.get("sessionId", "")), "sessionId")
+    challenge = require_token(str(values.get("challenge", "")), "challenge")
+    _runtime_api()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    contents = "".join(f"{key}={value}\n" for key, value in values.items()).encode("utf-8")
+    deadline = time.monotonic() + 1.0
+    while True:
         try:
-            temp.unlink()
-        except FileNotFoundError:
-            pass
+            _, _, stream, created = _open_runtime_identity(path, write=True)
+            with stream:
+                if not created and not _runtime_bytes_match(stream.read(), session_id, challenge):
+                    raise OverviewBridgeError("refusing to overwrite foreign or malformed runtime metadata")
+                if before_mutation is not None:
+                    before_mutation(path, "write")
+                stream.seek(0)
+                stream.write(contents)
+                stream.truncate()
+                stream.flush()
+                os.fsync(stream.fileno())
+            return
+        except OSError as error:
+            if getattr(error, "winerror", None) not in (32, 33) or time.monotonic() >= deadline:
+                raise
+            time.sleep(0.02)
+
+
+def _delete_owned_runtime(path: Path, session_id: str, challenge: str, *,
+                          json_file=False, before_mutation=None) -> bool:
+    api = _runtime_api()
+    try:
+        _, handle, stream, _ = _open_runtime_identity(path, delete=True)
+        with stream:
+            if not _runtime_bytes_match(stream.read(), session_id, challenge, json_file=json_file):
+                return False
+            if before_mutation is not None:
+                before_mutation(path, "delete")
+            disposition = ctypes.c_ubyte(1)  # FILE_DISPOSITION_INFO BOOLEAN DeleteFile
+            if not api.SetFileInformationByHandle(handle, 4, ctypes.byref(disposition), 1):
+                raise ctypes.WinError(ctypes.get_last_error())
+            return True
+    except OSError:
+        return False
 
 
 def read_kv(path: Path) -> dict[str, str] | None:
     try:
         lines = path.read_text(encoding="utf-8").splitlines()
-    except OSError:
+    except (OSError, UnicodeError):
         return None
     values: dict[str, str] = {}
     for line in lines:
@@ -326,33 +415,16 @@ def clear_stale_runtime(
         ("heartbeat.json", True),
     ):
         path = p["runtime"] / name
-        if runtime_file_matches(path, session_id, challenge, json_file=json_file):
-            try:
-                path.unlink()
-            except FileNotFoundError:
-                pass
+        _delete_owned_runtime(path, session_id, challenge, json_file=json_file)
     cancel_path = p["runtime"] / "cancel-start.txt"
-    preserve_cancel = (
-        preserve_start_cancel is not None
-        and start_cancel_matches(p, preserve_start_cancel[0], preserve_start_cancel[1])
-    )
-    if not preserve_cancel and runtime_file_matches(cancel_path, session_id, challenge):
-        try:
-            cancel_path.unlink()
-        except FileNotFoundError:
-            pass
+    # A foreign preservation pair already fails the current-owner predicate. If
+    # the pairs coincide, preserve without a racy pathname read before deletion.
+    if preserve_start_cancel != (session_id, challenge):
+        _delete_owned_runtime(cancel_path, session_id, challenge)
     for stale_cancel in p["runtime"].glob("cancel-start.txt.tmp-*"):
-        if runtime_file_matches(stale_cancel, session_id, challenge):
-            try:
-                stale_cancel.unlink()
-            except FileNotFoundError:
-                pass
+        _delete_owned_runtime(stale_cancel, session_id, challenge)
     for stale_lease in p["runtime"].glob("lease.txt.tmp-*"):
-        if runtime_file_matches(stale_lease, session_id, challenge):
-            try:
-                stale_lease.unlink()
-            except FileNotFoundError:
-                pass
+        _delete_owned_runtime(stale_lease, session_id, challenge)
 
 
 OFFICIAL_LUA_UPDATE_FAILURE = "official_lua_update_failed"

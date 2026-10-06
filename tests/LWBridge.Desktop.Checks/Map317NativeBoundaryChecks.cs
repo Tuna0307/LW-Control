@@ -21,6 +21,7 @@ internal static class Map317NativeBoundaryChecks
             await IndependentDatabaseAcquisitionsStayIsolatedAsync(root).ConfigureAwait(false);
             await AcceptingProviderRequiresRunScopedLifetimeAsync(root).ConfigureAwait(false);
             await StopWaitsForExactProviderTerminalBeforeLeaseReuseAsync(root).ConfigureAwait(false);
+            await CommittedStopRetiresCallerWithoutAbandoningCaptureAsync(root).ConfigureAwait(false);
             await DisposalTerminatesCaptureAndReleasesLeaseAsync(root).ConfigureAwait(false);
         }
         finally
@@ -470,6 +471,122 @@ internal static class Map317NativeBoundaryChecks
             "second Stop must release only the second accepted provider run");
     }
 
+    private static async Task CommittedStopRetiresCallerWithoutAbandoningCaptureAsync(string root)
+    {
+        string database = Path.Combine(root, "committed-stop-retired-caller", "map-data.db");
+        Directory.CreateDirectory(Path.GetDirectoryName(database)!);
+        var provider = new PublishingProvider(317, ProviderMode.HoldDelayedStop);
+        using var service = Service(database, provider);
+        JsonElement StartPayload() => JsonSerializer.SerializeToElement(new
+        {
+            selectedTypes = new[] { "city" },
+            scanMode = "fast",
+            resume = false,
+        }, JsonOptions.Default);
+
+        JsonElement first = JsonSerializer.SerializeToElement(
+            await service.InvokeAsync("map_scan_start", StartPayload(), CancellationToken.None).ConfigureAwait(false),
+            JsonOptions.Default);
+        string firstRunId = first.GetProperty("scanRunId").GetString() ?? string.Empty;
+
+        // Cancellation before native Stop admission must retain the active local
+        // run and must never reach the provider's committed-Stop boundary.
+        using (var beforeAdmission = new CancellationTokenSource())
+        {
+            beforeAdmission.Cancel();
+            bool rejected = false;
+            try
+            {
+                _ = await service.InvokeAsync("map_scan_stop", Empty(), beforeAdmission.Token).ConfigureAwait(false);
+            }
+            catch (OperationCanceledException) { rejected = true; }
+            using var persisted = new Map317.MapStore(database);
+            Require(rejected && service.IsScanActive && persisted.ReadScanRun(firstRunId)?.Status == "running" &&
+                    provider.StopCalls == 0,
+                "caller cancellation before Stop admission must preserve the local run and provider capture");
+        }
+
+        using var retiredCaller = new CancellationTokenSource();
+        bool committedBarrierReached = false;
+        provider.BeforeCaptureStop = providerToken =>
+        {
+            using var persisted = new Map317.MapStore(database);
+            Require(persisted.ReadScanRun(firstRunId)?.Status == "cancelled",
+                "the controlled pre-capture-Stop barrier must follow the actual native durable cancellation commit");
+            Require(service.IsScanActive && provider.ActiveRunId == firstRunId,
+                "the exact accepted capture must remain owned before provider Stop is signaled");
+            committedBarrierReached = true;
+            retiredCaller.Cancel();
+            Require(!providerToken.CanBeCanceled,
+                "committed native Stop must pass an independent terminalization token to the capture provider");
+        };
+
+        Task<object?> stopping = service.InvokeAsync("map_scan_stop", Empty(), retiredCaller.Token);
+        try
+        {
+            await provider.StopEntered.Task.WaitAsync(TimeSpan.FromSeconds(2)).ConfigureAwait(false);
+            Require(committedBarrierReached && retiredCaller.IsCancellationRequested &&
+                    provider.CaptureCancellationRunIds.SequenceEqual(new[] { firstRunId }) &&
+                    provider.ActiveRunId == firstRunId && !stopping.IsCompleted,
+                "retiring the caller after local commit must signal exact capture cancellation and await its termination");
+            Require(provider.TerminatedRunIds.Count == 0,
+                "capture cancellation alone must not fabricate a provider terminal callback");
+            using (Map317ScanProcessLease? whileUnwinding = Map317ScanProcessLease.TryAcquire(database))
+            {
+                Require(whileUnwinding is null,
+                    "the exact run lease must remain owned while capture unwinds after caller retirement");
+            }
+
+            // A new native Start must still wait behind Stop; cancel this attempt
+            // while the old capture is held so it cannot become a second owner.
+            using var blockedStartCancellation = new CancellationTokenSource();
+            Task<object?> blockedStart = service.InvokeAsync("map_scan_start", StartPayload(), blockedStartCancellation.Token);
+            Require(!blockedStart.IsCompleted,
+                "new native Start must not be admitted before committed Stop observes exact capture termination");
+            blockedStartCancellation.Cancel();
+            bool startCancelled = false;
+            try { _ = await blockedStart.WaitAsync(TimeSpan.FromSeconds(2)).ConfigureAwait(false); }
+            catch (OperationCanceledException) { startCancelled = true; }
+            Require(startCancelled && provider.ActiveRunId == firstRunId,
+                "canceling a pending replacement Start must leave the first capture and its lease owned");
+        }
+        finally
+        {
+            // Always release this test-owned barrier, including on an assertion
+            // failure, so disposal cannot strand an unfinished inert provider.
+            provider.ReleaseStop();
+            _ = await stopping.WaitAsync(TimeSpan.FromSeconds(2)).ConfigureAwait(false);
+        }
+
+        JsonElement stopped = JsonSerializer.SerializeToElement(
+            await stopping.WaitAsync(TimeSpan.FromSeconds(2)).ConfigureAwait(false), JsonOptions.Default);
+        Require(!stopped.GetProperty("isReading").GetBoolean() &&
+                stopped.GetProperty("scanRunId").GetString() == firstRunId &&
+                provider.TerminatedRunIds.SequenceEqual(new[] { firstRunId }),
+            "committed Stop must publish idle only after the exact signaled run terminates, despite caller retirement");
+        using (Map317ScanProcessLease? afterTerminal = Map317ScanProcessLease.TryAcquire(database))
+        {
+            Require(afterTerminal is not null,
+                "the process lease must become reusable after the exact provider terminal callback");
+        }
+
+        _ = await service.InvokeAsync("map_scan_stop", Empty(), CancellationToken.None).ConfigureAwait(false);
+        Require(provider.StopCalls == 1 && provider.TerminatedRunIds.SequenceEqual(new[] { firstRunId }),
+            "repeated idle Stop must not re-signal or re-terminalize the completed provider run");
+        provider.BeforeCaptureStop = null;
+        JsonElement second = JsonSerializer.SerializeToElement(
+            await service.InvokeAsync("map_scan_start", StartPayload(), CancellationToken.None).ConfigureAwait(false),
+            JsonOptions.Default);
+        string secondRunId = second.GetProperty("scanRunId").GetString() ?? string.Empty;
+        Require(secondRunId != firstRunId && service.IsScanActive && provider.ActiveRunId == secondRunId,
+            "a distinct replacement run must be admitted after the exact first capture terminal callback");
+        _ = await service.InvokeAsync("map_scan_stop", Empty(), CancellationToken.None).ConfigureAwait(false);
+        Require(provider.StopCalls == 2 &&
+                provider.CaptureCancellationRunIds.SequenceEqual(new[] { firstRunId, secondRunId }) &&
+                provider.TerminatedRunIds.SequenceEqual(new[] { firstRunId, secondRunId }),
+            "the next Stop must signal and release only the new exact run owner");
+    }
+
     private static Map317CommandService Service(string database, IMap317RunScopedProvider provider) =>
         new(database, provider, Map317.UnavailableMapActionProvider.Instance, startPlunderWorkers: false);
 
@@ -499,10 +616,14 @@ internal static class Map317NativeBoundaryChecks
 
         internal string? ActiveRunId { get; private set; }
         internal bool Disposed { get; private set; }
+        internal int StopCalls { get; private set; }
+        internal Action<CancellationToken>? BeforeCaptureStop { get; set; }
+        internal List<string> CaptureCancellationRunIds { get; } = [];
         internal List<string> TerminatedRunIds { get; } = [];
         internal TaskCompletionSource StartEntered { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
         internal TaskCompletionSource StopEntered { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
         private readonly TaskCompletionSource stopRelease = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        private CancellationTokenSource? captureCancellation;
 
         public ValueTask<Map317.MapProviderContext> GetContextAsync(CancellationToken cancellationToken = default)
         {
@@ -535,7 +656,18 @@ internal static class Map317NativeBoundaryChecks
 
         public async ValueTask StopMapScanAsync(CancellationToken cancellationToken = default)
         {
+            // Test-only entry barrier: native local Stop has already committed,
+            // but this controlled capture has not yet checked/signaled Stop.
+            BeforeCaptureStop?.Invoke(cancellationToken);
             cancellationToken.ThrowIfCancellationRequested();
+            StopCalls++;
+            if (ActiveRunId is { } stoppingRunId)
+            {
+                captureCancellation?.Cancel();
+                Require(captureCancellation?.IsCancellationRequested == true,
+                    "controlled capture Stop must signal its accepted run token");
+                CaptureCancellationRunIds.Add(stoppingRunId);
+            }
             if (mode == ProviderMode.HoldDelayedStop)
             {
                 StopEntered.TrySetResult();
@@ -544,6 +676,8 @@ internal static class Map317NativeBoundaryChecks
             string? runId = ActiveRunId;
             ActiveRunId = null;
             activeControl = null;
+            captureCancellation?.Dispose();
+            captureCancellation = null;
             if (runId is not null) Terminate(runId);
         }
 
@@ -559,6 +693,7 @@ internal static class Map317NativeBoundaryChecks
 
             activeControl = control;
             ActiveRunId = scanRunId;
+            captureCancellation = new CancellationTokenSource();
             if (mode is ProviderMode.Hold or ProviderMode.HoldDelayedStop) return;
 
             control.StageRecord(CityRecord(request.ServerId));
@@ -578,6 +713,8 @@ internal static class Map317NativeBoundaryChecks
                 _ = control.FailScan("synthetic provider terminal failure");
             activeControl = null;
             ActiveRunId = null;
+            captureCancellation.Dispose();
+            captureCancellation = null;
             Terminate(scanRunId);
         }
 
@@ -589,6 +726,9 @@ internal static class Map317NativeBoundaryChecks
             string? runId = ActiveRunId;
             ActiveRunId = null;
             activeControl = null;
+            captureCancellation?.Cancel();
+            captureCancellation?.Dispose();
+            captureCancellation = null;
             if (runId is not null) Terminate(runId);
         }
 

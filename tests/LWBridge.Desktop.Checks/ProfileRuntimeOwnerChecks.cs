@@ -16,6 +16,7 @@ internal static class ProfileRuntimeOwnerChecks
         try
         {
             VerifyInactiveLifecycleCleanupIsolation(root);
+            await HomeRuntimeFileOwnershipChecks.RunAsync(Path.Combine(root, "file-ownership")).ConfigureAwait(false);
             await VerifyProfileReplacementRetirementAsync(root).ConfigureAwait(false);
 
             string controllerPath = Path.Combine(root, "controller.db");
@@ -376,7 +377,6 @@ internal static class ProfileRuntimeOwnerChecks
                     messageText = OverviewLifecycleService.ReadyMessage,
                     updatedAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
                 }, JsonOptions.Default),
-            WriteLease = (_, _, _) => { },
             DeleteFile = _ => { },
         };
 
@@ -403,6 +403,28 @@ internal static class ProfileRuntimeOwnerChecks
         Require(CaptureReplacementAdmissionError(lifecycle) == "GAME_OPERATION_IN_PROGRESS",
             "profile replacement must fail closed while the owned game is running");
 
+        string leasePath = Path.Combine(lifecycleRoot, "overview-runtime", "lease.txt");
+        string? publishedLease = null;
+        for (int attempt = 0; attempt < 100 && publishedLease is null; attempt++)
+        {
+            try { publishedLease = File.ReadAllText(leasePath); }
+            catch (IOException) { await Task.Delay(10).ConfigureAwait(false); }
+        }
+        Require(publishedLease?.Contains("sessionId=" + session + "\n", StringComparison.Ordinal) == true,
+            "deferred running owner publishes its lease into the isolated root");
+        byte[] foreignLease = System.Text.Encoding.UTF8.GetBytes("schema=1\nsessionId=foreign-B\nchallenge=foreign-B\nupdatedAt=1800000000\n");
+        bool replaced = false;
+        for (int attempt = 0; attempt < 100 && !replaced; attempt++)
+        {
+            try { File.WriteAllBytes(leasePath, foreignLease); replaced = true; }
+            catch (IOException error) when ((error.HResult & 0xffff) is 32 or 33)
+            { await Task.Delay(10).ConfigureAwait(false); }
+        }
+        Require(replaced, "foreign test owner obtains publication admission after prior owner releases its guard");
+        await Task.Delay(1250).ConfigureAwait(false);
+        Require(File.ReadAllBytes(leasePath).SequenceEqual(foreignLease),
+            "active owner's periodic refresh preserves a replacement foreign lease");
+
         string instanceId = running.GetProperty("instanceId").GetString()!;
         Task<object?> stopping = lifecycle.InvokeAsync(
             "profile_instance_stop",
@@ -413,6 +435,8 @@ internal static class ProfileRuntimeOwnerChecks
             "profile replacement must fail closed while Stop owns exact lifecycle/process cleanup");
         stopRelease.TrySetResult();
         _ = await stopping.WaitAsync(TimeSpan.FromSeconds(5)).ConfigureAwait(false);
+        Require(File.ReadAllBytes(leasePath).SequenceEqual(foreignLease),
+            "exact process Stop preserves a foreign lease during owned cleanup");
         lifecycle.BeginProfileReplacement();
         string pendingStart = string.Empty;
         try

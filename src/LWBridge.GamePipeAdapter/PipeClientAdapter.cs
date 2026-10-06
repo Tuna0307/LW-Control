@@ -1,5 +1,7 @@
 using System;
 using System.ComponentModel;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -11,6 +13,9 @@ namespace LWBridge.GamePipe
     public static class PipeClientAdapter
     {
         public static readonly Action<string, string, string> Connect = BeginConnect;
+        // Read-only, nonblocking Lua publication seam. Classify the actual .NET
+        // exception before xLua converts exceptions to unstructured error text.
+        public static readonly Func<string, string> ReadRuntimeSnapshot = ReadRuntimeSnapshotCore;
 
         private const int MaxFrameBytes = 0x800000;
         private const uint GenericRead = 0x80000000;
@@ -23,6 +28,25 @@ namespace LWBridge.GamePipe
         private static string instanceId = string.Empty;
         private static int inboundSequence;
         private static int outboundSequence;
+        [ThreadStatic] private static long? lastValidatedLeaseUpdatedAt;
+        [ThreadStatic] private static string? lastValidatedLeaseInstance;
+
+        private static string ReadRuntimeSnapshotCore(string path)
+        {
+            try
+            {
+                string name = Path.GetFileName(path);
+                if (name != "lease.txt" && name != "control.txt") return "unavailable\n";
+                string text = File.ReadAllText(path, new UTF8Encoding(false, true));
+                return text.Length <= 4096 ? "ok\n" + text : "unavailable\n";
+            }
+            catch (IOException error) when (
+                (error.HResult & 0xffff) == 32 || (error.HResult & 0xffff) == 33)
+            {
+                return "busy\n";
+            }
+            catch { return "unavailable\n"; }
+        }
 
         private static void BeginConnect(
             string pipePath,
@@ -161,38 +185,67 @@ namespace LWBridge.GamePipe
         private static bool LeaseIsFresh()
         {
             string path = Path.Combine(runtimeDirectory, "lease.txt");
-            try
+            string expectedInstance = instanceId;
+            if (!string.Equals(lastValidatedLeaseInstance, expectedInstance, StringComparison.Ordinal))
             {
-                string? session = null;
-                long? updatedAt = null;
-                foreach (string line in File.ReadAllLines(path))
+                lastValidatedLeaseUpdatedAt = null;
+                lastValidatedLeaseInstance = expectedInstance;
+            }
+            // Clone-internal adaptation for the host's exact-identity file guard.
+            // Retry only Windows sharing/lock contention, at the existing 10ms
+            // worker cadence, and never beyond the existing five-second lease
+            // horizon (or five seconds for the first read). No cached value is
+            // returned as fresh; a complete current snapshot must be validated.
+            var retryWindow = Stopwatch.StartNew();
+            while (true)
+            {
+                try
                 {
-                    int separator = line.IndexOf('=');
-                    if (separator <= 0)
-                        continue;
-                    string key = line.Substring(0, separator);
-                    string value = line.Substring(separator + 1);
-                    if (key == "sessionId")
-                        session = value;
-                    else if (key == "updatedAt" &&
-                             long.TryParse(value, out long parsed))
-                        updatedAt = parsed;
+                    string? session = null;
+                    long? updatedAt = null;
+                    var keys = new HashSet<string>(StringComparer.Ordinal);
+                    foreach (string line in File.ReadAllLines(path, new UTF8Encoding(false, true)))
+                    {
+                        int separator = line.IndexOf('=');
+                        if (separator <= 0)
+                            return false;
+                        string key = line.Substring(0, separator);
+                        if (!keys.Add(key)) return false;
+                        string value = line.Substring(separator + 1);
+                        if (key == "sessionId")
+                            session = value;
+                        else if (key == "updatedAt" &&
+                                 long.TryParse(value, out long parsed))
+                            updatedAt = parsed;
+                    }
+                    if (!string.Equals(
+                            session,
+                            expectedInstance,
+                            StringComparison.Ordinal) ||
+                        updatedAt == null)
+                    {
+                        return false;
+                    }
+                    long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+                    bool fresh = updatedAt.Value <= now + 5 &&
+                                 now - updatedAt.Value <= 5;
+                    if (fresh) lastValidatedLeaseUpdatedAt = updatedAt;
+                    return fresh;
                 }
-                if (!string.Equals(
-                        session,
-                        instanceId,
-                        StringComparison.Ordinal) ||
-                    updatedAt == null)
+                catch (IOException error) when (
+                    (error.HResult & 0xffff) == 32 || (error.HResult & 0xffff) == 33)
+                {
+                    long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+                    if (retryWindow.ElapsedMilliseconds >= 5000 ||
+                        (lastValidatedLeaseUpdatedAt.HasValue &&
+                         now - lastValidatedLeaseUpdatedAt.Value > 5))
+                        return false;
+                    Thread.Sleep(10);
+                }
+                catch
                 {
                     return false;
                 }
-                long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-                return updatedAt.Value <= now + 5 &&
-                       now - updatedAt.Value <= 5;
-            }
-            catch
-            {
-                return false;
             }
         }
 

@@ -547,14 +547,26 @@ local function write_json(path, value)
 end
 
 local function read_kv_file(path, maximum_bytes)
-    local file = io.open(path, "rb")
-    if file == nil then return nil end
-    local text = file:read("*a") or ""; file:close()
+    local shared = path == overview_control_path or path == overview_lease_path
+    local bridge = shared and rawget(_G, "LWBridgeOverviewBridge") or nil
+    local reader = bridge and bridge.ReadSharedRuntimeMetadata or nil
+    local text, read_error
+    if type(reader) == "function" then
+        text, read_error = reader(path)
+        if text == nil then return nil, read_error end
+    else
+        local file = io.open(path, "rb")
+        if file == nil then return nil end
+        text = file:read("*a") or ""; file:close()
+    end
     if #text > (maximum_bytes or 4096) then return nil end
     local values = {}
     for line in string.gmatch(text, "[^\r\n]+") do
         local key, value = string.match(line, "^([%w_]+)=(.*)$")
-        if key ~= nil then values[key] = value end
+        if key ~= nil then
+            if shared and values[key] ~= nil then return nil end
+            values[key] = value
+        elseif shared then return nil end
     end
     return values
 end
@@ -985,9 +997,29 @@ local function read_command()
     }, nil
 end
 
+-- Keep state in one runtime table: this module is at Lua's chunk-local limit.
+M._sharedRuntimeOwnership = {}
 local function active_overview_identity(now)
-    local control = read_kv_file(overview_control_path, 4096)
-    local lease = read_kv_file(overview_lease_path, 4096)
+    if M._sharedRuntimeOwnership.pumpIdentity ~= nil then return M._sharedRuntimeOwnership.pumpIdentity end
+    local control, control_error = read_kv_file(overview_control_path, 4096)
+    local lease, lease_error = read_kv_file(overview_lease_path, 4096)
+    if control_error == "busy" or lease_error == "busy" then
+        local previous = M._sharedRuntimeOwnership.verifiedIdentity
+        local same_control = control == nil and control_error == "busy" or
+            control ~= nil and previous ~= nil and control.schema == "1" and
+            control.bridgeVersion == "lwbridge-overview-bridge-1" and
+            control.profileId == previous.profileId and control.sessionId == previous.sessionId and
+            control.challenge == previous.challenge and tonumber(control.gamePid) == previous.gamePid
+        local same_lease = lease == nil and lease_error == "busy" or
+            lease ~= nil and previous ~= nil and lease.schema == "1" and
+            lease.bridgeVersion == "lwbridge-overview-bridge-1" and
+            lease.sessionId == previous.sessionId and lease.challenge == previous.challenge and
+            tonumber(lease.updatedAt) ~= nil and tonumber(lease.updatedAt) <= now + 5 and
+            now - tonumber(lease.updatedAt) <= 5
+        if previous ~= nil and previous.updatedAt <= now + 5 and now - previous.updatedAt <= 5 and
+            same_control and same_lease then return nil, "overview_runtime_busy" end
+    end
+    M._sharedRuntimeOwnership.verifiedIdentity = nil
     if control == nil or lease == nil then return nil, "overview_session_unavailable" end
     if control.schema ~= "1" or control.bridgeVersion ~= "lwbridge-overview-bridge-1" or
        not valid_token(control.profileId) or not valid_token(control.sessionId) or
@@ -1006,12 +1038,15 @@ local function active_overview_identity(now)
     if updated == nil or updated > now + 5 or now - updated > 5 then
         return nil, "overview_lease_stale"
     end
-    return {
+    local identity = {
         profileId = control.profileId,
         sessionId = control.sessionId,
         challenge = control.challenge,
         gamePid = math.floor(game_pid),
-    }, nil
+        updatedAt = updated,
+    }
+    M._sharedRuntimeOwnership.verifiedIdentity = identity
+    return identity, nil
 end
 
 function asset_image_runtime.read_request(now)
@@ -4340,13 +4375,13 @@ function resource_scan_detail_runtime.rows(state)
     return rows, ready
 end
 
-function resource_scan_detail_runtime.write_result(request, error_text, state)
+function resource_scan_detail_runtime.write_result(request, error_text, state, result_state)
     local rows, ready = resource_scan_detail_runtime.rows(state)
     write_json(resource_scan_detail_result_path, {
         schemaVersion = 1, probeVersion = M.VERSION, requestId = request.requestId,
         profileId = request.profileId, launchSessionId = request.launchSessionId,
         challenge = request.challenge, gamePid = request.gamePid, serverId = request.serverId,
-        scanRunId = request.scanRunId, state = "completed", error = error_text,
+        scanRunId = request.scanRunId, state = result_state or "completed", error = error_text,
         targetCount = type(state) == "table" and #state.targets or 0,
         requestCount = type(state) == "table" and state.requestCount or 0,
         cacheBeforeCount = type(state) == "table" and state.cacheBeforeCount or 0,
@@ -6570,8 +6605,7 @@ function train_list_runtime.pump(now)
     return true
 end
 
-function M.Pump()
-    local now = tonumber(os.time()) or 0
+function M._sharedRuntimeOwnership.PumpVerified(now)
     -- Read-only asset rendering is an independent lane. It reuses the same
     -- owned Overview session and must not block map acquisition.
     asset_image_runtime.pump(now)
@@ -6732,6 +6766,64 @@ function M.Pump()
         write_heartbeat(now); return true
     end
     write_heartbeat(now); return true
+end
+
+function M.Pump()
+    local now = tonumber(os.time()) or 0
+    local identity, identity_error = active_overview_identity(now)
+    if identity_error == "overview_runtime_busy" then return false end
+    if identity == nil then
+        -- Expired/invalid metadata never authorizes request consumption or sends.
+        -- Terminalize already admitted lanes through their existing result and
+        -- cleanup routines; queued files remain for a future verified owner.
+        local reason = identity_error or "overview_session_unavailable"
+        if asset_image_runtime.request ~= nil then
+            asset_image_runtime.write_result(asset_image_runtime.request, "failed", reason, nil)
+            asset_image_runtime.cleanup()
+        end
+        if M._treasureStateRuntime.request ~= nil then
+            M._treasureStateRuntime.write_result(M._treasureStateRuntime.request, "failed", reason, nil, nil, nil)
+            M._treasureStateRuntime.cleanup()
+        end
+        if train_list_runtime.request ~= nil then
+            train_list_runtime.write(train_list_runtime.request, "failed", reason, nil)
+            train_list_runtime.cleanup()
+        end
+        if resource_scan_detail_runtime.request ~= nil then
+            resource_scan_detail_runtime.write_result(resource_scan_detail_runtime.request, reason, nil, "failed")
+            resource_scan_detail_runtime.request = nil
+            resource_scan_detail_runtime.startedAt = nil
+            resource_scan_detail_runtime.state = nil
+        end
+        if resource_detail_request ~= nil then
+            write_resource_detail_diagnostic_result(resource_detail_request, "failed", reason, {}, 0)
+            resource_detail_request = nil
+            resource_detail_started_at = nil
+            resource_detail_transition_requested = false
+            resource_detail_refresh_requested = false
+        end
+        if monster_protection_request ~= nil then
+            write_monster_protection_detail_result(monster_protection_request, "failed", reason,
+                monster_protection_request.targets, monster_protection_request.requestCount, 0)
+            monster_protection_request = nil
+            monster_protection_started_at = nil
+        end
+        monster_protection_scan = nil
+        if active_request_id ~= nil or bulk_aoi_request ~= nil then
+            local world, point_manager = runtime_world()
+            if bulk_aoi_request ~= nil then fail_bulk_aoi(bulk_aoi_request, reason, {}, point_manager) end
+            if active_request_id ~= nil then fail_request(now, reason, world, point_manager) end
+        end
+        return false
+    end
+    -- The successful preflight is reused only within this synchronous pump.
+    -- No request is removed before it, and no second sharing read can turn a
+    -- removed request into an error. Cached metadata never authorizes a pump.
+    M._sharedRuntimeOwnership.pumpIdentity = identity
+    local ok, result = pcall(M._sharedRuntimeOwnership.PumpVerified, now)
+    M._sharedRuntimeOwnership.pumpIdentity = nil
+    if not ok then error(result) end
+    return result
 end
 
 function M.Register()

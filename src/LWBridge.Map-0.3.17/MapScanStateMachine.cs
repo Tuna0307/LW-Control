@@ -372,7 +372,13 @@ public sealed class MapScanStateMachine
             {
                 try
                 {
-                    await provider.StopMapScanAsync(cancellationToken).ConfigureAwait(false);
+                    // Local cancellation has committed. The caller may now retire,
+                    // but the accepted provider run still owns capture and its lease
+                    // until Stop signals it and observes terminalization. Preserve
+                    // cancelable admission/local persistence above; this independent
+                    // terminal wait is a native lifetime adaptation, not provider
+                    // success or a change to the recovered best-effort error policy.
+                    await provider.StopMapScanAsync(CancellationToken.None).ConfigureAwait(false);
                 }
                 catch
                 {

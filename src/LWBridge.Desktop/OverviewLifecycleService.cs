@@ -19,6 +19,9 @@ internal sealed class OverviewLifecycleTestHooks
     public Action<string, string, string>? WriteLease { get; init; }
     public Action<string, string, string>? WriteStartCancellation { get; init; }
     public Action<string>? DeleteFile { get; init; }
+    // Runs only after the OS handle owns the validated identity. The test seam
+    // cannot bypass sharing restrictions or substitute pathname deletion.
+    public Action<string, OverviewRuntimeFileMutation>? RuntimeFileBeforeMutation { get; init; }
     public Func<DateTimeOffset>? UtcNow { get; init; }
     public Func<long>? MonotonicMilliseconds { get; init; }
     public Func<bool>? UpdateProcessRunning { get; init; }
@@ -1489,24 +1492,19 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
             }
             Directory.CreateDirectory(runtimeRoot);
             string path = Path.Combine(runtimeRoot, "lease.txt");
-            string temp = path + ".tmp-" + Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture);
-            try
-            {
-                File.WriteAllText(temp,
-                    "schema=1\n" +
-                    $"bridgeVersion={BridgeVersion}\n" +
-                    $"sessionId={session}\n" +
-                    $"challenge={nonce}\n" +
-                    $"updatedAt={DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(CultureInfo.InvariantCulture)}\n");
-                if (generation != Volatile.Read(ref leaseGeneration)) return;
-                File.Move(temp, path, overwrite: true);
-                if (generation != Volatile.Read(ref leaseGeneration))
-                    TryDeleteOwnedRuntimeFile(path, session, nonce, json: false);
-            }
-            finally
-            {
-                try { if (File.Exists(temp)) DeleteFile(temp); } catch { }
-            }
+            byte[] contents = System.Text.Encoding.UTF8.GetBytes(
+                "schema=1\n" +
+                $"bridgeVersion={BridgeVersion}\n" +
+                $"sessionId={session}\n" +
+                $"challenge={nonce}\n" +
+                $"updatedAt={DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(CultureInfo.InvariantCulture)}\n");
+            if (generation != Volatile.Read(ref leaseGeneration)) return;
+            _ = OverviewRuntimeFileOwnership.TryWrite(
+                path, contents,
+                bytes => KeyValueRuntimeFileMatches(bytes, session, nonce),
+                testHooks?.RuntimeFileBeforeMutation);
+            if (generation != Volatile.Read(ref leaseGeneration))
+                TryDeleteOwnedRuntimeFile(path, session, nonce, json: false);
         }
     }
 
@@ -1527,19 +1525,14 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
             }
             Directory.CreateDirectory(runtimeRoot);
             string path = Path.Combine(runtimeRoot, StartCancellationFileName);
-            string temp = path + ".tmp-" + Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture);
-            try
-            {
-                File.WriteAllText(temp,
-                    "schema=1\n" +
-                    $"sessionId={session}\n" +
-                    $"challenge={nonce}\n");
-                File.Move(temp, path, overwrite: true);
-            }
-            finally
-            {
-                try { if (File.Exists(temp)) DeleteFile(temp); } catch { }
-            }
+            byte[] contents = System.Text.Encoding.UTF8.GetBytes(
+                "schema=1\n" +
+                $"sessionId={session}\n" +
+                $"challenge={nonce}\n");
+            _ = OverviewRuntimeFileOwnership.TryWrite(
+                path, contents,
+                bytes => KeyValueRuntimeFileMatches(bytes, session, nonce),
+                testHooks?.RuntimeFileBeforeMutation);
         }
     }
 
@@ -1633,12 +1626,12 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
     {
         try
         {
-            if (!File.Exists(path)) return;
-            byte[] bytes = File.ReadAllBytes(path);
-            bool owned = json
-                ? JsonRuntimeFileMatches(bytes, expectedSession, expectedChallenge)
-                : KeyValueRuntimeFileMatches(bytes, expectedSession, expectedChallenge);
-            if (owned) DeleteFile(path);
+            _ = OverviewRuntimeFileOwnership.TryDelete(
+                path,
+                bytes => json
+                    ? JsonRuntimeFileMatches(bytes, expectedSession, expectedChallenge)
+                    : KeyValueRuntimeFileMatches(bytes, expectedSession, expectedChallenge),
+                testHooks?.RuntimeFileBeforeMutation);
         }
         catch { }
     }
@@ -1652,6 +1645,10 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
         {
             using JsonDocument document = JsonDocument.Parse(bytes);
             JsonElement root = document.RootElement;
+            if (root.ValueKind != JsonValueKind.Object) return false;
+            var keys = new HashSet<string>(StringComparer.Ordinal);
+            foreach (JsonProperty property in root.EnumerateObject())
+                if (!keys.Add(property.Name)) return false;
             return MatchesString(root, "sessionId", expectedSession) &&
                    MatchesString(root, "challenge", expectedChallenge);
         }
@@ -1733,12 +1730,14 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
         {
             string? session = null;
             string? challengeValue = null;
-            string text = System.Text.Encoding.UTF8.GetString(bytes);
+            string text = new System.Text.UTF8Encoding(false, true).GetString(bytes);
+            var keys = new HashSet<string>(StringComparer.Ordinal);
             foreach (string line in text.Split(new[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries))
             {
                 int separator = line.IndexOf('=');
                 if (separator <= 0) return false;
                 string key = line[..separator];
+                if (!keys.Add(key)) return false;
                 string value = line[(separator + 1)..];
                 if (key == "sessionId") session = value;
                 else if (key == "challenge") challengeValue = value;

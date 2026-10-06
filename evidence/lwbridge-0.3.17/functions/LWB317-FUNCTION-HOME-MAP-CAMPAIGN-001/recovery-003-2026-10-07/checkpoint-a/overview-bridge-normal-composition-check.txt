@@ -1,0 +1,23 @@
+{
+  "ok": true,
+  "finding": "LWB-R7-123",
+  "normalComposition": {
+    "hostConstructedBeforeListener": true,
+    "expectedClientImage": "\u003CselectedGameRoot\u003E\\Game\\LastWar.exe",
+    "listenerBuildId": "lwbridge-overview-bridge-1",
+    "listenerStartsBeforeLifecycleConstruction": true,
+    "launchBindingEnabled": true,
+    "realLifecycleRechecksListenerBeforeRegistration": true,
+    "registrationBeforeHelperLaunch": true,
+    "testHookLifecycleStartsNativeListener": false,
+    "sameIdentityListenerStartIsIdempotent": true,
+    "differentIdentityListenerStartRejected": true,
+    "applicationOwnsShutdown": true
+  },
+  "boundary": {
+    "getStatusPendingExposed": true,
+    "exactGetStatusCallEnabled": true,
+    "genericCallLuaEnabled": false,
+    "successfulStopUnregisterRecovered": true
+  }
+}

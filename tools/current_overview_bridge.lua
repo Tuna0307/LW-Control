@@ -41,6 +41,7 @@ local LEASE_MAX_AGE_SECONDS = 5
 local CONTROL_PIPE_PREFIX = [[\\.\pipe\lwbridge-control-v1-]]
 
 local active = nil
+local verified_lease = nil
 local root_object = nil
 local message_text = nil
 local registration_method = nil
@@ -260,6 +261,10 @@ local function load_pipe_adapter(path)
         if field == nil then error("pipe_adapter_connect_delegate_unavailable") end
         local connect = field:GetValue(nil)
         if connect == nil then error("pipe_adapter_connect_delegate_nil") end
+        local read_field = adapter_type:GetField("ReadRuntimeSnapshot", 24)
+        if read_field == nil then error("pipe_adapter_runtime_read_delegate_unavailable") end
+        pipe_runtime.adapterRead = read_field:GetValue(nil)
+        if pipe_runtime.adapterRead == nil then error("pipe_adapter_runtime_read_delegate_nil") end
         return connect
     end)
     if not ok_load or connect_or_error == nil then
@@ -384,15 +389,45 @@ local function ensure_pipe_hello(control)
     return true, nil
 end
 
-local function read_kv(path, maximum_bytes)
+-- Clone publication adaptation: only the .NET reader can classify Windows
+-- sharing/lock violations. Unavailable Lua I/O is never assumed to be busy.
+function M.ReadSharedRuntimeMetadata(path)
+    if path ~= control_path and path ~= lease_path then return nil, "unavailable" end
+    local reader = pipe_runtime.adapterRead
+    if reader ~= nil then
+        local ok, result = pcall(function()
+            if type(reader) == "function" then return reader(path) end
+            return reader:Invoke(path)
+        end)
+        if not ok or type(result) ~= "string" then return nil, "unavailable" end
+        if result == "busy\n" then return nil, "busy" end
+        if string.sub(result, 1, 3) ~= "ok\n" then return nil, "unavailable" end
+        return string.sub(result, 4), nil
+    end
     local file = io.open(path, "rb")
-    if file == nil then return nil end
+    if file == nil then return nil, "unavailable" end
     local text = file:read("*a") or ""; file:close()
+    return text, nil
+end
+
+local function read_kv(path, maximum_bytes)
+    local text, read_error
+    if path == control_path or path == lease_path then
+        text, read_error = M.ReadSharedRuntimeMetadata(path)
+        if text == nil then return nil, read_error end
+    else
+        local file = io.open(path, "rb")
+        if file == nil then return nil end
+        text = file:read("*a") or ""; file:close()
+    end
     if #text > (maximum_bytes or 4096) then return nil end
     local values = {}
     for line in string.gmatch(text, "[^\r\n]+") do
         local key, value = string.match(line, "^([%w_]+)=(.*)$")
-        if key ~= nil then values[key] = value end
+        if key ~= nil then
+            if (path == control_path or path == lease_path) and values[key] ~= nil then return nil end
+            values[key] = value
+        elseif path == control_path or path == lease_path then return nil end
     end
     return values
 end
@@ -422,7 +457,8 @@ valid_pipe_adapter_path = function(value)
 end
 
 local function read_control()
-    local values = read_kv(control_path)
+    local values, read_error = read_kv(control_path)
+    if values == nil then return nil, read_error end
     if values == nil or values.schema ~= "1" or values.bridgeVersion ~= M.VERSION then return nil end
     local game_pid = tonumber(values.gamePid)
     if not valid_token(values.profileId) or not valid_token(values.sessionId) or
@@ -436,6 +472,7 @@ local function read_control()
     elseif values.pipeAdapterPath ~= nil then
         return nil
     end
+    if values.pipeAdapterPath ~= nil then load_pipe_adapter(values.pipeAdapterPath) end
     return {
         profileId = values.profileId,
         sessionId = values.sessionId,
@@ -447,12 +484,27 @@ local function read_control()
 end
 
 local function lease_is_fresh(control, now)
-    local values = read_kv(lease_path)
+    local values, read_error = read_kv(lease_path)
+    if values == nil then return false, read_error end
     if values == nil or values.schema ~= "1" or values.bridgeVersion ~= M.VERSION then return false end
     if values.sessionId ~= control.sessionId or values.challenge ~= control.challenge then return false end
     local updated = tonumber(values.updatedAt)
     if updated == nil or updated > now + 5 then return false end
-    return now - updated <= LEASE_MAX_AGE_SECONDS
+    if now - updated > LEASE_MAX_AGE_SECONDS then return false end
+    verified_lease = { profileId = control.profileId, sessionId = control.sessionId,
+        challenge = control.challenge, gamePid = control.gamePid, updatedAt = updated }
+    return true
+end
+
+local function can_defer_shared_read(control, now)
+    local previous = verified_lease
+    if previous == nil or active == nil or previous.updatedAt > now + 5 or
+       now - previous.updatedAt > LEASE_MAX_AGE_SECONDS then return false end
+    local owner = control or active
+    return owner.profileId == previous.profileId and owner.sessionId == previous.sessionId and
+        owner.challenge == previous.challenge and owner.gamePid == previous.gamePid and
+        active.profileId == previous.profileId and active.sessionId == previous.sessionId and
+        active.challenge == previous.challenge and active.gamePid == previous.gamePid
 end
 
 local function reflection_flags()
@@ -3496,8 +3548,14 @@ end
 
 function M.Pump()
     local now = tonumber(os.time()) or 0
-    local control = read_control()
-    if control == nil or not lease_is_fresh(control, now) then
+    local control, control_error = read_control()
+    local fresh, lease_error = false, nil
+    if control ~= nil then fresh, lease_error = lease_is_fresh(control, now) end
+    if ((control == nil and control_error == "busy") or
+        (control ~= nil and not fresh and lease_error == "busy")) and
+        can_defer_shared_read(control, now) then return false end
+    if control == nil or not fresh then
+        verified_lease = nil
         active = control
         close_pipe_runtime()
         pending_navigation = nil
