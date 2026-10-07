@@ -1,0 +1,29 @@
+Checkpoint A negative attempts — preserved verbatim in substance
+
+1. Repository search tool availability
+Command intent:
+  rg -n --hidden -g '!Windows-MCP/**' -g '!node_modules/**' "ReadRuntimeSnapshot|current_overview_bridge|current_live_resource_probe|lease|xLua|XLua|LuaEnv|LuaFunction|Func<string,string>|capture" tools src tests docs
+Result:
+  rg was not installed / not recognized on this machine.
+Disposition:
+  Tooling-only limitation. Search continued with git grep and PowerShell; no project blocker was inferred.
+
+2. Historical 0.3.1 native Map inspectors against the required 0.3.17 reference
+Reference:
+  C:\Users\chimw\OneDrive\Desktop\Github\LW\lwbridge-0.3.17.exe
+  SHA-256 4e9c3113dedfd7e1a752404c6936aab304e67d7ffdb0952a5003c2ec948d6783
+
+Commands:
+  python tools\inspect_lwbridge_map_tick_cadence.py <reference> --output <checkpoint-a-original-map-tick.json>
+  python tools\inspect_lwbridge_native_capture_hooks.py <reference> --output <checkpoint-a-original-native-capture-hooks.json>
+  python tools\inspect_lwbridge_native_capture_ack_constants.py <reference> --output <checkpoint-a-original-native-capture-ack.json>
+
+Errors:
+  inspect_lwbridge_map_tick_cadence.py: error: unsupported LWBridge SHA-256 4e9c3113dedfd7e1a752404c6936aab304e67d7ffdb0952a5003c2ec948d6783
+  inspect_lwbridge_native_capture_hooks.py: error: unsupported reference SHA-256: 4e9c3113dedfd7e1a752404c6936aab304e67d7ffdb0952a5003c2ec948d6783
+  inspect_lwbridge_native_capture_ack_constants.py: error: unsupported LWBridge SHA-256 4e9c3113dedfd7e1a752404c6936aab304e67d7ffdb0952a5003c2ec948d6783
+
+Disposition:
+  Correct fail-closed behavior. Historical gates were not edited or bypassed.
+  Current 0.3.17 static recovery instead uses tools/lwbridge317/* inspectors that pin
+  the required 4E9C...6783 executable. Historical 0.3.1 findings remain provenance only.

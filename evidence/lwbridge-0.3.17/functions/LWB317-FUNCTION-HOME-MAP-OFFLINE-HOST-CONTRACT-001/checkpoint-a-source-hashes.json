@@ -1,0 +1,39 @@
+{
+  "gitHead": "bc44275be9f6c198b237504df063bd307f4fdaf0",
+  "referenceExe": {
+    "path": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW\\lwbridge-0.3.17.exe",
+    "sha256": "4e9c3113dedfd7e1a752404c6936aab304e67d7ffdb0952a5003c2ec948d6783"
+  },
+  "sources": {
+    "tools/run_overview_bridge.py": "9a10b957d476e5cb935bd79994d7df6c14a435427c6c533594159a7ace75217c",
+    "tools/current_overview_bridge.lua": "dacb0ec8f3518bbaabdd3efd344e66ef1905a48748122cae741511db03ada94d",
+    "tools/current_live_resource_probe.lua": "a91decf140a7f2ca00a544286dab1c05f8a9fb2db8ffb283b9fc8861fdd24d49",
+    "src/LWBridge.GamePipeAdapter/PipeClientAdapter.cs": "9d256f1d01bab2c1a93a510774470a6c537b06cead9c7b61358ad19dc55bce7d",
+    "src/LWBridge.Desktop/CurrentClientMap317ScanProvider.cs": "7942351a09eb254e1d7e5c49240eeb5fd9eb67de8de55f5cce2ca13cd355b3c2",
+    "src/LWBridge.Desktop/CurrentClientCompatibility.cs": "377424a6d0a902fda249db9a0c49d0947e7b47d28b1ac405a915eccef110d737",
+    "tests/home_runtime_lease_lua_checks.py": "d2d1264ec5f347242af271fb1666f59102c4f038e2032881c33a4b33a95f75b4",
+    "tests/LWBridge.Desktop.Checks/HomeRuntimeFileOwnershipChecks.cs": "4caff7e84a9a912a26b70050cf64a2776edc3b56a4590e1e25905e4b9ac85105"
+  },
+  "currentClient": {
+    "LastWar.exe": {
+      "path": "C:\\Users\\chimw\\AppData\\Local\\FunFly\\Last War-Survival Game\\Game\\LastWar.exe",
+      "sha256": "905c98c1f89841f90b492556192ba0642f3d209a873cb8c1f7b3c340aca0733d",
+      "size": 668640
+    },
+    "xlua.dll": {
+      "path": "C:\\Users\\chimw\\AppData\\Local\\FunFly\\Last War-Survival Game\\Game\\LastWar_Data\\Plugins\\x86_64\\xlua.dll",
+      "sha256": "d22d912f031c60f2649fdaf76d359d695511f7a37b93cd637b557f8346569d45",
+      "size": 696800
+    },
+    "Assembly-CSharp.rdl": {
+      "path": "C:\\Users\\chimw\\AppData\\Local\\FunFly\\Last War-Survival Game\\Game\\LastWar_Data\\Assemblies\\Assembly-CSharp.rdl",
+      "sha256": "bfb740b4570c58bd2bcc7fb83f9b83d8121ce10fb1bf49040e9fb8b08e958b3e",
+      "size": 15631872
+    },
+    "XLuaRuntime.rdl": {
+      "path": "C:\\Users\\chimw\\AppData\\Local\\FunFly\\Last War-Survival Game\\Game\\LastWar_Data\\Assemblies\\XLuaRuntime.rdl",
+      "sha256": "a48e5754f62cb4d0dad185e85707c45754beb1996fe5e7840a89d47e81f672a7",
+      "size": 22528
+    }
+  }
+}

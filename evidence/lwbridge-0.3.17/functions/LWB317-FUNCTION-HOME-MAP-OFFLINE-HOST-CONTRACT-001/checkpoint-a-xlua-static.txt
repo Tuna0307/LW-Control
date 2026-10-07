@@ -1,0 +1,140 @@
+﻿REFERENCE EXE
+
+
+Path : C:\Users\chimw\OneDrive\Desktop\Github\LW\lwbridge-0.3.17.exe
+Hash : 4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783
+
+
+
+
+CURRENT ASSEMBLY HASH
+
+
+Path : C:\Users\chimw\AppData\Local\FunFly\Last War-Survival Game\Game\LastWar_Data\Assemblies\Assembly-CSharp.rdl
+Hash : BFB740B4570C58BD2BCC7FB83F9B83D8121CE10FB1BF49040E9FB8B08E958B3E
+
+
+
+
+RGMD=0x9a92a4 TypeDef=5828 MethodDef=54483
+TYPE 2391: XLua.DelegateBridgeBase extends XLua.LuaBase
+  FIELD 13947: System.Type firstKey
+  FIELD 13948: System.Delegate firstValue
+  FIELD 13949: System.Collections.Generic.Dictionary`2<System.Type, System.Delegate> bindTo
+  FIELD 13950: int32 errorFuncRef
+  FIELD 13951: bool <Disposed>k__BackingField
+  METHOD 18230 RVA 0x1b7b79: bool get_Disposed()
+  METHOD 18231 RVA 0x1b7b81: void set_Disposed(bool value)
+  METHOD 18232 RVA 0x1b7b8a: void .ctor(int32 reference, XLua.LuaEnv luaenv)
+  METHOD 18233 RVA 0x1b7ba0: bool TryGetDelegate(System.Type key, ref System.Delegate value)
+  METHOD 18234 RVA 0x1b7bd4: void AddDelegate(System.Type key, System.Delegate value)
+  METHOD 18235 RVA 0x1b7c80: System.Delegate GetDelegateByType(System.Type type)
+  METHOD 18236 RVA 0x1b7c83: void MarkDisposed()
+TYPE 2393: XLua.DelegateBridge extends XLua.DelegateBridgeBase
+  FIELD 13952: XLua.DelegateBridge[] DelegateBridgeList
+  FIELD 13953: bool Gen_Flag
+  METHOD 18240 RVA 0x1b7cfa: void .ctor(int32 reference, XLua.LuaEnv luaenv)
+  METHOD 18241 RVA 0x1b7d04: void PCall(native int L, int32 nArgs, int32 nResults, int32 errFunc)
+  METHOD 18242 RVA 0x1b7d24: void Action()
+  METHOD 18243 RVA 0x1b7d80: void Action(!!0 p1)
+  METHOD 18244 RVA 0x1b7df0: void Action(!!0 p1, !!1 p2)
+  METHOD 18245 RVA 0x1b7e68: void Action(!!0 p1, !!1 p2, !!2 p3)
+  METHOD 18246 RVA 0x1b7ee8: void Action(!!0 p1, !!1 p2, !!2 p3, !!3 p4)
+  METHOD 18247 RVA 0x1b7f70: !!0 Func()
+  METHOD 18248 RVA 0x1b8008: !!1 Func(!!0 p1)
+  METHOD 18249 RVA 0x1b80a8: !!2 Func(!!0 p1, !!1 p2)
+  METHOD 18250 RVA 0x1b8150: !!3 Func(!!0 p1, !!1 p2, !!2 p3)
+  METHOD 18251 RVA 0x1b8200: !!4 Func(!!0 p1, !!1 p2, !!2 p3, !!3 p4)
+  METHOD 18252 RVA 0x1b82b8: void __Gen_Delegate_Imp0(float32 p0)
+  METHOD 18253 RVA 0x1b8314: void __Gen_Delegate_Imp1(float32 p0, float32 p1)
+  METHOD 18254 RVA 0x1b8378: void __Gen_Delegate_Imp2()
+  METHOD 18255 RVA 0x1b83cc: void __Gen_Delegate_Imp3(int64 p0)
+  METHOD 18256 RVA 0x1b8428: void __Gen_Delegate_Imp4(string p0, string p1, string p2)
+  METHOD 18257 RVA 0x1b8490: void __Gen_Delegate_Imp5(string p0, string p1, string p2, string p3)
+  METHOD 18258 RVA 0x1b8500: void __Gen_Delegate_Imp6(string p0, int32 p1, string p2, string p3, System.Action p4, System.Action p5, System.Action p6, string p7, bool p8)
+  METHOD 18259 RVA 0x1b85a8: void __Gen_Delegate_Imp7(int64 p0, string p1, System.Action p2, System.Action p3, System.Action p4)
+  METHOD 18260 RVA 0x1b862c: void __Gen_Delegate_Imp8(string p0)
+  METHOD 18261 RVA 0x1b8688: string __Gen_Delegate_Imp9(string p0, int32 p1, string p2)
+  METHOD 18262 RVA 0x1b86fc: void __Gen_Delegate_Imp10(uint8[] p0)
+  METHOD 18263 RVA 0x1b8758: int32 __Gen_Delegate_Imp11(int64 p0)
+  METHOD 18264 RVA 0x1b87bc: void __Gen_Delegate_Imp12(UnityEngine.Networking.UnityWebRequest p0, bool p1, object p2)
+  METHOD 18265 RVA 0x1b8830: void __Gen_Delegate_Imp13(int32 p0)
+  METHOD 18266 RVA 0x1b888c: void __Gen_Delegate_Imp14(float64 p0, UnityEngine.Video.VideoPlayer p1)
+  METHOD 18267 RVA 0x1b88f8: void __Gen_Delegate_Imp15(UnityEngine.GameObject p0)
+  METHOD 18268 RVA 0x1b895c: void __Gen_Delegate_Imp16(UnityEngine.Vector2 p0)
+  METHOD 18269 RVA 0x1b89c0: void __Gen_Delegate_Imp17(bool p0)
+  METHOD 18270 RVA 0x1b8a1c: void __Gen_Delegate_Imp18(bool p0, string p1)
+  METHOD 18271 RVA 0x1b8a7c: void __Gen_Delegate_Imp19(bool p0, string p1, string p2)
+  METHOD 18272 RVA 0x1b8ae4: void __Gen_Delegate_Imp20(bool p0, GameCenterAuthData p1)
+  METHOD 18273 RVA 0x1b8b50: void __Gen_Delegate_Imp21(PlayGamesAuthData p0)
+  METHOD 18274 RVA 0x1b8bb4: void __Gen_Delegate_Imp22(UnityEngine.Vector3 p0)
+  METHOD 18275 RVA 0x1b8c18: void __Gen_Delegate_Imp23(UnityEngine.Vector3 p0, float32 p1, float32 p2)
+  METHOD 18276 RVA 0x1b8c8c: void __Gen_Delegate_Imp24(int64 p0, int32 p1)
+  METHOD 18277 RVA 0x1b8cec: void __Gen_Delegate_Imp25(int32 p0, int32 p1)
+  METHOD 18278 RVA 0x1b8d4c: void __Gen_Delegate_Imp26(int32 p0, string p1)
+  METHOD 18279 RVA 0x1b8dac: void __Gen_Delegate_Imp27(int32 p0, int32 p1, int32 p2)
+  METHOD 18280 RVA 0x1b8e14: void __Gen_Delegate_Imp28(XLua.LuaTable p0)
+  METHOD 18281 RVA 0x1b8e78: void __Gen_Delegate_Imp29(UnityEngine.GameObject p0, int32 p1)
+  METHOD 18282 RVA 0x1b8ee4: void __Gen_Delegate_Imp30(UnityEngine.GameObject p0, int32 p1, int32 p2)
+  METHOD 18283 RVA 0x1b8f58: void __Gen_Delegate_Imp31(UnityEngine.UI.Image p0)
+  METHOD 18284 RVA 0x1b8fbc: void __Gen_Delegate_Imp32(UnityEngine.Sprite p0)
+  METHOD 18285 RVA 0x1b9020: void __Gen_Delegate_Imp33(string p0, string p1, int32 p2)
+  METHOD 18286 RVA 0x1b9088: void __Gen_Delegate_Imp34(string p0, string p1, int32 p2, string p3)
+  METHOD 18287 RVA 0x1b90f8: void __Gen_Delegate_Imp35(string p0, string p1)
+  METHOD 18288 RVA 0x1b9158: void __Gen_Delegate_Imp36(float32 p0, string p1)
+  METHOD 18289 RVA 0x1b91bc: void __Gen_Delegate_Imp37(string p0, int32 p1, string p2, string p3, int32 p4)
+  METHOD 18290 RVA 0x1b9234: float32 __Gen_Delegate_Imp38()
+  METHOD 18291 RVA 0x1b9298: BasePool __Gen_Delegate_Imp39(string p0)
+  METHOD 18292 RVA 0x1b9318: void __Gen_Delegate_Imp40(InstanceRequest p0)
+  METHOD 18293 RVA 0x1b937c: void __Gen_Delegate_Imp41(UnityEngine.EventSystems.PointerEventData p0)
+  METHOD 18294 RVA 0x1b93e0: void __Gen_Delegate_Imp42(SuperScrollView.LoopListViewItem2 p0, bool p1)
+  METHOD 18295 RVA 0x1b944c: UnityEngine.Vector2 __Gen_Delegate_Imp43()
+  METHOD 18296 RVA 0x1b94c0: UnityEngine.Vector3 __Gen_Delegate_Imp44()
+  METHOD 18297 RVA 0x1b9534: void __Gen_Delegate_Imp45(int32 p0, bool p1, int32 p2, int32 p3, int32 p4)
+  METHOD 18298 RVA 0x1b95ac: SuperScrollView.LoopListViewItem2 __Gen_Delegate_Imp46(SuperScrollView.LoopListView2 p0, int32 p1)
+  METHOD 18299 RVA 0x1b9634: SuperScrollView.LoopGridViewItem __Gen_Delegate_Imp47(SuperScrollView.LoopGridView p0, int32 p1, int32 p2, int32 p3)
+  METHOD 18300 RVA 0x1b96c8: void __Gen_Delegate_Imp48(SuperScrollView.LoopListViewItem2 p0)
+  METHOD 18301 RVA 0x1b972c: void __Gen_Delegate_Imp49(LW.CountBattle.SteerUnit p0)
+  METHOD 18302 RVA 0x1b9790: void __Gen_Delegate_Imp50(int32 p0, LW.CountBattle.SteerUnit p1)
+  METHOD 18303 RVA 0x1b97fc: void __Gen_Delegate_Imp51(string p0, bool p1, string p2)
+  METHOD 18304 RVA 0x1b9864: void __Gen_Delegate_Imp52(string p0, string p1, UnityEngine.LogType p2)
+  METHOD 18305 RVA 0x1b98dc: void __Gen_Delegate_Imp53(Spine.Unity.SkeletonGraphic p0)
+  METHOD 18306 RVA 0x1b9940: void __Gen_Delegate_Imp54(string p0, UnityEngine.Object p1, object p2, bool p3)
+  METHOD 18307 RVA 0x1b99bc: void __Gen_Delegate_Imp55(UnityEngine.GameObject p0, object p1)
+  METHOD 18308 RVA 0x1b9a28: void __Gen_Delegate_Imp56(UnityEngine.Vector3 p0, bool p1)
+  METHOD 18309 RVA 0x1b9a94: void __Gen_Delegate_Imp57(UnityEngine.Vector3 p0, UnityEngine.Vector3 p1, UnityEngine.Vector3 p2)
+  METHOD 18310 RVA 0x1b9b08: void __Gen_Delegate_Imp58(UnityEngine.Vector3 p0, UnityEngine.Vector3 p1)
+  METHOD 18311 RVA 0x1b9b74: void __Gen_Delegate_Imp59(UnityEngine.Vector3 p0, float32 p1)
+  METHOD 18312 RVA 0x1b9be0: void __Gen_Delegate_Imp60(BitBenderGames.PinchUpdateData p0)
+  METHOD 18313 RVA 0x1b9c44: void __Gen_Delegate_Imp61(UnityEngine.Vector3 p0, bool p1, bool p2)
+  METHOD 18314 RVA 0x1b9cb8: void __Gen_Delegate_Imp62(UnityEngine.Vector3 p0, bool p1, UnityEngine.Vector3 p2)
+  METHOD 18315 RVA 0x1b9d2c: UserBindGaidMessage __Gen_Delegate_Imp63()
+  METHOD 18316 RVA 0x1b9da4: string __Gen_Delegate_Imp64(object p0)
+  METHOD 18317 RVA 0x1b9e14: Sfs2X.Requests.IRequest __Gen_Delegate_Imp65(object p0, object[] p1)
+  METHOD 18318 RVA 0x1b9ebc: void __Gen_Delegate_Imp66(object p0, object p1)
+  METHOD 18319 RVA 0x1b9f28: void __Gen_Delegate_Imp67(object p0)
+  METHOD 18320 RVA 0x1b9f8c: BuildMainCityMessage __Gen_Delegate_Imp68()
+  METHOD 18321 RVA 0x1ba004: CrossWorldMoveMessage __Gen_Delegate_Imp69()
+  METHOD 18322 RVA 0x1ba07c: GetFullPushWorldMarchMessage __Gen_Delegate_Imp70()
+  METHOD 18323 RVA 0x1ba0f4: FSTaskCommand __Gen_Delegate_Imp71()
+  METHOD 18324 RVA 0x1ba16c: PushPCNotify __Gen_Delegate_Imp72()
+  METHOD 18325 RVA 0x1ba1e4: PushUserOffMessage __Gen_Delegate_Imp73()
+  METHOD 18326 RVA 0x1ba25c: PushWorldMarchMessage __Gen_Delegate_Imp74()
+  METHOD 18327 RVA 0x1ba2d4: WorldMarchFormationMessage __Gen_Delegate_Imp75()
+  METHOD 18328 RVA 0x1ba34c: bool __Gen_Delegate_Imp76(object p0)
+  METHOD 18329 RVA 0x1ba3bc: void __Gen_Delegate_Imp77(object p0, object p1, object p2)
+  METHOD 18330 RVA 0x1ba430: System.Collections.IEnumerator __Gen_Delegate_Imp78(object p0, object p1, object p2)
+  METHOD 18331 RVA 0x1ba4be: void .cctor()
+  METHOD 18332 RVA 0x1ba4d8: System.Delegate GetDelegateByType(System.Type type)
+RGMD=0x9a92a4 TypeDef=5828 MethodDef=54483
+METHOD 18233 RVA 0x1b7ba0: bool XLua.DelegateBridgeBase::TryGetDelegate(System.Type key, ref System.Delegate value)
+METHOD 18235 RVA 0x1b7c80: System.Delegate XLua.DelegateBridgeBase::GetDelegateByType(System.Type type)
+METHOD 18332 RVA 0x1ba4d8: System.Delegate XLua.DelegateBridge::GetDelegateByType(System.Type type)
+METHOD 20344 RVA 0x1c0b9c: XLua.LuaDLL.lua_CSFunction XLua.MethodWrapsCache::GetDelegateWrap(System.Type type)
+METHOD 20437 RVA 0x1c3270: System.Delegate XLua.ObjectTranslator::getDelegate(XLua.DelegateBridgeBase bridge, System.Type delegateType)
+METHOD 20442 RVA 0x1c3680: int32 XLua.ObjectTranslator::GetDelegateBridgeCount()
+METHOD 20463 RVA 0x1c3fe0: !!0 XLua.ObjectTranslator::GetDelegate(native int L, int32 index)
+METHOD 20848 RVA 0x1d033c: bool XLua.ObjectTranslator+<>c::<getDelegate>b__28_0(System.Reflection.MethodInfo m)
+METHOD 20851 RVA 0x1d037c: System.Delegate XLua.ObjectTranslator+<>c__DisplayClass28_1::<getDelegate>b__1(XLua.DelegateBridgeBase o)
+RGMD=0x9a92a4 TypeDef=5828 MethodDef=54483
+METHOD 20468 RVA 0x1c436c: void XLua.ObjectTranslator::PushAny(native int L, object o)
