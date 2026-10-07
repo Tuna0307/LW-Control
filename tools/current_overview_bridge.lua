@@ -397,6 +397,18 @@ end
 -- sharing/lock violations. Unavailable Lua I/O is never assumed to be busy.
 function M.ReadSharedRuntimeMetadata(path)
     if path ~= control_path and path ~= lease_path then return nil, "unavailable" end
+    if pipe_runtime.adapterRead == nil then
+        local bootstrap_path = os.getenv and os.getenv("LWBRIDGE_PIPE_ADAPTER_PATH") or nil
+        if type(bootstrap_path) == "string" and bootstrap_path ~= "" and
+           valid_pipe_adapter_path ~= nil and valid_pipe_adapter_path(bootstrap_path) then
+            local loaded, load_error = load_pipe_adapter(bootstrap_path)
+            if not loaded then
+                pipe_runtime.error = load_error
+                pipe_runtime.state = "error"
+                write_pipe_transport_diagnostic()
+            end
+        end
+    end
     local reader = pipe_runtime.adapterRead
     if reader ~= nil then
         local ok, result = pcall(function()
@@ -3581,7 +3593,13 @@ function M.Pump()
         dispatch_share_runtime.abandon()
         abandon_truck_quick_rob()
         destroy_message()
-        write_heartbeat(now, false, control == nil and "control_unavailable" or "host_lease_stale")
+        local unavailable_error = control_error
+        if unavailable_error == nil and pipe_runtime.error ~= nil then
+            unavailable_error = pipe_runtime.error
+        end
+        write_heartbeat(now, false,
+            control == nil and (unavailable_error or "control_unavailable") or
+            (lease_error or "host_lease_stale"))
         return true
     end
 

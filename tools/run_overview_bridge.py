@@ -834,7 +834,11 @@ def run_start(
             launch_env = os.environ.copy()
             validated_control_pipe_path = require_control_pipe_path(control_pipe_path)
             if validated_control_pipe_path is not None:
+                adapter_path = (HERE / "LWBridge.GamePipeAdapter.dll").resolve()
+                if not adapter_path.is_file():
+                    raise OverviewBridgeError("packaged game pipe adapter is missing")
                 launch_env["LWBRIDGE_REBUILD_CONTROL_PIPE_PATH"] = validated_control_pipe_path
+                launch_env["LWBRIDGE_PIPE_ADAPTER_PATH"] = str(adapter_path)
             baseline_launcher_pids = {
                 int(item["pid"])
                 for item in selected_launcher_processes(p)
