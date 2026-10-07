@@ -1,0 +1,110 @@
+{
+  "schema": 1,
+  "workItem": "LWB317-FUNCTION-ORIGINAL-LUA-RECOVERY-006",
+  "state": "COMPLETE_WITH_EXACT_INPUT_BLOCKER",
+  "referenceSha256": "4e9c3113dedfd7e1a752404c6936aab304e67d7ffdb0952a5003c2ec948d6783",
+  "functions": [
+    {
+      "name": "getTreasureClaimStatus",
+      "body": "NOT_RECOVERED_FROM_SUPPLIED_INPUTS",
+      "host": {
+        "handler": "0x115C5D-0x1166BE",
+        "providerRef": "0x1160CD",
+        "timeoutMs": 5000,
+        "payload": "no feature-specific payload",
+        "observedResult": [
+          "playerUid",
+          "allianceId",
+          "states",
+          "batch?"
+        ]
+      },
+      "recovered": [
+        "idle status invocation",
+        "queued-gated frontend polling",
+        "1s poll cadence",
+        "1800 max iterations",
+        "state merge by uuid",
+        "current selected profile injected per call",
+        "profile-owned native treasure_claim_states cache"
+      ],
+      "unknown": [
+        "controller idle source/cache ownership",
+        "batch creation/defaults/counters/transitions",
+        "error/timeout/reconnect/profile-switch retirement/reset"
+      ],
+      "clone": "public provider fenced GAME_PROVIDER_UNAVAILABLE"
+    },
+    {
+      "name": "claimTreasures",
+      "body": "NOT_RECOVERED_FROM_SUPPLIED_INPUTS",
+      "host": {
+        "handler": "0x18EE07-0x190734",
+        "providerRef": "0x18FCDA",
+        "timeoutMs": 5000,
+        "payload": [
+          "serverId",
+          "records",
+          "claimScope",
+          "targetUuid",
+          "prioritizeLuckySlots"
+        ],
+        "scopes": [
+          "single",
+          "boxes",
+          "season"
+        ],
+        "prioritizeLuckySlotsDefault": true
+      },
+      "recovered": [
+        "host candidate query filters nonexpired valid UUID treasure rows",
+        "suppliesType 1/3/4 or complete ordinary type 0",
+        "candidate ordering point_index ASC",
+        "result counter vocabulary"
+      ],
+      "unknown": [
+        "record selection/order inside provider",
+        "lucky priority algorithm",
+        "direct claim/scout ordering",
+        "batch/counter transition meanings",
+        "duplicate/retry/error semantics"
+      ],
+      "clone": "public provider fenced GAME_PROVIDER_UNAVAILABLE"
+    },
+    {
+      "name": "prepareGhostPlunderTasks",
+      "body": "NOT_RECOVERED_FROM_SUPPLIED_INPUTS",
+      "host": {
+        "handler": "0x1336A9-0x1350DF",
+        "providerRef": "0x133CA8",
+        "timeoutMs": 5000,
+        "payload": {
+          "rows": "validated Ghost rows"
+        },
+        "result": {
+          "rows": "required array"
+        }
+      },
+      "recovered": [
+        "returned rows identity-matched before persistence",
+        "uuid/server/taskKind/ownerServer/timing/capacity host postconditions",
+        "positive expiry only when > plunderAt",
+        "preparation separated from later persistence/execution"
+      ],
+      "unknown": [
+        "rehydration/re-read behavior",
+        "exact row transforms/additional fields",
+        "exact row rejection/drop policy",
+        "output reordering"
+      ],
+      "clone": "public provider fenced; internal current-v22 helper remains adaptation; 005 string-reader discrepancy retained"
+    }
+  ],
+  "exactDependency": {
+    "absentArtifact": "package-key.envelope",
+    "inaccessibleByAssignment": "matching persisted P-256 CNG private key",
+    "reason": "required to derive 32-byte package key and decrypt the exact 0.3.17 module-table plaintext",
+    "bypassAttempted": false
+  },
+  "productionChanged": false
+}

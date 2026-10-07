@@ -1,0 +1,61 @@
+LWB317-FUNCTION-ORIGINAL-LUA-RECOVERY-006 final static/offline checks
+Date: 2026-10-07
+
+PASS  py_compile:
+      tools/lwbridge317/inspect_original_lua_crypto.py
+      tools/lwbridge317/extract_original_lua_resources.py
+      tools/lwbridge317/audit_original_lua_controller_boundaries.py
+      tests/original_lua_recovery_contract_checks.py
+
+PASS  B crypto verifier
+      tools/lwbridge317/inspect_original_lua_crypto.py
+      findingId=LWB317-FUNCTION-ORIGINAL-LUA-RECOVERY-006-B
+
+PASS  C resource extractor replay
+      tools/lwbridge317/extract_original_lua_resources.py
+      exact carved hashes/PE/bundle checks preserved
+
+PASS  C inert module-table checks
+      python -m unittest tests.original_lua_recovery_contract_checks -q
+      Ran 8 tests
+      OK
+
+PASS  D controller-boundary verifier
+      tools/lwbridge317/audit_original_lua_controller_boundaries.py
+      findingId=LWB317-FUNCTION-ORIGINAL-LUA-RECOVERY-006-D
+
+PASS  005 parser regression
+      tests/map_expiry_correlation_parser_checks.py
+      LWB317_EXPIRY_CORRELATION_PARSER_CHECKS_OK
+
+PASS  JSON parse
+      a-payload-inventory.json
+      b-crypto-contract.json
+      c-extracted/manifest.json
+      d-controller-boundaries.json
+      d-function-matrix.json
+      queue.json
+      JSON_OK 6
+
+PASS  git diff --check
+      no whitespace errors
+      note: Git emitted an autocrlf warning for the exact carved bundle JSON;
+      file content was unchanged and git status showed no modification.
+
+ENVIRONMENT-ONLY NOT RUN
+      tests/map_blocker_boundaries_lua_checks.py
+      tests/map_provider_semantics_lua_checks.py
+      Current installed Python interpreters do not provide 'lupa'.
+      No dependency was installed or environment mutated merely to replay these
+      inherited checks. Their prior accepted evidence remains unchanged.
+
+PROCESS SAFETY
+      One pre-existing LastWar.exe process (PID 39980, start 2026-10-07 19:05:53)
+      was observed read-only while checking the process boundary.
+      This task did not launch, attach to, instrument, control, focus, or
+      terminate that process.
+
+No original LWBridge executable or proxy was launched.
+No auth/licensing/entitlement service was contacted.
+No persisted private key was read/exported.
+No live/shared-desktop action was performed.

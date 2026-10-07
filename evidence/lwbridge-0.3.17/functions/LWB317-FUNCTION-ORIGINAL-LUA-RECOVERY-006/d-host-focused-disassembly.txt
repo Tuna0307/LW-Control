@@ -1,0 +1,1605 @@
+=== STATUS provider call ===
+  0x116002 jmp      0x140116324
+  0x116007 lea      rax, [rsp + 0x178]
+  0x11600F lea      rsi, [rsp + 0x348]
+  0x116017 mov      ecx, 0xd
+  0x11601C mov      rdi, rax
+  0x11601F rep movsq qword ptr [rdi], qword ptr [rsi]
+  0x116022 mov      qword ptr [rax - 0x40], r12
+  0x116026 movaps   xmm0, xmmword ptr [rsp + 0x110]
+  0x11602E movups   xmmword ptr [rax - 0x38], xmm0
+  0x116032 movaps   xmm0, xmmword ptr [rsp + 0x90]
+  0x11603A movaps   xmm1, xmmword ptr [rsp + 0xa0]
+  0x116042 movups   xmmword ptr [rax - 0x28], xmm0
+  0x116046 movups   xmmword ptr [rax - 0x18], xmm1
+  0x11604A mov      rcx, qword ptr [rsp + 0xb0]
+  0x116052 mov      qword ptr [rax - 8], rcx
+  0x116056 mov      qword ptr [rax - 0x58], rdx
+  0x11605A mov      qword ptr [rax - 0x50], rbp
+  0x11605E mov      qword ptr [rax - 0x48], r13
+  0x116062 lea      rcx, [rsp + 0x120]
+  0x11606A call     0x140082427
+  0x11606F mov      rdx, qword ptr [rbx + 0xc90]
+  0x116076 lea      r8, [rbx + 0xc98]
+  0x11607D lea      rsi, [rsp + 0x1e0]
+  0x116085 mov      rcx, rsi
+  0x116088 call     0x14023b9e5
+  0x11608D mov      rbp, qword ptr [rsi]
+  0x116090 mov      r13, qword ptr [rsi + 8]
+  0x116094 mov      rax, rbp
+  0x116097 neg      rax
+  0x11609A jno      0x14011625e
+  0x1160A0 mov      qword ptr [rbx + 0xcc0], r13
+  0x1160A7 mov      rax, qword ptr [r13 + 0x28]
+  0x1160AB add      rax, 0x10
+  0x1160AF mov      byte ptr [rbx + 0xcc8], 5
+  0x1160B6 xor      ecx, ecx
+  0x1160B8 mov      qword ptr [rbx + 0xcd0], rcx
+  0x1160BF mov      qword ptr [rbx + 0xce0], rcx
+  0x1160C6 mov      qword ptr [rbx + 0xce8], rax
+  0x1160CD lea      rax, [rip + 0x715174]                            ; 'getTreasureClaimStatus'
+  0x1160D4 mov      qword ptr [rbx + 0xcf0], rax
+  0x1160DB mov      qword ptr [rbx + 0xcf8], 0x16
+  0x1160E6 mov      qword ptr [rbx + 0xd00], 0x1388
+  0x1160F1 mov      byte ptr [rbx + 0xdb0], 0
+  0x1160F8 mov      r13, qword ptr [rsp + 0x38]
+  0x1160FD mov      r12, qword ptr [rsp + 0x30]
+  0x116102 lea      rsi, [rbx + 0xcc8]
+  0x116109 lea      rdi, [rsp + 0x1e0]
+  0x116111 mov      rcx, rdi
+  0x116114 mov      rdx, rsi
+  0x116117 mov      r8, r13
+  0x11611A call     0x1400e5095
+  0x11611F mov      rbp, qword ptr [rdi]
+  0x116122 cmp      rbp, r15
+  0x116125 jne      0x140116144
+  0x116127 mov      al, 4
+  0x116129 mov      byte ptr [rbx + 0xcb8], al
+  0x11612F mov      cl, 3
+  0x116131 mov      byte ptr [rbx + 0xdb8], cl
+  0x116137 mov      byte ptr [rbx + 0xdc0], cl
+  0x11613D mov      al, 1
+  0x11613F jmp      0x14011665e
+  0x116144 mov      r13, qword ptr [rsp + 0x1e8]
+  0x11614C mov      rdi, qword ptr [rsp + 0x1f0]
+  0x116154 movups   xmm0, xmmword ptr [rsp + 0x1f8]
+  0x11615C movaps   xmmword ptr [rsp + 0xf0], xmm0
+  0x116164 movups   xmm0, xmmword ptr [rsp + 0x208]
+  0x11616C movaps   xmmword ptr [rsp + 0xc0], xmm0
+  0x116174 movups   xmm0, xmmword ptr [rsp + 0x218]
+  0x11617C movaps   xmmword ptr [rsp + 0xd0], xmm0
+  0x116184 mov      rax, qword ptr [rsp + 0x228]
+  0x11618C mov      qword ptr [rsp + 0xe0], rax
+  0x116194 mov      rcx, rsi
+  0x116197 call     0x14010072e
+  0x11619C mov      rax, rbp
+  0x11619F neg      rax
+  0x1161A2 jno      0x140116222
+  0x1161A4 lea      r8, [rsp + 0x120]
+  0x1161AC mov      qword ptr [r8 + 8], rdi
+  0x1161B0 movaps   xmm0, xmmword ptr [rsp + 0xf0]
+  0x1161B8 movups   xmmword ptr [r8 + 0x10], xmm0
+  0x1161BD mov      qword ptr [r8], r13
+  0x1161C0 mov      rax, qword ptr [rbx + 0xcc0]
+  0x1161C7 mov      rax, qword ptr [rax + 0x48]
+  0x1161CB mov      rdx, qword ptr [rax + 0x10]
+  0x1161CF add      rdx, 0x10
+  0x1161D3 lea      rsi, [rsp + 0x1e0]
+  0x1161DB mov      rcx, rsi
+  0x1161DE call     0x14039f7ea
+  0x1161E3 mov      rbp, qword ptr [rsi]
+  0x1161E6 mov      rax, rbp
+  0x1161E9 neg      rax
+  0x1161EC jno      0x1401162a4
+  0x1161F2 lea      rcx, [rbx + 0xcc0]
+  0x1161F9 movaps   xmm0, xmmword ptr [rsp + 0xf0]
+  0x116201 movaps   xmmword ptr [rsp + 0x40], xmm0
+  0x116206 mov      rax, qword ptr [rcx]
+  0x116209 lock dec qword ptr [rax]
+  0x11620D movabs   rbp, 0x8000000000000000
+  0x116217 je       0x14011630c
+  0x11621D jmp      0x140116311
+
+=== CLAIM parse/provider/counters ===
+
+-- parse/validate --
+  0x18F183 movaps   xmmword ptr [rsp + 0x70], xmm0
+  0x18F188 mov      rdi, r13
+  0x18F18B shr      rdi, 8
+  0x18F18F mov      rbp, r8
+  0x18F192 jmp      0x14018fee0
+  0x18F197 lea      rax, [rsp + 0xf8]
+  0x18F19F lea      rsi, [rsp + 0x380]
+  0x18F1A7 mov      ecx, 0xd
+  0x18F1AC mov      rdi, rax
+  0x18F1AF rep movsq qword ptr [rdi], qword ptr [rsi]
+  0x18F1B2 mov      rcx, qword ptr [rsp + 0x2f0]
+  0x18F1BA mov      qword ptr [rax - 8], rcx
+  0x18F1BE movaps   xmm0, xmmword ptr [rsp + 0x2d0]
+  0x18F1C6 movaps   xmm1, xmmword ptr [rsp + 0x2e0]
+  0x18F1CE movups   xmmword ptr [rax - 0x18], xmm1
+  0x18F1D2 movups   xmmword ptr [rax - 0x28], xmm0
+  0x18F1D6 mov      qword ptr [rax - 0x58], rdx
+  0x18F1DA mov      qword ptr [rax - 0x50], r15
+  0x18F1DE mov      qword ptr [rax - 0x48], r13
+  0x18F1E2 mov      qword ptr [rax - 0x40], r8
+  0x18F1E6 mov      qword ptr [rax - 0x38], r14
+  0x18F1EA mov      qword ptr [rax - 0x30], r9
+  0x18F1EE lea      rcx, [rsp + 0xa0]
+  0x18F1F6 call     0x140082427
+  0x18F1FB mov      rdx, qword ptr [rbx + 0x11b8]
+  0x18F202 lea      rsi, [rbx + 0x11c0]
+  0x18F209 lea      rdi, [rsp + 0x168]
+  0x18F211 mov      rcx, rdi
+  0x18F214 mov      r8, rsi
+  0x18F217 call     0x14023b9e5
+  0x18F21C mov      r15, qword ptr [rdi]
+  0x18F21F mov      r13, qword ptr [rdi + 8]
+  0x18F223 mov      rax, r15
+  0x18F226 neg      rax
+  0x18F229 jno      0x14018f494
+  0x18F22F mov      qword ptr [rbx + 0x11e0], r13
+  0x18F236 add      r13, 0x10
+  0x18F23A lea      rdi, [rsp + 0x168]
+  0x18F242 mov      rcx, rdi
+  0x18F245 mov      rdx, r13
+  0x18F248 call     0x14039f75b
+  0x18F24D mov      r15, qword ptr [rdi]
+  0x18F250 mov      rax, r15
+  0x18F253 neg      rax
+  0x18F256 jno      0x14018f514
+  0x18F25C lea      rdx, [rip + 0x69af9f]                            ; 'serverIduid'
+  0x18F263 mov      r8d, 8
+  0x18F269 mov      rcx, rsi
+  0x18F26C call     0x14039f992
+  0x18F271 mov      qword ptr [rbx + 0x11e8], rax
+  0x18F278 test     rax, rax
+  0x18F27B jle      0x14018f572
+  0x18F281 lea      rax, [rbx + 0x11e8]
+  0x18F288 mov      rcx, qword ptr [rbx + 0x11e0]
+  0x18F28F mov      rdi, qword ptr [rcx + 0x48]
+  0x18F293 add      rdi, 0x48
+  0x18F297 lea      r8, [rsp + 0xa0]
+  0x18F29F mov      qword ptr [r8], rax
+  0x18F2A2 lea      rax, [rip - 0x155af9]                            ; 'UVWSH'
+  0x18F2A9 mov      qword ptr [r8 + 8], rax
+  0x18F2AD lea      rdx, [rip + 0x69b771]                            ; '\rtargetServer='
+  0x18F2B4 lea      rsi, [rsp + 0x168]
+  0x18F2BC mov      rcx, rsi
+  0x18F2BF call     0x14006d05a
+  0x18F2C4 mov      rax, qword ptr [rsi + 0x10]
+  0x18F2C8 mov      qword ptr [rbp + 0x10], rax
+  0x18F2CC movups   xmm0, xmmword ptr [rsi]
+  0x18F2CF movups   xmmword ptr [rbp], xmm0
+  0x18F2D3 mov      qword ptr [rbx + 0x1270], rdi
+  0x18F2DA lea      rax, [rip + 0x69a618]                            ; 'map_treasure_claimauth_statemap_scan_clearcity_layout_draft_savemap_treasure_claim_statusmonster_afk_stopautomation_stopauth_loginprofile_listvip18_base_config_saveprofile_note_setvip18_base_restoremap_treasure_state_refreshprofile_selectautomation_inspectcity_layout_validatesquad_recallserver_jumpmap_plunder_jobs_listmap_truck_plunder_retrygame_startmap_dis'
+  0x18F2E1 mov      qword ptr [rbx + 0x1278], rax
+  0x18F2E8 mov      qword ptr [rbx + 0x1280], 0x12
+  0x18F2F3 mov      byte ptr [rbx + 0x1330], 0
+  0x18F2FA mov      r13, qword ptr [rsp + 0x30]
+  0x18F2FF mov      r14, qword ptr [rsp + 0x38]
+  0x18F304 lea      rsi, [rbx + 0x1258]
+  0x18F30B mov      rcx, rsi
+  0x18F30E mov      rdx, r13
+  0x18F311 call     0x1400ebf1c
+  0x18F316 test     rax, rax
+  0x18F319 je       0x14018f48d
+  0x18F31F mov      qword ptr [rbx + 0x11f0], rax
+  0x18F326 mov      qword ptr [rbx + 0x11f8], rdx
+  0x18F32D mov      rcx, rsi
+  0x18F330 call     0x1400ffb18
+  0x18F335 mov      rax, qword ptr [rbx + 0x11e0]
+  0x18F33C add      rax, 0x10
+  0x18F340 mov      qword ptr [rbx + 0x1258], rax
+  0x18F347 mov      qword ptr [rbx + 0x1260], 0x1388
+  0x18F352 mov      byte ptr [rbx + 0x1358], 0
+  0x18F359 lea      rdx, [rbx + 0x1258]
+  0x18F360 lea      rsi, [rsp + 0x168]
+  0x18F368 mov      rcx, rsi
+  0x18F36B mov      r8, r13
+  0x18F36E call     0x1400dca7d
+  0x18F373 mov      r15, qword ptr [rsi]
+  0x18F376 movabs   rax, 0x8000000000000001
+  0x18F380 cmp      r15, rax
+  0x18F383 jne      0x14018f38c
+  0x18F385 mov      al, 5
+  0x18F387 jmp      0x14018fd36
+  0x18F38C mov      qword ptr [rsp + 0x38], r14
+  0x18F391 mov      rsi, r13
+  0x18F394 mov      r13, qword ptr [rsp + 0x170]
+  0x18F39C mov      rbp, qword ptr [rsp + 0x178]
+  0x18F3A4 mov      r14, qword ptr [rsp + 0x180]
+  0x18F3AC mov      rdi, qword ptr [rsp + 0x188]
+  0x18F3B4 movups   xmm0, xmmword ptr [rsp + 0x190]
+  0x18F3BC movaps   xmmword ptr [rsp + 0x300], xmm0
+  0x18F3C4 movups   xmm0, xmmword ptr [rsp + 0x1a0]
+  0x18F3CC movaps   xmmword ptr [rsp + 0x310], xmm0
+  0x18F3D4 mov      rax, qword ptr [rsp + 0x1b0]
+  0x18F3DC mov      qword ptr [rsp + 0x320], rax
+  0x18F3E4 cmp      byte ptr [rbx + 0x1358], 3
+  0x18F3EB jne      0x14018f3f9
+  0x18F3ED lea      rcx, [rbx + 0x1268]
+  0x18F3F4 call     0x14010072e
+  0x18F3F9 mov      rax, r15
+  0x18F3FC neg      rax
+  0x18F3FF jno      0x14018f44f
+  0x18F401 cmp      r13, qword ptr [rbx + 0x11e8]
+  0x18F408 jne      0x14018f4e3
+  0x18F40E cmp      byte ptr [rbx + 0x11c0], 5
+  0x18F415 jne      0x14018f50d
+  0x18F41B lea      rcx, [rbx + 0x11c8]
+  0x18F422 lea      rdx, [rip + 0x69b9c4]                            ; 'claimScopeboxestargetUuideligiblequeuedskippeddirectQueuedscoutQueuedscoutDispatchedclaimednoScoutSkippedotherAllianceSkippedfailedINVALID_TREASURE_CLAIM_SCOPEtreasure claim scope is invalidSERVER_MISMATCHcurrent game server does not match map data serverprioritizeLuckySlotsh'
+  0x18F429 mov      r8d, 0xa
+  0x18F42F call     0x1405a9615
+  0x18F434 test     rax, rax
+  0x18F437 je       0x14018f50d
+  0x18F43D cmp      byte ptr [rax], 3
+  0x18F440 jne      0x14018f5e4
+  0x18F446 mov      rcx, qword ptr [rax + 0x10]
+  0x18F44A jmp      0x14018f5e6
+  0x18F44F mov      qword ptr [rsp + 0x30], rdi
+  0x18F454 mov      rax, qword ptr [rsp + 0x320]
+  0x18F45C mov      qword ptr [rsp + 0x90], rax
+  0x18F464 movaps   xmm0, xmmword ptr [rsp + 0x300]
+  0x18F46C movaps   xmm1, xmmword ptr [rsp + 0x310]
+  0x18F474 movaps   xmmword ptr [rsp + 0x80], xmm1
+  0x18F47C movaps   xmmword ptr [rsp + 0x70], xmm0
+  0x18F481 mov      rdi, r13
+  0x18F484 shr      rdi, 8
+  0x18F488 jmp      0x14018feb0
+  0x18F48D mov      al, 4
+  0x18F48F jmp      0x14018fd36
+  0x18F494 mov      rbp, qword ptr [rsp + 0x178]
+  0x18F49C mov      r14, qword ptr [rsp + 0x180]
+  0x18F4A4 mov      rax, qword ptr [rsp + 0x188]
+  0x18F4AC mov      qword ptr [rsp + 0x30], rax
+  0x18F4B1 movups   xmm0, xmmword ptr [rsp + 0x190]
+  0x18F4B9 movaps   xmmword ptr [rsp + 0x70], xmm0
+  0x18F4BE movups   xmm0, xmmword ptr [rsp + 0x1a0]
+  0x18F4C6 movaps   xmmword ptr [rsp + 0x80], xmm0
+  0x18F4CE mov      rax, qword ptr [rsp + 0x1b0]
+  0x18F4D6 mov      qword ptr [rsp + 0x90], rax
+  0x18F4DE jmp      0x14018fe14
+  0x18F4E3 mov      qword ptr [rsp + 0x20], 0x32
+  0x18F4EC lea      rdx, [rip + 0x69b9b8]                            ; 'SERVER_MISMATCHcurrent game server does not match map data serverprioritizeLuckySlotsh'
+  0x18F4F3 lea      r9, [rip + 0x69b9c0]                             ; 'current game server does not match map data serverprioritizeLuckySlotsh'
+  0x18F4FA lea      rsi, [rsp + 0x168]
+  0x18F502 mov      r8d, 0xf
+  0x18F508 jmp      0x14018f70f
+  0x18F50D xor      ecx, ecx
+  0x18F50F jmp      0x14018f5ea
+  0x18F514 mov      r13, qword ptr [rsp + 0x170]
+  0x18F51C mov      rbp, qword ptr [rsp + 0x178]
+  0x18F524 mov      r14, qword ptr [rsp + 0x180]
+  0x18F52C mov      rax, qword ptr [rsp + 0x188]
+  0x18F534 mov      qword ptr [rsp + 0x30], rax
+  0x18F539 movups   xmm0, xmmword ptr [rsp + 0x190]
+  0x18F541 movaps   xmmword ptr [rsp + 0x70], xmm0
+  0x18F546 movups   xmm0, xmmword ptr [rsp + 0x1a0]
+  0x18F54E movaps   xmmword ptr [rsp + 0x80], xmm0
+  0x18F556 mov      rax, qword ptr [rsp + 0x1b0]
+  0x18F55E mov      qword ptr [rsp + 0x90], rax
+  0x18F566 mov      rdi, r13
+  0x18F569 shr      rdi, 8
+  0x18F56D jmp      0x14018fec7
+  0x18F572 mov      qword ptr [rsp + 0x20], 0x15
+  0x18F57B lea      rdx, [rip + 0x69b466]                            ; 'INVALID_SERVER_IDserver ID must be an integer from 1 to 99999\rtargetServer='
+  0x18F582 lea      r9, [rip + 0x69b84f]                             ; 'server ID is requiredclaimScopeboxestargetUuideligiblequeuedskippeddirectQueuedscoutQueuedscoutDispatchedclaimednoScoutSkippedotherAllianceSkippedfailedINVALID_TREASURE_CLAIM_SCOPEtreasure claim scope is invalidSERVER_MISMATCHcurrent game server does not match map data serverprioritizeLuckySlotsh'
+  0x18F589 lea      rsi, [rsp + 0x168]
+  0x18F591 mov      r8d, 0x11
+  0x18F597 mov      rcx, rsi
+  0x18F59A call     0x1402a1a47
+  0x18F59F mov      r15, qword ptr [rsi]
+  0x18F5A2 mov      r13, qword ptr [rsi + 8]
+  0x18F5A6 mov      rdi, r13
+  0x18F5A9 shr      rdi, 8
+  0x18F5AD mov      rbp, qword ptr [rsi + 0x10]
+  0x18F5B1 mov      r14, qword ptr [rsi + 0x18]
+  0x18F5B5 mov      rax, qword ptr [rsi + 0x20]
+  0x18F5B9 mov      qword ptr [rsp + 0x30], rax
+  0x18F5BE movups   xmm0, xmmword ptr [rsi + 0x28]
+  0x18F5C2 movaps   xmmword ptr [rsp + 0x70], xmm0
+  0x18F5C7 movups   xmm0, xmmword ptr [rsi + 0x38]
+  0x18F5CB movaps   xmmword ptr [rsp + 0x80], xmm0
+  0x18F5D3 mov      rax, qword ptr [rsi + 0x48]
+  0x18F5D7 mov      qword ptr [rsp + 0x90], rax
+  0x18F5DF jmp      0x14018fec7
+  0x18F5E4 xor      ecx, ecx
+  0x18F5E6 mov      rax, qword ptr [rax + 0x18]
+  0x18F5EA test     rcx, rcx
+  0x18F5ED lea      rdx, [rip + 0x69b803]                            ; 'boxestargetUuideligiblequeuedskippeddirectQueuedscoutQueuedscoutDispatchedclaimednoScoutSkippedotherAllianceSkippedfailedINVALID_TREASURE_CLAIM_SCOPEtreasure claim scope is invalidSERVER_MISMATCHcurrent game server does not match map data serverprioritizeLuckySlotsh'
+  0x18F5F4 cmovne   rdx, rcx
+  0x18F5F8 mov      ecx, 5
+  0x18F5FD cmovne   rcx, rax
+  0x18F601 mov      qword ptr [rbx + 0x1200], rdx
+  0x18F608 mov      qword ptr [rbx + 0x1208], rcx
+  0x18F60F cmp      byte ptr [rbx + 0x11c0], 5
+  0x18F616 jne      0x14018f641
+  0x18F618 lea      rcx, [rbx + 0x11c8]
+  0x18F61F lea      rdx, [rip + 0x69b7d6]                            ; 'targetUuideligiblequeuedskippeddirectQueuedscoutQueuedscoutDispatchedclaimednoScoutSkippedotherAllianceSkippedfailedINVALID_TREASURE_CLAIM_SCOPEtreasure claim scope is invalidSERVER_MISMATCHcurrent game server does not match map data serverprioritizeLuckySlotsh'
+  0x18F626 mov      r8d, 0xa
+  0x18F62C call     0x1405a9615
+  0x18F631 test     rax, rax
+  0x18F634 je       0x14018f641
+  0x18F636 cmp      byte ptr [rax], 3
+  0x18F639 jne      0x14018f646
+  0x18F63B mov      r8, qword ptr [rax + 0x10]
+  0x18F63F jmp      0x14018f649
+  0x18F641 xor      r8d, r8d
+  0x18F644 jmp      0x14018f64d
+  0x18F646 xor      r8d, r8d
+  0x18F649 mov      rdx, qword ptr [rax + 0x18]
+  0x18F64D test     r8, r8
+  0x18F650 mov      ecx, 1
+  0x18F655 cmovne   rcx, r8
+  0x18F659 cmove    rdx, r8
+  0x18F65D call     0x1400385a4
+  0x18F662 mov      qword ptr [rbx + 0x1210], rax
+  0x18F669 mov      qword ptr [rbx + 0x1218], rdx
+  0x18F670 mov      rax, qword ptr [rbx + 0x1200]
+  0x18F677 mov      rcx, qword ptr [rbx + 0x1208]
+  0x18F67E cmp      rcx, 6
+  0x18F682 je       0x14018f6a1
+  0x18F684 cmp      rcx, 5
+  0x18F688 jne      0x14018f6ea
+  0x18F68A mov      ecx, 0x65786f62
+  0x18F68F xor      ecx, dword ptr [rax]
+  0x18F691 movzx    eax, byte ptr [rax + 4]
+  0x18F695 xor      eax, 0x73
+  0x18F698 or       eax, ecx
+  0x18F69A jne      0x14018f6ea
+  0x18F69C jmp      0x14018f75c
+  0x18F6A1 mov      ecx, 0x73616573
+  0x18F6A6 xor      ecx, dword ptr [rax]
+  0x18F6A8 movzx    r8d, word ptr [rax + 4]
+  0x18F6AD xor      r8d, 0x6e6f
+  0x18F6B4 or       r8d, ecx
+  0x18F6B7 je       0x14018f6d1
+  0x18F6B9 mov      ecx, 0x676e6973
+  0x18F6BE xor      ecx, dword ptr [rax]
+  0x18F6C0 movzx    r8d, word ptr [rax + 4]
+  0x18F6C5 xor      r8d, 0x656c
+  0x18F6CC or       r8d, ecx
+  0x18F6CF jne      0x14018f6ea
+  0x18F6D1 mov      ecx, 0x676e6973
+  0x18F6D6 xor      ecx, dword ptr [rax]
+  0x18F6D8 movzx    eax, word ptr [rax + 4]
+  0x18F6DC xor      eax, 0x656c
+  0x18F6E1 or       eax, ecx
+  0x18F6E3 jne      0x14018f75c
+  0x18F6E5 test     rdx, rdx
+  0x18F6E8 jne      0x14018f75c
+  0x18F6EA mov      qword ptr [rsp + 0x20], 0x1f
+  0x18F6F3 lea      rdx, [rip + 0x69b776]                            ; 'INVALID_TREASURE_CLAIM_SCOPEtreasure claim scope is invalidSERVER_MISMATCHcurrent game server does not match map data serverprioritizeLuckySlotsh'
+  0x18F6FA lea      r9, [rip + 0x69b78b]                             ; 'treasure claim scope is invalidSERVER_MISMATCHcurrent game server does not match map data serverprioritizeLuckySlotsh'
+  0x18F701 lea      rsi, [rsp + 0x168]
+  0x18F709 mov      r8d, 0x1c
+  0x18F70F mov      rcx, rsi
+  0x18F712 call     0x1402a1a47
+  0x18F717 mov      r15, qword ptr [rsi]
+  0x18F71A mov      r13, qword ptr [rsi + 8]
+  0x18F71E mov      rdi, r13
+  0x18F721 shr      rdi, 8
+  0x18F725 mov      rbp, qword ptr [rsi + 0x10]
+  0x18F729 mov      r14, qword ptr [rsi + 0x18]
+  0x18F72D mov      rax, qword ptr [rsi + 0x20]
+  0x18F731 mov      qword ptr [rsp + 0x30], rax
+  0x18F736 movups   xmm0, xmmword ptr [rsi + 0x28]
+  0x18F73A movaps   xmmword ptr [rsp + 0x70], xmm0
+  0x18F73F movups   xmm0, xmmword ptr [rsi + 0x38]
+  0x18F743 movaps   xmmword ptr [rsp + 0x80], xmm0
+  0x18F74B mov      rax, qword ptr [rsi + 0x48]
+  0x18F74F mov      qword ptr [rsp + 0x90], rax
+  0x18F757 jmp      0x14018feb0
+  0x18F75C mov      rax, qword ptr [rbx + 0x11e0]
+  0x18F763 mov      r15, qword ptr [rbx + 0x11e8]
+  0x18F76A mov      rax, qword ptr [rax + 0x48]
+  0x18F76E mov      rdi, qword ptr [rax + 0x10]
+  0x18F772 add      rdi, 0x10
+  0x18F776 call     0x1402c9034
+  0x18F77B lea      rbp, [rsp + 0x168]
+
+-- provider --
+  0x18FB80 je       0x1401906f6
+  0x18FB86 movabs   rcx, 0x7555746567726174
+  0x18FB90 mov      qword ptr [rax], rcx
+  0x18FB93 mov      word ptr [rax + 8], 0x6469
+  0x18FB99 mov      qword ptr [rsp + 0x40], rdi
+  0x18FB9E mov      qword ptr [rsp + 0x48], rax
+  0x18FBA3 mov      qword ptr [rsp + 0x50], rdi
+  0x18FBA8 lea      rdx, [rbx + 0x1210]
+  0x18FBAF lea      rdi, [rsp + 0x168]
+  0x18FBB7 mov      rcx, rdi
+  0x18FBBA call     0x14031ef22
+  0x18FBBF cmp      byte ptr [rdi], 6
+  0x18FBC2 je       0x1401906a7
+  0x18FBC8 lea      rdi, [rsp + 0x168]
+  0x18FBD0 movups   xmm0, xmmword ptr [rdi]
+  0x18FBD3 movups   xmm1, xmmword ptr [rdi + 0x10]
+  0x18FBD7 lea      r9, [rsp + 0xa0]
+  0x18FBDF movaps   xmmword ptr [r9 + 0x10], xmm1
+  0x18FBE4 movaps   xmmword ptr [r9], xmm0
+  0x18FBE8 lea      rdx, [rsp + 0x58]
+  0x18FBED lea      r8, [rsp + 0x40]
+  0x18FBF2 mov      rcx, rdi
+  0x18FBF5 call     0x1405a9712
+  0x18FBFA cmp      byte ptr [rdi], 6
+  0x18FBFD je       0x14018fc0c
+  0x18FBFF lea      rcx, [rsp + 0x168]
+  0x18FC07 call     0x140081e10
+  0x18FC0C mov      edi, 0x14
+  0x18FC11 mov      r8d, 0x14
+  0x18FC17 xor      edx, edx
+  0x18FC19 call     0x1405c4370
+  0x18FC1E test     rax, rax
+  0x18FC21 je       0x140190723
+  0x18FC27 add      r15, 0x10
+  0x18FC2B movups   xmm0, xmmword ptr [rip + 0x69b2ba]               ; 'prioritizeLuckySlotsh'
+  0x18FC32 movups   xmmword ptr [rax], xmm0
+  0x18FC35 mov      dword ptr [rax + 0x10], 0x73746f6c
+  0x18FC3C lea      r8, [rsp + 0x40]
+  0x18FC41 mov      qword ptr [r8], rdi
+  0x18FC44 mov      qword ptr [r8 + 8], rax
+  0x18FC48 mov      qword ptr [r8 + 0x10], rdi
+  0x18FC4C mov      al, byte ptr [rsi]
+  0x18FC4E lea      r9, [rsp + 0x168]
+  0x18FC56 mov      byte ptr [r9], 1
+  0x18FC5A mov      byte ptr [r9 + 1], al
+  0x18FC5E lea      rsi, [rsp + 0xa0]
+  0x18FC66 lea      rdx, [rsp + 0x58]
+  0x18FC6B mov      rcx, rsi
+  0x18FC6E call     0x1405a9712
+  0x18FC73 cmp      byte ptr [rsi], 6
+  0x18FC76 je       0x14018fc85
+  0x18FC78 lea      rcx, [rsp + 0xa0]
+  0x18FC80 call     0x140081e10
+  0x18FC85 mov      rax, qword ptr [rsp + 0x68]
+  0x18FC8A movups   xmm0, xmmword ptr [rsp + 0x58]
+  0x18FC8F movups   xmmword ptr [rsp + 0x368], xmm0
+  0x18FC97 mov      qword ptr [rsp + 0x378], rax
+  0x18FC9F mov      byte ptr [rbx + 0x1278], 5
+  0x18FCA6 movups   xmm0, xmmword ptr [rsp + 0x361]
+  0x18FCAE mov      rax, qword ptr [rsp + 0x370]
+  0x18FCB6 mov      rcx, qword ptr [rsp + 0x378]
+  0x18FCBE movups   xmmword ptr [rbx + 0x1279], xmm0
+  0x18FCC5 mov      qword ptr [rbx + 0x1288], rax
+  0x18FCCC mov      qword ptr [rbx + 0x1290], rcx
+  0x18FCD3 mov      qword ptr [rbx + 0x1298], r15
+  0x18FCDA lea      rax, [rip + 0x69b23e]                            ; 'claimTreasures'
+  0x18FCE1 mov      qword ptr [rbx + 0x12a0], rax
+  0x18FCE8 mov      qword ptr [rbx + 0x12a8], 0xe
+  0x18FCF3 mov      qword ptr [rbx + 0x12b0], 0x1388
+  0x18FCFE mov      byte ptr [rbx + 0x1360], 0
+  0x18FD05 lea      rsi, [rbx + 0x1278]
+  0x18FD0C lea      rdi, [rsp + 0x168]
+  0x18FD14 mov      rcx, rdi
+  0x18FD17 mov      rdx, rsi
+  0x18FD1A mov      r8, r13
+  0x18FD1D call     0x1400e5095
+  0x18FD22 mov      r15, qword ptr [rdi]
+  0x18FD25 movabs   rax, 0x8000000000000001
+  0x18FD2F cmp      r15, rax
+  0x18FD32 jne      0x14018fd41
+  0x18FD34 mov      al, 7
+  0x18FD36 mov      byte ptr [rbx + 0x1250], al
+  0x18FD3C jmp      0x14018ff02
+  0x18FD41 mov      qword ptr [rsp + 0x38], r14
+  0x18FD46 mov      r13, qword ptr [rsp + 0x170]
+  0x18FD4E mov      rbp, qword ptr [rsp + 0x178]
+  0x18FD56 mov      r14, qword ptr [rsp + 0x180]
+  0x18FD5E mov      rdi, qword ptr [rsp + 0x188]
+  0x18FD66 movups   xmm0, xmmword ptr [rsp + 0x190]
+  0x18FD6E movaps   xmmword ptr [rsp + 0x70], xmm0
+  0x18FD73 movups   xmm0, xmmword ptr [rsp + 0x1a0]
+  0x18FD7B movaps   xmmword ptr [rsp + 0x80], xmm0
+  0x18FD83 mov      rax, qword ptr [rsp + 0x1b0]
+  0x18FD8B mov      qword ptr [rsp + 0x90], rax
+  0x18FD93 mov      rcx, rsi
+  0x18FD96 call     0x14010072e
+  0x18FD9B lea      rsi, [rbx + 0x1260]
+  0x18FDA2 mov      rcx, rsi
+  0x18FDA5 call     0x1405acc0a
+  0x18FDAA mov      edx, 8
+  0x18FDAF mov      r8d, 0x20
+  0x18FDB5 mov      rcx, rsi
+  0x18FDB8 call     0x14001150d
+  0x18FDBD lea      rsi, [rbx + 0x1238]
+  0x18FDC4 mov      rcx, rsi
+  0x18FDC7 call     0x1405acc0a
+  0x18FDCC mov      edx, 8
+  0x18FDD1 mov      r8d, 0x20
+  0x18FDD7 mov      rcx, rsi
+  0x18FDDA call     0x14001150d
+  0x18FDDF lea      rsi, [rbx + 0x11f0]
+  0x18FDE6 mov      rcx, rsi
+  0x18FDE9 call     0x14048194b
+  0x18FDEE mov      rcx, rsi
+
+-- result/counters --
+  0x190262 mov      dword ptr [rsp + 0x20], eax
+  0x190266 mov      rcx, rdi
+  0x190269 mov      r8, rsi
+  0x19026C call     0x140344cbb
+  0x190271 mov      cl, 1
+  0x190273 xor      eax, eax
+  0x190275 mov      byte ptr [rbx + 0x1400], cl
+  0x19027B movaps   xmm6, xmmword ptr [rsp + 0x450]
+  0x190283 add      rsp, 0x468
+  0x19028A pop      rbx
+  0x19028B pop      rbp
+  0x19028C pop      rdi
+  0x19028D pop      rsi
+  0x19028E pop      r12
+  0x190290 pop      r13
+  0x190292 pop      r14
+  0x190294 pop      r15
+  0x190296 ret
+  0x190297 mov      rax, qword ptr [rsp + 0x188]
+  0x19029F mov      qword ptr [rsp + 0x30], rax
+  0x1902A4 movups   xmm0, xmmword ptr [rsp + 0x190]
+  0x1902AC movaps   xmmword ptr [rsp + 0x70], xmm0
+  0x1902B1 movups   xmm0, xmmword ptr [rsp + 0x1a0]
+  0x1902B9 movaps   xmmword ptr [rsp + 0x80], xmm0
+  0x1902C1 mov      rax, qword ptr [rsp + 0x1b0]
+  0x1902C9 mov      qword ptr [rsp + 0x90], rax
+  0x1902D1 mov      rdi, r13
+  0x1902D4 shr      rdi, 8
+  0x1902D8 mov      rbp, r9
+  0x1902DB jmp      0x14018feb0
+  0x1902E0 mov      r14, r12
+  0x1902E3 xor      eax, eax
+  0x1902E5 lea      rsi, [rsp + 0x58]
+  0x1902EA mov      qword ptr [rsi], rax
+  0x1902ED mov      qword ptr [rsi + 0x10], rax
+  0x1902F1 lea      rdx, [rip + 0x69ab0e]                            ; 'eligiblequeuedskippeddirectQueuedscoutQueuedscoutDispatchedclaimednoScoutSkippedotherAllianceSkippedfailedINVALID_TREASURE_CLAIM_SCOPEtreasure claim scope is invalidSERVER_MISMATCHcurrent game server does not match map data serverprioritizeLuckySlotsh'
+  0x1902F8 lea      rdi, [rsp + 0x40]
+  0x1902FD mov      r8d, 8
+  0x190303 mov      rcx, rdi
+  0x190306 call     0x14010b5b4
+  0x19030B lea      r9, [rsp + 0x168]
+  0x190313 mov      byte ptr [r9], 2
+  0x190317 xorps    xmm6, xmm6
+  0x19031A movups   xmmword ptr [r9 + 8], xmm6
+  0x19031F lea      r12, [rsp + 0xa0]
+  0x190327 mov      rcx, r12
+  0x19032A mov      rdx, rsi
+  0x19032D mov      r8, rdi
+  0x190330 call     0x1405a9712
+  0x190335 cmp      byte ptr [r12], 6
+  0x19033A je       0x140190349
+  0x19033C lea      rcx, [rsp + 0xa0]
+  0x190344 call     0x140081e10
+  0x190349 lea      rdx, [rip + 0x69aabe]                            ; 'queuedskippeddirectQueuedscoutQueuedscoutDispatchedclaimednoScoutSkippedotherAllianceSkippedfailedINVALID_TREASURE_CLAIM_SCOPEtreasure claim scope is invalidSERVER_MISMATCHcurrent game server does not match map data serverprioritizeLuckySlotsh'
+  0x190350 lea      rsi, [rsp + 0x40]
+  0x190355 mov      r8d, 6
+  0x19035B mov      rcx, rsi
+  0x19035E call     0x14010b5b4
+  0x190363 lea      r9, [rsp + 0x168]
+  0x19036B mov      byte ptr [r9], 2
+  0x19036F movups   xmmword ptr [r9 + 8], xmm6
+  0x190374 lea      rdi, [rsp + 0xa0]
+  0x19037C lea      rdx, [rsp + 0x58]
+  0x190381 mov      rcx, rdi
+  0x190384 mov      r8, rsi
+  0x190387 call     0x1405a9712
+  0x19038C cmp      byte ptr [rdi], 6
+  0x19038F je       0x14019039e
+  0x190391 lea      rcx, [rsp + 0xa0]
+  0x190399 call     0x140081e10
+  0x19039E lea      rdx, [rip + 0x69aa6f]                            ; 'skippeddirectQueuedscoutQueuedscoutDispatchedclaimednoScoutSkippedotherAllianceSkippedfailedINVALID_TREASURE_CLAIM_SCOPEtreasure claim scope is invalidSERVER_MISMATCHcurrent game server does not match map data serverprioritizeLuckySlotsh'
+  0x1903A5 lea      rsi, [rsp + 0x40]
+  0x1903AA mov      r8d, 7
+  0x1903B0 mov      rcx, rsi
+  0x1903B3 call     0x14010b5b4
+  0x1903B8 lea      r9, [rsp + 0x168]
+  0x1903C0 mov      byte ptr [r9], 2
+  0x1903C4 xorps    xmm6, xmm6
+  0x1903C7 movups   xmmword ptr [r9 + 8], xmm6
+  0x1903CC lea      rdi, [rsp + 0xa0]
+  0x1903D4 lea      rdx, [rsp + 0x58]
+  0x1903D9 mov      rcx, rdi
+  0x1903DC mov      r8, rsi
+  0x1903DF call     0x1405a9712
+  0x1903E4 cmp      byte ptr [rdi], 6
+  0x1903E7 mov      r12, r14
+  0x1903EA je       0x1401903f9
+  0x1903EC lea      rcx, [rsp + 0xa0]
+  0x1903F4 call     0x140081e10
+  0x1903F9 lea      rdx, [rip + 0x69aa1b]                            ; 'directQueuedscoutQueuedscoutDispatchedclaimednoScoutSkippedotherAllianceSkippedfailedINVALID_TREASURE_CLAIM_SCOPEtreasure claim scope is invalidSERVER_MISMATCHcurrent game server does not match map data serverprioritizeLuckySlotsh'
+  0x190400 lea      rsi, [rsp + 0x40]
+  0x190405 mov      r8d, 0xc
+  0x19040B mov      rcx, rsi
+  0x19040E call     0x14010b5b4
+  0x190413 lea      r9, [rsp + 0x168]
+  0x19041B mov      byte ptr [r9], 2
+  0x19041F movups   xmmword ptr [r9 + 8], xmm6
+  0x190424 lea      rdi, [rsp + 0xa0]
+  0x19042C lea      rdx, [rsp + 0x58]
+  0x190431 mov      rcx, rdi
+  0x190434 mov      r8, rsi
+  0x190437 call     0x1405a9712
+  0x19043C cmp      byte ptr [rdi], 6
+  0x19043F je       0x14019044e
+  0x190441 lea      rcx, [rsp + 0xa0]
+  0x190449 call     0x140081e10
+  0x19044E lea      rdx, [rip + 0x69a9d2]                            ; 'scoutQueuedscoutDispatchedclaimednoScoutSkippedotherAllianceSkippedfailedINVALID_TREASURE_CLAIM_SCOPEtreasure claim scope is invalidSERVER_MISMATCHcurrent game server does not match map data serverprioritizeLuckySlotsh'
+  0x190455 lea      rsi, [rsp + 0x40]
+  0x19045A mov      r8d, 0xb
+  0x190460 mov      rcx, rsi
+  0x190463 call     0x14010b5b4
+  0x190468 lea      r9, [rsp + 0x168]
+  0x190470 mov      byte ptr [r9], 2
+  0x190474 xorps    xmm6, xmm6
+  0x190477 movups   xmmword ptr [r9 + 8], xmm6
+  0x19047C lea      rdi, [rsp + 0xa0]
+  0x190484 lea      rdx, [rsp + 0x58]
+  0x190489 mov      rcx, rdi
+  0x19048C mov      r8, rsi
+  0x19048F call     0x1405a9712
+  0x190494 cmp      byte ptr [rdi], 6
+  0x190497 je       0x1401904a6
+  0x190499 lea      rcx, [rsp + 0xa0]
+  0x1904A1 call     0x140081e10
+  0x1904A6 lea      rdx, [rip + 0x69a985]                            ; 'scoutDispatchedclaimednoScoutSkippedotherAllianceSkippedfailedINVALID_TREASURE_CLAIM_SCOPEtreasure claim scope is invalidSERVER_MISMATCHcurrent game server does not match map data serverprioritizeLuckySlotsh'
+  0x1904AD lea      rsi, [rsp + 0x40]
+  0x1904B2 mov      r8d, 0xf
+  0x1904B8 mov      rcx, rsi
+  0x1904BB call     0x14010b5b4
+  0x1904C0 lea      r9, [rsp + 0x168]
+  0x1904C8 mov      byte ptr [r9], 2
+  0x1904CC movups   xmmword ptr [r9 + 8], xmm6
+  0x1904D1 lea      rdi, [rsp + 0xa0]
+  0x1904D9 lea      rdx, [rsp + 0x58]
+  0x1904DE mov      rcx, rdi
+  0x1904E1 mov      r8, rsi
+  0x1904E4 call     0x1405a9712
+  0x1904E9 cmp      byte ptr [rdi], 6
+  0x1904EC je       0x1401904fb
+  0x1904EE lea      rcx, [rsp + 0xa0]
+  0x1904F6 call     0x140081e10
+  0x1904FB lea      rdx, [rip + 0x69a93f]                            ; 'claimednoScoutSkippedotherAllianceSkippedfailedINVALID_TREASURE_CLAIM_SCOPEtreasure claim scope is invalidSERVER_MISMATCHcurrent game server does not match map data serverprioritizeLuckySlotsh'
+  0x190502 lea      rsi, [rsp + 0x40]
+  0x190507 mov      r8d, 7
+  0x19050D mov      rcx, rsi
+  0x190510 call     0x14010b5b4
+  0x190515 lea      r9, [rsp + 0x168]
+  0x19051D mov      byte ptr [r9], 2
+  0x190521 xorps    xmm6, xmm6
+  0x190524 movups   xmmword ptr [r9 + 8], xmm6
+  0x190529 lea      rdi, [rsp + 0xa0]
+  0x190531 lea      rdx, [rsp + 0x58]
+  0x190536 mov      rcx, rdi
+  0x190539 mov      r8, rsi
+  0x19053C call     0x1405a9712
+  0x190541 cmp      byte ptr [rdi], 6
+  0x190544 je       0x140190553
+  0x190546 lea      rcx, [rsp + 0xa0]
+  0x19054E call     0x140081e10
+  0x190553 lea      rdx, [rip + 0x69a8ee]                            ; 'noScoutSkippedotherAllianceSkippedfailedINVALID_TREASURE_CLAIM_SCOPEtreasure claim scope is invalidSERVER_MISMATCHcurrent game server does not match map data serverprioritizeLuckySlotsh'
+  0x19055A lea      rsi, [rsp + 0x40]
+  0x19055F mov      r8d, 0xe
+  0x190565 mov      rcx, rsi
+  0x190568 call     0x14010b5b4
+  0x19056D lea      r9, [rsp + 0x168]
+  0x190575 mov      byte ptr [r9], 2
+  0x190579 movups   xmmword ptr [r9 + 8], xmm6
+  0x19057E lea      rdi, [rsp + 0xa0]
+  0x190586 lea      rdx, [rsp + 0x58]
+  0x19058B mov      rcx, rdi
+  0x19058E mov      r8, rsi
+  0x190591 call     0x1405a9712
+  0x190596 cmp      byte ptr [rdi], 6
+  0x190599 je       0x1401905a8
+  0x19059B lea      rcx, [rsp + 0xa0]
+  0x1905A3 call     0x140081e10
+  0x1905A8 lea      rdx, [rip + 0x69a8a7]                            ; 'otherAllianceSkippedfailedINVALID_TREASURE_CLAIM_SCOPEtreasure claim scope is invalidSERVER_MISMATCHcurrent game server does not match map data serverprioritizeLuckySlotsh'
+  0x1905AF lea      rsi, [rsp + 0x40]
+  0x1905B4 mov      r8d, 0x14
+  0x1905BA mov      rcx, rsi
+  0x1905BD call     0x14010b5b4
+  0x1905C2 lea      r9, [rsp + 0x168]
+  0x1905CA mov      byte ptr [r9], 2
+  0x1905CE xorps    xmm6, xmm6
+  0x1905D1 movups   xmmword ptr [r9 + 8], xmm6
+  0x1905D6 lea      rdi, [rsp + 0xa0]
+  0x1905DE lea      rdx, [rsp + 0x58]
+  0x1905E3 mov      rcx, rdi
+  0x1905E6 mov      r8, rsi
+  0x1905E9 call     0x1405a9712
+  0x1905EE cmp      byte ptr [rdi], 6
+  0x1905F1 je       0x140190600
+  0x1905F3 lea      rcx, [rsp + 0xa0]
+  0x1905FB call     0x140081e10
+  0x190600 lea      rdx, [rip + 0x69a863]                            ; 'failedINVALID_TREASURE_CLAIM_SCOPEtreasure claim scope is invalidSERVER_MISMATCHcurrent game server does not match map data serverprioritizeLuckySlotsh'
+  0x190607 lea      rsi, [rsp + 0x40]
+  0x19060C mov      r8d, 6
+  0x190612 mov      rcx, rsi
+  0x190615 call     0x14010b5b4
+  0x19061A lea      r9, [rsp + 0x168]
+  0x190622 mov      byte ptr [r9], 2
+  0x190626 movups   xmmword ptr [r9 + 8], xmm6
+  0x19062B lea      rdi, [rsp + 0xa0]
+  0x190633 lea      rdx, [rsp + 0x58]
+  0x190638 mov      rcx, rdi
+  0x19063B mov      r8, rsi
+  0x19063E call     0x1405a9712
+  0x190643 cmp      byte ptr [rdi], 6
+  0x190646 je       0x140190655
+  0x190648 lea      rcx, [rsp + 0xa0]
+  0x190650 call     0x140081e10
+  0x190655 mov      rbp, qword ptr [rsp + 0x58]
+  0x19065A mov      r14, qword ptr [rsp + 0x60]
+  0x19065F mov      rax, qword ptr [rsp + 0x68]
+  0x190664 mov      qword ptr [rsp + 0x30], rax
+  0x190669 mov      r13b, 5
+  0x19066C movabs   r15, 0x8000000000000000
+  0x190676 jmp      0x14018fe8e
+  0x19067B lea      rax, [rip + 0x69efc6]                            ; '/rustc/4a4ef493e3a1488c6e321570238084b38948f6db/library\\alloc\\src\\string.rs'
+  0x190682 mov      qword ptr [rsp + 0x20], rax
+  0x190687 lea      rcx, [rip + 0x69ef32]                            ; 'a Display implementation returned an error unexpectedly/rustc/4a4ef493e3a1488c6e321570238084b38948f6db/library\\alloc\\src\\string.rs'
+  0x19068E lea      r9, [rip + 0x69efeb]
+  0x190695 lea      r8, [rsp + 0x300]
+  0x19069D mov      edx, 0x37
+  0x1906A2 call     0x1407a50b0
+  0x1906A7 mov      rax, qword ptr [rsp + 0x170]
+  0x1906AF lea      r8, [rsp + 0xa0]
+  0x1906B7 mov      qword ptr [r8], rax
+  0x1906BA lea      rax, [rip + 0x69a83f]                            ; 'src\\commands\\map.rs'
+  0x1906C1 mov      qword ptr [rsp + 0x20], rax
+  0x1906C6 lea      rcx, [rip + 0x69eff3]                            ; 'called `Result::unwrap()` on an `Err` value'
+  0x1906CD lea      r9, [rip + 0x69f01c]
+
+=== GHOST prepare provider/result ===
+
+-- prepare call/result --
+  0x133B82 xor      edx, edx
+  0x133B84 call     0x1405c4370
+  0x133B89 test     rax, rax
+  0x133B8C je       0x1401350c4
+  0x133B92 mov      dword ptr [rax], 0x73776f72
+  0x133B98 mov      qword ptr [rsp + 0xe0], r15
+  0x133BA0 mov      qword ptr [rsp + 0xe8], rax
+  0x133BA8 mov      qword ptr [rsp + 0xf0], r15
+  0x133BB0 lea      r15, [rsp + 0x1d8]
+  0x133BB8 mov      rcx, r15
+  0x133BBB mov      rdx, rdi
+  0x133BBE call     0x140299d9d
+  0x133BC3 cmp      byte ptr [r15], 6
+  0x133BC7 je       0x140135059
+  0x133BCD add      r14, 0x10
+  0x133BD1 lea      rdi, [rsp + 0x1d8]
+  0x133BD9 movups   xmm0, xmmword ptr [rdi]
+  0x133BDC movups   xmm1, xmmword ptr [rdi + 0x10]
+  0x133BE0 lea      r9, [rsp + 0x90]
+  0x133BE8 movaps   xmmword ptr [r9 + 0x10], xmm1
+  0x133BED movaps   xmmword ptr [r9], xmm0
+  0x133BF1 lea      rdx, [rsp + 0x178]
+  0x133BF9 lea      r8, [rsp + 0xe0]
+  0x133C01 mov      rcx, rdi
+  0x133C04 call     0x1405a9712
+  0x133C09 cmp      byte ptr [rdi], 6
+  0x133C0C je       0x140133c1b
+  0x133C0E lea      rcx, [rsp + 0x1d8]
+  0x133C16 call     0x140081e10
+  0x133C1B mov      rax, qword ptr [rsp + 0x188]
+  0x133C23 movups   xmm0, xmmword ptr [rsp + 0x178]
+  0x133C2B movups   xmmword ptr [rsp + 0x1df], xmm0
+  0x133C33 mov      qword ptr [rsp + 0x1ef], rax
+  0x133C3B movups   xmm0, xmmword ptr [rsp + 0x1d8]
+  0x133C43 movaps   xmmword ptr [rsp + 0x130], xmm0
+  0x133C4B mov      rax, qword ptr [rsp + 0x1e7]
+  0x133C53 mov      qword ptr [rsp + 0x13f], rax
+  0x133C5B mov      rax, qword ptr [rsp + 0x1ef]
+  0x133C63 mov      qword ptr [rsp + 0x147], rax
+  0x133C6B mov      byte ptr [rbx + 0x1080], 5
+  0x133C72 movapd   xmm0, xmmword ptr [rsp + 0x130]
+  0x133C7B movupd   xmmword ptr [rbx + 0x1081], xmm0
+  0x133C83 mov      rax, qword ptr [rsp + 0x13f]
+  0x133C8B mov      qword ptr [rbx + 0x1090], rax
+  0x133C92 mov      rax, qword ptr [rsp + 0x147]
+  0x133C9A mov      qword ptr [rbx + 0x1098], rax
+  0x133CA1 mov      qword ptr [rbx + 0x10a0], r14
+  0x133CA8 lea      rax, [rip + 0x6fa801]                            ; 'prepareGhostPlunderTasks`'
+  0x133CAF mov      qword ptr [rbx + 0x10a8], rax
+  0x133CB6 mov      qword ptr [rbx + 0x10b0], 0x18
+  0x133CC1 mov      qword ptr [rbx + 0x10b8], 0x1388
+  0x133CCC mov      byte ptr [rbx + 0x1168], 0
+  0x133CD3 mov      r14, r12
+  0x133CD6 mov      r12, rbp
+  0x133CD9 lea      rdi, [rbx + 0x1080]
+  0x133CE0 lea      r15, [rsp + 0x1d8]
+  0x133CE8 mov      rcx, r15
+  0x133CEB mov      rdx, rdi
+  0x133CEE mov      r8, r12
+  0x133CF1 call     0x1400e5095
+  0x133CF6 mov      r12, qword ptr [r15]
+  0x133CF9 movabs   rax, 0x8000000000000001
+  0x133D03 cmp      r12, rax
+  0x133D06 jne      0x140133d84
+  0x133D08 mov      byte ptr [rsi], 3
+  0x133D0B jmp      0x140134b1d
+  0x133D10 mov      qword ptr [rsp + 0x20], 0x1d
+  0x133D19 lea      rdx, [rip + 0x6f6759]                            ; 'INVALID_REQUESTselect between 1 and 200 tasks'
+  0x133D20 lea      r9, [rip + 0x6f7961]                             ; 'secret task rows are required'
+  0x133D27 lea      rsi, [rsp + 0x1d8]
+  0x133D2F mov      r8d, 0xf
+  0x133D35 mov      rcx, rsi
+  0x133D38 call     0x1402a1a47
+  0x133D3D mov      r12, qword ptr [rsi]
+  0x133D40 mov      r13, qword ptr [rsi + 8]
+  0x133D44 mov      rax, r12
+  0x133D47 neg      rax
+  0x133D4A jno      0x140133e1f
+  0x133D50 mov      r14, qword ptr [r13 + 0x10]
+  0x133D54 mov      rax, 0xffffffffffffff37
+  0x133D5B lea      rcx, [r14 + rax]
+  0x133D5F cmp      rcx, rax
+  0x133D62 ja       0x14013404d
+  0x133D68 mov      qword ptr [rsp + 0x20], 0x25
+  0x133D71 lea      rdx, [rip + 0x6f6701]                            ; 'INVALID_REQUESTselect between 1 and 200 tasks'
+  0x133D78 lea      r9, [rip + 0x6f78c7]                             ; 'select between 1 and 200 secret tasks'
+  0x133D7F jmp      0x140134312
+  0x133D84 mov      qword ptr [rsp + 0x40], r14
+  0x133D89 mov      rsi, qword ptr [rsp + 0x1e0]
+  0x133D91 mov      rbp, qword ptr [rsp + 0x1e8]
+  0x133D99 mov      r14, qword ptr [rsp + 0x1f0]
+  0x133DA1 mov      r15, qword ptr [rsp + 0x1f8]
+  0x133DA9 movups   xmm0, xmmword ptr [rsp + 0x200]
+  0x133DB1 movaps   xmmword ptr [rsp + 0x340], xmm0
+  0x133DB9 movupd   xmm0, xmmword ptr [rsp + 0x210]
+  0x133DC2 movapd   xmmword ptr [rsp + 0x350], xmm0
+  0x133DCB mov      rax, qword ptr [rsp + 0x220]
+  0x133DD3 mov      qword ptr [rsp + 0x360], rax
+  0x133DDB mov      rcx, rdi
+  0x133DDE call     0x14010072e
+  0x133DE3 mov      rax, r12
+  0x133DE6 neg      rax
+  0x133DE9 jno      0x140133e60
+  0x133DEB mov      qword ptr [rsp + 0x100], rbp
+  0x133DF3 mov      qword ptr [rsp + 0x108], r14
+  0x133DFB mov      qword ptr [rsp + 0x110], r15
+  0x133E03 mov      qword ptr [rsp + 0xf8], rsi
+  0x133E0B cmp      sil, 5
+  0x133E0F mov      r14, qword ptr [rsp + 0x40]
+  0x133E14 je       0x140133f4f
+  0x133E1A jmp      0x140133f7e
+  0x133E1F mov      rbp, qword ptr [rsp + 0x1e8]
+  0x133E27 mov      r14, qword ptr [rsp + 0x1f0]
+  0x133E2F mov      r15, qword ptr [rsp + 0x1f8]
+  0x133E37 movups   xmm0, xmmword ptr [rsp + 0x200]
+  0x133E3F movaps   xmmword ptr [rsp + 0x60], xmm0
+  0x133E44 movupd   xmm0, xmmword ptr [rsp + 0x210]
+  0x133E4D movapd   xmmword ptr [rsp + 0x70], xmm0
+  0x133E53 mov      rax, qword ptr [rsp + 0x220]
+  0x133E5B jmp      0x140134353
+  0x133E60 mov      rax, qword ptr [rsp + 0x360]
+  0x133E68 mov      qword ptr [rsp + 0xd0], rax
+  0x133E70 movapd   xmm0, xmmword ptr [rsp + 0x340]
+  0x133E79 movaps   xmm1, xmmword ptr [rsp + 0x350]
+  0x133E81 movaps   xmmword ptr [rsp + 0xc0], xmm1
+  0x133E89 movapd   xmmword ptr [rsp + 0xb0], xmm0
+  0x133E92 jmp      0x140134ae5
+  0x133E97 xor      eax, eax
+  0x133E99 mov      qword ptr [rsp + 0xe0], rax
+  0x133EA1 mov      qword ptr [rsp + 0xf0], rax
+  0x133EA9 mov      esi, 4
+  0x133EAE mov      r8d, 4
+  0x133EB4 xor      edx, edx
+  0x133EB6 call     0x1405c4370
+  0x133EBB test     rax, rax
+  0x133EBE je       0x1401350c4
+  0x133EC4 mov      dword ptr [rax], 0x73776f72
+  0x133ECA lea      r8, [rsp + 0x130]
+  0x133ED2 mov      qword ptr [r8], rsi
+  0x133ED5 mov      qword ptr [r8 + 8], rax
+  0x133ED9 mov      qword ptr [r8 + 0x10], rsi
+  0x133EDD xor      eax, eax
+  0x133EDF lea      r9, [rsp + 0x1d8]
+  0x133EE7 mov      qword ptr [r9 + 8], rax
+  0x133EEB mov      qword ptr [r9 + 0x10], 8
+  0x133EF3 mov      qword ptr [r9 + 0x18], rax
+  0x133EF7 mov      byte ptr [r9], 4
+  0x133EFB lea      rdi, [rsp + 0x90]
+  0x133F03 lea      rdx, [rsp + 0xe0]
+  0x133F0B mov      rcx, rdi
+  0x133F0E call     0x1405a9712
+  0x133F13 cmp      byte ptr [rdi], 6
+  0x133F16 je       0x140133f25
+  0x133F18 lea      rcx, [rsp + 0x90]
+  0x133F20 call     0x140081e10
+  0x133F25 movupd   xmm0, xmmword ptr [rsp + 0xe0]
+  0x133F2E movupd   xmmword ptr [rsp + 0x100], xmm0
+  0x133F37 mov      rax, qword ptr [rsp + 0xf0]
+  0x133F3F mov      qword ptr [rsp + 0x110], rax
+  0x133F47 mov      byte ptr [rsp + 0xf8], 5
+  0x133F4F lea      rcx, [rsp + 0x100]
+  0x133F57 lea      rdx, [rip + 0x6f74a2]                            ; 'rows'
+  0x133F5E mov      r8d, 4
+  0x133F64 call     0x1405a9615
+  0x133F69 test     rax, rax
+  0x133F6C je       0x140133f7e
+  0x133F6E cmp      byte ptr [rax], 4
+  0x133F71 jne      0x140133f7e
+  0x133F73 add      rax, 8
+  0x133F77 mov      qword ptr [rsp + 0x48], rax
+  0x133F7C jmp      0x140133fbf
+  0x133F7E mov      qword ptr [rsp + 0x20], 0x21
+  0x133F87 lea      rdx, [rip + 0x6f64eb]                            ; 'INVALID_REQUESTselect between 1 and 200 tasks'
+  0x133F8E lea      r9, [rip + 0x6fa570]                             ; 'ghost scheduling data unavailablesrc\\services\\auth.rs'
+  0x133F95 lea      rdi, [rsp + 0x1d8]
+  0x133F9D mov      r8d, 0xf
+  0x133FA3 mov      rcx, rdi
+  0x133FA6 call     0x1402a1a47
+  0x133FAB mov      r12, qword ptr [rdi]
+  0x133FAE mov      rsi, qword ptr [rdi + 8]
+  0x133FB2 mov      rax, r12
+  0x133FB5 neg      rax
+  0x133FB8 jno      0x140133ff9
+  0x133FBA mov      qword ptr [rsp + 0x48], rsi
+  0x133FBF mov      rsi, qword ptr [rbx + 0x1060]
+  0x133FC6 mov      rdi, rsi
+  0x133FC9 shl      rdi, 5
+  0x133FCD mov      rax, rsi
+  0x133FD0 shr      rax, 0x3b
+  0x133FD4 setne    al
+  0x133FD7 movabs   rcx, 0x7ffffffffffffff8
+  0x133FE1 cmp      rdi, rcx
+  0x133FE4 seta     cl
+  0x133FE7 or       cl, al
+  0x133FE9 je       0x1401344c0
+  0x133FEF xor      ecx, ecx
+  0x133FF1 mov      rdx, rdi
+  0x133FF4 call     0x1407a43d6
+  0x133FF9 mov      qword ptr [rsp + 0x40], r14
+  0x133FFE mov      rbp, qword ptr [rsp + 0x1e8]
+  0x134006 mov      r14, qword ptr [rsp + 0x1f0]
+  0x13400E mov      r15, qword ptr [rsp + 0x1f8]
+  0x134016 movups   xmm0, xmmword ptr [rsp + 0x200]
+  0x13401E movaps   xmmword ptr [rsp + 0xb0], xmm0
+  0x134026 movupd   xmm0, xmmword ptr [rsp + 0x210]
+  0x13402F movapd   xmmword ptr [rsp + 0xc0], xmm0
+
+-- row validation --
+  0x134006 mov      r14, qword ptr [rsp + 0x1f0]
+  0x13400E mov      r15, qword ptr [rsp + 0x1f8]
+  0x134016 movups   xmm0, xmmword ptr [rsp + 0x200]
+  0x13401E movaps   xmmword ptr [rsp + 0xb0], xmm0
+  0x134026 movupd   xmm0, xmmword ptr [rsp + 0x210]
+  0x13402F movapd   xmmword ptr [rsp + 0xc0], xmm0
+  0x134038 mov      rax, qword ptr [rsp + 0x220]
+  0x134040 mov      qword ptr [rsp + 0xd0], rax
+  0x134048 jmp      0x140134ad8
+  0x13404D lea      rax, [rbx + 0xfb8]
+  0x134054 mov      qword ptr [rsp + 0x118], rax
+  0x13405C mov      rdi, qword ptr [r13 + 8]
+  0x134060 shl      r14, 5
+  0x134064 add      r14, rdi
+  0x134067 cmp      rdi, r14
+  0x13406A je       0x140134ed2
+  0x134070 mov      r8d, 8
+  0x134076 mov      rcx, rdi
+  0x134079 lea      rdx, [rip + 0x6f6182]                            ; 'serverIduid'
+  0x134080 call     0x14039f992
+  0x134085 mov      r15, rax
+  0x134088 cmp      byte ptr [rdi], 5
+  0x13408B jne      0x1401340b3
+  0x13408D lea      rcx, [rdi + 8]
+  0x134091 mov      r8d, 4
+  0x134097 lea      rdx, [rip + 0x6f6160]                            ; 'uuidserverIduid'
+  0x13409E call     0x1405a9615
+  0x1340A3 test     rax, rax
+  0x1340A6 je       0x1401340b3
+  0x1340A8 cmp      byte ptr [rax], 3
+  0x1340AB jne      0x1401340b8
+  0x1340AD mov      r8, qword ptr [rax + 0x10]
+  0x1340B1 jmp      0x1401340bb
+  0x1340B3 xor      r8d, r8d
+  0x1340B6 jmp      0x1401340bf
+  0x1340B8 xor      r8d, r8d
+  0x1340BB mov      rdx, qword ptr [rax + 0x18]
+  0x1340BF test     r8, r8
+  0x1340C2 mov      rcx, r8
+  0x1340C5 mov      eax, 1
+  0x1340CA cmove    rcx, rax
+  0x1340CE cmove    rdx, r8
+  0x1340D2 call     0x1400385a4
+  0x1340D7 mov      rbp, rax
+  0x1340DA mov      rsi, rdx
+  0x1340DD mov      r8d, 0xe
+  0x1340E3 mov      rcx, rdi
+  0x1340E6 lea      rdx, [rip + 0x6f74eb]                            ; 'completionTimeplunderAttaskExpireTimestolenCountmaxStealCountownerServersecret task scheduling data is invalidselect between 1 and 200 secret tasks'
+  0x1340ED call     0x14039f992
+  0x1340F2 mov      qword ptr [rsp + 0x58], rax
+  0x1340F7 mov      r8d, 9
+  0x1340FD mov      rcx, rdi
+  0x134100 lea      rdx, [rip + 0x6f74df]                            ; 'plunderAttaskExpireTimestolenCountmaxStealCountownerServersecret task scheduling data is invalidselect between 1 and 200 secret tasks'
+  0x134107 call     0x14039f992
+  0x13410C mov      qword ptr [rsp + 0x48], rax
+  0x134111 mov      r8d, 0xe
+  0x134117 mov      rcx, rdi
+  0x13411A lea      rdx, [rip + 0x6f74ce]                            ; 'taskExpireTimestolenCountmaxStealCountownerServersecret task scheduling data is invalidselect between 1 and 200 secret tasks'
+  0x134121 call     0x14039f992
+  0x134126 mov      qword ptr [rsp + 0x128], rax
+  0x13412E mov      r8d, 0xb
+  0x134134 mov      rcx, rdi
+  0x134137 lea      rdx, [rip + 0x6f74bf]                            ; 'stolenCountmaxStealCountownerServersecret task scheduling data is invalidselect between 1 and 200 secret tasks'
+  0x13413E call     0x14039f992
+  0x134143 mov      qword ptr [rsp + 0x120], rax
+  0x13414B mov      r8d, 0xd
+  0x134151 mov      rcx, rdi
+  0x134154 lea      rdx, [rip + 0x6f74ad]                            ; 'maxStealCountownerServersecret task scheduling data is invalidselect between 1 and 200 secret tasks'
+  0x13415B call     0x14039f992
+  0x134160 mov      r10, rax
+  0x134163 cmp      byte ptr [rdi], 5
+  0x134166 lea      rcx, [rip + 0x6f720b]                            ; 'dispatchghostinvalid plunder task kind'
+  0x13416D jne      0x1401341ca
+  0x13416F lea      rcx, [rdi + 8]
+  0x134173 mov      r8d, 8
+  0x134179 lea      rdx, [rip + 0x6f71f0]                            ; 'taskKinddispatchghostinvalid plunder task kind'
+  0x134180 mov      r12, r10
+  0x134183 call     0x1405a9615
+  0x134188 mov      r10, r12
+  0x13418B lea      rcx, [rip + 0x6f71e6]                            ; 'dispatchghostinvalid plunder task kind'
+  0x134192 test     rax, rax
+  0x134195 je       0x1401341ca
+  0x134197 cmp      byte ptr [rax], 3
+  0x13419A mov      rcx, qword ptr [rax + 0x10]
+  0x13419E lea      rdx, [rip + 0x6f71d3]                            ; 'dispatchghostinvalid plunder task kind'
+  0x1341A5 cmovne   rcx, rdx
+  0x1341A9 mov      rax, qword ptr [rax + 0x18]
+  0x1341AD mov      edx, 8
+  0x1341B2 cmovne   rax, rdx
+  0x1341B6 cmp      rax, 5
+  0x1341BA je       0x1401342c0
+  0x1341C0 cmp      rax, 8
+  0x1341C4 jne      0x1401342fb
+  0x1341CA test     r15, r15
+  0x1341CD jle      0x1401342fb
+  0x1341D3 movabs   rax, 0x6863746170736964
+  0x1341DD cmp      qword ptr [rcx], rax
+  0x1341E0 jne      0x1401342fb
+  0x1341E6 test     rsi, rsi
+  0x1341E9 je       0x1401342fb
+  0x1341EF add      rdi, 0x20
+  0x1341F3 add      rsi, rbp
+  0x1341F6 cmp      rbp, rsi
+  0x1341F9 je       0x140134279
+  0x1341FB mov      r8b, byte ptr [rbp]
+  0x1341FF movzx    eax, r8b
+  0x134203 test     al, al
+  0x134205 js       0x14013420c
+  0x134207 inc      rbp
+  0x13420A jmp      0x14013426c
+  0x13420C mov      ecx, eax
+  0x13420E and      ecx, 0x1f
+  0x134211 movzx    r9d, byte ptr [rbp + 1]
+  0x134216 and      r9d, 0x3f
+  0x13421A cmp      al, 0xdf
+  0x13421C jbe      0x140134253
+  0x13421E movzx    edx, byte ptr [rbp + 2]
+  0x134222 shl      r9d, 6
+  0x134226 and      edx, 0x3f
+  0x134229 or       edx, r9d
+  0x13422C cmp      r8b, 0xf0
+  0x134230 jb       0x140134261
+  0x134232 movzx    eax, byte ptr [rbp + 3]
+  0x134236 and      ecx, 7
+  0x134239 shl      ecx, 0x12
+  0x13423C shl      edx, 6
+  0x13423F and      eax, 0x3f
+  0x134242 or       eax, edx
+  0x134244 or       eax, ecx
+  0x134246 cmp      eax, 0x110000
+  0x13424B je       0x140134279
+  0x13424D add      rbp, 4
+  0x134251 jmp      0x14013426c
+  0x134253 add      rbp, 2
+  0x134257 shl      ecx, 6
+  0x13425A or       ecx, r9d
+  0x13425D mov      eax, ecx
+  0x13425F jmp      0x14013426c
+  0x134261 add      rbp, 3
+  0x134265 shl      ecx, 0xc
+  0x134268 or       edx, ecx
+  0x13426A mov      eax, edx
+  0x13426C add      eax, -0x3a
+  0x13426F cmp      eax, -0xa
+  0x134272 jae      0x1401341f6
+  0x134274 jmp      0x1401342fb
+  0x134279 cmp      qword ptr [rsp + 0x58], 0
+  0x13427F jle      0x1401342fb
+  0x134281 mov      rax, qword ptr [rsp + 0x48]
+  0x134286 cmp      rax, qword ptr [rsp + 0x58]
+  0x13428B jl       0x1401342fb
+  0x13428D mov      r12, qword ptr [rsp + 0x128]
+  0x134295 test     r12, r12
+  0x134298 setg     al
+  0x13429B cmp      r12, qword ptr [rsp + 0x48]
+  0x1342A0 setle    cl
+  0x1342A3 test     al, cl
+  0x1342A5 jne      0x1401342fb
+  0x1342A7 test     r10, r10
+  0x1342AA jle      0x140134067
+  0x1342B0 cmp      qword ptr [rsp + 0x120], r10
+  0x1342B8 jl       0x140134067
+  0x1342BE jmp      0x1401342fb
+  0x1342C0 test     r15, r15
+  0x1342C3 jle      0x1401342fb
+  0x1342C5 mov      eax, dword ptr [rcx]
+  0x1342C7 mov      edx, 0x736f6867
+  0x1342CC xor      eax, edx
+  0x1342CE movzx    ecx, byte ptr [rcx + 4]
+  0x1342D2 xor      ecx, 0x74
+  0x1342D5 or       ecx, eax
+  0x1342D7 jne      0x1401342fb
+  0x1342D9 mov      r8d, 0xb
+  0x1342DF mov      rcx, rdi
+  0x1342E2 lea      rdx, [rip + 0x6f732c]                            ; 'ownerServersecret task scheduling data is invalidselect between 1 and 200 secret tasks'
+  0x1342E9 call     0x14039f992
+  0x1342EE test     rax, rax
+  0x1342F1 jle      0x1401342fb
+  0x1342F3 mov      r10, r12
+  0x1342F6 jmp      0x1401341e6
+  0x1342FB mov      qword ptr [rsp + 0x20], 0x26
+  0x134304 lea      rdx, [rip + 0x6f616e]                            ; 'INVALID_REQUESTselect between 1 and 200 tasks'
+  0x13430B lea      r9, [rip + 0x6f730e]                             ; 'secret task scheduling data is invalidselect between 1 and 200 secret tasks'
+  0x134312 lea      rsi, [rsp + 0x1d8]
+  0x13431A mov      r8d, 0xf
+  0x134320 mov      rcx, rsi
+  0x134323 call     0x1402a1a47
+  0x134328 mov      r12, qword ptr [rsi]
+  0x13432B mov      r13, qword ptr [rsi + 8]
+  0x13432F mov      rbp, qword ptr [rsi + 0x10]
+  0x134333 mov      r14, qword ptr [rsi + 0x18]
+  0x134337 mov      r15, qword ptr [rsi + 0x20]
+  0x13433B movups   xmm0, xmmword ptr [rsi + 0x28]
+  0x13433F movaps   xmmword ptr [rsp + 0x60], xmm0
+  0x134344 movupd   xmm0, xmmword ptr [rsi + 0x38]
+  0x134349 movapd   xmmword ptr [rsp + 0x70], xmm0
+  0x13434F mov      rax, qword ptr [rsi + 0x48]
+  0x134353 mov      qword ptr [rsp + 0x80], rax
+  0x13435B lea      rcx, [rbx + 0xfb8]
+  0x134362 call     0x140081e10
+  0x134367 mov      byte ptr [rbx + 0xfd8], 1
+  0x13436E movabs   rax, 0x8000000000000001
+  0x134378 cmp      r12, rax
+  0x13437B je       0x140134b25
+  0x134381 mov      rcx, qword ptr [rsp + 0x40]
+  0x134386 call     0x1400ff293
+  0x13438B mov      rax, r12
+  0x13438E neg      rax
+  0x134391 jo       0x140134c2c
+  0x134397 lea      rsi, [rsp + 0x1d8]
+  0x13439F mov      qword ptr [rsi], r12
+  0x1343A2 mov      qword ptr [rsi + 8], r13
+  0x1343A6 mov      qword ptr [rsi + 0x10], rbp
+  0x1343AA mov      qword ptr [rsi + 0x18], r14
+  0x1343AE mov      qword ptr [rsi + 0x20], r15
+  0x1343B2 movapd   xmm0, xmmword ptr [rsp + 0x60]
+  0x1343B8 movaps   xmm1, xmmword ptr [rsp + 0x70]
+  0x1343BD movupd   xmmword ptr [rsi + 0x28], xmm0
+  0x1343C2 movups   xmmword ptr [rsi + 0x38], xmm1
+  0x1343C6 mov      rax, qword ptr [rsp + 0x80]
+  0x1343CE mov      qword ptr [rsi + 0x48], rax
+  0x1343D2 lea      rdi, [rsp + 0x340]
+  0x1343DA mov      rcx, rdi
+  0x1343DD mov      rdx, rsi
+  0x1343E0 call     0x1402a186b
+  0x1343E5 mov      rcx, rsi
+  0x1343E8 call     0x140081f3b
+  0x1343ED mov      bpl, byte ptr [rdi]
+  0x1343F0 cmp      bpl, 6
+  0x1343F4 jne      0x140134475
+  0x1343F6 lea      rdx, [rsp + 0x340]
+  0x1343FE mov      rcx, qword ptr [rdx + 8]
+  0x134402 mov      qword ptr [rsp + 0xb0], rcx
+  0x13440A xor      eax, eax
+  0x13440C lea      r8, [rsp + 0x408]
+  0x134414 mov      qword ptr [r8], rax
+  0x134417 mov      qword ptr [r8 + 8], 1
+  0x13441F mov      qword ptr [r8 + 0x10], rax
+  0x134423 mov      qword ptr [rdx + 0x10], 0x60000020
+  0x13442B mov      qword ptr [rdx], r8
+  0x13442E lea      rax, [rip + 0x6fb15b]
+  0x134435 mov      qword ptr [rdx + 8], rax
+  0x134439 call     0x1405addeb
+  0x13443E test     al, al
+  0x134440 jne      0x14013502d
+  0x134446 mov      rax, qword ptr [rsp + 0x408]
+  0x13444E mov      qword ptr [rsp + 0x38], rax
+  0x134453 mov      r15, qword ptr [rsp + 0x410]
+  0x13445B mov      r12, qword ptr [rsp + 0x418]
+  0x134463 lea      rcx, [rsp + 0xb0]
+  0x13446B call     0x14010949d
+  0x134470 mov      bpl, 3
+  0x134473 jmp      0x1401344b6
+  0x134475 movzx    eax, byte ptr [rsp + 0x347]
+  0x13447D shl      eax, 0x10
+  0x134480 movzx    ecx, word ptr [rsp + 0x345]
+  0x134488 or       ecx, eax
+  0x13448A shl      rcx, 0x20
+  0x13448E mov      r13d, dword ptr [rsp + 0x341]
+  0x134496 or       r13, rcx
+  0x134499 mov      rax, qword ptr [rsp + 0x348]
+  0x1344A1 mov      qword ptr [rsp + 0x38], rax
+  0x1344A6 mov      r15, qword ptr [rsp + 0x350]
+  0x1344AE mov      r12, qword ptr [rsp + 0x358]
+  0x1344B6 mov      edi, 1
+  0x1344BB jmp      0x140134d68
+  0x1344C0 test     rdi, rdi
+  0x1344C3 mov      qword ptr [rsp + 0x50], r13
+  0x1344C8 mov      qword ptr [rsp + 0x40], r14
+  0x1344CD je       0x1401344f7
+  0x1344CF xor      edx, edx
+  0x1344D1 mov      r8, rdi
+  0x1344D4 call     0x1405c4370
+  0x1344D9 test     rax, rax
+  0x1344DC je       0x1401350d3
+  0x1344E2 mov      rcx, qword ptr [rbx + 0x1060]
+  0x1344E9 mov      rdx, rcx
+  0x1344EC shl      rdx, 5
+  0x1344F0 mov      qword ptr [rsp + 0x38], rdx
+  0x1344F5 jmp      0x14013450a
+  0x1344F7 mov      eax, 8
+  0x1344FC mov      qword ptr [rsp + 0x38], 0
+  0x134505 mov      rcx, rsi
+  0x134508 xor      esi, esi
+  0x13450A mov      qword ptr [rsp + 0x90], rsi
+  0x134512 mov      qword ptr [rsp + 0x98], rax
+  0x13451A mov      qword ptr [rsp + 0xa0], 0
+  0x134526 test     rcx, rcx
+  0x134529 je       0x1401349ee
+  0x13452F mov      rsi, qword ptr [rbx + 0x1058]
+  0x134536 add      qword ptr [rsp + 0x38], rsi
+  0x13453B lea      r13, [rip + 0x6f5cbc]                            ; 'uuidserverIduid'
+  0x134542 cmp      byte ptr [rsi], 5
+  0x134545 jne      0x140134a47
+  0x13454B lea      r12, [rsi + 8]
+  0x13454F mov      r8d, 8
+  0x134555 mov      rcx, r12
+  0x134558 lea      rdx, [rip + 0x6f6e11]                            ; 'taskKinddispatchghostinvalid plunder task kind'
+  0x13455F call     0x1405a9615
+  0x134564 mov      rdi, rsi
+  0x134567 test     rax, rax
+  0x13456A je       0x140134870
+  0x134570 cmp      byte ptr [rax], 3
+  0x134573 mov      rdi, rsi
+  0x134576 jne      0x140134870
+  0x13457C cmp      qword ptr [rax + 0x18], 5
+  0x134581 mov      rdi, rsi
+  0x134584 jne      0x140134870
+  0x13458A mov      rax, qword ptr [rax + 0x10]
+  0x13458E mov      ecx, dword ptr [rax]
+  0x134590 mov      edx, 0x736f6867
+  0x134595 xor      ecx, edx
+  0x134597 movzx    eax, byte ptr [rax + 4]
+  0x13459B xor      eax, 0x74
+  0x13459E or       eax, ecx
+  0x1345A0 mov      rdi, rsi
+  0x1345A3 jne      0x140134870
+  0x1345A9 mov      rax, qword ptr [rsp + 0x48]
+  0x1345AE mov      r14, qword ptr [rax + 0x10]
+  0x1345B2 test     r14, r14
+  0x1345B5 je       0x14013482a
+  0x1345BB mov      rax, qword ptr [rsp + 0x48]
+  0x1345C0 mov      rdi, qword ptr [rax + 8]
+  0x1345C4 shl      r14, 5
+  0x1345C8 cmp      byte ptr [rdi], 5
+  0x1345CB jne      0x1401345e4
+  0x1345CD lea      rcx, [rdi + 8]
+  0x1345D1 mov      r8d, 4
+  0x1345D7 mov      rdx, r13
+  0x1345DA call     0x1405a9615
+  0x1345DF mov      r15, rax
+  0x1345E2 jmp      0x1401345e7
+  0x1345E4 xor      r15d, r15d
+  0x1345E7 cmp      byte ptr [rsi], 5
+  0x1345EA jne      0x14013463c
+  0x1345EC mov      r8d, 4
+  0x1345F2 mov      rcx, r12
+  0x1345F5 mov      rdx, r13
+  0x1345F8 call     0x1405a9615
+  0x1345FD test     rax, rax
+  0x134600 sete     dl
+  0x134603 test     r15, r15
+  0x134606 sete     cl
+  0x134609 je       0x140134644
+  0x13460B test     rax, rax
+  0x13460E je       0x140134644
+  0x134610 movzx    ecx, byte ptr [r15]
+  0x134614 cmp      cl, byte ptr [rax]
+  0x134616 jne      0x1401346e1
+  0x13461C mov      ecx, ecx
+  0x13461E lea      rdx, [rip + 0x7075e3]
+  0x134625 movsxd   rcx, dword ptr [rdx + rcx*4]
+  0x134629 add      rcx, rdx
+  0x13462C jmp      rcx
+  0x13462E mov      cl, byte ptr [r15 + 1]
+  0x134632 cmp      cl, byte ptr [rax + 1]
+  0x134635 je       0x140134654
+  0x134637 jmp      0x1401346e1
+  0x13463C test     r15, r15
+  0x13463F sete     cl
+  0x134642 mov      dl, 1
+  0x134644 test     dl, dl
+  0x134646 je       0x1401346e1
+  0x13464C test     cl, cl
+  0x13464E je       0x1401346e1
+  0x134654 cmp      byte ptr [rdi], 5
+  0x134657 jne      0x140134674
+  0x134659 lea      rcx, [rdi + 8]
+  0x13465D mov      r8d, 8
+  0x134663 lea      rdx, [rip + 0x6f5b98]                            ; 'serverIduid'
+  0x13466A call     0x1405a9615
+  0x13466F mov      r15, rax
+  0x134672 jmp      0x140134677
+  0x134674 xor      r15d, r15d
+  0x134677 cmp      byte ptr [rsi], 5
+  0x13467A jne      0x1401346cd
+  0x13467C mov      r8d, 8
+  0x134682 mov      rcx, r12
+  0x134685 lea      rdx, [rip + 0x6f5b76]                            ; 'serverIduid'
+  0x13468C call     0x1405a9615
+  0x134691 test     rax, rax
+  0x134694 sete     dl
+  0x134697 test     r15, r15
+  0x13469A sete     cl
+  0x13469D je       0x1401346d5
+  0x13469F test     rax, rax
+  0x1346A2 je       0x1401346d5
+  0x1346A4 movzx    ecx, byte ptr [r15]
+  0x1346A8 cmp      cl, byte ptr [rax]
+  0x1346AA jne      0x1401346e1
+  0x1346AC mov      ecx, ecx
+  0x1346AE lea      rdx, [rip + 0x70756b]
+  0x1346B5 movsxd   rcx, dword ptr [rdx + rcx*4]
+  0x1346B9 add      rcx, rdx
+  0x1346BC jmp      rcx
+  0x1346BE mov      cl, byte ptr [r15 + 1]
+  0x1346C2 cmp      cl, byte ptr [rax + 1]
+  0x1346C5 je       0x140134870
+  0x1346CB jmp      0x1401346e1
+  0x1346CD test     r15, r15
+  0x1346D0 sete     cl
+  0x1346D3 mov      dl, 1
+  0x1346D5 test     dl, dl
+  0x1346D7 je       0x1401346e1
+  0x1346D9 test     cl, cl
+  0x1346DB jne      0x140134870
+  0x1346E1 add      rdi, 0x20
+  0x1346E5 add      r14, -0x20
+  0x1346E9 jne      0x1401345c8
+  0x1346EF jmp      0x14013482a
+  0x1346F4 mov      rcx, qword ptr [r15 + 0x10]
+  0x1346F8 mov      rdx, qword ptr [r15 + 0x18]
+  0x1346FC mov      r8, qword ptr [rax + 0x10]
+  0x134700 mov      r9, qword ptr [rax + 0x18]
+  0x134704 call     0x140072d30
+  0x134709 jmp      0x140134765
+  0x13470B mov      rcx, qword ptr [r15 + 8]
+  0x13470F cmp      rcx, qword ptr [rax + 8]
+  0x134713 jne      0x1401346e1
+  0x134715 cmp      ecx, 2
+  0x134718 je       0x1401347f6
+  0x13471E cmp      ecx, 1
+  0x134721 mov      rcx, qword ptr [r15 + 0x10]
+  0x134725 cmp      rcx, qword ptr [rax + 0x10]
+  0x134729 je       0x140134654
+  0x13472F jmp      0x1401346e1
+  0x134731 mov      r8, qword ptr [r15 + 0x18]
+  0x134735 cmp      r8, qword ptr [rax + 0x18]
+  0x134739 jne      0x1401346e1
+  0x13473B mov      rdx, qword ptr [rax + 0x10]
+  0x13473F mov      rcx, qword ptr [r15 + 0x10]
+  0x134743 call     0x1407a3e30
+  0x134748 test     eax, eax
+  0x13474A je       0x140134654
+  0x134750 jmp      0x1401346e1
+  0x134752 add      r15, 8
+  0x134756 add      rax, 8
+  0x13475A mov      rcx, r15
+  0x13475D mov      rdx, rax
+  0x134760 call     0x140072986
+  0x134765 test     al, al
+  0x134767 jne      0x140134654
+  0x13476D jmp      0x1401346e1
+  0x134772 mov      rcx, qword ptr [r15 + 0x10]
+  0x134776 mov      rdx, qword ptr [r15 + 0x18]
+  0x13477A mov      r8, qword ptr [rax + 0x10]
+  0x13477E mov      r9, qword ptr [rax + 0x18]
+  0x134782 call     0x140072d30
+  0x134787 jmp      0x1401347ed
+  0x134789 mov      rcx, qword ptr [r15 + 8]
+  0x13478D cmp      rcx, qword ptr [rax + 8]
+  0x134791 jne      0x1401346e1
+  0x134797 cmp      ecx, 2
+  0x13479A je       0x140134812
+  0x13479C cmp      ecx, 1
+  0x13479F mov      rcx, qword ptr [r15 + 0x10]
+  0x1347A3 cmp      rcx, qword ptr [rax + 0x10]
+  0x1347A7 je       0x140134870
+  0x1347AD jmp      0x1401346e1
+  0x1347B2 mov      r8, qword ptr [r15 + 0x18]
+  0x1347B6 cmp      r8, qword ptr [rax + 0x18]
+  0x1347BA jne      0x1401346e1
+  0x1347C0 mov      rdx, qword ptr [rax + 0x10]
+  0x1347C4 mov      rcx, qword ptr [r15 + 0x10]
+  0x1347C8 call     0x1407a3e30
+  0x1347CD test     eax, eax
+  0x1347CF je       0x140134870
+  0x1347D5 jmp      0x1401346e1
+  0x1347DA add      r15, 8
+  0x1347DE add      rax, 8
+  0x1347E2 mov      rcx, r15
+  0x1347E5 mov      rdx, rax
+  0x1347E8 call     0x140072986
+  0x1347ED test     al, al
+  0x1347EF jne      0x140134870
+  0x1347F1 jmp      0x1401346e1
+  0x1347F6 movsd    xmm0, qword ptr [r15 + 0x10]
+  0x1347FC ucomisd  xmm0, qword ptr [rax + 0x10]
+  0x134801 jne      0x1401346e1
+  0x134807 jnp      0x140134654
+  0x13480D jmp      0x1401346e1
+  0x134812 movsd    xmm0, qword ptr [r15 + 0x10]
+  0x134818 ucomisd  xmm0, qword ptr [rax + 0x10]
+  0x13481D jne      0x1401346e1
+  0x134823 jnp      0x140134870
+  0x134825 jmp      0x1401346e1
+  0x13482A mov      qword ptr [rsp + 0x20], 0x21
+  0x134833 mov      r8d, 0xf
+  0x134839 lea      rcx, [rsp + 0x1d8]
+  0x134841 lea      rdx, [rip + 0x6f5c31]                            ; 'INVALID_REQUESTselect between 1 and 200 tasks'
+  0x134848 lea      r9, [rip + 0x6f9cb6]                             ; 'ghost scheduling data unavailablesrc\\services\\auth.rs'
+  0x13484F call     0x1402a1a47
+  0x134854 mov      r12, qword ptr [rsp + 0x1d8]
+  0x13485C mov      rdi, qword ptr [rsp + 0x1e0]
+  0x134864 mov      rax, r12
+  0x134867 neg      rax
+  0x13486A jno      0x140134fe8
+  0x134870 cmp      byte ptr [rdi], 5
+  0x134873 jne      0x140134a47
+  0x134879 lea      r15, [rdi + 8]
+  0x13487D mov      r8d, 9
+  0x134883 mov      rcx, r15
+  0x134886 lea      rdx, [rip + 0x6f6d59]                            ; 'plunderAttaskExpireTimestolenCountmaxStealCountownerServersecret task scheduling data is invalidselect between 1 and 200 secret tasks'
+  0x13488D call     0x1405a9615
+  0x134892 test     rax, rax
+  0x134895 je       0x1401348b5
+  0x134897 cmp      byte ptr [rax], 2
+  0x13489A jne      0x1401348b5
+  0x13489C mov      rcx, qword ptr [rax + 8]
+  0x1348A0 cmp      rcx, 2
+  0x1348A4 je       0x1401348b5
+  0x1348A6 cmp      ecx, 1
+  0x1348A9 jne      0x1401349c4
+  0x1348AF mov      r14, qword ptr [rax + 0x10]
+  0x1348B3 jmp      0x1401348b8
+  0x1348B5 xor      r14d, r14d
+  0x1348B8 cmp      byte ptr [rdi], 5
+  0x1348BB jne      0x1401348f5
+  0x1348BD mov      r8d, 0xe
+  0x1348C3 mov      rcx, r15
+  0x1348C6 lea      rdx, [rip + 0x6f6d22]                            ; 'taskExpireTimestolenCountmaxStealCountownerServersecret task scheduling data is invalidselect between 1 and 200 secret tasks'
+  0x1348CD call     0x1405a9615
+  0x1348D2 test     rax, rax
+  0x1348D5 je       0x1401348f5
+  0x1348D7 cmp      byte ptr [rax], 2
+  0x1348DA jne      0x1401348f5
+  0x1348DC mov      rcx, qword ptr [rax + 8]
+  0x1348E0 cmp      rcx, 2
+  0x1348E4 je       0x1401348f5
+  0x1348E6 cmp      ecx, 1
+  0x1348E9 jne      0x1401349d9
+  0x1348EF mov      rax, qword ptr [rax + 0x10]
+  0x1348F3 jmp      0x1401348f7
+  0x1348F5 xor      eax, eax
+  0x1348F7 test     r14, r14
+  0x1348FA jle      0x140134a47
+  0x134900 test     rax, rax
+  0x134903 setle    cl
+  0x134906 cmp      rax, r14
+  0x134909 setg     al
+  0x13490C or       al, cl
+  0x13490E je       0x140134a47
+  0x134914 mov      rax, qword ptr [rbx + 0x1050]
+  0x13491B mov      rdx, qword ptr [rax + 8]
+  0x13491F add      rdx, 0x10
+  0x134923 lea      rcx, [rsp + 0x1d8]
+  0x13492B mov      r8, rdi
+  0x13492E call     0x1403d778f
+  0x134933 mov      r12, qword ptr [rsp + 0x1d8]
+  0x13493B mov      rdi, qword ptr [rsp + 0x1e0]
+  0x134943 mov      rax, r12
+  0x134946 neg      rax
+  0x134949 mov      rbp, qword ptr [rsp + 0x1e8]
+  0x134951 mov      r14, qword ptr [rsp + 0x1f0]
+  0x134959 mov      r15, qword ptr [rsp + 0x1f8]
+  0x134961 jno      0x140134e9d
+  0x134967 mov      r12, qword ptr [rsp + 0xa0]
+  0x13496F cmp      r12, qword ptr [rsp + 0x90]
+  0x134977 jne      0x140134986
+  0x134979 lea      rcx, [rsp + 0x90]
+  0x134981 call     0x1400491f8
+  0x134986 add      rsi, 0x20
+  0x13498A mov      rax, qword ptr [rsp + 0x98]
+  0x134992 mov      rcx, r12
+  0x134995 shl      rcx, 5
+  0x134999 mov      qword ptr [rax + rcx], rdi
+  0x13499D mov      qword ptr [rax + rcx + 8], rbp
+  0x1349A2 mov      qword ptr [rax + rcx + 0x10], r14
+  0x1349A7 mov      qword ptr [rax + rcx + 0x18], r15
+  0x1349AC inc      r12
+  0x1349AF mov      qword ptr [rsp + 0xa0], r12
+  0x1349B7 cmp      rsi, qword ptr [rsp + 0x38]
+  0x1349BC jne      0x140134542
+  0x1349C2 jmp      0x1401349ee
+  0x1349C4 mov      r14, qword ptr [rax + 0x10]
+  0x1349C8 test     r14, r14
+  0x1349CB mov      eax, 0
+  0x1349D0 cmovle   r14, rax
+  0x1349D4 jmp      0x1401348b8
+  0x1349D9 mov      rax, qword ptr [rax + 0x10]
+  0x1349DD test     rax, rax
+  0x1349E0 mov      ecx, 0
+  0x1349E5 cmovle   rax, rcx
+  0x1349E9 jmp      0x1401348f7
+  0x1349EE mov      rax, qword ptr [rbx + 0x1050]
+  0x1349F5 mov      rcx, qword ptr [rax]
+  0x1349F8 add      rcx, 0x10
+  0x1349FC lea      rdx, [rip + 0xc342cd]                            ; 'bridge://dispatch-plunder-changed&recover dispatch plunder jobs failed: '
+  0x134A03 mov      r8d, 0x21
+  0x134A09 call     0x1402ca91d
+  0x134A0E mov      rsi, qword ptr [rsp + 0x90]
+  0x134A16 mov      rbp, qword ptr [rsp + 0x98]
+  0x134A1E mov      r14, qword ptr [rsp + 0xa0]
+  0x134A26 lea      rcx, [rsp + 0xf8]
+  0x134A2E call     0x140081e10
+  0x134A33 movabs   r12, 0x8000000000000000
+  0x134A3D mov      r13, qword ptr [rsp + 0x50]
+  0x134A42 jmp      0x140134ae5
+  0x134A47 mov      qword ptr [rsp + 0x20], 0x25
+  0x134A50 lea      rdx, [rip + 0x6f5a22]                            ; 'INVALID_REQUESTselect between 1 and 200 tasks'
+  0x134A57 lea      r9, [rip + 0x6f9a82]                             ; 'task expires before scheduled plunderghost scheduling data unavailablesrc\\services\\auth.rs'
+  0x134A5E lea      rsi, [rsp + 0x1d8]
+  0x134A66 mov      r8d, 0xf
+  0x134A6C mov      rcx, rsi
+  0x134A6F call     0x1402a1a47
+  0x134A74 mov      r12, qword ptr [rsi]
+  0x134A77 mov      rdi, qword ptr [rsi + 8]
+  0x134A7B mov      rbp, qword ptr [rsi + 0x10]
+  0x134A7F mov      r14, qword ptr [rsi + 0x18]
+  0x134A83 mov      r15, qword ptr [rsi + 0x20]
+  0x134A87 movups   xmm0, xmmword ptr [rsi + 0x28]
+  0x134A8B movaps   xmmword ptr [rsp + 0xb0], xmm0
+  0x134A93 movupd   xmm0, xmmword ptr [rsi + 0x38]
+  0x134A98 movapd   xmmword ptr [rsp + 0xc0], xmm0
+  0x134AA1 mov      rax, qword ptr [rsi + 0x48]
+  0x134AA5 mov      qword ptr [rsp + 0xd0], rax
+  0x134AAD lea      rsi, [rsp + 0x90]
+  0x134AB5 mov      rcx, rsi
+  0x134AB8 call     0x1405acc0a
+  0x134ABD mov      edx, 8
+  0x134AC2 mov      r8d, 0x20
+  0x134AC8 mov      rcx, rsi
+  0x134ACB call     0x14001150d
+  0x134AD0 mov      rsi, rdi
+  0x134AD3 mov      r13, qword ptr [rsp + 0x50]
+  0x134AD8 lea      rcx, [rsp + 0xf8]
+  0x134AE0 call     0x140081e10
+  0x134AE5 lea      rdi, [rbx + 0x1068]
+  0x134AEC mov      rcx, rdi
+  0x134AEF call     0x1405acc0a
+  0x134AF4 mov      edx, 8
+  0x134AF9 mov      r8d, 0x20
+  0x134AFF mov      rcx, rdi
+  0x134B02 call     0x14001150d
+  0x134B07 mov      byte ptr [rbx + 0x1170], 1
+  0x134B0E movabs   rax, 0x8000000000000001
+  0x134B18 cmp      r12, rax
+  0x134B1B jne      0x140134b3a
+  0x134B1D mov      al, 4
+  0x134B1F mov      byte ptr [rbx + 0xfd8], al
+  0x134B25 mov      cl, 3
+  0x134B27 mov      byte ptr [rbx + 0x1178], cl
+  0x134B2D mov      byte ptr [rbx + 0x1180], cl
