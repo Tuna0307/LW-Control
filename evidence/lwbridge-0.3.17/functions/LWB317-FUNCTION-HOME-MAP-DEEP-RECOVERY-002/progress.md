@@ -73,3 +73,10 @@ Canonical Map317 Release checks and the Desktop default non-live Release suite p
 Focused native/DTO/plunder/profile ownership inverses also pass. Campaign diff review
 through F shows evidence-only changes; no product/test source changed. D blockers and
 owner-held live witnesses are the only unresolved dependencies.
+
+## G — complete
+
+Broad headless integration passes: canonical Map317 checks, Desktop default non-live
+suite, native boundary, DTO matrix, plunder worker boundary and profile runtime
+owner. Process inventory remained game/launcher absent. Full campaign path review
+shows evidence-only changes through G and no hidden product/test-source delta.

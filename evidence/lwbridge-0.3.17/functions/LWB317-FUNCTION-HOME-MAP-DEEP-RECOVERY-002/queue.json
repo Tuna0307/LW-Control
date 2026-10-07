@@ -247,15 +247,18 @@
   },
   "checkpointG": {
     "state": "COMPLETE",
+    "artifacts": [
+      "g-checks.txt",
+      "g-adversarial-review.md"
+    ],
     "checks": [
-      "canonical Map317 Release project PASS",
-      "Desktop default non-live Release suite PASS",
+      "canonical Map317 project Release --no-restore PASS",
+      "Desktop default non-live Release binary PASS",
       "--map317-native-boundary-check PASS",
       "--map317-dto-matrix-check PASS",
       "--map317-plunder-worker-boundary-check PASS",
       "--profile-runtime-owner-check PASS"
     ],
-    "productChanges": false,
-    "adversarialReview": "all campaign paths through F were evidence-only"
+    "productChanges": false
   }
 }
