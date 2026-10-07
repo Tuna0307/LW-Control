@@ -1,0 +1,321 @@
+{
+  "ok": true,
+  "findingId": "LWB317-FUNCTION-ORIGINAL-LUA-RECOVERY-006-A",
+  "reference": {
+    "path": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW\\lwbridge-0.3.17.exe",
+    "sha256": "4e9c3113dedfd7e1a752404c6936aab304e67d7ffdb0952a5003c2ec948d6783",
+    "size": 15866880,
+    "imageBase": "0x140000000",
+    "overlayBytes": 0
+  },
+  "bridgeScriptsPackage": {
+    "rawOffset": "0x8EED88",
+    "size": 1418098,
+    "sha256": "c215b5aa87619f547f2d999e58d1a1cb4780b49fec7040362732257d86d4fa82",
+    "magic": "LWBP",
+    "version": 2,
+    "buildIdLength": 22,
+    "buildId": "yoWZOvy8GWpsTNLrcZGcYQ",
+    "nonceOffsetWithinPackage": 34,
+    "nonceHex": "d8cb26c56e4f518faba86a3e",
+    "ciphertextLengthOffsetWithinPackage": 46,
+    "ciphertextOffsetWithinPackage": 50,
+    "ciphertextLength": 1418032,
+    "tagOffsetWithinPackage": 1418082,
+    "tagHex": "5c9089c5683a61777319b0bb01557f04",
+    "totalRelation": "12 + buildIdLength + 12 + 4 + ciphertextLength + 16",
+    "historicalLayoutShapeMatches031": true,
+    "identityMatches031": false,
+    "outerHostRva": "0x8EFF88",
+    "classification": "actual embedded encrypted LWBP v2 package",
+    "not": [
+      "frontend JS",
+      "current Last War Lua package",
+      "controller plaintext"
+    ]
+  },
+  "resourceNameBlock": {
+    "rawOffset": "0xA490FA",
+    "outerHostRva": "0xA4A2FA",
+    "names": [
+      "bridge-scripts.dat",
+      "xlua-proxy-secure.dll",
+      "xlua-proxy-plain.dll",
+      "xlua-proxy-bundle.json",
+      "xlua-legacy.dll",
+      "lwbridge-profile-launcher.exe",
+      "lwbridge-multi-hook.dll",
+      "lastwar-texts"
+    ],
+    "size": 161
+  },
+  "embeddedAssets": {
+    "secureProxy": {
+      "name": "xlua-proxy-secure.dll",
+      "rawOffset": "0xA4919B",
+      "size": 619008,
+      "sha256": "ae8bba866df80e9c924923d1f59d49e824c784c8ba9b47780fe2f58305e00a86",
+      "machine": "0x8664",
+      "isDll": true,
+      "entryPointRva": "0x4AC00",
+      "securityDirectory": {
+        "rawOffsetWithinPe": "0x0",
+        "size": 0
+      },
+      "importDlls": [
+        "ADVAPI32.dll",
+        "bcrypt.dll",
+        "SHELL32.dll",
+        "ncrypt.dll",
+        "KERNEL32.dll"
+      ],
+      "exportCount": 266,
+      "firstExports": [
+        "InitProfileDelegate",
+        "loadPbSchemeBinary",
+        "lpb_newslice",
+        "luaL_loadbufferx",
+        "luaL_newstate",
+        "luaL_openlibs",
+        "lua_close",
+        "lua_newstate",
+        "lua_pcall",
+        "lua_pcallk",
+        "luaopen_pb",
+        "luaopen_pb_buffer",
+        "luaopen_pb_conv",
+        "luaopen_pb_decode_unsafe",
+        "luaopen_pb_io",
+        "luaopen_pb_slice"
+      ]
+    },
+    "plainProxy": {
+      "name": "xlua-proxy-plain.dll",
+      "rawOffset": "0xAE039B",
+      "size": 620544,
+      "sha256": "266129c6c92f3ae89001493d61ccfdf4f5dac1fe66cff4fbb4799e6c01a6c902",
+      "machine": "0x8664",
+      "isDll": true,
+      "entryPointRva": "0x4AC00",
+      "securityDirectory": {
+        "rawOffsetWithinPe": "0x0",
+        "size": 0
+      },
+      "importDlls": [
+        "ADVAPI32.dll",
+        "bcrypt.dll",
+        "SHELL32.dll",
+        "ncrypt.dll",
+        "KERNEL32.dll"
+      ],
+      "exportCount": 255,
+      "firstExports": [
+        "InitProfileDelegate",
+        "cls_indexer",
+        "cls_newindexer",
+        "css_clone",
+        "errorfunc",
+        "gen_cls_indexer",
+        "gen_cls_newindexer",
+        "gen_css_access",
+        "gen_obj_indexer",
+        "gen_obj_newindexer",
+        "get_error_func_ref",
+        "loadPbSchemeBinary",
+        "load_error_func",
+        "lpb_newslice",
+        "luaL_addlstring",
+        "luaL_addstring"
+      ]
+    },
+    "proxyBundleJson": {
+      "rawOffset": "0xB77B9B",
+      "size": 590,
+      "sha256": "d6b3c71208a658d3d4ff05ab1af2e5abee3f5bab05839e15d6c97f6d58cffd1c",
+      "json": {
+        "schemaVersion": 1,
+        "compositeSha256": "6369c07c5da963a19a78cc1ec84e7ae8c13df2978d38ce7f083bb7766f1d2881",
+        "secure": {
+          "fileName": "xlua-proxy-secure.dll",
+          "proxySha256": "ae8bba866df80e9c924923d1f59d49e824c784c8ba9b47780fe2f58305e00a86",
+          "exportFingerprint": "69c9f22bdd71eb1e9ce6f577ef03531685a8528349ff04ccfbeda7de6d788da9"
+        },
+        "plain": {
+          "fileName": "xlua-proxy-plain.dll",
+          "proxySha256": "266129c6c92f3ae89001493d61ccfdf4f5dac1fe66cff4fbb4799e6c01a6c902",
+          "exportFingerprint": "dbf663268c49da286f1a282786e69e18c885a719c7734234b89c43fd521932dd"
+        }
+      }
+    },
+    "legacyXlua": {
+      "name": "xlua-legacy.dll",
+      "rawOffset": "0xB77DE9",
+      "size": 782736,
+      "sha256": "f4979b11e1990a7c064a937a80231fbb11fa13f5f8a19d2a321569dd6e5b254a",
+      "machine": "0x8664",
+      "isDll": true,
+      "entryPointRva": "0x5CA80",
+      "securityDirectory": {
+        "rawOffsetWithinPe": "0xBC800",
+        "size": 10640
+      },
+      "importDlls": [
+        "WS2_32.dll",
+        "KERNEL32.dll"
+      ],
+      "exportCount": 255,
+      "firstExports": [
+        "InitProfileDelegate",
+        "cls_indexer",
+        "cls_newindexer",
+        "css_clone",
+        "errorfunc",
+        "gen_cls_indexer",
+        "gen_cls_newindexer",
+        "gen_css_access",
+        "gen_obj_indexer",
+        "gen_obj_newindexer",
+        "get_error_func_ref",
+        "loadPbSchemeBinary",
+        "load_error_func",
+        "lpb_newslice",
+        "luaL_addlstring",
+        "luaL_addstring"
+      ]
+    },
+    "profileLauncher": {
+      "name": "lwbridge-profile-launcher.exe",
+      "rawOffset": "0xC36F79",
+      "size": 684544,
+      "sha256": "b4e15eafb6381398a3ed7a44ecad324a97097e8b84cc4005d7a7ce4d30cc7f22",
+      "machine": "0x8664",
+      "isDll": false,
+      "entryPointRva": "0x80DA0",
+      "securityDirectory": {
+        "rawOffsetWithinPe": "0x0",
+        "size": 0
+      },
+      "importDlls": [
+        "api-ms-win-core-synch-l1-2-0.dll",
+        "bcryptprimitives.dll",
+        "kernel32.dll",
+        "shell32.dll",
+        "ole32.dll",
+        "ntdll.dll",
+        "VCRUNTIME140.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "api-ms-win-crt-math-l1-1-0.dll",
+        "api-ms-win-crt-stdio-l1-1-0.dll",
+        "api-ms-win-crt-locale-l1-1-0.dll",
+        "api-ms-win-crt-heap-l1-1-0.dll"
+      ],
+      "exportCount": 0,
+      "firstExports": []
+    },
+    "multiHook": {
+      "name": "lwbridge-multi-hook.dll",
+      "rawOffset": "0xCDE179",
+      "size": 416256,
+      "sha256": "5a3b69f80e582e89b46c25a387e50af4ca68e3e26f299785e02efdc73aa25a38",
+      "machine": "0x8664",
+      "isDll": true,
+      "entryPointRva": "0x22930",
+      "securityDirectory": {
+        "rawOffsetWithinPe": "0x0",
+        "size": 0
+      },
+      "importDlls": [
+        "ADVAPI32.dll",
+        "bcrypt.dll",
+        "SHELL32.dll",
+        "KERNEL32.dll",
+        "USER32.dll"
+      ],
+      "exportCount": 0,
+      "firstExports": []
+    }
+  },
+  "markers": {
+    "bridge-scripts.dat": {
+      "ascii": [
+        "0xA490FA",
+        "0xABC0BC",
+        "0xB532BC"
+      ],
+      "utf16le": [
+        "0xABAE35",
+        "0xB52035"
+      ]
+    },
+    "package-key.envelope": {
+      "ascii": [
+        "0xD545E8"
+      ],
+      "utf16le": [
+        "0xABB32B",
+        "0xB5252B"
+      ]
+    },
+    "LWBP2|": {
+      "ascii": [
+        "0xABD7FB",
+        "0xB549FB"
+      ],
+      "utf16le": []
+    },
+    "LWKE1": {
+      "ascii": [
+        "0xABD607",
+        "0xB54807",
+        "0xD54528"
+      ],
+      "utf16le": []
+    },
+    "getTreasureClaimStatus": {
+      "ascii": [
+        "0x82A048"
+      ],
+      "utf16le": []
+    },
+    "claimTreasures": {
+      "ascii": [
+        "0x829D1F"
+      ],
+      "utf16le": []
+    },
+    "prepareGhostPlunderTasks": {
+      "ascii": [
+        "0x82D2B0"
+      ],
+      "utf16le": []
+    }
+  },
+  "suppliedArtifactSearch": {
+    "roots": [
+      "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control",
+      "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW"
+    ],
+    "searchedNames": [
+      "authorization.ticket",
+      "bridge-scripts.dat",
+      "package-key.envelope"
+    ],
+    "matchingFiles": [],
+    "note": "Bounded to repository and sibling supplied-reference folder; no owner runtime/config roots searched."
+  },
+  "classifications": {
+    "outerHostBridgeScriptsMarker": "ASCII resource name at package end; distinct from proxy '@bridge-scripts.dat' Lua chunk name",
+    "proxyBridgeScriptsMarkers": "secure/plain proxy loader chunk label '@bridge-scripts.dat'",
+    "packageKeyEnvelopeUtf16Markers": "secure/plain proxy runtime path suffixes",
+    "packageKeyEnvelopeAsciiMarker": "outer host auth/runtime-material string cluster",
+    "controllerNames": "outer host Lua provider call names; names alone are not controller bodies"
+  },
+  "disposition": {
+    "payloadEmbedded": true,
+    "payloadEncrypted": true,
+    "usableEnvelopeFileSupplied": false,
+    "standaloneBridgeScriptsFileSupplied": false,
+    "currentGameLuaIsOriginalBridgePayload": false,
+    "next": "recover exact 0.3.17 loader/crypto/integrity/input contract from embedded proxies; do not attempt decrypt until legitimate key inputs are complete"
+  }
+}

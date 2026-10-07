@@ -1,0 +1,27 @@
+{
+  "schema": 1,
+  "workItem": "LWB317-FUNCTION-ORIGINAL-LUA-RECOVERY-006",
+  "status": "IN_PROGRESS",
+  "startingCheckpoint": "692fd40de1639261ca2c7dda7c7884c527786133",
+  "liveSharedDesktop": "ON_HOLD_BY_OWNER",
+  "checkpoints": [
+    {
+      "id": "A",
+      "state": "COMPLETE",
+      "disposition": "exact 0.3.17 encrypted payload/resources located; no supplied envelope"
+    },
+    {
+      "id": "B",
+      "state": "ACTIVE"
+    },
+    {
+      "id": "C",
+      "state": "READY"
+    },
+    {
+      "id": "D",
+      "state": "READY"
+    }
+  ],
+  "productChanged": false
+}
