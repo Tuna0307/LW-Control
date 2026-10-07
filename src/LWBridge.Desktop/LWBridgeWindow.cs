@@ -3303,6 +3303,9 @@ internal sealed class LWBridgeWindow : Form
         {
             await ClickThemeAsync();
             await WaitForDomAsync($"document.documentElement.dataset.theme !== '{expectedTheme}'", "theme toggle away from target");
+            // Let the real packaged View Transition finish before exercising the
+            // same control again; overlapping transitions reject Chromium's ready promise.
+            await Task.Delay(300);
         }
         await ClickThemeAsync();
         await WaitForDomAsync(
