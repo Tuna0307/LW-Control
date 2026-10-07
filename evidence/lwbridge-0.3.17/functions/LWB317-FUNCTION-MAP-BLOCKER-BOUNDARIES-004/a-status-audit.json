@@ -1,0 +1,70 @@
+{
+  "ok": true,
+  "checkpoint": "A",
+  "referenceExeSha256": "4e9c3113dedfd7e1a752404c6936aab304e67d7ffdb0952a5003c2ec948d6783",
+  "frontend": {
+    "index": {
+      "path": "evidence\\lwbridge-0.3.17\\ui\\frontend-package\\web\\assets\\index-BVfnK1wp.js",
+      "sha256": "44c4e4043825b7db296b64171951b27176f8850ff8d7d337cc991df4765524c6"
+    },
+    "mapPanel": {
+      "path": "evidence\\lwbridge-0.3.17\\ui\\frontend-package\\web\\assets\\MapDataPanel-B4GXEND2.js",
+      "sha256": "ce74345518be72e417a510b982c591729e5683f69751e190805598c4c05d3089"
+    }
+  },
+  "status": {
+    "wrapperOffsets": [
+      207739
+    ],
+    "profileInjectionOffsets": [
+      200777
+    ],
+    "idleSnapshotOffsets": [
+      32253
+    ],
+    "claimQueuedGateOffsets": [
+      40198
+    ],
+    "pollLoopOffsets": [
+      40209
+    ],
+    "pollSleepOffsets": [
+      40255
+    ],
+    "pollStateMergeOffsets": [
+      40300
+    ],
+    "pollStopOffsets": [
+      40373
+    ],
+    "mergeHelperOffsets": [
+      7091
+    ],
+    "hostHandlerRva": "0x115C5D-0x1166BE",
+    "providerStringRva": "0x1160CD",
+    "providerTimeoutMilliseconds": 5000,
+    "requiredIdleFields": [
+      "playerUid",
+      "allianceId",
+      "states"
+    ],
+    "optionalObservedField": "batch",
+    "pollStartsWhen": "claim result queued > 0",
+    "pollContinuesWhen": "batch missing OR batch.state == running",
+    "pollStopsWhen": "batch exists AND batch.state != running",
+    "maxPollIterations": 1800,
+    "pollIntervalMilliseconds": 1000
+  },
+  "ownership": {
+    "frontendInvocationProfile": "currently selected profileId is injected on every bridge call",
+    "pollProfilePinned": false,
+    "providerBatchCanBePriorOperationState": true,
+    "providerBatchLocationOrLifecycleRecovered": false,
+    "idleSnapshotRequiresActiveBatch": false
+  },
+  "disposition": {
+    "missingUuidArgumentDisprovesPerTargetStatus": false,
+    "cacheControllerHypothesis": "PARTIALLY_SUPPORTED",
+    "firstMissingEdge": "provider-owned claim/batch controller storage + transition/reset semantics -> exact idle/active status snapshot"
+  }
+}

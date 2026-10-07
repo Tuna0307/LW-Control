@@ -1,0 +1,25 @@
+{
+  "schema": 1,
+  "workItem": "LWB317-FUNCTION-MAP-BLOCKER-BOUNDARIES-004",
+  "status": "IN_PROGRESS",
+  "assignmentCheckpoint": "8ee3b83f4812d017f813b6ac5fe6a4f12aec7332",
+  "productChangesAllowed": false,
+  "liveSharedDesktop": "ON_HOLD_BY_OWNER",
+  "checkpoints": [
+    {
+      "id": "A",
+      "state": "COMPLETE",
+      "disposition": "BT-01 PARTIAL; missing-UUID rationale rejected"
+    },
+    {
+      "id": "B",
+      "state": "ACTIVE"
+    },
+    {
+      "id": "C",
+      "state": "READY"
+    }
+  ],
+  "productionFencesPreserved": true,
+  "ghostSafetyGuardPreserved": true
+}
