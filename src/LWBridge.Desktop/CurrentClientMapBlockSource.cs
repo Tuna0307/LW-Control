@@ -33,8 +33,8 @@ internal sealed partial class CurrentClientMapBlockSource : IMapScanProgressBatc
         CurrentClientMapBlockSourceHooks? hooks = null)
         : this(
             lifecycle is null ? throw new ArgumentNullException(nameof(lifecycle)) : lifecycle.GetReadyMapScanSession,
-            null,
-            null,
+            lifecycle.RuntimeRoot,
+            lifecycle.LiveResourceRuntimeRoot,
             hooks,
             lifecycle.WaitForHealthyMapScanSessionAsync,
             lifecycle.MatchesOwnedMapScanSession,
@@ -55,15 +55,19 @@ internal sealed partial class CurrentClientMapBlockSource : IMapScanProgressBatc
         this.waitForHealthySession = waitForHealthySession;
         this.matchesOwnedSession = matchesOwnedSession;
         this.hooks = hooks;
-        string local = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+        string applicationRoot = DesktopApplicationPaths.DefaultRoot;
         this.overviewRuntimeRoot = overviewRuntimeRoot ??
-            Path.Combine(local, "LWBridgeRebuild", "overview-bridge");
+            Path.Combine(applicationRoot, "overview-bridge");
         this.probeRuntimeRoot = probeRuntimeRoot ??
-            Path.Combine(local, "LWBridgeRebuild", "live-resource");
+            Path.Combine(applicationRoot, "live-resource");
         this.assetCacheRoot = string.IsNullOrWhiteSpace(assetCacheRoot)
             ? null
             : Path.GetFullPath(assetCacheRoot);
     }
+
+    internal string OverviewRuntimeRoot => overviewRuntimeRoot;
+    internal string ProbeRuntimeRoot => probeRuntimeRoot;
+    internal string? AssetCacheRoot => assetCacheRoot;
 
     public async Task<MapScanBlockCapture> CaptureAsync(
         MapScanExecutionRequest request,

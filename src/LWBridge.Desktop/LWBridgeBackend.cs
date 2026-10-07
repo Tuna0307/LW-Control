@@ -75,7 +75,8 @@ internal sealed class LWBridgeBackend
         string? profileRuntimeDirectory = null,
         GameInstallationTestHooks? installationTestHooks = null,
         ProxyStatusTestHooks? proxyStatusTestHooks = null,
-        Func<bool>? bridgeReadyProvider = null)
+        Func<bool>? bridgeReadyProvider = null,
+        string? applicationDataRoot = null)
     {
         this.config = config ?? new LocalConfigStore();
         this.asyncCommands = asyncCommands;
@@ -88,7 +89,12 @@ internal sealed class LWBridgeBackend
         appendLog = new AppendLogCommandService(
             this.config.Snapshot.ProfileId,
             profileRuntimeDirectory);
-        this.lastWarLocales = lastWarLocales ?? new LastWarLocaleService();
+        this.lastWarLocales = lastWarLocales ??
+            (applicationDataRoot is null
+                ? new LastWarLocaleService()
+                : new LastWarLocaleService(Path.Combine(
+                    Path.GetFullPath(applicationDataRoot),
+                    "locales")));
         this.firstLiveResultServerId = firstLiveResultServerId;
         this.mapScanStatusProvider = mapScanStatusProvider;
         this.runtimeTasksProvider = runtimeTasksProvider;

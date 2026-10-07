@@ -71,6 +71,7 @@ internal sealed class LWBridgeWindow : Form
     private ProfileRuntimeConfigStore? profileRuntimeConfigStore;
     private string? profileRuntimeConfigPath;
     private readonly SemaphoreSlim profileSwapGate = new(1, 1);
+    private readonly DesktopApplicationPaths? productionPaths;
     private readonly string? productionApplicationRoot;
     private readonly string? primaryProfileId;
     private readonly LWBridgeLocalConfig? primaryProfileSeed;
@@ -145,7 +146,8 @@ internal sealed class LWBridgeWindow : Form
         string? mapUiIntegrationProofPath = null,
         string? homeMapCampaignProofPath = null,
         bool homeMapCampaignNarrow = false,
-        bool useLegacyUi = false)
+        bool useLegacyUi = false,
+        string? isolatedRootPath = null)
     {
         this.capturePath = capturePath;
         this.liveProbePath = liveProbePath;
@@ -168,6 +170,11 @@ internal sealed class LWBridgeWindow : Form
             allowProofOverride: mapUiIntegrationProofPath is not null);
         this.uiRootPath = uiSelection.RootPath;
         bool isolated = capturePath is not null || liveProbePath is not null || hostProbePath is not null || firstLiveResultPath is not null || homeMapCampaignProofPath is not null;
+        if (isolated && isolatedRootPath is not null)
+            throw new ArgumentException("--isolated-root is restricted to normal production composition.");
+        productionPaths = isolated
+            ? null
+            : DesktopApplicationPaths.Create(isolatedRootPath);
         // The legacy store is retained only by the isolated replay fixtures and
         // the dedicated legacy live-resource proof. Normal production Map owns
         // exactly the recovered per-profile Map317 database below.
@@ -192,15 +199,13 @@ internal sealed class LWBridgeWindow : Form
         }
         else
         {
-            config = new LocalConfigStore(persistent: !isolated);
+            config = new LocalConfigStore(productionPaths!.Root);
         }
         productionApplicationRoot = homeMapCampaignProofPath is not null
             ? isolatedConfigRoot
             : isolated
                 ? null
-                : Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                "LWBridgeRebuild");
+                : productionPaths!.Root;
         primaryProfileId = productionApplicationRoot is null ? null : config.Snapshot.ProfileId;
         primaryProfileSeed = productionApplicationRoot is null ? null : config.Snapshot;
         activeProfileConfig = config;
@@ -215,9 +220,8 @@ internal sealed class LWBridgeWindow : Form
             mapData = isolated
                 ? MapDataStore.CreateInMemory()
                 : normalUiLiveResourceProofPath is not null
-                    ? new MapDataStore(Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                    "LWBridgeRebuild", "profiles", config.Snapshot.ProfileId, "map-data.db"))
+                    ? new MapDataStore(
+                        productionPaths!.LegacyLiveResourceMapDatabasePath(config.Snapshot.ProfileId))
                     : null;
         }
         if (sessionScopedMapData)
@@ -266,9 +270,7 @@ internal sealed class LWBridgeWindow : Form
                 selectProfileOwner: SelectProfileOwnerAsync);
         string? profileDatabasePath = isolated
             ? null
-            : Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                "LWBridgeRebuild", "profiles", config.Snapshot.ProfileId, "profile.db");
+            : productionPaths!.ProfileDatabasePath(config.Snapshot.ProfileId);
         cityLayoutDraftService = profileDatabasePath is null
             ? null
             : new CityLayoutDraftCommandService(
@@ -281,10 +283,7 @@ internal sealed class LWBridgeWindow : Form
                 profileDatabasePath);
         profileRuntimeConfigPath = isolated
             ? null
-            : Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                "LWBridgeRebuild", "profiles", config.Snapshot.ProfileId,
-                "runtime", "config.json");
+            : productionPaths!.RuntimeConfigPath(config.Snapshot.ProfileId);
         profileRuntimeConfigStore =
             profileRuntimeConfigPath is null
                 ? null
@@ -345,13 +344,12 @@ internal sealed class LWBridgeWindow : Form
                 liveGameRoot.Valid ? liveGameRoot.Path : null,
                 config: config,
                 bridgeHostState: bridgeHostState,
-                enableBridgeControlPipeLaunchBinding: true);
+                enableBridgeControlPipeLaunchBinding: true,
+                applicationDataRoot: productionApplicationRoot);
             if (normalUiLiveResourceProofPath is null)
             {
-                string map317DatabasePath = Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                    "LWBridgeRebuild", "profiles", config.Snapshot.ProfileId,
-                    "map-data", "map-data.db");
+                string map317DatabasePath =
+                    productionPaths!.MapDatabasePath(config.Snapshot.ProfileId);
                 map317CommandService = new Map317CommandService(
                     map317DatabasePath,
                     overviewLifecycleService);
@@ -465,7 +463,8 @@ internal sealed class LWBridgeWindow : Form
                     : profileRuntimeConfigStore.ReadTasksSnapshot,
                 profileRuntimeDirectory: profileRuntimeConfigPath is null
                     ? null
-                    : Path.GetDirectoryName(profileRuntimeConfigPath));
+                    : Path.GetDirectoryName(profileRuntimeConfigPath),
+                applicationDataRoot: productionApplicationRoot);
         }
         AttachProfileRuntimeEvents();
         if (!isolated &&
@@ -651,7 +650,8 @@ internal sealed class LWBridgeWindow : Form
             config,
             profileRoot,
             profileRegistryService,
-            sharedBridgeHostState: bridgeHostState);
+            sharedBridgeHostState: bridgeHostState,
+            applicationDataRoot: productionApplicationRoot);
     }
 
     private ProfileRuntimeOwner CreateHomeMapCampaignRuntimeOwner(
@@ -873,15 +873,16 @@ internal sealed class LWBridgeWindow : Form
     {
         try
         {
-            string userDataDirectory = homeMapCampaignProofPath is not null
-                ? Path.Combine(isolatedConfigRoot!, "webview-user-data")
-                : Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                "LWBridgeRebuild",
-                    capturePath is not null ? "Capture" :
+            string webViewMode =
+                capturePath is not null ? "Capture" :
                 liveProbePath is not null ? "LiveProbe" :
                 hostProbePath is not null ? "HostProbe" :
-                firstLiveResult is not null ? "FirstLiveResult" : "Presentation");
+                firstLiveResult is not null ? "FirstLiveResult" : "Presentation";
+            string userDataDirectory = homeMapCampaignProofPath is not null
+                ? Path.Combine(isolatedConfigRoot!, "webview-user-data")
+                : productionPaths is not null
+                    ? productionPaths.WebViewUserDataRoot(webViewMode)
+                    : Path.Combine(DesktopApplicationPaths.DefaultRoot, webViewMode);
             var environment = await CoreWebView2Environment.CreateAsync(userDataFolder: userDataDirectory);
             await webView.EnsureCoreWebView2Async(environment);
             var core = webView.CoreWebView2;

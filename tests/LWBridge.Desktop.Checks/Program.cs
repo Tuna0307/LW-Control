@@ -504,6 +504,13 @@ if (args.Contains("--overview-bridge-normal-composition-check", StringComparer.O
     return 0;
 }
 
+if (args.Contains("--production-root-isolation-check", StringComparer.OrdinalIgnoreCase))
+{
+    JsonElement result = await LWBridge.Desktop.Checks.ProductionRootIsolationChecks.RunAsync();
+    Console.WriteLine(JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true }));
+    return 0;
+}
+
 if (args.Contains("--overview-status-transport-check", StringComparer.OrdinalIgnoreCase))
 {
     JsonElement result = await LWBridge.Desktop.Checks.OverviewStatusTransportChecks.RunAsync();
@@ -574,6 +581,7 @@ await LWBridge.Desktop.Checks.OverviewBridgeCallRegistryChecks.RunAsync();
 await LWBridge.Desktop.Checks.OverviewBridgeRpcSessionTransportChecks.RunAsync();
 await LWBridge.Desktop.Checks.OverviewBridgeHostTransportChecks.RunAsync();
 LWBridge.Desktop.Checks.OverviewBridgeNormalCompositionChecks.Run();
+await LWBridge.Desktop.Checks.ProductionRootIsolationChecks.RunAsync();
 await LWBridge.Desktop.Checks.OverviewStatusTransportChecks.RunAsync();
 LWBridge.Desktop.Checks.ProductionUiSelectionChecks.Run();
 

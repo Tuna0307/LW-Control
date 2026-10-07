@@ -20,6 +20,7 @@ internal static class Program
         string? ownerEvidencePath = ReadPathOption(args, "--owner-evidence");
         string? cityReopenProofPath = ReadPathOption(args, "--city-reopen-proof");
         string? uiRootPath = ReadPathOption(args, "--ui-root");
+        string? isolatedRootPath = ReadPathOption(args, "--isolated-root");
         bool useLegacyUi = args.Contains("--legacy-ui", StringComparer.OrdinalIgnoreCase);
         if (uiRootPath is not null && mapUiIntegrationProofPath is null)
             throw new ArgumentException("--ui-root is restricted to --map-ui-integration-proof.");
@@ -27,6 +28,11 @@ internal static class Program
             throw new ArgumentException("--map-ui-integration-proof requires --ui-root.");
         if (useLegacyUi && (uiRootPath is not null || mapUiIntegrationProofPath is not null || normalUiLiveMapProofPath is not null || homeMapCampaignProofPath is not null))
             throw new ArgumentException("--legacy-ui cannot be combined with UI proof/override modes.");
+        if (isolatedRootPath is not null &&
+            new[] { capturePath, liveProbePath, hostProbePath, firstLiveResultPath, liveResourceProofPath, liveCityProofPath, normalUiLiveResourceProofPath, normalUiLiveMapProofPath, mapUiIntegrationProofPath, homeMapCampaignProofPath, cityReopenProofPath }.Any(path => path is not null))
+        {
+            throw new ArgumentException("--isolated-root is restricted to normal production composition.");
+        }
         if (homeMapCampaignNarrow && homeMapCampaignProofPath is null)
             throw new ArgumentException("--home-map-campaign-narrow requires --home-map-campaign-proof.");
         if (cityReopenProofPath is not null)
@@ -78,7 +84,8 @@ internal static class Program
         var window = new LWBridgeWindow(
             capturePath, liveProbePath, hostProbePath, initialView, language, theme, firstLiveResultPath,
             normalUiLiveResourceProofPath, normalUiLiveMapProofPath, ownerEvidencePath, uiRootPath,
-            mapUiIntegrationProofPath, homeMapCampaignProofPath, homeMapCampaignNarrow, useLegacyUi);
+            mapUiIntegrationProofPath, homeMapCampaignProofPath, homeMapCampaignNarrow, useLegacyUi,
+            isolatedRootPath);
         if (hostProbePath is null)
         {
             Application.Run(window);

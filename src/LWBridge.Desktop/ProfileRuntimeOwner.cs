@@ -95,7 +95,8 @@ internal sealed class ProfileRuntimeOwner : IDisposable
         string? overviewRuntimeRoot = null,
         string? overviewEvidenceRoot = null,
         string? overviewBackupRoot = null,
-        LWBridgeControlPipeHostState? sharedBridgeHostState = null)
+        LWBridgeControlPipeHostState? sharedBridgeHostState = null,
+        string? applicationDataRoot = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(profileId);
         ArgumentNullException.ThrowIfNull(config);
@@ -155,7 +156,8 @@ internal sealed class ProfileRuntimeOwner : IDisposable
                 enableBridgeControlPipeLaunchBinding: startBridgeTransport,
                 runtimeRoot: overviewRuntimeRoot,
                 evidenceRoot: overviewEvidenceRoot,
-                backupRoot: overviewBackupRoot);
+                backupRoot: overviewBackupRoot,
+                applicationDataRoot: applicationDataRoot);
             map = mapProvider is null
                 ? new Map317CommandService(
                     Path.Combine(fullProfileRoot, "map-data", "map-data.db"),
@@ -208,7 +210,8 @@ internal sealed class ProfileRuntimeOwner : IDisposable
                 profileRuntimeDirectory: Path.GetDirectoryName(runtimeConfigPath),
                 installationTestHooks: installationTestHooks,
                 proxyStatusTestHooks: proxyStatusTestHooks,
-                bridgeReadyProvider: bridgeReadyProvider);
+                bridgeReadyProvider: bridgeReadyProvider,
+                applicationDataRoot: applicationDataRoot);
             var focus = new ProfileWindowFocusService(
                 profileId,
                 new GameInstallationService(config, installationTestHooks));

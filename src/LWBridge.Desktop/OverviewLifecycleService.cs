@@ -56,9 +56,12 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
     private readonly string helperPath;
     private string? gameRoot;
     private readonly string profileId;
+    private readonly string applicationDataRoot;
     private readonly string runtimeRoot;
     private readonly string evidenceRoot;
     private readonly string backupRoot;
+    private readonly string liveResourceRuntimeRoot;
+    private readonly string profileRuntimeRoot;
     private readonly TimeSpan helperSupervisionTimeout;
     private readonly LocalConfigStore? config;
     private readonly OverviewLifecycleTestHooks? testHooks;
@@ -98,7 +101,8 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
         bool enableBridgeControlPipeLaunchBinding = false,
         string? runtimeRoot = null,
         string? evidenceRoot = null,
-        string? backupRoot = null)
+        string? backupRoot = null,
+        string? applicationDataRoot = null)
     {
         if (string.IsNullOrWhiteSpace(profileId)) throw new ArgumentException("profileId is required", nameof(profileId));
         this.profileId = profileId;
@@ -112,10 +116,13 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
         bridgeControlPipeLaunchBindingEnabled =
             enableBridgeControlPipeLaunchBinding;
         recoveryMonitorEnabled = startRecoveryMonitor;
-        string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-        this.runtimeRoot = Path.GetFullPath(runtimeRoot ?? Path.Combine(localAppData, "LWBridgeRebuild", "overview-bridge"));
-        this.evidenceRoot = Path.GetFullPath(evidenceRoot ?? Path.Combine(localAppData, "LWBridgeRebuild", "overview-evidence"));
-        this.backupRoot = Path.GetFullPath(backupRoot ?? Path.Combine(localAppData, "LWBridgeRebuild", "overview-bridge-backups"));
+        string defaultApplicationRoot = DesktopApplicationPaths.DefaultRoot;
+        this.applicationDataRoot = Path.GetFullPath(applicationDataRoot ?? defaultApplicationRoot);
+        this.runtimeRoot = Path.GetFullPath(runtimeRoot ?? Path.Combine(this.applicationDataRoot, "overview-bridge"));
+        this.evidenceRoot = Path.GetFullPath(evidenceRoot ?? Path.Combine(this.applicationDataRoot, "overview-evidence"));
+        this.backupRoot = Path.GetFullPath(backupRoot ?? Path.Combine(this.applicationDataRoot, "overview-bridge-backups"));
+        liveResourceRuntimeRoot = Path.Combine(this.applicationDataRoot, "live-resource");
+        profileRuntimeRoot = Path.Combine(this.applicationDataRoot, "profiles", profileId);
         if (startRecoveryMonitor) StartRecoveryMonitor();
     }
 
@@ -124,12 +131,12 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
             "profile_instances_reconcile" or "profile_instances_update_and_restart";
 
     internal LWBridgeControlPipeHostState? BridgeHostState => bridgeHostState;
-
-    internal string ProfileRuntimeRoot => Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-        "LWBridgeRebuild",
-        "profiles",
-        profileId);
+    internal string ApplicationDataRoot => applicationDataRoot;
+    internal string RuntimeRoot => runtimeRoot;
+    internal string EvidenceRoot => evidenceRoot;
+    internal string BackupRoot => backupRoot;
+    internal string LiveResourceRuntimeRoot => liveResourceRuntimeRoot;
+    internal string ProfileRuntimeRoot => profileRuntimeRoot;
 
     public bool IsReady
     {
