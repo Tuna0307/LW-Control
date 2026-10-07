@@ -1,0 +1,68 @@
+{
+  "reviewedWorker": "f970b6143cdf5cb3d186738a769c736901a3394d",
+  "execution": "fresh independent lead execution; existing Release binaries and isolated/inert Python/Lua seams",
+  "checks": [
+    {
+      "command": "dotnet tests/LWBridge.Desktop.Checks/bin/Release/net10.0-windows10.0.17763.0/LWBridge.Desktop.Checks.dll --profile-runtime-owner-check",
+      "result": "PASS",
+      "observedOutput": {
+        "ok": true,
+        "check": "profile-runtime-owner"
+      }
+    },
+    {
+      "command": "dotnet tests/LWBridge.Desktop.Checks/bin/Release/net10.0-windows10.0.17763.0/LWBridge.Desktop.Checks.dll --map317-native-boundary-check",
+      "result": "PASS",
+      "observedOutput": {
+        "ok": true,
+        "check": "map317-native-boundary"
+      }
+    },
+    {
+      "command": "dotnet tests/LWBridge.Desktop.Checks/bin/Release/net10.0-windows10.0.17763.0/LWBridge.Desktop.Checks.dll --home-campaign-lifecycle-check",
+      "result": "PASS",
+      "observedAcceptanceCase": "LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001-home-lifecycle-bcd"
+    },
+    {
+      "command": "dotnet tests/LWBridge.Desktop.Checks/bin/Release/net10.0-windows10.0.17763.0/LWBridge.Desktop.Checks.dll --overview-bridge-launch-binding-check",
+      "result": "PASS",
+      "productionCallLuaEnabled": false
+    },
+    {
+      "command": "python tests/home_runtime_file_ownership_checks.py",
+      "result": "PASS",
+      "tests": 4
+    },
+    {
+      "command": "C:\\Users\\chimw\\.codex\\tmp\\lwb317-recovery003-lua\\Scripts\\python.exe tests/home_runtime_lease_lua_checks.py",
+      "result": "PASS",
+      "tests": 6,
+      "lupa": "2.8",
+      "lua": "5.4"
+    },
+    {
+      "command": "pwsh -NoProfile -File lead-review-2026-10-07/check-reader.ps1",
+      "result": "PASS",
+      "cases": 6,
+      "connectCalls": 0,
+      "artifact": "reader-results.json"
+    },
+    {
+      "command": "python lead-review-2026-10-07/validate-current.py",
+      "result": "PASS",
+      "artifact": "provenance-results.json"
+    },
+    {
+      "command": "python tools/check_current_client_runtime_contract.py",
+      "result": "PASS",
+      "artifact": "current-runtime.json"
+    },
+    {
+      "command": "python tools/lwbridge317/inspect_current_map_compat.py --output current-map-compat.json",
+      "result": "PASS",
+      "artifact": "current-map-compat.json"
+    }
+  ],
+  "notes": "Native/Python results are compact observed tool-output summaries; reader and provenance artifacts are emitted by the supplied scripts. No current-game/xLua execution was performed.",
+  "liveState": "UNKNOWN; ON_HOLD_BY_OWNER"
+}

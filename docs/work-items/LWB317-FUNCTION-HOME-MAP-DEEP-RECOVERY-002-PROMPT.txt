@@ -1,0 +1,98 @@
+You are the solo coordinating worker for:
+LWB317-FUNCTION-HOME-MAP-DEEP-RECOVERY-002
+
+Repository:
+C:\Users\chimw\OneDrive\Desktop\Github\LW-Control
+Branch: research/offline-controller
+Product checkpoint: f970b6143cdf5cb3d186738a769c736901a3394d
+Later lead documentation/evidence commits are expected. Inspect current HEAD/status;
+do not reset or discard unrelated work.
+
+Read before acting:
+- AGENTS.md
+- docs/AI_WORK_PROTOCOL.md
+- docs/WINDOWS_MCP_SETUP.md
+- docs/implementation-handoff.md and current Home/Map masters
+- docs/work-items/LWB317-FUNCTION-HOME-MAP-DEEP-RECOVERY-002.md, in full
+- docs/reviews/2026-10-07-LWB317-FUNCTION-HOME-MAP-OFFLINE-HOST-CONTRACT-001-LEAD.md
+- The accepted RECOVERY-003 lead review and previous campaign queue/evidence
+
+This is one substantial assignment, not a request for another plan or inventory.
+Complete the full A-H queue through sequential medium checkpoints. Continue
+automatically after each checkpoint without waiting for another owner prompt.
+Do not stop after source discovery if an assigned implementation is supported.
+If one branch is concretely blocked, record it and advance another ready branch.
+Return only after all branches are delivered or every remaining independent branch
+has a specific evidenced blocker. No time quota, artificial minimum or time cutoff.
+
+Accepted baseline:
+Recovered-source/local UIUX is accepted. RECOVERY-003 R3-01 through R3-05 and
+OFFLINE-HOST-CONTRACT-001 are accepted for their offline scope. Home/Map full
+feature parity remains PARTIAL. The lead reader erratum supersedes the earlier
+imprecise UTF-8-only/.NET byte-limit statement; read it before reusing that contract.
+Do not restart completed recovery work or redesign the UI.
+
+Target:
+C:\Users\chimw\OneDrive\Desktop\Github\LW\lwbridge-0.3.17.exe
+SHA-256: 4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783
+Historical 0.3.1 findings are hypotheses until revalidated against exact 0.3.17.
+
+Complete these milestones using the detailed work item's acceptance requirements:
+A. Freeze actual gaps and audit original/current/historical contract provenance.
+B. Recover exact 0.3.17 scan/acquisition/backend and all eight record pipelines;
+   correct demonstrated rebuild serializer/publication/query differences.
+C. Map current installed-client producers/bytecode/metadata to canonical Map
+   ingestion; implement source-supported projection/coverage corrections.
+D. Recover Treasure claim-status/claim and Ghost preparation contracts. Implement
+   missing current-client adapters only where both sides are proven from allowed
+   artifacts, with inert production-boundary tests and truthful capability gates.
+E. Reconcile Dispatch/Ghost/Truck scheduled jobs, worker/results/retries/cancel/
+   history using the existing scheduler/store, not a parallel implementation.
+F. Integrate newly proved requirements with Home/profile/readiness/recovery owners,
+   preserving all accepted ownership, Stop and preference behavior.
+G. Run headless native/storage/command-registry integration, review the complete
+   diff yourself, and add meaningful distinguishing inverse/mutation proof.
+H. Complete affected checks, exact blockers, cleanup, status/handoff and delivery.
+
+Execution restrictions:
+The owner is using the computer. All live Last War and shared-desktop activity
+remain ON_HOLD_BY_OWNER. No visible app/game launch, existing-session attachment,
+desktop screenshot/input/focus changes, installed-game instrumentation, owner
+runtime/config mutation, real scans/movement/plunder/claims/shares, updater actions,
+protected-service access or access-control/entitlement circumvention.
+
+Use read-only static artifacts and isolated/inert providers, clocks, processes,
+databases and temporary roots. Source-backed action implementation is allowed;
+real account/game execution is not. Headless task-owned rendering is permitted
+only without visible windows/shared-browser control; it does not prove WebView
+or current-game runtime behavior. No fallback, invented schemas or fake success.
+
+Work alone: no subagents, other AI-chat delegation, GPT Work or Codex use.
+Remote Desktop Commander shell/filesystem and Windows-MCP headless schema
+discovery are available. Actual desktop tools stay on hold. For later authorized
+desktop work, check both tools before reporting a capability blocker; respect user
+takeover and never bypass the MCP control gate.
+
+Preserve accepted UIUX, global Auto Launch confirmation/rollback, profile-scoped
+reconnect, Auto Scan semantic hydration/rebase, exact runtime ownership/deletion,
+committed Stop terminalization, compatibility admission and restoration guards.
+Keep original protected-wire/traversal parity and real xLua conversion UNKNOWN
+unless exact permitted evidence establishes them. Never promote LIVE_PROVEN here.
+
+Keep queue.json, progress.md, solo coordination.md and continuation.md under:
+evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-MAP-DEEP-RECOVERY-002/
+Update them at durable checkpoints so interrupted work can resume exactly.
+Preserve historical failures and evidence pins. Do not repeat accepted work merely
+to increase case counts or overwrite old evidence to make checks pass.
+
+Run applicable native/ownership/Map/Auto/job/current-compatibility checks after
+reading their paths; never invoke --live-* as a regression. For product changes,
+run affected Release builds, canonical frontend check/build/package and relevant
+UI regressions. Record precise commands/results, data provenance and owned cleanup.
+
+Review/stage only owned files, commit coherent milestones, push to
+origin/research/offline-controller, and verify HEAD/tracking/direct remote SHA.
+Return once as AWAITING_REVIEW with A-H outcomes, implemented fixes/features,
+checks, commits, preserved behavior, exact blockers and continuation. If genuinely
+blocked across every remaining branch, return a precise PARTIAL handoff instead.
+Final acceptance stays with the project lead.

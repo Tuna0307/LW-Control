@@ -1,0 +1,40 @@
+{
+  "adapterSha256": "5782472AB3F4B7EA4324162C5E23D4F6E6A5B84AAD5C8486D52FF6B36FD5AA80",
+  "readerType": "System.Func`2[[System.String, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.String, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+  "cases": [
+    {
+      "case": "ascii-4096",
+      "utf16CodeUnits": 4096,
+      "utf8Bytes": 4096,
+      "result": "ok"
+    },
+    {
+      "case": "ascii-4097",
+      "utf16CodeUnits": 4097,
+      "utf8Bytes": 4097,
+      "result": "unavailable"
+    },
+    {
+      "case": "utf8-over-4096-bytes-under-char-limit",
+      "utf16CodeUnits": 2049,
+      "utf8Bytes": 4098,
+      "result": "ok"
+    },
+    {
+      "case": "utf16-bom-autodetection",
+      "utf16CodeUnits": 8,
+      "utf8Bytes": 8,
+      "result": "ok"
+    },
+    {
+      "case": "invalid-utf8-without-bom",
+      "result": "unavailable"
+    },
+    {
+      "case": "unapproved-basename",
+      "result": "unavailable"
+    }
+  ],
+  "isolatedRootRemoved": true,
+  "connectCalls": 0
+}

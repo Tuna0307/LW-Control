@@ -1,0 +1,26 @@
+{
+  "workerCommit": "f970b6143cdf5cb3d186738a769c736901a3394d",
+  "verifiedSources": {
+    "tools/run_overview_bridge.py": "9a10b957d476e5cb935bd79994d7df6c14a435427c6c533594159a7ace75217c",
+    "tools/current_overview_bridge.lua": "dacb0ec8f3518bbaabdd3efd344e66ef1905a48748122cae741511db03ada94d",
+    "tools/current_live_resource_probe.lua": "a91decf140a7f2ca00a544286dab1c05f8a9fb2db8ffb283b9fc8861fdd24d49",
+    "src/LWBridge.GamePipeAdapter/PipeClientAdapter.cs": "9d256f1d01bab2c1a93a510774470a6c537b06cead9c7b61358ad19dc55bce7d",
+    "src/LWBridge.Desktop/CurrentClientMap317ScanProvider.cs": "7942351a09eb254e1d7e5c49240eeb5fd9eb67de8de55f5cce2ca13cd355b3c2",
+    "src/LWBridge.Desktop/CurrentClientCompatibility.cs": "377424a6d0a902fda249db9a0c49d0947e7b47d28b1ac405a915eccef110d737",
+    "tests/home_runtime_lease_lua_checks.py": "d2d1264ec5f347242af271fb1666f59102c4f038e2032881c33a4b33a95f75b4",
+    "tests/LWBridge.Desktop.Checks/HomeRuntimeFileOwnershipChecks.cs": "4caff7e84a9a912a26b70050cf64a2776edc3b56a4590e1e25905e4b9ac85105"
+  },
+  "referenceSha256": "4e9c3113dedfd7e1a752404c6936aab304e67d7ffdb0952a5003c2ec948d6783",
+  "currentArtifactsVerified": [
+    "LastWar.exe",
+    "xlua.dll",
+    "Assembly-CSharp.rdl",
+    "XLuaRuntime.rdl"
+  ],
+  "nativeEvidenceReferenceMatches": true,
+  "workerOnlyDocsEvidence": true,
+  "readerCases": 6,
+  "connectCalls": 0,
+  "liveXluaConversion": "UNKNOWN",
+  "liveTesting": "ON_HOLD_BY_OWNER"
+}

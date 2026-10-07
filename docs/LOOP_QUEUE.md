@@ -11,7 +11,8 @@ The current offline owner-relayed work item takes precedence over old queue entr
 
 | Campaign / work item | State | File | Notes |
 |---|---|---|---|
-| LWB317-FUNCTION-HOME-MAP-OFFLINE-HOST-CONTRACT-001 | READY FOR OWNER RELAY | `docs/work-items/LWB317-FUNCTION-HOME-MAP-OFFLINE-HOST-CONTRACT-001.md` | Bounded static host/binding recovery and isolated inverse checks; no desktop/game/live execution |
+| LWB317-FUNCTION-HOME-MAP-DEEP-RECOVERY-002 | ASSIGNED FOR OWNER RELAY | `docs/work-items/LWB317-FUNCTION-HOME-MAP-DEEP-RECOVERY-002.md` | One solo offline campaign A-H; exact original/current recovery and source-backed feature corrections; automatic continuation between medium checkpoints |
+| LWB317-FUNCTION-HOME-MAP-OFFLINE-HOST-CONTRACT-001 | ACCEPTED OFFLINE | `docs/work-items/LWB317-FUNCTION-HOME-MAP-OFFLINE-HOST-CONTRACT-001.md` | Lead review of f970b614 with precise reader units/BOM erratum; real xLua/live witnesses remain UNKNOWN |
 | LWB317-FUNCTION-HOME-MAP-LIVE-PILOT-001 | ON_HOLD_BY_OWNER | `docs/work-items/LWB317-FUNCTION-HOME-MAP-LIVE-PILOT-001.md` | Requires explicit later owner resumption and lead reissue |
 | LWB317-UI-COMPLETE-001 | READY | `docs/work-items/LWB317-UI-COMPLETE-001.md` | Owner manually dispatches a fresh worker chat; full shell/eight-page UI coverage with Home/Map first; milestone checkpoints, no fixed time stop; no new game/native lifecycle work |
 | LWB317-UI-CAMPAIGN-8H | ACCEPTED | `docs/LOOP_CAMPAIGN_8H.md` | Static UI recovery accepted; direct original post-auth pixel validation remains blocked by the original auth boundary |

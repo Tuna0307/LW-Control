@@ -39,6 +39,13 @@ Keep their edits separate from an active worker's owned scope.
 
 ## Roles
 
+Owner assignment-size direction, 2026-10-07: HOME-MAP-DEEP-RECOVERY-002 is one
+larger offline feature campaign A-H. The solo worker continues through medium
+durable checkpoints without owner relay after each milestone and returns once
+at its final boundary (or only after every remaining independent branch is
+concretely blocked). This supersedes the small-unit size preference for this
+campaign only; live hold, evidence standards and lead acceptance stay unchanged.
+
 Owner direction, 2026-10-05: assign all remaining recoverable UIUX work as one
 owner-relayed LWB317-UI-VISUAL-FINAL-CLOSEOUT-003 campaign. This supersedes separate
 small-unit dispatch for that assignment. Continue automatically through sequential

@@ -1,6 +1,10 @@
 # LWB317-FUNCTION-HOME-MAP-OFFLINE-HOST-CONTRACT-001
 
-Status: **AWAITING_REVIEW**, 2026-10-07.
+Status: **ACCEPTED for assigned offline/static/inert scope**, 2026-10-07.
+Lead independently reviewed `f970b614` and recorded the exact adapter size/encoding
+erratum in the dated OFFLINE-HOST-CONTRACT-001-LEAD review. Historical worker
+descriptions remain preserved; real game/xLua conversion and live acquisition
+remain UNKNOWN. Next assignment is HOME-MAP-DEEP-RECOVERY-002; live stays on hold.
 
 Repository: `C:\Users\chimw\OneDrive\Desktop\Github\LW-Control`.
 Branch: `research/offline-controller`. Start from the current clean checkpoint;
