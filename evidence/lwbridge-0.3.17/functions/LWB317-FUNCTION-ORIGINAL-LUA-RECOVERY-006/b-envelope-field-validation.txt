@@ -1,0 +1,279 @@
+041080 mov     edx, dword ptr [rbp + 0xe8]
+041086 cmp     rdx, 0xf
+04108a jbe     0x1800410bd
+04108c inc     rdx
+04108f mov     rcx, qword ptr [rbp + 0xd0]
+041096 cmp     rdx, 0x1000
+04109d jb      0x1800410b7
+04109f mov     rax, qword ptr [rcx - 8]
+0410a3 sub     rcx, rax
+0410a6 sub     rcx, 8
+0410aa cmp     rcx, 0x1f
+0410ae ja      0x180041125
+0410b0 add     rdx, 0x27
+0410b4 mov     rcx, rax
+0410b7 call    0x18004a130
+0410bc nop
+0410bd test    bl, 1
+0410c0 je      0x180041103
+0410c2 mov     rdx, qword ptr [rbp + 0xc8]
+0410c9 cmp     rdx, 0xf
+0410cd jbe     0x180041103
+0410cf inc     rdx
+0410d2 mov     rcx, qword ptr [rbp + 0xb0]
+0410d9 cmp     rdx, 0x1000
+0410e0 jb      0x1800410fe
+0410e2 mov     rax, qword ptr [rcx - 8]
+0410e6 sub     rcx, rax
+0410e9 sub     rcx, 8
+0410ed cmp     rcx, 0x1f
+0410f1 ja      0x180041f44
+0410f7 add     rdx, 0x27
+0410fb mov     rcx, rax
+0410fe call    0x18004a130
+041103 test    r14b, r14b
+041106 je      0x18004112c
+041108 mov     r8d, 0x14
+04110e lea     rdx, [rip + 0x3291b]
+041115 mov     rcx, rsi
+041118 call    0x1800078d0
+04111d xor     dil, dil
+041120 jmp     0x180041f0e
+041125 mov     ecx, 5
+04112a int     0x29
+04112c lea     r9, [rsp + 0x40]
+041131 mov     r8, qword ptr [rbp + 0xa0]
+041138 mov     rdx, qword ptr [rbp + 0x98]
+04113f lea     rcx, [rbp + 0x170]
+041146 call    0x18000fd40
+04114b nop
+04114c lea     rdx, [rbp + 0x80]
+041153 lea     rcx, [rbp + 0x170]
+04115a call    0x180043e50
+04115f test    al, al
+041161 jne     0x180041180
+041163 mov     r8d, 0x14
+041169 lea     rdx, [rip + 0x328c0]
+041170 mov     rcx, rsi
+041173 call    0x1800078d0
+041178 xor     dil, dil
+04117b jmp     0x180041eb8
+041180 lea     rdx, [rbp + 0x170]
+041187 lea     rcx, [rsp + 0x58]
+04118c call    0x180040c00
+041191 nop
+041192 mov     qword ptr [rsp + 0x70], r12
+041197 mov     qword ptr [rsp + 0x50], r12
+04119c mov     qword ptr [rsp + 0x78], r12
+0411a1 mov     qword ptr [rsp + 0x48], r12
+0411a6 xorps   xmm0, xmm0
+0411a9 movdqu  xmmword ptr [rbp - 0x78], xmm0
+0411ae mov     qword ptr [rbp - 0x68], r12
+0411b2 movdqu  xmmword ptr [rbp - 0x60], xmm0
+0411b7 mov     qword ptr [rbp - 0x50], r12
+0411bb movdqu  xmmword ptr [rbp + 0x30], xmm0
+0411c0 mov     qword ptr [rbp + 0x40], r12
+0411c4 movdqu  xmmword ptr [rbp + 0x18], xmm0
+0411c9 mov     qword ptr [rbp + 0x28], r12
+0411cd movdqu  xmmword ptr [rbp], xmm0
+0411d2 mov     qword ptr [rbp + 0x10], r12
+0411d6 movdqu  xmmword ptr [rbp - 0x18], xmm0
+0411db mov     qword ptr [rbp - 8], r12
+0411df mov     rbx, qword ptr [rsp + 0x58]
+0411e4 mov     rax, qword ptr [rsp + 0x60]
+0411e9 sub     rax, rbx
+0411ec sar     rax, 5
+0411f0 cmp     rax, 0xe
+0411f4 jne     0x180041cd3
+0411fa lea     rcx, [rip + 0x3486b]
+041201 call    0x18006cbe0
+041206 mov     r8, qword ptr [rbx + 0x10]
+04120a cmp     qword ptr [rbx + 0x18], 0xf
+04120f jbe     0x180041216
+041211 mov     rcx, qword ptr [rbx]
+041214 jmp     0x180041219
+041216 mov     rcx, rbx
+041219 cmp     r8, rax
+04121c jne     0x180041cd3
+041222 test    r8, r8
+041225 je      0x18004123b
+041227 lea     rdx, [rip + 0x3483e]
+04122e call    0x18006cb00
+041233 test    eax, eax
+041235 jne     0x180041cd3
+04123b lea     rcx, [rbx + 0x20]
+04123f lea     rdx, [rsp + 0x70]
+041244 call    0x18001b760
+041249 test    al, al
+04124b je      0x180041cd3
+041251 mov     rcx, qword ptr [rsp + 0x58]
+041256 add     rcx, 0x40
+04125a lea     rdx, [rdi + 0x60]
+04125e call    0x18001b760
+041263 test    al, al
+041265 je      0x180041cd3
+04126b mov     r10, qword ptr [rsp + 0x58]
+041270 lea     rcx, [r10 + 0x60]
+041274 call    0x180040dc0
+041279 test    al, al
+04127b je      0x180041cd3
+041281 lea     rcx, [r10 + 0x80]
+041288 call    0x180040e30
+04128d test    al, al
+04128f je      0x180041cd3
+041295 lea     rcx, [r10 + 0xa0]
+04129c lea     rdx, [rsp + 0x50]
+0412a1 call    0x18001b760
+0412a6 test    al, al
+0412a8 je      0x180041cd3
+0412ae mov     rcx, qword ptr [rsp + 0x58]
+0412b3 add     rcx, 0xc0
+0412ba lea     rdx, [rsp + 0x78]
+0412bf call    0x18001b760
+0412c4 test    al, al
+0412c6 je      0x180041cd3
+0412cc mov     rcx, qword ptr [rsp + 0x58]
+0412d1 add     rcx, 0xe0
+0412d8 lea     rdx, [rsp + 0x48]
+0412dd call    0x18001b760
+0412e2 test    al, al
+0412e4 je      0x180041cd3
+0412ea mov     rcx, qword ptr [rsp + 0x58]
+0412ef add     rcx, 0x100
+0412f6 lea     rdx, [rbp - 0x78]
+0412fa call    0x18003e590
+0412ff test    al, al
+041301 je      0x180041cd3
+041307 mov     rcx, qword ptr [rsp + 0x58]
+04130c add     rcx, 0x120
+041313 lea     rdx, [rbp - 0x60]
+041317 call    0x18003e590
+04131c test    al, al
+04131e je      0x180041cd3
+041324 mov     rcx, qword ptr [rsp + 0x58]
+041329 add     rcx, 0x140
+041330 lea     rdx, [rbp + 0x30]
+041334 call    0x18003e590
+041339 test    al, al
+04133b je      0x180041cd3
+041341 mov     rcx, qword ptr [rsp + 0x58]
+041346 add     rcx, 0x160
+04134d lea     rdx, [rbp + 0x18]
+041351 call    0x18003e590
+041356 test    al, al
+041358 je      0x180041cd3
+04135e mov     rcx, qword ptr [rsp + 0x58]
+041363 add     rcx, 0x180
+04136a lea     rdx, [rbp]
+04136e call    0x18003e590
+041373 test    al, al
+041375 je      0x180041cd3
+04137b mov     rcx, qword ptr [rsp + 0x58]
+041380 add     rcx, 0x1a0
+041387 lea     rdx, [rbp - 0x18]
+04138b call    0x18003e590
+041390 test    al, al
+041392 je      0x180041cd3
+041398 mov     rax, qword ptr [rbp - 0x70]
+04139c sub     rax, qword ptr [rbp - 0x78]
+0413a0 cmp     rax, 0x20
+0413a4 jne     0x180041cd3
+0413aa mov     rax, qword ptr [rbp - 0x58]
+0413ae mov     rcx, qword ptr [rbp - 0x60]
+0413b2 sub     rax, rcx
+0413b5 cmp     rax, 0x41
+0413b9 jne     0x180041cd3
+0413bf cmp     byte ptr [rcx], 4
+0413c2 jne     0x180041cd3
+0413c8 mov     rax, qword ptr [rbp + 0x38]
+0413cc sub     rax, qword ptr [rbp + 0x30]
+0413d0 cmp     rax, 0x20
+0413d4 jne     0x180041cd3
+0413da mov     rax, qword ptr [rbp + 0x20]
+0413de sub     rax, qword ptr [rbp + 0x18]
+0413e2 cmp     rax, 0xc
+0413e6 jne     0x180041cd3
+0413ec mov     rax, qword ptr [rbp + 8]
+0413f0 sub     rax, qword ptr [rbp]
+0413f4 cmp     rax, 0x20
+0413f8 jne     0x180041cd3
+0413fe mov     rax, qword ptr [rbp - 0x10]
+041402 sub     rax, qword ptr [rbp - 0x18]
+041406 cmp     rax, 0x10
+04140a jne     0x180041cd3
+041410 mov     r14, qword ptr [rsp + 0x50]
+041415 test    r14, r14
+041418 je      0x180041cd3
+04141e mov     r15, qword ptr [rsp + 0x78]
+041423 test    r15, r15
+041426 je      0x180041cd3
+04142c cmp     qword ptr [rsp + 0x48], 0
+041432 je      0x180041cd3
+041438 mov     qword ptr [rsp + 0x48], r12
+04143d lea     rcx, [rsp + 0x48]
+041442 call    qword ptr [rip + 0x2fd80]
+041448 mov     rax, qword ptr [rsp + 0x48]
+04144d movabs  rcx, 0x19db1ded53e8000
+041457 cmp     rax, rcx
+04145a ja      0x180041461
+04145c mov     rcx, r12
+04145f jmp     0x180041482
+041461 movabs  rcx, 0xfe624e212ac18000
+04146b add     rcx, rax
+04146e movabs  rax, 0xd6bf94d5e57a42bd
+041478 mul     rcx
+04147b mov     rcx, rdx
+04147e shr     rcx, 0x17
+041482 lea     rax, [rcx + 0x12c]
+041489 mov     r8, qword ptr [rsp + 0x70]
+04148e cmp     r8, rax
+041491 ja      0x180041cb3
+041497 mov     rdx, qword ptr [rdi + 0x60]
+04149b cmp     rdx, rcx
+04149e jbe     0x180041cb3
+0414a4 cmp     rdx, r8
+0414a7 jbe     0x180041cb3
+0414ad mov     rax, rdx
+0414b0 sub     rax, r8
+0414b3 cmp     rax, 0x4b0
+0414b9 ja      0x180041cb3
+0414bf mov     rax, qword ptr [rbp - 0x80]
+0414c3 cmp     rdx, qword ptr [rax + 0x10]
+0414c7 ja      0x180041cb3
+0414cd cmp     r14, qword ptr [rax]
+0414d0 jne     0x180041cb3
+0414d6 cmp     r15, qword ptr [rax + 8]
+0414da jne     0x180041cb3
+0414e0 mov     qword ptr [rbp + 0x48], r12
+0414e4 xorps   xmm0, xmm0
+0414e7 movups  xmmword ptr [rbp + 0x150], xmm0
+0414ee mov     qword ptr [rbp + 0x160], r12
+0414f5 mov     qword ptr [rbp + 0x168], 0xf
+041500 mov     byte ptr [rbp + 0x150], 0
+041507 lea     rdx, [rbp + 0x150]
+04150e lea     rcx, [rbp + 0x48]
+041512 call    0x180044860
+041517 test    al, al
+041519 jne     0x180041538
+04151b mov     r8d, 0x12
+041521 lea     rdx, [rip + 0x345e8]
+041528 mov     rcx, rsi
+04152b call    0x1800078d0
+041530 xor     dil, dil
+041533 jmp     0x180041c78
+041538 mov     rbx, qword ptr [rbp + 0x48]
+04153c mov     qword ptr [rsp + 0x78], rbx
+041541 xorps   xmm0, xmm0
+041544 movdqu  xmmword ptr [rbp + 0x68], xmm0
+041549 mov     qword ptr [rbp + 0x78], r12
+04154d lea     r8, [rbp + 0x150]
+041554 lea     rdx, [rbp + 0x68]
+041558 mov     rcx, rbx
+04155b call    0x180044660
+041560 test    al, al
+041562 jne     0x180041581
+041564 mov     r8d, 0x16
+04156a lea     rdx, [rip + 0x3465f]
+041571 mov     rcx, rsi
+041574 call    0x1800078d0
+041579 xor     dil, dil

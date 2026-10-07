@@ -8,15 +8,17 @@
     {
       "id": "A",
       "state": "COMPLETE",
+      "commit": "a9196752ac4148c7b76b04d3af6e17df4da96277",
       "disposition": "exact 0.3.17 encrypted payload/resources located; no supplied envelope"
     },
     {
       "id": "B",
-      "state": "ACTIVE"
+      "state": "COMPLETE",
+      "disposition": "0.3.17 extraction/crypto/integrity/input contract source-recovered; decrypt inputs incomplete"
     },
     {
       "id": "C",
-      "state": "READY"
+      "state": "ACTIVE"
     },
     {
       "id": "D",

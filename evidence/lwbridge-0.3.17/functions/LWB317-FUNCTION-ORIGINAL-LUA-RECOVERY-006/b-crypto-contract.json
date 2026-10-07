@@ -1,0 +1,203 @@
+{
+  "ok": true,
+  "findingId": "LWB317-FUNCTION-ORIGINAL-LUA-RECOVERY-006-B",
+  "referenceSha256": "4e9c3113dedfd7e1a752404c6936aab304e67d7ffdb0952a5003c2ec948d6783",
+  "secureProxySha256": "ae8bba866df80e9c924923d1f59d49e824c784c8ba9b47780fe2f58305e00a86",
+  "functionRvas": {
+    "moduleTable": [
+      "0x127D0",
+      "0x13620"
+    ],
+    "aesGcm": [
+      "0x3E100",
+      "0x3E58A"
+    ],
+    "package": [
+      "0x3E800",
+      "0x3F295"
+    ],
+    "base64Url": [
+      "0x3E590",
+      "0x3E800"
+    ],
+    "ecdh": [
+      "0x3F2A0",
+      "0x3F5BE"
+    ],
+    "hashHmac": [
+      "0x3FE60",
+      "0x4020A"
+    ],
+    "hkdf": [
+      "0x40210",
+      "0x40360"
+    ],
+    "sha256Bytes": [
+      "0x40B60",
+      "0x40BFD"
+    ],
+    "splitPipe": [
+      "0x40C00",
+      "0x40DAC"
+    ],
+    "validateBuild": [
+      "0x40DC0",
+      "0x40E30"
+    ],
+    "validateShaHex": [
+      "0x40E30",
+      "0x40E80"
+    ],
+    "envelope": [
+      "0x40E80",
+      "0x4200D"
+    ],
+    "verifyTokenSignature": [
+      "0x43E50",
+      "0x440D8"
+    ],
+    "exportDevicePublic": [
+      "0x44660",
+      "0x44860"
+    ],
+    "openDeviceKey": [
+      "0x44860",
+      "0x44920"
+    ]
+  },
+  "package": {
+    "format": {
+      "magic": "LWBP",
+      "version": 2,
+      "buildIdLength": 22,
+      "nonceLength": 12,
+      "tagLength": 16,
+      "cipherLengthEncoding": "little-endian u32",
+      "buildOffset": 12,
+      "nonceOffset": 34,
+      "cipherLengthOffset": 46,
+      "ciphertextOffset": 50
+    },
+    "integrity": "SHA-256 over complete encrypted package, lowercase hex compared to envelope-derived expected SHA",
+    "buildBinding": "22-byte package build id compared to envelope-derived expected build",
+    "aad": "ASCII 'LWBP2|' + exact package build id",
+    "cipher": "AES-256-GCM",
+    "compression": "NONE: AES plaintext is consumed directly by module-table parser"
+  },
+  "envelope": {
+    "outerEncoding": "exactly two canonical Base64URL segments separated by one '.'",
+    "signature": {
+      "segment": 2,
+      "decodedLength": 64,
+      "algorithm": "ECDSA_P256",
+      "digest": "SHA-256(decoded segment 1)",
+      "publicKeyX": "00b0c33896bc67481de5fdc412d9b1549e70d736d9a5f7c1a3dbfeeccd8e135f",
+      "publicKeyY": "7ae6887c7189787df7edaf33f52f3cac0849f1382b24e8d7aa6116152b425659"
+    },
+    "payload": {
+      "segment": 1,
+      "fieldDelimiter": "|",
+      "fieldCount": 14,
+      "fields": {
+        "0": "literal LWKE1",
+        "1": "decimal u64 timestamp-1; must be <= currentTime+300",
+        "2": "decimal u64 timestamp-2; must be > currentTime, > field1, delta <=1200, and within caller ceiling",
+        "3": "22-character build id",
+        "4": "64-character lowercase SHA-256 hex",
+        "5": "nonzero decimal u64 caller-bound context value A",
+        "6": "nonzero decimal u64 caller-bound context value B",
+        "7": "nonzero decimal u64 context value C",
+        "8": "Base64URL -> 32-byte SHA-256 binding of local exported device public material",
+        "9": "Base64URL -> 65-byte uncompressed P-256 peer point, first byte 0x04",
+        "10": "Base64URL -> 32-byte HKDF salt",
+        "11": "Base64URL -> 12-byte AES-GCM nonce",
+        "12": "Base64URL -> 32-byte encrypted package key",
+        "13": "Base64URL -> 16-byte AES-GCM tag"
+      }
+    },
+    "deviceKey": {
+      "provider": "Microsoft Software Key Storage Provider",
+      "persistedKeyName": "{2D337A4D-7E6C-49EF-9486-54F0A00D8A41}",
+      "privateKeyReadOrExportedByThisTool": false
+    },
+    "agreement": {
+      "curve": "P-256",
+      "peerPointEncoding": "0x04 || X32 || Y32",
+      "primitive": "NCryptSecretAgreement",
+      "rawDerivedLength": 32,
+      "ncryptKdf": "TRUNCATE"
+    },
+    "keyDerivation": {
+      "algorithm": "HKDF-SHA256, one expand block",
+      "extract": "HMAC-SHA256(key=field10 salt, data=32-byte ECDH output)",
+      "expand": "HMAC-SHA256(key=PRK, data=canonicalInfo || 0x01)",
+      "outputLength": 32,
+      "canonicalInfoAndAadFieldOrder": [
+        0,
+        3,
+        5,
+        6,
+        7,
+        2,
+        8
+      ],
+      "canonicalSeparator": "|"
+    },
+    "keyCipher": {
+      "algorithm": "AES-256-GCM",
+      "key": "32-byte HKDF output",
+      "nonce": "field11",
+      "ciphertext": "field12",
+      "tag": "field13",
+      "aad": "same canonical envelope info string",
+      "plaintextLength": 32,
+      "plaintextMeaning": "package AES-256-GCM key"
+    },
+    "packageContextOutput": {
+      "buildId": "field3 copied to context +0x20",
+      "packageSha256": "field4 copied to context +0x40"
+    }
+  },
+  "moduleTable": {
+    "compression": "none",
+    "prefix": "little-endian u32 entry count",
+    "entryCountRange": [
+      1,
+      1024
+    ],
+    "entryShape": "u32 nameLength, u32 sourceLength, name bytes, source bytes",
+    "nameAlphabet": "A-Z a-z 0-9 . _",
+    "bootstrap": "exactly one entry named 'bootstrap' required",
+    "trailingBytesAllowed": false,
+    "loaderConstruction": [
+      "starts generated source with 'local __bridge_preload = package.preload\\n'",
+      "non-bootstrap entries are wrapped into package.loaded/package.preload source scaffolding",
+      "bootstrap source is retained separately and appended/executed by loader"
+    ],
+    "bytecodeObservation": "plaintext entries are treated as source byte strings; no compression or separate bytecode container is present at this layer"
+  },
+  "historical031Revalidation": {
+    "LWBPv2Layout": "CONFIRMED_SHAPE, 0.3.17 identity differs",
+    "packageAadLWBP2Build": "CONFIRMED",
+    "packageWholeSha256Binding": "CONFIRMED",
+    "packageBuildBinding": "CONFIRMED",
+    "AES256GCM": "CONFIRMED",
+    "signedTwoSegmentEnvelope": "CONFIRMED_AND_EXPANDED",
+    "deviceBoundP256Agreement": "CONFIRMED_AND_EXPANDED",
+    "hkdfSha256": "CONFIRMED",
+    "moduleTableAfterDecrypt": "CONFIRMED; no compression stage"
+  },
+  "requiredInputs": {
+    "encryptedPackage": "present in supplied 0.3.17 EXE",
+    "signedEnvelope": "not supplied in bounded artifact roots",
+    "persistedLocalPrivateKey": "required by protocol; owner-state CNG key not read/exported",
+    "validContextBindings": "envelope embeds/validates time/build/hash/context/device bindings"
+  },
+  "safeDisposition": {
+    "canExtractEncryptedPackage": true,
+    "canDecryptFromSuppliedInputs": false,
+    "missingSuppliedArtifact": "package-key.envelope",
+    "additionalRequiredOwnerState": "matching persisted CNG private key; not accessed",
+    "bypassAttempted": false
+  }
+}

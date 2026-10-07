@@ -1,0 +1,393 @@
+041581 xorps   xmm0, xmm0
+041584 movdqu  xmmword ptr [rbp + 0x50], xmm0
+041589 mov     qword ptr [rbp + 0x60], r12
+04158d mov     rcx, qword ptr [rbp + 0x68]
+041591 mov     rdx, qword ptr [rbp + 0x70]
+041595 sub     rdx, rcx
+041598 lea     r8, [rbp + 0x50]
+04159c call    0x180040b60
+0415a1 test    al, al
+0415a3 je      0x180041bbc
+0415a9 mov     r9, qword ptr [rbp - 0x70]
+0415ad mov     r11, r9
+0415b0 mov     r8, qword ptr [rbp - 0x78]
+0415b4 sub     r11, r8
+0415b7 mov     rax, qword ptr [rbp + 0x58]
+0415bb mov     r10, qword ptr [rbp + 0x50]
+0415bf sub     rax, r10
+0415c2 cmp     r11, rax
+0415c5 jne     0x180041bbc
+0415cb xor     dl, dl
+0415cd mov     rcx, r12
+0415d0 test    r11, r11
+0415d3 je      0x180041601
+0415d5 nop     word ptr [rax + rax]
+0415e0 movzx   eax, byte ptr [rcx + r10]
+0415e5 xor     al, byte ptr [rcx + r8]
+0415e9 or      dl, al
+0415eb inc     rcx
+0415ee mov     rax, r9
+0415f1 sub     rax, r8
+0415f4 cmp     rcx, rax
+0415f7 jb      0x1800415e0
+0415f9 test    dl, dl
+0415fb jne     0x180041bbc
+041601 xorps   xmm0, xmm0
+041604 movdqu  xmmword ptr [rbp - 0x30], xmm0
+041609 mov     qword ptr [rbp - 0x20], r12
+04160d mov     r8, rsi
+041610 lea     rdx, [rbp - 0x30]
+041614 lea     rcx, [rbp - 0x60]
+041618 call    0x18003f2a0
+04161d test    al, al
+04161f jne     0x180041629
+041621 xor     dil, dil
+041624 jmp     0x180041b6f
+041629 mov     r8, qword ptr [rsp + 0x58]
+04162e mov     rcx, qword ptr [r8 + 0x10]
+041632 movabs  rax, 0x7fffffffffffffff
+04163c sub     rax, rcx
+04163f cmp     rax, 1
+041643 jb      0x180042001
+041649 lea     r14, [r8 + 0x100]
+041650 lea     r15, [r8 + 0x40]
+041654 lea     r12, [r8 + 0xe0]
+04165b lea     rax, [r8 + 0xc0]
+041662 mov     qword ptr [rsp + 0x48], rax
+041667 lea     rax, [r8 + 0xa0]
+04166e mov     qword ptr [rsp + 0x70], rax
+041673 lea     rax, [r8 + 0x60]
+041677 mov     qword ptr [rbp - 0x80], rax
+04167b cmp     qword ptr [r8 + 0x18], 0xf
+041680 jbe     0x180041687
+041682 mov     r9, qword ptr [r8]
+041685 jmp     0x18004168a
+041687 mov     r9, r8
+04168a mov     qword ptr [rsp + 0x30], 1
+041693 lea     rax, [rip + 0x34562] ; rip=0x75bfc data=b'|\x00\x00\x00key envelope decrypt failed\x00LWBP\x00\x00\x00\x00\x00\x00\x00\x00package integrity invalid\x00\x00\x00\x00\x00\x00\x00package build mismatch\x00\x00'
+04169a mov     qword ptr [rsp + 0x28], rax
+04169f mov     qword ptr [rsp + 0x20], rcx
+0416a4 movzx   edx, byte ptr [rsp + 0x40]
+0416a9 lea     rcx, [rbp + 0x1b0]
+0416b0 call    0x180011030
+0416b5 nop
+0416b6 mov     r8, qword ptr [rbp - 0x80]
+0416ba lea     rdx, [rbp + 0x1b0]
+0416c1 lea     rcx, [rbp + 0x250]
+0416c8 call    0x18000fe80
+0416cd nop
+0416ce mov     r8d, 1
+0416d4 lea     rdx, [rip + 0x34521] ; rip=0x75bfc data=b'|\x00\x00\x00key envelope decrypt failed\x00LWBP\x00\x00\x00\x00\x00\x00\x00\x00package integrity invalid\x00\x00\x00\x00\x00\x00\x00package build mismatch\x00\x00'
+0416db mov     rcx, rax
+0416de call    0x180001ef0
+0416e3 xorps   xmm0, xmm0
+0416e6 movups  xmmword ptr [rbp + 0xd0], xmm0
+0416ed xor     ecx, ecx
+0416ef mov     qword ptr [rbp + 0xe0], rcx
+0416f6 mov     qword ptr [rbp + 0xe8], rcx
+0416fd movups  xmm0, xmmword ptr [rax]
+041700 movups  xmmword ptr [rbp + 0xd0], xmm0
+041707 movups  xmm1, xmmword ptr [rax + 0x10]
+04170b movups  xmmword ptr [rbp + 0xe0], xmm1
+041712 mov     qword ptr [rax + 0x10], rcx
+041716 mov     qword ptr [rax + 0x18], 0xf
+04171e mov     byte ptr [rax], cl
+041720 mov     r8, qword ptr [rsp + 0x70]
+041725 lea     rdx, [rbp + 0xd0]
+04172c lea     rcx, [rbp + 0x230]
+041733 call    0x18000fe80
+041738 nop
+041739 mov     r8d, 1
+04173f lea     rdx, [rip + 0x344b6] ; rip=0x75bfc data=b'|\x00\x00\x00key envelope decrypt failed\x00LWBP\x00\x00\x00\x00\x00\x00\x00\x00package integrity invalid\x00\x00\x00\x00\x00\x00\x00package build mismatch\x00\x00'
+041746 mov     rcx, rax
+041749 call    0x180001ef0
+04174e xorps   xmm0, xmm0
+041751 movups  xmmword ptr [rbp + 0xb0], xmm0
+041758 xor     ecx, ecx
+04175a mov     qword ptr [rbp + 0xc0], rcx
+041761 mov     qword ptr [rbp + 0xc8], rcx
+041768 movups  xmm0, xmmword ptr [rax]
+04176b movups  xmmword ptr [rbp + 0xb0], xmm0
+041772 movups  xmm1, xmmword ptr [rax + 0x10]
+041776 movups  xmmword ptr [rbp + 0xc0], xmm1
+04177d mov     qword ptr [rax + 0x10], rcx
+041781 mov     qword ptr [rax + 0x18], 0xf
+041789 mov     byte ptr [rax], cl
+04178b mov     r8, qword ptr [rsp + 0x48]
+041790 lea     rdx, [rbp + 0xb0]
+041797 lea     rcx, [rbp + 0x210]
+04179e call    0x18000fe80
+0417a3 nop
+0417a4 mov     r8d, 1
+0417aa lea     rdx, [rip + 0x3444b] ; rip=0x75bfc data=b'|\x00\x00\x00key envelope decrypt failed\x00LWBP\x00\x00\x00\x00\x00\x00\x00\x00package integrity invalid\x00\x00\x00\x00\x00\x00\x00package build mismatch\x00\x00'
+0417b1 mov     rcx, rax
+0417b4 call    0x180001ef0
+0417b9 xorps   xmm0, xmm0
+0417bc movups  xmmword ptr [rbp + 0x130], xmm0
+0417c3 xor     ecx, ecx
+0417c5 mov     qword ptr [rbp + 0x140], rcx
+0417cc mov     qword ptr [rbp + 0x148], rcx
+0417d3 movups  xmm0, xmmword ptr [rax]
+0417d6 movups  xmmword ptr [rbp + 0x130], xmm0
+0417dd movups  xmm1, xmmword ptr [rax + 0x10]
+0417e1 movups  xmmword ptr [rbp + 0x140], xmm1
+0417e8 mov     qword ptr [rax + 0x10], rcx
+0417ec mov     qword ptr [rax + 0x18], 0xf
+0417f4 mov     byte ptr [rax], cl
+0417f6 mov     r8, r12
+0417f9 lea     rdx, [rbp + 0x130]
+041800 lea     rcx, [rbp + 0x1f0]
+041807 call    0x18000fe80
+04180c nop
+04180d mov     r8d, 1
+041813 lea     rdx, [rip + 0x343e2] ; rip=0x75bfc data=b'|\x00\x00\x00key envelope decrypt failed\x00LWBP\x00\x00\x00\x00\x00\x00\x00\x00package integrity invalid\x00\x00\x00\x00\x00\x00\x00package build mismatch\x00\x00'
+04181a mov     rcx, rax
+04181d call    0x180001ef0
+041822 xorps   xmm0, xmm0
+041825 movups  xmmword ptr [rbp + 0x110], xmm0
+04182c xor     r12d, r12d
+04182f mov     qword ptr [rbp + 0x120], r12
+041836 mov     qword ptr [rbp + 0x128], r12
+04183d movups  xmm0, xmmword ptr [rax]
+041840 movups  xmmword ptr [rbp + 0x110], xmm0
+041847 movups  xmm1, xmmword ptr [rax + 0x10]
+04184b movups  xmmword ptr [rbp + 0x120], xmm1
+041852 mov     qword ptr [rax + 0x10], r12
+041856 mov     qword ptr [rax + 0x18], 0xf
+04185e mov     byte ptr [rax], r12b
+041861 mov     r8, r15
+041864 lea     rdx, [rbp + 0x110]
+04186b lea     rcx, [rbp + 0x1d0]
+041872 call    0x18000fe80
+041877 nop
+041878 mov     r8d, 1
+04187e lea     rdx, [rip + 0x34377] ; rip=0x75bfc data=b'|\x00\x00\x00key envelope decrypt failed\x00LWBP\x00\x00\x00\x00\x00\x00\x00\x00package integrity invalid\x00\x00\x00\x00\x00\x00\x00package build mismatch\x00\x00'
+041885 mov     rcx, rax
+041888 call    0x180001ef0
+04188d xorps   xmm0, xmm0
+041890 movups  xmmword ptr [rbp + 0xf0], xmm0
+041897 mov     qword ptr [rbp + 0x100], r12
+04189e mov     qword ptr [rbp + 0x108], r12
+0418a5 movups  xmm0, xmmword ptr [rax]
+0418a8 movups  xmmword ptr [rbp + 0xf0], xmm0
+0418af movups  xmm1, xmmword ptr [rax + 0x10]
+0418b3 movups  xmmword ptr [rbp + 0x100], xmm1
+0418ba mov     qword ptr [rax + 0x10], r12
+0418be mov     qword ptr [rax + 0x18], 0xf
+0418c6 mov     byte ptr [rax], r12b
+0418c9 mov     r8, r14
+0418cc lea     rdx, [rbp + 0xf0]
+0418d3 lea     rcx, [rbp + 0x190]
+0418da call    0x18000fe80
+0418df nop
+0418e0 mov     r8, qword ptr [rbp + 0x108]
+0418e7 cmp     r8, 0xf
+0418eb jbe     0x180041900
+0418ed mov     rdx, qword ptr [rbp + 0xf0]
+0418f4 lea     rcx, [rbp + 0xf0]
+0418fb call    0x180004ea0
+041900 mov     qword ptr [rbp + 0x100], r12
+041907 mov     qword ptr [rbp + 0x108], 0xf
+041912 mov     byte ptr [rbp + 0xf0], 0
+041919 lea     rcx, [rbp + 0x1d0]
+041920 call    0x180003bb0
+041925 nop
+041926 mov     r8, qword ptr [rbp + 0x128]
+04192d cmp     r8, 0xf
+041931 jbe     0x180041946
+041933 mov     rdx, qword ptr [rbp + 0x110]
+04193a lea     rcx, [rbp + 0x110]
+041941 call    0x180004ea0
+041946 mov     qword ptr [rbp + 0x120], r12
+04194d mov     qword ptr [rbp + 0x128], 0xf
+041958 mov     byte ptr [rbp + 0x110], 0
+04195f lea     rcx, [rbp + 0x1f0]
+041966 call    0x180003bb0
+04196b nop
+04196c mov     r8, qword ptr [rbp + 0x148]
+041973 cmp     r8, 0xf
+041977 jbe     0x18004198c
+041979 mov     rdx, qword ptr [rbp + 0x130]
+041980 lea     rcx, [rbp + 0x130]
+041987 call    0x180004ea0
+04198c mov     qword ptr [rbp + 0x140], r12
+041993 mov     qword ptr [rbp + 0x148], 0xf
+04199e mov     byte ptr [rbp + 0x130], 0
+0419a5 lea     rcx, [rbp + 0x210]
+0419ac call    0x180003bb0
+0419b1 nop
+0419b2 mov     r8, qword ptr [rbp + 0xc8]
+0419b9 cmp     r8, 0xf
+0419bd jbe     0x1800419d2
+0419bf mov     rdx, qword ptr [rbp + 0xb0]
+0419c6 lea     rcx, [rbp + 0xb0]
+0419cd call    0x180004ea0
+0419d2 mov     qword ptr [rbp + 0xc0], r12
+0419d9 mov     qword ptr [rbp + 0xc8], 0xf
+0419e4 mov     byte ptr [rbp + 0xb0], 0
+0419eb lea     rcx, [rbp + 0x230]
+0419f2 call    0x180003bb0
+0419f7 nop
+0419f8 mov     r8, qword ptr [rbp + 0xe8]
+0419ff cmp     r8, 0xf
+041a03 jbe     0x180041a18
+041a05 mov     rdx, qword ptr [rbp + 0xd0]
+041a0c lea     rcx, [rbp + 0xd0]
+041a13 call    0x180004ea0
+041a18 mov     qword ptr [rbp + 0xe0], r12
+041a1f mov     qword ptr [rbp + 0xe8], 0xf
+041a2a mov     byte ptr [rbp + 0xd0], 0
+041a31 lea     rcx, [rbp + 0x250]
+041a38 call    0x180003bb0
+041a3d nop
+041a3e lea     rcx, [rbp + 0x1b0]
+041a45 call    0x180003bb0
+041a4a xorps   xmm0, xmm0
+041a4d movdqu  xmmword ptr [rbp - 0x48], xmm0
+041a52 mov     qword ptr [rbp - 0x38], r12
+041a56 lea     r9, [rbp - 0x48]
+041a5a lea     r8, [rbp + 0x190]
+041a61 lea     rdx, [rbp + 0x30]
+041a65 lea     rcx, [rbp - 0x30]
+041a69 call    0x180040210
+041a6e test    al, al
+041a70 je      0x180041ae5
+041a72 mov     qword ptr [rsp + 0x28], r13
+041a77 lea     rax, [rbp + 0x190]
+041a7e mov     qword ptr [rsp + 0x20], rax
+041a83 lea     r9, [rbp - 0x18]
+041a87 lea     r8, [rbp]
+041a8b lea     rdx, [rbp + 0x18]
+041a8f lea     rcx, [rbp - 0x48]
+041a93 call    0x18003e100
+041a98 test    al, al
+041a9a je      0x180041ae5
+041a9c mov     rax, qword ptr [r13 + 8]
+041aa0 sub     rax, qword ptr [r13]
+041aa4 cmp     rax, 0x20
+041aa8 jne     0x180041ae5
+041aaa lea     rcx, [rbp - 0x30]
+041aae call    0x180040a40
+041ab3 lea     rcx, [rbp - 0x48]
+041ab7 call    0x180040a40
+041abc mov     rdx, qword ptr [rsp + 0x58]
+041ac1 add     rdx, 0x60
+041ac5 lea     rcx, [rdi + 0x20]
+041ac9 call    0x1800088e0
+041ace mov     rdx, qword ptr [rsp + 0x58]
+041ad3 sub     rdx, -0x80
+041ad7 lea     rcx, [rdi + 0x40]
+041adb call    0x1800088e0
+041ae0 mov     dil, 1
+041ae3 jmp     0x180041b17
+041ae5 lea     rcx, [rbp - 0x30]
+041ae9 call    0x180040a40
+041aee lea     rcx, [rbp - 0x48]
+041af2 call    0x180040a40
+041af7 mov     rcx, r13
+041afa call    0x180040a40
+041aff mov     r8d, 0x1b
+041b05 lea     rdx, [rip + 0x340f4] ; rip=0x75c00 data=b'key envelope decrypt failed\x00LWBP\x00\x00\x00\x00\x00\x00\x00\x00package integrity invalid\x00\x00\x00\x00\x00\x00\x00package build mismatch\x00\x00LWBP'
+041b0c mov     rcx, rsi
+041b0f call    0x1800078d0
+041b14 xor     dil, dil
+041b17 mov     rax, qword ptr [rbp - 0x48]
+041b1b test    rax, rax
+041b1e je      0x180041b62
+041b20 mov     rdx, qword ptr [rbp - 0x38]
+041b24 sub     rdx, rax
+041b27 cmp     rdx, 0x1000
+041b2e jb      0x180041b4e
+041b30 mov     rcx, qword ptr [rax - 8]
+041b34 sub     rax, rcx
+041b37 sub     rax, 8
+041b3b cmp     rax, 0x1f
+041b3f ja      0x180041b47
+041b41 add     rdx, 0x27
+041b45 jmp     0x180041b51
+041b47 mov     ecx, 5
+041b4c int     0x29
+041b4e mov     rcx, rax
+041b51 call    0x18004a130
+041b56 xorps   xmm0, xmm0
+041b59 movdqu  xmmword ptr [rbp - 0x48], xmm0
+041b5e mov     qword ptr [rbp - 0x38], r12
+041b62 lea     rcx, [rbp + 0x190]
+041b69 call    0x180003bb0
+041b6e nop
+041b6f mov     rax, qword ptr [rbp - 0x30]
+041b73 test    rax, rax
+041b76 je      0x180041bd4
+041b78 mov     rdx, qword ptr [rbp - 0x20]
+041b7c sub     rdx, rax
+041b7f cmp     rdx, 0x1000
+041b86 jb      0x180041ba6
+041b88 mov     rcx, qword ptr [rax - 8]
+041b8c sub     rax, rcx
+041b8f sub     rax, 8
+041b93 cmp     rax, 0x1f
+041b97 ja      0x180041b9f
+041b99 add     rdx, 0x27
+041b9d jmp     0x180041ba9
+041b9f mov     ecx, 5
+041ba4 int     0x29
+041ba6 mov     rcx, rax
+041ba9 call    0x18004a130
+041bae xorps   xmm0, xmm0
+041bb1 movdqu  xmmword ptr [rbp - 0x30], xmm0
+041bb6 mov     qword ptr [rbp - 0x20], r12
+041bba jmp     0x180041bd4
+041bbc mov     r8d, 0x13
+041bc2 lea     rdx, [rip + 0x3401f] ; rip=0x75be8 data=b'device key mismatch\x00|\x00\x00\x00key envelope decrypt failed\x00LWBP\x00\x00\x00\x00\x00\x00\x00\x00package integrity invalid\x00\x00\x00\x00\x00\x00\x00pack'
+041bc9 mov     rcx, rsi
+041bcc call    0x1800078d0
+041bd1 xor     dil, dil
+041bd4 mov     rax, qword ptr [rbp + 0x50]
+041bd8 test    rax, rax
+041bdb je      0x180041c1f
+041bdd mov     rdx, qword ptr [rbp + 0x60]
+041be1 sub     rdx, rax
+041be4 cmp     rdx, 0x1000
+041beb jb      0x180041c0b
+041bed mov     rcx, qword ptr [rax - 8]
+041bf1 sub     rax, rcx
+041bf4 sub     rax, 8
+041bf8 cmp     rax, 0x1f
+041bfc ja      0x180041c04
+041bfe add     rdx, 0x27
+041c02 jmp     0x180041c0e
+041c04 mov     ecx, 5
+041c09 int     0x29
+041c0b mov     rcx, rax
+041c0e call    0x18004a130
+041c13 xorps   xmm0, xmm0
+041c16 movdqu  xmmword ptr [rbp + 0x50], xmm0
+041c1b mov     qword ptr [rbp + 0x60], r12
+041c1f mov     rax, qword ptr [rbp + 0x68]
+041c23 test    rax, rax
+041c26 je      0x180041c6a
+041c28 mov     rdx, qword ptr [rbp + 0x78]
+041c2c sub     rdx, rax
+041c2f cmp     rdx, 0x1000
+041c36 jb      0x180041c56
+041c38 mov     rcx, qword ptr [rax - 8]
+041c3c sub     rax, rcx
+041c3f sub     rax, 8
+041c43 cmp     rax, 0x1f
+041c47 ja      0x180041c4f
+041c49 add     rdx, 0x27
+041c4d jmp     0x180041c59
+041c4f mov     ecx, 5
+041c54 int     0x29
+041c56 mov     rcx, rax
+041c59 call    0x18004a130
+041c5e xorps   xmm0, xmm0
+041c61 movdqu  xmmword ptr [rbp + 0x68], xmm0
+041c66 mov     qword ptr [rbp + 0x78], r12
+041c6a test    rbx, rbx
+041c6d je      0x180041c78
+041c6f mov     rcx, rbx
+041c72 call    0x180046674
+041c77 nop
+041c78 mov     r8, qword ptr [rbp + 0x168]
+041c7f cmp     r8, 0xf

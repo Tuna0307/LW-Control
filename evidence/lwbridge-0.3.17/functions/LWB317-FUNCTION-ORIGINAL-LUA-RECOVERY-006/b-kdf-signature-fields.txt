@@ -1,0 +1,428 @@
+=== DERIVE_PREFIX ===
+040210 push    rbp
+040212 push    rbx
+040213 push    rsi
+040214 push    rdi
+040215 push    r14
+040217 push    r15
+040219 mov     rbp, rsp
+04021c sub     rsp, 0x68
+040220 mov     r14, r9
+040223 mov     rsi, r8
+040226 xorps   xmm0, xmm0
+040229 movdqu  xmmword ptr [rbp - 0x20], xmm0
+04022e xor     r15d, r15d
+040231 mov     qword ptr [rbp - 0x10], r15
+040235 mov     r9, qword ptr [rcx]
+040238 mov     rax, qword ptr [rcx + 8]
+04023c sub     rax, r9
+04023f lea     rcx, [rbp - 0x20]
+040243 mov     qword ptr [rsp + 0x28], rcx
+040248 mov     qword ptr [rsp + 0x20], rax
+04024d mov     r8, rdx
+040250 mov     edx, 8
+040255 lea     rcx, [rip + 0x31bb4] ; rip=0x71e10 data=b'S\x00H\x00A\x002\x005\x006\x00\x00\x00\x00\x00O\x00b\x00j\x00e\x00c\x00t\x00L\x00e\x00n\x00g\x00t\x00h\x00\x00\x00\x00\x00\x00\x00\x00\x000123456789abcdef\x00\x00\x00\x00\\"\x00\x00\\\\\x00\x00\\b\x00\x00'
+04025c call    0x18003fe60
+040261 test    al, al
+040263 jne     0x18004026d
+040265 xor     sil, sil
+040268 jmp     0x180040630
+04026d mov     rdi, qword ptr [rsi + 0x10]
+040271 cmp     qword ptr [rsi + 0x18], 0xf
+040276 jbe     0x180040283
+040278 mov     rax, qword ptr [rsi]
+04027b add     rdi, rax
+04027e mov     rsi, rax
+040281 jmp     0x180040286
+040283 add     rdi, rsi
+040286 xorps   xmm0, xmm0
+040289 movdqu  xmmword ptr [rbp - 0x38], xmm0
+04028e mov     qword ptr [rbp - 0x28], r15
+040292 sub     rdi, rsi
+040295 je      0x180040309
+040297 movabs  rax, 0x7fffffffffffffff
+0402a1 cmp     rdi, rax
+0402a4 ja      0x180040686
+0402aa cmp     rdi, 0x1000
+0402b1 jb      0x1800402df
+0402b3 lea     rcx, [rdi + 0x27]
+0402b7 cmp     rcx, rdi
+0402ba jbe     0x18004068c
+0402c0 call    0x18004a0e0
+0402c5 mov     rcx, rax
+0402c8 test    rax, rax
+0402cb je      0x180040615
+0402d1 add     rax, 0x27
+0402d5 and     rax, 0xffffffffffffffe0
+0402d9 mov     qword ptr [rax - 8], rcx
+0402dd jmp     0x1800402e7
+0402df mov     rcx, rdi
+0402e2 call    0x18004a0e0
+0402e7 mov     qword ptr [rbp - 0x38], rax
+0402eb mov     qword ptr [rbp - 0x30], rax
+0402ef lea     rbx, [rax + rdi]
+0402f3 mov     qword ptr [rbp - 0x28], rbx
+0402f7 mov     r8, rdi
+0402fa mov     rdx, rsi
+0402fd mov     rcx, rax
+040300 call    0x18006c0a0
+040305 mov     qword ptr [rbp - 0x30], rbx
+040309 mov     byte ptr [rbp + 0x38], 1
+04030d lea     rdx, [rbp + 0x38]
+040311 lea     rcx, [rbp - 0x38]
+040315 call    0x180023d60
+04031a mov     r9, qword ptr [rbp - 0x38]
+04031e mov     rax, qword ptr [rbp - 0x30]
+040322 sub     rax, r9
+040325 mov     qword ptr [rsp + 0x28], r14
+04032a mov     qword ptr [rsp + 0x20], rax
+04032f lea     r8, [rbp - 0x20]
+040333 mov     edx, 8
+040338 lea     rcx, [rip + 0x31ad1] ; rip=0x71e10 data=b'S\x00H\x00A\x002\x005\x006\x00\x00\x00\x00\x00O\x00b\x00j\x00e\x00c\x00t\x00L\x00e\x00n\x00g\x00t\x00h\x00\x00\x00\x00\x00\x00\x00\x00\x000123456789abcdef\x00\x00\x00\x00\\"\x00\x00\\\\\x00\x00\\b\x00\x00'
+04033f call    0x18003fe60
+040344 test    al, al
+040346 je      0x18004035a
+040348 mov     rax, qword ptr [r14 + 8]
+04034c sub     rax, qword ptr [r14]
+04034f cmp     rax, 0x20
+040353 jne     0x18004035a
+040355 mov     sil, 1
+040358 jmp     0x18004035d
+04035a xor     sil, sil
+
+=== SHA256_BYTES ===
+040b60 mov     qword ptr [rsp + 8], rbx
+040b65 mov     qword ptr [rsp + 0x10], rsi
+040b6a push    rdi
+040b6b sub     rsp, 0x30
+040b6f mov     r9d, dword ptr [rip + 0x52bf2] ; rip=0x93768 data=b'\xc8\xdb\x00\x00\x9cb\x08\x00\xc8\xdb\x00\x00\xe3\xdb\x00\x00\xb0b\x08\x00\xf0\xdb\x00\x00\xaf\xf0\x00\x00Hd\x08\x00\xb0\xf0\x00\x00\x8f\xf1\x00\x00\xe8e\x08\x00\x90\xf1\x00\x00\xf9\xf1\x00\x00\xf0S\x08\x00\x00\xf2\x00\x00o\xf2\x00\x00\xbc[\x08\x00p\xf2\x00\x00\x97\xf2\x00\x00\xf4g\x08\x00'
+040b76 mov     rsi, rcx
+040b79 mov     rax, qword ptr gs:[0x58]
+040b82 mov     rbx, r8
+040b85 mov     ecx, 0x18
+040b8a mov     rdi, rdx
+040b8d mov     rax, qword ptr [rax + r9*8]
+040b91 mov     eax, dword ptr [rcx + rax]
+040b94 cmp     dword ptr [rip + 0x5278e], eax ; rip=0x93328 data=b'\xac[\x08\x00@s\x00\x00[s\x00\x00\x14Z\x08\x00[s\x00\x00\xc7s\x00\x00$Z\x08\x00\xc7s\x00\x00\xd7s\x00\x008Z\x08\x00\xe0s\x00\x00\xf9t\x00\x00 T\x08\x00\x00u\x00\x00\x1bu\x00\x00\x14Z\x08\x00\x1bu\x00\x00\x88u\x00\x00HZ\x08\x00\x88u\x00\x00'
+040b9a jg      0x180040bce
+040b9c mov     qword ptr [rsp + 0x28], rbx
+040ba1 lea     r8, [rip + 0x52768] ; rip=0x93310 data=b'\x84[\x08\x00@r\x00\x00$s\x00\x00\x98[\x08\x00$s\x00\x00:s\x00\x00\xac[\x08\x00@s\x00\x00[s\x00\x00\x14Z\x08\x00[s\x00\x00\xc7s\x00\x00$Z\x08\x00\xc7s\x00\x00\xd7s\x00\x008Z\x08\x00\xe0s\x00\x00\xf9t\x00\x00 T\x08\x00\x00u\x00\x00'
+040ba8 mov     r9, rsi
+040bab mov     qword ptr [rsp + 0x20], rdi
+040bb0 xor     edx, edx
+040bb2 lea     rcx, [rip + 0x31257] ; rip=0x71e10 data=b'S\x00H\x00A\x002\x005\x006\x00\x00\x00\x00\x00O\x00b\x00j\x00e\x00c\x00t\x00L\x00e\x00n\x00g\x00t\x00h\x00\x00\x00\x00\x00\x00\x00\x00\x000123456789abcdef\x00\x00\x00\x00\\"\x00\x00\\\\\x00\x00\\b\x00\x00'
+040bb9 call    0x18003fe60
+040bbe mov     rbx, qword ptr [rsp + 0x40]
+040bc3 mov     rsi, qword ptr [rsp + 0x48]
+040bc8 add     rsp, 0x30
+040bcc pop     rdi
+040bcd ret
+040bce lea     rcx, [rip + 0x52753] ; rip=0x93328 data=b'\xac[\x08\x00@s\x00\x00[s\x00\x00\x14Z\x08\x00[s\x00\x00\xc7s\x00\x00$Z\x08\x00\xc7s\x00\x00\xd7s\x00\x008Z\x08\x00\xe0s\x00\x00\xf9t\x00\x00 T\x08\x00\x00u\x00\x00\x1bu\x00\x00\x14Z\x08\x00\x1bu\x00\x00\x88u\x00\x00HZ\x08\x00\x88u\x00\x00'
+040bd5 call    0x18004a810
+040bda cmp     dword ptr [rip + 0x52747], -1 ; rip=0x93328 data=b'\xac[\x08\x00@s\x00\x00[s\x00\x00\x14Z\x08\x00[s\x00\x00\xc7s\x00\x00$Z\x08\x00\xc7s\x00\x00\xd7s\x00\x008Z\x08\x00\xe0s\x00\x00\xf9t\x00\x00 T\x08\x00\x00u\x00\x00\x1bu\x00\x00\x14Z\x08\x00\x1bu\x00\x00\x88u\x00\x00HZ\x08\x00\x88u\x00\x00'
+040be1 jne     0x180040b9c
+040be3 lea     rcx, [rip + 0x2f776] ; rip=0x70360 data=b"H\x83\xec(H\x8b\x05\xa5/\x02\x00H\x85\xc0tOH\x8b\x15\xa9/\x02\x00H+\xd0H\x81\xfa\x00\x10\x00\x00r\x1eH\x8bH\xf8H+\xc1H\x83\xe8\x08H\x83\xf8\x1fw\x06H\x83\xc2'\xeb\n\xb9\x05\x00\x00\x00\xcd)H\x8b\xc8\xe8\x87\x9d\xfd\xff\x0fW\xc0H\xc7\x05i"
+040bea call    0x18004a760
+040bef lea     rcx, [rip + 0x52732] ; rip=0x93328 data=b'\xac[\x08\x00@s\x00\x00[s\x00\x00\x14Z\x08\x00[s\x00\x00\xc7s\x00\x00$Z\x08\x00\xc7s\x00\x00\xd7s\x00\x008Z\x08\x00\xe0s\x00\x00\xf9t\x00\x00 T\x08\x00\x00u\x00\x00\x1bu\x00\x00\x14Z\x08\x00\x1bu\x00\x00\x88u\x00\x00HZ\x08\x00\x88u\x00\x00'
+040bf6 call    0x18004a7a0
+040bfb jmp     0x180040b9c
+040bfd int3
+040bfe int3
+040bff int3
+
+=== PIPE_SPLIT ===
+040c00 mov     qword ptr [rsp + 0x18], rbx
+040c05 push    rbp
+040c06 push    rsi
+040c07 push    rdi
+040c08 push    r12
+040c0a push    r13
+040c0c push    r14
+040c0e push    r15
+040c10 sub     rsp, 0x60
+040c14 mov     rax, qword ptr [rip + 0x50a25] ; rip=0x91640 data=b'2\xa2\xdf-\x99+\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xcd] \xd2f\xd4\xff\xff\xff\xff\xff\xff\x00\x00\x00\x80'
+040c1b xor     rax, rsp
+040c1e mov     qword ptr [rsp + 0x50], rax
+040c23 mov     rdi, rdx
+040c26 mov     r14, rcx
+040c29 mov     qword ptr [rsp + 0x28], rcx
+040c2e xor     ecx, ecx
+040c30 mov     dword ptr [rsp + 0x20], ecx
+040c34 mov     qword ptr [r14], rcx
+040c37 mov     qword ptr [r14 + 8], rcx
+040c3b mov     qword ptr [r14 + 0x10], rcx
+040c3f mov     r12d, 1
+040c45 mov     dword ptr [rsp + 0x20], r12d
+040c4a mov     esi, ecx
+040c4c mov     r13, 0xffffffffffffffff
+040c53 nop     dword ptr [rax]
+040c57 nop     word ptr [rax + rax]
+040c60 mov     rax, qword ptr [rdi + 0x10]
+040c64 mov     r15, rdi
+040c67 cmp     qword ptr [rdi + 0x18], 0xf
+040c6c jbe     0x180040c71
+040c6e mov     r15, qword ptr [rdi]
+040c71 cmp     rsi, rax
+040c74 jb      0x180040c7b
+040c76 mov     rbp, r13
+040c79 jmp     0x180040ca0
+040c7b lea     rbx, [rax + r15]
+040c7f lea     rcx, [r15 + rsi]
+040c83 mov     r8b, 0x7c
+040c86 mov     rdx, rbx
+040c89 call    0x180049330
+040c8e mov     rcx, rax
+040c91 sub     rcx, r15
+040c94 mov     rbp, r13
+040c97 cmp     rax, rbx
+040c9a cmovne  rbp, rcx
+040c9e xor     ecx, ecx
+040ca0 mov     r8, rbp
+040ca3 sub     r8, rsi
+040ca6 cmp     rbp, -1
+040caa cmove   r8, r13
+040cae xorps   xmm0, xmm0
+040cb1 movups  xmmword ptr [rsp + 0x30], xmm0
+040cb6 mov     qword ptr [rsp + 0x40], rcx
+040cbb mov     qword ptr [rsp + 0x48], rcx
+040cc0 mov     rax, qword ptr [rdi + 0x10]
+040cc4 cmp     rax, rsi
+040cc7 jb      0x180040dad
+040ccd sub     rax, rsi
+040cd0 cmp     rax, r8
+040cd3 cmovb   r8, rax
+040cd7 mov     rax, rdi
+040cda cmp     qword ptr [rdi + 0x18], 0xf
+040cdf jbe     0x180040ce4
+040ce1 mov     rax, qword ptr [rdi]
+040ce4 lea     rdx, [rax + rsi]
+040ce8 lea     rcx, [rsp + 0x30]
+040ced call    0x180001f80
+040cf2 or      r12d, 2
+040cf6 mov     dword ptr [rsp + 0x20], r12d
+040cfb mov     rdx, qword ptr [r14 + 8]
+040cff cmp     rdx, qword ptr [r14 + 0x10]
+040d03 je      0x180040d27
+040d05 movups  xmm0, xmmword ptr [rsp + 0x30]
+040d0a movups  xmmword ptr [rdx], xmm0
+040d0d movups  xmm1, xmmword ptr [rsp + 0x40]
+040d12 movups  xmmword ptr [rdx + 0x10], xmm1
+040d16 mov     edx, 0xf
+040d1b mov     byte ptr [rsp + 0x30], 0
+040d20 add     qword ptr [r14 + 8], 0x20
+040d25 jmp     0x180040d39
+040d27 lea     r8, [rsp + 0x30]
+040d2c mov     rcx, r14
+040d2f call    0x180007b70
+040d34 mov     rdx, qword ptr [rsp + 0x48]
+040d39 cmp     rdx, 0xf
+040d3d jbe     0x180040d6d
+040d3f inc     rdx
+040d42 mov     rcx, qword ptr [rsp + 0x30]
+040d47 cmp     rdx, 0x1000
+040d4e jb      0x180040d68
+040d50 mov     rax, qword ptr [rcx - 8]
+040d54 sub     rcx, rax
+040d57 sub     rcx, 8
+040d5b cmp     rcx, 0x1f
+040d5f ja      0x180040d7e
+040d61 add     rdx, 0x27
+040d65 mov     rcx, rax
+040d68 call    0x18004a130
+040d6d cmp     rbp, -1
+040d71 je      0x180040d85
+040d73 lea     rsi, [rbp + 1]
+040d77 xor     ecx, ecx
+040d79 jmp     0x180040c60
+040d7e mov     ecx, 5
+040d83 int     0x29
+040d85 mov     rax, r14
+040d88 mov     rcx, qword ptr [rsp + 0x50]
+040d8d xor     rcx, rsp
+040d90 call    0x18004a3c0
+040d95 mov     rbx, qword ptr [rsp + 0xb0]
+040d9d add     rsp, 0x60
+040da1 pop     r15
+040da3 pop     r14
+040da5 pop     r13
+040da7 pop     r12
+040da9 pop     rdi
+040daa pop     rsi
+040dab pop     rbp
+040dac ret
+040dad call    0x1800058d0
+040db2 int3
+040db3 int3
+040db4 int3
+040db5 int3
+040db6 int3
+040db7 int3
+040db8 int3
+040db9 int3
+040dba int3
+040dbb int3
+040dbc int3
+040dbd int3
+040dbe int3
+040dbf int3
+
+=== TOKEN_SIGNATURE ===
+043e50 mov     qword ptr [rsp + 8], rbx
+043e55 push    rbp
+043e56 push    rsi
+043e57 push    rdi
+043e58 sub     rsp, 0x60
+043e5c mov     rsi, rdx
+043e5f mov     rbx, rcx
+043e62 mov     rax, qword ptr [rdx + 8]
+043e66 sub     rax, qword ptr [rdx]
+043e69 cmp     rax, 0x40
+043e6d je      0x180043e81
+043e6f xor     al, al
+043e71 mov     rbx, qword ptr [rsp + 0x80]
+043e79 add     rsp, 0x60
+043e7d pop     rdi
+043e7e pop     rsi
+043e7f pop     rbp
+043e80 ret
+043e81 xorps   xmm0, xmm0
+043e84 movdqu  xmmword ptr [rsp + 0x40], xmm0
+043e8a xor     ebp, ebp
+043e8c mov     qword ptr [rsp + 0x50], rbp
+043e91 mov     rdi, qword ptr [rcx + 0x10]
+043e95 cmp     qword ptr [rcx + 0x18], 0xf
+043e9a jbe     0x180043e9f
+043e9c mov     rbx, qword ptr [rcx]
+043e9f mov     ecx, dword ptr [rip + 0x4f8c3] ; rip=0x93768 data=b'\xc8\xdb\x00\x00\x9cb\x08\x00\xc8\xdb\x00\x00\xe3\xdb\x00\x00\xb0b\x08\x00\xf0\xdb\x00\x00\xaf\xf0\x00\x00Hd\x08\x00\xb0\xf0\x00\x00\x8f\xf1\x00\x00\xe8e\x08\x00\x90\xf1\x00\x00\xf9\xf1\x00\x00\xf0S\x08\x00\x00\xf2\x00\x00o\xf2\x00\x00\xbc[\x08\x00p\xf2\x00\x00\x97\xf2\x00\x00\xf4g\x08\x00'
+043ea5 mov     rax, qword ptr gs:[0x58]
+043eae mov     edx, 0x18
+043eb3 mov     rax, qword ptr [rax + rcx*8]
+043eb7 mov     eax, dword ptr [rdx + rax]
+043eba cmp     dword ptr [rip + 0x4f468], eax ; rip=0x93328 data=b'\xac[\x08\x00@s\x00\x00[s\x00\x00\x14Z\x08\x00[s\x00\x00\xc7s\x00\x00$Z\x08\x00\xc7s\x00\x00\xd7s\x00\x008Z\x08\x00\xe0s\x00\x00\xf9t\x00\x00 T\x08\x00\x00u\x00\x00\x1bu\x00\x00\x14Z\x08\x00\x1bu\x00\x00\x88u\x00\x00HZ\x08\x00\x88u\x00\x00'
+043ec0 jg      0x18004408f
+043ec6 lea     rax, [rsp + 0x40]
+043ecb mov     qword ptr [rsp + 0x28], rax
+043ed0 mov     qword ptr [rsp + 0x20], rdi
+043ed5 mov     r9, rbx
+043ed8 lea     r8, [rip + 0x4f431] ; rip=0x93310 data=b'\x84[\x08\x00@r\x00\x00$s\x00\x00\x98[\x08\x00$s\x00\x00:s\x00\x00\xac[\x08\x00@s\x00\x00[s\x00\x00\x14Z\x08\x00[s\x00\x00\xc7s\x00\x00$Z\x08\x00\xc7s\x00\x00\xd7s\x00\x008Z\x08\x00\xe0s\x00\x00\xf9t\x00\x00 T\x08\x00\x00u\x00\x00'
+043edf xor     edx, edx
+043ee1 lea     rcx, [rip + 0x2df28] ; rip=0x71e10 data=b'S\x00H\x00A\x002\x005\x006\x00\x00\x00\x00\x00O\x00b\x00j\x00e\x00c\x00t\x00L\x00e\x00n\x00g\x00t\x00h\x00\x00\x00\x00\x00\x00\x00\x00\x000123456789abcdef\x00\x00\x00\x00\\"\x00\x00\\\\\x00\x00\\b\x00\x00'
+043ee8 call    0x18003fe60
+043eed test    al, al
+043eef je      0x180044039
+043ef5 mov     rax, qword ptr [rsp + 0x48]
+043efa sub     rax, qword ptr [rsp + 0x40]
+043eff cmp     rax, 0x20
+043f03 jne     0x180044039
+043f09 mov     qword ptr [rsp + 0x90], rbp
+043f11 mov     qword ptr [rsp + 0x88], rbp
+043f19 mov     ecx, 0x48
+043f1e call    0x18004a0e0
+043f23 mov     rdi, rax
+043f26 lea     rbx, [rax + 0x48]
+043f2a mov     r8, rbx
+043f2d sub     r8, rax
+043f30 xor     edx, edx
+043f32 mov     rcx, rax
+043f35 call    0x18006c750
+043f3a mov     dword ptr [rdi], 0x31534345
+043f40 mov     dword ptr [rdi + 4], 0x20
+043f47 movups  xmm0, xmmword ptr [rip + 0x2e0f2] ; rip=0x72040 data=b'\x00\xb0\xc38\x96\xbcgH\x1d\xe5\xfd\xc4\x12\xd9\xb1T\x9ep\xd76\xd9\xa5\xf7\xc1\xa3\xdb\xfe\xec\xcd\x8e\x13_z\xe6\x88|q\x89x}\xf7\xed\xaf3\xf5/<\xac\x08I\xf18+$\xe8\xd7\xaaa\x16\x15+BVYgen_cls_indexer\x00'
+043f4e movups  xmmword ptr [rdi + 8], xmm0
+043f52 movups  xmm1, xmmword ptr [rip + 0x2e0f7] ; rip=0x72050 data=b'\x9ep\xd76\xd9\xa5\xf7\xc1\xa3\xdb\xfe\xec\xcd\x8e\x13_z\xe6\x88|q\x89x}\xf7\xed\xaf3\xf5/<\xac\x08I\xf18+$\xe8\xd7\xaaa\x16\x15+BVYgen_cls_indexer\x00x15CFEF86\x00\x00\x00\x00\x00\x00\x00'
+043f59 movups  xmmword ptr [rdi + 0x18], xmm1
+043f5d movups  xmm0, xmmword ptr [rip + 0x2e0fc] ; rip=0x72060 data=b'z\xe6\x88|q\x89x}\xf7\xed\xaf3\xf5/<\xac\x08I\xf18+$\xe8\xd7\xaaa\x16\x15+BVYgen_cls_indexer\x00x15CFEF86\x00\x00\x00\x00\x00\x00\x00gen_cls_newindex'
+043f64 movups  xmmword ptr [rdi + 0x28], xmm0
+043f68 movups  xmm1, xmmword ptr [rip + 0x2e101] ; rip=0x72070 data=b'\x08I\xf18+$\xe8\xd7\xaaa\x16\x15+BVYgen_cls_indexer\x00x15CFEF86\x00\x00\x00\x00\x00\x00\x00gen_cls_newindexer\x00\x00\x00\x00\x00\x00xC11D18E'
+043f6f movups  xmmword ptr [rdi + 0x38], xmm1
+043f73 xor     r9d, r9d
+043f76 xor     r8d, r8d
+043f79 lea     rdx, [rip + 0x2f508] ; rip=0x73488 data=b'E\x00C\x00D\x00S\x00A\x00_\x00P\x002\x005\x006\x00\x00\x00\x00\x00E\x00C\x00C\x00P\x00U\x00B\x00L\x00I\x00C\x00B\x00L\x00O\x00B\x00\x00\x00\x00\x00\x00\x00authorization missing\x00\x00\x00'
+043f80 lea     rcx, [rsp + 0x90]
+043f88 call    0x180046614
+043f8d test    eax, eax
+043f8f js      0x180043ffb
+043f91 sub     ebx, edi
+043f93 mov     dword ptr [rsp + 0x30], ebp
+043f97 mov     dword ptr [rsp + 0x28], ebx
+043f9b mov     qword ptr [rsp + 0x20], rdi
+043fa0 lea     r9, [rsp + 0x88]
+043fa8 lea     r8, [rip + 0x2f4f1] ; rip=0x734a0 data=b'E\x00C\x00C\x00P\x00U\x00B\x00L\x00I\x00C\x00B\x00L\x00O\x00B\x00\x00\x00\x00\x00\x00\x00authorization missing\x00\x00\x00authorization format inv'
+043faf xor     edx, edx
+043fb1 mov     rcx, qword ptr [rsp + 0x90]
+043fb9 call    0x18004663e
+043fbe test    eax, eax
+043fc0 js      0x180043ffb
+043fc2 mov     r8, qword ptr [rsp + 0x40]
+043fc7 mov     eax, dword ptr [rsi + 8]
+043fca sub     eax, dword ptr [rsi]
+043fcc mov     r9d, dword ptr [rsp + 0x48]
+043fd1 sub     r9d, r8d
+043fd4 mov     dword ptr [rsp + 0x30], ebp
+043fd8 mov     dword ptr [rsp + 0x28], eax
+043fdc mov     rax, qword ptr [rsi]
+043fdf mov     qword ptr [rsp + 0x20], rax
+043fe4 xor     edx, edx
+043fe6 mov     rcx, qword ptr [rsp + 0x88]
+043fee call    0x18004664a
+043ff3 test    eax, eax
+043ff5 js      0x180043ffb
+043ff7 mov     bl, 1
+043ff9 jmp     0x180043ffd
+043ffb xor     bl, bl
+043ffd test    rdi, rdi
+044000 je      0x180044010
+044002 mov     edx, 0x48
+044007 mov     rcx, rdi
+04400a call    0x18004a130
+04400f nop
+044010 mov     rcx, qword ptr [rsp + 0x88]
+044018 test    rcx, rcx
+04401b je      0x180044023
+04401d call    0x180046644
+044022 nop
+044023 mov     rcx, qword ptr [rsp + 0x90]
+04402b test    rcx, rcx
+04402e je      0x18004403b
+044030 xor     edx, edx
+044032 call    0x180046620
+044037 jmp     0x18004403b
+044039 xor     bl, bl
+04403b mov     rax, qword ptr [rsp + 0x40]
+044040 test    rax, rax
+044043 je      0x18004407c
+044045 mov     rdx, qword ptr [rsp + 0x50]
+04404a sub     rdx, rax
+04404d cmp     rdx, 0x1000
+044054 jb      0x180044074
+044056 mov     rcx, qword ptr [rax - 8]
+04405a sub     rax, rcx
+04405d sub     rax, 8
+044061 cmp     rax, 0x1f
+044065 ja      0x18004406d
+044067 add     rdx, 0x27
+04406b jmp     0x180044077
+04406d mov     ecx, 5
+044072 int     0x29
+044074 mov     rcx, rax
+044077 call    0x18004a130
+04407c movzx   eax, bl
+04407f mov     rbx, qword ptr [rsp + 0x80]
+044087 add     rsp, 0x60
+04408b pop     rdi
+04408c pop     rsi
+04408d pop     rbp
+04408e ret
+04408f lea     rcx, [rip + 0x4f292] ; rip=0x93328 data=b'\xac[\x08\x00@s\x00\x00[s\x00\x00\x14Z\x08\x00[s\x00\x00\xc7s\x00\x00$Z\x08\x00\xc7s\x00\x00\xd7s\x00\x008Z\x08\x00\xe0s\x00\x00\xf9t\x00\x00 T\x08\x00\x00u\x00\x00\x1bu\x00\x00\x14Z\x08\x00\x1bu\x00\x00\x88u\x00\x00HZ\x08\x00\x88u\x00\x00'
+044096 call    0x18004a810
+04409b cmp     dword ptr [rip + 0x4f286], -1 ; rip=0x93328 data=b'\xac[\x08\x00@s\x00\x00[s\x00\x00\x14Z\x08\x00[s\x00\x00\xc7s\x00\x00$Z\x08\x00\xc7s\x00\x00\xd7s\x00\x008Z\x08\x00\xe0s\x00\x00\xf9t\x00\x00 T\x08\x00\x00u\x00\x00\x1bu\x00\x00\x14Z\x08\x00\x1bu\x00\x00\x88u\x00\x00HZ\x08\x00\x88u\x00\x00'
+0440a2 jne     0x180043ec6
+0440a8 xorps   xmm0, xmm0
+0440ab movdqu  xmmword ptr [rip + 0x4f25d], xmm0 ; rip=0x93310 data=b'\x84[\x08\x00@r\x00\x00$s\x00\x00\x98[\x08\x00$s\x00\x00:s\x00\x00\xac[\x08\x00@s\x00\x00[s\x00\x00\x14Z\x08\x00[s\x00\x00\xc7s\x00\x00$Z\x08\x00\xc7s\x00\x00\xd7s\x00\x008Z\x08\x00\xe0s\x00\x00\xf9t\x00\x00 T\x08\x00\x00u\x00\x00'
+0440b3 mov     qword ptr [rip + 0x4f266], rbp ; rip=0x93320 data=b'$s\x00\x00:s\x00\x00\xac[\x08\x00@s\x00\x00[s\x00\x00\x14Z\x08\x00[s\x00\x00\xc7s\x00\x00$Z\x08\x00\xc7s\x00\x00\xd7s\x00\x008Z\x08\x00\xe0s\x00\x00\xf9t\x00\x00 T\x08\x00\x00u\x00\x00\x1bu\x00\x00\x14Z\x08\x00\x1bu\x00\x00\x88u\x00\x00'
+0440ba lea     rcx, [rip + 0x2c29f] ; rip=0x70360 data=b"H\x83\xec(H\x8b\x05\xa5/\x02\x00H\x85\xc0tOH\x8b\x15\xa9/\x02\x00H+\xd0H\x81\xfa\x00\x10\x00\x00r\x1eH\x8bH\xf8H+\xc1H\x83\xe8\x08H\x83\xf8\x1fw\x06H\x83\xc2'\xeb\n\xb9\x05\x00\x00\x00\xcd)H\x8b\xc8\xe8\x87\x9d\xfd\xff\x0fW\xc0H\xc7\x05i"
+0440c1 call    0x18004a760
+0440c6 lea     rcx, [rip + 0x4f25b] ; rip=0x93328 data=b'\xac[\x08\x00@s\x00\x00[s\x00\x00\x14Z\x08\x00[s\x00\x00\xc7s\x00\x00$Z\x08\x00\xc7s\x00\x00\xd7s\x00\x008Z\x08\x00\xe0s\x00\x00\xf9t\x00\x00 T\x08\x00\x00u\x00\x00\x1bu\x00\x00\x14Z\x08\x00\x1bu\x00\x00\x88u\x00\x00HZ\x08\x00\x88u\x00\x00'
+0440cd call    0x18004a7a0
+0440d2 jmp     0x180043ec6
+0440d7 int3

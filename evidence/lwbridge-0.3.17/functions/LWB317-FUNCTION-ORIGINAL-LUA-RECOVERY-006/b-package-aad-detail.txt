@@ -1,0 +1,97 @@
+03ef04 cmp     rdi, 0xf
+03ef08 jbe     0x18003ef8e
+03ef0e mov     rax, rdi
+03ef11 or      rax, 0xf
+03ef15 cmp     rax, r15
+03ef18 jbe     0x18003ef4b
+03ef1a movabs  rax, 0x8000000000000000
+03ef24 add     rax, 0x27
+03ef28 mov     rcx, rax
+03ef2b call    0x18004a0e0
+03ef30 test    rax, rax
+03ef33 je      0x18003f043
+03ef39 lea     rbx, [rax + 0x27]
+03ef3d and     rbx, 0xffffffffffffffe0
+03ef41 mov     qword ptr [rbx - 8], rax
+03ef45 mov     qword ptr [rbp - 8], rbx
+03ef49 jmp     0x18003ef98
+03ef4b mov     r15, rax
+03ef4e cmp     rax, 0x16
+03ef52 cmovb   r15, r12
+03ef56 lea     rcx, [r15 + 1]
+03ef5a test    rcx, rcx
+03ef5d jne     0x18003ef68
+03ef5f mov     rbx, r8
+03ef62 mov     qword ptr [rbp - 8], rbx
+03ef66 jmp     0x18003ef98
+03ef68 cmp     rcx, 0x1000
+03ef6f jb      0x18003ef80
+03ef71 lea     rax, [rcx + 0x27]
+03ef75 cmp     rax, rcx
+03ef78 jbe     0x18003f265
+03ef7e jmp     0x18003ef28
+03ef80 call    0x18004a0e0
+03ef85 mov     rbx, rax
+03ef88 mov     qword ptr [rbp - 8], rax
+03ef8c jmp     0x18003ef98
+03ef8e mov     r15d, 0xf
+03ef94 lea     rbx, [rbp - 8]
+03ef98 mov     qword ptr [rbp + 8], rdi
+03ef9c mov     qword ptr [rbp + 0x10], r15
+03efa0 mov     eax, dword ptr [rip + 0x36cba] ; rip=0x75c60 data=b'LWBP2|\x00\x00"secure"\x00\x00\x00\x00\x00\x00\x00\x00"plain"\x00compositeSha256\x00proxySha256\x00\x00\x00\x00\x00exportFingerprint\x00\x00\x00\x00\x00\x00\x00proxy bundle'
+03efa6 mov     dword ptr [rbx], eax
+03efa8 movzx   eax, word ptr [rip + 0x36cb5]
+03efaf mov     word ptr [rbx + 4], ax
+03efb3 lea     rcx, [rbx + 6]
+03efb7 mov     r8, rsi
+03efba mov     rdx, r14
+03efbd call    0x18006c0a0
+03efc2 mov     byte ptr [rbx + rdi], 0
+03efc6 lea     rax, [rsp + 0x50]
+03efcb mov     qword ptr [rsp + 0x28], rax
+03efd0 lea     rax, [rbp - 8]
+03efd4 mov     qword ptr [rsp + 0x20], rax
+03efd9 lea     r9, [rsp + 0x68]
+03efde lea     r8, [rbp - 0x80]
+03efe2 lea     rdx, [rbp - 0x48]
+03efe6 mov     rcx, qword ptr [rbp - 0x58]
+03efea call    0x18003e100
+03efef movzx   ebx, al
+03eff2 mov     rdx, qword ptr [rbp + 0x10]
+03eff6 cmp     rdx, 0xf
+03effa jbe     0x18003f029
+03effc inc     rdx
+03efff mov     rcx, qword ptr [rbp - 8]
+03f003 cmp     rdx, 0x1000
+03f00a jb      0x18003f024
+03f00c mov     r8, qword ptr [rcx - 8]
+03f010 sub     rcx, r8
+03f013 sub     rcx, 8
+03f017 cmp     rcx, 0x1f
+03f01b ja      0x18003f043
+03f01d add     rdx, 0x27
+03f021 mov     rcx, r8
+03f024 call    0x18004a130
+03f029 test    bl, bl
+03f02b jne     0x18003f04a
+03f02d mov     r8, r12
+03f030 lea     rdx, [rip + 0x34a11] ; rip=0x73a48 data=b'package decrypt failed\x00\x00 revision=\x00\x00\x00\x00\x00\x00loaded script package format=\x00\x00\x00heartbeat\x00\x00\x00result\x00\x00\x00\x00\x00\x00sour'
+03f037 mov     rcx, qword ptr [rsp + 0x30]
+03f03c call    0x1800078d0
+03f041 jmp     0x18003f06c
+03f043 mov     ecx, 5
+03f048 int     0x29
+03f04a mov     r8, qword ptr [rsp + 0x58]
+03f04f mov     rdx, qword ptr [rsp + 0x50]
+03f054 sub     r8, rdx
+03f057 mov     rcx, qword ptr [rbp - 0x50]
+03f05b call    0x1800078d0
+03f060 lea     rcx, [rsp + 0x50]
+03f065 call    0x180040a40
+03f06a mov     bl, 1
+03f06c mov     rax, qword ptr [rsp + 0x50]
+03f071 test    rax, rax
+03f074 je      0x18003f0bf
+03f076 mov     rdx, qword ptr [rsp + 0x60]
+03f07b sub     rdx, rax
+03f07e cmp     rdx, 0x1000

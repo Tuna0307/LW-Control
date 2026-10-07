@@ -1,0 +1,429 @@
+=== AES 0x3e100-0x3e58a ===
+03e100 mov     qword ptr [rsp + 0x10], rbx
+03e105 mov     qword ptr [rsp + 0x20], r9
+03e133 cmp     rax, 0x20
+03e144 cmp     rax, 0xc
+03e155 cmp     rax, 0x10
+03e178 cmp     qword ptr [r15 + 0x10], rcx
+03e199 lea     rdx, [rip + 0x37928] ; rip=0x75ac8 data=b'A\x00E\x00S\x00\x00\x00C\x00h\x00a\x00i\x00n\x00i\x00n\x00g\x00M\x00o\x00d\x00e\x00G\x00C\x00M\x00\x00\x00C\x00h\x00a\x00i\x00n\x00i\x00n\x00g\x00M\x00o\x00d\x00e\x00'
+03e1a5 call    0x180046614
+03e1b2 mov     dword ptr [rsp + 0x20], ebx
+03e1b6 mov     r9d, 0x20
+03e1bc lea     r8, [rip + 0x3790d] ; rip=0x75ad0 data=b'C\x00h\x00a\x00i\x00n\x00i\x00n\x00g\x00M\x00o\x00d\x00e\x00G\x00C\x00M\x00\x00\x00C\x00h\x00a\x00i\x00n\x00i\x00n\x00g\x00M\x00o\x00d\x00e\x00\x00\x00\x00\x00\x00\x00\x00\x00'
+03e1c3 lea     rdx, [rip + 0x37926] ; rip=0x75af0 data=b'C\x00h\x00a\x00i\x00n\x00i\x00n\x00g\x00M\x00o\x00d\x00e\x00\x00\x00\x00\x00\x00\x00\x00\x00device key missing\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
+03e1cf call    0x180046656
+03e1e4 mov     qword ptr [rsp + 0x20], rax
+03e1ff call    0x18004661a
+03e226 cmp     r9, 0x1000
+03e23c call    0x18004a0e0
+03e25b call    0x18004a0e0
+03e277 call    0x18006c750
+03e2a7 mov     qword ptr [rsp + 0x20], rax
+03e2b8 call    0x18004665c
+03e2c5 call    0x180040a40
+03e327 mov     eax, dword ptr [r15 + 0x10]
+03e353 call    0x18000fc60
+03e375 mov     qword ptr [rsp + 0x40], rcx
+03e38b mov     qword ptr [rsp + 0x20], rsi
+03e39b call    0x180046662
+03e3e8 cmp     rdi, 0x1000
+03e412 call    0x18004a130
+03e437 cmp     r15, 0x1000
+03e44d call    0x18004a0e0
+03e468 call    0x18004a0e0
+03e47c call    0x18006c0a0
+03e489 cmp     rdi, 0x1000
+03e4b6 call    0x18004a130
+03e4ec call    0x180040a40
+03e4fc cmp     rdi, 0x1000
+03e51d call    0x18004a130
+03e531 call    0x18004a130
+03e544 call    0x180046644
+03e556 call    0x180046620
+03e57e call    0x180005850
+03e584 call    0x180005850
+
+=== PACKAGE 0x3e800-0x3f295 ===
+03e800 mov     qword ptr [rsp + 0x10], rbx
+03e810 lea     rbp, [rsp - 0x20]
+03e855 call    0x1800408f0
+03e85a mov     r9, qword ptr [rdi + 0x10]
+03e85e cmp     r9, 0x42
+03e87b lea     r10, [rip + 0x3739a] ; rip=0x75c1c data=b'LWBP\x00\x00\x00\x00\x00\x00\x00\x00package integrity invalid\x00\x00\x00\x00\x00\x00\x00package build mismat'
+03e8fe call    0x180040b60
+03e925 mov     rsi, qword ptr [rsp + 0x40]
+03e967 call    0x18006c750
+03e98a call    0x18004a0e0
+03e9bb cmp     rax, 0x1000
+03e9d5 call    0x18004a0e0
+03e9f4 call    0x18006c750
+03e9fe mov     rsi, qword ptr [rsp + 0x40]
+03ea10 lea     r9, [rip + 0x371a1] ; rip=0x75bb8 data=b'0123456789abcdef\x00\x00\x00\x00"\x00\x00\x00device key unavailable\x00\x00device key misma'
+03ea68 mov     rax, qword ptr [rsp + 0x40]
+03ea83 lea     rdx, [r14 + 0x40]
+03ea8b call    0x1800076d0
+03eab1 cmp     rdx, 0x1000
+03ead6 call    0x18004a130
+03eadf lea     rdx, [rip + 0x37142] ; rip=0x75c28 data=b'package integrity invalid\x00\x00\x00\x00\x00\x00\x00package build mismatch\x00\x00LWBP2|\x00\x00'
+03eb29 mov     rax, qword ptr [rdi + 0x10]
+03eb2d sub     rax, 0xc
+03eb53 mov     qword ptr [rbp - 0x10], r12
+03eb57 add     rdx, 0xc
+03eb62 call    0x180001f80
+03eb68 lea     rdx, [r14 + 0x20]
+03eb82 mov     rsi, qword ptr [rbp - 0x10]
+03eb9c call    0x18006cb00
+03ebfb lea     rdx, [rip + 0x37046] ; rip=0x75c48 data=b'package build mismatch\x00\x00LWBP2|\x00\x00"secure"\x00\x00\x00\x00\x00\x00\x00\x00"plain"\x00composit'
+03ec07 call    0x1800078d0
+03ec0e mov     rdx, qword ptr [rbp - 0x10]
+03ec1f cmp     rdx, 0x1000
+03ec44 call    0x18004a130
+03ec51 mov     qword ptr [rbp - 0x10], 0xf
+03ec65 cmp     cl, 0x32
+03ec81 mov     rax, qword ptr [rdi + 0x10]
+03ec85 sub     rax, 0x22
+03ec89 cmp     rax, 0x20
+03ec9d lea     rsi, [rax + 0x2e]
+03eca3 lea     rsi, [rdi + 0x2e]
+03ecaa lea     r14, [rax + 0x22]
+03eccb cmp     rsi, 0x1000
+03ece1 call    0x18004a0e0
+03ed03 call    0x18004a0e0
+03ed1d call    0x18006c0a0
+03ed22 mov     qword ptr [rbp - 0x40], rbx
+03ed5c movzx   eax, byte ptr [rcx + 0x2e]
+03ed75 mov     rax, qword ptr [rdi + 0x10]
+03ed79 sub     rax, 0x42
+03edb6 cmp     rsi, 0x1000
+03edcc call    0x18004a0e0
+03edee call    0x18004a0e0
+03edff lea     rdx, [r13 + 0x32]
+03ee09 call    0x18006c0a0
+03ee1c add     rcx, 0x32
+03ee2a lea     rsi, [rdx + 0x10]
+03ee30 lea     rsi, [rdi + 0x10]
+03ee5a cmp     rsi, 0x1000
+03ee70 call    0x18004a0e0
+03ee92 call    0x18004a0e0
+03eeae call    0x18006c0a0
+03eee5 cmp     qword ptr [rbp - 0x10], 0xf
+03eef6 mov     qword ptr [rbp + 0x10], r8
+03ef2b call    0x18004a0e0
+03ef68 cmp     rcx, 0x1000
+03ef80 call    0x18004a0e0
+03ef9c mov     qword ptr [rbp + 0x10], r15
+03efa0 mov     eax, dword ptr [rip + 0x36cba] ; rip=0x75c60 data=b'LWBP2|\x00\x00"secure"\x00\x00\x00\x00\x00\x00\x00\x00"plain"\x00compositeSha256\x00proxySha256\x00\x00\x00\x00\x00'
+03efbd call    0x18006c0a0
+03efd4 mov     qword ptr [rsp + 0x20], rax
+03efea call    0x18003e100
+03eff2 mov     rdx, qword ptr [rbp + 0x10]
+03f003 cmp     rdx, 0x1000
+03f024 call    0x18004a130
+03f030 lea     rdx, [rip + 0x34a11] ; rip=0x73a48 data=b'package decrypt failed\x00\x00 revision=\x00\x00\x00\x00\x00\x00loaded script package fo'
+03f03c call    0x1800078d0
+03f05b call    0x1800078d0
+03f065 call    0x180040a40
+03f07e cmp     rdx, 0x1000
+03f0a8 call    0x18004a130
+03f0d1 cmp     rdx, 0x1000
+03f0fb call    0x18004a130
+03f111 cmp     rdx, 0x1000
+03f12f call    0x18004a130
+03f140 call    0x18004a130
+03f14d lea     rdx, [rip + 0x36ad4] ; rip=0x75c28 data=b'package integrity invalid\x00\x00\x00\x00\x00\x00\x00package build mismatch\x00\x00LWBP2|\x00\x00'
+03f159 call    0x1800078d0
+03f174 cmp     rdx, 0x1000
+03f192 call    0x18004a130
+03f1a6 call    0x18004a130
+03f1b7 lea     rdx, [rip + 0x36a8a] ; rip=0x75c48 data=b'package build mismatch\x00\x00LWBP2|\x00\x00"secure"\x00\x00\x00\x00\x00\x00\x00\x00"plain"\x00composit'
+03f1c6 call    0x1800078d0
+03f1df cmp     rdx, 0x1000
+03f1fd call    0x18004a130
+03f211 call    0x18004a130
+03f221 lea     rdx, [rip + 0x36a00] ; rip=0x75c28 data=b'package integrity invalid\x00\x00\x00\x00\x00\x00\x00package build mismatch\x00\x00LWBP2|\x00\x00'
+03f22b call    0x1800078d0
+03f239 call    0x18004a3c0
+03f259 call    0x1800058b0
+03f25f call    0x180005850
+03f265 call    0x180005850
+03f26b call    0x1800058b0
+03f271 call    0x18000f640
+03f277 call    0x180005850
+03f27d call    0x18000f640
+03f283 call    0x180005850
+03f289 call    0x18000f640
+03f28f call    0x180005850
+
+=== ECDH 0x3f2a0-0x3f5be ===
+03f316 call    0x180044860
+03f325 lea     rdx, [rip + 0x367e4] ; rip=0x75b10 data=b'device key missing\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00M\x00i\x00c\x00r\x00o\x00s\x00o\x00f\x00t\x00 \x00S\x00o\x00f\x00t\x00w\x00a\x00'
+03f32f call    0x1800078d0
+03f355 call    0x18004a0e0
+03f374 call    0x18006c750
+03f383 mov     dword ptr [rdi + 4], 0x20
+03f3b1 lea     rdx, [rip + 0x36778] ; rip=0x75b30 data=b'M\x00i\x00c\x00r\x00o\x00s\x00o\x00f\x00t\x00 \x00S\x00o\x00f\x00t\x00w\x00a\x00r\x00e\x00 \x00K\x00e\x00y\x00 \x00S\x00t\x00o\x00r\x00a\x00g\x00e\x00 \x00P\x00'
+03f3bc call    0x180046668
+03f3df mov     qword ptr [rsp + 0x20], rax
+03f3f4 call    0x18004666e
+03f40f call    0x18004667a
+03f42e mov     dword ptr [rsp + 0x20], r13d
+03f439 lea     rdx, [rip + 0x36760] ; rip=0x75ba0 data=b'T\x00R\x00U\x00N\x00C\x00A\x00T\x00E\x00\x00\x00\x00\x00\x00\x00\x00\x000123456789abcdef\x00\x00\x00\x00"\x00\x00\x00device key unava'
+03f444 call    0x180046680
+03f44d cmp     dword ptr [rbp - 0x49], 0x20
+03f453 mov     edx, 0x20
+03f45b call    0x18000fc60
+03f471 mov     dword ptr [rsp + 0x20], eax
+03f47b lea     rdx, [rip + 0x3671e] ; rip=0x75ba0 data=b'T\x00R\x00U\x00N\x00C\x00A\x00T\x00E\x00\x00\x00\x00\x00\x00\x00\x00\x000123456789abcdef\x00\x00\x00\x00"\x00\x00\x00device key unava'
+03f486 call    0x180046680
+03f48f cmp     dword ptr [rbp - 0x49], 0x20
+03f49c call    0x180049350
+03f4a9 call    0x180040a40
+03f4b4 lea     rdx, [rip + 0x366c5] ; rip=0x75b80 data=b'key envelope agreement failed\x00\x00\x00T\x00R\x00U\x00N\x00C\x00A\x00T\x00E\x00\x00\x00\x00\x00\x00\x00\x00\x0001234567'
+03f4be call    0x1800078d0
+03f4ce cmp     rsi, 0x1000
+03f4fb call    0x18004a130
+03f50a call    0x180046674
+03f519 call    0x180046674
+03f528 call    0x180046674
+03f536 call    0x180046674
+03f54d cmp     rdx, 0x1000
+03f56e call    0x18004a130
+03f586 lea     rdx, [rip + 0x344a3] ; rip=0x73a30 data=b'key envelope invalid\x00\x00\x00\x00package decrypt failed\x00\x00 revision=\x00\x00\x00\x00\x00\x00'
+03f590 call    0x1800078d0
+03f59e call    0x18004a3c0
+
+=== HASH 0x3fe60-0x4020a ===
+03fea5 mov     dword ptr [rbp - 0x40], ebx
+03febb call    0x180046614
+03fed0 mov     qword ptr [rsp + 0x20], rax
+03fedb lea     r8, [rbp - 0x40]
+03feea call    0x18004661a
+03feff mov     qword ptr [rsp + 0x20], rax
+03ff19 call    0x18004661a
+03ff26 mov     esi, dword ptr [rbp - 0x40]
+03ff33 mov     qword ptr [rbp - 0x10], rbx
+03ff3c cmp     rsi, 0x1000
+03ff52 call    0x18004a0e0
+03ff71 call    0x18004a0e0
+03ff79 mov     qword ptr [rbp - 0x20], rbx
+03ff81 mov     qword ptr [rbp - 0x10], rdi
+03ff8d call    0x18006c750
+03ff9f mov     rbx, qword ptr [rbp - 0x20]
+03ffad call    0x18000fc60
+03ffce mov     qword ptr [rsp + 0x20], rcx
+03ffd3 mov     r9d, dword ptr [rbp - 0x40]
+03ffe2 call    0x180046626
+03fffd call    0x18004662c
+040018 call    0x180046632
+040075 cmp     rdi, 0x1000
+04009a call    0x18004a130
+0400b1 call    0x18004a130
+0400ce cmp     r15, 0x1000
+0400e4 call    0x18004a0e0
+0400ff call    0x18004a0e0
+040113 call    0x18006c0a0
+040120 cmp     rdi, 0x1000
+040141 call    0x18004a130
+04015c call    0x18004a130
+04016a lea     rcx, [rbp - 0x20]
+04016e call    0x180040a40
+040176 mov     rdi, qword ptr [rbp - 0x10]
+04017a mov     rbx, qword ptr [rbp - 0x20]
+040186 cmp     rdi, 0x1000
+0401a7 call    0x18004a130
+0401bb call    0x18004a130
+0401ce call    0x180046638
+0401df call    0x180046620
+0401fe call    0x180005850
+040204 call    0x180005850
+
+=== ENVELOPE 0x40e80-0x4200d ===
+040e80 mov     qword ptr [rsp + 0x10], rbx
+040ebd mov     rsi, qword ptr [rbp + 0x2e0]
+040ecf call    0x180040a40
+040ed7 mov     edx, 0x1000
+040edf call    0x1800406a0
+040ee8 lea     rdx, [rip + 0x32b11] ; rip=0x73a00 data=b'key envelope missing\x00\x00\x00\x00key envelope expired\x00\x00\x00\x00key envelope inv'
+040ef4 mov     rax, qword ptr [rdi + 0x10]
+040f12 mov     r8b, 0x2e
+040f1b call    0x180049330
+040f3d mov     rax, qword ptr [rdi + 0x10]
+040f5b mov     r8b, 0x2e
+040f61 call    0x180049330
+040fa3 mov     qword ptr [rbp + 0xc0], r12
+040faa mov     qword ptr [rbp + 0xc8], r12
+040fb1 mov     rax, qword ptr [rdi + 0x10]
+040fd3 call    0x180001f80
+040ff0 call    0x18003e590
+041011 mov     rax, qword ptr [rdi + 0x10]
+041049 call    0x180001f80
+041066 call    0x18003e590
+041096 cmp     rdx, 0x1000
+0410b7 call    0x18004a130
+0410c2 mov     rdx, qword ptr [rbp + 0xc8]
+0410d9 cmp     rdx, 0x1000
+0410fe call    0x18004a130
+04110e lea     rdx, [rip + 0x3291b] ; rip=0x73a30 data=b'key envelope invalid\x00\x00\x00\x00package decrypt failed\x00\x00 revision=\x00\x00\x00\x00\x00\x00'
+041118 call    0x1800078d0
+04112c lea     r9, [rsp + 0x40]
+041146 call    0x18000fd40
+04115a call    0x180043e50
+041169 lea     rdx, [rip + 0x328c0] ; rip=0x73a30 data=b'key envelope invalid\x00\x00\x00\x00package decrypt failed\x00\x00 revision=\x00\x00\x00\x00\x00\x00'
+041173 call    0x1800078d0
+04118c call    0x180040c00
+0411c0 mov     qword ptr [rbp + 0x40], r12
+0411d2 mov     qword ptr [rbp + 0x10], r12
+0411fa lea     rcx, [rip + 0x3486b] ; rip=0x75a6c data=b'LWKE1\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqr'
+041201 call    0x18006cbe0
+041206 mov     r8, qword ptr [rbx + 0x10]
+041227 lea     rdx, [rip + 0x3483e] ; rip=0x75a6c data=b'LWKE1\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqr'
+04122e call    0x18006cb00
+04123b lea     rcx, [rbx + 0x20]
+041244 call    0x18001b760
+041256 add     rcx, 0x40
+04125e call    0x18001b760
+041274 call    0x180040dc0
+041288 call    0x180040e30
+0412a1 call    0x18001b760
+0412b3 add     rcx, 0xc0
+0412bf call    0x18001b760
+0412dd call    0x18001b760
+0412ef add     rcx, 0x100
+0412fa call    0x18003e590
+041317 call    0x18003e590
+041334 call    0x18003e590
+041351 call    0x18003e590
+04136e call    0x18003e590
+04138b call    0x18003e590
+0413a0 cmp     rax, 0x20
+0413d0 cmp     rax, 0x20
+0413da mov     rax, qword ptr [rbp + 0x20]
+0413e2 cmp     rax, 0xc
+0413f4 cmp     rax, 0x20
+0413fe mov     rax, qword ptr [rbp - 0x10]
+041406 cmp     rax, 0x10
+041442 call    qword ptr [rip + 0x2fd80] ; rip=0x711c8 data=b'\xae\x04\t\x00\x00\x00\x00\x00\xc8\x04\t\x00\x00\x00\x00\x00\xd8\x04\t\x00\x00\x00\x00\x00\xf4\x04\t\x00\x00\x00\x00\x00\n\x05\t\x00\x00\x00\x00\x00 \x05\t\x00\x00\x00\x00\x002\x05\t\x00\x00\x00\x00\x00B\x05\t\x00\x00\x00\x00\x00'
+0414c3 cmp     rdx, qword ptr [rax + 0x10]
+041512 call    0x180044860
+041521 lea     rdx, [rip + 0x345e8] ; rip=0x75b10 data=b'device key missing\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00M\x00i\x00c\x00r\x00o\x00s\x00o\x00f\x00t\x00 \x00S\x00o\x00f\x00t\x00w\x00a\x00'
+04152b call    0x1800078d0
+04155b call    0x180044660
+04156a lea     rdx, [rip + 0x3465f] ; rip=0x75bd0 data=b'device key unavailable\x00\x00device key mismatch\x00|\x00\x00\x00key envelope dec'
+041574 call    0x1800078d0
+04159c call    0x180040b60
+041609 mov     qword ptr [rbp - 0x20], r12
+041618 call    0x18003f2a0
+04162e mov     rcx, qword ptr [r8 + 0x10]
+041649 lea     r14, [r8 + 0x100]
+041650 lea     r15, [r8 + 0x40]
+04165b lea     rax, [r8 + 0xc0]
+041693 lea     rax, [rip + 0x34562] ; rip=0x75bfc data=b'|\x00\x00\x00key envelope decrypt failed\x00LWBP\x00\x00\x00\x00\x00\x00\x00\x00package integrity in'
+04169f mov     qword ptr [rsp + 0x20], rcx
+0416a4 movzx   edx, byte ptr [rsp + 0x40]
+0416b0 call    0x180011030
+0416c8 call    0x18000fe80
+0416d4 lea     rdx, [rip + 0x34521] ; rip=0x75bfc data=b'|\x00\x00\x00key envelope decrypt failed\x00LWBP\x00\x00\x00\x00\x00\x00\x00\x00package integrity in'
+0416de call    0x180001ef0
+041712 mov     qword ptr [rax + 0x10], rcx
+041733 call    0x18000fe80
+04173f lea     rdx, [rip + 0x344b6] ; rip=0x75bfc data=b'|\x00\x00\x00key envelope decrypt failed\x00LWBP\x00\x00\x00\x00\x00\x00\x00\x00package integrity in'
+041749 call    0x180001ef0
+04175a mov     qword ptr [rbp + 0xc0], rcx
+041761 mov     qword ptr [rbp + 0xc8], rcx
+04177d mov     qword ptr [rax + 0x10], rcx
+04179e call    0x18000fe80
+0417aa lea     rdx, [rip + 0x3444b] ; rip=0x75bfc data=b'|\x00\x00\x00key envelope decrypt failed\x00LWBP\x00\x00\x00\x00\x00\x00\x00\x00package integrity in'
+0417b4 call    0x180001ef0
+0417e8 mov     qword ptr [rax + 0x10], rcx
+041807 call    0x18000fe80
+041813 lea     rdx, [rip + 0x343e2] ; rip=0x75bfc data=b'|\x00\x00\x00key envelope decrypt failed\x00LWBP\x00\x00\x00\x00\x00\x00\x00\x00package integrity in'
+04181d call    0x180001ef0
+041852 mov     qword ptr [rax + 0x10], r12
+041872 call    0x18000fe80
+04187e lea     rdx, [rip + 0x34377] ; rip=0x75bfc data=b'|\x00\x00\x00key envelope decrypt failed\x00LWBP\x00\x00\x00\x00\x00\x00\x00\x00package integrity in'
+041888 call    0x180001ef0
+041897 mov     qword ptr [rbp + 0x100], r12
+04189e mov     qword ptr [rbp + 0x108], r12
+0418ba mov     qword ptr [rax + 0x10], r12
+0418da call    0x18000fe80
+0418e0 mov     r8, qword ptr [rbp + 0x108]
+0418fb call    0x180004ea0
+041900 mov     qword ptr [rbp + 0x100], r12
+041907 mov     qword ptr [rbp + 0x108], 0xf
+041920 call    0x180003bb0
+041941 call    0x180004ea0
+041966 call    0x180003bb0
+041987 call    0x180004ea0
+0419ac call    0x180003bb0
+0419b2 mov     r8, qword ptr [rbp + 0xc8]
+0419cd call    0x180004ea0
+0419d2 mov     qword ptr [rbp + 0xc0], r12
+0419d9 mov     qword ptr [rbp + 0xc8], 0xf
+0419f2 call    0x180003bb0
+041a13 call    0x180004ea0
+041a38 call    0x180003bb0
+041a45 call    0x180003bb0
+041a69 call    0x180040210
+041a7e mov     qword ptr [rsp + 0x20], rax
+041a93 call    0x18003e100
+041aa4 cmp     rax, 0x20
+041aae call    0x180040a40
+041ab7 call    0x180040a40
+041ac5 lea     rcx, [rdi + 0x20]
+041ac9 call    0x1800088e0
+041ad7 lea     rcx, [rdi + 0x40]
+041adb call    0x1800088e0
+041ae9 call    0x180040a40
+041af2 call    0x180040a40
+041afa call    0x180040a40
+041b05 lea     rdx, [rip + 0x340f4] ; rip=0x75c00 data=b'key envelope decrypt failed\x00LWBP\x00\x00\x00\x00\x00\x00\x00\x00package integrity invali'
+041b0f call    0x1800078d0
+041b27 cmp     rdx, 0x1000
+041b51 call    0x18004a130
+041b69 call    0x180003bb0
+041b78 mov     rdx, qword ptr [rbp - 0x20]
+041b7f cmp     rdx, 0x1000
+041ba9 call    0x18004a130
+041bb6 mov     qword ptr [rbp - 0x20], r12
+041bc2 lea     rdx, [rip + 0x3401f] ; rip=0x75be8 data=b'device key mismatch\x00|\x00\x00\x00key envelope decrypt failed\x00LWBP\x00\x00\x00\x00\x00\x00\x00\x00'
+041bcc call    0x1800078d0
+041be4 cmp     rdx, 0x1000
+041c0e call    0x18004a130
+041c2f cmp     rdx, 0x1000
+041c59 call    0x18004a130
+041c72 call    0x180046674
+041c93 call    0x180004ea0
+041cb3 lea     rax, [rip + 0x31d5e] ; rip=0x73a18 data=b'key envelope expired\x00\x00\x00\x00key envelope invalid\x00\x00\x00\x00package decrypt '
+041cba lea     rdx, [rip + 0x31d6f] ; rip=0x73a30 data=b'key envelope invalid\x00\x00\x00\x00package decrypt failed\x00\x00 revision=\x00\x00\x00\x00\x00\x00'
+041ccc call    0x1800118e0
+041cd9 lea     rdx, [rip + 0x31d50] ; rip=0x73a30 data=b'key envelope invalid\x00\x00\x00\x00package decrypt failed\x00\x00 revision=\x00\x00\x00\x00\x00\x00'
+041ce3 call    0x1800078d0
+041cfb cmp     rdx, 0x1000
+041d25 call    0x18004a130
+041d3f mov     rdx, qword ptr [rbp + 0x10]
+041d46 cmp     rdx, 0x1000
+041d70 call    0x18004a130
+041d7d mov     qword ptr [rbp + 0x10], r12
+041d91 cmp     rdx, 0x1000
+041dbb call    0x18004a130
+041dd5 mov     rdx, qword ptr [rbp + 0x40]
+041ddc cmp     rdx, 0x1000
+041e06 call    0x18004a130
+041e13 mov     qword ptr [rbp + 0x40], r12
+041e27 cmp     rdx, 0x1000
+041e51 call    0x18004a130
+041e72 cmp     rdx, 0x1000
+041e9c call    0x18004a130
+041eb2 call    0x180008720
+041ecf cmp     rdx, 0x1000
+041ef0 call    0x18004a130
+041f24 cmp     rdx, 0x1000
+041f55 call    0x18004a130
+041f82 cmp     rdx, 0x1000
+041fa0 call    0x18004a130
+041fb5 call    0x18004a130
+041fc0 lea     rdx, [rip + 0x31a69] ; rip=0x73a30 data=b'key envelope invalid\x00\x00\x00\x00package decrypt failed\x00\x00 revision=\x00\x00\x00\x00\x00\x00'
+041fd0 call    0x1800078d0
+041fe1 call    0x18004a3c0
+042001 call    0x1800058b0
+042007 call    0x1800058d0
