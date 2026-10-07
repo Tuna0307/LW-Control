@@ -4088,12 +4088,13 @@ internal sealed class LWBridgeWindow : Form
         await WaitForDomAsync("!!document.querySelector('.panel.map-panel')", "Map after mounted Home lifecycle proof");
 
         await SelectMapTabAsync(0, "city");
+        long delayedSearchProfileAGeneration = Volatile.Read(ref profileRuntimeGeneration);
         Task<HomeMapCampaignDelayedRequest> oldASearchEntered = ArmHomeMapCampaignCommandDelay("map_search");
         await ClickMapSearchAsync("profile A delayed Search control");
         HomeMapCampaignDelayedRequest oldASearch = await oldASearchEntered.WaitAsync(TimeSpan.FromSeconds(5));
         await SelectProfileAsync("Campaign B", "campaign-B", "A to B profile control");
         long profileBGeneration = Volatile.Read(ref profileRuntimeGeneration);
-        if (profileBGeneration <= initialProfileGeneration || oldASearch.ProfileGeneration != initialProfileGeneration)
+        if (profileBGeneration <= delayedSearchProfileAGeneration || oldASearch.ProfileGeneration != delayedSearchProfileAGeneration)
             throw new InvalidDataException("Campaign proof did not capture the first-A request against the first-A native generation.");
         ReleaseHomeMapCampaignCommandDelay();
         await Task.Delay(150);
@@ -4684,6 +4685,7 @@ internal sealed class LWBridgeWindow : Form
             profileOwnership = new
             {
                 initialProfileGeneration,
+                delayedSearchProfileAGeneration,
                 profileBGeneration,
                 returnedAGeneration,
                 preReloadBGeneration,
