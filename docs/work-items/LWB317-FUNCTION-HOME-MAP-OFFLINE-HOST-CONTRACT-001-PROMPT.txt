@@ -32,7 +32,8 @@ C. Deliver a dependency/readiness matrix, checks and concrete future owned live
    witnesses as plans only. Do not mark unknown live behavior proven. If no defect
    is demonstrated, deliver exact recovery evidence without speculative edits.
 
-Windows-MCP is installed at LW-Control\Windows-MCP. Its stdio bridge is
+Windows-MCP 0.8.7 is installed at LW-Control\Windows-MCP, updated to upstream
+main commit d48d4b5fee897b76f66fafebc889a419680d796b on 2026-10-07. Its stdio bridge is
 tools/windows_mcp_client.py, usable through Remote Desktop Commander; listing
 schemas is headless. Actual desktop calls remain on hold. For later authorized
 desktop work, check both tools before claiming a capability blocker.

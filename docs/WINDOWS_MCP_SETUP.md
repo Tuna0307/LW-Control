@@ -16,9 +16,13 @@ bundled Python runtimes and the nested source Git repository were preserved.
 This machine-local directory is ignored by LW-Control Git; it is not a submodule.
 
 Source: https://github.com/CursorTouch/Windows-MCP.
-Installed source commit: `a74df211d8dcb4cdc49f58a5a18d816d79bd6c3b`.
-Package version: `0.8.6`; installed source requires Python `>=3.14`.
-No source upgrade or source modification was performed.
+Current installed source commit: `d48d4b5fee897b76f66fafebc889a419680d796b`,
+matching upstream `main`/HEAD when checked on 2026-10-07.
+Package version: `0.8.7`; installed source requires Python `>=3.14`.
+Latest published release at that check is `v0.8.7`, commit
+`6885dc1fc44b4fbe591d0c2a656e5b8face6901c`; the installed main commit includes
+eight subsequent upstream fixes. It was fast-forwarded from the preserved initial
+0.8.6 commit `a74df211d8dcb4cdc49f58a5a18d816d79bd6c3b`, with no local source edits.
 
 The new active environment is `Windows-MCP\.venv`, using bundled CPython 3.14.7.
 It was rebuilt with the existing `src\uv.lock` and uv 0.12.19, rather than using
@@ -98,12 +102,19 @@ success, bypass scope, or interpret tool availability as permission to act.
 ## Verification and limits
 
 Verified on 2026-10-07: `python -m windows_mcp --help`, successful stdio MCP
-initialization/tool discovery, and 20 registered tools: App, DisplayInventory,
+initialization/tool discovery after the update, and 21 registered tools:
+ControlStatus, App, DisplayInventory,
 PowerShell, FileSystem, Snapshot, Screenshot, Click, Type, Scroll, Move, Shortcut,
 Wait, WaitFor, Scrape, MultiSelect, MultiEdit, Clipboard, Process, Notification,
 Registry. Snapshot/Screenshot advertise screenshot support; Click/Type/Move/
 Shortcut advertise interaction support. This verifies registration and startup,
 not actual desktop capture or input operation. **Zero desktop tools were called.**
+
+The updated upstream adds a desktop-control ownership gate and `ControlStatus`.
+Actual tool calls may be blocked while the user is active; do not bypass that gate
+or take over the owner's desktop. Tool discovery does not request an AI input lease.
+Read the actual tool schemas/status and respect user takeover during a later
+authorized task. The owner hold remains in force.
 
 The upstream startup emits two Python event-loop deprecation warnings; discovery
 and orderly shutdown succeeded. No application focus/input was changed, no owner
