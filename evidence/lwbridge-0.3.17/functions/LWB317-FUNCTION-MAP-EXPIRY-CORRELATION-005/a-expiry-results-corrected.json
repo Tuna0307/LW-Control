@@ -1,0 +1,66 @@
+{
+  "scope": "Fresh corrected actual packaged static production methods; no provider/store/game/transport invoked",
+  "historicalFailingEvidence": "../LWB317-FUNCTION-MAP-BLOCKER-BOUNDARIES-004/lead-review-2026-10-07/expiry-results.json",
+  "desktopAssemblySha256": "BCD49C4A35ED3C907DF43F643F5707B79FC4FE74D5CEF99294A4C6350B9A3BF8",
+  "mapAssemblySha256": "EC9942F7566C392BE86C95EADEB8C3DD6B9E206A16682972C46FBFBD58E1808D",
+  "cases": [
+    {
+      "name": "positive_after_plunder",
+      "inputJson": "{\"serverId\":91,\"taskKind\":\"ghost\",\"uuid\":\"123\",\"ownerServer\":33,\"completionTime\":1789616000000,\"protectTime\":300,\"plunderAt\":1789616300000,\"stealListCount\":1,\"stealMaxTimes\":3,\"stolenCount\":1,\"maxStealCount\":3,\"taskExpireTime\":1789623200000}",
+      "host": "ACCEPTED",
+      "helper": "ACCEPTED",
+      "helperPreservedRawRow": true
+    },
+    {
+      "name": "zero",
+      "inputJson": "{\"serverId\":91,\"taskKind\":\"ghost\",\"uuid\":\"123\",\"ownerServer\":33,\"completionTime\":1789616000000,\"protectTime\":300,\"plunderAt\":1789616300000,\"stealListCount\":1,\"stealMaxTimes\":3,\"stolenCount\":1,\"maxStealCount\":3,\"taskExpireTime\":0}",
+      "host": "ACCEPTED",
+      "helper": "ACCEPTED",
+      "helperPreservedRawRow": true
+    },
+    {
+      "name": "negative",
+      "inputJson": "{\"serverId\":91,\"taskKind\":\"ghost\",\"uuid\":\"123\",\"ownerServer\":33,\"completionTime\":1789616000000,\"protectTime\":300,\"plunderAt\":1789616300000,\"stealListCount\":1,\"stealMaxTimes\":3,\"stolenCount\":1,\"maxStealCount\":3,\"taskExpireTime\":-1}",
+      "host": "ACCEPTED",
+      "helper": "ACCEPTED",
+      "helperPreservedRawRow": true
+    },
+    {
+      "name": "missing",
+      "inputJson": "{\"serverId\":91,\"taskKind\":\"ghost\",\"uuid\":\"123\",\"ownerServer\":33,\"completionTime\":1789616000000,\"protectTime\":300,\"plunderAt\":1789616300000,\"stealListCount\":1,\"stealMaxTimes\":3,\"stolenCount\":1,\"maxStealCount\":3}",
+      "host": "ACCEPTED",
+      "helper": "ACCEPTED",
+      "helperPreservedRawRow": true
+    },
+    {
+      "name": "positive_equal_plunder",
+      "inputJson": "{\"serverId\":91,\"taskKind\":\"ghost\",\"uuid\":\"123\",\"ownerServer\":33,\"completionTime\":1789616000000,\"protectTime\":300,\"plunderAt\":1789616300000,\"stealListCount\":1,\"stealMaxTimes\":3,\"stolenCount\":1,\"maxStealCount\":3,\"taskExpireTime\":1789616300000}",
+      "host": "REJECTED",
+      "hostError": "LWBridge.Map317.BridgeCommandException",
+      "helper": "REJECTED",
+      "helperError": "System.IO.InvalidDataException"
+    },
+    {
+      "name": "positive_before_plunder",
+      "inputJson": "{\"serverId\":91,\"taskKind\":\"ghost\",\"uuid\":\"123\",\"ownerServer\":33,\"completionTime\":1789616000000,\"protectTime\":300,\"plunderAt\":1789616300000,\"stealListCount\":1,\"stealMaxTimes\":3,\"stolenCount\":1,\"maxStealCount\":3,\"taskExpireTime\":1789616299999}",
+      "host": "REJECTED",
+      "hostError": "LWBridge.Map317.BridgeCommandException",
+      "helper": "REJECTED",
+      "helperError": "System.IO.InvalidDataException"
+    },
+    {
+      "name": "numeric_string_after_plunder",
+      "inputJson": "{\"serverId\":91,\"taskKind\":\"ghost\",\"uuid\":\"123\",\"ownerServer\":33,\"completionTime\":1789616000000,\"protectTime\":300,\"plunderAt\":1789616300000,\"stealListCount\":1,\"stealMaxTimes\":3,\"stolenCount\":1,\"maxStealCount\":3,\"taskExpireTime\":\"1789623200000\"}",
+      "host": "ACCEPTED",
+      "helper": "REJECTED",
+      "helperError": "System.InvalidOperationException"
+    },
+    {
+      "name": "malformed_string_reader_rejects_string_kind",
+      "inputJson": "{\"serverId\":91,\"taskKind\":\"ghost\",\"uuid\":\"123\",\"ownerServer\":33,\"completionTime\":1789616000000,\"protectTime\":300,\"plunderAt\":1789616300000,\"stealListCount\":1,\"stealMaxTimes\":3,\"stolenCount\":1,\"maxStealCount\":3,\"taskExpireTime\":\"not-a-number\"}",
+      "host": "ACCEPTED",
+      "helper": "REJECTED",
+      "helperError": "System.InvalidOperationException"
+    }
+  ]
+}

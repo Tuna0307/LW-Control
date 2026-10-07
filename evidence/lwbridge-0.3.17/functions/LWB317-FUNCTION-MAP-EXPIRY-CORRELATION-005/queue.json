@@ -1,0 +1,27 @@
+{
+  "schema": 1,
+  "workItem": "LWB317-FUNCTION-MAP-EXPIRY-CORRELATION-005",
+  "status": "IN_PROGRESS",
+  "assignmentCheckpoint": "e18d8f3fdbad0a23804c783e5497ad450d74d49c",
+  "checkpoints": [
+    {
+      "id": "A",
+      "state": "COMPLETE",
+      "disposition": "LR-GHOST-EXPIRY-005 corrected and packaged-proof matched"
+    },
+    {
+      "id": "B",
+      "state": "ACTIVE"
+    },
+    {
+      "id": "C",
+      "state": "READY"
+    }
+  ],
+  "product": {
+    "expiryDefect": "CORRECTED_OFFLINE",
+    "publicGhostPreparation": "GAME_PROVIDER_UNAVAILABLE",
+    "ghostExecution": "FENCED"
+  },
+  "liveSharedDesktop": "ON_HOLD_BY_OWNER"
+}

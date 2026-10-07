@@ -119,8 +119,9 @@ internal sealed class CurrentClientMap317ActionProvider : Map317.IMapActionProvi
         CancellationToken cancellationToken = default) =>
         ValueTask.FromException<IReadOnlyList<JsonElement>>(
             ProviderUnavailable(
-                "current-client Ghost plunder preparation remains unavailable because " +
-                "GhostReconSteal terminal response identity is not source-proven"));
+                "current-client Ghost plunder preparation remains unavailable because exact " +
+                "prepareGhostPlunderTasks row transformation/rejection semantics are incomplete; " +
+                "downstream Ghost execution terminal-result correlation is separately unresolved"));
 
 
     internal static IReadOnlyList<JsonElement> PrepareGhostPlunderRows(IReadOnlyList<JsonElement> rows)
@@ -144,14 +145,14 @@ internal sealed class CurrentClientMap317ActionProvider : Map317.IMapActionProvi
             long maxStealCount = ReadInteger(row, "maxStealCount");
 
             if (ownerServer is < 1 or > 99999 || completionTime <= 0 || protectSeconds < 0 ||
-                taskExpireTime <= 0 || stealListCount < 0 || stealMaxTimes < 0 ||
+                stealListCount < 0 || stealMaxTimes < 0 ||
                 stolenCount != stealListCount || maxStealCount != stealMaxTimes)
             {
                 throw new InvalidDataException("Ghost plunder row is not a source-backed current-v22 task projection.");
             }
 
             long earliestPlunderAt = checked(completionTime + protectSeconds * 1000L);
-            if (plunderAt < earliestPlunderAt || plunderAt >= taskExpireTime)
+            if (plunderAt < earliestPlunderAt || (taskExpireTime > 0 && plunderAt >= taskExpireTime))
                 throw new InvalidDataException("Ghost plunder row contains invalid protection/expiry timing.");
 
             prepared[index] = row.Clone();

@@ -11,6 +11,8 @@ internal static class MapProviderSemanticsChecks
     {
         GhostPreparationPreservesSourceBackedRow();
         GhostPreparationAllowsFrontendDelay();
+        GhostPreparationMatchesExpiryBoundary();
+        GhostPreparationPreservesExpiryReaderContract();
         GhostPreparationRejectsMutatedCounts();
         GhostPreparationRejectsEarlyOrExpiredTiming();
         GhostPreparationRejectsInvalidIdentity();
@@ -33,6 +35,26 @@ internal static class MapProviderSemanticsChecks
             CurrentClientMap317ActionProvider.PrepareGhostPlunderRows([row]).Single();
         Check(prepared.GetProperty("plunderAt").GetInt64() == 1_789_616_345_000L,
             "Ghost preparation rewrote frontend-owned random delay");
+    }
+
+    private static void GhostPreparationMatchesExpiryBoundary()
+    {
+        ExpectAccepted(Row(taskExpireTimeJson: "1789623200000"), "positive expiry after plunder");
+        ExpectAccepted(Row(taskExpireTimeJson: "0"), "zero expiry");
+        ExpectAccepted(Row(taskExpireTimeJson: "-1"), "negative expiry");
+        ExpectAccepted(Row(taskExpireTimeJson: null), "missing expiry");
+        ExpectInvalid(Row(taskExpireTimeJson: "1789616300000"),
+            "Ghost preparation accepted positive expiry equal to plunder");
+        ExpectInvalid(Row(taskExpireTimeJson: "1789616299999"),
+            "Ghost preparation accepted positive expiry before plunder");
+    }
+
+    private static void GhostPreparationPreservesExpiryReaderContract()
+    {
+        ExpectInvalidOperation(Row(taskExpireTimeJson: "\"1789623200000\""),
+            "Ghost preparation broadened numeric-string expiry parsing");
+        ExpectInvalidOperation(Row(taskExpireTimeJson: "\"not-a-number\""),
+            "Ghost preparation broadened malformed-string expiry parsing");
     }
 
     private static void GhostPreparationRejectsMutatedCounts()
@@ -62,8 +84,10 @@ internal static class MapProviderSemanticsChecks
         int ownerServer = 33,
         long plunderAt = 1_789_616_300_000L,
         int stolenCount = 1,
-        int maxStealCount = 3)
+        int maxStealCount = 3,
+        string? taskExpireTimeJson = "1789623200000")
     {
+        string expiry = taskExpireTimeJson is null ? string.Empty : $",\"taskExpireTime\":{taskExpireTimeJson}";
         string json = $$"""
         {
           "serverId":91,
@@ -72,8 +96,7 @@ internal static class MapProviderSemanticsChecks
           "ownerServer":{{ownerServer}},
           "completionTime":1789616000000,
           "protectTime":300,
-          "plunderAt":{{plunderAt}},
-          "taskExpireTime":1789623200000,
+          "plunderAt":{{plunderAt}}{{expiry}},
           "stealListCount":1,
           "stealMaxTimes":3,
           "stolenCount":{{stolenCount}},
@@ -82,6 +105,27 @@ internal static class MapProviderSemanticsChecks
         """;
         using JsonDocument document = JsonDocument.Parse(json);
         return document.RootElement.Clone();
+    }
+
+    private static void ExpectAccepted(JsonElement row, string caseName)
+    {
+        JsonElement prepared =
+            CurrentClientMap317ActionProvider.PrepareGhostPlunderRows([row]).Single();
+        Check(prepared.GetRawText() == row.GetRawText(),
+            $"Ghost preparation did not preserve {caseName} row values");
+    }
+
+    private static void ExpectInvalidOperation(JsonElement row, string message)
+    {
+        try
+        {
+            _ = CurrentClientMap317ActionProvider.PrepareGhostPlunderRows([row]);
+        }
+        catch (InvalidOperationException)
+        {
+            return;
+        }
+        throw new InvalidOperationException(message);
     }
 
     private static void ExpectInvalid(JsonElement row, string message)
