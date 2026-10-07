@@ -1,6 +1,6 @@
 # LWB317-FUNCTION-MAP-EXPIRY-CORRELATION-005
 
-Status: **ASSIGNED FOR OWNER RELAY**
+Status: **AWAITING_REVIEW**
 Date: 2026-10-07
 Branch: `research/offline-controller`.
 Product/evidence baseline: `d900d8a548c072485cabc9b55d3dc5b07c4e6085`.
@@ -120,3 +120,37 @@ Live/shared-desktop work remains ON_HOLD_BY_OWNER: no game/original launch, atta
 installation instrumentation, owner screenshots/input/focus/config/runtime changes,
 updater, protected service/auth bypass or real gameplay/network transport. Read
 static installed artifacts and use task-owned copies/isolated inert roots only.
+
+## Worker completion ? 2026-10-07
+
+State: **AWAITING_REVIEW**.
+
+The three sequential checkpoints completed offline/static/inert. The starting
+assignment checkout was clean at
+e18d8f3fdbad0a23804c783e5497ad450d74d49c. Checkpoint A was pushed at
+9da977db8ad83c716c207a92515cc1db058e190c. While B was in progress, owner/lead
+documentation advanced the branch through fe0f5d2735d06a83f52c2033bec02de4300b26d0;
+those unrelated commits were preserved. Checkpoint B was then pushed at
+70348efb38ec107b57b698c2166787c5b8c4c82e.
+
+A: LR-GHOST-EXPIRY-005 is corrected and fresh actual packaged host/helper
+execution matches the six required expiry cases. Accepted rows remain byte-for-
+byte unchanged. Existing string-valued numeric/malformed reader behavior remains
+unchanged; numeric parsing was not broadened. The public Ghost preparer stays
+unavailable, with its explanation split between preparation-transform uncertainty
+and downstream execution correlation.
+
+B: managed fuid correlation is **PARTIAL_SOURCE_PROVEN_MANAGED_CORRELATION**.
+SendLuaMessage allocates a fuid, writes/associates it with the outbound request,
+and MessageFactory conditionally consumes the same keyed pending entry when a
+response contains that future field. The response object then flows through
+SFSObject-to-Lua conversion. Connect resets the future counter/pending dictionary,
+so fuid is reusable across connections. The exact direct ghost.recon.steal
+response producer/schema still does not prove future-field emission. No production
+correlator, queue, transport or provider capability was added.
+
+C: focused helper/Map/native/current-client/body/Lua/parser checks, standalone Map
+checks, Release Desktop/Desktop.Checks builds, and canonical frontend
+check/build/package verification all pass. Home/Map remains PARTIAL; public
+Treasure/Ghost methods remain unavailable and live/shared-desktop work remains
+ON_HOLD_BY_OWNER. Final acceptance remains with the project lead.

@@ -1,0 +1,235 @@
+﻿=== C PHASE 3: RELEASE / FRONTEND / PACKAGE ===
+=== Desktop Release build ===
+  Building canonical LWBridge.UI-0.3.17 production frontend
+
+  added 65 packages in 3s
+  npm warn allow-scripts 1 package has install scripts not yet covered by allowScripts:
+  npm warn allow-scripts   esbuild@0.28.2 (postinstall: node install.js)
+  npm warn allow-scripts
+  npm warn allow-scripts Run `npm approve-scripts --allow-scripts-pending` to review, or `npm approve-scripts <pkg>` to allow.
+
+  > lwbridge-ui-0.3.17@0.3.17-ui-preview build
+  > node scripts/build-production.mjs --outDir C:\Users\chimw\OneDrive\Desktop\Github\LW-Control\src\LWBridge.Desktop\obj\Release\net10.0-windows10.0.17763.0\ProductionUi
+
+  vite v7.3.6 building client environment for production...
+  transforming...
+  l%?,%?
+%$% 95 modules transformed.
+  rendering chunks...
+  computing gzip size...
+  ../LWBridge.Desktop/obj/Release/net10.0-windows10.0.17763.0/ProductionUi/index.html                              0.52 kB l%?
+%b%
+%# gzip:   0.32 kB
+  ../LWBridge.Desktop/obj/Release/net10.0-windows10.0.17763.0/ProductionUi/.vite/manifest.json                     3.85 kB l%?
+%b%
+%# gzip:   0.77 kB
+  ../LWBridge.Desktop/obj/Release/net10.0-windows10.0.17763.0/ProductionUi/assets/dot-offline-CDBA2902.png         5.89 kB
+  ../LWBridge.Desktop/obj/Release/net10.0-windows10.0.17763.0/ProductionUi/assets/dot-online-gjSbTzBh.png          6.11 kB
+  ../LWBridge.Desktop/obj/Release/net10.0-windows10.0.17763.0/ProductionUi/assets/icon-warning-D9WXqS3t.png       41.05 kB
+  ../LWBridge.Desktop/obj/Release/net10.0-windows10.0.17763.0/ProductionUi/assets/index-B5AeiHlM.css             126.21 kB l%?
+%b%
+%# gzip:  20.89 kB
+  ../LWBridge.Desktop/obj/Release/net10.0-windows10.0.17763.0/ProductionUi/assets/previewConfigHook-DbJviNQG.js    1.68 kB l%?
+%b%
+%# gzip:   0.76 kB
+  ../LWBridge.Desktop/obj/Release/net10.0-windows10.0.17763.0/ProductionUi/assets/HotkeyPages-DkpNb_3a.js          7.08 kB l%?
+%b%
+%# gzip:   2.20 kB
+  ../LWBridge.Desktop/obj/Release/net10.0-windows10.0.17763.0/ProductionUi/assets/SettingsPage-D6ed_X-W.js         8.12 kB l%?
+%b%
+%# gzip:   2.21 kB
+  ../LWBridge.Desktop/obj/Release/net10.0-windows10.0.17763.0/ProductionUi/assets/CityLayoutPage-A4zn5oBO.js      15.71 kB l%?
+%b%
+%# gzip:   4.96 kB
+  ../LWBridge.Desktop/obj/Release/net10.0-windows10.0.17763.0/ProductionUi/assets/zh-CN-itVnuDKE.js               76.68 kB l%?
+%b%
+%# gzip:  24.56 kB
+  ../LWBridge.Desktop/obj/Release/net10.0-windows10.0.17763.0/ProductionUi/assets/zh-TW-DVthOXyu.js               76.83 kB l%?
+%b%
+%# gzip:  24.63 kB
+  ../LWBridge.Desktop/obj/Release/net10.0-windows10.0.17763.0/ProductionUi/assets/MapRoutePage-CZFU2wmg.js        78.81 kB l%?
+%b%
+%# gzip:  22.01 kB
+  ../LWBridge.Desktop/obj/Release/net10.0-windows10.0.17763.0/ProductionUi/assets/AutomationPage-Dlb6hHrR.js      82.78 kB l%?
+%b%
+%# gzip:  20.08 kB
+  ../LWBridge.Desktop/obj/Release/net10.0-windows10.0.17763.0/ProductionUi/assets/id-BtyGe98E.js                  83.18 kB l%?
+%b%
+%# gzip:  23.59 kB
+  ../LWBridge.Desktop/obj/Release/net10.0-windows10.0.17763.0/ProductionUi/assets/pt-Cul_YYVr.js                  88.30 kB l%?
+%b%
+%# gzip:  25.02 kB
+  ../LWBridge.Desktop/obj/Release/net10.0-windows10.0.17763.0/ProductionUi/assets/ko-DE-iQMo2.js                  89.11 kB l%?
+%b%
+%# gzip:  25.28 kB
+  ../LWBridge.Desktop/obj/Release/net10.0-windows10.0.17763.0/ProductionUi/assets/ja-jFyUdeaw.js                  92.76 kB l%?
+%b%
+%# gzip:  26.17 kB
+  ../LWBridge.Desktop/obj/Release/net10.0-windows10.0.17763.0/ProductionUi/assets/vi-fYT0cU8d.js                  95.47 kB l%?
+%b%
+%# gzip:  25.18 kB
+  ../LWBridge.Desktop/obj/Release/net10.0-windows10.0.17763.0/ProductionUi/assets/ru-DLfZC5wd.js                 119.26 kB l%?
+%b%
+%# gzip:  29.33 kB
+  ../LWBridge.Desktop/obj/Release/net10.0-windows10.0.17763.0/ProductionUi/assets/SquadsPage-DEBEmiAJ.js         204.17 kB l%?
+%b%
+%# gzip:  62.61 kB
+  ../LWBridge.Desktop/obj/Release/net10.0-windows10.0.17763.0/ProductionUi/assets/index-HQJInrHn.js              389.74 kB l%?
+%b%
+%# gzip: 119.19 kB
+  l%?,%?
+%$% built in 1.72s
+  LWB317_PRODUCTION_UI_BUILD_OK 6d83a69870ad62131d7b21895b485ad2acf126ccc074d0759ea249be1360a685 6633977812436f36c2f9a0d0e887e5224a5e664e6f27441324c5a7a0b7ae3909
+  LWB317_PRODUCTION_UI_PACKAGE_OK 6d83a69870ad62131d7b21895b485ad2acf126ccc074d0759ea249be1360a685 6633977812436f36c2f9a0d0e887e5224a5e664e6f27441324c5a7a0b7ae3909
+  LWBridge.GamePipeAdapter -> C:\Users\chimw\OneDrive\Desktop\Github\LW-Control\src\LWBridge.GamePipeAdapter\bin\Release\netstandard2.0\LWBridge.GamePipeAdapter.dll
+  LWBridge.Map-0.3.17 -> C:\Users\chimw\OneDrive\Desktop\Github\LW-Control\src\LWBridge.Map-0.3.17\bin\Release\net10.0-windows10.0.17763.0\LWBridge.Map_0_3_17.dll
+  LWBridge.Desktop -> C:\Users\chimw\OneDrive\Desktop\Github\LW-Control\src\LWBridge.Desktop\bin\Release\net10.0-windows10.0.17763.0\LWBridge.Desktop.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:18.45
+=== Desktop.Checks Release build ===
+  Building canonical LWBridge.UI-0.3.17 production frontend
+  LWBridge.Map-0.3.17 -> C:\Users\chimw\OneDrive\Desktop\Github\LW-Control\src\LWBridge.Map-0.3.17\bin\Release\net10.0-windows10.0.17763.0\LWBridge.Map_0_3_17.dll
+
+  added 65 packages in 3s
+  npm warn allow-scripts 1 package has install scripts not yet covered by allowScripts:
+  npm warn allow-scripts   esbuild@0.28.2 (postinstall: node install.js)
+  npm warn allow-scripts
+  npm warn allow-scripts Run `npm approve-scripts --allow-scripts-pending` to review, or `npm approve-scripts <pkg>` to allow.
+
+  > lwbridge-ui-0.3.17@0.3.17-ui-preview build
+  > node scripts/build-production.mjs --outDir C:\Users\chimw\OneDrive\Desktop\Github\LW-Control\src\LWBridge.Desktop\obj\Release\net10.0-windows10.0.17763.0\ProductionUi
+
+  vite v7.3.6 building client environment for production...
+  transforming...
+  l%?,%?
+%$% 95 modules transformed.
+  rendering chunks...
+  computing gzip size...
+  ../LWBridge.Desktop/obj/Release/net10.0-windows10.0.17763.0/ProductionUi/index.html                              0.52 kB l%?
+%b%
+%# gzip:   0.32 kB
+  ../LWBridge.Desktop/obj/Release/net10.0-windows10.0.17763.0/ProductionUi/.vite/manifest.json                     3.85 kB l%?
+%b%
+%# gzip:   0.77 kB
+  ../LWBridge.Desktop/obj/Release/net10.0-windows10.0.17763.0/ProductionUi/assets/dot-offline-CDBA2902.png         5.89 kB
+  ../LWBridge.Desktop/obj/Release/net10.0-windows10.0.17763.0/ProductionUi/assets/dot-online-gjSbTzBh.png          6.11 kB
+  ../LWBridge.Desktop/obj/Release/net10.0-windows10.0.17763.0/ProductionUi/assets/icon-warning-D9WXqS3t.png       41.05 kB
+  ../LWBridge.Desktop/obj/Release/net10.0-windows10.0.17763.0/ProductionUi/assets/index-B5AeiHlM.css             126.21 kB l%?
+%b%
+%# gzip:  20.89 kB
+  ../LWBridge.Desktop/obj/Release/net10.0-windows10.0.17763.0/ProductionUi/assets/previewConfigHook-DbJviNQG.js    1.68 kB l%?
+%b%
+%# gzip:   0.76 kB
+  ../LWBridge.Desktop/obj/Release/net10.0-windows10.0.17763.0/ProductionUi/assets/HotkeyPages-DkpNb_3a.js          7.08 kB l%?
+%b%
+%# gzip:   2.20 kB
+  ../LWBridge.Desktop/obj/Release/net10.0-windows10.0.17763.0/ProductionUi/assets/SettingsPage-D6ed_X-W.js         8.12 kB l%?
+%b%
+%# gzip:   2.21 kB
+  ../LWBridge.Desktop/obj/Release/net10.0-windows10.0.17763.0/ProductionUi/assets/CityLayoutPage-A4zn5oBO.js      15.71 kB l%?
+%b%
+%# gzip:   4.96 kB
+  ../LWBridge.Desktop/obj/Release/net10.0-windows10.0.17763.0/ProductionUi/assets/zh-CN-itVnuDKE.js               76.68 kB l%?
+%b%
+%# gzip:  24.56 kB
+  ../LWBridge.Desktop/obj/Release/net10.0-windows10.0.17763.0/ProductionUi/assets/zh-TW-DVthOXyu.js               76.83 kB l%?
+%b%
+%# gzip:  24.63 kB
+  ../LWBridge.Desktop/obj/Release/net10.0-windows10.0.17763.0/ProductionUi/assets/MapRoutePage-CZFU2wmg.js        78.81 kB l%?
+%b%
+%# gzip:  22.01 kB
+  ../LWBridge.Desktop/obj/Release/net10.0-windows10.0.17763.0/ProductionUi/assets/AutomationPage-Dlb6hHrR.js      82.78 kB l%?
+%b%
+%# gzip:  20.08 kB
+  ../LWBridge.Desktop/obj/Release/net10.0-windows10.0.17763.0/ProductionUi/assets/id-BtyGe98E.js                  83.18 kB l%?
+%b%
+%# gzip:  23.59 kB
+  ../LWBridge.Desktop/obj/Release/net10.0-windows10.0.17763.0/ProductionUi/assets/pt-Cul_YYVr.js                  88.30 kB l%?
+%b%
+%# gzip:  25.02 kB
+  ../LWBridge.Desktop/obj/Release/net10.0-windows10.0.17763.0/ProductionUi/assets/ko-DE-iQMo2.js                  89.11 kB l%?
+%b%
+%# gzip:  25.28 kB
+  ../LWBridge.Desktop/obj/Release/net10.0-windows10.0.17763.0/ProductionUi/assets/ja-jFyUdeaw.js                  92.76 kB l%?
+%b%
+%# gzip:  26.17 kB
+  ../LWBridge.Desktop/obj/Release/net10.0-windows10.0.17763.0/ProductionUi/assets/vi-fYT0cU8d.js                  95.47 kB l%?
+%b%
+%# gzip:  25.18 kB
+  ../LWBridge.Desktop/obj/Release/net10.0-windows10.0.17763.0/ProductionUi/assets/ru-DLfZC5wd.js                 119.26 kB l%?
+%b%
+%# gzip:  29.33 kB
+  ../LWBridge.Desktop/obj/Release/net10.0-windows10.0.17763.0/ProductionUi/assets/SquadsPage-DEBEmiAJ.js         204.17 kB l%?
+%b%
+%# gzip:  62.61 kB
+  ../LWBridge.Desktop/obj/Release/net10.0-windows10.0.17763.0/ProductionUi/assets/index-HQJInrHn.js              389.74 kB l%?
+%b%
+%# gzip: 119.19 kB
+  l%?,%?
+%$% built in 1.73s
+  LWB317_PRODUCTION_UI_BUILD_OK 6d83a69870ad62131d7b21895b485ad2acf126ccc074d0759ea249be1360a685 6633977812436f36c2f9a0d0e887e5224a5e664e6f27441324c5a7a0b7ae3909
+  LWB317_PRODUCTION_UI_PACKAGE_OK 6d83a69870ad62131d7b21895b485ad2acf126ccc074d0759ea249be1360a685 6633977812436f36c2f9a0d0e887e5224a5e664e6f27441324c5a7a0b7ae3909
+  LWBridge.GamePipeAdapter -> C:\Users\chimw\OneDrive\Desktop\Github\LW-Control\src\LWBridge.GamePipeAdapter\bin\Release\netstandard2.0\LWBridge.GamePipeAdapter.dll
+  LWBridge.Desktop -> C:\Users\chimw\OneDrive\Desktop\Github\LW-Control\src\LWBridge.Desktop\bin\Release\net10.0-windows10.0.17763.0\LWBridge.Desktop.dll
+  LWBridge.Desktop.Checks -> C:\Users\chimw\OneDrive\Desktop\Github\LW-Control\tests\LWBridge.Desktop.Checks\bin\Release\net10.0-windows10.0.17763.0\LWBridge.Desktop.Checks.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:17.12
+=== canonical frontend check ===
+
+> lwbridge-ui-0.3.17@0.3.17-ui-preview check
+> node scripts/check-static.mjs && node scripts/check-home-integration.mjs && node scripts/check-map-integration.mjs && node scripts/check-ui-complete.mjs && node scripts/check-ui-drafts.mjs
+
+LWBridge 0.3.17 static UI scaffold checks passed.
+LWB317_HOME_UI_INTEGRATION_CHECKS_OK
+LWB317_MAP_UI_INTEGRATION_CHECKS_OK
+LWB317_UI_COMPLETE_CHECKS_OK 470 referenced keys {"en":1383,"zh-CN":1383,"zh-TW":1383,"ja":1383,"ko":1383,"vi":1383,"id":1383,"ru":1383,"pt":1383}
+LWB317_UI_DRAFT_CHECKS_OK: concurrent edits, ack, error/retry/discard, no invalid dispatch, join defaults/precision, profile independence and card validation
+=== canonical frontend build ===
+
+> lwbridge-ui-0.3.17@0.3.17-ui-preview build
+> node scripts/build-production.mjs
+
+vite v7.3.6 building client environment for production...
+transforming...
+??? 95 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                              0.52 kB ??? gzip:   0.32 kB
+dist/.vite/manifest.json                     3.85 kB ??? gzip:   0.77 kB
+dist/assets/dot-offline-CDBA2902.png         5.89 kB
+dist/assets/dot-online-gjSbTzBh.png          6.11 kB
+dist/assets/icon-warning-D9WXqS3t.png       41.05 kB
+dist/assets/index-B5AeiHlM.css             126.21 kB ??? gzip:  20.89 kB
+dist/assets/previewConfigHook-DbJviNQG.js    1.68 kB ??? gzip:   0.76 kB
+dist/assets/HotkeyPages-DkpNb_3a.js          7.08 kB ??? gzip:   2.20 kB
+dist/assets/SettingsPage-D6ed_X-W.js         8.12 kB ??? gzip:   2.21 kB
+dist/assets/CityLayoutPage-A4zn5oBO.js      15.71 kB ??? gzip:   4.96 kB
+dist/assets/zh-CN-itVnuDKE.js               76.68 kB ??? gzip:  24.56 kB
+dist/assets/zh-TW-DVthOXyu.js               76.83 kB ??? gzip:  24.63 kB
+dist/assets/MapRoutePage-CZFU2wmg.js        78.81 kB ??? gzip:  22.01 kB
+dist/assets/AutomationPage-Dlb6hHrR.js      82.78 kB ??? gzip:  20.08 kB
+dist/assets/id-BtyGe98E.js                  83.18 kB ??? gzip:  23.59 kB
+dist/assets/pt-Cul_YYVr.js                  88.30 kB ??? gzip:  25.02 kB
+dist/assets/ko-DE-iQMo2.js                  89.11 kB ??? gzip:  25.28 kB
+dist/assets/ja-jFyUdeaw.js                  92.76 kB ??? gzip:  26.17 kB
+dist/assets/vi-fYT0cU8d.js                  95.47 kB ??? gzip:  25.18 kB
+dist/assets/ru-DLfZC5wd.js                 119.26 kB ??? gzip:  29.33 kB
+dist/assets/SquadsPage-DEBEmiAJ.js         204.17 kB ??? gzip:  62.61 kB
+dist/assets/index-HQJInrHn.js              389.74 kB ??? gzip: 119.19 kB
+??? built in 1.53s
+LWB317_PRODUCTION_UI_BUILD_OK 6d83a69870ad62131d7b21895b485ad2acf126ccc074d0759ea249be1360a685 6633977812436f36c2f9a0d0e887e5224a5e664e6f27441324c5a7a0b7ae3909
+=== canonical frontend package verification ===
+
+> lwbridge-ui-0.3.17@0.3.17-ui-preview check:production-build
+> node scripts/check-production-build.mjs
+
+LWB317_PRODUCTION_UI_PACKAGE_OK 6d83a69870ad62131d7b21895b485ad2acf126ccc074d0759ea249be1360a685 6633977812436f36c2f9a0d0e887e5224a5e664e6f27441324c5a7a0b7ae3909
+PHASE3_OK

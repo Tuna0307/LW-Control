@@ -1,0 +1,35 @@
+﻿{
+  "binaryIdentityApproved": true,
+  "binaryIdentityProblems": [],
+  "compatibilityPolicy": "lwbridge-current-client-critical-anchors-3",
+  "criticalLuaAnchorsOk": true,
+  "internalLuaPackageOk": true,
+  "missingWorldGetBlockContracts": [],
+  "missingWorldPointManagerContracts": [],
+  "observed": {
+    "assemblyCSharpSha256": "bfb740b4570c58bd2bcc7fb83f9b83d8121ce10fb1bf49040e9fb8b08e958b3e",
+    "contentVersion": 22,
+    "criticalEntries": {
+      "DataCenter/Global/LuaEntry.luac": "50f3ae906a8e9898549c4ea740eedc772a88eb2979e165eb35733192d100a137",
+      "Global/ConstDefine.luac": "95e6c733b98dc641c330f36efdef044845033b37ea6703068f7c7ed5fb0048fd",
+      "UI/LWMainUI/Component/UIMainBottom/UIMainChangeScene.luac": "3843dc02869330f060a199b946ef3cd30aa335504914c2f4c60f8a824e871c5b",
+      "Util/CSharpCallLuaInterface.luac": "af1559723afba0fa5773bb815c486f3233fecb3928768abd082a96b51960229e"
+    },
+    "entryCount": 18741,
+    "fileVersion": 3,
+    "gameSha256": "905c98c1f89841f90b492556192ba0642f3d209a873cb8c1f7b3c340aca0733d",
+    "luaEntrySha256": "50f3ae906a8e9898549c4ea740eedc772a88eb2979e165eb35733192d100a137",
+    "metadata": "41320262|3283604722",
+    "packageCrc32": 3283604722,
+    "packageSha256": "248f3aeac712b3f14f86bff37a0c365e467897a2248403837c44c1b774f05b22",
+    "packageSize": 41320262,
+    "version": "22",
+    "versionMarker": 22,
+    "versionMarkerMatchesContentVersion": true,
+    "xluaSha256": "d22d912f031c60f2649fdaf76d359d695511f7a37b93cd637b557f8346569d45"
+  },
+  "ok": true,
+  "purpose": "read-only structural evidence; not binary approval",
+  "worldGetBlockContractOk": true,
+  "worldPointManagerContractOk": true
+}

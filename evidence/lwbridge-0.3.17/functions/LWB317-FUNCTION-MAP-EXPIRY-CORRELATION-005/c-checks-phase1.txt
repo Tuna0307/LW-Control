@@ -1,0 +1,35 @@
+=== C PHASE 1: STATIC / LUA / MANAGED ===
+CMD: C:\Users\chimw\.codex\tmp\lwb317-recovery003-lua\Scripts\python.exe tests\map_provider_decoded_body_oracles.py
+....
+----------------------------------------------------------------------
+Ran 4 tests in 0.125s
+System.Management.Automation.RemoteException
+OK
+lupa=2.8
+EXIT=0
+CMD: C:\Users\chimw\.codex\tmp\lwb317-recovery003-lua\Scripts\python.exe tests\map_blocker_boundaries_lua_checks.py
+....
+----------------------------------------------------------------------
+Ran 4 tests in 0.131s
+System.Management.Automation.RemoteException
+OK
+lupa=2.8 lua=Lua 5.3
+EXIT=0
+CMD: C:\Users\chimw\.codex\tmp\lwb317-recovery003-lua\Scripts\python.exe tests\map_provider_semantics_lua_checks.py
+...
+----------------------------------------------------------------------
+Ran 3 tests in 0.019s
+System.Management.Automation.RemoteException
+OK
+lupa=2.8 lua=Lua 5.3
+EXIT=0
+CMD: python tests\map_expiry_correlation_parser_checks.py
+LWB317_EXPIRY_CORRELATION_PARSER_CHECKS_OK
+EXIT=0
+CMD: python tools\lwbridge317\inspect_map_expiry_correlation.py
+EXIT=0
+TMP_CLEAN=yes
+CMD: python tools\check_current_client_runtime_contract.py
+EXIT=0
+CMD: python tools\lwbridge317\inspect_current_map_compat.py
+EXIT=0

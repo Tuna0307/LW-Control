@@ -1,0 +1,20 @@
+﻿{
+  "ok": true,
+  "workItem": "LWB317-FUNCTION-MAP-EXPIRY-CORRELATION-005",
+  "historicalExpiryEvidencePreserved": true,
+  "expiryCorrection": {
+    "sixRequiredBoundaryCases": "PASS",
+    "acceptedRowsPreserved": true,
+    "numericParsingBroadened": false,
+    "publicPreparationEnabled": false
+  },
+  "managedCorrelation": {
+    "fuidPendingIdentityWhenResponseKeyPresent": true,
+    "connectionResetAllowsReuse": true,
+    "matching": "key-based",
+    "directGhostFutureKeyEmission": "UNKNOWN",
+    "productionCorrelatorAdded": false
+  },
+  "ghostBeforeDispatchFencePreserved": true,
+  "globalAcceptanceUpgraded": false
+}

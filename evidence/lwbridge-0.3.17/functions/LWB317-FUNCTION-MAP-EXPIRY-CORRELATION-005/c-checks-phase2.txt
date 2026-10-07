@@ -1,0 +1,175 @@
+=== C PHASE 2: PACKAGED / MAP / NATIVE ===
+CMD: corrected packaged expiry replay
+[
+  {
+    "name": "positive_after_plunder",
+    "inputJson": "{\"serverId\":91,\"taskKind\":\"ghost\",\"uuid\":\"123\",\"ownerServer\":33,\"completionTime\":1789616000000,\"protectTime\":300,\"plunderAt\":1789616300000,\"stealListCount\":1,\"stealMaxTimes\":3,\"stolenCount\":1,\"maxStealCount\":3,\"taskExpireTime\":1789623200000}",
+    "host": "ACCEPTED",
+    "helper": "ACCEPTED",
+    "helperPreservedRawRow": true
+  },
+  {
+    "name": "zero",
+    "inputJson": "{\"serverId\":91,\"taskKind\":\"ghost\",\"uuid\":\"123\",\"ownerServer\":33,\"completionTime\":1789616000000,\"protectTime\":300,\"plunderAt\":1789616300000,\"stealListCount\":1,\"stealMaxTimes\":3,\"stolenCount\":1,\"maxStealCount\":3,\"taskExpireTime\":0}",
+    "host": "ACCEPTED",
+    "helper": "ACCEPTED",
+    "helperPreservedRawRow": true
+  },
+  {
+    "name": "negative",
+    "inputJson": "{\"serverId\":91,\"taskKind\":\"ghost\",\"uuid\":\"123\",\"ownerServer\":33,\"completionTime\":1789616000000,\"protectTime\":300,\"plunderAt\":1789616300000,\"stealListCount\":1,\"stealMaxTimes\":3,\"stolenCount\":1,\"maxStealCount\":3,\"taskExpireTime\":-1}",
+    "host": "ACCEPTED",
+    "helper": "ACCEPTED",
+    "helperPreservedRawRow": true
+  },
+  {
+    "name": "missing",
+    "inputJson": "{\"serverId\":91,\"taskKind\":\"ghost\",\"uuid\":\"123\",\"ownerServer\":33,\"completionTime\":1789616000000,\"protectTime\":300,\"plunderAt\":1789616300000,\"stealListCount\":1,\"stealMaxTimes\":3,\"stolenCount\":1,\"maxStealCount\":3}",
+    "host": "ACCEPTED",
+    "helper": "ACCEPTED",
+    "helperPreservedRawRow": true
+  },
+  {
+    "name": "positive_equal_plunder",
+    "inputJson": "{\"serverId\":91,\"taskKind\":\"ghost\",\"uuid\":\"123\",\"ownerServer\":33,\"completionTime\":1789616000000,\"protectTime\":300,\"plunderAt\":1789616300000,\"stealListCount\":1,\"stealMaxTimes\":3,\"stolenCount\":1,\"maxStealCount\":3,\"taskExpireTime\":1789616300000}",
+    "host": "REJECTED",
+    "hostError": "LWBridge.Map317.BridgeCommandException",
+    "helper": "REJECTED",
+    "helperError": "System.IO.InvalidDataException"
+  },
+  {
+    "name": "positive_before_plunder",
+    "inputJson": "{\"serverId\":91,\"taskKind\":\"ghost\",\"uuid\":\"123\",\"ownerServer\":33,\"completionTime\":1789616000000,\"protectTime\":300,\"plunderAt\":1789616300000,\"stealListCount\":1,\"stealMaxTimes\":3,\"stolenCount\":1,\"maxStealCount\":3,\"taskExpireTime\":1789616299999}",
+    "host": "REJECTED",
+    "hostError": "LWBridge.Map317.BridgeCommandException",
+    "helper": "REJECTED",
+    "helperError": "System.IO.InvalidDataException"
+  },
+  {
+    "name": "numeric_string_after_plunder",
+    "inputJson": "{\"serverId\":91,\"taskKind\":\"ghost\",\"uuid\":\"123\",\"ownerServer\":33,\"completionTime\":1789616000000,\"protectTime\":300,\"plunderAt\":1789616300000,\"stealListCount\":1,\"stealMaxTimes\":3,\"stolenCount\":1,\"maxStealCount\":3,\"taskExpireTime\":\"1789623200000\"}",
+    "host": "ACCEPTED",
+    "helper": "REJECTED",
+    "helperError": "System.InvalidOperationException"
+  },
+  {
+    "name": "malformed_string_reader_rejects_string_kind",
+    "inputJson": "{\"serverId\":91,\"taskKind\":\"ghost\",\"uuid\":\"123\",\"ownerServer\":33,\"completionTime\":1789616000000,\"protectTime\":300,\"plunderAt\":1789616300000,\"stealListCount\":1,\"stealMaxTimes\":3,\"stolenCount\":1,\"maxStealCount\":3,\"taskExpireTime\":\"not-a-number\"}",
+    "host": "ACCEPTED",
+    "helper": "REJECTED",
+    "helperError": "System.InvalidOperationException"
+  }
+]
+CMD: dotnet tests\LWBridge.Desktop.Checks\bin\Release\net10.0-windows10.0.17763.0\LWBridge.Desktop.Checks.dll (default/module initializer suite)
+{
+  "ok": true,
+  "deterministic": {
+    "profileRouting": true,
+    "persistence": true,
+    "requestLifetime": true,
+    "mapPersistence": true,
+    "mapContract": true,
+    "bridgeControlPipeContract": true,
+    "productionUiSelection": true
+  },
+  "installedDiagnostic": {
+    "required": false,
+    "valid": true,
+    "source": "diagnostic",
+    "path": "C:\\Users\\chimw\\AppData\\Local\\FunFly\\Last War-Survival Game",
+    "error": null,
+    "is64Bit": true,
+    "gameMachine": "0x8664/Amd64/PE32\u002B",
+    "xluaMachine": "0x8664/Amd64/PE32\u002B"
+  },
+  "process": {
+    "gameRunning": false,
+    "launcherRunning": false,
+    "gamePid": null,
+    "launcherPid": null
+  },
+  "failures": []
+}
+CMD: dotnet tests\LWBridge.Desktop.Checks\bin\Release\net10.0-windows10.0.17763.0\LWBridge.Desktop.Checks.dll --map317-native-boundary-check
+{"ok":true,"check":"map317-native-boundary"}
+CMD: dotnet tests\LWBridge.Desktop.Checks\bin\Release\net10.0-windows10.0.17763.0\LWBridge.Desktop.Checks.dll --map317-plunder-worker-boundary-check
+{"ok":true,"check":"map317-plunder-worker-boundary"}
+CMD: dotnet tests\LWBridge.Desktop.Checks\bin\Release\net10.0-windows10.0.17763.0\LWBridge.Desktop.Checks.dll --map-campaign-canonical-check
+{
+  "ok": true,
+  "check": "map-campaign-canonical",
+  "mapData": {
+    "profileIsolation": true,
+    "stagedEightKindPublish": true,
+    "persistedReopen": true,
+    "queryFilterSortPage": true,
+    "options": true,
+    "playerMarks": true,
+    "freshProcessServerRehydration": true,
+    "freshProcessClear": true,
+    "destructiveClearFreshAuthorization": true
+  },
+  "cityExport": {
+    "actualXlsxPath": true,
+    "zipPartsVerified": true,
+    "representativeValuesVerified": true,
+    "multiPage205Rows": true,
+    "unicodeAndLargeUid": true,
+    "missingFields": true,
+    "secondServerIsolation": true,
+    "emptyExport": true,
+    "writeFailure": true,
+    "dialogCancellationExecuted": false,
+    "dialogCancellationGap": "native save-dialog cancellation is owned above Map317 MapExporter"
+  },
+  "plunder": {
+    "scheduledDuplicateAdmission": true,
+    "runningDuplicateRejected": true,
+    "durableRestart": true,
+    "restartReconciled": true,
+    "retry": true,
+    "cancel": true,
+    "clear": true,
+    "providerMode": "inert-local",
+    "externalProviderCalls": 0
+  },
+  "treasure": {
+    "cachedStateOverlay": true,
+    "seasonSupplyList": true,
+    "claimOrStatusExecuted": false
+  },
+  "blockers": {
+    "treasureClaimStatus": "requires the protected/current-client action provider and is not executed here",
+    "ghostExecution": "Ghost plunder preparation requires IMapActionProvider.PrepareGhostPlunderTasksAsync and is not executed here",
+    "nativeDialogCancel": "save-dialog cancellation belongs to the Desktop window host above Map317 exporter"
+  }
+}
+CMD: dotnet tests\LWBridge.Desktop.Checks\bin\Release\net10.0-windows10.0.17763.0\LWBridge.Desktop.Checks.dll --profile-runtime-owner-check
+{"ok":true,"check":"profile-runtime-owner"}
+CMD: dotnet tests\LWBridge.Desktop.Checks\bin\Release\net10.0-windows10.0.17763.0\LWBridge.Desktop.Checks.dll --overview-bridge-normal-composition-check
+{
+  "ok": true,
+  "finding": "LWB-R7-123",
+  "normalComposition": {
+    "hostConstructedBeforeListener": true,
+    "expectedClientImage": "\u003CselectedGameRoot\u003E\\Game\\LastWar.exe",
+    "listenerBuildId": "lwbridge-overview-bridge-1",
+    "listenerStartsBeforeLifecycleConstruction": true,
+    "launchBindingEnabled": true,
+    "realLifecycleRechecksListenerBeforeRegistration": true,
+    "registrationBeforeHelperLaunch": true,
+    "testHookLifecycleStartsNativeListener": false,
+    "sameIdentityListenerStartIsIdempotent": true,
+    "differentIdentityListenerStartRejected": true,
+    "applicationOwnsShutdown": true
+  },
+  "boundary": {
+    "getStatusPendingExposed": true,
+    "exactGetStatusCallEnabled": true,
+    "genericCallLuaEnabled": false,
+    "successfulStopUnregisterRecovered": true
+  }
+}
+CMD: standalone Map checks
+LWBridge.Map-0.3.17 scan-state checks passed.
+LWB317_MAP_CHECKS_OK

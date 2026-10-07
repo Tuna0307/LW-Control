@@ -1,31 +1,60 @@
 {
   "schema": 1,
   "workItem": "LWB317-FUNCTION-MAP-EXPIRY-CORRELATION-005",
-  "status": "IN_PROGRESS",
+  "status": "AWAITING_REVIEW",
   "assignmentCheckpoint": "e18d8f3fdbad0a23804c783e5497ad450d74d49c",
-  "latestPreservedLeadDescendant": "fe0f5d2735d06a83f52c2033bec02de4300b26d0",
+  "preservedLeadDescendant": "fe0f5d2735d06a83f52c2033bec02de4300b26d0",
   "checkpoints": [
     {
       "id": "A",
       "state": "COMPLETE",
+      "commit": "9da977db8ad83c716c207a92515cc1db058e190c",
       "disposition": "LR-GHOST-EXPIRY-005 corrected and packaged-proof matched"
     },
     {
       "id": "B",
       "state": "COMPLETE",
-      "disposition": "PARTIAL_SOURCE_PROVEN_MANAGED_CORRELATION; direct Ghost future-key emission remains UNKNOWN"
+      "commit": "70348efb38ec107b57b698c2166787c5b8c4c82e",
+      "disposition": "PARTIAL_SOURCE_PROVEN_MANAGED_CORRELATION; direct Ghost future-field emission remains UNKNOWN"
     },
     {
       "id": "C",
-      "state": "ACTIVE"
+      "state": "COMPLETE",
+      "disposition": "verification/build/docs complete; final lead review pending"
     }
   ],
   "product": {
     "expiryDefect": "CORRECTED_OFFLINE",
     "publicGhostPreparation": "GAME_PROVIDER_UNAVAILABLE",
     "ghostExecution": "FENCED",
-    "managedFutureCorrelation": "SOURCE_PROVEN_WHEN_RESPONSE_KEY_PRESENT",
-    "directGhostFutureKeyEmission": "UNKNOWN"
+    "ghostBeforeDispatchGuard": "PRESERVED",
+    "managedFutureCorrelation": "SOURCE_PROVEN_WHEN_RESPONSE_FUTURE_FIELD_PRESENT",
+    "directGhostFutureFieldEmission": "UNKNOWN",
+    "productionCorrelatorAdded": false,
+    "realGhostTransportAdded": false
   },
-  "liveSharedDesktop": "ON_HOLD_BY_OWNER"
+  "checks": {
+    "correctedPackagedExpiry": "PASS",
+    "desktopDefault": "PASS",
+    "map317NativeBoundary": "PASS",
+    "map317PlunderWorkerBoundary": "PASS",
+    "mapCampaignCanonical": "PASS",
+    "profileRuntimeOwner": "PASS",
+    "overviewNormalComposition": "PASS",
+    "standaloneMap": "PASS",
+    "decodedBodyOracles": "4/4 PASS",
+    "blockerBodyChecks": "4/4 PASS",
+    "productionLuaSafety": "3/3 PASS",
+    "parserCorrelation": "PASS",
+    "currentRuntimeContract": "PASS",
+    "currentMapCompatibility": "PASS",
+    "final005Validator": "PASS",
+    "desktopReleaseBuild": "0 warnings / 0 errors",
+    "desktopChecksReleaseBuild": "0 warnings / 0 errors",
+    "frontendCheck": "PASS",
+    "productionUiBuild": "PASS",
+    "productionUiPackage": "PASS"
+  },
+  "liveSharedDesktop": "ON_HOLD_BY_OWNER",
+  "finalAcceptance": "PROJECT_LEAD"
 }

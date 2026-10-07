@@ -1,15 +1,15 @@
 # Continuation — LWB317-FUNCTION-MAP-EXPIRY-CORRELATION-005
 
-Checkpoints A and B are complete. Continue C only.
+State: **AWAITING_REVIEW**.
 
-A correction checkpoint: `9da977db8ad83c716c207a92515cc1db058e190c`.
-B source conclusion: managed fuid is a real pending-request key when present in a
-response; Connect/reset permits reuse and clears pending state; the same SFSObject
-is converted to Lua without dropping fields. Direct Ghost future-key emission
-remains UNKNOWN because no static producer/schema proves `ghost.recon.steal`
-carries it.
+A is corrected and source/packaged-proof green. B establishes managed fuid as a
+keyed pending-request identity when the response contains the future field, but
+the direct ghost.recon.steal response producer/schema still does not prove that
+field is emitted. C verification/build/frontend gates are green.
 
-Do not add Ghost transport/provider enablement. Run the required C checks and
-Release/frontend/package gates, preserve historical audit negatives, update
-current masters/ledger/matrix/handoff/work-item and dated worker review, then
-deliver AWAITING_REVIEW. Live/shared-desktop work remains ON_HOLD_BY_OWNER.
+Next action is project-lead review. Do not enable Ghost preparation/execution or
+add a correlator from this evidence alone. The remaining correlation dependency
+can be settled by a static direct response schema/serializer/producer showing the
+future field, or later by an explicitly owner-authorized raw-response witness.
+
+Live/shared-desktop work remains ON_HOLD_BY_OWNER.
