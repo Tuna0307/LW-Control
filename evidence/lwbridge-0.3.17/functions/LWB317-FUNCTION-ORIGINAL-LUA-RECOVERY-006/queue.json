@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "workItem": "LWB317-FUNCTION-ORIGINAL-LUA-RECOVERY-006",
-  "status": "IN_PROGRESS",
+  "status": "AWAITING_REVIEW",
   "startingCheckpoint": "692fd40de1639261ca2c7dda7c7884c527786133",
   "liveSharedDesktop": "ON_HOLD_BY_OWNER",
   "checkpoints": [
@@ -20,12 +20,21 @@
     {
       "id": "C",
       "state": "COMPLETE_WITH_INPUT_BLOCKER",
+      "commit": "00101ba1a6de25f15944a792d64ebeb3ddea4c76",
       "disposition": "exact encrypted resources carved/hash-verified; 8 inert parser tests pass; original decrypt not attempted because envelope absent and owner CNG private key not accessed"
     },
     {
       "id": "D",
-      "state": "ACTIVE"
+      "state": "COMPLETE_WITH_INPUT_BLOCKER",
+      "commit": "247c40a17fb36ddcbd4c8a56ec5279dc92ab8092",
+      "disposition": "all host-visible semantics recovered and clone differences classified; actual three controller bodies remain unavailable without legitimate decrypted module-table plaintext"
     }
   ],
-  "productChanged": false
+  "recoveredOriginalControllerBodies": [],
+  "exactRemainingInputs": [
+    "valid signed package-key.envelope matching 0.3.17 context",
+    "matching persisted P-256 CNG private-key state"
+  ],
+  "productChanged": false,
+  "liveProvenChanged": false
 }

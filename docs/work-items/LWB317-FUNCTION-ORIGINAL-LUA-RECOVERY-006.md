@@ -1,6 +1,6 @@
 # LWB317-FUNCTION-ORIGINAL-LUA-RECOVERY-006
 
-Status: **ASSIGNED FOR MANUAL OWNER RELAY — AFTER 005 LEAD ACCEPTANCE**
+Status: **AWAITING_REVIEW**
 Date: 2026-10-07
 Branch: `research/offline-controller`.
 005 delivery `8f6730ef5e46fc602c6331d21e25d206b2e95ca4` is lead-accepted for
