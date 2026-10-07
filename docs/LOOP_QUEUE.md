@@ -11,6 +11,7 @@ The current offline owner-relayed work item takes precedence over old queue entr
 
 | Campaign / work item | State | File | Notes |
 |---|---|---|---|
+| LWB317-FUNCTION-ORIGINAL-LUA-RECOVERY-006 | QUEUED AFTER 005 REVIEW | `docs/work-items/LWB317-FUNCTION-ORIGINAL-LUA-RECOVERY-006.md` | Exact original package location/extraction/decryption and controller recovery where supplied inputs permit; do not interrupt active 005 |
 | LWB317-FUNCTION-MAP-EXPIRY-CORRELATION-005 | ASSIGNED FOR OWNER RELAY | `docs/work-items/LWB317-FUNCTION-MAP-EXPIRY-CORRELATION-005.md` | Fix LR-GHOST-EXPIRY-005; actual managed FutureManager/send/receive recovery; no provider enablement |
 | LWB317-FUNCTION-MAP-BLOCKER-BOUNDARIES-004 | ACCEPTED OFFLINE AUDIT | `docs/work-items/LWB317-FUNCTION-MAP-BLOCKER-BOUNDARIES-004.md` | Fresh A/B/C and 11 Lua cases pass; prior overbroad blocker rationales narrowed; real correlation remains UNKNOWN |
 | LWB317-FUNCTION-MAP-PROVIDER-SEMANTICS-003 | CHANGES_REQUIRED | `docs/work-items/LWB317-FUNCTION-MAP-PROVIDER-SEMANTICS-003.md` | LR-GHOST-EXPIRY-005 reproduced through actual packaged helper; correction assigned separately; semantic toolchain/safety proof credited |

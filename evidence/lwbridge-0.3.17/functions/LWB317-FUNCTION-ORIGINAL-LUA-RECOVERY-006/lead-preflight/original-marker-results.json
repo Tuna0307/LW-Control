@@ -1,0 +1,61 @@
+{
+  "referencePath": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW\\lwbridge-0.3.17.exe",
+  "referenceSha256": "4e9c3113dedfd7e1a752404c6936aab304e67d7ffdb0952a5003c2ec948d6783",
+  "scope": "Static literal file offsets only; offsets are not RVAs",
+  "markers": {
+    "bridge-scripts.dat": {
+      "ascii": [
+        "0xa490fa",
+        "0xabc0bc",
+        "0xb532bc"
+      ],
+      "utf-16-le": [
+        "0xabae35",
+        "0xb52035"
+      ]
+    },
+    "package-key.envelope": {
+      "ascii": [
+        "0xd545e8"
+      ],
+      "utf-16-le": [
+        "0xabb32b",
+        "0xb5252b"
+      ]
+    },
+    "LWBP2|": {
+      "ascii": [
+        "0xabd7fb",
+        "0xb549fb"
+      ],
+      "utf-16-le": []
+    },
+    "LWKE1": {
+      "ascii": [
+        "0xabd607",
+        "0xb54807",
+        "0xd54528"
+      ],
+      "utf-16-le": []
+    },
+    "getTreasureClaimStatus": {
+      "ascii": [
+        "0x82a048"
+      ],
+      "utf-16-le": []
+    },
+    "claimTreasures": {
+      "ascii": [
+        "0x829d1f"
+      ],
+      "utf-16-le": []
+    },
+    "prepareGhostPlunderTasks": {
+      "ascii": [
+        "0x82d2b0"
+      ],
+      "utf-16-le": []
+    }
+  },
+  "limits": "References do not prove a package is embedded, that usable key material exists, or that its format matches 0.3.1. No extraction or decryption performed."
+}
