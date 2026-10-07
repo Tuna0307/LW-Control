@@ -260,6 +260,26 @@ def write_kv_atomic(path: Path, values: dict[str, object], *, before_mutation=No
             time.sleep(0.02)
 
 
+def _delete_runtime_identity(path: Path, *, before_mutation=None) -> bool:
+    """Delete exactly the opened runtime-file identity without a pathname race.
+
+    This primitive has no ownership policy by itself. Callers may use it only
+    after independently proving the runtime is abandoned.
+    """
+    api = _runtime_api()
+    try:
+        _, handle, stream, _ = _open_runtime_identity(path, delete=True)
+        with stream:
+            if before_mutation is not None:
+                before_mutation(path, "delete")
+            disposition = ctypes.c_ubyte(1)  # FILE_DISPOSITION_INFO BOOLEAN DeleteFile
+            if not api.SetFileInformationByHandle(handle, 4, ctypes.byref(disposition), 1):
+                raise ctypes.WinError(ctypes.get_last_error())
+            return True
+    except OSError:
+        return False
+
+
 def _delete_owned_runtime(path: Path, session_id: str, challenge: str, *,
                           json_file=False, before_mutation=None) -> bool:
     api = _runtime_api()
@@ -399,6 +419,20 @@ def require_no_fresh_foreign_lease(
         raise OverviewBridgeError(
             "another Overview session owns the fresh shared bridge lease"
         )
+
+
+def clear_abandoned_runtime(p: dict[str, Path]) -> None:
+    """Remove exact stale session metadata only after abandonment is proven.
+
+    The shared operation lease serializes helpers. A selected game process or a
+    fresh foreign bridge lease makes the runtime non-abandoned and fails closed.
+    This does not touch cancellation markers or unrelated runtime/evidence files.
+    """
+    lr.require_no_selected_game_process(p)
+    require_no_fresh_foreign_lease(p, "__abandoned__", "__abandoned__")
+    p["runtime"].mkdir(parents=True, exist_ok=True)
+    for name in ("control.txt", "lease.txt", "ready.json", "heartbeat.json"):
+        _delete_runtime_identity(p["runtime"] / name)
 
 
 def clear_stale_runtime(
@@ -802,6 +836,7 @@ def run_start(
         # still owns the script files. Recovery is safe only after no selected game exists.
         lr.require_no_selected_game_process(p)
         interrupted_recovery = lr.recover_pending(p)
+        clear_abandoned_runtime(p)
         current = lr.verify_current(p)
         backup = lr.make_backup(p)
         recovery_state = lr.arm_recovery(p, backup, session_id)

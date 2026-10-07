@@ -1,0 +1,10 @@
+{
+  "bridgeVersion": "lwbridge-overview-bridge-1",
+  "error": "refusing to overwrite foreign or malformed runtime metadata",
+  "errorType": "OverviewBridgeError",
+  "mode": "overview_start_error",
+  "ok": false,
+  "profileId": "lwb317-live-pilot-001",
+  "recordedAtUtc": "2026-10-07T15:41:46Z",
+  "sessionId": "8bbc7bf2677642dc9b8d679313ddcff8"
+}

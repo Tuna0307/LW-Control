@@ -100,6 +100,47 @@ class RuntimeOwnershipChecks(unittest.TestCase):
         self.helper.clear_stale_runtime(p, "A", "nonce-A")
         self.assertEqual(self.path.read_bytes(), self.foreign)
 
+    def test_abandoned_runtime_cleanup_requires_no_game_and_no_fresh_lease(self):
+        p = {"runtime": self.root, "game": self.root / "LastWar.exe"}
+        control = self.root / "control.txt"
+        ready = self.root / "ready.json"
+        heartbeat = self.root / "heartbeat.json"
+        cancel = self.root / "cancel-start.txt"
+
+        control.write_bytes(self.foreign)
+        self.path.write_bytes(
+            b"schema=1\nsessionId=B\nchallenge=nonce-B\nupdatedAt=1800000000\n"
+        )
+        ready.write_bytes(b'{"sessionId":"B","challenge":"nonce-B"}')
+        heartbeat.write_bytes(b"malformed")
+        cancel.write_bytes(self.foreign)
+
+        with patch.object(
+            self.helper.lr, "require_no_selected_game_process", create=True
+        ) as no_game, patch.object(self.helper.time, "time", return_value=1800000010):
+            self.helper.clear_abandoned_runtime(p)
+        no_game.assert_called_once_with(p)
+        self.assertFalse(control.exists())
+        self.assertFalse(self.path.exists())
+        self.assertFalse(ready.exists())
+        self.assertFalse(heartbeat.exists())
+        self.assertTrue(cancel.exists(), "abandoned cleanup must not consume cancellation state")
+
+        control.write_bytes(self.foreign)
+        self.path.write_bytes(
+            b"schema=1\nsessionId=B\nchallenge=nonce-B\nupdatedAt=1800000000\n"
+        )
+        with patch.object(
+            self.helper.lr, "require_no_selected_game_process", create=True
+        ), patch.object(self.helper.time, "time", return_value=1800000000):
+            with self.assertRaisesRegex(
+                self.helper.OverviewBridgeError,
+                "fresh shared bridge lease",
+            ):
+                self.helper.clear_abandoned_runtime(p)
+        self.assertTrue(control.exists())
+        self.assertTrue(self.path.exists())
+
     def test_no_non_windows_mutation_fallback(self):
         with patch.object(self.helper.os, "name", "posix"):
             with self.assertRaises(self.helper.OverviewBridgeError):

@@ -1,0 +1,22 @@
+{
+  "bridgeVersion": "lwbridge-overview-bridge-1",
+  "launcherCleanup": [
+    {
+      "method": "Process.CloseMainWindow",
+      "parentPid": 25596,
+      "path": "C:\\Users\\chimw\\AppData\\Local\\FunFly\\Last War-Survival Game\\LastWarLauncher.exe",
+      "pid": 27480,
+      "processExited": true,
+      "startedAtUtc": "2026-10-07T15:41:38.3351077Z"
+    }
+  ],
+  "launcherCleanupError": null,
+  "launcherRootPid": 27480,
+  "mode": "overview_start_cleanup",
+  "ok": true,
+  "ownedGamePid": 35600,
+  "profileId": "lwb317-live-pilot-001",
+  "recordedAtUtc": "2026-10-07T15:41:52Z",
+  "recoveryCleared": true,
+  "sessionId": "8bbc7bf2677642dc9b8d679313ddcff8"
+}
