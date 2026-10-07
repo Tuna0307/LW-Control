@@ -4101,8 +4101,8 @@ internal sealed class LWBridgeWindow : Form
         await WaitForDomAsync(
             "document.querySelectorAll('.map-tabs .map-tab-count')[0]?.textContent?.trim() === '1' && document.querySelector('.map-table--city tbody tr')?.innerText?.includes('Campaign City B')",
             "profile B Map owner after delayed A release");
-        if (activeProfileConfig.Snapshot.AutoLaunchGame != true)
-            throw new InvalidDataException("Profile B incorrectly inherited profile A Auto Launch edit.");
+        if (activeProfileConfig.Snapshot.AutoLaunchGame)
+            throw new InvalidDataException("Profile B lost its confirmed native false gate after delayed profile A Map release.");
         JsonElement profileBAfterOldA = await ReadDomAsync("""
             (() => ({
               activeProfile: [...document.querySelectorAll('.profile-compact-item')].find(button => button.classList.contains('active'))?.querySelector('strong')?.textContent?.trim() || '',
