@@ -1,0 +1,187 @@
+{
+  "schema": 1,
+  "workItem": "LWB317-FUNCTION-HOME-MAP-DEEP-RECOVERY-002",
+  "status": "IN_PROGRESS",
+  "baselineHead": "6bc72c0493ac0dffa11432713840f0de96800647",
+  "referenceExe": {
+    "path": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW\\lwbridge-0.3.17.exe",
+    "sha256": "4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783"
+  },
+  "ownerHold": "LIVE_AND_SHARED_DESKTOP_ON_HOLD",
+  "milestones": [
+    {
+      "id": "A",
+      "state": "COMPLETE",
+      "goal": "Freeze remaining gaps and provenance",
+      "dependencies": [],
+      "owned": [
+        "campaign evidence"
+      ],
+      "acceptance": [
+        "queue/provenance matrix",
+        "exact source identities",
+        "historical 0.3.1 separated"
+      ]
+    },
+    {
+      "id": "B",
+      "state": "ACTIVE",
+      "goal": "Recover exact 0.3.17 scan/acquisition/backend contracts for all eight kinds",
+      "dependencies": [
+        "A"
+      ],
+      "owned": [
+        "Map317 recovery evidence",
+        "source-backed Map corrections if demonstrated"
+      ],
+      "acceptance": [
+        "eight-kind producer->store->query matrix",
+        "publication/cancel/failure contract",
+        "no inferred protected semantics"
+      ]
+    },
+    {
+      "id": "C",
+      "state": "READY",
+      "goal": "Recover current-v22 producer mappings and correct projection/ingestion gaps",
+      "dependencies": [
+        "A"
+      ],
+      "owned": [
+        "CurrentClient Map projection/ingestion",
+        "focused tests"
+      ],
+      "acceptance": [
+        "installed hashes",
+        "current model/message locators",
+        "controlled conversion/store/query proof"
+      ]
+    },
+    {
+      "id": "D",
+      "state": "READY",
+      "goal": "Recover Treasure claim/status and Ghost preparation adapters",
+      "dependencies": [
+        "A"
+      ],
+      "owned": [
+        "CurrentClientMap317ActionProvider and source only if both sides proven",
+        "focused inert tests"
+      ],
+      "acceptance": [
+        "implement only source-proven adapter paths",
+        "otherwise exact blocker"
+      ]
+    },
+    {
+      "id": "E",
+      "state": "READY",
+      "goal": "Reconcile scheduled Dispatch/Ghost/Truck jobs",
+      "dependencies": [
+        "A"
+      ],
+      "owned": [
+        "existing scheduler/store only",
+        "focused tests"
+      ],
+      "acceptance": [
+        "0.3.17 status/result/retry/cancel/clear/history parity",
+        "controlled due-worker persistence proof"
+      ]
+    },
+    {
+      "id": "F",
+      "state": "READY",
+      "goal": "Integrate affected Home/profile lifetime behavior",
+      "dependencies": [
+        "A"
+      ],
+      "owned": [
+        "Home/profile sources only if concrete source-backed difference"
+      ],
+      "acceptance": [
+        "A/B/A delayed/rejected/restart/shutdown proof",
+        "accepted R3 semantics preserved"
+      ]
+    },
+    {
+      "id": "G",
+      "state": "READY",
+      "goal": "Headless integration and adversarial inverse review",
+      "dependencies": [
+        "B",
+        "C",
+        "D",
+        "E",
+        "F"
+      ],
+      "owned": [
+        "actual command/services/storage tests",
+        "review evidence"
+      ],
+      "acceptance": [
+        "distinguishing inverses for fixes",
+        "full production diff self-review",
+        "no live checks"
+      ]
+    },
+    {
+      "id": "H",
+      "state": "READY",
+      "goal": "Verify, update masters, push and return AWAITING_REVIEW",
+      "dependencies": [
+        "G"
+      ],
+      "owned": [
+        "docs/evidence/status"
+      ],
+      "acceptance": [
+        "applicable Release/frontend/package regressions after product changes",
+        "cleanup",
+        "direct remote SHA"
+      ]
+    }
+  ],
+  "explicitBranches": [
+    {
+      "id": "D-TREASURE-STATUS",
+      "state": "BLOCKER_CANDIDATE_CONTINUE_STATIC_RECOVERY",
+      "baseline": "provider unavailable",
+      "source": "exact 0.3.17 host contract exists; prior v22 sample found no high-level sender/result chain"
+    },
+    {
+      "id": "D-TREASURE-CLAIM",
+      "state": "BLOCKER_CANDIDATE_CONTINUE_STATIC_RECOVERY",
+      "baseline": "provider unavailable",
+      "source": "exact 0.3.17 host envelope exists; protected scope/lucky/scout executor internals previously unproved"
+    },
+    {
+      "id": "D-GHOST-PREP",
+      "state": "BLOCKER_CANDIDATE_CONTINUE_STATIC_RECOVERY",
+      "baseline": "provider unavailable",
+      "source": "exact 0.3.17 prepareGhostPlunderTasks boundary exists; prior v22 sample found no exact preparer"
+    },
+    {
+      "id": "LIVE-XLUA",
+      "state": "BLOCKED_BY_OWNER_HOLD",
+      "baseline": "UNKNOWN",
+      "source": "accepted OFFLINE-HOST-CONTRACT-001"
+    },
+    {
+      "id": "LIVE-POSITIVE-POPULATIONS",
+      "state": "BLOCKED_BY_OWNER_HOLD",
+      "baseline": "UNKNOWN",
+      "source": "positive current populations require future owned live witness"
+    }
+  ],
+  "checkpointA": {
+    "state": "COMPLETE",
+    "artifacts": [
+      "a-source-hashes.json",
+      "a-current-v22-lua-action-search.json",
+      "a-current-v22-lower-level-action-hits.json",
+      "a-provenance-matrix.md"
+    ],
+    "productChanges": false
+  }
+}

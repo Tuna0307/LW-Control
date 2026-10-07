@@ -1,0 +1,943 @@
+{
+  "contentVersion": 22,
+  "packageSha256": "248f3aeac712b3f14f86bff37a0c365e467897a2248403837c44c1b774f05b22",
+  "hits": {
+    "detect.event.claim.treasure": [
+      "Net/Config/MsgDefines.luac"
+    ],
+    "LaunchScout": [
+      "DataCenter/Mastery/MasteryManager.luac",
+      "DataCenter/SeasonManager/Activity/SeasonGreenManager.luac",
+      "Scene/CityDomeProtectEffect/BuildingGetRewardBubbleEffect.luac",
+      "Scene/CityDomeProtectEffect/BuildingRewardBubbleEffect.luac",
+      "Scene/CityDomeProtectEffect/DesertHealSoldierEffect.luac",
+      "Scene/WorldMarchTileUI/WorldMarchTileUIManager.luac",
+      "UI/DsbDuelBattlefield/BuildState/UIBFDsbDuelBattleBuildStateView.luac",
+      "UI/LWMainUI/Component/UIMainBottom/UIMainHeroTrialMissileEnergyComponent.luac",
+      "UI/LWUIZoneMobilization/LWUIZoneMobilizationDonate/View/LWUIMobilizationDonateView.luac",
+      "UI/LWWorld/UIWorldLLCanonPoint/Component/UIWorldLLCanonPointBtn.luac",
+      "UI/LWWorld/UIWorldLLCityPoint/Component/UIWorldLLCityPointBtn.luac",
+      "UI/LWWorld/UIWorldOutpostCanonPoint/Component/UIWorldOutpostCanonPointBtn.luac",
+      "UI/LWWorld/UIWorldOutpostCityPoint/Component/UIWorldOutpostCityPointBtn.luac",
+      "UI/LWWorld/UIWorldSiegePoint/Component/UIWorldSiegePointBtn.luac",
+      "UI/LWWorld/UIWorldSiegePointSeason/Component/UIWorldSiegePointBtn.luac",
+      "UI/UIActivityCenterTable/Component/DesertBattle/BuildStatus/View/UIDesertBuildStatusView.luac",
+      "UI/UIWorldPoint/Component/UIWorldPointBtn.luac",
+      "Util/MarchUtil.luac"
+    ],
+    "SCOUT_SUPPLIES": [
+      "Global/EnumType.luac",
+      "UI/UIWorldPoint/Component/UIWorldPointBtn.luac",
+      "Util/MarchUtil.luac"
+    ],
+    "StartMarch": [
+      "DataCenter/ActivityListData/ActDispatchTaskFakeMarchData.luac",
+      "DataCenter/ActivityListData/ActDispatchTaskFakeMarchManager.luac",
+      "DataCenter/BuildBubbleManager/BuildBubbleManager.luac",
+      "DataCenter/BuildBubbleManager/WorldBuildBubbleManager.luac",
+      "DataCenter/CrystalBoss/CrystalBossDataManager.luac",
+      "DataCenter/Mastery/FakeMopUpMarchData.luac",
+      "DataCenter/Mastery/FakeMopUpMarchManager.luac",
+      "DataCenter/Mastery/MasteryManager.luac",
+      "DataCenter/RadarCenterDataManager/FakeCollectGarbageMarchData.luac",
+      "DataCenter/RadarCenterDataManager/FakeCollectGarbageMarchManager.luac",
+      "DataCenter/RadarCenterDataManager/FakeHelperMarchData.luac",
+      "DataCenter/RadarCenterDataManager/FakeHelperMarchManager.luac",
+      "DataCenter/RadarCenterDataManager/FakeParkourRescueMarchData.luac",
+      "DataCenter/RadarCenterDataManager/FakeParkourRescueMarchManager.luac",
+      "DataCenter/RadarCenterDataManager/FakeRescueMarchData.luac",
+      "DataCenter/RadarCenterDataManager/FakeRescueMarchManager.luac",
+      "DataCenter/RadarCenterDataManager/FakeScoutMarchData.luac",
+      "DataCenter/RadarCenterDataManager/FakeScoutMarchManager.luac",
+      "DataCenter/SeasonCallback/AddSoldiersMarchData.luac",
+      "DataCenter/SeasonManager/SeasonDesertManager.luac",
+      "DataCenter/WorldPointWaitOpen/WorldPointWaitOpenManager.luac",
+      "Framework/UI/Message/EventId.luac",
+      "Net/Msgs/GolloesTradeCheckTargetMessage.luac",
+      "Scene/BaseBuildEffect/BaseRallyBubbleEffect.luac",
+      "Scene/WorldMarchTileUI/WorldMarchTileUIManager.luac",
+      "Scene/WorldTroopEffect/WorldTroopEffectManager.luac",
+      "UI/DsbDuelBattlefield/BuildState/UIBFDsbDuelBattleBuildStateItem.luac",
+      "UI/DsbDuelBattlefield/BuildState/UIBFDsbDuelBattleBuildStateView.luac",
+      "UI/LWWorld/UIWorldLLCanonPoint/Component/UIWorldLLCanonPointBtn.luac",
+      "UI/LWWorld/UIWorldLLCityPoint/Component/UIWorldLLCityPointBtn.luac",
+      "UI/LWWorld/UIWorldOutpostCanonPoint/Component/UIWorldOutpostCanonPointBtn.luac",
+      "UI/LWWorld/UIWorldOutpostCityPoint/Component/UIWorldOutpostCityPointBtn.luac",
+      "UI/LWWorld/UIWorldSiegePoint/Component/UIWorldSiegePointBtn.luac",
+      "UI/LWWorld/UIWorldSiegePointSeason/Component/UIWorldSiegePointBtn.luac",
+      "UI/UIActivityCenterTable/Component/DesertBattle/BuildStatus/Component/UIDesertBuildStatusItem.luac",
+      "UI/UIActivityCenterTable/Component/DesertBattle/BuildStatus/View/UIDesertBuildStatusView.luac",
+      "UI/UIAlliance/UIAllianceMemberTip/Controller/UIAllianceMemberTipCtrl.luac",
+      "UI/UIAlliance/UIAllianceRally/Controller/UIAllianceRallyCtrl.luac",
+      "UI/UIAlliance/UIAllianceWarDetail/Controller/UIAllianceWarDetailCtrl.luac",
+      "UI/UIAlliance/UIAllianceWarMainTable/Controller/UIAllianceWarMainTableCtrl.luac",
+      "UI/UIChatNew/Component/ChatItem/ChatItemLeft_AllianceWar.luac",
+      "UI/UIChatNewV2/Component/ChatItem/Post/AllianceWar.luac",
+      "UI/UIFormation/UIFormationSelectListNew/Controller/UIFormationSelectListNewCtrl.luac",
+      "UI/UIFormation/UIFormationSelectListV2/Controller/UIFormationSelectListV2Ctrl.luac",
+      "UI/UIFormation/UIFormationTableNew/Controller/UIFormationTableNewCtrl.luac",
+      "UI/UIFormationAssistance/Controller/UIFormationAssistanceCtrl.luac",
+      "UI/UIGolloesCamp/Controller/UIGolloesCampCtrl.luac",
+      "UI/UILWRailway/UILWTrainDeparture/Controller/UILWTrainDepartureCtrl.luac",
+      "UI/UIResSupport/Controller/UIResSupportCtrl.luac",
+      "UI/UIWorldBlackTile/Controller/UIWorldBlackTileCtrl.luac",
+      "UI/UIWorldPoint/Component/UIWorldPointBtn.luac",
+      "UI/UIWorldTileUI/Component/UIWorldTileBuildBtn.luac",
+      "Util/GoToUtil.luac",
+      "Util/MarchUtil.luac",
+      "Util/WorldBattleUtil.luac"
+    ],
+    "IsHaveGetReward": [
+      "Util/UIUtil.luac"
+    ],
+    "WorldBuildTopBubbleTreasureGet": [
+      "Framework/UI/Message/EventId.luac",
+      "Net/Msgs/RadarCenter/PushDetectTreasureClaimMessage.luac",
+      "Scene/WorldShortTimeEffectBubble/WorldShortTimeEffectBubbleManager.luac"
+    ],
+    "ActDetectTreasureDataManager": [
+      "DataCenter/DataCenter.luac",
+      "DataCenter/ActMonopolyManager/ActDetectTreasureDataManager.luac",
+      "DataCenter/ItemManager/ItemTemplateManager.luac",
+      "Net/Msgs/InitMessage.luac",
+      "Net/Msgs/Activity/ActMonopoly/ActivityDetectListMessage.luac",
+      "Net/Msgs/RadarCenter/DetectEventClaimTreasureMessage.luac",
+      "UI/UIActMonopoly/UILWActDetectTreasureALPanel/View/UILWActDetectTreasureALPanelView.luac",
+      "UI/UIActivityCenterTable/Component/ActMonopoly/ActMonopolyTopRightBtnsContent.luac",
+      "UI/UIChatNew/Component/ChatPushMsg/UILWChatGetDoubleRewardMsg.luac",
+      "UI/UILWRadarCenter/UILWActDetectEventTreasureClaimInfo/View/UILWActDetectEventTreasureClaimInfoView.luac",
+      "UI/UILWRadarCenter/UILWActDetectEventTreasureClaimInfoNew/View/UILWActDetectEventTreasureClaimInfoNewView.luac",
+      "Util/CSharpCallLuaInterface.luac"
+    ],
+    "GhostreconPointInfo": [
+      "UI/UIWorldPoint/Controller/UIWorldPointCtrl.luac"
+    ],
+    "HeroDispatchMissionPointInfo": [],
+    "stealList": [
+      "DataCenter/ActivityListData/ActDispatchTaskDataManager.luac",
+      "DataCenter/ActivityListData/ActGhostrecon/ActGhostreconManager.luac",
+      "DataCenter/ActivityListData/ActGhostrecon/ActGhostreconTaskInfo.luac",
+      "UI/UIActivityCenterTable/Component/DispatchTask/DispatchTaskMarkData.luac",
+      "UI/UIDispatchTask/Ghostrecon/Reward/View/UIGhostreconRewardView.luac",
+      "UI/UIWorldPoint/Component/UIWorldPointBtn.luac",
+      "Util/UIUtil.luac"
+    ],
+    "protect_times": [
+      "DataCenter/ActivityListData/ActGhostrecon/ActGhostreconTaskTemplate.luac",
+      "UI/UIWorldPoint/Component/UIWorldPointBtn.luac",
+      "Util/UIUtil.luac"
+    ],
+    "steal_maxtimes": [
+      "DataCenter/ActivityListData/ActGhostrecon/ActGhostreconTaskTemplate.luac",
+      "UI/UIWorldPoint/Component/UIWorldPointBtn.luac",
+      "Util/UIUtil.luac"
+    ],
+    "trainData": [
+      "DataCenter/BuildBubbleManager/BuildBubbleManager.luac",
+      "DataCenter/ChatDataManager/ChatViewTipBubbleDataManager.luac",
+      "DataCenter/LW3V3Manager/LW3V3Manager.luac",
+      "DataCenter/LWBattle/LWBattleManager.luac",
+      "DataCenter/LWFakePVPBattle/FakePVPLogic.luac",
+      "DataCenter/LWKOFBattle/LWKOFBattleManager.luac",
+      "DataCenter/LWRailway/Station/LWAllyStationDataManager.luac",
+      "DataCenter/LWRailway/Station/LWMyStationDataManager.luac",
+      "DataCenter/LWRailway/Train/LWTrainDataManager.luac",
+      "DataCenter/LWRailway/TruckRecord/LWTruckRecordDataManager.luac",
+      "DataCenter/LWRailway/TruckRecord/TruckRecordData.luac",
+      "DataCenter/LWRailway/Util/RailwayUtil.luac",
+      "DataCenter/MailData/DataExtModule/MailBattleReport.luac",
+      "Net/Msgs/FlowerTrainReceiveRewardMessage.luac",
+      "Net/Msgs/Railway/CollectStationFirstRewardMessage.luac",
+      "Net/Msgs/Railway/CollectTrainBatchRewardMessage.luac",
+      "Net/Msgs/Railway/CollectTrainRewardMessage.luac",
+      "Net/Msgs/Railway/DepartureTrainMessage.luac",
+      "Scene/LWRailway/PlaneTrain/BodyBubble.luac",
+      "Scene/LWRailway/PlaneTrain/CoachBubble.luac",
+      "Scene/LWRailway/PlaneTrain/HeadBubble.luac",
+      "Scene/LWRailway/PlaneTrain/LocomotiveBubble.luac",
+      "Scene/LWRailway/PlaneTrain/PlaneCarriage.luac",
+      "Scene/LWRailway/PlaneTrain/PlaneCoach.luac",
+      "Scene/LWRailway/PlaneTrain/PlaneTrain.luac",
+      "Scene/LWRailway/Station/LWMyStationManager.luac",
+      "Scene/LWRailway/Station/Rail.luac",
+      "Scene/LWRailway/Train/LWTrainManager.luac",
+      "Scene/LWRailway/Train/Train.luac",
+      "Scene/LWRailway/Train/Carriage/Carriage.luac",
+      "Scene/LWRailway/Train/CarriageState/CarriageStateHide.luac",
+      "Scene/LWRailway/Train/CarriageState/CarriageStatePullIn.luac",
+      "Scene/LWRailway/Train/CarriageState/CarriageStatePullOut.luac",
+      "Scene/LWRailway/Train/CarriageState/CarriageStateStraight.luac",
+      "Scene/LWRailway/Train/CarriageState/CarriageStateTurn.luac",
+      "Scene/LWTrainPrepareScene/LWTrainPrepareSceneManager.luac",
+      "Scene/LWTrainPrepareScene/LWTrainPrepareScenePassengers.luac",
+      "Scene/TrainScene/TrainSceneManager.luac",
+      "Scene/WorldMarchTileUI/WorldMarchTileUIManager.luac",
+      "UI/FlowerTrain/UIFlowerTrainArrived/View/UIFlowerTrainArrivedView.luac",
+      "UI/FlowerTrain/UIFlowerTrainCommonGroupShow/Component/UIFlowerTrainShowListItem.luac",
+      "UI/LWMainUI/Component/UIMainBottom/LeftLayoutBtns/UIMainBLBtnTrain.luac",
+      "UI/LWUIChatCommonShare/Component/ImgCreateContent_FlowerTrain.luac",
+      "UI/NewPeakArenaKOFBattleResult/View/NewPeakArenaKOFBattleResultView.luac",
+      "UI/UIChatNew/Component/ChatItem/ChatTrainDeparture.luac",
+      "UI/UIChatNew/Component/ChatItem/ChatTrainVipInvite.luac",
+      "UI/UIGMPanel/Configs/GMPageLegacyConfig.luac",
+      "UI/UIJeepAdventure/UITowerupBattleWin/View/UITowerupBattleWinView.luac",
+      "UI/UILW3V3Campaign/View/UILW3V3CampaignView.luac",
+      "UI/UILWAlliance/UILWAlHelp/Component/UILWChatAlBubbleTrainTip.luac",
+      "UI/UILWAlliance/UILWAlHelp/Component/UILWChatBubbleTipCommon.luac",
+      "UI/UILWKOFCampaign/View/UILWKOFCampaignView.luac",
+      "UI/UILWMail/UILWMailMain/Component/UILWMailDetailTrain.luac",
+      "UI/UILWMail/UILWMailMain/Component/UILWMailDetailTrainReward.luac",
+      "UI/UILWMail/UILWMailMain/Component/UILWMailDetailTruck.luac",
+      "UI/UILWMail/UILWMailMain/View/UILWMailMainView.luac",
+      "UI/UILWRailway/TrainRecover/Component/UITrainRecoverItemComponent.luac",
+      "UI/UILWRailway/UILWTrainDetail/View/UILWTrainDetailView.luac",
+      "UI/UILWRailway/UILWTrainList/Component/MyTrainItem.luac",
+      "UI/UILWRailway/UILWTrainList/Component/NormalTrainItem.luac",
+      "UI/UILWRailway/UILWTrainList/Component/TopTrainItem.luac",
+      "UI/UILWRailway/UILWTrainList/Component/TrainItemBase.luac",
+      "UI/UILWRailway/UILWTrainScene/Component/DepartureBtn.luac",
+      "UI/UILWRailway/UILWTrainScene/Component/MyStationBtn.luac",
+      "UI/UILWRailway/UILWTrainScene/Component/TrainInfoPanel.luac",
+      "UI/UILWRailway/UILWTrainScene/Component/TrainTouchItem.luac",
+      "UI/UILWRailway/UILWTrainScene/View/UILWTrainSceneView.luac",
+      "UI/UILWRailway/UILWTruckRecord/UILWTruckRecord/Component/TruckSendRecordItem.luac",
+      "UI/UILWRailway/UILWTruckRecord/UILWTruckRecordDetail/Component/RobItem.luac",
+      "UI/UILWRailway/UILWTruckRecord/UILWTruckRecordDetail/Component/TruckRecordDetail.luac",
+      "UI/UILWRailway/UILWTruckRecord/UILWTruckRecordDetail/View/UILWTruckRecordDetailView.luac",
+      "UI/UILWRailway/UISelectTrain/Component/TrainItem.luac",
+      "UI/UILWRailway/UISelectTrain/View/UISelectTrainView.luac",
+      "UI/UILWRailway/UITrainBattleRecord/View/UITrainBattleRecordView.luac",
+      "UI/UILWRailway/UITrainInfo/View/UITrainInfoView.luac",
+      "UI/UILWRailway/UITrainPrepare/Component/DriverPage.luac",
+      "UI/UILWRailway/UITrainPrepare/Component/PassengerPage.luac",
+      "UI/UILWRailway/UITrainPrepare/Component/PrepareCarriage.luac",
+      "UI/UILWRailway/UITrainPrepare/View/UITrainPrepareView.luac",
+      "UI/UILWRailway/UITrainPrepareReplace/Component/UILWTrainReplaceCarriageComponent.luac",
+      "UI/UILWRailway/UITrainPrepareReplace/View/UILWTrainPrepareReplacePanelView.luac",
+      "UI/UILWRailway/UITrainPrepareScene/Component/PrepareSceneCarriage.luac",
+      "UI/UILWRailway/UITrainPrepareScene/Component/PrepareSceneDriver.luac",
+      "UI/UILWRailway/UITrainPrepareScene/Component/UILWTrainSaveHighGoodsComponent.luac",
+      "UI/UILWRailway/UITrainPrepareScene/Component/UITrainRightsItemComponent.luac",
+      "UI/UILWRailway/UITrainPrepareScene/View/UITrainPrepareSceneView.luac",
+      "UI/UILWRailway/UITrainPrepareThanksPopup/View/UITrainPrepareThanksPopupView.luac",
+      "UI/UILWRailway/UITrainPrepareVIPBeInvitePop/View/UITrainVIPBeInvitedPopView.luac",
+      "UI/UITrainKOFBattleResult/View/UITrainKOFBattleResultView.luac",
+      "UI/UIWorldPoint/Component/UIWorldPointBtn.luac",
+      "UI/UIWorldPoint/Controller/UIWorldPointCtrl.luac",
+      "UI/UIWorldPoint/View/UIWorldPointView.luac"
+    ],
+    "currentGoods": [],
+    "maxLootCount": [],
+    "robTimes": [
+      "DataCenter/LWRailway/Util/RailwayUtil.luac",
+      "Scene/LWRailway/Train/Carriage/Carriage.luac",
+      "UI/UILWRailway/UITrainInfo/View/UITrainInfoView.luac",
+      "UI/UIWorldPoint/Component/WorldTrainDes.luac"
+    ],
+    "protectTime": [
+      "DataCenter/ActDragonManager/Module/BuildInfo.luac",
+      "DataCenter/ActivityListData/ActGhostrecon/ActGhostreconTaskTemplate.luac",
+      "DataCenter/AllianceCity/AllianceDeclareWarManager.luac",
+      "DataCenter/AllianceCityTip/AllianceCityTip.luac",
+      "DataCenter/AllianceCityTip/AllianceCityTipManager.luac",
+      "DataCenter/AllianceCityTip/KingBattle/ActivityKingBattleLogic.luac",
+      "DataCenter/AllianceCityTip/Season/ActivityKingCampBattleLogic.luac",
+      "DataCenter/AllianceCityTip/Season/SeasonAllianceWarTimeBuildingHud.luac",
+      "DataCenter/AllianceCityTip/Season/SeasonAllianceWarTimeBuildingHudLogic.luac",
+      "DataCenter/BattlefieldDsbDuel/Impl/BattlefieldInfoDsb.luac",
+      "DataCenter/DesertData/WorldDesertData.luac",
+      "DataCenter/LWRailway/Util/RailwayUtil.luac",
+      "DataCenter/Landlord/Module/LLBattle.luac",
+      "DataCenter/SeasonManager/Activity/SeasonActivityManager.luac",
+      "DataCenter/WorldAllianceCityData/WorldAllianceCityDataManager.luac",
+      "DataCenter/WorldBattle/WorldFakeBattleManager.luac",
+      "Net/Msgs/Season5/King/ThroneConnectedInfoMessage.luac",
+      "Net/Proto/WorldPointInfo.luac",
+      "Scene/BuildFireEffect/BuildFireEffect.luac",
+      "Scene/BuildFireEffect/BuildFireEffectManager.luac",
+      "Scene/CityDomeProtectEffect/CityDomeProtectEffectManager.luac",
+      "Scene/WorldDesertEffect/WorldDesertEffectManager.luac",
+      "UI/DsbDuelBattlefield/BattleMap/UIBFDsbDuelBattleMapItem.luac",
+      "UI/DsbDuelBattlefield/BuildState/UIBFDsbDuelBattleBuildStateView.luac",
+      "UI/LWCityFightCountTimeToGo/LWCityFightCountTimeToGoView.luac",
+      "UI/LWMainUI/Component/UIMainTop/LWMainCityFightAlarmObj.luac",
+      "UI/LWSeason/LWSeasonMain/Component/AttackCity/AttackCityDetail/Component/AttackCityDetailItem.luac",
+      "UI/LWSeason/LWSeasonMain/Component/DeclareCity/SeasonDeclareCityList/Component/SeasonDeclareCityListItem.luac",
+      "UI/LWSeason/LWSeasonMain/Component/DeclareCity/SeasonDeclareCityList/View/SeasonDeclareCityListView.luac",
+      "UI/LWSeason1/SeasonAttackCityMain.luac",
+      "UI/LWSeason1/SeasonAttackCityMainLondon.luac",
+      "UI/LWSeason2/Activity/LWSeasonAttackSnowCityMain.luac",
+      "UI/LWSeason3/Activity/LWSeasonAttackWormCityMain.luac",
+      "UI/LWSeason4/Activity/LWSeasonAttackDarkCityMain.luac",
+      "UI/LWSeason5/Activity/LWSeason5AttackCityMain.luac",
+      "UI/LWSeason5/AllianceExpedition/SeasonAllianceExpeditionMain.luac",
+      "UI/LWSeason5/AllianceExpedition/SeasonAllianceExpeditionManager.luac",
+      "UI/LWSeason5/DeclareCity/Season5DeclareCityList/Component/Season5DeclareCityListItem.luac",
+      "UI/LWSeason5/DeclareCity/Season5DeclareCityList/View/Season5DeclareCityListView.luac",
+      "UI/LWSeason6/Activity/LWSeason6AttackCityMain.luac",
+      "UI/LWSeason6/UILWSeasonRainforestKingBattle/Component/UILWSeasonRainforestKingBattleItem.luac",
+      "UI/LWUIMasterySkillUseInWorld/Component/LWUIMasterySkillUseInWorldCell.luac",
+      "UI/LWWorld/UIWorldOutpostCanonPoint/Component/UIWorldOutpostCanonPointNormal.luac",
+      "UI/LWWorld/UIWorldOutpostCanonPoint/Controller/UIWorldOutpostCanonPointCtrl.luac",
+      "UI/LWWorld/UIWorldOutpostCityPoint/Controller/UIWorldOutpostCityPointCtrl.luac",
+      "UI/LWWorld/UIWorldSiegePoint/Component/UIWorldSiegePointBtn.luac",
+      "UI/LWWorld/UIWorldSiegePoint/Component/UIWorldSiegePointInfo.luac",
+      "UI/LWWorld/UIWorldSiegePoint/Controller/UIWorldSiegePointCtrl.luac",
+      "UI/LWWorld/UIWorldSiegePointSeason/Component/KingInfoRoot.luac",
+      "UI/LWWorld/UIWorldSiegePointSeason/Component/SeasonAllianceWarTimeBuildingState.luac",
+      "UI/LWWorld/UIWorldSiegePointSeason/Component/UIWorldSiegeBattery.luac",
+      "UI/LWWorld/UIWorldSiegePointSeason/Component/UIWorldSiegeMissileFactorySeason.luac",
+      "UI/LWWorld/UIWorldSiegePointSeason/Component/UIWorldSiegePointBtn.luac",
+      "UI/LWWorld/UIWorldSiegePointSeason/Component/UIWorldSiegePointInfo.luac",
+      "UI/LWWorld/UIWorldSiegePointSeason/Controller/UIWorldSiegePointCtrl.luac",
+      "UI/LWWorld/UIWorldSiegePointSeason/View/UIWorldSiegePointView.luac",
+      "UI/UIActivityAttackCity/AttackCityDetail/Component/AttackCityDetailItem.luac",
+      "UI/UIActivityCenterTable/Component/ActEpidemic/BattleMap/Component/UIEpidemicBattleMapItem.luac",
+      "UI/UIActivityCenterTable/Component/DesertBattle/BuildStatus/View/UIDesertBuildStatusView.luac",
+      "UI/UIActivityCenterTable/Component/DesertBattle/MiniMap/Component/UIDesertMapUIItem.luac",
+      "UI/UIDeclareCondition/View/UIDeclareConditionView.luac",
+      "UI/UIFormationAssistance/View/UIFormationAssistanceView.luac",
+      "UI/UILWRailway/UILWTrainScene/Component/TrainInfoPanel.luac",
+      "UI/UIPlaceWorldBuild/View/UIPlaceWorldBuildView.luac",
+      "UI/UIWorldDeclareWar/View/UIWorldDeclareWarView.luac",
+      "UI/UIWorldPoint/Component/UIWorldPointBtn.luac",
+      "UI/UIWorldPoint/Controller/UIWorldPointCtrl.luac",
+      "Util/CSharpCallLuaInterface.luac",
+      "Util/MarchUtil.luac",
+      "Util/UIUtil.luac",
+      "Util/WorldBuildUtil.luac"
+    ]
+  },
+  "interesting": [
+    {
+      "name": "DataCenter/ActMonopolyManager/ActDetectTreasureDataManager.luac",
+      "decodedSha256": "04a5b7f426b65bb9af1d1bed9855a37ccf0fe33acbdc0e50d02e2df79dfd3645",
+      "hits": [
+        "ActDetectTreasureDataManager"
+      ]
+    },
+    {
+      "name": "DataCenter/ActivityListData/ActDispatchTaskDataManager.luac",
+      "decodedSha256": "21cf16b7fe6da46f468a4d6f1f259ae6fd972a100ad9398c57a2e701abd8162d",
+      "hits": [
+        "stealList"
+      ]
+    },
+    {
+      "name": "DataCenter/ActivityListData/ActDispatchTaskFakeMarchData.luac",
+      "decodedSha256": "e7e42870359b43430925fb3c4b34cdde3b0eeb54245f05572a4ed64b90a7db69",
+      "hits": [
+        "StartMarch"
+      ]
+    },
+    {
+      "name": "DataCenter/ActivityListData/ActDispatchTaskFakeMarchManager.luac",
+      "decodedSha256": "cba67d32e6e21336fbb3cdd165b0ac9bba4b07f8f0a5f767c4f94fbe70c59307",
+      "hits": [
+        "StartMarch"
+      ]
+    },
+    {
+      "name": "DataCenter/ActivityListData/ActGhostrecon/ActGhostreconManager.luac",
+      "decodedSha256": "ff4d3da182b931339d2b0c6966c4fa3fa4844abf9f06bd35a1816173d0775a41",
+      "hits": [
+        "stealList"
+      ]
+    },
+    {
+      "name": "DataCenter/ActivityListData/ActGhostrecon/ActGhostreconTaskInfo.luac",
+      "decodedSha256": "782804b08e5b4d5c6dc71c6054fd74cb9aff580643fd0b83ecb44147e884abed",
+      "hits": [
+        "stealList"
+      ]
+    },
+    {
+      "name": "DataCenter/ActivityListData/ActGhostrecon/ActGhostreconTaskTemplate.luac",
+      "decodedSha256": "015d156c9fc4a3d245718669c113afb23ce04e35b44b057e9abf52d405e865c8",
+      "hits": [
+        "protect_times",
+        "steal_maxtimes",
+        "protectTime"
+      ]
+    },
+    {
+      "name": "DataCenter/LWRailway/Station/LWAllyStationDataManager.luac",
+      "decodedSha256": "bc4eafb3ef2d81b0ef8ed572925ea533fde490a1457653b46a98a12d1ba7cf8b",
+      "hits": [
+        "trainData"
+      ]
+    },
+    {
+      "name": "DataCenter/LWRailway/Station/LWMyStationDataManager.luac",
+      "decodedSha256": "94133ab998308e926ccbbae975376406dff3f0e61f035a7a1b4dee1ee4ae6865",
+      "hits": [
+        "trainData"
+      ]
+    },
+    {
+      "name": "DataCenter/LWRailway/Train/LWTrainDataManager.luac",
+      "decodedSha256": "77f4dbbd6d0f60980ad66aa9245464a2ea88f066e28da44de228bb8eb9f2f019",
+      "hits": [
+        "trainData"
+      ]
+    },
+    {
+      "name": "DataCenter/LWRailway/TruckRecord/LWTruckRecordDataManager.luac",
+      "decodedSha256": "fa6be6f618ab2c41a06a29e3d062ff79973f09b664e584278f47c7ea359f66a3",
+      "hits": [
+        "trainData"
+      ]
+    },
+    {
+      "name": "DataCenter/LWRailway/TruckRecord/TruckRecordData.luac",
+      "decodedSha256": "2d4323668663115b326771c215d087d876d1d97b88b7c2aa85876102382ee372",
+      "hits": [
+        "trainData"
+      ]
+    },
+    {
+      "name": "DataCenter/LWRailway/Util/RailwayUtil.luac",
+      "decodedSha256": "59bafe773cec053e4616094625a1ee0b71972f2391d8b0c79bea85ea5c64b42f",
+      "hits": [
+        "trainData",
+        "robTimes",
+        "protectTime"
+      ]
+    },
+    {
+      "name": "Net/Msgs/FlowerTrainReceiveRewardMessage.luac",
+      "decodedSha256": "facc87aa8262f1da4211a1530d696f8b69877c3070dd471f5ee94fb039da700c",
+      "hits": [
+        "trainData"
+      ]
+    },
+    {
+      "name": "Net/Msgs/RadarCenter/DetectEventClaimTreasureMessage.luac",
+      "decodedSha256": "ecceef817b99de8ce94518e910e3d4c773dbf1d0825a4878c87d00d59b0b4499",
+      "hits": [
+        "ActDetectTreasureDataManager"
+      ]
+    },
+    {
+      "name": "Net/Msgs/RadarCenter/PushDetectTreasureClaimMessage.luac",
+      "decodedSha256": "e14bafd7b714c7703cd52d35ab60acc5b6f10aec3721184866ba1f590cc103ef",
+      "hits": [
+        "WorldBuildTopBubbleTreasureGet"
+      ]
+    },
+    {
+      "name": "Net/Msgs/Railway/CollectStationFirstRewardMessage.luac",
+      "decodedSha256": "db527277ffe16f216f2e73439c7682314244b4a2e8d82bd530b824da0948e5da",
+      "hits": [
+        "trainData"
+      ]
+    },
+    {
+      "name": "Net/Msgs/Railway/CollectTrainBatchRewardMessage.luac",
+      "decodedSha256": "8794e543ca0d363ee759a5db41298053a540de1a536ac058b11e4c7407cb6699",
+      "hits": [
+        "trainData"
+      ]
+    },
+    {
+      "name": "Net/Msgs/Railway/CollectTrainRewardMessage.luac",
+      "decodedSha256": "43c3269e0c441dd60f435cefaa63c2285be3e6312b5e167250b8530ee1a717dd",
+      "hits": [
+        "trainData"
+      ]
+    },
+    {
+      "name": "Net/Msgs/Railway/DepartureTrainMessage.luac",
+      "decodedSha256": "7dc6ccf8618062e800b51247f33ae740ee4a50b130bb42493ba48a5eaa3fdb56",
+      "hits": [
+        "trainData"
+      ]
+    },
+    {
+      "name": "Scene/LWRailway/PlaneTrain/BodyBubble.luac",
+      "decodedSha256": "53a926f55fd0a6a2507cf9b90bae6e866fa7070d7a131f13063dd2540b51532e",
+      "hits": [
+        "trainData"
+      ]
+    },
+    {
+      "name": "Scene/LWRailway/PlaneTrain/CoachBubble.luac",
+      "decodedSha256": "7b4243944baab75f25a677dff7f08b1aa9defea1ecd52409c9cd6604f0270971",
+      "hits": [
+        "trainData"
+      ]
+    },
+    {
+      "name": "Scene/LWRailway/PlaneTrain/HeadBubble.luac",
+      "decodedSha256": "90d36f0d4ba77ef01a2a5068c40544d5fad36d0569c1d7b74967e95d2b4ca768",
+      "hits": [
+        "trainData"
+      ]
+    },
+    {
+      "name": "Scene/LWRailway/PlaneTrain/LocomotiveBubble.luac",
+      "decodedSha256": "f00a90a08eb619170d5467b01a355c0447b6aa6426036b1df882bcae59597045",
+      "hits": [
+        "trainData"
+      ]
+    },
+    {
+      "name": "Scene/LWRailway/PlaneTrain/PlaneCarriage.luac",
+      "decodedSha256": "1361da5d5dfb6b0fe8a96fdca514942740422839675f00674360a8d5a422fece",
+      "hits": [
+        "trainData"
+      ]
+    },
+    {
+      "name": "Scene/LWRailway/PlaneTrain/PlaneCoach.luac",
+      "decodedSha256": "63c8bca7906b506b6db9f616f252dcbc5dc97f6bb7e8c11c5183f7b45df4794d",
+      "hits": [
+        "trainData"
+      ]
+    },
+    {
+      "name": "Scene/LWRailway/PlaneTrain/PlaneTrain.luac",
+      "decodedSha256": "236c9900bef94ef7ef33c933373d0173b7114fcb8bafe29e4debb781c1345059",
+      "hits": [
+        "trainData"
+      ]
+    },
+    {
+      "name": "Scene/LWRailway/Station/LWMyStationManager.luac",
+      "decodedSha256": "b740e71423b4b8c4da650f10e0231f1fb291ecc54f2ae23e272fa08ccb8de45a",
+      "hits": [
+        "trainData"
+      ]
+    },
+    {
+      "name": "Scene/LWRailway/Station/Rail.luac",
+      "decodedSha256": "a9576d73cf941f6a7c21d2c85b1c04c519dc3d72c3d229c19bb2a61816558785",
+      "hits": [
+        "trainData"
+      ]
+    },
+    {
+      "name": "Scene/LWRailway/Train/LWTrainManager.luac",
+      "decodedSha256": "8774b42be5bd5cbd33135bed2bd93740163e6e3a2909b5ec2c51784cf388046f",
+      "hits": [
+        "trainData"
+      ]
+    },
+    {
+      "name": "Scene/LWRailway/Train/Train.luac",
+      "decodedSha256": "1344182a826bdc70bac166ef7d7d34bab1365c38d07a581757d0681f1230c7e3",
+      "hits": [
+        "trainData"
+      ]
+    },
+    {
+      "name": "Scene/LWRailway/Train/Carriage/Carriage.luac",
+      "decodedSha256": "bb984568da0c3acbeebffe72df0da8f07df5c7d7f1eab99699232fd3bde9d264",
+      "hits": [
+        "trainData",
+        "robTimes"
+      ]
+    },
+    {
+      "name": "Scene/LWRailway/Train/CarriageState/CarriageStateHide.luac",
+      "decodedSha256": "ebaa0bbf4a658f7afa98a29cc76d34490a702c7ec1d49d2e5c621882d1e68ad8",
+      "hits": [
+        "trainData"
+      ]
+    },
+    {
+      "name": "Scene/LWRailway/Train/CarriageState/CarriageStatePullIn.luac",
+      "decodedSha256": "b876963cc24b258a09102ef6ecf830f439cf56712077ab1a7dfc8bdd66fced78",
+      "hits": [
+        "trainData"
+      ]
+    },
+    {
+      "name": "Scene/LWRailway/Train/CarriageState/CarriageStatePullOut.luac",
+      "decodedSha256": "ab6f38b1ea471084eda7466c3c6acadb1f7ea8eeb930e0cf6032d1117b766bd6",
+      "hits": [
+        "trainData"
+      ]
+    },
+    {
+      "name": "Scene/LWRailway/Train/CarriageState/CarriageStateStraight.luac",
+      "decodedSha256": "f305f11cf6a4d554f6405d21a6d915843c9b41af31a74938a03d9163c630aad8",
+      "hits": [
+        "trainData"
+      ]
+    },
+    {
+      "name": "Scene/LWRailway/Train/CarriageState/CarriageStateTurn.luac",
+      "decodedSha256": "512c7899e01c302db39370e563db6effc3e33e74fae9b628d05c0fcd9d27349c",
+      "hits": [
+        "trainData"
+      ]
+    },
+    {
+      "name": "Scene/LWTrainPrepareScene/LWTrainPrepareSceneManager.luac",
+      "decodedSha256": "ed24af60cc8b7a5e9ed4a267aac6a9242cd7f7750e23b72f2bc93e892ab92990",
+      "hits": [
+        "trainData"
+      ]
+    },
+    {
+      "name": "Scene/LWTrainPrepareScene/LWTrainPrepareScenePassengers.luac",
+      "decodedSha256": "e2438d7a64503c07c376afefe3acac8ce08f753b37bb8caf2dc460554a93a515",
+      "hits": [
+        "trainData"
+      ]
+    },
+    {
+      "name": "Scene/TrainScene/TrainSceneManager.luac",
+      "decodedSha256": "5c13072c172b4a150bc38efd6cc8f5e3cf0a23434d18fc7f815f47159115db1a",
+      "hits": [
+        "trainData"
+      ]
+    },
+    {
+      "name": "UI/FlowerTrain/UIFlowerTrainArrived/View/UIFlowerTrainArrivedView.luac",
+      "decodedSha256": "7c205edd8c3a5692fcc84effb00880da2d66ac0f02d1ceaf7cb4abb24b34b793",
+      "hits": [
+        "trainData"
+      ]
+    },
+    {
+      "name": "UI/FlowerTrain/UIFlowerTrainCommonGroupShow/Component/UIFlowerTrainShowListItem.luac",
+      "decodedSha256": "180304fabae78c382c4c889f8f218fa31eded36ceb79b40535793c06c99e47e1",
+      "hits": [
+        "trainData"
+      ]
+    },
+    {
+      "name": "UI/LWMainUI/Component/UIMainBottom/LeftLayoutBtns/UIMainBLBtnTrain.luac",
+      "decodedSha256": "68f2049f1a1adfe19600d9aa6efd7327bc093de792eee1158c669586622409db",
+      "hits": [
+        "trainData"
+      ]
+    },
+    {
+      "name": "UI/LWUIChatCommonShare/Component/ImgCreateContent_FlowerTrain.luac",
+      "decodedSha256": "f97789862d07d5d478dc876c97ad29339827c0226f71e532608da0afac24b98d",
+      "hits": [
+        "trainData"
+      ]
+    },
+    {
+      "name": "UI/UIActMonopoly/UILWActDetectTreasureALPanel/View/UILWActDetectTreasureALPanelView.luac",
+      "decodedSha256": "988a12685c09ef61e0e9a7965805e6a6a315ec744de8e40e50a4984fc32994b9",
+      "hits": [
+        "ActDetectTreasureDataManager"
+      ]
+    },
+    {
+      "name": "UI/UIActivityCenterTable/Component/DispatchTask/DispatchTaskMarkData.luac",
+      "decodedSha256": "38b80bb72ce756c2b92bbff4524b5722b3da6a4ee4113a740b7c660e3b7f8487",
+      "hits": [
+        "stealList"
+      ]
+    },
+    {
+      "name": "UI/UIChatNew/Component/ChatItem/ChatTrainDeparture.luac",
+      "decodedSha256": "6cea32ef341b98ccd35d3afa808a8d989bf6b3543ecd86d32a8583928bc0fd69",
+      "hits": [
+        "trainData"
+      ]
+    },
+    {
+      "name": "UI/UIChatNew/Component/ChatItem/ChatTrainVipInvite.luac",
+      "decodedSha256": "d44bdf0d009ba2489cf152dc120cd65c8dac6d758cd4647d43f1b2b34ff08472",
+      "hits": [
+        "trainData"
+      ]
+    },
+    {
+      "name": "UI/UIDispatchTask/Ghostrecon/Reward/View/UIGhostreconRewardView.luac",
+      "decodedSha256": "a4fc324d6c5e7bbecf12ae3a0e816920cd505f0db768342d6854267e8fea322e",
+      "hits": [
+        "stealList"
+      ]
+    },
+    {
+      "name": "UI/UILWAlliance/UILWAlHelp/Component/UILWChatAlBubbleTrainTip.luac",
+      "decodedSha256": "04faa0033e7cb0595f9e5598114b379118dab16417fa4883bee16b0a425571ce",
+      "hits": [
+        "trainData"
+      ]
+    },
+    {
+      "name": "UI/UILWMail/UILWMailMain/Component/UILWMailDetailTrain.luac",
+      "decodedSha256": "1fcd588669ed2c693d5e7e7d52d1d6f14b6f9e0157eb852c6117cf5d735c7c37",
+      "hits": [
+        "trainData"
+      ]
+    },
+    {
+      "name": "UI/UILWMail/UILWMailMain/Component/UILWMailDetailTrainReward.luac",
+      "decodedSha256": "7e85a0ca0471bacab4e7b16cc5f209f2156ab972547f14c048a12425bc3f6324",
+      "hits": [
+        "trainData"
+      ]
+    },
+    {
+      "name": "UI/UILWRadarCenter/UILWActDetectEventTreasureClaimInfo/View/UILWActDetectEventTreasureClaimInfoView.luac",
+      "decodedSha256": "9c8c9ee97928619b95f6e1e17fe087ccec79786bee1f42ec8e0bd0c7e0ba7c10",
+      "hits": [
+        "ActDetectTreasureDataManager"
+      ]
+    },
+    {
+      "name": "UI/UILWRadarCenter/UILWActDetectEventTreasureClaimInfoNew/View/UILWActDetectEventTreasureClaimInfoNewView.luac",
+      "decodedSha256": "d1fc60c6eea9d7832245405c74e01d1799094bf7d7f27f1b1a2a8cc1a6b68e2f",
+      "hits": [
+        "ActDetectTreasureDataManager"
+      ]
+    },
+    {
+      "name": "UI/UILWRailway/TrainRecover/Component/UITrainRecoverItemComponent.luac",
+      "decodedSha256": "ee0f2027b8be15db3d2a9afd8393d7b7bbed3b02930a3d24197b38caee8e92d7",
+      "hits": [
+        "trainData"
+      ]
+    },
+    {
+      "name": "UI/UILWRailway/UILWTrainDeparture/Controller/UILWTrainDepartureCtrl.luac",
+      "decodedSha256": "75fb8d1ab36801ad61ff98eda4d1cd553c6bfc253aece068225be59a57d77c08",
+      "hits": [
+        "StartMarch"
+      ]
+    },
+    {
+      "name": "UI/UILWRailway/UILWTrainDetail/View/UILWTrainDetailView.luac",
+      "decodedSha256": "9579ca4f29796c1332147dccc847d0cdff2496df16653b87a31db5aa3724fb44",
+      "hits": [
+        "trainData"
+      ]
+    },
+    {
+      "name": "UI/UILWRailway/UILWTrainList/Component/MyTrainItem.luac",
+      "decodedSha256": "9a22c21fad495adc82a05671a4d90a2596f111e44b3d8db0ab8b6980085762f2",
+      "hits": [
+        "trainData"
+      ]
+    },
+    {
+      "name": "UI/UILWRailway/UILWTrainList/Component/NormalTrainItem.luac",
+      "decodedSha256": "6073a40c67c439e3f2584359ef450fc10256b61a4807686687f7dcbaeec70485",
+      "hits": [
+        "trainData"
+      ]
+    },
+    {
+      "name": "UI/UILWRailway/UILWTrainList/Component/TopTrainItem.luac",
+      "decodedSha256": "cfa9beaebda17499d768e48e4d9c84d2722fa17dd149f22cfd719435c6d64d5c",
+      "hits": [
+        "trainData"
+      ]
+    },
+    {
+      "name": "UI/UILWRailway/UILWTrainList/Component/TrainItemBase.luac",
+      "decodedSha256": "8014a2bc64f970f0a3e4f8e1cf006a1a147f7b7be2ff3a0f1c6f12de4db88b7c",
+      "hits": [
+        "trainData"
+      ]
+    },
+    {
+      "name": "UI/UILWRailway/UILWTrainScene/Component/DepartureBtn.luac",
+      "decodedSha256": "e3e934aecadf9c79eef6089ea1f5e3721d8703476be155827a94d914b7ee1236",
+      "hits": [
+        "trainData"
+      ]
+    },
+    {
+      "name": "UI/UILWRailway/UILWTrainScene/Component/MyStationBtn.luac",
+      "decodedSha256": "e5e4ea40b3086195963c280aac427e39e6a982c6b6dd04fb456f41ea49a824ff",
+      "hits": [
+        "trainData"
+      ]
+    },
+    {
+      "name": "UI/UILWRailway/UILWTrainScene/Component/TrainInfoPanel.luac",
+      "decodedSha256": "ede26d9562f498748f748762708d6d67b3c16d62ee6b6d26b64c697a5daca2b6",
+      "hits": [
+        "trainData",
+        "protectTime"
+      ]
+    },
+    {
+      "name": "UI/UILWRailway/UILWTrainScene/Component/TrainTouchItem.luac",
+      "decodedSha256": "436c177f65ec143d34a0a19dce474d0e1b44ed3508c85a5bec2585304ab2146f",
+      "hits": [
+        "trainData"
+      ]
+    },
+    {
+      "name": "UI/UILWRailway/UILWTrainScene/View/UILWTrainSceneView.luac",
+      "decodedSha256": "06b75d679a27c2551ff02ccee6592590d93167434b0f789f27145c485bbe3a34",
+      "hits": [
+        "trainData"
+      ]
+    },
+    {
+      "name": "UI/UILWRailway/UILWTruckRecord/UILWTruckRecord/Component/TruckSendRecordItem.luac",
+      "decodedSha256": "a68371ef8792b6240a9d5c527f183489562e9d62938d88b9af91d3b0a793a154",
+      "hits": [
+        "trainData"
+      ]
+    },
+    {
+      "name": "UI/UILWRailway/UILWTruckRecord/UILWTruckRecordDetail/Component/RobItem.luac",
+      "decodedSha256": "3c125a07a8a54b98dca70477b278905b56aa8b05a030a38ec5e7b85fad0ae44e",
+      "hits": [
+        "trainData"
+      ]
+    },
+    {
+      "name": "UI/UILWRailway/UILWTruckRecord/UILWTruckRecordDetail/Component/TruckRecordDetail.luac",
+      "decodedSha256": "d8a70fa748139b573951d49fd85e2e729aaed6d3a35007e04b2f72aa94755368",
+      "hits": [
+        "trainData"
+      ]
+    },
+    {
+      "name": "UI/UILWRailway/UILWTruckRecord/UILWTruckRecordDetail/View/UILWTruckRecordDetailView.luac",
+      "decodedSha256": "f76dd6d3beb513ee978eda7986b988fd228b91e34082c3bb0da151617a995bba",
+      "hits": [
+        "trainData"
+      ]
+    },
+    {
+      "name": "UI/UILWRailway/UISelectTrain/Component/TrainItem.luac",
+      "decodedSha256": "7582176cf3689fabb57afdc3d5ed2e5d91d42f7a9d97900787985f7a016b4e77",
+      "hits": [
+        "trainData"
+      ]
+    },
+    {
+      "name": "UI/UILWRailway/UISelectTrain/View/UISelectTrainView.luac",
+      "decodedSha256": "8d13e033436a21c43fec4566b670fcd923ea0bac106ca377437ca4aff5072c87",
+      "hits": [
+        "trainData"
+      ]
+    },
+    {
+      "name": "UI/UILWRailway/UITrainBattleRecord/View/UITrainBattleRecordView.luac",
+      "decodedSha256": "1f387110bb30b99a5dfc997a5aa7cf31de819b28898bdae359f6f9328a50b0b9",
+      "hits": [
+        "trainData"
+      ]
+    },
+    {
+      "name": "UI/UILWRailway/UITrainInfo/View/UITrainInfoView.luac",
+      "decodedSha256": "f3334079e0008d155c5e145ad43ec20ea40f77e833e83f70358ac27bbe7ee120",
+      "hits": [
+        "trainData",
+        "robTimes"
+      ]
+    },
+    {
+      "name": "UI/UILWRailway/UITrainPrepare/Component/DriverPage.luac",
+      "decodedSha256": "aa2e5b32d168f4eb807ce8b58d2119c415cb45cb45eb3f6df85aa958e8fef041",
+      "hits": [
+        "trainData"
+      ]
+    },
+    {
+      "name": "UI/UILWRailway/UITrainPrepare/Component/PassengerPage.luac",
+      "decodedSha256": "fba1df9966ba0fecd9e05c0c57de3fc5bfdb9f8834b31e79b6d91d71526bf198",
+      "hits": [
+        "trainData"
+      ]
+    },
+    {
+      "name": "UI/UILWRailway/UITrainPrepare/Component/PrepareCarriage.luac",
+      "decodedSha256": "7b07d692c6980cd152155b3ac9c9e55fe10259c508c9d8d678ba59f6bce9deaf",
+      "hits": [
+        "trainData"
+      ]
+    },
+    {
+      "name": "UI/UILWRailway/UITrainPrepare/View/UITrainPrepareView.luac",
+      "decodedSha256": "9af11ab6a47a205a54e57af4e4af22bb4a8f1eb66965f6116aa680c4c59ef962",
+      "hits": [
+        "trainData"
+      ]
+    },
+    {
+      "name": "UI/UILWRailway/UITrainPrepareReplace/Component/UILWTrainReplaceCarriageComponent.luac",
+      "decodedSha256": "ff7fa2c412fea5bf5925566886dfa8f2ad0d3df7190a507017e925c6c240b864",
+      "hits": [
+        "trainData"
+      ]
+    },
+    {
+      "name": "UI/UILWRailway/UITrainPrepareReplace/View/UILWTrainPrepareReplacePanelView.luac",
+      "decodedSha256": "d41aa64c94d391c48ac944cef48dd6a5cdb0a4358f0e430e38dc6030f2a26602",
+      "hits": [
+        "trainData"
+      ]
+    },
+    {
+      "name": "UI/UILWRailway/UITrainPrepareScene/Component/PrepareSceneCarriage.luac",
+      "decodedSha256": "1dbeb38beca2758ce224a5439beda29a8fd61b6b5e16722a75cd9b4de722949b",
+      "hits": [
+        "trainData"
+      ]
+    },
+    {
+      "name": "UI/UILWRailway/UITrainPrepareScene/Component/PrepareSceneDriver.luac",
+      "decodedSha256": "b57a47c9a042cf0df902b6efaaead7384362e57eb154216dab0f7b863d2cd0d3",
+      "hits": [
+        "trainData"
+      ]
+    },
+    {
+      "name": "UI/UILWRailway/UITrainPrepareScene/Component/UILWTrainSaveHighGoodsComponent.luac",
+      "decodedSha256": "5afb2d1caf4ca25c7aaf3587ac76849caf84708a537cfc1827d992b26282d1de",
+      "hits": [
+        "trainData"
+      ]
+    },
+    {
+      "name": "UI/UILWRailway/UITrainPrepareScene/Component/UITrainRightsItemComponent.luac",
+      "decodedSha256": "799701a08e44c1aecb2d662957c368707777af38f0f62ca1e9d96fe30ac5f155",
+      "hits": [
+        "trainData"
+      ]
+    },
+    {
+      "name": "UI/UILWRailway/UITrainPrepareScene/View/UITrainPrepareSceneView.luac",
+      "decodedSha256": "c09371386b579df305a3e31c194c45efa7cc20b4f9536feb11d8c3cd989deb7f",
+      "hits": [
+        "trainData"
+      ]
+    },
+    {
+      "name": "UI/UILWRailway/UITrainPrepareThanksPopup/View/UITrainPrepareThanksPopupView.luac",
+      "decodedSha256": "5810dda08481298009ad2f1c08ff6d5824fdca79470f4c896da3d643b0bf41ba",
+      "hits": [
+        "trainData"
+      ]
+    },
+    {
+      "name": "UI/UILWRailway/UITrainPrepareVIPBeInvitePop/View/UITrainVIPBeInvitedPopView.luac",
+      "decodedSha256": "625f33fc705f7a3e32f336d2c34aaaf41a769612e461b149af3a410e017fcb78",
+      "hits": [
+        "trainData"
+      ]
+    },
+    {
+      "name": "UI/UITrainKOFBattleResult/View/UITrainKOFBattleResultView.luac",
+      "decodedSha256": "a3c497b2a66f2edfde79eb9b1f922112f76312f980bc2ba9302d5e707c21d88a",
+      "hits": [
+        "trainData"
+      ]
+    },
+    {
+      "name": "UI/UIWorldPoint/Component/WorldTrainDes.luac",
+      "decodedSha256": "1e722b944deaa62a11d916cc8ccafd5c29fc003e866954fb8b6004085b1a47bf",
+      "hits": [
+        "robTimes"
+      ]
+    }
+  ]
+}
