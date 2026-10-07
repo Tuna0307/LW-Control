@@ -1,0 +1,45 @@
+{
+  "schema": 1,
+  "workItem": "LWB317-FUNCTION-HOME-MAP-DEEP-RECOVERY-002",
+  "milestone": "D",
+  "result": "BLOCKED_WITH_EXACT_DEPENDENCIES",
+  "original0317": {
+    "treasureStatus": "high-level provider getTreasureClaimStatus, protected 5 s call",
+    "treasureClaim": "high-level provider claimTreasures with serverId, records, claimScope, targetUuid, prioritizeLuckySlots; protected 5 s call and aggregate counters",
+    "ghostPreparation": "high-level provider prepareGhostPlunderTasks before schedule persistence; protected 5 s call"
+  },
+  "currentV22": {
+    "treasureStatusPrimitives": [
+      "DetectEventGetTreasureClaimInfoMessage: PutLong uuid, PutInt info type, targetServer, errorCode, GetDetectEventTreasureClaimInfo handler",
+      "DetectEventGetTreasureClaimInfo data: remainNum, player claim list, rewards, self claim state"
+    ],
+    "treasureClaimPrimitives": [
+      "DetectEventClaimTreasureMessage: uuid, targetServer, worldTreasureType, errorCode, reward, treasureData",
+      "PushDetectTreasureClaimMessage: uuid, errorCode, bUuid, WorldBuildTopBubbleTreasureGet",
+      "UIWorldPointBtn: LaunchScout/SCOUT_SUPPLIES/StartMarch and Treasure paths"
+    ],
+    "ghostPrimitives": [
+      "GhostReconStealMessage: uuid, ownerServer, errorCode, reward, manager handler",
+      "ActGhostreconManager: GetTaskInfoByUUid, GetTaskTemplate, CheckCanSteal, steal counts, task list",
+      "task info: ownerServer,targetServer,completionTime,taskExpireTime,stealList",
+      "task template: protect_times,steal_maxtimes,conditions,reward"
+    ],
+    "absentHighLevelNames": [
+      "claimTreasures",
+      "getTreasureClaimStatus",
+      "prepareGhostPlunderTasks"
+    ]
+  },
+  "blockers": [
+    "No current owned request/result lane maps the exact no-argument aggregate claim-status contract to one or more current single-target status requests.",
+    "No source-backed current orchestration maps exact 0.3.17 claimScope/candidate batching/lucky priority/direct-vs-scout counters to current direct claim + scout primitives with authoritative per-item terminal correlation.",
+    "The accepted Treasure-state lane is explicitly read-only and its regression forbids claim/scout/march calls.",
+    "No exact 0.3.17 semantics for prepareGhostPlunderTasks result transformation were recovered, so current CheckCanSteal/task-template primitives cannot be promoted into an invented preparer.",
+    "Implemented current actions use owned session/request/result envelopes; blind SFS SendMessage would weaken accepted admission, cancellation, restoration, and result-ambiguity protections."
+  ],
+  "disposition": {
+    "providerMethodsRemainFailClosed": true,
+    "productChange": false,
+    "futureResolution": "separate source-backed protected action transport recovery or future authorized live witness; do not reuse read-only scan/state lane"
+  }
+}

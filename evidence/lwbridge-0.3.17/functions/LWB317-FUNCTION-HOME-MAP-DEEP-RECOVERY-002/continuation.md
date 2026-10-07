@@ -1,12 +1,14 @@
 # Continuation — LWB317-FUNCTION-HOME-MAP-DEEP-RECOVERY-002
 
-Current milestone: **D**. A/B/C complete.
+Current milestone: **G**. A/B/C/E/F complete. D is blocked with exact source/current
+dependencies, not a generic pause.
 
-1. Commit/push C evidence and verify direct remote SHA.
-2. Recover the strongest possible current-v22 Treasure direct-claim/status/scout
-   and Ghost preparation primitives, including request/result/correlation evidence.
-3. Implement only if the complete provider contract is established; otherwise
-   freeze exact blocker and keep provider fail-closed.
-4. Finish E/F reconciliation evidence, G adversarial integration, H verification/docs.
+1. Commit/push the D/E/F checkpoint and verify direct remote SHA.
+2. Run broad non-live Desktop integration after confirming all live entry points are
+   explicit flags, plus canonical Map checks and focused native boundaries.
+3. Self-review the full campaign diff/inverses and verify no product change was
+   hidden behind evidence-only recovery.
+4. Complete H: final static/hash/cleanup checks, update current masters/status/work
+   item, commit/push/direct-SHA verify, return AWAITING_REVIEW.
 
-Live/shared-desktop work remains ON_HOLD_BY_OWNER.
+Do not run any --live-* entry point. Owner hold remains active.

@@ -48,3 +48,21 @@ RDL/Lua producer evidence or an explicitly declared adaptation. The current
 compatibility/runtime contracts pass. The tempting resourceTypeId public-filter and
 Dispatch expiredTime -> taskExpireTime aliases were rejected because the recovered
 public/current semantics do not justify them. No product edit was made.
+
+## D — blocked with exact dependencies
+
+Whole-v22 recovery found direct Treasure claim/status messages and rich Ghost task
+primitives but not the high-level aggregate/batch/preparation semantics required by
+the exact 0.3.17 provider methods. The accepted Treasure-state lane is deliberately
+read-only, and all implemented action paths require owned request/result
+correlation. The three provider methods remain fail-closed.
+
+## E — complete
+
+Recovered scheduler/store constants and transitions match the current worker/store.
+The inert plunder-worker boundary check passes. No E product change.
+
+## F — complete
+
+Profile runtime owner, Home lifecycle, Auto Scan campaign and restart checks pass.
+Accepted RECOVERY-003 lifetime/ownership semantics remain unchanged.

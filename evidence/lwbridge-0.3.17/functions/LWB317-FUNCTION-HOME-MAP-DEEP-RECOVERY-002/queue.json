@@ -59,7 +59,7 @@
     },
     {
       "id": "D",
-      "state": "ACTIVE",
+      "state": "BLOCKED_WITH_EXACT_DEPENDENCIES",
       "goal": "Recover Treasure claim/status and Ghost preparation adapters",
       "dependencies": [
         "A"
@@ -75,7 +75,7 @@
     },
     {
       "id": "E",
-      "state": "READY",
+      "state": "COMPLETE",
       "goal": "Reconcile scheduled Dispatch/Ghost/Truck jobs",
       "dependencies": [
         "A"
@@ -91,7 +91,7 @@
     },
     {
       "id": "F",
-      "state": "READY",
+      "state": "COMPLETE",
       "goal": "Integrate affected Home/profile lifetime behavior",
       "dependencies": [
         "A"
@@ -106,7 +106,7 @@
     },
     {
       "id": "G",
-      "state": "READY",
+      "state": "ACTIVE",
       "goal": "Headless integration and adversarial inverse review",
       "dependencies": [
         "B",
@@ -145,19 +145,19 @@
   "explicitBranches": [
     {
       "id": "D-TREASURE-STATUS",
-      "state": "BLOCKER_CANDIDATE_CONTINUE_STATIC_RECOVERY",
+      "state": "BLOCKED_EXACT_CURRENT_ORCHESTRATION_UNRECOVERED",
       "baseline": "provider unavailable",
       "source": "exact 0.3.17 host contract exists; prior v22 sample found no high-level sender/result chain"
     },
     {
       "id": "D-TREASURE-CLAIM",
-      "state": "BLOCKER_CANDIDATE_CONTINUE_STATIC_RECOVERY",
+      "state": "BLOCKED_EXACT_CURRENT_ORCHESTRATION_UNRECOVERED",
       "baseline": "provider unavailable",
       "source": "exact 0.3.17 host envelope exists; protected scope/lucky/scout executor internals previously unproved"
     },
     {
       "id": "D-GHOST-PREP",
-      "state": "BLOCKER_CANDIDATE_CONTINUE_STATIC_RECOVERY",
+      "state": "BLOCKED_EXACT_CURRENT_ORCHESTRATION_UNRECOVERED",
       "baseline": "provider unavailable",
       "source": "exact 0.3.17 prepareGhostPlunderTasks boundary exists; prior v22 sample found no exact preparer"
     },
@@ -215,5 +215,34 @@
       "current map compat PASS"
     ],
     "productChanges": false
+  },
+  "checkpointDEF": {
+    "D": {
+      "state": "BLOCKED_WITH_EXACT_DEPENDENCIES",
+      "productChanges": false,
+      "artifacts": [
+        "d-v22-action-candidate-names.json",
+        "d-v22-selected-strings.json",
+        "d-protected-action-blockers.json",
+        "d-protected-action-blockers.md"
+      ]
+    },
+    "E": {
+      "state": "COMPLETE",
+      "checks": [
+        "--map317-plunder-worker-boundary-check PASS"
+      ],
+      "productChanges": false
+    },
+    "F": {
+      "state": "COMPLETE",
+      "checks": [
+        "--profile-runtime-owner-check PASS",
+        "--home-campaign-lifecycle-check PASS",
+        "--map-auto-scan-campaign-check PASS",
+        "--map317-restart-check PASS"
+      ],
+      "productChanges": false
+    }
   }
 }
