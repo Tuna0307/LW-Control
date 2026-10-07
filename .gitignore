@@ -15,6 +15,9 @@ analysis/
 .vs/
 .codex-live/
 
+# Machine-local third-party MCP checkout, runtimes and preserved installation data.
+/Windows-MCP/
+
 # Local reverse-engineering/build scratch (never commit).
 tmp*/
 tmp_*

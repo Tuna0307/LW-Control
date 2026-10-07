@@ -2,13 +2,29 @@
 
 This project is expected to use multiple AIs. The main project lead controls scope and integrates results.
 
+Current owner direction, 2026-10-07: all live Last War testing and shared-desktop
+capture/control are ON HOLD while the owner uses this computer. Resume only after
+an explicit owner instruction. Continue assigned feature recovery using static
+artifacts and isolated/inert tests. Older live assignments do not override this hold.
+
+Other owner-relayed worker AIs work alone. No subagents, other AI-chat delegation,
+GPT Work or Codex execution/delegation is allowed for those workers. This does not
+ban the current Codex project-lead chat. Sequential medium checkpoints and owner
+relay replace worker subagent coordination; old task permissions are superseded.
+
+When desktop work is authorized again, inspect Remote Desktop Commander and
+Windows-MCP capabilities together. Check the second tool before claiming the first
+tool's limitation blocks the task, and report actual errors if neither can do it.
+See `WINDOWS_MCP_SETUP.md` for installation, headless verification and the CLI
+bridge usable through Remote Desktop Commander. Tools do not expand scope.
+
 Owner direction, 2026-10-02: the owner relays prompts and replies between AI chats.
 The lead supplies one self-contained, bounded prompt per assignment, assuming a
 fresh worker chat, then verifies the returned files, evidence and checks before
 acceptance. Chat On Steroids collaboration requirements are retired; no connector
 setup or repair is required to continue. Existing scope and review rules apply.
 
-Owner direction, 2026-10-05: workers may use subagents within their assigned
+Historical owner direction, 2026-10-05 (superseded by 2026-10-07): workers may use subagents within their assigned
 scope. This supersedes the earlier no-subagent rule, including conflicting old
 work-item text. One coordinating worker remains responsible for integration,
 verification and owner-relayed delivery. See the coordination rules below.
@@ -125,7 +141,10 @@ Commit:
 Recommended next task:
 ```
 
-## Coordinating worker and subagents
+## Historical coordinating-worker/subagent policy (superseded for workers)
+
+The following is retained as history and is not permission for worker subagents.
+The current 2026-10-07 solo-worker rule takes precedence.
 
 Keep one coordinating worker for each owner-relayed assignment. Subagents may
 perform bounded research, implementation or review within that assignment;

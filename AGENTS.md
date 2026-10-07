@@ -2,13 +2,39 @@
 
 Read this file before doing any work.
 
+Owner direction, 2026-10-07 (current): feature recovery continues offline while
+the owner uses this computer. All Last War/live-function testing is ON HOLD until
+the owner explicitly resumes it after arranging a second screen and availability.
+An older live work item, tool installation, or previous authorization does not
+override this hold. Do not launch/control the game, instrument its installation,
+capture the owner's desktop, send input, change focus, or interrupt owner activity.
+Use static artifacts and isolated/inert providers, processes and test roots.
+Keep live-dependent behavior UNKNOWN or BLOCKED; never substitute fixture results
+for live proof. Source/local UIUX acceptance and completed recovery fixes remain.
+
+Other owner-relayed worker AIs must work alone: no subagents, delegation to other
+AI chats, or use of GPT Work or Codex to perform their assignment. This supersedes
+the 2026-10-05 worker subagent permission and conflicting older work items. The
+restriction applies to the other worker AIs, not this Codex project-lead chat.
+Use sequential medium milestones, durable checkpoints and manual owner relay.
+
+For authorized desktop work, use Remote Desktop Commander and Windows-MCP as
+complementary tools. Inspect actual available tools/schemas; if one lacks a needed
+capability, check the other before declaring a tooling blocker. Record exact
+commands, errors and unavailable capabilities when both cannot perform the step.
+Do not invent tool availability or success. Windows-MCP is machine-local under
+`C:\Users\chimw\OneDrive\Desktop\Github\LW-Control\Windows-MCP`;
+see `docs/WINDOWS_MCP_SETUP.md`. Installation does not lift the current desktop/
+live hold or authorize protected-service access. Headless startup/tool-list checks
+are permitted; actual screenshots/input wait for a specifically authorized task.
+
 Owner direction, 2026-10-02: use manual relay between AI chats. The project lead
 writes self-contained task prompts for the owner to forward and independently
 reviews returned work. The Chat On Steroids collaboration policy is retired;
 its mandatory delegation, model-selection and two-checkpoint requirements no
 longer apply. Follow the existing project evidence and review rules below.
 
-Owner direction, 2026-10-05: assigned worker AIs may now use subagents within
+Historical owner direction, 2026-10-05 (superseded by 2026-10-07): assigned worker AIs may now use subagents within
 their project-lead-assigned scope. This supersedes the earlier worker subagent
 ban and conflicting instructions in older work items. Keep one coordinating
 worker responsible for task ownership, integration, validation and delivery.

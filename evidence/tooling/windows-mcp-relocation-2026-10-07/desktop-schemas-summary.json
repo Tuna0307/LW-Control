@@ -1,0 +1,18 @@
+[
+  {
+    "tool": "Snapshot",
+    "arguments": "use_vision,use_dom,use_annotation,use_ui_tree,width_reference_line,height_reference_line,display,region"
+  },
+  {
+    "tool": "Screenshot",
+    "arguments": "use_annotation,width_reference_line,height_reference_line,display,region"
+  },
+  {
+    "tool": "Click",
+    "arguments": "loc,label,button,clicks"
+  },
+  {
+    "tool": "Type",
+    "arguments": "text,loc,label,clear,caret_position,press_enter"
+  }
+]

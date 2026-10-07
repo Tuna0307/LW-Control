@@ -1,0 +1,45 @@
+You are the solo worker for LWB317-FUNCTION-HOME-MAP-OFFLINE-HOST-CONTRACT-001.
+
+Repository: C:\Users\chimw\OneDrive\Desktop\Github\LW-Control
+Branch: research/offline-controller. Inspect current HEAD/status; do not reset.
+
+Read AGENTS.md, docs/AI_WORK_PROTOCOL.md, docs/WINDOWS_MCP_SETUP.md,
+docs/implementation-handoff.md, and the full work item:
+docs/work-items/LWB317-FUNCTION-HOME-MAP-OFFLINE-HOST-CONTRACT-001.md.
+Read the RECOVERY-003 lead review and its source evidence before investigating.
+
+Background: recovered-source/local UIUX is accepted. RECOVERY-003 R3-01 through
+R3-05 are accepted for offline/inert scope. Home/Map live feature parity remains
+PARTIAL. Preserve these fixes; do not restart the campaign or redesign the UI.
+
+The owner is using this computer. All live Last War testing and shared-desktop
+screenshots/input/focus changes are ON HOLD until the owner explicitly resumes.
+No game launch/control/attachment, installation instrumentation, owner-runtime
+mutation, gameplay, updater or protected-service access. Use static artifacts,
+read-only installed files, headless/inert providers and explicit temporary roots.
+Work alone: no subagents, other AI-chat delegation, GPT Work or Codex use.
+
+Complete the full work item through three coherent medium checkpoints:
+A. Recover exact Home/current-client host and Manual City/Resource capture
+   contracts, especially ReadRuntimeSnapshot delegate construction, xLua binding,
+   Lua invocation/result handling, lease admission and readiness. Cite hashes and
+   source locators. A lupa mock does not prove real .NET/xLua marshalling.
+B. Prove statically recoverable production seams with distinguishing inert
+   inverses. Fix only demonstrated source-backed defects in this path. Preserve
+   global Auto Launch intent, semantic Auto Scan rebase, exact ownership, committed
+   Stop, admission/restoration guards and all historical negative evidence.
+C. Deliver a dependency/readiness matrix, checks and concrete future owned live
+   witnesses as plans only. Do not mark unknown live behavior proven. If no defect
+   is demonstrated, deliver exact recovery evidence without speculative edits.
+
+Windows-MCP is installed at LW-Control\Windows-MCP. Its stdio bridge is
+tools/windows_mcp_client.py, usable through Remote Desktop Commander; listing
+schemas is headless. Actual desktop calls remain on hold. For later authorized
+desktop work, check both tools before claiming a capability blocker.
+
+Run applicable production-seam/native checks and, if product code changes,
+canonical frontend check/build/package and affected Release builds. Document all
+evidence/limits; preserve unrelated files. Review each diff, commit coherent
+checkpoints, push and verify the direct remote SHA. Return AWAITING_REVIEW with
+contracts, corrected findings, executed checks, commits and exact continuation.
+The project lead independently accepts. Do not begin unrelated features.

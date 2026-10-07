@@ -1,0 +1,30 @@
+{
+  "oldLocationAbsent": true,
+  "sourceCommit": "a74df211d8dcb4cdc49f58a5a18d816d79bd6c3b",
+  "sourceClean": true,
+  "clientConfigurationPreserved": true,
+  "toolCount": 20,
+  "desktopToolCalls": 0,
+  "toolNames": [
+    "App",
+    "DisplayInventory",
+    "PowerShell",
+    "FileSystem",
+    "Snapshot",
+    "Screenshot",
+    "Click",
+    "Type",
+    "Scroll",
+    "Move",
+    "Shortcut",
+    "Wait",
+    "WaitFor",
+    "Scrape",
+    "MultiSelect",
+    "MultiEdit",
+    "Clipboard",
+    "Process",
+    "Notification",
+    "Registry"
+  ]
+}

@@ -1,3 +1,5 @@
+Current owner direction, 2026-10-07: **LIVE TESTING / SHARED-DESKTOP CONTROL ON HOLD** until the owner explicitly resumes after arranging a second screen and availability. Continue offline feature recovery; accepted source/local UIUX and RECOVERY-003 fixes remain accepted, and Home/Map live parity remains PARTIAL. Next owner-relayed offline assignment: docs/work-items/LWB317-FUNCTION-HOME-MAP-OFFLINE-HOST-CONTRACT-001.md. The prepared LIVE-PILOT-001 is on hold. Other workers must work alone with no subagents or GPT Work/Codex delegation. For later authorized desktop work, inspect Remote Desktop Commander and Windows-MCP together; setup is in docs/WINDOWS_MCP_SETUP.md. Historical directions below are superseded only where they conflict with this current owner direction.
+
 # Project lead control sheet
 
 Dispatch, 2026-10-04: SHELL-MAP-ENTRY-001 is READY for one medium worker assignment.

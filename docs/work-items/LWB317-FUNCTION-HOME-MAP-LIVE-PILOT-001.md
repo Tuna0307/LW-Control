@@ -1,7 +1,9 @@
 # LWB317-FUNCTION-HOME-MAP-LIVE-PILOT-001
 
-Status: **PREPARED FOR OWNER RELAY**, 2026-10-07. Not dispatched by merely reading
-this file. The owner forwarding the live assignment authorizes this bounded pilot.
+Status: **ON_HOLD_BY_OWNER**, 2026-10-07. The owner needs this computer and has
+postponed live testing until an explicit instruction after arranging a second
+screen and availability. Do not execute this pilot or treat older forwarding as
+current authorization. Preserve its prepared scope for a later lead reissue.
 RECOVERY-003 acceptance must be recorded before live execution; unresolved review
 findings are corrected first. No claim of complete live feature parity is made.
 
@@ -44,9 +46,10 @@ RECOVERY-003 identity/Stop/global preference/semantic rebase behavior.
   automation may run on launch. Use the owner's legitimately available game access;
   do not obtain credentials, bypass access controls or invent entitlement.
 
-## 2. Authorized live slice after successful preflight
+## 2. Prepared live slice, only after explicit owner resumption and preflight
 
-This owner-relayed assignment explicitly requires and authorizes one assistant-owned
+When the owner explicitly resumes live work and the lead reissues this assignment,
+its bounded scope requires and authorizes one assistant-owned
 Last War launch through canonical Home, the normal city-to-world view transition
 needed for same-server map observation, one Manual City/Resource scan, its Stop,
 local filtering/pagination/export/reopen checks, and closing only that owned session.
@@ -83,8 +86,9 @@ one successful live slice does not establish all Home/Map or original-runtime pa
 Run affected offline inverse/native checks and canonical frontend/build/package
 checks after fixes. Inspect/stage only owned changes; commit coherent medium
 checkpoints, push and verify direct remote SHA. Preserve unrelated/historical work.
-Subagents may inspect/review exclusive files, but only one coordinator controls
-the live game, UI, providers and cleanup. No concurrent live sessions or control.
+The owner-relayed worker works alone: no subagents, GPT Work or Codex delegation.
+When explicitly resumed, only that worker controls its owned live session and
+cleanup. No concurrent live sessions or control.
 
 Return AWAITING_REVIEW with actual live outcomes, fixed defects, failed attempts,
 restoration proof, remaining dependencies and exact continuation. The lead accepts.

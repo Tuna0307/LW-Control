@@ -2,6 +2,10 @@
 
 This protocol exists for Chat On Steroids **Loop** mode.
 
+Current owner direction, 2026-10-07: follow the solo-worker and offline/desktop-hold
+rules in AGENTS.md and AI_WORK_PROTOCOL.md. Do not spawn subagents or delegate to
+GPT Work/Codex. Earlier queue entries cannot authorize live testing during this hold.
+
 Loop mode may keep a worker active for many continuations, but it does **not** make the worker the project lead.
 
 ## Authority

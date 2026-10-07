@@ -4,8 +4,15 @@ Only the project lead should normally change what is authorized here.
 
 ## Current authorization
 
+Owner hold, 2026-10-07: all live/gameplay/shared-desktop control is suspended until
+explicit owner resumption. Historical READY/live entries below do not override
+this direction. Other workers work alone without subagents/GPT Work/Codex.
+The current offline owner-relayed work item takes precedence over old queue entries.
+
 | Campaign / work item | State | File | Notes |
 |---|---|---|---|
+| LWB317-FUNCTION-HOME-MAP-OFFLINE-HOST-CONTRACT-001 | READY FOR OWNER RELAY | `docs/work-items/LWB317-FUNCTION-HOME-MAP-OFFLINE-HOST-CONTRACT-001.md` | Bounded static host/binding recovery and isolated inverse checks; no desktop/game/live execution |
+| LWB317-FUNCTION-HOME-MAP-LIVE-PILOT-001 | ON_HOLD_BY_OWNER | `docs/work-items/LWB317-FUNCTION-HOME-MAP-LIVE-PILOT-001.md` | Requires explicit later owner resumption and lead reissue |
 | LWB317-UI-COMPLETE-001 | READY | `docs/work-items/LWB317-UI-COMPLETE-001.md` | Owner manually dispatches a fresh worker chat; full shell/eight-page UI coverage with Home/Map first; milestone checkpoints, no fixed time stop; no new game/native lifecycle work |
 | LWB317-UI-CAMPAIGN-8H | ACCEPTED | `docs/LOOP_CAMPAIGN_8H.md` | Static UI recovery accepted; direct original post-auth pixel validation remains blocked by the original auth boundary |
 | LWB317-COMPAT-MAP-V22-001 | COMPLETE | `docs/reviews/2026-09-30-LWB317-COMPAT-MAP-V22-001.md` | Installed v22 Map compatibility statically revalidated; no production Map change required |
