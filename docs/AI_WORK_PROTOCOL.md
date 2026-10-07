@@ -111,6 +111,14 @@ Every assignment should contain:
 
 ## Evidence rule
 
+Owner clarification, 2026-10-07: every feature acceptance claim follows the A -> A
+rule in AGENTS.md and `owner-directions/2026-10-07-A-TO-A-PARITY.md`. State the
+reference input/state and observable result/transition, then compare the clone
+against independently recovered source/contract or authorized observation.
+Separate exact-original facts from current-client adaptations and unresolved
+behaviour. A useful safeguard or passing clone-only suite does not establish
+parity. Report proof coverage and limits; do not present samples as universal proof.
+
 A worker should create a focused review/finding file for meaningful recovered facts.
 
 Do not dump raw reasoning. Record:

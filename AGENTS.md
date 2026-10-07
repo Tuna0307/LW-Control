@@ -80,6 +80,22 @@ Use one canonical production implementation. Do not introduce an automatic or us
 
 Do not redesign in-scope workflows, labels, defaults, tabs, states, timing or behavior merely because another design seems better.
 
+Owner clarification, 2026-10-07: **A -> A behavioural parity is mandatory.**
+If the original performs A for a given supported input/state, the clone must
+perform A for the equivalent input/state. Rewriting in another language or adapting
+to the current client does not authorize B. This includes observable selection,
+ordering, validation, defaults, limits, timing, retry/cancel/failure behaviour,
+state/persistence transitions, UI and result meanings. Internal mechanisms may
+differ only with evidence that they preserve the recovered observable contract;
+label adaptations separately from exact-original facts. Passing tests written
+solely against the clone, compilation or a plausible design is not equivalence
+proof. Unknown original behaviour remains UNKNOWN/incomplete; never replace it
+with a guessed policy and call the feature recovered. An unavailable safety fence
+is a truthful incomplete feature, not successful functional parity. Document and
+correct demonstrated differences, including stricter validation. Existing explicit
+owner exclusions and live/session/access boundaries remain in force. See
+`docs/owner-directions/2026-10-07-A-TO-A-PARITY.md`.
+
 ## 3. Work order
 
 Current order:
