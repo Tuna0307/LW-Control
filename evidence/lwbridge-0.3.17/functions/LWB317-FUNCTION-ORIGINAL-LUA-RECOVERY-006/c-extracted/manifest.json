@@ -1,0 +1,71 @@
+{
+  "schema": 1,
+  "reference": {
+    "path": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW\\lwbridge-0.3.17.exe",
+    "sha256": "4e9c3113dedfd7e1a752404c6936aab304e67d7ffdb0952a5003c2ec948d6783"
+  },
+  "assets": {
+    "bridge-scripts.dat": {
+      "offset": "0x8EED88",
+      "size": 1418098,
+      "sha256": "c215b5aa87619f547f2d999e58d1a1cb4780b49fec7040362732257d86d4fa82",
+      "kind": "LWBPv2-encrypted-package",
+      "output": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\evidence\\lwbridge-0.3.17\\functions\\LWB317-FUNCTION-ORIGINAL-LUA-RECOVERY-006\\c-extracted\\bridge-scripts.dat",
+      "parsed": {
+        "magic": "LWBP",
+        "version": 2,
+        "buildId": "yoWZOvy8GWpsTNLrcZGcYQ",
+        "nonceHex": "d8cb26c56e4f518faba86a3e",
+        "ciphertextLength": 1418032,
+        "tagHex": "5c9089c5683a61777319b0bb01557f04",
+        "ciphertextOffset": 50,
+        "tagOffset": 1418082
+      }
+    },
+    "xlua-proxy-secure.dll": {
+      "offset": "0xA4919B",
+      "size": 619008,
+      "sha256": "ae8bba866df80e9c924923d1f59d49e824c784c8ba9b47780fe2f58305e00a86",
+      "kind": "PE32+-dll",
+      "output": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\evidence\\lwbridge-0.3.17\\functions\\LWB317-FUNCTION-ORIGINAL-LUA-RECOVERY-006\\c-extracted\\xlua-proxy-secure.dll",
+      "peValid": true,
+      "machine": "0x8664",
+      "entryPointRva": "0x4AC00"
+    },
+    "xlua-proxy-plain.dll": {
+      "offset": "0xAE039B",
+      "size": 620544,
+      "sha256": "266129c6c92f3ae89001493d61ccfdf4f5dac1fe66cff4fbb4799e6c01a6c902",
+      "kind": "PE32+-dll",
+      "output": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\evidence\\lwbridge-0.3.17\\functions\\LWB317-FUNCTION-ORIGINAL-LUA-RECOVERY-006\\c-extracted\\xlua-proxy-plain.dll",
+      "peValid": true,
+      "machine": "0x8664",
+      "entryPointRva": "0x4AC00"
+    },
+    "xlua-proxy-bundle.json": {
+      "offset": "0xB77B9B",
+      "size": 590,
+      "sha256": "d6b3c71208a658d3d4ff05ab1af2e5abee3f5bab05839e15d6c97f6d58cffd1c",
+      "kind": "json",
+      "output": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\evidence\\lwbridge-0.3.17\\functions\\LWB317-FUNCTION-ORIGINAL-LUA-RECOVERY-006\\c-extracted\\xlua-proxy-bundle.json",
+      "parsed": {
+        "schemaVersion": 1,
+        "compositeSha256": "6369c07c5da963a19a78cc1ec84e7ae8c13df2978d38ce7f083bb7766f1d2881",
+        "secure": {
+          "fileName": "xlua-proxy-secure.dll",
+          "proxySha256": "ae8bba866df80e9c924923d1f59d49e824c784c8ba9b47780fe2f58305e00a86",
+          "exportFingerprint": "69c9f22bdd71eb1e9ce6f577ef03531685a8528349ff04ccfbeda7de6d788da9"
+        },
+        "plain": {
+          "fileName": "xlua-proxy-plain.dll",
+          "proxySha256": "266129c6c92f3ae89001493d61ccfdf4f5dac1fe66cff4fbb4799e6c01a6c902",
+          "exportFingerprint": "dbf663268c49da286f1a282786e69e18c885a719c7734234b89c43fd521932dd"
+        }
+      }
+    }
+  },
+  "decryption": {
+    "attempted": false,
+    "reason": "signed package-key.envelope is not among supplied artifacts; matching persisted CNG private key is owner state and was not accessed/exported"
+  }
+}

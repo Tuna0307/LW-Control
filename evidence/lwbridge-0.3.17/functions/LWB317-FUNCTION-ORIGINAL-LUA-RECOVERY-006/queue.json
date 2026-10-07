@@ -14,15 +14,17 @@
     {
       "id": "B",
       "state": "COMPLETE",
+      "commit": "65bde8312dae7ef96d5db0d86d7c73df8b4f4d18",
       "disposition": "0.3.17 extraction/crypto/integrity/input contract source-recovered; decrypt inputs incomplete"
     },
     {
       "id": "C",
-      "state": "ACTIVE"
+      "state": "COMPLETE_WITH_INPUT_BLOCKER",
+      "disposition": "exact encrypted resources carved/hash-verified; 8 inert parser tests pass; original decrypt not attempted because envelope absent and owner CNG private key not accessed"
     },
     {
       "id": "D",
-      "state": "READY"
+      "state": "ACTIVE"
     }
   ],
   "productChanged": false

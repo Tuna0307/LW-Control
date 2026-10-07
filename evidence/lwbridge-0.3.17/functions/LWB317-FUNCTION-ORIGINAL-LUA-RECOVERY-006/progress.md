@@ -9,34 +9,31 @@ plain loader proxies plus bundle are identified. No standalone
 package-key.envelope/bridge-scripts.dat/authorization.ticket is in the bounded
 supplied roots.
 
-Checkpoint commit:
+Commit:
 `a9196752ac4148c7b76b04d3af6e17df4da96277`.
 
 ## B — COMPLETE
 
-0.3.17 secure-proxy static recovery confirms:
+0.3.17 loader/crypto/integrity/input contract is source-recovered, including
+signed envelope, device-bound P-256 agreement, HKDF-SHA256, AES-256-GCM,
+package SHA/build binding and direct module table with no compression.
 
-- LWBP v2 + 22-byte build;
-- whole-package SHA-256 and build binding;
-- package AAD `LWBP2|<build>`;
-- AES-256-GCM (32/12/16 key/nonce/tag);
-- signed two-segment canonical Base64URL envelope;
-- 14 pipe fields;
-- ECDSA-P256 signature verification with hard-coded public key;
-- device-public SHA-256 binding;
-- persisted Microsoft Software KSP P-256 private key;
-- NCrypt P-256 secret agreement + 32-byte TRUNCATE output;
-- HKDF-SHA256 one-block derivation;
-- AES-GCM encrypted 32-byte package key;
-- direct decrypted module table; no compression stage;
-- 1..1024 entries, `u32 nameLen/u32 sourceLen/name/source`, allowed
-  `A-Z a-z 0-9 . _`, exactly one bootstrap, no trailing bytes.
+Commit:
+`65bde8312dae7ef96d5db0d86d7c73df8b4f4d18`.
 
-No private key, runtime auth material or protected service was accessed.
+## C — COMPLETE WITH EXACT INPUT BLOCKER
 
-## C — ACTIVE
+Exact package + proxies + bundle were carved into task-owned
+`c-extracted/` and hash/PE/bundle verified. Original decrypt was not attempted
+because no signed package-key.envelope is supplied and the matching persisted
+CNG private key is owner state that this audit does not access.
 
-Extract only the source-proven encrypted/resources into task-owned evidence,
-verify hashes/PE validity, and build inert parser/oracle checks. Do not decrypt:
-the signed envelope is not supplied and the matching persisted private key is
-owner state.
+Inert recovered-format tests: 8/8 PASS.
+
+## D — ACTIVE
+
+Continue static original-controller recovery for Treasure status/claim and Ghost
+preparation. Determine whether any body copy exists outside encrypted module
+plaintext; recover every host-visible lifecycle/order/result contract available;
+prove the exact dependency for any remaining body semantics; report clone
+differences only. No product code changes.

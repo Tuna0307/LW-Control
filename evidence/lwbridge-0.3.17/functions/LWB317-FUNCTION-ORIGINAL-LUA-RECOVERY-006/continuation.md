@@ -1,20 +1,17 @@
 # Continuation — LWB317-FUNCTION-ORIGINAL-LUA-RECOVERY-006
 
-A and B are complete.
+A/B/C are complete.
 
-C:
-- write exact encrypted bridge-scripts.dat and loader resources only into the
-  task-owned evidence root;
-- verify all extracted hashes against A/bundle;
-- exercise recovered LWBP/module-table grammar with inert synthetic fixtures;
-- record that original decrypt cannot execute without a legitimate signed
-  package-key.envelope plus matching persisted CNG private key;
-- do not access/export the private key and do not bypass the envelope.
-
-D:
-- continue all static ready branches for Treasure status/claim and Ghost
-  preparation;
-- determine which host-visible semantics can be recovered without plaintext;
-- prove the exact missing original-body dependency if controller sources remain
-  inside encrypted module-table plaintext;
-- no product changes/provider enablement.
+D only:
+- search the complete fixed EXE and exact embedded resources for any additional
+  plaintext or duplicate original controller body representation;
+- trace the outer-host provider callsites for getTreasureClaimStatus,
+  claimTreasures and prepareGhostPlunderTasks, including arguments, validation,
+  ordering, state/counter/lifecycle and result use;
+- distinguish host-owned semantics from encrypted-controller-owned semantics;
+- use prior 004/005 findings as leads, revalidating against the fixed 0.3.17
+  sources rather than copying conclusions;
+- build inert static/body proofs where a body is actually recovered;
+- if actual controller source remains encrypted, record the exact module
+  plaintext dependency and do not substitute current-game Lua or 0.3.1 source;
+- report clone differences without changing product code/providers/fences.

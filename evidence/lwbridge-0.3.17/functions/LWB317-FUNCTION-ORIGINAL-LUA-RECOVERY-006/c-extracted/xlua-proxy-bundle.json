@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "compositeSha256": "6369c07c5da963a19a78cc1ec84e7ae8c13df2978d38ce7f083bb7766f1d2881",
+  "secure": {
+    "fileName": "xlua-proxy-secure.dll",
+    "proxySha256": "ae8bba866df80e9c924923d1f59d49e824c784c8ba9b47780fe2f58305e00a86",
+    "exportFingerprint": "69c9f22bdd71eb1e9ce6f577ef03531685a8528349ff04ccfbeda7de6d788da9"
+  },
+  "plain": {
+    "fileName": "xlua-proxy-plain.dll",
+    "proxySha256": "266129c6c92f3ae89001493d61ccfdf4f5dac1fe66cff4fbb4799e6c01a6c902",
+    "exportFingerprint": "dbf663268c49da286f1a282786e69e18c885a719c7734234b89c43fd521932dd"
+  }
+}
