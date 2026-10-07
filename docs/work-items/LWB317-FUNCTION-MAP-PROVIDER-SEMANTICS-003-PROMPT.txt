@@ -1,0 +1,108 @@
+You are the solo worker for LWB317-FUNCTION-MAP-PROVIDER-SEMANTICS-003.
+
+Repository: C:\Users\chimw\OneDrive\Desktop\Github\LW-Control
+Branch: research/offline-controller
+Previous product/evidence checkpoint: a7c4a03cbd87db5d45030c8117a199d6653729e4.
+Fetch and inspect the latest branch descendant containing this assignment. Record
+the starting SHA and status; do not reset to the previous checkpoint or discard WIP.
+
+Read AGENTS.md, task.md, docs/AI_WORK_PROTOCOL.md, the current Home/Map masters,
+feature ledger/parity matrix, and these two files before starting:
+docs/work-items/LWB317-FUNCTION-MAP-PROVIDER-SEMANTICS-003.md
+docs/reviews/2026-10-07-LWB317-FUNCTION-HOME-MAP-DEEP-RECOVERY-002-LEAD.md
+The work item contains the complete acceptance criteria for all eight milestones.
+
+MISSION
+Complete the remaining Treasure/Ghost provider recovery through actual function
+bodies and executable offline evidence. Implement every complete, source-backed
+contract you establish. Investigate all three methods independently:
+GetTreasureClaimStatusAsync, ClaimTreasuresAsync, PrepareGhostPlunderTasksAsync in
+src/LWBridge.Desktop/CurrentClientMap317ActionProvider.cs.
+
+The previous campaign documented lower-level modules/strings and reran existing
+checks, but did not prove these providers' complete semantics. Absence of the
+original high-level names in the current game is not an impossibility proof.
+Do not repeat name searches/general suites and call the same blockers exhausted.
+Trace actual producers, callers, serialization, response handlers and state updates.
+
+This is one large campaign. Work sequentially through A-H using medium durable
+checkpoints and continue automatically without returning after each milestone.
+No fixed time limit or artificial minimum duration. Return once with the full
+delivery, or after all remaining independent branches have precise proven blockers.
+Work alone: no subagents, other AI-chat delegation, GPT Work or Codex delegation.
+
+A. Semantic toolchain and provenance
+Freeze exact original/current artifacts and previous evidence. Build/adapt a
+read-only bytecode parser/disassembler; use a decompiler if useful. Independently
+validate control flow, closures, constants/registers and instruction support.
+The lead verified Lua signature/version byte 0x53 and format byte 0x01 in three
+current modules; prove compatibility instead of assuming the existing Lua 5.4
+environment works or forcing headers to load. Inspect static xLua loader/VM code
+if necessary. Pin
+entry/raw/decoded hashes and function/prototype/PC locators. Record tool versions.
+
+B. Treasure status
+Recover every original host-consumed result field. Trace current player/global
+budgets, reset/timing, claim-info objects and their actual producers/consumers.
+Test global/local status versus per-target request hypotheses, nil/zero and cached/
+refreshed behavior. Do not assume the no-argument provider needs target aggregation.
+
+C. Direct Treasure claims
+Trace actual UI eligibility -> request constructor -> response/push -> model update
+-> terminal observation. Recover UUID/server/type, typed fields, limits and errors.
+Sending a request does not prove success. Distinguish duplicate/late observations.
+
+D. Scout and aggregate claim orchestration
+Trace LaunchScout/SCOUT_SUPPLIES, formation, queue/march ownership, completion and
+return. Establish direct-versus-scout selection, scopes, lucky ordering and every
+aggregate counter. Separate exact original behavior from justified current-client
+adaptation. Preserve the accepted read-only Treasure inspection lane unchanged.
+
+E. Ghost preparation before persistence
+Trace original schedule input -> preparation -> returned rows -> validation/store
+-> executor. Trace current task/detail/list hydration, templates, UUID/server,
+timing/protection and eligibility bodies. Determine whether preparation is local
+normalization, data hydration or a request/composition; don't infer it from
+CheckCanSteal or the absence of an identically named API. Recover before/after rows.
+
+F. Actual-body oracles and gated implementation
+Execute selected decoded current functions in a compatible isolated Lua process
+with explicit stubs and no real IO/network/game access. Record stub boundaries and
+coverage. Cross-check against raw instructions; a rewritten clone isn't an oracle.
+Implement complete methods in the canonical provider with owned request/results,
+session/profile/lease, cancellation, replacement and retirement fencing. Keep each
+incomplete public method GAME_PROVIDER_UNAVAILABLE; proven pure helpers may be
+implemented independently. No blind sends, guessed schemas, fallback or fake success.
+For any blocker identify the first unresolved producer/result edge, inspected PC
+ranges, competing explanations, exhausted source paths and evidence needed to close.
+
+G. Adversarial integration
+Use actual production handlers/native boundaries and inert transport. Add source-
+backed distinguishing cases for wrong identity, duplicate/out-of-order/stale results,
+partial errors, cancellation/restart/replacement, aggregate counts and prepare-before-
+persist where established. Detect deliberate correlation/aggregation/ownership
+mutations. Preserve original baseline negatives. Run applicable current suites and
+new semantic proofs. Production changes require frontend check/build/package,
+Release Desktop/Checks builds and affected Map/Home/Auto/runtime checks; mounted
+packaged controls run headlessly if wiring changes. Report exact proof limitations.
+
+H. Full review and delivery
+Review your complete diff for regressions, assumptions and missing changes. Fix
+valid findings and rerun affected cases. Create a dated worker review, repeatable
+validator and per-method contract matrix; update current masters/ledger/matrix/
+handoff conservatively. Commit/push coherent checkpoints, verify direct remote SHA,
+and continue ready work. Preserve historical evidence, accepted UIUX/R3 behavior,
+reader UTF-16/BOM versus Lua-byte limits, native ownership and unrelated files.
+Clean and prove only task-owned roots/processes/listeners. Return AWAITING_REVIEW
+with actual method states, new semantics/code, checks, commits, limits and continuation.
+
+BOUNDARIES
+Original target: C:\Users\chimw\OneDrive\Desktop\Github\LW\lwbridge-0.3.17.exe
+SHA-256: 4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783.
+Revalidate current-v22 inputs; historical 0.3.1/v19 findings are hypotheses.
+Live/shared-desktop work stays ON_HOLD_BY_OWNER. No game/original launch or attach,
+installation instrumentation, desktop screenshots/input/focus changes, owner
+runtime/config mutation, protected-service access, entitlement bypass, updater or
+real gameplay/transport. Read static artifacts and use isolated/inert roots only.
+Do not promote headless/static evidence to real xLua binding, positive populations,
+readiness scheduling or LIVE_PROVEN. Final acceptance remains with the project lead.

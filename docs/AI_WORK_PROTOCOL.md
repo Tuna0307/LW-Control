@@ -39,6 +39,12 @@ Keep their edits separate from an active worker's owned scope.
 
 ## Roles
 
+Owner assignment-size direction, 2026-10-07: MAP-PROVIDER-SEMANTICS-003 is one
+large solo function-body recovery/implementation campaign A-H. Continue all ready
+assigned branches through sequential medium checkpoints without per-milestone
+relay. Return once at final review or when every remaining branch is concretely
+blocked. No artificial minimum duration; live hold and evidence gates stay intact.
+
 Owner assignment-size direction, 2026-10-07: HOME-MAP-DEEP-RECOVERY-002 is one
 larger offline feature campaign A-H. The solo worker continues through medium
 durable checkpoints without owner relay after each milestone and returns once

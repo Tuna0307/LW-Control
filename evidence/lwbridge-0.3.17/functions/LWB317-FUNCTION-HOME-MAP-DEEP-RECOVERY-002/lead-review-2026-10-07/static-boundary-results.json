@@ -1,0 +1,41 @@
+{
+  "scope": "lead read-only provenance and bytecode availability check",
+  "artifacts": {
+    "referenceExe": "4e9c3113dedfd7e1a752404c6936aab304e67d7ffdb0952a5003c2ec948d6783",
+    "currentPackage": "248f3aeac712b3f14f86bff37a0c365e467897a2248403837c44c1b774f05b22",
+    "currentGame": "905c98c1f89841f90b492556192ba0642f3d209a873cb8c1f7b3c340aca0733d",
+    "currentXlua": "d22d912f031c60f2649fdaf76d359d695511f7a37b93cd637b557f8346569d45",
+    "currentAssembly": "bfb740b4570c58bd2bcc7fb83f9b83d8121ce10fb1bf49040e9fb8b08e958b3e"
+  },
+  "productionSourcesMatched": 9,
+  "package": {
+    "fileVersion": 3,
+    "contentVersion": 22,
+    "entries": 18741
+  },
+  "modules": {
+    "DataCenter/ActivityListData/ActGhostrecon/ActGhostreconManager.luac": {
+      "decodedSha256": "ff4d3da182b931339d2b0c6966c4fa3fa4844abf9f06bd35a1816173d0775a41",
+      "decodedBytes": 33935,
+      "first12BytesHex": "1b4c7561530119930d0a1a0a",
+      "versionByte": "0x53",
+      "semanticFunctionExecutionProven": false
+    },
+    "Net/Msgs/RadarCenter/DetectEventClaimTreasureMessage.luac": {
+      "decodedSha256": "ecceef817b99de8ce94518e910e3d4c773dbf1d0825a4878c87d00d59b0b4499",
+      "decodedBytes": 2469,
+      "first12BytesHex": "1b4c7561530119930d0a1a0a",
+      "versionByte": "0x53",
+      "semanticFunctionExecutionProven": false
+    },
+    "Net/Msgs/RadarCenter/DetectEventGetTreasureClaimInfoMessage.luac": {
+      "decodedSha256": "a8216497185f8a12ccf5d9608400c0070f6cae692d0a2007b2adf770f1f853ff",
+      "decodedBytes": 1455,
+      "first12BytesHex": "1b4c7561530119930d0a1a0a",
+      "versionByte": "0x53",
+      "semanticFunctionExecutionProven": false
+    }
+  },
+  "liveExecution": false,
+  "limits": "Does not validate function semantics, providers, worker suites, or live game behavior."
+}

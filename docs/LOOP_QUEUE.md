@@ -11,7 +11,8 @@ The current offline owner-relayed work item takes precedence over old queue entr
 
 | Campaign / work item | State | File | Notes |
 |---|---|---|---|
-| LWB317-FUNCTION-HOME-MAP-DEEP-RECOVERY-002 | ASSIGNED FOR OWNER RELAY | `docs/work-items/LWB317-FUNCTION-HOME-MAP-DEEP-RECOVERY-002.md` | One solo offline campaign A-H; exact original/current recovery and source-backed feature corrections; automatic continuation between medium checkpoints |
+| LWB317-FUNCTION-MAP-PROVIDER-SEMANTICS-003 | ASSIGNED FOR OWNER RELAY | `docs/work-items/LWB317-FUNCTION-MAP-PROVIDER-SEMANTICS-003.md` | One solo A-H campaign; actual Treasure/Ghost function-body recovery, independent inert semantic oracles and gated adapter implementation; live hold preserved |
+| LWB317-FUNCTION-HOME-MAP-DEEP-RECOVERY-002 | AWAITING_REVIEW | `docs/work-items/LWB317-FUNCTION-HOME-MAP-DEEP-RECOVERY-002.md` | Worker delivery a7c4a03c; lead independently checked provenance/bytecode availability only; comprehensive A-H acceptance remains open |
 | LWB317-FUNCTION-HOME-MAP-OFFLINE-HOST-CONTRACT-001 | ACCEPTED OFFLINE | `docs/work-items/LWB317-FUNCTION-HOME-MAP-OFFLINE-HOST-CONTRACT-001.md` | Lead review of f970b614 with precise reader units/BOM erratum; real xLua/live witnesses remain UNKNOWN |
 | LWB317-FUNCTION-HOME-MAP-LIVE-PILOT-001 | ON_HOLD_BY_OWNER | `docs/work-items/LWB317-FUNCTION-HOME-MAP-LIVE-PILOT-001.md` | Requires explicit later owner resumption and lead reissue |
 | LWB317-UI-COMPLETE-001 | READY | `docs/work-items/LWB317-UI-COMPLETE-001.md` | Owner manually dispatches a fresh worker chat; full shell/eight-page UI coverage with Home/Map first; milestone checkpoints, no fixed time stop; no new game/native lifecycle work |
