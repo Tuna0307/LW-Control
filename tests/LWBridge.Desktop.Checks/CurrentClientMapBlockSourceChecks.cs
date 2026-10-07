@@ -1047,7 +1047,10 @@ internal static class CurrentClientMapBlockSourceChecks
               first.DataJson.Contains("\"cfgId\":4101", StringComparison.Ordinal) &&
               first.DataJson.Contains("\"isSpecial\":true", StringComparison.Ordinal) &&
               first.DataJson.Contains("\"completionTime\":1789616000000", StringComparison.Ordinal) &&
+              first.DataJson.Contains("\"plunderAt\":1789616300000", StringComparison.Ordinal) &&
               first.DataJson.Contains("\"taskExpireTime\":1789623200000", StringComparison.Ordinal) &&
+              first.DataJson.Contains("\"stolenCount\":1", StringComparison.Ordinal) &&
+              first.DataJson.Contains("\"maxStealCount\":3", StringComparison.Ordinal) &&
               first.DataJson.Contains("\"ownerUid\":\"ghost-owner-a\"", StringComparison.Ordinal) &&
               first.DataJson.Contains("\"kind\":\"ghost\"", StringComparison.Ordinal),
             "fast full-Ghost source did not preserve authoritative GhostreconPointInfo fields");

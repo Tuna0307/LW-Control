@@ -1421,6 +1421,17 @@ function dispatch_plunder_runtime.begin(request)
         dispatch_plunder_runtime.write_result(request, "failed", request.error, false)
         return
     end
+    if request.taskKind == "ghost" then
+        -- Current-v22 GhostReconSteal serializes uuid+ownerServer, but its
+        -- HandleMessage body does not consume a response UUID. SFSNetwork
+        -- constructs a fresh message instance for incoming responses, so no
+        -- request-instance identity is available either. Until a source-backed
+        -- terminal correlation key is recovered, fail closed instead of sending
+        -- the DispatchSteal command previously shared by this runtime.
+        dispatch_plunder_runtime.write_result(
+            request, "failed", "DISPATCH_PLUNDER_MANAGER_UNAVAILABLE", false)
+        return
+    end
     if dispatch_plunder_runtime.pendingByTask[request.taskUuid] ~= nil then
         dispatch_plunder_runtime.write_result(request, "failed", "DISPATCH_PLUNDER_ALREADY_ARMED", false)
         return

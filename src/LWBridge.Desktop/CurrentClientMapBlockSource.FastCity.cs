@@ -1632,6 +1632,29 @@ internal sealed partial class CurrentClientMapBlockSource
                 specialValue.ValueKind == JsonValueKind.True;
             data["isSpecial"] = isSpecial;
 
+            // Current-v22 ActGhostreconTaskTemplate.CheckCanSteal uses
+            // (serverTime-completionTime)/1000 >= protectTime, while
+            // GetPointStealType compares #stealList with stealMaxtimes. Project
+            // those exact scheduler fields here so the 0.3.17 host can perform
+            // its pre-provider validation before PrepareGhostPlunderTasksAsync.
+            if (row.TryGetProperty("completionTime", out JsonElement completionValue) &&
+                completionValue.TryGetInt64(out long completionTime) && completionTime > 0 &&
+                row.TryGetProperty("protectTime", out JsonElement protectValue) &&
+                protectValue.TryGetInt32(out int protectSeconds) && protectSeconds >= 0)
+            {
+                data["plunderAt"] = checked(completionTime + (long)protectSeconds * 1000L);
+            }
+            if (row.TryGetProperty("stealListCount", out JsonElement stolenValue) &&
+                stolenValue.TryGetInt32(out int stolenCount) && stolenCount >= 0)
+            {
+                data["stolenCount"] = stolenCount;
+            }
+            if (row.TryGetProperty("stealMaxTimes", out JsonElement maxStealValue) &&
+                maxStealValue.TryGetInt32(out int maxStealCount) && maxStealCount >= 0)
+            {
+                data["maxStealCount"] = maxStealCount;
+            }
+
             string recordKey = pointId.ToString(CultureInfo.InvariantCulture);
             result.Add(new FastGhostPrepared(x, y, new MapStoredRecord(
                 "ghost", serverId, recordKey, pointId, uuid, null, null,

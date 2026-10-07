@@ -1,0 +1,139 @@
+=== --map317-plunder-worker-boundary-check ===
+{"ok":true,"check":"map317-plunder-worker-boundary"}
+=== --map-campaign-canonical-check ===
+{
+  "ok": true,
+  "check": "map-campaign-canonical",
+  "mapData": {
+    "profileIsolation": true,
+    "stagedEightKindPublish": true,
+    "persistedReopen": true,
+    "queryFilterSortPage": true,
+    "options": true,
+    "playerMarks": true,
+    "freshProcessServerRehydration": true,
+    "freshProcessClear": true,
+    "destructiveClearFreshAuthorization": true
+  },
+  "cityExport": {
+    "actualXlsxPath": true,
+    "zipPartsVerified": true,
+    "representativeValuesVerified": true,
+    "multiPage205Rows": true,
+    "unicodeAndLargeUid": true,
+    "missingFields": true,
+    "secondServerIsolation": true,
+    "emptyExport": true,
+    "writeFailure": true,
+    "dialogCancellationExecuted": false,
+    "dialogCancellationGap": "native save-dialog cancellation is owned above Map317 MapExporter"
+  },
+  "plunder": {
+    "scheduledDuplicateAdmission": true,
+    "runningDuplicateRejected": true,
+    "durableRestart": true,
+    "restartReconciled": true,
+    "retry": true,
+    "cancel": true,
+    "clear": true,
+    "providerMode": "inert-local",
+    "externalProviderCalls": 0
+  },
+  "treasure": {
+    "cachedStateOverlay": true,
+    "seasonSupplyList": true,
+    "claimOrStatusExecuted": false
+  },
+  "blockers": {
+    "treasureClaimStatus": "requires the protected/current-client action provider and is not executed here",
+    "ghostExecution": "Ghost plunder preparation requires IMapActionProvider.PrepareGhostPlunderTasksAsync and is not executed here",
+    "nativeDialogCancel": "save-dialog cancellation belongs to the Desktop window host above Map317 exporter"
+  }
+}
+=== --profile-runtime-owner-check ===
+{"ok":true,"check":"profile-runtime-owner"}
+PHASE2_PART1_OK
+=== --overview-bridge-lifecycle-launch-binding-check ===
+{
+  "ok": true,
+  "finding": "LWB-R7-118",
+  "transactionProof": {
+    "initialDeadline": 91000,
+    "retryClock": 5000,
+    "proofAdmissionClock": 94000,
+    "originalDeadlineWouldHaveExpired": true,
+    "refreshedAdmissionSucceeded": true,
+    "sameBindingObjectAcrossRetry": true,
+    "samePipeTokenAcrossRetry": true,
+    "startCalls": 2,
+    "settleCalls": 2,
+    "admittedGeneration": 1,
+    "successfulStopUnregister": true,
+    "terminalFailureUnregister": true
+  },
+  "boundary": {
+    "normalWindowEnablesLaunchBinding": true,
+    "productionListenerStarted": true,
+    "outboundCommandRoutingImplemented": true,
+    "pendingCallCollectionImplemented": true,
+    "exactGetStatusCallEnabled": true,
+    "genericCallLuaEnabled": false
+  }
+}
+=== --overview-bridge-host-transport-check ===
+{
+  "ok": true,
+  "finding": "LWB-R7-121",
+  "windowsProof": {
+    "hostListenerStarted": true,
+    "launchRegistrationPreparedAfterListenerStart": true,
+    "authenticated": true,
+    "instanceRouteCall": true,
+    "defaultRouteCall": true,
+    "commandIds": [
+      "cmd_1",
+      "cmd_2",
+      "cmd_3"
+    ],
+    "pendingObserved": 1,
+    "shutdownDrainedPendingWith": "APP_SHUTTING_DOWN",
+    "routeRemovedOnStop": true,
+    "listenerTaskCompleted": true
+  },
+  "recoveredProductionInputs": {
+    "expectedClientPathSource": "\u003CgameRoot\u003E\\Game\\LastWar.exe",
+    "initialCommandCounterSeed": 0,
+    "firstCommandId": "cmd_1"
+  },
+  "boundary": {
+    "lwBridgeWindowStartsTransport": true,
+    "normalOverviewLaunchBindingEnabled": true,
+    "productionPendingExposed": false,
+    "productionCallLuaEnabled": false
+  }
+}
+=== --overview-bridge-normal-composition-check ===
+{
+  "ok": true,
+  "finding": "LWB-R7-123",
+  "normalComposition": {
+    "hostConstructedBeforeListener": true,
+    "expectedClientImage": "\u003CselectedGameRoot\u003E\\Game\\LastWar.exe",
+    "listenerBuildId": "lwbridge-overview-bridge-1",
+    "listenerStartsBeforeLifecycleConstruction": true,
+    "launchBindingEnabled": true,
+    "realLifecycleRechecksListenerBeforeRegistration": true,
+    "registrationBeforeHelperLaunch": true,
+    "testHookLifecycleStartsNativeListener": false,
+    "sameIdentityListenerStartIsIdempotent": true,
+    "differentIdentityListenerStartRejected": true,
+    "applicationOwnsShutdown": true
+  },
+  "boundary": {
+    "getStatusPendingExposed": true,
+    "exactGetStatusCallEnabled": true,
+    "genericCallLuaEnabled": false,
+    "successfulStopUnregisterRecovered": true
+  }
+}
+PHASE2_OK

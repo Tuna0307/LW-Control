@@ -1,0 +1,87 @@
+{
+  "schema": 1,
+  "workItem": "LWB317-FUNCTION-MAP-PROVIDER-SEMANTICS-003",
+  "evidenceState": "OFFLINE_RECOVERY_IMPLEMENTATION",
+  "package": {
+    "sha256": "248f3aeac712b3f14f86bff37a0c365e467897a2248403837c44c1b774f05b22",
+    "fileVersion": 3,
+    "contentVersion": 22
+  },
+  "referenceExeSha256": "4e9c3113dedfd7e1a752404c6936aab304e67d7ffdb0952a5003c2ec948d6783",
+  "publicMethods": {
+    "GetTreasureClaimStatusAsync": {
+      "state": "BLOCKED",
+      "production": "GAME_PROVIDER_UNAVAILABLE",
+      "recovered": [
+        "claim-info request uuid/source/targetServer",
+        "claim-info response success/error routing",
+        "per-target claim-info model and current-player helpers",
+        "global Treasure daily/dig budget and reset producers"
+      ],
+      "firstUnresolvedEdge": "current per-target claim-info + global budgets + provider-owned active batch -> exact no-argument {playerUid,allianceId,states,batch}",
+      "competingExplanations": {
+        "globalBudgetOnly": "DISCONFIRMED_INCOMPLETE",
+        "freshPerTargetQueries": "UNSUPPORTED_NO_UUID_INPUT",
+        "singletonClaimInfoAsBatch": "DISCONFIRMED_REPLACED_PER_RESPONSE"
+      },
+      "minimumEvidence": "protected high-level getTreasureClaimStatus body/equivalent batch source, or future explicitly authorized live provider-result witness"
+    },
+    "ClaimTreasuresAsync": {
+      "state": "BLOCKED",
+      "production": "GAME_PROVIDER_UNAVAILABLE",
+      "recovered": [
+        "direct DetectEventClaimTreasure uuid/targetServer/type wire body",
+        "direct terminal response error/success mutation",
+        "UIUtil.GetDetectTreasureReward current eligibility/caller body",
+        "WorldSupplies SCOUT_SUPPLIES admission",
+        "LaunchScout free-formation and generic StartMarch construction"
+      ],
+      "firstUnresolvedEdges": [
+        "records+scope+lucky ordering -> per-record lane selection and exact aggregate counters",
+        "SCOUT_SUPPLIES accepted march -> authoritative reward completion and claimed/scoutDispatched/failed transition"
+      ],
+      "minimumEvidence": "protected high-level claimTreasures body/equivalent controller plus Supplies completion source, or future explicitly authorized correlated live witness"
+    },
+    "PrepareGhostPlunderTasksAsync": {
+      "state": "BLOCKED",
+      "production": "GAME_PROVIDER_UNAVAILABLE",
+      "recovered": [
+        "task-list/task/template hydration",
+        "protection timing and steal-capacity semantics",
+        "one-to-one scheduler row aliases",
+        "GhostReconSteal uuid+ownerServer request body",
+        "Ghost success/error mutation body"
+      ],
+      "implementedSubcontracts": [
+        "FastCity projection: plunderAt=completionTime+protectTime*1000",
+        "FastCity projection: stolenCount=stealListCount",
+        "FastCity projection: maxStealCount=stealMaxTimes",
+        "PrepareGhostPlunderRows strict one-to-one verifier"
+      ],
+      "firstUnresolvedEdge": "GhostReconSteal(uuid,ownerServer) -> incoming terminal response -> exact scheduled task identity",
+      "disconfirmingEvidence": [
+        "GhostReconStealMessage.HandleMessage consumes no uuid/ownerServer",
+        "SFSNetwork incoming handling creates fresh msgType:NewEmpty() instance"
+      ],
+      "safetyFix": "scheduled ghost requests fail closed before shared Dispatch manager/hook/send",
+      "minimumEvidence": "current Ghost response identity schema or authoritative single-flight/request queue proof, or future explicitly authorized live witness"
+    }
+  },
+  "actualDecodedBodyOracle": {
+    "runtime": "lupa 2.8 / Lua 5.3",
+    "tests": 4,
+    "result": "PASS",
+    "liveProof": false
+  },
+  "productionModuleOracle": {
+    "runtime": "lupa 2.8 / Lua 5.3",
+    "tests": 3,
+    "result": "PASS",
+    "liveProof": false
+  },
+  "classification": {
+    "liveProven": false,
+    "homeMapOverall": "PARTIAL",
+    "livePilot": "ON_HOLD_BY_OWNER"
+  }
+}

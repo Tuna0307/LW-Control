@@ -1,0 +1,347 @@
+﻿
+### DataCenter/RadarCenterDataManager/DetectEventGetTreasureClaimInfo.luac :: InitData root/child[3] [37, 88]
+constants= ['ResetData', 'cfgId', 'eventId', 'num', 'remainNum', 'pointId', 'ownerInfo', 'uid', 'name', 'headPic', 'headPicVer', 'headSkinId', 'headSkinET', 'array', 'treasureClaimPlayerInfoList', 'pairs', 'New', 'InitData', 'table', 'insert', 'reward', 'rewardList', 'DataCenter', 'RewardManager', 'ReturnRewardParamForMessage', 'createTime', 'targetServer']
+000 L38 SELF A=2 B=R[0] C=K[0]='ResetData'
+001 L38 CALL A=2 B=2 C=1 Bx=1025
+002 L39 GETTABLE A=2 B=R[1] C=K[1]='cfgId'
+003 L39 TEST A=2 B=0 C=0 Bx=0
+004 L39 JMP A=0 sBx=2 target=7
+005 L40 GETTABLE A=2 B=R[1] C=K[1]='cfgId'
+006 L40 SETTABLE R[0][K[2]='eventId'] <- R[2]
+007 L42 GETTABLE A=2 B=R[1] C=K[3]='num'
+008 L42 TEST A=2 B=0 C=0 Bx=0
+009 L42 JMP A=0 sBx=2 target=12
+010 L43 GETTABLE A=2 B=R[1] C=K[3]='num'
+011 L43 SETTABLE R[0][K[4]='remainNum'] <- R[2]
+012 L45 GETTABLE A=2 B=R[1] C=K[5]='pointId'
+013 L45 TEST A=2 B=0 C=0 Bx=0
+014 L45 JMP A=0 sBx=2 target=17
+015 L46 GETTABLE A=2 B=R[1] C=K[5]='pointId'
+016 L46 SETTABLE R[0][K[5]='pointId'] <- R[2]
+017 L48 GETTABLE A=2 B=R[1] C=K[6]='ownerInfo'
+018 L48 TEST A=2 B=0 C=0 Bx=0
+019 L48 JMP A=0 sBx=39 target=59
+020 L49 NEWTABLE A=2 B=0 C=0 Bx=0
+021 L49 SETTABLE R[0][K[6]='ownerInfo'] <- R[2]
+022 L50 GETTABLE A=2 B=R[1] C=K[6]='ownerInfo'
+023 L51 GETTABLE A=3 B=R[2] C=K[7]='uid'
+024 L51 TEST A=3 B=0 C=0 Bx=0
+025 L51 JMP A=0 sBx=3 target=29
+026 L52 GETTABLE A=3 B=R[0] C=K[6]='ownerInfo'
+027 L52 GETTABLE A=4 B=R[2] C=K[7]='uid'
+028 L52 SETTABLE R[3][K[7]='uid'] <- R[4]
+029 L54 GETTABLE A=3 B=R[2] C=K[8]='name'
+030 L54 TEST A=3 B=0 C=0 Bx=0
+031 L54 JMP A=0 sBx=3 target=35
+032 L55 GETTABLE A=3 B=R[0] C=K[6]='ownerInfo'
+033 L55 GETTABLE A=4 B=R[2] C=K[8]='name'
+034 L55 SETTABLE R[3][K[8]='name'] <- R[4]
+035 L57 GETTABLE A=3 B=R[2] C=K[9]='headPic'
+036 L57 TEST A=3 B=0 C=0 Bx=0
+037 L57 JMP A=0 sBx=3 target=41
+038 L58 GETTABLE A=3 B=R[0] C=K[6]='ownerInfo'
+039 L58 GETTABLE A=4 B=R[2] C=K[9]='headPic'
+040 L58 SETTABLE R[3][K[9]='headPic'] <- R[4]
+041 L60 GETTABLE A=3 B=R[2] C=K[10]='headPicVer'
+042 L60 TEST A=3 B=0 C=0 Bx=0
+043 L60 JMP A=0 sBx=3 target=47
+044 L61 GETTABLE A=3 B=R[0] C=K[6]='ownerInfo'
+045 L61 GETTABLE A=4 B=R[2] C=K[10]='headPicVer'
+046 L61 SETTABLE R[3][K[10]='headPicVer'] <- R[4]
+047 L63 GETTABLE A=3 B=R[2] C=K[11]='headSkinId'
+048 L63 TEST A=3 B=0 C=0 Bx=0
+049 L63 JMP A=0 sBx=3 target=53
+050 L64 GETTABLE A=3 B=R[0] C=K[6]='ownerInfo'
+051 L64 GETTABLE A=4 B=R[2] C=K[11]='headSkinId'
+052 L64 SETTABLE R[3][K[11]='headSkinId'] <- R[4]
+053 L66 GETTABLE A=3 B=R[2] C=K[12]='headSkinET'
+054 L66 TEST A=3 B=0 C=0 Bx=0
+055 L66 JMP A=0 sBx=3 target=59
+056 L67 GETTABLE A=3 B=R[0] C=K[6]='ownerInfo'
+057 L67 GETTABLE A=4 B=R[2] C=K[12]='headSkinET'
+058 L67 SETTABLE R[3][K[12]='headSkinET'] <- R[4]
+059 L70 GETTABLE A=2 B=R[1] C=K[13]='array'
+060 L70 TEST A=2 B=0 C=0 Bx=0
+061 L70 JMP A=0 sBx=19 target=81
+062 L71 NEWTABLE A=2 B=0 C=0 Bx=0
+063 L71 SETTABLE R[0][K[14]='treasureClaimPlayerInfoList'] <- R[2]
+064 L72 GETTABLE A=2 B=R[1] C=K[13]='array'
+065 L73 GETTABUP A=3 B=R[0] C=K[15]='pairs'
+066 L73 MOVE A=4 B=2 C=0 Bx=1024
+067 L73 CALL A=3 B=2 C=4 Bx=1028
+068 L73 JMP A=0 sBx=10 target=79
+069 L74 GETTABUP A=8 B=R[1] C=K[16]='New'
+070 L74 CALL A=8 B=1 C=2 Bx=514
+071 L75 SELF A=9 B=R[8] C=K[17]='InitData'
+072 L75 MOVE A=11 B=7 C=0 Bx=3584
+073 L75 CALL A=9 B=3 C=1 Bx=1537
+074 L76 GETTABUP A=9 B=R[0] C=K[18]='table'
+075 L76 GETTABLE A=9 B=R[9] C=K[19]='insert'
+076 L76 GETTABLE A=10 B=R[0] C=K[14]='treasureClaimPlayerInfoList'
+077 L76 MOVE A=11 B=8 C=0 Bx=4096
+078 L76 CALL A=9 B=3 C=1 Bx=1537
+079 L73 TFORCALL A=3 B=0 C=2 Bx=2
+080 L73 TFORLOOP A=5 B=255 C=499 Bx=131059
+081 L79 GETTABLE A=2 B=R[1] C=K[20]='reward'
+082 L79 TEST A=2 B=0 C=0 Bx=0
+083 L79 JMP A=0 sBx=6 target=90
+084 L80 GETTABUP A=2 B=R[0] C=K[22]='DataCenter'
+085 L80 GETTABLE A=2 B=R[2] C=K[23]='RewardManager'
+086 L80 SELF A=2 B=R[2] C=K[24]='ReturnRewardParamForMessage'
+087 L80 GETTABLE A=4 B=R[1] C=K[20]='reward'
+088 L80 CALL A=2 B=3 C=2 Bx=1538
+089 L80 SETTABLE R[0][K[21]='rewardList'] <- R[2]
+090 L82 GETTABLE A=2 B=R[1] C=K[25]='createTime'
+091 L82 TEST A=2 B=0 C=0 Bx=0
+092 L82 JMP A=0 sBx=2 target=95
+093 L83 GETTABLE A=2 B=R[1] C=K[25]='createTime'
+094 L83 SETTABLE R[0][K[25]='createTime'] <- R[2]
+095 L85 GETTABLE A=2 B=R[1] C=K[26]='targetServer'
+096 L85 TEST A=2 B=0 C=0 Bx=0
+097 L85 JMP A=0 sBx=2 target=100
+098 L86 GETTABLE A=2 B=R[1] C=K[26]='targetServer'
+099 L86 SETTABLE R[0][K[26]='targetServer'] <- R[2]
+100 L88 RETURN A=0 B=1 C=0 Bx=512
+
+### DataCenter/RadarCenterDataManager/DetectEventGetTreasureClaimInfo.luac :: GetSelfClaimState root/child[4] [91, 104]
+constants= ['table', 'count', 'treasureClaimPlayerInfoList', 'uid', 'LuaEntry', 'Player', 'GetUid', 'isBigReward', 'DetectEventTreasureClaimState', 'DoubleClaim', 'NormalClaim', 'NoClaim']
+000 L92 GETTABUP A=1 B=R[0] C=K[0]='table'
+001 L92 GETTABLE A=1 B=R[1] C=K[1]='count'
+002 L92 GETTABLE A=2 B=R[0] C=K[2]='treasureClaimPlayerInfoList'
+003 L92 CALL A=1 B=2 C=2 Bx=1026
+004 L93 LOADK R[2] <- K[3]=1
+005 L93 MOVE A=3 B=1 C=0 Bx=512
+006 L93 LOADK R[4] <- K[3]=1
+007 L93 FORPREP A=2 B=256 C=18 Bx=131090
+008 L94 GETTABLE A=6 B=R[0] C=K[2]='treasureClaimPlayerInfoList'
+009 L94 GETTABLE A=6 B=R[6] C=R[5]
+010 L95 GETTABLE A=7 B=R[6] C=K[4]='uid'
+011 L95 GETTABUP A=8 B=R[0] C=K[5]='LuaEntry'
+012 L95 GETTABLE A=8 B=R[8] C=K[6]='Player'
+013 L95 SELF A=8 B=R[8] C=K[7]='GetUid'
+014 L95 CALL A=8 B=2 C=2 Bx=1026
+015 L95 EQ A=0 B=R[7] C=R[8]
+016 L95 JMP A=0 sBx=10 target=27
+017 L96 GETTABLE A=7 B=R[6] C=K[8]='isBigReward'
+018 L96 TEST A=7 B=0 C=0 Bx=0
+019 L96 JMP A=0 sBx=4 target=24
+020 L97 GETTABUP A=7 B=R[0] C=K[9]='DetectEventTreasureClaimState'
+021 L97 GETTABLE A=7 B=R[7] C=K[10]='DoubleClaim'
+022 L97 RETURN A=7 B=2 C=0 Bx=1024
+023 L97 JMP A=0 sBx=3 target=27
+024 L99 GETTABUP A=7 B=R[0] C=K[9]='DetectEventTreasureClaimState'
+025 L99 GETTABLE A=7 B=R[7] C=K[11]='NormalClaim'
+026 L99 RETURN A=7 B=2 C=0 Bx=1024
+027 L93 FORLOOP A=2 B=255 C=491 Bx=131051
+028 L103 GETTABUP A=2 B=R[0] C=K[9]='DetectEventTreasureClaimState'
+029 L103 GETTABLE A=2 B=R[2] C=K[12]='NoClaim'
+030 L103 RETURN A=2 B=2 C=0 Bx=1024
+031 L104 RETURN A=0 B=1 C=0 Bx=512
+
+### DataCenter/RadarCenterDataManager/DetectEventGetTreasureClaimInfo.luac :: GetSelfBigRewardMultiple root/child[5] [107, 117]
+constants= ['table', 'count', 'treasureClaimPlayerInfoList', 'uid', 'LuaEntry', 'Player', 'GetUid', 'isBigReward', 'bigRewardMultiple']
+000 L108 GETTABUP A=1 B=R[0] C=K[0]='table'
+001 L108 GETTABLE A=1 B=R[1] C=K[1]='count'
+002 L108 GETTABLE A=2 B=R[0] C=K[2]='treasureClaimPlayerInfoList'
+003 L108 CALL A=1 B=2 C=2 Bx=1026
+004 L109 LOADK R[2] <- K[3]=1
+005 L109 MOVE A=3 B=1 C=0 Bx=512
+006 L109 LOADK R[4] <- K[3]=1
+007 L109 FORPREP A=2 B=256 C=16 Bx=131088
+008 L110 GETTABLE A=6 B=R[0] C=K[2]='treasureClaimPlayerInfoList'
+009 L110 GETTABLE A=6 B=R[6] C=R[5]
+010 L111 GETTABLE A=7 B=R[6] C=K[4]='uid'
+011 L111 GETTABUP A=8 B=R[0] C=K[5]='LuaEntry'
+012 L111 GETTABLE A=8 B=R[8] C=K[6]='Player'
+013 L111 SELF A=8 B=R[8] C=K[7]='GetUid'
+014 L111 CALL A=8 B=2 C=2 Bx=1026
+015 L111 EQ A=0 B=R[7] C=R[8]
+016 L111 JMP A=0 sBx=8 target=25
+017 L112 GETTABLE A=7 B=R[6] C=K[8]='isBigReward'
+018 L112 TEST A=7 B=0 C=0 Bx=0
+019 L112 JMP A=0 sBx=5 target=25
+020 L113 GETTABLE A=7 B=R[6] C=K[9]='bigRewardMultiple'
+021 L113 TEST A=7 B=0 C=1 Bx=1
+022 L113 JMP A=0 sBx=1 target=24
+023 L113 LOADK R[7] <- K[10]=2
+024 L113 RETURN A=7 B=2 C=0 Bx=1024
+025 L109 FORLOOP A=2 B=255 C=493 Bx=131053
+026 L117 RETURN A=0 B=1 C=0 Bx=512
+
+### DataCenter/RadarCenterDataManager/DetectEventGetTreasureClaimInfo.luac :: GetSelfIsTriggerLuckyBuff root/child[6] [120, 131]
+constants= ['table', 'count', 'treasureClaimPlayerInfoList', 'uid', 'LuaEntry', 'Player', 'GetUid', 'hasLuckSiphonbuff']
+000 L121 GETTABUP A=1 B=R[0] C=K[0]='table'
+001 L121 GETTABLE A=1 B=R[1] C=K[1]='count'
+002 L121 GETTABLE A=2 B=R[0] C=K[2]='treasureClaimPlayerInfoList'
+003 L121 CALL A=1 B=2 C=2 Bx=1026
+004 L122 LOADK R[2] <- K[3]=1
+005 L122 MOVE A=3 B=1 C=0 Bx=512
+006 L122 LOADK R[4] <- K[3]=1
+007 L122 FORPREP A=2 B=256 C=13 Bx=131085
+008 L123 GETTABLE A=6 B=R[0] C=K[2]='treasureClaimPlayerInfoList'
+009 L123 GETTABLE A=6 B=R[6] C=R[5]
+010 L124 GETTABLE A=7 B=R[6] C=K[4]='uid'
+011 L124 GETTABUP A=8 B=R[0] C=K[5]='LuaEntry'
+012 L124 GETTABLE A=8 B=R[8] C=K[6]='Player'
+013 L124 SELF A=8 B=R[8] C=K[7]='GetUid'
+014 L124 CALL A=8 B=2 C=2 Bx=1026
+015 L124 EQ A=0 B=R[7] C=R[8]
+016 L124 JMP A=0 sBx=5 target=22
+017 L125 GETTABLE A=7 B=R[6] C=K[8]='hasLuckSiphonbuff'
+018 L125 EQ A=0 B=R[7] C=K[9]=True
+019 L125 JMP A=0 sBx=2 target=22
+020 L126 LOADBOOL A=7 B=1 C=0 Bx=512
+021 L126 RETURN A=7 B=2 C=0 Bx=1024
+022 L122 FORLOOP A=2 B=255 C=496 Bx=131056
+023 L130 LOADBOOL A=2 B=0 C=0 Bx=0
+024 L130 RETURN A=2 B=2 C=0 Bx=1024
+025 L131 RETURN A=0 B=1 C=0 Bx=512
+
+### DataCenter/RadarCenterDataManager/DetectEventGetTreasureClaimInfo.luac :: GetSelfLuckyBuffMultiple root/child[7] [134, 145]
+constants= ['table', 'count', 'treasureClaimPlayerInfoList', 'uid', 'LuaEntry', 'Player', 'GetUid', 'hasLuckSiphonbuff', 'bigRewardMultiple']
+000 L135 GETTABUP A=1 B=R[0] C=K[0]='table'
+001 L135 GETTABLE A=1 B=R[1] C=K[1]='count'
+002 L135 GETTABLE A=2 B=R[0] C=K[2]='treasureClaimPlayerInfoList'
+003 L135 CALL A=1 B=2 C=2 Bx=1026
+004 L136 LOADK R[2] <- K[3]=1
+005 L136 MOVE A=3 B=1 C=0 Bx=512
+006 L136 LOADK R[4] <- K[3]=1
+007 L136 FORPREP A=2 B=256 C=16 Bx=131088
+008 L137 GETTABLE A=6 B=R[0] C=K[2]='treasureClaimPlayerInfoList'
+009 L137 GETTABLE A=6 B=R[6] C=R[5]
+010 L138 GETTABLE A=7 B=R[6] C=K[4]='uid'
+011 L138 GETTABUP A=8 B=R[0] C=K[5]='LuaEntry'
+012 L138 GETTABLE A=8 B=R[8] C=K[6]='Player'
+013 L138 SELF A=8 B=R[8] C=K[7]='GetUid'
+014 L138 CALL A=8 B=2 C=2 Bx=1026
+015 L138 EQ A=0 B=R[7] C=R[8]
+016 L138 JMP A=0 sBx=8 target=25
+017 L139 GETTABLE A=7 B=R[6] C=K[8]='hasLuckSiphonbuff'
+018 L139 EQ A=0 B=R[7] C=K[9]=True
+019 L139 JMP A=0 sBx=5 target=25
+020 L140 GETTABLE A=7 B=R[6] C=K[10]='bigRewardMultiple'
+021 L140 TEST A=7 B=0 C=1 Bx=1
+022 L140 JMP A=0 sBx=1 target=24
+023 L140 LOADK R[7] <- K[11]=2
+024 L140 RETURN A=7 B=2 C=0 Bx=1024
+025 L136 FORLOOP A=2 B=255 C=493 Bx=131053
+026 L144 LOADK R[2] <- K[12]=0
+027 L144 RETURN A=2 B=2 C=0 Bx=1024
+028 L145 RETURN A=0 B=1 C=0 Bx=512
+
+### DataCenter/RadarCenterDataManager/DetectEventTreasureClaimPlayerInfo.luac :: InitData root/child[2] [44, 89]
+constants= ['uid', 'name', 'headPic', 'headPicVer', 'headSkinId', 'headSkinET', 'level', 'gender', 'costTime', 'isBigReward', 'reward', 'bigRewardMultiple', 'hasLuckSiphonbuff', 'luckSiphonbuffSenderInfo']
+000 L45 GETTABLE A=2 B=R[1] C=K[0]='uid'
+001 L45 TEST A=2 B=0 C=0 Bx=0
+002 L45 JMP A=0 sBx=2 target=5
+003 L46 GETTABLE A=2 B=R[1] C=K[0]='uid'
+004 L46 SETTABLE R[0][K[0]='uid'] <- R[2]
+005 L48 GETTABLE A=2 B=R[1] C=K[1]='name'
+006 L48 TEST A=2 B=0 C=0 Bx=0
+007 L48 JMP A=0 sBx=2 target=10
+008 L49 GETTABLE A=2 B=R[1] C=K[1]='name'
+009 L49 SETTABLE R[0][K[1]='name'] <- R[2]
+010 L51 GETTABLE A=2 B=R[1] C=K[2]='headPic'
+011 L51 TEST A=2 B=0 C=0 Bx=0
+012 L51 JMP A=0 sBx=2 target=15
+013 L52 GETTABLE A=2 B=R[1] C=K[2]='headPic'
+014 L52 SETTABLE R[0][K[2]='headPic'] <- R[2]
+015 L54 GETTABLE A=2 B=R[1] C=K[3]='headPicVer'
+016 L54 TEST A=2 B=0 C=0 Bx=0
+017 L54 JMP A=0 sBx=2 target=20
+018 L55 GETTABLE A=2 B=R[1] C=K[3]='headPicVer'
+019 L55 SETTABLE R[0][K[3]='headPicVer'] <- R[2]
+020 L57 GETTABLE A=2 B=R[1] C=K[4]='headSkinId'
+021 L57 TEST A=2 B=0 C=0 Bx=0
+022 L57 JMP A=0 sBx=2 target=25
+023 L58 GETTABLE A=2 B=R[1] C=K[4]='headSkinId'
+024 L58 SETTABLE R[0][K[4]='headSkinId'] <- R[2]
+025 L60 GETTABLE A=2 B=R[1] C=K[5]='headSkinET'
+026 L60 TEST A=2 B=0 C=0 Bx=0
+027 L60 JMP A=0 sBx=2 target=30
+028 L61 GETTABLE A=2 B=R[1] C=K[5]='headSkinET'
+029 L61 SETTABLE R[0][K[5]='headSkinET'] <- R[2]
+030 L63 GETTABLE A=2 B=R[1] C=K[6]='level'
+031 L63 TEST A=2 B=0 C=0 Bx=0
+032 L63 JMP A=0 sBx=2 target=35
+033 L64 GETTABLE A=2 B=R[1] C=K[6]='level'
+034 L64 SETTABLE R[0][K[6]='level'] <- R[2]
+035 L66 GETTABLE A=2 B=R[1] C=K[7]='gender'
+036 L66 TEST A=2 B=0 C=0 Bx=0
+037 L66 JMP A=0 sBx=2 target=40
+038 L67 GETTABLE A=2 B=R[1] C=K[7]='gender'
+039 L67 SETTABLE R[0][K[7]='gender'] <- R[2]
+040 L69 GETTABLE A=2 B=R[1] C=K[8]='costTime'
+041 L69 TEST A=2 B=0 C=0 Bx=0
+042 L69 JMP A=0 sBx=2 target=45
+043 L70 GETTABLE A=2 B=R[1] C=K[8]='costTime'
+044 L70 SETTABLE R[0][K[8]='costTime'] <- R[2]
+045 L72 GETTABLE A=2 B=R[1] C=K[9]='isBigReward'
+046 L72 TEST A=2 B=0 C=0 Bx=0
+047 L72 JMP A=0 sBx=6 target=54
+048 L74 GETTABLE A=2 B=R[1] C=K[9]='isBigReward'
+049 L74 EQ A=1 B=R[2] C=K[10]=1
+050 L74 JMP A=0 sBx=1 target=52
+051 L74 LOADBOOL A=2 B=0 C=1 Bx=1
+052 L74 LOADBOOL A=2 B=1 C=0 Bx=512
+053 L74 SETTABLE R[0][K[9]='isBigReward'] <- R[2]
+054 L76 GETTABLE A=2 B=R[1] C=K[11]='reward'
+055 L76 TEST A=2 B=0 C=0 Bx=0
+056 L76 JMP A=0 sBx=2 target=59
+057 L77 GETTABLE A=2 B=R[1] C=K[11]='reward'
+058 L77 SETTABLE R[0][K[11]='reward'] <- R[2]
+059 L79 GETTABLE A=2 B=R[1] C=K[12]='bigRewardMultiple'
+060 L79 TEST A=2 B=0 C=0 Bx=0
+061 L79 JMP A=0 sBx=2 target=64
+062 L81 GETTABLE A=2 B=R[1] C=K[12]='bigRewardMultiple'
+063 L81 SETTABLE R[0][K[12]='bigRewardMultiple'] <- R[2]
+064 L83 GETTABLE A=2 B=R[1] C=K[13]='hasLuckSiphonbuff'
+065 L83 EQ A=1 B=R[2] C=K[14]=None
+066 L83 JMP A=0 sBx=4 target=71
+067 L83 GETTABLE A=2 B=R[1] C=K[13]='hasLuckSiphonbuff'
+068 L83 TEST A=2 B=0 C=0 Bx=0
+069 L83 JMP A=0 sBx=1 target=71
+070 L84 SETTABLE R[0][K[13]='hasLuckSiphonbuff'] <- K[15]=True
+071 L86 GETTABLE A=2 B=R[1] C=K[16]='luckSiphonbuffSenderInfo'
+072 L86 TEST A=2 B=0 C=0 Bx=0
+073 L86 JMP A=0 sBx=2 target=76
+074 L87 GETTABLE A=2 B=R[1] C=K[16]='luckSiphonbuffSenderInfo'
+075 L87 SETTABLE R[0][K[16]='luckSiphonbuffSenderInfo'] <- R[2]
+076 L89 RETURN A=0 B=1 C=0 Bx=512
+
+### DataCenter/RadarCenterDataManager/RadarCenterDataManager.luac :: GetDetectEventTreasureClaimInfo root/child[74] [1000, 1017]
+constants= ['detectEventTreasureClaimInfoData', 'New', 'InitData', 'source', 'SeeDetectEventGetTreasureClaimInfoType', 'Chat', 'EventManager', 'GetInstance', 'Broadcast', 'EventId', 'DetectEventGetTreasureClaimInfo', 'World', 'UIUtil', 'OpenDetectEventTreasureClaimInfoView']
+000 L1005 GETTABUP A=2 B=R[0] C=K[1]='New'
+001 L1005 CALL A=2 B=1 C=2 Bx=514
+002 L1005 SETTABLE R[0][K[0]='detectEventTreasureClaimInfoData'] <- R[2]
+003 L1006 GETTABLE A=2 B=R[0] C=K[0]='detectEventTreasureClaimInfoData'
+004 L1006 SELF A=2 B=R[2] C=K[2]='InitData'
+005 L1006 MOVE A=4 B=1 C=0 Bx=512
+006 L1006 CALL A=2 B=3 C=1 Bx=1537
+007 L1007 GETTABLE A=2 B=R[1] C=K[3]='source'
+008 L1007 TEST A=2 B=0 C=0 Bx=0
+009 L1007 JMP A=0 sBx=23 target=33
+010 L1008 GETTABLE A=2 B=R[1] C=K[3]='source'
+011 L1008 GETTABUP A=3 B=R[1] C=K[4]='SeeDetectEventGetTreasureClaimInfoType'
+012 L1008 GETTABLE A=3 B=R[3] C=K[5]='Chat'
+013 L1008 EQ A=0 B=R[2] C=R[3]
+014 L1008 JMP A=0 sBx=9 target=24
+015 L1010 GETTABUP A=2 B=R[1] C=K[6]='EventManager'
+016 L1010 SELF A=2 B=R[2] C=K[7]='GetInstance'
+017 L1010 CALL A=2 B=2 C=2 Bx=1026
+018 L1010 SELF A=2 B=R[2] C=K[8]='Broadcast'
+019 L1010 GETTABUP A=4 B=R[1] C=K[9]='EventId'
+020 L1010 GETTABLE A=4 B=R[4] C=K[10]='DetectEventGetTreasureClaimInfo'
+021 L1010 GETTABLE A=5 B=R[0] C=K[0]='detectEventTreasureClaimInfoData'
+022 L1010 CALL A=2 B=4 C=1 Bx=2049
+023 L1010 JMP A=0 sBx=9 target=33
+024 L1011 GETTABLE A=2 B=R[1] C=K[3]='source'
+025 L1011 GETTABUP A=3 B=R[1] C=K[4]='SeeDetectEventGetTreasureClaimInfoType'
+026 L1011 GETTABLE A=3 B=R[3] C=K[11]='World'
+027 L1011 EQ A=0 B=R[2] C=R[3]
+028 L1011 JMP A=0 sBx=4 target=33
+029 L1014 GETTABUP A=2 B=R[1] C=K[12]='UIUtil'
+030 L1014 GETTABLE A=2 B=R[2] C=K[13]='OpenDetectEventTreasureClaimInfoView'
+031 L1014 GETTABLE A=3 B=R[0] C=K[0]='detectEventTreasureClaimInfoData'
+032 L1014 CALL A=2 B=2 C=1 Bx=1025
+033 L1017 RETURN A=0 B=1 C=0 Bx=512

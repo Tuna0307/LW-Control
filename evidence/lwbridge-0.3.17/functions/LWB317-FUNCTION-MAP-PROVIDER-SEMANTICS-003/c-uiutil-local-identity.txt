@@ -1,0 +1,105 @@
+﻿root code 930 locals 166 children 242
+
+CLOSURE pc 250 reg 139 child 116 lines 4464 4477
+active locals [('GetScaleFactor', 214, 930), ('ClearReward', 215, 930), ('RefreshReward', 216, 930), ('GetFlyTargetByRewardType', 217, 930), ('CheckHaveEnoughItemRename', 218, 930), ('IsRedPointCustomizeAvatar', 219, 930), ('OpenDetectEventView', 220, 930), ('OnClickDispatchTask', 225, 930), ('OnClickGhostreconPoint', 226, 930), ('ShowBubbleTips', 227, 930), ('ShowBubbleTipsAuto', 228, 930), ('GetFreeStaminaTime', 237, 930), ('ShowPowerUpTip', 238, 930), ('ShowPowerUpTipNew', 239, 930), ('StageJump', 240, 930), ('FormatAllianceAndName', 241, 930), ('FormatServerAllianceName', 242, 930), ('FormatServerPosition', 243, 930), ('FormatServerName', 244, 930), ('IsFreeMoveCityInOpenServerTime', 245, 930), ('IsFormationBuffInfoOpen', 246, 930), ('ShowNoToggleSecondMessage', 247, 930), ('OpenFreeMoveCityInOpenServerTimeConfirmPanel', 248, 930), ('PlayScaleAnim', 249, 930), ('OpenUIPlayerInfo', 250, 930)]
+244 CLOSURE A 133 B 0 C 110 Bx 110
+245 CLOSURE A 134 B 0 C 111 Bx 111
+246 CLOSURE A 135 B 0 C 112 Bx 112
+247 CLOSURE A 136 B 0 C 113 Bx 113
+248 CLOSURE A 137 B 0 C 114 Bx 114
+249 CLOSURE A 138 B 0 C 115 Bx 115
+250 CLOSURE A 139 B 0 C 116 Bx 116
+251 CLOSURE A 140 B 0 C 117 Bx 117
+252 CLOSURE A 141 B 0 C 118 Bx 118
+253 CLOSURE A 142 B 0 C 119 Bx 119
+254 CLOSURE A 143 B 0 C 120 Bx 120
+255 CLOSURE A 144 B 0 C 121 Bx 121
+256 CLOSURE A 145 B 0 C 122 Bx 122
+257 CLOSURE A 146 B 0 C 123 Bx 123
+258 CLOSURE A 147 B 0 C 124 Bx 124
+259 CLOSURE A 148 B 0 C 125 Bx 125
+260 CLOSURE A 149 B 0 C 126 Bx 126
+261 CLOSURE A 150 B 0 C 127 Bx 127
+
+CLOSURE pc 251 reg 140 child 117 lines 4479 4498
+active locals [('ClearReward', 215, 930), ('RefreshReward', 216, 930), ('GetFlyTargetByRewardType', 217, 930), ('CheckHaveEnoughItemRename', 218, 930), ('IsRedPointCustomizeAvatar', 219, 930), ('OpenDetectEventView', 220, 930), ('OnClickDispatchTask', 225, 930), ('OnClickGhostreconPoint', 226, 930), ('ShowBubbleTips', 227, 930), ('ShowBubbleTipsAuto', 228, 930), ('GetFreeStaminaTime', 237, 930), ('ShowPowerUpTip', 238, 930), ('ShowPowerUpTipNew', 239, 930), ('StageJump', 240, 930), ('FormatAllianceAndName', 241, 930), ('FormatServerAllianceName', 242, 930), ('FormatServerPosition', 243, 930), ('FormatServerName', 244, 930), ('IsFreeMoveCityInOpenServerTime', 245, 930), ('IsFormationBuffInfoOpen', 246, 930), ('ShowNoToggleSecondMessage', 247, 930), ('OpenFreeMoveCityInOpenServerTimeConfirmPanel', 248, 930), ('PlayScaleAnim', 249, 930), ('OpenUIPlayerInfo', 250, 930), ('GetRewardOrShareTreasureBox', 251, 930)]
+245 CLOSURE A 134 B 0 C 111 Bx 111
+246 CLOSURE A 135 B 0 C 112 Bx 112
+247 CLOSURE A 136 B 0 C 113 Bx 113
+248 CLOSURE A 137 B 0 C 114 Bx 114
+249 CLOSURE A 138 B 0 C 115 Bx 115
+250 CLOSURE A 139 B 0 C 116 Bx 116
+251 CLOSURE A 140 B 0 C 117 Bx 117
+252 CLOSURE A 141 B 0 C 118 Bx 118
+253 CLOSURE A 142 B 0 C 119 Bx 119
+254 CLOSURE A 143 B 0 C 120 Bx 120
+255 CLOSURE A 144 B 0 C 121 Bx 121
+256 CLOSURE A 145 B 0 C 122 Bx 122
+257 CLOSURE A 146 B 0 C 123 Bx 123
+258 CLOSURE A 147 B 0 C 124 Bx 124
+259 CLOSURE A 148 B 0 C 125 Bx 125
+260 CLOSURE A 149 B 0 C 126 Bx 126
+261 CLOSURE A 150 B 0 C 127 Bx 127
+262 CLOSURE A 151 B 0 C 128 Bx 128
+
+CLOSURE pc 252 reg 141 child 118 lines 4500 4526
+active locals [('RefreshReward', 216, 930), ('GetFlyTargetByRewardType', 217, 930), ('CheckHaveEnoughItemRename', 218, 930), ('IsRedPointCustomizeAvatar', 219, 930), ('OpenDetectEventView', 220, 930), ('OnClickDispatchTask', 225, 930), ('OnClickGhostreconPoint', 226, 930), ('ShowBubbleTips', 227, 930), ('ShowBubbleTipsAuto', 228, 930), ('GetFreeStaminaTime', 237, 930), ('ShowPowerUpTip', 238, 930), ('ShowPowerUpTipNew', 239, 930), ('StageJump', 240, 930), ('FormatAllianceAndName', 241, 930), ('FormatServerAllianceName', 242, 930), ('FormatServerPosition', 243, 930), ('FormatServerName', 244, 930), ('IsFreeMoveCityInOpenServerTime', 245, 930), ('IsFormationBuffInfoOpen', 246, 930), ('ShowNoToggleSecondMessage', 247, 930), ('OpenFreeMoveCityInOpenServerTimeConfirmPanel', 248, 930), ('PlayScaleAnim', 249, 930), ('OpenUIPlayerInfo', 250, 930), ('GetRewardOrShareTreasureBox', 251, 930), ('GetFlowerTrainCheerTreasureBox', 252, 930)]
+246 CLOSURE A 135 B 0 C 112 Bx 112
+247 CLOSURE A 136 B 0 C 113 Bx 113
+248 CLOSURE A 137 B 0 C 114 Bx 114
+249 CLOSURE A 138 B 0 C 115 Bx 115
+250 CLOSURE A 139 B 0 C 116 Bx 116
+251 CLOSURE A 140 B 0 C 117 Bx 117
+252 CLOSURE A 141 B 0 C 118 Bx 118
+253 CLOSURE A 142 B 0 C 119 Bx 119
+254 CLOSURE A 143 B 0 C 120 Bx 120
+255 CLOSURE A 144 B 0 C 121 Bx 121
+256 CLOSURE A 145 B 0 C 122 Bx 122
+257 CLOSURE A 146 B 0 C 123 Bx 123
+258 CLOSURE A 147 B 0 C 124 Bx 124
+259 CLOSURE A 148 B 0 C 125 Bx 125
+260 CLOSURE A 149 B 0 C 126 Bx 126
+261 CLOSURE A 150 B 0 C 127 Bx 127
+262 CLOSURE A 151 B 0 C 128 Bx 128
+263 SETTABLE A 0 B 328 C 151 Bx 168087
+
+CLOSURE pc 253 reg 142 child 119 lines 4528 4706
+active locals [('GetFlyTargetByRewardType', 217, 930), ('CheckHaveEnoughItemRename', 218, 930), ('IsRedPointCustomizeAvatar', 219, 930), ('OpenDetectEventView', 220, 930), ('OnClickDispatchTask', 225, 930), ('OnClickGhostreconPoint', 226, 930), ('ShowBubbleTips', 227, 930), ('ShowBubbleTipsAuto', 228, 930), ('GetFreeStaminaTime', 237, 930), ('ShowPowerUpTip', 238, 930), ('ShowPowerUpTipNew', 239, 930), ('StageJump', 240, 930), ('FormatAllianceAndName', 241, 930), ('FormatServerAllianceName', 242, 930), ('FormatServerPosition', 243, 930), ('FormatServerName', 244, 930), ('IsFreeMoveCityInOpenServerTime', 245, 930), ('IsFormationBuffInfoOpen', 246, 930), ('ShowNoToggleSecondMessage', 247, 930), ('OpenFreeMoveCityInOpenServerTimeConfirmPanel', 248, 930), ('PlayScaleAnim', 249, 930), ('OpenUIPlayerInfo', 250, 930), ('GetRewardOrShareTreasureBox', 251, 930), ('GetFlowerTrainCheerTreasureBox', 252, 930), ('ShareActTreasureBox', 253, 930)]
+247 CLOSURE A 136 B 0 C 113 Bx 113
+248 CLOSURE A 137 B 0 C 114 Bx 114
+249 CLOSURE A 138 B 0 C 115 Bx 115
+250 CLOSURE A 139 B 0 C 116 Bx 116
+251 CLOSURE A 140 B 0 C 117 Bx 117
+252 CLOSURE A 141 B 0 C 118 Bx 118
+253 CLOSURE A 142 B 0 C 119 Bx 119
+254 CLOSURE A 143 B 0 C 120 Bx 120
+255 CLOSURE A 144 B 0 C 121 Bx 121
+256 CLOSURE A 145 B 0 C 122 Bx 122
+257 CLOSURE A 146 B 0 C 123 Bx 123
+258 CLOSURE A 147 B 0 C 124 Bx 124
+259 CLOSURE A 148 B 0 C 125 Bx 125
+260 CLOSURE A 149 B 0 C 126 Bx 126
+261 CLOSURE A 150 B 0 C 127 Bx 127
+262 CLOSURE A 151 B 0 C 128 Bx 128
+263 SETTABLE A 0 B 328 C 151 Bx 168087
+264 CLOSURE A 151 B 0 C 129 Bx 129
+
+CHILD 116 lines 4464 4477 params 1
+locals [('info', 0, 46), ('isHaveReward', 5, 46), ('share_param', 16, 45)]
+upvalues ['_ENV']
+strings ['IsHaveGetReward', 'LuaEntry', 'Player', 'uid', 'SFSNetwork', 'SendMessage', 'MsgDefines', 'DetectEventClaimTreasure', 'uuid', 'serverId', 'sid', 'GetCurServerId', 'pos', 'pointIndex', 'oname', 'GetTableData', 'TableName', 'WorldTreasure', 'eventId', 'name', 'new_city_activity_battle_tips1016', 'postType', 'PostType', 'Text_PointShare_Alliance', 'addWorldChannel', 'UIManager', 'GetInstance', 'OpenWindow', 'UIWindowNames', 'UIPositionShare', 'anim']
+
+CHILD 117 lines 4479 4498 params 3
+locals [('info', 0, 56), ('isCheckCD', 0, 56), ('worldTreasureType', 0, 56), ('isHaveReward', 5, 56), ('isInCD', 13, 16), ('share_param', 26, 55)]
+upvalues ['_ENV']
+strings ['IsHaveGetReward', 'LuaEntry', 'Player', 'uid', 'FlowerTrainUtils', 'IsInCDForClaimLvBox', 'SFSNetwork', 'SendMessage', 'MsgDefines', 'DetectEventClaimTreasure', 'uuid', 'serverId', 'sid', 'GetCurServerId', 'pos', 'pointIndex', 'oname', 'GetTableData', 'TableName', 'WorldTreasure', 'eventId', 'name', 'new_city_activity_battle_tips1016', 'postType', 'PostType', 'Text_PointShare', 'addWorldChannel', 'UIManager', 'GetInstance', 'OpenWindow', 'UIWindowNames', 'UIPositionShare', 'anim']
+
+CHILD 118 lines 4500 4526 params 2
+locals [('info', 0, 65), ('pointObject', 0, 65), ('template', 5, 65), ('eventId', 8, 17), ('isCanShare', 18, 65), ('myAlId', 27, 65), ('isHaveAliance', 32, 65), ('share_param', 41, 64)]
+upvalues ['_ENV', 'UIUtil']
+strings ['DataCenter', 'DetectEventTemplateManager', 'GetDetectEventTemplate', 'eventId', 'Logger', 'LogError', 'GetTreasureData template is nil, eventId = ', 'tostring', 'GetCanBeShared', 'LuaEntry', 'Player', 'allianceId', 'string', 'IsNullOrEmpty', 'ShowTipsId', 'activity_wajueji_27000_tips17', 'sid', 'GetCurServerId', 'pos', 'pointIndex', 'oname', 'name', 'postType', 'PostType', 'Text_PointShare_Alliance', 'addWorldChannel', 'UIManager', 'GetInstance', 'OpenWindow', 'UIWindowNames', 'UIPositionShare', 'anim']
+
+CHILD 119 lines 4528 4706 params 1
+locals [('posIndex', 0, 469), ('info', 6, 469), ('worldTreasureType', 21, 469), ('IsInNineNationTruceMode', 23, 469), ('str', 95, 103), ('pointObject', 130, 469), ('selfUid', 156, 187), ('isHaveReward', 159, 187), ('receiveAllReward', 161, 187), ('beGetNum', 210, 469), ('maxNum', 229, 469), ('targetAllianceId', 260, 296), ('selfAllianceId', 263, 296), ('(for generator)', 268, 277), ('(for state)', 268, 277), ('(for control)', 268, 277), ('_', 269, 275), ('v', 269, 275), ('mySourceServerId', 305, 315), ('serverId', 306, 315), ('mySourceServerId', 377, 387), ('serverId', 378, 387), ('mySourceServerId', 416, 428), ('serverId', 417, 428)]
+upvalues ['_ENV', 'UIUtil', 'WorldPointUIType', 'ShareActTreasureBox', 'GetRewardOrShareTreasureBox', 'GetFlowerTrainCheerTreasureBox']
+strings ['CS', 'SceneManager', 'World', 'GetPointInfo', 'cast', 'typeof', 'TreasurePointInfo', 'GetWorldTreasureType', 'IsInNineNationTruceMode', 'CheckDetectCanCrossServer', 'LuaEntry', 'Player', 'IsInSelfServer', 'WorldTreasureType', 'ZWL_GIFT', 'ShowTipsId', 'server_tips_002', 'PlayerKillMonsterTreasure', 'GeneFragment', 'killerId', 'uid', 'SFSNetwork', 'SendMessage', 'MsgDefines', 'DetectEventClaimTreasure', 'uuid', 'serverId', 'Logger', 'LogInfo', 'string', 'format', 'ClaimTreasure with killerId %s , %s', 'tostring', 'mainIndex', 'UIManager', 'GetInstance', 'IsWindowOpen', 'UIWindowNames', 'UIWorldPoint', ';', ';;', ';0;0', 'EventManager', 'Broadcast', 'EventId', 'RefreshUIWorldPointView', 'OpenWindow', 'anim', 'playEffect', 'UIMainAnim', 'UIMainAnimType', 'LeftRightBottomHide', '', 'GetObjectByPoint', 'RadarTreasure', 'ActivityRadarTreasure', 'OffSeasonDetect', 'CheckInteractAuthority', 'IsHaveGetReward', 'IsReceiveAllReward', 'DetectEventGetTreasureClaimInfo', 'SeeDetectEventGetTreasureClaimInfoType', 'activity_wajueji_27000_tips6', '801354', 'PostNoInteractAuthorityLog', 'rewardUserList', 'Count', 'LogError', 'GetDetectTreasureReward info.rewardUserList is nil ', 'GetTableData', 'TableName', 'WorldTreasure', 'eventId', 'max_reward_times', 'new_city_activity_battle_tips1025', 'SiegeTreasure', 'InvasionTreasure', 'AllianceBossSandBox', 'split', 'allianceId', 'pairs', 'activity_godzilla_reward_other_alliance', 'new_alliance_boss_tips_25', 'new_city_activity_battle_tips1013', 'ZONE_MOBILIZATION', 'GetSourceServerId', 'activity_mobilization_reward_other_server', 'SandWormTreasure', 'Crocodile', 'FlowerCar', 'SeasonUtil', 'InSourceMapNow', 'S1PrefabSeasonBossTreasure', 'S1PrefabWorldBossTreasure', 'BloodyQueen', 's1_QueenChallenge_chest_errtips_01', 'FlowerTrainCheerTreasure', 'ownerUid', 'activity_treasure_error_alert15', 'FlowerTrainUpgradeTreasure']

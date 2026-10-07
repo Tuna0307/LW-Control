@@ -1,0 +1,3503 @@
+{
+  "schema": 1,
+  "package": {
+    "path": "C:\\Users\\chimw\\AppData\\LocalLow\\FunFly\\Last War-Survival Game\\lwScripts\\LWScripts.data",
+    "sha256": "248f3aeac712b3f14f86bff37a0c365e467897a2248403837c44c1b774f05b22",
+    "fileVersion": 3,
+    "contentVersion": 22,
+    "entryCount": 18741
+  },
+  "entries": {
+    "DataCenter/ActMonopolyManager/ActDetectTreasureDataManager.luac": {
+      "entry": "DataCenter/ActMonopolyManager/ActDetectTreasureDataManager.luac",
+      "encodedSha256": "1342a7028472d17d7e6b411292e8af85fb988d549864991f32fd1173411a619f",
+      "decodedSha256": "04a5b7f426b65bb9af1d1bed9855a37ccf0fe33acbdc0e50d02e2df79dfd3645",
+      "decodedBytes": 8683,
+      "headerHex": "1b4c7561530119930d0a1a0a0404080878560000000000000000000000287740",
+      "normalizedSha256": "7bb7b81086731f65222a62f584a79bdfb8edc943cbffbf50fb106e7628109b43",
+      "root": {
+        "source": "@C:\\jenkins\\pc_micro\\aps_client\\Tools\\../Assets/Main/LuaScripts\\DataCenter\\ActMonopolyManager\\ActDetectTreasureDataManager.lua",
+        "line": 0,
+        "lastLine": 0,
+        "codeCount": 35,
+        "childCount": 13
+      },
+      "methods": {
+        "CheckTreasureReachDailyLimit": {
+          "lines": [
+            119,
+            134
+          ],
+          "params": 2,
+          "stack": 6,
+          "constants": [
+            "DataCenter",
+            "TreasureTemplateManager",
+            "GetTemplate",
+            "daily_max",
+            0,
+            "group",
+            "dailyGot"
+          ],
+          "prototypePath": "root/child[5]",
+          "instructions": [
+            {
+              "pc": 0,
+              "line": 120,
+              "raw": "0x00400086",
+              "op": "GETTABUP",
+              "operands": "A=2 B=R[0] C=K[0]='DataCenter'"
+            },
+            {
+              "pc": 1,
+              "line": 120,
+              "raw": "0x01404087",
+              "op": "GETTABLE",
+              "operands": "A=2 B=R[2] C=K[1]='TreasureTemplateManager'"
+            },
+            {
+              "pc": 2,
+              "line": 120,
+              "raw": "0x0140808c",
+              "op": "SELF",
+              "operands": "A=2 B=R[2] C=K[2]='GetTemplate'"
+            },
+            {
+              "pc": 3,
+              "line": 120,
+              "raw": "0x00800100",
+              "op": "MOVE",
+              "operands": "A=4 B=1 C=0 Bx=512"
+            },
+            {
+              "pc": 4,
+              "line": 120,
+              "raw": "0x018080a4",
+              "op": "CALL",
+              "operands": "A=2 B=3 C=2 Bx=1538"
+            },
+            {
+              "pc": 5,
+              "line": 121,
+              "raw": "0x000000a2",
+              "op": "TEST",
+              "operands": "A=2 B=0 C=0 Bx=0"
+            },
+            {
+              "pc": 6,
+              "line": 121,
+              "raw": "0x8000801e",
+              "op": "JMP",
+              "operands": "A=0 sBx=3 target=10"
+            },
+            {
+              "pc": 7,
+              "line": 121,
+              "raw": "0x0140c0c7",
+              "op": "GETTABLE",
+              "operands": "A=3 B=R[2] C=K[3]='daily_max'"
+            },
+            {
+              "pc": 8,
+              "line": 121,
+              "raw": "0x01c10021",
+              "op": "LE",
+              "operands": "A=0 B=R[3] C=K[4]=0"
+            },
+            {
+              "pc": 9,
+              "line": 121,
+              "raw": "0x8000401e",
+              "op": "JMP",
+              "operands": "A=0 sBx=2 target=12"
+            },
+            {
+              "pc": 10,
+              "line": 122,
+              "raw": "0x000000c3",
+              "op": "LOADBOOL",
+              "operands": "A=3 B=0 C=0 Bx=0"
+            },
+            {
+              "pc": 11,
+              "line": 122,
+              "raw": "0x010000e6",
+              "op": "RETURN",
+              "operands": "A=3 B=2 C=0 Bx=1024"
+            },
+            {
+              "pc": 12,
+              "line": 124,
+              "raw": "0x014140c7",
+              "op": "GETTABLE",
+              "operands": "A=3 B=R[2] C=K[5]='group'"
+            },
+            {
+              "pc": 13,
+              "line": 124,
+              "raw": "0x000000e2",
+              "op": "TEST",
+              "operands": "A=3 B=0 C=0 Bx=0"
+            },
+            {
+              "pc": 14,
+              "line": 124,
+              "raw": "0x8004801e",
+              "op": "JMP",
+              "operands": "A=0 sBx=19 target=34"
+            },
+            {
+              "pc": 15,
+              "line": 124,
+              "raw": "0x014140c7",
+              "op": "GETTABLE",
+              "operands": "A=3 B=R[2] C=K[5]='group'"
+            },
+            {
+              "pc": 16,
+              "line": 124,
+              "raw": "0x8200c020",
+              "op": "LT",
+              "operands": "A=0 B=K[4]=0 C=R[3]"
+            },
+            {
+              "pc": 17,
+              "line": 124,
+              "raw": "0x8003c01e",
+              "op": "JMP",
+              "operands": "A=0 sBx=16 target=34"
+            },
+            {
+              "pc": 18,
+              "line": 125,
+              "raw": "0x004180c7",
+              "op": "GETTABLE",
+              "operands": "A=3 B=R[0] C=K[6]='dailyGot'"
+            },
+            {
+              "pc": 19,
+              "line": 125,
+              "raw": "0x01414107",
+              "op": "GETTABLE",
+              "operands": "A=4 B=R[2] C=K[5]='group'"
+            },
+            {
+              "pc": 20,
+              "line": 125,
+              "raw": "0x018100c7",
+              "op": "GETTABLE",
+              "operands": "A=3 B=R[3] C=R[4]"
+            },
+            {
+              "pc": 21,
+              "line": 125,
+              "raw": "0x000040e2",
+              "op": "TEST",
+              "operands": "A=3 B=0 C=1 Bx=1"
+            },
+            {
+              "pc": 22,
+              "line": 125,
+              "raw": "0x8000401e",
+              "op": "JMP",
+              "operands": "A=0 sBx=2 target=25"
+            },
+            {
+              "pc": 23,
+              "line": 126,
+              "raw": "0x000000c3",
+              "op": "LOADBOOL",
+              "operands": "A=3 B=0 C=0 Bx=0"
+            },
+            {
+              "pc": 24,
+              "line": 126,
+              "raw": "0x010000e6",
+              "op": "RETURN",
+              "operands": "A=3 B=2 C=0 Bx=1024"
+            },
+            {
+              "pc": 25,
+              "line": 128,
+              "raw": "0x0140c0c7",
+              "op": "GETTABLE",
+              "operands": "A=3 B=R[2] C=K[3]='daily_max'"
+            },
+            {
+              "pc": 26,
+              "line": 128,
+              "raw": "0x00418107",
+              "op": "GETTABLE",
+              "operands": "A=4 B=R[0] C=K[6]='dailyGot'"
+            },
+            {
+              "pc": 27,
+              "line": 128,
+              "raw": "0x01414147",
+              "op": "GETTABLE",
+              "operands": "A=5 B=R[2] C=K[5]='group'"
+            },
+            {
+              "pc": 28,
+              "line": 128,
+              "raw": "0x02014107",
+              "op": "GETTABLE",
+              "operands": "A=4 B=R[4] C=R[5]"
+            },
+            {
+              "pc": 29,
+              "line": 128,
+              "raw": "0x01810061",
+              "op": "LE",
+              "operands": "A=1 B=R[3] C=R[4]"
+            },
+            {
+              "pc": 30,
+              "line": 128,
+              "raw": "0x8000001e",
+              "op": "JMP",
+              "operands": "A=0 sBx=1 target=32"
+            },
+            {
+              "pc": 31,
+              "line": 128,
+              "raw": "0x000040c3",
+              "op": "LOADBOOL",
+              "operands": "A=3 B=0 C=1 Bx=1"
+            },
+            {
+              "pc": 32,
+              "line": 128,
+              "raw": "0x008000c3",
+              "op": "LOADBOOL",
+              "operands": "A=3 B=1 C=0 Bx=512"
+            },
+            {
+              "pc": 33,
+              "line": 128,
+              "raw": "0x010000e6",
+              "op": "RETURN",
+              "operands": "A=3 B=2 C=0 Bx=1024"
+            },
+            {
+              "pc": 34,
+              "line": 130,
+              "raw": "0x004180c7",
+              "op": "GETTABLE",
+              "operands": "A=3 B=R[0] C=K[6]='dailyGot'"
+            },
+            {
+              "pc": 35,
+              "line": 130,
+              "raw": "0x018040c7",
+              "op": "GETTABLE",
+              "operands": "A=3 B=R[3] C=R[1]"
+            },
+            {
+              "pc": 36,
+              "line": 130,
+              "raw": "0x000040e2",
+              "op": "TEST",
+              "operands": "A=3 B=0 C=1 Bx=1"
+            },
+            {
+              "pc": 37,
+              "line": 130,
+              "raw": "0x8000401e",
+              "op": "JMP",
+              "operands": "A=0 sBx=2 target=40"
+            },
+            {
+              "pc": 38,
+              "line": 131,
+              "raw": "0x000000c3",
+              "op": "LOADBOOL",
+              "operands": "A=3 B=0 C=0 Bx=0"
+            },
+            {
+              "pc": 39,
+              "line": 131,
+              "raw": "0x010000e6",
+              "op": "RETURN",
+              "operands": "A=3 B=2 C=0 Bx=1024"
+            },
+            {
+              "pc": 40,
+              "line": 133,
+              "raw": "0x0140c0c7",
+              "op": "GETTABLE",
+              "operands": "A=3 B=R[2] C=K[3]='daily_max'"
+            },
+            {
+              "pc": 41,
+              "line": 133,
+              "raw": "0x00418107",
+              "op": "GETTABLE",
+              "operands": "A=4 B=R[0] C=K[6]='dailyGot'"
+            },
+            {
+              "pc": 42,
+              "line": 133,
+              "raw": "0x02004107",
+              "op": "GETTABLE",
+              "operands": "A=4 B=R[4] C=R[1]"
+            },
+            {
+              "pc": 43,
+              "line": 133,
+              "raw": "0x01810061",
+              "op": "LE",
+              "operands": "A=1 B=R[3] C=R[4]"
+            },
+            {
+              "pc": 44,
+              "line": 133,
+              "raw": "0x8000001e",
+              "op": "JMP",
+              "operands": "A=0 sBx=1 target=46"
+            },
+            {
+              "pc": 45,
+              "line": 133,
+              "raw": "0x000040c3",
+              "op": "LOADBOOL",
+              "operands": "A=3 B=0 C=1 Bx=1"
+            },
+            {
+              "pc": 46,
+              "line": 133,
+              "raw": "0x008000c3",
+              "op": "LOADBOOL",
+              "operands": "A=3 B=1 C=0 Bx=512"
+            },
+            {
+              "pc": 47,
+              "line": 133,
+              "raw": "0x010000e6",
+              "op": "RETURN",
+              "operands": "A=3 B=2 C=0 Bx=1024"
+            },
+            {
+              "pc": 48,
+              "line": 134,
+              "raw": "0x00800026",
+              "op": "RETURN",
+              "operands": "A=0 B=1 C=0 Bx=512"
+            }
+          ]
+        },
+        "GetArrData": {
+          "lines": [
+            140,
+            146
+          ],
+          "params": 2,
+          "stack": 4,
+          "constants": [
+            "dataDict"
+          ],
+          "prototypePath": "root/child[7]",
+          "instructions": [
+            {
+              "pc": 0,
+              "line": 141,
+              "raw": "0x0000008b",
+              "op": "NEWTABLE",
+              "operands": "A=2 B=0 C=0 Bx=0"
+            },
+            {
+              "pc": 1,
+              "line": 142,
+              "raw": "0x004000c7",
+              "op": "GETTABLE",
+              "operands": "A=3 B=R[0] C=K[0]='dataDict'"
+            },
+            {
+              "pc": 2,
+              "line": 142,
+              "raw": "0x018040c7",
+              "op": "GETTABLE",
+              "operands": "A=3 B=R[3] C=R[1]"
+            },
+            {
+              "pc": 3,
+              "line": 142,
+              "raw": "0x000000e2",
+              "op": "TEST",
+              "operands": "A=3 B=0 C=0 Bx=0"
+            },
+            {
+              "pc": 4,
+              "line": 142,
+              "raw": "0x8000401e",
+              "op": "JMP",
+              "operands": "A=0 sBx=2 target=7"
+            },
+            {
+              "pc": 5,
+              "line": 143,
+              "raw": "0x004000c7",
+              "op": "GETTABLE",
+              "operands": "A=3 B=R[0] C=K[0]='dataDict'"
+            },
+            {
+              "pc": 6,
+              "line": 143,
+              "raw": "0x01804087",
+              "op": "GETTABLE",
+              "operands": "A=2 B=R[3] C=R[1]"
+            },
+            {
+              "pc": 7,
+              "line": 145,
+              "raw": "0x010000a6",
+              "op": "RETURN",
+              "operands": "A=2 B=2 C=0 Bx=1024"
+            },
+            {
+              "pc": 8,
+              "line": 146,
+              "raw": "0x00800026",
+              "op": "RETURN",
+              "operands": "A=0 B=1 C=0 Bx=512"
+            }
+          ]
+        },
+        "GetBannerNameByMultiple": {
+          "lines": [
+            228,
+            244
+          ],
+          "params": 2,
+          "stack": 12,
+          "constants": [
+            "dicMultipleBanner",
+            "LuaEntry",
+            "DataConfig",
+            "TryGetStr",
+            "s1_qingdian_detect",
+            "k4",
+            "string",
+            "IsNullOrEmpty",
+            "split",
+            ";",
+            1,
+            "|",
+            2,
+            "tonumber"
+          ],
+          "prototypePath": "root/child[12]",
+          "instructions": [
+            {
+              "pc": 0,
+              "line": 229,
+              "raw": "0x00400087",
+              "op": "GETTABLE",
+              "operands": "A=2 B=R[0] C=K[0]='dicMultipleBanner'"
+            },
+            {
+              "pc": 1,
+              "line": 229,
+              "raw": "0x000040a2",
+              "op": "TEST",
+              "operands": "A=2 B=0 C=1 Bx=1"
+            },
+            {
+              "pc": 2,
+              "line": 229,
+              "raw": "0x8009401e",
+              "op": "JMP",
+              "operands": "A=0 sBx=38 target=41"
+            },
+            {
+              "pc": 3,
+              "line": 230,
+              "raw": "0x0000008b",
+              "op": "NEWTABLE",
+              "operands": "A=2 B=0 C=0 Bx=0"
+            },
+            {
+              "pc": 4,
+              "line": 230,
+              "raw": "0x8000800a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[0]='dicMultipleBanner'] <- R[2]"
+            },
+            {
+              "pc": 5,
+              "line": 231,
+              "raw": "0x00404086",
+              "op": "GETTABUP",
+              "operands": "A=2 B=R[0] C=K[1]='LuaEntry'"
+            },
+            {
+              "pc": 6,
+              "line": 231,
+              "raw": "0x01408087",
+              "op": "GETTABLE",
+              "operands": "A=2 B=R[2] C=K[2]='DataConfig'"
+            },
+            {
+              "pc": 7,
+              "line": 231,
+              "raw": "0x0140c08c",
+              "op": "SELF",
+              "operands": "A=2 B=R[2] C=K[3]='TryGetStr'"
+            },
+            {
+              "pc": 8,
+              "line": 231,
+              "raw": "0x00010101",
+              "op": "LOADK",
+              "operands": "R[4] <- K[4]='s1_qingdian_detect'"
+            },
+            {
+              "pc": 9,
+              "line": 231,
+              "raw": "0x00014141",
+              "op": "LOADK",
+              "operands": "R[5] <- K[5]='k4'"
+            },
+            {
+              "pc": 10,
+              "line": 231,
+              "raw": "0x020080a4",
+              "op": "CALL",
+              "operands": "A=2 B=4 C=2 Bx=2050"
+            },
+            {
+              "pc": 11,
+              "line": 232,
+              "raw": "0x004180c6",
+              "op": "GETTABUP",
+              "operands": "A=3 B=R[0] C=K[6]='string'"
+            },
+            {
+              "pc": 12,
+              "line": 232,
+              "raw": "0x01c1c0c7",
+              "op": "GETTABLE",
+              "operands": "A=3 B=R[3] C=K[7]='IsNullOrEmpty'"
+            },
+            {
+              "pc": 13,
+              "line": 232,
+              "raw": "0x01000100",
+              "op": "MOVE",
+              "operands": "A=4 B=2 C=0 Bx=1024"
+            },
+            {
+              "pc": 14,
+              "line": 232,
+              "raw": "0x010080e4",
+              "op": "CALL",
+              "operands": "A=3 B=2 C=2 Bx=1026"
+            },
+            {
+              "pc": 15,
+              "line": 232,
+              "raw": "0x000040e2",
+              "op": "TEST",
+              "operands": "A=3 B=0 C=1 Bx=1"
+            },
+            {
+              "pc": 16,
+              "line": 232,
+              "raw": "0x8005c01e",
+              "op": "JMP",
+              "operands": "A=0 sBx=24 target=41"
+            },
+            {
+              "pc": 17,
+              "line": 233,
+              "raw": "0x004180c6",
+              "op": "GETTABUP",
+              "operands": "A=3 B=R[0] C=K[6]='string'"
+            },
+            {
+              "pc": 18,
+              "line": 233,
+              "raw": "0x01c200c7",
+              "op": "GETTABLE",
+              "operands": "A=3 B=R[3] C=K[8]='split'"
+            },
+            {
+              "pc": 19,
+              "line": 233,
+              "raw": "0x01000100",
+              "op": "MOVE",
+              "operands": "A=4 B=2 C=0 Bx=1024"
+            },
+            {
+              "pc": 20,
+              "line": 233,
+              "raw": "0x00024141",
+              "op": "LOADK",
+              "operands": "R[5] <- K[9]=';'"
+            },
+            {
+              "pc": 21,
+              "line": 233,
+              "raw": "0x018080e4",
+              "op": "CALL",
+              "operands": "A=3 B=3 C=2 Bx=1538"
+            },
+            {
+              "pc": 22,
+              "line": 234,
+              "raw": "0x00028101",
+              "op": "LOADK",
+              "operands": "R[4] <- K[10]=1"
+            },
+            {
+              "pc": 23,
+              "line": 234,
+              "raw": "0x0180015c",
+              "op": "LEN",
+              "operands": "A=5 B=3 C=0 Bx=1536"
+            },
+            {
+              "pc": 24,
+              "line": 234,
+              "raw": "0x00028181",
+              "op": "LOADK",
+              "operands": "R[6] <- K[10]=1"
+            },
+            {
+              "pc": 25,
+              "line": 234,
+              "raw": "0x80034128",
+              "op": "FORPREP",
+              "operands": "A=4 B=256 C=13 Bx=131085"
+            },
+            {
+              "pc": 26,
+              "line": 235,
+              "raw": "0x00418206",
+              "op": "GETTABUP",
+              "operands": "A=8 B=R[0] C=K[6]='string'"
+            },
+            {
+              "pc": 27,
+              "line": 235,
+              "raw": "0x04420207",
+              "op": "GETTABLE",
+              "operands": "A=8 B=R[8] C=K[8]='split'"
+            },
+            {
+              "pc": 28,
+              "line": 235,
+              "raw": "0x0181c247",
+              "op": "GETTABLE",
+              "operands": "A=9 B=R[3] C=R[7]"
+            },
+            {
+              "pc": 29,
+              "line": 235,
+              "raw": "0x0002c281",
+              "op": "LOADK",
+              "operands": "R[10] <- K[11]='|'"
+            },
+            {
+              "pc": 30,
+              "line": 235,
+              "raw": "0x01808224",
+              "op": "CALL",
+              "operands": "A=8 B=3 C=2 Bx=1538"
+            },
+            {
+              "pc": 31,
+              "line": 236,
+              "raw": "0x0400025c",
+              "op": "LEN",
+              "operands": "A=9 B=8 C=0 Bx=4096"
+            },
+            {
+              "pc": 32,
+              "line": 236,
+              "raw": "0x04c3001f",
+              "op": "EQ",
+              "operands": "A=0 B=R[9] C=K[12]=2"
+            },
+            {
+              "pc": 33,
+              "line": 236,
+              "raw": "0x8001401e",
+              "op": "JMP",
+              "operands": "A=0 sBx=6 target=40"
+            },
+            {
+              "pc": 34,
+              "line": 237,
+              "raw": "0x00400247",
+              "op": "GETTABLE",
+              "operands": "A=9 B=R[0] C=K[0]='dicMultipleBanner'"
+            },
+            {
+              "pc": 35,
+              "line": 237,
+              "raw": "0x00434286",
+              "op": "GETTABUP",
+              "operands": "A=10 B=R[0] C=K[13]='tonumber'"
+            },
+            {
+              "pc": 36,
+              "line": 237,
+              "raw": "0x044282c7",
+              "op": "GETTABLE",
+              "operands": "A=11 B=R[8] C=K[10]=1"
+            },
+            {
+              "pc": 37,
+              "line": 237,
+              "raw": "0x010082a4",
+              "op": "CALL",
+              "operands": "A=10 B=2 C=2 Bx=1026"
+            },
+            {
+              "pc": 38,
+              "line": 237,
+              "raw": "0x044302c7",
+              "op": "GETTABLE",
+              "operands": "A=11 B=R[8] C=K[12]=2"
+            },
+            {
+              "pc": 39,
+              "line": 237,
+              "raw": "0x0502c24a",
+              "op": "SETTABLE",
+              "operands": "R[9][R[10]] <- R[11]"
+            },
+            {
+              "pc": 40,
+              "line": 234,
+              "raw": "0x7ffc0127",
+              "op": "FORLOOP",
+              "operands": "A=4 B=255 C=496 Bx=131056"
+            },
+            {
+              "pc": 41,
+              "line": 243,
+              "raw": "0x00400087",
+              "op": "GETTABLE",
+              "operands": "A=2 B=R[0] C=K[0]='dicMultipleBanner'"
+            },
+            {
+              "pc": 42,
+              "line": 243,
+              "raw": "0x01004087",
+              "op": "GETTABLE",
+              "operands": "A=2 B=R[2] C=R[1]"
+            },
+            {
+              "pc": 43,
+              "line": 243,
+              "raw": "0x010000a6",
+              "op": "RETURN",
+              "operands": "A=2 B=2 C=0 Bx=1024"
+            },
+            {
+              "pc": 44,
+              "line": 244,
+              "raw": "0x00800026",
+              "op": "RETURN",
+              "operands": "A=0 B=1 C=0 Bx=512"
+            }
+          ]
+        },
+        "GetCurDigTimes": {
+          "lines": [
+            148,
+            168
+          ],
+          "params": 2,
+          "stack": 7,
+          "constants": [
+            "DataCenter",
+            "DetectEventTemplateManager",
+            "GetDetectEventTemplate",
+            "tostring",
+            "UITimeManager",
+            "GetInstance",
+            "GetServerTime",
+            0,
+            "type",
+            "DetectEventType",
+            "OFF_SEASON_TREASURE",
+            "off_season_detect_dig_times_expire",
+            "off_season_detect_day_times",
+            "activity_detect_dig_times_expire",
+            "activity_detect_dig_times"
+          ],
+          "prototypePath": "root/child[8]",
+          "instructions": [
+            {
+              "pc": 0,
+              "line": 149,
+              "raw": "0x00400086",
+              "op": "GETTABUP",
+              "operands": "A=2 B=R[0] C=K[0]='DataCenter'"
+            },
+            {
+              "pc": 1,
+              "line": 149,
+              "raw": "0x01404087",
+              "op": "GETTABLE",
+              "operands": "A=2 B=R[2] C=K[1]='DetectEventTemplateManager'"
+            },
+            {
+              "pc": 2,
+              "line": 149,
+              "raw": "0x0140808c",
+              "op": "SELF",
+              "operands": "A=2 B=R[2] C=K[2]='GetDetectEventTemplate'"
+            },
+            {
+              "pc": 3,
+              "line": 149,
+              "raw": "0x0040c106",
+              "op": "GETTABUP",
+              "operands": "A=4 B=R[0] C=K[3]='tostring'"
+            },
+            {
+              "pc": 4,
+              "line": 149,
+              "raw": "0x00800140",
+              "op": "MOVE",
+              "operands": "A=5 B=1 C=0 Bx=512"
+            },
+            {
+              "pc": 5,
+              "line": 149,
+              "raw": "0x01000124",
+              "op": "CALL",
+              "operands": "A=4 B=2 C=0 Bx=1024"
+            },
+            {
+              "pc": 6,
+              "line": 149,
+              "raw": "0x000080a4",
+              "op": "CALL",
+              "operands": "A=2 B=0 C=2 Bx=2"
+            },
+            {
+              "pc": 7,
+              "line": 150,
+              "raw": "0x004100c6",
+              "op": "GETTABUP",
+              "operands": "A=3 B=R[0] C=K[4]='UITimeManager'"
+            },
+            {
+              "pc": 8,
+              "line": 150,
+              "raw": "0x01c140cc",
+              "op": "SELF",
+              "operands": "A=3 B=R[3] C=K[5]='GetInstance'"
+            },
+            {
+              "pc": 9,
+              "line": 150,
+              "raw": "0x010080e4",
+              "op": "CALL",
+              "operands": "A=3 B=2 C=2 Bx=1026"
+            },
+            {
+              "pc": 10,
+              "line": 150,
+              "raw": "0x01c180cc",
+              "op": "SELF",
+              "operands": "A=3 B=R[3] C=K[6]='GetServerTime'"
+            },
+            {
+              "pc": 11,
+              "line": 150,
+              "raw": "0x010080e4",
+              "op": "CALL",
+              "operands": "A=3 B=2 C=2 Bx=1026"
+            },
+            {
+              "pc": 12,
+              "line": 151,
+              "raw": "0x0001c101",
+              "op": "LOADK",
+              "operands": "R[4] <- K[7]=0"
+            },
+            {
+              "pc": 13,
+              "line": 152,
+              "raw": "0x01420147",
+              "op": "GETTABLE",
+              "operands": "A=5 B=R[2] C=K[8]='type'"
+            },
+            {
+              "pc": 14,
+              "line": 152,
+              "raw": "0x00424186",
+              "op": "GETTABUP",
+              "operands": "A=6 B=R[0] C=K[9]='DetectEventType'"
+            },
+            {
+              "pc": 15,
+              "line": 152,
+              "raw": "0x03428187",
+              "op": "GETTABLE",
+              "operands": "A=6 B=R[6] C=K[10]='OFF_SEASON_TREASURE'"
+            },
+            {
+              "pc": 16,
+              "line": 152,
+              "raw": "0x0281801f",
+              "op": "EQ",
+              "operands": "A=0 B=R[5] C=R[6]"
+            },
+            {
+              "pc": 17,
+              "line": 152,
+              "raw": "0x8002801e",
+              "op": "JMP",
+              "operands": "A=0 sBx=11 target=29"
+            },
+            {
+              "pc": 18,
+              "line": 153,
+              "raw": "0x0042c147",
+              "op": "GETTABLE",
+              "operands": "A=5 B=R[0] C=K[11]='off_season_detect_dig_times_expire'"
+            },
+            {
+              "pc": 19,
+              "line": 153,
+              "raw": "0x01814020",
+              "op": "LT",
+              "operands": "A=0 B=R[3] C=R[5]"
+            },
+            {
+              "pc": 20,
+              "line": 153,
+              "raw": "0x8001401e",
+              "op": "JMP",
+              "operands": "A=0 sBx=6 target=27"
+            },
+            {
+              "pc": 21,
+              "line": 154,
+              "raw": "0x00430147",
+              "op": "GETTABLE",
+              "operands": "A=5 B=R[0] C=K[12]='off_season_detect_day_times'"
+            },
+            {
+              "pc": 22,
+              "line": 154,
+              "raw": "0x02804147",
+              "op": "GETTABLE",
+              "operands": "A=5 B=R[5] C=R[1]"
+            },
+            {
+              "pc": 23,
+              "line": 154,
+              "raw": "0x00000162",
+              "op": "TEST",
+              "operands": "A=5 B=0 C=0 Bx=0"
+            },
+            {
+              "pc": 24,
+              "line": 154,
+              "raw": "0x8000401e",
+              "op": "JMP",
+              "operands": "A=0 sBx=2 target=27"
+            },
+            {
+              "pc": 25,
+              "line": 155,
+              "raw": "0x00430147",
+              "op": "GETTABLE",
+              "operands": "A=5 B=R[0] C=K[12]='off_season_detect_day_times'"
+            },
+            {
+              "pc": 26,
+              "line": 155,
+              "raw": "0x02804107",
+              "op": "GETTABLE",
+              "operands": "A=4 B=R[5] C=R[1]"
+            },
+            {
+              "pc": 27,
+              "line": 158,
+              "raw": "0x01000126",
+              "op": "RETURN",
+              "operands": "A=4 B=2 C=0 Bx=1024"
+            },
+            {
+              "pc": 28,
+              "line": 158,
+              "raw": "0x8002001e",
+              "op": "JMP",
+              "operands": "A=0 sBx=9 target=38"
+            },
+            {
+              "pc": 29,
+              "line": 160,
+              "raw": "0x00434147",
+              "op": "GETTABLE",
+              "operands": "A=5 B=R[0] C=K[13]='activity_detect_dig_times_expire'"
+            },
+            {
+              "pc": 30,
+              "line": 160,
+              "raw": "0x01814020",
+              "op": "LT",
+              "operands": "A=0 B=R[3] C=R[5]"
+            },
+            {
+              "pc": 31,
+              "line": 160,
+              "raw": "0x8001401e",
+              "op": "JMP",
+              "operands": "A=0 sBx=6 target=38"
+            },
+            {
+              "pc": 32,
+              "line": 161,
+              "raw": "0x00438147",
+              "op": "GETTABLE",
+              "operands": "A=5 B=R[0] C=K[14]='activity_detect_dig_times'"
+            },
+            {
+              "pc": 33,
+              "line": 161,
+              "raw": "0x02804147",
+              "op": "GETTABLE",
+              "operands": "A=5 B=R[5] C=R[1]"
+            },
+            {
+              "pc": 34,
+              "line": 161,
+              "raw": "0x00000162",
+              "op": "TEST",
+              "operands": "A=5 B=0 C=0 Bx=0"
+            },
+            {
+              "pc": 35,
+              "line": 161,
+              "raw": "0x8000401e",
+              "op": "JMP",
+              "operands": "A=0 sBx=2 target=38"
+            },
+            {
+              "pc": 36,
+              "line": 162,
+              "raw": "0x00438147",
+              "op": "GETTABLE",
+              "operands": "A=5 B=R[0] C=K[14]='activity_detect_dig_times'"
+            },
+            {
+              "pc": 37,
+              "line": 162,
+              "raw": "0x02804107",
+              "op": "GETTABLE",
+              "operands": "A=4 B=R[5] C=R[1]"
+            },
+            {
+              "pc": 38,
+              "line": 167,
+              "raw": "0x01000126",
+              "op": "RETURN",
+              "operands": "A=4 B=2 C=0 Bx=1024"
+            },
+            {
+              "pc": 39,
+              "line": 168,
+              "raw": "0x00800026",
+              "op": "RETURN",
+              "operands": "A=0 B=1 C=0 Bx=512"
+            }
+          ]
+        },
+        "GetCurDigTimesByActivityId": {
+          "lines": [
+            170,
+            184
+          ],
+          "params": 2,
+          "stack": 10,
+          "constants": [
+            0,
+            "DataCenter",
+            "ActivityListDataManager",
+            "GetActivityDataById",
+            "detect_para",
+            "string",
+            "string2array_i_oneSep",
+            ";",
+            2,
+            1,
+            "ActDetectTreasureDataManager",
+            "GetCurDigTimes"
+          ],
+          "prototypePath": "root/child[9]",
+          "instructions": [
+            {
+              "pc": 0,
+              "line": 171,
+              "raw": "0x00000081",
+              "op": "LOADK",
+              "operands": "R[2] <- K[0]=0"
+            },
+            {
+              "pc": 1,
+              "line": 173,
+              "raw": "0x004040c6",
+              "op": "GETTABUP",
+              "operands": "A=3 B=R[0] C=K[1]='DataCenter'"
+            },
+            {
+              "pc": 2,
+              "line": 173,
+              "raw": "0x01c080c7",
+              "op": "GETTABLE",
+              "operands": "A=3 B=R[3] C=K[2]='ActivityListDataManager'"
+            },
+            {
+              "pc": 3,
+              "line": 173,
+              "raw": "0x01c0c0cc",
+              "op": "SELF",
+              "operands": "A=3 B=R[3] C=K[3]='GetActivityDataById'"
+            },
+            {
+              "pc": 4,
+              "line": 173,
+              "raw": "0x00800140",
+              "op": "MOVE",
+              "operands": "A=5 B=1 C=0 Bx=512"
+            },
+            {
+              "pc": 5,
+              "line": 173,
+              "raw": "0x018080e4",
+              "op": "CALL",
+              "operands": "A=3 B=3 C=2 Bx=1538"
+            },
+            {
+              "pc": 6,
+              "line": 174,
+              "raw": "0x000000e2",
+              "op": "TEST",
+              "operands": "A=3 B=0 C=0 Bx=0"
+            },
+            {
+              "pc": 7,
+              "line": 174,
+              "raw": "0x8004401e",
+              "op": "JMP",
+              "operands": "A=0 sBx=18 target=26"
+            },
+            {
+              "pc": 8,
+              "line": 175,
+              "raw": "0x01c10107",
+              "op": "GETTABLE",
+              "operands": "A=4 B=R[3] C=K[4]='detect_para'"
+            },
+            {
+              "pc": 9,
+              "line": 176,
+              "raw": "0x00414146",
+              "op": "GETTABUP",
+              "operands": "A=5 B=R[0] C=K[5]='string'"
+            },
+            {
+              "pc": 10,
+              "line": 176,
+              "raw": "0x02c18147",
+              "op": "GETTABLE",
+              "operands": "A=5 B=R[5] C=K[6]='string2array_i_oneSep'"
+            },
+            {
+              "pc": 11,
+              "line": 176,
+              "raw": "0x02000180",
+              "op": "MOVE",
+              "operands": "A=6 B=4 C=0 Bx=2048"
+            },
+            {
+              "pc": 12,
+              "line": 176,
+              "raw": "0x0001c1c1",
+              "op": "LOADK",
+              "operands": "R[7] <- K[7]=';'"
+            },
+            {
+              "pc": 13,
+              "line": 176,
+              "raw": "0x01808164",
+              "op": "CALL",
+              "operands": "A=5 B=3 C=2 Bx=1538"
+            },
+            {
+              "pc": 14,
+              "line": 177,
+              "raw": "0x00000162",
+              "op": "TEST",
+              "operands": "A=5 B=0 C=0 Bx=0"
+            },
+            {
+              "pc": 15,
+              "line": 177,
+              "raw": "0x8002401e",
+              "op": "JMP",
+              "operands": "A=0 sBx=10 target=26"
+            },
+            {
+              "pc": 16,
+              "line": 177,
+              "raw": "0x0280019c",
+              "op": "LEN",
+              "operands": "A=6 B=5 C=0 Bx=2560"
+            },
+            {
+              "pc": 17,
+              "line": 177,
+              "raw": "0x84018021",
+              "op": "LE",
+              "operands": "A=0 B=K[8]=2 C=R[6]"
+            },
+            {
+              "pc": 18,
+              "line": 177,
+              "raw": "0x8001801e",
+              "op": "JMP",
+              "operands": "A=0 sBx=7 target=26"
+            },
+            {
+              "pc": 19,
+              "line": 178,
+              "raw": "0x02c24187",
+              "op": "GETTABLE",
+              "operands": "A=6 B=R[5] C=K[9]=1"
+            },
+            {
+              "pc": 20,
+              "line": 179,
+              "raw": "0x004041c6",
+              "op": "GETTABUP",
+              "operands": "A=7 B=R[0] C=K[1]='DataCenter'"
+            },
+            {
+              "pc": 21,
+              "line": 179,
+              "raw": "0x03c281c7",
+              "op": "GETTABLE",
+              "operands": "A=7 B=R[7] C=K[10]='ActDetectTreasureDataManager'"
+            },
+            {
+              "pc": 22,
+              "line": 179,
+              "raw": "0x03c2c1cc",
+              "op": "SELF",
+              "operands": "A=7 B=R[7] C=K[11]='GetCurDigTimes'"
+            },
+            {
+              "pc": 23,
+              "line": 179,
+              "raw": "0x03000240",
+              "op": "MOVE",
+              "operands": "A=9 B=6 C=0 Bx=3072"
+            },
+            {
+              "pc": 24,
+              "line": 179,
+              "raw": "0x018081e4",
+              "op": "CALL",
+              "operands": "A=7 B=3 C=2 Bx=1538"
+            },
+            {
+              "pc": 25,
+              "line": 179,
+              "raw": "0x03800080",
+              "op": "MOVE",
+              "operands": "A=2 B=7 C=0 Bx=3584"
+            },
+            {
+              "pc": 26,
+              "line": 183,
+              "raw": "0x010000a6",
+              "op": "RETURN",
+              "operands": "A=2 B=2 C=0 Bx=1024"
+            },
+            {
+              "pc": 27,
+              "line": 184,
+              "raw": "0x00800026",
+              "op": "RETURN",
+              "operands": "A=0 B=1 C=0 Bx=512"
+            }
+          ]
+        },
+        "GetMaxDigTimes": {
+          "lines": [
+            186,
+            210
+          ],
+          "params": 2,
+          "stack": 8,
+          "constants": [
+            0,
+            "DataCenter",
+            "DetectEventTemplateManager",
+            "GetDetectEventTemplate",
+            "tostring",
+            null,
+            "para3",
+            "string",
+            "string2array_i_oneSep",
+            ";",
+            2
+          ],
+          "prototypePath": "root/child[10]",
+          "instructions": [
+            {
+              "pc": 0,
+              "line": 198,
+              "raw": "0x00000081",
+              "op": "LOADK",
+              "operands": "R[2] <- K[0]=0"
+            },
+            {
+              "pc": 1,
+              "line": 200,
+              "raw": "0x004040c6",
+              "op": "GETTABUP",
+              "operands": "A=3 B=R[0] C=K[1]='DataCenter'"
+            },
+            {
+              "pc": 2,
+              "line": 200,
+              "raw": "0x01c080c7",
+              "op": "GETTABLE",
+              "operands": "A=3 B=R[3] C=K[2]='DetectEventTemplateManager'"
+            },
+            {
+              "pc": 3,
+              "line": 200,
+              "raw": "0x01c0c0cc",
+              "op": "SELF",
+              "operands": "A=3 B=R[3] C=K[3]='GetDetectEventTemplate'"
+            },
+            {
+              "pc": 4,
+              "line": 200,
+              "raw": "0x00410146",
+              "op": "GETTABUP",
+              "operands": "A=5 B=R[0] C=K[4]='tostring'"
+            },
+            {
+              "pc": 5,
+              "line": 200,
+              "raw": "0x00800180",
+              "op": "MOVE",
+              "operands": "A=6 B=1 C=0 Bx=512"
+            },
+            {
+              "pc": 6,
+              "line": 200,
+              "raw": "0x01000164",
+              "op": "CALL",
+              "operands": "A=5 B=2 C=0 Bx=1024"
+            },
+            {
+              "pc": 7,
+              "line": 200,
+              "raw": "0x000080e4",
+              "op": "CALL",
+              "operands": "A=3 B=0 C=2 Bx=2"
+            },
+            {
+              "pc": 8,
+              "line": 201,
+              "raw": "0x01c1405f",
+              "op": "EQ",
+              "operands": "A=1 B=R[3] C=K[5]=None"
+            },
+            {
+              "pc": 9,
+              "line": 201,
+              "raw": "0x8002c01e",
+              "op": "JMP",
+              "operands": "A=0 sBx=12 target=22"
+            },
+            {
+              "pc": 10,
+              "line": 202,
+              "raw": "0x01c18107",
+              "op": "GETTABLE",
+              "operands": "A=4 B=R[3] C=K[6]='para3'"
+            },
+            {
+              "pc": 11,
+              "line": 203,
+              "raw": "0x0041c146",
+              "op": "GETTABUP",
+              "operands": "A=5 B=R[0] C=K[7]='string'"
+            },
+            {
+              "pc": 12,
+              "line": 203,
+              "raw": "0x02c20147",
+              "op": "GETTABLE",
+              "operands": "A=5 B=R[5] C=K[8]='string2array_i_oneSep'"
+            },
+            {
+              "pc": 13,
+              "line": 203,
+              "raw": "0x02000180",
+              "op": "MOVE",
+              "operands": "A=6 B=4 C=0 Bx=2048"
+            },
+            {
+              "pc": 14,
+              "line": 203,
+              "raw": "0x000241c1",
+              "op": "LOADK",
+              "operands": "R[7] <- K[9]=';'"
+            },
+            {
+              "pc": 15,
+              "line": 203,
+              "raw": "0x01808164",
+              "op": "CALL",
+              "operands": "A=5 B=3 C=2 Bx=1538"
+            },
+            {
+              "pc": 16,
+              "line": 204,
+              "raw": "0x00000162",
+              "op": "TEST",
+              "operands": "A=5 B=0 C=0 Bx=0"
+            },
+            {
+              "pc": 17,
+              "line": 204,
+              "raw": "0x8000c01e",
+              "op": "JMP",
+              "operands": "A=0 sBx=4 target=22"
+            },
+            {
+              "pc": 18,
+              "line": 204,
+              "raw": "0x0280019c",
+              "op": "LEN",
+              "operands": "A=6 B=5 C=0 Bx=2560"
+            },
+            {
+              "pc": 19,
+              "line": 204,
+              "raw": "0x0342801f",
+              "op": "EQ",
+              "operands": "A=0 B=R[6] C=K[10]=2"
+            },
+            {
+              "pc": 20,
+              "line": 204,
+              "raw": "0x8000001e",
+              "op": "JMP",
+              "operands": "A=0 sBx=1 target=22"
+            },
+            {
+              "pc": 21,
+              "line": 205,
+              "raw": "0x02c28087",
+              "op": "GETTABLE",
+              "operands": "A=2 B=R[5] C=K[10]=2"
+            },
+            {
+              "pc": 22,
+              "line": 209,
+              "raw": "0x010000a6",
+              "op": "RETURN",
+              "operands": "A=2 B=2 C=0 Bx=1024"
+            },
+            {
+              "pc": 23,
+              "line": 210,
+              "raw": "0x00800026",
+              "op": "RETURN",
+              "operands": "A=0 B=1 C=0 Bx=512"
+            }
+          ]
+        },
+        "GetMaxDigTimesByActivityId": {
+          "lines": [
+            212,
+            225
+          ],
+          "params": 2,
+          "stack": 10,
+          "constants": [
+            0,
+            "DataCenter",
+            "ActivityListDataManager",
+            "GetActivityDataById",
+            "detect_para",
+            "string",
+            "string2array_i_oneSep",
+            ";",
+            2,
+            1,
+            "ActDetectTreasureDataManager",
+            "GetMaxDigTimes"
+          ],
+          "prototypePath": "root/child[11]",
+          "instructions": [
+            {
+              "pc": 0,
+              "line": 213,
+              "raw": "0x00000081",
+              "op": "LOADK",
+              "operands": "R[2] <- K[0]=0"
+            },
+            {
+              "pc": 1,
+              "line": 214,
+              "raw": "0x004040c6",
+              "op": "GETTABUP",
+              "operands": "A=3 B=R[0] C=K[1]='DataCenter'"
+            },
+            {
+              "pc": 2,
+              "line": 214,
+              "raw": "0x01c080c7",
+              "op": "GETTABLE",
+              "operands": "A=3 B=R[3] C=K[2]='ActivityListDataManager'"
+            },
+            {
+              "pc": 3,
+              "line": 214,
+              "raw": "0x01c0c0cc",
+              "op": "SELF",
+              "operands": "A=3 B=R[3] C=K[3]='GetActivityDataById'"
+            },
+            {
+              "pc": 4,
+              "line": 214,
+              "raw": "0x00800140",
+              "op": "MOVE",
+              "operands": "A=5 B=1 C=0 Bx=512"
+            },
+            {
+              "pc": 5,
+              "line": 214,
+              "raw": "0x018080e4",
+              "op": "CALL",
+              "operands": "A=3 B=3 C=2 Bx=1538"
+            },
+            {
+              "pc": 6,
+              "line": 215,
+              "raw": "0x000000e2",
+              "op": "TEST",
+              "operands": "A=3 B=0 C=0 Bx=0"
+            },
+            {
+              "pc": 7,
+              "line": 215,
+              "raw": "0x8004401e",
+              "op": "JMP",
+              "operands": "A=0 sBx=18 target=26"
+            },
+            {
+              "pc": 8,
+              "line": 216,
+              "raw": "0x01c10107",
+              "op": "GETTABLE",
+              "operands": "A=4 B=R[3] C=K[4]='detect_para'"
+            },
+            {
+              "pc": 9,
+              "line": 217,
+              "raw": "0x00414146",
+              "op": "GETTABUP",
+              "operands": "A=5 B=R[0] C=K[5]='string'"
+            },
+            {
+              "pc": 10,
+              "line": 217,
+              "raw": "0x02c18147",
+              "op": "GETTABLE",
+              "operands": "A=5 B=R[5] C=K[6]='string2array_i_oneSep'"
+            },
+            {
+              "pc": 11,
+              "line": 217,
+              "raw": "0x02000180",
+              "op": "MOVE",
+              "operands": "A=6 B=4 C=0 Bx=2048"
+            },
+            {
+              "pc": 12,
+              "line": 217,
+              "raw": "0x0001c1c1",
+              "op": "LOADK",
+              "operands": "R[7] <- K[7]=';'"
+            },
+            {
+              "pc": 13,
+              "line": 217,
+              "raw": "0x01808164",
+              "op": "CALL",
+              "operands": "A=5 B=3 C=2 Bx=1538"
+            },
+            {
+              "pc": 14,
+              "line": 219,
+              "raw": "0x00000162",
+              "op": "TEST",
+              "operands": "A=5 B=0 C=0 Bx=0"
+            },
+            {
+              "pc": 15,
+              "line": 219,
+              "raw": "0x8002401e",
+              "op": "JMP",
+              "operands": "A=0 sBx=10 target=26"
+            },
+            {
+              "pc": 16,
+              "line": 219,
+              "raw": "0x0280019c",
+              "op": "LEN",
+              "operands": "A=6 B=5 C=0 Bx=2560"
+            },
+            {
+              "pc": 17,
+              "line": 219,
+              "raw": "0x84018021",
+              "op": "LE",
+              "operands": "A=0 B=K[8]=2 C=R[6]"
+            },
+            {
+              "pc": 18,
+              "line": 219,
+              "raw": "0x8001801e",
+              "op": "JMP",
+              "operands": "A=0 sBx=7 target=26"
+            },
+            {
+              "pc": 19,
+              "line": 220,
+              "raw": "0x02c24187",
+              "op": "GETTABLE",
+              "operands": "A=6 B=R[5] C=K[9]=1"
+            },
+            {
+              "pc": 20,
+              "line": 221,
+              "raw": "0x004041c6",
+              "op": "GETTABUP",
+              "operands": "A=7 B=R[0] C=K[1]='DataCenter'"
+            },
+            {
+              "pc": 21,
+              "line": 221,
+              "raw": "0x03c281c7",
+              "op": "GETTABLE",
+              "operands": "A=7 B=R[7] C=K[10]='ActDetectTreasureDataManager'"
+            },
+            {
+              "pc": 22,
+              "line": 221,
+              "raw": "0x03c2c1cc",
+              "op": "SELF",
+              "operands": "A=7 B=R[7] C=K[11]='GetMaxDigTimes'"
+            },
+            {
+              "pc": 23,
+              "line": 221,
+              "raw": "0x03000240",
+              "op": "MOVE",
+              "operands": "A=9 B=6 C=0 Bx=3072"
+            },
+            {
+              "pc": 24,
+              "line": 221,
+              "raw": "0x018081e4",
+              "op": "CALL",
+              "operands": "A=7 B=3 C=2 Bx=1538"
+            },
+            {
+              "pc": 25,
+              "line": 221,
+              "raw": "0x03800080",
+              "op": "MOVE",
+              "operands": "A=2 B=7 C=0 Bx=3584"
+            },
+            {
+              "pc": 26,
+              "line": 224,
+              "raw": "0x010000a6",
+              "op": "RETURN",
+              "operands": "A=2 B=2 C=0 Bx=1024"
+            },
+            {
+              "pc": 27,
+              "line": 225,
+              "raw": "0x00800026",
+              "op": "RETURN",
+              "operands": "A=0 B=1 C=0 Bx=512"
+            }
+          ]
+        },
+        "InitData": {
+          "lines": [
+            39,
+            47
+          ],
+          "params": 2,
+          "stack": 10,
+          "constants": [
+            "treasureDailyLimit",
+            "pairs",
+            "UITimeManager",
+            "GetInstance",
+            "IsToday",
+            "time",
+            "dailyGot",
+            "id",
+            "num"
+          ],
+          "prototypePath": "root/child[2]",
+          "instructions": [
+            {
+              "pc": 0,
+              "line": 40,
+              "raw": "0x00c00087",
+              "op": "GETTABLE",
+              "operands": "A=2 B=R[1] C=K[0]='treasureDailyLimit'"
+            },
+            {
+              "pc": 1,
+              "line": 40,
+              "raw": "0x000000a2",
+              "op": "TEST",
+              "operands": "A=2 B=0 C=0 Bx=0"
+            },
+            {
+              "pc": 2,
+              "line": 40,
+              "raw": "0x8004401e",
+              "op": "JMP",
+              "operands": "A=0 sBx=18 target=21"
+            },
+            {
+              "pc": 3,
+              "line": 41,
+              "raw": "0x00404086",
+              "op": "GETTABUP",
+              "operands": "A=2 B=R[0] C=K[1]='pairs'"
+            },
+            {
+              "pc": 4,
+              "line": 41,
+              "raw": "0x00c000c7",
+              "op": "GETTABLE",
+              "operands": "A=3 B=R[1] C=K[0]='treasureDailyLimit'"
+            },
+            {
+              "pc": 5,
+              "line": 41,
+              "raw": "0x010100a4",
+              "op": "CALL",
+              "operands": "A=2 B=2 C=4 Bx=1028"
+            },
+            {
+              "pc": 6,
+              "line": 41,
+              "raw": "0x8002c01e",
+              "op": "JMP",
+              "operands": "A=0 sBx=12 target=19"
+            },
+            {
+              "pc": 7,
+              "line": 42,
+              "raw": "0x004081c6",
+              "op": "GETTABUP",
+              "operands": "A=7 B=R[0] C=K[2]='UITimeManager'"
+            },
+            {
+              "pc": 8,
+              "line": 42,
+              "raw": "0x03c0c1cc",
+              "op": "SELF",
+              "operands": "A=7 B=R[7] C=K[3]='GetInstance'"
+            },
+            {
+              "pc": 9,
+              "line": 42,
+              "raw": "0x010081e4",
+              "op": "CALL",
+              "operands": "A=7 B=2 C=2 Bx=1026"
+            },
+            {
+              "pc": 10,
+              "line": 42,
+              "raw": "0x03c101cc",
+              "op": "SELF",
+              "operands": "A=7 B=R[7] C=K[4]='IsToday'"
+            },
+            {
+              "pc": 11,
+              "line": 42,
+              "raw": "0x03414247",
+              "op": "GETTABLE",
+              "operands": "A=9 B=R[6] C=K[5]='time'"
+            },
+            {
+              "pc": 12,
+              "line": 42,
+              "raw": "0x018081e4",
+              "op": "CALL",
+              "operands": "A=7 B=3 C=2 Bx=1538"
+            },
+            {
+              "pc": 13,
+              "line": 42,
+              "raw": "0x000001e2",
+              "op": "TEST",
+              "operands": "A=7 B=0 C=0 Bx=0"
+            },
+            {
+              "pc": 14,
+              "line": 42,
+              "raw": "0x8000c01e",
+              "op": "JMP",
+              "operands": "A=0 sBx=4 target=19"
+            },
+            {
+              "pc": 15,
+              "line": 43,
+              "raw": "0x004181c7",
+              "op": "GETTABLE",
+              "operands": "A=7 B=R[0] C=K[6]='dailyGot'"
+            },
+            {
+              "pc": 16,
+              "line": 43,
+              "raw": "0x0341c207",
+              "op": "GETTABLE",
+              "operands": "A=8 B=R[6] C=K[7]='id'"
+            },
+            {
+              "pc": 17,
+              "line": 43,
+              "raw": "0x03420247",
+              "op": "GETTABLE",
+              "operands": "A=9 B=R[6] C=K[8]='num'"
+            },
+            {
+              "pc": 18,
+              "line": 43,
+              "raw": "0x040241ca",
+              "op": "SETTABLE",
+              "operands": "R[7][R[8]] <- R[9]"
+            },
+            {
+              "pc": 19,
+              "line": 41,
+              "raw": "0x000080a9",
+              "op": "TFORCALL",
+              "operands": "A=2 B=0 C=2 Bx=2"
+            },
+            {
+              "pc": 20,
+              "line": 41,
+              "raw": "0x7ffc412a",
+              "op": "TFORLOOP",
+              "operands": "A=4 B=255 C=497 Bx=131057"
+            },
+            {
+              "pc": 21,
+              "line": 47,
+              "raw": "0x00800026",
+              "op": "RETURN",
+              "operands": "A=0 B=1 C=0 Bx=512"
+            }
+          ]
+        },
+        "OnGetArrDataMsg": {
+          "lines": [
+            50,
+            68
+          ],
+          "params": 2,
+          "stack": 6,
+          "constants": [
+            "activityId",
+            "treasures_num",
+            null,
+            "dataDict",
+            "UITimeManager",
+            "GetInstance",
+            "GetServerTime",
+            "arr",
+            "expireTime"
+          ],
+          "prototypePath": "root/child[3]",
+          "instructions": [
+            {
+              "pc": 0,
+              "line": 51,
+              "raw": "0x00c00087",
+              "op": "GETTABLE",
+              "operands": "A=2 B=R[1] C=K[0]='activityId'"
+            },
+            {
+              "pc": 1,
+              "line": 54,
+              "raw": "0x00c040c7",
+              "op": "GETTABLE",
+              "operands": "A=3 B=R[1] C=K[1]='treasures_num'"
+            },
+            {
+              "pc": 2,
+              "line": 54,
+              "raw": "0x01c0801f",
+              "op": "EQ",
+              "operands": "A=0 B=R[3] C=K[2]=None"
+            },
+            {
+              "pc": 3,
+              "line": 54,
+              "raw": "0x8005001e",
+              "op": "JMP",
+              "operands": "A=0 sBx=21 target=25"
+            },
+            {
+              "pc": 4,
+              "line": 55,
+              "raw": "0x0040c0c7",
+              "op": "GETTABLE",
+              "operands": "A=3 B=R[0] C=K[3]='dataDict'"
+            },
+            {
+              "pc": 5,
+              "line": 55,
+              "raw": "0x018080c7",
+              "op": "GETTABLE",
+              "operands": "A=3 B=R[3] C=R[2]"
+            },
+            {
+              "pc": 6,
+              "line": 55,
+              "raw": "0x000040e2",
+              "op": "TEST",
+              "operands": "A=3 B=0 C=1 Bx=1"
+            },
+            {
+              "pc": 7,
+              "line": 55,
+              "raw": "0x8000801e",
+              "op": "JMP",
+              "operands": "A=0 sBx=3 target=11"
+            },
+            {
+              "pc": 8,
+              "line": 56,
+              "raw": "0x0040c0c7",
+              "op": "GETTABLE",
+              "operands": "A=3 B=R[0] C=K[3]='dataDict'"
+            },
+            {
+              "pc": 9,
+              "line": 56,
+              "raw": "0x0000010b",
+              "op": "NEWTABLE",
+              "operands": "A=4 B=0 C=0 Bx=0"
+            },
+            {
+              "pc": 10,
+              "line": 56,
+              "raw": "0x010100ca",
+              "op": "SETTABLE",
+              "operands": "R[3][R[2]] <- R[4]"
+            },
+            {
+              "pc": 11,
+              "line": 58,
+              "raw": "0x004100c6",
+              "op": "GETTABUP",
+              "operands": "A=3 B=R[0] C=K[4]='UITimeManager'"
+            },
+            {
+              "pc": 12,
+              "line": 58,
+              "raw": "0x01c140cc",
+              "op": "SELF",
+              "operands": "A=3 B=R[3] C=K[5]='GetInstance'"
+            },
+            {
+              "pc": 13,
+              "line": 58,
+              "raw": "0x010080e4",
+              "op": "CALL",
+              "operands": "A=3 B=2 C=2 Bx=1026"
+            },
+            {
+              "pc": 14,
+              "line": 58,
+              "raw": "0x01c180cc",
+              "op": "SELF",
+              "operands": "A=3 B=R[3] C=K[6]='GetServerTime'"
+            },
+            {
+              "pc": 15,
+              "line": 58,
+              "raw": "0x010080e4",
+              "op": "CALL",
+              "operands": "A=3 B=2 C=2 Bx=1026"
+            },
+            {
+              "pc": 16,
+              "line": 60,
+              "raw": "0x0040c107",
+              "op": "GETTABLE",
+              "operands": "A=4 B=R[0] C=K[3]='dataDict'"
+            },
+            {
+              "pc": 17,
+              "line": 60,
+              "raw": "0x02008107",
+              "op": "GETTABLE",
+              "operands": "A=4 B=R[4] C=R[2]"
+            },
+            {
+              "pc": 18,
+              "line": 60,
+              "raw": "0x00c1c147",
+              "op": "GETTABLE",
+              "operands": "A=5 B=R[1] C=K[7]='arr'"
+            },
+            {
+              "pc": 19,
+              "line": 60,
+              "raw": "0x8381410a",
+              "op": "SETTABLE",
+              "operands": "R[4][K[7]='arr'] <- R[5]"
+            },
+            {
+              "pc": 20,
+              "line": 61,
+              "raw": "0x0040c107",
+              "op": "GETTABLE",
+              "operands": "A=4 B=R[0] C=K[3]='dataDict'"
+            },
+            {
+              "pc": 21,
+              "line": 61,
+              "raw": "0x02008107",
+              "op": "GETTABLE",
+              "operands": "A=4 B=R[4] C=R[2]"
+            },
+            {
+              "pc": 22,
+              "line": 61,
+              "raw": "0x00800145",
+              "op": "GETUPVAL",
+              "operands": "A=5 B=1 C=0 Bx=512"
+            },
+            {
+              "pc": 23,
+              "line": 61,
+              "raw": "0x0181414d",
+              "op": "ADD",
+              "operands": "A=5 B=R[3] C=R[5]"
+            },
+            {
+              "pc": 24,
+              "line": 61,
+              "raw": "0x8401410a",
+              "op": "SETTABLE",
+              "operands": "R[4][K[8]='expireTime'] <- R[5]"
+            },
+            {
+              "pc": 25,
+              "line": 65,
+              "raw": "0x00c040c7",
+              "op": "GETTABLE",
+              "operands": "A=3 B=R[1] C=K[1]='treasures_num'"
+            },
+            {
+              "pc": 26,
+              "line": 65,
+              "raw": "0x000000e2",
+              "op": "TEST",
+              "operands": "A=3 B=0 C=0 Bx=0"
+            },
+            {
+              "pc": 27,
+              "line": 65,
+              "raw": "0x8000401e",
+              "op": "JMP",
+              "operands": "A=0 sBx=2 target=30"
+            },
+            {
+              "pc": 28,
+              "line": 66,
+              "raw": "0x00c040c7",
+              "op": "GETTABLE",
+              "operands": "A=3 B=R[1] C=K[1]='treasures_num'"
+            },
+            {
+              "pc": 29,
+              "line": 66,
+              "raw": "0x8080c00a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[1]='treasures_num'] <- R[3]"
+            },
+            {
+              "pc": 30,
+              "line": 68,
+              "raw": "0x00800026",
+              "op": "RETURN",
+              "operands": "A=0 B=1 C=0 Bx=512"
+            }
+          ]
+        },
+        "OnGetDigTimesMsg": {
+          "lines": [
+            70,
+            117
+          ],
+          "params": 2,
+          "stack": 15,
+          "constants": [
+            "activity_detect_dig_times_expire",
+            "activity_detect_dig_times",
+            "activity_detect_day_times",
+            "pairs",
+            "tonumber",
+            "off_season_detect_dig_times_expire",
+            "off_season_detect_day_times",
+            "cfgId",
+            "dailyGot",
+            "toInt",
+            "treasureRewardLimit",
+            "DataCenter",
+            "TreasureTemplateManager",
+            "GetTemplate",
+            "group",
+            0,
+            "daily_max",
+            "EventManager",
+            "GetInstance",
+            "Broadcast",
+            "EventId",
+            "WorldTreasureReachDailyLimit"
+          ],
+          "prototypePath": "root/child[4]",
+          "instructions": [
+            {
+              "pc": 0,
+              "line": 72,
+              "raw": "0x00c00087",
+              "op": "GETTABLE",
+              "operands": "A=2 B=R[1] C=K[0]='activity_detect_dig_times_expire'"
+            },
+            {
+              "pc": 1,
+              "line": 72,
+              "raw": "0x000000a2",
+              "op": "TEST",
+              "operands": "A=2 B=0 C=0 Bx=0"
+            },
+            {
+              "pc": 2,
+              "line": 72,
+              "raw": "0x8001c01e",
+              "op": "JMP",
+              "operands": "A=0 sBx=8 target=11"
+            },
+            {
+              "pc": 3,
+              "line": 73,
+              "raw": "0x00400087",
+              "op": "GETTABLE",
+              "operands": "A=2 B=R[0] C=K[0]='activity_detect_dig_times_expire'"
+            },
+            {
+              "pc": 4,
+              "line": 73,
+              "raw": "0x00c000c7",
+              "op": "GETTABLE",
+              "operands": "A=3 B=R[1] C=K[0]='activity_detect_dig_times_expire'"
+            },
+            {
+              "pc": 5,
+              "line": 73,
+              "raw": "0x0100c05f",
+              "op": "EQ",
+              "operands": "A=1 B=R[2] C=R[3]"
+            },
+            {
+              "pc": 6,
+              "line": 73,
+              "raw": "0x8000c01e",
+              "op": "JMP",
+              "operands": "A=0 sBx=4 target=11"
+            },
+            {
+              "pc": 7,
+              "line": 75,
+              "raw": "0x00c00087",
+              "op": "GETTABLE",
+              "operands": "A=2 B=R[1] C=K[0]='activity_detect_dig_times_expire'"
+            },
+            {
+              "pc": 8,
+              "line": 75,
+              "raw": "0x8000800a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[0]='activity_detect_dig_times_expire'] <- R[2]"
+            },
+            {
+              "pc": 9,
+              "line": 76,
+              "raw": "0x0000008b",
+              "op": "NEWTABLE",
+              "operands": "A=2 B=0 C=0 Bx=0"
+            },
+            {
+              "pc": 10,
+              "line": 76,
+              "raw": "0x8080800a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[1]='activity_detect_dig_times'] <- R[2]"
+            },
+            {
+              "pc": 11,
+              "line": 80,
+              "raw": "0x00c08087",
+              "op": "GETTABLE",
+              "operands": "A=2 B=R[1] C=K[2]='activity_detect_day_times'"
+            },
+            {
+              "pc": 12,
+              "line": 80,
+              "raw": "0x000000a2",
+              "op": "TEST",
+              "operands": "A=2 B=0 C=0 Bx=0"
+            },
+            {
+              "pc": 13,
+              "line": 80,
+              "raw": "0x8004001e",
+              "op": "JMP",
+              "operands": "A=0 sBx=17 target=31"
+            },
+            {
+              "pc": 14,
+              "line": 81,
+              "raw": "0x0040c086",
+              "op": "GETTABUP",
+              "operands": "A=2 B=R[0] C=K[3]='pairs'"
+            },
+            {
+              "pc": 15,
+              "line": 81,
+              "raw": "0x00c080c7",
+              "op": "GETTABLE",
+              "operands": "A=3 B=R[1] C=K[2]='activity_detect_day_times'"
+            },
+            {
+              "pc": 16,
+              "line": 81,
+              "raw": "0x010100a4",
+              "op": "CALL",
+              "operands": "A=2 B=2 C=4 Bx=1028"
+            },
+            {
+              "pc": 17,
+              "line": 81,
+              "raw": "0x8002801e",
+              "op": "JMP",
+              "operands": "A=0 sBx=11 target=29"
+            },
+            {
+              "pc": 18,
+              "line": 82,
+              "raw": "0x0040c1c6",
+              "op": "GETTABUP",
+              "operands": "A=7 B=R[0] C=K[3]='pairs'"
+            },
+            {
+              "pc": 19,
+              "line": 82,
+              "raw": "0x03000200",
+              "op": "MOVE",
+              "operands": "A=8 B=6 C=0 Bx=3072"
+            },
+            {
+              "pc": 20,
+              "line": 82,
+              "raw": "0x010101e4",
+              "op": "CALL",
+              "operands": "A=7 B=2 C=4 Bx=1028"
+            },
+            {
+              "pc": 21,
+              "line": 82,
+              "raw": "0x8001001e",
+              "op": "JMP",
+              "operands": "A=0 sBx=5 target=27"
+            },
+            {
+              "pc": 22,
+              "line": 83,
+              "raw": "0x00404307",
+              "op": "GETTABLE",
+              "operands": "A=12 B=R[0] C=K[1]='activity_detect_dig_times'"
+            },
+            {
+              "pc": 23,
+              "line": 83,
+              "raw": "0x00410346",
+              "op": "GETTABUP",
+              "operands": "A=13 B=R[0] C=K[4]='tonumber'"
+            },
+            {
+              "pc": 24,
+              "line": 83,
+              "raw": "0x05000380",
+              "op": "MOVE",
+              "operands": "A=14 B=10 C=0 Bx=5120"
+            },
+            {
+              "pc": 25,
+              "line": 83,
+              "raw": "0x01008364",
+              "op": "CALL",
+              "operands": "A=13 B=2 C=2 Bx=1026"
+            },
+            {
+              "pc": 26,
+              "line": 83,
+              "raw": "0x0682c30a",
+              "op": "SETTABLE",
+              "operands": "R[12][R[13]] <- R[11]"
+            },
+            {
+              "pc": 27,
+              "line": 82,
+              "raw": "0x000081e9",
+              "op": "TFORCALL",
+              "operands": "A=7 B=0 C=2 Bx=2"
+            },
+            {
+              "pc": 28,
+              "line": 82,
+              "raw": "0x7ffe026a",
+              "op": "TFORLOOP",
+              "operands": "A=9 B=255 C=504 Bx=131064"
+            },
+            {
+              "pc": 29,
+              "line": 81,
+              "raw": "0x000080a9",
+              "op": "TFORCALL",
+              "operands": "A=2 B=0 C=2 Bx=2"
+            },
+            {
+              "pc": 30,
+              "line": 81,
+              "raw": "0x7ffc812a",
+              "op": "TFORLOOP",
+              "operands": "A=4 B=255 C=498 Bx=131058"
+            },
+            {
+              "pc": 31,
+              "line": 88,
+              "raw": "0x00c14087",
+              "op": "GETTABLE",
+              "operands": "A=2 B=R[1] C=K[5]='off_season_detect_dig_times_expire'"
+            },
+            {
+              "pc": 32,
+              "line": 88,
+              "raw": "0x000000a2",
+              "op": "TEST",
+              "operands": "A=2 B=0 C=0 Bx=0"
+            },
+            {
+              "pc": 33,
+              "line": 88,
+              "raw": "0x8001c01e",
+              "op": "JMP",
+              "operands": "A=0 sBx=8 target=42"
+            },
+            {
+              "pc": 34,
+              "line": 89,
+              "raw": "0x00414087",
+              "op": "GETTABLE",
+              "operands": "A=2 B=R[0] C=K[5]='off_season_detect_dig_times_expire'"
+            },
+            {
+              "pc": 35,
+              "line": 89,
+              "raw": "0x00c140c7",
+              "op": "GETTABLE",
+              "operands": "A=3 B=R[1] C=K[5]='off_season_detect_dig_times_expire'"
+            },
+            {
+              "pc": 36,
+              "line": 89,
+              "raw": "0x0100c05f",
+              "op": "EQ",
+              "operands": "A=1 B=R[2] C=R[3]"
+            },
+            {
+              "pc": 37,
+              "line": 89,
+              "raw": "0x8000c01e",
+              "op": "JMP",
+              "operands": "A=0 sBx=4 target=42"
+            },
+            {
+              "pc": 38,
+              "line": 90,
+              "raw": "0x00c14087",
+              "op": "GETTABLE",
+              "operands": "A=2 B=R[1] C=K[5]='off_season_detect_dig_times_expire'"
+            },
+            {
+              "pc": 39,
+              "line": 90,
+              "raw": "0x8280800a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[5]='off_season_detect_dig_times_expire'] <- R[2]"
+            },
+            {
+              "pc": 40,
+              "line": 91,
+              "raw": "0x0000008b",
+              "op": "NEWTABLE",
+              "operands": "A=2 B=0 C=0 Bx=0"
+            },
+            {
+              "pc": 41,
+              "line": 91,
+              "raw": "0x8300800a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[6]='off_season_detect_day_times'] <- R[2]"
+            },
+            {
+              "pc": 42,
+              "line": 94,
+              "raw": "0x00c18087",
+              "op": "GETTABLE",
+              "operands": "A=2 B=R[1] C=K[6]='off_season_detect_day_times'"
+            },
+            {
+              "pc": 43,
+              "line": 94,
+              "raw": "0x000000a2",
+              "op": "TEST",
+              "operands": "A=2 B=0 C=0 Bx=0"
+            },
+            {
+              "pc": 44,
+              "line": 94,
+              "raw": "0x8004001e",
+              "op": "JMP",
+              "operands": "A=0 sBx=17 target=62"
+            },
+            {
+              "pc": 45,
+              "line": 95,
+              "raw": "0x0040c086",
+              "op": "GETTABUP",
+              "operands": "A=2 B=R[0] C=K[3]='pairs'"
+            },
+            {
+              "pc": 46,
+              "line": 95,
+              "raw": "0x00c180c7",
+              "op": "GETTABLE",
+              "operands": "A=3 B=R[1] C=K[6]='off_season_detect_day_times'"
+            },
+            {
+              "pc": 47,
+              "line": 95,
+              "raw": "0x010100a4",
+              "op": "CALL",
+              "operands": "A=2 B=2 C=4 Bx=1028"
+            },
+            {
+              "pc": 48,
+              "line": 95,
+              "raw": "0x8002801e",
+              "op": "JMP",
+              "operands": "A=0 sBx=11 target=60"
+            },
+            {
+              "pc": 49,
+              "line": 96,
+              "raw": "0x0040c1c6",
+              "op": "GETTABUP",
+              "operands": "A=7 B=R[0] C=K[3]='pairs'"
+            },
+            {
+              "pc": 50,
+              "line": 96,
+              "raw": "0x03000200",
+              "op": "MOVE",
+              "operands": "A=8 B=6 C=0 Bx=3072"
+            },
+            {
+              "pc": 51,
+              "line": 96,
+              "raw": "0x010101e4",
+              "op": "CALL",
+              "operands": "A=7 B=2 C=4 Bx=1028"
+            },
+            {
+              "pc": 52,
+              "line": 96,
+              "raw": "0x8001001e",
+              "op": "JMP",
+              "operands": "A=0 sBx=5 target=58"
+            },
+            {
+              "pc": 53,
+              "line": 97,
+              "raw": "0x00418307",
+              "op": "GETTABLE",
+              "operands": "A=12 B=R[0] C=K[6]='off_season_detect_day_times'"
+            },
+            {
+              "pc": 54,
+              "line": 97,
+              "raw": "0x00410346",
+              "op": "GETTABUP",
+              "operands": "A=13 B=R[0] C=K[4]='tonumber'"
+            },
+            {
+              "pc": 55,
+              "line": 97,
+              "raw": "0x05000380",
+              "op": "MOVE",
+              "operands": "A=14 B=10 C=0 Bx=5120"
+            },
+            {
+              "pc": 56,
+              "line": 97,
+              "raw": "0x01008364",
+              "op": "CALL",
+              "operands": "A=13 B=2 C=2 Bx=1026"
+            },
+            {
+              "pc": 57,
+              "line": 97,
+              "raw": "0x0682c30a",
+              "op": "SETTABLE",
+              "operands": "R[12][R[13]] <- R[11]"
+            },
+            {
+              "pc": 58,
+              "line": 96,
+              "raw": "0x000081e9",
+              "op": "TFORCALL",
+              "operands": "A=7 B=0 C=2 Bx=2"
+            },
+            {
+              "pc": 59,
+              "line": 96,
+              "raw": "0x7ffe026a",
+              "op": "TFORLOOP",
+              "operands": "A=9 B=255 C=504 Bx=131064"
+            },
+            {
+              "pc": 60,
+              "line": 95,
+              "raw": "0x000080a9",
+              "op": "TFORCALL",
+              "operands": "A=2 B=0 C=2 Bx=2"
+            },
+            {
+              "pc": 61,
+              "line": 95,
+              "raw": "0x7ffc812a",
+              "op": "TFORLOOP",
+              "operands": "A=4 B=255 C=498 Bx=131058"
+            },
+            {
+              "pc": 62,
+              "line": 102,
+              "raw": "0x00c1c087",
+              "op": "GETTABLE",
+              "operands": "A=2 B=R[1] C=K[7]='cfgId'"
+            },
+            {
+              "pc": 63,
+              "line": 102,
+              "raw": "0x000000a2",
+              "op": "TEST",
+              "operands": "A=2 B=0 C=0 Bx=0"
+            },
+            {
+              "pc": 64,
+              "line": 102,
+              "raw": "0x8011001e",
+              "op": "JMP",
+              "operands": "A=0 sBx=69 target=134"
+            },
+            {
+              "pc": 65,
+              "line": 103,
+              "raw": "0x00c1c087",
+              "op": "GETTABLE",
+              "operands": "A=2 B=R[1] C=K[7]='cfgId'"
+            },
+            {
+              "pc": 66,
+              "line": 104,
+              "raw": "0x004200c7",
+              "op": "GETTABLE",
+              "operands": "A=3 B=R[0] C=K[8]='dailyGot'"
+            },
+            {
+              "pc": 67,
+              "line": 104,
+              "raw": "0x00424106",
+              "op": "GETTABUP",
+              "operands": "A=4 B=R[0] C=K[9]='toInt'"
+            },
+            {
+              "pc": 68,
+              "line": 104,
+              "raw": "0x00c28147",
+              "op": "GETTABLE",
+              "operands": "A=5 B=R[1] C=K[10]='treasureRewardLimit'"
+            },
+            {
+              "pc": 69,
+              "line": 104,
+              "raw": "0x01008124",
+              "op": "CALL",
+              "operands": "A=4 B=2 C=2 Bx=1026"
+            },
+            {
+              "pc": 70,
+              "line": 104,
+              "raw": "0x010100ca",
+              "op": "SETTABLE",
+              "operands": "R[3][R[2]] <- R[4]"
+            },
+            {
+              "pc": 71,
+              "line": 105,
+              "raw": "0x0042c0c6",
+              "op": "GETTABUP",
+              "operands": "A=3 B=R[0] C=K[11]='DataCenter'"
+            },
+            {
+              "pc": 72,
+              "line": 105,
+              "raw": "0x01c300c7",
+              "op": "GETTABLE",
+              "operands": "A=3 B=R[3] C=K[12]='TreasureTemplateManager'"
+            },
+            {
+              "pc": 73,
+              "line": 105,
+              "raw": "0x01c340cc",
+              "op": "SELF",
+              "operands": "A=3 B=R[3] C=K[13]='GetTemplate'"
+            },
+            {
+              "pc": 74,
+              "line": 105,
+              "raw": "0x01000140",
+              "op": "MOVE",
+              "operands": "A=5 B=2 C=0 Bx=1024"
+            },
+            {
+              "pc": 75,
+              "line": 105,
+              "raw": "0x018080e4",
+              "op": "CALL",
+              "operands": "A=3 B=3 C=2 Bx=1538"
+            },
+            {
+              "pc": 76,
+              "line": 106,
+              "raw": "0x000000e2",
+              "op": "TEST",
+              "operands": "A=3 B=0 C=0 Bx=0"
+            },
+            {
+              "pc": 77,
+              "line": 106,
+              "raw": "0x8002c01e",
+              "op": "JMP",
+              "operands": "A=0 sBx=12 target=90"
+            },
+            {
+              "pc": 78,
+              "line": 106,
+              "raw": "0x01c38107",
+              "op": "GETTABLE",
+              "operands": "A=4 B=R[3] C=K[14]='group'"
+            },
+            {
+              "pc": 79,
+              "line": 106,
+              "raw": "0x00000122",
+              "op": "TEST",
+              "operands": "A=4 B=0 C=0 Bx=0"
+            },
+            {
+              "pc": 80,
+              "line": 106,
+              "raw": "0x8002001e",
+              "op": "JMP",
+              "operands": "A=0 sBx=9 target=90"
+            },
+            {
+              "pc": 81,
+              "line": 106,
+              "raw": "0x01c38107",
+              "op": "GETTABLE",
+              "operands": "A=4 B=R[3] C=K[14]='group'"
+            },
+            {
+              "pc": 82,
+              "line": 106,
+              "raw": "0x87810020",
+              "op": "LT",
+              "operands": "A=0 B=K[15]=0 C=R[4]"
+            },
+            {
+              "pc": 83,
+              "line": 106,
+              "raw": "0x8001401e",
+              "op": "JMP",
+              "operands": "A=0 sBx=6 target=90"
+            },
+            {
+              "pc": 84,
+              "line": 107,
+              "raw": "0x00420107",
+              "op": "GETTABLE",
+              "operands": "A=4 B=R[0] C=K[8]='dailyGot'"
+            },
+            {
+              "pc": 85,
+              "line": 107,
+              "raw": "0x01c38147",
+              "op": "GETTABLE",
+              "operands": "A=5 B=R[3] C=K[14]='group'"
+            },
+            {
+              "pc": 86,
+              "line": 107,
+              "raw": "0x00424186",
+              "op": "GETTABUP",
+              "operands": "A=6 B=R[0] C=K[9]='toInt'"
+            },
+            {
+              "pc": 87,
+              "line": 107,
+              "raw": "0x00c281c7",
+              "op": "GETTABLE",
+              "operands": "A=7 B=R[1] C=K[10]='treasureRewardLimit'"
+            },
+            {
+              "pc": 88,
+              "line": 107,
+              "raw": "0x010081a4",
+              "op": "CALL",
+              "operands": "A=6 B=2 C=2 Bx=1026"
+            },
+            {
+              "pc": 89,
+              "line": 107,
+              "raw": "0x0281810a",
+              "op": "SETTABLE",
+              "operands": "R[4][R[5]] <- R[6]"
+            },
+            {
+              "pc": 90,
+              "line": 109,
+              "raw": "0x000000e2",
+              "op": "TEST",
+              "operands": "A=3 B=0 C=0 Bx=0"
+            },
+            {
+              "pc": 91,
+              "line": 109,
+              "raw": "0x800a401e",
+              "op": "JMP",
+              "operands": "A=0 sBx=42 target=134"
+            },
+            {
+              "pc": 92,
+              "line": 109,
+              "raw": "0x01c40107",
+              "op": "GETTABLE",
+              "operands": "A=4 B=R[3] C=K[16]='daily_max'"
+            },
+            {
+              "pc": 93,
+              "line": 109,
+              "raw": "0x00000122",
+              "op": "TEST",
+              "operands": "A=4 B=0 C=0 Bx=0"
+            },
+            {
+              "pc": 94,
+              "line": 109,
+              "raw": "0x8009801e",
+              "op": "JMP",
+              "operands": "A=0 sBx=39 target=134"
+            },
+            {
+              "pc": 95,
+              "line": 109,
+              "raw": "0x01c40107",
+              "op": "GETTABLE",
+              "operands": "A=4 B=R[3] C=K[16]='daily_max'"
+            },
+            {
+              "pc": 96,
+              "line": 109,
+              "raw": "0x87810020",
+              "op": "LT",
+              "operands": "A=0 B=K[15]=0 C=R[4]"
+            },
+            {
+              "pc": 97,
+              "line": 109,
+              "raw": "0x8008c01e",
+              "op": "JMP",
+              "operands": "A=0 sBx=36 target=134"
+            },
+            {
+              "pc": 98,
+              "line": 110,
+              "raw": "0x01c38107",
+              "op": "GETTABLE",
+              "operands": "A=4 B=R[3] C=K[14]='group'"
+            },
+            {
+              "pc": 99,
+              "line": 110,
+              "raw": "0x00000122",
+              "op": "TEST",
+              "operands": "A=4 B=0 C=0 Bx=0"
+            },
+            {
+              "pc": 100,
+              "line": 110,
+              "raw": "0x8004801e",
+              "op": "JMP",
+              "operands": "A=0 sBx=19 target=120"
+            },
+            {
+              "pc": 101,
+              "line": 110,
+              "raw": "0x01c38107",
+              "op": "GETTABLE",
+              "operands": "A=4 B=R[3] C=K[14]='group'"
+            },
+            {
+              "pc": 102,
+              "line": 110,
+              "raw": "0x87810020",
+              "op": "LT",
+              "operands": "A=0 B=K[15]=0 C=R[4]"
+            },
+            {
+              "pc": 103,
+              "line": 110,
+              "raw": "0x8003c01e",
+              "op": "JMP",
+              "operands": "A=0 sBx=16 target=120"
+            },
+            {
+              "pc": 104,
+              "line": 110,
+              "raw": "0x01c40107",
+              "op": "GETTABLE",
+              "operands": "A=4 B=R[3] C=K[16]='daily_max'"
+            },
+            {
+              "pc": 105,
+              "line": 110,
+              "raw": "0x00424146",
+              "op": "GETTABUP",
+              "operands": "A=5 B=R[0] C=K[9]='toInt'"
+            },
+            {
+              "pc": 106,
+              "line": 110,
+              "raw": "0x00420187",
+              "op": "GETTABLE",
+              "operands": "A=6 B=R[0] C=K[8]='dailyGot'"
+            },
+            {
+              "pc": 107,
+              "line": 110,
+              "raw": "0x01c381c7",
+              "op": "GETTABLE",
+              "operands": "A=7 B=R[3] C=K[14]='group'"
+            },
+            {
+              "pc": 108,
+              "line": 110,
+              "raw": "0x0301c187",
+              "op": "GETTABLE",
+              "operands": "A=6 B=R[6] C=R[7]"
+            },
+            {
+              "pc": 109,
+              "line": 110,
+              "raw": "0x01008164",
+              "op": "CALL",
+              "operands": "A=5 B=2 C=2 Bx=1026"
+            },
+            {
+              "pc": 110,
+              "line": 110,
+              "raw": "0x02014021",
+              "op": "LE",
+              "operands": "A=0 B=R[4] C=R[5]"
+            },
+            {
+              "pc": 111,
+              "line": 110,
+              "raw": "0x8001c01e",
+              "op": "JMP",
+              "operands": "A=0 sBx=8 target=120"
+            },
+            {
+              "pc": 112,
+              "line": 111,
+              "raw": "0x00444106",
+              "op": "GETTABUP",
+              "operands": "A=4 B=R[0] C=K[17]='EventManager'"
+            },
+            {
+              "pc": 113,
+              "line": 111,
+              "raw": "0x0244810c",
+              "op": "SELF",
+              "operands": "A=4 B=R[4] C=K[18]='GetInstance'"
+            },
+            {
+              "pc": 114,
+              "line": 111,
+              "raw": "0x01008124",
+              "op": "CALL",
+              "operands": "A=4 B=2 C=2 Bx=1026"
+            },
+            {
+              "pc": 115,
+              "line": 111,
+              "raw": "0x0244c10c",
+              "op": "SELF",
+              "operands": "A=4 B=R[4] C=K[19]='Broadcast'"
+            },
+            {
+              "pc": 116,
+              "line": 111,
+              "raw": "0x00450186",
+              "op": "GETTABUP",
+              "operands": "A=6 B=R[0] C=K[20]='EventId'"
+            },
+            {
+              "pc": 117,
+              "line": 111,
+              "raw": "0x03454187",
+              "op": "GETTABLE",
+              "operands": "A=6 B=R[6] C=K[21]='WorldTreasureReachDailyLimit'"
+            },
+            {
+              "pc": 118,
+              "line": 111,
+              "raw": "0x01804124",
+              "op": "CALL",
+              "operands": "A=4 B=3 C=1 Bx=1537"
+            },
+            {
+              "pc": 119,
+              "line": 111,
+              "raw": "0x8003401e",
+              "op": "JMP",
+              "operands": "A=0 sBx=14 target=134"
+            },
+            {
+              "pc": 120,
+              "line": 112,
+              "raw": "0x01c40107",
+              "op": "GETTABLE",
+              "operands": "A=4 B=R[3] C=K[16]='daily_max'"
+            },
+            {
+              "pc": 121,
+              "line": 112,
+              "raw": "0x00424146",
+              "op": "GETTABUP",
+              "operands": "A=5 B=R[0] C=K[9]='toInt'"
+            },
+            {
+              "pc": 122,
+              "line": 112,
+              "raw": "0x00420187",
+              "op": "GETTABLE",
+              "operands": "A=6 B=R[0] C=K[8]='dailyGot'"
+            },
+            {
+              "pc": 123,
+              "line": 112,
+              "raw": "0x03008187",
+              "op": "GETTABLE",
+              "operands": "A=6 B=R[6] C=R[2]"
+            },
+            {
+              "pc": 124,
+              "line": 112,
+              "raw": "0x01008164",
+              "op": "CALL",
+              "operands": "A=5 B=2 C=2 Bx=1026"
+            },
+            {
+              "pc": 125,
+              "line": 112,
+              "raw": "0x02014021",
+              "op": "LE",
+              "operands": "A=0 B=R[4] C=R[5]"
+            },
+            {
+              "pc": 126,
+              "line": 112,
+              "raw": "0x8001801e",
+              "op": "JMP",
+              "operands": "A=0 sBx=7 target=134"
+            },
+            {
+              "pc": 127,
+              "line": 113,
+              "raw": "0x00444106",
+              "op": "GETTABUP",
+              "operands": "A=4 B=R[0] C=K[17]='EventManager'"
+            },
+            {
+              "pc": 128,
+              "line": 113,
+              "raw": "0x0244810c",
+              "op": "SELF",
+              "operands": "A=4 B=R[4] C=K[18]='GetInstance'"
+            },
+            {
+              "pc": 129,
+              "line": 113,
+              "raw": "0x01008124",
+              "op": "CALL",
+              "operands": "A=4 B=2 C=2 Bx=1026"
+            },
+            {
+              "pc": 130,
+              "line": 113,
+              "raw": "0x0244c10c",
+              "op": "SELF",
+              "operands": "A=4 B=R[4] C=K[19]='Broadcast'"
+            },
+            {
+              "pc": 131,
+              "line": 113,
+              "raw": "0x00450186",
+              "op": "GETTABUP",
+              "operands": "A=6 B=R[0] C=K[20]='EventId'"
+            },
+            {
+              "pc": 132,
+              "line": 113,
+              "raw": "0x03454187",
+              "op": "GETTABLE",
+              "operands": "A=6 B=R[6] C=K[21]='WorldTreasureReachDailyLimit'"
+            },
+            {
+              "pc": 133,
+              "line": 113,
+              "raw": "0x01804124",
+              "op": "CALL",
+              "operands": "A=4 B=3 C=1 Bx=1537"
+            },
+            {
+              "pc": 134,
+              "line": 117,
+              "raw": "0x00800026",
+              "op": "RETURN",
+              "operands": "A=0 B=1 C=0 Bx=512"
+            }
+          ]
+        },
+        "OnPassDay": {
+          "lines": [
+            136,
+            138
+          ],
+          "params": 1,
+          "stack": 3,
+          "constants": [
+            "DataCenter",
+            "ActDetectTreasureDataManager",
+            "dailyGot"
+          ],
+          "prototypePath": "root/child[6]",
+          "instructions": [
+            {
+              "pc": 0,
+              "line": 137,
+              "raw": "0x00400046",
+              "op": "GETTABUP",
+              "operands": "A=1 B=R[0] C=K[0]='DataCenter'"
+            },
+            {
+              "pc": 1,
+              "line": 137,
+              "raw": "0x00c04047",
+              "op": "GETTABLE",
+              "operands": "A=1 B=R[1] C=K[1]='ActDetectTreasureDataManager'"
+            },
+            {
+              "pc": 2,
+              "line": 137,
+              "raw": "0x0000008b",
+              "op": "NEWTABLE",
+              "operands": "A=2 B=0 C=0 Bx=0"
+            },
+            {
+              "pc": 3,
+              "line": 137,
+              "raw": "0x8100804a",
+              "op": "SETTABLE",
+              "operands": "R[1][K[2]='dailyGot'] <- R[2]"
+            },
+            {
+              "pc": 4,
+              "line": 138,
+              "raw": "0x00800026",
+              "op": "RETURN",
+              "operands": "A=0 B=1 C=0 Bx=512"
+            }
+          ]
+        },
+        "__delete": {
+          "lines": [
+            25,
+            37
+          ],
+          "params": 1,
+          "stack": 5,
+          "constants": [
+            "EventManager",
+            "GetInstance",
+            "RemoveListener",
+            "EventId",
+            "OnPassDay",
+            "dataDict",
+            null,
+            "activity_detect_dig_times",
+            "activity_detect_dig_times_expire",
+            "off_season_detect_day_times",
+            "off_season_detect_dig_times_expire",
+            "treasures_num",
+            "dailyGot"
+          ],
+          "prototypePath": "root/child[1]",
+          "instructions": [
+            {
+              "pc": 0,
+              "line": 26,
+              "raw": "0x00400046",
+              "op": "GETTABUP",
+              "operands": "A=1 B=R[0] C=K[0]='EventManager'"
+            },
+            {
+              "pc": 1,
+              "line": 26,
+              "raw": "0x00c0404c",
+              "op": "SELF",
+              "operands": "A=1 B=R[1] C=K[1]='GetInstance'"
+            },
+            {
+              "pc": 2,
+              "line": 26,
+              "raw": "0x01008064",
+              "op": "CALL",
+              "operands": "A=1 B=2 C=2 Bx=1026"
+            },
+            {
+              "pc": 3,
+              "line": 26,
+              "raw": "0x00c0804c",
+              "op": "SELF",
+              "operands": "A=1 B=R[1] C=K[2]='RemoveListener'"
+            },
+            {
+              "pc": 4,
+              "line": 26,
+              "raw": "0x0040c0c6",
+              "op": "GETTABUP",
+              "operands": "A=3 B=R[0] C=K[3]='EventId'"
+            },
+            {
+              "pc": 5,
+              "line": 26,
+              "raw": "0x01c100c7",
+              "op": "GETTABLE",
+              "operands": "A=3 B=R[3] C=K[4]='OnPassDay'"
+            },
+            {
+              "pc": 6,
+              "line": 26,
+              "raw": "0x00410107",
+              "op": "GETTABLE",
+              "operands": "A=4 B=R[0] C=K[4]='OnPassDay'"
+            },
+            {
+              "pc": 7,
+              "line": 26,
+              "raw": "0x02004064",
+              "op": "CALL",
+              "operands": "A=1 B=4 C=1 Bx=2049"
+            },
+            {
+              "pc": 8,
+              "line": 27,
+              "raw": "0x82c1800a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[5]='dataDict'] <- K[6]=None"
+            },
+            {
+              "pc": 9,
+              "line": 29,
+              "raw": "0x83c1800a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[7]='activity_detect_dig_times'] <- K[6]=None"
+            },
+            {
+              "pc": 10,
+              "line": 30,
+              "raw": "0x8441800a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[8]='activity_detect_dig_times_expire'] <- K[6]=None"
+            },
+            {
+              "pc": 11,
+              "line": 31,
+              "raw": "0x84c1800a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[9]='off_season_detect_day_times'] <- K[6]=None"
+            },
+            {
+              "pc": 12,
+              "line": 32,
+              "raw": "0x8541800a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[10]='off_season_detect_dig_times_expire'] <- K[6]=None"
+            },
+            {
+              "pc": 13,
+              "line": 34,
+              "raw": "0x85c1800a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[11]='treasures_num'] <- K[6]=None"
+            },
+            {
+              "pc": 14,
+              "line": 36,
+              "raw": "0x8641800a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[12]='dailyGot'] <- K[6]=None"
+            },
+            {
+              "pc": 15,
+              "line": 37,
+              "raw": "0x00800026",
+              "op": "RETURN",
+              "operands": "A=0 B=1 C=0 Bx=512"
+            }
+          ]
+        },
+        "__init": {
+          "lines": [
+            11,
+            23
+          ],
+          "params": 1,
+          "stack": 5,
+          "constants": [
+            "dataDict",
+            "activity_detect_dig_times",
+            "activity_detect_dig_times_expire",
+            0,
+            "off_season_detect_day_times",
+            "off_season_detect_dig_times_expire",
+            "treasures_num",
+            "dailyGot",
+            "EventManager",
+            "GetInstance",
+            "AddListener",
+            "EventId",
+            "OnPassDay"
+          ],
+          "prototypePath": "root/child[0]",
+          "instructions": [
+            {
+              "pc": 0,
+              "line": 12,
+              "raw": "0x0000004b",
+              "op": "NEWTABLE",
+              "operands": "A=1 B=0 C=0 Bx=0"
+            },
+            {
+              "pc": 1,
+              "line": 12,
+              "raw": "0x8000400a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[0]='dataDict'] <- R[1]"
+            },
+            {
+              "pc": 2,
+              "line": 14,
+              "raw": "0x0000004b",
+              "op": "NEWTABLE",
+              "operands": "A=1 B=0 C=0 Bx=0"
+            },
+            {
+              "pc": 3,
+              "line": 14,
+              "raw": "0x8080400a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[1]='activity_detect_dig_times'] <- R[1]"
+            },
+            {
+              "pc": 4,
+              "line": 15,
+              "raw": "0x8140c00a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[2]='activity_detect_dig_times_expire'] <- K[3]=0"
+            },
+            {
+              "pc": 5,
+              "line": 16,
+              "raw": "0x0000004b",
+              "op": "NEWTABLE",
+              "operands": "A=1 B=0 C=0 Bx=0"
+            },
+            {
+              "pc": 6,
+              "line": 16,
+              "raw": "0x8200400a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[4]='off_season_detect_day_times'] <- R[1]"
+            },
+            {
+              "pc": 7,
+              "line": 17,
+              "raw": "0x82c0c00a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[5]='off_season_detect_dig_times_expire'] <- K[3]=0"
+            },
+            {
+              "pc": 8,
+              "line": 19,
+              "raw": "0x8340c00a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[6]='treasures_num'] <- K[3]=0"
+            },
+            {
+              "pc": 9,
+              "line": 21,
+              "raw": "0x0000004b",
+              "op": "NEWTABLE",
+              "operands": "A=1 B=0 C=0 Bx=0"
+            },
+            {
+              "pc": 10,
+              "line": 21,
+              "raw": "0x8380400a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[7]='dailyGot'] <- R[1]"
+            },
+            {
+              "pc": 11,
+              "line": 22,
+              "raw": "0x00420046",
+              "op": "GETTABUP",
+              "operands": "A=1 B=R[0] C=K[8]='EventManager'"
+            },
+            {
+              "pc": 12,
+              "line": 22,
+              "raw": "0x00c2404c",
+              "op": "SELF",
+              "operands": "A=1 B=R[1] C=K[9]='GetInstance'"
+            },
+            {
+              "pc": 13,
+              "line": 22,
+              "raw": "0x01008064",
+              "op": "CALL",
+              "operands": "A=1 B=2 C=2 Bx=1026"
+            },
+            {
+              "pc": 14,
+              "line": 22,
+              "raw": "0x00c2804c",
+              "op": "SELF",
+              "operands": "A=1 B=R[1] C=K[10]='AddListener'"
+            },
+            {
+              "pc": 15,
+              "line": 22,
+              "raw": "0x0042c0c6",
+              "op": "GETTABUP",
+              "operands": "A=3 B=R[0] C=K[11]='EventId'"
+            },
+            {
+              "pc": 16,
+              "line": 22,
+              "raw": "0x01c300c7",
+              "op": "GETTABLE",
+              "operands": "A=3 B=R[3] C=K[12]='OnPassDay'"
+            },
+            {
+              "pc": 17,
+              "line": 22,
+              "raw": "0x00430107",
+              "op": "GETTABLE",
+              "operands": "A=4 B=R[0] C=K[12]='OnPassDay'"
+            },
+            {
+              "pc": 18,
+              "line": 22,
+              "raw": "0x02004064",
+              "op": "CALL",
+              "operands": "A=1 B=4 C=1 Bx=2049"
+            },
+            {
+              "pc": 19,
+              "line": 23,
+              "raw": "0x00800026",
+              "op": "RETURN",
+              "operands": "A=0 B=1 C=0 Bx=512"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

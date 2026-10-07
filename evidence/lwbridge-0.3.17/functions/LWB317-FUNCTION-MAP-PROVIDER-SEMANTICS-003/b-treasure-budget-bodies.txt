@@ -1,0 +1,378 @@
+﻿
+### __init root/child[0] [11, 23]
+constants ['dataDict', 'activity_detect_dig_times', 'activity_detect_dig_times_expire', 'off_season_detect_day_times', 'off_season_detect_dig_times_expire', 'treasures_num', 'dailyGot', 'EventManager', 'GetInstance', 'AddListener', 'EventId', 'OnPassDay']
+000 L12 NEWTABLE A=1 B=0 C=0 Bx=0
+001 L12 SETTABLE R[0][K[0]='dataDict'] <- R[1]
+002 L14 NEWTABLE A=1 B=0 C=0 Bx=0
+003 L14 SETTABLE R[0][K[1]='activity_detect_dig_times'] <- R[1]
+004 L15 SETTABLE R[0][K[2]='activity_detect_dig_times_expire'] <- K[3]=0
+005 L16 NEWTABLE A=1 B=0 C=0 Bx=0
+006 L16 SETTABLE R[0][K[4]='off_season_detect_day_times'] <- R[1]
+007 L17 SETTABLE R[0][K[5]='off_season_detect_dig_times_expire'] <- K[3]=0
+008 L19 SETTABLE R[0][K[6]='treasures_num'] <- K[3]=0
+009 L21 NEWTABLE A=1 B=0 C=0 Bx=0
+010 L21 SETTABLE R[0][K[7]='dailyGot'] <- R[1]
+011 L22 GETTABUP A=1 B=R[0] C=K[8]='EventManager'
+012 L22 SELF A=1 B=R[1] C=K[9]='GetInstance'
+013 L22 CALL A=1 B=2 C=2 Bx=1026
+014 L22 SELF A=1 B=R[1] C=K[10]='AddListener'
+015 L22 GETTABUP A=3 B=R[0] C=K[11]='EventId'
+016 L22 GETTABLE A=3 B=R[3] C=K[12]='OnPassDay'
+017 L22 GETTABLE A=4 B=R[0] C=K[12]='OnPassDay'
+018 L22 CALL A=1 B=4 C=1 Bx=2049
+019 L23 RETURN A=0 B=1 C=0 Bx=512
+
+### InitData root/child[2] [39, 47]
+constants ['treasureDailyLimit', 'pairs', 'UITimeManager', 'GetInstance', 'IsToday', 'time', 'dailyGot', 'id', 'num']
+000 L40 GETTABLE A=2 B=R[1] C=K[0]='treasureDailyLimit'
+001 L40 TEST A=2 B=0 C=0 Bx=0
+002 L40 JMP A=0 sBx=18 target=21
+003 L41 GETTABUP A=2 B=R[0] C=K[1]='pairs'
+004 L41 GETTABLE A=3 B=R[1] C=K[0]='treasureDailyLimit'
+005 L41 CALL A=2 B=2 C=4 Bx=1028
+006 L41 JMP A=0 sBx=12 target=19
+007 L42 GETTABUP A=7 B=R[0] C=K[2]='UITimeManager'
+008 L42 SELF A=7 B=R[7] C=K[3]='GetInstance'
+009 L42 CALL A=7 B=2 C=2 Bx=1026
+010 L42 SELF A=7 B=R[7] C=K[4]='IsToday'
+011 L42 GETTABLE A=9 B=R[6] C=K[5]='time'
+012 L42 CALL A=7 B=3 C=2 Bx=1538
+013 L42 TEST A=7 B=0 C=0 Bx=0
+014 L42 JMP A=0 sBx=4 target=19
+015 L43 GETTABLE A=7 B=R[0] C=K[6]='dailyGot'
+016 L43 GETTABLE A=8 B=R[6] C=K[7]='id'
+017 L43 GETTABLE A=9 B=R[6] C=K[8]='num'
+018 L43 SETTABLE R[7][R[8]] <- R[9]
+019 L41 TFORCALL A=2 B=0 C=2 Bx=2
+020 L41 TFORLOOP A=4 B=255 C=497 Bx=131057
+021 L47 RETURN A=0 B=1 C=0 Bx=512
+
+### OnGetDigTimesMsg root/child[4] [70, 117]
+constants ['activity_detect_dig_times_expire', 'activity_detect_dig_times', 'activity_detect_day_times', 'pairs', 'tonumber', 'off_season_detect_dig_times_expire', 'off_season_detect_day_times', 'cfgId', 'dailyGot', 'toInt', 'treasureRewardLimit', 'DataCenter', 'TreasureTemplateManager', 'GetTemplate', 'group', 'daily_max', 'EventManager', 'GetInstance', 'Broadcast', 'EventId', 'WorldTreasureReachDailyLimit']
+000 L72 GETTABLE A=2 B=R[1] C=K[0]='activity_detect_dig_times_expire'
+001 L72 TEST A=2 B=0 C=0 Bx=0
+002 L72 JMP A=0 sBx=8 target=11
+003 L73 GETTABLE A=2 B=R[0] C=K[0]='activity_detect_dig_times_expire'
+004 L73 GETTABLE A=3 B=R[1] C=K[0]='activity_detect_dig_times_expire'
+005 L73 EQ A=1 B=R[2] C=R[3]
+006 L73 JMP A=0 sBx=4 target=11
+007 L75 GETTABLE A=2 B=R[1] C=K[0]='activity_detect_dig_times_expire'
+008 L75 SETTABLE R[0][K[0]='activity_detect_dig_times_expire'] <- R[2]
+009 L76 NEWTABLE A=2 B=0 C=0 Bx=0
+010 L76 SETTABLE R[0][K[1]='activity_detect_dig_times'] <- R[2]
+011 L80 GETTABLE A=2 B=R[1] C=K[2]='activity_detect_day_times'
+012 L80 TEST A=2 B=0 C=0 Bx=0
+013 L80 JMP A=0 sBx=17 target=31
+014 L81 GETTABUP A=2 B=R[0] C=K[3]='pairs'
+015 L81 GETTABLE A=3 B=R[1] C=K[2]='activity_detect_day_times'
+016 L81 CALL A=2 B=2 C=4 Bx=1028
+017 L81 JMP A=0 sBx=11 target=29
+018 L82 GETTABUP A=7 B=R[0] C=K[3]='pairs'
+019 L82 MOVE A=8 B=6 C=0 Bx=3072
+020 L82 CALL A=7 B=2 C=4 Bx=1028
+021 L82 JMP A=0 sBx=5 target=27
+022 L83 GETTABLE A=12 B=R[0] C=K[1]='activity_detect_dig_times'
+023 L83 GETTABUP A=13 B=R[0] C=K[4]='tonumber'
+024 L83 MOVE A=14 B=10 C=0 Bx=5120
+025 L83 CALL A=13 B=2 C=2 Bx=1026
+026 L83 SETTABLE R[12][R[13]] <- R[11]
+027 L82 TFORCALL A=7 B=0 C=2 Bx=2
+028 L82 TFORLOOP A=9 B=255 C=504 Bx=131064
+029 L81 TFORCALL A=2 B=0 C=2 Bx=2
+030 L81 TFORLOOP A=4 B=255 C=498 Bx=131058
+031 L88 GETTABLE A=2 B=R[1] C=K[5]='off_season_detect_dig_times_expire'
+032 L88 TEST A=2 B=0 C=0 Bx=0
+033 L88 JMP A=0 sBx=8 target=42
+034 L89 GETTABLE A=2 B=R[0] C=K[5]='off_season_detect_dig_times_expire'
+035 L89 GETTABLE A=3 B=R[1] C=K[5]='off_season_detect_dig_times_expire'
+036 L89 EQ A=1 B=R[2] C=R[3]
+037 L89 JMP A=0 sBx=4 target=42
+038 L90 GETTABLE A=2 B=R[1] C=K[5]='off_season_detect_dig_times_expire'
+039 L90 SETTABLE R[0][K[5]='off_season_detect_dig_times_expire'] <- R[2]
+040 L91 NEWTABLE A=2 B=0 C=0 Bx=0
+041 L91 SETTABLE R[0][K[6]='off_season_detect_day_times'] <- R[2]
+042 L94 GETTABLE A=2 B=R[1] C=K[6]='off_season_detect_day_times'
+043 L94 TEST A=2 B=0 C=0 Bx=0
+044 L94 JMP A=0 sBx=17 target=62
+045 L95 GETTABUP A=2 B=R[0] C=K[3]='pairs'
+046 L95 GETTABLE A=3 B=R[1] C=K[6]='off_season_detect_day_times'
+047 L95 CALL A=2 B=2 C=4 Bx=1028
+048 L95 JMP A=0 sBx=11 target=60
+049 L96 GETTABUP A=7 B=R[0] C=K[3]='pairs'
+050 L96 MOVE A=8 B=6 C=0 Bx=3072
+051 L96 CALL A=7 B=2 C=4 Bx=1028
+052 L96 JMP A=0 sBx=5 target=58
+053 L97 GETTABLE A=12 B=R[0] C=K[6]='off_season_detect_day_times'
+054 L97 GETTABUP A=13 B=R[0] C=K[4]='tonumber'
+055 L97 MOVE A=14 B=10 C=0 Bx=5120
+056 L97 CALL A=13 B=2 C=2 Bx=1026
+057 L97 SETTABLE R[12][R[13]] <- R[11]
+058 L96 TFORCALL A=7 B=0 C=2 Bx=2
+059 L96 TFORLOOP A=9 B=255 C=504 Bx=131064
+060 L95 TFORCALL A=2 B=0 C=2 Bx=2
+061 L95 TFORLOOP A=4 B=255 C=498 Bx=131058
+062 L102 GETTABLE A=2 B=R[1] C=K[7]='cfgId'
+063 L102 TEST A=2 B=0 C=0 Bx=0
+064 L102 JMP A=0 sBx=69 target=134
+065 L103 GETTABLE A=2 B=R[1] C=K[7]='cfgId'
+066 L104 GETTABLE A=3 B=R[0] C=K[8]='dailyGot'
+067 L104 GETTABUP A=4 B=R[0] C=K[9]='toInt'
+068 L104 GETTABLE A=5 B=R[1] C=K[10]='treasureRewardLimit'
+069 L104 CALL A=4 B=2 C=2 Bx=1026
+070 L104 SETTABLE R[3][R[2]] <- R[4]
+071 L105 GETTABUP A=3 B=R[0] C=K[11]='DataCenter'
+072 L105 GETTABLE A=3 B=R[3] C=K[12]='TreasureTemplateManager'
+073 L105 SELF A=3 B=R[3] C=K[13]='GetTemplate'
+074 L105 MOVE A=5 B=2 C=0 Bx=1024
+075 L105 CALL A=3 B=3 C=2 Bx=1538
+076 L106 TEST A=3 B=0 C=0 Bx=0
+077 L106 JMP A=0 sBx=12 target=90
+078 L106 GETTABLE A=4 B=R[3] C=K[14]='group'
+079 L106 TEST A=4 B=0 C=0 Bx=0
+080 L106 JMP A=0 sBx=9 target=90
+081 L106 GETTABLE A=4 B=R[3] C=K[14]='group'
+082 L106 LT A=0 B=K[15]=0 C=R[4]
+083 L106 JMP A=0 sBx=6 target=90
+084 L107 GETTABLE A=4 B=R[0] C=K[8]='dailyGot'
+085 L107 GETTABLE A=5 B=R[3] C=K[14]='group'
+086 L107 GETTABUP A=6 B=R[0] C=K[9]='toInt'
+087 L107 GETTABLE A=7 B=R[1] C=K[10]='treasureRewardLimit'
+088 L107 CALL A=6 B=2 C=2 Bx=1026
+089 L107 SETTABLE R[4][R[5]] <- R[6]
+090 L109 TEST A=3 B=0 C=0 Bx=0
+091 L109 JMP A=0 sBx=42 target=134
+092 L109 GETTABLE A=4 B=R[3] C=K[16]='daily_max'
+093 L109 TEST A=4 B=0 C=0 Bx=0
+094 L109 JMP A=0 sBx=39 target=134
+095 L109 GETTABLE A=4 B=R[3] C=K[16]='daily_max'
+096 L109 LT A=0 B=K[15]=0 C=R[4]
+097 L109 JMP A=0 sBx=36 target=134
+098 L110 GETTABLE A=4 B=R[3] C=K[14]='group'
+099 L110 TEST A=4 B=0 C=0 Bx=0
+100 L110 JMP A=0 sBx=19 target=120
+101 L110 GETTABLE A=4 B=R[3] C=K[14]='group'
+102 L110 LT A=0 B=K[15]=0 C=R[4]
+103 L110 JMP A=0 sBx=16 target=120
+104 L110 GETTABLE A=4 B=R[3] C=K[16]='daily_max'
+105 L110 GETTABUP A=5 B=R[0] C=K[9]='toInt'
+106 L110 GETTABLE A=6 B=R[0] C=K[8]='dailyGot'
+107 L110 GETTABLE A=7 B=R[3] C=K[14]='group'
+108 L110 GETTABLE A=6 B=R[6] C=R[7]
+109 L110 CALL A=5 B=2 C=2 Bx=1026
+110 L110 LE A=0 B=R[4] C=R[5]
+111 L110 JMP A=0 sBx=8 target=120
+112 L111 GETTABUP A=4 B=R[0] C=K[17]='EventManager'
+113 L111 SELF A=4 B=R[4] C=K[18]='GetInstance'
+114 L111 CALL A=4 B=2 C=2 Bx=1026
+115 L111 SELF A=4 B=R[4] C=K[19]='Broadcast'
+116 L111 GETTABUP A=6 B=R[0] C=K[20]='EventId'
+117 L111 GETTABLE A=6 B=R[6] C=K[21]='WorldTreasureReachDailyLimit'
+118 L111 CALL A=4 B=3 C=1 Bx=1537
+119 L111 JMP A=0 sBx=14 target=134
+120 L112 GETTABLE A=4 B=R[3] C=K[16]='daily_max'
+121 L112 GETTABUP A=5 B=R[0] C=K[9]='toInt'
+122 L112 GETTABLE A=6 B=R[0] C=K[8]='dailyGot'
+123 L112 GETTABLE A=6 B=R[6] C=R[2]
+124 L112 CALL A=5 B=2 C=2 Bx=1026
+125 L112 LE A=0 B=R[4] C=R[5]
+126 L112 JMP A=0 sBx=7 target=134
+127 L113 GETTABUP A=4 B=R[0] C=K[17]='EventManager'
+128 L113 SELF A=4 B=R[4] C=K[18]='GetInstance'
+129 L113 CALL A=4 B=2 C=2 Bx=1026
+130 L113 SELF A=4 B=R[4] C=K[19]='Broadcast'
+131 L113 GETTABUP A=6 B=R[0] C=K[20]='EventId'
+132 L113 GETTABLE A=6 B=R[6] C=K[21]='WorldTreasureReachDailyLimit'
+133 L113 CALL A=4 B=3 C=1 Bx=1537
+134 L117 RETURN A=0 B=1 C=0 Bx=512
+
+### CheckTreasureReachDailyLimit root/child[5] [119, 134]
+constants ['DataCenter', 'TreasureTemplateManager', 'GetTemplate', 'daily_max', 'group', 'dailyGot']
+000 L120 GETTABUP A=2 B=R[0] C=K[0]='DataCenter'
+001 L120 GETTABLE A=2 B=R[2] C=K[1]='TreasureTemplateManager'
+002 L120 SELF A=2 B=R[2] C=K[2]='GetTemplate'
+003 L120 MOVE A=4 B=1 C=0 Bx=512
+004 L120 CALL A=2 B=3 C=2 Bx=1538
+005 L121 TEST A=2 B=0 C=0 Bx=0
+006 L121 JMP A=0 sBx=3 target=10
+007 L121 GETTABLE A=3 B=R[2] C=K[3]='daily_max'
+008 L121 LE A=0 B=R[3] C=K[4]=0
+009 L121 JMP A=0 sBx=2 target=12
+010 L122 LOADBOOL A=3 B=0 C=0 Bx=0
+011 L122 RETURN A=3 B=2 C=0 Bx=1024
+012 L124 GETTABLE A=3 B=R[2] C=K[5]='group'
+013 L124 TEST A=3 B=0 C=0 Bx=0
+014 L124 JMP A=0 sBx=19 target=34
+015 L124 GETTABLE A=3 B=R[2] C=K[5]='group'
+016 L124 LT A=0 B=K[4]=0 C=R[3]
+017 L124 JMP A=0 sBx=16 target=34
+018 L125 GETTABLE A=3 B=R[0] C=K[6]='dailyGot'
+019 L125 GETTABLE A=4 B=R[2] C=K[5]='group'
+020 L125 GETTABLE A=3 B=R[3] C=R[4]
+021 L125 TEST A=3 B=0 C=1 Bx=1
+022 L125 JMP A=0 sBx=2 target=25
+023 L126 LOADBOOL A=3 B=0 C=0 Bx=0
+024 L126 RETURN A=3 B=2 C=0 Bx=1024
+025 L128 GETTABLE A=3 B=R[2] C=K[3]='daily_max'
+026 L128 GETTABLE A=4 B=R[0] C=K[6]='dailyGot'
+027 L128 GETTABLE A=5 B=R[2] C=K[5]='group'
+028 L128 GETTABLE A=4 B=R[4] C=R[5]
+029 L128 LE A=1 B=R[3] C=R[4]
+030 L128 JMP A=0 sBx=1 target=32
+031 L128 LOADBOOL A=3 B=0 C=1 Bx=1
+032 L128 LOADBOOL A=3 B=1 C=0 Bx=512
+033 L128 RETURN A=3 B=2 C=0 Bx=1024
+034 L130 GETTABLE A=3 B=R[0] C=K[6]='dailyGot'
+035 L130 GETTABLE A=3 B=R[3] C=R[1]
+036 L130 TEST A=3 B=0 C=1 Bx=1
+037 L130 JMP A=0 sBx=2 target=40
+038 L131 LOADBOOL A=3 B=0 C=0 Bx=0
+039 L131 RETURN A=3 B=2 C=0 Bx=1024
+040 L133 GETTABLE A=3 B=R[2] C=K[3]='daily_max'
+041 L133 GETTABLE A=4 B=R[0] C=K[6]='dailyGot'
+042 L133 GETTABLE A=4 B=R[4] C=R[1]
+043 L133 LE A=1 B=R[3] C=R[4]
+044 L133 JMP A=0 sBx=1 target=46
+045 L133 LOADBOOL A=3 B=0 C=1 Bx=1
+046 L133 LOADBOOL A=3 B=1 C=0 Bx=512
+047 L133 RETURN A=3 B=2 C=0 Bx=1024
+048 L134 RETURN A=0 B=1 C=0 Bx=512
+
+### OnPassDay root/child[6] [136, 138]
+constants ['DataCenter', 'ActDetectTreasureDataManager', 'dailyGot']
+000 L137 GETTABUP A=1 B=R[0] C=K[0]='DataCenter'
+001 L137 GETTABLE A=1 B=R[1] C=K[1]='ActDetectTreasureDataManager'
+002 L137 NEWTABLE A=2 B=0 C=0 Bx=0
+003 L137 SETTABLE R[1][K[2]='dailyGot'] <- R[2]
+004 L138 RETURN A=0 B=1 C=0 Bx=512
+
+### GetCurDigTimes root/child[8] [148, 168]
+constants ['DataCenter', 'DetectEventTemplateManager', 'GetDetectEventTemplate', 'tostring', 'UITimeManager', 'GetInstance', 'GetServerTime', 'type', 'DetectEventType', 'OFF_SEASON_TREASURE', 'off_season_detect_dig_times_expire', 'off_season_detect_day_times', 'activity_detect_dig_times_expire', 'activity_detect_dig_times']
+000 L149 GETTABUP A=2 B=R[0] C=K[0]='DataCenter'
+001 L149 GETTABLE A=2 B=R[2] C=K[1]='DetectEventTemplateManager'
+002 L149 SELF A=2 B=R[2] C=K[2]='GetDetectEventTemplate'
+003 L149 GETTABUP A=4 B=R[0] C=K[3]='tostring'
+004 L149 MOVE A=5 B=1 C=0 Bx=512
+005 L149 CALL A=4 B=2 C=0 Bx=1024
+006 L149 CALL A=2 B=0 C=2 Bx=2
+007 L150 GETTABUP A=3 B=R[0] C=K[4]='UITimeManager'
+008 L150 SELF A=3 B=R[3] C=K[5]='GetInstance'
+009 L150 CALL A=3 B=2 C=2 Bx=1026
+010 L150 SELF A=3 B=R[3] C=K[6]='GetServerTime'
+011 L150 CALL A=3 B=2 C=2 Bx=1026
+012 L151 LOADK R[4] <- K[7]=0
+013 L152 GETTABLE A=5 B=R[2] C=K[8]='type'
+014 L152 GETTABUP A=6 B=R[0] C=K[9]='DetectEventType'
+015 L152 GETTABLE A=6 B=R[6] C=K[10]='OFF_SEASON_TREASURE'
+016 L152 EQ A=0 B=R[5] C=R[6]
+017 L152 JMP A=0 sBx=11 target=29
+018 L153 GETTABLE A=5 B=R[0] C=K[11]='off_season_detect_dig_times_expire'
+019 L153 LT A=0 B=R[3] C=R[5]
+020 L153 JMP A=0 sBx=6 target=27
+021 L154 GETTABLE A=5 B=R[0] C=K[12]='off_season_detect_day_times'
+022 L154 GETTABLE A=5 B=R[5] C=R[1]
+023 L154 TEST A=5 B=0 C=0 Bx=0
+024 L154 JMP A=0 sBx=2 target=27
+025 L155 GETTABLE A=5 B=R[0] C=K[12]='off_season_detect_day_times'
+026 L155 GETTABLE A=4 B=R[5] C=R[1]
+027 L158 RETURN A=4 B=2 C=0 Bx=1024
+028 L158 JMP A=0 sBx=9 target=38
+029 L160 GETTABLE A=5 B=R[0] C=K[13]='activity_detect_dig_times_expire'
+030 L160 LT A=0 B=R[3] C=R[5]
+031 L160 JMP A=0 sBx=6 target=38
+032 L161 GETTABLE A=5 B=R[0] C=K[14]='activity_detect_dig_times'
+033 L161 GETTABLE A=5 B=R[5] C=R[1]
+034 L161 TEST A=5 B=0 C=0 Bx=0
+035 L161 JMP A=0 sBx=2 target=38
+036 L162 GETTABLE A=5 B=R[0] C=K[14]='activity_detect_dig_times'
+037 L162 GETTABLE A=4 B=R[5] C=R[1]
+038 L167 RETURN A=4 B=2 C=0 Bx=1024
+039 L168 RETURN A=0 B=1 C=0 Bx=512
+
+### GetCurDigTimesByActivityId root/child[9] [170, 184]
+constants ['DataCenter', 'ActivityListDataManager', 'GetActivityDataById', 'detect_para', 'string', 'string2array_i_oneSep', ';', 'ActDetectTreasureDataManager', 'GetCurDigTimes']
+000 L171 LOADK R[2] <- K[0]=0
+001 L173 GETTABUP A=3 B=R[0] C=K[1]='DataCenter'
+002 L173 GETTABLE A=3 B=R[3] C=K[2]='ActivityListDataManager'
+003 L173 SELF A=3 B=R[3] C=K[3]='GetActivityDataById'
+004 L173 MOVE A=5 B=1 C=0 Bx=512
+005 L173 CALL A=3 B=3 C=2 Bx=1538
+006 L174 TEST A=3 B=0 C=0 Bx=0
+007 L174 JMP A=0 sBx=18 target=26
+008 L175 GETTABLE A=4 B=R[3] C=K[4]='detect_para'
+009 L176 GETTABUP A=5 B=R[0] C=K[5]='string'
+010 L176 GETTABLE A=5 B=R[5] C=K[6]='string2array_i_oneSep'
+011 L176 MOVE A=6 B=4 C=0 Bx=2048
+012 L176 LOADK R[7] <- K[7]=';'
+013 L176 CALL A=5 B=3 C=2 Bx=1538
+014 L177 TEST A=5 B=0 C=0 Bx=0
+015 L177 JMP A=0 sBx=10 target=26
+016 L177 LEN A=6 B=5 C=0 Bx=2560
+017 L177 LE A=0 B=K[8]=2 C=R[6]
+018 L177 JMP A=0 sBx=7 target=26
+019 L178 GETTABLE A=6 B=R[5] C=K[9]=1
+020 L179 GETTABUP A=7 B=R[0] C=K[1]='DataCenter'
+021 L179 GETTABLE A=7 B=R[7] C=K[10]='ActDetectTreasureDataManager'
+022 L179 SELF A=7 B=R[7] C=K[11]='GetCurDigTimes'
+023 L179 MOVE A=9 B=6 C=0 Bx=3072
+024 L179 CALL A=7 B=3 C=2 Bx=1538
+025 L179 MOVE A=2 B=7 C=0 Bx=3584
+026 L183 RETURN A=2 B=2 C=0 Bx=1024
+027 L184 RETURN A=0 B=1 C=0 Bx=512
+
+### GetMaxDigTimes root/child[10] [186, 210]
+constants ['DataCenter', 'DetectEventTemplateManager', 'GetDetectEventTemplate', 'tostring', 'para3', 'string', 'string2array_i_oneSep', ';']
+000 L198 LOADK R[2] <- K[0]=0
+001 L200 GETTABUP A=3 B=R[0] C=K[1]='DataCenter'
+002 L200 GETTABLE A=3 B=R[3] C=K[2]='DetectEventTemplateManager'
+003 L200 SELF A=3 B=R[3] C=K[3]='GetDetectEventTemplate'
+004 L200 GETTABUP A=5 B=R[0] C=K[4]='tostring'
+005 L200 MOVE A=6 B=1 C=0 Bx=512
+006 L200 CALL A=5 B=2 C=0 Bx=1024
+007 L200 CALL A=3 B=0 C=2 Bx=2
+008 L201 EQ A=1 B=R[3] C=K[5]=None
+009 L201 JMP A=0 sBx=12 target=22
+010 L202 GETTABLE A=4 B=R[3] C=K[6]='para3'
+011 L203 GETTABUP A=5 B=R[0] C=K[7]='string'
+012 L203 GETTABLE A=5 B=R[5] C=K[8]='string2array_i_oneSep'
+013 L203 MOVE A=6 B=4 C=0 Bx=2048
+014 L203 LOADK R[7] <- K[9]=';'
+015 L203 CALL A=5 B=3 C=2 Bx=1538
+016 L204 TEST A=5 B=0 C=0 Bx=0
+017 L204 JMP A=0 sBx=4 target=22
+018 L204 LEN A=6 B=5 C=0 Bx=2560
+019 L204 EQ A=0 B=R[6] C=K[10]=2
+020 L204 JMP A=0 sBx=1 target=22
+021 L205 GETTABLE A=2 B=R[5] C=K[10]=2
+022 L209 RETURN A=2 B=2 C=0 Bx=1024
+023 L210 RETURN A=0 B=1 C=0 Bx=512
+
+### GetMaxDigTimesByActivityId root/child[11] [212, 225]
+constants ['DataCenter', 'ActivityListDataManager', 'GetActivityDataById', 'detect_para', 'string', 'string2array_i_oneSep', ';', 'ActDetectTreasureDataManager', 'GetMaxDigTimes']
+000 L213 LOADK R[2] <- K[0]=0
+001 L214 GETTABUP A=3 B=R[0] C=K[1]='DataCenter'
+002 L214 GETTABLE A=3 B=R[3] C=K[2]='ActivityListDataManager'
+003 L214 SELF A=3 B=R[3] C=K[3]='GetActivityDataById'
+004 L214 MOVE A=5 B=1 C=0 Bx=512
+005 L214 CALL A=3 B=3 C=2 Bx=1538
+006 L215 TEST A=3 B=0 C=0 Bx=0
+007 L215 JMP A=0 sBx=18 target=26
+008 L216 GETTABLE A=4 B=R[3] C=K[4]='detect_para'
+009 L217 GETTABUP A=5 B=R[0] C=K[5]='string'
+010 L217 GETTABLE A=5 B=R[5] C=K[6]='string2array_i_oneSep'
+011 L217 MOVE A=6 B=4 C=0 Bx=2048
+012 L217 LOADK R[7] <- K[7]=';'
+013 L217 CALL A=5 B=3 C=2 Bx=1538
+014 L219 TEST A=5 B=0 C=0 Bx=0
+015 L219 JMP A=0 sBx=10 target=26
+016 L219 LEN A=6 B=5 C=0 Bx=2560
+017 L219 LE A=0 B=K[8]=2 C=R[6]
+018 L219 JMP A=0 sBx=7 target=26
+019 L220 GETTABLE A=6 B=R[5] C=K[9]=1
+020 L221 GETTABUP A=7 B=R[0] C=K[1]='DataCenter'
+021 L221 GETTABLE A=7 B=R[7] C=K[10]='ActDetectTreasureDataManager'
+022 L221 SELF A=7 B=R[7] C=K[11]='GetMaxDigTimes'
+023 L221 MOVE A=9 B=6 C=0 Bx=3072
+024 L221 CALL A=7 B=3 C=2 Bx=1538
+025 L221 MOVE A=2 B=7 C=0 Bx=3584
+026 L224 RETURN A=2 B=2 C=0 Bx=1024
+027 L225 RETURN A=0 B=1 C=0 Bx=512

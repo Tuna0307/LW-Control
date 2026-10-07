@@ -6,16 +6,22 @@
   "ownerHold": "LIVE_AND_SHARED_DESKTOP_ON_HOLD",
   "methods": {
     "GetTreasureClaimStatusAsync": {
-      "state": "ACTIVE_RECOVERY",
-      "publicBaseline": "GAME_PROVIDER_UNAVAILABLE"
+      "state": "BLOCKED",
+      "production": "GAME_PROVIDER_UNAVAILABLE",
+      "recovered": "current per-target claim-info + global budget subcontracts",
+      "blocker": "no source-backed no-argument aggregate/batch producer"
     },
     "ClaimTreasuresAsync": {
-      "state": "READY",
-      "publicBaseline": "GAME_PROVIDER_UNAVAILABLE"
+      "state": "BLOCKED",
+      "production": "GAME_PROVIDER_UNAVAILABLE",
+      "recovered": "direct request/ack + Supplies scout admission/march creation",
+      "blocker": "no source-backed scope/lucky aggregate controller or Supplies terminal completion edge"
     },
     "PrepareGhostPlunderTasksAsync": {
-      "state": "READY",
-      "publicBaseline": "GAME_PROVIDER_UNAVAILABLE"
+      "state": "BLOCKED",
+      "production": "GAME_PROVIDER_UNAVAILABLE",
+      "recovered": "row projection/normalization + Ghost request/response bodies",
+      "blocker": "Ghost terminal response identity not source-proven"
     }
   },
   "milestones": [
@@ -26,32 +32,32 @@
     },
     {
       "id": "B",
-      "state": "ACTIVE",
+      "state": "COMPLETE",
       "goal": "Recover Treasure status producers/result semantics"
     },
     {
       "id": "C",
-      "state": "READY",
+      "state": "COMPLETE",
       "goal": "Recover direct Treasure claim request/ack/push/model semantics"
     },
     {
       "id": "D",
-      "state": "READY",
+      "state": "COMPLETE",
       "goal": "Recover scout lane and aggregate claim orchestration"
     },
     {
       "id": "E",
-      "state": "READY",
+      "state": "COMPLETE",
       "goal": "Recover Ghost pre-persist preparation semantics"
     },
     {
       "id": "F",
-      "state": "READY",
+      "state": "COMPLETE",
       "goal": "Execute actual decoded-body oracles and implement only complete provider contracts"
     },
     {
       "id": "G",
-      "state": "READY",
+      "state": "ACTIVE",
       "goal": "Adversarial production-boundary integration and required builds"
     },
     {
@@ -83,5 +89,17 @@
     "parserCandidateCount": 373,
     "parserErrors": 0,
     "productChanges": false
+  },
+  "checkpointBF": {
+    "state": "COMPLETE_WITH_BLOCKERS",
+    "matrix": "contract-matrix.json",
+    "actualDecodedBodyOracle": "tests/map_provider_decoded_body_oracles.py",
+    "productionModuleOracle": "tests/map_provider_semantics_lua_checks.py",
+    "implementedSubcontracts": [
+      "Ghost scheduler-field projection",
+      "strict Ghost row normalization helper",
+      "Ghost scheduled execution fail-closed guard before Dispatch transport"
+    ],
+    "liveProof": false
   }
 }

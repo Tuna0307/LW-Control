@@ -1,0 +1,153 @@
+﻿
+### DataCenter/ActivityListData/ActGhostrecon/ActGhostreconManager.luac GetPointStealType root/child[28] [563, 588]
+['GetTaskTemplate', 'GhostreconPointStealType', 'UnShow', 'table', 'length', 'ipairs', 'uuid', 'LuaEntry', 'player', 'CheckCanSteal', 'stealMaxtimes', 'GetStealTimesFull', 'UnSteal', 'CanSteal', 'CheckCanShow', 'Preview']
+000 L564 SELF A=4 B=R[0] C=K[0]='GetTaskTemplate'
+001 L564 MOVE A=6 B=1 C=0 Bx=512
+002 L564 CALL A=4 B=3 C=2 Bx=1538
+003 L565 GETTABUP A=5 B=R[0] C=K[1]='GhostreconPointStealType'
+004 L565 GETTABLE A=5 B=R[5] C=K[2]='UnShow'
+005 L566 GETTABUP A=6 B=R[0] C=K[3]='table'
+006 L566 GETTABLE A=6 B=R[6] C=K[4]='length'
+007 L566 MOVE A=7 B=3 C=0 Bx=1536
+008 L566 CALL A=6 B=2 C=2 Bx=1026
+009 L567 LOADBOOL A=7 B=0 C=0 Bx=0
+010 L568 LT A=0 B=K[5]=0 C=R[6]
+011 L568 JMP A=0 sBx=14 target=26
+012 L569 GETTABUP A=8 B=R[0] C=K[6]='ipairs'
+013 L569 MOVE A=9 B=3 C=0 Bx=1536
+014 L569 CALL A=8 B=2 C=4 Bx=1028
+015 L569 JMP A=0 sBx=8 target=24
+016 L570 GETTABLE A=13 B=R[12] C=K[7]='uuid'
+017 L570 GETTABUP A=14 B=R[0] C=K[8]='LuaEntry'
+018 L570 GETTABLE A=14 B=R[14] C=K[9]='player'
+019 L570 GETTABLE A=14 B=R[14] C=K[7]='uuid'
+020 L570 EQ A=0 B=R[13] C=R[14]
+021 L570 JMP A=0 sBx=2 target=24
+022 L571 LOADBOOL A=7 B=1 C=0 Bx=512
+023 L571 JMP A=0 sBx=2 target=26
+024 L569 TFORCALL A=8 B=0 C=2 Bx=2
+025 L569 TFORLOOP A=10 B=255 C=501 Bx=131061
+026 L576 SELF A=8 B=R[4] C=K[10]='CheckCanSteal'
+027 L576 MOVE A=10 B=2 C=0 Bx=1024
+028 L576 CALL A=8 B=3 C=2 Bx=1538
+029 L576 TEST A=8 B=0 C=0 Bx=0
+030 L576 JMP A=0 sBx=15 target=46
+031 L577 GETTABLE A=8 B=R[4] C=K[11]='stealMaxtimes'
+032 L577 LE A=1 B=R[8] C=R[6]
+033 L577 JMP A=0 sBx=6 target=40
+034 L577 SELF A=8 B=R[0] C=K[12]='GetStealTimesFull'
+035 L577 CALL A=8 B=2 C=2 Bx=1026
+036 L577 TEST A=8 B=0 C=1 Bx=1
+037 L577 JMP A=0 sBx=2 target=40
+038 L577 TEST A=7 B=0 C=0 Bx=0
+039 L577 JMP A=0 sBx=3 target=43
+040 L578 GETTABUP A=8 B=R[0] C=K[1]='GhostreconPointStealType'
+041 L578 GETTABLE A=5 B=R[8] C=K[13]='UnSteal'
+042 L578 JMP A=0 sBx=13 target=56
+043 L580 GETTABUP A=8 B=R[0] C=K[1]='GhostreconPointStealType'
+044 L580 GETTABLE A=5 B=R[8] C=K[14]='CanSteal'
+045 L581 JMP A=0 sBx=10 target=56
+046 L582 SELF A=8 B=R[4] C=K[15]='CheckCanShow'
+047 L582 MOVE A=10 B=2 C=0 Bx=1024
+048 L582 CALL A=8 B=3 C=2 Bx=1538
+049 L582 TEST A=8 B=0 C=0 Bx=0
+050 L582 JMP A=0 sBx=3 target=54
+051 L583 GETTABUP A=8 B=R[0] C=K[1]='GhostreconPointStealType'
+052 L583 GETTABLE A=5 B=R[8] C=K[16]='Preview'
+053 L583 JMP A=0 sBx=2 target=56
+054 L585 GETTABUP A=8 B=R[0] C=K[1]='GhostreconPointStealType'
+055 L585 GETTABLE A=5 B=R[8] C=K[2]='UnShow'
+056 L587 RETURN A=5 B=2 C=0 Bx=1024
+057 L588 RETURN A=0 B=1 C=0 Bx=512
+
+### DataCenter/ActivityListData/ActGhostrecon/ActGhostreconManager.luac GhostReconStealHandler root/child[12] [251, 262]
+['stealTimes', 'reward', 'ShowReward']
+000 L252 EQ A=0 B=R[1] C=K[0]=None
+001 L252 JMP A=0 sBx=1 target=3
+002 L253 RETURN A=0 B=1 C=0 Bx=512
+003 L255 GETTABLE A=2 B=R[1] C=K[1]='stealTimes'
+004 L255 TEST A=2 B=0 C=0 Bx=0
+005 L255 JMP A=0 sBx=2 target=8
+006 L256 GETTABLE A=2 B=R[1] C=K[1]='stealTimes'
+007 L256 SETTABLE R[0][K[1]='stealTimes'] <- R[2]
+008 L258 GETTABLE A=2 B=R[1] C=K[2]='reward'
+009 L258 TEST A=2 B=0 C=0 Bx=0
+010 L258 JMP A=0 sBx=3 target=14
+011 L260 SELF A=2 B=R[0] C=K[3]='ShowReward'
+012 L260 MOVE A=4 B=1 C=0 Bx=512
+013 L260 CALL A=2 B=3 C=1 Bx=1537
+014 L262 RETURN A=0 B=1 C=0 Bx=512
+
+### Net/Msgs/Ghostrecon/GhostReconStealMessage.luac OnCreate root/child[0] [11, 15]
+['OnCreate', 'sfsObj', 'PutLong', 'uuid', 'PutInt', 'ownerServer']
+000 L12 GETTABUP A=3 B=R[0] C=K[0]='OnCreate'
+001 L12 MOVE A=4 B=0 C=0 Bx=0
+002 L12 CALL A=3 B=2 C=1 Bx=1025
+003 L13 GETTABLE A=3 B=R[0] C=K[1]='sfsObj'
+004 L13 SELF A=3 B=R[3] C=K[2]='PutLong'
+005 L13 LOADK R[5] <- K[3]='uuid'
+006 L13 MOVE A=6 B=1 C=0 Bx=512
+007 L13 CALL A=3 B=4 C=1 Bx=2049
+008 L14 GETTABLE A=3 B=R[0] C=K[1]='sfsObj'
+009 L14 SELF A=3 B=R[3] C=K[4]='PutInt'
+010 L14 LOADK R[5] <- K[5]='ownerServer'
+011 L14 MOVE A=6 B=2 C=0 Bx=1024
+012 L14 CALL A=3 B=4 C=1 Bx=2049
+013 L15 RETURN A=0 B=1 C=0 Bx=512
+
+### Net/Msgs/Ghostrecon/GhostReconStealMessage.luac HandleMessage root/child[1] [18, 29]
+['HandleMessage', 'errorCode', 'fromGhostreconStealMessage', 'DataCenter', 'RewardManager', 'AddRewardsAndRes', 'ActGhostreconManager', 'GhostReconStealHandler', 'UIUtil', 'ShowTipsId']
+000 L19 GETTABUP A=2 B=R[0] C=K[0]='HandleMessage'
+001 L19 MOVE A=3 B=0 C=0 Bx=0
+002 L19 MOVE A=4 B=1 C=0 Bx=512
+003 L19 CALL A=2 B=3 C=1 Bx=1537
+004 L20 EQ A=1 B=R[1] C=K[1]=None
+005 L20 JMP A=0 sBx=19 target=25
+006 L21 GETTABLE A=2 B=R[1] C=K[2]='errorCode'
+007 L21 EQ A=0 B=R[2] C=K[1]=None
+008 L21 JMP A=0 sBx=12 target=21
+009 L22 SETTABLE R[1][K[3]='fromGhostreconStealMessage'] <- K[4]=True
+010 L23 GETTABUP A=2 B=R[1] C=K[5]='DataCenter'
+011 L23 GETTABLE A=2 B=R[2] C=K[6]='RewardManager'
+012 L23 SELF A=2 B=R[2] C=K[7]='AddRewardsAndRes'
+013 L23 MOVE A=4 B=1 C=0 Bx=512
+014 L23 CALL A=2 B=3 C=1 Bx=1537
+015 L24 GETTABUP A=2 B=R[1] C=K[5]='DataCenter'
+016 L24 GETTABLE A=2 B=R[2] C=K[8]='ActGhostreconManager'
+017 L24 SELF A=2 B=R[2] C=K[9]='GhostReconStealHandler'
+018 L24 MOVE A=4 B=1 C=0 Bx=512
+019 L24 CALL A=2 B=3 C=1 Bx=1537
+020 L24 JMP A=0 sBx=4 target=25
+021 L26 GETTABUP A=2 B=R[1] C=K[10]='UIUtil'
+022 L26 GETTABLE A=2 B=R[2] C=K[11]='ShowTipsId'
+023 L26 GETTABLE A=3 B=R[1] C=K[2]='errorCode'
+024 L26 CALL A=2 B=2 C=1 Bx=1025
+025 L29 RETURN A=0 B=1 C=0 Bx=512
+
+### Net/Msgs/Ghostrecon/PushGhostReconStealMessage.luac OnCreate root/child[0] [10, 12]
+['OnCreate']
+000 L11 GETTABUP A=1 B=R[0] C=K[0]='OnCreate'
+001 L11 MOVE A=2 B=0 C=0 Bx=0
+002 L11 CALL A=1 B=2 C=1 Bx=1025
+003 L12 RETURN A=0 B=1 C=0 Bx=512
+
+### Net/Msgs/Ghostrecon/PushGhostReconStealMessage.luac HandleMessage root/child[1] [14, 23]
+['HandleMessage', 'errorCode', 'UIUtil', 'ShowTipsId', 'DataCenter', 'ActDispatchTaskDataManager', 'PushHeroDispatchMissionStealHandler']
+000 L15 GETTABUP A=2 B=R[0] C=K[0]='HandleMessage'
+001 L15 MOVE A=3 B=0 C=0 Bx=0
+002 L15 MOVE A=4 B=1 C=0 Bx=512
+003 L15 CALL A=2 B=3 C=1 Bx=1537
+004 L17 GETTABLE A=2 B=R[1] C=K[1]='errorCode'
+005 L18 EQ A=1 B=R[2] C=K[2]=None
+006 L18 JMP A=0 sBx=5 target=12
+007 L19 GETTABUP A=3 B=R[1] C=K[3]='UIUtil'
+008 L19 GETTABLE A=3 B=R[3] C=K[4]='ShowTipsId'
+009 L19 MOVE A=4 B=2 C=0 Bx=1024
+010 L19 CALL A=3 B=2 C=1 Bx=1025
+011 L19 JMP A=0 sBx=5 target=17
+012 L21 GETTABUP A=3 B=R[1] C=K[5]='DataCenter'
+013 L21 GETTABLE A=3 B=R[3] C=K[6]='ActDispatchTaskDataManager'
+014 L21 SELF A=3 B=R[3] C=K[7]='PushHeroDispatchMissionStealHandler'
+015 L21 MOVE A=5 B=1 C=0 Bx=512
+016 L21 CALL A=3 B=3 C=1 Bx=1537
+017 L23 RETURN A=0 B=1 C=0 Bx=512

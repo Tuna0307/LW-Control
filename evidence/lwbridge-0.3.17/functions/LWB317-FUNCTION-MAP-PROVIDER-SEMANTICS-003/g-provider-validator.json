@@ -1,0 +1,71 @@
+﻿{
+  "ok": true,
+  "schema": 1,
+  "workItem": "LWB317-FUNCTION-MAP-PROVIDER-SEMANTICS-003",
+  "referenceSha256": "4e9c3113dedfd7e1a752404c6936aab304e67d7ffdb0952a5003c2ec948d6783",
+  "package": {
+    "path": "C:\\Users\\chimw\\AppData\\LocalLow\\FunFly\\Last War-Survival Game\\lwScripts\\LWScripts.data",
+    "sha256": "248f3aeac712b3f14f86bff37a0c365e467897a2248403837c44c1b774f05b22",
+    "fileVersion": 3,
+    "contentVersion": 22,
+    "entryCount": 18741
+  },
+  "entries": [
+    {
+      "entry": "Net/Msgs/RadarCenter/DetectEventClaimTreasureMessage.luac",
+      "decodedSha256": "ecceef817b99de8ce94518e910e3d4c773dbf1d0825a4878c87d00d59b0b4499",
+      "ok": true
+    },
+    {
+      "entry": "Net/Msgs/RadarCenter/DetectEventGetTreasureClaimInfoMessage.luac",
+      "decodedSha256": "a8216497185f8a12ccf5d9608400c0070f6cae692d0a2007b2adf770f1f853ff",
+      "ok": true
+    },
+    {
+      "entry": "DataCenter/RadarCenterDataManager/DetectEventGetTreasureClaimInfo.luac",
+      "decodedSha256": "cb3df2e7ad2c34155cbb49c0d234e1d57a6320e6a64badb76b8af74825bafefe",
+      "ok": true
+    },
+    {
+      "entry": "DataCenter/ActMonopolyManager/ActDetectTreasureDataManager.luac",
+      "decodedSha256": "04a5b7f426b65bb9af1d1bed9855a37ccf0fe33acbdc0e50d02e2df79dfd3645",
+      "ok": true
+    },
+    {
+      "entry": "UI/UIWorldPoint/Component/UIWorldPointBtn.luac",
+      "decodedSha256": "d2f099d11172a80e7c8eda63fd410d3360fea965d8269691061be5a7d8f54d79",
+      "ok": true
+    },
+    {
+      "entry": "Util/MarchUtil.luac",
+      "decodedSha256": "80effa59728e223053bca2b99ddfdd963cc0c98d2ec420972a5100a5e23990b4",
+      "ok": true
+    },
+    {
+      "entry": "DataCenter/ActivityListData/ActGhostrecon/ActGhostreconTaskTemplate.luac",
+      "decodedSha256": "015d156c9fc4a3d245718669c113afb23ce04e35b44b057e9abf52d405e865c8",
+      "ok": true
+    },
+    {
+      "entry": "Net/Msgs/Ghostrecon/GhostReconStealMessage.luac",
+      "decodedSha256": "db52842471d2d276dc374236f274214657b70d22770722f4b2883cf6a756a1a3",
+      "ok": true
+    },
+    {
+      "entry": "Net/SFSNetwork.luac",
+      "decodedSha256": "f9c2762ef603df799da3b502a0c63a50454f97a5a8a6949a39f5948cf0a8fc36",
+      "ok": true
+    }
+  ],
+  "publicMethods": {
+    "GetTreasureClaimStatusAsync": "BLOCKED_GAME_PROVIDER_UNAVAILABLE",
+    "ClaimTreasuresAsync": "BLOCKED_GAME_PROVIDER_UNAVAILABLE",
+    "PrepareGhostPlunderTasksAsync": "BLOCKED_GAME_PROVIDER_UNAVAILABLE"
+  },
+  "implementedSubcontracts": [
+    "current-v22 Ghost schedule-field projection",
+    "strict Ghost row normalization helper",
+    "Ghost scheduled-execution fail-closed guard before DispatchSteal"
+  ],
+  "liveProof": false
+}

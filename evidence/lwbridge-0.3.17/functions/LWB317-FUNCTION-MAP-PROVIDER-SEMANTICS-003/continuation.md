@@ -1,11 +1,15 @@
-# Continuation — LWB317-FUNCTION-MAP-PROVIDER-SEMANTICS-003
+﻿# Continuation — LWB317-FUNCTION-MAP-PROVIDER-SEMANTICS-003
 
-Current milestone: **B**. A is complete.
+Current milestone: **G**. A-F are complete; all three public methods remain
+source-correctly BLOCKED, with lower-level subcontracts and exact blockers
+recorded in contract-matrix.json.
 
-1. Commit/push A and verify direct remote SHA.
-2. Recover current Treasure global budget/reset/status bodies and exact frontend
-   status consumption; test global-state versus per-target-query explanations.
-3. Continue C direct claim request/ack/push/model result correlation, D scout
-   orchestration, E Ghost preparation, then F/G/H automatically.
+Next:
+1. Run G adversarial/current ownership/plunder/restart checks and final Release
+   frontend/package/build gates.
+2. Self-review full diff; correct any regression.
+3. H: write worker review, update Map/Home masters/ledger/parity/handoff/status,
+   set work item AWAITING_REVIEW, run final validator/integrity, commit/push and
+   verify direct remote SHA.
 
-No live/shared-desktop path is authorized.
+Live/shared-desktop work remains ON_HOLD_BY_OWNER.

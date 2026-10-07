@@ -1,0 +1,151 @@
+﻿
+### Net/SFSNetwork.luac :: GetMsgType root/child[0] [7, 23]
+constants= ['type', 'table', 'require', 'Logger', 'LogWarning', '[Φ¡ªσæè] µ¿íσ¥ùσèáΦ╜╜σñ▒Φ┤Ñ∩╝üΦ┐öσ¢₧τ▒╗σ₧ïΘ¥₧ table∩╝îcmd:', 'tostring', '∩╝îtype:', '∩╝îpath:', 'CS', 'GameEntry', 'DebugLuaFile']
+000 L8 GETTABUP A=1 B=R[0] C=R[0]
+001 L9 GETTABUP A=2 B=R[1] C=K[0]='type'
+002 L9 MOVE A=3 B=1 C=0 Bx=512
+003 L9 CALL A=2 B=2 C=2 Bx=1026
+004 L9 EQ A=1 B=R[2] C=K[1]='table'
+005 L9 JMP A=0 sBx=35 target=41
+006 L10 GETTABUP A=2 B=R[2] C=R[0]
+007 L11 EQ A=1 B=R[2] C=K[2]=None
+008 L11 JMP A=0 sBx=32 target=41
+009 L12 GETTABUP A=3 B=R[1] C=K[3]='require'
+010 L12 MOVE A=4 B=2 C=0 Bx=1024
+011 L12 CALL A=3 B=2 C=2 Bx=1026
+012 L13 GETTABUP A=4 B=R[1] C=K[0]='type'
+013 L13 MOVE A=5 B=3 C=0 Bx=1536
+014 L13 CALL A=4 B=2 C=2 Bx=1026
+015 L13 EQ A=0 B=R[4] C=K[1]='table'
+016 L13 JMP A=0 sBx=3 target=20
+017 L14 MOVE A=1 B=3 C=0 Bx=1536
+018 L15 SETTABUP A=0 B=0 C=1 Bx=1
+019 L15 JMP A=0 sBx=21 target=41
+020 L17 GETTABUP A=4 B=R[1] C=K[4]='Logger'
+021 L17 GETTABLE A=4 B=R[4] C=K[5]='LogWarning'
+022 L17 LOADK R[5] <- K[6]='[Φ¡ªσæè] µ¿íσ¥ùσèáΦ╜╜σñ▒Φ┤Ñ∩╝üΦ┐öσ¢₧τ▒╗σ₧ïΘ¥₧ table∩╝îcmd:'
+023 L17 GETTABUP A=6 B=R[1] C=K[7]='tostring'
+024 L17 MOVE A=7 B=0 C=0 Bx=0
+025 L17 CALL A=6 B=2 C=2 Bx=1026
+026 L17 LOADK R[7] <- K[8]='∩╝îtype:'
+027 L17 GETTABUP A=8 B=R[1] C=K[0]='type'
+028 L17 MOVE A=9 B=3 C=0 Bx=1536
+029 L17 CALL A=8 B=2 C=2 Bx=1026
+030 L17 LOADK R[9] <- K[9]='∩╝îpath:'
+031 L17 GETTABUP A=10 B=R[1] C=K[7]='tostring'
+032 L17 MOVE A=11 B=2 C=0 Bx=1024
+033 L17 CALL A=10 B=2 C=2 Bx=1026
+034 L17 CONCAT A=5 B=5 C=10 Bx=2570
+035 L17 CALL A=4 B=2 C=1 Bx=1025
+036 L18 GETTABUP A=4 B=R[1] C=K[10]='CS'
+037 L18 GETTABLE A=4 B=R[4] C=K[11]='GameEntry'
+038 L18 GETTABLE A=4 B=R[4] C=K[12]='DebugLuaFile'
+039 L18 MOVE A=5 B=2 C=0 Bx=1024
+040 L18 CALL A=4 B=2 C=1 Bx=1025
+041 L22 RETURN A=1 B=2 C=0 Bx=1024
+042 L23 RETURN A=0 B=1 C=0 Bx=512
+
+### Net/SFSNetwork.luac :: SendMessage root/child[1] [25, 34]
+constants= ['NewMessage', 'SendLuaMessage', 'ToBinary', '_G', '_processInitMessage', 'string', 'format', 'SFSNetwork.SendMessage during init message process, move to GameMain.OnEnterGame: %s, %s', 'tostring', 'debug', 'traceback', 'Logger', 'LogError']
+000 L26 GETUPVAL A=1 B=0 C=0 Bx=0
+001 L26 MOVE A=2 B=0 C=0 Bx=0
+002 L26 CALL A=1 B=2 C=2 Bx=1026
+003 L27 SELF A=2 B=R[1] C=K[0]='NewMessage'
+004 L27 VARARG A=4 B=0 C=0 Bx=0
+005 L27 CALL A=2 B=0 C=2 Bx=2
+006 L28 GETUPVAL A=3 B=1 C=0 Bx=512
+007 L28 SELF A=3 B=R[3] C=K[1]='SendLuaMessage'
+008 L28 MOVE A=5 B=0 C=0 Bx=0
+009 L28 SELF A=6 B=R[2] C=K[2]='ToBinary'
+010 L28 CALL A=6 B=2 C=0 Bx=1024
+011 L28 CALL A=3 B=0 C=1 Bx=1
+012 L30 GETTABUP A=3 B=R[2] C=K[3]='_G'
+013 L30 GETTABLE A=3 B=R[3] C=K[4]='_processInitMessage'
+014 L30 EQ A=1 B=R[3] C=K[5]=None
+015 L30 JMP A=0 sBx=18 target=34
+016 L30 GETTABUP A=3 B=R[2] C=K[3]='_G'
+017 L30 GETTABLE A=3 B=R[3] C=K[4]='_processInitMessage'
+018 L30 TEST A=3 B=0 C=0 Bx=0
+019 L30 JMP A=0 sBx=14 target=34
+020 L31 GETTABUP A=3 B=R[2] C=K[6]='string'
+021 L31 GETTABLE A=3 B=R[3] C=K[7]='format'
+022 L31 LOADK R[4] <- K[8]='SFSNetwork.SendMessage during init message process, move to GameMain.OnEnterGame: %s, %s'
+023 L31 GETTABUP A=5 B=R[2] C=K[9]='tostring'
+024 L31 MOVE A=6 B=0 C=0 Bx=0
+025 L31 CALL A=5 B=2 C=2 Bx=1026
+026 L31 GETTABUP A=6 B=R[2] C=K[10]='debug'
+027 L31 GETTABLE A=6 B=R[6] C=K[11]='traceback'
+028 L31 CALL A=6 B=1 C=0 Bx=512
+029 L31 CALL A=3 B=0 C=2 Bx=2
+030 L32 GETTABUP A=4 B=R[2] C=K[12]='Logger'
+031 L32 GETTABLE A=4 B=R[4] C=K[13]='LogError'
+032 L32 MOVE A=5 B=3 C=0 Bx=1536
+033 L32 CALL A=4 B=2 C=1 Bx=1025
+034 L34 RETURN A=0 B=1 C=0 Bx=512
+
+### Net/SFSNetwork.luac :: HandleMessage root/child[2] [36, 54]
+constants= ['xpcall', 'debug', 'traceback', 'UITimeManager', 'GetInstance', 'GetServerSeconds', 'CommonUtil', 'SendErrorMessageToServer', 'Logger', 'LogError']
+000 L37 GETUPVAL A=2 B=0 C=0 Bx=0
+001 L37 MOVE A=3 B=0 C=0 Bx=0
+002 L37 CALL A=2 B=2 C=2 Bx=1026
+003 L38 EQ A=1 B=R[2] C=K[0]=None
+004 L38 JMP A=0 sBx=27 target=32
+005 L39 GETTABUP A=3 B=R[1] C=K[1]='xpcall'
+006 L43 CLOSURE R[4] <- child[0] lines=39-43
+007 L43 GETTABUP A=5 B=R[1] C=K[2]='debug'
+008 L43 GETTABLE A=5 B=R[5] C=K[3]='traceback'
+009 L39 CALL A=3 B=3 C=3 Bx=1539
+010 L44 TEST A=3 B=0 C=1 Bx=1
+011 L44 JMP A=0 sBx=18 target=30
+012 L45 GETTABUP A=5 B=R[1] C=K[4]='UITimeManager'
+013 L45 SELF A=5 B=R[5] C=K[5]='GetInstance'
+014 L45 CALL A=5 B=2 C=2 Bx=1026
+015 L45 SELF A=5 B=R[5] C=K[6]='GetServerSeconds'
+016 L45 CALL A=5 B=2 C=2 Bx=1026
+017 L46 GETTABUP A=6 B=R[1] C=K[7]='CommonUtil'
+018 L46 GETTABLE A=6 B=R[6] C=K[8]='SendErrorMessageToServer'
+019 L46 MOVE A=7 B=5 C=0 Bx=2560
+020 L46 MOVE A=8 B=5 C=0 Bx=2560
+021 L46 MOVE A=9 B=4 C=0 Bx=2048
+022 L46 CALL A=6 B=4 C=1 Bx=2049
+023 L47 GETTABUP A=6 B=R[1] C=K[9]='Logger'
+024 L47 GETTABLE A=6 B=R[6] C=K[10]='LogError'
+025 L47 MOVE A=7 B=4 C=0 Bx=2048
+026 L47 CALL A=6 B=2 C=1 Bx=1025
+027 L48 LOADBOOL A=6 B=0 C=0 Bx=0
+028 L48 RETURN A=6 B=2 C=0 Bx=1024
+029 L48 JMP A=0 sBx=2 target=32
+030 L50 LOADBOOL A=5 B=1 C=0 Bx=512
+031 L50 RETURN A=5 B=2 C=0 Bx=1024
+032 L53 LOADBOOL A=3 B=0 C=0 Bx=0
+033 L53 RETURN A=3 B=2 C=0 Bx=1024
+034 L54 RETURN A=0 B=1 C=0 Bx=512
+
+### Net/SFSBaseMessage.luac :: __init root/child[2] [13, 18]
+constants= ['sfsObj', 'SFSObject', 'New', 'OnCreate']
+000 L14 TEST A=1 B=0 C=1 Bx=1
+001 L14 JMP A=0 sBx=7 target=9
+002 L15 GETTABUP A=2 B=R[0] C=K[1]='SFSObject'
+003 L15 GETTABLE A=2 B=R[2] C=K[2]='New'
+004 L15 CALL A=2 B=1 C=2 Bx=514
+005 L15 SETTABLE R[0][K[0]='sfsObj'] <- R[2]
+006 L16 SELF A=2 B=R[0] C=K[3]='OnCreate'
+007 L16 VARARG A=4 B=0 C=0 Bx=0
+008 L16 CALL A=2 B=0 C=1 Bx=1
+009 L18 RETURN A=0 B=1 C=0 Bx=512
+
+### Net/SFSBaseMessage.luac :: OnCreate root/child[3] [20, 21]
+constants= []
+000 L21 RETURN A=0 B=1 C=0 Bx=512
+
+### Net/SFSBaseMessage.luac :: HandleMessage root/child[4] [23, 24]
+constants= []
+000 L24 RETURN A=0 B=1 C=0 Bx=512
+
+### Net/SFSBaseMessage.luac :: ToBinary root/child[6] [29, 31]
+constants= ['sfsObj', 'ToBinary']
+000 L30 GETTABLE A=1 B=R[0] C=K[0]='sfsObj'
+001 L30 SELF A=1 B=R[1] C=K[1]='ToBinary'
+002 L30 TAILCALL A=1 B=2 C=0 Bx=1024
+003 L30 RETURN A=1 B=0 C=0 Bx=0
+004 L31 RETURN A=0 B=1 C=0 Bx=512

@@ -118,7 +118,46 @@ internal sealed class CurrentClientMap317ActionProvider : Map317.IMapActionProvi
         IReadOnlyList<JsonElement> rows,
         CancellationToken cancellationToken = default) =>
         ValueTask.FromException<IReadOnlyList<JsonElement>>(
-            ProviderUnavailable("current-client Ghost plunder preparation provider is unavailable"));
+            ProviderUnavailable(
+                "current-client Ghost plunder preparation remains unavailable because " +
+                "GhostReconSteal terminal response identity is not source-proven"));
+
+
+    internal static IReadOnlyList<JsonElement> PrepareGhostPlunderRows(IReadOnlyList<JsonElement> rows)
+    {
+        var prepared = new JsonElement[rows.Count];
+        for (int index = 0; index < rows.Count; index++)
+        {
+            JsonElement row = rows[index];
+            string uuid = ReadText(row, "uuid");
+            if (!IsPositiveDecimal(uuid))
+                throw new InvalidDataException("Ghost plunder row contains invalid task UUID.");
+
+            long ownerServer = ReadInteger(row, "ownerServer");
+            long completionTime = ReadInteger(row, "completionTime");
+            long protectSeconds = ReadInteger(row, "protectTime");
+            long plunderAt = ReadInteger(row, "plunderAt");
+            long taskExpireTime = ReadInteger(row, "taskExpireTime");
+            long stealListCount = ReadInteger(row, "stealListCount");
+            long stealMaxTimes = ReadInteger(row, "stealMaxTimes");
+            long stolenCount = ReadInteger(row, "stolenCount");
+            long maxStealCount = ReadInteger(row, "maxStealCount");
+
+            if (ownerServer is < 1 or > 99999 || completionTime <= 0 || protectSeconds < 0 ||
+                taskExpireTime <= 0 || stealListCount < 0 || stealMaxTimes < 0 ||
+                stolenCount != stealListCount || maxStealCount != stealMaxTimes)
+            {
+                throw new InvalidDataException("Ghost plunder row is not a source-backed current-v22 task projection.");
+            }
+
+            long earliestPlunderAt = checked(completionTime + protectSeconds * 1000L);
+            if (plunderAt < earliestPlunderAt || plunderAt >= taskExpireTime)
+                throw new InvalidDataException("Ghost plunder row contains invalid protection/expiry timing.");
+
+            prepared[index] = row.Clone();
+        }
+        return prepared;
+    }
 
     public async ValueTask<Map317.MapPlunderServerDayProviderResult?> GetMapPlunderServerDayStartAsync(
         CancellationToken cancellationToken = default)
@@ -368,6 +407,9 @@ internal sealed class CurrentClientMap317ActionProvider : Map317.IMapActionProvi
     }
 
     private static long ReadInteger(JsonElement row, string name) => ReadNullableInteger(row, name) ?? 0;
+
+    private static bool IsPositiveDecimal(string value) =>
+        value.Length > 0 && value.Any(ch => ch is >= '1' and <= '9') && value.All(ch => ch is >= '0' and <= '9');
 
     private static long? ReadNullableInteger(JsonElement row, string name)
     {
