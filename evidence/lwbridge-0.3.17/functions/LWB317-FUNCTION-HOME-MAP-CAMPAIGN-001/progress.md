@@ -1,5 +1,21 @@
 # Home/Map feature campaign progress
 
+RECOVERY-003 worker delivery, 2026-10-07: **AWAITING_REVIEW** at `d90f764aa2a721e6bf26952a81fb1a6161bec0d4`.
+R3-01/02 exact shared-runtime ownership, R3-03 committed Stop lifetime, R3-04
+global Auto Launch rollback ownership and R3-05 Auto Scan hydration rebasing are
+corrected. Fresh mounted EN/light attempt 5 and JA/dark narrow attempt 1 both pass
+with `externalGameActions=0`, zero unexpected complete-session browser issues and
+clean isolated shutdown. Attempts 1-4 remain preserved as new negative integration
+history; the lead's five original negatives are unchanged.
+
+Final exact-source focused native rerun passes the checks build (0 warnings/errors)
+and profile owner, Map native boundary, Home lifecycle, Map Auto, canonical Map,
+restart and root-selection flags. Canonical frontend check/build/package and Release
+Desktop build pass; reference EXE and ten-file archive integrity match. Twelve
+failed-attempt task temp roots were removed by exact task prefix and post-cleanup
+process/root inventory is empty. See `recovery-003-2026-10-07/README.md` and
+`checks.md`. Project-lead acceptance remains pending; no LIVE_PROVEN upgrade.
+
 RECOVERY-002 worker delivery, 2026-10-07: **AWAITING_REVIEW**. The lead's RECOVERY-001 findings have been corrected through three sequential checkpoints: 7586c425 closes unsafe shared-runtime cleanup and active owner/picker isolation; 5d3ba448 closes latest-status/global Auto Launch and Auto hydration/error ownership; b2e6089f closes run-scoped Map capture/lease lifetime, missing native Auto/plunder/DTO cases and fresh whole-session packaged evidence. The isolated native execution gate is now closed; it is not a live-game permission.
 
 Fresh current Release proofs are recovery-002-2026-10-06/package-en-light.json/.png and package-ja-dark-narrow.json/.png, plus their real isolated XLSX exports. Both report externalGameActions 0, zero unexpected browser issues across reload generations and complete isolated shutdown cleanup. The JA proof measures 900x720 and is actually Japanese/dark. Attempts 1-10 and all prior lead counterexamples remain preserved as negative history. See recovery-002-2026-10-06/README.md, checks.md and operation-matrix.md. Project-lead acceptance remains pending; no LIVE_PROVEN status or whole-clone/live parity claim is made.

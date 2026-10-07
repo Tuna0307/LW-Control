@@ -24,3 +24,19 @@ implementation policy, not an original-service protocol claim.
 Checkpoint A closes native ownership/Stop; B closes frontend rollback/semantic
 rebase; C proves actual mounted packaged controls and preserves session issues
 and cleanup. Worker delivery remains AWAITING_REVIEW; project lead accepts.
+
+## Final coordinator integration
+
+Coordinator integration completed through implementation/proof checkpoint
+`d90f764aa2a721e6bf26952a81fb1a6161bec0d4`. Checkpoint A is `c4f71437`,
+checkpoint B is `f50f04d5`, and mounted production-handler/native-boundary
+coverage begins at `a03de1d5`. Subsequent proof-only corrections
+`0199fba2`, `8b578f0d`, `453c9440`, and `d90f764a` align the expanded
+mounted sequence with the actual profile/global state it creates and serialize its
+real theme control; production ownership behavior is unchanged by those proof fixes.
+
+Corrected mounted evidence is EN/light attempt 5 and JA/dark narrow attempt 1.
+EN attempts 1-4 remain immutable negative integration history. Final focused native,
+frontend/package, integrity and cleanup outputs are in `checkpoint-c/`; the exact
+task temp prefix is clean and no LastWar/LWBridge process remains. Worker status is
+AWAITING_REVIEW; only the project lead can change campaign acceptance.

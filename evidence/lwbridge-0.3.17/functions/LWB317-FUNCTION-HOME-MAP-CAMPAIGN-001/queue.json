@@ -1,11 +1,11 @@
 {
   "campaign": "LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001",
-  "status": "CHANGES_REQUIRED",
+  "status": "AWAITING_REVIEW",
   "leadReviewedHead": "59d3cde5192f03d39ae01580e05d1a6249158b20",
   "leadReview": "docs/reviews/2026-10-07-LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001-RECOVERY-002-LEAD.md",
   "activeCorrection": "docs/work-items/LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001-RECOVERY-003.md",
-  "nativeExecutionGate": "Named revised tests are isolated/offline only; production contended-write/delete and Stop ownership need correction. No live execution authorized.",
-  "milestoneStateNote": "RECOVERY-002 historical worker completion is preserved. Lead independently passed nine flags and reproduced five new edge cases; RECOVERY-003 is active.",
+  "nativeExecutionGate": "RECOVERY-003 named revised tests and mounted packages pass under explicit isolated/offline roots; no live execution is authorized.",
+  "milestoneStateNote": "RECOVERY-003 worker corrected R3-01 through R3-05 and produced fresh corrected mounted EN/light and JA/dark narrow proof. Historical lead negatives remain immutable; project-lead acceptance is pending.",
   "assignedAt": "2026-10-06",
   "authority": "docs/work-items/LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001.md",
   "policy": "Continue ready milestones automatically; checkpoint a blocked branch and advance independent work. No live game actions assigned.",
@@ -238,7 +238,7 @@
       "continuation": null
     }
   ],
-  "currentWorkerDelivery": "b2e6089f4f0a99be53087482f04a240ac59d22a4",
+  "currentWorkerDelivery": "d90f764aa2a721e6bf26952a81fb1a6161bec0d4",
   "recovery002": {
     "state": "AWAITING_REVIEW",
     "date": "2026-10-07",
@@ -263,5 +263,45 @@
       "No live Last War lifecycle, scan, movement, combat, updater, owner-installation or protected-service action was executed"
     ],
     "continuation": "Project-lead review of the RECOVERY-002 checkpoint chain and fresh isolated proof; no additional worker implementation unless review returns a concrete finding."
+  },
+  "leadAcceptance": "PENDING",
+  "recovery003": {
+    "state": "AWAITING_REVIEW",
+    "date": "2026-10-07",
+    "startingCheckpoint": "138ea26469b7a35c0758198c98f8c44f352037b0",
+    "implementationProofCheckpoint": "d90f764aa2a721e6bf26952a81fb1a6161bec0d4",
+    "checkpoints": [
+      "c4f71437",
+      "f50f04d5",
+      "a03de1d5",
+      "0199fba2",
+      "8b578f0d",
+      "453c9440",
+      "d90f764a"
+    ],
+    "correctedFindings": [
+      "R3-01",
+      "R3-02",
+      "R3-03",
+      "R3-04",
+      "R3-05"
+    ],
+    "proofRoot": "recovery-003-2026-10-07",
+    "checks": "recovery-003-2026-10-07/checks.md",
+    "closeout": "recovery-003-2026-10-07/README.md",
+    "packageProofs": [
+      "recovery-003-2026-10-07/package-en-light-attempt5.json",
+      "recovery-003-2026-10-07/package-ja-dark-narrow-attempt1.json"
+    ],
+    "historicalLeadNegativeEvidencePreserved": true,
+    "recovery003FailedPackageAttemptsPreserved": true,
+    "liveProvenUpgrade": false,
+    "externalLimits": [
+      "Treasure claim/status protected/current-client provider action not executed",
+      "Ghost plunder preparation protected/current-client provider action not executed",
+      "Positive current Railway/Ghost/Treasure population remains live-state gated",
+      "No live Last War lifecycle, scan, movement, combat, updater, owner-installation or protected-service action was executed"
+    ],
+    "continuation": "Project-lead review of the RECOVERY-003 checkpoint chain and corrected isolated proof; no additional worker implementation unless review returns a concrete finding."
   }
 }

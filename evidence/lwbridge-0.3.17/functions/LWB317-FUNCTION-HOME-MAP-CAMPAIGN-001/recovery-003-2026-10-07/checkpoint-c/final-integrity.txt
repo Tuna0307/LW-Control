@@ -1,0 +1,23 @@
+﻿HEAD=d90f764aa2a721e6bf26952a81fb1a6161bec0d4
+BRANCH=research/offline-controller
+REFERENCE_EXE_SHA256=4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783
+LWB317_LEGACY_WIP_ARCHIVE_OK exactFiles=10
+package-en-light-attempt5.json_SHA256=C73DAF42D1BC5611B0EF782E08A8D31525A98CF5631B1320BB60F55F4BF1F933
+package-ja-dark-narrow-attempt1.json_SHA256=4BC545F8696B34779788472BB13D8680E910A08623B08265D220D5433DC54191
+POST_PROCESS_INVENTORY=none
+TASK_TEMP_ROOTS_REMAIN=12
+C:\Users\chimw\AppData\Local\Temp\lwb317-home-map-campaign-013e4a468009402b9bf403a995e91dd4
+C:\Users\chimw\AppData\Local\Temp\lwb317-home-map-campaign-358f74354980492784347a38642e053b
+C:\Users\chimw\AppData\Local\Temp\lwb317-home-map-campaign-5003be69b9634ba99ec892c5e5d74e2c
+C:\Users\chimw\AppData\Local\Temp\lwb317-home-map-campaign-81016083281343eb9dc1e4bb2ee86f05
+C:\Users\chimw\AppData\Local\Temp\lwb317-home-map-campaign-86bae4df99d14902837388b9887137b4
+C:\Users\chimw\AppData\Local\Temp\lwb317-home-map-campaign-a9917030a1654d1594eb3d2db79bcef8
+C:\Users\chimw\AppData\Local\Temp\lwb317-home-map-campaign-af64047786764200a1c120b8cb847765
+C:\Users\chimw\AppData\Local\Temp\lwb317-home-map-campaign-cd8ffc1dc90845bcaa5c0a5666c0efff
+C:\Users\chimw\AppData\Local\Temp\lwb317-home-map-campaign-dab98ba5fb4a4f5cb4e5c79a0450a588
+C:\Users\chimw\AppData\Local\Temp\lwb317-home-map-campaign-df3dd86fab7147dc8e317a9852c63634
+C:\Users\chimw\AppData\Local\Temp\lwb317-home-map-campaign-f975b09a59e245ec9aaf4960901c2513
+C:\Users\chimw\AppData\Local\Temp\lwb317-home-map-campaign-fcbae921eb634b54a4a998b24de236b5
+warning: in the working copy of 'evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001/recovery-003-2026-10-07/checkpoint-a/home-isolated-checks.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001/recovery-003-2026-10-07/checkpoint-a/home-ownership-design.md', LF will be replaced by CRLF the next time Git touches it
+GIT_DIFF_CHECK=PASS

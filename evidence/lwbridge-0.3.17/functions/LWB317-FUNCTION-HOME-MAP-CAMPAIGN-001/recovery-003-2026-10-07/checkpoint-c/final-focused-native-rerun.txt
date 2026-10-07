@@ -1,0 +1,131 @@
+﻿=== build ===
+  LWBridge.Map-0.3.17 -> C:\Users\chimw\OneDrive\Desktop\Github\LW-Control\src\LWBridge.Map-0.3.17\bin\Release\net10.0-windows10.0.17763.0\LWBridge.Map_0_3_17.dll
+  LWBridge.GamePipeAdapter -> C:\Users\chimw\OneDrive\Desktop\Github\LW-Control\src\LWBridge.GamePipeAdapter\bin\Release\netstandard2.0\LWBridge.GamePipeAdapter.dll
+  LWBridge.Desktop -> C:\Users\chimw\OneDrive\Desktop\Github\LW-Control\src\LWBridge.Desktop\bin\Release\net10.0-windows10.0.17763.0\LWBridge.Desktop.dll
+  LWBridge.Desktop.Checks -> C:\Users\chimw\OneDrive\Desktop\Github\LW-Control\tests\LWBridge.Desktop.Checks\bin\Release\net10.0-windows10.0.17763.0\LWBridge.Desktop.Checks.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:12.39
+=== --profile-runtime-owner-check ===
+{"ok":true,"check":"profile-runtime-owner"}
+=== --map317-native-boundary-check ===
+{"ok":true,"check":"map317-native-boundary"}
+=== --home-campaign-lifecycle-check ===
+{
+  "ok": true,
+  "acceptanceCase": "LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001-home-lifecycle-bcd",
+  "scope": "isolated OverviewLifecycleService/LWBridgeBackend hooks only; no real Last War, updater, original service, or live provider action",
+  "pendingRepeated": {
+    "pendingPhase": "starting",
+    "pendingInstanceId": "5ff085469a8546a5997164936afb4bf2",
+    "repeatedPendingError": "GAME_OPERATION_IN_PROGRESS",
+    "duplicateRunningError": "GAME_RUNNING",
+    "helperStartCalls": 1,
+    "helperStopCalls": 1,
+    "finalPhase": "stopped"
+  },
+  "closeDuringStart": {
+    "error": "GAME_OPERATION_CANCELLED",
+    "correlatedCancellationMarker": true,
+    "helperStartCalls": 1,
+    "compensatingStopCalls": 0,
+    "finalPhase": "stopped",
+    "ownsInstance": false
+  },
+  "staleIdentityAndStop": {
+    "foreignStopError": "INSTANCE_NOT_OWNED",
+    "stalePhase": "error",
+    "staleError": "GAME_EXITED_RESTORE_REQUIRED",
+    "staleInstancePreserved": true,
+    "exactStopCalls": 1,
+    "exactStopIdentityMatched": true,
+    "finalPhase": "stopped"
+  },
+  "nativeRejectionRetry": {
+    "firstError": "BRIDGE_START_TIMEOUT",
+    "failedPhase": "error",
+    "failedOwnsPid": false,
+    "retryUsedFreshIdentity": true,
+    "helperStartCalls": 2,
+    "helperStopCalls": 1
+  },
+  "profileMismatch": {
+    "foreignStart": "PROFILE_SCOPE_MISMATCH",
+    "missingStart": "PROFILE_REQUIRED",
+    "foreignStatus": "PROFILE_RUNTIME_UNAVAILABLE",
+    "lifecycleHelperCalls": 0
+  },
+  "recoveryAndShutdown": {
+    "firstSession": "00fbfb1e43b8446daecca438ae5011c1",
+    "recoveredSession": "917d0134781341f6b1ea7c2bcf934a4e",
+    "successfulRecoveryUsedFreshSession": true,
+    "successfulRecoveryState": "succeeded",
+    "startsBeforeShutdown": 3,
+    "cleanupStopCalls": 3,
+    "shutdownRecoveryState": "idle",
+    "runtimeManagedAfterShutdown": false,
+    "startsAfterShutdownBeforeFreshHost": 3,
+    "persistedDesiredRunningObservedByFreshHost": true,
+    "freshHostStartupReconcileStartDelta": 1,
+    "freshHostFinalDesiredRunning": false
+  }
+}
+=== --map-auto-scan-campaign-check ===
+{"ok":true,"check":"map-auto-scan-campaign"}
+=== --map-campaign-canonical-check ===
+{
+  "ok": true,
+  "check": "map-campaign-canonical",
+  "mapData": {
+    "profileIsolation": true,
+    "stagedEightKindPublish": true,
+    "persistedReopen": true,
+    "queryFilterSortPage": true,
+    "options": true,
+    "playerMarks": true,
+    "freshProcessServerRehydration": true,
+    "freshProcessClear": true,
+    "destructiveClearFreshAuthorization": true
+  },
+  "cityExport": {
+    "actualXlsxPath": true,
+    "zipPartsVerified": true,
+    "representativeValuesVerified": true,
+    "multiPage205Rows": true,
+    "unicodeAndLargeUid": true,
+    "missingFields": true,
+    "secondServerIsolation": true,
+    "emptyExport": true,
+    "writeFailure": true,
+    "dialogCancellationExecuted": false,
+    "dialogCancellationGap": "native save-dialog cancellation is owned above Map317 MapExporter"
+  },
+  "plunder": {
+    "scheduledDuplicateAdmission": true,
+    "runningDuplicateRejected": true,
+    "durableRestart": true,
+    "restartReconciled": true,
+    "retry": true,
+    "cancel": true,
+    "clear": true,
+    "providerMode": "inert-local",
+    "externalProviderCalls": 0
+  },
+  "treasure": {
+    "cachedStateOverlay": true,
+    "seasonSupplyList": true,
+    "claimOrStatusExecuted": false
+  },
+  "blockers": {
+    "treasureClaimStatus": "requires the protected/current-client action provider and is not executed here",
+    "ghostExecution": "Ghost plunder preparation requires IMapActionProvider.PrepareGhostPlunderTasksAsync and is not executed here",
+    "nativeDialogCancel": "save-dialog cancellation belongs to the Desktop window host above Map317 exporter"
+  }
+}
+=== --map317-restart-check ===
+{"ok":true,"check":"map317-restart"}
+=== --game-root-select-check ===
+{"ok":true,"check":"game-root-select"}

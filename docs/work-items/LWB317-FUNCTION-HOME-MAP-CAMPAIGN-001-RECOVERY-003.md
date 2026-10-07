@@ -1,6 +1,6 @@
 # LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001-RECOVERY-003
 
-Status: **ASSIGNED**, lead 2026-10-07. RECOVERY-002: **CHANGES_REQUIRED**.
+Status: **AWAITING_REVIEW**, worker delivery 2026-10-07. RECOVERY-002 lead review remains historical authority until a new lead disposition.
 Complete only five independently reviewed edge-case corrections and their inverse
 proofs. Keep the substantial completed Home/Map work. Three medium checkpoints;
 continue ready assigned work without stopping after an inventory.
@@ -89,3 +89,45 @@ remaining dependencies. Lead acceptance is separate. This task remains offline/
 inert: no live Last War launch/stop/scan/jump/claim/share, updater, account/installation
 mutation, protected-service access/auth bypass, synthetic product success or fallback.
 No whole-clone, live-feature or protected-original pixel parity declaration.
+
+
+## Worker delivery — 2026-10-07
+
+All five assigned findings are corrected in the bounded offline/inert scope:
+
+- R3-01 / R3-02: `c4f71437` — exact shared runtime write/delete ownership.
+- R3-03: `c4f71437` — committed Stop terminalizes its exact capture independently
+  of retiring caller cancellation while retaining run/lease ownership.
+- R3-04 / R3-05: `f50f04d5` — confirmed global Auto Launch rollback ownership and
+  semantic Auto Scan array rebasing over asynchronous hydration.
+- Mounted production-handler/native-boundary coverage: `a03de1d5`.
+- Package-proof integration corrections: `0199fba2`, `8b578f0d`,
+  `453c9440`, `d90f764a`. These align the extended proof with state created
+  through real controls and serialize its deliberate theme double-toggle; no
+  production ownership fence or browser issue accounting was weakened.
+
+Corrected package evidence is
+`evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001/recovery-003-2026-10-07/package-en-light-attempt5.json/.png`
+and
+`package-ja-dark-narrow-attempt1.json/.png`, with matching rollback/rebase
+screenshots and XLSX exports. Both are source-bound to product version
+`1.0.0+d90f764aa2a721e6bf26952a81fb1a6161bec0d4`, report `externalGameActions=0`,
+`browserIssues.unexpectedCount=0`, and close with zero active requests/
+subscriptions, detached runtime events, removed isolated root and no cleanup
+failures. EN measures 1120x720 light; JA measures 900x720 dark.
+
+The lead's five original negatives are unchanged. New RECOVERY-003 EN attempts 1-4
+are also retained as immutable failure history rather than repinned or deleted.
+Final focused native rerun, canonical frontend/build/package outputs, integrity,
+hashes and failed-attempt temp-root cleanup are recorded in
+`recovery-003-2026-10-07/checks.md`, `README.md` and `checkpoint-c/`.
+
+Remaining limits are unchanged: Treasure claim/status and Ghost preparation require
+protected/current-client providers; positive Railway/Ghost/Treasure population is
+live-state gated; no live Last War/updater/protected-service/account/installation
+action was authorized or executed. No LIVE_PROVEN or whole-clone acceptance is
+claimed.
+
+Exact continuation: project-lead review of the scoped commit chain and corrected
+packets. Do not continue worker implementation unless review returns a concrete
+finding. Protected/live cases require a separately authorized task.
