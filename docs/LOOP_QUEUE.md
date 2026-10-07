@@ -10,6 +10,11 @@ compatibility, session ownership and restoration gates precede launch. All unrel
 live/gameplay/protected-original actions remain unassigned. Other workers work
 alone without subagents/GPT Work/Codex. A later owner pause immediately prevails.
 
+Latest owner clarification: project pilot sessions may be inherited/Stopped/closed/
+relaunched even if started by the owner/another participant. The AI may take mouse/
+focus without another permission question. Physical input and transient MCP
+USER_CONTROL are not reasons to close out ownership-blocked. See current AGENTS.md.
+
 | Campaign / work item | State | File | Notes |
 |---|---|---|---|
 | LWB317-FUNCTION-ORIGINAL-LUA-RECOVERY-006 | ACCEPTED BOUNDED / PLAINTEXT BLOCKED | `docs/work-items/LWB317-FUNCTION-ORIGINAL-LUA-RECOVERY-006.md` | Encrypted resources/loader recovered; matching original envelope/key inputs unavailable; no decrypted controller bodies |
@@ -18,7 +23,7 @@ alone without subagents/GPT Work/Codex. A later owner pause immediately prevails
 | LWB317-FUNCTION-MAP-PROVIDER-SEMANTICS-003 | CHANGES_REQUIRED | `docs/work-items/LWB317-FUNCTION-MAP-PROVIDER-SEMANTICS-003.md` | LR-GHOST-EXPIRY-005 reproduced through actual packaged helper; correction assigned separately; semantic toolchain/safety proof credited |
 | LWB317-FUNCTION-HOME-MAP-DEEP-RECOVERY-002 | AWAITING_REVIEW | `docs/work-items/LWB317-FUNCTION-HOME-MAP-DEEP-RECOVERY-002.md` | Worker delivery a7c4a03c; lead independently checked provenance/bytecode availability only; comprehensive A-H acceptance remains open |
 | LWB317-FUNCTION-HOME-MAP-OFFLINE-HOST-CONTRACT-001 | ACCEPTED OFFLINE | `docs/work-items/LWB317-FUNCTION-HOME-MAP-OFFLINE-HOST-CONTRACT-001.md` | Lead review of f970b614 with precise reader units/BOM erratum; real xLua/live witnesses remain UNKNOWN |
-| LWB317-FUNCTION-HOME-MAP-LIVE-PILOT-001 | RESUMED / ASSIGNED FOR OWNER RELAY | `docs/work-items/LWB317-FUNCTION-HOME-MAP-LIVE-PILOT-001.md` | Owner explicitly resumed; first implement/prove isolated normal real-provider root, then bounded owned Home/City/Resource/Stop/restoration |
+| LWB317-FUNCTION-HOME-MAP-LIVE-PILOT-001 | CONTINUE / OWNER SESSION HANDED OVER | `docs/work-items/LWB317-FUNCTION-HOME-MAP-LIVE-PILOT-001.md` | A worker-delivered at 0ffb049c; preserve WIP, reconcile pending restoration, finish actual Home/City/Resource/Stop and cleanup; owner-started pilot sessions authorized |
 | LWB317-UI-COMPLETE-001 | READY | `docs/work-items/LWB317-UI-COMPLETE-001.md` | Owner manually dispatches a fresh worker chat; full shell/eight-page UI coverage with Home/Map first; milestone checkpoints, no fixed time stop; no new game/native lifecycle work |
 | LWB317-UI-CAMPAIGN-8H | ACCEPTED | `docs/LOOP_CAMPAIGN_8H.md` | Static UI recovery accepted; direct original post-auth pixel validation remains blocked by the original auth boundary |
 | LWB317-COMPAT-MAP-V22-001 | COMPLETE | `docs/reviews/2026-09-30-LWB317-COMPAT-MAP-V22-001.md` | Installed v22 Map compatibility statically revalidated; no production Map change required |

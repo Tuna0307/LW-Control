@@ -1,6 +1,19 @@
 # LWB317-FUNCTION-HOME-MAP-LIVE-PILOT-001
 
 Status: **RESUMED / ASSIGNED FOR MANUAL OWNER RELAY**, 2026-10-07.
+
+Latest continuation after worker delivery `0ffb049c6fae7a06881159b537dfe0d296fc743a`:
+the owner explicitly hands over pilot sessions even if the worker did not start
+them and permits taking desktop focus/mouse without asking again. Reuse/Stop/close/
+relaunch such sessions as needed. USER_CONTROL/CONTROL_PREEMPTED is transient;
+wait the reported interval and continue, rather than returning ownership-blocked.
+Read `docs/owner-directions/2026-10-07-LIVE-PILOT-SESSION-HANDOVER.md` and the
+`LWB317-FUNCTION-HOME-MAP-LIVE-PILOT-001-CONTINUE-PROMPT.txt` beside this item.
+Lead inspection currently finds no LastWar/LWBridge process, but the known candidate
+script package and recovery journal remain. Recheck; reconcile restoration through
+the existing recovery path before a fresh launch. Preserve pending Lua/test WIP.
+Checkpoint A and the descendant live fixes are not independently accepted merely
+by this policy clarification. B/C still require actual fresh live proof.
 The owner explicitly answered "Resume bounded live testing and desktop control".
 This is the lead reissue of the pilot. RECOVERY-003 and assigned 005 correction
 are already lead-accepted; preserve them. Begin with preflight and isolated root
@@ -43,8 +56,10 @@ RECOVERY-003 identity/Stop/global preference/semantic rebase behavior.
 
 ## 1. Preflight and restoration checkpoint
 
-- Inventory LastWar/LWBridge processes, executable paths and session ownership.
-  Never stop, reuse, alter or repurpose unexplained or owner-operated sessions.
+- Inventory LastWar/LWBridge processes, executable paths and session identities.
+  Pilot sessions are explicitly owner-handed-over, including manually started ones.
+  They may be reused, stopped, closed or relaunched; confirm actual PID/start time
+  and executable instead of relying on historical PID numbers. Preserve provenance.
 - Identify the installed current client and validate it against actual local
   bytecode/artifact evidence and current compatibility admission. Unknown builds
   are investigated first; never bypass the compatibility guard.
@@ -63,8 +78,8 @@ RECOVERY-003 identity/Stop/global preference/semantic rebase behavior.
 
 ## 2. Prepared live slice, only after explicit owner resumption and preflight
 
-When the owner explicitly resumes live work and the lead reissues this assignment,
-its bounded scope requires and authorizes one assistant-owned
+The owner has resumed and handed over pilot sessions; this lead continuation
+requires and authorizes one assistant-controlled
 Last War launch through canonical Home, the normal city-to-world view transition
 needed for same-server map observation, one Manual City/Resource scan, its Stop,
 local filtering/pagination/export/reopen checks, and closing only that owned session.

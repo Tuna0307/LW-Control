@@ -1,5 +1,13 @@
 # Windows-MCP and Remote Desktop Commander
 
+Latest owner clarification, 2026-10-07: the pilot AI may take mouse/focus while the
+owner uses the computer and inherit project pilot sessions, without asking again.
+USER_CONTROL/CONTROL_PREEMPTED does not revoke that permission: wait the actual
+reported interval, reobserve and retry/continue. Do not disable tool control guards
+or terminate the assignment merely because physical input occurred. An explicit
+owner pause still stops desktop work. This supersedes older owner-activity-as-final-
+blocker interpretations below.
+
 Owner resumption, 2026-10-07: Windows-MCP and bounded live desktop control are
 permitted for the lead-reissued HOME-MAP-LIVE-PILOT-001. The older hold below is
 superseded only for that task. Fresh lead discovery lists 21 tools, ControlStatus

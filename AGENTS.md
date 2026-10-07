@@ -2,6 +2,24 @@
 
 Read this file before doing any work.
 
+Owner clarification, 2026-10-07 (latest): the owner explicitly authorizes the
+assigned Home/Map pilot AI to take desktop focus/mouse control while the owner is
+using the computer, without asking again. Mouse/keyboard activity alone is not an
+owner pause or revocation. The owner also hands over Last War/LWBridge sessions
+used for this pilot even if started manually or by another project participant:
+the worker may inspect, reuse, Stop, close and relaunch them as needed for the
+assigned pilot. This supersedes the older requirement to abandon the pilot or wait
+for the owner to close such a session merely because the worker did not launch it.
+Confirm current executable/session identities to avoid stale PID mistakes; preserve
+historical provenance rather than retroactively claiming who launched/scanned.
+Do not confuse this permission with the program's run/lease identity checks, which
+remain required for correct Stop and restoration. Windows-MCP USER_CONTROL or
+CONTROL_PREEMPTED is a transient tool state: wait the reported interval, reobserve
+and continue; it is not a final ownership blocker or request for another approval.
+Use complementary available tools within scope; do not disable control guards.
+An explicit owner stop/pause still prevails. Existing pilot scope and evidence,
+data-preservation and restoration requirements remain.
+
 Owner resumption, 2026-10-07 (current): the owner explicitly answered
 "Resume bounded live testing and desktop control" and permits Windows-MCP.
 The previous hold is lifted only for the lead-reissued
@@ -9,8 +27,8 @@ The previous hold is lifted only for the lead-reissued
 owned Home launch/connect, current-server Manual City/Resource observation,
 Stop/local persistence/export/reopen and owned-session close/restoration.
 The pilot's ownership, isolation, compatibility and backup gates must pass before
-game launch or installation mutation. Inspect existing sessions; never repurpose
-an owner session. No unrelated gameplay, claims, plunder, spending, recurring Auto
+game launch or installation mutation. Inspect existing sessions; pilot sessions
+are owner-authorized for handover under the clarification above. No unrelated gameplay, claims, plunder, spending, recurring Auto
 execution, cross-server movement, updater or protected-original service access is
 authorized. Respect Windows-MCP user takeover/control gates. Other worker AIs
 remain solo and use manual owner relay. A later owner pause immediately prevails.
@@ -198,8 +216,8 @@ For UI capture work:
 Before any future live test:
 
 - inspect existing Last War/LWBridge processes;
-- treat unexplained existing game sessions as owner activity;
-- do not close or repurpose an owner session;
+- treat unexplained existing game sessions as owner activity unless explicitly handed over;
+- the 2026-10-07 owner clarification hands over project pilot sessions, including manually launched ones; do not apply the older no-reuse rule to those sessions;
 - prefer assistant-owned sessions for disruptive tests;
 - fail closed if session ownership is ambiguous.
 

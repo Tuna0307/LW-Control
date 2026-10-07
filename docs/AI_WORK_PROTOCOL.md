@@ -2,6 +2,15 @@
 
 This project is expected to use multiple AIs. The main project lead controls scope and integrates results.
 
+Latest owner clarification, 2026-10-07: pilot sessions are explicitly handed over
+even when launched by the owner/another project participant. The assigned worker
+may take desktop focus/mouse and reuse/Stop/close/relaunch them without another
+permission question. Physical input is not a pause instruction. A transient
+Windows-MCP USER_CONTROL/CONTROL_PREEMPTED response requires reported-interval
+waiting, fresh observation and continuation, not final delivery as ownership-blocked.
+Preserve process/run identity correctness, session provenance, data and restoration.
+An explicit owner pause still prevails. See current AGENTS.md.
+
 Owner resumption, 2026-10-07: bounded live testing and desktop control are now
 explicitly permitted for the lead-reissued HOME-MAP-LIVE-PILOT-001 only. Follow
 its preflight/isolation/restoration gates and current AGENTS.md. The older hold

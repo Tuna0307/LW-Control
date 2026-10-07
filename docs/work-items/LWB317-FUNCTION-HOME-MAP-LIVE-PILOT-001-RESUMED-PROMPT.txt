@@ -1,5 +1,10 @@
 You are the solo worker for LWB317-FUNCTION-HOME-MAP-LIVE-PILOT-001.
 
+Latest continuation: use LWB317-FUNCTION-HOME-MAP-LIVE-PILOT-001-CONTINUE-PROMPT.txt
+and current owner session handover directions. The owner authorizes using/closing
+pilot sessions even when manually started, and taking mouse/focus without asking
+again. Older no-owner-session-reuse wording below is superseded for this pilot.
+
 Repository: C:\Users\chimw\OneDrive\Desktop\Github\LW-Control
 Branch: research/offline-controller
 Start from the latest descendant of dfc7b1dcad3b82842527d460cc07e7caa0d35c58
@@ -27,7 +32,7 @@ native inverses must pass. Do not launch the clone against owner defaults.
 B. One bounded actual connected slice.
 Inspect real Desktop Commander and Windows-MCP schemas. Use them together; respect
 USER_CONTROL and reobserve after actions. Prefer the free left display when usable.
-Re-inventory game sessions. Launch only an assistant-owned session via canonical
+Re-inventory game sessions. Launch or inherit an owner-authorized pilot session via canonical
 Home. Prove external xLua binding and same-owner readiness first, then current-server
 Manual Resource and City acquisition through real canonical Map controls. Trace
 run/capture/staging/publication and actual rows; compare bounded representatives
@@ -48,8 +53,8 @@ LWBridge 0.3.17; current-client bindings may adapt only with observable equivale
 Original Lua decryption remains input-blocked; this task does not authorize CNG
 private-key extraction, protected-original service access or entitlement bypass.
 No claims/plunder/shares/marches/combat/spending/cross-server movement, recurring
-Auto scans, updater/repair/reinstallation or unrelated features. Never repurpose
-an owner game session. If official login/update is required, hand it to the owner;
+Auto scans, updater/repair/reinstallation or unrelated features. Pilot sessions
+are expressly handed over by the owner. If official login/update is required, hand it to the owner;
 do not automate authentication or bypass the requirement.
 
 Work alone: no subagents, other AI-chat or GPT Work/Codex delegation. Only this

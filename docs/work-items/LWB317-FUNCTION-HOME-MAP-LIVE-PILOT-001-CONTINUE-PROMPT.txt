@@ -1,0 +1,61 @@
+Continue LWB317-FUNCTION-HOME-MAP-LIVE-PILOT-001 from the saved checkpoint.
+
+Repository: C:\Users\chimw\OneDrive\Desktop\Github\LW-Control
+Branch: research/offline-controller
+Delivered checkpoint: 0ffb049c6fae7a06881159b537dfe0d296fc743a
+Use the latest descendant containing the new owner handover instruction.
+Do not reset/discard WIP or restart completed root-isolation work.
+
+Read current AGENTS.md, docs/AI_WORK_PROTOCOL.md, docs/WINDOWS_MCP_SETUP.md,
+docs/owner-directions/2026-10-07-LIVE-PILOT-SESSION-HANDOVER.md,
+the current pilot work item and your saved B/C continuation/evidence.
+
+The owner has explicitly handed over project pilot sessions, including sessions
+started manually or by another project participant. You may use, Stop, close and
+relaunch those sessions for this pilot. You may take desktop focus/mouse while the
+owner is using the computer, without asking again. Physical input is not a pause.
+Do not return blocked merely because you did not originally start the process.
+USER_CONTROL/CONTROL_PREEMPTED is transient: wait the reported interval, reobserve
+and retry/continue; do not disable tool guards. An explicit owner pause still prevails.
+
+Checkpoint A is already delivered: preserve isolated-root real-provider routing.
+Complete the remaining work through three sequential medium checkpoints:
+
+1. Recovery and integration checkpoint.
+Fresh lead inspection finds historical PIDs 63052/40992 gone, but installed script
+data/metadata still match the known candidate and recovery.json remains pending.
+Re-inventory current sessions and exact identities; do not operate on a reused PID.
+Verify the journal and backup hashes. If no game is active, reconcile exact original
+restoration through the existing recovery path before launch. If a pilot session
+is active, the owner authorizes its controlled Stop/close first. Never restore files
+underneath a running game. Record before/after hashes and recovery outcome.
+Review the existing unstaged tools/current_overview_bridge.lua and
+tests/home_runtime_lease_lua_checks.py plus checkpoint-b-attempt-001 evidence and
+descendant commits d2750f21/32d6fa2a/4fbe0c10. Validate relevant WIP against actual
+source/live failures and integrate only justified changes; preserve everything else.
+Do not weaken lease/run fences or fabricate a successful adapter binding.
+
+2. Finish the actual Home/Map pilot.
+Use the isolated root C:\Users\chimw\AppData\Local\Temp\LWB317-LIVE-PILOT-001-root
+and actual canonical Home/Map controls with real providers. Keep Auto execution off.
+Use Desktop Commander and Windows-MCP together after actual schema/target inspection.
+Launch or inherit a validated pilot session; prove current-game xLua binding and
+readiness, then bounded current-server Manual City AND Resource acquisition.
+Record actual run/capture/publication/rows and UI results. Existing City rows do not
+retroactively prove your new scan; Resource count zero is not positive live proof.
+Diagnose/fix/retest concrete in-scope failures and retain every failed attempt.
+
+3. Stop, local persistence and final cleanup.
+Verify real Stop, filter/pagination/export/reopen for the new results, then close
+the pilot-controlled session and prove exact original triplet restoration and
+runtime/lease cleanup. Run affected inverse/Lua/native/frontend/build/package
+checks after source changes. Commit coherent checkpoints, continue all ready work
+without per-checkpoint relay, push and directly verify remote SHA.
+
+Do not ask for permission already granted or invent new approval gates. Preserve
+data/backups, historical provenance and A -> A original behaviour. No unsupported
+success or fallback; incomplete evidence remains incomplete. Remain within the
+assigned Home/City/Resource pilot; do not start unrelated features or original
+protected-service/decryption work. Work alone without subagents/other AI chats.
+Return AWAITING_REVIEW with actual live results, fixed defects, failed attempts,
+restoration proof, commits/checks and exact remaining technical dependencies.
