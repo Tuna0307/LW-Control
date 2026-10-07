@@ -80,6 +80,9 @@ local dispatch_share_runtime = {
 local pipe_runtime = {
     adapterLoaded = false,
     adapterConnect = nil,
+    adapterConnectInvoke = nil,
+    adapterRead = nil,
+    adapterReadInvoke = nil,
     adapterPath = nil,
     adapterActive = false,
     sessionId = nil,
@@ -265,10 +268,19 @@ local function load_pipe_adapter(path)
         if field == nil then error("pipe_adapter_connect_delegate_unavailable") end
         local connect = field:GetValue(nil)
         if connect == nil then error("pipe_adapter_connect_delegate_nil") end
+        local connect_type = safe_get(field, "FieldType")
+        local connect_invoke = connect_type and connect_type:GetMethod("Invoke") or nil
+        if connect_invoke == nil then error("pipe_adapter_connect_invoke_method_unavailable") end
         local read_field = adapter_type:GetField("ReadRuntimeSnapshot", 24)
         if read_field == nil then error("pipe_adapter_runtime_read_delegate_unavailable") end
-        pipe_runtime.adapterRead = read_field:GetValue(nil)
-        if pipe_runtime.adapterRead == nil then error("pipe_adapter_runtime_read_delegate_nil") end
+        local read = read_field:GetValue(nil)
+        if read == nil then error("pipe_adapter_runtime_read_delegate_nil") end
+        local read_type = safe_get(read_field, "FieldType")
+        local read_invoke = read_type and read_type:GetMethod("Invoke") or nil
+        if read_invoke == nil then error("pipe_adapter_runtime_read_invoke_method_unavailable") end
+        pipe_runtime.adapterConnectInvoke = connect_invoke
+        pipe_runtime.adapterRead = read
+        pipe_runtime.adapterReadInvoke = read_invoke
         return connect
     end)
     if not ok_load or connect_or_error == nil then
@@ -367,11 +379,20 @@ local function ensure_pipe_hello(control)
         if type(connect) == "function" then
             return connect(control.controlPipePath, hello, root)
         end
-        local invoke = safe_get(connect, "Invoke")
-        if type(invoke) == "function" then
-            return invoke(connect, control.controlPipePath, hello, root)
+        local invoke = pipe_runtime.adapterConnectInvoke
+        if invoke == nil then error("pipe_adapter_connect_invoke_method_unavailable") end
+        local cs = rawget(_G, "CS")
+        local typeof_fn = rawget(_G, "typeof")
+        local array_type = cs and cs.System and cs.System.Array or nil
+        local object_type = cs and cs.System and cs.System.Object or nil
+        if array_type == nil or object_type == nil or type(typeof_fn) ~= "function" then
+            error("pipe_adapter_connect_reflection_types_unavailable")
         end
-        return connect(control.controlPipePath, hello, root)
+        local arguments = array_type.CreateInstance(typeof_fn(object_type), 3)
+        arguments:SetValue(control.controlPipePath, 0)
+        arguments:SetValue(hello, 1)
+        arguments:SetValue(root, 2)
+        return invoke:Invoke(connect, arguments)
     end)
     if not ok_connect then
         pipe_runtime.state = "error"
@@ -413,9 +434,18 @@ function M.ReadSharedRuntimeMetadata(path)
     if reader ~= nil then
         local ok, result = pcall(function()
             if type(reader) == "function" then return reader(path) end
-            local invoke = safe_get(reader, "Invoke")
-            if type(invoke) == "function" then return invoke(reader, path) end
-            return reader:Invoke(path)
+            local invoke = pipe_runtime.adapterReadInvoke
+            if invoke == nil then error("pipe_adapter_read_invoke_method_unavailable") end
+            local cs = rawget(_G, "CS")
+            local typeof_fn = rawget(_G, "typeof")
+            local array_type = cs and cs.System and cs.System.Array or nil
+            local object_type = cs and cs.System and cs.System.Object or nil
+            if array_type == nil or object_type == nil or type(typeof_fn) ~= "function" then
+                error("pipe_adapter_read_reflection_types_unavailable")
+            end
+            local arguments = array_type.CreateInstance(typeof_fn(object_type), 1)
+            arguments:SetValue(path, 0)
+            return invoke:Invoke(reader, arguments)
         end)
         if not ok then
             pipe_runtime.state = "error"

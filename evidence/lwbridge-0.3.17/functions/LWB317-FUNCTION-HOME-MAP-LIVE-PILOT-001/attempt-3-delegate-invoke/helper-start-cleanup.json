@@ -1,0 +1,13 @@
+{
+  "bridgeVersion": "lwbridge-overview-bridge-1",
+  "launcherCleanup": [],
+  "launcherCleanupError": null,
+  "launcherRootPid": 8556,
+  "mode": "overview_start_cleanup",
+  "ok": true,
+  "ownedGamePid": 34172,
+  "profileId": "lwb317-live-pilot-001",
+  "recordedAtUtc": "2026-10-07T13:31:49Z",
+  "recoveryCleared": true,
+  "sessionId": "ee746cef7c2b4280a8cd6f30bb100b6d"
+}
