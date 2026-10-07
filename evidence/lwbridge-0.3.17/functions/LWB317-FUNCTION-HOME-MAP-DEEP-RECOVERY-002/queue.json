@@ -42,7 +42,7 @@
     },
     {
       "id": "C",
-      "state": "ACTIVE",
+      "state": "COMPLETE",
       "goal": "Recover current-v22 producer mappings and correct projection/ingestion gaps",
       "dependencies": [
         "A"
@@ -59,7 +59,7 @@
     },
     {
       "id": "D",
-      "state": "READY",
+      "state": "ACTIVE",
       "goal": "Recover Treasure claim/status and Ghost preparation adapters",
       "dependencies": [
         "A"
@@ -196,6 +196,23 @@
     "checks": [
       "--map317-dto-matrix-check PASS",
       "--map-campaign-canonical-check PASS"
+    ],
+    "productChanges": false
+  },
+  "checkpointC": {
+    "state": "COMPLETE",
+    "artifacts": [
+      "c-producer-matrix.json",
+      "c-producer-matrix.md",
+      "c-current-runtime-contract.json",
+      "c-current-map-compat.json",
+      "c-v22-module-token-proof.json",
+      "c-v22-dispatch-expiry-hits.json"
+    ],
+    "rawMetadataPrefix": "c-rdl-",
+    "checks": [
+      "current runtime contract PASS",
+      "current map compat PASS"
     ],
     "productChanges": false
   }

@@ -40,3 +40,11 @@ recovered provider boundary and is not inherited from 0.3.1.
 Fresh hash-gated surface/storage inspectors pass; Release all-eight DTO matrix and
 canonical Map campaign pass with externalProviderCalls=0. No B product discrepancy
 was demonstrated.
+
+## C — complete
+
+Fresh current-v22 static recovery maps all eight public Map projections to current
+RDL/Lua producer evidence or an explicitly declared adaptation. The current
+compatibility/runtime contracts pass. The tempting resourceTypeId public-filter and
+Dispatch expiredTime -> taskExpireTime aliases were rejected because the recovered
+public/current semantics do not justify them. No product edit was made.

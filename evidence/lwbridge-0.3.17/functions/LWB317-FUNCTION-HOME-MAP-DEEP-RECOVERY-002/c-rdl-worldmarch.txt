@@ -1,0 +1,1656 @@
+﻿RGMD=0x9a92a4 TypeDef=5828 MethodDef=54483
+TYPE 798: GetFullPushWorldMarchMessage extends BaseMessage
+  FIELD 4060: GetFullPushWorldMarchMessage _instance
+  METHOD 6214 RVA 0xb6519: string GetMsgId()
+  METHOD 6215 RVA 0xb6520: GetFullPushWorldMarchMessage get_Instance()
+  METHOD 6216 RVA 0xb6538: Sfs2X.Requests.IRequest CSSetData(object[] args)
+  METHOD 6217 RVA 0xb659e: void .ctor()
+TYPE 851: PushWorldMarchMessage extends BaseMessage
+  FIELD 4139: PushWorldMarchMessage _instance
+  METHOD 6435 RVA 0xb91ec: string GetMsgId()
+  METHOD 6436 RVA 0xb91f3: PushWorldMarchMessage get_Instance()
+  METHOD 6437 RVA 0xb9209: void CSHandleResponse(Sfs2X.Entities.Data.ISFSObject message)
+  METHOD 6438 RVA 0xb921d: void .ctor()
+TYPE 852: PushWorldMarchDelMessage extends BaseMessage
+  FIELD 4140: PushWorldMarchDelMessage _instance
+  METHOD 6439 RVA 0xb9225: string GetMsgId()
+  METHOD 6440 RVA 0xb922c: PushWorldMarchDelMessage get_Instance()
+  METHOD 6441 RVA 0xb9242: void CSHandleResponse(Sfs2X.Entities.Data.ISFSObject message)
+  METHOD 6442 RVA 0xb9256: void .ctor()
+TYPE 855: PushWorldMarchWorldGet extends BaseMessage
+  FIELD 4143: PushWorldMarchWorldGet _instance
+  METHOD 6451 RVA 0xb92bc: string GetMsgId()
+  METHOD 6452 RVA 0xb92c3: PushWorldMarchWorldGet get_Instance()
+  METHOD 6453 RVA 0xb92d9: void CSHandleResponse(Sfs2X.Entities.Data.ISFSObject message)
+  METHOD 6454 RVA 0xb92ed: void .ctor()
+TYPE 874: WorldMarchFormationMessage extends BaseMessage
+  FIELD 4193: int32 m_type
+  FIELD 4194: WorldMarchFormationMessage _instance
+  METHOD 6535 RVA 0xb9f82: WorldMarchFormationMessage get_Instance()
+  METHOD 6536 RVA 0xb9f98: string GetMsgId()
+  METHOD 6537 RVA 0xb9fa0: Sfs2X.Requests.IRequest CSSetData(object[] args)
+  METHOD 6538 RVA 0xba0b9: void CSHandleResponse(Sfs2X.Entities.Data.ISFSObject message)
+  METHOD 6539 RVA 0xba0f8: bool showErrorCode()
+  METHOD 6540 RVA 0xba0fb: void .ctor()
+TYPE 875: WorldMarchFormationMessage+Request extends System.Object
+  FIELD 4195: int64 formationUuid
+  FIELD 4196: int32 target
+  FIELD 4197: int64 targetUid
+  FIELD 4198: string path
+  FIELD 4199: int32 worldId
+  FIELD 4200: int32 waitTimeIndex
+  FIELD 4201: bool autoBackHome
+  FIELD 4202: Sfs2X.Entities.Data.SFSObject formationParam
+  FIELD 4203: int32 targetServerId
+  METHOD 6541 RVA 0xba103: void .ctor()
+TYPE 876: WorldMarchTrainSendMessage extends BaseMessage
+  FIELD 4204: WorldMarchTrainSendMessage _instance
+  METHOD 6542 RVA 0xba112: string GetMsgId()
+  METHOD 6543 RVA 0xba119: WorldMarchTrainSendMessage get_Instance()
+  METHOD 6544 RVA 0xba130: void CSHandleResponse(Sfs2X.Entities.Data.ISFSObject message)
+  METHOD 6545 RVA 0xba188: bool showErrorCode()
+  METHOD 6546 RVA 0xba18b: void .ctor()
+TYPE 877: WorldMarchTrainListSendMessage extends BaseMessage
+  FIELD 4205: WorldMarchTrainListSendMessage _instance
+  METHOD 6547 RVA 0xba193: string GetMsgId()
+  METHOD 6548 RVA 0xba19a: WorldMarchTrainListSendMessage get_Instance()
+  METHOD 6549 RVA 0xba1b0: void CSHandleResponse(Sfs2X.Entities.Data.ISFSObject message)
+  METHOD 6550 RVA 0xba250: bool showErrorCode()
+  METHOD 6551 RVA 0xba253: void .ctor()
+TYPE 878: WorldMarchFormationChangeMessage extends BaseMessage
+  FIELD 4206: int32 m_type
+  FIELD 4207: WorldMarchFormationChangeMessage _instance
+  METHOD 6552 RVA 0xba25b: WorldMarchFormationChangeMessage get_Instance()
+  METHOD 6553 RVA 0xba271: string GetMsgId()
+  METHOD 6554 RVA 0xba278: Sfs2X.Requests.IRequest CSSetData(object[] args)
+  METHOD 6555 RVA 0xba35f: void CSHandleResponse(Sfs2X.Entities.Data.ISFSObject message)
+  METHOD 6556 RVA 0xba37a: bool showErrorCode()
+  METHOD 6557 RVA 0xba37d: void .ctor()
+TYPE 879: WorldMarchFormationChangeMessage+Request extends System.Object
+  FIELD 4208: int64 uuid
+  FIELD 4209: int32 target
+  FIELD 4210: int64 targetUid
+  FIELD 4211: string path
+  FIELD 4212: int32 worldId
+  FIELD 4213: bool autoBackHome
+  FIELD 4214: int32 targetServerId
+  METHOD 6558 RVA 0xba385: void .ctor()
+TYPE 880: WorldMarchFormationRapidMessage extends BaseMessage
+  FIELD 4215: WorldMarchFormationRapidMessage _instance
+  METHOD 6559 RVA 0xba394: string GetMsgId()
+  METHOD 6560 RVA 0xba39b: WorldMarchFormationRapidMessage get_Instance()
+  METHOD 6561 RVA 0xba3b1: void CSHandleResponse(Sfs2X.Entities.Data.ISFSObject message)
+  METHOD 6562 RVA 0xba3cc: bool showErrorCode()
+  METHOD 6563 RVA 0xba3cf: void .ctor()
+TYPE 1436: MoveAbleWorldMarch extends System.Object
+  FIELD 7637: int64 uuid
+  FIELD 7638: UnityEngine.GameObject gameObject
+  FIELD 7639: UnityEngine.Transform transform
+  FIELD 7640: float32 ScreenRangeLeft
+  FIELD 7641: float32 ScreenRangeRight
+  FIELD 7642: float32 ScreenRangeTop
+  FIELD 7643: float32 ScreenRangeDown
+  FIELD 7644: WorldMarch marchInfo
+  FIELD 7645: int32 marchSize
+  FIELD 7646: UnityEngine.Vector3 worldPosition
+  FIELD 7647: UnityEngine.Vector2Int tilePos
+  METHOD 11026 RVA 0x10f237: UnityEngine.Vector2Int get_TilePos()
+  METHOD 11027 RVA 0x10f23f: void set_TilePos(UnityEngine.Vector2Int value)
+  METHOD 11028 RVA 0x10f248: void Init(int64 id, UnityEngine.GameObject go, UnityEngine.Vector3 pos)
+  METHOD 11029 RVA 0x10f2dc: void EnterMoveCityState(UnityEngine.Vector3 pos)
+  METHOD 11030 RVA 0x10f390: void SetTilePos1(UnityEngine.Vector2Int pos)
+  METHOD 11031 RVA 0x10f3ec: void SetWorldPos(UnityEngine.Vector3 worldPos)
+  METHOD 11032 RVA 0x10f440: void SetTouchPickAblePos()
+  METHOD 11033 RVA 0x10f4a4: void Destroy()
+  METHOD 11034 RVA 0x10f4f6: bool CanLongTap()
+  METHOD 11035 RVA 0x10f4f9: UnityEngine.Transform GetTransform()
+  METHOD 11036 RVA 0x10f518: !!0 ITouchPickable.GetPickComponent()
+  METHOD 11037 RVA 0x10f548: bool PointInPick()
+  METHOD 11038 RVA 0x10f54b: void Drag(UnityEngine.Vector3 pos)
+  METHOD 11039 RVA 0x10f56e: bool Select()
+  METHOD 11040 RVA 0x10f571: void ITouchPickable.Click()
+  METHOD 11041 RVA 0x10f574: bool IsOutRange(UnityEngine.Vector3 pos)
+  METHOD 11042 RVA 0x10f5d5: void ChangeTouchPos(int32 index)
+  METHOD 11043 RVA 0x10f5d8: UnityEngine.Vector3 GetClosestPoint(UnityEngine.Vector3 pos)
+  METHOD 11044 RVA 0x10f672: void .ctor()
+  METHOD 11045 RVA 0x10f681: void .cctor()
+TYPE 1688: FakeWorldMarch extends WorldMarch
+  METHOD 12702 RVA 0x1396a8: void .ctor()
+TYPE 1695: WorldMarch extends System.Object
+  FIELD 9363: int64 _uuid
+  FIELD 9364: int32 updateVisibleID
+  FIELD 9365: int32 updateTroopID
+  FIELD 9366: WorldTrain train
+  FIELD 9367: WorldFlowerTrain flowerTrain
+  FIELD 9368: AllianceBossInfo allianceBoss
+  FIELD 9369: InvasionBossInfo invasionBossInfo
+  FIELD 9370: ThermalConductor thermalConductor
+  FIELD 9371: SandWormData sandWormData
+  FIELD 9372: DarknessMonsterData darknessMonsterData
+  FIELD 9373: ZMBossInfo zMBossInfo
+  FIELD 9374: DetectZombieBusTrain detectZombieBusTrain
+  FIELD 9375: AllianceChallengeInfo allianceChallengeInfo
+  FIELD 9376: CityBattleS1MonsterInfo cityBattleS1MonsterInfo
+  FIELD 9377: BloodyQueenMonster bloodyQueenMonster
+  FIELD 9378: S0AllianceBossInfo s0AllianceBossInfo
+  FIELD 9379: PointInfo <StationPointInfo>k__BackingField
+  FIELD 9380: string ownerUid
+  FIELD 9381: string ownerName
+  FIELD 9382: int32 ownerServer
+  FIELD 9383: int32 ownerCurServerId
+  FIELD 9384: int64 teamUuid
+  FIELD 9385: string allianceUid
+  FIELD 9386: int64 ownerFormationUuid
+  FIELD 9387: int32[] path
+  FIELD 9388: int32 targetPos
+  FIELD 9389: int32 startPos
+  FIELD 9390: int32 homePos
+  FIELD 9391: int64 power
+  FIELD 9392: UnityEngine.Vector3 startWorldPos
+  FIELD 9393: UnityEngine.Vector3 targetWorldPos
+  FIELD 9394: UnityEngine.Vector3 homeWorldPos
+  FIELD 9395: int64 startTime
+  FIELD 9396: int64 endTime
+  FIELD 9397: int64 blackStartTime
+  FIELD 9398: int64 blackEndTime
+  FIELD 9399: MarchTargetType target
+  FIELD 9400: MarchTargetType oldTargetType
+  FIELD 9401: MarchStatus status
+  FIELD 9402: NewMarchType type
+  FIELD 9403: bool isAnonymity
+  FIELD 9404: int64 targetUuid
+  FIELD 9405: float32 speed
+  FIELD 9406: float32 oriSpeed
+  FIELD 9407: float32 blackSpeed
+  FIELD 9408: string plunderRes
+  FIELD 9409: int32 worldId
+  FIELD 9410: int32 worldType
+  FIELD 9411: float32 collectSpd
+  FIELD 9412: int64 armyWeight
+  FIELD 9413: bool inBattle
+  FIELD 9414: System.Collections.Generic.List`1<ArmyInfo> armyInfos
+  FIELD 9415: int32 monsterId
+  FIELD 9416: int32 monsterSpecialType
+  FIELD 9417: int32 monsterType
+  FIELD 9418: float32 monsterHpRatio
+  FIELD 9419: int32 monsterRallyNum
+  FIELD 9420: int32 zombieRushRound
+  FIELD 9421: int32 zombieRushId
+  FIELD 9422: int32 allianceBuildingCfgId
+  FIELD 9423: int64 refreshTime
+  FIELD 9424: int64 createTime
+  FIELD 9425: int64 expireTime
+  FIELD 9426: int64 actStartTime
+  FIELD 9427: int64 actEndTime
+  FIELD 9428: int32 cityId
+  FIELD 9429: int32 npcNum
+  FIELD 9430: bool isBroken
+  FIELD 9431: UnityEngine.Vector2Int stationDir
+  FIELD 9432: string allianceAbbr
+  FIELD 9433: string allianceName
+  FIELD 9434: string allianceIcon
+  FIELD 9435: string eventId
+  FIELD 9436: int64 eventUuid
+  FIELD 9437: string belongUid
+  FIELD 9438: string pic
+  FIELD 9439: int32 picVer
+  FIELD 9440: int32 headSkinId
+  FIELD 9441: int64 headSkinET
+  FIELD 9442: int32 pvpNum
+  FIELD 9443: int32 pveNum
+  FIELD 9444: int32 baseVirusLayer
+  FIELD 9445: int32 extraVirusLayer
+  FIELD 9446: int32 serverId
+  FIELD 9447: int32 targetServer
+  FIELD 9448: int32 srcServer
+  FIELD 9449: int32 pathStartServerId
+  FIELD 9450: int32 realTargetPos
+  FIELD 9451: bool isSelect
+  FIELD 9452: bool isCameraFollow
+  FIELD 9453: UnityEngine.Vector3 position
+  FIELD 9454: WorldTroopPathSegment[] pathList
+  FIELD 9455: float32 curPathLen
+  FIELD 9456: float32 moveSpeed
+  FIELD 9457: UnityEngine.Vector3 moveDir
+  FIELD 9458: string bossOwnerUid
+  FIELD 9459: int32 callHelp
+  FIELD 9460: int32 secretKey
+  FIELD 9461: bool isFake
+  FIELD 9462: bool isFakeAttack
+  FIELD 9463: int64 fakeMarchTime
+  FIELD 9464: int64 parentUuid
+  FIELD 9465: bool delayApply
+  FIELD 9466: float32 delayApplyTime
+  FIELD 9467: bool IsStrongholdBoss
+  FIELD 9468: int64 strongholdBossNum
+  FIELD 9469: int64 strongholdBossMax
+  FIELD 9470: bool IsCityBoss
+  FIELD 9471: int64 cityBossNum
+  FIELD 9472: int64 cityBossMax
+  FIELD 9473: bool isAssistAllyMarch
+  FIELD 9474: bool isMummyMarch
+  FIELD 9475: int32 fixedSoldierType
+  FIELD 9476: int64 ownerLightUuid
+  FIELD 9477: int32 catchZombieNum
+  FIELD 9478: int64 bankDeposit
+  FIELD 9479: string itemId
+  FIELD 9480: bool globalArmy
+  FIELD 9481: System.Collections.Generic.Dictionary`2<int64, int32> catchZombieAnim
+  FIELD 9482: bool fightMonster
+  FIELD 9483: int64 _curHp
+  FIELD 9484: int32 _berserkBossMetaId
+  FIELD 9485: string _clientCreateGuid
+  FIELD 9486: int64 bornTime
+  FIELD 9487: float32 LightLength
+  FIELD 9488: int32 actBossState
+  FIELD 9489: Sfs2X.Entities.Data.ISFSObject userInfo
+  FIELD 9490: int32 armyUnit
+  FIELD 9491: int32 totalArmyUnit
+  FIELD 9492: int64 nextSkillTime
+  FIELD 9493: bool parsedProto
+  FIELD 9494: bool parsedSfs
+  FIELD 9495: bool showedInView
+  FIELD 9496: int32 crystal
+  FIELD 9497: int32 nucleus
+  FIELD 9498: int64 holdUuid
+  FIELD 9499: bool <IsValid>k__BackingField
+  FIELD 9500: int64 bloodyQueenMonsterUuid
+  FIELD 9501: int64 cityBattleS1RestBossUuid
+  FIELD 9502: float32 clientSpend
+  FIELD 9503: int64 firstTick
+  FIELD 9504: int64 firstTick_Real
+  FIELD 9505: float32 firstTick_unity
+  FIELD 9506: bool <IsInViewRect>k__BackingField
+  FIELD 9507: int32 blockRecordSize
+  METHOD 12725 RVA 0x139a5c: void set_uuid(int64 value)
+  METHOD 12726 RVA 0x139a65: int64 get_uuid()
+  METHOD 12727 RVA 0x139a6d: void set_StationPointInfo(PointInfo value)
+  METHOD 12728 RVA 0x139a76: PointInfo get_StationPointInfo()
+  METHOD 12729 RVA 0x139a7e: UnityEngine.Vector3 get_MoveDir()
+  METHOD 12730 RVA 0x139a86: int64 get_curHp()
+  METHOD 12731 RVA 0x139a8e: int32 get_berserkBossMetaId()
+  METHOD 12732 RVA 0x139a96: string get_clientCreateGuid()
+  METHOD 12733 RVA 0x139a9e: bool IsBirthingNew()
+  METHOD 12734 RVA 0x139ab9: bool IsBirthing()
+  METHOD 12735 RVA 0x139aeb: bool get_IsValid()
+  METHOD 12736 RVA 0x139af3: void set_IsValid(bool value)
+  METHOD 12737 RVA 0x139afc: bool get_HasMeteorite()
+  METHOD 12738 RVA 0x139b14: void Dispose()
+  METHOD 12739 RVA 0x139eab: bool IsMine()
+  METHOD 12740 RVA 0x139ec8: bool IsMineOrAllyAssembly()
+  METHOD 12741 RVA 0x139f18: bool IsScoutMarch()
+  METHOD 12742 RVA 0x139f4d: ArmyInfo GetArmyInfoIndexOne()
+  METHOD 12743 RVA 0x139f6c: int32 GetWorldType()
+  METHOD 12744 RVA 0x139fcc: bool ShowFiveHero()
+  METHOD 12745 RVA 0x13a030: UnityEngine.Vector3 GetTrainTailPos()
+  METHOD 12746 RVA 0x13a053: bool ShowTrain()
+  METHOD 12747 RVA 0x13a05f: bool ShowFlowerTrain()
+  METHOD 12748 RVA 0x13a06b: bool IsZombieBusTrain()
+  METHOD 12749 RVA 0x13a078: UnityEngine.Vector3 GetZombieBusTrainTailPos()
+  METHOD 12750 RVA 0x13a0a4: float32 GetZombieBusTrainLength()
+  METHOD 12751 RVA 0x13a0d5: bool IsMummyMarch()
+  METHOD 12752 RVA 0x13a0e0: bool IsDrillBase()
+  METHOD 12753 RVA 0x13a12c: bool IsDrillBaseTank()
+  METHOD 12754 RVA 0x13a16c: bool IsDrillBaseNewBossHugeSandWorm()
+  METHOD 12755 RVA 0x13a1b0: bool IsDrillBaseRoadHog()
+  METHOD 12756 RVA 0x13a1f4: bool IsAisila()
+  METHOD 12757 RVA 0x13a238: bool IsAlChallengeKirov()
+  METHOD 12758 RVA 0x13a278: bool IsActBerserkBoss()
+  METHOD 12759 RVA 0x13a2bb: bool IsSandWorm()
+  METHOD 12760 RVA 0x13a2de: bool IsS4WanderBoss()
+  METHOD 12761 RVA 0x13a2f6: bool IsFixedBoss()
+  METHOD 12762 RVA 0x13a302: bool IsFlowerCar()
+  METHOD 12763 RVA 0x13a31c: UnityEngine.Vector3 GetFlowerCarTailPos()
+  METHOD 12764 RVA 0x13a355: bool IsAllyBaseAttackCitySandWorm()
+  METHOD 12765 RVA 0x13a361: bool HasFightMonster()
+  METHOD 12766 RVA 0x13a36c: bool IsVisibleMarch()
+  METHOD 12767 RVA 0x13a43c: bool IsLightMarch()
+  METHOD 12768 RVA 0x13a4dc: bool IsCityBattleS1Monster()
+  METHOD 12769 RVA 0x13a51c: bool IsBloodyQueenMonster()
+  METHOD 12770 RVA 0x13a528: bool IsBloodyQueenQueenGunner()
+  METHOD 12771 RVA 0x13a569: bool IsFlowerTrain()
+  METHOD 12772 RVA 0x13a575: UnityEngine.Vector3 GetFlowerTrainTailPos()
+  METHOD 12773 RVA 0x13a598: void UpdateWorldMarch(Sfs2X.Entities.Data.ISFSObject q, bool isPushAdd)
+  METHOD 12774 RVA 0x13a710: void UpdateFromSFS(Sfs2X.Entities.Data.ISFSObject q)
+  METHOD 12775 RVA 0x13b2ec: void UpdateFromProto(Sfs2X.Entities.Data.ISFSObject q, Protobuf.WorldMarch p, Protobuf.WorldMarchDeltaMeta incrementMeta)
+  METHOD 12776 RVA 0x13c0dc: void IncrementalUpdateWorldMarch(Sfs2X.Entities.Data.ISFSObject q, Protobuf.WorldMarchDeltaMeta delta)
+  METHOD 12777 RVA 0x13c138: void UpdateWorldMarchByType(Sfs2X.Entities.Data.ISFSObject q, Protobuf.WorldMarch p, Protobuf.WorldMarchDeltaMeta delta)
+  METHOD 12778 RVA 0x13c28d: System.Collections.Generic.List`1<DetectZombieBus> GetZombieBusList()
+  METHOD 12779 RVA 0x13c2a4: void UpdateByNewMarchType(Sfs2X.Entities.Data.ISFSObject q)
+  METHOD 12780 RVA 0x13c2a6: bool IsFrozen()
+  METHOD 12781 RVA 0x13c2c0: bool IsMonster()
+  METHOD 12782 RVA 0x13c322: bool IsOrdinaryBoss()
+  METHOD 12783 RVA 0x13c354: bool IsBoss()
+  METHOD 12784 RVA 0x13c450: bool IsMonsterOrBoss()
+  METHOD 12785 RVA 0x13c470: bool IsMonsterOrOrdinaryBoss()
+  METHOD 12786 RVA 0x13c4ef: bool IsWanderBoss()
+  METHOD 12787 RVA 0x13c507: bool IsWanderMonster()
+  METHOD 12788 RVA 0x13c51e: bool IsEVP()
+  METHOD 12789 RVA 0x13c540: bool IsZombieRushAltered()
+  METHOD 12790 RVA 0x13c584: bool IsGeneralAllyBoss()
+  METHOD 12791 RVA 0x13c603: bool IsS4BNMonsterOrBoss()
+  METHOD 12792 RVA 0x13c63b: bool IsS4WNMonster()
+  METHOD 12793 RVA 0x13c66c: void UpdateArmy(Sfs2X.Entities.Data.ISFSArray arr)
+  METHOD 12794 RVA 0x13c778: void UpdateArmy(Google.Protobuf.Collections.RepeatedField`1<Protobuf.ArmyCombatUnit> unit)
+  METHOD 12795 RVA 0x13c874: void IncrementUpdateArmy(Google.Protobuf.Collections.RepeatedField`1<Protobuf.ArmyCombatUnit> unit)
+  METHOD 12796 RVA 0x13c924: bool GetIsBroken()
+  METHOD 12797 RVA 0x13c92c: ArmyInfo GetArmyInfo(int64 uid)
+  METHOD 12798 RVA 0x13c988: ArmyInfo GetFirstArmyInfo()
+  METHOD 12799 RVA 0x13c9ec: HeroInfo GetLeaderHero()
+  METHOD 12800 RVA 0x13ca0c: int32 GetSoliderNum()
+  METHOD 12801 RVA 0x13caa4: int32 GetHP()
+  METHOD 12802 RVA 0x13cb30: int32 GetMaxHP()
+  METHOD 12803 RVA 0x13cbbc: int32 GetMarchTargetType()
+  METHOD 12804 RVA 0x13cbc4: int32 GetOldMarchTargetType()
+  METHOD 12805 RVA 0x13cbcc: int32 GetMarchStatus()
+  METHOD 12806 RVA 0x13cbd4: int32 GetMarchType()
+  METHOD 12807 RVA 0x13cbdc: UnityEngine.Vector3 GetMarchCurPos()
+  METHOD 12808 RVA 0x13cc64: int32 GetMarchCurPosIndex()
+  METHOD 12809 RVA 0x13cc74: WorldTroopPathSegment[] CreatePathSegment()
+  METHOD 12810 RVA 0x13cd78: float32 GetPassedLen()
+  METHOD 12811 RVA 0x13ce7c: int64 GetCurArmyWeight()
+  METHOD 12812 RVA 0x13cedc: float32 GetResourcePercent()
+  METHOD 12813 RVA 0x13cf33: bool IsMasstroops()
+  METHOD 12814 RVA 0x13cf38: void InitMove(WorldTroopPathSegment[] pathSegments)
+  METHOD 12815 RVA 0x13d0a5: float32 GetMoveSpeed()
+  METHOD 12816 RVA 0x13d0b3: float32 GetBlackSpeed()
+  METHOD 12817 RVA 0x13d0c4: void UpdateMove(ref WorldMarchDataManager+LittleNormalMarchData data)
+  METHOD 12818 RVA 0x13d0fc: void UpdateMove(float32 deltaTime, int64 serverNow)
+  METHOD 12819 RVA 0x13d20b: bool get_IsInViewRect()
+  METHOD 12820 RVA 0x13d213: void set_IsInViewRect(bool value)
+  METHOD 12821 RVA 0x13d21c: void UpdateViewRectState(bool isMarchInView)
+  METHOD 12822 RVA 0x13d230: WorldCamp GetCamp()
+  METHOD 12823 RVA 0x13d50c: bool NeedCreateTroopLine()
+  METHOD 12824 RVA 0x13d614: bool SupportLittleSmartTroopLineMode()
+  METHOD 12825 RVA 0x13d630: bool SupportLittleSmartTroopMode()
+  METHOD 12826 RVA 0x13d660: bool IsPerformanceMarch()
+  METHOD 12827 RVA 0x13d668: int32 GetMarchBlockSize()
+  METHOD 12828 RVA 0x13d78c: void RecordMarchBlock(System.Collections.Generic.Dictionary`2<int32, int32> blockSet)
+  METHOD 12829 RVA 0x13d808: void RemoveBlockIndex(System.Collections.Generic.Dictionary`2<int32, int32> blockSet)
+  METHOD 12830 RVA 0x13d87c: string Description()
+  METHOD 12831 RVA 0x13db74: float64 DistanceFromPointToLine(UnityEngine.Vector3 a, UnityEngine.Vector3 b, UnityEngine.Vector3 c)
+  METHOD 12832 RVA 0x13dc00: bool UnContinuousMarch()
+  METHOD 12833 RVA 0x13dc18: bool NeedShowLoopAttackEffect()
+  METHOD 12834 RVA 0x13dc20: float32 GetMonsterAttackRange()
+  METHOD 12835 RVA 0x13dc65: bool IsS6Mummy()
+  METHOD 12836 RVA 0x13dc90: void .ctor()
+  METHOD 12837 RVA 0x13dce3: void .cctor()
+TYPE 1696: WorldMarch+<>c__DisplayClass195_0 extends System.Object
+  FIELD 9508: UnityEngine.Vector3 v3PosStart
+  METHOD 12838 RVA 0x13dcef: void .ctor()
+  METHOD 12839 RVA 0x13dcf8: void <UpdateWorldMarch>b__0(UnityEngine.GameObject go)
+TYPE 1697: WorldMarch+<>c extends System.Object
+  FIELD 9509: WorldMarch+<>c <>9
+  FIELD 9510: System.Func`2<string, int32> <>9__196_0
+  FIELD 9511: System.Func`2<string, int32> <>9__197_0
+  FIELD 9512: System.Func`2<string, int32> <>9__199_0
+  METHOD 12840 RVA 0x13dd44: void .cctor()
+  METHOD 12841 RVA 0x13dd50: void .ctor()
+  METHOD 12842 RVA 0x13dd58: int32 <UpdateFromSFS>b__196_0(string a)
+  METHOD 12843 RVA 0x13dd60: int32 <UpdateFromProto>b__197_0(string a)
+  METHOD 12844 RVA 0x13dd68: int32 <UpdateWorldMarchByType>b__199_0(string a)
+TYPE 1698: WorldMarch+<>c__DisplayClass217_0 extends System.Object
+  FIELD 9513: Protobuf.SimpleCombatUnit simpleUnit
+  METHOD 12845 RVA 0x13dd70: void .ctor()
+  METHOD 12846 RVA 0x13dd78: bool <IncrementUpdateArmy>b__0(ArmyInfo info)
+TYPE 1700: WorldMarchDataManager extends WorldManagerBase
+  FIELD 9524: int32 normalAttackId = 100000
+  FIELD 9525: string sheldPath = 'Assets/_Art/Effect/prefab/hero/Shaonian/VFX_shaonian_hudun.prefab'
+  FIELD 9526: System.Collections.Generic.List`1<int64> removeList
+  FIELD 9527: int32 <__INC_UPDATE__>k__BackingField
+  FIELD 9528: int32 __REMAIN_COUNT__ = 1000
+  FIELD 9529: System.Collections.Generic.HashSet`1<int64> allMarchUuids
+  FIELD 9530: System.Collections.Generic.Dictionary`2<int64, WorldMarch> allMarches
+  FIELD 9531: System.Collections.Generic.HashSet`1<int64> _normalMarchSet
+  FIELD 9532: System.Collections.Generic.HashSet`1<int64> toMeMarchUuids
+  FIELD 9533: System.Collections.Generic.Dictionary`2<int64, int32> toMeMarchTargetUuids
+  FIELD 9534: System.Collections.Generic.HashSet`1<int64> myMarchUuids
+  FIELD 9535: System.Collections.Generic.Dictionary`2<int64, WorldMarch> ownerMarches
+  FIELD 9536: System.Collections.Generic.Dictionary`2<int64, int64> team2MarchUuid
+  FIELD 9537: System.Collections.Generic.Dictionary`2<int64, int64> member2LeaderUuid
+  FIELD 9538: System.Collections.Generic.Dictionary`2<int64, int32> myAssitanceUuid2Points
+  FIELD 9539: System.Collections.Generic.Dictionary`2<int32, System.Collections.Generic.List`1<int64>> myAssistancePoint2Uuids
+  FIELD 9540: System.Collections.Generic.Dictionary`2<string, System.Collections.Generic.List`1<WorldMarch>> allianceMarches
+  FIELD 9541: System.Collections.Generic.Dictionary`2<int64, System.Collections.Generic.List`1<WorldMarch>> fakeRetreatMarches
+  FIELD 9542: System.Collections.Generic.Dictionary`2<int64, WorldMarch> fakeSampleMarches
+  FIELD 9543: System.Collections.Generic.Dictionary`2<int64, WorldMarch> fakeAttackMonsterMarches
+  FIELD 9544: System.Collections.Generic.Dictionary`2<int32, WorldTrainConfig> trainConfigs
+  FIELD 9545: System.Collections.Generic.Dictionary`2<int32, int32> flowerCarLength
+  FIELD 9546: System.Collections.Generic.HashSet`1<int64> _tmpMarchSet
+  FIELD 9547: System.Collections.Generic.List`1<WorldMarch> _tmpMarchList
+  FIELD 9548: System.Action`4<int64, int32, int32, int32> OnMonsterAdd
+  FIELD 9549: System.Action`4<int64, int32, int32, int32> OnMonsterDelete
+  FIELD 9550: UnityEngine.Bounds viewBounds
+  FIELD 9551: UnityEngine.Rect viewRect
+  FIELD 9552: UnityEngine.Vector4 lastCameraViewRange
+  FIELD 9553: UnityEngine.Rect cameraViewRect
+  FIELD 9554: int64 _fakeUuid
+  FIELD 9555: System.Collections.Generic.Dictionary`2<int64, int64> _delayDestroyTroop
+  FIELD 9556: bool myMarchDirty
+  FIELD 9557: bool toMeMarchDirty
+  FIELD 9558: System.Collections.Generic.Dictionary`2<string, int64> _cacheClientCreateGuidAndTimeDict
+  FIELD 9559: int32 multiKillPVPMin
+  FIELD 9560: int32 multiKillPVEMin
+  FIELD 9561: System.Nullable`1<bool> multiKillSwitch
+  FIELD 9562: bool enableWorldMarchDataOptHahaha
+  FIELD 9563: System.Collections.Generic.List`1<int64> _toRemoveList
+  FIELD 9564: System.Collections.Generic.Dictionary`2<int64, WorldMarch> targetForMineMarchDic
+  FIELD 9565: System.Collections.Generic.Dictionary`2<int64, WorldMarch> targetForMineMarchDesertDic
+  FIELD 9566: bool toMeMarchNeedUpdate
+  FIELD 9567: bool toMeMarchDesertNeedUpdate
+  FIELD 9568: WorldMarchBattleSound _marchBattleSound
+  FIELD 9569: GameKit.Base.StepProcessQueue`1<System.ValueTuple`2<WorldMarchMessageType, Sfs2X.Entities.Data.ISFSObject>> _messages
+  FIELD 9570: System.Collections.Generic.Dictionary`2<int64, System.ValueTuple`2<Sfs2X.Entities.Data.ISFSObject, WorldMarchMessageType>> _messagesMergeDict
+  FIELD 9571: System.Collections.Generic.Dictionary`2<int64, System.Collections.Generic.List`1<int32>> _prevWorldMarchLogMap
+  FIELD 9572: System.Collections.Generic.Dictionary`2<int64, System.Collections.Generic.List`1<int32>> _worldMarchLogMap
+  FIELD 9573: System.Collections.Generic.Dictionary`2<int64, System.DateTime> _addMarchLogTime
+  FIELD 9574: System.DateTime _lastGetBlockMsgTime
+  FIELD 9575: System.DateTime _lastHandleBlockMsgTime
+  FIELD 9576: System.Collections.Generic.List`1<int64> _logMarchUuids1
+  FIELD 9577: System.Collections.Generic.List`1<int64> _logMarchUuids2
+  FIELD 9578: System.DateTime _clearMarchesLogTime
+  FIELD 9579: int32 _clearMarchesFrom
+  FIELD 9580: System.Collections.Generic.HashSet`1<int64> _clearMarchesLogSet
+  FIELD 9581: System.DateTime _prevClearMarchesLogTime
+  FIELD 9582: int32 _prevClearMarchesFrom
+  FIELD 9583: System.Collections.Generic.HashSet`1<int64> _prevClearMarchesLogSet
+  FIELD 9584: System.Diagnostics.Stopwatch _marchStepUpdateTimer
+  FIELD 9585: int32 _marchStepUpdateMoveId
+  FIELD 9586: WorldMarchDataManager+MarchObjectCounter _marchObjectCounter
+  FIELD 9587: bool littleSmartDirty
+  FIELD 9588: WorldMarchDataManager+EMarchStepUpdateMoveState _marchStepUpdateState
+  FIELD 9589: System.Collections.Generic.HashSet`1<int64> _invalidIncrementPushWmNewMap
+  FIELD 9590: bool _delayToRefresh
+  FIELD 9591: ITimer _delayRefreshTimer
+  FIELD 9592: int32 hahaUpdateCount
+  FIELD 9593: int32 legacyUpdateCount
+  FIELD 9594: System.Collections.Generic.Dictionary`2<int64, WorldMarch> EmptyDic
+  FIELD 9595: System.Collections.Generic.HashSet`1<int32> allianceMembersHomePos
+  FIELD 9596: System.Collections.Generic.Dictionary`2<int64, int32> myMarchMultiKillPVE
+  FIELD 9597: System.Collections.Generic.Dictionary`2<int64, int32> myMarchMultiKillPVP
+  FIELD 9598: WorldMarchDataManager+MarchDataUpdater marchDataUpdater
+  FIELD 9599: System.Collections.Generic.Dictionary`2<int32, int32> tileBlockIndex
+  FIELD 9600: bool isRecordingMarchBlock
+  FIELD 9601: int32 recordingWorldId
+  FIELD 9602: int64 SelectMarchUuid
+  FIELD 9603: int64 DebugMarchUuid
+  METHOD 12850 RVA 0x13de51: bool IsCombine(CombatUnitType type)
+  METHOD 12851 RVA 0x13de7c: bool IsArmyInView(int64 uuid, CombatUnitType combineType)
+  METHOD 12852 RVA 0x13df10: void UpdateBattleMessage(Sfs2X.Entities.Data.ISFSObject message)
+  METHOD 12853 RVA 0x13dfa8: void UpdateCombineArmyInfo(Protobuf.CombineSelfArmyInfo combineArmyInfo, bool outRange, Google.Protobuf.Collections.RepeatedField`1<Protobuf.BaseRoundReportPush> roundReports, CombatUnitType combineType)
+  METHOD 12854 RVA 0x13e404: void UpdateSimpleArmyInfo(Protobuf.SimpleSelfArmyInfo selfArmyInfo, bool outRange, Google.Protobuf.Collections.RepeatedField`1<Protobuf.BaseRoundReportPush> roundReports, CombatUnitType combineType)
+  METHOD 12855 RVA 0x13e718: void ShowShieldEffect(int64 atkUuid, int32 shield)
+  METHOD 12856 RVA 0x13e748: void SetTroopAttack(int64 atkUuid, int64 defAtkUuid, bool isActiveAttack)
+  METHOD 12857 RVA 0x13e8bc: void ShowTroopSkill(int64 skillTargetUuid, int32 selfSkillId, int32 hurtSkillId)
+  METHOD 12858 RVA 0x13e920: void ShowTroopBloodHurt(int64 hurtTargetUuid, int32 normalHurt, int32 skillHurt, int32 heal)
+  METHOD 12859 RVA 0x13e994: void TroopUpdateHeadUI(int64 marchUuid, int32 anger, int32 hp, int32 hpMax)
+  METHOD 12860 RVA 0x13ea38: void ActBossUpdateHeadUI(int64 marchUuid, int32 anger, int32 hp, int32 hpMax)
+  METHOD 12861 RVA 0x13eaa4: void ShowTroopBuff(int64 targetUuid, string effectStr)
+  METHOD 12862 RVA 0x13eb48: void ShowExploreSkill(int64 skillTargetUuid, int32 selfSkillId, int32 hurtSkillId)
+  METHOD 12863 RVA 0x13eb8c: void ShowExploreBloodHurt(int64 hurtTargetUuid, int32 normalHurt, int32 skillHurt, int32 heal)
+  METHOD 12864 RVA 0x13ebd8: void ExploreAttack(int64 atkUuid, int64 defenderUid, int32 soliderNum, int32 hp, int32 hpMax)
+  METHOD 12865 RVA 0x13ec0c: void ExploreUpdateHeadUI(int64 marchUuid, int32 anger, int32 hp, int32 hpMax)
+  METHOD 12866 RVA 0x13ec3c: void ShowExploreBuff(int64 targetUuid, string effectStr)
+  METHOD 12867 RVA 0x13ece0: void AllianceCityUpdateHeadUI(int64 cityUuid, int32 hp, int32 hpMax)
+  METHOD 12868 RVA 0x13ed34: void ShowAllianceCityBloodHurt(int64 hurtTargetUuid, int32 normalHurt, int32 skillHurt, int32 heal)
+  METHOD 12869 RVA 0x13ede0: void ShowAllianceCityBuff(int64 targetUuid, string effectStr)
+  METHOD 12870 RVA 0x13ee90: void BuildingAttack(int64 atkUuid, int64 defUuid)
+  METHOD 12871 RVA 0x13eebc: void ShowPlayerBuildBloodHurt(int64 hurtTargetUuid, int32 normalHurt, int32 skillHurt, int32 heal)
+  METHOD 12872 RVA 0x13ef80: void ShowPlayerBuildBuff(int64 targetUuid, string effectStr)
+  METHOD 12873 RVA 0x13f048: void BattleFinish(Sfs2X.Entities.Data.ISFSObject message)
+  METHOD 12874 RVA 0x13f118: System.Collections.IEnumerator DelayApply(float32 delay, int64 uuid, WorldMarchDataManager+BatleResult result)
+  METHOD 12875 RVA 0x13f13c: void onBattleFinish(int64 uuid, WorldMarchDataManager+BatleResult result)
+  METHOD 12876 RVA 0x13f450: void ShowCollectPointBloodHurt(int32 pointIndex, int32 normalHurt, int32 skillHurt, int32 heal)
+  METHOD 12877 RVA 0x13f514: void ShowCollectPointBuff(int64 targetUuid, int32 pointIndex, string effectStr)
+  METHOD 12878 RVA 0x13f5dc: void ShowCollectUpdateHeadUI(int64 marchUuid, int32 pointIndex, int32 anger, int32 hp, int32 hpMax)
+  METHOD 12879 RVA 0x13f658: void CheckArmyDoSkill(int64 armyUuid, Protobuf.BaseRoundReportPush reportInfo, ref int32 showAttackSkillId, ref int32 showHurtSkillId, ref int32 skillHurt, ref int32 normalHurt, ref bool isActiveAttack, ref System.Collections.Generic.List`1<int32> effectBuffList)
+  METHOD 12880 RVA 0x13f850: void UpdateBattle(float32 deltaTime)
+  METHOD 12881 RVA 0x13f852: int32 get___INC_UPDATE__()
+  METHOD 12882 RVA 0x13f859: void set___INC_UPDATE__(int32 value)
+  METHOD 12883 RVA 0x13f861: int32 get_AllMarchesCount()
+  METHOD 12884 RVA 0x13f86e: int32 get_NormalMarchCount()
+  METHOD 12885 RVA 0x13f87b: int32 get_MultiKillPVPMin()
+  METHOD 12886 RVA 0x13f8ac: int32 get_MultiKillPVEMin()
+  METHOD 12887 RVA 0x13f8e0: System.Nullable`1<bool> get_MultiKillSwitch()
+  METHOD 12888 RVA 0x13f959: bool get_EnableWorldAssistanceOpt()
+  METHOD 12889 RVA 0x13f96c: bool get_EnableWorldMarchDataOptHahaha()
+  METHOD 12890 RVA 0x13f9a4: void AddMarchOptLog(WorldMarch march, int32 opt)
+  METHOD 12891 RVA 0x13fa4f: int32 get_lastPerformanceCount()
+  METHOD 12892 RVA 0x13fa5d: int32 get_lastPerformanceSquadDisplayCount()
+  METHOD 12893 RVA 0x13fa6b: int32 get_lastPerformanceSquadDataCount()
+  METHOD 12894 RVA 0x13fa79: int32 get_lastPerformanceTroopLineCount()
+  METHOD 12895 RVA 0x13fa87: int32 get_lastPerformanceTroopLineDisplayCount()
+  METHOD 12896 RVA 0x13fa95: int32 get_lastPerformanceTroopLineDataCount()
+  METHOD 12897 RVA 0x13faa3: void DelayToRefreshMarch()
+  METHOD 12898 RVA 0x13fad8: void ClearDelayToRefreshMarch()
+  METHOD 12899 RVA 0x13fb14: void .ctor(WorldScene scene)
+  METHOD 12900 RVA 0x13fd0c: void SetWorldScene(WorldScene scene)
+  METHOD 12901 RVA 0x13fef8: void AddClearLog(int32 clearFrom)
+  METHOD 12902 RVA 0x140008: void Init()
+  METHOD 12903 RVA 0x1400b9: void OnReloadOrReconnect(object obj)
+  METHOD 12904 RVA 0x1400ec: void OnApplicationPause(object userData)
+  METHOD 12905 RVA 0x140114: void RefreshMAMTroopPosition()
+  METHOD 12906 RVA 0x140204: void UnInit()
+  METHOD 12907 RVA 0x14029c: void __ReInit()
+  METHOD 12908 RVA 0x140478: void OnUpdate(float32 deltaTime)
+  METHOD 12909 RVA 0x140530: void UpdateDelayDestroy()
+  METHOD 12910 RVA 0x14062c: bool UpdateViewRect()
+  METHOD 12911 RVA 0x1408b1: bool IsInView(UnityEngine.Vector3 position)
+  METHOD 12912 RVA 0x1408bb: bool IsLineInView(UnityEngine.Vector3 start, UnityEngine.Vector3 end)
+  METHOD 12913 RVA 0x1408ec: bool IsRectInView(UnityEngine.Vector3 point, int32 size)
+  METHOD 12914 RVA 0x140930: bool IsMarchInView(WorldMarch march)
+  METHOD 12915 RVA 0x140a00: bool IntersectsSegment(UnityEngine.Rect rect, UnityEngine.Vector2 p1, UnityEngine.Vector2 p2)
+  METHOD 12916 RVA 0x140b18: bool AxisAlignRectIntersectAxisAlignSegment(UnityEngine.Rect rect, UnityEngine.Vector2 p1, UnityEngine.Vector2 p2)
+  METHOD 12917 RVA 0x140c48: void UpdateLastMarchMessage(WorldMarchMessageType type, Sfs2X.Entities.Data.ISFSObject message)
+  METHOD 12918 RVA 0x140d18: bool TryExcuteMarchMessage(WorldMarchMessageType type, Sfs2X.Entities.Data.ISFSObject message)
+  METHOD 12919 RVA 0x140df0: void HandleMessage(System.ValueTuple`2<WorldMarchMessageType, Sfs2X.Entities.Data.ISFSObject> message)
+  METHOD 12920 RVA 0x140e7c: void HandleWorldMarchGet(Sfs2X.Entities.Data.ISFSObject message)
+  METHOD 12921 RVA 0x14108c: void HandleWorldMarchGetImpl(Sfs2X.Entities.Data.ISFSObject message)
+  METHOD 12922 RVA 0x141228: void ParseDataWorldMarchGet(Sfs2X.Entities.Data.ISFSObject message)
+  METHOD 12923 RVA 0x1415c4: void HandleWorldGetRectMarchInfos(Sfs2X.Entities.Data.ISFSObject message)
+  METHOD 12924 RVA 0x141830: void BeforeFireMyOrToMeMarchRefresh()
+  METHOD 12925 RVA 0x1418bc: bool CheckIsOtherTarget(int64 uuid, int32 targetPos)
+  METHOD 12926 RVA 0x1418e0: void FireMyOrToMeMarchRefresh()
+  METHOD 12927 RVA 0x141a64: void HandlePushWorldMarchAdd(Sfs2X.Entities.Data.ISFSObject message)
+  METHOD 12928 RVA 0x141a80: void HandlePushWorldMarchAddImpl(Sfs2X.Entities.Data.ISFSObject message)
+  METHOD 12929 RVA 0x141ad4: void ParsePushWorldMarchAdd(Sfs2X.Entities.Data.ISFSObject message, WorldMarchMessageType msgType)
+  METHOD 12930 RVA 0x141d10: void SetMarchOptLog(int64 uuid)
+  METHOD 12931 RVA 0x1420b4: void HandlePushWorldMarchDel(Sfs2X.Entities.Data.ISFSObject message)
+  METHOD 12932 RVA 0x1420d0: void HandlePushWorldMarchDelImpl(Sfs2X.Entities.Data.ISFSObject message)
+  METHOD 12933 RVA 0x142146: void HandleFormationMarch(Sfs2X.Entities.Data.ISFSObject message)
+  METHOD 12934 RVA 0x142162: void HandleFormationMarchImpl(Sfs2X.Entities.Data.ISFSObject message)
+  METHOD 12935 RVA 0x14218c: void HandleFormationMarchChange(Sfs2X.Entities.Data.ISFSObject message)
+  METHOD 12936 RVA 0x1421a8: void HandleFormationMarchChangeImpl(Sfs2X.Entities.Data.ISFSObject message)
+  METHOD 12937 RVA 0x1421b4: void ParseFormationUpdate(Sfs2X.Entities.Data.ISFSObject message, WorldMarchMessageType msgType)
+  METHOD 12938 RVA 0x14224c: void DelFakeAttackMonsterMarchDataRandom(int32 count)
+  METHOD 12939 RVA 0x142314: void AddFakeAttackMonsterMarchData(int64 startIndex, int64 endIndex, float32 marchTimeSec, string ownerUid)
+  METHOD 12940 RVA 0x1426ec: void UpdateFakeAttackMonsterMarch(int64 uuid)
+  METHOD 12941 RVA 0x1428c0: int64 GenerateFakeUuid()
+  METHOD 12942 RVA 0x1428d0: void AddFakeRetreatMarchData(WorldMarch realMarch, PointInfo info, int32 timeDelta)
+  METHOD 12943 RVA 0x142af0: bool NeedReserveFakeRetreatMarchData(WorldMarch march)
+  METHOD 12944 RVA 0x142b64: void AddFakeSampleMarchData(int64 startIndex, int64 endIndex, int64 startTime, int64 endTime, int32 marchTargetType, int32 srcServer, int32 targetServer)
+  METHOD 12945 RVA 0x142dc9: System.Collections.Generic.Dictionary`2<int64, WorldMarch> GetAllSampleFakeData()
+  METHOD 12946 RVA 0x142dd4: void UpdateFakeSampleMarchDataWhenStartPick(int64 index, int64 endTime)
+  METHOD 12947 RVA 0x142e3c: void UpdateFakeSampleMarchDataWhenBack(int64 index, int64 startTime, int64 endTime)
+  METHOD 12948 RVA 0x142fa0: void RemoveFakeSampleMarchData(int64 index)
+  METHOD 12949 RVA 0x142ff3: bool IsFakeSampleMarchData(int64 index)
+  METHOD 12950 RVA 0x143001: bool IsFakeAttackMonsterMarchData(int64 uuid)
+  METHOD 12951 RVA 0x14300f: bool ExistMarch(int64 uuid)
+  METHOD 12952 RVA 0x143020: bool IsInRallyMarch(int64 uuid)
+  METHOD 12953 RVA 0x143060: bool IsInCollectMarch(int64 uuid)
+  METHOD 12954 RVA 0x143094: bool IsInAssistanceMarch(int64 uuid)
+  METHOD 12955 RVA 0x1430c8: bool IsSelfInCurrentMarchTeam(int64 rallyMarchUuid)
+  METHOD 12956 RVA 0x1431a0: bool HasMarchUuid(int64 uuid)
+  METHOD 12957 RVA 0x1431b8: WorldMarch GetMarch(int64 uuid)
+  METHOD 12958 RVA 0x1431d8: WorldMarch GetMonster(int64 targetPoint)
+  METHOD 12959 RVA 0x143278: System.Collections.Generic.List`1<WorldMarch> GetOwnerMarches(string ownerUid, string allianceUid)
+  METHOD 12960 RVA 0x143290: System.Collections.Generic.List`1<WorldMarch> GetMyDisguiseMarches(string ownerUid, string allianceUid)
+  METHOD 12961 RVA 0x1432fc: WorldMarch GetAllianceMarchesInTeam(string allianceUid, int64 teamUuid)
+  METHOD 12962 RVA 0x143404: bool IsHaveMarchInWorld(string allianceUid, int64 teamUuid)
+  METHOD 12963 RVA 0x1434a8: WorldMarch GetBestMarch(int32 pointId, string allianceId, int32 worldId)
+  METHOD 12964 RVA 0x143538: void CleanDragonWar()
+  METHOD 12965 RVA 0x1435fc: WorldMarch GetOwnerFormationMarch(string ownerUid, int64 formationUuid, string allianceUid)
+  METHOD 12966 RVA 0x143638: void StartMarch(int32 targetType, int32 targetPoint, int64 targetUuid, int32 timeIndex, int64 marchUuid, int64 formationUuid, int32 backHome, uint8[] sfsObjBinary, int32 startPos, int32 targetServerId)
+  METHOD 12967 RVA 0x14371c: UnityEngine.Vector2Int GetAttackPos(UnityEngine.Vector2Int start, UnityEngine.Vector2Int end, float32 attackOffsetRange)
+  METHOD 12968 RVA 0x143784: void SendCreateMarchToServer(int64 formationUuid, int32 targetType, int32 targetPoint, int64 targetUuid, int32 timeIndex, Sfs2X.Entities.Data.SFSObject formationData, int32 startPos, bool backHome, int32 targetServerId)
+  METHOD 12969 RVA 0x143914: void SendChangeMarchToServer(int64 marchUuid, int32 targetType, int32 targetPoint, int64 targetUuid, bool backHome, int32 targetServerId)
+  METHOD 12970 RVA 0x143ac0: void WorldGetMarchInfos()
+  METHOD 12971 RVA 0x143b1c: bool NeedGetRealTargetPos(WorldMarch march)
+  METHOD 12972 RVA 0x143bf8: int32 GetRealMarchTargetPos(WorldMarch march)
+  METHOD 12973 RVA 0x143d35: void UpdateMessage()
+  METHOD 12974 RVA 0x143d42: void UpdateMove(float32 deltaTime)
+  METHOD 12975 RVA 0x143d4b: void TryStartStepUpdateMove()
+  METHOD 12976 RVA 0x143d7d: void ResetStepUpdateMove()
+  METHOD 12977 RVA 0x143d98: bool ConsumeLittleSmartDirty()
+  METHOD 12978 RVA 0x143dac: void StepUpdateMove(float32 deltaTime)
+  METHOD 12979 RVA 0x143e18: bool StepUpdateMarchVisible(float32 deltaTime)
+  METHOD 12980 RVA 0x144110: bool StepUpdateMarchPerformance()
+  METHOD 12981 RVA 0x144150: bool StepUpdateMarchTroop()
+  METHOD 12982 RVA 0x1443f4: void UpdateTroopLine(WorldMarch march)
+  METHOD 12983 RVA 0x144434: void UpdateCollition(WorldMarch march)
+  METHOD 12984 RVA 0x144488: void UpdateMarch(WorldMarch march)
+  METHOD 12985 RVA 0x144503: void AddToDelayDestroy(int64 uuid, float32 delaySecond)
+  METHOD 12986 RVA 0x144544: void DestroyMarch(int64 marchUuid, bool isBattleFail)
+  METHOD 12987 RVA 0x1445e8: bool IsVisibleToLocalPlayer(WorldMarch march)
+  METHOD 12988 RVA 0x144650: void RemoveMarch(int64 marchUuid)
+  METHOD 12989 RVA 0x14495c: void CheckMyMarchDirty(WorldMarch march)
+  METHOD 12990 RVA 0x14497f: void CheckToMeMarchDirty(WorldMarch march)
+  METHOD 12991 RVA 0x1449b5: bool IsMyMarch(WorldMarch march)
+  METHOD 12992 RVA 0x1449ec: bool IsMyAllyRallyMarch(WorldMarch march)
+  METHOD 12993 RVA 0x144a52: bool IsMyJoinAssemblyMarch(WorldMarch march)
+  METHOD 12994 RVA 0x144a78: void TryUpdateMyAssistanceMarch(WorldMarch march, bool isRemove)
+  METHOD 12995 RVA 0x144dcc: int32 GetMyAssistanceCountByPointIndex(int32 pointIndex)
+  METHOD 12996 RVA 0x144df4: int32 GetMyAssistanceFirstHero(int32 pointIndex)
+  METHOD 12997 RVA 0x144e40: int64 GetFirstMyAssistanceMarchUuid(int32 pointIndex)
+  METHOD 12998 RVA 0x144e70: void AddOrUpdateMarch(WorldMarch march)
+  METHOD 12999 RVA 0x1454ac: WorldTroopPathSegment[] CreatePathSegment(WorldMarch march)
+  METHOD 13000 RVA 0x14551d: System.Collections.IEnumerator UIMainWarningHide(WarningType warningType)
+  METHOD 13001 RVA 0x14552c: System.Collections.Generic.Dictionary`2<int64, WorldMarch> GetAllMarchesByCS()
+  METHOD 13002 RVA 0x145534: WorldMarch GetMarchesByStartIndex(int32 posIndex)
+  METHOD 13003 RVA 0x145598: WorldMarch GetMarchByTargetPos(int32 targetPos)
+  METHOD 13004 RVA 0x1455fc: WorldMarch GetMarchByType(int32 marchType)
+  METHOD 13005 RVA 0x145660: System.Collections.Generic.Dictionary`2<string, int32> GetMarchCountToTargetGroupByOwnerUid(int32 targetPos)
+  METHOD 13006 RVA 0x145704: void GetMonsterListInArea(UnityEngine.Vector2Int center, int32 size, System.Collections.Generic.Dictionary`2<int32, int32> monsterIds, System.Collections.Generic.Dictionary`2<int64, UnityEngine.Vector2Int> result)
+  METHOD 13007 RVA 0x145808: System.Collections.Generic.Dictionary`2<int64, WorldMarch> GetMarchesBossInfo()
+  METHOD 13008 RVA 0x145884: System.Collections.Generic.Dictionary`2<int64, WorldMarch> GetMarchesTargetForMine(bool onlyDesertBattle)
+  METHOD 13009 RVA 0x14588d: System.Collections.Generic.Dictionary`2<int64, WorldMarch> GetMarchesTargetForMineLite()
+  METHOD 13010 RVA 0x145898: System.Collections.Generic.Dictionary`2<int64, WorldMarch> GetMarchesTargetForMineCached(bool onlyDesertBattle)
+  METHOD 13011 RVA 0x145948: System.Collections.Generic.Dictionary`2<int64, WorldMarch> GetInimicalMarchesTargetForMine()
+  METHOD 13012 RVA 0x1459f0: bool IsTargetForMine(WorldMarch march, bool onlyAttack, bool isDesertBattle)
+  METHOD 13013 RVA 0x145bf4: bool IsTargetForAlly(WorldMarch march)
+  METHOD 13014 RVA 0x145e68: void InitTrainConfig()
+  METHOD 13015 RVA 0x145ed8: void InitFlowerCarConfig()
+  METHOD 13016 RVA 0x145f18: WorldTrainConfig GetTrainConfig(int32 id)
+  METHOD 13017 RVA 0x145f68: int32 GetFlowerCarLength(int32 id)
+  METHOD 13018 RVA 0x145fb4: void CacheAllianceMembersHomePos()
+  METHOD 13019 RVA 0x145ff1: void CleanAllianceMembersHomePos()
+  METHOD 13020 RVA 0x145ffe: bool IsMemberByPointId(int32 pointId)
+  METHOD 13021 RVA 0x14600c: void DestroyBerserkBossMarchData(int64 marchUuid)
+  METHOD 13022 RVA 0x146018: string SaveCreateMarchRecordTime()
+  METHOD 13023 RVA 0x146054: void RemoveCreateMarchRecordTime(WorldMarch worldMarch)
+  METHOD 13024 RVA 0x1460e8: int32 GetMyMarchMultiKillPVE(int64 marchUuid)
+  METHOD 13025 RVA 0x146108: int32 GetMyMarchMultiKillPVP(int64 marchUuid)
+  METHOD 13026 RVA 0x146128: void UpdateBattleSoundData()
+  METHOD 13027 RVA 0x146135: WorldMarchDataManager+MarchDataUpdater get_DataUpdater()
+  METHOD 13028 RVA 0x146140: void OnDrawGizmos()
+  METHOD 13029 RVA 0x1461c4: WorldMarchDataManager get_EditorInstance()
+  METHOD 13030 RVA 0x1461c7: void EditorLog(string log)
+  METHOD 13031 RVA 0x1461cc: string EditorDescription()
+  METHOD 13032 RVA 0x1466ac: void AddMarch(WorldMarch march)
+  METHOD 13033 RVA 0x146729: void FakeAddMarch(WorldMarch march)
+  METHOD 13034 RVA 0x146732: System.Collections.Generic.Dictionary`2<int32, int32> get_TileBlockIndex()
+  METHOD 13035 RVA 0x14673c: void StartRecordMarchBlock(int32 worldId)
+  METHOD 13036 RVA 0x14681c: void StopRecordMarchBlock()
+  METHOD 13037 RVA 0x14683b: void BIRecordWorldMarch(WorldMarch march)
+  METHOD 13038 RVA 0x146850: void .cctor()
+  METHOD 13039 RVA 0x146880: void <InitTrainConfig>b__255_0(int32 id, XLua.LuaTable data)
+  METHOD 13040 RVA 0x1468d3: void <InitFlowerCarConfig>b__256_0(int32 id, int32 data)
+  METHOD 13041 RVA 0x1468e2: void <CacheAllianceMembersHomePos>b__260_0(int32 pointId, string uid)
+TYPE 1701: WorldMarchDataManager+BatleResult extends System.Enum
+  FIELD 9604: int32 value__
+  FIELD 9605: WorldMarchDataManager+BatleResult DEFAULT = -1
+  FIELD 9606: WorldMarchDataManager+BatleResult SELF_WIN = 0
+  FIELD 9607: WorldMarchDataManager+BatleResult OTHER_WIN = 1
+  FIELD 9608: WorldMarchDataManager+BatleResult DRAW = 2
+TYPE 1702: WorldMarchDataManager+BattleWordType extends System.Enum
+  FIELD 9609: int32 value__
+  FIELD 9610: WorldMarchDataManager+BattleWordType Normal = 0
+  FIELD 9611: WorldMarchDataManager+BattleWordType Cure = 1
+  FIELD 9612: WorldMarchDataManager+BattleWordType Skill = 2
+TYPE 1703: WorldMarchDataManager+EMarchStepUpdateMoveState extends System.Enum
+  FIELD 9613: int32 value__
+  FIELD 9614: WorldMarchDataManager+EMarchStepUpdateMoveState Invalid = 0
+  FIELD 9615: WorldMarchDataManager+EMarchStepUpdateMoveState UpdateVisible = 1
+  FIELD 9616: WorldMarchDataManager+EMarchStepUpdateMoveState UpdatePerformance = 2
+  FIELD 9617: WorldMarchDataManager+EMarchStepUpdateMoveState UpdateTroopLine = 3
+TYPE 1704: WorldMarchDataManager+CounterType extends System.Enum
+  FIELD 9618: int32 value__
+  FIELD 9619: WorldMarchDataManager+CounterType Squad = 0
+  FIELD 9620: WorldMarchDataManager+CounterType TroopLine = 1
+  FIELD 9621: WorldMarchDataManager+CounterType Count = 2
+TYPE 1705: WorldMarchDataManager+CountPair extends System.ValueType
+  FIELD 9622: int32 displayCount
+  FIELD 9623: int32 dataCount
+  METHOD 13042 RVA 0x1468f1: void .ctor(int32 displayCount, int32 dataCount)
+TYPE 1706: WorldMarchDataManager+MarchObjectCounter extends System.Object
+  FIELD 9624: WorldMarchDataManager+CountPair[] _current
+  FIELD 9625: WorldMarchDataManager+CountPair[] _last
+  METHOD 13043 RVA 0x146904: void .ctor()
+  METHOD 13044 RVA 0x146938: void ResetAll()
+  METHOD 13045 RVA 0x14697c: void ResetCurrent()
+  METHOD 13046 RVA 0x1469ac: void Accumulate(WorldMarchDataManager+CounterType metric, bool isData, bool isDisplay)
+  METHOD 13047 RVA 0x1469f4: bool Commit()
+  METHOD 13048 RVA 0x146a5a: int32 GetLastDisplayCount(WorldMarchDataManager+CounterType metric)
+  METHOD 13049 RVA 0x146a6d: int32 GetLastDataCount(WorldMarchDataManager+CounterType metric)
+TYPE 1707: WorldMarchDataManager+LittleNormalMarchData extends System.ValueType
+  FIELD 9626: int64 marchUuid
+  FIELD 9627: int64 startTime
+  FIELD 9628: int64 endTime
+  FIELD 9629: int64 blackStartTime
+  FIELD 9630: int64 blackEndTime
+  FIELD 9631: int64 lastUpdateTime
+  FIELD 9632: UnityEngine.Vector2 startWorldPos
+  FIELD 9633: UnityEngine.Vector2 pathStartPos
+  FIELD 9634: UnityEngine.Vector2 targetWorldPos
+  FIELD 9635: UnityEngine.Vector2 moveDirection
+  FIELD 9636: UnityEngine.Vector2 mainWorldPos
+  FIELD 9637: UnityEngine.Vector2 currentWorldPos
+  FIELD 9638: float32 remainDistance
+  FIELD 9639: float32 moveSpeed
+  FIELD 9640: float32 blackSpeed
+  FIELD 9641: int32 ownerServer
+  FIELD 9642: int32 ownerCurServerId
+  FIELD 9643: PlayerType playerRelationType
+  FIELD 9644: bool multiTroopLine
+  FIELD 9645: bool troopLineIsVisible
+  FIELD 9646: bool troopIsVisible
+TYPE 1708: WorldMarchDataManager+MarchDataUpdater extends System.Object
+  FIELD 9647: WorldMarchDataManager manager
+  FIELD 9648: WorldMarchDataManager+LittleNormalMarchData[] normalMarchArray
+  FIELD 9649: System.Collections.Generic.Queue`1<int32> unusedIdx
+  FIELD 9650: System.Collections.Generic.Dictionary`2<int64, int32> marchId2DataIndex
+  FIELD 9651: System.Collections.Generic.Dictionary`2<int64, string> marchId2AllianceID
+  FIELD 9652: int32 marchDataCount
+  FIELD 9653: int32 maxDataIndex
+  FIELD 9654: int32 COMPACT_THRESHOLD = 100
+  FIELD 9655: int64 serverTimeNow
+  FIELD 9656: string myUid
+  FIELD 9657: string myAllianceUid
+  FIELD 9658: UnityEngine.Rect viewRect
+  FIELD 9659: WorldMarchDataManager+MarchDataUpdater+TempMarchData tmpMarchData
+  FIELD 9660: System.Diagnostics.Stopwatch stopwatch
+  FIELD 9661: int64 updateElapsed
+  METHOD 13050 RVA 0x146a80: void .ctor(WorldMarchDataManager manager)
+  METHOD 13051 RVA 0x146ae0: void Clear()
+  METHOD 13052 RVA 0x146b4e: int64 get_ServerTimeNow()
+  METHOD 13053 RVA 0x146b70: string get_MyUid()
+  METHOD 13054 RVA 0x146b9a: string get_MyAllianceUid()
+  METHOD 13055 RVA 0x146bc4: bool IntersectsSegment(ref UnityEngine.Rect rect, ref UnityEngine.Vector2 p1, ref UnityEngine.Vector2 p2)
+  METHOD 13056 RVA 0x146d0c: void RefreshPlayerRelationType(ref WorldMarchDataManager+LittleNormalMarchData marchData)
+  METHOD 13057 RVA 0x146dbc: void TryUpdateFromProto(Sfs2X.Entities.Data.ISFSObject obj, Protobuf.WorldMarch proto)
+  METHOD 13058 RVA 0x147068: void TryUpdateFromProto(Sfs2X.Entities.Data.ISFSObject obj)
+  METHOD 13059 RVA 0x1470a0: void CompactDataArray()
+  METHOD 13060 RVA 0x147138: void UpdateMarch(int64 uuid)
+  METHOD 13061 RVA 0x147688: void DeltaUpdate(float32 deltaTime, int64 serverTimeNow, bool viewDirty, UnityEngine.Rect viewRect)
+  METHOD 13062 RVA 0x147920: void TryRemoveMarch(int64 marchId)
+  METHOD 13063 RVA 0x147994: bool TryGetMarchData(int64 marchId, ref WorldMarchDataManager+LittleNormalMarchData data)
+  METHOD 13064 RVA 0x1479d0: string Description()
+  METHOD 13065 RVA 0x147b1d: string LitDescription()
+  METHOD 13066 RVA 0x147b4c: void OnDrawGizmos()
+TYPE 1709: WorldMarchDataManager+MarchDataUpdater+TempMarchData extends System.ValueType
+  FIELD 9662: int64 uuid
+  FIELD 9663: int64 startTime
+  FIELD 9664: int64 endTime
+  FIELD 9665: int64 blackStartTime
+  FIELD 9666: int64 blackEndTime
+  FIELD 9667: int32 startServer
+  FIELD 9668: int32 startPointIdx
+  FIELD 9669: int32 homeServer
+  FIELD 9670: int32 homePointIdx
+  FIELD 9671: int32 endServer
+  FIELD 9672: int32 endPointIndex
+  FIELD 9673: int32 pathStartServer
+  FIELD 9674: int32 pathStartPointIndex
+  FIELD 9675: int32 ownerServer
+  FIELD 9676: PlayerType playerRelationType
+  FIELD 9677: float32 speed
+  FIELD 9678: float32 blackSpeed
+TYPE 1710: WorldMarchDataManager+<DelayApply>d__28 extends System.Object
+  FIELD 9679: int32 <>1__state
+  FIELD 9680: object <>2__current
+  FIELD 9681: float32 delay
+  FIELD 9682: WorldMarchDataManager <>4__this
+  FIELD 9683: int64 uuid
+  FIELD 9684: WorldMarchDataManager+BatleResult result
+  METHOD 13067 RVA 0x147cb4: void .ctor(int32 <>1__state)
+  METHOD 13068 RVA 0x147cc3: void System.IDisposable.Dispose()
+  METHOD 13069 RVA 0x147cc8: bool MoveNext()
+  METHOD 13070 RVA 0x147d4c: object System.Collections.Generic.IEnumerator<System.Object>.get_Current()
+  METHOD 13071 RVA 0x147d54: void System.Collections.IEnumerator.Reset()
+  METHOD 13072 RVA 0x147d5b: object System.Collections.IEnumerator.get_Current()
+TYPE 1711: WorldMarchDataManager+<>c extends System.Object
+  FIELD 9685: WorldMarchDataManager+<>c <>9
+  FIELD 9686: System.Func`2<string, int32> <>9__177_0
+  FIELD 9687: System.Func`2<string, int32> <>9__178_0
+  FIELD 9688: System.Func`2<string, int32> <>9__180_0
+  FIELD 9689: System.Func`2<string, int32> <>9__182_0
+  FIELD 9690: System.Func`2<string, int32> <>9__185_0
+  METHOD 13073 RVA 0x147d63: void .cctor()
+  METHOD 13074 RVA 0x147d6f: void .ctor()
+  METHOD 13075 RVA 0x147d77: int32 <AddFakeAttackMonsterMarchData>b__177_0(string a)
+  METHOD 13076 RVA 0x147d7f: int32 <UpdateFakeAttackMonsterMarch>b__178_0(string a)
+  METHOD 13077 RVA 0x147d87: int32 <AddFakeRetreatMarchData>b__180_0(string a)
+  METHOD 13078 RVA 0x147d8f: int32 <AddFakeSampleMarchData>b__182_0(string a)
+  METHOD 13079 RVA 0x147d97: int32 <UpdateFakeSampleMarchDataWhenBack>b__185_0(string a)
+TYPE 1712: WorldMarchDataManager+<>c__DisplayClass203_0 extends System.Object
+  FIELD 9691: int64 formationUuid
+  METHOD 13080 RVA 0x147d9f: void .ctor()
+  METHOD 13081 RVA 0x147da7: bool <GetOwnerFormationMarch>b__0(WorldMarch m)
+TYPE 1713: WorldMarchDataManager+<>c__DisplayClass228_0 extends System.Object
+  FIELD 9692: WorldMarch march
+  METHOD 13082 RVA 0x147db7: void .ctor()
+  METHOD 13083 RVA 0x147dbf: bool <RemoveMarch>b__0(WorldMarch i)
+TYPE 1714: WorldMarchDataManager+<>c__DisplayClass238_0 extends System.Object
+  FIELD 9693: WorldMarch march
+  METHOD 13084 RVA 0x147dd4: void .ctor()
+  METHOD 13085 RVA 0x147ddc: bool <AddOrUpdateMarch>b__0(WorldMarch i)
+  METHOD 13086 RVA 0x147df1: bool <AddOrUpdateMarch>b__1(WorldMarch i)
+TYPE 1715: WorldMarchDataManager+<UIMainWarningHide>d__240 extends System.Object
+  FIELD 9694: int32 <>1__state
+  FIELD 9695: object <>2__current
+  FIELD 9696: WarningType warningType
+  METHOD 13087 RVA 0x147e06: void .ctor(int32 <>1__state)
+  METHOD 13088 RVA 0x147e15: void System.IDisposable.Dispose()
+  METHOD 13089 RVA 0x147e18: bool MoveNext()
+  METHOD 13090 RVA 0x147e77: object System.Collections.Generic.IEnumerator<System.Object>.get_Current()
+  METHOD 13091 RVA 0x147e7f: void System.Collections.IEnumerator.Reset()
+  METHOD 13092 RVA 0x147e86: object System.Collections.IEnumerator.get_Current()
+TYPE 1716: WorldMarchBattleSound extends System.Object
+  FIELD 9697: System.Collections.Generic.HashSet`1<int32> _cityIdSet
+  FIELD 9698: System.Collections.Generic.Dictionary`2<int32, int32> _posToCityId
+  FIELD 9699: System.Collections.Generic.HashSet`1<int64> _battleMarchSet
+  FIELD 9700: int32 _allSoundCount
+  FIELD 9701: int32 _attackerCount
+  FIELD 9702: int32 _attackerCheckCount
+  FIELD 9703: int32 _battleMarchCount
+  FIELD 9704: bool _playSound
+  METHOD 13093 RVA 0x147e90: void Init()
+  METHOD 13094 RVA 0x147f78: void UnInit()
+  METHOD 13095 RVA 0x148038: void AddMarch(int64 marchUuid, int32 matchTargetPos)
+  METHOD 13096 RVA 0x1480dc: void RemoveMarch(int64 marchUuid)
+  METHOD 13097 RVA 0x148134: void RefreshSoundPlay()
+  METHOD 13098 RVA 0x14817e: void OnCrossServer(object obj)
+  METHOD 13099 RVA 0x1481b0: void OnQuitCrossServer(object obj)
+  METHOD 13100 RVA 0x1481b8: void OnStopWarBgm(object obj)
+  METHOD 13101 RVA 0x1481d1: void OnRefreshWarBgm(object obj)
+  METHOD 13102 RVA 0x1481d9: void .ctor()
+  METHOD 13103 RVA 0x148202: void <Init>b__8_0(int32 id, bool b)
+TYPE 1737: WorldMarchMessageType extends System.Enum
+  FIELD 9868: int32 value__
+  FIELD 9869: WorldMarchMessageType BlockGet = 0
+  FIELD 9870: WorldMarchMessageType PushAdd = 1
+  FIELD 9871: WorldMarchMessageType PushDel = 2
+  FIELD 9872: WorldMarchMessageType Formation = 3
+  FIELD 9873: WorldMarchMessageType FormationUpdate = 4
+  FIELD 9874: WorldMarchMessageType GetSelfInfos = 5
+TYPE 3095: XLua.CSObjectWrap.WorldMarchDataManagerBattleWordTypeWrap extends System.Object
+  METHOD 23887 RVA 0x232cdc: void __Register(native int L)
+  METHOD 23888 RVA 0x232d9c: int32 __CastFrom(native int L)
+  METHOD 23889 RVA 0x232e41: void .ctor()
+TYPE 3612: XLua.CSObjectWrap.WorldMarchDataManagerWrap extends System.Object
+  METHOD 35194 RVA 0x3a8870: void __Register(native int L)
+  METHOD 35195 RVA 0x3a9384: int32 __CreateInstance(native int L)
+  METHOD 35196 RVA 0x3a9410: int32 _m_UpdateBattleMessage(native int L)
+  METHOD 35197 RVA 0x3a9480: int32 _m_BattleFinish(native int L)
+  METHOD 35198 RVA 0x3a94f0: int32 _m_UpdateBattle(native int L)
+  METHOD 35199 RVA 0x3a9550: int32 _m_SetWorldScene(native int L)
+  METHOD 35200 RVA 0x3a95c0: int32 _m_Init(native int L)
+  METHOD 35201 RVA 0x3a9614: int32 _m_UnInit(native int L)
+  METHOD 35202 RVA 0x3a9668: int32 _m_OnUpdate(native int L)
+  METHOD 35203 RVA 0x3a96c8: int32 _m_AxisAlignRectIntersectAxisAlignSegment_xlua_st_(native int L)
+  METHOD 35204 RVA 0x3a973c: int32 _m_HandleWorldMarchGet(native int L)
+  METHOD 35205 RVA 0x3a97ac: int32 _m_HandleWorldMarchGetImpl(native int L)
+  METHOD 35206 RVA 0x3a981c: int32 _m_HandleWorldGetRectMarchInfos(native int L)
+  METHOD 35207 RVA 0x3a988c: int32 _m_CheckIsOtherTarget(native int L)
+  METHOD 35208 RVA 0x3a98fc: int32 _m_HandlePushWorldMarchAdd(native int L)
+  METHOD 35209 RVA 0x3a996c: int32 _m_HandlePushWorldMarchAddImpl(native int L)
+  METHOD 35210 RVA 0x3a99dc: int32 _m_ParsePushWorldMarchAdd(native int L)
+  METHOD 35211 RVA 0x3a9a58: int32 _m_HandlePushWorldMarchDel(native int L)
+  METHOD 35212 RVA 0x3a9ac8: int32 _m_HandlePushWorldMarchDelImpl(native int L)
+  METHOD 35213 RVA 0x3a9b38: int32 _m_HandleFormationMarch(native int L)
+  METHOD 35214 RVA 0x3a9ba8: int32 _m_HandleFormationMarchImpl(native int L)
+  METHOD 35215 RVA 0x3a9c18: int32 _m_HandleFormationMarchChange(native int L)
+  METHOD 35216 RVA 0x3a9c88: int32 _m_HandleFormationMarchChangeImpl(native int L)
+  METHOD 35217 RVA 0x3a9cf8: int32 _m_DelFakeAttackMonsterMarchDataRandom(native int L)
+  METHOD 35218 RVA 0x3a9d54: int32 _m_AddFakeAttackMonsterMarchData(native int L)
+  METHOD 35219 RVA 0x3a9dd4: int32 _m_UpdateFakeAttackMonsterMarch(native int L)
+  METHOD 35220 RVA 0x3a9e30: int32 _m_AddFakeRetreatMarchData(native int L)
+  METHOD 35221 RVA 0x3a9ec8: int32 _m_AddFakeSampleMarchData(native int L)
+  METHOD 35222 RVA 0x3aa16c: int32 _m_GetAllSampleFakeData(native int L)
+  METHOD 35223 RVA 0x3aa1c8: int32 _m_UpdateFakeSampleMarchDataWhenStartPick(native int L)
+  METHOD 35224 RVA 0x3aa230: int32 _m_UpdateFakeSampleMarchDataWhenBack(native int L)
+  METHOD 35225 RVA 0x3aa2a0: int32 _m_RemoveFakeSampleMarchData(native int L)
+  METHOD 35226 RVA 0x3aa2fc: int32 _m_ExistMarch(native int L)
+  METHOD 35227 RVA 0x3aa360: int32 _m_IsInRallyMarch(native int L)
+  METHOD 35228 RVA 0x3aa3c4: int32 _m_IsInCollectMarch(native int L)
+  METHOD 35229 RVA 0x3aa428: int32 _m_IsInAssistanceMarch(native int L)
+  METHOD 35230 RVA 0x3aa48c: int32 _m_IsSelfInCurrentMarchTeam(native int L)
+  METHOD 35231 RVA 0x3aa4f0: int32 _m_HasMarchUuid(native int L)
+  METHOD 35232 RVA 0x3aa554: int32 _m_GetMarch(native int L)
+  METHOD 35233 RVA 0x3aa5bc: int32 _m_GetMonster(native int L)
+  METHOD 35234 RVA 0x3aa624: int32 _m_GetOwnerMarches(native int L)
+  METHOD 35235 RVA 0x3aa744: int32 _m_GetMyDisguiseMarches(native int L)
+  METHOD 35236 RVA 0x3aa864: int32 _m_GetAllianceMarchesInTeam(native int L)
+  METHOD 35237 RVA 0x3aa8d4: int32 _m_IsHaveMarchInWorld(native int L)
+  METHOD 35238 RVA 0x3aa944: int32 _m_GetBestMarch(native int L)
+  METHOD 35239 RVA 0x3aa9c0: int32 _m_CleanDragonWar(native int L)
+  METHOD 35240 RVA 0x3aaa14: int32 _m_GetOwnerFormationMarch(native int L)
+  METHOD 35241 RVA 0x3aab4c: int32 _m_StartMarch(native int L)
+  METHOD 35242 RVA 0x3ab18c: int32 _m_WorldGetMarchInfos(native int L)
+  METHOD 35243 RVA 0x3ab1e0: int32 _m_ConsumeLittleSmartDirty(native int L)
+  METHOD 35244 RVA 0x3ab23c: int32 _m_IsMyMarch_xlua_st_(native int L)
+  METHOD 35245 RVA 0x3ab2a4: int32 _m_GetMyAssistanceCountByPointIndex(native int L)
+  METHOD 35246 RVA 0x3ab308: int32 _m_GetMyAssistanceFirstHero(native int L)
+  METHOD 35247 RVA 0x3ab36c: int32 _m_GetFirstMyAssistanceMarchUuid(native int L)
+  METHOD 35248 RVA 0x3ab3d0: int32 _m_UIMainWarningHide(native int L)
+  METHOD 35249 RVA 0x3ab43c: int32 _m_GetAllMarchesByCS(native int L)
+  METHOD 35250 RVA 0x3ab498: int32 _m_GetMarchesByStartIndex(native int L)
+  METHOD 35251 RVA 0x3ab500: int32 _m_GetMarchByTargetPos(native int L)
+  METHOD 35252 RVA 0x3ab568: int32 _m_GetMarchByType(native int L)
+  METHOD 35253 RVA 0x3ab5d0: int32 _m_GetMarchCountToTargetGroupByOwnerUid(native int L)
+  METHOD 35254 RVA 0x3ab638: int32 _m_GetMonsterListInArea(native int L)
+  METHOD 35255 RVA 0x3ab6dc: int32 _m_GetMarchesBossInfo(native int L)
+  METHOD 35256 RVA 0x3ab738: int32 _m_GetMarchesTargetForMine(native int L)
+  METHOD 35257 RVA 0x3ab7a0: int32 _m_GetMarchesTargetForMineLite(native int L)
+  METHOD 35258 RVA 0x3ab7fc: int32 _m_GetMarchesTargetForMineCached(native int L)
+  METHOD 35259 RVA 0x3ab864: int32 _m_GetInimicalMarchesTargetForMine(native int L)
+  METHOD 35260 RVA 0x3ab8c0: int32 _m_IsTargetForMine(native int L)
+  METHOD 35261 RVA 0x3aba30: int32 _m_IsTargetForAlly(native int L)
+  METHOD 35262 RVA 0x3abaa8: int32 _m_GetTrainConfig(native int L)
+  METHOD 35263 RVA 0x3abb10: int32 _m_GetFlowerCarLength(native int L)
+  METHOD 35264 RVA 0x3abb74: int32 _m_CacheAllianceMembersHomePos(native int L)
+  METHOD 35265 RVA 0x3abbc8: int32 _m_CleanAllianceMembersHomePos(native int L)
+  METHOD 35266 RVA 0x3abc1c: int32 _m_IsMemberByPointId(native int L)
+  METHOD 35267 RVA 0x3abc80: int32 _m_DestroyBerserkBossMarchData(native int L)
+  METHOD 35268 RVA 0x3abcdc: int32 _m_SaveCreateMarchRecordTime(native int L)
+  METHOD 35269 RVA 0x3abd38: int32 _m_RemoveCreateMarchRecordTime(native int L)
+  METHOD 35270 RVA 0x3abda8: int32 _m_UpdateBattleSoundData(native int L)
+  METHOD 35271 RVA 0x3abdfc: int32 _m_OnDrawGizmos(native int L)
+  METHOD 35272 RVA 0x3abe50: int32 _m_EditorLog_xlua_st_(native int L)
+  METHOD 35273 RVA 0x3abe90: int32 _m_EditorDescription(native int L)
+  METHOD 35274 RVA 0x3abeec: int32 _m_AddMarch(native int L)
+  METHOD 35275 RVA 0x3abf5c: int32 _m_FakeAddMarch(native int L)
+  METHOD 35276 RVA 0x3abfcc: int32 _m_StartRecordMarchBlock(native int L)
+  METHOD 35277 RVA 0x3ac028: int32 _m_StopRecordMarchBlock(native int L)
+  METHOD 35278 RVA 0x3ac07c: int32 _m_BIRecordWorldMarch(native int L)
+  METHOD 35279 RVA 0x3ac0ec: int32 _g_get___INC_UPDATE__(native int L)
+  METHOD 35280 RVA 0x3ac130: int32 _g_get_AllMarchesCount(native int L)
+  METHOD 35281 RVA 0x3ac18c: int32 _g_get_NormalMarchCount(native int L)
+  METHOD 35282 RVA 0x3ac1e8: int32 _g_get_EnableWorldAssistanceOpt(native int L)
+  METHOD 35283 RVA 0x3ac244: int32 _g_get_EnableWorldMarchDataOptHahaha(native int L)
+  METHOD 35284 RVA 0x3ac288: int32 _g_get_lastPerformanceCount(native int L)
+  METHOD 35285 RVA 0x3ac2e4: int32 _g_get_lastPerformanceSquadDisplayCount(native int L)
+  METHOD 35286 RVA 0x3ac340: int32 _g_get_lastPerformanceSquadDataCount(native int L)
+  METHOD 35287 RVA 0x3ac39c: int32 _g_get_lastPerformanceTroopLineCount(native int L)
+  METHOD 35288 RVA 0x3ac3f8: int32 _g_get_lastPerformanceTroopLineDisplayCount(native int L)
+  METHOD 35289 RVA 0x3ac454: int32 _g_get_lastPerformanceTroopLineDataCount(native int L)
+  METHOD 35290 RVA 0x3ac4b0: int32 _g_get_DataUpdater(native int L)
+  METHOD 35291 RVA 0x3ac50c: int32 _g_get_EditorInstance(native int L)
+  METHOD 35292 RVA 0x3ac55c: int32 _g_get_TileBlockIndex(native int L)
+  METHOD 35293 RVA 0x3ac5b8: int32 _g_get_OnMonsterAdd(native int L)
+  METHOD 35294 RVA 0x3ac608: int32 _g_get_OnMonsterDelete(native int L)
+  METHOD 35295 RVA 0x3ac658: int32 _g_get_hahaUpdateCount(native int L)
+  METHOD 35296 RVA 0x3ac6b4: int32 _g_get_legacyUpdateCount(native int L)
+  METHOD 35297 RVA 0x3ac710: int32 _g_get_SelectMarchUuid(native int L)
+  METHOD 35298 RVA 0x3ac754: int32 _g_get_DebugMarchUuid(native int L)
+  METHOD 35299 RVA 0x3ac798: int32 _s_set_OnMonsterAdd(native int L)
+  METHOD 35300 RVA 0x3ac7e8: int32 _s_set_OnMonsterDelete(native int L)
+  METHOD 35301 RVA 0x3ac838: int32 _s_set_hahaUpdateCount(native int L)
+  METHOD 35302 RVA 0x3ac894: int32 _s_set_legacyUpdateCount(native int L)
+  METHOD 35303 RVA 0x3ac8f0: int32 _s_set_SelectMarchUuid(native int L)
+  METHOD 35304 RVA 0x3ac934: int32 _s_set_DebugMarchUuid(native int L)
+  METHOD 35305 RVA 0x3ac978: void .ctor()
+TYPE 3613: XLua.CSObjectWrap.WorldMarchWrap extends System.Object
+  METHOD 35306 RVA 0x3ac980: void __Register(native int L)
+  METHOD 35307 RVA 0x3aec10: int32 __CreateInstance(native int L)
+  METHOD 35308 RVA 0x3aec78: int32 _m_IsBirthingNew(native int L)
+  METHOD 35309 RVA 0x3aecd4: int32 _m_IsBirthing(native int L)
+  METHOD 35310 RVA 0x3aed30: int32 _m_Dispose(native int L)
+  METHOD 35311 RVA 0x3aed84: int32 _m_IsMine(native int L)
+  METHOD 35312 RVA 0x3aede0: int32 _m_IsMineOrAllyAssembly(native int L)
+  METHOD 35313 RVA 0x3aee3c: int32 _m_IsScoutMarch(native int L)
+  METHOD 35314 RVA 0x3aee98: int32 _m_GetArmyInfoIndexOne(native int L)
+  METHOD 35315 RVA 0x3aeef4: int32 _m_GetWorldType(native int L)
+  METHOD 35316 RVA 0x3aef50: int32 _m_ShowFiveHero(native int L)
+  METHOD 35317 RVA 0x3aefac: int32 _m_GetTrainTailPos(native int L)
+  METHOD 35318 RVA 0x3af008: int32 _m_ShowTrain(native int L)
+  METHOD 35319 RVA 0x3af064: int32 _m_ShowFlowerTrain(native int L)
+  METHOD 35320 RVA 0x3af0c0: int32 _m_IsZombieBusTrain(native int L)
+  METHOD 35321 RVA 0x3af11c: int32 _m_GetZombieBusTrainTailPos(native int L)
+  METHOD 35322 RVA 0x3af178: int32 _m_GetZombieBusTrainLength(native int L)
+  METHOD 35323 RVA 0x3af1d4: int32 _m_IsMummyMarch(native int L)
+  METHOD 35324 RVA 0x3af230: int32 _m_IsDrillBase(native int L)
+  METHOD 35325 RVA 0x3af28c: int32 _m_IsDrillBaseTank(native int L)
+  METHOD 35326 RVA 0x3af2e8: int32 _m_IsDrillBaseNewBossHugeSandWorm(native int L)
+  METHOD 35327 RVA 0x3af344: int32 _m_IsDrillBaseRoadHog(native int L)
+  METHOD 35328 RVA 0x3af3a0: int32 _m_IsAisila(native int L)
+  METHOD 35329 RVA 0x3af3fc: int32 _m_IsAlChallengeKirov(native int L)
+  METHOD 35330 RVA 0x3af458: int32 _m_IsActBerserkBoss(native int L)
+  METHOD 35331 RVA 0x3af4b4: int32 _m_IsSandWorm(native int L)
+  METHOD 35332 RVA 0x3af510: int32 _m_IsS4WanderBoss(native int L)
+  METHOD 35333 RVA 0x3af56c: int32 _m_IsFixedBoss(native int L)
+  METHOD 35334 RVA 0x3af5c8: int32 _m_IsFlowerCar(native int L)
+  METHOD 35335 RVA 0x3af624: int32 _m_GetFlowerCarTailPos(native int L)
+  METHOD 35336 RVA 0x3af680: int32 _m_IsAllyBaseAttackCitySandWorm(native int L)
+  METHOD 35337 RVA 0x3af6dc: int32 _m_HasFightMonster(native int L)
+  METHOD 35338 RVA 0x3af738: int32 _m_IsVisibleMarch(native int L)
+  METHOD 35339 RVA 0x3af794: int32 _m_IsLightMarch(native int L)
+  METHOD 35340 RVA 0x3af7f0: int32 _m_IsCityBattleS1Monster(native int L)
+  METHOD 35341 RVA 0x3af84c: int32 _m_IsBloodyQueenMonster(native int L)
+  METHOD 35342 RVA 0x3af8a8: int32 _m_IsBloodyQueenQueenGunner(native int L)
+  METHOD 35343 RVA 0x3af904: int32 _m_IsFlowerTrain(native int L)
+  METHOD 35344 RVA 0x3af960: int32 _m_GetFlowerTrainTailPos(native int L)
+  METHOD 35345 RVA 0x3af9bc: int32 _m_UpdateWorldMarch(native int L)
+  METHOD 35346 RVA 0x3afaa0: int32 _m_IncrementalUpdateWorldMarch(native int L)
+  METHOD 35347 RVA 0x3afb2c: int32 _m_GetZombieBusList(native int L)
+  METHOD 35348 RVA 0x3afb88: int32 _m_IsFrozen(native int L)
+  METHOD 35349 RVA 0x3afbe4: int32 _m_IsMonster(native int L)
+  METHOD 35350 RVA 0x3afc40: int32 _m_IsOrdinaryBoss(native int L)
+  METHOD 35351 RVA 0x3afc9c: int32 _m_IsBoss(native int L)
+  METHOD 35352 RVA 0x3afcf8: int32 _m_IsMonsterOrBoss(native int L)
+  METHOD 35353 RVA 0x3afd54: int32 _m_IsMonsterOrOrdinaryBoss(native int L)
+  METHOD 35354 RVA 0x3afdb0: int32 _m_IsWanderBoss(native int L)
+  METHOD 35355 RVA 0x3afe0c: int32 _m_IsWanderMonster(native int L)
+  METHOD 35356 RVA 0x3afe68: int32 _m_IsEVP(native int L)
+  METHOD 35357 RVA 0x3afec4: int32 _m_IsZombieRushAltered(native int L)
+  METHOD 35358 RVA 0x3aff20: int32 _m_IsGeneralAllyBoss(native int L)
+  METHOD 35359 RVA 0x3aff7c: int32 _m_IsS4BNMonsterOrBoss(native int L)
+  METHOD 35360 RVA 0x3affd8: int32 _m_IsS4WNMonster(native int L)
+  METHOD 35361 RVA 0x3b0034: int32 _m_GetIsBroken(native int L)
+  METHOD 35362 RVA 0x3b0090: int32 _m_GetArmyInfo(native int L)
+  METHOD 35363 RVA 0x3b00f8: int32 _m_GetFirstArmyInfo(native int L)
+  METHOD 35364 RVA 0x3b0154: int32 _m_GetLeaderHero(native int L)
+  METHOD 35365 RVA 0x3b01b0: int32 _m_GetSoliderNum(native int L)
+  METHOD 35366 RVA 0x3b020c: int32 _m_GetHP(native int L)
+  METHOD 35367 RVA 0x3b0268: int32 _m_GetMaxHP(native int L)
+  METHOD 35368 RVA 0x3b02c4: int32 _m_GetMarchTargetType(native int L)
+  METHOD 35369 RVA 0x3b0320: int32 _m_GetOldMarchTargetType(native int L)
+  METHOD 35370 RVA 0x3b037c: int32 _m_GetMarchStatus(native int L)
+  METHOD 35371 RVA 0x3b03d8: int32 _m_GetMarchType(native int L)
+  METHOD 35372 RVA 0x3b0434: int32 _m_GetMarchCurPos(native int L)
+  METHOD 35373 RVA 0x3b0490: int32 _m_GetMarchCurPosIndex(native int L)
+  METHOD 35374 RVA 0x3b04ec: int32 _m_CreatePathSegment(native int L)
+  METHOD 35375 RVA 0x3b0548: int32 _m_GetPassedLen(native int L)
+  METHOD 35376 RVA 0x3b05a4: int32 _m_GetCurArmyWeight(native int L)
+  METHOD 35377 RVA 0x3b0600: int32 _m_GetResourcePercent(native int L)
+  METHOD 35378 RVA 0x3b065c: int32 _m_IsMasstroops(native int L)
+  METHOD 35379 RVA 0x3b06b8: int32 _m_InitMove(native int L)
+  METHOD 35380 RVA 0x3b0728: int32 _m_GetMoveSpeed(native int L)
+  METHOD 35381 RVA 0x3b0784: int32 _m_GetBlackSpeed(native int L)
+  METHOD 35382 RVA 0x3b07e0: int32 _m_UpdateMove(native int L)
+  METHOD 35383 RVA 0x3b08cc: int32 _m_UpdateViewRectState(native int L)
+  METHOD 35384 RVA 0x3b0928: int32 _m_GetCamp(native int L)
+  METHOD 35385 RVA 0x3b098c: int32 _m_NeedCreateTroopLine(native int L)
+  METHOD 35386 RVA 0x3b09e8: int32 _m_SupportLittleSmartTroopLineMode(native int L)
+  METHOD 35387 RVA 0x3b0a44: int32 _m_SupportLittleSmartTroopMode(native int L)
+  METHOD 35388 RVA 0x3b0aa0: int32 _m_IsPerformanceMarch(native int L)
+  METHOD 35389 RVA 0x3b0afc: int32 _m_GetMarchBlockSize(native int L)
+  METHOD 35390 RVA 0x3b0b58: int32 _m_RecordMarchBlock(native int L)
+  METHOD 35391 RVA 0x3b0bc8: int32 _m_RemoveBlockIndex(native int L)
+  METHOD 35392 RVA 0x3b0c38: int32 _m_Description(native int L)
+  METHOD 35393 RVA 0x3b0c94: int32 _m_DistanceFromPointToLine(native int L)
+  METHOD 35394 RVA 0x3b0d1c: int32 _m_UnContinuousMarch(native int L)
+  METHOD 35395 RVA 0x3b0d78: int32 _m_NeedShowLoopAttackEffect(native int L)
+  METHOD 35396 RVA 0x3b0dd4: int32 _m_GetMonsterAttackRange(native int L)
+  METHOD 35397 RVA 0x3b0e30: int32 _m_IsS6Mummy(native int L)
+  METHOD 35398 RVA 0x3b0e8c: int32 _g_get_uuid(native int L)
+  METHOD 35399 RVA 0x3b0ee8: int32 _g_get_StationPointInfo(native int L)
+  METHOD 35400 RVA 0x3b0f44: int32 _g_get_MoveDir(native int L)
+  METHOD 35401 RVA 0x3b0fa0: int32 _g_get_curHp(native int L)
+  METHOD 35402 RVA 0x3b0ffc: int32 _g_get_berserkBossMetaId(native int L)
+  METHOD 35403 RVA 0x3b1058: int32 _g_get_clientCreateGuid(native int L)
+  METHOD 35404 RVA 0x3b10b4: int32 _g_get_IsValid(native int L)
+  METHOD 35405 RVA 0x3b1110: int32 _g_get_HasMeteorite(native int L)
+  METHOD 35406 RVA 0x3b116c: int32 _g_get_IsInViewRect(native int L)
+  METHOD 35407 RVA 0x3b11c8: int32 _g_get_updateVisibleID(native int L)
+  METHOD 35408 RVA 0x3b1224: int32 _g_get_updateTroopID(native int L)
+  METHOD 35409 RVA 0x3b1280: int32 _g_get_train(native int L)
+  METHOD 35410 RVA 0x3b12dc: int32 _g_get_flowerTrain(native int L)
+  METHOD 35411 RVA 0x3b1338: int32 _g_get_allianceBoss(native int L)
+  METHOD 35412 RVA 0x3b1394: int32 _g_get_invasionBossInfo(native int L)
+  METHOD 35413 RVA 0x3b13f0: int32 _g_get_thermalConductor(native int L)
+  METHOD 35414 RVA 0x3b144c: int32 _g_get_sandWormData(native int L)
+  METHOD 35415 RVA 0x3b14a8: int32 _g_get_darknessMonsterData(native int L)
+  METHOD 35416 RVA 0x3b1504: int32 _g_get_zMBossInfo(native int L)
+  METHOD 35417 RVA 0x3b1560: int32 _g_get_detectZombieBusTrain(native int L)
+  METHOD 35418 RVA 0x3b15bc: int32 _g_get_allianceChallengeInfo(native int L)
+  METHOD 35419 RVA 0x3b1618: int32 _g_get_cityBattleS1MonsterInfo(native int L)
+  METHOD 35420 RVA 0x3b1674: int32 _g_get_bloodyQueenMonster(native int L)
+  METHOD 35421 RVA 0x3b16d0: int32 _g_get_s0AllianceBossInfo(native int L)
+  METHOD 35422 RVA 0x3b172c: int32 _g_get_ownerUid(native int L)
+  METHOD 35423 RVA 0x3b1788: int32 _g_get_ownerName(native int L)
+  METHOD 35424 RVA 0x3b17e4: int32 _g_get_ownerServer(native int L)
+  METHOD 35425 RVA 0x3b1840: int32 _g_get_ownerCurServerId(native int L)
+  METHOD 35426 RVA 0x3b189c: int32 _g_get_teamUuid(native int L)
+  METHOD 35427 RVA 0x3b18f8: int32 _g_get_allianceUid(native int L)
+  METHOD 35428 RVA 0x3b1954: int32 _g_get_ownerFormationUuid(native int L)
+  METHOD 35429 RVA 0x3b19b0: int32 _g_get_path(native int L)
+  METHOD 35430 RVA 0x3b1a0c: int32 _g_get_targetPos(native int L)
+  METHOD 35431 RVA 0x3b1a68: int32 _g_get_startPos(native int L)
+  METHOD 35432 RVA 0x3b1ac4: int32 _g_get_homePos(native int L)
+  METHOD 35433 RVA 0x3b1b20: int32 _g_get_power(native int L)
+  METHOD 35434 RVA 0x3b1b7c: int32 _g_get_startWorldPos(native int L)
+  METHOD 35435 RVA 0x3b1bd8: int32 _g_get_targetWorldPos(native int L)
+  METHOD 35436 RVA 0x3b1c34: int32 _g_get_homeWorldPos(native int L)
+  METHOD 35437 RVA 0x3b1c90: int32 _g_get_startTime(native int L)
+  METHOD 35438 RVA 0x3b1cec: int32 _g_get_endTime(native int L)
+  METHOD 35439 RVA 0x3b1d48: int32 _g_get_blackStartTime(native int L)
+  METHOD 35440 RVA 0x3b1da4: int32 _g_get_blackEndTime(native int L)
+  METHOD 35441 RVA 0x3b1e00: int32 _g_get_target(native int L)
+  METHOD 35442 RVA 0x3b1e64: int32 _g_get_oldTargetType(native int L)
+  METHOD 35443 RVA 0x3b1ec8: int32 _g_get_status(native int L)
+  METHOD 35444 RVA 0x3b1f24: int32 _g_get_type(native int L)
+  METHOD 35445 RVA 0x3b1f80: int32 _g_get_isAnonymity(native int L)
+  METHOD 35446 RVA 0x3b1fdc: int32 _g_get_targetUuid(native int L)
+  METHOD 35447 RVA 0x3b2038: int32 _g_get_speed(native int L)
+  METHOD 35448 RVA 0x3b2094: int32 _g_get_oriSpeed(native int L)
+  METHOD 35449 RVA 0x3b20f0: int32 _g_get_blackSpeed(native int L)
+  METHOD 35450 RVA 0x3b214c: int32 _g_get_plunderRes(native int L)
+  METHOD 35451 RVA 0x3b21a8: int32 _g_get_worldId(native int L)
+  METHOD 35452 RVA 0x3b2204: int32 _g_get_worldType(native int L)
+  METHOD 35453 RVA 0x3b2260: int32 _g_get_collectSpd(native int L)
+  METHOD 35454 RVA 0x3b22bc: int32 _g_get_armyWeight(native int L)
+  METHOD 35455 RVA 0x3b2318: int32 _g_get_inBattle(native int L)
+  METHOD 35456 RVA 0x3b2374: int32 _g_get_armyInfos(native int L)
+  METHOD 35457 RVA 0x3b23d0: int32 _g_get_monsterId(native int L)
+  METHOD 35458 RVA 0x3b242c: int32 _g_get_monsterSpecialType(native int L)
+  METHOD 35459 RVA 0x3b2488: int32 _g_get_monsterType(native int L)
+  METHOD 35460 RVA 0x3b24e4: int32 _g_get_monsterHpRatio(native int L)
+  METHOD 35461 RVA 0x3b2540: int32 _g_get_monsterRallyNum(native int L)
+  METHOD 35462 RVA 0x3b259c: int32 _g_get_zombieRushRound(native int L)
+  METHOD 35463 RVA 0x3b25f8: int32 _g_get_zombieRushId(native int L)
+  METHOD 35464 RVA 0x3b2654: int32 _g_get_allianceBuildingCfgId(native int L)
+  METHOD 35465 RVA 0x3b26b0: int32 _g_get_refreshTime(native int L)
+  METHOD 35466 RVA 0x3b270c: int32 _g_get_createTime(native int L)
+  METHOD 35467 RVA 0x3b2768: int32 _g_get_expireTime(native int L)
+  METHOD 35468 RVA 0x3b27c4: int32 _g_get_actStartTime(native int L)
+  METHOD 35469 RVA 0x3b2820: int32 _g_get_actEndTime(native int L)
+  METHOD 35470 RVA 0x3b287c: int32 _g_get_cityId(native int L)
+  METHOD 35471 RVA 0x3b28d8: int32 _g_get_npcNum(native int L)
+  METHOD 35472 RVA 0x3b2934: int32 _g_get_isBroken(native int L)
+  METHOD 35473 RVA 0x3b2990: int32 _g_get_stationDir(native int L)
+  METHOD 35474 RVA 0x3b29f4: int32 _g_get_allianceAbbr(native int L)
+  METHOD 35475 RVA 0x3b2a50: int32 _g_get_allianceName(native int L)
+  METHOD 35476 RVA 0x3b2aac: int32 _g_get_allianceIcon(native int L)
+  METHOD 35477 RVA 0x3b2b08: int32 _g_get_eventId(native int L)
+  METHOD 35478 RVA 0x3b2b64: int32 _g_get_eventUuid(native int L)
+  METHOD 35479 RVA 0x3b2bc0: int32 _g_get_belongUid(native int L)
+  METHOD 35480 RVA 0x3b2c1c: int32 _g_get_pic(native int L)
+  METHOD 35481 RVA 0x3b2c78: int32 _g_get_picVer(native int L)
+  METHOD 35482 RVA 0x3b2cd4: int32 _g_get_headSkinId(native int L)
+  METHOD 35483 RVA 0x3b2d30: int32 _g_get_headSkinET(native int L)
+  METHOD 35484 RVA 0x3b2d8c: int32 _g_get_pvpNum(native int L)
+  METHOD 35485 RVA 0x3b2de8: int32 _g_get_pveNum(native int L)
+  METHOD 35486 RVA 0x3b2e44: int32 _g_get_baseVirusLayer(native int L)
+  METHOD 35487 RVA 0x3b2ea0: int32 _g_get_extraVirusLayer(native int L)
+  METHOD 35488 RVA 0x3b2efc: int32 _g_get_serverId(native int L)
+  METHOD 35489 RVA 0x3b2f58: int32 _g_get_targetServer(native int L)
+  METHOD 35490 RVA 0x3b2fb4: int32 _g_get_srcServer(native int L)
+  METHOD 35491 RVA 0x3b3010: int32 _g_get_pathStartServerId(native int L)
+  METHOD 35492 RVA 0x3b306c: int32 _g_get_realTargetPos(native int L)
+  METHOD 35493 RVA 0x3b30c8: int32 _g_get_isSelect(native int L)
+  METHOD 35494 RVA 0x3b3124: int32 _g_get_isCameraFollow(native int L)
+  METHOD 35495 RVA 0x3b3180: int32 _g_get_position(native int L)
+  METHOD 35496 RVA 0x3b31dc: int32 _g_get_pathList(native int L)
+  METHOD 35497 RVA 0x3b3238: int32 _g_get_bossOwnerUid(native int L)
+  METHOD 35498 RVA 0x3b3294: int32 _g_get_callHelp(native int L)
+  METHOD 35499 RVA 0x3b32f0: int32 _g_get_secretKey(native int L)
+  METHOD 35500 RVA 0x3b334c: int32 _g_get_isFake(native int L)
+  METHOD 35501 RVA 0x3b33a8: int32 _g_get_isFakeAttack(native int L)
+  METHOD 35502 RVA 0x3b3404: int32 _g_get_fakeMarchTime(native int L)
+  METHOD 35503 RVA 0x3b3460: int32 _g_get_parentUuid(native int L)
+  METHOD 35504 RVA 0x3b34bc: int32 _g_get_delayApply(native int L)
+  METHOD 35505 RVA 0x3b3518: int32 _g_get_delayApplyTime(native int L)
+  METHOD 35506 RVA 0x3b3574: int32 _g_get_IsStrongholdBoss(native int L)
+  METHOD 35507 RVA 0x3b35d0: int32 _g_get_strongholdBossNum(native int L)
+  METHOD 35508 RVA 0x3b362c: int32 _g_get_strongholdBossMax(native int L)
+  METHOD 35509 RVA 0x3b3688: int32 _g_get_IsCityBoss(native int L)
+  METHOD 35510 RVA 0x3b36e4: int32 _g_get_cityBossNum(native int L)
+  METHOD 35511 RVA 0x3b3740: int32 _g_get_cityBossMax(native int L)
+  METHOD 35512 RVA 0x3b379c: int32 _g_get_isAssistAllyMarch(native int L)
+  METHOD 35513 RVA 0x3b37f8: int32 _g_get_isMummyMarch(native int L)
+  METHOD 35514 RVA 0x3b3854: int32 _g_get_fixedSoldierType(native int L)
+  METHOD 35515 RVA 0x3b38b0: int32 _g_get_ownerLightUuid(native int L)
+  METHOD 35516 RVA 0x3b390c: int32 _g_get_catchZombieNum(native int L)
+  METHOD 35517 RVA 0x3b3968: int32 _g_get_bankDeposit(native int L)
+  METHOD 35518 RVA 0x3b39c4: int32 _g_get_itemId(native int L)
+  METHOD 35519 RVA 0x3b3a20: int32 _g_get_globalArmy(native int L)
+  METHOD 35520 RVA 0x3b3a7c: int32 _g_get_LightLength(native int L)
+  METHOD 35521 RVA 0x3b3ad8: int32 _g_get_actBossState(native int L)
+  METHOD 35522 RVA 0x3b3b34: int32 _g_get_userInfo(native int L)
+  METHOD 35523 RVA 0x3b3b90: int32 _g_get_armyUnit(native int L)
+  METHOD 35524 RVA 0x3b3bec: int32 _g_get_totalArmyUnit(native int L)
+  METHOD 35525 RVA 0x3b3c48: int32 _g_get_nextSkillTime(native int L)
+  METHOD 35526 RVA 0x3b3ca4: int32 _g_get_parsedProto(native int L)
+  METHOD 35527 RVA 0x3b3d00: int32 _g_get_parsedSfs(native int L)
+  METHOD 35528 RVA 0x3b3d5c: int32 _g_get_showedInView(native int L)
+  METHOD 35529 RVA 0x3b3db8: int32 _g_get_crystal(native int L)
+  METHOD 35530 RVA 0x3b3e14: int32 _g_get_nucleus(native int L)
+  METHOD 35531 RVA 0x3b3e70: int32 _g_get_holdUuid(native int L)
+  METHOD 35532 RVA 0x3b3ecc: int32 _g_get_bloodyQueenMonsterUuid(native int L)
+  METHOD 35533 RVA 0x3b3f28: int32 _g_get_cityBattleS1RestBossUuid(native int L)
+  METHOD 35534 RVA 0x3b3f84: int32 _s_set_uuid(native int L)
+  METHOD 35535 RVA 0x3b3fe0: int32 _s_set_IsValid(native int L)
+  METHOD 35536 RVA 0x3b403c: int32 _s_set_updateVisibleID(native int L)
+  METHOD 35537 RVA 0x3b4098: int32 _s_set_updateTroopID(native int L)
+  METHOD 35538 RVA 0x3b40f4: int32 _s_set_train(native int L)
+  METHOD 35539 RVA 0x3b4160: int32 _s_set_flowerTrain(native int L)
+  METHOD 35540 RVA 0x3b41cc: int32 _s_set_allianceBoss(native int L)
+  METHOD 35541 RVA 0x3b4238: int32 _s_set_invasionBossInfo(native int L)
+  METHOD 35542 RVA 0x3b42a4: int32 _s_set_thermalConductor(native int L)
+  METHOD 35543 RVA 0x3b4310: int32 _s_set_sandWormData(native int L)
+  METHOD 35544 RVA 0x3b437c: int32 _s_set_darknessMonsterData(native int L)
+  METHOD 35545 RVA 0x3b43e8: int32 _s_set_zMBossInfo(native int L)
+  METHOD 35546 RVA 0x3b4454: int32 _s_set_detectZombieBusTrain(native int L)
+  METHOD 35547 RVA 0x3b44c0: int32 _s_set_allianceChallengeInfo(native int L)
+  METHOD 35548 RVA 0x3b452c: int32 _s_set_cityBattleS1MonsterInfo(native int L)
+  METHOD 35549 RVA 0x3b4598: int32 _s_set_bloodyQueenMonster(native int L)
+  METHOD 35550 RVA 0x3b4604: int32 _s_set_s0AllianceBossInfo(native int L)
+  METHOD 35551 RVA 0x3b4670: int32 _s_set_ownerUid(native int L)
+  METHOD 35552 RVA 0x3b46cc: int32 _s_set_ownerName(native int L)
+  METHOD 35553 RVA 0x3b4728: int32 _s_set_ownerServer(native int L)
+  METHOD 35554 RVA 0x3b4784: int32 _s_set_ownerCurServerId(native int L)
+  METHOD 35555 RVA 0x3b47e0: int32 _s_set_teamUuid(native int L)
+  METHOD 35556 RVA 0x3b483c: int32 _s_set_allianceUid(native int L)
+  METHOD 35557 RVA 0x3b4898: int32 _s_set_ownerFormationUuid(native int L)
+  METHOD 35558 RVA 0x3b48f4: int32 _s_set_path(native int L)
+  METHOD 35559 RVA 0x3b4960: int32 _s_set_targetPos(native int L)
+  METHOD 35560 RVA 0x3b49bc: int32 _s_set_startPos(native int L)
+  METHOD 35561 RVA 0x3b4a18: int32 _s_set_homePos(native int L)
+  METHOD 35562 RVA 0x3b4a74: int32 _s_set_power(native int L)
+  METHOD 35563 RVA 0x3b4ad0: int32 _s_set_startWorldPos(native int L)
+  METHOD 35564 RVA 0x3b4b30: int32 _s_set_targetWorldPos(native int L)
+  METHOD 35565 RVA 0x3b4b90: int32 _s_set_homeWorldPos(native int L)
+  METHOD 35566 RVA 0x3b4bf0: int32 _s_set_startTime(native int L)
+  METHOD 35567 RVA 0x3b4c4c: int32 _s_set_endTime(native int L)
+  METHOD 35568 RVA 0x3b4ca8: int32 _s_set_blackStartTime(native int L)
+  METHOD 35569 RVA 0x3b4d04: int32 _s_set_blackEndTime(native int L)
+  METHOD 35570 RVA 0x3b4d60: int32 _s_set_target(native int L)
+  METHOD 35571 RVA 0x3b4dc0: int32 _s_set_oldTargetType(native int L)
+  METHOD 35572 RVA 0x3b4e20: int32 _s_set_status(native int L)
+  METHOD 35573 RVA 0x3b4e80: int32 _s_set_type(native int L)
+  METHOD 35574 RVA 0x3b4ee0: int32 _s_set_isAnonymity(native int L)
+  METHOD 35575 RVA 0x3b4f3c: int32 _s_set_targetUuid(native int L)
+  METHOD 35576 RVA 0x3b4f98: int32 _s_set_speed(native int L)
+  METHOD 35577 RVA 0x3b4ff4: int32 _s_set_oriSpeed(native int L)
+  METHOD 35578 RVA 0x3b5050: int32 _s_set_blackSpeed(native int L)
+  METHOD 35579 RVA 0x3b50ac: int32 _s_set_plunderRes(native int L)
+  METHOD 35580 RVA 0x3b5108: int32 _s_set_worldId(native int L)
+  METHOD 35581 RVA 0x3b5164: int32 _s_set_worldType(native int L)
+  METHOD 35582 RVA 0x3b51c0: int32 _s_set_collectSpd(native int L)
+  METHOD 35583 RVA 0x3b521c: int32 _s_set_armyWeight(native int L)
+  METHOD 35584 RVA 0x3b5278: int32 _s_set_inBattle(native int L)
+  METHOD 35585 RVA 0x3b52d4: int32 _s_set_armyInfos(native int L)
+  METHOD 35586 RVA 0x3b5340: int32 _s_set_monsterId(native int L)
+  METHOD 35587 RVA 0x3b539c: int32 _s_set_monsterSpecialType(native int L)
+  METHOD 35588 RVA 0x3b53f8: int32 _s_set_monsterType(native int L)
+  METHOD 35589 RVA 0x3b5454: int32 _s_set_monsterHpRatio(native int L)
+  METHOD 35590 RVA 0x3b54b0: int32 _s_set_monsterRallyNum(native int L)
+  METHOD 35591 RVA 0x3b550c: int32 _s_set_zombieRushRound(native int L)
+  METHOD 35592 RVA 0x3b5568: int32 _s_set_zombieRushId(native int L)
+  METHOD 35593 RVA 0x3b55c4: int32 _s_set_allianceBuildingCfgId(native int L)
+  METHOD 35594 RVA 0x3b5620: int32 _s_set_refreshTime(native int L)
+  METHOD 35595 RVA 0x3b567c: int32 _s_set_createTime(native int L)
+  METHOD 35596 RVA 0x3b56d8: int32 _s_set_expireTime(native int L)
+  METHOD 35597 RVA 0x3b5734: int32 _s_set_actStartTime(native int L)
+  METHOD 35598 RVA 0x3b5790: int32 _s_set_actEndTime(native int L)
+  METHOD 35599 RVA 0x3b57ec: int32 _s_set_cityId(native int L)
+  METHOD 35600 RVA 0x3b5848: int32 _s_set_npcNum(native int L)
+  METHOD 35601 RVA 0x3b58a4: int32 _s_set_isBroken(native int L)
+  METHOD 35602 RVA 0x3b5900: int32 _s_set_stationDir(native int L)
+  METHOD 35603 RVA 0x3b5960: int32 _s_set_allianceAbbr(native int L)
+  METHOD 35604 RVA 0x3b59bc: int32 _s_set_allianceName(native int L)
+  METHOD 35605 RVA 0x3b5a18: int32 _s_set_allianceIcon(native int L)
+  METHOD 35606 RVA 0x3b5a74: int32 _s_set_eventId(native int L)
+  METHOD 35607 RVA 0x3b5ad0: int32 _s_set_eventUuid(native int L)
+  METHOD 35608 RVA 0x3b5b2c: int32 _s_set_belongUid(native int L)
+  METHOD 35609 RVA 0x3b5b88: int32 _s_set_pic(native int L)
+  METHOD 35610 RVA 0x3b5be4: int32 _s_set_picVer(native int L)
+  METHOD 35611 RVA 0x3b5c40: int32 _s_set_headSkinId(native int L)
+  METHOD 35612 RVA 0x3b5c9c: int32 _s_set_headSkinET(native int L)
+  METHOD 35613 RVA 0x3b5cf8: int32 _s_set_pvpNum(native int L)
+  METHOD 35614 RVA 0x3b5d54: int32 _s_set_pveNum(native int L)
+  METHOD 35615 RVA 0x3b5db0: int32 _s_set_baseVirusLayer(native int L)
+  METHOD 35616 RVA 0x3b5e0c: int32 _s_set_extraVirusLayer(native int L)
+  METHOD 35617 RVA 0x3b5e68: int32 _s_set_serverId(native int L)
+  METHOD 35618 RVA 0x3b5ec4: int32 _s_set_targetServer(native int L)
+  METHOD 35619 RVA 0x3b5f20: int32 _s_set_srcServer(native int L)
+  METHOD 35620 RVA 0x3b5f7c: int32 _s_set_pathStartServerId(native int L)
+  METHOD 35621 RVA 0x3b5fd8: int32 _s_set_realTargetPos(native int L)
+  METHOD 35622 RVA 0x3b6034: int32 _s_set_isSelect(native int L)
+  METHOD 35623 RVA 0x3b6090: int32 _s_set_isCameraFollow(native int L)
+  METHOD 35624 RVA 0x3b60ec: int32 _s_set_position(native int L)
+  METHOD 35625 RVA 0x3b614c: int32 _s_set_pathList(native int L)
+  METHOD 35626 RVA 0x3b61b8: int32 _s_set_bossOwnerUid(native int L)
+  METHOD 35627 RVA 0x3b6214: int32 _s_set_callHelp(native int L)
+  METHOD 35628 RVA 0x3b6270: int32 _s_set_secretKey(native int L)
+  METHOD 35629 RVA 0x3b62cc: int32 _s_set_isFake(native int L)
+  METHOD 35630 RVA 0x3b6328: int32 _s_set_isFakeAttack(native int L)
+  METHOD 35631 RVA 0x3b6384: int32 _s_set_fakeMarchTime(native int L)
+  METHOD 35632 RVA 0x3b63e0: int32 _s_set_parentUuid(native int L)
+  METHOD 35633 RVA 0x3b643c: int32 _s_set_delayApply(native int L)
+  METHOD 35634 RVA 0x3b6498: int32 _s_set_delayApplyTime(native int L)
+  METHOD 35635 RVA 0x3b64f4: int32 _s_set_IsStrongholdBoss(native int L)
+  METHOD 35636 RVA 0x3b6550: int32 _s_set_strongholdBossNum(native int L)
+  METHOD 35637 RVA 0x3b65ac: int32 _s_set_strongholdBossMax(native int L)
+  METHOD 35638 RVA 0x3b6608: int32 _s_set_IsCityBoss(native int L)
+  METHOD 35639 RVA 0x3b6664: int32 _s_set_cityBossNum(native int L)
+  METHOD 35640 RVA 0x3b66c0: int32 _s_set_cityBossMax(native int L)
+  METHOD 35641 RVA 0x3b671c: int32 _s_set_isAssistAllyMarch(native int L)
+  METHOD 35642 RVA 0x3b6778: int32 _s_set_isMummyMarch(native int L)
+  METHOD 35643 RVA 0x3b67d4: int32 _s_set_fixedSoldierType(native int L)
+  METHOD 35644 RVA 0x3b6830: int32 _s_set_ownerLightUuid(native int L)
+  METHOD 35645 RVA 0x3b688c: int32 _s_set_catchZombieNum(native int L)
+  METHOD 35646 RVA 0x3b68e8: int32 _s_set_bankDeposit(native int L)
+  METHOD 35647 RVA 0x3b6944: int32 _s_set_itemId(native int L)
+  METHOD 35648 RVA 0x3b69a0: int32 _s_set_globalArmy(native int L)
+  METHOD 35649 RVA 0x3b69fc: int32 _s_set_LightLength(native int L)
+  METHOD 35650 RVA 0x3b6a58: int32 _s_set_actBossState(native int L)
+  METHOD 35651 RVA 0x3b6ab4: int32 _s_set_userInfo(native int L)
+  METHOD 35652 RVA 0x3b6b20: int32 _s_set_armyUnit(native int L)
+  METHOD 35653 RVA 0x3b6b7c: int32 _s_set_totalArmyUnit(native int L)
+  METHOD 35654 RVA 0x3b6bd8: int32 _s_set_nextSkillTime(native int L)
+  METHOD 35655 RVA 0x3b6c34: int32 _s_set_parsedProto(native int L)
+  METHOD 35656 RVA 0x3b6c90: int32 _s_set_parsedSfs(native int L)
+  METHOD 35657 RVA 0x3b6cec: int32 _s_set_showedInView(native int L)
+  METHOD 35658 RVA 0x3b6d48: int32 _s_set_crystal(native int L)
+  METHOD 35659 RVA 0x3b6da4: int32 _s_set_nucleus(native int L)
+  METHOD 35660 RVA 0x3b6e00: int32 _s_set_holdUuid(native int L)
+  METHOD 35661 RVA 0x3b6e5c: int32 _s_set_bloodyQueenMonsterUuid(native int L)
+  METHOD 35662 RVA 0x3b6eb8: int32 _s_set_cityBattleS1RestBossUuid(native int L)
+  METHOD 35663 RVA 0x3b6f14: void .ctor()
+TYPE 3903: Protobuf.WorldMarchDeltaMeta extends System.Object
+  FIELD 16091: Google.Protobuf.MessageParser`1<Protobuf.WorldMarchDeltaMeta> _parser
+  FIELD 16092: Google.Protobuf.UnknownFieldSet _unknownFields
+  FIELD 16093: int32 TypeFieldNumber = 1
+  FIELD 16094: int32 type_
+  FIELD 16095: int32 OneServerMarchFieldNumber = 2
+  FIELD 16096: bool oneServerMarch_
+  METHOD 39757 RVA 0x40e41b: Google.Protobuf.MessageParser`1<Protobuf.WorldMarchDeltaMeta> get_Parser()
+  METHOD 39758 RVA 0x40e422: Google.Protobuf.Reflection.MessageDescriptor get_Descriptor()
+  METHOD 39759 RVA 0x40e435: Google.Protobuf.Reflection.MessageDescriptor pb::Google.Protobuf.IMessage.get_Descriptor()
+  METHOD 39760 RVA 0x40e43c: void .ctor()
+  METHOD 39761 RVA 0x40e444: void .ctor(Protobuf.WorldMarchDeltaMeta other)
+  METHOD 39762 RVA 0x40e475: Protobuf.WorldMarchDeltaMeta Clone()
+  METHOD 39763 RVA 0x40e47d: int32 get_Type()
+  METHOD 39764 RVA 0x40e485: void set_Type(int32 value)
+  METHOD 39765 RVA 0x40e48e: bool get_OneServerMarch()
+  METHOD 39766 RVA 0x40e496: void set_OneServerMarch(bool value)
+  METHOD 39767 RVA 0x40e49f: bool Equals(object other)
+  METHOD 39768 RVA 0x40e4ad: bool Equals(Protobuf.WorldMarchDeltaMeta other)
+  METHOD 39769 RVA 0x40e4ec: int32 GetHashCode()
+  METHOD 39770 RVA 0x40e544: string ToString()
+  METHOD 39771 RVA 0x40e54c: void WriteTo(Google.Protobuf.CodedOutputStream output)
+  METHOD 39772 RVA 0x40e5a4: int32 CalculateSize()
+  METHOD 39773 RVA 0x40e5f0: void MergeFrom(Protobuf.WorldMarchDeltaMeta other)
+  METHOD 39774 RVA 0x40e640: void MergeFrom(Google.Protobuf.CodedInputStream input)
+  METHOD 39775 RVA 0x40e690: void .cctor()
+TYPE 3904: Protobuf.WorldMarchDeltaMeta+<>c extends System.Object
+  FIELD 16097: Protobuf.WorldMarchDeltaMeta+<>c <>9
+  METHOD 39776 RVA 0x40e6ac: void .cctor()
+  METHOD 39777 RVA 0x40e6b8: void .ctor()
+  METHOD 39778 RVA 0x40e6c0: Protobuf.WorldMarchDeltaMeta <.cctor>b__30_0()
+TYPE 3905: Protobuf.WorldMarch extends System.Object
+  FIELD 16098: Google.Protobuf.MessageParser`1<Protobuf.WorldMarch> _parser
+  FIELD 16099: Google.Protobuf.UnknownFieldSet _unknownFields
+  FIELD 16100: int32 OwnerNameFieldNumber = 1
+  FIELD 16101: string ownerName_
+  FIELD 16102: int32 OwnerFormationUuidFieldNumber = 2
+  FIELD 16103: int64 ownerFormationUuid_
+  FIELD 16104: int32 WorldIdFieldNumber = 3
+  FIELD 16105: int32 worldId_
+  FIELD 16106: int32 CollectSpeedFieldNumber = 4
+  FIELD 16107: float32 collectSpeed_
+  FIELD 16108: int32 ArmyWeightFieldNumber = 5
+  FIELD 16109: int64 armyWeight_
+  FIELD 16110: int32 AllianceUidFieldNumber = 6
+  FIELD 16111: string allianceUid_
+  FIELD 16112: int32 StatusFieldNumber = 7
+  FIELD 16113: int32 status_
+  FIELD 16114: int32 PathFieldNumber = 8
+  FIELD 16115: string path_
+  FIELD 16116: int32 StartPosFieldNumber = 9
+  FIELD 16117: int32 startPos_
+  FIELD 16118: int32 TargetPosFieldNumber = 10
+  FIELD 16119: int32 targetPos_
+  FIELD 16120: int32 TargetFieldNumber = 11
+  FIELD 16121: int32 target_
+  FIELD 16122: int32 TargetUuidFieldNumber = 12
+  FIELD 16123: int64 targetUuid_
+  FIELD 16124: int32 StartTimeFieldNumber = 13
+  FIELD 16125: int64 startTime_
+  FIELD 16126: int32 EndTimeFieldNumber = 14
+  FIELD 16127: int64 endTime_
+  FIELD 16128: int32 TeamUuidFieldNumber = 15
+  FIELD 16129: int64 teamUuid_
+  FIELD 16130: int32 TypeFieldNumber = 16
+  FIELD 16131: int32 type_
+  FIELD 16132: int32 SpeedFieldNumber = 17
+  FIELD 16133: float32 speed_
+  FIELD 16134: int32 InBattleFieldNumber = 18
+  FIELD 16135: bool inBattle_
+  FIELD 16136: int32 IsBrokenFieldNumber = 19
+  FIELD 16137: bool isBroken_
+  FIELD 16138: int32 DiffPointFieldNumber = 20
+  FIELD 16139: string diffPoint_
+  FIELD 16140: int32 IsAnonymityFieldNumber = 21
+  FIELD 16141: bool isAnonymity_
+  FIELD 16142: int32 PvpNumFieldNumber = 22
+  FIELD 16143: int32 pvpNum_
+  FIELD 16144: int32 PveNumFieldNumber = 23
+  FIELD 16145: int32 pveNum_
+  FIELD 16146: int32 SquadNoFieldNumber = 24
+  FIELD 16147: int32 squadNo_
+  FIELD 16148: int32 SrcActionFieldNumber = 25
+  FIELD 16149: string srcAction_
+  FIELD 16150: int32 SrcServerFieldNumber = 26
+  FIELD 16151: int32 srcServer_
+  FIELD 16152: int32 ServerFieldNumber = 27
+  FIELD 16153: int32 server_
+  FIELD 16154: int32 TargetServerFieldNumber = 28
+  FIELD 16155: int32 targetServer_
+  FIELD 16156: int32 FightMonsterFieldNumber = 29
+  FIELD 16157: bool fightMonster_
+  FIELD 16158: int32 MainPointIdFieldNumber = 30
+  FIELD 16159: int32 mainPointId_
+  FIELD 16160: int32 BlackStartTimeFieldNumber = 31
+  FIELD 16161: int64 blackStartTime_
+  FIELD 16162: int32 BlackEndTimeFieldNumber = 32
+  FIELD 16163: int64 blackEndTime_
+  FIELD 16164: int32 BlackSpeedFieldNumber = 33
+  FIELD 16165: float32 blackSpeed_
+  FIELD 16166: int32 AllianceAbbrFieldNumber = 34
+  FIELD 16167: string allianceAbbr_
+  FIELD 16168: int32 AllianceNameFieldNumber = 35
+  FIELD 16169: string allianceName_
+  FIELD 16170: int32 AllianceIconFieldNumber = 36
+  FIELD 16171: string allianceIcon_
+  FIELD 16172: int32 PicFieldNumber = 37
+  FIELD 16173: string pic_
+  FIELD 16174: int32 PicVerFieldNumber = 38
+  FIELD 16175: int32 picVer_
+  FIELD 16176: int32 HeadFrameFieldNumber = 39
+  FIELD 16177: int32 headFrame_
+  FIELD 16178: int32 HeadSkinIdFieldNumber = 40
+  FIELD 16179: int32 headSkinId_
+  FIELD 16180: int32 HeadSkinETimeFieldNumber = 41
+  FIELD 16181: int64 headSkinETime_
+  FIELD 16182: int32 ChatBubbleIdFieldNumber = 42
+  FIELD 16183: int32 chatBubbleId_
+  FIELD 16184: int32 ChatBubbleETimeFieldNumber = 43
+  FIELD 16185: int64 chatBubbleETime_
+  FIELD 16186: int32 WorldTypeFieldNumber = 44
+  FIELD 16187: int32 worldType_
+  FIELD 16188: int32 PowerFieldNumber = 45
+  FIELD 16189: int64 power_
+  FIELD 16190: int32 BaseVirusLayerFieldNumber = 46
+  FIELD 16191: int32 baseVirusLayer_
+  FIELD 16192: int32 ExtraVirusLayerFieldNumber = 47
+  FIELD 16193: int32 extraVirusLayer_
+  FIELD 16194: int32 ArmyCombatUnitsFieldNumber = 48
+  FIELD 16195: Google.Protobuf.FieldCodec`1<Protobuf.ArmyCombatUnit> _repeated_armyCombatUnits_codec
+  FIELD 16196: Google.Protobuf.Collections.RepeatedField`1<Protobuf.ArmyCombatUnit> armyCombatUnits_
+  FIELD 16197: int32 MonsterIdFieldNumber = 49
+  FIELD 16198: int32 monsterId_
+  FIELD 16199: int32 MonsterSpecialTypeFieldNumber = 52
+  FIELD 16200: int32 monsterSpecialType_
+  FIELD 16201: int32 FixedSoldierTypeFieldNumber = 50
+  FIELD 16202: int32 fixedSoldierType_
+  FIELD 16203: int32 MonsterInfoFieldNumber = 51
+  FIELD 16204: Protobuf.MonsterInfo monsterInfo_
+  FIELD 16205: int32 HoldUuidFieldNumber = 53
+  FIELD 16206: int64 holdUuid_
+  FIELD 16207: int32 OwnerServerFieldNumber = 54
+  FIELD 16208: int32 ownerServer_
+  FIELD 16209: int32 MeteoriteInfoFieldNumber = 55
+  FIELD 16210: Protobuf.MeteoriteInfo meteoriteInfo_
+  FIELD 16211: int32 OwnerLightUuidFieldNumber = 56
+  FIELD 16212: int64 ownerLightUuid_
+  FIELD 16213: int32 CatchZombieNumFieldNumber = 57
+  FIELD 16214: int32 catchZombieNum_
+  FIELD 16215: int32 BloodyQueenMonsterUuidFieldNumber = 58
+  FIELD 16216: int64 bloodyQueenMonsterUuid_
+  FIELD 16217: int32 CityBattleS1RestBossUuidFieldNumber = 59
+  FIELD 16218: int64 cityBattleS1RestBossUuid_
+  FIELD 16219: int32 PlunderResFieldNumber = 60
+  FIELD 16220: string plunderRes_
+  FIELD 16221: int32 PathStartServerIdFieldNumber = 61
+  FIELD 16222: int32 pathStartServerId_
+  FIELD 16223: int32 OwnerCurServerIdFieldNumber = 62
+  FIELD 16224: int32 ownerCurServerId_
+  FIELD 16225: int32 AssistAllyFieldNumber = 64
+  FIELD 16226: bool assistAlly_
+  FIELD 16227: int32 BankDepositFieldNumber = 200
+  FIELD 16228: int32 StationPointInfoFieldNumber = 63
+  FIELD 16229: Protobuf.WorldPointInfo stationPointInfo_
+  FIELD 16230: int32 OldTargetTypeFieldNumber = 65
+  FIELD 16231: int32 oldTargetType_
+  FIELD 16232: object extra_
+  FIELD 16233: Protobuf.WorldMarch+ExtraOneofCase extraCase_
+  METHOD 39779 RVA 0x40e6c7: Google.Protobuf.MessageParser`1<Protobuf.WorldMarch> get_Parser()
+  METHOD 39780 RVA 0x40e6ce: Google.Protobuf.Reflection.MessageDescriptor get_Descriptor()
+  METHOD 39781 RVA 0x40e6e1: Google.Protobuf.Reflection.MessageDescriptor pb::Google.Protobuf.IMessage.get_Descriptor()
+  METHOD 39782 RVA 0x40e6e8: void .ctor()
+  METHOD 39783 RVA 0x40e774: void .ctor(Protobuf.WorldMarch other)
+  METHOD 39784 RVA 0x40eaf9: Protobuf.WorldMarch Clone()
+  METHOD 39785 RVA 0x40eb01: string get_OwnerName()
+  METHOD 39786 RVA 0x40eb09: void set_OwnerName(string value)
+  METHOD 39787 RVA 0x40eb1c: int64 get_OwnerFormationUuid()
+  METHOD 39788 RVA 0x40eb24: void set_OwnerFormationUuid(int64 value)
+  METHOD 39789 RVA 0x40eb2d: int32 get_WorldId()
+  METHOD 39790 RVA 0x40eb35: void set_WorldId(int32 value)
+  METHOD 39791 RVA 0x40eb3e: float32 get_CollectSpeed()
+  METHOD 39792 RVA 0x40eb46: void set_CollectSpeed(float32 value)
+  METHOD 39793 RVA 0x40eb4f: int64 get_ArmyWeight()
+  METHOD 39794 RVA 0x40eb57: void set_ArmyWeight(int64 value)
+  METHOD 39795 RVA 0x40eb60: string get_AllianceUid()
+  METHOD 39796 RVA 0x40eb68: void set_AllianceUid(string value)
+  METHOD 39797 RVA 0x40eb7b: int32 get_Status()
+  METHOD 39798 RVA 0x40eb83: void set_Status(int32 value)
+  METHOD 39799 RVA 0x40eb8c: string get_Path()
+  METHOD 39800 RVA 0x40eb94: void set_Path(string value)
+  METHOD 39801 RVA 0x40eba7: int32 get_StartPos()
+  METHOD 39802 RVA 0x40ebaf: void set_StartPos(int32 value)
+  METHOD 39803 RVA 0x40ebb8: int32 get_TargetPos()
+  METHOD 39804 RVA 0x40ebc0: void set_TargetPos(int32 value)
+  METHOD 39805 RVA 0x40ebc9: int32 get_Target()
+  METHOD 39806 RVA 0x40ebd1: void set_Target(int32 value)
+  METHOD 39807 RVA 0x40ebda: int64 get_TargetUuid()
+  METHOD 39808 RVA 0x40ebe2: void set_TargetUuid(int64 value)
+  METHOD 39809 RVA 0x40ebeb: int64 get_StartTime()
+  METHOD 39810 RVA 0x40ebf3: void set_StartTime(int64 value)
+  METHOD 39811 RVA 0x40ebfc: int64 get_EndTime()
+  METHOD 39812 RVA 0x40ec04: void set_EndTime(int64 value)
+  METHOD 39813 RVA 0x40ec0d: int64 get_TeamUuid()
+  METHOD 39814 RVA 0x40ec15: void set_TeamUuid(int64 value)
+  METHOD 39815 RVA 0x40ec1e: int32 get_Type()
+  METHOD 39816 RVA 0x40ec26: void set_Type(int32 value)
+  METHOD 39817 RVA 0x40ec2f: float32 get_Speed()
+  METHOD 39818 RVA 0x40ec37: void set_Speed(float32 value)
+  METHOD 39819 RVA 0x40ec40: bool get_InBattle()
+  METHOD 39820 RVA 0x40ec48: void set_InBattle(bool value)
+  METHOD 39821 RVA 0x40ec51: bool get_IsBroken()
+  METHOD 39822 RVA 0x40ec59: void set_IsBroken(bool value)
+  METHOD 39823 RVA 0x40ec62: string get_DiffPoint()
+  METHOD 39824 RVA 0x40ec6a: void set_DiffPoint(string value)
+  METHOD 39825 RVA 0x40ec7d: bool get_IsAnonymity()
+  METHOD 39826 RVA 0x40ec85: void set_IsAnonymity(bool value)
+  METHOD 39827 RVA 0x40ec8e: int32 get_PvpNum()
+  METHOD 39828 RVA 0x40ec96: void set_PvpNum(int32 value)
+  METHOD 39829 RVA 0x40ec9f: int32 get_PveNum()
+  METHOD 39830 RVA 0x40eca7: void set_PveNum(int32 value)
+  METHOD 39831 RVA 0x40ecb0: int32 get_SquadNo()
+  METHOD 39832 RVA 0x40ecb8: void set_SquadNo(int32 value)
+  METHOD 39833 RVA 0x40ecc1: string get_SrcAction()
+  METHOD 39834 RVA 0x40ecc9: void set_SrcAction(string value)
+  METHOD 39835 RVA 0x40ecdc: int32 get_SrcServer()
+  METHOD 39836 RVA 0x40ece4: void set_SrcServer(int32 value)
+  METHOD 39837 RVA 0x40eced: int32 get_Server()
+  METHOD 39838 RVA 0x40ecf5: void set_Server(int32 value)
+  METHOD 39839 RVA 0x40ecfe: int32 get_TargetServer()
+  METHOD 39840 RVA 0x40ed06: void set_TargetServer(int32 value)
+  METHOD 39841 RVA 0x40ed0f: bool get_FightMonster()
+  METHOD 39842 RVA 0x40ed17: void set_FightMonster(bool value)
+  METHOD 39843 RVA 0x40ed20: int32 get_MainPointId()
+  METHOD 39844 RVA 0x40ed28: void set_MainPointId(int32 value)
+  METHOD 39845 RVA 0x40ed31: int64 get_BlackStartTime()
+  METHOD 39846 RVA 0x40ed39: void set_BlackStartTime(int64 value)
+  METHOD 39847 RVA 0x40ed42: int64 get_BlackEndTime()
+  METHOD 39848 RVA 0x40ed4a: void set_BlackEndTime(int64 value)
+  METHOD 39849 RVA 0x40ed53: float32 get_BlackSpeed()
+  METHOD 39850 RVA 0x40ed5b: void set_BlackSpeed(float32 value)
+  METHOD 39851 RVA 0x40ed64: string get_AllianceAbbr()
+  METHOD 39852 RVA 0x40ed6c: void set_AllianceAbbr(string value)
+  METHOD 39853 RVA 0x40ed7f: string get_AllianceName()
+  METHOD 39854 RVA 0x40ed87: void set_AllianceName(string value)
+  METHOD 39855 RVA 0x40ed9a: string get_AllianceIcon()
+  METHOD 39856 RVA 0x40eda2: void set_AllianceIcon(string value)
+  METHOD 39857 RVA 0x40edb5: string get_Pic()
+  METHOD 39858 RVA 0x40edbd: void set_Pic(string value)
+  METHOD 39859 RVA 0x40edd0: int32 get_PicVer()
+  METHOD 39860 RVA 0x40edd8: void set_PicVer(int32 value)
+  METHOD 39861 RVA 0x40ede1: int32 get_HeadFrame()
+  METHOD 39862 RVA 0x40ede9: void set_HeadFrame(int32 value)
+  METHOD 39863 RVA 0x40edf2: int32 get_HeadSkinId()
+  METHOD 39864 RVA 0x40edfa: void set_HeadSkinId(int32 value)
+  METHOD 39865 RVA 0x40ee03: int64 get_HeadSkinETime()
+  METHOD 39866 RVA 0x40ee0b: void set_HeadSkinETime(int64 value)
+  METHOD 39867 RVA 0x40ee14: int32 get_ChatBubbleId()
+  METHOD 39868 RVA 0x40ee1c: void set_ChatBubbleId(int32 value)
+  METHOD 39869 RVA 0x40ee25: int64 get_ChatBubbleETime()
+  METHOD 39870 RVA 0x40ee2d: void set_ChatBubbleETime(int64 value)
+  METHOD 39871 RVA 0x40ee36: int32 get_WorldType()
+  METHOD 39872 RVA 0x40ee3e: void set_WorldType(int32 value)
+  METHOD 39873 RVA 0x40ee47: int64 get_Power()
+  METHOD 39874 RVA 0x40ee4f: void set_Power(int64 value)
+  METHOD 39875 RVA 0x40ee58: int32 get_BaseVirusLayer()
+  METHOD 39876 RVA 0x40ee60: void set_BaseVirusLayer(int32 value)
+  METHOD 39877 RVA 0x40ee69: int32 get_ExtraVirusLayer()
+  METHOD 39878 RVA 0x40ee71: void set_ExtraVirusLayer(int32 value)
+  METHOD 39879 RVA 0x40ee7a: Google.Protobuf.Collections.RepeatedField`1<Protobuf.ArmyCombatUnit> get_ArmyCombatUnits()
+  METHOD 39880 RVA 0x40ee82: int32 get_MonsterId()
+  METHOD 39881 RVA 0x40ee8a: void set_MonsterId(int32 value)
+  METHOD 39882 RVA 0x40ee93: int32 get_MonsterSpecialType()
+  METHOD 39883 RVA 0x40ee9b: void set_MonsterSpecialType(int32 value)
+  METHOD 39884 RVA 0x40eea4: int32 get_FixedSoldierType()
+  METHOD 39885 RVA 0x40eeac: void set_FixedSoldierType(int32 value)
+  METHOD 39886 RVA 0x40eeb5: Protobuf.MonsterInfo get_MonsterInfo()
+  METHOD 39887 RVA 0x40eebd: void set_MonsterInfo(Protobuf.MonsterInfo value)
+  METHOD 39888 RVA 0x40eec6: int64 get_HoldUuid()
+  METHOD 39889 RVA 0x40eece: void set_HoldUuid(int64 value)
+  METHOD 39890 RVA 0x40eed7: int32 get_OwnerServer()
+  METHOD 39891 RVA 0x40eedf: void set_OwnerServer(int32 value)
+  METHOD 39892 RVA 0x40eee8: Protobuf.MeteoriteInfo get_MeteoriteInfo()
+  METHOD 39893 RVA 0x40eef0: void set_MeteoriteInfo(Protobuf.MeteoriteInfo value)
+  METHOD 39894 RVA 0x40eef9: int64 get_OwnerLightUuid()
+  METHOD 39895 RVA 0x40ef01: void set_OwnerLightUuid(int64 value)
+  METHOD 39896 RVA 0x40ef0a: int32 get_CatchZombieNum()
+  METHOD 39897 RVA 0x40ef12: void set_CatchZombieNum(int32 value)
+  METHOD 39898 RVA 0x40ef1b: int64 get_BloodyQueenMonsterUuid()
+  METHOD 39899 RVA 0x40ef23: void set_BloodyQueenMonsterUuid(int64 value)
+  METHOD 39900 RVA 0x40ef2c: int64 get_CityBattleS1RestBossUuid()
+  METHOD 39901 RVA 0x40ef34: void set_CityBattleS1RestBossUuid(int64 value)
+  METHOD 39902 RVA 0x40ef3d: string get_PlunderRes()
+  METHOD 39903 RVA 0x40ef45: void set_PlunderRes(string value)
+  METHOD 39904 RVA 0x40ef58: int32 get_PathStartServerId()
+  METHOD 39905 RVA 0x40ef60: void set_PathStartServerId(int32 value)
+  METHOD 39906 RVA 0x40ef69: int32 get_OwnerCurServerId()
+  METHOD 39907 RVA 0x40ef71: void set_OwnerCurServerId(int32 value)
+  METHOD 39908 RVA 0x40ef7a: bool get_AssistAlly()
+  METHOD 39909 RVA 0x40ef82: void set_AssistAlly(bool value)
+  METHOD 39910 RVA 0x40ef8b: Protobuf.BankDeposit get_BankDeposit()
+  METHOD 39911 RVA 0x40efa7: void set_BankDeposit(Protobuf.BankDeposit value)
+  METHOD 39912 RVA 0x40efc1: Protobuf.WorldPointInfo get_StationPointInfo()
+  METHOD 39913 RVA 0x40efc9: void set_StationPointInfo(Protobuf.WorldPointInfo value)
+  METHOD 39914 RVA 0x40efd2: int32 get_OldTargetType()
+  METHOD 39915 RVA 0x40efda: void set_OldTargetType(int32 value)
+  METHOD 39916 RVA 0x40efe3: Protobuf.WorldMarch+ExtraOneofCase get_ExtraCase()
+  METHOD 39917 RVA 0x40efeb: void ClearExtra()
+  METHOD 39918 RVA 0x40effb: bool Equals(object other)
+  METHOD 39919 RVA 0x40f00c: bool Equals(Protobuf.WorldMarch other)
+  METHOD 39920 RVA 0x40f4d0: int32 GetHashCode()
+  METHOD 39921 RVA 0x40fb88: string ToString()
+  METHOD 39922 RVA 0x40fb90: void WriteTo(Google.Protobuf.CodedOutputStream output)
+  METHOD 39923 RVA 0x4103f0: int32 CalculateSize()
+  METHOD 39924 RVA 0x410a28: void MergeFrom(Protobuf.WorldMarch other)
+  METHOD 39925 RVA 0x411020: void MergeFrom(Google.Protobuf.CodedInputStream input)
+  METHOD 39926 RVA 0x411933: void .cctor()
+TYPE 3906: Protobuf.WorldMarch+ExtraOneofCase extends System.Enum
+  FIELD 16234: int32 value__
+  FIELD 16235: Protobuf.WorldMarch+ExtraOneofCase None = 0
+  FIELD 16236: Protobuf.WorldMarch+ExtraOneofCase BankDeposit = 200
+TYPE 3907: Protobuf.WorldMarch+<>c extends System.Object
+  FIELD 16237: Protobuf.WorldMarch+<>c <>9
+  METHOD 39927 RVA 0x411963: void .cctor()
+  METHOD 39928 RVA 0x41196f: void .ctor()
+  METHOD 39929 RVA 0x411977: Protobuf.WorldMarch <.cctor>b__355_0()

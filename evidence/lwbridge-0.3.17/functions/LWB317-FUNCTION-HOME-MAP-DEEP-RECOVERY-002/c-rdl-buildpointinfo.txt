@@ -1,0 +1,542 @@
+﻿RGMD=0x9a92a4 TypeDef=5828 MethodDef=54483
+TYPE 1192: AllianceBossS0BuildPointInfo extends System.Object
+  FIELD 6162: int64 startTime
+  FIELD 6163: string allianceId
+  FIELD 6164: int32 cfgId
+  FIELD 6165: string abbr
+  FIELD 6166: int64 lastReserveTime
+  FIELD 6167: int64 actEndTime
+  METHOD 9437 RVA 0xe7e75: void .ctor()
+  METHOD 9438 RVA 0xe7e7d: void .ctor(Sfs2X.Entities.Data.ISFSObject msg)
+  METHOD 9439 RVA 0xe7e8c: void .ctor(Protobuf.AllianceBossS0BuildPointInfo msg)
+  METHOD 9440 RVA 0xe7e9c: void ParseData(Sfs2X.Entities.Data.ISFSObject msg)
+  METHOD 9441 RVA 0xe7f10: void ParseData(Protobuf.AllianceBossS0BuildPointInfo msg)
+TYPE 1750: BuildPointInfo extends PointInfo
+  FIELD 10051: int32 itemId
+  FIELD 10052: int32 level
+  FIELD 10053: int32 state
+  FIELD 10054: int32 buildState
+  FIELD 10055: string allianceId
+  FIELD 10056: int32 startTime
+  FIELD 10057: int32 endTime
+  FIELD 10058: int32 inside
+  FIELD 10059: BuildConnectRoadDirection roadDir
+  FIELD 10060: int32 curHp
+  FIELD 10061: int32 lastHpTime
+  FIELD 10062: int32 protectEndTime
+  FIELD 10063: string playerName
+  FIELD 10064: string alAbbr
+  FIELD 10065: int64 lastCollectTime
+  FIELD 10066: int64 unavailableTime
+  FIELD 10067: int32 queueItemId
+  FIELD 10068: int64 queueStartTime
+  FIELD 10069: int64 queueUpdateTime
+  FIELD 10070: int64 destroyStartTime
+  FIELD 10071: int64 destroyEndTime
+  FIELD 10072: int32 appearanceId
+  FIELD 10073: Protobuf.SpecialType specialType
+  FIELD 10074: string positionId
+  FIELD 10075: bool showPosition
+  FIELD 10076: int32 virusLayer
+  FIELD 10077: int64 virusEndTime
+  FIELD 10078: bool refuseTreadVirus
+  FIELD 10079: bool refusePowerHelper
+  FIELD 10080: Protobuf.LightHouseInfo lightHouseInfo
+  FIELD 10081: float32 recoverSpeed
+  FIELD 10082: float32 fireSpeed
+  FIELD 10083: int32 assistanceCount
+  FIELD 10084: int32 maxAssistanceCount
+  FIELD 10085: AllianceOfficialSkillType aosType
+  FIELD 10086: bool isWerewolf
+  FIELD 10087: uint8 wolfDecrHp
+  FIELD 10088: Google.Protobuf.Collections.RepeatedField`1<Protobuf.FireWorksInfo> fireworksInfoList
+  FIELD 10089: Google.Protobuf.Collections.RepeatedField`1<Protobuf.FireWorksGift> fireworksGiftList
+  FIELD 10090: int64 aosEndTime
+  FIELD 10091: int64 aosStartTime
+  FIELD 10092: int32 skillId
+  FIELD 10093: SandWormData sandWorm
+  FIELD 10094: int32 mummyConvertId
+  FIELD 10095: int32 mummyConvertCount
+  FIELD 10096: int32 skinId
+  FIELD 10097: int32 colourId
+  FIELD 10098: float32 colourTime
+  FIELD 10099: int32 titleNameSkinId
+  FIELD 10100: int32 effectId
+  FIELD 10101: BuildPointInfo+WolfCoveredInfo wolfCoveredInfo
+  FIELD 10102: WallBarInfo wallBarInfo
+  FIELD 10103: int32 crystal
+  FIELD 10104: int32 nucleus
+  FIELD 10105: string countryFlag
+  FIELD 10106: MonsterInvasion monsterInvasion
+  FIELD 10107: ZoneMobilization zoneMobilization
+  FIELD 10108: CommonMonsterSkillInfo commonMonsterSkillInfo
+  FIELD 10109: MonsterChallengeNewDonate challangeNewDonate
+  FIELD 10110: int32 seasonRole
+  FIELD 10111: int32 quarantineSkillId
+  FIELD 10112: int64 quarantineSkillSTime
+  FIELD 10113: int64 quarantineSkillETime
+  FIELD 10114: int32 quarantineSkilTargetPId
+  FIELD 10115: int32 quarantineRole
+  FIELD 10116: int32 quarantineLeave
+  FIELD 10117: int32 curMaxHp
+  FIELD 10118: int64 mummyCurseExpireTime
+  METHOD 13423 RVA 0x1501c8: AllianceOfficialSkillType get_AOSType()
+  METHOD 13424 RVA 0x150248: bool get_IsWerewolf()
+  METHOD 13425 RVA 0x150250: int32 GetAOSType()
+  METHOD 13426 RVA 0x150258: void .ctor()
+  METHOD 13427 RVA 0x150260: void .ctor(Protobuf.WorldPointInfo pi)
+  METHOD 13428 RVA 0x150b0c: void UpdateAssistanceCount()
+  METHOD 13429 RVA 0x150b37: void UpdateFireworksInfoList(Protobuf.BuildInfo buildInfo)
+  METHOD 13430 RVA 0x150b60: void UpdateFireworksGiftList(Protobuf.BuildInfo buildInfo)
+  METHOD 13431 RVA 0x150b90: PointInfo Clone()
+  METHOD 13432 RVA 0x150ec3: QueueState GetShowState()
+  METHOD 13433 RVA 0x150ed2: QueueState GetShowStateByIndex(int32 index)
+  METHOD 13434 RVA 0x150ee1: bool IsThisState(QueueState needState)
+  METHOD 13435 RVA 0x150f0c: QueueState GetQueueStateFromMixValue(int32 queueMixState, int32 stateLevel)
+  METHOD 13436 RVA 0x150f57: int32 GetSkinId()
+  METHOD 13437 RVA 0x150f70: int32 GetSkinId(int32 skinId, int32 colourId, float32 colourTime)
+  METHOD 13438 RVA 0x150fc4: string GetModelPathById(int32 skinId, int32 pointType, bool isNormal, int32 pointIndex, int32 levelId, int64 uuid)
+  METHOD 13439 RVA 0x15104a: string GetModelPath()
+  METHOD 13440 RVA 0x15107c: string GetSkinModelNameById(int32 skinId, int32 pointType)
+  METHOD 13441 RVA 0x15111f: string GetSkinModelName()
+  METHOD 13442 RVA 0x151134: string GetDefaultModelNameByLevel(int32 levelId, int32 pointType)
+  METHOD 13443 RVA 0x1511d7: string GetDefaultModelName()
+  METHOD 13444 RVA 0x1511f4: void RefreshRoadDir()
+  METHOD 13445 RVA 0x1512a8: System.Collections.Generic.List`1<int32> GetPosIndexListByDir(BuildConnectRoadDirection dir)
+  METHOD 13446 RVA 0x1514e4: void ChangeRoadDir(BuildConnectRoadDirection dir)
+  METHOD 13447 RVA 0x15150c: void UpdateAllRoadDir()
+  METHOD 13448 RVA 0x151594: bool IsNormalType()
+  METHOD 13449 RVA 0x15159f: bool IsWormWrap()
+  METHOD 13450 RVA 0x1515ac: PlayerType GetPlayerType()
+  METHOD 13451 RVA 0x151622: float32 GetResourcePercent()
+  METHOD 13452 RVA 0x15164c: bool IsWerewolfBirthing()
+  METHOD 13453 RVA 0x1516d0: void OnDescription(System.Text.StringBuilder sb)
+  METHOD 13454 RVA 0x1517b4: void UncoverWerewolf(int64 now)
+  METHOD 13455 RVA 0x151880: void BeforeSetPointStatus()
+  METHOD 13456 RVA 0x15188a: void OnAddPointState(Protobuf.Status status)
+TYPE 1751: BuildPointInfo+WolfCoveredInfo extends System.Object
+  FIELD 10119: int32 skinId
+  FIELD 10120: int32 colourId
+  FIELD 10121: int32 titleNameSkinId
+  FIELD 10122: int32 effectId
+  METHOD 13457 RVA 0x1518a9: void .ctor()
+TYPE 1769: AllianceBuildPointInfo extends PointInfo
+  FIELD 10238: int32 buildId
+  FIELD 10239: int32 buildState
+  FIELD 10240: int32 offter_range
+  FIELD 10241: string alAbbr
+  FIELD 10242: string allianceId
+  FIELD 10243: int32 fightState
+  FIELD 10244: bool isCreate
+  FIELD 10245: int32 assistanceCount
+  FIELD 10246: int32 maxAssistanceCount
+  FIELD 10247: Protobuf.AllianceFurnaceInfo furnaceInfo
+  FIELD 10248: Protobuf.ShieldSkillInfo shieldSkillInfo
+  METHOD 13533 RVA 0x153275: void UpdateAssistanceCount()
+  METHOD 13534 RVA 0x1532a0: void .ctor()
+  METHOD 13535 RVA 0x1532a8: PointInfo Clone()
+  METHOD 13536 RVA 0x153348: void .ctor(Protobuf.WorldPointInfo pi, bool isCreate)
+  METHOD 13537 RVA 0x1534a7: bool IsGuardianTower()
+  METHOD 13538 RVA 0x1534e8: PlayerType GetPlayerType()
+TYPE 1773: CityAttachmentBuildPointInfo extends CityAttachmentPointInfo
+  FIELD 10257: Protobuf.CityAttachment mBuildData
+  METHOD 13550 RVA 0x1537f3: void .ctor()
+  METHOD 13551 RVA 0x153802: void .ctor(Protobuf.WorldPointInfo pi)
+  METHOD 13552 RVA 0x153818: PointInfo Clone()
+TYPE 1872: BattlefieldBuildPointInfo extends PointInfo
+  FIELD 10970: Protobuf.QuarantinePointInfo detail
+  FIELD 10971: System.Collections.Generic.List`1<int64> targetEnemyUUID
+  FIELD 10972: int32 assistanceCount
+  FIELD 10973: int32 maxAssistanceCount
+  METHOD 14463 RVA 0x172fdd: void .ctor()
+  METHOD 14464 RVA 0x172fe8: void .ctor(Protobuf.WorldPointInfo pi)
+  METHOD 14465 RVA 0x173044: PointInfo Clone()
+  METHOD 14466 RVA 0x173088: PlayerType GetPlayerType()
+  METHOD 14467 RVA 0x173111: void UpdateAssistanceCount()
+  METHOD 14468 RVA 0x17313c: void OnDescription(System.Text.StringBuilder sb)
+TYPE 2965: XLua.CSObjectWrap.BuildPointInfoWrap extends System.Object
+  METHOD 21687 RVA 0x1ea860: void __Register(native int L)
+  METHOD 21688 RVA 0x1eb7ec: int32 __CreateInstance(native int L)
+  METHOD 21689 RVA 0x1eb894: int32 _m_GetAOSType(native int L)
+  METHOD 21690 RVA 0x1eb8f0: int32 _m_UpdateAssistanceCount(native int L)
+  METHOD 21691 RVA 0x1eb944: int32 _m_Clone(native int L)
+  METHOD 21692 RVA 0x1eb9a0: int32 _m_GetShowState(native int L)
+  METHOD 21693 RVA 0x1eba04: int32 _m_GetShowStateByIndex(native int L)
+  METHOD 21694 RVA 0x1eba70: int32 _m_IsThisState(native int L)
+  METHOD 21695 RVA 0x1ebadc: int32 _m_GetSkinId(native int L)
+  METHOD 21696 RVA 0x1ebb38: int32 _m_GetSkinId_xlua_st_(native int L)
+  METHOD 21697 RVA 0x1ebb98: int32 _m_GetModelPathById_xlua_st_(native int L)
+  METHOD 21698 RVA 0x1ebc1c: int32 _m_GetModelPath(native int L)
+  METHOD 21699 RVA 0x1ebc78: int32 _m_GetSkinModelNameById_xlua_st_(native int L)
+  METHOD 21700 RVA 0x1ebccc: int32 _m_GetSkinModelName(native int L)
+  METHOD 21701 RVA 0x1ebd28: int32 _m_GetDefaultModelNameByLevel_xlua_st_(native int L)
+  METHOD 21702 RVA 0x1ebd7c: int32 _m_GetDefaultModelName(native int L)
+  METHOD 21703 RVA 0x1ebdd8: int32 _m_RefreshRoadDir(native int L)
+  METHOD 21704 RVA 0x1ebe2c: int32 _m_GetPosIndexListByDir(native int L)
+  METHOD 21705 RVA 0x1ebe98: int32 _m_ChangeRoadDir(native int L)
+  METHOD 21706 RVA 0x1ebef8: int32 _m_IsNormalType(native int L)
+  METHOD 21707 RVA 0x1ebf54: int32 _m_IsWormWrap(native int L)
+  METHOD 21708 RVA 0x1ebfb0: int32 _m_GetPlayerType(native int L)
+  METHOD 21709 RVA 0x1ec00c: int32 _m_GetResourcePercent(native int L)
+  METHOD 21710 RVA 0x1ec068: int32 _m_IsWerewolfBirthing(native int L)
+  METHOD 21711 RVA 0x1ec0c4: int32 _m_OnDescription(native int L)
+  METHOD 21712 RVA 0x1ec134: int32 _m_UncoverWerewolf(native int L)
+  METHOD 21713 RVA 0x1ec190: int32 _g_get_AOSType(native int L)
+  METHOD 21714 RVA 0x1ec1f4: int32 _g_get_IsWerewolf(native int L)
+  METHOD 21715 RVA 0x1ec250: int32 _g_get_itemId(native int L)
+  METHOD 21716 RVA 0x1ec2ac: int32 _g_get_level(native int L)
+  METHOD 21717 RVA 0x1ec308: int32 _g_get_state(native int L)
+  METHOD 21718 RVA 0x1ec364: int32 _g_get_buildState(native int L)
+  METHOD 21719 RVA 0x1ec3c0: int32 _g_get_allianceId(native int L)
+  METHOD 21720 RVA 0x1ec41c: int32 _g_get_startTime(native int L)
+  METHOD 21721 RVA 0x1ec478: int32 _g_get_endTime(native int L)
+  METHOD 21722 RVA 0x1ec4d4: int32 _g_get_inside(native int L)
+  METHOD 21723 RVA 0x1ec530: int32 _g_get_roadDir(native int L)
+  METHOD 21724 RVA 0x1ec58c: int32 _g_get_curHp(native int L)
+  METHOD 21725 RVA 0x1ec5e8: int32 _g_get_lastHpTime(native int L)
+  METHOD 21726 RVA 0x1ec644: int32 _g_get_protectEndTime(native int L)
+  METHOD 21727 RVA 0x1ec6a0: int32 _g_get_playerName(native int L)
+  METHOD 21728 RVA 0x1ec6fc: int32 _g_get_alAbbr(native int L)
+  METHOD 21729 RVA 0x1ec758: int32 _g_get_lastCollectTime(native int L)
+  METHOD 21730 RVA 0x1ec7b4: int32 _g_get_unavailableTime(native int L)
+  METHOD 21731 RVA 0x1ec810: int32 _g_get_queueItemId(native int L)
+  METHOD 21732 RVA 0x1ec86c: int32 _g_get_queueStartTime(native int L)
+  METHOD 21733 RVA 0x1ec8c8: int32 _g_get_queueUpdateTime(native int L)
+  METHOD 21734 RVA 0x1ec924: int32 _g_get_destroyStartTime(native int L)
+  METHOD 21735 RVA 0x1ec980: int32 _g_get_destroyEndTime(native int L)
+  METHOD 21736 RVA 0x1ec9dc: int32 _g_get_appearanceId(native int L)
+  METHOD 21737 RVA 0x1eca38: int32 _g_get_specialType(native int L)
+  METHOD 21738 RVA 0x1eca9c: int32 _g_get_positionId(native int L)
+  METHOD 21739 RVA 0x1ecaf8: int32 _g_get_showPosition(native int L)
+  METHOD 21740 RVA 0x1ecb54: int32 _g_get_virusLayer(native int L)
+  METHOD 21741 RVA 0x1ecbb0: int32 _g_get_virusEndTime(native int L)
+  METHOD 21742 RVA 0x1ecc0c: int32 _g_get_refuseTreadVirus(native int L)
+  METHOD 21743 RVA 0x1ecc68: int32 _g_get_refusePowerHelper(native int L)
+  METHOD 21744 RVA 0x1eccc4: int32 _g_get_lightHouseInfo(native int L)
+  METHOD 21745 RVA 0x1ecd20: int32 _g_get_recoverSpeed(native int L)
+  METHOD 21746 RVA 0x1ecd7c: int32 _g_get_fireSpeed(native int L)
+  METHOD 21747 RVA 0x1ecdd8: int32 _g_get_assistanceCount(native int L)
+  METHOD 21748 RVA 0x1ece34: int32 _g_get_maxAssistanceCount(native int L)
+  METHOD 21749 RVA 0x1ece90: int32 _g_get_wolfDecrHp(native int L)
+  METHOD 21750 RVA 0x1eceec: int32 _g_get_fireworksInfoList(native int L)
+  METHOD 21751 RVA 0x1ecf48: int32 _g_get_fireworksGiftList(native int L)
+  METHOD 21752 RVA 0x1ecfa4: int32 _g_get_aosEndTime(native int L)
+  METHOD 21753 RVA 0x1ed000: int32 _g_get_aosStartTime(native int L)
+  METHOD 21754 RVA 0x1ed05c: int32 _g_get_skillId(native int L)
+  METHOD 21755 RVA 0x1ed0b8: int32 _g_get_sandWorm(native int L)
+  METHOD 21756 RVA 0x1ed114: int32 _g_get_mummyConvertId(native int L)
+  METHOD 21757 RVA 0x1ed170: int32 _g_get_mummyConvertCount(native int L)
+  METHOD 21758 RVA 0x1ed1cc: int32 _g_get_skinId(native int L)
+  METHOD 21759 RVA 0x1ed228: int32 _g_get_colourId(native int L)
+  METHOD 21760 RVA 0x1ed284: int32 _g_get_colourTime(native int L)
+  METHOD 21761 RVA 0x1ed2e0: int32 _g_get_titleNameSkinId(native int L)
+  METHOD 21762 RVA 0x1ed33c: int32 _g_get_effectId(native int L)
+  METHOD 21763 RVA 0x1ed398: int32 _g_get_wolfCoveredInfo(native int L)
+  METHOD 21764 RVA 0x1ed3f4: int32 _g_get_wallBarInfo(native int L)
+  METHOD 21765 RVA 0x1ed450: int32 _g_get_crystal(native int L)
+  METHOD 21766 RVA 0x1ed4ac: int32 _g_get_nucleus(native int L)
+  METHOD 21767 RVA 0x1ed508: int32 _g_get_countryFlag(native int L)
+  METHOD 21768 RVA 0x1ed564: int32 _g_get_monsterInvasion(native int L)
+  METHOD 21769 RVA 0x1ed5c0: int32 _g_get_zoneMobilization(native int L)
+  METHOD 21770 RVA 0x1ed61c: int32 _g_get_commonMonsterSkillInfo(native int L)
+  METHOD 21771 RVA 0x1ed678: int32 _g_get_challangeNewDonate(native int L)
+  METHOD 21772 RVA 0x1ed6d4: int32 _g_get_seasonRole(native int L)
+  METHOD 21773 RVA 0x1ed730: int32 _g_get_quarantineSkillId(native int L)
+  METHOD 21774 RVA 0x1ed78c: int32 _g_get_quarantineSkillSTime(native int L)
+  METHOD 21775 RVA 0x1ed7e8: int32 _g_get_quarantineSkillETime(native int L)
+  METHOD 21776 RVA 0x1ed844: int32 _g_get_quarantineSkilTargetPId(native int L)
+  METHOD 21777 RVA 0x1ed8a0: int32 _g_get_quarantineRole(native int L)
+  METHOD 21778 RVA 0x1ed8fc: int32 _g_get_quarantineLeave(native int L)
+  METHOD 21779 RVA 0x1ed958: int32 _g_get_curMaxHp(native int L)
+  METHOD 21780 RVA 0x1ed9b4: int32 _g_get_mummyCurseExpireTime(native int L)
+  METHOD 21781 RVA 0x1eda10: int32 _s_set_itemId(native int L)
+  METHOD 21782 RVA 0x1eda6c: int32 _s_set_level(native int L)
+  METHOD 21783 RVA 0x1edac8: int32 _s_set_state(native int L)
+  METHOD 21784 RVA 0x1edb24: int32 _s_set_buildState(native int L)
+  METHOD 21785 RVA 0x1edb80: int32 _s_set_allianceId(native int L)
+  METHOD 21786 RVA 0x1edbdc: int32 _s_set_startTime(native int L)
+  METHOD 21787 RVA 0x1edc38: int32 _s_set_endTime(native int L)
+  METHOD 21788 RVA 0x1edc94: int32 _s_set_inside(native int L)
+  METHOD 21789 RVA 0x1edcf0: int32 _s_set_roadDir(native int L)
+  METHOD 21790 RVA 0x1edd50: int32 _s_set_curHp(native int L)
+  METHOD 21791 RVA 0x1eddac: int32 _s_set_lastHpTime(native int L)
+  METHOD 21792 RVA 0x1ede08: int32 _s_set_protectEndTime(native int L)
+  METHOD 21793 RVA 0x1ede64: int32 _s_set_playerName(native int L)
+  METHOD 21794 RVA 0x1edec0: int32 _s_set_alAbbr(native int L)
+  METHOD 21795 RVA 0x1edf1c: int32 _s_set_lastCollectTime(native int L)
+  METHOD 21796 RVA 0x1edf78: int32 _s_set_unavailableTime(native int L)
+  METHOD 21797 RVA 0x1edfd4: int32 _s_set_queueItemId(native int L)
+  METHOD 21798 RVA 0x1ee030: int32 _s_set_queueStartTime(native int L)
+  METHOD 21799 RVA 0x1ee08c: int32 _s_set_queueUpdateTime(native int L)
+  METHOD 21800 RVA 0x1ee0e8: int32 _s_set_destroyStartTime(native int L)
+  METHOD 21801 RVA 0x1ee144: int32 _s_set_destroyEndTime(native int L)
+  METHOD 21802 RVA 0x1ee1a0: int32 _s_set_appearanceId(native int L)
+  METHOD 21803 RVA 0x1ee1fc: int32 _s_set_specialType(native int L)
+  METHOD 21804 RVA 0x1ee25c: int32 _s_set_positionId(native int L)
+  METHOD 21805 RVA 0x1ee2b8: int32 _s_set_showPosition(native int L)
+  METHOD 21806 RVA 0x1ee314: int32 _s_set_virusLayer(native int L)
+  METHOD 21807 RVA 0x1ee370: int32 _s_set_virusEndTime(native int L)
+  METHOD 21808 RVA 0x1ee3cc: int32 _s_set_refuseTreadVirus(native int L)
+  METHOD 21809 RVA 0x1ee428: int32 _s_set_refusePowerHelper(native int L)
+  METHOD 21810 RVA 0x1ee484: int32 _s_set_lightHouseInfo(native int L)
+  METHOD 21811 RVA 0x1ee4f0: int32 _s_set_recoverSpeed(native int L)
+  METHOD 21812 RVA 0x1ee54c: int32 _s_set_fireSpeed(native int L)
+  METHOD 21813 RVA 0x1ee5a8: int32 _s_set_assistanceCount(native int L)
+  METHOD 21814 RVA 0x1ee604: int32 _s_set_maxAssistanceCount(native int L)
+  METHOD 21815 RVA 0x1ee660: int32 _s_set_wolfDecrHp(native int L)
+  METHOD 21816 RVA 0x1ee6bc: int32 _s_set_fireworksInfoList(native int L)
+  METHOD 21817 RVA 0x1ee728: int32 _s_set_fireworksGiftList(native int L)
+  METHOD 21818 RVA 0x1ee794: int32 _s_set_aosEndTime(native int L)
+  METHOD 21819 RVA 0x1ee7f0: int32 _s_set_aosStartTime(native int L)
+  METHOD 21820 RVA 0x1ee84c: int32 _s_set_skillId(native int L)
+  METHOD 21821 RVA 0x1ee8a8: int32 _s_set_sandWorm(native int L)
+  METHOD 21822 RVA 0x1ee914: int32 _s_set_mummyConvertId(native int L)
+  METHOD 21823 RVA 0x1ee970: int32 _s_set_mummyConvertCount(native int L)
+  METHOD 21824 RVA 0x1ee9cc: int32 _s_set_skinId(native int L)
+  METHOD 21825 RVA 0x1eea28: int32 _s_set_colourId(native int L)
+  METHOD 21826 RVA 0x1eea84: int32 _s_set_colourTime(native int L)
+  METHOD 21827 RVA 0x1eeae0: int32 _s_set_titleNameSkinId(native int L)
+  METHOD 21828 RVA 0x1eeb3c: int32 _s_set_effectId(native int L)
+  METHOD 21829 RVA 0x1eeb98: int32 _s_set_wolfCoveredInfo(native int L)
+  METHOD 21830 RVA 0x1eec04: int32 _s_set_wallBarInfo(native int L)
+  METHOD 21831 RVA 0x1eec70: int32 _s_set_crystal(native int L)
+  METHOD 21832 RVA 0x1eeccc: int32 _s_set_nucleus(native int L)
+  METHOD 21833 RVA 0x1eed28: int32 _s_set_countryFlag(native int L)
+  METHOD 21834 RVA 0x1eed84: int32 _s_set_monsterInvasion(native int L)
+  METHOD 21835 RVA 0x1eedf0: int32 _s_set_zoneMobilization(native int L)
+  METHOD 21836 RVA 0x1eee5c: int32 _s_set_commonMonsterSkillInfo(native int L)
+  METHOD 21837 RVA 0x1eeec8: int32 _s_set_challangeNewDonate(native int L)
+  METHOD 21838 RVA 0x1eef34: int32 _s_set_seasonRole(native int L)
+  METHOD 21839 RVA 0x1eef90: int32 _s_set_quarantineSkillId(native int L)
+  METHOD 21840 RVA 0x1eefec: int32 _s_set_quarantineSkillSTime(native int L)
+  METHOD 21841 RVA 0x1ef048: int32 _s_set_quarantineSkillETime(native int L)
+  METHOD 21842 RVA 0x1ef0a4: int32 _s_set_quarantineSkilTargetPId(native int L)
+  METHOD 21843 RVA 0x1ef100: int32 _s_set_quarantineRole(native int L)
+  METHOD 21844 RVA 0x1ef15c: int32 _s_set_quarantineLeave(native int L)
+  METHOD 21845 RVA 0x1ef1b8: int32 _s_set_curMaxHp(native int L)
+  METHOD 21846 RVA 0x1ef214: int32 _s_set_mummyCurseExpireTime(native int L)
+  METHOD 21847 RVA 0x1ef270: void .ctor()
+TYPE 4250: Protobuf.BuildPointInfo extends System.Object
+  FIELD 18547: Google.Protobuf.MessageParser`1<Protobuf.BuildPointInfo> _parser
+  FIELD 18548: Google.Protobuf.UnknownFieldSet _unknownFields
+  FIELD 18549: int32 BuildPointFieldNumber = 1
+  FIELD 18550: int32 buildPoint_
+  FIELD 18551: int32 ServerIdFieldNumber = 2
+  FIELD 18552: int32 serverId_
+  FIELD 18553: int32 BuildSpeedFieldNumber = 3
+  FIELD 18554: int32 buildSpeed_
+  FIELD 18555: int32 CampIdFieldNumber = 4
+  FIELD 18556: int32 campId_
+  FIELD 18557: int32 AllianceIdFieldNumber = 5
+  FIELD 18558: string allianceId_
+  FIELD 18559: int32 AllianceAbbrFieldNumber = 6
+  FIELD 18560: string allianceAbbr_
+  METHOD 44320 RVA 0x44e4b1: Google.Protobuf.MessageParser`1<Protobuf.BuildPointInfo> get_Parser()
+  METHOD 44321 RVA 0x44e4b8: Google.Protobuf.Reflection.MessageDescriptor get_Descriptor()
+  METHOD 44322 RVA 0x44e4cb: Google.Protobuf.Reflection.MessageDescriptor pb::Google.Protobuf.IMessage.get_Descriptor()
+  METHOD 44323 RVA 0x44e4d2: void .ctor()
+  METHOD 44324 RVA 0x44e4f0: void .ctor(Protobuf.BuildPointInfo other)
+  METHOD 44325 RVA 0x44e55c: Protobuf.BuildPointInfo Clone()
+  METHOD 44326 RVA 0x44e564: int32 get_BuildPoint()
+  METHOD 44327 RVA 0x44e56c: void set_BuildPoint(int32 value)
+  METHOD 44328 RVA 0x44e575: int32 get_ServerId()
+  METHOD 44329 RVA 0x44e57d: void set_ServerId(int32 value)
+  METHOD 44330 RVA 0x44e586: int32 get_BuildSpeed()
+  METHOD 44331 RVA 0x44e58e: void set_BuildSpeed(int32 value)
+  METHOD 44332 RVA 0x44e597: int32 get_CampId()
+  METHOD 44333 RVA 0x44e59f: void set_CampId(int32 value)
+  METHOD 44334 RVA 0x44e5a8: string get_AllianceId()
+  METHOD 44335 RVA 0x44e5b0: void set_AllianceId(string value)
+  METHOD 44336 RVA 0x44e5c3: string get_AllianceAbbr()
+  METHOD 44337 RVA 0x44e5cb: void set_AllianceAbbr(string value)
+  METHOD 44338 RVA 0x44e5de: bool Equals(object other)
+  METHOD 44339 RVA 0x44e5ec: bool Equals(Protobuf.BuildPointInfo other)
+  METHOD 44340 RVA 0x44e680: int32 GetHashCode()
+  METHOD 44341 RVA 0x44e740: string ToString()
+  METHOD 44342 RVA 0x44e748: void WriteTo(Google.Protobuf.CodedOutputStream output)
+  METHOD 44343 RVA 0x44e81c: int32 CalculateSize()
+  METHOD 44344 RVA 0x44e8dc: void MergeFrom(Protobuf.BuildPointInfo other)
+  METHOD 44345 RVA 0x44e988: void MergeFrom(Google.Protobuf.CodedInputStream input)
+  METHOD 44346 RVA 0x44ea31: void .cctor()
+TYPE 4251: Protobuf.BuildPointInfo+<>c extends System.Object
+  FIELD 18561: Protobuf.BuildPointInfo+<>c <>9
+  METHOD 44347 RVA 0x44ea4d: void .cctor()
+  METHOD 44348 RVA 0x44ea59: void .ctor()
+  METHOD 44349 RVA 0x44ea61: Protobuf.BuildPointInfo <.cctor>b__50_0()
+TYPE 4271: Protobuf.StrongholdBuildPointInfo extends System.Object
+  FIELD 18691: Google.Protobuf.MessageParser`1<Protobuf.StrongholdBuildPointInfo> _parser
+  FIELD 18692: Google.Protobuf.UnknownFieldSet _unknownFields
+  FIELD 18693: int32 BuildPointFieldNumber = 1
+  FIELD 18694: int32 buildPoint_
+  FIELD 18695: int32 BuildSpeedFieldNumber = 3
+  FIELD 18696: int32 buildSpeed_
+  FIELD 18697: int32 ServerIdFieldNumber = 2
+  FIELD 18698: int32 serverId_
+  FIELD 18699: int32 AlAbbrFieldNumber = 4
+  FIELD 18700: string alAbbr_
+  FIELD 18701: int32 AllianceIdFieldNumber = 5
+  FIELD 18702: string allianceId_
+  FIELD 18703: int32 AlNameFieldNumber = 6
+  FIELD 18704: string alName_
+  FIELD 18705: int32 AlIconFieldNumber = 7
+  FIELD 18706: string alIcon_
+  METHOD 44608 RVA 0x451c06: Google.Protobuf.MessageParser`1<Protobuf.StrongholdBuildPointInfo> get_Parser()
+  METHOD 44609 RVA 0x451c0d: Google.Protobuf.Reflection.MessageDescriptor get_Descriptor()
+  METHOD 44610 RVA 0x451c20: Google.Protobuf.Reflection.MessageDescriptor pb::Google.Protobuf.IMessage.get_Descriptor()
+  METHOD 44611 RVA 0x451c27: void .ctor()
+  METHOD 44612 RVA 0x451c5c: void .ctor(Protobuf.StrongholdBuildPointInfo other)
+  METHOD 44613 RVA 0x451cd4: Protobuf.StrongholdBuildPointInfo Clone()
+  METHOD 44614 RVA 0x451cdc: int32 get_BuildPoint()
+  METHOD 44615 RVA 0x451ce4: void set_BuildPoint(int32 value)
+  METHOD 44616 RVA 0x451ced: int32 get_BuildSpeed()
+  METHOD 44617 RVA 0x451cf5: void set_BuildSpeed(int32 value)
+  METHOD 44618 RVA 0x451cfe: int32 get_ServerId()
+  METHOD 44619 RVA 0x451d06: void set_ServerId(int32 value)
+  METHOD 44620 RVA 0x451d0f: string get_AlAbbr()
+  METHOD 44621 RVA 0x451d17: void set_AlAbbr(string value)
+  METHOD 44622 RVA 0x451d2a: string get_AllianceId()
+  METHOD 44623 RVA 0x451d32: void set_AllianceId(string value)
+  METHOD 44624 RVA 0x451d45: string get_AlName()
+  METHOD 44625 RVA 0x451d4d: void set_AlName(string value)
+  METHOD 44626 RVA 0x451d60: string get_AlIcon()
+  METHOD 44627 RVA 0x451d68: void set_AlIcon(string value)
+  METHOD 44628 RVA 0x451d7b: bool Equals(object other)
+  METHOD 44629 RVA 0x451d8c: bool Equals(Protobuf.StrongholdBuildPointInfo other)
+  METHOD 44630 RVA 0x451e3c: int32 GetHashCode()
+  METHOD 44631 RVA 0x451f19: string ToString()
+  METHOD 44632 RVA 0x451f24: void WriteTo(Google.Protobuf.CodedOutputStream output)
+  METHOD 44633 RVA 0x45201c: int32 CalculateSize()
+  METHOD 44634 RVA 0x452100: void MergeFrom(Protobuf.StrongholdBuildPointInfo other)
+  METHOD 44635 RVA 0x4521c8: void MergeFrom(Google.Protobuf.CodedInputStream input)
+  METHOD 44636 RVA 0x45228b: void .cctor()
+TYPE 4272: Protobuf.StrongholdBuildPointInfo+<>c extends System.Object
+  FIELD 18707: Protobuf.StrongholdBuildPointInfo+<>c <>9
+  METHOD 44637 RVA 0x4522a7: void .cctor()
+  METHOD 44638 RVA 0x4522b3: void .ctor()
+  METHOD 44639 RVA 0x4522bb: Protobuf.StrongholdBuildPointInfo <.cctor>b__55_0()
+TYPE 4287: Protobuf.CityTradeBuildPointInfo extends System.Object
+  FIELD 18844: Google.Protobuf.MessageParser`1<Protobuf.CityTradeBuildPointInfo> _parser
+  FIELD 18845: Google.Protobuf.UnknownFieldSet _unknownFields
+  FIELD 18846: int32 BuildPointFieldNumber = 1
+  FIELD 18847: int32 buildPoint_
+  FIELD 18848: int32 BuildSpeedFieldNumber = 2
+  FIELD 18849: int32 buildSpeed_
+  FIELD 18850: int32 ServerIdFieldNumber = 3
+  FIELD 18851: int32 serverId_
+  FIELD 18852: int32 RefreshTimeFieldNumber = 4
+  FIELD 18853: int64 refreshTime_
+  FIELD 18854: int32 UidFieldNumber = 5
+  FIELD 18855: string uid_
+  FIELD 18856: int32 UidNameFieldNumber = 6
+  FIELD 18857: string uidName_
+  FIELD 18858: int32 PicFieldNumber = 7
+  FIELD 18859: string pic_
+  FIELD 18860: int32 PicVerFieldNumber = 8
+  FIELD 18861: int32 picVer_
+  FIELD 18862: int32 HeadSkinIdFieldNumber = 9
+  FIELD 18863: int32 headSkinId_
+  FIELD 18864: int32 HeadSkinETFieldNumber = 10
+  FIELD 18865: int64 headSkinET_
+  FIELD 18866: int32 AlAbbrFieldNumber = 11
+  FIELD 18867: string alAbbr_
+  FIELD 18868: int32 AllianceIdFieldNumber = 12
+  FIELD 18869: string allianceId_
+  FIELD 18870: int32 AlNameFieldNumber = 13
+  FIELD 18871: string alName_
+  FIELD 18872: int32 AlIconFieldNumber = 14
+  FIELD 18873: string alIcon_
+  METHOD 44875 RVA 0x4556c3: Google.Protobuf.MessageParser`1<Protobuf.CityTradeBuildPointInfo> get_Parser()
+  METHOD 44876 RVA 0x4556ca: Google.Protobuf.Reflection.MessageDescriptor get_Descriptor()
+  METHOD 44877 RVA 0x4556dd: Google.Protobuf.Reflection.MessageDescriptor pb::Google.Protobuf.IMessage.get_Descriptor()
+  METHOD 44878 RVA 0x4556e4: void .ctor()
+  METHOD 44879 RVA 0x455744: void .ctor(Protobuf.CityTradeBuildPointInfo other)
+  METHOD 44880 RVA 0x455810: Protobuf.CityTradeBuildPointInfo Clone()
+  METHOD 44881 RVA 0x455818: int32 get_BuildPoint()
+  METHOD 44882 RVA 0x455820: void set_BuildPoint(int32 value)
+  METHOD 44883 RVA 0x455829: int32 get_BuildSpeed()
+  METHOD 44884 RVA 0x455831: void set_BuildSpeed(int32 value)
+  METHOD 44885 RVA 0x45583a: int32 get_ServerId()
+  METHOD 44886 RVA 0x455842: void set_ServerId(int32 value)
+  METHOD 44887 RVA 0x45584b: int64 get_RefreshTime()
+  METHOD 44888 RVA 0x455853: void set_RefreshTime(int64 value)
+  METHOD 44889 RVA 0x45585c: string get_Uid()
+  METHOD 44890 RVA 0x455864: void set_Uid(string value)
+  METHOD 44891 RVA 0x455877: string get_UidName()
+  METHOD 44892 RVA 0x45587f: void set_UidName(string value)
+  METHOD 44893 RVA 0x455892: string get_Pic()
+  METHOD 44894 RVA 0x45589a: void set_Pic(string value)
+  METHOD 44895 RVA 0x4558ad: int32 get_PicVer()
+  METHOD 44896 RVA 0x4558b5: void set_PicVer(int32 value)
+  METHOD 44897 RVA 0x4558be: int32 get_HeadSkinId()
+  METHOD 44898 RVA 0x4558c6: void set_HeadSkinId(int32 value)
+  METHOD 44899 RVA 0x4558cf: int64 get_HeadSkinET()
+  METHOD 44900 RVA 0x4558d7: void set_HeadSkinET(int64 value)
+  METHOD 44901 RVA 0x4558e0: string get_AlAbbr()
+  METHOD 44902 RVA 0x4558e8: void set_AlAbbr(string value)
+  METHOD 44903 RVA 0x4558fb: string get_AllianceId()
+  METHOD 44904 RVA 0x455903: void set_AllianceId(string value)
+  METHOD 44905 RVA 0x455916: string get_AlName()
+  METHOD 44906 RVA 0x45591e: void set_AlName(string value)
+  METHOD 44907 RVA 0x455931: string get_AlIcon()
+  METHOD 44908 RVA 0x455939: void set_AlIcon(string value)
+  METHOD 44909 RVA 0x45594c: bool Equals(object other)
+  METHOD 44910 RVA 0x45595c: bool Equals(Protobuf.CityTradeBuildPointInfo other)
+  METHOD 44911 RVA 0x455a88: int32 GetHashCode()
+  METHOD 44912 RVA 0x455c1a: string ToString()
+  METHOD 44913 RVA 0x455c24: void WriteTo(Google.Protobuf.CodedOutputStream output)
+  METHOD 44914 RVA 0x455df0: int32 CalculateSize()
+  METHOD 44915 RVA 0x455f8c: void MergeFrom(Protobuf.CityTradeBuildPointInfo other)
+  METHOD 44916 RVA 0x4560f0: void MergeFrom(Google.Protobuf.CodedInputStream input)
+  METHOD 44917 RVA 0x456286: void .cctor()
+TYPE 4288: Protobuf.CityTradeBuildPointInfo+<>c extends System.Object
+  FIELD 18874: Protobuf.CityTradeBuildPointInfo+<>c <>9
+  METHOD 44918 RVA 0x4562a2: void .cctor()
+  METHOD 44919 RVA 0x4562ae: void .ctor()
+  METHOD 44920 RVA 0x4562b6: Protobuf.CityTradeBuildPointInfo <.cctor>b__90_0()
+TYPE 4329: Protobuf.AllianceBossS0BuildPointInfo extends System.Object
+  FIELD 19349: Google.Protobuf.MessageParser`1<Protobuf.AllianceBossS0BuildPointInfo> _parser
+  FIELD 19350: Google.Protobuf.UnknownFieldSet _unknownFields
+  FIELD 19351: int32 AllianceIdFieldNumber = 1
+  FIELD 19352: string allianceId_
+  FIELD 19353: int32 CfgIdFieldNumber = 2
+  FIELD 19354: int32 cfgId_
+  FIELD 19355: int32 AbbrFieldNumber = 3
+  FIELD 19356: string abbr_
+  FIELD 19357: int32 StartTimeFieldNumber = 4
+  FIELD 19358: int64 startTime_
+  FIELD 19359: int32 LastReserveTimeFieldNumber = 5
+  FIELD 19360: int64 lastReserveTime_
+  FIELD 19361: int32 ActEndTimeFieldNumber = 6
+  FIELD 19362: int64 actEndTime_
+  METHOD 45679 RVA 0x4613fe: Google.Protobuf.MessageParser`1<Protobuf.AllianceBossS0BuildPointInfo> get_Parser()
+  METHOD 45680 RVA 0x461405: Google.Protobuf.Reflection.MessageDescriptor get_Descriptor()
+  METHOD 45681 RVA 0x461418: Google.Protobuf.Reflection.MessageDescriptor pb::Google.Protobuf.IMessage.get_Descriptor()
+  METHOD 45682 RVA 0x46141f: void .ctor()
+  METHOD 45683 RVA 0x461440: void .ctor(Protobuf.AllianceBossS0BuildPointInfo other)
+  METHOD 45684 RVA 0x4614ac: Protobuf.AllianceBossS0BuildPointInfo Clone()
+  METHOD 45685 RVA 0x4614b4: string get_AllianceId()
+  METHOD 45686 RVA 0x4614bc: void set_AllianceId(string value)
+  METHOD 45687 RVA 0x4614cf: int32 get_CfgId()
+  METHOD 45688 RVA 0x4614d7: void set_CfgId(int32 value)
+  METHOD 45689 RVA 0x4614e0: string get_Abbr()
+  METHOD 45690 RVA 0x4614e8: void set_Abbr(string value)
+  METHOD 45691 RVA 0x4614fb: int64 get_StartTime()
+  METHOD 45692 RVA 0x461503: void set_StartTime(int64 value)
+  METHOD 45693 RVA 0x46150c: int64 get_LastReserveTime()
+  METHOD 45694 RVA 0x461514: void set_LastReserveTime(int64 value)
+  METHOD 45695 RVA 0x46151d: int64 get_ActEndTime()
+  METHOD 45696 RVA 0x461525: void set_ActEndTime(int64 value)
+  METHOD 45697 RVA 0x46152e: bool Equals(object other)
+  METHOD 45698 RVA 0x46153c: bool Equals(Protobuf.AllianceBossS0BuildPointInfo other)
+  METHOD 45699 RVA 0x4615d0: int32 GetHashCode()
+  METHOD 45700 RVA 0x461690: string ToString()
+  METHOD 45701 RVA 0x461698: void WriteTo(Google.Protobuf.CodedOutputStream output)
+  METHOD 45702 RVA 0x46176c: int32 CalculateSize()
+  METHOD 45703 RVA 0x46182c: void MergeFrom(Protobuf.AllianceBossS0BuildPointInfo other)
+  METHOD 45704 RVA 0x4618d8: void MergeFrom(Google.Protobuf.CodedInputStream input)
+  METHOD 45705 RVA 0x461982: void .cctor()
+TYPE 4330: Protobuf.AllianceBossS0BuildPointInfo+<>c extends System.Object
+  FIELD 19363: Protobuf.AllianceBossS0BuildPointInfo+<>c <>9
+  METHOD 45706 RVA 0x46199e: void .cctor()
+  METHOD 45707 RVA 0x4619aa: void .ctor()
+  METHOD 45708 RVA 0x4619b2: Protobuf.AllianceBossS0BuildPointInfo <.cctor>b__50_0()

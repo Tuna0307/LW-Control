@@ -1,0 +1,111 @@
+{
+  "schema": 1,
+  "workItem": "LWB317-FUNCTION-HOME-MAP-DEEP-RECOVERY-002",
+  "milestone": "C",
+  "evidenceState": "CURRENT_V22_STATIC_PLUS_CLONE_PROJECTION_REVIEW",
+  "installed": {
+    "contentVersion": 22,
+    "identityApproved": true
+  },
+  "mappings": [
+    {
+      "kind": "city",
+      "currentProducer": "WorldPointManager.GetAllMainBaseList / BuildPointInfo",
+      "proof": [
+        "WorldPointManager.GetAllMainBaseList xLua wrapper",
+        "BuildPointInfo level/playerName/allianceId/alAbbr/health/protect fields"
+      ],
+      "projection": "player_base -> city; owner identity required; absent optional fields stay absent",
+      "discrepancy": false
+    },
+    {
+      "kind": "resource",
+      "currentProducer": "WorldPointManager._pointInfos + GetResourcePointInfoByIndex / ResPointInfo + GatherResource config",
+      "proof": [
+        "ResPointInfo gatherMarchUuid/gatherUid/GetResLevel/GetResType",
+        "WorldPointManager.GetResourcePointInfoByIndex wrapper"
+      ],
+      "projection": "resourceNameKey/config/reserve + source-backed occupancy; unknown occupancy stays unknown",
+      "discrepancy": false
+    },
+    {
+      "kind": "monster",
+      "currentProducer": "WorldScene.MarchDataManager current WorldMarch + MonsterTemplateManager + bounded special sources",
+      "proof": [
+        "WorldMarch monster fields, timing fields, zMBossInfo, IsMonsterOrBoss/GetHP/GetMaxHP/GetMarchCurPosIndex xLua wrappers"
+      ],
+      "projection": "monsterNameKey/level/distance/shield fields only when known",
+      "discrepancy": false
+    },
+    {
+      "kind": "truck",
+      "currentProducer": "WorldMarch train identity + v22 TrainData/LWTrainDataManager Lua",
+      "proof": [
+        "TrainData GetCurRewardData/maxLootPerTrain/arriveTs/marchInfo/vipOn/baseGoods/extraGoods/quality/cfgId/carriageCount",
+        "LWTrainDataManager GetOneTrain/GetOneTrainByMarchUuid"
+      ],
+      "projection": "source max/currentGoods; recovered special-UR cap; documented adaptation key reward:<type>:<itemId>",
+      "discrepancy": false
+    },
+    {
+      "kind": "railway",
+      "currentProducer": "WorldMarch + v22 TrainData/LWTrainDataManager Lua",
+      "proof": [
+        "TrainData type/arriveTs/marchInfo/quality",
+        "manager lookup APIs"
+      ],
+      "projection": "arrive/rob/protect via direct row or trainDataJson; missing remains sparse",
+      "discrepancy": false
+    },
+    {
+      "kind": "dispatch",
+      "currentProducer": "WorldPointManager _pointInfos / HeroDispatchMissionPointInfo + LwDispatchTask config",
+      "proof": [
+        "cfgId/completionTime/stealList/accList/allianceId/expiredTime in current RDL",
+        "v22 UIWorldPointBtn protect_times/steal_maxtimes/stealList/completionTime"
+      ],
+      "projection": "plunderAt=completionTime+protect_times*60000; stolen/max counts; expiredTime intentionally not invented as taskExpireTime",
+      "discrepancy": false
+    },
+    {
+      "kind": "ghost",
+      "currentProducer": "WorldPointManager _pointInfos / GhostreconPointInfo + Ghost task/template Lua",
+      "proof": [
+        "cfgId/completionTime/stealList/memberList/taskExpireTime/allianceId current RDL",
+        "v22 task template protect_times/steal_maxtimes/protectTime"
+      ],
+      "projection": "raw taskExpire/completion/steal data preserved; kind/updatedAt added",
+      "discrepancy": false
+    },
+    {
+      "kind": "treasure",
+      "currentProducer": "WorldPointManager point types 21/27 / TreasurePointInfo or WorldSuppliesPoint",
+      "proof": [
+        "Treasure completion/reward/digging/alliance methods and lists",
+        "WorldSuppliesPoint uid/userCount/workEndTime/workState",
+        "v22 Treasure status data classes"
+      ],
+      "projection": "ordinary/supplies identity and raw state preserved; claim/status action orchestration remains D blocker",
+      "discrepancy": false
+    }
+  ],
+  "explicitNonMappings": [
+    {
+      "field": "resourceTypeId -> public resourceType filter",
+      "reason": "exact recovered frontend MapQuery has no resourceType; do not invent public API"
+    },
+    {
+      "field": "HeroDispatchMissionPointInfo.expiredTime -> taskExpireTime",
+      "reason": "current-v22 Dispatch UI eligibility does not consume expiredTime; exact host taskExpireTime is optional and missing is fail-open"
+    },
+    {
+      "field": "Truck reward item key",
+      "reason": "original 0.3.17 key producer unrecovered; current reward:<type>:<itemId> is declared clone adaptation"
+    }
+  ],
+  "checks": [
+    "tools/check_current_client_runtime_contract.py PASS",
+    "tools/lwbridge317/inspect_current_map_compat.py PASS"
+  ],
+  "productChanges": false
+}

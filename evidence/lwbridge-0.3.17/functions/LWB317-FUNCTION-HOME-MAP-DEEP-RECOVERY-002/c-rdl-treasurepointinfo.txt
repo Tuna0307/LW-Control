@@ -1,0 +1,241 @@
+﻿RGMD=0x9a92a4 TypeDef=5828 MethodDef=54483
+TYPE 1432: MonsterChallengeTreasurePointInfo extends System.Object
+  FIELD 7608: int64 startTime
+  FIELD 7609: string allianceId
+  FIELD 7610: string allianceName
+  FIELD 7611: string allianceAbbr
+  FIELD 7612: int64 allianceDamage
+  FIELD 7613: int32 configId
+  FIELD 7614: int64 endTime
+  METHOD 10980 RVA 0x10e9ed: void .ctor()
+  METHOD 10981 RVA 0x10e9f5: void .ctor(Sfs2X.Entities.Data.ISFSObject msg)
+  METHOD 10982 RVA 0x10ea04: void .ctor(Protobuf.MonsterChallengeTreasurePointInfo msg)
+  METHOD 10983 RVA 0x10ea14: void ParseData(Sfs2X.Entities.Data.ISFSObject msg)
+  METHOD 10984 RVA 0x10ea98: void ParseData(Protobuf.MonsterChallengeTreasurePointInfo msg)
+TYPE 1768: TreasurePointInfo extends PointInfo
+  FIELD 10219: string eventId
+  FIELD 10220: int64 startTime
+  FIELD 10221: int64 completionTime
+  FIELD 10222: string allianceId
+  FIELD 10223: string allianceAbbr
+  FIELD 10224: System.Collections.Generic.List`1<string> rewardUserList
+  FIELD 10225: System.Collections.Generic.List`1<Protobuf.UserInfo> diggingUserList
+  FIELD 10226: bool complete
+  FIELD 10227: float32 speed
+  FIELD 10228: string ownerName
+  FIELD 10229: int64 expireTime
+  FIELD 10230: int64 createTime
+  FIELD 10231: System.Collections.Generic.HashSet`1<string> rewardUserHashSet
+  FIELD 10232: System.Collections.Generic.HashSet`1<string> diggingUserHashSet
+  FIELD 10233: WorldTreasureType type
+  FIELD 10234: int32 fromPoint
+  FIELD 10235: int32 multiple
+  FIELD 10236: string killerId
+  FIELD 10237: string customInfoStr
+  METHOD 13524 RVA 0x152e33: void .ctor()
+  METHOD 13525 RVA 0x152e44: void .ctor(Protobuf.WorldPointInfo pi)
+  METHOD 13526 RVA 0x153078: int32 GetWorldTreasureType()
+  METHOD 13527 RVA 0x153080: PointInfo Clone()
+  METHOD 13528 RVA 0x15317f: bool IsHaveGetReward(string playerUid)
+  METHOD 13529 RVA 0x1531b3: bool IsHaveWorking(string playerUid)
+  METHOD 13530 RVA 0x1531cc: int32 GetRewardMaxNum()
+  METHOD 13531 RVA 0x153214: bool IsReceiveAllReward()
+  METHOD 13532 RVA 0x153248: bool IsComplete()
+TYPE 1779: NewAlChallengeTreasurePointInfo extends PointInfo
+  FIELD 10275: MonsterChallengeTreasurePointInfo treasurePointInfo
+  METHOD 13571 RVA 0x153bcf: void .ctor()
+  METHOD 13572 RVA 0x153bd7: void .ctor(Protobuf.WorldPointInfo pi)
+  METHOD 13573 RVA 0x153bf8: PointInfo Clone()
+TYPE 4331: Protobuf.MonsterChallengeTreasurePointInfo extends System.Object
+  FIELD 19364: Google.Protobuf.MessageParser`1<Protobuf.MonsterChallengeTreasurePointInfo> _parser
+  FIELD 19365: Google.Protobuf.UnknownFieldSet _unknownFields
+  FIELD 19366: int32 AllianceIdFieldNumber = 1
+  FIELD 19367: string allianceId_
+  FIELD 19368: int32 StartTimeFieldNumber = 2
+  FIELD 19369: int64 startTime_
+  FIELD 19370: int32 AllianceNameFieldNumber = 3
+  FIELD 19371: string allianceName_
+  FIELD 19372: int32 AllianceAbbrFieldNumber = 4
+  FIELD 19373: string allianceAbbr_
+  FIELD 19374: int32 AllianceDamageFieldNumber = 5
+  FIELD 19375: int64 allianceDamage_
+  FIELD 19376: int32 ConfigIdFieldNumber = 6
+  FIELD 19377: int32 configId_
+  FIELD 19378: int32 EndTimeFieldNumber = 7
+  FIELD 19379: int64 endTime_
+  METHOD 45709 RVA 0x4619b9: Google.Protobuf.MessageParser`1<Protobuf.MonsterChallengeTreasurePointInfo> get_Parser()
+  METHOD 45710 RVA 0x4619c0: Google.Protobuf.Reflection.MessageDescriptor get_Descriptor()
+  METHOD 45711 RVA 0x4619d3: Google.Protobuf.Reflection.MessageDescriptor pb::Google.Protobuf.IMessage.get_Descriptor()
+  METHOD 45712 RVA 0x4619da: void .ctor()
+  METHOD 45713 RVA 0x461a04: void .ctor(Protobuf.MonsterChallengeTreasurePointInfo other)
+  METHOD 45714 RVA 0x461a7c: Protobuf.MonsterChallengeTreasurePointInfo Clone()
+  METHOD 45715 RVA 0x461a84: string get_AllianceId()
+  METHOD 45716 RVA 0x461a8c: void set_AllianceId(string value)
+  METHOD 45717 RVA 0x461a9f: int64 get_StartTime()
+  METHOD 45718 RVA 0x461aa7: void set_StartTime(int64 value)
+  METHOD 45719 RVA 0x461ab0: string get_AllianceName()
+  METHOD 45720 RVA 0x461ab8: void set_AllianceName(string value)
+  METHOD 45721 RVA 0x461acb: string get_AllianceAbbr()
+  METHOD 45722 RVA 0x461ad3: void set_AllianceAbbr(string value)
+  METHOD 45723 RVA 0x461ae6: int64 get_AllianceDamage()
+  METHOD 45724 RVA 0x461aee: void set_AllianceDamage(int64 value)
+  METHOD 45725 RVA 0x461af7: int32 get_ConfigId()
+  METHOD 45726 RVA 0x461aff: void set_ConfigId(int32 value)
+  METHOD 45727 RVA 0x461b08: int64 get_EndTime()
+  METHOD 45728 RVA 0x461b10: void set_EndTime(int64 value)
+  METHOD 45729 RVA 0x461b19: bool Equals(object other)
+  METHOD 45730 RVA 0x461b28: bool Equals(Protobuf.MonsterChallengeTreasurePointInfo other)
+  METHOD 45731 RVA 0x461bd0: int32 GetHashCode()
+  METHOD 45732 RVA 0x461cab: string ToString()
+  METHOD 45733 RVA 0x461cb4: void WriteTo(Google.Protobuf.CodedOutputStream output)
+  METHOD 45734 RVA 0x461da8: int32 CalculateSize()
+  METHOD 45735 RVA 0x461e88: void MergeFrom(Protobuf.MonsterChallengeTreasurePointInfo other)
+  METHOD 45736 RVA 0x461f4c: void MergeFrom(Google.Protobuf.CodedInputStream input)
+  METHOD 45737 RVA 0x462010: void .cctor()
+TYPE 4332: Protobuf.MonsterChallengeTreasurePointInfo+<>c extends System.Object
+  FIELD 19380: Protobuf.MonsterChallengeTreasurePointInfo+<>c <>9
+  METHOD 45738 RVA 0x46202c: void .cctor()
+  METHOD 45739 RVA 0x462038: void .ctor()
+  METHOD 45740 RVA 0x462040: Protobuf.MonsterChallengeTreasurePointInfo <.cctor>b__55_0()
+TYPE 4339: Protobuf.TreasurePointInfo extends System.Object
+  FIELD 19404: Google.Protobuf.MessageParser`1<Protobuf.TreasurePointInfo> _parser
+  FIELD 19405: Google.Protobuf.UnknownFieldSet _unknownFields
+  FIELD 19406: int32 UuidFieldNumber = 1
+  FIELD 19407: int64 uuid_
+  FIELD 19408: int32 OwnerUidFieldNumber = 2
+  FIELD 19409: string ownerUid_
+  FIELD 19410: int32 EventIdFieldNumber = 3
+  FIELD 19411: string eventId_
+  FIELD 19412: int32 CompletionTimeFieldNumber = 4
+  FIELD 19413: int64 completionTime_
+  FIELD 19414: int32 AllianceIdFieldNumber = 5
+  FIELD 19415: string allianceId_
+  FIELD 19416: int32 AllianceAbbrFieldNumber = 6
+  FIELD 19417: string allianceAbbr_
+  FIELD 19418: int32 RewardUserListFieldNumber = 7
+  FIELD 19419: Google.Protobuf.FieldCodec`1<string> _repeated_rewardUserList_codec
+  FIELD 19420: Google.Protobuf.Collections.RepeatedField`1<string> rewardUserList_
+  FIELD 19421: int32 DiggingUserListFieldNumber = 8
+  FIELD 19422: Google.Protobuf.FieldCodec`1<Protobuf.UserInfo> _repeated_diggingUserList_codec
+  FIELD 19423: Google.Protobuf.Collections.RepeatedField`1<Protobuf.UserInfo> diggingUserList_
+  FIELD 19424: int32 StartTimeFieldNumber = 9
+  FIELD 19425: int64 startTime_
+  FIELD 19426: int32 CompleteFieldNumber = 10
+  FIELD 19427: bool complete_
+  FIELD 19428: int32 SpeedFieldNumber = 11
+  FIELD 19429: float32 speed_
+  FIELD 19430: int32 OwnerNameFieldNumber = 12
+  FIELD 19431: string ownerName_
+  FIELD 19432: int32 ExpireTimeFieldNumber = 13
+  FIELD 19433: int64 expireTime_
+  FIELD 19434: int32 TypeFieldNumber = 14
+  FIELD 19435: int32 type_
+  FIELD 19436: int32 CreateTimeFieldNumber = 15
+  FIELD 19437: int64 createTime_
+  FIELD 19438: int32 ThermalConductorFieldNumber = 16
+  FIELD 19439: Protobuf.ThermalConductor thermalConductor_
+  FIELD 19440: int32 FromPointFieldNumber = 17
+  FIELD 19441: int32 fromPoint_
+  FIELD 19442: int32 MultipleFieldNumber = 18
+  FIELD 19443: int32 multiple_
+  FIELD 19444: int32 KillerIdFieldNumber = 19
+  FIELD 19445: string killerId_
+  FIELD 19446: int32 CustomInfoFieldNumber = 20
+  FIELD 19447: string customInfo_
+  METHOD 45809 RVA 0x46294a: Google.Protobuf.MessageParser`1<Protobuf.TreasurePointInfo> get_Parser()
+  METHOD 45810 RVA 0x462951: Google.Protobuf.Reflection.MessageDescriptor get_Descriptor()
+  METHOD 45811 RVA 0x462964: Google.Protobuf.Reflection.MessageDescriptor pb::Google.Protobuf.IMessage.get_Descriptor()
+  METHOD 45812 RVA 0x46296c: void .ctor()
+  METHOD 45813 RVA 0x4629e4: void .ctor(Protobuf.TreasurePointInfo other)
+  METHOD 45814 RVA 0x462b12: Protobuf.TreasurePointInfo Clone()
+  METHOD 45815 RVA 0x462b1a: int64 get_Uuid()
+  METHOD 45816 RVA 0x462b22: void set_Uuid(int64 value)
+  METHOD 45817 RVA 0x462b2b: string get_OwnerUid()
+  METHOD 45818 RVA 0x462b33: void set_OwnerUid(string value)
+  METHOD 45819 RVA 0x462b46: string get_EventId()
+  METHOD 45820 RVA 0x462b4e: void set_EventId(string value)
+  METHOD 45821 RVA 0x462b61: int64 get_CompletionTime()
+  METHOD 45822 RVA 0x462b69: void set_CompletionTime(int64 value)
+  METHOD 45823 RVA 0x462b72: string get_AllianceId()
+  METHOD 45824 RVA 0x462b7a: void set_AllianceId(string value)
+  METHOD 45825 RVA 0x462b8d: string get_AllianceAbbr()
+  METHOD 45826 RVA 0x462b95: void set_AllianceAbbr(string value)
+  METHOD 45827 RVA 0x462ba8: Google.Protobuf.Collections.RepeatedField`1<string> get_RewardUserList()
+  METHOD 45828 RVA 0x462bb0: Google.Protobuf.Collections.RepeatedField`1<Protobuf.UserInfo> get_DiggingUserList()
+  METHOD 45829 RVA 0x462bb8: int64 get_StartTime()
+  METHOD 45830 RVA 0x462bc0: void set_StartTime(int64 value)
+  METHOD 45831 RVA 0x462bc9: bool get_Complete()
+  METHOD 45832 RVA 0x462bd1: void set_Complete(bool value)
+  METHOD 45833 RVA 0x462bda: float32 get_Speed()
+  METHOD 45834 RVA 0x462be2: void set_Speed(float32 value)
+  METHOD 45835 RVA 0x462beb: string get_OwnerName()
+  METHOD 45836 RVA 0x462bf3: void set_OwnerName(string value)
+  METHOD 45837 RVA 0x462c06: int64 get_ExpireTime()
+  METHOD 45838 RVA 0x462c0e: void set_ExpireTime(int64 value)
+  METHOD 45839 RVA 0x462c17: int32 get_Type()
+  METHOD 45840 RVA 0x462c1f: void set_Type(int32 value)
+  METHOD 45841 RVA 0x462c28: int64 get_CreateTime()
+  METHOD 45842 RVA 0x462c30: void set_CreateTime(int64 value)
+  METHOD 45843 RVA 0x462c39: Protobuf.ThermalConductor get_ThermalConductor()
+  METHOD 45844 RVA 0x462c41: void set_ThermalConductor(Protobuf.ThermalConductor value)
+  METHOD 45845 RVA 0x462c4a: int32 get_FromPoint()
+  METHOD 45846 RVA 0x462c52: void set_FromPoint(int32 value)
+  METHOD 45847 RVA 0x462c5b: int32 get_Multiple()
+  METHOD 45848 RVA 0x462c63: void set_Multiple(int32 value)
+  METHOD 45849 RVA 0x462c6c: string get_KillerId()
+  METHOD 45850 RVA 0x462c74: void set_KillerId(string value)
+  METHOD 45851 RVA 0x462c87: string get_CustomInfo()
+  METHOD 45852 RVA 0x462c8f: void set_CustomInfo(string value)
+  METHOD 45853 RVA 0x462ca2: bool Equals(object other)
+  METHOD 45854 RVA 0x462cb0: bool Equals(Protobuf.TreasurePointInfo other)
+  METHOD 45855 RVA 0x462e58: int32 GetHashCode()
+  METHOD 45856 RVA 0x46306e: string ToString()
+  METHOD 45857 RVA 0x463078: void WriteTo(Google.Protobuf.CodedOutputStream output)
+  METHOD 45858 RVA 0x4632f0: int32 CalculateSize()
+  METHOD 45859 RVA 0x4634fc: void MergeFrom(Protobuf.TreasurePointInfo other)
+  METHOD 45860 RVA 0x4636f0: void MergeFrom(Google.Protobuf.CodedInputStream input)
+  METHOD 45861 RVA 0x463968: void .cctor()
+TYPE 4340: Protobuf.TreasurePointInfo+<>c extends System.Object
+  FIELD 19448: Protobuf.TreasurePointInfo+<>c <>9
+  METHOD 45862 RVA 0x4639a1: void .cctor()
+  METHOD 45863 RVA 0x4639ad: void .ctor()
+  METHOD 45864 RVA 0x4639b5: Protobuf.TreasurePointInfo <.cctor>b__120_0()
+TYPE 4361: Protobuf.ActivityTreasurePointInfo extends System.Object
+  FIELD 19660: Google.Protobuf.MessageParser`1<Protobuf.ActivityTreasurePointInfo> _parser
+  FIELD 19661: Google.Protobuf.UnknownFieldSet _unknownFields
+  FIELD 19662: int32 CfgIdFieldNumber = 1
+  FIELD 19663: int32 cfgId_
+  FIELD 19664: int32 UuidFieldNumber = 2
+  FIELD 19665: int64 uuid_
+  FIELD 19666: int32 OwnerIdFieldNumber = 3
+  FIELD 19667: string ownerId_
+  FIELD 19668: int32 AidFieldNumber = 4
+  FIELD 19669: int32 aid_
+  METHOD 46220 RVA 0x468639: Google.Protobuf.MessageParser`1<Protobuf.ActivityTreasurePointInfo> get_Parser()
+  METHOD 46221 RVA 0x468640: Google.Protobuf.Reflection.MessageDescriptor get_Descriptor()
+  METHOD 46222 RVA 0x468653: Google.Protobuf.Reflection.MessageDescriptor pb::Google.Protobuf.IMessage.get_Descriptor()
+  METHOD 46223 RVA 0x46865a: void .ctor()
+  METHOD 46224 RVA 0x468670: void .ctor(Protobuf.ActivityTreasurePointInfo other)
+  METHOD 46225 RVA 0x4686c4: Protobuf.ActivityTreasurePointInfo Clone()
+  METHOD 46226 RVA 0x4686cc: int32 get_CfgId()
+  METHOD 46227 RVA 0x4686d4: void set_CfgId(int32 value)
+  METHOD 46228 RVA 0x4686dd: int64 get_Uuid()
+  METHOD 46229 RVA 0x4686e5: void set_Uuid(int64 value)
+  METHOD 46230 RVA 0x4686ee: string get_OwnerId()
+  METHOD 46231 RVA 0x4686f6: void set_OwnerId(string value)
+  METHOD 46232 RVA 0x468709: int32 get_Aid()
+  METHOD 46233 RVA 0x468711: void set_Aid(int32 value)
+  METHOD 46234 RVA 0x46871a: bool Equals(object other)
+  METHOD 46235 RVA 0x468728: bool Equals(Protobuf.ActivityTreasurePointInfo other)
+  METHOD 46236 RVA 0x468798: int32 GetHashCode()
+  METHOD 46237 RVA 0x468824: string ToString()
+  METHOD 46238 RVA 0x46882c: void WriteTo(Google.Protobuf.CodedOutputStream output)
+  METHOD 46239 RVA 0x4688c4: int32 CalculateSize()
+  METHOD 46240 RVA 0x468950: void MergeFrom(Protobuf.ActivityTreasurePointInfo other)
+  METHOD 46241 RVA 0x4689d0: void MergeFrom(Google.Protobuf.CodedInputStream input)
+  METHOD 46242 RVA 0x468a4d: void .cctor()
+TYPE 4362: Protobuf.ActivityTreasurePointInfo+<>c extends System.Object
+  FIELD 19670: Protobuf.ActivityTreasurePointInfo+<>c <>9
+  METHOD 46243 RVA 0x468a69: void .cctor()
+  METHOD 46244 RVA 0x468a75: void .ctor()
+  METHOD 46245 RVA 0x468a7d: Protobuf.ActivityTreasurePointInfo <.cctor>b__40_0()

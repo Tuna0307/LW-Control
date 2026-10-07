@@ -1,0 +1,88 @@
+﻿RGMD=0x9a92a4 TypeDef=5828 MethodDef=54483
+TYPE 1763: GhostreconPointInfo extends PointInfo
+  FIELD 10179: int32 cfgId
+  FIELD 10180: int64 completionTime
+  FIELD 10181: System.Collections.Generic.List`1<string> stealList
+  FIELD 10182: System.Collections.Generic.List`1<Protobuf.GhostReconMemberData> memberList
+  FIELD 10183: int32 ownerServer
+  FIELD 10184: int64 taskExpireTime
+  FIELD 10185: string allianceId
+  FIELD 10186: int32 size
+  FIELD 10187: int64 actEndTime
+  FIELD 10188: int64 teamStartTime
+  METHOD 13496 RVA 0x1528c3: void .ctor()
+  METHOD 13497 RVA 0x1528cc: void .ctor(Protobuf.WorldPointInfo pi)
+  METHOD 13498 RVA 0x15298c: PointInfo Clone()
+  METHOD 13499 RVA 0x152a2c: bool OwnHaveReward()
+  METHOD 13500 RVA 0x152a90: bool OwnIsJoin()
+  METHOD 13501 RVA 0x152ae1: bool OwnIsAlly()
+  METHOD 13502 RVA 0x152b0c: bool OwnIsLeader()
+  METHOD 13503 RVA 0x152b28: bool OwnCanReward()
+  METHOD 13504 RVA 0x152b90: bool GetRewardedByUid(int64 uid)
+TYPE 4325: Protobuf.GhostReconPointInfo extends System.Object
+  FIELD 19313: Google.Protobuf.MessageParser`1<Protobuf.GhostReconPointInfo> _parser
+  FIELD 19314: Google.Protobuf.UnknownFieldSet _unknownFields
+  FIELD 19315: int32 OwnerUidFieldNumber = 1
+  FIELD 19316: string ownerUid_
+  FIELD 19317: int32 CfgIdFieldNumber = 2
+  FIELD 19318: int32 cfgId_
+  FIELD 19319: int32 CompletionTimeFieldNumber = 3
+  FIELD 19320: int64 completionTime_
+  FIELD 19321: int32 StealListFieldNumber = 4
+  FIELD 19322: Google.Protobuf.FieldCodec`1<string> _repeated_stealList_codec
+  FIELD 19323: Google.Protobuf.Collections.RepeatedField`1<string> stealList_
+  FIELD 19324: int32 MemberListFieldNumber = 5
+  FIELD 19325: Google.Protobuf.FieldCodec`1<Protobuf.GhostReconMemberData> _repeated_memberList_codec
+  FIELD 19326: Google.Protobuf.Collections.RepeatedField`1<Protobuf.GhostReconMemberData> memberList_
+  FIELD 19327: int32 OwnerServerFieldNumber = 6
+  FIELD 19328: int32 ownerServer_
+  FIELD 19329: int32 TaskExpireTimeFieldNumber = 7
+  FIELD 19330: int64 taskExpireTime_
+  FIELD 19331: int32 AllianceIdFieldNumber = 8
+  FIELD 19332: string allianceId_
+  FIELD 19333: int32 SizeFieldNumber = 9
+  FIELD 19334: int32 size_
+  FIELD 19335: int32 ActEndTimeFieldNumber = 10
+  FIELD 19336: int64 actEndTime_
+  FIELD 19337: int32 TeamStartTimeFieldNumber = 11
+  FIELD 19338: int64 teamStartTime_
+  METHOD 45617 RVA 0x460784: Google.Protobuf.MessageParser`1<Protobuf.GhostReconPointInfo> get_Parser()
+  METHOD 45618 RVA 0x46078b: Google.Protobuf.Reflection.MessageDescriptor get_Descriptor()
+  METHOD 45619 RVA 0x46079e: Google.Protobuf.Reflection.MessageDescriptor pb::Google.Protobuf.IMessage.get_Descriptor()
+  METHOD 45620 RVA 0x4607a5: void .ctor()
+  METHOD 45621 RVA 0x4607dc: void .ctor(Protobuf.GhostReconPointInfo other)
+  METHOD 45622 RVA 0x46088e: Protobuf.GhostReconPointInfo Clone()
+  METHOD 45623 RVA 0x460896: string get_OwnerUid()
+  METHOD 45624 RVA 0x46089e: void set_OwnerUid(string value)
+  METHOD 45625 RVA 0x4608b1: int32 get_CfgId()
+  METHOD 45626 RVA 0x4608b9: void set_CfgId(int32 value)
+  METHOD 45627 RVA 0x4608c2: int64 get_CompletionTime()
+  METHOD 45628 RVA 0x4608ca: void set_CompletionTime(int64 value)
+  METHOD 45629 RVA 0x4608d3: Google.Protobuf.Collections.RepeatedField`1<string> get_StealList()
+  METHOD 45630 RVA 0x4608db: Google.Protobuf.Collections.RepeatedField`1<Protobuf.GhostReconMemberData> get_MemberList()
+  METHOD 45631 RVA 0x4608e3: int32 get_OwnerServer()
+  METHOD 45632 RVA 0x4608eb: void set_OwnerServer(int32 value)
+  METHOD 45633 RVA 0x4608f4: int64 get_TaskExpireTime()
+  METHOD 45634 RVA 0x4608fc: void set_TaskExpireTime(int64 value)
+  METHOD 45635 RVA 0x460905: string get_AllianceId()
+  METHOD 45636 RVA 0x46090d: void set_AllianceId(string value)
+  METHOD 45637 RVA 0x460920: int32 get_Size()
+  METHOD 45638 RVA 0x460928: void set_Size(int32 value)
+  METHOD 45639 RVA 0x460931: int64 get_ActEndTime()
+  METHOD 45640 RVA 0x460939: void set_ActEndTime(int64 value)
+  METHOD 45641 RVA 0x460942: int64 get_TeamStartTime()
+  METHOD 45642 RVA 0x46094a: void set_TeamStartTime(int64 value)
+  METHOD 45643 RVA 0x460953: bool Equals(object other)
+  METHOD 45644 RVA 0x460964: bool Equals(Protobuf.GhostReconPointInfo other)
+  METHOD 45645 RVA 0x460a54: int32 GetHashCode()
+  METHOD 45646 RVA 0x460b7b: string ToString()
+  METHOD 45647 RVA 0x460b84: void WriteTo(Google.Protobuf.CodedOutputStream output)
+  METHOD 45648 RVA 0x460cd0: int32 CalculateSize()
+  METHOD 45649 RVA 0x460e00: void MergeFrom(Protobuf.GhostReconPointInfo other)
+  METHOD 45650 RVA 0x460f08: void MergeFrom(Google.Protobuf.CodedInputStream input)
+  METHOD 45651 RVA 0x46104d: void .cctor()
+TYPE 4326: Protobuf.GhostReconPointInfo+<>c extends System.Object
+  FIELD 19339: Protobuf.GhostReconPointInfo+<>c <>9
+  METHOD 45652 RVA 0x461086: void .cctor()
+  METHOD 45653 RVA 0x461092: void .ctor()
+  METHOD 45654 RVA 0x46109a: Protobuf.GhostReconPointInfo <.cctor>b__75_0()

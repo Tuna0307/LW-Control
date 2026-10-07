@@ -1,0 +1,550 @@
+﻿RGMD=0x9a92a4 TypeDef=5828 MethodDef=54483
+TYPE 1700: WorldMarchDataManager extends WorldManagerBase
+  FIELD 9524: int32 normalAttackId = 100000
+  FIELD 9525: string sheldPath = 'Assets/_Art/Effect/prefab/hero/Shaonian/VFX_shaonian_hudun.prefab'
+  FIELD 9526: System.Collections.Generic.List`1<int64> removeList
+  FIELD 9527: int32 <__INC_UPDATE__>k__BackingField
+  FIELD 9528: int32 __REMAIN_COUNT__ = 1000
+  FIELD 9529: System.Collections.Generic.HashSet`1<int64> allMarchUuids
+  FIELD 9530: System.Collections.Generic.Dictionary`2<int64, WorldMarch> allMarches
+  FIELD 9531: System.Collections.Generic.HashSet`1<int64> _normalMarchSet
+  FIELD 9532: System.Collections.Generic.HashSet`1<int64> toMeMarchUuids
+  FIELD 9533: System.Collections.Generic.Dictionary`2<int64, int32> toMeMarchTargetUuids
+  FIELD 9534: System.Collections.Generic.HashSet`1<int64> myMarchUuids
+  FIELD 9535: System.Collections.Generic.Dictionary`2<int64, WorldMarch> ownerMarches
+  FIELD 9536: System.Collections.Generic.Dictionary`2<int64, int64> team2MarchUuid
+  FIELD 9537: System.Collections.Generic.Dictionary`2<int64, int64> member2LeaderUuid
+  FIELD 9538: System.Collections.Generic.Dictionary`2<int64, int32> myAssitanceUuid2Points
+  FIELD 9539: System.Collections.Generic.Dictionary`2<int32, System.Collections.Generic.List`1<int64>> myAssistancePoint2Uuids
+  FIELD 9540: System.Collections.Generic.Dictionary`2<string, System.Collections.Generic.List`1<WorldMarch>> allianceMarches
+  FIELD 9541: System.Collections.Generic.Dictionary`2<int64, System.Collections.Generic.List`1<WorldMarch>> fakeRetreatMarches
+  FIELD 9542: System.Collections.Generic.Dictionary`2<int64, WorldMarch> fakeSampleMarches
+  FIELD 9543: System.Collections.Generic.Dictionary`2<int64, WorldMarch> fakeAttackMonsterMarches
+  FIELD 9544: System.Collections.Generic.Dictionary`2<int32, WorldTrainConfig> trainConfigs
+  FIELD 9545: System.Collections.Generic.Dictionary`2<int32, int32> flowerCarLength
+  FIELD 9546: System.Collections.Generic.HashSet`1<int64> _tmpMarchSet
+  FIELD 9547: System.Collections.Generic.List`1<WorldMarch> _tmpMarchList
+  FIELD 9548: System.Action`4<int64, int32, int32, int32> OnMonsterAdd
+  FIELD 9549: System.Action`4<int64, int32, int32, int32> OnMonsterDelete
+  FIELD 9550: UnityEngine.Bounds viewBounds
+  FIELD 9551: UnityEngine.Rect viewRect
+  FIELD 9552: UnityEngine.Vector4 lastCameraViewRange
+  FIELD 9553: UnityEngine.Rect cameraViewRect
+  FIELD 9554: int64 _fakeUuid
+  FIELD 9555: System.Collections.Generic.Dictionary`2<int64, int64> _delayDestroyTroop
+  FIELD 9556: bool myMarchDirty
+  FIELD 9557: bool toMeMarchDirty
+  FIELD 9558: System.Collections.Generic.Dictionary`2<string, int64> _cacheClientCreateGuidAndTimeDict
+  FIELD 9559: int32 multiKillPVPMin
+  FIELD 9560: int32 multiKillPVEMin
+  FIELD 9561: System.Nullable`1<bool> multiKillSwitch
+  FIELD 9562: bool enableWorldMarchDataOptHahaha
+  FIELD 9563: System.Collections.Generic.List`1<int64> _toRemoveList
+  FIELD 9564: System.Collections.Generic.Dictionary`2<int64, WorldMarch> targetForMineMarchDic
+  FIELD 9565: System.Collections.Generic.Dictionary`2<int64, WorldMarch> targetForMineMarchDesertDic
+  FIELD 9566: bool toMeMarchNeedUpdate
+  FIELD 9567: bool toMeMarchDesertNeedUpdate
+  FIELD 9568: WorldMarchBattleSound _marchBattleSound
+  FIELD 9569: GameKit.Base.StepProcessQueue`1<System.ValueTuple`2<WorldMarchMessageType, Sfs2X.Entities.Data.ISFSObject>> _messages
+  FIELD 9570: System.Collections.Generic.Dictionary`2<int64, System.ValueTuple`2<Sfs2X.Entities.Data.ISFSObject, WorldMarchMessageType>> _messagesMergeDict
+  FIELD 9571: System.Collections.Generic.Dictionary`2<int64, System.Collections.Generic.List`1<int32>> _prevWorldMarchLogMap
+  FIELD 9572: System.Collections.Generic.Dictionary`2<int64, System.Collections.Generic.List`1<int32>> _worldMarchLogMap
+  FIELD 9573: System.Collections.Generic.Dictionary`2<int64, System.DateTime> _addMarchLogTime
+  FIELD 9574: System.DateTime _lastGetBlockMsgTime
+  FIELD 9575: System.DateTime _lastHandleBlockMsgTime
+  FIELD 9576: System.Collections.Generic.List`1<int64> _logMarchUuids1
+  FIELD 9577: System.Collections.Generic.List`1<int64> _logMarchUuids2
+  FIELD 9578: System.DateTime _clearMarchesLogTime
+  FIELD 9579: int32 _clearMarchesFrom
+  FIELD 9580: System.Collections.Generic.HashSet`1<int64> _clearMarchesLogSet
+  FIELD 9581: System.DateTime _prevClearMarchesLogTime
+  FIELD 9582: int32 _prevClearMarchesFrom
+  FIELD 9583: System.Collections.Generic.HashSet`1<int64> _prevClearMarchesLogSet
+  FIELD 9584: System.Diagnostics.Stopwatch _marchStepUpdateTimer
+  FIELD 9585: int32 _marchStepUpdateMoveId
+  FIELD 9586: WorldMarchDataManager+MarchObjectCounter _marchObjectCounter
+  FIELD 9587: bool littleSmartDirty
+  FIELD 9588: WorldMarchDataManager+EMarchStepUpdateMoveState _marchStepUpdateState
+  FIELD 9589: System.Collections.Generic.HashSet`1<int64> _invalidIncrementPushWmNewMap
+  FIELD 9590: bool _delayToRefresh
+  FIELD 9591: ITimer _delayRefreshTimer
+  FIELD 9592: int32 hahaUpdateCount
+  FIELD 9593: int32 legacyUpdateCount
+  FIELD 9594: System.Collections.Generic.Dictionary`2<int64, WorldMarch> EmptyDic
+  FIELD 9595: System.Collections.Generic.HashSet`1<int32> allianceMembersHomePos
+  FIELD 9596: System.Collections.Generic.Dictionary`2<int64, int32> myMarchMultiKillPVE
+  FIELD 9597: System.Collections.Generic.Dictionary`2<int64, int32> myMarchMultiKillPVP
+  FIELD 9598: WorldMarchDataManager+MarchDataUpdater marchDataUpdater
+  FIELD 9599: System.Collections.Generic.Dictionary`2<int32, int32> tileBlockIndex
+  FIELD 9600: bool isRecordingMarchBlock
+  FIELD 9601: int32 recordingWorldId
+  FIELD 9602: int64 SelectMarchUuid
+  FIELD 9603: int64 DebugMarchUuid
+  METHOD 12850 RVA 0x13de51: bool IsCombine(CombatUnitType type)
+  METHOD 12851 RVA 0x13de7c: bool IsArmyInView(int64 uuid, CombatUnitType combineType)
+  METHOD 12852 RVA 0x13df10: void UpdateBattleMessage(Sfs2X.Entities.Data.ISFSObject message)
+  METHOD 12853 RVA 0x13dfa8: void UpdateCombineArmyInfo(Protobuf.CombineSelfArmyInfo combineArmyInfo, bool outRange, Google.Protobuf.Collections.RepeatedField`1<Protobuf.BaseRoundReportPush> roundReports, CombatUnitType combineType)
+  METHOD 12854 RVA 0x13e404: void UpdateSimpleArmyInfo(Protobuf.SimpleSelfArmyInfo selfArmyInfo, bool outRange, Google.Protobuf.Collections.RepeatedField`1<Protobuf.BaseRoundReportPush> roundReports, CombatUnitType combineType)
+  METHOD 12855 RVA 0x13e718: void ShowShieldEffect(int64 atkUuid, int32 shield)
+  METHOD 12856 RVA 0x13e748: void SetTroopAttack(int64 atkUuid, int64 defAtkUuid, bool isActiveAttack)
+  METHOD 12857 RVA 0x13e8bc: void ShowTroopSkill(int64 skillTargetUuid, int32 selfSkillId, int32 hurtSkillId)
+  METHOD 12858 RVA 0x13e920: void ShowTroopBloodHurt(int64 hurtTargetUuid, int32 normalHurt, int32 skillHurt, int32 heal)
+  METHOD 12859 RVA 0x13e994: void TroopUpdateHeadUI(int64 marchUuid, int32 anger, int32 hp, int32 hpMax)
+  METHOD 12860 RVA 0x13ea38: void ActBossUpdateHeadUI(int64 marchUuid, int32 anger, int32 hp, int32 hpMax)
+  METHOD 12861 RVA 0x13eaa4: void ShowTroopBuff(int64 targetUuid, string effectStr)
+  METHOD 12862 RVA 0x13eb48: void ShowExploreSkill(int64 skillTargetUuid, int32 selfSkillId, int32 hurtSkillId)
+  METHOD 12863 RVA 0x13eb8c: void ShowExploreBloodHurt(int64 hurtTargetUuid, int32 normalHurt, int32 skillHurt, int32 heal)
+  METHOD 12864 RVA 0x13ebd8: void ExploreAttack(int64 atkUuid, int64 defenderUid, int32 soliderNum, int32 hp, int32 hpMax)
+  METHOD 12865 RVA 0x13ec0c: void ExploreUpdateHeadUI(int64 marchUuid, int32 anger, int32 hp, int32 hpMax)
+  METHOD 12866 RVA 0x13ec3c: void ShowExploreBuff(int64 targetUuid, string effectStr)
+  METHOD 12867 RVA 0x13ece0: void AllianceCityUpdateHeadUI(int64 cityUuid, int32 hp, int32 hpMax)
+  METHOD 12868 RVA 0x13ed34: void ShowAllianceCityBloodHurt(int64 hurtTargetUuid, int32 normalHurt, int32 skillHurt, int32 heal)
+  METHOD 12869 RVA 0x13ede0: void ShowAllianceCityBuff(int64 targetUuid, string effectStr)
+  METHOD 12870 RVA 0x13ee90: void BuildingAttack(int64 atkUuid, int64 defUuid)
+  METHOD 12871 RVA 0x13eebc: void ShowPlayerBuildBloodHurt(int64 hurtTargetUuid, int32 normalHurt, int32 skillHurt, int32 heal)
+  METHOD 12872 RVA 0x13ef80: void ShowPlayerBuildBuff(int64 targetUuid, string effectStr)
+  METHOD 12873 RVA 0x13f048: void BattleFinish(Sfs2X.Entities.Data.ISFSObject message)
+  METHOD 12874 RVA 0x13f118: System.Collections.IEnumerator DelayApply(float32 delay, int64 uuid, WorldMarchDataManager+BatleResult result)
+  METHOD 12875 RVA 0x13f13c: void onBattleFinish(int64 uuid, WorldMarchDataManager+BatleResult result)
+  METHOD 12876 RVA 0x13f450: void ShowCollectPointBloodHurt(int32 pointIndex, int32 normalHurt, int32 skillHurt, int32 heal)
+  METHOD 12877 RVA 0x13f514: void ShowCollectPointBuff(int64 targetUuid, int32 pointIndex, string effectStr)
+  METHOD 12878 RVA 0x13f5dc: void ShowCollectUpdateHeadUI(int64 marchUuid, int32 pointIndex, int32 anger, int32 hp, int32 hpMax)
+  METHOD 12879 RVA 0x13f658: void CheckArmyDoSkill(int64 armyUuid, Protobuf.BaseRoundReportPush reportInfo, ref int32 showAttackSkillId, ref int32 showHurtSkillId, ref int32 skillHurt, ref int32 normalHurt, ref bool isActiveAttack, ref System.Collections.Generic.List`1<int32> effectBuffList)
+  METHOD 12880 RVA 0x13f850: void UpdateBattle(float32 deltaTime)
+  METHOD 12881 RVA 0x13f852: int32 get___INC_UPDATE__()
+  METHOD 12882 RVA 0x13f859: void set___INC_UPDATE__(int32 value)
+  METHOD 12883 RVA 0x13f861: int32 get_AllMarchesCount()
+  METHOD 12884 RVA 0x13f86e: int32 get_NormalMarchCount()
+  METHOD 12885 RVA 0x13f87b: int32 get_MultiKillPVPMin()
+  METHOD 12886 RVA 0x13f8ac: int32 get_MultiKillPVEMin()
+  METHOD 12887 RVA 0x13f8e0: System.Nullable`1<bool> get_MultiKillSwitch()
+  METHOD 12888 RVA 0x13f959: bool get_EnableWorldAssistanceOpt()
+  METHOD 12889 RVA 0x13f96c: bool get_EnableWorldMarchDataOptHahaha()
+  METHOD 12890 RVA 0x13f9a4: void AddMarchOptLog(WorldMarch march, int32 opt)
+  METHOD 12891 RVA 0x13fa4f: int32 get_lastPerformanceCount()
+  METHOD 12892 RVA 0x13fa5d: int32 get_lastPerformanceSquadDisplayCount()
+  METHOD 12893 RVA 0x13fa6b: int32 get_lastPerformanceSquadDataCount()
+  METHOD 12894 RVA 0x13fa79: int32 get_lastPerformanceTroopLineCount()
+  METHOD 12895 RVA 0x13fa87: int32 get_lastPerformanceTroopLineDisplayCount()
+  METHOD 12896 RVA 0x13fa95: int32 get_lastPerformanceTroopLineDataCount()
+  METHOD 12897 RVA 0x13faa3: void DelayToRefreshMarch()
+  METHOD 12898 RVA 0x13fad8: void ClearDelayToRefreshMarch()
+  METHOD 12899 RVA 0x13fb14: void .ctor(WorldScene scene)
+  METHOD 12900 RVA 0x13fd0c: void SetWorldScene(WorldScene scene)
+  METHOD 12901 RVA 0x13fef8: void AddClearLog(int32 clearFrom)
+  METHOD 12902 RVA 0x140008: void Init()
+  METHOD 12903 RVA 0x1400b9: void OnReloadOrReconnect(object obj)
+  METHOD 12904 RVA 0x1400ec: void OnApplicationPause(object userData)
+  METHOD 12905 RVA 0x140114: void RefreshMAMTroopPosition()
+  METHOD 12906 RVA 0x140204: void UnInit()
+  METHOD 12907 RVA 0x14029c: void __ReInit()
+  METHOD 12908 RVA 0x140478: void OnUpdate(float32 deltaTime)
+  METHOD 12909 RVA 0x140530: void UpdateDelayDestroy()
+  METHOD 12910 RVA 0x14062c: bool UpdateViewRect()
+  METHOD 12911 RVA 0x1408b1: bool IsInView(UnityEngine.Vector3 position)
+  METHOD 12912 RVA 0x1408bb: bool IsLineInView(UnityEngine.Vector3 start, UnityEngine.Vector3 end)
+  METHOD 12913 RVA 0x1408ec: bool IsRectInView(UnityEngine.Vector3 point, int32 size)
+  METHOD 12914 RVA 0x140930: bool IsMarchInView(WorldMarch march)
+  METHOD 12915 RVA 0x140a00: bool IntersectsSegment(UnityEngine.Rect rect, UnityEngine.Vector2 p1, UnityEngine.Vector2 p2)
+  METHOD 12916 RVA 0x140b18: bool AxisAlignRectIntersectAxisAlignSegment(UnityEngine.Rect rect, UnityEngine.Vector2 p1, UnityEngine.Vector2 p2)
+  METHOD 12917 RVA 0x140c48: void UpdateLastMarchMessage(WorldMarchMessageType type, Sfs2X.Entities.Data.ISFSObject message)
+  METHOD 12918 RVA 0x140d18: bool TryExcuteMarchMessage(WorldMarchMessageType type, Sfs2X.Entities.Data.ISFSObject message)
+  METHOD 12919 RVA 0x140df0: void HandleMessage(System.ValueTuple`2<WorldMarchMessageType, Sfs2X.Entities.Data.ISFSObject> message)
+  METHOD 12920 RVA 0x140e7c: void HandleWorldMarchGet(Sfs2X.Entities.Data.ISFSObject message)
+  METHOD 12921 RVA 0x14108c: void HandleWorldMarchGetImpl(Sfs2X.Entities.Data.ISFSObject message)
+  METHOD 12922 RVA 0x141228: void ParseDataWorldMarchGet(Sfs2X.Entities.Data.ISFSObject message)
+  METHOD 12923 RVA 0x1415c4: void HandleWorldGetRectMarchInfos(Sfs2X.Entities.Data.ISFSObject message)
+  METHOD 12924 RVA 0x141830: void BeforeFireMyOrToMeMarchRefresh()
+  METHOD 12925 RVA 0x1418bc: bool CheckIsOtherTarget(int64 uuid, int32 targetPos)
+  METHOD 12926 RVA 0x1418e0: void FireMyOrToMeMarchRefresh()
+  METHOD 12927 RVA 0x141a64: void HandlePushWorldMarchAdd(Sfs2X.Entities.Data.ISFSObject message)
+  METHOD 12928 RVA 0x141a80: void HandlePushWorldMarchAddImpl(Sfs2X.Entities.Data.ISFSObject message)
+  METHOD 12929 RVA 0x141ad4: void ParsePushWorldMarchAdd(Sfs2X.Entities.Data.ISFSObject message, WorldMarchMessageType msgType)
+  METHOD 12930 RVA 0x141d10: void SetMarchOptLog(int64 uuid)
+  METHOD 12931 RVA 0x1420b4: void HandlePushWorldMarchDel(Sfs2X.Entities.Data.ISFSObject message)
+  METHOD 12932 RVA 0x1420d0: void HandlePushWorldMarchDelImpl(Sfs2X.Entities.Data.ISFSObject message)
+  METHOD 12933 RVA 0x142146: void HandleFormationMarch(Sfs2X.Entities.Data.ISFSObject message)
+  METHOD 12934 RVA 0x142162: void HandleFormationMarchImpl(Sfs2X.Entities.Data.ISFSObject message)
+  METHOD 12935 RVA 0x14218c: void HandleFormationMarchChange(Sfs2X.Entities.Data.ISFSObject message)
+  METHOD 12936 RVA 0x1421a8: void HandleFormationMarchChangeImpl(Sfs2X.Entities.Data.ISFSObject message)
+  METHOD 12937 RVA 0x1421b4: void ParseFormationUpdate(Sfs2X.Entities.Data.ISFSObject message, WorldMarchMessageType msgType)
+  METHOD 12938 RVA 0x14224c: void DelFakeAttackMonsterMarchDataRandom(int32 count)
+  METHOD 12939 RVA 0x142314: void AddFakeAttackMonsterMarchData(int64 startIndex, int64 endIndex, float32 marchTimeSec, string ownerUid)
+  METHOD 12940 RVA 0x1426ec: void UpdateFakeAttackMonsterMarch(int64 uuid)
+  METHOD 12941 RVA 0x1428c0: int64 GenerateFakeUuid()
+  METHOD 12942 RVA 0x1428d0: void AddFakeRetreatMarchData(WorldMarch realMarch, PointInfo info, int32 timeDelta)
+  METHOD 12943 RVA 0x142af0: bool NeedReserveFakeRetreatMarchData(WorldMarch march)
+  METHOD 12944 RVA 0x142b64: void AddFakeSampleMarchData(int64 startIndex, int64 endIndex, int64 startTime, int64 endTime, int32 marchTargetType, int32 srcServer, int32 targetServer)
+  METHOD 12945 RVA 0x142dc9: System.Collections.Generic.Dictionary`2<int64, WorldMarch> GetAllSampleFakeData()
+  METHOD 12946 RVA 0x142dd4: void UpdateFakeSampleMarchDataWhenStartPick(int64 index, int64 endTime)
+  METHOD 12947 RVA 0x142e3c: void UpdateFakeSampleMarchDataWhenBack(int64 index, int64 startTime, int64 endTime)
+  METHOD 12948 RVA 0x142fa0: void RemoveFakeSampleMarchData(int64 index)
+  METHOD 12949 RVA 0x142ff3: bool IsFakeSampleMarchData(int64 index)
+  METHOD 12950 RVA 0x143001: bool IsFakeAttackMonsterMarchData(int64 uuid)
+  METHOD 12951 RVA 0x14300f: bool ExistMarch(int64 uuid)
+  METHOD 12952 RVA 0x143020: bool IsInRallyMarch(int64 uuid)
+  METHOD 12953 RVA 0x143060: bool IsInCollectMarch(int64 uuid)
+  METHOD 12954 RVA 0x143094: bool IsInAssistanceMarch(int64 uuid)
+  METHOD 12955 RVA 0x1430c8: bool IsSelfInCurrentMarchTeam(int64 rallyMarchUuid)
+  METHOD 12956 RVA 0x1431a0: bool HasMarchUuid(int64 uuid)
+  METHOD 12957 RVA 0x1431b8: WorldMarch GetMarch(int64 uuid)
+  METHOD 12958 RVA 0x1431d8: WorldMarch GetMonster(int64 targetPoint)
+  METHOD 12959 RVA 0x143278: System.Collections.Generic.List`1<WorldMarch> GetOwnerMarches(string ownerUid, string allianceUid)
+  METHOD 12960 RVA 0x143290: System.Collections.Generic.List`1<WorldMarch> GetMyDisguiseMarches(string ownerUid, string allianceUid)
+  METHOD 12961 RVA 0x1432fc: WorldMarch GetAllianceMarchesInTeam(string allianceUid, int64 teamUuid)
+  METHOD 12962 RVA 0x143404: bool IsHaveMarchInWorld(string allianceUid, int64 teamUuid)
+  METHOD 12963 RVA 0x1434a8: WorldMarch GetBestMarch(int32 pointId, string allianceId, int32 worldId)
+  METHOD 12964 RVA 0x143538: void CleanDragonWar()
+  METHOD 12965 RVA 0x1435fc: WorldMarch GetOwnerFormationMarch(string ownerUid, int64 formationUuid, string allianceUid)
+  METHOD 12966 RVA 0x143638: void StartMarch(int32 targetType, int32 targetPoint, int64 targetUuid, int32 timeIndex, int64 marchUuid, int64 formationUuid, int32 backHome, uint8[] sfsObjBinary, int32 startPos, int32 targetServerId)
+  METHOD 12967 RVA 0x14371c: UnityEngine.Vector2Int GetAttackPos(UnityEngine.Vector2Int start, UnityEngine.Vector2Int end, float32 attackOffsetRange)
+  METHOD 12968 RVA 0x143784: void SendCreateMarchToServer(int64 formationUuid, int32 targetType, int32 targetPoint, int64 targetUuid, int32 timeIndex, Sfs2X.Entities.Data.SFSObject formationData, int32 startPos, bool backHome, int32 targetServerId)
+  METHOD 12969 RVA 0x143914: void SendChangeMarchToServer(int64 marchUuid, int32 targetType, int32 targetPoint, int64 targetUuid, bool backHome, int32 targetServerId)
+  METHOD 12970 RVA 0x143ac0: void WorldGetMarchInfos()
+  METHOD 12971 RVA 0x143b1c: bool NeedGetRealTargetPos(WorldMarch march)
+  METHOD 12972 RVA 0x143bf8: int32 GetRealMarchTargetPos(WorldMarch march)
+  METHOD 12973 RVA 0x143d35: void UpdateMessage()
+  METHOD 12974 RVA 0x143d42: void UpdateMove(float32 deltaTime)
+  METHOD 12975 RVA 0x143d4b: void TryStartStepUpdateMove()
+  METHOD 12976 RVA 0x143d7d: void ResetStepUpdateMove()
+  METHOD 12977 RVA 0x143d98: bool ConsumeLittleSmartDirty()
+  METHOD 12978 RVA 0x143dac: void StepUpdateMove(float32 deltaTime)
+  METHOD 12979 RVA 0x143e18: bool StepUpdateMarchVisible(float32 deltaTime)
+  METHOD 12980 RVA 0x144110: bool StepUpdateMarchPerformance()
+  METHOD 12981 RVA 0x144150: bool StepUpdateMarchTroop()
+  METHOD 12982 RVA 0x1443f4: void UpdateTroopLine(WorldMarch march)
+  METHOD 12983 RVA 0x144434: void UpdateCollition(WorldMarch march)
+  METHOD 12984 RVA 0x144488: void UpdateMarch(WorldMarch march)
+  METHOD 12985 RVA 0x144503: void AddToDelayDestroy(int64 uuid, float32 delaySecond)
+  METHOD 12986 RVA 0x144544: void DestroyMarch(int64 marchUuid, bool isBattleFail)
+  METHOD 12987 RVA 0x1445e8: bool IsVisibleToLocalPlayer(WorldMarch march)
+  METHOD 12988 RVA 0x144650: void RemoveMarch(int64 marchUuid)
+  METHOD 12989 RVA 0x14495c: void CheckMyMarchDirty(WorldMarch march)
+  METHOD 12990 RVA 0x14497f: void CheckToMeMarchDirty(WorldMarch march)
+  METHOD 12991 RVA 0x1449b5: bool IsMyMarch(WorldMarch march)
+  METHOD 12992 RVA 0x1449ec: bool IsMyAllyRallyMarch(WorldMarch march)
+  METHOD 12993 RVA 0x144a52: bool IsMyJoinAssemblyMarch(WorldMarch march)
+  METHOD 12994 RVA 0x144a78: void TryUpdateMyAssistanceMarch(WorldMarch march, bool isRemove)
+  METHOD 12995 RVA 0x144dcc: int32 GetMyAssistanceCountByPointIndex(int32 pointIndex)
+  METHOD 12996 RVA 0x144df4: int32 GetMyAssistanceFirstHero(int32 pointIndex)
+  METHOD 12997 RVA 0x144e40: int64 GetFirstMyAssistanceMarchUuid(int32 pointIndex)
+  METHOD 12998 RVA 0x144e70: void AddOrUpdateMarch(WorldMarch march)
+  METHOD 12999 RVA 0x1454ac: WorldTroopPathSegment[] CreatePathSegment(WorldMarch march)
+  METHOD 13000 RVA 0x14551d: System.Collections.IEnumerator UIMainWarningHide(WarningType warningType)
+  METHOD 13001 RVA 0x14552c: System.Collections.Generic.Dictionary`2<int64, WorldMarch> GetAllMarchesByCS()
+  METHOD 13002 RVA 0x145534: WorldMarch GetMarchesByStartIndex(int32 posIndex)
+  METHOD 13003 RVA 0x145598: WorldMarch GetMarchByTargetPos(int32 targetPos)
+  METHOD 13004 RVA 0x1455fc: WorldMarch GetMarchByType(int32 marchType)
+  METHOD 13005 RVA 0x145660: System.Collections.Generic.Dictionary`2<string, int32> GetMarchCountToTargetGroupByOwnerUid(int32 targetPos)
+  METHOD 13006 RVA 0x145704: void GetMonsterListInArea(UnityEngine.Vector2Int center, int32 size, System.Collections.Generic.Dictionary`2<int32, int32> monsterIds, System.Collections.Generic.Dictionary`2<int64, UnityEngine.Vector2Int> result)
+  METHOD 13007 RVA 0x145808: System.Collections.Generic.Dictionary`2<int64, WorldMarch> GetMarchesBossInfo()
+  METHOD 13008 RVA 0x145884: System.Collections.Generic.Dictionary`2<int64, WorldMarch> GetMarchesTargetForMine(bool onlyDesertBattle)
+  METHOD 13009 RVA 0x14588d: System.Collections.Generic.Dictionary`2<int64, WorldMarch> GetMarchesTargetForMineLite()
+  METHOD 13010 RVA 0x145898: System.Collections.Generic.Dictionary`2<int64, WorldMarch> GetMarchesTargetForMineCached(bool onlyDesertBattle)
+  METHOD 13011 RVA 0x145948: System.Collections.Generic.Dictionary`2<int64, WorldMarch> GetInimicalMarchesTargetForMine()
+  METHOD 13012 RVA 0x1459f0: bool IsTargetForMine(WorldMarch march, bool onlyAttack, bool isDesertBattle)
+  METHOD 13013 RVA 0x145bf4: bool IsTargetForAlly(WorldMarch march)
+  METHOD 13014 RVA 0x145e68: void InitTrainConfig()
+  METHOD 13015 RVA 0x145ed8: void InitFlowerCarConfig()
+  METHOD 13016 RVA 0x145f18: WorldTrainConfig GetTrainConfig(int32 id)
+  METHOD 13017 RVA 0x145f68: int32 GetFlowerCarLength(int32 id)
+  METHOD 13018 RVA 0x145fb4: void CacheAllianceMembersHomePos()
+  METHOD 13019 RVA 0x145ff1: void CleanAllianceMembersHomePos()
+  METHOD 13020 RVA 0x145ffe: bool IsMemberByPointId(int32 pointId)
+  METHOD 13021 RVA 0x14600c: void DestroyBerserkBossMarchData(int64 marchUuid)
+  METHOD 13022 RVA 0x146018: string SaveCreateMarchRecordTime()
+  METHOD 13023 RVA 0x146054: void RemoveCreateMarchRecordTime(WorldMarch worldMarch)
+  METHOD 13024 RVA 0x1460e8: int32 GetMyMarchMultiKillPVE(int64 marchUuid)
+  METHOD 13025 RVA 0x146108: int32 GetMyMarchMultiKillPVP(int64 marchUuid)
+  METHOD 13026 RVA 0x146128: void UpdateBattleSoundData()
+  METHOD 13027 RVA 0x146135: WorldMarchDataManager+MarchDataUpdater get_DataUpdater()
+  METHOD 13028 RVA 0x146140: void OnDrawGizmos()
+  METHOD 13029 RVA 0x1461c4: WorldMarchDataManager get_EditorInstance()
+  METHOD 13030 RVA 0x1461c7: void EditorLog(string log)
+  METHOD 13031 RVA 0x1461cc: string EditorDescription()
+  METHOD 13032 RVA 0x1466ac: void AddMarch(WorldMarch march)
+  METHOD 13033 RVA 0x146729: void FakeAddMarch(WorldMarch march)
+  METHOD 13034 RVA 0x146732: System.Collections.Generic.Dictionary`2<int32, int32> get_TileBlockIndex()
+  METHOD 13035 RVA 0x14673c: void StartRecordMarchBlock(int32 worldId)
+  METHOD 13036 RVA 0x14681c: void StopRecordMarchBlock()
+  METHOD 13037 RVA 0x14683b: void BIRecordWorldMarch(WorldMarch march)
+  METHOD 13038 RVA 0x146850: void .cctor()
+  METHOD 13039 RVA 0x146880: void <InitTrainConfig>b__255_0(int32 id, XLua.LuaTable data)
+  METHOD 13040 RVA 0x1468d3: void <InitFlowerCarConfig>b__256_0(int32 id, int32 data)
+  METHOD 13041 RVA 0x1468e2: void <CacheAllianceMembersHomePos>b__260_0(int32 pointId, string uid)
+TYPE 1701: WorldMarchDataManager+BatleResult extends System.Enum
+  FIELD 9604: int32 value__
+  FIELD 9605: WorldMarchDataManager+BatleResult DEFAULT = -1
+  FIELD 9606: WorldMarchDataManager+BatleResult SELF_WIN = 0
+  FIELD 9607: WorldMarchDataManager+BatleResult OTHER_WIN = 1
+  FIELD 9608: WorldMarchDataManager+BatleResult DRAW = 2
+TYPE 1702: WorldMarchDataManager+BattleWordType extends System.Enum
+  FIELD 9609: int32 value__
+  FIELD 9610: WorldMarchDataManager+BattleWordType Normal = 0
+  FIELD 9611: WorldMarchDataManager+BattleWordType Cure = 1
+  FIELD 9612: WorldMarchDataManager+BattleWordType Skill = 2
+TYPE 1703: WorldMarchDataManager+EMarchStepUpdateMoveState extends System.Enum
+  FIELD 9613: int32 value__
+  FIELD 9614: WorldMarchDataManager+EMarchStepUpdateMoveState Invalid = 0
+  FIELD 9615: WorldMarchDataManager+EMarchStepUpdateMoveState UpdateVisible = 1
+  FIELD 9616: WorldMarchDataManager+EMarchStepUpdateMoveState UpdatePerformance = 2
+  FIELD 9617: WorldMarchDataManager+EMarchStepUpdateMoveState UpdateTroopLine = 3
+TYPE 1704: WorldMarchDataManager+CounterType extends System.Enum
+  FIELD 9618: int32 value__
+  FIELD 9619: WorldMarchDataManager+CounterType Squad = 0
+  FIELD 9620: WorldMarchDataManager+CounterType TroopLine = 1
+  FIELD 9621: WorldMarchDataManager+CounterType Count = 2
+TYPE 1705: WorldMarchDataManager+CountPair extends System.ValueType
+  FIELD 9622: int32 displayCount
+  FIELD 9623: int32 dataCount
+  METHOD 13042 RVA 0x1468f1: void .ctor(int32 displayCount, int32 dataCount)
+TYPE 1706: WorldMarchDataManager+MarchObjectCounter extends System.Object
+  FIELD 9624: WorldMarchDataManager+CountPair[] _current
+  FIELD 9625: WorldMarchDataManager+CountPair[] _last
+  METHOD 13043 RVA 0x146904: void .ctor()
+  METHOD 13044 RVA 0x146938: void ResetAll()
+  METHOD 13045 RVA 0x14697c: void ResetCurrent()
+  METHOD 13046 RVA 0x1469ac: void Accumulate(WorldMarchDataManager+CounterType metric, bool isData, bool isDisplay)
+  METHOD 13047 RVA 0x1469f4: bool Commit()
+  METHOD 13048 RVA 0x146a5a: int32 GetLastDisplayCount(WorldMarchDataManager+CounterType metric)
+  METHOD 13049 RVA 0x146a6d: int32 GetLastDataCount(WorldMarchDataManager+CounterType metric)
+TYPE 1707: WorldMarchDataManager+LittleNormalMarchData extends System.ValueType
+  FIELD 9626: int64 marchUuid
+  FIELD 9627: int64 startTime
+  FIELD 9628: int64 endTime
+  FIELD 9629: int64 blackStartTime
+  FIELD 9630: int64 blackEndTime
+  FIELD 9631: int64 lastUpdateTime
+  FIELD 9632: UnityEngine.Vector2 startWorldPos
+  FIELD 9633: UnityEngine.Vector2 pathStartPos
+  FIELD 9634: UnityEngine.Vector2 targetWorldPos
+  FIELD 9635: UnityEngine.Vector2 moveDirection
+  FIELD 9636: UnityEngine.Vector2 mainWorldPos
+  FIELD 9637: UnityEngine.Vector2 currentWorldPos
+  FIELD 9638: float32 remainDistance
+  FIELD 9639: float32 moveSpeed
+  FIELD 9640: float32 blackSpeed
+  FIELD 9641: int32 ownerServer
+  FIELD 9642: int32 ownerCurServerId
+  FIELD 9643: PlayerType playerRelationType
+  FIELD 9644: bool multiTroopLine
+  FIELD 9645: bool troopLineIsVisible
+  FIELD 9646: bool troopIsVisible
+TYPE 1708: WorldMarchDataManager+MarchDataUpdater extends System.Object
+  FIELD 9647: WorldMarchDataManager manager
+  FIELD 9648: WorldMarchDataManager+LittleNormalMarchData[] normalMarchArray
+  FIELD 9649: System.Collections.Generic.Queue`1<int32> unusedIdx
+  FIELD 9650: System.Collections.Generic.Dictionary`2<int64, int32> marchId2DataIndex
+  FIELD 9651: System.Collections.Generic.Dictionary`2<int64, string> marchId2AllianceID
+  FIELD 9652: int32 marchDataCount
+  FIELD 9653: int32 maxDataIndex
+  FIELD 9654: int32 COMPACT_THRESHOLD = 100
+  FIELD 9655: int64 serverTimeNow
+  FIELD 9656: string myUid
+  FIELD 9657: string myAllianceUid
+  FIELD 9658: UnityEngine.Rect viewRect
+  FIELD 9659: WorldMarchDataManager+MarchDataUpdater+TempMarchData tmpMarchData
+  FIELD 9660: System.Diagnostics.Stopwatch stopwatch
+  FIELD 9661: int64 updateElapsed
+  METHOD 13050 RVA 0x146a80: void .ctor(WorldMarchDataManager manager)
+  METHOD 13051 RVA 0x146ae0: void Clear()
+  METHOD 13052 RVA 0x146b4e: int64 get_ServerTimeNow()
+  METHOD 13053 RVA 0x146b70: string get_MyUid()
+  METHOD 13054 RVA 0x146b9a: string get_MyAllianceUid()
+  METHOD 13055 RVA 0x146bc4: bool IntersectsSegment(ref UnityEngine.Rect rect, ref UnityEngine.Vector2 p1, ref UnityEngine.Vector2 p2)
+  METHOD 13056 RVA 0x146d0c: void RefreshPlayerRelationType(ref WorldMarchDataManager+LittleNormalMarchData marchData)
+  METHOD 13057 RVA 0x146dbc: void TryUpdateFromProto(Sfs2X.Entities.Data.ISFSObject obj, Protobuf.WorldMarch proto)
+  METHOD 13058 RVA 0x147068: void TryUpdateFromProto(Sfs2X.Entities.Data.ISFSObject obj)
+  METHOD 13059 RVA 0x1470a0: void CompactDataArray()
+  METHOD 13060 RVA 0x147138: void UpdateMarch(int64 uuid)
+  METHOD 13061 RVA 0x147688: void DeltaUpdate(float32 deltaTime, int64 serverTimeNow, bool viewDirty, UnityEngine.Rect viewRect)
+  METHOD 13062 RVA 0x147920: void TryRemoveMarch(int64 marchId)
+  METHOD 13063 RVA 0x147994: bool TryGetMarchData(int64 marchId, ref WorldMarchDataManager+LittleNormalMarchData data)
+  METHOD 13064 RVA 0x1479d0: string Description()
+  METHOD 13065 RVA 0x147b1d: string LitDescription()
+  METHOD 13066 RVA 0x147b4c: void OnDrawGizmos()
+TYPE 1709: WorldMarchDataManager+MarchDataUpdater+TempMarchData extends System.ValueType
+  FIELD 9662: int64 uuid
+  FIELD 9663: int64 startTime
+  FIELD 9664: int64 endTime
+  FIELD 9665: int64 blackStartTime
+  FIELD 9666: int64 blackEndTime
+  FIELD 9667: int32 startServer
+  FIELD 9668: int32 startPointIdx
+  FIELD 9669: int32 homeServer
+  FIELD 9670: int32 homePointIdx
+  FIELD 9671: int32 endServer
+  FIELD 9672: int32 endPointIndex
+  FIELD 9673: int32 pathStartServer
+  FIELD 9674: int32 pathStartPointIndex
+  FIELD 9675: int32 ownerServer
+  FIELD 9676: PlayerType playerRelationType
+  FIELD 9677: float32 speed
+  FIELD 9678: float32 blackSpeed
+TYPE 1710: WorldMarchDataManager+<DelayApply>d__28 extends System.Object
+  FIELD 9679: int32 <>1__state
+  FIELD 9680: object <>2__current
+  FIELD 9681: float32 delay
+  FIELD 9682: WorldMarchDataManager <>4__this
+  FIELD 9683: int64 uuid
+  FIELD 9684: WorldMarchDataManager+BatleResult result
+  METHOD 13067 RVA 0x147cb4: void .ctor(int32 <>1__state)
+  METHOD 13068 RVA 0x147cc3: void System.IDisposable.Dispose()
+  METHOD 13069 RVA 0x147cc8: bool MoveNext()
+  METHOD 13070 RVA 0x147d4c: object System.Collections.Generic.IEnumerator<System.Object>.get_Current()
+  METHOD 13071 RVA 0x147d54: void System.Collections.IEnumerator.Reset()
+  METHOD 13072 RVA 0x147d5b: object System.Collections.IEnumerator.get_Current()
+TYPE 1711: WorldMarchDataManager+<>c extends System.Object
+  FIELD 9685: WorldMarchDataManager+<>c <>9
+  FIELD 9686: System.Func`2<string, int32> <>9__177_0
+  FIELD 9687: System.Func`2<string, int32> <>9__178_0
+  FIELD 9688: System.Func`2<string, int32> <>9__180_0
+  FIELD 9689: System.Func`2<string, int32> <>9__182_0
+  FIELD 9690: System.Func`2<string, int32> <>9__185_0
+  METHOD 13073 RVA 0x147d63: void .cctor()
+  METHOD 13074 RVA 0x147d6f: void .ctor()
+  METHOD 13075 RVA 0x147d77: int32 <AddFakeAttackMonsterMarchData>b__177_0(string a)
+  METHOD 13076 RVA 0x147d7f: int32 <UpdateFakeAttackMonsterMarch>b__178_0(string a)
+  METHOD 13077 RVA 0x147d87: int32 <AddFakeRetreatMarchData>b__180_0(string a)
+  METHOD 13078 RVA 0x147d8f: int32 <AddFakeSampleMarchData>b__182_0(string a)
+  METHOD 13079 RVA 0x147d97: int32 <UpdateFakeSampleMarchDataWhenBack>b__185_0(string a)
+TYPE 1712: WorldMarchDataManager+<>c__DisplayClass203_0 extends System.Object
+  FIELD 9691: int64 formationUuid
+  METHOD 13080 RVA 0x147d9f: void .ctor()
+  METHOD 13081 RVA 0x147da7: bool <GetOwnerFormationMarch>b__0(WorldMarch m)
+TYPE 1713: WorldMarchDataManager+<>c__DisplayClass228_0 extends System.Object
+  FIELD 9692: WorldMarch march
+  METHOD 13082 RVA 0x147db7: void .ctor()
+  METHOD 13083 RVA 0x147dbf: bool <RemoveMarch>b__0(WorldMarch i)
+TYPE 1714: WorldMarchDataManager+<>c__DisplayClass238_0 extends System.Object
+  FIELD 9693: WorldMarch march
+  METHOD 13084 RVA 0x147dd4: void .ctor()
+  METHOD 13085 RVA 0x147ddc: bool <AddOrUpdateMarch>b__0(WorldMarch i)
+  METHOD 13086 RVA 0x147df1: bool <AddOrUpdateMarch>b__1(WorldMarch i)
+TYPE 1715: WorldMarchDataManager+<UIMainWarningHide>d__240 extends System.Object
+  FIELD 9694: int32 <>1__state
+  FIELD 9695: object <>2__current
+  FIELD 9696: WarningType warningType
+  METHOD 13087 RVA 0x147e06: void .ctor(int32 <>1__state)
+  METHOD 13088 RVA 0x147e15: void System.IDisposable.Dispose()
+  METHOD 13089 RVA 0x147e18: bool MoveNext()
+  METHOD 13090 RVA 0x147e77: object System.Collections.Generic.IEnumerator<System.Object>.get_Current()
+  METHOD 13091 RVA 0x147e7f: void System.Collections.IEnumerator.Reset()
+  METHOD 13092 RVA 0x147e86: object System.Collections.IEnumerator.get_Current()
+TYPE 3095: XLua.CSObjectWrap.WorldMarchDataManagerBattleWordTypeWrap extends System.Object
+  METHOD 23887 RVA 0x232cdc: void __Register(native int L)
+  METHOD 23888 RVA 0x232d9c: int32 __CastFrom(native int L)
+  METHOD 23889 RVA 0x232e41: void .ctor()
+TYPE 3612: XLua.CSObjectWrap.WorldMarchDataManagerWrap extends System.Object
+  METHOD 35194 RVA 0x3a8870: void __Register(native int L)
+  METHOD 35195 RVA 0x3a9384: int32 __CreateInstance(native int L)
+  METHOD 35196 RVA 0x3a9410: int32 _m_UpdateBattleMessage(native int L)
+  METHOD 35197 RVA 0x3a9480: int32 _m_BattleFinish(native int L)
+  METHOD 35198 RVA 0x3a94f0: int32 _m_UpdateBattle(native int L)
+  METHOD 35199 RVA 0x3a9550: int32 _m_SetWorldScene(native int L)
+  METHOD 35200 RVA 0x3a95c0: int32 _m_Init(native int L)
+  METHOD 35201 RVA 0x3a9614: int32 _m_UnInit(native int L)
+  METHOD 35202 RVA 0x3a9668: int32 _m_OnUpdate(native int L)
+  METHOD 35203 RVA 0x3a96c8: int32 _m_AxisAlignRectIntersectAxisAlignSegment_xlua_st_(native int L)
+  METHOD 35204 RVA 0x3a973c: int32 _m_HandleWorldMarchGet(native int L)
+  METHOD 35205 RVA 0x3a97ac: int32 _m_HandleWorldMarchGetImpl(native int L)
+  METHOD 35206 RVA 0x3a981c: int32 _m_HandleWorldGetRectMarchInfos(native int L)
+  METHOD 35207 RVA 0x3a988c: int32 _m_CheckIsOtherTarget(native int L)
+  METHOD 35208 RVA 0x3a98fc: int32 _m_HandlePushWorldMarchAdd(native int L)
+  METHOD 35209 RVA 0x3a996c: int32 _m_HandlePushWorldMarchAddImpl(native int L)
+  METHOD 35210 RVA 0x3a99dc: int32 _m_ParsePushWorldMarchAdd(native int L)
+  METHOD 35211 RVA 0x3a9a58: int32 _m_HandlePushWorldMarchDel(native int L)
+  METHOD 35212 RVA 0x3a9ac8: int32 _m_HandlePushWorldMarchDelImpl(native int L)
+  METHOD 35213 RVA 0x3a9b38: int32 _m_HandleFormationMarch(native int L)
+  METHOD 35214 RVA 0x3a9ba8: int32 _m_HandleFormationMarchImpl(native int L)
+  METHOD 35215 RVA 0x3a9c18: int32 _m_HandleFormationMarchChange(native int L)
+  METHOD 35216 RVA 0x3a9c88: int32 _m_HandleFormationMarchChangeImpl(native int L)
+  METHOD 35217 RVA 0x3a9cf8: int32 _m_DelFakeAttackMonsterMarchDataRandom(native int L)
+  METHOD 35218 RVA 0x3a9d54: int32 _m_AddFakeAttackMonsterMarchData(native int L)
+  METHOD 35219 RVA 0x3a9dd4: int32 _m_UpdateFakeAttackMonsterMarch(native int L)
+  METHOD 35220 RVA 0x3a9e30: int32 _m_AddFakeRetreatMarchData(native int L)
+  METHOD 35221 RVA 0x3a9ec8: int32 _m_AddFakeSampleMarchData(native int L)
+  METHOD 35222 RVA 0x3aa16c: int32 _m_GetAllSampleFakeData(native int L)
+  METHOD 35223 RVA 0x3aa1c8: int32 _m_UpdateFakeSampleMarchDataWhenStartPick(native int L)
+  METHOD 35224 RVA 0x3aa230: int32 _m_UpdateFakeSampleMarchDataWhenBack(native int L)
+  METHOD 35225 RVA 0x3aa2a0: int32 _m_RemoveFakeSampleMarchData(native int L)
+  METHOD 35226 RVA 0x3aa2fc: int32 _m_ExistMarch(native int L)
+  METHOD 35227 RVA 0x3aa360: int32 _m_IsInRallyMarch(native int L)
+  METHOD 35228 RVA 0x3aa3c4: int32 _m_IsInCollectMarch(native int L)
+  METHOD 35229 RVA 0x3aa428: int32 _m_IsInAssistanceMarch(native int L)
+  METHOD 35230 RVA 0x3aa48c: int32 _m_IsSelfInCurrentMarchTeam(native int L)
+  METHOD 35231 RVA 0x3aa4f0: int32 _m_HasMarchUuid(native int L)
+  METHOD 35232 RVA 0x3aa554: int32 _m_GetMarch(native int L)
+  METHOD 35233 RVA 0x3aa5bc: int32 _m_GetMonster(native int L)
+  METHOD 35234 RVA 0x3aa624: int32 _m_GetOwnerMarches(native int L)
+  METHOD 35235 RVA 0x3aa744: int32 _m_GetMyDisguiseMarches(native int L)
+  METHOD 35236 RVA 0x3aa864: int32 _m_GetAllianceMarchesInTeam(native int L)
+  METHOD 35237 RVA 0x3aa8d4: int32 _m_IsHaveMarchInWorld(native int L)
+  METHOD 35238 RVA 0x3aa944: int32 _m_GetBestMarch(native int L)
+  METHOD 35239 RVA 0x3aa9c0: int32 _m_CleanDragonWar(native int L)
+  METHOD 35240 RVA 0x3aaa14: int32 _m_GetOwnerFormationMarch(native int L)
+  METHOD 35241 RVA 0x3aab4c: int32 _m_StartMarch(native int L)
+  METHOD 35242 RVA 0x3ab18c: int32 _m_WorldGetMarchInfos(native int L)
+  METHOD 35243 RVA 0x3ab1e0: int32 _m_ConsumeLittleSmartDirty(native int L)
+  METHOD 35244 RVA 0x3ab23c: int32 _m_IsMyMarch_xlua_st_(native int L)
+  METHOD 35245 RVA 0x3ab2a4: int32 _m_GetMyAssistanceCountByPointIndex(native int L)
+  METHOD 35246 RVA 0x3ab308: int32 _m_GetMyAssistanceFirstHero(native int L)
+  METHOD 35247 RVA 0x3ab36c: int32 _m_GetFirstMyAssistanceMarchUuid(native int L)
+  METHOD 35248 RVA 0x3ab3d0: int32 _m_UIMainWarningHide(native int L)
+  METHOD 35249 RVA 0x3ab43c: int32 _m_GetAllMarchesByCS(native int L)
+  METHOD 35250 RVA 0x3ab498: int32 _m_GetMarchesByStartIndex(native int L)
+  METHOD 35251 RVA 0x3ab500: int32 _m_GetMarchByTargetPos(native int L)
+  METHOD 35252 RVA 0x3ab568: int32 _m_GetMarchByType(native int L)
+  METHOD 35253 RVA 0x3ab5d0: int32 _m_GetMarchCountToTargetGroupByOwnerUid(native int L)
+  METHOD 35254 RVA 0x3ab638: int32 _m_GetMonsterListInArea(native int L)
+  METHOD 35255 RVA 0x3ab6dc: int32 _m_GetMarchesBossInfo(native int L)
+  METHOD 35256 RVA 0x3ab738: int32 _m_GetMarchesTargetForMine(native int L)
+  METHOD 35257 RVA 0x3ab7a0: int32 _m_GetMarchesTargetForMineLite(native int L)
+  METHOD 35258 RVA 0x3ab7fc: int32 _m_GetMarchesTargetForMineCached(native int L)
+  METHOD 35259 RVA 0x3ab864: int32 _m_GetInimicalMarchesTargetForMine(native int L)
+  METHOD 35260 RVA 0x3ab8c0: int32 _m_IsTargetForMine(native int L)
+  METHOD 35261 RVA 0x3aba30: int32 _m_IsTargetForAlly(native int L)
+  METHOD 35262 RVA 0x3abaa8: int32 _m_GetTrainConfig(native int L)
+  METHOD 35263 RVA 0x3abb10: int32 _m_GetFlowerCarLength(native int L)
+  METHOD 35264 RVA 0x3abb74: int32 _m_CacheAllianceMembersHomePos(native int L)
+  METHOD 35265 RVA 0x3abbc8: int32 _m_CleanAllianceMembersHomePos(native int L)
+  METHOD 35266 RVA 0x3abc1c: int32 _m_IsMemberByPointId(native int L)
+  METHOD 35267 RVA 0x3abc80: int32 _m_DestroyBerserkBossMarchData(native int L)
+  METHOD 35268 RVA 0x3abcdc: int32 _m_SaveCreateMarchRecordTime(native int L)
+  METHOD 35269 RVA 0x3abd38: int32 _m_RemoveCreateMarchRecordTime(native int L)
+  METHOD 35270 RVA 0x3abda8: int32 _m_UpdateBattleSoundData(native int L)
+  METHOD 35271 RVA 0x3abdfc: int32 _m_OnDrawGizmos(native int L)
+  METHOD 35272 RVA 0x3abe50: int32 _m_EditorLog_xlua_st_(native int L)
+  METHOD 35273 RVA 0x3abe90: int32 _m_EditorDescription(native int L)
+  METHOD 35274 RVA 0x3abeec: int32 _m_AddMarch(native int L)
+  METHOD 35275 RVA 0x3abf5c: int32 _m_FakeAddMarch(native int L)
+  METHOD 35276 RVA 0x3abfcc: int32 _m_StartRecordMarchBlock(native int L)
+  METHOD 35277 RVA 0x3ac028: int32 _m_StopRecordMarchBlock(native int L)
+  METHOD 35278 RVA 0x3ac07c: int32 _m_BIRecordWorldMarch(native int L)
+  METHOD 35279 RVA 0x3ac0ec: int32 _g_get___INC_UPDATE__(native int L)
+  METHOD 35280 RVA 0x3ac130: int32 _g_get_AllMarchesCount(native int L)
+  METHOD 35281 RVA 0x3ac18c: int32 _g_get_NormalMarchCount(native int L)
+  METHOD 35282 RVA 0x3ac1e8: int32 _g_get_EnableWorldAssistanceOpt(native int L)
+  METHOD 35283 RVA 0x3ac244: int32 _g_get_EnableWorldMarchDataOptHahaha(native int L)
+  METHOD 35284 RVA 0x3ac288: int32 _g_get_lastPerformanceCount(native int L)
+  METHOD 35285 RVA 0x3ac2e4: int32 _g_get_lastPerformanceSquadDisplayCount(native int L)
+  METHOD 35286 RVA 0x3ac340: int32 _g_get_lastPerformanceSquadDataCount(native int L)
+  METHOD 35287 RVA 0x3ac39c: int32 _g_get_lastPerformanceTroopLineCount(native int L)
+  METHOD 35288 RVA 0x3ac3f8: int32 _g_get_lastPerformanceTroopLineDisplayCount(native int L)
+  METHOD 35289 RVA 0x3ac454: int32 _g_get_lastPerformanceTroopLineDataCount(native int L)
+  METHOD 35290 RVA 0x3ac4b0: int32 _g_get_DataUpdater(native int L)
+  METHOD 35291 RVA 0x3ac50c: int32 _g_get_EditorInstance(native int L)
+  METHOD 35292 RVA 0x3ac55c: int32 _g_get_TileBlockIndex(native int L)
+  METHOD 35293 RVA 0x3ac5b8: int32 _g_get_OnMonsterAdd(native int L)
+  METHOD 35294 RVA 0x3ac608: int32 _g_get_OnMonsterDelete(native int L)
+  METHOD 35295 RVA 0x3ac658: int32 _g_get_hahaUpdateCount(native int L)
+  METHOD 35296 RVA 0x3ac6b4: int32 _g_get_legacyUpdateCount(native int L)
+  METHOD 35297 RVA 0x3ac710: int32 _g_get_SelectMarchUuid(native int L)
+  METHOD 35298 RVA 0x3ac754: int32 _g_get_DebugMarchUuid(native int L)
+  METHOD 35299 RVA 0x3ac798: int32 _s_set_OnMonsterAdd(native int L)
+  METHOD 35300 RVA 0x3ac7e8: int32 _s_set_OnMonsterDelete(native int L)
+  METHOD 35301 RVA 0x3ac838: int32 _s_set_hahaUpdateCount(native int L)
+  METHOD 35302 RVA 0x3ac894: int32 _s_set_legacyUpdateCount(native int L)
+  METHOD 35303 RVA 0x3ac8f0: int32 _s_set_SelectMarchUuid(native int L)
+  METHOD 35304 RVA 0x3ac934: int32 _s_set_DebugMarchUuid(native int L)
+  METHOD 35305 RVA 0x3ac978: void .ctor()

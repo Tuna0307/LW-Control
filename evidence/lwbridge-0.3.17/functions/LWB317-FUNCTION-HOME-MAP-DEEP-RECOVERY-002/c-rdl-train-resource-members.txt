@@ -1,0 +1,79 @@
+﻿=== MEMBER GetResourcePointInfoByIndex ===
+RGMD=0x9a92a4 TypeDef=5828 MethodDef=54483
+METHOD 7496 RVA 0xcb903: ResPointInfo CityScene::GetResourcePointInfoByIndex(int32 pointIndex)
+METHOD 8851 RVA 0x0: ResPointInfo SceneInterface::GetResourcePointInfoByIndex(int32 pointIndex)
+METHOD 13636 RVA 0x155ed8: ResPointInfo WorldPointManager::GetResourcePointInfoByIndex(int32 pointIndex)
+METHOD 14908 RVA 0x17a630: ResPointInfo WorldScene::GetResourcePointInfoByIndex(int32 pointIndex)
+METHOD 22286 RVA 0x1fefc8: int32 XLua.CSObjectWrap.CitySceneWrap::_m_GetResourcePointInfoByIndex(native int L)
+METHOD 35752 RVA 0x3ba1ec: int32 XLua.CSObjectWrap.WorldPointManagerWrap::_m_GetResourcePointInfoByIndex(native int L)
+METHOD 36013 RVA 0x3c46bc: int32 XLua.CSObjectWrap.WorldSceneWrap::_m_GetResourcePointInfoByIndex(native int L)
+=== MEMBER GetAllMainBaseList ===
+RGMD=0x9a92a4 TypeDef=5828 MethodDef=54483
+METHOD 7392 RVA 0xcb26b: System.Collections.Generic.List`1<BuildPointInfo> CityScene::GetAllMainBaseList()
+METHOD 7393 RVA 0xcb272: System.Collections.Generic.List`1<BuildPointInfo> CityScene::GetAllMainBaseListByType(PlayerType t0)
+METHOD 7394 RVA 0xcb279: System.Collections.Generic.List`1<BuildPointInfo> CityScene::GetAllMainBaseListByType(PlayerType t0, PlayerType t1)
+METHOD 7395 RVA 0xcb280: System.Collections.Generic.List`1<BuildPointInfo> CityScene::GetAllMainBaseListByType(PlayerType t0, PlayerType t1, PlayerType t2)
+METHOD 7396 RVA 0xcb287: System.Collections.Generic.List`1<BuildPointInfo> CityScene::GetAllMainBaseListByType(PlayerType t0, PlayerType t1, PlayerType t2, PlayerType t3)
+METHOD 8902 RVA 0x0: System.Collections.Generic.List`1<BuildPointInfo> SceneInterface::GetAllMainBaseList()
+METHOD 8903 RVA 0x0: System.Collections.Generic.List`1<BuildPointInfo> SceneInterface::GetAllMainBaseListByType(PlayerType t0)
+METHOD 8904 RVA 0x0: System.Collections.Generic.List`1<BuildPointInfo> SceneInterface::GetAllMainBaseListByType(PlayerType t0, PlayerType t1)
+METHOD 8905 RVA 0x0: System.Collections.Generic.List`1<BuildPointInfo> SceneInterface::GetAllMainBaseListByType(PlayerType t0, PlayerType t1, PlayerType t2)
+METHOD 8906 RVA 0x0: System.Collections.Generic.List`1<BuildPointInfo> SceneInterface::GetAllMainBaseListByType(PlayerType t0, PlayerType t1, PlayerType t2, PlayerType t3)
+METHOD 13724 RVA 0x15ad04: System.Collections.Generic.List`1<BuildPointInfo> WorldPointManager::GetAllMainBaseList()
+METHOD 13725 RVA 0x15ad84: System.Collections.Generic.List`1<BuildPointInfo> WorldPointManager::GetAllMainBaseListByType(PlayerType t0)
+METHOD 13726 RVA 0x15ae14: System.Collections.Generic.List`1<BuildPointInfo> WorldPointManager::GetAllMainBaseListByType(PlayerType t0, PlayerType t1)
+METHOD 13727 RVA 0x15aea8: System.Collections.Generic.List`1<BuildPointInfo> WorldPointManager::GetAllMainBaseListByType(PlayerType t0, PlayerType t1, PlayerType t2)
+METHOD 13728 RVA 0x15af40: System.Collections.Generic.List`1<BuildPointInfo> WorldPointManager::GetAllMainBaseListByType(PlayerType t0, PlayerType t1, PlayerType t2, PlayerType t3)
+METHOD 14934 RVA 0x17a79b: System.Collections.Generic.List`1<BuildPointInfo> WorldScene::GetAllMainBaseList()
+METHOD 14935 RVA 0x17a7a8: System.Collections.Generic.List`1<BuildPointInfo> WorldScene::GetAllMainBaseListByType(PlayerType t0)
+METHOD 14936 RVA 0x17a7b6: System.Collections.Generic.List`1<BuildPointInfo> WorldScene::GetAllMainBaseListByType(PlayerType t0, PlayerType t1)
+METHOD 14937 RVA 0x17a7c5: System.Collections.Generic.List`1<BuildPointInfo> WorldScene::GetAllMainBaseListByType(PlayerType t0, PlayerType t1, PlayerType t2)
+METHOD 14938 RVA 0x17a7d5: System.Collections.Generic.List`1<BuildPointInfo> WorldScene::GetAllMainBaseListByType(PlayerType t0, PlayerType t1, PlayerType t2, PlayerType t3)
+METHOD 22209 RVA 0x1fc9fc: int32 XLua.CSObjectWrap.CitySceneWrap::_m_GetAllMainBaseList(native int L)
+METHOD 22210 RVA 0x1fca58: int32 XLua.CSObjectWrap.CitySceneWrap::_m_GetAllMainBaseListByType(native int L)
+METHOD 35809 RVA 0x3bbbd8: int32 XLua.CSObjectWrap.WorldPointManagerWrap::_m_GetAllMainBaseList(native int L)
+METHOD 35810 RVA 0x3bbc34: int32 XLua.CSObjectWrap.WorldPointManagerWrap::_m_GetAllMainBaseListByType(native int L)
+METHOD 36039 RVA 0x3c5114: int32 XLua.CSObjectWrap.WorldSceneWrap::_m_GetAllMainBaseList(native int L)
+METHOD 36040 RVA 0x3c5170: int32 XLua.CSObjectWrap.WorldSceneWrap::_m_GetAllMainBaseListByType(native int L)
+=== MEMBER GetCurRewardData ===
+RGMD=0x9a92a4 TypeDef=5828 MethodDef=54483
+=== MEMBER maxLootPerTrain ===
+RGMD=0x9a92a4 TypeDef=5828 MethodDef=54483
+=== MEMBER marchInfo ===
+RGMD=0x9a92a4 TypeDef=5828 MethodDef=54483
+FIELD 6899: WorldMarch WorldTroop::marchInfo
+FIELD 7644: WorldMarch MoveAbleWorldMarch::marchInfo
+FIELD 7781: WorldMarch S4MonsterEffList::marchInfo
+FIELD 8875: WorldMarch HSRTroop::marchInfo
+FIELD 9728: WorldMarch WorldTroopLittleSmart::marchInfo
+FIELD 9847: WorldMarch WorldTroopLineLittleSmart::marchInfo
+FIELD 10349: bool WorldPointManager::_pendingInitViewRequestAfterMarchInfos
+METHOD 9667 RVA 0xed861: void WorldFlowerTrainRewardObject::DoWhenMarchInfoChange(object userData)
+METHOD 10108 RVA 0xf8ccc: WorldMarch WorldTroop::GetMarchInfo()
+METHOD 12251 RVA 0x12a45c: void WorldGhostreconTaskObject::DoWhenMarchInfoChange(object userData)
+METHOD 12263 RVA 0x12ab80: void WorldGhostreconTaskObject::<DoWhenMarchInfoChange>b__22_0(InstanceRequest <p0>)
+METHOD 12333 RVA 0x12cef8: void WorldHeroDispatchTaskObject::DoWhenMarchInfoChange(object userData)
+METHOD 12347 RVA 0x12d7d4: void WorldHeroDispatchTaskObject::<DoWhenMarchInfoChange>b__22_0(InstanceRequest <p0>)
+METHOD 12923 RVA 0x1415c4: void WorldMarchDataManager::HandleWorldGetRectMarchInfos(Sfs2X.Entities.Data.ISFSObject message)
+METHOD 12970 RVA 0x143ac0: void WorldMarchDataManager::WorldGetMarchInfos()
+METHOD 13198 RVA 0x14a9e0: NewMarchType WorldTroopManager::GetHideTypeByMarchInfo(WorldMarch marchInfo)
+METHOD 13673 RVA 0x157e5a: void WorldPointManager::RequestInitViewRequestAfterMarchInfos()
+METHOD 13843 RVA 0x15e7fc: void WorldDetectResObject::DoWhenMarchInfoChange(object userData)
+METHOD 13846 RVA 0x15ea38: void WorldDetectResObject::<DoWhenMarchInfoChange>b__18_0(InstanceRequest <p0>)
+METHOD 13914 RVA 0x15f844: void WorldDetectEventItemObject::DoWhenMarchInfoChange(object userData)
+METHOD 13929 RVA 0x1600b4: void WorldDetectEventItemObject::<DoWhenMarchInfoChange>b__28_0(InstanceRequest <p0>)
+METHOD 13971 RVA 0x16129a: void SiegeTreasureObject::DoWhenMarchInfoChange(object userData)
+METHOD 14017 RVA 0x162e39: void WorldTreasureObject::DoWhenMarchInfoChange(object userData)
+METHOD 14032 RVA 0x1638eb: void WorldDetectRescueObject::DoWhenMarchInfoChange(object userData)
+METHOD 14956 RVA 0x17a8f4: void WorldScene::RequestInitViewRequestAfterMarchInfos()
+METHOD 35206 RVA 0x3a981c: int32 XLua.CSObjectWrap.WorldMarchDataManagerWrap::_m_HandleWorldGetRectMarchInfos(native int L)
+METHOD 35242 RVA 0x3ab18c: int32 XLua.CSObjectWrap.WorldMarchDataManagerWrap::_m_WorldGetMarchInfos(native int L)
+METHOD 35781 RVA 0x3bb078: int32 XLua.CSObjectWrap.WorldPointManagerWrap::_m_RequestInitViewRequestAfterMarchInfos(native int L)
+METHOD 36058 RVA 0x3c5a3c: int32 XLua.CSObjectWrap.WorldSceneWrap::_m_RequestInitViewRequestAfterMarchInfos(native int L)
+METHOD 36527 RVA 0x3d39a8: int32 XLua.CSObjectWrap.WorldTroopLineLittleSmartWrap::_g_get_marchInfo(native int L)
+METHOD 36530 RVA 0x3d3aa4: int32 XLua.CSObjectWrap.WorldTroopLineLittleSmartWrap::_s_set_marchInfo(native int L)
+METHOD 36630 RVA 0x3d7fa8: int32 XLua.CSObjectWrap.WorldTroopWrap::_m_GetMarchInfo(native int L)
+=== MEMBER GetOneTrain ===
+RGMD=0x9a92a4 TypeDef=5828 MethodDef=54483
+=== MEMBER GetOneTrainByMarchUuid ===
+RGMD=0x9a92a4 TypeDef=5828 MethodDef=54483

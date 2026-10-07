@@ -1,0 +1,317 @@
+{
+  "contentVersion": 22,
+  "modules": {
+    "DataCenter/ActivityListData/ActGhostrecon/ActGhostreconTaskInfo.luac": {
+      "encodedSha256": "db14aa4835b6bb25230fc380a7766696f5af81ea9870b6e228dda20d0d9d8f8b",
+      "decodedSha256": "782804b08e5b4d5c6dc71c6054fd74cb9aff580643fd0b83ecb44147e884abed",
+      "decodedBytes": 6854,
+      "tokens": {
+        "GetCurRewardData": false,
+        "maxLootPerTrain": false,
+        "arriveTs": false,
+        "marchInfo": false,
+        "vipOn": false,
+        "baseGoods": false,
+        "extraGoods": false,
+        "robTimes": false,
+        "protectTime": false,
+        "type": false,
+        "quality": false,
+        "cfgId": true,
+        "carriageCount": false,
+        "GetOneTrain": false,
+        "GetOneTrainByMarchUuid": false,
+        "stealList": true,
+        "protect_times": false,
+        "steal_maxtimes": false,
+        "completionTime": true,
+        "taskExpireTime": true
+      },
+      "tokenOffsets": {
+        "cfgId": [
+          838,
+          1333,
+          2273
+        ],
+        "stealList": [
+          985,
+          1480,
+          2420
+        ],
+        "completionTime": [
+          872,
+          1367,
+          2307,
+          3908
+        ],
+        "taskExpireTime": [
+          957,
+          1452,
+          2392
+        ]
+      }
+    },
+    "DataCenter/ActivityListData/ActGhostrecon/ActGhostreconTaskTemplate.luac": {
+      "encodedSha256": "21ae6fbc5cef2d254518844afe714053da061792ea28ec03cef6c074468b58bb",
+      "decodedSha256": "015d156c9fc4a3d245718669c113afb23ce04e35b44b057e9abf52d405e865c8",
+      "decodedBytes": 7079,
+      "tokens": {
+        "GetCurRewardData": false,
+        "maxLootPerTrain": false,
+        "arriveTs": false,
+        "marchInfo": false,
+        "vipOn": false,
+        "baseGoods": false,
+        "extraGoods": false,
+        "robTimes": false,
+        "protectTime": true,
+        "type": false,
+        "quality": false,
+        "cfgId": false,
+        "carriageCount": false,
+        "GetOneTrain": false,
+        "GetOneTrainByMarchUuid": false,
+        "stealList": false,
+        "protect_times": true,
+        "steal_maxtimes": true,
+        "completionTime": true,
+        "taskExpireTime": false
+      },
+      "tokenOffsets": {
+        "protectTime": [
+          1034,
+          1542,
+          2568,
+          6250
+        ],
+        "protect_times": [
+          2581
+        ],
+        "steal_maxtimes": [
+          2624
+        ],
+        "completionTime": [
+          6077,
+          6349
+        ]
+      }
+    },
+    "DataCenter/LWRailway/Train/LWTrainDataManager.luac": {
+      "encodedSha256": "5e4924e7727aaf0b5e00f4e023dabf8d031989422a17234fbd9ef5f07a1594e5",
+      "decodedSha256": "77f4dbbd6d0f60980ad66aa9245464a2ea88f066e28da44de228bb8eb9f2f019",
+      "decodedBytes": 10621,
+      "tokens": {
+        "GetCurRewardData": false,
+        "maxLootPerTrain": false,
+        "arriveTs": false,
+        "marchInfo": true,
+        "vipOn": false,
+        "baseGoods": false,
+        "extraGoods": false,
+        "robTimes": false,
+        "protectTime": false,
+        "type": true,
+        "quality": false,
+        "cfgId": false,
+        "carriageCount": false,
+        "GetOneTrain": true,
+        "GetOneTrainByMarchUuid": true,
+        "stealList": false,
+        "protect_times": false,
+        "steal_maxtimes": false,
+        "completionTime": false,
+        "taskExpireTime": false
+      },
+      "tokenOffsets": {
+        "marchInfo": [
+          5598
+        ],
+        "type": [
+          3442,
+          8437,
+          9633,
+          9682
+        ],
+        "GetOneTrain": [
+          813,
+          826,
+          850,
+          2895,
+          3420,
+          5130
+        ],
+        "GetOneTrainByMarchUuid": [
+          826
+        ]
+      }
+    },
+    "DataCenter/LWRailway/Train/TrainData.luac": {
+      "encodedSha256": "932d78d41fc11f9dcd10fdbb2688875f4e0e795299c1ca68c935abdd233bd496",
+      "decodedSha256": "bb5fd255ec56774d2aa430db6725b3051849accbb3efa46f2a34a8f12fefbf29",
+      "decodedBytes": 41824,
+      "tokens": {
+        "GetCurRewardData": true,
+        "maxLootPerTrain": true,
+        "arriveTs": true,
+        "marchInfo": true,
+        "vipOn": true,
+        "baseGoods": true,
+        "extraGoods": true,
+        "robTimes": false,
+        "protectTime": false,
+        "type": true,
+        "quality": true,
+        "cfgId": true,
+        "carriageCount": true,
+        "GetOneTrain": false,
+        "GetOneTrainByMarchUuid": false,
+        "stealList": false,
+        "protect_times": false,
+        "steal_maxtimes": false,
+        "completionTime": false,
+        "taskExpireTime": false
+      },
+      "tokenOffsets": {
+        "GetCurRewardData": [
+          938
+        ],
+        "maxLootPerTrain": [
+          5515
+        ],
+        "arriveTs": [
+          5837,
+          11189,
+          12794,
+          28677
+        ],
+        "marchInfo": [
+          5051,
+          19673
+        ],
+        "vipOn": [
+          5617
+        ],
+        "baseGoods": [
+          5878,
+          11218,
+          13719,
+          14418
+        ],
+        "extraGoods": [
+          5889,
+          11229,
+          13707,
+          14401
+        ],
+        "type": [
+          4900,
+          12037,
+          13078,
+          13664,
+          14358,
+          15445,
+          20285,
+          21471,
+          21601,
+          24228,
+          30687,
+          31754
+        ],
+        "quality": [
+          5079,
+          11072,
+          25358,
+          25580,
+          26771,
+          26951,
+          30711,
+          31796,
+          32683,
+          33352
+        ],
+        "cfgId": [
+          4963,
+          25551,
+          30302
+        ],
+        "carriageCount": [
+          5117,
+          11081,
+          12267
+        ]
+      }
+    },
+    "UI/UIWorldPoint/Component/UIWorldPointBtn.luac": {
+      "encodedSha256": "31fa9297595702c199e5bd23c90e8aa727236e371d7c461f3eb6639f5c580748",
+      "decodedSha256": "d2f099d11172a80e7c8eda63fd410d3360fea965d8269691061be5a7d8f54d79",
+      "decodedBytes": 160477,
+      "tokens": {
+        "GetCurRewardData": false,
+        "maxLootPerTrain": false,
+        "arriveTs": false,
+        "marchInfo": true,
+        "vipOn": false,
+        "baseGoods": false,
+        "extraGoods": false,
+        "robTimes": false,
+        "protectTime": true,
+        "type": true,
+        "quality": false,
+        "cfgId": true,
+        "carriageCount": false,
+        "GetOneTrain": false,
+        "GetOneTrainByMarchUuid": false,
+        "stealList": true,
+        "protect_times": true,
+        "steal_maxtimes": true,
+        "completionTime": true,
+        "taskExpireTime": false
+      },
+      "tokenOffsets": {
+        "marchInfo": [
+          141040
+        ],
+        "protectTime": [
+          16330,
+          64101,
+          139824,
+          153354
+        ],
+        "type": [
+          7339,
+          12402,
+          12591,
+          64043,
+          67683,
+          143276,
+          156939,
+          157069,
+          158386,
+          159074
+        ],
+        "cfgId": [
+          12053,
+          82448,
+          151495
+        ],
+        "stealList": [
+          12140,
+          151526
+        ],
+        "protect_times": [
+          12060,
+          151502
+        ],
+        "steal_maxtimes": [
+          12242,
+          151578
+        ],
+        "completionTime": [
+          11967,
+          16290,
+          151247
+        ]
+      }
+    }
+  }
+}

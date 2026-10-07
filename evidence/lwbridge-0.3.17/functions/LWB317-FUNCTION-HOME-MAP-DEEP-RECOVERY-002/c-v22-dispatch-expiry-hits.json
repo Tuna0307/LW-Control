@@ -1,0 +1,92 @@
+{
+  "contentVersion": 22,
+  "rows": [
+    {
+      "name": "DataCenter/ActivityListData/ActDispatchTaskDataManager.luac",
+      "decodedSha256": "21cf16b7fe6da46f468a4d6f1f259ae6fd972a100ad9398c57a2e701abd8162d",
+      "hits": [
+        "stealList"
+      ],
+      "offsets": {
+        "stealList": [
+          37495
+        ]
+      }
+    },
+    {
+      "name": "UI/UIActivityCenterTable/Component/DispatchTask/DispatchTaskMarkData.luac",
+      "decodedSha256": "38b80bb72ce756c2b92bbff4524b5722b3da6a4ee4113a740b7c660e3b7f8487",
+      "hits": [
+        "stealList"
+      ],
+      "offsets": {
+        "stealList": [
+          1347
+        ]
+      }
+    },
+    {
+      "name": "UI/UIDispatchTask/Ghostrecon/Reward/View/UIGhostreconRewardView.luac",
+      "decodedSha256": "a4fc324d6c5e7bbecf12ae3a0e816920cd505f0db768342d6854267e8fea322e",
+      "hits": [
+        "stealList"
+      ],
+      "offsets": {
+        "stealList": [
+          17075,
+          18379
+        ]
+      }
+    },
+    {
+      "name": "UI/UIWorldPoint/Component/MapStickerSendContent.luac",
+      "decodedSha256": "067d002fe2c09ffc368fe99f60480c4b396c394eb937a9b3e9fd5587138b5d60",
+      "hits": [
+        "expiredTime"
+      ],
+      "offsets": {
+        "expiredTime": [
+          2467,
+          4475
+        ]
+      }
+    },
+    {
+      "name": "UI/UIWorldPoint/Component/MusicFestival2025Content.luac",
+      "decodedSha256": "bfe9ce857f05534bdff3a6758c26b37224ed392984873a4d4d4e171d61675aa5",
+      "hits": [
+        "expiredTime"
+      ],
+      "offsets": {
+        "expiredTime": [
+          3254,
+          4192,
+          10378
+        ]
+      }
+    },
+    {
+      "name": "UI/UIWorldPoint/Component/UIWorldPointBtn.luac",
+      "decodedSha256": "d2f099d11172a80e7c8eda63fd410d3360fea965d8269691061be5a7d8f54d79",
+      "hits": [
+        "protect_times",
+        "steal_maxtimes",
+        "stealList"
+      ],
+      "offsets": {
+        "protect_times": [
+          12060,
+          151502
+        ],
+        "steal_maxtimes": [
+          12242,
+          151578
+        ],
+        "stealList": [
+          12140,
+          151526
+        ]
+      }
+    }
+  ]
+}

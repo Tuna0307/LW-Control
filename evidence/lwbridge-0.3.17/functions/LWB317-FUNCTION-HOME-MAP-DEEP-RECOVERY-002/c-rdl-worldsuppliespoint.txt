@@ -1,0 +1,49 @@
+﻿RGMD=0x9a92a4 TypeDef=5828 MethodDef=54483
+TYPE 1878: WorldSuppliesPoint extends PointInfo
+  FIELD 11024: Protobuf.IceSuppliesPointInfo _pbInfo
+  FIELD 11025: System.Collections.Generic.List`1<string> _uidList
+  FIELD 11026: int32 userCount
+  FIELD 11027: int64 createTime
+  FIELD 11028: string discovererAllianceId
+  FIELD 11029: string discovererUid
+  FIELD 11030: int64 workEndTime
+  FIELD 11031: int32 workState
+  METHOD 14503 RVA 0x173d9f: int32 get_state()
+  METHOD 14504 RVA 0x173db6: int32 get_configId()
+  METHOD 14505 RVA 0x173dcd: System.Collections.Generic.List`1<string> get_uidList()
+  METHOD 14506 RVA 0x173dfb: void .ctor()
+  METHOD 14507 RVA 0x173e04: void .ctor(Protobuf.WorldPointInfo pi)
+TYPE 1952: WorldSuppliesPointObject extends WorldPointObject
+  FIELD 11632: UIWorldLabel[] cityLabels
+  FIELD 11633: InstanceRequest bubbleTip
+  FIELD 11634: UnityEngine.Transform _rootTransform
+  FIELD 11635: UnityEngine.Transform _botTransform
+  FIELD 11636: SuperTextMesh _stealText
+  FIELD 11637: UnityEngine.Transform _eventIcon
+  FIELD 11638: UnityEngine.Transform _eventIconGray
+  FIELD 11639: SuperTextMesh _timeText
+  FIELD 11640: int32 _bubbleState
+  FIELD 11641: int64 _endTime
+  FIELD 11642: int32 _limit
+  FIELD 11643: int64 _uuid
+  METHOD 15510 RVA 0x186c7b: void .ctor(WorldScene worldScene, int32 pointIndex, int32 pType)
+  METHOD 15511 RVA 0x186c98: void CreateGameObject()
+  METHOD 15512 RVA 0x186cec: void CreateObject()
+  METHOD 15513 RVA 0x186dcc: void RefreshState()
+  METHOD 15514 RVA 0x1870d4: void OnClickWorldPointObject()
+  METHOD 15515 RVA 0x1870fd: void UpdateGameObject()
+  METHOD 15516 RVA 0x187134: void RefreshBubble()
+  METHOD 15517 RVA 0x1871e8: void BubbleClick()
+  METHOD 15518 RVA 0x187244: void UpdateTime()
+  METHOD 15519 RVA 0x1872a8: void OnUpdate(float32 deltaTime)
+  METHOD 15520 RVA 0x1872b8: void Destroy()
+TYPE 1953: WorldSuppliesPointObject+<>c__DisplayClass14_0 extends System.Object
+  FIELD 11644: WorldSuppliesPoint point
+  FIELD 11645: WorldSuppliesPointObject <>4__this
+  METHOD 15521 RVA 0x187353: void .ctor()
+  METHOD 15522 RVA 0x18735c: void <CreateObject>b__0(InstanceRequest <p0>)
+TYPE 1954: WorldSuppliesPointObject+<>c__DisplayClass18_0 extends System.Object
+  FIELD 11646: WorldSuppliesPointObject <>4__this
+  FIELD 11647: PointInfo info
+  METHOD 15523 RVA 0x1874ff: void .ctor()
+  METHOD 15524 RVA 0x187508: void <RefreshBubble>b__0(InstanceRequest req)
