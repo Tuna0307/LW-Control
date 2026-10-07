@@ -1,0 +1,45 @@
+LWB317-FUNCTION-HOME-MAP-OFFLINE-HOST-CONTRACT-001
+Checkpoint C final integrity, 2026-10-07
+
+Starting checkpoint-C HEAD:
+6e5617a726a437edc8dc1ef7bb622d4a818ae2f4
+
+Reference executable:
+C:\Users\chimw\OneDrive\Desktop\Github\LW\lwbridge-0.3.17.exe
+SHA-256:
+4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783
+Expected reference hash: MATCH
+
+Final current-client static revalidation:
+- tools/check_current_client_runtime_contract.py: exit 0
+- runtime report ok=true
+- binaryIdentityApproved=true
+- tools/lwbridge317/inspect_current_map_compat.py: exit 0
+- installedIdentity.ok=true
+- package state=official_package
+- contentVersion=22
+- current package SHA-256=248f3aeac712b3f14f86bff37a0c365e467897a2248403837c44c1b774f05b22
+- current game SHA-256=905c98c1f89841f90b492556192ba0642f3d209a873cb8c1f7b3c340aca0733d
+- current xlua.dll SHA-256=d22d912f031c60f2649fdaf76d359d695511f7a37b93cd637b557f8346569d45
+- current Assembly-CSharp.rdl SHA-256=bfb740b4570c58bd2bcc7fb83f9b83d8121ce10fb1bf49040e9fb8b08e958b3e
+
+Process inventory immediately before final diff review:
+- LastWar/LWBridge/Last War matching process count: 0
+
+Repository integrity:
+- git diff --check: PASS (exit 0; only normal Windows LF->CRLF notices were emitted)
+- no production source or test source is changed by checkpoint C
+- no build/package rerun is required because this work item made no product-code change
+- applicable production-seam/native checks were executed in checkpoint B and are preserved there
+
+Owner/runtime safety:
+- no shared-desktop control
+- no screenshot/input/focus change
+- no game attachment or launch/control
+- no installation instrumentation
+- no owner-runtime mutation
+- no gameplay/updater/protected-service action
+- LIVE-PILOT-001 remains ON_HOLD_BY_OWNER
+
+Final git diff/check, commit, push and direct remote SHA verification are performed
+after this file is present; their exact final SHA is reported in the worker return.

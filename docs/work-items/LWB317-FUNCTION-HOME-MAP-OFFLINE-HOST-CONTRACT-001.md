@@ -1,6 +1,6 @@
 # LWB317-FUNCTION-HOME-MAP-OFFLINE-HOST-CONTRACT-001
 
-Status: **READY FOR MANUAL OWNER RELAY**, 2026-10-07.
+Status: **AWAITING_REVIEW**, 2026-10-07.
 
 Repository: `C:\Users\chimw\OneDrive\Desktop\Github\LW-Control`.
 Branch: `research/offline-controller`. Start from the current clean checkpoint;
@@ -71,3 +71,21 @@ checkpoints, push and verify the direct remote SHA. Preserve unrelated work.
 Return **AWAITING_REVIEW** with exact contracts, corrected finding IDs if any,
 checks, commits, remaining live dependencies and exact continuation. Do not
 promote LIVE_PROVEN or begin unrelated features. The lead independently accepts.
+
+## Worker completion, 2026-10-07
+
+Completed offline through sequential checkpoints A/B/C. Checkpoint A
+`9388e124fc31ae466f0cb8cd180bd425bd525e49` recovers and hash-locks the
+host/reader/xLua-static/readiness/City-Resource contracts. Checkpoint B
+`6e5617a726a437edc8dc1ef7bb622d4a818ae2f4` proves the actual packaged
+.NET reader and Windows lease-contention seam plus retired-owner/native/inert
+Lua behavior; no source-backed product defect was demonstrated, so no fallback
+or product change was made. Checkpoint C records the offline/live dependency
+matrix and future witness plan.
+
+Real current-game xLua conversion of the reflected external
+`Func<string,string>`, actual in-game same-owner readiness scheduling, and
+positive Manual Resource/City acquisition remain future live witnesses.
+`LWB317-FUNCTION-HOME-MAP-LIVE-PILOT-001` remains ON_HOLD_BY_OWNER. No
+`LIVE_PROVEN` promotion is made. See
+`docs/reviews/2026-10-07-LWB317-FUNCTION-HOME-MAP-OFFLINE-HOST-CONTRACT-001-WORKER.md`.
