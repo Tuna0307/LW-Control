@@ -1,0 +1,44 @@
+{
+  "scope": "Actual packaged static production methods; no provider constructed, no game/transport invoked",
+  "desktopAssemblySha256": "A91E33A9E869CD130C70349B141ED6746223F757EA0546A7858F07B61EC09E42",
+  "mapAssemblySha256": "10508B596F87054CC3862F439B128071ED05C4FA70C004A8FD19AEDA17BCEF84",
+  "cases": [
+    {
+      "name": "positive_after_plunder",
+      "host": "ACCEPTED",
+      "helper": "ACCEPTED"
+    },
+    {
+      "name": "zero",
+      "host": "ACCEPTED",
+      "helper": "REJECTED",
+      "helperError": "System.IO.InvalidDataException"
+    },
+    {
+      "name": "negative",
+      "host": "ACCEPTED",
+      "helper": "REJECTED",
+      "helperError": "System.IO.InvalidDataException"
+    },
+    {
+      "name": "missing",
+      "host": "ACCEPTED",
+      "helper": "REJECTED",
+      "helperError": "System.IO.InvalidDataException"
+    },
+    {
+      "name": "positive_equal_plunder",
+      "host": "REJECTED",
+      "hostError": "LWBridge.Map317.BridgeCommandException",
+      "helper": "REJECTED",
+      "helperError": "System.IO.InvalidDataException"
+    },
+    {
+      "name": "positive_before_plunder",
+      "host": "REJECTED",
+      "hostError": "LWBridge.Map317.BridgeCommandException",
+      "helper": "REJECTED",
+      "helperError": "System.IO.InvalidDataException"
+    }
+  ]
+}

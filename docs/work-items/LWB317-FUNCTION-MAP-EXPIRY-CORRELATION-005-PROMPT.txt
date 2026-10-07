@@ -1,0 +1,61 @@
+You are the solo worker for LWB317-FUNCTION-MAP-EXPIRY-CORRELATION-005.
+
+Repository: C:\Users\chimw\OneDrive\Desktop\Github\LW-Control
+Branch: research/offline-controller
+Reviewed product baseline: d900d8a548c072485cabc9b55d3dc5b07c4e6085.
+Fetch/inspect the latest descendant containing this assignment. Record exact HEAD
+and status; do not reset/discard unrelated work.
+
+Read AGENTS.md, task.md, docs/AI_WORK_PROTOCOL.md, current Home/Map masters and:
+docs/work-items/LWB317-FUNCTION-MAP-EXPIRY-CORRELATION-005.md
+docs/reviews/2026-10-07-LWB317-FUNCTION-MAP-BLOCKER-BOUNDARIES-004-LEAD.md
+The work item contains all acceptance criteria. Audit 004 is accepted within its
+offline boundary; SEMANTICS-003 needs the confirmed expiry correction.
+
+Complete three sequential medium checkpoints without waiting between them.
+
+A. Fix LR-GHOST-EXPIRY-005 in the actual production Ghost row helper.
+The lead invoked the packaged helper and host validator: host accepts zero,
+negative and missing taskExpireTime while the helper rejects them. Preserve that
+negative evidence. Correct the helper to apply expiry rejection only when expiry
+is positive and at/before plunder. Preserve source row values, frontend random
+delay, identity, timing and counter guards. Do not broaden numeric parsing.
+Add distinguishing actual-production cases for positive-after, zero, negative,
+missing, positive-equal and positive-before, plus the existing failure cases.
+Keep the public preparer unavailable; correct its misleading explanation so
+missing preparation transformations and execution correlation are separate.
+
+B. Recover actual managed correlation semantics.
+Inspect the real FutureManager/send/receive bodies and schemas found by audit 004.
+Resolve the modified metadata/CIL token problem with independently validated,
+read-only tooling. Trace Lua serialization -> SendLuaMessage -> future allocation
+and association -> receive/pending consumption -> Lua raw table -> Ghost handler.
+Determine whether fuid is merely an acknowledgement/timing identifier or reaches
+a boundary that can identify the actual request. Trace reuse, disconnect/reset
+and ordering where sources exist. Keep raw bytes/locators and unresolved operands.
+Do not claim a synthetic UUID/future/point field proves the real producer emits it.
+Do not implement real Ghost transport or a speculative correlation abstraction.
+If blocked, name the exact remaining body/operand/schema edge and evidence needed.
+B blockage must not prevent delivery of A and C.
+
+C. Verify and deliver.
+Run corrected helper/host cases, canonical Map/native plunder checks, existing
+actual-body/blocker-body/production-Lua checks and applicable new parser proofs.
+Production changes require Release Desktop/Checks builds and canonical frontend
+check/build/package verification. Preserve historical audit scripts/results;
+provide a narrowly scoped corrected replay where old checks pin the prior helper.
+Review the diff, update current records conservatively, create a dated worker
+review and repeatable validator, and prove prior evidence/owner state preserved.
+Commit/push coherent checkpoints and verify direct remote SHA.
+
+Work alone: no subagents, other AI chats, GPT Work or Codex delegation.
+No inert product shells, fallback, invented schemas or fabricated success.
+Preserve accepted UIUX/R3 behavior and the Ghost-before-Dispatch safety guard.
+All public Treasure/Ghost providers stay unavailable; Home/Map stays PARTIAL.
+Live/shared-desktop work remains ON_HOLD_BY_OWNER: no launch/attach/instrumentation,
+desktop capture/input/focus, owner runtime/config mutation, protected services,
+updater or real gameplay/network transport. Static artifacts and isolated/inert
+tests only. Final acceptance stays with the project lead.
+
+Return AWAITING_REVIEW with corrected finding proof, correlation evidence/limits,
+executed checks, commits/direct remote SHA, cleanup and exact continuation.

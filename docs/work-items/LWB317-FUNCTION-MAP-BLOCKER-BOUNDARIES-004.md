@@ -1,6 +1,8 @@
 # LWB317-FUNCTION-MAP-BLOCKER-BOUNDARIES-004
 
-Status: **AWAITING_REVIEW**
+Status: **ACCEPTED — OFFLINE BOUNDARY AUDIT**
+Lead review: `docs/reviews/2026-10-07-LWB317-FUNCTION-MAP-BLOCKER-BOUNDARIES-004-LEAD.md`.
+Acceptance covers partial/unknown findings as classified; no provider/live upgrade.
 Date: 2026-10-07
 Branch: `research/offline-controller`.
 Reviewed product baseline: `fb70f281bada971e55b9d0643d6b22cd1f8e7b4a`.

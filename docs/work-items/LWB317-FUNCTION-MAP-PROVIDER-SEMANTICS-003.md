@@ -1,6 +1,9 @@
 # LWB317-FUNCTION-MAP-PROVIDER-SEMANTICS-003
 
-Status: **AWAITING_REVIEW**
+Status: **CHANGES_REQUIRED — LR-GHOST-EXPIRY-005**
+Lead disposition, 2026-10-07: preserve the credited semantic tools and Ghost safety
+guard; correct the independently reproduced internal expiry mismatch through
+`LWB317-FUNCTION-MAP-EXPIRY-CORRELATION-005`. Public provider gaps remain separate.
 Date: 2026-10-07
 Owner: one solo worker; project lead reviews final delivery.
 Branch: `research/offline-controller`.
