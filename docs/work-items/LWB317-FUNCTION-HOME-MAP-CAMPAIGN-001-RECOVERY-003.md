@@ -1,6 +1,6 @@
 # LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001-RECOVERY-003
 
-Status: **AWAITING_REVIEW**, worker delivery 2026-10-07. RECOVERY-002 lead review remains historical authority until a new lead disposition.
+Status: **ACCEPTED for assigned offline/inert scope**, lead review 2026-10-07 at worker delivery 88591df0. See the dated RECOVERY-003-LEAD review. Worker delivery and historical findings below remain preserved. Live/native parity is not accepted.
 Complete only five independently reviewed edge-case corrections and their inverse
 proofs. Keep the substantial completed Home/Map work. Three medium checkpoints;
 continue ready assigned work without stopping after an inventory.

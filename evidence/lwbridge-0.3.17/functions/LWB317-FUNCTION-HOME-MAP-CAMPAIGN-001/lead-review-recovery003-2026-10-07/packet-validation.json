@@ -1,0 +1,29 @@
+{
+  "workerCommit": "88591df03cd92f1d28b710a0d107a096266fd360",
+  "proofCommit": "d90f764aa2a721e6bf26952a81fb1a6161bec0d4",
+  "packets": [
+    {
+      "stem": "package-en-light-attempt5",
+      "language": "en",
+      "theme": "light",
+      "width": 1120,
+      "height": 720,
+      "sha256": "c73daf42d1bc5611b0ef782e08a8d31525a98cf5631b1320bb60f55f4bf1f933"
+    },
+    {
+      "stem": "package-ja-dark-narrow-attempt1",
+      "language": "ja",
+      "theme": "dark",
+      "width": 900,
+      "height": 720,
+      "sha256": "4bc545f8696b34779788472bb13d8680e910a08623b08265d220d5433dc54191"
+    }
+  ],
+  "screenshots": 6,
+  "status": "PASS",
+  "limits": [
+    "Packet validation and current artifact identity, not a new UI run.",
+    "PNG headers are checked here; all six images were separately decoded with Pillow.",
+    "No real game, Lua/xLua host, provider-positive or protected-service execution is established."
+  ]
+}

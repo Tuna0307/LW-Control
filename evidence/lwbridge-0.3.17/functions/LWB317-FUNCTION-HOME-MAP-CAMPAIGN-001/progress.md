@@ -1,3 +1,5 @@
+Lead disposition, 2026-10-07: **RECOVERY-003 ACCEPTED for R3-01 through R3-05 in the assigned offline/inert scope**, reviewed worker delivery 88591df0. Fresh handler inverses (14/62), native ownership/Stop checks, canonical frontend/package, corrected packet/artifact/cleanup validation and a read-only second look pass. Source/local UIUX remains accepted; Home/Map feature parity remains PARTIAL and no live/provider status is upgraded. Next prepared owner-relayed assignment: docs/work-items/LWB317-FUNCTION-HOME-MAP-LIVE-PILOT-001.md. Real xLua binding/lease readiness is its first live gate. See the dated RECOVERY-003-LEAD review. Historical worker/lead statuses below remain preserved.
+
 # Home/Map feature campaign progress
 
 RECOVERY-003 worker delivery, 2026-10-07: **AWAITING_REVIEW** at `d90f764aa2a721e6bf26952a81fb1a6161bec0d4`.
