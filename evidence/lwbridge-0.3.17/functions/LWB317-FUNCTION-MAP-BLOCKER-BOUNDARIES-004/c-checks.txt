@@ -1,0 +1,35 @@
+﻿=== BLOCKER BOUNDARY FINAL CHECKS ===
+CMD: python tools\lwbridge317\audit_map_blocker_boundaries.py --checkpoint A
+EXIT=0
+CMD: python tools\lwbridge317\audit_map_blocker_boundaries.py --checkpoint B
+EXIT=0
+CMD: python tools\lwbridge317\audit_map_blocker_boundaries.py --checkpoint C
+EXIT=0
+CMD: python tools\lwbridge317\inspect_map_provider_semantics.py --output evidence\lwbridge-0.3.17\functions\LWB317-FUNCTION-MAP-BLOCKER-BOUNDARIES-004\c-current-provider-semantics.json
+EXIT=0
+CMD: C:\Users\chimw\.codex\tmp\lwb317-recovery003-lua\Scripts\python.exe tests\map_blocker_boundaries_lua_checks.py
+lupa=2.8 lua=Lua 5.3
+....
+----------------------------------------------------------------------
+Ran 4 tests in 0.161s
+System.Management.Automation.RemoteException
+OK
+EXIT=0
+CMD: C:\Users\chimw\.codex\tmp\lwb317-recovery003-lua\Scripts\python.exe tests\map_provider_decoded_body_oracles.py
+....
+----------------------------------------------------------------------
+Ran 4 tests in 0.167s
+System.Management.Automation.RemoteException
+OK
+lupa=2.8
+EXIT=0
+CMD: C:\Users\chimw\.codex\tmp\lwb317-recovery003-lua\Scripts\python.exe tests\map_provider_semantics_lua_checks.py
+...
+----------------------------------------------------------------------
+Ran 3 tests in 0.024s
+System.Management.Automation.RemoteException
+OK
+lupa=2.8 lua=Lua 5.3
+EXIT=0
+NOTE: c-current-provider-semantics.json was temporary validator output and was discarded after the successful semantic-inspector run; the PASS/exit code above is retained.
+TOOLING_NEGATIVE: the first final-gate rerun wrote c-gates.txt while git diff --check tried to hash it, causing a local Permission denied/exit 128. No product/runtime state changed; the gate was rerun via %TEMP%.

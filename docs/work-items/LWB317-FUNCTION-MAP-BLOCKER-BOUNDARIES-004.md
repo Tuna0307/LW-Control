@@ -1,6 +1,6 @@
 # LWB317-FUNCTION-MAP-BLOCKER-BOUNDARIES-004
 
-Status: **ASSIGNED FOR OWNER RELAY**
+Status: **AWAITING_REVIEW**
 Date: 2026-10-07
 Branch: `research/offline-controller`.
 Reviewed product baseline: `fb70f281bada971e55b9d0643d6b22cd1f8e7b4a`.

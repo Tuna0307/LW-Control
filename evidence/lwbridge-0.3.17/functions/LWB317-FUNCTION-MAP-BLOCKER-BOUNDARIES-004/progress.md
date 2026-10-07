@@ -22,3 +22,9 @@ semantics because current TaskInfo initializes expiry to 0 and exact host permit
 0/non-positive expiry.
 
 Checkpoint C is active.
+
+## C — complete
+
+BT-03 is PARTIAL/UNKNOWN. The actual decoded direct Ghost success path does not consume UUID, but distinguishing execution proves arbitrary raw fields survive unchanged when present and are not synthesized when absent. Separate push handling consumes serverId/pointId/playerInfo. Lua SFS dispatch is command -> GetMsgType with fresh receive instances and no Lua pending queue. Managed NetworkManager owns a FutureManager with future IDs and pending msgSendInfo state; modified current-RDL CIL tokens prevent promotion of that mechanism to an end-to-end Ghost terminal identity.
+
+All requested checks are green. Status is AWAITING_REVIEW. No product/provider behavior was enabled or changed.

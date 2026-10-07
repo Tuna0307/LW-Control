@@ -16,6 +16,9 @@ FRONTEND_INDEX_SHA256 = "44c4e4043825b7db296b64171951b27176f8850ff8d7d337cc991df
 MAP_PANEL = ROOT / "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js"
 MAP_PANEL_SHA256 = "ce74345518be72e417a510b982c591729e5683f69751e190805598c4c05d3089"
 HANDLER_DISCOVERY = ROOT / "evidence/lwbridge-0.3.17/map/action-handler-discovery.json"
+CURRENT_PACKAGE_SHA256 = "248f3aeac712b3f14f86bff37a0c365e467897a2248403837c44c1b774f05b22"
+ASSEMBLY_RDL = Path(r"C:\Users\chimw\AppData\Local\FunFly\Last War-Survival Game\Game\LastWar_Data\Assemblies\Assembly-CSharp.rdl")
+ASSEMBLY_RDL_SHA256 = "bfb740b4570c58bd2bcc7fb83f9b83d8121ce10fb1bf49040e9fb8b08e958b3e"
 BT = chr(96)
 
 def sha256(path: Path) -> str:
@@ -322,12 +325,252 @@ def checkpoint_b() -> dict[str, Any]:
         ),
     }
 
+
+def checkpoint_c() -> dict[str, Any]:
+    import importlib.util
+    import sys
+
+    require(ASSEMBLY_RDL.is_file(), f"current RDL missing: {ASSEMBLY_RDL}")
+    require(sha256(ASSEMBLY_RDL) == ASSEMBLY_RDL_SHA256, "current Assembly-CSharp.rdl hash changed")
+
+    sys.path.insert(0, str(ROOT / "tools"))
+    import run_live_resource_probe as probe  # type: ignore
+
+    sem_spec = importlib.util.spec_from_file_location(
+        "boundary_semantics_c", ROOT / "tools/lwbridge317/inspect_map_provider_semantics.py"
+    )
+    if sem_spec is None or sem_spec.loader is None:
+        raise RuntimeError("unable to load semantic inspector")
+    sem = importlib.util.module_from_spec(sem_spec)
+    sys.modules[sem_spec.name] = sem
+    sem_spec.loader.exec_module(sem)
+
+    entry_map, package = sem.load_package(Path(probe.paths()["data"]))
+    require(package["sha256"] == CURRENT_PACKAGE_SHA256, "current v22 package hash changed")
+
+    def methods(entry: str):
+        root = sem._dispatch.parse_chunk(probe.decode_lenc(entry_map[entry]))
+        return sem.root_methods(root)
+
+    direct_handle = methods("Net/Msgs/Ghostrecon/GhostReconStealMessage.luac")["HandleMessage"]
+    direct_strings = {x for x in direct_handle["constants"] if isinstance(x, str)}
+    require({"errorCode", "GhostReconStealHandler"} <= direct_strings,
+            "direct Ghost handler contract moved")
+    require("uuid" not in direct_strings and "ownerServer" not in direct_strings,
+            "direct Ghost handler began statically consuming request identity")
+
+    ghost_manager = methods(
+        "DataCenter/ActivityListData/ActGhostrecon/ActGhostreconManager.luac"
+    )["GhostReconStealHandler"]
+    manager_strings = {x for x in ghost_manager["constants"] if isinstance(x, str)}
+    require({"stealTimes", "reward"} <= manager_strings,
+            "Ghost manager success fields moved")
+    require(not ({"uuid", "ownerServer", "pointId"} & manager_strings),
+            "Ghost manager began statically consuming terminal identity")
+
+    push = methods("Net/Msgs/Ghostrecon/PushGhostReconStealMessage.luac")["HandleMessage"]
+    push_strings = {x for x in push["constants"] if isinstance(x, str)}
+    require("PushHeroDispatchMissionStealHandler" in push_strings,
+            "Ghost push routing moved")
+    push_manager = methods(
+        "DataCenter/ActivityListData/ActDispatchTaskDataManager.luac"
+    )["PushHeroDispatchMissionStealHandler"]
+    push_manager_strings = {x for x in push_manager["constants"] if isinstance(x, str)}
+    require({"serverId", "pointId", "playerInfo"} <= push_manager_strings,
+            "Ghost push location identity fields moved")
+    require("uuid" not in push_manager_strings,
+            "Ghost push manager began statically consuming task UUID")
+
+    network = methods("Net/SFSNetwork.luac")
+    send_method = network["SendMessage"]
+    send_strings = {x for x in send_method["constants"] if isinstance(x, str)}
+    require({"NewMessage", "ToBinary", "SendLuaMessage"} <= send_strings,
+            "SFS send path moved")
+    require(send_method["upvalueNames"][:2] == ["GetMsgType", "Network"],
+            "SFS send GetMsgType/Network upvalues moved")
+    incoming = network["HandleMessage"]
+    require(incoming["upvalueNames"] and incoming["upvalueNames"][0] == "GetMsgType",
+            "SFS receive GetMsgType upvalue moved")
+    require(len(incoming["children"]) == 1, "SFS incoming closure shape changed")
+    incoming_strings = {x for x in incoming["children"][0]["constants"] if isinstance(x, str)}
+    require({"NewEmpty", "HandleMessage"} <= incoming_strings,
+            "SFS fresh incoming message path moved")
+
+    relevant_entries = [
+        "Net/SFSNetwork.luac",
+        "Net/Msgs/Ghostrecon/GhostReconStealMessage.luac",
+        "Net/Msgs/Ghostrecon/PushGhostReconStealMessage.luac",
+        "DataCenter/ActivityListData/ActGhostrecon/ActGhostreconManager.luac",
+        "DataCenter/ActivityListData/ActDispatchTaskDataManager.luac",
+    ]
+    require(
+        all(b"getFutureManager" not in probe.decode_lenc(entry_map[name]) for name in relevant_entries),
+        "Ghost/SFS Lua path began using managed FutureManager directly",
+    )
+
+    defines = probe.decode_lenc(entry_map["Net/Config/MsgDefines.luac"])
+    require(b"ghost.recon.steal" in defines and b"push.ghost.recon.steal" in defines,
+            "Ghost direct/push command names moved")
+
+    rdl_spec = importlib.util.spec_from_file_location(
+        "boundary_rdl_c", ROOT / "tools/inspect_lastwar_rdl_metadata.py"
+    )
+    if rdl_spec is None or rdl_spec.loader is None:
+        raise RuntimeError("unable to load RDL inspector")
+    rdl = importlib.util.module_from_spec(rdl_spec)
+    sys.modules[rdl_spec.name] = rdl
+    rdl_spec.loader.exec_module(rdl)
+    image = rdl.MetadataImage.load(ASSEMBLY_RDL)
+    method_owners, _ = image.owner_maps()
+
+    def find_method(owner: str, name: str, arg_fragment: str | None = None):
+        matches = []
+        for index, row in enumerate(image.tables.MethodDef.rows, 1):
+            if method_owners.get(index) != owner or str(row.Name) != name:
+                continue
+            ret, args = image.decode_method_signature(bytes(row.Signature.value))
+            rendered = ",".join(args)
+            if arg_fragment is None or arg_fragment in rendered:
+                matches.append((index, row, ret, args))
+        require(len(matches) == 1, f"expected one method {owner}::{name} {arg_fragment}: {len(matches)}")
+        return matches[0]
+
+    _, send_lua_row, send_ret, send_args = find_method(
+        "NetworkManager", "SendLuaMessage", "string,uint8[]"
+    )
+    require(send_ret == "void" and send_args == ["string", "uint8[]"],
+            "NetworkManager.SendLuaMessage signature changed")
+    _, _, _, ext_args = find_method(
+        "NetworkManager", "OnExtensionResponse", "string,Sfs2X.Entities.Data.SFSObject"
+    )
+    require(ext_args == ["string", "Sfs2X.Entities.Data.SFSObject"],
+            "NetworkManager extension response signature changed")
+
+    network_types = [
+        (idx, row, full)
+        for idx, row, full in rdl._matching_types(image, "NetworkManager")
+        if full == "NetworkManager"
+    ]
+    require(len(network_types) == 1, "NetworkManager type changed")
+    _, network_row, _ = network_types[0]
+    network_fields = {str(ref.row.Name) for ref in network_row.FieldList}
+    require("_futureManager" in network_fields, "NetworkManager FutureManager field moved")
+
+    future_types = [
+        (idx, row, full)
+        for idx, row, full in rdl._matching_types(image, "Main.Scripts.Network.FutureManager")
+        if full == "Main.Scripts.Network.FutureManager"
+    ]
+    require(len(future_types) == 1, "FutureManager type changed")
+    _, future_row, _ = future_types[0]
+    future_fields = {str(ref.row.Name) for ref in future_row.FieldList}
+    future_methods = {str(ref.row.Name) for ref in future_row.MethodList}
+    require({"_sendInfos", "_futureId"} <= future_fields,
+            "FutureManager pending telemetry fields moved")
+    require({"getFutureId", "onSendRequest", "onServerMsgCome"} <= future_methods,
+            "FutureManager correlation methods moved")
+
+    msg_types = [
+        (idx, row, full)
+        for idx, row, full in rdl._matching_types(image, "Main.Scripts.Network.msgSendInfo")
+        if full == "Main.Scripts.Network.msgSendInfo"
+    ]
+    require(len(msg_types) == 1, "msgSendInfo type changed")
+    _, msg_row, _ = msg_types[0]
+    msg_fields = {str(ref.row.Name) for ref in msg_row.FieldList}
+    require({"_futureId", "_msgId", "_sendTime"} <= msg_fields,
+            "msgSendInfo telemetry payload changed")
+
+    raw_rdl = ASSEMBLY_RDL.read_bytes()
+    require(raw_rdl.count(b"fuid") == 1, "RDL ASCII fuid evidence changed")
+    require(raw_rdl.count("fuid".encode("utf-16le")) == 1,
+            "RDL user-string fuid evidence changed")
+
+    send_il = image.disassemble(send_lua_row)
+    future_receive = find_method(
+        "Main.Scripts.Network.FutureManager", "onServerMsgCome", "int32,int32"
+    )[1]
+    receive_il = image.disassemble(future_receive)
+
+    overview = (ROOT / "tools/current_overview_bridge.lua").read_text(encoding="utf-8")
+    guard_at = overview.index('if request.taskKind == "ghost" then')
+    dispatch_send_at = overview.index('safe_get(msg_defines, "DispatchSteal")', guard_at)
+    require(guard_at < dispatch_send_at, "Ghost safety guard no longer precedes Dispatch send")
+
+    provider = (ROOT / "src/LWBridge.Desktop/CurrentClientMap317ActionProvider.cs").read_text(
+        encoding="utf-8"
+    )
+    require("current-client Ghost plunder preparation remains unavailable" in provider,
+            "Ghost public preparation fence removed")
+
+    return {
+        "ok": True,
+        "checkpoint": "C",
+        "currentPackageSha256": CURRENT_PACKAGE_SHA256,
+        "assemblyRdlSha256": ASSEMBLY_RDL_SHA256,
+        "directResponse": {
+            "staticallyConsumedByMessageHandler": sorted(direct_strings),
+            "staticallyConsumedByManager": sorted(manager_strings),
+            "uuidConsumed": False,
+            "ownerServerConsumed": False,
+            "rawSchemaDefinesUuid": "UNKNOWN",
+            "extraFieldsSurviveLuaHandler": "PROVEN_BY_DISTINGUISHING_ORACLE",
+        },
+        "pushResponse": {
+            "distinctCommand": "push.ghost.recon.steal",
+            "consumedLocationIdentity": ["serverId", "pointId", "playerInfo"],
+            "taskUuidConsumed": False,
+            "equivalenceToDirectTerminalAck": "UNKNOWN_NOT_PROVEN",
+        },
+        "luaTransport": {
+            "directCommand": "ghost.recon.steal",
+            "dispatchKey": "cmd -> GetMsgType(cmd)",
+            "incomingCreatesFreshMessageInstance": True,
+            "pathSpecificPendingQueue": False,
+            "pathSpecificFutureManagerCall": False,
+            "strictSingleFlightOrOrderingGuarantee": "UNKNOWN_NOT_PROVEN",
+        },
+        "managedTransport": {
+            "sendSignature": "void SendLuaMessage(string msgId, byte[] sfsObjBinary)",
+            "receiveSignature": "void OnExtensionResponse(string cmd, SFSObject so)",
+            "futureManager": {
+                "networkManagerOwnsFutureManager": True,
+                "fields": sorted(future_fields),
+                "methods": sorted(future_methods),
+                "msgSendInfoFields": sorted(msg_fields),
+                "fuidLiteralPinnedInRdl": True,
+                "sendMethodIl": send_il,
+                "onServerMsgComeIl": receive_il,
+                "classification": (
+                    "SOURCE_PROVEN_MANAGED_FUTURE/PENDING_MECHANISM; modified CIL tokens "
+                    "prevent promoting an end-to-end Ghost application correlation contract"
+                ),
+            },
+            "futureIdExposedToLuaRawResponse": "UNKNOWN",
+            "ghostDirectPathUsesFutureIdForTerminalResult": "UNKNOWN_NOT_PROVEN",
+        },
+        "disposition": {
+            "handlerDoesNotReadUuidImpliesSchemaHasNoUuid": False,
+            "correlationImpossible": False,
+            "safeApplicationCorrelationRecovered": False,
+            "state": "PARTIAL_UNKNOWN",
+            "firstMissingEdge": (
+                "server/managed raw direct Ghost response -> Lua response table identity exposure "
+                "(uuid/fuid/point/task key), plus ordering/single-flight semantics usable by bridge"
+            ),
+        },
+        "fences": {
+            "publicProviderFencesPreserved": True,
+            "scheduledGhostSafetyGuardPreserved": True,
+        },
+    }
+
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--checkpoint", choices=["A", "B"], default="A")
+    parser.add_argument("--checkpoint", choices=["A", "B", "C"], default="A")
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
-    result = checkpoint_a() if args.checkpoint == "A" else checkpoint_b()
+    result = {"A": checkpoint_a, "B": checkpoint_b, "C": checkpoint_c}[args.checkpoint]()
     encoded = json.dumps(result, indent=2, ensure_ascii=False) + "\n"
     if args.output:
         args.output.parent.mkdir(parents=True, exist_ok=True)

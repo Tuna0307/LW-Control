@@ -1,0 +1,25 @@
+﻿=== FINAL INTEGRITY GATES ===
+CMD: JSON parse task evidence
+JSON_OK 5
+CMD: git diff --check
+warning: in the working copy of 'evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-MAP-BLOCKER-BOUNDARIES-004/c-checks.txt', LF will be replaced by CRLF the next time Git touches it
+EXIT=0
+CMD: production/historical quiet gate since assignment checkpoint
+QUIET_EXIT=0
+CMD: current staged/untracked paths
+A  docs/reviews/2026-10-07-LWB317-FUNCTION-MAP-BLOCKER-BOUNDARIES-004-WORKER.md
+M  docs/work-items/LWB317-FUNCTION-MAP-BLOCKER-BOUNDARIES-004.md
+A  evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-MAP-BLOCKER-BOUNDARIES-004/blocker-boundary-matrix.json
+A  evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-MAP-BLOCKER-BOUNDARIES-004/blocker-boundary-matrix.md
+AM evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-MAP-BLOCKER-BOUNDARIES-004/c-checks.txt
+A  evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-MAP-BLOCKER-BOUNDARIES-004/c-correlation-audit.json
+AM evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-MAP-BLOCKER-BOUNDARIES-004/c-gates.txt
+A  evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-MAP-BLOCKER-BOUNDARIES-004/c-ghost-response-correlation.md
+A  evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-MAP-BLOCKER-BOUNDARIES-004/c-managed-network-bodies.txt
+M  evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-MAP-BLOCKER-BOUNDARIES-004/continuation.md
+M  evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-MAP-BLOCKER-BOUNDARIES-004/progress.md
+M  evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-MAP-BLOCKER-BOUNDARIES-004/queue.json
+A  tests/map_blocker_boundaries_lua_checks.py
+M  tools/lwbridge317/audit_map_blocker_boundaries.py
+CMD: owner/game process gate
+PROCESS_COUNT=0

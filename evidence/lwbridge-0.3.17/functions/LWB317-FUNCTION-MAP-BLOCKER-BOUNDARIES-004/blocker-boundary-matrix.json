@@ -1,0 +1,151 @@
+{
+  "schema": 1,
+  "workItem": "LWB317-FUNCTION-MAP-BLOCKER-BOUNDARIES-004",
+  "status": "AWAITING_REVIEW",
+  "baseline": "8ee3b83f4812d017f813b6ac5fe6a4f12aec7332",
+  "rows": [
+    {
+      "id": "BT-01-IDLE-STATUS",
+      "stage": "Treasure idle status snapshot",
+      "originalObservableContract": "Selected-profile status call with no feature payload; Treasure entry consumes playerUid, allianceId, states before any claim; states merge by uuid.",
+      "currentOperation": "Current provider remains unavailable; current source has lower-level per-target Treasure info primitives only.",
+      "missingObservableSemantics": "Exact high-level provider acquisition/cache source for idle states and refresh policy.",
+      "bridgeOwnedAdaptation": "Profile ownership/generation fencing and DTO/cache shell may be modeled offline; no per-target transport invented.",
+      "downstreamCapabilityRestriction": "None from claim execution is required merely to represent/read an idle snapshot.",
+      "terminalResultCorrelation": "Not applicable to idle snapshot.",
+      "offlineProof": [
+        "a-status-audit.json",
+        "a-treasure-status-ownership.md"
+      ],
+      "futureLiveWitness": "Optional only for provider acquisition/cache freshness; static high-level provider body would also settle.",
+      "disposition": "PARTIAL_READY"
+    },
+    {
+      "id": "BT-01-ACTIVE-BATCH",
+      "stage": "Treasure active claim batch/status ownership",
+      "originalObservableContract": "Polling starts only after claim result queued>0; 1s interval, <=1800 iterations; returned states merge each poll; missing batch or batch.state=running continues; present non-running batch stops.",
+      "currentOperation": "High-level claim/status provider remains fenced.",
+      "missingObservableSemantics": "Provider controller/cache storage, full batch fields/counter transitions, terminal vocabulary, reset/reconnect/profile-change lifecycle.",
+      "bridgeOwnedAdaptation": "Profile-scoped batch owner/cancellation generation can be fail-closed in an offline controller shell.",
+      "downstreamCapabilityRestriction": "Real claim execution remains unavailable independently.",
+      "terminalResultCorrelation": "Batch terminal state is provider-owned status output; exact transport correlation to underlying per-target claims remains unrecovered.",
+      "offlineProof": [
+        "a-status-audit.json",
+        "a-treasure-status-ownership.md"
+      ],
+      "futureLiveWitness": "Idle -> running -> terminal/reset plus profile-switch case, or protected high-level status/claim controller source.",
+      "disposition": "PARTIAL_BLOCKED_ON_PROVIDER_CONTROLLER"
+    },
+    {
+      "id": "BT-02-GHOST-PREPARE",
+      "stage": "Ghost schedule preparation",
+      "originalObservableContract": "Host validates rows, calls prepareGhostPlunderTasks (5s), requires rows, matches by uuid, re-normalizes, then persists ghost:<uuid>.",
+      "currentOperation": "Current source row already has uuid, ownerServer, completionTime, taskExpireTime, stealList count; template has protectTime/stealMaxtimes; existing helper can derive plunderAt/counters.",
+      "missingObservableSemantics": "Exact protected preparer returned-row transformation/hydration/rejection semantics beyond host-visible postconditions.",
+      "bridgeOwnedAdaptation": "plunderAt=completionTime+protectTime*1000; stolenCount=stealListCount; maxStealCount=stealMaxTimes; alias consistency guard.",
+      "downstreamCapabilityRestriction": "Terminal Ghost steal execution/correlation is unavailable, but that is later than preparation.",
+      "terminalResultCorrelation": "Not required to prepare/persist a row.",
+      "offlineProof": [
+        "b-preparation-audit.json",
+        "b-current-ghost-field-bodies.txt",
+        "b-ghost-preparation-boundary.md"
+      ],
+      "futureLiveWitness": "Not required to split capability. Needed only if exact preparer transformation must be proven dynamically; static preparer source would suffice.",
+      "disposition": "PARTIAL_READY_CAPABILITY_SPLIT"
+    },
+    {
+      "id": "BT-02-GHOST-EXPIRY",
+      "stage": "Ghost prepared-row expiry validation",
+      "originalObservableContract": "taskExpireTime may be <=0; when positive it must be > plunderAt.",
+      "currentOperation": "Current TaskInfo initializes taskExpireTime=0 and ParseData copies source value.",
+      "missingObservableSemantics": "No missing observable semantic for zero allowance; exact preparer may still add/alter expiry in some cases.",
+      "bridgeOwnedAdaptation": "Existing helper's unconditional >0 rule is conservative and not exact; follow-up may relax to exact host/current-domain rule.",
+      "downstreamCapabilityRestriction": "None.",
+      "terminalResultCorrelation": "None.",
+      "offlineProof": [
+        "b-preparation-audit.json",
+        "b-current-ghost-field-bodies.txt"
+      ],
+      "futureLiveWitness": "Not needed for zero-allowed correction.",
+      "disposition": "OFFLINE_READY"
+    },
+    {
+      "id": "BT-03-DIRECT-HANDLER",
+      "stage": "Ghost direct terminal response Lua handler",
+      "originalObservableContract": "Current handler consumes errorCode and forwards same raw success table; manager consumes stealTimes/reward.",
+      "currentOperation": "No UUID/ownerServer/pointId read on direct success path.",
+      "missingObservableSemantics": "Complete raw server/direct response schema and stable terminal identity field.",
+      "bridgeOwnedAdaptation": "None may invent identity. A fail-closed adapter can preserve explicit identity if later source proves it.",
+      "downstreamCapabilityRestriction": "Scheduled Ghost execution remains fenced until safe correlation exists.",
+      "terminalResultCorrelation": "UNKNOWN; non-consumption is not schema absence.",
+      "offlineProof": [
+        "c-correlation-audit.json",
+        "tests/map_blocker_boundaries_lua_checks.py",
+        "c-ghost-response-correlation.md"
+      ],
+      "futureLiveWitness": "Raw direct response identity/ordering, unless settled by static protobuf/managed receive source.",
+      "disposition": "PARTIAL_UNKNOWN"
+    },
+    {
+      "id": "BT-03-PUSH",
+      "stage": "Ghost push response",
+      "originalObservableContract": "Distinct push command; current push consumer reads serverId, pointId, playerInfo.",
+      "currentOperation": "Push carries location identity but consumer does not read task uuid.",
+      "missingObservableSemantics": "Whether push is paired with direct Ghost steal, uniqueness of serverId+pointId for durable task, ordering/duplicate behavior.",
+      "bridgeOwnedAdaptation": "No safe pairing invented.",
+      "downstreamCapabilityRestriction": "Cannot use push as terminal completion yet.",
+      "terminalResultCorrelation": "Location identity exists; durable task correlation not established.",
+      "offlineProof": [
+        "c-correlation-audit.json",
+        "tests/map_blocker_boundaries_lua_checks.py"
+      ],
+      "futureLiveWitness": "Static pairing/sequence source or future owner-authorized direct+push trace.",
+      "disposition": "PARTIAL_UNKNOWN"
+    },
+    {
+      "id": "BT-03-FUTURE",
+      "stage": "Managed FutureManager transport",
+      "originalObservableContract": "NetworkManager owns FutureManager; FutureManager tracks futureId -> msgSendInfo and has send/receive timing methods; unique fuid literal present.",
+      "currentOperation": "Lua Ghost/SFS bodies do not directly call FutureManager; managed CIL tokens are modified and not fully name-resolved by current parser.",
+      "missingObservableSemantics": "Whether this fuid is injected into and surfaced from the Ghost direct raw response; whether it is unique/available to bridge result handling.",
+      "bridgeOwnedAdaptation": "Correlation adapter may accept explicit fuid later, but cannot synthesize it.",
+      "downstreamCapabilityRestriction": "Real Ghost execution remains unavailable until identity reaches the application result boundary.",
+      "terminalResultCorrelation": "Managed pending mechanism exists; end-to-end Ghost application correlation remains UNKNOWN.",
+      "offlineProof": [
+        "c-correlation-audit.json",
+        "c-managed-network-bodies.txt"
+      ],
+      "futureLiveWitness": "Not necessarily live: a resolvable managed receive/protobuf source can settle. Otherwise future owner-authorized raw response witness.",
+      "disposition": "PARTIAL_UNKNOWN"
+    }
+  ],
+  "readyImplementationCandidates": [
+    {
+      "id": "READY-01",
+      "candidate": "Treasure status/controller shell",
+      "scope": "Implement/test profile-scoped idle status DTO plus optional batch polling owner/generation retirement with injected inert provider snapshots. Do not implement real claim/status acquisition or invent batch counters."
+    },
+    {
+      "id": "READY-02",
+      "candidate": "Ghost preparation/execution capability split",
+      "scope": "Separate preparation capability from arm/result capability; evaluate existing one-to-one current-v22 normalizer as preparation-only adaptation. Keep public action/worker execution fences."
+    },
+    {
+      "id": "READY-03",
+      "candidate": "Ghost expiry contract correction",
+      "scope": "Relax preparation helper's unconditional positive taskExpireTime rule to allow zero/non-positive and require positive expiry > plunderAt, preserving positive ownerServer/timing/capacity guards."
+    },
+    {
+      "id": "READY-04",
+      "candidate": "Fail-closed terminal correlation abstraction",
+      "scope": "Add inert correlation state/tests accepting only explicit uuid/fuid/point identity and rejecting absent, duplicate, ambiguous or mismatched results. Do not connect to real Ghost send/receive."
+    }
+  ],
+  "preservedFences": {
+    "providerFences": true,
+    "ghostSafetyGuard": true,
+    "liveSharedDesktop": "ON_HOLD_BY_OWNER",
+    "historicalEvidenceRewritten": false,
+    "globalAcceptanceUpgraded": false
+  }
+}

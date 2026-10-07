@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "workItem": "LWB317-FUNCTION-MAP-BLOCKER-BOUNDARIES-004",
-  "status": "IN_PROGRESS",
+  "status": "AWAITING_REVIEW",
   "assignmentCheckpoint": "8ee3b83f4812d017f813b6ac5fe6a4f12aec7332",
   "productChangesAllowed": false,
   "liveSharedDesktop": "ON_HOLD_BY_OWNER",
@@ -18,11 +18,10 @@
     },
     {
       "id": "C",
-      "state": "ACTIVE"
+      "state": "COMPLETE",
+      "disposition": "BT-03 PARTIAL/UNKNOWN; impossibility rationale rejected, safe correlation not recovered"
     }
   ],
-  "productionFencesPreserved": true,
-  "ghostSafetyGuardPreserved": true,
   "checkpointB": {
     "publicPreparationFencePreserved": true,
     "terminalExecutionGuardPreserved": true,
@@ -32,5 +31,27 @@
       "plunderAtAlias": "SOURCE_BACKED_BRIDGE_ADAPTATION",
       "stealCountAliases": "SOURCE_BACKED_BRIDGE_ADAPTATION"
     }
-  }
+  },
+  "finalDispositions": {
+    "BT-01": "PARTIAL — no-UUID rationale rejected; provider controller lifecycle remains missing",
+    "BT-02": "VALID SEPARATION — preparation independent from downstream terminal execution",
+    "BT-03": "PARTIAL/UNKNOWN — response identity may exist; safe durable-job correlation not recovered"
+  },
+  "readyImplementationCandidates": [
+    "Treasure status/controller shell with inert snapshots only",
+    "Ghost preparation/execution capability split",
+    "Ghost expiry contract correction allowing zero/non-positive expiry",
+    "Fail-closed explicit terminal-correlation abstraction"
+  ],
+  "checks": {
+    "auditA": "PASS",
+    "auditB": "PASS",
+    "auditC": "PASS",
+    "currentSemanticInspector": "PASS",
+    "blockerLua": "4/4 PASS",
+    "decodedBodyOracles": "4/4 PASS",
+    "semanticLua": "3/3 PASS"
+  },
+  "productionFencesPreserved": true,
+  "ghostSafetyGuardPreserved": true
 }
