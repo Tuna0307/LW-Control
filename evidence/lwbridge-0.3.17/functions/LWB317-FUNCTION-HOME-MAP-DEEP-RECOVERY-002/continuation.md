@@ -1,12 +1,12 @@
 # Continuation — LWB317-FUNCTION-HOME-MAP-DEEP-RECOVERY-002
 
-Current milestone: **B**. A is complete and ready to commit/push.
+Current milestone: **C**. A and B are complete.
 
-1. Commit/push A provenance checkpoint and verify direct remote SHA.
-2. Build exact 0.3.17 eight-kind backend matrix from hash-gated evidence.
-3. Compare current Map317 projection/ingestion; record demonstrated discrepancies only.
-4. Continue C current-v22 producer mapping, then D/E/F/G/H automatically.
+1. Commit/push B and verify direct remote SHA.
+2. Finish current-v22 producer/model/module mapping and projection comparison.
+3. Complete bounded D lower-level Treasure/Ghost recovery; implement only if a
+   complete source-backed adapter contract emerges.
+4. Reconcile E/F using already-executed inert checks, then G adversarial integration
+   and H full verification/docs/cleanup.
 
-D's three protected action branches are blocker candidates, not final blockers:
-whole-package/RDL high-level name recovery was negative, while lower-level primitives
-exist and require bounded deeper inspection. Live/shared-desktop work remains held.
+Live/shared-desktop work remains ON_HOLD_BY_OWNER.

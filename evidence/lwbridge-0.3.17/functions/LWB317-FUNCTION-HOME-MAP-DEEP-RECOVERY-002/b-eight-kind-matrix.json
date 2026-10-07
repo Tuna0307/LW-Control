@@ -1,0 +1,103 @@
+{
+  "schema": 1,
+  "workItem": "LWB317-FUNCTION-HOME-MAP-DEEP-RECOVERY-002",
+  "milestone": "B",
+  "referenceSha256": "4e9c3113dedfd7e1a752404c6936aab304e67d7ffdb0952a5003c2ec948d6783",
+  "exactHost": {
+    "publicKinds": [
+      "city",
+      "resource",
+      "monster",
+      "truck",
+      "railway",
+      "dispatch",
+      "ghost",
+      "treasure"
+    ],
+    "recordEnvelope": [
+      "kind",
+      "server_id",
+      "record_key",
+      "point_index",
+      "uuid",
+      "name",
+      "alliance_name",
+      "level",
+      "quality",
+      "power",
+      "distance",
+      "shield_end_time",
+      "updated_at",
+      "data_json"
+    ],
+    "activeQuerySource": "scan_records only for matching positive server + isReading + matching serverId + nonempty scanRunId; otherwise map_records",
+    "successPublication": "transactionally replace selected kind/server published rows from the completed run, mark completed, clear staging, prune other same-server runs",
+    "failurePublication": "mark failed and INSERT OR REPLACE staged rows into map_records without successful delete-before-publish replacement, then clear staging",
+    "cancel": "mark running/paused run cancelled then delete its staging rows",
+    "clear": "refuse while scanning; delete server scan_runs (cascade staging/blocks) and server map_records",
+    "protectedProducer": "startMapScan/native capture boundary exists, but per-kind game-object extraction/serializer internals are not established by the exact host artifact"
+  },
+  "kinds": [
+    {
+      "kind": "city",
+      "exactQuery": "alliance equality; withoutAlliance is SQL NULL/empty; markedOnly through player_marks; stable record_key tie-break",
+      "sparseRule": "missing/null alliance remains no-alliance",
+      "protectedProducer": "UNKNOWN below exact provider boundary"
+    },
+    {
+      "kind": "resource",
+      "exactQuery": "resourceNameKey JSON predicate; resource-name options omit missing/null",
+      "sparseRule": "missing/null resourceNameKey does not match/group",
+      "protectedProducer": "UNKNOWN below exact provider boundary"
+    },
+    {
+      "kind": "monster",
+      "exactQuery": "monsterNameKey JSON predicate; option grouping; recovered forced-ascending distance family",
+      "sparseRule": "missing/null monsterNameKey does not match/group",
+      "protectedProducer": "UNKNOWN below exact provider boundary"
+    },
+    {
+      "kind": "truck",
+      "exactQuery": "currentGoods item predicate; plunderable remainingLootCount fallback max(maxLootCount-robTimes,0); ordinary/special UR rules; quality/loot sorts",
+      "sparseRule": "missing/null remainingLootCount uses recovered fallback; missing/null special indicator is ordinary",
+      "protectedProducer": "UNKNOWN below exact provider boundary"
+    },
+    {
+      "kind": "railway",
+      "exactQuery": "currentGoods item predicate/options; arrive/plunderability and plain-quality sorts",
+      "sparseRule": "missing/null arriveTs remains visible; missing/null currentGoods contributes no reward option",
+      "protectedProducer": "UNKNOWN below exact provider boundary"
+    },
+    {
+      "kind": "dispatch",
+      "exactQuery": "completionStatus; plunderability via completionTime/plunderAt/taskExpireTime/maxStealCount/stolenCount; level and sort families",
+      "sparseRule": "missing/null completionTime is pending; recovered COALESCE rules own optional limits",
+      "protectedProducer": "UNKNOWN below exact provider boundary"
+    },
+    {
+      "kind": "ghost",
+      "exactQuery": "completionStatus plus completionTime/quality sort families; scheduled Ghost passes prepareGhostPlunderTasks before persistence",
+      "sparseRule": "missing/null completionTime is pending",
+      "protectedProducer": "UNKNOWN below exact provider boundary; preparation boundary exact but current implementation addressed in D"
+    },
+    {
+      "kind": "treasure",
+      "exactQuery": "treasureType/suppliesType/radar/viewer/lucky filters and option grouping; claim-state cache separate",
+      "sparseRule": "missing/null type values coalesce to zero for recovered predicates",
+      "protectedProducer": "UNKNOWN below exact provider boundary; claim/status boundary exact but current implementation addressed in D"
+    }
+  ],
+  "currentRebuildComparison": {
+    "map317StoreQuery": "PASS exact-source DTO matrix all eight kinds",
+    "stagedPublish": "PASS canonical Map campaign",
+    "persistenceReopen": "PASS",
+    "profileServerIsolation": "PASS",
+    "externalProviderCallsDuringCanonicalCheck": 0,
+    "demonstratedDiscrepancy": false
+  },
+  "limits": [
+    "No historical 0.3.1 provider RVA or protected extraction algorithm is promoted.",
+    "Current-v22 producer mapping is milestone C and is adaptation/current evidence, not exact 0.3.17 protected extraction.",
+    "No product edit is justified by milestone B."
+  ]
+}

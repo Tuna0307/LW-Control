@@ -29,3 +29,14 @@ orchestration. No product defect or product edit was made in A.
 Next: exact eight-kind original producer/raw/projection/store/query/publication/
 failure matrix, then compare current Map317 ingestion without promoting protected
 producer assumptions.
+
+## B — complete
+
+Exact 0.3.17 revalidation confirms the generic eight-kind Map record plane,
+staging/publication/failure/cancel/clear ownership and public query/default
+semantics. The protected per-kind game-object extractor remains below the
+recovered provider boundary and is not inherited from 0.3.1.
+
+Fresh hash-gated surface/storage inspectors pass; Release all-eight DTO matrix and
+canonical Map campaign pass with externalProviderCalls=0. No B product discrepancy
+was demonstrated.

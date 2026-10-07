@@ -1,0 +1,4547 @@
+{
+  "schema": 1,
+  "findingId": "LWB317-RE-MAP-001",
+  "evidenceState": "EXACT_BYTES_DISCOVERY",
+  "frontend": {
+    "index": {
+      "path": "evidence\\lwbridge-0.3.17\\ui\\frontend-package\\web\\assets\\index-BVfnK1wp.js",
+      "sha256": "44c4e4043825b7db296b64171951b27176f8850ff8d7d337cc991df4765524c6",
+      "size": 377972
+    },
+    "mapPanel": {
+      "path": "evidence\\lwbridge-0.3.17\\ui\\frontend-package\\web\\assets\\MapDataPanel-B4GXEND2.js",
+      "sha256": "ce74345518be72e417a510b982c591729e5683f69751e190805598c4c05d3089",
+      "size": 57600
+    },
+    "commandWrappers": [
+      {
+        "function": "Gt",
+        "arguments": "",
+        "command": "map_scan_status",
+        "sourceOffset": "0x322B3",
+        "body": "return N(`map_scan_status`)"
+      },
+      {
+        "function": "un",
+        "arguments": "e",
+        "command": "map_coordinate_jump",
+        "sourceOffset": "0x32711",
+        "body": "return N(`map_coordinate_jump`,e)"
+      },
+      {
+        "function": "dn",
+        "arguments": "e",
+        "command": "map_march_follow",
+        "sourceOffset": "0x32742",
+        "body": "return N(`map_march_follow`,e)"
+      },
+      {
+        "function": "mn",
+        "arguments": "e",
+        "command": "map_scan_start",
+        "sourceOffset": "0x32805",
+        "body": "return N(`map_scan_start`,e)"
+      },
+      {
+        "function": "hn",
+        "arguments": "",
+        "command": "map_scan_stop",
+        "sourceOffset": "0x32831",
+        "body": "return N(`map_scan_stop`)"
+      },
+      {
+        "function": "vn",
+        "arguments": "e",
+        "command": "map_summary",
+        "sourceOffset": "0x328C9",
+        "body": "return N(`map_summary`,P(e))"
+      },
+      {
+        "function": "En",
+        "arguments": "",
+        "command": "map_treasure_claim_status",
+        "sourceOffset": "0x32B7B",
+        "body": "return N(`map_treasure_claim_status`)"
+      },
+      {
+        "function": "Dn",
+        "arguments": "",
+        "command": "map_plunder_jobs_list",
+        "sourceOffset": "0x32BAF",
+        "body": "return N(`map_plunder_jobs_list`)"
+      }
+    ],
+    "commandLiterals": [
+      "map_city_export",
+      "map_coordinate_jump",
+      "map_data_options",
+      "map_dispatch_plunder_cancel",
+      "map_dispatch_plunder_clear",
+      "map_dispatch_plunder_schedule",
+      "map_dispatch_share_alliance",
+      "map_march_follow",
+      "map_player_mark_set",
+      "map_plunder_jobs_list",
+      "map_scan_clear",
+      "map_scan_start",
+      "map_scan_status",
+      "map_scan_stop",
+      "map_search",
+      "map_summary",
+      "map_treasure_claim",
+      "map_treasure_claim_status",
+      "map_treasure_state_refresh",
+      "map_treasure_state_refresh_all",
+      "map_truck_plunder_cancel",
+      "map_truck_plunder_clear",
+      "map_truck_plunder_schedule",
+      "server_jump",
+      "server_jump_history_import",
+      "server_jump_history_set"
+    ],
+    "events": [
+      {
+        "event": "bridge://map-scan-status",
+        "source": "index",
+        "sourceOffset": "0x53A97"
+      },
+      {
+        "event": "bridge://player-mark-changed",
+        "source": "MapDataPanel",
+        "sourceOffset": "0x839D"
+      },
+      {
+        "event": "bridge://dispatch-plunder-changed",
+        "source": "MapDataPanel",
+        "sourceOffset": "0x83F3"
+      },
+      {
+        "event": "bridge://truck-plunder-changed",
+        "source": "MapDataPanel",
+        "sourceOffset": "0x841E"
+      }
+    ],
+    "locators": {
+      "lwbridge.mapScanMode": [
+        "MapDataPanel:0x159B"
+      ],
+      "lwbridge.mapIncludeForeignRadarTreasures": [
+        "MapDataPanel:0x15B5"
+      ],
+      "lwbridge.mapLuckyTreasurePriority": [
+        "MapDataPanel:0x15E3"
+      ],
+      "lwbridge.mapAutoScan.": [
+        "index:0x51639",
+        "index:0x516BF"
+      ],
+      "function nr(": [
+        "index:0xA8F8",
+        "MapDataPanel:0x926C"
+      ],
+      "async function $n()": [
+        "MapDataPanel:0x8FA6"
+      ],
+      "async function er()": [
+        "MapDataPanel:0x9063"
+      ],
+      "async function tr()": [
+        "MapDataPanel:0x90D2"
+      ],
+      "bridge://player-mark-changed": [
+        "MapDataPanel:0x839D"
+      ],
+      "bridge://dispatch-plunder-changed": [
+        "MapDataPanel:0x83F3"
+      ],
+      "bridge://truck-plunder-changed": [
+        "MapDataPanel:0x841E"
+      ]
+    }
+  },
+  "native": {
+    "path": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW\\lwbridge-0.3.17.exe",
+    "sha256": "4e9c3113dedfd7e1a752404c6936aab304e67d7ffdb0952a5003c2ec948d6783",
+    "size": 15866880,
+    "imageBase": "0x140000000",
+    "sections": [
+      {
+        "name": ".text",
+        "rva": "0x1000",
+        "raw": "0x400",
+        "rawSize": 8124928,
+        "virtualSize": 8124816,
+        "characteristics": "0x60000020"
+      },
+      {
+        "name": ".rdata",
+        "rva": "0x7C1000",
+        "raw": "0x7BFE00",
+        "rawSize": 7285760,
+        "virtualSize": 7285404,
+        "characteristics": "0x40000040"
+      },
+      {
+        "name": ".data",
+        "rva": "0xEB4000",
+        "raw": "0xEB2A00",
+        "rawSize": 27136,
+        "virtualSize": 37320,
+        "characteristics": "0xC0000040"
+      },
+      {
+        "name": ".pdata",
+        "rva": "0xEBE000",
+        "raw": "0xEB9400",
+        "rawSize": 275968,
+        "virtualSize": 275724,
+        "characteristics": "0x40000040"
+      },
+      {
+        "name": ".rsrc",
+        "rva": "0xF02000",
+        "raw": "0xEFCA00",
+        "rawSize": 94208,
+        "virtualSize": 93864,
+        "characteristics": "0x40000040"
+      },
+      {
+        "name": ".reloc",
+        "rva": "0xF19000",
+        "raw": "0xF13A00",
+        "rawSize": 57856,
+        "virtualSize": 57404,
+        "characteristics": "0x42000040"
+      }
+    ],
+    "markers": {
+      "(alliance_name IS NULL OR alliance_name = '')": {
+        "occurrences": [
+          {
+            "raw": "0xD5E7CB",
+            "rva": "0xD5F9CB",
+            "va": "0x140D5F9CB"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x3E259D",
+            "instructionVa": "0x1403E259D",
+            "mnemonic": "movupd",
+            "opStr": "xmm0, xmmword ptr [rip + 0x97d426]",
+            "referenceKind": "string",
+            "targetVa": "0x140D5F9CB",
+            "functionRva": "0x3E10E7-0x3E6952"
+          }
+        ]
+      },
+      "CAST(json_extract(data_json,'$.monsterNameKey') AS TEXT) = ?": {
+        "occurrences": [
+          {
+            "raw": "0xD5E916",
+            "rva": "0xD5FB16",
+            "va": "0x140D5FB16"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x3E2B38",
+            "instructionVa": "0x1403E2B38",
+            "mnemonic": "movups",
+            "opStr": "xmm0, xmmword ptr [rip + 0x97cfd7]",
+            "referenceKind": "string",
+            "targetVa": "0x140D5FB16",
+            "functionRva": "0x3E10E7-0x3E6952"
+          }
+        ]
+      },
+      "CAST(json_extract(data_json,'$.resourceNameKey') AS TEXT) = ?": {
+        "occurrences": [
+          {
+            "raw": "0xD5EABB",
+            "rva": "0xD5FCBB",
+            "va": "0x140D5FCBB"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x3E3614",
+            "instructionVa": "0x1403E3614",
+            "mnemonic": "movups",
+            "opStr": "xmm0, xmmword ptr [rip + 0x97c6a0]",
+            "referenceKind": "string",
+            "targetVa": "0x140D5FCBB",
+            "functionRva": "0x3E10E7-0x3E6952"
+          }
+        ]
+      },
+      "CAST(json_extract(good.value,'$.key') AS TEXT) = ?": {
+        "occurrences": [
+          {
+            "raw": "0xD5EC66",
+            "rva": "0xD5FE66",
+            "va": "0x140D5FE66"
+          },
+          {
+            "raw": "0xD5F711",
+            "rva": "0xD60911",
+            "va": "0x140D60911"
+          }
+        ],
+        "xrefs": []
+      },
+      "GAME_CONNECTION_UNAVAILABLE": {
+        "occurrences": [
+          {
+            "raw": "0x82DD48",
+            "rva": "0x82EF48",
+            "va": "0x14082EF48"
+          },
+          {
+            "raw": "0xD46618",
+            "rva": "0xD47818",
+            "va": "0x140D47818"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0xFA14F",
+            "instructionVa": "0x1400FA14F",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x734df2]",
+            "referenceKind": "string",
+            "targetVa": "0x14082EF48",
+            "functionRva": "0xFA09E-0xFC643"
+          },
+          {
+            "instructionRva": "0x2C9131",
+            "instructionVa": "0x1402C9131",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0xa7e6e0]",
+            "referenceKind": "string",
+            "targetVa": "0x140D47818",
+            "functionRva": "0x2C90B8-0x2C9E9B"
+          },
+          {
+            "instructionRva": "0x2C923F",
+            "instructionVa": "0x1402C923F",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0xa7e5d2]",
+            "referenceKind": "string",
+            "targetVa": "0x140D47818",
+            "functionRva": "0x2C90B8-0x2C9E9B"
+          },
+          {
+            "instructionRva": "0x2C9CD8",
+            "instructionVa": "0x1402C9CD8",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0xa7db39]",
+            "referenceKind": "string",
+            "targetVa": "0x140D47818",
+            "functionRva": "0x2C90B8-0x2C9E9B"
+          }
+        ]
+      },
+      "SCAN_RUNNING": {
+        "occurrences": [
+          {
+            "raw": "0x82DD7E",
+            "rva": "0x82EF7E",
+            "va": "0x14082EF7E"
+          },
+          {
+            "raw": "0xD5393E",
+            "rva": "0xD54B3E",
+            "va": "0x140D54B3E"
+          },
+          {
+            "raw": "0xD684A8",
+            "rva": "0xD696A8",
+            "va": "0x140D696A8"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0xFA128",
+            "instructionVa": "0x1400FA128",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x734e4f]",
+            "referenceKind": "string",
+            "targetVa": "0x14082EF7E",
+            "functionRva": "0xFA09E-0xFC643"
+          },
+          {
+            "instructionRva": "0x39F796",
+            "instructionVa": "0x14039F796",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x9b53a1]",
+            "referenceKind": "string",
+            "targetVa": "0x140D54B3E",
+            "functionRva": "0x39F75B-0x39F7EA"
+          },
+          {
+            "instructionRva": "0x42B5BF",
+            "instructionVa": "0x14042B5BF",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x93e0e2]",
+            "referenceKind": "string",
+            "targetVa": "0x140D696A8",
+            "functionRva": "0x42B4FF-0x42B787"
+          }
+        ]
+      },
+      "SERVER_UNAVAILABLE": {
+        "occurrences": [
+          {
+            "raw": "0x829B90",
+            "rva": "0x82AD90",
+            "va": "0x14082AD90"
+          },
+          {
+            "raw": "0xD67C7E",
+            "rva": "0xD68E7E",
+            "va": "0x140D68E7E"
+          },
+          {
+            "raw": "0xD67FF7",
+            "rva": "0xD691F7",
+            "va": "0x140D691F7"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0xDCC1A",
+            "instructionVa": "0x1400DCC1A",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x74e16f]",
+            "referenceKind": "string",
+            "targetVa": "0x14082AD90",
+            "functionRva": "0xDCA7D-0xDCCDC"
+          },
+          {
+            "instructionRva": "0xFAAAD",
+            "instructionVa": "0x1400FAAAD",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x7302dc]",
+            "referenceKind": "string",
+            "targetVa": "0x14082AD90",
+            "functionRva": "0xFA09E-0xFC643"
+          },
+          {
+            "instructionRva": "0x428ED9",
+            "instructionVa": "0x140428ED9",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x940317]",
+            "referenceKind": "string",
+            "targetVa": "0x140D691F7",
+            "functionRva": "0x428D90-0x42914B"
+          },
+          {
+            "instructionRva": "0x42B705",
+            "instructionVa": "0x14042B705",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x93daeb]",
+            "referenceKind": "string",
+            "targetVa": "0x140D691F7",
+            "functionRva": "0x42B4FF-0x42B787"
+          }
+        ]
+      },
+      "XluaBridgeMapScanTick": {
+        "occurrences": [
+          {
+            "raw": "0xABBE23",
+            "rva": "0xABD023",
+            "va": "0x140ABD023"
+          },
+          {
+            "raw": "0xB53023",
+            "rva": "0xB54223",
+            "va": "0x140B54223"
+          }
+        ],
+        "xrefs": []
+      },
+      "XluaBridgeNativeStart": {
+        "occurrences": [
+          {
+            "raw": "0xABBD5B",
+            "rva": "0xABCF5B",
+            "va": "0x140ABCF5B"
+          },
+          {
+            "raw": "0xABBD7A",
+            "rva": "0xABCF7A",
+            "va": "0x140ABCF7A"
+          },
+          {
+            "raw": "0xB52F5B",
+            "rva": "0xB5415B",
+            "va": "0x140B5415B"
+          },
+          {
+            "raw": "0xB52F7A",
+            "rva": "0xB5417A",
+            "va": "0x140B5417A"
+          }
+        ],
+        "xrefs": []
+      },
+      "XluaBridgeNativeUpdate": {
+        "occurrences": [
+          {
+            "raw": "0xABBE8B",
+            "rva": "0xABD08B",
+            "va": "0x140ABD08B"
+          },
+          {
+            "raw": "0xABBEAB",
+            "rva": "0xABD0AB",
+            "va": "0x140ABD0AB"
+          },
+          {
+            "raw": "0xB5308B",
+            "rva": "0xB5428B",
+            "va": "0x140B5428B"
+          },
+          {
+            "raw": "0xB530AB",
+            "rva": "0xB542AB",
+            "va": "0x140B542AB"
+          }
+        ],
+        "xrefs": []
+      },
+      "XluaBridgePoll": {
+        "occurrences": [
+          {
+            "raw": "0xABBEC3",
+            "rva": "0xABD0C3",
+            "va": "0x140ABD0C3"
+          },
+          {
+            "raw": "0xB530C3",
+            "rva": "0xB542C3",
+            "va": "0x140B542C3"
+          }
+        ],
+        "xrefs": []
+      },
+      "__XLUA_BRIDGE_NATIVE_WORLD_CAPTURE_RUN": {
+        "occurrences": [
+          {
+            "raw": "0xABBDDB",
+            "rva": "0xABCFDB",
+            "va": "0x140ABCFDB"
+          },
+          {
+            "raw": "0xB52FDB",
+            "rva": "0xB541DB",
+            "va": "0x140B541DB"
+          }
+        ],
+        "xrefs": []
+      },
+      "__XluaBridgeNativeWorldCapture": {
+        "occurrences": [
+          {
+            "raw": "0xABBE03",
+            "rva": "0xABD003",
+            "va": "0x140ABD003"
+          },
+          {
+            "raw": "0xB53003",
+            "rva": "0xB54203",
+            "va": "0x140B54203"
+          }
+        ],
+        "xrefs": []
+      },
+      "alliance_name = ?": {
+        "occurrences": [
+          {
+            "raw": "0xD5E7BA",
+            "rva": "0xD5F9BA",
+            "va": "0x140D5F9BA"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x3E2615",
+            "instructionVa": "0x1403E2615",
+            "mnemonic": "movups",
+            "opStr": "xmm0, xmmword ptr [rip + 0x97d39e]",
+            "referenceKind": "string",
+            "targetVa": "0x140D5F9BA",
+            "functionRva": "0x3E10E7-0x3E6952"
+          }
+        ]
+      },
+      "bridge://dispatch-plunder-changed": {
+        "occurrences": [
+          {
+            "raw": "0xD67AD0",
+            "rva": "0xD68CD0",
+            "va": "0x140D68CD0"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0xF08D7",
+            "instructionVa": "0x1400F08D7",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0xc783f2]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68CD0",
+            "functionRva": "0xF0655-0xF2A09"
+          },
+          {
+            "instructionRva": "0xF0B83",
+            "instructionVa": "0x1400F0B83",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0xc78146]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68CD0",
+            "functionRva": "0xF0655-0xF2A09"
+          },
+          {
+            "instructionRva": "0xF180E",
+            "instructionVa": "0x1400F180E",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0xc774bb]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68CD0",
+            "functionRva": "0xF0655-0xF2A09"
+          },
+          {
+            "instructionRva": "0xF1ECA",
+            "instructionVa": "0x1400F1ECA",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0xc76dff]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68CD0",
+            "functionRva": "0xF0655-0xF2A09"
+          },
+          {
+            "instructionRva": "0xF27AB",
+            "instructionVa": "0x1400F27AB",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0xc7651e]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68CD0",
+            "functionRva": "0xF0655-0xF2A09"
+          },
+          {
+            "instructionRva": "0x1349FC",
+            "instructionVa": "0x1401349FC",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0xc342cd]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68CD0",
+            "functionRva": "0x1336A9-0x1350DF"
+          },
+          {
+            "instructionRva": "0x4259DF",
+            "instructionVa": "0x1404259DF",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x9432ea]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68CD0",
+            "functionRva": "0x424778-0x425C18"
+          },
+          {
+            "instructionRva": "0x425C5F",
+            "instructionVa": "0x140425C5F",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x94306a]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68CD0",
+            "functionRva": "0x425C18-0x425CAB"
+          },
+          {
+            "instructionRva": "0x425F60",
+            "instructionVa": "0x140425F60",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x942d69]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68CD0",
+            "functionRva": "0x425DDD-0x425F85"
+          },
+          {
+            "instructionRva": "0x426108",
+            "instructionVa": "0x140426108",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x942bc1]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68CD0",
+            "functionRva": "0x425F85-0x42612D"
+          }
+        ]
+      },
+      "bridge://map-scan-status": {
+        "occurrences": [
+          {
+            "raw": "0xD67F98",
+            "rva": "0xD69198",
+            "va": "0x140D69198"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x428D30",
+            "instructionVa": "0x140428D30",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x940461]",
+            "referenceKind": "string",
+            "targetVa": "0x140D69198",
+            "functionRva": "0x428A92-0x428D90"
+          }
+        ]
+      },
+      "bridge://player-mark-changed": {
+        "occurrences": [
+          {
+            "raw": "0xD67878",
+            "rva": "0xD68A78",
+            "va": "0x140D68A78"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x423C4E",
+            "instructionVa": "0x140423C4E",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x944e23]",
+            "referenceKind": "string",
+            "targetVa": "0x140D68A78",
+            "functionRva": "0x42370B-0x423D69"
+          }
+        ]
+      },
+      "bridge://truck-plunder-changed": {
+        "occurrences": [
+          {
+            "raw": "0xD670B5",
+            "rva": "0xD682B5",
+            "va": "0x140D682B5"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0xEA1CD",
+            "instructionVa": "0x1400EA1CD",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0xc7e0e1]",
+            "referenceKind": "string",
+            "targetVa": "0x140D682B5",
+            "functionRva": "0xE9DBA-0xEBF1C"
+          },
+          {
+            "instructionRva": "0xEA44C",
+            "instructionVa": "0x1400EA44C",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0xc7de62]",
+            "referenceKind": "string",
+            "targetVa": "0x140D682B5",
+            "functionRva": "0xE9DBA-0xEBF1C"
+          },
+          {
+            "instructionRva": "0xEAC20",
+            "instructionVa": "0x1400EAC20",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0xc7d68e]",
+            "referenceKind": "string",
+            "targetVa": "0x140D682B5",
+            "functionRva": "0xE9DBA-0xEBF1C"
+          },
+          {
+            "instructionRva": "0xEB16A",
+            "instructionVa": "0x1400EB16A",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0xc7d144]",
+            "referenceKind": "string",
+            "targetVa": "0x140D682B5",
+            "functionRva": "0xE9DBA-0xEBF1C"
+          },
+          {
+            "instructionRva": "0xEB751",
+            "instructionVa": "0x1400EB751",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0xc7cb5d]",
+            "referenceKind": "string",
+            "targetVa": "0x140D682B5",
+            "functionRva": "0xE9DBA-0xEBF1C"
+          },
+          {
+            "instructionRva": "0xEB8B5",
+            "instructionVa": "0x1400EB8B5",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0xc7c9f9]",
+            "referenceKind": "string",
+            "targetVa": "0x140D682B5",
+            "functionRva": "0xE9DBA-0xEBF1C"
+          },
+          {
+            "instructionRva": "0x41F413",
+            "instructionVa": "0x14041F413",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x948e9b]",
+            "referenceKind": "string",
+            "targetVa": "0x140D682B5",
+            "functionRva": "0x41EC72-0x41F4F8"
+          },
+          {
+            "instructionRva": "0x41F532",
+            "instructionVa": "0x14041F532",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x948d7c]",
+            "referenceKind": "string",
+            "targetVa": "0x140D682B5",
+            "functionRva": "0x41F4F8-0x41F57E"
+          },
+          {
+            "instructionRva": "0x41F7F6",
+            "instructionVa": "0x14041F7F6",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x948ab8]",
+            "referenceKind": "string",
+            "targetVa": "0x140D682B5",
+            "functionRva": "0x41F673-0x41F81B"
+          },
+          {
+            "instructionRva": "0x41F99E",
+            "instructionVa": "0x14041F99E",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x948910]",
+            "referenceKind": "string",
+            "targetVa": "0x140D682B5",
+            "functionRva": "0x41F81B-0x41F9C3"
+          },
+          {
+            "instructionRva": "0x41FA32",
+            "instructionVa": "0x14041FA32",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x94887c]",
+            "referenceKind": "string",
+            "targetVa": "0x140D682B5",
+            "functionRva": "0x41F9C3-0x41FA89"
+          }
+        ]
+      },
+      "current server id unavailable": {
+        "occurrences": [
+          {
+            "raw": "0x829BA2",
+            "rva": "0x82ADA2",
+            "va": "0x14082ADA2"
+          },
+          {
+            "raw": "0xD68009",
+            "rva": "0xD69209",
+            "va": "0x140D69209"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0xDCC21",
+            "instructionVa": "0x1400DCC21",
+            "mnemonic": "lea",
+            "opStr": "r9, [rip + 0x74e17a]",
+            "referenceKind": "string",
+            "targetVa": "0x14082ADA2",
+            "functionRva": "0xDCA7D-0xDCCDC"
+          },
+          {
+            "instructionRva": "0xFAAB4",
+            "instructionVa": "0x1400FAAB4",
+            "mnemonic": "lea",
+            "opStr": "r9, [rip + 0x7302e7]",
+            "referenceKind": "string",
+            "targetVa": "0x14082ADA2",
+            "functionRva": "0xFA09E-0xFC643"
+          },
+          {
+            "instructionRva": "0x428EE0",
+            "instructionVa": "0x140428EE0",
+            "mnemonic": "lea",
+            "opStr": "r9, [rip + 0x940322]",
+            "referenceKind": "string",
+            "targetVa": "0x140D69209",
+            "functionRva": "0x428D90-0x42914B"
+          },
+          {
+            "instructionRva": "0x42B70C",
+            "instructionVa": "0x14042B70C",
+            "mnemonic": "lea",
+            "opStr": "r9, [rip + 0x93daf6]",
+            "referenceKind": "string",
+            "targetVa": "0x140D69209",
+            "functionRva": "0x42B4FF-0x42B787"
+          }
+        ]
+      },
+      "direct map scan completed": {
+        "occurrences": [
+          {
+            "raw": "0xD680AB",
+            "rva": "0xD692AB",
+            "va": "0x140D692AB"
+          }
+        ],
+        "xrefs": []
+      },
+      "enterWorldMap": {
+        "occurrences": [
+          {
+            "raw": "0x82DDC0",
+            "rva": "0x82EFC0",
+            "va": "0x14082EFC0"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0xFA344",
+            "instructionVa": "0x1400FA344",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x734c75]",
+            "referenceKind": "string",
+            "targetVa": "0x14082EFC0",
+            "functionRva": "0xFA09E-0xFC643"
+          }
+        ]
+      },
+      "game connection unavailable": {
+        "occurrences": [
+          {
+            "raw": "0x82DD63",
+            "rva": "0x82EF63",
+            "va": "0x14082EF63"
+          },
+          {
+            "raw": "0xD46633",
+            "rva": "0xD47833",
+            "va": "0x140D47833"
+          },
+          {
+            "raw": "0xD68411",
+            "rva": "0xD69611",
+            "va": "0x140D69611"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0xFA156",
+            "instructionVa": "0x1400FA156",
+            "mnemonic": "lea",
+            "opStr": "r9, [rip + 0x734e06]",
+            "referenceKind": "string",
+            "targetVa": "0x14082EF63",
+            "functionRva": "0xFA09E-0xFC643"
+          },
+          {
+            "instructionRva": "0x2C9138",
+            "instructionVa": "0x1402C9138",
+            "mnemonic": "lea",
+            "opStr": "r9, [rip + 0xa7e6f4]",
+            "referenceKind": "string",
+            "targetVa": "0x140D47833",
+            "functionRva": "0x2C90B8-0x2C9E9B"
+          },
+          {
+            "instructionRva": "0x2C9246",
+            "instructionVa": "0x1402C9246",
+            "mnemonic": "lea",
+            "opStr": "r9, [rip + 0xa7e5e6]",
+            "referenceKind": "string",
+            "targetVa": "0x140D47833",
+            "functionRva": "0x2C90B8-0x2C9E9B"
+          },
+          {
+            "instructionRva": "0x2C9CDF",
+            "instructionVa": "0x1402C9CDF",
+            "mnemonic": "lea",
+            "opStr": "r9, [rip + 0xa7db4d]",
+            "referenceKind": "string",
+            "targetVa": "0x140D47833",
+            "functionRva": "0x2C90B8-0x2C9E9B"
+          },
+          {
+            "instructionRva": "0x42B3CB",
+            "instructionVa": "0x14042B3CB",
+            "mnemonic": "lea",
+            "opStr": "r9, [rip + 0x93e23f]",
+            "referenceKind": "string",
+            "targetVa": "0x140D69611",
+            "functionRva": "0x42B1C1-0x42B4FF"
+          }
+        ]
+      },
+      "itemKey EXISTS (SELECT 1 FROM json_each(": {
+        "occurrences": [
+          {
+            "raw": "0xD5EC11",
+            "rva": "0xD5FE11",
+            "va": "0x140D5FE11"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x3E3BF3",
+            "instructionVa": "0x1403E3BF3",
+            "mnemonic": "lea",
+            "opStr": "r8, [rip + 0x97c217]",
+            "referenceKind": "string",
+            "targetVa": "0x140D5FE11",
+            "functionRva": "0x3E10E7-0x3E6952"
+          },
+          {
+            "instructionRva": "0x3E3C2A",
+            "instructionVa": "0x1403E3C2A",
+            "mnemonic": "lea",
+            "opStr": "r8, [rip + 0x97c1e0]",
+            "referenceKind": "string",
+            "targetVa": "0x140D5FE11",
+            "functionRva": "0x3E10E7-0x3E6952"
+          }
+        ]
+      },
+      "map scan already running": {
+        "occurrences": [
+          {
+            "raw": "0x82DD8A",
+            "rva": "0x82EF8A",
+            "va": "0x14082EF8A"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0xFA12F",
+            "instructionVa": "0x1400FA12F",
+            "mnemonic": "lea",
+            "opStr": "r9, [rip + 0x734e54]",
+            "referenceKind": "string",
+            "targetVa": "0x14082EF8A",
+            "functionRva": "0xFA09E-0xFC643"
+          }
+        ]
+      },
+      "map.native.capture": {
+        "occurrences": [
+          {
+            "raw": "0x83B050",
+            "rva": "0x83C250",
+            "va": "0x14083C250"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x1D3EDD",
+            "instructionVa": "0x1401D3EDD",
+            "mnemonic": "pcmpeqb",
+            "opStr": "xmm0, xmmword ptr [rip + 0x66836b]",
+            "referenceKind": "string",
+            "targetVa": "0x14083C250",
+            "functionRva": null
+          },
+          {
+            "instructionRva": "0x427436",
+            "instructionVa": "0x140427436",
+            "mnemonic": "pcmpeqb",
+            "opStr": "xmm0, xmmword ptr [rip + 0x414e12]",
+            "referenceKind": "string",
+            "targetVa": "0x14083C250",
+            "functionRva": "0x427120-0x428A92"
+          }
+        ]
+      },
+      "map.records": {
+        "occurrences": [],
+        "xrefs": []
+      },
+      "map.scan": {
+        "occurrences": [
+          {
+            "raw": "0x4269FC",
+            "rva": "0x4275FC",
+            "va": "0x1404275FC"
+          },
+          {
+            "raw": "0x4271E5",
+            "rva": "0x427DE5",
+            "va": "0x140427DE5"
+          },
+          {
+            "raw": "0x83B040",
+            "rva": "0x83C240",
+            "va": "0x14083C240"
+          },
+          {
+            "raw": "0x83B0A0",
+            "rva": "0x83C2A0",
+            "va": "0x14083C2A0"
+          },
+          {
+            "raw": "0xD63760",
+            "rva": "0xD64960",
+            "va": "0x140D64960"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x1D3F1F",
+            "instructionVa": "0x1401D3F1F",
+            "mnemonic": "pcmpeqb",
+            "opStr": "xmm0, xmmword ptr [rip + 0x668319]",
+            "referenceKind": "string",
+            "targetVa": "0x14083C240",
+            "functionRva": null
+          },
+          {
+            "instructionRva": "0x1D3FEF",
+            "instructionVa": "0x1401D3FEF",
+            "mnemonic": "pcmpeqb",
+            "opStr": "xmm0, xmmword ptr [rip + 0x6682a9]",
+            "referenceKind": "string",
+            "targetVa": "0x14083C2A0",
+            "functionRva": null
+          },
+          {
+            "instructionRva": "0x42725D",
+            "instructionVa": "0x14042725D",
+            "mnemonic": "pcmpeqb",
+            "opStr": "xmm0, xmmword ptr [rip + 0x414fdb]",
+            "referenceKind": "string",
+            "targetVa": "0x14083C240",
+            "functionRva": "0x427120-0x428A92"
+          },
+          {
+            "instructionRva": "0x42759F",
+            "instructionVa": "0x14042759F",
+            "mnemonic": "pcmpeqb",
+            "opStr": "xmm0, xmmword ptr [rip + 0x414cf9]",
+            "referenceKind": "string",
+            "targetVa": "0x14083C2A0",
+            "functionRva": "0x427120-0x428A92"
+          },
+          {
+            "instructionRva": "0x4275D0",
+            "instructionVa": "0x1404275D0",
+            "mnemonic": "pcmpeqb",
+            "opStr": "xmm0, xmmword ptr [rip + 0x93d388]",
+            "referenceKind": "string",
+            "targetVa": "0x140D64960",
+            "functionRva": "0x427120-0x428A92"
+          },
+          {
+            "instructionRva": "0x427AA4",
+            "instructionVa": "0x140427AA4",
+            "mnemonic": "pcmpeqb",
+            "opStr": "xmm0, xmmword ptr [rip + 0x93ceb4]",
+            "referenceKind": "string",
+            "targetVa": "0x140D64960",
+            "functionRva": "0x427120-0x428A92"
+          }
+        ]
+      },
+      "map_city_export": {
+        "occurrences": [
+          {
+            "raw": "0x828B2E",
+            "rva": "0x829D2E",
+            "va": "0x140829D2E"
+          },
+          {
+            "raw": "0x83E203",
+            "rva": "0x83F403",
+            "va": "0x14083F403"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x12A04B",
+            "instructionVa": "0x14012A04B",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x6ffcdc]",
+            "referenceKind": "string",
+            "targetVa": "0x140829D2E",
+            "functionRva": "0x129FA7-0x12BC48"
+          },
+          {
+            "instructionRva": "0x12A11F",
+            "instructionVa": "0x14012A11F",
+            "mnemonic": "lea",
+            "opStr": "rdi, [rip + 0x6ffc08]",
+            "referenceKind": "string",
+            "targetVa": "0x140829D2E",
+            "functionRva": "0x129FA7-0x12BC48"
+          },
+          {
+            "instructionRva": "0x2197E0",
+            "instructionVa": "0x1402197E0",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x625c1c]",
+            "referenceKind": "string",
+            "targetVa": "0x14083F403",
+            "functionRva": "0x218023-0x21C5B4"
+          }
+        ]
+      },
+      "map_coordinate_jump": {
+        "occurrences": [
+          {
+            "raw": "0x828CDF",
+            "rva": "0x829EDF",
+            "va": "0x140829EDF"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x13F597",
+            "instructionVa": "0x14013F597",
+            "mnemonic": "lea",
+            "opStr": "r14, [rip + 0x6ea941]",
+            "referenceKind": "string",
+            "targetVa": "0x140829EDF",
+            "functionRva": "0x13F4F3-0x1408EA"
+          },
+          {
+            "instructionRva": "0x13FA3D",
+            "instructionVa": "0x14013FA3D",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x6ea49b]",
+            "referenceKind": "string",
+            "targetVa": "0x140829EDF",
+            "functionRva": "0x13F4F3-0x1408EA"
+          }
+        ]
+      },
+      "map_data_options": {
+        "occurrences": [
+          {
+            "raw": "0x828A73",
+            "rva": "0x829C73",
+            "va": "0x140829C73"
+          },
+          {
+            "raw": "0x83E1F3",
+            "rva": "0x83F3F3",
+            "va": "0x14083F3F3"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x16C388",
+            "instructionVa": "0x14016C388",
+            "mnemonic": "lea",
+            "opStr": "r12, [rip + 0x6bd8e4]",
+            "referenceKind": "string",
+            "targetVa": "0x140829C73",
+            "functionRva": "0x16C2E0-0x16CB57"
+          },
+          {
+            "instructionRva": "0x219440",
+            "instructionVa": "0x140219440",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x625fac]",
+            "referenceKind": "string",
+            "targetVa": "0x14083F3F3",
+            "functionRva": "0x218023-0x21C5B4"
+          }
+        ]
+      },
+      "map_dispatch_plunder_cancel": {
+        "occurrences": [
+          {
+            "raw": "0x8289F8",
+            "rva": "0x829BF8",
+            "va": "0x140829BF8"
+          },
+          {
+            "raw": "0x83E2A3",
+            "rva": "0x83F4A3",
+            "va": "0x14083F4A3"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x13212D",
+            "instructionVa": "0x14013212D",
+            "mnemonic": "lea",
+            "opStr": "r12, [rip + 0x6f7ac4]",
+            "referenceKind": "string",
+            "targetVa": "0x140829BF8",
+            "functionRva": "0x132085-0x1329AF"
+          },
+          {
+            "instructionRva": "0x21881A",
+            "instructionVa": "0x14021881A",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x626c82]",
+            "referenceKind": "string",
+            "targetVa": "0x14083F4A3",
+            "functionRva": "0x218023-0x21C5B4"
+          }
+        ]
+      },
+      "map_dispatch_plunder_clear": {
+        "occurrences": [
+          {
+            "raw": "0x8286BA",
+            "rva": "0x8298BA",
+            "va": "0x1408298BA"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x153E9E",
+            "instructionVa": "0x140153E9E",
+            "mnemonic": "lea",
+            "opStr": "r15, [rip + 0x6d5a15]",
+            "referenceKind": "string",
+            "targetVa": "0x1408298BA",
+            "functionRva": "0x153DF6-0x154905"
+          }
+        ]
+      },
+      "map_dispatch_plunder_schedule": {
+        "occurrences": [
+          {
+            "raw": "0x82885A",
+            "rva": "0x829A5A",
+            "va": "0x140829A5A"
+          },
+          {
+            "raw": "0x83E286",
+            "rva": "0x83F486",
+            "va": "0x14083F486"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x13374D",
+            "instructionVa": "0x14013374D",
+            "mnemonic": "lea",
+            "opStr": "r14, [rip + 0x6f6306]",
+            "referenceKind": "string",
+            "targetVa": "0x140829A5A",
+            "functionRva": "0x1336A9-0x1350DF"
+          },
+          {
+            "instructionRva": "0x21989B",
+            "instructionVa": "0x14021989B",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x625be4]",
+            "referenceKind": "string",
+            "targetVa": "0x14083F486",
+            "functionRva": "0x218023-0x21C5B4"
+          }
+        ]
+      },
+      "map_dispatch_share_alliance": {
+        "occurrences": [
+          {
+            "raw": "0x828658",
+            "rva": "0x829858",
+            "va": "0x140829858"
+          },
+          {
+            "raw": "0x83E212",
+            "rva": "0x83F412",
+            "va": "0x14083F412"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x10C328",
+            "instructionVa": "0x14010C328",
+            "mnemonic": "lea",
+            "opStr": "r15, [rip + 0x71d529]",
+            "referenceKind": "string",
+            "targetVa": "0x140829858",
+            "functionRva": "0x10C27F-0x10D552"
+          },
+          {
+            "instructionRva": "0x218800",
+            "instructionVa": "0x140218800",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x626c0b]",
+            "referenceKind": "string",
+            "targetVa": "0x14083F412",
+            "functionRva": "0x218023-0x21C5B4"
+          }
+        ]
+      },
+      "map_march_follow": {
+        "occurrences": [
+          {
+            "raw": "0x8289E8",
+            "rva": "0x829BE8",
+            "va": "0x140829BE8"
+          },
+          {
+            "raw": "0x83E172",
+            "rva": "0x83F372",
+            "va": "0x14083F372"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x124A6C",
+            "instructionVa": "0x140124A6C",
+            "mnemonic": "lea",
+            "opStr": "r15, [rip + 0x705175]",
+            "referenceKind": "string",
+            "targetVa": "0x140829BE8",
+            "functionRva": "0x1249C8-0x125A89"
+          },
+          {
+            "instructionRva": "0x125045",
+            "instructionVa": "0x140125045",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x704b9c]",
+            "referenceKind": "string",
+            "targetVa": "0x140829BE8",
+            "functionRva": "0x1249C8-0x125A89"
+          },
+          {
+            "instructionRva": "0x219426",
+            "instructionVa": "0x140219426",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x625f45]",
+            "referenceKind": "string",
+            "targetVa": "0x14083F372",
+            "functionRva": "0x218023-0x21C5B4"
+          }
+        ]
+      },
+      "map_player_mark": {
+        "occurrences": [
+          {
+            "raw": "0x828C95",
+            "rva": "0x829E95",
+            "va": "0x140829E95"
+          },
+          {
+            "raw": "0x83E31A",
+            "rva": "0x83F51A",
+            "va": "0x14083F51A"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x151A2D",
+            "instructionVa": "0x140151A2D",
+            "mnemonic": "lea",
+            "opStr": "r12, [rip + 0x6d8461]",
+            "referenceKind": "string",
+            "targetVa": "0x140829E95",
+            "functionRva": "0x151985-0x1521E3"
+          },
+          {
+            "instructionRva": "0x218AFB",
+            "instructionVa": "0x140218AFB",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x626a18]",
+            "referenceKind": "string",
+            "targetVa": "0x14083F51A",
+            "functionRva": "0x218023-0x21C5B4"
+          }
+        ]
+      },
+      "map_player_mark_set": {
+        "occurrences": [
+          {
+            "raw": "0x828C95",
+            "rva": "0x829E95",
+            "va": "0x140829E95"
+          },
+          {
+            "raw": "0x83E31A",
+            "rva": "0x83F51A",
+            "va": "0x14083F51A"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x151A2D",
+            "instructionVa": "0x140151A2D",
+            "mnemonic": "lea",
+            "opStr": "r12, [rip + 0x6d8461]",
+            "referenceKind": "string",
+            "targetVa": "0x140829E95",
+            "functionRva": "0x151985-0x1521E3"
+          },
+          {
+            "instructionRva": "0x218AFB",
+            "instructionVa": "0x140218AFB",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x626a18]",
+            "referenceKind": "string",
+            "targetVa": "0x14083F51A",
+            "functionRva": "0x218023-0x21C5B4"
+          }
+        ]
+      },
+      "map_plunder_jobs_list": {
+        "occurrences": [
+          {
+            "raw": "0x828824",
+            "rva": "0x829A24",
+            "va": "0x140829A24"
+          },
+          {
+            "raw": "0x83E271",
+            "rva": "0x83F471",
+            "va": "0x14083F471"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x10E5E4",
+            "instructionVa": "0x14010E5E4",
+            "mnemonic": "lea",
+            "opStr": "r14, [rip + 0x71b439]",
+            "referenceKind": "string",
+            "targetVa": "0x140829A24",
+            "functionRva": "0x10E53B-0x10F6AF"
+          },
+          {
+            "instructionRva": "0x218509",
+            "instructionVa": "0x140218509",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x626f61]",
+            "referenceKind": "string",
+            "targetVa": "0x14083F471",
+            "functionRva": "0x218023-0x21C5B4"
+          }
+        ]
+      },
+      "map_records": {
+        "occurrences": [
+          {
+            "raw": "0xD561AB",
+            "rva": "0xD573AB",
+            "va": "0x140D573AB"
+          },
+          {
+            "raw": "0xD563AA",
+            "rva": "0xD575AA",
+            "va": "0x140D575AA"
+          },
+          {
+            "raw": "0xD56447",
+            "rva": "0xD57647",
+            "va": "0x140D57647"
+          },
+          {
+            "raw": "0xD56562",
+            "rva": "0xD57762",
+            "va": "0x140D57762"
+          },
+          {
+            "raw": "0xD5774A",
+            "rva": "0xD5894A",
+            "va": "0x140D5894A"
+          },
+          {
+            "raw": "0xD577CA",
+            "rva": "0xD589CA",
+            "va": "0x140D589CA"
+          },
+          {
+            "raw": "0xD57852",
+            "rva": "0xD58A52",
+            "va": "0x140D58A52"
+          },
+          {
+            "raw": "0xD578D3",
+            "rva": "0xD58AD3",
+            "va": "0x140D58AD3"
+          },
+          {
+            "raw": "0xD57957",
+            "rva": "0xD58B57",
+            "va": "0x140D58B57"
+          },
+          {
+            "raw": "0xD57F15",
+            "rva": "0xD59115",
+            "va": "0x140D59115"
+          },
+          {
+            "raw": "0xD586ED",
+            "rva": "0xD598ED",
+            "va": "0x140D598ED"
+          },
+          {
+            "raw": "0xD587D7",
+            "rva": "0xD599D7",
+            "va": "0x140D599D7"
+          },
+          {
+            "raw": "0xD587ED",
+            "rva": "0xD599ED",
+            "va": "0x140D599ED"
+          },
+          {
+            "raw": "0xD5883F",
+            "rva": "0xD59A3F",
+            "va": "0x140D59A3F"
+          },
+          {
+            "raw": "0xD5888C",
+            "rva": "0xD59A8C",
+            "va": "0x140D59A8C"
+          },
+          {
+            "raw": "0xD588E2",
+            "rva": "0xD59AE2",
+            "va": "0x140D59AE2"
+          },
+          {
+            "raw": "0xD589BE",
+            "rva": "0xD59BBE",
+            "va": "0x140D59BBE"
+          },
+          {
+            "raw": "0xD59129",
+            "rva": "0xD5A329",
+            "va": "0x140D5A329"
+          },
+          {
+            "raw": "0xD59C70",
+            "rva": "0xD5AE70",
+            "va": "0x140D5AE70"
+          },
+          {
+            "raw": "0xD59CA6",
+            "rva": "0xD5AEA6",
+            "va": "0x140D5AEA6"
+          },
+          {
+            "raw": "0xD5A2DD",
+            "rva": "0xD5B4DD",
+            "va": "0x140D5B4DD"
+          },
+          {
+            "raw": "0xD5A91C",
+            "rva": "0xD5BB1C",
+            "va": "0x140D5BB1C"
+          },
+          {
+            "raw": "0xD5AAFC",
+            "rva": "0xD5BCFC",
+            "va": "0x140D5BCFC"
+          },
+          {
+            "raw": "0xD5AD5B",
+            "rva": "0xD5BF5B",
+            "va": "0x140D5BF5B"
+          },
+          {
+            "raw": "0xD5BC79",
+            "rva": "0xD5CE79",
+            "va": "0x140D5CE79"
+          },
+          {
+            "raw": "0xD5CBED",
+            "rva": "0xD5DDED",
+            "va": "0x140D5DDED"
+          },
+          {
+            "raw": "0xD5CE2E",
+            "rva": "0xD5E02E",
+            "va": "0x140D5E02E"
+          },
+          {
+            "raw": "0xD600B2",
+            "rva": "0xD612B2",
+            "va": "0x140D612B2"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x3C6DEC",
+            "instructionVa": "0x1403C6DEC",
+            "mnemonic": "lea",
+            "opStr": "r8, [rip + 0x992322]",
+            "referenceKind": "string",
+            "targetVa": "0x140D59115",
+            "functionRva": "0x3C6C53-0x3C6F68"
+          },
+          {
+            "instructionRva": "0x3C7286",
+            "instructionVa": "0x1403C7286",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x991e88]",
+            "referenceKind": "string",
+            "targetVa": "0x140D59115",
+            "functionRva": "0x3C722A-0x3CAEA5"
+          },
+          {
+            "instructionRva": "0x3CE558",
+            "instructionVa": "0x1403CE558",
+            "mnemonic": "lea",
+            "opStr": "r8, [rip + 0x98abb6]",
+            "referenceKind": "string",
+            "targetVa": "0x140D59115",
+            "functionRva": "0x3CE26A-0x3CE790"
+          },
+          {
+            "instructionRva": "0x3D3050",
+            "instructionVa": "0x1403D3050",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x9860be]",
+            "referenceKind": "string",
+            "targetVa": "0x140D59115",
+            "functionRva": "0x3D280A-0x3D47D8"
+          },
+          {
+            "instructionRva": "0x3E0064",
+            "instructionVa": "0x1403E0064",
+            "mnemonic": "lea",
+            "opStr": "r8, [rip + 0x9790aa]",
+            "referenceKind": "string",
+            "targetVa": "0x140D59115",
+            "functionRva": "0x3DE414-0x3E085E"
+          },
+          {
+            "instructionRva": "0x3E08B5",
+            "instructionVa": "0x1403E08B5",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x978859]",
+            "referenceKind": "string",
+            "targetVa": "0x140D59115",
+            "functionRva": "0x3E085E-0x3E10E7"
+          },
+          {
+            "instructionRva": "0x3E17F1",
+            "instructionVa": "0x1403E17F1",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x97791d]",
+            "referenceKind": "string",
+            "targetVa": "0x140D59115",
+            "functionRva": "0x3E10E7-0x3E6952"
+          },
+          {
+            "instructionRva": "0x3E1933",
+            "instructionVa": "0x1403E1933",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x9777db]",
+            "referenceKind": "string",
+            "targetVa": "0x140D59115",
+            "functionRva": "0x3E10E7-0x3E6952"
+          }
+        ]
+      },
+      "map_scan_clear": {
+        "occurrences": [
+          {
+            "raw": "0x828715",
+            "rva": "0x829915",
+            "va": "0x140829915"
+          },
+          {
+            "raw": "0x83E1E5",
+            "rva": "0x83F3E5",
+            "va": "0x14083F3E5"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x1912FB",
+            "instructionVa": "0x1401912FB",
+            "mnemonic": "lea",
+            "opStr": "r12, [rip + 0x698613]",
+            "referenceKind": "string",
+            "targetVa": "0x140829915",
+            "functionRva": "0x191253-0x191ACA"
+          },
+          {
+            "instructionRva": "0x2197BD",
+            "instructionVa": "0x1402197BD",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x625c21]",
+            "referenceKind": "string",
+            "targetVa": "0x14083F3E5",
+            "functionRva": "0x218023-0x21C5B4"
+          }
+        ]
+      },
+      "map_scan_start": {
+        "occurrences": [
+          {
+            "raw": "0x828927",
+            "rva": "0x829B27",
+            "va": "0x140829B27"
+          },
+          {
+            "raw": "0x83E1CA",
+            "rva": "0x83F3CA",
+            "va": "0x14083F3CA"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x143E0B",
+            "instructionVa": "0x140143E0B",
+            "mnemonic": "lea",
+            "opStr": "r15, [rip + 0x6e5d15]",
+            "referenceKind": "string",
+            "targetVa": "0x140829B27",
+            "functionRva": "0x143D67-0x144C41"
+          },
+          {
+            "instructionRva": "0x14429E",
+            "instructionVa": "0x14014429E",
+            "mnemonic": "lea",
+            "opStr": "r8, [rip + 0x6e5882]",
+            "referenceKind": "string",
+            "targetVa": "0x140829B27",
+            "functionRva": "0x143D67-0x144C41"
+          },
+          {
+            "instructionRva": "0x218CA9",
+            "instructionVa": "0x140218CA9",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x62671a]",
+            "referenceKind": "string",
+            "targetVa": "0x14083F3CA",
+            "functionRva": "0x218023-0x21C5B4"
+          }
+        ]
+      },
+      "map_scan_status": {
+        "occurrences": [
+          {
+            "raw": "0x82888E",
+            "rva": "0x829A8E",
+            "va": "0x140829A8E"
+          },
+          {
+            "raw": "0x83E1B0",
+            "rva": "0x83F3B0",
+            "va": "0x14083F3B0"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x1599C9",
+            "instructionVa": "0x1401599C9",
+            "mnemonic": "lea",
+            "opStr": "r12, [rip + 0x6d00be]",
+            "referenceKind": "string",
+            "targetVa": "0x140829A8E",
+            "functionRva": "0x159925-0x15A27B"
+          },
+          {
+            "instructionRva": "0x218D3E",
+            "instructionVa": "0x140218D3E",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x62666b]",
+            "referenceKind": "string",
+            "targetVa": "0x14083F3B0",
+            "functionRva": "0x218023-0x21C5B4"
+          }
+        ]
+      },
+      "map_scan_stop": {
+        "occurrences": [
+          {
+            "raw": "0x828C2A",
+            "rva": "0x829E2A",
+            "va": "0x140829E2A"
+          },
+          {
+            "raw": "0x83E1D8",
+            "rva": "0x83F3D8",
+            "va": "0x14083F3D8"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x13A965",
+            "instructionVa": "0x14013A965",
+            "mnemonic": "lea",
+            "opStr": "r15, [rip + 0x6ef4be]",
+            "referenceKind": "string",
+            "targetVa": "0x140829E2A",
+            "functionRva": "0x13A8C1-0x13B390"
+          },
+          {
+            "instructionRva": "0x13ACA5",
+            "instructionVa": "0x14013ACA5",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x6ef17e]",
+            "referenceKind": "string",
+            "targetVa": "0x140829E2A",
+            "functionRva": "0x13A8C1-0x13B390"
+          },
+          {
+            "instructionRva": "0x218A51",
+            "instructionVa": "0x140218A51",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x626980]",
+            "referenceKind": "string",
+            "targetVa": "0x14083F3D8",
+            "functionRva": "0x218023-0x21C5B4"
+          }
+        ]
+      },
+      "map_search": {
+        "occurrences": [
+          {
+            "raw": "0x828BF7",
+            "rva": "0x829DF7",
+            "va": "0x140829DF7"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x176265",
+            "instructionVa": "0x140176265",
+            "mnemonic": "lea",
+            "opStr": "r15, [rip + 0x6b3b8b]",
+            "referenceKind": "string",
+            "targetVa": "0x140829DF7",
+            "functionRva": "0x1761C1-0x176ED4"
+          }
+        ]
+      },
+      "map_summary": {
+        "occurrences": [
+          {
+            "raw": "0x828C8A",
+            "rva": "0x829E8A",
+            "va": "0x140829E8A"
+          },
+          {
+            "raw": "0x83E1BF",
+            "rva": "0x83F3BF",
+            "va": "0x14083F3BF"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x112BE9",
+            "instructionVa": "0x140112BE9",
+            "mnemonic": "lea",
+            "opStr": "r14, [rip + 0x71729a]",
+            "referenceKind": "string",
+            "targetVa": "0x140829E8A",
+            "functionRva": "0x112B45-0x1139C4"
+          },
+          {
+            "instructionRva": "0x2190F1",
+            "instructionVa": "0x1402190F1",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x6262c7]",
+            "referenceKind": "string",
+            "targetVa": "0x14083F3BF",
+            "functionRva": "0x218023-0x21C5B4"
+          }
+        ]
+      },
+      "map_treasure_claim": {
+        "occurrences": [
+          {
+            "raw": "0x8286F9",
+            "rva": "0x8298F9",
+            "va": "0x1408298F9"
+          },
+          {
+            "raw": "0x828739",
+            "rva": "0x829939",
+            "va": "0x140829939"
+          },
+          {
+            "raw": "0x83E22D",
+            "rva": "0x83F42D",
+            "va": "0x14083F42D"
+          },
+          {
+            "raw": "0x83E23F",
+            "rva": "0x83F43F",
+            "va": "0x14083F43F"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x115D01",
+            "instructionVa": "0x140115D01",
+            "mnemonic": "lea",
+            "opStr": "r15, [rip + 0x713c31]",
+            "referenceKind": "string",
+            "targetVa": "0x140829939",
+            "functionRva": "0x115C5D-0x1166BE"
+          },
+          {
+            "instructionRva": "0x18EEB3",
+            "instructionVa": "0x14018EEB3",
+            "mnemonic": "lea",
+            "opStr": "r14, [rip + 0x69aa3f]",
+            "referenceKind": "string",
+            "targetVa": "0x1408298F9",
+            "functionRva": "0x18EE07-0x190734"
+          },
+          {
+            "instructionRva": "0x18F2DA",
+            "instructionVa": "0x14018F2DA",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x69a618]",
+            "referenceKind": "string",
+            "targetVa": "0x1408298F9",
+            "functionRva": "0x18EE07-0x190734"
+          },
+          {
+            "instructionRva": "0x218606",
+            "instructionVa": "0x140218606",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x626e20]",
+            "referenceKind": "string",
+            "targetVa": "0x14083F42D",
+            "functionRva": "0x218023-0x21C5B4"
+          },
+          {
+            "instructionRva": "0x219534",
+            "instructionVa": "0x140219534",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x625f04]",
+            "referenceKind": "string",
+            "targetVa": "0x14083F43F",
+            "functionRva": "0x218023-0x21C5B4"
+          }
+        ]
+      },
+      "map_treasure_claim_status": {
+        "occurrences": [
+          {
+            "raw": "0x828739",
+            "rva": "0x829939",
+            "va": "0x140829939"
+          },
+          {
+            "raw": "0x83E23F",
+            "rva": "0x83F43F",
+            "va": "0x14083F43F"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x115D01",
+            "instructionVa": "0x140115D01",
+            "mnemonic": "lea",
+            "opStr": "r15, [rip + 0x713c31]",
+            "referenceKind": "string",
+            "targetVa": "0x140829939",
+            "functionRva": "0x115C5D-0x1166BE"
+          },
+          {
+            "instructionRva": "0x219534",
+            "instructionVa": "0x140219534",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x625f04]",
+            "referenceKind": "string",
+            "targetVa": "0x14083F43F",
+            "functionRva": "0x218023-0x21C5B4"
+          }
+        ]
+      },
+      "map_treasure_state_refresh": {
+        "occurrences": [
+          {
+            "raw": "0x8287BF",
+            "rva": "0x8299BF",
+            "va": "0x1408299BF"
+          },
+          {
+            "raw": "0x82899B",
+            "rva": "0x829B9B",
+            "va": "0x140829B9B"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x14812B",
+            "instructionVa": "0x14014812B",
+            "mnemonic": "lea",
+            "opStr": "r14, [rip + 0x6e1a69]",
+            "referenceKind": "string",
+            "targetVa": "0x140829B9B",
+            "functionRva": "0x148087-0x148DB0"
+          },
+          {
+            "instructionRva": "0x148527",
+            "instructionVa": "0x140148527",
+            "mnemonic": "lea",
+            "opStr": "r8, [rip + 0x6e166d]",
+            "referenceKind": "string",
+            "targetVa": "0x140829B9B",
+            "functionRva": "0x148087-0x148DB0"
+          },
+          {
+            "instructionRva": "0x15F215",
+            "instructionVa": "0x14015F215",
+            "mnemonic": "lea",
+            "opStr": "r15, [rip + 0x6ca7a3]",
+            "referenceKind": "string",
+            "targetVa": "0x1408299BF",
+            "functionRva": "0x15F171-0x15FF87"
+          }
+        ]
+      },
+      "map_treasure_state_refresh_all": {
+        "occurrences": [
+          {
+            "raw": "0x82899B",
+            "rva": "0x829B9B",
+            "va": "0x140829B9B"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x14812B",
+            "instructionVa": "0x14014812B",
+            "mnemonic": "lea",
+            "opStr": "r14, [rip + 0x6e1a69]",
+            "referenceKind": "string",
+            "targetVa": "0x140829B9B",
+            "functionRva": "0x148087-0x148DB0"
+          },
+          {
+            "instructionRva": "0x148527",
+            "instructionVa": "0x140148527",
+            "mnemonic": "lea",
+            "opStr": "r8, [rip + 0x6e166d]",
+            "referenceKind": "string",
+            "targetVa": "0x140829B9B",
+            "functionRva": "0x148087-0x148DB0"
+          }
+        ]
+      },
+      "map_truck_plunder_cancel": {
+        "occurrences": [
+          {
+            "raw": "0x828AFC",
+            "rva": "0x829CFC",
+            "va": "0x140829CFC"
+          },
+          {
+            "raw": "0x83E2D4",
+            "rva": "0x83F4D4",
+            "va": "0x14083F4D4"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x142C6F",
+            "instructionVa": "0x140142C6F",
+            "mnemonic": "lea",
+            "opStr": "r15, [rip + 0x6e7086]",
+            "referenceKind": "string",
+            "targetVa": "0x140829CFC",
+            "functionRva": "0x142BC7-0x143508"
+          },
+          {
+            "instructionRva": "0x2196CA",
+            "instructionVa": "0x1402196CA",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x625e03]",
+            "referenceKind": "string",
+            "targetVa": "0x14083F4D4",
+            "functionRva": "0x218023-0x21C5B4"
+          }
+        ]
+      },
+      "map_truck_plunder_clear": {
+        "occurrences": [
+          {
+            "raw": "0x828AA9",
+            "rva": "0x829CA9",
+            "va": "0x140829CA9"
+          },
+          {
+            "raw": "0x83E303",
+            "rva": "0x83F503",
+            "va": "0x14083F503"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x145D1D",
+            "instructionVa": "0x140145D1D",
+            "mnemonic": "lea",
+            "opStr": "r12, [rip + 0x6e3f85]",
+            "referenceKind": "string",
+            "targetVa": "0x140829CA9",
+            "functionRva": "0x145C75-0x1466DD"
+          },
+          {
+            "instructionRva": "0x219003",
+            "instructionVa": "0x140219003",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x6264f9]",
+            "referenceKind": "string",
+            "targetVa": "0x14083F503",
+            "functionRva": "0x218023-0x21C5B4"
+          }
+        ]
+      },
+      "map_truck_plunder_schedule": {
+        "occurrences": [
+          {
+            "raw": "0x828AC0",
+            "rva": "0x829CC0",
+            "va": "0x140829CC0"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x175607",
+            "instructionVa": "0x140175607",
+            "mnemonic": "lea",
+            "opStr": "r14, [rip + 0x6b46b2]",
+            "referenceKind": "string",
+            "targetVa": "0x140829CC0",
+            "functionRva": "0x17555F-0x1761C1"
+          }
+        ]
+      },
+      "native world capture session stopped": {
+        "occurrences": [
+          {
+            "raw": "0xD681AD",
+            "rva": "0xD693AD",
+            "va": "0x140D693AD"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x427DC0",
+            "instructionVa": "0x140427DC0",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x9415e6]",
+            "referenceKind": "string",
+            "targetVa": "0x140D693AD",
+            "functionRva": "0x427120-0x428A92"
+          }
+        ]
+      },
+      "nativeCaptureReady": {
+        "occurrences": [
+          {
+            "raw": "0x82DFCA",
+            "rva": "0x82F1CA",
+            "va": "0x14082F1CA"
+          },
+          {
+            "raw": "0xD68172",
+            "rva": "0xD69372",
+            "va": "0x140D69372"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0xFB5FD",
+            "instructionVa": "0x1400FB5FD",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x733bc6]",
+            "referenceKind": "string",
+            "targetVa": "0x14082F1CA",
+            "functionRva": "0xFA09E-0xFC643"
+          },
+          {
+            "instructionRva": "0xFBE6D",
+            "instructionVa": "0x1400FBE6D",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x733356]",
+            "referenceKind": "string",
+            "targetVa": "0x14082F1CA",
+            "functionRva": "0xFA09E-0xFC643"
+          },
+          {
+            "instructionRva": "0x427BEE",
+            "instructionVa": "0x140427BEE",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x94177d]",
+            "referenceKind": "string",
+            "targetVa": "0x140D69372",
+            "functionRva": "0x427120-0x428A92"
+          },
+          {
+            "instructionRva": "0x42A77F",
+            "instructionVa": "0x14042A77F",
+            "mnemonic": "movups",
+            "opStr": "xmm0, xmmword ptr [rip + 0x93ebec]",
+            "referenceKind": "string",
+            "targetVa": "0x140D69372",
+            "functionRva": "0x429CE9-0x42AABC"
+          }
+        ]
+      },
+      "nativeDroppedRecords": {
+        "occurrences": [
+          {
+            "raw": "0x82DFB6",
+            "rva": "0x82F1B6",
+            "va": "0x14082F1B6"
+          },
+          {
+            "raw": "0xD67F11",
+            "rva": "0xD69111",
+            "va": "0x140D69111"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0xFB5D4",
+            "instructionVa": "0x1400FB5D4",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x733bdb]",
+            "referenceKind": "string",
+            "targetVa": "0x14082F1B6",
+            "functionRva": "0xFA09E-0xFC643"
+          },
+          {
+            "instructionRva": "0x426B72",
+            "instructionVa": "0x140426B72",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x942598]",
+            "referenceKind": "string",
+            "targetVa": "0x140D69111",
+            "functionRva": "0x426A05-0x426D07"
+          },
+          {
+            "instructionRva": "0x427C61",
+            "instructionVa": "0x140427C61",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x9414a9]",
+            "referenceKind": "string",
+            "targetVa": "0x140D69111",
+            "functionRva": "0x427120-0x428A92"
+          },
+          {
+            "instructionRva": "0x42A85A",
+            "instructionVa": "0x14042A85A",
+            "mnemonic": "movups",
+            "opStr": "xmm0, xmmword ptr [rip + 0x93e8b0]",
+            "referenceKind": "string",
+            "targetVa": "0x140D69111",
+            "functionRva": "0x429CE9-0x42AABC"
+          }
+        ]
+      },
+      "nativePendingRecords": {
+        "occurrences": [
+          {
+            "raw": "0x82DFA2",
+            "rva": "0x82F1A2",
+            "va": "0x14082F1A2"
+          },
+          {
+            "raw": "0xD67EFD",
+            "rva": "0xD690FD",
+            "va": "0x140D690FD"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0xFB5A8",
+            "instructionVa": "0x1400FB5A8",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x733bf3]",
+            "referenceKind": "string",
+            "targetVa": "0x14082F1A2",
+            "functionRva": "0xFA09E-0xFC643"
+          },
+          {
+            "instructionRva": "0x426B56",
+            "instructionVa": "0x140426B56",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x9425a0]",
+            "referenceKind": "string",
+            "targetVa": "0x140D690FD",
+            "functionRva": "0x426A05-0x426D07"
+          },
+          {
+            "instructionRva": "0x427C25",
+            "instructionVa": "0x140427C25",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x9414d1]",
+            "referenceKind": "string",
+            "targetVa": "0x140D690FD",
+            "functionRva": "0x427120-0x428A92"
+          },
+          {
+            "instructionRva": "0x42A7E9",
+            "instructionVa": "0x14042A7E9",
+            "mnemonic": "movups",
+            "opStr": "xmm0, xmmword ptr [rip + 0x93e90d]",
+            "referenceKind": "string",
+            "targetVa": "0x140D690FD",
+            "functionRva": "0x429CE9-0x42AABC"
+          }
+        ]
+      },
+      "player_marks": {
+        "occurrences": [
+          {
+            "raw": "0xD56CE3",
+            "rva": "0xD57EE3",
+            "va": "0x140D57EE3"
+          },
+          {
+            "raw": "0xD57F53",
+            "rva": "0xD59153",
+            "va": "0x140D59153"
+          },
+          {
+            "raw": "0xD58F9A",
+            "rva": "0xD5A19A",
+            "va": "0x140D5A19A"
+          },
+          {
+            "raw": "0xD58FE3",
+            "rva": "0xD5A1E3",
+            "va": "0x140D5A1E3"
+          },
+          {
+            "raw": "0xD590C1",
+            "rva": "0xD5A2C1",
+            "va": "0x140D5A2C1"
+          },
+          {
+            "raw": "0xD593EC",
+            "rva": "0xD5A5EC",
+            "va": "0x140D5A5EC"
+          },
+          {
+            "raw": "0xD5A860",
+            "rva": "0xD5BA60",
+            "va": "0x140D5BA60"
+          },
+          {
+            "raw": "0xD5AD7E",
+            "rva": "0xD5BF7E",
+            "va": "0x140D5BF7E"
+          },
+          {
+            "raw": "0xD5AE5A",
+            "rva": "0xD5C05A",
+            "va": "0x140D5C05A"
+          },
+          {
+            "raw": "0xD5AF9C",
+            "rva": "0xD5C19C",
+            "va": "0x140D5C19C"
+          },
+          {
+            "raw": "0xD5AFFF",
+            "rva": "0xD5C1FF",
+            "va": "0x140D5C1FF"
+          },
+          {
+            "raw": "0xD5E80F",
+            "rva": "0xD5FA0F",
+            "va": "0x140D5FA0F"
+          },
+          {
+            "raw": "0xD5F5D5",
+            "rva": "0xD607D5",
+            "va": "0x140D607D5"
+          },
+          {
+            "raw": "0xD5FF4C",
+            "rva": "0xD6114C",
+            "va": "0x140D6114C"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x3D319A",
+            "instructionVa": "0x1403D319A",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x9888bf]",
+            "referenceKind": "string",
+            "targetVa": "0x140D5BA60",
+            "functionRva": "0x3D280A-0x3D47D8"
+          }
+        ]
+      },
+      "resumeAvailable": {
+        "occurrences": [
+          {
+            "raw": "0x8298D2",
+            "rva": "0x82AAD2",
+            "va": "0x14082AAD2"
+          },
+          {
+            "raw": "0xD67E11",
+            "rva": "0xD69011",
+            "va": "0x140D69011"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0xFB694",
+            "instructionVa": "0x1400FB694",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x72f437]",
+            "referenceKind": "string",
+            "targetVa": "0x14082AAD2",
+            "functionRva": "0xFA09E-0xFC643"
+          },
+          {
+            "instructionRva": "0x14434C",
+            "instructionVa": "0x14014434C",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x6e677f]",
+            "referenceKind": "string",
+            "targetVa": "0x14082AAD2",
+            "functionRva": "0x143D67-0x144C41"
+          },
+          {
+            "instructionRva": "0x4269CB",
+            "instructionVa": "0x1404269CB",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x94263f]",
+            "referenceKind": "string",
+            "targetVa": "0x140D69011",
+            "functionRva": "0x42612D-0x426A05"
+          },
+          {
+            "instructionRva": "0x426C83",
+            "instructionVa": "0x140426C83",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x942387]",
+            "referenceKind": "string",
+            "targetVa": "0x140D69011",
+            "functionRva": "0x426A05-0x426D07"
+          },
+          {
+            "instructionRva": "0x426F5E",
+            "instructionVa": "0x140426F5E",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x9420ac]",
+            "referenceKind": "string",
+            "targetVa": "0x140D69011",
+            "functionRva": "0x426D67-0x427069"
+          },
+          {
+            "instructionRva": "0x42869F",
+            "instructionVa": "0x14042869F",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x94096b]",
+            "referenceKind": "string",
+            "targetVa": "0x140D69011",
+            "functionRva": "0x427120-0x428A92"
+          },
+          {
+            "instructionRva": "0x42AFCF",
+            "instructionVa": "0x14042AFCF",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x93e03b]",
+            "referenceKind": "string",
+            "targetVa": "0x140D69011",
+            "functionRva": "0x42AB3A-0x42B1C1"
+          }
+        ]
+      },
+      "scan_records": {
+        "occurrences": [
+          {
+            "raw": "0xD56021",
+            "rva": "0xD57221",
+            "va": "0x140D57221"
+          },
+          {
+            "raw": "0xD56AA1",
+            "rva": "0xD57CA1",
+            "va": "0x140D57CA1"
+          },
+          {
+            "raw": "0xD579B1",
+            "rva": "0xD58BB1",
+            "va": "0x140D58BB1"
+          },
+          {
+            "raw": "0xD579DC",
+            "rva": "0xD58BDC",
+            "va": "0x140D58BDC"
+          },
+          {
+            "raw": "0xD57F93",
+            "rva": "0xD59193",
+            "va": "0x140D59193"
+          },
+          {
+            "raw": "0xD59E3B",
+            "rva": "0xD5B03B",
+            "va": "0x140D5B03B"
+          },
+          {
+            "raw": "0xD5C678",
+            "rva": "0xD5D878",
+            "va": "0x140D5D878"
+          },
+          {
+            "raw": "0xD5CD6E",
+            "rva": "0xD5DF6E",
+            "va": "0x140D5DF6E"
+          },
+          {
+            "raw": "0xD602E6",
+            "rva": "0xD614E6",
+            "va": "0x140D614E6"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x3C728D",
+            "instructionVa": "0x1403C728D",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x991eff]",
+            "referenceKind": "string",
+            "targetVa": "0x140D59193",
+            "functionRva": "0x3C722A-0x3CAEA5"
+          },
+          {
+            "instructionRva": "0x3CF31E",
+            "instructionVa": "0x1403CF31E",
+            "mnemonic": "lea",
+            "opStr": "r8, [rip + 0x989e6e]",
+            "referenceKind": "string",
+            "targetVa": "0x140D59193",
+            "functionRva": "0x3CEFDA-0x3CF585"
+          },
+          {
+            "instructionRva": "0x3E08BC",
+            "instructionVa": "0x1403E08BC",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x9788d0]",
+            "referenceKind": "string",
+            "targetVa": "0x140D59193",
+            "functionRva": "0x3E085E-0x3E10E7"
+          },
+          {
+            "instructionRva": "0x3E1253",
+            "instructionVa": "0x1403E1253",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x977f39]",
+            "referenceKind": "string",
+            "targetVa": "0x140D59193",
+            "functionRva": "0x3E10E7-0x3E6952"
+          }
+        ]
+      },
+      "selectedTypes": {
+        "occurrences": [
+          {
+            "raw": "0x8298A6",
+            "rva": "0x82AAA6",
+            "va": "0x14082AAA6"
+          },
+          {
+            "raw": "0xD55DD1",
+            "rva": "0xD56FD1",
+            "va": "0x140D56FD1"
+          },
+          {
+            "raw": "0xD67EF0",
+            "rva": "0xD690F0",
+            "va": "0x140D690F0"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0xFA91A",
+            "instructionVa": "0x1400FA91A",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x730185]",
+            "referenceKind": "string",
+            "targetVa": "0x14082AAA6",
+            "functionRva": "0xFA09E-0xFC643"
+          },
+          {
+            "instructionRva": "0xFADCC",
+            "instructionVa": "0x1400FADCC",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x72fcd3]",
+            "referenceKind": "string",
+            "targetVa": "0x14082AAA6",
+            "functionRva": "0xFA09E-0xFC643"
+          },
+          {
+            "instructionRva": "0xFB2AF",
+            "instructionVa": "0x1400FB2AF",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x72f7f0]",
+            "referenceKind": "string",
+            "targetVa": "0x14082AAA6",
+            "functionRva": "0xFA09E-0xFC643"
+          },
+          {
+            "instructionRva": "0xFB942",
+            "instructionVa": "0x1400FB942",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x72f15d]",
+            "referenceKind": "string",
+            "targetVa": "0x14082AAA6",
+            "functionRva": "0xFA09E-0xFC643"
+          },
+          {
+            "instructionRva": "0x144219",
+            "instructionVa": "0x140144219",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x6e6886]",
+            "referenceKind": "string",
+            "targetVa": "0x14082AAA6",
+            "functionRva": "0x143D67-0x144C41"
+          },
+          {
+            "instructionRva": "0x3C3EEE",
+            "instructionVa": "0x1403C3EEE",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x9930dc]",
+            "referenceKind": "string",
+            "targetVa": "0x140D56FD1",
+            "functionRva": "0x3C3E76-0x3C4852"
+          },
+          {
+            "instructionRva": "0x3CFBEC",
+            "instructionVa": "0x1403CFBEC",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x9873de]",
+            "referenceKind": "string",
+            "targetVa": "0x140D56FD1",
+            "functionRva": "0x3CF96B-0x3D0A03"
+          },
+          {
+            "instructionRva": "0x426AAE",
+            "instructionVa": "0x140426AAE",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x94263b]",
+            "referenceKind": "string",
+            "targetVa": "0x140D690F0",
+            "functionRva": "0x426A05-0x426D07"
+          },
+          {
+            "instructionRva": "0x42767C",
+            "instructionVa": "0x14042767C",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x941a6d]",
+            "referenceKind": "string",
+            "targetVa": "0x140D690F0",
+            "functionRva": "0x427120-0x428A92"
+          },
+          {
+            "instructionRva": "0x429364",
+            "instructionVa": "0x140429364",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x93fd85]",
+            "referenceKind": "string",
+            "targetVa": "0x140D690F0",
+            "functionRva": "0x42914B-0x4296C7"
+          }
+        ]
+      },
+      "server_jump": {
+        "occurrences": [
+          {
+            "raw": "0x828819",
+            "rva": "0x829A19",
+            "va": "0x140829A19"
+          },
+          {
+            "raw": "0x8288BC",
+            "rva": "0x829ABC",
+            "va": "0x140829ABC"
+          },
+          {
+            "raw": "0x828D61",
+            "rva": "0x829F61",
+            "va": "0x140829F61"
+          },
+          {
+            "raw": "0x828D78",
+            "rva": "0x829F78",
+            "va": "0x140829F78"
+          },
+          {
+            "raw": "0x83D090",
+            "rva": "0x83E290",
+            "va": "0x14083E290"
+          },
+          {
+            "raw": "0x83E182",
+            "rva": "0x83F382",
+            "va": "0x14083F382"
+          },
+          {
+            "raw": "0x83E199",
+            "rva": "0x83F399",
+            "va": "0x14083F399"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x12DADE",
+            "instructionVa": "0x14012DADE",
+            "mnemonic": "lea",
+            "opStr": "r12, [rip + 0x6fc47c]",
+            "referenceKind": "string",
+            "targetVa": "0x140829F61",
+            "functionRva": "0x12DA36-0x12E460"
+          },
+          {
+            "instructionRva": "0x1587EB",
+            "instructionVa": "0x1401587EB",
+            "mnemonic": "lea",
+            "opStr": "r12, [rip + 0x6d1786]",
+            "referenceKind": "string",
+            "targetVa": "0x140829F78",
+            "functionRva": "0x158743-0x159160"
+          },
+          {
+            "instructionRva": "0x1821B6",
+            "instructionVa": "0x1401821B6",
+            "mnemonic": "lea",
+            "opStr": "r15, [rip + 0x6a785c]",
+            "referenceKind": "string",
+            "targetVa": "0x140829A19",
+            "functionRva": "0x182112-0x182C0D"
+          },
+          {
+            "instructionRva": "0x18260F",
+            "instructionVa": "0x14018260F",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x6a7403]",
+            "referenceKind": "string",
+            "targetVa": "0x140829A19",
+            "functionRva": "0x182112-0x182C0D"
+          },
+          {
+            "instructionRva": "0x1A608C",
+            "instructionVa": "0x1401A608C",
+            "mnemonic": "lea",
+            "opStr": "r12, [rip + 0x683a29]",
+            "referenceKind": "string",
+            "targetVa": "0x140829ABC",
+            "functionRva": "0x1A5FE4-0x1A6B75"
+          },
+          {
+            "instructionRva": "0x2181AD",
+            "instructionVa": "0x1402181AD",
+            "mnemonic": "pcmpeqb",
+            "opStr": "xmm0, xmmword ptr [rip + 0x6260db]",
+            "referenceKind": "string",
+            "targetVa": "0x14083E290",
+            "functionRva": "0x218023-0x21C5B4"
+          },
+          {
+            "instructionRva": "0x218FB5",
+            "instructionVa": "0x140218FB5",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x6263c6]",
+            "referenceKind": "string",
+            "targetVa": "0x14083F382",
+            "functionRva": "0x218023-0x21C5B4"
+          },
+          {
+            "instructionRva": "0x218FCF",
+            "instructionVa": "0x140218FCF",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x6263c3]",
+            "referenceKind": "string",
+            "targetVa": "0x14083F399",
+            "functionRva": "0x218023-0x21C5B4"
+          }
+        ]
+      },
+      "server_jump_history": {
+        "occurrences": [
+          {
+            "raw": "0x8288BC",
+            "rva": "0x829ABC",
+            "va": "0x140829ABC"
+          },
+          {
+            "raw": "0x828D61",
+            "rva": "0x829F61",
+            "va": "0x140829F61"
+          },
+          {
+            "raw": "0x828D78",
+            "rva": "0x829F78",
+            "va": "0x140829F78"
+          },
+          {
+            "raw": "0x83E182",
+            "rva": "0x83F382",
+            "va": "0x14083F382"
+          },
+          {
+            "raw": "0x83E199",
+            "rva": "0x83F399",
+            "va": "0x14083F399"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x12DADE",
+            "instructionVa": "0x14012DADE",
+            "mnemonic": "lea",
+            "opStr": "r12, [rip + 0x6fc47c]",
+            "referenceKind": "string",
+            "targetVa": "0x140829F61",
+            "functionRva": "0x12DA36-0x12E460"
+          },
+          {
+            "instructionRva": "0x1587EB",
+            "instructionVa": "0x1401587EB",
+            "mnemonic": "lea",
+            "opStr": "r12, [rip + 0x6d1786]",
+            "referenceKind": "string",
+            "targetVa": "0x140829F78",
+            "functionRva": "0x158743-0x159160"
+          },
+          {
+            "instructionRva": "0x1A608C",
+            "instructionVa": "0x1401A608C",
+            "mnemonic": "lea",
+            "opStr": "r12, [rip + 0x683a29]",
+            "referenceKind": "string",
+            "targetVa": "0x140829ABC",
+            "functionRva": "0x1A5FE4-0x1A6B75"
+          },
+          {
+            "instructionRva": "0x218FB5",
+            "instructionVa": "0x140218FB5",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x6263c6]",
+            "referenceKind": "string",
+            "targetVa": "0x14083F382",
+            "functionRva": "0x218023-0x21C5B4"
+          },
+          {
+            "instructionRva": "0x218FCF",
+            "instructionVa": "0x140218FCF",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x6263c3]",
+            "referenceKind": "string",
+            "targetVa": "0x14083F399",
+            "functionRva": "0x218023-0x21C5B4"
+          }
+        ]
+      },
+      "server_jump_history_import": {
+        "occurrences": [
+          {
+            "raw": "0x8288BC",
+            "rva": "0x829ABC",
+            "va": "0x140829ABC"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x1A608C",
+            "instructionVa": "0x1401A608C",
+            "mnemonic": "lea",
+            "opStr": "r12, [rip + 0x683a29]",
+            "referenceKind": "string",
+            "targetVa": "0x140829ABC",
+            "functionRva": "0x1A5FE4-0x1A6B75"
+          }
+        ]
+      },
+      "server_jump_history_set": {
+        "occurrences": [
+          {
+            "raw": "0x828D78",
+            "rva": "0x829F78",
+            "va": "0x140829F78"
+          },
+          {
+            "raw": "0x83E199",
+            "rva": "0x83F399",
+            "va": "0x14083F399"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x1587EB",
+            "instructionVa": "0x1401587EB",
+            "mnemonic": "lea",
+            "opStr": "r12, [rip + 0x6d1786]",
+            "referenceKind": "string",
+            "targetVa": "0x140829F78",
+            "functionRva": "0x158743-0x159160"
+          },
+          {
+            "instructionRva": "0x218FCF",
+            "instructionVa": "0x140218FCF",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x6263c3]",
+            "referenceKind": "string",
+            "targetVa": "0x14083F399",
+            "functionRva": "0x218023-0x21C5B4"
+          }
+        ]
+      },
+      "src\\commands\\map.rs": {
+        "occurrences": [
+          {
+            "raw": "0x829768",
+            "rva": "0x82A968",
+            "va": "0x14082A968",
+            "descriptors": [
+              {
+                "raw": "0x829780",
+                "rva": "0x82A980",
+                "va": "0x14082A980"
+              },
+              {
+                "raw": "0x8297A0",
+                "rva": "0x82A9A0",
+                "va": "0x14082A9A0"
+              },
+              {
+                "raw": "0x8297B8",
+                "rva": "0x82A9B8",
+                "va": "0x14082A9B8"
+              },
+              {
+                "raw": "0x8297D0",
+                "rva": "0x82A9D0",
+                "va": "0x14082A9D0"
+              },
+              {
+                "raw": "0x829838",
+                "rva": "0x82AA38",
+                "va": "0x14082AA38"
+              },
+              {
+                "raw": "0x829870",
+                "rva": "0x82AA70",
+                "va": "0x14082AA70"
+              },
+              {
+                "raw": "0x829888",
+                "rva": "0x82AA88",
+                "va": "0x14082AA88"
+              },
+              {
+                "raw": "0x8298E8",
+                "rva": "0x82AAE8",
+                "va": "0x14082AAE8"
+              },
+              {
+                "raw": "0x829990",
+                "rva": "0x82AB90",
+                "va": "0x14082AB90"
+              },
+              {
+                "raw": "0x8299B0",
+                "rva": "0x82ABB0",
+                "va": "0x14082ABB0"
+              },
+              {
+                "raw": "0x829A40",
+                "rva": "0x82AC40",
+                "va": "0x14082AC40"
+              },
+              {
+                "raw": "0x829A58",
+                "rva": "0x82AC58",
+                "va": "0x14082AC58"
+              },
+              {
+                "raw": "0x829A70",
+                "rva": "0x82AC70",
+                "va": "0x14082AC70"
+              },
+              {
+                "raw": "0x829A88",
+                "rva": "0x82AC88",
+                "va": "0x14082AC88"
+              },
+              {
+                "raw": "0x829AB0",
+                "rva": "0x82ACB0",
+                "va": "0x14082ACB0"
+              },
+              {
+                "raw": "0x829AC8",
+                "rva": "0x82ACC8",
+                "va": "0x14082ACC8"
+              },
+              {
+                "raw": "0x829B20",
+                "rva": "0x82AD20",
+                "va": "0x14082AD20"
+              },
+              {
+                "raw": "0x829B48",
+                "rva": "0x82AD48",
+                "va": "0x14082AD48"
+              },
+              {
+                "raw": "0x829B78",
+                "rva": "0x82AD78",
+                "va": "0x14082AD78"
+              },
+              {
+                "raw": "0x829BC0",
+                "rva": "0x82ADC0",
+                "va": "0x14082ADC0"
+              },
+              {
+                "raw": "0x829D00",
+                "rva": "0x82AF00",
+                "va": "0x14082AF00"
+              },
+              {
+                "raw": "0x829D30",
+                "rva": "0x82AF30",
+                "va": "0x14082AF30"
+              },
+              {
+                "raw": "0x829DC0",
+                "rva": "0x82AFC0",
+                "va": "0x14082AFC0"
+              },
+              {
+                "raw": "0x829DF0",
+                "rva": "0x82AFF0",
+                "va": "0x14082AFF0"
+              },
+              {
+                "raw": "0x829E08",
+                "rva": "0x82B008",
+                "va": "0x14082B008"
+              },
+              {
+                "raw": "0x829E70",
+                "rva": "0x82B070",
+                "va": "0x14082B070"
+              },
+              {
+                "raw": "0x829E88",
+                "rva": "0x82B088",
+                "va": "0x14082B088"
+              },
+              {
+                "raw": "0x829EF0",
+                "rva": "0x82B0F0",
+                "va": "0x14082B0F0"
+              },
+              {
+                "raw": "0x829F08",
+                "rva": "0x82B108",
+                "va": "0x14082B108"
+              },
+              {
+                "raw": "0x829F20",
+                "rva": "0x82B120",
+                "va": "0x14082B120"
+              },
+              {
+                "raw": "0x829F38",
+                "rva": "0x82B138",
+                "va": "0x14082B138"
+              },
+              {
+                "raw": "0x829F70",
+                "rva": "0x82B170",
+                "va": "0x14082B170"
+              },
+              {
+                "raw": "0x829FB0",
+                "rva": "0x82B1B0",
+                "va": "0x14082B1B0"
+              },
+              {
+                "raw": "0x829FE0",
+                "rva": "0x82B1E0",
+                "va": "0x14082B1E0"
+              },
+              {
+                "raw": "0x829FF8",
+                "rva": "0x82B1F8",
+                "va": "0x14082B1F8"
+              },
+              {
+                "raw": "0x82A018",
+                "rva": "0x82B218",
+                "va": "0x14082B218"
+              },
+              {
+                "raw": "0x82A030",
+                "rva": "0x82B230",
+                "va": "0x14082B230"
+              },
+              {
+                "raw": "0x82A060",
+                "rva": "0x82B260",
+                "va": "0x14082B260"
+              },
+              {
+                "raw": "0x82A098",
+                "rva": "0x82B298",
+                "va": "0x14082B298"
+              },
+              {
+                "raw": "0x82A0B0",
+                "rva": "0x82B2B0",
+                "va": "0x14082B2B0"
+              },
+              {
+                "raw": "0x82A0E0",
+                "rva": "0x82B2E0",
+                "va": "0x14082B2E0"
+              },
+              {
+                "raw": "0x82A0F8",
+                "rva": "0x82B2F8",
+                "va": "0x14082B2F8"
+              },
+              {
+                "raw": "0x82A110",
+                "rva": "0x82B310",
+                "va": "0x14082B310"
+              },
+              {
+                "raw": "0x82A128",
+                "rva": "0x82B328",
+                "va": "0x14082B328"
+              },
+              {
+                "raw": "0x82A140",
+                "rva": "0x82B340",
+                "va": "0x14082B340"
+              },
+              {
+                "raw": "0x82A158",
+                "rva": "0x82B358",
+                "va": "0x14082B358"
+              },
+              {
+                "raw": "0x82A1A0",
+                "rva": "0x82B3A0",
+                "va": "0x14082B3A0"
+              },
+              {
+                "raw": "0x82A1B8",
+                "rva": "0x82B3B8",
+                "va": "0x14082B3B8"
+              },
+              {
+                "raw": "0x82A1D0",
+                "rva": "0x82B3D0",
+                "va": "0x14082B3D0"
+              },
+              {
+                "raw": "0x82A1E8",
+                "rva": "0x82B3E8",
+                "va": "0x14082B3E8"
+              },
+              {
+                "raw": "0x82A208",
+                "rva": "0x82B408",
+                "va": "0x14082B408"
+              },
+              {
+                "raw": "0x82A298",
+                "rva": "0x82B498",
+                "va": "0x14082B498"
+              },
+              {
+                "raw": "0x82A2B0",
+                "rva": "0x82B4B0",
+                "va": "0x14082B4B0"
+              },
+              {
+                "raw": "0x82A2C8",
+                "rva": "0x82B4C8",
+                "va": "0x14082B4C8"
+              },
+              {
+                "raw": "0x82A2E0",
+                "rva": "0x82B4E0",
+                "va": "0x14082B4E0"
+              },
+              {
+                "raw": "0x82A2F8",
+                "rva": "0x82B4F8",
+                "va": "0x14082B4F8"
+              },
+              {
+                "raw": "0x82A370",
+                "rva": "0x82B570",
+                "va": "0x14082B570"
+              },
+              {
+                "raw": "0x82A3A8",
+                "rva": "0x82B5A8",
+                "va": "0x14082B5A8"
+              },
+              {
+                "raw": "0x82A3C0",
+                "rva": "0x82B5C0",
+                "va": "0x14082B5C0"
+              },
+              {
+                "raw": "0x82A470",
+                "rva": "0x82B670",
+                "va": "0x14082B670"
+              },
+              {
+                "raw": "0x82A4A8",
+                "rva": "0x82B6A8",
+                "va": "0x14082B6A8"
+              }
+            ]
+          },
+          {
+            "raw": "0xD538AB",
+            "rva": "0xD54AAB",
+            "va": "0x140D54AAB",
+            "descriptors": [
+              {
+                "raw": "0xD538C0",
+                "rva": "0xD54AC0",
+                "va": "0x140D54AC0"
+              }
+            ]
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0xDCAA3",
+            "instructionVa": "0x1400DCAA3",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x74e2ce]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082AD78",
+            "functionRva": "0xDCA7D-0xDCCDC"
+          },
+          {
+            "instructionRva": "0xDD2A2",
+            "instructionVa": "0x1400DD2A2",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x74dd5f]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082B008",
+            "functionRva": "0xDCCDC-0xDD807"
+          },
+          {
+            "instructionRva": "0xDD38C",
+            "instructionVa": "0x1400DD38C",
+            "mnemonic": "lea",
+            "opStr": "r9, [rip + 0x74dcdd]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082B070",
+            "functionRva": "0xDCCDC-0xDD807"
+          },
+          {
+            "instructionRva": "0xDDAAF",
+            "instructionVa": "0x1400DDAAF",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x74d7aa]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082B260",
+            "functionRva": "0xDD807-0xDE902"
+          },
+          {
+            "instructionRva": "0xDDEE0",
+            "instructionVa": "0x1400DDEE0",
+            "mnemonic": "lea",
+            "opStr": "r9, [rip + 0x74d3f9]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082B2E0",
+            "functionRva": "0xDD807-0xDE902"
+          },
+          {
+            "instructionRva": "0xDE83E",
+            "instructionVa": "0x1400DE83E",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x74cab3]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082B2F8",
+            "functionRva": "0xDD807-0xDE902"
+          },
+          {
+            "instructionRva": "0xDE857",
+            "instructionVa": "0x1400DE857",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x74ca52]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082B2B0",
+            "functionRva": "0xDD807-0xDE902"
+          },
+          {
+            "instructionRva": "0xDE88B",
+            "instructionVa": "0x1400DE88B",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x74ca06]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082B298",
+            "functionRva": "0xDD807-0xDE902"
+          },
+          {
+            "instructionRva": "0x10CB53",
+            "instructionVa": "0x14010CB53",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x71e99e]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082B4F8",
+            "functionRva": "0x10C27F-0x10D552"
+          },
+          {
+            "instructionRva": "0x10CF0A",
+            "instructionVa": "0x14010CF0A",
+            "mnemonic": "lea",
+            "opStr": "r9, [rip + 0x71e697]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082B5A8",
+            "functionRva": "0x10C27F-0x10D552"
+          },
+          {
+            "instructionRva": "0x10D4D3",
+            "instructionVa": "0x14010D4D3",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x71e096]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082B570",
+            "functionRva": "0x10C27F-0x10D552"
+          },
+          {
+            "instructionRva": "0x10F644",
+            "instructionVa": "0x14010F644",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x71baa5]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082B0F0",
+            "functionRva": "0x10E53B-0x10F6AF"
+          },
+          {
+            "instructionRva": "0x10F674",
+            "instructionVa": "0x14010F674",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x71ba0d]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082B088",
+            "functionRva": "0x10E53B-0x10F6AF"
+          },
+          {
+            "instructionRva": "0x113989",
+            "instructionVa": "0x140113989",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x717028]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082A9B8",
+            "functionRva": "0x112B45-0x1139C4"
+          },
+          {
+            "instructionRva": "0x115570",
+            "instructionVa": "0x140115570",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x715e29]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082B3A0",
+            "functionRva": "0x115333-0x115C5D"
+          },
+          {
+            "instructionRva": "0x1166B0",
+            "instructionVa": "0x1401166B0",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x714c89]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082B340",
+            "functionRva": "0x115C5D-0x1166BE"
+          },
+          {
+            "instructionRva": "0x125A02",
+            "instructionVa": "0x140125A02",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x70533f]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082AD48",
+            "functionRva": "0x1249C8-0x125A89"
+          },
+          {
+            "instructionRva": "0x125A1E",
+            "instructionVa": "0x140125A1E",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x7052fb]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082AD20",
+            "functionRva": "0x1249C8-0x125A89"
+          },
+          {
+            "instructionRva": "0x125A4E",
+            "instructionVa": "0x140125A4E",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x705273]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082ACC8",
+            "functionRva": "0x1249C8-0x125A89"
+          },
+          {
+            "instructionRva": "0x12AE54",
+            "instructionVa": "0x14012AE54",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x6ffd35]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082AB90",
+            "functionRva": "0x129FA7-0x12BC48"
+          },
+          {
+            "instructionRva": "0x12B10D",
+            "instructionVa": "0x14012B10D",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x6ffb2c]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082AC40",
+            "functionRva": "0x129FA7-0x12BC48"
+          },
+          {
+            "instructionRva": "0x12BB97",
+            "instructionVa": "0x14012BB97",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x6ff0ba]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082AC58",
+            "functionRva": "0x129FA7-0x12BC48"
+          },
+          {
+            "instructionRva": "0x12BBCE",
+            "instructionVa": "0x14012BBCE",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x6fefdb]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082ABB0",
+            "functionRva": "0x129FA7-0x12BC48"
+          },
+          {
+            "instructionRva": "0x12BBE3",
+            "instructionVa": "0x14012BBE3",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x6feefe]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082AAE8",
+            "functionRva": "0x129FA7-0x12BC48"
+          },
+          {
+            "instructionRva": "0x12DC87",
+            "instructionVa": "0x14012DC87",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x6fd522]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082B1B0",
+            "functionRva": "0x12DA36-0x12E460"
+          },
+          {
+            "instructionRva": "0x12E42F",
+            "instructionVa": "0x14012E42F",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x6fcdaa]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082B1E0",
+            "functionRva": "0x12DA36-0x12E460"
+          },
+          {
+            "instructionRva": "0x12E6C2",
+            "instructionVa": "0x14012E6C2",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x6fcc47]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082B310",
+            "functionRva": "0x12E460-0x12EDEA"
+          },
+          {
+            "instructionRva": "0x12EDB9",
+            "instructionVa": "0x14012EDB9",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x6fc568]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082B328",
+            "functionRva": "0x12E460-0x12EDEA"
+          },
+          {
+            "instructionRva": "0x1322C2",
+            "instructionVa": "0x1401322C2",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x6f9217]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082B4E0",
+            "functionRva": "0x132085-0x1329AF"
+          },
+          {
+            "instructionRva": "0x135088",
+            "instructionVa": "0x140135088",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x6f65e1]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082B670",
+            "functionRva": "0x1336A9-0x1350DF"
+          },
+          {
+            "instructionRva": "0x1350B8",
+            "instructionVa": "0x1401350B8",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x6f6501]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082B5C0",
+            "functionRva": "0x1336A9-0x1350DF"
+          },
+          {
+            "instructionRva": "0x13B382",
+            "instructionVa": "0x14013B382",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x6ef6af]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082AA38",
+            "functionRva": "0x13A8C1-0x13B390"
+          },
+          {
+            "instructionRva": "0x13D4B1",
+            "instructionVa": "0x14013D4B1",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x6edcb8]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082B170",
+            "functionRva": "0x13D274-0x13DBB5"
+          },
+          {
+            "instructionRva": "0x140835",
+            "instructionVa": "0x140140835",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x6ea784]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082AFC0",
+            "functionRva": "0x13F4F3-0x1408EA"
+          },
+          {
+            "instructionRva": "0x1408A0",
+            "instructionVa": "0x1401408A0",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x6ea689]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082AF30",
+            "functionRva": "0x13F4F3-0x1408EA"
+          },
+          {
+            "instructionRva": "0x142E04",
+            "instructionVa": "0x140142E04",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x6e8425]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082B230",
+            "functionRva": "0x142BC7-0x143508"
+          },
+          {
+            "instructionRva": "0x144C33",
+            "instructionVa": "0x140144C33",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x6e5e4e]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082AA88",
+            "functionRva": "0x143D67-0x144C41"
+          },
+          {
+            "instructionRva": "0x145EC6",
+            "instructionVa": "0x140145EC6",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x6e526b]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082B138",
+            "functionRva": "0x145C75-0x1466DD"
+          },
+          {
+            "instructionRva": "0x148DA2",
+            "instructionVa": "0x140148DA2",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x6e28ff]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082B6A8",
+            "functionRva": "0x148087-0x148DB0"
+          },
+          {
+            "instructionRva": "0x151BC2",
+            "instructionVa": "0x140151BC2",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x6d9427]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082AFF0",
+            "functionRva": "0x151985-0x1521E3"
+          },
+          {
+            "instructionRva": "0x15404A",
+            "instructionVa": "0x14015404A",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x6d7307]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082B358",
+            "functionRva": "0x153DF6-0x154905"
+          },
+          {
+            "instructionRva": "0x158980",
+            "instructionVa": "0x140158980",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x6d2871]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082B1F8",
+            "functionRva": "0x158743-0x159160"
+          },
+          {
+            "instructionRva": "0x159103",
+            "instructionVa": "0x140159103",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x6d210e]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082B218",
+            "functionRva": "0x158743-0x159160"
+          },
+          {
+            "instructionRva": "0x15A26D",
+            "instructionVa": "0x14015A26D",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x6d09fc]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082AC70",
+            "functionRva": "0x159925-0x15A27B"
+          },
+          {
+            "instructionRva": "0x15FF49",
+            "instructionVa": "0x14015FF49",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x6cb480]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082B3D0",
+            "functionRva": "0x15F171-0x15FF87"
+          },
+          {
+            "instructionRva": "0x15FF79",
+            "instructionVa": "0x14015FF79",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x6cb438]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082B3B8",
+            "functionRva": "0x15F171-0x15FF87"
+          },
+          {
+            "instructionRva": "0x1616B9",
+            "instructionVa": "0x1401616B9",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x6c95c8]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082AC88",
+            "functionRva": "0x16147C-0x161D96"
+          },
+          {
+            "instructionRva": "0x165ABD",
+            "instructionVa": "0x140165ABD",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x6c5644]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082B108",
+            "functionRva": "0x16585B-0x1661E5"
+          },
+          {
+            "instructionRva": "0x1661B4",
+            "instructionVa": "0x1401661B4",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x6c4f65]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082B120",
+            "functionRva": "0x16585B-0x1661E5"
+          },
+          {
+            "instructionRva": "0x16C51D",
+            "instructionVa": "0x14016C51D",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x6be78c]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082ACB0",
+            "functionRva": "0x16C2E0-0x16CB57"
+          },
+          {
+            "instructionRva": "0x1757C1",
+            "instructionVa": "0x1401757C1",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x6b5c20]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082B3E8",
+            "functionRva": "0x17555F-0x1761C1"
+          },
+          {
+            "instructionRva": "0x17619C",
+            "instructionVa": "0x14017619C",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x6b5265]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082B408",
+            "functionRva": "0x17555F-0x1761C1"
+          },
+          {
+            "instructionRva": "0x176858",
+            "instructionVa": "0x140176858",
+            "mnemonic": "lea",
+            "opStr": "rdx, [rip + 0x6b4141]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082A9A0",
+            "functionRva": "0x1761C1-0x176ED4"
+          },
+          {
+            "instructionRva": "0x176E65",
+            "instructionVa": "0x140176E65",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x6b3b14]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082A980",
+            "functionRva": "0x1761C1-0x176ED4"
+          },
+          {
+            "instructionRva": "0x182BFF",
+            "instructionVa": "0x140182BFF",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x6a7dca]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082A9D0",
+            "functionRva": "0x182112-0x182C0D"
+          },
+          {
+            "instructionRva": "0x1906BA",
+            "instructionVa": "0x1401906BA",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x69a83f]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082AF00",
+            "functionRva": "0x18EE07-0x190734"
+          },
+          {
+            "instructionRva": "0x1906EA",
+            "instructionVa": "0x1401906EA",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x69a6cf]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082ADC0",
+            "functionRva": "0x18EE07-0x190734"
+          },
+          {
+            "instructionRva": "0x191490",
+            "instructionVa": "0x140191490",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x6995d9]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082AA70",
+            "functionRva": "0x191253-0x191ACA"
+          },
+          {
+            "instructionRva": "0x1A6221",
+            "instructionVa": "0x1401A6221",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x685270]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082B498",
+            "functionRva": "0x1A5FE4-0x1A6B75"
+          },
+          {
+            "instructionRva": "0x1A6B28",
+            "instructionVa": "0x1401A6B28",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x684981]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082B4B0",
+            "functionRva": "0x1A5FE4-0x1A6B75"
+          },
+          {
+            "instructionRva": "0x1A6B44",
+            "instructionVa": "0x1401A6B44",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x68497d]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082B4C8",
+            "functionRva": "0x1A5FE4-0x1A6B75"
+          },
+          {
+            "instructionRva": "0x39659A",
+            "instructionVa": "0x14039659A",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x9be51f]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x140D54AC0",
+            "functionRva": "0x395DA5-0x3965FB"
+          }
+        ]
+      },
+      "src\\services\\map_scan": {
+        "occurrences": [
+          {
+            "raw": "0x82DBC7",
+            "rva": "0x82EDC7",
+            "va": "0x14082EDC7"
+          },
+          {
+            "raw": "0xD55D58",
+            "rva": "0xD56F58",
+            "va": "0x140D56F58"
+          },
+          {
+            "raw": "0xD67D6B",
+            "rva": "0xD68F6B",
+            "va": "0x140D68F6B"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x3C740D",
+            "instructionVa": "0x1403C740D",
+            "mnemonic": "lea",
+            "opStr": "r8, [rip + 0x98fb44]",
+            "referenceKind": "string",
+            "targetVa": "0x140D56F58",
+            "functionRva": "0x3C722A-0x3CAEA5"
+          },
+          {
+            "instructionRva": "0x3E0894",
+            "instructionVa": "0x1403E0894",
+            "mnemonic": "lea",
+            "opStr": "r8, [rip + 0x9766bd]",
+            "referenceKind": "string",
+            "targetVa": "0x140D56F58",
+            "functionRva": "0x3E085E-0x3E10E7"
+          }
+        ]
+      },
+      "src\\services\\map_scan.rs": {
+        "occurrences": [
+          {
+            "raw": "0x82DBC7",
+            "rva": "0x82EDC7",
+            "va": "0x14082EDC7",
+            "descriptors": [
+              {
+                "raw": "0x82DBE0",
+                "rva": "0x82EDE0",
+                "va": "0x14082EDE0"
+              },
+              {
+                "raw": "0x82DC20",
+                "rva": "0x82EE20",
+                "va": "0x14082EE20"
+              },
+              {
+                "raw": "0x82DC50",
+                "rva": "0x82EE50",
+                "va": "0x14082EE50"
+              },
+              {
+                "raw": "0x82DC88",
+                "rva": "0x82EE88",
+                "va": "0x14082EE88"
+              },
+              {
+                "raw": "0x82DD08",
+                "rva": "0x82EF08",
+                "va": "0x14082EF08"
+              },
+              {
+                "raw": "0x82DD30",
+                "rva": "0x82EF30",
+                "va": "0x14082EF30"
+              },
+              {
+                "raw": "0x82DDA8",
+                "rva": "0x82EFA8",
+                "va": "0x14082EFA8"
+              },
+              {
+                "raw": "0x82DDD0",
+                "rva": "0x82EFD0",
+                "va": "0x14082EFD0"
+              },
+              {
+                "raw": "0x82DDE8",
+                "rva": "0x82EFE8",
+                "va": "0x14082EFE8"
+              },
+              {
+                "raw": "0x82DE78",
+                "rva": "0x82F078",
+                "va": "0x14082F078"
+              },
+              {
+                "raw": "0x82DEA0",
+                "rva": "0x82F0A0",
+                "va": "0x14082F0A0"
+              },
+              {
+                "raw": "0x82DEB8",
+                "rva": "0x82F0B8",
+                "va": "0x14082F0B8"
+              },
+              {
+                "raw": "0x82DEF8",
+                "rva": "0x82F0F8",
+                "va": "0x14082F0F8"
+              },
+              {
+                "raw": "0x82DF10",
+                "rva": "0x82F110",
+                "va": "0x14082F110"
+              },
+              {
+                "raw": "0x82DF68",
+                "rva": "0x82F168",
+                "va": "0x14082F168"
+              },
+              {
+                "raw": "0x82DFE8",
+                "rva": "0x82F1E8",
+                "va": "0x14082F1E8"
+              },
+              {
+                "raw": "0x82E140",
+                "rva": "0x82F340",
+                "va": "0x14082F340"
+              },
+              {
+                "raw": "0x82E158",
+                "rva": "0x82F358",
+                "va": "0x14082F358"
+              }
+            ]
+          },
+          {
+            "raw": "0xD55D58",
+            "rva": "0xD56F58",
+            "va": "0x140D56F58",
+            "descriptors": [
+              {
+                "raw": "0xD55D78",
+                "rva": "0xD56F78",
+                "va": "0x140D56F78"
+              }
+            ]
+          },
+          {
+            "raw": "0xD67D6B",
+            "rva": "0xD68F6B",
+            "va": "0x140D68F6B",
+            "descriptors": [
+              {
+                "raw": "0xD67E20",
+                "rva": "0xD69020",
+                "va": "0x140D69020"
+              },
+              {
+                "raw": "0xD67ED8",
+                "rva": "0xD690D8",
+                "va": "0x140D690D8"
+              },
+              {
+                "raw": "0xD67F40",
+                "rva": "0xD69140",
+                "va": "0x140D69140"
+              },
+              {
+                "raw": "0xD67F60",
+                "rva": "0xD69160",
+                "va": "0x140D69160"
+              },
+              {
+                "raw": "0xD67FC8",
+                "rva": "0xD691C8",
+                "va": "0x140D691C8"
+              },
+              {
+                "raw": "0xD68070",
+                "rva": "0xD69270",
+                "va": "0x140D69270"
+              },
+              {
+                "raw": "0xD68088",
+                "rva": "0xD69288",
+                "va": "0x140D69288"
+              },
+              {
+                "raw": "0xD68208",
+                "rva": "0xD69408",
+                "va": "0x140D69408"
+              },
+              {
+                "raw": "0xD68268",
+                "rva": "0xD69468",
+                "va": "0x140D69468"
+              },
+              {
+                "raw": "0xD68290",
+                "rva": "0xD69490",
+                "va": "0x140D69490"
+              },
+              {
+                "raw": "0xD682A8",
+                "rva": "0xD694A8",
+                "va": "0x140D694A8"
+              },
+              {
+                "raw": "0xD68310",
+                "rva": "0xD69510",
+                "va": "0x140D69510"
+              },
+              {
+                "raw": "0xD68388",
+                "rva": "0xD69588",
+                "va": "0x140D69588"
+              },
+              {
+                "raw": "0xD683A0",
+                "rva": "0xD695A0",
+                "va": "0x140D695A0"
+              },
+              {
+                "raw": "0xD68490",
+                "rva": "0xD69690",
+                "va": "0x140D69690"
+              }
+            ]
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0xF9F09",
+            "instructionVa": "0x1400F9F09",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x734ff8]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082EF08",
+            "functionRva": "0xF8CB2-0xFA09E"
+          },
+          {
+            "instructionRva": "0xF9F25",
+            "instructionVa": "0x1400F9F25",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x735004]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082EF30",
+            "functionRva": "0xF8CB2-0xFA09E"
+          },
+          {
+            "instructionRva": "0xF9FAD",
+            "instructionVa": "0x1400F9FAD",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x734e6c]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082EE20",
+            "functionRva": "0xF8CB2-0xFA09E"
+          },
+          {
+            "instructionRva": "0xFA030",
+            "instructionVa": "0x1400FA030",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x734e19]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082EE50",
+            "functionRva": "0xF8CB2-0xFA09E"
+          },
+          {
+            "instructionRva": "0xFA049",
+            "instructionVa": "0x1400FA049",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x734e38]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082EE88",
+            "functionRva": "0xF8CB2-0xFA09E"
+          },
+          {
+            "instructionRva": "0xFA06D",
+            "instructionVa": "0x1400FA06D",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x734d6c]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082EDE0",
+            "functionRva": "0xF8CB2-0xFA09E"
+          },
+          {
+            "instructionRva": "0xFA48D",
+            "instructionVa": "0x1400FA48D",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x734b14]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082EFA8",
+            "functionRva": "0xFA09E-0xFC643"
+          },
+          {
+            "instructionRva": "0xFA49B",
+            "instructionVa": "0x1400FA49B",
+            "mnemonic": "lea",
+            "opStr": "r9, [rip + 0x734b2e]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082EFD0",
+            "functionRva": "0xFA09E-0xFC643"
+          },
+          {
+            "instructionRva": "0xFA607",
+            "instructionVa": "0x1400FA607",
+            "mnemonic": "lea",
+            "opStr": "r9, [rip + 0x7349da]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082EFE8",
+            "functionRva": "0xFA09E-0xFC643"
+          },
+          {
+            "instructionRva": "0xFC570",
+            "instructionVa": "0x1400FC570",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x732b01]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082F078",
+            "functionRva": "0xFA09E-0xFC643"
+          },
+          {
+            "instructionRva": "0xFC58F",
+            "instructionVa": "0x1400FC58F",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x732c52]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082F1E8",
+            "functionRva": "0xFA09E-0xFC643"
+          },
+          {
+            "instructionRva": "0xFC5AE",
+            "instructionVa": "0x1400FC5AE",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x732aeb]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082F0A0",
+            "functionRva": "0xFA09E-0xFC643"
+          },
+          {
+            "instructionRva": "0xFC5CA",
+            "instructionVa": "0x1400FC5CA",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x732ae7]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082F0B8",
+            "functionRva": "0xFA09E-0xFC643"
+          },
+          {
+            "instructionRva": "0xFC5E6",
+            "instructionVa": "0x1400FC5E6",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x732b0b]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082F0F8",
+            "functionRva": "0xFA09E-0xFC643"
+          },
+          {
+            "instructionRva": "0xFC602",
+            "instructionVa": "0x1400FC602",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x732b07]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082F110",
+            "functionRva": "0xFA09E-0xFC643"
+          },
+          {
+            "instructionRva": "0xFC61E",
+            "instructionVa": "0x1400FC61E",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x732b43]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082F168",
+            "functionRva": "0xFA09E-0xFC643"
+          },
+          {
+            "instructionRva": "0x112E1E",
+            "instructionVa": "0x140112E1E",
+            "mnemonic": "lea",
+            "opStr": "rcx, [rip + 0x71c51b]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082F340",
+            "functionRva": "0x112B45-0x1139C4"
+          },
+          {
+            "instructionRva": "0x113959",
+            "instructionVa": "0x140113959",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x71b9f8]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x14082F358",
+            "functionRva": "0x112B45-0x1139C4"
+          },
+          {
+            "instructionRva": "0x393324",
+            "instructionVa": "0x140393324",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x9c3c4d]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x140D56F78",
+            "functionRva": "0x393278-0x393349"
+          },
+          {
+            "instructionRva": "0x3C740D",
+            "instructionVa": "0x1403C740D",
+            "mnemonic": "lea",
+            "opStr": "r8, [rip + 0x98fb44]",
+            "referenceKind": "string",
+            "targetVa": "0x140D56F58",
+            "functionRva": "0x3C722A-0x3CAEA5"
+          },
+          {
+            "instructionRva": "0x3E0894",
+            "instructionVa": "0x1403E0894",
+            "mnemonic": "lea",
+            "opStr": "r8, [rip + 0x9766bd]",
+            "referenceKind": "string",
+            "targetVa": "0x140D56F58",
+            "functionRva": "0x3E085E-0x3E10E7"
+          },
+          {
+            "instructionRva": "0x426CCC",
+            "instructionVa": "0x140426CCC",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x94234d]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x140D69020",
+            "functionRva": "0x426A05-0x426D07"
+          },
+          {
+            "instructionRva": "0x426CE2",
+            "instructionVa": "0x140426CE2",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x9423ef]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x140D690D8",
+            "functionRva": "0x426A05-0x426D07"
+          },
+          {
+            "instructionRva": "0x42702E",
+            "instructionVa": "0x14042702E",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x94210b]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x140D69140",
+            "functionRva": "0x426D67-0x427069"
+          },
+          {
+            "instructionRva": "0x427044",
+            "instructionVa": "0x140427044",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x942115]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x140D69160",
+            "functionRva": "0x426D67-0x427069"
+          },
+          {
+            "instructionRva": "0x428A51",
+            "instructionVa": "0x140428A51",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x940818]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x140D69270",
+            "functionRva": "0x427120-0x428A92"
+          },
+          {
+            "instructionRva": "0x428A6D",
+            "instructionVa": "0x140428A6D",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x940814]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x140D69288",
+            "functionRva": "0x427120-0x428A92"
+          },
+          {
+            "instructionRva": "0x429126",
+            "instructionVa": "0x140429126",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x94009b]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x140D691C8",
+            "functionRva": "0x428D90-0x42914B"
+          },
+          {
+            "instructionRva": "0x429660",
+            "instructionVa": "0x140429660",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x93fda1]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x140D69408",
+            "functionRva": "0x42914B-0x4296C7"
+          },
+          {
+            "instructionRva": "0x429C5A",
+            "instructionVa": "0x140429C5A",
+            "mnemonic": "lea",
+            "opStr": "r8, [rip + 0x93f807]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x140D69468",
+            "functionRva": "0x4296C7-0x429CE9"
+          },
+          {
+            "instructionRva": "0x429CA5",
+            "instructionVa": "0x140429CA5",
+            "mnemonic": "lea",
+            "opStr": "r8, [rip + 0x93f7e4]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x140D69490",
+            "functionRva": "0x4296C7-0x429CE9"
+          },
+          {
+            "instructionRva": "0x429CC4",
+            "instructionVa": "0x140429CC4",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x93f7dd]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x140D694A8",
+            "functionRva": "0x4296C7-0x429CE9"
+          },
+          {
+            "instructionRva": "0x42A9C5",
+            "instructionVa": "0x14042A9C5",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x93eb44]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x140D69510",
+            "functionRva": "0x429CE9-0x42AABC"
+          },
+          {
+            "instructionRva": "0x42B17A",
+            "instructionVa": "0x14042B17A",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x93e407]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x140D69588",
+            "functionRva": "0x42AB3A-0x42B1C1"
+          },
+          {
+            "instructionRva": "0x42B193",
+            "instructionVa": "0x14042B193",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x93e406]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x140D695A0",
+            "functionRva": "0x42AB3A-0x42B1C1"
+          },
+          {
+            "instructionRva": "0x42B762",
+            "instructionVa": "0x14042B762",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x93df27]",
+            "referenceKind": "rustStrDescriptor",
+            "targetVa": "0x140D69690",
+            "functionRva": "0x42B4FF-0x42B787"
+          }
+        ]
+      },
+      "src\\services\\map_store.rs": {
+        "occurrences": [],
+        "xrefs": []
+      },
+      "startMapScan": {
+        "occurrences": [
+          {
+            "raw": "0x82E000",
+            "rva": "0x82F200",
+            "va": "0x14082F200"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0xFBB2B",
+            "instructionVa": "0x1400FBB2B",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x7336ce]",
+            "referenceKind": "string",
+            "targetVa": "0x14082F200",
+            "functionRva": "0xFA09E-0xFC643"
+          }
+        ]
+      },
+      "stop the map scan first": {
+        "occurrences": [
+          {
+            "raw": "0xD5394A",
+            "rva": "0xD54B4A",
+            "va": "0x140D54B4A"
+          },
+          {
+            "raw": "0xD684B4",
+            "rva": "0xD696B4",
+            "va": "0x140D696B4"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x39F79D",
+            "instructionVa": "0x14039F79D",
+            "mnemonic": "lea",
+            "opStr": "r9, [rip + 0x9b53a6]",
+            "referenceKind": "string",
+            "targetVa": "0x140D54B4A",
+            "functionRva": "0x39F75B-0x39F7EA"
+          },
+          {
+            "instructionRva": "0x42B5C6",
+            "instructionVa": "0x14042B5C6",
+            "mnemonic": "lea",
+            "opStr": "r9, [rip + 0x93e0e7]",
+            "referenceKind": "string",
+            "targetVa": "0x140D696B4",
+            "functionRva": "0x42B4FF-0x42B787"
+          }
+        ]
+      },
+      "stopMapScan": {
+        "occurrences": [
+          {
+            "raw": "0x82985F",
+            "rva": "0x82AA5F",
+            "va": "0x14082AA5F"
+          },
+          {
+            "raw": "0xD67F78",
+            "rva": "0xD69178",
+            "va": "0x140D69178"
+          }
+        ],
+        "xrefs": [
+          {
+            "instructionRva": "0x13AD5F",
+            "instructionVa": "0x14013AD5F",
+            "mnemonic": "lea",
+            "opStr": "rax, [rip + 0x6efcf9]",
+            "referenceKind": "string",
+            "targetVa": "0x14082AA5F",
+            "functionRva": "0x13A8C1-0x13B390"
+          },
+          {
+            "instructionRva": "0x426FBF",
+            "instructionVa": "0x140426FBF",
+            "mnemonic": "lea",
+            "opStr": "r8, [rip + 0x9421b2]",
+            "referenceKind": "string",
+            "targetVa": "0x140D69178",
+            "functionRva": "0x426D67-0x427069"
+          },
+          {
+            "instructionRva": "0x42B034",
+            "instructionVa": "0x14042B034",
+            "mnemonic": "lea",
+            "opStr": "r8, [rip + 0x93e13d]",
+            "referenceKind": "string",
+            "targetVa": "0x140D69178",
+            "functionRva": "0x42AB3A-0x42B1C1"
+          }
+        ]
+      }
+    }
+  },
+  "limits": [
+    "String presence/xrefs identify native discovery entry points; they do not by themselves prove handler semantics.",
+    "Nested JavaScript wrapper bodies are retained only where the conservative wrapper regex can capture them.",
+    "Provider/game-side behavior requires dedicated exact-binary tracing and later bounded live proof."
+  ]
+}

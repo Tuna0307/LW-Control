@@ -25,7 +25,7 @@
     },
     {
       "id": "B",
-      "state": "ACTIVE",
+      "state": "COMPLETE",
       "goal": "Recover exact 0.3.17 scan/acquisition/backend contracts for all eight kinds",
       "dependencies": [
         "A"
@@ -42,7 +42,7 @@
     },
     {
       "id": "C",
-      "state": "READY",
+      "state": "ACTIVE",
       "goal": "Recover current-v22 producer mappings and correct projection/ingestion gaps",
       "dependencies": [
         "A"
@@ -181,6 +181,21 @@
       "a-current-v22-lua-action-search.json",
       "a-current-v22-lower-level-action-hits.json",
       "a-provenance-matrix.md"
+    ],
+    "productChanges": false
+  },
+  "checkpointB": {
+    "state": "COMPLETE",
+    "artifacts": [
+      "b-eight-kind-matrix.json",
+      "b-eight-kind-matrix.md",
+      "b-exact-surface.json",
+      "b-exact-storage.json",
+      "b-checks.txt"
+    ],
+    "checks": [
+      "--map317-dto-matrix-check PASS",
+      "--map-campaign-canonical-check PASS"
     ],
     "productChanges": false
   }
