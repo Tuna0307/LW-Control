@@ -4507,8 +4507,8 @@ internal sealed class LWBridgeWindow : Form
             }))()
             """);
         if (restartSnapshot.GetProperty("autoLaunchPreference").GetString() != "false" ||
-            activeProfileConfig.Snapshot.AutoLaunchGame != true)
-            throw new InvalidDataException("Document reload did not preserve global Auto Launch=false independently of profile B's native launch gate.");
+            activeProfileConfig.Snapshot.AutoLaunchGame)
+            throw new InvalidDataException("Document reload did not preserve confirmed global Auto Launch=false and profile B native=false.");
 
         await SelectProfileAsync("Campaign A", "campaign-A", "final B to A profile control after restart");
         long finalAGeneration = Volatile.Read(ref profileRuntimeGeneration);
