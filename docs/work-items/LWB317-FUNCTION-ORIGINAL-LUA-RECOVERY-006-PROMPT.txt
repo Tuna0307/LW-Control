@@ -1,0 +1,70 @@
+You are the solo worker for LWB317-FUNCTION-ORIGINAL-LUA-RECOVERY-006.
+
+Repository: C:\Users\chimw\OneDrive\Desktop\Github\LW-Control
+Branch: research/offline-controller
+Start from the latest descendant containing reviewed delivery
+8f6730ef5e46fc602c6331d21e25d206b2e95ca4 and the 005 lead review. Record exact
+HEAD/status; do not reset, discard unrelated files or force-push.
+
+Read AGENTS.md, task.md, docs/AI_WORK_PROTOCOL.md,
+docs/owner-directions/2026-10-07-A-TO-A-PARITY.md,
+docs/work-items/LWB317-FUNCTION-ORIGINAL-LUA-RECOVERY-006.md,
+docs/reviews/2026-10-07-LWB317-FUNCTION-MAP-EXPIRY-CORRELATION-005-LEAD.md,
+and current Home/Map masters. Complete the entire 006 work item through sequential
+medium checkpoints A-D without returning after each one.
+
+Goal: recover LWBridge 0.3.17's OWN function payload and missing original
+Treasure/Ghost controllers. Current Last War v22 Lua is already decoded (18,741
+entries); decoding game code is not recovery of LWBridge's own orchestration.
+LWBridge 0.3.17 is the fixed behaviour reference; current-game compatibility may
+change internal bindings but must preserve A -> A behaviour.
+
+A. Inventory exact-original embedded/resources/overlay/package and supplied
+research artifacts. Resolve bridge-scripts.dat, package-key.envelope, LWBP2|,
+LWKE1 and controller-name references to actual loaders/producers. References do
+not prove that a payload or usable key exists. Record hashes, headers and locators.
+
+B. Recover the exact 0.3.17 loader, extraction, crypto/compression, integrity and
+input dependency contract. Older 0.3.1 crypto findings are hypotheses only; preserve
+their gates and revalidate against the exact reference. Determine which inputs are
+legitimately present without logging secrets or guessing missing values.
+
+C. If supplied/authorized inputs are complete, extract/decode in a task-owned
+isolated root, verify integrity/build/entry table and bytecode validity, and pin
+input/output identities. If incomplete, identify the exact missing artifact/input
+with source evidence and continue independent ready investigations. Preserve
+failed attempts. Do not claim one decrypted package supplies every native/runtime
+dependency. Do not commit entire decoded packages unnecessarily.
+
+D. If available, recover actual getTreasureClaimStatus, claimTreasures and
+prepareGhostPlunderTasks bodies: owned state, ordering, batch transitions,
+profile/reset/reconnect lifecycle, preparation/rejection rules and result meanings.
+Build inert original-body oracles where feasible and compare clone behaviour.
+Retain 005's string-reader discrepancy and parser limitations; report concrete
+differences for lead assignment rather than altering product code here.
+
+Reference EXE:
+C:\Users\chimw\OneDrive\Desktop\Github\LW\lwbridge-0.3.17.exe
+SHA-256: 4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783
+Lead preflight: evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-ORIGINAL-LUA-RECOVERY-006/lead-preflight/
+
+Work alone: no subagents, other AI-chat delegation or GPT Work/Codex delegation.
+All live/shared-desktop work remains ON_HOLD_BY_OWNER. No game/original launch,
+attach, installation instrumentation, owner capture/input/focus/runtime changes,
+updater, protected-service access or authentication/licensing/entitlement bypass.
+Local auth-related dependency code may be researched; do not stop merely because
+that code touches auth. Missing legitimate access remains a dependency.
+
+Do not enable providers, fabricate schemas/results, introduce fallback behaviour
+or redesign UI. Preserve accepted UIUX/R3/005 fixes and historical evidence.
+Home/Map stays PARTIAL; do not promote LIVE_PROVEN.
+
+Write repeatable artifact/tool validators, per-function recovered/unknown matrix,
+dated worker review and durable continuation. Continue all ready assigned branches;
+return only when A-D are complete or all remaining branches have precise blockers.
+Review diffs, run applicable checks, commit/push coherent checkpoints and verify
+the direct remote SHA. Product builds are required only if product/test source
+actually changes; do not present old runs as fresh proof. Clean verified task-owned
+temporary state only. Return AWAITING_REVIEW with commits, actual recovered bodies,
+executed checks, exact missing inputs and next evidence needs. Lead acceptance
+remains separate.

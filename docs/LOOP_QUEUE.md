@@ -11,8 +11,8 @@ The current offline owner-relayed work item takes precedence over old queue entr
 
 | Campaign / work item | State | File | Notes |
 |---|---|---|---|
-| LWB317-FUNCTION-ORIGINAL-LUA-RECOVERY-006 | QUEUED AFTER 005 REVIEW | `docs/work-items/LWB317-FUNCTION-ORIGINAL-LUA-RECOVERY-006.md` | Exact original package location/extraction/decryption and controller recovery where supplied inputs permit; do not interrupt active 005 |
-| LWB317-FUNCTION-MAP-EXPIRY-CORRELATION-005 | ASSIGNED FOR OWNER RELAY | `docs/work-items/LWB317-FUNCTION-MAP-EXPIRY-CORRELATION-005.md` | Fix LR-GHOST-EXPIRY-005; actual managed FutureManager/send/receive recovery; no provider enablement |
+| LWB317-FUNCTION-ORIGINAL-LUA-RECOVERY-006 | ASSIGNED FOR OWNER RELAY | `docs/work-items/LWB317-FUNCTION-ORIGINAL-LUA-RECOVERY-006.md` | Exact original package location/extraction/decryption and controller recovery where supplied inputs permit; preserve 005 lead proof limits |
+| LWB317-FUNCTION-MAP-EXPIRY-CORRELATION-005 | ACCEPTED BOUNDED OFFLINE | `docs/work-items/LWB317-FUNCTION-MAP-EXPIRY-CORRELATION-005.md` | Numeric/missing expiry correction accepted; managed correlation partial; string-reader and real Ghost response dependencies remain |
 | LWB317-FUNCTION-MAP-BLOCKER-BOUNDARIES-004 | ACCEPTED OFFLINE AUDIT | `docs/work-items/LWB317-FUNCTION-MAP-BLOCKER-BOUNDARIES-004.md` | Fresh A/B/C and 11 Lua cases pass; prior overbroad blocker rationales narrowed; real correlation remains UNKNOWN |
 | LWB317-FUNCTION-MAP-PROVIDER-SEMANTICS-003 | CHANGES_REQUIRED | `docs/work-items/LWB317-FUNCTION-MAP-PROVIDER-SEMANTICS-003.md` | LR-GHOST-EXPIRY-005 reproduced through actual packaged helper; correction assigned separately; semantic toolchain/safety proof credited |
 | LWB317-FUNCTION-HOME-MAP-DEEP-RECOVERY-002 | AWAITING_REVIEW | `docs/work-items/LWB317-FUNCTION-HOME-MAP-DEEP-RECOVERY-002.md` | Worker delivery a7c4a03c; lead independently checked provenance/bytecode availability only; comprehensive A-H acceptance remains open |

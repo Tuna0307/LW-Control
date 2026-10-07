@@ -1,11 +1,14 @@
 # LWB317-FUNCTION-ORIGINAL-LUA-RECOVERY-006
 
-Status: **QUEUED — AFTER EXPIRY-CORRELATION-005 DELIVERY/LEAD REVIEW**
+Status: **ASSIGNED FOR MANUAL OWNER RELAY — AFTER 005 LEAD ACCEPTANCE**
 Date: 2026-10-07
 Branch: `research/offline-controller`.
-Do not interrupt or overlap the current worker assignment. The owner will relay
-this queued work item after 005's review and any required corrections. A fresh
-starting SHA will be recorded then; do not reset a checkout to an older commit.
+005 delivery `8f6730ef5e46fc602c6331d21e25d206b2e95ca4` is lead-accepted for
+its assigned scope. Start from the latest descendant containing that delivery
+and the 005 lead review; record exact starting SHA. Never reset to an older commit.
+Read `docs/reviews/2026-10-07-LWB317-FUNCTION-MAP-EXPIRY-CORRELATION-005-LEAD.md`.
+Retain its parser-proof limits and numeric-string preparation discrepancy when
+comparing recovered original semantics; this task does not authorize product fixes.
 
 ## Goal
 

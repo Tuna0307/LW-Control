@@ -1,6 +1,11 @@
 # LWB317-FUNCTION-MAP-EXPIRY-CORRELATION-005
 
-Status: **AWAITING_REVIEW**
+Status: **ACCEPTED — ASSIGNED EXPIRY / BOUNDED OFFLINE RECOVERY SCOPE**
+
+Lead review: `docs/reviews/2026-10-07-LWB317-FUNCTION-MAP-EXPIRY-CORRELATION-005-LEAD.md`.
+Reviewed delivery: `8f6730ef5e46fc602c6331d21e25d206b2e95ca4`.
+Historical worker completion below is preserved. String-reader differences and
+direct Ghost response identity remain unaccepted dependencies, not new capabilities.
 Date: 2026-10-07
 Branch: `research/offline-controller`.
 Product/evidence baseline: `d900d8a548c072485cabc9b55d3dc5b07c4e6085`.
