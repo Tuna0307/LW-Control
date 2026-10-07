@@ -13,13 +13,24 @@
     },
     {
       "id": "B",
-      "state": "ACTIVE"
+      "state": "COMPLETE",
+      "disposition": "BT-02 VALID; preparation independent from terminal execution"
     },
     {
       "id": "C",
-      "state": "READY"
+      "state": "ACTIVE"
     }
   ],
   "productionFencesPreserved": true,
-  "ghostSafetyGuardPreserved": true
+  "ghostSafetyGuardPreserved": true,
+  "checkpointB": {
+    "publicPreparationFencePreserved": true,
+    "terminalExecutionGuardPreserved": true,
+    "strictHelperFindings": {
+      "ownerServerPositive": "EXACT_HOST_ADMISSION_AND_CURRENT_OPERATION_INPUT",
+      "taskExpireTimePositive": "CONSERVATIVE_ADAPTATION_NOT_EXACT",
+      "plunderAtAlias": "SOURCE_BACKED_BRIDGE_ADAPTATION",
+      "stealCountAliases": "SOURCE_BACKED_BRIDGE_ADAPTATION"
+    }
+  }
 }

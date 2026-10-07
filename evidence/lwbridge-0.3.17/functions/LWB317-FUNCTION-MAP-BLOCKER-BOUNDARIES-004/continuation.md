@@ -1,3 +1,7 @@
-# Continuation — LWB317-FUNCTION-MAP-BLOCKER-BOUNDARIES-004
+﻿# Continuation — LWB317-FUNCTION-MAP-BLOCKER-BOUNDARIES-004
 
-Checkpoint A is complete. Continue B: separate exact Ghost preparation input/returned-row/persistence semantics from later arm/result execution. Classify every strict internal normalizer field as observable contract vs current bridge adaptation vs unresolved preparer behavior. Preserve all public fences and the scheduled Ghost safety guard.
+A and B are complete. Continue C: distinguish direct Ghost handler field
+consumption, raw response schema, SFS command dispatch, managed transport,
+pending/order mechanisms and push-side identity. Keep raw-response identity
+UNKNOWN unless an artifact proves it. Add a distinguishing inert decoded-body
+case and final per-stage matrix; no provider/action enablement.

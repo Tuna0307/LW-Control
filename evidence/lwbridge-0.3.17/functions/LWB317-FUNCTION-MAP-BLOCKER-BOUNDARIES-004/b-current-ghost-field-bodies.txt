@@ -1,0 +1,36 @@
+﻿=== DataCenter/ActivityListData/ActGhostrecon/ActGhostreconTaskInfo.luac decodedSha256=782804b08e5b4d5c6dc71c6054fd74cb9aff580643fd0b83ecb44147e884abed ===
+--- __init lines=[14, 39]
+014 L28 SETTABLE R[0][K[15]='taskExpireTime'] <- K[2]=0
+--- ParseData lines=[75, 125]
+003 L79 GETTABLE A=3 B=R[1] C=K[1]='uuid'
+004 L79 SETTABLE R[0][K[1]='uuid'] <- R[3]
+009 L82 GETTABLE A=3 B=R[1] C=K[4]='ownerServer'
+010 L82 SETTABLE R[0][K[4]='ownerServer'] <- R[3]
+013 L84 GETTABLE A=3 B=R[1] C=K[6]='completionTime'
+014 L84 SETTABLE R[0][K[6]='completionTime'] <- R[3]
+033 L95 GETTABLE A=3 B=R[1] C=K[13]='taskExpireTime'
+034 L95 SETTABLE R[0][K[13]='taskExpireTime'] <- R[3]
+037 L97 GETTABLE A=3 B=R[1] C=K[15]='stealList'
+038 L97 TEST A=3 B=0 C=0 Bx=0
+039 L97 JMP A=0 sBx=19 target=59
+=== DataCenter/ActivityListData/ActGhostrecon/ActGhostreconTaskTemplate.luac decodedSha256=015d156c9fc4a3d245718669c113afb23ce04e35b44b057e9abf52d405e865c8 ===
+--- InitData lines=[66, 118]
+064 L94 GETTABLE A=3 B=R[1] C=K[31]='protect_times'
+065 L94 SETTABLE R[0][K[30]='protectTime'] <- R[3]
+069 L96 GETTABLE A=3 B=R[1] C=K[35]='steal_maxtimes'
+070 L96 SETTABLE R[0][K[34]='stealMaxtimes'] <- R[3]
+--- CheckCanSteal lines=[196, 199]
+000 L197 GETTABUP A=2 B=R[0] C=K[0]='UITimeManager'
+001 L197 SELF A=2 B=R[2] C=K[1]='GetInstance'
+002 L197 CALL A=2 B=2 C=2 Bx=1026
+003 L197 SELF A=2 B=R[2] C=K[2]='GetServerTime'
+004 L197 CALL A=2 B=2 C=2 Bx=1026
+005 L198 SUB A=3 B=R[2] C=R[1]
+006 L198 DIV A=3 B=R[3] C=K[3]=1000
+007 L198 GETTABLE A=4 B=R[0] C=K[4]='protectTime'
+008 L198 LE A=1 B=R[4] C=R[3]
+009 L198 JMP A=0 sBx=1 target=11
+010 L198 LOADBOOL A=3 B=0 C=1 Bx=1
+011 L198 LOADBOOL A=3 B=1 C=0 Bx=512
+012 L198 RETURN A=3 B=2 C=0 Bx=1024
+013 L199 RETURN A=0 B=1 C=0 Bx=512

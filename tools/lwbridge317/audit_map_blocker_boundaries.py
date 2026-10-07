@@ -139,12 +139,195 @@ def checkpoint_a() -> dict[str, Any]:
         },
     }
 
+
+def checkpoint_b() -> dict[str, Any]:
+    require(sha256(FRONTEND_INDEX) == FRONTEND_INDEX_SHA256, "frontend index hash changed")
+    require(sha256(MAP_PANEL) == MAP_PANEL_SHA256, "Map panel hash changed")
+    index = FRONTEND_INDEX.read_text(encoding="utf-8")
+    panel = MAP_PANEL.read_text(encoding="utf-8")
+    handlers = json.loads(HANDLER_DISCOVERY.read_text(encoding="utf-8"))
+
+    schedule_wrapper = "function On(e,t=0){return N(" + BT + "map_dispatch_plunder_schedule" + BT
+    require(schedule_wrapper in index, "dispatch/ghost schedule wrapper moved")
+    require("!P(n.completionTime)||!P(n.plunderAt)" in panel,
+            "frontend base completion/plunder selection gate moved")
+    task_kind_expr = "taskKind:e===" + BT + "ghost" + BT + "?" + BT + "ghost" + BT + ":" + BT + "dispatch" + BT
+    require(task_kind_expr in panel, "frontend Ghost taskKind projection moved")
+    require("plunderAt:n+s*1e3" in index, "frontend random-delay ownership moved")
+    require("maxRandomDelaySeconds:t,randomDelaySeconds:s" in index,
+            "frontend random-delay evidence moved")
+
+    marker = handlers["markers"]["map_dispatch_plunder_schedule"]["handlerCandidates"][0]
+    require(marker["functionRva"] == "0x1336A9-0x1350DF", "schedule handler range changed")
+    by_rva = {ins["rva"]: ins for ins in marker["instructions"]}
+    require(
+        any(ref["text"].startswith("prepareGhostPlunderTasks")
+            for ref in by_rva["0x133CA8"].get("stringRefs", [])),
+        "prepareGhostPlunderTasks locator changed",
+    )
+    require("0x1388" in by_rva["0x133CC1"]["opStr"], "Ghost prepare timeout changed")
+    require(
+        any(ref["text"] == "rows" for ref in by_rva["0x133F57"].get("stringRefs", [])),
+        "prepared response rows locator changed",
+    )
+    require(
+        any("ghost scheduling data unavailable" in ref["text"]
+            for rva in ("0x133F8E", "0x134848")
+            for ref in by_rva[rva].get("stringRefs", [])),
+        "prepared Ghost missing-data error moved",
+    )
+    require(
+        any(ref["text"].startswith("ownerServer") for ref in by_rva["0x1342E2"].get("stringRefs", [])),
+        "Ghost ownerServer validation moved",
+    )
+    require(by_rva["0x1342EE"]["mnemonic"] == "test" and by_rva["0x1342F1"]["mnemonic"] == "jle",
+            "positive ownerServer validation shape changed")
+    # Expiry is conditional in the exact host: positive expiry at 0x134295 then
+    # compare against plunderAt; zero/non-positive expiry bypasses that failure.
+    require(by_rva["0x134295"]["mnemonic"] == "test", "expiry conditional moved")
+    require(by_rva["0x134298"]["mnemonic"] == "setg", "expiry positive test moved")
+    require(by_rva["0x13429B"]["mnemonic"] == "cmp", "expiry/plunder comparison moved")
+
+    control_path = ROOT / "src/LWBridge.Map-0.3.17/MapActionControlPlane.cs"
+    provider_path = ROOT / "src/LWBridge.Desktop/CurrentClientMap317ActionProvider.cs"
+    ghost_source_path = ROOT / "src/LWBridge.Desktop/CurrentClientMapBlockSource.FastCity.cs"
+    control = control_path.read_text(encoding="utf-8")
+    provider = provider_path.read_text(encoding="utf-8")
+    ghost_source = ghost_source_path.read_text(encoding="utf-8")
+
+    method_start = control.index("public async ValueTask<IReadOnlyList<JsonElement>> ScheduleDispatchPlunderAsync")
+    method_end = control.index("public void CancelDispatchPlunder", method_start)
+    method = control[method_start:method_end]
+    prepare_at = method.index("provider.PrepareGhostPlunderTasksAsync")
+    index_at = method.index(".ToDictionary", prepare_at)
+    normalize_at = method.index("NormalizeDispatchScheduleRow(source, item.TaskKind)", index_at)
+    persist_at = method.index("store.ScheduleDispatchPlunderRow", normalize_at)
+    require(prepare_at < index_at < normalize_at < persist_at,
+            "current prepare -> index -> normalize -> persistence order changed")
+    require('if (preparedGhost.Count != ghostInput.Length)' in method,
+            "current prepared-row cardinality guard changed")
+
+    public_fence = "PrepareGhostPlunderTasksAsync("
+    fence_at = provider.index(public_fence)
+    helper_at = provider.index("PrepareGhostPlunderRows", fence_at)
+    require("terminal response identity is not source-proven" in provider[fence_at:helper_at],
+            "public Ghost preparation fence rationale changed")
+    helper = provider[helper_at:provider.index("GetMapPlunderServerDayStartAsync", helper_at)]
+    for token in (
+        'ReadInteger(row, "ownerServer")',
+        'ReadInteger(row, "completionTime")',
+        'ReadInteger(row, "protectTime")',
+        'ReadInteger(row, "plunderAt")',
+        'ReadInteger(row, "taskExpireTime")',
+        'ReadInteger(row, "stealListCount")',
+        'ReadInteger(row, "stealMaxTimes")',
+        "stolenCount != stealListCount",
+        "maxStealCount != stealMaxTimes",
+        "completionTime + protectSeconds * 1000L",
+    ):
+        require(token in helper, f"current Ghost normalizer contract moved: {token}")
+
+    for token in (
+        'data["plunderAt"] = checked(completionTime + (long)protectSeconds * 1000L)',
+        'data["stolenCount"] = stolenCount',
+        'data["maxStealCount"] = maxStealCount',
+    ):
+        require(token in ghost_source, f"current Ghost source projection moved: {token}")
+
+    return {
+        "ok": True,
+        "checkpoint": "B",
+        "original": {
+            "handlerRva": marker["functionRva"],
+            "prepareMethodRva": "0x133CA8",
+            "prepareTimeoutMilliseconds": 5000,
+            "preparedResultRequiresRows": True,
+            "postPrepareHostValidation": True,
+            "persistenceOccursAfterPrepare": True,
+            "laterExecutionIsSeparateWorker": True,
+            "frontendRequiresBaseCompletionAndPlunderAtBeforeSchedule": True,
+            "frontendOwnsRandomDelay": True,
+        },
+        "fieldClassification": {
+            "uuid": {
+                "originalObservable": "required positive decimal scheduling identity",
+                "current": "preserved one-to-one",
+                "classification": "EXACT_HOST_ADMISSION",
+            },
+            "ownerServer": {
+                "originalObservable": "Ghost row requires positive ownerServer",
+                "current": "required by current GhostReconSteal request and strict helper",
+                "classification": "EXACT_HOST_ADMISSION_AND_CURRENT_OPERATION_INPUT",
+            },
+            "completionTime": {
+                "originalObservable": "positive and <= plunderAt",
+                "current": "source field",
+                "classification": "EXACT_HOST_ADMISSION",
+            },
+            "plunderAt": {
+                "originalObservable": "positive schedule time; frontend already requires it before prepare",
+                "current": "projected as completionTime + protectTime*1000 before user random delay",
+                "classification": "SOURCE_BACKED_BRIDGE_ADAPTATION",
+            },
+            "taskExpireTime": {
+                "originalObservable": "optional/non-positive allowed; positive value must be after plunderAt",
+                "current": "source field exists; strict helper currently requires >0",
+                "classification": "STRICT_HELPER_IS_CONSERVATIVE_ADAPTATION_NOT_EXACT",
+            },
+            "stolenCount": {
+                "originalObservable": "capacity guard when maxStealCount is positive",
+                "current": "projected from stealListCount",
+                "classification": "SOURCE_BACKED_BRIDGE_ADAPTATION",
+            },
+            "maxStealCount": {
+                "originalObservable": "positive max gates full rows",
+                "current": "projected from stealMaxTimes",
+                "classification": "SOURCE_BACKED_BRIDGE_ADAPTATION",
+            },
+            "protectTime": {
+                "originalObservable": "not a host schedule field; host consumes plunderAt",
+                "current": "used to derive base plunderAt",
+                "classification": "CURRENT_SOURCE_INPUT_TO_BRIDGE_ADAPTATION",
+            },
+            "aliasEquality": {
+                "originalObservable": "not exposed",
+                "current": "strict helper requires stolen/max aliases equal source counts",
+                "classification": "CURRENT_CONSISTENCY_GUARD_NOT_ORIGINAL_PREPARER_SEMANTICS",
+            },
+        },
+        "pipeline": [
+            "frontend requires uuid/completionTime/plunderAt and adds bounded random delay",
+            "host validates submitted rows",
+            "Ghost subset only -> protected prepareGhostPlunderTasks",
+            "provider result must expose rows",
+            "prepared rows are matched/indexed by uuid",
+            "host re-normalizes prepared Ghost rows",
+            "durable row is persisted as ghost:<uuid>",
+            "later worker arms and awaits separate terminal result",
+        ],
+        "disposition": {
+            "terminalExecutionCorrelationBlocksPreparationByDefinition": False,
+            "publicPreparationFenceReasonIsOverbroad": True,
+            "firstMissingPreparationEdge": (
+                "current Ghost source row -> exact protected preparer returned-row transformation/"
+                "rejection semantics beyond host-visible postconditions"
+            ),
+            "runtimeHydrationRequiredByRecoveredPreparationContract": "UNKNOWN_NOT_PROVEN",
+            "terminalStealConfirmationRequiredByPreparation": False,
+        },
+        "readyOfflineCandidate": (
+            "separate preparation capability from execution capability; evaluate wiring the existing "
+            "source-backed one-to-one normalizer as a preparation-only current adaptation while "
+            "leaving Ghost arm/terminal execution fenced"
+        ),
+    }
+
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--checkpoint", choices=["A"], default="A")
+    parser.add_argument("--checkpoint", choices=["A", "B"], default="A")
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
-    result = checkpoint_a()
+    result = checkpoint_a() if args.checkpoint == "A" else checkpoint_b()
     encoded = json.dumps(result, indent=2, ensure_ascii=False) + "\n"
     if args.output:
         args.output.parent.mkdir(parents=True, exist_ok=True)
