@@ -1,0 +1,4815 @@
+{
+  "ok": true,
+  "rdl": {
+    "path": "C:\\Users\\chimw\\AppData\\Local\\FunFly\\Last War-Survival Game\\Game\\LastWar_Data\\Assemblies\\Assembly-CSharp.rdl",
+    "sha256": "bfb740b4570c58bd2bcc7fb83f9b83d8121ce10fb1bf49040e9fb8b08e958b3e",
+    "rgmdOffset": "0x9a92a4"
+  },
+  "resolutionPolicy": {
+    "generalModifiedTokenInverseRecovered": false,
+    "validatedLocalOperandResolution": true,
+    "unknownOperandsRemainRaw": true,
+    "futureKeyLdstrRawToken": "0xe47ca5b0",
+    "uniqueUtf16FuidOffsets": [
+      "0xd7fafc"
+    ],
+    "note": "literal heap occurrence is supporting evidence; no unproven ldstr inverse is claimed"
+  },
+  "wrapperProofs": [
+    {
+      "owner": "XLua.CSObjectWrap.NetworkManagerWrap",
+      "method": "_m_SyncPingPong",
+      "methodRow": 26215,
+      "rva": "0x27bcf4",
+      "rawToken": "0xa79dd142",
+      "resolved": "NetworkManager::SyncPingPong(int) (MethodDef row 5755)"
+    },
+    {
+      "owner": "XLua.CSObjectWrap.NetworkManagerWrap",
+      "method": "_m_getFutureManager",
+      "methodRow": 26207,
+      "rva": "0x27b9d8",
+      "rawToken": "0xa79dd7e2",
+      "resolved": "NetworkManager::getFutureManager() (MethodDef row 5740)"
+    },
+    {
+      "owner": "XLua.CSObjectWrap.MessageFactoryWrap",
+      "method": "_g_get_Instance",
+      "methodRow": 25712,
+      "rva": "0x26abbc",
+      "rawToken": "0xa79c9cc2",
+      "resolved": "MessageFactory::get_Instance() (MethodDef row 6183)"
+    },
+    {
+      "owner": "XLua.CSObjectWrap.MessageFactoryWrap",
+      "method": "_m_DispatchResponse",
+      "methodRow": 25707,
+      "rva": "0x26a930",
+      "rawToken": "0xa79c9f42",
+      "resolved": "MessageFactory::DispatchResponse(BaseEvent) (MethodDef row 6187)"
+    },
+    {
+      "owner": "XLua.CSObjectWrap.GameEntryWrap",
+      "method": "_g_get_Network",
+      "methodRow": 24649,
+      "rva": "0x24acf4",
+      "rawToken": "0xa79e23e2",
+      "resolved": "GameEntry::get_Network() (MethodDef row 3724)"
+    },
+    {
+      "owner": "XLua.CSObjectWrap.GameEntryWrap",
+      "method": "_g_get_Lua",
+      "methodRow": 24653,
+      "rva": "0x24ae34",
+      "rawToken": "0xa79e22e2",
+      "resolved": "GameEntry::get_Lua() (MethodDef row 3732)"
+    }
+  ],
+  "methods": {
+    "NetworkManager::Connect(string[],int32,string,int32)": {
+      "row": 5746,
+      "rva": "0xad500",
+      "return": "void",
+      "args": [
+        "string[]",
+        "int32",
+        "string",
+        "int32"
+      ],
+      "fileOffset": "0xab700",
+      "originalRawBytesHex": "1130030054000000ec449c8773e2299da725036f222f9da725046fa2299da725056fe22e9da7250e046f222e9da70a066fc22e9da72c0902067d822e9e672b012a021628c2d79da70228e2d69da7022822d69da7027b02299e676fe24d81a72a",
+      "originalRawSha256": "a6e8f6631684757a122a0e2ef91347cf0d50f5b9d2ca2dc4762ec4494829899e",
+      "decodedSize": 96,
+      "instructions": [
+        {
+          "il": 12,
+          "opcode": "newobj",
+          "rawOperand": "0xa79d29e2",
+          "resolved": null
+        },
+        {
+          "il": 17,
+          "opcode": "dup",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 18,
+          "opcode": "ldarg.1",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 19,
+          "opcode": "callvirt",
+          "rawOperand": "0xa79d2f22",
+          "resolved": null
+        },
+        {
+          "il": 24,
+          "opcode": "dup",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 25,
+          "opcode": "ldarg.2",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 26,
+          "opcode": "callvirt",
+          "rawOperand": "0xa79d29a2",
+          "resolved": null
+        },
+        {
+          "il": 31,
+          "opcode": "dup",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 32,
+          "opcode": "ldarg.3",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 33,
+          "opcode": "callvirt",
+          "rawOperand": "0xa79d2ee2",
+          "resolved": null
+        },
+        {
+          "il": 38,
+          "opcode": "dup",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 39,
+          "opcode": "ldarg.s",
+          "rawOperand": "argument(0x0004)",
+          "resolved": null
+        },
+        {
+          "il": 41,
+          "opcode": "callvirt",
+          "rawOperand": "0xa79d2e22",
+          "resolved": null
+        },
+        {
+          "il": 46,
+          "opcode": "stloc.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 47,
+          "opcode": "ldloc.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 48,
+          "opcode": "callvirt",
+          "rawOperand": "0xa79d2ec2",
+          "resolved": null
+        },
+        {
+          "il": 53,
+          "opcode": "brfalse.s",
+          "rawOperand": "0x00000040",
+          "resolved": null
+        },
+        {
+          "il": 55,
+          "opcode": "ldarg.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 56,
+          "opcode": "ldloc.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 57,
+          "opcode": "stfld",
+          "rawOperand": "0x679e2e82",
+          "resolved": null
+        },
+        {
+          "il": 62,
+          "opcode": "br.s",
+          "rawOperand": "0x00000041",
+          "resolved": null
+        },
+        {
+          "il": 64,
+          "opcode": "ret",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 65,
+          "opcode": "ldarg.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 66,
+          "opcode": "ldc.i4.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 67,
+          "opcode": "call",
+          "rawOperand": "0xa79dd7c2",
+          "resolved": null
+        },
+        {
+          "il": 72,
+          "opcode": "ldarg.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 73,
+          "opcode": "call",
+          "rawOperand": "0xa79dd6e2",
+          "resolved": null
+        },
+        {
+          "il": 78,
+          "opcode": "ldarg.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 79,
+          "opcode": "call",
+          "rawOperand": "0xa79dd622",
+          "resolved": null
+        },
+        {
+          "il": 84,
+          "opcode": "ldarg.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 85,
+          "opcode": "ldfld",
+          "rawOperand": "0x679e2902",
+          "resolved": "NetworkManager::_futureManager (FieldDef row 3769)"
+        },
+        {
+          "il": 90,
+          "opcode": "callvirt",
+          "rawOperand": "0xa7814de2",
+          "resolved": "FutureManager::reset() (MethodDef row 48028)"
+        },
+        {
+          "il": 95,
+          "opcode": "ret",
+          "rawOperand": null,
+          "resolved": null
+        }
+      ],
+      "unresolvedOperands": [
+        {
+          "il": 12,
+          "opcode": "newobj",
+          "raw": "0xa79d29e2"
+        },
+        {
+          "il": 19,
+          "opcode": "callvirt",
+          "raw": "0xa79d2f22"
+        },
+        {
+          "il": 26,
+          "opcode": "callvirt",
+          "raw": "0xa79d29a2"
+        },
+        {
+          "il": 33,
+          "opcode": "callvirt",
+          "raw": "0xa79d2ee2"
+        },
+        {
+          "il": 41,
+          "opcode": "callvirt",
+          "raw": "0xa79d2e22"
+        },
+        {
+          "il": 48,
+          "opcode": "callvirt",
+          "raw": "0xa79d2ec2"
+        },
+        {
+          "il": 57,
+          "opcode": "stfld",
+          "raw": "0x679e2e82"
+        },
+        {
+          "il": 67,
+          "opcode": "call",
+          "raw": "0xa79dd7c2"
+        },
+        {
+          "il": 73,
+          "opcode": "call",
+          "raw": "0xa79dd6e2"
+        },
+        {
+          "il": 79,
+          "opcode": "call",
+          "raw": "0xa79dd622"
+        }
+      ]
+    },
+    "NetworkManager::SendLuaMessage(string,uint8[])": {
+      "row": 5752,
+      "rva": "0xad890",
+      "return": "void",
+      "args": [
+        "string",
+        "uint8[]"
+      ],
+      "fileOffset": "0xaba90",
+      "originalRawBytesHex": "11300500a1000000cc449c87042c0e047343299e2728e3299e270a2b0628e3459c270a027b02299e676f824d81a70b0672b0a57ce4076f03849e27027b02299e6707036fc24d81a72842d79ea72c3772b0b97fe41628e2d79ea72c2a72b0a47ce40372507f7de4062d03142b06062883069e27252d06267290687de428c3ec9f2728430b9f27027b42299e672d1172d06b7de4032863bf9f272823839f272a0203067383299e2728c2d69da72a",
+      "originalRawSha256": "1a1d4e1afe12d95db5a07b0758fa26dc949a8dca78df93b209edb632498f5341",
+      "decodedSize": 173,
+      "instructions": [
+        {
+          "il": 12,
+          "opcode": "ldarg.2",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 13,
+          "opcode": "brfalse.s",
+          "rawOperand": "0x0000001d",
+          "resolved": null
+        },
+        {
+          "il": 15,
+          "opcode": "ldarg.2",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 16,
+          "opcode": "newobj",
+          "rawOperand": "0x279e2943",
+          "resolved": null
+        },
+        {
+          "il": 21,
+          "opcode": "call",
+          "rawOperand": "0x279e29e3",
+          "resolved": null
+        },
+        {
+          "il": 26,
+          "opcode": "stloc.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 27,
+          "opcode": "br.s",
+          "rawOperand": "0x00000023",
+          "resolved": null
+        },
+        {
+          "il": 29,
+          "opcode": "call",
+          "rawOperand": "0x279c45e3",
+          "resolved": null
+        },
+        {
+          "il": 34,
+          "opcode": "stloc.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 35,
+          "opcode": "ldarg.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 36,
+          "opcode": "ldfld",
+          "rawOperand": "0x679e2902",
+          "resolved": "NetworkManager::_futureManager (FieldDef row 3769)"
+        },
+        {
+          "il": 41,
+          "opcode": "callvirt",
+          "rawOperand": "0xa7814d82",
+          "resolved": "FutureManager::getFutureId() (MethodDef row 48029)"
+        },
+        {
+          "il": 46,
+          "opcode": "stloc.1",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 47,
+          "opcode": "ldloc.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 48,
+          "opcode": "ldstr",
+          "rawOperand": "0xe47ca5b0",
+          "resolved": null
+        },
+        {
+          "il": 53,
+          "opcode": "ldloc.1",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 54,
+          "opcode": "callvirt",
+          "rawOperand": "0x279e8403",
+          "resolved": null
+        },
+        {
+          "il": 59,
+          "opcode": "ldarg.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 60,
+          "opcode": "ldfld",
+          "rawOperand": "0x679e2902",
+          "resolved": "NetworkManager::_futureManager (FieldDef row 3769)"
+        },
+        {
+          "il": 65,
+          "opcode": "ldloc.1",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 66,
+          "opcode": "ldarg.1",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 67,
+          "opcode": "callvirt",
+          "rawOperand": "0xa7814dc2",
+          "resolved": "FutureManager::onSendRequest(int,string) (MethodDef row 48031)"
+        },
+        {
+          "il": 72,
+          "opcode": "call",
+          "rawOperand": "0xa79ed742",
+          "resolved": null
+        },
+        {
+          "il": 77,
+          "opcode": "brfalse.s",
+          "rawOperand": "0x00000086",
+          "resolved": null
+        },
+        {
+          "il": 79,
+          "opcode": "ldstr",
+          "rawOperand": "0xe47fb9b0",
+          "resolved": null
+        },
+        {
+          "il": 84,
+          "opcode": "ldc.i4.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 85,
+          "opcode": "call",
+          "rawOperand": "0xa79ed7e2",
+          "resolved": null
+        },
+        {
+          "il": 90,
+          "opcode": "brfalse.s",
+          "rawOperand": "0x00000086",
+          "resolved": null
+        },
+        {
+          "il": 92,
+          "opcode": "ldstr",
+          "rawOperand": "0xe47ca4b0",
+          "resolved": null
+        },
+        {
+          "il": 97,
+          "opcode": "ldarg.1",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 98,
+          "opcode": "ldstr",
+          "rawOperand": "0xe47d7f50",
+          "resolved": null
+        },
+        {
+          "il": 103,
+          "opcode": "ldloc.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 104,
+          "opcode": "brtrue.s",
+          "rawOperand": "0x0000006d",
+          "resolved": null
+        },
+        {
+          "il": 106,
+          "opcode": "ldnull",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 107,
+          "opcode": "br.s",
+          "rawOperand": "0x00000073",
+          "resolved": null
+        },
+        {
+          "il": 109,
+          "opcode": "ldloc.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 110,
+          "opcode": "call",
+          "rawOperand": "0x279e0683",
+          "resolved": null
+        },
+        {
+          "il": 115,
+          "opcode": "dup",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 116,
+          "opcode": "brtrue.s",
+          "rawOperand": "0x0000007c",
+          "resolved": null
+        },
+        {
+          "il": 118,
+          "opcode": "pop",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 119,
+          "opcode": "ldstr",
+          "rawOperand": "0xe47d6890",
+          "resolved": null
+        },
+        {
+          "il": 124,
+          "opcode": "call",
+          "rawOperand": "0x279fecc3",
+          "resolved": null
+        },
+        {
+          "il": 129,
+          "opcode": "call",
+          "rawOperand": "0x279f0b43",
+          "resolved": null
+        },
+        {
+          "il": 134,
+          "opcode": "ldarg.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 135,
+          "opcode": "ldfld",
+          "rawOperand": "0x679e2942",
+          "resolved": null
+        },
+        {
+          "il": 140,
+          "opcode": "brtrue.s",
+          "rawOperand": "0x0000009f",
+          "resolved": null
+        },
+        {
+          "il": 142,
+          "opcode": "ldstr",
+          "rawOperand": "0xe47d6bd0",
+          "resolved": null
+        },
+        {
+          "il": 147,
+          "opcode": "ldarg.1",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 148,
+          "opcode": "call",
+          "rawOperand": "0x279fbf63",
+          "resolved": null
+        },
+        {
+          "il": 153,
+          "opcode": "call",
+          "rawOperand": "0x279f8323",
+          "resolved": null
+        },
+        {
+          "il": 158,
+          "opcode": "ret",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 159,
+          "opcode": "ldarg.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 160,
+          "opcode": "ldarg.1",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 161,
+          "opcode": "ldloc.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 162,
+          "opcode": "newobj",
+          "rawOperand": "0x279e2983",
+          "resolved": null
+        },
+        {
+          "il": 167,
+          "opcode": "call",
+          "rawOperand": "0xa79dd6c2",
+          "resolved": null
+        },
+        {
+          "il": 172,
+          "opcode": "ret",
+          "rawOperand": null,
+          "resolved": null
+        }
+      ],
+      "unresolvedOperands": [
+        {
+          "il": 16,
+          "opcode": "newobj",
+          "raw": "0x279e2943"
+        },
+        {
+          "il": 21,
+          "opcode": "call",
+          "raw": "0x279e29e3"
+        },
+        {
+          "il": 29,
+          "opcode": "call",
+          "raw": "0x279c45e3"
+        },
+        {
+          "il": 48,
+          "opcode": "ldstr",
+          "raw": "0xe47ca5b0"
+        },
+        {
+          "il": 54,
+          "opcode": "callvirt",
+          "raw": "0x279e8403"
+        },
+        {
+          "il": 72,
+          "opcode": "call",
+          "raw": "0xa79ed742"
+        },
+        {
+          "il": 79,
+          "opcode": "ldstr",
+          "raw": "0xe47fb9b0"
+        },
+        {
+          "il": 85,
+          "opcode": "call",
+          "raw": "0xa79ed7e2"
+        },
+        {
+          "il": 92,
+          "opcode": "ldstr",
+          "raw": "0xe47ca4b0"
+        },
+        {
+          "il": 98,
+          "opcode": "ldstr",
+          "raw": "0xe47d7f50"
+        },
+        {
+          "il": 110,
+          "opcode": "call",
+          "raw": "0x279e0683"
+        },
+        {
+          "il": 119,
+          "opcode": "ldstr",
+          "raw": "0xe47d6890"
+        },
+        {
+          "il": 124,
+          "opcode": "call",
+          "raw": "0x279fecc3"
+        },
+        {
+          "il": 129,
+          "opcode": "call",
+          "raw": "0x279f0b43"
+        },
+        {
+          "il": 135,
+          "opcode": "ldfld",
+          "raw": "0x679e2942"
+        },
+        {
+          "il": 142,
+          "opcode": "ldstr",
+          "raw": "0xe47d6bd0"
+        },
+        {
+          "il": 148,
+          "opcode": "call",
+          "raw": "0x279fbf63"
+        },
+        {
+          "il": 153,
+          "opcode": "call",
+          "raw": "0x279f8323"
+        },
+        {
+          "il": 162,
+          "opcode": "newobj",
+          "raw": "0x279e2983"
+        },
+        {
+          "il": 167,
+          "opcode": "call",
+          "raw": "0xa79dd6c2"
+        }
+      ]
+    },
+    "NetworkManager::OnExtensionResponse(Sfs2X.Core.BaseEvent)": {
+      "row": 5767,
+      "rva": "0xadf9f",
+      "return": "void",
+      "args": [
+        "Sfs2X.Core.BaseEvent"
+      ],
+      "fileOffset": "0xac19f",
+      "originalRawBytesHex": "4c02152842d19da728c29c9ca7036f429f9ca72a",
+      "originalRawSha256": "3a793e7df32c93d42b39b6af24e8ae1c8112b92d4bbd6ab15b85741d8356a430",
+      "decodedSize": 20,
+      "instructions": [
+        {
+          "il": 1,
+          "opcode": "ldarg.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 2,
+          "opcode": "ldc.i4.m1",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 3,
+          "opcode": "call",
+          "rawOperand": "0xa79dd142",
+          "resolved": "NetworkManager::SyncPingPong(int) (MethodDef row 5755)"
+        },
+        {
+          "il": 8,
+          "opcode": "call",
+          "rawOperand": "0xa79c9cc2",
+          "resolved": "MessageFactory::get_Instance() (MethodDef row 6183)"
+        },
+        {
+          "il": 13,
+          "opcode": "ldarg.1",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 14,
+          "opcode": "callvirt",
+          "rawOperand": "0xa79c9f42",
+          "resolved": "MessageFactory::DispatchResponse(BaseEvent) (MethodDef row 6187)"
+        },
+        {
+          "il": 19,
+          "opcode": "ret",
+          "rawOperand": null,
+          "resolved": null
+        }
+      ],
+      "unresolvedOperands": []
+    },
+    "Main.Scripts.Network.FutureManager::reset()": {
+      "row": 48028,
+      "rva": "0x486422",
+      "return": "void",
+      "args": [],
+      "fileOffset": "0x484622",
+      "originalRawBytesHex": "f402167dc2528a6702166a7d025d8a670222000000007da25c8a670221ffffffffffffff7f7d425d8a6702166a7de25d8a67027b22528a676f435c94272a",
+      "originalRawSha256": "accf961ede88b5d0266ab6a0b95cc4a071d867c5ccaaa74c132752ef6511b356",
+      "decodedSize": 62,
+      "instructions": [
+        {
+          "il": 1,
+          "opcode": "ldarg.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 2,
+          "opcode": "ldc.i4.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 3,
+          "opcode": "stfld",
+          "rawOperand": "0x678a52c2",
+          "resolved": "FutureManager::_futureId (FieldDef row 21015)"
+        },
+        {
+          "il": 8,
+          "opcode": "ldarg.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 9,
+          "opcode": "ldc.i4.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 10,
+          "opcode": "conv.i8",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 11,
+          "opcode": "stfld",
+          "rawOperand": "0x678a5d02",
+          "resolved": "FutureManager::_totalCount (FieldDef row 21017)"
+        },
+        {
+          "il": 16,
+          "opcode": "ldarg.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 17,
+          "opcode": "ldc.r4",
+          "rawOperand": "0.0",
+          "resolved": null
+        },
+        {
+          "il": 22,
+          "opcode": "stfld",
+          "rawOperand": "0x678a5ca2",
+          "resolved": "FutureManager::_totalTime (FieldDef row 21018)"
+        },
+        {
+          "il": 27,
+          "opcode": "ldarg.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 28,
+          "opcode": "ldc.i8",
+          "rawOperand": "0x7fffffffffffffff",
+          "resolved": null
+        },
+        {
+          "il": 37,
+          "opcode": "stfld",
+          "rawOperand": "0x678a5d42",
+          "resolved": "FutureManager::_minTime (FieldDef row 21019)"
+        },
+        {
+          "il": 42,
+          "opcode": "ldarg.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 43,
+          "opcode": "ldc.i4.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 44,
+          "opcode": "conv.i8",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 45,
+          "opcode": "stfld",
+          "rawOperand": "0x678a5de2",
+          "resolved": "FutureManager::_maxTime (FieldDef row 21020)"
+        },
+        {
+          "il": 50,
+          "opcode": "ldarg.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 51,
+          "opcode": "ldfld",
+          "rawOperand": "0x678a5222",
+          "resolved": "FutureManager::_sendInfos (FieldDef row 21014)"
+        },
+        {
+          "il": 56,
+          "opcode": "callvirt",
+          "rawOperand": "0x27945c43",
+          "resolved": null
+        },
+        {
+          "il": 61,
+          "opcode": "ret",
+          "rawOperand": null,
+          "resolved": null
+        }
+      ],
+      "unresolvedOperands": [
+        {
+          "il": 56,
+          "opcode": "callvirt",
+          "raw": "0x27945c43"
+        }
+      ]
+    },
+    "Main.Scripts.Network.FutureManager::getFutureId()": {
+      "row": 48029,
+      "rva": "0x486460",
+      "return": "int32",
+      "args": [],
+      "fileOffset": "0x484660",
+      "originalRawBytesHex": "4c027cc2528a672843ba9f2726027bc2528a672a",
+      "originalRawSha256": "c0c7176465e4ff02bd1ec93975f808f3d6981028f77030614ccfe0bbf717e950",
+      "decodedSize": 20,
+      "instructions": [
+        {
+          "il": 1,
+          "opcode": "ldarg.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 2,
+          "opcode": "ldflda",
+          "rawOperand": "0x678a52c2",
+          "resolved": "FutureManager::_futureId (FieldDef row 21015)"
+        },
+        {
+          "il": 7,
+          "opcode": "call",
+          "rawOperand": "0x279fba43",
+          "resolved": null
+        },
+        {
+          "il": 12,
+          "opcode": "pop",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 13,
+          "opcode": "ldarg.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 14,
+          "opcode": "ldfld",
+          "rawOperand": "0x678a52c2",
+          "resolved": "FutureManager::_futureId (FieldDef row 21015)"
+        },
+        {
+          "il": 19,
+          "opcode": "ret",
+          "rawOperand": null,
+          "resolved": null
+        }
+      ],
+      "unresolvedOperands": [
+        {
+          "il": 7,
+          "opcode": "call",
+          "raw": "0x279fba43"
+        }
+      ]
+    },
+    "Main.Scripts.Network.FutureManager::onSendRequest(int32,string)": {
+      "row": 48031,
+      "rva": "0x486494",
+      "return": "void",
+      "args": [
+        "int32",
+        "string"
+      ],
+      "fileOffset": "0x484694",
+      "originalRawBytesHex": "11300300250000008c789d871200030428024d81a7027b22528a67036fe35c94272d0d027b22528a6703066f835c94272a",
+      "originalRawSha256": "2f1580a1cf69c3eba05b0d09469b8896a5667d1bd7a2f269d644b352856faf3b",
+      "decodedSize": 49,
+      "instructions": [
+        {
+          "il": 12,
+          "opcode": "ldloca.s",
+          "rawOperand": "local(0x0000)",
+          "resolved": null
+        },
+        {
+          "il": 14,
+          "opcode": "ldarg.1",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 15,
+          "opcode": "ldarg.2",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 16,
+          "opcode": "call",
+          "rawOperand": "0xa7814d02",
+          "resolved": "msgSendInfo::.ctor(int,string) (MethodDef row 48025)"
+        },
+        {
+          "il": 21,
+          "opcode": "ldarg.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 22,
+          "opcode": "ldfld",
+          "rawOperand": "0x678a5222",
+          "resolved": "FutureManager::_sendInfos (FieldDef row 21014)"
+        },
+        {
+          "il": 27,
+          "opcode": "ldarg.1",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 28,
+          "opcode": "callvirt",
+          "rawOperand": "0x27945ce3",
+          "resolved": null
+        },
+        {
+          "il": 33,
+          "opcode": "brtrue.s",
+          "rawOperand": "0x00000030",
+          "resolved": null
+        },
+        {
+          "il": 35,
+          "opcode": "ldarg.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 36,
+          "opcode": "ldfld",
+          "rawOperand": "0x678a5222",
+          "resolved": "FutureManager::_sendInfos (FieldDef row 21014)"
+        },
+        {
+          "il": 41,
+          "opcode": "ldarg.1",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 42,
+          "opcode": "ldloc.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 43,
+          "opcode": "callvirt",
+          "rawOperand": "0x27945c83",
+          "resolved": null
+        },
+        {
+          "il": 48,
+          "opcode": "ret",
+          "rawOperand": null,
+          "resolved": null
+        }
+      ],
+      "unresolvedOperands": [
+        {
+          "il": 28,
+          "opcode": "callvirt",
+          "raw": "0x27945ce3"
+        },
+        {
+          "il": 43,
+          "opcode": "callvirt",
+          "raw": "0x27945c83"
+        }
+      ]
+    },
+    "Main.Scripts.Network.FutureManager::onServerMsgCome(int32,int32)": {
+      "row": 48032,
+      "rva": "0x4864c8",
+      "return": "void",
+      "args": [
+        "int32",
+        "int32"
+      ],
+      "fileOffset": "0x4846c8",
+      "originalRawBytesHex": "11300300840000002c789d87027b22528a67036fe35c94272c682883f19e270b120128a31d9f27027b22528a67036f235c94270c120228a24c81a759046a590a02027b025d8a67176a587d025d8a6702027ba25c8a67066b587da25c8a6702027b425d8a670628c35c94277d425d8a6702027be25d8a670628431e9f277de25d8a67027b22528a67036f635f9427262a",
+      "originalRawSha256": "69190befcd91a3e53546e6d8ef7e7d07af86959604d5e0e23e0915f8703f725a",
+      "decodedSize": 144,
+      "instructions": [
+        {
+          "il": 12,
+          "opcode": "ldarg.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 13,
+          "opcode": "ldfld",
+          "rawOperand": "0x678a5222",
+          "resolved": "FutureManager::_sendInfos (FieldDef row 21014)"
+        },
+        {
+          "il": 18,
+          "opcode": "ldarg.1",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 19,
+          "opcode": "callvirt",
+          "rawOperand": "0x27945ce3",
+          "resolved": null
+        },
+        {
+          "il": 24,
+          "opcode": "brfalse.s",
+          "rawOperand": "0x00000082",
+          "resolved": null
+        },
+        {
+          "il": 26,
+          "opcode": "call",
+          "rawOperand": "0x279ef183",
+          "resolved": null
+        },
+        {
+          "il": 31,
+          "opcode": "stloc.1",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 32,
+          "opcode": "ldloca.s",
+          "rawOperand": "local(0x0001)",
+          "resolved": null
+        },
+        {
+          "il": 34,
+          "opcode": "call",
+          "rawOperand": "0x279f1da3",
+          "resolved": null
+        },
+        {
+          "il": 39,
+          "opcode": "ldarg.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 40,
+          "opcode": "ldfld",
+          "rawOperand": "0x678a5222",
+          "resolved": "FutureManager::_sendInfos (FieldDef row 21014)"
+        },
+        {
+          "il": 45,
+          "opcode": "ldarg.1",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 46,
+          "opcode": "callvirt",
+          "rawOperand": "0x27945c23",
+          "resolved": null
+        },
+        {
+          "il": 51,
+          "opcode": "stloc.2",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 52,
+          "opcode": "ldloca.s",
+          "rawOperand": "local(0x0002)",
+          "resolved": null
+        },
+        {
+          "il": 54,
+          "opcode": "call",
+          "rawOperand": "0xa7814ca2",
+          "resolved": "msgSendInfo::getSendTime() (MethodDef row 48026)"
+        },
+        {
+          "il": 59,
+          "opcode": "sub",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 60,
+          "opcode": "ldarg.2",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 61,
+          "opcode": "conv.i8",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 62,
+          "opcode": "sub",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 63,
+          "opcode": "stloc.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 64,
+          "opcode": "ldarg.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 65,
+          "opcode": "ldarg.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 66,
+          "opcode": "ldfld",
+          "rawOperand": "0x678a5d02",
+          "resolved": "FutureManager::_totalCount (FieldDef row 21017)"
+        },
+        {
+          "il": 71,
+          "opcode": "ldc.i4.1",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 72,
+          "opcode": "conv.i8",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 73,
+          "opcode": "add",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 74,
+          "opcode": "stfld",
+          "rawOperand": "0x678a5d02",
+          "resolved": "FutureManager::_totalCount (FieldDef row 21017)"
+        },
+        {
+          "il": 79,
+          "opcode": "ldarg.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 80,
+          "opcode": "ldarg.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 81,
+          "opcode": "ldfld",
+          "rawOperand": "0x678a5ca2",
+          "resolved": "FutureManager::_totalTime (FieldDef row 21018)"
+        },
+        {
+          "il": 86,
+          "opcode": "ldloc.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 87,
+          "opcode": "conv.r4",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 88,
+          "opcode": "add",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 89,
+          "opcode": "stfld",
+          "rawOperand": "0x678a5ca2",
+          "resolved": "FutureManager::_totalTime (FieldDef row 21018)"
+        },
+        {
+          "il": 94,
+          "opcode": "ldarg.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 95,
+          "opcode": "ldarg.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 96,
+          "opcode": "ldfld",
+          "rawOperand": "0x678a5d42",
+          "resolved": "FutureManager::_minTime (FieldDef row 21019)"
+        },
+        {
+          "il": 101,
+          "opcode": "ldloc.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 102,
+          "opcode": "call",
+          "rawOperand": "0x27945cc3",
+          "resolved": null
+        },
+        {
+          "il": 107,
+          "opcode": "stfld",
+          "rawOperand": "0x678a5d42",
+          "resolved": "FutureManager::_minTime (FieldDef row 21019)"
+        },
+        {
+          "il": 112,
+          "opcode": "ldarg.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 113,
+          "opcode": "ldarg.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 114,
+          "opcode": "ldfld",
+          "rawOperand": "0x678a5de2",
+          "resolved": "FutureManager::_maxTime (FieldDef row 21020)"
+        },
+        {
+          "il": 119,
+          "opcode": "ldloc.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 120,
+          "opcode": "call",
+          "rawOperand": "0x279f1e43",
+          "resolved": null
+        },
+        {
+          "il": 125,
+          "opcode": "stfld",
+          "rawOperand": "0x678a5de2",
+          "resolved": "FutureManager::_maxTime (FieldDef row 21020)"
+        },
+        {
+          "il": 130,
+          "opcode": "ldarg.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 131,
+          "opcode": "ldfld",
+          "rawOperand": "0x678a5222",
+          "resolved": "FutureManager::_sendInfos (FieldDef row 21014)"
+        },
+        {
+          "il": 136,
+          "opcode": "ldarg.1",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 137,
+          "opcode": "callvirt",
+          "rawOperand": "0x27945f63",
+          "resolved": null
+        },
+        {
+          "il": 142,
+          "opcode": "pop",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 143,
+          "opcode": "ret",
+          "rawOperand": null,
+          "resolved": null
+        }
+      ],
+      "unresolvedOperands": [
+        {
+          "il": 19,
+          "opcode": "callvirt",
+          "raw": "0x27945ce3"
+        },
+        {
+          "il": 26,
+          "opcode": "call",
+          "raw": "0x279ef183"
+        },
+        {
+          "il": 34,
+          "opcode": "call",
+          "raw": "0x279f1da3"
+        },
+        {
+          "il": 46,
+          "opcode": "callvirt",
+          "raw": "0x27945c23"
+        },
+        {
+          "il": 102,
+          "opcode": "call",
+          "raw": "0x27945cc3"
+        },
+        {
+          "il": 120,
+          "opcode": "call",
+          "raw": "0x279f1e43"
+        },
+        {
+          "il": 137,
+          "opcode": "callvirt",
+          "raw": "0x27945f63"
+        }
+      ]
+    },
+    "MessageFactory::DispatchResponse(string,Sfs2X.Entities.Data.SFSObject)": {
+      "row": 6192,
+      "rva": "0xb592c",
+      "return": "void",
+      "args": [
+        "string",
+        "Sfs2X.Entities.Data.SFSObject"
+      ],
+      "fileOffset": "0xb3b2c",
+      "originalRawBytesHex": "19300400cf0100002c1c9f8773829e9ca70a06037d42fa9e6706047de2fa9e67067b42fa9e672862aa90a72842d79ea72c5872b0b97fe41628e2d79ea72c4b067b42fa9e677210f26be46f037b9c272c177290ff6be4067b42fa9e6728a3959f2728430b9f272b22067be2fa9e676f83069e270b7270cc6be4067b42fa9e670728e38f9f2728430b9f2700067be2fa9e6772b0a57ce46f43069e272c33067be2fa9e6772b0a57ce46f43ea9e270c067be2fa9e6772509d6ae428227b9fa70d28e2239ea76fe2d79da708096f624c81a72843839f273922ed9fe7027bc2fb9e6722000000003645027b02fa9e672c20027b02fa9e676fc3819e272c13027b02fa9e67067b42fa9e676f635a9c272c1d06fe06229e9ca77343869f27027bc2fb9e672802a19ea7263822e29fe7067b42fa9e6728e29f9ca7130411042c0f1104067be2fa9e676f02939ca72b7628e2229ea7067b42fa9e67067be2fa9e6728e2229ea76f027b94a728824094a78c62e49e276fc24494a72b4a067b42fa9e6728e29f9ca7130511052c0f1105067be2fa9e676f02939ca72b2a28e2229ea7067b42fa9e67067be2fa9e6728e2229ea76f027b94a728824094a78c62e49e276fc24494a7de16130672d09c6ae4067b42fa9e67110628c3b89f27de002a00411c0000000000007f00000039010000b80100001600000090000001",
+      "originalRawSha256": "eaae81d1efcdb750513c8e6752aadefe430cf1d55dba59e39b84aa9b909430b2",
+      "decodedSize": 504,
+      "instructions": [
+        {
+          "il": 12,
+          "opcode": "newobj",
+          "rawOperand": "0xa79c9e82",
+          "resolved": null
+        },
+        {
+          "il": 17,
+          "opcode": "stloc.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 18,
+          "opcode": "ldloc.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 19,
+          "opcode": "ldarg.1",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 20,
+          "opcode": "stfld",
+          "rawOperand": "0x679efa42",
+          "resolved": null
+        },
+        {
+          "il": 25,
+          "opcode": "ldloc.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 26,
+          "opcode": "ldarg.2",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 27,
+          "opcode": "stfld",
+          "rawOperand": "0x679efae2",
+          "resolved": null
+        },
+        {
+          "il": 32,
+          "opcode": "ldloc.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 33,
+          "opcode": "ldfld",
+          "rawOperand": "0x679efa42",
+          "resolved": null
+        },
+        {
+          "il": 38,
+          "opcode": "call",
+          "rawOperand": "0xa790aa62",
+          "resolved": null
+        },
+        {
+          "il": 43,
+          "opcode": "call",
+          "rawOperand": "0xa79ed742",
+          "resolved": null
+        },
+        {
+          "il": 48,
+          "opcode": "brfalse.s",
+          "rawOperand": "0x0000008a",
+          "resolved": null
+        },
+        {
+          "il": 50,
+          "opcode": "ldstr",
+          "rawOperand": "0xe47fb9b0",
+          "resolved": null
+        },
+        {
+          "il": 55,
+          "opcode": "ldc.i4.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 56,
+          "opcode": "call",
+          "rawOperand": "0xa79ed7e2",
+          "resolved": null
+        },
+        {
+          "il": 61,
+          "opcode": "brfalse.s",
+          "rawOperand": "0x0000008a",
+          "resolved": null
+        },
+        {
+          "il": 63,
+          "opcode": "ldloc.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 64,
+          "opcode": "ldfld",
+          "rawOperand": "0x679efa42",
+          "resolved": null
+        },
+        {
+          "il": 69,
+          "opcode": "ldstr",
+          "rawOperand": "0xe46bf210",
+          "resolved": null
+        },
+        {
+          "il": 74,
+          "opcode": "callvirt",
+          "rawOperand": "0x279c7b03",
+          "resolved": null
+        },
+        {
+          "il": 79,
+          "opcode": "brfalse.s",
+          "rawOperand": "0x00000068",
+          "resolved": null
+        },
+        {
+          "il": 81,
+          "opcode": "ldstr",
+          "rawOperand": "0xe46bff90",
+          "resolved": null
+        },
+        {
+          "il": 86,
+          "opcode": "ldloc.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 87,
+          "opcode": "ldfld",
+          "rawOperand": "0x679efa42",
+          "resolved": null
+        },
+        {
+          "il": 92,
+          "opcode": "call",
+          "rawOperand": "0x279f95a3",
+          "resolved": null
+        },
+        {
+          "il": 97,
+          "opcode": "call",
+          "rawOperand": "0x279f0b43",
+          "resolved": null
+        },
+        {
+          "il": 102,
+          "opcode": "br.s",
+          "rawOperand": "0x0000008a",
+          "resolved": null
+        },
+        {
+          "il": 104,
+          "opcode": "ldloc.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 105,
+          "opcode": "ldfld",
+          "rawOperand": "0x679efae2",
+          "resolved": null
+        },
+        {
+          "il": 110,
+          "opcode": "callvirt",
+          "rawOperand": "0x279e0683",
+          "resolved": null
+        },
+        {
+          "il": 115,
+          "opcode": "stloc.1",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 116,
+          "opcode": "ldstr",
+          "rawOperand": "0xe46bcc70",
+          "resolved": null
+        },
+        {
+          "il": 121,
+          "opcode": "ldloc.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 122,
+          "opcode": "ldfld",
+          "rawOperand": "0x679efa42",
+          "resolved": null
+        },
+        {
+          "il": 127,
+          "opcode": "ldloc.1",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 128,
+          "opcode": "call",
+          "rawOperand": "0x279f8fe3",
+          "resolved": null
+        },
+        {
+          "il": 133,
+          "opcode": "call",
+          "rawOperand": "0x279f0b43",
+          "resolved": null
+        },
+        {
+          "il": 138,
+          "opcode": "nop",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 139,
+          "opcode": "ldloc.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 140,
+          "opcode": "ldfld",
+          "rawOperand": "0x679efae2",
+          "resolved": null
+        },
+        {
+          "il": 145,
+          "opcode": "ldstr",
+          "rawOperand": "0xe47ca5b0",
+          "resolved": null
+        },
+        {
+          "il": 150,
+          "opcode": "callvirt",
+          "rawOperand": "0x279e0643",
+          "resolved": null
+        },
+        {
+          "il": 155,
+          "opcode": "brfalse.s",
+          "rawOperand": "0x000000d0",
+          "resolved": null
+        },
+        {
+          "il": 157,
+          "opcode": "ldloc.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 158,
+          "opcode": "ldfld",
+          "rawOperand": "0x679efae2",
+          "resolved": null
+        },
+        {
+          "il": 163,
+          "opcode": "ldstr",
+          "rawOperand": "0xe47ca5b0",
+          "resolved": null
+        },
+        {
+          "il": 168,
+          "opcode": "callvirt",
+          "rawOperand": "0x279eea43",
+          "resolved": null
+        },
+        {
+          "il": 173,
+          "opcode": "stloc.2",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 174,
+          "opcode": "ldloc.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 175,
+          "opcode": "ldfld",
+          "rawOperand": "0x679efae2",
+          "resolved": null
+        },
+        {
+          "il": 180,
+          "opcode": "ldstr",
+          "rawOperand": "0xe46a9d50",
+          "resolved": null
+        },
+        {
+          "il": 185,
+          "opcode": "call",
+          "rawOperand": "0xa79f7b22",
+          "resolved": null
+        },
+        {
+          "il": 190,
+          "opcode": "stloc.3",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 191,
+          "opcode": "call",
+          "rawOperand": "0xa79e23e2",
+          "resolved": "GameEntry::get_Network() (MethodDef row 3724)"
+        },
+        {
+          "il": 196,
+          "opcode": "callvirt",
+          "rawOperand": "0xa79dd7e2",
+          "resolved": "NetworkManager::getFutureManager() (MethodDef row 5740)"
+        },
+        {
+          "il": 201,
+          "opcode": "ldloc.2",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 202,
+          "opcode": "ldloc.3",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 203,
+          "opcode": "callvirt",
+          "rawOperand": "0xa7814c62",
+          "resolved": "FutureManager::onServerMsgCome(int,int) (MethodDef row 48032)"
+        },
+        {
+          "il": 208,
+          "opcode": "call",
+          "rawOperand": "0x279f8343",
+          "resolved": null
+        },
+        {
+          "il": 213,
+          "opcode": "brfalse",
+          "rawOperand": "0x-18601204",
+          "resolved": null
+        },
+        {
+          "il": 218,
+          "opcode": "ldarg.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 219,
+          "opcode": "ldfld",
+          "rawOperand": "0x679efbc2",
+          "resolved": null
+        },
+        {
+          "il": 224,
+          "opcode": "ldc.r4",
+          "rawOperand": "0.0",
+          "resolved": null
+        },
+        {
+          "il": 229,
+          "opcode": "ble.un.s",
+          "rawOperand": "0x0000012c",
+          "resolved": null
+        },
+        {
+          "il": 231,
+          "opcode": "ldarg.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 232,
+          "opcode": "ldfld",
+          "rawOperand": "0x679efa02",
+          "resolved": null
+        },
+        {
+          "il": 237,
+          "opcode": "brfalse.s",
+          "rawOperand": "0x0000010f",
+          "resolved": null
+        },
+        {
+          "il": 239,
+          "opcode": "ldarg.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 240,
+          "opcode": "ldfld",
+          "rawOperand": "0x679efa02",
+          "resolved": null
+        },
+        {
+          "il": 245,
+          "opcode": "callvirt",
+          "rawOperand": "0x279e81c3",
+          "resolved": null
+        },
+        {
+          "il": 250,
+          "opcode": "brfalse.s",
+          "rawOperand": "0x0000010f",
+          "resolved": null
+        },
+        {
+          "il": 252,
+          "opcode": "ldarg.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 253,
+          "opcode": "ldfld",
+          "rawOperand": "0x679efa02",
+          "resolved": null
+        },
+        {
+          "il": 258,
+          "opcode": "ldloc.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 259,
+          "opcode": "ldfld",
+          "rawOperand": "0x679efa42",
+          "resolved": null
+        },
+        {
+          "il": 264,
+          "opcode": "callvirt",
+          "rawOperand": "0x279c5a63",
+          "resolved": null
+        },
+        {
+          "il": 269,
+          "opcode": "brfalse.s",
+          "rawOperand": "0x0000012c",
+          "resolved": null
+        },
+        {
+          "il": 271,
+          "opcode": "ldloc.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 272,
+          "opcode": "ldftn",
+          "rawOperand": "0xa79c9e22",
+          "resolved": null
+        },
+        {
+          "il": 278,
+          "opcode": "newobj",
+          "rawOperand": "0x279f8643",
+          "resolved": null
+        },
+        {
+          "il": 283,
+          "opcode": "ldarg.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 284,
+          "opcode": "ldfld",
+          "rawOperand": "0x679efbc2",
+          "resolved": null
+        },
+        {
+          "il": 289,
+          "opcode": "call",
+          "rawOperand": "0xa79ea102",
+          "resolved": null
+        },
+        {
+          "il": 294,
+          "opcode": "pop",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 295,
+          "opcode": "br",
+          "rawOperand": "0x-18601cb2",
+          "resolved": null
+        },
+        {
+          "il": 300,
+          "opcode": "ldloc.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 301,
+          "opcode": "ldfld",
+          "rawOperand": "0x679efa42",
+          "resolved": null
+        },
+        {
+          "il": 306,
+          "opcode": "call",
+          "rawOperand": "0xa79c9fe2",
+          "resolved": null
+        },
+        {
+          "il": 311,
+          "opcode": "stloc.s",
+          "rawOperand": "local(0x0004)",
+          "resolved": null
+        },
+        {
+          "il": 313,
+          "opcode": "ldloc.s",
+          "rawOperand": "local(0x0004)",
+          "resolved": null
+        },
+        {
+          "il": 315,
+          "opcode": "brfalse.s",
+          "rawOperand": "0x0000014c",
+          "resolved": null
+        },
+        {
+          "il": 317,
+          "opcode": "ldloc.s",
+          "rawOperand": "local(0x0004)",
+          "resolved": null
+        },
+        {
+          "il": 319,
+          "opcode": "ldloc.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 320,
+          "opcode": "ldfld",
+          "rawOperand": "0x679efae2",
+          "resolved": null
+        },
+        {
+          "il": 325,
+          "opcode": "callvirt",
+          "rawOperand": "0xa79c9302",
+          "resolved": null
+        },
+        {
+          "il": 330,
+          "opcode": "br.s",
+          "rawOperand": "0x000001c2",
+          "resolved": null
+        },
+        {
+          "il": 332,
+          "opcode": "call",
+          "rawOperand": "0xa79e22e2",
+          "resolved": "GameEntry::get_Lua() (MethodDef row 3732)"
+        },
+        {
+          "il": 337,
+          "opcode": "ldloc.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 338,
+          "opcode": "ldfld",
+          "rawOperand": "0x679efa42",
+          "resolved": null
+        },
+        {
+          "il": 343,
+          "opcode": "ldloc.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 344,
+          "opcode": "ldfld",
+          "rawOperand": "0x679efae2",
+          "resolved": null
+        },
+        {
+          "il": 349,
+          "opcode": "call",
+          "rawOperand": "0xa79e22e2",
+          "resolved": "GameEntry::get_Lua() (MethodDef row 3732)"
+        },
+        {
+          "il": 354,
+          "opcode": "callvirt",
+          "rawOperand": "0xa7947b02",
+          "resolved": "XLuaManager::get_Env() (MethodDef row 17353)"
+        },
+        {
+          "il": 359,
+          "opcode": "call",
+          "rawOperand": "0xa7944082",
+          "resolved": "SFSObjectExtention::ToLuaTable(SFSObject,LuaEnv) (MethodDef row 17285)"
+        },
+        {
+          "il": 364,
+          "opcode": "box",
+          "rawOperand": "0x279ee462",
+          "resolved": null
+        },
+        {
+          "il": 369,
+          "opcode": "callvirt",
+          "rawOperand": "0xa79444c2",
+          "resolved": "XLuaManager::DispatchResponse(string,object) (MethodDef row 17383)"
+        },
+        {
+          "il": 374,
+          "opcode": "br.s",
+          "rawOperand": "0x000001c2",
+          "resolved": null
+        },
+        {
+          "il": 376,
+          "opcode": "ldloc.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 377,
+          "opcode": "ldfld",
+          "rawOperand": "0x679efa42",
+          "resolved": null
+        },
+        {
+          "il": 382,
+          "opcode": "call",
+          "rawOperand": "0xa79c9fe2",
+          "resolved": null
+        },
+        {
+          "il": 387,
+          "opcode": "stloc.s",
+          "rawOperand": "local(0x0005)",
+          "resolved": null
+        },
+        {
+          "il": 389,
+          "opcode": "ldloc.s",
+          "rawOperand": "local(0x0005)",
+          "resolved": null
+        },
+        {
+          "il": 391,
+          "opcode": "brfalse.s",
+          "rawOperand": "0x00000198",
+          "resolved": null
+        },
+        {
+          "il": 393,
+          "opcode": "ldloc.s",
+          "rawOperand": "local(0x0005)",
+          "resolved": null
+        },
+        {
+          "il": 395,
+          "opcode": "ldloc.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 396,
+          "opcode": "ldfld",
+          "rawOperand": "0x679efae2",
+          "resolved": null
+        },
+        {
+          "il": 401,
+          "opcode": "callvirt",
+          "rawOperand": "0xa79c9302",
+          "resolved": null
+        },
+        {
+          "il": 406,
+          "opcode": "br.s",
+          "rawOperand": "0x000001c2",
+          "resolved": null
+        },
+        {
+          "il": 408,
+          "opcode": "call",
+          "rawOperand": "0xa79e22e2",
+          "resolved": "GameEntry::get_Lua() (MethodDef row 3732)"
+        },
+        {
+          "il": 413,
+          "opcode": "ldloc.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 414,
+          "opcode": "ldfld",
+          "rawOperand": "0x679efa42",
+          "resolved": null
+        },
+        {
+          "il": 419,
+          "opcode": "ldloc.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 420,
+          "opcode": "ldfld",
+          "rawOperand": "0x679efae2",
+          "resolved": null
+        },
+        {
+          "il": 425,
+          "opcode": "call",
+          "rawOperand": "0xa79e22e2",
+          "resolved": "GameEntry::get_Lua() (MethodDef row 3732)"
+        },
+        {
+          "il": 430,
+          "opcode": "callvirt",
+          "rawOperand": "0xa7947b02",
+          "resolved": "XLuaManager::get_Env() (MethodDef row 17353)"
+        },
+        {
+          "il": 435,
+          "opcode": "call",
+          "rawOperand": "0xa7944082",
+          "resolved": "SFSObjectExtention::ToLuaTable(SFSObject,LuaEnv) (MethodDef row 17285)"
+        },
+        {
+          "il": 440,
+          "opcode": "box",
+          "rawOperand": "0x279ee462",
+          "resolved": null
+        },
+        {
+          "il": 445,
+          "opcode": "callvirt",
+          "rawOperand": "0xa79444c2",
+          "resolved": "XLuaManager::DispatchResponse(string,object) (MethodDef row 17383)"
+        },
+        {
+          "il": 450,
+          "opcode": "leave.s",
+          "rawOperand": "0x000001da",
+          "resolved": null
+        },
+        {
+          "il": 452,
+          "opcode": "stloc.s",
+          "rawOperand": "local(0x0006)",
+          "resolved": null
+        },
+        {
+          "il": 454,
+          "opcode": "ldstr",
+          "rawOperand": "0xe46a9cd0",
+          "resolved": null
+        },
+        {
+          "il": 459,
+          "opcode": "ldloc.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 460,
+          "opcode": "ldfld",
+          "rawOperand": "0x679efa42",
+          "resolved": null
+        },
+        {
+          "il": 465,
+          "opcode": "ldloc.s",
+          "rawOperand": "local(0x0006)",
+          "resolved": null
+        },
+        {
+          "il": 467,
+          "opcode": "call",
+          "rawOperand": "0x279fb8c3",
+          "resolved": null
+        },
+        {
+          "il": 472,
+          "opcode": "leave.s",
+          "rawOperand": "0x000001da",
+          "resolved": null
+        },
+        {
+          "il": 474,
+          "opcode": "ret",
+          "rawOperand": null,
+          "resolved": null
+        }
+      ],
+      "unresolvedOperands": [
+        {
+          "il": 12,
+          "opcode": "newobj",
+          "raw": "0xa79c9e82"
+        },
+        {
+          "il": 20,
+          "opcode": "stfld",
+          "raw": "0x679efa42"
+        },
+        {
+          "il": 27,
+          "opcode": "stfld",
+          "raw": "0x679efae2"
+        },
+        {
+          "il": 33,
+          "opcode": "ldfld",
+          "raw": "0x679efa42"
+        },
+        {
+          "il": 38,
+          "opcode": "call",
+          "raw": "0xa790aa62"
+        },
+        {
+          "il": 43,
+          "opcode": "call",
+          "raw": "0xa79ed742"
+        },
+        {
+          "il": 50,
+          "opcode": "ldstr",
+          "raw": "0xe47fb9b0"
+        },
+        {
+          "il": 56,
+          "opcode": "call",
+          "raw": "0xa79ed7e2"
+        },
+        {
+          "il": 64,
+          "opcode": "ldfld",
+          "raw": "0x679efa42"
+        },
+        {
+          "il": 69,
+          "opcode": "ldstr",
+          "raw": "0xe46bf210"
+        },
+        {
+          "il": 74,
+          "opcode": "callvirt",
+          "raw": "0x279c7b03"
+        },
+        {
+          "il": 81,
+          "opcode": "ldstr",
+          "raw": "0xe46bff90"
+        },
+        {
+          "il": 87,
+          "opcode": "ldfld",
+          "raw": "0x679efa42"
+        },
+        {
+          "il": 92,
+          "opcode": "call",
+          "raw": "0x279f95a3"
+        },
+        {
+          "il": 97,
+          "opcode": "call",
+          "raw": "0x279f0b43"
+        },
+        {
+          "il": 105,
+          "opcode": "ldfld",
+          "raw": "0x679efae2"
+        },
+        {
+          "il": 110,
+          "opcode": "callvirt",
+          "raw": "0x279e0683"
+        },
+        {
+          "il": 116,
+          "opcode": "ldstr",
+          "raw": "0xe46bcc70"
+        },
+        {
+          "il": 122,
+          "opcode": "ldfld",
+          "raw": "0x679efa42"
+        },
+        {
+          "il": 128,
+          "opcode": "call",
+          "raw": "0x279f8fe3"
+        },
+        {
+          "il": 133,
+          "opcode": "call",
+          "raw": "0x279f0b43"
+        },
+        {
+          "il": 140,
+          "opcode": "ldfld",
+          "raw": "0x679efae2"
+        },
+        {
+          "il": 145,
+          "opcode": "ldstr",
+          "raw": "0xe47ca5b0"
+        },
+        {
+          "il": 150,
+          "opcode": "callvirt",
+          "raw": "0x279e0643"
+        },
+        {
+          "il": 158,
+          "opcode": "ldfld",
+          "raw": "0x679efae2"
+        },
+        {
+          "il": 163,
+          "opcode": "ldstr",
+          "raw": "0xe47ca5b0"
+        },
+        {
+          "il": 168,
+          "opcode": "callvirt",
+          "raw": "0x279eea43"
+        },
+        {
+          "il": 175,
+          "opcode": "ldfld",
+          "raw": "0x679efae2"
+        },
+        {
+          "il": 180,
+          "opcode": "ldstr",
+          "raw": "0xe46a9d50"
+        },
+        {
+          "il": 185,
+          "opcode": "call",
+          "raw": "0xa79f7b22"
+        },
+        {
+          "il": 208,
+          "opcode": "call",
+          "raw": "0x279f8343"
+        },
+        {
+          "il": 219,
+          "opcode": "ldfld",
+          "raw": "0x679efbc2"
+        },
+        {
+          "il": 232,
+          "opcode": "ldfld",
+          "raw": "0x679efa02"
+        },
+        {
+          "il": 240,
+          "opcode": "ldfld",
+          "raw": "0x679efa02"
+        },
+        {
+          "il": 245,
+          "opcode": "callvirt",
+          "raw": "0x279e81c3"
+        },
+        {
+          "il": 253,
+          "opcode": "ldfld",
+          "raw": "0x679efa02"
+        },
+        {
+          "il": 259,
+          "opcode": "ldfld",
+          "raw": "0x679efa42"
+        },
+        {
+          "il": 264,
+          "opcode": "callvirt",
+          "raw": "0x279c5a63"
+        },
+        {
+          "il": 278,
+          "opcode": "newobj",
+          "raw": "0x279f8643"
+        },
+        {
+          "il": 284,
+          "opcode": "ldfld",
+          "raw": "0x679efbc2"
+        },
+        {
+          "il": 289,
+          "opcode": "call",
+          "raw": "0xa79ea102"
+        },
+        {
+          "il": 301,
+          "opcode": "ldfld",
+          "raw": "0x679efa42"
+        },
+        {
+          "il": 306,
+          "opcode": "call",
+          "raw": "0xa79c9fe2"
+        },
+        {
+          "il": 320,
+          "opcode": "ldfld",
+          "raw": "0x679efae2"
+        },
+        {
+          "il": 325,
+          "opcode": "callvirt",
+          "raw": "0xa79c9302"
+        },
+        {
+          "il": 338,
+          "opcode": "ldfld",
+          "raw": "0x679efa42"
+        },
+        {
+          "il": 344,
+          "opcode": "ldfld",
+          "raw": "0x679efae2"
+        },
+        {
+          "il": 364,
+          "opcode": "box",
+          "raw": "0x279ee462"
+        },
+        {
+          "il": 377,
+          "opcode": "ldfld",
+          "raw": "0x679efa42"
+        },
+        {
+          "il": 382,
+          "opcode": "call",
+          "raw": "0xa79c9fe2"
+        },
+        {
+          "il": 396,
+          "opcode": "ldfld",
+          "raw": "0x679efae2"
+        },
+        {
+          "il": 401,
+          "opcode": "callvirt",
+          "raw": "0xa79c9302"
+        },
+        {
+          "il": 414,
+          "opcode": "ldfld",
+          "raw": "0x679efa42"
+        },
+        {
+          "il": 420,
+          "opcode": "ldfld",
+          "raw": "0x679efae2"
+        },
+        {
+          "il": 440,
+          "opcode": "box",
+          "raw": "0x279ee462"
+        },
+        {
+          "il": 454,
+          "opcode": "ldstr",
+          "raw": "0xe46a9cd0"
+        },
+        {
+          "il": 460,
+          "opcode": "ldfld",
+          "raw": "0x679efa42"
+        },
+        {
+          "il": 467,
+          "opcode": "call",
+          "raw": "0x279fb8c3"
+        }
+      ]
+    },
+    "SFSObjectExtention::ToLuaTable(Sfs2X.Entities.Data.SFSObject,XLua.LuaEnv)": {
+      "row": 17285,
+      "rva": "0x1a8414",
+      "return": "LuaStackTable",
+      "args": [
+        "Sfs2X.Entities.Data.SFSObject",
+        "XLua.LuaEnv"
+      ],
+      "fileOffset": "0x1a6614",
+      "originalRawBytesHex": "193005004d0300004c759f871200036f62f096a728c27594a728e2229ea76f027b94a76f62f096a70b0228827194a76fc30e9c270c3802709ce712022863099c270d12032803099c276f83ee9e271304120328a3089c2713051104451500000002549ce782909fe7e29c9fe7a2989fe7628a9fe7c2979fe722e39fe782ef9fe7e29b9fe742e79fe7c2b39fe7a2be9fe722ab9fe7a2b19fe722829fe7a2889fe722859fe7a2539ce7625f9ce782579ce7224b9ce73862579ce71200110512032803099c276f43099c27a5828b9f8728627794a73842549ce7120011050211056fe3099c2728e27794a738824b9ce7120011050211056f83099c2728227794a738c25e9ce71200110512032803099c276f43099c27a5229f9f8728627494a738625d9ce71200110512032803099c276f43099c27a5e2ed9f8728a27794a73802819fe71200110512032803099c276f43099c27a5829f9f8728627694a738a2849fe71200110512032803099c276f43099c27a5c28b9f8728e27494a73842899fe71200110512032803099c276f43099c277422909f8728227494a738e28d9fe707110528830f9c27120011050211056f23099c270328227194a728e27694a73862b19fe7120011050211056fc3099c276f03f49e2728a27194a73882b59fe707110528830f9c27120011050211056f63389c270328c27194a728e27694a73802b99fe707110528830f9c27120011050211056f03389c270328624094a728e27694a73882b29fe707110528830f9c27120011050211056fa33b9c270328024094a728e27694a73802e69fe707110528830f9c27120011050211056f43389c270328a24394a728e27694a738829b9fe707110528830f9c27120011050211056fe3389c270328424094a728e27694a73802ef9fe707110528830f9c27120011050211056f83389c270328e24094a728e27694a73882e09fe707110528830f9c27120011050211056fe3e89e2774824a9c870328224094a728e27694a72b5f07110528830f9c27120011050211056fa3ea9e277462b09f870328824094a728e27694a72b39120011050211056f23389c2728227494a72b26120011051428227494a72b1a72d06290e6178d02909f87251611048c227a9c87a22843f39f27120228c3389c273a4166d869de0e1202fe16ad369fc76fc39a9f27dc062a000000411c00000200000029000000140300003d0300000e00000000000000",
+      "originalRawSha256": "c0af3b1973eca70c067b19d18d83e6d394cec07355891b0f0186c15973426ce3",
+      "decodedSize": 888,
+      "instructions": [
+        {
+          "il": 12,
+          "opcode": "ldloca.s",
+          "rawOperand": "local(0x0000)",
+          "resolved": null
+        },
+        {
+          "il": 14,
+          "opcode": "ldarg.1",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 15,
+          "opcode": "callvirt",
+          "rawOperand": "0xa796f062",
+          "resolved": null
+        },
+        {
+          "il": 20,
+          "opcode": "call",
+          "rawOperand": "0xa79475c2",
+          "resolved": null
+        },
+        {
+          "il": 25,
+          "opcode": "call",
+          "rawOperand": "0xa79e22e2",
+          "resolved": "GameEntry::get_Lua() (MethodDef row 3732)"
+        },
+        {
+          "il": 30,
+          "opcode": "callvirt",
+          "rawOperand": "0xa7947b02",
+          "resolved": "XLuaManager::get_Env() (MethodDef row 17353)"
+        },
+        {
+          "il": 35,
+          "opcode": "callvirt",
+          "rawOperand": "0xa796f062",
+          "resolved": null
+        },
+        {
+          "il": 40,
+          "opcode": "stloc.1",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 41,
+          "opcode": "ldarg.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 42,
+          "opcode": "call",
+          "rawOperand": "0xa7947182",
+          "resolved": null
+        },
+        {
+          "il": 47,
+          "opcode": "callvirt",
+          "rawOperand": "0x279c0ec3",
+          "resolved": null
+        },
+        {
+          "il": 52,
+          "opcode": "stloc.2",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 53,
+          "opcode": "br",
+          "rawOperand": "0x-18638fc4",
+          "resolved": null
+        },
+        {
+          "il": 58,
+          "opcode": "ldloca.s",
+          "rawOperand": "local(0x0002)",
+          "resolved": null
+        },
+        {
+          "il": 60,
+          "opcode": "call",
+          "rawOperand": "0x279c0963",
+          "resolved": null
+        },
+        {
+          "il": 65,
+          "opcode": "stloc.3",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 66,
+          "opcode": "ldloca.s",
+          "rawOperand": "local(0x0003)",
+          "resolved": null
+        },
+        {
+          "il": 68,
+          "opcode": "call",
+          "rawOperand": "0x279c0903",
+          "resolved": null
+        },
+        {
+          "il": 73,
+          "opcode": "callvirt",
+          "rawOperand": "0x279eee83",
+          "resolved": null
+        },
+        {
+          "il": 78,
+          "opcode": "stloc.s",
+          "rawOperand": "local(0x0004)",
+          "resolved": null
+        },
+        {
+          "il": 80,
+          "opcode": "ldloca.s",
+          "rawOperand": "local(0x0003)",
+          "resolved": null
+        },
+        {
+          "il": 82,
+          "opcode": "call",
+          "rawOperand": "0x279c08a3",
+          "resolved": null
+        },
+        {
+          "il": 87,
+          "opcode": "stloc.s",
+          "rawOperand": "local(0x0005)",
+          "resolved": null
+        },
+        {
+          "il": 89,
+          "opcode": "ldloc.s",
+          "rawOperand": "local(0x0004)",
+          "resolved": null
+        },
+        {
+          "il": 91,
+          "opcode": "switch",
+          "rawOperand": "[-409185098, -408973002, -408969834, -408970922, -408974570, -408971146, -408951850, -408948682, -408970090, -408950794, -408963978, -408961194, -408966186, -408964522, -408976682, -408975018, -408975914, -409185194, -409182186, -409184202, -409187370]",
+          "resolved": null
+        },
+        {
+          "il": 180,
+          "opcode": "br",
+          "rawOperand": "0x-1863a7e5",
+          "resolved": null
+        },
+        {
+          "il": 185,
+          "opcode": "ldloca.s",
+          "rawOperand": "local(0x0000)",
+          "resolved": null
+        },
+        {
+          "il": 187,
+          "opcode": "ldloc.s",
+          "rawOperand": "local(0x0005)",
+          "resolved": null
+        },
+        {
+          "il": 189,
+          "opcode": "ldloca.s",
+          "rawOperand": "local(0x0003)",
+          "resolved": null
+        },
+        {
+          "il": 191,
+          "opcode": "call",
+          "rawOperand": "0x279c0903",
+          "resolved": null
+        },
+        {
+          "il": 196,
+          "opcode": "callvirt",
+          "rawOperand": "0x279c0943",
+          "resolved": null
+        },
+        {
+          "il": 201,
+          "opcode": "unbox.any",
+          "rawOperand": "0x879f8b82",
+          "resolved": null
+        },
+        {
+          "il": 206,
+          "opcode": "call",
+          "rawOperand": "0xa7947762",
+          "resolved": null
+        },
+        {
+          "il": 211,
+          "opcode": "br",
+          "rawOperand": "0x-1863aae6",
+          "resolved": null
+        },
+        {
+          "il": 216,
+          "opcode": "ldloca.s",
+          "rawOperand": "local(0x0000)",
+          "resolved": null
+        },
+        {
+          "il": 218,
+          "opcode": "ldloc.s",
+          "rawOperand": "local(0x0005)",
+          "resolved": null
+        },
+        {
+          "il": 220,
+          "opcode": "ldarg.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 221,
+          "opcode": "ldloc.s",
+          "rawOperand": "local(0x0005)",
+          "resolved": null
+        },
+        {
+          "il": 223,
+          "opcode": "callvirt",
+          "rawOperand": "0x279c09e3",
+          "resolved": null
+        },
+        {
+          "il": 228,
+          "opcode": "call",
+          "rawOperand": "0xa79477e2",
+          "resolved": null
+        },
+        {
+          "il": 233,
+          "opcode": "br",
+          "rawOperand": "0x-1863b390",
+          "resolved": null
+        },
+        {
+          "il": 238,
+          "opcode": "ldloca.s",
+          "rawOperand": "local(0x0000)",
+          "resolved": null
+        },
+        {
+          "il": 240,
+          "opcode": "ldloc.s",
+          "rawOperand": "local(0x0005)",
+          "resolved": null
+        },
+        {
+          "il": 242,
+          "opcode": "ldarg.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 243,
+          "opcode": "ldloc.s",
+          "rawOperand": "local(0x0005)",
+          "resolved": null
+        },
+        {
+          "il": 245,
+          "opcode": "callvirt",
+          "rawOperand": "0x279c0983",
+          "resolved": null
+        },
+        {
+          "il": 250,
+          "opcode": "call",
+          "rawOperand": "0xa7947722",
+          "resolved": null
+        },
+        {
+          "il": 255,
+          "opcode": "br",
+          "rawOperand": "0x-1863a03a",
+          "resolved": null
+        },
+        {
+          "il": 260,
+          "opcode": "ldloca.s",
+          "rawOperand": "local(0x0000)",
+          "resolved": null
+        },
+        {
+          "il": 262,
+          "opcode": "ldloc.s",
+          "rawOperand": "local(0x0005)",
+          "resolved": null
+        },
+        {
+          "il": 264,
+          "opcode": "ldloca.s",
+          "rawOperand": "local(0x0003)",
+          "resolved": null
+        },
+        {
+          "il": 266,
+          "opcode": "call",
+          "rawOperand": "0x279c0903",
+          "resolved": null
+        },
+        {
+          "il": 271,
+          "opcode": "callvirt",
+          "rawOperand": "0x279c0943",
+          "resolved": null
+        },
+        {
+          "il": 276,
+          "opcode": "unbox.any",
+          "rawOperand": "0x879f9f22",
+          "resolved": null
+        },
+        {
+          "il": 281,
+          "opcode": "call",
+          "rawOperand": "0xa7947462",
+          "resolved": null
+        },
+        {
+          "il": 286,
+          "opcode": "br",
+          "rawOperand": "0x-1863a17b",
+          "resolved": null
+        },
+        {
+          "il": 291,
+          "opcode": "ldloca.s",
+          "rawOperand": "local(0x0000)",
+          "resolved": null
+        },
+        {
+          "il": 293,
+          "opcode": "ldloc.s",
+          "rawOperand": "local(0x0005)",
+          "resolved": null
+        },
+        {
+          "il": 295,
+          "opcode": "ldloca.s",
+          "rawOperand": "local(0x0003)",
+          "resolved": null
+        },
+        {
+          "il": 297,
+          "opcode": "call",
+          "rawOperand": "0x279c0903",
+          "resolved": null
+        },
+        {
+          "il": 302,
+          "opcode": "callvirt",
+          "rawOperand": "0x279c0943",
+          "resolved": null
+        },
+        {
+          "il": 307,
+          "opcode": "unbox.any",
+          "rawOperand": "0x879fede2",
+          "resolved": null
+        },
+        {
+          "il": 312,
+          "opcode": "call",
+          "rawOperand": "0xa79477a2",
+          "resolved": null
+        },
+        {
+          "il": 317,
+          "opcode": "br",
+          "rawOperand": "0x-18607dbc",
+          "resolved": null
+        },
+        {
+          "il": 322,
+          "opcode": "ldloca.s",
+          "rawOperand": "local(0x0000)",
+          "resolved": null
+        },
+        {
+          "il": 324,
+          "opcode": "ldloc.s",
+          "rawOperand": "local(0x0005)",
+          "resolved": null
+        },
+        {
+          "il": 326,
+          "opcode": "ldloca.s",
+          "rawOperand": "local(0x0003)",
+          "resolved": null
+        },
+        {
+          "il": 328,
+          "opcode": "call",
+          "rawOperand": "0x279c0903",
+          "resolved": null
+        },
+        {
+          "il": 333,
+          "opcode": "callvirt",
+          "rawOperand": "0x279c0943",
+          "resolved": null
+        },
+        {
+          "il": 338,
+          "opcode": "unbox.any",
+          "rawOperand": "0x879f9f82",
+          "resolved": null
+        },
+        {
+          "il": 343,
+          "opcode": "call",
+          "rawOperand": "0xa7947662",
+          "resolved": null
+        },
+        {
+          "il": 348,
+          "opcode": "br",
+          "rawOperand": "0x-186079fd",
+          "resolved": null
+        },
+        {
+          "il": 353,
+          "opcode": "ldloca.s",
+          "rawOperand": "local(0x0000)",
+          "resolved": null
+        },
+        {
+          "il": 355,
+          "opcode": "ldloc.s",
+          "rawOperand": "local(0x0005)",
+          "resolved": null
+        },
+        {
+          "il": 357,
+          "opcode": "ldloca.s",
+          "rawOperand": "local(0x0003)",
+          "resolved": null
+        },
+        {
+          "il": 359,
+          "opcode": "call",
+          "rawOperand": "0x279c0903",
+          "resolved": null
+        },
+        {
+          "il": 364,
+          "opcode": "callvirt",
+          "rawOperand": "0x279c0943",
+          "resolved": null
+        },
+        {
+          "il": 369,
+          "opcode": "unbox.any",
+          "rawOperand": "0x879f8bc2",
+          "resolved": null
+        },
+        {
+          "il": 374,
+          "opcode": "call",
+          "rawOperand": "0xa79474e2",
+          "resolved": null
+        },
+        {
+          "il": 379,
+          "opcode": "br",
+          "rawOperand": "0x-1860753e",
+          "resolved": null
+        },
+        {
+          "il": 384,
+          "opcode": "ldloca.s",
+          "rawOperand": "local(0x0000)",
+          "resolved": null
+        },
+        {
+          "il": 386,
+          "opcode": "ldloc.s",
+          "rawOperand": "local(0x0005)",
+          "resolved": null
+        },
+        {
+          "il": 388,
+          "opcode": "ldloca.s",
+          "rawOperand": "local(0x0003)",
+          "resolved": null
+        },
+        {
+          "il": 390,
+          "opcode": "call",
+          "rawOperand": "0x279c0903",
+          "resolved": null
+        },
+        {
+          "il": 395,
+          "opcode": "callvirt",
+          "rawOperand": "0x279c0943",
+          "resolved": null
+        },
+        {
+          "il": 400,
+          "opcode": "castclass",
+          "rawOperand": "0x879f9022",
+          "resolved": null
+        },
+        {
+          "il": 405,
+          "opcode": "call",
+          "rawOperand": "0xa7947422",
+          "resolved": null
+        },
+        {
+          "il": 410,
+          "opcode": "br",
+          "rawOperand": "0x-1860707f",
+          "resolved": null
+        },
+        {
+          "il": 415,
+          "opcode": "ldloc.1",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 416,
+          "opcode": "ldloc.s",
+          "rawOperand": "local(0x0005)",
+          "resolved": null
+        },
+        {
+          "il": 418,
+          "opcode": "call",
+          "rawOperand": "0x279c0f83",
+          "resolved": null
+        },
+        {
+          "il": 423,
+          "opcode": "ldloca.s",
+          "rawOperand": "local(0x0000)",
+          "resolved": null
+        },
+        {
+          "il": 425,
+          "opcode": "ldloc.s",
+          "rawOperand": "local(0x0005)",
+          "resolved": null
+        },
+        {
+          "il": 427,
+          "opcode": "ldarg.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 428,
+          "opcode": "ldloc.s",
+          "rawOperand": "local(0x0005)",
+          "resolved": null
+        },
+        {
+          "il": 430,
+          "opcode": "callvirt",
+          "rawOperand": "0x279c0923",
+          "resolved": null
+        },
+        {
+          "il": 435,
+          "opcode": "ldarg.1",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 436,
+          "opcode": "call",
+          "rawOperand": "0xa7947122",
+          "resolved": null
+        },
+        {
+          "il": 441,
+          "opcode": "call",
+          "rawOperand": "0xa79476e2",
+          "resolved": null
+        },
+        {
+          "il": 446,
+          "opcode": "br",
+          "rawOperand": "0x-18604cdb",
+          "resolved": null
+        },
+        {
+          "il": 451,
+          "opcode": "ldloca.s",
+          "rawOperand": "local(0x0000)",
+          "resolved": null
+        },
+        {
+          "il": 453,
+          "opcode": "ldloc.s",
+          "rawOperand": "local(0x0005)",
+          "resolved": null
+        },
+        {
+          "il": 455,
+          "opcode": "ldarg.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 456,
+          "opcode": "ldloc.s",
+          "rawOperand": "local(0x0005)",
+          "resolved": null
+        },
+        {
+          "il": 458,
+          "opcode": "callvirt",
+          "rawOperand": "0x279c09c3",
+          "resolved": null
+        },
+        {
+          "il": 463,
+          "opcode": "callvirt",
+          "rawOperand": "0x279ef403",
+          "resolved": null
+        },
+        {
+          "il": 468,
+          "opcode": "call",
+          "rawOperand": "0xa79471a2",
+          "resolved": null
+        },
+        {
+          "il": 473,
+          "opcode": "br",
+          "rawOperand": "0x-186048a0",
+          "resolved": null
+        },
+        {
+          "il": 478,
+          "opcode": "ldloc.1",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 479,
+          "opcode": "ldloc.s",
+          "rawOperand": "local(0x0005)",
+          "resolved": null
+        },
+        {
+          "il": 481,
+          "opcode": "call",
+          "rawOperand": "0x279c0f83",
+          "resolved": null
+        },
+        {
+          "il": 486,
+          "opcode": "ldloca.s",
+          "rawOperand": "local(0x0000)",
+          "resolved": null
+        },
+        {
+          "il": 488,
+          "opcode": "ldloc.s",
+          "rawOperand": "local(0x0005)",
+          "resolved": null
+        },
+        {
+          "il": 490,
+          "opcode": "ldarg.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 491,
+          "opcode": "ldloc.s",
+          "rawOperand": "local(0x0005)",
+          "resolved": null
+        },
+        {
+          "il": 493,
+          "opcode": "callvirt",
+          "rawOperand": "0x279c3863",
+          "resolved": null
+        },
+        {
+          "il": 498,
+          "opcode": "ldarg.1",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 499,
+          "opcode": "call",
+          "rawOperand": "0xa79471c2",
+          "resolved": null
+        },
+        {
+          "il": 504,
+          "opcode": "call",
+          "rawOperand": "0xa79476e2",
+          "resolved": null
+        },
+        {
+          "il": 509,
+          "opcode": "br",
+          "rawOperand": "0x-186044fc",
+          "resolved": null
+        },
+        {
+          "il": 514,
+          "opcode": "ldloc.1",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 515,
+          "opcode": "ldloc.s",
+          "rawOperand": "local(0x0005)",
+          "resolved": null
+        },
+        {
+          "il": 517,
+          "opcode": "call",
+          "rawOperand": "0x279c0f83",
+          "resolved": null
+        },
+        {
+          "il": 522,
+          "opcode": "ldloca.s",
+          "rawOperand": "local(0x0000)",
+          "resolved": null
+        },
+        {
+          "il": 524,
+          "opcode": "ldloc.s",
+          "rawOperand": "local(0x0005)",
+          "resolved": null
+        },
+        {
+          "il": 526,
+          "opcode": "ldarg.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 527,
+          "opcode": "ldloc.s",
+          "rawOperand": "local(0x0005)",
+          "resolved": null
+        },
+        {
+          "il": 529,
+          "opcode": "callvirt",
+          "rawOperand": "0x279c3803",
+          "resolved": null
+        },
+        {
+          "il": 534,
+          "opcode": "ldarg.1",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 535,
+          "opcode": "call",
+          "rawOperand": "0xa7944062",
+          "resolved": null
+        },
+        {
+          "il": 540,
+          "opcode": "call",
+          "rawOperand": "0xa79476e2",
+          "resolved": null
+        },
+        {
+          "il": 545,
+          "opcode": "br",
+          "rawOperand": "0x-18604b58",
+          "resolved": null
+        },
+        {
+          "il": 550,
+          "opcode": "ldloc.1",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 551,
+          "opcode": "ldloc.s",
+          "rawOperand": "local(0x0005)",
+          "resolved": null
+        },
+        {
+          "il": 553,
+          "opcode": "call",
+          "rawOperand": "0x279c0f83",
+          "resolved": null
+        },
+        {
+          "il": 558,
+          "opcode": "ldloca.s",
+          "rawOperand": "local(0x0000)",
+          "resolved": null
+        },
+        {
+          "il": 560,
+          "opcode": "ldloc.s",
+          "rawOperand": "local(0x0005)",
+          "resolved": null
+        },
+        {
+          "il": 562,
+          "opcode": "ldarg.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 563,
+          "opcode": "ldloc.s",
+          "rawOperand": "local(0x0005)",
+          "resolved": null
+        },
+        {
+          "il": 565,
+          "opcode": "callvirt",
+          "rawOperand": "0x279c3ba3",
+          "resolved": null
+        },
+        {
+          "il": 570,
+          "opcode": "ldarg.1",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 571,
+          "opcode": "call",
+          "rawOperand": "0xa7944002",
+          "resolved": null
+        },
+        {
+          "il": 576,
+          "opcode": "call",
+          "rawOperand": "0xa79476e2",
+          "resolved": null
+        },
+        {
+          "il": 581,
+          "opcode": "br",
+          "rawOperand": "0x-186017b4",
+          "resolved": null
+        },
+        {
+          "il": 586,
+          "opcode": "ldloc.1",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 587,
+          "opcode": "ldloc.s",
+          "rawOperand": "local(0x0005)",
+          "resolved": null
+        },
+        {
+          "il": 589,
+          "opcode": "call",
+          "rawOperand": "0x279c0f83",
+          "resolved": null
+        },
+        {
+          "il": 594,
+          "opcode": "ldloca.s",
+          "rawOperand": "local(0x0000)",
+          "resolved": null
+        },
+        {
+          "il": 596,
+          "opcode": "ldloc.s",
+          "rawOperand": "local(0x0005)",
+          "resolved": null
+        },
+        {
+          "il": 598,
+          "opcode": "ldarg.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 599,
+          "opcode": "ldloc.s",
+          "rawOperand": "local(0x0005)",
+          "resolved": null
+        },
+        {
+          "il": 601,
+          "opcode": "callvirt",
+          "rawOperand": "0x279c3843",
+          "resolved": null
+        },
+        {
+          "il": 606,
+          "opcode": "ldarg.1",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 607,
+          "opcode": "call",
+          "rawOperand": "0xa79443a2",
+          "resolved": null
+        },
+        {
+          "il": 612,
+          "opcode": "call",
+          "rawOperand": "0xa79476e2",
+          "resolved": null
+        },
+        {
+          "il": 617,
+          "opcode": "br",
+          "rawOperand": "0x-18606210",
+          "resolved": null
+        },
+        {
+          "il": 622,
+          "opcode": "ldloc.1",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 623,
+          "opcode": "ldloc.s",
+          "rawOperand": "local(0x0005)",
+          "resolved": null
+        },
+        {
+          "il": 625,
+          "opcode": "call",
+          "rawOperand": "0x279c0f83",
+          "resolved": null
+        },
+        {
+          "il": 630,
+          "opcode": "ldloca.s",
+          "rawOperand": "local(0x0000)",
+          "resolved": null
+        },
+        {
+          "il": 632,
+          "opcode": "ldloc.s",
+          "rawOperand": "local(0x0005)",
+          "resolved": null
+        },
+        {
+          "il": 634,
+          "opcode": "ldarg.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 635,
+          "opcode": "ldloc.s",
+          "rawOperand": "local(0x0005)",
+          "resolved": null
+        },
+        {
+          "il": 637,
+          "opcode": "callvirt",
+          "rawOperand": "0x279c38e3",
+          "resolved": null
+        },
+        {
+          "il": 642,
+          "opcode": "ldarg.1",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 643,
+          "opcode": "call",
+          "rawOperand": "0xa7944042",
+          "resolved": null
+        },
+        {
+          "il": 648,
+          "opcode": "call",
+          "rawOperand": "0xa79476e2",
+          "resolved": null
+        },
+        {
+          "il": 653,
+          "opcode": "br",
+          "rawOperand": "0x-18600e6c",
+          "resolved": null
+        },
+        {
+          "il": 658,
+          "opcode": "ldloc.1",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 659,
+          "opcode": "ldloc.s",
+          "rawOperand": "local(0x0005)",
+          "resolved": null
+        },
+        {
+          "il": 661,
+          "opcode": "call",
+          "rawOperand": "0x279c0f83",
+          "resolved": null
+        },
+        {
+          "il": 666,
+          "opcode": "ldloca.s",
+          "rawOperand": "local(0x0000)",
+          "resolved": null
+        },
+        {
+          "il": 668,
+          "opcode": "ldloc.s",
+          "rawOperand": "local(0x0005)",
+          "resolved": null
+        },
+        {
+          "il": 670,
+          "opcode": "ldarg.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 671,
+          "opcode": "ldloc.s",
+          "rawOperand": "local(0x0005)",
+          "resolved": null
+        },
+        {
+          "il": 673,
+          "opcode": "callvirt",
+          "rawOperand": "0x279c3883",
+          "resolved": null
+        },
+        {
+          "il": 678,
+          "opcode": "ldarg.1",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 679,
+          "opcode": "call",
+          "rawOperand": "0xa79440e2",
+          "resolved": null
+        },
+        {
+          "il": 684,
+          "opcode": "call",
+          "rawOperand": "0xa79476e2",
+          "resolved": null
+        },
+        {
+          "il": 689,
+          "opcode": "br",
+          "rawOperand": "0x-18601cc8",
+          "resolved": null
+        },
+        {
+          "il": 694,
+          "opcode": "ldloc.1",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 695,
+          "opcode": "ldloc.s",
+          "rawOperand": "local(0x0005)",
+          "resolved": null
+        },
+        {
+          "il": 697,
+          "opcode": "call",
+          "rawOperand": "0x279c0f83",
+          "resolved": null
+        },
+        {
+          "il": 702,
+          "opcode": "ldloca.s",
+          "rawOperand": "local(0x0000)",
+          "resolved": null
+        },
+        {
+          "il": 704,
+          "opcode": "ldloc.s",
+          "rawOperand": "local(0x0005)",
+          "resolved": null
+        },
+        {
+          "il": 706,
+          "opcode": "ldarg.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 707,
+          "opcode": "ldloc.s",
+          "rawOperand": "local(0x0005)",
+          "resolved": null
+        },
+        {
+          "il": 709,
+          "opcode": "callvirt",
+          "rawOperand": "0x279ee8e3",
+          "resolved": null
+        },
+        {
+          "il": 714,
+          "opcode": "castclass",
+          "rawOperand": "0x879c4a82",
+          "resolved": null
+        },
+        {
+          "il": 719,
+          "opcode": "ldarg.1",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 720,
+          "opcode": "call",
+          "rawOperand": "0xa7944022",
+          "resolved": null
+        },
+        {
+          "il": 725,
+          "opcode": "call",
+          "rawOperand": "0xa79476e2",
+          "resolved": null
+        },
+        {
+          "il": 730,
+          "opcode": "br.s",
+          "rawOperand": "0x0000033b",
+          "resolved": null
+        },
+        {
+          "il": 732,
+          "opcode": "ldloc.1",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 733,
+          "opcode": "ldloc.s",
+          "rawOperand": "local(0x0005)",
+          "resolved": null
+        },
+        {
+          "il": 735,
+          "opcode": "call",
+          "rawOperand": "0x279c0f83",
+          "resolved": null
+        },
+        {
+          "il": 740,
+          "opcode": "ldloca.s",
+          "rawOperand": "local(0x0000)",
+          "resolved": null
+        },
+        {
+          "il": 742,
+          "opcode": "ldloc.s",
+          "rawOperand": "local(0x0005)",
+          "resolved": null
+        },
+        {
+          "il": 744,
+          "opcode": "ldarg.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 745,
+          "opcode": "ldloc.s",
+          "rawOperand": "local(0x0005)",
+          "resolved": null
+        },
+        {
+          "il": 747,
+          "opcode": "callvirt",
+          "rawOperand": "0x279eeaa3",
+          "resolved": null
+        },
+        {
+          "il": 752,
+          "opcode": "castclass",
+          "rawOperand": "0x879fb062",
+          "resolved": null
+        },
+        {
+          "il": 757,
+          "opcode": "ldarg.1",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 758,
+          "opcode": "call",
+          "rawOperand": "0xa7944082",
+          "resolved": "SFSObjectExtention::ToLuaTable(SFSObject,LuaEnv) (MethodDef row 17285)"
+        },
+        {
+          "il": 763,
+          "opcode": "call",
+          "rawOperand": "0xa79476e2",
+          "resolved": null
+        },
+        {
+          "il": 768,
+          "opcode": "br.s",
+          "rawOperand": "0x0000033b",
+          "resolved": null
+        },
+        {
+          "il": 770,
+          "opcode": "ldloca.s",
+          "rawOperand": "local(0x0000)",
+          "resolved": null
+        },
+        {
+          "il": 772,
+          "opcode": "ldloc.s",
+          "rawOperand": "local(0x0005)",
+          "resolved": null
+        },
+        {
+          "il": 774,
+          "opcode": "ldarg.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 775,
+          "opcode": "ldloc.s",
+          "rawOperand": "local(0x0005)",
+          "resolved": null
+        },
+        {
+          "il": 777,
+          "opcode": "callvirt",
+          "rawOperand": "0x279c3823",
+          "resolved": null
+        },
+        {
+          "il": 782,
+          "opcode": "call",
+          "rawOperand": "0xa7947422",
+          "resolved": null
+        },
+        {
+          "il": 787,
+          "opcode": "br.s",
+          "rawOperand": "0x0000033b",
+          "resolved": null
+        },
+        {
+          "il": 789,
+          "opcode": "ldloca.s",
+          "rawOperand": "local(0x0000)",
+          "resolved": null
+        },
+        {
+          "il": 791,
+          "opcode": "ldloc.s",
+          "rawOperand": "local(0x0005)",
+          "resolved": null
+        },
+        {
+          "il": 793,
+          "opcode": "ldnull",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 794,
+          "opcode": "call",
+          "rawOperand": "0xa7947422",
+          "resolved": null
+        },
+        {
+          "il": 799,
+          "opcode": "br.s",
+          "rawOperand": "0x0000033b",
+          "resolved": null
+        },
+        {
+          "il": 801,
+          "opcode": "ldstr",
+          "rawOperand": "0xe69062d0",
+          "resolved": null
+        },
+        {
+          "il": 806,
+          "opcode": "ldc.i4.1",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 807,
+          "opcode": "newarr",
+          "rawOperand": "0x879f9002",
+          "resolved": null
+        },
+        {
+          "il": 812,
+          "opcode": "dup",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 813,
+          "opcode": "ldc.i4.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 814,
+          "opcode": "ldloc.s",
+          "rawOperand": "local(0x0004)",
+          "resolved": null
+        },
+        {
+          "il": 816,
+          "opcode": "box",
+          "rawOperand": "0x879c7a22",
+          "resolved": null
+        },
+        {
+          "il": 821,
+          "opcode": "stelem.ref",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 822,
+          "opcode": "call",
+          "rawOperand": "0x279ff343",
+          "resolved": null
+        },
+        {
+          "il": 827,
+          "opcode": "ldloca.s",
+          "rawOperand": "local(0x0002)",
+          "resolved": null
+        },
+        {
+          "il": 829,
+          "opcode": "call",
+          "rawOperand": "0x279c38c3",
+          "resolved": null
+        },
+        {
+          "il": 834,
+          "opcode": "brtrue",
+          "rawOperand": "0x69d86988",
+          "resolved": null
+        },
+        {
+          "il": 839,
+          "opcode": "leave.s",
+          "rawOperand": "0x00000357",
+          "resolved": null
+        },
+        {
+          "il": 841,
+          "opcode": "ldloca.s",
+          "rawOperand": "local(0x0002)",
+          "resolved": null
+        },
+        {
+          "il": 843,
+          "opcode": "constrained.",
+          "rawOperand": "0xc79f36ad",
+          "resolved": null
+        },
+        {
+          "il": 849,
+          "opcode": "callvirt",
+          "rawOperand": "0x279f9ac3",
+          "resolved": null
+        },
+        {
+          "il": 854,
+          "opcode": "endfinally",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 855,
+          "opcode": "ldloc.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 856,
+          "opcode": "ret",
+          "rawOperand": null,
+          "resolved": null
+        }
+      ],
+      "unresolvedOperands": [
+        {
+          "il": 15,
+          "opcode": "callvirt",
+          "raw": "0xa796f062"
+        },
+        {
+          "il": 20,
+          "opcode": "call",
+          "raw": "0xa79475c2"
+        },
+        {
+          "il": 35,
+          "opcode": "callvirt",
+          "raw": "0xa796f062"
+        },
+        {
+          "il": 42,
+          "opcode": "call",
+          "raw": "0xa7947182"
+        },
+        {
+          "il": 47,
+          "opcode": "callvirt",
+          "raw": "0x279c0ec3"
+        },
+        {
+          "il": 60,
+          "opcode": "call",
+          "raw": "0x279c0963"
+        },
+        {
+          "il": 68,
+          "opcode": "call",
+          "raw": "0x279c0903"
+        },
+        {
+          "il": 73,
+          "opcode": "callvirt",
+          "raw": "0x279eee83"
+        },
+        {
+          "il": 82,
+          "opcode": "call",
+          "raw": "0x279c08a3"
+        },
+        {
+          "il": 191,
+          "opcode": "call",
+          "raw": "0x279c0903"
+        },
+        {
+          "il": 196,
+          "opcode": "callvirt",
+          "raw": "0x279c0943"
+        },
+        {
+          "il": 206,
+          "opcode": "call",
+          "raw": "0xa7947762"
+        },
+        {
+          "il": 223,
+          "opcode": "callvirt",
+          "raw": "0x279c09e3"
+        },
+        {
+          "il": 228,
+          "opcode": "call",
+          "raw": "0xa79477e2"
+        },
+        {
+          "il": 245,
+          "opcode": "callvirt",
+          "raw": "0x279c0983"
+        },
+        {
+          "il": 250,
+          "opcode": "call",
+          "raw": "0xa7947722"
+        },
+        {
+          "il": 266,
+          "opcode": "call",
+          "raw": "0x279c0903"
+        },
+        {
+          "il": 271,
+          "opcode": "callvirt",
+          "raw": "0x279c0943"
+        },
+        {
+          "il": 281,
+          "opcode": "call",
+          "raw": "0xa7947462"
+        },
+        {
+          "il": 297,
+          "opcode": "call",
+          "raw": "0x279c0903"
+        },
+        {
+          "il": 302,
+          "opcode": "callvirt",
+          "raw": "0x279c0943"
+        },
+        {
+          "il": 312,
+          "opcode": "call",
+          "raw": "0xa79477a2"
+        },
+        {
+          "il": 328,
+          "opcode": "call",
+          "raw": "0x279c0903"
+        },
+        {
+          "il": 333,
+          "opcode": "callvirt",
+          "raw": "0x279c0943"
+        },
+        {
+          "il": 343,
+          "opcode": "call",
+          "raw": "0xa7947662"
+        },
+        {
+          "il": 359,
+          "opcode": "call",
+          "raw": "0x279c0903"
+        },
+        {
+          "il": 364,
+          "opcode": "callvirt",
+          "raw": "0x279c0943"
+        },
+        {
+          "il": 374,
+          "opcode": "call",
+          "raw": "0xa79474e2"
+        },
+        {
+          "il": 390,
+          "opcode": "call",
+          "raw": "0x279c0903"
+        },
+        {
+          "il": 395,
+          "opcode": "callvirt",
+          "raw": "0x279c0943"
+        },
+        {
+          "il": 400,
+          "opcode": "castclass",
+          "raw": "0x879f9022"
+        },
+        {
+          "il": 405,
+          "opcode": "call",
+          "raw": "0xa7947422"
+        },
+        {
+          "il": 418,
+          "opcode": "call",
+          "raw": "0x279c0f83"
+        },
+        {
+          "il": 430,
+          "opcode": "callvirt",
+          "raw": "0x279c0923"
+        },
+        {
+          "il": 436,
+          "opcode": "call",
+          "raw": "0xa7947122"
+        },
+        {
+          "il": 441,
+          "opcode": "call",
+          "raw": "0xa79476e2"
+        },
+        {
+          "il": 458,
+          "opcode": "callvirt",
+          "raw": "0x279c09c3"
+        },
+        {
+          "il": 463,
+          "opcode": "callvirt",
+          "raw": "0x279ef403"
+        },
+        {
+          "il": 468,
+          "opcode": "call",
+          "raw": "0xa79471a2"
+        },
+        {
+          "il": 481,
+          "opcode": "call",
+          "raw": "0x279c0f83"
+        },
+        {
+          "il": 493,
+          "opcode": "callvirt",
+          "raw": "0x279c3863"
+        },
+        {
+          "il": 499,
+          "opcode": "call",
+          "raw": "0xa79471c2"
+        },
+        {
+          "il": 504,
+          "opcode": "call",
+          "raw": "0xa79476e2"
+        },
+        {
+          "il": 517,
+          "opcode": "call",
+          "raw": "0x279c0f83"
+        },
+        {
+          "il": 529,
+          "opcode": "callvirt",
+          "raw": "0x279c3803"
+        },
+        {
+          "il": 535,
+          "opcode": "call",
+          "raw": "0xa7944062"
+        },
+        {
+          "il": 540,
+          "opcode": "call",
+          "raw": "0xa79476e2"
+        },
+        {
+          "il": 553,
+          "opcode": "call",
+          "raw": "0x279c0f83"
+        },
+        {
+          "il": 565,
+          "opcode": "callvirt",
+          "raw": "0x279c3ba3"
+        },
+        {
+          "il": 571,
+          "opcode": "call",
+          "raw": "0xa7944002"
+        },
+        {
+          "il": 576,
+          "opcode": "call",
+          "raw": "0xa79476e2"
+        },
+        {
+          "il": 589,
+          "opcode": "call",
+          "raw": "0x279c0f83"
+        },
+        {
+          "il": 601,
+          "opcode": "callvirt",
+          "raw": "0x279c3843"
+        },
+        {
+          "il": 607,
+          "opcode": "call",
+          "raw": "0xa79443a2"
+        },
+        {
+          "il": 612,
+          "opcode": "call",
+          "raw": "0xa79476e2"
+        },
+        {
+          "il": 625,
+          "opcode": "call",
+          "raw": "0x279c0f83"
+        },
+        {
+          "il": 637,
+          "opcode": "callvirt",
+          "raw": "0x279c38e3"
+        },
+        {
+          "il": 643,
+          "opcode": "call",
+          "raw": "0xa7944042"
+        },
+        {
+          "il": 648,
+          "opcode": "call",
+          "raw": "0xa79476e2"
+        },
+        {
+          "il": 661,
+          "opcode": "call",
+          "raw": "0x279c0f83"
+        },
+        {
+          "il": 673,
+          "opcode": "callvirt",
+          "raw": "0x279c3883"
+        },
+        {
+          "il": 679,
+          "opcode": "call",
+          "raw": "0xa79440e2"
+        },
+        {
+          "il": 684,
+          "opcode": "call",
+          "raw": "0xa79476e2"
+        },
+        {
+          "il": 697,
+          "opcode": "call",
+          "raw": "0x279c0f83"
+        },
+        {
+          "il": 709,
+          "opcode": "callvirt",
+          "raw": "0x279ee8e3"
+        },
+        {
+          "il": 714,
+          "opcode": "castclass",
+          "raw": "0x879c4a82"
+        },
+        {
+          "il": 720,
+          "opcode": "call",
+          "raw": "0xa7944022"
+        },
+        {
+          "il": 725,
+          "opcode": "call",
+          "raw": "0xa79476e2"
+        },
+        {
+          "il": 735,
+          "opcode": "call",
+          "raw": "0x279c0f83"
+        },
+        {
+          "il": 747,
+          "opcode": "callvirt",
+          "raw": "0x279eeaa3"
+        },
+        {
+          "il": 752,
+          "opcode": "castclass",
+          "raw": "0x879fb062"
+        },
+        {
+          "il": 763,
+          "opcode": "call",
+          "raw": "0xa79476e2"
+        },
+        {
+          "il": 777,
+          "opcode": "callvirt",
+          "raw": "0x279c3823"
+        },
+        {
+          "il": 782,
+          "opcode": "call",
+          "raw": "0xa7947422"
+        },
+        {
+          "il": 794,
+          "opcode": "call",
+          "raw": "0xa7947422"
+        },
+        {
+          "il": 801,
+          "opcode": "ldstr",
+          "raw": "0xe69062d0"
+        },
+        {
+          "il": 816,
+          "opcode": "box",
+          "raw": "0x879c7a22"
+        },
+        {
+          "il": 822,
+          "opcode": "call",
+          "raw": "0x279ff343"
+        },
+        {
+          "il": 829,
+          "opcode": "call",
+          "raw": "0x279c38c3"
+        },
+        {
+          "il": 843,
+          "opcode": "constrained.",
+          "raw": "0xc79f36ad"
+        },
+        {
+          "il": 849,
+          "opcode": "callvirt",
+          "raw": "0x279f9ac3"
+        }
+      ]
+    },
+    "XLuaManager::DispatchResponse(string,object)": {
+      "row": 17383,
+      "rva": "0x1a9e28",
+      "return": "void",
+      "args": [
+        "string",
+        "object"
+      ],
+      "fileOffset": "0x1a8028",
+      "originalRawBytesHex": "113004005d00000062909fe7027b426291672c1e027b226d91672c160228027a94a72c0e027b226d916703046f82fe96a72a7230ca97e6027b4262916714fe038c828b9f87027b226d916714fe038c828b9f870228027a94a78c828b9f8728e3839f272883ed9f272a",
+      "originalRawSha256": "15216768580dcd76fafb1bfb8dac8c2aa06e1586b5d12331358619ce9d151b5e",
+      "decodedSize": 105,
+      "instructions": [
+        {
+          "il": 12,
+          "opcode": "ldarg.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 13,
+          "opcode": "ldfld",
+          "rawOperand": "0x67916242",
+          "resolved": null
+        },
+        {
+          "il": 18,
+          "opcode": "brfalse.s",
+          "rawOperand": "0x00000032",
+          "resolved": null
+        },
+        {
+          "il": 20,
+          "opcode": "ldarg.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 21,
+          "opcode": "ldfld",
+          "rawOperand": "0x67916d22",
+          "resolved": null
+        },
+        {
+          "il": 26,
+          "opcode": "brfalse.s",
+          "rawOperand": "0x00000032",
+          "resolved": null
+        },
+        {
+          "il": 28,
+          "opcode": "ldarg.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 29,
+          "opcode": "call",
+          "rawOperand": "0xa7947a02",
+          "resolved": null
+        },
+        {
+          "il": 34,
+          "opcode": "brfalse.s",
+          "rawOperand": "0x00000032",
+          "resolved": null
+        },
+        {
+          "il": 36,
+          "opcode": "ldarg.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 37,
+          "opcode": "ldfld",
+          "rawOperand": "0x67916d22",
+          "resolved": null
+        },
+        {
+          "il": 42,
+          "opcode": "ldarg.1",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 43,
+          "opcode": "ldarg.2",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 44,
+          "opcode": "callvirt",
+          "rawOperand": "0xa796fe82",
+          "resolved": null
+        },
+        {
+          "il": 49,
+          "opcode": "ret",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 50,
+          "opcode": "ldstr",
+          "rawOperand": "0xe697ca30",
+          "resolved": null
+        },
+        {
+          "il": 55,
+          "opcode": "ldarg.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 56,
+          "opcode": "ldfld",
+          "rawOperand": "0x67916242",
+          "resolved": null
+        },
+        {
+          "il": 61,
+          "opcode": "ldnull",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 62,
+          "opcode": "cgt.un",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 64,
+          "opcode": "box",
+          "rawOperand": "0x879f8b82",
+          "resolved": null
+        },
+        {
+          "il": 69,
+          "opcode": "ldarg.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 70,
+          "opcode": "ldfld",
+          "rawOperand": "0x67916d22",
+          "resolved": null
+        },
+        {
+          "il": 75,
+          "opcode": "ldnull",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 76,
+          "opcode": "cgt.un",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 78,
+          "opcode": "box",
+          "rawOperand": "0x879f8b82",
+          "resolved": null
+        },
+        {
+          "il": 83,
+          "opcode": "ldarg.0",
+          "rawOperand": null,
+          "resolved": null
+        },
+        {
+          "il": 84,
+          "opcode": "call",
+          "rawOperand": "0xa7947a02",
+          "resolved": null
+        },
+        {
+          "il": 89,
+          "opcode": "box",
+          "rawOperand": "0x879f8b82",
+          "resolved": null
+        },
+        {
+          "il": 94,
+          "opcode": "call",
+          "rawOperand": "0x279f83e3",
+          "resolved": null
+        },
+        {
+          "il": 99,
+          "opcode": "call",
+          "rawOperand": "0x279fed83",
+          "resolved": null
+        },
+        {
+          "il": 104,
+          "opcode": "ret",
+          "rawOperand": null,
+          "resolved": null
+        }
+      ],
+      "unresolvedOperands": [
+        {
+          "il": 13,
+          "opcode": "ldfld",
+          "raw": "0x67916242"
+        },
+        {
+          "il": 21,
+          "opcode": "ldfld",
+          "raw": "0x67916d22"
+        },
+        {
+          "il": 29,
+          "opcode": "call",
+          "raw": "0xa7947a02"
+        },
+        {
+          "il": 37,
+          "opcode": "ldfld",
+          "raw": "0x67916d22"
+        },
+        {
+          "il": 44,
+          "opcode": "callvirt",
+          "raw": "0xa796fe82"
+        },
+        {
+          "il": 50,
+          "opcode": "ldstr",
+          "raw": "0xe697ca30"
+        },
+        {
+          "il": 56,
+          "opcode": "ldfld",
+          "raw": "0x67916242"
+        },
+        {
+          "il": 64,
+          "opcode": "box",
+          "raw": "0x879f8b82"
+        },
+        {
+          "il": 70,
+          "opcode": "ldfld",
+          "raw": "0x67916d22"
+        },
+        {
+          "il": 78,
+          "opcode": "box",
+          "raw": "0x879f8b82"
+        },
+        {
+          "il": 84,
+          "opcode": "call",
+          "raw": "0xa7947a02"
+        },
+        {
+          "il": 89,
+          "opcode": "box",
+          "raw": "0x879f8b82"
+        },
+        {
+          "il": 94,
+          "opcode": "call",
+          "raw": "0x279f83e3"
+        },
+        {
+          "il": 99,
+          "opcode": "call",
+          "raw": "0x279fed83"
+        }
+      ]
+    }
+  },
+  "correlation": {
+    "send": "allocates fuid, writes one future-key field, associates fuid with msgId",
+    "pendingStore": "Dictionary<int,msgSendInfo> keyed by fuid; duplicate key is not replaced",
+    "receive": "when the same future-key field exists, reads it and calls onServerMsgCome(fuid,serverTime)",
+    "consume": "onServerMsgCome checks keyed entry, accounts timing, then removes that fuid entry",
+    "luaBoundary": "same SFSObject is passed through ToLuaTable, which enumerates its data-holder entries, then XLuaManager.DispatchResponse",
+    "reuse": "NetworkManager.Connect calls FutureManager.reset; reset sets _futureId=0 and clears _sendInfos",
+    "ordering": "managed timing association is key-based, not FIFO; out-of-order fuid responses can target their own pending entry",
+    "directGhostFutureKeyEmission": "UNKNOWN: MessageFactory conditionally checks the key; no static direct ghost.recon.steal response producer/schema proves it is emitted",
+    "disposition": "PARTIAL_SOURCE_PROVEN_MANAGED_CORRELATION"
+  }
+}

@@ -1,11 +1,15 @@
 # Continuation — LWB317-FUNCTION-MAP-EXPIRY-CORRELATION-005
 
-Checkpoint A is complete.
+Checkpoints A and B are complete. Continue C only.
 
-Continue B from the current installed v22 package/RDL hashes. Resolve modified
-metadata/CIL operands only through validated read-only mappings. Trace
-SendLuaMessage future allocation/association, response consumption, reset/reuse,
-raw response conversion and Ghost handler. Retain unresolved operands explicitly.
+A correction checkpoint: `9da977db8ad83c716c207a92515cc1db058e190c`.
+B source conclusion: managed fuid is a real pending-request key when present in a
+response; Connect/reset permits reuse and clears pending state; the same SFSObject
+is converted to Lua without dropping fields. Direct Ghost future-key emission
+remains UNKNOWN because no static producer/schema proves `ghost.recon.steal`
+carries it.
 
-B may remain partial/blocked without affecting C. Do not add a production
-correlator or real Ghost transport.
+Do not add Ghost transport/provider enablement. Run the required C checks and
+Release/frontend/package gates, preserve historical audit negatives, update
+current masters/ledger/matrix/handoff/work-item and dated worker review, then
+deliver AWAITING_REVIEW. Live/shared-desktop work remains ON_HOLD_BY_OWNER.

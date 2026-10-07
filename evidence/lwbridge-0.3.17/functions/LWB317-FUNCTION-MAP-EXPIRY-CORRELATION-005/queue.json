@@ -3,6 +3,7 @@
   "workItem": "LWB317-FUNCTION-MAP-EXPIRY-CORRELATION-005",
   "status": "IN_PROGRESS",
   "assignmentCheckpoint": "e18d8f3fdbad0a23804c783e5497ad450d74d49c",
+  "latestPreservedLeadDescendant": "fe0f5d2735d06a83f52c2033bec02de4300b26d0",
   "checkpoints": [
     {
       "id": "A",
@@ -11,17 +12,20 @@
     },
     {
       "id": "B",
-      "state": "ACTIVE"
+      "state": "COMPLETE",
+      "disposition": "PARTIAL_SOURCE_PROVEN_MANAGED_CORRELATION; direct Ghost future-key emission remains UNKNOWN"
     },
     {
       "id": "C",
-      "state": "READY"
+      "state": "ACTIVE"
     }
   ],
   "product": {
     "expiryDefect": "CORRECTED_OFFLINE",
     "publicGhostPreparation": "GAME_PROVIDER_UNAVAILABLE",
-    "ghostExecution": "FENCED"
+    "ghostExecution": "FENCED",
+    "managedFutureCorrelation": "SOURCE_PROVEN_WHEN_RESPONSE_KEY_PRESENT",
+    "directGhostFutureKeyEmission": "UNKNOWN"
   },
   "liveSharedDesktop": "ON_HOLD_BY_OWNER"
 }
