@@ -1125,6 +1125,7 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
             CreateNoWindow = true,
             WorkingDirectory = Path.GetDirectoryName(operationHelperPath) ?? AppContext.BaseDirectory,
         };
+        start.Environment["LWBRIDGE_REBUILD_DATA_ROOT"] = applicationDataRoot;
         start.ArgumentList.Add(operationHelperPath);
         if (invocation.Operation != "preflight-recover")
             start.ArgumentList.Add(invocation.Operation);

@@ -6,7 +6,11 @@
 -- about the original LWBridge named-pipe protocol.
 
 local M = { VERSION = "lwbridge-overview-bridge-1" }
-local root = (os.getenv("LOCALAPPDATA") or ".") .. [[\LWBridgeRebuild\overview-bridge]]
+local application_root = os.getenv("LWBRIDGE_REBUILD_DATA_ROOT")
+if application_root == nil or application_root == "" then
+    application_root = (os.getenv("LOCALAPPDATA") or ".") .. [[\LWBridgeRebuild]]
+end
+local root = application_root .. [[\overview-bridge]]
 local control_path = root .. [[\control.txt]]
 local lease_path = root .. [[\lease.txt]]
 local ready_path = root .. [[\ready.json]]

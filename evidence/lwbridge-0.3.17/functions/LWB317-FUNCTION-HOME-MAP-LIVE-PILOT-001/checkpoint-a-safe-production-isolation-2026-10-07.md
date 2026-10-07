@@ -84,11 +84,23 @@ checkpoint.
 2. The first owner-root manifest attempt used a .NET API unavailable in Windows
    PowerShell and emitted errors. It was replaced with a compatible implementation;
    the authoritative before/after witness is the identical digest above.
-3. Two short isolated-host smoke launches created the expected isolated production
-   storage but did not remain open long enough for sustained UI control. No
-   LastWar process was launched and no matching Windows Application crash record
-   was found. Sustained process/session ownership is therefore explicitly carried
-   into checkpoint B rather than being claimed here.
+3. Initial PID checks followed the short-lived launch shell rather than the
+   detached production window. The isolated Home window was later identified as
+   responsive PID 48880 and closed cleanly by this worker before rebuilding.
+   No LastWar process was launched by that smoke.
+4. B preflight then found a real isolation gap below the C# composition:
+   `run_overview_bridge.py` and the in-game Overview/Resource Lua roots still
+   derived runtime/evidence/backups from normal LocalAppData. This was fixed
+   before any game launch by propagating `LWBRIDGE_REBUILD_DATA_ROOT` from the
+   selected production root through the Python helper and inherited launcher
+   environment. `run_live_resource_probe.py`, `run_overview_bridge.py`,
+   `current_overview_bridge.lua` and `current_live_resource_probe.lua` now
+   share the same default-preserving root contract. A v22 `check-only` run under
+   the pilot root passed and reported `installedFilesChanged=false`.
+5. The first rebuild after closing PID 48880 raced the process/file-handle release
+   and failed with the locked Map DLL after ten retries. A clean retry after the
+   process disappeared succeeded with 0 warnings / 0 errors, and the isolation
+   check passed again. The failed build remains part of the issue evidence.
 
 No protected-original service access, authentication automation, updater action,
 gameplay action, cross-server movement, recurring Auto scan, spending, claim,

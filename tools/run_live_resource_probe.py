@@ -252,8 +252,16 @@ def decode_lenc(entry: bytes) -> bytes:
     return zlib.decompress(transformed) if transformed.startswith(b"\x78\xDA") else transformed
 
 
+def application_data_root() -> Path:
+    configured = os.environ.get("LWBRIDGE_REBUILD_DATA_ROOT")
+    if configured:
+        return Path(configured).expanduser().resolve()
+    return (Path(os.environ["LOCALAPPDATA"]).resolve() / "LWBridgeRebuild").resolve()
+
+
 def paths(game_root: str | Path | None = None) -> dict[str, Path]:
     local = Path(os.environ["LOCALAPPDATA"]).resolve()
+    application_root = application_data_root()
     profile = Path(os.environ["USERPROFILE"]).resolve()
     install = (
         Path(game_root).expanduser().resolve()
@@ -269,8 +277,8 @@ def paths(game_root: str | Path | None = None) -> dict[str, Path]:
         "data": scripts / "LWScripts.data",
         "metadata": scripts / "LWScripts.txt",
         "version": scripts / "version.txt",
-        "runtime": local / "LWBridgeRebuild" / "live-resource",
-        "backup_root": local / "LWBridgeRebuild" / "live-resource-backups",
+        "runtime": application_root / "live-resource",
+        "backup_root": application_root / "live-resource-backups",
     }
 
 
