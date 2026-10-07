@@ -1,0 +1,43 @@
+{
+  "backupPath": "C:\\Users\\chimw\\AppData\\Local\\Temp\\LWB317-LIVE-PILOT-001-root\\overview-bridge-backups\\20261007-142602-46861c0ac9f04f69a1e83301cb0c781c",
+  "candidate": {
+    "bridgeSourceSha256": "7992a8dac8f06a058bd2b394f65495d45110bfc536997011d676961b99c9d430",
+    "entryCount": 18743,
+    "packageCrc32": 2250521806,
+    "packageSha256": "54ef1dd91ee093558b15f894573fcfee4caa46dcfcd134c139ea4aa5c17e8c7c",
+    "packageSize": 41408168,
+    "resourceProbeLencSize": 57348,
+    "resourceProbePackagedSha256": "d6c3430462ae7bffc77451663ba3f4a66269f2a11fc3c34197e4d5e884f6d6f6",
+    "resourceProbePlainSize": 367660,
+    "resourceProbeSourceSha256": "bf0200edc766ee45414d96580be530acbfbf60e463e97c760c3f6b067bf158ce",
+    "wrapperLencSize": 30460,
+    "wrapperPlaintextSha256": "6e8159ed0eeb192e2b078d0375f3af693bc91cca496263ff35f831cd170970ee"
+  },
+  "challengeSha256": "ec626b2cc703f196981d016640fd2495a1c3286bab73307c0857593b965d3879",
+  "gamePath": "C:\\Users\\chimw\\AppData\\Local\\FunFly\\Last War-Survival Game\\Game\\LastWar.exe",
+  "gamePid": 40992,
+  "gameStartedAtUtc": "2026-10-07T14:26:09.6284610Z",
+  "originalFiles": {
+    "data": {
+      "path": "C:\\Users\\chimw\\AppData\\LocalLow\\FunFly\\Last War-Survival Game\\lwScripts\\LWScripts.data",
+      "sha256": "248f3aeac712b3f14f86bff37a0c365e467897a2248403837c44c1b774f05b22",
+      "size": 41320262
+    },
+    "metadata": {
+      "path": "C:\\Users\\chimw\\AppData\\LocalLow\\FunFly\\Last War-Survival Game\\lwScripts\\LWScripts.txt",
+      "sha256": "d2f9bcc165f41427d4b3b7b9243e4a483bf316519a16b4ce9be658ba9afa783a",
+      "size": 19
+    },
+    "version": {
+      "path": "C:\\Users\\chimw\\AppData\\LocalLow\\FunFly\\Last War-Survival Game\\lwScripts\\version.txt",
+      "sha256": "785f3ec7eb32f30b90cd0fcf3657d388b5ff4297f2f9716ff66e9b69c05ddd09",
+      "size": 2
+    }
+  },
+  "profileId": "lwb317-live-pilot-001",
+  "requestId": "01523b207066488983b05a71c9470d22",
+  "schemaVersion": 1,
+  "sessionId": "01523b207066488983b05a71c9470d22",
+  "stage": "active_ready_deferred_restore",
+  "updatedAtUtc": "2026-10-07T14:26:20Z"
+}

@@ -1,0 +1,26 @@
+{
+  "root": "C:\\Users\\chimw\\AppData\\Local\\LWBridgeRebuild",
+  "exists": true,
+  "capturedAtUtc": "2026-10-07T14:59:07.9285132Z",
+  "rootLastWriteUtc": "2026-10-06T05:14:36.0513434Z",
+  "fileCount": 10018,
+  "totalBytes": 42958415731,
+  "metadataSha256": "cfe79dee154505b21387e27a6f40083c939f3e51b99e3f037ce022c39e6b4946",
+  "topLevelCritical": {
+    "config.backup.json": {
+      "path": "config.backup.json",
+      "length": 249,
+      "lastWriteUtc": "2026-09-30T19:36:57.7113387Z"
+    },
+    "config.json": {
+      "path": "config.json",
+      "length": 250,
+      "lastWriteUtc": "2026-09-30T19:38:12.4448862Z"
+    },
+    "controller.db": {
+      "path": "controller.db",
+      "length": 28672,
+      "lastWriteUtc": "2026-09-26T09:37:09.3512457Z"
+    }
+  }
+}

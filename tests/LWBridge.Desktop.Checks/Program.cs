@@ -110,6 +110,13 @@ if (args.Contains("--live-current-client-city-sample", StringComparer.OrdinalIgn
     return 0;
 }
 
+if (args.Contains("--pilot-local-map-check", StringComparer.OrdinalIgnoreCase))
+{
+    JsonElement result = LWBridge.Desktop.Checks.PilotLocalMapVerificationChecks.Run();
+    Console.WriteLine(JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true }));
+    return 0;
+}
+
 if (args.Contains("--live-current-client-manual-stop", StringComparer.OrdinalIgnoreCase))
 {
     await LWBridge.Desktop.Checks.LiveManualStopProof.RunAsync();
