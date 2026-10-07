@@ -106,7 +106,7 @@
     },
     {
       "id": "G",
-      "state": "ACTIVE",
+      "state": "COMPLETE",
       "goal": "Headless integration and adversarial inverse review",
       "dependencies": [
         "B",
@@ -127,7 +127,7 @@
     },
     {
       "id": "H",
-      "state": "READY",
+      "state": "ACTIVE",
       "goal": "Verify, update masters, push and return AWAITING_REVIEW",
       "dependencies": [
         "G"
@@ -244,5 +244,18 @@
       ],
       "productChanges": false
     }
+  },
+  "checkpointG": {
+    "state": "COMPLETE",
+    "checks": [
+      "canonical Map317 Release project PASS",
+      "Desktop default non-live Release suite PASS",
+      "--map317-native-boundary-check PASS",
+      "--map317-dto-matrix-check PASS",
+      "--map317-plunder-worker-boundary-check PASS",
+      "--profile-runtime-owner-check PASS"
+    ],
+    "productChanges": false,
+    "adversarialReview": "all campaign paths through F were evidence-only"
   }
 }

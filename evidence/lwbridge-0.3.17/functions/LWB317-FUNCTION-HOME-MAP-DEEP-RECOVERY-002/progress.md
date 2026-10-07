@@ -66,3 +66,10 @@ The inert plunder-worker boundary check passes. No E product change.
 
 Profile runtime owner, Home lifecycle, Auto Scan campaign and restart checks pass.
 Accepted RECOVERY-003 lifetime/ownership semantics remain unchanged.
+
+## G — complete
+
+Canonical Map317 Release checks and the Desktop default non-live Release suite pass.
+Focused native/DTO/plunder/profile ownership inverses also pass. Campaign diff review
+through F shows evidence-only changes; no product/test source changed. D blockers and
+owner-held live witnesses are the only unresolved dependencies.

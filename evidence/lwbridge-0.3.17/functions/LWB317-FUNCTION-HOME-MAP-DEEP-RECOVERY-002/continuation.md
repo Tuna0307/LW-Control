@@ -1,14 +1,11 @@
 # Continuation — LWB317-FUNCTION-HOME-MAP-DEEP-RECOVERY-002
 
-Current milestone: **G**. A/B/C/E/F complete. D is blocked with exact source/current
-dependencies, not a generic pause.
+Current milestone: **H**.
 
-1. Commit/push the D/E/F checkpoint and verify direct remote SHA.
-2. Run broad non-live Desktop integration after confirming all live entry points are
-   explicit flags, plus canonical Map checks and focused native boundaries.
-3. Self-review the full campaign diff/inverses and verify no product change was
-   hidden behind evidence-only recovery.
-4. Complete H: final static/hash/cleanup checks, update current masters/status/work
-   item, commit/push/direct-SHA verify, return AWAITING_REVIEW.
+1. Commit/push G and verify direct remote SHA.
+2. Run final reference/current static identity, JSON, process-inventory and diff gates.
+3. Update Home/Map masters, work item, handoff/project status and write dated worker review.
+4. Mark queue AWAITING_REVIEW, commit/push final H checkpoint and verify direct remote SHA.
+5. Return once with A-H outcomes and exact D/live continuation.
 
-Do not run any --live-* entry point. Owner hold remains active.
+No live/shared-desktop action is authorized.
