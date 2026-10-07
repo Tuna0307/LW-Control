@@ -1,6 +1,13 @@
 # LWB317-FUNCTION-HOME-MAP-DEEP-RECOVERY-002
 
-Status: **ASSIGNED FOR MANUAL OWNER RELAY**, 2026-10-07.
+Status: **AWAITING_REVIEW**, 2026-10-07.
+Worker delivery completed every independent offline/static/inert A-H branch. No
+source-backed product defect was demonstrated, so no product/test-source change
+was made. Treasure aggregate claim status, Treasure claim execution orchestration
+and Ghost pre-persist preparation remain exact evidenced blockers; live/shared-
+desktop witnesses remain ON_HOLD_BY_OWNER. Final acceptance remains with the
+project lead. See the campaign evidence directory for checkpoint proofs.
+
 Owner requested a larger feature assignment that progresses without repeated
 handoffs. This is one finite solo campaign through medium durable milestones.
 Only the owner-relayed worker executes it; the lead independently accepts delivery.

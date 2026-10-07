@@ -1,0 +1,15 @@
+﻿{
+    "referenceSha256":  "4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783",
+    "referenceMatches":  true,
+    "currentRuntimeOk":  true,
+    "currentMapCompatState":  "CURRENT_CLIENT_STATIC_HEADLESS",
+    "currentMapCompatIdentityOk":  true,
+    "currentContentVersion":  22,
+    "currentEntryCount":  18741,
+    "processCount":  0,
+    "processes":  [
+
+                  ],
+    "headBeforeFinal":  "628198af3c60d1501a637bda334c3fe277ba1e79",
+    "remoteBeforeFinal":  "628198af3c60d1501a637bda334c3fe277ba1e79"
+}

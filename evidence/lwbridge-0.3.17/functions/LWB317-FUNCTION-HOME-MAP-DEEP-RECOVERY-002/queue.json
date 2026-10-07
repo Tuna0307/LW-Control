@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "workItem": "LWB317-FUNCTION-HOME-MAP-DEEP-RECOVERY-002",
-  "status": "IN_PROGRESS",
+  "status": "AWAITING_REVIEW",
   "baselineHead": "6bc72c0493ac0dffa11432713840f0de96800647",
   "referenceExe": {
     "path": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW\\lwbridge-0.3.17.exe",
@@ -127,7 +127,7 @@
     },
     {
       "id": "H",
-      "state": "ACTIVE",
+      "state": "COMPLETE",
       "goal": "Verify, update masters, push and return AWAITING_REVIEW",
       "dependencies": [
         "G"
@@ -260,5 +260,34 @@
       "--profile-runtime-owner-check PASS"
     ],
     "productChanges": false
-  }
+  },
+  "checkpointH": {
+    "state": "COMPLETE",
+    "artifacts": [
+      "h-current-runtime-contract.json",
+      "h-current-map-compat.json",
+      "h-final-identity.json",
+      "h-checks.txt",
+      "h-final-report.md"
+    ],
+    "productChanges": false,
+    "conditionalProductBuildPackageGate": "NOT_TRIGGERED_NO_PRODUCT_CHANGES",
+    "referenceHashVerified": true,
+    "currentStaticIdentityVerified": true,
+    "gameProcessCount": 0
+  },
+  "remainingDependencies": [
+    "Treasure aggregate claim status current target enumeration/aggregation/result contract unrecovered",
+    "Treasure claim claimScope/lucky/direct-vs-scout orchestration/correlation/aggregate result unrecovered",
+    "Ghost prepareGhostPlunderTasks returned-row transformation/validation contract unrecovered",
+    "Owner-held future live witnesses: xLua external delegate crossing, in-game readiness scheduling, positive populations/protected execution"
+  ],
+  "deliveryCommits": [
+    "f83cc8fd83a642eb5ddbba1ab4320270add0a058",
+    "c6785dcd51a8ac31eadceacf7ac0217a9180e37b",
+    "c29cf973eb93c92c459cd729ec8672659942c2e1",
+    "a04f670bbad067f5dddc3629ebd961f14bc749d7",
+    "58c679a9",
+    "628198af3c60d1501a637bda334c3fe277ba1e79"
+  ]
 }
