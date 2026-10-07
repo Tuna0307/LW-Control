@@ -1,0 +1,866 @@
+{
+  "contentVersion": 22,
+  "hits": {
+    "DetectEventGetTreasureClaimInfo": [
+      {
+        "entry": "DataCenter/RadarCenterDataManager/DetectEventGetTreasureClaimInfo.luac",
+        "decodedSha256": "cb3df2e7ad2c34155cbb49c0d234e1d57a6320e6a64badb76b8af74825bafefe"
+      },
+      {
+        "entry": "DataCenter/RadarCenterDataManager/RadarCenterDataManager.luac",
+        "decodedSha256": "cb2a7830902addb3a2a75619474df0cead2092ac6e2d14277f84a43fb055bba8"
+      },
+      {
+        "entry": "Framework/UI/Message/EventId.luac",
+        "decodedSha256": "0147303f265a31581784d04e36d4e8b9784573a76e0610045a7d6c09125f770e"
+      },
+      {
+        "entry": "Global/EnumType.luac",
+        "decodedSha256": "b9de2ea2957c0e120d42fdcc01c0141862c6c0f3736eaaf95e63c8985957e31d"
+      },
+      {
+        "entry": "Net/Config/MsgDefines.luac",
+        "decodedSha256": "4f0117f3da036315a3e1d9ef8ab15ba87c66efaac561524497cd6eea0e20f8ee"
+      },
+      {
+        "entry": "Net/Config/MsgMap.luac",
+        "decodedSha256": "23da7680bc49ecb4946839cf853018a163c4b19809695acb29cf623fe5bc4306"
+      },
+      {
+        "entry": "Net/Msgs/RadarCenter/DetectEventGetTreasureClaimInfoMessage.luac",
+        "decodedSha256": "a8216497185f8a12ccf5d9608400c0070f6cae692d0a2007b2adf770f1f853ff"
+      },
+      {
+        "entry": "UI/UIChatNew/Component/ChatPushMsg/ChatPushMsg.luac",
+        "decodedSha256": "b931a753b346b9d3124dc496eff282a03962434ab34fd3e85ab6a641967bd9f6"
+      },
+      {
+        "entry": "UI/UIChatNew/Component/ChatPushMsg/UILWChatActDetectTreasureUseItemMsg.luac",
+        "decodedSha256": "346597f3c8f0a2f9f1c0867f464cf4925d4a72b682f22189c3f7d8d730fceae9"
+      },
+      {
+        "entry": "UI/UIChatNew/Component/ChatPushMsg/UILWChatGetDoubleRewardMsg.luac",
+        "decodedSha256": "3d6049fd6c24a1b9bfae3534ef0bf9b3d91ea9042bc00138b4814151ef29cc91"
+      },
+      {
+        "entry": "UI/UIChatNewV2/View/UIChatView_v2.luac",
+        "decodedSha256": "e3f133759d4af668f217b9d01c8666c82674a4ed72ab191a30c00c0c953d062a"
+      },
+      {
+        "entry": "UI/UILWRadarCenter/UILWActDetectEventTreasureClaimInfo/View/UILWActDetectEventTreasureClaimInfoView.luac",
+        "decodedSha256": "9c8c9ee97928619b95f6e1e17fe087ccec79786bee1f42ec8e0bd0c7e0ba7c10"
+      },
+      {
+        "entry": "UI/UILWRadarCenter/UILWActDetectEventTreasureClaimInfoNew/View/UILWActDetectEventTreasureClaimInfoNewView.luac",
+        "decodedSha256": "d1fc60c6eea9d7832245405c74e01d1799094bf7d7f27f1b1a2a8cc1a6b68e2f"
+      },
+      {
+        "entry": "UI/UILWRadarCenter/UILWDetectEventTreasureClaimInfo/View/UILWDetectEventTreasureClaimInfoView.luac",
+        "decodedSha256": "118c61717cc2a6a41f3d67a9667319b418cd623be13d7e54b9a28263b8cc1d49"
+      },
+      {
+        "entry": "Util/UIUtil.luac",
+        "decodedSha256": "a66e86815d8b10ae36a2058ef2cc3da37170d065b96364883957a97eb0c0ec22"
+      }
+    ],
+    "DetectEventClaimTreasure": [
+      {
+        "entry": "Net/Config/MsgDefines.luac",
+        "decodedSha256": "4f0117f3da036315a3e1d9ef8ab15ba87c66efaac561524497cd6eea0e20f8ee"
+      },
+      {
+        "entry": "Net/Config/MsgMap.luac",
+        "decodedSha256": "23da7680bc49ecb4946839cf853018a163c4b19809695acb29cf623fe5bc4306"
+      },
+      {
+        "entry": "Net/Msgs/RadarCenter/DetectEventClaimTreasureMessage.luac",
+        "decodedSha256": "ecceef817b99de8ce94518e910e3d4c773dbf1d0825a4878c87d00d59b0b4499"
+      },
+      {
+        "entry": "UI/UICollectReward/Component/FlowerTrainRewardBoxItemComponent.luac",
+        "decodedSha256": "40fa75eed36b6b300908c94ae52b31d6319d49909d6ce1cb069cda6571be1c1c"
+      },
+      {
+        "entry": "Util/UIUtil.luac",
+        "decodedSha256": "a66e86815d8b10ae36a2058ef2cc3da37170d065b96364883957a97eb0c0ec22"
+      }
+    ],
+    "PushDetectTreasureClaim": [
+      {
+        "entry": "Net/Config/MsgDefines.luac",
+        "decodedSha256": "4f0117f3da036315a3e1d9ef8ab15ba87c66efaac561524497cd6eea0e20f8ee"
+      },
+      {
+        "entry": "Net/Config/MsgMap.luac",
+        "decodedSha256": "23da7680bc49ecb4946839cf853018a163c4b19809695acb29cf623fe5bc4306"
+      },
+      {
+        "entry": "Net/Msgs/RadarCenter/PushDetectTreasureClaimMessage.luac",
+        "decodedSha256": "e14bafd7b714c7703cd52d35ab60acc5b6f10aec3721184866ba1f590cc103ef"
+      }
+    ],
+    "LaunchScout": [
+      {
+        "entry": "DataCenter/Mastery/MasteryManager.luac",
+        "decodedSha256": "88bfb567dfb87d58c0cd28b0c83196b1713e1b6f6f165389551f75f22a9962ef"
+      },
+      {
+        "entry": "DataCenter/SeasonManager/Activity/SeasonGreenManager.luac",
+        "decodedSha256": "c2ed16ef46e69c38b7ce9e4c4995f73bdeb6ad89ce37acbefa5c6ed27dc9a672"
+      },
+      {
+        "entry": "Scene/CityDomeProtectEffect/BuildingGetRewardBubbleEffect.luac",
+        "decodedSha256": "842ea73fe2958a52c5d904d8af1d35febfe9999858cc209aa0111f5c8bb00ed8"
+      },
+      {
+        "entry": "Scene/CityDomeProtectEffect/BuildingRewardBubbleEffect.luac",
+        "decodedSha256": "7b4b1a29dcad92c61e64840a229870c32af5cfa9e8ef011d29a71ab74479b09a"
+      },
+      {
+        "entry": "Scene/CityDomeProtectEffect/DesertHealSoldierEffect.luac",
+        "decodedSha256": "d579ed401a1a3375285ef5113072a526fc0b4c3930aeb40cf1dc004d3ca8976a"
+      },
+      {
+        "entry": "Scene/WorldMarchTileUI/WorldMarchTileUIManager.luac",
+        "decodedSha256": "5a134d56a7f7512c314f51d09c0d93ea6335970609c285dc818e6ca3a448b217"
+      },
+      {
+        "entry": "UI/DsbDuelBattlefield/BuildState/UIBFDsbDuelBattleBuildStateView.luac",
+        "decodedSha256": "ef003365cdf9ccba550c062bdba494c65f5ff301b06e2a42f3808c62a16f14a3"
+      },
+      {
+        "entry": "UI/LWMainUI/Component/UIMainBottom/UIMainHeroTrialMissileEnergyComponent.luac",
+        "decodedSha256": "72027955c92af2d38d8cc915b6f657e845f356c59e016f38667ecf3b7816cb42"
+      },
+      {
+        "entry": "UI/LWUIZoneMobilization/LWUIZoneMobilizationDonate/View/LWUIMobilizationDonateView.luac",
+        "decodedSha256": "baf94151980e5f8d0fadc0ccebe02bcb45ba2bcea8381b75e7677af504d6ddeb"
+      },
+      {
+        "entry": "UI/LWWorld/UIWorldLLCanonPoint/Component/UIWorldLLCanonPointBtn.luac",
+        "decodedSha256": "2c75236e6ee2e73ee1d4410d0410da71d18c79de9af00501e0e0f90295f0b45c"
+      },
+      {
+        "entry": "UI/LWWorld/UIWorldLLCityPoint/Component/UIWorldLLCityPointBtn.luac",
+        "decodedSha256": "54731a029b659ab959e733c3006d10884186199e9e25f6bb01664994c16d4720"
+      },
+      {
+        "entry": "UI/LWWorld/UIWorldOutpostCanonPoint/Component/UIWorldOutpostCanonPointBtn.luac",
+        "decodedSha256": "66b3ae94cb1bbcbb9708c3cf0bd6fb791ba47f9624793cd6585b2afe16e2072c"
+      },
+      {
+        "entry": "UI/LWWorld/UIWorldOutpostCityPoint/Component/UIWorldOutpostCityPointBtn.luac",
+        "decodedSha256": "af8aede26cec7b17b0874c42f98803bb85e5e0ce7080eda5dac1c43a4370e022"
+      },
+      {
+        "entry": "UI/LWWorld/UIWorldSiegePoint/Component/UIWorldSiegePointBtn.luac",
+        "decodedSha256": "0bc7d162638b5d4f62d8709356dacd8343c0eaab77d01f25432ddb3e29248fcd"
+      },
+      {
+        "entry": "UI/LWWorld/UIWorldSiegePointSeason/Component/UIWorldSiegePointBtn.luac",
+        "decodedSha256": "998e9aad82abea0ac61637f15d1eb833e8b12e73873249e6e7caefc10dff67df"
+      },
+      {
+        "entry": "UI/UIActivityCenterTable/Component/DesertBattle/BuildStatus/View/UIDesertBuildStatusView.luac",
+        "decodedSha256": "d0ef45952b00c2fb5279bce43d726e79e1ff31f5eabd6ecf1ccd02fa02302c43"
+      },
+      {
+        "entry": "UI/UIWorldPoint/Component/UIWorldPointBtn.luac",
+        "decodedSha256": "d2f099d11172a80e7c8eda63fd410d3360fea965d8269691061be5a7d8f54d79"
+      },
+      {
+        "entry": "Util/MarchUtil.luac",
+        "decodedSha256": "80effa59728e223053bca2b99ddfdd963cc0c98d2ec420972a5100a5e23990b4"
+      }
+    ],
+    "SCOUT_SUPPLIES": [
+      {
+        "entry": "Global/EnumType.luac",
+        "decodedSha256": "b9de2ea2957c0e120d42fdcc01c0141862c6c0f3736eaaf95e63c8985957e31d"
+      },
+      {
+        "entry": "UI/UIWorldPoint/Component/UIWorldPointBtn.luac",
+        "decodedSha256": "d2f099d11172a80e7c8eda63fd410d3360fea965d8269691061be5a7d8f54d79"
+      },
+      {
+        "entry": "Util/MarchUtil.luac",
+        "decodedSha256": "80effa59728e223053bca2b99ddfdd963cc0c98d2ec420972a5100a5e23990b4"
+      }
+    ],
+    "StartMarch": [
+      {
+        "entry": "DataCenter/ActivityListData/ActDispatchTaskFakeMarchData.luac",
+        "decodedSha256": "e7e42870359b43430925fb3c4b34cdde3b0eeb54245f05572a4ed64b90a7db69"
+      },
+      {
+        "entry": "DataCenter/ActivityListData/ActDispatchTaskFakeMarchManager.luac",
+        "decodedSha256": "cba67d32e6e21336fbb3cdd165b0ac9bba4b07f8f0a5f767c4f94fbe70c59307"
+      },
+      {
+        "entry": "DataCenter/BuildBubbleManager/BuildBubbleManager.luac",
+        "decodedSha256": "387ff1429f0709fe7417c0cdc13487c1769f75fa4b240a76435ae9be96fed7d1"
+      },
+      {
+        "entry": "DataCenter/BuildBubbleManager/WorldBuildBubbleManager.luac",
+        "decodedSha256": "5f68efce86c791c1a11917cc6b629e569754d115e99630695143b562f1ff1804"
+      },
+      {
+        "entry": "DataCenter/CrystalBoss/CrystalBossDataManager.luac",
+        "decodedSha256": "b1bd1966db3947906b41b2467a7462c15bc7caf6ea81769080fc0429dd40ed4a"
+      },
+      {
+        "entry": "DataCenter/Mastery/FakeMopUpMarchData.luac",
+        "decodedSha256": "33a43e3da951970c5ef3c94c6af6b25d41d0fd19431580b51dc20b69fa3e0cb6"
+      },
+      {
+        "entry": "DataCenter/Mastery/FakeMopUpMarchManager.luac",
+        "decodedSha256": "61878ef1d3d31681dd95024daf2a19eec952df061c22b734777aa2c0c7f828d9"
+      },
+      {
+        "entry": "DataCenter/Mastery/MasteryManager.luac",
+        "decodedSha256": "88bfb567dfb87d58c0cd28b0c83196b1713e1b6f6f165389551f75f22a9962ef"
+      },
+      {
+        "entry": "DataCenter/RadarCenterDataManager/FakeCollectGarbageMarchData.luac",
+        "decodedSha256": "243b0ea0d9face8b8e9e8733397f12c5bbea2d2a8a5dad32f2303f45c29e2d76"
+      },
+      {
+        "entry": "DataCenter/RadarCenterDataManager/FakeCollectGarbageMarchManager.luac",
+        "decodedSha256": "af81635c56a9afd9fe15d28e4be3dfc3a3036d6be680fd795277d2160d95ff73"
+      },
+      {
+        "entry": "DataCenter/RadarCenterDataManager/FakeHelperMarchData.luac",
+        "decodedSha256": "2a2fb1be46067b0477ba0bb3f09d852481eb4080f9b6f18d61da744403728282"
+      },
+      {
+        "entry": "DataCenter/RadarCenterDataManager/FakeHelperMarchManager.luac",
+        "decodedSha256": "aa1307075652e5b8d877bf96836b900735beb70474f2cadc55499043a1a5516e"
+      },
+      {
+        "entry": "DataCenter/RadarCenterDataManager/FakeParkourRescueMarchData.luac",
+        "decodedSha256": "af2a1a9172317d2bd653fc23c2598f0f432df19e0104d1ba038d77bedb937456"
+      },
+      {
+        "entry": "DataCenter/RadarCenterDataManager/FakeParkourRescueMarchManager.luac",
+        "decodedSha256": "ca5999f7fa2ae067a86a6a97bb3d51b403b771ca8496c94dfdd44e4580fa230d"
+      },
+      {
+        "entry": "DataCenter/RadarCenterDataManager/FakeRescueMarchData.luac",
+        "decodedSha256": "efcc6fa11dc336f9f3fe797125bdb843cca344b4c0d061c86f8d0c7b16465206"
+      },
+      {
+        "entry": "DataCenter/RadarCenterDataManager/FakeRescueMarchManager.luac",
+        "decodedSha256": "7ffe23c922091fba5eb1cd5e33ae3580f72c9af1c44c8b0c90f84c6ca36fe40d"
+      },
+      {
+        "entry": "DataCenter/RadarCenterDataManager/FakeScoutMarchData.luac",
+        "decodedSha256": "a305ea3c060a51f92b3f595dd36d4379b605c476940ec307cf06a4397b3cee0e"
+      },
+      {
+        "entry": "DataCenter/RadarCenterDataManager/FakeScoutMarchManager.luac",
+        "decodedSha256": "039f92a5b9aebd228c392cada9f5118c5fba04f138e43457150380bbea03d2f0"
+      },
+      {
+        "entry": "DataCenter/SeasonCallback/AddSoldiersMarchData.luac",
+        "decodedSha256": "78f8cc8ae808ec196a95a302c64c7237a3e8a3e5c1eb9a57cceedf8cdac3396b"
+      },
+      {
+        "entry": "DataCenter/SeasonManager/SeasonDesertManager.luac",
+        "decodedSha256": "c72ec88295a8edc3bd259a01f02f4f4a927e38101f5772fb70d4ea60618f5356"
+      },
+      {
+        "entry": "DataCenter/WorldPointWaitOpen/WorldPointWaitOpenManager.luac",
+        "decodedSha256": "1a82ed0db5cf1603698e64c836464631e52ac1867727c24c4801b12fe4c891a4"
+      },
+      {
+        "entry": "Framework/UI/Message/EventId.luac",
+        "decodedSha256": "0147303f265a31581784d04e36d4e8b9784573a76e0610045a7d6c09125f770e"
+      },
+      {
+        "entry": "Net/Msgs/GolloesTradeCheckTargetMessage.luac",
+        "decodedSha256": "83d1344fef7d3fa6c0a9be699c941a6c14b7d35b81212872944f958b6b882a21"
+      },
+      {
+        "entry": "Scene/BaseBuildEffect/BaseRallyBubbleEffect.luac",
+        "decodedSha256": "a30afd361d96f194a3d1ce896d9f27520739013f0910cae1458a2865f6f0f71c"
+      },
+      {
+        "entry": "Scene/WorldMarchTileUI/WorldMarchTileUIManager.luac",
+        "decodedSha256": "5a134d56a7f7512c314f51d09c0d93ea6335970609c285dc818e6ca3a448b217"
+      },
+      {
+        "entry": "Scene/WorldTroopEffect/WorldTroopEffectManager.luac",
+        "decodedSha256": "7c85e4733e5db4f80e6118fcb3ce2a78de9a68e34fbbe37742bf43c1a4605720"
+      },
+      {
+        "entry": "UI/DsbDuelBattlefield/BuildState/UIBFDsbDuelBattleBuildStateItem.luac",
+        "decodedSha256": "16b54446beaba46600dae690b8f58235855ee93682be41415a51a9235443ae49"
+      },
+      {
+        "entry": "UI/DsbDuelBattlefield/BuildState/UIBFDsbDuelBattleBuildStateView.luac",
+        "decodedSha256": "ef003365cdf9ccba550c062bdba494c65f5ff301b06e2a42f3808c62a16f14a3"
+      },
+      {
+        "entry": "UI/LWWorld/UIWorldLLCanonPoint/Component/UIWorldLLCanonPointBtn.luac",
+        "decodedSha256": "2c75236e6ee2e73ee1d4410d0410da71d18c79de9af00501e0e0f90295f0b45c"
+      },
+      {
+        "entry": "UI/LWWorld/UIWorldLLCityPoint/Component/UIWorldLLCityPointBtn.luac",
+        "decodedSha256": "54731a029b659ab959e733c3006d10884186199e9e25f6bb01664994c16d4720"
+      },
+      {
+        "entry": "UI/LWWorld/UIWorldOutpostCanonPoint/Component/UIWorldOutpostCanonPointBtn.luac",
+        "decodedSha256": "66b3ae94cb1bbcbb9708c3cf0bd6fb791ba47f9624793cd6585b2afe16e2072c"
+      },
+      {
+        "entry": "UI/LWWorld/UIWorldOutpostCityPoint/Component/UIWorldOutpostCityPointBtn.luac",
+        "decodedSha256": "af8aede26cec7b17b0874c42f98803bb85e5e0ce7080eda5dac1c43a4370e022"
+      },
+      {
+        "entry": "UI/LWWorld/UIWorldSiegePoint/Component/UIWorldSiegePointBtn.luac",
+        "decodedSha256": "0bc7d162638b5d4f62d8709356dacd8343c0eaab77d01f25432ddb3e29248fcd"
+      },
+      {
+        "entry": "UI/LWWorld/UIWorldSiegePointSeason/Component/UIWorldSiegePointBtn.luac",
+        "decodedSha256": "998e9aad82abea0ac61637f15d1eb833e8b12e73873249e6e7caefc10dff67df"
+      },
+      {
+        "entry": "UI/UIActivityCenterTable/Component/DesertBattle/BuildStatus/Component/UIDesertBuildStatusItem.luac",
+        "decodedSha256": "9299d5beb81877dd40f8f7e7ea70a1a36fa1076bae3118236783e61f6b9423c0"
+      },
+      {
+        "entry": "UI/UIActivityCenterTable/Component/DesertBattle/BuildStatus/View/UIDesertBuildStatusView.luac",
+        "decodedSha256": "d0ef45952b00c2fb5279bce43d726e79e1ff31f5eabd6ecf1ccd02fa02302c43"
+      },
+      {
+        "entry": "UI/UIAlliance/UIAllianceMemberTip/Controller/UIAllianceMemberTipCtrl.luac",
+        "decodedSha256": "8b28b3a447f9ff243001e179bde0ee9ab7dbf3477a75afa9323beebbdb74a11f"
+      },
+      {
+        "entry": "UI/UIAlliance/UIAllianceRally/Controller/UIAllianceRallyCtrl.luac",
+        "decodedSha256": "6f00f3b3121ffb3d05d8572a1158913e06b4f2eb18b4b7b78b505117d83a5e34"
+      },
+      {
+        "entry": "UI/UIAlliance/UIAllianceWarDetail/Controller/UIAllianceWarDetailCtrl.luac",
+        "decodedSha256": "ce92b8e0fd57037987fa95a6171b4ec4f1d54915a10c1784e6b0cf90be5cb71c"
+      },
+      {
+        "entry": "UI/UIAlliance/UIAllianceWarMainTable/Controller/UIAllianceWarMainTableCtrl.luac",
+        "decodedSha256": "d37b636d096adbb36a5e82bdad83a4a73b91fc7e6ff9d224392aca62afdeb318"
+      },
+      {
+        "entry": "UI/UIChatNew/Component/ChatItem/ChatItemLeft_AllianceWar.luac",
+        "decodedSha256": "2066c293f77c8788dcc39f1adc644d16b10dfc7a4f1ba0e0d3060bf5d558218b"
+      },
+      {
+        "entry": "UI/UIChatNewV2/Component/ChatItem/Post/AllianceWar.luac",
+        "decodedSha256": "7a7a573d1c75e3ee15cf7fca1144c8dba90790f4eff74476855ed1d76da2a3e1"
+      },
+      {
+        "entry": "UI/UIFormation/UIFormationSelectListNew/Controller/UIFormationSelectListNewCtrl.luac",
+        "decodedSha256": "f229f1866f44fc276630615ac4b208d3981972eeaea519a138e8021d945525f4"
+      },
+      {
+        "entry": "UI/UIFormation/UIFormationSelectListV2/Controller/UIFormationSelectListV2Ctrl.luac",
+        "decodedSha256": "ba5531c95fd9531506043a69d1ba6a7d055095149c3c4376c88b56b6daef5b3c"
+      },
+      {
+        "entry": "UI/UIFormation/UIFormationTableNew/Controller/UIFormationTableNewCtrl.luac",
+        "decodedSha256": "ba874d49fb1fb2a2b400ded5f722b986d7bacda47c8bfe755f7b572583852af2"
+      },
+      {
+        "entry": "UI/UIFormationAssistance/Controller/UIFormationAssistanceCtrl.luac",
+        "decodedSha256": "d4286186fe540c18c8bcfb996263ac093c7f3f8f9db4908261ed5932abf291fe"
+      },
+      {
+        "entry": "UI/UIGolloesCamp/Controller/UIGolloesCampCtrl.luac",
+        "decodedSha256": "17e367a6937f194fa47062aee1125d7330e8022d96f8deb0163da2460c3ed81c"
+      },
+      {
+        "entry": "UI/UILWRailway/UILWTrainDeparture/Controller/UILWTrainDepartureCtrl.luac",
+        "decodedSha256": "75fb8d1ab36801ad61ff98eda4d1cd553c6bfc253aece068225be59a57d77c08"
+      },
+      {
+        "entry": "UI/UIResSupport/Controller/UIResSupportCtrl.luac",
+        "decodedSha256": "b4590a6a4bdb460b645405aa071d0cb1f1695ae8dbbb08b8779d2f6222973aa9"
+      },
+      {
+        "entry": "UI/UIWorldBlackTile/Controller/UIWorldBlackTileCtrl.luac",
+        "decodedSha256": "f9638840fd9d8fd81f3fc5e97a0a3deb2fb2590e91aa5c478d5aaef2a06a3d83"
+      },
+      {
+        "entry": "UI/UIWorldPoint/Component/UIWorldPointBtn.luac",
+        "decodedSha256": "d2f099d11172a80e7c8eda63fd410d3360fea965d8269691061be5a7d8f54d79"
+      },
+      {
+        "entry": "UI/UIWorldTileUI/Component/UIWorldTileBuildBtn.luac",
+        "decodedSha256": "486068b2306e8dcedb2814638fbeb8bc0ca83e0584b2f3868b949de711ed5a07"
+      },
+      {
+        "entry": "Util/GoToUtil.luac",
+        "decodedSha256": "9f9e0526ac5948f74eb6e7ecf283f6fa366c9584d8ede706ba70257448dcb9e7"
+      },
+      {
+        "entry": "Util/MarchUtil.luac",
+        "decodedSha256": "80effa59728e223053bca2b99ddfdd963cc0c98d2ec420972a5100a5e23990b4"
+      },
+      {
+        "entry": "Util/WorldBattleUtil.luac",
+        "decodedSha256": "a7277aa0d5cc2c0bca57a1c62a6ee75eab09f41aecd464cd8bd693b03810457f"
+      }
+    ],
+    "WorldBuildTopBubbleTreasureGet": [
+      {
+        "entry": "Framework/UI/Message/EventId.luac",
+        "decodedSha256": "0147303f265a31581784d04e36d4e8b9784573a76e0610045a7d6c09125f770e"
+      },
+      {
+        "entry": "Net/Msgs/RadarCenter/PushDetectTreasureClaimMessage.luac",
+        "decodedSha256": "e14bafd7b714c7703cd52d35ab60acc5b6f10aec3721184866ba1f590cc103ef"
+      },
+      {
+        "entry": "Scene/WorldShortTimeEffectBubble/WorldShortTimeEffectBubbleManager.luac",
+        "decodedSha256": "684b42ad414bce40778e6d3d21d91ca145e08c8b30a01ee51a63cd176a01d6e6"
+      }
+    ],
+    "GetSelfClaimState": [
+      {
+        "entry": "DataCenter/LWFirework/LWFireworkGiftRecordInfo.luac",
+        "decodedSha256": "68145b5220aabe1ed0c1cea674850de05aff1cbb4f95aca431677a908377023f"
+      },
+      {
+        "entry": "DataCenter/RadarCenterDataManager/DetectEventGetTreasureClaimInfo.luac",
+        "decodedSha256": "cb3df2e7ad2c34155cbb49c0d234e1d57a6320e6a64badb76b8af74825bafefe"
+      },
+      {
+        "entry": "UI/Firework/UIFireworkGiftRecord/View/UIFireworkGiftRecordView.luac",
+        "decodedSha256": "4bb7943168505496c0580ad26d72ddcdd83b32b0e95506939183cd37378df3da"
+      },
+      {
+        "entry": "UI/UILWRadarCenter/UILWActDetectEventTreasureClaimInfo/View/UILWActDetectEventTreasureClaimInfoView.luac",
+        "decodedSha256": "9c8c9ee97928619b95f6e1e17fe087ccec79786bee1f42ec8e0bd0c7e0ba7c10"
+      },
+      {
+        "entry": "UI/UILWRadarCenter/UILWActDetectEventTreasureClaimInfoNew/View/UILWActDetectEventTreasureClaimInfoNewView.luac",
+        "decodedSha256": "d1fc60c6eea9d7832245405c74e01d1799094bf7d7f27f1b1a2a8cc1a6b68e2f"
+      },
+      {
+        "entry": "UI/UILWRadarCenter/UILWDetectEventTreasureClaimInfo/View/UILWDetectEventTreasureClaimInfoView.luac",
+        "decodedSha256": "118c61717cc2a6a41f3d67a9667319b418cd623be13d7e54b9a28263b8cc1d49"
+      }
+    ],
+    "remainNum": [
+      {
+        "entry": "DataCenter/ActMigrationManager/ActMigrationManager.luac",
+        "decodedSha256": "7fa07a3f74944d036fbcf7118b8f6fff77281afb59d84f440c754a3d1ee9d9bc"
+      },
+      {
+        "entry": "DataCenter/AllianceMine/AllianceMineData.luac",
+        "decodedSha256": "a29d003e1cd5c09668670222d3c168f3b9b20a60195af140f116a4ff23f8fbb8"
+      },
+      {
+        "entry": "DataCenter/LWBattle/Logic/CountBattle/States/CountBattleStateLose.luac",
+        "decodedSha256": "27811c4d042432e47823a6ca2ca74c1b3f4eafcf61fa709e8b0cdc7700f11904"
+      },
+      {
+        "entry": "DataCenter/LWBattle/Logic/CountBattle/States/CountBattleStateWin.luac",
+        "decodedSha256": "2c04aaea17dc760f7b48887a8acbb5ae8e7a3d0b6792a2cbb782e0e06e8ac137"
+      },
+      {
+        "entry": "DataCenter/LWBattle/Logic/ParkourBattle/ParkourBattleLogic.luac",
+        "decodedSha256": "ce6ad47a22d7d06453eb14f1cfe0ccaceb3b9fd2ea1aba1e93b6811ddcb24971"
+      },
+      {
+        "entry": "DataCenter/LWFirework/LWFireworkGiftRecordInfo.luac",
+        "decodedSha256": "68145b5220aabe1ed0c1cea674850de05aff1cbb4f95aca431677a908377023f"
+      },
+      {
+        "entry": "DataCenter/LWRailway/HighSpeedRailway/HSRDataManager.luac",
+        "decodedSha256": "713427615a30e17844216cf688e75adcd71c6f39b897b789f9dd1bf0c78a2123"
+      },
+      {
+        "entry": "DataCenter/LWZoneMobilizationManager/LWZoneMobilizationResourcePointsInfo.luac",
+        "decodedSha256": "5964039f42db7e1059d5f5470832aab85a120e1b4c6b17b334976886ff8edb53"
+      },
+      {
+        "entry": "DataCenter/RadarCenterDataManager/DetectEventGetTreasureClaimInfo.luac",
+        "decodedSha256": "cb3df2e7ad2c34155cbb49c0d234e1d57a6320e6a64badb76b8af74825bafefe"
+      },
+      {
+        "entry": "Net/Msgs/ValentineFollowMessage.luac",
+        "decodedSha256": "5a73e7b3a4e9e618aa7e0e2eb336f8a2b3ce983b0fac31fefedb9454f7d87875"
+      },
+      {
+        "entry": "UI/Firework/UIFireworkGiftRecord/View/UIFireworkGiftRecordView.luac",
+        "decodedSha256": "4bb7943168505496c0580ad26d72ddcdd83b32b0e95506939183cd37378df3da"
+      },
+      {
+        "entry": "UI/KillZombie/BoxUpgrade/Component/UIKillZombieBoxResItem.luac",
+        "decodedSha256": "1d51d5f25f1ce36c28fd51a18b213530561b604481975168184afb547fb94bc8"
+      },
+      {
+        "entry": "UI/LWUIMigration/Component/LWUIMigrationView_ApplyItem.luac",
+        "decodedSha256": "44880c510ea6fe36979a9fa0c547abb762bfaecc31fc422e40294da3339df537"
+      },
+      {
+        "entry": "UI/LWUIMigration/Component/LWUIMigrationView_Set.luac",
+        "decodedSha256": "2652f0e7919fee059001d73960e9175da85dfcefb1a0707d402cf628a783fe0f"
+      },
+      {
+        "entry": "UI/LWUIZoneMobilization/LWUISuppliesListView/Component/LWUIZoneMobilizationResItemRender.luac",
+        "decodedSha256": "2fba2faf70c61df22621942834db510ca1f99358620f324b213f243197414be7"
+      },
+      {
+        "entry": "UI/UIActivityCenterTable/Component/ScratchOffGame/ScratchOffDetailPage.luac",
+        "decodedSha256": "c62f556c2a0a1a4788eb863ad5a0f2c9e931befa5990d770b608349448d320ee"
+      },
+      {
+        "entry": "UI/UIAllyDuel/Component/AllyDuelScoreGacha/AllyDuelScoreGacha/View/UIAllyDuelScoreGacha.luac",
+        "decodedSha256": "2c3ea00445d8a6549cf780f95b7e9e12bc397ba68d8236f4b19c16def0b28a92"
+      },
+      {
+        "entry": "UI/UIAllyDuel/Component/AllyDuelToday/AllyDuelTodayGacha.luac",
+        "decodedSha256": "df365351d63c6b7be08a9ffd8489f95b60c34bcd0b949e3d84d8abac2ebe1d9b"
+      },
+      {
+        "entry": "UI/UIHSR/UIHSRMain/UIHSRMainView.luac",
+        "decodedSha256": "f6d6f757f4b00126591c7796cb965542d0b36689d76a2a18db8e35690b84224d"
+      },
+      {
+        "entry": "UI/UIHSR/UIHSRPersonalHistoryDetail/RecordConsignComponent.luac",
+        "decodedSha256": "232ce1366ee3da4f8eb6a287d815c2f131aa462069a0e220fba480536fc96214"
+      },
+      {
+        "entry": "UI/UIHero2/UIHeroRecruitFor100/View/UIHero100RecruitView.luac",
+        "decodedSha256": "48823307e448d30e3710c89d32ce488d6113d50461f4cef860594cf513ada684"
+      },
+      {
+        "entry": "UI/UILWTWSkillChip/UILWTWSkillChipUpgrade/View/UILWTWSkillChipUpgradeView.luac",
+        "decodedSha256": "7cbfef03545fabecdabf372de6fd4468775a0c68cda373cbc30cb5c02ed2da49"
+      },
+      {
+        "entry": "UI/UIParkourMysteryTreasure/LoseUI/View/UIParkourMysteryTreasureBattleLoseView.luac",
+        "decodedSha256": "f1b81391a0e74c81a4e4646c11eaf14a97c95086516a15f7a296982a7d09d165"
+      },
+      {
+        "entry": "UI/UIParkourMysteryTreasure/WinUI/View/UIParkourMysteryTreasureBattleWinView.luac",
+        "decodedSha256": "eea7309b36829fda210abb2b5568c4f6cec7763bcfc042fad04764fb92a4e7e3"
+      },
+      {
+        "entry": "UI/UIWorldPoint/Component/UIWorldPointHSRComponent.luac",
+        "decodedSha256": "f78f32092a854ada820d54faf29a4d6604965995012c30c26b6e9521e385cb7f"
+      },
+      {
+        "entry": "UI/UIWorldPoint/Component/WorldAlMinePanel_Collect.luac",
+        "decodedSha256": "4535857f95366a18178b6b0d8a9d234eab15ca0abcb204b10c0c6bb2853b489f"
+      },
+      {
+        "entry": "Util/MarchUtil.luac",
+        "decodedSha256": "80effa59728e223053bca2b99ddfdd963cc0c98d2ec420972a5100a5e23990b4"
+      }
+    ],
+    "treasureClaimPlayerInfo": [
+      {
+        "entry": "DataCenter/RadarCenterDataManager/DetectEventGetTreasureClaimInfo.luac",
+        "decodedSha256": "cb3df2e7ad2c34155cbb49c0d234e1d57a6320e6a64badb76b8af74825bafefe"
+      },
+      {
+        "entry": "UI/UILWRadarCenter/UILWActDetectEventTreasureClaimInfo/View/UILWActDetectEventTreasureClaimInfoView.luac",
+        "decodedSha256": "9c8c9ee97928619b95f6e1e17fe087ccec79786bee1f42ec8e0bd0c7e0ba7c10"
+      },
+      {
+        "entry": "UI/UILWRadarCenter/UILWActDetectEventTreasureClaimInfoNew/View/UILWActDetectEventTreasureClaimInfoNewView.luac",
+        "decodedSha256": "d1fc60c6eea9d7832245405c74e01d1799094bf7d7f27f1b1a2a8cc1a6b68e2f"
+      },
+      {
+        "entry": "UI/UILWRadarCenter/UILWDetectEventTreasureClaimInfo/View/UILWDetectEventTreasureClaimInfoView.luac",
+        "decodedSha256": "118c61717cc2a6a41f3d67a9667319b418cd623be13d7e54b9a28263b8cc1d49"
+      }
+    ],
+    "GhostreconGetTaskList": [
+      {
+        "entry": "DataCenter/ActivityListData/ActivityListDataManager.luac",
+        "decodedSha256": "255511005235f3b05b68d37376c55e4047e1b63392087ddaeea9ecd41d76197d"
+      },
+      {
+        "entry": "DataCenter/ActivityListData/ActGhostrecon/ActGhostreconManager.luac",
+        "decodedSha256": "ff4d3da182b931339d2b0c6966c4fa3fa4844abf9f06bd35a1816173d0775a41"
+      },
+      {
+        "entry": "Net/Config/MsgDefines.luac",
+        "decodedSha256": "4f0117f3da036315a3e1d9ef8ab15ba87c66efaac561524497cd6eea0e20f8ee"
+      },
+      {
+        "entry": "Net/Config/MsgMap.luac",
+        "decodedSha256": "23da7680bc49ecb4946839cf853018a163c4b19809695acb29cf623fe5bc4306"
+      },
+      {
+        "entry": "Net/Msgs/Ghostrecon/GhostReconJoinTeamMessage.luac",
+        "decodedSha256": "8f2a0bd7a93df8304895aaa5d0653533b6f5ed6132cdb7077c3ca2a4efbefdf8"
+      },
+      {
+        "entry": "Net/Msgs/Ghostrecon/GhostreconGetTaskListMessage.luac",
+        "decodedSha256": "2f9bec982658db79cb2ed8adb2a641915c65bf89d31f9b8afc3051f48f50a385"
+      },
+      {
+        "entry": "UI/UIDispatchTask/Main/Component/Ghorstrecon/Ghostrecon.luac",
+        "decodedSha256": "44070e95a55e0e86ad6754b7dc18002b1285dce29081301525337bf824b290dd"
+      }
+    ],
+    "GhostReconGetTaskList": [],
+    "CheckCanSteal": [
+      {
+        "entry": "DataCenter/ActivityListData/ActGhostrecon/ActGhostreconManager.luac",
+        "decodedSha256": "ff4d3da182b931339d2b0c6966c4fa3fa4844abf9f06bd35a1816173d0775a41"
+      },
+      {
+        "entry": "DataCenter/ActivityListData/ActGhostrecon/ActGhostreconTaskTemplate.luac",
+        "decodedSha256": "015d156c9fc4a3d245718669c113afb23ce04e35b44b057e9abf52d405e865c8"
+      }
+    ],
+    "GetTaskInfoByUUid": [
+      {
+        "entry": "DataCenter/ActivityListData/ActGhostrecon/ActGhostreconManager.luac",
+        "decodedSha256": "ff4d3da182b931339d2b0c6966c4fa3fa4844abf9f06bd35a1816173d0775a41"
+      },
+      {
+        "entry": "UI/UIChatNewV2/Component/ChatItem/Post/GhostReconTaskTeam.luac",
+        "decodedSha256": "434b651fdc0afef7536c224d4d1657ba45a5d637c11246c0d8403f0f60126fd9"
+      },
+      {
+        "entry": "UI/UIDispatchTask/Ghostrecon/Formation/View/UIGhostreconFormationView.luac",
+        "decodedSha256": "29d450864720ec00054ee539ab419b0f7f268c399130541a638f02e17fba8db9"
+      },
+      {
+        "entry": "UI/UIDispatchTask/Ghostrecon/MemberTip/Component/UIGhostreconMemberCell.luac",
+        "decodedSha256": "f72b019ebddc55a4100f70b5b97155f12df17dc880a93fcfecd7a7152810f012"
+      },
+      {
+        "entry": "UI/UIDispatchTask/Ghostrecon/MemberTip/View/UIGhostreconMemberListTipView.luac",
+        "decodedSha256": "bf89c7c3c73544bbf69543e052de76f331e36148af520d94055201d99943b975"
+      },
+      {
+        "entry": "UI/UIDispatchTask/Ghostrecon/Task/Component/UIGhostreconTaskBannerPanel.luac",
+        "decodedSha256": "ca3a7af6ee1ecb7ad28dddf4334df702dfd0394b702770ba713093ed15cc4565"
+      },
+      {
+        "entry": "UI/UIDispatchTask/Ghostrecon/Task/Component/UIGhostreconTaskBtnPanel.luac",
+        "decodedSha256": "b4c7d3936b8ef22104d7bc526dc2324471fe361e01af38fe1cd566f80a96dca0"
+      },
+      {
+        "entry": "UI/UIDispatchTask/Ghostrecon/Task/Component/UIGhostreconTaskMemberPanel.luac",
+        "decodedSha256": "bba503fe5743b8b472efced149f231f27c98d11107cc2bff038d7286cfb673cb"
+      },
+      {
+        "entry": "UI/UIDispatchTask/Ghostrecon/Task/Component/UIGhostreconTaskRewardPanel.luac",
+        "decodedSha256": "773cc950cd40771af704ca4a8445e34b30e4c130d84edc7c57260ac217b70c81"
+      },
+      {
+        "entry": "UI/UIDispatchTask/Ghostrecon/Task/NormalBegin/View/UIGhostreconTaskNormalBeginView.luac",
+        "decodedSha256": "bcedd23f3017d859c401a9cf22f2fafe7c57e773347dc2aadc49bc8351deed67"
+      },
+      {
+        "entry": "UI/UIDispatchTask/Ghostrecon/Task/NormalRuning/View/UIGhostreconTaskNormalRuningView.luac",
+        "decodedSha256": "abfeb4065336289adee78f28e1434abedd804edfb0e91beaa4490892a09634ac"
+      },
+      {
+        "entry": "UI/UIDispatchTask/Ghostrecon/Task/SpecialBegin/View/UIGhostreconTaskSpecialBeginView.luac",
+        "decodedSha256": "af0cdbad11da51ececd50344783cd4955d4e73f2c1832ce432cd09ad0cb46aec"
+      },
+      {
+        "entry": "UI/UIDispatchTask/Ghostrecon/Task/SpecialRuning/View/UIGhostreconTaskSpecialRuningView.luac",
+        "decodedSha256": "95fbbd9efff23d42d553e6d9002ffbb1ae5cb617030dda4aebc25a220b1a9d1e"
+      },
+      {
+        "entry": "UI/UIDispatchTask/Ghostrecon/TeamUp/Component/UIGhostreconTeamUpBtnPanel.luac",
+        "decodedSha256": "679ead75f5e225abe5374676290fe822345f6fca338bfd032fc904d7d7310ae6"
+      },
+      {
+        "entry": "UI/UIDispatchTask/Ghostrecon/TeamUp/Component/UIGhostreconTeamUpMemberPanel.luac",
+        "decodedSha256": "2fedce0fcb0285fef7d6a1a8c0ac56873af9e7c2805dcf795980e515d65f1830"
+      },
+      {
+        "entry": "UI/UIDispatchTask/Ghostrecon/TeamUp/Component/UIGhostreconTeamUpSpecialPanel.luac",
+        "decodedSha256": "e1a78f58af316a7af687ddfa47f43c3bab4173e49461026a5cd5bf54560b74fd"
+      },
+      {
+        "entry": "UI/UIDispatchTask/Ghostrecon/TeamUp/Normal/View/UIGhostreconTeamUpNormalView.luac",
+        "decodedSha256": "47dd2f4f6664a359d041e433330b67e70350cea1309c3a80bee752920ec807a6"
+      },
+      {
+        "entry": "UI/UIDispatchTask/Ghostrecon/TeamUp/Special/View/UIGhostreconTeamUpSpecialView.luac",
+        "decodedSha256": "6cfd570dde49f5d6869de64dd1a787acfb0f35ddfc47afc815fc044be35773b3"
+      },
+      {
+        "entry": "UI/UIDispatchTask/Main/Component/Ghorstrecon/GhostreconBubbleGrid.luac",
+        "decodedSha256": "110627fb656cddfd3230fea4cf348ccc4465a6bf2b83bb944c4a07dbf20c3641"
+      },
+      {
+        "entry": "Util/UIUtil.luac",
+        "decodedSha256": "a66e86815d8b10ae36a2058ef2cc3da37170d065b96364883957a97eb0c0ec22"
+      }
+    ],
+    "GetTaskTemplate": [
+      {
+        "entry": "DataCenter/ActivityListData/ActGhostrecon/ActGhostreconAllianceManager.luac",
+        "decodedSha256": "012a3bdcc463d3016e393de5abe60ed246a2d092841d4de007ff491904210ee2"
+      },
+      {
+        "entry": "DataCenter/ActivityListData/ActGhostrecon/ActGhostreconManager.luac",
+        "decodedSha256": "ff4d3da182b931339d2b0c6966c4fa3fa4844abf9f06bd35a1816173d0775a41"
+      },
+      {
+        "entry": "UI/UIChatNew/Component/ChatItem/ChatItemGhostReconSharePoint.luac",
+        "decodedSha256": "792870dbc4435b257bfe068cd1953dfe3b8c86fdde9207682e6c25c063ceb3f2"
+      },
+      {
+        "entry": "UI/UIChatNewV2/Component/ChatItem/Post/GhostReconRemindLeader.luac",
+        "decodedSha256": "aa2a577187861b6eff374439c9cd1375e4beae6ae6a4e05cffcc4bdb1a5fab71"
+      },
+      {
+        "entry": "UI/UIChatNewV2/Component/ChatItem/Post/GhostReconSharePoint.luac",
+        "decodedSha256": "55faca03fbf51b550459ec4529b4d1c63ca986e488b8821fcc897812bb790864"
+      },
+      {
+        "entry": "UI/UIChatNewV2/Component/ChatItem/Post/GhostReconTaskTeam.luac",
+        "decodedSha256": "434b651fdc0afef7536c224d4d1657ba45a5d637c11246c0d8403f0f60126fd9"
+      },
+      {
+        "entry": "UI/UIDispatchTask/Ghostrecon/AlliacneTask/Component/UIGhostreconAllianceTaskItem.luac",
+        "decodedSha256": "eb0b7c2de53aad77b6987b365985f45a483eb8d66d84a0c9e1de23e9de7fc0c4"
+      },
+      {
+        "entry": "UI/UIDispatchTask/Ghostrecon/Formation/View/UIGhostreconFormationView.luac",
+        "decodedSha256": "29d450864720ec00054ee539ab419b0f7f268c399130541a638f02e17fba8db9"
+      },
+      {
+        "entry": "UI/UIDispatchTask/Ghostrecon/MemberTip/Component/UIGhostreconMemberCell.luac",
+        "decodedSha256": "f72b019ebddc55a4100f70b5b97155f12df17dc880a93fcfecd7a7152810f012"
+      },
+      {
+        "entry": "UI/UIDispatchTask/Ghostrecon/Task/Component/UIGhostreconTaskBannerPanel.luac",
+        "decodedSha256": "ca3a7af6ee1ecb7ad28dddf4334df702dfd0394b702770ba713093ed15cc4565"
+      },
+      {
+        "entry": "UI/UIDispatchTask/Ghostrecon/Task/Component/UIGhostreconTaskRewardPanel.luac",
+        "decodedSha256": "773cc950cd40771af704ca4a8445e34b30e4c130d84edc7c57260ac217b70c81"
+      },
+      {
+        "entry": "UI/UIDispatchTask/Ghostrecon/Task/NormalBegin/View/UIGhostreconTaskNormalBeginView.luac",
+        "decodedSha256": "bcedd23f3017d859c401a9cf22f2fafe7c57e773347dc2aadc49bc8351deed67"
+      },
+      {
+        "entry": "UI/UIDispatchTask/Ghostrecon/Task/NormalRuning/View/UIGhostreconTaskNormalRuningView.luac",
+        "decodedSha256": "abfeb4065336289adee78f28e1434abedd804edfb0e91beaa4490892a09634ac"
+      },
+      {
+        "entry": "UI/UIDispatchTask/Ghostrecon/Task/SpecialBegin/View/UIGhostreconTaskSpecialBeginView.luac",
+        "decodedSha256": "af0cdbad11da51ececd50344783cd4955d4e73f2c1832ce432cd09ad0cb46aec"
+      },
+      {
+        "entry": "UI/UIDispatchTask/Ghostrecon/Task/SpecialRuning/View/UIGhostreconTaskSpecialRuningView.luac",
+        "decodedSha256": "95fbbd9efff23d42d553e6d9002ffbb1ae5cb617030dda4aebc25a220b1a9d1e"
+      },
+      {
+        "entry": "UI/UIDispatchTask/Ghostrecon/TeamUp/Component/UIGhostreconTeamUpBtnPanel.luac",
+        "decodedSha256": "679ead75f5e225abe5374676290fe822345f6fca338bfd032fc904d7d7310ae6"
+      },
+      {
+        "entry": "UI/UIDispatchTask/Ghostrecon/TeamUp/Component/UIGhostreconTeamUpSpecialPanel.luac",
+        "decodedSha256": "e1a78f58af316a7af687ddfa47f43c3bab4173e49461026a5cd5bf54560b74fd"
+      },
+      {
+        "entry": "UI/UIDispatchTask/Ghostrecon/TeamUp/Normal/View/UIGhostreconTeamUpNormalView.luac",
+        "decodedSha256": "47dd2f4f6664a359d041e433330b67e70350cea1309c3a80bee752920ec807a6"
+      },
+      {
+        "entry": "UI/UIDispatchTask/Ghostrecon/TeamUp/Special/View/UIGhostreconTeamUpSpecialView.luac",
+        "decodedSha256": "6cfd570dde49f5d6869de64dd1a787acfb0f35ddfc47afc815fc044be35773b3"
+      },
+      {
+        "entry": "UI/UIDispatchTask/Main/Component/Ghorstrecon/GhostreconBubbleGrid.luac",
+        "decodedSha256": "110627fb656cddfd3230fea4cf348ccc4465a6bf2b83bb944c4a07dbf20c3641"
+      },
+      {
+        "entry": "UI/UIWorldPoint/Component/UIWorldPointBtn.luac",
+        "decodedSha256": "d2f099d11172a80e7c8eda63fd410d3360fea965d8269691061be5a7d8f54d79"
+      },
+      {
+        "entry": "UI/UIWorldPoint/Component/WorldPointGhostrecon.luac",
+        "decodedSha256": "354d8f71ba720b98064fc95855675403f9e4646a6318447671e1251ffd76616f"
+      },
+      {
+        "entry": "Util/UIUtil.luac",
+        "decodedSha256": "a66e86815d8b10ae36a2058ef2cc3da37170d065b96364883957a97eb0c0ec22"
+      }
+    ],
+    "GhostReconSteal": [
+      {
+        "entry": "DataCenter/ActivityListData/ActGhostrecon/ActGhostreconManager.luac",
+        "decodedSha256": "ff4d3da182b931339d2b0c6966c4fa3fa4844abf9f06bd35a1816173d0775a41"
+      },
+      {
+        "entry": "Net/Config/MsgDefines.luac",
+        "decodedSha256": "4f0117f3da036315a3e1d9ef8ab15ba87c66efaac561524497cd6eea0e20f8ee"
+      },
+      {
+        "entry": "Net/Config/MsgMap.luac",
+        "decodedSha256": "23da7680bc49ecb4946839cf853018a163c4b19809695acb29cf623fe5bc4306"
+      },
+      {
+        "entry": "Net/Msgs/Ghostrecon/GhostReconStealMessage.luac",
+        "decodedSha256": "db52842471d2d276dc374236f274214657b70d22770722f4b2883cf6a756a1a3"
+      },
+      {
+        "entry": "Net/Msgs/Ghostrecon/PushGhostReconStealMessage.luac",
+        "decodedSha256": "b570cb45c67236b15d5dc94e9fa879e329d820ea21fabfd793192424b4b5ff96"
+      },
+      {
+        "entry": "UI/UIWorldPoint/Component/UIWorldPointBtn.luac",
+        "decodedSha256": "d2f099d11172a80e7c8eda63fd410d3360fea965d8269691061be5a7d8f54d79"
+      }
+    ],
+    "PushGhostReconSteal": [
+      {
+        "entry": "Net/Config/MsgDefines.luac",
+        "decodedSha256": "4f0117f3da036315a3e1d9ef8ab15ba87c66efaac561524497cd6eea0e20f8ee"
+      },
+      {
+        "entry": "Net/Config/MsgMap.luac",
+        "decodedSha256": "23da7680bc49ecb4946839cf853018a163c4b19809695acb29cf623fe5bc4306"
+      },
+      {
+        "entry": "Net/Msgs/Ghostrecon/PushGhostReconStealMessage.luac",
+        "decodedSha256": "b570cb45c67236b15d5dc94e9fa879e329d820ea21fabfd793192424b4b5ff96"
+      }
+    ],
+    "protect_times": [
+      {
+        "entry": "DataCenter/ActivityListData/ActGhostrecon/ActGhostreconTaskTemplate.luac",
+        "decodedSha256": "015d156c9fc4a3d245718669c113afb23ce04e35b44b057e9abf52d405e865c8"
+      },
+      {
+        "entry": "UI/UIWorldPoint/Component/UIWorldPointBtn.luac",
+        "decodedSha256": "d2f099d11172a80e7c8eda63fd410d3360fea965d8269691061be5a7d8f54d79"
+      },
+      {
+        "entry": "Util/UIUtil.luac",
+        "decodedSha256": "a66e86815d8b10ae36a2058ef2cc3da37170d065b96364883957a97eb0c0ec22"
+      }
+    ],
+    "steal_maxtimes": [
+      {
+        "entry": "DataCenter/ActivityListData/ActGhostrecon/ActGhostreconTaskTemplate.luac",
+        "decodedSha256": "015d156c9fc4a3d245718669c113afb23ce04e35b44b057e9abf52d405e865c8"
+      },
+      {
+        "entry": "UI/UIWorldPoint/Component/UIWorldPointBtn.luac",
+        "decodedSha256": "d2f099d11172a80e7c8eda63fd410d3360fea965d8269691061be5a7d8f54d79"
+      },
+      {
+        "entry": "Util/UIUtil.luac",
+        "decodedSha256": "a66e86815d8b10ae36a2058ef2cc3da37170d065b96364883957a97eb0c0ec22"
+      }
+    ]
+  }
+}

@@ -1,0 +1,3695 @@
+{
+  "schema": 1,
+  "package": {
+    "path": "C:\\Users\\chimw\\AppData\\LocalLow\\FunFly\\Last War-Survival Game\\lwScripts\\LWScripts.data",
+    "sha256": "248f3aeac712b3f14f86bff37a0c365e467897a2248403837c44c1b774f05b22",
+    "fileVersion": 3,
+    "contentVersion": 22,
+    "entryCount": 18741
+  },
+  "entries": {
+    "Net/Msgs/RadarCenter/DetectEventClaimTreasureMessage.luac": {
+      "entry": "Net/Msgs/RadarCenter/DetectEventClaimTreasureMessage.luac",
+      "encodedSha256": "eb7ac9ba1e7b69779155138fbe87df176f0d65e3987b131839f8706f7d0b9b8c",
+      "decodedSha256": "ecceef817b99de8ce94518e910e3d4c773dbf1d0825a4878c87d00d59b0b4499",
+      "decodedBytes": 2469,
+      "headerHex": "1b4c7561530119930d0a1a0a0404080878560000000000000000000000287740",
+      "normalizedSha256": "e7307133722d6a5d010926d2d255c1f08feceb3b0b2d356ff80fc8eb8a2ab356",
+      "root": {
+        "source": "@C:\\jenkins\\pc_micro\\aps_client\\Tools\\../Assets/Main/LuaScripts\\Net\\Msgs\\RadarCenter\\DetectEventClaimTreasureMessage.lua",
+        "line": 0,
+        "lastLine": 0,
+        "codeCount": 14,
+        "childCount": 2
+      },
+      "methods": {
+        "HandleMessage": {
+          "lines": [
+            24,
+            71
+          ],
+          "params": 2,
+          "stack": 9,
+          "constants": [
+            "HandleMessage",
+            "errorCode",
+            null,
+            "errorPara2",
+            "UIUtil",
+            "ShowTips",
+            "GetString",
+            "table",
+            "unpack",
+            "ShowTipsId",
+            "reward",
+            "hasLuckSiphonbuff",
+            "UIManager",
+            "GetInstance",
+            "OpenWindow",
+            "UIWindowNames",
+            "UIGetLuckyBuffPopup",
+            "anim",
+            true,
+            "treasureData",
+            "type",
+            2,
+            "DataCenter",
+            "RewardManager",
+            "AddRewardsAndRes",
+            "ShowCommonReward",
+            "ActDetectTreasureDataManager",
+            "OnGetDigTimesMsg",
+            "SeasonUtil",
+            "GetSeasonType",
+            "SeasonMapType",
+            "NineNation",
+            "Darkness",
+            "SFSNetwork",
+            "SendMessage",
+            "MsgDefines",
+            "FetchUserCardBoxList",
+            "FlowerTrainUtils",
+            "IsFlowerTrainLvBoxReward",
+            "FlowerTrainDataManager",
+            "OnClaimLvBoxReward"
+          ],
+          "prototypePath": "root/child[1]",
+          "instructions": [
+            {
+              "pc": 0,
+              "line": 25,
+              "raw": "0x00400086",
+              "op": "GETTABUP",
+              "operands": "A=2 B=R[0] C=K[0]='HandleMessage'"
+            },
+            {
+              "pc": 1,
+              "line": 25,
+              "raw": "0x000000c0",
+              "op": "MOVE",
+              "operands": "A=3 B=0 C=0 Bx=0"
+            },
+            {
+              "pc": 2,
+              "line": 25,
+              "raw": "0x00800100",
+              "op": "MOVE",
+              "operands": "A=4 B=1 C=0 Bx=512"
+            },
+            {
+              "pc": 3,
+              "line": 25,
+              "raw": "0x018040a4",
+              "op": "CALL",
+              "operands": "A=2 B=3 C=1 Bx=1537"
+            },
+            {
+              "pc": 4,
+              "line": 27,
+              "raw": "0x00c04087",
+              "op": "GETTABLE",
+              "operands": "A=2 B=R[1] C=K[1]='errorCode'"
+            },
+            {
+              "pc": 5,
+              "line": 28,
+              "raw": "0x0140805f",
+              "op": "EQ",
+              "operands": "A=1 B=R[2] C=K[2]=None"
+            },
+            {
+              "pc": 6,
+              "line": 28,
+              "raw": "0x8004c01e",
+              "op": "JMP",
+              "operands": "A=0 sBx=20 target=27"
+            },
+            {
+              "pc": 7,
+              "line": 29,
+              "raw": "0x00c0c0c7",
+              "op": "GETTABLE",
+              "operands": "A=3 B=R[1] C=K[3]='errorPara2'"
+            },
+            {
+              "pc": 8,
+              "line": 29,
+              "raw": "0x000000e2",
+              "op": "TEST",
+              "operands": "A=3 B=0 C=0 Bx=0"
+            },
+            {
+              "pc": 9,
+              "line": 29,
+              "raw": "0x8002c01e",
+              "op": "JMP",
+              "operands": "A=0 sBx=12 target=22"
+            },
+            {
+              "pc": 10,
+              "line": 30,
+              "raw": "0x00c100c6",
+              "op": "GETTABUP",
+              "operands": "A=3 B=R[1] C=K[4]='UIUtil'"
+            },
+            {
+              "pc": 11,
+              "line": 30,
+              "raw": "0x01c140c7",
+              "op": "GETTABLE",
+              "operands": "A=3 B=R[3] C=K[5]='ShowTips'"
+            },
+            {
+              "pc": 12,
+              "line": 30,
+              "raw": "0x01000105",
+              "op": "GETUPVAL",
+              "operands": "A=4 B=2 C=0 Bx=1024"
+            },
+            {
+              "pc": 13,
+              "line": 30,
+              "raw": "0x0241810c",
+              "op": "SELF",
+              "operands": "A=4 B=R[4] C=K[6]='GetString'"
+            },
+            {
+              "pc": 14,
+              "line": 30,
+              "raw": "0x01000180",
+              "op": "MOVE",
+              "operands": "A=6 B=2 C=0 Bx=1024"
+            },
+            {
+              "pc": 15,
+              "line": 30,
+              "raw": "0x00c1c1c6",
+              "op": "GETTABUP",
+              "operands": "A=7 B=R[1] C=K[7]='table'"
+            },
+            {
+              "pc": 16,
+              "line": 30,
+              "raw": "0x03c201c7",
+              "op": "GETTABLE",
+              "operands": "A=7 B=R[7] C=K[8]='unpack'"
+            },
+            {
+              "pc": 17,
+              "line": 30,
+              "raw": "0x00c0c207",
+              "op": "GETTABLE",
+              "operands": "A=8 B=R[1] C=K[3]='errorPara2'"
+            },
+            {
+              "pc": 18,
+              "line": 30,
+              "raw": "0x010001e4",
+              "op": "CALL",
+              "operands": "A=7 B=2 C=0 Bx=1024"
+            },
+            {
+              "pc": 19,
+              "line": 30,
+              "raw": "0x00000124",
+              "op": "CALL",
+              "operands": "A=4 B=0 C=0 Bx=0"
+            },
+            {
+              "pc": 20,
+              "line": 30,
+              "raw": "0x000040e4",
+              "op": "CALL",
+              "operands": "A=3 B=0 C=1 Bx=1"
+            },
+            {
+              "pc": 21,
+              "line": 30,
+              "raw": "0x8013001e",
+              "op": "JMP",
+              "operands": "A=0 sBx=77 target=99"
+            },
+            {
+              "pc": 22,
+              "line": 32,
+              "raw": "0x00c100c6",
+              "op": "GETTABUP",
+              "operands": "A=3 B=R[1] C=K[4]='UIUtil'"
+            },
+            {
+              "pc": 23,
+              "line": 32,
+              "raw": "0x01c240c7",
+              "op": "GETTABLE",
+              "operands": "A=3 B=R[3] C=K[9]='ShowTipsId'"
+            },
+            {
+              "pc": 24,
+              "line": 32,
+              "raw": "0x01000100",
+              "op": "MOVE",
+              "operands": "A=4 B=2 C=0 Bx=1024"
+            },
+            {
+              "pc": 25,
+              "line": 32,
+              "raw": "0x010040e4",
+              "op": "CALL",
+              "operands": "A=3 B=2 C=1 Bx=1025"
+            },
+            {
+              "pc": 26,
+              "line": 33,
+              "raw": "0x8011c01e",
+              "op": "JMP",
+              "operands": "A=0 sBx=72 target=99"
+            },
+            {
+              "pc": 27,
+              "line": 37,
+              "raw": "0x00c280c7",
+              "op": "GETTABLE",
+              "operands": "A=3 B=R[1] C=K[10]='reward'"
+            },
+            {
+              "pc": 28,
+              "line": 37,
+              "raw": "0x01c0805f",
+              "op": "EQ",
+              "operands": "A=1 B=R[3] C=K[2]=None"
+            },
+            {
+              "pc": 29,
+              "line": 37,
+              "raw": "0x8008401e",
+              "op": "JMP",
+              "operands": "A=0 sBx=34 target=64"
+            },
+            {
+              "pc": 30,
+              "line": 39,
+              "raw": "0x00c2c0c7",
+              "op": "GETTABLE",
+              "operands": "A=3 B=R[1] C=K[11]='hasLuckSiphonbuff'"
+            },
+            {
+              "pc": 31,
+              "line": 39,
+              "raw": "0x01c0805f",
+              "op": "EQ",
+              "operands": "A=1 B=R[3] C=K[2]=None"
+            },
+            {
+              "pc": 32,
+              "line": 39,
+              "raw": "0x8005001e",
+              "op": "JMP",
+              "operands": "A=0 sBx=21 target=54"
+            },
+            {
+              "pc": 33,
+              "line": 39,
+              "raw": "0x00c2c0c7",
+              "op": "GETTABLE",
+              "operands": "A=3 B=R[1] C=K[11]='hasLuckSiphonbuff'"
+            },
+            {
+              "pc": 34,
+              "line": 39,
+              "raw": "0x000000e2",
+              "op": "TEST",
+              "operands": "A=3 B=0 C=0 Bx=0"
+            },
+            {
+              "pc": 35,
+              "line": 39,
+              "raw": "0x8004401e",
+              "op": "JMP",
+              "operands": "A=0 sBx=18 target=54"
+            },
+            {
+              "pc": 36,
+              "line": 40,
+              "raw": "0x00c300c6",
+              "op": "GETTABUP",
+              "operands": "A=3 B=R[1] C=K[12]='UIManager'"
+            },
+            {
+              "pc": 37,
+              "line": 40,
+              "raw": "0x01c340cc",
+              "op": "SELF",
+              "operands": "A=3 B=R[3] C=K[13]='GetInstance'"
+            },
+            {
+              "pc": 38,
+              "line": 40,
+              "raw": "0x010080e4",
+              "op": "CALL",
+              "operands": "A=3 B=2 C=2 Bx=1026"
+            },
+            {
+              "pc": 39,
+              "line": 40,
+              "raw": "0x01c380cc",
+              "op": "SELF",
+              "operands": "A=3 B=R[3] C=K[14]='OpenWindow'"
+            },
+            {
+              "pc": 40,
+              "line": 40,
+              "raw": "0x00c3c146",
+              "op": "GETTABUP",
+              "operands": "A=5 B=R[1] C=K[15]='UIWindowNames'"
+            },
+            {
+              "pc": 41,
+              "line": 40,
+              "raw": "0x02c40147",
+              "op": "GETTABLE",
+              "operands": "A=5 B=R[5] C=K[16]='UIGetLuckyBuffPopup'"
+            },
+            {
+              "pc": 42,
+              "line": 40,
+              "raw": "0x0000418b",
+              "op": "NEWTABLE",
+              "operands": "A=6 B=0 C=1 Bx=1"
+            },
+            {
+              "pc": 43,
+              "line": 40,
+              "raw": "0x88c4818a",
+              "op": "SETTABLE",
+              "operands": "R[6][K[17]='anim'] <- K[18]=True"
+            },
+            {
+              "pc": 44,
+              "line": 40,
+              "raw": "0x000081cb",
+              "op": "NEWTABLE",
+              "operands": "A=7 B=0 C=2 Bx=2"
+            },
+            {
+              "pc": 45,
+              "line": 40,
+              "raw": "0x898041ca",
+              "op": "SETTABLE",
+              "operands": "R[7][K[19]='treasureData'] <- R[1]"
+            },
+            {
+              "pc": 46,
+              "line": 40,
+              "raw": "0x8a4541ca",
+              "op": "SETTABLE",
+              "operands": "R[7][K[20]='type'] <- K[21]=2"
+            },
+            {
+              "pc": 47,
+              "line": 40,
+              "raw": "0x028040e4",
+              "op": "CALL",
+              "operands": "A=3 B=5 C=1 Bx=2561"
+            },
+            {
+              "pc": 48,
+              "line": 42,
+              "raw": "0x00c580c6",
+              "op": "GETTABUP",
+              "operands": "A=3 B=R[1] C=K[22]='DataCenter'"
+            },
+            {
+              "pc": 49,
+              "line": 42,
+              "raw": "0x01c5c0c7",
+              "op": "GETTABLE",
+              "operands": "A=3 B=R[3] C=K[23]='RewardManager'"
+            },
+            {
+              "pc": 50,
+              "line": 42,
+              "raw": "0x01c600cc",
+              "op": "SELF",
+              "operands": "A=3 B=R[3] C=K[24]='AddRewardsAndRes'"
+            },
+            {
+              "pc": 51,
+              "line": 42,
+              "raw": "0x00800140",
+              "op": "MOVE",
+              "operands": "A=5 B=1 C=0 Bx=512"
+            },
+            {
+              "pc": 52,
+              "line": 42,
+              "raw": "0x018040e4",
+              "op": "CALL",
+              "operands": "A=3 B=3 C=1 Bx=1537"
+            },
+            {
+              "pc": 53,
+              "line": 42,
+              "raw": "0x8002401e",
+              "op": "JMP",
+              "operands": "A=0 sBx=10 target=64"
+            },
+            {
+              "pc": 54,
+              "line": 44,
+              "raw": "0x00c580c6",
+              "op": "GETTABUP",
+              "operands": "A=3 B=R[1] C=K[22]='DataCenter'"
+            },
+            {
+              "pc": 55,
+              "line": 44,
+              "raw": "0x01c5c0c7",
+              "op": "GETTABLE",
+              "operands": "A=3 B=R[3] C=K[23]='RewardManager'"
+            },
+            {
+              "pc": 56,
+              "line": 44,
+              "raw": "0x01c640cc",
+              "op": "SELF",
+              "operands": "A=3 B=R[3] C=K[25]='ShowCommonReward'"
+            },
+            {
+              "pc": 57,
+              "line": 44,
+              "raw": "0x00800140",
+              "op": "MOVE",
+              "operands": "A=5 B=1 C=0 Bx=512"
+            },
+            {
+              "pc": 58,
+              "line": 44,
+              "raw": "0x018040e4",
+              "op": "CALL",
+              "operands": "A=3 B=3 C=1 Bx=1537"
+            },
+            {
+              "pc": 59,
+              "line": 45,
+              "raw": "0x00c580c6",
+              "op": "GETTABUP",
+              "operands": "A=3 B=R[1] C=K[22]='DataCenter'"
+            },
+            {
+              "pc": 60,
+              "line": 45,
+              "raw": "0x01c5c0c7",
+              "op": "GETTABLE",
+              "operands": "A=3 B=R[3] C=K[23]='RewardManager'"
+            },
+            {
+              "pc": 61,
+              "line": 45,
+              "raw": "0x01c600cc",
+              "op": "SELF",
+              "operands": "A=3 B=R[3] C=K[24]='AddRewardsAndRes'"
+            },
+            {
+              "pc": 62,
+              "line": 45,
+              "raw": "0x00800140",
+              "op": "MOVE",
+              "operands": "A=5 B=1 C=0 Bx=512"
+            },
+            {
+              "pc": 63,
+              "line": 45,
+              "raw": "0x018040e4",
+              "op": "CALL",
+              "operands": "A=3 B=3 C=1 Bx=1537"
+            },
+            {
+              "pc": 64,
+              "line": 48,
+              "raw": "0x00c580c6",
+              "op": "GETTABUP",
+              "operands": "A=3 B=R[1] C=K[22]='DataCenter'"
+            },
+            {
+              "pc": 65,
+              "line": 48,
+              "raw": "0x01c680c7",
+              "op": "GETTABLE",
+              "operands": "A=3 B=R[3] C=K[26]='ActDetectTreasureDataManager'"
+            },
+            {
+              "pc": 66,
+              "line": 48,
+              "raw": "0x01c6c0cc",
+              "op": "SELF",
+              "operands": "A=3 B=R[3] C=K[27]='OnGetDigTimesMsg'"
+            },
+            {
+              "pc": 67,
+              "line": 48,
+              "raw": "0x00800140",
+              "op": "MOVE",
+              "operands": "A=5 B=1 C=0 Bx=512"
+            },
+            {
+              "pc": 68,
+              "line": 48,
+              "raw": "0x018040e4",
+              "op": "CALL",
+              "operands": "A=3 B=3 C=1 Bx=1537"
+            },
+            {
+              "pc": 69,
+              "line": 50,
+              "raw": "0x00c700c6",
+              "op": "GETTABUP",
+              "operands": "A=3 B=R[1] C=K[28]='SeasonUtil'"
+            },
+            {
+              "pc": 70,
+              "line": 50,
+              "raw": "0x01c740c7",
+              "op": "GETTABLE",
+              "operands": "A=3 B=R[3] C=K[29]='GetSeasonType'"
+            },
+            {
+              "pc": 71,
+              "line": 50,
+              "raw": "0x008080e4",
+              "op": "CALL",
+              "operands": "A=3 B=1 C=2 Bx=514"
+            },
+            {
+              "pc": 72,
+              "line": 51,
+              "raw": "0x00c78106",
+              "op": "GETTABUP",
+              "operands": "A=4 B=R[1] C=K[30]='SeasonMapType'"
+            },
+            {
+              "pc": 73,
+              "line": 51,
+              "raw": "0x0247c107",
+              "op": "GETTABLE",
+              "operands": "A=4 B=R[4] C=K[31]='NineNation'"
+            },
+            {
+              "pc": 74,
+              "line": 51,
+              "raw": "0x0181005f",
+              "op": "EQ",
+              "operands": "A=1 B=R[3] C=R[4]"
+            },
+            {
+              "pc": 75,
+              "line": 51,
+              "raw": "0x8001c01e",
+              "op": "JMP",
+              "operands": "A=0 sBx=8 target=84"
+            },
+            {
+              "pc": 76,
+              "line": 51,
+              "raw": "0x00c78106",
+              "op": "GETTABUP",
+              "operands": "A=4 B=R[1] C=K[30]='SeasonMapType'"
+            },
+            {
+              "pc": 77,
+              "line": 51,
+              "raw": "0x02480107",
+              "op": "GETTABLE",
+              "operands": "A=4 B=R[4] C=K[32]='Darkness'"
+            },
+            {
+              "pc": 78,
+              "line": 51,
+              "raw": "0x0181005f",
+              "op": "EQ",
+              "operands": "A=1 B=R[3] C=R[4]"
+            },
+            {
+              "pc": 79,
+              "line": 51,
+              "raw": "0x8000c01e",
+              "op": "JMP",
+              "operands": "A=0 sBx=4 target=84"
+            },
+            {
+              "pc": 80,
+              "line": 51,
+              "raw": "0x00c78106",
+              "op": "GETTABUP",
+              "operands": "A=4 B=R[1] C=K[30]='SeasonMapType'"
+            },
+            {
+              "pc": 81,
+              "line": 51,
+              "raw": "0x0247c107",
+              "op": "GETTABLE",
+              "operands": "A=4 B=R[4] C=K[31]='NineNation'"
+            },
+            {
+              "pc": 82,
+              "line": 51,
+              "raw": "0x0181001f",
+              "op": "EQ",
+              "operands": "A=0 B=R[3] C=R[4]"
+            },
+            {
+              "pc": 83,
+              "line": 51,
+              "raw": "0x8001001e",
+              "op": "JMP",
+              "operands": "A=0 sBx=5 target=89"
+            },
+            {
+              "pc": 84,
+              "line": 52,
+              "raw": "0x00c84106",
+              "op": "GETTABUP",
+              "operands": "A=4 B=R[1] C=K[33]='SFSNetwork'"
+            },
+            {
+              "pc": 85,
+              "line": 52,
+              "raw": "0x02488107",
+              "op": "GETTABLE",
+              "operands": "A=4 B=R[4] C=K[34]='SendMessage'"
+            },
+            {
+              "pc": 86,
+              "line": 52,
+              "raw": "0x00c8c146",
+              "op": "GETTABUP",
+              "operands": "A=5 B=R[1] C=K[35]='MsgDefines'"
+            },
+            {
+              "pc": 87,
+              "line": 52,
+              "raw": "0x02c90147",
+              "op": "GETTABLE",
+              "operands": "A=5 B=R[5] C=K[36]='FetchUserCardBoxList'"
+            },
+            {
+              "pc": 88,
+              "line": 52,
+              "raw": "0x01004124",
+              "op": "CALL",
+              "operands": "A=4 B=2 C=1 Bx=1025"
+            },
+            {
+              "pc": 89,
+              "line": 67,
+              "raw": "0x00c94106",
+              "op": "GETTABUP",
+              "operands": "A=4 B=R[1] C=K[37]='FlowerTrainUtils'"
+            },
+            {
+              "pc": 90,
+              "line": 67,
+              "raw": "0x02498107",
+              "op": "GETTABLE",
+              "operands": "A=4 B=R[4] C=K[38]='IsFlowerTrainLvBoxReward'"
+            },
+            {
+              "pc": 91,
+              "line": 67,
+              "raw": "0x00800140",
+              "op": "MOVE",
+              "operands": "A=5 B=1 C=0 Bx=512"
+            },
+            {
+              "pc": 92,
+              "line": 67,
+              "raw": "0x01008124",
+              "op": "CALL",
+              "operands": "A=4 B=2 C=2 Bx=1026"
+            },
+            {
+              "pc": 93,
+              "line": 67,
+              "raw": "0x00000122",
+              "op": "TEST",
+              "operands": "A=4 B=0 C=0 Bx=0"
+            },
+            {
+              "pc": 94,
+              "line": 67,
+              "raw": "0x8000c01e",
+              "op": "JMP",
+              "operands": "A=0 sBx=4 target=99"
+            },
+            {
+              "pc": 95,
+              "line": 68,
+              "raw": "0x00c58106",
+              "op": "GETTABUP",
+              "operands": "A=4 B=R[1] C=K[22]='DataCenter'"
+            },
+            {
+              "pc": 96,
+              "line": 68,
+              "raw": "0x0249c107",
+              "op": "GETTABLE",
+              "operands": "A=4 B=R[4] C=K[39]='FlowerTrainDataManager'"
+            },
+            {
+              "pc": 97,
+              "line": 68,
+              "raw": "0x024a010c",
+              "op": "SELF",
+              "operands": "A=4 B=R[4] C=K[40]='OnClaimLvBoxReward'"
+            },
+            {
+              "pc": 98,
+              "line": 68,
+              "raw": "0x01004124",
+              "op": "CALL",
+              "operands": "A=4 B=2 C=1 Bx=1025"
+            },
+            {
+              "pc": 99,
+              "line": 71,
+              "raw": "0x00800026",
+              "op": "RETURN",
+              "operands": "A=0 B=1 C=0 Bx=512"
+            }
+          ]
+        },
+        "OnCreate": {
+          "lines": [
+            10,
+            22
+          ],
+          "params": 4,
+          "stack": 8,
+          "constants": [
+            "OnCreate",
+            "sfsObj",
+            "PutLong",
+            "uuid",
+            null,
+            "LuaEntry",
+            "Player",
+            "GetSourceServerId",
+            "PutInt",
+            "targetServer",
+            "type"
+          ],
+          "prototypePath": "root/child[0]",
+          "instructions": [
+            {
+              "pc": 0,
+              "line": 11,
+              "raw": "0x00400106",
+              "op": "GETTABUP",
+              "operands": "A=4 B=R[0] C=K[0]='OnCreate'"
+            },
+            {
+              "pc": 1,
+              "line": 11,
+              "raw": "0x00000140",
+              "op": "MOVE",
+              "operands": "A=5 B=0 C=0 Bx=0"
+            },
+            {
+              "pc": 2,
+              "line": 11,
+              "raw": "0x01004124",
+              "op": "CALL",
+              "operands": "A=4 B=2 C=1 Bx=1025"
+            },
+            {
+              "pc": 3,
+              "line": 12,
+              "raw": "0x00404107",
+              "op": "GETTABLE",
+              "operands": "A=4 B=R[0] C=K[1]='sfsObj'"
+            },
+            {
+              "pc": 4,
+              "line": 12,
+              "raw": "0x0240810c",
+              "op": "SELF",
+              "operands": "A=4 B=R[4] C=K[2]='PutLong'"
+            },
+            {
+              "pc": 5,
+              "line": 12,
+              "raw": "0x0000c181",
+              "op": "LOADK",
+              "operands": "R[6] <- K[3]='uuid'"
+            },
+            {
+              "pc": 6,
+              "line": 12,
+              "raw": "0x008001c0",
+              "op": "MOVE",
+              "operands": "A=7 B=1 C=0 Bx=512"
+            },
+            {
+              "pc": 7,
+              "line": 12,
+              "raw": "0x02004124",
+              "op": "CALL",
+              "operands": "A=4 B=4 C=1 Bx=2049"
+            },
+            {
+              "pc": 8,
+              "line": 14,
+              "raw": "0x0141001f",
+              "op": "EQ",
+              "operands": "A=0 B=R[2] C=K[4]=None"
+            },
+            {
+              "pc": 9,
+              "line": 14,
+              "raw": "0x8001001e",
+              "op": "JMP",
+              "operands": "A=0 sBx=5 target=15"
+            },
+            {
+              "pc": 10,
+              "line": 15,
+              "raw": "0x00c14106",
+              "op": "GETTABUP",
+              "operands": "A=4 B=R[1] C=K[5]='LuaEntry'"
+            },
+            {
+              "pc": 11,
+              "line": 15,
+              "raw": "0x02418107",
+              "op": "GETTABLE",
+              "operands": "A=4 B=R[4] C=K[6]='Player'"
+            },
+            {
+              "pc": 12,
+              "line": 15,
+              "raw": "0x0241c10c",
+              "op": "SELF",
+              "operands": "A=4 B=R[4] C=K[7]='GetSourceServerId'"
+            },
+            {
+              "pc": 13,
+              "line": 15,
+              "raw": "0x01008124",
+              "op": "CALL",
+              "operands": "A=4 B=2 C=2 Bx=1026"
+            },
+            {
+              "pc": 14,
+              "line": 15,
+              "raw": "0x02000080",
+              "op": "MOVE",
+              "operands": "A=2 B=4 C=0 Bx=2048"
+            },
+            {
+              "pc": 15,
+              "line": 17,
+              "raw": "0x00404107",
+              "op": "GETTABLE",
+              "operands": "A=4 B=R[0] C=K[1]='sfsObj'"
+            },
+            {
+              "pc": 16,
+              "line": 17,
+              "raw": "0x0242010c",
+              "op": "SELF",
+              "operands": "A=4 B=R[4] C=K[8]='PutInt'"
+            },
+            {
+              "pc": 17,
+              "line": 17,
+              "raw": "0x00024181",
+              "op": "LOADK",
+              "operands": "R[6] <- K[9]='targetServer'"
+            },
+            {
+              "pc": 18,
+              "line": 17,
+              "raw": "0x010001c0",
+              "op": "MOVE",
+              "operands": "A=7 B=2 C=0 Bx=1024"
+            },
+            {
+              "pc": 19,
+              "line": 17,
+              "raw": "0x02004124",
+              "op": "CALL",
+              "operands": "A=4 B=4 C=1 Bx=2049"
+            },
+            {
+              "pc": 20,
+              "line": 19,
+              "raw": "0x000000e2",
+              "op": "TEST",
+              "operands": "A=3 B=0 C=0 Bx=0"
+            },
+            {
+              "pc": 21,
+              "line": 19,
+              "raw": "0x8001001e",
+              "op": "JMP",
+              "operands": "A=0 sBx=5 target=27"
+            },
+            {
+              "pc": 22,
+              "line": 20,
+              "raw": "0x00404107",
+              "op": "GETTABLE",
+              "operands": "A=4 B=R[0] C=K[1]='sfsObj'"
+            },
+            {
+              "pc": 23,
+              "line": 20,
+              "raw": "0x0242010c",
+              "op": "SELF",
+              "operands": "A=4 B=R[4] C=K[8]='PutInt'"
+            },
+            {
+              "pc": 24,
+              "line": 20,
+              "raw": "0x00028181",
+              "op": "LOADK",
+              "operands": "R[6] <- K[10]='type'"
+            },
+            {
+              "pc": 25,
+              "line": 20,
+              "raw": "0x018001c0",
+              "op": "MOVE",
+              "operands": "A=7 B=3 C=0 Bx=1536"
+            },
+            {
+              "pc": 26,
+              "line": 20,
+              "raw": "0x02004124",
+              "op": "CALL",
+              "operands": "A=4 B=4 C=1 Bx=2049"
+            },
+            {
+              "pc": 27,
+              "line": 22,
+              "raw": "0x00800026",
+              "op": "RETURN",
+              "operands": "A=0 B=1 C=0 Bx=512"
+            }
+          ]
+        }
+      }
+    },
+    "DataCenter/ActivityListData/ActGhostrecon/ActGhostreconTaskInfo.luac": {
+      "entry": "DataCenter/ActivityListData/ActGhostrecon/ActGhostreconTaskInfo.luac",
+      "encodedSha256": "db14aa4835b6bb25230fc380a7766696f5af81ea9870b6e228dda20d0d9d8f8b",
+      "decodedSha256": "782804b08e5b4d5c6dc71c6054fd74cb9aff580643fd0b83ecb44147e884abed",
+      "decodedBytes": 6854,
+      "headerHex": "1b4c7561530119930d0a1a0a0404080878560000000000000000000000287740",
+      "normalizedSha256": "7eccf1d6398b4d7316e2a04bb0f3e26222b8adc06908c0506f698f9f0f425a18",
+      "root": {
+        "source": "@C:\\jenkins\\pc_micro\\aps_client\\Tools\\../Assets/Main/LuaScripts\\DataCenter\\ActivityListData\\ActGhostrecon\\ActGhostreconTaskInfo.lua",
+        "line": 0,
+        "lastLine": 0,
+        "codeCount": 35,
+        "childCount": 12
+      },
+      "methods": {
+        "AddListener": {
+          "lines": [
+            67,
+            68
+          ],
+          "params": 1,
+          "stack": 2,
+          "constants": [],
+          "prototypePath": "root/child[2]",
+          "instructions": [
+            {
+              "pc": 0,
+              "line": 68,
+              "raw": "0x00800026",
+              "op": "RETURN",
+              "operands": "A=0 B=1 C=0 Bx=512"
+            }
+          ]
+        },
+        "GetLeaderMemberInfo": {
+          "lines": [
+            169,
+            171
+          ],
+          "params": 1,
+          "stack": 2,
+          "constants": [
+            "leaderMemberInfo"
+          ],
+          "prototypePath": "root/child[6]",
+          "instructions": [
+            {
+              "pc": 0,
+              "line": 170,
+              "raw": "0x00400047",
+              "op": "GETTABLE",
+              "operands": "A=1 B=R[0] C=K[0]='leaderMemberInfo'"
+            },
+            {
+              "pc": 1,
+              "line": 170,
+              "raw": "0x01000066",
+              "op": "RETURN",
+              "operands": "A=1 B=2 C=0 Bx=1024"
+            },
+            {
+              "pc": 2,
+              "line": 171,
+              "raw": "0x00800026",
+              "op": "RETURN",
+              "operands": "A=0 B=1 C=0 Bx=512"
+            }
+          ]
+        },
+        "GetOwnMemberInfo": {
+          "lines": [
+            176,
+            185
+          ],
+          "params": 1,
+          "stack": 9,
+          "constants": [
+            "ipairs",
+            "memberList",
+            "uid",
+            "LuaEntry",
+            "Player"
+          ],
+          "prototypePath": "root/child[7]",
+          "instructions": [
+            {
+              "pc": 0,
+              "line": 177,
+              "raw": "0x00000044",
+              "op": "LOADNIL",
+              "operands": "A=1 B=0 C=0 Bx=0"
+            },
+            {
+              "pc": 1,
+              "line": 178,
+              "raw": "0x00400086",
+              "op": "GETTABUP",
+              "operands": "A=2 B=R[0] C=K[0]='ipairs'"
+            },
+            {
+              "pc": 2,
+              "line": 178,
+              "raw": "0x004040c7",
+              "op": "GETTABLE",
+              "operands": "A=3 B=R[0] C=K[1]='memberList'"
+            },
+            {
+              "pc": 3,
+              "line": 178,
+              "raw": "0x010100a4",
+              "op": "CALL",
+              "operands": "A=2 B=2 C=4 Bx=1028"
+            },
+            {
+              "pc": 4,
+              "line": 178,
+              "raw": "0x8001c01e",
+              "op": "JMP",
+              "operands": "A=0 sBx=8 target=13"
+            },
+            {
+              "pc": 5,
+              "line": 179,
+              "raw": "0x034081c7",
+              "op": "GETTABLE",
+              "operands": "A=7 B=R[6] C=K[2]='uid'"
+            },
+            {
+              "pc": 6,
+              "line": 179,
+              "raw": "0x0040c206",
+              "op": "GETTABUP",
+              "operands": "A=8 B=R[0] C=K[3]='LuaEntry'"
+            },
+            {
+              "pc": 7,
+              "line": 179,
+              "raw": "0x04410207",
+              "op": "GETTABLE",
+              "operands": "A=8 B=R[8] C=K[4]='Player'"
+            },
+            {
+              "pc": 8,
+              "line": 179,
+              "raw": "0x04408207",
+              "op": "GETTABLE",
+              "operands": "A=8 B=R[8] C=K[2]='uid'"
+            },
+            {
+              "pc": 9,
+              "line": 179,
+              "raw": "0x0382001f",
+              "op": "EQ",
+              "operands": "A=0 B=R[7] C=R[8]"
+            },
+            {
+              "pc": 10,
+              "line": 179,
+              "raw": "0x8000401e",
+              "op": "JMP",
+              "operands": "A=0 sBx=2 target=13"
+            },
+            {
+              "pc": 11,
+              "line": 180,
+              "raw": "0x03000040",
+              "op": "MOVE",
+              "operands": "A=1 B=6 C=0 Bx=3072"
+            },
+            {
+              "pc": 12,
+              "line": 180,
+              "raw": "0x8000401e",
+              "op": "JMP",
+              "operands": "A=0 sBx=2 target=15"
+            },
+            {
+              "pc": 13,
+              "line": 178,
+              "raw": "0x000080a9",
+              "op": "TFORCALL",
+              "operands": "A=2 B=0 C=2 Bx=2"
+            },
+            {
+              "pc": 14,
+              "line": 178,
+              "raw": "0x7ffd412a",
+              "op": "TFORLOOP",
+              "operands": "A=4 B=255 C=501 Bx=131061"
+            },
+            {
+              "pc": 15,
+              "line": 184,
+              "raw": "0x01000066",
+              "op": "RETURN",
+              "operands": "A=1 B=2 C=0 Bx=1024"
+            },
+            {
+              "pc": 16,
+              "line": 185,
+              "raw": "0x00800026",
+              "op": "RETURN",
+              "operands": "A=0 B=1 C=0 Bx=512"
+            }
+          ]
+        },
+        "MemberIsFull": {
+          "lines": [
+            225,
+            231
+          ],
+          "params": 1,
+          "stack": 5,
+          "constants": [
+            "memberList",
+            "DataCenter",
+            "ActGhostreconManager",
+            "GetTeamMaxMemberNum"
+          ],
+          "prototypePath": "root/child[11]",
+          "instructions": [
+            {
+              "pc": 0,
+              "line": 226,
+              "raw": "0x00000043",
+              "op": "LOADBOOL",
+              "operands": "A=1 B=0 C=0 Bx=0"
+            },
+            {
+              "pc": 1,
+              "line": 227,
+              "raw": "0x00400087",
+              "op": "GETTABLE",
+              "operands": "A=2 B=R[0] C=K[0]='memberList'"
+            },
+            {
+              "pc": 2,
+              "line": 227,
+              "raw": "0x000000a2",
+              "op": "TEST",
+              "operands": "A=2 B=0 C=0 Bx=0"
+            },
+            {
+              "pc": 3,
+              "line": 227,
+              "raw": "0x8002401e",
+              "op": "JMP",
+              "operands": "A=0 sBx=10 target=14"
+            },
+            {
+              "pc": 4,
+              "line": 228,
+              "raw": "0x00400087",
+              "op": "GETTABLE",
+              "operands": "A=2 B=R[0] C=K[0]='memberList'"
+            },
+            {
+              "pc": 5,
+              "line": 228,
+              "raw": "0x0100009c",
+              "op": "LEN",
+              "operands": "A=2 B=2 C=0 Bx=1024"
+            },
+            {
+              "pc": 6,
+              "line": 228,
+              "raw": "0x004040c6",
+              "op": "GETTABUP",
+              "operands": "A=3 B=R[0] C=K[1]='DataCenter'"
+            },
+            {
+              "pc": 7,
+              "line": 228,
+              "raw": "0x01c080c7",
+              "op": "GETTABLE",
+              "operands": "A=3 B=R[3] C=K[2]='ActGhostreconManager'"
+            },
+            {
+              "pc": 8,
+              "line": 228,
+              "raw": "0x01c0c0cc",
+              "op": "SELF",
+              "operands": "A=3 B=R[3] C=K[3]='GetTeamMaxMemberNum'"
+            },
+            {
+              "pc": 9,
+              "line": 228,
+              "raw": "0x010080e4",
+              "op": "CALL",
+              "operands": "A=3 B=2 C=2 Bx=1026"
+            },
+            {
+              "pc": 10,
+              "line": 228,
+              "raw": "0x01808061",
+              "op": "LE",
+              "operands": "A=1 B=R[3] C=R[2]"
+            },
+            {
+              "pc": 11,
+              "line": 228,
+              "raw": "0x8000001e",
+              "op": "JMP",
+              "operands": "A=0 sBx=1 target=13"
+            },
+            {
+              "pc": 12,
+              "line": 228,
+              "raw": "0x00004043",
+              "op": "LOADBOOL",
+              "operands": "A=1 B=0 C=1 Bx=1"
+            },
+            {
+              "pc": 13,
+              "line": 228,
+              "raw": "0x00800043",
+              "op": "LOADBOOL",
+              "operands": "A=1 B=1 C=0 Bx=512"
+            },
+            {
+              "pc": 14,
+              "line": 230,
+              "raw": "0x01000066",
+              "op": "RETURN",
+              "operands": "A=1 B=2 C=0 Bx=1024"
+            },
+            {
+              "pc": 15,
+              "line": 231,
+              "raw": "0x00800026",
+              "op": "RETURN",
+              "operands": "A=0 B=1 C=0 Bx=512"
+            }
+          ]
+        },
+        "OwnIsJoined": {
+          "lines": [
+            199,
+            208
+          ],
+          "params": 1,
+          "stack": 9,
+          "constants": [
+            "ipairs",
+            "memberList",
+            "uid",
+            "LuaEntry",
+            "Player"
+          ],
+          "prototypePath": "root/child[9]",
+          "instructions": [
+            {
+              "pc": 0,
+              "line": 200,
+              "raw": "0x00000043",
+              "op": "LOADBOOL",
+              "operands": "A=1 B=0 C=0 Bx=0"
+            },
+            {
+              "pc": 1,
+              "line": 201,
+              "raw": "0x00400086",
+              "op": "GETTABUP",
+              "operands": "A=2 B=R[0] C=K[0]='ipairs'"
+            },
+            {
+              "pc": 2,
+              "line": 201,
+              "raw": "0x004040c7",
+              "op": "GETTABLE",
+              "operands": "A=3 B=R[0] C=K[1]='memberList'"
+            },
+            {
+              "pc": 3,
+              "line": 201,
+              "raw": "0x010100a4",
+              "op": "CALL",
+              "operands": "A=2 B=2 C=4 Bx=1028"
+            },
+            {
+              "pc": 4,
+              "line": 201,
+              "raw": "0x8001c01e",
+              "op": "JMP",
+              "operands": "A=0 sBx=8 target=13"
+            },
+            {
+              "pc": 5,
+              "line": 202,
+              "raw": "0x034081c7",
+              "op": "GETTABLE",
+              "operands": "A=7 B=R[6] C=K[2]='uid'"
+            },
+            {
+              "pc": 6,
+              "line": 202,
+              "raw": "0x0040c206",
+              "op": "GETTABUP",
+              "operands": "A=8 B=R[0] C=K[3]='LuaEntry'"
+            },
+            {
+              "pc": 7,
+              "line": 202,
+              "raw": "0x04410207",
+              "op": "GETTABLE",
+              "operands": "A=8 B=R[8] C=K[4]='Player'"
+            },
+            {
+              "pc": 8,
+              "line": 202,
+              "raw": "0x04408207",
+              "op": "GETTABLE",
+              "operands": "A=8 B=R[8] C=K[2]='uid'"
+            },
+            {
+              "pc": 9,
+              "line": 202,
+              "raw": "0x0382001f",
+              "op": "EQ",
+              "operands": "A=0 B=R[7] C=R[8]"
+            },
+            {
+              "pc": 10,
+              "line": 202,
+              "raw": "0x8000401e",
+              "op": "JMP",
+              "operands": "A=0 sBx=2 target=13"
+            },
+            {
+              "pc": 11,
+              "line": 203,
+              "raw": "0x00800043",
+              "op": "LOADBOOL",
+              "operands": "A=1 B=1 C=0 Bx=512"
+            },
+            {
+              "pc": 12,
+              "line": 203,
+              "raw": "0x8000401e",
+              "op": "JMP",
+              "operands": "A=0 sBx=2 target=15"
+            },
+            {
+              "pc": 13,
+              "line": 201,
+              "raw": "0x000080a9",
+              "op": "TFORCALL",
+              "operands": "A=2 B=0 C=2 Bx=2"
+            },
+            {
+              "pc": 14,
+              "line": 201,
+              "raw": "0x7ffd412a",
+              "op": "TFORLOOP",
+              "operands": "A=4 B=255 C=501 Bx=131061"
+            },
+            {
+              "pc": 15,
+              "line": 207,
+              "raw": "0x01000066",
+              "op": "RETURN",
+              "operands": "A=1 B=2 C=0 Bx=1024"
+            },
+            {
+              "pc": 16,
+              "line": 208,
+              "raw": "0x00800026",
+              "op": "RETURN",
+              "operands": "A=0 B=1 C=0 Bx=512"
+            }
+          ]
+        },
+        "OwnIsLeader": {
+          "lines": [
+            189,
+            195
+          ],
+          "params": 1,
+          "stack": 4,
+          "constants": [
+            "ownerId",
+            "LuaEntry",
+            "Player",
+            "uid"
+          ],
+          "prototypePath": "root/child[8]",
+          "instructions": [
+            {
+              "pc": 0,
+              "line": 190,
+              "raw": "0x00000043",
+              "op": "LOADBOOL",
+              "operands": "A=1 B=0 C=0 Bx=0"
+            },
+            {
+              "pc": 1,
+              "line": 191,
+              "raw": "0x00400087",
+              "op": "GETTABLE",
+              "operands": "A=2 B=R[0] C=K[0]='ownerId'"
+            },
+            {
+              "pc": 2,
+              "line": 191,
+              "raw": "0x004040c6",
+              "op": "GETTABUP",
+              "operands": "A=3 B=R[0] C=K[1]='LuaEntry'"
+            },
+            {
+              "pc": 3,
+              "line": 191,
+              "raw": "0x01c080c7",
+              "op": "GETTABLE",
+              "operands": "A=3 B=R[3] C=K[2]='Player'"
+            },
+            {
+              "pc": 4,
+              "line": 191,
+              "raw": "0x01c0c0c7",
+              "op": "GETTABLE",
+              "operands": "A=3 B=R[3] C=K[3]='uid'"
+            },
+            {
+              "pc": 5,
+              "line": 191,
+              "raw": "0x0100c01f",
+              "op": "EQ",
+              "operands": "A=0 B=R[2] C=R[3]"
+            },
+            {
+              "pc": 6,
+              "line": 191,
+              "raw": "0x8000001e",
+              "op": "JMP",
+              "operands": "A=0 sBx=1 target=8"
+            },
+            {
+              "pc": 7,
+              "line": 192,
+              "raw": "0x00800043",
+              "op": "LOADBOOL",
+              "operands": "A=1 B=1 C=0 Bx=512"
+            },
+            {
+              "pc": 8,
+              "line": 194,
+              "raw": "0x01000066",
+              "op": "RETURN",
+              "operands": "A=1 B=2 C=0 Bx=1024"
+            },
+            {
+              "pc": 9,
+              "line": 195,
+              "raw": "0x00800026",
+              "op": "RETURN",
+              "operands": "A=0 B=1 C=0 Bx=512"
+            }
+          ]
+        },
+        "OwnIsRewarded": {
+          "lines": [
+            212,
+            221
+          ],
+          "params": 1,
+          "stack": 9,
+          "constants": [
+            "ipairs",
+            "memberList",
+            "uid",
+            "LuaEntry",
+            "Player",
+            "rewarded",
+            1
+          ],
+          "prototypePath": "root/child[10]",
+          "instructions": [
+            {
+              "pc": 0,
+              "line": 213,
+              "raw": "0x00800043",
+              "op": "LOADBOOL",
+              "operands": "A=1 B=1 C=0 Bx=512"
+            },
+            {
+              "pc": 1,
+              "line": 214,
+              "raw": "0x00400086",
+              "op": "GETTABUP",
+              "operands": "A=2 B=R[0] C=K[0]='ipairs'"
+            },
+            {
+              "pc": 2,
+              "line": 214,
+              "raw": "0x004040c7",
+              "op": "GETTABLE",
+              "operands": "A=3 B=R[0] C=K[1]='memberList'"
+            },
+            {
+              "pc": 3,
+              "line": 214,
+              "raw": "0x010100a4",
+              "op": "CALL",
+              "operands": "A=2 B=2 C=4 Bx=1028"
+            },
+            {
+              "pc": 4,
+              "line": 214,
+              "raw": "0x8002c01e",
+              "op": "JMP",
+              "operands": "A=0 sBx=12 target=17"
+            },
+            {
+              "pc": 5,
+              "line": 215,
+              "raw": "0x034081c7",
+              "op": "GETTABLE",
+              "operands": "A=7 B=R[6] C=K[2]='uid'"
+            },
+            {
+              "pc": 6,
+              "line": 215,
+              "raw": "0x0040c206",
+              "op": "GETTABUP",
+              "operands": "A=8 B=R[0] C=K[3]='LuaEntry'"
+            },
+            {
+              "pc": 7,
+              "line": 215,
+              "raw": "0x04410207",
+              "op": "GETTABLE",
+              "operands": "A=8 B=R[8] C=K[4]='Player'"
+            },
+            {
+              "pc": 8,
+              "line": 215,
+              "raw": "0x04408207",
+              "op": "GETTABLE",
+              "operands": "A=8 B=R[8] C=K[2]='uid'"
+            },
+            {
+              "pc": 9,
+              "line": 215,
+              "raw": "0x0382001f",
+              "op": "EQ",
+              "operands": "A=0 B=R[7] C=R[8]"
+            },
+            {
+              "pc": 10,
+              "line": 215,
+              "raw": "0x8001401e",
+              "op": "JMP",
+              "operands": "A=0 sBx=6 target=17"
+            },
+            {
+              "pc": 11,
+              "line": 216,
+              "raw": "0x034141c7",
+              "op": "GETTABLE",
+              "operands": "A=7 B=R[6] C=K[5]='rewarded'"
+            },
+            {
+              "pc": 12,
+              "line": 216,
+              "raw": "0x03c1805f",
+              "op": "EQ",
+              "operands": "A=1 B=R[7] C=K[6]=1"
+            },
+            {
+              "pc": 13,
+              "line": 216,
+              "raw": "0x8000001e",
+              "op": "JMP",
+              "operands": "A=0 sBx=1 target=15"
+            },
+            {
+              "pc": 14,
+              "line": 216,
+              "raw": "0x00004043",
+              "op": "LOADBOOL",
+              "operands": "A=1 B=0 C=1 Bx=1"
+            },
+            {
+              "pc": 15,
+              "line": 216,
+              "raw": "0x00800043",
+              "op": "LOADBOOL",
+              "operands": "A=1 B=1 C=0 Bx=512"
+            },
+            {
+              "pc": 16,
+              "line": 216,
+              "raw": "0x8000401e",
+              "op": "JMP",
+              "operands": "A=0 sBx=2 target=19"
+            },
+            {
+              "pc": 17,
+              "line": 214,
+              "raw": "0x000080a9",
+              "op": "TFORCALL",
+              "operands": "A=2 B=0 C=2 Bx=2"
+            },
+            {
+              "pc": 18,
+              "line": 214,
+              "raw": "0x7ffc412a",
+              "op": "TFORLOOP",
+              "operands": "A=4 B=255 C=497 Bx=131057"
+            },
+            {
+              "pc": 19,
+              "line": 220,
+              "raw": "0x01000066",
+              "op": "RETURN",
+              "operands": "A=1 B=2 C=0 Bx=1024"
+            },
+            {
+              "pc": 20,
+              "line": 221,
+              "raw": "0x00800026",
+              "op": "RETURN",
+              "operands": "A=0 B=1 C=0 Bx=512"
+            }
+          ]
+        },
+        "ParseData": {
+          "lines": [
+            75,
+            125
+          ],
+          "params": 3,
+          "stack": 12,
+          "constants": [
+            null,
+            "uuid",
+            "ownerId",
+            "cfgId",
+            "ownerServer",
+            "targetServer",
+            "completionTime",
+            "pointId",
+            "state",
+            "allianceId",
+            "teamStartTime",
+            "sendChatTime",
+            "remindTime",
+            "taskExpireTime",
+            "actEndTime",
+            "stealList",
+            "ipairs",
+            "New",
+            "ParseData",
+            "table",
+            "insert",
+            "memberList",
+            "noLeaderMemberList",
+            "uid",
+            "leaderMemberInfo",
+            "RefreshBubbleType"
+          ],
+          "prototypePath": "root/child[4]",
+          "instructions": [
+            {
+              "pc": 0,
+              "line": 76,
+              "raw": "0x00c0001f",
+              "op": "EQ",
+              "operands": "A=0 B=R[1] C=K[0]=None"
+            },
+            {
+              "pc": 1,
+              "line": 76,
+              "raw": "0x8000001e",
+              "op": "JMP",
+              "operands": "A=0 sBx=1 target=3"
+            },
+            {
+              "pc": 2,
+              "line": 77,
+              "raw": "0x00800026",
+              "op": "RETURN",
+              "operands": "A=0 B=1 C=0 Bx=512"
+            },
+            {
+              "pc": 3,
+              "line": 79,
+              "raw": "0x00c040c7",
+              "op": "GETTABLE",
+              "operands": "A=3 B=R[1] C=K[1]='uuid'"
+            },
+            {
+              "pc": 4,
+              "line": 79,
+              "raw": "0x8080c00a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[1]='uuid'] <- R[3]"
+            },
+            {
+              "pc": 5,
+              "line": 80,
+              "raw": "0x00c080c7",
+              "op": "GETTABLE",
+              "operands": "A=3 B=R[1] C=K[2]='ownerId'"
+            },
+            {
+              "pc": 6,
+              "line": 80,
+              "raw": "0x8100c00a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[2]='ownerId'] <- R[3]"
+            },
+            {
+              "pc": 7,
+              "line": 81,
+              "raw": "0x00c0c0c7",
+              "op": "GETTABLE",
+              "operands": "A=3 B=R[1] C=K[3]='cfgId'"
+            },
+            {
+              "pc": 8,
+              "line": 81,
+              "raw": "0x8180c00a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[3]='cfgId'] <- R[3]"
+            },
+            {
+              "pc": 9,
+              "line": 82,
+              "raw": "0x00c100c7",
+              "op": "GETTABLE",
+              "operands": "A=3 B=R[1] C=K[4]='ownerServer'"
+            },
+            {
+              "pc": 10,
+              "line": 82,
+              "raw": "0x8200c00a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[4]='ownerServer'] <- R[3]"
+            },
+            {
+              "pc": 11,
+              "line": 83,
+              "raw": "0x00c140c7",
+              "op": "GETTABLE",
+              "operands": "A=3 B=R[1] C=K[5]='targetServer'"
+            },
+            {
+              "pc": 12,
+              "line": 83,
+              "raw": "0x8280c00a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[5]='targetServer'] <- R[3]"
+            },
+            {
+              "pc": 13,
+              "line": 84,
+              "raw": "0x00c180c7",
+              "op": "GETTABLE",
+              "operands": "A=3 B=R[1] C=K[6]='completionTime'"
+            },
+            {
+              "pc": 14,
+              "line": 84,
+              "raw": "0x8300c00a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[6]='completionTime'] <- R[3]"
+            },
+            {
+              "pc": 15,
+              "line": 85,
+              "raw": "0x00c1c0c7",
+              "op": "GETTABLE",
+              "operands": "A=3 B=R[1] C=K[7]='pointId'"
+            },
+            {
+              "pc": 16,
+              "line": 85,
+              "raw": "0x8380c00a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[7]='pointId'] <- R[3]"
+            },
+            {
+              "pc": 17,
+              "line": 86,
+              "raw": "0x00c200c7",
+              "op": "GETTABLE",
+              "operands": "A=3 B=R[1] C=K[8]='state'"
+            },
+            {
+              "pc": 18,
+              "line": 86,
+              "raw": "0x8400c00a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[8]='state'] <- R[3]"
+            },
+            {
+              "pc": 19,
+              "line": 87,
+              "raw": "0x00c240c7",
+              "op": "GETTABLE",
+              "operands": "A=3 B=R[1] C=K[9]='allianceId'"
+            },
+            {
+              "pc": 20,
+              "line": 87,
+              "raw": "0x8480c00a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[9]='allianceId'] <- R[3]"
+            },
+            {
+              "pc": 21,
+              "line": 88,
+              "raw": "0x00c280c7",
+              "op": "GETTABLE",
+              "operands": "A=3 B=R[1] C=K[10]='teamStartTime'"
+            },
+            {
+              "pc": 22,
+              "line": 88,
+              "raw": "0x8500c00a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[10]='teamStartTime'] <- R[3]"
+            },
+            {
+              "pc": 23,
+              "line": 89,
+              "raw": "0x00c2c0c7",
+              "op": "GETTABLE",
+              "operands": "A=3 B=R[1] C=K[11]='sendChatTime'"
+            },
+            {
+              "pc": 24,
+              "line": 89,
+              "raw": "0x000000e2",
+              "op": "TEST",
+              "operands": "A=3 B=0 C=0 Bx=0"
+            },
+            {
+              "pc": 25,
+              "line": 89,
+              "raw": "0x8000401e",
+              "op": "JMP",
+              "operands": "A=0 sBx=2 target=28"
+            },
+            {
+              "pc": 26,
+              "line": 90,
+              "raw": "0x00c2c0c7",
+              "op": "GETTABLE",
+              "operands": "A=3 B=R[1] C=K[11]='sendChatTime'"
+            },
+            {
+              "pc": 27,
+              "line": 90,
+              "raw": "0x8580c00a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[11]='sendChatTime'] <- R[3]"
+            },
+            {
+              "pc": 28,
+              "line": 92,
+              "raw": "0x00c300c7",
+              "op": "GETTABLE",
+              "operands": "A=3 B=R[1] C=K[12]='remindTime'"
+            },
+            {
+              "pc": 29,
+              "line": 92,
+              "raw": "0x000000e2",
+              "op": "TEST",
+              "operands": "A=3 B=0 C=0 Bx=0"
+            },
+            {
+              "pc": 30,
+              "line": 92,
+              "raw": "0x8000401e",
+              "op": "JMP",
+              "operands": "A=0 sBx=2 target=33"
+            },
+            {
+              "pc": 31,
+              "line": 93,
+              "raw": "0x00c300c7",
+              "op": "GETTABLE",
+              "operands": "A=3 B=R[1] C=K[12]='remindTime'"
+            },
+            {
+              "pc": 32,
+              "line": 93,
+              "raw": "0x8600c00a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[12]='remindTime'] <- R[3]"
+            },
+            {
+              "pc": 33,
+              "line": 95,
+              "raw": "0x00c340c7",
+              "op": "GETTABLE",
+              "operands": "A=3 B=R[1] C=K[13]='taskExpireTime'"
+            },
+            {
+              "pc": 34,
+              "line": 95,
+              "raw": "0x8680c00a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[13]='taskExpireTime'] <- R[3]"
+            },
+            {
+              "pc": 35,
+              "line": 96,
+              "raw": "0x00c380c7",
+              "op": "GETTABLE",
+              "operands": "A=3 B=R[1] C=K[14]='actEndTime'"
+            },
+            {
+              "pc": 36,
+              "line": 96,
+              "raw": "0x8700c00a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[14]='actEndTime'] <- R[3]"
+            },
+            {
+              "pc": 37,
+              "line": 97,
+              "raw": "0x00c3c0c7",
+              "op": "GETTABLE",
+              "operands": "A=3 B=R[1] C=K[15]='stealList'"
+            },
+            {
+              "pc": 38,
+              "line": 97,
+              "raw": "0x000000e2",
+              "op": "TEST",
+              "operands": "A=3 B=0 C=0 Bx=0"
+            },
+            {
+              "pc": 39,
+              "line": 97,
+              "raw": "0x8004801e",
+              "op": "JMP",
+              "operands": "A=0 sBx=19 target=59"
+            },
+            {
+              "pc": 40,
+              "line": 98,
+              "raw": "0x000000cb",
+              "op": "NEWTABLE",
+              "operands": "A=3 B=0 C=0 Bx=0"
+            },
+            {
+              "pc": 41,
+              "line": 98,
+              "raw": "0x8780c00a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[15]='stealList'] <- R[3]"
+            },
+            {
+              "pc": 42,
+              "line": 99,
+              "raw": "0x004400c6",
+              "op": "GETTABUP",
+              "operands": "A=3 B=R[0] C=K[16]='ipairs'"
+            },
+            {
+              "pc": 43,
+              "line": 99,
+              "raw": "0x00c3c107",
+              "op": "GETTABLE",
+              "operands": "A=4 B=R[1] C=K[15]='stealList'"
+            },
+            {
+              "pc": 44,
+              "line": 99,
+              "raw": "0x010100e4",
+              "op": "CALL",
+              "operands": "A=3 B=2 C=4 Bx=1028"
+            },
+            {
+              "pc": 45,
+              "line": 99,
+              "raw": "0x8002401e",
+              "op": "JMP",
+              "operands": "A=0 sBx=10 target=56"
+            },
+            {
+              "pc": 46,
+              "line": 100,
+              "raw": "0x00c44206",
+              "op": "GETTABUP",
+              "operands": "A=8 B=R[1] C=K[17]='New'"
+            },
+            {
+              "pc": 47,
+              "line": 100,
+              "raw": "0x00808224",
+              "op": "CALL",
+              "operands": "A=8 B=1 C=2 Bx=514"
+            },
+            {
+              "pc": 48,
+              "line": 101,
+              "raw": "0x0444824c",
+              "op": "SELF",
+              "operands": "A=9 B=R[8] C=K[18]='ParseData'"
+            },
+            {
+              "pc": 49,
+              "line": 101,
+              "raw": "0x038002c0",
+              "op": "MOVE",
+              "operands": "A=11 B=7 C=0 Bx=3584"
+            },
+            {
+              "pc": 50,
+              "line": 101,
+              "raw": "0x01804264",
+              "op": "CALL",
+              "operands": "A=9 B=3 C=1 Bx=1537"
+            },
+            {
+              "pc": 51,
+              "line": 102,
+              "raw": "0x0044c246",
+              "op": "GETTABUP",
+              "operands": "A=9 B=R[0] C=K[19]='table'"
+            },
+            {
+              "pc": 52,
+              "line": 102,
+              "raw": "0x04c50247",
+              "op": "GETTABLE",
+              "operands": "A=9 B=R[9] C=K[20]='insert'"
+            },
+            {
+              "pc": 53,
+              "line": 102,
+              "raw": "0x0043c287",
+              "op": "GETTABLE",
+              "operands": "A=10 B=R[0] C=K[15]='stealList'"
+            },
+            {
+              "pc": 54,
+              "line": 102,
+              "raw": "0x040002c0",
+              "op": "MOVE",
+              "operands": "A=11 B=8 C=0 Bx=4096"
+            },
+            {
+              "pc": 55,
+              "line": 102,
+              "raw": "0x01804264",
+              "op": "CALL",
+              "operands": "A=9 B=3 C=1 Bx=1537"
+            },
+            {
+              "pc": 56,
+              "line": 99,
+              "raw": "0x000080e9",
+              "op": "TFORCALL",
+              "operands": "A=3 B=0 C=2 Bx=2"
+            },
+            {
+              "pc": 57,
+              "line": 99,
+              "raw": "0x7ffcc16a",
+              "op": "TFORLOOP",
+              "operands": "A=5 B=255 C=499 Bx=131059"
+            },
+            {
+              "pc": 58,
+              "line": 103,
+              "raw": "0x8000001e",
+              "op": "JMP",
+              "operands": "A=0 sBx=1 target=60"
+            },
+            {
+              "pc": 59,
+              "line": 105,
+              "raw": "0x87c0000a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[15]='stealList'] <- K[0]=None"
+            },
+            {
+              "pc": 60,
+              "line": 107,
+              "raw": "0x00c540c7",
+              "op": "GETTABLE",
+              "operands": "A=3 B=R[1] C=K[21]='memberList'"
+            },
+            {
+              "pc": 61,
+              "line": 107,
+              "raw": "0x000000e2",
+              "op": "TEST",
+              "operands": "A=3 B=0 C=0 Bx=0"
+            },
+            {
+              "pc": 62,
+              "line": 107,
+              "raw": "0x8007c01e",
+              "op": "JMP",
+              "operands": "A=0 sBx=32 target=95"
+            },
+            {
+              "pc": 63,
+              "line": 108,
+              "raw": "0x000000cb",
+              "op": "NEWTABLE",
+              "operands": "A=3 B=0 C=0 Bx=0"
+            },
+            {
+              "pc": 64,
+              "line": 108,
+              "raw": "0x8a80c00a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[21]='memberList'] <- R[3]"
+            },
+            {
+              "pc": 65,
+              "line": 109,
+              "raw": "0x000000cb",
+              "op": "NEWTABLE",
+              "operands": "A=3 B=0 C=0 Bx=0"
+            },
+            {
+              "pc": 66,
+              "line": 109,
+              "raw": "0x8b00c00a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[22]='noLeaderMemberList'] <- R[3]"
+            },
+            {
+              "pc": 67,
+              "line": 110,
+              "raw": "0x004400c6",
+              "op": "GETTABUP",
+              "operands": "A=3 B=R[0] C=K[16]='ipairs'"
+            },
+            {
+              "pc": 68,
+              "line": 110,
+              "raw": "0x00c54107",
+              "op": "GETTABLE",
+              "operands": "A=4 B=R[1] C=K[21]='memberList'"
+            },
+            {
+              "pc": 69,
+              "line": 110,
+              "raw": "0x010100e4",
+              "op": "CALL",
+              "operands": "A=3 B=2 C=4 Bx=1028"
+            },
+            {
+              "pc": 70,
+              "line": 110,
+              "raw": "0x8005001e",
+              "op": "JMP",
+              "operands": "A=0 sBx=21 target=92"
+            },
+            {
+              "pc": 71,
+              "line": 111,
+              "raw": "0x01444206",
+              "op": "GETTABUP",
+              "operands": "A=8 B=R[2] C=K[17]='New'"
+            },
+            {
+              "pc": 72,
+              "line": 111,
+              "raw": "0x00808224",
+              "op": "CALL",
+              "operands": "A=8 B=1 C=2 Bx=514"
+            },
+            {
+              "pc": 73,
+              "line": 112,
+              "raw": "0x0444824c",
+              "op": "SELF",
+              "operands": "A=9 B=R[8] C=K[18]='ParseData'"
+            },
+            {
+              "pc": 74,
+              "line": 112,
+              "raw": "0x038002c0",
+              "op": "MOVE",
+              "operands": "A=11 B=7 C=0 Bx=3584"
+            },
+            {
+              "pc": 75,
+              "line": 112,
+              "raw": "0x01804264",
+              "op": "CALL",
+              "operands": "A=9 B=3 C=1 Bx=1537"
+            },
+            {
+              "pc": 76,
+              "line": 113,
+              "raw": "0x0044c246",
+              "op": "GETTABUP",
+              "operands": "A=9 B=R[0] C=K[19]='table'"
+            },
+            {
+              "pc": 77,
+              "line": 113,
+              "raw": "0x04c50247",
+              "op": "GETTABLE",
+              "operands": "A=9 B=R[9] C=K[20]='insert'"
+            },
+            {
+              "pc": 78,
+              "line": 113,
+              "raw": "0x00454287",
+              "op": "GETTABLE",
+              "operands": "A=10 B=R[0] C=K[21]='memberList'"
+            },
+            {
+              "pc": 79,
+              "line": 113,
+              "raw": "0x040002c0",
+              "op": "MOVE",
+              "operands": "A=11 B=8 C=0 Bx=4096"
+            },
+            {
+              "pc": 80,
+              "line": 113,
+              "raw": "0x01804264",
+              "op": "CALL",
+              "operands": "A=9 B=3 C=1 Bx=1537"
+            },
+            {
+              "pc": 81,
+              "line": 114,
+              "raw": "0x0445c247",
+              "op": "GETTABLE",
+              "operands": "A=9 B=R[8] C=K[23]='uid'"
+            },
+            {
+              "pc": 82,
+              "line": 114,
+              "raw": "0x00408287",
+              "op": "GETTABLE",
+              "operands": "A=10 B=R[0] C=K[2]='ownerId'"
+            },
+            {
+              "pc": 83,
+              "line": 114,
+              "raw": "0x0482801f",
+              "op": "EQ",
+              "operands": "A=0 B=R[9] C=R[10]"
+            },
+            {
+              "pc": 84,
+              "line": 114,
+              "raw": "0x8000401e",
+              "op": "JMP",
+              "operands": "A=0 sBx=2 target=87"
+            },
+            {
+              "pc": 85,
+              "line": 115,
+              "raw": "0x8c02000a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[24]='leaderMemberInfo'] <- R[8]"
+            },
+            {
+              "pc": 86,
+              "line": 115,
+              "raw": "0x8001001e",
+              "op": "JMP",
+              "operands": "A=0 sBx=5 target=92"
+            },
+            {
+              "pc": 87,
+              "line": 117,
+              "raw": "0x0044c246",
+              "op": "GETTABUP",
+              "operands": "A=9 B=R[0] C=K[19]='table'"
+            },
+            {
+              "pc": 88,
+              "line": 117,
+              "raw": "0x04c50247",
+              "op": "GETTABLE",
+              "operands": "A=9 B=R[9] C=K[20]='insert'"
+            },
+            {
+              "pc": 89,
+              "line": 117,
+              "raw": "0x00458287",
+              "op": "GETTABLE",
+              "operands": "A=10 B=R[0] C=K[22]='noLeaderMemberList'"
+            },
+            {
+              "pc": 90,
+              "line": 117,
+              "raw": "0x040002c0",
+              "op": "MOVE",
+              "operands": "A=11 B=8 C=0 Bx=4096"
+            },
+            {
+              "pc": 91,
+              "line": 117,
+              "raw": "0x01804264",
+              "op": "CALL",
+              "operands": "A=9 B=3 C=1 Bx=1537"
+            },
+            {
+              "pc": 92,
+              "line": 110,
+              "raw": "0x000080e9",
+              "op": "TFORCALL",
+              "operands": "A=3 B=0 C=2 Bx=2"
+            },
+            {
+              "pc": 93,
+              "line": 110,
+              "raw": "0x7ffa016a",
+              "op": "TFORLOOP",
+              "operands": "A=5 B=255 C=488 Bx=131048"
+            },
+            {
+              "pc": 94,
+              "line": 119,
+              "raw": "0x8000401e",
+              "op": "JMP",
+              "operands": "A=0 sBx=2 target=97"
+            },
+            {
+              "pc": 95,
+              "line": 121,
+              "raw": "0x8ac0000a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[21]='memberList'] <- K[0]=None"
+            },
+            {
+              "pc": 96,
+              "line": 122,
+              "raw": "0x8b40000a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[22]='noLeaderMemberList'] <- K[0]=None"
+            },
+            {
+              "pc": 97,
+              "line": 124,
+              "raw": "0x004640cc",
+              "op": "SELF",
+              "operands": "A=3 B=R[0] C=K[25]='RefreshBubbleType'"
+            },
+            {
+              "pc": 98,
+              "line": 124,
+              "raw": "0x01000140",
+              "op": "MOVE",
+              "operands": "A=5 B=2 C=0 Bx=1024"
+            },
+            {
+              "pc": 99,
+              "line": 124,
+              "raw": "0x018040e4",
+              "op": "CALL",
+              "operands": "A=3 B=3 C=1 Bx=1537"
+            },
+            {
+              "pc": 100,
+              "line": 125,
+              "raw": "0x00800026",
+              "op": "RETURN",
+              "operands": "A=0 B=1 C=0 Bx=512"
+            }
+          ]
+        },
+        "RefreshBubbleType": {
+          "lines": [
+            128,
+            164
+          ],
+          "params": 2,
+          "stack": 9,
+          "constants": [
+            "GhostreconTaskType",
+            "Own_Runing",
+            "UITimeManager",
+            "GetInstance",
+            "GetServerTime",
+            "ownerId",
+            "LuaEntry",
+            "Player",
+            "uid",
+            "allianceId",
+            "teamStartTime",
+            null,
+            0,
+            "Own_NotExecuted",
+            "completionTime",
+            "Own_TeamingUp",
+            "OwnIsRewarded",
+            "Own_Claimed",
+            "Own_WaitClaim",
+            "OwnIsJoined",
+            "Alliance_TeamingUp",
+            "Alliance_Runing",
+            "Alliance_Claimed",
+            "Alliance_WaitClaim",
+            "bubbleType",
+            "EventManager",
+            "Broadcast",
+            "EventId",
+            "GhostreconRefreshRedPoint"
+          ],
+          "prototypePath": "root/child[5]",
+          "instructions": [
+            {
+              "pc": 0,
+              "line": 129,
+              "raw": "0x00400086",
+              "op": "GETTABUP",
+              "operands": "A=2 B=R[0] C=K[0]='GhostreconTaskType'"
+            },
+            {
+              "pc": 1,
+              "line": 129,
+              "raw": "0x01404087",
+              "op": "GETTABLE",
+              "operands": "A=2 B=R[2] C=K[1]='Own_Runing'"
+            },
+            {
+              "pc": 2,
+              "line": 130,
+              "raw": "0x004080c6",
+              "op": "GETTABUP",
+              "operands": "A=3 B=R[0] C=K[2]='UITimeManager'"
+            },
+            {
+              "pc": 3,
+              "line": 130,
+              "raw": "0x01c0c0cc",
+              "op": "SELF",
+              "operands": "A=3 B=R[3] C=K[3]='GetInstance'"
+            },
+            {
+              "pc": 4,
+              "line": 130,
+              "raw": "0x010080e4",
+              "op": "CALL",
+              "operands": "A=3 B=2 C=2 Bx=1026"
+            },
+            {
+              "pc": 5,
+              "line": 130,
+              "raw": "0x01c100cc",
+              "op": "SELF",
+              "operands": "A=3 B=R[3] C=K[4]='GetServerTime'"
+            },
+            {
+              "pc": 6,
+              "line": 130,
+              "raw": "0x010080e4",
+              "op": "CALL",
+              "operands": "A=3 B=2 C=2 Bx=1026"
+            },
+            {
+              "pc": 7,
+              "line": 131,
+              "raw": "0x00414107",
+              "op": "GETTABLE",
+              "operands": "A=4 B=R[0] C=K[5]='ownerId'"
+            },
+            {
+              "pc": 8,
+              "line": 131,
+              "raw": "0x00418146",
+              "op": "GETTABUP",
+              "operands": "A=5 B=R[0] C=K[6]='LuaEntry'"
+            },
+            {
+              "pc": 9,
+              "line": 131,
+              "raw": "0x02c1c147",
+              "op": "GETTABLE",
+              "operands": "A=5 B=R[5] C=K[7]='Player'"
+            },
+            {
+              "pc": 10,
+              "line": 131,
+              "raw": "0x02c20147",
+              "op": "GETTABLE",
+              "operands": "A=5 B=R[5] C=K[8]='uid'"
+            },
+            {
+              "pc": 11,
+              "line": 131,
+              "raw": "0x0201405f",
+              "op": "EQ",
+              "operands": "A=1 B=R[4] C=R[5]"
+            },
+            {
+              "pc": 12,
+              "line": 131,
+              "raw": "0x8000001e",
+              "op": "JMP",
+              "operands": "A=0 sBx=1 target=14"
+            },
+            {
+              "pc": 13,
+              "line": 131,
+              "raw": "0x00004103",
+              "op": "LOADBOOL",
+              "operands": "A=4 B=0 C=1 Bx=1"
+            },
+            {
+              "pc": 14,
+              "line": 131,
+              "raw": "0x00800103",
+              "op": "LOADBOOL",
+              "operands": "A=4 B=1 C=0 Bx=512"
+            },
+            {
+              "pc": 15,
+              "line": 132,
+              "raw": "0x00418146",
+              "op": "GETTABUP",
+              "operands": "A=5 B=R[0] C=K[6]='LuaEntry'"
+            },
+            {
+              "pc": 16,
+              "line": 132,
+              "raw": "0x02c1c147",
+              "op": "GETTABLE",
+              "operands": "A=5 B=R[5] C=K[7]='Player'"
+            },
+            {
+              "pc": 17,
+              "line": 132,
+              "raw": "0x02c24147",
+              "op": "GETTABLE",
+              "operands": "A=5 B=R[5] C=K[9]='allianceId'"
+            },
+            {
+              "pc": 18,
+              "line": 132,
+              "raw": "0x00000162",
+              "op": "TEST",
+              "operands": "A=5 B=0 C=0 Bx=0"
+            },
+            {
+              "pc": 19,
+              "line": 132,
+              "raw": "0x8001c01e",
+              "op": "JMP",
+              "operands": "A=0 sBx=8 target=28"
+            },
+            {
+              "pc": 20,
+              "line": 132,
+              "raw": "0x00424147",
+              "op": "GETTABLE",
+              "operands": "A=5 B=R[0] C=K[9]='allianceId'"
+            },
+            {
+              "pc": 21,
+              "line": 132,
+              "raw": "0x00418186",
+              "op": "GETTABUP",
+              "operands": "A=6 B=R[0] C=K[6]='LuaEntry'"
+            },
+            {
+              "pc": 22,
+              "line": 132,
+              "raw": "0x0341c187",
+              "op": "GETTABLE",
+              "operands": "A=6 B=R[6] C=K[7]='Player'"
+            },
+            {
+              "pc": 23,
+              "line": 132,
+              "raw": "0x03424187",
+              "op": "GETTABLE",
+              "operands": "A=6 B=R[6] C=K[9]='allianceId'"
+            },
+            {
+              "pc": 24,
+              "line": 132,
+              "raw": "0x0281805f",
+              "op": "EQ",
+              "operands": "A=1 B=R[5] C=R[6]"
+            },
+            {
+              "pc": 25,
+              "line": 132,
+              "raw": "0x8000001e",
+              "op": "JMP",
+              "operands": "A=0 sBx=1 target=27"
+            },
+            {
+              "pc": 26,
+              "line": 132,
+              "raw": "0x00004143",
+              "op": "LOADBOOL",
+              "operands": "A=5 B=0 C=1 Bx=1"
+            },
+            {
+              "pc": 27,
+              "line": 132,
+              "raw": "0x00800143",
+              "op": "LOADBOOL",
+              "operands": "A=5 B=1 C=0 Bx=512"
+            },
+            {
+              "pc": 28,
+              "line": 133,
+              "raw": "0x00000122",
+              "op": "TEST",
+              "operands": "A=4 B=0 C=0 Bx=0"
+            },
+            {
+              "pc": 29,
+              "line": 133,
+              "raw": "0x8008401e",
+              "op": "JMP",
+              "operands": "A=0 sBx=34 target=64"
+            },
+            {
+              "pc": 30,
+              "line": 134,
+              "raw": "0x00428187",
+              "op": "GETTABLE",
+              "operands": "A=6 B=R[0] C=K[10]='teamStartTime'"
+            },
+            {
+              "pc": 31,
+              "line": 134,
+              "raw": "0x0342c05f",
+              "op": "EQ",
+              "operands": "A=1 B=R[6] C=K[11]=None"
+            },
+            {
+              "pc": 32,
+              "line": 134,
+              "raw": "0x8000801e",
+              "op": "JMP",
+              "operands": "A=0 sBx=3 target=36"
+            },
+            {
+              "pc": 33,
+              "line": 134,
+              "raw": "0x00428187",
+              "op": "GETTABLE",
+              "operands": "A=6 B=R[0] C=K[10]='teamStartTime'"
+            },
+            {
+              "pc": 34,
+              "line": 134,
+              "raw": "0x0343001f",
+              "op": "EQ",
+              "operands": "A=0 B=R[6] C=K[12]=0"
+            },
+            {
+              "pc": 35,
+              "line": 134,
+              "raw": "0x8000801e",
+              "op": "JMP",
+              "operands": "A=0 sBx=3 target=39"
+            },
+            {
+              "pc": 36,
+              "line": 135,
+              "raw": "0x00400186",
+              "op": "GETTABUP",
+              "operands": "A=6 B=R[0] C=K[0]='GhostreconTaskType'"
+            },
+            {
+              "pc": 37,
+              "line": 135,
+              "raw": "0x03434087",
+              "op": "GETTABLE",
+              "operands": "A=2 B=R[6] C=K[13]='Own_NotExecuted'"
+            },
+            {
+              "pc": 38,
+              "line": 135,
+              "raw": "0x800d801e",
+              "op": "JMP",
+              "operands": "A=0 sBx=55 target=94"
+            },
+            {
+              "pc": 39,
+              "line": 136,
+              "raw": "0x00438187",
+              "op": "GETTABLE",
+              "operands": "A=6 B=R[0] C=K[14]='completionTime'"
+            },
+            {
+              "pc": 40,
+              "line": 136,
+              "raw": "0x0342c05f",
+              "op": "EQ",
+              "operands": "A=1 B=R[6] C=K[11]=None"
+            },
+            {
+              "pc": 41,
+              "line": 136,
+              "raw": "0x8000801e",
+              "op": "JMP",
+              "operands": "A=0 sBx=3 target=45"
+            },
+            {
+              "pc": 42,
+              "line": 136,
+              "raw": "0x00438187",
+              "op": "GETTABLE",
+              "operands": "A=6 B=R[0] C=K[14]='completionTime'"
+            },
+            {
+              "pc": 43,
+              "line": 136,
+              "raw": "0x0343001f",
+              "op": "EQ",
+              "operands": "A=0 B=R[6] C=K[12]=0"
+            },
+            {
+              "pc": 44,
+              "line": 136,
+              "raw": "0x8000801e",
+              "op": "JMP",
+              "operands": "A=0 sBx=3 target=48"
+            },
+            {
+              "pc": 45,
+              "line": 137,
+              "raw": "0x00400186",
+              "op": "GETTABUP",
+              "operands": "A=6 B=R[0] C=K[0]='GhostreconTaskType'"
+            },
+            {
+              "pc": 46,
+              "line": 137,
+              "raw": "0x0343c087",
+              "op": "GETTABLE",
+              "operands": "A=2 B=R[6] C=K[15]='Own_TeamingUp'"
+            },
+            {
+              "pc": 47,
+              "line": 137,
+              "raw": "0x800b401e",
+              "op": "JMP",
+              "operands": "A=0 sBx=46 target=94"
+            },
+            {
+              "pc": 48,
+              "line": 138,
+              "raw": "0x00438187",
+              "op": "GETTABLE",
+              "operands": "A=6 B=R[0] C=K[14]='completionTime'"
+            },
+            {
+              "pc": 49,
+              "line": 138,
+              "raw": "0x01818021",
+              "op": "LE",
+              "operands": "A=0 B=R[3] C=R[6]"
+            },
+            {
+              "pc": 50,
+              "line": 138,
+              "raw": "0x8000801e",
+              "op": "JMP",
+              "operands": "A=0 sBx=3 target=54"
+            },
+            {
+              "pc": 51,
+              "line": 139,
+              "raw": "0x00400186",
+              "op": "GETTABUP",
+              "operands": "A=6 B=R[0] C=K[0]='GhostreconTaskType'"
+            },
+            {
+              "pc": 52,
+              "line": 139,
+              "raw": "0x03404087",
+              "op": "GETTABLE",
+              "operands": "A=2 B=R[6] C=K[1]='Own_Runing'"
+            },
+            {
+              "pc": 53,
+              "line": 139,
+              "raw": "0x8009c01e",
+              "op": "JMP",
+              "operands": "A=0 sBx=40 target=94"
+            },
+            {
+              "pc": 54,
+              "line": 141,
+              "raw": "0x0044018c",
+              "op": "SELF",
+              "operands": "A=6 B=R[0] C=K[16]='OwnIsRewarded'"
+            },
+            {
+              "pc": 55,
+              "line": 141,
+              "raw": "0x010081a4",
+              "op": "CALL",
+              "operands": "A=6 B=2 C=2 Bx=1026"
+            },
+            {
+              "pc": 56,
+              "line": 141,
+              "raw": "0x000001a2",
+              "op": "TEST",
+              "operands": "A=6 B=0 C=0 Bx=0"
+            },
+            {
+              "pc": 57,
+              "line": 141,
+              "raw": "0x8000801e",
+              "op": "JMP",
+              "operands": "A=0 sBx=3 target=61"
+            },
+            {
+              "pc": 58,
+              "line": 142,
+              "raw": "0x00400186",
+              "op": "GETTABUP",
+              "operands": "A=6 B=R[0] C=K[0]='GhostreconTaskType'"
+            },
+            {
+              "pc": 59,
+              "line": 142,
+              "raw": "0x03444087",
+              "op": "GETTABLE",
+              "operands": "A=2 B=R[6] C=K[17]='Own_Claimed'"
+            },
+            {
+              "pc": 60,
+              "line": 142,
+              "raw": "0x8008001e",
+              "op": "JMP",
+              "operands": "A=0 sBx=33 target=94"
+            },
+            {
+              "pc": 61,
+              "line": 144,
+              "raw": "0x00400186",
+              "op": "GETTABUP",
+              "operands": "A=6 B=R[0] C=K[0]='GhostreconTaskType'"
+            },
+            {
+              "pc": 62,
+              "line": 144,
+              "raw": "0x03448087",
+              "op": "GETTABLE",
+              "operands": "A=2 B=R[6] C=K[18]='Own_WaitClaim'"
+            },
+            {
+              "pc": 63,
+              "line": 146,
+              "raw": "0x8007401e",
+              "op": "JMP",
+              "operands": "A=0 sBx=30 target=94"
+            },
+            {
+              "pc": 64,
+              "line": 147,
+              "raw": "0x00004162",
+              "op": "TEST",
+              "operands": "A=5 B=0 C=1 Bx=1"
+            },
+            {
+              "pc": 65,
+              "line": 147,
+              "raw": "0x8000c01e",
+              "op": "JMP",
+              "operands": "A=0 sBx=4 target=70"
+            },
+            {
+              "pc": 66,
+              "line": 147,
+              "raw": "0x0044c18c",
+              "op": "SELF",
+              "operands": "A=6 B=R[0] C=K[19]='OwnIsJoined'"
+            },
+            {
+              "pc": 67,
+              "line": 147,
+              "raw": "0x010081a4",
+              "op": "CALL",
+              "operands": "A=6 B=2 C=2 Bx=1026"
+            },
+            {
+              "pc": 68,
+              "line": 147,
+              "raw": "0x000001a2",
+              "op": "TEST",
+              "operands": "A=6 B=0 C=0 Bx=0"
+            },
+            {
+              "pc": 69,
+              "line": 147,
+              "raw": "0x8005c01e",
+              "op": "JMP",
+              "operands": "A=0 sBx=24 target=94"
+            },
+            {
+              "pc": 70,
+              "line": 148,
+              "raw": "0x00438187",
+              "op": "GETTABLE",
+              "operands": "A=6 B=R[0] C=K[14]='completionTime'"
+            },
+            {
+              "pc": 71,
+              "line": 148,
+              "raw": "0x0342c05f",
+              "op": "EQ",
+              "operands": "A=1 B=R[6] C=K[11]=None"
+            },
+            {
+              "pc": 72,
+              "line": 148,
+              "raw": "0x8000801e",
+              "op": "JMP",
+              "operands": "A=0 sBx=3 target=76"
+            },
+            {
+              "pc": 73,
+              "line": 148,
+              "raw": "0x00438187",
+              "op": "GETTABLE",
+              "operands": "A=6 B=R[0] C=K[14]='completionTime'"
+            },
+            {
+              "pc": 74,
+              "line": 148,
+              "raw": "0x0343001f",
+              "op": "EQ",
+              "operands": "A=0 B=R[6] C=K[12]=0"
+            },
+            {
+              "pc": 75,
+              "line": 148,
+              "raw": "0x8000801e",
+              "op": "JMP",
+              "operands": "A=0 sBx=3 target=79"
+            },
+            {
+              "pc": 76,
+              "line": 149,
+              "raw": "0x00400186",
+              "op": "GETTABUP",
+              "operands": "A=6 B=R[0] C=K[0]='GhostreconTaskType'"
+            },
+            {
+              "pc": 77,
+              "line": 149,
+              "raw": "0x03450087",
+              "op": "GETTABLE",
+              "operands": "A=2 B=R[6] C=K[20]='Alliance_TeamingUp'"
+            },
+            {
+              "pc": 78,
+              "line": 149,
+              "raw": "0x8003801e",
+              "op": "JMP",
+              "operands": "A=0 sBx=15 target=94"
+            },
+            {
+              "pc": 79,
+              "line": 150,
+              "raw": "0x00438187",
+              "op": "GETTABLE",
+              "operands": "A=6 B=R[0] C=K[14]='completionTime'"
+            },
+            {
+              "pc": 80,
+              "line": 150,
+              "raw": "0x01818021",
+              "op": "LE",
+              "operands": "A=0 B=R[3] C=R[6]"
+            },
+            {
+              "pc": 81,
+              "line": 150,
+              "raw": "0x8000801e",
+              "op": "JMP",
+              "operands": "A=0 sBx=3 target=85"
+            },
+            {
+              "pc": 82,
+              "line": 151,
+              "raw": "0x00400186",
+              "op": "GETTABUP",
+              "operands": "A=6 B=R[0] C=K[0]='GhostreconTaskType'"
+            },
+            {
+              "pc": 83,
+              "line": 151,
+              "raw": "0x03454087",
+              "op": "GETTABLE",
+              "operands": "A=2 B=R[6] C=K[21]='Alliance_Runing'"
+            },
+            {
+              "pc": 84,
+              "line": 151,
+              "raw": "0x8002001e",
+              "op": "JMP",
+              "operands": "A=0 sBx=9 target=94"
+            },
+            {
+              "pc": 85,
+              "line": 153,
+              "raw": "0x0044018c",
+              "op": "SELF",
+              "operands": "A=6 B=R[0] C=K[16]='OwnIsRewarded'"
+            },
+            {
+              "pc": 86,
+              "line": 153,
+              "raw": "0x010081a4",
+              "op": "CALL",
+              "operands": "A=6 B=2 C=2 Bx=1026"
+            },
+            {
+              "pc": 87,
+              "line": 153,
+              "raw": "0x000001a2",
+              "op": "TEST",
+              "operands": "A=6 B=0 C=0 Bx=0"
+            },
+            {
+              "pc": 88,
+              "line": 153,
+              "raw": "0x8000801e",
+              "op": "JMP",
+              "operands": "A=0 sBx=3 target=92"
+            },
+            {
+              "pc": 89,
+              "line": 154,
+              "raw": "0x00400186",
+              "op": "GETTABUP",
+              "operands": "A=6 B=R[0] C=K[0]='GhostreconTaskType'"
+            },
+            {
+              "pc": 90,
+              "line": 154,
+              "raw": "0x03458087",
+              "op": "GETTABLE",
+              "operands": "A=2 B=R[6] C=K[22]='Alliance_Claimed'"
+            },
+            {
+              "pc": 91,
+              "line": 154,
+              "raw": "0x8000401e",
+              "op": "JMP",
+              "operands": "A=0 sBx=2 target=94"
+            },
+            {
+              "pc": 92,
+              "line": 156,
+              "raw": "0x00400186",
+              "op": "GETTABUP",
+              "operands": "A=6 B=R[0] C=K[0]='GhostreconTaskType'"
+            },
+            {
+              "pc": 93,
+              "line": 156,
+              "raw": "0x0345c087",
+              "op": "GETTABLE",
+              "operands": "A=2 B=R[6] C=K[23]='Alliance_WaitClaim'"
+            },
+            {
+              "pc": 94,
+              "line": 160,
+              "raw": "0x00460187",
+              "op": "GETTABLE",
+              "operands": "A=6 B=R[0] C=K[24]='bubbleType'"
+            },
+            {
+              "pc": 95,
+              "line": 160,
+              "raw": "0x0300805f",
+              "op": "EQ",
+              "operands": "A=1 B=R[6] C=R[2]"
+            },
+            {
+              "pc": 96,
+              "line": 160,
+              "raw": "0x8002001e",
+              "op": "JMP",
+              "operands": "A=0 sBx=9 target=106"
+            },
+            {
+              "pc": 97,
+              "line": 160,
+              "raw": "0x00004062",
+              "op": "TEST",
+              "operands": "A=1 B=0 C=1 Bx=1"
+            },
+            {
+              "pc": 98,
+              "line": 160,
+              "raw": "0x8001801e",
+              "op": "JMP",
+              "operands": "A=0 sBx=7 target=106"
+            },
+            {
+              "pc": 99,
+              "line": 161,
+              "raw": "0x00464186",
+              "op": "GETTABUP",
+              "operands": "A=6 B=R[0] C=K[25]='EventManager'"
+            },
+            {
+              "pc": 100,
+              "line": 161,
+              "raw": "0x0340c18c",
+              "op": "SELF",
+              "operands": "A=6 B=R[6] C=K[3]='GetInstance'"
+            },
+            {
+              "pc": 101,
+              "line": 161,
+              "raw": "0x010081a4",
+              "op": "CALL",
+              "operands": "A=6 B=2 C=2 Bx=1026"
+            },
+            {
+              "pc": 102,
+              "line": 161,
+              "raw": "0x0346818c",
+              "op": "SELF",
+              "operands": "A=6 B=R[6] C=K[26]='Broadcast'"
+            },
+            {
+              "pc": 103,
+              "line": 161,
+              "raw": "0x0046c206",
+              "op": "GETTABUP",
+              "operands": "A=8 B=R[0] C=K[27]='EventId'"
+            },
+            {
+              "pc": 104,
+              "line": 161,
+              "raw": "0x04470207",
+              "op": "GETTABLE",
+              "operands": "A=8 B=R[8] C=K[28]='GhostreconRefreshRedPoint'"
+            },
+            {
+              "pc": 105,
+              "line": 161,
+              "raw": "0x018041a4",
+              "op": "CALL",
+              "operands": "A=6 B=3 C=1 Bx=1537"
+            },
+            {
+              "pc": 106,
+              "line": 163,
+              "raw": "0x8c00800a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[24]='bubbleType'] <- R[2]"
+            },
+            {
+              "pc": 107,
+              "line": 164,
+              "raw": "0x00800026",
+              "op": "RETURN",
+              "operands": "A=0 B=1 C=0 Bx=512"
+            }
+          ]
+        },
+        "RemoveListener": {
+          "lines": [
+            71,
+            72
+          ],
+          "params": 1,
+          "stack": 2,
+          "constants": [],
+          "prototypePath": "root/child[3]",
+          "instructions": [
+            {
+              "pc": 0,
+              "line": 72,
+              "raw": "0x00800026",
+              "op": "RETURN",
+              "operands": "A=0 B=1 C=0 Bx=512"
+            }
+          ]
+        },
+        "__delete": {
+          "lines": [
+            42,
+            64
+          ],
+          "params": 1,
+          "stack": 3,
+          "constants": [
+            "uuid",
+            null,
+            "ownerId",
+            "cfgId",
+            "ownerServer",
+            "targetServer",
+            "completionTime",
+            "pointId",
+            "state",
+            "allianceId",
+            "teamStartTime",
+            "sendChatTime",
+            "remindTime",
+            "taskExpireTime",
+            "actEndTime",
+            "stealList",
+            "memberList",
+            "noLeaderMemberList",
+            "bubbleType",
+            "leaderMemberInfo",
+            "useHeroUUidList",
+            "RemoveListener"
+          ],
+          "prototypePath": "root/child[1]",
+          "instructions": [
+            {
+              "pc": 0,
+              "line": 43,
+              "raw": "0x8040400a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[0]='uuid'] <- K[1]=None"
+            },
+            {
+              "pc": 1,
+              "line": 44,
+              "raw": "0x8140400a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[2]='ownerId'] <- K[1]=None"
+            },
+            {
+              "pc": 2,
+              "line": 45,
+              "raw": "0x81c0400a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[3]='cfgId'] <- K[1]=None"
+            },
+            {
+              "pc": 3,
+              "line": 46,
+              "raw": "0x8240400a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[4]='ownerServer'] <- K[1]=None"
+            },
+            {
+              "pc": 4,
+              "line": 47,
+              "raw": "0x82c0400a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[5]='targetServer'] <- K[1]=None"
+            },
+            {
+              "pc": 5,
+              "line": 48,
+              "raw": "0x8340400a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[6]='completionTime'] <- K[1]=None"
+            },
+            {
+              "pc": 6,
+              "line": 49,
+              "raw": "0x83c0400a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[7]='pointId'] <- K[1]=None"
+            },
+            {
+              "pc": 7,
+              "line": 50,
+              "raw": "0x8440400a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[8]='state'] <- K[1]=None"
+            },
+            {
+              "pc": 8,
+              "line": 51,
+              "raw": "0x84c0400a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[9]='allianceId'] <- K[1]=None"
+            },
+            {
+              "pc": 9,
+              "line": 52,
+              "raw": "0x8540400a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[10]='teamStartTime'] <- K[1]=None"
+            },
+            {
+              "pc": 10,
+              "line": 53,
+              "raw": "0x85c0400a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[11]='sendChatTime'] <- K[1]=None"
+            },
+            {
+              "pc": 11,
+              "line": 54,
+              "raw": "0x8640400a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[12]='remindTime'] <- K[1]=None"
+            },
+            {
+              "pc": 12,
+              "line": 55,
+              "raw": "0x86c0400a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[13]='taskExpireTime'] <- K[1]=None"
+            },
+            {
+              "pc": 13,
+              "line": 56,
+              "raw": "0x8740400a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[14]='actEndTime'] <- K[1]=None"
+            },
+            {
+              "pc": 14,
+              "line": 57,
+              "raw": "0x87c0400a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[15]='stealList'] <- K[1]=None"
+            },
+            {
+              "pc": 15,
+              "line": 58,
+              "raw": "0x8840400a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[16]='memberList'] <- K[1]=None"
+            },
+            {
+              "pc": 16,
+              "line": 59,
+              "raw": "0x88c0400a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[17]='noLeaderMemberList'] <- K[1]=None"
+            },
+            {
+              "pc": 17,
+              "line": 60,
+              "raw": "0x8940400a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[18]='bubbleType'] <- K[1]=None"
+            },
+            {
+              "pc": 18,
+              "line": 61,
+              "raw": "0x89c0400a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[19]='leaderMemberInfo'] <- K[1]=None"
+            },
+            {
+              "pc": 19,
+              "line": 62,
+              "raw": "0x8a40400a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[20]='useHeroUUidList'] <- K[1]=None"
+            },
+            {
+              "pc": 20,
+              "line": 63,
+              "raw": "0x0045404c",
+              "op": "SELF",
+              "operands": "A=1 B=R[0] C=K[21]='RemoveListener'"
+            },
+            {
+              "pc": 21,
+              "line": 63,
+              "raw": "0x01004064",
+              "op": "CALL",
+              "operands": "A=1 B=2 C=1 Bx=1025"
+            },
+            {
+              "pc": 22,
+              "line": 64,
+              "raw": "0x00800026",
+              "op": "RETURN",
+              "operands": "A=0 B=1 C=0 Bx=512"
+            }
+          ]
+        },
+        "__init": {
+          "lines": [
+            14,
+            39
+          ],
+          "params": 1,
+          "stack": 3,
+          "constants": [
+            "AddListener",
+            "uuid",
+            0,
+            "ownerId",
+            "",
+            "cfgId",
+            "ownerServer",
+            "targetServer",
+            "completionTime",
+            "pointId",
+            "state",
+            "allianceId",
+            "teamStartTime",
+            "sendChatTime",
+            "remindTime",
+            "taskExpireTime",
+            "actEndTime",
+            "stealList",
+            null,
+            "memberList",
+            "noLeaderMemberList",
+            "bubbleType",
+            "leaderMemberInfo",
+            "useHeroUUidList"
+          ],
+          "prototypePath": "root/child[0]",
+          "instructions": [
+            {
+              "pc": 0,
+              "line": 15,
+              "raw": "0x0040004c",
+              "op": "SELF",
+              "operands": "A=1 B=R[0] C=K[0]='AddListener'"
+            },
+            {
+              "pc": 1,
+              "line": 15,
+              "raw": "0x01004064",
+              "op": "CALL",
+              "operands": "A=1 B=2 C=1 Bx=1025"
+            },
+            {
+              "pc": 2,
+              "line": 16,
+              "raw": "0x80c0800a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[1]='uuid'] <- K[2]=0"
+            },
+            {
+              "pc": 3,
+              "line": 17,
+              "raw": "0x81c1000a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[3]='ownerId'] <- K[4]=''"
+            },
+            {
+              "pc": 4,
+              "line": 18,
+              "raw": "0x82c0800a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[5]='cfgId'] <- K[2]=0"
+            },
+            {
+              "pc": 5,
+              "line": 19,
+              "raw": "0x8340800a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[6]='ownerServer'] <- K[2]=0"
+            },
+            {
+              "pc": 6,
+              "line": 20,
+              "raw": "0x83c0800a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[7]='targetServer'] <- K[2]=0"
+            },
+            {
+              "pc": 7,
+              "line": 21,
+              "raw": "0x8440800a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[8]='completionTime'] <- K[2]=0"
+            },
+            {
+              "pc": 8,
+              "line": 22,
+              "raw": "0x84c0800a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[9]='pointId'] <- K[2]=0"
+            },
+            {
+              "pc": 9,
+              "line": 23,
+              "raw": "0x8540800a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[10]='state'] <- K[2]=0"
+            },
+            {
+              "pc": 10,
+              "line": 24,
+              "raw": "0x85c1000a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[11]='allianceId'] <- K[4]=''"
+            },
+            {
+              "pc": 11,
+              "line": 25,
+              "raw": "0x8640800a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[12]='teamStartTime'] <- K[2]=0"
+            },
+            {
+              "pc": 12,
+              "line": 26,
+              "raw": "0x86c0800a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[13]='sendChatTime'] <- K[2]=0"
+            },
+            {
+              "pc": 13,
+              "line": 27,
+              "raw": "0x8740800a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[14]='remindTime'] <- K[2]=0"
+            },
+            {
+              "pc": 14,
+              "line": 28,
+              "raw": "0x87c0800a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[15]='taskExpireTime'] <- K[2]=0"
+            },
+            {
+              "pc": 15,
+              "line": 29,
+              "raw": "0x8840800a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[16]='actEndTime'] <- K[2]=0"
+            },
+            {
+              "pc": 16,
+              "line": 31,
+              "raw": "0x88c4800a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[17]='stealList'] <- K[18]=None"
+            },
+            {
+              "pc": 17,
+              "line": 33,
+              "raw": "0x89c4800a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[19]='memberList'] <- K[18]=None"
+            },
+            {
+              "pc": 18,
+              "line": 35,
+              "raw": "0x8a44800a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[20]='noLeaderMemberList'] <- K[18]=None"
+            },
+            {
+              "pc": 19,
+              "line": 36,
+              "raw": "0x8ac4800a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[21]='bubbleType'] <- K[18]=None"
+            },
+            {
+              "pc": 20,
+              "line": 37,
+              "raw": "0x8b44800a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[22]='leaderMemberInfo'] <- K[18]=None"
+            },
+            {
+              "pc": 21,
+              "line": 38,
+              "raw": "0x0000004b",
+              "op": "NEWTABLE",
+              "operands": "A=1 B=0 C=0 Bx=0"
+            },
+            {
+              "pc": 22,
+              "line": 38,
+              "raw": "0x8b80400a",
+              "op": "SETTABLE",
+              "operands": "R[0][K[23]='useHeroUUidList'] <- R[1]"
+            },
+            {
+              "pc": 23,
+              "line": 39,
+              "raw": "0x00800026",
+              "op": "RETURN",
+              "operands": "A=0 B=1 C=0 Bx=512"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

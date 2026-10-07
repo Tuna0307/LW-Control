@@ -1,0 +1,462 @@
+
+### Net/Msgs/RadarCenter/DetectEventClaimTreasureMessage.luac :: OnCreate path root/child[0] lines [10, 22]
+constants= ['OnCreate', 'sfsObj', 'PutLong', 'uuid', 'LuaEntry', 'Player', 'GetSourceServerId', 'PutInt', 'targetServer', 'type']
+000 L11 GETTABUP A=4 B=R[0] C=K[0]='OnCreate'
+001 L11 MOVE A=5 B=0 C=0 Bx=0
+002 L11 CALL A=4 B=2 C=1 Bx=1025
+003 L12 GETTABLE A=4 B=R[0] C=K[1]='sfsObj'
+004 L12 SELF A=4 B=R[4] C=K[2]='PutLong'
+005 L12 LOADK R[6] <- K[3]='uuid'
+006 L12 MOVE A=7 B=1 C=0 Bx=512
+007 L12 CALL A=4 B=4 C=1 Bx=2049
+008 L14 EQ A=0 B=R[2] C=K[4]=None
+009 L14 JMP A=0 sBx=5 target=15
+010 L15 GETTABUP A=4 B=R[1] C=K[5]='LuaEntry'
+011 L15 GETTABLE A=4 B=R[4] C=K[6]='Player'
+012 L15 SELF A=4 B=R[4] C=K[7]='GetSourceServerId'
+013 L15 CALL A=4 B=2 C=2 Bx=1026
+014 L15 MOVE A=2 B=4 C=0 Bx=2048
+015 L17 GETTABLE A=4 B=R[0] C=K[1]='sfsObj'
+016 L17 SELF A=4 B=R[4] C=K[8]='PutInt'
+017 L17 LOADK R[6] <- K[9]='targetServer'
+018 L17 MOVE A=7 B=2 C=0 Bx=1024
+019 L17 CALL A=4 B=4 C=1 Bx=2049
+020 L19 TEST A=3 B=0 C=0 Bx=0
+021 L19 JMP A=0 sBx=5 target=27
+022 L20 GETTABLE A=4 B=R[0] C=K[1]='sfsObj'
+023 L20 SELF A=4 B=R[4] C=K[8]='PutInt'
+024 L20 LOADK R[6] <- K[10]='type'
+025 L20 MOVE A=7 B=3 C=0 Bx=1536
+026 L20 CALL A=4 B=4 C=1 Bx=2049
+027 L22 RETURN A=0 B=1 C=0 Bx=512
+
+### Net/Msgs/RadarCenter/DetectEventClaimTreasureMessage.luac :: HandleMessage path root/child[1] lines [24, 71]
+constants= ['HandleMessage', 'errorCode', 'errorPara2', 'UIUtil', 'ShowTips', 'GetString', 'table', 'unpack', 'ShowTipsId', 'reward', 'hasLuckSiphonbuff', 'UIManager', 'GetInstance', 'OpenWindow', 'UIWindowNames', 'UIGetLuckyBuffPopup', 'anim', 'treasureData', 'type', 'DataCenter', 'RewardManager', 'AddRewardsAndRes', 'ShowCommonReward', 'ActDetectTreasureDataManager', 'OnGetDigTimesMsg', 'SeasonUtil', 'GetSeasonType', 'SeasonMapType', 'NineNation', 'Darkness', 'SFSNetwork', 'SendMessage', 'MsgDefines', 'FetchUserCardBoxList', 'FlowerTrainUtils', 'IsFlowerTrainLvBoxReward', 'FlowerTrainDataManager', 'OnClaimLvBoxReward']
+000 L25 GETTABUP A=2 B=R[0] C=K[0]='HandleMessage'
+001 L25 MOVE A=3 B=0 C=0 Bx=0
+002 L25 MOVE A=4 B=1 C=0 Bx=512
+003 L25 CALL A=2 B=3 C=1 Bx=1537
+004 L27 GETTABLE A=2 B=R[1] C=K[1]='errorCode'
+005 L28 EQ A=1 B=R[2] C=K[2]=None
+006 L28 JMP A=0 sBx=20 target=27
+007 L29 GETTABLE A=3 B=R[1] C=K[3]='errorPara2'
+008 L29 TEST A=3 B=0 C=0 Bx=0
+009 L29 JMP A=0 sBx=12 target=22
+010 L30 GETTABUP A=3 B=R[1] C=K[4]='UIUtil'
+011 L30 GETTABLE A=3 B=R[3] C=K[5]='ShowTips'
+012 L30 GETUPVAL A=4 B=2 C=0 Bx=1024
+013 L30 SELF A=4 B=R[4] C=K[6]='GetString'
+014 L30 MOVE A=6 B=2 C=0 Bx=1024
+015 L30 GETTABUP A=7 B=R[1] C=K[7]='table'
+016 L30 GETTABLE A=7 B=R[7] C=K[8]='unpack'
+017 L30 GETTABLE A=8 B=R[1] C=K[3]='errorPara2'
+018 L30 CALL A=7 B=2 C=0 Bx=1024
+019 L30 CALL A=4 B=0 C=0 Bx=0
+020 L30 CALL A=3 B=0 C=1 Bx=1
+021 L30 JMP A=0 sBx=77 target=99
+022 L32 GETTABUP A=3 B=R[1] C=K[4]='UIUtil'
+023 L32 GETTABLE A=3 B=R[3] C=K[9]='ShowTipsId'
+024 L32 MOVE A=4 B=2 C=0 Bx=1024
+025 L32 CALL A=3 B=2 C=1 Bx=1025
+026 L33 JMP A=0 sBx=72 target=99
+027 L37 GETTABLE A=3 B=R[1] C=K[10]='reward'
+028 L37 EQ A=1 B=R[3] C=K[2]=None
+029 L37 JMP A=0 sBx=34 target=64
+030 L39 GETTABLE A=3 B=R[1] C=K[11]='hasLuckSiphonbuff'
+031 L39 EQ A=1 B=R[3] C=K[2]=None
+032 L39 JMP A=0 sBx=21 target=54
+033 L39 GETTABLE A=3 B=R[1] C=K[11]='hasLuckSiphonbuff'
+034 L39 TEST A=3 B=0 C=0 Bx=0
+035 L39 JMP A=0 sBx=18 target=54
+036 L40 GETTABUP A=3 B=R[1] C=K[12]='UIManager'
+037 L40 SELF A=3 B=R[3] C=K[13]='GetInstance'
+038 L40 CALL A=3 B=2 C=2 Bx=1026
+039 L40 SELF A=3 B=R[3] C=K[14]='OpenWindow'
+040 L40 GETTABUP A=5 B=R[1] C=K[15]='UIWindowNames'
+041 L40 GETTABLE A=5 B=R[5] C=K[16]='UIGetLuckyBuffPopup'
+042 L40 NEWTABLE A=6 B=0 C=1 Bx=1
+043 L40 SETTABLE R[6][K[17]='anim'] <- K[18]=True
+044 L40 NEWTABLE A=7 B=0 C=2 Bx=2
+045 L40 SETTABLE R[7][K[19]='treasureData'] <- R[1]
+046 L40 SETTABLE R[7][K[20]='type'] <- K[21]=2
+047 L40 CALL A=3 B=5 C=1 Bx=2561
+048 L42 GETTABUP A=3 B=R[1] C=K[22]='DataCenter'
+049 L42 GETTABLE A=3 B=R[3] C=K[23]='RewardManager'
+050 L42 SELF A=3 B=R[3] C=K[24]='AddRewardsAndRes'
+051 L42 MOVE A=5 B=1 C=0 Bx=512
+052 L42 CALL A=3 B=3 C=1 Bx=1537
+053 L42 JMP A=0 sBx=10 target=64
+054 L44 GETTABUP A=3 B=R[1] C=K[22]='DataCenter'
+055 L44 GETTABLE A=3 B=R[3] C=K[23]='RewardManager'
+056 L44 SELF A=3 B=R[3] C=K[25]='ShowCommonReward'
+057 L44 MOVE A=5 B=1 C=0 Bx=512
+058 L44 CALL A=3 B=3 C=1 Bx=1537
+059 L45 GETTABUP A=3 B=R[1] C=K[22]='DataCenter'
+060 L45 GETTABLE A=3 B=R[3] C=K[23]='RewardManager'
+061 L45 SELF A=3 B=R[3] C=K[24]='AddRewardsAndRes'
+062 L45 MOVE A=5 B=1 C=0 Bx=512
+063 L45 CALL A=3 B=3 C=1 Bx=1537
+064 L48 GETTABUP A=3 B=R[1] C=K[22]='DataCenter'
+065 L48 GETTABLE A=3 B=R[3] C=K[26]='ActDetectTreasureDataManager'
+066 L48 SELF A=3 B=R[3] C=K[27]='OnGetDigTimesMsg'
+067 L48 MOVE A=5 B=1 C=0 Bx=512
+068 L48 CALL A=3 B=3 C=1 Bx=1537
+069 L50 GETTABUP A=3 B=R[1] C=K[28]='SeasonUtil'
+070 L50 GETTABLE A=3 B=R[3] C=K[29]='GetSeasonType'
+071 L50 CALL A=3 B=1 C=2 Bx=514
+072 L51 GETTABUP A=4 B=R[1] C=K[30]='SeasonMapType'
+073 L51 GETTABLE A=4 B=R[4] C=K[31]='NineNation'
+074 L51 EQ A=1 B=R[3] C=R[4]
+075 L51 JMP A=0 sBx=8 target=84
+076 L51 GETTABUP A=4 B=R[1] C=K[30]='SeasonMapType'
+077 L51 GETTABLE A=4 B=R[4] C=K[32]='Darkness'
+078 L51 EQ A=1 B=R[3] C=R[4]
+079 L51 JMP A=0 sBx=4 target=84
+080 L51 GETTABUP A=4 B=R[1] C=K[30]='SeasonMapType'
+081 L51 GETTABLE A=4 B=R[4] C=K[31]='NineNation'
+082 L51 EQ A=0 B=R[3] C=R[4]
+083 L51 JMP A=0 sBx=5 target=89
+084 L52 GETTABUP A=4 B=R[1] C=K[33]='SFSNetwork'
+085 L52 GETTABLE A=4 B=R[4] C=K[34]='SendMessage'
+086 L52 GETTABUP A=5 B=R[1] C=K[35]='MsgDefines'
+087 L52 GETTABLE A=5 B=R[5] C=K[36]='FetchUserCardBoxList'
+088 L52 CALL A=4 B=2 C=1 Bx=1025
+089 L67 GETTABUP A=4 B=R[1] C=K[37]='FlowerTrainUtils'
+090 L67 GETTABLE A=4 B=R[4] C=K[38]='IsFlowerTrainLvBoxReward'
+091 L67 MOVE A=5 B=1 C=0 Bx=512
+092 L67 CALL A=4 B=2 C=2 Bx=1026
+093 L67 TEST A=4 B=0 C=0 Bx=0
+094 L67 JMP A=0 sBx=4 target=99
+095 L68 GETTABUP A=4 B=R[1] C=K[22]='DataCenter'
+096 L68 GETTABLE A=4 B=R[4] C=K[39]='FlowerTrainDataManager'
+097 L68 SELF A=4 B=R[4] C=K[40]='OnClaimLvBoxReward'
+098 L68 CALL A=4 B=2 C=1 Bx=1025
+099 L71 RETURN A=0 B=1 C=0 Bx=512
+
+### Net/Msgs/RadarCenter/PushDetectTreasureClaimMessage.luac :: OnCreate path root/child[0] lines [9, 12]
+constants= ['OnCreate', 'sfsObj', 'PutLong', 'uuid']
+000 L10 GETTABUP A=2 B=R[0] C=K[0]='OnCreate'
+001 L10 MOVE A=3 B=0 C=0 Bx=0
+002 L10 CALL A=2 B=2 C=1 Bx=1025
+003 L11 GETTABLE A=2 B=R[0] C=K[1]='sfsObj'
+004 L11 SELF A=2 B=R[2] C=K[2]='PutLong'
+005 L11 LOADK R[4] <- K[3]='uuid'
+006 L11 MOVE A=5 B=1 C=0 Bx=512
+007 L11 CALL A=2 B=4 C=1 Bx=2049
+008 L12 RETURN A=0 B=1 C=0 Bx=512
+
+### Net/Msgs/RadarCenter/PushDetectTreasureClaimMessage.luac :: HandleMessage path root/child[1] lines [14, 28]
+constants= ['HandleMessage', 'errorCode', 'UIUtil', 'ShowTipsId', 'bUuid', 'uuid', 'msg', 'EventManager', 'GetInstance', 'Broadcast', 'EventId', 'WorldBuildTopBubbleTreasureGet']
+000 L15 GETTABUP A=2 B=R[0] C=K[0]='HandleMessage'
+001 L15 MOVE A=3 B=0 C=0 Bx=0
+002 L15 MOVE A=4 B=1 C=0 Bx=512
+003 L15 CALL A=2 B=3 C=1 Bx=1537
+004 L17 GETTABLE A=2 B=R[1] C=K[1]='errorCode'
+005 L18 EQ A=1 B=R[2] C=K[2]=None
+006 L18 JMP A=0 sBx=5 target=12
+007 L19 GETTABUP A=3 B=R[1] C=K[3]='UIUtil'
+008 L19 GETTABLE A=3 B=R[3] C=K[4]='ShowTipsId'
+009 L19 MOVE A=4 B=2 C=0 Bx=1024
+010 L19 CALL A=3 B=2 C=1 Bx=1025
+011 L19 JMP A=0 sBx=12 target=24
+012 L21 NEWTABLE A=3 B=0 C=2 Bx=2
+013 L22 GETTABLE A=4 B=R[1] C=K[6]='uuid'
+014 L22 SETTABLE R[3][K[5]='bUuid'] <- R[4]
+015 L23 SETTABLE R[3][K[7]='msg'] <- R[1]
+016 L26 GETTABUP A=4 B=R[1] C=K[8]='EventManager'
+017 L26 SELF A=4 B=R[4] C=K[9]='GetInstance'
+018 L26 CALL A=4 B=2 C=2 Bx=1026
+019 L26 SELF A=4 B=R[4] C=K[10]='Broadcast'
+020 L26 GETTABUP A=6 B=R[1] C=K[11]='EventId'
+021 L26 GETTABLE A=6 B=R[6] C=K[12]='WorldBuildTopBubbleTreasureGet'
+022 L26 MOVE A=7 B=3 C=0 Bx=1536
+023 L26 CALL A=4 B=4 C=1 Bx=2049
+024 L28 RETURN A=0 B=1 C=0 Bx=512
+
+### DataCenter/RadarCenterDataManager/RadarCenterDataManager.luac :: GetDetectEventTreasureClaimInfo path root/child[74] lines [1000, 1017]
+constants= ['detectEventTreasureClaimInfoData', 'New', 'InitData', 'source', 'SeeDetectEventGetTreasureClaimInfoType', 'Chat', 'EventManager', 'GetInstance', 'Broadcast', 'EventId', 'DetectEventGetTreasureClaimInfo', 'World', 'UIUtil', 'OpenDetectEventTreasureClaimInfoView']
+000 L1005 GETTABUP A=2 B=R[0] C=K[1]='New'
+001 L1005 CALL A=2 B=1 C=2 Bx=514
+002 L1005 SETTABLE R[0][K[0]='detectEventTreasureClaimInfoData'] <- R[2]
+003 L1006 GETTABLE A=2 B=R[0] C=K[0]='detectEventTreasureClaimInfoData'
+004 L1006 SELF A=2 B=R[2] C=K[2]='InitData'
+005 L1006 MOVE A=4 B=1 C=0 Bx=512
+006 L1006 CALL A=2 B=3 C=1 Bx=1537
+007 L1007 GETTABLE A=2 B=R[1] C=K[3]='source'
+008 L1007 TEST A=2 B=0 C=0 Bx=0
+009 L1007 JMP A=0 sBx=23 target=33
+010 L1008 GETTABLE A=2 B=R[1] C=K[3]='source'
+011 L1008 GETTABUP A=3 B=R[1] C=K[4]='SeeDetectEventGetTreasureClaimInfoType'
+012 L1008 GETTABLE A=3 B=R[3] C=K[5]='Chat'
+013 L1008 EQ A=0 B=R[2] C=R[3]
+014 L1008 JMP A=0 sBx=9 target=24
+015 L1010 GETTABUP A=2 B=R[1] C=K[6]='EventManager'
+016 L1010 SELF A=2 B=R[2] C=K[7]='GetInstance'
+017 L1010 CALL A=2 B=2 C=2 Bx=1026
+018 L1010 SELF A=2 B=R[2] C=K[8]='Broadcast'
+019 L1010 GETTABUP A=4 B=R[1] C=K[9]='EventId'
+020 L1010 GETTABLE A=4 B=R[4] C=K[10]='DetectEventGetTreasureClaimInfo'
+021 L1010 GETTABLE A=5 B=R[0] C=K[0]='detectEventTreasureClaimInfoData'
+022 L1010 CALL A=2 B=4 C=1 Bx=2049
+023 L1010 JMP A=0 sBx=9 target=33
+024 L1011 GETTABLE A=2 B=R[1] C=K[3]='source'
+025 L1011 GETTABUP A=3 B=R[1] C=K[4]='SeeDetectEventGetTreasureClaimInfoType'
+026 L1011 GETTABLE A=3 B=R[3] C=K[11]='World'
+027 L1011 EQ A=0 B=R[2] C=R[3]
+028 L1011 JMP A=0 sBx=4 target=33
+029 L1014 GETTABUP A=2 B=R[1] C=K[12]='UIUtil'
+030 L1014 GETTABLE A=2 B=R[2] C=K[13]='OpenDetectEventTreasureClaimInfoView'
+031 L1014 GETTABLE A=3 B=R[0] C=K[0]='detectEventTreasureClaimInfoData'
+032 L1014 CALL A=2 B=2 C=1 Bx=1025
+033 L1017 RETURN A=0 B=1 C=0 Bx=512
+
+### DataCenter/ActivityListData/ActGhostrecon/ActGhostreconManager.luac :: GhostreconGetTaskListHandler path root/child[5] lines [87, 111]
+constants= ['openTime', 'dispatchBeginTime', 'dispatchEndTime', 'allianceTeamRedPoint', 'GhostReconSetAutoStartHandler', 'autoStart', 'taskList', 'ipairs', 'New', 'ParseData', 'table', 'insert', 'InitBubblePosInfos', 'EventManager', 'GetInstance', 'Broadcast', 'EventId', 'GhostreconTaskRefreshAll', 'GhostreconRefreshRedPoint']
+000 L88 EQ A=0 B=R[1] C=K[0]=None
+001 L88 JMP A=0 sBx=1 target=3
+002 L89 RETURN A=0 B=1 C=0 Bx=512
+003 L91 GETTABLE A=2 B=R[1] C=K[1]='openTime'
+004 L91 TEST A=2 B=0 C=0 Bx=0
+005 L91 JMP A=0 sBx=51 target=57
+006 L92 GETTABLE A=2 B=R[1] C=K[2]='dispatchBeginTime'
+007 L92 SETTABLE R[0][K[2]='dispatchBeginTime'] <- R[2]
+008 L93 GETTABLE A=2 B=R[1] C=K[3]='dispatchEndTime'
+009 L93 SETTABLE R[0][K[3]='dispatchEndTime'] <- R[2]
+010 L94 GETTABLE A=2 B=R[1] C=K[1]='openTime'
+011 L94 SETTABLE R[0][K[1]='openTime'] <- R[2]
+012 L95 GETTABLE A=2 B=R[1] C=K[4]='allianceTeamRedPoint'
+013 L95 SETTABLE R[0][K[4]='allianceTeamRedPoint'] <- R[2]
+014 L96 SELF A=2 B=R[0] C=K[5]='GhostReconSetAutoStartHandler'
+015 L96 GETTABLE A=4 B=R[1] C=K[6]='autoStart'
+016 L96 CALL A=2 B=3 C=1 Bx=1537
+017 L97 GETTABLE A=2 B=R[1] C=K[7]='taskList'
+018 L97 TEST A=2 B=0 C=0 Bx=0
+019 L97 JMP A=0 sBx=20 target=40
+020 L98 NEWTABLE A=2 B=0 C=0 Bx=0
+021 L98 SETTABLE R[0][K[7]='taskList'] <- R[2]
+022 L99 GETTABUP A=2 B=R[0] C=K[8]='ipairs'
+023 L99 GETTABLE A=3 B=R[1] C=K[7]='taskList'
+024 L99 CALL A=2 B=2 C=4 Bx=1028
+025 L99 JMP A=0 sBx=11 target=37
+026 L100 GETTABUP A=7 B=R[1] C=K[9]='New'
+027 L100 CALL A=7 B=1 C=2 Bx=514
+028 L101 SELF A=8 B=R[7] C=K[10]='ParseData'
+029 L101 MOVE A=10 B=6 C=0 Bx=3072
+030 L101 LOADBOOL A=11 B=1 C=0 Bx=512
+031 L101 CALL A=8 B=4 C=1 Bx=2049
+032 L102 GETTABUP A=8 B=R[0] C=K[11]='table'
+033 L102 GETTABLE A=8 B=R[8] C=K[12]='insert'
+034 L102 GETTABLE A=9 B=R[0] C=K[7]='taskList'
+035 L102 MOVE A=10 B=7 C=0 Bx=3584
+036 L102 CALL A=8 B=3 C=1 Bx=1537
+037 L99 TFORCALL A=2 B=0 C=2 Bx=2
+038 L99 TFORLOOP A=4 B=255 C=498 Bx=131058
+039 L103 JMP A=0 sBx=1 target=41
+040 L105 SETTABLE R[0][K[7]='taskList'] <- K[0]=None
+041 L107 SELF A=2 B=R[0] C=K[13]='InitBubblePosInfos'
+042 L107 CALL A=2 B=2 C=1 Bx=1025
+043 L108 GETTABUP A=2 B=R[0] C=K[14]='EventManager'
+044 L108 SELF A=2 B=R[2] C=K[15]='GetInstance'
+045 L108 CALL A=2 B=2 C=2 Bx=1026
+046 L108 SELF A=2 B=R[2] C=K[16]='Broadcast'
+047 L108 GETTABUP A=4 B=R[0] C=K[17]='EventId'
+048 L108 GETTABLE A=4 B=R[4] C=K[18]='GhostreconTaskRefreshAll'
+049 L108 CALL A=2 B=3 C=1 Bx=1537
+050 L109 GETTABUP A=2 B=R[0] C=K[14]='EventManager'
+051 L109 SELF A=2 B=R[2] C=K[15]='GetInstance'
+052 L109 CALL A=2 B=2 C=2 Bx=1026
+053 L109 SELF A=2 B=R[2] C=K[16]='Broadcast'
+054 L109 GETTABUP A=4 B=R[0] C=K[17]='EventId'
+055 L109 GETTABLE A=4 B=R[4] C=K[19]='GhostreconRefreshRedPoint'
+056 L109 CALL A=2 B=3 C=1 Bx=1537
+057 L111 RETURN A=0 B=1 C=0 Bx=512
+
+### DataCenter/ActivityListData/ActGhostrecon/ActGhostreconManager.luac :: GhostReconStealHandler path root/child[12] lines [251, 262]
+constants= ['stealTimes', 'reward', 'ShowReward']
+000 L252 EQ A=0 B=R[1] C=K[0]=None
+001 L252 JMP A=0 sBx=1 target=3
+002 L253 RETURN A=0 B=1 C=0 Bx=512
+003 L255 GETTABLE A=2 B=R[1] C=K[1]='stealTimes'
+004 L255 TEST A=2 B=0 C=0 Bx=0
+005 L255 JMP A=0 sBx=2 target=8
+006 L256 GETTABLE A=2 B=R[1] C=K[1]='stealTimes'
+007 L256 SETTABLE R[0][K[1]='stealTimes'] <- R[2]
+008 L258 GETTABLE A=2 B=R[1] C=K[2]='reward'
+009 L258 TEST A=2 B=0 C=0 Bx=0
+010 L258 JMP A=0 sBx=3 target=14
+011 L260 SELF A=2 B=R[0] C=K[3]='ShowReward'
+012 L260 MOVE A=4 B=1 C=0 Bx=512
+013 L260 CALL A=2 B=3 C=1 Bx=1537
+014 L262 RETURN A=0 B=1 C=0 Bx=512
+
+### DataCenter/ActivityListData/ActGhostrecon/ActGhostreconManager.luac :: GetTaskInfoByUUid path root/child[20] lines [406, 417]
+constants= ['taskList', 'ipairs', 'uuid']
+000 L407 LOADNIL A=2 B=0 C=0 Bx=0
+001 L408 GETTABLE A=3 B=R[0] C=K[0]='taskList'
+002 L408 TEST A=3 B=0 C=0 Bx=0
+003 L408 JMP A=0 sBx=11 target=15
+004 L409 GETTABUP A=3 B=R[0] C=K[1]='ipairs'
+005 L409 GETTABLE A=4 B=R[0] C=K[0]='taskList'
+006 L409 CALL A=3 B=2 C=4 Bx=1028
+007 L409 JMP A=0 sBx=5 target=13
+008 L410 GETTABLE A=8 B=R[7] C=K[2]='uuid'
+009 L410 EQ A=0 B=R[8] C=R[1]
+010 L410 JMP A=0 sBx=2 target=13
+011 L411 MOVE A=2 B=7 C=0 Bx=3584
+012 L411 JMP A=0 sBx=2 target=15
+013 L409 TFORCALL A=3 B=0 C=2 Bx=2
+014 L409 TFORLOOP A=5 B=255 C=504 Bx=131064
+015 L416 RETURN A=2 B=2 C=0 Bx=1024
+016 L417 RETURN A=0 B=1 C=0 Bx=512
+
+### DataCenter/ActivityListData/ActGhostrecon/ActGhostreconManager.luac :: GetTaskTemplate path root/child[23] lines [522, 531]
+constants= ['templates', 'LocalController', 'instance', 'getLine', 'TableName', 'LwGhostreconTask', 'New', 'InitData']
+000 L523 GETTABLE A=2 B=R[0] C=K[0]='templates'
+001 L523 GETTABLE A=2 B=R[2] C=R[1]
+002 L523 TEST A=2 B=0 C=0 Bx=0
+003 L523 JMP A=0 sBx=3 target=7
+004 L524 GETTABLE A=2 B=R[0] C=K[0]='templates'
+005 L524 GETTABLE A=2 B=R[2] C=R[1]
+006 L524 RETURN A=2 B=2 C=0 Bx=1024
+007 L526 GETTABUP A=2 B=R[0] C=K[1]='LocalController'
+008 L526 SELF A=2 B=R[2] C=K[2]='instance'
+009 L526 CALL A=2 B=2 C=2 Bx=1026
+010 L526 SELF A=2 B=R[2] C=K[3]='getLine'
+011 L526 GETTABUP A=4 B=R[0] C=K[4]='TableName'
+012 L526 GETTABLE A=4 B=R[4] C=K[5]='LwGhostreconTask'
+013 L526 MOVE A=5 B=1 C=0 Bx=512
+014 L526 CALL A=2 B=4 C=2 Bx=2050
+015 L527 GETTABUP A=3 B=R[1] C=K[6]='New'
+016 L527 CALL A=3 B=1 C=2 Bx=514
+017 L528 SELF A=4 B=R[3] C=K[7]='InitData'
+018 L528 MOVE A=6 B=2 C=0 Bx=1024
+019 L528 CALL A=4 B=3 C=1 Bx=1537
+020 L529 GETTABLE A=4 B=R[0] C=K[0]='templates'
+021 L529 SETTABLE R[4][R[1]] <- R[3]
+022 L530 RETURN A=3 B=2 C=0 Bx=1024
+023 L531 RETURN A=0 B=1 C=0 Bx=512
+
+### DataCenter/ActivityListData/ActGhostrecon/ActGhostreconTaskTemplate.luac :: CheckCanSteal path root/child[8] lines [196, 199]
+constants= ['UITimeManager', 'GetInstance', 'GetServerTime', 'protectTime']
+000 L197 GETTABUP A=2 B=R[0] C=K[0]='UITimeManager'
+001 L197 SELF A=2 B=R[2] C=K[1]='GetInstance'
+002 L197 CALL A=2 B=2 C=2 Bx=1026
+003 L197 SELF A=2 B=R[2] C=K[2]='GetServerTime'
+004 L197 CALL A=2 B=2 C=2 Bx=1026
+005 L198 SUB A=3 B=R[2] C=R[1]
+006 L198 DIV A=3 B=R[3] C=K[3]=1000
+007 L198 GETTABLE A=4 B=R[0] C=K[4]='protectTime'
+008 L198 LE A=1 B=R[4] C=R[3]
+009 L198 JMP A=0 sBx=1 target=11
+010 L198 LOADBOOL A=3 B=0 C=1 Bx=1
+011 L198 LOADBOOL A=3 B=1 C=0 Bx=512
+012 L198 RETURN A=3 B=2 C=0 Bx=1024
+013 L199 RETURN A=0 B=1 C=0 Bx=512
+
+### DataCenter/ActivityListData/ActGhostrecon/ActGhostreconTaskInfo.luac :: ParseData path root/child[4] lines [75, 125]
+constants= ['uuid', 'ownerId', 'cfgId', 'ownerServer', 'targetServer', 'completionTime', 'pointId', 'state', 'allianceId', 'teamStartTime', 'sendChatTime', 'remindTime', 'taskExpireTime', 'actEndTime', 'stealList', 'ipairs', 'New', 'ParseData', 'table', 'insert', 'memberList', 'noLeaderMemberList', 'uid', 'leaderMemberInfo', 'RefreshBubbleType']
+000 L76 EQ A=0 B=R[1] C=K[0]=None
+001 L76 JMP A=0 sBx=1 target=3
+002 L77 RETURN A=0 B=1 C=0 Bx=512
+003 L79 GETTABLE A=3 B=R[1] C=K[1]='uuid'
+004 L79 SETTABLE R[0][K[1]='uuid'] <- R[3]
+005 L80 GETTABLE A=3 B=R[1] C=K[2]='ownerId'
+006 L80 SETTABLE R[0][K[2]='ownerId'] <- R[3]
+007 L81 GETTABLE A=3 B=R[1] C=K[3]='cfgId'
+008 L81 SETTABLE R[0][K[3]='cfgId'] <- R[3]
+009 L82 GETTABLE A=3 B=R[1] C=K[4]='ownerServer'
+010 L82 SETTABLE R[0][K[4]='ownerServer'] <- R[3]
+011 L83 GETTABLE A=3 B=R[1] C=K[5]='targetServer'
+012 L83 SETTABLE R[0][K[5]='targetServer'] <- R[3]
+013 L84 GETTABLE A=3 B=R[1] C=K[6]='completionTime'
+014 L84 SETTABLE R[0][K[6]='completionTime'] <- R[3]
+015 L85 GETTABLE A=3 B=R[1] C=K[7]='pointId'
+016 L85 SETTABLE R[0][K[7]='pointId'] <- R[3]
+017 L86 GETTABLE A=3 B=R[1] C=K[8]='state'
+018 L86 SETTABLE R[0][K[8]='state'] <- R[3]
+019 L87 GETTABLE A=3 B=R[1] C=K[9]='allianceId'
+020 L87 SETTABLE R[0][K[9]='allianceId'] <- R[3]
+021 L88 GETTABLE A=3 B=R[1] C=K[10]='teamStartTime'
+022 L88 SETTABLE R[0][K[10]='teamStartTime'] <- R[3]
+023 L89 GETTABLE A=3 B=R[1] C=K[11]='sendChatTime'
+024 L89 TEST A=3 B=0 C=0 Bx=0
+025 L89 JMP A=0 sBx=2 target=28
+026 L90 GETTABLE A=3 B=R[1] C=K[11]='sendChatTime'
+027 L90 SETTABLE R[0][K[11]='sendChatTime'] <- R[3]
+028 L92 GETTABLE A=3 B=R[1] C=K[12]='remindTime'
+029 L92 TEST A=3 B=0 C=0 Bx=0
+030 L92 JMP A=0 sBx=2 target=33
+031 L93 GETTABLE A=3 B=R[1] C=K[12]='remindTime'
+032 L93 SETTABLE R[0][K[12]='remindTime'] <- R[3]
+033 L95 GETTABLE A=3 B=R[1] C=K[13]='taskExpireTime'
+034 L95 SETTABLE R[0][K[13]='taskExpireTime'] <- R[3]
+035 L96 GETTABLE A=3 B=R[1] C=K[14]='actEndTime'
+036 L96 SETTABLE R[0][K[14]='actEndTime'] <- R[3]
+037 L97 GETTABLE A=3 B=R[1] C=K[15]='stealList'
+038 L97 TEST A=3 B=0 C=0 Bx=0
+039 L97 JMP A=0 sBx=19 target=59
+040 L98 NEWTABLE A=3 B=0 C=0 Bx=0
+041 L98 SETTABLE R[0][K[15]='stealList'] <- R[3]
+042 L99 GETTABUP A=3 B=R[0] C=K[16]='ipairs'
+043 L99 GETTABLE A=4 B=R[1] C=K[15]='stealList'
+044 L99 CALL A=3 B=2 C=4 Bx=1028
+045 L99 JMP A=0 sBx=10 target=56
+046 L100 GETTABUP A=8 B=R[1] C=K[17]='New'
+047 L100 CALL A=8 B=1 C=2 Bx=514
+048 L101 SELF A=9 B=R[8] C=K[18]='ParseData'
+049 L101 MOVE A=11 B=7 C=0 Bx=3584
+050 L101 CALL A=9 B=3 C=1 Bx=1537
+051 L102 GETTABUP A=9 B=R[0] C=K[19]='table'
+052 L102 GETTABLE A=9 B=R[9] C=K[20]='insert'
+053 L102 GETTABLE A=10 B=R[0] C=K[15]='stealList'
+054 L102 MOVE A=11 B=8 C=0 Bx=4096
+055 L102 CALL A=9 B=3 C=1 Bx=1537
+056 L99 TFORCALL A=3 B=0 C=2 Bx=2
+057 L99 TFORLOOP A=5 B=255 C=499 Bx=131059
+058 L103 JMP A=0 sBx=1 target=60
+059 L105 SETTABLE R[0][K[15]='stealList'] <- K[0]=None
+060 L107 GETTABLE A=3 B=R[1] C=K[21]='memberList'
+061 L107 TEST A=3 B=0 C=0 Bx=0
+062 L107 JMP A=0 sBx=32 target=95
+063 L108 NEWTABLE A=3 B=0 C=0 Bx=0
+064 L108 SETTABLE R[0][K[21]='memberList'] <- R[3]
+065 L109 NEWTABLE A=3 B=0 C=0 Bx=0
+066 L109 SETTABLE R[0][K[22]='noLeaderMemberList'] <- R[3]
+067 L110 GETTABUP A=3 B=R[0] C=K[16]='ipairs'
+068 L110 GETTABLE A=4 B=R[1] C=K[21]='memberList'
+069 L110 CALL A=3 B=2 C=4 Bx=1028
+070 L110 JMP A=0 sBx=21 target=92
+071 L111 GETTABUP A=8 B=R[2] C=K[17]='New'
+072 L111 CALL A=8 B=1 C=2 Bx=514
+073 L112 SELF A=9 B=R[8] C=K[18]='ParseData'
+074 L112 MOVE A=11 B=7 C=0 Bx=3584
+075 L112 CALL A=9 B=3 C=1 Bx=1537
+076 L113 GETTABUP A=9 B=R[0] C=K[19]='table'
+077 L113 GETTABLE A=9 B=R[9] C=K[20]='insert'
+078 L113 GETTABLE A=10 B=R[0] C=K[21]='memberList'
+079 L113 MOVE A=11 B=8 C=0 Bx=4096
+080 L113 CALL A=9 B=3 C=1 Bx=1537
+081 L114 GETTABLE A=9 B=R[8] C=K[23]='uid'
+082 L114 GETTABLE A=10 B=R[0] C=K[2]='ownerId'
+083 L114 EQ A=0 B=R[9] C=R[10]
+084 L114 JMP A=0 sBx=2 target=87
+085 L115 SETTABLE R[0][K[24]='leaderMemberInfo'] <- R[8]
+086 L115 JMP A=0 sBx=5 target=92
+087 L117 GETTABUP A=9 B=R[0] C=K[19]='table'
+088 L117 GETTABLE A=9 B=R[9] C=K[20]='insert'
+089 L117 GETTABLE A=10 B=R[0] C=K[22]='noLeaderMemberList'
+090 L117 MOVE A=11 B=8 C=0 Bx=4096
+091 L117 CALL A=9 B=3 C=1 Bx=1537
+092 L110 TFORCALL A=3 B=0 C=2 Bx=2
+093 L110 TFORLOOP A=5 B=255 C=488 Bx=131048
+094 L119 JMP A=0 sBx=2 target=97
+095 L121 SETTABLE R[0][K[21]='memberList'] <- K[0]=None
+096 L122 SETTABLE R[0][K[22]='noLeaderMemberList'] <- K[0]=None
+097 L124 SELF A=3 B=R[0] C=K[25]='RefreshBubbleType'
+098 L124 MOVE A=5 B=2 C=0 Bx=1024
+099 L124 CALL A=3 B=3 C=1 Bx=1537
+100 L125 RETURN A=0 B=1 C=0 Bx=512
+
+## FIND Util/UIUtil.luac DetectEventClaimTreasure
+path root/child[42] lines [1117, 2572]
+constants

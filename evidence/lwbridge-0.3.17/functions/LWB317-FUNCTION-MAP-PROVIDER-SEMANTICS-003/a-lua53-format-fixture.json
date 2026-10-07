@@ -1,0 +1,50 @@
+{
+  "lupaVersion": "2.8",
+  "luaVersion": "Lua 5.3",
+  "standardHeaderHex": "1b4c7561530019930d0a1a0a0408040808785600000000000000000000002877",
+  "compactHeaderHex": "1b4c7561530119930d0a1a0a04040808785600000000000000000000002877",
+  "standardSha256": "e7860700f1ffd46bd7c48057fcf4aa015eee39b0842c9855f62172df9e58f08d",
+  "compactSha256": "b89988e15d36b5cd712625c6904f3ea9c25a05beaf768d3038cc9dd0203c9a96",
+  "normalizedEqualsOriginalStandard": true,
+  "parsedRoot": {
+    "source": "<python>",
+    "line": 1,
+    "lastLine": 1,
+    "codeCount": 11,
+    "constantCount": 5
+  },
+  "cases": [
+    {
+      "x": 1,
+      "y": 2,
+      "result": [
+        2,
+        "lo"
+      ]
+    },
+    {
+      "x": 7,
+      "y": 5,
+      "result": [
+        24,
+        "hi"
+      ]
+    },
+    {
+      "x": -3,
+      "y": 1,
+      "result": [
+        -3,
+        "lo"
+      ]
+    },
+    {
+      "x": 10,
+      "y": 1,
+      "result": [
+        22,
+        "hi"
+      ]
+    }
+  ]
+}

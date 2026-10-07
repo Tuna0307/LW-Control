@@ -1,0 +1,32 @@
+{
+  "referenceExe": {
+    "path": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW\\lwbridge-0.3.17.exe",
+    "size": 15866880,
+    "sha256": "4e9c3113dedfd7e1a752404c6936aab304e67d7ffdb0952a5003c2ec948d6783"
+  },
+  "currentPackage": {
+    "path": "C:\\Users\\chimw\\AppData\\LocalLow\\FunFly\\Last War-Survival Game\\lwScripts\\LWScripts.data",
+    "size": 41320262,
+    "sha256": "248f3aeac712b3f14f86bff37a0c365e467897a2248403837c44c1b774f05b22"
+  },
+  "semanticInspector": {
+    "path": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\tools\\lwbridge317\\inspect_map_provider_semantics.py",
+    "size": 11172,
+    "sha256": "3ef432244499ad0da3f497a31d417b92c748a7515d244a1d26330d7a41ac90ff"
+  },
+  "compactParserSource": {
+    "path": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\tools\\inspect_current_dispatch_plunder_sources.py",
+    "size": 19181,
+    "sha256": "f8e3fdb227440c5a4193510af2c6c7296f8c09a0ceeee8a3382e811b2055da98"
+  },
+  "actionProvider": {
+    "path": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\src\\LWBridge.Desktop\\CurrentClientMap317ActionProvider.cs",
+    "size": 17794,
+    "sha256": "8db7fadd4b7f31c423c7d02f406f7c0c856c3e30f10d221230219ce0a26453a9"
+  },
+  "mapActionControlPlane": {
+    "path": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\src\\LWBridge.Map-0.3.17\\MapActionControlPlane.cs",
+    "size": 23242,
+    "sha256": "e30cc96d5bf1f124cf93590a46e6a7a01ea1b49b9e1efd58899a5888d21146e7"
+  }
+}

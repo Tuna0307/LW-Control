@@ -1,0 +1,87 @@
+{
+  "schema": 1,
+  "workItem": "LWB317-FUNCTION-MAP-PROVIDER-SEMANTICS-003",
+  "status": "IN_PROGRESS",
+  "startingHead": "b48b3bdbacd94566019679026126f9a2e4ae8ba0",
+  "ownerHold": "LIVE_AND_SHARED_DESKTOP_ON_HOLD",
+  "methods": {
+    "GetTreasureClaimStatusAsync": {
+      "state": "ACTIVE_RECOVERY",
+      "publicBaseline": "GAME_PROVIDER_UNAVAILABLE"
+    },
+    "ClaimTreasuresAsync": {
+      "state": "READY",
+      "publicBaseline": "GAME_PROVIDER_UNAVAILABLE"
+    },
+    "PrepareGhostPlunderTasksAsync": {
+      "state": "READY",
+      "publicBaseline": "GAME_PROVIDER_UNAVAILABLE"
+    }
+  },
+  "milestones": [
+    {
+      "id": "A",
+      "state": "COMPLETE",
+      "goal": "Validate compact Lua-5.3 semantic toolchain and pin prototype/PC provenance"
+    },
+    {
+      "id": "B",
+      "state": "ACTIVE",
+      "goal": "Recover Treasure status producers/result semantics"
+    },
+    {
+      "id": "C",
+      "state": "READY",
+      "goal": "Recover direct Treasure claim request/ack/push/model semantics"
+    },
+    {
+      "id": "D",
+      "state": "READY",
+      "goal": "Recover scout lane and aggregate claim orchestration"
+    },
+    {
+      "id": "E",
+      "state": "READY",
+      "goal": "Recover Ghost pre-persist preparation semantics"
+    },
+    {
+      "id": "F",
+      "state": "READY",
+      "goal": "Execute actual decoded-body oracles and implement only complete provider contracts"
+    },
+    {
+      "id": "G",
+      "state": "READY",
+      "goal": "Adversarial production-boundary integration and required builds"
+    },
+    {
+      "id": "H",
+      "state": "READY",
+      "goal": "Self-review, docs/matrix/validator, cleanup, push and direct-SHA verification"
+    }
+  ],
+  "immutableBoundaries": [
+    "No live Last War/LWBridge execution or desktop control",
+    "No installed-game mutation or real transport/gameplay",
+    "Preserve accepted read-only Treasure inspection lane",
+    "No blind sends, guessed schemas, fallback or fabricated success",
+    "Keep incomplete public methods GAME_PROVIDER_UNAVAILABLE"
+  ],
+  "checkpointA": {
+    "state": "COMPLETE",
+    "tool": "tools/lwbridge317/inspect_map_provider_semantics.py",
+    "artifacts": [
+      "a-toolchain.md",
+      "a-source-hashes.json",
+      "a-lua53-format-fixture.json",
+      "a-candidate-methods.json",
+      "a-reference-edges.json",
+      "a-target-disassembly.json",
+      "a-semantic-core.json",
+      "a-tool-smoke.json"
+    ],
+    "parserCandidateCount": 373,
+    "parserErrors": 0,
+    "productChanges": false
+  }
+}
