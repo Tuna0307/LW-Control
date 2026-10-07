@@ -6,11 +6,11 @@
 -- IMPLEMENTATION POLICY and are not claimed as original LWBridge protocol.
 
 local M = { VERSION = "lwbridge-live-resource-probe-2" }
-local application_root = os.getenv("LWBRIDGE_REBUILD_DATA_ROOT")
-if application_root == nil or application_root == "" then
-    application_root = (os.getenv("LOCALAPPDATA") or ".") .. [[\LWBridgeRebuild]]
-end
-local root = application_root .. [[\live-resource]]
+local root = (function()
+    local configured = os.getenv("LWBRIDGE_REBUILD_DATA_ROOT")
+    if configured ~= nil and configured ~= "" then return configured end
+    return (os.getenv("LOCALAPPDATA") or ".") .. [[\LWBridgeRebuild]]
+end)() .. [[\live-resource]]
 local heartbeat_path = root .. [[\heartbeat.json]]
 local command_path = root .. [[\command.txt]]
 local result_path = root .. [[\result.json]]
@@ -26,7 +26,11 @@ local resource_detail_diagnostic_path = root .. [[\resource-detail-diagnostic.tx
 local resource_detail_diagnostic_result_path = root .. [[\resource-detail-diagnostic-result.json]]
 local resource_scan_detail_path = root .. [[\resource-scan-detail.txt]]
 local resource_scan_detail_result_path = root .. [[\resource-scan-detail-result.json]]
-local overview_root = application_root .. [[\overview-bridge]]
+local overview_root = (function()
+    local configured = os.getenv("LWBRIDGE_REBUILD_DATA_ROOT")
+    if configured ~= nil and configured ~= "" then return configured end
+    return (os.getenv("LOCALAPPDATA") or ".") .. [[\LWBridgeRebuild]]
+end)() .. [[\overview-bridge]]
 local overview_control_path = overview_root .. [[\control.txt]]
 local overview_lease_path = overview_root .. [[\lease.txt]]
 local phase = "idle"

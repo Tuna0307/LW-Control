@@ -6,11 +6,11 @@
 -- about the original LWBridge named-pipe protocol.
 
 local M = { VERSION = "lwbridge-overview-bridge-1" }
-local application_root = os.getenv("LWBRIDGE_REBUILD_DATA_ROOT")
-if application_root == nil or application_root == "" then
-    application_root = (os.getenv("LOCALAPPDATA") or ".") .. [[\LWBridgeRebuild]]
-end
-local root = application_root .. [[\overview-bridge]]
+local root = (function()
+    local configured = os.getenv("LWBRIDGE_REBUILD_DATA_ROOT")
+    if configured ~= nil and configured ~= "" then return configured end
+    return (os.getenv("LOCALAPPDATA") or ".") .. [[\LWBridgeRebuild]]
+end)() .. [[\overview-bridge]]
 local control_path = root .. [[\control.txt]]
 local lease_path = root .. [[\lease.txt]]
 local ready_path = root .. [[\ready.json]]
@@ -413,9 +413,22 @@ function M.ReadSharedRuntimeMetadata(path)
     if reader ~= nil then
         local ok, result = pcall(function()
             if type(reader) == "function" then return reader(path) end
+            local invoke = safe_get(reader, "Invoke")
+            if type(invoke) == "function" then return invoke(reader, path) end
             return reader:Invoke(path)
         end)
-        if not ok or type(result) ~= "string" then return nil, "unavailable" end
+        if not ok then
+            pipe_runtime.state = "error"
+            pipe_runtime.error = "pipe_adapter_read_failed:" .. tostring(result)
+            write_pipe_transport_diagnostic()
+            return nil, pipe_runtime.error
+        end
+        if type(result) ~= "string" then
+            pipe_runtime.state = "error"
+            pipe_runtime.error = "pipe_adapter_read_non_string:" .. tostring(type(result))
+            write_pipe_transport_diagnostic()
+            return nil, pipe_runtime.error
+        end
         if result == "busy\n" then return nil, "busy" end
         if string.sub(result, 1, 3) ~= "ok\n" then return nil, "unavailable" end
         return string.sub(result, 4), nil
@@ -3593,10 +3606,7 @@ function M.Pump()
         dispatch_share_runtime.abandon()
         abandon_truck_quick_rob()
         destroy_message()
-        local unavailable_error = control_error
-        if unavailable_error == nil and pipe_runtime.error ~= nil then
-            unavailable_error = pipe_runtime.error
-        end
+        local unavailable_error = pipe_runtime.error or control_error
         write_heartbeat(now, false,
             control == nil and (unavailable_error or "control_unavailable") or
             (lease_error or "host_lease_stale"))

@@ -1,0 +1,10 @@
+{
+  "bridgeVersion": "lwbridge-overview-bridge-1",
+  "error": "same-session game-side bridge readiness did not arrive before timeout (unavailable)",
+  "errorType": "OverviewBridgeError",
+  "mode": "overview_start_error",
+  "ok": false,
+  "profileId": "lwb317-live-pilot-001",
+  "recordedAtUtc": "2026-10-07T13:12:57Z",
+  "sessionId": "31f14ba6230b4e6b9ccc1066a8c2a9c5"
+}
