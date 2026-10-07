@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "workItem": "LWB317-FUNCTION-MAP-PROVIDER-SEMANTICS-003",
-  "status": "IN_PROGRESS",
+  "status": "AWAITING_REVIEW",
   "startingHead": "b48b3bdbacd94566019679026126f9a2e4ae8ba0",
   "ownerHold": "LIVE_AND_SHARED_DESKTOP_ON_HOLD",
   "methods": {
@@ -57,12 +57,12 @@
     },
     {
       "id": "G",
-      "state": "ACTIVE",
+      "state": "COMPLETE",
       "goal": "Adversarial production-boundary integration and required builds"
     },
     {
       "id": "H",
-      "state": "READY",
+      "state": "COMPLETE",
       "goal": "Self-review, docs/matrix/validator, cleanup, push and direct-SHA verification"
     }
   ],
@@ -101,5 +101,11 @@
       "Ghost scheduled execution fail-closed guard before Dispatch transport"
     ],
     "liveProof": false
+  },
+  "checkpointH": {
+    "state": "COMPLETE",
+    "review": "docs/reviews/2026-10-07-LWB317-FUNCTION-MAP-PROVIDER-SEMANTICS-003-WORKER.md",
+    "implementationCheckpoint": "57ceb7288fe4c5873f3d4b827078364022b91d84",
+    "finalAcceptance": "PROJECT_LEAD"
   }
 }

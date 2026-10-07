@@ -54,3 +54,16 @@ Repeatable static validator: PASS.
 
 Run adversarial/current regressions, Release/frontend/package gates, compatibility
 checks, ownership/restart seams, and verify that no game/LWBridge process is used.
+
+## G — complete
+
+All adversarial/current regression, ownership, plunder/restart, current-client
+compatibility and Release frontend/package/build gates pass. Process inventory is
+zero before/after the applicable phases.
+
+## H — complete / AWAITING_REVIEW
+
+Authorities and the dated worker review now record the exact three public-method
+blockers and the implemented Ghost subcontracts/safety fence. Project-lead
+acceptance remains pending. Home/Map remains PARTIAL and live/shared-desktop work
+remains ON_HOLD_BY_OWNER.

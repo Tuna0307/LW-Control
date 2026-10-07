@@ -1,6 +1,6 @@
 # LWB317-FUNCTION-MAP-PROVIDER-SEMANTICS-003
 
-Status: **ASSIGNED FOR OWNER RELAY**
+Status: **AWAITING_REVIEW**
 Date: 2026-10-07
 Owner: one solo worker; project lead reviews final delivery.
 Branch: `research/offline-controller`.
@@ -233,3 +233,40 @@ leave a runnable continuation; stopping because a milestone passed or elapsed ti
 alone is not completion. If all remaining branches genuinely block, deliver their
 precise blockers rather than waiting for live permission. Final acceptance stays
 with the project lead; live pilot remains ON_HOLD_BY_OWNER.
+
+## Worker completion ? 2026-10-07
+
+State: **AWAITING_REVIEW**.
+
+The solo A-H offline/static/inert campaign completed without live/shared-desktop
+activity. Starting HEAD was b48b3bdbacd94566019679026126f9a2e4ae8ba0.
+Checkpoint A (012deb4b84ce4d012c640715e3d9c5e138102889) adds the hash-gated
+compact Lua-5.3 semantic inspector and independent format/execution fixture.
+Checkpoint B-G (57ceb7288fe4c5873f3d4b827078364022b91d84) records exact
+Treasure/Ghost bodies, actual decoded-body and complete production-module
+oracles, the current Ghost scheduler-field adaptation and the source-backed
+Ghost execution safety fence.
+
+Per-method result:
+
+- GetTreasureClaimStatusAsync: **BLOCKED / GAME_PROVIDER_UNAVAILABLE**. Current
+  per-target claim-info plus global budget/reset producers are exact, but the
+  bridge-specific no-argument aggregate playerUid/allianceId/states/batch
+  producer/lifecycle is not present in local current sources.
+- ClaimTreasuresAsync: **BLOCKED / GAME_PROVIDER_UNAVAILABLE**. Direct claim
+  request/terminal acknowledgement and Supplies scout admission/march creation
+  are exact, but the original scope/lucky aggregate controller and
+  SCOUT_SUPPLIES terminal reward-completion/counter edge are unresolved.
+- PrepareGhostPlunderTasksAsync: **BLOCKED / GAME_PROVIDER_UNAVAILABLE**.
+  Current task/template timing/capacity and one-to-one row normalization are
+  source-backed, but GhostReconSteal terminal response identity is unproven:
+  the handler consumes no UUID and SFS incoming handling constructs a fresh
+  message instance.
+
+No fallback, blind send, fake success or read-only Treasure-lane promotion was
+added. Existing scheduled Ghost execution now fails before the shared Dispatch
+transport rather than sending the wrong Dispatch command. All required offline
+oracles/regressions/build/package/compatibility gates are green; process
+inventory is zero. See the dated worker review and contract-matrix.json.
+Final acceptance remains with the project lead; Home/Map overall remains
+PARTIAL and live/shared-desktop work remains ON_HOLD_BY_OWNER.
