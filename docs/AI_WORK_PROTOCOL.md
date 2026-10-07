@@ -2,6 +2,12 @@
 
 This project is expected to use multiple AIs. The main project lead controls scope and integrates results.
 
+Owner resumption, 2026-10-07: bounded live testing and desktop control are now
+explicitly permitted for the lead-reissued HOME-MAP-LIVE-PILOT-001 only. Follow
+its preflight/isolation/restoration gates and current AGENTS.md. The older hold
+below remains applicable outside this bounded pilot. No worker delegation or
+protected-original access permission is added.
+
 Current owner direction, 2026-10-07: all live Last War testing and shared-desktop
 capture/control are ON HOLD while the owner uses this computer. Resume only after
 an explicit owner instruction. Continue assigned feature recovery using static

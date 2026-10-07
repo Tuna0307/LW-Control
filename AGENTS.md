@@ -2,7 +2,20 @@
 
 Read this file before doing any work.
 
-Owner direction, 2026-10-07 (current): feature recovery continues offline while
+Owner resumption, 2026-10-07 (current): the owner explicitly answered
+"Resume bounded live testing and desktop control" and permits Windows-MCP.
+The previous hold is lifted only for the lead-reissued
+`LWB317-FUNCTION-HOME-MAP-LIVE-PILOT-001`: isolated real-provider preflight,
+owned Home launch/connect, current-server Manual City/Resource observation,
+Stop/local persistence/export/reopen and owned-session close/restoration.
+The pilot's ownership, isolation, compatibility and backup gates must pass before
+game launch or installation mutation. Inspect existing sessions; never repurpose
+an owner session. No unrelated gameplay, claims, plunder, spending, recurring Auto
+execution, cross-server movement, updater or protected-original service access is
+authorized. Respect Windows-MCP user takeover/control gates. Other worker AIs
+remain solo and use manual owner relay. A later owner pause immediately prevails.
+
+Earlier owner hold, 2026-10-07 (superseded only within the pilot above): feature recovery continues offline while
 the owner uses this computer. All Last War/live-function testing is ON HOLD until
 the owner explicitly resumes it after arranging a second screen and availability.
 An older live work item, tool installation, or previous authorization does not

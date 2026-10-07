@@ -1,5 +1,13 @@
 # Windows-MCP and Remote Desktop Commander
 
+Owner resumption, 2026-10-07: Windows-MCP and bounded live desktop control are
+permitted for the lead-reissued HOME-MAP-LIVE-PILOT-001. The older hold below is
+superseded only for that task. Fresh lead discovery lists 21 tools, ControlStatus
+works, and a display-0 Screenshot saved/decoded at 1920x1080. An earlier Snapshot
+returned USER_CONTROL with approximately 10 seconds remaining; no gate was
+bypassed. A later snapshot succeeded. Input/app-window control is not yet proven
+by these read-only captures. See the pilot's lead-preflight record.
+
 Owner direction, 2026-10-07: feature recovery continues offline. Live Last War
 testing and shared-desktop screenshots/input are on hold until the owner explicitly
 resumes them after arranging a second screen and availability. Installing these

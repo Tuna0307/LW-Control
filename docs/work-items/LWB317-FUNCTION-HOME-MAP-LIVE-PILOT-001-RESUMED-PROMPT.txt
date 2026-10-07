@@ -1,0 +1,59 @@
+You are the solo worker for LWB317-FUNCTION-HOME-MAP-LIVE-PILOT-001.
+
+Repository: C:\Users\chimw\OneDrive\Desktop\Github\LW-Control
+Branch: research/offline-controller
+Start from the latest descendant of dfc7b1dcad3b82842527d460cc07e7caa0d35c58
+containing the 006 lead review and owner live-resumption rules. Record actual HEAD.
+Never reset/discard unrelated work or force-push.
+
+The owner explicitly resumed bounded live testing and desktop control. Read the
+current AGENTS.md, docs/AI_WORK_PROTOCOL.md, docs/WINDOWS_MCP_SETUP.md,
+docs/work-items/LWB317-FUNCTION-HOME-MAP-LIVE-PILOT-001.md,
+docs/reviews/2026-10-07-LWB317-FUNCTION-ORIGINAL-LUA-RECOVERY-006-LEAD.md,
+the pilot lead-preflight-2026-10-07.md, current Home/Map masters and restoration
+contracts. Complete this bounded pilot through three sequential medium checkpoints.
+
+A. Isolated real-provider preflight.
+The normal host currently defaults to owner LocalAppData/LWBridgeRebuild; existing
+campaign proof isolation uses inert providers. Add a narrow explicit isolated
+normal-production root override, preserving no-option defaults and real providers.
+Route global config, registry, per-profile Map/config/Auto state, runtime/evidence/
+backups and WebView storage. Prove actual production routing, profile swap/reopen,
+cleanup and no owner-root writes. Keep Auto execution disabled. Inventory sessions,
+current-client hashes/admission, every potentially instrumented file and exact
+backup/restoration ownership before launch. Build/check/package and affected
+native inverses must pass. Do not launch the clone against owner defaults.
+
+B. One bounded actual connected slice.
+Inspect real Desktop Commander and Windows-MCP schemas. Use them together; respect
+USER_CONTROL and reobserve after actions. Prefer the free left display when usable.
+Re-inventory game sessions. Launch only an assistant-owned session via canonical
+Home. Prove external xLua binding and same-owner readiness first, then current-server
+Manual Resource and City acquisition through real canonical Map controls. Trace
+run/capture/staging/publication and actual rows; compare bounded representatives
+against actual game observations. No fixtures count as live data. Retain empty/
+failed attempts and diagnose/fix only concrete in-scope integration defects.
+
+C. Stop, persistence, restoration and delivery.
+Prove committed Stop, local filter/pagination/export, persisted reopen, and closing
+only the owned session with exact file restoration/lease cleanup. Preserve complete
+session issue history and every failed attempt. Run affected checks and fresh
+build/package gates after source changes. Commit coherent checkpoints, continue
+ready stages automatically, push and verify direct remote SHA. Return AWAITING_REVIEW
+with exact LIVE_PROVEN/UNKNOWN outcomes, source locators, owned PID/profile/run
+identities, screenshots/results and final cleanup/restoration hashes.
+
+Preserve accepted UIUX/R3/005 behaviour. Original reference behaviour remains
+LWBridge 0.3.17; current-client bindings may adapt only with observable equivalence.
+Original Lua decryption remains input-blocked; this task does not authorize CNG
+private-key extraction, protected-original service access or entitlement bypass.
+No claims/plunder/shares/marches/combat/spending/cross-server movement, recurring
+Auto scans, updater/repair/reinstallation or unrelated features. Never repurpose
+an owner game session. If official login/update is required, hand it to the owner;
+do not automate authentication or bypass the requirement.
+
+Work alone: no subagents, other AI-chat or GPT Work/Codex delegation. Only this
+worker controls its owned session; no concurrent live control. A later owner pause
+immediately takes precedence. If a live gate fails, restore before risky retry,
+preserve exact failure evidence and continue independent ready assigned checks.
+Do not invent product success or introduce a fallback. Lead acceptance is separate.

@@ -1,6 +1,11 @@
 # LWB317-FUNCTION-ORIGINAL-LUA-RECOVERY-006
 
-Status: **AWAITING_REVIEW**
+Status: **ACCEPTED BOUNDED OFFLINE DELIVERY — ORIGINAL PLAINTEXT INPUT-BLOCKED**
+
+Reviewed delivery: `dfc7b1dcad3b82842527d460cc07e7caa0d35c58`.
+See `docs/reviews/2026-10-07-LWB317-FUNCTION-ORIGINAL-LUA-RECOVERY-006-LEAD.md`.
+Inventory/extraction/loader and bounded outer contracts are credited. This does
+not accept decrypted controller bodies, native parser equivalence or live parity.
 Date: 2026-10-07
 Branch: `research/offline-controller`.
 005 delivery `8f6730ef5e46fc602c6331d21e25d206b2e95ca4` is lead-accepted for

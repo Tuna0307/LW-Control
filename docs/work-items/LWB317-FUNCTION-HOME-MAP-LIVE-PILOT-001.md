@@ -1,11 +1,26 @@
 # LWB317-FUNCTION-HOME-MAP-LIVE-PILOT-001
 
-Status: **ON_HOLD_BY_OWNER**, 2026-10-07. The owner needs this computer and has
-postponed live testing until an explicit instruction after arranging a second
-screen and availability. Do not execute this pilot or treat older forwarding as
-current authorization. Preserve its prepared scope for a later lead reissue.
-RECOVERY-003 acceptance must be recorded before live execution; unresolved review
-findings are corrected first. No claim of complete live feature parity is made.
+Status: **RESUMED / ASSIGNED FOR MANUAL OWNER RELAY**, 2026-10-07.
+The owner explicitly answered "Resume bounded live testing and desktop control".
+This is the lead reissue of the pilot. RECOVERY-003 and assigned 005 correction
+are already lead-accepted; preserve them. Begin with preflight and isolated root
+support; do not launch against the owner's default data root. Continue ready
+assigned stages automatically without per-stage relay. No claim of complete
+live feature parity is made. A later owner pause immediately prevails.
+
+Fresh lead preflight: production Program has no explicit normal-app data-root
+option; LWBridgeWindow and LocalConfigStore default to LocalAppData/LWBridgeRebuild.
+Existing isolated campaign mode uses inert providers and cannot substitute for
+live proof. Implement a narrow explicit isolated-root override for real normal
+production composition before launch. Audit global config, registry, per-profile
+Map/config/Auto state, runtime/evidence/backup roots and WebView storage routing;
+prove no owner-root writes/cleanup. Keep no-option normal defaults unchanged.
+Test actual path routing, profile replacement/reopen and cleanup through production
+boundaries. Do not turn this root option into a fallback or inert provider mode.
+
+Read the 006 lead review and
+`evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-MAP-LIVE-PILOT-001/lead-preflight-2026-10-07.md`.
+006's protected original decryption remains blocked and is outside this pilot.
 
 Repository: `C:\Users\chimw\OneDrive\Desktop\Github\LW-Control`.
 Branch: `research/offline-controller`. Worker checkpoint: `88591df03cd92f1d28b710a0d107a096266fd360`;

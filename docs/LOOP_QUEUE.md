@@ -4,20 +4,21 @@ Only the project lead should normally change what is authorized here.
 
 ## Current authorization
 
-Owner hold, 2026-10-07: all live/gameplay/shared-desktop control is suspended until
-explicit owner resumption. Historical READY/live entries below do not override
-this direction. Other workers work alone without subagents/GPT Work/Codex.
-The current offline owner-relayed work item takes precedence over old queue entries.
+Owner resumption, 2026-10-07: bounded live testing/desktop control is permitted for
+the lead-reissued HOME-MAP-LIVE-PILOT-001 only. Its isolated real-provider routing,
+compatibility, session ownership and restoration gates precede launch. All unrelated
+live/gameplay/protected-original actions remain unassigned. Other workers work
+alone without subagents/GPT Work/Codex. A later owner pause immediately prevails.
 
 | Campaign / work item | State | File | Notes |
 |---|---|---|---|
-| LWB317-FUNCTION-ORIGINAL-LUA-RECOVERY-006 | ASSIGNED FOR OWNER RELAY | `docs/work-items/LWB317-FUNCTION-ORIGINAL-LUA-RECOVERY-006.md` | Exact original package location/extraction/decryption and controller recovery where supplied inputs permit; preserve 005 lead proof limits |
+| LWB317-FUNCTION-ORIGINAL-LUA-RECOVERY-006 | ACCEPTED BOUNDED / PLAINTEXT BLOCKED | `docs/work-items/LWB317-FUNCTION-ORIGINAL-LUA-RECOVERY-006.md` | Encrypted resources/loader recovered; matching original envelope/key inputs unavailable; no decrypted controller bodies |
 | LWB317-FUNCTION-MAP-EXPIRY-CORRELATION-005 | ACCEPTED BOUNDED OFFLINE | `docs/work-items/LWB317-FUNCTION-MAP-EXPIRY-CORRELATION-005.md` | Numeric/missing expiry correction accepted; managed correlation partial; string-reader and real Ghost response dependencies remain |
 | LWB317-FUNCTION-MAP-BLOCKER-BOUNDARIES-004 | ACCEPTED OFFLINE AUDIT | `docs/work-items/LWB317-FUNCTION-MAP-BLOCKER-BOUNDARIES-004.md` | Fresh A/B/C and 11 Lua cases pass; prior overbroad blocker rationales narrowed; real correlation remains UNKNOWN |
 | LWB317-FUNCTION-MAP-PROVIDER-SEMANTICS-003 | CHANGES_REQUIRED | `docs/work-items/LWB317-FUNCTION-MAP-PROVIDER-SEMANTICS-003.md` | LR-GHOST-EXPIRY-005 reproduced through actual packaged helper; correction assigned separately; semantic toolchain/safety proof credited |
 | LWB317-FUNCTION-HOME-MAP-DEEP-RECOVERY-002 | AWAITING_REVIEW | `docs/work-items/LWB317-FUNCTION-HOME-MAP-DEEP-RECOVERY-002.md` | Worker delivery a7c4a03c; lead independently checked provenance/bytecode availability only; comprehensive A-H acceptance remains open |
 | LWB317-FUNCTION-HOME-MAP-OFFLINE-HOST-CONTRACT-001 | ACCEPTED OFFLINE | `docs/work-items/LWB317-FUNCTION-HOME-MAP-OFFLINE-HOST-CONTRACT-001.md` | Lead review of f970b614 with precise reader units/BOM erratum; real xLua/live witnesses remain UNKNOWN |
-| LWB317-FUNCTION-HOME-MAP-LIVE-PILOT-001 | ON_HOLD_BY_OWNER | `docs/work-items/LWB317-FUNCTION-HOME-MAP-LIVE-PILOT-001.md` | Requires explicit later owner resumption and lead reissue |
+| LWB317-FUNCTION-HOME-MAP-LIVE-PILOT-001 | RESUMED / ASSIGNED FOR OWNER RELAY | `docs/work-items/LWB317-FUNCTION-HOME-MAP-LIVE-PILOT-001.md` | Owner explicitly resumed; first implement/prove isolated normal real-provider root, then bounded owned Home/City/Resource/Stop/restoration |
 | LWB317-UI-COMPLETE-001 | READY | `docs/work-items/LWB317-UI-COMPLETE-001.md` | Owner manually dispatches a fresh worker chat; full shell/eight-page UI coverage with Home/Map first; milestone checkpoints, no fixed time stop; no new game/native lifecycle work |
 | LWB317-UI-CAMPAIGN-8H | ACCEPTED | `docs/LOOP_CAMPAIGN_8H.md` | Static UI recovery accepted; direct original post-auth pixel validation remains blocked by the original auth boundary |
 | LWB317-COMPAT-MAP-V22-001 | COMPLETE | `docs/reviews/2026-09-30-LWB317-COMPAT-MAP-V22-001.md` | Installed v22 Map compatibility statically revalidated; no production Map change required |
