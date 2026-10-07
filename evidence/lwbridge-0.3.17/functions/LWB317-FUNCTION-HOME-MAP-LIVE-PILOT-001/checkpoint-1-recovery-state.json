@@ -1,0 +1,37 @@
+{
+  "capturedAtUtc": "2026-10-07T15:35:57Z",
+  "head": "4e2d2cb3bb3ce5d41ddc15cb7c83aa47e7cd6095",
+  "selectedGameOrHostProcesses": [],
+  "recoveryJournalExists": false,
+  "backupPath": "C:\\Users\\chimw\\AppData\\Local\\Temp\\LWB317-LIVE-PILOT-001-root\\overview-bridge-backups\\20261007-142602-46861c0ac9f04f69a1e83301cb0c781c",
+  "backupManifestStage": "restored",
+  "backupManifestUpdatedAtUtc": "2026-10-07T15:30:17Z",
+  "files": {
+    "LWScripts.data": {
+      "backupSha256": "248f3aeac712b3f14f86bff37a0c365e467897a2248403837c44c1b774f05b22",
+      "installedSha256": "248f3aeac712b3f14f86bff37a0c365e467897a2248403837c44c1b774f05b22",
+      "matches": true,
+      "size": 41320262
+    },
+    "LWScripts.txt": {
+      "backupSha256": "d2f9bcc165f41427d4b3b7b9243e4a483bf316519a16b4ce9be658ba9afa783a",
+      "installedSha256": "d2f9bcc165f41427d4b3b7b9243e4a483bf316519a16b4ce9be658ba9afa783a",
+      "matches": true,
+      "size": 19
+    },
+    "version.txt": {
+      "backupSha256": "785f3ec7eb32f30b90cd0fcf3657d388b5ff4297f2f9716ff66e9b69c05ddd09",
+      "installedSha256": "785f3ec7eb32f30b90cd0fcf3657d388b5ff4297f2f9716ff66e9b69c05ddd09",
+      "matches": true,
+      "size": 2
+    }
+  },
+  "currentClient": {
+    "contentVersion": 22,
+    "packageSha256": "248f3aeac712b3f14f86bff37a0c365e467897a2248403837c44c1b774f05b22",
+    "gameSha256": "905c98c1f89841f90b492556192ba0642f3d209a873cb8c1f7b3c340aca0733d",
+    "xluaSha256": "d22d912f031c60f2649fdaf76d359d695511f7a37b93cd637b557f8346569d45",
+    "assemblyCSharpSha256": "bfb740b4570c58bd2bcc7fb83f9b83d8121ce10fb1bf49040e9fb8b08e958b3e",
+    "compatibilityOk": true
+  }
+}

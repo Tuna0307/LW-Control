@@ -17,7 +17,13 @@ class LeaseConsumerChecks(unittest.TestCase):
         self.lua.execute(r'''
             files, busy, reads, writes = {}, {}, {}, {}
             NOW = 1800000000
-            os.getenv = function(key) if key == "LOCALAPPDATA" then return TEST_ROOT end return nil end
+            os.getenv = function(key)
+                if key == "LOCALAPPDATA" then return TEST_ROOT end
+                if key == "LWBRIDGE_PIPE_ADAPTER_PATH" then
+                    return [[C:\isolated\LWBridge.GamePipeAdapter.dll]]
+                end
+                return nil
+            end
             os.time = function() return NOW end
             os.clock = function() return NOW end
             os.remove = function(path) files[path] = nil; return true end
@@ -38,8 +44,16 @@ class LeaseConsumerChecks(unittest.TestCase):
             CS = {System={Reflection={Assembly={LoadFrom=function()
                 return {GetType=function()
                     return {GetField=function(_, name)
-                        return {GetValue=function() if name == "ReadRuntimeSnapshot" then return snapshot end
-                            return function() error("Connect must never run in this check") end end}
+                        return {
+                            GetValue=function()
+                                if name == "ReadRuntimeSnapshot" then return snapshot end
+                                return function() error("Connect must never run in this check") end
+                            end,
+                            FieldType={GetMethod=function(_, method)
+                                if method == "Invoke" then return {} end
+                                return nil
+                            end}
+                        }
                     end}
                 end}
             end}}}}
@@ -103,7 +117,8 @@ class LeaseConsumerChecks(unittest.TestCase):
             assert(runtime.request ~= nil, "existing five-second boundary is inclusive")
             NOW = NOW + 1
             assert(overview.Pump() == true)
-            assert(string.find(files[HEARTBEAT], "host_lease_stale", 1, true))
+            assert(string.find(files[HEARTBEAT], [["error":"busy"]], 1, true),
+                "expired busy lease must be rejected without extending the verified horizon")
             assert(probe.Pump() == false and runtime.request == nil, "expired lease must terminalize active probe lane")
         ''')
 
@@ -115,6 +130,7 @@ class LeaseConsumerChecks(unittest.TestCase):
             assert(overview.Pump() == true, "foreign visible control cannot use prior-owner deferral")
             assert(probe.Pump() == false)
             busy[LEASE] = nil; seed("A"); files[LEASE] = files[LEASE] .. "malformed\n"
+            NOW = NOW + 1
             assert(overview.Pump() == true)
             assert(string.find(files[HEARTBEAT], "host_lease_stale", 1, true))
             assert(probe.Pump() == false)
@@ -124,7 +140,8 @@ class LeaseConsumerChecks(unittest.TestCase):
         self.lua.execute(r'''
             busy[LEASE] = "unknown"; NOW = NOW + 1
             assert(overview.Pump() == true)
-            assert(string.find(files[HEARTBEAT], "host_lease_stale", 1, true))
+            assert(string.find(files[HEARTBEAT], [["error":"unavailable"]], 1, true),
+                "unknown reader failure must be classified unavailable, never busy")
             assert(probe.Pump() == false)
             busy[LEASE] = nil; files[LEASE] = nil
             assert(overview.Pump() == true and probe.Pump() == false)

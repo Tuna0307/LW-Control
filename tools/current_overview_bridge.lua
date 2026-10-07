@@ -83,6 +83,7 @@ local pipe_runtime = {
     adapterConnectInvoke = nil,
     adapterRead = nil,
     adapterReadInvoke = nil,
+    adapterReadMode = nil,
     adapterPath = nil,
     adapterActive = false,
     sessionId = nil,
@@ -170,6 +171,7 @@ local function pipe_transport_capabilities()
         clientConnected = pipe_runtime.clientConnected == true,
         adapterLoaded = pipe_runtime.adapterLoaded == true,
         adapterActive = pipe_runtime.adapterActive == true,
+        adapterReadMode = pipe_runtime.adapterReadMode,
     }
 end
 
@@ -240,6 +242,7 @@ local function close_pipe_runtime()
     last_pipe_heartbeat_clock = -1000
     pipe_runtime.pipeName = nil
     pipe_runtime.clientConnected = false
+    pipe_runtime.adapterReadMode = nil
     pipe_runtime.state = "idle"
     pipe_runtime.error = nil
     pipe_runtime.retryAt = 0
@@ -432,21 +435,37 @@ function M.ReadSharedRuntimeMetadata(path)
     end
     local reader = pipe_runtime.adapterRead
     if reader ~= nil then
-        local ok, result = pcall(function()
-            if type(reader) == "function" then return reader(path) end
-            local invoke = pipe_runtime.adapterReadInvoke
-            if invoke == nil then error("pipe_adapter_read_invoke_method_unavailable") end
-            local cs = rawget(_G, "CS")
-            local typeof_fn = rawget(_G, "typeof")
-            local array_type = cs and cs.System and cs.System.Array or nil
-            local object_type = cs and cs.System and cs.System.Object or nil
-            if array_type == nil or object_type == nil or type(typeof_fn) ~= "function" then
-                error("pipe_adapter_read_reflection_types_unavailable")
-            end
-            local arguments = array_type.CreateInstance(typeof_fn(object_type), 1)
-            arguments:SetValue(path, 0)
-            return invoke:Invoke(reader, arguments)
+        -- Live current-game evidence showed MethodInfo.Invoke on the reflected
+        -- Func<string,string> can return nil even though the packaged delegate
+        -- itself is valid. Prefer xLua's callable delegate boundary and retain
+        -- the reflection path as a compatibility fallback.
+        local direct_ok, direct_result = pcall(function()
+            return reader(path)
         end)
+        local ok, result = direct_ok, direct_result
+        if direct_ok and type(direct_result) == "string" then
+            pipe_runtime.adapterReadMode = "direct"
+        else
+            ok, result = pcall(function()
+                local invoke = pipe_runtime.adapterReadInvoke
+                if invoke == nil then error("pipe_adapter_read_invoke_method_unavailable") end
+                local cs = rawget(_G, "CS")
+                local typeof_fn = rawget(_G, "typeof")
+                local array_type = cs and cs.System and cs.System.Array or nil
+                local object_type = cs and cs.System and cs.System.Object or nil
+                if array_type == nil or object_type == nil or type(typeof_fn) ~= "function" then
+                    error("pipe_adapter_read_reflection_types_unavailable")
+                end
+                local arguments = array_type.CreateInstance(typeof_fn(object_type), 1)
+                arguments:SetValue(path, 0)
+                return invoke:Invoke(reader, arguments)
+            end)
+            if ok and type(result) == "string" then
+                pipe_runtime.adapterReadMode = "reflection"
+            else
+                pipe_runtime.adapterReadMode = "unresolved"
+            end
+        end
         if not ok then
             pipe_runtime.state = "error"
             pipe_runtime.error = "pipe_adapter_read_failed:" .. tostring(result)
