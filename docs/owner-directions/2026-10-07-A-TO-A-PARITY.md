@@ -6,6 +6,27 @@ Owner request: if the original behaves like A, the clone must behave like A.
 Rewriting code must not turn that behaviour into B. This clarifies the existing
 one-for-one product goal; it does not create a new feature campaign.
 
+## Fixed reference and evolving game compatibility
+
+LWBridge 0.3.17 remains the fixed behavioural reference. The compatibility target
+is the verified current Last War client and must be revalidated as that client
+changes. Later LWBridge releases do not automatically become the reference or
+expand the clone's scope. Version numbers mentioned as examples by the owner are
+not evidence of installed or published versions.
+
+Internal request formats, bindings and data mappings may need to change to reach
+the same observable behaviour on the current game. These adaptations must preserve
+the recovered 0.3.17 workflow, defaults, ordering, timing and result meanings for
+equivalent supported states. Compatibility is not permission to redesign them.
+Record the actual game build and evidence for each supported mapping; do not
+claim compatibility with untested future releases.
+
+If a game update removes a required capability or prevents equivalent behaviour,
+report the exact incompatibility for owner review. Keep that feature incomplete
+until resolved or explicitly rescoped; do not introduce a substitute action and
+label it parity. Existing login/account/licensing exclusions and the live hold
+remain in force.
+
 ## Acceptance rule
 
 Compare equivalent supported inputs, game/profile/server state and preceding

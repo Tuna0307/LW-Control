@@ -74,6 +74,16 @@ The old 0.3.1 research remains historical evidence only unless revalidated again
 
 The goal is one-for-one reproduction of the **in-scope post-auth LWBridge 0.3.17 product experience** as observed/recovered, while keeping the final implementation compatible with the current Last War client.
 
+Owner clarification, 2026-10-07: **the behaviour reference is fixed; game
+compatibility evolves.** Later LWBridge releases do not automatically change the
+target or add features. Recover behaviour from 0.3.17 and adapt internal game
+protocols, bindings and data mappings to the verified current Last War build while
+preserving that behaviour for equivalent supported states. Revalidate compatibility
+when the game changes; do not assume a future build is supported. If a game update
+removes a required capability or makes the recovered behaviour impossible, record
+the exact incompatibility for owner review. Do not silently substitute a different
+workflow, action or success meaning and count it as one-for-one parity.
+
 The clone must not include the original login/account/licensing UI or commercial account system. Auth-related dependency research is allowed when required for an in-scope working feature, under section 6.
 
 Use one canonical production implementation. Do not introduce an automatic or user-selectable legacy UI fallback. Preserve historical source/evidence for research; it is not a product recovery path. The existing `--legacy-ui` option is pending retirement in a separately assigned host task, not already removed.
