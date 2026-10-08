@@ -1,0 +1,70 @@
+{
+  "workItem": "LWB317-FUNCTION-HOME-MAP-COMPLETION-010 / d-map-decode",
+  "reference": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW\\lwbridge-0.3.17.exe",
+  "sha256": "4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783",
+  "method": "static x64 disassembly (capstone) of .text RVAs; no execution. Re-verifiable via d_map_verify.py (62 byte-level checks).",
+  "notation": "addresses are RVAs (image base 0x140000000). Rust enum niche: result word 0x8000000000000000 = Ok, anything else = Err; 'neg rax; jno' = not-Ok branch.",
+  "item1_map_scan_start_validation_order": {
+    "state": "EXACT_CONTRACT (static)",
+    "publicHandler": {"range": "0x143D67-0x144C41", "fact": "reads request.resume (bool true) + resumeAvailable and selectedTypes array length for logging only; performs NO scanMode/types validation; fresh path calls service 0xFA09E at 0x14476C", "confidence": "high"},
+    "order": [
+      {"n": 1, "check": "game connection available (0x2d47a6 at 0xFA105; je 0xFA146)", "code": "GAME_CONNECTION_UNAVAILABLE", "message": "game connection unavailable", "confidence": "high"},
+      {"n": 2, "check": "scan already reading (0x426d07 at 0xFA112)", "code": "SCAN_RUNNING", "message": "map scan already running", "confidence": "high"},
+      {"n": 3, "check": "status refresh (service 0xF8CB2 at 0xFA1D2; provider errors propagate unchanged). Then if live JSON isInWorld is not boolean true: provider enterWorldMap (timeout 5000 ms, 0xFA35D), then poll status every 500 ms (0xFA4AF: 0x1dcd6500 ns) until isInWorld==true or now >= start+10000 ms (0xFA440 deadline)", "code": "WORLD_MAP_FAILED", "message": "failed to enter world map", "confidence": "high (code, timeout 10 s) / medium (poll cadence)"},
+      {"n": 4, "check": "state.serverId (numeric, truncated) > 0 AND state.serverIdSource == \"live\" (0xFA8C8, 0xFA909 both -> 0xFAAA4)", "code": "SERVER_UNAVAILABLE", "message": "current server id unavailable", "confidence": "high"},
+      {"n": 5, "check": "selectedTypes: honoured only if request.selectedTypes is a JSON array; otherwise default [city,resource,monster,truck,railway,dispatch,ghost,treasure] (table 0x82DE50). Each element kept only if JSON string AND exact case-sensitive match of the 8-name table (0xD56ED8, closure 0x396F04), de-duplicated first-seen order. Empty result -> error (0xFA9FB/0xFAA03 -> 0xFAB05)", "code": "INVALID_SCAN_TYPES", "message": "no valid map scan types selected", "confidence": "high (dedup via hash-set insert medium-high)"},
+      {"n": 6, "check": "scanMode: missing or NOT a JSON string => treated as \"normal\" (no error); string must equal exactly \"normal\" (->8) or \"fast\" (->20), no trim/case folding (0xFAA38, 0xFAA61, 0xFC49C)", "code": "INVALID_SCAN_MODE", "message": "map scan mode must be normal or fast", "confidence": "high"},
+      {"n": 7, "check": "state.tileWidth > 0 and state.tileHeight > 0 (0xFABAC, 0xFABBC -> 0xFC2FE)", "code": "MAP_SIZE_UNAVAILABLE", "message": "world map dimensions are unavailable", "confidence": "high"},
+      {"n": 8, "check": "provider startMapScan then accepted / block-count checks", "code": "MAP_SCAN_START_FAILED / MAP_SCAN_REJECTED", "message": "see RE-MAP-002", "confidence": "high (unchanged from review)"}
+    ],
+    "cloneOrderAlreadyEqual": true,
+    "cloneNotes": "MapScanStateMachine.cs:159-177 order game->running->enterWorld->server->types->mode->size equals original. Parsing coercion in Map317CommandService.cs:482-499,805-808 equals original (non-array types -> all; non-string elements dropped; non-string mode -> normal). Residual differences: original polls up to 10 s for isInWorld after enterWorldMap (clone: single provider call, MapScanStateMachine.cs:486-503); original treats isInWorld as bool true only."
+  },
+  "item2_server_changed_guard": {
+    "state": "EXACT_CONTRACT (static trace); effect on DB rows EXACT_BYTES (SQL literals)",
+    "location": "status service 0xF8CB2-0xFA09E; message literal 0x82EEC1 referenced only at 0xF9783",
+    "trigger": "ALL of: game connected and getWorldMapState/getCurrentServerId succeeded; live isInWorld is NOT boolean false (true/missing/non-bool; 0xF9559 je 0xF96E3); live serverId L > 0 (0xF96E3); stored shared state isReading == JSON boolean true (0xF9751-0xF9756); stored shared state serverId P > 0 and P != L (0xF975C setg/setne)",
+    "effect": "calls failure-state constructor 0x426D67 with message 'current server changed during map scan' (len 0x26), stopProvider flag=1, preserveStaging flag=0: marks scan_runs row status='failed',error=msg (WHERE status='running'), DELETE FROM scan_records WHERE run_id (staging cleared; tx 0x3E79F8); sets state isReading=false, phase='idle', inflightBlocks=0, lastError=msg, resumeAvailable=false; if game connected calls provider stopMapScan; emits bridge://map-scan-status (0x428A92). Returns Ok - NOT an error to the caller; the status call then continues and writes serverId=L, serverIdSource='live', worldId, tiles (0xF97AA-0xF9BFF) and returns that state (so the response carries serverId=L AND lastError=msg, isReading=false).",
+    "noGuardCases": "live serverId <= 0 and scan reading: state returned unchanged (0xF971D-0xF99B0 -> 0xF9DBC, serverId NOT overwritten). isInWorld==false: reading state keeps its serverId when stored serverId > 0 (0xF9567 jg 0xF9DBC).",
+    "confidence": "high for trigger+effect on state; medium for isInWorld==false branch details (0x3CEAA9 persist call not decoded)",
+    "clone": "Map317CommandService.cs:560-595 always overwrites ServerId/ServerIdSource with live and sets IsInWorld even while reading; legacy ManualMapScanCommandService.cs:1313 has the guard but does not gate on isInWorld!=false."
+  },
+  "item3_query_coercion": {
+    "state": "EXACT_CONTRACT (static)",
+    "keyFact": "The original has NO INVALID_MAP_QUERY / INVALID_MAP_* validation of search/options query arguments. Codes present in EXE near the service: INVALID_MAP_KIND (0xD56FA5, message prefix 'unknown map kind', emitted only by 0x3C3BED callers: clear/progress/store paths), INVALID_MAP_DATA (0xD5AA99), INVALID_MAP_RECORD (0xD60ED5), INVALID_SERVER_ID (0x82A9E8, store/other). map_search never raises any of them for query values.",
+    "coercionHelpers": {
+      "0x3EB60E": "Option<i64> loose: query must be JSON object and key present; Number: u64/i64 as is (u64>i64::MAX via f64 saturate), float -> truncate toward zero (saturating, NaN->0); String: Rust str::parse::<i64> (optional leading +/-, ASCII digits only, no spaces, overflow -> None); bool/null/array/object -> None",
+      "0x39F992": "same coercion returning i64 with None -> 0 (used for export/options/handler serverId)",
+      "0x3EB56C": "Option<f64> loose: Number or String parse f64; non-finite -> None",
+      "0x42C30B": "strict i64: only Number (float truncated); anything else -> 0 (used on shared-state JSON and by the search wrapper 0x42B787)"
+    },
+    "page": "absent/None -> 1; value < 2 -> 1; else value (no upper clamp). Numeric strings accepted ('3' -> 3), '2.5' -> None -> 1, 2.9 -> 2 (0x3E1144)",
+    "pageSize": "absent/None -> 50; value < 2 -> 1; value >= 200 -> 200; (0x3E1174-0x3E1194). String '30' -> 30; 0 -> 1; -5 -> 1; 'abc' -> 50",
+    "serverId": "wrapper 0x42B787 first reads strict serverId (non-number -> 0); if <= 0 it REPLACES query.serverId with the shared-state serverId value, then search service re-reads loosely (0x3E1194): None -> 0. If final serverId <= 0 (also if shared state has none) => EMPTY page {total:0,page,pageSize,rows:[]} with normalized page/pageSize (0x3E1211 -> 0x3E126C), NOT an error. serverId > 99999 is accepted and simply matches nothing.",
+    "kind": "handler 0x1761C1: payload.kind non-string/missing -> '' ; unknown kind: 0x3C3BED error is swallowed at 0x3E120C -> same empty page (no INVALID_MAP_KIND error from search). confidence medium-high",
+    "query": "handler: payload.query missing -> default {page:1,pageSize:50}; wrong-typed filter values are coerced via helpers above (never rejected)",
+    "filters": "treasureType / suppliesType: loose i64, applied only when > 0 (0x3E36EF, 0x3E37D1); minLevel/maxLevel/minPower/maxPower: loose f64, swapped when min > max (0x3E27F6); None -> filter ignored",
+    "options": "map_data_options handler 0x16C2E0 -> 0x427069: requested serverId (loose) <= 0 -> shared-state strict serverId; effect when still 0 is UNKNOWN (inside 0x3C722A)",
+    "clone": "MapDataQueryContract.cs:375-420 and :162-170 throw INVALID_MAP_QUERY / INVALID_SERVER_ID; :76-78 rejects non-object query; :72-74 rejects unknown kind; MapStore.cs:833-837 rejects serverId<1. All differ from original (coerce/empty-page)."
+  },
+  "item4_city_export": {
+    "state": "EXACT_CONTRACT (static)",
+    "range": "0x129FA7-0x12BC48",
+    "orderOfChecks": [
+      {"n": 1, "check": "payload.headers: only JSON-string elements collected (0x39D084); count must be exactly 12 (0x12A52E cmp 0xC; jne 0x12A58F). Non-array headers -> empty -> invalid", "code": "MAP_EXPORT_FAILED", "message": "city export headers are invalid", "confidence": "high"},
+      {"n": 2, "check": "no error: sheetName default 'Cities' (0x12A54F-0x12A600, via sanitiser 0x385A4), yesLabel/noLabel default 'Yes'/'No'", "confidence": "high"},
+      {"n": 3, "check": "query = payload.query, missing -> {} (0x46CF73, 0x12A812); NOT required to be an object/present", "confidence": "high"},
+      {"n": 4, "check": "final export server: serverId = loose i64 of query.serverId (0x39F992); if <= 0, shared-state 'serverId' value is cloned into query.serverId (0x12A8D5-0x12A97A, state snapshot 0x42B988); re-read loosely; if still <= 0 -> error (0x12A9C5 jle 0x12AD42)", "code": "MAP_EXPORT_FAILED", "message": "city export server is unavailable", "confidence": "high"},
+      {"n": 5, "check": "timestamp + Excel save dialog ('Excel workbook' 0x82AB80); canceled -> {canceled:true,path,rowCount:0}; then row export, row-limit error 'city export exceeds ...' (0x2A2607, wrapper 0x2A2257)", "confidence": "medium (post-dialog steps not re-decoded)"}
+    ],
+    "clone": "LWBridgeBackend.cs:908-927 requires query object (INVALID_MAP_QUERY) and query.serverId>0 BEFORE headers (:937,:988-1005); no shared-state fallback; headers check after server check (order inverted); blank-string headers rejected (original: any string counts, blank handling in writer UNKNOWN)."
+  },
+  "item5_plunder_fanout": {"state": "UNKNOWN", "reason": "skipped (not cheaply decodable in time-box); no new evidence produced"},
+  "unknowns": [
+    "effect of serverId==0 inside options/summary aggregators (0x3C722A, 0x112B45)",
+    "isInWorld==false branch of status service: exact persistence at 0x3CEAA9 and when serverId/source are overwritten",
+    "whether blank/whitespace header strings are rejected by the export workbook writer",
+    "post-dialog export steps (row-limit text 'city export exce...' full literal, rowCount semantics)",
+    "item 5 (daily-limit fan-out / history prune / clear semantics) not examined"
+  ]
+}

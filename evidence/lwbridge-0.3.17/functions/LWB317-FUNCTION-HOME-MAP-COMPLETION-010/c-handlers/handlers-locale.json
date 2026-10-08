@@ -1,0 +1,508 @@
+{
+  "assetHashes": {
+    "index-BVfnK1wp.js": "44c4e4043825b7db296b64171951b27176f8850ff8d7d337cc991df4765524c6",
+    "en-BisSXcTB.js": "0bf43d180eb93692a93b830b5d984e9d01ddeea524340f2334fc63cba527a731",
+    "ja-UrbzJu-m.js": "35969183ab623b6701bc850fdf28bcf268c93127ff6c9693f77e588ee7bdbe38"
+  },
+  "languageOrder": [
+    "en",
+    "zh-CN",
+    "zh-TW",
+    "ja",
+    "ko",
+    "vi",
+    "id",
+    "ru",
+    "pt"
+  ],
+  "lookup": "Lr(t,error,fallback='common.actionFailed'): codes = error.code + every [A-Z][A-Z0-9_]{2,} token in the error message (deduplicated, reversed); for each code try error.<C>, auth.error.<C>, update.error.<C>; first translated hit wins; otherwise t(fallback)",
+  "fallbackText": {
+    "en": "The action could not be completed.",
+    "ja": "操作を完了できませんでした。"
+  },
+  "cloneFallbackText": {
+    "en": "The action could not be completed.",
+    "ja": "操作を完了できませんでした。"
+  },
+  "connectionStateMap": [
+    [
+      "offline",
+      "offline"
+    ],
+    [
+      "starting",
+      "starting"
+    ],
+    [
+      "recovering",
+      "recovering"
+    ],
+    [
+      "awaitingLogin",
+      "awaitingLogin"
+    ],
+    [
+      "connected",
+      "connected"
+    ],
+    [
+      "reconnecting",
+      "reconnecting"
+    ],
+    [
+      "grace",
+      "grace"
+    ],
+    [
+      "locked",
+      "locked"
+    ],
+    [
+      "error",
+      "error"
+    ]
+  ],
+  "codes": {
+    "INSTANCE_NOT_OWNED": {
+      "originalUiTables": [],
+      "cloneHasKey": {
+        "en": false,
+        "ja": false
+      },
+      "resultingTextWhenUnlocalized": "fallback common.actionFailed"
+    },
+    "RECOVERY_RECORD_INVALID": {
+      "originalUiTables": [],
+      "cloneHasKey": {
+        "en": false,
+        "ja": false
+      },
+      "resultingTextWhenUnlocalized": "fallback common.actionFailed"
+    },
+    "RECOVERY_PROCESS_MISMATCH": {
+      "originalUiTables": [],
+      "cloneHasKey": {
+        "en": false,
+        "ja": false
+      },
+      "resultingTextWhenUnlocalized": "fallback common.actionFailed"
+    },
+    "RECOVERY_RECORD_NOT_FOUND": {
+      "originalUiTables": [],
+      "cloneHasKey": {
+        "en": false,
+        "ja": false
+      },
+      "resultingTextWhenUnlocalized": "fallback common.actionFailed"
+    },
+    "STATE_UNAVAILABLE": {
+      "originalUiTables": [],
+      "cloneHasKey": {
+        "en": false,
+        "ja": false
+      },
+      "resultingTextWhenUnlocalized": "fallback common.actionFailed"
+    },
+    "GAME_REPAIR_REQUIRED": {
+      "originalUiTables": [],
+      "cloneHasKey": {
+        "en": false,
+        "ja": false
+      },
+      "resultingTextWhenUnlocalized": "fallback common.actionFailed"
+    },
+    "GAME_OPERATION_IN_PROGRESS": {
+      "originalUiTables": [],
+      "cloneHasKey": {
+        "en": false,
+        "ja": false
+      },
+      "resultingTextWhenUnlocalized": "fallback common.actionFailed"
+    },
+    "GAME_OPERATION_CANCELLED": {
+      "originalUiTables": [],
+      "cloneHasKey": {
+        "en": false,
+        "ja": false
+      },
+      "resultingTextWhenUnlocalized": "fallback common.actionFailed"
+    },
+    "BRIDGE_DISCONNECTED": {
+      "originalUiTables": [],
+      "cloneHasKey": {
+        "en": false,
+        "ja": false
+      },
+      "resultingTextWhenUnlocalized": "fallback common.actionFailed"
+    },
+    "LAUNCH_FAILED": {
+      "originalUiTables": [
+        "error"
+      ],
+      "original": {
+        "en": "The game could not be started.",
+        "ja": "ゲームを起動できませんでした。"
+      },
+      "cloneHasKey": {
+        "en": true,
+        "ja": true
+      },
+      "clone": {
+        "en": "The game could not be started.",
+        "ja": "ゲームを起動できませんでした。"
+      },
+      "resultingTextWhenUnlocalized": null
+    },
+    "GAME_CLOSE_FAILED": {
+      "originalUiTables": [],
+      "cloneHasKey": {
+        "en": false,
+        "ja": false
+      },
+      "resultingTextWhenUnlocalized": "fallback common.actionFailed"
+    },
+    "GAME_CLOSE_TIMEOUT": {
+      "originalUiTables": [
+        "error"
+      ],
+      "original": {
+        "en": "Closing the game timed out.",
+        "ja": "ゲームの終了がタイムアウトしました。"
+      },
+      "cloneHasKey": {
+        "en": true,
+        "ja": true
+      },
+      "clone": {
+        "en": "Closing the game timed out.",
+        "ja": "ゲームの終了がタイムアウトしました。"
+      },
+      "resultingTextWhenUnlocalized": null
+    },
+    "UNMANAGED_GAME_RUNNING": {
+      "originalUiTables": [
+        "error"
+      ],
+      "original": {
+        "en": "Close the game started outside this application first.",
+        "ja": "このアプリ以外から起動したゲームを先に終了してください。"
+      },
+      "cloneHasKey": {
+        "en": true,
+        "ja": true
+      },
+      "clone": {
+        "en": "Close the game started outside this application first.",
+        "ja": "このアプリ以外から起動したゲームを先に終了してください。"
+      },
+      "resultingTextWhenUnlocalized": null
+    },
+    "GAME_ROOT_NOT_FOUND": {
+      "originalUiTables": [
+        "error"
+      ],
+      "original": {
+        "en": "The game installation folder could not be found.",
+        "ja": "ゲームのインストールフォルダーが見つかりません。"
+      },
+      "cloneHasKey": {
+        "en": true,
+        "ja": true
+      },
+      "clone": {
+        "en": "The game installation folder could not be found.",
+        "ja": "ゲームのインストールフォルダーが見つかりません。"
+      },
+      "resultingTextWhenUnlocalized": null
+    },
+    "INVALID_GAME_ROOT": {
+      "originalUiTables": [
+        "error"
+      ],
+      "original": {
+        "en": "The selected game installation folder is invalid.",
+        "ja": "選択したゲームのインストールフォルダーが無効です。"
+      },
+      "cloneHasKey": {
+        "en": true,
+        "ja": true
+      },
+      "clone": {
+        "en": "The selected game installation folder is invalid.",
+        "ja": "選択したゲームのインストールフォルダーが無効です。"
+      },
+      "resultingTextWhenUnlocalized": null
+    },
+    "GAME_RUNNING": {
+      "originalUiTables": [
+        "error"
+      ],
+      "original": {
+        "en": "The game is already running.",
+        "ja": "ゲームはすでに起動しています。"
+      },
+      "cloneHasKey": {
+        "en": true,
+        "ja": true
+      },
+      "clone": {
+        "en": "The game is already running.",
+        "ja": "ゲームはすでに起動しています。"
+      },
+      "resultingTextWhenUnlocalized": null
+    },
+    "PROFILE_ALREADY_RUNNING": {
+      "originalUiTables": [
+        "error"
+      ],
+      "original": {
+        "en": "This account is already running.",
+        "ja": "このアカウントはすでに起動しています。"
+      },
+      "cloneHasKey": {
+        "en": true,
+        "ja": true
+      },
+      "clone": {
+        "en": "This account is already running.",
+        "ja": "このアカウントはすでに起動しています。"
+      },
+      "resultingTextWhenUnlocalized": null
+    },
+    "PROFILE_RUNNING": {
+      "originalUiTables": [
+        "error"
+      ],
+      "original": {
+        "en": "Stop this account before changing it.",
+        "ja": "変更する前にこのアカウントを終了してください。"
+      },
+      "cloneHasKey": {
+        "en": true,
+        "ja": true
+      },
+      "clone": {
+        "en": "Stop this account before changing it.",
+        "ja": "変更する前にこのアカウントを終了してください。"
+      },
+      "resultingTextWhenUnlocalized": null
+    },
+    "PROFILE_NOT_FOUND": {
+      "originalUiTables": [
+        "error"
+      ],
+      "original": {
+        "en": "The account could not be found.",
+        "ja": "アカウントが見つかりません。"
+      },
+      "cloneHasKey": {
+        "en": true,
+        "ja": true
+      },
+      "clone": {
+        "en": "The account could not be found.",
+        "ja": "アカウントが見つかりません。"
+      },
+      "resultingTextWhenUnlocalized": null
+    },
+    "PROFILE_LOCKED": {
+      "originalUiTables": [],
+      "cloneHasKey": {
+        "en": false,
+        "ja": false
+      },
+      "resultingTextWhenUnlocalized": "fallback common.actionFailed"
+    },
+    "INVALID_PROFILE_ORDER": {
+      "originalUiTables": [
+        "error"
+      ],
+      "original": {
+        "en": "The account order is invalid. Refresh and try again.",
+        "ja": "アカウントの並び順が無効です。更新して再試行してください。"
+      },
+      "cloneHasKey": {
+        "en": true,
+        "ja": true
+      },
+      "clone": {
+        "en": "The account order is invalid. Refresh and try again.",
+        "ja": "アカウントの並び順が無効です。更新して再試行してください。"
+      },
+      "resultingTextWhenUnlocalized": null
+    },
+    "INVALID_PROFILE_NOTE": {
+      "originalUiTables": [
+        "error"
+      ],
+      "original": {
+        "en": "The account note is invalid or too long.",
+        "ja": "アカウントメモが無効または長すぎます。"
+      },
+      "cloneHasKey": {
+        "en": true,
+        "ja": true
+      },
+      "clone": {
+        "en": "The account note is invalid or too long.",
+        "ja": "アカウントメモが無効または長すぎます。"
+      },
+      "resultingTextWhenUnlocalized": null
+    },
+    "INVALID_REQUEST": {
+      "originalUiTables": [
+        "auth.error"
+      ],
+      "cloneHasKey": {
+        "en": false,
+        "ja": false
+      },
+      "resultingTextWhenUnlocalized": null
+    },
+    "GAME_DISCONNECTED": {
+      "originalUiTables": [
+        "error"
+      ],
+      "original": {
+        "en": "The game is not connected.",
+        "ja": "ゲームが接続されていません。"
+      },
+      "cloneHasKey": {
+        "en": true,
+        "ja": true
+      },
+      "clone": {
+        "en": "The game is not connected.",
+        "ja": "ゲームが接続されていません。"
+      },
+      "resultingTextWhenUnlocalized": null
+    },
+    "BRIDGE_START_TIMEOUT": {
+      "originalUiTables": [
+        "error"
+      ],
+      "original": {
+        "en": "The game started, but the Bridge connection timed out.",
+        "ja": "ゲームは起動しましたが、Bridge 接続がタイムアウトしました。"
+      },
+      "cloneHasKey": {
+        "en": true,
+        "ja": true
+      },
+      "clone": {
+        "en": "The game started, but the Bridge connection timed out.",
+        "ja": "ゲームは起動しましたが、Bridge 接続がタイムアウトしました。"
+      },
+      "resultingTextWhenUnlocalized": null
+    },
+    "PROFILE_LIMIT_REACHED": {
+      "originalUiTables": [
+        "error"
+      ],
+      "original": {
+        "en": "The account limit has been reached.",
+        "ja": "アカウント数の上限に達しました。"
+      },
+      "cloneHasKey": {
+        "en": true,
+        "ja": true
+      },
+      "clone": {
+        "en": "The account limit has been reached.",
+        "ja": "アカウント数の上限に達しました。"
+      },
+      "resultingTextWhenUnlocalized": null
+    },
+    "PROFILE_ID_REQUIRED": {
+      "originalUiTables": [],
+      "cloneHasKey": {
+        "en": false,
+        "ja": false
+      },
+      "resultingTextWhenUnlocalized": "fallback common.actionFailed"
+    },
+    "PROFILE_RUNTIME_UNAVAILABLE": {
+      "originalUiTables": [],
+      "cloneHasKey": {
+        "en": false,
+        "ja": false
+      },
+      "resultingTextWhenUnlocalized": "fallback common.actionFailed"
+    },
+    "INVALID_PROFILE_ID": {
+      "originalUiTables": [],
+      "cloneHasKey": {
+        "en": false,
+        "ja": false
+      },
+      "resultingTextWhenUnlocalized": "fallback common.actionFailed"
+    },
+    "INSTANCE_MISMATCH": {
+      "originalUiTables": [],
+      "cloneHasKey": {
+        "en": false,
+        "ja": false
+      },
+      "resultingTextWhenUnlocalized": "fallback common.actionFailed"
+    },
+    "INSTANCE_NOT_FOUND": {
+      "originalUiTables": [],
+      "cloneHasKey": {
+        "en": false,
+        "ja": false
+      },
+      "resultingTextWhenUnlocalized": "fallback common.actionFailed"
+    },
+    "SERVER_MAINTENANCE": {
+      "originalUiTables": [],
+      "cloneHasKey": {
+        "en": false,
+        "ja": false
+      },
+      "resultingTextWhenUnlocalized": "fallback common.actionFailed"
+    },
+    "INVALID_PAYLOAD": {
+      "originalUiTables": [],
+      "cloneHasKey": {
+        "en": false,
+        "ja": false
+      },
+      "resultingTextWhenUnlocalized": "fallback common.actionFailed"
+    },
+    "AUTOMATION_NOT_IMPLEMENTED": {
+      "originalUiTables": [],
+      "cloneHasKey": {
+        "en": false,
+        "ja": false
+      },
+      "resultingTextWhenUnlocalized": "fallback common.actionFailed"
+    },
+    "BRIDGE_HOST_BUSY": {
+      "originalUiTables": [],
+      "cloneHasKey": {
+        "en": false,
+        "ja": false
+      },
+      "resultingTextWhenUnlocalized": "fallback common.actionFailed"
+    }
+  },
+  "errorBlockParity": {
+    "originalCount": 101,
+    "cloneCount": 101,
+    "onlyInOriginal": [],
+    "onlyInClone": [],
+    "enTextDiffs": []
+  },
+  "connectionKeysInClone": {
+    "profile.connection.awaitingLogin": true,
+    "profile.connection.connected": true,
+    "profile.connection.error": true,
+    "profile.connection.grace": true,
+    "profile.connection.locked": true,
+    "profile.connection.offline": true,
+    "profile.connection.reconnecting": true,
+    "profile.connection.recovering": true,
+    "profile.connection.starting": true,
+    "profile.connection.maintenance": false
+  }
+}

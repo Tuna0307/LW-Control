@@ -24,6 +24,7 @@ internal static class Map317NativeBoundaryChecks
             await CommittedStopRetiresCallerWithoutAbandoningCaptureAsync(root).ConfigureAwait(false);
             await DisposalTerminatesCaptureAndReleasesLeaseAsync(root).ConfigureAwait(false);
             await Completion010OriginalHostContractsAsync(root).ConfigureAwait(false);
+            await Completion010ServerChangedGuardAsync(root).ConfigureAwait(false);
         }
         finally
         {
@@ -639,17 +640,18 @@ internal static class Map317NativeBoundaryChecks
         Require(claimServerCode == "INVALID_SERVER_ID" && claimServerMessage == serverText,
             "map_treasure_claim without a server must be INVALID_SERVER_ID with the original text");
 
-        (string? exportCode, string? exportMessage) = Failure(() =>
+        string[] twelve = Enumerable.Range(1, 12).Select(n => "H" + n).ToArray();
+        // Original 0x129FA7 order: headers are validated BEFORE the export server.
+        (string? headerCode, string? headerMessage) = Failure(() =>
         {
             service.PrepareCityExport(JsonSerializer.SerializeToElement(new
             {
-                query = new { serverId = 0, page = 1, pageSize = 50 },
-                headers = new[] { "a" },
+                query = new { serverId = 0 }, headers = new[] { "a" },
             }, JsonOptions.Default));
             return Task.CompletedTask;
         });
-        Require(exportCode == "MAP_EXPORT_FAILED" && exportMessage == "city export server is unavailable",
-            $"City export without a positive server must be MAP_EXPORT_FAILED/'city export server is unavailable' but was {exportCode}/{exportMessage}");
+        Require(headerCode == "MAP_EXPORT_FAILED" && headerMessage == "city export headers are invalid",
+            $"City export with bad headers must fail on headers first but was {headerCode}/{headerMessage}");
 
         // A non-string selectedTypes entry is ignored (not an unstructured crash).
         JsonElement started = JsonSerializer.SerializeToElement(
@@ -665,6 +667,95 @@ internal static class Map317NativeBoundaryChecks
             JsonOptions.Default);
         Require(!string.IsNullOrWhiteSpace(started.GetProperty("scanRunId").GetString()),
             "selectedTypes [1,'city'] must start a City scan instead of throwing");
+
+        // The scan published the live server's City rows; the shared-state server is 317.
+        JsonElement Search(object payload) => JsonSerializer.SerializeToElement(
+            service.InvokeAsync("map_search", JsonSerializer.SerializeToElement(payload, JsonOptions.Default),
+                CancellationToken.None).GetAwaiter().GetResult(), JsonOptions.Default);
+        int Total(JsonElement result) => result.GetProperty("total").GetInt32();
+
+        Require(Total(Search(new { kind = "city", query = new { serverId = 317 } })) == 1, "baseline search");
+        // Original coercion (0x3EB60E/0x3E1144-0x3E1211): nothing below may throw.
+        Require(Total(Search(new { kind = "city", query = new { serverId = 0 } })) == 1,
+            "serverId 0 is replaced by the shared-state server (not rejected)");
+        Require(Total(Search(new { kind = "city", query = new { serverId = "317", page = "abc", pageSize = 99999 } })) == 1,
+            "numeric-string server, non-numeric page and huge pageSize are coerced");
+        Require(Total(Search(new { kind = "city", query = new { } })) == 1, "missing serverId uses the shared-state server");
+        Require(Total(Search(new { kind = "city" })) == 1, "missing query is an empty query object");
+        Require(Total(Search(new { kind = "not-a-kind", query = new { serverId = 317 } })) == 0,
+            "unknown kind answers an empty page (original swallows INVALID_MAP_KIND)");
+        Require(Total(Search(new { kind = 5, query = new { serverId = 317 } })) == 0, "non-string kind answers an empty page");
+        Require(Total(Search(new { kind = "city", query = new { serverId = 100000 } })) == 0, "server above 99999 matches nothing");
+        JsonElement paged = Search(new { kind = "city", query = new { serverId = 317, page = -4, pageSize = 0 } });
+        Require(Total(paged) == 1 && paged.GetProperty("rows").GetArrayLength() == 1, "page<1 and pageSize<1 clamp to 1");
+
+        // Export server derivation: query.serverId <= 0 / missing -> shared-state server (317).
+        Map317CityExportRequest derived = service.PrepareCityExport(JsonSerializer.SerializeToElement(new
+        {
+            headers = twelve, query = new { serverId = 0 },
+        }, JsonOptions.Default));
+        Require(derived.DefaultFileName.Contains("-317-", StringComparison.Ordinal),
+            "export server falls back to the shared-state server");
+        Map317CityExportRequest noQuery = service.PrepareCityExport(JsonSerializer.SerializeToElement(new
+        {
+            headers = twelve,
+        }, JsonOptions.Default));
+        Require(noQuery.DefaultFileName.Contains("-317-", StringComparison.Ordinal), "missing export query is {}");
+
+        // No shared-state server at all -> original error.
+        var unknownServer = new PublishingProvider(0, ProviderMode.Hold);
+        using var offline = Service(Path.Combine(root, "completion010", "offline.db"), unknownServer);
+        (string? exportCode, string? exportMessage) = Failure(() =>
+        {
+            offline.PrepareCityExport(JsonSerializer.SerializeToElement(new
+            {
+                headers = twelve, query = new { serverId = 0 },
+            }, JsonOptions.Default));
+            return Task.CompletedTask;
+        });
+        Require(exportCode == "MAP_EXPORT_FAILED" && exportMessage == "city export server is unavailable",
+            $"City export without any positive server must be MAP_EXPORT_FAILED/'city export server is unavailable' but was {exportCode}/{exportMessage}");
+    }
+
+
+    // Original status service 0xF8CB2: live server change while reading fails the run
+    // (staging discarded), stops the provider scan and leaves the shared state idle.
+    private static async Task Completion010ServerChangedGuardAsync(string root)
+    {
+        string database = Path.Combine(root, "completion010-guard", "map-data.db");
+        Directory.CreateDirectory(Path.GetDirectoryName(database)!);
+        var provider = new PublishingProvider(317, ProviderMode.Hold);
+        using var service = Service(database, provider);
+        JsonElement started = JsonSerializer.SerializeToElement(
+            await service.InvokeAsync("map_scan_start",
+                JsonSerializer.SerializeToElement(new { selectedTypes = new[] { "city" }, scanMode = "fast", resume = false },
+                    JsonOptions.Default), CancellationToken.None).ConfigureAwait(false), JsonOptions.Default);
+        string run = started.GetProperty("scanRunId").GetString()!;
+        var reading = (LWBridge.Map317.MapScanState)service.CreateStatus();
+        Require(reading.IsReading && reading.ServerId == 317, "precondition: reading on server 317");
+
+        // Non-triggers leave the state unchanged and stop nothing.
+        foreach ((bool inWorld, int live, string why) in new[]
+        {
+            (true, 317, "same server"), (true, 0, "live id unavailable"), (false, 318, "not in world"),
+        })
+        {
+            var unchanged = await service.ApplyLiveServerGuardAsync(reading, inWorld, live, CancellationToken.None)
+                .ConfigureAwait(false);
+            Require(unchanged.IsReading && provider.StopCalls == 0, "guard must not fire: " + why);
+        }
+
+        var failed = await service.ApplyLiveServerGuardAsync(reading, true, 318, CancellationToken.None).ConfigureAwait(false);
+        Require(!failed.IsReading && failed.Phase == "idle" && !failed.ResumeAvailable &&
+                failed.Error == "current server changed during map scan",
+            "server change must leave idle state with the original error text");
+        Require(provider.StopCalls == 1, "server change must stop the provider scan once");
+        using var reopened = new LWBridge.Map317.MapStore(database);
+        var runRow = reopened.ReadScanRun(run);
+        Require(runRow?.Status == "failed" && runRow.Error == "current server changed during map scan",
+            "durable run must be failed with the original text");
+        Require(reopened.Search(new LWBridge.Map317.MapQuery("city", 317)).Total == 0,
+            "failed run must not publish or preserve staged rows");
     }
 
     private static Map317CommandService Service(string database, IMap317RunScopedProvider provider) =>

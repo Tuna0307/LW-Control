@@ -1,0 +1,384 @@
+{
+  "referenceSha256": "4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783",
+  "mode": "static PE read/disassembly only",
+  "facts": [
+    {
+      "item": "0",
+      "id": "code-presence",
+      "locator": "whole image byte scan (plain substring; literals are packed)",
+      "evidence": {
+        "absentInOriginalHostImage": [
+          "AUTOMATION_NOT_IMPLEMENTED",
+          "BRIDGE_DISCONNECTED",
+          "BRIDGE_HOST_BUSY",
+          "COMMAND_NOT_IMPLEMENTED",
+          "GAME_CLOSE_FAILED",
+          "GAME_OPERATION_CANCELLED",
+          "GAME_REPAIR_REQUIRED",
+          "INSTANCE_NOT_OWNED",
+          "INVALID_PAYLOAD",
+          "SERVER_MAINTENANCE"
+        ],
+        "presentCounts": {
+          "GAME_RUNNING": 5,
+          "PROFILE_ALREADY_RUNNING": 1,
+          "PROFILE_RUNNING": 1,
+          "PROFILE_NOT_FOUND": 4,
+          "PROFILE_LOCKED": 2,
+          "INVALID_REQUEST": 3,
+          "INVALID_PROFILE_ID": 2,
+          "INVALID_PROFILE_NOTE": 1,
+          "INVALID_PROFILE_ORDER": 1,
+          "PROFILE_ID_REQUIRED": 1,
+          "PROFILE_RUNTIME_UNAVAILABLE": 1,
+          "STATE_UNAVAILABLE": 7,
+          "GAME_OPERATION_IN_PROGRESS": 1,
+          "GAME_ROOT_NOT_FOUND": 4,
+          "INVALID_GAME_ROOT": 2,
+          "UNMANAGED_GAME_RUNNING": 4,
+          "GAME_CLOSE_TIMEOUT": 3,
+          "LAUNCH_FAILED": 4,
+          "RECOVERY_RECORD_INVALID": 1,
+          "RECOVERY_PROCESS_MISMATCH": 1,
+          "RECOVERY_RECORD_NOT_FOUND": 1,
+          "GAME_DISCONNECTED": 6,
+          "PROFILE_LIMIT_REACHED": 5,
+          "INSTANCE_MISMATCH": 3,
+          "INSTANCE_NOT_FOUND": 3,
+          "BRIDGE_START_TIMEOUT": 4,
+          "PROFILE_ALREADY_BOUND": 1
+        }
+      },
+      "interpretation": "Codes with count 0 are not produced by the original native host as string literals (game/Lua-produced codes are not covered by this scan).",
+      "confidence": "HIGH",
+      "state": "EXACT_BYTES"
+    },
+    {
+      "item": "1",
+      "id": "set_automation-parse",
+      "locator": "0x12c34b (poll fn), 0x39f35e, 0x12c88d-0x12c941",
+      "evidence": {
+        "payload": "serde_json::Value; name = payload.get('name') as string else '' ; enabled = payload.get('enabled') if JSON bool else false; profile resolved first via 0x23b9e5 (profileId required)",
+        "noPayloadTypeErrorCodes": "there is no INVALID_PAYLOAD/AUTOMATION_* code in the image"
+      },
+      "interpretation": "Missing/non-string name is treated as the empty string and falls into the forward-to-game branch; missing or non-boolean enabled is false. The only payload error is the shared profile resolver: PROFILE_ID_REQUIRED (missing/non-string/empty profileId), STATE_UNAVAILABLE, PROFILE_RUNTIME_UNAVAILABLE.",
+      "confidence": "HIGH",
+      "state": "EXACT_BYTES"
+    },
+    {
+      "item": "1",
+      "id": "set_automation-local-names",
+      "locator": "0x12c98c-0x12d3a7",
+      "evidence": {
+        "names": [
+          "autoClosePopup (len 14)",
+          "autoForceUpdateReload (len 21)"
+        ],
+        "configKeys": {
+          "autoClosePopup": "auto_close_popup",
+          "autoForceUpdateReload": "auto_force_update_reload"
+        },
+        "effectiveEnabled": {
+          "autoForceUpdateReload": "requested enabled",
+          "autoClosePopup": "always false (xor ecx,ecx at 0x12d080)"
+        },
+        "order": [
+          "persist bool into <profile>/config.json via 0x2ce276 (errors propagate)",
+          "autoForceUpdateReload only: 0x41a681(runtime, enabled) -> enabled: run recovery tick now; disabled: clear recovery state + log 'game recovery stopped because automation is disabled'",
+          "if game connected (0x2d47a6): send 'setAutomation' {name, enabled=effective} to the game, timeout 5000 ms; failure is only logged (warn) and ignored",
+          "return Object{ok:true,name,enabled=effective}"
+        ]
+      },
+      "interpretation": "Local names are persisted first and the response always succeeds even when the game is offline or rejects the forward. The UI reads response.enabled as the new switch value, so autoClosePopup can never be switched on.",
+      "confidence": "HIGH (mechanics) / MEDIUM (that forcing false is intended product behaviour)",
+      "state": "EXACT_BYTES"
+    },
+    {
+      "item": "1",
+      "id": "set_automation-forwarded-names",
+      "locator": "0x12c9e9-0x12cd01, 0x2cd431, 0x2ae893",
+      "evidence": {
+        "nameValidation": "none in the host: any other name (including '') is forwarded to the game",
+        "gate": "require_game_connected -> else GAME_DISCONNECTED ('game disconnected')",
+        "request": "setAutomation {name, enabled}, timeout 5000 ms",
+        "afterGameOk": "persist to config.json: autoShield->auto_shield, autoAttackShield->auto_attack_shield, autoWeekendShield->auto_weekend_shield, autoRedPacketTreasure->auto_red_packet_treasure; every other name only recomputes legacy auto_shield = auto_weekend_shield || auto_attack_shield",
+        "gameRejects": "error object from the game is returned unchanged (code/message produced game-side; Lua not decodable here)",
+        "returnValue": {
+          "ok": true,
+          "name": "<requested>",
+          "enabled": "<requested>"
+        }
+      },
+      "interpretation": "The host does not own the 'allowed names' list for these; the game-side setAutomation does (UNKNOWN: encrypted Lua).",
+      "confidence": "MEDIUM",
+      "state": "EXACT_BYTES (host side) / UNKNOWN (game side)"
+    },
+    {
+      "item": "1",
+      "id": "set_automation-ui",
+      "locator": "frontend index-BVfnK1wp.js ht()/automation flags",
+      "evidence": {
+        "uiNames": [
+          "autoForceUpdateReload",
+          "autoClosePopup",
+          "autoWeekendShield",
+          "autoAttackShield"
+        ],
+        "uiRead": "automation_status.config.auto_force_update_reload / auto_close_popup / auto_weekend_shield / auto_attack_shield",
+        "uiWrite": "(await set_automation(name, enabled, profileId)).enabled"
+      },
+      "interpretation": "Home flags are read from automation_status.config keys and written through set_automation; response.enabled is authoritative.",
+      "confidence": "HIGH",
+      "state": "EXACT_CONTRACT"
+    },
+    {
+      "item": "2",
+      "id": "profile_select",
+      "locator": "0x10b70b, 0x326f21, 0x3288c1, 0x2abf1d, 0x2424d7",
+      "evidence": {
+        "order": [
+          "payload Object & profileId String else INVALID_REQUEST (code==message)",
+          "profile id valid ([A-Za-z0-9_-], 1..64 bytes) else INVALID_PROFILE_ID",
+          "SELECT enabled=1 AND locked_reason IS NULL: no row -> PROFILE_NOT_FOUND; 0 -> PROFILE_LOCKED",
+          "UPDATE controller_state SET value=? WHERE key='selected_profile_id'",
+          "focusGame (JSON bool; missing/non-bool = true): focus the profile's game window if it has an instance"
+        ],
+        "noRunningCheck": "selecting never checks running state",
+        "codesNotInOriginal": [
+          "BRIDGE_HOST_BUSY"
+        ]
+      },
+      "interpretation": "PROFILE_NOT_FOUND and PROFILE_LOCKED are original. BRIDGE_HOST_BUSY is not present anywhere in the original image: the original has no 'cannot change profile while shared bridge host is busy' rejection.",
+      "confidence": "HIGH",
+      "state": "EXACT_BYTES"
+    },
+    {
+      "item": "2",
+      "id": "profile_reorder",
+      "locator": "0x12709b handler, 0x327460",
+      "evidence": {
+        "order": [
+          "profileIds must be array of strings (INVALID_REQUEST otherwise, see clone parity)",
+          "each id validated (INVALID_PROFILE_ID)",
+          "list must have exactly the current profile count and contain every existing profile id, else INVALID_PROFILE_ORDER",
+          "one transaction; display_order = 0-based position; updated_at = now(ms)"
+        ]
+      },
+      "interpretation": "Full permutation required; ordering semantics = display_order ascending (list query ORDER BY display_order, created_at, id).",
+      "confidence": "HIGH (SQL/limits) / MEDIUM (handler-level array extraction)",
+      "state": "EXACT_BYTES"
+    },
+    {
+      "item": "2",
+      "id": "profile_note_set",
+      "locator": "0x1a4d26 handler, 0x327c9b",
+      "evidence": {
+        "order": [
+          "profileId + note strings",
+          "profile id validated FIRST (INVALID_PROFILE_ID)",
+          "note <= 80 chars and no control chars -> else INVALID_PROFILE_NOTE",
+          "UPDATE profiles SET note=?, updated_at=? WHERE id=?; 0 rows -> PROFILE_NOT_FOUND"
+        ]
+      },
+      "interpretation": "Id validation precedes note validation.",
+      "confidence": "HIGH",
+      "state": "EXACT_BYTES"
+    },
+    {
+      "item": "3",
+      "id": "game_root_select",
+      "locator": "0x188f12-0x18a2ad, 0x413185, 0x41281d, 0x412d56, 0x41253e",
+      "evidence": {
+        "payload": "none (frontend calls game_root_select() without arguments; folder chosen with a native dialog)",
+        "cancel": "result carries cancelled:true (key built inline at 0x1893da); nothing persisted",
+        "validate": "normalized path must contain Game\\LastWar.exe layout else INVALID_GAME_ROOT 'select the folder containing Game\\LastWar.exe'",
+        "persist": "state write under a write-lock (poisoned -> STATE_UNAVAILABLE 'authorization state is unavailable')",
+        "processApisReachable": {},
+        "functionsVisited": 327,
+        "noRunningCheck": "no GAME_RUNNING/GAME_OPERATION_IN_PROGRESS/stop/rebind inside the handler or its direct-call closure (depth 4, indirect calls not followed)"
+      },
+      "interpretation": "The original does not reject, stop or re-bind a running game when the root changes. It persists the new root; later consumers (monitor 0x41a8a0 uses find_game_pid(root) 0x41b451, stop 0x128a38, launch 0x1d5009 GAME_ROOT_NOT_FOUND) read the stored root. DEDUCED (not executed): a running game under the old root is no longer found under the new root by the recovery monitor.",
+      "confidence": "HIGH (no rejection) / LOW-MEDIUM (downstream deduction)",
+      "state": "EXACT_BYTES"
+    },
+    {
+      "item": "4",
+      "id": "game_recovery_status",
+      "locator": "0x154905, 0x23b9e5, 0x24156e, 0x41c8dd, 0x41d3fc",
+      "evidence": {
+        "errors": [
+          {
+            "code": "PROFILE_ID_REQUIRED",
+            "message": "PROFILE_ID_REQUIRED",
+            "when": "payload not Object, profileId missing, non-string, or empty string (no trimming)"
+          },
+          {
+            "code": "STATE_UNAVAILABLE",
+            "message": "(registry lock poisoned; message equals code)",
+            "when": "profile registry lock poisoned"
+          },
+          {
+            "code": "PROFILE_RUNTIME_UNAVAILABLE",
+            "message": "PROFILE_RUNTIME_UNAVAILABLE",
+            "when": "no runtime for that profileId"
+          },
+          {
+            "code": "STATE_UNAVAILABLE",
+            "message": "game recovery state is unavailable",
+            "when": "recovery-state mutex poisoned (never for 'no recovery yet')"
+          }
+        ],
+        "result": "always an Object snapshot: state, reason, updateDetected, restarted, startedAt, completedAt, attempts, nextRetryAt, error, noticeId, noticeVisible (serializer key order 0x41d3fc)",
+        "noRecoveryYet": "snapshot is still returned (idle record); there is no error for 'nothing recorded'"
+      },
+      "interpretation": "Errors only arise from profile resolution or a poisoned lock; the idle state is a normal result, not STATE_UNAVAILABLE.",
+      "confidence": "HIGH",
+      "state": "EXACT_BYTES"
+    },
+    {
+      "item": "5",
+      "id": "profile_instance_start-order",
+      "locator": "0x20715f, 0x1d5009 (0x1d5411.. 0x1d7690), 0x23e9dc, 0x2ac656",
+      "evidence": {
+        "order": [
+          "payload: Object with String profileId, else INVALID_REQUEST (closeUnmanaged bool, default false)",
+          "STATE_UNAVAILABLE (authorization state lock) 0x1d5411",
+          "GAME_ROOT_NOT_FOUND 0x1d5be1",
+          "reserve instance 0x23e9dc @0x1d6240: STATE_UNAVAILABLE (registry lock) | PROFILE_ALREADY_RUNNING when the profile already has an instance record (a stale phase=='error' record with flag byte 0 is silently replaced)",
+          "capacity log, unmanaged gate 0x1d6548-0x1d74e5: UNMANAGED_GAME_RUNNING{pids} unless closeUnmanaged, terminate errors, GAME_CLOSE_TIMEOUT",
+          "PROFILE_LIMIT_REACHED 0x1d7690",
+          "ticket/lease/launch/bridge-wait stages"
+        ],
+        "notInThisPath": [
+          "GAME_OPERATION_IN_PROGRESS",
+          "GAME_RUNNING",
+          "GAME_OPERATION_CANCELLED"
+        ],
+        "opFlagUsers": "ctx+0x115 try-acquire (0x41b3bc) is used only by game_start 0x11157c, game_stop 0x128a38 and the recovery run 0xe5884"
+      },
+      "interpretation": "For the UI-used profile_instance_start the single in-flight/already-running rejection is PROFILE_ALREADY_RUNNING (any existing instance record, including starting), evaluated after GAME_ROOT_NOT_FOUND and BEFORE the unmanaged-game check. GAME_RUNNING exists in the image only in the proxy-repair path (0xd47442).",
+      "confidence": "HIGH (order) / MEDIUM (reserve predicate meaning of flag byte)",
+      "state": "EXACT_BYTES"
+    },
+    {
+      "item": "5",
+      "id": "game_start-legacy",
+      "locator": "0x11157c-0x112b45",
+      "evidence": {
+        "order": [
+          "profile resolver 0x23b9e5 (PROFILE_ID_REQUIRED/STATE_UNAVAILABLE/PROFILE_RUNTIME_UNAVAILABLE)",
+          "try-acquire op flag else GAME_OPERATION_IN_PROGRESS 'another game operation is already in progress'",
+          "persist game_desired_running=true (0x41bcd5), memory flag ctx+0x124=1, reset recovery observation 0x41ad16, log 'game lifecycle start requested'",
+          "find tracked game process 0x41b451: present -> success path without launching",
+          "kill LastWarLauncher/Updater/Sync 0x41e613; re-find; terminate stray game 0x41e543; launch",
+          "on any error: release flag, memory flag=0, persist game_desired_running=false (0x1123b4)"
+        ]
+      },
+      "interpretation": "Legacy single-game command not used by the Home frontend (frontend uses profile_instance_*).",
+      "confidence": "MEDIUM",
+      "state": "EXACT_CONTRACT_RECONSTRUCTED"
+    },
+    {
+      "item": "6",
+      "id": "profile_instance_status-shape",
+      "locator": "0x1a0da4, inline key bytes 0x1a17cf-0x1a1ba3",
+      "evidence": {
+        "errors": [
+          "INVALID_REQUEST (profileId missing/non-string; NOT PROFILE_ID_REQUIRED in 0.3.17)",
+          "STATE_UNAVAILABLE",
+          "PROFILE_RUNTIME_UNAVAILABLE"
+        ],
+        "result": "Option<instance record>; none -> JSON null (UI treats stopped as null); fields profileId, instanceId, phase, pid, startedAt, lastError, identityConfirmed, leaseRequired, connectionState, bridgeConnected, lastHeartbeatAt, leaseActive"
+      },
+      "interpretation": "0.3.17 still builds connectionState/bridgeConnected/lastHeartbeatAt/leaseActive (keys assembled from immediates, so string search misses them).",
+      "confidence": "HIGH (keys) / MEDIUM (null on absence: carried from 0.3.1 + structure)",
+      "state": "EXACT_BYTES"
+    },
+    {
+      "item": "6",
+      "id": "connectionState-classifier",
+      "locator": "0x2d7ff3-0x2d8130",
+      "evidence": {
+        "inputs": "record(lastError,phase,identityConfirmed[+0x70],leaseRequired[+0x71]), leaseStatus str, leaseActive, bridgeConnected, heartbeatFresh",
+        "table": [
+          "lastError != null -> 'error'",
+          "phase 'starting' -> 'starting'",
+          "phase 'recovering' -> 'recovering'",
+          "phase 'awaitingIdentity' -> 'awaitingLogin'",
+          "else leaseRequired && leaseStatus=='grace' && !leaseActive -> 'grace'",
+          "else connected iff bridgeConnected && heartbeatFresh && identityConfirmed (&& leaseActive when leaseRequired) ; otherwise 'reconnecting'"
+        ],
+        "uiMap": {
+          "offline": "profile.connection.offline",
+          "starting": "..starting",
+          "recovering": "..recovering",
+          "awaitingLogin": "..awaitingLogin",
+          "connected": "..connected",
+          "reconnecting": "..reconnecting",
+          "grace": "..grace",
+          "locked": "..locked",
+          "error": "..error"
+        },
+        "noStopped": "no 'stopped' phase or 'maintenance'/'offline' connectionState is produced by this classifier"
+      },
+      "interpretation": "The clone's CreateProfileInstanceStatus matches this table for single-profile; the clone-only 5-field CreateInstanceStatus (phase 'stopped', 'offline', 'maintenance', error text codes) has no counterpart in the original handler.",
+      "confidence": "HIGH (table)",
+      "state": "EXACT_BYTES"
+    },
+    {
+      "item": "7",
+      "id": "game_desired_running",
+      "locator": "0x41be3c, 0x2ceb43, 0x41bcd5, 0x41bd6f, 0x41bbff, 0x41ca7d",
+      "evidence": {
+        "persisted": "yes: config.json key game_desired_running (bool) written on every transition",
+        "readAtStartup": "yes: runtime-context constructor 0x41be3c reads it (missing/non-bool = false) into ctx+0x124",
+        "set": "game_start (before launch, reset to false on failure), launch finalize 0x23fac5 and reconcile adoption (0x41bd6f with pid)",
+        "cleared": "profile_instance_stop (0x199e30 -> 0x41bbff), rollback helper 0x1d4468, 0xe6f71, 0x16e139, 0x23c486 and 0x41ca7d",
+        "separateGate": "auto_force_update_reload is a separate persisted flag; the monitor tick needs auto_force_update_reload && desired && armed AND a tracked pid (ctx+0x120 != 0)",
+        "restartBehaviour": "a persisted true with no tracked pid does not relaunch by itself (tick returns when ctx+0x120==0)"
+      },
+      "interpretation": "Clone persisting GameDesiredRunning matches the original; do not make it memory-only.",
+      "confidence": "HIGH",
+      "state": "EXACT_BYTES"
+    }
+  ],
+  "codePresenceInOriginalImage": {
+    "AUTOMATION_NOT_IMPLEMENTED": 0,
+    "BRIDGE_DISCONNECTED": 0,
+    "BRIDGE_HOST_BUSY": 0,
+    "GAME_CLOSE_FAILED": 0,
+    "GAME_OPERATION_CANCELLED": 0,
+    "GAME_REPAIR_REQUIRED": 0,
+    "INSTANCE_NOT_OWNED": 0,
+    "INVALID_PAYLOAD": 0,
+    "GAME_RUNNING": 5,
+    "PROFILE_ALREADY_RUNNING": 1,
+    "PROFILE_RUNNING": 1,
+    "PROFILE_NOT_FOUND": 4,
+    "PROFILE_LOCKED": 2,
+    "INVALID_REQUEST": 3,
+    "INVALID_PROFILE_ID": 2,
+    "INVALID_PROFILE_NOTE": 1,
+    "INVALID_PROFILE_ORDER": 1,
+    "PROFILE_ID_REQUIRED": 1,
+    "PROFILE_RUNTIME_UNAVAILABLE": 1,
+    "STATE_UNAVAILABLE": 7,
+    "GAME_OPERATION_IN_PROGRESS": 1,
+    "GAME_ROOT_NOT_FOUND": 4,
+    "INVALID_GAME_ROOT": 2,
+    "UNMANAGED_GAME_RUNNING": 4,
+    "GAME_CLOSE_TIMEOUT": 3,
+    "LAUNCH_FAILED": 4,
+    "RECOVERY_RECORD_INVALID": 1,
+    "RECOVERY_PROCESS_MISMATCH": 1,
+    "RECOVERY_RECORD_NOT_FOUND": 1,
+    "GAME_DISCONNECTED": 6,
+    "SERVER_MAINTENANCE": 0,
+    "COMMAND_NOT_IMPLEMENTED": 0,
+    "PROFILE_LIMIT_REACHED": 5,
+    "INSTANCE_MISMATCH": 3,
+    "INSTANCE_NOT_FOUND": 3,
+    "BRIDGE_START_TIMEOUT": 4,
+    "PROFILE_ALREADY_BOUND": 1
+  }
+}

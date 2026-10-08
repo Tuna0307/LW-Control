@@ -270,9 +270,16 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
                         return new { serverId = summary.ServerId, counts = summary.Counts, scanState = summary.ScanState };
                     }
                 case "map_data_options":
-                    return control.ReadOptions(RequiredInt(payload, "serverId"));
+                    return control.ReadOptions(OptionsServerId(payload));
                 case "map_search":
-                    return control.Search(NormalizeQuery(payload));
+                    {
+                        // Original 0.3.17 search never rejects a mistyped page/pageSize/server/kind:
+                        // it coerces loosely and answers an EMPTY page when nothing is usable.
+                        Map317.MapQuery? query = NormalizeOriginalSearch(payload);
+                        return query is null
+                            ? new Map317.MapSearchResult(Array.Empty<JsonElement>(), 0)
+                            : control.Search(query);
+                    }
                 case "map_city_export":
                     throw new BridgeCommandException(
                         "NATIVE_DIALOG_REQUIRED", "City export requires the desktop save dialog host.");
@@ -407,20 +414,26 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
         JsonElement payload,
         DateTimeOffset? utcNow = null)
     {
-        if (!payload.TryGetProperty("query", out JsonElement query) ||
-            query.ValueKind != JsonValueKind.Object)
-            throw new BridgeCommandException("INVALID_MAP_QUERY", "map_city_export query must be an object.");
-
-        int serverId = RequiredInt(query, "serverId");
-        if (serverId <= 0)
+        // Original 0x129FA7 order: headers (12 strings) -> labels -> query (missing = {}) ->
+        // final export server: loose query.serverId, else the shared-state server, else
+        // MAP_EXPORT_FAILED "city export server is unavailable".
+        string[] headers = ReadHeaders(payload);
+        System.Text.Json.Nodes.JsonObject queryObject =
+            payload.TryGetProperty("query", out JsonElement query) && query.ValueKind == JsonValueKind.Object
+                ? (System.Text.Json.Nodes.JsonObject)System.Text.Json.Nodes.JsonNode.Parse(query.GetRawText())!
+                : new System.Text.Json.Nodes.JsonObject();
+        long exportServer = LooseInt64(JsonSerializer.SerializeToElement(queryObject), "serverId") ?? 0;
+        if (exportServer <= 0) exportServer = control.ScanState.ServerId;
+        if (exportServer <= 0)
             throw new BridgeCommandException("MAP_EXPORT_FAILED", "city export server is unavailable");
+        queryObject["serverId"] = (int)Math.Min(exportServer, int.MaxValue);
+        int serverId = (int)Math.Min(exportServer, int.MaxValue);
         using JsonDocument envelope = JsonDocument.Parse(JsonSerializer.Serialize(new
         {
             kind = "city",
-            query = JsonSerializer.Deserialize<object>(query.GetRawText(), JsonOptions.Default),
-        }, JsonOptions.Default));
+            query = queryObject,
+        }));
         Map317.MapQuery normalized = NormalizeQuery(envelope.RootElement);
-        string[] headers = ReadHeaders(payload);
         string sheet = OptionalString(payload, "sheetName") ?? "Cities";
         string yes = OptionalString(payload, "yesLabel") ?? "Yes";
         string no = OptionalString(payload, "noLabel") ?? "No";
@@ -540,6 +553,21 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
 
     private CurrentClientMapStatusContext? lastStatusContext;
 
+    // Original status service (0xF8CB2; trigger 0xF9559-0xF975C): while the shared state is reading,
+    // a live server id L > 0 (game not known to be outside the world) that differs from the
+    // scan's positive server fails the run with this exact text. Not an error to the caller.
+    internal const string ServerChangedDuringScanText = "current server changed during map scan";
+
+    internal async Task<Map317.MapScanState> ApplyLiveServerGuardAsync(
+        Map317.MapScanState state, bool liveInWorld, int liveServerId, CancellationToken cancellationToken)
+    {
+        if (state.IsReading && liveInWorld && liveServerId > 0 &&
+            state.ServerId > 0 && state.ServerId != liveServerId)
+            return await control.FailForServerChangeAsync(ServerChangedDuringScanText, cancellationToken)
+                .ConfigureAwait(false);
+        return state;
+    }
+
     // The UI replaces its whole scan state on every bridge://map-scan-status event.
     // Events therefore carry the home/season/truck-match/world overlay last observed
     // by map_scan_status instead of resetting those fields to defaults until the next
@@ -578,6 +606,8 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
             CurrentClientMapStatusContext context =
                 await currentSource.GetMapStatusContextAsync(cancellationToken).ConfigureAwait(false);
             lastStatusContext = context;
+            state = await ApplyLiveServerGuardAsync(
+                state, context.IsInWorld, context.ServerId, cancellationToken).ConfigureAwait(false);
             return state with
             {
                 ServerId = context.ServerId > 0 ? context.ServerId : state.ServerId,
@@ -691,6 +721,77 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
             markedAt = marked ? now : (long?)null,
             checkedAt = (long?)null,
         };
+    }
+
+    // Rust i64::from_str: optional +/- then ASCII digits only (no spaces).
+    private static long? LooseInt64(JsonElement value)
+    {
+        switch (value.ValueKind)
+        {
+            case JsonValueKind.Number:
+                if (value.TryGetInt64(out long exact)) return exact;
+                double number = value.GetDouble();
+                if (double.IsNaN(number)) return 0;
+                if (number >= long.MaxValue) return long.MaxValue;
+                if (number <= long.MinValue) return long.MinValue;
+                return (long)Math.Truncate(number);
+            case JsonValueKind.String:
+                string? text = value.GetString();
+                return text is { Length: > 0 } &&
+                       !text.Any(char.IsWhiteSpace) &&
+                       long.TryParse(text, System.Globalization.NumberStyles.AllowLeadingSign,
+                           System.Globalization.CultureInfo.InvariantCulture, out long parsed)
+                    ? parsed : null;
+            default:
+                return null;
+        }
+    }
+
+    private static long? LooseInt64(JsonElement owner, string name) =>
+        owner.ValueKind == JsonValueKind.Object && owner.TryGetProperty(name, out JsonElement value)
+            ? LooseInt64(value) : null;
+
+    // map_data_options: a non-positive/missing server is replaced by the shared-state server.
+    private int OptionsServerId(JsonElement payload)
+    {
+        long requested = LooseInt64(payload, "serverId") ?? 0;
+        if (requested <= 0) requested = control.ScanState.ServerId;
+        return requested is >= 0 and <= int.MaxValue ? (int)requested : 0;
+    }
+
+    private Map317.MapQuery? NormalizeOriginalSearch(JsonElement payload)
+    {
+        if (payload.ValueKind != JsonValueKind.Object ||
+            !payload.TryGetProperty("kind", out JsonElement kindValue) ||
+            kindValue.ValueKind != JsonValueKind.String)
+            return null;
+        string kind = kindValue.GetString() ?? string.Empty;
+        if (!MapScanContract.RecoveredDefaultTypes.Contains(kind, StringComparer.Ordinal))
+            return null; // original swallows INVALID_MAP_KIND into an empty page
+        System.Text.Json.Nodes.JsonObject query =
+            payload.TryGetProperty("query", out JsonElement queryValue) && queryValue.ValueKind == JsonValueKind.Object
+                ? (System.Text.Json.Nodes.JsonObject)System.Text.Json.Nodes.JsonNode.Parse(queryValue.GetRawText())!
+                : new System.Text.Json.Nodes.JsonObject();
+        JsonElement queryElement = JsonSerializer.SerializeToElement(query);
+
+        long? page = LooseInt64(queryElement, "page");
+        long? pageSize = LooseInt64(queryElement, "pageSize");
+        long server = LooseInt64(queryElement, "serverId") ?? 0;
+        if (server <= 0) server = control.ScanState.ServerId;
+        if (server is < 1 or > 99_999) return null; // final non-positive server -> empty page; >99999 matches nothing
+
+        query["page"] = (int)Math.Clamp(page ?? 1, 1, int.MaxValue);
+        query["pageSize"] = pageSize is null ? 50 : (int)Math.Clamp(pageSize.Value, 1, 200);
+        query["serverId"] = (int)server;
+        foreach (string name in new[] { "treasureType", "suppliesType" })
+        {
+            if (!query.ContainsKey(name) || query[name] is null) continue;
+            long? loose = LooseInt64(queryElement, name);
+            if (loose is null) query.Remove(name);
+            else query[name] = (int)Math.Clamp(loose.Value, 0, int.MaxValue);
+        }
+        using JsonDocument envelope = JsonDocument.Parse(JsonSerializer.Serialize(new { kind, query }));
+        return NormalizeQuery(envelope.RootElement);
     }
 
     private static Map317.MapQuery NormalizeQuery(JsonElement payload)

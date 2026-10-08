@@ -120,6 +120,13 @@ public sealed class MapControlPlane : IDisposable
     public ValueTask<MapScanState> StopScanAsync(CancellationToken cancellationToken = default) =>
         scan.StopAsync(cancellationToken);
 
+    // Original status service (0xF9770-0xF97AA): a live server change while reading marks
+    // the run failed (staging DISCARDED, not preserved), stops the provider scan and leaves
+    // the shared state idle with the error text; the status call itself still succeeds.
+    public ValueTask<MapScanState> FailForServerChangeAsync(
+        string error, CancellationToken cancellationToken = default) =>
+        scan.FailAndStopAsync(error, store, nowMilliseconds, cancellationToken);
+
     public ValueTask<MapScanState> ClearScanAsync(int serverId, CancellationToken cancellationToken = default) =>
         scan.ClearAsync(serverId, cancellationToken);
 

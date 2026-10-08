@@ -352,6 +352,39 @@ public sealed class MapScanStateMachine
         return failed;
     }
 
+    public async ValueTask<MapScanState> FailAndStopAsync(
+        string error, MapStore store, Func<long> nowMilliseconds, CancellationToken cancellationToken = default)
+    {
+        await operationGate.WaitAsync(cancellationToken).ConfigureAwait(false);
+        try
+        {
+            MapScanState before = State;
+            if (!before.IsReading || string.IsNullOrEmpty(before.ScanRunId)) return before;
+            store.FailScan(before.ScanRunId, error, nowMilliseconds(), preserveRecords: false);
+            try { await provider.StopMapScanAsync(CancellationToken.None).ConfigureAwait(false); }
+            catch { /* best effort, like the original stopMapScan after the local boundary */ }
+            MapScanState failed;
+            lock (stateGate)
+            {
+                state = state with
+                {
+                    IsReading = false,
+                    Phase = "idle",
+                    InflightBlocks = 0,
+                    ResumeAvailable = false,
+                    Error = error,
+                };
+                failed = state;
+            }
+            RaiseStateChanged(failed);
+            return failed;
+        }
+        finally
+        {
+            operationGate.Release();
+        }
+    }
+
     public async ValueTask<MapScanState> StopAsync(CancellationToken cancellationToken = default)
     {
         await operationGate.WaitAsync(cancellationToken).ConfigureAwait(false);

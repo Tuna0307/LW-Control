@@ -452,7 +452,7 @@ public sealed partial class MapStore : IDisposable
         }
     }
 
-    public void FailScan(string runId, string error, long updatedAt)
+    public void FailScan(string runId, string error, long updatedAt, bool preserveRecords = true)
     {
         if (string.IsNullOrWhiteSpace(error)) error = "map scan failed";
         lock (gate)
@@ -473,6 +473,7 @@ public sealed partial class MapStore : IDisposable
                 if (fail.ExecuteNonQuery() != 1)
                     throw new BridgeCommandException("INVALID_SCAN", "map scan is not running");
             }
+            if (preserveRecords)
             using (SqliteCommand preserve = connection.CreateCommand())
             {
                 preserve.Transaction = transaction;

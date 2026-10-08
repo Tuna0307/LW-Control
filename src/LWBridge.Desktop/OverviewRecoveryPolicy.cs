@@ -1,7 +1,8 @@
 namespace LWBridge.Desktop;
 
-// OVL-05 build-specific policy recovered from lwbridge-0.3.1.exe.
-// The preferred-VA/static proof is tools/inspect_lwbridge_game_recovery.py.
+// OVL-05 recovery policy. Thresholds, retry tables and caps are 0.3.17 facts re-proved from
+// lwbridge-0.3.17.exe (see HOME009 monitor-recovery-analysis.md); the 0.3.1 script
+// tools/inspect_lwbridge_game_recovery.py is historical only.
 internal static class OverviewRecoveryPolicy
 {
     internal static readonly TimeSpan HangThreshold = TimeSpan.FromSeconds(30);

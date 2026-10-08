@@ -1,0 +1,435 @@
+{
+  "referenceExecutable": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW\\lwbridge-0.3.17.exe",
+  "referenceSha256": "4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783",
+  "mode": "static PE read + capstone disassembly only; nothing executed; no repo file other than c-handlers/ written",
+  "scripts": [
+    "handlers_recovery.py (asserts hash + every instruction/byte fact; writes handlers-recovery.facts.json)",
+    "handlers_locale.py (hash-gated frontend assets + clone locale; writes handlers-locale.json)"
+  ],
+  "conventions": "addresses are RVAs (image base 0x140000000) as in tools/lwbridge317/home009_native.py; state vocabulary per AGENTS.md section 4; confidence HIGH = instruction-level, MEDIUM = reconstructed control flow, LOW = deduction",
+  "items": {
+    "1": {
+      "title": "set_automation (0x12c34b-0x12da36)",
+      "facts": [
+        {
+          "id": "1.1",
+          "locator": "0x12c7e9 -> 0x23b9e5; 0x23b9e5, 0x24156e",
+          "state": "EXACT_BYTES",
+          "confidence": "HIGH",
+          "fact": "Before anything else the profile runtime is resolved from payload.profileId (payload must be an Object, profileId a String, length>0, no trimming). Errors: PROFILE_ID_REQUIRED (0x84158e, len 19, code==message), STATE_UNAVAILABLE (registry lock poisoned), PROFILE_RUNTIME_UNAVAILABLE (0x841a25, len 27, no runtime for that id)."
+        },
+        {
+          "id": "1.2",
+          "locator": "0x39f35e, 0x12c88d-0x12c941",
+          "state": "EXACT_BYTES",
+          "confidence": "HIGH",
+          "fact": "name = payload.get('name') if it is a JSON string else the empty string. enabled = payload.get('enabled') only if it is a JSON bool, otherwise false. There is NO payload type error: INVALID_PAYLOAD / AUTOMATION_* do not exist anywhere in the image."
+        },
+        {
+          "id": "1.3",
+          "locator": "0x12c98c-0x12c9e3, 0x12d080-0x12d089",
+          "state": "EXACT_BYTES",
+          "confidence": "HIGH",
+          "fact": "Two names are handled by the host: 'autoClosePopup' (len 14) and 'autoForceUpdateReload' (len 21) (case-sensitive byte compare). For autoClosePopup the effective enabled is forced to false (xor ecx,ecx at 0x12d080 before the common store at 0x12d089); for autoForceUpdateReload the requested bool is used."
+        },
+        {
+          "id": "1.4",
+          "locator": "0x12d0ac -> 0x2ce276, 0xd44fab, 0xd44fc3, 0xd476b8",
+          "state": "EXACT_BYTES",
+          "confidence": "HIGH",
+          "fact": "Persistence of local names: config.json (profile runtime directory) root object gets auto_force_update_reload / auto_close_popup = Bool(effective enabled), file rewritten atomically (tmp+commit). Errors: STATE_UNAVAILABLE 'config state is unavailable' (lock), INVALID_CONFIG 'object required' (root not an object), write errors propagated. Persist happens before any game interaction and is NOT rolled back."
+        },
+        {
+          "id": "1.5",
+          "locator": "0x12d112-0x12d15d, 0x41a681, 0x41a8a0",
+          "state": "EXACT_BYTES",
+          "confidence": "HIGH (calls, log text) / MEDIUM (observation-reset and republish semantics)",
+          "fact": "autoForceUpdateReload additionally calls 0x41a681(runtime, effective enabled): enabled -> run the recovery monitor tick (0x41a8a0) immediately; disabled -> reset monitor observation state, log 'game recovery stopped because automation is disabled' (0xd67e28), republish recovery status (0x41a850). The monitor and the recovery run re-read persisted auto_force_update_reload (0x41b7ef)."
+        },
+        {
+          "id": "1.6",
+          "locator": "0x12d170 -> 0x2d47a6, 0x12d303-0x12d31c",
+          "state": "EXACT_BYTES",
+          "confidence": "HIGH",
+          "fact": "Local names, then: if the game is bridge-connected, request 'setAutomation' {name, enabled=effective} with timeout 5000 ms (0x1388). A game-side failure is logged (warn) and ignored; offline game skips the forward. Response is always Object{ok:true,name,enabled=effective}."
+        },
+        {
+          "id": "1.7",
+          "locator": "0x12c9e9-0x12cd01, 0x2ae893, 0xd44e27",
+          "state": "EXACT_BYTES (host) / UNKNOWN (game side)",
+          "confidence": "HIGH",
+          "fact": "Any other name (including '') is NOT validated by the host: require connected game first (else GAME_DISCONNECTED, message 'game disconnected'), forward 'setAutomation' {name, enabled=requested} (5000 ms). A game error object is returned unchanged. After a game OK the host persists to config.json: autoShield->auto_shield, autoAttackShield->auto_attack_shield, autoWeekendShield->auto_weekend_shield, autoRedPacketTreasure->auto_red_packet_treasure; every other name only recomputes legacy auto_shield = auto_weekend_shield || auto_attack_shield (0x2cd431). Return Object{ok:true,name,enabled=requested}. A persist failure after a game OK is returned as an error (no rollback of the game side)."
+        },
+        {
+          "id": "1.8",
+          "locator": "frontend index-BVfnK1wp.js ht()",
+          "state": "EXACT_CONTRACT",
+          "confidence": "HIGH",
+          "fact": "UI sends set_automation {profileId,name,enabled}; Home flags read automation_status.config.{auto_force_update_reload,auto_close_popup,auto_weekend_shield,auto_attack_shield}; the switch value after a write is response.enabled."
+        }
+      ],
+      "clone": [
+        {
+          "file": "src/LWBridge.Desktop/LWBridgeBackend.cs",
+          "lines": "346-349, 708-717, 1227-1241, 745-748",
+          "differs": true,
+          "differences": [
+            "RequireOptionalProfile lets a missing profileId through (original: PROFILE_ID_REQUIRED / PROFILE_RUNTIME_UNAVAILABLE)",
+            "GetRequiredString/Boolean throw INVALID_PAYLOAD for missing/mis-typed name/enabled (original: '' and false, no error)",
+            "every name except autoForceUpdateReload throws AUTOMATION_NOT_IMPLEMENTED (original: autoClosePopup is a successful local no-enable; other names forward to the game with GAME_DISCONNECTED gate)",
+            "result is { enabled } (original {ok:true,name,enabled})",
+            "status config reports auto_weekend_shield/auto_attack_shield/auto_close_popup as constant false"
+          ],
+          "fix": "SetAutomation: (1) require profileId via the shared resolver; (2) name=string-or-'' , enabled=bool-or-false, drop INVALID_PAYLOAD; (3) autoClosePopup: persist auto_close_popup=false, return {ok:true,name,enabled:false}; (4) autoForceUpdateReload: keep persist, then drive the recovery monitor (tick now when enabled; reset observation + republish when disabled); (5) other names: GAME_DISCONNECTED ('game disconnected') when not bridge-connected, otherwise forward through the current-client Lua path and only on success persist the 4 recovered keys; until that forward exists return a truthful incomplete error, not AUTOMATION_NOT_IMPLEMENTED parity; (6) return {ok,name,enabled}; (7) add AutoClosePopup/AutoWeekendShield/AutoAttackShield/AutoRedPacketTreasure to LocalConfigStore and read them in CreateStatus."
+        },
+        {
+          "file": "src/LWBridge.Desktop/OverviewLifecycleRecovery.cs",
+          "lines": "117-123",
+          "differs": true,
+          "differences": [
+            "NotifyAutomationChanged is a no-op (original runs a monitor tick on enable and resets observation/republishes on disable)"
+          ],
+          "fix": "enabled -> run RecoveryObservationAsync once; disabled -> reset the observation counters, log the original message, raise RecoveryStatusChanged; never cancel an in-flight run."
+        }
+      ],
+      "unknowns": [
+        "Game-side setAutomation accepted names/value types/error codes (encrypted Lua; protected input).",
+        "Exact on-disk directory of config.json (path is [profile runtime state+0xa0]/config.json; mapping to the clone LocalConfigStore location is an adaptation).",
+        "Whether forcing autoClosePopup=false is deliberate product intent (behaviour itself is exact)."
+      ]
+    },
+    "2": {
+      "title": "profile_select / profile_reorder / profile_note_set (0x10b70b, 0x12709b, 0x1a4d26; manager 0x326f21, 0x327460, 0x327c9b)",
+      "facts": [
+        {
+          "id": "2.1",
+          "locator": "0x10b70b, 0x2ac656, 0x3288c1, 0x326f21",
+          "state": "EXACT_BYTES",
+          "confidence": "HIGH",
+          "fact": "select: payload Object+String profileId else INVALID_REQUEST (code==message, 15 bytes) -> id valid ([0-9A-Za-z_-], 1..64 bytes) else INVALID_PROFILE_ID -> SELECT enabled=1 AND locked_reason IS NULL FROM profiles WHERE id=?: no row PROFILE_NOT_FOUND, value 0 PROFILE_LOCKED (both code==message) -> UPDATE controller_state SET value=? WHERE key='selected_profile_id'."
+        },
+        {
+          "id": "2.2",
+          "locator": "0x2abf1d, 0x2424d7, 0x10bb5c",
+          "state": "EXACT_BYTES / MEDIUM",
+          "confidence": "MEDIUM",
+          "fact": "After the DB update, focusGame (JSON bool, missing or non-bool = true) triggers focus of that profile's game window if an instance exists (STATE_UNAVAILABLE on poisoned instance lock). Selection is already persisted at that point; there is no running-state check, no bridge-host-busy check and no rollback."
+        },
+        {
+          "id": "2.3",
+          "locator": "0x12709b, 0x327460",
+          "state": "EXACT_BYTES",
+          "confidence": "HIGH",
+          "fact": "reorder: profileIds must be an array (INVALID_REQUEST otherwise); every id validated (INVALID_PROFILE_ID); then the list must have exactly the current profile count and contain every current id, else INVALID_PROFILE_ORDER; single transaction (begin/commit profile reorder), UPDATE profiles SET display_order=?, updated_at=? WHERE id=? with display_order = 0-based list index, updated_at = now ms. Lists are ordered display_order, created_at, id."
+        },
+        {
+          "id": "2.4",
+          "locator": "0x1a4d26, 0x327c9b",
+          "state": "EXACT_BYTES",
+          "confidence": "HIGH",
+          "fact": "note_set: profileId then note strings; id validated FIRST (INVALID_PROFILE_ID); note rejected with INVALID_PROFILE_NOTE when it has more than 80 characters (count of non-continuation UTF-8 bytes) or any code point < 0x20 or 0x7f-0x9f; UPDATE profiles SET note=?, updated_at=? WHERE id=?; 0 rows -> PROFILE_NOT_FOUND."
+        },
+        {
+          "id": "2.5",
+          "locator": "whole-image scan",
+          "state": "EXACT_BYTES",
+          "confidence": "HIGH",
+          "fact": "PROFILE_NOT_FOUND and PROFILE_LOCKED are original codes. BRIDGE_HOST_BUSY, GAME_OPERATION_IN_PROGRESS-on-select, GAME_REPAIR_REQUIRED, INSTANCE_NOT_OWNED are not (BRIDGE_HOST_BUSY, GAME_REPAIR_REQUIRED, INSTANCE_NOT_OWNED have count 0 in the image)."
+        }
+      ],
+      "clone": [
+        {
+          "file": "src/LWBridge.Desktop/ProfileRegistryCommandService.cs",
+          "lines": "94-103",
+          "differs": true,
+          "differences": [
+            "profile_note_set does not call ValidateProfileId: (bad id, any note) gives PROFILE_NOT_FOUND / INVALID_PROFILE_NOTE instead of INVALID_PROFILE_ID"
+          ],
+          "fix": "insert ValidateProfileId(profileId) between RequiredString(note) (line 97) and ValidateNote(note) (line 98)."
+        },
+        {
+          "file": "src/LWBridge.Desktop/ProfileRegistryCommandService.cs + ProfileRegistryStore.cs",
+          "lines": "67-93, 185-222, 250-285",
+          "differs": false,
+          "differences": [
+            "select/reorder SQL, error codes, 0-based display_order and permutation rule match; select-owner rollback (lines 74-92) is a clone mechanism"
+          ],
+          "fix": "none for codes."
+        },
+        {
+          "file": "src/LWBridge.Desktop/LWBridgeWindow.cs:603-612, LWBridgeControlPipeHostState.cs:236, OverviewLifecycleService.cs:1936-1965",
+          "differs": true,
+          "differences": [
+            "BRIDGE_HOST_BUSY / GAME_OPERATION_IN_PROGRESS / GAME_REPAIR_REQUIRED can reject a profile switch; the original never rejects profile_select for runtime reasons"
+          ],
+          "fix": "A->A requires the switch to succeed whenever the profile exists and is enabled: make the runtime swap asynchronous/deferred behind the persisted selection instead of throwing; if that is impossible keep the fences but record them as clone-only incomplete behaviour (not parity)."
+        }
+      ],
+      "unknowns": [
+        "Error code for a non-string element inside profileIds (helper 0x3f6495, not decoded).",
+        "Result returned by profile_select/reorder/note_set handlers (profile-list serialization 0x253f44 inferred, MEDIUM).",
+        "Errors produced by the focus helper 0x2a2829."
+      ]
+    },
+    "3": {
+      "title": "game_root_select / game_root_status while a game runs (0x188f12-0x18a2ad, 0x413185)",
+      "facts": [
+        {
+          "id": "3.1",
+          "locator": "frontend Ut(), 0x188f12",
+          "state": "EXACT_CONTRACT",
+          "confidence": "HIGH",
+          "fact": "game_root_select takes no payload (frontend calls game_root_select()); the folder comes from a native dialog. Dialog cancel returns an object with key 'canceled' (single l, built inline at 0x1893da) and persists nothing. The frontend shows INVALID_GAME_ROOT only when !canceled && !valid."
+        },
+        {
+          "id": "3.2",
+          "locator": "0x413185, 0x41281d, 0x412d56, 0x41253e, 0xd6639f",
+          "state": "EXACT_BYTES",
+          "confidence": "HIGH",
+          "fact": "The chosen path is normalized, validated (Game\\LastWar.exe layout) and stored; failure code INVALID_GAME_ROOT with message 'select the folder containing Game\\LastWar.exe'. State write is under a write lock (poisoned -> STATE_UNAVAILABLE 'authorization state is unavailable')."
+        },
+        {
+          "id": "3.3",
+          "locator": "transitive direct-call closure depth 4 (handlers_recovery.py reach_proc)",
+          "state": "EXACT_BYTES (bounded)",
+          "confidence": "HIGH (direct calls) / LOW (indirect)",
+          "fact": "Neither game_root_select nor game_root_status reaches any process API (Toolhelp, OpenProcess, TerminateProcess, EnumWindows, QueryFullProcessImageName). There is no GAME_RUNNING / GAME_OPERATION_IN_PROGRESS check: the original does not reject, stop or re-bind a running game on a root change; it just persists the new root."
+        },
+        {
+          "id": "3.4",
+          "locator": "0x41a8a0, 0x41b451, 0x1d5be1",
+          "state": "DEDUCED",
+          "confidence": "LOW-MEDIUM",
+          "fact": "Consequence (not executed): later consumers read the stored root (launch GAME_ROOT_NOT_FOUND 0x1d5be1; monitor find_game_pid(root) 0x41b451; unmanaged gate), so a running game under the old root is no longer found by the monitor under the new root."
+        }
+      ],
+      "clone": [
+        {
+          "file": "src/LWBridge.Desktop/OverviewLifecycleService.cs",
+          "lines": "215-262",
+          "differs": true,
+          "differences": [
+            "root selection throws GAME_OPERATION_CANCELLED (closed), GAME_OPERATION_IN_PROGRESS (starting/stopping/running/helper/recovery or uncertain launch attempt), GAME_REPAIR_REQUIRED (recovery journal) - none of these exist for game_root_select in the original; the original always persists a valid selection"
+          ],
+          "fix": "accept and persist the selection even while an owned game runs; keep the owned instance bound to the root it was launched with (separate 'selected root' from 'owned instance root') so stop/restore and the recovery journal keep using the old root; only if the installation journal makes that impossible, document the fence as a clone-only incomplete behaviour."
+        },
+        {
+          "file": "src/LWBridge.Desktop/LWBridgeWindow.cs",
+          "lines": "4969-4971, 5054-5110",
+          "differs": false,
+          "differences": [
+            "cancel result key is 'canceled' (matches)"
+          ],
+          "fix": "none."
+        }
+      ],
+      "unknowns": [
+        "How the handler distinguishes an invalid pick returning valid:false (value built at 0x18972e through 0x2a19c3) from the Err path of 0x413185 - both carry INVALID_GAME_ROOT; field-level result schema not fully traced.",
+        "Live behaviour of a running game after a root change (needs live proof)."
+      ]
+    },
+    "4": {
+      "title": "game_recovery_status (0x154905-0x155144)",
+      "facts": [
+        {
+          "id": "4.1",
+          "locator": "0x154c65 -> 0x23b9e5 -> 0x24156e; 0x154c91 -> 0x41c8dd",
+          "state": "EXACT_BYTES",
+          "confidence": "HIGH",
+          "fact": "Errors in order: PROFILE_ID_REQUIRED (payload not Object / profileId missing, non-string or empty; code==message), STATE_UNAVAILABLE (registry lock poisoned), PROFILE_RUNTIME_UNAVAILABLE (no runtime for id), STATE_UNAVAILABLE 'game recovery state is unavailable' (recovery mutex poisoned). A freshly started or idle runtime is a normal result, never an error."
+        },
+        {
+          "id": "4.2",
+          "locator": "0x41d3fc keys",
+          "state": "EXACT_BYTES",
+          "confidence": "HIGH",
+          "fact": "Result keys in serializer order: state, reason, updateDetected, restarted, startedAt, completedAt, attempts, nextRetryAt, error, noticeId, noticeVisible."
+        }
+      ],
+      "clone": [
+        {
+          "file": "src/LWBridge.Desktop/GameRecoveryStatusCommandService.cs",
+          "lines": "20-47",
+          "differs": true,
+          "differences": [
+            "whitespace-only profileId gives PROFILE_ID_REQUIRED (original: only the empty string; a blank id falls through to PROFILE_RUNTIME_UNAVAILABLE)",
+            "statusProvider()==null gives STATE_UNAVAILABLE (original has no such case; LWBridgeBackend.cs:109-112 provider returns null when the lifecycle owner is absent)"
+          ],
+          "fix": "use string.IsNullOrEmpty(value) at line ~46; when the provider is null return the idle record new OverviewRecoveryStatus(\"idle\",null,false,false,0,null,0,null,null,0,false) (same as LWBridgeWindow.cs:5316) instead of throwing."
+        }
+      ],
+      "unknowns": [
+        "Original registry-lock-poisoned wording (message equals code only for PROFILE_*; STATE_UNAVAILABLE message of 0x24156e not separately read)."
+      ]
+    },
+    "5": {
+      "title": "Start in-flight / already-running / unmanaged precondition order",
+      "facts": [
+        {
+          "id": "5.1",
+          "locator": "0x20715f, 0x1d5009 (0x1d5411, 0x1d5be1, 0x1d6240, 0x1d6548-0x1d74e5, 0x1d7690), 0x23e9dc",
+          "state": "EXACT_BYTES",
+          "confidence": "HIGH (order) / MEDIUM (reserve predicate)",
+          "fact": "profile_instance_start (the command the UI uses) order: payload Object with String profileId else INVALID_REQUEST (closeUnmanaged bool default false) -> STATE_UNAVAILABLE (authorization state) -> GAME_ROOT_NOT_FOUND -> instance reservation 0x23e9dc: STATE_UNAVAILABLE | PROFILE_ALREADY_RUNNING (profile already has an instance record in ANY phase; a stale phase=='error' record whose flag byte is 0 is silently replaced) -> unmanaged-game gate (UNMANAGED_GAME_RUNNING{pids} unless closeUnmanaged; terminate errors; GAME_CLOSE_TIMEOUT after 5 s) -> PROFILE_LIMIT_REACHED -> ticket/lease/launch/bridge-wait stages."
+        },
+        {
+          "id": "5.2",
+          "locator": "0x41b3bc callers 0xe5921, 0x111bee, 0x1291e6",
+          "state": "EXACT_BYTES",
+          "confidence": "HIGH",
+          "fact": "GAME_OPERATION_IN_PROGRESS ('another game operation is already in progress') is the CAS try-acquire of ctx+0x115 and is taken only by game_start (0x11157c), game_stop (0x128a38) and the recovery run (0xe5884). profile_instance_start/stop never take it. GAME_RUNNING and GAME_OPERATION_CANCELLED do not occur in the start path (GAME_RUNNING exists only in the proxy-repair code at 0xd47442)."
+        },
+        {
+          "id": "5.3",
+          "locator": "0x11157c",
+          "state": "EXACT_CONTRACT_RECONSTRUCTED",
+          "confidence": "MEDIUM",
+          "fact": "game_start (not used by the Home UI): profile resolver -> try-acquire op flag -> persist game_desired_running=true + memory flag + recovery observation reset + log 'game lifecycle start requested' -> find tracked game (0x41b451); present = success without launching; else kill LastWarLauncher/Updater/Sync (0x41e613), re-find, terminate stray game (0x41e543), launch; any failure releases the flag and persists game_desired_running=false."
+        }
+      ],
+      "clone": [
+        {
+          "file": "src/LWBridge.Desktop/OverviewLifecycleService.cs",
+          "lines": "667-695",
+          "differs": true,
+          "differences": [
+            "order is closed(GAME_OPERATION_CANCELLED) -> profile replacement (GAME_OPERATION_IN_PROGRESS) -> GAME_ROOT_NOT_FOUND -> phase starting/stopping (GAME_OPERATION_IN_PROGRESS) -> gamePid (GAME_RUNNING) -> UNMANAGED_GAME_RUNNING; original uses GAME_ROOT_NOT_FOUND -> PROFILE_ALREADY_RUNNING -> UNMANAGED_GAME_RUNNING and has none of the three clone codes"
+          ],
+          "fix": "after the GAME_ROOT_NOT_FOUND check replace lines 683-687 by one check: if an instance record exists (instanceId != null) and it is not (phase=='error' && gamePid==null) throw PROFILE_ALREADY_RUNNING (code==message); keep the internal single-flight guard but surface it as PROFILE_ALREADY_RUNNING; map closed/profile-replacement waits to the same code or serialise them internally instead of GAME_OPERATION_*."
+        }
+      ],
+      "unknowns": [
+        "Meaning of the reserve predicate flag byte ([entry-0x18]) is inferred (pid-less error record).",
+        "STATE_UNAVAILABLE ordering relative to INVALID_REQUEST for non-object payloads: INVALID_REQUEST is raised first (0x207684)."
+      ]
+    },
+    "6": {
+      "title": "profile_instance_status record and connectionState classifier",
+      "facts": [
+        {
+          "id": "6.1",
+          "locator": "0x1a0da4, 0x1a17cf-0x1a1ba3",
+          "state": "EXACT_BYTES",
+          "confidence": "HIGH",
+          "fact": "Handler needs Object+String profileId else INVALID_REQUEST (NOT PROFILE_ID_REQUIRED in 0.3.17); then instance lookup 0x241836, runtime lookup 0x24156e (PROFILE_RUNTIME_UNAVAILABLE). Record fields: profileId, instanceId, phase, pid, startedAt, lastError, identityConfirmed, leaseRequired + connectionState, bridgeConnected, lastHeartbeatAt, leaseActive (the last four keys are assembled from immediates, which is why a string search misses them)."
+        },
+        {
+          "id": "6.2",
+          "locator": "0x2d7ff3-0x2d8130",
+          "state": "EXACT_BYTES",
+          "confidence": "HIGH",
+          "fact": "connectionState: lastError!=null -> 'error'; phase 'starting' -> 'starting'; 'recovering' -> 'recovering'; 'awaitingIdentity' -> 'awaitingLogin'; otherwise leaseRequired && leaseStatus=='grace' && !leaseActive -> 'grace'; otherwise 'connected' iff bridgeConnected && heartbeatFresh && identityConfirmed (&& leaseActive when leaseRequired), else 'reconnecting'. Instance phases seen: starting, awaitingIdentity, running, recovering, error. No 'stopped'/'maintenance'/'offline' is produced; absence of an instance is a null result (carried from 0.3.1, structure matches)."
+        },
+        {
+          "id": "6.3",
+          "locator": "frontend Jr map",
+          "state": "EXACT_CONTRACT",
+          "confidence": "HIGH",
+          "fact": "UI connection labels: offline, starting, recovering, awaitingLogin, connected, reconnecting, grace, locked, error (profile.connection.*); no 'maintenance'."
+        }
+      ],
+      "clone": [
+        {
+          "file": "src/LWBridge.Desktop/OverviewLifecycleProfileInstanceStatus.cs",
+          "lines": "7-92",
+          "differs": false,
+          "differences": [
+            "field set, null on no instance and the classifier table match the 0.3.17 bytes (single-profile, leaseRequired=false)"
+          ],
+          "fix": "none."
+        },
+        {
+          "file": "src/LWBridge.Desktop/OverviewLifecycleService.cs",
+          "lines": "181-185, 376-446",
+          "differs": true,
+          "differences": [
+            "CreateInstanceStatus is a clone-only 5-field shape (phase 'stopped', connectionState 'offline'/'maintenance', error 'UNMANAGED_GAME_RUNNING'/'BRIDGE_DISCONNECTED'/'SERVER_MAINTENANCE') with no original counterpart; CurrentConnectionState can return 'maintenance', which has no profile.connection.maintenance label"
+          ],
+          "fix": "keep it internal-only (diagnostics/Overview events); do not return it from any UI-visible command; map 'maintenance' to the original states ('reconnecting'/'error') before it reaches the UI."
+        }
+      ],
+      "unknowns": [
+        "Null serialization of the none-case in 0.3.17 was matched structurally (poll return path not byte-traced).",
+        "Multi-profile lease fields remain protected-service dependent."
+      ]
+    },
+    "7": {
+      "title": "GameDesiredRunning persistence",
+      "facts": [
+        {
+          "id": "7.1",
+          "locator": "0x2ceb43, 0x41bcd5, 0x41be3c (0x41bf3a, 0x41c065)",
+          "state": "EXACT_BYTES",
+          "confidence": "HIGH",
+          "fact": "Persisted: config.json key game_desired_running (bool). Written on every transition (0x2ceb43; STATE_UNAVAILABLE / INVALID_CONFIG 'bridge config must be an object' on failure). Read at runtime-context construction (0x41be3c, callers 0x21d66b and 0x29f4b4): missing/non-bool = false, stored in ctx+0x124; ctx+0x125 (op flag)=0, ctx+0x126 (monitor armed)=1."
+        },
+        {
+          "id": "7.2",
+          "locator": "callers of 0x41bd6f / 0x41bbff / 0x41ca7d",
+          "state": "EXACT_BYTES",
+          "confidence": "HIGH",
+          "fact": "Set true: game_start, launch finalize 0x23fac5 (with tracked pid), reconcile adoption (0x2a0cb7). Cleared: profile_instance_stop (0x199e30), launch rollback helper 0x1d4468, 0xe6f71, 0x16e139, 0x23c486, 0x41ca7d callers. It is a separate gate from auto_force_update_reload; the monitor tick additionally needs a tracked pid (ctx+0x120), so a persisted true alone does not relaunch after an app restart."
+        }
+      ],
+      "clone": [
+        {
+          "file": "src/LWBridge.Desktop/LocalConfigStore.cs + OverviewLifecycleRecovery.cs",
+          "lines": "19-22; 125-132; OverviewLifecycleService.cs:858,961,1001,1113",
+          "differs": false,
+          "differences": [
+            "persisting GameDesiredRunning matches the original; SetDesiredRunning(false) additionally calls NotifyAutomationChanged(false) which is a no-op here (original does not touch automation on clear)"
+          ],
+          "fix": "none; do not make it memory-only."
+        }
+      ],
+      "unknowns": [
+        "Exact clear sites 0xe6f71/0x16e139/0x23c486 not individually named."
+      ]
+    },
+    "8": {
+      "title": "Locale: Home error codes in the original frontend (index-BVfnK1wp.js tables Mr/Nr/Pr, en/ja)",
+      "facts": [
+        {
+          "id": "8.1",
+          "locator": "index-BVfnK1wp.js Ir/Lr, Mr/Nr/Pr",
+          "state": "EXACT_CONTRACT",
+          "confidence": "HIGH",
+          "fact": "Lookup: codes = error.code plus every [A-Z][A-Z0-9_]{2,} token of the message (dedup, reversed); try error.<C>, auth.error.<C>, update.error.<C>; first translated hit wins; otherwise t('common.actionFailed') = en 'The action could not be completed.' / ja 操作を完了できませんでした。"
+        },
+        {
+          "id": "8.2",
+          "locator": "handlers-locale.json",
+          "state": "EXACT_CONTRACT",
+          "confidence": "HIGH",
+          "fact": "Localized in the original (key error.<CODE>; en text): LAUNCH_FAILED 'The game could not be started.'; GAME_CLOSE_TIMEOUT 'Closing the game timed out.'; UNMANAGED_GAME_RUNNING 'Close the game started outside this application first.' (all 9 languages incl. ja). NOT localized in the original (fall back to common.actionFailed): INSTANCE_NOT_OWNED, RECOVERY_RECORD_INVALID, RECOVERY_PROCESS_MISMATCH, RECOVERY_RECORD_NOT_FOUND, STATE_UNAVAILABLE, GAME_REPAIR_REQUIRED, GAME_OPERATION_IN_PROGRESS, GAME_OPERATION_CANCELLED, BRIDGE_DISCONNECTED, GAME_CLOSE_FAILED. Also not localized: PROFILE_LOCKED, PROFILE_ID_REQUIRED, PROFILE_RUNTIME_UNAVAILABLE, INVALID_PROFILE_ID, INSTANCE_MISMATCH, INSTANCE_NOT_FOUND. INVALID_REQUEST is localized only via auth.error ('Check the information you entered.'). Localized and relevant: GAME_ROOT_NOT_FOUND, INVALID_GAME_ROOT, GAME_RUNNING, PROFILE_ALREADY_RUNNING, PROFILE_NOT_FOUND, GAME_DISCONNECTED, BRIDGE_START_TIMEOUT, INVALID_PROFILE_NOTE, INVALID_PROFILE_ORDER, PROFILE_LIMIT_REACHED."
+        },
+        {
+          "id": "8.3",
+          "locator": "src/LWBridge.UI-0.3.17/src/locales/{en,ja}.js vs original",
+          "state": "EXACT_BYTES",
+          "confidence": "HIGH",
+          "fact": "The clone error.* block is identical to the original Mr table (101 keys, 0 text diffs, en+ja) and implements the same three-namespace lookup with the same common.actionFailed fallback (HomePage.jsx:58-64, ProfileSidebar.jsx:38-43). profile.connection.* keys equal the original Jr map; the clone has no profile.connection.maintenance (neither does the original)."
+        }
+      ],
+      "clone": [
+        {
+          "file": "src/LWBridge.UI-0.3.17/src/locales/en.js, ja.js",
+          "lines": "n/a (single-line JSON)",
+          "differs": false,
+          "differences": [
+            "10 clone-only codes correctly have no key: the original UI shows the generic message for them too"
+          ],
+          "fix": "none; do not add keys. To change user-visible text for these cases the host must emit an original localized code instead (see items 1, 5)."
+        }
+      ],
+      "unknowns": []
+    }
+  },
+  "remainingUnknowns": [
+    "Game-side setAutomation name list / error codes (encrypted Lua).",
+    "Non-string element error code in profile_reorder (helper 0x3f6495) and focus-helper errors in profile_select (0x2a2829).",
+    "game_root_select result schema for an invalid pick (valid:false object vs Err) and live effect on a running game.",
+    "Reserve predicate flag byte in 0x23e9dc (inferred: error-phase record without pid).",
+    "Null-result serialization byte trace for profile_instance_status when no instance exists (structural match only)."
+  ]
+}

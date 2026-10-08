@@ -67,6 +67,18 @@ if (args.Contains("--background-witness-002-self-test", StringComparer.OrdinalIg
     LWBridge.Desktop.Checks.BackgroundHomeMapWitness002.RunInverseChecks();
     return 0;
 }
+int completion010PilotIndex = Array.FindIndex(args,
+    value => string.Equals(value, "--completion010-live-pilot", StringComparison.OrdinalIgnoreCase));
+if (completion010PilotIndex >= 0)
+{
+    if (completion010PilotIndex + 2 >= args.Length)
+        throw new ArgumentException("--completion010-live-pilot requires <output.json> <preflight.json>");
+    await LWBridge.Desktop.Checks.Completion010LivePilot.RunAsync(
+        Path.GetFullPath(args[completion010PilotIndex + 1]),
+        Path.GetFullPath(args[completion010PilotIndex + 2]),
+        args.Contains("--positive-stage", StringComparer.OrdinalIgnoreCase));
+    return 0;
+}
 int backgroundWitness002Index = Array.FindIndex(args,
     value => string.Equals(value, "--background-witness-002", StringComparison.OrdinalIgnoreCase));
 if (backgroundWitness002Index >= 0)
