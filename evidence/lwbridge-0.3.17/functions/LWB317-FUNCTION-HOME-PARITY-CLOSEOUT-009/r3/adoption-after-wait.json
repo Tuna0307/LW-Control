@@ -1,0 +1,24 @@
+﻿{
+  "ok": true,
+  "tests": [
+    "dpapi-roundtrip-token-not-plaintext",
+    "dpapi-tamper-and-duplicate-keys-fail-closed",
+    "restored-credential-through-actual-host-registry",
+    "outdated-build-rejected-from-host-registry",
+    "same-build-inert-first-adoption",
+    "same-build-second-host-restart-no-kill",
+    "host-close-preserves-owned-record",
+    "missing-fails-closed",
+    "invalid-fails-closed",
+    "process-mismatch-fails-closed",
+    "profile-replacement-fails-closed",
+    "authenticated-reconnect-waits-for-fresh-heartbeat",
+    "heartbeat-timeout-retains-exact-game-journal",
+    "adopted-session-explicit-stop-record-cleanup",
+    "outdated-build-repair-then-one-inert-relaunch"
+  ],
+  "count": 15,
+  "gameLaunches": 0,
+  "actualGameProcessesTerminated": 0,
+  "retainedOriginalToken": true
+}

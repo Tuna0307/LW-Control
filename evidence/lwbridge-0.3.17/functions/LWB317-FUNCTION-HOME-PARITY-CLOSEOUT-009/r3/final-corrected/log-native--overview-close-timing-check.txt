@@ -1,0 +1,77 @@
+{
+  "ok": true,
+  "acceptanceCase": "A06",
+  "scope": "recovered Home Close reachability plus lifecycle/scan terminal outcomes; no real game/process",
+  "frontend": {
+    "closeGate": "canStop:e\u0026\u0026t\u0026\u0026(n||i)\u0026\u0026!a\u0026\u0026!o",
+    "idleCloseReachable": false,
+    "launchingCloseReachable": false,
+    "ownedCloseReachable": true,
+    "recoveringCloseReachable": true,
+    "homeCloseCallsMapScanStop": false
+  },
+  "idle": {
+    "uiCloseReachable": false,
+    "directCommandError": "INSTANCE_NOT_OWNED",
+    "finalPhase": "stopped",
+    "finalConnection": "offline"
+  },
+  "launching": {
+    "uiCloseReachable": false,
+    "directCommandDuringStart": "GAME_OPERATION_IN_PROGRESS",
+    "originalStartCompleted": true,
+    "exactStopCalls": 1,
+    "finalDesiredRunning": false,
+    "finalPhase": "stopped"
+  },
+  "closeDuringStart": {
+    "error": "GAME_OPERATION_CANCELLED",
+    "correlatedMarker": true,
+    "helperStartCalls": 1,
+    "compensatingStopCalls": 0,
+    "finalPhase": "stopped",
+    "finalConnection": "offline",
+    "ownsPid": false,
+    "ownsInstance": false
+  },
+  "closeAfterHelperSuccess": {
+    "error": "GAME_OPERATION_CANCELLED",
+    "correlatedMarker": true,
+    "helperStartCalls": 1,
+    "compensatingStopCalls": 1,
+    "processAlive": false,
+    "finalDesiredRunning": false,
+    "finalPhase": "stopped",
+    "ownsPid": false,
+    "ownsInstance": false
+  },
+  "scanning": {
+    "uiCloseReachable": true,
+    "homeCloseCallsMapScanStop": false,
+    "scanTerminalPhase": "error",
+    "scanTerminalError": "game connection unavailable",
+    "durableRunStatus": "failed",
+    "checkpointStatuses": [
+      {
+        "BlockIndex": 0,
+        "Status": "completed",
+        "Attempts": 1
+      }
+    ],
+    "publishedRecordKeys": [
+      "baseline"
+    ],
+    "lifecycleStopCalls": 1,
+    "finalDesiredRunning": false,
+    "automaticRestartAfterClose": false
+  },
+  "recovering": {
+    "uiCloseReachable": true,
+    "recoveryStateBeforeClose": "waiting",
+    "recoveryStateAfterClose": "idle",
+    "exactStopCalls": 1,
+    "finalDesiredRunning": false,
+    "futureRecoveryStarts": 0,
+    "finalPhase": "stopped"
+  }
+}

@@ -1,0 +1,49 @@
+﻿{
+    "case":  "postfix-same-session-host-restart",
+    "transition":  {
+                       "operation":  "postfix-same-game-host-restart",
+                       "closedOldHostPid":  59596,
+                       "newHostPid":  27100,
+                       "newHostStartedUtc":  "2026-10-08T16:41:11.7935021Z",
+                       "retainedGamePid":  32808,
+                       "gamePath":  "C:\\Users\\chimw\\AppData\\Local\\FunFly\\Last War-Survival Game\\Game\\LastWar.exe",
+                       "gameCreated":  "2026-10-08T16:40:03.2801994Z",
+                       "session":  "0b93f664a1ec49598e630497a6ea9329",
+                       "noReplacementGameAtTransition":  true,
+                       "root":  "C:\\Users\\chimw\\AppData\\Local\\Temp\\LWB317-HOME009-R3-POSTFIX-20261009"
+                   },
+    "observedNewHostLeasePresentAndSessionMatched":  true,
+    "observedGameAdapterState":  "connected",
+    "observedNativeSecondHello":  true,
+    "authenticatedHomeConnectedScreen":  "postfix-restarted-connected-home.png",
+    "authenticatedReadinessGate":  "IsSnapshotReady requires host registry route and exact fresh game heartbeat",
+    "exactGameExited":  true,
+    "ownedCloneClosed":  true,
+    "unrelatedGameProcessCount":  0,
+    "runtimeFiles":  {
+                         "leaseGone":  true,
+                         "recoveryGone":  true,
+                         "adoptionGone":  true
+                     },
+    "originalFiles":  [
+                          {
+                              "name":  "data",
+                              "originalSha256":  "2187de71f426741eb61482f6e85639314526e6bdefc9445319b1ff52b31cfac0",
+                              "afterStopSha256":  "2187de71f426741eb61482f6e85639314526e6bdefc9445319b1ff52b31cfac0",
+                              "identical":  true
+                          },
+                          {
+                              "name":  "metadata",
+                              "originalSha256":  "988c36bd7d3758404193f9cb380ef5b7f6484621061443fd95a90c8fc1d97306",
+                              "afterStopSha256":  "988c36bd7d3758404193f9cb380ef5b7f6484621061443fd95a90c8fc1d97306",
+                              "identical":  true
+                          },
+                          {
+                              "name":  "version",
+                              "originalSha256":  "535fa30d7e25dd8a49f1536779734ec8286108d115da5045d77f3b4185d8f790",
+                              "afterStopSha256":  "535fa30d7e25dd8a49f1536779734ec8286108d115da5045d77f3b4185d8f790",
+                              "identical":  true
+                          }
+                      ],
+    "recordedUtc":  "2026-10-08T16:43:57.1726667+00:00"
+}

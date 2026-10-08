@@ -1,0 +1,12 @@
+﻿{
+    "operation":  "postfix-same-game-host-restart",
+    "closedOldHostPid":  59596,
+    "newHostPid":  27100,
+    "newHostStartedUtc":  "2026-10-08T16:41:11.7935021Z",
+    "retainedGamePid":  32808,
+    "gamePath":  "C:\\Users\\chimw\\AppData\\Local\\FunFly\\Last War-Survival Game\\Game\\LastWar.exe",
+    "gameCreated":  "2026-10-08T16:40:03.2801994Z",
+    "session":  "0b93f664a1ec49598e630497a6ea9329",
+    "noReplacementGameAtTransition":  true,
+    "root":  "C:\\Users\\chimw\\AppData\\Local\\Temp\\LWB317-HOME009-R3-POSTFIX-20261009"
+}

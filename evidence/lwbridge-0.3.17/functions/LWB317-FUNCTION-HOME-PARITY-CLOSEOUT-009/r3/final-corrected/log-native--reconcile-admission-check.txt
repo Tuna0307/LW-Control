@@ -1,0 +1,108 @@
+{
+  "ok": true,
+  "rows": [
+    {
+      "payload": "true",
+      "nativeAutoLaunchGame": true,
+      "expectedAdmission": 1,
+      "actualAdmission": 1
+    },
+    {
+      "payload": "false",
+      "nativeAutoLaunchGame": true,
+      "expectedAdmission": 0,
+      "actualAdmission": 0
+    },
+    {
+      "payload": "missing",
+      "nativeAutoLaunchGame": true,
+      "expectedAdmission": 1,
+      "actualAdmission": 1
+    },
+    {
+      "payload": "null",
+      "nativeAutoLaunchGame": true,
+      "expectedAdmission": 1,
+      "actualAdmission": 1
+    },
+    {
+      "payload": "integer",
+      "nativeAutoLaunchGame": true,
+      "expectedAdmission": 1,
+      "actualAdmission": 1
+    },
+    {
+      "payload": "string",
+      "nativeAutoLaunchGame": true,
+      "expectedAdmission": 1,
+      "actualAdmission": 1
+    },
+    {
+      "payload": "object",
+      "nativeAutoLaunchGame": true,
+      "expectedAdmission": 1,
+      "actualAdmission": 1
+    },
+    {
+      "payload": "array",
+      "nativeAutoLaunchGame": true,
+      "expectedAdmission": 1,
+      "actualAdmission": 1
+    },
+    {
+      "payload": "true",
+      "nativeAutoLaunchGame": false,
+      "expectedAdmission": 1,
+      "actualAdmission": 1
+    },
+    {
+      "payload": "false",
+      "nativeAutoLaunchGame": false,
+      "expectedAdmission": 0,
+      "actualAdmission": 0
+    },
+    {
+      "payload": "missing",
+      "nativeAutoLaunchGame": false,
+      "expectedAdmission": 1,
+      "actualAdmission": 1
+    },
+    {
+      "payload": "null",
+      "nativeAutoLaunchGame": false,
+      "expectedAdmission": 1,
+      "actualAdmission": 1
+    },
+    {
+      "payload": "integer",
+      "nativeAutoLaunchGame": false,
+      "expectedAdmission": 1,
+      "actualAdmission": 1
+    },
+    {
+      "payload": "string",
+      "nativeAutoLaunchGame": false,
+      "expectedAdmission": 1,
+      "actualAdmission": 1
+    },
+    {
+      "payload": "object",
+      "nativeAutoLaunchGame": false,
+      "expectedAdmission": 1,
+      "actualAdmission": 1
+    },
+    {
+      "payload": "array",
+      "nativeAutoLaunchGame": false,
+      "expectedAdmission": 1,
+      "actualAdmission": 1
+    },
+    {
+      "case_": "launch-failure-reported",
+      "errors": 1
+    },
+    {
+      "case_": "owned-running-not-double-started"
+    }
+  ]
+}

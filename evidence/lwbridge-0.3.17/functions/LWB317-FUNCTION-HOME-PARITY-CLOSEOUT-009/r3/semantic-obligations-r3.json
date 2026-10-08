@@ -1,0 +1,99 @@
+{
+  "workItem": "LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009-R3",
+  "checkpoint": "2026-10-09",
+  "delivery": "PARTIAL",
+  "fullOriginalHomeParity": false,
+  "originalSHA256": "4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783",
+  "liveGameLaunches": 4,
+  "liveOriginalExecution": false,
+  "leadAcceptance": "NOT_REQUESTED_YET",
+  "items": [
+    {
+      "id": "LEAD009R2-01",
+      "status": "CORRECTED_CURRENT_HOST",
+      "evidence": [
+        "refresh-error-before.json",
+        "refresh-error-after-built.json",
+        "handoff-probe-ownership.json"
+      ],
+      "remaining": "protected original execution separate"
+    },
+    {
+      "id": "LEAD009R2-02",
+      "status": "PARTIAL_STATIC",
+      "source": [
+        "0x2DC830",
+        "0x2DC61A",
+        "0x203D8B",
+        "0x2055DB"
+      ],
+      "evidence": [
+        "original-contract.json"
+      ],
+      "remaining": [
+        "finalizer async branch complete decode 0x1DDF66-0x1DE357 and secondary frames",
+        "exact 0x2054CB producer error value"
+      ]
+    },
+    {
+      "id": "LEAD009R2-03",
+      "status": "CONTROLLED_IMPLEMENTED_AND_POSTFIX_LIVE_RESTART_WITNESSED_ORIGINAL_PARITY_UNPROVEN",
+      "tested": [
+        "15 DPAPI/adoption tests",
+        "24 native pipe generation swaps"
+      ],
+      "evidence": [
+        "adoption-after-wait.json",
+        "pipe-epoch-results.json"
+      ],
+      "remaining": [
+        "post-fix current-client same-PID host restart, fresh lease and heartbeat PASSED: live-postfix-closeout.json",
+        "profile A-B-A and failure racing user Stop"
+      ]
+    },
+    {
+      "id": "LAUNCH_RETRY",
+      "status": "CORRECTED_SOURCE_TRIGGER_ONLY",
+      "source": [
+        "0x1DC345",
+        "0x1DC3D0"
+      ],
+      "evidence": [
+        "--overview-official-settle-check",
+        "--overview-bridge-lifecycle-launch-binding-check"
+      ],
+      "remaining": [
+        "actual current launcher OFFICIAL_LAUNCHER_RESTARTED producer mapping"
+      ]
+    },
+    {
+      "id": "CANONICAL_LIVE_HOME",
+      "status": "PARTIAL",
+      "live": [
+        "default root Connected/Close/restoration pass, not isolated",
+        "isolated Chinese/light Connected and same-PID restarted-host Connected screenshot, followed by Home Stop and exact restoration",
+        "independent isolated same-game second pipe opened but host lease stale, then exact Stop restored",
+        "post-fix fresh isolated same-PID restored authenticated route with lease, fresh heartbeat and Home Connected; exact Home Stop and three hashes restored"
+      ],
+      "remaining": [
+        "additional repeated transient-failure/cancel/replacement races beyond the post-fix live positive",
+        "JA/dark desktop and native failure/error evidence",
+        "original0.3.17 A-to-A runtime parity not authorized"
+      ]
+    },
+    {
+      "id": "INTEGRATION",
+      "status": "PASS_38_OF_38",
+      "preFixReplay": {
+        "total": 38,
+        "passed": 36,
+        "failed": [
+          "native--overview-official-settle-check",
+          "native-default-flow"
+        ],
+        "reason": "stale retry fixture expectations; source-backed correction and focused native test passed"
+      },
+      "finalResults": "final-corrected/final-checks.json"
+    }
+  ]
+}

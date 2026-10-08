@@ -1,0 +1,65 @@
+{
+  "compatibility": {
+    "ok": true,
+    "compatibilityPolicy": "lwbridge-current-client-critical-anchors-3",
+    "observed": {
+      "packageSha256": "2187de71f426741eb61482f6e85639314526e6bdefc9445319b1ff52b31cfac0",
+      "packageSize": 41320953,
+      "packageCrc32": 2558622576,
+      "fileVersion": 3,
+      "contentVersion": 23,
+      "entryCount": 18741,
+      "gameSha256": "905c98c1f89841f90b492556192ba0642f3d209a873cb8c1f7b3c340aca0733d",
+      "xluaSha256": "d22d912f031c60f2649fdaf76d359d695511f7a37b93cd637b557f8346569d45",
+      "assemblyCSharpSha256": "bfb740b4570c58bd2bcc7fb83f9b83d8121ce10fb1bf49040e9fb8b08e958b3e",
+      "luaEntrySha256": "50f3ae906a8e9898549c4ea740eedc772a88eb2979e165eb35733192d100a137",
+      "criticalEntries": {
+        "DataCenter/Global/LuaEntry.luac": "50f3ae906a8e9898549c4ea740eedc772a88eb2979e165eb35733192d100a137",
+        "Global/ConstDefine.luac": "95e6c733b98dc641c330f36efdef044845033b37ea6703068f7c7ed5fb0048fd",
+        "Util/CSharpCallLuaInterface.luac": "af1559723afba0fa5773bb815c486f3233fecb3928768abd082a96b51960229e",
+        "UI/LWMainUI/Component/UIMainBottom/UIMainChangeScene.luac": "3843dc02869330f060a199b946ef3cd30aa335504914c2f4c60f8a824e871c5b"
+      },
+      "metadata": "41320953|2558622576",
+      "version": "23",
+      "versionMarker": 23,
+      "versionMarkerMatchesContentVersion": true
+    },
+    "problems": []
+  },
+  "processesAtGate": [],
+  "isolatedRoot": "C:\\Users\\chimw\\AppData\\Local\\Temp\\LWB317-HOME009-R3-20261008-ISOLATED",
+  "existingIsolatedFilesBeforeGate": [],
+  "triplet": {
+    "data": {
+      "path": "C:\\Users\\chimw\\AppData\\LocalLow\\FunFly\\Last War-Survival Game\\lwScripts\\LWScripts.data",
+      "sha256": "2187de71f426741eb61482f6e85639314526e6bdefc9445319b1ff52b31cfac0",
+      "bytes": 41320953
+    },
+    "metadata": {
+      "path": "C:\\Users\\chimw\\AppData\\LocalLow\\FunFly\\Last War-Survival Game\\lwScripts\\LWScripts.txt",
+      "sha256": "988c36bd7d3758404193f9cb380ef5b7f6484621061443fd95a90c8fc1d97306",
+      "bytes": 19
+    },
+    "version": {
+      "path": "C:\\Users\\chimw\\AppData\\LocalLow\\FunFly\\Last War-Survival Game\\lwScripts\\version.txt",
+      "sha256": "535fa30d7e25dd8a49f1536779734ec8286108d115da5045d77f3b4185d8f790",
+      "bytes": 2
+    }
+  },
+  "verifiedReversibleBackups": {
+    "data": {
+      "path": "C:\\Users\\chimw\\AppData\\Local\\Temp\\LWB317-HOME009-R3-20261008-ISOLATED\\before-original-game-files\\LWScripts.data",
+      "sha256": "2187de71f426741eb61482f6e85639314526e6bdefc9445319b1ff52b31cfac0"
+    },
+    "metadata": {
+      "path": "C:\\Users\\chimw\\AppData\\Local\\Temp\\LWB317-HOME009-R3-20261008-ISOLATED\\before-original-game-files\\LWScripts.txt",
+      "sha256": "988c36bd7d3758404193f9cb380ef5b7f6484621061443fd95a90c8fc1d97306"
+    },
+    "version": {
+      "path": "C:\\Users\\chimw\\AppData\\Local\\Temp\\LWB317-HOME009-R3-20261008-ISOLATED\\before-original-game-files\\version.txt",
+      "sha256": "535fa30d7e25dd8a49f1536779734ec8286108d115da5045d77f3b4185d8f790"
+    }
+  },
+  "allowLiveHomeLaunch": true,
+  "note": "No installation mutation, process start or stop occurred in preflight."
+}

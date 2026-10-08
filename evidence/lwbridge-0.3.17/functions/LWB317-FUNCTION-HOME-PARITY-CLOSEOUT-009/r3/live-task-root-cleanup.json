@@ -1,0 +1,17 @@
+﻿[
+    {
+        "taskRoot":  "LWB317-HOME009-R3-20261008-ISOLATED",
+        "removed":  true,
+        "nativeStagesCaptured":  false
+    },
+    {
+        "taskRoot":  "LWB317-HOME009-R3-LIVE-SECOND-20261009",
+        "removed":  true,
+        "nativeStagesCaptured":  true
+    },
+    {
+        "taskRoot":  "LWB317-HOME009-R3-POSTFIX-20261009",
+        "removed":  true,
+        "nativeStagesCaptured":  true
+    }
+]

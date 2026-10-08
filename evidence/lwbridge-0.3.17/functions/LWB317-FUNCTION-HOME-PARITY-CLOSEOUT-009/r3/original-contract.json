@@ -1,0 +1,75 @@
+﻿{
+  "referenceSha256": "4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783",
+  "mode": "static PE disassembly only",
+  "recordJsonFields": [
+    {
+      "key": "schemaVersion",
+      "recordOffset": "+0xa1",
+      "stringRva": "0x8bcfc3"
+    },
+    {
+      "key": "profileId",
+      "recordOffset": "+0x10",
+      "stringRva": "0x8bc7b2"
+    },
+    {
+      "key": "instanceId",
+      "recordOffset": "+0x28",
+      "stringRva": "0x8bc7d8"
+    },
+    {
+      "key": "encryptedPipeToken",
+      "recordOffset": "+0x40",
+      "stringRva": "0xd4813c"
+    },
+    {
+      "key": "pid",
+      "recordOffset": "+0x90",
+      "stringRva": "0x8bca64"
+    },
+    {
+      "key": "processCreatedAt",
+      "recordOffset": "+0x00",
+      "stringRva": "0xd4814e"
+    },
+    {
+      "key": "gameExecutable",
+      "recordOffset": "+0x58",
+      "stringRva": "0xd4815e"
+    },
+    {
+      "key": "buildId",
+      "recordOffset": "+0x78",
+      "stringRva": "0x8bc883"
+    },
+    {
+      "key": "startedAt",
+      "recordOffset": "+0x98",
+      "stringRva": "0xd4816c"
+    },
+    {
+      "key": "leaseRequired",
+      "recordOffset": "+0xa0",
+      "stringRva": "0xd48175"
+    }
+  ],
+  "reconcileValidator": {
+    "rva": "0x2dc61a",
+    "acceptedReturn": 1,
+    "errorWhenNotOne": "RECOVERY_PROCESS_MISMATCH",
+    "required": [
+      "record gameExecutable path +0x60",
+      "normalized case-insensitive path length",
+      "case-insensitive path bytes",
+      "has processCreatedAt",
+      "has pid",
+      "record pid +0x94",
+      "expected process executable probe",
+      "process creation timestamp equality",
+      "record buildId len",
+      "record buildId byte equality",
+      "final result bool"
+    ]
+  },
+  "launchFailureErrorValue": "serde JSON string cloned from launch-error structure at 0x2055db; code/message origin not yet decoded"
+}

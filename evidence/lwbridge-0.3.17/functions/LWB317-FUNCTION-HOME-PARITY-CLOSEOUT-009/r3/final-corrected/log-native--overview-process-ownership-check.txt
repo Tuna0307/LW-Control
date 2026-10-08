@@ -1,0 +1,24 @@
+{
+  "ok": true,
+  "acceptanceCase": "A05",
+  "scope": "real Windows LastWar process-name/path/creation-identity ownership matrix using temporary dummy executables; official game never launched",
+  "managed": {
+    "foreignPid": 8984,
+    "foreignStartedAt": "2026-10-08T16:31:52.6375388Z",
+    "selectedPid": 56808,
+    "helperStartCalls": 1,
+    "helperStopCalls": 1,
+    "duplicateStartCode": "GAME_RUNNING",
+    "foreignPreservedBeforeStart": true,
+    "foreignPreservedWhileManagedRunning": true,
+    "foreignPreservedAfterManagedStop": true,
+    "selectedOwnedStopped": true
+  },
+  "unmanaged": {
+    "selectedPid": 22768,
+    "statusWasNull": true,
+    "startError": "UNMANAGED_GAME_RUNNING",
+    "selectedProcessPreserved": true,
+    "unrelatedProcessPreserved": true
+  }
+}

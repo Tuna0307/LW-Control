@@ -1,0 +1,11 @@
+{
+  "ok": true,
+  "cases": [
+    "report-refreshes-pending-registration",
+    "no-report-keeps-initial-expiry",
+    "foreign-session-report-ignored",
+    "refresh-of-claimed-registration-is-the-launch-error",
+    "registry-expiry-boundary",
+    "acquisition-window-supervision-budgets"
+  ]
+}

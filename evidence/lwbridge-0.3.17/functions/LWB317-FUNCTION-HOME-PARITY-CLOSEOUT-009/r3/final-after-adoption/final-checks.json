@@ -1,0 +1,433 @@
+[
+  {
+    "name": "build-release-checks",
+    "command": [
+      "dotnet",
+      "build",
+      "tests/LWBridge.Desktop.Checks/LWBridge.Desktop.Checks.csproj",
+      "-c",
+      "Release",
+      "--nologo",
+      "-v",
+      "q"
+    ],
+    "exitCode": 0,
+    "seconds": 9.0,
+    "log": "log-build-release-checks.txt"
+  },
+  {
+    "name": "recovery-trace-actual",
+    "command": [
+      "dotnet",
+      "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\tests\\LWBridge.Desktop.Checks\\bin\\Release\\net10.0-windows10.0.17763.0\\LWBridge.Desktop.Checks.dll",
+      "--home009-recovery-trace",
+      "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\evidence\\lwbridge-0.3.17\\functions\\LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009\\lead-review-2026-10-08\\scenarios.json",
+      "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\evidence\\lwbridge-0.3.17\\functions\\LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009\\r3\\final-after-adoption\\production-trace.json"
+    ],
+    "exitCode": 0,
+    "seconds": 18.5,
+    "log": "log-recovery-trace-actual.txt"
+  },
+  {
+    "name": "recovery-trace-compare-normalized",
+    "command": [
+      "C:\\Users\\chimw\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+      "tools/lwbridge317/home009_recovery_compare.py",
+      "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\evidence\\lwbridge-0.3.17\\functions\\LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009\\lead-review-2026-10-08\\oracle.json",
+      "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\evidence\\lwbridge-0.3.17\\functions\\LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009\\r3\\final-after-adoption\\production-trace.json",
+      "--status",
+      "--summary",
+      "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\evidence\\lwbridge-0.3.17\\functions\\LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009\\r3\\final-after-adoption\\recovery-comparison.json"
+    ],
+    "exitCode": 0,
+    "seconds": 0.1,
+    "log": "log-recovery-trace-compare-normalized.txt"
+  },
+  {
+    "name": "native--overview-process-ownership-check",
+    "command": [
+      "dotnet",
+      "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\tests\\LWBridge.Desktop.Checks\\bin\\Release\\net10.0-windows10.0.17763.0\\LWBridge.Desktop.Checks.dll",
+      "--overview-process-ownership-check"
+    ],
+    "exitCode": 0,
+    "seconds": 9.0,
+    "log": "log-native--overview-process-ownership-check.txt"
+  },
+  {
+    "name": "native--overview-close-timing-check",
+    "command": [
+      "dotnet",
+      "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\tests\\LWBridge.Desktop.Checks\\bin\\Release\\net10.0-windows10.0.17763.0\\LWBridge.Desktop.Checks.dll",
+      "--overview-close-timing-check"
+    ],
+    "exitCode": 0,
+    "seconds": 8.9,
+    "log": "log-native--overview-close-timing-check.txt"
+  },
+  {
+    "name": "native--overview-reconnect-policy-check",
+    "command": [
+      "dotnet",
+      "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\tests\\LWBridge.Desktop.Checks\\bin\\Release\\net10.0-windows10.0.17763.0\\LWBridge.Desktop.Checks.dll",
+      "--overview-reconnect-policy-check"
+    ],
+    "exitCode": 0,
+    "seconds": 8.8,
+    "log": "log-native--overview-reconnect-policy-check.txt"
+  },
+  {
+    "name": "native--home-campaign-lifecycle-check",
+    "command": [
+      "dotnet",
+      "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\tests\\LWBridge.Desktop.Checks\\bin\\Release\\net10.0-windows10.0.17763.0\\LWBridge.Desktop.Checks.dll",
+      "--home-campaign-lifecycle-check"
+    ],
+    "exitCode": 0,
+    "seconds": 9.0,
+    "log": "log-native--home-campaign-lifecycle-check.txt"
+  },
+  {
+    "name": "native--profile-runtime-owner-check",
+    "command": [
+      "dotnet",
+      "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\tests\\LWBridge.Desktop.Checks\\bin\\Release\\net10.0-windows10.0.17763.0\\LWBridge.Desktop.Checks.dll",
+      "--profile-runtime-owner-check"
+    ],
+    "exitCode": 0,
+    "seconds": 10.7,
+    "log": "log-native--profile-runtime-owner-check.txt"
+  },
+  {
+    "name": "native--map-campaign-canonical-check",
+    "command": [
+      "dotnet",
+      "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\tests\\LWBridge.Desktop.Checks\\bin\\Release\\net10.0-windows10.0.17763.0\\LWBridge.Desktop.Checks.dll",
+      "--map-campaign-canonical-check"
+    ],
+    "exitCode": 0,
+    "seconds": 9.7,
+    "log": "log-native--map-campaign-canonical-check.txt"
+  },
+  {
+    "name": "native--map317-native-boundary-check",
+    "command": [
+      "dotnet",
+      "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\tests\\LWBridge.Desktop.Checks\\bin\\Release\\net10.0-windows10.0.17763.0\\LWBridge.Desktop.Checks.dll",
+      "--map317-native-boundary-check"
+    ],
+    "exitCode": 0,
+    "seconds": 9.5,
+    "log": "log-native--map317-native-boundary-check.txt"
+  },
+  {
+    "name": "native--overview-launch-spam-check",
+    "command": [
+      "dotnet",
+      "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\tests\\LWBridge.Desktop.Checks\\bin\\Release\\net10.0-windows10.0.17763.0\\LWBridge.Desktop.Checks.dll",
+      "--overview-launch-spam-check"
+    ],
+    "exitCode": 0,
+    "seconds": 9.8,
+    "log": "log-native--overview-launch-spam-check.txt"
+  },
+  {
+    "name": "native--overview-official-settle-check",
+    "command": [
+      "dotnet",
+      "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\tests\\LWBridge.Desktop.Checks\\bin\\Release\\net10.0-windows10.0.17763.0\\LWBridge.Desktop.Checks.dll",
+      "--overview-official-settle-check"
+    ],
+    "exitCode": 3762504530,
+    "seconds": 15.3,
+    "log": "log-native--overview-official-settle-check.txt"
+  },
+  {
+    "name": "native--unmanaged-close-check",
+    "command": [
+      "dotnet",
+      "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\tests\\LWBridge.Desktop.Checks\\bin\\Release\\net10.0-windows10.0.17763.0\\LWBridge.Desktop.Checks.dll",
+      "--unmanaged-close-check"
+    ],
+    "exitCode": 0,
+    "seconds": 9.6,
+    "log": "log-native--unmanaged-close-check.txt"
+  },
+  {
+    "name": "native--owned-process-handle-binding-check",
+    "command": [
+      "dotnet",
+      "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\tests\\LWBridge.Desktop.Checks\\bin\\Release\\net10.0-windows10.0.17763.0\\LWBridge.Desktop.Checks.dll",
+      "--owned-process-handle-binding-check"
+    ],
+    "exitCode": 0,
+    "seconds": 9.2,
+    "log": "log-native--owned-process-handle-binding-check.txt"
+  },
+  {
+    "name": "native--recovery-async-ownership-check",
+    "command": [
+      "dotnet",
+      "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\tests\\LWBridge.Desktop.Checks\\bin\\Release\\net10.0-windows10.0.17763.0\\LWBridge.Desktop.Checks.dll",
+      "--recovery-async-ownership-check"
+    ],
+    "exitCode": 0,
+    "seconds": 10.0,
+    "log": "log-native--recovery-async-ownership-check.txt"
+  },
+  {
+    "name": "native--recovery-boundary-check",
+    "command": [
+      "dotnet",
+      "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\tests\\LWBridge.Desktop.Checks\\bin\\Release\\net10.0-windows10.0.17763.0\\LWBridge.Desktop.Checks.dll",
+      "--recovery-boundary-check"
+    ],
+    "exitCode": 0,
+    "seconds": 9.3,
+    "log": "log-native--recovery-boundary-check.txt"
+  },
+  {
+    "name": "py-stop-ownership-r1",
+    "command": [
+      "C:\\Users\\chimw\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+      "tools/test_stop_ownership_r1.py"
+    ],
+    "exitCode": 0,
+    "seconds": 0.9,
+    "log": "log-py-stop-ownership-r1.txt"
+  },
+  {
+    "name": "py-overview-lifecycle",
+    "command": [
+      "C:\\Users\\chimw\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+      "tools/test_overview_bridge_lifecycle.py"
+    ],
+    "exitCode": 0,
+    "seconds": 0.4,
+    "log": "log-py-overview-lifecycle.txt"
+  },
+  {
+    "name": "py-close-comparator-21",
+    "command": [
+      "C:\\Users\\chimw\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+      "tools/lwbridge317/home009_close_compare.py",
+      "--out",
+      "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\evidence\\lwbridge-0.3.17\\functions\\LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009\\r3\\final-after-adoption\\close-compare.json"
+    ],
+    "exitCode": 0,
+    "seconds": 2.4,
+    "log": "log-py-close-comparator-21.txt"
+  },
+  {
+    "name": "py-original-byte-contract",
+    "command": [
+      "C:\\Users\\chimw\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+      "tools/lwbridge317/home009_contract.py"
+    ],
+    "exitCode": 0,
+    "seconds": 1.9,
+    "log": "log-py-original-byte-contract.txt"
+  },
+  {
+    "name": "py-recovery-contract",
+    "command": [
+      "C:\\Users\\chimw\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+      "tools/lwbridge317/home009_recovery_contract_check.py"
+    ],
+    "exitCode": 0,
+    "seconds": 0.1,
+    "log": "log-py-recovery-contract.txt"
+  },
+  {
+    "name": "py-launch-contract",
+    "command": [
+      "C:\\Users\\chimw\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+      "tools/lwbridge317/home009_launch_contract.py"
+    ],
+    "exitCode": 0,
+    "seconds": 1.8,
+    "log": "log-py-launch-contract.txt"
+  },
+  {
+    "name": "py-profile-contract",
+    "command": [
+      "C:\\Users\\chimw\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+      "tools/lwbridge317/home009_profile_contract.py"
+    ],
+    "exitCode": 0,
+    "seconds": 1.9,
+    "log": "log-py-profile-contract.txt"
+  },
+  {
+    "name": "frontend-check",
+    "command": [
+      "npm.cmd",
+      "--prefix",
+      "src/LWBridge.UI-0.3.17",
+      "run",
+      "check"
+    ],
+    "exitCode": 0,
+    "seconds": 0.8,
+    "log": "log-frontend-check.txt"
+  },
+  {
+    "name": "frontend-production-build-check",
+    "command": [
+      "npm.cmd",
+      "--prefix",
+      "src/LWBridge.UI-0.3.17",
+      "run",
+      "check:production-build"
+    ],
+    "exitCode": 0,
+    "seconds": 0.5,
+    "log": "log-frontend-production-build-check.txt"
+  },
+  {
+    "name": "mounted-app-profiles-aba-deferred",
+    "command": [
+      "node",
+      "src/LWBridge.UI-0.3.17/scripts/check-campaign007-r1-mounted-app-profiles.mjs",
+      "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\evidence\\lwbridge-0.3.17\\functions\\LWB317-FUNCTION-HOME-MAP-A-TO-A-CAMPAIGN-007\\command-actual-resource-proof.payload.json",
+      "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\evidence\\lwbridge-0.3.17\\functions\\LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009\\r3\\final-after-adoption\\mounted-app-profiles.json"
+    ],
+    "exitCode": 0,
+    "seconds": 2.7,
+    "log": "log-mounted-app-profiles-aba-deferred.txt"
+  },
+  {
+    "name": "current-client-contract",
+    "command": [
+      "C:\\Users\\chimw\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+      "tools/check_current_client_runtime_contract.py"
+    ],
+    "exitCode": 0,
+    "seconds": 19.8,
+    "log": "log-current-client-contract.txt"
+  },
+  {
+    "name": "native--reconcile-admission-check",
+    "command": [
+      "dotnet",
+      "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\tests\\LWBridge.Desktop.Checks\\bin\\Release\\net10.0-windows10.0.17763.0\\LWBridge.Desktop.Checks.dll",
+      "--reconcile-admission-check"
+    ],
+    "exitCode": 0,
+    "seconds": 9.2,
+    "log": "log-native--reconcile-admission-check.txt"
+  },
+  {
+    "name": "native--bridge-ready-window-check",
+    "command": [
+      "dotnet",
+      "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\tests\\LWBridge.Desktop.Checks\\bin\\Release\\net10.0-windows10.0.17763.0\\LWBridge.Desktop.Checks.dll",
+      "--bridge-ready-window-check"
+    ],
+    "exitCode": 0,
+    "seconds": 10.3,
+    "log": "log-native--bridge-ready-window-check.txt"
+  },
+  {
+    "name": "native--overview-bridge-lifecycle-launch-binding-check",
+    "command": [
+      "dotnet",
+      "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\tests\\LWBridge.Desktop.Checks\\bin\\Release\\net10.0-windows10.0.17763.0\\LWBridge.Desktop.Checks.dll",
+      "--overview-bridge-lifecycle-launch-binding-check"
+    ],
+    "exitCode": 0,
+    "seconds": 9.7,
+    "log": "log-native--overview-bridge-lifecycle-launch-binding-check.txt"
+  },
+  {
+    "name": "native--overview-bridge-normal-composition-check",
+    "command": [
+      "dotnet",
+      "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\tests\\LWBridge.Desktop.Checks\\bin\\Release\\net10.0-windows10.0.17763.0\\LWBridge.Desktop.Checks.dll",
+      "--overview-bridge-normal-composition-check"
+    ],
+    "exitCode": 0,
+    "seconds": 9.2,
+    "log": "log-native--overview-bridge-normal-composition-check.txt"
+  },
+  {
+    "name": "native--production-root-isolation-check",
+    "command": [
+      "dotnet",
+      "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\tests\\LWBridge.Desktop.Checks\\bin\\Release\\net10.0-windows10.0.17763.0\\LWBridge.Desktop.Checks.dll",
+      "--production-root-isolation-check"
+    ],
+    "exitCode": 0,
+    "seconds": 9.0,
+    "log": "log-native--production-root-isolation-check.txt"
+  },
+  {
+    "name": "native--map-auto-scan-campaign-check",
+    "command": [
+      "dotnet",
+      "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\tests\\LWBridge.Desktop.Checks\\bin\\Release\\net10.0-windows10.0.17763.0\\LWBridge.Desktop.Checks.dll",
+      "--map-auto-scan-campaign-check"
+    ],
+    "exitCode": 0,
+    "seconds": 13.6,
+    "log": "log-native--map-auto-scan-campaign-check.txt"
+  },
+  {
+    "name": "py-readiness-window-r2",
+    "command": [
+      "C:\\Users\\chimw\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+      "tools/test_readiness_window_r2.py"
+    ],
+    "exitCode": 0,
+    "seconds": 0.4,
+    "log": "log-py-readiness-window-r2.txt"
+  },
+  {
+    "name": "py-start-failure-matrix",
+    "command": [
+      "C:\\Users\\chimw\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+      "tools/test_overview_start_failure_matrix.py"
+    ],
+    "exitCode": 0,
+    "seconds": 2.2,
+    "log": "log-py-start-failure-matrix.txt"
+  },
+  {
+    "name": "py-launch-contract-r2",
+    "command": [
+      "C:\\Users\\chimw\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+      "tools/lwbridge317/home009_launch_contract_r2.py"
+    ],
+    "exitCode": 0,
+    "seconds": 88.3,
+    "log": "log-py-launch-contract-r2.txt"
+  },
+  {
+    "name": "native-default-flow",
+    "command": [
+      "dotnet",
+      "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\tests\\LWBridge.Desktop.Checks\\bin\\Release\\net10.0-windows10.0.17763.0\\LWBridge.Desktop.Checks.dll"
+    ],
+    "exitCode": 3762504530,
+    "seconds": 17.0,
+    "log": "log-native-default-flow.txt"
+  },
+  {
+    "name": "release-publish-scratch",
+    "command": [
+      "dotnet",
+      "publish",
+      "src/LWBridge.Desktop/LWBridge.Desktop.csproj",
+      "-c",
+      "Release",
+      "--nologo",
+      "-v",
+      "q",
+      "-o",
+      "C:\\Users\\chimw\\AppData\\Local\\Temp\\home009-r2-verify-bdoj2bap\\publish"
+    ],
+    "exitCode": 0,
+    "seconds": 10.0,
+    "log": "log-release-publish-scratch.txt"
+  }
+]
