@@ -264,6 +264,23 @@ Add one row per in-scope 0.3.17 function only after it is observed/recovered.
 | MAP-001E | Dispatch share + scheduled Dispatch/Truck plunder | Map row actions / Scheduled Plunder | EXACT_CONTRACT | EXACT_CONTRACT; arm->pending->result workers | EXACT_CONTRACT; durable jobs/history/server-day | IMPLEMENTED_NOT_VALIDATED; v22 share/server-day/Dispatch/Truck paths revalidated | IMPLEMENTED_NOT_VALIDATED — intentionally not live-executed because these actions can affect gameplay/alliance state |
 | MAP-001F | Ghost plunder preparation | Scheduled Plunder Ghost rows | EXACT_CONTRACT scheduling boundary | EXACT_CONTRACT host boundary | EXACT_CONTRACT durable row semantics | BLOCKED public preparer; EXPIRY-CORRELATION-005 corrects the current helper to the exact conditional expiry boundary and preserves all other guards; exact protected preparer transformation/rejection semantics remain incomplete | Current-v22 adaptation supplies plunderAt/stolenCount/maxStealCount and now permits zero/negative/missing expiry while rejecting only positive expiry at/before plunder. Managed fuid is source-proven as keyed pending identity when the response future field is present, reset/reusable on Connect; direct ghost.recon.steal future-field emission remains UNKNOWN, so execution stays fenced before Dispatch |
 
+### 2026-10-08 Resource scan reference/adaptation boundary (documentation-only)
+
+**The LIVE_PROVEN / CURRENT_PATH_COMPLETE entries above describe bounded
+Last War current-client acquisition and the tested rebuilt Map data path;
+they do not assert original LWBridge 0.3.17 scanning A -> A equivalence.**
+Original 0.3.17 start gates, normal/fast host concurrency (8/20),
+progress, cancellation and staged-versus-completed publication are
+independently recovered; original protected provider traversal, record
+selection/projection, actual scheduling/pacing and retry/late-response
+behavior remain UNKNOWN. The 004 positive 8008-row Resource result and
+separate zero-row cancelled active Stop are valid **current-v22 witnesses
+only**, not original reference or complete-game-universe oracles. A
+source-by-source comparison and six explicit observational proof gaps
+(coverage, returned records, ordering, timing, retries, cancellation):
+[2026-10-08-LWB317-RESOURCE-SCAN-REFERENCE-BOUNDARY.md](reviews/2026-10-08-LWB317-RESOURCE-SCAN-REFERENCE-BOUNDARY.md).
+No scan implementation or accepted narrower current-client status was
+changed by this clarification; full Home/Map original parity is PARTIAL.
 ## Completion rule
 
 An in-scope UI row closes only with reference evidence plus reproduction/visual validation.

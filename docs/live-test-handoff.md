@@ -1,3 +1,14 @@
+2026-10-08 **Resource scan parity classification (documentation-only):**
+do not equate the 004 8008-row current-v22 scan, 2500/2500 local logical
+blocks, current AOI adaptation or separately cancelled Stop with exact
+original LWBridge 0.3.17 behavior. Original source recovery proves
+host gates/modes/progress and SQLite Stop/completion transactions but
+not private provider traversal/record eligibility, order, timing,
+retry/backoff or late-cancel behavior. Explicit source provenance and
+six outstanding A->A dimensions are recorded in
+`docs/reviews/2026-10-08-LWB317-RESOURCE-SCAN-REFERENCE-BOUNDARY.md`.
+No code was changed. Continue existing command closeout assignment
+separately; proof there must not be promoted to original parity.
 Lead review, 2026-10-08: **BACKGROUND-WORLD-RESOURCE-004 ACCEPTED BOUNDED** at ba97b8bf (including d59a4aaa, 5f2140cd and df4c9551). Fresh read-only audit verifies completed Resource 2500/2500, zero failures, 8008 published rows versus separate active Stop/cancelled zero rows. Fresh originals/reference hashes match; no game/clone processes; 19 Lua/delegate/ownership checks and 6 production-state-machine inverses pass. This is current-v22 native capture/storage proof, not full original/UI parity. Positive high-level map_search on the completed data remains unproven; actual ChangeToWorld callback was not witnessed. Next solo relay: **BACKGROUND-COMMAND-CLOSEOUT-005**, positive command/frontend/profile-reopen coverage on a safe copy of the real dataset. Desktop capture/input/focus remains restricted. Full Home/Map stays PARTIAL. See docs/reviews/2026-10-08-LWB317-BACKGROUND-WORLD-RESOURCE-004-LEAD.md. Older status paragraphs below are historical where inconsistent.
 
 Lead review, 2026-10-08: PIPE-CONNECT-003 accepted at e51ab590 for current-client direct userdata Connect repair, actual authenticated pipe/getStatus RPC and restoration. Fresh 4 delegate + 5 file ownership + 6 Lua lease tests and three-attempt audit pass. Full Home/Map remains PARTIAL. BW004-01: runner stopped on city state before exercising existing StartAsync -> EnterWorldMapAsync -> SceneUtils.ChangeToWorld path; desktop-input requirement is not established. Next solo relay: BACKGROUND-WORLD-RESOURCE-004, correct proof gate and exercise existing native world entry/Resource/Stop. Background game/native ordinary same-server scene transition permitted; OS desktop capture/input/focus remains restricted.
