@@ -1,3 +1,5 @@
+Owner-requested combined assignment, 2026-10-08: **HOME-MAP-A-TO-A-CAMPAIGN-007 ACTIVE / SOLO MANUAL RELAY**. Complete one Home-and-Map recovery/implementation/validation campaign through A-H and durable medium checkpoints, then return once for independent lead audit. Absorbs BACKGROUND-COMMAND-CLOSEOUT-005, Home parity audit and original scan-mechanism recovery; preserve completed work. Original 0.3.17 is the fixed behavior reference, verified current-game compatibility is separate, and working clone/adaptation tests do not prove A-to-A. All independent recoverable obligations must be completed; exact missing-original-input/desktop/live dependencies remain explicit. Current background-only pilot scope remains unchanged: no shared-desktop capture/input/focus or unrelated live actions. See docs/work-items/LWB317-FUNCTION-HOME-MAP-A-TO-A-CAMPAIGN-007.md. Older dispatch/hold paragraphs below are historical where inconsistent.
+
 2026-10-08 **Resource scan parity classification (documentation-only):**
 do not equate the 004 8008-row current-v22 scan, 2500/2500 local logical
 blocks, current AOI adaptation or separately cancelled Stop with exact

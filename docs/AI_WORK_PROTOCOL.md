@@ -1,5 +1,14 @@
 # AI work protocol
 
+Owner assignment-size direction, 2026-10-08: HOME-MAP-A-TO-A-CAMPAIGN-007 is
+one combined solo Home/Map recovery, implementation and validation assignment.
+It consolidates the command-closeout, Home parity audit and scan recovery prompts.
+Continue all ready A-H branches through sequential medium checkpoints, without
+per-milestone owner relay. Return once at final AWAITING_REVIEW or when all remaining
+branches have exact external dependencies and no ready assigned work remains.
+No artificial time quota. Solo-worker and background-only/access/restoration
+boundaries remain unchanged. Final acceptance stays with the project lead.
+
 Current owner direction, 2026-10-08: after the lead checkpoint, restrict all
 shared-desktop screenshots/snapshots, mouse/keyboard and focus/foreground control.
 The owner is using the computer. Windows-MCP stays installed; do not use another

@@ -1,4 +1,4 @@
-Current owner direction, 2026-10-08: desktop capture/input/focus is restricted after the lead checkpoint. Last War launch/background operation remains permitted within the pilot; the owner will background its window. Read AGENTS.md and 2026-10-08-BACKGROUND-ONLY-PILOT.md. The October-7 control permission below is historical and superseded. Next ready solo relay: BACKGROUND-COMMAND-CLOSEOUT-005.
+Current owner direction, 2026-10-08: desktop capture/input/focus is restricted. Last War launch/background operation remains permitted within the existing pilot; the owner will background its window. Read AGENTS.md and 2026-10-08-BACKGROUND-ONLY-PILOT.md. Current combined solo campaign: HOME-MAP-A-TO-A-CAMPAIGN-007. Execute A-H and return once; BACKGROUND-COMMAND-CLOSEOUT-005 is merged into it. Older desktop permissions/dispatches below do not expand scope.
 
 # Loop work queue
 
@@ -19,6 +19,7 @@ USER_CONTROL are not reasons to close out ownership-blocked. See current AGENTS.
 
 | Campaign / work item | State | File | Notes |
 |---|---|---|---|
+| LWB317-FUNCTION-HOME-MAP-A-TO-A-CAMPAIGN-007 | ACTIVE / SOLO MANUAL RELAY | `docs/work-items/LWB317-FUNCTION-HOME-MAP-A-TO-A-CAMPAIGN-007.md` | One owner-requested Home/Map recovery/implementation/validation campaign A-H; no per-milestone relay; background-only restrictions preserved |
 | LWB317-FUNCTION-ORIGINAL-LUA-RECOVERY-006 | ACCEPTED BOUNDED / PLAINTEXT BLOCKED | `docs/work-items/LWB317-FUNCTION-ORIGINAL-LUA-RECOVERY-006.md` | Encrypted resources/loader recovered; matching original envelope/key inputs unavailable; no decrypted controller bodies |
 | LWB317-FUNCTION-MAP-EXPIRY-CORRELATION-005 | ACCEPTED BOUNDED OFFLINE | `docs/work-items/LWB317-FUNCTION-MAP-EXPIRY-CORRELATION-005.md` | Numeric/missing expiry correction accepted; managed correlation partial; string-reader and real Ghost response dependencies remain |
 | LWB317-FUNCTION-MAP-BLOCKER-BOUNDARIES-004 | ACCEPTED OFFLINE AUDIT | `docs/work-items/LWB317-FUNCTION-MAP-BLOCKER-BOUNDARIES-004.md` | Fresh A/B/C and 11 Lua cases pass; prior overbroad blocker rationales narrowed; real correlation remains UNKNOWN |
@@ -30,7 +31,7 @@ USER_CONTROL are not reasons to close out ownership-blocked. See current AGENTS.
 | LWB317-FUNCTION-HOME-MAP-BACKGROUND-WITNESS-002 | ACCEPTED BOUNDED NEGATIVE WITNESS | `docs/work-items/LWB317-FUNCTION-HOME-MAP-BACKGROUND-WITNESS-002.md` | 35d92a24: actual-provider runner, two unconnected game sessions, exact Stop/restoration; Resource not started |
 | LWB317-FUNCTION-HOME-MAP-BACKGROUND-PIPE-CONNECT-003 | ACCEPTED CONNECTION FIX / BOUNDED LIVE PROOF | `docs/work-items/LWB317-FUNCTION-HOME-MAP-BACKGROUND-PIPE-CONNECT-003.md` | e51ab590: real host ACK/getStatus and restoration; full Map pilot incomplete, BW004-01 runner gate premature |
 | LWB317-FUNCTION-HOME-MAP-BACKGROUND-WORLD-RESOURCE-004 | ACCEPTED BOUNDED CURRENT-CLIENT LIVE PROOF | `docs/work-items/LWB317-FUNCTION-HOME-MAP-BACKGROUND-WORLD-RESOURCE-004.md` | Fresh independent audit: 8008 completed Resource rows, separate cancelled/zero-publication active Stop, exact restoration; high-level positive query/original/UI parity separate |
-| LWB317-FUNCTION-HOME-MAP-BACKGROUND-COMMAND-CLOSEOUT-005 | READY / SOLO MANUAL RELAY | `docs/work-items/LWB317-FUNCTION-HOME-MAP-BACKGROUND-COMMAND-CLOSEOUT-005.md` | Actual positive command/frontend payload/profile reopen on safe copy of real completed dataset; background only, no new scan or desktop input/capture/focus |
+| LWB317-FUNCTION-HOME-MAP-BACKGROUND-COMMAND-CLOSEOUT-005 | MERGED INTO CAMPAIGN-007 | `docs/work-items/LWB317-FUNCTION-HOME-MAP-BACKGROUND-COMMAND-CLOSEOUT-005.md` | Complete all obligations under 007 checkpoint E; not a concurrent second dispatch |
 | LWB317-UI-COMPLETE-001 | READY | `docs/work-items/LWB317-UI-COMPLETE-001.md` | Owner manually dispatches a fresh worker chat; full shell/eight-page UI coverage with Home/Map first; milestone checkpoints, no fixed time stop; no new game/native lifecycle work |
 | LWB317-UI-CAMPAIGN-8H | ACCEPTED | `docs/LOOP_CAMPAIGN_8H.md` | Static UI recovery accepted; direct original post-auth pixel validation remains blocked by the original auth boundary |
 | LWB317-COMPAT-MAP-V22-001 | COMPLETE | `docs/reviews/2026-09-30-LWB317-COMPAT-MAP-V22-001.md` | Installed v22 Map compatibility statically revalidated; no production Map change required |

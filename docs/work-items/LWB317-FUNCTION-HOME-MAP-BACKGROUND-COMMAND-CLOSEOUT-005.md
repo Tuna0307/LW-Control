@@ -1,6 +1,8 @@
 # LWB317-FUNCTION-HOME-MAP-BACKGROUND-COMMAND-CLOSEOUT-005
 
-Status: **READY / SOLO OWNER RELAY**, 2026-10-08.
+Status: **MERGED INTO HOME-MAP-A-TO-A-CAMPAIGN-007**, 2026-10-08.
+Its complete obligations remain required under campaign checkpoint E; preserve
+any completed results. Do not dispatch it as a second simultaneous worker task.
 Repository: `C:\Users\chimw\OneDrive\Desktop\Github\LW-Control`
 Branch: `research/offline-controller`.
 Audited starting ancestor: `ba97b8bf8fa8438004ae8d69ff95b9a4a1d8695d`;
