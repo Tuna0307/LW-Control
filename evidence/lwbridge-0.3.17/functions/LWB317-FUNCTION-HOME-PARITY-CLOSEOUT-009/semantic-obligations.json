@@ -1,6 +1,6 @@
 {
  "workItem": "LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009",
- "delivery": "PARTIAL",
+ "delivery": "PARTIAL_FINAL_FOR_AVAILABLE_STATIC_SCOPE",
  "fullOriginalHomeParity": false,
  "reference": "lwbridge-0.3.17.exe SHA256 4e9c3113dedfd7e1a752404c6936aab304e67d7ffdb0952a5003c2ec948d6783 (reference/lwbridge-0.3.17.exe)",
  "items": [
@@ -31,7 +31,7 @@
   },
   {
    "id": "E-PROFILE-LIFETIME",
-   "status": "INCOMPLETE_PARTIAL_STATIC",
+   "status": "STATIC_DECODED_TO_STRUCTURE_PREDICATES_UNKNOWN",
    "original": "skeleton only: reconcile 0x203021 (profile_instances_reconcile, GAME_ROOT_NOT_FOUND), restart 0x2057dc (profile_instances_update_and_restart, STATE_UNAVAILABLE), lifecycle stop 0x128a38 (GAME_OPERATION_IN_PROGRESS/TIMEOUT), start 0x11157c (game lifecycle start requested)",
    "current": "not compared",
    "comparison": "Stop/Start status reset ported (InvalidateRecoveryForUserStop, StartCommandAsync); 230-scenario trace compare unaffected. Single-profile reconcile order matches clone's single launch; multi-profile ordering/selection closure bodies 0x39e153/0x39e77d/0x1e70f7 NOT decoded.",
@@ -39,18 +39,23 @@
    "recovered": {
     "reconcile 0x203021-0x2057dc": "reads autoLaunchAll (0x203519-0x203551, default true), calls 0x1ddbb2 pre-step, fetches profile list via 0x23f685/0x23f466 (0xd8-byte records), maps with flag through closures 0x39e153/0x39e77d (40- then 32-byte entries), reads ctx byte [+0x140] (global gate, matches clone AutoLaunchGame) then 0x1e70f7; GAME_ROOT_NOT_FOUND at 0x203844; stale game terminate 0x203dcc then close-wait 0x204593; exactly ONE launch call site 0x2053fa (0x1d5009); per-profile errors are {profileId,error} objects",
     "user Stop 0x41bbff": "desired off, tracked PID cleared, run id incremented, recovery status reset to idle (0x41ad16) BEFORE terminate; lifecycle start 0x11157c also resets status idle",
-    "set_automation": "clone persists AutoReconnect only; original handler not decoded"
+    "set_automation": "clone persists AutoReconnect only; original handler not decoded",
+    "profile loop": "reconcile 0x203021 is a loop over profile records (0xd8 bytes, fetched 0x23f685/0x23f466) collected through iterator closures 0x39e6e1/0x39e153/0x39e77d (generic Vec map/filter_map helpers; entry tag byte ==1 selects); back-edges 0x204175/0x2041a8/0x20425a/0x205259; one launch call site 0x2053fa inside the loop; per-profile failures are pushed to an errors Vec (grow 0x611d3 at 0x205493) and the loop continues; result {errors:[{profileId,error}]}; UI picks the entry with matching/absent profileId (App.jsx:629)"
    },
-   "next": "decode closure bodies 0x39e6e1/0x39e153/0x39e77d/0x1e70f7 for per-profile predicates; then A-B-A, deferred-reply, pending-save, Home-Close-during-Map-scan comparisons through App/native boundaries"
+   "next": "name profile record fields (0xd8 layout) via writers of the list at 0x23f685 to learn which enabled/auto-launch flags select entries",
+   "adaptation": "Clone lifecycle is per selected profile (single launch, single error). Original multi-profile ordering/selection predicates (profile-record field offsets feeding 0x2ea391 and the 40/32-byte entries) are UNKNOWN; not reproduced and not claimed. Accepted R3/R1 ownership and cancellation fixes untouched."
   },
   {
    "id": "B-LAUNCH-READINESS",
-   "status": "INCOMPLETE",
+   "status": "STATIC_CHECK_ORDER_RECOVERED_LEASE_BOUNDARY_OUT_OF_SCOPE",
    "original": "not decoded: 0x1D5009-0x1DDBB2, 0x1D420D, 0x1E11A5, 0x2A2887, 0x2C75CA/0x2C6A65; 008 static facts (5s/100ms, 90s/250ms) unchanged",
    "current": "not compared",
-   "comparison": "none executed",
+   "comparison": "Clone StartAsync checks root -> in-progress -> owned -> UNMANAGED_GAME_RUNNING in the same relative root-before-unmanaged order. The lease/launchProof stage depends on the commercial auth service (AGENTS section 6, OUT_OF_SCOPE/protected); the 5s/100ms and 90s/250ms waits live behind it and cannot replace the clone's 120s/190s layer.",
    "remaining": "async state/frame decode, clock units, success/exhaustion/retry/cancel returns",
-   "next": "decode async states of 0x1D5009-0x1DDBB2 around 0x1D72C9/0x1D74E5/0x1DD3F7/0x1DD4FD/0x1DD6B5, producer 0x2A2887, registry 0x2C75CA/0x2C6A65; no production change justified until layer-equivalent comparison exists (do not substitute local 5s/90s for 120s/190s)"
+   "next": "none available without protected lease inputs; remaining local-only async state decode (0x1D72C9-0x1D74E5, 0x1DD3F7-0x1DD6B5) would document branch outcomes but cannot change product behaviour",
+   "recovered": {
+    "check order in 0x1d5009": "STATE_UNAVAILABLE (0x1d5411) -> GAME_ROOT_NOT_FOUND (0x1d5be1) -> UNMANAGED_GAME_RUNNING with pids (0x1d678a) -> lease creation/activation LeaseResponse/LeaseActivationResponse launchProof (services/auth.rs 0x1d8137,0x1db122,0x1db517) -> create instance directory/LAUNCH_DESCRIPTOR_FAILED (0x1d8ec0,0x1da443) -> LAUNCH_TASK_FAILED with single-instance mutex 'Survival-Game-Game-LastWar-exe-SingleInstanceMutex-Default' (0x1dc2bc) -> OFFICIAL_LAUNCHER_RESTARTED (0x1dc35c)"
+   }
   }
  ]
 }

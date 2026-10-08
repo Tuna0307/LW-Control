@@ -303,3 +303,5 @@ are separate gaps. Review: `reviews/2026-10-02-LWB317-UI-LEAD-TABLES-001.md`.
 A historical 0.3.1 feature name is a hypothesis, not a 0.3.17 row. Add it here only after the 0.3.17 reference confirms that the surface/function exists.
 
 Login/account/licensing remains out of scope unless a specific in-scope feature later requires a narrowly defined dependency trace.
+
+- HOME 009 (2026-10-08): see docs/tabs/home.md section 'HOME 009'. Status PARTIAL; no LIVE_PROVEN promotion.

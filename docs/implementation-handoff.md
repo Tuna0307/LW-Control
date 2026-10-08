@@ -881,3 +881,5 @@ See:
 - `docs/LOOP_WORKER_PROTOCOL.md`
 - `docs/LOOP_QUEUE.md`
 - `docs/LOOP_CAMPAIGN_8H.md`
+
+- HOME 009 handoff (2026-10-08): resume from evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/continuation.md; reference exe committed at reference/lwbridge-0.3.17.exe.

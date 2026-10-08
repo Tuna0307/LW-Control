@@ -300,3 +300,5 @@ An in-scope UI row closes only with reference evidence plus reproduction/visual 
 An in-scope function row closes only with an evidence-backed 0.3.17 contract and appropriate implementation/live validation.
 
 Historical 0.3.1 row names/statuses must not be imported automatically.
+
+- HOME 009 (2026-10-08): Stop terminate+poll and health-monitor/recovery-run (0.3.17 constants, 2 s cadence, retry tables) reconstructed and ported; reconstructed-oracle comparisons pass (21 and 230 scenarios). Profile-loop predicates and lease-gated launch remain UNKNOWN/OUT_OF_SCOPE. Full Home parity NOT claimed.

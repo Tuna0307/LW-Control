@@ -13,3 +13,4 @@ No game launch, no shared-desktop capture/input/focus, no protected-service acce
 - [CLOUD-3] E skeleton only (home009_handler_skeleton.py -> handler-skeletons.txt). B not started. Both INCOMPLETE; see semantic-obligations.json.
 - [merge] cloud checkpoint da7fae11 merged; all 11 native checks + close compare + contract check + trace compare PASS on Windows.
 - [E/B] E partially decoded (reconcile structure, single launch site, user-Stop reset); closure bodies and Map/profile lifetime comparisons NOT done. B NOT done. Delivery PARTIAL, not AWAITING_REVIEW.
+- [E/B close] E: reconcile loop structure recovered, predicates UNKNOWN; B: check order recovered, lease stage behind protected auth boundary. No further production changes. Delivery PARTIAL (lead review required).
