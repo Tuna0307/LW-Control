@@ -77,17 +77,18 @@ and zero impossible-keyword matches. The initial runner
 was corrected. Do not claim the positive completed-run query
 passed at the higher command layer when only reopened store queries did.
 
-A separate concurrently initiated but valid, isolated actual
-background test runner produced an exact active Map Stop:
-run `b9fc31a14f6f4c3d819c0e17efaddbe8` had one
-inflight block, then production Stop committed idle/zero inflight,
-durable `cancelled`, zero published/staged rows; corrected
-`map_search` returned zero. The 004 worker did not launch
-or delegate this additional process; it independently audited
-the complete packet. Both owned Home sessions stopped, original
-installed triplet restored byte-for-byte, recovery journals cleared,
-and no game/clone processes remain. The concurrent heartbeat
-commit `df4c9551` was retained without claiming authorship.
+The second isolated session, explicitly launched by this chat
+after the first concurrent worker's completed game had exited and
+restored all originals, proved exact active Map Stop:
+run b9fc31a14f6f4c3d819c0e17efaddbe8 had one
+inflight block, then production Stop committed idle/zero inflight;
+durable status cancelled, zero published/staged rows. Corrected
+production map_search returned zero. Both owned Home sessions stopped,
+original installed triplet restored, recovery journals cleared,
+and no game/clone processes remain. The shared concurrent checkout
+activity was not delegation: this chat authored the heartbeat fix
+df4c9551 and directly launched the active Stop; the other worker
+committed first-run runner/completion evidence as d59a4aaa.
 Six production state-machine boundary inverses and all applicable
 headless/Release/build/package checks passed.
 Review evidence in

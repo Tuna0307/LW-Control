@@ -57,9 +57,11 @@ completed publication remained durable, not undone by that harness
 request. Higher-level command querying the completed-run data
 remains a separate unproven layer, not invented as PASS.
 
-**Actual active Stop run:** a separately started authorised production
-test runner appeared while working (the worker neither delegated nor
-launched it), with new exact process/profile/run identity.
+**Actual active Stop run:** After the other concurrent worker's first
+Resource game finished with exact owned Stop/restoration, this chat directly
+launched a second authorized isolated runner using --active-stop, after
+confirming no game/clone process remained. This second run had fresh
+profile/session/PID/backup identity.
 Its evidence was independently audited. Run
 `b9fc31a14f6f4c3d819c0e17efaddbe8` was stopped during
 `scanning`, one block in flight. `map_scan_stop` returned idle,
@@ -77,10 +79,13 @@ production Map/CurrentClient, without fixtures or owner-default-root writes.
 All relevant Lua/heartbeat/ownership, native Map/host/world,
 Release/frontend and package checks in `verification-004.txt`.
 
-A simultaneous unrelated fast-forward `df4c9551` added current Lua
-heartbeat publication. It was **not authored by this 004 worker**,
-was not overwritten, and was verified by applicable checks;
-no branch reset or force-push occurred. Full evidence and exact
+Shared-checkout provenance: this chat authored and pushed df4c9551
+(existing authenticated Lua heartbeat wiring). A separate, independently
+running worker fixed the checks-only world-entry gate and launched the first
+completed game run at d59a4aaa. This chat only observed that first process
+while it ran; it did not control it. No delegation, subagents, branch reset
+or force-push occurred. The later active-Stop game was launched and owned
+by this chat after the first had exited. Full evidence and exact
 limits: `evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-MAP-LIVE-PILOT-001/background-world-resource-004/checkpoint-A.md`
 and `checkpoint-B.md`.
 

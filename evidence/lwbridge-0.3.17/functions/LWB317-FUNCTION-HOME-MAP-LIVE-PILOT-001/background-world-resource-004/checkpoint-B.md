@@ -10,25 +10,26 @@ The owner permits native, session-owned Last War background launch and
 existing same-server world entry but prohibits OS screenshot, keyboard,
 mouse, focus/window activation. None was used.
 
-The checkout started clean at `80e4f4d746333ca610b2f9180eb41a582e747e2f`.
-A separate actor concurrently fast-forwarded the shared branch at
-`df4c955127ddcf07f98858bf9f1e245da56bc328` with a source-backed
-Lua authenticated-pipe heartbeat publication fix. It was **preserved**,
-not authored/claimed by this 004 worker; independent heartbeat regression
-ran on the combined checkout. While checkpoint A was being committed,
-a second externally initiated checks-only pilot process was observed with
-`--background-witness-002 .../live-active-stop-002.json --launch --active-stop`.
-This worker did **not** spawn, control, or interfere with that concurrent
-process. It was the exact already-authorized production test runner, with
-fresh process/profile, isolated backup/root and native ownership fences.
-Its result was independently inspected and audited after termination,
-not retroactively described as launched by this worker. No third session
-was launched to compete with it.
+The checkout began at 80e4f4d746333ca610b2f9180eb41a582e747e2f.
+There were two independent chats acting concurrently on the same checkout;
+this chat did not delegate its task or create a subagent. This chat authored,
+committed and pushed the existing native Lua heartbeat-pump wiring fix
+(df4c955127ddcf07f98858bf9f1e245da56bc328; direct remote SHA verified).
+The other concurrent worker corrected the checks-only runner and launched
+the first Resource game session before this chat discovered it, and committed
+that runner/completion evidence (d59a4aaa3540493bcbaadea46992202559d074d0).
+This chat did not launch or interfere with that first process. Following its
+completion, exact Stop/restoration and zero process inventory, this chat
+explicitly launched and owned the second independent active-Stop session
+through Remote Desktop Commander, with fresh root/profile/PID and the
+production identity/lease/backup safeguards. The two game sessions never
+overlapped and no desktop capture/input/focus was used.
 
 ## Completed 001 — real, positive
 
-`live-attempt-001.json` is the first launch from this 004 worker's
-isolated production composition, still using the accepted single direct
+`live-attempt-001.json` was launched by the concurrent worker in an
+isolated production composition. Its retained packet was independently
+audited here, using the accepted single direct
 userdata pipe Connect fix. Actual session-bound native host accepted
 and responded to a real `getStatus` RPC. Initial Map status reported
 `isInWorld=false`. The corrected runner invoked **the normal production**

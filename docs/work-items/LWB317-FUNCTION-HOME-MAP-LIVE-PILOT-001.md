@@ -15,8 +15,10 @@ rows, unlike completed publication. Each owned session stopped and
 restored scripts/journals exactly. The first checks runner's post-completion
 query shape was wrong; corrected, with honest separation between its
 initial error and the already completed durable run.
-For provenance, a simultaneous process initiated the Stop run separately,
-not by delegation; the 004 worker independently verified it.
+Provenance: a separate concurrent worker launched the first completed
+Resource run and committed its runner. This chat then directly launched
+the distinct active-Stop run only after full original-file restoration
+and zero game process inventory. No delegation or subagents.
 See `background-world-resource-004/checkpoint-B.md`.
 The full pilot remains PARTIAL for canonical UI and original A-to-A
 behavioral parity. No Resource export exists in the current City-only
