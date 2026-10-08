@@ -36,7 +36,9 @@
         "0x83dfa0 inner five states",
         "0x1dfee6/0x1e0bbd/0x1e0c27 conditional destructors",
         "0x1de5c8 record cleanup",
-        "0x1de474 local duration arithmetic"
+        "0x1de474 local duration arithmetic",
+        "0x1dedd0/0x1dedd3 gated indirect runtime callback",
+        "0x1dee65 call [r13+0x20] unresolvable target without runtime vtable identity"
       ],
       "proof": "finalizer-original-contract.json",
       "remaining": [

@@ -81,6 +81,15 @@ def inspect():
     assert variant_drop[0x1E0C4A].mnemonic == "call"
     assert variant_drop[0x1E0C67].mnemonic == "jmp" and int(variant_drop[0x1E0C67].op_str, 16) - BASE == 0x81E10
 
+    # This is the last fully local target-resolution boundary on the inner
+    # callback path. The condition checks a non-null runtime callback/vtable
+    # and invokes its +0x20 slot; the PE does not encode a direct callee here.
+    assert inner[0x1DEDD0].mnemonic == "test" and inner[0x1DEDD0].op_str == "r13, r13"
+    assert inner[0x1DEDD3].mnemonic == "je"
+    assert int(inner[0x1DEDD3].op_str, 16) - BASE == 0x1DEE23
+    assert inner[0x1DEE65].mnemonic == "call"
+    assert inner[0x1DEE65].op_str == "qword ptr [r13 + 0x20]"
+
     # Source-backed cleanup ordering/branch. It drops a conditional result
     # after record removal and CONTINUES without using that result to abort.
     removal = call_at(finalizer, 0x1DE5C8, 0x2DD578)
@@ -158,6 +167,11 @@ def inspect():
             "innerFrameStateByteOffset": "0x85",
             "innerFrameDispatchTable": {str(k): hex(v) for k, v in inner_states.items()},
             "branchLocalDestructors": ["0x1dfee6", "0x1e0bbd", "0x1e0c27"],
+            "unresolvedCallbackBoundary": {
+                "guard": "0x1dedd0/0x1dedd3 tests runtime r13 != 0",
+                "call": "0x1dee65: call qword ptr [r13+0x20]",
+                "reason": "callee target depends on runtime callback/vtable identity, not a PE direct call"
+            },
             "conditionalRemoval": {"call": removal, "conditionalDrop": dropped,
                 "continuesTo": after, "resultDoesNotAbortThatBranch": True},
             "durationArithmetic": {"clockCall": "0x1de463", "seconds": 60, "call": timer},
