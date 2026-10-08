@@ -93,3 +93,9 @@ Historical R7 PASS statuses are preserved in their evidence files but are not cu
 - Reconcile: original selects enabled profiles (`display_order, created_at, id`) with `restartRequired` regardless of, or no reason only if, the payload `autoLaunchAll`; there is no native persisted launch preference (the earlier `[cfg+0x140]` gate reading was wrong). The clone's native `AutoLaunchGame` AND-gate is a non-original safety fence.
 - Recovery: late completion of an old terminate can no longer clean a newer session or act after Close.
 - Details: evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/ and docs/reviews/2026-10-08-LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009-R1-WORKER.md.
+
+## HOME 009-R2 (2026-10-08, AWAITING_REVIEW; original parity PARTIAL)
+- Reconcile admission is the UI-supplied payload `autoLaunchAll` only (the native AutoLaunchGame mirror no longer gates); this supersedes the R1 "retained safety fence" note.
+- Bridge-connect readiness: wall-clock `report + 90 s` window with a final lookup, pending registration refreshed to the same deadline; launcher/game acquisition keeps its own budget; outer supervision covers both.
+- Launcher stage: two attempts, retry only after the first on `OFFICIAL_LAUNCHER_RESTARTED`; post-connect updates the instance `recovery.json` with the game PID and registers the instance; `restartRequired` means a restored game with an outdated bridge build (clone keeps manual update-and-restart: no session adoption).
+- Details: docs/reviews/2026-10-08-LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009-R2-WORKER.md and evidence/.../LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r2/.

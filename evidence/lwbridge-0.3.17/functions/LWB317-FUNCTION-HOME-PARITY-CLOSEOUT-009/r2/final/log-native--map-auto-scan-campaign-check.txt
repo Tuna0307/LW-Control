@@ -1,0 +1,1 @@
+{"ok":true,"check":"map-auto-scan-campaign"}

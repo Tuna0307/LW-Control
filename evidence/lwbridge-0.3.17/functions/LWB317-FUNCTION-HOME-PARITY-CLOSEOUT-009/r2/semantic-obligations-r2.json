@@ -1,0 +1,53 @@
+{
+  "workItem": "LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009-R2",
+  "delivery": "AWAITING_REVIEW",
+  "fullOriginalHomeParity": false,
+  "reference": "reference/lwbridge-0.3.17.exe SHA-256 4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783",
+  "supersedes": "../r1/semantic-obligations-r1.json items LEAD009-03b/03c/04a (earlier files unchanged)",
+  "items": [
+    {
+      "id": "LEAD009R1-01",
+      "title": "Reconcile admission is the payload only",
+      "originalLocators": ["0x203519-0x203551 autoLaunchAll default true", "0x39E153/0x2EA391 filter", "0x2053FA single launch call"],
+      "before": "ReconcileStartupAsync admitted only autoLaunchAll && config.AutoLaunchGame (lead probe: request=true/native=false -> 0 admissions, expected 1)",
+      "after": "shouldAttempt = autoLaunchAll; native AutoLaunchGame stays a mirror (r2/reconcile-admission-check.json: 8 payload variants x 2 native values, consumed-once, failure reported, owned game not double-started)",
+      "fixtureAudit": "tests seeding AutoLaunchGame=false (Home009RecoveryTraceChecks, OverviewReconnectPolicyChecks, ProductionRootIsolationChecks, BackgroundHomeMapWitness002, Program.cs) never invoke reconcile against a real helper; hosts that mount the UI suppress the preference through GetBootstrap(suppressAutoLaunch). The one test that asserted the gate (Program.cs 'startup OFF') now asserts the original rule on an inert helper.",
+      "disposition": "CORRECTED"
+    },
+    {
+      "id": "LEAD009R1-02",
+      "title": "Bridge-connect window anchored at the launcher report",
+      "originalLocators": ["0x1DD114/0x1DD119 now+90000", "0x1DD152 refresh_pending(key, deadline)", "0x1DD3F7/0x1DD3FE/0x1DD3B6 loop", "0x1DD45C final lookup"],
+      "before": "one monotonic deadline launch_started+120 s for acquisition and readiness; no final lookup; registration expiry independent of the wait (lead readiness-window-negative.json)",
+      "after": "helper: acquisition keeps --timeout-seconds; at the game report a wall-clock deadline = ms + 90000 is written (game-reported.txt) and used by await_ready (now>=deadline? -> lookup -> 250 ms; final lookup after the loop); host: ObserveGameReportAsync performs RefreshLaunchBindingUntil(deadline) (original refresh_pending; claimed registration -> PIPE_REGISTRATION_INVALID launch error); outer supervision = 120 + 90 + 15 s with acquisition reduced first",
+      "proof": ["tools/test_readiness_window_r2.py (20 cases incl. both lead cases, exact deadline boundaries, final lookup, backward/forward wall-clock jumps, wrong PID/session, cancellation)", "tools/test_overview_start_failure_matrix.py (production run_start, 12 stages, readiness deadline = wall+90000 and marker)", "--bridge-ready-window-check (report refreshes the pending registration beyond the initial 91 000; foreign-session report ignored; claimed registration error; registry boundary; budgets 120/25/10 and refusal below 115 s)"],
+      "mapping": "launcher game-report == the helper acquiring the selected LastWar process (await_owned_game_process_update_aware); ready predicate == same-session ready.json (adaptation of the registry pid_of lookup)",
+      "unresolvedEventMapping": "equivalence of ready.json arrival with the original registry pid_of event in the live current client (live proof)",
+      "disposition": "CORRECTED (timer arithmetic, anchors, clocks, final lookup, registration expiry); live event mapping separate"
+    },
+    {
+      "id": "LEAD009R1-03a",
+      "title": "Launcher stage, report, post-connect, finalizer",
+      "record": "r2/launch-report-profile-recovery.md; tools/lwbridge317/home009_launch_contract_r2.py",
+      "decoded": ["launcher attempts 1..=2, retry only on attempt 1 with OFFICIAL_LAUNCHER_RESTARTED", "launch report pid/gameLaunchTicket(+ExpiresAt) parsing and LAUNCH_REPORT_FAILED/LAUNCH_TICKET_INVALID", "post-connect: recovery.json read+validate+update(game pid)+commit, instances.insert, complete recovery (awaitingIdentity->running, pid tracked), failure path terminates the game", "finalizer 0x1DDDE3 role (lease release endpoint, recovery-record removal, callers)"],
+      "currentComparison": "retry caps equal (2) but triggers differ; per-instance recovery record has no clone counterpart; clone journal restore is covered by R1 gates",
+      "disposition": "RECOVERED; no product change demonstrated",
+      "incompleteStatic": ["finalizer async frame states 0x1DDF66-0x1DE357", "recovery record schema beyond pid (0xA8-byte structure)", "launch-failure error value shape 0x2054CB"]
+    },
+    {
+      "id": "LEAD009R1-03b",
+      "title": "Reconcile recovery sub-path, restartRequired producer",
+      "decoded": ["0x2A0CB7: restore of managed games; outdated bridge build -> reason restartRequired; same build -> 90 s registry window", "reconcile restartRequired handling: RECOVERY_RECORD_NOT_FOUND / RECOVERY_PROCESS_MISMATCH(inferred) / stale terminate + 100x100 ms wait / instance removal / relaunch in the main loop", "profile_instances_update_and_restart is the manual equivalent"],
+      "currentComparison": "clone cannot re-adopt a running game across host restarts, so every previous-session game is RepairRequired; auto-terminating it would close games the original keeps",
+      "disposition": "RECOVERED; clone behaviour retained as ADAPTATION; adoption capability is the dependency"
+    },
+    {
+      "id": "LEAD009R1-05",
+      "title": "Coupled ownership: closed owner during the unmanaged-close wait",
+      "defect": "a start whose owner was closed while the 5 s close wait was parked still launched afterwards (r2/unmanaged-close-closed-owner-BEFORE-fix.txt)",
+      "correction": "ThrowIfStartClosed before each terminate/poll and after the phase -> GAME_OPERATION_CANCELLED; check close-during-parked-close-wait-never-launches",
+      "disposition": "CORRECTED (current-client ownership)"
+    }
+  ],
+  "preserved": ["R1 restoration gates, handle binding, issuing-session fence, closeUnmanaged", "R3 profile/run ownership; 007/R1 Resource cancellation/query fixes", "lead packet lead-review-2026-10-08 (readiness-window-negative.json, reconcile-gate-negative.json)"]
+}

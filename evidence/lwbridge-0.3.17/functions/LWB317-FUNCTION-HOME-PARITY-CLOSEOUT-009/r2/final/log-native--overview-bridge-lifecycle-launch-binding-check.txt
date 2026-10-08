@@ -1,0 +1,26 @@
+{
+  "ok": true,
+  "finding": "LWB-R7-118",
+  "transactionProof": {
+    "initialDeadline": 91000,
+    "retryClock": 5000,
+    "proofAdmissionClock": 94000,
+    "originalDeadlineWouldHaveExpired": true,
+    "refreshedAdmissionSucceeded": true,
+    "sameBindingObjectAcrossRetry": true,
+    "samePipeTokenAcrossRetry": true,
+    "startCalls": 2,
+    "settleCalls": 2,
+    "admittedGeneration": 1,
+    "successfulStopUnregister": true,
+    "terminalFailureUnregister": true
+  },
+  "boundary": {
+    "normalWindowEnablesLaunchBinding": true,
+    "productionListenerStarted": true,
+    "outboundCommandRoutingImplemented": true,
+    "pendingCallCollectionImplemented": true,
+    "exactGetStatusCallEnabled": true,
+    "genericCallLuaEnabled": false
+  }
+}
