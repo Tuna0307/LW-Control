@@ -1,0 +1,89 @@
+{
+  "workItem": "LWB317-FUNCTION-HOME-NATIVE-SEMANTICS-008",
+  "delivery": "AWAITING_REVIEW",
+  "fullOriginalHomeParity": false,
+  "noProductChanges": true,
+  "reference": "lwbridge-0.3.17.exe SHA256 4e9c3113dedfd7e1a752404c6936aab304e67d7ffdb0952a5003c2ec948d6783",
+  "items": [
+    {
+      "id": "CLOSE-A1",
+      "status": "EXACT_NATIVE_INSTRUCTION_VALUEFLOW_RECONSTRUCTED",
+      "original": "0xE578D/0xE5794/0xE57CB; 0x1DDCEC/0x1DDCF3/0x1DDD2A; 0x641035 nanosecond normalization",
+      "contract": "100 checks max, 100ms timer after matching process, nominal 10 seconds, timeout error",
+      "comparison": "production owned normal close 10000ms, no mismatch demonstrated",
+      "remaining": "Async wall clock scheduling/external process close origin"
+    },
+    {
+      "id": "CLOSE-A2",
+      "status": "EXACT_NATIVE_PARTIAL_BRANCH",
+      "original": "0x199D4B-0x199D6F; 0x19A0DE call close helper",
+      "contract": "conditional INSTANCE_MISMATCH; user_stop reason at 0x199B51",
+      "comparison": "production checks exact run profile/PID/incarnation and fails closed",
+      "remaining": "True/false original predicate value sources and exact non-owned stop progression"
+    },
+    {
+      "id": "CLOSE-A3",
+      "status": "READY_STATIC_NATIVE_RECOVERY_INCOMPLETE",
+      "original": "0x641410 timer poll; 0x41E3CF process comparison; 0x19A0DE caller continuation",
+      "contract": "timer pending/resume observed, full cancellation/error precedence not mapped",
+      "comparison": "production Stop cancellation and restoration differs internally",
+      "remaining": "Trace timer wake/cancellation/frame state and original return/error propagation"
+    },
+    {
+      "id": "START-B1",
+      "status": "EXACT_NATIVE_RECONCILE_BOOLEAN_DEFAULT",
+      "original": "0x203519-0x203551, string 0x83CF58",
+      "contract": "autoLaunchAll absent/nonbool true; explicit boolean retained",
+      "comparison": "actual production handler test 8 distinguishing inert cases PASS; startup reconcile once",
+      "remaining": "Original all-profile ordered selection beyond per-call flag"
+    },
+    {
+      "id": "START-B2",
+      "status": "EXACT_NATIVE_LOCAL_WAIT_VALUEFLOW",
+      "original": "0x1D693F -> 0x5DC950 -> [r14+0x498/0x4A0] -> 0x1D72C9 -> 0x1D730B",
+      "contract": "5s timestamp bound, 100ms polls conditioned on available async record",
+      "comparison": "current protocol implementation not demonstrated equivalent or contradictory",
+      "remaining": "Producer 0x2A2887 type/status and deadline branch 0x1D74E5 transition"
+    },
+    {
+      "id": "START-B3",
+      "status": "EXACT_NATIVE_LOCAL_WAIT_VALUEFLOW",
+      "original": "0x1DD114 -> 0x2C9034 +0x15F90 -> [r14+0x808] -> 0x1DD3BC -> 0x1DD3F7 -> 0x2C6A65",
+      "contract": "90,000ms named-pipe registry deadline with 250ms async timer",
+      "comparison": "production startup admission120s and helper supervisor190s are different layers; no safe global timeout fix",
+      "remaining": "Registry response/state mapping 0x1DD4FD/0x1DD6B5 and initial async return 0x1E11A5"
+    },
+    {
+      "id": "STATUS-B4",
+      "status": "EXACT_NATIVE_PARTIAL_BRANCH",
+      "original": "0x1A1198/0x1A11C2; 0x203844/0x205DEE; 0x1D678A/0x1DC2BC",
+      "contract": "branch families STATE_UNAVAILABLE/ROOT_NOT_FOUND/unmanaged/launch failure",
+      "comparison": "current handler has associated error families, full sequencing incomplete",
+      "remaining": "Underlying tagged state enum/lease and selected-profile status mapping"
+    },
+    {
+      "id": "RECOVERY-B5",
+      "status": "READY_STATIC_NATIVE_RECOVERY_INCOMPLETE",
+      "original": "shared launch 0x1D5009-0x1DDBB2 and continuations; original 0.3.17 health monitor function not resolved",
+      "contract": "Original 30/60/180s health thresholds and 15/30/60/120/300 retry unproved",
+      "comparison": "OverviewRecoveryPolicy.cs explicitly recovered from 0.3.1, not original 0.3.17",
+      "remaining": "Find health/timer producer function via native async continuation/call graph; decode predicate/units and status"
+    },
+    {
+      "id": "RECOVERY-B6",
+      "status": "READY_STATIC_NATIVE_RECOVERY_INCOMPLETE",
+      "original": "0x1D5009 async launch, restart 0x2057DC-0x20715F, reconcile 0x203021-0x2057DC",
+      "contract": "Maintenance vs ordinary retry indexing/cap/reset/startup ordering not derived",
+      "comparison": "Current maintenance retries2/5/10 min and successes reset; source from 0.3.1",
+      "remaining": "Recover loop counter/condition origin, tagged update status, success reset and long-tail retry sequencing"
+    },
+    {
+      "id": "ADAPTATION-C1",
+      "status": "TRUTHFUL_NO_DEMONSTRATED_DISCREPANCY",
+      "original": "Supported original 10s close and autoLaunchAll default compared",
+      "contract": "No guessing a global 90s timeout or clone health threshold",
+      "comparison": "No canonical Home production source changed; test-only integration and evidence",
+      "remaining": "Lead needs further original runtime/static comparisons"
+    }
+  ]
+}

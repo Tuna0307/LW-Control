@@ -1,0 +1,9 @@
+008 phase=package startingCheckpoint=3d2fd106eb06110f4993dc74e845521297b1c5b6 commit=2d58df7ceb39cd7492d53cb75c0ef0d968b3c4c1 UTC=2026-10-08T07:32:13.1070658Z
+desktop-Release status=PASS exit=0
+checks-Release status=PASS exit=0
+desktop-Release-publish status=PASS exit=0
+asset LWBridge.Desktop.exe PASS
+asset OverviewBridge/LWBridge.GamePipeAdapter.dll PASS
+asset OverviewBridge/current_overview_bridge.lua PASS
+asset ProductionUi/index.html PASS
+packaged lua/source digest 716B982F96A460C55CCB5AA26167A6219F2A10FBADA5A2AF2233D30A2523F79F PASS

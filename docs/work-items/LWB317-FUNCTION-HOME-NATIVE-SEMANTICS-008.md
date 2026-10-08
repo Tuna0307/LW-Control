@@ -1,6 +1,7 @@
 # LWB317-FUNCTION-HOME-NATIVE-SEMANTICS-008
 
-Status: **READY / PROJECT-LEAD ASSIGNED**, 2026-10-08.
+Status: **AWAITING_REVIEW / WORKER BOUNDED SOURCE RECOVERY — FULL HOME PARITY PARTIAL**, 2026-10-08.
+Worker delivery: two original close helpers resolved to 100×100ms nominal 10s Stop/reconcile/restart wait; original `autoLaunchAll` default and specific 5s/90s startup timers recovered from opcode/control/value-flow; 8 actual production handler comparisons PASS. No proven Home source mismatch, no product timing changes. Available original native health/retry/cap/reset decoding remains READY_STATIC_RECOVERY_INCOMPLETE, not externally blocked. Review: `docs/reviews/2026-10-08-LWB317-FUNCTION-HOME-NATIVE-SEMANTICS-008-WORKER.md`; 008 evidence `semantic-obligations.json`/`closeout.json`. Lead acceptance separate.
 Repository: C:\Users\chimw\OneDrive\Desktop\Github\LW-Control
 Branch: research/offline-controller.
 Worker reviewed checkpoint: 57fc69b0219e5c2457ba13d0a24bb7acc3a58de3.
