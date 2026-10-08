@@ -1,0 +1,447 @@
+{
+  "checkpoint": "A",
+  "contractFacts": {
+    "reconcile-close": {
+      "capBeforeCheck": true,
+      "maxChecks": 100,
+      "timerNanoseconds": 100000000
+    },
+    "stop-close": {
+      "capBeforeCheck": true,
+      "maxChecks": 100,
+      "timerNanoseconds": 100000000
+    },
+    "terminate": {
+      "access": 1,
+      "exitCode": 1,
+      "mismatchedImage": "no action (Ok(false))",
+      "pathQueryAccess": 4096,
+      "pathUnreadableAndPresent": "PROCESS_QUERY_FAILED"
+    }
+  },
+  "mismatches": [
+    "terminate-exits-after-0ms",
+    "terminate-exits-after-100ms",
+    "terminate-exits-after-5000ms",
+    "terminate-exits-after-9800ms",
+    "terminate-exits-after-9899ms",
+    "terminate-exits-after-9900ms",
+    "terminate-exits-after-9901ms",
+    "terminate-exits-after-9950ms",
+    "terminate-exits-after-9999ms",
+    "terminate-exits-after-10000ms",
+    "terminate-exits-after-10001ms",
+    "terminate-exits-after-15000ms",
+    "never-exits",
+    "game-ignores-normal-close",
+    "image-path-unreadable-while-present",
+    "open-terminate-denied-present",
+    "terminate-call-fails-present",
+    "open-race-process-vanishes",
+    "poll-query-denied-after-terminate"
+  ],
+  "oracle": "home009_oracle.original_stop_close (RECONSTRUCTED from 0.3.17 RVAs, not original execution)",
+  "rows": [
+    {
+      "equal": true,
+      "oracle": {
+        "elapsedMs": 0,
+        "error": "",
+        "kind": "ok",
+        "terminateCalls": 0,
+        "terminated": false
+      },
+      "production": {
+        "elapsedMs": 0,
+        "error": "",
+        "gracefulCloseCalls": 0,
+        "kind": "ok",
+        "terminateCalls": 0,
+        "terminated": false
+      },
+      "scenario": "already-absent"
+    },
+    {
+      "equal": true,
+      "oracle": {
+        "elapsedMs": 0,
+        "error": "",
+        "kind": "ok",
+        "terminateCalls": 0,
+        "terminated": false
+      },
+      "production": {
+        "elapsedMs": 0,
+        "error": "",
+        "gracefulCloseCalls": 0,
+        "kind": "ok",
+        "terminateCalls": 0,
+        "terminated": false
+      },
+      "scenario": "image-reused-by-other-process"
+    },
+    {
+      "equal": false,
+      "oracle": {
+        "elapsedMs": 0,
+        "error": "",
+        "kind": "ok",
+        "terminateCalls": 1,
+        "terminated": true
+      },
+      "production": {
+        "elapsedMs": 0,
+        "error": "",
+        "gracefulCloseCalls": 1,
+        "kind": "ok",
+        "terminateCalls": 0,
+        "terminated": false
+      },
+      "scenario": "terminate-exits-after-0ms"
+    },
+    {
+      "equal": false,
+      "oracle": {
+        "elapsedMs": 100,
+        "error": "",
+        "kind": "ok",
+        "terminateCalls": 1,
+        "terminated": true
+      },
+      "production": {
+        "elapsedMs": 0,
+        "error": "",
+        "gracefulCloseCalls": 1,
+        "kind": "ok",
+        "terminateCalls": 0,
+        "terminated": false
+      },
+      "scenario": "terminate-exits-after-100ms"
+    },
+    {
+      "equal": false,
+      "oracle": {
+        "elapsedMs": 5000,
+        "error": "",
+        "kind": "ok",
+        "terminateCalls": 1,
+        "terminated": true
+      },
+      "production": {
+        "elapsedMs": 0,
+        "error": "",
+        "gracefulCloseCalls": 1,
+        "kind": "ok",
+        "terminateCalls": 0,
+        "terminated": false
+      },
+      "scenario": "terminate-exits-after-5000ms"
+    },
+    {
+      "equal": false,
+      "oracle": {
+        "elapsedMs": 9800,
+        "error": "",
+        "kind": "ok",
+        "terminateCalls": 1,
+        "terminated": true
+      },
+      "production": {
+        "elapsedMs": 0,
+        "error": "",
+        "gracefulCloseCalls": 1,
+        "kind": "ok",
+        "terminateCalls": 0,
+        "terminated": false
+      },
+      "scenario": "terminate-exits-after-9800ms"
+    },
+    {
+      "equal": false,
+      "oracle": {
+        "elapsedMs": 9900,
+        "error": "",
+        "kind": "ok",
+        "terminateCalls": 1,
+        "terminated": true
+      },
+      "production": {
+        "elapsedMs": 0,
+        "error": "",
+        "gracefulCloseCalls": 1,
+        "kind": "ok",
+        "terminateCalls": 0,
+        "terminated": false
+      },
+      "scenario": "terminate-exits-after-9899ms"
+    },
+    {
+      "equal": false,
+      "oracle": {
+        "elapsedMs": 9900,
+        "error": "",
+        "kind": "ok",
+        "terminateCalls": 1,
+        "terminated": true
+      },
+      "production": {
+        "elapsedMs": 0,
+        "error": "",
+        "gracefulCloseCalls": 1,
+        "kind": "ok",
+        "terminateCalls": 0,
+        "terminated": false
+      },
+      "scenario": "terminate-exits-after-9900ms"
+    },
+    {
+      "equal": false,
+      "oracle": {
+        "elapsedMs": 10000,
+        "error": "CLOSE_TIMEOUT",
+        "kind": "error",
+        "terminateCalls": 1,
+        "terminated": true
+      },
+      "production": {
+        "elapsedMs": 0,
+        "error": "",
+        "gracefulCloseCalls": 1,
+        "kind": "ok",
+        "terminateCalls": 0,
+        "terminated": false
+      },
+      "scenario": "terminate-exits-after-9901ms"
+    },
+    {
+      "equal": false,
+      "oracle": {
+        "elapsedMs": 10000,
+        "error": "CLOSE_TIMEOUT",
+        "kind": "error",
+        "terminateCalls": 1,
+        "terminated": true
+      },
+      "production": {
+        "elapsedMs": 0,
+        "error": "",
+        "gracefulCloseCalls": 1,
+        "kind": "ok",
+        "terminateCalls": 0,
+        "terminated": false
+      },
+      "scenario": "terminate-exits-after-9950ms"
+    },
+    {
+      "equal": false,
+      "oracle": {
+        "elapsedMs": 10000,
+        "error": "CLOSE_TIMEOUT",
+        "kind": "error",
+        "terminateCalls": 1,
+        "terminated": true
+      },
+      "production": {
+        "elapsedMs": 0,
+        "error": "",
+        "gracefulCloseCalls": 1,
+        "kind": "ok",
+        "terminateCalls": 0,
+        "terminated": false
+      },
+      "scenario": "terminate-exits-after-9999ms"
+    },
+    {
+      "equal": false,
+      "oracle": {
+        "elapsedMs": 10000,
+        "error": "CLOSE_TIMEOUT",
+        "kind": "error",
+        "terminateCalls": 1,
+        "terminated": true
+      },
+      "production": {
+        "elapsedMs": 0,
+        "error": "",
+        "gracefulCloseCalls": 1,
+        "kind": "ok",
+        "terminateCalls": 0,
+        "terminated": false
+      },
+      "scenario": "terminate-exits-after-10000ms"
+    },
+    {
+      "equal": false,
+      "oracle": {
+        "elapsedMs": 10000,
+        "error": "CLOSE_TIMEOUT",
+        "kind": "error",
+        "terminateCalls": 1,
+        "terminated": true
+      },
+      "production": {
+        "elapsedMs": 0,
+        "error": "OTHER:LastWar pid 42420 did not exit within the bounded normal-close wait",
+        "gracefulCloseCalls": 1,
+        "kind": "error",
+        "terminateCalls": 0,
+        "terminated": false
+      },
+      "scenario": "terminate-exits-after-10001ms"
+    },
+    {
+      "equal": false,
+      "oracle": {
+        "elapsedMs": 10000,
+        "error": "CLOSE_TIMEOUT",
+        "kind": "error",
+        "terminateCalls": 1,
+        "terminated": true
+      },
+      "production": {
+        "elapsedMs": 0,
+        "error": "OTHER:LastWar pid 42420 did not exit within the bounded normal-close wait",
+        "gracefulCloseCalls": 1,
+        "kind": "error",
+        "terminateCalls": 0,
+        "terminated": false
+      },
+      "scenario": "terminate-exits-after-15000ms"
+    },
+    {
+      "equal": false,
+      "oracle": {
+        "elapsedMs": 10000,
+        "error": "CLOSE_TIMEOUT",
+        "kind": "error",
+        "terminateCalls": 1,
+        "terminated": true
+      },
+      "production": {
+        "elapsedMs": 0,
+        "error": "OTHER:LastWar pid 42420 did not exit within the bounded normal-close wait",
+        "gracefulCloseCalls": 1,
+        "kind": "error",
+        "terminateCalls": 0,
+        "terminated": false
+      },
+      "scenario": "never-exits"
+    },
+    {
+      "equal": false,
+      "oracle": {
+        "elapsedMs": 0,
+        "error": "",
+        "kind": "ok",
+        "terminateCalls": 1,
+        "terminated": true
+      },
+      "production": {
+        "elapsedMs": 0,
+        "error": "OTHER:LastWar pid 42420 did not accept a normal main-window close",
+        "gracefulCloseCalls": 1,
+        "kind": "error",
+        "terminateCalls": 0,
+        "terminated": false
+      },
+      "scenario": "game-ignores-normal-close"
+    },
+    {
+      "equal": false,
+      "oracle": {
+        "elapsedMs": 0,
+        "error": "PROCESS_QUERY_FAILED",
+        "kind": "error",
+        "terminateCalls": 0,
+        "terminated": false
+      },
+      "production": {
+        "elapsedMs": 0,
+        "error": "",
+        "gracefulCloseCalls": 0,
+        "kind": "ok",
+        "terminateCalls": 0,
+        "terminated": false
+      },
+      "scenario": "image-path-unreadable-while-present"
+    },
+    {
+      "equal": false,
+      "oracle": {
+        "elapsedMs": 0,
+        "error": "TERMINATE_FAILED",
+        "kind": "error",
+        "terminateCalls": 0,
+        "terminated": false
+      },
+      "production": {
+        "elapsedMs": 0,
+        "error": "OTHER:LastWar pid 42420 did not exit within the bounded normal-close wait",
+        "gracefulCloseCalls": 1,
+        "kind": "error",
+        "terminateCalls": 0,
+        "terminated": false
+      },
+      "scenario": "open-terminate-denied-present"
+    },
+    {
+      "equal": false,
+      "oracle": {
+        "elapsedMs": 0,
+        "error": "TERMINATE_FAILED",
+        "kind": "error",
+        "terminateCalls": 1,
+        "terminated": false
+      },
+      "production": {
+        "elapsedMs": 0,
+        "error": "OTHER:LastWar pid 42420 did not exit within the bounded normal-close wait",
+        "gracefulCloseCalls": 1,
+        "kind": "error",
+        "terminateCalls": 0,
+        "terminated": false
+      },
+      "scenario": "terminate-call-fails-present"
+    },
+    {
+      "equal": false,
+      "oracle": {
+        "elapsedMs": 0,
+        "error": "",
+        "kind": "ok",
+        "terminateCalls": 0,
+        "terminated": false
+      },
+      "production": {
+        "elapsedMs": 0,
+        "error": "OTHER:LastWar pid 42420 did not exit within the bounded normal-close wait",
+        "gracefulCloseCalls": 1,
+        "kind": "error",
+        "terminateCalls": 0,
+        "terminated": false
+      },
+      "scenario": "open-race-process-vanishes"
+    },
+    {
+      "equal": false,
+      "oracle": {
+        "elapsedMs": 300,
+        "error": "",
+        "kind": "ok",
+        "terminateCalls": 1,
+        "terminated": true
+      },
+      "production": {
+        "elapsedMs": 0,
+        "error": "OTHER:LastWar pid 42420 did not exit within the bounded normal-close wait",
+        "gracefulCloseCalls": 1,
+        "kind": "error",
+        "terminateCalls": 0,
+        "terminated": false
+      },
+      "scenario": "poll-query-denied-after-terminate"
+    }
+  ],
+  "scenarioCount": 21,
+  "workItem": "LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009"
+}
